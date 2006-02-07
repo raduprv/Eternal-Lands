@@ -1,0 +1,124 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<root>
+	<tool>
+		<comment>Für die Symbol-Tooltips</comment>
+
+		<walk>Laufen</walk>
+		<sit>Hinsetzen</sit>
+		<stand>Aufstehen</stand>
+		<look>Angucken</look>
+		<use>Benutzen</use>
+		<trade>Tauschen</trade>
+		<attack>Angreifen</attack>
+		<invent>Inventar ansehen</invent>
+		<spell>Sehe Zauberspruch Fenster an</spell>
+		<manu>Sehe Herstellungsfenster an</manu>
+		<stats>Sehe Statistiken an</stats>
+		<know>Sehe Wissensfenster an</know>
+		<ency>Sehe Enzyklopädie-Fenster an</ency>
+		<quest>Sehe Questlog an</quest>
+		<map>Sehe Karte an</map>
+		<console>Sehe Konsole an</console>
+		<buddy>Sehe Kumpel an</buddy>
+		<opts>Sehe Optionen an</opts>
+	</tool>
+	<afk>
+		<comment>Bestimmt die AFK-Meldungen</comment>
+		
+		<going>Gehe AFK</going>
+		<not>Nicht mehr AFK</not>
+		<names>Namen</names>
+		<messages>Meldungen</messages>
+		<help>Um die Nachrichten von anderen Leuten auszugeben, tippe #msg &lt;Anzahl&gt; oder #msg all um sie alle zu sehen</help>
+		
+		<comment>%d spezifiziert die Anzahl der neuen Nachrichten in deinem Posteingang</comment>
+		
+		<back>Du hast %d neue Nachrichten von folgenden Leuten: </back>
+	</afk>
+	<misc>
+		<comment>Verschiedene Hilfe-Meldungen...</comment>
+		
+		<comment>Für das NPC-Chat-Fenster</comment>
+		<values>Werte</values>
+		<close>[schließen]</close>
+		
+		<cache>Cache-Größe</cache>
+		
+		<comment>Um die Szenerie zu erneuern (Grafik)</comment>
+		<low>Niedrige Framerate entdeckt, Schatten abgeschaltet!</low>
+		
+		<comment>%s wird durch die Fenstergröße bestimmt (z.B. 800x600x16)</comment>
+		
+		<size>Fenstergröße auf %s eingestellt</size>
+		<switch>Schaltet Grafikmodus %s</switch>
+		
+		<comment>Für das Login-Fenster</comment>
+		<user>Benutzername</user>
+		<pass>Passwort</pass>
+
+		<comment>Um alle Buttons zu bekommen - darf nur 6 Zeichen haben (ohne Leerzeichen)</comment>
+		<getall>Kriege alle</getall>
+
+		<comment>Bestimmt die Wissens-Meldungen</comment>
+		<completed>BEENDET</completed>
+		<research>Forsche</research>
+		<nothing>Nichts</nothing>
+
+		<comment>Bestimmt die Meldungen im Herstellungs-Fenster</comment>
+		<mix>Mixen</mix>
+		<clear>Löschen</clear>
+
+		<comment>Verschiedene Netzwerk-relevante Meldungen</comment>
+		<connect>Verbinde zum Server...</connect>
+		<reconnect>Drücke eine Taste um es nochmal zu versuchen.</reconnect>
+		<license>Entropy sagt: U R 2 </license>
+		
+		<comment>Verschiedene Tausch-Meldungen</comment>
+		<quantity>Anzahl</quantity>
+		<abort>Abbrechen</abort>
+		<trade>Du kannst dieses Fenster nicht während des Tausches öffnen.</trade>
+
+		<comment>Magie-Fenster</comment>
+		<sigils>Dieser Zauberspruch braucht mindestens 2 magische Symbole</sigils>
+	</misc>
+	<new>
+		<comment>Für die neue Spielererzeugung</comment>
+		
+		<skin>Haut</skin>
+		<hair>Haar</hair>
+		<shirt>Hemd</shirt>
+		<pants>Hose</pants>
+		<boots>Stiefel</boots>
+		<head>Kopf</head>
+		<gender>Geschlecht</gender>
+		<male>Männlich</male>
+		<female>Weiblich</female>
+		<race>Rasse</race>
+		<human>Mensch</human>
+		<elf>Elfe</elf>
+		<dwarf>Zwerg</dwarf>
+		<confirm>Bestätige Passwort</confirm>
+	</new>
+	<tooltips>
+		<comment>Für die Symbol-Tooltips</comment>
+
+		<walk>Laufen</walk>
+		<sit>Hinsetzen</sit>
+		<stand>Aufstehen</stand>
+		<look>Angucken</look>
+		<use>Benutzen</use>
+		<trade>Tauschen</trade>
+		<attack>Angreifen</attack>
+		<invent>Inventar ansehen</invent>
+		<spell>Sehe Zauberspruch Fenster an</spell>
+		<manu>Sehe Herstellungsfenster an</manu>
+		<stats>Sehe Statistiken an</stats>
+		<know>Sehe Wissensfenster an</know>
+		<ency>Sehe Enzyklopädie-Fenster an</ency>
+		<quest>Sehe Questlog an</quest>
+		<map>Sehe Karte an</map>
+		<console>Sehe Konsole an</console>
+		<buddy>Sehe Kumpel an</buddy>
+		<opts>Sehe Optionen an</opts>
+	</tooltips>
+</root>

@@ -1,0 +1,518 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Clothes>
+<Page name="Fur_Gloves">
+        <size>Big</size>
+        <color r="0" g="1" b="0"/>
+        <Text>       The Eternal Lands Enciklopedija</Text>
+        <nl/>
+        <Text>                  OBLACILA</Text><nl/>
+        <Color>red</Color>
+        <Text>     Warm Fur Gloves (tople krnene rokavice)</Text><nl/><nl/>
+        <simage isize="256" tsize="50" size="100" tid="7" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+        <Size>Medium</Size><color r="1" g="0.5" b="0"/>
+        <Text> Scitijo pred mrazom.</Text>
+        <color r="0" g="0.5" b="1"/>
+        <nlkx/>
+        <Text> +1 zascita pred mrazom, +1 oklep</Text>
+        <nl/><nl/><nl/>
+        <color r="0.9" g="0.9" b="0.9"/>
+        <Text>Priporocen nivo za produkcijo: 0</Text>
+        <nl/>
+        <text>Nobeno znanje potrebno.</text>
+        <nl/>
+        <text>Teza: 1 EMU</text>
+        <nl/>
+        <text>Se zlaga: Ne</text>
+        <nl/>
+        <text>Potrebna hrana za proizvod: -1</text>
+        <nl/>
+        <text>Osnovna kolicina izkusnje (exp): 5</text>
+        <nl/>
+        <Text>Potreben material:</Text>
+        <nl/>
+        <Text>3 Brown Rabbit Furs</Text>
+        <nl/>
+        <Text>2 Threads</Text>
+        <nl/>
+        <Text>Orodje: Needle</Text>
+        <nl/><nl/>
+        <color>yellow</color>
+        <Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Fox_Scarf">
+        <size>Big</size>
+        <color r="0" g="1" b="0"/>
+        <Text>       The Eternal Lands Enciklopedija</Text>
+        <nl/>
+        <Text>                  OBLACILA</Text><nl/>
+        <Color>red</Color>
+        <Text>           Fox Scarf (lisicji sal)</Text><nl/><nl/>
+        <simage isize="256" tsize="50" size="100" tid="8" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+        <Size>Medium</Size><color r="1" g="0.5" b="0"/>
+        <Text> Sciti pred mrazom.</Text>
+        <color r="0" g="0.5" b="1"/>
+        <nlkx/>
+        <Text> Se ga se ne da oblaciti.</Text>
+        <nl/><nl/><nl/>
+        <color r="0.9" g="0.9" b="0.9"/>
+        <Text>Priporocen nivo za produkcijo: 3</Text>
+        <nl/>
+        <text>Nobeno znanje potrebno.</text>
+        <nl/>
+        <text>Teza: 2 EMU</text>
+        <nl/>
+        <text>Se zlaga: Ne</text>
+        <nl/>
+        <text>Potrebna hrana za proizvod: -2</text>
+        <nl/>
+        <text>Osnovna kolicina izkusnje (exp): 12</text>
+        <nl/>
+        <Text>Potreben material:</Text>
+        <nl/>
+        <Text>1 Fox Fur</Text>
+        <nl/>
+        <Text>1 Thread</Text>
+        <nl/>
+        <Text>Orodje: Needle</Text>
+        <nl/><nl/>
+        <color>yellow</color>
+        <Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Hat_Fur">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>       Warm Fur Hat (topla krznena kapa)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="9" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Sciti pred mrazom.</Text>
+	<color r="0" g="0.5" b="1"/>
+	<nlkx/>
+	<Text> +2 zascita pred mrazom, -1 zascita pred vrocino</Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Priporocen nivo za produkcijo: 5</Text>
+	<nl/>
+	<text>Nobeno znanje potrebno.</text>
+	<nl/>
+	<text>Teza: 2 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<text>Potrebna hrana za proizvod: -3</text>
+	<nl/>
+	<text>Osnovna kolicina izkusnje (exp): 25</text>
+	<nl/>
+	<Text>Potreben material:</Text>
+	<nl/>
+	<Text>3 Beaver Furs</Text>
+	<nl/>
+	<Text>1 White rabbit Furs</Text>
+	<nl/>
+	<Text>3 Threads</Text>
+	<nl/>
+	<Text>Orodje: Needle</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Fur_Boots">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>         Fur Boots (krzneni skornji)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="24" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Scitijo pred mrazom.</Text>
+	<color r="0" g="0.5" b="1"/>
+	<nlkx/>
+	<Text> +3 zascita pred mrazom, -1 zascita pred vrocino</Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Priporocen nivo za produkcijo: 12</Text>
+	<nl/>
+	<text>Nobeno znanje potrebno.</text>
+	<nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<text>Potrebna hrana za proizvod: -8</text>
+	<nl/>
+	<text>Osnovna kolicina izkusnje (exp): 55</text>
+	<nl/>
+	<text>Potrebni Nexusi: Artificial 1</text>
+        <nl/>
+	<Text>Potreben material:</Text>
+	<nl/>
+	<Text>4 Rat tails</Text><Text>                </Text>
+	<Text>5 Threads</Text>
+	<nl/>
+	<Text>2 Brown rabbit fur</Text><Text>         </Text>
+	<Text>1 Iron bar</Text>
+	<nl/>
+	<Text>1 Wolf fur</Text><Text>                 </Text>
+	<Text>2 Leather</Text>
+	<nl/>
+	<Text>Orodje: Needle, Hammer</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Fur_Torso">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>          Fur Torso (krznena jopa)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="12" name="textures/items9.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Scitijo pred mrazom.</Text>
+	<color r="0" g="0.5" b="1"/>
+	<nlkx/>
+	<Text> +3 zascita pred mrazom, -1 zascita pred vrocino</Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Priporocen nivo za produkcijo: 22</Text>
+	<nl/>
+	<text>Nobeno znanje potrebno.</text>
+	<nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<text>Potrebna hrana za proizvod: -26</text>
+	<nl/>
+	<text>Osnovna kolicina izkusnje (exp): 140</text>
+	<nl/>
+	<text>Potrebni Nexusi: Artificial 1</text>
+        <nl/>
+	<Text>Potreben material:</Text>
+	<nl/>
+	<Text>1 iron bar            10 thread </Text>
+	<nl/>
+	<Text>7 leather             3 deer fur</Text>
+	<nl/>
+	<Text>2 wolf fur            4 rat tail</Text>
+	<nl/>
+	<Text>Orodje: Needle, Hammer</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Fur_Pants">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>         Fur Pants (krznene hlace)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="13" name="textures/items9.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Scitijo pred mrazom.</Text>
+	<color r="0" g="0.5" b="1"/>
+	<nlkx/>
+	<Text> +3 zascita pred mrazom, -1 zascita pred vrocino</Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Priporocen nivo za produkcijo: 20</Text>
+	<nl/>
+	<text>Nobeno znanje potrebno.</text>
+	<nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<text>Potrebna hrana za proizvod: -20</text>
+	<nl/>
+	<text>Osnovna kolicina izkusnje (exp): 110</text>
+	<nl/>
+	<text>Potrebni Nexusi: Artificial 2</text>
+        <nl/>
+	<Text>Potreben material:</Text>
+	<nl/>
+	<Text>6 leather                         2 deer fur</Text>
+	<nl/>
+	<Text>2 wolf fur,                       1 beaver fur</Text>
+	<nl/>
+	<Text>7 threads</Text>
+	<nl/>
+	<Text>Orodje: Needle</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_Fur">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>         Fur Cloak (krznen plasc)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="10" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Scitijo pred mrazom.</Text>
+	<color r="0" g="0.5" b="1"/>
+	<nlkx/>
+	<Text> +6 zascita pred mrazom, -3 zascita pred vrocino</Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Priporocen nivo za produkcijo: 6</Text>
+	<nl/>
+	<text>Nobeno znanje potrebno.</text>
+	<nl/>
+	<text>Teza: 4 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<text>Potrebna hrana za proizvod: -4</text>
+	<nl/>
+	<text>Osnovna kolicina izkusnje (exp): 30</text>
+	<nl/>
+	<Text>Potreben material:</Text>
+	<nl/>
+	<Text>3 Wolf Furs</Text>
+	<nl/>
+	<Text>2 Fox Furs</Text>
+	<nl/>
+	<Text>5 Threads</Text>
+	<nl/>
+	<Text>Orodje: Needle</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_PS">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>   Power Saving Cloak (varcevalno ogrinjalo)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="7" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> To ogrinjalo ti da Power Saving perk.</Text>
+	<nlkx/>
+	<Text> S tem ogrinjalom tvoj nivo hrane ne bo upadal</Text>
+	<nlkx/>
+	<Text> ce ne beres ali se ne regeneriras.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Kupis ga lahko za 3800 gc pri White Stone City</Text>
+	<nl/>
+	<Text>prodajalcu ogrinjal.</Text>
+	<nl/>
+	<Text>Za zeljen ucinek moras ogrinjalo obleci.</Text>
+	<nl/><nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_EX">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>    Excavator Cloak (ogrinjalo izkopavanja)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="0" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> To ogrinjalo ti da Excavator perk.</Text>
+	<nlkx/>
+	<Text> This cloak doubles the quantity of resources</Text>
+	<nlkx/>
+	<Text> you harvest.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>To ogrinjalo lahko kupis za 2900 gc in White Stone City</Text>
+	<nl/>
+	<Text>prodajalcu ogrinjal.</Text>
+	<nl/>
+	<Text>Za zeljen ucinek moras ogrinjalo obleci.</Text>
+	<nl/><nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_CJ">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>         Conjurer Cloak (konjederec)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="2" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> To ogrinjalo ti da Conjurer perk.</Text>
+	<nlkx/>
+	<Text> This cloak halves the mana needed for summoning.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>To ogrinjalo lahko kupis za 4500 gc pri White Stone City</Text>
+	<nl/>
+	<Text>prodajalcu ogrinjal.</Text>
+	<nl/>
+	<Text>Za zeljen ucinek moras ogrinjalo obleci.</Text>
+	<nl/><nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_FR">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>   Fast Regeneration Cloak (hitra regeneracija)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="6" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> To ogrinjalo ti da Fast Regeneration perk.</Text>
+	<nlkx/>
+	<Text> Z njim regeneriras zdravje in mano 3x hitreje.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>To ogrinjalo lahko kupis za 3400 gc pri White Stone City</Text>
+	<nl/>
+	<Text>prodajalcu ogrinjal.</Text>
+	<nl/>
+	<Text>Za zeljen ucinek moras ogrinjalo obleci.</Text>
+	<nl/><nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_MM">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>    Monster Magnetism Cloak (odbija posasti)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="4" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> To ogrinjalo ti da Monster Magnetism perk.</Text>
+	<nlkx/>
+	<Text> Posast ne bo napadla sama od sebe. Ne deluje pri vseh posastih.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Kupis ga lahko le od ostalih igralcev ali</Text> 
+	<nl/>
+	<Text>ga dobis ga dobis od posasti.</Text>
+	<nl/>
+	<Text>Za zeljen ucinek moras ogrinjalo obleci.</Text>
+	<nl/><nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_MI">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>          Mirror Cloak (ogledalo)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="8" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> To ogrinjalo ti da Mirror Skin perk.</Text>
+	<nlkx/>
+	<Text> 10% moznosti, da se udarec odbije nazaj v nasprotnika.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Kupis ga lahko le od ostalih igralcev ali</Text>
+	<nl/>
+	<Text>ga dobis od posasti.</Text> 
+	<nl/>
+	<Text>Za zeljen ucinek moras ogrinjalo obleci.</Text>
+	<nl/><nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+<Page name="Cloak_BP">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  OBLACILA</Text><nl/>
+	<Color>red</Color>
+	<Text>    Body Piercing Cloak (teloluknjajoc)</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="5" name="textures/items6.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> To ogrinjalo ti da Body Piercing perk.</Text>
+	<nlkx/>
+	<Text> Za 10% povecane moznosti, da prebijes nasprotnikov</Text>
+	<nlkx/>
+	<Text> oklep.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Kupis ga lahko le od ostalih igralcev ali</Text>
+	<nl/>
+	<Text>ga dobis od posasti.</Text> 
+	<nl/>
+	<Text>Za zeljen ucinek moras ogrinjalo obleci.</Text>
+	<nl/><nl/>
+	<text>Teza: 3 EMU</text>
+	<nl/>
+	<text>Se zlaga: Ne</text>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Clothes" title="Back To Clothes Index"/>
+</Page>
+</Clothes>

@@ -1,0 +1,223 @@
+<Jewlery>
+<Page name="Med_Silver">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   NAKIT</Text><nl/>
+	<Color>red</Color>
+	<Text>               Silver Medallion</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="18" name="textures/items7.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text>Navaden srebrn medaljon, osnova za izdelavo</Text>
+	<nlkx/>
+	<Text>ostalih medaljonov.</Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Stvari, potrebne za izdelavo:</text>
+	<nl/>
+	<text>3 Silver Bars, 3 Fire Essences</text>
+	<nl/>
+	<text>Pripomocki: Medallion Mold</text>
+	<nl/>
+	<text>Potrebno znanje: Silver Medallions Building</text>
+	<nl/>
+	<text>Potrebni neksusi: Artificial: 1</text>
+	<nl/>
+	<text>Priporocen nivo spretnosti: Crafting: 5</text>
+	<nl/>
+	<text>Pridobljene izkusnje: Crafting exp: 25</text>
+	<nl/>
+	<text>Food substracted: 4</text>
+	<nl/>
+	<text>Osnovna cena: 100 gold coins</text>
+	<nl/>
+	<text>Teza: 1 EMU</text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Jewlery" title="Nazaj na indeks nakita"/>
+</Page>
+<Page name="Med_Gold">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   NAKIT</Text><nl/>
+	<Color>red</Color>
+	<Text>               Gold Medallion</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="17" name="textures/items7.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text>Navaden zlat medaljon, osnova za izdelavo</Text>
+	<nlkx/>
+	<Text>ostalih medaljonov.</Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Stvari, potrebne za izdelavo:</text>
+	<nl/>
+	<text>3 Gold Bars, 3 Fire Essences</text>
+	<nl/>
+	<text>Pripomocki: Medallion Mold</text>
+	<nl/>
+	<text>Potrebno znanje: Gold Medallions Building</text>
+	<nl/>
+	<text>Potrebni neksusi: Artificial: 1</text>
+	<nl/>
+	<text>Priporocen nivo spretnosti: Crafting: 7</text>
+	<nl/>
+	<text>Pridobljene izkusnje: Crafting exp: 35</text>
+	<nl/>
+	<text>Food substracted: 6</text>
+	<nl/>
+	<text>Osnovna cena: 130 gold coins</text>
+	<nl/>
+	<text>Teza: 1 EMU</text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Jewlery" title="Nazaj na indeks nakita"/>
+</Page>
+<Page name="Med_Unicorn">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   NAKIT</Text><nl/>
+	<Color>red</Color>
+	<Text>                Unicorn Medallion</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="19" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Ko ga nosis, poveca tvojo obrambo (defense) by 4.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Stvari, potrebne za izdelavo:</text>
+	<nl/>
+	<text>1 Silver Bar, 1 Silver Medallion, 2 Fire Essences</text>
+	<nl/>
+	<text>Potrebno znanje: Unicorn Medallion Building</text>
+	<nl/>
+	<text>Potrebni neksusi: Artificial: 3, Magic: 2</text>
+	<nl/>
+	<text>Priporocen nivo spretnosti: Crafting: 23</text>
+	<nl/>
+	<text>Pridobljene izkusnje: Crafting exp: 95</text>
+	<nl/>
+	<text>Potrebna hrana: 28</text>
+	<nl/>
+	<text>Osnovna cena: 1200 gold coins</text>
+	<nl/>
+	<text>Teza: 1 EMU</text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Jewlery" title="Nazaj na indeks nakita"/>
+</Page>
+<Page name="Med_Moon">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   NAKIT</Text><nl/>
+	<Color>red</Color>
+	<Text>                Moon Medallion</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="21" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Ko ga nosis, poveca tvojo oklep in natancnost za 4.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Stvari, potrebne za izdelavo:</text>
+	<nl/>
+	<text>1 Polished Sapphire, 1 Silver Medallion, 2 Fire Essences</text>
+	<nl/>
+	<text>Potrebno znanje: Moon Medallion Building</text>
+	<nl/>
+	<text>Potrebni neksusi: Artificial: 3, Magic: 2</text>
+	<nl/>
+	<text>Priporocen nivo spretnosti: Crafting: 24</text>
+	<nl/>
+	<text>Pridobljene izkusnje: Crafting exp: 100</text>
+	<nl/>
+	<text>Potrebna hrana: 30</text>
+	<nl/>
+	<text>Osnovna cena: 1800 gold coins</text>
+	<nl/>
+	<text>Teza: 1 EMU</text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Jewlery" title="Nazaj na indeks nakita"/>
+</Page>
+<Page name="Med_Sun">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   NAKIT</Text><nl/>
+	<Color>red</Color>
+	<Text>               Sun Medallion</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="22" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Ko ga nosis, poveca tvojo natancnost (accuracy) za 4.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Stvari, potrebne za izdelavo:</text>
+	<nl/>
+	<text>1 Gold Bar, 1 Gold Medallion, 2 Fire Essences</text>
+	<nl/>
+	<text>Potrebno znanje: Sun Medallion Building</text>
+	<nl/>
+	<text>Potrebni neksusi: Artificial: 3, Magic: 2</text>
+	<nl/>
+	<text>Priporocen nivo spretnosti: Crafting: 23</text>
+	<nl/>
+	<text>Pridobljene izkusnje: Crafting exp: 95</text>
+	<nl/>
+	<text>Potrebna hrana: 28</text>
+	<nl/>
+	<text>Osnovna cena: 1300 gold coins</text>
+	<nl/>
+	<text>Teza: 1 EMU</text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Jewlery" title="Nazaj na indeks nakita"/>
+</Page>
+<Page name="Med_Stars">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Encyclopedia</Text>
+	<nl/>
+	<Text>                   NAKIT</Text><nl/>
+	<Color>red</Color>
+	<Text>               Stars Medallion</Text><nl/><nl/>
+	<simage isize="256" tsize="50" size="100" tid="20" name="textures/items4.bmp" yposupdate="0" xposupdate="1"/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Ko ga nosis, poveca skodo ki jo povzrocis za 4</Text><nl/>
+	<Text> in tvoj oklep za 2.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/><nl/><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<text>Stvari, potrebne za izdelavo:</text>
+	<nl/>
+	<text>1 Polished Ruby, 1 Silver Medallion, 2 Fire Essences</text>
+	<nl/>
+	<text>Potrebno znanje: Stars Medallion Building</text>
+	<nl/>
+	<text>Potrebni neksusi: Artificial: 3, Magic: 2</text>
+	<nl/>
+	<text>Priporocen nivo spretnosti: Crafting: 25</text>
+	<nl/>
+	<text>Pridobljene izkusnje: Crafting exp: 105</text>
+	<nl/>
+	<text>Potrebna hrana: 32</text>
+	<nl/>
+	<text>Osnovna cena: 2000 gold coins</text>
+	<nl/>
+	<text>Teza: 1 EMU</text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Jewlery" title="Nazaj na indeks nakita"/>
+</Page>
+</Jewlery>

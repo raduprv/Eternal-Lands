@@ -1,0 +1,778 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Monsters>
+<Page name="Rabbits">
+	<size>Big</size><color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text><nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>              Lapin blanc ou brun</Text><nl/>
+	<nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Lapins blancs et bruns</Text>
+	<nlkx/>
+	<Text> </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> Il y a des lapins blancs et bruns.</Text>
+	<nlkx/>
+	<Text> Vous pouvez utiliser des peaux de lapin pour fabriquer:</Text>
+	<nlkx/>
+	<Text> Brun: Gants de fourrure et bottes de peau</Text><nl/>
+	<Text> Blanc: Toque de fourrure</Text><nl/>
+	<Text> </Text><nl/>
+	<nl/><nl/><nl/><nl/><nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Pour invoquer un lapin, il vous faut:</Text><nl/>
+	<Text> 1 peau de lapin, 1 viande, 1 os, 1 essence de vie.</Text><nl/>
+	<Text> Nexus: 0</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Rat">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Rat</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Un rat</Text>
+	<nlkx/>
+	<Text> </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> Vous pouvez utiliser des queues de rat pour fabriquer:</Text>
+	<nlkx/>
+	<Text> Rien pour l'instant. </Text>
+	<nl/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Pour invoquer un rat, il vous faut:</Text>
+	<nl/>
+	<Text> 1 queue de rat, 1 viande, 1 os, 1 essence de vie.</Text>
+	<nl/>
+	<Text> Nexus: 0</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Beaver">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                    Castor</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Un castor</Text>
+	<nlkx/>
+	<Text> </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> Vous pouvez utiliser des peaux de castor pour fabriquer:</Text>
+	<nlkx/>
+	<Text> Toque de fourrure et potion de defense, </Text>
+	<nl/>
+	<Text> </Text>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Pour invoquer un castor, il vous faut:</Text>
+	<nl/>
+	<Text> 1 peau de castor, 1 viande, 1 os, 1 essence de vie.</Text>
+	<nl/>
+	<Text> Nexus: 1</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Deer">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Cerf</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Un cerf</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Vous pouvez utiliser des peaux de cerf pour fabriquer:</Text>
+	<nlkx/>
+	<Text> Potion de coordination.</Text>
+	<nlkx/>
+	<Text> Vous pouvez utiliser des bois de cerf pour fabriquer:</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Pour invoquer un cerf, il vous faut:</Text>
+	<nl/>
+	<Text> 1 peau de cerf, 1 bois de cerf, 3 viande, 3 os, </Text>
+	<nl/>
+	<Text> 2 essence de vie.</Text>
+	<nl/>
+	<Text> Nexus: 1</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Snakes">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Snakes</Text><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Snake</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can use snakes skins in some god quests.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Green Snake, you need:</Text>
+	<nl/>
+	<Text> 1 green snake skin, 1 raw meat</Text>
+	<nl/>
+	<Text> 1 life essence.</Text>
+	<nl/><nl/>
+	<Text> To summon a Red Snake, you need:</Text>
+	<nl/>
+	<Text> 1 red snake skin, 1 raw meat</Text>
+	<nl/>
+	<Text> 1 life essence.</Text>
+	<nl/><nl/>
+	<Text> To summon a Brown Snake, you need:</Text>
+	<nl/>
+	<Text> 1 brown snake skin, 2 raw meat</Text>
+	<nl/>
+	<Text> 1 life essence.</Text>
+	<nl/>
+	<Text> Nexus for Red and Green snake: 2, For Brown Snake: 3</Text>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Fox">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Fox</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Fox</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can use Fox Furs to manufacture:</Text>
+	<nlkx/>
+	<Text> Fox scarf</Text>
+	<nlkx/>
+	<Text> Warm fur cloak</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Fox, you need:</Text>
+	<nl/>
+	<Text> 1 fox fur, 2 raw meat, 2 bones, </Text>
+	<nl/>
+	<Text> 2 life essence.</Text>
+	<nl/>
+	<Text> Nexus: 2</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Boar">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Boar</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Boar</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Boar, you need:</Text>
+	<nl/>
+	<Text> 3 bones, 4 raw meat </Text>
+	<nl/>
+	<Text> 2 life essences.</Text>
+	<nl/>
+	<Text> Nexus: 3</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Wolf">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Wolf</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Wolf</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can use Wolf Furs to manufacture:</Text>
+	<nlkx/>
+	<Text> Warm fur cloak, Fur Boots</Text>
+	<nlkx/>
+	<Text> Potion of wildness</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Wolf, you need:</Text>
+	<nl/>
+	<Text> 1 wolf fur, 2 raw meat, 3 bones, </Text>
+	<nl/>
+	<Text> 2 life essences.</Text>
+	<nl/>
+	<Text> Nexus: 3</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Puma">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Puma</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Puma</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can use Puma Furs to manufacture:</Text>
+	<nlkx/>
+	<Text> Potion of vitality</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Puma, you need:</Text>
+	<nl/>
+	<Text> 1 puma fur, 3 raw meat, 3 bones, </Text>
+	<nl/>
+	<Text> 2 life essences.</Text>
+	<nl/>
+	<Text> Nexus: 5</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Bear">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMAUX</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Bear</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Bear</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can use Bear Furs to manufacture:</Text>
+	<nlkx/>
+	<Text> Potion of attack</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Bear, you need:</Text>
+	<nl/>
+	<Text> 1 bear fur, 5 raw meat, 5 bones, </Text>
+	<nl/>
+	<Text> 3 life essences.</Text>
+	<nl/>
+	<Text> Nexus: 5</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Goblin">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Male Goblin</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Male Goblin</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Goblins are ugly, smelly scavengers. They mostly</Text>
+	<nlkx/>
+	<Text> travel in packs of 5 or 6, but many times they</Text>
+	<nlkx/>
+	<Text> could also be seen traveling alone. Varying around</Text>
+	<nlkx/>
+	<Text> 5 feet or less in height, they have greenish pock</Text>
+	<nlkx/>
+	<Text> marked skin, yellowish brown eyes, and wear clothing,</Text>
+	<nlkx/>
+	<Text> armor and weapons that they pilfered from dead</Text>
+	<nlkx/>
+	<Text> corpses in graves, an unsuspecting traveler, or each </Text>
+	<nlkx/>
+	<Text> other. They are usually too stupid to determine if</Text>
+	<nlkx/>
+	<Text> fighting you is a good or bad thing for them however.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can not summon a Goblin</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Skeleton">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                   Skeleton</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Skeleton</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> The Skeletons are the bones of those who died before</Text>
+	<nlkx/>
+	<Text> the Great War. The gods of evil even reanimated their</Text>
+	<nlkx/>
+	<Text> bones when all the flesh and blood was gone to use </Text>
+	<nlkx/>
+	<Text> against the gods of good. Luckily they did not trap </Text>
+	<nlkx/>
+	<Text> their souls...although it is said in legends that </Text>
+	<nlkx/>
+	<Text> there are some whose souls are cursed and must follow </Text>
+	<nlkx/>
+	<Text> the remainder of their former selves for eternity. </Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> 3 death essence, 3 life essence, 10 bones.</Text>
+	<nlkx/>
+	<Text> Nexus: 4</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Gargoyles">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                   Gargoyles</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Small Gargoyle (There are also Medium and Large</Text>
+	<nlkx/>
+	<Text> Gargoyles)</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> When King Vermor mysteriously vanished-most people</Text>
+	<nlkx/>
+	<Text> claim he died (yet a corpse remains to be found) -</Text>
+	<nlkx/>
+	<Text> his Gargoyles were freed of his control. They now</Text>
+	<nlkx/>
+	<Text> wander White Stone in the dark of the night,</Text>
+	<nlkx/>
+	<Text> turning into stone statues during the day. Some</Text>
+	<nlkx/>
+	<Text> say they are still loyal and wander in search of</Text>
+	<nlkx/>
+	<Text> their master, who knows if they will ever find him...</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation (Small/Medium/Large):</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> 2/3/4 fire essence, 2/3/4 matter essence,</Text>
+	<nlkx/>
+	<Text> 2/3/4 death essence, 2/3/4 life essence.</Text>
+	<nlkx/>
+	<Text> Nexus: 4/4/4</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Troll">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Troll</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Troll</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Newbie do not take this one on it is very dangerous</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can not summon a Troll</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Orcs">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Orcs</Text><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A male and a female Orc</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Orcs are quite intelligent, making strong</Text>
+	<nlkx/>
+	<Text> tactics in battle. They are also very</Text>
+	<nlkx/>
+	<Text> fearsome creatures, as they are usually</Text>
+	<nlkx/>
+	<Text> bigger in stature than a human, and getting</Text>
+	<nlkx/>
+	<Text> wounded only makes them want to fight even</Text>
+	<nlkx/>
+	<Text> harder. They also don't fear much for their</Text>
+	<nlkx/>
+	<Text> lives, and will have fights to the death.</Text>
+	<nl/>
+	<Text> Standing at around 6-8 feet tall, they have greenish blue-</Text>
+	<nlkx/>
+	<Text> brown skin, and wear their own unique armor and clothing,</Text>
+	<nlkx/>
+	<Text> usually finding those from other races to be inferior to</Text>
+	<nlkx/>
+	<Text> their own weaponry.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can not summon an Orc</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Ogre">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Ogre</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> An Ogre</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Ogres tend to live by themselves, and set their own</Text>
+	<nlkx/>
+	<Text> territories usually quite far from other ogres. They</Text>
+	<nlkx/>
+	<Text> throw out any other humanoid creature they find</Text>
+	<nlkx/>
+	<Text> living there and will attack you on site. They are</Text>
+	<nlkx/>
+	<Text> not as intelligent as the Orcs, and are very grouchy</Text>
+	<nlkx/>
+	<Text> and lazy. Their skin tones vary from a greenish</Text>
+	<nlkx/>
+	<Text> color to a human's peach tone, and they're usually</Text>
+	<nlkx/>
+	<Text> a hulking 8 feet tall with a wide girth (due to</Text>
+	<nlkx/>
+	<Text> their laziness).</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can not summon an Ogre</Text>
+	<nl/><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Cyclops">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                    Cyclops</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Cyclops</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Cyclops are big strong brutes that will attack</Text>
+	<nlkx/>
+	<Text> anything moving in site when they feel threatened.</Text>
+	<nlkx/>
+	<Text> With their obvious lack of brains, they make up for</Text>
+	<nlkx/>
+	<Text> in strength and size. Not much is known about their</Text>
+	<nlkx/>
+	<Text> societies because no one has gotten close enough, or</Text>
+	<nlkx/>
+	<Text> lasted long enough, to tell the tale. </Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> You can not summon a Cyclops</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+<Page name="Fluffy">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Fluffy Rabbit</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Fluffy Rabbit</Text>
+	<nl/>
+	<Text> </Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> "Awww, it's a cute fluffy rabbit!"</Text>	<nlkx/>
+	<Text>      --The last words of many unwary heros</Text>	<nlkx/>
+	<Text> These should be approached only by the strongest.</Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Fluffy Rabbit you need:</Text>
+	<nl/>
+	<Text> 1 white rabbit fur, 1 raw meat, 1 bone, </Text>
+	<nl/>
+	<Text> 1 enriched life essence.</Text>
+	<nl/>
+	<Text> Nexus: 5</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+
+<Page name="Chimera">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       L'encyclopédie d'Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTRES</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Chimeran Wolf</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Chimeran Wolf</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> A large, powerful, ugly wolf, lacking any majesty. They are</Text>
+	<nlkx/>
+	<Text> reputed to have been created in a magical accident of</Text>
+	<nlkx/>	<Text> some type. In any case, only the strongest can defeat</Text>
+	<nlkx/>
+	<Text> them.</Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Invocation:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> To summon a Chimeran Wolf you need:</Text>
+	<nl/>
+	<Text> 2 wolf furs, 1 raw meat, 1 bone, </Text>
+	<nl/>
+	<Text> 2 enriched life essences.</Text>
+	<nl/>
+	<Text> Nexus: 5</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Monsters" title="Retour aux créatures"/>
+</Page>
+</Monsters>

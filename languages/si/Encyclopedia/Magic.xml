@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Magic>
+<page name="Heal">
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>               Heal (zdravljenje)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="3" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Povrne 5 HP zdravja.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Increase, Health</text>	
+	<nl/>	
+	<text>      Reagenti: Health essence</text>	
+	<nl/>	<text>      Zahtevan nivo magije: 0</text>	
+	<nl/>	<text>      Dobljene izkusnje: 5</text>	
+	<nl/>	<text>      Potrebne etheral tocke: 5</text>	
+	<nl/><nl/>	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="R_Heal">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>      Remote Heal (zravljenje na daljavo)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="9" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Povrne 7 HP oddaljeni tarci(na sebi, prijatelju ali sovragu)</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="3" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Global, Increase, Health</text>	
+	<nl/>	
+	<text>      Reagenti: Health essence, Magic essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 3</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 15</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 8</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="M_Prot">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>      Magic Protection (magicna zascita)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="19" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Zaenkrat se ne napravi nic</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="17" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Create, Magic, Protection</text>	
+	<nl/>	
+	<text>      Reagenti: Magic essence, Energy essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 6</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="21" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 30</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 10</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>	
+	<size>big</size>
+</page>
+<page name="Shield">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>               Shield (scit)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="19" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Izboljsa tvoj oklep za 3.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="15" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Create, Matter, Protection</text>	
+	<nl/>	
+	<text>      Reagenti: Matter essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 9</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="21" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 40</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 11</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      
+	</Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Poison">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>               Poison (strup)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="5" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Zastrupi tarco.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="4" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Temporary, Decrease, Life</text>	
+	<nl/>	
+	<text>      Reagenti: 2 Death Essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 12</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 50</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 14</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Tp_to_range">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>     Teleport to Range (teleport na radaljo)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Lahko se teleportiras na oddaljeno tocko.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Local, Space</text>	
+	<nl/>	
+	<text>      Reagenti: Matter essence, Energy essence, Spirit essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 15</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="8" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 65</text>	
+	<nl/>	<text>      Potrebne etheral tocke: 15</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Harm">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>               Harm (poskoduj)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="22" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Napravi 15-25 skode na tarci.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Remove, Health</text>	
+	<nl/>	
+	<text>      Reagenti: 3 Health essence, 1 Death Essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 18</text>	
+	<nl/>	
+	<text>      Dobljene izkusnje: 80</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 16</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Restoration">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>             Restoration (obnova)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="1" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Povrne ti vse tvoje zdravje.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Restore, Life</text>	
+	<nl/>	
+	<text>      Reagenti: 4 Health essences</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 21</text>	
+	<nl/>	
+	<text>      Dobljene izkusnje: 95</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 25</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      
+	</Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Bones_to_gold">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>         Bones to gold (kosti v zlato)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="6" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Spremeni vse kosti ki jih nosis v zlate kovance.</text>	
+	<nl/>	
+	<text>      (kolicnik je odvisen od nivoja magije in nakljucja)</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Permanent, Change, Matter</text>	
+	<nl/>	
+	<text>      Reagenti: 2 Matter essences, 1 Energy essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 23</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="15" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Zahtevan nivo alkemije: 20</text>	
+	<nl/>	
+	<text>      Dobljene izkusnje: 100</text>	
+	<nl/>	
+	<text>      Alchemy exp. given: 50</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 30</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Tp_to_Port_Room">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>Teleport To The Portals Room (v teleportalno sobo)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Teleportira te v teleportirno sobo, od koder lahko</text>	
+	<nl/>	
+	<text>      odides na mnogo raznih map.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Global, Space</text>	
+	<nl/>	
+	<text>      Reagenti: Matter essence, 5 Energy essence,</text>
+	<nl/>	
+	<text>                Spirit essence</text>
+	<nl/>	
+	<text>      Zahtevan nivo magije: 24</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="9" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 105</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 20</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Life_drain">
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>        Life Drain (posesaj zivljenje)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Napravi 10 HP skode na tarci in ti hkrati</text>	
+	<nl/>	
+	<text>      povrne 10 HP.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Life</text>	
+	<nl/>	
+	<text>      Reagenti: 3 Life essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 27</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 120</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 20</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Magic_Immun">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>      Magic Immunity (imonost na magijo)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="19" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Napravi te imunega za negativne uroke.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="3" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Create, Increase, Magic, Protection</text>	
+	<nl/>	
+	<text>      Reagenti: 2 Magic essences, Energy essence</text>	
+	<nl/>	
+	<text>      Zahtevan nivo magije: 30</text>
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="17" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Dobljene izkusnje: 140</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 30</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="21" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Heal_Sum">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Encyclopedia</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>      Heal Summoned (zdravi priklicane)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="8" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Povrne 10 HP vsem tvojim priklicanim bitjem v obmocju</text>	
+	<nl/>	
+	<text>      16x16 kock, s centrom kjer stojis.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Local, Space, Health, Spirit</text>	
+	<nl/>	
+	<text>      Reagenti: 2 Spirit essences, 2 Life essences,</text>	
+	<nl/>	
+	<text>      2 Health essences</text>	
+	<nl/>	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Zahtevan nivo magije: 33</text>	
+	<nl/>	
+	<text>      Dobljene izkusnje: 110</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 25</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="14" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Smite_Sum">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>	
+	<Text>                   MAGIJA</Text><nl/>	
+	<Color>red</Color>	
+	<Text>       Smite Summoned (zdrobi priklicane)</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="8" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Napravi 10 HP skode priklicanim bitjem (ne tvojim) v</text>	
+	<nl/>	
+	<text>      obmocju 16x16 kock, s centrom kjer stojis.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Local, Space, Remove, Life</text>	
+	<nl/>	
+	<text>      Reagenti: 2 Spirit essences, 3 Death essences,</text>	
+	<nl/>	
+	<text>      2 Matter essences</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="22" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Zahtevan nivo magije: 36</text>	
+	<nl/>	
+	<text>      Dobljene izkusnje: 120</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 30</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+<page name="Drain_Mana">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       The Eternal Lands Enciklopedija</Text>	
+	<nl/>
+	<Text>                   MAGIJA</Text><nl/>
+	<Color>red</Color>
+	<Text>          Drain Mana (posesaj mano)</Text><nl/><nl/>
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Odstrani nakljucno stevilo mana tock tarce</text>	
+	<nl/>	
+	<text>      in jih doda tvojim.(Ne porabi etheral tock)</text>	
+	<nl/>
+	<text>      Nima ucinka na zivalih/posastih.</text>	
+	<nl/>
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<nl/>		
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Magic</text>	
+	<nl/>	
+	<text>      Reagenti: 4 Air Essences</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="17" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Zahtevan nivo magije: 40</text>	
+	<nl/>	
+	<text>      Dobljene izkusnje: 200</text>	
+	<nl/>	
+	<text>      Potrebne etheral tocke: 16</text>	
+	<nl/>	
+	<nl/>
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Magic" title="Nazaj na indeks magije"/>
+</page>
+</Magic>

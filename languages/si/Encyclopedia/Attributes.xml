@@ -1,0 +1,600 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Attributes>
+<Page name="Physique">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>              Osnovni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>            Physique (moc)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Physique je osnovni atribut, ki se uporablja za povecanje</Text><nl/>
+	<Text>"Might", "Matter", in "Toughness" pomoznih atributov.</Text><nl/>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Might: Je pomozni atribut, ki ti omogoca</Text><nl/>
+	<Text>prenasanje vecje teze.</Text><nl/>
+	<Text>Matter: Je pomozni atribut, ki poveca kolicino tvojega zdravja.</Text><nl/>
+	<Text>Toughness: Zmanjsa obseg poskodb v boju.</Text><nl/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Coordination">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>              Osnovni Atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>          Coordination (koordinacija)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Coordination je osnovni atribut, ki se uporablja za povecanje</Text><nl/>
+	<Text>"Might", "Reaction", in "Dexterity" pomoznih atributov.</Text><nl/>
+	<color r="0" g="0.7" b="1"/>
+	<nlkx/>
+	<nl/>
+	<Text>Might: Je pomozni atribut, ki ti omogoca</Text><nl/>
+	<Text>prenasanje vecje teze.</Text><nl/>
+	<Text>Reaction: Je pomozni atribut, ki ti pomaga pri</Text><nl/>
+	<Text>izogibanju udarcem v borbi.</Text><nl/>
+	<Text>Dexterity: Je pomozni atribut, ki poveca moznosti</Text><nl/>
+	<Text>da tvoj udarec zadane cilj.</Text><nl/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Reasoning">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>              Osnovni Atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>              Reasoning (razum)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Reasoning je osnovni atribut, ki se uporablja za povecanje</Text><nl/>
+	<Text>"Dexterity", "Perception", in "Rationality" pomoznih atributov</Text><nl/>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Dexterity: Je pomozni atribut, ki poveca moznosti</Text><nl/>
+	<Text>da tvoj udarec zadane cilj.</Text><nl/>
+	<Text>Perception: Je pomozni atribut, ki je trenutno neuporabljen.</Text><nl/>
+	<Text>Rationality: Je pomozni atribut, ki zmanjsa cas za branje knjig.</Text><nl/>
+	<Text>in poveca prejeto kolicino izkusenj (exp).</Text><nl/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Will">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>              Osnovni Atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>                Will (volja)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Will je osnovni atribut, ki se uporablja za povecanje</Text><nl/>
+	<Text>"Matter", "Rationality", in "Ethereality" pomoznih atributov.</Text><nl/>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Matter: Je pomozni atribut, ki poveca kolicino tvojega zdravja.</Text><nl/>
+	<Text>Rationality: Je pomozni atribut, ki zmanjsa cas za branje knjig</Text><nl/>
+	<Text>in poveca prejeto kolicino izkusenj (exp).</Text><nl/>
+	<Text>Ethereality: Je pomozni atribut, ki poveca kolicino</Text><nl/>
+	<Text> tvojih etherneal(mana) tock.</Text><nl/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Instinct">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>              Osnovni Atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>             Instinct (instinkt)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Instinct je osnovni atribut, ki se uporablja za povecanje</Text><nl/>
+	<Text>"Reaction", "Perception", in "Charm" pomoznih atributov.</Text><nl/>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Reaction: Je pomozni atribut, ki ti pomaga pri</Text><nl/>
+	<Text>izogibanju udarcem v borbi.</Text><nl/>
+	<Text>Perception: Je pomozni atribut, ki je trenutno neuporabljen.</Text><nl/>
+	<Text>Charm: Se ni v uporabi.</Text><nl/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Vitality">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>              Osnovni Atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>            Vitality (vitalnost)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Vitality je osnovni atribut, ki se uporablja za povecanje</Text><nl/>
+	<Text>"Toughness", "Ethereality", in "Charm" pomoznih atributov.</Text><nl/>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.7" b="1"/>
+	<Text>Toughness: Zmanjsa obseg poskodb v boju.</Text><nl/>
+	<Text>Ethereality: Je pomozni atribut, ki poveca kolicino</Text><nl/>
+	<Text> tvojih etherneal(mana) tock.</Text><nl/>
+	<Text>Charm: Se ni v uporabi.</Text><nl/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Might">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>              Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Might (moc)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Might poveca tezo, ki jo lahko prenasas.</Text><nl/>
+	<Text>Might se poveca z "Physique" in "Coordination"</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Matter">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>                  Matter (snov)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Matter increases your maximum health points</Text><nl/>
+	<Text>Matter is incteased by "Physique" in "Will".</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Toughness">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>             Toughness (odpornost)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+      <Text>Toughness zmanjsa obseg poskodb v boju.</Text><nl/>
+	<Text>Toughness se poveca z "Physique" in "Vitality".</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Charm">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Charm (sarm)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Charm se ni uporabljen v igri.</Text><nl/>
+	<Text>Charm se poveca z "Instinct" in Vitality".</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Reaction">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>              Reaction (reakcija)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Reaction pomaga, da se izognes udarcem v borbi.</Text><nl/>
+	<Text>Reaction se poveca z "Coordination" in "Instinct".</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Perception">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>             Perception (dojemanje)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Perception je trenutno neuporabljen.</Text><nl/>
+	<Text>Perception se poveca z "Reasoning" in "Instinct"</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Rationality">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>           Rationality (racionalnost)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Rationality skrajsa cas za branje knjig in poveca kolicino</Text><nl/>
+	<Text>pridobljenih izkusenj (exp).</Text><nl/>
+	<Text>Rationality se poveca z "Reasoning" in "Will"</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Dexterity">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>             Dexterity (natancnost)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Dexterity poveca moznosti da tvoj udarec v borbi zadene cilj.</Text><nl/>
+	<Text>Dexterity se poveca z "Reasoning" in "Coordination"</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Ethereality">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                Pomozni atributi</Text><nl/>
+	<Color>red</Color>
+	<Text>            Ethereality (duhovnost)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Ethereality poveca kolicino tvojih ethereal(mana) tock.</Text><nl/>
+	<Text>Ethereality se poveca z "Will" in "Vitality"</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Nx_Human">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Nexusi</Text><nl/>
+	<Color>red</Color>
+	<Text>          Human Nexus (cloveski)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Human nexus omejuje, kaksno opremo lahko nosis</Text><nl/>
+	<Text>(oklep, mec, scit, itd.)</Text><nl/>
+	<Text>Visji kot je human nexus boljso opremo lahko uporabljas</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Nx_Animal">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Nexusi</Text><nl/>
+	<Color>red</Color>
+	<Text>         Animal Nexus (zivalski)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Uporabljan za Summoning. Visji kot je, mocnejse zivali</Text><nl/>
+	<Text>lahko priklices.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Nx_Vegetal">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Nexusi</Text><nl/>
+	<Color>red</Color>
+	<Text>         Vegetal Nexus (rastlinski)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Uporabljan za napoje (potions). Visji je, boljse.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Nx_Inorganic">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Nexusi</Text><nl/>
+	<Color>red</Color>
+	<Text>         Inorganic Nexus (inorganski)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Uporabljen za rudarjenje.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Nx_Artificial">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Nexusi</Text><nl/>
+	<Color>red</Color>
+	<Text>          Artificial Nexus (umetni)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Uporabljen za proizvodnjo. Za proizvajanje boljsih predmetov</Text><nl/>
+	<Text>potrebujes vec nexusa.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Nx_Magic">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Nexusi</Text><nl/>
+	<Color>red</Color>
+	<Text>           Magic Nexus (magicni)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Uporabljen za zacaranje/urocanje nekaterih predmetov.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Attack">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>              Attack (Napad)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Napad doloca, koliko skode povzrocis z vsakim</Text><nl/>
+	<Text>uspesnim udarcem.</Text>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Defense">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>             Defense (Obramba)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Defense doloca, koliko skode povzroci nasprotnik</Text><nl/>
+	<Text>ko te zasafla okol buce.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Harvest">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>           Harvesting (Izkopavanje)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Harvesting doloca procent neuspeha ko nabiras oziroma</Text><nl/>
+	<Text>rudaris surovine.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Alchemy">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>            Alchemy (Alkemija)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Alchemy se uporabi za izracun moznosti neuspeha pri</Text><nl/>
+	<Text>izdelavi essencev ali kovinskih palic.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Magic">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>             Magic (Magija)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Uporablja se za izvajanje carovnij. Visji nivo kot imas,</Text><nl/>
+	<Text>mocnejse uroke lahko izrekas.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Potion">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>             Potions (Napoji)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Potions se uporabi za izracun moznosti neuspeha pri</Text><nl/>
+	<Text>izdelavi napitkov.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Summoning">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>         Summoning (Priklicevanje)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Summoning se uporabi za izracun moznosti neuspeha pri</Text><nl/>
+	<Text>priklicevanju zivali in monstrumov.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Manufacture">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>        Manufacturing (Proizvodnja)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Manufacturing se uporabi za izracun moznosti neuspeha pri</Text><nl/>
+	<Text>izdelavi orozja in oklepovja.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Crafting">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>          Crafting (Zlatarstvo)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Crafting se uporabi za izracun moznosti neuspeha pri</Text><nl/>
+	<Text>izdelavi nakita.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+<Page name="Sk_Overall">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       The Eternal Lands Enciklopedija</Text>
+	<nl/>
+	<Text>                  Skills</Text><nl/>
+	<Color>red</Color>
+	<Text>             Overall (Skupno)</Text><nl/><nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<size>Medium</size>
+	<Text>Tvoj Overall nivo ti daje izbirne tocke.</Text><nl/>
+	<Text>Z izbirnimi tockami si dvigujes atribute.</Text><nl/>
+	<nlkx/>
+	<nl/><nl/><nl/>
+	<color>yellow</color>
+	<Text>               </Text><link ref="Attributes" title="Nazaj k Atributom"/>
+</Page>
+</Attributes>

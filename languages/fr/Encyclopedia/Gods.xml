@@ -1,0 +1,140 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Gods>
+<Page name="ALUWEN">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       L'encyclopédie d'Eternal Lands</text><nl/>
+	<text>                  Dieux</text><nl/>
+	<color>red</color>
+	<text>		     Aluwen - Dieu de la Défense</text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lieu: Corren, Desert Pines</text><nl/>
+	<text>Prêtre: Noria</text><nl/>
+	<text>Avantages: Les suivants gagnent plus d'experience en</text><nl/>
+	<text>           défense</text><nl/>
+	<text>Ennemis: Mortos, Selain</text><nl/>
+	<text>Niveau de départ: -2 en défense</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Retour aux Dieux"/><nl/>
+</Page>
+<Page name="GLYDOC">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       L'encyclopédie d'Eternal Lands</text><nl/>
+	<text>                  Dieux</text><nl/>
+	<color>red</color>
+	<text>		     Glydoc - Dieu de l'Artisanat</text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lieu: White Stone City</text><nl/>
+	<text>Prêtre: Durnam</text><nl/>
+	<text>Avantages: Les suivants gagnent plus d'experience en</text><nl/>
+	<text>           artisanat</text><nl/>
+	<text>Ennemis: Elandria, Unolas</text><nl/>
+	<text>Niveau de départ: -2 en artisanat</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Retour aux Dieux"/><nl/>
+</Page>
+<Page name="UNOLAS">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       L'encyclopédie d'Eternal Lands</text><nl/>
+	<text>                  Dieux</text><nl/>
+	<color>red</color>
+	<text>		      Unolas - Dieu de la Magie</text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lieu: Vermor Castle, White Stone City</text><nl/>
+	<text>Prêtre: Adrian</text><nl/>
+	<text>Avantages: Les suivants gagnent plus d'experience en magie</text><nl/>
+	<text>Ennemis: Glydoc </text><nl/>
+	<text>Niveau de départ: -2 en magie</text><nl/>
+	<text>Note: Beaucoup de mechants la bas - squelettes, gargouilles,</text><nl/>
+	<text>      ogres!</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Retour aux Dieux"/><nl/>
+</Page>
+<Page name="MORTOS">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       L'encyclopédie d'Eternal Lands</text><nl/>
+	<text>                  Dieux</text><nl/>
+	<color>red</color>
+	<text>		      Mortos - Dieu de l'Attaque</text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lieu: Valley of the Dwarves</text><nl/>
+	<text>Prêtre: Dirhyan</text><nl/>
+	<text>Avantages: Les suivants gagnent plus d'experience en</text><nl/>
+	<text>           attaque</text><nl/>
+	<text>Ennemis: Aluwen, Elandria</text><nl/>
+	<text>Niveau de départ: -2 en attaque</text><nl/>
+	<text>Note: Envahi par les orc femelles. </text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Retour aux Dieux"/><nl/>
+</Page>
+<Page name="SELAIN">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       L'encyclopédie d'Eternal Lands</text><nl/>
+	<text>                  Dieux</text><nl/>
+	<color>red</color>
+	<text>		      Selain - Dieu de l'Invocation</text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lieu: Tree Town, White Stone City</text><nl/>
+	<text>Prêtre: Sylpho</text><nl/>
+	<text>Avantages: Les suivants gagnent plus d'experience en</text><nl/>
+	<text>           invocation</text><nl/>
+	<text>Ennemis: Aluwen, Glilin </text><nl/>
+	<text>Niveau de départ: -2 en invocation</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Retour aux Dieux"/><nl/>
+</Page>
+<Page name="GLILIN">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       L'encyclopédie d'Eternal Lands</text><nl/>
+	<text>                  Dieux</text><nl/>
+	<color>red</color>
+	<text>		Glilin - Dieu de la Fabrication</text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lieu: Portland</text><nl/>
+	<text>Prêtre: Baostas</text><nl/>
+	<text>Avantages: Les suivants gagnent plus d'experience en</text><nl/>
+	<text>           fabrication</text><nl/>
+	<text>Ennemis: Selian </text><nl/>
+	<text>Niveau de départ: -2 en fabrication</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Retour aux Dieux"/><nl/>
+</Page>
+<Page name="ELANDRIA">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       L'encyclopédie d'Eternal Lands</text><nl/>
+	<text>                  Dieux</text><nl/>
+	<color>red</color>
+	<text>		    Elandria - Dieu de l'Alchimie</text><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Pas encore implemente dans le jeu.</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Retour aux Dieux"/><nl/>
+</Page>
+</Gods>

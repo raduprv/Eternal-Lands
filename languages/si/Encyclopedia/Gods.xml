@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Gods>
+<Page name="ALUWEN">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       The Eternal Lands Enciklopedija</text>
+	<nl/>
+	<text>                   Bogovi</text><nl/>
+	<color>red</color>
+	<text>		            Aluwen - Bog obrambe</text><nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lokacija: Corren, Desert Pines</text><nl/>
+	<text>Bozji sluzabnik: Noria</text><nl/>
+	<text>Pridobitve: Verniki dobijo vec izkusenj v obrambi (Defence)</text><nl/>
+	<text>Sovrazniki: Mortos, Selain</text><nl/>
+	<text>Zacetni rank: -2 to defense</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Nazaj k bogovom"/>
+	<nl/>
+</Page>
+<Page name="GLYDOC">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       The Eternal Lands Enciklopedija</text>
+	<nl/>
+	<text>                   Bogovi</text><nl/>
+	<color>red</color>
+	<text>		          Glydoc - Bog rokodelstva</text><nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lokacija: White Stone City</text><nl/>
+	<text>Bozji sluzabnik: Durnam</text><nl/>
+	<text>Pridobitve: Verniki dobijo vec izkusenj pri rokodelstvu (Crafting)</text><nl/>
+	<text>Sovrazniki: Elandria, Unolas</text><nl/>
+	<text>Zacetni rank: -2 to crafting</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Nazaj k bogovom"/>
+	<nl/>
+</Page>
+<Page name="UNOLAS">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       The Eternal Lands Enciklopedija</text>
+	<nl/>
+	<text>                   Bogovi</text><nl/>
+	<color>red</color>
+	<text>		             Unolas - Bog magije</text><nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lokacija: Vermor Castle, White Stone City</text><nl/>
+	<text>Bozji sluzabnik: Adrian</text><nl/>
+	<text>Pridobitve: Verniki dobijo vec izkusenj pri magiji (Magic)</text><nl/>
+	<text>Sovrazniki: Glydoc </text><nl/>
+	<text>Zacetni rank: -2 to magic</text><nl/>
+	<text>Opomba: Veliko posasti v blizini - skeletons, gargoyles, ogres!</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Nazaj k bogovom"/>
+	<nl/>
+</Page>
+<Page name="MORTOS">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       The Eternal Lands Enciklopedija</text>
+	<nl/>
+	<text>                   Bogovi</text><nl/>
+	<color>red</color>
+	<text>		             Mortos - Bog napada</text><nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lokacija: Naralik katakombe</text><nl/>
+	<text>Bozji sluzabnik: Dirhyan</text><nl/>
+	<text>Pridobitve: Verniki dobijo vec izkusenj v napadu (Attack)</text><nl/>
+	<text>Sovrazniki: Aluwen, Elandria</text><nl/>
+	<text>Zacetni rank: -2 attack</text><nl/>
+	<text>Opomba: Veliko orkov in skeletonov v templju. </text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Nazaj k bogovom"/>
+	<nl/>
+</Page>
+<Page name="SELAIN">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       The Eternal Lands Enciklopedija</text>
+	<nl/>
+	<text>                   Bogovi</text><nl/>
+	<color>red</color>
+	<text>		          Selain - Bog priklicevanja</text><nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lokacija: Tree Town, White Stone City</text><nl/>
+	<text>Bozji sluzabnik: Sylpho</text><nl/>
+	<text>Pridobitve: Verniki dobijo vec izkusenj v summoningu</text><nl/>
+	<text>Sovrazniki: Aluwen, Glilin </text><nl/>
+	<text>Zacetni rank: -2 Summoning</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Nazaj k bogovom"/>
+	<nl/>
+</Page>
+<Page name="GLILIN">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       The Eternal Lands Enciklopedija</text>
+	<nl/>
+	<text>                   Bogovi</text><nl/>
+	<color>red</color>
+	<text>		            Glilin - Bog produkcije</text><nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Lokacija: Portland</text><nl/>
+	<text>Bozji sluzabnik: Baostas</text><nl/>
+	<text>Pridobitve: Verniki dobijo vec izkusenj pri produkciji</text><nl/>
+	<text>Sovrazniki: Selian </text><nl/>
+	<text>Zacetni rank: -2 Manufacturing</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Nazaj k bogovom"/>
+	<nl/>
+</Page>
+<Page name="ELANDRIA">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<text>       The Eternal Lands Enciklopedija</text>
+	<nl/>
+	<text>                   Bogovi</text><nl/>
+	<color>red</color>
+	<text>		           Elandria - Bog alkemije</text><nl/><nl/>
+	<size>Medium</size>
+	<color r="1" g="0.5" b="0"/>
+	<text>Se ni vgrajen v igro.</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                        </text><link ref="Gods" title="Nazaj k bogovom"/>
+	<nl/>
+</Page>
+</Gods>

@@ -1,0 +1,471 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Magic>
+<page name="Heal">
+	<size>Big</size><color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text><nl/>
+	<Text>                   MAGIC</Text><nl/>
+	<Color>red</Color>
+	<Text>                    Heal</Text><nl/>
+	<nl/>
+	<simage isize="256" tsize="32" size="100" tid="3" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Soigne 5 HP</text><nl/>
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Increase, Health</text><nl/>	
+	<text>      Reagents: Health essence</text><nl/>
+	<text>      Required Magic lev: 0</text><nl/>
+	<text>      Magic exp. given: 5</text><nl/>
+	<text>      Required Ethereal points: 5</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="R_Heal">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>               Remote Heal</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="9" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Soigne 7 HP on a remote target (self, friend or enemy)</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="3" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Global, Increase, Health</text>	
+	<nl/>	
+	<text>      Reagents: Health essence, Magic essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 3</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 15</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 8</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="M_Prot">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>            Magic Protection</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="19" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Umm.. doesn't do anything useful yet :)</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="17" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Create, Magic, Protection</text>	
+	<nl/>	
+	<text>      Reagents: Magic essence, Energy essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 6</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="21" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 30</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 10</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>	
+	<size>big</size>
+</page>
+<page name="Shield">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>                   Shield</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="19" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Increases your armor rate by 3</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="15" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Create, Matter, Protection</text>	
+	<nl/>	
+	<text>      Reagents: Matter essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 9</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="21" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 40</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 11</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      
+	</Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Poison">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>                   Poison</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="5" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Poisons the target.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="4" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Temporary, Decrease, Life</text>	
+	<nl/>	
+	<text>      Reagents: 2 Death Essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 12</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 50</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 14</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Tp_to_range">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>             Teleport to Range</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Allows you to teleport to a nearby location.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Local, Space</text>	
+	<nl/>	
+	<text>      Reagents: Matter essence, Energy essence, Spirit essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 15</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="8" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 65</text>	
+	<nl/>	<text>      Required Ethereal points: 15</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Harm">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>                    Harm</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="22" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Inflicts 10 points of damage on the target.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Remove, Health</text>	
+	<nl/>	
+	<text>      Reagents: 3 Health essence, 1 Death Essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 18</text>	
+	<nl/>	
+	<text>      Magic exp. given: 80</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 16</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Restoration">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>                Restoration</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="1" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Gives you back all your health.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Restore, Life</text>	
+	<nl/>	
+	<text>      Reagents: 4 Health essences</text>	
+	<nl/>	
+	<text>      Required Magic lev: 21</text>	
+	<nl/>	
+	<text>      Magic exp. given: 95</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 25</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      
+	</Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Bones_to_gold">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>               Bones to gold</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="6" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Converts all bones in your inventory to gold coins.</text>	
+	<nl/>	
+	<text>      (rate based on your Magic level and a random factor)</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Permanent, Change, Matter</text>	
+	<nl/>	
+	<text>      Reagents: 2 Matter essences, 1 Energy essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 23</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="15" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Required Alchemy lev: 20</text>	
+	<nl/>	
+	<text>      Magic exp. given: 100</text>	
+	<nl/>	
+	<text>      Alchemy exp. given: 50</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 30</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Tp_to_Port_Room">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>        Teleport To The Portals Room</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Teleports you to a room from where you can access</text>	
+	<nl/>	
+	<text>      quite a few maps.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Global, Space</text>	
+	<nl/>	
+	<text>      Reagents: Matter essence, 5 Energy essence,</text>
+	<nl/>	
+	<text>                Spirit essence</text>
+	<nl/>	
+	<text>      Required Magic lev: 24</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="9" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 105</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 20</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Life_drain">
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>                 Life Drain</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Cause 10 points of the damage on the target,</text>	
+	<nl/>	
+	<text>      and also gives you 10 HP back.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Life</text>	
+	<nl/>	
+	<text>      Reagents: 3 Life essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 27</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 120</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 20</text>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Magic_Immun">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>              Magic Immunity</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="19" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Makes you immune to negative spells.</text>	
+	<nl/><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="3" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Create, Increase, Magic, Protection</text>	
+	<nl/>	
+	<text>      Reagents: 2 Magic essences, Energy essence</text>	
+	<nl/>	
+	<text>      Required Magic lev: 30</text>
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="17" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Magic exp. given: 140</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 30</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="21" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Heal_Sum">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>               Heal Summoned</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="8" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Soigne 10 HP to each of your summoned creatures in a</text>	
+	<nl/>	
+	<text>      16x16 square, with the center in your position.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Local, Space, Health, Spirit</text>	
+	<nl/>	
+	<text>      Reagents: 2 Spirit essences, 2 Life essences,</text>	
+	<nl/>	
+	<text>      2 Health essences</text>	
+	<nl/>	<simage isize="256" tsize="32" size="100" tid="23" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Required Magic lev: 33</text>	
+	<nl/>	
+	<text>      Magic exp. given: 110</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 25</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="14" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>	
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Smite_Sum">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>	
+	<Text>                   MAGIC</Text><nl/>	
+	<Color>red</Color>	
+	<Text>              Smite Summoned</Text><nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="8" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      10 p. of damage to each summoned creature (except yours)</text>	
+	<nl/>	
+	<text>      in a 16x16 square, with the center in your position.</text>	
+	<nl/><nl/>	
+	<simage isize="256" tsize="32" size="100" tid="2" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Local, Space, Remove, Life</text>	
+	<nl/>	
+	<text>      Reagents: 2 Spirit essences, 3 Death essences,</text>	
+	<nl/>	
+	<text>      2 Matter essences</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="22" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Required Magic lev: 36</text>	
+	<nl/>	
+	<text>      Magic exp. given: 120</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 30</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="24" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+<page name="Drain_Mana">	
+	<size>Big</size>	
+	<color r="0" g="1" b="0"/>	
+	<Text>       L'encyclopédie d'Eternal Lands</Text>	
+	<nl/>
+	<Text>                   MAGIC</Text><nl/>
+	<Color>red</Color>
+	<Text>                Drain Mana</Text><nl/><nl/>
+	<simage isize="256" tsize="32" size="100" tid="7" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>	
+	<text>      Removes a random amount of mana from a player</text>	
+	<nl/>	
+	<text>      adversary and gives it to you. (No cost on</text>	
+	<nl/>
+	<text>      humans). It has no affect on monsters/animals.</text>	
+	<nl/>
+	<simage isize="256" tsize="32" size="100" tid="0" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<nl/>		
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Sigils: Move, Change, Magic</text>	
+	<nl/>	
+	<text>      Reagents: 4 Air Essences</text>	
+	<nl/>	
+	<simage isize="256" tsize="32" size="100" tid="17" name="textures/sigils.bmp" yposupdate="0" xposupdate="0"/>	
+	<Size>Medium</Size><color r="0.9" g="0.9" b="0.9"/>	
+	<text>      Required Magic lev: 40</text>	
+	<nl/>	
+	<text>      Magic exp. given: 200</text>	
+	<nl/>	
+	<text>      Required Ethereal points: 16</text>	
+	<nl/>	
+	<nl/>
+	<Size>Medium</Size>	
+	<nl/><nl/>	
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Magic" title="Retour à magie"/>
+</page>
+</Magic>
