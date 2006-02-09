@@ -69,9 +69,7 @@ extern struct near_actor near_actors[1000];
  */
 typedef struct
 {
-#ifdef CUSTOM_LOOK
 	int uniq_id;
-#endif
 	int guild_id;
     int guild_tag_color;
 
@@ -343,9 +341,7 @@ typedef struct
 	float z_rot;		/*!< Sets the current z rotation*/
 	/*! \} */
 	
-#ifdef	NEW_FRUSTUM
 	float max_z;
-#endif
 
 	/*! \name Actors worn item IDs*/
 	/*! \{ */
