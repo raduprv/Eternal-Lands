@@ -110,35 +110,33 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 #ifndef	NEW_FRUSTUM
 float cal_get_maxz(actor *act)
 {
-	float points[1024][3];
+	float points[1024][3];  // caution, 1k point limit
 	int nrPoints;
 	struct CalSkeleton *skel;
 	float maxz;
 	int i;
 
-	skel=CalModel_GetSkeleton(act->calmodel);
-	nrPoints = CalSkeleton_GetBonePoints(skel,&points[0][0]);
-	maxz=points[0][2];
-	for (i=1;i<nrPoints;++i) if (maxz<points[i][2]) maxz=points[i][2];
+	skel= CalModel_GetSkeleton(act->calmodel);
+	nrPoints= CalSkeleton_GetBonePoints(skel,&points[0][0]);
+	maxz= points[0][2];
+	for(i=1; i<nrPoints; ++i) if(maxz<points[i][2]) maxz= points[i][2];
 	return maxz;
 }
-#endif	
+#endif  //NEW_FRUSTUM
 
 
 void draw_enhanced_actor(actor * actor_id, int banner)
 {
-	//int i=0;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	//int texture_id;
 	float healtbar_z=0;
 	bind_texture_id(actor_id->texture_id);
 
 	if (actor_id->calmodel!=NULL){
 #ifdef	NEW_FRUSTUM
-		healtbar_z = actor_id->max_z+0.2;
+		healtbar_z= actor_id->max_z+0.2;
 #else
-		healtbar_z=cal_get_maxz(actor_id)+0.2;
+		healtbar_z= cal_get_maxz(actor_id)+0.2;
 #endif
 	}
 	
@@ -201,7 +199,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_SHIELD)
 							{
-							    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->shield_meshindex);
+								CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->shield_meshindex);
 								actors_list[i]->body_parts->shield_tex[0]=0;
 								actors_list[i]->cur_shield = SHIELD_NONE;
 								return;
@@ -209,14 +207,14 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_CAPE)
 							{
-							    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->cape_meshindex);
+								CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->cape_meshindex);
 								actors_list[i]->body_parts->cape_tex[0]=0;
 								return;
 							}
 
 						if(which_part==KIND_OF_HELMET)
 							{
-					     		    	CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->helmet_meshindex);
+					     		CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->helmet_meshindex);
 								actors_list[i]->body_parts->helmet_tex[0]=0;
 								return;
 							}
@@ -252,7 +250,7 @@ void custom_path(char * path, char * custom1, char * custom2) {
 	/* leave as is */
 	return;
 }
-#endif
+#endif  //CUSTOM_LOOK
 
 void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
@@ -260,6 +258,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 	unsigned char playerpath[256], guildpath[256];
 #endif
+
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -395,9 +394,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	enhanced_actor *this_actor;
 #ifdef CUSTOM_LOOK
 	unsigned char playerpath[256], guildpath[256];
-	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
 #endif
 #if defined(CUSTOM_LOOK) || defined(MINIMAP)
+	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
     Uint32 guild_id;
 #endif  //CUSTOM_LOOK || MINIMAP
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
@@ -481,7 +480,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #ifdef UID
 		log_error("%s %d - %s\n", unknown_frame, frame, &in_data[32]);
 #else
-		log_error("%s %d - %s\n",unknown_frame,frame,&in_data[28]);
+		log_error("%s %d - %s\n", unknown_frame, frame, &in_data[28]);
 #endif
 	}
 
@@ -539,6 +538,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		my_strncp(buffer,&in_data[32],sizeof(buffer));
 #else
 		my_strncp(buffer,&in_data[28],sizeof(buffer));
+		uniq_id = 0;
 #endif
 
 		/* skip leading color codes */
@@ -558,12 +558,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		my_tolower(name);
 		//my_tolower(guild);
 		
-#ifndef UID
-#ifdef  CUSTOM_LOOK
-		uniq_id = 0;
-#endif //CUSTOM_LOOK
-#endif //ndef UID
-
 		//perfect hashing of guildtag
  		switch(strlen(guild))
  		{
@@ -584,12 +578,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	/* precompute the paths to custom files */
 	snprintf(playerpath, sizeof(playerpath), "custom/player/%u/", uniq_id);
 	snprintf(guildpath, sizeof(guildpath), "custom/guild/%u/", guild_id);
+#endif  //CUSTOM_LOOK
 
 	/* store the ids */
 	this_actor->uniq_id = uniq_id;
-#endif  //CUSTOM_LOOK
 	this_actor->guild_id = guild_id;
-#endif // CUSTOM_LOOK||MINIMAP
+#endif	//CUSTOM_LOOK||MINIMAP
 
 	//get the torso
 	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
@@ -781,7 +775,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	enhanced_actor * this_actor=calloc(1,sizeof(enhanced_actor));
 	actor * a;
 	
-//get the torso         
+	//get the torso
 	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));
 	my_strncp(this_actor->torso_tex,actors_defs[actor_type].shirt[shirt].torso_name,sizeof(this_actor->torso_tex));
 	my_strncp(this_actor->hands_tex,actors_defs[actor_type].skin[skin].hands_name,sizeof(this_actor->hands_tex));
