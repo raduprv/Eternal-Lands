@@ -9,6 +9,11 @@
 #include    <ctype.h>
 #ifdef	WINDOWS
 #define	strdup	_strdup
+#include    <direct.h>
+//int	mkdir(const char*, unsigned int);
+#else   //WINDOWS
+#include	<sys/types.h>
+#include	<sys/stat.h>
 #endif	//WINDOWS
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
@@ -94,6 +99,8 @@ void    init_update()
 // handle the update file event
 void    handle_update_download(struct http_get_struct *get)
 {
+	static int  mkdir_res= -1;  // flag as not tried
+	
 	if(get != NULL){
 		// did we finish properly?
 		if(get->status == 0){\
@@ -105,7 +112,7 @@ void    handle_update_download(struct http_get_struct *get)
 
 			// yes, lets start using the new file
 			remove("files.lst");
-			rename("temp000.dat", "files.lst");
+			rename("./tmp/temp000.dat", "files.lst");
 
 			// trigger processing this file
 			do_updates();
@@ -149,7 +156,15 @@ log_error("downloading from mirror %d of %d %s", num, num_update_servers, update
 		} else {
 			strcpy(update_server, update_servers[0]);
 		}
-		sprintf(filename, "temp000.dat");
+		// failsafe, try to make sure the directory is there
+		if(mkdir_res < 0){
+#ifdef  WINDOWS
+            mkdir_res= mkdir("./tmp");
+#else   //WINDOWS
+            mkdir_res= mkdir("./tmp", 0777);
+#endif  //WINDOWS
+		}
+		sprintf(filename, "./tmp/temp000.dat");
 		++temp_counter;
 		fp= my_fopen(filename, "wb+");
 		if(fp){
@@ -261,7 +276,7 @@ log_error("Downloaded needed for %s", filename);
 			char	buffer[256];
 			FILE    *fp;
 
-			snprintf(download_temp_file, sizeof(buffer), "temp%03d.dat", ++temp_counter);
+			snprintf(download_temp_file, sizeof(buffer), "./tmp/temp%03d.dat", ++temp_counter);
 			buffer[sizeof(buffer)-1]= '\0';
 			fp= my_fopen(download_temp_file, "wb+");
 			if(fp){
@@ -322,7 +337,7 @@ void    handle_file_download(struct http_get_struct *get)
 		char	buffer[512];
 		FILE    *fp;
 
-		sprintf(download_temp_file, "temp%03d.dat", ++temp_counter);
+		sprintf(download_temp_file, "./tmp/temp%03d.dat", ++temp_counter);
 		fp= my_fopen(download_temp_file, "wb+");
 		if(fp){
 			// build the prope URL to download
