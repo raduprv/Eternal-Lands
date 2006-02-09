@@ -13,7 +13,7 @@
 #endif
 #endif
 
-#ifdef WINDOWS
+#if defined(_WIN32) || defined(_WIN64)
  #include <windows.h>
  #undef WRITE_XML
  char   *win_command_line;
@@ -308,9 +308,10 @@ void freemakeargv(char **argv)
 
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
-	win_command_line= GetCommandLine();
 	char **argv= NULL;
 	int argc= makeargv(win_command_line, " \t\n", &argv);
+
+	win_command_line= GetCommandLine();
 	Main(argc, (char **) argv);
 	freemakeargv(argv);
 

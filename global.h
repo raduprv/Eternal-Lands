@@ -13,7 +13,14 @@
  #define M_PI 3.14159265358979323846
 #endif //M_PI
 
-#ifdef _WIN32
+// we do NOT want to have all our code checking for _WIN32, or _WIN64 will be broken, check for WINDOWS
+#if defined(_WIN32) || defined(_WIN64)
+#ifndef	WINDOWS
+	#define	WINDOWS 1
+#endif	//WINDOWS
+#endif	//_WIN32
+
+#ifdef	WINDOWS
 	#include <windows.h>
 	#include <al.h>
 	#include <alut.h>
@@ -22,8 +29,8 @@
 		#define	snprintf sane_snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
-		#define atan2f atan2
-		#define acosf acos
+		//#define atan2f atan2
+		//#define acosf acos
 		#define ceilf ceil
 		#define rint(X) floor(X+0.5f)
 	#endif
@@ -147,9 +154,6 @@ typedef int point;
 #include "chat.h"
 #include "bags.h"
 #include "storage.h"
-//#ifdef CAL3D
-//#include "cal3dwrap.h"
-//#endif
 #include "cal.h"
 
 #ifdef NOTEPAD
