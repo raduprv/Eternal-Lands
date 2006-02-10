@@ -1,0 +1,787 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Potwory>
+<Page name="Kroliki">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>           Brown and White Rabbit</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Brazowe i Biale kroliki</Text>
+	<nlkx/>
+	<Text> </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> Sa brazowe i biale kroliki.</Text>
+	<nlkx/>
+	<Text> Kroliczych skorek mozesz uzywac do wytwarzania:</Text>
+	<nlkx/>
+	<Text> Brazowe: Cieple futrzane rekawice, Futrzane buty; Biale: Futrzana czapka</Text>
+	<nl/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac krolika potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 rabbit fur, 1 meat, 1 bone, 1 life essence.</Text>
+	<nl/>
+	<Text> Animal Nexus: 0</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Szczur">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Rat</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Szczur</Text>
+	<nlkx/>
+	<Text> </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> Szczurzych ogonow mozesz uzywac do wytwarzania:</Text>
+	<nlkx/>
+	<Text> Jeszcze nic nie mozna zrobic. </Text>
+	<nl/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac szczura potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 Rat Tail, 1 meat, 1 bone, 1 life essence.</Text>
+	<nl/>
+	<Text> Animal Nexus: 0</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Bobr">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                    Beaver</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Bobr</Text>
+	<nlkx/>
+	<Text> </Text>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> Mozesz uzywac futer z bobra do wytwarzania:</Text>
+	<nlkx/>
+	<Text> Futrzany kapelusz, Eliksir Obrony, </Text>
+	<nl/>
+	<Text> </Text>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac bobra potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 beaver fur, 1 meat, 1 bone, 1 life essence.</Text>
+	<nl/>
+	<Text> Animal Nexus: 1</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Jelen">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Deer</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Jelen</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Mozesz uzywac skory z jelenia do wytwarzania:</Text>
+	<nlkx/>
+	<Text> Eliksirow koordynacji.</Text>
+	<nlkx/>
+	<Text> Mozesz uzywac poroza jelenia do wytwarzania:</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac jelenia potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 deer fur, 1 deer antler, 3 meat, 3 bone, </Text>
+	<nl/>
+	<Text> 2 life essence.</Text>
+	<nl/>
+	<Text> Animal Nexus: 1</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Weze">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Snakes</Text><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Weze</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Mozesz uzywac skor z wezy w niektorych zadaniach dla bogow.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac zielonego weza potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 green snake skin, 1 raw meat</Text>
+	<nl/>
+	<Text> 1 life essence.</Text>
+	<nl/><nl/>
+	<Text> Aby przywolac czerwonego weza potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 red snake skin, 1 raw meat</Text>
+	<nl/>
+	<Text> 1 life essence.</Text>
+	<nl/><nl/>
+	<Text> Aby przywolac brazowego weza potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 brown snake skin, 2 raw meat</Text>
+	<nl/>
+	<Text> 1 life essence.</Text>
+	<nl/>
+	<Text> Animal Nexus dla czerwonego i zielonego weza: 2, dla brazowego: 3</Text>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Lis">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Fox</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Lis</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Mozesz uzywac lisiego futra fo wytwarzania:</Text>
+	<nlkx/>
+	<Text> Szalik z lisa</Text>
+	<nlkx/>
+	<Text> Cieply futrzany plaszcz</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac lisa potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 fox fur, 2 raw meat, 2 bones, </Text>
+	<nl/>
+	<Text> 2 life essence.</Text>
+	<nl/>
+	<Text> Animal Nexus: 2</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Dzik">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Boar</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Dzik</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac dzika potrzebujesz:</Text>
+	<nl/>
+	<Text> 3 bones, 4 raw meat </Text>
+	<nl/>
+	<Text> 2 life essences.</Text>
+	<nl/>
+	<Text> Animal Nexus: 3</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Wilk">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Wolf</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Wilk</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Mozesz uzywac wilczego futra do wytwarzania:</Text>
+	<nlkx/>
+	<Text> Cielpy futrzany plaszcz, Futrzane buty</Text>
+	<nlkx/>
+	<Text> Eliskir dzikosci</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac wilka potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 wolf fur, 2 raw meat, 3 bones, </Text>
+	<nl/>
+	<Text> 2 life essences.</Text>
+	<nl/>
+	<Text> Animal Nexus: 3</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Puma">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Puma</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Puma</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Mozesz uzywac futra z pumy do wytwarzania:</Text>
+	<nlkx/>
+	<Text> Eliksir witalnosci</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac pume potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 puma fur, 3 raw meat, 3 bones, </Text>
+	<nl/>
+	<Text> 2 life essences.</Text>
+	<nl/>
+	<Text> Animal Nexus: 5</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Niedzwiedz">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   ANIMALS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Bear</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Niedzwiedz</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Mozesz uzywac futra z niedzwiedzia do wytwarzania:</Text>
+	<nlkx/>
+	<Text> Eliksir ataku</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac niedzwiedzia potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 bear fur, 5 raw meat, 5 bones, </Text>
+	<nl/>
+	<Text> 3 life essences.</Text>
+	<nl/>
+	<Text> Animal Nexus: 5</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Goblin">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Male Goblin</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Goblin</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Gobliny sa obrzydliwe, pachna odpadkami . Przewaznie</Text>
+	<nlkx/>
+	<Text> podrozuja w grupach po 5-6 osobnikow, lecz czesto mozna widziec je</Text>
+	<nlkx/>
+	<Text> gdy podrozuja same. Maja okolo</Text>
+	<nlkx/>
+	<Text> 5 stop lub mniej wysokosci, wyrazna zielona skore,</Text>
+	<nlkx/>
+	<Text> zoltawo brazowe oczy i nosza ubrania,</Text>
+	<nlkx/>
+	<Text> zbroje i bronie, ktore ukradly z martwych</Text>
+	<nlkx/>
+	<Text> zwlok w grobach, nieoczekiwanych podroznikow, albo kazdych </Text>
+	<nlkx/>
+	<Text> z nich. Sa zwykle zbyt glupie aby odkryc czy</Text>
+	<nlkx/>
+	<Text> walka z toba jest dobra czy zla rzecza dla nich.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Nie mozesz przywolac goblina</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Szkielet">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                   Skeleton</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Szkielet</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Szkielety sa koscmi tych, ktorzy zgineli przed</Text>
+	<nlkx/>
+	<Text> Wielka Wojna. Bogowie zla nawet reanimoali ich</Text>
+	<nlkx/>
+	<Text> kosci, gdy ciala i krew zniknely aby uzyc ich </Text>
+	<nlkx/>
+	<Text> przeciwko bogom dobra. Na szczescie nie uziezili</Text>
+	<nlkx/>
+	<Text> ich duszy...chociaz smutne jest w legendach, ze</Text>
+	<nlkx/>
+	<Text> jest kilku, ktorych dusze sa przeklete i musza podarzac za</Text>
+	<nlkx/>
+	<Text> reszta ich bylych siebie do wiecznosci. </Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> 3 death essence, 3 life essence, 10 bones.</Text>
+	<nlkx/>
+	<Text> Animal Nexus: 4</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Gargi">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                   Gargoyles</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Small Gargoyle (There are also Medium and Large</Text>
+	<nlkx/>
+	<Text> Gargoyles)</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Gdy Krol Vermor tajemniczo zniknal - wiekszosc ludzi</Text>
+	<nlkx/>
+	<Text> myslalo, ze zmarl (jeszcze pozostaje znalesc cialo) -</Text>
+	<nlkx/>
+	<Text> jego Gargi zostaly zwolnione spod jego kontroli. One teraz</Text>
+	<nlkx/>
+	<Text> wedruja po White Stone w ciemne noce,</Text>
+	<nlkx/>
+	<Text> zamieniaja sie w posagi w czasie dnia. Niektorzy</Text>
+	<nlkx/>
+	<Text> mowia, ze one sa wciaz lojalne i wedruja w poszukiwaniu</Text>
+	<nlkx/>
+	<Text> ich mistrza, kto wie czy go kiedykolwiek znajda...</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie (Small/Medium/Large):</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> 2/3/4 fire essence, 2/3/4 matter essence,</Text>
+	<nlkx/>
+	<Text> 2/3/4 death essence, 2/3/4 life essence.</Text>
+	<nlkx/>
+	<Text> Animal Nexus: 4/4/4</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Trol">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Troll</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Troll</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Nowi nie moga wspolzawodniczyc z nimi, bo sa bardzo niebezpieczne</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Nie mozesz przywolywac Trola</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Orki">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Orcs</Text><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> Samiec i samica orka</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Orki sa nawet inteligentne, maja dobra</Text>
+	<nlkx/>
+	<Text> taktyke walki. Sa rowniez bardzo</Text>
+	<nlkx/>
+	<Text> przerazajacymi kreaturami, maja wieksza</Text>
+	<nlkx/>
+	<Text> posture od czlowieka, gdy odnosza</Text>
+	<nlkx/>
+	<Text> rany czyni ich to bardziej zadnymi walki i trudniejszymi</Text>
+	<nlkx/>
+	<Text> przeciwnikami. Nie boja sie zbytnio o swoje</Text>
+	<nlkx/>
+	<Text> zycie i beda walczyc do smierci.</Text>
+	<nl/>
+	<Text> Maja okolo 6-8 stop wysokosci, ich skora jest zielona,</Text>
+	<nlkx/>
+	<Text> ubieraja sie w swe uniklane zbroje i ubrania,</Text>
+	<nlkx/>
+	<Text> zwykle znajdujac je od innych ras aby byc gorszymi</Text>
+	<nlkx/>
+	<Text> do ich wlasnej zbrojowni.</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Nie mozesz przywolac orka</Text>
+	<nl/><nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Ogr">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                     Ogre</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> An Ogre</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Ogry przewaznie zyja samotnie, i wyznaczaja swoje wlasne</Text>
+	<nlkx/>
+	<Text> terytoria zwykle daleko od innych ogrow. </Text>
+	<nlkx/>
+	<Text> Wyrzucaja czlowiekopodobne istoty, ktore znajda</Text>
+	<nlkx/>
+	<Text> zyjace tam i zaatakuja cie na widok. Nie sa</Text>
+	<nlkx/>
+	<Text> tak inteligentne jak Orki, sa bardzo zrzedliwe</Text>
+	<nlkx/>
+	<Text> i leniwe. Ich skora ma kolor od zielonego</Text>
+	<nlkx/>
+	<Text> d brzoskwiniowego jak u ludzi, sa to olbrzymy</Text>
+	<nlkx/>
+	<Text> majace 8 stop wzrostu w szerokim obwodem w pasie(zaleznie</Text>
+	<nlkx/>
+	<Text> od ich lenistwa).</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Nie mozesz przywolywac Ogra</Text>
+	<nl/><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Cyklopy">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                    Cyclops</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Cyclops</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Cyklopy sa wielkimi silnymi brutalami, ktore zaatakuja</Text>
+	<nlkx/>
+	<Text> wszystko co sie porusza w ich strone, jesli czuja sie zagrozone.</Text>
+	<nlkx/>
+	<Text> Ich oczywisty brak muzgow, nadrabiaja przez</Text>
+	<nlkx/>
+	<Text> sile i wielkosc. Nie wiadomo wiele o ich</Text>
+	<nlkx/>
+	<Text> relacjach spolecznych, gdyz nikt nie zblizyl sie wystarczajaco blisko,</Text>
+	<nlkx/>
+	<Text> lub zostal wystraczajaco dlugo, by o tym opowiedziec. </Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Nie mozesz przywolywac Cyklopow</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+<Page name="Fluffy">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Fluffy Rabbit</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Fluffy Rabbit</Text>
+	<nl/>
+	<Text> </Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> "Auuu, to jest milutki puszysty kroliczek!"</Text>	<nlkx/>
+	<Text>      --Ostatnie slowa wielu nieswiadomych bohaterow.</Text>	<nlkx/>
+	<Text> Do nich powinni zblizac sie tylko najmocniejsi.</Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac Puszystego Krolika potrzebujesz:</Text>
+	<nl/>
+	<Text> 1 white rabbit fur, 1 raw meat, 1 bone, </Text>
+	<nl/>
+	<Text> 1 enriched life essence.</Text>
+	<nl/>
+	<Text> Animal Nexus: 5</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+
+<Page name="Chimera">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   MONSTERS</Text><nl/>
+	<Color>red</Color>
+	<Text>                 Chimeran Wolf</Text><nl/><nl/>
+	<Size>Medium</Size><color r="1" g="0.5" b="0"/>
+	<Text> A Chimeran Wolf</Text>
+	<nlkx/>
+	<Text> </Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Wielki, potezny, paskudny wilk, powolny i majestatyczny. Sa</Text>
+	<nlkx/>
+	<Text> rzekomo stworzone przez pewien magiczny wypadek.</Text>
+	<nlkx/>	<Text> W kazdym razie tylko najsilniejsi moga</Text>
+	<nlkx/>
+	<Text> je pokonac.</Text>
+	<nlkx/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text> Przywolywanie:</Text>
+	<nlkx/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text> Aby przywolac Chimeryjskiego Wilka potrzebujesz:</Text>
+	<nl/>
+	<Text> 2 wolf furs, 1 raw meat, 1 bone, </Text>
+	<nl/>
+	<Text> 2 enriched life essences.</Text>
+	<nl/>
+	<Text> Animal Nexus: 5</Text>
+	<nl/><nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                      </Text><link ref="Potwory" title="Wroc Do Indeksu Potworow"/>
+</Page>
+</Potwory>

@@ -1,0 +1,1823 @@
+<Help>
+<Page Name="HelpPage">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text>
+	<nl/><nl/>
+	<size>Medium</size>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>To jest karta pomocy Eternal Lands. Tutaj znajdziesz</Text><nl/>
+	<Text>informacje, ktore pomoga Ci zapoznac sie z interfacem</Text><nl/>
+	<Text>oraz kilka rad, ktore ulatwia Ci rozpoczecie gry.</Text>
+	<nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<size>Medium</size>
+	<link ref="HP Commands" title="Skroty klawiszowe"/>
+	<size>Small</size>
+	<Text>      -  skroty klawiszowe</Text><nl/>
+	<size>Medium</size>
+	<link ref="text" title="Komendy tekstowe"/>
+	<size>Small</size>
+	<Text>       -  spis wszystkich komend tekstowych.</Text><nl/>
+	<size>Medium</size>
+	<link ref="channel" title="System komunikacji"/>
+	<Text>     -  jak dziala system komunikacji.</Text><nl/>
+	<size>Medium</size>
+	<link ref="guild" title="Gildie - komendy"/>
+	<size>Small</size>
+	<Text>       -  komendy zwiazane z gildiami.</Text><nl/>
+	<size>Medium</size>
+	<link ref="HP Interface" title="Interface"/>
+	<size>Small</size>
+	<Text>              -  opis interfacu gry.</Text><nl/>
+	<size>Medium</size>
+	<link ref="AbbrAcr" title="Skroty..."/>
+	<size>Small</size>
+	<Text>              -  oraz inne uzywane w grze pojecia</Text><nl/>
+	<size>Medium</size>
+	<link ref="tips" title="Rady"/>
+	<size>Small</size>
+	<Text>                   -  Dodatkowe informacje</Text><nl/>
+	<size>Medium</size>
+	<link ref="NFAQ" title="FAQ Nowego Gracza"/>
+	<size>Small</size>
+	<Text>      -  FAQ dla nowych graczy (newbies)</Text><nl/>
+	<size>Medium</size>
+	<link ref="SFAQ" title="Umiejetnosci - FAQ"/>
+	<size>Small</size>
+	<Text>     -  umiejetnosci w Eternal Lands</Text><nl/>
+
+	
+</Page>
+<Page Name="HP Commands">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>             Skroty klawiszowe</Text><nl/>
+	<size>Small</size>
+	<color r="0.0" g="0.5" b="1"/>
+	<color>yellow</color><Text>Strona: 1</Text>
+	<Text>                                           </Text>
+	<link ref="HP Commands2" title=" 2 "/>
+	<link ref="HelpPage" title="Wroc"/><nl/>
+	<nl/>
+		
+	<size>Small</size>
+		
+	<color r="1" g="0.3" b="1"/>
+	<Text>~ lub F1</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Wcisniecie dowolnego z nich spowoduje przelaczenie w 'tryb</Text><nl/>
+	<Text>konsoli',w ktorym bedziesz mogl obejrzec wszystkie rozmowy</Text><nl/>
+	<Text>i komunikaty, ktore zniknely z okna gry. Kursorami (gora/</Text><nl/>
+	<Text>dol) oraz rolkami myszy mozesz przewijac zawartosc okna. </Text><nl/>
+	<Text>Mozesz rowniez uzyc przyciskow PageUp i PageDown aby </Text><nl/>
+	<Text>przewijac cale strony.</Text><nl/>
+   	<nl/>
+    	
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>F2</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Wcisniecie spowoduje otworzenie ostatniego adresy URL,</Text><nl/>
+	<Text>ktory pojawil sie w Twoim oknie gry. Mozesz wybrac swoja </Text><nl/>
+	<Text>przegladarke (np.: Firefox, Internet Explorer, itp.) oraz</Text><nl/>
+	<Text> Twoj system operacyjny (OS) (np.: WindowsXP, Windows 98, </Text><nl/>
+	<Text>Linux, itp.) w pliku el.ini albo za pomoca ELConfig.exe </Text><nl/>
+	<Text>zlokalizowanych w glownym folderze Eternal Lands (dalej EL).</Text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>F5</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Wyswietla obowiazujace w grze zasady i reguly. </Text><nl/>
+	<Text>Zapoznanie sie z nimi jest baaardzo wskazane.</Text><nl/>
+	<nl/>
+
+	<color r="1" g="0.3" b="1"/>
+	<Text>F9</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Rozpala flare (jedynie Ty mozesz ja zobaczyc). Ostrzezenie:</Text><nl/>
+	<Text>flary te obciazaja system w znacznym stopniu. Rozpalenie ich </Text><nl/>
+	<Text>zbyt duzej ilosci moze doprowadzic do jego zawieszenia sie.</Text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Tab</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Wyswietla mape obszaru, na ktorym sie znajdujesz. Niebieski</Text><nl/>
+	<Text>krzyzyk (X) oznacza Twoja aktualna pozycje. Klikniecie na </Text><nl/>
+	<Text>dowolnym fragmencie mapy spowoduje pojawienie sie tam </Text><nl/>
+	<Text>czerwonego X i automatycznie rozpocznie wedrowke Twojej </Text><nl/>
+	<Text>postaci we wskazane miejsce. Ponowne wcisniecie Tab</Text><nl/>
+	<Text>przelaczy widok na ekran gry.</Text><nl/>
+	<nl/>
+        
+	<color r="1" g="0.3" b="1"/>
+	<Text>Kursory (lewo/prawo) lub srodkowy przycisk myszy</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Obracaja kamere wzgledem osi Z tak, ze mozesz zobaczyc</Text><nl/>
+	<Text> otoczenie pod roznymi katami. Jest to niezwykle pomocne,</Text><nl/>
+	<Text> gdy uzywasz kompasu do orientowania sie w terenie. </Text><nl/>
+	<Text>Predkosc obrotow, w stopniach, mozesz zmieniac w pliku</Text><nl/>
+	<Text>el.ini lub za pomoca ELConfig.exe. Wicjskajac trzeci</Text><nl/>
+	<Text>przycisk myszy i poruszajac nia mozesz ustawic dowolny </Text><nl/>
+    <Text>kat widzenia.</Text><nl/>
+    <nl/>
+
+	<color r="1" g="0.3" b="1"/>
+	<Text>Shift + kursory w lewo/prawo</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Pozwalaja obracac kamera precyzyjniej - o mniejszy kat.</Text><nl/>
+	<Text>Predkosc tych obrotow mozesz ustawic w pliku el.ini lub</Text><nl/>
+	<Text>za pomoca ELConfig.exe.</Text><nl/>
+	<nl/>
+
+	<color r="1" g="0.3" b="1"/>
+	<Text>Kursory gora/dol</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Mozesz ustawic kat patrzenia wzgledem pomiedzy wartosciami</Text><nl/>
+	<Text>45 i 60 stopni. Domyslnie jest to 60 stopni.</Text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Page up/Page down</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/> 
+	<Text>1. Oddala i przybliza obraz. Mozesz rowniez uzyc rolek myszy</Text><nl/>
+	<Text>2. Pozwoli przewijac Ci tekst w trybie konsoli - F1.</Text><nl/>
+    <nl/>
+	
+	<color r="0.0" g="0.5" b="1"/>       
+	<color>yellow</color>
+	<Text>Strona: 1</Text>
+	<link ref="HP Commands2" title=" 2 "/>
+	<Text>          </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+</Page>
+
+<Page name="HP Commands2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>             Skroty klawiszowe</Text><nl/>
+	
+	<size>Small</size>
+	<color r="0.0" g="0.5" b="1"/>
+	<color>yellow</color><Text>Strona: 2</Text>
+	<Text>                                           </Text>
+	<link ref="HP Commands" title=" 1 "/>
+	<link ref="HelpPage" title="Wroc"/><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Alt + enter</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Przelacza pomiedzy trybem pelnoekranowym i okienkowym.</Text><nl/>
+	<nl/>
+		
+	<color r="1" g="0.3" b="1"/>
+	<Text>Alt+x</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>wylacza gre bez ostrzezenia i zadania potwierdzenia</Text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Alt+h</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>wlacza/wylacza pasek zdrowia nad glowami graczy/potworow</Text><nl/>
+	<Text>(widoczne tylko dla Ciebie). Domyslnie wlaczone.</Text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Alt+b</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>wlacza/wylacza liczbowa reprezentacje punktow zycia graczy</Text><nl/>
+	<Text>i potworow (widoczne tylko dla Ciebie). Domyslnie wylaczone.</Text><nl/>
+	<nl/>
+		
+	<color r="1" g="0.3" b="1"/>
+	<Text>Alt+n</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>wlacza/wylacza imiona widoczne nad glowami innych</Text><nl/>
+	<Text>(widoczne tylko dla Ciebie). Domyslnie wylaczone</Text><nl/>
+	<nl/>
+		
+	<color r="1" g="0.3" b="1"/>
+	<Text>Alt+o</Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>  (not zero)</Text><nl/>
+	<Text>Wlacza/wylacza wyswietlanie lokalnych wypowiedzi graczy w</Text><nl/>
+	<Text>komiksowych dymkach.</Text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Mapa- Prawy przycisk myszy+tekst+enter</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Zostawia na mapie znacznik z Twoja notatka.(Tryb mapy - TAB)</Text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Mapa- Ctrl+prawy przycisk myszy</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Usuwa znacznik z mapy (Tryb mapy - TAB)</Text><nl/>
+	<nl/>
+		
+	<color r="1" g="0.3" b="1"/>
+	<Text>ctrl+v lub shift+insert</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Wkleja wczesniej skopiowany tekst do okna dialogowego.</Text><nl/>
+	<Text>Wcisniecie entera umozliwi zobaczenie go innym graczom.</Text><nl/>
+	<nl/> 
+	
+	<color r="1" g="0.3" b="1"/>
+	<Text>Esc</Text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Czysci cala wiadomosc/komende napisana przez Ciebie</Text><nl/>
+	<Text>(dziala tylko PRZED nacisnieciem entera).</Text><nl/>
+	<nl/>
+	
+	<color r="0.0" g="0.5" b="1"/>
+	<color>yellow</color>
+	<Text>Strona: 2</Text>
+	<link ref="HP Commands" title=" 1 "/>
+	<Text>          </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+</Page>
+
+<Page name="text">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>             Komendy tekstowe</Text><nl/>
+	<size>Small</size>
+	
+	<color>yellow</color>
+	<Text>Strona: 1</Text>
+	<Text>                                           </Text>
+	<link ref="text2" title=" 2 "/><link ref="HelpPage" title="Wroc"/><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.3" b="1"/>
+	<Text>Komendy, ktorych dzialanie nie zalezy od Twojego polozenia</Text><nl/>
+	<size>Small</size>
+	<nl />
+	
+	<color r="1" g="0.3" b="1"/>
+	<text>#cls</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Czysci Twoj ekran ze wszystkich wyswietlonych wiadomosci,</text><nl/>
+	<text>nie powoduje jednak blokady nowych wiadomosci.</text><nl/>
+	<text>Ulatwia robienie screenshotow.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#date</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla aktualna date w grze.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#stats</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla podstawowe statystyki serwera oraz informacje</text><nl/>
+	<text>o liczbie zalogowanych graczy.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#glinfo</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla informacje o karcie graficzne oraz wersji OpenGL.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#exit</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Zamyka gre bez zadnego ostrzezenia.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#quit</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Zamyka gre bez zadnego ostrzezenia.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#ping</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla wartosc opoznienia (czyli czas odpowiedzi</text><nl/>
+	<text>servera na wimpuls wyslany z Twojego komputera,</text><nl/>
+	<text>mierzone w milisekundach).</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#vers</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla informacje o wersji gry.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#beam me up</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Teleportuje Twoja postac do obozowiska na Isla Prima</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#help_me</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ta komenda wysyla pytanie do moderatorow oraz newbie</text><nl/>
+	<text>helpers (osoby pomagajace nowym graczom, a ktorzy sa</text><nl/>
+	<text>aktualnie online. Nie zapomnij podac pytania po napisaniu</text><nl/>
+	<text>#help_me. Jezeli tylko ktokolwiek z moderatorow jest online</text><nl/>
+	<text>i moze Ci odpowiedziec na pewno to zrobi. Pamietaj jednak,</text><nl/>
+	<text>tez maja pytanie, wiec po wyslaniu prosby o pomoc czekaj</text><nl/>
+	<text>cierpliwie na odpowiedz. (Przyklad: #help_me How do I eat?)</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#abuse</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ta komenda wysyla raport o lamaniu regul gry przez jednego</text><nl/>
+	<text>z graczy do wszystkich moderatorow, ktorzy sa online.</text><nl/>
+	<text>Upewnij sie, ze podales gdzie jestes, kto i w jaki sposob</text><nl/>
+	<text>narusza reguly. (Przyklad: #abuse I am next to JoeCharacter</text><nl/>
+	<text> in Portland Storage and he is swearing in local chat.)</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#exp</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla informacje o Twoich puntkach doswiadczenia oraz </text><nl/>
+	<text>poziomach umiejetnosci wraz z informacja o punktach</text><nl/>
+	<text>doswiadczenia wymaganych do osiagniecia nastepnego poziomu.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#storage</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla zawartosc Twojego magazynu.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#storage tekst</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla wszystkie przedmioty w Twoim magazynie zawierajace</text><nl/>
+	<text>'tekst' w swojej nazwie.</text>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#arm</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla wszystkie informacje o Twoim pancerzu.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#list_perks</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla liste wszystkich posiadanych przez Ciebie perkow,</text><nl/>
+	<text>zarowno pozytywnych jak i negatywnych.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#mark nazwa x,y</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ustawia na mapie znacznik na mapie. Teks informacji jest</text><nl/>
+	<text>okreslony poprzez parametrz 'nazwa', a miejsce polozenia</text><nl/>
+	<text>poprzez wspolrzedne x,y. Znacznik ten bedzie wykorzystywany</text><nl/>
+	<text>przez komende #goto nazwa, ktora zabierze Twoja postac do</text><nl/>
+	<text>oznaczonego miejsca.</text><nl/>
+	
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#delmark nazwa</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Usuwa z mapy znacznik o danej nazwie.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#marks</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla informacje o wszystkich postawionych na mapie</text><nl/>
+	<text>znacznikach.</text><nl/>
+	<nl/>
+	
+	<color>yellow</color><Text>Strona: 1</Text>
+	<link ref="text2" title=" 2 "/>
+	<Text>            </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	
+</Page>
+
+<Page name="text2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>             Komendy tekstowe</Text><nl/>
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>Strona: 2</Text>
+	<Text>                                           </Text>
+	<link ref="text" title=" 1 "/><link ref="HelpPage" title="Wroc"/><nl/>
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.3" b="1"/>
+	<Text>Komendy, ktorych dzialanie nie zalezy od Twojego polozenia</Text><nl />
+	<nl />
+	<size>Small</size>
+	
+	<color r="1" g="0.3" b="1"/>
+	<text>#add_buddy imie_gracza</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wysyla prosbe o zgode na dolaczenie do listy przyjaciol.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#accept_buddy imie_gracza</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyrazenie zgody na dolaczenie do listy przyjaciol.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<nl/>
+	<text>#change_buddy imie_gracza numer</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Zmienia rodzaj przypisania do listy (zmienia kolor imienia).</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#clear_buddy</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Czysci liste przyjaciol.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#del_buddy imie_gracza</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Usuwa gracza o danym imieniu z listy przyjaciol.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#humor</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wlacza/wylacza poczucie humoru NPC. Domyslnie wlaczone.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#change_pass stare_haslo nowe_haslo</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Zmienia Twoje haslo. Upewnij sie, ze zanotowales nowe haslo</text><nl/>
+	<text>w bezpiecznym miejscu, nie bedzie ono zanotowane w zadnym.</text><nl/>
+	<text>miejscu. Upewnij sie rowniez, ze Twoja postac znajduje sie</text><nl/>
+	<text>w ustronnym miejscu (np. budynki), by w razie literowki nikt</text><nl/>
+	<text>niepowolany nie zobaczyl Twojego nowego hasla.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#research</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla informacje o aktualnie prowadzonych badaniach oraz</text><nl/>
+	<text>o przewidywanym czasie ich ukonczenia (czas gry).</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#ignore imie_gracza</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Komenda ta powoduje zablokowanie wszelkich wiadomosci od</text><nl/>
+	<text>danego gracza, zarowno lokalnych, na kanale jak i pmow.</text><nl/>
+	<text>Gracz ten zostanie dodany do Twojej listy ignorownych.</text>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#unignoreb imie_gracza</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Usuwa gracza z Twojej listy ignorowanych.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#ignores</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wysiwetla zawartosc Twojej listy ignorowanych.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#afk</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Pozwala na ustawienie wiadomosci afk, ktora bedzie wysylana</text><nl/>
+	<text>do osob, ktore wysla Ci pma w czasie gdy Ciebie nie ma.</text><nl/>
+	<text>Wiadomosc domyslna mozesz ustawic w pliku el.ini w katalogu</text><nl/>
+	<text>glownym EL. (afk znaczy "away from keyboard")</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#msg all</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ta komenda wyswietli wszystkie pmy otrzymane przez Ciebie</text><nl/>
+	<text>w czasie, gdy byles afk.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#filter slowo</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Dodaje 'slowo' do listy slow filtrowanych. Slowo to bedzie</text><nl/>
+	<text>od tej pory zastepowane slowem "smeg" lub jakimkolwiek innym</text><nl/>
+	<text>slowem zdefiniowanym przez Ciebie w pliku el.ini.</text><nl/>
+	<text>Zazwyczaj filtruje sie przeklenstwa. Smeg to slowo domyslne.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#unfilter slowo</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Usuwa 'slowo' z listy slow filtrowanych.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#filters</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla zawartosc listy slow filtrowanych.</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#suicide</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ta komenda powoduje Twoja smierc, mozesz utracic posiadane</text><nl/>
+	<text>w momencie jej wpisania przedmioty.</text>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#reset</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ta komenda resetuje Twoje atrybuty, neksusy, perki oraz</text><nl/>
+	<text>poziom calkowity do wartosci domyslnych, czyli 0 (dla</text><nl/>
+	<text>atrybutow jest to wartosc 4). Nie powoduje utraty bogow oraz</text><nl/>
+	<text>poziomow umiejetnosci. (Poziom calkowity to NIE umiejetnosc)</text><nl/>
+	<nl />
+	<color r="1" g="0.3" b="1"/>
+	<text>#killme yes</text><nl />
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Usuwa Twoja postac z plikow serwera. Stracisz wszysktie</text><nl/>
+	<text>posiadane przez postac przedmioty (zarowno te, ktore ma przy</text><nl/>
+	<text>sobie jak i te w magazynie). Bedziesz musial potwierdzic te</text><nl/>
+	<text>komende (zabezpieczenie przed pomylkowym jej uzyciem). Jest</text><nl/>
+	<text>to rozwiazanie ostateczne i nieodwolalne - nie ma mozliwosci</text><nl/>
+	<text>odzyskanie tak wykasowanej postaci!</text>
+	<nl/>
+	
+	<color>yellow</color><Text>Strona: 2</Text>
+	<link ref="text" title=" 1 "/>
+	<Text>            </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+</Page>
+
+<Page Name="Channel">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>            System komunikacji</Text><nl/>
+		<size>Small</size>
+	<color>yellow</color>
+	<Text>                                                       </Text>
+	<link ref="HelpPage" title="Wroc"/><nl/>	
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.3" b="1"/>
+	
+	<Text>- Rady -</Text><nl/>
+	<nl/>
+	
+	<size>Small</size>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Zeby </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>mowic lokalnie, tak by wszyscy dookola Cie slyszeli, </text><nl/>
+	<text>musisz napisac to, co chcesz powiedziec i nacisnac enter.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Wcisnij </text>
+	<color r="0" g="0.5" b="1"/>
+	<text>F1 aby zobaczyc wszystkie wiadomosci, ktory </text><nl/>
+	<text>'uciekly' Ci z ekranu. Uzyj strzalek lub rolki myszy aby</text><nl/>
+	<text>przewijac wiadomosci.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Aby </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>dolaczyc do kanal u pomocy nowym graczom, wpisz #jc 1</text><nl/>
+	<text>Otrzymasz potwierdzenie tego faktu. Bedac tam zaczynaj Swoje</text><nl/>
+	<text>wypowiedzi od @, np. @Hey all. To pozwoli Ci rozmawiac na </text><nl/>
+	<text>kanale, gdzie rozmawiajacy ludzie moga znajdowac sie na</text><nl/>
+	<text>roznych obszarach. Ludzie dookola Ciebie nie beda Cie</text><nl/>
+	<text>slyszeli. Uwaga: oficjalnym jezykiem kanalu 1go (newbie </text><nl/>
+	<text>help channel) jest tylko i wylacznie angielski!</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Wiadomosci </text>
+	<color r="0" g="0.5" b="1"/>
+	<text>, ktore chcesz wypowiedziec na kanale</text><nl/>
+	<text>zaczynaj od @.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Aby </text>
+	<color r="0" g="0.5" b="1"/>
+	<text>opuscic kanal napisz #lc (to jest L, nie jeden).</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Gdy </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>rozmawiasz na kanale imiona osob mowiacych beda ujete</text><nl/>
+	<text>w nawiasy [Imie]: hi! podczas, gdy imiona graczy mowiacych</text><nl/>
+	<text>lokalnie wypisywanie sa bez zadnych dodatkow. Imie: hi!</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Aby </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>wyslac komus pma (wiadomosc osobista), ktorego tylko</text><nl/>
+	<text>adresat bedzie mogl odczytac, napisz /imie wiadomosc.</text><nl/>
+	<text>Przyklad: /Imie hello, I'm new!</text><nl/>
+	<nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>- Popularne kanaly -</text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc 1 : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Newbie help channel, kanal pomocy nowym graczom, </text><nl/>
+	<text>gdzie mozesz zadawac Swoje pytania, na ktore zawsze</text><nl/>
+	<text>odpowiedzi. Na tym kanale przebywa wielu nowych</text><nl/>
+	<text>i doswiadczonych graczy.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc 2 : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>general help channel, kanal pomocy, zazwyczaj pusty</text><nl/>
+	<text>zamiast tego dolacz do kanalu 1 (#jc 1).</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc 3 : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Market Channel, kanal handlowy, gdzie gracze kupuja</text><nl/>
+	<text>sprzedaja i wymieniaja przedmioty z innymi. Na tym kanale</text><nl/>
+	<text>NIE WOLNO poruszac innych tematow niz zwiazane z handlem.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc 4 : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>general conversation channel, na tym kanale, mozesz</text><nl/>
+	<text>rozmawiac na dowolne tematy zwiazane z EL.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc 5 : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>off-topic channel, na tym kanale mozesz rozmawiac na</text><nl/>
+	<text>dowolne, nie sprzeczne z regulami tematy.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc 8 : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Off-topic market channel. Tutaj mozesz handlowac</text><nl/>
+	<text>oraz rozmawiac na tematy nie zwiazane z handlem.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc guild : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Dziala tylko jezeli nalezysz do jakiejs gildii.</text><nl/>
+	<text>Kazda gildia ma swoj oficjalny kanal, na ktorym porozumiewac</text><nl/>
+	<text>sie moga tylko osoby nalezace do tej gildii.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<nl/>
+	<text>-- Mozesz </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>zalozyc wlasny kanal. Wybierz dowolny numer</text><nl/>
+	<text>(dla pewnosci wyzszy od 100) i uzyj go z komenda #jc.</text><nl/>
+	<text>Zapytaj sie jeszcze, czy ktos nie korzysta juz z tego kanalu</text><nl/>
+	<text>i mozesz zaprosic znajomych. Wiele gildii w ten sposob</text><nl/>
+	<text>zaprasza do rozmowy osoby nie nalezace do nich.</text><nl/>
+	<text>Przyklad: #jc 101.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#gm : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Bardzo podobne do kanalu gildii. Nie jest to jednak</text><nl/>
+	<text>kanal, wiec pozwala Ci dolaczyc do dowolnego innego kanalu i</text><nl/>
+	<text>wciaz rozmawiac ze Swoimi przyjaciolmi z gildii. Te </text><nl/>
+	<text>wiadomosci sa niebieskie.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#ci : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>komenda wyswietlajaca informacje o liczbie osob</text><nl/>
+	<text>przebywajacych aktualnie na kanale.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#lc : </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>(LC) ta komenda pozwala Ci opuscic kanal</text><nl/>
+	<text>na ktorym sie znajdujesz.</text><nl/>
+	<nl/>
+	
+	<color>yellow</color>
+	<text>                    </text>
+	<link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+</Page>
+
+<Page Name="guild">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>             Gildie - komendy</Text><nl/>
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>                                                       </Text>
+	<link ref="HelpPage" title="Wroc"/><nl/>	
+	<nl/>		
+	<size>medium</size>
+	<color r="1" g="0.3" b="1"/>
+	<text>- Komedny dla czlonkow i oficerow gildii -</text><nl/>
+	<nl/>
+	<size>small</size>
+	<color r="1" g="0.3" b="1"/>
+	<text>#make_guild</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Tworzy gildie. Musisz posiadac umiejetnosc na poziomie </text><nl/>
+	<text>wyzszym niz 39 (overall to nie umiejetnosc oraz 30k</text><nl/>
+	<text>gc w plecaku.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#destroy_guild</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Usuwa gildie z rejestrow nieodwolalnie. (Musisz miec</text><nl/>
+	<text>range 20 by moc skorzystac z tej komendy).</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#set_name</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ustwia nazwe gildii. Nazwa musi byc niepowtarzalna. Tyko</text><nl/>
+	<text>mistrz gildii (ranga 20) moze to zrobic. Nazwa gildii moze</text><nl/>
+	<text>byc zmieniona w kazdej chwili.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#set_desc</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ustawia opis gildii. Na przyklad: "Nasza gildia jest fajna</text><nl/>
+	<text>i zabijamy graczy i gromadzimy sie w Portland w 45 433."</text><nl/>
+	<text>Wymagana ranga 10.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#set_url</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ustawia adres strony domowej gildii, co pozwala ludziom</text><nl/>
+	<text>dowiedziec sie wiecej nie zadajac tysiaca pytan.</text><nl/>
+	<text>Wymagana ranga 10.<nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#set_join_info</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ustawia informacje o rekrutacji, a wiec o podstawowych</text><nl/>
+	<text>wymaganiach, ktore powinni spelnic, by przylaczyc sie.</text><nl/>
+	<text>Wymagana ranga 10.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#change_owner playername</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Pozwala na przekazanie przywodz gildii ineej osobie, ktora</text><nl/>
+	<text>MUSI nalezec do gildii. W wyniku osoba ta otrzyma range 20,</text><nl/>
+	<text>Ty range 19. Od tej pory ta osoba bedzie mistrzem gildii.</text><nl/>
+	<text>Wymagana ranga 20. (tylko mistrz gildii moze to zrobic)</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#set_short_name (4 litery/cyfry/inne znaki)</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Pozwala ustawic symbol gildii (guild tag).</text><nl/>
+	<text>(Przyklad: #set_short_name *CO* )</text><nl/>
+	<text>Wymagana ranga 19.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#join_guild nazwa_gildii</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Pryzlacza Cie do gildii. Musisz miec co najmniej jedna</text><nl/>
+	<text>umijetnosc na poziomie 20. Wymaga podania PELNEJ nazwy</text><nl/>
+	<text>gildii, a nie jej symbolu.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#leave_guild</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Opuszczasz gildie, nie bedziesz mogl przylaczyc sie do innej</text><nl/>
+	<text>przez 2 dni gry.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#accept imie</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Zezwala na przylaczenie sie gracza do gildii.</text><nl/>
+	<text>Wymagana ranga 15.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#remove imie</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Usuwa gracza z gildii. Gracz nie bedzie musial czekac 2 dni</text><nl/>
+	<text>by przylaczyc sie do innej gildii.</text><nl/>
+	<text>Wymagana ranga 19.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#change_rank imie ranga</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Zmienia range/uprawnienia czlonka gildii</text><nl/>
+	<text>(Przyklad: #change_rank imie 5 )</text><nl/>
+	<text>Wymagana ranga 19.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#gm message</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wysyla niebieska wiadomosc widziana przez wszystkich </text><nl/>
+	<text>czlonkow gildii</text><nl/>
+	<text>Wymagana ranga 5.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#guild_info symbol_gildii</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wyswietla informacje o gildii. (Przyklad: #guild_info EG )</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#jc guild</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Przylacza Cie do oficjalnego kanalu gildii.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>#rank imie</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Pozwala Ci sprawdzic range czlonkow gildii.</text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<text>                     </text>
+	<link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+	</text>
+	</Page>
+
+<Page Name="HP Interface">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands - Pomoc</Text><nl/>
+	<Text>                 Interface</Text><nl/><nl/>
+
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>Strona: 1</Text>
+	
+	<Text>                                           </Text>
+	<link ref="HP Interface2" title=" 2 "/><link ref="HelpPage" title="Wroc"/><nl/>
+	<nl/>
+
+	<size>Medium</size>
+	<simage isize="256" tsize="32" size="100" tid="0" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Idz                </Text>
+
+	<size>Medium</size>
+	<simage isize="256" tsize="32" size="100" tid="7" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Usiadz    </Text><nl/>
+	<nl/>	
+
+	<simage isize="256" tsize="32" size="100" tid="8" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Wstan              </Text>
+	<size>Medium</size>
+
+	<simage isize="256" tsize="32" size="100" tid="2" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Spojrz na      </Text><nl/>
+	<nl/>
+
+	<size>Medium</size>
+	<simage isize="256" tsize="32" size="100" tid="15" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Uzyj               </Text>
+
+	<size>Medium</size>
+	<simage isize="256" tsize="32" size="100" tid="47" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Uzyj z         </Text><nl/>
+	<nl/>
+
+	<size>Medium</size>
+	<simage isize="256" tsize="32" size="100" tid="4" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Handluj z          </Text>
+	
+	<simage isize="256" tsize="32" size="100" tid="5" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Atakuj         </Text><nl/>
+	<nl/>
+
+	<simage isize="256" tsize="32" size="100" tid="11" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Plecak             </Text>
+
+	<simage isize="256" tsize="32" size="100" tid="9" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Magia</Text><nl/>
+	<nl/>
+
+	<simage isize="256" tsize="32" size="100" tid="12" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Okno wytwarzania   </Text>
+
+	<simage isize="256" tsize="32" size="100" tid="13" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Statystyki</Text><nl/>
+	<nl/>
+
+	<simage isize="256" tsize="32" size="100" tid="39" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Pomoc              </Text>
+	
+	<simage isize="256" tsize="32" size="100" tid="36" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Mapa     </Text><nl/>
+	<nl/>
+
+	<size>Medium</size>
+	<simage isize="256" tsize="32" size="100" tid="1" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<size>Big</size><color r="0.8" g="0.8" b="0.8"/>
+	<Text> Konsola            </Text>	
+
+	<simage isize="256" tsize="32" size="100" tid="10" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Lista przyjaciol</Text><nl/>
+	<nl/>
+	
+	<simage isize="256" tsize="32" size="100" tid="14" 
+	name="textures/gamebuttons.bmp" yposupdate="0" xposupdate="1"/>
+	<Text> Opcje</Text><nl/>
+	<nl/>
+	<nl/>
+
+	<size>Medium</size>
+	<color>blue</color><color r="0.0" g="0.5" b="1.0"/>
+	<Text>NIEBIESKI PASEK: </Text><nl/>
+	<size>Small</size>
+	<Text>To sa Twoje punkty magii('ethereal points').</Text><nl/>
+	<Text>Pukty te sa znane takze jako mana. Sa one potrzebne do</Text><nl/>
+	<Text>rzucania czarow. Mozesz zwiekszyc ich maksymalna ilosc </Text><nl/> 
+	<Text>poprzez atrybuty: wole (will) lub witalnosc (vitality).</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<size>Medium</size>
+	<Text>ZOLTY PASEK: </Text><nl/>
+	<size>Small</size>
+	<Text>Poziom jedzenia. Utrzymuj go powyzej 0 bys mogl prowadzic</Text><nl/>
+	<Text>badania (czytac ksiazki)oraz regenerowac sily w (w tempie</Text><nl/>
+	<Text>1go punktu zdrowia na minute). Mozesz to robic jedzac owoce,</Text><nl/>
+	<Text>warzywa, chleb oraz gotowane mieso. Nie tracisz zdrowia</Text><nl/>
+	<Text>(czerwony pasek), gdy Twoj poziom jedzenia jest ponizej 0,</Text><nl/> 
+	<Text>ale nie bedziesz tez odzyskiwal punktow zdrowia.</Text><nl/>
+	<nl/>
+	<color r="1.0" g="0" b="0.0"/>
+	<size>Medium</size>
+	<Text>CZERWONY PASEK: </Text><nl/>
+	<size>Small</size>
+	<Text>To Twoj poziom zdrowia ('material points'). Ten poziom stale</Text><nl/>
+	<Text>musi byc powyzej zera, w innym przypadku umierasz. Mozesz</Text><nl/>
+	<Text>ziwekszyc jego maksymalny poziom poprzez atrybuty budowe</Text><nl/>
+	<Text>ciala (physique) lub wole (will). Aby uzdrowic sie bardzo</Text><nl/>
+	<Text>szybko musisz uzyc czarow lub napojow uzdrawiajacych.</Text><nl/>
+	<nl/>
+		
+	<color>olive</color><color r="1" g="0.5" b="0.5"/>
+	<size>Medium</size>
+	<Text>BRAZOWY PASEK: </Text><nl/>
+	<size>Small</size>
+	<Text>Okresla jak wiele umu (miara wagi w EL, 'Energy Matter </Text><nl/>
+	<Text>Unit') mozesz jeszcze niesc. Gdy wykorzystujesz cala swoja</Text><nl/>
+	<Text>'ladownosc' (pasek jest caly brazowy i wskazuje 0), nie</Text><nl/>
+	<Text>bedziesz mogl juz nic podniesc. Mozesz zwiekszyc maksymalna</Text><nl/>
+	<Text>wartosc swojej 'ladownosci' poprzez atrybuty budowa ciala</Text><nl/>
+	<Text>(physique) lub koordynacje (coordination).</Text><nl/>
+	<nl/>
+	<color r="0.0" g="1.0" b="0.3"/>
+	<size>Medium</size>
+	<Text>ZIELONY PASEK: </Text><nl/>
+	<size>Small</size>
+	<Text>Przedstawia ilosc punktow doswiadczenia, konieczna do</Text><nl/>
+	<Text>uzyskania kolejnego poziomu. Domyslnie wskazuje na poziom</Text><nl/>
+	<Text>calkowity, jednak mozesz to zmienic tak, zeby wskazywal</Text><nl/>
+	<Text>dowolna umiejetnosc klikajac ikone statystyk (obrazek </Text><nl/>
+	<Text>(z wykresem), a nastepnie wybrana umiejetnosc (np. magie, </Text><nl/>
+	<Text>alchemie, atak, itp.).</Text><nl/>
+	<nl/>
+
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>Strona: 1</Text>
+	
+	<link ref="HP Interface2" title=" 2 "/>
+	<color>yellow</color>
+	<Text>           </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+
+</Page>
+
+<Page Name="HP Interface2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>             Eternal Lands - Pomoc</Text><nl/>
+	<Text>                 Interface</Text><nl/>
+	<nl/>
+
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>Strona: 2</Text>
+	
+	<Text>                                           </Text>
+	<link ref="HP Interface" title=" 1 "/><link ref="HelpPage" title="Wroc"/><nl/>
+
+	<nl/>	
+	
+	<color r="1" g="0.3" b="1"/>
+	<size>Small</size>
+	<Text>Klikniecie prawym przyciskiem myszy:</Text><nl/>
+	<nl/>
+	<Text>--Wskaznik </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>na osobie: klikniecie ppm </Text><nl/>
+	<Text>  przerzuca miedzy ikonami:</Text><nl/> 
+	<Text>  spojrz na, handluj z, atakuj</Text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>--Wskaznik </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>na zwierzeciu/potworze: klikniecie ppm</Text><nl/>
+	<Text>  przerzuca miedzy ikonami:</Text><nl/> 
+	<Text>  spojrz na, atakuj</Text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>--Wskaznik </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>na surowcu: klikniecie ppm</Text><nl/>
+	<Text>  przerzuca miedzy ikonami:</Text><nl/>
+	<Text>   spojrz na, zbieraj (kilof)</Text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>--Wskaznik </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>w oknie plecaka: klikniecie ppm</Text><nl/>
+ 	<Text>  przerzuca miedzy ikonami:</Text><nl/> 
+ 	<Text>  spojrz na, uzyj, uzyj z, upusc (dlon skierowana w dol).</Text>
+ 	<nl/>
+ 	<nl/><color r="1" g="0.3" b="1"/>
+ 	<Text>Wspolrzedne geograficzne</Text><nl/>
+	<nl/><color r="0.0" g="0.5" b="1"/>
+	<Text>Wspolrzedne sa bardzo latwe do uzywania o ile zapamietasz</Text><nl/>
+	<Text> kilka podstawowych kwestii:</Text><nl/>
+	<nl/><color r="1" g="0.3" b="1"/>
+	<Text>1. </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Klikniecie na kompas w dolnym-prawym rogu ekranu</Text><nl/>
+	<Text>    wyswietli Twoje aktualne wspolrzedne.</Text><nl/>
+	<nl/><color r="1" g="0.3" b="1"/>
+	<Text>2. </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Dolny-lewy rog mapy ma wspolrzedne 0,0.</Text><nl/>
+	<nl/><color r="1" g="0.3" b="1"/>
+	<Text>3. </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Poruszanie sie na polnoc powoduje wzrastanie drugiej</Text><nl/>
+	<Text>   wartosci okreslajacej wspolrzedne. Przyklad: jestes</Text><nl/>
+	<Text>   w 20,20. Zrob jeden krok na polnoc </Text><nl/>
+	<Text>   i znajdziesz sie w 20,21. </Text><nl/>
+	<nl/><color r="1" g="0.3" b="1"/>
+	<Text>4. </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Poruszanie sie na wschod powoduje wzrastanie pierwszej</Text><nl/>
+	<Text>   wartosci okreslajacej wspolrzedne. Przyklad: jestes</Text><nl/>
+	<Text>   w 20,20. Zrob jeden krok na polnoc </Text><nl/>
+	<Text>   i znajdziesz sie w 21,20. </Text><nl/>
+	<nl/><color r="1" g="0.3" b="1"/>
+	<Text>5. </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Poruszanie sie na poludnie powoduje malenie drugiej</Text><nl/>
+	<Text>   wartosci okreslajacej wspolrzedne. Przyklad: jestes</Text><nl/>
+	<Text>   w 20,20. Zrob jeden krok na poludnie </Text><nl/>
+	<Text>   i znajdziesz sie w 20,19. </Text><nl/>
+	<nl/><color r="1" g="0.3" b="1"/>
+	<Text>6. </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Poruszanie sie na zachod powoduje malenie pierwszrj</Text><nl/>
+	<Text>   wartosci okreslajacej wspolrzedne. Przyklad: jestes</Text><nl/>
+	<Text>   w 20,20. Zrob jeden krok na zachod </Text><nl/>
+	<Text>   i znajdziesz sie w 19,20. </Text><nl/>
+	<nl/>
+	<nl/><color r="1" g="0.3" b="1"/>
+	<Text>Wiec, </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Jezeli ktos kaze Ci isc do wspolrzednych 153,120 </Text><nl/>
+	<Text>zorientuj sie najpierw gdzie jestes klikajac kompas. </Text><nl/>
+	<Text>Nastepnie patrzac na mape sprobuj zgadnac jak daleko</Text><nl/>
+	<Text>od Twojego aktualnego polozenia znajduje sie Twoj cel.</Text><nl/>
+	<Text>Kliknij na mapie w przewidywanym miejscu a zaczniesz </Text><nl/>
+	<Text>automatycznie wedrowke. Sprawdz Swoje polozenie ponownie</Text><nl/>
+	<Text>gdy dojdziesz na miejsce, o ile to bedzie konieczne</Text><nl/>
+	<Text>powtorz powyzsze czynnosci, az znajdziesz sie </Text><nl/>
+	<Text>tam gdzie chcesz.</Text><nl/>
+	<nl/>	
+ 	
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>Strona: 2</Text>
+	
+	<link ref="HP Interface" title=" 1 "/>
+	<color>yellow</color>
+	<Text>           </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+</Page>
+
+<Page Name="AbbrAcr">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>         Co oznacza....</Text><nl/>
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>                                                       </Text>
+	<link ref="HelpPage" title="Wroc"/><nl/>	
+	
+	<nl/>
+	<size>Medium</size>
+	<color r="1" g="0.3" b="1"/>
+	<Text>- Skroty i inne pojecia -</Text><nl/>
+	<nl/>
+	
+	<size>Small</size>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>IP   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Isla Prima, mapa, gdzie zaczynasz gre.</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>WS   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>White Stone</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>WSC  - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>White Stone City</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>LS   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Lakeside, mala wioska w poblizu portu na ogromej</Text><nl/>
+	<Text>       mapie Whitestone/Lakeside</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>DP   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Desert Pines</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>CC   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Crystal Cavern</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>VotD - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Valley of the Dwarves, zwana rowniez jako Mynadar</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>PL   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Portland</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>GP   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Grubani Peninsula</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>KF   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Kilaran Field</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>SKF  - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>South Kilaran Field</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>MM   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Morcraven Marsh</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>NC   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Nordcarn</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>TG   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Tarsengaard</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>serp - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Titanium Serpent Sword</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>fe   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>fire essence</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>EFE  - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Enriched Fire Essence</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>we   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>water essence</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>LE   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>life essence</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>ME   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>magic essence</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>HE   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>health essence</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>SR   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>spirit restoration potion</Text><nl/>
+	<Text>       (znana rowniez jako spirit rest or mind rest)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>BR   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>body restoration potion </Text><nl/>
+	<Text>       (znana rowniez jako body rest)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>afk  - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Away From Keyboard (z dala od klawiatury)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>ty   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Thank you (dziekuje)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>yw   - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>You're welcome (prosze)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>tyvm - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Thank you very much (dziekuje bardzo)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>brb  - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>be right back (wkrotce bede)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>lol  - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>laughing out loud (wybuchnac smiechem)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>omg  - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>oh my god (o moj boze)</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<Text>iirc - </Text>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>if I recall/remember correctly </Text><nl/>
+	<Text>       (o ile dobrze pamietam)</Text><nl/>
+	<nl/>
+	
+	<nl/>
+	<color>yellow</color>
+	<text>                    </text>
+	<link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+</Page>
+
+<Page Name="tips">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>                  Rady</Text><nl/>
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>                                                       </Text>
+	<link ref="HelpPage" title="Wroc"/><nl/>	
+
+	<nl/>
+	<size>Medium</size>
+	
+	<nl/>
+	
+	<size>Small</size>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Jezeli </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>planujesz stworzyc postac testowa by</text><nl/>
+	<text>wyprobowac gre lub poeksperymentowac z wygladem postaci</text><nl/>
+	<text>wciaz przestrzegaj regul wybierania imion. Wszelkie </text><nl/>
+	<text>obsceniczne i w sposob oczywisty bezsensowne imiona, </text><nl/>
+	<text>jak na przyklad kdjfghli45677dl BEDA usuniete, bez wzgledu</text><nl/>
+	<text>na jakiekolwiek tlumaczenia/przyczyny.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Musisz </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>jesc (owoce, warzywa, chleb, gotowane mieso)</text><nl/>
+	<text> aby utrzymywac poziom jedzenia (zolty pasek stanu) </text><nl/>
+	<text>powyzej 0. Gdy poziom ten jest powyzej 0 automatycznie </text><nl/>
+	<text>regenerujesz sily o 1 punkt zdrowia (hp) co minute.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Tutorial NPC </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>(znajdujacy sie tuz obok Wraitha</text><nl/>
+	<text>gdzie pojawiles/as sie po rozpoczeciu gry) zaproponuje, </text><nl/>
+	<text>mini zadania, ktore pomoga Ci zapoznac sie z interfacem </text><nl/>
+	<text>i zasadami rzadzacymi Eternal Lands. W nagrode za </text><nl/>
+	<text>wypelnienie ich otrzymasz darmowa zbroje i bron.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Istnieje </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>kilka metod zmiany polozenia kamery</text><nl/>
+	<text>(obracanie kamera oraz zmiana kata nachylenia). </text><nl/>
+	<text>Mozesz uzywac kursorow w dol/gore/lewo/prawo lub poruszac</text><nl/>
+	<text>mysza trzymajac wcisniety trzeci przycisk myszy.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Kolejnosc </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>stworzen, na ktorych mozesz trenowac</text><nl/>
+	<text>swoje umiejetnosci walki to: krolik (rabbit), szczur (rat),</text><nl/>
+	<text>bobr (beaver), jelen (deer). Nie atakuj nastepnego </text><nl/>
+	<text>zwierzecia z tego lancucha dopoki nie jestes w stanie </text><nl/>
+	<text>bezpiecznie walczyc z poprzednim bez tracenia zbyt duzej </text><nl/>
+	<text>ilosci punktow zdrowia (najlepiej nie tracac ich w ogole).</text><nl/>
+	<text>Pamietaj aby utrzymywac dodatni poziom jedzenia. Aby </text><nl/>
+	<text>rozpoczac walke zbliz sie do swojego celu i kliknij go.</text><nl/>
+	<text>Powinienes zobaczyc wskaznik zmieniajacy ksztalt na miecz </text><nl/>
+	<text>w momencie, gdy znajdzie sie nad celem.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Jedzenie </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>moze byc kupowane w tawernach (na mapie </text><nl/>
+	<text>oznaczone kolorem pomaranczowym). Warzywa i owoce moga byc</text><nl/>
+	<text>zbierane, a chleb mozesz znalezc w torbach (bagach)</text><nl/>
+	<text>lezacych na sciezce w okolicy dokow.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Jezeli </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>zginiesz w trakcie walki (i nie tylko)</text><nl/>
+	<text>zostaniesz przeniesiony do zaswiatow (Underworld),</text><nl/>
+	<text>czasem nazywanych pieklem (Hell). Aby sie stamtad</text><nl/>
+	<text>wydostac skieruj swoje kroki na polnoc (patrz na kompas!)</text><nl/>
+	<text>az odnajdziesz wielkie pomaranczowe stopnie otoczone</text><nl/>
+	<text>przez swiece. Przejdz przez wienczacy je portal a</text><nl/>
+	<text>znajdziesz sie w obozowisku na Isla Prima.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Mozesz </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>sprzedawac surowe mieso i futra</text><nl/>
+	<text>krolikow w tawernach za gc (waluta EL, 'Gold Coins'),</text><nl/>
+	<text>piec je nad plonacym ogniskiem.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Najlatwiejsza </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>metoda zarabiania gc jest sprzedawane</text><nl/>
+	<text>zebranych kwiatow w sklepach z kwiatami (zaznaczone na</text><nl/>
+	<text>kolorem rozowym).</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Forum </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>EL jest wspanialym miejscem, </text><nl/>
+	<text>w ktorym mozesz zdobyc duzo informacji o grze oraz uzyskac </text><nl/>
+	<text>pomoc. Uzywaj rowniez encyklopedii aby uzyskac wiecej </text><nl/>
+	<text>szczegolow na kazdy temat wspomniany tutaj.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- EL </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>to rowniez wspaniale strony zarzadzane przez graczy, </text><nl/>
+	<text>gdzie znajdziesz bardzo wiele uzytecznych informacji.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Aby </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>opuscic Isla Prima (mape, na ktorej sie znajdujesz)</text><nl/>
+	<text> idz na poludnie do dokow, kliknij flage znajdujaca sie </text><nl/>
+	<text>na statku, ktory tam znajdziesz. Statek ten zabierze </text><nl/>
+	<text>Cie do Lakeside.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Mozesz </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>w bardzo latwy sposob oznaczac swoja mape.</text><nl/>
+	<text>Kliknij ppm (prawym przyciskiem myszy) na punkt, ktory </text><nl/>
+	<text>chcesz oznaczyc (pojawi sie zolty x), nastepnie wpisz tresc</text><nl/>
+	<text>znacznika i nacisnij enter. To spowoduje zmiane koloru x </text><nl/>
+	<text>na zielony oraz dodanie Twojego opisu ponizej krzyzyka. </text><nl/>
+	<text>Znacznik ten pozostanie na mapie dopoki go nie usuniesz. </text><nl/>
+	<text>Aby to zrobic otworz mape, przytrzymaj wcisniety klawisz </text><nl/>
+	<text>ctrl i kliknij ppm na znaczniku, ktory nie jest Ci juz </text><nl/>
+	<text>potrzebny. Czynnosc ta spowoduje usuniecie zarowno </text><nl/>
+	<text>znacznika jak i jego opisu.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>-- Mozesz </text>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>otrzymac punkty doswiadczenia za zbieranie </text><nl/>
+	<text>maksymalnie 120 sztuk dowolnego surowca w ciagu godziny </text><nl/>
+	<text>gry. W momencie, w ktorym wykorzystasz ten limit nie </text><nl/>
+	<text>otrzymasz zadnych punktow doswiadczenia dopoki nie minie</text><nl/>
+	<text>pelna godzina w grze. Mozesz oczywiscie kontynuowac </text><nl/>
+	<text>zbieranie. Musisz byc zalogowany w momencie wybicia nowej</text><nl/>
+	<text>godziny, aby Twoj limit doswiadczenia sie odnowil.</text><nl/>
+	
+	<nl/>
+	<color>yellow</color>
+	<text>                    </text>
+	<link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+</Page>
+
+<Page Name="NFAQ">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>               FAQ nowego gracza</Text><nl/>
+		
+	<size>Small</size>
+	<color>yellow</color>
+	<Text>Strona: 1</Text>
+	<Text>                                           </Text>
+	<link ref="NFAQ2" title=" 2 "/><link ref="HelpPage" title="Wroc"/><nl/>
+
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jestem nowy, co mam robic?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Coz, najlatwiejszym sposobem rozpoczecia gry jest </text><nl/>
+	<text>odwiedzenie Tutorial NPC znajdujacego sie tuz obok Wraitha,</text><nl/>
+	<text>gdzie zaczales gre. Nauczy Cie on kilku podstawowych </text><nl/>
+	<text>umiejetnosci takich jak: zbieractwo, polowanie na zwierzeta</text><nl/>
+	<text>i znajdowanie drogi w terenie. Kiedy skonczysz wykonywac </text><nl/>
+	<text>zadania zlecone przez niego otrzymasz w nagrode </text><nl/>
+	<text>zbroje i bron.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Co to jest HUD?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>HUD (Heads Up Display) to brazowy obszar ponizej i na prawo </text><nl/>
+	<text>od glownego okna gry. Znajduja sie na nim ikony, paski </text><nl/>
+	<text>stanow informujace Cie o najwazniejszych parametrach </text><nl/>
+	<text>Twojej postaci.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Co to jest konsola (console), o ktorej slyszalem od  </text><nl/>
+	<text>innych graczy?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Konsole wlaczysz naciskajac F1 albo ~ lub ikone konsoli. </text><nl/>
+	<text>W trybie konsoli (console mode) mozesz zobaczyc wszystkie </text><nl/>
+	<text>przeprowadzone/uslyszane rozmowy i komunikaty od momentu </text><nl/>
+	<text>monitor icon in your HUD, it will show a black screen</text><nl/>
+	<text>zalogowania sie. Jezeli wcisniesz F1 lub ikone trybu </text><nl/>
+	<text>konsoli zobaczysz czarny ekran z trescia wszystkich rozmow,</text><nl/>
+	<text>a ktore zniknely juz z glownego ekranu gry. Mozesz przewijac </text><nl/>
+	<text>to okno za pomoca kursorow, PGUP, PGDOWN oraz rolki myszy.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak moge jesc? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Kliknij ikone 'uzyj' ('use') tak by wskaznik myszy zmienil</text><nl/>
+	<text> ksztalt na wskazujacy palec. Nastepnie kliknij na jedzeniu </text><nl/>
+	<text>w Twoim plecaku.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak moge zobaczyc co mam w plecaku?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Kliknij na ikonie przypominajacej worek w HUDzie. To </text><nl/>
+	<text>otworzy ekran plecaka i bedziesz mogl zobaczyc wszystko, </text><nl/>
+	<text>co znajduje sie w Twoim plecaku.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak czytac ksiazki?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Kliknij na ikonie 'uzyj' ('use')w HUDzie, a nastepnie na </text><nl/>
+	<text>ksiazce znajdujacej sie w Twoim plecaku. Zniknie ona, a Ty</text><nl/>
+	<text>rozpoczniesz badania oraz zobaczysz informacje o czytanej </text><nl/>
+	<text>ksiazce i przewidywanym czasie ukonczenia badan.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Skad mam wiedziec na jakim jestem poziomie? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Kliknij na ikone przypominajaca wykresy slupkowe w Twoim </text><nl/>
+	<text>HUDzie, co otworzy ekran statystyk, w ktorym bedziesz mogl </text><nl/>
+	<text>sprawdzic poziom umiejetnosci, neksusy oraz atrybuty.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak mam chodzic? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Kliknij na ikonie 'idz' ('walk' - pierwsza od lewej) </text><nl/>
+	<text>w HUDzie a nastepnie kliknij na miejscu, w ktore chcesz </text><nl/>
+	<text>pojsc. Twoja postac rozpocznie wedrowke w tym kierunku. </text><nl/>
+	<text>Mozesz rowniez wcisnac przycisk HOME aby zrobic krok do </text><nl/>
+	<text>przodu. Aby poruszac sie w sposob bardziej zaawansowany </text><nl/>
+	<text>wcisnij TAB, a nastepnie dowolny punkt na mapie.</text><nl/>
+	<text>Po ponownym nacisnieciu TAB zobaczysz swoja postac </text><nl/>
+	<text>wedrujaca do wskazanego punktu.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Czy siedzenie przyspiesza tempo regeneracji? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Nie. Siedzenie nie wplywa na zadna czynnosc w grze. Dzieki </text><nl/>
+	<text>tej opcji gra jest jednak pelniejsza. Jednakze jest w dobrym</text><nl/>
+	<text> tonie siedziec gdy znajdujesz sie w poblizu magazynu, </text><nl/>
+	<text>wydobywasz surowce czy zbierasz kwiaty/owoce/warzywa. </text><nl/>
+	<text>Ulatwia to pozostalym osobom korzystanie z magazynu oraz </text><nl/>
+	<text>wykonywanie czynnosci wymagajacych klikniecia na </text><nl/>
+	<text>konkretnym przedmiocie/NPC.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Czy mozecie dac mi darmowe rzeczy? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Nie. Kazdy zaczynal gre jako nowy gracz (newbie) i musial</text><nl/>
+	<text>nauczyc sie jak zdobywac pieniadze oraz przedmioty </text><nl/>
+	<text>samodzielnie. Nie badz natarczywy i nie zadaj tego od innych. </text><nl/>
+	<text>Jest to niezwykle irytujace.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak mam sprawdzic na mapie gdzie jestem? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Otworz mape (w tym celu kliknij na ikone lub nacisnij TAB).</text><nl/>
+	<text> Twoja pozycja oznaczona jest niebieskim X.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Ratunku! Zginalem i nie wiem gdzie jestem!</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Znajdujesz sie w zaswiatach. Aby sie stamtad wydostac </text><nl/>
+	<text>skieruj sie na polnoc az znajdziesz pomaranczowe stopnie </text><nl/>
+	<text>otoczone swiecami. To jest wyjscie.</text><nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jaki jest najszybszy sposob zdobycia pieniedzy? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Zabijaj kroliki, sprzedawaj ich futra i mieso w tawernach </text><nl/>
+	<text>(pomaranczowe punkty na mapie). Mozesz rowniez zbierac </text><nl/>
+	<text>kwiaty i sprzedawac je w kwiaciarniach </text><nl/>
+	<text>(rozowe punkty na mapie).</text><nl/>
+	<color>yellow</color><Text>Page: 1</Text>
+	<link ref="NFAQ2" title=" 2 "/>
+	<Text>            </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+	
+</Page>
+
+<Page Name="NFAQ2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>               FAQ nowego gracza</Text><nl/>
+	
+	<size>Small</size>
+	<color>yellow</color><Text>Strona: 2</Text>
+	<Text>                                           </Text>
+	<link ref="NFAQ" title=" 1 "/><link ref="HelpPage" title="Wroc"/><nl/>
+
+	<nl/>
+	<nl/>
+	<size>Small</size>
+	<color r="1" g="0.3" b="1"/>
+	<text>Czy ktos moze mnie uleczyc? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Nie pros ludzi aby Cie wyleczyli! Jezeli w poblizu beda </text><nl/>
+	<text>uzdrowiciele na pewno Cie wylecza (to znaczy jezeli beda </text><nl/>
+	<text>mieli ochote). Co wiecej o wiele bardziej prawdopodobne </text><nl/>
+	<text>jest, ze wylecza Cie jezeli nie bedziesz o to prosic.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>	
+	<text>Jak ugotowac mieso? </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<Text>Tym czego szukasz jest plonace ognisko. Musisz kliknac</Text><nl/>
+	<Text>ikone 'uzyj z' ('use with' - ikona piesci), nastepnie</Text><nl/>
+	<Text>przenies surowe mieso nad plomien i kliknij na nim. Ugo</Text><nl/>
+	<Text>Ugotowane mieso automatycznie pojawi sie w Twoim plecaku.</Text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak rozpalic ognisko?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Musisz znalezc plonacy na zewnatrz ogien, jak ten na Isla</text><nl/>
+	<text>Prima w poblizu beama. Potrzebujesz rowniez esencje ognia,</text><nl/>
+	<text>(patrz alchemia w encyklopedii) oraz galezie lub drewniane</text><nl/>
+	<text>bale. Kliknij ikone 'uzyj z' (piesc), nastepnie kliknij na </text><nl/>
+	<text>drewnie i przenies je do paleniska. Kliknij aby je upuscic.</text><nl/>
+	<text>Zobaczysz wiadomosc 'you have put logs on the fire'.</text><nl/>
+	<text>Zrob to samo z esencja ognia. Ognisko powinno sie zapalic.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Gdzie moge zdoby miecz i zbroje?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Mozesz je otrzymac po wykonaniu 3 mini zadan Tutorial NPC,</text><nl/>
+	<text>znajdujacego sie kolo Wraitha (tam gdzie zaczales grac).</text><nl/>
+	<text>Obdaruje Cie on darmowa zbroja i mieczem, gdy ukonczysz</text><nl/>
+	<text>je. Bron i zbroje mozesz rowniez kupic u kowala lub od</text><nl/>
+	<text>innych graczy, ale wczesniej musisz zarobic pieniadze.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak uzywac zbroi i broni?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Kliknij je i przenies do jednego z 8 pol widonczych z </text><nl/>
+	<text>prawej strony okna Twojege plecaka. Jednoczesnie mozesz</text><nl/>
+	<text>uzywac w ten sposob do 8 przedmiotow.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Ktore atrybuty/perki/neksusy powinienem wybrac?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Idz do Wraitha i przeczytaj uwaznie wszysktie opisy.</text><nl/>
+	<text>Ta decyzja nalezy wylacznie do Ciebie.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak moge otrzymac ksiazke w bibliotece?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Nie mozna otrzymac ksiazek w bibliotekach, kupujesz od je</text><nl/>
+	<text>sprzedawcow ksiazek. Sa oni rozsiani po calym terenie EL,</text><nl/>
+	<text>sprawdz w encyklopedii, gdzie ich szukac.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Co to jest Joker?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Joker to NPC (postac nie prowadzona przez gracza), ktora</text><nl/>
+	<text>pojawia sie w losowych miejscach na roznych mapach. Jezeli</text><nl/>
+	<text>z nim porozmawiasz, obdaruje Cie on nagroda o ile bedziesz</text><nl/>
+	<text>mial miejsce w plecaku i nie bedziesz przeladowany. Zaraz</text><nl/>
+	<text>potem Joker zniknie i pojawi sie w innym miejscu.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Jak dlugo trwa godzina w grze?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Godzina EL jest rowna godzinie czasu rzeczywistego,</text><nl/>
+	<text>plus minus minuta lub dwie.</text><nl/>
+	<text>Nie jest to dokladnie to samo, ale wystarczajaco blisko.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Dlaczego nie mozna pic wina/piwa/pitnego miodu?</text><nl/>
+	<text>(wine/ale/mead)</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Wino, piwo i miod uzywane sa do wytwarzania mikstur.</text><nl/>
+	<text>Wiecej na ten temat mozesz dowiedziec sie w encyklopedii.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Co to jest bot?</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Bot to postac prowadzona kontrolowana przez program, a nie</text><nl/>
+	<text>przez zywego gracza. Boty musza przestrzegac specjalnych </text><nl/>
+	<text>regul spisanych tutaj: http://el.tfm.ro/bots/</text><nl/>
+	
+	<nl/>
+	<color>yellow</color><Text>Page: 2</Text>
+	<link ref="NFAQ" title=" 1 "/>
+	<Text>            </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+	
+</Page>
+
+<Page Name="SFAQ">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>               Skills FAQ</Text><nl/>
+		
+	<size>Small</size>
+	<color>yellow</color><Text>Strona: 1</Text>
+	<Text>                                           </Text>
+	<link ref="SFAQ2" title=" 2 "/><link ref="HelpPage" title="Wroc"/><nl/>
+	<nl/>
+
+	<color r="1" g="0.3" b="1"/>
+	<text>Czym jest umiejetnosc.....?</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Zbieranie (Harvesting): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ta umiejetnosc pozwala Ci pozyskiwac surowce w EL.</text><nl/>
+	<text>Niemal wszystki pozostale umiejetnosci wykorzystuja to, </text><nl/>
+	<text>co mozesz zebrac lub wykopac, co powoduje, ze umiejtnosc</text><nl/>
+	<text>ta jest niezwykle przydatna i jest dobra metoda rozpoczecia</text><nl/>
+	<text>zdobywania doswiadczenia. By zbierac kwiaty, owoce, warzywa</text><nl/>
+	<text>nie potrzebujesz zadnych narzedzi. Skorzanych rekawic </text><nl/>
+	<text>(leather gloves) bedziesz potrzebowal by zbierac katkusy</text><nl/>
+	<text>oraz siarke. Kilof (pickaxe) jest wymagany by wykopywac</text><nl/>
+	<text>kwarc, klejnoty oraz rudy metali. Bedziesz rowniez musial</text><nl/>
+	<text>odpowiedniej wiedzy neksusa inorganic na odpowiednim </text><nl/>
+	<text>poziomie oraz wiedzy (przeczytane ksiazki) by pozyskac</text><nl/>
+	<text>surowce poczynajc od kwarcu w zwyz.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Rzemieslnictwo (Manufacturing): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Umiejetnosc wykonywania ubran, broni oraz zbroi. Aby</text><nl/>
+	<text>wykonac jakis przedmiot potrzebowal bedziesz skladnikow</text><nl/>
+	<text>oraz odpowiednich narzedzi (sprawdz w encyklopedii)</text><nl/>
+	<text>w plecaku. Bedziesz musial rowniez posiadac wymagana</text><nl/>
+	<text>wiedze oraz neksus artificial na odpowiednim poziomie.</text><nl/>
+	<text>Rzemieslnictwo jest wykonywane w oknie wytwarzania (mlot i</text><nl/>
+	<text>kowadlo na ikonie). Kliknij wymagane skladniki a nastepnie</text><nl/>
+	<text>'Mix' by wykonac przedmiot. Twoj poziom jedzenia musi byc </text><nl/>
+	<text>wiekszy od zera bys mogl pracowac. Im wyzszy poziom Twojej </text><nl/>
+	<text>umiejetnosci tym mniejsze prawdopodobienstwo niepowodzenia.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Alchemia (Alchemy): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Alchemia pozwala na wykonywanie metalowych sztab</text><nl/>
+	<text>(wykorzystywanych w rzemieslnictwie i warzeniu nietkorych</text><nl/>
+	<text>mikstur) oraz esencji wykorzystywanych do rzucania czarow.</text><nl/>
+	<text>Alchemia jest wykonywana w oknie wytwarzania (mlot i</text><nl/>
+	<text>kowado na ikonie). Kliknij substraty a nastepnie 'Mix' by</text><nl/>
+	<text>wykonac przedmiot. Twoj poziom jedzenia musi byc powyzej</text><nl/>
+	<text>zera bys mogl pracowac. Im wyzszy poziom umiejetnosci tym</text><nl/>
+	<text>nizsze prawdopodobienstwo niepowodzenia.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Mistury (Potions): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Ta umiejetnosc pozwala na warzenie wszelkich rodzajow</text><nl/>
+	<text>mikstur. Aby wykonac eliksir musisz posiadac fiolke, </text><nl/>
+	<text>wymgane skladniki oraz mozdzierz i tluczek w plecaku.</text><nl/>
+	<text>Tak jak w przypadku wiekszosci umiejetnosci, bedziesz</text><nl/>
+	<text>rowniez musial posiadac stosowna wiedze oraz neksus </text><nl/>
+	<text>vegetal na odpowiednim poziomie. Mikstury wykonuje sie w</text><nl/>
+	<text>oknie wytwarzania (ikona z mlotem i kowadlem).Kliknij</text><nl/>
+	<tekst>wymagane skladniki, a nastepnie 'Mix'. Twoj poziom </tekst><nl/>
+	<text>jedzenia musi byc wiekszy od zera bys mogl pracowac.</text><nl/>
+	<text>Im wyzszy poziom Twojej umijetnosci tym mniejsze </text><nl/>
+	<text>prawdopodobienstwo niepowodzenia.</text><nl/>
+	<nl/>
+
+	<nl/>
+	<color>yellow</color><Text>Strona: 1</Text>
+	<link ref="SFAQ2" title=" 2 "/>
+	<Text>            </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+	
+</Page>
+
+<Page Name="SFAQ2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>           Eternal Lands - Pomoc</Text><nl/>
+	<Text>               Umiejetnosci - FAQ</Text><nl/>
+	
+	<size>Small</size>
+	<color>yellow</color><Text>Strona: 2</Text>
+	<Text>                                           </Text>
+	<link ref="SFAQ" title=" 1 "/><link ref="HelpPage" title="Wroc"/><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Czym jest umiejetnosc.....?</text><nl/>
+	<nl/>
+	
+	<color r="1" g="0.3" b="1"/>
+	<text>Magia (Magic): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Umiejetnosc magow i czarnoksieznikow. Jest wiele pomocnych</text><nl/>
+	<text>i zabawnych czarow dostepnych dla adeptow tej sztuki, ale</text><nl/>
+	<text>jest to jedyna umiejetnosc, ktore posiada poziomy WYMAGANE</text><nl/>
+	<text>do rzucania czarow. Im wyzszy jest poziom tej umiejetnosci</text><nl/>
+	<text>tym lepsze i potezniejsze czary mozesz rzucac. Aby rzucic </text><nl/>
+	<text>czar musisz posiadac symbole magiczne (sigils), kupowane w </text><nl/>
+	<text>sklepach z magia oraz esencji, ktore robione sa przez </text><nl/>
+	<text>alchemikow lub moga byc kupione w sklepach z magia. Symbole</text><nl/>
+	<text>magiczne sa wieczne: raz kupione nie znikna. By rzucic czar</text><nl/>
+	<text>polega musisz posiadac wymagane esencje w plecaku. Otworz </text><nl/>
+	<text>okno magii (ikona z magiczna rozdzka). Zawiera ono Twoje </text><nl/>
+	<text>symbole magiczne. Kliknij je w odpowiednij kolejnosci, a </text><nl/>
+	<text>nastepnie kliknij 'Cast' by rzucic czar. Magia zuzywa </text><nl/>
+	<text>punkty magii, zwane mana (nibieski pasek w HUDzie).</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Przywolywanie (Summoning): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Umiejetnosc przyzywanie zywych stworzen wykorzystkujac</text><nl/>
+	<text>pewne skladniki. Przywolywanie jest bardzo popularne wsrod</text><nl/>
+	<text>doswiadczonych wojownikow, gdyz przywolane stworzenia moga</text><nl/>
+	<text>atakowac ich przeciwnikow. Wielu przyzywa dla przyjemnosci.</text><nl/>
+	<text>Przywolywanie jest wykonywane w oknie wytwarzania (ikona </text><nl/>
+	<text>z mlotem i kowadlem). Kliknij wymagane skladniki aby </text><nl/>
+	<text>pojawily sie w oknie roboczym, kliknij 'Mix'. Przywolene</text><nl/>
+	<text>stworzenia zyja krotko. Nie mozesz byc glodny, gdy chcesz</text><nl/>
+	<text>przywolywac. Im wyzszy poziom Twojej umiejetnosci, tym</text><nl/>
+	<text>potezniejsze stworzenia bedziesz mogl przywolywac i tym</text><nl/>
+	<text>mniejsze bedzie prawdopodobienstwo niepowodznia.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Atak (attack): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Umiejetnosc okreslajaca Twoje szanse trafiena przeciwnika</text><nl/>
+	<text>i zadania mu obrazen. Doswiadczenie adepci sztuki ataku, </text><nl/>
+	<text>sa w stanie dostrzec i wykorzystac slabosci przciwnikow,</text><nl/>
+	<text>co pozwala im czesciej trafiac i zadawac wieksze obrazenia.</text><nl/>
+	<nl/>
+	<color r="1" g="0.3" b="1"/>
+	<text>Obrona (Defense): </text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Umiejtnosc okreslajaca szanse unikniecia ataku przeciwnika.</text><nl/>
+	<text>Wraz z doswiadczeniem przychodzi umiejtnosc 'przejrzenia'</text><nl/>
+	<text>sposobu walki przeciwnika, umozliwiajac szybsza reakcje</text><nl/>
+	<text>oraz skuteczniejsze unikanie atakow.</text><nl/>
+	<nl/>	
+	<color r="1" g="0.3" b="1"/>
+	<text>Crafting:</text><nl/>
+	<color r="0.0" g="0.5" b="1"/>
+	<text>Umiejetnosc dla bardziej zaawansowanych graczy. Dzieki </text><nl/>
+	<text>tej czynnosci wykonujesz bizuterie (pierscienie i)</text><nl/>
+	<text>medaliony, zarowno zwykle jak i magiczne. Pierscienie</text><nl/>
+	<text>teleportacji i amulety bojowe to najpopularniejsze </text><nl/>
+	<text>przedmioty wykonywane dzieki tej umiejetnosci. Jest to </text><nl/>
+	<text>umiejetnosc wymagajaca ogromnej wiedzy (ksiazki), zlotych</text><nl/>
+	<text>i srebrnych sztab (alchemia) oraz mnostwa pieniedzy. </text><nl/>
+	<text>Wymagany jest rowniez przynajmniej jeden punkt neksusa</text><nl/>
+	<text>artificial). Aby wykonywac przedmioty musisz miec dodatni </text><nl/>
+	<text>poziom jedzenia. Im wyzszy poziom umijetnosci tym </text><nl/>
+	<text>mniejsze prawdopodobienstwo niepowodzenia.</text><nl/>
+	<nl/>
+	<color>yellow</color><Text>Strona: 2</Text>
+	<link ref="SFAQ" title=" 1 "/>
+	<Text>            </Text><link ref="HelpPage" title="Powrot do spisu tresci pomocy"/>
+	<nl/>
+	
+</Page>
+
+</Help>
+
+
+
+

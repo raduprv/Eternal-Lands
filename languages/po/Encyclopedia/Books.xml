@@ -1,0 +1,399 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Books>
+<Page name="Books_MS">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>               Wytapianie Metalu</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Metalurgia                        30            250</Text><nl/>
+	<Text>Wytapianie Metalu                 50            300</Text><nl/>
+	<Text>Wytapianie Zelaza                100            500</Text><nl/>
+	<Text>Wytapianie Zlota                 250           1000</Text><nl/>
+	<Text>Wytapianie Srebra                500            500</Text><nl/>
+	<Text>Wytapianie Stali                1000           1200</Text><nl/>
+	<Text>Wytapianie Tytanu               3000           2000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_MM">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>                Wydobywanie Metalu</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Wydobywanie Metalu                250            300</Text><nl/>
+	<Text>Wydobywanie Zelaza                500           2000</Text><nl/>
+	<Text>Wydobywanie Srebra               2500           1000</Text><nl/>
+	<Text>Wydobywanie Zlota                1000           1400</Text><nl/>
+	<Text>Wydobywanie Tytanu               7500           6000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_MD">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>	
+	<Text>               Ksztaltowanie Metalu</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Ksztaltowanie Metalu              500            400</Text><nl/>
+	<Text>Ksztaltowanie Stali              5000           2000</Text><nl/>
+	<Text>Ksztaltowanie Zlota              1500           1000</Text><nl/>
+	<Text>Ksztaltowanie Zelaza             1000           1500</Text><nl/>
+	<Text>Ksztaltowanie Srebra             2000           1500</Text><nl/>
+	<Text>Ksztaltowanie Tytanu            10000           7000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_WC">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>            Konstrukcja Broni</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Konstrukcja Broni                 100            700</Text><nl/>
+	<Text>Konstrukcja Miecza                200            900</Text><nl/>
+	<Text>Zelazny Miecz                     400           2000</Text><nl/>
+	<Text>Szeroki Zelazny Miecz             500           3000</Text><nl/>
+	<Text>Dlugi Stalowy Miecz              1000           4000</Text><nl/>
+	<Text>Miecz Dwustronny                 2000           5000</Text><nl/>
+	<Text>Krotki Tyt. Miecz                4000           6000</Text><nl/>
+	<Text>Dlugi Tyt. Miecz                10000           7000</Text><nl/>
+	<Text>Wezowy Tyt. Miecz               50000           8000</Text><nl/>
+	<Text>Ogolna Konstr. Toporu           30000           4000</Text><nl/>
+	<Text>Kons. Zelaznych Toporu          35000           3000</Text><nl/>
+	<Text>Kons. Stalowych Toporu          40000           4000</Text><nl/>
+	<Text>Kons. Tyt. Toporu               55000          10000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_2" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_AC">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>             Konstrukcja Zbroi</Text><nl/>	
+	<Color>red</Color>
+	<Text>                 Strona 1/2</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Zbroje Ogolne                     500           1000</Text><nl/>
+	<Text>Zbroje na Glowe                   500           1600</Text><nl/>
+	<Text>Zbroje na Nogi                    500           1600</Text><nl/>
+	<Text>Zbroje na Tulow                  1000           1200</Text><nl/>
+	<Text>Zbroje na Stopy                   500           1400</Text><nl/>
+	<Text>Skorzane Helmy                    400            800</Text><nl/>
+	<Text>Zelazne Helmy                    1000           1400</Text><nl/>
+	<Text>Skorzane Spodnie                  500           1200</Text><nl/>
+	<Text>Zelazne Spodnie                  5000           1600</Text><nl/>
+	<Text>Podszyty Skorzany Tulow          1000           1000</Text><nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Idz do strony: </Text>
+	<link ref="Books_AC_2" title="[2]"/><nl/><nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_2" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_AC_2">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>             Konstrukcja Zbroi</Text><nl/>	
+	<Color>red</Color>
+	<Text>                 Strona 2/2</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Zelazna Kolczuga                 2500           2000</Text><nl/>
+	<Text>Stalowa Kolczuga                 5000           2100</Text><nl/>
+	<Text>Tytanowa Kolczuga               20000           4000</Text><nl/>
+	<Text>Zelazna Zbroja Plytowa          40000           2400</Text><nl/>
+	<Text>Zelazna Nagolennice              8000            800</Text><nl/>
+	<Text>Konstrukcja Tarczy                500            600</Text><nl/>
+	<Text>Zelazna Tarcza                   1000           1400</Text><nl/>
+	<Text>Stalowa Tarcza                   5000           1800</Text><nl/>
+	<nl/>
+	<color r="0" g="0.5" b="1"/>
+	<Text>                    Idz do strony: </Text>
+	<link ref="Books_AC" title="[1]"/><nl/><nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_2" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_BI">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>                  Biologia</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Biologia                        50            400</Text><nl/>
+	<Text>Biochemia                       60            500</Text><nl/>
+	<Text>Botanica                        40            400</Text><nl/>
+	<Text>Anatomia                        40            600</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Books_2" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_AL">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>                  Alchemia</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Zaawansowana Alchemia            100            600</Text><nl/>
+	<Text>Esencja Zycia                    500           1200</Text><nl/>
+	<Text>Esencja Smierci                  200           1300</Text><nl/>
+	<Text>Esencja Zdrowia                 1000           1400</Text><nl/>
+	<Text>Esencja Magii                   2000            800</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_2" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_PO">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>                  Eliksiry</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Zaawansowane Eliksiry            120            800</Text><nl/>
+	<Text>Witalnosc                        150            900</Text><nl/>
+	<Text>Koordynacja                      250           1000</Text><nl/>
+	<Text>Wola                             250            300</Text><nl/>
+	<Text>Dzikosc                          500            400</Text><nl/>
+	<Text>Budowa Ciala                     750            600</Text><nl/>
+	<Text>Odnowienie Ciala                1000            900</Text><nl/>
+	<Text>Uczta                           2000           2000</Text><nl/>
+	<Text>Wytwarzanie                     2500           2300</Text><nl/>
+	<Text>Jubilerstwo                     3000          21000</Text><nl/>
+	<Text>Przywolywanie                   5000           2600</Text><nl/>
+	<Text>Magia                           7500          25000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_2" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_SM">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>                 Przywolywanie</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Zaawansowane Przywolywanie        50            800</Text><nl/>
+	<Text>Przywolywanie Weza               100            400</Text><nl/>
+	<Text>Przywolywanie Wilka              100            600</Text><nl/>
+	<Text>Przywolywanie Dzika              200            500</Text><nl/>
+	<Text>Przywolywanie Szkieletu          500            700</Text><nl/>
+	<Text>Przywolywanie Garga             1000            800</Text><nl/>
+	<Text>Przywolywanie Pumy              2000            900</Text><nl/>
+	<Text>Przywolywanie Niedzwiedzia      5000           1000</Text><nl/>
+	<Text>Przywolywanie Fluffy Rabbit    10000          15000</Text><nl/>
+	<Text>Przywolywanie Chimeran Wolf    20000          20000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_3" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_FT">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>                  Walka</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Taktyki Walki                     50            800</Text><nl/>
+	<Text>Walka z Goblinami                100            900</Text><nl/>
+	<Text>Walka ze Szkieletami             250           1000</Text><nl/>
+	<Text>Walka z Gargami                  500           1100</Text><nl/>
+	<Text>Walka z Puma                     500           1200</Text><nl/>
+	<Text>Walka z Niedzwiedziem           1000           1400</Text><nl/>
+	<Text>Walka z Orkiem                  2000           1300</Text><nl/>
+	<Text>Walka z Trolem                  5000           1500</Text><nl/>
+	<Text>Walka z Cyklopem               10000           1600</Text><nl/>
+	<Text>Walka z Krasnoludem            20000           2000</Text><nl/>
+	<Text>Walka z Elfem                  20000           2000</Text><nl/>
+	<Text>Walka z Czlowiekiem            20000           2000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_3" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_CM">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>	
+	<color r="1" g="0.5" b="0"/>
+	<Text>               Wydobywanie Krysztalow</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Technologia Krysztalu            30            300</Text><nl/>
+	<Text>Wydobywanie Krysztalu            50            500</Text><nl/>
+	<Text>Wydobywanie Kwarcu              150            400</Text><nl/>
+	<Text>Wydob. Rozowego Kwarcu          250            500</Text><nl/>
+	<Text>Wydob. Nieb. Kwarcu             350            500</Text><nl/>
+	<Text>Wydobywanie Rubinow            2500            700</Text><nl/>
+	<Text>Wydobywanie Szmaragdow         5000            700</Text><nl/>
+	<Text>Wydobywanie Szafirow          10000            700</Text><nl/>
+	<Text>Wydobywanie Diamentow          7500            700</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_CP">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>	
+	<color r="1" g="0.5" b="0"/>
+	<Text>             Obrobka Krysztalu</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Obrobka Krysztalu                 50            500</Text><nl/>
+	<Text>Obrobka Szafiru                 2500           1500</Text><nl/>
+	<Text>Obrobka Szmaragdu                500            600</Text><nl/>
+	<Text>Obrobka Rubinu                  1000            700</Text><nl/>
+	<Text>Obrobka Diamentu                2000           2000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_JE">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>	
+	<color r="1" g="0.5" b="0"/>
+	<Text>              Zatapianie Bizuterii</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Technologia Bizuterii            200            700</Text><nl/>
+	<Text>Zatapianie Krysztalu             500            500</Text><nl/>
+	<Text>Zatapianie Diamentu             2000            400</Text><nl/>
+	<Text>Zatapianie Szafiru              1000            300</Text><nl/>
+	<Text>Zatapianie Szmaragdu            1000            360</Text><nl/>
+	<Text>Zatapianie Rubinu               1000            200</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki_2" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_MB">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>             Budowa Medalionow</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Medaliony Ogolne                 250            900</Text><nl/>
+	<Text>Srebrne Medaliony                500            600</Text><nl/>
+	<Text>Zlote Medaliony                  500            500</Text><nl/>
+	<Text>Medalion Slonca                 1000           1600</Text><nl/>
+	<Text>Medalion Gwiazd                 1500           1800</Text><nl/>
+	<Text>Medalion Jednorozca             3000           1400</Text><nl/>
+	<Text>Medalion Ksiezyca              10000           1600</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+<Page name="Books_RB">
+	<size>Big</size>
+	<color r="0" g="1" b="0"/>
+	<Text>       Encyklopedia Eternal Lands</Text>
+	<nl/>
+	<Text>                   KSIAZKI</Text><nl/>
+	<color r="1" g="0.5" b="0"/>
+	<Text>               Budowa Pierscieni</Text><nl/><nl/>
+	<size>Medium</size>
+	<color r="0" g="0.5" b="1"/>
+	<Text>Tytul Ksiazki                 Cena (gc)   Punkty Badania</Text><nl/>
+	<color r="0.9" g="0.9" b="0.9"/>
+	<Text>Pierscienie Ogolne               150            800</Text><nl/>
+	<Text>Srebrne Pierscienie              500            600</Text><nl/>
+	<Text>Zlote Pierscienie                400            400</Text><nl/>
+	<Text>Pierscien Isla Prima            1000            200</Text><nl/>
+	<Text>Pierscien Desert Pines          1500            600</Text><nl/>
+	<Text>Pierscien Uszkodzenia           5000           5000</Text><nl/>
+	<Text>Pierscien Portland              1500            600</Text><nl/>
+	<Text>Pierscien Naralik               1500            900</Text><nl/>
+	<Text>Pierscien White Stone           2000            600</Text><nl/>
+	<Text>Pierscien Valley of the Dwarves 3500            800</Text><nl/>
+	<Text>Pierscien Uwolnienia           10000           3000</Text><nl/>
+	<nl/>
+	<color>yellow</color>
+	<Text>                    </Text><link ref="Ksiazki" title="Wroc Do Indeksu Ksiazek"/>
+</Page>
+</Books>
