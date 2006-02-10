@@ -362,14 +362,17 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 void get_file_digest(const Uint8 * filename, Uint8 digest[16])
 {
 	MD5 md5;
-	FILE *fp= my_fopen(filename, "rb");
 	Uint8 buffer[1024];
 	Sint32 length;
-	MD5Open(&md5);
+	FILE *fp= my_fopen(filename, "rb");
 
 	memset (digest, 0, sizeof (digest));
-	if (fp == NULL) return;
+	if (fp == NULL){
+		log_error("MD%Digest: Unable to open %s (%d)", filename, errno);
+		return;
+	}
 
+	MD5Open(&md5);
 	while ((length= fread(buffer, 1, sizeof(buffer), fp)) > 0)
 		{
 			MD5Digest(&md5, buffer, length);
