@@ -100,10 +100,11 @@ void    init_update()
 void    handle_update_download(struct http_get_struct *get)
 {
 	static int  mkdir_res= -1;  // flag as not tried
+	int sts;
 	
 	if(get != NULL){
 		// did we finish properly?
-		if(get->status == 0){\
+		if(get->status == 0){
 			// release the memory
 			if(get->fp){
 				fclose(get->fp);
@@ -112,10 +113,14 @@ void    handle_update_download(struct http_get_struct *get)
 
 			// yes, lets start using the new file
 			remove("files.lst");
-			rename("./tmp/temp000.dat", "files.lst");
+			sts= rename("./tmp/temp000.dat", "files.lst");
 
 			// trigger processing this file
-			do_updates();
+			if(!sts){
+				do_updates();
+			} else {
+				log_error("Unable to finsih files.lst processing (%d)", errno);
+			}
 			
 			// and go back to normal processing
 			return;
@@ -297,6 +302,8 @@ log_error("Downloaded needed for %s", filename);
 // finish up on one file that just downloaded
 void    handle_file_download(struct http_get_struct *get)
 {
+	int sts;
+
 	if(!get){   // huh? what are you doing?
 		return;
 	}
@@ -308,11 +315,18 @@ void    handle_file_download(struct http_get_struct *get)
 		// replace the current file
 		// TODO: check for remove/rename errors
 		remove(download_cur_file);
-		rename(download_temp_file, download_cur_file);
+		sts= rename(download_temp_file, download_cur_file);
 
 		// TODO: make the restart more intelligent
-		if(allow_restart){
-			restart_required++;
+		if(!sts){
+			if(allow_restart){
+				restart_required++;
+			}
+		} else {
+			log_error("Unable to finish processing of %d (%d)", download_cur_file, errno);
+			// the final renamed failed, no restart permitted
+			allow_restart= 0;
+			restart_required= 0;
 		}
 	} else {
 		// and make sure we can't restart since we had a total failure
