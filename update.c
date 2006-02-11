@@ -15,6 +15,7 @@
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #endif	//WINDOWS
+#include <errno.h>
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 int temp_counter;           // collision prevention during downloads just incase more then one ever starts

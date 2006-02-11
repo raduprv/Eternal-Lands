@@ -3,6 +3,7 @@
 #include <string.h>
 #include <ctype.h>
 #include <iconv.h>
+#include <errno.h>
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
 #else
