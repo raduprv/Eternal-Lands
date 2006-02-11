@@ -6,11 +6,13 @@
 #ifndef __SECTOR_H__
 #define __SECTOR_H__
 
+#include "misc.h"
+
 #ifndef	NEW_FRUSTUM
 /*!
  * returns the sector associated with the coordinates x and y
  */
-#define SECTOR_GET(x,y) (((int)(y)/12)*(tile_map_size_x>>2)+(int)(x)/12)
+#define SECTOR_GET(x,y) (clampi((int)(y)/12, 0, (tile_map_size_y>>2) - 1)*(tile_map_size_x>>2) + clampi((int)(x)/12, 0, (tile_map_size_x>>2) - 1))
 
 #define MAX_3D_OBJECTS 400 /*!< maximum number of 3d objects in a sector */
 

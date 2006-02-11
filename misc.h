@@ -298,4 +298,19 @@ static __inline__ float max2f (float x, float y)
 	return (x >= y)? x : y;
 }
 
+static __inline unsigned clampu(unsigned x, unsigned l, unsigned u)
+{
+	return min2u(max2u(x,l),u);
+}
+
+static __inline int clampi(int x, int l, int u)
+{
+	return min2i(max2i(x,l),u);
+}
+
+static __inline float clampf(float x, float l, float u)
+{
+	return min2f(max2f(x,l),u);
+}
+
 #endif
