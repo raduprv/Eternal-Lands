@@ -369,7 +369,7 @@ void get_file_digest(const Uint8 * filename, Uint8 digest[16])
 
 	memset (digest, 0, sizeof (digest));
 	if (fp == NULL){
-		log_error("MD%Digest: Unable to open %s (%d)", filename, errno);
+		log_error("MD5Digest: Unable to open %s (%d)", filename, errno);
 		return;
 	}
 
