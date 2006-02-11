@@ -186,10 +186,13 @@ void move_camera ()
 	}
 	
 	//check to see if we are out of the map
+	// lachesis: disabled. Not necessary anymore and breaks usability of some maps.
+	/*
 	if(cx>-7.5f)cx=-7.5f;
 	if(cy>-7.5f)cy=-7.5f;
 	if(cx<-(tile_map_size_x*3-7.9))cx=(float)-(tile_map_size_x*3-7.9);
 	if(cy<-(tile_map_size_x*3-7.9))cy=(float)-(tile_map_size_x*3-7.9);
+	// */
 
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
