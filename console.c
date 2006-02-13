@@ -432,7 +432,7 @@ int command_ignore(char *text, int len)
 	}
 	name[i] = '\0';
 
-	if (i >= 15 && ch != '\0')
+	if (i > 15 && ch != '\0')
 	{
 		Uint8 str[100];
 		snprintf (str, sizeof(str), "%s %s", name_too_long, not_added_to_ignores);
@@ -542,7 +542,7 @@ int command_unignore(char *text, int len)
 	}
 	name[i] = '\0';
 
-	if (i==15 && ch != '\0')
+	if (i>15 && ch != '\0')
 	{
 		snprintf (str, sizeof (str), "%s %s", name_too_long, not_removed_from_ignores);
 		LOG_TO_CONSOLE (c_red1, str);
@@ -1017,7 +1017,7 @@ void test_for_console_command (char *text, int len)
 			}
 			name[i] = '\0';
 
-			if (i >= 15 && ch != '\0')
+			if (i > 15 && ch != '\0')
 			{
 				Uint8 str[100];
 				snprintf (str, sizeof(str), "%s %s", name_too_long, not_added_to_ignores);
@@ -1137,7 +1137,7 @@ void test_for_console_command (char *text, int len)
 			}
 			name[i] = '\0';
 
-			if (i==15 && ch != '\0')
+			if (i>15 && ch != '\0')
 			{
 				snprintf (str, sizeof (str), "%s %s", name_too_long, not_removed_from_ignores);
 				LOG_TO_CONSOLE (c_red1, str);
