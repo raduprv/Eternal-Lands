@@ -102,6 +102,10 @@ Fix your maps.</nonomap><nobmpmap>There is no map for this place.</nobmpmap><boo
     <eof>Ogg error media EOF.</eof>
     <ebadlink>Ogg error media EBADLINK.</ebadlink>
     <enoseek>Ogg error media ENOSEEK.</enoseek>
+	<enomusic>This client was built without music support</enomusic>
+	<musicstopped>No song is currently playing</music_stopped>
+	<musicinfo>Currently playing: "%s" by %s (%d:%02d/%d:%02d)</musicinfo>
+	<musicinfonoartist>Currently playing: "%s" (%d:%02d/%d:%02d)</musicinfonoartist>
   </snd>
   <video>
     <nostencil>Video mode %s with a stencil buffer is not available
