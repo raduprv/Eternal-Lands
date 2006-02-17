@@ -201,7 +201,7 @@ void load_ogg_file(char *file_name) {
 
 	ogg_file = my_fopen(file_name2, "rb");
 
-	if(!ogg_file) {
+	if(ogg_file == NULL) {
 		have_music=0;
 		return;
 	}
@@ -209,6 +209,7 @@ void load_ogg_file(char *file_name) {
 	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
 		LOG_ERROR(snd_ogg_stream_error);
 		have_music=0;
+		return;
 	}
 
 	ogg_info = ov_info(&ogg_stream, -1);
@@ -881,4 +882,43 @@ void ogg_error(int code)
 			LOG_ERROR(snd_media_ogg_error);
     }
 #endif	//NO_MUSIC
+}
+
+int display_song_name(){
+#ifdef NO_MUSIC
+	LOG_TO_CONSOLE(c_red2, snd_no_music);
+#else //!NO_MUSIC
+	if(!playing_music){
+		LOG_TO_CONSOLE(c_grey1, snd_media_music_stopped);
+	}else{
+		char musname[100];
+		char *title = NULL, *artist = NULL;
+		int i=0;
+		vorbis_comment *comments;
+		comments = ov_comment(&ogg_stream, -1);
+		if(comments == NULL){
+			snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+			LOG_TO_CONSOLE(c_grey1, musname);
+			return 1;
+		}
+		for(;i<comments->comments;++i){
+			if((artist == NULL)&&(comments->comment_lengths[i] > 6)&&(my_strncompare(comments->user_comments[i],"artist", 6))){
+				artist = comments->user_comments[i] + 7;
+				if(title){break;}
+			}else if((title == NULL)&&(comments->comment_lengths[i] > 6)&&(my_strncompare(comments->user_comments[i],"title", 5))){
+				title = comments->user_comments[i] + 6;
+				if(artist){break;}
+			}
+		}
+		if(artist && title){
+			snprintf(musname, sizeof(musname), snd_media_ogg_info, title, artist, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+		}else if(title){
+			snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, title, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+		}else{
+			snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+		}
+		LOG_TO_CONSOLE(c_grey1, musname);
+	}
+#endif //NO_MUSIC
+	return 1;
 }

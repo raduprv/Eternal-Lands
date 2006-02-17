@@ -811,6 +811,7 @@ void init_commands(const char *filename)
 	add_command("sto", &command_storage);
 	add_command("storage", &command_storage);
 	add_command("accept_buddy", &command_accept_buddy);
+	add_command("current_song", &display_song_name);
 	command_buffer_offset = NULL;
 }
 #endif //COMMAND_BUFFER
@@ -1314,6 +1315,10 @@ void test_for_console_command (char *text, int len)
 				}
 			}
 		}
+	else if (my_strncompare (text_loc, "current_song", 12)){
+		display_song_name();
+		return;
+	}
 	else if (my_strncompare (text_loc, "accept_buddy", 12))
 		{
 			/* Look for this to make sure the requests queue is up to date */

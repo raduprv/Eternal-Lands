@@ -459,6 +459,10 @@ char	reg_error_str[15],
 	snd_media_ebadlink[50],
 	snd_media_enoseek[50],	
 	snd_media_ogg_error[50],
+	snd_no_music[50],
+	snd_media_music_stopped[50],
+	snd_media_ogg_info[50],
+	snd_media_ogg_info_noartist[50],
 	/*stats.c*/
 	stat_no_invalid[50],
 	/*timers.c*/
@@ -912,7 +916,11 @@ void init_errors()
 	add_xml_identifier(snd,"eof",snd_media_eof,"Ogg error media EOF.",sizeof(snd_media_eof));
 	add_xml_identifier(snd,"ebadlink",snd_media_ebadlink,"Ogg error media EBADLINK.",sizeof(snd_media_ebadlink));
 	add_xml_identifier(snd,"enoseek",snd_media_enoseek,"Ogg error media ENOSEEK.",sizeof(snd_media_enoseek));
-	
+	add_xml_identifier(snd,"enomusic",snd_no_music,"This client was built without music support",sizeof(snd_no_music));
+	add_xml_identifier(snd,"musicstopped",snd_media_music_stopped,"No song is currently playing",sizeof(snd_media_music_stopped));
+	add_xml_identifier(snd,"musicinfo",snd_media_ogg_info,"Currently playing: \"%s\" by %s (%d:%02d/%d:%02d)",sizeof(snd_media_ogg_info));
+	add_xml_identifier(snd,"musicinfonoartist",snd_media_ogg_info_noartist,"Currently playing: \"%s\" (%d:%02d/%d:%02d)",sizeof(snd_media_ogg_info_noartist));
+
 	//Video errors
 	add_xml_identifier(video,"nostencil",no_stencil_str,"Video mode %s with a stencil buffer is not available\nTrying this mode without a stencil buffer...",sizeof(no_stencil_str));
 	add_xml_identifier(video,"safemode",safemode_str,"Video mode %s without a stencil buffer is not available\nTrying the safemode (640x480x32) Full Screen (no stencil)",sizeof(safemode_str));

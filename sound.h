@@ -188,4 +188,6 @@ void turn_music_on();
 
 ALuint get_loaded_buffer(int i);
 
+int display_song_name();
+
 #endif

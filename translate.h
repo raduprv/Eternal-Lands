@@ -550,7 +550,11 @@ extern char	reg_error_str[15],
 		snd_media_einval[50],
 		snd_media_ebadlink[50],
 		snd_media_enoseek[50],	
-		snd_media_ogg_error[50], //sound.c
+		snd_media_ogg_error[50],
+		snd_no_music[50],
+		snd_media_music_stopped[50],
+		snd_media_ogg_info_noartist[50],
+		snd_media_ogg_info[50], //sound.c
 		stat_no_invalid[50], //stats.c
 		timer_lagging_behind[100], //timers.c
 		/*spells.c*/
