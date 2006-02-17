@@ -20,7 +20,8 @@ FILE* open_log (const char *fname, const char *mode)
 	}
 	time (&c_time);
 	l_time = localtime (&c_time);
-	strftime (starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S\n\n", l_time);
+	strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
+	snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[!daylight]);
 	fwrite (starttime, strlen(starttime), 1, file);
 	return file;
 }
@@ -37,9 +38,24 @@ void clear_error_log()
 	fflush (err_file);
 }
 
+Uint8 last_error[512];
+int repeats =0;
 void log_error (const char* message, ...)
 {
 	va_list ap;
+	struct tm *l_time; time_t c_time;
+	Uint8 logmsg[512];
+	Uint8 errmsg[512];
+	va_start(ap, message);
+		vsprintf(errmsg, message, ap);
+	va_end(ap);
+	if(!strcmp(errmsg,last_error)){
+		++repeats;
+		return;
+	}
+	if(repeats) fprintf(err_file, "Last message repeated %d time%c\n", repeats,(repeats>1?'s':' '));
+	repeats=0;
+	strcpy(last_error,errmsg);
 
 	if(err_file == NULL)
 	{
@@ -47,12 +63,15 @@ void log_error (const char* message, ...)
 		snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 	}
-	va_start(ap, message);
-		vfprintf (err_file, message, ap);
-	va_end(ap);
+	time(&c_time);
+	l_time = localtime(&c_time);
+	strftime(logmsg, sizeof(logmsg), "[%H:%M:%S] ", l_time);
+	strcat(logmsg, errmsg);
+
 	if(message[strlen(message)-1] != '\n') {
-		fprintf(err_file, "\n");
+		strcat(logmsg, "\n");
 	}
+	fprintf(err_file, logmsg);
   	fflush (err_file);
 }
 

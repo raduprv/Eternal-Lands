@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
+#include <time.h>
 #include "global.h"
 #include "chat.h"
 
@@ -77,6 +78,9 @@ void write_to_log (Uint8 *data, int len)
 	int i, j;
 	Uint8 ch;
 	char str[4096];
+	Uint8 starttime[200];
+	struct tm *l_time; time_t c_time;
+	char logmsg[4096];
 
 	int server_message = 0;
 
@@ -108,6 +112,14 @@ void write_to_log (Uint8 *data, int len)
 			log_chat=0;
 			return;
 		}
+		time(&c_time);
+		l_time = localtime(&c_time);
+		strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
+		snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[daylight]);
+		if(log_chat>=3){
+			fwrite (starttime, strlen(starttime), 1, chat_log);
+		}
+		fwrite (starttime, strlen(starttime), 1, chat_log);
 	}
 
 	j=0;
@@ -127,16 +139,22 @@ void write_to_log (Uint8 *data, int len)
 		}
 	}
 	str[j++]='\n';
+	str[j++]='\0';
+
+	time(&c_time);
+	l_time = localtime(&c_time);
+	strftime(logmsg, sizeof(logmsg), "[%H:%M:%S] ", l_time);
+	strcat(logmsg, str);
 
 	if (server_message && log_chat>=3)
 	{
-		fwrite(str, j, 1, srv_log);
+		fwrite(logmsg, strlen(logmsg), 1, srv_log);
 	}
 	else if (!server_message || log_chat==2
 		|| (log_chat == 1 && ((!server_message)||(!strncmp(str, "#GM ", 4))||(!strncmp(str, "#Mod ", 5))))
 		)
 	{
-		fwrite(str, j, 1, chat_log);
+		fwrite(logmsg, strlen(logmsg), 1, chat_log);
 	}
 	fflush(chat_log);
   	fflush(srv_log);
