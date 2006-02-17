@@ -32,6 +32,7 @@ int buddy_type_input_id = -1;
 int buddy_change_button_id = -1;
 int buddy_delete = 0; //For the checkbox
 char *buddy_to_change = NULL;
+//BUDDY-FIXME: once server-side offline buddies are supported, this variable will be unneeded
 time_t c_time;//used to prevent buddylist flood when changing colours, etc
 
 
@@ -81,6 +82,8 @@ int display_buddy_handler(window_info *win)
 				case 2:glColor3f(0,1.0,0);break;
 				case 3:glColor3f(0,0,1.0);break;
 				case 4:glColor3f(1.0,1.0,0);break;
+				case 0xFE:glColor3f(0.5,0.55,0.60);break;
+				default:glColor3f(1.0,1.0,1.0);//invalid number? make it white
 			}
 			draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
 			y+=10;
@@ -129,8 +132,8 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	// clicked on a buddy's name
 	y /= 10;
 	y += vscrollbar_get_pos(buddy_win,buddy_scroll_id);
-	if(strlen(buddy_list[y].name) == 0) {
-		//There's no name here. Fall through.
+	if((strlen(buddy_list[y].name) == 0)||(buddy_list[y].type >= 0xFE)) {
+		//There's no name, or buddy is offline. Fall through.
 		return 0;
 	}
 	if(flags&ELW_RIGHT_MOUSE) {
@@ -170,6 +173,7 @@ void init_buddy()
 		memset(accept_windows[i].name, 0, sizeof(accept_windows[i].name));
 	}
 	queue_initialise(&buddy_request_queue);
+	//BUDDY-FIXME: once server-side offline buddies are supported, the next 2 lines can go
 	time(&c_time);//note the current time
 	c_time += 10;
 }
@@ -213,6 +217,7 @@ int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 		snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
 	}
 	my_tcp_send(my_socket, string, strlen(string+1)+1);
+	//BUDDY-FIXME: once server-side offline buddies are supported, the next line can go
 	time(&c_time);
 	destroy_window(buddy_change_win);
 	buddy_change_win = -1;
@@ -569,6 +574,7 @@ void add_buddy (const char *name, int type, int len)
 			// found then add buddy
 			buddy_list[i].type = type;
 			snprintf (buddy_list[i].name, sizeof(buddy_list[i].name), "%.*s", len, name);
+			//BUDDY-FIXME: once server-side offline buddies are supported, this if-block will be removed (as del_buddy will only happen when the buddy really is deleted)
 			if (buddy_log_notice == 1)
 			{
 				// if less than 5sec since the timer was 
@@ -586,8 +592,21 @@ void add_buddy (const char *name, int type, int len)
 			}
 			break;
 		}
-		if (strncasecmp (buddy_list[i].name, name, len) == 0)
-			break; // we already have this one in the list
+		else if((strncasecmp (buddy_list[i].name, name, len) == 0)
+				&&(buddy_list[i].type != type)){
+			//colour change, not a new entry
+			if(buddy_log_notice == 1){
+				if(buddy_list[i].type == 0xFE){//logging on
+					snprintf (message, sizeof(message), buddy_logon_str, len, name);
+					LOG_TO_CONSOLE (c_green1, message);
+				}else if(type == 0xFE){//logging off
+					snprintf (message, sizeof(message), buddy_logoff_str, len, name);
+					LOG_TO_CONSOLE (c_green1, message);
+				}//else it's just a normal colour change
+			}
+			buddy_list[i].type=type;
+			break;
+		}
 	}
 }
 
@@ -603,6 +622,7 @@ void del_buddy (const char *name, int len)
 		{
 			buddy_list[i].type = 0xff;
 			memset (buddy_list[i].name, 0, sizeof (buddy_list[i].name));
+			//BUDDY-FIXME: once server-side offline buddies are supported, this if-block will be removed (as del_buddy will only happen when the buddy really is deleted)
 			if (buddy_log_notice == 1)
 			{
 				// if less than 5sec since the timer was 

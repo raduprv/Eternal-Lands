@@ -231,6 +231,7 @@ void connect_to_server()
 	send_version_to_server(&ip);
 	last_heart_beat = time(NULL);
 	hide_window(trade_win);
+	//BUDDY-FIXME: once server-side offline buddies are supported, the next 4 lines can go
 	//For the buddy notifications
 	if(time(NULL) > c_time) {
 		time(&c_time);//note the current time
