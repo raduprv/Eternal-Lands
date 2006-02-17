@@ -21,7 +21,7 @@ FILE* open_log (const char *fname, const char *mode)
 	time (&c_time);
 	l_time = localtime (&c_time);
 	strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
-	snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[!daylight]);
+	snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[daylight]);
 	fwrite (starttime, strlen(starttime), 1, file);
 	return file;
 }
