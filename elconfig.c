@@ -11,7 +11,7 @@
 #include <sys/stat.h>
 #ifndef _MSC_VER
 #include <unistd.h>
-#endif  //_MSC_VER
+#endif //_MSC_VER
 
 #ifdef MAP_EDITOR
  #include "../map_editor/global.h"
@@ -112,8 +112,9 @@ void change_float(float * var, float * value)
 
 void change_string(char * var, char * str, int len)
 {
-	while(*str && len--)*var++=*str++;
-	*var=0;
+	while(*str && len--)
+		*var++ = *str++;
+	*var = 0;
 }
 
 #ifdef ELC
@@ -136,12 +137,12 @@ void change_password(char * passwd)
 	}
 	*str=0;
 	if(password_str[0])//We have a password
-		{
-			for(; i < str-password_str; i++) {
-				display_password_str[i] = '*';
-			}
-			display_password_str[i]=0;
+	{
+		for(; i < str-password_str; i++) {
+			display_password_str[i] = '*';
 		}
+		display_password_str[i]=0;
+	}
 }
 
 void change_poor_man(int *poor_man)
@@ -192,18 +193,23 @@ void change_point_particles(int *value)
 		// extensions are not initialized yet.
 		*value = 1;
 	}
-	else LOG_TO_CONSOLE(c_green2,disabled_point_particles);
+	else
+	{
+		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
+	}
 }
 
 void change_particles_percentage(int *pointer, int value)
 {
 	if(value>0 && value <=100)
-		particles_percentage=value;
+	{
+		particles_percentage = value;
+	}
 	else 
-		{
-			particles_percentage=0;
-			LOG_TO_CONSOLE(c_green2,disabled_particles_str);
-		}
+	{
+		particles_percentage = 0;
+		LOG_TO_CONSOLE(c_green2, disabled_particles_str);
+	}
 }
 
 void switch_vidmode(int *pointer, int mode)
@@ -308,10 +314,10 @@ void switch_vidmode(int *pointer, int mode)
 void toggle_full_screen_mode(int * fs)
 {
 	if(!video_mode_set) 
-		{
-			*fs=!*fs;
-			return;
-		}
+	{
+		*fs = !*fs;
+		return;
+	}
 	toggle_full_screen();
 	//TODO: Add wide screen resolutions
 	//1280x800
@@ -339,7 +345,10 @@ void change_shadow_map_size(int *pointer, int value)
 			}
 		}
 	}
-	else index = min2i(max2i(0, value), 9);
+	else
+	{
+		index = min2i(max2i(0, value), 9);
+	}
 	
 	size = array[index];
 	
@@ -401,10 +410,16 @@ void change_shadow_map_size(int *pointer, int value)
 		}
 		if (gl_extensions_loaded && have_framebuffer_object)
 		{
-			if (use_frame_buffer && use_shadow_mapping && have_arb_shadow && shadows_on) change_shadow_framebuffer_size();
-			else free_shadow_framebuffer();
-			if (use_frame_buffer && show_reflection) change_reflection_framebuffer_size(window_width, window_height);
-			else free_reflection_framebuffer();
+			if (use_frame_buffer && use_shadow_mapping && have_arb_shadow && shadows_on) {
+				change_shadow_framebuffer_size();
+			} else {
+				free_shadow_framebuffer();
+			}
+			if (use_frame_buffer && show_reflection) {
+				change_reflection_framebuffer_size(window_width, window_height);
+			} else {
+				free_reflection_framebuffer();
+			}
 		}
 #else
 		glDeleteTextures(1, &depth_map_id);
@@ -412,14 +427,16 @@ void change_shadow_map_size(int *pointer, int value)
 #endif
 	}
 	
-	if (pointer != NULL) *pointer = index;
+	if (pointer != NULL) {
+		*pointer = index;
+	}
 	shadow_map_size = size;
 }
 
 void change_compass_direction(int *dir)
 {
 	compass_direction = 1-2 * (*dir>0);
-	*dir=!*dir;
+	*dir = !*dir;
 }
 
 #ifndef MAP_EDITOR2
@@ -441,7 +458,10 @@ void change_windowed_chat (int *wc, int val)
 	*wc = val;
 	if (*wc == 1)
 	{
-		if (game_root_win >= 0) display_tab_bar ();
+		if (game_root_win >= 0)
+		{
+			display_tab_bar ();
+		}
 	}
 	else if (tab_bar_win >= 0) 
 	{
@@ -450,7 +470,10 @@ void change_windowed_chat (int *wc, int val)
 	
 	if (*wc == 2)
 	{
-		if (game_root_win >= 0) display_chat ();
+		if (game_root_win >= 0)
+		{
+			display_chat ();
+		}
 	}
 	else if (chat_win >= 0) 
 	{
@@ -458,18 +481,26 @@ void change_windowed_chat (int *wc, int val)
 	}
 	
 	if (old_wc != *wc && (old_wc == 1 || old_wc == 2) )
+	{
 		convert_tabs (*wc);
+	}
 }
 
 
 void change_quickbar_relocatable (int *rel)
 {
 	*rel = !*rel;
-	if (quickbar_win >= 0) init_quickbar ();
+	if (quickbar_win >= 0)
+	{
+		init_quickbar ();
+	}
 }
 
-void change_chat_zoom(float *dest, float *value) {
-	if (*value < 0.0f) return;
+void change_chat_zoom(float *dest, float *value)
+{
+	if (*value < 0.0f) {
+		return;
+	}
 	*dest = *value;
 	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0) {
 		if (opening_root_win >= 0) {
@@ -493,10 +524,12 @@ void change_dir_name (char *var, const char *str, int len)
 {
 	int idx;
 	
-	for (idx = 0; idx < len && str[idx]; idx++)
+	for (idx = 0; idx < len && str[idx]; idx++) {
 		var[idx] = str[idx];
-	if (var[idx-1] != '/')
+	}
+	if (var[idx-1] != '/') {
 		var[idx++] = '/';
+	}
 	var[idx] = '\0';
 }
 
@@ -523,9 +556,9 @@ void change_aa(int *pointer) {
 #ifdef ELC
 #ifdef OSX 
 void change_projection_float_init(float * var, float * value) {
-        change_float(var, value);
+	change_float(var, value);
 }
-#endif
+#endif //OSX
 void change_projection_float(float * var, float * value) {
 	change_float(var, value);
 	resize_root_window();
@@ -536,15 +569,12 @@ void change_projection_bool(int *pointer) {
 	resize_root_window();
 }
 
-void change_buddy_log_notice(int *pointer) {
-	change_var(pointer);
-}
-
 void change_gamma(float *pointer, float *value)
 {
 	*pointer = *value;
-	if(video_mode_set)
+	if(video_mode_set) {
 		SDL_SetGamma(*value, *value, *value);
+	}
 }
 
 #ifndef MAP_EDITOR2
@@ -559,20 +589,29 @@ void change_separate_flag(int * pointer) {
 
 void change_shadow_mapping (int *sm)
 {
-	if (*sm) *sm = 0; 
+	if (*sm)
+	{
+		*sm = 0; 
+	}
 	else
 	{
 		// don't check if we have hardware support when OpenGL 
 		// extensions are not initialized yet.
-		if (!gl_extensions_loaded || (have_multitexture >= 3 && have_arb_shadow)) *sm = 1;
-		else LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
+		if (!gl_extensions_loaded || (have_multitexture >= 3 && have_arb_shadow))
+		{
+			*sm = 1;
+		}
+		else
+		{
+			LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
+		}
 	}
 #ifdef	USE_FRAMEBUFFER
 	update_fbo_and_shadow_mapping();
 #else
 	glDeleteTextures(1, &depth_map_id);
 	depth_map_id = 0;
-#endif
+#endif //USE_FRAMEBUFFER
 }
 
 #ifndef MAP_EDITOR2
@@ -581,63 +620,73 @@ void change_global_filters (int *use)
 	*use = !*use;
 	// load global filters when new value is true, but only when changed
 	// in game, not on startup
-	if (options_set && *use)
+	if (options_set && *use) {
 		load_filters_list ("global_filters.txt", 0);
+	}
 }
-#endif
+#endif //ndef MAP_EDITOR2
 
 #ifdef	TERRAIN
 void change_normal_mapping(int *nm)
 {
-	if (*nm) *nm = 0;
-	else
-	{
+	if (*nm) {
+		*nm = 0;
+	} else {
 		// don't check if we have hardware support when OpenGL 
 		// extensions are not initialized yet.
-		if (!gl_extensions_loaded || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader)) *nm = 1;
-		else LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
+		if (!gl_extensions_loaded || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader)) {
+			*nm = 1;
+		} else {
+			LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
+		}
 	}
 }
-#endif
+#endif // TERRAIN
 #endif // ELC
 
 #ifdef	USE_FRAMEBUFFER
 void change_reflection(int *rf)
 {
-	if (*rf) *rf = 0;
-	else *rf = 1;
+	*rf = !*rf;
 	update_fbo_and_shadow_mapping();
 }
 
 void change_frame_buffer(int *fb)
 {
-	if (*fb) *fb = 0;
+	if (*fb) 
+	{
+		*fb = 0;
+	}
 	else
 	{
-		if (!gl_extensions_loaded || have_framebuffer_object) *fb = 1;
-		else LOG_TO_CONSOLE (c_red1, disabled_framebuffer);
+		if (!gl_extensions_loaded || have_framebuffer_object)
+		{
+			*fb = 1;
+		}
+		else
+		{
+			LOG_TO_CONSOLE (c_red1, disabled_framebuffer);
+		}
 	}
 	update_fbo_and_shadow_mapping();
 }
-#endif
+#endif //USE_FRAMEBUFFER
 #ifdef OSX
 void change_shadows_init(int *sh)
 {
-        if (*sh) *sh = 0;
-        else *sh = 1;
+	*sh = !*sh;
 #ifdef  USE_FRAMEBUFFER
-        update_fbo_and_shadow_mapping();
+	update_fbo_and_shadow_mapping();
 #else
-        //...and the texture used for shadow mapping
-        //glDeleteTextures(1, &depth_map_id);
-        depth_map_id = 0;
-#endif
+	//...and the texture used for shadow mapping
+	//glDeleteTextures(1, &depth_map_id);
+	depth_map_id = 0;
+#endif //USE_FRAMEBUFFER
 }
-#endif
+#endif //OSX
 void change_shadows(int *sh)
 {
-	if (*sh) *sh = 0;
-	else *sh = 1;
+	*sh = !*sh;
 #ifdef	USE_FRAMEBUFFER
 	update_fbo_and_shadow_mapping();
 #else
@@ -714,7 +763,10 @@ static __inline__ void check_option_var(char* name)
 	char* value_s;
 
 	i = find_var(name, IN_GAME_VAR);
-	if (i < 0) return;
+	if (i < 0)
+	{
+		return;
+	}
 
 	switch (our_vars.var[i]->type)
 	{
@@ -763,7 +815,10 @@ int check_var (char *str, var_name_type type)
 	float foo;
 	
 	i = find_var (str, type);
-	if (i < 0) return -1;
+	if (i < 0)
+	{
+		return -1;
+	}
 	
 	ptr += (type != COMMAND_LINE_SHORT_VAR) ? our_vars.var[i]->nlen : our_vars.var[i]->snlen;
 	
@@ -835,7 +890,6 @@ int check_var (char *str, var_name_type type)
 			our_vars.var[i]->func (our_vars.var[i]->var, &foo);
 			return 1;
 	}
-	
 	return -1;
 }
 
@@ -880,58 +934,58 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
 	switch(our_vars.var[no]->type=type)
-		{
-			case MULTI:
-				queue_initialise(&our_vars.var[no]->queue);
-				va_start(ap, tab_id);
-				while((pointer = va_arg(ap, char *)) != NULL) {
-					queue_push(our_vars.var[no]->queue, pointer);
-				}
-				va_end(ap);
-				*integer = (int)def;
+	{
+		case MULTI:
+			queue_initialise(&our_vars.var[no]->queue);
+			va_start(ap, tab_id);
+			while((pointer = va_arg(ap, char *)) != NULL) {
+				queue_push(our_vars.var[no]->queue, pointer);
+			}
+			va_end(ap);
+			*integer = (int)def;
+		break;
+		case INT:
+			queue_initialise(&our_vars.var[no]->queue);
+			va_start(ap, tab_id);
+			//Min
+			tmp_i = calloc(1,sizeof(*tmp_i));
+			*tmp_i = va_arg(ap, point);
+			queue_push(our_vars.var[no]->queue, tmp_i);
+			//Max
+			tmp_i = calloc(1,sizeof(*tmp_i));
+			*tmp_i = va_arg(ap, point);
+			queue_push(our_vars.var[no]->queue, tmp_i);
+			va_end(ap);
+			*integer = (int)def;
+		break;
+		case BOOL:
+			*integer=(int)def;
 			break;
-			case INT:
-				queue_initialise(&our_vars.var[no]->queue);
-				va_start(ap, tab_id);
-				//Min
-				tmp_i = calloc(1,sizeof(*tmp_i));
-				*tmp_i = va_arg(ap, point);
-				queue_push(our_vars.var[no]->queue, tmp_i);
-				//Max
-				tmp_i = calloc(1,sizeof(*tmp_i));
-				*tmp_i = va_arg(ap, point);
-				queue_push(our_vars.var[no]->queue, tmp_i);
-				va_end(ap);
-				*integer = (int)def;
-			break;
-			case BOOL:
-				*integer=(int)def;
-				break;
-			case STRING:
+		case STRING:
 #ifdef ELC
-			case PASSWORD:
+		case PASSWORD:
 #endif //ELC
-				our_vars.var[no]->len=(int)def;
-				break;
-			case FLOAT:
-				queue_initialise(&our_vars.var[no]->queue);
-				va_start(ap, tab_id);
-				//Min
-				tmp_f = calloc(1,sizeof(*tmp_f));
-				*tmp_f = va_arg(ap, double);
-				queue_push(our_vars.var[no]->queue, (void *)tmp_f);
-				//Max
-				tmp_f = calloc(1,sizeof(*tmp_f));
-				*tmp_f = va_arg(ap, double);
-				queue_push(our_vars.var[no]->queue, (void *)tmp_f);
-				//Interval
-				tmp_f = calloc(1,sizeof(*tmp_f));
-				*tmp_f = va_arg(ap, double);
-				queue_push(our_vars.var[no]->queue, (void *)tmp_f);
-				va_end(ap);
-				*f=def;
-				break;
-		}
+			our_vars.var[no]->len=(int)def;
+			break;
+		case FLOAT:
+			queue_initialise(&our_vars.var[no]->queue);
+			va_start(ap, tab_id);
+			//Min
+			tmp_f = calloc(1,sizeof(*tmp_f));
+			*tmp_f = va_arg(ap, double);
+			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+			//Max
+			tmp_f = calloc(1,sizeof(*tmp_f));
+			*tmp_f = va_arg(ap, double);
+			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+			//Interval
+			tmp_f = calloc(1,sizeof(*tmp_f));
+			*tmp_f = va_arg(ap, double);
+			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+			va_end(ap);
+			*f=def;
+			break;
+	}
 	our_vars.var[no]->var=var;
 	our_vars.var[no]->func=func;
 	our_vars.var[no]->name=name;
@@ -964,7 +1018,7 @@ void init_vars()
 #ifndef OSX
 	add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows",VIDEO);
 #else
-        add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows_init,0,"Shadows","Toggles the shadows",VIDEO);
+	add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows_init,0,"Shadows","Toggles the shadows",VIDEO);
 #endif
 	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
 	add_var(MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
@@ -1071,7 +1125,7 @@ void init_vars()
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
 	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", SPECIALVID);
-    add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If the above option doesn't move you when you click, try this one", SPECIALVID);
+	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If the above option doesn't move you when you click, try this one", SPECIALVID);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);
 #ifndef MAP_EDITOR2
 	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
@@ -1096,14 +1150,14 @@ void init_vars()
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
 	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #else
-        add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
-        add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
+	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #endif
  #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
  #endif //ANTI_ALIAS
 #ifndef MAP_EDITOR2
-	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_buddy_log_notice, 1, "Log Buddy sign on/off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
+	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy sign on/off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
 #endif // def ELC
 #ifdef	USE_FRAMEBUFFER
@@ -1193,12 +1247,15 @@ FILE* open_el_ini (const char *mode)
 		snprintf (el_ini, sizeof (el_ini), "%s/el.ini", datadir);
 		f = fopen(el_ini, mode);
 		
-		if(f == NULL) return NULL;//Shit, no global el.ini either? Fortunately we'll write one on exit...
+		if(f == NULL)
+		{
+			return NULL;//Shit, no global el.ini either? Fortunately we'll write one on exit...
+		}
 		
 		snprintf(el_tmp, sizeof (el_tmp), "%s/el.ini", configdir);
 		f2 = my_fopen (el_tmp, "w");
 
-		if(f2 == NULL){
+		if(f2 == NULL) {
 			//Hmm... we cannot create a file in ~/.elc/
 			fclose(f);
 			return NULL;
@@ -1210,7 +1267,7 @@ FILE* open_el_ini (const char *mode)
 		flen=ftell(f);
 		fseek(f, 0, SEEK_SET);
 
-		data=(char*)calloc(flen+1, sizeof(char));
+		data=calloc(flen+1, sizeof(char));
 
 		fread(data, flen, sizeof(char), f);
 		fwrite(data, flen, sizeof(char), f2);
@@ -1274,7 +1331,8 @@ int write_el_ini ()
 		if (!our_vars.var[ivar]->saved)
 			break;
 	}
-	if (ivar >= our_vars.no) return 1; // nothing changed, no need to write
+	if (ivar >= our_vars.no)
+		return 1; // nothing changed, no need to write
 	
 	// read the ini file
 	file = open_el_ini ("r");

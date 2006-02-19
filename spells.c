@@ -298,7 +298,7 @@ int display_sigils_handler(window_info *win)
 		int x_start,y_start,x_end,y_end;
 		float u_start,v_start,u_end,v_end;
 		
-	    	x_start=350;
+		x_start=350;
 		x_end=x_start+31;
 		y_start=112;
 		y_end=y_start+31;

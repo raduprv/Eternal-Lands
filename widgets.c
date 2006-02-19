@@ -351,7 +351,7 @@ int widget_set_args (Uint32 window_id, Uint32 widget_id, void *spec)
 
 // Create a generic widget
 int widget_add (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly,
-    Uint32 Flags, float size, float r, float g, float b, const struct WIDGET_TYPE *type, void *T, void *S)
+	Uint32 Flags, float size, float r, float g, float b, const struct WIDGET_TYPE *type, void *T, void *S)
 #endif
 {
 #ifndef WIDGETS_FIX
@@ -389,7 +389,7 @@ int widget_add (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 	// Check if we need to initialize it
 	if(W->type != NULL)	
 		if(W->type->init != NULL)
-        	W->type->init(W);
+			W->type->init(W);
 	if(W->OnInit != NULL)
 	{
 		if(W->spec != NULL) W->OnInit (W, W->spec);
@@ -446,18 +446,22 @@ int widget_add (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 int widget_handle_mouseover (widget_list *widget, int mx, int my)
 {
 	int res = 0;
-    
-	if (widget->type != NULL)
-		if (widget->type->mouseover != NULL)
+
+	if (widget->type != NULL) {
+		if (widget->type->mouseover != NULL) {
 			res = widget->type->mouseover (widget, mx, my);
-            
-	if (widget->OnMouseover != NULL && res != -1)
-	{
-		if(widget->spec != NULL) res |= widget->OnMouseover (widget, mx, my, widget->spec);
-		else res |= widget->OnMouseover (widget, mx, my);
+		}
+	}
+
+	if (widget->OnMouseover != NULL && res != -1) {
+		if(widget->spec != NULL) {
+			res |= widget->OnMouseover (widget, mx, my, widget->spec);
+		} else {
+			res |= widget->OnMouseover (widget, mx, my);
+		}
 	}
 #endif
-	
+
 #ifndef WIDGETS_FIX
 	return newW;
 #else
@@ -476,17 +480,21 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 #else
 	int res = 0;
-    
-	if (widget->type != NULL)
-		if (widget->type->click != NULL)
+
+	if (widget->type != NULL) {
+		if (widget->type->click != NULL) {
 			res = widget->type->click (widget, mx, my, flags);
-            
+		}
+	}
+
 	if (widget->OnClick != NULL && res != -1)
 	{
-		if(widget->spec != NULL) res |= widget->OnClick (widget, mx, my, flags,  widget->spec);
-		else res |= widget->OnClick (widget, mx, my, flags);
+		if(widget->spec != NULL) {
+			res |= widget->OnClick (widget, mx, my, flags,  widget->spec);
+		} else {
+			res |= widget->OnClick (widget, mx, my, flags);
+		}
 	}
-	
 	return res > -1 ? res : 0;
 #endif
 }
@@ -497,34 +505,42 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
 int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
 {
 	int res = 0;
-    
-	if (widget->type != NULL)
-		if (widget->type->drag != NULL)
+
+	if (widget->type != NULL) {
+		if (widget->type->drag != NULL) {
 			res = widget->type->drag (widget, mx, my, flags, dx, dy);
-            
+		}
+	}
+
 	if (widget->OnDrag != NULL && res != -1)
 	{
-		if(widget->spec != NULL) res |= widget->OnDrag (widget, mx, my, flags, dx, dy, widget->spec);
-		else res |= widget->OnDrag (widget, mx, my, flags, dx, dy);
+		if(widget->spec != NULL) {
+			res |= widget->OnDrag (widget, mx, my, flags, dx, dy, widget->spec);
+		} else {
+			res |= widget->OnDrag (widget, mx, my, flags, dx, dy);
+		}
 	}
-	
 	return res > -1 ? res : 0;
 }
 
 int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	int res = 0;
-    
-	if (widget->type != NULL)
-		if (widget->type->key != NULL)
+
+	if (widget->type != NULL) {
+		if (widget->type->key != NULL) {
 			res = widget->type->key (widget, mx, my, key, unikey);
-            
+		}
+	}
+
 	if (widget->OnKey != NULL && res != -1)
 	{
-		if(widget->spec != NULL) res |= widget->OnKey (widget, mx, my, key, unikey, widget->spec);
-		else res |= widget->OnKey (widget, mx, my, key, unikey);
+		if(widget->spec != NULL) {
+			res |= widget->OnKey (widget, mx, my, key, unikey, widget->spec);
+		} else {
+			res |= widget->OnKey (widget, mx, my, key, unikey);
+		}
 	}
-	
 	return res > -1 ? res : 0;
 }
 
@@ -547,13 +563,14 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
 	label *T = (label *) calloc (1, sizeof(label));
 	snprintf (T->text, sizeof(T->text), "%s", text);
 #ifndef WIDGETS_FIX
-	
+
 	// Filling the widget info
 	W->widget_info = T;
 	W->OnDraw = label_draw;
 	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
+	if(W->OnInit != NULL) {
 		W->OnInit (W);
+	}
 #endif
 
 #ifndef WIDGETS_FIX
@@ -571,8 +588,9 @@ int label_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Uin
 int label_draw(widget_list *W)
 {
 	label *l = (label *)W->widget_info;
-	if(W->r != -1.0)
+	if(W->r != -1.0) {
 		glColor3f(W->r,W->g,W->b);
+	}
 	draw_string_zoomed(W->pos_x,W->pos_y,(unsigned char *)l->text,1,W->size);
 	return 1;
 }
@@ -617,8 +635,9 @@ int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x,
 	W->widget_info = T;
 	W->OnDraw = image_draw;
 	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
+	if(W->OnInit != NULL) {
 		W->OnInit(W);
+	}
 #else
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &image_type, T, NULL);
 }
@@ -1156,7 +1175,7 @@ const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_c
 
 int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len)
 {
-    vscrollbar *T = calloc (1, sizeof(vscrollbar));
+	vscrollbar *T = calloc (1, sizeof(vscrollbar));
 	T->pos_inc = pos_inc;
 	T->pos = pos;
 	T->bar_len = bar_len;
@@ -1560,7 +1579,7 @@ const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_
 
 int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height)
 {
-    int itab;
+	int itab;
 	tab_collection *T = calloc (1, sizeof (tab_collection));
 	T->max_tabs =  max_tabs <= 0 ? 2 : max_tabs;
 	T->tabs = calloc (T->max_tabs, sizeof (tab));
@@ -1762,7 +1781,6 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 		}
 		return i+k;
 	}
-     
 	while (i < maxchar && str[i] != '\0')
 	{
 		if (str[i] == '\n' || str[i] == '\r')
@@ -1793,14 +1811,15 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	text_message *msg;
 
 	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
-        
-	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0) return 0;
+	if ( (flags & ELW_MOUSE_BUTTON) == 0)
+		return 0;
+	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
+		return 0;
 
 	tf = (text_field *) w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
 	tf->cursor = get_edit_pos (mx, my, msg->data, msg->len, 1);
-    
+
 	return 1;
 }
 
@@ -1924,36 +1943,41 @@ int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int off
 // quite straightforward - we just add or remove from the end
 int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
-       Uint8 ch = key_to_char(unikey);
-       password_entry *pword;
-       int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
-	
-       if (w == NULL) return 0;
-	
-       pword = (password_entry *) w->widget_info;
+	Uint8 ch = key_to_char(unikey);
+	password_entry *pword;
+	int alt_on = key & ELW_ALT,
+	    ctrl_on = key & ELW_CTRL;
 
-	if (pword->status == P_NONE) return -1;
+	if (w == NULL) {
+		return 0;
+	}
+	pword = (password_entry *) w->widget_info;
+
+	if (pword->status == P_NONE) {
+		return -1;
+	}
 
 	if (ch == SDLK_BACKSPACE) {
 		int i;
-		
-		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars; i++) ;
-		if(i > 0) pword->password[i-1] = '\0';
-		
+
+		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars; i++);
+		if(i > 0) {
+			pword->password[i-1] = '\0';
+		}
+
 		return 1;
 	} else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' ) {
 		int i;
 		
 		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars-1; i++);
-		if(i >= 0){
+		if(i >= 0) {
 				pword->password[i] = ch;
 				pword->password[i+1] = '\0';
 		}
-		
 		return 1;
+	} else {
+		return 0;
 	}
-
-	return 0;
 }
 		
 int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
@@ -1962,9 +1986,11 @@ int pword_field_click(widget_list *w, int mx, int my, Uint32 flags)
 
 	if (w == NULL) return 0;
 	pword = (password_entry*) w->widget_info;
-	if(pword->status == P_NONE) return -1;
-	
-	return 1;   // Don't fall through
+	if(pword->status == P_NONE) {
+		return -1;
+	} else {
+		return 1;   // Don't fall through
+	}
 }
 
 int pword_field_draw (widget_list *w)
@@ -1974,7 +2000,9 @@ int pword_field_draw (widget_list *w)
 	int difference;
 	int i;
 
-	if (w == NULL) return 0;
+	if (w == NULL) {
+		return 0;
+	}
 	pword = (password_entry*) w->widget_info;
 	difference = (get_string_width(pword->password)*w->size - w->len_x)/12;
 
@@ -2015,14 +2043,15 @@ int pword_field_draw (widget_list *w)
 		}
 		free(text);
 	}
-
 	return 1;
 }
 
 void pword_set_status(widget_list *w, Uint8 status)
 {
 	password_entry *pword;
-	if (w == NULL) return;
+	if (w == NULL) {
+		return;
+	}
 	pword = (password_entry*) w->widget_info;
 	pword->status = status;
 }
@@ -2205,7 +2234,7 @@ int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uin
 	}
 
 	widget->size=size;
-	
+
 	if (M->max_height && y+22 > M->actual_height) {
 		M->actual_height = y+22;
 	}
@@ -2486,7 +2515,7 @@ int spinbutton_draw(widget_list *widget)
 				char *pointer = strchr(button->input_buffer, '.');
 				int accuracy;
 				char format[10];
-			       
+
 				if(pointer == NULL) 
 					pointer = strchr(button->input_buffer, ',');
 
@@ -2572,8 +2601,8 @@ int spinbutton_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint1
 
 	spinbutton *button = calloc (1, sizeof (spinbutton));
 #else
-    
-    spinbutton *T = calloc (1, sizeof (spinbutton));
+
+	spinbutton *T = calloc (1, sizeof (spinbutton));
 #endif
 	// Filling the widget info
 #ifndef WIDGETS_FIX

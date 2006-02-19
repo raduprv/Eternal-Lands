@@ -49,7 +49,7 @@ void    init_update()
 	allow_restart= 1;       // automated restart allowed
 	// create the mutex & init the download que
 	if(!download_mutex){
-       	download_mutex= SDL_CreateMutex();
+		download_mutex= SDL_CreateMutex();
 		download_queue_size= 0;
 		memset(download_queue, 0, sizeof(download_queue));
 		download_cur_file= NULL;
@@ -141,8 +141,8 @@ void    handle_update_download(struct http_get_struct *get)
 		// select a server
 		if(num_update_servers > 1){
 			int num;
-			
-           	srand( (unsigned)time( NULL ) );
+
+			srand( (unsigned)time( NULL ) );
 			num= rand()%num_update_servers;
 			if(!strcmp(update_server, update_servers[num])){
 				// oops, the same server twice in a row, try to avoid
@@ -165,9 +165,9 @@ log_error("downloading from mirror %d of %d %s", num, num_update_servers, update
 		// failsafe, try to make sure the directory is there
 		if(mkdir_res < 0){
 #ifdef  WINDOWS
-            mkdir_res= mkdir("./tmp");
+			mkdir_res= mkdir("./tmp");
 #else   //WINDOWS
-            mkdir_res= mkdir("./tmp", 0777);
+			mkdir_res= mkdir("./tmp", 0777);
 #endif  //WINDOWS
 		}
 		sprintf(filename, "./tmp/temp000.dat");
@@ -180,7 +180,7 @@ log_error("downloading from mirror %d of %d %s", num, num_update_servers, update
 		// and keep running until we get a response
 		return;
 	}
-	
+
 	// total failure, clear the busy flag
 	update_busy= 0;
 }
@@ -221,9 +221,9 @@ int    do_threaded_update(void *ptr)
 		// parse the line
 		filename[0]= '\0';
 		asc_md5[0]= '\0';
-	    sscanf(buffer, "%*[^(](%250[^)])%*[^0-9a-zA-Z]%32s", filename, asc_md5);
+		sscanf(buffer, "%*[^(](%250[^)])%*[^0-9a-zA-Z]%32s", filename, asc_md5);
 
-	    // check for something to process
+		// check for something to process
 		if(*filename && *asc_md5 && !strstr(filename, "..") && filename[0] != '/' && filename[0] != '\\' && filename[1] != ':'){
 			// check for one special case
 			if(!strcasecmp(asc_md5, "none")){
@@ -381,7 +381,7 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 {
 	struct http_get_struct  *spec;
 
-log_error("Downloading %s from %s", path, server);
+	log_error("Downloading %s from %s", path, server);
 	// allocate & fill the spec structure
 	spec= (struct http_get_struct  *)calloc(1, sizeof(struct http_get_struct));
 	strcpy(spec->server, server);
@@ -400,8 +400,8 @@ log_error("Downloading %s from %s", path, server);
 
 // the actualy background downloader
 int http_get_file_thread_handler(void *specs){
-    struct http_get_struct *spec= (struct http_get_struct *) specs;
-    SDL_Event event;
+	struct http_get_struct *spec= (struct http_get_struct *) specs;
+	SDL_Event event;
 
 	// load the file
 	spec->status= http_get_file(spec->server, spec->path, spec->fp);
@@ -466,47 +466,47 @@ int http_get_file(char *server, char *path, FILE *fp)
 
 	// get the response & data
 	while(len > 0)
+	{
+		char buf[1024];
+		
+		memset(buf, 0, 1024);
+		// get a packet
+		len= SDLNet_TCP_Recv(http_sock, buf, 1024);
+		// have we gotten the full header?
+		if(!got_header)
 		{
-			char buf[1024];
+			int i;
 			
-			memset(buf, 0, 1024);
-			// get a packet
-			len= SDLNet_TCP_Recv(http_sock, buf, 1024);
-			// have we gotten the full header?
-			if(!got_header)
-				{
-					int i;
-					
-					// check for http status
-					sscanf(buf, "HTTP/%*s %i ", &http_status);
+			// check for http status
+			sscanf(buf, "HTTP/%*s %i ", &http_status);
 
-					// look for the end of the header (a blank line)
-					for(i=0; i < len && !got_header; i++)
-						{
-							if(buf[i] == 0x0D && buf[i+1] == 0x0A &&
-								buf[i+2] == 0x0D && buf[i+3] == 0x0A)
-								{
-									// flag we got the header and write what is left to the file
-									got_header= 1;
-									if(http_status == 200){
-										fwrite(buf+i+4, 1, len-i-4, fp);
-									}
-									break;
-								}
-						}
-				}
-			else
-			    {
-					if(http_status == 200){
-						fwrite(buf, 1, len, fp);
-					} else {
-						break;
+			// look for the end of the header (a blank line)
+			for(i=0; i < len && !got_header; i++)
+			{
+				if(buf[i] == 0x0D && buf[i+1] == 0x0A &&
+					buf[i+2] == 0x0D && buf[i+3] == 0x0A)
+				{
+					// flag we got the header and write what is left to the file
+					got_header= 1;
+					if(http_status == 200) {
+						fwrite(buf+i+4, 1, len-i-4, fp);
 					}
+					break;
 				}
+			}
 		}
+		else
+		{
+			if(http_status == 200) {
+				fwrite(buf, 1, len, fp);
+			} else {
+				break;
+			}
+		}
+	}
 	SDLNet_TCP_Close(http_sock);
 	
-	if(http_status != 200){
+	if(http_status != 200) {
 		if(http_status != 0){
 			return(http_status);
 		} else {
@@ -516,4 +516,3 @@ int http_get_file(char *server, char *path, FILE *fp)
 
 	return(0);  // finished
 }
-

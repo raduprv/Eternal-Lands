@@ -103,7 +103,8 @@ void get_map_playlist()
 	char strLine[255];
 	char *tmp;
 
-	if(!have_music)return;
+	if(!have_music)
+		return;
 
 	memset (playlist, 0, sizeof(playlist));
 
@@ -124,26 +125,28 @@ void get_map_playlist()
 
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(map_list_file_name,"r");
-	if (fp == NULL) return;
+	if (fp == NULL)
+		return;
 
 	while(1)
-		{
-			fscanf(fp,"%d %d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,&playlist[i].time,tmp_buf);
-			// check for a comment
-			tmp= strstr(tmp_buf, "--");
-			if(tmp){
-				*tmp= '\0';
-				len= strlen(tmp_buf);
-				while(len > 0 && isspace(tmp_buf[len-1])){
-					len--;
-					tmp_buf[len]= '\0';
-				}
+	{
+		fscanf(fp,"%d %d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,&playlist[i].time,tmp_buf);
+		// check for a comment
+		tmp= strstr(tmp_buf, "--");
+		if(tmp){
+			*tmp= '\0';
+			len= strlen(tmp_buf);
+			while(len > 0 && isspace(tmp_buf[len-1])){
+				len--;
+				tmp_buf[len]= '\0';
 			}
-			strncpy(playlist[i].file_name, tmp_buf, 64);
-			playlist[i].file_name[63]= '\0';
-			i++;
-			if(!fgets(strLine, 100, fp))break;
 		}
+		strncpy(playlist[i].file_name, tmp_buf, 64);
+		playlist[i].file_name[63]= '\0';
+		i++;
+		if(!fgets(strLine, 100, fp))
+			break;
+	}
 	fclose(fp);
 	loop_list=1;
 	list_pos=-1;
@@ -154,34 +157,36 @@ void play_ogg_file(char *file_name) {
 #ifndef	NO_MUSIC
 	int error,queued;
 
-	if(!have_music)return;
+	if(!have_music)
+		return;
 
 	alSourceStop(music_source);
 	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
 	while(queued-- > 0)
-		{
-			ALuint buffer;
-			
-			alSourceUnqueueBuffers(music_source, 1, &buffer);
-		}
+	{
+		ALuint buffer;
+		
+		alSourceUnqueueBuffers(music_source, 1, &buffer);
+	}
 
 	load_ogg_file(file_name);
-	if(!have_music)return;
+	if(!have_music)
+		return;
 
-    stream_music(music_buffers[0]);
+	stream_music(music_buffers[0]);
 	stream_music(music_buffers[1]);
 	stream_music(music_buffers[2]);
 	stream_music(music_buffers[3]);
-    
-    alSourceQueueBuffers(music_source, 4, music_buffers);
-    alSourcePlay(music_source);
+
+	alSourceQueueBuffers(music_source, 4, music_buffers);
+	alSourcePlay(music_source);
 
 	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-    		LOG_ERROR("play_ogg_file %s: %s", my_tolower(reg_error_str), alGetString(error));
-			have_music=0;
-			return;
-    	}
+	{
+		LOG_ERROR("play_ogg_file %s: %s", my_tolower(reg_error_str), alGetString(error));
+		have_music=0;
+		return;
+	}
 	playing_music = 1;	
 #endif	//NO_MUSIC
 }
@@ -190,7 +195,8 @@ void load_ogg_file(char *file_name) {
 #ifndef	NO_MUSIC
 	char file_name2[80];
 
-	if(!have_music)return;
+	if(!have_music)
+		return;
 
 	ov_clear(&ogg_stream);
 
@@ -270,26 +276,28 @@ void play_music(int list) {
 	FILE *fp;
 	char strLine[255];
 
-	if(!have_music)return;
+	if(!have_music)
+		return;
 
 	snprintf(list_file_name, sizeof(list_file_name), "./music/%d.pll", list);
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(list_file_name,"r");
-	if(!fp)return;
+	if(!fp)
+		return;
 
 	memset(playlist,0,sizeof(playlist));
 
 	while(1)
-		{
-			fscanf(fp,"%s",playlist[i].file_name);
-			playlist[i].min_x=0;
-			playlist[i].min_y=0;
-			playlist[i].max_x=10000;
-			playlist[i].max_y=10000;
-			playlist[i].time=2;
-			i++;
-			if(!fgets(strLine, 100, fp))break;
-		}
+	{
+		fscanf(fp,"%s",playlist[i].file_name);
+		playlist[i].min_x=0;
+		playlist[i].min_y=0;
+		playlist[i].max_x=10000;
+		playlist[i].max_y=10000;
+		playlist[i].time=2;
+		i++;
+		if(!fgets(strLine, 100, fp))break;
+	}
 	fclose(fp);
 	loop_list=0;
 	list_pos=0;
@@ -306,13 +314,14 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
 	ALuint buffer;
 	
-	if(!have_sound)return 0;
+	if(!have_sound)
+		return 0;
 
 	if(sound_file >= MAX_BUFFERS)
-		{
-			LOG_ERROR(snd_invalid_number);
-			return 0;
-		}
+	{
+		LOG_ERROR(snd_invalid_number);
+		return 0;
+	}
 
 	LOCK_SOUND_LIST();
 
@@ -348,7 +357,7 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 		// can't read file
 		UNLOCK_SOUND_LIST ();
 		return 0;
-    	}
+	}
 
 	alSourcef(sound_source[i], AL_PITCH, 1.0f);
 	alSourcef(sound_source[i], AL_GAIN, sound_gain);
@@ -451,168 +460,176 @@ void update_position()
 	/* OpenAL doesn't have a method for culling by distance yet.
 	   If it does get added, all this code can go */
 	for(i=0;i<used_sources;i++)
-		{
-			alGetSourcei(sound_source[i], AL_SOURCE_RELATIVE, &relative);
-			if(relative == AL_TRUE)continue;
-			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
-			alGetSourcefv(sound_source[i], AL_POSITION, sourcePos);
-			x=sourcePos[0];y=sourcePos[1];
-			distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
-			if((state == AL_PLAYING) && (distance > 35*35))
-				alSourcePause(sound_source[i]);
-			else if (sound_on && (state == AL_PAUSED) && (distance < 30*30))
-				alSourcePlay(sound_source[i]);
-		}
+	{
+		alGetSourcei(sound_source[i], AL_SOURCE_RELATIVE, &relative);
+		if(relative == AL_TRUE)continue;
+		alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
+		alGetSourcefv(sound_source[i], AL_POSITION, sourcePos);
+		x=sourcePos[0];y=sourcePos[1];
+		distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
+		if((state == AL_PLAYING) && (distance > 35*35))
+			alSourcePause(sound_source[i]);
+		else if (sound_on && (state == AL_PAUSED) && (distance < 30*30))
+			alSourcePlay(sound_source[i]);
+	}
 	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-			LOG_ERROR("update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
-			have_sound=0;
-			have_music=0;
-    	}
+	{
+		LOG_ERROR("update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
+		have_sound=0;
+		have_music=0;
+	}
 	UNLOCK_SOUND_LIST();
 }
 
 int update_music(void *dummy)
 {
 #ifndef	NO_MUSIC
-    int error,processed,state,state2,sleep,fade=0;
+	int error,processed,state,state2,sleep,fade=0;
    	sleep = SLEEP_TIME;
 	while(have_music)
+	{
+		SDL_Delay(sleep);
+		if(playing_music)
 		{
-			SDL_Delay(sleep);
-			if(playing_music)
-				{
-					int day_time = (game_minute>=30 && game_minute<60*3+30);
-					int tx=-cx*2,ty=-cy*2;
-					if(fade) {
-						fade++;
-						if(fade > 6) {
-							int queued;
-							fade = 0;
-							playing_music = 0;
-							alSourceStop(music_source);
-							alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-							alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-							while(queued-- > 0) {
-								ALuint buffer;
-								alSourceUnqueueBuffers(music_source, 1, &buffer);
-							}
-						}
-						alSourcef(music_source, AL_GAIN, music_gain-((float)fade*(music_gain/6)));
-						continue;
-					}
-					if(tx < playlist[list_pos].min_x ||
-					   tx > playlist[list_pos].max_x ||
-					   ty < playlist[list_pos].min_y ||
-					   ty > playlist[list_pos].max_y ||
-					   (playlist[list_pos].time != 2 &&
-                        playlist[list_pos].time != day_time)) {
-						fade = 1;
-						continue;
-					}
-					alSourcef (music_source, AL_GAIN, music_gain);
+			int day_time = (game_minute>=30 && game_minute<60*3+30);
+			int tx=-cx*2,ty=-cy*2;
+			if(fade) {
+				fade++;
+				if(fade > 6) {
+					int queued;
+					fade = 0;
+					playing_music = 0;
+					alSourceStop(music_source);
 					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-					alGetSourcei(music_source, AL_SOURCE_STATE, &state);
-					state2=state;	//fake out the Dev-C++ optimizer!
-					if(!processed) {
-						if(sleep < SLEEP_TIME)sleep+=(SLEEP_TIME / 100);
-						continue; //skip error checking et al
+					alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+					while(queued-- > 0) {
+						ALuint buffer;
+						alSourceUnqueueBuffers(music_source, 1, &buffer);
 					}
-					while(processed-- > 0)
-						{
-    						ALuint buffer;
+				}
+				alSourcef(music_source, AL_GAIN, music_gain-((float)fade*(music_gain/6)));
+				continue;
+			}
+			if(tx < playlist[list_pos].min_x ||
+			   tx > playlist[list_pos].max_x ||
+			   ty < playlist[list_pos].min_y ||
+			   ty > playlist[list_pos].max_y ||
+			   (playlist[list_pos].time != 2 &&
+				playlist[list_pos].time != day_time)) {
+				fade = 1;
+				continue;
+			}
+			alSourcef (music_source, AL_GAIN, music_gain);
+			alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
+			alGetSourcei(music_source, AL_SOURCE_STATE, &state);
+			state2=state;	//fake out the Dev-C++ optimizer!
+			if(!processed) {
+				if(sleep < SLEEP_TIME)sleep+=(SLEEP_TIME / 100);
+				continue; //skip error checking et al
+			}
+			while(processed-- > 0)
+			{
+				ALuint buffer;
 
-							alSourceUnqueueBuffers(music_source, 1, &buffer);
-							stream_music(buffer);
-							alSourceQueueBuffers(music_source, 1, &buffer);
-						}
-					if(state2 != AL_PLAYING)
-						{
-							LOG_TO_CONSOLE(c_red1, snd_skip_speedup);
-							//on slower systems, music can skip up to 10 times
-							//if it skips more, it just can't play the music...
-							if(sleep > (SLEEP_TIME / 10))
-								sleep -= (SLEEP_TIME / 10);
-							else if(sleep > 1) sleep = 1;
-							else
-								{
-									LOG_TO_CONSOLE(c_red1, snd_too_slow);
-									LOG_ERROR(snd_too_slow);
-									turn_music_off();
-									sleep = SLEEP_TIME;
-									break;
-								}
-							alSourcePlay(music_source);
-						}
-					if((error=alGetError()) != AL_NO_ERROR)
-						{
-							LOG_ERROR("update_music %s: %s", my_tolower(reg_error_str), alGetString(error));
-							have_music=0;
-						}
-				}
-			else if(music_on)
-				{
-					int day_time = (game_minute>=30 && game_minute<60*3+30);
-					int tx=-cx*2,ty=-cy*2;
-					if(playlist[list_pos+1].file_name[0]) {
-						list_pos++;
-						if(tx > playlist[list_pos].min_x &&
-						   tx < playlist[list_pos].max_x &&
-						   ty > playlist[list_pos].min_y &&
-						   ty < playlist[list_pos].max_y &&
-                           (playlist[list_pos].time == 2 ||
-                            playlist[list_pos].time == day_time)) {
-							alSourcef (music_source, AL_GAIN, music_gain);
-							play_ogg_file(playlist[list_pos].file_name);
-						}
-					} else if(loop_list)
-						list_pos=-1;
-					else
-						get_map_playlist();
-					continue;
-				}
-			if(exit_now) break;
+				alSourceUnqueueBuffers(music_source, 1, &buffer);
+				stream_music(buffer);
+				alSourceQueueBuffers(music_source, 1, &buffer);
+			}
+			if(state2 != AL_PLAYING)
+			{
+				LOG_TO_CONSOLE(c_red1, snd_skip_speedup);
+				//on slower systems, music can skip up to 10 times
+				//if it skips more, it just can't play the music...
+				if(sleep > (SLEEP_TIME / 10))
+					sleep -= (SLEEP_TIME / 10);
+				else if(sleep > 1) sleep = 1;
+				else
+					{
+						LOG_TO_CONSOLE(c_red1, snd_too_slow);
+						LOG_ERROR(snd_too_slow);
+						turn_music_off();
+						sleep = SLEEP_TIME;
+						break;
+					}
+				alSourcePlay(music_source);
+			}
+			if((error=alGetError()) != AL_NO_ERROR)
+			{
+				LOG_ERROR("update_music %s: %s", my_tolower(reg_error_str), alGetString(error));
+				have_music=0;
+			}
 		}
+		else if(music_on)
+		{
+			int day_time = (game_minute>=30 && game_minute<60*3+30);
+			int tx=-cx*2,ty=-cy*2;
+			if(playlist[list_pos+1].file_name[0]) {
+				list_pos++;
+				if(tx > playlist[list_pos].min_x &&
+				   tx < playlist[list_pos].max_x &&
+				   ty > playlist[list_pos].min_y &&
+				   ty < playlist[list_pos].max_y &&
+				   (playlist[list_pos].time == 2 ||
+					playlist[list_pos].time == day_time)) {
+					alSourcef (music_source, AL_GAIN, music_gain);
+					play_ogg_file(playlist[list_pos].file_name);
+				}
+			} else if(loop_list)
+				list_pos=-1;
+			else
+				get_map_playlist();
+			continue;
+		}
+		if(exit_now)
+			break;
+	}
 #endif	//NO_MUSIC
 	return 1;
 }
 
 void stream_music(ALuint buffer) {
 #ifndef	NO_MUSIC
-    char data[BUFFER_SIZE];
-    int  size = 0;
-    int  section = 0;
-    int  result = 0;
+	char data[BUFFER_SIZE];
+	int  size = 0;
+	int  section = 0;
+	int  result = 0;
 	int error = 0;
 	char str[256];
 
-    while(size < BUFFER_SIZE)
-    {
-        result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
+	while(size < BUFFER_SIZE)
+	{
+		result = ov_read(&ogg_stream, data + size, BUFFER_SIZE - size, 0, 2, 1,
 						 &section);
 		snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
-        if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
+		if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
 		{
-            if (result != OV_HOLE) size += result;
+			if (result != OV_HOLE)
+			{
+				size += result;
+			}
 		}
-        else if(result < 0)
+		else if(result < 0)
+		{
 			ogg_error(result);
-		else
-			break;
-    }
-	if(!size)
-		{
-			playing_music = 0;//file's done, quit trying to play
-			return;
 		}
+		else
+		{
+			break;
+		}
+	}
+	if(!size)
+	{
+		playing_music = 0;//file's done, quit trying to play
+		return;
+	}
 
 	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, ogg_info->rate);
 
 	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-    		LOG_ERROR("stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
-			have_music=0;
-    	}
+	{
+		LOG_ERROR("stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
+		have_music=0;
+	}
 #endif	//NO_MUSIC
 }
 
@@ -635,7 +652,8 @@ void kill_local_sounds()
 		LOG_ERROR(snd_stop_fail);
 	UNLOCK_SOUND_LIST();
 #ifndef	NO_MUSIC
-	if(!have_music)return;
+	if(!have_music)
+		return;
 	playing_music = 0;
 	alSourceStop(music_source);
 	alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
@@ -650,39 +668,42 @@ void kill_local_sounds()
 void turn_sound_off()
 {
 	int i,loop;
-	if(!have_sound)return;
+	if(!have_sound)
+		return;
 	LOCK_SOUND_LIST();
 	sound_on=0;
 	for(i=0;i<used_sources;i++)
-		{
-			alGetSourcei(sound_source[i], AL_LOOPING, &loop);
-			if(loop == AL_TRUE)
-				alSourcePause(sound_source[i]);
-			else
-				alSourceStop(sound_source[i]);
-		}
+	{
+		alGetSourcei(sound_source[i], AL_LOOPING, &loop);
+		if(loop == AL_TRUE)
+			alSourcePause(sound_source[i]);
+		else
+			alSourceStop(sound_source[i]);
+	}
 	UNLOCK_SOUND_LIST();
 }
 
 void turn_sound_on()
 {
 	int i,state=0;
-	if(!have_sound)return;
+	if(!have_sound)
+		return;
 	LOCK_SOUND_LIST();
 	sound_on=1;
 	for(i=0;i<used_sources;i++)
-		{
-			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
-			if(state == AL_PAUSED)
-				alSourcePlay(sound_source[i]);
-		}
+	{
+		alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
+		if(state == AL_PAUSED)
+			alSourcePlay(sound_source[i]);
+	}
 	UNLOCK_SOUND_LIST();
 }
 
 void turn_music_off()
 {
 #ifndef	NO_MUSIC
-	if(!have_music)return;
+	if(!have_music)
+		return;
 	music_on=0;
 	alSourcePause(music_source);
 	playing_music = 0;
@@ -693,7 +714,8 @@ void turn_music_on()
 {
 #ifndef	NO_MUSIC
 	int state;
-	if(!have_music)return;
+	if(!have_music)
+		return;
 	music_on=1;
 	alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 	if(state == AL_PAUSED) {
@@ -719,14 +741,14 @@ void init_sound()
 	sound_list_mutex=SDL_CreateMutex();
 
 	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-     		char str[256];
-    		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
-    		LOG_TO_CONSOLE(c_red1, str);
-    		LOG_ERROR(str);
-			have_sound=0;
-			have_music=0;
-    	}
+	{
+		char str[256];
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR(str);
+		have_sound=0;
+		have_music=0;
+	}
 
 	// TODO: get this information from a file, sound.ini?	
 	my_strcp(sound_files[snd_rain],"./sound/rain1.wav");
@@ -774,22 +796,25 @@ void init_sound()
 void destroy_sound()
 {
 	int i;
-	if(!have_sound)return;
+	if(!have_sound)
+		return;
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex=NULL;
 
 #ifndef	NO_MUSIC
 	alSourceStop(music_source);
-    alDeleteSources(1, &music_source);
-    alDeleteBuffers(4, music_buffers);
-    ov_clear(&ogg_stream);
+	alDeleteSources(1, &music_source);
+	alDeleteBuffers(4, music_buffers);
+	ov_clear(&ogg_stream);
 #endif	//NO_MUSIC
 	alSourceStopv(used_sources, sound_source);
 	alDeleteSources(used_sources, sound_source);
-	for(i=0;i<MAX_BUFFERS;i++)
-		if(alIsBuffer(sound_buffer[i]))
+	for(i=0;i<MAX_BUFFERS;i++) {
+		if(alIsBuffer(sound_buffer[i])) {
 			alDeleteBuffers(1, sound_buffer+i);
-    alutExit();
+		}
+	}
+	alutExit();
 }
 
 int realloc_sources()
@@ -805,19 +830,21 @@ int realloc_sources()
 	if(used_sources>MAX_SOURCES)
 		used_sources=MAX_SOURCES;
 	for(i=0;i<used_sources;i++)
+	{
+		alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
+		if((state == AL_PLAYING) || (state == AL_PAUSED))
 		{
-			alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
-			if((state == AL_PLAYING) || (state == AL_PAUSED))
-				{
-					new_sources[still_used] = sound_source[i];
+			new_sources[still_used] = sound_source[i];
 #ifdef DEBUG
-					new_sound_objects[still_used] = sound_objects[i];
+			new_sound_objects[still_used] = sound_objects[i];
 #endif
-					still_used++;
-				}
-			else
-				alDeleteSources(1, &sound_source[i]);
+			still_used++;
 		}
+		else
+		{
+			alDeleteSources(1, &sound_source[i]);
+		}
+	}
 
 	for(i=0;i<still_used;i++)
 	{
@@ -855,7 +882,7 @@ void ogg_error(int code)
 {
 #ifndef	NO_MUSIC
 	switch(code)
-	{     
+	{
 		case OV_EREAD:
 			LOG_ERROR(snd_media_read); break;
 		case OV_ENOTVORBIS:
@@ -880,7 +907,7 @@ void ogg_error(int code)
 			LOG_ERROR(snd_media_enoseek); break;
 		default:
 			LOG_ERROR(snd_media_ogg_error);
-    }
+	}
 #endif	//NO_MUSIC
 }
 
