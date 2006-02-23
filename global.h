@@ -29,8 +29,10 @@
 		#define	snprintf sane_snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
-		#define atan2f atan2
-		#define acosf acos
+		#if _MSC_VER < 1300 // TODO: find where the exact cutoff level is, VC2005 errors with these
+			#define atan2f atan2
+			#define acosf acos
+		#endif  // _MSC_VER 1300
 		#define ceilf ceil
 		#define rint(X) floor(X+0.5f)
 	#endif
