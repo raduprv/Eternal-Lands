@@ -29,8 +29,8 @@
 		#define	snprintf sane_snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
-		//#define atan2f atan2
-		//#define acosf acos
+		#define atan2f atan2
+		#define acosf acos
 		#define ceilf ceil
 		#define rint(X) floor(X+0.5f)
 	#endif
