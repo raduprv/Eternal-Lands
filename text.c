@@ -115,7 +115,7 @@ void write_to_log (Uint8 *data, int len)
 		time(&c_time);
 		l_time = localtime(&c_time);
 		strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
-		snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[daylight]);
+		snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[l_time->tm_isdst>0]);
 		if(log_chat>=3){
 			fwrite (starttime, strlen(starttime), 1, chat_log);
 		}
