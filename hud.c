@@ -271,11 +271,11 @@ float help_icon_v_start=1.0f-(float)128/256;
 float colored_help_icon_u_start=(float)192/256;
 float colored_help_icon_v_start=1.0f-(float)128/256;
 
-float console_icon_u_start=(float)32/256;
+/*float console_icon_u_start=(float)32/256;
 float console_icon_v_start=1.0f-(float)0/256;
 
 float colored_console_icon_u_start=(float)128/256;
-float colored_console_icon_v_start=1.0f-(float)96/256;
+float colored_console_icon_v_start=1.0f-(float)96/256;*/
 
 float buddy_icon_u_start=(float)64/256;
 float buddy_icon_v_start=1.0f-(float)32/256;
@@ -389,7 +389,9 @@ void init_peace_icons()
 	
 	add_icon(map_icon_u_start, map_icon_v_start, colored_map_icon_u_start, colored_map_icon_v_start, tt_mapwin, view_map_win, &map_root_win, DATA_MODE);
 		
+	/*
 	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, &console_root_win, DATA_MODE);
+	*/
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
@@ -552,7 +554,7 @@ void switch_action_mode(int * mode, int id)
 {
 	item_action_mode=qb_action_mode=action_mode=*mode;
 }
-
+/*
 void view_console_win (int *win, int id)
 {
 	if ( get_show_window (console_root_win) && !locked_to_console )
@@ -577,7 +579,7 @@ void view_console_win (int *win, int id)
 		show_window (console_root_win);
 	}
 }
-
+*/
 void view_map_win (int * win, int id)
 {
 	if ( get_show_window (map_root_win) && !locked_to_console )

@@ -1,6 +1,10 @@
 #include <stdlib.h>
 #include <string.h>
+#include <stdio.h>
+#include <libxml/parser.h>
 #include "global.h"
+#include "text.h"
+#include "queue.h"
 
 int chat_win = -1;
 
@@ -14,6 +18,8 @@ void convert_tabs (int new_wc);
 
 Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 Uint8 current_channel = 0;
+queue_t *chan_name_queue;
+chan_name * pseudo_chans[SPEC_CHANS];
 
 void add_tab (Uint8 channel)
 {
@@ -168,7 +174,276 @@ int nr_displayed_lines;
 chat_channel channels[MAX_CHAT_TABS];
 int active_tab = -1;
 
-const char *tab_label (Uint8 chan);//Forward declaration
+chan_name *tab_label (Uint8 chan);//Forward declaration
+
+void add_chan_name(int no, char * name, char * desc){
+	chan_name *entry;
+	if(((entry = malloc(sizeof(*entry))) == NULL)
+		||((entry->description = malloc(strlen(desc)+1)) == NULL)
+		||((entry->name = malloc(strlen(name)+1)) == NULL)){
+			LOG_ERROR("Memory allocation error reading channel list");
+			return;
+		}
+	entry->channel = no;
+	strcpy(entry->name, name);
+	strcpy(entry->description, desc);
+	queue_push(chan_name_queue,entry);
+}
+
+void add_spec_chan_name(int no, char * name, char * desc){
+	chan_name *entry;
+	if(((entry = malloc(sizeof(*entry))) == NULL)
+		||((entry->description = malloc(strlen(desc)+1)) == NULL)
+		||((entry->name = malloc(strlen(name)+1)) == NULL)){
+			LOG_ERROR("Memory allocation error reading channel list");
+			return;
+		}
+	entry->channel = no;
+	strcpy(entry->name, name);
+	strcpy(entry->description, desc);
+	pseudo_chans[no]=entry;
+}
+
+void generic_chans(){	//the channel list file is missing. We'll use hard-coded values
+	//remake the queue, just in case we got half way through the file
+	queue_destroy(chan_name_queue);
+	queue_initialise(&chan_name_queue);
+	add_spec_chan_name(0, "Channel %d", "Channel %d");
+	add_spec_chan_name(1, "Guild", "Your guild's chat channel");
+	add_spec_chan_name(2, "All", "Display chat in all channels");
+	add_spec_chan_name(3, "None", "Messages not on any channel");
+	add_spec_chan_name(4, "Options", "Select which channels to join");
+	add_spec_chan_name(5, "History", "View all previous chat in all channels you have been on");
+	add_spec_chan_name(6, "Local", "Chat in your local area");
+	add_spec_chan_name(7, "PMs", "Private messages");
+	add_spec_chan_name(8, "GMs", "Guild Messages");
+	add_spec_chan_name(9, "Server", "Messages from the server");
+	add_spec_chan_name(10, "Mod", "Mod chat");
+	add_chan_name(1, "Newbie", "Newbie Q&A about the game");
+	add_chan_name(3, "Market", "Trading, hiring, and price checks");
+	add_chan_name(4, "Gen Chat", "Chat about (almost) any topic");
+	add_chan_name(5, "Roleplay", "Discussion about, and Roleplaying");
+	add_chan_name(22, "Contests", "Contest information and sometimes chat");
+}
+
+void init_channel_names (){
+	char file[256];
+	xmlDocPtr doc;
+	xmlNodePtr cur;
+	xmlChar *name;
+
+	// Per-channel info
+	char *channelname;
+	char *channeldesc;
+	int channelno;
+	
+	// Temp info
+	char *attrib;
+	int attriblen;
+	
+	queue_initialise(&chan_name_queue);
+
+	// Load the file, depending on WINDOWS = def|undef
+	// Then parse it. If that fails, fallback onto the english one. If that fails, use builtins.
+#ifdef _WIN32
+	snprintf (file, sizeof (file), "%slanguages/%s/strings/channels.xml", configdir, lang);
+#else
+	// try the data directory then
+	snprintf (file, sizeof (file), "%s/languages/%s/strings/channels.xml", datadir, lang);
+#endif
+	doc = xmlParseFile (file);
+	if (doc == NULL )
+	{
+#ifdef _WIN32
+		snprintf (file, sizeof (file), "%slanguages/en/strings/channels.xml", configdir);
+#else
+		snprintf (file, sizeof (file), "%s/languages/en/strings/channels.xml", datadir);
+#endif
+		doc = xmlParseFile (file);
+		if (doc == NULL){//darn, don't have that either?
+			LOG_ERROR (using_builtin_chanlist);
+			generic_chans();
+			return;
+		}
+		//well the localised version didn't load, but the 'en' version did
+		LOG_ERROR (using_eng_chanlist, lang);
+	}
+	
+	// Get the root element, if it exists.
+	cur = xmlDocGetRootElement (doc);
+	if (cur == NULL)
+	{
+		// Use generics. Defaulting to english, then using the fallbacks makes obfuscated, messy code.
+		LOG_ERROR (using_builtin_chanlist);
+		generic_chans();
+		xmlFreeDoc(doc);
+		return;
+	}
+
+	// Check the root element.
+	if (xmlStrcasecmp (cur->name, (const xmlChar *) "CHANNELS"))
+	{
+		LOG_ERROR (xml_bad_root_node, file);
+		xmlFreeDoc(doc);
+		generic_chans();
+		return;
+	}
+	
+	// Load first child node
+	cur = cur->xmlChildrenNode;
+	
+	// Loop while we have a node, copying ATTRIBS, etc
+	while (cur != NULL)	{
+		if(cur->type != XML_ELEMENT_NODE){
+			/* NO-OP. better performance to check now than later */
+		} else if ((!xmlStrcmp (cur->name, (const xmlChar *)"label"))){
+			// Get the name.
+			attrib = xmlGetProp (cur, "name");
+			if (attrib == NULL){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			attriblen = strlen (attrib);
+			if (attriblen < 1){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			channelname = malloc (attriblen);
+			my_xmlStrncopy (&channelname, attrib, attriblen);
+			xmlFree (attrib);
+
+			// Get the index number
+			attrib = xmlGetProp (cur, "index");
+			if (attrib == NULL){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			attriblen = strlen (attrib);
+			if (attriblen < 1){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			channelno = atoi (attrib);
+			xmlFree (attrib);
+
+			// Get the description.
+			if (cur->children == NULL){
+				free (channelname);
+				LOG_ERROR (xml_bad_node);
+				continue;
+			} else if (strlen (cur->children->content) < 1) {
+				free (channelname);
+				LOG_ERROR (xml_bad_node);
+				continue;
+			}
+			attrib = cur->children->content;
+			attriblen = strlen (attrib);
+			channeldesc = malloc (attriblen);
+			my_xmlStrncopy (&channeldesc, attrib, attriblen);
+			
+			// Add it.
+			add_spec_chan_name(channelno, channelname, channeldesc);
+		} else if ((!xmlStrcmp (cur->name, (const xmlChar *)"channel")))
+		{
+			// Get the channel.
+			attrib = xmlGetProp (cur, "number");
+			if (attrib == NULL){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			attriblen = strlen (attrib);
+			if (attriblen < 1){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			channelno = atoi (attrib);
+			xmlFree (attrib);
+			
+			// Get the name.
+			attrib = xmlGetProp (cur, "name");
+			if (attrib == NULL){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			attriblen = strlen (attrib);
+			if (attriblen < 1){
+				LOG_ERROR (xml_bad_node);
+				xmlFree (attrib);
+				continue;
+			}
+			channelname = malloc (attriblen);
+			my_xmlStrncopy (&channelname, attrib, attriblen);
+			xmlFree (attrib);
+			
+			// Get the description.
+			if (cur->children == NULL){
+				free (channelname);
+				LOG_ERROR (xml_bad_node);
+				continue;
+			} else if (strlen (cur->children->content) < 1) {
+				free (channelname);
+				LOG_ERROR (xml_bad_node);
+				continue;
+			}
+			attrib = cur->children->content;
+			attriblen = strlen (attrib);
+			channeldesc = malloc (attriblen);
+			my_xmlStrncopy (&channeldesc, attrib, attriblen);
+			
+			// Add it.
+			add_chan_name(channelno, channelname, channeldesc);
+		} else {
+			LOG_ERROR (xml_undefined_node, file, ((cur->name!=NULL)&&(strlen(cur->name)<100)? cur->name : "not a string"));
+		}
+		cur = cur->next;         // Advance to the next node.
+	}
+	if(queue_isempty(chan_name_queue)){
+		//how did we not get any channels from it?
+		LOG_ERROR(using_builtin_chanlist);
+		generic_chans();
+	}
+}
+
+void cleanup_chan_names(){
+	//don't call this command unless the client is closing
+	int i=0;
+	node_t *temp_node, *step = queue_front_node(chan_name_queue);
+	chan_name *temp_cn;
+	for (;i<SPEC_CHANS;++i){
+		if(pseudo_chans[i] == NULL){
+			continue;
+		}
+		if(pseudo_chans[i]->name != NULL){
+			free(pseudo_chans[i]->name);
+		}
+		if(pseudo_chans[i]->description != NULL){
+			free(pseudo_chans[i]->description);
+		}
+		free(pseudo_chans[i]);
+	}
+	while(step->next != NULL){
+		temp_node = step;
+		step = step->next;
+		temp_cn = (chan_name*)queue_delete_node(chan_name_queue, temp_node);
+		if(temp_cn == NULL || temp_cn->name == NULL || strlen(temp_cn->name)<1 ){
+			continue;
+		}
+		if(temp_cn->name != NULL){
+			free(temp_cn->name);
+		}
+		if(temp_cn->description != NULL){
+			free(temp_cn->description);
+		}
+		free(temp_cn);
+	}
+}
 
 void init_chat_channels ()
 {
@@ -283,7 +558,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 			channels[ichan].newchan = 1;
 			channels[ichan].highlighted = 0;
 
-			my_strncp(title,tab_label (channel), sizeof(title));
+			my_strncp(title,(tab_label(channel))->name, sizeof(title));
 			
 			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
@@ -907,7 +1182,7 @@ void create_chat_window() {
 	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_CHAT_TABS, CHAT_WIN_TAG_HEIGHT);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 	
-	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, tab_all, 0, 0);
+	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0);
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
 	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
@@ -951,6 +1226,8 @@ void chat_win_update_zoom () {
 ////////////////////////////////////////////////////////////////////////
 
 int tab_bar_win = -1;
+int chan_sel_win = -1;
+int chan_sel_scroll_id = 0;
 chat_tab tabs[MAX_CHAT_TABS];
 int cur_button_id = 0;
 int tabs_in_use = 0;
@@ -1023,14 +1300,22 @@ int highlight_tab(const Uint8 channel)
 
 void switch_to_tab(int id)
 {
+	int i=2;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.77f, 0.57f, 0.39f);
+	widget_set_color (tab_bar_win, tabs[0].button,  0.5f, 0.75f, 1.0f);
+	widget_set_color (tab_bar_win, tabs[1].button,  0.5f, 0.75f, 1.0f);
+	for(;i<MAX_CHAT_TABS;++i){
+		if(tabs[i].button <= (int)NULL){continue;}
+		if(tabs[i].highlighted){continue;}
+		widget_set_color (tab_bar_win, tabs[i].button, 0.77f, 0.57f, 0.39f);
+	}
 	current_tab = id;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
 	current_filter = tabs[current_tab].channel;
 	tabs[current_tab].highlighted = 0;
-	
-	if (tabs[current_tab].channel >= CHAT_CHANNEL1 && tabs[current_tab].channel <= CHAT_CHANNEL3)
-		send_active_channel (tabs[current_tab].channel); 
+	if (tabs[current_tab].channel >= CHAT_CHANNEL1 && tabs[current_tab].channel <= CHAT_CHANNEL3){
+		send_active_channel (tabs[current_tab].channel);
+	}
 }
 
 int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
@@ -1083,44 +1368,74 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 
 char tmp_tab_label[20];
 
-const char *tab_label (Uint8 chan)
+chan_name *tab_label (Uint8 chan)
 {
-	int cnr;
-
+	//return pointer after stepping through chan_name_queue
+	int cnr, i=0, steps=0;
+	node_t *step = queue_front_node(chan_name_queue);
+	char name[255];
+	char desc[255];
 	switch (chan)
 	{
-		case CHAT_ALL: return tab_all;
-		case CHAT_NONE: return tab_none;
-		case CHAT_LOCAL: return tab_local;
-		case CHAT_PERSONAL: return tab_personal;
-		case CHAT_GM: return tab_guild;
-		case CHAT_SERVER: return tab_server;
-		case CHAT_MOD: return tab_mod;
-		case CHAT_CHANNEL1:
-		case CHAT_CHANNEL2:
-		case CHAT_CHANNEL3:
-			cnr = active_channels[chan-CHAT_CHANNEL1];
-			switch (cnr)
-			{
-				case 1: return tab_newbie_channel;
-				case 2: return tab_help_channel;
-				case 3: return tab_market_channel;
-				case 4: return tab_general_channel;
-				case 5: return tab_roleplaying_channel;
-				case 6: return tab_contest_channel;
-				case 20: return tab_offtopic_channel;
-				default: 
-					if (cnr >= 1000000000)
-					{
-						return tab_guild_channel;
-					}
-					snprintf (tmp_tab_label, sizeof (tmp_tab_label), tab_channel, cnr);
-					return tmp_tab_label;
-			}
-		default:
-			// shouldn't get here 
-			return "";
+		case CHAT_ALL:	return pseudo_chans[2];
+		case CHAT_NONE:	return pseudo_chans[3];
+		case CHAT_LIST:	return pseudo_chans[4];
+		case CHAT_HIST:	return pseudo_chans[5];
+		case CHAT_LOCAL:	return pseudo_chans[6];
+		case CHAT_PERSONAL:	return pseudo_chans[7];
+		case CHAT_GM:	return pseudo_chans[8];
+		case CHAT_SERVER:	return pseudo_chans[9];
+		case CHAT_MOD:	return pseudo_chans[10];
 	}
+	if(chan < CHAT_CHANNEL1 || chan > CHAT_CHANNEL3 ){
+		// shouldn't get here...
+		return NULL;
+	}
+	cnr = active_channels[chan-CHAT_CHANNEL1];
+	if(cnr >= 1000000000){//ooh, guild channel!
+		return pseudo_chans[1];
+	}
+	if(step == NULL){
+		//say what? we don't know _any_ channels? something is very wrong...
+		return NULL;
+	}
+	for (; step != NULL && step->data != NULL; step = step->next, steps++){
+		if(((chan_name*)(step->data))->channel == cnr){
+			return step->data;
+		}
+		if(step->next == NULL){
+			break;
+		}
+	}
+	//we didn't find it, so we use the generic version
+	snprintf (name, sizeof(name), pseudo_chans[0]->name, cnr);
+	snprintf (desc, sizeof(desc), pseudo_chans[0]->description, cnr);
+	add_chan_name(cnr,name,desc);
+
+	if(chan_sel_scroll_id >= 0 && steps > 8){
+		vscrollbar_set_bar_len(chan_sel_win, chan_sel_scroll_id,steps-8);
+		//we're adding another name to the queue, so the window scrollbar needs to be adusted
+	}
+	return step->next->data;
+}
+
+unsigned int chan_int_from_name(char * name, void * return_length){
+	node_t *step = queue_front_node(chan_name_queue);
+	char * cname = name;
+	int i=0;
+	while(*cname && isspace(*cname)){//should there be a space at the front,
+		cname++;//we can handle that.
+	}
+	while(step->next != NULL){
+		step = step->next;
+		if(my_strncompare(((chan_name*)(step->data))->name,cname, strlen(((chan_name*)(step->data))->name))){
+			if(return_length != NULL){
+				*((int*)return_length) = strlen(((chan_name*)(step->data))->name);
+			}
+			return ((chan_name*)(step->data))->channel;
+		}
+	}
+	return 0;
 }
 
 void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
@@ -1137,6 +1452,115 @@ void update_tab_button_idx (Uint8 old_idx, Uint8 new_idx)
 			return;
 		}
 	}
+}
+
+int chan_tab_mouseover_handler(widget_list *widget){
+	int itab = 0;
+	if(!show_help_text){return 0;}
+	for (itab = 0; itab < tabs_in_use; itab++){
+		if ((tabs[itab].button) == (widget->id)){
+			show_help(tabs[itab].description, widget->pos_x,widget->pos_y+widget->len_y);
+			return 1;
+		}
+	}
+	return 0;
+}
+
+int display_chan_sel_handler(window_info *win){
+	int i = 0, y = 5, x = 5, t = 0;
+	node_t *step = queue_front_node(chan_name_queue);
+	if(mouse_x >= win->pos_x+win->len_x || mouse_y >= win->pos_y+win->len_y){
+		win->displayed = 0;
+		return 0;//auto close when you mouseout
+	}
+	t=vscrollbar_get_pos(chan_sel_win, chan_sel_scroll_id);
+	if(t>0){
+		for (; i<t ; ++i){
+			if(step->next == NULL)break;
+			step=step->next;
+		}
+	}
+	for (i = 0; i< 10; ++i){//loathe not having auto-moving widgets...
+		glColor3f(0.5f, 0.75f, 1.0f);
+		draw_string_zoomed(x,y,((chan_name*)(step->data))->name,1,0.75f);
+		if( (mouse_y>win->pos_y+y) && (mouse_y<win->pos_y+y+20) && (mouse_x>=win->pos_x+5) && (mouse_x-5<=win->pos_x+(8*((signed)strlen(((chan_name*)(step->data))->name))))){
+			show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-15);
+		}
+		y+=18;
+		step=step->next;
+		if(step == NULL){
+			y+=(18*(10-i-1));
+			break;
+		}
+	}
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(0.77f,0.57f,0.39f);
+	glBegin(GL_LINES);
+		glVertex2i(0, y-2);
+		glVertex2i(win->len_x, y-2);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+	draw_string_zoomed(x,y+=5,"You can be in up to 3",1,0.75);
+	draw_string_zoomed(x,y+=15,"channels at a time.",1,0.75);
+	draw_string_zoomed(x,y+=25,"Click a channel to",1,0.75);
+	draw_string_zoomed(x,y+=15,"attempt to join.",1,0.75);
+	return 0;
+}
+
+int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags){
+	int i = 0, y = my-5;
+	node_t *step = queue_front_node(chan_name_queue);
+	y /= 18;
+	i=vscrollbar_get_pos(chan_sel_win, chan_sel_scroll_id);
+	if(i>0){
+		y+=i;
+	}
+
+	//only handle mouse button clicks, not scroll wheels moves
+	if((flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	for (i=0; i<y ; ++i){
+		if(step->next == NULL)return 0;
+		step=step->next;
+	}
+	if( (mouse_x>=win->pos_x+5) && (mouse_x-5<=win->pos_x+(8*((signed)strlen(((chan_name*)(step->data))->name))))){
+		char tmp[20];
+		sprintf(tmp, "#jc %d", ((chan_name*)(step->data))->channel);
+		send_input_text_line(tmp, strlen(tmp));
+	}
+	return 1;
+}
+
+int tab_special_click(widget_list *w, int mx, int my, Uint32 flags){
+	int itab = 0;
+	for (itab = 0; itab < tabs_in_use; itab++){
+		if ((tabs[itab].button) == (w->id)){
+			switch(tabs[itab].channel){
+				case CHAT_HIST:
+					toggle_window(game_root_win);
+					toggle_window(console_root_win);
+					break;
+				case CHAT_LIST:
+					if(chan_sel_win >= 0){
+						toggle_window(chan_sel_win);
+					}else{
+						int listlen=0;
+						node_t *step = queue_front_node(chan_name_queue);
+						for(;step->next != NULL;++listlen){
+							step = step->next;
+						}
+						chan_sel_win = create_window ("Channel Selection", tab_bar_win, 0, w->pos_x,w->pos_y+w->len_y+1, 185, 265, (ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_CLOSE_BOX));
+						set_window_handler (chan_sel_win, ELW_HANDLER_DISPLAY, &display_chan_sel_handler);
+						set_window_handler (chan_sel_win, ELW_HANDLER_CLICK, &click_chan_sel_handler);
+						chan_sel_scroll_id = vscrollbar_add_extended (chan_sel_win, chan_sel_scroll_id, NULL, 165, 20, 20, 163, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, listlen-9);
+					}
+					break;
+				default:
+					return tab_bar_button_click(w, mx, my, flags);	//grumble. this shouldn't happen
+			}
+			return 1;
+		}
+	}
+	return 0;
 }
 
 #ifdef WIDGETS_FIX
@@ -1169,6 +1593,7 @@ int add_tab_button (Uint8 channel)
 {
 	int itab;
 	const char *label;
+	chan_name *chan;
 
 	for (itab = 0; itab < tabs_in_use; itab++)
 	{
@@ -1183,10 +1608,23 @@ int add_tab_button (Uint8 channel)
 
 	tabs[tabs_in_use].channel = channel;
 	tabs[tabs_in_use].highlighted = 0;
-	label = tab_label (channel);
+	chan = tab_label (channel);
+	if(chan == NULL){
+		return -1;
+	}
+	label = chan->name;
+	tabs[tabs_in_use].description = chan->description;
 
 	tabs[tabs_in_use].button = button_add_extended (tab_bar_win, cur_button_id++, NULL, tab_bar_width, 0, 0, tab_bar_height, 0, 0.75, 0.77f, 0.57f, 0.39f, label);
-	widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
+	if(channel == CHAT_HIST || channel == CHAT_LIST){
+		//a couple of special cases
+		widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_special_click);
+		widget_set_color (tab_bar_win, tabs[itab].button, 0.5f, 0.75f, 1.0f);
+	}else{
+		//general case
+		widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
+	}
+	widget_set_OnMouseover (tab_bar_win, tabs[itab].button, chan_tab_mouseover_handler);
 #ifndef WIDGETS_FIX
 	widget_set_OnDraw (tab_bar_win, tabs[itab].button, square_button_draw);
 
@@ -1259,8 +1697,8 @@ void update_tab_bar (text_message * msg)
 	{
 		if (tabs[itab].channel == channel)
 		{
-			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
-				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
+			//if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
+				//widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			if (current_tab == itab) {
 				lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
 				if (lines_to_show >= 10) lines_to_show = 10;
@@ -1281,11 +1719,13 @@ void create_tab_bar ()
 	int tab_bar_x = 10;
 	int tab_bar_y = 3;
 
-	tab_bar_win = create_window ("Tab bar", game_root_win, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_SHOW);
+	tab_bar_win = create_window ("Tab bar", -1, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_SHOW);
 	
+	add_tab_button (CHAT_LIST);
+	add_tab_button (CHAT_HIST);
 	add_tab_button (CHAT_ALL);
 	//add_tab_button (CHAT_NONE);
-	current_tab = 0;
+	current_tab = 2;
 	widget_set_color (tab_bar_win, tabs[current_tab].button, 0.57f, 1.0f, 0.59f);
 	current_filter = tabs[current_tab].channel;
 }
@@ -1398,7 +1838,7 @@ void convert_tabs (int new_wc)
 	{
 		// first close possible remaining tab buttons that are no 
 		// longer active
-		for (ibc = 0; ibc < tabs_in_use; ibc++)
+		for (ibc = 2; ibc < tabs_in_use; ibc++)
 		{
 			chan = tabs[ibc].channel;
 			for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
@@ -1412,7 +1852,7 @@ void convert_tabs (int new_wc)
 		}
 		
 		// now add buttons for every tab that doesn't have a button yet
-		for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
+		for (iwc = 2; iwc < MAX_CHAT_TABS; iwc++)
 		{
 			if (channels[iwc].open)
 			{
@@ -1434,7 +1874,7 @@ void convert_tabs (int new_wc)
 	{
 		// first close possible remaining tabs that are no 
 		// longer active
-		for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
+		for (iwc = 2; iwc < MAX_CHAT_TABS; iwc++)
 		{
 			if (channels[iwc].open)
 			{
@@ -1453,7 +1893,7 @@ void convert_tabs (int new_wc)
 		}
 
 		// now add tabs for every button that doesn't have a tab yet
-		for (ibc = 0; ibc < tabs_in_use; ibc++)
+		for (ibc = 2; ibc < tabs_in_use; ibc++)
 		{
 			chan = tabs[ibc].channel;
 			for (iwc = 0; iwc < MAX_CHAT_TABS; iwc++)
@@ -1472,3 +1912,28 @@ void convert_tabs (int new_wc)
 	}
 }
 
+int command_jlc(char * text, int len){
+	unsigned int num;
+	char number[12];
+	num = chan_int_from_name(text, NULL);
+	if(num<=0){
+		return 0;//Don't know this name
+	}
+	snprintf(number, sizeof(number)," %d", num);
+	if(strlen(number)<=strlen(text)){//it is entirely possible that the number
+		strcpy(text, number);//could be longer than the name, and hence we may
+	}//not have enough storage space to replace the name
+	return 0;//note: this change could also put us over the 160-char limit if not checked
+}
+
+void chan_target_name(char * text, int len){
+	unsigned int num=0, mylen=0;
+	char buffer[MAX_TEXT_MESSAGE_LENGTH];
+	num = chan_int_from_name(text+2, (void*)&mylen);
+	if(num<=0){
+		send_input_text_line (text, len);
+		return;
+	}
+	snprintf(buffer, sizeof(buffer), "@@%d%s", num, text+2+mylen);
+	send_input_text_line (buffer, strlen(buffer));
+}

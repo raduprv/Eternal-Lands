@@ -1292,7 +1292,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			case 1: //Tabs
 				if(current_tab == tabs_in_use-1)
 				{
-					next_tab = 0;
+					next_tab = 2;
 				}
 				else
 				{
@@ -1305,7 +1305,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 				collection = widget->widget_info;
 				if(active_tab == collection->nr_tabs - 1)
 				{
-					next_tab = 0;
+					next_tab = 2;
 				}
 				else
 				{
@@ -1326,7 +1326,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		switch(use_windowed_chat)
 		{
 			case 1: //Tab
-				if(current_tab == 0)
+				if(current_tab == 2)
 				{
 					next_tab = tabs_in_use-1;
 				}
@@ -1339,7 +1339,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			case 2: //Window
 				widget = widget_find(chat_win, chat_tabcollection_id);
 				collection = widget->widget_info;
-				if(active_tab == 0)
+				if(active_tab == 2)
 				{
 					next_tab = collection->nr_tabs - 1;
 				}
@@ -1403,6 +1403,10 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		{
 			if ( (check_var (&(input_text_line.data[1]), IN_GAME_VAR) ) < 0)
 				send_input_text_line (input_text_line.data, input_text_line.len);
+		}
+		else if ( ( input_text_line.len > 5 ) && ( ( input_text_line.data[0] == '@' ) && ( input_text_line.data[1] == '@' ) && ( input_text_line.data[2] != ' ' ) ) )
+		{
+			chan_target_name(input_text_line.data, input_text_line.len);
 		}
 		else if ( input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
 		{
@@ -1586,6 +1590,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 int show_game_handler (window_info *win) {
 	init_hud_interface(1);
 	show_hud_windows();
+	if (use_windowed_chat == 1){
+		display_tab_bar ();
+	}
 	return 1;
 }
 

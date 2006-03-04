@@ -56,6 +56,7 @@ int display_console_handler (window_info *win)
 			glColor3f (1.0, 1.0, 1.0);
 			draw_string_zoomed_clipped (10, 10 + win->len_y - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y, sep_string, -1, win->len_x - hud_x - 20, CONSOLE_SEP_HEIGHT, chat_zoom);
 		}
+		((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
 
 		draw_hud_interface ();
 
@@ -227,14 +228,13 @@ int show_console_handler (window_info *win) {
 			tab_set_label_color_by_id (chat_win, chat_tabcollection_id, channels[i].tab_id, -1.0f, -1.0f, -1.0f);
 		}
 	}
-	for (i=0; i < tabs_in_use; i++) {
-		if (i == current_tab) continue;
-		widget_set_color (tab_bar_win, tabs[i].button, 0.77f, 0.57f, 0.39f);
-	}
 			
 	hide_window(book_win);
 	hide_window(paper_win);
 	hide_window(color_race_win);
+	if (use_windowed_chat == 1){
+		display_tab_bar ();
+	}
 	return 1;
 }
 
@@ -250,7 +250,7 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 
-		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 10, width - hud_x - 20, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
+		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 25, width - hud_x - 20, height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
 	/*	Removed. Wytter.
 	 *	// initialize the input field without the default keypress
 		// handler, since that's not really applicable here

@@ -12,6 +12,8 @@
 
 #define CHAT_ALL	((Uint8) -1)
 #define CHAT_NONE	((Uint8) -2)
+#define CHAT_LIST	((Uint8) -3)
+#define CHAT_HIST	((Uint8) -4)
 
 #define FILTER_LOCAL	CHAT_LOCAL
 #define FILTER_PERSONAL	CHAT_PERSONAL

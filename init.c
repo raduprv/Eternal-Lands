@@ -708,6 +708,7 @@ void init_stuff()
 	read_key_config();
 	load_questlog();
 	init_buddy();
+	init_channel_names();
 
 #ifdef  AUTO_UPDATE
 	init_update();
@@ -738,9 +739,7 @@ void init_stuff()
 	update_loading_win(prep_op_win_str, 7);
 	create_opening_root_window (window_width, window_height);
 	// initialize the chat window
-	if (use_windowed_chat == 1)
-		display_tab_bar ();
-	else if (use_windowed_chat == 2)
+	if (use_windowed_chat == 2)
 		display_chat ();
 
 #ifdef COMMAND_BUFFER

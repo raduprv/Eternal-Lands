@@ -315,6 +315,11 @@ char	reg_error_str[15],
 	/*dialogues.c*/
 	close_str[20],
 #endif
+	xml_bad_node[80],
+	xml_bad_root_node[50],
+	xml_undefined_node[80],
+	using_builtin_chanlist[120],
+	using_eng_chanlist[120],
 	/*font.c*/
 	cant_load_font[30],
 	/*init.c*/
@@ -517,22 +522,6 @@ char	win_notepad[20],
 	tab_statistics[20],
 	tab_knowledge[20],
 	tab_questlog[20],
-	tab_all[20],
-	tab_none[20],
-	tab_local[20],
-	tab_newbie_channel[20],
-	tab_help_channel[20],
-	tab_market_channel[20],
-	tab_general_channel[20],
-	tab_roleplaying_channel[20],
-	tab_contest_channel[20],
-	tab_offtopic_channel[20],
-	tab_guild_channel[20],
-	tab_channel[20],
-	tab_guild[10],
-	tab_mod[10],
-	tab_personal[10],
-	tab_server[10],
 	tab_main[20],
 	button_okay[10],
 	button_cancel[10],
@@ -878,6 +867,12 @@ void init_errors()
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
 #endif
+	//XML errors. should these have their own group?
+	add_xml_identifier (misc, "badnode", xml_bad_node, "There is something wrong with one of a node's fields.", sizeof(xml_bad_node));
+	add_xml_identifier (misc, "badroot", xml_bad_root_node, "The root node in %s was incorrect.", sizeof(xml_bad_root_node));
+	add_xml_identifier (misc, "undefnode", xml_undefined_node, "Found an unexpected node type while parsing %s (%s).", sizeof(xml_undefined_node));
+	add_xml_identifier (misc, "use_builtin_chans", using_builtin_chanlist, "Could not load a channel list from file. Using a limited built-in set instead.", sizeof(using_builtin_chanlist));
+	add_xml_identifier (misc, "use_eng_chans", using_eng_chanlist, "Could not load a channel list for language code %s. Using the english set instead.", sizeof(using_eng_chanlist));
 
 	//Particle errors
 	add_xml_identifier(particles,"version",particles_filever_wrong,"Particle file %s version (%i) doesn't match file reader version (%i)!",sizeof(particles_filever_wrong));
@@ -1235,22 +1230,6 @@ void init_titles ()
 	add_xml_identifier (titles_str, "t_stats", tab_statistics, "Statistics", sizeof(tab_statistics));
 	add_xml_identifier (titles_str, "t_know", tab_knowledge, "Knowledge", sizeof(tab_knowledge));
 	add_xml_identifier (titles_str, "t_qlog", tab_questlog, "Quest log", sizeof(tab_questlog));
-	add_xml_identifier (titles_str, "t_all", tab_all, "All", sizeof(tab_all));
-	add_xml_identifier (titles_str, "t_none", tab_none, "None", sizeof(tab_none));
-	add_xml_identifier (titles_str, "t_local", tab_local, "Local", sizeof(tab_local));
-	add_xml_identifier (titles_str, "c_newbie", tab_newbie_channel, "Newbie", sizeof(tab_newbie_channel));
-	add_xml_identifier (titles_str, "c_help", tab_help_channel, "Help", sizeof(tab_help_channel));
-	add_xml_identifier (titles_str, "c_market", tab_market_channel, "Market", sizeof(tab_market_channel));
-	add_xml_identifier (titles_str, "c_general", tab_general_channel, "General", sizeof(tab_general_channel));
-	add_xml_identifier (titles_str, "c_roleplaying", tab_roleplaying_channel, "Roleplaying", sizeof(tab_roleplaying_channel));
-	add_xml_identifier (titles_str, "c_contest", tab_contest_channel, "Contest/Inv", sizeof(tab_contest_channel));
-	add_xml_identifier (titles_str, "c_offtopic", tab_offtopic_channel, "Offtopic", sizeof(tab_offtopic_channel));
-	add_xml_identifier (titles_str, "c_guild", tab_guild_channel, "Guild", sizeof (tab_guild_channel));
-	add_xml_identifier (titles_str, "t_channel", tab_channel, "Channel %d", sizeof(tab_channel));
-	add_xml_identifier (titles_str, "c_guild", tab_guild, "Guild", sizeof(tab_guild));
-	add_xml_identifier (titles_str, "c_mod", tab_mod, "Mod", sizeof(tab_mod));
-	add_xml_identifier (titles_str, "c_personal", tab_personal, "PM", sizeof(tab_personal));
-	add_xml_identifier (titles_str, "c_server", tab_server, "Server", sizeof(tab_server));
 	add_xml_identifier (titles_str, "t_main", tab_main, "Main", sizeof(tab_main));
 	add_xml_identifier (titles_str, "b_okay", button_okay, "Okay", sizeof(button_okay));
 	add_xml_identifier (titles_str, "b_cancel", button_cancel, "Cancel", sizeof(button_cancel));

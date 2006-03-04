@@ -7,7 +7,7 @@
 #define __CHAT_H__
 
 #define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
-#define MAX_CHAT_TABS		9	/*!< Size of the \see channels array */
+#define MAX_CHAT_TABS		12	/*!< Size of the \see channels array */
 #define MAX_ACTIVE_CHANNELS	10	/*!< Maximum number of channels in use */
 
 extern Uint32 active_channels[MAX_ACTIVE_CHANNELS];
@@ -181,7 +181,17 @@ typedef struct
 	Uint8 channel;
 	int button;
 	char highlighted;
+	char * description;
 } chat_tab;
+
+#define SPEC_CHANS 12 //11 are currently in use. read channels.xml for the list
+
+typedef struct
+{
+	Uint32 channel;
+	char * name;
+	char * description;
+} chan_name;
 
 extern chat_tab tabs[MAX_CHAT_TABS]; /*!< info about chat tabs */
 extern int local_chat_separate;		/*!< if non-zero, show local chat in a separate tab */
@@ -231,6 +241,19 @@ void update_tab_bar (text_message * msg);
  */
 void convert_tabs (int new_wc);
 
+/*!
+ * \brief	Read channel names from file
+ *
+ *	Open and parse file of names and descriptions for each chat channel
+ *
+ * \callgraph
+ */
+void init_channel_names ();
+
+int command_jlc(char * text, int len);
+
 void update_chat_win_buffers();
+
+void cleanup_chan_names();
 
 #endif // def __CHAT_H__

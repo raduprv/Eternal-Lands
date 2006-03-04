@@ -807,6 +807,8 @@ void init_commands(const char *filename)
 	add_command("log conn data", &command_log_conn_data);
 	add_command(cmd_msg, &command_msg);
 	add_command(cmd_afk, &command_afk);
+	add_command("jc", &command_jlc);//since we only mess with the part after the
+	add_command("lc", &command_jlc);//command, one function can do both
 	add_command(help_cmd_str, &command_help);
 	add_command("sto", &command_storage);
 	add_command("storage", &command_storage);
@@ -1293,7 +1295,10 @@ void test_for_console_command (char *text, int len)
 			}
 			// but fall thru and send it to the server
 		}
-
+	else if (my_strncompare (text_loc, "lc", 2) || my_strncompare (text_loc, "jc", 2))
+		{
+			command_jlc(text_loc+2,len);
+		}
 	else if (my_strncompare (text_loc, "sto", 3))
 		{
 			int i;
