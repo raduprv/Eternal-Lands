@@ -39,5 +39,4 @@
 	<channel number="1500" name="Dutch">Chat in Dutch</channel>
 	<channel number="4900" name="Russian">Chat in Russian</channel>
 	<channel number="9872" name="*nix">Chat about *nix (linux, *BSD, etc)</channel>
-	<channel number="12345" name="UobeyUok">UobeyUok will be happy to inform you of the rules</channel>
 </channels>
