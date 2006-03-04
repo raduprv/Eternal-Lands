@@ -808,11 +808,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case NPC_OPTIONS_LIST:
 			{
-#ifdef OSX  //this might be better as a EL_BIG_ENDIAN or general call
 				build_response_entries(&in_data[3],SDL_SwapLE16(*((Uint16 *)(in_data+1))));
-#else
-				build_response_entries(&in_data[3],*((Uint16 *)(in_data+1)));
-#endif
 			}
 			break;
 
