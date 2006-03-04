@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<channels>
+	<label index="0" name="Channel %d">Display channel %d</label>
+	<label index="1" name="Guild">Your guild's chat label</label>
+	<label index="2" name="View All">Display chat in all labels</label>
+	<label index="3" name="None">Messages not on any label</label>
+	<label index="4" name="Channels">Select which labels to join</label>
+	<label index="5" name="History">View all previous chat in all labels you have been on</label>
+	<label index="6" name="Local">Chat in your local area</label>
+	<label index="7" name="PMs">Private messages</label>
+	<label index="8" name="GMs">Guild Messages</label>
+	<label index="9" name="Server">Messages from the server</label>
+	<label index="10" name="Mod">Mod chat</label>
+
+
+	<channel number="1" name="Newbie">Newbie Q&amp;A about the game</channel>
+	<channel number="2" name="Gen Help">General/Advanced help</channel>
+	<channel number="3" name="Market">Trading, hiring, and price checks</channel>
+	<channel number="4" name="Gen Chat">Chat about EL-related topics</channel>
+	<channel number="5" name="Roleplay">Discussion about, and Roleplaying</channel>
+	<channel number="6" name="Events">Chat about the Contest/Event; what's happening and where</channel>
+	<channel number="11" name="Prattler">Come listen to the story bot</channel>
+	<channel number="20" name="Off Topic">Chat about (almost) any topic</channel>
+	<channel number="23" name="Czech/Slovak">Chat in Czech and Slovak</channel>
+	<channel number="24" name="Irilion">Chat for people visiting Irilion</channel>
+	<channel number="44" name="Polish">Chat in Polish</channel>
+	<channel number="105" name="Turkish">Chat in Turkish</channel>
+	<channel number="111" name="Hungarian">Chat in Hungarian</channel>
+	<channel number="124" name="Trivia">Play Trivia!</channel>
+	<channel number="206" name="German">Chat in German</channel>
+	<channel number="242" name="Italian">Chat in Italian</channel>
+	<channel number="255" name="Spanish">Chat in Spanish</channel>
+	<channel number="381" name="Ex-Yugoslavian">Chat in the Ex-Yugoslavian languages</channel>
+	<!--<channel number="421" name="Storylines">Chat with the storylines devs</channel>-->
+	<!--I'd like to have storylines, but I doubt that there will be people there to answer questions-->
+	<channel number="500" name="Portugese">Chat in Portugese</channel>
+	<channel number="888" name="French">Chat in French</channel>
+	<channel number="999" name="Romanian">Chat in Romanian</channel>
+	<channel number="1500" name="Dutch">Chat in Dutch</channel>
+	<channel number="4900" name="Russian">Chat in Russian</channel>
+	<channel number="9872" name="*nix">Chat about *nix (linux, *BSD, etc)</channel>
+	<channel number="12345" name="UobeyUok">UobeyUok will be happy to inform you of the rules</channel>
+</channels>
