@@ -256,4 +256,6 @@ void update_chat_win_buffers();
 
 void cleanup_chan_names();
 
+void chan_target_name(char * text, int len);
+
 #endif // def __CHAT_H__

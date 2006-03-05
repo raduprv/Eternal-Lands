@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <ctype.h>
 #include <libxml/parser.h>
 #include "global.h"
 #include "text.h"
@@ -230,7 +231,6 @@ void init_channel_names (){
 	char file[256];
 	xmlDocPtr doc;
 	xmlNodePtr cur;
-	xmlChar *name;
 
 	// Per-channel info
 	char *channelname;
@@ -400,7 +400,7 @@ void init_channel_names (){
 			// Add it.
 			add_chan_name(channelno, channelname, channeldesc);
 		} else {
-			LOG_ERROR (xml_undefined_node, file, ((cur->name!=NULL)&&(strlen(cur->name)<100)? cur->name : "not a string"));
+			LOG_ERROR (xml_undefined_node, file, ((cur->name!=NULL)	&& (strlen(cur->name)<100)) ? cur->name	: (const xmlChar *)"not a string");
 		}
 		cur = cur->next;         // Advance to the next node.
 	}
@@ -1371,7 +1371,7 @@ char tmp_tab_label[20];
 chan_name *tab_label (Uint8 chan)
 {
 	//return pointer after stepping through chan_name_queue
-	int cnr, i=0, steps=0;
+	int cnr, steps=0;
 	node_t *step = queue_front_node(chan_name_queue);
 	char name[255];
 	char desc[255];
@@ -1419,10 +1419,11 @@ chan_name *tab_label (Uint8 chan)
 	return step->next->data;
 }
 
-unsigned int chan_int_from_name(char * name, void * return_length){
+unsigned int chan_int_from_name(char * name, void * return_length)
+{
 	node_t *step = queue_front_node(chan_name_queue);
 	char * cname = name;
-	int i=0;
+
 	while(*cname && isspace(*cname)){//should there be a space at the front,
 		cname++;//we can handle that.
 	}
@@ -1912,25 +1913,29 @@ void convert_tabs (int new_wc)
 	}
 }
 
-int command_jlc(char * text, int len){
+int command_jlc(char * text, int len)
+{
 	unsigned int num;
 	char number[12];
+
 	num = chan_int_from_name(text, NULL);
-	if(num<=0){
+	if(num<=0) {
 		return 0;//Don't know this name
 	}
 	snprintf(number, sizeof(number)," %d", num);
-	if(strlen(number)<=strlen(text)){//it is entirely possible that the number
-		strcpy(text, number);//could be longer than the name, and hence we may
-	}//not have enough storage space to replace the name
-	return 0;//note: this change could also put us over the 160-char limit if not checked
+	if(strlen(number)<=strlen(text)) { //it is entirely possible that the number
+		strcpy(text, number); //could be longer than the name, and hence we may
+	} //not have enough storage space to replace the name
+	return 0; //note: this change could also put us over the 160-char limit if not checked
 }
 
-void chan_target_name(char * text, int len){
+void chan_target_name(char * text, int len)
+{
 	unsigned int num=0, mylen=0;
 	char buffer[MAX_TEXT_MESSAGE_LENGTH];
+
 	num = chan_int_from_name(text+2, (void*)&mylen);
-	if(num<=0){
+	if(num<=0) {
 		send_input_text_line (text, len);
 		return;
 	}
