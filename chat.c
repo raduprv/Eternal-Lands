@@ -227,7 +227,8 @@ void generic_chans(){	//the channel list file is missing. We'll use hard-coded v
 	add_chan_name(22, "Contests", "Contest information and sometimes chat");
 }
 
-void init_channel_names (){
+void init_channel_names ()
+{
 	char file[256];
 	xmlDocPtr doc;
 	xmlNodePtr cur;
@@ -310,8 +311,9 @@ void init_channel_names (){
 				xmlFree (attrib);
 				continue;
 			}
-			channelname = malloc (attriblen);
-			my_xmlStrncopy (&channelname, attrib, attriblen);
+			/*channelname = malloc (attriblen)+1;
+			my_xmlStrncopy (&channelname, attrib, attriblen);*/
+			channelname = xmlStrdup(attrib);
 			xmlFree (attrib);
 
 			// Get the index number
@@ -342,8 +344,9 @@ void init_channel_names (){
 			}
 			attrib = cur->children->content;
 			attriblen = strlen (attrib);
-			channeldesc = malloc (attriblen);
-			my_xmlStrncopy (&channeldesc, attrib, attriblen);
+			/*channeldesc = malloc (attriblen)+1;
+			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
+			channeldesc = xmlStrdup(attrib);
 			
 			// Add it.
 			add_spec_chan_name(channelno, channelname, channeldesc);
@@ -378,8 +381,9 @@ void init_channel_names (){
 				xmlFree (attrib);
 				continue;
 			}
-			channelname = malloc (attriblen);
-			my_xmlStrncopy (&channelname, attrib, attriblen);
+			/*channelname = malloc (attriblen)+1;
+			my_xmlStrncopy (&channelname, attrib, attriblen);*/
+			channelname = xmlStrdup(attrib);
 			xmlFree (attrib);
 			
 			// Get the description.
@@ -393,9 +397,10 @@ void init_channel_names (){
 				continue;
 			}
 			attrib = cur->children->content;
-			attriblen = strlen (attrib);
+			/*attriblen = strlen (attrib);
 			channeldesc = malloc (attriblen);
-			my_xmlStrncopy (&channeldesc, attrib, attriblen);
+			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
+			channeldesc = xmlStrdup(attrib);
 			
 			// Add it.
 			add_chan_name(channelno, channelname, channeldesc);
