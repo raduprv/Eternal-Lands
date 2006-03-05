@@ -233,7 +233,7 @@ void remove_active_spell(int pos)
 	active_spells[pos]=-1;
 }
 
-void get_active_spell_list (const Uint8 *my_spell_list)
+void get_active_spell_list(const Uint8 *my_spell_list)
 {
 	int i;
 	for (i = 0; i < 10; i++)
@@ -403,55 +403,56 @@ int display_sigils_handler(window_info *win)
 int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	// only handle real clicks, not scroll wheel moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0 ) return 0;
-
-	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] && mqb_data[0]->spell_id!=-1) {
+	if ( (flags & ELW_MOUSE_BUTTON) == 0 ) {
+		return 0;
+	} else if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] && mqb_data[0]->spell_id!=-1) {
 		add_spell_to_quickbar();
-	}
-
-	//see if we clicked on any sigil in the main category
-	
-	if(mx>0 && mx<12*33 && my>0 && my<3*33){
+		return 1;
+	} else if(mx>0 && mx<12*33 && my>0 && my<3*33) {
 		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
 
-		if (pos >= 0 && sigils_list[pos].have_sigil){
+		if (pos >= 0 && sigils_list[pos].have_sigil) {
 			int j;
 			int image_id=sigils_list[pos].sigil_img;
 
 			//see if it is already on the list
-			for(j=0;j<6;j++)
-				if(on_cast[j]==image_id)return 1;
+			for(j=0;j<6;j++) {
+				if(on_cast[j]==image_id) {
+					return 1;
+				}
+			}
 
-			for(j=0;j<6;j++)
-				if(on_cast[j]==-1){
+			for(j=0;j<6;j++) {
+				if(on_cast[j]==-1) {
 					on_cast[j]=image_id;
 					return 1;
 				}
-								
+			}
 			return 1;
 		}
-	}
-
-	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5){
+	} else if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5) {
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 
-		if (pos >= 0) on_cast[pos]=-1;
+		if (pos >= 0) {
+			on_cast[pos]=-1;
+		}
 	}
-
 	return 0;
 }
 
 
 int mouseover_sigils_handler(window_info *win, int mx, int my)
 {
-	if(!have_error_message)spell_text[0]=0;
+	if(!have_error_message) {
+		spell_text[0] = 0;
+	}
 
-	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] &&mqb_data[0]->spell_name[0]){
-		show_last_spell_help=1;
+	if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] &&mqb_data[0]->spell_name[0]) {
+		show_last_spell_help = 1;
 	}
 	
 	//see if we clicked on any sigil in the main category
-	if(mx>0 && mx<12*33 && my>0 && my<3*33){
+	if(mx>0 && mx<12*33 && my>0 && my<3*33) {
 		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
 		
 		if (pos >= 0 && sigils_list[pos].have_sigil)
@@ -459,19 +460,17 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 			my_strcp(spell_text,sigils_list[pos].name);
 			have_error_message=0;
 		}
-		
 		return 0;
 	}
 
 	//see if we clicked on any sigil from "on cast"
-	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5){
+	if(mx>5 && mx<6*33+5 && my>win->len_y-37 && my<win->len_y-5) {
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 		
 		if (pos >= 0 && on_cast[pos]!=-1){
 			my_strcp(spell_text,sigils_list[on_cast[pos]].name);
 			have_error_message=0;
 		}
-		
 		return 0;
 	}
 	
@@ -519,15 +518,19 @@ void add_spell_to_quickbar()
 {
 	int i;
 
-	if(!mqb_data[0])return;
+	if(!mqb_data[0])
+		return;
 	
-	for(i=1;i<7;i++)
-		if(mqb_data[i] && mqb_data[0]->spell_id==mqb_data[i]->spell_id)
+	for(i=1;i<7;i++) {
+		if(mqb_data[i] && mqb_data[0]->spell_id==mqb_data[i]->spell_id) {
 			return;
+		}
+	}
 	
 	//Else move the other spells down the quickbar
-	if(mqb_data[6])
+	if(mqb_data[6]) {
 		free(mqb_data[6]);
+	}
 			
 	for(i=6; i; i--){
 		mqb_data[i]=mqb_data[i-1];
@@ -542,14 +545,17 @@ void remove_spell_from_quickbar (int pos)
 {
 	int i;
 
-	if (pos < 1 || pos > 6 || mqb_data[pos] == NULL) return;
+	if (pos < 1 || pos > 6 || mqb_data[pos] == NULL) {
+		return;
+	}
 	
 	// remove the spell
 	free (mqb_data[pos]);
 	
 	// move the other spells one up
-	for (i = pos; i < 6; i++)
+	for (i = pos; i < 6; i++) {
 		mqb_data[i] = mqb_data[i+1];
+	}
 	mqb_data[6] = NULL;
 	save_quickspells();
 }
@@ -649,12 +655,13 @@ void load_quickspells ()
 		sprintf(fname,"spells_%s.dat",username_str);
 		my_tolower(fname);
 		fp=fopen(fname,"rb");
-		if(!fp)return;
+		if(!fp)
+			return;
 	}
 
-	fread (data, sizeof(data), 1, fp);
+	fread (data, sizeof(*data), sizeof(data), fp);
 	fclose (fp);
-	
+
 	memset (mqb_data, 0, sizeof (mqb_data));
 	for (i = 1; i < (int)data[0]; i++)
 	{
@@ -674,7 +681,8 @@ void save_quickspells()
 	char username[20];
 #endif
 	
-	if (!quickspells_loaded) return;
+	if (!quickspells_loaded)
+		return;
 	
 #ifndef _WIN32	
 	snprintf(username, sizeof(username), "%s", username_str);
@@ -688,17 +696,19 @@ void save_quickspells()
 		sprintf(fname,"spells_%s.dat",username_str);
 		my_tolower(fname);
 		fp=fopen(fname,"wb");
-		if(!fp)return;
+		if(!fp)
+			return;
 	}
 
 	for (i = 1; i < 7; i++)
 	{
-		if (mqb_data[i] == NULL) break;
+		if (mqb_data[i] == NULL)
+			break;
 		memcpy (data+1+(i-1)*sizeof(mqbdata), mqb_data[i], sizeof(mqbdata));
 	}
 	data[0] = i;
 
-	fwrite(data, sizeof(data), 1, fp);
+	fwrite(data, sizeof(*data), sizeof(data), fp);
 	
 	fclose(fp);
 }
@@ -768,9 +778,9 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 	
 	pos=my/30+1;
 
-	if(pos<7 && pos>=1 && mqb_data[pos] && mqb_data[pos]->spell_str[0])
+	if(pos<7 && pos>=1 && mqb_data[pos])
 	{
-		if (flags & ELW_LEFT_MOUSE)
+		if (flags & ELW_LEFT_MOUSE && mqb_data[pos]->spell_str[0])
 		{
 			my_tcp_send(my_socket, mqb_data[pos]->spell_str, 12);
 			return 1;
@@ -781,7 +791,6 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 			return 1;
 		}
 	}
-	
 	return 0;
 }
 
@@ -801,9 +810,11 @@ void init_quickspell()
 int spell_clear_handler()
 {
 	int i;
-	
-	for(i=0;i<6;i++)on_cast[i]=-1;
-	
+
+	for(i=0;i<6;i++) {
+		on_cast[i]=-1;
+	}
+
 	return 1;
 }
 
@@ -815,19 +826,20 @@ int cast_handler()
 	int sigils_no=0;
 	int i;
 
-	for(i=0;i<6;i++){
-		if(on_cast[i]!=-1)
-		count++;
+	for(i=0;i<6;i++) {
+		if(on_cast[i]!=-1) {
+			count++;
+		}
 	}
 
-	if(count<2){
+	if(count<2) {
 		sprintf(spell_text,"%c%s",127+c_red2,sig_too_few_sigs);
 		have_error_message=1;
 		return 1;
 	}
 	
 	str[0]=CAST_SPELL;
-	for(i=0;i<6;i++){
+	for(i=0;i<6;i++) {
 		if(on_cast[i]!=-1){
 			str[sigils_no+2]=on_cast[i];
 			sigils_no++;
@@ -837,7 +849,7 @@ int cast_handler()
 	str[1]=sigils_no;
 	last_spell_len=sigils_no+2;
 	
-	if(!mqb_data[0]){
+	if(!mqb_data[0]) {
 		mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
 		mqb_data[0]->spell_id=-1;
 	}
