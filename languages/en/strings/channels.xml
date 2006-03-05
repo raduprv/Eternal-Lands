@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <channels>
 	<label index="0" name="Channel %d">Display channel %d</label>
-	<label index="1" name="Guild">Your guild's chat label</label>
-	<label index="2" name="View All">Display chat in all labels</label>
-	<label index="3" name="None">Messages not on any label</label>
-	<label index="4" name="Channels">Select which labels to join</label>
-	<label index="5" name="History">View all previous chat in all labels you have been on</label>
+	<label index="1" name="Guild">Your guild's chat channel</label>
+	<label index="2" name="View All">Display chat in all channels</label>
+	<label index="3" name="None">Messages not on any channel</label>
+	<label index="4" name="Channels">Select which channels to join</label>
+	<label index="5" name="History">View all previous messages</label>
 	<label index="6" name="Local">Chat in your local area</label>
 	<label index="7" name="PMs">Private messages</label>
 	<label index="8" name="GMs">Guild Messages</label>
