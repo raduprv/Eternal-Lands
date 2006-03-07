@@ -506,10 +506,8 @@ int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int d
 {
 	int res = 0;
 
-	if (widget->type != NULL) {
-		if (widget->type->drag != NULL) {
-			res = widget->type->drag (widget, mx, my, flags, dx, dy);
-		}
+	if (widget->type != NULL && widget->type->drag != NULL) {
+		res = widget->type->drag (widget, mx, my, flags, dx, dy);
 	}
 
 	if (widget->OnDrag != NULL && res != -1)
@@ -1483,10 +1481,12 @@ int tab_collection_click (widget_list *W, int x, int y, Uint32 flags)
 		int itag, ctag = col->cur_tab;
 
 		// find which tag was clicked
-		for (itag = 0; itag < col->nr_tabs; itag++) 
-			if (x > col->tabs[itag].tag_x && x < col->tabs[itag].tag_x + col->tabs[itag].tag_width)
+		for (itag = 0; itag < col->nr_tabs; itag++)  {
+			if (x > col->tabs[itag].tag_x && x < col->tabs[itag].tag_x + col->tabs[itag].tag_width) {
 				break;
-		
+			}
+		}
+
 		if (itag < col->nr_tabs)
 		{
 			// check if close box was clicked

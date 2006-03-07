@@ -72,9 +72,8 @@ int display_encyclopedia_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	while(i){
-
-				// Bounds Check the Text
-				if((i->y-j > 0) && (i->yend-j < encyclopedia_menu_y_len-40 ))
+		// Bounds Check the Text
+		if((i->y-j > 0) && (i->yend-j < encyclopedia_menu_y_len-40 ))
 		{
 			if(i->mouseover==1)
 			{

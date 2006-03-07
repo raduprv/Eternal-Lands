@@ -765,8 +765,10 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	window_info *win;
 	int dx, dy, i;
 
-	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
-	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)
+		return -1;
+	if(windows_list.window[win_id].window_id != win_id)
+		return -1;
 	
 	win= &windows_list.window[win_id];
 
@@ -783,18 +785,24 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	// don't check child windows for visibility
 	if (pos_id < 0 || windows_list.window[pos_id].order < 0) {
 		// check for the window actually being on the screen, if not, move it
-		if(win->cur_y < ((win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0)) win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
-		if(win->cur_y >= window_height) win->cur_y= window_height;	// had -32, but do we want that?
-		if(win->cur_x+win->len_x < ELW_BOX_SIZE) win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
-		if(win->cur_x > window_width-ELW_BOX_SIZE) win->cur_x= window_width-ELW_BOX_SIZE;
+		if(win->cur_y < ((win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0))
+			win->cur_y= (win->flags&ELW_TITLE_BAR)?ELW_TITLE_HEIGHT:0;
+		if(win->cur_y >= window_height)
+			win->cur_y= window_height;	// had -32, but do we want that?
+		if(win->cur_x+win->len_x < ELW_BOX_SIZE)
+			win->cur_x= 0-win->len_x+ELW_BOX_SIZE;
+		if(win->cur_x > window_width-ELW_BOX_SIZE)
+			win->cur_x= window_width-ELW_BOX_SIZE;
 	}
 
 	// move child windows, if any
 	dx += win->cur_x;
 	dy += win->cur_y;
-	for (i = 0; i < windows_list.num_windows; i++)
-		if (windows_list.window[i].pos_id == win_id)
+	for (i = 0; i < windows_list.num_windows; i++) {
+		if (windows_list.window[i].pos_id == win_id) {
 			move_window (i, win_id, 0, windows_list.window[i].cur_x + dx, windows_list.window[i].cur_y + dy);
+		}
+	}
 
 	return 1;
 }
@@ -1008,17 +1016,33 @@ int	draw_window(window_info *win)
 	int	ret_val=0;
 	widget_list *W;
 	
-	if(win == NULL || win->window_id < 0)	return -1;
+	if(win == NULL || win->window_id < 0)
+		return -1;
 	W = win->widgetlist;
 
-	if(!win->displayed)	return 0;
+	if(!win->displayed)
+		return 0;
 	// mouse over processing first
 	mouseover_window(win->window_id, mouse_x, mouse_y);
-	//if it's too far out of bounds, put it back. you do the bottom bounds first incase the window in question is larger than the game window
-	if(win->cur_x + 20 > window_width)  win->cur_x = win->pos_x = window_width  - 20;
-	if(win->cur_y + 10 > window_height) win->cur_y = win->pos_y = window_height - 10;
-	if(win->cur_x + win->len_x < 20) win->cur_x = 20 - win->len_x;
-	if(win->cur_y < (win->flags&ELW_TITLE_NONE)*10) win->cur_y = 10;
+	if(win->flags&ELW_TITLE_BAR) {
+		/* Only move windows with title bars, otherwise we'll get problems
+		 * with tab collections, etc. Windows without title bars
+		 * can't be moved anyways.
+		 */
+		 //if it's too far out of bounds, put it back. you do the bottom bounds first incase the window in question is larger than the game window
+		if(win->cur_x + 20 > window_width) {
+			move_window(win->window_id, win->pos_id, win->pos_loc, window_width-20, win->pos_y);
+		}
+		if(win->cur_y + 10 > window_height) {
+			move_window(win->window_id, win->pos_id, win->pos_loc, win->pos_x, window_height-10);
+		}
+		if(win->cur_x + win->len_x < 20) {
+			move_window(win->window_id, win->pos_id, win->pos_loc, 20 - win->len_x, win->pos_y);
+		}
+		if(win->cur_y < ELW_TITLE_HEIGHT) {
+			move_window(win->window_id, win->pos_id, win->pos_loc, win->pos_x, ELW_TITLE_HEIGHT);
+		}
+	}
 	// now normal display processing
 	glPushMatrix();
 	glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
@@ -1050,19 +1074,21 @@ int	draw_window(window_info *win)
 			W->OnDraw(W);
 #else
 		{
-			if(W->spec != NULL) W->OnDraw(W, W->spec);
-			else W->OnDraw(W);
+			if(W->spec != NULL)
+				W->OnDraw(W, W->spec);
+			else
+				W->OnDraw(W);
 		}
 #endif
 		W = W->next;
 	}
 
 	glPopMatrix();
-	
+
 	return(ret_val);
 }
 
-void	show_window(int win_id)
+void show_window(int win_id)
 {
 	int iwin;
 	int ipos;
@@ -1279,8 +1305,10 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 	int	mx, my;
 	widget_list *W; 
 
-	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
-	if(windows_list.window[win_id].window_id != win_id)	return -1;
+	if(win_id < 0 || win_id >= windows_list.num_windows)
+		return -1;
+	if(windows_list.window[win_id].window_id != win_id)
+		return -1;
 	win= &windows_list.window[win_id];
 	W = win->widgetlist;
 	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
