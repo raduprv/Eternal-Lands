@@ -22,7 +22,7 @@ typedef struct queue
 	node_t *front;	/* Front of the queue */
 	node_t *rear;	/* Back of the queue */
 	SDL_mutex *mutex; /* Mutex */
-	int elements; /* Element counter */
+	int nodes; /* Node counter */
 } queue_t;
 
 int queue_initialise (queue_t **queue);

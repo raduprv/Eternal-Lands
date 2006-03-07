@@ -16,7 +16,7 @@ int queue_initialise (queue_t **queue)
 	(*queue)->rear = (*queue)->front;
 	(*queue)->front->next = NULL;
 	(*queue)->mutex = SDL_CreateMutex();
-	(*queue)->elements = 0;
+	(*queue)->nodes = 0;
 	return 1;
 }
 
@@ -34,7 +34,7 @@ int queue_push (queue_t *queue, void *item)
 		SDL_LockMutex(queue->mutex);
 		queue->rear->next = newnode;
 		queue->rear = newnode;
-		queue->elements++;
+		queue->nodes++;
 		SDL_UnlockMutex(queue->mutex);
 		return 1;
 	}
@@ -58,7 +58,7 @@ void *queue_pop (queue_t *queue)
 			queue->front->next = queue->front->next->next;
 		}
 		free(oldnode);
-		queue->elements--;
+		queue->nodes--;
 		SDL_UnlockMutex(queue->mutex);
 		return item;
 	}
@@ -91,7 +91,7 @@ void *queue_delete_node(queue_t *queue, node_t *node)
 					/* Make sure the data isn't lost when we free the node */
 					data = node->data;
 					free(node);
-					queue->elements--;
+					queue->nodes--;
 					break;
 				}
 				search_node = search_node->next;
