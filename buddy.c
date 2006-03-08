@@ -37,7 +37,7 @@ time_t c_time;//used to prevent buddylist flood when changing colours, etc
 
 
 struct accept_window {
-	Uint32 window_id; //Window ID
+	int window_id; //Window ID
 	char name[32]; //Name of the buddy to accept
 	char *text; //Buffer for the text to display
 	int checkbox; //Checkbox widget id

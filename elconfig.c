@@ -332,9 +332,11 @@ void toggle_full_screen_mode(int * fs)
 	if(!video_mode_set) 
 	{
 		*fs = !*fs;
-		return;
 	}
-	toggle_full_screen();
+	else
+	{
+		toggle_full_screen();
+	}
 	//TODO: Add wide screen resolutions
 	//1280x800
 	//1400x1050

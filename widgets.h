@@ -25,7 +25,7 @@
 #endif
 typedef struct {
 	Sint8 label[64];
-	Uint32 content_id;
+	int content_id;
 	Uint16 tag_x, tag_width;
 	float label_r, label_g, label_b;
 	char closable;
@@ -70,7 +70,7 @@ extern const struct WIDGET_TYPE multiselect_type;
 extern const struct WIDGET_TYPE spinbutton_type;
 
 // Type Conversion Function - TODO : Document'
-int widget_set_type (Uint32 window_id, Uint32 widget_id, const struct WIDGET_TYPE *type);
+int widget_set_type (int window_id, Uint32 widget_id, const struct WIDGET_TYPE *type);
 
 #endif
 typedef struct {
@@ -170,7 +170,7 @@ typedef struct {
  * \param   	widget_id The widget's unique ID
  * \retval widget_list*  	A widget_list pointer to the widget if found, otherwise NULL
  */
-widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
+widget_list * widget_find(int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	widgets
@@ -182,7 +182,7 @@ widget_list * widget_find(Uint32 window_id, Uint32 widget_id);
  * \param   	widget_id The widget's unique ID
  * \retval	int 1 on success, 0 on failure
  */
-int widget_destroy (Uint32 window_id, Uint32 widget_id);
+int widget_destroy (int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	widgets
@@ -197,7 +197,7 @@ int widget_destroy (Uint32 window_id, Uint32 widget_id);
  *
  * \sa widget_find
  */
-int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
+int widget_set_OnDraw(int window_id, Uint32 widget_id, int (*handler)());
 
 /*!
  * \ingroup	widgets
@@ -212,7 +212,7 @@ int widget_set_OnDraw(Uint32 window_id, Uint32 widget_id, int (*handler)());
  *
  * \sa widget_find
  */
-int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
+int widget_set_OnClick(int window_id, Uint32 widget_id, int (*handler)());
 
 /*!
  * \ingroup	widgets
@@ -227,7 +227,7 @@ int widget_set_OnClick(Uint32 window_id, Uint32 widget_id, int (*handler)());
  *
  * \sa widget_find
  */
-int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)());
+int widget_set_OnDrag(int window_id, Uint32 widget_id, int (*handler)());
 
 /*!
  * \ingroup	widgets
@@ -242,7 +242,7 @@ int widget_set_OnDrag(Uint32 window_id, Uint32 widget_id, int (*handler)());
  *
  * \sa widget_find
  */
-int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)());
+int widget_set_OnMouseover(int window_id, Uint32 widget_id, int (*handler)());
 
 /*!
  * \ingroup	widgets
@@ -257,7 +257,7 @@ int widget_set_OnMouseover(Uint32 window_id, Uint32 widget_id, int (*handler)())
  *
  * \sa widget_find
  */
-int widget_set_OnKey ( Uint32 window_id, Uint32 widget_id, int (*handler)() );
+int widget_set_OnKey ( int window_id, Uint32 widget_id, int (*handler)() );
 
 /*!
 #ifdef WIDGETS_FIX
@@ -273,7 +273,7 @@ int widget_set_OnKey ( Uint32 window_id, Uint32 widget_id, int (*handler)() );
  *
  * \sa widget_find
  */
-int widget_set_args (Uint32 window_id, Uint32 widget_id, void *spec);
+int widget_set_args (int window_id, Uint32 widget_id, void *spec);
 
 /*!
 #endif
@@ -290,7 +290,7 @@ int widget_set_args (Uint32 window_id, Uint32 widget_id, void *spec);
  *
  * \sa widget_find
  */
-int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
+int widget_move(int window_id, Uint32 widget_id, Uint16 x, Uint16 y);
 
 /*!
  * \ingroup 	widgets
@@ -306,7 +306,7 @@ int widget_move(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
  *
  * \sa widget_find
  */
-int widget_move_rel (Uint32 window_id, Uint32 widget_id, Sint16 dx, Sint16 dy);
+int widget_move_rel (int window_id, Uint32 widget_id, Sint16 dx, Sint16 dy);
 
 /*!
  * \ingroup	widgets
@@ -322,7 +322,7 @@ int widget_move_rel (Uint32 window_id, Uint32 widget_id, Sint16 dx, Sint16 dy);
  *
  * \sa widget_find
  */
-int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
+int widget_resize(int window_id, Uint32 widget_id, Uint16 x, Uint16 y);
 
 /*!
  * \ingroup	widgets
@@ -337,7 +337,7 @@ int widget_resize(Uint32 window_id, Uint32 widget_id, Uint16 x, Uint16 y);
  *
  * \sa widget_find
  */
-int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f);
+int widget_set_flags(int window_id, Uint32 widget_id, Uint32 f);
 
 /*!
  * \ingroup	widgets
@@ -352,7 +352,7 @@ int widget_set_flags(Uint32 window_id, Uint32 widget_id, Uint32 f);
  *
  * \sa widget_find
  */
-int widget_set_size(Uint32 window_id, Uint32 widget_id, float size);
+int widget_set_size(int window_id, Uint32 widget_id, float size);
 
 /*!
  * \ingroup	widgets
@@ -369,7 +369,7 @@ int widget_set_size(Uint32 window_id, Uint32 widget_id, float size);
  *
  * \sa widget_find
  */
-int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float b);
+int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b);
 
 /*!
  * \ingroup	widgets
@@ -383,7 +383,7 @@ int widget_set_color(Uint32 window_id, Uint32 widget_id, float r, float g, float
  *
  * \sa widget_find
  */
-int widget_get_width (Uint32 window_id, Uint32 widget_id);
+int widget_get_width (int window_id, Uint32 widget_id);
 
 // Label
 
@@ -411,9 +411,9 @@ int widget_get_width (Uint32 window_id, Uint32 widget_id);
  * \sa lable_add
  */
 #ifndef WIDGETS_FIX
-int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
+int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
 #else
-int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text);
+int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text);
 #endif
 
 /*!
@@ -431,7 +431,7 @@ int label_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, 
  *
  * \sa		label_add_extended
  */
-int label_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
+int label_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
 
 /*!
  * \ingroup	labels
@@ -458,7 +458,7 @@ int label_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int label_set_text(Uint32 window_id, Uint32 widget_id, char *text);
+int label_set_text(int window_id, Uint32 widget_id, char *text);
 
 
 
@@ -491,7 +491,7 @@ int label_set_text(Uint32 window_id, Uint32 widget_id, char *text);
  *
  * \sa image_add
  */
-int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2);
+int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2);
 
 /*!
  * \ingroup	images
@@ -514,7 +514,7 @@ int image_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x,
  *
  * \sa image_add_extended
  */
-int image_add(Uint32 window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2);
+int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2);
 
 /*!
  * \ingroup	images
@@ -541,7 +541,7 @@ int image_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int image_set_id(Uint32 window_id, Uint32 widget_id, int id);
+int image_set_id(int window_id, Uint32 widget_id, int id);
 
 /*!
  * \ingroup 	images
@@ -559,7 +559,7 @@ int image_set_id(Uint32 window_id, Uint32 widget_id, int id);
  *
  * \sa widget_find
  */
-int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u2, float v2);
+int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, float v2);
 
 
 
@@ -588,7 +588,7 @@ int image_set_uv(Uint32 window_id, Uint32 widget_id, float u1, float v1, float u
  *
  * \sa checkbox_add
  */
-int checkbox_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked);
+int checkbox_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked);
 
 /*!
  * \ingroup	checkboxes
@@ -607,7 +607,7 @@ int checkbox_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16
  *
  * \sa checkbox_add_extended
  */
-int checkbox_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked);
+int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked);
 
 /*!
  * \ingroup	checkboxes
@@ -633,7 +633,7 @@ int checkbox_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
+int checkbox_get_checked(int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	checkboxes
@@ -648,7 +648,7 @@ int checkbox_get_checked(Uint32 window_id, Uint32 widget_id);
  *
  * \sa widget_find
  */
-int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
+int checkbox_set_checked(int window_id, Uint32 widget_id, int checked);
 
 
 //Button
@@ -676,7 +676,7 @@ int checkbox_set_checked(Uint32 window_id, Uint32 widget_id, int checked);
  *
  * \sa button_add
  */
-int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
+int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
 
 /*!
  * \ingroup	buttons
@@ -693,7 +693,7 @@ int button_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x
  *
  * \sa button_add_extended
  */
-int button_add(Uint32 window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
+int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y);
 
 /*!
  * \ingroup	buttons
@@ -732,7 +732,7 @@ int square_button_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
+int button_set_text(int window_id, Uint32 widget_id, char *text);
 
 
 
@@ -762,7 +762,7 @@ int button_set_text(Uint32 window_id, Uint32 widget_id, char *text);
  *
  * \sa progressbar_add
  */
-int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress, const float * colors);
+int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress, const float * colors);
 
 /*!
  * \ingroup	progressbars
@@ -780,7 +780,7 @@ int progressbar_add_extended(Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint
  *
  * \sa progressbar_add_extended
  */
-int progressbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
+int progressbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
 
 /*!
  * \ingroup	progressbars
@@ -806,7 +806,7 @@ int progressbar_draw(widget_list *W);
  *
  * \sa widget_find
  */
-float progressbar_get_progress(Uint32 window_id, Uint32 widget_id);
+float progressbar_get_progress(int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	progressbars
@@ -821,7 +821,7 @@ float progressbar_get_progress(Uint32 window_id, Uint32 widget_id);
  *
  * \sa widget_find
  */
-int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress);
+int progressbar_set_progress(int window_id, Uint32 widget_id, float progress);
 
 
 
@@ -852,7 +852,7 @@ int progressbar_set_progress(Uint32 window_id, Uint32 widget_id, float progress)
  *
  * \sa vscrollbar_add
  */
-int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len);
+int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len);
 
 /*!
  * \ingroup	scrollbars
@@ -870,7 +870,7 @@ int vscrollbar_add_extended(Uint32 window_id, Uint32 wid,  int (*OnInit)(), Uint
  *
  * \sa vscrollbar_add_extended
  */
-int vscrollbar_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
+int vscrollbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly);
 
 /*!
  * \ingroup	scrollbars
@@ -897,7 +897,7 @@ int vscrollbar_draw(widget_list *W);
  *
  * \sa widget_find
  */
-int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc);
+int vscrollbar_set_pos_inc(int window_id, Uint32 widget_id, int pos_inc);
 
 /*!
  * \ingroup	scrollbars
@@ -912,7 +912,7 @@ int vscrollbar_set_pos_inc(Uint32 window_id, Uint32 widget_id, int pos_inc);
  *
  * \sa widget_find
  */
-int vscrollbar_set_pos(Uint32 window_id, Uint32 widget_id, int pos);
+int vscrollbar_set_pos(int window_id, Uint32 widget_id, int pos);
 
 /*!
  * \ingroup	scrollbars
@@ -926,7 +926,7 @@ int vscrollbar_set_pos(Uint32 window_id, Uint32 widget_id, int pos);
  *
  * \sa widget_find
  */
-int vscrollbar_scroll_up(Uint32 window_id, Uint32 widget_id);
+int vscrollbar_scroll_up(int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	scrollbars
@@ -940,7 +940,7 @@ int vscrollbar_scroll_up(Uint32 window_id, Uint32 widget_id);
  *
  * \sa widget_find
  */
-int vscrollbar_scroll_down(Uint32 window_id, Uint32 widget_id);
+int vscrollbar_scroll_down(int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	scrollbars
@@ -955,7 +955,7 @@ int vscrollbar_scroll_down(Uint32 window_id, Uint32 widget_id);
  *
  * \sa widget_find
  */
-int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len);
+int vscrollbar_set_bar_len (int window_id, Uint32 widget_id, int bar_len);
 
 /*!
  * \ingroup	scrollbars
@@ -969,7 +969,7 @@ int vscrollbar_set_bar_len (Uint32 window_id, Uint32 widget_id, int bar_len);
  *
  * \sa widget_find
  */
-int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id);
+int vscrollbar_get_pos(int window_id, Uint32 widget_id);
 
 
 // Tabbed window
@@ -986,7 +986,7 @@ int vscrollbar_get_pos(Uint32 window_id, Uint32 widget_id);
  *
  * \sa widget_find
  */
-int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id);
+int tab_collection_get_tab (int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	tabs
@@ -998,7 +998,7 @@ int tab_collection_get_tab (Uint32 window_id, Uint32 widget_id);
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the tab's window ID number on succes, -1 on failure
  */
-int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id);
+int tab_collection_get_tab_id (int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	tabs
@@ -1011,7 +1011,7 @@ int tab_collection_get_tab_id (Uint32 window_id, Uint32 widget_id);
  * \param   	tab_id The tab's window ID
  * \retval int  	Returns the tab's number on succes, -1 on failure
  */
-int tab_collection_get_tab_nr (Uint32 window_id, Uint32 col_id, Uint32 tab_id);
+int tab_collection_get_tab_nr (int window_id, Uint32 col_id, int tab_id);
 
 /*!
  * \ingroup	tabs
@@ -1023,7 +1023,7 @@ int tab_collection_get_tab_nr (Uint32 window_id, Uint32 col_id, Uint32 tab_id);
  * \param   	widget_id The unique widget ID of the tab collection
  * \retval int  	Returns the number of tabs, or -1 on failure
  */
-int tab_collection_get_nr_tabs (Uint32 window_id, Uint32 widget_id);
+int tab_collection_get_nr_tabs (int window_id, Uint32 widget_id);
 
 /*!
  * \ingroup	tabs
@@ -1039,7 +1039,7 @@ int tab_collection_get_nr_tabs (Uint32 window_id, Uint32 widget_id);
  * \param	b the blue component of the color
  * \retval int  	Returns the tab's window ID number on succes, -1 on failure
  */
-int tab_set_label_color_by_id (Uint32 window_id, Uint32 col_id, Uint32 tab_id, float r, float g, float b);
+int tab_set_label_color_by_id (int window_id, Uint32 col_id, int tab_id, float r, float g, float b);
 
 /*!
  * \ingroup	tabs
@@ -1053,7 +1053,7 @@ int tab_set_label_color_by_id (Uint32 window_id, Uint32 col_id, Uint32 tab_id, f
  * \retval int  	Returns the tab number on succes, -1 on failure (if the tab number was greater than or equal to the number of tabs in the collection)
  * \callgraph
  */
-int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
+int tab_collection_select_tab (int window_id, Uint32 widget_id, int tab);
 
 /*!
  * \ingroup	tabs
@@ -1067,7 +1067,7 @@ int tab_collection_select_tab (Uint32 window_id, Uint32 widget_id, int tab);
  * \retval int  	Returns the tab number on succes, -1 on failure (if the tab number was greater than or equal to the number of tabs in the collection)
  * \callgraph
  */
-int tab_collection_close_tab (Uint32 window_id, Uint32 widget_id, int tab);
+int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab);
 
 /*!
  * \ingroup	tabs
@@ -1087,7 +1087,7 @@ int tab_collection_close_tab (Uint32 window_id, Uint32 widget_id, int tab);
  *
  * \sa tab_collection_add_extended
  */
-int tab_collection_add (Uint32 window_id, int (*OnInit)(), Uint16 x, 
+int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, 
 Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height);
 
 /*!
@@ -1115,7 +1115,7 @@ Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height);
  *
  * \sa tab_collection_add
  */
-int tab_collection_add_extended (Uint32 window_id, Uint32 wid, int 
+int tab_collection_add_extended (int window_id, Uint32 wid, int 
 (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, 
 float size, float r, float g, float b, int max_tabs, Uint16 tag_height);
 
@@ -1159,7 +1159,7 @@ int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h);
  * \retval int  	Returns 1 if a new tab is selected, 0 otherwise
  * \callgraph
  */
-int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable);
+int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable);
 
 /*!
  * \ingroup	textfields
@@ -1181,7 +1181,7 @@ int tab_add (Uint32 window_id, Uint32 col_id, const char *label, Uint16 tag_widt
  *
  * \sa text_field_add_extended
  */
-int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space);
+int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space);
 
 /*!
  * \ingroup	textfields
@@ -1213,7 +1213,7 @@ int text_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint1
  *
  * \sa text_field_add
  */
-int text_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b);
+int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b);
 
 /*!
  * \ingroup	textfields
@@ -1240,7 +1240,7 @@ int text_field_draw (widget_list *w);
  * \retval int  	Returns 1 on success, 0 on error
  * \callgraph
  */
-int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int offset);
+int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset);
 
 /*!
  * \ingroup	textfields
@@ -1256,7 +1256,7 @@ int text_field_set_buf_pos (Uint32 window_id, Uint32 widget_id, int msg, int off
  * \retval int  	Returns 1 on success, 0 on error
  * \callgraph
  */
-int text_field_set_text_color (Uint32 window_id, Uint32 widget_id, float r, float g, float b);
+int text_field_set_text_color (int window_id, Uint32 widget_id, float r, float g, float b);
 
 /*!
  * \ingroup	widgets
@@ -1281,24 +1281,24 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey);
 unsigned char * pword_field_get(widget_list *w);
-int pword_field_add (Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
-int pword_field_add_extended (Uint32 window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
+int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size);
+int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size);
 int pword_field_click(widget_list *w, int mx, int my, Uint32 flags);
 void pword_set_status(widget_list *w, Uint8 status);
 
-int multiselect_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
-int multiselect_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons);
-int multiselect_button_add(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
-int multiselect_button_add_extended(Uint32 window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, float size, const char selected);
-int multiselect_get_selected(Uint32 window_id, Uint32 widget_id);
-int multiselect_set_selected(Uint32 window_id, Uint32 widget_id, int button_id);
-int multiselect_get_height(Uint32 window_id, Uint32 widget_id);
+int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width);
+int multiselect_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons);
+int multiselect_button_add(int window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, const char *text, const char selected);
+int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16 x, Uint16 y, int width, const char *text, float size, const char selected);
+int multiselect_get_selected(int window_id, Uint32 widget_id);
+int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id);
+int multiselect_get_height(int window_id, Uint32 widget_id);
 
 #define SPIN_FLOAT 0
 #define SPIN_INT 1
 
-int spinbutton_add(Uint32 window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval);
-int spinbutton_add_extended(Uint32 window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b);
+int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval);
+int spinbutton_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b);
 
 /*!
  * \ingroup	widgets
