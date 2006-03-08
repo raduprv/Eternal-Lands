@@ -24,6 +24,7 @@ int use_vertex_array=1;
 int use_vertex_buffers=0;
 int vertex_arrays_built=0;
 int have_compiled_vertex_array=0;
+int use_compiled_vertex_array=0;
 int have_point_sprite=0;
 int have_arb_compression=0;
 int have_s3_compression=0;
@@ -573,8 +574,12 @@ void init_gl_extensions()
 		have_compiled_vertex_array=get_string_occurance("GL_EXT_compiled_vertex_array",extensions,ext_str_len,0);
 		if(have_compiled_vertex_array < 0) {
 			have_compiled_vertex_array=0;
+			use_compiled_vertex_array=0;
 			snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
 			LOG_TO_CONSOLE(c_red1,str);
+		} else if (!use_compiled_vertex_array) {
+			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_EXT_compiled_vertex_array");
+			LOG_TO_CONSOLE(c_green2,str);
 		} else {
 			snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_compiled_vertex_array");
 			LOG_TO_CONSOLE(c_green2,str);

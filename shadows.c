@@ -240,7 +240,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	// watch for a change
 	if(object_id->e3d_data != cur_e3d){
 		if(cur_e3d != NULL){
-           	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+           	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 		if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
@@ -257,7 +257,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 			}
 		CHECK_GL_ERRORS();
 		// lock this new one
-		if(have_compiled_vertex_array)ELglLockArraysEXT(0,object_id->e3d_data->face_no);
+		if(use_compiled_vertex_array)ELglLockArraysEXT(0,object_id->e3d_data->face_no);
 		// gather statistics
 		if(object_id->e3d_data != cur_e3d){
 #ifdef  DEBUG
@@ -284,7 +284,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 			}
 	}
-	//if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	//if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	glPopMatrix();//restore the scene
 }
 
@@ -338,7 +338,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 		draw_3d_object_shadow_detail(objects_list[l]);
 	}
 
-    if(have_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
+    if(use_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
@@ -382,7 +382,7 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	draw_3d_object_shadow_detail(object_id);
 	
-	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	cur_e3d= NULL;
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);

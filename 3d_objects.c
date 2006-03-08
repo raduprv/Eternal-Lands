@@ -125,7 +125,7 @@ void draw_3d_object_detail(object3d * object_id)
 	// watch for a change
 	if(object_id->e3d_data != cur_e3d){
 		if(cur_e3d != NULL){
-           	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+           	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
 
 		if(have_vertex_buffers && vbo[0] && vbo[2]) {
@@ -149,7 +149,7 @@ void draw_3d_object_detail(object3d * object_id)
 		CHECK_GL_ERRORS();
 
 		// lock this new one
-		if(have_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
+		if(use_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
 		// gather statistics
 		if(object_id->e3d_data != cur_e3d){
 #ifdef  DEBUG
@@ -274,7 +274,7 @@ void draw_3d_object(object3d * object_id)
 	// call the low level routine we share
 	draw_3d_object_detail(object_id);
 
-	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	cur_e3d= NULL;
 	
 	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
@@ -363,7 +363,7 @@ void draw_3d_objects(unsigned int object_type)
 		}
 	}
 
-	if(have_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
+	if(use_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
 	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
 		ELglClientActiveTextureARB(detail_unit);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);

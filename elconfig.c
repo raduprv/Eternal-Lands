@@ -181,6 +181,22 @@ void change_vertex_array(int *pointer)
 }
 #endif
 
+
+void change_compiled_vertex_array(int *value)
+{
+	if (*value)
+	{
+		*value = 0;
+	}
+	else if (!gl_extensions_loaded || have_compiled_vertex_array)
+	{
+		// don't check if we have hardware support when OpenGL 
+		// extensions are not initialized yet.
+		*value = 1;
+	}
+	else LOG_TO_CONSOLE(c_green2,disabled_compiled_vertex_arrays);
+}
+
 void change_point_particles(int *value)
 {
 	if (*value)
@@ -1035,6 +1051,7 @@ void init_vars()
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",SPECIALVID);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",SPECIALVID);
+	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",SPECIALVID);
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",SPECIALVID);
 	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
  #ifdef	TERRAIN

@@ -27,6 +27,7 @@ extern int use_vertex_array; /*!< specifies if we use vertex arrays or not */
 extern int use_vertex_buffers; /*!< specifies if we use vertex buffer objects or not */
 extern int vertex_arrays_built; /*!< flag that indicates whether the vertex array was already initialized or not */
 extern int have_compiled_vertex_array; /*!< indicates whether we have the compiled vertex array extension or not */
+extern int use_compiled_vertex_array; /*!< specified if we use compiled vertex array or not */
 extern int have_point_sprite; /*!< indicates whether we have point sprites or not */
 extern int have_arb_compression; /*!< flag that indicates whether we have the ARB compression extension or not */
 extern int have_s3_compression; /*!< flag that indicates whether we have the S3 compression extension or not */
@@ -35,6 +36,7 @@ extern int have_framebuffer_object; /*!< flag that indicates whether the GL_EXT_
 extern int have_shaders;
 
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
+extern int use_compiled_vertex_array;
 
 extern int have_arb_shadow;
 extern int have_ogsl_pixel_shader;

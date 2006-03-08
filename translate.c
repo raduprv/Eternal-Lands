@@ -356,6 +356,7 @@ char	reg_error_str[15],
 	fatal_error_str[10],
 	no_e3d_list[50],
 	enabled_vertex_arrays[50],
+	disabled_compiled_vertex_arrays[50],
 	disabled_point_particles[50],
 	disabled_particles_str[50],
 	invalid_video_mode[75],
@@ -841,6 +842,7 @@ void init_errors()
 	add_xml_identifier(misc,"multimat",multiple_material_same_texture,"Two or more materials with the same texture name!",sizeof(multiple_material_same_texture));
 	add_xml_identifier(misc,"resync",resync_server,"Resync with the server...",sizeof(resync_server));
 	add_xml_identifier(misc,"vertex",enabled_vertex_arrays,"Vertex Arrays enabled (memory hog on!)...",sizeof(enabled_vertex_arrays));
+	add_xml_identifier(misc,"compiled",disabled_compiled_vertex_arrays,"Compiled Vertex Arrays disabled.",sizeof(disabled_compiled_vertex_arrays));
 	add_xml_identifier(misc,"point",disabled_point_particles,"Point Particles disabled.",sizeof(disabled_point_particles));
 	add_xml_identifier(misc,"particles",disabled_particles_str,"Particles completely disabled!",sizeof(disabled_particles_str));
 	add_xml_identifier(misc,"net",failed_sdl_net_init,"Couldn't initialize net",sizeof(failed_sdl_net_init));

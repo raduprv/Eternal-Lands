@@ -209,14 +209,14 @@ void draw_3d_reflection(object3d * object_id)
 			glNormalPointer(GL_FLOAT,0,array_normal);	
 	}
 	
-	if(have_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
+	if(use_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
 	for(i=0;i<materials_no;i++)
 		if(array_order[i].count>0)
 			{
 				get_and_set_texture_id(array_order[i].texture_id);
 				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
 			}
-	if(have_compiled_vertex_array)ELglUnlockArraysEXT();
+	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	CHECK_GL_ERRORS();
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
