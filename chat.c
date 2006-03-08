@@ -1025,7 +1025,7 @@ void generic_chans()
 	add_spec_chan_name(10, "Mod", "Mod chat");
 	add_chan_name(1, "Newbie", "Newbie Q&A about the game");
 	add_chan_name(3, "Market", "Trading, hiring, and price checks");
-	add_chan_name(4, "Gen Chat", "Chat about (almost) any topic");
+	add_chan_name(4, "EL Gen Chat", "Chat about EL topics");
 	add_chan_name(5, "Roleplay", "Discussion about, and Roleplaying");
 	add_chan_name(6, "Contests", "Contest information and sometimes chat");
 }
