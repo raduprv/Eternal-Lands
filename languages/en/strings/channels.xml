@@ -16,7 +16,7 @@
 	<channel number="1" name="Newbie">Newbie Q&amp;A about the game</channel>
 	<channel number="2" name="Gen Help">General/Advanced help</channel>
 	<channel number="3" name="Market">Trading, hiring, and price checks</channel>
-	<channel number="4" name="Gen Chat">Chat about EL-related topics</channel>
+	<channel number="4" name="EL Gen Chat">Chat about EL-related topics</channel>
 	<channel number="5" name="Roleplay">Discussion about, and Roleplaying</channel>
 	<channel number="6" name="Events">Chat about the Contest/Event; what's happening and where</channel>
 	<channel number="11" name="Prattler">Come listen to the story bot</channel>
