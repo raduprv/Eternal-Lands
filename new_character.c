@@ -105,7 +105,7 @@ int dec(my_enum * def, int val, int no_steps)
 int display_time=0;
 	
 struct input_text {
-	char str[20];
+	char str[40];
 	int pos;
 } inputs[3] = {
 	{"Player", 6},
@@ -548,6 +548,9 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		}
 		else
 		{
+			// don't alow a character to start with player
+			if(active == 0 && !strcasecmp(t->str, "player")) t->pos= 0;
+			// add the character to the buffer
 			t->str[t->pos++]=ch;
 			t->str[t->pos]=0;
 			ret=1;	//Reused to show that a letter has been added
@@ -571,7 +574,10 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	}
 	else
 	{
-		add_text_to_buffer (c_red2, error_illegal_character, 6000);
+		//only send error messages on non-null characters
+		if(ch != 0){
+			add_text_to_buffer (c_red2, error_illegal_character, 6000);
+		}
 	}
 
 	if(active>0){
