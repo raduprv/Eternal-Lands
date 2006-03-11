@@ -32,7 +32,7 @@
     <vendor>Vendor ID</vendor>
     <ext>Supported extensions</ext>
     <opengl>OpenGL Version</opengl>
-  <pm_from>[PM from</pm_from><mod_pm_from>[Mod PM from</mod_pm_from><gm_from>#GM from</gm_from></misc>
+  <pm_from>[PM from</pm_from><mod_pm_from>[Mod PM from</mod_pm_from><gm_from>#GM from</gm_from><date_format>Today is the %s day in the month of %s, the year %04d, Age of the Eternals</date_format></misc>
   <loading_msg>
     <init_opengl>Initializing OpenGL extensions</init_opengl>
     <init_random>Generating random seed</init_random>

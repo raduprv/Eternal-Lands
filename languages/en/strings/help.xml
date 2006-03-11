@@ -40,7 +40,7 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <accept>Accept</accept>
     <x_quit>Press Alt-x to close the game</x_quit>
     <dropall>Drop All</dropall>
-  <cmd_markpos>Usage: #markpos &lt;x-coord&gt;,&lt;y-coord&gt; &lt;name&gt;</cmd_markpos><location_info>Location %d,%d marked with %s</location_info><marked>%s marked</marked><unmarked>%s unmarked</unmarked></misc>
+  <cmd_markpos>Usage: #markpos &lt;x-coord&gt;,&lt;y-coord&gt; &lt;name&gt;</cmd_markpos><location_info>Location %d,%d marked with %s</location_info><marked>%s marked</marked><unmarked>%s unmarked</unmarked><equip_here>Place an item in these boxes to equip it</equip_here><equipment>Equipment</equipment></misc>
   <new>
     <skin>Skin</skin>
     <hair>Hair</hair>

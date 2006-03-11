@@ -40,6 +40,7 @@
     <multimat>Two or more materials with the same texture name!</multimat>
     <resync>Resync with the server...</resync>
     <vertex>Vertex Arrays enabled (memory hog on!)...</vertex>
+    <compiled>Compiled Vertex Arrays disabled.</compiled>
     <point>Point Particles disabled.</point>
     <particles>Particles completely disabled!</particles>
     <net>Couldn't initialize net</net>
@@ -63,9 +64,20 @@ Done. *YOUR STATS AND ITEMS WILL NOT BE AFFECTED*</redefine>
     <nameinuse>Character name is already taken</nameinuse>
     <notabs>You cannot disable tabbed windows with video mode %d, forcing them</notabs>
     <nomap>Unable to switch to map %s!</nomap>
-  <emptymap>Using an empty map instead.</emptymap><nonomap>Fatal error: Couldn't load map ./maps/nomap.elm.
-Fix your maps.</nonomap><nobmpmap>There is no map for this place.</nobmpmap><book_open>Couldn't open the book: %s!</book_open><noanimation>No animation: %s!
-</noanimation><invalid_location>Invalid location %d,%d</invalid_location></misc>
+    <emptymap>Using an empty map instead.</emptymap>
+    <nonomap>Fatal error: Couldn't load map ./maps/nomap.elm.
+Fix your maps.</nonomap>
+    <nobmpmap>There is no map for this place.</nobmpmap>
+    <book_open>Couldn't open the book: %s!</book_open>
+    <noanimation>No animation: %s!
+</noanimation>
+    <invalid_location>Invalid location %d,%d</invalid_location>
+    <badnode>There is something wrong with one of a node's fields.</badnode>
+    <badroot>The root node in %s was incorrect.</badroot>
+    <undefnode>Found an unexpected node type while parsing %s (%s).</undefnode>
+    <use_builtin_chans>Could not load a channel list from file. Using a limited built-in set instead.</use_builtin_chans>
+    <use_eng_chans>Could not load a channel list for language code %s. Using the english set instead.</use_eng_chans>
+  </misc>
   <particles>
     <version>Particle file %s version (%i) doesn't match file reader version (%i)!</version>
     <overrun>Particle file %s tries to define %i particles, when %i is the maximum!</overrun>
@@ -102,10 +114,10 @@ Fix your maps.</nonomap><nobmpmap>There is no map for this place.</nobmpmap><boo
     <eof>Ogg error media EOF.</eof>
     <ebadlink>Ogg error media EBADLINK.</ebadlink>
     <enoseek>Ogg error media ENOSEEK.</enoseek>
-	<enomusic>This client was built without music support</enomusic>
-	<musicstopped>No song is currently playing</music_stopped>
-	<musicinfo>Currently playing: "%s" by %s (%d:%02d/%d:%02d)</musicinfo>
-	<musicinfonoartist>Currently playing: "%s" (%d:%02d/%d:%02d)</musicinfonoartist>
+    <enomusic>This client was built without music support</enomusic>
+    <musicstopped>No song is currently playing</musicstopped>
+    <musicinfo>Currently playing: "%s" by %s (%d:%02d/%d:%02d)</musicinfo>
+    <musicinfonoartist>Currently playing: "%s" (%d:%02d/%d:%02d)</musicinfonoartist>
   </snd>
   <video>
     <nostencil>Video mode %s with a stencil buffer is not available
@@ -127,8 +139,9 @@ Let's try one more thing...</last_try>
     <extnotfound>Couldn't find the %s extension, not using it...</extnotfound>
     <multitex>Couldn't find the GL_ARB_multitexture extension, giving up clouds shadows, and texture detail...</multitex>
     <noshadowmapping>Shadowmapping disabled (need newer hardware)</noshadowmapping>
+    <toobigshadowmap>Shadow map size not supported! Shadow map size reduced to %d!</toobigshadowmap>
     <invalid>Stop playing with the configuration file and select valid modes!</invalid>
-  <toobigshadowmap>Shadow map size not supported! Shadow map size reduced to %d!</toobigshadowmap><noframebuffer>Framebuffer disabled (need newer driver)</noframebuffer><fboattachmenterror>Framebuffer: attachment error</fboattachmenterror><fbomissingattachmenterror>Framebuffer: missing attachment</fbomissingattachmenterror><fboduplicateattachmenterror>Framebuffer: duplicate attachment</fboduplicateattachmenterror><fbodimensionserror>Framebuffer: dimensions error</fbodimensionserror><fboformatserror>Framebuffer: formats error</fboformatserror><fbodrawbuffererror>Framebuffer: draw buffer error</fbodrawbuffererror><fboreadbuffererror>Framebuffer: read buffer error</fboreadbuffererror><fbounknowerror>Framebuffer: unkown error</fbounknowerror></video>
+  </video>
   <rules>
     <proceed>You can proceed in %d seconds</proceed>
     <accept>Click on "I Accept" to play the game!</accept>
