@@ -146,18 +146,46 @@ void set_create_char_error (const char *msg, int len)
 
 void change_actor ()
 {
-	// if there is any loaded model, destroy it
+	// We only need to reload the core model, and attach all the correct mesh types.
 	if (our_actor.our_model){
-		destroy_all_actors();
-		our_actor.our_model=NULL;
+		if(our_actor.our_model->calmodel!=NULL)
+			CalModel_Delete(our_actor.our_model->calmodel);
+		
+		our_actor.our_model->calmodel = CalModel_New(actors_defs[our_actor.race].coremodel);
+			
+		// Attach the Meshes.
+		CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].head[our_actor.head].mesh_index);
+		CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
+		CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
+		
+		// Save which mesh is which.
+		our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
+		our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
+		our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
+				
+		// Recopy all of the textures.
+		my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
+		my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
+		
+		my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
+		
+		my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
+		my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
+		
+		my_strncp(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
+		
+		my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
+
+		glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+		our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the textures.
+		
+		// Move the actor. Could be a little disorienting, though.
+		our_actor.our_model->x_tile_pos = our_actor.def->x;
+		our_actor.our_model->y_tile_pos = our_actor.def->y;
+		our_actor.our_model->x_pos = our_actor.def->x*0.5f;
+		our_actor.our_model->y_pos = our_actor.def->y*0.5f;
+		our_actor.our_model->z_rot = our_actor.def->z_rot;
 	}
-	
-	your_actor = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
-	our_actor.our_model = your_actor;
-
-	snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
-
-	last_texture = -1;	// when we load a new char, we also bind the texture, so...
 }
 
 //////////////////////////////////////////////////////////////////////////
@@ -882,42 +910,136 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 	} else if(mx>280 && mx<295){
 		if(my>25 && my<36){
 			our_actor.head=dec(our_actor.def->head, our_actor.head, 1);
-			change_actor();
+			
+			// Detach the old head, and reattach and save the new one.
+			CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->head_meshindex);
+			CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].head[our_actor.head].mesh_index);
+			our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
 		} else if(my>48 && my<59){
 			our_actor.skin=dec(our_actor.def->skin, our_actor.skin, 1);
-			change_actor();
+			
+			// Copy the skin texture names.
+			my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
+			my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>71 && my<82){
 			our_actor.hair=dec(our_actor.def->hair, our_actor.hair, 1);
-			change_actor();
+			
+			// Copy the hair texture name.
+			my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>94 && my<105){
 			our_actor.shirt=dec(our_actor.def->shirts, our_actor.shirt, 1);
-			change_actor();
+			
+			// Copy the shirt and arms texture names.
+			my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
+			my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
+			
+			// If we need a new mesh, drop the old one and load it.
+			if(actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index != our_actor.our_model->body_parts->torso_meshindex)
+			{
+				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->torso_meshindex);
+				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
+				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
+			}
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>117 && my<128){
 			our_actor.pants=dec(our_actor.def->pants, our_actor.pants, 1);
-			change_actor();
+			
+			// Copy the pants texture name.
+			my_strncp(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
+			
+			// If we need a new mesh, drop the old one and load it.
+			if(actors_defs[our_actor.race].legs[our_actor.pants].mesh_index != our_actor.our_model->body_parts->legs_meshindex)
+			{
+				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->legs_meshindex);
+				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
+				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
+			}
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>140 && my<151){
 			our_actor.boots=dec(our_actor.def->boots, our_actor.boots, 1);
-			change_actor();
+			
+			// Copy the new boots texture name.
+			my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		}
 	} else if(mx>364 && mx<379){
 		if(my>25 && my<40){
 			our_actor.head=inc(our_actor.def->head, our_actor.head, 1);
-			change_actor();
+			
+			// Detach the old head, and reattach and save the new one.
+			CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->head_meshindex);
+			CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].head[our_actor.head].mesh_index);
+			our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
 		} else if(my>48 && my<63){
 			our_actor.skin=inc(our_actor.def->skin, our_actor.skin, 1);
-			change_actor();
+			
+			// Copy the skin texture names.
+			my_strncp(our_actor.our_model->body_parts->hands_tex,actors_defs[our_actor.race].skin[our_actor.skin].hands_name,sizeof(our_actor.our_model->body_parts->hands_tex));
+			my_strncp(our_actor.our_model->body_parts->head_tex,actors_defs[our_actor.race].skin[our_actor.skin].head_name,sizeof(our_actor.our_model->body_parts->head_tex));
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>71 && my<86){
 			our_actor.hair=inc(our_actor.def->hair, our_actor.hair, 1);
-			change_actor();
+			
+			// Copy the hair texture name.
+			my_strncp(our_actor.our_model->body_parts->hair_tex,actors_defs[our_actor.race].hair[our_actor.hair].hair_name,sizeof(our_actor.our_model->body_parts->hair_tex));
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>94 && my<109){
 			our_actor.shirt=inc(our_actor.def->shirts, our_actor.shirt, 1);
-			change_actor();
+			
+			// Copy the shirt and arms texture names.
+			my_strncp(our_actor.our_model->body_parts->arms_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].arms_name,sizeof(our_actor.our_model->body_parts->arms_tex));
+			my_strncp(our_actor.our_model->body_parts->torso_tex,actors_defs[our_actor.race].shirt[our_actor.shirt].torso_name,sizeof(our_actor.our_model->body_parts->torso_tex));
+			
+			// If we need a new mesh, drop the old one and load it.
+			if(actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index != our_actor.our_model->body_parts->torso_meshindex)
+			{
+				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->torso_meshindex);
+				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
+				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
+			}
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>117 && my<132){
 			our_actor.pants=inc(our_actor.def->pants, our_actor.pants, 1);
-			change_actor();
+			
+			// Copy the pants texture name.
+			my_strncp(our_actor.our_model->body_parts->pants_tex,actors_defs[our_actor.race].legs[our_actor.pants].legs_name,sizeof(our_actor.our_model->body_parts->pants_tex));
+			
+			// If we need a new mesh, drop the old one and load it.
+			if(actors_defs[our_actor.race].legs[our_actor.pants].mesh_index != our_actor.our_model->body_parts->legs_meshindex)
+			{
+				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->legs_meshindex);
+				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
+				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
+			}
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		} else if(my>140 && my<155){
 			our_actor.boots=inc(our_actor.def->boots, our_actor.boots, 1);
-			change_actor();
+			
+			// Copy the new boots texture name.
+			my_strncp(our_actor.our_model->body_parts->boots_tex,actors_defs[our_actor.race].boots[our_actor.boots].boots_name,sizeof(our_actor.our_model->body_parts->boots_tex));
+			
+			glDeleteTextures(1,&our_actor.our_model->texture_id); // Free the textures
+			our_actor.our_model->texture_id = load_bmp8_enhanced_actor(our_actor.our_model->body_parts, 255);	// Rebuild the actor's textures.
 		}
 	}
 	return 1;
