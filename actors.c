@@ -608,7 +608,6 @@ void display_actors(int banner)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-#ifdef	NEW_FRUSTUM
 	for (i = 0; i < no_near_actors; i++)
 	{
 		if (near_actors[i].ghost)
@@ -628,7 +627,16 @@ void display_actors(int banner)
 				{
 					draw_actor(cur_actor, banner);
 				}
+#ifndef NETWORK_THREAD
+				//check for network data - reduces resyncs
+				get_message_from_server();
+				if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
+#endif //NETWORK_THREAD
+#ifdef	NEW_FRUSTUM
 				if (near_actors[i].select)
+#else
+				if (1)
+#endif
 				{
 					if (cur_actor->kind_of_actor == NPC)
 					{
@@ -678,7 +686,16 @@ void display_actors(int banner)
 					{
 						draw_actor(cur_actor, banner);
 					}				
+#ifndef NETWORK_THREAD
+					//check for network data - reduces resyncs
+					get_message_from_server();
+					if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
+#endif //NETWORK_THREAD
+#ifdef	NEW_FRUSTUM
 					if (near_actors[i].select)
+#else
+					if (1)
+#endif
 					{
 						if (cur_actor->kind_of_actor == NPC)
 						{
@@ -706,72 +723,6 @@ void display_actors(int banner)
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
 	}
-#else
-	//display only the non ghosts
-	for(i=0;i<no_near_actors;i++){
-		if(near_actors[i].ghost) {
-			has_ghosts++;
-		} else {
-			//dist is <=12*12
-			actor *cur_actor= actors_list[near_actors[i].actor];
-			if(cur_actor) {
-				if(cur_actor->is_enhanced_model) {
-					draw_enhanced_actor(cur_actor, banner);
-#ifndef NETWORK_THREAD
-					//check for network data - reduces resyncs
-					get_message_from_server();
-#endif //NETWORK_THREAD
-					if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
-				} else {
-					draw_actor(cur_actor, banner);
-				}
-				
-				if(cur_actor->kind_of_actor==NPC){
-					anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
-				} else if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
-				       (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED))){
-					anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
-				} else {
-					anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
-				}
-			}
-		}
-	}
-
-	if(has_ghosts){
-		//we don't need the light, for ghosts
-		glDisable(GL_LIGHTING);
-		//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		
-		//display only the ghosts
-		glEnable(GL_BLEND);
-		for(i=0;i<no_near_actors;i++) {
-			if(near_actors[i].ghost){
-				actor *cur_actor= actors_list[near_actors[i].actor];
-				if(cur_actor) {
-					if(cur_actor->is_enhanced_model) {
-						draw_enhanced_actor(cur_actor, banner);
-					} else {
-						draw_actor(cur_actor, banner);
-					}
-					
-					if(cur_actor->kind_of_actor==NPC){
-						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
-					} else if(cur_actor->kind_of_actor==HUMAN || cur_actor->kind_of_actor==COMPUTER_CONTROLLED_HUMAN || 
-						 (cur_actor->is_enhanced_model && (cur_actor->kind_of_actor==PKABLE_HUMAN || cur_actor->kind_of_actor==PKABLE_COMPUTER_CONTROLLED))){
-						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
-					} else {
-						anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
-					}
-				}
-			}
-		}
-		
-		glEnable(GL_LIGHTING);
-		glDisable(GL_BLEND);
-	}
-#endif
 
 	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
 	glDisableClientState(GL_VERTEX_ARRAY);
