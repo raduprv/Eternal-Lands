@@ -100,6 +100,10 @@ int HandleEvent (SDL_Event *event)
 			done = 1;
 			break;
 
+		case SDL_ACTIVEEVENT:
+			SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
+			break;
+
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			// make sure the mouse button is our window, or else we ignore it
