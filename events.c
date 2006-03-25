@@ -101,7 +101,9 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_ACTIVEEVENT:
-			SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
+			if (event->active.state & SDL_APPINPUTFOCUS){
+				SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
+			}
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
