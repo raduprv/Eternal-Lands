@@ -1901,9 +1901,11 @@ int text_field_draw (widget_list *w)
 	{
 		glColor3f (tf->text_r, tf->text_g, tf->text_b);
 	}
-	
+
+	set_font(chat_font);	// switch to the chat font
 	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, tf->cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
-	
+	set_font (0);	// switch to fixed
+
 	return 1;
 }
 

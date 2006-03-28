@@ -43,6 +43,7 @@ int display_console_handler (window_info *win)
 	{
 		int y_line;
 		
+		set_font(chat_font);	// switch to the chat font
 		if (console_text_changed)
 		{
 			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);		
@@ -63,6 +64,7 @@ int display_console_handler (window_info *win)
 		y_line = win->len_y - (17 * (4+(int)((get_string_width(input_text_line.data)*11.0f/12.0f)/(win->len_x-hud_x-20))));
 		glColor3f (1.0f, 1.0f, 1.0f);
 		draw_string_zoomed_width (10, y_line, input_text_line.data, win->len_x-hud_x-20, 4, chat_zoom);
+		set_font (0);	// switch to fixed
 	}
 	
 	draw_delay = 20;

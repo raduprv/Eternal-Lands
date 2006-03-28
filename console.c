@@ -1346,6 +1346,7 @@ void test_for_console_command (char *text, int len)
 				}
 			}
 		}
+		
 	send_input_text_line (text, len);	// no command, send it to the server, as plain text
 }
 #endif //ndef COMMAND_BUFFER
