@@ -6,8 +6,6 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
-// For OS X: #define OSX
-
 #include <math.h>
 #ifndef M_PI
  #define M_PI 3.14159265358979323846
@@ -19,6 +17,9 @@
 	#define	WINDOWS 1
 #endif	//WINDOWS
 #endif	//_WIN32
+#ifdef OSX86	//Most i386 = PPC, but not all
+	#define OSX
+#endif
 
 #ifdef	WINDOWS
 	#include <windows.h>
@@ -40,11 +41,7 @@
 		#define snprintf sane_snprintf
 	#endif
 #elif defined(OSX)
-	// XXX Grum: move these defs to a Makefile
-	#define EL_BIG_ENDIAN
 	#define NO_MUSIC
-	#define ELC
-	#define BSD
 	#include <OpenAL/alut.h>
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
