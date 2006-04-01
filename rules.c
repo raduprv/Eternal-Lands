@@ -3,13 +3,15 @@
 #include <libxml/tree.h>
 #include <string.h>
 #include <stdlib.h>
-#ifdef OSX
-#include <sys/malloc.h>
-#else
+
 #ifndef BSD
-#include <malloc.h>
+	#if defined (OSX) || defined (OSX86)
+		#include <sys/malloc.h>
+	#else
+		#include <malloc.h>
+	#endif
 #endif
-#endif
+
 #include "global.h"
 
 #define TITLE 	0

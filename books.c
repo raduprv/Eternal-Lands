@@ -8,7 +8,11 @@
 #ifdef BSD
 #include <stdlib.h>
 #else
+#if defined (OSX) || defined (OSX86)
+#include <sys/malloc.h>
+#else
 #include <malloc.h>
+#endif
 #endif
 #include "books.h"
 
