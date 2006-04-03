@@ -493,7 +493,6 @@ int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, in
 			i++;
 		}
 
-
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 	
@@ -865,7 +864,9 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 // font handling
 int get_font_width(int cur_char)
 {
+	// ignore the colorization or unknown characters
 	if (cur_char < 0)	return 0;
+	// return width of character + spacing between chars (supports variable width fonts)
 	return (fonts[cur_font_num]->widths[cur_char] + fonts[cur_font_num]->spacing);
 }
 

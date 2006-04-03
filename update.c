@@ -318,8 +318,9 @@ void    handle_file_download(struct http_get_struct *get)
 		remove(download_cur_file);
 		sts= rename(download_temp_file, download_cur_file);
 
-		// TODO: make the restart more intelligent
+		// check for errors
 		if(!sts){
+			// TODO: make the restart more intelligent
 			if(allow_restart){
 				restart_required++;
 			}
@@ -423,7 +424,7 @@ int http_get_file_thread_handler(void *specs){
 			restart_required= 0;
 		}
 	}
-	
+
 	// signal we are done
 	event.type= SDL_USEREVENT;
 	event.user.code= spec->event;

@@ -148,7 +148,7 @@ typedef struct _bp_Table {
 /*! \name "caption" element node */
 typedef struct _bp_Caption {
 	bp_Node node;
-	bp_InlineAttributes _inline;
+	bp_InlineAttributes inlineAttr;
 	char * text;
 } bp_Caption;
 
@@ -180,7 +180,7 @@ typedef struct _bp_Inline {
 /*! \name "inline" element node */
 typedef struct _bp_Text {
 	bp_Node node;
-	bp_InlineAttributes _inline;
+	bp_InlineAttributes inlineAttr;
 	char * content;
 } bp_Text;
 

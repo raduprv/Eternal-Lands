@@ -1,29 +1,33 @@
-# Project: EL
-# Makefile created by Dev-C++ 4.9.9.1
+# Project: elc
+# Makefile created by Dev-C++ 4.9.9.2
 
-CPP  = g++.exe
-CC   = gcc.exe
+CPP  = g++.exe -D__DEBUG__
+CC   = gcc.exe -D__DEBUG__
 WINDRES = windres.exe
-RES  = 
-OBJ  = 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o bags.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o encyclopedia.o elmemory.o errors.o events.o framebuffer.o filter.o font.o frustum.o gamewin.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o loading_win.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o notepad.o openingwin.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o elconfig.o help.o sector.o rules.o timers.o $(RES)
-LINKOBJ  = 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o bags.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o encyclopedia.o elmemory.o errors.o events.o framebuffer.o filter.o font.o frustum.o gamewin.o gl_init.o hud.o ignore.o init.o interface.o items.o knowledge.o lights.o loading_win.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o notepad.o openingwin.o particles.o paste.o pathfinder.o reflection.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o trade.o weather.o 2d_objects.o questlog.o pm_log.o keys.o elwindows.o widgets.o translate.o elconfig.o help.o sector.o rules.o timers.o $(RES)
-LIBS =  -L"C:/Dev-Cpp/lib" -mwindows -lSDL -lopengl32  -lxml2 -lSDL_net -lALut -lOpenAL32 -lvorbisfile -liberty -liconv -lm  
-INCS =  -I"C:/Dev-Cpp/include" 
-CXXINCS =  -I"C:/Dev-Cpp/include/c++/3.3.1"  -I"C:/Dev-Cpp/include/c++/3.3.1/mingw32"  -I"C:/Dev-Cpp/include/c++/3.3.1/backward"  -I"C:/Dev-Cpp/lib/gcc-lib/mingw32/3.3.1/include"  -I"C:/Dev-Cpp/include" 
-BIN  = Debug/EL.exe
-CXXFLAGS = $(CXXINCS) -Wall -DELC  
-CFLAGS = $(INCS) -Wall -DELC  
+RES  = elc_private.res
+OBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o elconfig.o elwindows.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o help.o hud.o ignore.o init.o interface.o items.o keys.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o openingwin.o particles.o paste.o pathfinder.o pm_log.o questlog.o reflection.o rules.o sector.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o timers.o trade.o translate.o weather.o widgets.o alphamap.o bags.o highlight.o notepad.o storage.o cal3d_wrapper.o cal.o queue.o skills.o loading_win.o framebuffer.o bbox_tree.o minimap.o update.o list.o $(RES)
+LINKOBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o elconfig.o elwindows.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o help.o hud.o ignore.o init.o interface.o items.o keys.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o openingwin.o particles.o paste.o pathfinder.o pm_log.o questlog.o reflection.o rules.o sector.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o timers.o trade.o translate.o weather.o widgets.o alphamap.o bags.o highlight.o notepad.o storage.o cal3d_wrapper.o cal.o queue.o skills.o loading_win.o framebuffer.o bbox_tree.o minimap.o update.o list.o $(RES)
+LIBS =  -L"C:/Program Files/SDL-1.2.9/lib" -L"lib" -L"C:/Program Files/cal3d-0.10.0/src/cal3d" -L"C:/Program Files/SDL_net-1.2.5/VisualC" -mwindows "/Program Files/cal3d-0.10.0/src/cal3d/cal3d_wrapper.o" -lcal3d -lSDL_net -lopengl32 -lglu32 -lSDL -lALut -lOpenAL32 -lvorbisfile -lvorbis -logg -llibxml2 -liconv  -g3 -march=i686 -msse 
+INCS =  -I"C:/Program Files/SDL-1.2.9/include"  -I"include"  -I"."  -I"C:/Dev-Cpp/include/GL"  -I"C:/Dev-Cpp/include/al"  -I"C:/Dev-Cpp/include/SDL"  -I"C:/Program Files/SDL_net-1.2.5"  -I"C:/Program Files/cal3d-0.10.0/src" 
+CXXINCS =  -I"C:/Program Files/SDL-1.2.9/include"  -I"lib/gcc/mingw32/3.4.2/include"  -I"include/c++/3.4.2/backward"  -I"include/c++/3.4.2/mingw32"  -I"include/c++/3.4.2"  -I"include"  -I"."  -I"C:/Dev-Cpp/include/GL"  -I"C:/Dev-Cpp/include/al"  -I"C:/Dev-Cpp/include/SDL"  -I"C:/Program Files/SDL_net-1.2.5"  -I"C:/Program Files/cal3d-0.10.0/src" 
+BIN  = "../../../../../../Program Files/Eternal Lands 1.2.0/elc.exe"
+CXXFLAGS = $(CXXINCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DNETWORK_THREAD -DWIDGETS_FIX -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP   -fexpensive-optimizations -O3 -g3 -march=i686 -msse
+CFLAGS = $(INCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DELC -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DNETWORK_THREAD -DWIDGETS_FIX -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP   -fexpensive-optimizations -O3 -g3 -march=i686 -msse
+RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom
 
-all: all-before $(BIN) all-after
+all: all-before "../../../../../../Program Files/Eternal Lands 1.2.0/elc.exe" all-after
 
 
 clean: clean-custom
-	rm -f $(OBJ) $(BIN)
+	${RM} $(OBJ) $(BIN)
 
 $(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o $(BIN) $(LIBS)
+	$(CPP) $(LINKOBJ) -o "..\..\..\..\..\..\Program Files\Eternal Lands 1.2.0\elc.exe" $(LIBS)
+
+2d_objects.o: 2d_objects.c
+	$(CC) -c 2d_objects.c -o 2d_objects.o $(CFLAGS)
 
 3d_objects.o: 3d_objects.c
 	$(CC) -c 3d_objects.c -o 3d_objects.o $(CFLAGS)
@@ -37,9 +41,6 @@ actors.o: actors.c
 asc.o: asc.c
 	$(CC) -c asc.c -o asc.o $(CFLAGS)
 
-bags.o: bags.c
-	$(CC) -c bags.c -o bags.o $(CFLAGS)
-
 books.o: books.c
 	$(CC) -c books.c -o books.o $(CFLAGS)
 
@@ -49,11 +50,17 @@ buddy.o: buddy.c
 cache.o: cache.c
 	$(CC) -c cache.c -o cache.o $(CFLAGS)
 
+chat.o: chat.c
+	$(CC) -c chat.c -o chat.o $(CFLAGS)
+
 colors.o: colors.c
 	$(CC) -c colors.c -o colors.o $(CFLAGS)
 
 console.o: console.c
 	$(CC) -c console.c -o console.o $(CFLAGS)
+
+consolewin.o: consolewin.c
+	$(CC) -c consolewin.c -o consolewin.o $(CFLAGS)
 
 cursors.o: cursors.c
 	$(CC) -c cursors.c -o cursors.o $(CFLAGS)
@@ -64,11 +71,14 @@ dialogues.o: dialogues.c
 draw_scene.o: draw_scene.c
 	$(CC) -c draw_scene.c -o draw_scene.o $(CFLAGS)
 
+elconfig.o: elconfig.c
+	$(CC) -c elconfig.c -o elconfig.o $(CFLAGS)
+
+elwindows.o: elwindows.c
+	$(CC) -c elwindows.c -o elwindows.o $(CFLAGS)
+
 encyclopedia.o: encyclopedia.c
 	$(CC) -c encyclopedia.c -o encyclopedia.o $(CFLAGS)
-
-elmemory.o: elmemory.c
-	$(CC) -c elmemory.c -o elmemory.o $(CFLAGS)
 
 errors.o: errors.c
 	$(CC) -c errors.c -o errors.o $(CFLAGS)
@@ -85,8 +95,14 @@ font.o: font.c
 frustum.o: frustum.c
 	$(CC) -c frustum.c -o frustum.o $(CFLAGS)
 
+gamewin.o: gamewin.c
+	$(CC) -c gamewin.c -o gamewin.o $(CFLAGS)
+
 gl_init.o: gl_init.c
 	$(CC) -c gl_init.c -o gl_init.o $(CFLAGS)
+
+help.o: help.c
+	$(CC) -c help.c -o help.o $(CFLAGS)
 
 hud.o: hud.c
 	$(CC) -c hud.c -o hud.o $(CFLAGS)
@@ -103,14 +119,17 @@ interface.o: interface.c
 items.o: items.c
 	$(CC) -c items.c -o items.o $(CFLAGS)
 
+keys.o: keys.c
+	$(CC) -c keys.c -o keys.o $(CFLAGS)
+
 knowledge.o: knowledge.c
 	$(CC) -c knowledge.c -o knowledge.o $(CFLAGS)
 
 lights.o: lights.c
 	$(CC) -c lights.c -o lights.o $(CFLAGS)
 
-loading_win.o: loading_win.c
-	$(CC) -c loading_win.c -o loading_win.o $(CFLAGS)
+loginwin.o: loginwin.c
+	$(CC) -c loginwin.c -o loginwin.o $(CFLAGS)
 
 main.o: main.c
 	$(CC) -c main.c -o main.o $(CFLAGS)
@@ -120,6 +139,9 @@ manufacture.o: manufacture.c
 
 map_io.o: map_io.c
 	$(CC) -c map_io.c -o map_io.o $(CFLAGS)
+
+mapwin.o: mapwin.c
+	$(CC) -c mapwin.c -o mapwin.o $(CFLAGS)
 
 md2loader.o: md2loader.c
 	$(CC) -c md2loader.c -o md2loader.o $(CFLAGS)
@@ -139,6 +161,9 @@ new_actors.o: new_actors.c
 new_character.o: new_character.c
 	$(CC) -c new_character.c -o new_character.o $(CFLAGS)
 
+openingwin.o: openingwin.c
+	$(CC) -c openingwin.c -o openingwin.o $(CFLAGS)
+
 particles.o: particles.c
 	$(CC) -c particles.c -o particles.o $(CFLAGS)
 
@@ -148,8 +173,20 @@ paste.o: paste.c
 pathfinder.o: pathfinder.c
 	$(CC) -c pathfinder.c -o pathfinder.o $(CFLAGS)
 
+pm_log.o: pm_log.c
+	$(CC) -c pm_log.c -o pm_log.o $(CFLAGS)
+
+questlog.o: questlog.c
+	$(CC) -c questlog.c -o questlog.o $(CFLAGS)
+
 reflection.o: reflection.c
 	$(CC) -c reflection.c -o reflection.o $(CFLAGS)
+
+rules.o: rules.c
+	$(CC) -c rules.c -o rules.o $(CFLAGS)
+
+sector.o: sector.c
+	$(CC) -c sector.c -o sector.o $(CFLAGS)
 
 shadows.o: shadows.c
 	$(CC) -c shadows.c -o shadows.o $(CFLAGS)
@@ -163,6 +200,9 @@ spells.o: spells.c
 stats.o: stats.c
 	$(CC) -c stats.c -o stats.o $(CFLAGS)
 
+tabs.o: tabs.c
+	$(CC) -c tabs.c -o tabs.o $(CFLAGS)
+
 text.o: text.c
 	$(CC) -c text.c -o text.o $(CFLAGS)
 
@@ -172,50 +212,65 @@ textures.o: textures.c
 tile_map.o: tile_map.c
 	$(CC) -c tile_map.c -o tile_map.o $(CFLAGS)
 
+timers.o: timers.c
+	$(CC) -c timers.c -o timers.o $(CFLAGS)
+
 trade.o: trade.c
 	$(CC) -c trade.c -o trade.o $(CFLAGS)
-
-weather.o: weather.c
-	$(CC) -c weather.c -o weather.o $(CFLAGS)
-
-2d_objects.o: 2d_objects.c
-	$(CC) -c 2d_objects.c -o 2d_objects.o $(CFLAGS)
-
-questlog.o: questlog.c
-	$(CC) -c questlog.c -o questlog.o $(CFLAGS)
-
-pm_log.o: pm_log.c
-	$(CC) -c pm_log.c -o pm_log.o $(CFLAGS)
-
-keys.o: keys.c
-	$(CC) -c keys.c -o keys.o $(CFLAGS)
-
-elwindows.o: elwindows.c
-	$(CC) -c elwindows.c -o elwindows.o $(CFLAGS)
-
-widgets.o: widgets.c
-	$(CC) -c widgets.c -o widgets.o $(CFLAGS)
 
 translate.o: translate.c
 	$(CC) -c translate.c -o translate.o $(CFLAGS)
 
-elconfig.o: elconfig.c
-	$(CC) -c elconfig.c -o elconfig.o $(CFLAGS)
+weather.o: weather.c
+	$(CC) -c weather.c -o weather.o $(CFLAGS)
 
-help.o: help.c
-	$(CC) -c help.c -o help.o $(CFLAGS)
+widgets.o: widgets.c
+	$(CC) -c widgets.c -o widgets.o $(CFLAGS)
 
-sector.o: sector.c
-	$(CC) -c sector.c -o sector.o $(CFLAGS)
+alphamap.o: alphamap.c
+	$(CC) -c alphamap.c -o alphamap.o $(CFLAGS)
 
-rules.o: rules.c
-	$(CC) -c rules.c -o rules.o $(CFLAGS)
+bags.o: bags.c
+	$(CC) -c bags.c -o bags.o $(CFLAGS)
 
-timers.o: timers.c
-	$(CC) -c timers.c -o timers.o $(CFLAGS)
+highlight.o: highlight.c
+	$(CC) -c highlight.c -o highlight.o $(CFLAGS)
 
-# Lachesis: all header files are prerequisites, they're included via global.h
-$(OBJ): *.h
+notepad.o: notepad.c
+	$(CC) -c notepad.c -o notepad.o $(CFLAGS)
 
-# Lachesis: seems we need rules for headers and c files on Windows
-*.c *.h:;
+storage.o: storage.c
+	$(CC) -c storage.c -o storage.o $(CFLAGS)
+
+cal3d_wrapper.o: cal3d_wrapper.cpp
+	$(CPP) -c cal3d_wrapper.cpp -o cal3d_wrapper.o $(CXXFLAGS)
+
+cal.o: cal.c
+	$(CC) -c cal.c -o cal.o $(CFLAGS)
+
+queue.o: queue.c
+	$(CC) -c queue.c -o queue.o $(CFLAGS)
+
+skills.o: skills.c
+	$(CC) -c skills.c -o skills.o $(CFLAGS)
+
+loading_win.o: loading_win.c
+	$(CC) -c loading_win.c -o loading_win.o $(CFLAGS)
+
+framebuffer.o: framebuffer.c
+	$(CPP) -c framebuffer.c -o framebuffer.o $(CXXFLAGS)
+
+bbox_tree.o: bbox_tree.c
+	$(CC) -c bbox_tree.c -o bbox_tree.o $(CFLAGS)
+
+minimap.o: minimap.c
+	$(CC) -c minimap.c -o minimap.o $(CFLAGS)
+
+update.o: update.c
+	$(CC) -c update.c -o update.o $(CFLAGS)
+
+list.o: list.c
+	$(CC) -c list.c -o list.o $(CFLAGS)
+
+elc_private.res: elc_private.rc 
+	$(WINDRES) -i elc_private.rc --input-format=rc -o elc_private.res -O coff 

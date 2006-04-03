@@ -185,9 +185,9 @@ void bp_pushBlockInside(bp_Context * context) {
 
 void bp_pushInline(bp_Context * context) {
 	bp_InlineAttributes * result = malloc(sizeof(bp_InlineAttributes));
-	*result = *(context->_inline);
-	result->next = context->_inline;
-	context->_inline = result;
+	*result = *(context->inlineAttr);
+	result->next = context->inlineAttr;
+	context->inlineAttr = result;
 }
 
 void bp_popBlockOutside(bp_Context * context) {
@@ -209,8 +209,8 @@ void bp_popBlockInside(bp_Context * context) {
 }
 
 void bp_popInline(bp_Context * context) {
-	bp_InlineAttributes * const top = context->_inline;
-	context->_inline = top->next;
+	bp_InlineAttributes * const top = context->inlineAttr;
+	context->inlineAttr = top->next;
 	free(top);
 }
 
@@ -311,7 +311,7 @@ bp_Book * bp_parseBook(bp_Context * context, xmlNodePtr node) {
 	context->blockOutside = (void *) &bp_defaultBlockOutsideAttributes;
 	context->blockBorder  = (void *) &bp_defaultBlockBorderAttributes;
 	context->blockInside  = (void *) &bp_defaultBlockInsideAttributes;
-	context->_inline      = (void *) &bp_defaultInlineAttributes;
+	context->inlineAttr      = (void *) &bp_defaultInlineAttributes;
 
 	bp_pushBlockOutside(context);
 	bp_pushBlockBorder(context);
@@ -339,7 +339,7 @@ bp_Book * bp_parseBook(bp_Context * context, xmlNodePtr node) {
 		bp_parseBlockOutsideAttribute(context, context->blockOutside, attr);
 		bp_parseBlockBorderAttribute(context, context->blockBorder, attr);
 		bp_parseBlockInsideAttribute(context, context->blockInside, attr);
-		bp_parseInlineAttribute(context, context->_inline, attr);
+		bp_parseInlineAttribute(context, context->inlineAttr, attr);
 	}
 
 	for (child = node->children; child; child = child->next) {
@@ -386,7 +386,7 @@ bp_Page * bp_parsePage(bp_Context * context, xmlNodePtr node) {
 		bp_parseBlockOutsideAttribute(context, context->blockOutside, attr);
 		bp_parseBlockBorderAttribute(context, context->blockBorder, attr);
 		bp_parseBlockInsideAttribute(context, context->blockInside, attr);
-		bp_parseInlineAttribute(context, context->_inline, attr);
+		bp_parseInlineAttribute(context, context->inlineAttr, attr);
 	}
 
 	for (child = node->children; child; child = child->next) {
@@ -449,7 +449,7 @@ bp_Block * bp_parseBlock(bp_Context * context, xmlNodePtr node) {
 		bp_parseBlockOutsideAttribute(context, &result->blockOutside, attr);
 		bp_parseBlockBorderAttribute(context, &result->blockBorder, attr);
 		bp_parseBlockInsideAttribute(context, &result->blockInside, attr);
-		bp_parseInlineAttribute(context, context->_inline, attr);
+		bp_parseInlineAttribute(context, context->inlineAttr, attr);
 	}
 
 	bp_parseInlineContent(context, &result->node, node);
@@ -535,7 +535,7 @@ bp_Table * bp_parseTable(bp_Context * context, xmlNodePtr node) {
 		bp_parseBlockOutsideAttribute(context, &result->blockOutside, attr);
 		bp_parseBlockBorderAttribute(context, context->blockBorder, attr);
 		bp_parseBlockInsideAttribute(context, context->blockInside, attr);
-		bp_parseInlineAttribute(context, context->_inline, attr);
+		bp_parseInlineAttribute(context, context->inlineAttr, attr);
 	}
 
 	result->blockBorder = *(context->blockBorder); // shared with children
@@ -564,7 +564,7 @@ bp_Table * bp_parseTable(bp_Context * context, xmlNodePtr node) {
 				for (attr = child->properties; attr; attr = attr->next) {
 					bp_parseBlockBorderAttribute(context, context->blockBorder, attr);
 					bp_parseBlockInsideAttribute(context, context->blockInside, attr);
-					bp_parseInlineAttribute(context, context->_inline, attr);
+					bp_parseInlineAttribute(context, context->inlineAttr, attr);
 				}
 				
 				col = 0;
@@ -611,7 +611,7 @@ bp_Table * bp_parseTable(bp_Context * context, xmlNodePtr node) {
 				for (attr = child->properties; attr; attr = attr->next) {
 					bp_parseBlockBorderAttribute(context, context->blockBorder, attr);
 					bp_parseBlockInsideAttribute(context, context->blockInside, attr);
-					bp_parseInlineAttribute(context, context->_inline, attr);
+					bp_parseInlineAttribute(context, context->inlineAttr, attr);
 				}
 				
 				row = 0;
@@ -717,7 +717,7 @@ bp_Text * bp_parseText(bp_Context * context, xmlNodePtr node) {
 	int len;
 
 	bp_initNode(&result->node, BPE_TEXT);
-	result->_inline = *(context->_inline);
+	result->inlineAttr = *(context->inlineAttr);
 	len = strlen(node->content);
 	result->content = malloc(++len);
 	memcpy(result->content, node->content, len);
@@ -748,7 +748,7 @@ bp_Ref * bp_parseRef(bp_Context * context, xmlNodePtr node) {
 	}
 
 	for (attr = node->properties; attr; attr = attr->next) {
-		bp_parseInlineAttribute(context, context->_inline, attr);
+		bp_parseInlineAttribute(context, context->inlineAttr, attr);
 	}
 
 	bp_parseInlineContent(context, &result->node, node);
@@ -767,7 +767,7 @@ bp_Inline * bp_parseInline(bp_Context * context, xmlNodePtr node) {
 	bp_initNode(&result->node, BPE_INLINE);
 
 	for (attr = node->properties; attr; attr = attr->next) {
-		bp_parseInlineAttribute(context, context->_inline, attr);
+		bp_parseInlineAttribute(context, context->inlineAttr, attr);
 	}
 
 	bp_parseInlineContent(context, &result->node, node);
@@ -794,7 +794,7 @@ bp_Cell * bp_parseCell(bp_Context * context, xmlNodePtr node, int row, int col) 
 	for (attr = node->properties; attr; attr = attr->next) {
 		bp_parseBlockBorderAttribute(context, &result->blockBorder, attr);
 		bp_parseBlockInsideAttribute(context, &result->blockInside, attr);
-		bp_parseInlineAttribute(context, context->_inline, attr);
+		bp_parseInlineAttribute(context, context->inlineAttr, attr);
 		switch(ATTR(attr)) {
 			case BPA_ROWSPAN:
 				result->endRow = bp_parseInt(context, attr->children) + row - 1;
@@ -819,10 +819,10 @@ bp_Caption * bp_parseCaption(bp_Context * context, xmlNodePtr node) {
 	xmlNodePtr child;
 
 	bp_initNode(&result->node, BPE_CAPTION);
-	result->_inline = *(context->_inline);
+	result->inlineAttr = *(context->inlineAttr);
 
 	for (attr = node->properties; attr; attr = attr->next) {
-		bp_parseInlineAttribute(context, &result->_inline, attr);
+		bp_parseInlineAttribute(context, &result->inlineAttr, attr);
 	}
 
 	child = node->children;

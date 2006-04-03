@@ -222,13 +222,13 @@ void draw_lights()
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef EXTRA_DEBUG
 		if (!lights_list[l])
 		{
+#ifdef EXTRA_DEBUG
 			ERR();
+#endif
 			continue;
 		}
-#endif
 		vec4[0] = lights_list[l]->pos_x;
 		vec4[1] = lights_list[l]->pos_y;
 		vec4[2] = lights_list[l]->pos_z;

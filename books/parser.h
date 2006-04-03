@@ -16,7 +16,7 @@ typedef struct _bp_Context {
 	bp_BlockOutsideAttributes * blockOutside;
 	bp_BlockBorderAttributes * blockBorder;
 	bp_BlockInsideAttributes * blockInside;
-	bp_InlineAttributes * _inline;
+	bp_InlineAttributes * inlineAttr;
 	symbol_table * labels;
 } bp_Context;
 

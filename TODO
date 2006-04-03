@@ -1,27 +1,9 @@
-Cicero:
-S/W version check & upload -- ??
-	-check MD5 sum of a file -- testing
-	-http download of a file -- testing
 Server selection screen
 Exit game back to Server Selection screen
 
-
-Learner:
-OSX support - finally in progress again
-Investigate variable width fonts - preliminary testing
-Faster mouse icon switch without dropping FPS
-
-
-
-Others:
-Buddy list menu
-
-
 Unassigned:
-Chat Window
 Depth shadows
 Various spell effects.
-On card that support VBO, make the 3d objects and models VBO.
 Make use of other extensions
 Support for missiles 
 Finish synchronize ELC & map_editor code

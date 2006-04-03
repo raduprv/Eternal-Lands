@@ -1498,6 +1498,7 @@ void build_levels_table()
 	else exp+=exp*5/100;
 
         exp_lev[i]=exp;
+//LOG_ERROR("exp %d: %d", i, exp);
     }
 }
 

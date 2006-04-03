@@ -8,7 +8,7 @@
 
 list_node_t *list_push(list_node_t **head, void *data)
 {
-	list_node_t *new_node = malloc(sizeof(*new_node));
+	list_node_t *new_node = (list_node_t *)malloc(sizeof(*new_node));
 
 	new_node->next = (*head);
 	new_node->prev = NULL;
