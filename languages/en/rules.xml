@@ -27,8 +27,7 @@ Do not patronize, mislead, or take advantage of people as they become acquainted
 		<short>Do not cheat.</short>
 		<long>Cheating in the game means AFK fighting(AFK=Away From Keyboard), AFK leveling in any skill, AFK harvesting, illegal bots, creating illegal clients, macroing, automating, exploiting bugs, muling, or any other form of illegal multi-playing*.
 To use a bot, it must be registered and approved; it must adhere to the rules of the client's lisence and all your code must be open source. If you find a bug in the game, you must tell the owners of Eternal Lands immediately.
-*Illegal multi-playing includes but is not limited to: muling, deathbag sitting, pvp training, luring people to pk maps with a newbie 
-chararacter while lying in wait with another. Also note that it is very difficult to be able to define each and every form of illegal multi-playing or cheating, so these matters will be reviewed and punishments decided upon on a case by case basis.</long>
+*Illegal multi-playing includes but is not limited to: muling, deathbag sitting, pvp training, luring people to pk maps with a newbie chararacter while lying in wait with another. Also note that it is very difficult to be able to define each and every form of illegal multi-playing or cheating, so these matters will be reviewed and punishments decided upon on a case by case basis.</long>
 	</rule>
 	<rule>
 		<short>Use Appropriate Names.</short>
@@ -77,8 +76,8 @@ chararacter while lying in wait with another. Also note that it is very difficul
 		<long>Do not drop large numbers of bags for any purpose as this may lead to the bags of others to disappear and cause people to lose the items they have temporarily placed at their feet.</long>
 	</rule>
 	<rule>
-		<short>No Summoning Near Populated Areas.</short>
-		<long>Do not attempt to summon or bring your previously summoned creatures with you near populated areas (i.e. storages, Wraith, beam). In addition do not summon high level monsters (i.e. Fluffy) on Isla Prima.</long>
+		<short>No Summoning Near Populated/High Traffic Areas.</short>
+		<long>Do not attempt to summon or bring your previously summoned creatures with you near populated and high traffic areas(e.g. all storages, Wraith, beam, NPC's, ships, etc.). In addition on Isla Prima and its insides, do not summon anything higher than IP's natural inhabitants(e.g. rabbits and beavers). If your summoning is causing such problems as, but not limited to, lag or resource blocking for other players, in addition to the above restrictions, you may be asked by a mod to stop and move somewhere else to summon.</long>
 	</rule>
 	<rule>
 		<short>Do Not Block Resources.</short>
