@@ -312,7 +312,14 @@ void switch_vidmode(int *pointer, int mode)
 			win_bpp = 16;
 		break;
 	}
+#ifndef OSX
 	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, SDL_OPENGL|SDL_FULLSCREEN)) {
+#else
+	int flags;
+	flags = SDL_OPENGL;
+	if(full_screen) flags |= SDL_FULLSCREEN;
+	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, flags)) {
+#endif
 		LOG_TO_CONSOLE(c_red2, invalid_video_mode);
 	} else {
 		set_new_video_mode(full_screen, mode);
@@ -575,6 +582,10 @@ void change_aa(int *pointer) {
 #ifdef OSX 
 void change_projection_float_init(float * var, float * value) {
 	change_float(var, value);
+}
+
+void change_projection_bool_init(int *pointer) {
+        change_var(pointer);
 }
 #endif //OSX
 void change_projection_float(float * var, float * value) {
@@ -1164,11 +1175,12 @@ void init_vars()
  #endif
 	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 #endif
-	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 #ifndef OSX
+	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
 	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #else
+        add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use isometric view, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
 	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #endif

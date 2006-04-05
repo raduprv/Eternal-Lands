@@ -7,7 +7,7 @@
 #include "global.h"
 #endif
 #ifdef OSX86
-	#define OSX 0 //this is needed since i386 fixes some PPC issues here
+	#undef OSX 0 //this is needed since i386 fixes some PPC issues here
 #endif
 
 object3d *objects_list[MAX_OBJ_3D];

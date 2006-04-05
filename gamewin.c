@@ -1,9 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+#include "global.h"
 #ifdef OSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
-#include "global.h"
 #include "weather.h"
 #include "draw_scene.h"
 
