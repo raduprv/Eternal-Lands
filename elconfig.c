@@ -1164,6 +1164,7 @@ void init_vars()
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
 	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
+
 #endif
 #ifndef MAP_EDITOR2
  #ifdef ELC
@@ -1171,6 +1172,10 @@ void init_vars()
  #else
 	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
  #endif //ELC
+  #ifdef AUTO_UPDATE
+     /* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
+	add_var(BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
+  #endif
  	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
  	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your browser",MISC);
 #endif // MAP_EDITOR2

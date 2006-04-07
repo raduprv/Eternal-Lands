@@ -24,6 +24,9 @@
 int ini_file_size=0;
 
 int disconnected=1;
+#ifdef AUTO_UPDATE
+ int auto_update = 1;
+#endif
 int exit_now=0;
 int restart_required=0;
 int allow_restart=1;
@@ -711,7 +714,8 @@ void init_stuff()
 	init_channel_names();
 
 #ifdef  AUTO_UPDATE
-	init_update();
+     if(auto_update)
+	     init_update();
 #endif
 
 	have_rules=read_rules();
