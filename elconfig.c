@@ -234,7 +234,7 @@ void switch_vidmode(int *pointer, int mode)
 		win_height,
 		win_bpp;
 
-	if(mode>12 || mode<1)
+	if(mode>18 || mode<1)
 	{
 		//warn about this error
 		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
@@ -306,6 +306,36 @@ void switch_vidmode(int *pointer, int mode)
 			win_height=1200;
 			win_bpp=32;
 		break;
+		case 13:
+			win_width=1280;
+			win_height=800;
+			win_bpp=16;
+		break;
+		case 14:
+			win_width=1280;
+			win_height=800;
+			win_bpp=32;
+		break;
+		case 15:
+			win_width=1440;
+			win_height=900;
+			win_bpp=16;
+		break;
+		case 16:
+			win_width=1440;
+			win_height=900;
+			win_bpp=32;
+		break;
+		case 17:
+			win_width=1680;
+			win_height=1050;
+			win_bpp=16;
+		break;
+		case 18:
+			win_width=1680;
+			win_height=1050;
+			win_bpp=32;
+		break;
 		default:
 			win_width = 640;
 			win_height = 480;
@@ -345,10 +375,7 @@ void toggle_full_screen_mode(int * fs)
 		toggle_full_screen();
 	}
 	//TODO: Add wide screen resolutions
-	//1280x800
 	//1400x1050
-	//1440x900
-	//1680x1050
 }
 
 void change_shadow_map_size(int *pointer, int value)
@@ -761,6 +788,9 @@ void switch_vidmode(int mode)
 			case 6:
 				window_width=1600;
 				window_height=1200;
+			case 7:
+				window_width=1280;
+				window_height=800;
 			default:
 				return;
 		}
@@ -1199,7 +1229,7 @@ void init_vars()
 	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
 	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
 #ifdef ELC
-	add_var(MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", NULL);
+	add_var(MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", "1280x800x16", "1280x800x32", "1440x900x16", "1440x900x32", "1680x1050x16", "1680x1050x32", NULL);
 #else
 	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC

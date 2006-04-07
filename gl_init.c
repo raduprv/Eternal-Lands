@@ -170,6 +170,36 @@ void setup_video_mode(int fs, int mode)
 				window_height=1200;
 				bpp=32;
 				break;
+			case 13:
+				window_width=1280;
+				window_height=800;
+				bpp=16;
+				break;
+			case 14:
+				window_width=1280;
+				window_height=800;
+				bpp=32;
+				break;
+			case 15:
+				window_width=1440;
+				window_height=900;
+				bpp=16;
+				break;
+			case 16:
+				window_width=1440;
+				window_height=900;
+				bpp=32;
+				break;
+			case 17:
+				window_width=1680;
+				window_height=1050;
+				bpp=16;
+				break;
+			case 18:
+				window_width=1680;
+				window_height=1050;
+				bpp=32;
+				break;
 			}
 		}
 	else //windowed mode
@@ -241,12 +271,42 @@ void setup_video_mode(int fs, int mode)
 				window_width=1600;
 				window_height=1200;
 				break;
+			case 13:
+			case 14:
+				if(window_width != 1240 || window_height != 780)
+				{
+					Uint8 str[100];
+					snprintf(str,sizeof(str),window_size_adjusted_str,"1240x780");
+					LOG_TO_CONSOLE(c_yellow1,str);
+				}
+				window_width=1240;
+				window_height=780;
+				break;
+			case 15:
+			case 16:
+				if(window_width != 1420 || window_height != 810)
+				{
+					Uint8 str[100];
+					snprintf(str,sizeof(str),window_size_adjusted_str,"1420x810");
+					LOG_TO_CONSOLE(c_yellow1,str);
+				}
+				window_width=1420;
+				window_height=810;
+				break;
+			case 17:
+			case 18:
+				if(window_width != 1620 || window_height != 950)
+				{
+					Uint8 str[100];
+					snprintf(str,sizeof(str),window_size_adjusted_str,"1620x950");
+					LOG_TO_CONSOLE(c_yellow1,str);
+				}
+				window_width=1620;
+				window_height=950;
+				break;
 			}
 //TODO: Add wide screen resolutions
-//1280x800
 //1400x1050
-//1440x900
-//1680x1050
 			bpp=0;//autodetect
 		}
 #ifndef _WIN32

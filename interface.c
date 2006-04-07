@@ -282,6 +282,9 @@ void build_video_mode_array()
 		if(SDL_VideoModeOK(1152, 864, 16, flags))video_modes[6].supported=1;
 		if(SDL_VideoModeOK(1280, 1024, 16, flags))video_modes[8].supported=1;
 		if(SDL_VideoModeOK(1600, 1200, 16, flags))video_modes[10].supported=1;
+		if(SDL_VideoModeOK(1280, 800, 16, flags))video_modes[12].supported=1;
+		if(SDL_VideoModeOK(1440, 900, 16, flags))video_modes[14].supported=1;
+		if(SDL_VideoModeOK(1680, 1050, 16, flags))video_modes[16].supported=1;
 	}
 #ifdef _WIN32
 	if(bpp==32 || full_screen){
@@ -294,12 +297,12 @@ void build_video_mode_array()
 		if(SDL_VideoModeOK(1152, 864, 32, flags))video_modes[7].supported=1;
 		if(SDL_VideoModeOK(1280, 1024, 32, flags))video_modes[9].supported=1;
 		if(SDL_VideoModeOK(1600, 1200, 32, flags))video_modes[11].supported=1;
+		if(SDL_VideoModeOK(1280, 800, 32, flags))video_modes[13].supported=1;
+		if(SDL_VideoModeOK(1440, 900, 32, flags))video_modes[15].supported=1;
+		if(SDL_VideoModeOK(1680, 1050, 32, flags))video_modes[17].supported=1;
 	}
 //TODO: Add wide screen resolutions
-//1280x800
 //1400x1050
-//1440x900
-//1680x1050
 }
 
 void draw_console_pic(int which_texture)
