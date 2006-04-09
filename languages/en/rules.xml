@@ -52,7 +52,7 @@ To use a bot, it must be registered and approved; it must adhere to the rules of
 	</rule>
 	<rule>
 		<short>Stay On Topic In Named Channels.</short> 
-		<long>Conversations may stray a little from the general purpose of the channel, but should not do so to the extent that such conversations derail the purpose of the channel. Such limitations and extents are at the discretion of the moderator in the channel.</long>
+		<long>Channel chat needs to be about the subject the channel exists for. The conversations should not derail the purpose of the channel. Resulting consequences are at the discretion of the moderator(s) in the channel.</long>
 	</rule>
 	<rule>
 		<short>No Improper Advertising.</short>
