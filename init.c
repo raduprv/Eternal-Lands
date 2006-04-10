@@ -145,6 +145,7 @@ void load_knowledge_list()
 	FILE *f = NULL;
 	int i=0;
 	char strLine[255];
+	char *out;
 	char filename[200];
 	
 	memset(knowledge_list, 0, sizeof(knowledge_list));
@@ -157,8 +158,11 @@ void load_knowledge_list()
 	if(!f)return;
 	while(1)
 		{
-			if(!fgets(strLine, sizeof(strLine), f))break;
-			snprintf(knowledge_list[i].name, sizeof(knowledge_list[i].name), "%s", strLine);
+			if(!fgets(strLine, sizeof(strLine), f)) {
+				break;
+			}
+			out = knowledge_list[i].name;
+			my_xmlStrncopy(&out, strLine, sizeof(knowledge_list[i].name)-1);
 			i++;
 		}
 	fclose(f);
