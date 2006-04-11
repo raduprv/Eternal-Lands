@@ -5,12 +5,6 @@
 #include <time.h>
 #include "actors.h"
 
-// Element type and dictionaries for actor definitions
-typedef struct {
-	char *desc;
-	int index;
-} dict_elem;
-
 const dict_elem actor_type_dict[] =
 	{ { "human female"          , human_female           },
 	  { "human male"            , human_male             },
@@ -1131,69 +1125,6 @@ void move_self_forward()
 	move_to (tx, ty);
 }
 
-
-int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
-	int idx = 0;
-	char *key;
-
-	while ((key = dict[idx].desc) != NULL) {
-		if (strcasecmp (key, elem) == 0)
-			return dict[idx].index;
-		idx++;
-	}
-
-	LOG_ERROR("Unknown %s \"%s\"\n", desc, elem);
-	return -1;
-}
-
-void get_string_value (char *buf, size_t maxlen, xmlNode *node) {
-	if (node->children == NULL)
-		buf[0] = '\0';
-	else
-		my_strncp (buf, node->children->content, maxlen);
-}
-
-int get_bool_value (xmlNode *node) {
-	char *tval;
-	if (node->children == NULL) return 0;
-	tval = node->children->content;
-	return (xmlStrcasecmp (tval, "yes") == 0 || xmlStrcasecmp (tval, "true") == 0 || xmlStrcasecmp (tval, "1") == 0);
-}
-
-double get_float_value (xmlNode *node) {
-	if (node->children == NULL) return 0.0;
-	return atof (node->children->content);
-}
-
-#ifdef	NEW_ACTOR_ANIMATION
-int get_int_property (xmlNode *node, const char *prop)
-{
-	xmlAttr *attr;
-
-	for (attr = node->properties; attr; attr = attr->next)
-	{
-		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, prop) == 0)
-		{
-			return atoi (attr->children->content);
-		}
-	}
-
-	return -1;
-}
-
-#endif
-int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]) {
-	xmlAttr *attr;
-
-	for (attr = node->properties; attr; attr = attr->next) {
-		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, prop) == 0) {
-			return find_description_index (dict,  attr->children->content, desc);
-		}
-	}
-
-	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
-	return -1;
-}
 
 int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;

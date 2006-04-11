@@ -239,5 +239,17 @@ int sane_snprintf (char *buffer, size_t size, const char *format, ...);
 void get_file_digest(const Uint8*, Uint8[16]);
 void get_string_digest(const Uint8*, Uint8[16]);
 
+// Element type and dictionaries for actor definitions
+typedef struct {
+	char *desc;
+	int index;
+} dict_elem;
+
+int find_description_index (const dict_elem dict[], const char *elem, const char *desc);
+void get_string_value (char *buf, size_t maxlen, xmlNode *node);
+int get_bool_value (xmlNode *node);
+double get_float_value (xmlNode *node);
+int get_int_property (xmlNode *node, const char *prop);
+int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]);
 
 #endif

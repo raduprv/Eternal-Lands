@@ -443,3 +443,64 @@ int sane_snprintf (char *str, size_t size, const char *format, ...)
 	return ret;
 }
 #endif 
+
+int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
+	int idx = 0;
+	char *key;
+
+	while ((key = dict[idx].desc) != NULL) {
+		if (strcasecmp (key, elem) == 0)
+			return dict[idx].index;
+		idx++;
+	}
+
+	LOG_ERROR("Unknown %s \"%s\"\n", desc, elem);
+	return -1;
+}
+
+void get_string_value (char *buf, size_t maxlen, xmlNode *node) {
+	if (node->children == NULL)
+		buf[0] = '\0';
+	else
+		my_strncp (buf, node->children->content, maxlen);
+}
+
+int get_bool_value (xmlNode *node) {
+	Uint8 *tval;
+	if (node->children == NULL) return 0;
+	tval = node->children->content;
+	return (xmlStrcasecmp (tval, (Uint8 *)"yes") == 0 || xmlStrcasecmp (tval, (Uint8 *)"true") == 0 || xmlStrcasecmp (tval, (Uint8 *)"1") == 0);
+}
+
+double get_float_value (xmlNode *node) {
+	if (node->children == NULL) return 0.0;
+	return atof (node->children->content);
+}
+
+int get_int_property (xmlNode *node, const char *prop)
+{
+	xmlAttr *attr;
+
+	for (attr = node->properties; attr; attr = attr->next)
+	{
+		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0)
+		{
+			return atoi (attr->children->content);
+		}
+	}
+
+	return -1;
+}
+
+int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]) {
+	xmlAttr *attr;
+
+	for (attr = node->properties; attr; attr = attr->next) {
+		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0) {
+			return find_description_index (dict,  attr->children->content, desc);
+		}
+	}
+
+	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
+	return -1;
+}
