@@ -592,19 +592,21 @@ void add_buddy (const char *name, int type, int len)
 			}
 			break;
 		}
-		else if((strncasecmp (buddy_list[i].name, name, len) == 0)
-				&&(buddy_list[i].type != type)){
-			//colour change, not a new entry
-			if(buddy_log_notice == 1){
-				if(buddy_list[i].type == 0xFE){//logging on
-					snprintf (message, sizeof(message), buddy_logon_str, len, name);
-					LOG_TO_CONSOLE (c_green1, message);
-				}else if(type == 0xFE){//logging off
-					snprintf (message, sizeof(message), buddy_logoff_str, len, name);
-					LOG_TO_CONSOLE (c_green1, message);
-				}//else it's just a normal colour change
+		else if(strncasecmp(buddy_list[i].name, name, len) == 0){
+			//this name is already in our list
+			if(buddy_list[i].type != type){
+				//colour change, not a new entry
+				if(buddy_log_notice == 1){
+					if(buddy_list[i].type == 0xFE){//logging on
+						snprintf (message, sizeof(message), buddy_logon_str, len, name);
+						LOG_TO_CONSOLE (c_green1, message);
+					}else if(type == 0xFE){//logging off
+						snprintf (message, sizeof(message), buddy_logoff_str, len, name);
+						LOG_TO_CONSOLE (c_green1, message);
+					}//else it's just a normal colour change
+				}
+				buddy_list[i].type=type;
 			}
-			buddy_list[i].type=type;
 			break;
 		}
 	}
