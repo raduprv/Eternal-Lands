@@ -37,6 +37,7 @@ int rules_scroll_id = 0;
 
 /*Shared*/
 int reached_end=0;
+int read_all_rules=0;
 int have_rules=0;
 int rule_offset=0;
 rule_string * display_rules;
@@ -402,7 +403,7 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 	int x=0, y=y_in;
 	int nr;
 	
-	if(rules_ptr[rules_no+1].type==-1) reached_end=1;
+	if(rules_ptr[rules_no+1].type==-1) read_all_rules = reached_end = 1;
 	else reached_end=0;
 
 	nr = 1;
@@ -582,7 +583,7 @@ void draw_rules_interface (int len_x, int len_y)
 
 	glPushMatrix ();
 	glTranslatef (accept_x, accept_y, 0);
-	if (countdown > 0)
+	if ((countdown > 0)||(!read_all_rules))
 	{
 		glAlphaFunc (GL_GREATER, 0.04f);
 		
@@ -759,7 +760,7 @@ int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			}
 		}
-		else if (countdown <= 0 && mx > accept_x && mx < accept_x + accept_width && my > accept_y && my < accept_y + accept_height)
+		else if (countdown <= 0 && read_all_rules && mx > accept_x && mx < accept_x + accept_width && my > accept_y && my < accept_y + accept_height)
 		{
 			switch_rules_to_next ();
 			return 1;
