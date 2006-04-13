@@ -6,7 +6,7 @@
 #ifndef __KNOWLEDGE_H__
 #define __KNOWLEDGE_H__
 
-#define KNOWLEDGE_LIST_SIZE 200 /*!< maximum size of the \ref knowledge_list */
+#define KNOWLEDGE_LIST_SIZE 500 /*!< maximum size of the \ref knowledge_list */
 
 /*!
  * knowledge structure
