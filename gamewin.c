@@ -1354,6 +1354,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			break;
 		}
 	}
+	else if (key == K_WINDOWS_ON_TOP)
+	{
+		change_windows_on_top(&windows_on_top);
+	}
 	else
 	{
 		return 0; // nothing we can handle

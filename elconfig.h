@@ -140,4 +140,15 @@ int write_el_ini ();
  * \callgraph
  */
 void check_options();
+
+/*!
+ * \ingroup other
+ * \brief   Toggles the root window of some windows.
+ *
+ *      Toggles the root window of the buddy, manu, storage, bag, and inv windows to enable them to "float" above the console and map.
+ *
+ * \callgraph
+ */
+void change_windows_on_top(int *var);
+
 #endif

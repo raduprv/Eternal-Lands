@@ -79,6 +79,8 @@ int show_fps=1;
 int render_skeleton=0;
 int render_mesh=1;
 
+int windows_on_top=0;
+
 int you_sit=0;
 int sit_lock=0;
 
@@ -630,6 +632,36 @@ void change_gamma(float *pointer, float *value)
 	*pointer = *value;
 	if(video_mode_set) {
 		SDL_SetGamma(*value, *value, *value);
+	}
+}
+
+void change_windows_on_top(int *var)
+{
+	*var=!*var;
+	if (*var) {
+		// Change the root windows
+		move_window(storage_win, -1, 0, storage_win_x, storage_win_y);
+		move_window(manufacture_win, -1, 0, manufacture_menu_x, manufacture_menu_y);
+		move_window(items_win, -1, 0, items_menu_x, items_menu_y);
+		move_window(buddy_win, -1, 0, buddy_menu_x, buddy_menu_y);
+		move_window(ground_items_win, -1, 0, ground_items_menu_x, ground_items_menu_y);
+		// Display any open windows
+		show_window(storage_win);
+		show_window(manufacture_win);
+		show_window(items_win);
+		show_window(buddy_win);
+		show_window(ground_items_win);
+	} else {
+		// Change the root windows
+		move_window(storage_win, game_root_win, 0, storage_win_x, storage_win_y);
+		move_window(manufacture_win, game_root_win, 0, manufacture_menu_x, manufacture_menu_y);
+		move_window(items_win, game_root_win, 0, items_menu_x, items_menu_y);
+		move_window(buddy_win, game_root_win, 0, buddy_menu_x, buddy_menu_y);
+		move_window(ground_items_win, game_root_win, 0, ground_items_menu_x, ground_items_menu_y);
+		// Hide all the windows if needed
+		if (windows_list.window[game_root_win].displayed == 0) {
+			hide_window(game_root_win);
+		}
 	}
 }
 
@@ -1233,6 +1265,7 @@ void init_vars()
 	//Global vars...
 	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
 	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
+	add_var(BOOL, "windows_on_top", "wot", &windows_on_top, change_windows_on_top, 0, "Windows On Top","Allows the Manufacture, Storage and Inventory windows to appear above the map and console.", MISC);
 #ifdef ELC
 	add_var(MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", "1280x800x16", "1280x800x32", "1440x900x16", "1440x900x32", "1680x1050x16", "1680x1050x32", NULL);
 #else

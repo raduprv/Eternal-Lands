@@ -731,7 +731,11 @@ int show_items_handler(window_info * win)
 void display_items_menu()
 {
 	if(items_win < 0){
-		items_win= create_window(win_inventory, game_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
+		int our_root_win = -1;
+		if (!windows_on_top) {
+			our_root_win = game_root_win;
+		}
+		items_win= create_window(win_inventory, our_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_CLICK, &click_items_handler );
@@ -776,4 +780,3 @@ void get_items_cooldown (const Uint8 *data, int len)
 		item_list[pos].cooldown_time = cur_time + 1000 * (Uint32)cooldown;
 	}
 }
-

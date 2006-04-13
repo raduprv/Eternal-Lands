@@ -61,6 +61,7 @@ Uint32 K_SPELL4=ALT|'4';
 Uint32 K_SPELL5=ALT|'5';
 Uint32 K_SPELL6=ALT|'6';
 Uint32 K_TABCOMPLETE=CTRL|' ';
+Uint32 K_WINDOWS_ON_TOP=ALT|'w';
 
 unsigned int CRC32(unsigned char *data, int len);
 unsigned short get_key_code(char *key);
@@ -213,6 +214,8 @@ void read_key_config()
 		K_SPELL6 = parse_key_string(&file_mem[t]);
 	if((t = get_string_occurance("#K_TABCOMPLETE",file_mem,key_file_size,0)) != -1)
 		K_TABCOMPLETE = parse_key_string(&file_mem[t]);
+	if((t = get_string_occurance("#K_WINDOWS_ON_TOP",file_mem,key_file_size,0)) != -1)
+		K_WINDOWS_ON_TOP = parse_key_string(&file_mem[t]);
 }
 
 Uint32 parse_key_string(char *s)

@@ -537,8 +537,11 @@ void display_buddy()
 {
 	if(buddy_win < 0)
 		{
-			//buddy_win = AddXMLWindow("buddy.xml");
-			buddy_win = create_window(win_buddy, game_root_win, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
+			int our_root_win = -1;
+			if (!windows_on_top) {
+				our_root_win = game_root_win;
+			}
+			buddy_win = create_window(win_buddy, our_root_win, 0, buddy_menu_x, buddy_menu_y, buddy_menu_x_len, buddy_menu_y_len, ELW_WIN_DEFAULT);
 
 			set_window_handler(buddy_win, ELW_HANDLER_DISPLAY, &display_buddy_handler );
 			set_window_handler(buddy_win, ELW_HANDLER_CLICK, &click_buddy_handler );

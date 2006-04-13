@@ -214,6 +214,7 @@ typedef	struct	{
 } windows_info;
 
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
+extern int windows_on_top; /*!< global variable for whether windows appear on top of the console */
 
 // windows manager function
 
