@@ -684,6 +684,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	ERR();
 #endif //EXTRA_DEBUG
 	//The actors list is already locked here
+	
+	actors_list[i]->async_fighting = 0;
+	actors_list[i]->async_x_tile_pos = x_pos;
+	actors_list[i]->async_y_tile_pos = y_pos;
+	actors_list[i]->async_z_rot = z_rot;
+
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->actor_type=actor_type;

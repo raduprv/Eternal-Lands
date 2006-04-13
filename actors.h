@@ -421,6 +421,10 @@ typedef struct
 	double z_speed;		/*!< Unused?*/
 	/*! \} */
 
+	int async_fighting;
+	int async_x_tile_pos;
+	int async_y_tile_pos;
+	int async_z_rot;
 }actor;
 
 

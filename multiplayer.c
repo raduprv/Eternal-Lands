@@ -414,6 +414,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				show_window (game_root_win);
 
 				load_quickspells();
+				load_kills();
 				
 				previously_logged_in=1;
 			}

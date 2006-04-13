@@ -984,6 +984,69 @@ void add_command_to_actor(int actor_id, char command)
 			}
 		}
 
+		switch (command) {
+		case enter_combat:
+			act->async_fighting = 1;
+			break;
+		case leave_combat:
+			act->async_fighting = 0;
+			break;
+		case move_n:
+		case run_n:
+			act->async_y_tile_pos++;
+			act->async_z_rot = 0;
+			break;
+		case move_ne:
+		case run_ne:
+			act->async_x_tile_pos++;
+			act->async_y_tile_pos++;
+			act->async_z_rot = 45;
+			break;
+		case move_e:
+		case run_e:
+			act->async_x_tile_pos++;
+			act->async_z_rot = 90;
+			break;
+		case move_se:
+		case run_se:
+			act->async_x_tile_pos++;
+			act->async_y_tile_pos--;
+			act->async_z_rot = 135;
+			break;
+		case move_s:
+		case run_s:
+			act->async_y_tile_pos--;
+			act->async_z_rot = 180;
+			break;
+		case move_sw:
+		case run_sw:
+			act->async_x_tile_pos--;
+			act->async_y_tile_pos--;
+			act->async_z_rot = 225;
+			break;
+		case move_w:
+		case run_w:
+			act->async_x_tile_pos--;
+			act->async_z_rot = 270;
+			break;
+		case move_nw:
+		case run_nw:
+			act->async_x_tile_pos--;
+			act->async_y_tile_pos++;
+			act->async_z_rot = 315;
+			break;
+		case turn_n:
+		case turn_ne:
+		case turn_e:
+		case turn_se:
+		case turn_s:
+		case turn_sw:
+		case turn_w:
+		case turn_nw:
+			 act->async_z_rot = (command-turn_n)*45;
+			 break;
+		}
+
 		UNLOCK_ACTORS_LISTS();
 
 		if (k>MAX_CMD_QUEUE-2){
@@ -1012,6 +1075,10 @@ void get_actor_damage(int actor_id, int damage)
 		act->damage=damage;
 		act->damage_ms=2000;
 		act->cur_health-=damage;
+
+		if (act->cur_health <= 0) {
+			on_actor_killed(act);
+		}
 	}
 }
 
