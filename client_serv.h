@@ -785,4 +785,12 @@
 #define CHAT_MODPM	8
 /*! @} */
 
+/*!
+ * \name Actor scaling constants
+ */
+/*! @{ */
+#define ACTOR_SCALE_BASE	0x4000
+#define ACTOR_SCALE_MAX		0x7FFF
+/*! @} */
+
 #endif

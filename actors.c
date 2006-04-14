@@ -772,7 +772,7 @@ void add_actor_from_server (const char *in_data, int len)
 	cur_health=SDL_SwapLE16(*((short *)(in_data+20)));
 	kind_of_actor=*(in_data+22);
 	if(len > 23+strlen(in_data+23)+2){
-		scale=((float)SDL_SwapLE16(*((short *)(in_data+23+strlen(in_data+23)+1)))/((float)0x4000));
+		scale=((float)SDL_SwapLE16(*((short *)(in_data+23+strlen(in_data+23)+1)))/((float)ACTOR_SCALE_BASE));
 	}
 
 	//translate from tile to world

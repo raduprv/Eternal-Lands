@@ -446,11 +446,11 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #if defined CUSTOM_LOOK && defined UID
 	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
 	if(len > 32+strlen(in_data+32)+2){
-		scale=((float)SDL_SwapLE16(*((short *)(in_data+32+strlen(in_data+32)+1)))/((float)0x4000));
+		scale=((float)SDL_SwapLE16(*((short *)(in_data+32+strlen(in_data+32)+1)))/((float)ACTOR_SCALE_BASE));
 	}
 #else
 	if(len > 28+strlen(in_data+28)+2){
-		scale=((float)SDL_SwapLE16(*((short *)(in_data+28+strlen(in_data+28)+1)))/((float)0x4000));
+		scale=((float)SDL_SwapLE16(*((short *)(in_data+28+strlen(in_data+28)+1)))/((float)ACTOR_SCALE_BASE));
 	}
 #endif
 
