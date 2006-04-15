@@ -74,10 +74,8 @@ void load_kills()
 	int i, j;
 	Uint8 l, p;
 	Uint32 n;
-	
-	if (kills) {
-		kills = realloc(kills, 0);
-	}
+
+	cleanup_kills();	//as long as all it does is reset the list, cleanup is safe here
 	
 	strncpy(username, username_str, sizeof(username));
 	for (i = 0; username[i]; i++) {
@@ -120,6 +118,18 @@ void load_kills()
 	kills[kills_n].name = 0;
 
 	sort_kills();
+}
+
+
+void cleanup_kills(){
+	int i;
+	if(kills){
+		for (i = 0; kills[i].name; i++) {
+			free(kills[i].name);
+		}
+		free(kills);
+		kills = NULL;
+	}
 }
 
 /*

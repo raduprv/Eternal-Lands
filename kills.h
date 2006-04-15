@@ -4,6 +4,7 @@
 extern int kills_win;
 
 void load_kills();
+void cleanup_kills();
 void on_actor_killed(actor *a);
 int command_kills(char *text, int len);
 void fill_kills_win();
