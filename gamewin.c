@@ -826,7 +826,7 @@ int check_quit_or_fullscreen (Uint32 key)
 {
 	int alt_on = key & ELW_ALT;
 	Uint16 keysym = key & 0xffff;
-#ifndef _WIN32
+#ifndef WINDOWS
 	int ctrl_on = key & ELW_CTRL;
 
 	// first, try to see if we pressed Alt+x or Ctrl+q, to quit.
@@ -913,7 +913,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if ( (keysym == SDLK_v && ctrl_on) || (keysym == SDLK_INSERT && shift_on) )
 	{
-#ifndef _WIN32
+#ifndef WINDOWS
 		startpaste ();
 #else
 		windows_paste ();
@@ -1251,7 +1251,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #else
 			// browser name can override the windows default, and if not defined in Linux, don't error
 			if(*browser_name){
-#ifndef _WIN32
+#ifndef WINDOWS
 				char browser_command[400];
 				snprintf (browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, current_url);
 				system (browser_command);
@@ -1261,7 +1261,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 				go_to_url_thread = SDL_CreateThread (go_to_url, 0);
 			} else {
 				ShellExecute(NULL, "open", current_url, NULL, NULL, SW_SHOWNORMAL); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
-#endif  //_WIN32
+#endif  //WINDOWS
 			}
 #endif // OSX
 		}

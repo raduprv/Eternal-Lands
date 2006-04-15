@@ -19,7 +19,7 @@
 // Defines for Win32 and MingW32                                              //
 //****************************************************************************//
 
-#ifdef _WIN32
+#ifdef WINDOWS
 
 #ifdef __MINGW32__
 

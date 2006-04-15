@@ -309,7 +309,7 @@ void setup_video_mode(int fs, int mode)
 //1400x1050
 			bpp=0;//autodetect
 		}
-#ifndef _WIN32
+#ifndef WINDOWS
 	bpp=0;//under X, we can't change the desktop BPP
 #endif
 }
@@ -444,7 +444,7 @@ void init_video()
 			have_stencil=0;
 
     	}
-#ifdef _WIN32
+#ifdef WINDOWS
 	//try to see if we get hardware acceleration, or the windows generic shit
 	{
 		int len;

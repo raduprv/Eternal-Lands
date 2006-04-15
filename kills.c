@@ -162,7 +162,7 @@ void log_kill(char *actor_name, int is_player)
 	snprintf(filename, sizeof(filename), "%s/kills_%s.dat", configdir, username);
 
 	if (!(f = my_fopen(filename, "r+b")) && !(f = my_fopen(filename, "w+b"))) {
-#ifdef _WIN32
+#ifdef WINDOWS
 		snprintf(filename, sizeof(filename), "kills_%s.dat", username);
 		if (!(f = my_fopen(filename, "r+b")) && !(f = my_fopen(filename, "w+b"))) {
 			return;

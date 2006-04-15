@@ -633,7 +633,7 @@ void load_quickspells ()
 	char data[MAX_DATA_FILE_SIZE];
 	FILE *fp;
 	Uint8 i;
-#ifndef _WIN32
+#ifndef WINDOWS
 	char username[20];
 #endif
 
@@ -643,7 +643,7 @@ void load_quickspells ()
 	// succeeds)
 	quickspells_loaded = 1;
 	
-#ifndef _WIN32
+#ifndef WINDOWS
 	snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
@@ -677,14 +677,14 @@ void save_quickspells()
 	Uint8 i;
 	char data[MAX_DATA_FILE_SIZE];
 	//extern char username_str[16];
-#ifndef _WIN32
+#ifndef WINDOWS
 	char username[20];
 #endif
 	
 	if (!quickspells_loaded)
 		return;
 	
-#ifndef _WIN32	
+#ifndef WINDOWS	
 	snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);

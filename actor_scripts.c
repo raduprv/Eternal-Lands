@@ -2095,7 +2095,7 @@ void init_actor_defs () {
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
 
-#ifndef _WIN32
+#ifndef WINDOWS
 	snprintf (defdir, sizeof (defdir), "%s/%s", datadir, dirname);
 #else
 	my_strcp (defdir, dirname);

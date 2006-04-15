@@ -171,7 +171,7 @@ void load_knowledge_list()
 
 void read_config()
 {
-#ifndef _WIN32
+#ifndef WINDOWS
 	DIR *d = NULL;
 	struct stat statbuff;
 	mode_t modes;
@@ -203,7 +203,7 @@ void read_config()
 		exit (1);
 	}
 
-#ifndef _WIN32
+#ifndef WINDOWS
 	chdir(datadir);
 #endif
 	

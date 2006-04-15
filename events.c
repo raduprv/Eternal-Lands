@@ -5,7 +5,7 @@
 #include	"keys.h"
 #include    "update.h"
 
-#ifndef _WIN32
+#ifndef WINDOWS
 #include <SDL_syswm.h>
 #endif
 
@@ -69,7 +69,7 @@ int HandleEvent (SDL_Event *event)
 	switch( event->type )
 	{
 
-#if !defined(_WIN32) && !defined(OSX)
+#if !defined(WINDOWS) && !defined(OSX)
 		case SDL_SYSWMEVENT:
 		
 			if(event->syswm.msg->event.xevent.type == SelectionNotify)

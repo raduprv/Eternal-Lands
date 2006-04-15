@@ -1049,7 +1049,7 @@ void init_channel_names ()
 
 	// Load the file, depending on WINDOWS = def|undef
 	// Then parse it. If that fails, fallback onto the english one. If that fails, use builtins.
-#ifdef _WIN32
+#ifdef WINDOWS
 	snprintf (file, sizeof (file), "%slanguages/%s/strings/channels.xml", configdir, lang);
 #else
 	// try the data directory then
@@ -1057,7 +1057,7 @@ void init_channel_names ()
 #endif
 	doc = xmlParseFile (file);
 	if (doc == NULL ) {
-#ifdef _WIN32
+#ifdef WINDOWS
 		snprintf (file, sizeof (file), "%slanguages/en/strings/channels.xml", configdir);
 #else
 		snprintf (file, sizeof (file), "%s/languages/en/strings/channels.xml", datadir);

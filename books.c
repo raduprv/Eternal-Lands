@@ -442,18 +442,18 @@ book * read_book(char * file, int type, int id)
 	book *b=NULL;
 	char path[1024];
 
-#ifndef _WIN32
+#ifndef WINDOWS
 	snprintf(path, sizeof(path), "%s/languages/%s/%s", datadir, lang, file);
 #else
 	snprintf(path, sizeof(path), "languages/%s/%s", lang, file);
-#endif // !_WIN32
+#endif // !WINDOWS
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
-#ifndef _WIN32
+#ifndef WINDOWS
 		snprintf(path, sizeof(path), "%s/%s", datadir, file);
 #else
 		snprintf(path, sizeof(path), "%s", file);
-#endif // !_WIN32
+#endif // !WINDOWS
 		if((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 			char str[200];
 

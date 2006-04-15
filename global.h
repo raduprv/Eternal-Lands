@@ -11,12 +11,12 @@
  #define M_PI 3.14159265358979323846
 #endif //M_PI
 
-// we do NOT want to have all our code checking for _WIN32, or _WIN64 will be broken, check for WINDOWS
+//only ever use WINDOWS anywhere else, in case we need to add another 'catch' to enable WINDOWS
 #if defined(_WIN32) || defined(_WIN64)
-#ifndef	WINDOWS
-	#define	WINDOWS 1
-#endif	//WINDOWS
-#endif	//_WIN32
+	#ifndef	WINDOWS
+		#define	WINDOWS
+	#endif	//!WINDOWS
+#endif	//_WIN32 || _WIN64
 #ifdef OSX86	//Most i386 = PPC, but not all
 	#define OSX
 #endif
@@ -49,7 +49,7 @@
 #else
 	#include <AL/al.h>
 	#include <AL/alut.h>
-#endif //_WIN32
+#endif //WINDOWS
 
 #ifdef EL_BIG_ENDIAN
 	#define SwapLEFloat(X) SwapFloat(X)

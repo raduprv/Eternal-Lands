@@ -550,7 +550,7 @@ void load_map_marks()
 		//Oops
 		return;
 	}
-#ifndef _WIN32
+#ifndef WINDOWS
 	snprintf (marks_file, sizeof (marks_file), "%s%s.txt", configdir, mapname + 1);
 #else
 	snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);

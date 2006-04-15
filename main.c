@@ -2,22 +2,23 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "global.h"
 #ifdef NETWORK_THREAD
  #include "queue.h"
 #endif //NETWORK_THREAD
 
 #ifdef	__GNUC__
  #include <unistd.h>
-#ifdef  _WIN32
+#ifdef  WINDOWS
  #include   <process.h>
 #endif
 #endif
 
-#if defined(_WIN32) || defined(_WIN64)
+#ifdef WINDOWS
  #include <windows.h>
  #undef WRITE_XML
  char   *win_command_line;
-#endif
+#endif //WINDOWS
 
 #include "global.h"
 #include "init.h"

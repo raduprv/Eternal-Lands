@@ -77,7 +77,7 @@ void read_key_config()
 	struct stat key_file;
 	int key_file_size,t;
 
-#ifndef _WIN32
+#ifndef WINDOWS
 	char key_ini[256];
 	snprintf (key_ini, sizeof (key_ini), "%s/key.ini", configdir);
 	// don't use my_fopen, not everyone keeps local settings
