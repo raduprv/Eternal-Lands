@@ -265,24 +265,21 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 		}
 		if (msgs[imsg].data == NULL) return;
-		if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && msgs[imsg].len > 0 && msgs[imsg].data[0] && !msgs[imsg].deleted)
-		{
-			// when using the window, the input buffer does nasty things.
-			// if not using tabs or window, this isn't used at all(but if
-			// you're on several channels you're asking for problems anyway)
-			//
-			// Lachesis: Should work in any case. If not so, let's find the bug ;)
-			if (active_channels[current_channel] != msgs[imsg].channel)
-			{
-				msgs[imsg].data[0] = (Uint8)(127+c_grey2);
-			}
-			else
-			{
-				msgs[imsg].data[0] = (Uint8)(127+c_grey1);
+	}
+
+	//now go through all the channel messages we might see, and colour them according to if they're on the active channel
+	i=imsg-1;
+	while(msgs[++i].data){
+		if (msgs[i].chan_idx >= CHAT_CHANNEL1 && msgs[i].chan_idx <= CHAT_CHANNEL3 && msgs[i].len > 0 && msgs[i].data[0] && !msgs[i].deleted){
+			if (active_channels[current_channel] != msgs[i].channel){
+				msgs[i].data[0] = (Uint8)(127+c_grey2);
+			} else {
+				msgs[i].data[0] = (Uint8)(127+c_grey1);
 			}
 		}
 	}
-#endif
+#endif //! MAP_EDITOR2
+
 
 	if (ichar > 0) {
 		ch = msgs[imsg].data[ichar];
@@ -374,24 +371,6 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 #endif
 			if (msgs[imsg].data == NULL || imsg == msg_start) break;
-#ifndef MAP_EDITOR2
-			if (msgs[imsg].chan_idx >= CHAT_CHANNEL1 && msgs[imsg].chan_idx <= CHAT_CHANNEL3 && msgs[imsg].len > 0 && msgs[imsg].data[0] && !msgs[imsg].deleted)
-			{
-				// when using the window, the input buffer does nasty things.
-				// if not using tabs or window, this isn't used at all(but if
-				// you're on several channels you're asking for problems anyway)
-				//
-				// Lachesis: Should work in any case. If not so, let's find the bug ;)
-				if (active_channels[current_channel] != msgs[imsg].channel)
-				{
-					msgs[imsg].data[0] = (Uint8)(127+c_grey2);
-				}
-				else
-				{
-					msgs[imsg].data[0] = (Uint8)(127+c_grey1);
-				}
-			}
-#endif
 			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 			ichar = 0;
 		}
