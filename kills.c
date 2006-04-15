@@ -76,7 +76,7 @@ void load_kills()
 	Uint32 n;
 	
 	if (kills) {
-		free(kills);
+		kills = realloc(kills, 0);
 	}
 	
 	strncpy(username, username_str, sizeof(username));
@@ -87,7 +87,7 @@ void load_kills()
 	snprintf(filename, sizeof(filename), "%s/kills_%s.dat", configdir, username);
 
 	if (!(f = my_fopen(filename, "r+b")) && !(f = my_fopen(filename, "w+b"))) {
-#ifdef _WIN32
+#ifdef WINDOWS
 		snprintf(filename, sizeof(filename), "kills_%s.dat", username);
 		if (!(f = my_fopen(filename, "r+b")) && !(f = my_fopen(filename, "w+b"))) {
 			return;
