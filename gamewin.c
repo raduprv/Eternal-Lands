@@ -410,7 +410,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send (my_socket, str, 5);
 
 				// clear the previous dialogue entries, so we won't have a left over from some other NPC
-				for (i=0; i<20; i++)
+				for (i=0; i<MAX_RESPONSES; i++)
 					dialogue_responces[i].in_use = 0;
 				return 1;
 			}
@@ -1606,10 +1606,10 @@ void create_game_root_window (int width, int height)
 	{
 		game_root_win = create_window ("Game", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 		
-        	set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
-        	set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
-        	set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
-        	set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_DISPLAY, &display_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_CLICK, &click_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_game_handler);
+		set_window_handler (game_root_win, ELW_HANDLER_KEYPRESS, &keypress_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_SHOW, &show_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
