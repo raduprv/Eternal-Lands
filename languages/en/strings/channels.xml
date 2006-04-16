@@ -32,8 +32,8 @@
 	<channel number="255" name="Spanish">Chat in Spanish</channel>
 	<channel number="381" name="Ex-Yugoslavian">Chat in the Ex-Yugoslavian languages</channel>
 	<!--<channel number="421" name="Storylines">Chat with the storylines devs</channel>-->
-	<!--I'd like to have storylines, but I doubt that there will be people there to answer questions-->
-	<channel number="500" name="Portugese">Chat in Portugese</channel>
+	<!--(from ttlanhil) it was marked, but so far there aren't enough people to justify listing it-->
+	<channel number="500" name="Portuguese">Chat in Portuguese</channel>
 	<channel number="888" name="French">Chat in French</channel>
 	<channel number="999" name="Romanian">Chat in Romanian</channel>
 	<channel number="1500" name="Dutch">Chat in Dutch</channel>
