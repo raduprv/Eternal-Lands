@@ -138,20 +138,23 @@ void cleanup_kills(){
 char *strip_actor_name(char *actor_name)
 {
 	static char buf[16];
-	int i, j;
+	int i;
 
-	for (i = 0, j = 0; actor_name[i]; i++) {
-		if ((unsigned char)actor_name[i] == 0x8F) {
-			j--;
+	/* strip a leading color code */
+	if ((unsigned char)actor_name[0] >= 127) {
+		actor_name++;
+	}
+	
+	/* copy the name minus the guild tag */
+	for (i = 0; actor_name[i]; i++) {
+		if ((unsigned char)actor_name[i] >= 127) {
+			i--;
 			break;
 		}
-		if ((unsigned char)actor_name[i] >= 127) {
-			continue;
-		}
-		buf[j++] = actor_name[i];
+		buf[i] = actor_name[i];
 	}
 
-	buf[j] = '\0';
+	buf[i] = '\0';
 
 	return buf;
 }
