@@ -40,11 +40,11 @@ int set_font_parameters (int num);
 // converts a character into which entry in font.bmp to use, negative on error or no output
 int find_font_char(unsigned char cur_char)
 {
-	if(cur_char >= 127 && cur_char<=127+c_grey4)
+	if(cur_char >= 127+c_lbound && cur_char<=127+c_ubound)
 		{
 			float r,g,b;
 			//must be a color
-			cur_char-=127;
+			cur_char -= 127+c_lbound;
 			r=(float)colors_list[cur_char].r1/255.0f;
 			g=(float)colors_list[cur_char].g1/255.0f;
 			b=(float)colors_list[cur_char].b1/255.0f;
@@ -64,12 +64,12 @@ int get_font_char(unsigned char cur_char)
 		}
 	else if(cur_char>=127)
 		{
-			if(cur_char<=127+c_grey4)
+			if(cur_char<=127+c_ubound)
 				{
 					//color, won't show
 					return -1;
 				}
-			else if(cur_char>127+c_grey4)
+			else if(cur_char>127+c_ubound)
 				{
 					switch(cur_char) {
 					case 193:
@@ -204,12 +204,12 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
-void recolour_message(text_message msg){
-	if (msg.chan_idx >= CHAT_CHANNEL1 && msg.chan_idx <= CHAT_CHANNEL3 && msg.len > 0 && msg.data[0] && !msg.deleted){
-		if (active_channels[current_channel] != msg.channel){
-			msg.data[0] = (Uint8)(127+c_grey2);
+void recolour_message(text_message *msg){
+	if (msg->chan_idx >= CHAT_CHANNEL1 && msg->chan_idx <= CHAT_CHANNEL3 && msg->len > 0 && msg->data[0] && !msg->deleted){
+		if (active_channels[current_channel] != msg->channel){
+			msg->data[0] = (Uint8)(127+c_grey2);
 		} else {
-			msg.data[0] = (Uint8)(127+c_grey1);
+			msg->data[0] = (Uint8)(127+c_grey1);
 		}
 	}
 }
@@ -217,7 +217,7 @@ void recolour_message(text_message msg){
 void recolour_messages(text_message *msgs){
 	int i;
 	for(i=0;i<DISPLAY_TEXT_BUFFER_SIZE && msgs[i].data;++i){
-		recolour_message(msgs[i]);
+		recolour_message(&msgs[i]);
 	}
 }
 
@@ -232,7 +232,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	int cur_x, cur_y;
 	int cursor_x = x-1, cursor_y = y-1;
 	unsigned char ch;
-	
+
 	imsg = msg_start;
 	ichar = offset_start;
 	if (msgs[imsg].data == NULL) return;
@@ -296,7 +296,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				if (IS_COLOR (ch))
 				{
 					float r, g, b;
-					ch -= 127;
+					ch -= 127+c_lbound;
 					r = colors_list[ch].r1 / 255.0f;
 					g = colors_list[ch].g1 / 255.0f;
 					b = colors_list[ch].b1 / 255.0f;
@@ -334,7 +334,9 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		if (cur_char == '\0') 
 		{
 			// end of message
-			if (++imsg >= msgs_size) imsg = 0;
+			if (++imsg >= msgs_size) {
+				imsg = 0;
+			}
 #ifndef MAP_EDITOR2
 			if (filter != FILTER_ALL)
 			{
@@ -570,7 +572,7 @@ void print_string_escaped (const char *str)
 			printf ("\\r");
 		else if (str[i] == '\n')
 			printf ("\\n\n");
-		else if ((unsigned char)str[i] < 127+c_red1 || (unsigned char)str[i] > 127+c_grey4)
+		else if ((unsigned char)str[i] < 127+c_red1 || (unsigned char)str[i] > 127+c_ubound)
 			printf ("%c", str[i]);
 	
 	printf ("\nlen = %d\n", i);
@@ -789,7 +791,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					if(current_lines>=max_lines)break;
 					continue;
 				}
-			else if(cur_char >127 && cur_char<=127+c_grey4)
+			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
 				{
 					glEnd();	//Ooops - NV bug fix!!
 				}
@@ -828,7 +830,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					//cur_x+=displayed_font_x_size;
 					cur_x+=displayed_font_x_width;
 				}
-			else if(cur_char >127 && cur_char<=127+c_grey4)
+			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
 				{
 					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
@@ -848,7 +850,9 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 int get_font_width(int cur_char)
 {
 	// ignore the colorization or unknown characters
-	if (cur_char < 0)	return 0;
+	if (cur_char < 0) {
+		return 0;
+	}
 	// return width of character + spacing between chars (supports variable width fonts)
 	return (fonts[cur_font_num]->widths[cur_char] + fonts[cur_font_num]->spacing);
 }

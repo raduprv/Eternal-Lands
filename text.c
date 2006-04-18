@@ -562,7 +562,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	msg->wrap_width = 0;
 
 	msg->deleted = 0;
-	recolour_message(*msg);
+	recolour_message(msg);
 	update_text_windows(msg);
 	
 	// log the message
