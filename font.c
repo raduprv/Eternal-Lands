@@ -204,6 +204,23 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
+void recolour_message(text_message msg){
+	if (msg.chan_idx >= CHAT_CHANNEL1 && msg.chan_idx <= CHAT_CHANNEL3 && msg.len > 0 && msg.data[0] && !msg.deleted){
+		if (active_channels[current_channel] != msg.channel){
+			msg.data[0] = (Uint8)(127+c_grey2);
+		} else {
+			msg.data[0] = (Uint8)(127+c_grey1);
+		}
+	}
+}
+
+void recolour_messages(text_message *msgs){
+	int i;
+	for(i=0;i<DISPLAY_TEXT_BUFFER_SIZE && msgs[i].data;++i){
+		recolour_message(msgs[i]);
+	}
+}
+
 void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
 {
 	float displayed_font_x_size = 11.0 * text_zoom;
@@ -266,20 +283,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		}
 		if (msgs[imsg].data == NULL) return;
 	}
-
-	//now go through all the channel messages we might see, and colour them according to if they're on the active channel
-	i=imsg-1;
-	while(msgs[++i].data){
-		if (msgs[i].chan_idx >= CHAT_CHANNEL1 && msgs[i].chan_idx <= CHAT_CHANNEL3 && msgs[i].len > 0 && msgs[i].data[0] && !msgs[i].deleted){
-			if (active_channels[current_channel] != msgs[i].channel){
-				msgs[i].data[0] = (Uint8)(127+c_grey2);
-			} else {
-				msgs[i].data[0] = (Uint8)(127+c_grey1);
-			}
-		}
-	}
 #endif //! MAP_EDITOR2
-
 
 	if (ichar > 0) {
 		ch = msgs[imsg].data[ichar];

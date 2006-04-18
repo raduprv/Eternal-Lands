@@ -30,6 +30,7 @@ void add_tab (Uint8 channel)
 
 void remove_tab (Uint8 channel)
 {
+	recolour_messages(display_text_buffer);
 	if (tab_bar_win != -1) remove_tab_button (channel);
 	if (chat_win != -1) remove_chat_tab (channel);
 }
@@ -514,6 +515,7 @@ void switch_to_chat_tab(int id, char click)
 
 	if (channels[active_tab].chan_nr >= CHAT_CHANNEL1 && channels[active_tab].chan_nr <= CHAT_CHANNEL3)
 		send_active_channel (channels[active_tab].chan_nr);
+		recolour_messages(display_text_buffer);
 }
 
 void change_to_current_chat_tab(const char *input)
@@ -1333,6 +1335,7 @@ void switch_to_tab(int id)
 	tabs[current_tab].highlighted = 0;
 	if(tabs[current_tab].channel >= CHAT_CHANNEL1 && tabs[current_tab].channel <= CHAT_CHANNEL3) {
 		send_active_channel (tabs[current_tab].channel);
+		recolour_messages(display_text_buffer);
 	}
 }
 
