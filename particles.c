@@ -398,11 +398,17 @@ static __inline__ void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle
 
 static __inline__ void destroy_partice_sys_without_lock(int i)
 {
-	if ((i < 0) || (i >= MAX_PARTICLE_SYSTEMS)) return;
-	if (particles_list[i] == NULL) return;
+	if((i < 0) || (i >= MAX_PARTICLE_SYSTEMS)) return;
+	if(particles_list[i] == NULL) return;
 	if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light])
 		destroy_light(particles_list[i]->light);
 	delete_particle_from_abt(main_bbox_tree, i);
+#ifndef MAP_EDITOR
+	if(particles_list[i]->sound != 0){
+		remove_sound_object(particles_list[i]->sound);
+		particles_list[i]->sound= 0;
+	}
+#endif
 	free(particles_list[i]);
 	particles_list[i] = NULL;
 }
