@@ -155,6 +155,13 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 void get_knowledge_list (Uint16 size, const char *list)
 {
 	int i;
+	
+	// watch for size being too large
+	if(size*8 > KNOWLEDGE_LIST_SIZE){
+		size= KNOWLEDGE_LIST_SIZE/8;
+	}
+	
+	// now copy the data
 	for (i = 0; i < size; i++)
 	{
 		knowledge_list[i*8+0].present = list[i] & 0x01;
