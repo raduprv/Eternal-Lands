@@ -137,7 +137,7 @@ void cleanup_kills(){
  */
 char *strip_actor_name(char *actor_name)
 {
-	static char buf[16];
+	static char buf[32];
 	int i;
 
 	/* strip a leading color code */
@@ -146,7 +146,7 @@ char *strip_actor_name(char *actor_name)
 	}
 	
 	/* copy the name minus the guild tag */
-	for (i = 0; actor_name[i]; i++) {
+	for (i = 0; actor_name[i] && i < sizeof(buf); i++) {
 		if ((unsigned char)actor_name[i] >= 127) {
 			i--;
 			break;
