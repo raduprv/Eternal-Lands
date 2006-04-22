@@ -645,12 +645,32 @@ void change_windows_on_top(int *var)
 		move_window(items_win, -1, 0, items_menu_x, items_menu_y);
 		move_window(buddy_win, -1, 0, buddy_menu_x, buddy_menu_y);
 		move_window(ground_items_win, -1, 0, ground_items_menu_x, ground_items_menu_y);
-		// Display any open windows
-		show_window(storage_win);
-		show_window(manufacture_win);
-		show_window(items_win);
-		show_window(buddy_win);
-		show_window(ground_items_win);
+		// Display any open windows (checking they exist first)
+		if (storage_win > 0) {
+			if (windows_list.window[storage_win].displayed != 0 || windows_list.window[storage_win].reinstate != 0) {
+				show_window(storage_win);
+			}
+		}
+		if (manufacture_win > 0) {
+			if (windows_list.window[manufacture_win].displayed != 0 || windows_list.window[manufacture_win].reinstate != 0) {
+				show_window(manufacture_win);
+			}
+		}
+		if (items_win > 0) {
+			if (windows_list.window[items_win].displayed != 0 || windows_list.window[items_win].reinstate != 0) {
+				show_window(items_win);
+			}
+		}
+		if (buddy_win > 0) {
+			if (windows_list.window[buddy_win].displayed != 0 || windows_list.window[buddy_win].reinstate != 0) {
+				show_window(buddy_win);
+			}
+		}
+		if (ground_items_win > 0) {
+			if (windows_list.window[ground_items_win].displayed != 0 || windows_list.window[ground_items_win].reinstate != 0) {
+				show_window(ground_items_win);
+			}
+		}
 	} else {
 		// Change the root windows
 		move_window(storage_win, game_root_win, 0, storage_win_x, storage_win_y);
