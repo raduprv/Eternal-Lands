@@ -57,7 +57,11 @@ int display_console_handler (window_info *win)
 			glColor3f (1.0, 1.0, 1.0);
 			draw_string_zoomed_clipped (10, 10 + win->len_y - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y, sep_string, -1, win->len_x - hud_x - 20, CONSOLE_SEP_HEIGHT, chat_zoom);
 		}
-		((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
+		//ttlanhil: disabled, until the scrolling in console is adusted to work with filtering properly
+		//if the users prefer that console not be filtered, the following line can be removed.
+		//if they want it filtered, then more work can be done until it works properly
+		//((text_field*)((widget_find(console_root_win, console_out_id))->widget_info))->chan_nr = current_filter;
+
 
 		draw_hud_interface ();
 
