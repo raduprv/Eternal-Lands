@@ -27,7 +27,7 @@ OPTIONS=-DOSX86 -DELC -DATI_9200_FIX -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_ACTOR_AN
 
 PLATFORM=-arch i386 -malign-natural #-arch ppc64 -arch i386 -mpowerpc
 XDIR=-L/usr/X11R6/lib
-FRAMEWORKS=-framework OpenAL -framework OpenGL -framework GLUT -framework SDL -framework SDL_net -framework cal3d
+FRAMEWORKS=-framework OpenAL -framework OpenGL -framework SDL -framework SDL_net -framework cal3d
 CWARN= #-Wall
 #-Wdeclaration-after-statement -Wall -Werror
 CXXWARN= #-Wall
@@ -53,7 +53,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	framebuffer.o filter.o font.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
-	keys.o knowledge.o lights.o lispsm.o list.o loginwin.o loading_win.o	\
+	keys.o kills.o knowledge.o lights.o lispsm.o list.o loginwin.o loading_win.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
 	md2loader.o md5.o misc.o multiplayer.o	\
 	new_actors.o new_character.o normals.o notepad.o	\
