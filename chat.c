@@ -1783,12 +1783,12 @@ void update_tab_bar (text_message * msg)
 		if (lines_to_show >= 10) lines_to_show = 10;
 	}
 
-	for (itab = 0; itab < tabs_in_use; itab++)
+	for (itab = 2; itab < tabs_in_use; itab++)
 	{
 		if (tabs[itab].channel == channel)
 		{
-			//if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
-				//widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
+			if (current_tab != itab && !tabs[itab].highlighted && tabs[current_tab].channel != CHAT_ALL && !get_show_window(console_root_win))
+				widget_set_color (tab_bar_win, tabs[itab].button, 1.0f, 1.0f, 0.0f);
 			if (current_tab == itab) {
 				lines_to_show += rewrap_message(msg, chat_zoom, console_text_width, NULL);
 				if (lines_to_show >= 10) lines_to_show = 10;
