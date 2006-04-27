@@ -60,7 +60,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	openingwin.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o queue.o reflection.o	rules.o skills.o \
-	sector.o shader.o shadows.o sort.o sound.o spells.o stats.o storage.o symbol_table.o tabs.o	\
+	sector.o session.o shader.o shadows.o sort.o sound.o spells.o stats.o storage.o symbol_table.o tabs.o	\
 	terrain.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	update.o weather.o widgets.o \
 	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o

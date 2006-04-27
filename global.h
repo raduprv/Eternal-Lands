@@ -155,6 +155,7 @@ typedef int point;
 #include "storage.h"
 #include "cal.h"
 #include "kills.h"
+#include "session.h"
 
 #ifdef NOTEPAD
 	#include "notepad.h"

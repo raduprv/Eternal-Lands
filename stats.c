@@ -125,6 +125,8 @@ void get_the_stats(Sint16 *stats)
 	your_info.research_completed=SDL_SwapLE16(stats[47]);
 	your_info.researching=SDL_SwapLE16(stats[81]);
 	your_info.research_total=SDL_SwapLE16(stats[82]);
+
+	init_session();
 }
 
 void get_partial_stat(Uint8 name,Sint32 value)

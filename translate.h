@@ -278,6 +278,7 @@ extern char
 		/*manufacture.c*/
 		mix_str[5],
 		clear_str[6], 
+		reset_str[6],
 		/*multiplayer.c*/
 		connect_to_server_str[50],
 		reconnect_str[50],
@@ -622,6 +623,7 @@ extern char	win_notepad[20],
 		tab_knowledge[20],
 		tab_questlog[20],
 		tab_kills[20],
+		tab_session[20],
 		tab_main[20],
 		button_okay[10],
 		button_cancel[10],
