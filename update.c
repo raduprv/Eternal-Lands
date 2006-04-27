@@ -120,7 +120,7 @@ void    handle_update_download(struct http_get_struct *get)
 			if(!sts){
 				do_updates();
 			} else {
-				log_error("Unable to finsih files.lst processing (%d)", errno);
+				log_error("Unable to finish files.lst processing (%d)", errno);
 			}
 			
 			// and go back to normal processing
@@ -158,7 +158,7 @@ void    handle_update_download(struct http_get_struct *get)
 			}
 			strncpy(update_server, update_servers[num], sizeof(update_server));
 			update_server[127]= '\0';
-log_error("downloading from mirror %d of %d %s", num, num_update_servers, update_server);
+			log_error("downloading from mirror %d of %d %s", num, num_update_servers, update_server);
 		} else {
 			strcpy(update_server, update_servers[0]);
 		}
@@ -267,7 +267,7 @@ int    do_threaded_update(void *ptr)
 
 void   add_to_download(const char *filename, const Uint8 *md5)
 {
-log_error("Downloaded needed for %s", filename);
+	log_error("Download needed for %s", filename);
 	// lock the mutex
 	SDL_mutexP(download_mutex);
 	if(download_queue_size <256){
