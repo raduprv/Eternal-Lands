@@ -486,7 +486,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 }
 
 int display_game_handler (window_info *win)
-{	
+{
 	static int main_count = 0;
 	static int times_FPS_below_3 = 0;
 	static int next_fps_time = 0;
@@ -495,7 +495,7 @@ int display_game_handler (window_info *win)
 	static float fps_average=100.0f;
 	static int shadows_were_disabled=0;
 	unsigned char str[180];
-	int y_line, i;
+	int i;
 	int any_reflection = 0;
 	int mouse_rate;
 
@@ -769,6 +769,7 @@ int display_game_handler (window_info *win)
 	}
 
 	CHECK_GL_ERRORS ();
+	/* Draw the chat text */
 	if (use_windowed_chat != 2)
 	{
 		int msg, offset, ytext, htext, filter;
@@ -790,25 +791,7 @@ int display_game_handler (window_info *win)
 	draw_ingame_interface ();
 	
 	CHECK_GL_ERRORS ();
-	
-	// print the text line we are currently writting (if any)
-	if (use_windowed_chat != 2)
-	{
-		//y_line = win->len_y - (17 * (4+input_text_lines));
-		y_line = win->len_y - (17 * (4+(int)((get_string_width(input_text_line.data)*11.0f/12.0f)/(win->len_x-hud_x-20))));
-		switch(map_type)
-		{
-			case 2:
-				glColor3f (0.6f, 1.0f, 1.0f);
-				break;
-			case 1:
-			default:
-				glColor3f (1.0f, 1.0f, 1.0f);
-		}
 
-		draw_string_zoomed_width (10, y_line, input_text_line.data, win->len_x-hud_x-20, 4, chat_zoom);
-	}
-	
 	Leave2DMode ();
 
 	display_highlight_markers();
@@ -904,6 +887,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		if(line != NULL)
 		{
 			input_text_line.len = snprintf(input_text_line.data, input_text_line.size, "%s", line);
+			if(input_widget && input_widget->widget_info) {
+				text_field *tf = input_widget->widget_info;
+				tf->cursor = tf->buffer->len;
+			}
 		}
 	}
 #endif //COMMAND_BUFFER
@@ -1268,19 +1255,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{
-		if (use_windowed_chat == 2)
-		{
-			root_key_to_input_field (key, unikey);
-		}
-		else
-		{
-#ifdef COMMAND_BUFFER
-			history_reset();
-#endif //COMMAND_BUFFER
-			// clear the input buffer
-			input_text_line.data[0] = '\0';
-			input_text_line.len = 0;
-		}
+		root_key_to_input_field (key, unikey);
 	}
 	else if(key == K_NEXT_CHAT_TAB)
 	{
@@ -1370,35 +1345,33 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 {
 	Uint8 ch = key_to_char (unikey);
 
-	if (use_windowed_chat == 2)
+	if (root_key_to_input_field(key, unikey))
 	{
-		root_key_to_input_field (key, unikey);
+		return 1;
 	}
-	else if ( ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) ) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
+	else if (IS_PRINT(ch) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
-		// watch for the '//' shortcut
-		if (input_text_line.len == 1 && (ch== '/' || ch == char_slash_str[0])
-			&& (input_text_line.data[0] == '/' || input_text_line.data[0]== char_slash_str[0])
-			&& last_pm_from[0])
-		{
-			put_string_in_buffer (&input_text_line, last_pm_from, 1);
-			put_char_in_buffer (&input_text_line, ' ', input_text_line.len);
-		}
-		else
-		{
-			// not the shortcut, add the character to the buffer
-			put_char_in_buffer (&input_text_line, ch, input_text_line.len);
+		if(put_char_in_buffer (&input_text_line, ch, input_text_line.len)) {
+			if(input_widget) {
+				text_field *tf = input_widget->widget_info;
+				tf->cursor = tf->buffer->len;
+				if(input_widget->window_id == game_root_win) {
+					widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+				}
+			}
 		}
 	}
 #ifndef OSX
 	else if (ch == SDLK_BACKSPACE && input_text_line.len > 0)
 #else
-        else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && input_text_line.len > 0)
+	else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && input_text_line.len > 0)
 #endif
 	{
 		input_text_line.len--;
-		if (input_text_line.data[input_text_line.len] == '\n')
+		if (input_text_line.data[input_text_line.len] == '\n'
+		|| input_text_line.data[input_text_line.len] == '\r') {
 			input_text_line.len--;
+		}
 		input_text_line.data[input_text_line.len] = '\0';
 	}
 	else if (ch == SDLK_RETURN && input_text_line.len > 0)
@@ -1408,7 +1381,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 			if ( (check_var (&(input_text_line.data[1]), IN_GAME_VAR) ) < 0)
 				send_input_text_line (input_text_line.data, input_text_line.len);
 		}
-		else if ( ( input_text_line.len > 5 ) && ( ( input_text_line.data[0] == '@' ) && ( input_text_line.data[1] == '@' ) && ( input_text_line.data[2] != ' ' ) ) )
+		else if (input_text_line.len > 5 && input_text_line.data[0] == '@' && input_text_line.data[1] == '@' && input_text_line.data[2] != ' ')
 		{
 			chan_target_name(input_text_line.data, input_text_line.len);
 		}
@@ -1424,22 +1397,18 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		}
 		else
 		{
-			if(input_text_line.data[0] == char_at_str[0])input_text_line.data[0]='@';
+			if(input_text_line.data[0] == char_at_str[0])
+				input_text_line.data[0]='@';
 			send_input_text_line (input_text_line.data, input_text_line.len);
 		}
 		// also clear the buffer
-		input_text_line.data[0] = '\0';
-		input_text_line.len = 0;
-#ifdef COMMAND_BUFFER
-		history_reset();
-#endif //COMMAND_BUFFER
+		clear_input_line();
 	}
 	else
 	{
 		// no clue what to do with this character
 		return 0;
 	}
-	
 	return 1;
 }
 
@@ -1455,19 +1424,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifdef COMMAND_BUFFER
 	else if (key == K_TABCOMPLETE && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str || *input_text_line.data == '/' || *input_text_line.data == *char_slash_str))
 	{
-		const char *completed_str = tab_complete(&input_text_line);
-		char suffix = '\0';
-
-		if(completed_str != NULL)
-		{
-			/* Append a space if there isn't one already. */
-			if(completed_str[strlen(completed_str)-1] != ' ')
-			{
-				suffix = ' ';
-			}
-			snprintf(input_text_line.data, input_text_line.size, "%c%s%c", *input_text_line.data, completed_str, suffix);
-			input_text_line.len = strlen(input_text_line.data);
-		}
+		do_tab_complete(&input_text_line);
 	}
 #endif //COMMAND_BUFFER
 	else if (key == K_CAMERAUP)
@@ -1576,11 +1533,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			show_window (console_root_win);
 		}
 		// see if the common text handler can deal with it
-		else if ( text_input_handler (key, unikey) )
-		{
-			return 1;
-		}
-		else
+		else if ( !text_input_handler (key, unikey) )
 		{
 			// nothing we can handle
 			return 0;
@@ -1592,10 +1545,31 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 }
 
 int show_game_handler (window_info *win) {
+	text_field *tf = input_widget->widget_info;
 	init_hud_interface(1);
 	show_hud_windows();
-	if (use_windowed_chat == 1){
-		display_tab_bar ();
+
+	if (use_windowed_chat == 2) {
+		window_info *win;
+		/* Put the input widget back into the chat window */
+		widget_move_win(input_widget->window_id, input_widget->id, chat_win);
+		win = &windows_list.window[chat_win];
+		resize_chat_handler(win, win->len_x, win->len_y);
+	} else {
+		if (use_windowed_chat == 1) {
+			display_tab_bar();
+		}
+		widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
+		widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
+		widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
+	}
+	if(input_widget->window_id == game_root_win) {
+		if(tf->buffer->len > 0) {
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+		} else {
+			widget_set_flags(input_widget->window_id, input_widget->id, input_widget->Flags|WIDGET_INVISIBLE);
+		}
 	}
 	return 1;
 }
@@ -1613,7 +1587,21 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_SHOW, &show_game_handler);
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
-		
+
+		if(input_widget == NULL) {
+			Uint32 id;
+			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, 4, 4, 1.0, 1.0, 1.0);
+			input_widget = widget_find(game_root_win, id);
+		} else {
+			widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
+			widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
+			widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+			widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
+		}
+		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
+		if(input_text_line.len > 0) {
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+		}
 		resize_root_window();
 	}
 }

@@ -120,6 +120,15 @@ typedef struct wl{
 }widget_list;
 
 /*!
+ * \name	Generic flags for widgets
+ */
+/*! \{ */
+#define WIDGET_INVISIBLE	0x40
+#define WIDGET_DISABLED		0x80
+#define WIDGET_CLICK_TRANSPARENT 0x100
+/*! \} */
+
+/*!
  * \name	Flags for the text field
  */
 /*! \{ */
@@ -128,7 +137,10 @@ typedef struct wl{
 #define TEXT_FIELD_NO_KEYPRESS	0x04
 #define TEXT_FIELD_CAN_GROW	0x08
 #define TEXT_FIELD_SCROLLBAR	0x10
+#define TEXT_FIELD_IGNORE_RETURN 0x20
 /*! \} */
+
+#define TF_BLINK_DELAY 500
 
 /*!
  * Text field structure
@@ -142,6 +154,7 @@ typedef struct
 	text_message *buffer;
 	Uint8 chan_nr;
 	Uint16 x_space, y_space;
+	Uint32 next_blink;
 } text_field;
 
 
@@ -294,6 +307,21 @@ int widget_move(int window_id, Uint32 widget_id, Uint16 x, Uint16 y);
 
 /*!
  * \ingroup 	widgets
+ * \brief 	Moves the widget to a new window
+ *
+ *      	Finds the widget in the window and moves it to the window new_win_id
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \param   	new_win_id The location of the target window in the windows_list.window[] array
+ * \retval Uint32 	 Returns the new widget id on success or 0 on failure (the new id will never be 0)
+ *
+ * \sa widget_find
+ */
+Uint32 widget_move_win(int window_id, Uint32 widget_id, int new_win_id);
+
+/*!
+ * \ingroup 	widgets
  * \brief 	Moves the widget relative to it's current position
  *
  *      	Finds the widget in the window and moves the widget relative to it's current position.
@@ -338,6 +366,21 @@ int widget_resize(int window_id, Uint32 widget_id, Uint16 x, Uint16 y);
  * \sa widget_find
  */
 int widget_set_flags(int window_id, Uint32 widget_id, Uint32 f);
+
+/*!
+ * \ingroup	widgets
+ * \brief 	Unsets the specified flags
+ *
+ * 		Finds the widget in the window and unsets the specified flag (should only be used with one flag at a time).
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \param   	f The flags
+ * \retval int  	Returns 1 on succes or 0 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_unset_flag(int window_id, Uint32 widget_id, Uint32 f);
 
 /*!
  * \ingroup	widgets

@@ -224,6 +224,27 @@ const char *tab_complete(const text_message *input)
 	return return_value;
 }
 
+void do_tab_complete(text_message *input)
+{
+	const char *completed_str = tab_complete(input);
+	if(completed_str != NULL)
+	{
+		char suffix = '\0';
+
+		/* Append a space if there isn't one already. */
+		if(completed_str[strlen(completed_str)-1] != ' ')
+		{
+			suffix = ' ';
+		}
+		snprintf(input->data, input->size, "%c%s%c", *input->data, completed_str, suffix);
+		input->len = strlen(input->data);
+		if(input_widget && input_widget->widget_info) {
+			text_field *tf = input_widget->widget_info;
+			tf->cursor = tf->buffer->len;
+		}
+	}
+}
+
 void reset_tab_completer(void)
 {
 	tab_complete(NULL);

@@ -6,12 +6,9 @@
  #include <SDL_syswm.h>
 #endif
 
-void do_paste(Uint8 * buffer)
+void do_paste(const Uint8 * buffer)
 {
-	if (use_windowed_chat == 2)
-		paste_in_input_field (buffer);
-	else
-		put_string_in_buffer (&input_text_line, buffer, input_text_line.len);
+	paste_in_input_field (buffer);
 }
 
 #ifdef OSX
@@ -47,7 +44,7 @@ void processpaste(Display *dpy, Window window, Atom atom)
 	}
 }
 
-void startpaste()
+void startpaste(void)
 {
 	Display * dpy;
 	Window window;
@@ -111,7 +108,7 @@ void finishpaste(XSelectionEvent event)
 
  #else
 
-void windows_paste()
+void windows_paste(void)
 {
 	OpenClipboard(NULL);
 

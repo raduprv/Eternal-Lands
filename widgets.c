@@ -235,6 +235,68 @@ int widget_move(int window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 	return 0;
 }
 
+Uint32 widget_move_win(int window_id, Uint32 widget_id, int new_win_id)
+{
+	widget_list *w;
+	widget_list *prev_w = NULL;
+
+	if (window_id < 0 || window_id >= windows_list.num_windows 
+		|| new_win_id < 0 || new_win_id >= windows_list.num_windows) {
+		return 0;
+	}
+	if (windows_list.window[window_id].window_id != window_id 
+		|| windows_list.window[new_win_id].window_id != new_win_id 
+		|| window_id == new_win_id) {
+		return 0;
+	}
+
+	w = windows_list.window[window_id].widgetlist;
+	/* Find the widget */
+	while(w != NULL) {
+		if(w->id == widget_id) {
+			break;
+		} else {
+			prev_w = w;
+			w = w->next;
+		}
+	}
+	if(w != NULL) {
+		Uint32 new_id = 0;
+		widget_list *target_w = windows_list.window[new_win_id].widgetlist;
+		/* Remove the widget from the old list */
+		if(prev_w) {
+			prev_w->next = w->next;
+		} else {
+			windows_list.window[window_id].widgetlist = NULL;
+		}
+		/* Put it in the new list */
+		if(target_w == NULL) {
+			/* List is empty, start a new one */
+			windows_list.window[new_win_id].widgetlist = w;
+		} else {
+			/* Find the end of the list */
+			while(target_w->next != NULL) {
+				if(target_w->id > new_id) {
+					new_id = target_w->id;
+				}
+				target_w = target_w->next;
+			}
+			target_w->next = w;
+		}
+		w->next = NULL;
+		w->window_id = new_win_id;
+		if(new_id > 0xFFFF) {
+			new_id = widget_id++;
+		} else {
+			new_id++;
+		}
+		w->id = new_id;
+		return w->id;
+	} else {
+		return 0;
+	}
+}
+
 int widget_move_rel (int window_id, Uint32 widget_id, Sint16 dx, Sint16 dy)
 {
 	widget_list *w = widget_find (window_id, widget_id);
@@ -282,6 +344,16 @@ int widget_set_flags(int window_id, Uint32 widget_id, Uint32 f)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		w->Flags = f;
+		return 1;
+	}
+	return 0;
+}
+
+int widget_unset_flag(int window_id, Uint32 widget_id, Uint32 f)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if(w && (w->Flags&f)){
+		w->Flags = w->Flags^f;
 		return 1;
 	}
 	return 0;
@@ -350,7 +422,7 @@ int widget_set_args (int window_id, Uint32 widget_id, void *spec)
 }
 
 // Create a generic widget
-int widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly,
+Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly,
 	Uint32 Flags, float size, float r, float g, float b, const struct WIDGET_TYPE *type, void *T, void *S)
 #endif
 {
@@ -480,7 +552,6 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
 #else
 	int res = 0;
-
 	if (widget->type != NULL) {
 		if (widget->type->click != NULL) {
 			res = widget->type->click (widget, mx, my, flags);
@@ -1659,14 +1730,23 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	text_field *tf;
 	text_message *msg;
 	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
-	
+	int tmp_chan; 
+
 	if (w == NULL) return 0;
 	if ( !(w->Flags & TEXT_FIELD_EDITABLE) ) return 0;
 	if (w->Flags & TEXT_FIELD_NO_KEYPRESS) return 0;
-	
-	tf = (text_field *) w->widget_info;
+
+	tf = w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
-	
+	tmp_chan = msg->chan_idx;
+
+	if(IS_PRINT(ch) || keysym == K_ROTATELEFT || keysym == K_ROTATERIGHT ||
+		keysym == SDLK_HOME || keysym == SDLK_END || ch == SDLK_BACKSPACE ||
+		ch == SDLK_DELETE) {
+		/* Stop blinking on input */
+		tf->next_blink = cur_time + TF_BLINK_DELAY;
+	}
+
 	if (keysym == K_ROTATELEFT)
 	{
 		if (tf->cursor > 0) 
@@ -1677,7 +1757,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			}
 			while (tf->cursor > 0 && msg->data[tf->cursor] == '\r');
 		}
-			
+
 		return 1;
 	}
 	else if (keysym == K_ROTATERIGHT)
@@ -1712,7 +1792,12 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 		tf->cursor -= n;
 		msg->len -= n;
-		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);	
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
+		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
 		return 1;
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
@@ -1725,15 +1810,20 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			msg->data[i-n] = msg->data[i];
 
 		msg->len -= n;
-		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
+		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
 		return 1;
 	}
-	else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' )
+	else if (!alt_on && !ctrl_on && ( IS_PRINT(ch)
+			|| (ch == SDLK_RETURN && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
 	{
-		int nr_lines;
-	
-		if (ch == SDLK_RETURN) ch = '\n';
-		
+		if (ch == SDLK_RETURN)
+			ch = '\n';
+
 		// keep one position free, so that we can always introduce a
 		// soft line break if necessary.
 		if (msg->len >= msg->size-2)
@@ -1745,14 +1835,12 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			}
 		}
 		tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-		nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
-		
-		if (nr_lines != tf->nr_lines)
-		{
-			msg->len += nr_lines - tf->nr_lines;
-			tf->nr_lines = nr_lines;
-		}
-
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
+		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
 		return 1;
 	}
 	return 0;
@@ -1816,7 +1904,7 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
-	tf = (text_field *) w->widget_info;
+	tf = w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
 	tf->cursor = get_edit_pos (mx, my, msg->data, msg->len, 1);
 
@@ -1845,9 +1933,10 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->offset = 0;
 	T->buffer = buf;
 	T->buf_size = buf_size;
-	T->nr_lines = 0;
+	T->nr_lines = 1; //We'll always have one line in the text field.
 	T->chan_nr = chan_filt;
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
+	T->next_blink = TF_BLINK_DELAY;
 	T->text_r = text_r;
 	T->text_g = text_g;
 	T->text_b = text_b;
@@ -1876,10 +1965,15 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
 int text_field_draw (widget_list *w)
 {
 	text_field *tf;
+	int cursor;
+	int mx = mouse_x - windows_list.window[w->window_id].pos_x - w->pos_x;
+	int my = mouse_y - windows_list.window[w->window_id].pos_y - w->pos_y;
 
-	if (w == NULL) return 0;
-	
-	tf = (text_field *) w->widget_info;
+	if (w == NULL) {
+		return 0;
+	}
+
+	tf = w->widget_info;
 	if (w->Flags & TEXT_FIELD_BORDER)
 	{
 		// draw the frame
@@ -1896,14 +1990,26 @@ int text_field_draw (widget_list *w)
 		
 		glEnable (GL_TEXTURE_2D);
 	}
-	
+
 	if (tf->text_r >= 0.0f)
 	{
 		glColor3f (tf->text_r, tf->text_g, tf->text_b);
 	}
 
+	/* Make the cursor blink if the mouse is in the widget */
+	if((mx > 0 && mx < w->len_x && my > 0 && my < w->len_y)
+		&& cur_time < tf->next_blink - TF_BLINK_DELAY) {
+		cursor = -1;
+	} else if(cur_time < tf->next_blink) {
+		cursor = tf->cursor-tf->offset;
+	} else {
+		tf->next_blink = cur_time + 2*TF_BLINK_DELAY;
+		cursor = tf->cursor-tf->offset;
+	}
+
+	glEnable(GL_TEXTURE_2D);
 	set_font(chat_font);	// switch to the chat font
-	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, tf->cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
+	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
 	set_font (0);	// switch to fixed
 
 	return 1;
@@ -1913,7 +2019,9 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 {
 	text_field *tf;
 	widget_list *w = widget_find (window_id, widget_id);
-	if (w == NULL) return 0;
+	if (w == NULL) {
+		return 0;
+	}
 	
 	tf = (text_field *) w->widget_info;
 
@@ -1968,13 +2076,13 @@ int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 		}
 
 		return 1;
-	} else if ( !alt_on && !ctrl_on && ( (ch >= 32 && ch <= 126) || (ch > 127 + c_grey4) || ch == SDLK_RETURN ) && ch != '`' ) {
+	} else if (!alt_on && !ctrl_on && IS_PRINT(ch) && ch != '`' ) {
 		int i;
 		
 		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars-1; i++);
 		if(i >= 0) {
-				pword->password[i] = ch;
-				pword->password[i+1] = '\0';
+			pword->password[i] = ch;
+			pword->password[i+1] = '\0';
 		}
 		return 1;
 	} else {

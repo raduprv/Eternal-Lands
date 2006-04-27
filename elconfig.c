@@ -521,19 +521,44 @@ void change_windowed_chat (int *wc, int val)
 	{
 		hide_window (tab_bar_win);
 	}
-	
+
 	if (*wc == 2)
 	{
 		if (game_root_win >= 0)
 		{
-			display_chat ();
+			window_info *win;
+			display_chat();
+			widget_move_win(input_widget->window_id, input_widget->id, chat_win);
+			widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
+			win = &windows_list.window[chat_win];
+			resize_chat_handler(win, win->len_x, win->len_y);
 		}
 	}
 	else if (chat_win >= 0) 
 	{
+		int target_win = game_root_win;
 		hide_window (chat_win);
+		if(get_show_window(game_root_win)) {
+			target_win = game_root_win;
+			if(input_text_line.len > 0) {
+				widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+			} else {
+				widget_set_flags(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+			}
+		} else if(get_show_window(console_root_win)) {
+			target_win = console_root_win;
+		} else if(get_show_window(map_root_win)) {
+			target_win = map_root_win;
+		}
+		widget_move_win(input_widget->window_id, input_widget->id, target_win);
+		widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
+		widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
+		if(target_win == console_root_win) {
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_CLICK_TRANSPARENT);
+		}
 	}
-	
+
 	if (old_wc != *wc && (old_wc == 1 || old_wc == 2) )
 	{
 		convert_tabs (*wc);
@@ -556,17 +581,19 @@ void change_chat_zoom(float *dest, float *value)
 		return;
 	}
 	*dest = *value;
-	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0) {
+	if (opening_root_win >= 0 || console_root_win >= 0 || chat_win >= 0 || game_root_win >= 0) {
 		if (opening_root_win >= 0) {
 			opening_win_update_zoom();
 		}
 		if (console_root_win >= 0) {
-			nr_console_lines = (int) (window_height - CONSOLE_INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
+			nr_console_lines = (int) (window_height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
 			widget_set_size(console_root_win, console_out_id, *value);
-			widget_set_size(console_root_win, console_in_id, *value);
 		}
 		if (chat_win >= 0) {
 			chat_win_update_zoom();
+		}
+		if(input_widget != NULL) {
+			widget_set_size(input_widget->window_id, input_widget->id, *value);
 		}
 	}
 }

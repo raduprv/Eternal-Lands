@@ -747,8 +747,9 @@ void init_stuff()
 	update_loading_win(prep_op_win_str, 7);
 	create_opening_root_window (window_width, window_height);
 	// initialize the chat window
-	if (use_windowed_chat == 2)
+	if (use_windowed_chat == 2) {
 		display_chat ();
+	}
 
 #ifdef COMMAND_BUFFER
 	init_commands("commands.lst");

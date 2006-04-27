@@ -405,7 +405,9 @@ int put_char_in_buffer (text_message *buf, Uint8 ch, int pos)
 {
 	int i, nlen;
 
-	if (pos < 0 || pos > buf->len || pos >= buf->size) return 0;
+	if (pos < 0 || pos > buf->len || pos >= buf->size) {
+		return 0;
+	}
 
 	// First shift everything after pos to the right
 	nlen = buf->len + 1;
@@ -440,11 +442,14 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 			nr_paste++;
 	}
 
-	if (nr_paste == 0) return 0;
+	if (nr_paste == 0) {
+		return 0;
+	}
 
 	// now move the characters right of the cursor (if any)
 	nb = buf->len - pos;
-	if (nb > nr_free - nr_paste) nb = nr_free - nr_paste;
+	if (nb > nr_free - nr_paste)
+		nb = nr_free - nr_paste;
 	if (nb > 0)
 	{
 		for (ib = nb-1; ib >= 0; ib--)
@@ -919,16 +924,20 @@ void clear_display_text_buffer ()
 	not_from_the_end_console= 0;
 }
 
-int rewrap_message(text_message * msg, float zoom, int width, int * cursor) {
+int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
+{
 	int nlines;
 
-	if (msg == NULL || msg->data == NULL) return 0;
+	if (msg == NULL || msg->data == NULL)
+		return 0;
 	
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom)
 	{
-		if (msg->chan_idx != CHAT_NONE) total_nr_lines -= msg->wrap_lines;
+		if (msg->chan_idx != CHAT_NONE)
+			total_nr_lines -= msg->wrap_lines;
  		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor);
-		if (msg->chan_idx != CHAT_NONE) total_nr_lines += nlines;
+		if (msg->chan_idx != CHAT_NONE)
+			total_nr_lines += nlines;
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;
 		msg->wrap_width = width;

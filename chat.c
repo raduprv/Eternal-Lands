@@ -22,6 +22,8 @@ Uint8 current_channel = 0;
 queue_t *chan_name_queue;
 chan_name * pseudo_chans[SPEC_CHANS];
 
+widget_list *input_widget = NULL;
+
 void add_tab (Uint8 channel)
 {
 	if (tab_bar_win != -1) add_tab_button (channel);
@@ -159,7 +161,6 @@ int highlight_tab_on_nick = 1;
 // Chat window variables
 
 int chat_scroll_id = 15;
-int chat_in_id = 19;
 int chat_tabcollection_id = 20;
 int chat_out_start_id = 21;
 
@@ -179,7 +180,7 @@ int active_tab = -1;
 chan_name *tab_label (Uint8 chan);//Forward declaration
 
 
-void init_chat_channels ()
+void init_chat_channels(void)
 {
 	int itab;
 	
@@ -194,35 +195,22 @@ void init_chat_channels ()
 	}
 }
 
-void sync_chat_and_console ()
+void clear_input_line (void)
 {
-	widget_list *cons = widget_find (console_root_win, console_in_id);
-	widget_list *chat = widget_find (chat_win, chat_in_id);
-	text_field *cons_tf = (text_field *) cons->widget_info;
-	text_field *chat_tf = (text_field *) chat->widget_info;
-
-	cons_tf->msg = chat_tf->msg;
-	cons_tf->offset = chat_tf->offset;
-	cons_tf->buf_fill = chat_tf->buf_fill;
-	cons_tf->cursor = chat_tf->cursor;
-}
-
-void clear_input_line ()
-{
-	// XXX FIXME (Grum): when the console input field is reinstated, perhaps
-	// uncomment these lines again
-	//widget_list *cons = widget_find (console_root_win, console_in_id);
-	//text_field *cons_tf = (text_field *) cons->widget_info;
-	
 	input_text_line.data[0] = '\0';
 	input_text_line.len = 0;
-	//cons_tf->cursor = 0;
-	if (use_windowed_chat == 2)
-	{
-		widget_list *chat = widget_find (chat_win, chat_in_id);
-		text_field *chat_tf = (text_field *) chat->widget_info;
-		chat_tf->cursor = 0;
+	if(input_widget != NULL) {
+		text_field *field = input_widget->widget_info;
+		field->cursor = 0;
+		field->nr_lines = 1;
 	}
+	/* Hide the game win input widget */
+	if(input_widget->window_id == game_root_win) {
+		widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_INVISIBLE);
+	}
+#ifdef COMMAND_BUFFER
+	history_reset();
+#endif //COMMAND_BUFFER
 }
 
 int close_channel (window_info *win)
@@ -623,7 +611,9 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 	text_field *tf;
 	text_message *msg;
 
-	if (widget == NULL) return 0;
+	if (widget == NULL) {
+		return 0;
+	}
 	tf = (text_field *) widget->widget_info;
 	msg = tf->buffer;
 
@@ -637,8 +627,6 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 			}
 			while (tf->cursor > 0 && msg->data[tf->cursor] == '\r');
 		}
-			
-		return 1;
 	}
 	else if (keysym == K_ROTATERIGHT)
 	{
@@ -649,7 +637,6 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 				tf->cursor++;
 			} while (tf->cursor < msg->len && msg->data[tf->cursor] == '\r');
 		}
-		return 1;
 	}
 	else if (keysym == SDLK_HOME)
 	{
@@ -659,11 +646,30 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 	{
 		tf->cursor = msg->len;
 	}
+	else if (keysym == SDLK_DELETE && tf->cursor < msg->len)
+	{
+		int i = tf->cursor, n = 1;
+		int tmp_chan = msg->chan_idx;
+		
+		while (i+n <= msg->len && msg->data[i+n] == '\r') n++;
+		
+		for (i += n; i <= msg->len; i++)
+			msg->data[i-n] = msg->data[i];
+
+		msg->len -= n;
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
+		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message (msg, widget->size, widget->len_x - 2*tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
+	}
 	else
 	{
 		return 0;
 	}
-
+	/* Key was handled, stop blinking on input */
+	tf->next_blink = cur_time + TF_BLINK_DELAY;
 	return 1;
 }
 
@@ -706,8 +712,8 @@ int resize_chat_handler(window_info *win, int width, int height)
 		if (channels[itab].tab_id >= 0)
 			widget_resize (channels[itab].tab_id, channels[itab].out_id, inout_width, output_height);
 	
-	widget_resize (chat_win, chat_in_id, inout_width, input_height);
-	widget_move (chat_win, chat_in_id, CHAT_WIN_SPACE, input_y);
+	widget_resize (chat_win, input_widget->id, inout_width, input_height);
+	widget_move (chat_win, input_widget->id, CHAT_WIN_SPACE, input_y);
 
 	update_chat_win_buffers();
 	
@@ -715,7 +721,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 }
 
 
-void update_chat_win_buffers()
+void update_chat_win_buffers(void)
 {
 	int itab, imsg;
 	// recompute line breaks
@@ -723,18 +729,22 @@ void update_chat_win_buffers()
 		channels[itab].nr_lines = 0;
 
 	imsg = buffer_full ? last_message+1 : 0;
-	if (imsg >= DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
+	if (imsg >= DISPLAY_TEXT_BUFFER_SIZE)
+		imsg = 0;
 	while (1)
 	{
 		update_chat_window (&display_text_buffer[imsg], 0);
-		if (imsg == last_message || last_message < 0) break;
-		if (++imsg >= DISPLAY_TEXT_BUFFER_SIZE) imsg = 0;
+		if (imsg == last_message || last_message < 0)
+			break;
+		if (++imsg >= DISPLAY_TEXT_BUFFER_SIZE)
+			imsg = 0;
 	}
 	
 	// adjust the text position and scroll bar
 	nr_displayed_lines = (int) (chat_out_text_height / (18.0f * chat_zoom));
 	current_line = channels[active_tab].nr_lines - nr_displayed_lines;
-	if (current_line < 0) current_line = 0;
+	if (current_line < 0)
+		current_line = 0;
 	vscrollbar_set_bar_len (chat_win, chat_scroll_id, current_line);
 	vscrollbar_set_pos (chat_win, chat_scroll_id, current_line);
 	text_changed = 1;
@@ -742,27 +752,34 @@ void update_chat_win_buffers()
 
 int root_key_to_input_field (Uint32 key, Uint32 unikey)
 {
-	widget_list *w = widget_find (chat_win, chat_in_id);
 	Uint16 keysym = key & 0xffff;
 	Uint8 ch = key_to_char (unikey);
 	text_field *tf;
 	text_message *msg;
 	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
+	int tmp_chan;
+
+	if(input_widget == NULL || (input_widget->Flags & TEXT_FIELD_EDITABLE) == 0) {
+		return 0;
+	}
 	
-	if (w == NULL) return 0;
-	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0) return 0;
-	
-	tf = (text_field *) w->widget_info;
-	msg = tf->buffer;
-	
+	tf = input_widget->widget_info;
+	msg = &(tf->buffer[tf->msg]);
+	tmp_chan = msg->chan_idx;
+
+	if(IS_PRINT(ch) || keysym == K_ROTATELEFT || keysym == K_ROTATERIGHT ||
+		keysym == SDLK_HOME || keysym == SDLK_END || ch == SDLK_BACKSPACE ||
+		ch == SDLK_DELETE) {
+		/* Stop blinking on input */
+		tf->next_blink = cur_time + TF_BLINK_DELAY;
+	}
+
 	if (keysym == SDLK_ESCAPE)
 	{
-		msg->data[0] = '\0';
-		msg->len = 0;
-		tf->cursor = 0;
+		clear_input_line();
 	}
 	else if (ch == SDLK_RETURN && msg->len > 0)
-	{	
+	{
 		if (msg->data[0] == '%' && msg->len > 1) 
 		{
 			if ( (check_var (&(msg->data[1]), IN_GAME_VAR) ) < 0)
@@ -770,7 +787,6 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 				send_input_text_line (msg->data, msg->len);
 			}
 		}
-//		else if ( msg->data[0] == '#' || get_show_window (console_root_win) )
 		else if ( msg->data[0] == '#' || msg->data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
 		{
 #ifdef COMMAND_BUFFER
@@ -784,18 +800,16 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		}
 		else
 		{
-			if(msg->data[0] == char_at_str[0])msg->data[0]='@';
+			if(msg->data[0] == char_at_str[0])
+				msg->data[0] = '@';
 			send_input_text_line (msg->data, msg->len);
 		}
-		msg->data[0] = '\0';
-		msg->len = 0;
-		tf->cursor = 0;
-		tf->nr_lines = 0;
+		clear_input_line();
 	}
 #ifndef OSX
 	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
 #else
-        else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && tf->cursor > 0)
+	else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && tf->cursor > 0)
 #endif
 	{
 		int i = tf->cursor, n = 1;
@@ -809,7 +823,10 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		msg->len -= n;
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
-		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
+		// set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
 		
 		return 1;
 	}
@@ -825,14 +842,19 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		msg->len -= n;
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
-		tf->nr_lines = rewrap_message (msg, w->size, w->len_x, &tf->cursor);
+		// set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
 		
 		return 1;
 	}
 	else if ( !alt_on && !ctrl_on && IS_PRINT (ch) && ch != '`' )
 	{
-		int nr_lines;
-	
+		if(!get_show_window(map_root_win)) {
+			//Make sure the widget is visible.
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+		}
 		// watch for the '//' shortcut
 		if (tf->cursor == 1 && (ch == '/' || ch == char_slash_str[0])
 			&& (msg->data[0] == '/' || msg->data[0]== char_slash_str[0])
@@ -847,50 +869,61 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		}
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
-		nr_lines = rewrap_message (msg, w->size, w->len_x - 2 * CHAT_WIN_SPACE, &tf->cursor);
-		
-		if (nr_lines != tf->nr_lines)
-		{
-			msg->len += nr_lines - tf->nr_lines;
-			tf->nr_lines = nr_lines;
-		}
+		// set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
 	}
+#ifdef COMMAND_BUFFER
+	else if (key == K_TABCOMPLETE && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str || *input_text_line.data == '/' || *input_text_line.data == *char_slash_str))
+	{
+		do_tab_complete(&input_text_line);
+	}
+#endif //COMMAND_BUFFER
 	else
 	{
 		return 0;
 	}
-	
-	// wytter removed the console text input field
-	//sync_chat_and_console ();
 	return 1;
 }
 
 void paste_in_input_field (const Uint8 *text)
 {
-	widget_list *w = widget_find (chat_win, chat_in_id);
 	text_field *tf;
+	text_message *msg;
+	int tmp_chan;
+
+	if (input_widget == NULL) {
+		return;
+	} else if (input_widget->window_id == game_root_win) {
+		widget_unset_flag(game_root_win, input_widget->id, WIDGET_INVISIBLE);
+	}
 	
-	if (w == NULL) return;
-	tf = (text_field *) w->widget_info;
+	tf = input_widget->widget_info;
+	msg = &(tf->buffer[tf->msg]);
 	
-	put_string_in_buffer (&input_text_line, text, tf->cursor);
+	tf->cursor += put_string_in_buffer(msg, text, tf->cursor);
 
 	// set invalid width to force rewrap
-	tf->buffer->wrap_width = 0;
-	tf->nr_lines = rewrap_message(tf->buffer, w->size, w->len_x - 2 * CHAT_WIN_SPACE, &tf->cursor);
+	msg->wrap_width = 0;
+	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+	tmp_chan = msg->chan_idx;
+	msg->chan_idx = CHAT_NONE;
+	tf->nr_lines = rewrap_message(msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+	msg->chan_idx = tmp_chan;
 }
 
 int close_chat_handler (window_info *win)
 {
 	// revert to using the tab bar
-	use_windowed_chat = 1;
-	if (game_root_win >= 0) display_tab_bar ();
-	convert_tabs (use_windowed_chat);
+	// call the config function to make sure it's done properly
+	change_windowed_chat(&use_windowed_chat, 1);
 	
 	return 1;
 }
 
-void create_chat_window() {
+void create_chat_window(void)
+{
 	int chat_win_width = CHAT_WIN_TEXT_WIDTH + 4 * CHAT_WIN_SPACE + CHAT_WIN_SCROLL_WIDTH;
 	int chat_win_height = CHAT_OUT_TEXT_HEIGHT + CHAT_IN_TEXT_HEIGHT + 7 * CHAT_WIN_SPACE + CHAT_WIN_TAG_HEIGHT;
 	int inout_width = CHAT_WIN_TEXT_WIDTH + 2 * CHAT_WIN_SPACE;
@@ -927,13 +960,22 @@ void create_chat_window() {
 	channels[0].newchan = 0;
 	active_tab = 0;		
 
-	chat_in_id = text_field_add_extended (chat_win, chat_in_id, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
-	widget_set_OnKey (chat_win, chat_in_id, chat_input_key);
-	
+	if(input_widget == NULL) {
+		Uint32 id;
+		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		widget_set_OnKey (chat_win, id, chat_input_key);
+		input_widget = widget_find(chat_win, id);
+	} else {
+		window_info *win;
+		widget_move_win(input_widget->window_id, input_widget->id, chat_win);
+		win = &windows_list.window[chat_win];
+		resize_chat_handler(win, win->len_x, win->len_y);
+		widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
+	}
 	set_window_min_size (chat_win, min_width, min_height);
 }
 
-void display_chat ()
+void display_chat(void)
 {
 	if (chat_win < 0)
 	{
@@ -947,9 +989,11 @@ void display_chat ()
 	update_chat_win_buffers();
 }
 
-void chat_win_update_zoom () {
+void chat_win_update_zoom(void)
+{
 	int itab;
-	widget_set_size(chat_win, chat_in_id, chat_zoom);
+
+	widget_set_size(chat_win, input_widget->id, chat_zoom);
 	for (itab = 0; itab < MAX_CHAT_TABS; itab++) {
 		if (channels[itab].open) {
 			widget_set_size(channels[itab].tab_id, channels[itab].out_id, chat_zoom);
@@ -1009,7 +1053,7 @@ void add_spec_chan_name(int no, char * name, char * desc)
 	pseudo_chans[no]=entry;
 }
 
-void generic_chans()
+void generic_chans(void)
 {	//the channel list file is missing. We'll use hard-coded values
 	//remake the queue, just in case we got half way through the file
 	queue_destroy(chan_name_queue);
@@ -1032,7 +1076,7 @@ void generic_chans()
 	add_chan_name(6, "Contests", "Contest information and sometimes chat");
 }
 
-void init_channel_names ()
+void init_channel_names(void)
 {
 	char file[256];
 	xmlDocPtr doc;
@@ -1217,7 +1261,7 @@ void init_channel_names ()
 	}
 }
 
-void cleanup_chan_names()
+void cleanup_chan_names(void)
 {
 	//don't call this command unless the client is closing
 	int i=0;
@@ -1760,13 +1804,13 @@ void update_tab_bar (text_message * msg)
 	}
 }
 
-void create_tab_bar ()
+void create_tab_bar(void)
 {
 	int tab_bar_x = 10;
 	int tab_bar_y = 3;
 
 	tab_bar_win = create_window ("Tab bar", -1, 0, tab_bar_x, tab_bar_y, tab_bar_width < ELW_BOX_SIZE ? ELW_BOX_SIZE : tab_bar_width, tab_bar_height, ELW_USE_BACKGROUND|ELW_SHOW);
-	
+
 	add_tab_button (CHAT_LIST);
 	add_tab_button (CHAT_HIST);
 	add_tab_button (CHAT_ALL);
@@ -1776,7 +1820,7 @@ void create_tab_bar ()
 	current_filter = tabs[current_tab].channel;
 }
 
-void display_tab_bar ()
+void display_tab_bar(void)
 {
 	if (tab_bar_win < 0)
 	{

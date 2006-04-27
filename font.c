@@ -590,7 +590,9 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	int nchar;
 	int dcursor = 0;
 
-	if (str == NULL) return 0;
+	if (str == NULL) {
+		return 0;
+	}
 	
 	nlines = 1;
 	isrc = ibuf = idst = 0;
@@ -604,16 +606,16 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 		while (isrc < len && str[isrc] != '\0')
 		{
 			// skip old line breaks
-			if (str[isrc] == '\r')
-			{
-				if (cursor && isrc < *cursor) dcursor--;
+			if (str[isrc] == '\r') {
+				if (cursor && isrc < *cursor) {
+					dcursor--;
+				}
 				isrc++;
 				continue;
 			}
 			
 			// see if it's an explicit line break
-			if (str[isrc] == '\n')
-			{
+			if (str[isrc] == '\n') {
 				nlines++;
 				line_width = 0;
 			} else {
@@ -621,8 +623,11 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				if (line_width + font_bit_width > width)
 				{
 					// search back for a space
-					for (nchar = 0; ibuf-nchar-1 > lastline; nchar++)
-						if (buf[ibuf-nchar-1] == ' ') break;
+					for (nchar = 0; ibuf-nchar-1 > lastline; nchar++) {
+						if (buf[ibuf-nchar-1] == ' ') {
+							break;
+						}
+					}
 					if (ibuf-nchar-1 <= lastline)
 						// no space found, introduce a break in 
 						// the middle of the word
@@ -636,8 +641,12 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 
 					buf[ibuf] = '\r';
 					nlines++; ibuf++;
-					if (cursor && isrc < *cursor) dcursor++;
-					if (ibuf >= sizeof (buf) - 1) break;
+					if (cursor && isrc < *cursor) {
+						dcursor++;
+					}
+					if (ibuf >= sizeof (buf) - 1) {
+						break;
+					}
 					
 					lastline = ibuf;
 					line_width = font_bit_width;
@@ -652,16 +661,21 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 			isrc++; ibuf++;
 			if (ibuf >= sizeof (buf) - 1) break;
 		}
-		if (str[isrc] == '\0') isrc = len;
+		if (str[isrc] == '\0') {
+			isrc = len;
+		}
 		
 		// buffer is full or end of string, let's copy back
 		nchar = ibuf;
-		if (isrc < len && isrc - lastsrc < nchar)
+		if (isrc < len && isrc - lastsrc < nchar) {
 			nchar = isrc - lastsrc;
+		}
 
 		for (idst = 0; idst < nchar; idst++)
 		{
-			if (lastsrc + idst >= size - 1) break;
+			if (lastsrc + idst >= size - 1) {
+				break;
+			}
 			str[lastsrc+idst] = buf[idst];
 		}
 		
@@ -674,15 +688,22 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				
 		// move stuff to the beginning of the buffer, if necessary
 		nchar = sizeof (buf) - ibuf - 1;
-		for (idst = 0; idst < nchar; idst++)
+		for (idst = 0; idst < nchar; idst++) {
 			buf[idst] = buf[ibuf+idst];
+		}
 		
 		// update the counters
 		ibuf = nchar;
 		lastsrc = isrc;
 	}
 	
-	if (cursor) *cursor += dcursor;
+	if (cursor) {
+		*cursor += dcursor;
+		if(*cursor > size-1) {
+			/* If there's a better way to detect this, please do */
+			*cursor = size-1;
+		}
+	}
 	return nlines;
 }
 

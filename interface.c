@@ -983,6 +983,10 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 	if (rules_root_win >= 0) resize_window (rules_root_win, w, h);
 	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
+	if (input_widget->window_id != chat_win) {
+		widget_resize (input_widget->window_id, input_widget->id, w-hud_x, INPUT_HEIGHT);
+		widget_move (input_widget->window_id, input_widget->id, 0, h-INPUT_HEIGHT-hud_y);
+	}
 }
 
 /* currently UNUSED

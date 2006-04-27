@@ -151,4 +151,6 @@ void check_options();
  */
 void change_windows_on_top(int *var);
 
+void change_windowed_chat (int *wc, int val);
+
 #endif

@@ -35,7 +35,7 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int display_map_handler ()
+int display_map_handler (window_info * win)
 {
 	// are we actively drawing things?
 	if (SDL_GetAppState () & SDL_APPACTIVE)
@@ -97,8 +97,6 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	// does the user want to cancel a mapmark?
 	else if (ch == SDLK_ESCAPE && adding_mark)
 	{
-		input_text_line.len=0;
-		input_text_line.data[0] = '\0';
 		adding_mark = 0;
 		clear_input_line ();
 	}
@@ -127,29 +125,12 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 			hide_window (map_root_win);
 			show_window (console_root_win);
 		}
-		else if (ch == SDLK_RETURN && input_text_line.len > 0 && (input_text_line.data[0] == char_cmd_str[0] || input_text_line.data[0] == '#'))
-		{
-#ifdef COMMAND_BUFFER
-			if(test_for_console_command (input_text_line.data, input_text_line.len) || (input_text_line.data[0] == char_cmd_str[0] || input_text_line.data[0] == '#')) {
-				add_line_to_history(input_text_line.data, input_text_line.len);
-			}
-#else
-			test_for_console_command (input_text_line.data, input_text_line.len);
-#endif //COMMAND_BUFFER
-			// also clear the buffer
-			clear_input_line (); 
-		}
-		else if ( text_input_handler (key, unikey) )
-		{
-			return 1;
-		}
-		else
+		else if ( !text_input_handler (key, unikey) )
 		{
 			// nothing we can handle
 			return 0;
 		}
 	}
-	
 	// we handled it, return 1 to let the window manager know
 	return 1;
 }
@@ -160,6 +141,16 @@ int show_map_handler (window_info *win)
 	hide_window(paper_win);
 	hide_window(color_race_win);
 	hide_window(tab_bar_win);
+	widget_move_win(input_widget->window_id, input_widget->id, map_root_win);
+	widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
+	widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+	widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_INVISIBLE);
+	return 1;
+}
+
+int hide_map_handler (window_info * win)
+{
+	widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
 	return 1;
 }
 
@@ -174,5 +165,6 @@ void create_map_root_window (int width, int height)
 		set_window_handler (map_root_win, ELW_HANDLER_CLICK, &click_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_MOUSEOVER, &mouseover_map_handler);
 		set_window_handler (map_root_win, ELW_HANDLER_SHOW, &show_map_handler);
+		set_window_handler (map_root_win, ELW_HANDLER_HIDE, &hide_map_handler);
 	}
 }

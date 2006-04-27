@@ -6,7 +6,6 @@
 #ifndef __CONSOLE_WIN__
 #define __CONSOLE_WIN__
 
-#define CONSOLE_INPUT_HEIGHT	(3*18)
 #define CONSOLE_SEP_HEIGHT	18
 
 /*! \name windows handlers

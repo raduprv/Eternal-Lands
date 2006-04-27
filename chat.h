@@ -13,6 +13,21 @@
 extern Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 extern Uint8 current_channel;
 
+#define INPUT_HEIGHT (18*3 + 2*4) /* 3 lines, 2 margins at 4px*/ 
+#define INPUT_DEFAULT_FLAGS (TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|WIDGET_CLICK_TRANSPARENT)
+
+extern widget_list *input_widget;
+
+/*!
+ * \brief   Returns the current chat input widget
+ *
+ *      Returns a pointer to the current chat input widget.
+ *
+ * \callgraph
+ *
+
+widget_list *get_input_widget(void);*/
+
 /*!
  * \ingroup chat_window
  * \brief   Sets the channels that the player is currently subscribed to
@@ -83,7 +98,7 @@ int highlight_tab(const Uint8 channel);
  *
  * \callgraph
  */
-void init_chat_channels ();
+void init_chat_channels (void);
 
 /*!
  * \ingroup chat_window
@@ -93,7 +108,7 @@ void init_chat_channels ();
  *
  * \callgraph
  */
-void clear_input_line ();
+void clear_input_line (void);
 
 /*!
  * \ingroup chat_window
@@ -152,7 +167,7 @@ void paste_in_input_field (const Uint8 *text);
  *
  * \callgraph
  */
-void create_chat_window ();
+void create_chat_window (void);
 
 /*!
  * \ingroup chat_window
@@ -162,7 +177,7 @@ void create_chat_window ();
  *
  * \callgraph
  */
-void display_chat ();
+void display_chat (void);
 
 /*!
  * \ingroup chat_window
@@ -172,7 +187,7 @@ void display_chat ();
  *
  * \callgraph
  */
-void chat_win_update_zoom ();
+void chat_win_update_zoom (void);
 
 ///////////////////////////////////////////////////////////////////////
 
@@ -212,7 +227,7 @@ extern int tab_bar_win;			 /*!< handler for the tab bar window */
  *
  * \callgraph
  */
-void display_tab_bar ();
+void display_tab_bar (void);
 
 void switch_to_tab(int id);
 
@@ -248,14 +263,18 @@ void convert_tabs (int new_wc);
  *
  * \callgraph
  */
-void init_channel_names ();
+void init_channel_names (void);
 
 int command_jlc(char * text, int len);
 
-void update_chat_win_buffers();
+void update_chat_win_buffers(void);
 
-void cleanup_chan_names();
+void cleanup_chan_names(void);
 
 void chan_target_name(char * text, int len);
+
+int chat_input_key(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey);
+
+int resize_chat_handler(window_info *win, int width, int height);
 
 #endif // def __CHAT_H__

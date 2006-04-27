@@ -16,7 +16,7 @@
  *
  * \callgraph
  */
-void do_paste(Uint8 * buffer);
+void do_paste(const Uint8 * buffer);
 
 #ifndef OSX
 #ifndef WINDOWS
@@ -29,7 +29,7 @@ void do_paste(Uint8 * buffer);
  *      A callback function used when pasting is started. This function is specific to the X Window system.
  *
  */
-void startpaste();
+void startpaste(void);
 
 /*!
  * \ingroup hotkey
@@ -53,7 +53,7 @@ void finishpaste(XSelectionEvent event);
  *
  * \callgraph
  */
-void windows_paste();
+void windows_paste(void);
 
 #endif // not def WINDOWS
 #endif // not def OSX

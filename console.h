@@ -55,7 +55,7 @@ char *history_get_line_up(void);
 char *history_get_line_down(void);
 void history_reset(void);
 void history_destroy(void);
-const char *tab_complete(const text_message *input);
+void do_tab_complete(text_message *input);
 void reset_tab_completer(void);
 #else
 void test_for_console_command (char *text, int len);

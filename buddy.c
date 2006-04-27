@@ -148,12 +148,13 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	} else {
 		//start a pm to them
 		// clear the buffer
-		input_text_line.data[0] = '\0';
-		input_text_line.len = 0;
+		clear_input_line();
 
 		// insert the person's name
 		snprintf (str, sizeof(str),"/%s ", buddy_list[y].name);
-		put_string_in_buffer (&input_text_line, str, 0);
+		//put_string_in_buffer (&input_text_line, str, 0);
+		//We'll just reuse the paste function here
+		paste_in_input_field(str);
 	}
 	return 1;
 }
