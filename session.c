@@ -22,7 +22,7 @@ void fill_session_win(void)
 
 int display_session_handler(window_info *win)
 {
-	int i, n, x, y, timediff;
+	int x, y, timediff;
 	char buffer[80];
 	player_attribs cur_stats = your_info;
 
