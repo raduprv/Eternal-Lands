@@ -112,7 +112,8 @@ void init_session()
 	session_stats = your_info;
 	session_start_time = cur_time;
 }
-void session_reset_handler()
+int session_reset_handler()
 {
 	init_session();
+	return 0;
 }

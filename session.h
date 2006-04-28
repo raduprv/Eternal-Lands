@@ -4,6 +4,6 @@
 extern int session_win;
 
 void fill_session_win();
-void session_reset_handler();
+int session_reset_handler();
 
 #endif
