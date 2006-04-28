@@ -3,7 +3,7 @@
 
 extern int session_win;
 
-void fill_session_win();
-int session_reset_handler();
+void fill_session_win(void);
+int session_reset_handler(void);
 
 #endif
