@@ -14,7 +14,7 @@ typedef struct {
 }label;
 
 typedef struct {
-	float u1,v1,u2,v2;
+	float u1,v1,u2,v2, alpha;
 	int id;
 }image;
 
@@ -686,7 +686,7 @@ int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16
 const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
 #endif
 
-int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2)
+int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2, float alpha)
 {
 #ifndef WIDGETS_FIX
 	widget_list *W = add_new_widget (window_id, wid, OnInit, IMAGE, x, y, lx, ly, Flags, size, r, g, b);
@@ -698,6 +698,7 @@ int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Ui
 	T->v1 = v1;
 	T->v2 = v2;
 	T->id = id;
+	T->alpha = alpha;
 
 #ifndef WIDGETS_FIX
 	// Filling the widget info
@@ -717,7 +718,7 @@ int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Ui
 #else
 int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2)
 {
-	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2); 
+	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2, -1); 
 #endif
 }
 
@@ -726,9 +727,16 @@ int image_draw(widget_list *W)
 	image *i = (image *)W->widget_info;
 	get_and_set_texture_id(i->id);
 	glColor3f(W->r, W->g, W->b);
+	if (i->alpha > -1) {
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, i->alpha);
+	}
 	glBegin(GL_QUADS);
 	draw_2d_thing(i->u1, i->v1, i->u2, i->v2, W->pos_x, W->pos_y, W->pos_x + (W->len_x * W->size), W->pos_y + (W->len_y * W->size));
 	glEnd();
+	if (i->alpha > -1) {
+		glDisable(GL_ALPHA_TEST);
+	}
 	return 1;
 }
 

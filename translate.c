@@ -151,6 +151,7 @@ char
 	completed_research[12],
 	researching_str[30],
 	not_researching_anything[25],
+	knowledge_read_book[15],
 	/*manufacture.c*/
 	drop_all_str[11],
 	mix_str[5],
@@ -990,6 +991,7 @@ void init_help()
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
+	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
 	add_xml_identifier(misc,"dropall",drop_all_str,"Drop All",sizeof(drop_all_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));

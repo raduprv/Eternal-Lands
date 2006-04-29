@@ -8,12 +8,43 @@ int knowledge_menu_y=20;
 int knowledge_menu_x_len=STATS_TAB_WIDTH;
 int knowledge_menu_y_len=STATS_TAB_HEIGHT;
 int knowledge_scroll_id = 13;
+int knowledge_book_image_id;
+int knowledge_book_label_id;
+int knowledge_book_id = 0;
 //int knowledge_menu_dragged=0;
 //int knowledge_scroll_dragged=0;
 
 knowledge knowledge_list[KNOWLEDGE_LIST_SIZE];
 
 char knowledge_string[400]="";
+
+int add_knowledge_book_image() {
+	// Book image
+	int isize, tsize, tid, picsperrow, xtile, ytile, ssize, id;
+	float ftsize, u, v, uend, vend;
+	isize=256;
+	tsize=51;
+	ssize=100;
+	tid=21;
+	picsperrow=isize/tsize;
+	xtile=tid%picsperrow;
+	ytile=tid/picsperrow;
+	ftsize=(float)tsize/isize;
+	u=ftsize*xtile;
+	v=-ftsize*ytile;
+	uend=u+ftsize;
+	vend=v-ftsize;
+	id = load_texture_cache("textures/items1.bmp", 0);
+	return image_add_extended(knowledge_win, 0, NULL, 500, 215, 50, 50, 0, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f); 
+}
+
+int handle_knowledge_book()
+{
+	open_book(knowledge_book_id + 10000);
+	// Bring the new window to the front               <----- Doesn't work. Is in front for the first usage, but not after that
+	select_window(book_win);
+	return 1;
+}
 
 int display_knowledge_handler(window_info *win)
 {
@@ -68,7 +99,6 @@ int display_knowledge_handler(window_info *win)
 	glColor3f(0.77f,0.57f,0.39f);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	
 	//draw text
 	draw_string_small(4,210,knowledge_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
@@ -138,6 +168,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 		vscrollbar_scroll_down(knowledge_win, knowledge_scroll_id);
 		return 1;
 	} else {
+		
 		x/=240;
 		y/=10;
 		idx = x + 2 *(y + vscrollbar_get_pos (knowledge_win, knowledge_scroll_id));
@@ -146,6 +177,15 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0] = GET_KNOWLEDGE_INFO;
 				*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
 				my_tcp_send(my_socket,str,3);
+				// Check if we display the book image and label
+				knowledge_book_id = idx;
+				if (knowledge_list[idx].present && knowledge_list[idx].has_book) {
+					widget_set_flags(knowledge_win, knowledge_book_image_id, !WIDGET_DISABLED);
+					widget_set_flags(knowledge_win, knowledge_book_label_id, !WIDGET_DISABLED);
+				} else {
+					widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
+					widget_set_flags(knowledge_win, knowledge_book_label_id, WIDGET_DISABLED);
+				}
 			}
 	}
 	return 1;
@@ -187,6 +227,11 @@ void fill_knowledge_win ()
 	set_window_handler(knowledge_win, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	
 	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200     , 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, KNOWLEDGE_LIST_SIZE/2-19);
+	knowledge_book_image_id = add_knowledge_book_image();
+	widget_set_OnClick(knowledge_win, knowledge_book_image_id, &handle_knowledge_book);
+	widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
+	knowledge_book_label_id = label_add_extended(knowledge_win, knowledge_book_image_id + 1, NULL, 485, 265, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
+	widget_set_OnClick(knowledge_win, knowledge_book_label_id, &handle_knowledge_book);
 }
 
 void display_knowledge()

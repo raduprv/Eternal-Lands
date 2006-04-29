@@ -275,6 +275,7 @@ extern char
 		completed_research[12],
 		researching_str[30],
 		not_researching_anything[25],
+		knowledge_read_book[15],
 		/*manufacture.c*/
 		mix_str[5],
 		clear_str[6], 

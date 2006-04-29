@@ -16,6 +16,7 @@ typedef struct
 	Uint8 present; /*!< flag, indicating whether this knowledge is present in the knowledge window. */
 	Uint8 mouse_over; /*!< flag, indicating whether the mouse is over an entry in the knowledge window */
 	char name[40]; /*!< name of the knowledge */
+	Uint8 has_book; /*!< flag, indicating whether the knowledge item has an assosiated book */
 }knowledge;
 
 /*!

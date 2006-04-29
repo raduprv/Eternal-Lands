@@ -129,6 +129,13 @@ typedef struct wl{
 /*! \} */
 
 /*!
+ * \name	Generic flags for widgets
+ */
+/*! \{ */
+#define WIDGET_INVISIBLE	0x40
+/*! \} */
+
+/*!
  * \name	Flags for the text field
  */
 /*! \{ */
@@ -530,11 +537,12 @@ int label_set_text(int window_id, Uint32 widget_id, char *text);
  * \param   	v1 The start v texture coordinate
  * \param   	u2 The end u texture coordinate
  * \param   	v2 The end v texture coordinate
+ * \param   	alpha The alpha value for the image
  * \retval int  	Returns the new widgets unique ID 
  *
  * \sa image_add
  */
-int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2);
+int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2, float alpha);
 
 /*!
  * \ingroup	images

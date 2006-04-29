@@ -480,6 +480,78 @@ book * read_book(char * file, int type, int id)
 	return b;
 }
 
+void parse_knowledge_item(xmlNode *in)
+{
+	xmlNode * cur;
+	int id = -1;
+	char * strID=NULL;
+	char * string=NULL;
+
+	for(cur=in;cur;cur=cur->next){
+		if(cur->type == XML_ELEMENT_NODE){
+			if(!xmlStrcasecmp(cur->name,"Knowledge")){
+				if ((strID=xmlGetProp(cur,"ID"))==NULL){
+					log_error("Knowledge Item does not contain an ID property.");
+				} else {
+					id = atoi(strID);
+					if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, cur->children->content)!=-1){
+						read_book(string, 2, id + 10000);
+						knowledge_list[id].has_book = 1;
+					} else {
+#ifndef OSX
+						log_error("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
+#else
+						log_error("An error occured when parsing the content of the <%s>-tag - Check it for letters that cannot be translated into iso8859-1\n", cur->name);
+#endif
+					}
+					free(string);
+					string = NULL;
+				}
+			}
+		}
+	}
+
+	return;
+}
+
+void read_knowledge_book_index()
+{
+	xmlDoc * doc;
+	xmlNode * root=NULL;
+	char path[1024];
+	
+#ifndef _WIN32
+	snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
+#else
+	snprintf(path, sizeof(path), "knowledge.xml");
+#endif // !_WIN32
+
+	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
+#ifndef _WIN32
+		snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
+#else
+		snprintf(path, sizeof(path), "knowledge.xml");
+#endif // !_WIN32
+		if((doc = xmlReadFile(path, NULL, 0)) == NULL) {
+			char str[200];
+
+			snprintf(str, sizeof(str), "Can't open knowledge book index: %s", path);
+			log_error(str);
+			LOG_TO_CONSOLE(c_red1,str);
+		}
+	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
+		log_error("Error while parsing: %s", path);
+	} else if(xmlStrcasecmp(root->name,"Knowledge_Books")){
+		log_error("Root element in %s is not <Knowledge_Books>", path);
+	} else {
+		parse_knowledge_item(root->children);
+	}
+	
+	xmlFreeDoc(doc);
+
+	return;
+}
+
 void init_books()
 {
 	read_book("books/races/human.xml", 2, book_human);
@@ -488,6 +560,8 @@ void init_books()
 	read_book("books/races/gnome.xml", 2, book_gnome);
 	read_book("books/races/orchan.xml", 2, book_orchan);
 	read_book("books/races/draegoni.xml", 2, book_draegoni);
+
+	read_knowledge_book_index();
 }
 
 /*Network parser*/
@@ -928,10 +1002,12 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				char str[5];
 				int id=b->id;
 		
-				str[0]=SEND_BOOK;
-				*((Uint16*)(str+1))=SDL_SwapLE16(id);
-				*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
-				my_tcp_send(my_socket, str, 5);
+				if (10000 > id > 11000) {
+					str[0]=SEND_BOOK;
+					*((Uint16*)(str+1))=SDL_SwapLE16(id);
+					*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
+					my_tcp_send(my_socket, str, 5);
+				}
 				
 				hide_window(win->window_id);
 				book_opened=-1;
@@ -961,10 +1037,12 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				char str[5];
 				int id=b->id;
 		
-				str[0]=SEND_BOOK;
-				*((Uint16*)(str+1))=SDL_SwapLE16(id);
-				*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF);
-				my_tcp_send(my_socket, str, 5);
+				if (10000 > id > 11000) {
+					str[0]=SEND_BOOK;
+					*((Uint16*)(str+1))=SDL_SwapLE16(id);
+					*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF);
+					my_tcp_send(my_socket, str, 5);
+				}
 				
 				hide_window(win->window_id);
 				book_opened=-1;
