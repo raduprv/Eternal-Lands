@@ -1560,8 +1560,8 @@ int show_game_handler (window_info *win) {
 			display_tab_bar();
 		}
 		widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
-		widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
-		widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+		widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, input_widget->len_y);
+		widget_move (input_widget->window_id, input_widget->id, 0, window_height-input_widget->len_y-hud_y);
 		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
 	}
 	if(input_widget->window_id == game_root_win) {
@@ -1590,12 +1590,12 @@ void create_game_root_window (int width, int height)
 
 		if(input_widget == NULL) {
 			Uint32 id;
-			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, 4, 4, 1.0, 1.0, 1.0);
+			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN, 1.0, 1.0, 1.0);
 			input_widget = widget_find(game_root_win, id);
 		} else {
 			widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
-			widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
-			widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+			widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, input_widget->len_y);
+			widget_move (input_widget->window_id, input_widget->id, 0, window_height-input_widget->len_y-hud_y);
 			widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);

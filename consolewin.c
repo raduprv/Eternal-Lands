@@ -185,8 +185,8 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 int resize_console_handler (window_info *win, int width, int height)
 {
 	widget_resize (console_root_win, console_out_id, width - hud_x - 20, height - hud_y - input_widget->len_y - CONSOLE_SEP_HEIGHT - 10);
-	widget_resize (console_root_win, input_widget->id, width - hud_x, INPUT_HEIGHT);
-	widget_move (console_root_win, input_widget->id, 0, height-INPUT_HEIGHT-hud_y);
+	widget_resize (console_root_win, input_widget->id, width - hud_x, input_widget->len_y);
+	widget_move (console_root_win, input_widget->id, 0, height-input_widget->len_y-hud_y);
 
 	nr_console_lines = (int) (height - input_widget->len_y - CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
 	console_text_width = (int) (width - hud_x - 20);
@@ -231,8 +231,8 @@ int show_console_handler (window_info *win) {
 		display_tab_bar ();
 	}
 	widget_move_win(input_widget->window_id, input_widget->id, console_root_win);
-	widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
-	widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+	widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, input_widget->len_y);
+	widget_move (input_widget->window_id, input_widget->id, 0, window_height-input_widget->len_y-hud_y);
 	widget_set_flags(input_widget->window_id, input_widget->id, (TEXT_FIELD_BORDER|INPUT_DEFAULT_FLAGS)^WIDGET_CLICK_TRANSPARENT);
 	return 1;
 }
@@ -252,12 +252,12 @@ void create_console_root_window (int width, int height)
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 25, width - hud_x - 20, height - INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
 		if(input_widget == NULL) {
 			Uint32 id;
-			id = text_field_add_extended(console_root_win, 0, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, (INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, 4, 4, 1.0, 1.0, 1.0);
+			id = text_field_add_extended(console_root_win, 0, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, (INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN, 1.0, 1.0, 1.0);
 			input_widget = widget_find(console_root_win, id);
 		} else {
 			widget_move_win(input_widget->window_id, input_widget->id, console_root_win);
-			widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, INPUT_HEIGHT);
-			widget_move (input_widget->window_id, input_widget->id, 0, window_height-INPUT_HEIGHT-hud_y);
+			widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, input_widget->len_y);
+			widget_move (input_widget->window_id, input_widget->id, 0, window_height-input_widget->len_y-hud_y);
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
 		widget_set_flags(input_widget->window_id, input_widget->id, (TEXT_FIELD_BORDER|INPUT_DEFAULT_FLAGS)^WIDGET_CLICK_TRANSPARENT);

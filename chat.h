@@ -13,7 +13,8 @@
 extern Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 extern Uint8 current_channel;
 
-#define INPUT_HEIGHT (18*3 + 2*4) /* 3 lines, 2 margins at 4px*/ 
+#define INPUT_MARGIN 4
+#define INPUT_HEIGHT (18*3 + 2*INPUT_MARGIN) /* 3 lines, 2 margins at 4px*/
 #define INPUT_DEFAULT_FLAGS (TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|WIDGET_CLICK_TRANSPARENT)
 
 extern widget_list *input_widget;
