@@ -180,8 +180,8 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 				// Check if we display the book image and label
 				knowledge_book_id = idx;
 				if (knowledge_list[idx].present && knowledge_list[idx].has_book) {
-					widget_set_flags(knowledge_win, knowledge_book_image_id, !WIDGET_DISABLED);
-					widget_set_flags(knowledge_win, knowledge_book_label_id, !WIDGET_DISABLED);
+					widget_unset_flag(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
+					widget_unset_flag(knowledge_win, knowledge_book_label_id, WIDGET_DISABLED);
 				} else {
 					widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
 					widget_set_flags(knowledge_win, knowledge_book_label_id, WIDGET_DISABLED);
