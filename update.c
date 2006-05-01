@@ -457,7 +457,7 @@ int http_get_file(char *server, char *path, FILE *fp)
 	}
 	
 	// send the GET request, try to avoid ISP caching
-	snprintf(message, sizeof(message), "GET %s HTTP/1.0\nCACHE-CONTROL:NO-CACHE\n\n", path);
+	snprintf(message, sizeof(message), "GET %s HTTP/1.0\r\nCACHE-CONTROL:NO-CACHE\r\n\r\n", path);
 	len= strlen(message);
 	if(SDLNet_TCP_Send(http_sock,message,len) < len){
 		// close the socket to prevent memory leaks
