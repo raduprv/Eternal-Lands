@@ -672,6 +672,8 @@ void change_windows_on_top(int *var)
 		move_window(items_win, -1, 0, items_menu_x, items_menu_y);
 		move_window(buddy_win, -1, 0, buddy_menu_x, buddy_menu_y);
 		move_window(ground_items_win, -1, 0, ground_items_menu_x, ground_items_menu_y);
+		move_window(sigil_win, -1, 0, sigil_menu_x, sigil_menu_y);
+		move_window(elconfig_win, -1, 0, elconfig_menu_x, elconfig_menu_y);
 		// Display any open windows (checking they exist first)
 		if (storage_win > 0) {
 			if (windows_list.window[storage_win].displayed != 0 || windows_list.window[storage_win].reinstate != 0) {
@@ -698,6 +700,16 @@ void change_windows_on_top(int *var)
 				show_window(ground_items_win);
 			}
 		}
+		if (sigil_win > 0) {
+			if (windows_list.window[sigil_win].displayed != 0 || windows_list.window[sigil_win].reinstate != 0) {
+				show_window(sigil_win);
+			}
+		}
+		if (elconfig_win > 0) {
+			if (windows_list.window[elconfig_win].displayed != 0 || windows_list.window[elconfig_win].reinstate != 0) {
+				show_window(elconfig_win);
+			}
+		}
 	} else {
 		// Change the root windows
 		move_window(storage_win, game_root_win, 0, storage_win_x, storage_win_y);
@@ -705,6 +717,8 @@ void change_windows_on_top(int *var)
 		move_window(items_win, game_root_win, 0, items_menu_x, items_menu_y);
 		move_window(buddy_win, game_root_win, 0, buddy_menu_x, buddy_menu_y);
 		move_window(ground_items_win, game_root_win, 0, ground_items_menu_x, ground_items_menu_y);
+		move_window(sigil_win, game_root_win, 0, sigil_menu_x, sigil_menu_y);
+		move_window(elconfig_win, game_root_win, 0, elconfig_menu_x, elconfig_menu_y);
 		// Hide all the windows if needed
 		if (windows_list.window[game_root_win].displayed == 0) {
 			hide_window(game_root_win);
@@ -1930,7 +1944,11 @@ int show_elconfig_handler(window_info * win) {
 	if (get_show_window(newchar_root_win)) {
 		init_window(win->window_id, newchar_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	} else {
-		init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
+		int our_root_win = -1;
+		if (!windows_on_top) {
+			our_root_win = game_root_win;
+		}
+		init_window(win->window_id, our_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	}
 #else
 	init_window(win->window_id, game_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
@@ -1941,8 +1959,12 @@ int show_elconfig_handler(window_info * win) {
 void display_elconfig_win(void)
 {
 	if(elconfig_win < 0) {
+		int our_root_win = -1;
+		if (!windows_on_top) {
+			our_root_win = game_root_win;
+		}
 		/* Set up the window */
-		elconfig_win = create_window(win_configuration, game_root_win, 0, elconfig_menu_x, elconfig_menu_y, elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT);
+		elconfig_win = create_window(win_configuration, our_root_win, 0, elconfig_menu_x, elconfig_menu_y, elconfig_menu_x_len, elconfig_menu_y_len, ELW_WIN_DEFAULT);
 		set_window_color(elconfig_win, ELW_COLOR_BORDER, 0.77f, 0.59f, 0.39f, 0.0f);
 		set_window_handler(elconfig_win, ELW_HANDLER_DISPLAY, &display_elconfig_handler );
 		// TODO: replace this hack by something clean.

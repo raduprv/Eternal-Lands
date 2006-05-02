@@ -869,8 +869,11 @@ void display_sigils_menu()
 	if(sigil_win < 0){
 		static int cast_button_id=100;
 		static int clear_button_id=101;
-		
-		sigil_win= create_window(win_sigils, game_root_win, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);
+		int our_root_win = -1;
+		if (!windows_on_top) {
+			our_root_win = game_root_win;
+		}
+		sigil_win= create_window(win_sigils, our_root_win, 0, sigil_menu_x, sigil_menu_y, sigil_menu_x_len, sigil_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(sigil_win, ELW_HANDLER_DISPLAY, &display_sigils_handler );
 		set_window_handler(sigil_win, ELW_HANDLER_CLICK, &click_sigils_handler );
