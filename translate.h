@@ -571,6 +571,7 @@ extern char	reg_error_str[15],
 		/*rules.c*/
 		you_can_proceed[50],
 		accepted_rules[50],
+		accept_label[20],
 		read_rules_str[50],
 		parse_rules_str[50],
 		rules_not_found[100],

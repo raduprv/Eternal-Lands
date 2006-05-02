@@ -440,6 +440,7 @@ char	reg_error_str[15],
 	/*rules.c*/
 	you_can_proceed[50],
 	accepted_rules[50],
+	accept_label[20],
 	read_rules_str[50],
 	parse_rules_str[50],
 	rules_not_found[100],
@@ -956,7 +957,8 @@ void init_errors()
 
 	//Rule errors
 	add_xml_identifier(rules,"proceed",you_can_proceed,"Read the rules and you can play in %dsec",sizeof(you_can_proceed));
-	add_xml_identifier(rules,"accept",accepted_rules,"Read the rules and click on \"I Accept\" to play!",sizeof(accepted_rules));
+	add_xml_identifier(rules,"ready",accepted_rules,"Read the rules and click on \"I Accept\" to play!",sizeof(accepted_rules));
+	add_xml_identifier(rules,"accept",accept_label,"I Accept",sizeof(accept_label));
 	add_xml_identifier(rules,"read",read_rules_str,"An error occured while reading the rules",sizeof(read_rules_str));
 	add_xml_identifier(rules,"parse",parse_rules_str,"An error occored while parsing the rules",sizeof(parse_rules_str));
 	add_xml_identifier(rules,"notfound",rules_not_found,"The rules.xml file was not found. You will have to redownload your game.",sizeof(rules_not_found));

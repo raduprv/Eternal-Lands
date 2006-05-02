@@ -144,7 +144,8 @@ Let's try one more thing...</last_try>
   </video>
   <rules>
     <proceed>Read the rules and you can play in %dsec</proceed>
-    <accept>Read all rules and click on "I Accept" to play!</accept>
+    <ready>Read all rules and click on "I Accept" to play!</ready>
+    <accept>I Accept</accept>
     <read>An error occured while reading the rules</read>
     <parse>An error occored while parsing the rules</parse>
     <notfound>The rules.xml file was not found. You will have to redownload your game.</notfound>
