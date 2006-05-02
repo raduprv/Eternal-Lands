@@ -674,6 +674,7 @@ void change_windows_on_top(int *var)
 		move_window(ground_items_win, -1, 0, ground_items_menu_x, ground_items_menu_y);
 		move_window(sigil_win, -1, 0, sigil_menu_x, sigil_menu_y);
 		move_window(elconfig_win, -1, 0, elconfig_menu_x, elconfig_menu_y);
+		move_window(tab_stats_win, -1, 0, tab_stats_x, tab_stats_y);
 		// Display any open windows (checking they exist first)
 		if (storage_win > 0) {
 			if (windows_list.window[storage_win].displayed != 0 || windows_list.window[storage_win].reinstate != 0) {
@@ -710,6 +711,11 @@ void change_windows_on_top(int *var)
 				show_window(elconfig_win);
 			}
 		}
+		if (tab_stats_win > 0) {
+			if (windows_list.window[tab_stats_win].displayed != 0 || windows_list.window[tab_stats_win].reinstate != 0) {
+				show_window(tab_stats_win);
+			}
+		}
 	} else {
 		// Change the root windows
 		move_window(storage_win, game_root_win, 0, storage_win_x, storage_win_y);
@@ -719,6 +725,7 @@ void change_windows_on_top(int *var)
 		move_window(ground_items_win, game_root_win, 0, ground_items_menu_x, ground_items_menu_y);
 		move_window(sigil_win, game_root_win, 0, sigil_menu_x, sigil_menu_y);
 		move_window(elconfig_win, game_root_win, 0, elconfig_menu_x, elconfig_menu_y);
+		move_window(tab_stats_win, game_root_win, 0, tab_stats_x, tab_stats_y);
 		// Hide all the windows if needed
 		if (windows_list.window[game_root_win].displayed == 0) {
 			hide_window(game_root_win);
