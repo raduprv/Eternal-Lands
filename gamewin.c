@@ -1231,26 +1231,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		if (have_url)
 		{
-#ifdef OSX
-                        CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault,CFStringCreateWithCStringNoCopy(NULL,current_url,kCFStringEncodingMacRoman, NULL),NULL);
-                        LSOpenCFURLRef(url,NULL);
-                        CFRelease(url);
-#else
-			// browser name can override the windows default, and if not defined in Linux, don't error
-			if(*browser_name){
-#ifndef WINDOWS
-				char browser_command[400];
-				snprintf (browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, current_url);
-				system (browser_command);
-#else
-                SDL_Thread *go_to_url_thread;
-                // windows needs to spawn it in its own thread
-				go_to_url_thread = SDL_CreateThread (go_to_url, 0);
-			} else {
-				ShellExecute(NULL, "open", current_url, NULL, NULL, SW_SHOWNORMAL); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
-#endif  //WINDOWS
-			}
-#endif // OSX
+			open_web_link(current_url);
 		}
 	}
 	else if (keysym == SDLK_ESCAPE)

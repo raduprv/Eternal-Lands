@@ -113,6 +113,10 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 		while(t){
 			int xlen=strlen(t->text)*((t->size)?11:8),ylen=(t->size)?18:15;
 			if(t->ref && mx>(t->x) && mx<(t->x+xlen) && my>(t->y-j) && my<(t->y+ylen-j)){
+				// check if its a webpage
+				if (!strncasecmp(t->ref, "http://", 7)) {
+					open_web_link(t->ref);
+				} else {
 					//changing page
 					int i;
 					for(i=0;i<numpage+1;i++){
@@ -122,7 +126,7 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 							break;
 						}
 					}
-	
+				}
 				break;
 			}
 			t=t->Next;
@@ -623,4 +627,3 @@ void fill_encyclopedia_win ()
 
 	encyclopedia_scroll_id = vscrollbar_add_extended(encyclopedia_win, encyclopedia_scroll_id, NULL, encyclopedia_menu_x_len-20, 0, 20, encyclopedia_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, encyclopedia_max_lines);
 }
-

@@ -162,6 +162,15 @@ int go_to_url(void *dummy);
 
 /*!
  * \ingroup misc
+ * \brief Opens a url in the configured browser
+ *
+ *      Opens the configured browser to the current URL
+ *
+ */
+void open_web_link(char * url);
+
+/*!
+ * \ingroup misc
  * \brief Opens a file and check the result
  *
  *      Tries to open a file, and logs an error message if it fails

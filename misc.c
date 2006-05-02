@@ -342,7 +342,7 @@ void find_last_url(const unsigned char *source_string, const int len)
 }
 
 #ifdef  WINDOWS
-int go_to_url(void *dummy)
+int go_to_url(char * url)
 {
 	char browser_command[400];
 
@@ -351,12 +351,36 @@ int go_to_url(void *dummy)
 	}
 
 	// build the command line and execute it
-	snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, current_url),
+	snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, url),
 	system(browser_command);
 
 	return 0;
 }
 #endif
+
+void open_web_link(char * url)
+{
+#ifdef OSX
+	CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault,CFStringCreateWithCStringNoCopy(NULL,url,kCFStringEncodingMacRoman, NULL),NULL);
+	LSOpenCFURLRef(url,NULL);
+	CFRelease(url);
+#else
+	// browser name can override the windows default, and if not defined in Linux, don't error
+	if(*browser_name){
+#ifndef WINDOWS
+		char browser_command[400];
+		snprintf (browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, url);
+		system (browser_command);
+#else
+		SDL_Thread *go_to_url_thread;
+		// windows needs to spawn it in its own thread
+		go_to_url_thread = SDL_CreateThread (go_to_url(url), 0);
+	} else {
+		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
+#endif  //_WIN32
+	}
+#endif // OSX
+}
 
 FILE *my_fopen (const char *fname, const char *mode)
 {
@@ -709,4 +733,3 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 		draw_string_zoomed(xstr, y+radius/2.0f, str, lines, size);
 	}
 }
-
