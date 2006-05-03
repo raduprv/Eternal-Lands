@@ -11,6 +11,9 @@
  #include <png.h>
 #endif //PNG_SCREENSHOT
 #include "global.h"
+#ifdef OSX
+#include <ApplicationServices/ApplicationServices.h>
+#endif
 
 #define IMG_SetError(a) SDL_SetError(a)
 
@@ -361,9 +364,9 @@ int go_to_url(char * url)
 void open_web_link(char * url)
 {
 #ifdef OSX
-	CFURLRef url = CFURLCreateWithString(kCFAllocatorDefault,CFStringCreateWithCStringNoCopy(NULL,url,kCFStringEncodingMacRoman, NULL),NULL);
-	LSOpenCFURLRef(url,NULL);
-	CFRelease(url);
+	CFURLRef newurl = CFURLCreateWithString(kCFAllocatorDefault,CFStringCreateWithCStringNoCopy(NULL,url,kCFStringEncodingMacRoman, NULL),NULL);
+	LSOpenCFURLRef(newurl,NULL);
+	CFRelease(newurl);
 #else
 	// browser name can override the windows default, and if not defined in Linux, don't error
 	if(*browser_name){
