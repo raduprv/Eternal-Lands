@@ -156,9 +156,10 @@ void set_current_frustum(unsigned int intersect_type);
  *
  *      Opens the configured browser to the current URL
  *
+ * \param url         the url to open in the browser
  * \retval int  always returns 0
  */
-int go_to_url(void *dummy);
+int go_to_url(char * url);
 
 /*!
  * \ingroup misc

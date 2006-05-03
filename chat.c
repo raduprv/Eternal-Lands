@@ -1588,6 +1588,8 @@ int display_chan_sel_handler(window_info *win)
 	draw_string_zoomed(x, y+=15, "channels at a time.", 1, 0.75);
 	draw_string_zoomed(x, y+=25, "Click a channel to", 1, 0.75);
 	draw_string_zoomed(x, y+=15, "attempt to join.", 1, 0.75);
+	draw_string_zoomed(x, y+=25, "Type @ before your", 1, 0.75);
+	draw_string_zoomed(x, y+=15, "message to talk.", 1, 0.75);
 	return 0;
 }
 
@@ -1635,7 +1637,7 @@ int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 					if(chan_sel_win >= 0) {
 						toggle_window(chan_sel_win);
 					} else {
-						chan_sel_win = create_window ("Channel Selection", tab_bar_win, 0, w->pos_x,w->pos_y+w->len_y+1, 185, 265, (ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_CLOSE_BOX));
+						chan_sel_win = create_window ("Channel Selection", tab_bar_win, 0, w->pos_x,w->pos_y+w->len_y+1, 185, 300, (ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_CLOSE_BOX));
 						set_window_handler (chan_sel_win, ELW_HANDLER_DISPLAY, &display_chan_sel_handler);
 						set_window_handler (chan_sel_win, ELW_HANDLER_CLICK, &click_chan_sel_handler);
 						if(chan_name_queue->nodes >= CS_MAX_DISPLAY_CHANS && chan_sel_scroll_id == -1) {
