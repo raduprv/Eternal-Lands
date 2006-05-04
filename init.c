@@ -635,7 +635,7 @@ void init_stuff()
 #endif
 	build_levels_table();//for some HUD stuff
 
-	if(!no_sound) {
+	if(!no_sound || !no_music) {
 		update_loading_win(init_audio_str, 0);
 		init_sound();
 	}

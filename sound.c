@@ -32,6 +32,7 @@ int sound_on=1;
 int music_on=1;
 int no_sound=0;
 int no_music=0;
+Uint8 inited = 0;
 
 ALfloat sound_gain=1.0f;
 ALfloat music_gain=1.0f;
@@ -701,6 +702,9 @@ void turn_sound_on()
 }
 
 void toggle_sounds(int * var){
+	if(!have_sound && inited < 1){
+		init_sound();
+	}
 	if(sound_on){
 		turn_sound_off();
 	} else {
@@ -710,6 +714,9 @@ void toggle_sounds(int * var){
 }
 
 void toggle_music(int * var){
+	if(!have_music && inited < 1){
+		init_sound();
+	}
 	if(music_on){
 		turn_music_off();
 	} else {
@@ -751,6 +758,7 @@ void init_sound()
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
 	have_sound=1;
+	inited++;
 #ifndef	NO_MUSIC
 	have_music=1;
 #else
