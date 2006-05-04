@@ -41,7 +41,8 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <accept>Accept</accept>
     <x_quit>Press Alt-x to close the game</x_quit>
     <dropall>Drop All</dropall>
-  <cmd_markpos>Usage: #markpos &lt;x-coord&gt;,&lt;y-coord&gt; &lt;name&gt;</cmd_markpos><location_info>Location %d,%d marked with %s</location_info><marked>%s marked</marked><unmarked>%s unmarked</unmarked><equip_here>Place an item in these boxes to equip it</equip_here><equipment>Equipment</equipment></misc>
+    <cmd_markpos>Usage: #markpos &lt;x-coord&gt;,&lt;y-coord&gt; &lt;name&gt;</cmd_markpos><location_info>Location %d,%d marked with %s</location_info><marked>%s marked</marked><unmarked>%s unmarked</unmarked><equip_here>Place an item in these boxes to equip it</equip_here><equipment>Equipment</equipment>
+  </misc>
   <new>
     <skin>Skin</skin>
     <hair>Hair</hair>
@@ -84,7 +85,8 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <a_draegoni>About Draegoni</a_draegoni>
     <zoom_in_out>To zoom in/out: Middle mouse wheel or Page Up/Down</zoom_in_out>
     <rotate_camera>To rotate the camera: Middle mouse button or arrow keys</rotate_camera>
-  <appearance_box>Appearance</appearance_box></new>
+    <appearance_box>Appearance</appearance_box>
+  </new>
   <tooltips>
     <walk>Walk</walk>
     <sit>Sit down</sit>
@@ -130,5 +132,6 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <green>Green</green>
     <blue>Blue</blue>
     <yellow>Yellow</yellow>
-  <request>Requests</request></buddy>
+    <request>Requests</request>
+  </buddy>
 </root>
