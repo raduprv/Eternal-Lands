@@ -1230,9 +1230,9 @@ void init_vars()
 #endif //ELC
 	
 	add_var(BOOL,"no_sound","sound",&no_sound,toggle_sounds,0,"No sound","Turn sound effects on/off",AUDIO);
-//#ifndef NO_MUSIC
+#ifndef NO_MUSIC
 	add_var(BOOL,"no_music","music",&no_music,toggle_music,0,"No music","Turn music on/off",AUDIO);
-//#endif //NO_MUSIC
+#endif //NO_MUSIC
 	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
 #ifndef NO_MUSIC
 	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
