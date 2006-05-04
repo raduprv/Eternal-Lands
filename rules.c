@@ -523,7 +523,7 @@ void draw_rules_interface (int len_x, int len_y)
 	else 
 		strcpy (str, accepted_rules);
 		
-	draw_string (len_x / 2 - strlen (str) * 11 / 2, len_y - 40 * window_ratio, str, 0);
+	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - 40 * window_ratio, str, 0);
 	
 	set_font(3);
 	draw_rules (display_rules, rule_offset, diff + 30 * window_ratio, 60 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f, rules_winRGB);

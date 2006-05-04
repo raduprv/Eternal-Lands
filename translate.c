@@ -439,7 +439,7 @@ char	reg_error_str[15],
 	,not_ascii[20],
 	/*rules.c*/
 	you_can_proceed[50],
-	accepted_rules[50],
+	accepted_rules[80],
 	accept_label[20],
 	read_rules_str[50],
 	parse_rules_str[50],
