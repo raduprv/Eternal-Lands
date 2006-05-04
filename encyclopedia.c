@@ -10,8 +10,6 @@ int encyclopedia_menu_x_len=500;
 int encyclopedia_menu_y_len=350;
 //int encyclopedia_menu_dragged=0;
 int encyclopedia_scroll_id=0;
-// Pixels to Scroll
-int encyclopedia_max_lines=1000;
 
 _Category Category[100];
 _Page Page[500];
@@ -102,7 +100,7 @@ int display_encyclopedia_handler(window_info *win)
 int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	_Text *t=Page[currentpage].T.Next;
-
+	
 	if(flags&ELW_WHEEL_UP) {
 		vscrollbar_scroll_up(encyclopedia_win, encyclopedia_scroll_id);
 	} else if(flags&ELW_WHEEL_DOWN) {
@@ -123,6 +121,7 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 						if(!xmlStrcasecmp(Page[i].Name,t->ref)){
 							currentpage=i;
 							vscrollbar_set_pos(encyclopedia_win, encyclopedia_scroll_id, 0);
+							vscrollbar_set_bar_len(encyclopedia_win, encyclopedia_scroll_id, Page[currentpage].max_y);
 							break;
 						}
 					}
@@ -541,8 +540,11 @@ void ReadCategoryXML(xmlNode * a_node)
 				x+=strlen(T->text)*((T->size)?11:8);
 				lastextlen=strlen(T->text)*((T->size)?11:8);
 			}
-
-
+			// See if this is the new maximum length.
+			if(Page[numpage].max_y < y)
+			{
+				Page[numpage].max_y = y;
+			}
 		}
 
 		ReadCategoryXML(cur_node->children);
@@ -585,12 +587,24 @@ void ReadIndexXML(xmlNode * a_node)
 
 void ReadXML(const char *filename)
 {
+	int i;
+	
 	xmlDocPtr doc=xmlReadFile(filename, NULL, 0);
 	if (doc==NULL)
 		return;
 
 	ReadIndexXML(xmlDocGetRootElement(doc));
 	xmlFreeDoc(doc);
+	
+	// Sanitize all of the page lengths.
+	for (i = 0; i < numpage; i++) {
+		if(Page[i].max_y > encyclopedia_menu_y_len - ENCYC_OFFSET)
+		{
+			Page[i].max_y -= encyclopedia_menu_y_len - ENCYC_OFFSET;
+		} else {
+			Page[i].max_y = 0;
+		}
+	}
 }
 
 void FreeXML()
@@ -625,5 +639,5 @@ void fill_encyclopedia_win ()
 	set_window_handler (encyclopedia_win, ELW_HANDLER_DISPLAY, &display_encyclopedia_handler);
 	set_window_handler (encyclopedia_win, ELW_HANDLER_CLICK, &click_encyclopedia_handler);
 
-	encyclopedia_scroll_id = vscrollbar_add_extended(encyclopedia_win, encyclopedia_scroll_id, NULL, encyclopedia_menu_x_len-20, 0, 20, encyclopedia_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, encyclopedia_max_lines);
+	encyclopedia_scroll_id = vscrollbar_add_extended(encyclopedia_win, encyclopedia_scroll_id, NULL, encyclopedia_menu_x_len-20, 0, 20, encyclopedia_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, Page[currentpage].max_y);
 }

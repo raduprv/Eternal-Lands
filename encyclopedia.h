@@ -9,6 +9,8 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#define ENCYC_OFFSET	40
+
 /*!
  * defines the categories used in the encyclopedia
  */
@@ -47,6 +49,7 @@ typedef struct
 	char *Name; /*!< name of the page */
 	_Text T; /*!< a list of text blocks */
 	_Image I; /*!< a list of images */
+	int max_y; /*!< the full page length */
 }_Page;
 
 /*!
