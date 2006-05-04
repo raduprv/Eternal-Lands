@@ -228,6 +228,8 @@ extern char
 		buddy_blue_str[10],
 		buddy_yellow_str[10],
 		buddy_request_str[10],
+		/* chat.c */
+		channel_help_str[200],
 		/*console.c*/
 		logconn_str[50],
 		cmd_ignores[20],

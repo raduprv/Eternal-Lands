@@ -1548,7 +1548,9 @@ int chan_tab_mouseover_handler(widget_list *widget)
 
 int display_chan_sel_handler(window_info *win)
 {
-	int i = 0, y = 5, x = 5, t = 0;
+	int i = 0, y = 5, x = 5, t = 0, num_lines = 0;
+	float local_zoom = 0.75f;
+	
 	node_t *step = queue_front_node(chan_name_queue);
 	if(mouse_x >= win->pos_x+win->len_x || mouse_y >= win->pos_y+win->len_y) {
 		win->displayed = 0;
@@ -1565,7 +1567,7 @@ int display_chan_sel_handler(window_info *win)
 	}
 	for (i = 0; i < CS_MAX_DISPLAY_CHANS; ++i) {//loathe not having auto-moving widgets...
 		glColor3f(0.5f, 0.75f, 1.0f);
-		draw_string_zoomed(x, y, ((chan_name*)(step->data))->name, 1, 0.75f);
+		draw_string_zoomed(x, y, ((chan_name*)(step->data))->name, 1, local_zoom);
 		if(mouse_y > win->pos_y+y && mouse_y < win->pos_y+y+20 && mouse_x >= win->pos_x+5
 			&& mouse_x-5 <= win->pos_x + 8*((signed)strlen(((chan_name*)(step->data))->name))) {
 			show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-15);
@@ -1584,12 +1586,10 @@ int display_chan_sel_handler(window_info *win)
 		glVertex2i(win->len_x, y-2);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	draw_string_zoomed(x, y+=5, "You can be in up to 3", 1, 0.75);
-	draw_string_zoomed(x, y+=15, "channels at a time.", 1, 0.75);
-	draw_string_zoomed(x, y+=25, "Click a channel to", 1, 0.75);
-	draw_string_zoomed(x, y+=15, "attempt to join.", 1, 0.75);
-	draw_string_zoomed(x, y+=25, "Type @ before your", 1, 0.75);
-	draw_string_zoomed(x, y+=15, "message to talk.", 1, 0.75);
+	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - 5, NULL);
+	draw_string_zoomed(x, y+=5, channel_help_str, num_lines, local_zoom);
+	win->len_y = 187 + num_lines * DEFAULT_FONT_Y_LEN * local_zoom + 2;
+	
 	return 0;
 }
 
@@ -1637,7 +1637,7 @@ int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 					if(chan_sel_win >= 0) {
 						toggle_window(chan_sel_win);
 					} else {
-						chan_sel_win = create_window ("Channel Selection", tab_bar_win, 0, w->pos_x,w->pos_y+w->len_y+1, 185, 300, (ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_CLOSE_BOX));
+						chan_sel_win = create_window ("Channel Selection", tab_bar_win, 0, w->pos_x,w->pos_y+w->len_y+1, 185, 187, (ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_ALPHA_BORDER|ELW_CLOSE_BOX));
 						windows_list.window[chan_sel_win].back_color[3]= 0.25f;
 						set_window_handler (chan_sel_win, ELW_HANDLER_DISPLAY, &display_chan_sel_handler);
 						set_window_handler (chan_sel_win, ELW_HANDLER_CLICK, &click_chan_sel_handler);
