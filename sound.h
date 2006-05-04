@@ -11,7 +11,8 @@ extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
-extern int no_sound; /*!< flag inidicating whether the #no_sound ini file directive is used */
+extern int no_sound; /*!< flag indicating if sound is disabled in config */
+extern int no_music; /*!< flag indicating if music is disabled in config */
 extern int playing_music; /*!< flag indicating if music is currently playing */
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
@@ -189,5 +190,9 @@ void turn_music_on();
 ALuint get_loaded_buffer(int i);
 
 int display_song_name();
+
+void toggle_sounds(int * var);
+
+void toggle_music(int * var);
 
 #endif

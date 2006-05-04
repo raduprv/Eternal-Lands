@@ -31,6 +31,7 @@ int have_music=0;
 int sound_on=1;
 int music_on=1;
 int no_sound=0;
+int no_music=0;
 
 ALfloat sound_gain=1.0f;
 ALfloat music_gain=1.0f;
@@ -697,6 +698,24 @@ void turn_sound_on()
 			alSourcePlay(sound_source[i]);
 	}
 	UNLOCK_SOUND_LIST();
+}
+
+void toggle_sounds(int * var){
+	if(sound_on){
+		turn_sound_off();
+	} else {
+		turn_sound_on();
+	}
+	*var=!*var;
+}
+
+void toggle_music(int * var){
+	if(music_on){
+		turn_music_off();
+	} else {
+		turn_music_on();
+	}
+	*var=!*var;
 }
 
 void turn_music_off()
