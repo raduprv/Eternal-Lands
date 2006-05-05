@@ -35,13 +35,8 @@ void add_line_to_history(const char *line, int len)
 {
 	char *copy;
 
-	if(*line != '#' && *line != char_cmd_str[0]) {
-		copy = malloc(len+2);
-		snprintf(copy, len+2, "%c%.*s", char_cmd_str[0], len, line);
-	} else {
-		copy = malloc(len+1);
-		snprintf(copy, len+1, "%.*s", len, line);
-	}
+	copy = malloc(len+1);
+	snprintf(copy, len+1, "%.*s", len, line);
 	list_push(&command_buffer, copy);
 	command_buffer_offset = NULL;
 }
@@ -147,6 +142,7 @@ void add_name_to_tablist(const unsigned char *name)
 
 #define COMMAND 1
 #define NAME 2
+#define CHANNEL 3
 
 const char *tab_complete(const text_message *input)
 {
@@ -155,16 +151,25 @@ const char *tab_complete(const text_message *input)
 	static char last_count = -1;
 	const char *return_value = NULL;
 
-	if(input != NULL && input->len > 0) {
+	if(input != NULL && input->len > 0 &&
+		(*input->data == '#' || *input->data == *char_cmd_str ||
+		*input->data == '/' || *input->data == *char_slash_str ||
+		(input->len > 1 && (input->data[0] == '@' || input->data[0] == *char_at_str) &&
+		(input->data[1] == '@' || input->data[1] == *char_at_str))))
+	{
 		const char *input_string = input->data;
 		Uint8 type;
 		int count;
 		int i;
 		short retries;
+		node_t *step;
 
 		if(*input_string == '/' || *input_string == char_slash_str[0]) {
 			input_string++;
 			type = NAME;
+		} else if (input_string[0] == '@' || input_string[0] == char_at_str[0]) {
+			input_string+=2;
+			type = CHANNEL;
 		} else {
 			type = COMMAND;
 			if(*input_string == '#' || *input_string == char_cmd_str[0]) {
@@ -188,6 +193,20 @@ const char *tab_complete(const text_message *input)
 								/* This hasn't been returned yet, let's return it */
 								last_count = count++;
 								return_value = name_list[i];
+								break;
+							}
+							count++;
+						}
+					}
+				break;
+				case CHANNEL:
+					for(step = queue_front_node(chan_name_queue), count = 0; step->next != NULL; step = step->next) {
+						if(strncasecmp(((chan_name*)(step->data))->name, last_complete, strlen(last_complete)) == 0) {
+							/* Yay! The chan-name begins with the string we're searching for. */
+							if(count > last_count) {
+								/* We found something we haven't returned earlier, let's return it. */
+								last_count = count++;
+								return_value = ((chan_name*)(step->data))->name;
 								break;
 							}
 							count++;
@@ -236,7 +255,11 @@ void do_tab_complete(text_message *input)
 		{
 			suffix = ' ';
 		}
-		snprintf(input->data, input->size, "%c%s%c", *input->data, completed_str, suffix);
+		if (input->data[0] == '@' || input->data[0] == char_at_str[0]) {
+			snprintf(input->data, input->size, "%c%c%s%c", input->data[0], input->data[1], completed_str, suffix);
+		} else {
+			snprintf(input->data, input->size, "%c%s%c", *input->data, completed_str, suffix);
+		}
 		input->len = strlen(input->data);
 		if(input_widget && input_widget->widget_info) {
 			text_field *tf = input_widget->widget_info;
@@ -836,6 +859,7 @@ void init_commands(const char *filename)
 	add_command("accept_buddy", &command_accept_buddy);
 	add_command("current_song", &display_song_name);
 	add_command("kills", &command_kills);
+	add_command("find", &history_grep);
 	command_buffer_offset = NULL;
 }
 #endif //COMMAND_BUFFER
@@ -1344,6 +1368,10 @@ void test_for_console_command (char *text, int len)
 		}
 	else if (my_strncompare (text_loc, "current_song", 12)){
 		display_song_name();
+		return;
+	}
+	else if (my_strncompare (text_loc, "find ", 5) && len > 7){
+		history_grep(text_loc+5);
 		return;
 	}
 	else if (my_strncompare (text_loc, "accept_buddy", 12))

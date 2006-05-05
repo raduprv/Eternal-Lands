@@ -6,6 +6,8 @@
 #ifndef __GAMEWIN_H__
 #define __GAMEWIN_H__
 
+#define HUD_MARGIN_X 64
+#define HUD_MARGIN_Y 49
 
 /*! \name windows handlers 
  * @{ */

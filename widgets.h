@@ -94,7 +94,7 @@ typedef struct wl{
 	const struct WIDGET_TYPE *type;  /*!< Specifies what properties the widget inherits from it's type */
 	void *spec;		/*!< The specific implementation info for this widget which is passed to type-nonspecific handlers*/
 #endif
-	Uint32 Flags;  /*!< Status flags...visible,enbled,etc */
+	Uint32 Flags;  /*!< Status flags... visible, enabled, etc */
 	float size;    /*!< Size of text, image, etc */
 	float r, g, b; /*!< Associated color */
     /*! @} */
@@ -126,13 +126,6 @@ typedef struct wl{
 #define WIDGET_INVISIBLE	0x40
 #define WIDGET_DISABLED		0x80
 #define WIDGET_CLICK_TRANSPARENT 0x100
-/*! \} */
-
-/*!
- * \name	Generic flags for widgets
- */
-/*! \{ */
-#define WIDGET_INVISIBLE	0x40
 /*! \} */
 
 /*!

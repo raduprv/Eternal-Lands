@@ -230,6 +230,10 @@ void build_cursors()
 	cursors_array[CURSOR_WAND].hot_x=3;
 	cursors_array[CURSOR_WAND].hot_y=3;
 	assign_cursor(CURSOR_WAND);
+
+	cursors_array[CURSOR_TEXT].hot_x=3;
+	cursors_array[CURSOR_TEXT].hot_y=3;
+	assign_cursor(CURSOR_TEXT);
 }
 
 /* currently UNUSED

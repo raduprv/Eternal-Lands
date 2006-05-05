@@ -35,6 +35,7 @@
 			#define acosf acos
 		#endif  // _MSC_VER < 1400
 		#define ceilf ceil
+		#define floorf floor
 		#define rint(X) floor(X+0.5f)
 	#endif
 	#ifdef __MINGW32__

@@ -223,8 +223,8 @@ void recolour_messages(text_message *msgs){
 
 void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
 {
-	float displayed_font_x_size = 11.0 * text_zoom;
-	float displayed_font_y_size = 18.0 * text_zoom;
+	float displayed_font_x_size = DEFAULT_FONT_X_LEN * text_zoom;
+	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
 
 	unsigned char cur_char;
 	int i;

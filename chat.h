@@ -14,10 +14,12 @@ extern Uint32 active_channels[MAX_ACTIVE_CHANNELS];
 extern Uint8 current_channel;
 
 #define INPUT_MARGIN 4
-#define INPUT_HEIGHT (18*3 + 2*INPUT_MARGIN) /* 3 lines, 2 margins at 4px*/
+#define INPUT_HEIGHT (DEFAULT_FONT_Y_LEN + 2*INPUT_MARGIN) /* 1 line, 2 margins at 4px*/
 #define INPUT_DEFAULT_FLAGS (TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS|WIDGET_CLICK_TRANSPARENT)
 
 extern widget_list *input_widget;
+
+extern queue_t *chan_name_queue;
 
 /*!
  * \brief   Returns the current chat input widget
@@ -265,6 +267,18 @@ void convert_tabs (int new_wc);
  * \callgraph
  */
 void init_channel_names (void);
+
+/*!
+ * \ingroup chat_window
+ * \brief   Put a text line in the input field
+ *
+ *      Removes the content of the input field and inserts a new text line
+ *
+ * \param text the text to insert
+ *
+ * \callgraph
+ */
+void put_string_in_input_field(const Uint8 *text);
 
 int command_jlc(char * text, int len);
 

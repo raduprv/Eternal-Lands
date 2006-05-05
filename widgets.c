@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
+#include <ctype.h>
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
 #else
@@ -1738,7 +1739,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	text_field *tf;
 	text_message *msg;
 	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
-	int tmp_chan; 
+	int tmp_chan;
 
 	if (w == NULL) return 0;
 	if ( !(w->Flags & TEXT_FIELD_EDITABLE) ) return 0;
@@ -1748,14 +1749,14 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	msg = &(tf->buffer[tf->msg]);
 	tmp_chan = msg->chan_idx;
 
-	if(IS_PRINT(ch) || keysym == K_ROTATELEFT || keysym == K_ROTATERIGHT ||
-		keysym == SDLK_HOME || keysym == SDLK_END || ch == SDLK_BACKSPACE ||
-		ch == SDLK_DELETE) {
+	if(IS_PRINT(ch) || keysym == SDLK_UP || keysym == SDLK_DOWN ||
+		keysym == SDLK_LEFT || keysym == SDLK_RIGHT || keysym == SDLK_HOME ||
+		keysym == SDLK_END || ch == SDLK_BACKSPACE || ch == SDLK_DELETE) {
 		/* Stop blinking on input */
 		tf->next_blink = cur_time + TF_BLINK_DELAY;
 	}
 
-	if (keysym == K_ROTATELEFT)
+	if (keysym == SDLK_LEFT)
 	{
 		if (tf->cursor > 0) 
 		{
@@ -1763,19 +1764,78 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			{
 				tf->cursor--;
 			}
-			while (tf->cursor > 0 && msg->data[tf->cursor] == '\r');
+			while (tf->cursor > 0 && (msg->data[tf->cursor] == '\r' || (ctrl_on && !isspace(msg->data[tf->cursor]))));
 		}
 
 		return 1;
 	}
-	else if (keysym == K_ROTATERIGHT)
+	else if (keysym == SDLK_RIGHT)
 	{
 		if (tf->cursor < msg->len)
 		{
 			do
 			{
 				tf->cursor++;
-			} while (tf->cursor < msg->len && msg->data[tf->cursor] == '\r');
+			} while (tf->cursor < msg->len && (msg->data[tf->cursor] == '\r' || (ctrl_on && !isspace(msg->data[tf->cursor]))));
+		}
+		return 1;
+	}
+	else if (keysym == SDLK_UP && !ctrl_on && !alt_on && tf->cursor >= 0)
+	{
+		size_t i;
+		size_t current_line_start; //The beginning of the line we're processing
+		size_t cursor_offset; //The cursor's offset on the current line
+		size_t prev_line_start; //Beginning of the line before the line with the cursor
+		unsigned int current_line;
+		unsigned int total_lines;
+
+		for(i = 0, current_line = 1, current_line_start = 0, prev_line_start = 0, total_lines = 1, cursor_offset = 0; i < msg->len; i++) {
+			if(msg->data[i] == '\r' || msg->data[i] == '\n') {
+				if(i < tf->cursor) {
+					cursor_offset = 0;
+					current_line++;
+					prev_line_start = current_line_start;
+					current_line_start = i+1;
+				}
+				total_lines++;
+			} else if(i < tf->cursor) {
+				cursor_offset++;
+			}
+		}
+		if(current_line > 0) {
+			for(i = tf->cursor = prev_line_start; i < prev_line_start+cursor_offset && i < msg->len
+					&& msg->data[i] != '\r' && msg->data[i] != '\n'; i++) {
+				tf->cursor++;
+			}
+		}
+		return 1;
+	}
+	else if (keysym == SDLK_DOWN && !ctrl_on && !alt_on && tf->cursor >= 0)
+	{
+		size_t i;
+		size_t cursor_offset; //The cursor's offset on the current line
+		size_t next_line_start; //Beginning of the line after the line with the cursor
+		unsigned int current_line;
+		unsigned int total_lines;
+
+		for(i = 0, current_line = 1, total_lines = 1, cursor_offset = 0, next_line_start = 0; i < msg->len; i++) {
+			if(msg->data[i] == '\r' || msg->data[i] == '\n') {
+				total_lines++;
+				if(i < tf->cursor) {
+					cursor_offset = 0;
+					current_line++;
+				} else if (total_lines - current_line == 1) {
+					next_line_start = i+1;
+				}
+			} else if(i < tf->cursor) {
+				cursor_offset++;
+			}
+		}
+		if(current_line < total_lines) {
+			for(i = tf->cursor = next_line_start; i < next_line_start+cursor_offset && i < msg->len
+					&& (i+1 > msg->len || (msg->data[i+1] != '\r' && msg->data[i+1] != '\n')); i++) {
+				tf->cursor++;
+			}
 		}
 		return 1;
 	}
@@ -1849,6 +1909,9 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		msg->chan_idx = CHAT_NONE;
 		tf->nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space, &tf->cursor);
 		msg->chan_idx = tmp_chan;
+		while (msg->data[tf->cursor] == '\r') {
+			tf->cursor++;
+		}
 		return 1;
 	}
 	return 0;
@@ -1899,7 +1962,7 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 		i++;
 	}
 	return i+k;
-} 
+}
 
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 {
@@ -2002,6 +2065,10 @@ int text_field_draw (widget_list *w)
 	if (tf->text_r >= 0.0f)
 	{
 		glColor3f (tf->text_r, tf->text_g, tf->text_b);
+	}
+
+	if(mx > 0 && mx < w->len_x && my > 0 && my < w->len_y && !(w->Flags&WIDGET_CLICK_TRANSPARENT) && w->Flags&TEXT_FIELD_EDITABLE){
+		elwin_mouse = CURSOR_TEXT;
 	}
 
 	/* Make the cursor blink if the mouse is in the widget */
@@ -2117,12 +2184,21 @@ int pword_field_draw (widget_list *w)
 	unsigned char *text;
 	int difference;
 	int i;
+	int mx = mouse_x - windows_list.window[w->window_id].pos_x - w->pos_x;
+	int my = mouse_y - windows_list.window[w->window_id].pos_y - w->pos_y;
 
 	if (w == NULL) {
 		return 0;
 	}
 	pword = (password_entry*) w->widget_info;
 	difference = (get_string_width(pword->password)*w->size - w->len_x)/12;
+
+	/*if you want the text cursor, uncomment the following... as clicking goes
+	to the end of the line, and you can't jump part way through, using the text
+	cursor will not give the user the right idea*/
+	/*if(mx > 0 && mx < w->len_x && my > 0 && my < w->len_y && !(w->Flags&WIDGET_CLICK_TRANSPARENT)){
+		elwin_mouse = CURSOR_TEXT;
+	}*/
 
 	// draw the frame
 	glDisable (GL_TEXTURE_2D);

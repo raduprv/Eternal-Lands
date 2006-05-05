@@ -203,10 +203,13 @@ void clear_input_line (void)
 		text_field *field = input_widget->widget_info;
 		field->cursor = 0;
 		field->nr_lines = 1;
+		if(use_windowed_chat != 2) {
+			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, field->y_space*2+DEFAULT_FONT_Y_LEN*input_widget->size);
+		}
 	}
 	/* Hide the game win input widget */
 	if(input_widget->window_id == game_root_win) {
-		widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_INVISIBLE);
+		widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_DISABLED);
 	}
 #ifdef COMMAND_BUFFER
 	history_reset();
@@ -617,52 +620,13 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 	tf = (text_field *) widget->widget_info;
 	msg = tf->buffer;
 
-	if (keysym == K_ROTATELEFT)
-	{
-		if (tf->cursor > 0) 
-		{
-			do
-			{
-				tf->cursor--;
-			}
-			while (tf->cursor > 0 && msg->data[tf->cursor] == '\r');
-		}
-	}
-	else if (keysym == K_ROTATERIGHT)
-	{
-		if (tf->cursor < msg->len)
-		{
-			do
-			{
-				tf->cursor++;
-			} while (tf->cursor < msg->len && msg->data[tf->cursor] == '\r');
-		}
-	}
-	else if (keysym == SDLK_HOME)
-	{
-		tf->cursor = 0;
-	}
-	else if (keysym == SDLK_END)
-	{
-		tf->cursor = msg->len;
-	}
-	else if (keysym == SDLK_DELETE && tf->cursor < msg->len)
-	{
-		int i = tf->cursor, n = 1;
-		int tmp_chan = msg->chan_idx;
-		
-		while (i+n <= msg->len && msg->data[i+n] == '\r') n++;
-		
-		for (i += n; i <= msg->len; i++)
-			msg->data[i-n] = msg->data[i];
-
-		msg->len -= n;
-		// set invalid width to force rewrap
-		msg->wrap_width = 0;
-		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-		msg->chan_idx = CHAT_NONE;
-		tf->nr_lines = rewrap_message (msg, widget->size, widget->len_x - 2*tf->x_space, &tf->cursor);
-		msg->chan_idx = tmp_chan;
+	if ( (!(key & ELW_CTRL) && ( (keysym == SDLK_UP) || (keysym == SDLK_DOWN) ) ) ||
+		(keysym == SDLK_LEFT) || (keysym == SDLK_RIGHT) || (keysym == SDLK_HOME) ||
+		(keysym == SDLK_END) || (keysym == SDLK_DELETE && tf->cursor < msg->len) ) {
+		//pass it along. the defaults are good enough
+		widget->Flags ^= TEXT_FIELD_NO_KEYPRESS;
+		text_field_keypress (widget, mx, my, key, unikey);
+		widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
 	}
 	else
 	{
@@ -767,13 +731,6 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	msg = &(tf->buffer[tf->msg]);
 	tmp_chan = msg->chan_idx;
 
-	if(IS_PRINT(ch) || keysym == K_ROTATELEFT || keysym == K_ROTATERIGHT ||
-		keysym == SDLK_HOME || keysym == SDLK_END || ch == SDLK_BACKSPACE ||
-		ch == SDLK_DELETE) {
-		/* Stop blinking on input */
-		tf->next_blink = cur_time + TF_BLINK_DELAY;
-	}
-
 	if (keysym == SDLK_ESCAPE)
 	{
 		clear_input_line();
@@ -787,16 +744,9 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 				send_input_text_line (msg->data, msg->len);
 			}
 		}
-		else if ( msg->data[0] == '#' || msg->data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
+		else if ( msg->data[0] == '#' || msg->data[0] == char_cmd_str[0] )
 		{
-#ifdef COMMAND_BUFFER
-			if(test_for_console_command (msg->data, msg->len) || msg->data[0] == '#' || msg->data[0] == char_cmd_str[0])
-			{
-				add_line_to_history(msg->data, msg->len);
-			}
-#else
 			test_for_console_command (msg->data, msg->len);
-#endif //COMMAND_BUFFER
 		}
 		else
 		{
@@ -804,6 +754,9 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 				msg->data[0] = '@';
 			send_input_text_line (msg->data, msg->len);
 		}
+#ifdef COMMAND_BUFFER
+		add_line_to_history(msg->data, msg->len);
+#endif //COMMAND_BUFFER
 		clear_input_line();
 	}
 #ifndef OSX
@@ -827,8 +780,6 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		msg->chan_idx = CHAT_NONE;
 		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 		msg->chan_idx = tmp_chan;
-		
-		return 1;
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
 	{
@@ -846,14 +797,12 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		msg->chan_idx = CHAT_NONE;
 		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 		msg->chan_idx = tmp_chan;
-		
-		return 1;
 	}
 	else if ( !alt_on && !ctrl_on && IS_PRINT (ch) && ch != '`' )
 	{
 		if(!get_show_window(map_root_win)) {
 			//Make sure the widget is visible.
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		}
 		// watch for the '//' shortcut
 		if (tf->cursor == 1 && (ch == '/' || ch == char_slash_str[0])
@@ -875,7 +824,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		msg->chan_idx = tmp_chan;
 	}
 #ifdef COMMAND_BUFFER
-	else if (key == K_TABCOMPLETE && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str || *input_text_line.data == '/' || *input_text_line.data == *char_slash_str))
+	else if (key == K_TABCOMPLETE)
 	{
 		do_tab_complete(&input_text_line);
 	}
@@ -883,6 +832,15 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	else
 	{
 		return 0;
+	}
+	tf->next_blink = cur_time + TF_BLINK_DELAY;
+	if(input_widget->window_id != chat_win && tf->nr_lines != floorf((input_widget->len_y-2*tf->y_space)/(DEFAULT_FONT_Y_LEN*input_widget->size))) {
+		/* Resize the input widget if needed */
+		widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+	}
+	while(tf->buffer->data[tf->cursor] == '\r' && tf->cursor < tf->buffer->len)
+	{
+		tf->cursor++;
 	}
 	return 1;
 }
@@ -896,7 +854,7 @@ void paste_in_input_field (const Uint8 *text)
 	if (input_widget == NULL) {
 		return;
 	} else if (input_widget->window_id == game_root_win) {
-		widget_unset_flag(game_root_win, input_widget->id, WIDGET_INVISIBLE);
+		widget_unset_flag(game_root_win, input_widget->id, WIDGET_DISABLED);
 	}
 	
 	tf = input_widget->widget_info;
@@ -911,6 +869,34 @@ void paste_in_input_field (const Uint8 *text)
 	msg->chan_idx = CHAT_NONE;
 	tf->nr_lines = rewrap_message(msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 	msg->chan_idx = tmp_chan;
+	if(use_windowed_chat != 2) {
+		widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+	}
+}
+
+void put_string_in_input_field(const Uint8 *text)
+{
+	text_field *tf = (text_field*)(input_widget->widget_info);
+	text_message *msg = &(tf->buffer[tf->msg]);
+	int tmp_chan;
+
+	if(text != NULL) {
+		msg->len = msg->len = snprintf(msg->data, msg->size, "%s", text);
+		tf->cursor = tf->buffer->len;
+		// set invalid width to force rewrap
+		msg->wrap_width = 0;
+		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+		tmp_chan = msg->chan_idx;
+		msg->chan_idx = CHAT_NONE;
+		tf->nr_lines = rewrap_message(msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
+		msg->chan_idx = tmp_chan;
+		if(use_windowed_chat != 2) {
+			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+		}
+		if(input_widget->window_id == game_root_win) {
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+		}
+	}
 }
 
 int close_chat_handler (window_info *win)
@@ -983,6 +969,9 @@ void display_chat(void)
 	}
 	else
 	{
+		if(input_widget != NULL) {
+			input_widget->OnResize = NULL;
+		}
 		show_window (chat_win);
 		select_window (chat_win);
 	}
@@ -2035,3 +2024,4 @@ void chan_target_name(char * text, int len)
 	snprintf(buffer, sizeof(buffer), "@@%d%s", num, text+2+mylen);
 	send_input_text_line (buffer, strlen(buffer));
 }
+

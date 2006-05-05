@@ -869,7 +869,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		return 1;
 	}
 #ifdef COMMAND_BUFFER
-	else if ((keysym == SDLK_UP || keysym == SDLK_DOWN) && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str))
+	else if ((keysym == SDLK_UP || keysym == SDLK_DOWN) && ctrl_on)
 	{
 		char *line;
 
@@ -883,11 +883,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		}
 		if(line != NULL)
 		{
-			input_text_line.len = snprintf(input_text_line.data, input_text_line.size, "%s", line);
-			if(input_widget && input_widget->widget_info) {
-				text_field *tf = input_widget->widget_info;
-				tf->cursor = tf->buffer->len;
-			}
+			put_string_in_input_field(line);
 		}
 	}
 #endif //COMMAND_BUFFER
@@ -1334,7 +1330,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 				text_field *tf = input_widget->widget_info;
 				tf->cursor = tf->buffer->len;
 				if(input_widget->window_id == game_root_win) {
-					widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+					widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 				}
 			}
 		}
@@ -1363,15 +1359,9 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 		{
 			chan_target_name(input_text_line.data, input_text_line.len);
 		}
-		else if ( input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0] || get_show_window (console_root_win) )
+		else if ( input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0] )
 		{
-#ifdef COMMAND_BUFFER
-			if(test_for_console_command (input_text_line.data, input_text_line.len) || input_text_line.data[0] == '#' || input_text_line.data[0] == char_cmd_str[0]) {
-				add_line_to_history(input_text_line.data, input_text_line.len);
-			}
-#else
 			test_for_console_command (input_text_line.data, input_text_line.len);
-#endif //COMMAND_BUFFER
 		}
 		else
 		{
@@ -1379,6 +1369,9 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 				input_text_line.data[0]='@';
 			send_input_text_line (input_text_line.data, input_text_line.len);
 		}
+#ifdef COMMAND_BUFFER
+		add_line_to_history(input_text_line.data, input_text_line.len);
+#endif //COMMAND_BUFFER
 		// also clear the buffer
 		clear_input_line();
 	}
@@ -1400,7 +1393,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		return 1;
 	}
 #ifdef COMMAND_BUFFER
-	else if (key == K_TABCOMPLETE && input_text_line.len > 0 && (*input_text_line.data == '#' || *input_text_line.data == *char_cmd_str || *input_text_line.data == '/' || *input_text_line.data == *char_slash_str))
+	else if (key == K_TABCOMPLETE)
 	{
 		do_tab_complete(&input_text_line);
 	}
@@ -1463,8 +1456,8 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		if(!hud_x)
 		{
-			hud_x = 64;
-			hud_y = 49;
+			hud_x = HUD_MARGIN_X;
+			hud_y = HUD_MARGIN_Y;
 		}
 		else
 		{
@@ -1538,15 +1531,16 @@ int show_game_handler (window_info *win) {
 			display_tab_bar();
 		}
 		widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
-		widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, input_widget->len_y);
-		widget_move (input_widget->window_id, input_widget->id, 0, window_height-input_widget->len_y-hud_y);
+		widget_resize (input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, input_widget->len_y);
+		input_widget->OnResize = input_field_resize;
+		widget_move (input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
 	}
 	if(input_widget->window_id == game_root_win) {
 		if(tf->buffer->len > 0) {
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		} else {
-			widget_set_flags(input_widget->window_id, input_widget->id, input_widget->Flags|WIDGET_INVISIBLE);
+			widget_set_flags(input_widget->window_id, input_widget->id, input_widget->Flags|WIDGET_DISABLED);
 		}
 	}
 	return 1;
@@ -1570,15 +1564,17 @@ void create_game_root_window (int width, int height)
 			Uint32 id;
 			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN, 1.0, 1.0, 1.0);
 			input_widget = widget_find(game_root_win, id);
+			input_widget->OnResize = input_field_resize;
 		} else {
 			widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
-			widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, input_widget->len_y);
-			widget_move (input_widget->window_id, input_widget->id, 0, window_height-input_widget->len_y-hud_y);
+			widget_resize (input_widget->window_id, input_widget->id, width-HUD_MARGIN_X, input_widget->len_y);
+			input_widget->OnResize = input_field_resize;
+			widget_move (input_widget->window_id, input_widget->id, 0, height-input_widget->len_y-HUD_MARGIN_Y);
 			widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
 		if(input_text_line.len > 0) {
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		}
 		resize_root_window();
 	}

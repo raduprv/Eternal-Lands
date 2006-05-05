@@ -536,6 +536,7 @@ void change_windowed_chat (int *wc, int val)
 	}
 	else if (chat_win >= 0) 
 	{
+		window_info *win;
 		int target_win = game_root_win;
 		hide_window (chat_win);
 		if(get_show_window(game_root_win)) {
@@ -550,9 +551,10 @@ void change_windowed_chat (int *wc, int val)
 		} else if(get_show_window(map_root_win)) {
 			target_win = map_root_win;
 		}
+		win = &windows_list.window[target_win];
 		widget_move_win(input_widget->window_id, input_widget->id, target_win);
-		widget_resize (input_widget->window_id, input_widget->id, window_width-hud_x, input_widget->len_y);
-		widget_move (input_widget->window_id, input_widget->id, 0, window_height-input_widget->len_y-hud_y);
+		widget_resize (input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, input_widget->len_y);
+		widget_move (input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
 		if(target_win == console_root_win) {
 			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_CLICK_TRANSPARENT);
@@ -592,8 +594,12 @@ void change_chat_zoom(float *dest, float *value)
 		if (chat_win >= 0) {
 			chat_win_update_zoom();
 		}
-		if(input_widget != NULL) {
-			widget_set_size(input_widget->window_id, input_widget->id, *value);
+	}
+	if(input_widget != NULL) {
+		text_field *tf = input_widget->widget_info;
+		widget_set_size(input_widget->window_id, input_widget->id, *value);
+		if(use_windowed_chat != 2) {
+			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
 		}
 	}
 }
