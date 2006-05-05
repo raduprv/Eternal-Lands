@@ -1020,7 +1020,7 @@ void init_help()
 	add_xml_identifier(misc,"marked",marked_str,"%s marked",sizeof(marked_str));
 	add_xml_identifier(misc,"unmarked",unmarked_str,"%s unmarked",sizeof(unmarked_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
-	add_xml_identifier(misc,"channel_help",channel_help_str,"You can be in up to 3 channels at a time.\n\nClick a channel to attempt to join.\n\nType @ before your message to talk.",sizeof(channel_help_str));
+	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));

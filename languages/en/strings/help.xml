@@ -47,11 +47,9 @@ Take into consideration that the name you choose does affect the atmosphere of t
     <unmarked>%s unmarked</unmarked>
     <equip_here>Place an item in these boxes to equip it</equip_here>
     <equipment>Equipment</equipment>
-    <channel_help>You can be in up to 3 channels at a time.
+	<channel_help>Click a Channel to join. You can be in up to 3 channels at a time.
 
-Click a channel to attempt to join.
-
-Type @ before your message to talk.</channel_help>
+To talk in a channel, type @ before your message. You do not have to type @ to talk in Local.</channel_help>
   </misc>
   <new>
     <skin>Skin</skin>
