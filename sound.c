@@ -702,7 +702,7 @@ void turn_sound_on()
 }
 
 void toggle_sounds(int * var){
-	if(!have_sound && inited < 1){
+	if(!have_sound && inited < 1 && *var){
 		init_sound();
 	}
 	if(sound_on){
@@ -714,7 +714,7 @@ void toggle_sounds(int * var){
 }
 
 void toggle_music(int * var){
-	if(!have_music && inited < 1){
+	if(!have_music && inited < 1 && *var){
 		init_sound();
 	}
 	if(music_on){
