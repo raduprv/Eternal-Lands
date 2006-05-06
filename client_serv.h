@@ -83,7 +83,9 @@
 #define wood_sprite 70
 #define spider_l_4 71
 #define spider_s_4 72
-
+#define giant_1 73
+#define hobgoblin 74
+#define yeti 75
 
 /*! @} */
 
