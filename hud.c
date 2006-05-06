@@ -962,58 +962,36 @@ int	display_misc_handler(window_info *win)
 		{
 			int y_bar=y+1;
 			int x_bar=x-2;
-			int baselev = 0;
-			int cur_exp = 0;
 		
 			//ATTACK
-			baselev = your_info.attack_skill.base;
-			cur_exp = your_info.attack_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.attack_skill.base,your_info.attack_exp);
 			y_bar+=15;
 			//DEFENSE
-			baselev = your_info.defense_skill.base;
-			cur_exp = your_info.defense_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.defense_skill.base,your_info.defense_exp);
 			y_bar+=15;
 			//HARVEST
-			baselev = your_info.harvesting_skill.base;
-			cur_exp = your_info.harvesting_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.harvesting_skill.base,your_info.harvesting_exp);
 			y_bar+=15;
 			//ALCH
-			baselev = your_info.alchemy_skill.base;
-			cur_exp = your_info.alchemy_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.alchemy_skill.base,your_info.alchemy_exp);
 			y_bar+=15;
 			//MAGIC
-			baselev = your_info.magic_skill.base;
-			cur_exp = your_info.magic_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.magic_skill.base,your_info.magic_exp);
 			y_bar+=15;
 			//POTS
-			baselev = your_info.potion_skill.base;
-			cur_exp = your_info.potion_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.potion_skill.base,your_info.potion_exp);
 			y_bar+=15;
 			//SUMMONING
-			baselev = your_info.summoning_skill.base;
-			cur_exp = your_info.summoning_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.summoning_skill.base,your_info.summoning_exp);
 			y_bar+=15;
 			//MANU
-			baselev = your_info.manufacturing_skill.base;
-			cur_exp = your_info.manufacturing_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.manufacturing_skill.base,your_info.manufacturing_exp);
 			y_bar+=15;
 			//CRAFT
-			baselev = your_info.crafting_skill.base;
-			cur_exp = your_info.crafting_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.crafting_skill.base,your_info.crafting_exp);
 			y_bar+=15;
 			//OVERALL
-			baselev = your_info.overall_skill.base;
-			cur_exp = your_info.overall_exp;
-			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp);
 			y_bar+=15;
 
 			stat=0;	//reset the stat counter
