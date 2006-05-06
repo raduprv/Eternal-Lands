@@ -47,6 +47,7 @@ typedef struct
 extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
 
 extern int show_stats_in_hud;
+extern int show_statbars_in_hud;
 
 /*!
  * \name windows handlers

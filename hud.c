@@ -34,6 +34,7 @@
 
 icon_struct * icon_list[30]={NULL};
 int icons_no=0;
+Uint32 exp_lev[200];
 
 int	display_icons_handler(window_info *win);
 int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags);
@@ -74,6 +75,7 @@ int show_help_text=1;
 int qb_action_mode=ACTION_USE;
 
 int show_stats_in_hud=0;
+int show_statbars_in_hud=0;
 
 // initialize anything related to the hud
 void init_hud_interface(int type)
@@ -778,6 +780,34 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	draw_string_small(x-(1+8*strlen(buf)), y-3, buf, 1);
 }
 
+void draw_side_stats_bar(const int x, const int y, const int baselev, const int cur_exp)
+{
+	int len = 58-58.0f/(float)((float)(exp_lev[baselev+1]-exp_lev[baselev])/(float)(exp_lev[baselev+1]-cur_exp));
+
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_QUADS);
+	//draw the colored section
+	glColor3f(0.11f, 0.11f, 0.11f);	
+	glVertex3i(x, y+13, 0);
+	glColor3f(0.3f, 0.5f, 0.2f);
+	glVertex3i(x, y, 0);
+	glColor3f(0.3f, 0.5f, 0.2f);	
+	glVertex3i(x+len, y, 0);
+	glColor3f(0.11f, 0.11f, 0.11f);	
+	glVertex3i(x+len, y+13, 0);
+	glEnd();
+	
+	// draw the bar frame
+	glColor3f(0.77f, 0.57f, 0.39f);
+	glBegin(GL_LINE_LOOP);
+	glVertex3i(x, y, 0);
+	glVertex3i(x+58, y, 0);
+	glVertex3i(x+58, y+13, 0);
+	glVertex3i(x, y+13, 0);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+}
+
 int	display_stats_bar_handler(window_info *win)
 {
 	float health_adjusted_x_len;
@@ -925,7 +955,69 @@ int	display_misc_handler(window_info *win)
 		int y=0;
 		int x=6;
 		int stat = 0;
+
 		glColor3f(1.0f,1.0f,1.0f);
+
+		if (show_statbars_in_hud)		//AWNAGE
+		{
+			int y_bar=y+1;
+			int x_bar=x-2;
+			int baselev = 0;
+			int cur_exp = 0;
+		
+			//ATTACK
+			baselev = your_info.attack_skill.base;
+			cur_exp = your_info.attack_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//DEFENSE
+			baselev = your_info.defense_skill.base;
+			cur_exp = your_info.defense_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//HARVEST
+			baselev = your_info.harvesting_skill.base;
+			cur_exp = your_info.harvesting_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//ALCH
+			baselev = your_info.alchemy_skill.base;
+			cur_exp = your_info.alchemy_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//MAGIC
+			baselev = your_info.magic_skill.base;
+			cur_exp = your_info.magic_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//POTS
+			baselev = your_info.potion_skill.base;
+			cur_exp = your_info.potion_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//SUMMONING
+			baselev = your_info.summoning_skill.base;
+			cur_exp = your_info.summoning_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//MANU
+			baselev = your_info.manufacturing_skill.base;
+			cur_exp = your_info.manufacturing_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//CRAFT
+			baselev = your_info.crafting_skill.base;
+			cur_exp = your_info.crafting_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+			//OVERALL
+			baselev = your_info.overall_skill.base;
+			cur_exp = your_info.overall_exp;
+			draw_side_stats_bar(x_bar,y_bar,baselev,cur_exp);
+			y_bar+=15;
+
+			stat=0;	//reset the stat counter
+		}
 
 		if (++stat == watch_this_stat)
 			glColor3f(0.77f, 0.57f, 0.39f);
@@ -1474,9 +1566,6 @@ void reset_quickbar()
 	//NEED x_offset
 	move_window(quickbar_win, -1, 0, window_width-quickbar_x, 64);
 }
-
-
-Uint32 exp_lev[200];
 
 void build_levels_table()
 {
