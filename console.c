@@ -1370,7 +1370,7 @@ void test_for_console_command (char *text, int len)
 		return;
 	}
 	else if (my_strncompare (text_loc, "find ", 5) && len > 7){
-		history_grep(text_loc+5);
+		history_grep(text_loc+5, len);
 		return;
 	}
 	else if (my_strncompare (text_loc, "accept_buddy", 12))
