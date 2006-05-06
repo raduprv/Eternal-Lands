@@ -254,6 +254,32 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 		}
 	}
 
+#ifdef COUNTERS
+	if (channel == CHAT_SERVER) {
+		if (my_strncompare(text_to_add+1, "You started to harvest ", 23)) {
+			strncpy(harvest_name, text_to_add+1+23, len-1-23-1);
+			harvest_name[len-1-23-1] = '\0';
+			harvesting = 1;
+		} else if (my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) {
+			harvesting = 0;
+		}
+	} else if (channel == CHAT_LOCAL) {
+		if (harvesting && my_strncompare(text_to_add+1, username_str, strlen(username_str))) {
+			char *ptr = text_to_add+1+strlen(username_str);
+			if (my_strncompare(ptr, " found a ", 9)) {
+				ptr += 9;
+				if (my_strncompare(ptr, "bag of gold, getting ", 21)) {
+					decrement_harvest_counter(atoi(ptr+21));
+				} else if (!strstr(ptr, " could not carry ")) {
+					decrement_harvest_counter(1);
+				}
+			}
+		} else if (my_strncompare(text_to_add+1, "(*) ", 4)) {
+			increment_summon_counter(text_to_add+1+4);
+		}
+	}
+#endif
+
 	//check if ignored
 	//Make sure we don't check our own messages.
 	if( !(channel == CHAT_PERSONAL && len >= strlen(pm_from_str) && strncasecmp (text_to_add+1, pm_from_str, strlen(pm_from_str)) != 0) &&

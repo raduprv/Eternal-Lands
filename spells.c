@@ -565,6 +565,10 @@ void set_spell_name (int id, const char *data, int len)
 	int i;
 
 	if (len >= 60) return;
+
+#ifdef COUNTERS
+	counters_set_spell_name(id, (char *)data, len);
+#endif
 	
 	for (i = 0; i < 7; i++)
 	{

@@ -155,8 +155,11 @@ typedef int point;
 #include "bags.h"
 #include "storage.h"
 #include "cal.h"
-#include "kills.h"
 #include "session.h"
+
+#ifdef COUNTERS
+#include "counters.h"
+#endif
 
 #ifdef NOTEPAD
 	#include "notepad.h"

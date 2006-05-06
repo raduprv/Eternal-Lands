@@ -414,7 +414,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				show_window (game_root_win);
 
 				load_quickspells();
-				load_kills();
+				
+#ifdef COUNTERS
+				load_counters();
+#endif
 				
 				previously_logged_in=1;
 			}
@@ -474,6 +477,16 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					{
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 					}
+#ifdef COUNTERS
+					if (!strncmp(in_data+4, "You successfully created 1 ", 27)) {
+						char *product = malloc(data_length-4-27+1);
+
+						strncpy(product, in_data+4+27, data_length-4-27);
+						product[data_length-4-27] = '\0';
+						
+						counters_set_product_name(product);
+					}
+#endif
 			}
 			break;
 		case SPELL_ITEM_TEXT:
@@ -1010,6 +1023,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
     		case SPELL_CAST:
     			{
 				process_network_spell(in_data+3, data_length-3);
+#ifdef COUNTERS
+                                if (in_data[3] == S_SUCCES) {
+					// increment the spell counter
+					increment_spell_counter(in_data[4]);
+				}
+#endif
         		}
 			break;
 		case GET_ACTIVE_CHANNELS:

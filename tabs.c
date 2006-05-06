@@ -17,7 +17,7 @@ Uint16 tab_help_len_x = HELP_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_help_len_y = HELP_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
 int HELP_TAB_HELP = 0, HELP_TAB_RULES = 3, HELP_TAB_ENCYCLOPEDIA = 2, HELP_TAB_SKILLS = 1;
-int STATS_TAB_STATS = 0, STATS_TAB_KNOWLEDGE = 1, STATS_TAB_QUESTLOG = 2, STATS_TAB_KILLS = 3, STATS_TAB_SESSION = 4;
+int STATS_TAB_STATS = 0, STATS_TAB_KNOWLEDGE = 1, STATS_TAB_QUESTLOG = 2, STATS_TAB_COUNTERS = 3, STATS_TAB_SESSION = 4;
 
 int display_tab_stats_handler () 
 {
@@ -50,9 +50,11 @@ void display_tab_stats ()
 		fill_questlog_win ();
 		STATS_TAB_QUESTLOG = 2;
 
-		kills_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_kills, 0, 0);
-		fill_kills_win();
-		STATS_TAB_KILLS = 3;
+#ifdef COUNTERS
+		counters_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_counters, 0, 0);
+		fill_counters_win();
+		STATS_TAB_COUNTERS = 3;
+#endif
 		
 		session_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0);
 		fill_session_win();

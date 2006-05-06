@@ -836,10 +836,12 @@ void add_actor_from_server (const char *in_data, int len)
 	
 	//The actors list is locked when we get here...
 	
+#ifdef COUNTERS
 	actors_list[i]->async_fighting = 0;
 	actors_list[i]->async_x_tile_pos = x_pos;
 	actors_list[i]->async_y_tile_pos = y_pos;
 	actors_list[i]->async_z_rot = z_rot;
+#endif
 	
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;

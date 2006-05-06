@@ -984,6 +984,7 @@ void add_command_to_actor(int actor_id, char command)
 			}
 		}
 
+#ifdef COUNTERS
 		switch (command) {
 		case enter_combat:
 			act->async_fighting = 1;
@@ -1046,6 +1047,7 @@ void add_command_to_actor(int actor_id, char command)
 			 act->async_z_rot = (command-turn_n)*45;
 			 break;
 		}
+#endif
 
 		UNLOCK_ACTORS_LISTS();
 
@@ -1076,9 +1078,11 @@ void get_actor_damage(int actor_id, int damage)
 		act->damage_ms=2000;
 		act->cur_health-=damage;
 
+#ifdef COUNTERS
 		if (act->cur_health <= 0) {
-			on_actor_killed(act);
+			increment_death_counter(act);
 		}
+#endif
 	}
 }
 

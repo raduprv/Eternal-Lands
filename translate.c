@@ -528,7 +528,7 @@ char	win_notepad[20],
 	tab_statistics[20],
 	tab_knowledge[20],
 	tab_questlog[20],
-	tab_kills[20],
+	tab_counters[20],
 	tab_session[20],
 	tab_main[20],
 	button_okay[10],
@@ -1243,7 +1243,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "t_stats", tab_statistics, "Statistics", sizeof(tab_statistics));
 	add_xml_identifier (titles_str, "t_know", tab_knowledge, "Knowledge", sizeof(tab_knowledge));
 	add_xml_identifier (titles_str, "t_qlog", tab_questlog, "Quest log", sizeof(tab_questlog));
-	add_xml_identifier (titles_str, "t_kills", tab_kills, "Kills", sizeof(tab_kills));
+	add_xml_identifier (titles_str, "t_kills", tab_counters, "Counters", sizeof(tab_counters));
 	add_xml_identifier (titles_str, "t_session", tab_session, "Session", sizeof(tab_session));
 	add_xml_identifier (titles_str, "t_main", tab_main, "Main", sizeof(tab_main));
 	add_xml_identifier (titles_str, "b_okay", button_okay, "Okay", sizeof(button_okay));

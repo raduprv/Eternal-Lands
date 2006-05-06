@@ -238,6 +238,12 @@ void get_new_inventory_item (const Uint8 *data)
 	image_id=SDL_SwapLE16(*((Uint16 *)(data)));
 	quantity=SDL_SwapLE32(*((Uint32 *)(data+2)));
 
+#ifdef COUNTERS
+	if (harvesting) {
+		increment_harvest_counter(item_list[pos].quantity > 0 ? quantity - item_list[pos].quantity : quantity);
+	}
+#endif
+
 	// don't touch cool down when it's already active
 	if(item_list[pos].quantity == 0 || item_list[pos].image_id != image_id){
 		item_list[pos].cooldown_time = 0;

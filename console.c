@@ -858,7 +858,6 @@ void init_commands(const char *filename)
 	add_command("storage", &command_storage);
 	add_command("accept_buddy", &command_accept_buddy);
 	add_command("current_song", &display_song_name);
-	add_command("kills", &command_kills);
 	add_command("find", &history_grep);
 	command_buffer_offset = NULL;
 }
