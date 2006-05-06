@@ -377,7 +377,7 @@ void open_web_link(char * url)
 #else
 		SDL_Thread *go_to_url_thread;
 		// windows needs to spawn it in its own thread
-		go_to_url_thread = SDL_CreateThread (go_to_url(url), 0);
+		go_to_url_thread = SDL_CreateThread (go_to_url, url);
 	} else {
 		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
 #endif  //_WIN32
