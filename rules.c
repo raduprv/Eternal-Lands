@@ -201,7 +201,7 @@ int display_rules_handler(window_info *win)
 
 void fill_rules_window()
 {
-	rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, HELP_TAB_WIDTH - 20, 0, 20, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, rules.no-1);
+	rules_scroll_id = vscrollbar_add_extended (rules_win, rules_scroll_id, NULL, HELP_TAB_WIDTH - 20, 0, 20, HELP_TAB_HEIGHT, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
 	
 	widget_set_OnClick (rules_win, rules_scroll_id, rules_scroll_handler);
 	widget_set_OnDrag (rules_win, rules_scroll_id, rules_scroll_handler);
@@ -634,14 +634,10 @@ int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, U
 	else if (keysym == SDLK_PAGEUP)
 	{
 		vscrollbar_scroll_up(rules_root_win, rules_root_scroll_id);
-		vscrollbar_scroll_up(rules_root_win, rules_root_scroll_id);
-		vscrollbar_scroll_up(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
 	else if (keysym == SDLK_PAGEDOWN)
 	{
-		vscrollbar_scroll_down(rules_root_win, rules_root_scroll_id);
-		vscrollbar_scroll_down(rules_root_win, rules_root_scroll_id);
 		vscrollbar_scroll_down(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
@@ -670,7 +666,7 @@ void create_rules_root_window (int width, int height, int next, int time)
 		
 		rules_root_win = create_window (win_rules, -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
 
-		rules_root_scroll_id = vscrollbar_add_extended (rules_root_win, rules_root_scroll_id, NULL, width - (diff + 30 * window_ratio) - 20, 50 * window_ratio, 20, 320 * window_ratio, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, rules.no-1);
+		rules_root_scroll_id = vscrollbar_add_extended (rules_root_win, rules_root_scroll_id, NULL, width - (diff + 30 * window_ratio) - 20, 50 * window_ratio, 20, 320 * window_ratio, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 3, rules.no-1);
 		rules_root_accept_id = button_add_extended (rules_root_win, rules_root_scroll_id + 1, NULL, (width - accept_width) /2, height - 80 * window_ratio, accept_width, accept_height, WIDGET_DISABLED, 1.0f, 1.0f, 1.0f, 1.0f, accept_label);
 
 		set_window_handler (rules_root_win, ELW_HANDLER_DISPLAY, &display_rules_root_handler);

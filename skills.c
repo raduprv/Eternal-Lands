@@ -130,5 +130,5 @@ void fill_skills_win ()
 	set_window_handler (skills_win, ELW_HANDLER_DISPLAY, &display_skills_handler);
 	set_window_handler (skills_win, ELW_HANDLER_CLICK, &click_skills_handler);
 
-	skills_menu_scroll_id = vscrollbar_add_extended(skills_win, skills_menu_scroll_id, NULL, skills_menu_x_len-20, 0, 20, skills_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, skills_max_lines);
+	skills_menu_scroll_id = vscrollbar_add_extended(skills_win, skills_menu_scroll_id, NULL, skills_menu_x_len-20, 0, 20, skills_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, skills_max_lines);
 }

@@ -130,5 +130,5 @@ void fill_help_win ()
 	set_window_handler (help_win, ELW_HANDLER_DISPLAY, &display_help_handler);
 	set_window_handler (help_win, ELW_HANDLER_CLICK, &click_help_handler);
 
-	help_menu_scroll_id = vscrollbar_add_extended(help_win, help_menu_scroll_id, NULL, help_menu_x_len-20, 0, 20, help_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, help_max_lines);
+	help_menu_scroll_id = vscrollbar_add_extended(help_win, help_menu_scroll_id, NULL, help_menu_x_len-20, 0, 20, help_menu_y_len, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 30, help_max_lines);
 }

@@ -226,7 +226,7 @@ void fill_knowledge_win ()
 	set_window_handler(knowledge_win, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(knowledge_win, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	
-	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, KNOWLEDGE_LIST_SIZE/2-19);
+	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, KNOWLEDGE_LIST_SIZE/2-19);
 	knowledge_book_image_id = add_knowledge_book_image();
 	widget_set_OnClick(knowledge_win, knowledge_book_image_id, &handle_knowledge_book);
 	widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
