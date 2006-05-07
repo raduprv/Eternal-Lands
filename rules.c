@@ -471,7 +471,7 @@ int has_accepted=0;
 
 void init_rules_interface(float text_size, int count, int len_x, int len_y)
 {
-	float window_ratio = (float)len_x / 640.0f;
+//	float window_ratio = (float)len_x / 640.0f;
 	
 	if(rules.no)
 	{
@@ -494,7 +494,7 @@ void draw_rules_interface (int len_x, int len_y)
 {
 	char str[200];
 	float diff = (float) (len_x - len_y) / 2;
-	int y, width, height;	// Width/Height are 0.5*width/height
+	int y;//, width, height;	// Width/Height are 0.5*width/height
 	float window_ratio = (float) len_x / 640.0f;
 
 	y = 66*window_ratio;

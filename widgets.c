@@ -2184,8 +2184,6 @@ int pword_field_draw (widget_list *w)
 	unsigned char *text;
 	int difference;
 	int i;
-	int mx = mouse_x - windows_list.window[w->window_id].pos_x - w->pos_x;
-	int my = mouse_y - windows_list.window[w->window_id].pos_y - w->pos_y;
 
 	if (w == NULL) {
 		return 0;
