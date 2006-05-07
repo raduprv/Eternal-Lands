@@ -141,9 +141,10 @@ char
 	window_size_adjusted_str[50],
 	/*hud.c*/
 	no_open_on_trade[100],
-	/*interface.c*/
+	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
+	login_rules_str[120],
 	/*items.c*/
 	get_all_str[8],
 	quantity_edit_str[100],
@@ -991,6 +992,7 @@ void init_help()
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
 	add_xml_identifier(misc,"user",login_username_str,"Username:",sizeof(login_username_str));
 	add_xml_identifier(misc,"pass",login_password_str,"Password:",sizeof(login_password_str));
+	add_xml_identifier(misc,"login_rules",login_rules_str,"If you log into this game, you accept the rules of Eternal Lands. Press F5 to read them in game.",sizeof(login_rules_str));
 	add_xml_identifier(misc,"getall",get_all_str,"Get All",sizeof(get_all_str));
 	add_xml_identifier(misc,"completed",completed_research,"COMPLETED",sizeof(completed_research));
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));

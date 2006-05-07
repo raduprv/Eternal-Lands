@@ -264,9 +264,10 @@ extern char
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],
-		/*interface.c*/
+		/*loginwin.c*/
 		login_username_str[20],
 		login_password_str[20],
+		login_rules_str[120],
 		/*items.c*/
 		drop_all_str[11],
 		get_all_str[8],

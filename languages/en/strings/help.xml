@@ -16,6 +16,7 @@
     <trade>You can't open this window while on trade.</trade>
     <user>Username:</user>
     <pass>Password:</pass>
+    <login_rules>If you log into this game, you accept the rules of Eternal Lands. Press F5 in game to read them.</login_rules>
     <getall>Get All</getall>
     <completed>COMPLETED</completed>
     <research>Researching</research>
