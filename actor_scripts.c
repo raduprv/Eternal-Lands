@@ -1907,11 +1907,14 @@ int parse_actor_script (xmlNode *cfg) {
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
-	act_idx = get_property (cfg, "type", "actor type", actor_type_dict);
-	if (act_idx < 0) return 0;
+	act_idx= get_int_property(cfg, "id");
+	if(act_idx < 0){
+		act_idx= get_property(cfg, "type", "actor type", actor_type_dict);
+	}
+	if(act_idx < 0) return 0;
 
-	act = &(actors_defs[act_idx]);
-	ok = 1;
+	act= &(actors_defs[act_idx]);
+	ok= 1;
 
 	//Initialize Cal3D settings
 	act->coremodel=NULL;
