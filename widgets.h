@@ -9,20 +9,6 @@
 #include <SDL_types.h>
 #include "text.h"
 
-#ifndef WIDGETS_FIX
-#define LABEL		1
-#define IMAGE		2
-#define CHECKBOX	3
-#define BUTTON		4
-#define PROGRESSBAR	5
-#define VSCROLLBAR	6
-#define TABCOLLECTION	7
-#define TEXTFIELD	8
-#define PWORDFIELD	9
-#define MULTISELECT	10
-#define SPINBUTTON	11
-
-#endif
 typedef struct {
 	Sint8 label[64];
 	int content_id;
@@ -36,7 +22,6 @@ typedef struct {
 	tab *tabs;
 } tab_collection;
 
-#ifdef WIDGETS_FIX
 // The purpose of this implementation if to remove the need to edit
 // the implementation of the widgets to add a new client widget. It
 // also allows clients to be dynamically created and populated.
@@ -72,7 +57,6 @@ extern const struct WIDGET_TYPE spinbutton_type;
 // Type Conversion Function - TODO : Document'
 int widget_set_type (int window_id, Uint32 widget_id, const struct WIDGET_TYPE *type);
 
-#endif
 typedef struct {
 	int pos, pos_inc, bar_len;
 }vscrollbar;
@@ -88,22 +72,14 @@ typedef struct wl{
 	Uint16 pos_x, pos_y, len_x, len_y; /*!< Widget area */
 	Uint32 id;                         /*!< Widget unique id */
 	int window_id; /*!< The id of the parent window */
-#ifndef WIDGETS_FIX
-	Uint32 type;   /*!< Specifies what kind of widget it is */
-#else
 	const struct WIDGET_TYPE *type;  /*!< Specifies what properties the widget inherits from it's type */
 	void *spec;		/*!< The specific implementation info for this widget which is passed to type-nonspecific handlers*/
-#endif
 	Uint32 Flags;  /*!< Status flags... visible, enabled, etc */
 	float size;    /*!< Size of text, image, etc */
 	float r, g, b; /*!< Associated color */
     /*! @} */
 
-#ifndef WIDGETS_FIX
-	/*! \name The widget handlers */
-#else
 	/*! \name The specific widget handlers */
-#endif
 	/*! \{ */
 	int (*OnDraw)();
 	int (*OnClick)();
@@ -167,10 +143,8 @@ typedef struct {
 	float interval;
 }spinbutton;
 
-#ifdef WIDGETS_FIX
 /* SPLIT INTO ELWIDGETS.C and ELWIDGETS.H */
 
-#endif
 // Common widget functions
 
 /*!
@@ -273,7 +247,6 @@ int widget_set_OnMouseover(int window_id, Uint32 widget_id, int (*handler)());
 int widget_set_OnKey ( int window_id, Uint32 widget_id, int (*handler)() );
 
 /*!
-#ifdef WIDGETS_FIX
  * \ingroup	widgets
  * \brief 	Sets the widget's specific argument (passed to specific handlers)
  *
@@ -289,7 +262,6 @@ int widget_set_OnKey ( int window_id, Uint32 widget_id, int (*handler)() );
 int widget_set_args (int window_id, Uint32 widget_id, void *spec);
 
 /*!
-#endif
  * \ingroup 	widgets
  * \brief 	Moves the widget
  *
@@ -453,11 +425,7 @@ int widget_get_width (int window_id, Uint32 widget_id);
  *
  * \sa lable_add
  */
-#ifndef WIDGETS_FIX
-int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text);
-#else
 int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text);
-#endif
 
 /*!
  * \ingroup	labels

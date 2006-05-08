@@ -68,11 +68,7 @@ int ParseWidget (xmlNode *node, int winid);
 int ParseTab (xmlNode *node, int winid, int colid);
 int GetWidgetType (const char *w);
 
-#ifndef WIDGETS_FIX
-// Common widget functions
-#else
 // <--- Common widget functions ---
-#endif
 widget_list * widget_find(int window_id, Uint32 widget_id)
 {
 	widget_list *w;
@@ -107,20 +103,14 @@ int widget_destroy (int window_id, Uint32 widget_id)
 	
 	if (n->id == widget_id)
 	{
-#ifdef WIDGETS_FIX
 		if (n->type != NULL)
 			if (n->type->destroy != NULL)
 				n->type->destroy (n);
-#endif
 		if (n->OnDestroy != NULL)
-#ifndef WIDGETS_FIX
-			n->OnDestroy (n);
-#else
 		{
 			if(n->spec != NULL) n->OnDestroy (n);
 			else n->OnDestroy (n, n->spec);
 		}
-#endif
 		windows_list.window[window_id].widgetlist = n->next;
 		free (n);
 		return 1;
@@ -138,20 +128,14 @@ int widget_destroy (int window_id, Uint32 widget_id)
 			}
 			if (n->id == widget_id)
 			{
-#ifdef WIDGETS_FIX
 				if (n->type != NULL)
 					if (n->type->destroy != NULL)
 						n->type->destroy (n);
-#endif
 				if (n->OnDestroy != NULL)
-#ifndef WIDGETS_FIX
-					n->OnDestroy (n);
-#else
 				{
 					if(n->spec != NULL) n->OnDestroy (n);
 					else n->OnDestroy (n, n->spec);
 				}
-#endif
 				w->next = n->next;
 				free (n);
 				return 1;
@@ -313,18 +297,12 @@ int widget_move_rel (int window_id, Uint32 widget_id, Sint16 dx, Sint16 dy)
 int widget_resize(int window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 {
 	widget_list *w = widget_find (window_id, widget_id);
-#ifdef WIDGETS_FIX
 	int res = 0;
 	
-#endif
 	if (w)
 	{
 		w->len_x = x;
 		w->len_y = y;
-#ifndef WIDGETS_FIX
-		if (w->OnResize) w->OnResize (w, x, y);
-		return 1;
-#else
 		if (w->type != NULL)
 			if (w->type->resize != NULL) 
 				res = w->type->resize (w, x, y);
@@ -335,7 +313,6 @@ int widget_resize(int window_id, Uint32 widget_id, Uint16 x, Uint16 y)
 		}
 		
 		return res > -1 ? res : 0;
-#endif
 	}
 	return 0;
 }
@@ -399,9 +376,6 @@ int free_widget_info (widget_list *widget)
 	return 1;
 }
 
-#ifndef WIDGETS_FIX
-widget_list *add_new_widget (int window_id, Uint32 wid, int (*OnInit)(), Uint32 type, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b)
-#else
 int widget_set_type (int window_id, Uint32 widget_id, const struct WIDGET_TYPE *type)
 {
 	widget_list *w = widget_find(window_id, widget_id);
@@ -425,12 +399,7 @@ int widget_set_args (int window_id, Uint32 widget_id, void *spec)
 // Create a generic widget
 Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly,
 	Uint32 Flags, float size, float r, float g, float b, const struct WIDGET_TYPE *type, void *T, void *S)
-#endif
 {
-#ifndef WIDGETS_FIX
-	widget_list *newW = calloc (1, sizeof (widget_list));
-	widget_list *Ws = windows_list.window[window_id].widgetlist;
-#else
 	widget_list *W = (widget_list *) malloc(sizeof(widget_list));
 	widget_list *w = windows_list.window[window_id].widgetlist;
 	
@@ -468,45 +437,14 @@ Uint32 widget_add (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 
 		if(W->spec != NULL) W->OnInit (W, W->spec);
 		else W->OnInit (W);
 	}
-#endif
 	
-#ifndef WIDGETS_FIX
-	newW->id = wid;
-	newW->window_id = window_id;
-	newW->type = type;
-	newW->Flags = Flags;
-	newW->pos_x = x;
-	newW->pos_y = y;
-	newW->len_x = lx;
-	newW->len_y = ly;
-	newW->size = size;
-	newW->r = r;
-	newW->g = g;
-	newW->b = b;
-	newW->OnInit = OnInit;
-		
-#endif
 	// Adding the widget to the list
-#ifndef WIDGETS_FIX
-	if (Ws == NULL)
-#else
 	if (w == NULL)
-#endif
 	{
-#ifndef WIDGETS_FIX
-		windows_list.window[window_id].widgetlist = newW;
-#else
 		windows_list.window[window_id].widgetlist = W;
-#endif
 	}
 	else
 	{
-#ifndef WIDGETS_FIX
-		while (Ws->next != NULL)
-			Ws = Ws->next;
-		Ws->next = newW;
-	}	
-#else
 		while(w->next != NULL)
 			w = w->next;
 		w->next = W;
@@ -533,25 +471,12 @@ int widget_handle_mouseover (widget_list *widget, int mx, int my)
 			res |= widget->OnMouseover (widget, mx, my);
 		}
 	}
-#endif
 
-#ifndef WIDGETS_FIX
-	return newW;
-#else
 	return res > -1 ? res : 0;
-#endif
 }
 
-#ifndef WIDGETS_FIX
-// Label
-int label_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
-#else
 int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
-#endif
 {
-#ifndef WIDGETS_FIX
-	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
-#else
 	int res = 0;
 	if (widget->type != NULL) {
 		if (widget->type->click != NULL) {
@@ -568,12 +493,8 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 		}
 	}
 	return res > -1 ? res : 0;
-#endif
 }
 
-#ifndef WIDGETS_FIX
-int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
-#else
 int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
 {
 	int res = 0;
@@ -620,39 +541,19 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
 const struct WIDGET_TYPE label_type = { NULL, label_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
 
 int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint32 Flags, float size, float r, float g, float b, const char *text)
-#endif
 {
 	Uint16 len_x = (Uint16)(strlen (text) * 11 * 1.0);
 	Uint16 len_y = (Uint16)(18 * 1.0);
-#ifndef WIDGETS_FIX
-	widget_list *W = add_new_widget (window_id, wid, OnInit, LABEL, x, y, len_x, len_y, Flags, size, r, g, b);
-	
-#else
 
-#endif
 	label *T = (label *) calloc (1, sizeof(label));
 	snprintf (T->text, sizeof(T->text), "%s", text);
-#ifndef WIDGETS_FIX
 
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = label_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL) {
-		W->OnInit (W);
-	}
-#endif
-
-#ifndef WIDGETS_FIX
-	return W->id;
-#else
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, &label_type, (void *)T, NULL);
 }
 
 int label_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
 {
 	return label_add_extended (window_id, widget_id++, OnInit, x, y, 0, 1.0, -1.0, -1.0, -1.0, text);
-#endif
 }
 
 int label_draw(widget_list *W)
@@ -677,22 +578,11 @@ int label_set_text(int window_id, Uint32 widget_id, char *text)
 }
 
 // Image
-#ifndef WIDGETS_FIX
-int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2)
-{
-	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2, -1); 
-}
-#else
 
 const struct WIDGET_TYPE image_type = { NULL, image_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
-#endif
 
 int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int id, float u1, float v1, float u2, float v2, float alpha)
 {
-#ifndef WIDGETS_FIX
-	widget_list *W = add_new_widget (window_id, wid, OnInit, IMAGE, x, y, lx, ly, Flags, size, r, g, b);
-
-#endif
 	image *T = calloc (1, sizeof (image));
 	T->u1 = u1;
 	T->u2 = u2;
@@ -701,26 +591,12 @@ int image_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Ui
 	T->id = id;
 	T->alpha = alpha;
 
-#ifndef WIDGETS_FIX
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = image_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL) {
-		W->OnInit(W);
-	}
-#else
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &image_type, T, NULL);
 }
-#endif
 
-#ifndef WIDGETS_FIX
-	return W->id;
-#else
 int image_add(int window_id, int (*OnInit)(), int id, Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, float u1, float v1, float u2, float v2)
 {
 	return image_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, 1.0, 1.0, 1.0, id, u1, v1, u2, v2, -1); 
-#endif
 }
 
 int image_draw(widget_list *W)
@@ -768,34 +644,6 @@ int image_set_uv(int window_id, Uint32 widget_id, float u1, float v1, float u2, 
 
 
 // Checkbox
-#ifndef WIDGETS_FIX
-int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked)
-{
-	if(checked == NULL)
-	{
-		checked = calloc(1,sizeof(*checked));
-	}
-	return checkbox_add_extended(window_id, widget_id++, NULL, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, checked);
-}
-
-int checkbox_add_extended(int window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked)
-{
-	widget_list *W = add_new_widget (window_id, wid, OnInit, CHECKBOX, x, y, lx, ly, Flags, size, r, g, b);
-
-	checkbox *T = calloc (1, sizeof (checkbox));
-	T->checked = checked;
-
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = checkbox_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-
-	return W->id;
-}
-
-#endif
 int checkbox_draw(widget_list *W)
 {
 	checkbox *c = (checkbox *)W->widget_info;
@@ -812,11 +660,7 @@ int checkbox_draw(widget_list *W)
 	return 1;
 }
 
-#ifndef WIDGETS_FIX
-int checkbox_click (widget_list *W, Uint32 flags)
-#else
 int checkbox_click (widget_list *W, int mx, int my, Uint32 flags)
-#endif
 {
 	checkbox *c = (checkbox *)W->widget_info;
 
@@ -849,28 +693,16 @@ int checkbox_set_checked(int window_id, Uint32 widget_id, int checked)
 	return 0;
 }
 
-#ifdef WIDGETS_FIX
 const struct WIDGET_TYPE checkbox_type = { NULL, checkbox_draw, checkbox_click, NULL, NULL, NULL, NULL, free_widget_info };
-#endif
 
-#ifndef WIDGETS_FIX
-// Button
-int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
-#else
 int checkbox_add_extended(int window_id,  Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int *checked)
-#endif
 {
-#ifndef WIDGETS_FIX
-	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
-#else
 	checkbox *T = calloc (1, sizeof (checkbox));
 	T->checked = checked;
 
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &checkbox_type, T, NULL);
-#endif
 }
 
-#ifdef WIDGETS_FIX
 int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, int *checked)
 {
 	if(checked == NULL)
@@ -884,37 +716,20 @@ int checkbox_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, 
 const struct WIDGET_TYPE round_button_type = { NULL, button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
 const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
 
-#endif
 int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
 	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * 11 * size) + 30*size;
 	Uint16 len_y = ly > 0 ? ly : (Uint16)(18 * size) + 12*size;
-#ifndef WIDGETS_FIX
-	widget_list *W = add_new_widget (window_id, wid, OnInit, BUTTON, x, y, len_x, len_y, Flags, size, r, g, b);
-#endif
 
 	button *T = calloc (1, sizeof(button));
 	snprintf (T->text, sizeof(T->text), "%s", text);
 
-#ifndef WIDGETS_FIX
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = button_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-#else
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, &round_button_type, T, NULL);
 }
-#endif
 
-#ifndef WIDGETS_FIX
-	return W->id;
-#else
 int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint16 y)
 {
 	return button_add_extended(window_id, widget_id++, NULL, x, y, 0, 0, 0, 1.0, -1.0, -1.0, -1.0, text);
-#endif
 }
 
 int button_draw(widget_list *W)
@@ -968,10 +783,8 @@ int button_set_text(int window_id, Uint32 widget_id, char *text)
 }
 
 // Progressbar
-#ifdef WIDGETS_FIX
 const struct WIDGET_TYPE progressbar_type = { NULL, progressbar_draw, NULL, NULL, NULL, NULL, NULL, free_widget_info };
 
-#endif
 int progressbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
 {
 	return progressbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0.0f, NULL);
@@ -979,10 +792,6 @@ int progressbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
 
 int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, float progress, const float * colors)
 {
-#ifndef WIDGETS_FIX
-	widget_list *W = add_new_widget (window_id, wid, OnInit, PROGRESSBAR, x, y, lx, ly, Flags, size, r, g, b);
-
-#endif
 	progressbar *T = calloc (1, sizeof(progressbar));
 	T->progress = progress;
 	if (colors) {
@@ -991,18 +800,7 @@ int progressbar_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 		T->colors[0] = -1.0f;
 	}
 
-#ifndef WIDGETS_FIX
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = progressbar_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-
-	return W->id;
-#else
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &progressbar_type, T, NULL);
-#endif
 }
 
 int progressbar_draw(widget_list *W)
@@ -1077,32 +875,6 @@ int progressbar_set_progress(int window_id, Uint32 widget_id, float progress)
 
 
 // Vertical scrollbar
-#ifndef WIDGETS_FIX
-int vscrollbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly)
-{
-	return vscrollbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1, ly);
-}
-
-int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len)
-{
-	widget_list *W = add_new_widget (window_id, wid, OnInit, VSCROLLBAR, x, y, lx, ly, Flags, size, r, g, b);
-
-	vscrollbar *T = calloc (1, sizeof(vscrollbar));
-	T->pos_inc = pos_inc;
-	T->pos = pos;
-	T->bar_len = bar_len;
-
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = vscrollbar_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-
-	return W->id;
-}
-
-#endif
 int vscrollbar_draw(widget_list *W)
 {
 	vscrollbar *c = (vscrollbar *)W->widget_info;
@@ -1141,11 +913,7 @@ int vscrollbar_draw(widget_list *W)
 	return 0;
 }
 
-#ifndef WIDGETS_FIX
-int vscrollbar_click (widget_list *W, int my, Uint32 flags)
-#else
 int vscrollbar_click (widget_list *W, int mx, int my, Uint32 flags)
-#endif
 {
 	vscrollbar *b = (vscrollbar *)W->widget_info;
 	if ( my < 15 || (flags & ELW_WHEEL_UP) )
@@ -1230,11 +998,7 @@ int vscrollbar_set_bar_len (int window_id, Uint32 widget_id, int bar_len)
 
 int vscrollbar_drag(widget_list *W, int x, int y, Uint32 flags, int dx, int dy)
 {
-#ifndef WIDGETS_FIX
-	vscrollbar_click(W,y,flags);
-#else
 	vscrollbar_click(W, x, y, flags);
-#endif
 	return 1;
 }
 
@@ -1248,7 +1012,6 @@ int vscrollbar_get_pos(int window_id, Uint32 widget_id)
 	return -1;
 }
 
-#ifdef WIDGETS_FIX
 const struct WIDGET_TYPE vscrollbar_type = { NULL, vscrollbar_draw, vscrollbar_click, vscrollbar_drag, NULL, NULL, NULL, free_widget_info };
 
 int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int pos, int pos_inc, int bar_len)
@@ -1266,7 +1029,6 @@ int vscrollbar_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx
 	return vscrollbar_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, 1, ly);
 }
 
-#endif
 // Tab collection
 int tab_collection_get_tab (int window_id, Uint32 widget_id) 
 {
@@ -1402,38 +1164,6 @@ int free_tab_collection (widget_list *widget)
 	return 1;
 }
 
-#ifndef WIDGETS_FIX
-int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint16 tag_height)
-{
-	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height);
-}
-
-int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height)
-{
-	widget_list *W = add_new_widget (window_id, wid, OnInit, TABCOLLECTION, x, y, lx, ly, Flags, size, r, g, b);
-
-	int itab;
-	tab_collection *T = calloc (1, sizeof (tab_collection));
-	T->max_tabs =  max_tabs <= 0 ? 2 : max_tabs;
-	T->tabs = calloc (T->max_tabs, sizeof (tab));
-	// initialize all tabs content ids to -1 (unitialized window_
-	for (itab = 0; itab < T->max_tabs; itab++)
-		T->tabs[itab].content_id = -1;
-	T->nr_tabs = 0;
-	T->tag_height = tag_height;
-	T->cur_tab = 0;
-	
-	W->widget_info = T;
-	W->OnDraw = tab_collection_draw;
-	W->OnDestroy = free_tab_collection;
-	W->OnResize = tab_collection_resize;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-
-	return W->id;
-}
-
-#endif
 int tab_collection_draw (widget_list *w)
 {
 	tab_collection *col;
@@ -1622,11 +1352,7 @@ int tab_collection_resize (widget_list *W, Uint32 width, Uint32 height)
 	return 1;
 }
 
-#ifndef WIDGETS_FIX
-int tab_collection_keypress (widget_list *W, Uint32 key)
-#else
 int tab_collection_keypress (widget_list *W, int mx, int my, Uint32 key, Uint32 unikey)
-#endif
 {
 	int shift_on = key & ELW_SHIFT;
 	Uint16 keysym = key & 0xffff;
@@ -1654,7 +1380,6 @@ int tab_collection_keypress (widget_list *W, int mx, int my, Uint32 key, Uint32 
 	return 0;	
 }
 
-#ifdef WIDGETS_FIX
 const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, tab_collection_keypress, free_tab_collection };
 
 int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height)
@@ -1678,7 +1403,6 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
 	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height);
 }
 
-#endif
 int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable)
 {
 	widget_list *w = widget_find(window_id, col_id);
@@ -1982,21 +1706,10 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-#ifndef WIDGETS_FIX
-int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
-{
-	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, FILTER_ALL, x_space, y_space, -1.0, -1.0, -1.0);
-}
-#else
 const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, NULL, NULL, NULL, text_field_keypress, free_widget_info };
-#endif
 
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
-#ifndef WIDGETS_FIX
-	widget_list *W = add_new_widget (window_id, wid, OnInit, TEXTFIELD, x, y, lx, ly, Flags, size, r, g, b);
-
-#endif
 	text_field *T = calloc (1, sizeof (text_field));
 	T->x_space = x_space,
 	T->y_space = y_space,
@@ -2011,26 +1724,13 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->text_r = text_r;
 	T->text_g = text_g;
 	T->text_b = text_b;
-#ifndef WIDGETS_FIX
-	
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = text_field_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-#endif
 
-#ifndef WIDGETS_FIX
-	return W->id;
-#else
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &text_field_type, T, NULL);
 }
 
 int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
 {
 	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, FILTER_ALL, x_space, y_space, -1.0, -1.0, -1.0);
-#endif
 }
 
 int text_field_draw (widget_list *w)
@@ -2248,13 +1948,6 @@ void pword_set_status(widget_list *w, Uint8 status)
 	pword->status = status;
 }
 
-#ifndef WIDGETS_FIX
-int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size)
-{
-	return pword_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, status, 1.0, -1.0, -1.0, -1.0, buffer, buffer_size);
-}
-		
-#else
 const struct WIDGET_TYPE pword_field_type = {
  	NULL,
  	pword_field_draw,
@@ -2266,40 +1959,22 @@ const struct WIDGET_TYPE pword_field_type = {
  	free_widget_info
  	};
 
-#endif
 int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, float size, float r, float g, float b, unsigned char *buffer, int buffer_size)
 {
-#ifndef WIDGETS_FIX
-	widget_list *W = add_new_widget (window_id, wid, OnInit, PWORDFIELD, x, y, lx, ly, 0, size, r, g, b);
-
-#endif
 	password_entry *T = calloc (1, sizeof (password_entry));
 	T->status = status;
 	T->password = buffer;
 	T->max_chars = buffer_size;
 
-#ifndef WIDGETS_FIX
-	// Filling the widget info
-	W->widget_info = T;
-	W->OnDraw = pword_field_draw;
-	W->OnDestroy = free_widget_info;
-	if(W->OnInit != NULL)
-		W->OnInit(W);
-	
-	return W->id;
-#else
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, r, g, b, &pword_field_type, T, NULL);
-#endif
 }
 
-#ifdef WIDGETS_FIX
 int pword_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 status, unsigned char *buffer, int buffer_size)
 {
  	return pword_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, status, 1.0, -1.0, -1.0, -1.0, buffer, buffer_size);
 }
 
 // Multiselect
-#endif
 int free_multiselect(widget_list *widget)
 {
 	if(widget != NULL) {
@@ -2339,11 +2014,7 @@ int multiselect_get_height(int window_id, Uint32 widget_id)
 	return widget->len_y;
 }
 
-#ifndef WIDGETS_FIX
-int multiselect_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
-#else
 int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags)
-#endif
 {
 	multiselect *M = widget->widget_info;
 	int i;
@@ -2461,7 +2132,6 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 	return current_button;
 }
 
-#ifdef WIDGETS_FIX
 const struct WIDGET_TYPE multiselect_type = {
  	NULL,
  	multiselect_draw,
@@ -2491,48 +2161,13 @@ int multiselect_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
  	return widget_add (window_id, wid, OnInit, x, y, width, 0, 0, size, r, g, b, &multiselect_type, T, NULL);
 }
   
-#endif
 int multiselect_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, int width)
 {
-#ifndef WIDGETS_FIX
-	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 0, 1.0f, -1, -1, -1, -1, -1, -1, 0);
-#else
  	return multiselect_add_extended(window_id, widget_id++, OnInit, x, y, width, 0, 1.0f, -1, -1, -1, -1, -1, -1, 0);
-#endif
 }
 
-#ifndef WIDGETS_FIX
-int multiselect_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, int width, Uint16 max_height, float size, float r, float g, float b, float hr, float hg, float hb, int max_buttons)
-{
-	widget_list *Widget = add_new_widget (window_id, widget_id, OnInit, MULTISELECT, x, y, width, 0, 0, size, r, g, b);
-
-	multiselect *M = calloc (1, sizeof (multiselect));
-	//Save info
-	M->max_buttons = max_buttons > 0 ? max_buttons : 2;
-	M->selected_button = 0;
-	M->nr_buttons = 0;
-	M->buttons = malloc(sizeof(*M->buttons) * M->max_buttons);
-	M->max_height = max_height;
-	M->scrollbar = -1;
-	M->win_id = window_id;
-	M->highlighted_red = hr;
-	M->highlighted_green = hg;
-	M->highlighted_blue = hb;
-
-	Widget->widget_info = M;
-	Widget->OnDraw = multiselect_draw;
-	Widget->OnDestroy = free_multiselect;
-	if(Widget->OnInit != NULL)
-		Widget->OnInit(Widget);
-
-	return Widget->id;
-}
-
-int spinbutton_keypress(widget_list *widget, Uint32 key, Uint32 unikey)
-#else
 // Spinbutton
 int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
-#endif
 {
 	spinbutton *button;
 	int i;
@@ -2613,13 +2248,9 @@ int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, Uint32 
 	return 0;
 }
 
-#ifndef WIDGETS_FIX
-int spinbutton_click(widget_list *widget, Uint16 mx, Uint16 my, Uint32 flags)
-#else
 // Note: Discards dx and dy when used for drag. Must be altered if the drag
 //		handler changes.
 int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags)
-#endif
 {
 	if(widget != NULL && widget->widget_info != NULL) {
 		spinbutton *button = widget->widget_info;
@@ -2764,12 +2395,6 @@ int spinbutton_draw(widget_list *widget)
 	return 1;
 }
 
-#ifndef WIDGETS_FIX
-int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval)
-{
-	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, interval, 1, -1, -1, -1);
-}
-#else
 const struct WIDGET_TYPE spinbutton_type = { NULL,
 	spinbutton_draw,
 	spinbutton_click,
@@ -2779,172 +2404,38 @@ const struct WIDGET_TYPE spinbutton_type = { NULL,
 	spinbutton_keypress,
 	free_multiselect
 	};
-#endif
-
-#ifndef WIDGETS_FIX
-int spinbutton_add_extended(int window_id, Uint32 widget_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b)
-#else
 int spinbutton_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval, float size, float r, float g, float b)
-#endif
 {
 	float wr = r >= 0 ? r : 0.77, wg = g >= 0 ? g : 0.59, wb = b >= 0 ? b : 0.39;
-#ifndef WIDGETS_FIX
-	widget_list *widget = add_new_widget (window_id, widget_id, OnInit, SPINBUTTON, x, y, lx, ly, 0, size, wr, wg, wb);
-
-	spinbutton *button = calloc (1, sizeof (spinbutton));
-#else
 
 	spinbutton *T = calloc (1, sizeof (spinbutton));
-#endif
 	// Filling the widget info
-#ifndef WIDGETS_FIX
-	button->data = data;
-	button->max = max;
-	button->min = min;
-	button->type = data_type;
-	button->interval = interval;
-#else
 	T->data = data;
 	T->max = max;
 	T->min = min;
 	T->type = data_type;
 	T->interval = interval;
-#endif
 	switch(data_type)
 	{
 		case SPIN_FLOAT:
-#ifndef WIDGETS_FIX
-			snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
-#else
 			snprintf(T->input_buffer, sizeof(T->input_buffer), "%.2f", *(float *)T->data);
-#endif
 		break;
 		case SPIN_INT:
-#ifndef WIDGETS_FIX
-			button->interval = (int)button->interval;
-			snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
-#else
 			T->interval = (int)T->interval;
 			snprintf(T->input_buffer, sizeof(T->input_buffer), "%i", *(int *)T->data);
-#endif
 		break;
 	}
 
-#ifndef WIDGETS_FIX
-	widget->widget_info = button;
-	widget->OnDraw = spinbutton_draw;
-	widget->OnDestroy = free_widget_info;
-	if(widget->OnInit != NULL) 
-		widget->OnInit(widget);
-
-	return widget->id;
-}
-
-int widget_handle_mouseover (widget_list *widget, int mx, int my)
-{
-	if (widget->OnMouseover != NULL)
-		return widget->OnMouseover (widget, mx, my);
-	
-	return 0;
-}
-
-int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
-{
-	int res = 0;
-
-	switch (widget->type)
-	{
-		case CHECKBOX:
-			res = checkbox_click (widget, flags);
-			break;
-		case VSCROLLBAR:
-			res = vscrollbar_click (widget, my, flags);
-			break;
-		case TABCOLLECTION:
-			res = tab_collection_click (widget, mx, my, flags);
-			break;
-		case TEXTFIELD:
-			res = text_field_click (widget, mx, my, flags);
-			break;
-		case PWORDFIELD:
-			res = pword_field_click (widget, mx, my, flags);
-			if ( res == -1 ) return 0;  // Not really there
-			break;
-		case MULTISELECT:
-			res = multiselect_click (widget, mx, my, flags);
-			break;
-		case SPINBUTTON:
-			res = spinbutton_click (widget, mx, my, flags);
-			break;
-	}
-
-	if (widget->OnClick != NULL)
-		res |= widget->OnClick (widget, mx, my, flags);
-	
-	return res;
-#else
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, wr, wg, wb, &spinbutton_type, T, NULL);
-#endif
 }
 
-#ifndef WIDGETS_FIX
-int widget_handle_drag (widget_list *widget, int mx, int my, Uint32 flags, int dx, int dy)
-{
-	int res = 0;
-
-	switch (widget->type)
-	{
-		case VSCROLLBAR:
-			res = vscrollbar_drag (widget, mx, my, flags, dx, dy);
-			break;
-		case SPINBUTTON:
-			res = spinbutton_click (widget, mx, my, flags);
-			break;
-	}
-
-	if (widget->OnDrag != NULL)
-		res |= widget->OnDrag (widget, mx, my);
-	
-	return res;
-}
-
-int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
-#else
 int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint8 data_type, void *data, float min, float max, float interval)
-#endif
 {
-#ifndef WIDGETS_FIX
-	int res = 0;
-
-	switch (widget->type)
-	{
-		case TABCOLLECTION:
-			res = tab_collection_keypress (widget, key);
-			break;
-		case TEXTFIELD:
-			res = text_field_keypress (widget, mx, my, key, unikey);
-			break;
-		case PWORDFIELD:
-			res = pword_keypress (widget, mx, my, key, unikey);
-			if ( res == -1 ) return 0;  // Not really there
-			break;
-		case SPINBUTTON:
-			res = spinbutton_keypress (widget, key, unikey);
-			break;
-	}
-
-	if (widget->OnKey != NULL)
-		res |= widget->OnKey (widget, mx, my, key, unikey);
-	
-	return res;
-#else
 	return spinbutton_add_extended(window_id, widget_id++, OnInit, x, y, lx, ly, data_type, data, min, max, interval, 1, -1, -1, -1);
-#endif
 }
 
 
 // XML Windows
-#ifdef WIDGETS_FIX
 /* 
 / This section contains the following (unused) functions:
 /	int AddXMLWindow(char *fn);
@@ -2968,7 +2459,6 @@ int spinbutton_add(int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx
 #define PWORDFIELD	9
 #define MULTISELECT	10
 #define SPINBUTTON	11
-#endif
 
 int AddXMLWindow (char *fn)
 {
@@ -3239,11 +2729,7 @@ int ParseWidget (xmlNode *node, int winid)
 	switch(type)
 	{
 		case LABEL:
-#ifndef WIDGETS_FIX
-			return label_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, text);
-#else
 			return label_add_extended (winid, id, NULL, pos_x, pos_y, flags, size, r, g, b, text);
-#endif
 		case IMAGE:
 			return image_add_extended (winid, id, NULL, pos_x, pos_y, len_x, len_y, flags, size, r, g, b, tid, u1, v1, u2, v2);
 		case CHECKBOX:
@@ -3332,6 +2818,4 @@ int GetWidgetType (const char *w)
 
 	return 0;
 }
-#ifdef WIDGETS_FIX
 */
-#endif

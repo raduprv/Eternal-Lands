@@ -230,11 +230,7 @@ void fill_knowledge_win ()
 	knowledge_book_image_id = add_knowledge_book_image();
 	widget_set_OnClick(knowledge_win, knowledge_book_image_id, &handle_knowledge_book);
 	widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
-#ifndef WIDGETS_FIX
-	knowledge_book_label_id = label_add_extended(knowledge_win, knowledge_book_image_id + 1, NULL, 485, 265, strlen(knowledge_read_book) * 11, 32, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
-#else
 	knowledge_book_label_id = label_add_extended(knowledge_win, knowledge_book_image_id + 1, NULL, 485, 265, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
-#endif
 	widget_set_OnClick(knowledge_win, knowledge_book_label_id, &handle_knowledge_book);
 }
 

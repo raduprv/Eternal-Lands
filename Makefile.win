@@ -11,8 +11,8 @@ LIBS =  -L"C:/Program Files/SDL-1.2.9/lib" -L"lib" -L"C:/Program Files/cal3d-0.1
 INCS =  -I"C:/Program Files/SDL-1.2.9/include"  -I"include"  -I"."  -I"C:/Dev-Cpp/include/GL"  -I"C:/Dev-Cpp/include/al"  -I"C:/Dev-Cpp/include/SDL"  -I"C:/Program Files/SDL_net-1.2.5"  -I"C:/Program Files/cal3d-0.10.0/src" 
 CXXINCS =  -I"C:/Program Files/SDL-1.2.9/include"  -I"lib/gcc/mingw32/3.4.2/include"  -I"include/c++/3.4.2/backward"  -I"include/c++/3.4.2/mingw32"  -I"include/c++/3.4.2"  -I"include"  -I"."  -I"C:/Dev-Cpp/include/GL"  -I"C:/Dev-Cpp/include/al"  -I"C:/Dev-Cpp/include/SDL"  -I"C:/Program Files/SDL_net-1.2.5"  -I"C:/Program Files/cal3d-0.10.0/src" 
 BIN  = "../../../../../../Program Files/Eternal Lands 1.2.0/elc.exe"
-CXXFLAGS = $(CXXINCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DNETWORK_THREAD -DWIDGETS_FIX -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP -DCOUNTERS  -fexpensive-optimizations -O3 -g3 -march=i686 -msse
-CFLAGS = $(INCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DELC -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DNETWORK_THREAD -DWIDGETS_FIX -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP -DCOUNTERS  -fexpensive-optimizations -O3 -g3 -march=i686 -msse
+CXXFLAGS = $(CXXINCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DNETWORK_THREAD -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP -DCOUNTERS  -fexpensive-optimizations -O3 -g3 -march=i686 -msse
+CFLAGS = $(INCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DELC -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DNETWORK_THREAD -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP -DCOUNTERS  -fexpensive-optimizations -O3 -g3 -march=i686 -msse
 RM = rm -f
 
 .PHONY: all all-before all-after clean clean-custom

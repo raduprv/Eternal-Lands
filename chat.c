@@ -1386,7 +1386,6 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 		// shouldn't happen
 		return 0;
 	
-#ifdef WIDGETS_FIX
 
 	// NOTE: This is an optimization, instead of redefining a "Tab/Button" type.
 	//		 Further use of this would be best served be a new definition.
@@ -1422,7 +1421,6 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 			}
 	}
 
-#endif
 
 	if (current_tab != itab)
 	{
@@ -1645,7 +1643,6 @@ int tab_special_click(widget_list *w, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-#ifdef WIDGETS_FIX
 
 // Just for drawing an 'x' on channel buttons.
 
@@ -1669,7 +1666,6 @@ int draw_tab_x (widget_list *W)
 	return 1;
 }
 
-#endif
 
 int add_tab_button (Uint8 channel)
 {
@@ -1707,10 +1703,6 @@ int add_tab_button (Uint8 channel)
 		widget_set_OnClick (tab_bar_win, tabs[itab].button, tab_bar_button_click);
 	}
 	widget_set_OnMouseover (tab_bar_win, tabs[itab].button, chan_tab_mouseover_handler);
-#ifndef WIDGETS_FIX
-	widget_set_OnDraw (tab_bar_win, tabs[itab].button, square_button_draw);
-
-#else
 	widget_set_type(tab_bar_win, tabs[itab].button, &square_button_type); 
  	// Handlers for the 'x'
  	// Make sure it's a CHANNEL first
@@ -1719,7 +1711,6 @@ int add_tab_button (Uint8 channel)
  	{
  		widget_set_OnDraw (tab_bar_win, tabs[itab].button, draw_tab_x);
  	}
-#endif
 	tab_bar_width += widget_get_width (tab_bar_win, tabs[tabs_in_use].button)+1;
 	resize_window (tab_bar_win, tab_bar_width, tab_bar_height);
 

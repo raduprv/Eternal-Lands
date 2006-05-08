@@ -20,7 +20,6 @@ OPTIONS=-DOSX86 -DELC -DATI_9200_FIX -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_ACTOR_AN
 #-DNEW_FRUSTUM    # use new frustum culling (AABB trees)
 #-DBUG_FIX_3D_OBJECTS_MIN_MAX # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects.
 #-DDRAW_BBOX	  # draws the bounding boxes for 2d and 3d objects
-#-DWIDGETS_FIX    # CK's widget patch (EXPERIMENTAL)
 #-DUSE_LISPSM	  # uses light space optimized shadow maps (EXPERIMENTAL)
 #-DCOMMAND_BUFFER # enable command buffer and tab completion
 #-DAUTO_UPDATE	  # enable minor automatic file updating
