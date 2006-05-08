@@ -868,7 +868,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		return 1;
 	}
-#ifdef COMMAND_BUFFER
 	else if ((keysym == SDLK_UP || keysym == SDLK_DOWN) && ctrl_on)
 	{
 		char *line;
@@ -886,7 +885,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			put_string_in_input_field(line);
 		}
 	}
-#endif //COMMAND_BUFFER
 	else if (disconnected && !alt_on && !ctrl_on && !locked_to_console)
 	{
 		connect_to_server();
@@ -1369,9 +1367,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 				input_text_line.data[0]='@';
 			send_input_text_line (input_text_line.data, input_text_line.len);
 		}
-#ifdef COMMAND_BUFFER
 		add_line_to_history(input_text_line.data, input_text_line.len);
-#endif //COMMAND_BUFFER
 		// also clear the buffer
 		clear_input_line();
 	}
@@ -1392,12 +1388,10 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		return 1;
 	}
-#ifdef COMMAND_BUFFER
 	else if (key == K_TABCOMPLETE)
 	{
 		do_tab_complete(&input_text_line);
 	}
-#endif //COMMAND_BUFFER
 	else if (key == K_CAMERAUP)
 	{
 		if (rx > -60) rx -= 1.0f;
@@ -1495,9 +1489,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		Uint8 ch = key_to_char (unikey);
 
-#ifdef COMMAND_BUFFER
 		reset_tab_completer();
-#endif //COMMAND_BUFFER
 		if (ch == '`' || key == K_CONSOLE)
 		{
 			hide_window (game_root_win);

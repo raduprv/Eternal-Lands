@@ -723,7 +723,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	}
 	else 
 	{
-#ifdef COMMAND_BUFFER
 		/* Extract the name for use in the tab completion list. */
 		const unsigned char *name = in_data+28;
 		unsigned char *ptr;
@@ -738,7 +737,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			*ptr = '\0';
 			add_name_to_tablist(buffer);
 		}
-#endif //COMMAND_BUFFER
 		my_strncp(actors_list[i]->actor_name,&in_data[28],sizeof(actors_list[i]->actor_name));
 		if(caps_filter && my_isupper(actors_list[i]->actor_name, -1)) {
 			my_tolower(actors_list[i]->actor_name);

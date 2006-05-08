@@ -78,7 +78,6 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		return 1;
 	}
-#ifdef COMMAND_BUFFER
 	else if(keysym == SDLK_UP)
  	{
 		if (total_nr_lines > nr_console_lines + scroll_up_lines)
@@ -99,18 +98,6 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		do_tab_complete(&input_text_line);
 	}
-#else
-	else if (keysym == SDLK_UP && total_nr_lines > nr_console_lines + scroll_up_lines)
-	{
-		scroll_up_lines++;
-		console_text_changed = 1;
-	}
-	else if (keysym == SDLK_DOWN && scroll_up_lines > 0)
-	{
-		scroll_up_lines--;
-		console_text_changed = 1;
-	}
-#endif //COMMAND_BUFFER
 	else if (key&ELW_ALT && keysym == SDLK_PAGEUP && total_nr_lines > nr_console_lines + scroll_up_lines)
 	{
 		scroll_up_lines = total_nr_lines - nr_console_lines;
@@ -147,9 +134,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	{
 		Uint8 ch = key_to_char (unikey);
 
-#ifdef COMMAND_BUFFER
 		reset_tab_completer();
-#endif //COMMAND_BUFFER
 		if ((ch == '`' || key == K_CONSOLE) && !locked_to_console)
 		{
 			hide_window (console_root_win);
@@ -318,4 +303,3 @@ int history_grep(char * text, int len)
 	}
 	return 1;
 }
-

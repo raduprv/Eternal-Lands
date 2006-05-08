@@ -751,9 +751,7 @@ void init_stuff()
 		display_chat ();
 	}
 
-#ifdef COMMAND_BUFFER
 	init_commands("commands.lst");
-#endif //COMMAND_BUFFER
 
 	// display something
 	destroy_loading_win();

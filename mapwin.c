@@ -116,9 +116,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	}
 	else
 	{
-#ifdef COMMAND_BUFFER
 		reset_tab_completer();
-#endif //COMMAND_BUFFER
 		if (ch == '`' || key == K_CONSOLE)
 		{
 			switch_from_game_map ();

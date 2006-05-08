@@ -42,10 +42,8 @@ void cleanup_mem(void)
 {
 	int i;
 
-#ifdef COMMAND_BUFFER
 	history_destroy();
 	command_cleanup();
-#endif //COMMAND_BUFFER
 	queue_destroy(buddy_request_queue);
 	cleanup_text_buffers();
 	cleanup_fonts();

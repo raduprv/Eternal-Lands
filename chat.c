@@ -211,9 +211,7 @@ void clear_input_line (void)
 	if(input_widget->window_id == game_root_win) {
 		widget_set_flags(game_root_win, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_DISABLED);
 	}
-#ifdef COMMAND_BUFFER
 	history_reset();
-#endif //COMMAND_BUFFER
 }
 
 int close_channel (window_info *win)
@@ -754,9 +752,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 				msg->data[0] = '@';
 			send_input_text_line (msg->data, msg->len);
 		}
-#ifdef COMMAND_BUFFER
 		add_line_to_history(msg->data, msg->len);
-#endif //COMMAND_BUFFER
 		clear_input_line();
 	}
 #ifndef OSX
@@ -823,12 +819,10 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 		msg->chan_idx = tmp_chan;
 	}
-#ifdef COMMAND_BUFFER
 	else if (key == K_TABCOMPLETE)
 	{
 		do_tab_complete(&input_text_line);
 	}
-#endif //COMMAND_BUFFER
 	else
 	{
 		return 0;
@@ -2015,4 +2009,3 @@ void chan_target_name(char * text, int len)
 	snprintf(buffer, sizeof(buffer), "@@%d%s", num, text+2+mylen);
 	send_input_text_line (buffer, strlen(buffer));
 }
-

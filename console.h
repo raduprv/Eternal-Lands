@@ -40,7 +40,6 @@ void print_version_string (char *buf, size_t len);
  * \callgraph
  */
 
-#ifdef COMMAND_BUFFER
 int test_for_console_command (char *text, int len);
 
 void command_cleanup(void);
@@ -57,8 +56,5 @@ void history_reset(void);
 void history_destroy(void);
 void do_tab_complete(text_message *input);
 void reset_tab_completer(void);
-#else
-void test_for_console_command (char *text, int len);
-#endif //COMMAND_BUFFER
 
 #endif

@@ -202,9 +202,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 			return 0;
 		break;
 	}
-#ifdef COMMAND_BUFFER
 	add_name_to_tablist(name);
-#endif //COMMAND_BUFFER
 	return check_if_ignored (name);
 }
 
