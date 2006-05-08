@@ -627,11 +627,6 @@ void display_actors(int banner)
 				{
 					draw_actor(cur_actor, banner);
 				}
-#ifndef NETWORK_THREAD
-				//check for network data - reduces resyncs
-				get_message_from_server();
-				if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
-#endif //NETWORK_THREAD
 #ifdef	NEW_FRUSTUM
 				if (near_actors[i].select)
 #else
@@ -686,11 +681,6 @@ void display_actors(int banner)
 					{
 						draw_actor(cur_actor, banner);
 					}				
-#ifndef NETWORK_THREAD
-					//check for network data - reduces resyncs
-					get_message_from_server();
-					if(actors_list[i]==NULL || cur_actor!=actors_list[i])continue;//The server might destroy our actor in that very moment...
-#endif //NETWORK_THREAD
 #ifdef	NEW_FRUSTUM
 					if (near_actors[i].select)
 #else

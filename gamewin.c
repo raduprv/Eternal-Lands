@@ -599,10 +599,6 @@ int display_game_handler (window_info *win)
 			render_light_view();
 			CHECK_GL_ERRORS ();
 		}
-#ifndef NETWORK_THREAD
-		//check for network data
-		get_message_from_server ();
-#endif //NETWORK_THREAD
 #ifdef	NEW_WEATHER
 		if (weather_use_fog()) render_fog();
 #else
@@ -622,10 +618,6 @@ int display_game_handler (window_info *win)
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 		
-#ifndef NETWORK_THREAD
-		//check for network data - reduces resyncs
-		get_message_from_server ();
-#endif //NETWORK_THREAD
 		if (!dungeon && shadows_on && is_day)
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
@@ -654,10 +646,6 @@ int display_game_handler (window_info *win)
 			display_blended_objects();
 		}
 		CHECK_GL_ERRORS ();
-#ifndef NETWORK_THREAD
-		//check for network data - reduces resyncs
-		get_message_from_server ();
-#endif //NETWORK_THREAD
 	}	// end of active display check
 	else 
 	{
@@ -665,10 +653,6 @@ int display_game_handler (window_info *win)
 	}
 
 	CHECK_GL_ERRORS ();
-#ifndef NETWORK_THREAD
-	//check for network data - reduces resyncs
-	get_message_from_server ();
-#endif //NETWORK_THREAD
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{

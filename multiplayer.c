@@ -3,9 +3,7 @@
 #include <time.h>
 #include "global.h"
 #include "elwindows.h"
-#ifdef NETWORK_THREAD
- #include "queue.h"
-#endif //NETWORK_THREAD
+#include "queue.h"
 #include "actors.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -1098,11 +1096,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 
 int in_data_used=0;
-#ifdef NETWORK_THREAD
 static void process_data_from_server(queue_t *queue)
-#else
-static void process_data_from_server()
-#endif //NETWORK_THREAD
 {
 	/* enough data present for the length field ? */
 	if (3 <= in_data_used) {
@@ -1116,15 +1110,11 @@ static void process_data_from_server()
 			if (sizeof (tcp_in_data) - 3 >= size) { /* buffer big enough ? */
 				
 				if (size <= in_data_used) { /* do we have a complete message ? */
-#ifdef NETWORK_THREAD
 					message_t *message = malloc(sizeof *message);
 					message->data = malloc(size*sizeof(unsigned char));
 					message->length = size;
 					memcpy(message->data, pData, size);
 					queue_push(queue, message);
-#else
-					process_message_from_server(pData, size);
-#endif //NETWORK_THREAD
 
 					if (log_conn_data){
 						log_conn(pData, size);
@@ -1155,13 +1145,8 @@ static void process_data_from_server()
 	}
 }
 
-#ifdef NETWORK_THREAD
 int get_message_from_server(void *thread_args)
-#else
-void get_message_from_server()
-#endif //NETWORK_THREAD
 {
-#ifdef NETWORK_THREAD
 	int received;
 	void *queue = ((void **) thread_args)[0];
 	int *done = ((void **) thread_args)[1];
@@ -1174,19 +1159,8 @@ void get_message_from_server()
 			continue; //Continue to make the main loop check int done.
 		}
 		if ((received = SDLNet_TCP_Recv(my_socket, &tcp_in_data[in_data_used], sizeof (tcp_in_data) - in_data_used)) > 0) {
-#else
-	/* data available for reading ? */
-	if (!disconnected && SDLNet_CheckSockets(set, 0) && SDLNet_SocketReady(my_socket)) {
-		int received;
-
-		if (0 < (received = SDLNet_TCP_Recv(my_socket, &tcp_in_data[in_data_used], sizeof (tcp_in_data) - in_data_used))) {
-#endif //NETWORK_THREAD
 			in_data_used += received;
-#ifdef NETWORK_THREAD
 			process_data_from_server(queue);
-#else
-			process_data_from_server();
-#endif //NETWORK_THREAD
 		}
 		else { /* 0 >= received (EOF or some error) */
 			if (received) {
@@ -1199,9 +1173,7 @@ void get_message_from_server()
 			disconnected = 1;
 		}
 	}
-#ifdef NETWORK_THREAD
 	return 1;
-#endif
 }
 
 /* currently UNUSED

@@ -1,7 +1,7 @@
 .PHONY: clean release docs
 
 # tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DUSE_FRAMEBUFFER -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DOPTIONS_I18N -DATI_9200_FIX -DNETWORK_THREAD -DNEW_ACTOR_ANIMATION -DAUTO_UPDATE -DCOUNTERS
+OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DUSE_FRAMEBUFFER -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DOPTIONS_I18N -DATI_9200_FIX -DNEW_ACTOR_ANIMATION -DAUTO_UPDATE -DCOUNTERS
 
 #-DX86_64
 #-DTIMER_CHECK
@@ -9,7 +9,6 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DUSE_FRAMEBUFFER -DNEW_FRUSTUM -DBUG_FIX
 #-DNOTEPAD        # enable in-game notepad
 #-DCUSTOM_LOOK    # allows you to customize your look. (EXPERIMENTAL)
 #-DUID            # use unique ID sent from server for custom looks. (INCOMPLETE)
-#-DNETWORK_THREAD # use separate thread for network reading (recommended)
 #-DANTI_ALIAS     # allows to enable/disable anti-aliasing in el.ini
 #-DMEMORY_DEBUG   # gather information about memory allocation and freeing
 #-DPNG_SCREENSHOT # make screenshots in W3C's PNG format in game
