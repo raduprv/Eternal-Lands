@@ -145,8 +145,8 @@ int get_font_char(unsigned char cur_char)
 					}
 					if(cur_char>=SPECIALCHAR_LBOUND && cur_char<=SPECIALCHAR_UBOUND)
 					{
-							cur_char-=(SPECIALCHAR_LBOUND-127);
-						}
+						cur_char-=(SPECIALCHAR_LBOUND-127);
+					}
 				}
 		}
 
@@ -619,7 +619,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				nlines++;
 				line_width = 0;
 			} else {
-				font_bit_width = (int) (0.5f + get_font_width (str[isrc]) * 11.0f * zoom / 12.0f);
+				font_bit_width = (int) (0.5f + get_char_width (str[isrc]) * 11.0f * zoom / 12.0f);
 				if (line_width + font_bit_width > width)
 				{
 					// search back for a space
@@ -870,7 +870,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 // font handling
 int get_font_width(int cur_char)
 {
-	// ignore the colorization or unknown characters
+	// ignore unknown characters
 	if (cur_char < 0) {
 		return 0;
 	}
