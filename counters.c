@@ -564,7 +564,7 @@ void increment_death_counter(actor *a)
 {
 	actor *me = get_actor_ptr_from_id(yourself);
 	
-	if (!me->async_fighting) {
+	if (!me || !me->async_fighting) {
 		return;
 	}
 	
