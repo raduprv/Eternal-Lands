@@ -10,21 +10,6 @@
     <t_stats>Statistics</t_stats>
     <t_know>Knowledge</t_know>
     <t_qlog>Quest log</t_qlog>
-    <t_all>All</t_all>
-    <t_none>None</t_none>
-    <t_local>Local</t_local>
-    <c_newbie>Newbie</c_newbie>
-    <c_help>Help</c_help>
-    <c_market>Market</c_market>
-    <c_general>EL General</c_general>
-    <c_roleplaying>Roleplaying</c_roleplaying>
-    <c_contest>Contest/Inv</c_contest>
-    <c_offtopic>Offtopic</c_offtopic>
-    <t_channel>Channel %d</t_channel>
-    <c_guild>Guild</c_guild>
-    <c_mod>Mod</c_mod>
-    <c_personal>PM</c_personal>
-    <c_server>Server</c_server>
     <t_main>Main</t_main>
     <b_okay>Okay</b_okay>
     <b_cancel>Cancel</b_cancel>
