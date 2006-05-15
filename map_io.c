@@ -84,10 +84,10 @@ void destroy_map()
 			if(lights_list[i])
 				{
 					free(lights_list[i]);
-					lights_list[i]=0;//kill any refference to it
-					num_lights= 0;
+					lights_list[i]= NULL;	//kill any refference to it
 				}
 		}
+	num_lights= 0;
 
 #ifdef	TERRAIN
 	free_terrain();
