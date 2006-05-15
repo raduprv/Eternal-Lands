@@ -253,8 +253,6 @@ void cleanup_counters()
 {
 	int i, j;
 
-	flush_counters();
-	
 	for (i = 0; i < NUM_COUNTERS; i++) {
 		if (counters[i]) {
 			for (j = 0; j < entries[i]; i++) {

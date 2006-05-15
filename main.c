@@ -145,15 +145,8 @@ int start_rendering()
 	queue_destroy(message_queue);
 	if(pm_log.ppl)free_pm_log();
 
-	save_bin_cfg();
-	//Save the quickbar spells
-	save_quickspells();
-	// save el.ini if asked
-	if (write_ini_on_exit) write_el_ini ();
-#ifdef NOTEPAD
-	// save notepad contents if the file was loaded
-	if (notepad_loaded) notepadSaveFile (NULL, 0, 0, 0);
-#endif
+	//save all local data
+	save_local_data(NULL, 0);
 
 	unload_questlog();
 	free_icons();

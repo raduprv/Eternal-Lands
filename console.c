@@ -801,6 +801,22 @@ int command_accept_buddy(char *text, int len)
 	return 0;
 }
 
+int save_local_data(char * text, int len){
+	save_bin_cfg();
+	//Save the quickbar spells
+	save_quickspells();
+	// save el.ini if asked
+	if (write_ini_on_exit) write_el_ini ();
+#ifdef NOTEPAD
+	// save notepad contents if the file was loaded
+	if (notepad_loaded) notepadSaveFile (NULL, 0, 0, 0);
+#endif
+#ifdef COUNTERS
+	flush_counters();
+#endif
+	return 0;
+}
+
 void init_commands(const char *filename)
 {
 	FILE *fp = my_fopen(filename, "r");
@@ -858,6 +874,7 @@ void init_commands(const char *filename)
 	add_command("accept_buddy", &command_accept_buddy);
 	add_command("current_song", &display_song_name);
 	add_command("find", &history_grep);
+	add_command("save", &save_local_data);
 	command_buffer_offset = NULL;
 }
 

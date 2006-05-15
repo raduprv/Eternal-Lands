@@ -57,4 +57,5 @@ void history_destroy(void);
 void do_tab_complete(text_message *input);
 void reset_tab_completer(void);
 
+int save_local_data(char * text, int len);
 #endif
