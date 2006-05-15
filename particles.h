@@ -333,7 +333,7 @@ int save_particle_def(particle_sys_def *def);
  *
  * \callgraph
  */
-void destroy_particle_sys(int i);
+//void destroy_particle_sys(int i);
 #endif
 
 #ifdef MAP_EDITOR2

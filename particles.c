@@ -413,17 +413,19 @@ static __inline__ void destroy_partice_sys_without_lock(int i)
 	particles_list[i] = NULL;
 }
 
-void destroy_particle_sys(int i)
-{
-	LOCK_PARTICLES_LIST();
-	destroy_partice_sys_without_lock(i);
-	UNLOCK_PARTICLES_LIST();
-}
+//void destroy_particle_sys(int i)
+//{
+//	LOCK_PARTICLES_LIST();
+//	destroy_partice_sys_without_lock(i);
+//	UNLOCK_PARTICLES_LIST();
+//}
 
 #endif
+
 #ifdef MAP_EDITOR2
 #define MAP_EDITOR
 #endif
+
 #ifdef MAP_EDITOR
 int save_particle_def(particle_sys_def *def)
 {
@@ -512,6 +514,7 @@ void destroy_all_particle_defs()
 void destroy_all_particles()
 {
 	int i;
+	
 	LOCK_PARTICLES_LIST();
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
