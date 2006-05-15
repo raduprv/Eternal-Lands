@@ -216,13 +216,14 @@ void draw_lights()
 		glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
 	}
 #else	
-	j = 0;
+	j= 0;
 	
 	get_intersect_start_stop(main_bbox_tree, TYPE_LIGHT, &start, &stop);
-	for (i = start; i < stop; i++)
+	for(i=start; i<stop; i++)
 	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		if (!lights_list[l])
+		l= get_intersect_item_ID(main_bbox_tree, i);
+		// and make sure it's a valid light
+		if(l<0 || l>MAX_LIGHTS || !lights_list[l])
 		{
 #ifdef EXTRA_DEBUG
 			ERR();
@@ -249,11 +250,11 @@ void draw_lights()
 #ifdef	NEW_FRUSTUM
 void destroy_light(int i)
 {
-	if ((i < 0) || (i >= MAX_LIGHTS)) return;
-	if (lights_list[i] == NULL) return;
+	if((i < 0) || (i >= MAX_LIGHTS)) return;
+	if(lights_list[i] == NULL) return;
 	delete_light_from_abt(main_bbox_tree, i);
 	free(lights_list[i]);
-	lights_list[i] = NULL;
+	lights_list[i]= NULL;
 }
 #endif
 
@@ -278,13 +279,13 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 #endif
 
 	//find a free spot, in the lights list
-	for (i = 0; i < MAX_LIGHTS; i++)
+	for(i=0; i<MAX_LIGHTS; i++)
 	{
-		if (lights_list[i] == NULL)
+		if(lights_list[i] == NULL)
 			break;
 	}
 	
-	if (i >= MAX_LIGHTS)
+	if(i >= MAX_LIGHTS)
 		// oops no way to store the new light
 		return i;
 		
@@ -316,9 +317,11 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 void cleanup_lights(void)
 {
 	int i;
+	
 	for(i = 0; i < MAX_LIGHTS; i++) {
 		if(lights_list[i] != NULL) {
 			free(lights_list[i]);
+			lights_list[i]= NULL;
 		}
 	}
 }
@@ -584,7 +587,6 @@ void update_scene_lights()
 
 void init_lights()
 {
-
 	GLfloat light_diffuse[] = { 1.7, 1.3, 1.1, 0.0 };
 	GLfloat no_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	float linear_att=1.41f;
