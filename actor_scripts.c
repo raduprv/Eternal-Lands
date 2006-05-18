@@ -82,6 +82,8 @@ const dict_elem actor_type_dict[] =
 	  { "giant 1"				, giant_1               },
 	  { "hobgoblin"				, hobgoblin             },
 	  { "yeti"					, yeti                  },
+	  { "hobgoblin 1"			, hobgoblin             },
+	  { "yeti 1"				, yeti                  },
 
 	  { NULL                    , -1					}
 	};
@@ -114,6 +116,7 @@ const dict_elem skin_color_dict[] =
 	  { "normal", SKIN_NORMAL },
 	  { "pale"  , SKIN_PALE   },
 	  { "tan"   , SKIN_TAN    },
+	  { "darkblue", SKIN_DARK_BLUE  },
 	  { NULL    , -1          }
 	};
 

@@ -199,7 +199,7 @@ typedef struct cal_anim_group
 #define ACTOR_HELMET_SIZE (HELMET_NONE+1)
 #define ACTOR_WEAPON_SIZE 80
 #define ACTOR_SHIRT_SIZE  22
-#define ACTOR_SKIN_SIZE   4
+#define ACTOR_SKIN_SIZE   5
 #define ACTOR_HAIR_SIZE   9
 #define ACTOR_BOOTS_SIZE  20
 #define ACTOR_LEGS_SIZE   16

@@ -93,10 +93,11 @@
  * \name Skin colors
  */
 /*! @{ */
-#define SKIN_BROWN 0
-#define SKIN_NORMAL 1
-#define SKIN_PALE 2
-#define SKIN_TAN 3
+#define SKIN_BROWN		0
+#define SKIN_NORMAL		1
+#define SKIN_PALE		2
+#define SKIN_TAN		3
+#define SKIN_DARK_BLUE  4
 /*! @} */
 
 /*!
