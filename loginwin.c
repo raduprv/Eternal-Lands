@@ -68,16 +68,16 @@ int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	password_text_x = half_screen_x - offset;
 	password_text_y = half_screen_y - 100;
 
-	username_bar_x = half_screen_x - 50;
+	username_bar_x = half_screen_x;
 	username_bar_y = username_text_y - 7;
 
-	password_bar_x = half_screen_x - 50;
+	password_bar_x = half_screen_x;
 	password_bar_y = password_text_y - 7;
 
-	log_in_x = half_screen_x - 125;
+	log_in_x = username_text_x;
 	log_in_y = half_screen_y - 50;
 
-	new_char_x = half_screen_x + 50;
+	new_char_x = username_bar_x + username_bar_x_len - new_char_x_len;
 	new_char_y = half_screen_y - 50;
 	
 	return 1;
