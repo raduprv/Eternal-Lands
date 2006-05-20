@@ -496,7 +496,11 @@ void add_text_to_buffer(int color, char * text, int time_to_display)
 
 void create_character()
 {
-	if(strcmp(inputs[1].str, inputs[2].str)){
+	if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
+		add_text_to_buffer(c_red2, "Bad password!", 6000);
+		//add_text_to_buffer(c_red2, error_bad_pass, 6000);
+		return;
+	} else if(strcmp(inputs[1].str, inputs[2].str)){
 		add_text_to_buffer(c_red2, error_pass_no_match, 6000);
 		return;
 	} else if(inputs[0].pos<3){
@@ -577,7 +581,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		}
 		else
 		{
-			// don't alow a character to start with player
+			// don't allow a character to start with player
 			if(active == 0 && !strcasecmp(t->str, "player")) t->pos= 0;
 			// add the character to the buffer
 			t->str[t->pos++]=ch;
@@ -612,7 +616,10 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	if(active>0){
 		//Password/confirm
 		if(ret){
-			if(strcmp(inputs[1].str, inputs[2].str)){
+			if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
+                add_text_to_buffer(c_red2, "Bad password!", 6000);
+                //add_text_to_buffer(c_red2, error_bad_pass, 6000);
+			} else if(strcmp(inputs[1].str, inputs[2].str)){
 				add_text_to_buffer(c_red2, error_pass_no_match, 6000);
 			} else {
 				add_text_to_buffer(c_green1, passwords_match, 6000);
