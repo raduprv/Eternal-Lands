@@ -1289,7 +1289,7 @@ void init_vars()
 	add_var(BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
   #endif
  	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
- 	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your browser",MISC);
+ 	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",MISC);
 #endif // MAP_EDITOR2
 
 #ifndef MAP_EDITOR2

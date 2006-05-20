@@ -39,9 +39,6 @@ Uint32 my_timer(Uint32 interval, void * data)
 #ifndef NEW_WEATHER
 	//check the thunders
 	thunder_control();
-#endif
-
-#ifndef NEW_WEATHER
 	if(is_raining)update_rain();
 #endif
 	//next_command();
