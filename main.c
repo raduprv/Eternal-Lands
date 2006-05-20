@@ -76,7 +76,6 @@ int start_rendering()
 	static int done = 0;
 	static void * network_thread_data[2] = { NULL, NULL };
 
-	SDL_Thread *music_thread=SDL_CreateThread(update_music, 0);
 	SDL_Thread *network_thread;
 	queue_t *message_queue;
 
@@ -139,8 +138,6 @@ int start_rendering()
 		done = 1;
 	}
 	log_error("Client closed");
-	have_music=0;
-	SDL_WaitThread(music_thread,&done);
 	SDL_WaitThread(network_thread,&done);
 	queue_destroy(message_queue);
 	if(pm_log.ppl)free_pm_log();
@@ -148,6 +145,7 @@ int start_rendering()
 	//save all local data
 	save_local_data(NULL, 0);
 
+	turn_music_off();	//cleans up and waits for the thread
 	unload_questlog();
 	free_icons();
 	free_vars();

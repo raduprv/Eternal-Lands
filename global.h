@@ -23,8 +23,6 @@
 
 #ifdef	WINDOWS
 	#include <windows.h>
-	#include <al.h>
-	#include <alut.h>
 	#ifdef	_MSC_VER	// now we do test for VC
 		#define stat _stat
 		#define	snprintf sane_snprintf
@@ -43,13 +41,9 @@
 	#endif
 #elif defined(OSX)
 	#define NO_MUSIC
-	#include <OpenAL/alut.h>
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
 	#include <OpenGL/glext.h>
-#else
-	#include <AL/al.h>
-	#include <AL/alut.h>
 #endif //WINDOWS
 
 #ifdef EL_BIG_ENDIAN
@@ -68,13 +62,6 @@
 #include <SDL.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
-
-#ifndef	NO_MUSIC
-#include <ogg/ogg.h>
-#include <vorbis/codec.h>
-#include <vorbis/vorbisenc.h>
-#include <vorbis/vorbisfile.h>
-#endif	//NO_MUSIC
 
 #ifdef X86_64
 typedef long int point;

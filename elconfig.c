@@ -1235,9 +1235,9 @@ void init_vars()
 	add_var(INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);
 #endif //ELC
 	
-	add_var(BOOL,"no_sound","sound",&no_sound,toggle_sounds,0,"No sound","Turn sound effects on/off",AUDIO);
+	add_var(BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable sound effects","Turn sound effects on/off",AUDIO);
 #ifndef NO_MUSIC
-	add_var(BOOL,"no_music","music",&no_music,toggle_music,0,"No music","Turn music on/off",AUDIO);
+	add_var(BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable music","Turn music on/off",AUDIO);
 #endif //NO_MUSIC
 	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
 #ifndef NO_MUSIC

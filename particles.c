@@ -730,7 +730,7 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
 	
 #ifndef MAP_EDITOR
-	if (def->sound_nr < 0 || no_sound)
+	if (def->sound_nr < 0 || !sound_on)
 		system_id->sound = 0;
 	else
 		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5), def->positional, def->loop);

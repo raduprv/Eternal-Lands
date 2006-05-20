@@ -587,6 +587,9 @@ float weather_bias_light(float value)
 
 void weather_sound_control() {
 	static int rain_sound = -1;
+	if (!sound_on) {
+		return;
+	}
 
 	if (rain_sound == -1) {
 		int buffer;

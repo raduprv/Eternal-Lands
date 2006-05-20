@@ -522,7 +522,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				if(!no_sound)play_music(SDL_SwapLE16(*((short *)(in_data+3))));
+				if(music_on)play_music(SDL_SwapLE16(*((short *)(in_data+3))));
 			}
 			break;
 
@@ -531,7 +531,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				if(!no_sound)add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),SDL_SwapLE16(*((short *)(in_data+7))),SDL_SwapLE16(*((char *)(in_data+9))),SDL_SwapLE16(*((short *)(in_data+10))));
+				if(sound_on)add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),SDL_SwapLE16(*((short *)(in_data+7))),SDL_SwapLE16(*((char *)(in_data+9))),SDL_SwapLE16(*((short *)(in_data+10))));
 			}
 			break;
 

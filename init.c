@@ -635,9 +635,16 @@ void init_stuff()
 #endif
 	build_levels_table();//for some HUD stuff
 
-	if(!no_sound || !no_music) {
+	if(sound_on
+#ifndef NO_MUSIC
+		|| music_on
+#endif //NO_MUSIC
+		) {
 		update_loading_win(init_audio_str, 0);
 		init_sound();
+		if(music_on){
+			turn_music_on();
+		}
 	}
 
 	update_loading_win(load_icons_str, 4);

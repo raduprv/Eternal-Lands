@@ -6,17 +6,41 @@
  */
 #ifndef __SOUND_H__
 #define __SOUND_H__
+#include "global.h"
+
+#ifdef WINDOWS //lib location platform checking
+	#include <al.h>
+	#include <alc.h>
+	#include <alut.h>
+#elif defined(OSX)
+	#include <OpenAL/alut.h>
+	#include <OpenAL/alc.h>
+#else
+	#include <AL/al.h>
+	#include <AL/alc.h>
+	#include <AL/alut.h>
+#endif //lib location platform checking
+
+#ifndef	NO_MUSIC
+#include <ogg/ogg.h>
+#include <vorbis/codec.h>
+#include <vorbis/vorbisenc.h>
+#include <vorbis/vorbisfile.h>
+#endif	//NO_MUSIC
+
+
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
-extern int no_sound; /*!< flag indicating if sound is disabled in config */
-extern int no_music; /*!< flag indicating if music is disabled in config */
 extern int playing_music; /*!< flag indicating if music is currently playing */
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
+
+ALCdevice *mSoundDevice;
+ALCcontext *mSoundContext;
 
 #ifdef DEBUG
 void print_sound_objects ();

@@ -2,6 +2,7 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
+#include "sound.h"
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
 #else
@@ -30,9 +31,8 @@ int have_sound=0;
 int have_music=0;
 int sound_on=1;
 int music_on=1;
-int no_sound=0;
-int no_music=0;
 Uint8 inited = 0;
+SDL_Thread *music_thread = NULL;
 
 ALfloat sound_gain=1.0f;
 ALfloat music_gain=1.0f;
@@ -488,7 +488,7 @@ int update_music(void *dummy)
 #ifndef	NO_MUSIC
 	int error,processed,state,state2,sleep,fade=0;
    	sleep = SLEEP_TIME;
-	while(have_music)
+	while(have_music && music_on)
 	{
 		SDL_Delay(sleep);
 		if(playing_music)
@@ -670,8 +670,16 @@ void kill_local_sounds()
 void turn_sound_off()
 {
 	int i,loop;
-	if(!have_sound)
+	if(!inited){
 		return;
+	} else 
+#ifndef NO_MUSIC
+		if(!music_on)
+#endif //NO_MUSIC
+	{
+		destroy_sound();
+		return;
+	}
 	LOCK_SOUND_LIST();
 	sound_on=0;
 	for(i=0;i<used_sources;i++)
@@ -688,10 +696,14 @@ void turn_sound_off()
 void turn_sound_on()
 {
 	int i,state=0;
-	if(!have_sound)
+	if(!inited){
+		init_sound();
+	}
+	if(!have_sound){
 		return;
-	LOCK_SOUND_LIST();
+	}
 	sound_on=1;
+	LOCK_SOUND_LIST();
 	for(i=0;i<used_sources;i++)
 	{
 		alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
@@ -702,37 +714,45 @@ void turn_sound_on()
 }
 
 void toggle_sounds(int * var){
-	if(!have_sound && inited < 1 && *var){
-		init_sound();
-	}
-	if(sound_on){
+	*var=!*var;
+	if(!sound_on){
 		turn_sound_off();
 	} else {
 		turn_sound_on();
 	}
-	*var=!*var;
 }
 
 void toggle_music(int * var){
-	if(!have_music && inited < 1 && *var){
-		init_sound();
-	}
-	if(music_on){
+	*var=!*var;
+	if(!music_on){
 		turn_music_off();
 	} else {
 		turn_music_on();
 	}
-	*var=!*var;
 }
 
 void turn_music_off()
 {
+	if(!sound_on && inited){
+		destroy_sound();
+		return;
+	}
 #ifndef	NO_MUSIC
 	if(!have_music)
 		return;
-	music_on=0;
-	alSourcePause(music_source);
-	playing_music = 0;
+	if(music_thread != NULL){
+		int queued = 0;
+		music_on=0;
+		alSourceStop(music_source);
+		alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+		while(queued-- > 0){
+			ALuint buffer;		
+			alSourceUnqueueBuffers(music_source, 1, &buffer);
+		}
+		SDL_WaitThread(music_thread,NULL);
+		music_thread = NULL;
+	}
+	music_on = playing_music = 0;
 #endif	//NO_MUSIC
 }
 
@@ -740,9 +760,17 @@ void turn_music_on()
 {
 #ifndef	NO_MUSIC
 	int state;
-	if(!have_music)
+	if(!inited){
+		init_sound();
+	}
+	if(!have_music){
 		return;
-	music_on=1;
+	}
+	get_map_playlist();
+	music_on = 1;
+	if(music_thread == NULL){
+		music_thread=SDL_CreateThread(update_music, 0);
+	}
 	alGetSourcei(music_source, AL_SOURCE_STATE, &state);
 	if(state == AL_PAUSED) {
 		alSourcePlay(music_source);
@@ -757,24 +785,39 @@ void init_sound()
 	ALfloat listenerPos[]={-cx*2,-cy*2,0.0};
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
+	if(inited){
+		return;
+	}
 	have_sound=1;
-	inited++;
 #ifndef	NO_MUSIC
 	have_music=1;
 #else
 	have_music=0;
 #endif	//NO_MUSIC
-	alutInit(0, NULL);
-	sound_list_mutex=SDL_CreateMutex();
-
-	if((error=alGetError()) != AL_NO_ERROR) 
-	{
+	//NULL makes it use the default device.
+	//if you want to use a different device, use, for example: ((ALubyte*) "DirectSound3D")
+	mSoundDevice = alcOpenDevice( NULL );
+	if((error=alGetError()) != AL_NO_ERROR || !mSoundDevice){
 		char str[256];
 		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
-		have_sound=0;
-		have_music=0;
+		have_sound=have_music=0;
+		return;
+	}
+
+	mSoundContext = alcCreateContext( mSoundDevice, NULL );
+	alcMakeContextCurrent( mSoundContext );
+
+	sound_list_mutex=SDL_CreateMutex();
+
+	if((error=alGetError()) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
+		char str[256];
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR(str);
+		have_sound=have_music=0;
+		return;
 	}
 
 	// TODO: get this information from a file, sound.ini?	
@@ -818,18 +861,44 @@ void init_sound()
 	alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
 	alSourcef (music_source, AL_GAIN,            music_gain);
 #endif	//NO_MUSIC
+	if((error=alGetError()) != AL_NO_ERROR){
+		char str[256];
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR(str);
+		have_sound=have_music=0;
+		return;
+	}
+#ifndef NEW_WEATHER
+	//force the rain sound to be recreated
+	rain_sound = 0;
+#endif //NEW_WEATHER
+	inited = 1;
 }
 
 void destroy_sound()
 {
-	int i;
-	if(!have_sound)
+	int i, error;
+	if(!inited){
 		return;
+	}
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex=NULL;
+	inited = have_sound = sound_on = 0;
 
 #ifndef	NO_MUSIC
-	alSourceStop(music_source);
+	music_on = playing_music = have_music = 0;
+	if(music_thread != NULL){
+		int queued = 0;
+		alSourceStop(music_source);
+		alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
+		while(queued-- > 0){
+			ALuint buffer;		
+			alSourceUnqueueBuffers(music_source, 1, &buffer);
+		}
+		SDL_WaitThread(music_thread,NULL);
+		music_thread = NULL;
+	}
 	alDeleteSources(1, &music_source);
 	alDeleteBuffers(4, music_buffers);
 	ov_clear(&ogg_stream);
@@ -841,7 +910,20 @@ void destroy_sound()
 			alDeleteBuffers(1, sound_buffer+i);
 		}
 	}
+	alcDestroyContext( mSoundContext );
+	if(mSoundDevice){
+		alcCloseDevice( mSoundDevice );
+	}
 	alutExit();
+
+	if((error=alGetError()) != AL_NO_ERROR) 
+	{
+		char str[256];
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR(str);
+	}
+	used_sources = 0;
 }
 
 int realloc_sources()
