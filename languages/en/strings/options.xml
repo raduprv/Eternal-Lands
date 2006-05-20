@@ -13,10 +13,6 @@
       <name>Shadow Mapping</name>
       <desc>If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.</desc>
     </use_shadow_mapping>
-    <max_shadow_map_size>
-      <name>Shadow Map Size</name>
-      <desc>This parameter determines the quality of the shadow maps. You should as minimum set it to 512.</desc>
-    </max_shadow_map_size>
     <render_fog>
       <name>Render fog</name>
       <desc>Toggles fog rendering.</desc>
@@ -183,7 +179,7 @@
     </language>
     <browser>
       <name>Browser</name>
-      <desc>Location of your browser</desc>
+      <desc>Location of your web browser (Windows users leave blank to use default browser)</desc>
     </browser>
     <windowed_chat>
       <name>Use windowed chat</name>
@@ -257,5 +253,33 @@
       <name>Gamma</name>
       <desc>How bright your display should be.</desc>
     </gamma>
-  <render_skeleton><name>Render skeleton<name>Render skeleton</name><desc>Render the Cal3d skeleton.</desc></name><desc>Render the Cal3d skeleton.</desc></render_skeleton><render_mesh><name>Render mesh<name>Render mesh</name><desc>Render the mesh</desc></name><desc>Render the mesh</desc></render_mesh><shadow_map_size><name>Shadow Map Size<name>Shadow Map Size</name><desc>This parameter determines the quality of the shadow maps. You should as minimum set it to 512.</desc></name><desc>This parameter determines the quality of the shadow maps. You should as minimum set it to 512.</desc></shadow_map_size><use_old_clicker><name>Mouse Bug<name>Mouse Bug</name><desc>If the above option doesn't move you when you click, try this one</desc></name><desc>If the above option doesn't move you when you click, try this one</desc></use_old_clicker><use_frame_buffer><name>Toggle frame buffer support<name>Toggle frame buffer support</name><desc>Toggle frame buffer support. At the moment just for reflection the frame buffer is used.</desc></name><desc>Toggle frame buffer support. At the moment just for reflection the frame buffer is used.</desc></use_frame_buffer><use_clipboard><name>Use clipboard for pasting<name>Use clipboard for pasting</name><desc>Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)</desc></name><desc>Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)</desc></use_clipboard><use_compiled_vertex_array><name>Compiled Vertex Array<name>Compiled Vertex Array</name><desc>Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.</desc></name><desc>Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.</desc></use_compiled_vertex_array></options>
+    <render_skeleton>
+      <name>Render skeleton</name>
+      <desc>Render the Cal3d skeleton.</desc>
+    </render_skeleton>
+    <render_mesh>
+      <name>Render mesh</name>
+      <desc>Render the mesh</desc>
+    </render_mesh>
+    <shadow_map_size>
+      <name>Shadow Map Size</name>
+	  <desc>This parameter determines the quality of the shadow maps. You should as minimum set it to 512.</desc>
+    </shadow_map_size>
+    <use_old_clicker>
+      <name>Mouse Bug</name>
+   	  <desc>If the above option doesn't move you when you click, try this one</desc>
+    </use_old_clicker>
+    <use_frame_buffer>
+      <name>Toggle frame buffer support</name>
+	  <desc>Toggle frame buffer support. At the moment just for reflection the frame buffer is used.</desc>
+    </use_frame_buffer>
+    <use_clipboard>
+      <name>Use clipboard for pasting</name>
+	  <desc>Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)</desc>
+    </use_clipboard>
+    <use_compiled_vertex_array>
+      <name>Compiled Vertex Array</name>
+	  <desc>Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.</desc>
+    </use_compiled_vertex_array>
+  </options>
 </root>
