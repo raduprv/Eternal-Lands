@@ -89,10 +89,14 @@
       <name>Chat Font</name>
       <desc>Set the type of font used for normal text</desc>
     </chat_font>
-    <no_sound>
-      <name>No sound</name>
-      <desc>Toggle the Audio</desc>
-    </no_sound>
+    <enable_sound>
+      <name>Enable sound effects</name>
+      <desc>Turn sound effects on/off</desc>
+    </enable_sound>
+    <enable_music>
+      <name>Enable music</name>
+      <desc>Turn music on/off</desc>
+    </enable_music>
     <sound_gain>
       <name>Sound Gain</name>
       <desc>Adjust the sound effects volume</desc>
