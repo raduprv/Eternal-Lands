@@ -680,23 +680,29 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 	return 0;
 }
 
-int drop_all_handler ()
+int drop_all_handler (widget_list *w, int mx, int my, Uint32 flags)
 {
 	Uint8 str[6] = {0};
 	int i;
 
-	for(i = 0; i < ITEM_NUM_ITEMS; i++)
+	//only drop items if it was a left click.
+	//There were complaints about mouse-scrolling setting this off
+	if ( ! ( flags & ~ELW_LEFT_MOUSE ) )
 	{
-		if (item_list[i].quantity != 0 && item_list[i].pos < ITEM_WEAR_START) // only drop stuff that we're not wearing
+		for(i = 0; i < ITEM_NUM_ITEMS; i++)
 		{
-			str[0] = DROP_ITEM;
-			str[1] = item_list[i].pos;
-			*((Uint32 *)(str+2)) = item_list[i].quantity;
-			my_tcp_send (my_socket, str, 6);
+			if (item_list[i].quantity != 0 && item_list[i].pos < ITEM_WEAR_START) // only drop stuff that we're not wearing
+			{
+				str[0] = DROP_ITEM;
+				str[1] = item_list[i].pos;
+				*((Uint32 *)(str+2)) = item_list[i].quantity;
+				my_tcp_send (my_socket, str, 6);
+			}
 		}
+		return 1;
+	} else {
+		return 0;
 	}
-
-	return 1;
 }
 
 int drop_button_id = 0;
