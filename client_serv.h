@@ -86,6 +86,7 @@
 #define giant_1 73
 #define hobgoblin 74
 #define yeti 75
+#define snake4 76
 
 /*! @} */
 
@@ -97,7 +98,7 @@
 #define SKIN_NORMAL		1
 #define SKIN_PALE		2
 #define SKIN_TAN		3
-#define SKIN_DARK_BLUE  4
+#define SKIN_DARK_BLUE	4
 /*! @} */
 
 /*!
@@ -123,6 +124,9 @@
 #define SHIRT_IRON_PLATE_ARMOR 16
 #define SHIRT_ARMOR_6 17
 #define SHIRT_FUR 18
+#define SHIRT_STEEL_PLATE_ARMOR 19
+#define SHIRT_TITANIUM_PLATE_ARMOR 20
+
 /*! @} */
 
 /*!
@@ -207,11 +211,14 @@
 #define CAPE_RED 12
 #define CAPE_ORANGE 13
 #define CAPE_MOD 14
-#define CAPE_MOONSHADOW 15
+#define CAPE_DERIN 15
 #define CAPE_RAVENOD 16
-#define CAPE_ROGUE 17
-#define CAPE_WYTTER 18
-#define CAPE_QUELL 19
+#define CAPE_PLACID 17
+#define CAPE_LORD_VERMOR 18
+#define CAPE_AISLINN 19
+#define CAPE_SOLDUS 20
+#define CAPE_LOTHARION 21
+#define CAPE_LEARNER 22
 #define CAPE_NONE 30
 /*! @} */
 
@@ -324,6 +331,14 @@
 #define GLOVE_LEATHER 48
 #define BONE_1 49
 #define STICK_1 50
+#define SWORD_EMERALD_CLAYMORE 51
+#define SWORD_CUTLASS 52
+#define SWORD_SUNBREAKER 53
+#define SWORD_ORC_SLAYER 54
+#define SWORD_EAGLE_WING 55
+#define SWORD_RAPIER 56
+#define SWORD_JAGGED_SABER 57
+
 /*! @} */
 
 /*!
@@ -792,8 +807,8 @@
  * \name Actor scaling constants
  */
 /*! @{ */
-#define ACTOR_SCALE_BASE	0x4000
-#define ACTOR_SCALE_MAX		0x7FFF
+#define	ACTOR_SCALE_BASE	0x4000
+#define	ACTOR_SCALE_MAX		0x7FFF
 /*! @} */
 
 #endif

@@ -106,6 +106,8 @@ const dict_elem shirt_color_dict[] =
 	  { "steel chain armor"   , SHIRT_STEEL_CHAIN_ARMOR    },
 	  { "titanium chain armor", SHIRT_TITANIUM_CHAIN_ARMOR },
 	  { "iron plate armor"    , SHIRT_IRON_PLATE_ARMOR     },
+	  { "steel plate armor"   , SHIRT_STEEL_PLATE_ARMOR    },
+	  { "titanium plate armor", SHIRT_TITANIUM_PLATE_ARMOR },
 	  { "undefined armor"     , SHIRT_ARMOR_6              },
 	  { "fur"                 , SHIRT_FUR                  },
 	  { NULL                  , -1                         }
@@ -184,11 +186,18 @@ const dict_elem cape_color_dict[] =
 	  { "red"       , CAPE_RED        },
 	  { "orange"    , CAPE_ORANGE     },
 	  { "mod"       , CAPE_MOD        },
-	  { "moonshadow", CAPE_MOONSHADOW },
+	  { "derin"     , CAPE_DERIN      },
 	  { "ravenod"   , CAPE_RAVENOD    },
-	  { "rogue"     , CAPE_ROGUE      },
-	  { "wytter"    , CAPE_WYTTER     },
-	  { "quell"     , CAPE_QUELL      },
+	  { "placid"    , CAPE_PLACID     },
+	  { "lordvermor",CAPE_LORD_VERMOR},
+	  { "aislinn"   , CAPE_AISLINN    },
+	  { "soldus"    , CAPE_SOLDUS     },
+	  { "lotharion" , CAPE_LOTHARION  },
+	  { "learner"   , CAPE_LEARNER    },
+//	  { "moonshadow", CAPE_MOONSHADOW },
+//	  { "rogue"     , CAPE_ROGUE      },
+//	  { "wytter"    , CAPE_WYTTER     },
+//	  { "quell"     , CAPE_QUELL      },
 	  { "none"      , CAPE_NONE       },
 	  { NULL        , -1              }
 	};
@@ -198,8 +207,8 @@ const dict_elem shield_type_dict[] =
 	  { "wood enhanced", SHIELD_WOOD_ENHANCED },
 	  { "iron"         , SHIELD_IRON          },
 	  { "steel"        , SHIELD_STEEL         },
-	  { "titanium"        , SHIELD_TITANIUM         },
-	  { "hydrogenium"        , SHIELD_HYDROGENIUM         },
+	  { "titanium"     , SHIELD_TITANIUM         },
+	  { "hydrogenium"  , SHIELD_HYDROGENIUM         },
 	  { "none"         , SHIELD_NONE          },
 	  { NULL           , -1                   }
 	};
@@ -254,8 +263,15 @@ const dict_elem weapon_type_dict[] =
 	  { "titanium battle axe of magic", BATTLEAXE_TITANIUM_MAGIC },
 	  { "fur gloves"                  , GLOVE_FUR                },
 	  { "leather gloves"              , GLOVE_LEATHER            },
-	  { "bone 1"              	  , BONE_1	             },
-	  { "stick 1"              	  , STICK_1	             },
+	  { "bone 1"              	      , BONE_1	                 },
+	  { "stick 1"              	      , STICK_1	                 },
+	  { "sword 8"                     , SWORD_EMERALD_CLAYMORE   },
+	  { "sword 9"                     , SWORD_CUTLASS            },
+	  { "sword 10"                    , SWORD_SUNBREAKER         },
+	  { "sword 11"                    , SWORD_ORC_SLAYER         },
+	  { "sword 12"                    , SWORD_EAGLE_WING         },
+	  { "sword 13"                    , SWORD_RAPIER             },
+	  { "sword 14"                    , SWORD_JAGGED_SABER       },
 	  { NULL                          , -1                       }
 	};
 
@@ -2101,7 +2117,7 @@ int read_actor_defs (const char *dir, const char *index) {
 
 void init_actor_defs () {
 	const char *dirname = "actor_defs", *idxname = "actor_defs.xml";
-	char defdir[120];
+	char defdir[256];
 	int ok;
 
 	// initialize the whole thing to zero
