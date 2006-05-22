@@ -159,7 +159,7 @@ void set_current_frustum(unsigned int intersect_type);
  * \param url         the url to open in the browser
  * \retval int  always returns 0
  */
-int go_to_url(char * url);
+int go_to_url(void * url);
 
 /*!
  * \ingroup misc

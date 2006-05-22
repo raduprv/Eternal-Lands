@@ -345,7 +345,7 @@ void find_last_url(const unsigned char *source_string, const int len)
 }
 
 #ifdef  WINDOWS
-int go_to_url(char * url)
+int go_to_url(void * url)
 {
 	char browser_command[400];
 
@@ -372,12 +372,14 @@ void open_web_link(char * url)
 	if(*browser_name){
 #ifndef WINDOWS
 		char browser_command[400];
-		snprintf (browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, url);
-		system (browser_command);
+		
+		snprintf(browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, url);
+		system(browser_command);
 #else
 		SDL_Thread *go_to_url_thread;
+
 		// windows needs to spawn it in its own thread
-		go_to_url_thread = SDL_CreateThread (go_to_url, url);
+		go_to_url_thread= SDL_CreateThread(go_to_url, url);
 	} else {
 		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
 #endif  //_WIN32
