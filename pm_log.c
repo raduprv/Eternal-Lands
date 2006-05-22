@@ -11,6 +11,9 @@ int afk_time=DEFAULT_AFK_MINUTES*60000;
 int afk_time_conf=DEFAULT_AFK_MINUTES; //For elconfig window
 char afk_message[MAX_TEXT_MESSAGE_LENGTH]={0};
 char afk_title[101];
+#ifdef AFK_FIX
+int afk_local = 0;
+#endif //AFK_FIX
 
 struct pm_struct pm_log;
 
@@ -127,21 +130,57 @@ int add_name_to_pm_log(char *name, int len)
 	return z;
 }
 
+#ifndef AFK_FIX
 void add_message_to_pm_log (const char *message, int len)
+#else
+void add_message_to_pm_log (char *message, int len, Uint8 channel)
+#endif //AFK_FIX
 {
+	char buf[512];
+#ifndef AFK_FIX
 	int last_pm_len = strlen(last_pm_from);
 	int z = have_name (last_pm_from, last_pm_len);
-	char buf[512];
+#else
+	char last_msg_from[32];
+	int last_msg_len;
+	int z;
+	char mymsg[512], *msg_pointer;
 
+	strcpy(mymsg, message);
+	if (channel == CHAT_LOCAL) {
+		msg_pointer = strstr(mymsg, " ") - 1;
+		*msg_pointer = 0;
+		strncpy(last_msg_from, mymsg, sizeof(last_msg_from));
+		strncpy(mymsg, msg_pointer+2, sizeof(mymsg));
+	} else {
+		*mymsg = message;
+		strncpy(last_msg_from, last_pm_from, sizeof(last_msg_from));
+	}
+	last_msg_len = strlen(last_msg_from);
+	z = have_name (last_msg_from, last_msg_len);
+#endif //AFK_FIX
 	if (z < 0)
 	{
+#ifndef AFK_FIX
 		send_afk_message (NULL, 0, CHAT_PERSONAL);
 		z = add_name_to_pm_log (last_pm_from, last_pm_len);
+#else
+		if (channel == CHAT_LOCAL) {
+			send_afk_message (message, strlen(message), channel);
+		} else {
+			send_afk_message (NULL, 0, channel);
+		}
+		z = add_name_to_pm_log (last_msg_from, last_msg_len);
+#endif //AFK_FIX
 	}
 	
 	pm_log.afk_msgs[z].messages = realloc (pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1) * sizeof (char *));
 	// time name message
+#ifndef AFK_FIX
 	snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
+#else
+	snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_msg_from, strlen(mymsg), mymsg);
+#endif //AFK_FIX
 	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs] = calloc (strlen (buf) + 1, sizeof (char));
 	strcpy (pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
 	pm_log.afk_msgs[z].msgs++;
@@ -217,7 +256,9 @@ void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 		if (have_name(name, i-1) < 0)
 		{
 			snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, name, afk_message);
+#ifndef AFK_FIX
 			add_name_to_pm_log (name, i-1);
+#endif //AFK_FIX
 		}
 		else
 		{

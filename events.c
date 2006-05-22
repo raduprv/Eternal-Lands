@@ -240,4 +240,3 @@ int HandleEvent (SDL_Event *event)
 
 	return(done);
 }
-

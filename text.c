@@ -295,12 +295,24 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 			if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
 			{
 				// player sent us a PM
+#ifndef AFK_FIX
 				add_message_to_pm_log (text_to_add, len);
+#else
+				add_message_to_pm_log (text_to_add, len, channel);
+#endif //AFK_FIX
 			}
 			else if (channel == CHAT_LOCAL && text_to_add[0] == 127 + c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
 			{
 				// player mentions our name in local chat
+#ifndef AFK_FIX
 				send_afk_message (&text_to_add[1], len - 1, channel);
+#else
+				if (afk_local) {
+					add_message_to_pm_log (&text_to_add[1], len - 1, channel);
+				} else {
+					send_afk_message (&text_to_add[1], len - 1, channel);
+				}
+#endif //AFK_FIX
 			}
 			else if (channel == CHAT_SERVER)
 			{

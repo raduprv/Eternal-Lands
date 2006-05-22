@@ -1263,6 +1263,9 @@ void init_vars()
 #ifndef MAP_EDITOR2
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
 	add_var(STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
+#ifdef AFK_FIX
+	add_var(BOOL, "afk_local", "afkl", &afk_local,change_var, 0, "Save local chat messages when afk", "When you go afk, local chat messages are counted and saved as well as PMs", MISC);
+#endif //AFK_FIX
 #endif
 
 #ifndef MAP_EDITOR2

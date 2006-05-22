@@ -22,6 +22,7 @@ OPTIONS=-DOSX -DEL_BIG_ENDIAN -DELC -DATI_9200_FIX -DBUG_FIX_3D_OBJECTS_MIN_MAX 
 #-DDRAW_BBOX	  # draws the bounding boxes for 2d and 3d objects
 #-DUSE_LISPSM	  # uses light space optimized shadow maps (EXPERIMENTAL)
 #-DAUTO_UPDATE	  # enable minor automatic file updating
+#-DAFK_FIX	# fixes afk messages to count only PM's, and store and count local messages if the option is selected
 
 PLATFORM=-mpowerpc -malign-natural #-arch ppc64 -arch i386 -mpowerpc
 XDIR=-L/usr/X11R6/lib

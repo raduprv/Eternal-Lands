@@ -137,6 +137,10 @@
       <name>AFK Message</name>
       <desc>Set the AFK message</desc>
     </afk_message>
+    <afk_local>
+      <name>Save local chat messages when afk</name>
+      <desc>When you go afk, local chat messages are counted and saved as well as PMs</desc>
+    </afk_local>
     <use_global_ignores>
       <name>Global Ignores</name>
       <desc>Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.</desc>
