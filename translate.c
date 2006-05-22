@@ -186,6 +186,7 @@ char
 	error_username_length[50], 
 	error_password_length[50], 
 	error_pass_no_match[30],
+	error_bad_pass[30],
 	error_confirm_create_char[100],
 	error_max_digits[100],
 	error_length[100],
@@ -1045,6 +1046,7 @@ void init_help()
 	add_xml_identifier(new,"userlen",error_username_length,"Username MUST be at least 3 characters long!",sizeof(error_username_length));
 	add_xml_identifier(new,"passlen",error_password_length,"The password MUST be at least 4 characters long!",sizeof(error_password_length));
 	add_xml_identifier(new,"passnomatch",error_pass_no_match,"Passwords don't match!",sizeof(error_pass_no_match));
+	add_xml_identifier(new,"passwordbad",error_bad_pass,"Bad password!",sizeof(error_bad_pass));
 	add_xml_identifier(new,"passmatch",passwords_match,"Passwords are matching!",sizeof(passwords_match));
 	add_xml_identifier(new,"appearance",remember_change_appearance,"Remember to change your characters appearance before pressing \"Done\"",sizeof(remember_change_appearance));
 	add_xml_identifier(new,"appearance_box",appearance_str,"Appearance",sizeof(appearance_str));

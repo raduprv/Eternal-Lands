@@ -309,6 +309,7 @@ extern char
 		error_username_length[50], 
 		error_password_length[50], 
 		error_pass_no_match[30],
+		error_bad_pass[30],
 		error_confirm_create_char[100],
 		error_max_digits[100],
 		error_length[100],
@@ -414,7 +415,7 @@ extern char	reg_error_str[15],
 		bc_cmd_str[5],
 		msg_accept_buddy_str[55],
 		date_format[100],
-/*cursors.c*/
+		/*cursors.c*/
 		cursors_file_str[30],
 		/*dialogues.c*/
 		close_str[20],

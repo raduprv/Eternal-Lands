@@ -617,8 +617,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		//Password/confirm
 		if(ret){
 			if(!strncasecmp(inputs[1].str, actors_list[0]->actor_name, strlen(actors_list[0]->actor_name))){
-                add_text_to_buffer(c_red2, "Bad password!", 6000);
-                //add_text_to_buffer(c_red2, error_bad_pass, 6000);
+				add_text_to_buffer(c_red2, error_bad_pass, 6000);
 			} else if(strcmp(inputs[1].str, inputs[2].str)){
 				add_text_to_buffer(c_red2, error_pass_no_match, 6000);
 			} else {

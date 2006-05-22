@@ -74,6 +74,7 @@ To talk in a channel, type @ before your message. You do not have to type @ to t
     <passlen>The password MUST be at least 4 characters long!</passlen>
     <passnomatch>Passwords don't match!</passnomatch>
     <passmatch>Passwords are matching!</passmatch>
+    <passwordbad>Bad Password!</passwordbad>
     <appearance>Remember to change your characters appearance before pressing "Done"</appearance>
     <max_digits>You can only have 2 digits in your name!</max_digits>
     <max_length>Names and passwords can max be 15 characters long</max_length>
