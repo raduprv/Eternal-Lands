@@ -235,7 +235,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 	if(my_strncompare(text_to_add+1,"Game Date", 9))
 	{
 		//we assume that the server will still send little-endian dd/mm/yyyy... we could make it safer by parsing the format too, but it's simpler to assume
-		const char * const month_names[] = { "Chimar", "Vespia", "Aluwia", "Seedar", "Akbar", "Zartia", "Elandra", "Viasia", "Fruitfall", "Mortia", "Carnelar", "Nimlos" };
+		const char * const month_names[] = { "Aluwia", "Seedar", "Akbar", "Zartia", "Elandra", "Viasia", "Fruitfall", "Mortia", "Carnelar", "Nimlos", "Chimar", "Vespia" };
 		const char * const day_names[] = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th" };
 		char new_str[100];
 		const Uint8 *ptr=text_to_add;
