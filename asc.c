@@ -505,3 +505,17 @@ int get_property (xmlNode *node, const char *prop, const char *desc, const dict_
 	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
 	return -1;
 }
+
+void get_string_property (char *buf, xmlNode *node, const char *prop) {
+	xmlAttr *attr;
+
+	for (attr = node->properties; attr; attr = attr->next) {
+		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0) {
+			strcpy(buf, attr->children->content);
+			return;
+		}
+	}
+
+	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
+	return;
+}

@@ -387,6 +387,7 @@ void animate_actors()
 	int i;
 	static int last_update=0;
 	char str[255];
+	
 	// lock the actors_list so that nothing can interere with this look
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0;i<max_actors;i++) {
@@ -1218,6 +1219,30 @@ void move_self_forward()
 }
 
 
+void    actor_check_string(actor_types *act, const char *section, const char *type, const char *value){
+	char    str[256];
+	
+	if(value == NULL || *value=='\0'){
+		sprintf(str, "Data Error in %s(%d): Missing %s.%s",
+		    act->actor_name, act->actor_id,
+		    section, type
+		);
+		log_error(str);
+	}
+}
+
+void    actor_check_int(actor_types *act, const char *section, const char *type, int value){
+	char    str[256];
+
+	if(value < 0){
+		sprintf(str, "Data Error in %s(%d): Missing %s.%s",
+		    act->actor_name, act->actor_id,
+		    section, type
+		);
+		log_error(str);
+	}
+}
+
 int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 	xmlNode *item;
 	int ok, col_idx;
@@ -1246,6 +1271,12 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 		}
 	}
 
+	// check the critical information
+	actor_check_string(act, "shirt", "arms", shirt->arms_name);
+	actor_check_string(act, "shirt", "model", shirt->model_name);
+	actor_check_int(act, "shirt", "mesh", shirt->mesh_index);
+	actor_check_string(act, "shirt", "torso", shirt->torso_name);
+
 	return ok;
 }
 
@@ -1273,6 +1304,10 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
+
+	// check the critical information
+	actor_check_string(act, "skin", "hands", skin->hands_name);
+	actor_check_string(act, "skin", "head", skin->head_name);
 
 	return ok;
 }
@@ -1306,6 +1341,11 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 			}
 		}
 	}
+
+	// check the critical information
+	actor_check_string(act, "legs", "skin", legs->legs_name);
+	actor_check_string(act, "legs", "model", legs->model_name);
+	actor_check_int(act, "legs", "mesh", legs->mesh_index);
 
 	return ok;
 }
@@ -1369,6 +1409,16 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 		}
 	}
 
+	// check the critical information
+	if(type_idx!=WEAPON_NONE){   // no weapon doesn't have a skin/model
+		actor_check_string(act, "weapon", "skin", weapon->skin_name);
+		if(type_idx!=GLOVE_FUR && type_idx!=GLOVE_LEATHER){ // these dont have meshes
+			actor_check_string(act, "weapon", "model", weapon->model_name);
+			actor_check_int(act, "weapon.mesh", weapon->model_name, weapon->mesh_index);
+		}
+	}
+	// TODO: check combat animations
+
 	return ok;
 }
 
@@ -1398,6 +1448,13 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 			}
 		}
 	}
+
+	// check the critical information
+	if(strcmp(part_name, "head")){ // heads don't have seperate skins here
+		actor_check_string(act, part_name, "skin", part->skin_name);
+	}
+	actor_check_string(act, part_name, "model", part->model_name);
+	actor_check_int(act, part_name, "mesh", part->mesh_index);
 
 	return ok;
 }
@@ -1762,6 +1819,9 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 		}
 	}
 
+	// check the critical information
+	actor_check_string(act, "boots", "boots", boots->boots_name);
+
 	return ok;
 }
 
@@ -1934,6 +1994,9 @@ int parse_actor_script (xmlNode *cfg) {
 
 	act= &(actors_defs[act_idx]);
 	ok= 1;
+	act->actor_id=act_idx;  // memorize the ID & name to help in debugging
+	get_string_property(act->actor_name, cfg, "type");
+	actor_check_string(act, "actor", "name", act->actor_name);
 
 	//Initialize Cal3D settings
 	act->coremodel=NULL;
@@ -2051,6 +2114,8 @@ int parse_actor_script (xmlNode *cfg) {
 			}
 		}
 	}
+	
+	// TODO: add error checking for missing actor information
 
 	//Actor def parsed, now setup the coremodel
 	if (act->coremodel!=NULL)
