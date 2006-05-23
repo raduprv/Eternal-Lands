@@ -318,11 +318,14 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 			{
 				// check if this was a trade attempt
 				int i;
-				for (i = 1; i < len; i++)
-					if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR (text_to_add[i]))
+				for (i = 1; i < len; i++) {
+					if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR (text_to_add[i])) {
 						break;
-				if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0)
+					}
+				}
+				if (i < len-15 && strncasecmp (&text_to_add[i], " wants to trade", 15) == 0) {
 					send_afk_message (&text_to_add[1], len - 1, channel);
+				}
 			}
 		}
 	}

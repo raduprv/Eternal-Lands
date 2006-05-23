@@ -108,12 +108,22 @@ int check_if_ignored (const Uint8 *name)
 	return 0;	// nope
 }
 
-
+int name_is_valid(const Uint8 *name)
+{
+	int i, len;
+	for(i = 0, len = strlen(name); i < len; i++) {
+		if(!isalnum(name[i]) && name[i] != '_')
+		{
+			return 0;
+		}
+	}
+	return 1;
+}
 //returns 1 if ignored, 0 if not ignored
 int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 {
 	int i, offset;
-	Uint8 name[16];
+	Uint8 name[16] = {0};
 	Uint8 ch;
 
 	switch(channel)
@@ -149,18 +159,38 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 			for (i = 0; i < 15 && i+offset < len; i++)
 			{
 				ch = input_text[i+offset];
-				if (ch == ':' || ch == ' ')
+				if (ch == ':' || ch == ' ' || IS_COLOR(ch))
 				{
 					break;
-				}
-				else if(!isalnum(ch) && ch != '_')
-				{
-					/* Not a name */
-					return 0;
 				}
 				name[i] = ch;
 			}
 			name[i] = '\0';
+			if(!name_is_valid(name)) {
+				//This can be a lot. Let's separate them based on the color for now.
+				switch(*input_text) {
+					case 127+c_grey1:
+						//Check for summoning messages
+						//(*) NAME summoned a %s
+						if(strcmp(name, "(*)") == 0) {
+							offset += i;
+							while(offset < len && isspace(input_text[offset])) {
+								offset++;
+							}
+							for (i = 0; i < 15 && i+offset < len; i++)
+							{
+								ch = input_text[i+offset];
+								if (isspace(ch))
+								{
+									break;
+								}
+								name[i] = ch;
+							}
+							name[i] = '\0';
+						}
+						break;
+				}
+			}
 		break;
 		case CHAT_CHANNEL1:
 		case CHAT_CHANNEL2:
@@ -186,9 +216,9 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 			if(strncasecmp(input_text+offset, gm_from_str, strlen(gm_from_str)) == 0)
 			{
 				offset = strlen(gm_from_str)+2;
-				for (i = 0; i < 15 && ((i+offset) < len); i++)
+				for (i = 0; i < 15 && i+offset < len; i++)
 				{
-					ch = input_text[i+offset];	//skip over the prefix
+					ch = input_text[i+offset];	//skip the prefix
 					if (ch == ':' || ch == ' ')
 					{
 						break;
@@ -196,13 +226,22 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 					name[i] = ch;
 				}
 				name[i] = '\0';
+			}
+			break;
+	}
+	if(*name && name_is_valid(name)) {
+		add_name_to_tablist(name);
+	} else {
+		for(offset = 0; IS_COLOR(input_text[offset]); offset++);
+		for (i = 0; i < 15 && i+offset < len; i++) {
+			ch = input_text[i+offset];
+			if (ch == ' ' || ch == ':' || IS_COLOR(ch)) {
 				break;
 			}
-		default:
-			return 0;
-		break;
+			name[i] = ch;
+		}
+		name[i] = '\0';
 	}
-	add_name_to_tablist(name);
 	return check_if_ignored (name);
 }
 
