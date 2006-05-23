@@ -1169,6 +1169,10 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 	our_vars.var[no]->widgets.tab_id = tab_id;
 }
 
+void add_multi_option(char * name, char * str) {
+	queue_push(our_vars.var[find_var (name, MULTI)]->queue, str);
+}
+
 void init_vars()
 {
 	//ELC specific variables
@@ -1228,8 +1232,13 @@ void init_vars()
  #ifndef MAP_EDITOR2
 	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
  #endif
+ #ifndef FONTS_FIX
 	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
 	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, "Type 1", "Type 2", NULL);
+#else
+	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
+	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
+#endif //FONTS_FIX
 #else
 	add_var(INT,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,1,3);
 	add_var(INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);

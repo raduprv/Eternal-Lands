@@ -23,6 +23,7 @@ OPTIONS=-DOSX -DEL_BIG_ENDIAN -DELC -DATI_9200_FIX -DBUG_FIX_3D_OBJECTS_MIN_MAX 
 #-DUSE_LISPSM	  # uses light space optimized shadow maps (EXPERIMENTAL)
 #-DAUTO_UPDATE	  # enable minor automatic file updating
 #-DAFK_FIX	# fixes afk messages to count only PM's, and store and count local messages if the option is selected
+#-DFONTS_FIX		# dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
 
 PLATFORM=-mpowerpc -malign-natural #-arch ppc64 -arch i386 -mpowerpc
 XDIR=-L/usr/X11R6/lib

@@ -1,5 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
+#ifdef FONTS_FIX
+#include <dirent.h>
+#include <unistd.h>
+#endif //FONTS_FIX
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
 #else
@@ -28,6 +32,9 @@ typedef struct	{
 int	cur_font_num=0;
 int	max_fonts=0;
 font_info	*fonts[FONTS_ARRAY_SIZE];
+#ifdef FONTS_FIX
+char font_names[FONTS_ARRAY_SIZE][30];
+#endif //FONTS_FIX
 int	chat_font=0;
 int	name_font=0;
 int	book_font=0;
@@ -910,13 +917,19 @@ int init_fonts ()
 	int	i;
 
 	max_fonts = 0;
-	for(i = 0; i < FONTS_ARRAY_SIZE; i++)
+	for(i = 0; i < FONTS_ARRAY_SIZE; i++) {
 		fonts[i] = NULL;
+#ifndef FONTS_FIX
+	}
 	
 	if (set_font_parameters (0) < 0) return 0;
 	if (set_font_parameters (1) < 0) return 0;
 	if (set_font_parameters (2) < 0) return 0;
 	if (set_font_parameters (3) < 0) return 0;
+#else
+		if (set_font_parameters (i) < 0) return 0;
+	}
+#endif //FONTS_FIX
 
 	cur_font_num = 0;
 
@@ -961,10 +974,16 @@ int load_font_textures ()
 {
 	int poor_man_save=poor_man;
 	int use_mipmaps_save=use_mipmaps;
+	int i = 0;
+#ifdef FONTS_FIX
+	DIR *dp;
+	struct dirent *ep;
+	char file[60] = "";
+	char str[60] = "";
+#endif //FONTS_FIX
 	
 	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL || fonts[3]==NULL )
 	{
-		int i;
 		for (i = 0; i < FONTS_ARRAY_SIZE; i++) {
 			if (fonts[i] != NULL)
 				free (fonts[i]);
@@ -976,10 +995,36 @@ int load_font_textures ()
 	poor_man=0;
 	use_mipmaps=0;
 	
+#ifndef FONTS_FIX
 	fonts[0]->texture_id = load_texture_cache ("./textures/font.bmp", 0);
 	fonts[1]->texture_id = load_texture_cache ("./textures/fontv.bmp", 0);
 	fonts[2]->texture_id = load_texture_cache ("./textures/font2.bmp", 0);
 	fonts[3]->texture_id = load_texture_cache ("./textures/font3.bmp", 0);
+#else
+	// Find what font's exist and load them
+	dp = opendir ("./textures/");
+	if (dp == NULL) {
+		return 0;
+	}
+	i = 0;
+	while ((ep = readdir (dp)) && i < FONTS_ARRAY_SIZE) {
+		strcpy(file, "");
+		strcpy(file, ep->d_name);
+		if (!strncasecmp(file, "font", 4) && !strcasecmp(file+strlen(file) - 4, ".bmp") && strncasecmp(file+strlen(file) - 10, "_alpha", 6) && strlen(file) + 11 <= 60) {
+			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
+			file[strlen(file) - 4] = 0;
+			snprintf(str, sizeof(str), "./textures/%s", file);
+			snprintf(file, sizeof(file), "%s.bmp", str);
+			fonts[i]->texture_id = load_texture_cache (file, 0);
+			file[strlen(file) - 4] = 0;
+			snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file+11);
+			add_multi_option("chat_font", font_names[i]);
+			add_multi_option("name_font", font_names[i]);
+			i++;
+		}
+	}
+	(void) closedir (dp);
+#endif //FONTS_FIX
 	
 	poor_man=poor_man_save;
 	use_mipmaps=use_mipmaps_save;
@@ -1021,7 +1066,7 @@ int set_font_parameters (int num)
 
 	// load font information
 	// TODO: write this and remove the hack!
-	if(num==0||num==3)for(i=0; i<10*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
+	if(num!=1||num!=2)for(i=0; i<FONTS_ARRAY_SIZE*FONT_CHARS_PER_LINE; i++) fonts[num]->widths[i]=12;
 	if(num==1){
 		static int widths[]={
 			4,2,7,11,8,12,12,2,7,7,9,10,3,8,

@@ -151,6 +151,17 @@ void check_options();
  */
 void change_windows_on_top(int *var);
 
+/*!
+ * \ingroup other
+ * \brief   Adds another option to a multi-var.
+ *
+ *      Adds another option to a multi-var selection list.
+ *
+ * \param name       the name of the variable to add to
+ * \param str      the text for the option
+ */
+void add_multi_option(char * name, char * str);
+
 void change_windowed_chat (int *wc, int val);
 
 #endif
