@@ -221,7 +221,10 @@ void connect_to_server()
 			exit(2);
 		}
 	disconnected= 0;
-	
+
+	//send the current version to the server
+	send_version_to_server(&ip);
+
 	//ask for the opening screen
 	if(!previously_logged_in)
 		{
@@ -238,8 +241,7 @@ void connect_to_server()
 			send_login_info();
 		}
 
-	//send the current version to the server
-	send_version_to_server(&ip);
+	//clear out info
 	last_heart_beat= time(NULL);
 	hide_window(trade_win);
 	
