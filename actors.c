@@ -49,13 +49,6 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 			texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
 		}
 
-	if(actor_id < 0 || actor_id >= MAX_ACTOR_DEFS || (actor_id > 0 && actors_defs[actor_id].actor_id != actor_id) ){
-		char    str[256];
-		
-		sprintf(str, "Illegal/missing actor definition %d", actor_id);
-		log_error(str);
-	}
-
 	our_actor = calloc(1, sizeof(actor));
 
 	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
@@ -769,6 +762,13 @@ void add_actor_from_server (const char *in_data, int len)
 	kind_of_actor=*(in_data+22);
 	if(len > 23+strlen(in_data+23)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+23+strlen(in_data+23)+1)))/((float)ACTOR_SCALE_BASE));
+	}
+
+	if(actor_type < 0 || actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
+		char    str[256];
+
+		sprintf(str, "Illegal/missing actor definition %d", actor_type);
+		log_error(str);
 	}
 
 	//translate from tile to world

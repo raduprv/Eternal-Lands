@@ -208,7 +208,7 @@ typedef struct
 {
 	/*! \name Model data*/
 	/*! \{ */
-	int actor_id;
+	int actor_type;
 	char actor_name[66];
 	char skin_name[256];
 	char file_name[256];

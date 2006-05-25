@@ -44,13 +44,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	ERR();
 #endif
 
-	if(actor_id < 0 || actor_id >= MAX_ACTOR_DEFS || (actor_id > 0 && actors_defs[actor_id].actor_id != actor_id) ){
-		char    str[256];
-
-		sprintf(str, "Illegal/missing enhanced actor definition %d", actor_id);
-		log_error(str);
-	}
-
 	//get the skin
 	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
 
@@ -396,7 +389,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	short z_rot;
 	short max_health;
 	short cur_health;
-	Uint8 actor_type;
+	Uint32 actor_type;
 	Uint8 skin;
 	Uint8 hair;
 	Uint8 shirt;
@@ -446,6 +439,14 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+
+	if(actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
+		char    str[256];
+
+		sprintf(str, "Illegal/missing enhanced actor definition %d", actor_type);
+		log_error(str);
+	}
+
 	frame=*(in_data+22);
 	max_health=SDL_SwapLE16(*((short *)(in_data+23)));
 	cur_health=SDL_SwapLE16(*((short *)(in_data+25)));

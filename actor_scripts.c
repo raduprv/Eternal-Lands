@@ -1224,7 +1224,7 @@ void    actor_check_string(actor_types *act, const char *section, const char *ty
 	
 	if(value == NULL || *value=='\0'){
 		sprintf(str, "Data Error in %s(%d): Missing %s.%s",
-			act->actor_name, act->actor_id,
+			act->actor_name, act->actor_type,
 			section, type
 		);
 		log_error(str);
@@ -1236,7 +1236,7 @@ void    actor_check_int(actor_types *act, const char *section, const char *type,
 
 	if(value < 0){
 		sprintf(str, "Data Error in %s(%d): Missing %s.%s",
-		    act->actor_name, act->actor_id,
+		    act->actor_name, act->actor_type,
 		    section, type
 		);
 		log_error(str);
@@ -1990,22 +1990,32 @@ int parse_actor_script (xmlNode *cfg) {
 	if(act_idx < 0){
 		act_idx= get_property(cfg, "type", "actor type", actor_type_dict);
 	}
-	if(act_idx < 0) return 0;
+	if(act_idx < 0 || act_idx >= MAX_ACTOR_DEFS){
+		char	str[256];
+		char    name[256];
+
+		get_string_property(name, cfg, "type");
+		sprintf(str, "Data Error in %s(%d): Actor ID out of range %d",
+			name, act_idx, act_idx
+		);
+		log_error(str);
+		return 0;
+	}
 
 	act= &(actors_defs[act_idx]);
 	// watch for loading an actor more then once
-	if(act->actor_id > 0 || *act->actor_name){
+	if(act->actor_type > 0 || *act->actor_name){
 		char	str[256];
 		char    name[256];
 
 		get_string_property(name, cfg, "type");
 		sprintf(str, "Data Error in %s(%d): Already loaded %s(%d)",
-			name, act_idx, act->actor_name, act->actor_id
+			name, act_idx, act->actor_name, act->actor_type
 		);
 		log_error(str);
 	}
 	ok= 1;
-	act->actor_id= act_idx;	// memorize the ID & name to help in debugging
+	act->actor_type= act_idx;	// memorize the ID & name to help in debugging
 	get_string_property(act->actor_name, cfg, "type");
 	actor_check_string(act, "actor", "name", act->actor_name);
 
