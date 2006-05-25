@@ -12,45 +12,45 @@
  * void get_updates();
  */
 
-const char * web_update_address="http://www.eternal-lands.com/index.php?content=update";
-int icon_in_spellbar=-1;
-int port=2000;
+const char * web_update_address= "http://www.eternal-lands.com/index.php?content=update";
+int icon_in_spellbar= -1;
+int port= 2000;
 unsigned char server_address[60];
-TCPsocket my_socket=0;
-SDLNet_SocketSet set=0;
+TCPsocket my_socket= 0;
+SDLNet_SocketSet set= 0;
 #define MAX_TCP_BUFFER  8192
 Uint8 tcp_in_data[MAX_TCP_BUFFER];
-int previously_logged_in=0;
+int previously_logged_in= 0;
 time_t last_heart_beat;
 
 char our_name[20];
 char our_password[20];
-int log_conn_data=0;
+int log_conn_data= 0;
 
-int this_version_is_invalid=0;
-int put_new_data_offset=0;
+int this_version_is_invalid= 0;
+int put_new_data_offset= 0;
 Uint8	tcp_cache[256];
-Uint32	tcp_cache_len=0;
-Uint32	tcp_cache_time=0;
+Uint32	tcp_cache_len= 0;
+Uint32	tcp_cache_time= 0;
 
 //for the client/server sync
-int server_time_stamp=0;
-int client_time_stamp=0;
-int client_server_delta_time=0;
+int server_time_stamp= 0;
+int client_time_stamp= 0;
+int client_server_delta_time= 0;
 
-int yourself=-1;
-actor * your_actor = NULL;
+int yourself= -1;
+actor *your_actor= NULL;
 
-int last_sit=0;
+int last_sit= 0;
 
 void move_to (short int x, short int y)
 {
 	Uint8 str[5];
 				
-	str[0] = MOVE_TO;
-	*((short *)(str+1)) = SDL_SwapLE16 (x);
-	*((short *)(str+3)) = SDL_SwapLE16 (y);
-	my_tcp_send (my_socket, str, 5);
+	str[0]= MOVE_TO;
+	*((short *)(str+1))= SDL_SwapLE16 (x);
+	*((short *)(str+3))= SDL_SwapLE16 (y);
+	my_tcp_send(my_socket, str, 5);
 }
 
 int on_the_move (const actor *act)
@@ -102,11 +102,12 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	{
 		if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
 		{
-			Uint32	time_limit=600;
+			Uint32	time_limit= 600;
+			
 			if( str[0]==SEND_PM || str[0]==RAW_TEXT)time_limit=1500;
 			if( str[0]==SIT_DOWN){
 				if(last_sit+1500>cur_time) return 0;
-				last_sit=cur_time;
+				last_sit= cur_time;
 			}
 			//if too close together
 			if(len == (int)tcp_cache_len && *str == *tcp_cache && cur_time < tcp_cache_time+time_limit)
@@ -120,71 +121,81 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 				}
 			//memorize the data we are sending for next time
 			memcpy(tcp_cache, str, len);
-			tcp_cache_len = len;
-			tcp_cache_time = cur_time;
+			tcp_cache_len= len;
+			tcp_cache_time= cur_time;
 		}
 	}
 	//update the heartbeat timer
-	last_heart_beat = time(NULL);
+	last_heart_beat= time(NULL);
 
-	new_str[0]=str[0];//copy the protocol
+	new_str[0]= str[0];//copy the protocol
 	*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data length
 	//copy the rest of the data
-	for (i = 1; i < len; i++) {
-		new_str[i+2]=str[i];
+	for(i=1; i<len; i++) {
+		new_str[i+2]= str[i];
 	}
-	return SDLNet_TCP_Send(my_socket,new_str,len+2);
+	return SDLNet_TCP_Send(my_socket, new_str, len+2);
 }
 
 void send_version_to_server(IPaddress *ip)
 {
 	Uint8 str[20];
 
-	str[0]=SEND_VERSION;
-	*((short *)(str+1))=SDL_SwapLE16((short)version_first_digit);
-	*((short *)(str+3))=SDL_SwapLE16((short)version_second_digit);
-	str[5]=client_version_major;
-	str[6]=client_version_minor;
-	str[7]=client_version_release;
-	str[8]=client_version_patch;
-	// no byte swapping needed for Macs because of how the bytes are written
-	str[9]=ip->host&0xFF;
-	str[10]=(ip->host >> 8)&0xFF;
-	str[11]=(ip->host >> 16)&0xFF;
-	str[12]=(ip->host >> 24)&0xFF;
-	str[13]=ip->port&0xFF;
-	str[14]=(ip->port >> 8)&0xFF;
-	
+	str[0]= SEND_VERSION;
+	*((short *)(str+1))= SDL_SwapLE16((short)version_first_digit);
+	*((short *)(str+3))= SDL_SwapLE16((short)version_second_digit);
+	str[5]= client_version_major;
+	str[6]= client_version_minor;
+	str[7]= client_version_release;
+	str[8]= client_version_patch;
+
+#ifdef  EL_BIG_ENDIAN
+	// byte swapping needed for Macs despite what the docs say
+	str[9]= (ip->host >> 24)&0xFF;
+	str[10]= (ip->host >> 16)&0xFF;
+	str[11]= (ip->host >> 8)&0xFF;
+	str[12]= ip->host&0xFF;
+	str[13]= (ip->port >> 8)&0xFF;
+	str[14]= ip->port&0xFF;
+#else   //EL_BIG_ENDIAN
+	str[9]= ip->host&0xFF;
+	str[10]= (ip->host >> 8)&0xFF;
+	str[11]= (ip->host >> 16)&0xFF;
+	str[12]= (ip->host >> 24)&0xFF;
+	str[13]= ip->port&0xFF;
+	str[14]= (ip->port >> 8)&0xFF;
+#endif	//EL_BIG_ENDIAN
+
 	my_tcp_send(my_socket,str,15);
 }
 
 void connect_to_server()
 {
 	IPaddress ip;
-	if(this_version_is_invalid)return;
+
+	if(this_version_is_invalid) return;
 	if(set)
 		{
 			SDLNet_FreeSocketSet(set);
-			set=0;
+			set= 0;
 		}
 	if(my_socket)
 		{
 			SDLNet_TCP_Close(my_socket);
-			my_socket=0;
+			my_socket= 0;
 		}
 	//clear the buddy list so we don't get multiple entries
 	clear_buddy();
 
 	LOG_TO_CONSOLE(c_red1,connect_to_server_str);
 	draw_scene();	// update the screen
-	set=SDLNet_AllocSocketSet(1);
+	set= SDLNet_AllocSocketSet(1);
 	if(!set)
         {
             log_error("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(4); //most of the time this is a major error, but do what you want.
-
         }
 
 	if(SDLNet_ResolveHost(&ip,server_address,port)==-1)
@@ -193,13 +204,13 @@ void connect_to_server()
 			return;
 		}
 
-	my_socket=SDLNet_TCP_Open(&ip);
+	my_socket= SDLNet_TCP_Open(&ip);
 	if(!my_socket)
 		{
 			LOG_TO_CONSOLE(c_red1,failed_connect);
 			LOG_TO_CONSOLE(c_red1,reconnect_str);
 			LOG_TO_CONSOLE(c_red1,alt_x_quit);
-            		return;
+			return;
 		}
 
 	if(SDLNet_TCP_AddSocket(set,my_socket)==-1)
@@ -209,26 +220,29 @@ void connect_to_server()
 			SDL_Quit();
 			exit(2);
 		}
-	disconnected=0;
+	disconnected= 0;
+	
 	//ask for the opening screen
 	if(!previously_logged_in)
 		{
 			Uint8 str[1];
-			str[0]=SEND_OPENING_SCREEN;
-			my_tcp_send(my_socket,str,1);
+			
+			str[0]= SEND_OPENING_SCREEN;
+			my_tcp_send(my_socket, str, 1);
 		}
 	else
 		{
-			yourself=-1;
-			you_sit=0;
+			yourself= -1;
+			you_sit= 0;
 			destroy_all_actors();
 			send_login_info();
 		}
 
 	//send the current version to the server
 	send_version_to_server(&ip);
-	last_heart_beat = time(NULL);
+	last_heart_beat= time(NULL);
 	hide_window(trade_win);
+	
 	//BUDDY-FIXME: once server-side offline buddies are supported, the next 4 lines can go
 	//For the buddy notifications
 	if(time(NULL) > c_time) {
@@ -238,12 +252,10 @@ void connect_to_server()
 
 void send_login_info()
 {
-	int i;
-	int j;
-	int len;
+	int i,j,len;
 	unsigned char str[40];
 
-	len=strlen(username_str);
+	len= strlen(username_str);
 	//check for the username length
 	if(len<3)
 		{
@@ -252,19 +264,19 @@ void send_login_info()
 		}
 
 	//join the username and password, and send them to the server
-	str[0]=LOG_IN;
+	str[0]= LOG_IN;
 
 	if(caps_filter && my_isupper(username_str, len)) my_tolower(username_str);
-	for(i=0;i<len;i++)str[i+1]=username_str[i];
-	str[i+1]=' ';
+	for(i=0; i<len; i++) str[i+1]= username_str[i];
+	str[i+1]= ' ';
 	i++;
-	len=strlen(password_str);
-	for(j=0;j<len;j++)str[i+j+1]=password_str[j];
-	str[i+j+1]=0;
+	len= strlen(password_str);
+	for(j=0; j<len; j++) str[i+j+1]= password_str[j];
+	str[i+j+1]= 0;
 
-	len=strlen(str);
+	len= strlen(str);
 	len++;//send the last 0 too
-	if(my_tcp_send(my_socket,str,len)<len)
+	if(my_tcp_send(my_socket, str, len)<len)
 		{
 			//we got a nasty error, log it
 		}
@@ -276,28 +288,28 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 	int i,j,len;
 	unsigned char str[120];
 
-	len=strlen(user_str);
-	str[0]=CREATE_CHAR;
-	for(i=0;i<len;i++)str[i+1]=user_str[i];
-	str[i+1]=' ';
+	len= strlen(user_str);
+	str[0]= CREATE_CHAR;
+	for(i=0; i<len; i++) str[i+1]= user_str[i];
+	str[i+1]= ' ';
 	i++;
-	len=strlen(pass_str);
-	for(j=0;j<len;j++)str[i+j+1]=pass_str[j];
-	str[i+j+1]=0;
+	len= strlen(pass_str);
+	for(j=0; j<len; j++) str[i+j+1]= pass_str[j];
+	str[i+j+1]= 0;
 	//put the colors and gender
-	str[i+j+2]=skin;
-	str[i+j+3]=hair;
-	str[i+j+4]=shirt;
-	str[i+j+5]=pants;
-	str[i+j+6]=boots;
-	str[i+j+7]=type;
-	str[i+j+8]=head;
+	str[i+j+2]= skin;
+	str[i+j+3]= hair;
+	str[i+j+4]= shirt;
+	str[i+j+5]= pants;
+	str[i+j+6]= boots;
+	str[i+j+7]= type;
+	str[i+j+8]= head;
 
-	len=i+j+9;
+	len= i+j+9;
 	if(my_tcp_send(my_socket,str,len)<len) {
 		//we got a nasty error, log it
 	}
-	create_char_error_str[0]=0;//no error
+	create_char_error_str[0]= 0;//no error
 }
 
 // TEMP LOGAND [5/25/2004]
@@ -315,24 +327,24 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		{
 		case RAW_TEXT:
 			{
-				int len = data_length - 4;
+				int len= data_length - 4;
 
 				// extract the channel number
 				if (data_length > 4) 
 				{
-					if (len > sizeof (text_buf) - 1)
+					if (len > sizeof(text_buf) - 1)
 					{
-						len = sizeof (text_buf) - 1;
+						len= sizeof(text_buf) - 1;
 					}
-					memcpy (text_buf, &in_data[4], len);
+					memcpy(text_buf, &in_data[4], len);
 					text_buf[len] = '\0';
 					
 					// do filtering and ignoring
-					len = filter_or_ignore_text (text_buf, len, sizeof (text_buf), in_data[3]);
+					len= filter_or_ignore_text(text_buf, len, sizeof (text_buf), in_data[3]);
 					if (len > 0)
 					{
 						//how to display it
-						put_text_in_buffer (in_data[3], text_buf, len);
+						put_text_in_buffer(in_data[3], text_buf, len);
 					}
 				}
 			}
@@ -1176,18 +1188,3 @@ int get_message_from_server(void *thread_args)
 	return 1;
 }
 
-/* currently UNUSED
-void get_updates()
-{
-	char servername[80];
-	char filepath_on_server[80];
-	char local_filepath[80];
-	FILE *fp;
-	strcpy(servername, "no-exit.org");
-	strcpy(filepath_on_server, "/el/files/testfile");
-	strcpy(local_filepath, "testfile");
-	fp = my_fopen(local_filepath, "w");
-	http_get_file(servername, filepath_on_server, fp);
-	fclose(fp);
-}
-*/
