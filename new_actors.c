@@ -44,6 +44,13 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	ERR();
 #endif
 
+	if(actor_id < 0 || actor_id >= MAX_ACTOR_DEFS || (actor_id > 0 && actors_defs[actor_id].actor_id != actor_id) ){
+		char    str[256];
+
+		sprintf(str, "Illegal/missing enhanced actor definition %d", actor_id);
+		log_error(str);
+	}
+
 	//get the skin
 	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
 

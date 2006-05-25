@@ -13,7 +13,7 @@ actor *actors_list[1000];
 int max_actors=0;
 SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
 
-actor_types actors_defs[100];
+actor_types actors_defs[MAX_ACTOR_DEFS];
 
 void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 
@@ -49,6 +49,12 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 			texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
 		}
 
+	if(actor_id < 0 || actor_id >= MAX_ACTOR_DEFS || (actor_id > 0 && actors_defs[actor_id].actor_id != actor_id) ){
+		char    str[256];
+		
+		sprintf(str, "Illegal/missing actor definition %d", actor_id);
+		log_error(str);
+	}
 
 	our_actor = calloc(1, sizeof(actor));
 
