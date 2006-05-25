@@ -1220,12 +1220,12 @@ void move_self_forward()
 
 
 void    actor_check_string(actor_types *act, const char *section, const char *type, const char *value){
-	char    str[256];
+	char	str[256];
 	
 	if(value == NULL || *value=='\0'){
 		sprintf(str, "Data Error in %s(%d): Missing %s.%s",
-		    act->actor_name, act->actor_id,
-		    section, type
+			act->actor_name, act->actor_id,
+			section, type
 		);
 		log_error(str);
 	}
@@ -1984,7 +1984,7 @@ int parse_actor_script (xmlNode *cfg) {
 	actor_types *act;
 	struct CalCoreSkeleton *skel;
 
-	if (cfg == NULL || cfg->children == NULL) return 0;
+	if(cfg == NULL || cfg->children == NULL) return 0;
 
 	act_idx= get_int_property(cfg, "id");
 	if(act_idx < 0){
@@ -1993,49 +1993,60 @@ int parse_actor_script (xmlNode *cfg) {
 	if(act_idx < 0) return 0;
 
 	act= &(actors_defs[act_idx]);
+	// watch for loading an actor more then once
+	if(act->actor_id > 0 || *act->actor_name){
+		char	str[256];
+		char    name[256];
+
+		get_string_property(name, cfg, "type");
+		sprintf(str, "Data Error in %s(%d): Already loaded %s(%d)",
+			name, act_idx, act->actor_name, act->actor_id
+		);
+		log_error(str);
+	}
 	ok= 1;
-	act->actor_id=act_idx;  // memorize the ID & name to help in debugging
+	act->actor_id= act_idx;	// memorize the ID & name to help in debugging
 	get_string_property(act->actor_name, cfg, "type");
 	actor_check_string(act, "actor", "name", act->actor_name);
 
 	//Initialize Cal3D settings
-	act->coremodel=NULL;
-	act->scale=1.0;
-	act->mesh_scale=1.0;
-	act->skel_scale=1.0;
-	act->group_count=0;
-	for (i=0;i<16;++i) {
+	act->coremodel= NULL;
+	act->scale= 1.0;
+	act->mesh_scale= 1.0;
+	act->skel_scale= 1.0;
+	act->group_count= 0;
+	for (i=0; i<16; ++i) {
 		strncpy(act->idle_group[i].name, "", sizeof(act->idle_group[i].name));
-		act->idle_group[i].count=0;
+		act->idle_group[i].count= 0;
 	}
 
-	act->cal_walk_frame.anim_index=-1;
-	act->cal_run_frame.anim_index=-1;
-	act->cal_die1_frame.anim_index=-1;
-	act->cal_die2_frame.anim_index=-1;
-	act->cal_pain1_frame.anim_index=-1;
-	act->cal_pain2_frame.anim_index=-1;
-	act->cal_pick_frame.anim_index=-1;
-	act->cal_drop_frame.anim_index=-1;
-	act->cal_idle1_frame.anim_index=-1;
-	act->cal_idle2_frame.anim_index=-1;
-	act->cal_idle_sit_frame.anim_index=-1;
-	act->cal_harvest_frame.anim_index=-1;
-	act->cal_attack_cast_frame.anim_index=-1;
-	act->cal_attack_ranged_frame.anim_index=-1;
-	act->cal_sit_down_frame.anim_index=-1;
-	act->cal_stand_up_frame.anim_index=-1;
-	act->cal_in_combat_frame.anim_index=-1;
-	act->cal_out_combat_frame.anim_index=-1;
-	act->cal_combat_idle_frame.anim_index=-1;
-	act->cal_attack_up_1_frame.anim_index=-1;
-	act->cal_attack_up_2_frame.anim_index=-1;
-	act->cal_attack_up_3_frame.anim_index=-1;
-	act->cal_attack_up_4_frame.anim_index=-1;
-	act->cal_attack_down_1_frame.anim_index=-1;
-	act->cal_attack_down_2_frame.anim_index=-1;
+	act->cal_walk_frame.anim_index= -1;
+	act->cal_run_frame.anim_index= -1;
+	act->cal_die1_frame.anim_index= -1;
+	act->cal_die2_frame.anim_index= -1;
+	act->cal_pain1_frame.anim_index= -1;
+	act->cal_pain2_frame.anim_index= -1;
+	act->cal_pick_frame.anim_index= -1;
+	act->cal_drop_frame.anim_index= -1;
+	act->cal_idle1_frame.anim_index= -1;
+	act->cal_idle2_frame.anim_index= -1;
+	act->cal_idle_sit_frame.anim_index= -1;
+	act->cal_harvest_frame.anim_index= -1;
+	act->cal_attack_cast_frame.anim_index= -1;
+	act->cal_attack_ranged_frame.anim_index= -1;
+	act->cal_sit_down_frame.anim_index= -1;
+	act->cal_stand_up_frame.anim_index= -1;
+	act->cal_in_combat_frame.anim_index= -1;
+	act->cal_out_combat_frame.anim_index= -1;
+	act->cal_combat_idle_frame.anim_index= -1;
+	act->cal_attack_up_1_frame.anim_index= -1;
+	act->cal_attack_up_2_frame.anim_index= -1;
+	act->cal_attack_up_3_frame.anim_index= -1;
+	act->cal_attack_up_4_frame.anim_index= -1;
+	act->cal_attack_down_1_frame.anim_index= -1;
+	act->cal_attack_down_2_frame.anim_index= -1;
 
-	for (i=0;i<80;++i){
+	for (i=0; i<80; ++i){
 		act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
 		act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
 		act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
