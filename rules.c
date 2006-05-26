@@ -221,7 +221,10 @@ void toggle_rules_window()
 		display_rules=get_interface_rules((float)(rules_win_x_len-70)/(12*0.8f)-1);
 	}
 
-	view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
+	// Stop the window from closing if already open
+	if (!get_show_window (tab_help_win) || tab_collection_get_tab (tab_help_win, tab_help_collection_id) != HELP_TAB_RULES) {
+		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
+	}
 
 	last_display=1;
 }
