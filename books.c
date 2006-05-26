@@ -33,6 +33,8 @@
 #define LOCAL 0
 #define SERVER 1
 
+#define KNOWLEDGE_BOOK_OFFSET 10000
+
 int book_opened=-1;//The ID of the book opened
 
 typedef struct {
@@ -469,6 +471,7 @@ book * read_book(char * file, int type, int id)
 		log_error("Root element in %s does not contain a title=\"<short title>\" property.", path);
 	} else {
 		b=parse_book(root->children, title, type, id);
+		knowledge_list[id - KNOWLEDGE_BOOK_OFFSET].has_book = 1;
 	}
 	
 	if(title) {
@@ -495,8 +498,7 @@ void parse_knowledge_item(xmlNode *in)
 				} else {
 					id = atoi(strID);
 					if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, cur->children->content)!=-1){
-						read_book(string, 2, id + 10000);
-						knowledge_list[id].has_book = 1;
+						read_book(string, 2, id + KNOWLEDGE_BOOK_OFFSET);
 					} else {
 #ifndef OSX
 						log_error("An error occured when parsing the content of the <%s>-tag on line %d - Check it for letters that cannot be translated into iso8859-1\n", cur->name, cur->line);
