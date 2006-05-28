@@ -40,7 +40,9 @@
 		#define snprintf sane_snprintf
 	#endif
 #elif defined(OSX)
-	#define NO_MUSIC
+	#ifndef NO_MUSIC
+		#define __MACOSX__	//necessary for Ogg on Macs
+	#endif
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
 	#include <OpenGL/glext.h>
