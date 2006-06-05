@@ -77,7 +77,7 @@ To use a bot, it must be registered and approved; it must adhere to the rules of
 	</rule>
 	<rule>
 		<short>No Summoning Near Populated/High Traffic Areas.</short>
-		<long>Do not attempt to summon or bring your previously summoned creatures with you near populated and high traffic areas(e.g. all storages, Wraith, beam, NPC's, ships, etc.). In addition on Isla Prima and its insides, do not summon anything higher than IP's natural inhabitants(e.g. rabbits and beavers). If your summoning is causing such problems as, but not limited to, lag or resource blocking for other players, in addition to the above restrictions, you may be asked by a mod to stop and move somewhere else to summon.</long>
+		<long>Do not attempt to summon or bring your previously summoned creatures with you near populated and high traffic areas(e.g. all storages, Wraith, beam, NPC's, ships, etc.). In addition on Isla Prima and its insides, do not summon anything other than IP's natural inhabitants(e.g. rabbits and beavers). If your summoning is causing such problems as, but not limited to, lag or resource blocking for other players, in addition to the above restrictions, you may be asked by a mod to stop and move somewhere else to summon.</long>
 	</rule>
 	<rule>
 		<short>Do Not Block Resources.</short>
