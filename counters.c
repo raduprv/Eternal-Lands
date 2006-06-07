@@ -59,7 +59,6 @@ int counters_win = -1;
 int counters_scroll_id = 16;
 
 void increment_counter(int counter_id, char *name, int quantity, int extra);
-void flush_counters();
 
 int display_counters_handler(window_info *win);
 int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);

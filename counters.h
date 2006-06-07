@@ -8,6 +8,7 @@ extern char harvest_name[32];
 extern int counters_win;
 
 void load_counters();
+void flush_counters();
 void cleanup_counters();
 void fill_counters_win();
 
