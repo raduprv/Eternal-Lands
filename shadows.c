@@ -471,7 +471,7 @@ void display_actors_shadow()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
 	for(i=0;i<no_near_actors;i++){
-		if(!near_actors[i].ghost){
+		if(!near_actors[i].ghost && (near_actors[i].bufs || 0x1)){
 			actor *act=actors_list[near_actors[i].actor];
 		
 			if(act){

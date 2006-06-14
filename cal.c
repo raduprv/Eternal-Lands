@@ -263,9 +263,11 @@ void cal_render_actor(actor *act)
 
 				if(glow>0){
 					glEnable(GL_COLOR_MATERIAL);
-					glEnable(GL_BLEND);
-					glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-					glDisable(GL_LIGHTING);
+					if (!act->ghost && (act->bufs || 0x1)) {
+						glEnable(GL_BLEND);
+						glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+						glDisable(GL_LIGHTING);
+					}
 					
 					if(use_shadow_mapping){
 						glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
@@ -294,9 +296,13 @@ void cal_render_actor(actor *act)
 					}
 					glColor3f(1.0f, 1.0f, 1.0f);
 					glDisable(GL_COLOR_MATERIAL);
-					glDisable(GL_BLEND);
-					glEnable(GL_LIGHTING);
-				} else  render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+					if (!act->ghost && (act->bufs || 0x1)) {
+						glDisable(GL_BLEND);
+						glEnable(GL_LIGHTING);
+					}
+				} else {
+					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+				}
 				glPopMatrix();
 			}
 			
@@ -329,4 +335,3 @@ void cal_render_actor(actor *act)
 
 	//glEnable(GL_TEXTURE_2D);
 }
-

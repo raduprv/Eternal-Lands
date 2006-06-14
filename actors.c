@@ -164,7 +164,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		//draw the health bar
 		glDisable(GL_TEXTURE_2D);
 
-		if(!actor_id->ghost)glDisable(GL_LIGHTING);
+		if(!actor_id->ghost && (actor_id->bufs || 0x1))glDisable(GL_LIGHTING);
 
 		if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead))
 			{
@@ -270,7 +270,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glDepthFunc(GL_LESS);
 		if(actor_id->actor_name[0] && (view_names || view_hp))
 			{
-				if(actor_id->ghost)glDisable(GL_BLEND);
+				if(actor_id->ghost && (actor_id->bufs && 0x1))glDisable(GL_BLEND);
 				set_font(name_font);	// to variable length
 
 				if(view_names)
@@ -310,7 +310,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						draw_ingame_string(-(((float)get_string_width(hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healthbar_z-(0.05*zoom_level*name_zoom/3.0), hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
 					}
 				set_font(0);	// back to fixed pitch
-				if(actor_id->ghost)glEnable(GL_BLEND);
+				if(actor_id->ghost && (actor_id->bufs && 0x1))glEnable(GL_BLEND);
 			}
 		if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0))
 			{
@@ -320,7 +320,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 		
 		glColor3f(1,1,1);
-		if(!actor_id->ghost)glEnable(GL_LIGHTING);
+		if(!actor_id->ghost && (actor_id->bufs || 0x1))glEnable(GL_LIGHTING);
 		if(use_shadow_mapping)
 			{
 				last_texture=-1;
@@ -494,6 +494,7 @@ void draw_actor(actor * actor_id, int banner)
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
 	if (banner) draw_actor_banner(actor_id, healthbar_z);
+
 	glPopMatrix();	//we don't want to affect the rest of the scene
 }
 
@@ -541,6 +542,7 @@ void get_actors_in_range()
 			{
 				near_actors[no_near_actors].actor = i;
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
+				near_actors[no_near_actors].bufs = actors_list[i]->bufs;
 				near_actors[no_near_actors].select = 0;
 	
 				actors_list[i]->max_z = bbox.bbmax[2]-z_pos-0.5f;
@@ -579,6 +581,7 @@ void get_actors_in_range()
 				near_actors[no_near_actors].actor=i;
 				near_actors[no_near_actors].dist=dist;
 				near_actors[no_near_actors].ghost=actors_list[i]->ghost;
+				near_actors[no_near_actors].bufs=actors_list[i]->bufs;
 				no_near_actors++;
 			}
 		}
@@ -609,7 +612,7 @@ void display_actors(int banner)
 	glEnableClientState(GL_NORMAL_ARRAY);
 	for (i = 0; i < no_near_actors; i++)
 	{
-		if (near_actors[i].ghost)
+		if (near_actors[i].ghost || (near_actors[i].bufs && 0x1))
 		{
 			has_ghosts = 1;
 		}
@@ -655,19 +658,19 @@ void display_actors(int banner)
 			}
 		}
 	}
-
 	if (has_ghosts)
 	{
 		//we don't need the light, for ghosts
 		glDisable(GL_LIGHTING);
 		//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+//		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 		
 		//display only the ghosts
 		glEnable(GL_BLEND);
 		for (i = 0; i < no_near_actors; i++)
 		{
-			if (near_actors[i].ghost)
+			if (near_actors[i].ghost || (near_actors[i].bufs && 0x1))
 			{
 				actor *cur_actor = actors_list[near_actors[i].actor];
 				if (cur_actor)
@@ -723,6 +726,7 @@ void display_actors(int banner)
 void add_actor_from_server (const char *in_data, int len)
 {
 	short actor_id;
+	Uint32 bufs = 0;
 	short x_pos;
 	short y_pos;
 	short z_pos;
@@ -745,8 +749,9 @@ void add_actor_from_server (const char *in_data, int len)
 	float scale= 1.0f;
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
-	x_pos=SDL_SwapLE16(*((short *)(in_data+2)));
-	y_pos=SDL_SwapLE16(*((short *)(in_data+4)));
+	bufs=(*((short *)(in_data+3))>>3)&0x1F | ((*((short *)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the bufs
+	x_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0x7FFFF);
+	y_pos=SDL_SwapLE16(*((short *)(in_data+4)) & 0x7FFFF);
 	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
@@ -841,6 +846,7 @@ void add_actor_from_server (const char *in_data, int len)
 	
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
+	actors_list[i]->bufs=bufs;
 	actors_list[i]->actor_type=actor_type;
 	actors_list[i]->damage=0;
 	actors_list[i]->damage_ms=0;

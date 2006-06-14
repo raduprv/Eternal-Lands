@@ -1099,6 +1099,15 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			break;
 
+		case SEND_BUFS:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+				update_actor_bufs(SDL_SwapLE16(*((short *)(in_data+3))), in_data[5]);
+			}
+			break;
+
 		default:
 			{
 				// Unknown data type??
@@ -1189,4 +1198,3 @@ int get_message_from_server(void *thread_args)
 	}
 	return 1;
 }
-

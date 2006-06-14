@@ -1155,6 +1155,21 @@ void get_actor_health(int actor_id, int quantity)
 	//if we got here, it means we don't have this actor, so get it from the server...
 }
 
+void update_actor_bufs(int actor_id, Uint32 in_bufs)
+{
+	actor *act;
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+	act = get_actor_ptr_from_id(actor_id);
+
+	if(!act){
+		//if we got here, it means we don't have this actor, so get it from the server...
+	} else {
+		act->bufs = in_bufs;
+		printf("Bufs: %u\n", in_bufs);
+	}
+}
 
 void move_self_forward()
 {
@@ -2217,4 +2232,3 @@ void init_actor_defs () {
 
 	ok = read_actor_defs (defdir, idxname);
 }
-

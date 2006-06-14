@@ -129,18 +129,18 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	float healtbar_z=0;
+	float healthbar_z=0;
 	bind_texture_id(actor_id->texture_id);
 
 	if (actor_id->calmodel!=NULL){
 #ifdef	NEW_FRUSTUM
-		healtbar_z= actor_id->max_z+0.2;
+		healthbar_z= actor_id->max_z+0.2;
 #else
-		healtbar_z= cal_get_maxz(actor_id)+0.2;
+		healthbar_z= cal_get_maxz(actor_id)+0.2;
 #endif
 	}
 	
-	if(actor_id->actor_id==yourself)sitting=healtbar_z/2.0f;
+	if(actor_id->actor_id==yourself)sitting=healthbar_z/2.0f;
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->tmp.x_pos;
@@ -165,11 +165,11 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 		cal_render_actor(actor_id);
 	} 
 
-	//now, draw their damage
+	//now, draw their damage & nametag
 	glPopMatrix();  // restore the matrix
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
-	if (banner) draw_actor_banner(actor_id, healtbar_z);
+	if (banner) draw_actor_banner(actor_id, healthbar_z);
 
 	glPopMatrix();	//we don't want to affect the rest of the scene
 }
@@ -383,6 +383,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 void add_enhanced_actor_from_server (const char *in_data, int len)
 {
 	short actor_id;
+	Uint32 bufs;
 	short x_pos;
 	short y_pos;
 	short z_pos;
@@ -419,8 +420,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	ERR();
 #endif
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
-	x_pos=SDL_SwapLE16(*((short *)(in_data+2)));
-	y_pos=SDL_SwapLE16(*((short *)(in_data+4)));
+	bufs=(*((short *)(in_data+3))>>3)&0x1F | ((*((short *)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the bufs
+	x_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0x7FFFF);
+	y_pos=SDL_SwapLE16(*((short *)(in_data+4)) & 0x7FFFF);
 	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
@@ -719,7 +721,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		actors_list[i]->fighting=1;
 
 	//ghost or not?
-	actors_list[i]->ghost=0;
+	actors_list[i]->ghost=actors_defs[actor_type].ghost;
 
 	actors_list[i]->dead=dead;
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...

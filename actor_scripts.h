@@ -105,6 +105,17 @@ void get_actor_health(int actor_id, int damage);
 void get_actor_heal(int actor_id, int quantity);
 
 /*!
+ * \ingroup	network_actors
+ * \brief	Updates the bufs with the actor_id.
+ *
+ * 		Finds the player with the given actor_id and update's their bufs.
+ *
+ * \param	actor_id The server-side actor ID
+ * \param	quantity The bufs.
+ */
+void update_actor_bufs(int actor_id, Uint32 in_bufs);
+
+/*!
  * \ingroup	events_actors
  * \brief	Moves the actor 1 step forward.
  *

@@ -662,6 +662,7 @@
 #define GET_3D_OBJ 75
 #define REMOVE_3D_OBJ 76
 #define GET_ITEMS_COOLDOWN 77
+#define SEND_BUFS 78
 
 // reserved for future expansion 220-229, not being used in the server yet
 #define MAP_SET_OBJECTS 220
