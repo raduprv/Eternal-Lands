@@ -162,7 +162,17 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	if (actor_id->calmodel!=NULL) {
-		cal_render_actor(actor_id);
+/*		if (actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY)) {
+			//display as a ghost
+			glDisable(GL_LIGHTING);
+			glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+			glEnable(GL_BLEND);
+		}
+*/		cal_render_actor(actor_id);
+//		if (actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY)) {
+//			glDisable(GL_BLEND);
+//			glEnable(GL_LIGHTING);
+//		}
 	} 
 
 	//now, draw their damage & nametag
@@ -383,7 +393,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 void add_enhanced_actor_from_server (const char *in_data, int len)
 {
 	short actor_id;
-	Uint32 bufs;
+	Uint32 buffs;
 	short x_pos;
 	short y_pos;
 	short z_pos;
@@ -420,9 +430,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	ERR();
 #endif
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
-	bufs=(*((short *)(in_data+3))>>3)&0x1F | ((*((short *)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the bufs
-	x_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0x7FFFF);
-	y_pos=SDL_SwapLE16(*((short *)(in_data+4)) & 0x7FFFF);
+	buffs=(*((short *)(in_data+3))>>3)&0x1F | ((*((short *)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the buffs
+	x_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0x7FF);
+	y_pos=SDL_SwapLE16(*((short *)(in_data+4)) & 0x7FF);
 	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
@@ -704,6 +714,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
+	actors_list[i]->buffs=buffs;
 	actors_list[i]->actor_type=actor_type;
 	actors_list[i]->damage=0;
 	actors_list[i]->damage_ms=0;

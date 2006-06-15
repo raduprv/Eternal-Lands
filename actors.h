@@ -59,7 +59,7 @@ struct near_actor {
 	int dist;//distance from our actor
 #endif
 	int ghost;//If it's a ghost or not
-	int bufs;	// The bufs on this actor
+	int buffs;	// The buffs on this actor
 };
 
 extern int no_near_actors;
@@ -409,7 +409,7 @@ typedef struct
 	int max_health;		/*!< Sets the maximum health of the actor*/
 	char ghost;		/*!< Sets the actor type to ghost (Disable lightning, enable blending (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA))*/
 	int kind_of_actor;	/*!< Defines the kind_of_actor (NPC, HUMAN, COMPUTER_CONTROLLED_HUMAN, PKABLE, PKABLE_COMPUTER_CONTROLLED)*/
-	Uint32 bufs;		/*!<Contains the bufs on this actor as bits (currently only invisibility)*/
+	Uint32 buffs;		/*!<Contains the buffs on this actor as bits (currently only invisibility)*/
 	/*! \} */
 
 	/*! \name Overhead text (text bubbles)*/

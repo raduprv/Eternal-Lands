@@ -662,7 +662,7 @@
 #define GET_3D_OBJ 75
 #define REMOVE_3D_OBJ 76
 #define GET_ITEMS_COOLDOWN 77
-#define SEND_BUFS 78
+#define SEND_BUFFS 78
 
 // reserved for future expansion 220-229, not being used in the server yet
 #define MAP_SET_OBJECTS 220
@@ -810,6 +810,15 @@
 /*! @{ */
 #define	ACTOR_SCALE_BASE	0x4000
 #define	ACTOR_SCALE_MAX		0x7FFF
+/*! @} */
+
+/*!
+ * \name Actor buffs constants
+ */
+/*! @{ */
+typedef enum {
+	BUFF_INVISIBILITY = 1
+}buffs;
 /*! @} */
 
 #endif

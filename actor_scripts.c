@@ -1155,7 +1155,7 @@ void get_actor_health(int actor_id, int quantity)
 	//if we got here, it means we don't have this actor, so get it from the server...
 }
 
-void update_actor_bufs(int actor_id, Uint32 in_bufs)
+void update_actor_buffs(int actor_id, Uint32 in_buffs)
 {
 	actor *act;
 #ifdef EXTRA_DEBUG
@@ -1166,8 +1166,7 @@ void update_actor_bufs(int actor_id, Uint32 in_bufs)
 	if(!act){
 		//if we got here, it means we don't have this actor, so get it from the server...
 	} else {
-		act->bufs = in_bufs;
-		printf("Bufs: %u\n", in_bufs);
+		act->buffs = in_buffs;
 	}
 }
 

@@ -106,14 +106,14 @@ void get_actor_heal(int actor_id, int quantity);
 
 /*!
  * \ingroup	network_actors
- * \brief	Updates the bufs with the actor_id.
+ * \brief	Updates the buffs with the actor_id.
  *
- * 		Finds the player with the given actor_id and update's their bufs.
+ * 		Finds the player with the given actor_id and update's their buffs.
  *
  * \param	actor_id The server-side actor ID
- * \param	quantity The bufs.
+ * \param	quantity The buffs.
  */
-void update_actor_bufs(int actor_id, Uint32 in_bufs);
+void update_actor_buffs(int actor_id, Uint32 in_buffs);
 
 /*!
  * \ingroup	events_actors
