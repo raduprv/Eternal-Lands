@@ -177,7 +177,11 @@ void read_config()
 	mode_t modes;
 
 	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
+#ifndef OSX
 	strncat (configdir, "/.elc/", sizeof(configdir)-1);
+#else
+	strncat (configdir, "/Library/Application\ Support/Eternal\ Lands/", sizeof(configdir)-1);
+#endif
 	d = opendir (configdir);
 	if (!d)
 	{
