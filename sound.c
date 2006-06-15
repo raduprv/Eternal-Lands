@@ -879,6 +879,8 @@ void init_sound()
 void destroy_sound()
 {
 	int i, error;
+	ALCcontext *context;
+	ALCdevice *device;
 	if(!inited){
 		return;
 	}
@@ -914,7 +916,21 @@ void destroy_sound()
 	if(mSoundDevice){
 		alcCloseDevice( mSoundDevice );
 	}
-	alutExit();
+	/*
+	 * alutExit() contains a problem with hanging on exit on some
+	 * Linux systems.  The problem is with the call to
+	 * alcMakeContextCurrent( NULL );  The folowing code is exactly
+	 * what is in alutExit() minus that function call.  It causes
+	 * no problems if the call is not there since the context is
+	 * being destroyed right afterwards.
+	 */
+	context = alcGetCurrentContext();
+	if(context != NULL) {
+		device = alcGetContextsDevice(context);
+		alcDestroyContext(context);
+		if(device != NULL)
+			alcCloseDevice(device);
+	}
 
 	if((error=alGetError()) != AL_NO_ERROR) 
 	{
