@@ -263,8 +263,7 @@ void cal_render_actor(actor *act)
 
 				if(glow>0){
 					glEnable(GL_COLOR_MATERIAL);
-//					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
-					if (!glIsEnabled(GL_BLEND)) {
+					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
 						glEnable(GL_BLEND);
 						glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 						glDisable(GL_LIGHTING);
@@ -297,8 +296,7 @@ void cal_render_actor(actor *act)
 					}
 					glColor3f(1.0f, 1.0f, 1.0f);
 					glDisable(GL_COLOR_MATERIAL);
-//					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
-					if (!glIsEnabled(GL_BLEND)) {
+					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
 						glDisable(GL_BLEND);
 						glEnable(GL_LIGHTING);
 					}

@@ -164,8 +164,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		//draw the health bar
 		glDisable(GL_TEXTURE_2D);
 
-		if(!actor_id->ghost && !(actor_id->buffs & BUFF_INVISIBILITY)) glDisable(GL_LIGHTING);
-//		if(glIsEnabled(GL_BLEND))glDisable(GL_BLEND);
+		if(glIsEnabled(GL_LIGHTING))glDisable(GL_LIGHTING);
+		if(glIsEnabled(GL_BLEND))glDisable(GL_BLEND);
 
 		if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead))
 			{
@@ -271,8 +271,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glDepthFunc(GL_LESS);
 		if(actor_id->actor_name[0] && (view_names || view_hp))
 			{
-				if(actor_id->ghost && (actor_id->buffs & BUFF_INVISIBILITY))glDisable(GL_BLEND);
-//				if(glIsEnabled(GL_BLEND))glDisable(GL_BLEND);
 				set_font(name_font);	// to variable length
 
 				if(view_names)
@@ -312,7 +310,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						draw_ingame_string(-(((float)get_string_width(hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healthbar_z-(0.05*zoom_level*name_zoom/3.0), hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
 					}
 				set_font(0);	// back to fixed pitch
-				if(actor_id->ghost && (actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_BLEND);
 			}
 		if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0))
 			{
@@ -322,7 +319,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 		
 		glColor3f(1,1,1);
-//		if(actor_id->ghost && (actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_BLEND);
+		if(actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_BLEND);
 		if(!actor_id->ghost && !(actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_LIGHTING);
 		if(use_shadow_mapping)
 			{
@@ -489,18 +486,7 @@ void draw_actor(actor * actor_id, int banner)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	if (actor_id->calmodel!=NULL) {
-/*		if (actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY)) {
-			//display as a ghost
-			glDisable(GL_LIGHTING);
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-//			glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-			glEnable(GL_BLEND);
-		}
-*/		cal_render_actor(actor_id);
-//		if (actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY)) {
-//			glDisable(GL_BLEND);
-//			glEnable(GL_LIGHTING);
-//		}
+		cal_render_actor(actor_id);
 	}
 
 	//now, draw their damage & nametag
@@ -677,17 +663,13 @@ void display_actors(int banner)
 		//we don't need the light, for ghosts
 		glDisable(GL_LIGHTING);
 		//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
-//		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 		
 		//display only the ghosts
 		glEnable(GL_BLEND);
 		for (i = 0; i < no_near_actors; i++)
 		{
-//			glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 			
-			//display only the ghosts
-//			glEnable(GL_BLEND);
 			if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 			{
 				actor *cur_actor = actors_list[near_actors[i].actor];
@@ -729,8 +711,6 @@ void display_actors(int banner)
 					}
 				}
 			}
-//			glDisable(GL_BLEND);
-//			glEnable(GL_LIGHTING);
 		}
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
