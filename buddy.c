@@ -534,37 +534,14 @@ void display_buddy()
 
 void add_buddy (const char *name, int type, int len)
 {
-	int i;
+	int i, found = 0;
 	char message[35];
 
 	add_name_to_tablist(name);
-	// find empty space
+	// Check if the buddy already exists
 	for (i = 0; i < MAX_BUDDY; i++)
 	{
-		if (buddy_list[i].type == 0xff)
-		{
-			// found then add buddy
-			buddy_list[i].type = type;
-			snprintf (buddy_list[i].name, sizeof(buddy_list[i].name), "%.*s", len, name);
-			//BUDDY-FIXME: once server-side offline buddies are supported, this if-block will be removed (as del_buddy will only happen when the buddy really is deleted)
-			if (buddy_log_notice == 1)
-			{
-				// if less than 5sec since the timer was 
-				// updated, then we don't notify. in cases of 
-				// bad lag, this won't help. if someone logs 
-				// on/off during that time, we miss the 
-				// notification
-				time_t n_time;
-				
-				time (&n_time);
-				if (difftime (c_time, n_time) > -5.0f) break;
-				
-				snprintf (message, sizeof(message), buddy_logon_str, len, name);
-				LOG_TO_CONSOLE (c_green1, message);
-			}
-			break;
-		}
-		else if(strncasecmp(buddy_list[i].name, name, len) == 0){
+		if(strncasecmp(buddy_list[i].name, name, len) == 0){
 			//this name is already in our list
 			if(buddy_list[i].type != type){
 				//colour change, not a new entry
@@ -579,7 +556,37 @@ void add_buddy (const char *name, int type, int len)
 				}
 				buddy_list[i].type=type;
 			}
+			found = 1;
 			break;
+		}
+	}
+	if (found != 1) {
+		// find empty space
+		for (i = 0; i < MAX_BUDDY; i++)
+		{
+			if (buddy_list[i].type == 0xff)
+			{
+				// found then add buddy
+				buddy_list[i].type = type;
+				snprintf (buddy_list[i].name, sizeof(buddy_list[i].name), "%.*s", len, name);
+				//BUDDY-FIXME: once server-side offline buddies are supported, this if-block will be removed (as del_buddy will only happen when the buddy really is deleted)
+				if (buddy_log_notice == 1)
+				{
+					// if less than 5sec since the timer was 
+					// updated, then we don't notify. in cases of 
+					// bad lag, this won't help. if someone logs 
+					// on/off during that time, we miss the 
+					// notification
+					time_t n_time;
+					
+					time (&n_time);
+					if (difftime (c_time, n_time) > -5.0f) break;
+					
+					snprintf (message, sizeof(message), buddy_logon_str, len, name);
+					LOG_TO_CONSOLE (c_green1, message);
+				}
+				break;
+			}
 		}
 	}
 }
