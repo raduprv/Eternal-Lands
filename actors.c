@@ -749,9 +749,17 @@ void add_actor_from_server (const char *in_data, int len)
 	float scale= 1.0f;
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
-	buffs=(*((short *)(in_data+3))>>3)&0x1F | ((*((short *)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the buffs
+#ifndef EL_BIG_ENDIAN
+	buffs=(*((char *)(in_data+3))>>3)&0x1F | ((*((char*)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the buffs
 	x_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0x7FF);
 	y_pos=SDL_SwapLE16(*((short *)(in_data+4)) & 0x7FF);
+#else
+	// If I understand the endian issue (and its possible I don't)
+	// I need to base the bit mask around reversed bytes
+	buffs=SDL_SwapLE16((*((char*)(in_data+2))>>3)&0x1F | ((*((char*)(in_data+4))>>3)&0x1F)<<5);	// Strip the last 5 bits of the X and Y coords for the buffs
+	x_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0xFF07);
+	y_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0xFF07);
+#endif //EL_BIG_ENDIAN
 	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
