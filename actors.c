@@ -660,6 +660,11 @@ void display_actors(int banner)
 	}
 	if (has_ghosts)
 	{
+		//we don't need the light, for ghosts
+		glDisable(GL_LIGHTING);
+
+		//display only the ghosts
+		glEnable(GL_BLEND);
 		for (i = 0; i < no_near_actors; i++)
 		{
 
@@ -669,14 +674,11 @@ void display_actors(int banner)
 				actor *cur_actor = actors_list[near_actors[i].actor];
 				if (cur_actor)
 				{
-					//we don't need the light, for ghosts
-					glDisable(GL_LIGHTING);
 					//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-					//display only the ghosts
-					glColor4f(1.0f,1.0f,1.0f, 0.25f);
-					glEnable(GL_BLEND);
+					if ((near_actors[i].buffs & BUFF_INVISIBILITY)) {
+						glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+					}
 
 					if (cur_actor->is_enhanced_model)
 					{
@@ -686,8 +688,6 @@ void display_actors(int banner)
 					{
 						draw_actor(cur_actor, banner);
 					}
-					glDisable(GL_BLEND);
-					glEnable(GL_LIGHTING);
 
 #ifdef	NEW_FRUSTUM
 					if (near_actors[i].select)
@@ -718,7 +718,8 @@ void display_actors(int banner)
 				}
 			}
 		}
-
+		glDisable(GL_BLEND);
+		glEnable(GL_LIGHTING);
 	}
 
 	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
@@ -756,8 +757,8 @@ void add_actor_from_server (const char *in_data, int len)
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
 #ifndef EL_BIG_ENDIAN
 	buffs=(*((char *)(in_data+3))>>3)&0x1F | ((*((char*)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the buffs
-	x_pos=SDL_SwapLE16(*((short *)(in_data+2)) & 0x7FF);
-	y_pos=SDL_SwapLE16(*((short *)(in_data+4)) & 0x7FF);
+	x_pos=*((short *)(in_data+2)) & 0x7FF;
+	y_pos=*((short *)(in_data+4)) & 0x7FF;
 #else
 	// If I understand the endian issue (and its possible I don't)
 	// I need to base the bit mask around reversed bytes
