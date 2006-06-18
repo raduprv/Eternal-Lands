@@ -756,7 +756,7 @@ void add_actor_from_server (const char *in_data, int len)
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
 #ifndef EL_BIG_ENDIAN
-	buffs=(*((char *)(in_data+3))>>3)&0x1F | ((*((char*)(in_data+5))>>3)&0x1F)<<5;	// Strip the last 5 bits of the X and Y coords for the buffs
+	buffs=((*((char *)(in_data+3))>>3)&0x1F) | (((*((char*)(in_data+5))>>3)&0x1F)<<5);	// Strip the last 5 bits of the X and Y coords for the buffs
 	x_pos=*((short *)(in_data+2)) & 0x7FF;
 	y_pos=*((short *)(in_data+4)) & 0x7FF;
 #else
