@@ -42,7 +42,7 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	
+
 	if(!remappable)texture_id=load_texture_cache(skin_name,150);
 	else
 		{
@@ -98,7 +98,7 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 
 	//find a free spot, in the actors_list
 	LOCK_ACTORS_LISTS();
-	
+
 	for(i=0;i<max_actors;i++)
 		{
 			if(!actors_list[i])break;
@@ -107,9 +107,9 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 	if(actor_id == yourself) your_actor = our_actor;
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
-	
+
 	//It's unlocked later
-	
+
 	return i;
 }
 
@@ -142,7 +142,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	float healthbar_x_loss_fade=1.0f;
 	float healthbar_z_len=0.05f*zoom_level/3.0f*ratio;
 	char temp[255];
-	
+
 	// are we actively drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
   		// account for the dynamic scaling
@@ -171,7 +171,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			{
 				float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 				float off;
-				
+
 				if (view_hp)
 					off = -0.35f * zoom_level * name_zoom / 3.0f;
 				else
@@ -192,13 +192,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				}
 
 				glBegin(GL_QUADS);
-				
+
 				//choose tint color
 				set_health_color(percentage, 0.5f, 1.0f);
-				
+
 				glVertex3f(healthbar_x+off,healthbar_y,healthbar_z);
 				glVertex3f(healthbar_x+healthbar_x_len_converted+off,healthbar_y,healthbar_z);
-				
+
 				//choose color for the bar
 				set_health_color(percentage, 1.0f, 1.0f);
 
@@ -210,15 +210,15 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				if(healthbar_x_len_loss){
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					
+
 					set_health_color(percentage, 0.5f, healthbar_x_loss_fade);
-				
+
 					glBegin(GL_QUADS);
 						glVertex3f(healthbar_x+healthbar_x_len_converted+off, healthbar_y, healthbar_z);
 						glVertex3f(healthbar_x+healthbar_x_len_converted+healthbar_x_len_loss+off, healthbar_y, healthbar_z);
-					
+
 					set_health_color(percentage, 1.0f, healthbar_x_loss_fade);
-					
+
 						glVertex3f(healthbar_x+healthbar_x_len_converted+healthbar_x_len_loss+off, healthbar_y, healthbar_z+healthbar_z_len);
 						glVertex3f(healthbar_x+healthbar_x_len_converted+off, healthbar_y, healthbar_z+healthbar_z_len);
 					glEnd();
@@ -247,7 +247,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			{
 				if(floatingmessages_enabled){
 					float a=1.0f-(float)(cur_time-actor_id->last_health_loss)/2000.0f;
-					
+
 					if(actor_id->damage>0){
 						sprintf(str,"%i",actor_id->damage);
 						glColor4f(1.0f, 0.1f, 0.2f, a);
@@ -255,7 +255,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						sprintf(str,"%i",-actor_id->damage);
 						glColor4f(0.3f, 1.0f, 0.3f, a);
 					}
-					
+
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 					draw_ingame_string(-(((float)get_string_width(str) * (0.17*zoom_level*name_zoom/3.0))/12.0)*0.5f, healthbar_z/2.0f+((1.0f-a)*0.5f), str, 1, 0.14, 0.21);
@@ -277,7 +277,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					{
 						float font_size_x=ratio*SMALL_INGAME_FONT_X_LEN;
 						float font_size_y=ratio*SMALL_INGAME_FONT_Y_LEN;
-						
+
 						if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
 						else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN){
 							switch(map_type){
@@ -317,7 +317,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			}
 
 		if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
-		
+
 		glColor3f(1,1,1);
 		if(actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_BLEND);
 		if(!actor_id->ghost && !(actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_LIGHTING);
@@ -334,40 +334,40 @@ void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_righ
 	const float r=0.1f;
 	const float mul=M_PI/180.0f;
 	int angle;
-	
+
 	glEnable(GL_BLEND);
 	glColor4f(1.0f, 1.0f, 1.0f, 0.5f);
 	glBlendFunc(GL_NONE, GL_SRC_ALPHA);
 	glBegin(GL_POLYGON);
-	
+
 	for(angle=90;angle<180;angle+=10){
 		float rad=-mul*angle;
 		glVertex3f(x_left+cos(rad)*r-r, 0.01f, y_bottom+r+sin(rad)*r);
 	}
-	
+
 	for(angle=180;angle<270;angle+=10){
 		float rad=-mul*angle;
 		glVertex3f(x_left+cos(rad)*r-r, 0.01f, y_top-r+sin(rad)*r);
 	}
-	
+
 	for(angle=270;angle<360;angle+=10){
 		float rad=-mul*angle;
 		glVertex3f(x_right+cos(rad)*r+r, 0.01f, y_top-r+sin(rad)*r);
 	}
-	
+
 	for(angle=0;angle<90;angle+=10){
 		float rad=-mul*angle;
 		glVertex3f(x_right+cos(rad)*r+r, 0.01f, y_bottom+sin(rad)*r+r);
 	}
-	
+
 	glEnd();
-	
+
 	glBegin(GL_POLYGON);
 		glVertex3f(x_leg_right, 0.01f, y_bottom+0.02);
 		glVertex3f(x_leg_right, 0.01f, y_actor);
 		glVertex3f(x_leg_left, 0.01f, y_bottom+0.02);
-	glEnd();	
-	
+	glEnd();
+
 	glDisable(GL_BLEND);
 }
 
@@ -402,17 +402,17 @@ void draw_actor_overtext( actor* actor_ptr )
 	y_actor=z+0.2f;
 
 	glDisable(GL_TEXTURE_2D);
-	
+
 	draw_bubble(x_left+0.01f, x_right-0.01f, x_leg_left, x_leg_right, y_top-0.01f, y_bottom+0.01f, y_actor+0.01f);
-		
+
 	glEnable(GL_TEXTURE_2D);
 
 	//---
 	// Draw text
 	glColor3f(0.77f,0.57f,0.39f);
-	
+
 	DRAW_INGAME_SMALL(x_left+margin, y_bottom+margin,actor_ptr->current_displayed_text,1);
-	
+
 	//glDepthFunc(GL_LESS);
 	if (actor_ptr->current_displayed_text_time_left<=0)
 	{	// clear if needed
@@ -506,7 +506,7 @@ void get_actors_in_range()
 	actor *me;
 	AABBOX bbox;
 	struct CalSkeleton *skel;
-	
+
 	me = pf_get_our_actor();
 
 	if (!me) return;
@@ -525,7 +525,7 @@ void get_actors_in_range()
 			z_pos = actors_list[i]->tmp.z_pos;
 			if (z_pos == 0.0f)//actor is walking, as opposed to flying, get the height underneath
 				z_pos=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
-			
+
 			if (actors_list[i]->calmodel == NULL) continue;
 			skel = CalModel_GetSkeleton(actors_list[i]->calmodel);
 			CalSkeleton_CalculateBoundingBoxes(skel);
@@ -537,14 +537,14 @@ void get_actors_in_range()
 			bbox.bbmax[0] += x_pos+0.5f;
 			bbox.bbmax[1] += y_pos+0.5f;
 			bbox.bbmax[2] += z_pos+0.5f;
-	
+
 			if (aabb_in_frustum(bbox))
 			{
 				near_actors[no_near_actors].actor = i;
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
 				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
 				near_actors[no_near_actors].select = 0;
-	
+
 				actors_list[i]->max_z = bbox.bbmax[2]-z_pos-0.5f;
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 				{
@@ -563,10 +563,10 @@ void get_actors_in_range()
 	if(!me) return;
 
 	no_near_actors=0;
-	
+
 	x=-cx;
 	y=-cy;
-	
+
 	for(i=0;i<max_actors;i++){
 		if(actors_list[i]) {
 			int dist1;
@@ -576,7 +576,7 @@ void get_actors_in_range()
 			if(!actors_list[i]->tmp.have_tmp)continue;
 			dist1=x-actors_list[i]->tmp.x_pos;
 			dist2=y-actors_list[i]->tmp.y_pos;
-						
+
 			if((dist=dist1*dist1+dist2*dist2)<=7*7){
 				near_actors[no_near_actors].actor=i;
 				near_actors[no_near_actors].dist=dist;
@@ -643,7 +643,7 @@ void display_actors(int banner)
 					{
 						if ((cur_actor->kind_of_actor == HUMAN) ||
 							(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
-							(cur_actor->is_enhanced_model && 
+							(cur_actor->is_enhanced_model &&
 							((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
 							(cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
 						{
@@ -660,29 +660,35 @@ void display_actors(int banner)
 	}
 	if (has_ghosts)
 	{
-		//we don't need the light, for ghosts
-		glDisable(GL_LIGHTING);
-		//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
-		glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-		
-		//display only the ghosts
-		glEnable(GL_BLEND);
 		for (i = 0; i < no_near_actors; i++)
 		{
-			
+
 			if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 			{
+
 				actor *cur_actor = actors_list[near_actors[i].actor];
 				if (cur_actor)
 				{
-					if (cur_actor->is_enhanced_model) 
+					//we don't need the light, for ghosts
+					glDisable(GL_LIGHTING);
+					//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
+					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+					//display only the ghosts
+					glColor4f(1.0f,1.0f,1.0f, 0.25f);
+					glEnable(GL_BLEND);
+
+					if (cur_actor->is_enhanced_model)
 					{
 						draw_enhanced_actor(cur_actor, banner);
 					}
 					else
 					{
 						draw_actor(cur_actor, banner);
-					}				
+					}
+					glDisable(GL_BLEND);
+					glEnable(GL_LIGHTING);
+
 #ifdef	NEW_FRUSTUM
 					if (near_actors[i].select)
 #else
@@ -697,7 +703,7 @@ void display_actors(int banner)
 						{
 							if ((cur_actor->kind_of_actor == HUMAN) ||
 								(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
-								(cur_actor->is_enhanced_model && 
+								(cur_actor->is_enhanced_model &&
 								 ((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
 								 (cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
 							{
@@ -712,8 +718,7 @@ void display_actors(int banner)
 				}
 			}
 		}
-		glDisable(GL_BLEND);
-		glEnable(GL_LIGHTING);
+
 	}
 
 	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
@@ -824,10 +829,10 @@ void add_actor_from_server (const char *in_data, int len)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	
+
 	//find out if there is another actor with that ID
 	//ideally this shouldn't happen, but just in case
-	
+
 	for(i=0;i<max_actors;i++)
 		{
 			if(actors_list[i])
@@ -840,18 +845,18 @@ void add_actor_from_server (const char *in_data, int len)
 		}
 
 	i = add_actor (actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, scale, remapable, skin, hair, shirt, pants, boots, actor_id);
-	
+
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
-	
+
 	//The actors list is locked when we get here...
-	
+
 #ifdef COUNTERS
 	actors_list[i]->async_fighting = 0;
 	actors_list[i]->async_x_tile_pos = x_pos;
 	actors_list[i]->async_y_tile_pos = y_pos;
 	actors_list[i]->async_z_rot = z_rot;
 #endif
-	
+
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
 	actors_list[i]->buffs=buffs;
@@ -895,11 +900,11 @@ void add_actor_from_server (const char *in_data, int len)
 		}
 	} else actors_list[i]->calmodel=NULL;
 
-	UNLOCK_ACTORS_LISTS();	//unlock it	
+	UNLOCK_ACTORS_LISTS();	//unlock it
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	
+
 }
 
 //--- LoganDugenoux [5/25/2004]

@@ -31,14 +31,14 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 		}
 	}
 
-	if (anim.kind==0) 
+	if (anim.kind==0)
 		CalMixer_BlendCycle(mixer,anim.anim_index,1.0,0.05);
 	else
 		CalMixer_ExecuteAction_Stop(mixer,anim.anim_index,0.0,0.0);
 
 	actors_list[id]->cur_anim=anim;
 	actors_list[id]->anim_time=0.0;
-	
+
 	CalModel_Update(actors_list[id]->calmodel,0.0001);//Make changes take effect now
 
 	if (actors_list[id]->cur_anim.anim_index==-1)
@@ -118,7 +118,7 @@ void cal_render_bones(actor *act)
 	glPointSize(4.0f);
 
 	glBegin(GL_POINTS);
-	
+
 	for(currPoint = 0; currPoint < nrPoints; currPoint++) {
 		glColor3f(0.0f, 0.0f, 1.0f);
 		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
@@ -141,7 +141,7 @@ __inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer 
 		if(CalRenderer_SelectMeshSubmesh(pCalRenderer,meshId, submeshId)) {
 			// get the transformed vertices of the submesh
 			vertexCount = CalRenderer_GetVertices(pCalRenderer,&meshVertices[0][0]);
-			
+
 			// get the transformed normals of the submesh
 			CalRenderer_GetNormals(pCalRenderer,&meshNormals[0][0]);
 
@@ -154,10 +154,10 @@ __inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer 
 			// set the vertex and normal buffers
 			glVertexPointer(3, GL_FLOAT, 0, &meshVertices[0][0]);
 			glNormalPointer(GL_FLOAT, 0, &meshNormals[0][0]);
- 			
+
 			// draw the submesh
 			glTexCoordPointer(2, GL_FLOAT, 0, &meshTextureCoordinates[0][0]);
-						
+
 			if(sizeof(CalIndex)==2)
 				glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, &meshFaces[0][0]);
 			else
@@ -165,7 +165,7 @@ __inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer 
 		}
 	}
 }
-				
+
 
 void cal_render_actor(actor *act)
 {
@@ -224,16 +224,16 @@ void cal_render_actor(actor *act)
 				//Special treatment for weapons and shields only for enhanced models
 				boneid=-1;
 				glow=-1;
-				
+
 				if (act->is_enhanced_model) {
 					_mesh=CalModel_GetAttachedMesh(act->calmodel,meshId);//Get current rendered mesh
 					_coremesh=CalMesh_GetCoreMesh(_mesh);//Get the coremesh
-					
+
 					if(actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index!=-1)_weaponmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index);
 					else _weaponmesh=NULL;
 					if(act->body_parts->shield_meshindex!=-1)_shieldmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,act->body_parts->shield_meshindex);
 					else _shieldmesh=NULL;
-				
+
 
 					if (_coremesh==_weaponmesh) boneid=26;//If it's a weapon snap to WeaponR bone
 					if (_coremesh==_shieldmesh) boneid=21;//If it's a shield snap to WeaponL bone
@@ -263,12 +263,13 @@ void cal_render_actor(actor *act)
 
 				if(glow>0){
 					glEnable(GL_COLOR_MATERIAL);
-					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
+					if(!glIsEnabled(GL_BLEND)) {
+
 						glEnable(GL_BLEND);
 						glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 						glDisable(GL_LIGHTING);
 					}
-					
+
 					if(use_shadow_mapping){
 						glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
 						ELglActiveTextureARB(shadow_unit);
@@ -276,7 +277,7 @@ void cal_render_actor(actor *act)
 						disable_texgen();
 						ELglActiveTextureARB(GL_TEXTURE0);
 					}
-					
+
 					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.5f);
 					glPushMatrix();
 					glScalef(0.99f, 0.99f, 0.99f);
@@ -290,22 +291,24 @@ void cal_render_actor(actor *act)
 					glScalef(1.01f, 1.01f, 1.01f);
 					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
 					glPopMatrix();
-					
+
 					if(use_shadow_mapping){
 						glPopAttrib();
 					}
 					glColor3f(1.0f, 1.0f, 1.0f);
 					glDisable(GL_COLOR_MATERIAL);
-					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
-						glDisable(GL_BLEND);
-						glEnable(GL_LIGHTING);
-					}
+					if(glow>0)
+						{
+							glDisable(GL_BLEND);
+							glEnable(GL_LIGHTING);
+						}
+
 				} else {
 					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
 				}
 				glPopMatrix();
 			}
-			
+
 			// clear vertex array state
 			glDisableClientState(GL_NORMAL_ARRAY);
 			glDisableClientState(GL_VERTEX_ARRAY);
