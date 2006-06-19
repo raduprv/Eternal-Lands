@@ -740,12 +740,12 @@ void add_actor_from_server (const char *in_data, int len)
 	short max_health;
 	short cur_health;
 	short actor_type;
-	char remapable;
-	char skin;
-	char hair;
-	char shirt;
-	char pants;
-	char boots;
+	//char remapable;
+	//char skin;
+	//char hair;
+	//char shirt;
+	//char pants;
+	//char boots;
 	char frame;
 	int i;
 	int dead=0;
@@ -769,18 +769,20 @@ void add_actor_from_server (const char *in_data, int len)
 	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
-	remapable=*(in_data+11);
+
+	/*remapable=*(in_data+11);
 	skin=*(in_data+12);
 	hair=*(in_data+13);
 	shirt=*(in_data+14);
 	pants=*(in_data+15);
 	boots=*(in_data+16);
-	frame=*(in_data+17);
-	max_health=SDL_SwapLE16(*((short *)(in_data+18)));
-	cur_health=SDL_SwapLE16(*((short *)(in_data+20)));
-	kind_of_actor=*(in_data+22);
-	if(len > 23+strlen(in_data+23)+2){
-		scale=((float)SDL_SwapLE16(*((short *)(in_data+23+strlen(in_data+23)+1)))/((float)ACTOR_SCALE_BASE));
+	*/
+	frame=*(in_data+11);
+	max_health=SDL_SwapLE16(*((short *)(in_data+12)));
+	cur_health=SDL_SwapLE16(*((short *)(in_data+14)));
+	kind_of_actor=*(in_data+16);
+	if(len > 17+strlen(in_data+17)+2){
+		scale=((float)SDL_SwapLE16(*((short *)(in_data+17+strlen(in_data+17)+1)))/((float)ACTOR_SCALE_BASE));
 	}
 
 	if(actor_type < 0 || actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
@@ -823,7 +825,7 @@ void add_actor_from_server (const char *in_data, int len)
 		break;
 	default:
 		{
-			log_error("%s %d - %s\n", unknown_frame, frame, &in_data[23]);
+			log_error("%s %d - %s\n", unknown_frame, frame, &in_data[17]);
 		}
 	}
 
@@ -839,13 +841,13 @@ void add_actor_from_server (const char *in_data, int len)
 			if(actors_list[i])
 				if(actors_list[i]->actor_id==actor_id)
 					{
-						log_error(duplicate_actors_str,actor_id, actors_list[i]->actor_name, &in_data[23]);
+						log_error(duplicate_actors_str,actor_id, actors_list[i]->actor_name, &in_data[17]);
 						destroy_actor(actors_list[i]->actor_id);//we don't want two actors with the same ID
 						i--;// last actor was put here, he needs to be checked too
 					}
 		}
 
-	i = add_actor (actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, scale, remapable, skin, hair, shirt, pants, boots, actor_id);
+	i= add_actor(actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, scale, 0, 0, 0, 0, 0, 0, actor_id);
 
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
 
@@ -879,18 +881,18 @@ void add_actor_from_server (const char *in_data, int len)
 	actors_list[i]->dead=dead;
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->kind_of_actor=kind_of_actor;
-	if(strlen(&in_data[23]) >= 30)
+	if(strlen(&in_data[17]) >= 30)
 		{
-			log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[23], (int)strlen(&in_data[23]));
+			log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[17], (int)strlen(&in_data[17]));
 		}
-	else my_strncp(actors_list[i]->actor_name,&in_data[23],30);
+	else my_strncp(actors_list[i]->actor_name,&in_data[17],30);
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		//Setup cal3d model
 		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
 		//Attach meshes
 		if(actors_list[i]->calmodel){
-			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[(int)shirt].mesh_index);
+			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[0].mesh_index);
 			if(dead){
 				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
 				actors_list[i]->stop_animation=1;
