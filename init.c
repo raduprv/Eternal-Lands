@@ -639,17 +639,11 @@ void init_stuff()
 #endif
 	build_levels_table();//for some HUD stuff
 
-	if(sound_on
-#ifndef NO_MUSIC
-		|| music_on
-#endif //NO_MUSIC
-		) {
-		update_loading_win(init_audio_str, 0);
-		init_sound();
-		if(music_on){
-			turn_music_on();
-		}
-	}
+	// Sound initialisation is done when loading the config and setting the no_sound/no_music variables
+//	if(!no_sound || !no_music) {
+//		update_loading_win(init_audio_str, 0);
+//		init_sound(SOUND_CONFIG_PATH);
+//	}
 
 	update_loading_win(load_icons_str, 4);
 	//load the necesary textures

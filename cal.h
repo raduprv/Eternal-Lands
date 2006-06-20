@@ -12,9 +12,18 @@ void CalCoreMesh_Scale(struct CalCoreMesh *self,float factor);
 
 void cal_render_actor(actor *act);
 #ifdef	NEW_ACTOR_ANIMATION
+	#ifdef NEW_SOUND
+struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound, int duration);
+	#else
 struct cal_anim cal_load_anim(actor_types *act, char *str, int duration);
+	#endif	//NEW_SOUND
 #else
+	#ifdef NEW_SOUND
+struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound);
+	#else
 struct cal_anim cal_load_anim(actor_types *act, char *str);
+	#endif	//MEW_SOUND
 #endif
+
 void cal_actor_set_anim(int id,struct cal_anim anim);
 #endif

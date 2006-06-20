@@ -127,7 +127,11 @@ void change_map (const char *mapname)
 	close_dialogue();	// close the dialogue window if open
 	close_storagewin(); //if storage is open, close it
 	destroy_all_particles();
+#ifdef NEW_SOUND
+	stop_all_sounds();
+#else
 	kill_local_sounds();
+#endif	//NEW_SOUND
 	if (!load_map(mapname)) {
 		char error[255];
 		snprintf(error, sizeof(error), cant_change_map, mapname);
@@ -141,7 +145,11 @@ void change_map (const char *mapname)
 #ifndef NEW_WEATHER
 	rain_sound=0;//kill local sounds also kills the rain sound
 #endif
+#ifdef NEW_SOUND
+	stop_all_sounds();
+#else
 	kill_local_sounds();
+#endif	//NEW_SOUND
 #ifndef	NO_MUSIC
 	playing_music=0;
 #endif	//NO_MUSIC
@@ -165,7 +173,11 @@ void change_map (const char *mapname)
 	load_map_marks();//Load the map marks
 #else
 	destroy_all_particles();
+#ifdef NEW_SOUND
+	stop_all_sounds();
+#else
 	kill_local_sounds();
+#endif	//NEW_SOUND
 	if (!load_map(mapname)) {
 		char error[255];
 		snprintf(error, sizeof(error), cant_change_map, mapname);
@@ -174,7 +186,11 @@ void change_map (const char *mapname)
 		LOG_ERROR(cant_change_map, mapname);
 		load_empty_map();
 	}
+#ifdef NEW_SOUND
+	stop_all_sounds();
+#else
 	kill_local_sounds();
+#endif	//NEW_SOUND
 #ifndef	NO_MUSIC
 	playing_music=0;
 #endif	//NO_MUSIC

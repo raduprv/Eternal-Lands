@@ -1,6 +1,7 @@
 #ifndef __CAL_TYPES_H__
 #define __CAL_TYPES_H__
 
+#include "sound.h"
 struct cal_anim
 {
 int anim_index;
@@ -9,6 +10,9 @@ float duration;
 #ifdef	NEW_ACTOR_ANIMATION
 float duration_scale;
 #endif
+#ifdef NEW_SOUND
+char sound[MAX_SOUND_NAME_LENGTH];
+#endif	//NEW_SOUND
 };
 
 

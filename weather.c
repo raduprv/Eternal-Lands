@@ -585,53 +585,65 @@ float weather_bias_light(float value)
 	}
 }
 
-void weather_sound_control() {
+void weather_sound_control()
+{
 	static int rain_sound = -1;
 	if (!sound_on) {
 		return;
 	}
 
 	if (rain_sound == -1) {
+#ifdef NEW_SOUND
+		rain_sound = add_sound_object(snd_rain,0,0);
+		sound_source_set_gain(rain_sound,0.0f);
+#else
 		int buffer;
-
 		alGenSources(1, &rain_sound);
-
 		buffer = get_loaded_buffer(snd_rain);
 		if (buffer) alSourcei(rain_sound, AL_BUFFER, buffer);
 		alSourcei(rain_sound, AL_LOOPING, AL_TRUE);
 		alSourcei(rain_sound, AL_SOURCE_RELATIVE, AL_TRUE);
 		alSourcef(rain_sound, AL_GAIN, 0.0f);
+#endif	//NEW_SOUND
 	}
 	
-	if (weather_flags & WEATHER_ACTIVE) {
+	if (weather_flags & WEATHER_ACTIVE)
+	{
 		// 0 means initialization
 		float severity = weather_severity * get_fadeinout_bias();
 		int source_state;
 		int i;
 
 		// update and render view
-		switch (weather_flags & WEATHER_TYPE) {
+		switch (weather_flags & WEATHER_TYPE)
+		{
 			case WEATHER_RAIN:
+#ifdef NEW_SOUND
+				sound_source_set_gain(rain_sound,severity);
+#else
 				alSourcef(rain_sound, AL_GAIN, severity);
 				alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
 				if (source_state != AL_PLAYING) alSourcePlay(rain_sound);
-				break;
-			case WEATHER_SNOW:
-				alSourcePause(rain_sound);
-				break;
-			case WEATHER_SAND:
-				alSourcePause(rain_sound);
+#endif	//NEW_SOUND
 				break;
 			default:
+#ifdef NEW_SOUND
+				sound_source_set_gain(rain_sound,0.0f);
+#else
 				alSourcePause(rain_sound);
+#endif	//NEW_SOUND
 		}
 
-		for (i = 0; i < num_thunders; i++) {
-			if (!thunders[i].done) {
-				if (cur_time >= thunders[i].time) {
+		for (i = 0; i < num_thunders; i++)
+		{
+			if (!thunders[i].done)
+			{
+				if (cur_time >= thunders[i].time)
+				{
 					int snd_thunder = 0;
 					
-					switch (thunders[i].type) {
+					switch (thunders[i].type)
+					{
 						case 0:  snd_thunder = snd_thndr_1; break;
 						case 1:  snd_thunder = snd_thndr_2; break;
 						case 2:  snd_thunder = snd_thndr_3; break;
@@ -640,16 +652,26 @@ void weather_sound_control() {
 						default: snd_thunder = 0;
 					}
 
-					if (snd_thunder) {
+					if (snd_thunder)
+					{
+#ifdef NEW_SOUND
+						add_sound_object(snd_thunder, 0, 0);
+#else
 						add_sound_object(snd_thunder, 0, 0, 0, 0);
+#endif	//NEW_SOUND
 					}
-
 					thunders[i].done = 1; // also allows main thread to write
 				}
 			}
 		}
-	} else {
+	}
+	else
+	{
+#ifdef NEW_SOUND
+		sound_source_set_gain(rain_sound,0.0f);
+#else
 		alSourcePause(rain_sound);
+#endif	//NEW_SOUND
 	}
 }
 
@@ -833,6 +855,7 @@ void render_rain()
 void rain_control()
 {
 	float rain_light_bias = 0.8 + 0.2*rain_strength_bias;
+	float rainParam;
 #ifdef DEBUG
 	last_rain_calls = rain_calls;
 	rain_calls -= last_rain_calls;
@@ -861,17 +884,17 @@ void rain_control()
 	if(seconds_till_rain_stops!=-1) {
 		rain_table_valid = 0;
 		// gracefully stop rain
-		if (seconds_till_rain_stops >= 90) {
+		if (seconds_till_rain_stops > 60) {
 			is_raining=1;
-			if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
-			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias);
-			seconds_till_rain_stops--;
-		} else if (seconds_till_rain_stops > 60) {
-			is_raining=1;
-			if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-			num_rain_drops = rain_strength_bias*((seconds_till_rain_stops - 60)*MAX_RAIN_DROPS)/30;
-			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(seconds_till_rain_stops - 60)/30.0f);
+			rainParam = rain_strength_bias*(min(60,seconds_till_rain_stops) - 60)/30.0f;
+			num_rain_drops = rainParam*MAX_RAIN_DROPS;
+#ifdef NEW_SOUND
+			if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
+				rain_sound=add_sound_object(snd_rain,0,0);
+#else
+			if(!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+#endif	//NEW_SOUND
+			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 			if (is_raining) is_raining = 0;
@@ -905,20 +928,31 @@ void rain_control()
 		// gracefully start rain
 		if (seconds_till_rain_starts >= 30) {
 			num_rain_drops = 0;
-			if (rain_sound) sound_object_set_gain(rain_sound, 0.0f);
+			if (rain_sound) sound_source_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
 			if(!is_raining) {
 				is_raining=1;
+#ifdef NEW_SOUND
+				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
+					rain_sound=add_sound_object(snd_rain,0,0);
+#else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+#endif	//NEW_SOUND
 			}
-			num_rain_drops = rain_strength_bias*(30-seconds_till_rain_starts)*MAX_RAIN_DROPS/30.0f;
-			if (rain_sound) sound_object_set_gain(rain_sound, rain_strength_bias*(1.0f - seconds_till_rain_starts/30.0f));
+			rainParam = rain_strength_bias*(30-seconds_till_rain_starts)/30.0f;
+			num_rain_drops = rainParam*MAX_RAIN_DROPS;
+			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
 			seconds_till_rain_starts--;
 		} else {
 			if(!is_raining) {
 				is_raining=1;
+#ifdef NEW_SOUND
+				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
+					rain_sound=add_sound_object(snd_rain,0,0);
+#else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
+#endif	//NEW_SOUND
 			}
 			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
 			seconds_till_rain_starts=-1;
@@ -934,10 +968,20 @@ void rain_control()
 		rain_table_valid = 0;
 		if (is_raining) {
 			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
-			if (rain_sound) {
-				sound_object_set_gain(rain_sound, rain_strength_bias);
+#ifdef NEW_SOUND
+			if (rain_sound && find_sound_source_from_cookie(rain_sound)>=0)
+#else
+			if (rain_sound)
+#endif	//NEW_SOUND
+			{
+
+				sound_source_set_gain(rain_sound, rain_strength_bias);
 			} else {
+#ifdef NEW_SOUND
+				rain_sound=add_sound_object(snd_rain,0,0);
+#else
 				rain_sound=add_sound_object(snd_rain,0,0,0,1);
+#endif	//NEW_SOUND
 			}
 		} else {
 			num_rain_drops = 0;
@@ -953,7 +997,7 @@ void rain_control()
 void thunder_control()
 {
 	int i;
-
+	int sounds[5]={snd_thndr_1,snd_thndr_2,snd_thndr_3,snd_thndr_4,snd_thndr_5};
 	if(map_flags&SNOW) return;
 
 	if(thunder_control_counter+100<cur_time)
@@ -971,31 +1015,21 @@ void thunder_control()
 					else if(thunders[i].time_since_started>10 &&thunders[i].time_since_started<15)thunders[i].light_offset=15-thunders[i].time_since_started;
 					//should we start the sound?
 					if(thunders[i].seconds_till_sound!=-1 && thunders[i].seconds_till_sound>=0)
+					{
+						thunders[i].seconds_till_sound--;
+						if(!thunders[i].seconds_till_sound)
 						{
-							thunders[i].seconds_till_sound--;
-							if(!thunders[i].seconds_till_sound)
-								{
-									switch(thunders[i].thunder_type) {
-									case 0:
-										add_sound_object(snd_thndr_1,0,0,0,0);
-										break;
-									case 1:
-										add_sound_object(snd_thndr_2,0,0,0,0);
-										break;
-									case 2:
-										add_sound_object(snd_thndr_3,0,0,0,0);
-										break;
-									case 3:
-										add_sound_object(snd_thndr_4,0,0,0,0);
-										break;
-									case 4:
-										add_sound_object(snd_thndr_5,0,0,0,0);
-										break;
-									}
-									thunders[i].seconds_till_sound=-1;//we are done with this sound
-
-								}
+							if(thunders[i].thunder_type >=0 && thunders[i].thunder_type <5)
+							{
+#ifdef NEW_SOUND
+								add_sound_object(sounds[thunders[i].thunder_type],0,0);
+#else
+								add_sound_object(sounds[thunders[i].thunder_type],0,0,0,0);
+#endif	//NEW_SOUND
+							}
+							thunders[i].seconds_till_sound=-1;//we are done with this sound
 						}
+					}
 					thunders[i].time_since_started++;
 					//is this thunder expired?
 					if(thunders[i].time_since_started>20 && thunders[i].seconds_till_sound==-1)

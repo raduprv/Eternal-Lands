@@ -250,7 +250,7 @@ void get_string_value (char *buf, size_t maxlen, xmlNode *node);
 int get_bool_value (xmlNode *node);
 double get_float_value (xmlNode *node);
 int get_int_property (xmlNode *node, const char *prop);
+char *get_string_property (xmlNode *node, const char *prop);
 int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]);
-void get_string_property (char *buf, xmlNode *node, const char *prop);
 
 #endif

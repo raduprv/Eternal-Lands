@@ -796,6 +796,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			actors_list[i]->body_parts->shield_meshindex=actors_defs[actor_type].shield[shield].mesh_index;
 
 			actors_list[i]->cur_anim.anim_index=-1;
+			stop_sound(actors_list[i]->cur_anim_sound_cookie);
+			actors_list[i]->cur_anim_sound_cookie = 0;
 			actors_list[i]->anim_time=0.0;
 			
 			if(dead){

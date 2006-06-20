@@ -28,10 +28,14 @@
 #include <vorbis/vorbisfile.h>
 #endif	//NO_MUSIC
 
-
+#define SOUNDS_NONE 0
+#define SOUNDS_ENVIRO 1
+#define SOUNDS_ACTOR 2
+#define SOUNDS_WALKING 3
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
+extern int sound_opts; /*!< flag indicating what sounds are enabled */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
 extern int playing_music; /*!< flag indicating if music is currently playing */
@@ -39,93 +43,144 @@ extern int playing_music; /*!< flag indicating if music is currently playing */
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
 
-ALCdevice *mSoundDevice;
-ALCcontext *mSoundContext;
+ALCdevice *mSoundDevice;			// These lines may need to be removed again in the patch.
+ALCcontext *mSoundContext;			// Please check.
 
-#ifdef DEBUG
-void print_sound_objects ();
-#endif // def DEBUG
+#ifdef NEW_SOUND
+	#define MAX_SOUND_NAME_LENGTH 15
+	typedef unsigned long int SOUND_COOKIE;
+	#define SOUND_CONFIG_PATH "sound/sound_config.xml"
 
+	#ifdef DEBUG
+		void print_sound_types();
+		void print_sound_samples();
+		void print_sound_sources();
+	#endif
+#else
+	#ifdef DEBUG
+		void print_sound_objects ();
+	#endif
+#endif	//NEW_SOUND
+						   
 /*!
- * \ingroup sound_effects
- * \brief   Stops playing the specified sound effect.
+ * \ingroup other
+ * \brief Initializes the sound system of EL
  *
- *      Stops playing the sound that is specified by the given index.
+ *      Initializes the sound system of EL
  *
- * \param i index of the sound to stop
+ * \param sound_config_path  the path of the sound-type configuration XML file.
+ *
+ * \callgraph
  */
-void stop_sound(int i);
+#ifdef NEW_SOUND
+	void init_sound(char *sound_config_path);
+#else
+	void init_sound();
+#endif	//NEW_SOUND
+/*!
+ * \ingroup other
+ * \brief Closes the sound system of EL
+ *
+ *      Shuts down the sound system of EL.
+ *
+*/
+void destroy_sound();
 
 /*!
  * \ingroup sound_effects
- * \brief Adds the file \a sound_file at the position (\a x, \a y) to the list of sounds to play.
+ * \brief Adds \a sound_type at the position (\a x, \a y) to the list of sounds to play.
  *
- *      Adds the file \a sound_file at the position (\a x, \a y) to the list of sounds to play. The parameter \a positional determines whether we should use positional sound. The parameter \a loops is a flag to indicicate whether we should play the sound in a loop or not.
+ *      Adds \a sound_type at the position (\a x, \a y) to the list of sounds to play. The parameter \a positional determines whether we should use positional sound.
  *
- * \param sound_file    A handle for the sound file to use
+ * \param sound_type    A handle for the sound type to play
  * \param x             the x coordinate of the position where the sound should be audible.
  * \param y             the y coordinate of the position where the sound should be audible.
- * \param positional    boolean flag, indicating whether we shall play the sound positional.
- * \param loops         boolean flag, indicating whether we shall play the sound in a loop.
- * \retval int          int returns the added sound_object
  * \callgraph
  */
-int add_sound_object(int sound_file,int x, int y,int positional,int loops);
+#ifdef NEW_SOUND
+	unsigned int add_sound_object(int sound_type,int x, int y);
+#else
+	int add_sound_object(int sound_file,int x, int y,int positional,int loops);
+#endif	//NEW_SOUND
+
 
 /*!
  * \ingroup sound_effects
- * \brief Removes a sound from the sound list
+ * \brief Gets the index of the named sound type.
  *
- *	Removes a sound from the sound list, and frees up the space associated with it.
+ *      Searches for a sound type which matches \a name. The search is not case-sensitive. A return of < 0 indicates no match.
  *
- * \param sound	The sound to be removed
+ * \param name		    The sound type to find
  * \callgraph
  */
-void remove_sound_object (int sound);
+#ifdef NEW_SOUND
+	int get_index_for_sound_type_name(char *name);
+	int find_sound_source_from_cookie(unsigned int cookie);
+#endif	//NEW_SOUND
+
 
 /*!
  * \ingroup sound_effects
- * \brief Sets the gain of a sound object
+ * \brief Sets the gain of a sound source
  *
- *	Sets the gain of a sound object. Only works properly on non-positional sounds.
+ *	Sets the gain of a sound source. Only works properly on non-positional sounds.
  *
- * \param sound	The sound to be affected
+ * \param source	The sound to be affected
  * \param gain  The gain, relative to \see sound_gain
  * \callgraph
  */
-void sound_object_set_gain(int sound, float gain);
+#ifdef NEW_SOUND
+	void sound_source_set_gain(unsigned long int cookie, float gain);
+#else
+	void sound_source_set_gain(int sound, float gain);
+#endif	//NEW_SOUND
+
 
 /*!
  * \ingroup sound_effects
- * \brief Sets the gain of a sound object
+ * \brief Informs the sound subsystem that \a ms milliseconds have passed since the previous update.
  *
- *	Sets the gain of a sound object. Only works properly on non-positional sounds.
+ *      Informs the sound subsystem that \a ms milliseconds have passed since the previous update.
  *
- * \param sound	The sound to be affected
- * \param gain  The gain, relative to \see sound_gain
+ * \param ms		    The time, in ms, since the last update
  * \callgraph
  */
-void sound_object_set_gain(int sound, float gain);
+#ifdef NEW_SOUND
+	void update_sound(int ms);
+#else
+	void update_position();
+#endif	//NEW_SOUND
+
 
 /*!
  * \ingroup sound_effects
- * \brief Updates the position change of sound played.
+ * \brief Stops the specified source.
  *
- *      Updates the position change of sound played.
+ *      Searches for a source_data object for source \a source and stops it playing.
  *
+ * \param cookie	   The cookie for the sound source to stop
+ * \callgraph
  */
-void update_position();
+#ifdef NEW_SOUND
+	void stop_sound(unsigned long int cookie);
+#else
+	void stop_sound(int i);
+	void remove_sound_object(int sound);
+#endif	//NEW_SOUND
+
 
 /*!
  * \ingroup sound_effects
- * \brief Kill all sounds that loop infinitely
+ * \brief Stop all sound & music playback
  *
- *      kill all the sounds that loop infinitely; usefull when we change maps, etc.
+ *      Stop all sound & music playback; usefull when we change maps, etc.
  *
  * \callgraph
  */
-void kill_local_sounds();
-
+void stop_all_sounds();
+#ifndef NEW_SOUND
+	void kill_local_sounds();
+#endif	//NEW_SOUND
 /*!
  * \ingroup sound_effects
  * \brief Turns off playback of sound.
@@ -144,23 +199,14 @@ void turn_sound_off();
  */
 void turn_sound_on();
 
-/*!
- * \ingroup other
- * \brief Initializes the sound system of EL
- *
- *      Initializes the sound system of EL
- *
- */
-void init_sound();
+void toggle_sounds(int *var);
 
-/*!
- * \ingroup other
- * \brief Closes the sound system of EL
- *
- *      Shuts down the sound system of EL.
- *
- */
-void destroy_sound();
+
+
+
+
+/////// MUSIC FUNCTIONALITY ///////////
+///////////////////////////////////////
 
 /*!
  * \ingroup music
@@ -211,12 +257,13 @@ void turn_music_off();
  */
 void turn_music_on();
 
-ALuint get_loaded_buffer(int i);
+#ifndef NEW_SOUND
+	ALuint get_loaded_buffer(int i);
+#endif	//NEW_SOUND
 
 int display_song_name();
 
-void toggle_sounds(int * var);
+void change_sounds(int * var, int value);
 
 void toggle_music(int * var);
-
-#endif
+#endif //__SOUND_H__

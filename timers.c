@@ -17,6 +17,9 @@ Uint32 my_timer(Uint32 interval, void * data)
 	int	new_time;
 	SDL_Event e;
 	
+#ifdef NEW_SOUND
+	update_sound(interval);
+#endif	//NEW_SOUND
 //animate_actors();
 	// adjust the timer clock
 	if(my_timer_clock == 0)

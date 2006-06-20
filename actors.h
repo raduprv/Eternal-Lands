@@ -320,6 +320,7 @@ typedef struct
 
 	struct CalModel *calmodel;
 	struct cal_anim cur_anim;
+	unsigned int cur_anim_sound_cookie;		/*!< The currently played animation sound*/
 	struct cal_anim cur_idle_anims[16];
 	int IsOnIdle;
 	float anim_time;

@@ -160,7 +160,11 @@ particle_sys_def *load_particle_def(const char *filename)
 	fscanf(f,"%i\n",&def->use_light);
 	fscanf(f,"%f,%f,%f\n",&def->lightx,&def->lighty,&def->lightz);
 	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
+#ifdef NEW_SOUND
+	fscanf (f, "%d\n", &def->sound_nr);
+#else
 	fscanf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loop);
+#endif	//NEW_SOUND
 	
 	if(def->total_particle_no>MAX_PARTICLES)
 		{
@@ -398,17 +402,11 @@ static __inline__ void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle
 
 static __inline__ void destroy_partice_sys_without_lock(int i)
 {
-	if((i < 0) || (i >= MAX_PARTICLE_SYSTEMS)) return;
-	if(particles_list[i] == NULL) return;
+	if ((i < 0) || (i >= MAX_PARTICLE_SYSTEMS)) return;
+	if (particles_list[i] == NULL) return;
 	if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light])
 		destroy_light(particles_list[i]->light);
 	delete_particle_from_abt(main_bbox_tree, i);
-#ifndef MAP_EDITOR
-	if(particles_list[i]->sound != 0){
-		remove_sound_object(particles_list[i]->sound);
-		particles_list[i]->sound= 0;
-	}
-#endif
 	free(particles_list[i]);
 	particles_list[i] = NULL;
 }
@@ -582,7 +580,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 			}
 #ifndef MAP_EDITOR
 			if (sys->sound != 0)
-				remove_sound_object (sys->sound);
+				stop_sound (sys->sound);
 #endif
 			free (sys);
 			particles_list[i] = NULL;
@@ -733,7 +731,11 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	if (def->sound_nr < 0 || !sound_on)
 		system_id->sound = 0;
 	else
+	#ifdef NEW_SOUND
+		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5));
+	#else
 		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5), def->positional, def->loop);
+	#endif
 #endif
 
 #ifdef	NEW_FRUSTUM

@@ -506,13 +506,12 @@ int get_property (xmlNode *node, const char *prop, const char *desc, const dict_
 	return -1;
 }
 
-void get_string_property (char *buf, xmlNode *node, const char *prop) {
+char *get_string_property (xmlNode *node, const char *prop) {
 	xmlAttr *attr;
 
 	for (attr = node->properties; attr; attr = attr->next) {
 		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0) {
-			strcpy(buf, attr->children->content);
-			return;
+			return attr->children->content;
 		}
 	}
 

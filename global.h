@@ -11,6 +11,10 @@
  #define M_PI 3.14159265358979323846
 #endif //M_PI
 
+#ifndef min
+	#define min(x, y) (x<y?x:y)
+#endif //min
+
 //only ever use WINDOWS anywhere else, in case we need to add another 'catch' to enable WINDOWS
 #if defined(_WIN32) || defined(_WIN64)
 	#ifndef	WINDOWS

@@ -199,8 +199,9 @@ void move_camera ()
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(cx,cy, cz);
 
-	//test only
+#ifndef NEW_SOUND	//test only
 	update_position();
+#endif	//NEW_SOUND
 }
 
 void update_camera()

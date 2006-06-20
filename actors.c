@@ -57,6 +57,7 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 	our_actor->is_enhanced_model=0;
 	our_actor->remapped_colors=remappable;
 	our_actor->actor_id=actor_id;
+	our_actor->cur_anim_sound_cookie = 0;
 
 	our_actor->x_pos=x_pos;
 	our_actor->y_pos=y_pos;
@@ -899,6 +900,7 @@ void add_actor_from_server (const char *in_data, int len)
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			} else CalModel_Update(actors_list[i]->calmodel,0);
 			actors_list[i]->cur_anim.anim_index=-1;
+			actors_list[i]->cur_anim_sound_cookie=0;
 			actors_list[i]->IsOnIdle=0;
 		}
 	} else actors_list[i]->calmodel=NULL;

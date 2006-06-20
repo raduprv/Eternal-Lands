@@ -44,16 +44,33 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 	if (actors_list[id]->cur_anim.anim_index==-1)
 		actors_list[id]->busy=0;
 	actors_list[id]->IsOnIdle=0;
+
+#ifdef NEW_SOUND
+	//make sure any previous sound is stopped...
+	stop_sound(actors_list[id]->cur_anim_sound_cookie);
+	if(anim.sound[0] != '\0')
+	{
+		//...and add a new sound if one exists
+		actors_list[id]->cur_anim_sound_cookie = add_sound_object(	get_index_for_sound_type_name(anim.sound),
+																	2*actors_list[id]->x_pos,
+																	2*actors_list[id]->y_pos);
+	}
+#endif
 }
 
 
-
-
-
 #ifdef	NEW_ACTOR_ANIMATION
+	#ifdef NEW_SOUND
+struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound, int duration)
+	#else
 struct cal_anim cal_load_anim(actor_types *act, char *str, int duration)
+	#endif	//NEW_SOUND
 #else
+	#ifdef NEW_SOUND
+struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound)
+	#else
 struct cal_anim cal_load_anim(actor_types *act, char *str)
+	#endif	//MEW_SOUND
 #endif
 {
 	char fname[255]={0};
@@ -62,6 +79,13 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 
 	if(sscanf(str,"%s %d",fname,&res.kind) != 2)
 		return res;
+
+#ifdef NEW_SOUND
+	if(sound)
+		strncpy(res.sound,sound,MAX_SOUND_NAME_LENGTH);
+	else
+		res.sound[0]='\0';
+#endif	//NEW_SOUND
 
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,fname);
 	if(res.anim_index == -1) {
