@@ -642,14 +642,14 @@ int display_game_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
 			display_objects ();
-			display_actors (1);
+			display_actors (1, 0);
 			display_blended_objects();
 		}
 		CHECK_GL_ERRORS ();
 	}	// end of active display check
 	else 
 	{
-		display_actors (1);	// we need to 'touch' all the actors even if not drawing to avoid problems
+		display_actors (1, 0);	// we need to 'touch' all the actors even if not drawing to avoid problems
 	}
 
 	CHECK_GL_ERRORS ();

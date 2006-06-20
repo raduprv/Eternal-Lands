@@ -503,7 +503,7 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  *
  * \callgraph
  */
-void display_actors(int banner);
+void display_actors(int banner, int reflections);
 
 /*!
  * \ingroup	network_actors

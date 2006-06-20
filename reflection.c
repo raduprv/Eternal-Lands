@@ -566,7 +566,7 @@ void display_3d_reflection()
 //	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
-	display_actors(0);
+	display_actors(0, 1);
 #endif
 //	display_blended_objects();
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
@@ -630,7 +630,7 @@ void display_3d_reflection()
 //	display_2d_objects();
 	display_objects();
 #ifndef MAP_EDITOR2
-	display_actors(0);
+	display_actors(0, 1);
 #endif
 //	display_blended_objects();
 #ifdef NEW_FRUSTUM

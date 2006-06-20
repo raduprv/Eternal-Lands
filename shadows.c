@@ -982,7 +982,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_objects();
 #ifndef MAP_EDITOR2
-			display_actors(1);  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
+			display_actors(1, 0);  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
 #endif
 			display_blended_objects();
 
@@ -1112,7 +1112,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			display_3d_non_ground_objects();
 #ifndef MAP_EDITOR2
-			display_actors(1);
+			display_actors(1, 0);
 #endif
 			display_blended_objects();
 

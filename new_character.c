@@ -280,7 +280,7 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
 			display_objects ();
-			display_actors (1);
+			display_actors (1, 0);
 			display_blended_objects();
 		}
 		CHECK_GL_ERRORS ();

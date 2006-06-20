@@ -589,7 +589,7 @@ void get_actors_in_range()
 #endif
 }
 
-void display_actors(int banner)
+void display_actors(int banner, int reflections)
 {
 	int i;
 	int x,y;
@@ -614,7 +614,7 @@ void display_actors(int banner)
 	{
 		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 		{
-			has_ghosts = 1;
+			if (!reflections) has_ghosts = 1;
 		}
 		else
 		{
