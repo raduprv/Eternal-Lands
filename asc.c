@@ -516,5 +516,5 @@ char *get_string_property (xmlNode *node, const char *prop) {
 	}
 
 	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
-	return;
+	return "";
 }
