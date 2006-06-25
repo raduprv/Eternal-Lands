@@ -1280,19 +1280,12 @@ void change_sounds(int * var, int value){
 }
 
 void toggle_music(int * var){
-	if(!have_music && *var){
-#ifdef NEW_SOUND
-		init_sound(SOUND_CONFIG_PATH);
-#else
-		init_sound();
-#endif	//NEW_SOUND
-	}
-	if(music_on){
+	*var=!*var;
+	if(!music_on){
 		turn_music_off();
 	} else {
 		turn_music_on();
 	}
-	*var=!*var;
 }
 
 void turn_music_off()
@@ -1566,7 +1559,7 @@ void destroy_sound()
 	ALCdevice *device;
 	if(!inited){
 		return;
-	
+	}
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex=NULL;
 	inited = have_sound = sound_on = 0;
@@ -1616,7 +1609,7 @@ void destroy_sound()
 	}
 #endif	//NEW_SOUND
 	alcDestroyContext( mSoundContext );
-	if(mSoundDevice)
+	if(mSoundDevice) {
 		alcCloseDevice( mSoundDevice );
 	}
 	/*
