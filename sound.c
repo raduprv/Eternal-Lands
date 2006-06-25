@@ -3,6 +3,7 @@
 #else
 #include "global.h"
 #endif
+#include    <ctype.h>
 
 #define MAX_FILENAME_LENGTH 80
 #define MAX_BUFFERS 60 //remember, music uses 4 buffers too
