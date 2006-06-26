@@ -132,7 +132,10 @@ typedef struct
 
 #ifdef AUTO_UPDATE
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */
-#endif
+#ifdef  CUSTOM_LOOKS
+extern int custom_update; /*!<this flags signals whether or not autoupdates of custom looks is permitted. */
+#endif  //CUSTOM_LOOKS
+#endif  //AUTO_UPDATE
 
 extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
 extern int show_reflection; /*!< flag that indicates whether to display reflections or not */

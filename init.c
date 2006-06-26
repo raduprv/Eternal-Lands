@@ -23,10 +23,14 @@
 
 int ini_file_size=0;
 
-int disconnected=1;
+int disconnected= 1;
 #ifdef AUTO_UPDATE
- int auto_update = 1;
-#endif
+int auto_update= 1;
+#ifdef  CUSTOM_LOOKS
+int custom_update= 0;
+#endif  //CUSTOM_LOOKS
+#endif  //AUTO_UPDATE
+
 int exit_now=0;
 int restart_required=0;
 int allow_restart=1;
@@ -34,9 +38,11 @@ int have_url=0;
 char current_url[160];
 char browser_name[120];
 int poor_man=0;
+
 #ifdef ANTI_ALIAS
 int anti_alias=0;
-#endif
+#endif  //ANTI_ALIAS
+
 int isometric=1;
 int mouse_limit=15;
 int no_adjust_shadows=0;
@@ -723,8 +729,13 @@ void init_stuff()
 	init_channel_names();
 
 #ifdef  AUTO_UPDATE
-     if(auto_update)
-	     init_update();
+	if(auto_update){
+		init_update();
+#ifdef  CUSTOM_LOOKS
+	} else if(custom_update){
+		init_custom_update();
+#endif  //CUSTOM_LOOKS
+	}
 #endif
 
 	have_rules=read_rules();

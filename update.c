@@ -3,19 +3,19 @@
 #else
 #include	"global.h"
 #endif
+
 #include	"update.h"
 #include    "asc.h"
 #include    <stdio.h>
 #include    <ctype.h>
+#include	<errno.h>
 #ifdef	WINDOWS
 #define	strdup	_strdup
 #include    <direct.h>
-//int	mkdir(const char*, unsigned int);
 #else   //WINDOWS
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #endif	//WINDOWS
-#include <errno.h>
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 int temp_counter;           // collision prevention during downloads just incase more then one ever starts
@@ -43,10 +43,11 @@ void    init_update()
 	}
 	// initialize variables
 	update_busy++;
-	update_attempt_count= 0;    // no downloads have been attempted
-	temp_counter= 0;    	//start with download name with 0
-	restart_required= 0;    // no restart needed yet
-	allow_restart= 1;       // automated restart allowed
+	update_attempt_count= 0;	// no downloads have been attempted
+	temp_counter= 0;			//start with download name with 0
+	restart_required= 0;		// no restart needed yet
+	allow_restart= 1;			// automated restart allowed
+
 	// create the mutex & init the download que
 	if(!download_mutex){
 		download_mutex= SDL_CreateMutex();
@@ -55,6 +56,7 @@ void    init_update()
 		download_cur_file= NULL;
 		download_cur_md5= NULL;
 	}
+	
 	// load the server list
 	num_update_servers= 0;
 	update_server[0]= '\0';
@@ -174,7 +176,7 @@ void    handle_update_download(struct http_get_struct *get)
 		++temp_counter;
 		fp= my_fopen(filename, "wb+");
 		if(fp){
-			sprintf(filename, "http://%s/updates/files.lst", update_server);
+			sprintf(filename, "http://%s/updates%d%d%d/files.lst", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE);
 			http_threaded_get_file(update_server, filename, fp, NULL, EVENT_UPDATES_DOWNLOADED);
 		}
 		// and keep running until we get a response
@@ -289,7 +291,7 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 				// build the prope URL to download
 				download_cur_file= download_queue[--download_queue_size];
 				download_cur_md5= download_MD5s[download_queue_size];
-				snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+				snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 				buffer[sizeof(buffer)-1]= '\0';
 				http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 			}
@@ -359,7 +361,7 @@ void    handle_file_download(struct http_get_struct *get)
 			// build the prope URL to download
 			download_cur_file= download_queue[--download_queue_size];
 			download_cur_md5= download_MD5s[download_queue_size];
-			snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+			snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 			buffer[sizeof(buffer)-1]= '\0';
 			http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 		}
@@ -517,3 +519,68 @@ int http_get_file(char *server, char *path, FILE *fp)
 
 	return(0);  // finished
 }
+
+#ifdef  CUSTOM_UPDATE   //TODO: for v 1.4.0?
+// initialize the custom looks auto update system, start the downloading
+void    init_custom_update()
+{
+	FILE    *fp;
+
+	if(update_busy){
+		return;
+	}
+	// initialize variables
+	update_busy++;
+	update_attempt_count= 0;	// no downloads have been attempted
+	temp_counter= 0;			//start with download name with 0
+
+	// create the mutex & init the download que
+	if(!download_mutex){
+		download_mutex= SDL_CreateMutex();
+		download_queue_size= 0;
+		memset(download_queue, 0, sizeof(download_queue));
+		download_cur_file= NULL;
+		download_cur_md5= NULL;
+	}
+	
+	// load the server list
+	num_update_servers= 0;
+	update_server[0]= '\0';
+	fp= my_fopen("custom.lst", "r");
+	if(fp){
+		char    buffer[1024];
+		char	*ptr;
+
+		ptr= fgets(buffer, sizeof(buffer), fp);
+		while(ptr && !ferror(fp) && num_update_servers < sizeof(update_servers)){
+			int len= strlen(buffer);
+
+			// is this line worth handling?
+			if(len > 6 && *buffer > ' ' && *buffer != '#'){
+				while(isspace(buffer[len-1])){
+					buffer[len-1]= '\0';
+					len--;
+				}
+				if(len > 6){
+					update_servers[num_update_servers++]= strdup(buffer);
+				}
+			}
+			// read the next line
+			ptr= fgets(buffer, sizeof(buffer), fp);
+		}
+		if(fp){
+			fclose(fp);
+		}
+	}
+	if(!num_update_servers) {
+		// oops, no mirror file, no downloading
+		update_servers[0]= "";
+		return;
+	}
+
+	// start the process
+	if(download_mutex){
+		handle_update_download(NULL);
+	}
+}
+#endif  //CUSTOM_UPDATE

@@ -119,7 +119,7 @@ int creating_char = 1;
 void set_create_char_error (const char *msg, int len)
 {
 	char buf[512];
-	
+
 	if (len <= 0)
 	{
 		// server didn't send a message, use the default

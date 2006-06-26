@@ -14,13 +14,14 @@ struct http_get_struct {
 	FILE	*fp;
 	int		event;
 	int     status;
+	int     allow_restart;
 };
 
 /*!
  * \ingroup	update
  * \brief	Initialize the auto update system
  *
- * 		The function initializes tha auto update system and starts downloading if enabled
+ * 		The function initializes the auto update system and starts downloading if enabled
  */
 void    init_update();
 
@@ -106,5 +107,12 @@ int http_get_file_thread_handler(void *specs);
 int http_get_file(char *server, char *path, FILE *fp);
 
 
+/*!
+ * \ingroup	update
+ * \brief	Initialize the custom looks auto update system
+ *
+ * 		The function initializes the custom looks auto update system and starts downloading if enabled
+ */
+void    init_custom_update();
 
 #endif
