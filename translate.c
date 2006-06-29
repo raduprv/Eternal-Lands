@@ -1221,7 +1221,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "w_inv", win_inventory, "Inventory", sizeof(win_inventory));
 	add_xml_identifier (titles_str, "w_help", win_help, "Help", sizeof(win_help));
 	add_xml_identifier (titles_str, "w_buddy", win_buddy, "Buddy", sizeof(win_buddy));
-	add_xml_identifier (titles_str, "w_config", win_configuration, "ELconfig", sizeof(win_configuration));
+	add_xml_identifier (titles_str, "w_config", win_configuration, "Options", sizeof(win_configuration));
 	add_xml_identifier (titles_str, "w_manu", win_manufacture, "Manufacture", sizeof(win_manufacture));
 	add_xml_identifier (titles_str, "w_principal", win_principal, "Eternal Lands", sizeof(win_principal));
 	add_xml_identifier (titles_str, "w_storage", win_storage, "Storage", sizeof(win_storage));

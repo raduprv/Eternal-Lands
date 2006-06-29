@@ -1180,8 +1180,8 @@ void init_vars()
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 #ifndef MAP_EDITOR2
  #ifdef DEBUG
-	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render skeleton", "Render the Cal3d skeleton.", SPECIALVID);
-	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render mesh", "Render the mesh", SPECIALVID);
+	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", SPECIALVID);
+	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", SPECIALVID);
  #endif//DEBUG
 #endif
 #ifndef OSX
@@ -1192,7 +1192,7 @@ void init_vars()
 	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
 	add_var(MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 #ifndef MAP_EDITOR2
-	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render fog","Toggles fog rendering.",VIDEO);
+	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",VIDEO);
 #endif
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
 #ifdef	USE_FRAMEBUFFER
@@ -1247,10 +1247,10 @@ void init_vars()
 #ifdef NEW_SOUND
 	add_var(MULTI,"sounds","sounds",&sound_opts,change_sounds,3,"Sounds","Turn sound effects on/off",AUDIO, "No sound", "Environmental Only", "+General Character", "+Walking", NULL);
 #else
-	add_var(BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable sound effects","Turn sound effects on/off",AUDIO);
+	add_var(BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 #endif	//NEW_SOUND
 #ifndef NO_MUSIC
-	add_var(BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable music","Turn music on/off",AUDIO);
+	add_var(BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
 #endif //NO_MUSIC
 	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
 #ifndef NO_MUSIC
@@ -1277,7 +1277,7 @@ void init_vars()
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
 	add_var(STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
 #ifdef AFK_FIX
-	add_var(BOOL, "afk_local", "afkl", &afk_local,change_var, 0, "Save local chat messages when afk", "When you go afk, local chat messages are counted and saved as well as PMs", MISC);
+	add_var(BOOL, "afk_local", "afkl", &afk_local,change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", MISC);
 #endif //AFK_FIX
 #endif
 
@@ -1296,9 +1296,9 @@ void init_vars()
 #endif
 #ifndef MAP_EDITOR2
  #ifdef ELC
- 	add_var(MULTI,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
+ 	add_var(MULTI,"log_chat","log",&log_chat,change_int,2,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
  #else
-	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
+	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log Messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
  #endif //ELC
   #ifdef AUTO_UPDATE
      /* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
@@ -1313,9 +1313,9 @@ void init_vars()
 
 #ifndef MAP_EDITOR2
 #ifdef ELC
-	add_var (MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
+	add_var (MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use Windowed Chat", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
  #else
-	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use windowed chat", "0 = Old behavior, 1 = new behavior, 2=chat window", CHAT);
+	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use Windowed Chat", "0 = Old behavior, 1 = new behavior, 2=chat window", CHAT);
 #endif //ELC
 #endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
@@ -1324,41 +1324,41 @@ void init_vars()
 	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If the above option doesn't move you when you click, try this one", SPECIALVID);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",SPECIALVID);
 #ifndef MAP_EDITOR2
-	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
+	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", SPECIALVID);
  #ifdef ELC
-	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate local chat", "Should local chat be separate?", CHAT);
+	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
-	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
-	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
-	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
-	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
+	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Separate Personal Chat", "Should personal chat be separate?", CHAT);
+	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Separate Guild chat", "Should guild chat be separate?", CHAT);
+	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Separate Server Messages", "Should the messages from the server be separate?", CHAT);
+	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
   #else
-	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate local chat", "Should local chat be separate?", CHAT);
-	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Seperate personal chat", "Should personal chat be seprate?", CHAT);
-	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Seperate guild chat", "Should guild chat be seperate?", CHAT);
-	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Seperate server messages", "Should the messages from the server be seperate?", CHAT);
-	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Seperate moderator chat", "Should moderator chat be seperated from the rest?", CHAT);
+	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
+	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Separate personal chat", "Should personal chat be separate?", CHAT);
+	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Separate Guild Chat", "Should guild chat be separate?", CHAT);
+	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Separate Server Messages", "Should the messages from the server be separate?", CHAT);
+	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
  #endif
-	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight tabs on name", "Should tabs be highlighted when someone mentions your name?", CHAT);
+	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 #endif
 #ifndef OSX
-	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use isometric view", "Toggle the use of isometric (instead of perspective) view", VIDEO);
+	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #else
-        add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use isometric view, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
+        add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near plane distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
 #endif
  #ifdef ANTI_ALIAS
-	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle anti aliasing", "Anti aliasing makes edges look smoother", SPECIALVID);
+	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", SPECIALVID);
  #endif //ANTI_ALIAS
 #ifndef MAP_EDITOR2
-	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy sign on/off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
+	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
 #endif // def ELC
 #ifdef	USE_FRAMEBUFFER
-	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle frame buffer support", "Toggle frame buffer support. Used for reflection and shadow mapping.", SPECIALVID);
+	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", SPECIALVID);
 #endif // TERRAIN
 
 	//Global vars...
@@ -1376,13 +1376,13 @@ void init_vars()
 #endif //ELC
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
-	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show POS","Show possition on the minimap",HUD);
+	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show POS","Show position on the minimap",HUD);
 	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
-	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show grid", "Show grid",HUD);
+	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
 #endif
 
 #if !defined(WINDOWS) && !defined(OSX)
-	add_var(BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use clipboard for pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",MISC);
+	add_var(BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",MISC);
 #endif
 }
 
