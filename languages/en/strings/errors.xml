@@ -106,7 +106,7 @@ Fix your maps.</nonomap>
     <notvorbis>Not Vorbis data.</notvorbis>
     <version>Vorbis version mismatch.</version>
     <header>Invalid Vorbis header.</header>
-    <intern>Internal logic fault (bug or heap/stack corruptio</intern>
+    <intern>Internal logic fault (bug or heap/stack corruption)</intern>
     <unknown>Unknown Ogg error.</unknown>
     <false>Ogg error media false.</false>
     <hole>Ogg error media hole.</hole>

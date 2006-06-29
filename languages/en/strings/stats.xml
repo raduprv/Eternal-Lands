@@ -81,11 +81,11 @@
       <shortname>ethp</shortname>
     </ethereal>
     <carry>
-      <name>Carry capacity</name>
+      <name>Carry Capacity</name>
       <shortname>Load</shortname>
     </carry>
     <food>
-      <name>Food level</name>
+      <name>Food Level</name>
       <shortname>food</shortname>
     </food>
   </misc>

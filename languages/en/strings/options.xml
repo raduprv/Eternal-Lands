@@ -14,7 +14,7 @@
       <desc>If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.</desc>
     </use_shadow_mapping>
     <render_fog>
-      <name>Render fog</name>
+      <name>Render Fog</name>
       <desc>Toggles fog rendering.</desc>
     </render_fog>
     <poor_man>
@@ -54,7 +54,7 @@
       <desc>Toggle the use of the vertex array</desc>
     </use_vertex_array>
     <use_vertex_buffers>
-      <name>Vertex Buffer objects</name>
+      <name>Vertex Buffer Objects</name>
       <desc>Toggle the use of the vertex buffer objects</desc>
     </use_vertex_buffers>
     <mouse_limit>
@@ -86,11 +86,11 @@
       <desc>Set the type of font used for normal text</desc>
     </chat_font>
     <enable_sound>
-      <name>Enable sound effects</name>
+      <name>Enable Sound Effects</name>
       <desc>Turn sound effects on/off</desc>
     </enable_sound>
     <enable_music>
-      <name>Enable music</name>
+      <name>Enable Music</name>
       <desc>Turn music on/off</desc>
     </enable_music>
     <sound_gain>
@@ -138,8 +138,8 @@
       <desc>Set the AFK message</desc>
     </afk_message>
     <afk_local>
-      <name>Save local chat messages when afk</name>
-      <desc>When you go afk, local chat messages are counted and saved as well as PMs</desc>
+      <name>Save Local Chat Messages When AFK</name>
+      <desc>When you go AFK, local chat messages are counted and saved as well as PMs</desc>
     </afk_local>
     <use_global_ignores>
       <name>Global Ignores</name>
@@ -154,7 +154,7 @@
       <desc>Toggle the use of global text filters.</desc>
     </use_global_filters>
     <caps_filter>
-      <name>Caps filter</name>
+      <name>Caps Filter</name>
       <desc>Toggle the caps filter</desc>
     </caps_filter>
     <server_address>
@@ -174,7 +174,7 @@
       <desc>Put your password here</desc>
     </password>
     <log_chat>
-      <name>Log messages</name>
+      <name>Log Messages</name>
       <desc>Log messages from the server (chat, harvesting events, GMs, etc)</desc>
     </log_chat>
     <language>
@@ -186,7 +186,7 @@
       <desc>Location of your web browser (Windows users leave blank to use default browser)</desc>
     </browser>
     <windowed_chat>
-      <name>Use windowed chat</name>
+      <name>Use Windowed Chat</name>
       <desc>How do you want your chat to be displayed?</desc>
     </windowed_chat>
     <write_ini_on_exit>
@@ -202,31 +202,31 @@
       <desc>Toggle the use of alpha borders</desc>
     </use_alpha_border>
     <use_floating_messages>
-      <name>Floating messages</name>
+      <name>Floating Messages</name>
       <desc>Toggles the use of floating experience messages and other graphical enhancements</desc>
     </use_floating_messages>
     <local_chat_separate>
-      <name>Separate local chat</name>
+      <name>Separate Local Chat</name>
       <desc>Should local chat be separate?</desc>
     </local_chat_separate>
     <guild_chat_separate>
-      <name>Seperate guild chat</name>
-      <desc>Should guild chat be seperate?</desc>
+      <name>Seperate Guild Chat</name>
+      <desc>Should guild chat be separate?</desc>
     </guild_chat_separate>
     <server_chat_separate>
-      <name>Seperate server messages</name>
-      <desc>Should the messages from the server be seperate?</desc>
+      <name>Seperate Server Messages</name>
+      <desc>Should the messages from the server be separate?</desc>
     </server_chat_separate>
     <mod_chat_separate>
-      <name>Seperate moderator chat</name>
-      <desc>Should moderator chat be seperated from the rest?</desc>
+      <name>Seperate Moderator Chat</name>
+      <desc>Should moderator chat be separated from the rest?</desc>
     </mod_chat_separate>
     <highlight_tab_on_nick>
-      <name>Highlight tabs on name</name>
+      <name>Highlight Tabs On Name</name>
       <desc>Should tabs be highlighted when someone mentions your name?</desc>
     </highlight_tab_on_nick>
     <isometric>
-      <name>Use isometric view</name>
+      <name>Use Isometric View</name>
       <desc>Toggle the use of isometric (instead of perspective) view</desc>
     </isometric>
     <perspective>
@@ -234,11 +234,11 @@
       <desc>The degree of perspective distortion. Change if your view looks odd.</desc>
     </perspective>
     <near_plane>
-      <name>Near plane distance</name>
+      <name>Near Plane Distance</name>
       <desc>The distance of the near clipping plane to your actor</desc>
     </near_plane>
     <buddy_log_notice>
-      <name>Log Buddy sign on/off</name>
+      <name>Log Buddy Sign On/Off</name>
       <desc>Toggle whether to display notices when people on your buddy list log on or off</desc>
     </buddy_log_notice>
     <data_dir>
@@ -258,12 +258,12 @@
       <desc>How bright your display should be.</desc>
     </gamma>
     <render_skeleton>
-      <name>Render skeleton</name>
-      <desc>Render the Cal3d skeleton.</desc>
+      <name>Render Skeleton</name>
+      <desc>Render the Cal3d skeletons.</desc>
     </render_skeleton>
     <render_mesh>
-      <name>Render mesh</name>
-      <desc>Render the mesh</desc>
+      <name>Render Mesh</name>
+      <desc>Render the meshes</desc>
     </render_mesh>
     <shadow_map_size>
       <name>Shadow Map Size</name>
@@ -274,11 +274,11 @@
    	  <desc>If the above option doesn't move you when you click, try this one</desc>
     </use_old_clicker>
     <use_frame_buffer>
-      <name>Toggle frame buffer support</name>
+      <name>Toggle Frame Buffer Support</name>
 	  <desc>Toggle frame buffer support. At the moment just for reflection the frame buffer is used.</desc>
     </use_frame_buffer>
     <use_clipboard>
-      <name>Use clipboard for pasting</name>
+      <name>Use Clipboard For Pasting</name>
 	  <desc>Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)</desc>
     </use_clipboard>
     <use_compiled_vertex_array>
