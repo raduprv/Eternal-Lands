@@ -37,7 +37,7 @@ struct Counter {
 };
 
 static struct Counter *counters[NUM_COUNTERS];
-static int initialized = 0;
+static int counters_initialized = 0;
 static int selected_counter_id = KILLS;
 static int last_selected_counter_id = KILLS;
 static int sort_counter_id = KILLS;
@@ -179,10 +179,12 @@ void load_counters()
 	Uint32 io_n_total;
 	char io_name[64];
 	
-	if (initialized) {
+	if (counters_initialized) {
+		/*
+		 * save eny existing counters before reloading
+		 * this will take place when relogging after disconnection
+		 */
 		flush_counters();
-	} else {
-		initialized = 1;
 	}
 	
 	for (i = 0; i < NUM_COUNTERS; i++) {
@@ -218,6 +220,8 @@ void load_counters()
 	}
 
 	fclose(f);
+
+	counters_initialized = 1;
 }
 
 void flush_counters()
@@ -227,6 +231,10 @@ void flush_counters()
 	Uint8 io_counter_id;
 	Uint8 io_name_len;
 	
+	if (!counters_initialized) {
+		return;
+	}
+
 	if (!(f = open_counters_file("wb"))) {
 		return;
 	}
@@ -264,6 +272,7 @@ void cleanup_counters()
 	}
 
 	harvesting = 0;
+	counters_initialized = 0;
 }
 
 void increment_counter(int counter_id, char *name, int quantity, int extra)
