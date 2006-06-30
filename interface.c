@@ -719,11 +719,6 @@ void draw_game_map (int map, int mouse_mini)
 			draw_string_zoomed(screen_x, screen_y, label_cursor_coords, 1, 0.3);
 		}
 
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
 	}
 
 	//if we're following a path, draw the destination on the map
@@ -736,8 +731,8 @@ void draw_game_map (int map, int mouse_mini)
 		{
 			if (cur_map!=-1)
 			{
-				screen_x = 300 - (50 + 200 * ( (x_size / 6 * px) + continent_maps[cur_map].x_start) / 512);
-				screen_y = 200 * ( (y_size / 6 * py) + continent_maps[cur_map].y_start) / 512;
+				screen_x = 300 - (50 + 200 * ( (px * x_size / 6) + continent_maps[cur_map].x_start) / 512);
+				screen_y = 200 * ( (py * y_size / 6) + continent_maps[cur_map].y_start) / 512;
 			}
 			else
 			{
@@ -746,8 +741,8 @@ void draw_game_map (int map, int mouse_mini)
 		} 
 		else
 		{
-			screen_x = 300 - ( 50 + 200 * px / (tile_map_size_x * 6) );
-			screen_y = 200 * py / (tile_map_size_y * 6);
+			screen_x=51 +200*px/(tile_map_size_x*6);
+			screen_y=201-200*py/(tile_map_size_y*6);
 		}
 
 		glColor3f(1.0f,0.0f,0.0f);
@@ -778,18 +773,18 @@ void draw_game_map (int map, int mouse_mini)
 	{
 		if (cur_map != -1)
 		{
-			screen_x = 300 - (50 + 200 * ( (x_size / 6 * x) + continent_maps[cur_map].x_start) / 512);
-			screen_y = 200 * ( (y_size / 6 * y) + continent_maps[cur_map].y_start) / 512;
-		} 
-		else 
+			screen_x = 300 - (50 + 200 * ( (x * x_size / 6) + continent_maps[cur_map].x_start) / 512);
+			screen_y = 200 * ( (y * y_size / 6) + continent_maps[cur_map].y_start) / 512;
+		}
+		else
 		{
 			screen_x = screen_y = 0;
 		}
 	} 
 	else 
 	{
-		screen_x = 300 - ( 50 + 200 * x / (tile_map_size_x * 6) );
-		screen_y = 200 * y / (tile_map_size_y * 6);
+		screen_x=51 +200*x/(tile_map_size_x*6);
+		screen_y=201-200*y/(tile_map_size_y*6);
 	}
 	
 	if ( (map || !dungeon) && x != -1 )
@@ -806,7 +801,13 @@ void draw_game_map (int map, int mouse_mini)
 
 		glEnd();
 	}
-	
+
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
 	glEnable (GL_TEXTURE_2D);
 	glColor3f (1.0f, 1.0f, 1.0f);
 
