@@ -951,7 +951,11 @@ void save_markings()
       int i;
 
 #ifndef WINDOWS
+#ifdef OSX  //this might be applicable for linux too, but have not tested to be sure
+      snprintf (marks_file, sizeof(marks_file), "%s/%s.txt", configdir, strrchr (map_file_name,'/') + 1);	
+#else
       snprintf (marks_file, sizeof(marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
+#endif //OSX
 #else
       snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
 #endif
