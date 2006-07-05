@@ -1097,8 +1097,13 @@ void stream_music(ALuint buffer)
 
     while(size < MUSIC_BUFFER_SIZE)
     {
+#ifndef EL_BIG_ENDIAN
         result = ov_read(&ogg_stream, data + size, MUSIC_BUFFER_SIZE - size, 0, 2, 1,
 						 &section);
+#else
+        result = ov_read(&ogg_stream, data + size, MUSIC_BUFFER_SIZE - size, 1, 2, 1,
+						 &section);
+#endif
 		snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
         if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
 		{
