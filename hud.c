@@ -977,22 +977,22 @@ int	display_misc_handler(window_info *win)
 			draw_side_stats_bar(x_bar,y_bar,your_info.alchemy_skill.base,your_info.alchemy_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//MAGIC
-			draw_side_stats_bar(x_bar,y_bar,your_info.magic_skill.base,your_info.magic_exp, your_info.harvesting_exp_next_lev);
+			draw_side_stats_bar(x_bar,y_bar,your_info.magic_skill.base,your_info.magic_exp, your_info.magic_exp_next_lev);
 			y_bar+=15;
 			//POTS
-			draw_side_stats_bar(x_bar,y_bar,your_info.potion_skill.base,your_info.potion_exp, your_info.harvesting_exp_next_lev);
+			draw_side_stats_bar(x_bar,y_bar,your_info.potion_skill.base,your_info.potion_exp, your_info.potion_exp_next_lev);
 			y_bar+=15;
 			//SUMMONING
-			draw_side_stats_bar(x_bar,y_bar,your_info.summoning_skill.base,your_info.summoning_exp, your_info.harvesting_exp_next_lev);
+			draw_side_stats_bar(x_bar,y_bar,your_info.summoning_skill.base,your_info.summoning_exp, your_info.summoning_exp_next_lev);
 			y_bar+=15;
 			//MANU
-			draw_side_stats_bar(x_bar,y_bar,your_info.manufacturing_skill.base,your_info.manufacturing_exp, your_info.harvesting_exp_next_lev);
+			draw_side_stats_bar(x_bar,y_bar,your_info.manufacturing_skill.base,your_info.manufacturing_exp, your_info.manufacturing_exp_next_lev);
 			y_bar+=15;
 			//CRAFT
-			draw_side_stats_bar(x_bar,y_bar,your_info.crafting_skill.base,your_info.crafting_exp, your_info.harvesting_exp_next_lev);
+			draw_side_stats_bar(x_bar,y_bar,your_info.crafting_skill.base,your_info.crafting_exp, your_info.crafting_exp_next_lev);
 			y_bar+=15;
 			//OVERALL
-			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp, your_info.harvesting_exp_next_lev);
+			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp, your_info.overall_exp_next_lev);
 			y_bar+=15;
 
 			stat=0;	//reset the stat counter
