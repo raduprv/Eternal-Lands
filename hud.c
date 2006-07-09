@@ -974,7 +974,7 @@ int	display_misc_handler(window_info *win)
 			draw_side_stats_bar(x_bar,y_bar,your_info.harvesting_skill.base,your_info.harvesting_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//ALCH
-			draw_side_stats_bar(x_bar,y_bar,your_info.alchemy_skill.base,your_info.alchemy_exp, your_info.harvesting_exp_next_lev);
+			draw_side_stats_bar(x_bar,y_bar,your_info.alchemy_skill.base,your_info.alchemy_exp, your_info.alchemy_exp_next_lev);
 			y_bar+=15;
 			//MAGIC
 			draw_side_stats_bar(x_bar,y_bar,your_info.magic_skill.base,your_info.magic_exp, your_info.magic_exp_next_lev);
