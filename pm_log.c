@@ -144,16 +144,18 @@ void add_message_to_pm_log (char *message, int len, Uint8 channel)
 	char last_msg_from[32];
 	int last_msg_len;
 	int z;
-	char mymsg[512], *msg_pointer;
+	char mymsg[512]; //, *msg_pointer;
 
 	strcpy(mymsg, message);
 	if (channel == CHAT_LOCAL) {
+        char *msg_pointer;
+        
 		msg_pointer = strstr(mymsg, " ") - 1;
 		*msg_pointer = 0;
 		strncpy(last_msg_from, mymsg, sizeof(last_msg_from));
 		strncpy(mymsg, msg_pointer+2, sizeof(mymsg));
 	} else {
-		*mymsg = message;
+		//*mymsg = message;
 		strncpy(last_msg_from, last_pm_from, sizeof(last_msg_from));
 	}
 	last_msg_len = strlen(last_msg_from);
