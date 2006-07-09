@@ -17,14 +17,6 @@ map_sector sectors[256*256];
 int num_sectors=256*256;
 Uint16 active_sector;
 int current_sector;
-#else
-BBOX_TREE* main_bbox_tree = NULL;
-BBOX_ITEMS* main_bbox_tree_items = NULL;
-
-#define INVALID -1
-#define GROUND 0
-#define PLANT 1
-#define FENCE 2
 #endif
 
 

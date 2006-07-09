@@ -505,11 +505,12 @@ int load_map (const char * file_name)
 	
 	fclose(f);
 	update_loading_win(bld_sectors_str, 20);
-	sector_add_map();
 #ifdef	NEW_FRUSTUM
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
 	free_bbox_items(main_bbox_tree_items);
 	main_bbox_tree_items = NULL;
+#else
+	sector_add_map();
 #endif
 	update_loading_win(init_done_str, 20);
 #ifdef EXTRA_DEBUG

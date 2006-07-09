@@ -4,13 +4,19 @@
 #else
 #include "global.h"
 #endif
+
 #ifdef OSX
 #include <sys/malloc.h>
 #else
 #ifndef	BSD
+#ifndef alloca         // newer versions of SDL have their own alloca!
 #include <malloc.h>
-#endif
-#endif
+#endif   //alloca
+#endif   //BSD
+#endif   //OSX
+
+BBOX_TREE* main_bbox_tree = NULL;
+BBOX_ITEMS* main_bbox_tree_items = NULL;
 
 static const MD5_DIGEST ZERO_MD5 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 
