@@ -11,9 +11,11 @@
 #if defined (OSX) || defined (OSX86)
 #include <sys/malloc.h>
 #else
+#ifndef alloca         // newer versions of SDL have their own alloca!
 #include <malloc.h>
-#endif
-#endif
+#endif   //alloca
+#endif   //OSX
+#endif   //BSD
 #include "books.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
