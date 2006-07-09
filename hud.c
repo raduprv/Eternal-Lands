@@ -750,18 +750,19 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	unsigned char	buf[32];
 
 	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	//draw the colored section
-	glColor3f(r2, g2, b2);
-	glVertex3i(x, y+8, 0);
-	glColor3f(r, g, b);
-	glVertex3i(x, y, 0);
-	glColor3f(r, g, b);
-	glVertex3i(x+len, y, 0);
-	glColor3f(r2, g2, b2);
-	glVertex3i(x+len, y+8, 0);
-	glEnd();
-
+	if(len >= 0){
+		glBegin(GL_QUADS);
+		//draw the colored section
+ 		glColor3f(r2, g2, b2);
+		glVertex3i(x, y+8, 0);
+		glColor3f(r, g, b);
+		glVertex3i(x, y, 0);
+		glColor3f(r, g, b);
+		glVertex3i(x+len, y, 0);
+		glColor3f(r2, g2, b2);
+		glVertex3i(x+len, y+8, 0);
+		glEnd();
+	}
 	// draw the bar frame
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glBegin(GL_LINE_LOOP);
@@ -771,29 +772,31 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	glVertex3i(x, y+8, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-
+	
 	// handle the text
 	snprintf(buf, sizeof(buf), "%d", val);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	draw_string_small(x-(1+8*strlen(buf)), y-3, buf, 1);
 }
 
-void draw_side_stats_bar(const int x, const int y, const int baselev, const int cur_exp)
+void draw_side_stats_bar(const int x, const int y, const int baselev, const int cur_exp, const int nl_exp)
 {
-	int len = 58-58.0f/(float)((float)(exp_lev[baselev+1]-exp_lev[baselev])/(float)(exp_lev[baselev+1]-cur_exp));
+	int len = 58-58.0f/(float)((float)(nl_exp-exp_lev[baselev])/(float)(nl_exp-cur_exp));
 
 	glDisable(GL_TEXTURE_2D);
-	glBegin(GL_QUADS);
-	//draw the colored section
-	glColor3f(0.11f, 0.11f, 0.11f);	
-	glVertex3i(x, y+13, 0);
-	glColor3f(0.3f, 0.5f, 0.2f);
-	glVertex3i(x, y, 0);
-	glColor3f(0.3f, 0.5f, 0.2f);	
-	glVertex3i(x+len, y, 0);
-	glColor3f(0.11f, 0.11f, 0.11f);	
-	glVertex3i(x+len, y+13, 0);
-	glEnd();
+	if(len >= 0){
+		glBegin(GL_QUADS);
+		//draw the colored section
+		glColor3f(0.11f, 0.11f, 0.11f);	
+		glVertex3i(x, y+13, 0);
+		glColor3f(0.3f, 0.5f, 0.2f);
+		glVertex3i(x, y, 0);
+		glColor3f(0.3f, 0.5f, 0.2f);	
+		glVertex3i(x+len, y, 0);
+		glColor3f(0.11f, 0.11f, 0.11f);	
+		glVertex3i(x+len, y+13, 0);
+		glEnd();
+	}
 	
 	// draw the bar frame
 	glColor3f(0.77f, 0.57f, 0.39f);
@@ -962,34 +965,34 @@ int	display_misc_handler(window_info *win)
 			int x_bar=x-2;
 		
 			//ATTACK
-			draw_side_stats_bar(x_bar,y_bar,your_info.attack_skill.base,your_info.attack_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.attack_skill.base,your_info.attack_exp, your_info.attack_exp_next_lev);
 			y_bar+=15;
 			//DEFENSE
-			draw_side_stats_bar(x_bar,y_bar,your_info.defense_skill.base,your_info.defense_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.defense_skill.base,your_info.defense_exp, your_info.defense_exp_next_lev);
 			y_bar+=15;
 			//HARVEST
-			draw_side_stats_bar(x_bar,y_bar,your_info.harvesting_skill.base,your_info.harvesting_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.harvesting_skill.base,your_info.harvesting_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//ALCH
-			draw_side_stats_bar(x_bar,y_bar,your_info.alchemy_skill.base,your_info.alchemy_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.alchemy_skill.base,your_info.alchemy_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//MAGIC
-			draw_side_stats_bar(x_bar,y_bar,your_info.magic_skill.base,your_info.magic_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.magic_skill.base,your_info.magic_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//POTS
-			draw_side_stats_bar(x_bar,y_bar,your_info.potion_skill.base,your_info.potion_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.potion_skill.base,your_info.potion_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//SUMMONING
-			draw_side_stats_bar(x_bar,y_bar,your_info.summoning_skill.base,your_info.summoning_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.summoning_skill.base,your_info.summoning_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//MANU
-			draw_side_stats_bar(x_bar,y_bar,your_info.manufacturing_skill.base,your_info.manufacturing_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.manufacturing_skill.base,your_info.manufacturing_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//CRAFT
-			draw_side_stats_bar(x_bar,y_bar,your_info.crafting_skill.base,your_info.crafting_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.crafting_skill.base,your_info.crafting_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 			//OVERALL
-			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp);
+			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp, your_info.harvesting_exp_next_lev);
 			y_bar+=15;
 
 			stat=0;	//reset the stat counter
@@ -1578,75 +1581,85 @@ void draw_exp_display()
 	switch(watch_this_stat){
 	case 1: // attack
 		cur_exp = your_info.attack_exp;
+		nl_exp = your_info.attack_exp_next_lev;
 		baselev = your_info.attack_skill.base;
 		name = attributes.attack_skill.name;
 		break;
 	case 2: // defense
 		cur_exp = your_info.defense_exp;
+		nl_exp = your_info.defense_exp_next_lev;
 		baselev = your_info.defense_skill.base;
 		name = attributes.defense_skill.name;
 		break;
 	case 3: // harvest
 		cur_exp = your_info.harvesting_exp;
+		nl_exp = your_info.harvesting_exp_next_lev;
 		baselev = your_info.harvesting_skill.base;
 		name = attributes.harvesting_skill.name;
 		break;
 	case 4: // alchemy
 		cur_exp = your_info.alchemy_exp;
+		nl_exp = your_info.alchemy_exp_next_lev;
 		baselev = your_info.alchemy_skill.base;
 		name = attributes.alchemy_skill.name;
 		break;
 	case 5: // magic
 		cur_exp = your_info.magic_exp;
+		nl_exp = your_info.magic_exp_next_lev;
 		baselev = your_info.magic_skill.base;
 		name = attributes.magic_skill.name;
 		break;
 	case 6: // potion
 		cur_exp = your_info.potion_exp;
+		nl_exp = your_info.potion_exp_next_lev;
 		baselev = your_info.potion_skill.base;
 		name = attributes.potion_skill.name;
 		break;
 	case 7: // summoning
 		cur_exp = your_info.summoning_exp;
+		nl_exp = your_info.summoning_exp_next_lev;
 		baselev = your_info.summoning_skill.base;
 		name = attributes.summoning_skill.name;
 		break;
 	case 8: // manufacture
 		cur_exp = your_info.manufacturing_exp;
+		nl_exp = your_info.manufacturing_exp_next_lev;
 		baselev = your_info.manufacturing_skill.base;
 		name = attributes.manufacturing_skill.name;
 		break;
 	case 9: // crafting
 		cur_exp = your_info.crafting_exp;
+		nl_exp = your_info.crafting_exp_next_lev;
 		baselev = your_info.crafting_skill.base;
 		name = attributes.crafting_skill.name;
 		break;
 	case 10: // overall
 	default:
 		cur_exp = your_info.overall_exp;
+		nl_exp = your_info.overall_exp_next_lev;
 		baselev = your_info.overall_skill.base;
 		name = attributes.overall_skill.name;
 	}
 
 	if(!baselev)
-		prev_exp=0;
+		prev_exp= 0;
 	else
-		prev_exp=exp_lev[baselev];
+		prev_exp= exp_lev[baselev];
 
-	nl_exp=exp_lev[baselev+1];
-	delta_exp=nl_exp-prev_exp;
+	//nl_exp= exp_lev[baselev+1];
+	delta_exp= nl_exp-prev_exp;
 
-	if(!cur_exp || !nl_exp)
-		exp_adjusted_x_len = 0;
+	if(!cur_exp || !nl_exp || delta_exp <=0)
+		exp_adjusted_x_len= 0;
 	else
-		//exp_bar_length = (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
-		exp_adjusted_x_len = 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
+		//exp_bar_length= (int)( (((float)cur_exp - prev_exp) / ((float)nl_exp - prev_exp)) * 100.0);
+		exp_adjusted_x_len= 100-100.0f/(float)((float)delta_exp/(float)(nl_exp-cur_exp));
 
 	// only display if you are below the exp needed, don't allow negative bars
-	if(exp_adjusted_x_len >= 0){
+	//if(exp_adjusted_x_len >= 0){
 		draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
 		draw_string_small(exp_bar_start_x, exp_bar_start_y+10, name, 1);
-	}
+	//}
 }
 
 /*Change flags*/
