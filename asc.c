@@ -466,6 +466,23 @@ void get_string_value (char *buf, size_t maxlen, xmlNode *node) {
 		my_strncp (buf, node->children->content, maxlen);
 }
 
+void get_item_string_value (char *buf, size_t maxlen, xmlNode *item, const char *name) {
+	xmlNode	*node;
+	
+	// look for this entry in the children
+	for(node=item->children; node; node=node->next){
+		if(node->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp(node->name, name) == 0){
+				if (node->children == NULL)
+					buf[0] = '\0';
+				else
+					my_strncp (buf, node->children->content, maxlen);
+				return;
+			}
+		}
+	}
+}
+
 int get_bool_value (xmlNode *node) {
 	Uint8 *tval;
 	if (node->children == NULL) return 0;
@@ -515,6 +532,9 @@ char *get_string_property (xmlNode *node, const char *prop) {
 		}
 	}
 
+#ifdef	DEBUG
+	// don't normally report this, or optional properties will report errors
 	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
+#endif	//DEBUG
 	return "";
 }

@@ -1268,34 +1268,84 @@ void    actor_check_int(actor_types *act, const char *section, const char *type,
 	}
 }
 
-int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
+xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults) {
+	xmlNode	*item;
+	char	*group;
+	
+	// first, check for errors
+	if(defaults == NULL || cfg == NULL){
+        return NULL;
+	}
+	
+	//lets find out what group to look for
+	group= get_string_property(cfg, "group");
+	
+	// look for defaul entries with the same name
+	for(item=defaults->children; item; item=item->next){
+		if(item->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp(item->name, cfg->name) == 0){
+				char	*item_group;
+			
+				item_group= get_string_property(item, "group");
+				// either both have no group, or both groups match
+				if(xmlStrcasecmp(item_group, group) == 0){
+					// this is the default entry we want then!
+					return item;
+				}
+			}
+		}
+	}
+	
+	// if we got here, there is no default node that matches
+	return NULL;
+}
+
+int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *item;
 	int ok, col_idx;
 	shirt_part *shirt;
 
-	if (cfg == NULL || cfg->children == NULL) return 0;
+	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	col_idx = get_property (cfg, "color", "shirt color", shirt_color_dict);
-	if (col_idx < 0) return 0;
+	col_idx= get_property(cfg, "color", "shirt color", shirt_color_dict);
+	if(col_idx < 0) return 0;
 
-	shirt = &(act->shirt[col_idx]);
-	ok = 1;
-	for (item = cfg->children; item; item = item->next) {
-		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "arms") == 0) {
-				get_string_value (shirt->arms_name, sizeof (shirt->arms_name), item);
-			} else if (xmlStrcasecmp (item->name, "mesh") == 0) {
-				get_string_value (shirt->model_name, sizeof (shirt->model_name), item);
-				shirt->mesh_index = cal_load_mesh (act, shirt->model_name, "shirt");
-			} else if (xmlStrcasecmp (item->name, "torso") == 0) {
-				get_string_value (shirt->torso_name, sizeof (shirt->torso_name), item);
+	shirt= &(act->shirt[col_idx]);
+	ok= 1;
+	for(item=cfg->children; item; item=item->next) {
+		if(item->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp (item->name, "arms") == 0) {
+				get_string_value(shirt->arms_name, sizeof(shirt->arms_name), item);
+			} else if(xmlStrcasecmp(item->name, "mesh") == 0) {
+				get_string_value(shirt->model_name, sizeof(shirt->model_name), item);
+				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
+			} else if(xmlStrcasecmp(item->name, "torso") == 0) {
+				get_string_value(shirt->torso_name, sizeof(shirt->torso_name), item);
 			} else {
 				LOG_ERROR("unknown shirt property \"%s\"", item->name);
-				ok = 0;
+				ok= 0;
 			}
 		}
 	}
 
+#ifdef	USE_ACTOR_DEFAULTS
+	// check for default entries, if found, use them to fill in missing data
+	if(defaults){
+		xmlNode *default_node= get_default_node(cfg, defaults);
+		
+		if(default_node){
+			if(shirt->arms_name==NULL || *shirt->arms_name=='\0')
+				get_item_string_value(shirt->arms_name, sizeof(shirt->arms_name), default_node, "arms");
+			if(shirt->model_name==NULL || *shirt->model_name=='\0'){
+				get_item_string_value(shirt->model_name, sizeof(shirt->model_name), default_node, "mesh");
+				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
+			}
+			if(shirt->torso_name==NULL || *shirt->torso_name=='\0')
+				get_item_string_value(shirt->torso_name, sizeof(shirt->torso_name), default_node, "torso");
+		}
+	}
+#endif	//USE_ACTOR_DEFAULTS
+	
 	// check the critical information
 	actor_check_string(act, "shirt", "arms", shirt->arms_name);
 	actor_check_string(act, "shirt", "model", shirt->model_name);
@@ -1305,7 +1355,7 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg) {
 	return ok;
 }
 
-int parse_actor_skin (actor_types *act, xmlNode *cfg) {
+int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *item;
 	int ok, col_idx;
 	skin_part *skin;
@@ -1330,6 +1380,20 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 		}
 	}
 
+#ifdef	USE_ACTOR_DEFAULTS
+	// check for default entries, if found, use them to fill in missing data
+	if(defaults){
+		xmlNode *default_node= get_default_node(cfg, defaults);
+		
+		if(default_node){
+			if(skin->hands_name==NULL || *skin->hands_name=='\0')
+				get_item_string_value(skin->hands_name, sizeof(skin->hands_name), default_node, "hands");
+			if(skin->head_name==NULL || *skin->head_name=='\0')
+				get_item_string_value(skin->head_name, sizeof(skin->head_name), default_node, "head");
+		}
+	}
+#endif	//USE_ACTOR_DEFAULTS
+	
 	// check the critical information
 	actor_check_string(act, "skin", "hands", skin->hands_name);
 	actor_check_string(act, "skin", "head", skin->head_name);
@@ -1337,7 +1401,7 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg) {
 	return ok;
 }
 
-int parse_actor_legs (actor_types *act, xmlNode *cfg) {
+int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *item;
 	int ok, col_idx;
 	legs_part *legs;
@@ -1367,6 +1431,22 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 		}
 	}
 
+#ifdef	USE_ACTOR_DEFAULTS
+	// check for default entries, if found, use them to fill in missing data
+	if(defaults){
+		xmlNode *default_node= get_default_node(cfg, defaults);
+		
+		if(default_node){
+			if(legs->legs_name==NULL || *legs->legs_name=='\0')
+				get_item_string_value(legs->legs_name, sizeof(legs->legs_name), default_node, "skin");
+			if(legs->model_name==NULL || *legs->model_name=='\0'){
+				get_item_string_value(legs->model_name, sizeof(legs->model_name), default_node, "mesh");
+				legs->mesh_index= cal_load_mesh(act, legs->model_name, "legs");
+			}
+		}
+	}
+#endif	//USE_ACTOR_DEFAULTS
+
 	// check the critical information
 	actor_check_string(act, "legs", "skin", legs->legs_name);
 	actor_check_string(act, "legs", "model", legs->model_name);
@@ -1375,7 +1455,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg) {
 	return ok;
 }
 
-int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
+int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *item;
 	char str[255];
 	int ok, type_idx;
@@ -1446,6 +1526,25 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 		}
 	}
 
+#ifdef	USE_ACTOR_DEFAULTS
+	// check for default entries, if found, use them to fill in missing data
+	if(defaults){
+		xmlNode *default_node= get_default_node(cfg, defaults);
+		
+		if(default_node){
+			if(weapon->skin_name==NULL || *weapon->skin_name=='\0')
+				get_item_string_value(weapon->skin_name, sizeof(weapon->skin_name), default_node, "skin");
+			if(type_idx!=GLOVE_FUR && type_idx!=GLOVE_LEATHER){ // these dont have meshes
+				if(weapon->model_name==NULL || *weapon->model_name=='\0'){
+					get_item_string_value(weapon->model_name, sizeof(weapon->model_name), default_node, "mesh");
+					weapon->mesh_index= cal_load_weapon_mesh(act, weapon->model_name, "weapon");
+				}
+			}
+			// TODO: combat animations
+		}
+	}
+#endif	//USE_ACTOR_DEFAULTS
+
 	// check the critical information
 	if(type_idx!=WEAPON_NONE){   // no weapon doesn't have a skin/model
 		actor_check_string(act, "weapon", "skin", weapon->skin_name);
@@ -1453,38 +1552,55 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg) {
 			actor_check_string(act, "weapon", "model", weapon->model_name);
 			actor_check_int(act, "weapon.mesh", weapon->model_name, weapon->mesh_index);
 		}
+		// TODO: check combat animations
 	}
-	// TODO: check combat animations
 
 	return ok;
 }
 
-int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, const char *part_name) {
+int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, const char *part_name, xmlNode *default_node) {
 	xmlNode *item;
 	int ok = 1;
 
-	if (cfg == NULL) return 0;
+	if(cfg == NULL) return 0;
 
-	for (item = cfg; item; item = item->next) {
-		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "mesh") == 0) {
+	for(item=cfg; item; item=item->next) {
+		if(item->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp(item->name, "mesh") == 0) {
 				get_string_value (part->model_name, sizeof (part->model_name), item);
-				if (strcmp("shield",part_name)==0)
+				if(strcmp("shield",part_name)==0)
 					part->mesh_index = cal_load_weapon_mesh (act, part->model_name, part_name);
 				else
 					part->mesh_index = cal_load_mesh (act, part->model_name, part_name);
-			} else if (xmlStrcasecmp (item->name, "skin") == 0) {
+			} else if(xmlStrcasecmp(item->name, "skin") == 0) {
 				get_string_value (part->skin_name, sizeof (part->skin_name), item);
-			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
-				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
-				if (mode < 0) mode = GLOW_NONE;
-				part->glow = mode;
+			} else if(xmlStrcasecmp(item->name, "glow") == 0) {
+				int mode= find_description_index (glow_mode_dict, item->children->content, "glow mode");
+				if(mode < 0) mode = GLOW_NONE;
+				part->glow= mode;
 			} else {
 				LOG_ERROR("unknown %s property \"%s\"", part_name, item->name);
 				ok = 0;
 			}
 		}
 	}
+
+#ifdef	USE_ACTOR_DEFAULTS
+	// check for default entries, if found, use them to fill in missing data
+	if(default_node){
+		if(part->skin_name==NULL || *part->skin_name=='\0')
+			if(strcmp(part_name, "head")){ // heads don't have seperate skins here
+				get_item_string_value(part->skin_name, sizeof(part->skin_name), default_node, "skin");
+			}
+		if(part->model_name==NULL || *part->model_name=='\0'){
+			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, "mesh");
+			if(strcmp("shield",part_name)==0)
+				part->mesh_index= cal_load_weapon_mesh(act, part->model_name, part_name);
+			else
+				part->mesh_index= cal_load_mesh(act, part->model_name, part_name);
+		}
+	}
+#endif	//USE_ACTOR_DEFAULTS
 
 	// check the critical information
 	if(strcmp(part_name, "head")){ // heads don't have seperate skins here
@@ -1496,71 +1612,75 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	return ok;
 }
 
-int parse_actor_helmet (actor_types *act, xmlNode *cfg) {
+int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *helmet;
 
-	if (cfg == NULL || cfg->children == NULL) return 0;
+	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx = get_property (cfg, "type", "helmet type", helmet_type_dict);
-	if (type_idx < 0) return 0;
+	type_idx= get_property(cfg, "type", "helmet type", helmet_type_dict);
+	if(type_idx < 0) return 0;
 
-	helmet = &(act->helmet[type_idx]);
-	return parse_actor_body_part (act,helmet, cfg->children, "helmet");
+	helmet= &(act->helmet[type_idx]);
+	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
 }
 
-int parse_actor_cape (actor_types *act, xmlNode *cfg) {
+int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *cape;
 
-	if (cfg == NULL || cfg->children == NULL) return 0;
+	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx = get_property (cfg, "color", "cape color", cape_color_dict);
-	if (type_idx < 0) return 0;
+	type_idx= get_property(cfg, "color", "cape color", cape_color_dict);
+	if(type_idx < 0) return 0;
 
-	cape = &(act->cape[type_idx]);
-	return parse_actor_body_part (act,cape, cfg->children, "cape");
+	cape= &(act->cape[type_idx]);
+	return parse_actor_body_part(act,cape, cfg->children, "cape", default_node);
 }
 
-int parse_actor_head (actor_types *act, xmlNode *cfg) {
+int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+	xmlNode *default_node= get_default_node(cfg, defaults);
 	int idx;
 	body_part *head;
 
-	if (cfg == NULL || cfg->children == NULL) return 0;
+	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	idx = get_property (cfg, "number", "head number", head_number_dict);
-	if (idx < 0) return 0;
+	idx= get_property(cfg, "number", "head number", head_number_dict);
+	if(idx < 0) return 0;
 
-	head = &(act->head[idx]);
-	return parse_actor_body_part (act, head, cfg->children, "head");
+	head= &(act->head[idx]);
+	return parse_actor_body_part(act, head, cfg->children, "head", default_node);
 }
 
-int parse_actor_shield (actor_types *act, xmlNode *cfg) {
+int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *shield;
 
-	if (cfg == NULL || cfg->children == NULL) return 0;
+	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx = get_property (cfg, "type", "shield type", shield_type_dict);
-	if (type_idx < 0) return 0;
+	type_idx= get_property(cfg, "type", "shield type", shield_type_dict);
+	if(type_idx < 0) return 0;
 
-	shield = &(act->shield[type_idx]);
-	return parse_actor_body_part (act,shield, cfg->children, "shield");
+	shield= &(act->shield[type_idx]);
+	return parse_actor_body_part(act,shield, cfg->children, "shield", default_node);
 }
 
-int parse_actor_hair (actor_types *act, xmlNode *cfg) {
+int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	int col_idx;
 	size_t len;
 	char *buf;
 
-	if (cfg == NULL || cfg->children == NULL) return 0;
+	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	col_idx = get_property (cfg, "color", "hair color", hair_color_dict);
-	if (col_idx < 0) return 0;
+	col_idx= get_property(cfg, "color", "hair color", hair_color_dict);
+	if(col_idx < 0) return 0;
 
-	buf = act->hair[col_idx].hair_name;
-	len = sizeof (act->hair[col_idx].hair_name);
-	get_string_value (buf, len, cfg);
+	buf= act->hair[col_idx].hair_name;
+	len= sizeof (act->hair[col_idx].hair_name);
+	get_string_value(buf, len, cfg);
 	return 1;
 }
 
@@ -1632,7 +1752,7 @@ void parse_idle_group(actor_types *act,char *str)
 	//LOG_TO_CONSOLE(c_green2,temp);
 }
 
-int parse_actor_frames (actor_types *act, xmlNode *cfg) {
+int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *item;
 	char str[255];
 	//char fname[255];
@@ -1901,7 +2021,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg) {
 	return ok;
 }
 
-int parse_actor_boots (actor_types *act, xmlNode *cfg) {
+int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *item;
 	int ok, col_idx;
 	boots_part *boots;
@@ -1928,6 +2048,18 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg) {
 		}
 	}
 
+#ifdef	USE_ACTOR_DEFAULTS
+	// check for default entries, if found, use them to fill in missing data
+	if(defaults){
+		xmlNode *default_node= get_default_node(cfg, defaults);
+		
+		if(default_node){
+			if(boots->boots_name==NULL || *boots->boots_name=='\0')
+				get_item_string_value(boots->boots_name, sizeof(boots->boots_name), default_node, "skin");
+		}
+	}
+#endif	//USE_ACTOR_DEFAULTS
+	
 	// check the critical information
 	actor_check_string(act, "boots", "boots", boots->boots_name);
 
@@ -2087,8 +2219,75 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	return res;
 }
 
+int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+	xmlNode	*item;
+	int	ok= 1;
+	
+	for(item=cfg->children; item; item=item->next) {
+		if(item->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp(item->name, "ghost") == 0) {
+				act->ghost= get_bool_value (item);
+			} else if(xmlStrcasecmp(item->name, "skin") == 0) {
+				get_string_value(act->skin_name, sizeof (act->skin_name), item);
+			} else if(xmlStrcasecmp(item->name, "mesh") == 0) {
+				get_string_value(act->file_name, sizeof (act->file_name), item);
+			} else if(xmlStrcasecmp(item->name, "scale")==0) {
+				act->scale= get_float_value(item);
+			} else if(xmlStrcasecmp(item->name, "mesh_scale")==0) {
+				act->mesh_scale= get_float_value(item);
+			} else if(xmlStrcasecmp(item->name, "bone_scale")==0) {
+				act->skel_scale= get_float_value(item);
+			} else if(xmlStrcasecmp(item->name, "skeleton")==0) {
+				get_string_value(act->skeleton_name, sizeof (act->skeleton_name), item);
+				act->coremodel= CalCoreModel_New("Model");
+				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
+					log_error("Cal3d error: %s: %s\n", act->skeleton_name, CalError_GetLastErrorDescription());
+				}
+			} else if(xmlStrcasecmp(item->name, "walk_speed") == 0) {
+				act->walk_speed= get_float_value(item);
+			} else if(xmlStrcasecmp(item->name, "run_speed") == 0) {
+				act->run_speed= get_float_value(item);
+
+			} else if(xmlStrcasecmp(item->name, "defaults") == 0) {
+				defaults= item;
+			} else if(xmlStrcasecmp(item->name, "frames") == 0) {
+				ok &= parse_actor_frames(act, item->children, defaults);
+			} else if(xmlStrcasecmp(item->name, "shirt") == 0) {
+				ok &= parse_actor_shirt(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "hskin") == 0) {
+				ok &= parse_actor_skin(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "hair") == 0) {
+				ok &= parse_actor_hair(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "boots") == 0) {
+				ok &= parse_actor_boots(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "legs") == 0) {
+				ok &= parse_actor_legs(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "cape") == 0) {
+				ok &= parse_actor_cape(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "head") == 0) {
+				ok &= parse_actor_head(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "shield") == 0) {
+				ok &= parse_actor_shield(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "weapon") == 0) {
+				ok &= parse_actor_weapon(act, item, defaults);
+			} else if(xmlStrcasecmp(item->name, "helmet") == 0) {
+				ok &= parse_actor_helmet(act, item, defaults);
+			} else {
+				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
+				ok= 0;
+			}
+#ifdef	USE_ACTOR_DEFAULTS
+		} else if (item->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_actor_nodes(act, item->children, defaults);
+#endif	//USE_ACTOR_DEFAULTS
+		}
+	}
+	return ok;
+}
+
 int parse_actor_script (xmlNode *cfg) {
 	xmlNode *item;
+	xmlNode *defaults= NULL;
 	int ok, act_idx,i;
 	actor_types *act;
 	struct CalCoreSkeleton *skel;
@@ -2110,7 +2309,6 @@ int parse_actor_script (xmlNode *cfg) {
 		log_error(str);
 		return 0;
 	}
-
 
 	act= &(actors_defs[act_idx]);
 	// watch for loading an actor more then once
@@ -2175,77 +2373,26 @@ int parse_actor_script (xmlNode *cfg) {
 	}
 
 	//Init head meshes
-	for (i = 0; i < ACTOR_HEAD_SIZE; i++)
-		act->head[i].mesh_index = -1;
+	for(i=0; i<ACTOR_HEAD_SIZE; i++)
+		act->head[i].mesh_index= -1;
 	//Init shield meshes
-	for (i = 0; i < ACTOR_SHIELD_SIZE; i++)
-		act->shield[i].mesh_index = -1;
+	for(i=0; i<ACTOR_SHIELD_SIZE; i++)
+		act->shield[i].mesh_index= -1;
 	//Init cape meshes
-	for (i = 0; i < ACTOR_CAPE_SIZE; i++)
-		act->cape[i].mesh_index = -1;
+	for(i=0; i<ACTOR_CAPE_SIZE; i++)
+		act->cape[i].mesh_index= -1;
 	//Init helmet meshes
-	for (i = 0; i < ACTOR_HELMET_SIZE; i++)
-		act->helmet[i].mesh_index = -1;
+	for(i=0; i<ACTOR_HELMET_SIZE; i++)
+		act->helmet[i].mesh_index= -1;
 	//Init torso meshes
-	for (i = 0; i < ACTOR_SHIRT_SIZE; i++)
-		act->shirt[i].mesh_index = -1;
+	for(i=0; i<ACTOR_SHIRT_SIZE; i++)
+		act->shirt[i].mesh_index= -1;
 	//Init legs meshes
-	for (i = 0; i < ACTOR_LEGS_SIZE; i++)
-		act->legs[i].mesh_index = -1;
+	for(i=0; i<ACTOR_LEGS_SIZE; i++)
+		act->legs[i].mesh_index= -1;
 
-	for (item = cfg->children; item; item = item->next) {
-		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "ghost") == 0) {
-				act->ghost = get_bool_value (item);
-			} else if (xmlStrcasecmp (item->name, "skin") == 0) {
-				get_string_value (act->skin_name, sizeof (act->skin_name), item);
-			} else if (xmlStrcasecmp (item->name, "mesh") == 0) {
-				get_string_value (act->file_name, sizeof (act->file_name), item);
-			} else if (xmlStrcasecmp (item->name, "scale")==0) {
-				act->scale=get_float_value(item);
-			} else if (xmlStrcasecmp (item->name, "mesh_scale")==0) {
-				act->mesh_scale=get_float_value(item);
-			} else if (xmlStrcasecmp (item->name, "bone_scale")==0) {
-				act->skel_scale=get_float_value(item);
-			} else if (xmlStrcasecmp (item->name, "skeleton")==0) {
-				get_string_value (act->skeleton_name, sizeof (act->skeleton_name), item);
-				act->coremodel=CalCoreModel_New("Model");
-				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
-					log_error("Cal3d error: %s: %s\n", act->skeleton_name, CalError_GetLastErrorDescription());
-				}
-			} else if (xmlStrcasecmp (item->name, "frames") == 0) {
-				ok &= parse_actor_frames (act, item->children);
-			} else if (xmlStrcasecmp (item->name, "shirt") == 0) {
-				ok &= parse_actor_shirt (act, item);
-			} else if (xmlStrcasecmp (item->name, "hskin") == 0) {
-				ok &= parse_actor_skin (act, item);
-			} else if (xmlStrcasecmp (item->name, "hair") == 0) {
-				ok &= parse_actor_hair (act, item);
-			} else if (xmlStrcasecmp (item->name, "boots") == 0) {
-				ok &= parse_actor_boots (act, item);
-			} else if (xmlStrcasecmp (item->name, "legs") == 0) {
-				ok &= parse_actor_legs (act, item);
-			} else if (xmlStrcasecmp (item->name, "cape") == 0) {
-				ok &= parse_actor_cape (act, item);
-			} else if (xmlStrcasecmp (item->name, "head") == 0) {
-				ok &= parse_actor_head (act, item);
-			} else if (xmlStrcasecmp (item->name, "shield") == 0) {
-				ok &= parse_actor_shield (act, item);
-			} else if (xmlStrcasecmp (item->name, "weapon") == 0) {
-				ok &= parse_actor_weapon (act, item);
-			} else if (xmlStrcasecmp (item->name, "helmet") == 0) {
-				ok &= parse_actor_helmet (act, item);
-			} else if (xmlStrcasecmp (item->name, "walk_speed") == 0) {
-				act->walk_speed = get_float_value (item);
-			} else if (xmlStrcasecmp (item->name, "run_speed") == 0) {
-				act->run_speed = get_float_value (item);
-			} else {
-				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
-				ok = 0;
-			}
-		}
-	}
-	
+	ok= parse_actor_nodes(act, cfg, NULL);
+		
 	// TODO: add error checking for missing actor information
 
 	//Actor def parsed, now setup the coremodel
@@ -2255,7 +2402,7 @@ int parse_actor_script (xmlNode *cfg) {
 		CalCoreSkeleton_Scale(skel,act->skel_scale);
 
 		// If this not an enhanced actor, load the single mesh and exit
-		if (strcmp (act->head[0].model_name, "") == 0)
+		if(strcmp (act->head[0].model_name, "") == 0)
 			act->shirt[0].mesh_index = cal_load_mesh (act, act->file_name, NULL); //save the single meshindex as torso
 	}
 
