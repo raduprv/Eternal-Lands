@@ -1307,8 +1307,14 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	col_idx= get_property(cfg, "color", "shirt color", shirt_color_dict);
-	if(col_idx < 0) return 0;
+	col_idx= get_int_property(cfg, "id");
+	if(col_idx < 0){
+		col_idx= get_property(cfg, "color", "shirt color", shirt_color_dict);
+	}
+	if(col_idx < 0 || col_idx >= ACTOR_SHIRT_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	shirt= &(act->shirt[col_idx]);
 	ok= 1;
@@ -1362,8 +1368,14 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
-	col_idx = get_property (cfg, "color", "skin color", skin_color_dict);
-	if (col_idx < 0) return 0;
+	col_idx= get_int_property(cfg, "id");
+	if(col_idx < 0){
+		col_idx= get_property(cfg, "color", "skin color", skin_color_dict);
+	}
+	if(col_idx < 0 || col_idx >= ACTOR_SKIN_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	skin = &(act->skin[col_idx]);
 	ok = 1;
@@ -1408,8 +1420,14 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
-	col_idx = get_property (cfg, "color", "legs color", legs_color_dict);
-	if (col_idx < 0) return 0;
+	col_idx= get_int_property(cfg, "id");
+	if(col_idx < 0){
+		col_idx= get_property(cfg, "color", "legs color", legs_color_dict);
+	}
+	if(col_idx < 0 || col_idx >= ACTOR_LEGS_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	legs = &(act->legs[col_idx]);
 	ok = 1;
@@ -1463,8 +1481,14 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx = get_property (cfg, "type", "weapon type", weapon_type_dict);
-	if (type_idx < 0) return 0;
+	type_idx= get_int_property(cfg, "id");
+	if(type_idx < 0){
+		type_idx= get_property(cfg, "type", "weapon type", weapon_type_dict);
+	}
+	if(type_idx < 0 || type_idx >= ACTOR_WEAPON_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	weapon = &(act->weapon[type_idx]);
 	ok = 1;
@@ -1619,8 +1643,14 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx= get_property(cfg, "type", "helmet type", helmet_type_dict);
-	if(type_idx < 0) return 0;
+	type_idx= get_int_property(cfg, "id");
+	if(type_idx < 0){
+		type_idx= get_property(cfg, "type", "helmet type", helmet_type_dict);
+	}
+	if(type_idx < 0 || type_idx >= ACTOR_HELMET_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	helmet= &(act->helmet[type_idx]);
 	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
@@ -1633,8 +1663,14 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx= get_property(cfg, "color", "cape color", cape_color_dict);
-	if(type_idx < 0) return 0;
+	type_idx= get_int_property(cfg, "id");
+	if(type_idx < 0){
+		type_idx= get_property(cfg, "color", "cape color", cape_color_dict);
+	}
+	if(type_idx < 0 || type_idx >= ACTOR_CAPE_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	cape= &(act->cape[type_idx]);
 	return parse_actor_body_part(act,cape, cfg->children, "cape", default_node);
@@ -1642,15 +1678,21 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *default_node= get_default_node(cfg, defaults);
-	int idx;
+	int type_idx;
 	body_part *head;
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	idx= get_property(cfg, "number", "head number", head_number_dict);
-	if(idx < 0) return 0;
+	type_idx= get_int_property(cfg, "id");
+	if(type_idx < 0){
+		type_idx= get_property(cfg, "number", "head number", head_number_dict);
+	}
+	if(type_idx < 0 || type_idx >= ACTOR_HEAD_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
-	head= &(act->head[idx]);
+	head= &(act->head[type_idx]);
 	return parse_actor_body_part(act, head, cfg->children, "head", default_node);
 }
 
@@ -1661,8 +1703,14 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx= get_property(cfg, "type", "shield type", shield_type_dict);
-	if(type_idx < 0) return 0;
+	type_idx= get_int_property(cfg, "id");
+	if(type_idx < 0){
+		type_idx= get_property(cfg, "type", "shield type", shield_type_dict);
+	}
+	if(type_idx < 0 || type_idx >= ACTOR_SHIELD_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	shield= &(act->shield[type_idx]);
 	return parse_actor_body_part(act,shield, cfg->children, "shield", default_node);
@@ -1675,8 +1723,14 @@ int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
-	col_idx= get_property(cfg, "color", "hair color", hair_color_dict);
-	if(col_idx < 0) return 0;
+	col_idx= get_int_property(cfg, "id");
+	if(col_idx < 0){
+		col_idx= get_property(cfg, "color", "hair color", hair_color_dict);
+	}
+	if(col_idx < 0 || col_idx >= ACTOR_HAIR_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	buf= act->hair[col_idx].hair_name;
 	len= sizeof (act->hair[col_idx].hair_name);
@@ -2028,8 +2082,14 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
-	col_idx = get_property (cfg, "color", "boots color", boots_color_dict);
-	if (col_idx < 0) return 0;
+	col_idx= get_int_property(cfg, "id");
+	if(col_idx < 0){
+		col_idx = get_property (cfg, "color", "boots color", boots_color_dict);
+	}
+	if(col_idx < 0 || col_idx >= ACTOR_BOOTS_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
 
 	boots = &(act->boots[col_idx]);
 	ok = 1;
