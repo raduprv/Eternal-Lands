@@ -239,7 +239,7 @@ void get_new_inventory_item (const Uint8 *data)
 	quantity=SDL_SwapLE32(*((Uint32 *)(data+2)));
 
 #ifdef COUNTERS
-	if (harvesting) {
+	if (harvesting && (quantity >= item_list[pos].quantity) ) {	//some harvests, eg hydrogenium and wolfram, also decrease an item number. only count what goes up
 		increment_harvest_counter(item_list[pos].quantity > 0 ? quantity - item_list[pos].quantity : quantity);
 	}
 #endif
