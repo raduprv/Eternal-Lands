@@ -121,54 +121,6 @@ FILE *open_counters_file(char *mode)
 	return my_fopen(filename, mode);
 }
 
-/*******************************************************************************
- * XXX: Delete this function.
- ******************************************************************************/
-void import_old_counters()
-{
-	char filename[256], username[16];
-	int i, j;
-	Uint8 io_name_len;
-	Uint8 io_is_player;
-	Uint32 io_n_total;
-	char io_name[32];
-	FILE *f;
-	
-	strncpy(username, username_str, sizeof(username));
-	for (i = 0; username[i]; i++) {
-		username[i] = tolower(username[i]);
-	}
-	
-#ifndef WINDOWS
-	snprintf(filename, sizeof(filename), "%s/kills_%s.dat", configdir, username);
-#else
-	snprintf(filename, sizeof(filename), "kills_%s.dat", username);
-#endif
-
-	if (!(f = my_fopen(filename, "rb"))) {
-		return;
-	}
-
-	i = KILLS - 1;
-
-	while (fread(&io_name_len, sizeof(io_name_len), 1, f) > 0) {
-		fread(io_name, io_name_len, 1, f);
-		io_name[io_name_len] = '\0';
-
-		fread(&io_is_player, sizeof(io_is_player), 1, f);
-		fread(&io_n_total, sizeof(io_n_total), 1, f);
-
-		j = entries[i]++;
-		counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
-		counters[i][j].name = strdup(io_name);
-		counters[i][j].n_session = 0;
-		counters[i][j].n_total = io_n_total;
-		counters[i][j].extra = io_is_player;
-	}
-
-	fclose(f);
-}
-
 void load_counters()
 {
 	FILE *f;
@@ -198,7 +150,7 @@ void load_counters()
 	}
 	
 	if (!(f = open_counters_file("rb"))) {
-		import_old_counters();
+		counters_initialized = 1;
 		return;
 	}
 
