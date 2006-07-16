@@ -292,12 +292,12 @@ int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 		xmlNewProp (node, BAD_CAST "NAME", BAD_CAST note[i]->name);
 		i++;
 	}
-	if (xmlSaveFormatFileEnc (file, doc, "UTF-8", 1) < 0)
+	if (xmlSaveFormatFileEnc (file, doc, "ISO-8859-1", 1) < 0)
 	{
 #ifndef WINDOWS
 		// error writing. try the data directory
 		snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
-		if (xmlSaveFormatFileEnc(file, doc, "UTF-8", 1) < 0)
+		if (xmlSaveFormatFileEnc(file, doc, "ISO-8859-1", 1) < 0)
 		{
 			LOG_ERROR(cant_save_notes, file);
 		}
