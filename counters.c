@@ -214,7 +214,7 @@ void cleanup_counters()
 
 	for (i = 0; i < NUM_COUNTERS; i++) {
 		if (counters[i]) {
-			for (j = 0; j < entries[i]; i++) {
+			for (j = 0; j < entries[i]; ++j) {
 				free(counters[i][j].name);
 			}
 			free(counters[i]);
