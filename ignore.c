@@ -141,7 +141,6 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 				name[i] = ch;
 			}
 			name[i] = '\0';
-			my_strcp (last_pm_from, name);
 			if(channel == CHAT_MODPM)
 			{
 				return 0;
@@ -242,7 +241,15 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 		}
 		name[i] = '\0';
 	}
-	return check_if_ignored (name);
+	if(!check_if_ignored (name)){
+		if(channel == CHAT_PERSONAL || channel == CHAT_MODPM){
+			//memorise the name
+			my_strcp (last_pm_from, name);
+		}
+		return 0;
+	}else{
+		return 1;
+	}
 }
 
 
