@@ -995,22 +995,25 @@ int load_font_textures ()
 	poor_man=0;
 	use_mipmaps=0;
 	
-#ifndef FONTS_FIX
 	fonts[0]->texture_id = load_texture_cache ("./textures/font.bmp", 0);
+#ifndef FONTS_FIX
 	fonts[1]->texture_id = load_texture_cache ("./textures/fontv.bmp", 0);
 	fonts[2]->texture_id = load_texture_cache ("./textures/font2.bmp", 0);
 	fonts[3]->texture_id = load_texture_cache ("./textures/font3.bmp", 0);
 #else
+	// Force the selection of the base font.
+	add_multi_option("chat_font", "Type 1");
+	add_multi_option("name_font", "Type 1");
 	// Find what font's exist and load them
 	dp = opendir ("./textures/");
 	if (dp == NULL) {
 		return 0;
 	}
-	i = 0;
+	i = 1;
 	while ((ep = readdir (dp)) && i < FONTS_ARRAY_SIZE) {
 		strcpy(file, "");
 		strcpy(file, ep->d_name);
-		if (!strncasecmp(file, "font", 4) && !strcasecmp(file+strlen(file) - 4, ".bmp") && strncasecmp(file+strlen(file) - 10, "_alpha", 6) && strlen(file) + 11 <= 60) {
+		if (!strncasecmp(file, "font", 4) && !strcasecmp(file+strlen(file) - 4, ".bmp") && strncasecmp(file+strlen(file) - 10, "_alpha", 6) && strlen(file) + 11 <= 60 && strlen(file) > 8) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
 			file[strlen(file) - 4] = 0;
 			snprintf(str, sizeof(str), "./textures/%s", file);
