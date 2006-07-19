@@ -2459,7 +2459,9 @@ int parse_actor_script (xmlNode *cfg) {
 	if (act->coremodel!=NULL)
 	{
 		skel=CalCoreModel_GetCoreSkeleton(act->coremodel);
-		CalCoreSkeleton_Scale(skel,act->skel_scale);
+		if(skel){
+			CalCoreSkeleton_Scale(skel,act->skel_scale);
+		}
 
 		// If this not an enhanced actor, load the single mesh and exit
 		if(strcmp (act->head[0].model_name, "") == 0)
