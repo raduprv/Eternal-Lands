@@ -20,6 +20,8 @@ extern int locked_to_console; /*!< indicates whether the console win is locked. 
 extern int nr_console_lines;
 extern int console_text_width;
 
+void clear_console ();
+
 /*!
  * \ingroup interface_console
  * \brief Signals the console window that the text buffer has changed

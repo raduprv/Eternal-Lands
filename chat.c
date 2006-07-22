@@ -180,6 +180,22 @@ int active_tab = -1;
 chan_name *tab_label (Uint8 chan);//Forward declaration
 
 
+void clear_chat_wins (void)
+{
+	int i = 0;
+	if(use_windowed_chat != 2){return;}
+
+	for (;i < MAX_CHAT_TABS; ++i){
+		channels[i].nr_lines = 0;
+	}
+
+	vscrollbar_set_bar_len (chat_win, chat_scroll_id, 0);
+	vscrollbar_set_pos (chat_win, chat_scroll_id, 0);
+	current_line = 0;
+	text_changed = 1;
+}
+
+
 void init_chat_channels(void)
 {
 	int itab;

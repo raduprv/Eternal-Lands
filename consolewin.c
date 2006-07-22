@@ -15,6 +15,13 @@ int console_text_width = -1;
 
 int locked_to_console = 0;
 
+void clear_console(){
+	console_text_changed = 1;
+	lines_to_show = 0;
+	not_from_the_end_console= 0;
+	scroll_up_lines = 0;
+}
+
 void update_console_win (text_message * msg)
 {
 	int nlines = rewrap_message(msg, chat_zoom, console_text_width, NULL);

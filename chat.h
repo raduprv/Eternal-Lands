@@ -81,6 +81,8 @@ extern int active_tab; /*!< active chat window tab */
 
 extern int chat_tabcollection_id;
 
+void clear_chat_wins (void);
+
 /*!
  * \brief   Highlights a channel in the channel selection tab
  *

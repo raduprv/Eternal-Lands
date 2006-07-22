@@ -939,30 +939,28 @@ void display_console_text ()
 
 void clear_display_text_buffer ()
 {
-	int imsg;
-
-	for (imsg=0; imsg<DISPLAY_TEXT_BUFFER_SIZE; imsg++)
-	{
-		if (display_text_buffer[imsg].data && display_text_buffer[imsg].data[0] && !display_text_buffer[imsg].deleted)
-		{
-			total_nr_lines-= display_text_buffer[imsg].wrap_lines;
-			display_text_buffer[imsg].deleted= 1;
-			display_text_buffer[imsg].data[0]= '\0';
-			update_text_windows(&display_text_buffer[imsg]);
+	int i;
+	for (i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; ++i){
+		if (display_text_buffer[i].data && display_text_buffer[i].data[0] &&
+				!display_text_buffer[i].deleted){
+			display_text_buffer[i].data[0]= '\0';
+			free(display_text_buffer[i].data);
 		}
-		display_text_buffer[imsg].len= 0;
+		display_text_buffer[i].deleted= 1;
+		display_text_buffer[i].len= 0;
 	}
 
-	last_message= -1;
 	buffer_full= 0;
-
 	console_msg_nr= 0;
 	console_msg_offset= 0;
-
+	last_message= -1;
 	last_server_message_time= cur_time;
-	lines_to_show= 0;
+	total_nr_lines= 0;
 
-	not_from_the_end_console= 0;
+	clear_console();
+	if(use_windowed_chat == 2){
+		clear_chat_wins();
+	}
 }
 
 int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
