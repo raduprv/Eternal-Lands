@@ -162,6 +162,11 @@ void load_counters()
 		fread(&io_extra, sizeof(io_extra), 1, f);
 		fread(&io_n_total, sizeof(io_n_total), 1, f);
 
+		if(strlen(io_name)<1 || strlen(io_name)>100){
+			//doesn't seem to have a real name, so we don't want it
+			continue;
+		}
+
 		i = io_counter_id - 1;
 		j = entries[i]++;
 		counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
@@ -231,6 +236,11 @@ void increment_counter(int counter_id, char *name, int quantity, int extra)
 {
 	int i, j;
 
+	if(name == 0 || strlen(name)<1 || strlen(name)>100){
+		//doesn't seem to have a real name, so no point saving it
+		return;
+	}
+
 	i = counter_id - 1;
 	
 	/* Look for an existing entry. */
@@ -249,7 +259,7 @@ void increment_counter(int counter_id, char *name, int quantity, int extra)
 	/* Create a new entry. */
 	j = entries[i]++;
 	counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
-	counters[i][j].name = name ? strdup(name) : NULL;
+	counters[i][j].name = strdup(name);
 	counters[i][j].n_session = quantity;
 	counters[i][j].n_total = quantity;
 	counters[i][j].extra = extra;
