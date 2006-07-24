@@ -108,7 +108,7 @@ const dict_elem shirt_color_dict[] =
 	  { "iron plate armor"    , SHIRT_IRON_PLATE_ARMOR     },
 	  { "steel plate armor"   , SHIRT_STEEL_PLATE_ARMOR    },
 	  { "titanium plate armor", SHIRT_TITANIUM_PLATE_ARMOR },
-	  { "undefined armor"     , SHIRT_ARMOR_6              },
+	  { "augmented leather"   , SHIRT_AUGMENTED_LEATHER_ARMOR },
 	  { "fur"                 , SHIRT_FUR                  },
 	  { NULL                  , -1                         }
 	};
@@ -148,6 +148,7 @@ const dict_elem boots_color_dict[] =
 	  { "steel greaves", BOOTS_STEEL_GREAVE },
 	  { "titanium greaves", BOOTS_TITANIUM_GREAVE },
 	  { "hydrogenium greaves", BOOTS_HYDROGENIUM_GREAVE },
+	  { "augmented leather", BOOTS_AUGMENTED_LEATHER_GREAVE },
 	  { NULL          , -1                }
 	};
 
@@ -166,6 +167,7 @@ const dict_elem legs_color_dict[] =
 	  { "steel cuisses"       , PANTS_STEEL_CUISSES        },
 	  { "titanium cuisses"     , PANTS_TITANIUM_CUISSES      },
 	  { "hydrogenium cuisses", PANTS_HYDROGENIUM_CUISSES },
+	  { "augmented leather", PANTS_AUGMENTED_LEATHER_CUISSES },
 	  { "fur"         , PANTS_FUR          },
 	  { NULL          , -1                 }
 	};

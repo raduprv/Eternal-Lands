@@ -203,7 +203,7 @@ typedef struct cal_anim_group
 #define ACTOR_SKIN_SIZE   5
 #define ACTOR_HAIR_SIZE   9
 #define ACTOR_BOOTS_SIZE  20
-#define ACTOR_LEGS_SIZE   16
+#define ACTOR_LEGS_SIZE   20
 
 typedef struct
 {
