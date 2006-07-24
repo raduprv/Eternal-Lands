@@ -118,7 +118,7 @@ Uint32 check_misc(Uint32 interval, void * data)
 	}
 
 	//AFK?
-	if(afk_time)
+	if(!disconnected && afk_time)
 	{
 		if(cur_time-last_action_time>afk_time) 
 		{
