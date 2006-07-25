@@ -948,6 +948,7 @@ void clear_display_text_buffer ()
 		}
 		display_text_buffer[i].deleted= 1;
 		display_text_buffer[i].len= 0;
+		display_text_buffer[i].data= 0;
 	}
 
 	buffer_full= 0;
