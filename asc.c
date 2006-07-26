@@ -128,22 +128,18 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 void my_strcp(Uint8 *dest,const Uint8 * source)
 {
 	while(*source)
-		{
-			*dest++=*source++;
-		}
+	{
+		*dest++=*source++;
+	}
 	*dest='\0';
 }
 
-void my_strncp (char *dest, const char *source, Uint32 len)
+void my_strncp (char *dest, const char *source, size_t len)
 {
-	if (len > 0)
-		{
-			while (*source != '\0' && --len > 0)
-			    {
-					*dest++ = *source++;
-				}
-		}
-	
+	while (*source != '\0' && --len > 0)
+	{
+		*dest++ = *source++;
+	}
 	*dest = '\0';
 }
 

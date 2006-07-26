@@ -84,7 +84,7 @@ void my_strcp(Uint8 *dest,const Uint8 * source);
  * \param	source The source char array
  * \param	len The number of bytes you wish to copy
  */
-void my_strncp (char *dest, const char *source, Uint32 len);
+void my_strncp (char *dest, const char *source, size_t len);
 
 /*!
  * \ingroup	misc_utils
