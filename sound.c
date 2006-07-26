@@ -1399,12 +1399,21 @@ void init_sound(char *sound_config_path)
 	}
 	
 	//initialise OpenAL
-	///NULL makes it use the default device.
-	///if you want to use a different device, use, for example: ((ALubyte*) "DirectSound3D")
+	//NULL makes it use the default device.
+	//to get a list of available devices, uncomment the following code, and read your error_log.txt
+	//for windows users, it'll most likely only list DirectSound3D
+	/*if ( alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) == AL_TRUE ){
+		LOG_ERROR("Available sound devices: %s", alcGetString( NULL, ALC_DEVICE_SPECIFIER));
+	}else{
+		LOG_ERROR("ALC_ENUMERATION_EXT not found");
+	}*/
+
+	//if you want to use a different device, use, for example:
+	//mSoundDevice = alcOpenDevice((ALubyte*) "DirectSound3D")
 	mSoundDevice = alcOpenDevice( NULL );
-	if((error=alGetError()) != AL_NO_ERROR || !mSoundDevice){
+	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundDevice){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1416,9 +1425,9 @@ void init_sound(char *sound_config_path)
 
 	sound_list_mutex=SDL_CreateMutex();
 
-	if((error=alGetError()) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
+	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1475,12 +1484,22 @@ void init_sound()
 #else
 	have_music=0;
 #endif	//NO_MUSIC
+
 	//NULL makes it use the default device.
-	//if you want to use a different device, use, for example: ((ALubyte*) "DirectSound3D")
+	//to get a list of available devices, uncomment the following code, and read your error_log.txt
+	//for windows users, it'll most likely only list DirectSound3D
+	/*if ( alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) == AL_TRUE ){
+		LOG_ERROR("Available sound devices: %s", alcGetString( NULL, ALC_DEVICE_SPECIFIER));
+	}else{
+		LOG_ERROR("ALC_ENUMERATION_EXT not found");
+	}*/
+
+	//if you want to use a different device, use, for example:
+	//mSoundDevice = alcOpenDevice((ALubyte*) "DirectSound3D")
 	mSoundDevice = alcOpenDevice( NULL );
-	if((error=alGetError()) != AL_NO_ERROR || !mSoundDevice){
+	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundDevice){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1492,9 +1511,9 @@ void init_sound()
 
 	sound_list_mutex=SDL_CreateMutex();
 
-	if((error=alGetError()) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
+	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1634,10 +1653,10 @@ void destroy_sound()
 			alcCloseDevice(device);
 	}
 
-	if((error=alGetError()) != AL_NO_ERROR) 
+	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR) 
 	{
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 	}
