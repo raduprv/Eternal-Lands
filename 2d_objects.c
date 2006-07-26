@@ -735,7 +735,11 @@ void display_2d_objects()
 
 #else
 	unsigned int i, l, start, stop;
-	
+	int x, y, dist;
+
+	x= -cx;
+	y= -cy;
+
 	//First draw everyone with the same alpha test
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
@@ -758,6 +762,11 @@ void display_2d_objects()
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
+#ifdef  SIMPLE_LOD
+		// simple size/distance culling
+		dist= (x-obj_2d_list[l]->x_pos)*(x-obj_2d_list[l]->x_pos) + (y-obj_2d_list[l]->y_pos)*(y-obj_2d_list[l]->y_pos);
+		if(/*dist > 10*10 &&*/ 1000*max(obj_2d_list[l]->obj_pointer->x_size, obj_2d_list[l]->obj_pointer->y_size)/(dist) < 5) continue;
+#endif  //SIMPLE_LOD
 		draw_2d_object(obj_2d_list[l]);
 	}
 	
