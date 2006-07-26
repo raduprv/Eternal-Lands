@@ -26,7 +26,7 @@
 #define PARTICLE_RANDOM(min,max) (min+(max-min)*(rand()/(float)RAND_MAX))
 #define PARTICLE_RANDOM2(min,max) (min+0.5*(max-min)+0.5*(max-min)/(float)((rand()%200)-100+0.5))
 
-#define PART_SYS_VISIBLE_DIST_SQ 18*18
+#define PART_SYS_VISIBLE_DIST_SQ 20*20
 
 #ifdef ELC
 int use_point_particles = 1;
@@ -891,6 +891,10 @@ void display_particles()
 #ifdef EXTRA_DEBUG
 			ERR();
 #endif
+			continue;
+		}
+		// last final check for a distance limit
+		if(your_actor!=NULL && (your_actor->x_pos-particles_list[l]->x_pos)*(your_actor->x_pos-particles_list[l]->x_pos) + (your_actor->y_pos-particles_list[l]->y_pos)*(your_actor->y_pos-particles_list[l]->y_pos) >= PART_SYS_VISIBLE_DIST_SQ){
 			continue;
 		}
 		if ((particles_list[l]->def->sblend != sblend) || (particles_list[l]->def->dblend != dblend))
