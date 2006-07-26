@@ -147,7 +147,7 @@ const char *tab_complete(const text_message *input)
 {
 	static char last_complete[48] = {0};
 	static int have_last_complete = 0;
-	static char last_count = -1;
+	static int last_count = -1;
 	const char *return_value = NULL;
 
 	if(input != NULL && input->len > 0 &&
