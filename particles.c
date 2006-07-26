@@ -893,10 +893,12 @@ void display_particles()
 #endif
 			continue;
 		}
+#ifdef  SIMPLE_LOD
 		// last final check for a distance limit
-		if(your_actor!=NULL && (your_actor->x_pos-particles_list[l]->x_pos)*(your_actor->x_pos-particles_list[l]->x_pos) + (your_actor->y_pos-particles_list[l]->y_pos)*(your_actor->y_pos-particles_list[l]->y_pos) >= PART_SYS_VISIBLE_DIST_SQ){
+		if(((x-particles_list[l]->x_pos)*(x-particles_list[l]->x_pos) + (y-particles_list[l]->y_pos)*(y-particles_list[l]->y_pos)) >= PART_SYS_VISIBLE_DIST_SQ){
 			continue;
 		}
+#endif  //SIMPLE_LOD
 		if ((particles_list[l]->def->sblend != sblend) || (particles_list[l]->def->dblend != dblend))
 		{
 			sblend = particles_list[l]->def->sblend;
