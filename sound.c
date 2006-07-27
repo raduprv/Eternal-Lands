@@ -1653,10 +1653,10 @@ void destroy_sound()
 			alcCloseDevice(device);
 	}
 
-	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR) 
+	if((error=alGetError()) != AL_NO_ERROR) 
 	{
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
+		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 	}
