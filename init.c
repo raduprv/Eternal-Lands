@@ -26,9 +26,9 @@ int ini_file_size=0;
 int disconnected= 1;
 #ifdef AUTO_UPDATE
 int auto_update= 1;
-#ifdef  CUSTOM_LOOKS
+#ifdef  CUSTOM_LOOK
 int custom_update= 0;
-#endif  //CUSTOM_LOOKS
+#endif  //CUSTOM_LOOK
 #endif  //AUTO_UPDATE
 
 int exit_now=0;
@@ -731,10 +731,10 @@ void init_stuff()
 #ifdef  AUTO_UPDATE
 	if(auto_update){
 		init_update();
-#ifdef  CUSTOM_LOOKS
+#ifdef  CUSTOM_UPDATE
 	} else if(custom_update){
 		init_custom_update();
-#endif  //CUSTOM_LOOKS
+#endif  //CUSTOM_UPDATE
 	}
 #endif
 
