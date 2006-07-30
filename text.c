@@ -49,7 +49,7 @@ void cleanup_text_buffers(void)
 
 	free(input_text_line.data);
 	for(i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; i++) {
-		if(display_text_buffer[i].size > 0) {
+		if(display_text_buffer[i].data != NULL) {
 			free(display_text_buffer[i].data);
 		}
 	}
@@ -948,6 +948,7 @@ void clear_display_text_buffer ()
 		}
 		display_text_buffer[i].deleted= 1;
 		display_text_buffer[i].len= 0;
+		display_text_buffer[i].size= 0;
 		display_text_buffer[i].data= NULL;
 	}
 
