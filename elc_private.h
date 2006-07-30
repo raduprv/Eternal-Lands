@@ -11,7 +11,7 @@
 #define VER_RELEASE	1
 #define VER_BUILD	2
 #define COMPANY_NAME	""
-#define FILE_VERSION	"1.3.1p2 i686-SSE2"
+#define FILE_VERSION	"1.3.1p2"
 #define FILE_DESCRIPTION	"Eternal-Lands Client"
 #define INTERNAL_NAME	""
 #define LEGAL_COPYRIGHT	""
