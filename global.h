@@ -14,6 +14,9 @@
 #ifndef min
 	#define min(x, y) (x<y?x:y)
 #endif //min
+#ifndef max
+	#define max(x, y) (x>y?x:y)
+#endif //max
 
 //only ever use WINDOWS anywhere else, in case we need to add another 'catch' to enable WINDOWS
 #if defined(_WIN32) || defined(_WIN64)
