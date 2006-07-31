@@ -954,6 +954,11 @@ void update_position()
 	LOCK_SOUND_LIST();
 
 	alListenerfv(AL_POSITION,listenerPos);
+	if((error=alGetError()) != AL_NO_ERROR){
+		LOG_ERROR("update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
+		have_sound=0;
+		have_music=0;
+	}
 
 	/* OpenAL doesn't have a method for culling by distance yet.
 	   If it does get added, all this code can go */
@@ -969,12 +974,11 @@ void update_position()
 			alSourcePause(sound_source[i]);
 		else if (sound_on && (state == AL_PAUSED) && (distance < 30*30))
 			alSourcePlay(sound_source[i]);
-	}
-	if((error=alGetError()) != AL_NO_ERROR) 
-	{
-		LOG_ERROR("update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
-		have_sound=0;
-		have_music=0;
+		if((error=alGetError()) != AL_NO_ERROR){
+			LOG_ERROR("update_position %s: %s (source %d)", my_tolower(reg_error_str), alGetString(error), i);
+			have_sound=0;
+			have_music=0;
+		}
 	}
 	UNLOCK_SOUND_LIST();
 }
@@ -1119,6 +1123,10 @@ void stream_music(ALuint buffer)
 			playing_music = 0;//file's done, quit trying to play
 			return;
 		}
+	if((error=alGetError()) != AL_NO_ERROR){
+		LOG_ERROR("stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
+		have_music=0;
+	}
 
 	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, ogg_info->rate);
 
