@@ -22,6 +22,7 @@ int add_knowledge_book_image() {
 	// Book image
 	int isize, tsize, tid, picsperrow, xtile, ytile, ssize, id;
 	float ftsize, u, v, uend, vend;
+	
 	isize=256;
 	tsize=51;
 	ssize=100;
@@ -196,22 +197,27 @@ void get_knowledge_list (Uint16 size, const char *list)
 {
 	int i;
 	
+	// make sure the entire knowledge list is 0 incase of short data
+	for(i=0; i<KNOWLEDGE_LIST_SIZE; i++){
+		knowledge_list[i].present= 0;
+	}
+	
 	// watch for size being too large
 	if(size*8 > KNOWLEDGE_LIST_SIZE){
 		size= KNOWLEDGE_LIST_SIZE/8;
 	}
 	
 	// now copy the data
-	for (i = 0; i < size; i++)
+	for(i=0; i<size; i++)
 	{
-		knowledge_list[i*8+0].present = list[i] & 0x01;
-		knowledge_list[i*8+1].present = list[i] & 0x02;
-		knowledge_list[i*8+2].present = list[i] & 0x04;
-		knowledge_list[i*8+3].present = list[i] & 0x08;
-		knowledge_list[i*8+4].present = list[i] & 0x10;
-		knowledge_list[i*8+5].present = list[i] & 0x20;
-		knowledge_list[i*8+6].present = list[i] & 0x40;
-		knowledge_list[i*8+7].present = list[i] & 0x80;
+		knowledge_list[i*8+0].present= list[i] & 0x01;
+		knowledge_list[i*8+1].present= list[i] & 0x02;
+		knowledge_list[i*8+2].present= list[i] & 0x04;
+		knowledge_list[i*8+3].present= list[i] & 0x08;
+		knowledge_list[i*8+4].present= list[i] & 0x10;
+		knowledge_list[i*8+5].present= list[i] & 0x20;
+		knowledge_list[i*8+6].present= list[i] & 0x40;
+		knowledge_list[i*8+7].present= list[i] & 0x80;
 	}
 }
 
