@@ -77,7 +77,6 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	else if (!alt_on && !ctrl_on)
 	{
 		connect_to_server();
-		send_version_to_server(&ip);
 	}
 #endif
 	

@@ -872,7 +872,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if(disconnected && !alt_on && !ctrl_on && !locked_to_console)
 	{
 		connect_to_server();
-		send_version_to_server(&ip);
 	}
 	else if((keysym == SDLK_v && ctrl_on) || (keysym == SDLK_INSERT && shift_on))
 	{
