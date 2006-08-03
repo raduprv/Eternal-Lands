@@ -169,10 +169,10 @@ void send_version_to_server(IPaddress *ip)
 	my_tcp_send(my_socket,str,15);
 }
 
+IPaddress ip;
+
 void connect_to_server()
 {
-	IPaddress ip;
-
 	if(this_version_is_invalid) return;
 	if(set)
 		{

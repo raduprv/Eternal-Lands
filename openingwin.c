@@ -65,18 +65,19 @@ int keypress_opening_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	int ctrl_on = key & ELW_CTRL;
 #endif
 
-	if ( check_quit_or_fullscreen (key) )
+	if(check_quit_or_fullscreen(key))
 	{
 		return 1;
 	}
-	else if (!disconnected)
+	else if(!disconnected)
 	{
-		switch_to_login ();
+		switch_to_login();
 	}
 #ifndef MAP_EDITOR2
 	else if (!alt_on && !ctrl_on)
 	{
-		connect_to_server ();
+		connect_to_server();
+		send_version_to_server(&ip);
 	}
 #endif
 	

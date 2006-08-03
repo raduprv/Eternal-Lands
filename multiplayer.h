@@ -12,7 +12,7 @@ extern char log_in_error_str[520]; /*!< buffer for messagees that came from erro
 
 extern int port; /*!< the server port we use */
 extern unsigned char server_address[60]; /*!< the server address we use */
-
+extern IPaddress ip;	/*! the server ip address after lookup */
 extern TCPsocket my_socket; /*!< our TCP socket to communiate with the server */
 
 extern int combat_mode; /*!< a flag that indicates whether our actor is currently in combat mode, aka fighting or not */

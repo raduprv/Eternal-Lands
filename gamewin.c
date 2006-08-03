@@ -845,14 +845,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	Uint16 keysym = key & 0xffff;
 #ifdef DEBUG
 	int i;
-	Uint32 _cur_time = SDL_GetTicks();
+	Uint32 _cur_time= SDL_GetTicks();
 #endif
 	
-	if ( check_quit_or_fullscreen (key) )
+	if(check_quit_or_fullscreen(key))
 	{
 		return 1;
 	}
-	else if ((keysym == SDLK_UP || keysym == SDLK_DOWN) && ctrl_on)
+	else if((keysym == SDLK_UP || keysym == SDLK_DOWN) && ctrl_on)
 	{
 		char *line;
 
@@ -862,18 +862,19 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		}
 		else
 		{
-			line = history_get_line_down();
+			line= history_get_line_down();
 		}
 		if(line != NULL)
 		{
 			put_string_in_input_field(line);
 		}
 	}
-	else if (disconnected && !alt_on && !ctrl_on && !locked_to_console)
+	else if(disconnected && !alt_on && !ctrl_on && !locked_to_console)
 	{
 		connect_to_server();
+		send_version_to_server(&ip);
 	}
-	else if ( (keysym == SDLK_v && ctrl_on) || (keysym == SDLK_INSERT && shift_on) )
+	else if((keysym == SDLK_v && ctrl_on) || (keysym == SDLK_INSERT && shift_on))
 	{
 #ifndef WINDOWS
 		startpaste ();
@@ -882,65 +883,65 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #endif
 	}
 #ifdef DEBUG
-	else if ((keysym == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)
 	{
 		for (i=0; i<ITEM_WEAR_START;i++) {
 			item_list[i].cooldown_rate = 60000;
 			item_list[i].cooldown_time = _cur_time + 60000;
 		}
 	}
-	else if ((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
 	{
-		for (i=0; i<ITEM_WEAR_START;i++) {
+		for(i=0; i<ITEM_WEAR_START;i++) {
 			item_list[i].cooldown_time -= 1000;
 		}
 	}
-	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
 	{
-		for (i=0; i<ITEM_WEAR_START;i++) {
+		for(i=0; i<ITEM_WEAR_START;i++) {
 			item_list[i].cooldown_time += 1000;
 		}
 	}
 #ifndef NEW_WEATHER
-	else if ((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_UP) && shift_on && ctrl_on && !alt_on)
 	{
 		rain_color[3] += 0.01f;
 	}
-	else if ((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_DOWN) && shift_on && ctrl_on && !alt_on)
 	{
 		rain_color[3] -= 0.01f;
 	}
 #endif
-	else if ((keysym == SDLK_t) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_t) && shift_on && ctrl_on && !alt_on)
 	{
 		add_thunder(rand()%5,1+rand()%5);
 	}
-	else if ((keysym == SDLK_w) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_w) && shift_on && ctrl_on && !alt_on)
 	{
-		if (game_minute >= 355) game_minute -=355; else game_minute +=  5;
+		if(game_minute >= 355) game_minute -=355; else game_minute +=  5;
 		new_minute();
 	}
-	else if ((keysym == SDLK_q) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_q) && shift_on && ctrl_on && !alt_on)
 	{
-		if (game_minute <  5) game_minute +=355; else game_minute -=  5;
+		if(game_minute <  5) game_minute +=355; else game_minute -=  5;
 		new_minute();
 	}
 #ifndef NEW_WEATHER
-	else if ((keysym == SDLK_PAGEUP) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_PAGEUP) && shift_on && ctrl_on && !alt_on)
 	{
 		rain_strength_bias += 0.1f;
 	}
-	else if ((keysym == SDLK_PAGEDOWN) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_PAGEDOWN) && shift_on && ctrl_on && !alt_on)
 	{
 		rain_strength_bias -= 0.1f;
 	}
 #endif
-	else if ((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
 	{
 #ifdef NEW_WEATHER
 		start_weather(30, 1.0f);
 #else
-		if (is_raining) {
+		if(is_raining) {
 			seconds_till_rain_stops = 2;
 			seconds_till_rain_starts = -1;
 		} else {

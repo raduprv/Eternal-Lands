@@ -360,6 +360,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		return 1;
 	} else if(disconnected && !alt_on && !ctrl_on){
 		connect_to_server();
+		send_version_to_server(&ip);
 	} else if (key == K_CAMERAUP) {
 		if (rx > -60) rx -= 1.0f;
 	} else if (key == K_CAMERADOWN) {
