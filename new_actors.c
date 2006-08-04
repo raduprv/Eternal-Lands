@@ -736,8 +736,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			if(actors_list[i]->actor_id==yourself)you_sit_down();
 			actors_list[i]->sitting=1;
 		}
-	else if(frame==frame_combat_idle)
-		actors_list[i]->fighting=1;
+	else
+		{
+			if(actors_list[i]->actor_id==yourself)you_stand_up();
+			if(frame==frame_combat_idle)
+				actors_list[i]->fighting=1;
+		}
 
 	//ghost or not?
 	actors_list[i]->ghost=actors_defs[actor_type].ghost;
