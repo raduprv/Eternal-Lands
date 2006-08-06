@@ -923,7 +923,7 @@ void destroy_all_actors()
 
 void update_all_actors()
 {
- 	 Uint8 str[40];
+ 	Uint8 str[40];
 
 	//we got a nasty error, log it
 	LOG_TO_CONSOLE(c_red2,resync_server);
@@ -943,7 +943,7 @@ void add_command_to_actor(int actor_id, char command)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-	act = get_actor_ptr_from_id(actor_id);
+	act= get_actor_ptr_from_id(actor_id);
 
 	if(!act){
 		//Resync
@@ -953,11 +953,10 @@ void add_command_to_actor(int actor_id, char command)
 		LOCK_ACTORS_LISTS();
 
 		if(command==leave_combat||command==enter_combat||command==die1||command==die2){
-			int j=0;
-			int strip=1;
+			int j= 0;
 
 			//Strip the queue for attack messages
-			for(k=0;k<MAX_CMD_QUEUE;k++){
+			for(k=0; k<MAX_CMD_QUEUE; k++){
 				switch(act->que[k]){
 					case pain1:
 					case pain2:
@@ -967,29 +966,28 @@ void add_command_to_actor(int actor_id, char command)
 					case attack_up_4:
 					case attack_down_1:
 					case attack_down_2:
-						if(!strip){
-							act->que[j]=act->que[k];
-							j++;
-						}
+						act->que[k]= nothing;
 						break;
+
 					default:
-						act->que[j]=act->que[k];
+						act->que[j]= act->que[k];
 						j++;
-						strip=0;
+						if(j<=k){
+							act->que[k]= nothing;
+						}
 						break;
 				}
 			}
-			act->que[MAX_CMD_QUEUE-1]=nothing;
 
 			if(act->last_command == nothing){
 				//We may be on idle, update the actor so we can reduce the rendering lag
-				CalModel_Update(act->calmodel,5.0f);
+				CalModel_Update(act->calmodel, 5.0f);
 			}
 		}
 
 		for(k=0;k<MAX_CMD_QUEUE;k++){
 			if(act->que[k]==nothing){
-				//we are SEVERLY behind, just update all the actors in range
+				//if we are SEVERLY behind, just update all the actors in range
 				if(k>MAX_CMD_QUEUE-2) break;
 				else if(k>MAX_CMD_QUEUE-8){
 					// is the front a sit/stand spam?
@@ -1020,56 +1018,56 @@ void add_command_to_actor(int actor_id, char command)
 		}
 
 #ifdef COUNTERS
-		switch (command) {
+		switch(command) {
 		case enter_combat:
-			act->async_fighting = 1;
+			act->async_fighting= 1;
 			break;
 		case leave_combat:
-			act->async_fighting = 0;
+			act->async_fighting= 0;
 			break;
 		case move_n:
 		case run_n:
 			act->async_y_tile_pos++;
-			act->async_z_rot = 0;
+			act->async_z_rot= 0;
 			break;
 		case move_ne:
 		case run_ne:
 			act->async_x_tile_pos++;
 			act->async_y_tile_pos++;
-			act->async_z_rot = 45;
+			act->async_z_rot= 45;
 			break;
 		case move_e:
 		case run_e:
 			act->async_x_tile_pos++;
-			act->async_z_rot = 90;
+			act->async_z_rot= 90;
 			break;
 		case move_se:
 		case run_se:
 			act->async_x_tile_pos++;
 			act->async_y_tile_pos--;
-			act->async_z_rot = 135;
+			act->async_z_rot= 135;
 			break;
 		case move_s:
 		case run_s:
 			act->async_y_tile_pos--;
-			act->async_z_rot = 180;
+			act->async_z_rot= 180;
 			break;
 		case move_sw:
 		case run_sw:
 			act->async_x_tile_pos--;
 			act->async_y_tile_pos--;
-			act->async_z_rot = 225;
+			act->async_z_rot= 225;
 			break;
 		case move_w:
 		case run_w:
 			act->async_x_tile_pos--;
-			act->async_z_rot = 270;
+			act->async_z_rot= 270;
 			break;
 		case move_nw:
 		case run_nw:
 			act->async_x_tile_pos--;
 			act->async_y_tile_pos++;
-			act->async_z_rot = 315;
+			act->async_z_rot= 315;
 			break;
 		case turn_n:
 		case turn_ne:
@@ -1079,14 +1077,14 @@ void add_command_to_actor(int actor_id, char command)
 		case turn_sw:
 		case turn_w:
 		case turn_nw:
-			 act->async_z_rot = (command-turn_n)*45;
+			 act->async_z_rot= (command-turn_n)*45;
 			 break;
 		}
 #endif
 
 		UNLOCK_ACTORS_LISTS();
 
-		if (k>MAX_CMD_QUEUE-2){
+		if(k>MAX_CMD_QUEUE-2){
 			update_all_actors();
 		}
 	}
