@@ -376,8 +376,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 	ERR();
 #endif
 				// allow for multiple packets in a row
-				while ( data_length >= 6){
-					add_command_to_actor(SDL_SwapLE16(*((short *)(in_data+3))),in_data[5]);
+				while(data_length >= 6){
+					add_command_to_actor(SDL_SwapLE16(*((short *)(in_data+3))), in_data[5]);
 					in_data+= 3;
 					data_length-= 3;
 				}
@@ -389,7 +389,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				destroy_actor(SDL_SwapLE16(*((short *)(in_data+3))));
+				// allow for multiple packets in a row
+				while(data_length >= 5){
+					destroy_actor(SDL_SwapLE16(*((short *)(in_data+3))));
+					in_data+= 2;
+					data_length-= 2;
+				}
 			}
 			break;
 
@@ -407,7 +412,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				game_minute=SDL_SwapLE16(*((short *)(in_data+3)));
+				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				new_minute();
 			}
 			break;
@@ -444,7 +449,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case SEND_PARTIAL_STAT:
 			{
 				// allow for multiple stats in a row
-				while (data_length >= 8){
+				while(data_length >= 8){
 					get_partial_stat(*((Uint8 *)(in_data+3)),SDL_SwapLE32(*((Sint32 *)(in_data+4))));
 					in_data+= 5;
 					data_length-= 5;
@@ -472,13 +477,23 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_NEW_INVENTORY_ITEM:
 			{
-				get_new_inventory_item(in_data+3);
+				// allow for multiple packets in a row
+				while(data_length >= 11){
+					get_new_inventory_item(in_data+3);
+					in_data+= 8;
+					data_length-= 8;
+				}
 			}
 			break;
 
 		case REMOVE_ITEM_FROM_INVENTORY:
 			{
-				remove_item_from_inventory(*((Uint8 *)(in_data+3)));
+				// allow for multiple packets in a row
+				while(data_length >= 4){
+					remove_item_from_inventory(*((Uint8 *)(in_data+3)));
+					in_data+= 1;
+					data_length-= 1;
+				}
 			}
 			break;
 
@@ -622,8 +637,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 	ERR();
 #endif
 				LOCK_ACTORS_LISTS();
-				yourself=SDL_SwapLE16(*((short *)(in_data+3)));
-				your_actor = get_actor_ptr_from_id(yourself);
+				yourself= SDL_SwapLE16(*((short *)(in_data+3)));
+				your_actor= get_actor_ptr_from_id(yourself);
 				UNLOCK_ACTORS_LISTS();
 			}
 			break;
@@ -689,9 +704,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				server_time_stamp=SDL_SwapLE32(*((int *)(in_data+3)));
-				client_time_stamp=SDL_GetTicks();
-				client_server_delta_time=server_time_stamp-client_time_stamp;
+				server_time_stamp= SDL_SwapLE32(*((int *)(in_data+3)));
+				client_time_stamp= SDL_GetTicks();
+				client_server_delta_time= server_time_stamp-client_time_stamp;
 			}
 			break;
 
@@ -1040,10 +1055,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
     			{
 				process_network_spell(in_data+3, data_length-3);
 #ifdef COUNTERS
-                                if (in_data[3] == S_SUCCES) {
-					// increment the spell counter
-					increment_spell_counter(in_data[4]);
-				}
+					if (in_data[3] == S_SUCCES) {
+						// increment the spell counter
+						increment_spell_counter(in_data[4]);
+					}
 #endif
         		}
 			break;
@@ -1097,7 +1112,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_ITEMS_COOLDOWN: 
 			{
-				// make sure we interprete the incoming octets as unsigned
+				// make sure we interpret the incoming octets as unsigned
 				// in case the function signature changes
 				get_items_cooldown (&in_data[3], data_length - 3);
 			}
@@ -1114,7 +1129,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		default:
 			{
-				// Unknown data type??
+				// Unknown packet type??
                 ;
 			}
 			break;
