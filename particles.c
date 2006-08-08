@@ -615,10 +615,36 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, unsigned 
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
 #endif
 {
+	int	height;
+	
+	//watch for unwalkable tiles getting particles
+	if( (height_map[y_tile*tile_map_size_x*6+x_tile]&0x3F) > 0){
+		height= height_map[y_tile*tile_map_size_x*6+x_tile];
+	} else {
+		int	count= 0;
+		int	x, y;
+		
+		// this is an unwalkable tile, make a guess by averaging nearby heights
+		for(x= x_tile-1; x <= x_tile+1; x++){
+			if(x >= 0 && x < tile_map_size_x*6)
+			for(y= y_tile-1; y <= y_tile+1; y++){
+				if(y >= 0 && y < tile_map_size_y*6 && (height_map[y*tile_map_size_x*6+x]&0x3F) > 0){
+					height+= height_map[y*tile_map_size_x*6+x]&0x3F;
+					count++;
+				}
+			}
+		}
+		if(count > 0){
+			height/= count;
+		}
+		if(height <= 0){
+			height= 8;
+		}
+	}
 #ifdef	NEW_FRUSTUM
-	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height_map[y_tile*tile_map_size_x*6+x_tile] * 0.2f, dynamic);
+	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height * 0.2f, dynamic);
 #else
-	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height_map[y_tile*tile_map_size_x*6+x_tile] * 0.2f);
+	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height * 0.2f);
 #endif
 }
 
