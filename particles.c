@@ -625,6 +625,7 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
 		int	x, y;
 		
 		// this is an unwalkable tile, make a guess by averaging nearby heights
+		height= 0;
 		for(x= x_tile-1; x <= x_tile+1; x++){
 			if(x >= 0 && x < tile_map_size_x*6)
 			for(y= y_tile-1; y <= y_tile+1; y++){
@@ -637,6 +638,7 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
 		if(count > 0){
 			height/= count;
 		}
+		// if that didn't work, lets use a default height
 		if(height <= 0){
 			height= 8;
 		}
