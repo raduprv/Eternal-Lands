@@ -30,7 +30,7 @@ int client_version_minor=VER_MINOR;
 int client_version_release=VER_RELEASE;
 int	client_version_patch=VER_BUILD;
 int version_first_digit=10;	//protocol/game version sent to server
-int version_second_digit=15;
+int version_second_digit=16;
 
 int gargc;
 char **  gargv;
