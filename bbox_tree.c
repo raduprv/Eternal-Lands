@@ -359,7 +359,8 @@ static int comp_items(const void *in_a, const void *in_b)
 				if (am < bm) return -1;
 				else
 				{
-					if (am == bm) return memcmp(a->md5, b->md5, sizeof(MD5_DIGEST));
+					//if (am == bm)return memcmp(a->md5, b->md5, sizeof(MD5_DIGEST));
+					if (am == bm)return(a->ID - b->ID);
 					else return 1;
 				}
 				return 0;
