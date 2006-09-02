@@ -365,7 +365,7 @@ void draw_3d_objects(unsigned int object_type)
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
-		if(/*dist > 10*10 &&*/ 1000*max(max(objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x, objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y), objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z)/(dist) < 1) continue;
+		if(/*dist > 10*10 &&*/ 10000*max(max(objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x, objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y), objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z)/(dist) < ((is_transparent)?15:10)) continue;
 #endif  //SIMPLE_LOD
 
 		draw_3d_object_detail(objects_list[l]);
@@ -443,6 +443,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	AABBOX bbox;
 	unsigned int texture_id;
 	MD5_DIGEST ZERO_MD5 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
+	MD5_DIGEST fake_md5;
 #endif
 
 	if (id < 0 || id >= MAX_OBJ_3D)
@@ -543,8 +544,15 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		texture_id = returned_e3d->array_order[0].texture_id;
 	}
 	else texture_id = 0xFFFFFFFF;
-	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, ZERO_MD5);
-	else add_3dobject_to_abt(main_bbox_tree, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, ZERO_MD5, dynamic);
+	
+	// we need somethign for the md5 data, but we dont have that info, lets use the memory pointer
+	memcpy(fake_md5, ZERO_MD5, sizeof(MD5_DIGEST));
+	fake_md5[0]=(((unsigned int)returned_e3d)>>24) & 0xFF;
+	fake_md5[1]=(((unsigned int)returned_e3d)>>16) & 0xFF;
+	fake_md5[2]=(((unsigned int)returned_e3d)>>8) & 0xFF;
+	fake_md5[3]=(((unsigned int)returned_e3d)) & 0xFF;
+	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, fake_md5);
+	else add_3dobject_to_abt(main_bbox_tree, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, fake_md5, dynamic);
 
 #else
 	regenerate_near_objects = 1; // We've added an object..
