@@ -262,7 +262,6 @@ typedef struct
    float z_rot; /*!< z coordinate of the rotation */
 #ifdef	NEW_FRUSTUM
    MATRIX4x4 matrix; /*!< translation and rotaion matrix */
-   AABBOX bbox;
 #endif
    
    char self_lit; /*!< flag determining whether this object is self lit or not. Self lit objects contains their own lighs. */

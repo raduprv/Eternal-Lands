@@ -305,6 +305,14 @@ static __inline__ unsigned int get_intersect_item_ID(BBOX_TREE* bbox_tree, unsig
 	return bbox_tree->intersect[idx].items[index].ID;
 }
 
+static __inline__ const AABBOX get_intersect_item_bbox(BBOX_TREE* bbox_tree, unsigned int index)
+{
+	unsigned int idx;
+
+	idx = bbox_tree->cur_intersect_type;
+	return bbox_tree->intersect[idx].items[index].bbox;
+}
+
 static __inline__ unsigned int get_cur_intersect_type(BBOX_TREE* bbox_tree)
 {
 	return bbox_tree->cur_intersect_type;
@@ -315,19 +323,34 @@ static __inline__ void set_cur_intersect_type(BBOX_TREE* bbox_tree, unsigned int
 	bbox_tree->cur_intersect_type = intersec_type;
 }
 
+static __inline__ unsigned int get_3dobject_id(unsigned int index, unsigned int material)
+{
+	return (index << 12) + material;
+}
+
+static __inline__ unsigned int get_3dobject_material(unsigned int ID)
+{
+	return ID & 0x0FFF;
+}
+
+static __inline__ unsigned int get_3dobject_index(unsigned int ID)
+{
+	return ID >> 12;
+}
+
 static __inline__ unsigned int get_terrain_id(unsigned int x, unsigned int y)
 {
-	return (y << 8) + x;
+	return (y << 12) + x;
 }
 
 static __inline__ unsigned int get_terrain_x(unsigned int ID)
 {
-	return ID & 0xFF;
+	return ID & 0xFFF;
 }
 
 static __inline__ unsigned int get_terrain_y(unsigned int ID)
 {
-	return ID >> 8;
+	return ID >> 12;
 }
 
 static __inline__ unsigned int is_blend_3d_object(unsigned int type)

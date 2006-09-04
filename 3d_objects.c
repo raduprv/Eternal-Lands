@@ -47,9 +47,6 @@ void inc_objects_list_placeholders()
 
 void draw_3d_object_detail(object3d * object_id)
 {
-#ifdef	DRAW_BBOX
-	AABBOX bbox;
-#endif
 #ifndef NEW_FRUSTUM
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
@@ -186,48 +183,6 @@ void draw_3d_object_detail(object3d * object_id)
 
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
-
-#ifdef	DRAW_BBOX
-	bbox.bbmin[X] = object_id->e3d_data->min_x;
-	bbox.bbmax[X] = object_id->e3d_data->max_x;
-	bbox.bbmin[Y] = object_id->e3d_data->min_y;
-	bbox.bbmax[Y] = object_id->e3d_data->max_y;
-	bbox.bbmin[Z] = object_id->e3d_data->min_z;
-	bbox.bbmax[Z] = object_id->e3d_data->max_z;
-
-	matrix_mul_aabb(&bbox, object_id->matrix);
-	glColor3f(1.0f, 0.0f, 0.0f);
-	glBegin(GL_LINES);
-		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
-
-		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmin[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
-
-		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-
-		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-
-		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmin[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmin[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmin[X], bbox.bbmax[Y], bbox.bbmax[Z]);
-		glVertex3f(bbox.bbmax[X], bbox.bbmax[Y], bbox.bbmax[Z]);
-	glEnd();
-#endif
 
 	//OK, let's check if our mouse is over...
 #ifdef MAP_EDITOR2
@@ -371,7 +326,7 @@ void draw_3d_objects(unsigned int object_type)
 		draw_3d_object_detail(objects_list[l]);
 		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 		{
-			if (click_line_bbox_intersection(objects_list[l]->bbox))
+			if (click_line_bbox_intersection(get_intersect_item_bbox(main_bbox_tree, i)))
 				anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);
 		}
 	}
@@ -535,8 +490,6 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
 	matrix_mul_aabb(&bbox, our_object->matrix);
-	VAssign(our_object->bbox.bbmin, bbox.bbmin);
-	VAssign(our_object->bbox.bbmax, bbox.bbmax);
 
 	if (returned_e3d->materials_no > 0) 
 	{	
