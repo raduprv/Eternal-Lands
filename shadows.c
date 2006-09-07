@@ -6,6 +6,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef NEW_E3D_FORMAT
+#include "io/e3d_io.h"
+#endif
 
 #ifdef OSX
 #define GL_EXT_texture_env_combine 1
@@ -184,6 +187,88 @@ void calc_shadow_matrix()
 #endif // NEW_FRUSTUM
 }
 
+#ifdef NEW_E3D_FORMAT
+void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_index)
+{
+	unsigned int type;
+
+	// check for having to load the arrays
+	load_e3d_detail_if_needed(object_id->e3d_data);
+
+	CHECK_GL_ERRORS();
+	//also, update the last time this object was used
+	object_id->last_acessed_time = cur_time;
+
+	glPushMatrix();//we don't want to affect the rest of the scene
+
+	glMultMatrixf(object_id->matrix);
+
+	CHECK_GL_ERRORS();
+
+	// watch for a change
+	if (object_id->e3d_data != cur_e3d)
+	{
+		if ((cur_e3d != NULL) && (use_compiled_vertex_array))
+		{
+			ELglUnlockArraysEXT();
+		}
+		
+		if (object_id->e3d_data->is_ground) type = GL_T2F_V3F;
+		else type = GL_T2F_N3F_V3F;
+		
+		if (have_vertex_buffers && object_id->e3d_data->vbo[0] && 
+		    object_id->e3d_data->vbo[1])
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
+			glInterleavedArrays(type, 0, 0);
+			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+		}
+		else glInterleavedArrays(type, 0, object_id->e3d_data->vertex_data);
+		
+		CHECK_GL_ERRORS();
+
+		// lock this new one
+		if (use_compiled_vertex_array)
+		{
+			ELglLockArraysEXT(0, object_id->e3d_data->vertex_no);
+		}
+		// gather statistics
+		if (object_id->e3d_data != cur_e3d)
+		{
+#ifdef  DEBUG
+			if ((cur_e3d_count > 0) && (cur_e3d != NULL))
+			{
+				e3d_count++;
+				e3d_total += cur_e3d_count;
+			}
+			cur_e3d_count = 0;
+#endif    //DEBUG
+			cur_e3d = object_id->e3d_data;
+		}
+	}
+#ifdef  DEBUG
+	cur_e3d_count++;
+#endif  //DEBUG
+	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
+
+	ELglMultiDrawElementsEXT(GL_TRIANGLE_STRIP, 
+		object_id->e3d_data->materials[material_index].triangle_strips_indicies_count,
+		object_id->e3d_data->index_type, 
+		(const void**)object_id->e3d_data->materials[material_index].triangle_strips_indicies_index,
+		object_id->e3d_data->materials[material_index].triangle_strips_no);
+	
+	ELglDrawRangeElementsEXT(GL_TRIANGLES,
+		object_id->e3d_data->materials[material_index].triangles_indicies_min,
+		object_id->e3d_data->materials[material_index].triangles_indicies_max,
+		object_id->e3d_data->materials[material_index].triangles_indicies_count,
+		object_id->e3d_data->index_type,
+		object_id->e3d_data->materials[material_index].triangles_indicies_index);
+	
+	glPopMatrix();//restore the scene
+	CHECK_GL_ERRORS();
+
+}
+#else
 void draw_3d_object_shadow_detail(object3d * object_id)
 {
 #ifndef	NEW_FRUSTUM
@@ -287,12 +372,17 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	//if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	glPopMatrix();//restore the scene
 }
+#endif
 
 #ifdef  NEW_FRUSTUM
 void draw_3d_object_shadows(unsigned int object_type)
 {
 	unsigned int    start, stop;
-	unsigned int    i, l;
+#ifdef NEW_E3D_FORMAT
+	unsigned int    i, j, l;
+#else
+ 	unsigned int    i, l;
+#endif
 	int is_transparent;
 	int x, y, dist;
 
@@ -335,7 +425,13 @@ void draw_3d_object_shadows(unsigned int object_type)
 	// now loop through each object
 	for (i=start; i<stop; i++)
 	{
-		l= get_intersect_item_ID(main_bbox_tree, i);
+#ifdef	NEW_E3D_FORMAT
+		j = get_intersect_item_ID(main_bbox_tree, i);
+		l = get_3dobject_index(j);
+#else
+ 		l = get_intersect_item_ID(main_bbox_tree, i);
+#endif
+		if (objects_list[l] == NULL) continue;
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
@@ -344,12 +440,19 @@ void draw_3d_object_shadows(unsigned int object_type)
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
 		if(/*dist > 10*10 &&*/ 1000*max(max(objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x, objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y), objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z)/(dist) < 5) continue;
 #endif  //SIMPLE_LOD
+#ifdef	NEW_E3D_FORMAT
+		draw_3d_object_shadow_detail(objects_list[l], get_3dobject_material(j));
+#else
 		draw_3d_object_shadow_detail(objects_list[l]);
+#endif
 	}
 
     if(use_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#ifdef NEW_E3D_FORMAT
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+#endif
 	}
 	if(is_transparent)
 		{

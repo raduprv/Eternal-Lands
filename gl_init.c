@@ -5,6 +5,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef	NEW_E3D_FORMAT
+#include "io/e3d_io.h"
+#endif
 
 Uint32 flags;
 
@@ -103,6 +106,25 @@ void (APIENTRY * ELglFramebufferTexture3DEXT) (GLenum target, GLenum attachment,
 void (APIENTRY * ELglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
 void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
+#endif
+#ifdef NEW_E3D_FORMAT
+void (GLAPIENTRY * ELglMultiDrawElementsEXT) (GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount);
+void (GLAPIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
+
+void Emul_glMultiDrawElements(GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount)
+{
+	int i;
+
+	for (i = 0; i < primcount; i++)
+	{ 
+		if (count[i] > 0) glDrawElements(mode, count[i], type, indices[i]);
+	}
+}
+
+void Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
+{
+	glDrawElements(mode, count, type, indices);
+}
 #endif
 
 void setup_video_mode(int fs, int mode)
@@ -611,6 +633,10 @@ void init_gl_extensions()
 	ELglGetFramebufferAttachmentParameterivEXT=SDL_GL_GetProcAddress("glGetFramebufferAttachmentParameterivEXT");
 	ELglGenerateMipmapEXT=SDL_GL_GetProcAddress("glGenerateMipmapEXT");
 #endif
+#ifdef NEW_E3D_FORMAT
+	ELglMultiDrawElementsEXT=SDL_GL_GetProcAddress("glMultiDrawElementsEXT");
+	ELglDrawRangeElementsEXT=SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
+#endif
 
 	//see if we really have multitexturing
 	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
@@ -707,7 +733,7 @@ void init_gl_extensions()
 	if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0 && use_vertex_buffers){
 		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_buffer_object");
 		LOG_TO_CONSOLE(c_green2, str);
-		have_vertex_buffers=1;
+		have_vertex_buffers=0;
 	} else {
 		have_vertex_buffers=0;
 	}
@@ -747,6 +773,25 @@ void init_gl_extensions()
 #endif
 	}
 	
+#ifdef NEW_E3D_FORMAT
+	if(ELglMultiDrawElementsEXT && strstr(extensions, "GL_EXT_multi_draw_arrays")){
+		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_multi_draw_arrays");
+		LOG_TO_CONSOLE(c_green2,str);
+	} else {
+		snprintf(str,sizeof(str),gl_ext_not_found_emul_it,"GL_EXT_multi_draw_arrays");
+		LOG_TO_CONSOLE(c_yellow1,str);
+		ELglMultiDrawElementsEXT=&Emul_glMultiDrawElements;
+	}
+	if(ELglDrawRangeElementsEXT && strstr(extensions, "GL_EXT_draw_range_elements")){
+		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_draw_range_elements");
+		LOG_TO_CONSOLE(c_green2,str);
+	} else {
+		snprintf(str,sizeof(str),gl_ext_not_found_emul_it,"GL_EXT_draw_range_elements");
+		LOG_TO_CONSOLE(c_yellow1,str);
+		ELglDrawRangeElementsEXT=&Emul_glDrawRangeElements;
+	}
+#endif
+
 	if (strstr(extensions, "GL_ARB_texture_non_power_of_two"))
 	{		
 		snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_texture_non_power_of_two");
@@ -937,6 +982,7 @@ void set_new_video_mode(int fs,int mode)
 			}
 		}
 		
+#ifndef	NEW_E3D_FORMAT
 		for(i=0;i<highest_obj_3d;i++){
 			if(objects_list[i] && objects_list[i]->cloud_vbo) {
 				const GLuint l=objects_list[i]->cloud_vbo;
@@ -947,6 +993,7 @@ void set_new_video_mode(int fs,int mode)
 				CHECK_GL_ERRORS();
 			}
 		}
+#endif
 	}
 
 #ifndef	USE_FRAMEBUFFER
@@ -1008,7 +1055,40 @@ void set_new_video_mode(int fs,int mode)
 
 	if(have_vertex_buffers){
 		e3d_object * obj;
+#ifdef	NEW_E3D_FORMAT
+		unsigned int vertex_size, indicies_size;
 		
+		for (i = 0;i < cache_e3d->max_item; i++)
+		{
+			if (!cache_e3d->cached_items[i]) continue;
+			obj = cache_e3d->cached_items[i]->cache_item;
+
+			if ((obj->vertex_data == NULL)|| (obj->materials == NULL) || (obj->indicies == NULL)) continue;
+			
+			if (obj->is_ground == 0) vertex_size = sizeof(e3d_T2F_N3F_V3F_vertex);
+			else vertex_size = sizeof(e3d_T2F_V3F_vertex);
+			
+			if (obj->index_no <= 256) indicies_size = 1;
+			else
+			{
+				if (obj->index_no <= 256*256) indicies_size = 2;
+				else indicies_size = 4;
+			}
+
+			//Generate the buffers
+			ELglGenBuffersARB(3, obj->vbo);
+		
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[0]);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->vertex_no*vertex_size, obj->vertex_data, GL_STATIC_DRAW_ARB);
+		
+			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, obj->vbo[1]);
+			ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, obj->index_no*indicies_size, obj->indicies, GL_STATIC_DRAW_ARB);
+			
+			CHECK_GL_ERRORS();
+		}
+				
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+#else
 		for(i=0;i<cache_e3d->max_item;i++){
 			if(!cache_e3d->cached_items[i])continue;
 			obj=cache_e3d->cached_items[i]->cache_item;
@@ -1037,7 +1117,7 @@ void set_new_video_mode(int fs,int mode)
 					CHECK_GL_ERRORS();
 			}
 		}
-		
+#endif		
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		CHECK_GL_ERRORS();
 	}

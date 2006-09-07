@@ -38,6 +38,18 @@
 #define	TYPES_COUNT						0x17
 #define TYPE_DELETED						0xFF
 
+#define TYPE_MASK_2D_ALPHA_OBJECT				0x00
+#define TYPE_MASK_2D_NO_ALPHA_OBJECT				0x01
+#define TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT			0x02
+#define TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT			0x03
+#define TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT			0x04
+#define TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT		0x05
+#define TYPE_MASK_PARTICLE_SYSTEM				0x06
+#define	TYPE_MASK_LIGHT						0x07
+#define	TYPE_MASK_TERRAIN					0x08
+#define	TYPE_MASK_NO_REFLECTIV_WATER				0x09
+#define	TYPE_MASK_REFLECTIV_WATER				0x0A
+
 #define	INTERSECTION_TYPE_DEFAULT			0x00
 #define	INTERSECTION_TYPE_SHADOW			0x01
 #define	INTERSECTION_TYPE_REFLECTION			0x02
@@ -373,7 +385,11 @@ static __inline__ unsigned int is_blend_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
-		default: return 0;
+		default:
+#ifdef	DEBUG
+		LOG_ERROR("Wrong type (%d) for is_blend_3d_object!", type);
+#endif
+			return 0;
 	}
 }
 
@@ -397,7 +413,11 @@ static __inline__ unsigned int is_ground_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
-		default: return 0;
+		default:
+#ifdef	DEBUG
+		LOG_ERROR("Wrong type (%d) for is_ground_3d_object!", type);
+#endif
+			return 0;
 	}
 }
 
@@ -421,7 +441,11 @@ static __inline__ unsigned int is_alpha_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 1;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
-		default: return 0;
+		default:
+#ifdef	DEBUG
+		LOG_ERROR("Wrong type (%d) for is_alpha_3d_object!", type);
+#endif
+			return 0;
 	}
 }
 
@@ -445,7 +469,69 @@ static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT: return 0;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT: return 1;
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
-		default: return 0;
+		default:
+#ifdef	DEBUG
+		LOG_ERROR("Wrong type (%d) for is_self_lit_3d_object!", type);
+#endif
+			return 0;
+	}
+}
+
+static __inline__ unsigned int get_type_mask_from_type(unsigned int type)
+{
+	switch (type)
+	{
+		case TYPE_2D_NO_ALPHA_OBJECT:
+			return TYPE_MASK_2D_NO_ALPHA_OBJECT;
+		case TYPE_2D_ALPHA_OBJECT:
+			return TYPE_MASK_2D_ALPHA_OBJECT;
+		case TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT;
+		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT:
+			return TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT;
+		case TYPE_PARTICLE_SYSTEM:
+			return TYPE_MASK_PARTICLE_SYSTEM;
+		case TYPE_LIGHT:
+			return TYPE_MASK_LIGHT;
+		case TYPE_TERRAIN:
+			return TYPE_MASK_TERRAIN;
+		case TYPE_NO_REFLECTIV_WATER:
+			return TYPE_MASK_NO_REFLECTIV_WATER;
+		case TYPE_REFLECTIV_WATER:
+			return TYPE_MASK_REFLECTIV_WATER;
+		default:
+#ifdef	DEBUG
+		LOG_ERROR("Wrong type (%d) for get_type_mask_from_type!", type);
+#endif
+			return 0;
 	}
 }
 
@@ -700,7 +786,7 @@ void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, 
  * \param dynamic	Is this a dynamic object?
  * \callgraph
  */
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit);
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int self_lit);
 
 /*!
  * \ingroup misc

@@ -400,24 +400,29 @@ static __inline__ void build_start_stop(BBOX_TREE* bbox_tree)
 	}
 }
 
-static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, unsigned int ID, unsigned int type)
+static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, unsigned int ID, unsigned int type_mask)
 {
-	unsigned int i, j, size, idx;
+	unsigned int i, j, k, size, idx;
 	int start, stop;
 	
 	idx = bbox_tree->cur_intersect_type;
 	
 	for (i = 0; i < MAX_INTERSECTION_TYPES; i++)
 	{
-		start = bbox_tree->intersect[i].start[type];
-		stop = bbox_tree->intersect[i].stop[type];
-		for (j = start; j < stop; j++)
+		for (j = 0; j < TYPES_COUNT; j++)
 		{
-			if (bbox_tree->intersect[i].items[j].ID == ID)
+			if (type_mask != get_type_mask_from_type(j)) continue;
+			start = bbox_tree->intersect[i].start[j];
+			stop = bbox_tree->intersect[i].stop[j];
+			for (k = start; k < stop; k++)
 			{
-				size = stop - j -1;
-				if (size > 0) memmove(&bbox_tree->intersect[i].items[j], &bbox_tree->intersect[i].items[j+1], size*sizeof(BBOX_ITEM));
-				bbox_tree->intersect[i].stop[type]--;
+				if (bbox_tree->intersect[i].items[k].ID == ID)
+				{
+					size = stop - k -1;
+					if (size > 0) 
+						memmove(&bbox_tree->intersect[i].items[k], &bbox_tree->intersect[i].items[k+1], size*sizeof(BBOX_ITEM));
+					bbox_tree->intersect[i].stop[j]--;
+				}
 			}
 		}
 	}
@@ -819,6 +824,24 @@ static __inline__ unsigned int get_3D_type(unsigned int blend, unsigned int grou
 	}
 }
 
+static __inline__ unsigned int get_3D_type_mask(unsigned int blend, unsigned int self_lit)
+{
+	unsigned int type;
+
+	type = 0;
+	if (!blend) type += 2;
+	if (!self_lit) type += 1;
+
+	switch (type)
+	{
+		case 0: return TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT;
+		case 1: return TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT;
+		case 2: return TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT;
+		case 3: return TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT;
+		default: return 0xFF;
+	}
+}
+
 void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5)
 {
 	add_aabb_to_list(bbox_items, bbox, ID, get_3D_type(blend, ground, alpha, self_lit), texture_id, md5);
@@ -828,6 +851,12 @@ static __inline__ unsigned int get_2D_type(unsigned int alpha)
 {
 	if (alpha == 0) return TYPE_2D_NO_ALPHA_OBJECT;
 	else return TYPE_2D_ALPHA_OBJECT;
+}
+
+static __inline__ unsigned int get_2D_type_mask(unsigned int alpha)
+{
+	if (alpha == 0) return TYPE_MASK_2D_ALPHA_OBJECT;
+	else return TYPE_MASK_2D_NO_ALPHA_OBJECT;
 }
 
 void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int alpha, unsigned int texture_id)
@@ -873,6 +902,12 @@ static __inline__ unsigned int get_water_type(unsigned int reflectiv)
 {
 	if (reflectiv) return TYPE_REFLECTIV_WATER;
 	else return TYPE_NO_REFLECTIV_WATER;
+}
+
+static __inline__ unsigned int get_water_type_mask(unsigned int reflectiv)
+{
+	if (reflectiv) return TYPE_MASK_REFLECTIV_WATER;
+	else return TYPE_MASK_NO_REFLECTIV_WATER;
 }
 
 void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int texture_id, unsigned int reflectiv)
@@ -994,17 +1029,18 @@ void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, 
 	add_aabb_to_abt(bbox_tree, bbox, ID, get_water_type(reflectiv), texture_id, ZERO_MD5, dynamic);
 }
 
-static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type);
+static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type_mask);
 
-static __inline__ void delete_dynamic_item_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int idx, unsigned int ID, unsigned int type)
+static __inline__ void delete_dynamic_item_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int idx, unsigned int ID, unsigned int type_mask)
 {
 	int index, size, count;
 	
 	index = bbox_tree->nodes[node].dynamic_objects.index;
 	size = bbox_tree->nodes[node].dynamic_objects.size;
 	
-	if (is_extra_first_sub_node(bbox_tree->nodes[node].dynamic_objects.items[idx].extra)) delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[0], ID, type);
-	else delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[1], ID, type);
+	if (is_extra_first_sub_node(bbox_tree->nodes[node].dynamic_objects.items[idx].extra))
+		delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[0], ID, type_mask);
+	else delete_dynamic_aabb_from_node(bbox_tree, bbox_tree->nodes[node].nodes[1], ID, type_mask);
 	
 	if (index <= 1)
 	{
@@ -1032,7 +1068,7 @@ static __inline__ void delete_dynamic_item_from_node(BBOX_TREE *bbox_tree, unsig
 	bbox_tree->nodes[node].dynamic_objects.size = size;
 }
 
-static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type)
+static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type_mask)
 {
 	unsigned int i, result;
 
@@ -1040,9 +1076,10 @@ static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, uns
 	
 	for (i = 0; i < bbox_tree->nodes[node].dynamic_objects.index; i++)
 	{
-		if ((bbox_tree->nodes[node].dynamic_objects.items[i].ID == ID) && (bbox_tree->nodes[node].dynamic_objects.items[i].type == type))
+		if ((bbox_tree->nodes[node].dynamic_objects.items[i].ID == ID) &&
+			(get_type_mask_from_type(bbox_tree->nodes[node].dynamic_objects.items[i].type) == type_mask))
 		{
-			delete_dynamic_item_from_node(bbox_tree, node, i, ID, type);
+			delete_dynamic_item_from_node(bbox_tree, node, i, ID, type_mask);
 			result = 1;
 		}
 	}
@@ -1050,14 +1087,14 @@ static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, uns
 	return result;
 }
 
-static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type)
+static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type_mask)
 {
 	unsigned int i, result, idx1, idx2;
 	AABBOX new_bbox;
 
 	if (node != NO_INDEX)
 	{		
-		result = dynamic_aabb_is_in_node(bbox_tree, node, ID, type);
+		result = dynamic_aabb_is_in_node(bbox_tree, node, ID, type_mask);
 		if (result != 0)
 		{
 			if ((bbox_tree->nodes[node].nodes[0] != NO_INDEX) && (bbox_tree->nodes[node].nodes[1] != NO_INDEX))
@@ -1088,44 +1125,44 @@ static __inline__ unsigned int delete_dynamic_aabb_from_node(BBOX_TREE *bbox_tre
 	return 0;
 }
 
-static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int type)
+static __inline__ void delete_aabb_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int type_mask)
 {
 	if (bbox_tree != NULL)
 	{
-		delete_item_from_intersect_list(bbox_tree, ID, type);
-		delete_dynamic_aabb_from_node(bbox_tree, 0, ID, type);
+		delete_item_from_intersect_list(bbox_tree, ID, type_mask);
+		delete_dynamic_aabb_from_node(bbox_tree, 0, ID, type_mask);
 	}
 	else BBOX_TREE_LOG_INFO("bbox_tree");
 }
 
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit)
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int self_lit)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_3D_type(blend, ground, alpha, self_lit));
+	delete_aabb_from_abt(bbox_tree, ID, get_3D_type_mask(blend, self_lit));
 }
 
 void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_2D_type(alpha));
+	delete_aabb_from_abt(bbox_tree, ID, get_2D_type_mask(alpha));
 }
 
 void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_PARTICLE_SYSTEM);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_MASK_PARTICLE_SYSTEM);
 }
 
 void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_LIGHT);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_MASK_LIGHT);
 }
 
 void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID)
 {
-	delete_aabb_from_abt(bbox_tree, ID, TYPE_TERRAIN);
+	delete_aabb_from_abt(bbox_tree, ID, TYPE_MASK_TERRAIN);
 }
 
 void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv)
 {
-	delete_aabb_from_abt(bbox_tree, ID, get_water_type(reflectiv));
+	delete_aabb_from_abt(bbox_tree, ID, get_water_type_mask(reflectiv));
 }
 
 BBOX_ITEMS* create_bbox_items(unsigned int size)

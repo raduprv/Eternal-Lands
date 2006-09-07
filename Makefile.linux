@@ -18,12 +18,12 @@ OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DUSE_FRAMEBUFFER -DNEW_FRUSTUM -DBUG_FIX
 #-DUSE_FRAMEBUFFER	# use framebuffer for reflection
 #-DNEW_TEX		# use new texture coordinates for enhanced actors
 #-DNEW_FRUSTUM	# use new frustum culling (AABB trees)
-#-DBUG_FIX_3D_OBJECTS_MIN_MAX # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects.
-#-DDRAW_BBOX	# draws the bounding boxes for 2d and 3d objects
+#-DBUG_FIX_3D_OBJECTS_MIN_MAX # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects or use the new file format.
 #-DUSE_LISPSM	# uses light space optimized shadow maps (EXPERIMENTAL)
 #-DAUTO_UPDATE	# enable minor automatic file updating
 #-DAFK_FIX	# fixes afk messages to count only PM's, and store and count local messages if the option is selected
 #-DFONTS_FIX		# dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
+#-DNEW_E3D_FORMAT	# Enables the new e3d file format. Only works with files in the new file format! Needs -DNEW_FRUSTUM. 
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -51,7 +51,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
 	framebuffer.o filter.o font.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
-	ignore.o init.o interface.o items.o	\
+	ignore.o init.o interface.o io/e3d_io.o io/elc_io.o items.o	\
 	keys.o knowledge.o lights.o lispsm.o list.o loginwin.o loading_win.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
 	md2loader.o md5.o misc.o multiplayer.o	\
@@ -96,7 +96,7 @@ clean:
 docs:	
 	cd docs && doxygen Doxyfile
 
-.depend: *.h books/*.h
+.depend: *.h books/*.h io/*.h
 	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
 	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
 

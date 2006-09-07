@@ -52,6 +52,7 @@ void destroy_map()
 		{
 			if(objects_list[i])
 				{
+#ifndef	NEW_E3D_FORMAT
 					if(objects_list[i]->clouds_uv){
 						if(have_vertex_buffers){
 							const GLuint l=objects_list[i]->cloud_vbo;
@@ -61,6 +62,7 @@ void destroy_map()
 						}
 						free(objects_list[i]->clouds_uv);
 					}
+#endif
 					free(objects_list[i]);
 					objects_list[i]=NULL;//kill any refference to it
 				}

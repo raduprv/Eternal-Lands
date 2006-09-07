@@ -6,6 +6,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef NEW_E3D_FORMAT
+#include "io/e3d_io.h"
+#endif
 #ifdef OSX86
 	#undef OSX 0 //this is needed since i386 fixes some PPC issues here
 #endif
@@ -45,6 +48,131 @@ void inc_objects_list_placeholders()
 	objects_list_placeholders++;
 }
 
+#ifdef NEW_E3D_FORMAT
+static __inline__ void get_texture_object_linear_plane(float obj_z_rot, float obj_x_pos, float obj_y_pos, float* s_plane, float* t_plane)
+{
+	float w, cos_w, sin_w;
+
+	w = -obj_z_rot * M_PI / 180.0f;
+	cos_w = cos(w);
+	sin_w = sin(w);
+	
+	s_plane[0] = cos_w / texture_scale;
+	s_plane[1] = sin_w / texture_scale;
+	s_plane[2] = 1.0f / texture_scale;
+	s_plane[3] = obj_x_pos / texture_scale + clouds_movement_u;
+	t_plane[0] = -sin_w / texture_scale;
+	t_plane[1] = cos_w / texture_scale;
+	t_plane[2] = 1.0f / texture_scale;
+	t_plane[3] = obj_y_pos / texture_scale + clouds_movement_v;
+}
+
+void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
+{
+	unsigned int type;
+	float s_plane[4], t_plane[4];//, r_plane[4], q_plane[4];
+
+	// check for having to load the arrays
+	load_e3d_detail_if_needed(object_id->e3d_data);
+
+	CHECK_GL_ERRORS();
+	//also, update the last time this object was used
+	object_id->last_acessed_time = cur_time;
+
+	//debug
+
+	if (object_id->self_lit && (!is_day || dungeon)) 
+	{
+		glColor3f(object_id->r,object_id->g,object_id->b);
+	}
+	CHECK_GL_ERRORS();
+
+	glPushMatrix();//we don't want to affect the rest of the scene
+
+	glMultMatrixf(object_id->matrix);
+
+	CHECK_GL_ERRORS();
+
+	if (have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping))
+	{
+		ELglActiveTextureARB(detail_unit);
+		get_texture_object_linear_plane(object_id->z_rot, object_id->x_pos, object_id->y_pos, s_plane, t_plane);
+		glTexGenfv(GL_S, GL_EYE_PLANE, s_plane);
+		glTexGenfv(GL_T, GL_EYE_PLANE, t_plane);
+		ELglActiveTextureARB(base_unit);
+	}
+
+	// watch for a change
+	if (object_id->e3d_data != cur_e3d)
+	{
+		if ((cur_e3d != NULL) && (use_compiled_vertex_array))
+		{
+			ELglUnlockArraysEXT();
+		}
+		
+		if (object_id->e3d_data->is_ground) type = GL_T2F_V3F;
+		else type = GL_T2F_N3F_V3F;
+		
+		if (have_vertex_buffers && object_id->e3d_data->vbo[0] && 
+		    object_id->e3d_data->vbo[1])
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
+			glInterleavedArrays(type, 0, 0);
+			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+		}
+		else glInterleavedArrays(type, 0, object_id->e3d_data->vertex_data);
+		
+		CHECK_GL_ERRORS();
+
+		// lock this new one
+		if (use_compiled_vertex_array)
+		{
+			ELglLockArraysEXT(0, object_id->e3d_data->vertex_no);
+		}
+		// gather statistics
+		if (object_id->e3d_data != cur_e3d)
+		{
+#ifdef  DEBUG
+			if ((cur_e3d_count > 0) && (cur_e3d != NULL))
+			{
+				e3d_count++;
+				e3d_total += cur_e3d_count;
+			}
+			cur_e3d_count = 0;
+#endif    //DEBUG
+			cur_e3d = object_id->e3d_data;
+		}
+	}
+#ifdef  DEBUG
+	cur_e3d_count++;
+#endif  //DEBUG
+	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
+
+	ELglMultiDrawElementsEXT(GL_TRIANGLE_STRIP,
+		object_id->e3d_data->materials[material_index].triangle_strips_indicies_count,
+		object_id->e3d_data->index_type,
+		(const void**)object_id->e3d_data->materials[material_index].triangle_strips_indicies_index,
+		object_id->e3d_data->materials[material_index].triangle_strips_no);
+
+	ELglDrawRangeElementsEXT(GL_TRIANGLES,
+		object_id->e3d_data->materials[material_index].triangles_indicies_min,
+		object_id->e3d_data->materials[material_index].triangles_indicies_max,
+		object_id->e3d_data->materials[material_index].triangles_indicies_count,
+		object_id->e3d_data->index_type,
+		object_id->e3d_data->materials[material_index].triangles_indicies_index);
+
+	glPopMatrix();//restore the scene
+	CHECK_GL_ERRORS();
+
+	//OK, let's check if our mouse is over...
+#ifndef	NEW_FRUSTUM
+#ifdef MAP_EDITOR2
+	if (selected_3d_object == -1 && read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
+		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
+#endif
+#endif
+}
+#else
 void draw_3d_object_detail(object3d * object_id)
 {
 #ifndef NEW_FRUSTUM
@@ -185,16 +313,17 @@ void draw_3d_object_detail(object3d * object_id)
 	CHECK_GL_ERRORS();
 
 	//OK, let's check if our mouse is over...
+#ifndef	NEW_FRUSTUM
 #ifdef MAP_EDITOR2
 	if (selected_3d_object == -1 && read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
 		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
 #else
-#ifndef	NEW_FRUSTUM
 	if (read_mouse_now && mouse_in_sphere(object_id->x_pos, object_id->y_pos, object_id->z_pos, object_id->e3d_data->radius))
 		anything_under_the_mouse(object_id->id, UNDER_MOUSE_3D_OBJ);
 #endif
 #endif
 }
+#endif
 
 #ifndef NEW_FRUSTUM
 void draw_3d_object(object3d * object_id)
@@ -216,7 +345,7 @@ void draw_3d_object(object3d * object_id)
 
 	if(object_id->self_lit && (!is_day || dungeon)) {
 #ifndef OSX
-		glDisable(GL_LIGHTING);
+ 		glDisable(GL_LIGHTING);
 #endif
 		glColor3f(object_id->r,object_id->g,object_id->b);
 	}
@@ -259,14 +388,20 @@ void draw_3d_object(object3d * object_id)
 void draw_3d_objects(unsigned int object_type)
 {
 	unsigned int    start, stop;
+#ifdef	NEW_E3D_FORMAT
+	unsigned int    i, j, l;
+#else
 	unsigned int    i, l;
+#endif
 	int is_selflit, is_transparent, is_ground;
+#ifdef  SIMPLE_LOD
 	int x, y, dist;
 	
 	x= -cx;
 	y= -cy;
+#endif
 
-	cur_e3d= NULL;
+ 	cur_e3d= NULL;
 #ifdef  DEBUG
 	cur_e3d_count= 0;
 #endif  //DEBUG
@@ -282,7 +417,13 @@ void draw_3d_objects(unsigned int object_type)
 		// now loop through each object
 		for (i=start; i<stop; i++)
 		{
+#ifdef	NEW_E3D_FORMAT
+			j = get_intersect_item_ID(main_bbox_tree, i);
+			l = get_3dobject_index(j);
+#else
 			l = get_intersect_item_ID(main_bbox_tree, i);
+#endif
+			if (objects_list[l] == NULL) continue;
 			//track the usage
 			cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		}
@@ -309,11 +450,28 @@ void draw_3d_objects(unsigned int object_type)
 		else glAlphaFunc(GL_GREATER,0.06f);
 		glDisable(GL_CULL_FACE);
 	}
-	
+
+#ifdef	NEW_E3D_FORMAT
+	if (have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping))
+	{
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_GEN_S);
+		glEnable(GL_TEXTURE_GEN_T);
+		glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+		glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+		ELglActiveTextureARB(base_unit);
+	}
+#endif
 	// now loop through each object
 	for (i=start; i<stop; i++)
 	{
+#ifdef	NEW_E3D_FORMAT
+		j = get_intersect_item_ID(main_bbox_tree, i);
+		l = get_3dobject_index(j);
+#else
 		l = get_intersect_item_ID(main_bbox_tree, i);
+#endif
+		if (objects_list[l] == NULL) continue;
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
@@ -322,24 +480,42 @@ void draw_3d_objects(unsigned int object_type)
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
 		if(/*dist > 10*10 &&*/ 10000*max(max(objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x, objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y), objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z)/(dist) < ((is_transparent)?15:10)) continue;
 #endif  //SIMPLE_LOD
-
+#ifdef	NEW_E3D_FORMAT
+		draw_3d_object_detail(objects_list[l], get_3dobject_material(j));
+#else
 		draw_3d_object_detail(objects_list[l]);
+#endif
+#ifdef MAP_EDITOR2
+		if ((selected_3d_object == -1) && read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#else
 		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
+#endif
 		{
 			if (click_line_bbox_intersection(get_intersect_item_bbox(main_bbox_tree, i)))
 				anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);
 		}
 	}
-
+	
 	if(use_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
-	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
+	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping))
+	{
+#ifdef	NEW_E3D_FORMAT
+		ELglActiveTextureARB(detail_unit);
+		glDisable(GL_TEXTURE_GEN_S);
+		glDisable(GL_TEXTURE_GEN_T);
+		ELglActiveTextureARB(base_unit);
+#else
 		ELglClientActiveTextureARB(detail_unit);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		ELglClientActiveTextureARB(base_unit);
+#endif
 	}
 
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#ifdef NEW_E3D_FORMAT
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+#endif
 	}
 	// restore the settings
 	if (is_selflit && (!is_day || dungeon))
@@ -376,11 +552,40 @@ e3d_object *load_e3d_cache (const char * file_name)
 	if (e3d_id != NULL) return e3d_id;
 
 	//e3d not found in the cache, so load it, and store it
+#ifdef	NEW_E3D_FORMAT
+	// allocate the memory
+	e3d_id = (e3d_object*)malloc(sizeof(e3d_object));
+	if (e3d_id == NULL) 
+	{
+		LOG_ERROR("Can't alloc data for file \"%s\"!", file_name);
+		return NULL;
+	}
+	// and fill in the data
+	memset(e3d_id, 0, sizeof(e3d_object));
+	if (e3d_id == NULL) 
+	{
+		LOG_ERROR("Memset Error for file \"%s\"!", file_name);
+		return NULL;
+	}
+	my_strncp(e3d_id->file_name, file_name, sizeof(e3d_id->file_name));
+	
+	e3d_id = load_e3d_detail(e3d_id);
+
+	if (e3d_id == NULL) 
+	{
+		LOG_ERROR("Can't load file \"%s\"!", file_name);
+		return NULL;
+	}
+
+	e3d_id->cache_ptr = cache_add_item (cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
+#else
 	e3d_id = load_e3d (file_name);
+
 	if (e3d_id == NULL) return NULL;
 	//and remember it
 	e3d_id->cache_ptr = cache_add_item (cache_e3d, e3d_id->file_name, e3d_id, sizeof(*e3d_id));
-
+#endif
+	
 	return e3d_id;
 }
 
@@ -397,8 +602,12 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 #ifdef	NEW_FRUSTUM
 	AABBOX bbox;
 	unsigned int texture_id;
+#ifndef	NEW_E3D_FORMAT
 	MD5_DIGEST ZERO_MD5 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	MD5_DIGEST fake_md5;
+#else
+	unsigned int is_transparent;
+#endif
 #endif
 
 	if (id < 0 || id >= MAX_OBJ_3D)
@@ -426,7 +635,6 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
     		if (returned_e3d == NULL)
 			return 0; // umm, not even found the place holder, this is teh SUCK!!!
 	}
-
 	// now, allocate the memory
 	our_object = calloc (1, sizeof (object3d));
 
@@ -444,8 +652,10 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	our_object->g = g;
 	our_object->b = b;
 
+#ifndef	NEW_E3D_FORMAT
 	our_object->clouds_uv = NULL;
 	our_object->cloud_vbo = 0;
+#endif
 
 	our_object->self_lit = self_lit;
 	our_object->blended = blended;
@@ -481,6 +691,25 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	}
 
 #ifdef	NEW_FRUSTUM
+#ifdef	NEW_E3D_FORMAT
+	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
+	
+	for (i = 0; i < returned_e3d->material_no; i++)
+	{	
+		bbox.bbmin[X] = returned_e3d->materials[i].min_x;
+		bbox.bbmax[X] = returned_e3d->materials[i].max_x;
+		bbox.bbmin[Y] = returned_e3d->materials[i].min_y;
+		bbox.bbmax[Y] = returned_e3d->materials[i].max_y;
+		bbox.bbmin[Z] = returned_e3d->materials[i].min_z;
+		bbox.bbmax[Z] = returned_e3d->materials[i].max_z;
+
+		matrix_mul_aabb(&bbox, our_object->matrix);
+		texture_id = returned_e3d->materials[i].texture_id;
+		is_transparent = returned_e3d->materials[i].options & 0x00000001;
+		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, returned_e3d->is_ground, is_transparent, self_lit, texture_id, returned_e3d->md5);
+		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, returned_e3d->is_ground, is_transparent, self_lit, texture_id, returned_e3d->md5, dynamic);
+	}
+#else
 	bbox.bbmin[X] = returned_e3d->min_x;
 	bbox.bbmax[X] = returned_e3d->max_x;
 	bbox.bbmin[Y] = returned_e3d->min_y;
@@ -497,7 +726,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		texture_id = returned_e3d->array_order[0].texture_id;
 	}
 	else texture_id = 0xFFFFFFFF;
-	
+
 	// we need somethign for the md5 data, but we dont have that info, lets use the memory pointer
 	memcpy(fake_md5, ZERO_MD5, sizeof(MD5_DIGEST));
 	fake_md5[0]=(((unsigned int)returned_e3d)>>24) & 0xFF;
@@ -507,6 +736,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, fake_md5);
 	else add_3dobject_to_abt(main_bbox_tree, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, fake_md5, dynamic);
 
+#endif
 #else
 	regenerate_near_objects = 1; // We've added an object..
 #endif
@@ -822,6 +1052,7 @@ void display_blended_objects()
 	CHECK_GL_ERRORS();
 }
 
+#ifndef	NEW_E3D_FORMAT
 e3d_object *load_e3d (const char *file_name)
 {
 	int vertex_no,faces_no,materials_no;
@@ -893,7 +1124,9 @@ e3d_object *load_e3d (const char *file_name)
 
 	return cur_object;
 }
+#endif
 
+#ifndef	NEW_E3D_FORMAT
 e3d_object * load_e3d_detail(e3d_object *cur_object)
 {
 	int vertex_no,faces_no,materials_no;
@@ -1153,9 +1386,11 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 
 	return cur_object;
 }
+#endif
 
 void compute_clouds_map(object3d * object_id)
 {
+#ifndef	NEW_E3D_FORMAT
 	//float x1,y1,x,y,z,m;
 	float m;
 	float cos_m,sin_m;
@@ -1210,10 +1445,12 @@ void compute_clouds_map(object3d * object_id)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
 
+#endif
 }
 
 void destroy_clouds_cache(object3d * obj)
 {
+#ifndef	NEW_E3D_FORMAT
 	if(have_vertex_buffers){
 		const GLuint l=obj->cloud_vbo;
 							
@@ -1224,10 +1461,12 @@ void destroy_clouds_cache(object3d * obj)
 		free(obj->clouds_uv);
 		obj->clouds_uv = NULL;
 	}
+#endif
 }
 
 void clear_clouds_cache()
 {
+#ifndef	NEW_E3D_FORMAT
 	int i;
 
 	last_clear_clouds=cur_time;
@@ -1238,6 +1477,7 @@ void clear_clouds_cache()
 			}
 		}
 	}
+#endif
 }
 
 void destroy_3d_object(int i)
@@ -1248,7 +1488,8 @@ void destroy_3d_object(int i)
 	if (objects_list[i] == NULL) return;
 	destroy_clouds_cache(objects_list[i]);
 #ifdef	NEW_FRUSTUM
-	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->e3d_data->is_ground, objects_list[i]->e3d_data->is_transparent, objects_list[i]->self_lit);
+
+	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->self_lit);
 #endif
 	free(objects_list[i]);
 	objects_list[i] = NULL;
@@ -1261,6 +1502,7 @@ void destroy_3d_object(int i)
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
 {
+#ifndef	NEW_E3D_FORMAT
 #ifdef	NEW_FRUSTUM
 	set_all_intersect_update_needed(main_bbox_tree);
 #else
@@ -1298,6 +1540,48 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 	}
 	
 	return(e3d_id->cache_ptr->size - sizeof(*e3d_id));
+#else
+	int i;
+
+	set_all_intersect_update_needed(main_bbox_tree);
+	
+	if (e3d_id != NULL)
+	{
+		if (e3d_id->vertex_data != NULL)
+		{
+			free(e3d_id->vertex_data);
+			e3d_id->vertex_data = NULL;
+		}
+		if (e3d_id->indicies != NULL)
+		{
+			free(e3d_id->indicies);
+			e3d_id->indicies = NULL;
+		}
+		if (e3d_id->materials != NULL)
+		{
+			for (i = 0; i < e3d_id->material_no; i++)
+			{
+				if (e3d_id->materials[i].triangle_strips_indicies_index != NULL)
+					free(e3d_id->materials[i].triangle_strips_indicies_index);
+				e3d_id->materials[i].triangle_strips_indicies_index = NULL;
+				if (e3d_id->materials[i].triangle_strips_indicies_count != NULL)
+					free(e3d_id->materials[i].triangle_strips_indicies_count);
+				e3d_id->materials[i].triangle_strips_indicies_count = NULL;				
+			}
+			free(e3d_id->materials);
+			e3d_id->materials = NULL;
+		}
+		if (have_vertex_buffers)
+		{		
+			ELglDeleteBuffersARB(2, e3d_id->vbo);
+
+			e3d_id->vbo[0] = 0;
+			e3d_id->vbo[1] = 0;
+		}
+	}
+
+	return (e3d_id->cache_ptr->size - sizeof(*e3d_id));
+#endif
 }
 
 void destroy_e3d(e3d_object *e3d_id)

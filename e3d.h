@@ -7,8 +7,10 @@
 #define __E3D_H__
 
 #ifdef	NEW_FRUSTUM
+#ifdef	NEW_E3D_FORMAT
+#include "md5.h"
+#endif
 #include "vmath.h"
-#include "bbox_tree.h"
 #endif
 /*!
  * \name    3D objects array sizes
@@ -31,6 +33,56 @@ extern int highest_obj_3d;  /*!< pointer to the highes 3D object in map */
 #ifndef	NEW_FRUSTUM
 extern int no_near_3d_objects;
 #endif
+
+#ifdef	NEW_E3D_FORMAT
+typedef struct
+{
+	int texture_id;
+	int options;	/*!< flag determining whether this object is transparent or not */
+
+    /*!
+     * \name min/max values of x,y,z
+     */
+    /*! @{ */
+	float min_x;
+	float min_y;
+	float min_z;
+	float max_x;
+	float max_y;
+	float max_z;
+    /*! @} */
+
+	void* triangles_indicies_index;
+	int triangles_indicies_count;
+	int triangles_indicies_min;
+	int triangles_indicies_max;
+	int triangle_strips_no;
+	void** triangle_strips_indicies_index;
+	int* triangle_strips_indicies_count;
+} e3d_draw_list;
+
+/*!
+ * structure of an el3d object.
+ */
+typedef struct
+{
+	void* vertex_data; /*!< an array of el3d vertex data */
+	void* indicies; /*!< an array of el3d indicies */
+	e3d_draw_list* materials; /*!< an array of triangle data for every material */
+	int vertex_no; /*!< number of vertexes, normals and texture coordinates in this object */
+	int index_no; /*!< number of all indicies */
+	int material_no; /*!< number of materials in this object */
+	int index_type; /*!< type of the indicies: GL_UNSIGNED_BYTE, GL_UNSIGNED_WORD or GL_UNSIGNED_INT */
+
+   	GLuint vbo[2]; /*!< Vertex buffer objects */
+    
+	char is_ground; /*!< flag determining whether this is a ground object or not */
+
+	cache_item_struct *cache_ptr; /*!< pointer to a cache item. If this is !=NULL, this points to a valid cached item of this object */
+	MD5_DIGEST md5; /*!< the MD5 digest of the file */
+	char file_name[128]; /*!< filename where this object is stored. */
+} e3d_object;
+#else
 
 //the new array structures
 
@@ -235,6 +287,7 @@ typedef struct
 	cache_item_struct *cache_ptr; /*!< pointer to a cache item. If this is !=NULL, this points to a valid cached item of this object */
 	char file_name[128]; /*!< filename where this object is stored. */
 }e3d_object;
+#endif
 
 /*!
  * object3d structure
@@ -270,8 +323,10 @@ typedef struct
    char state; /*!< state flag for future expansion & data alignment. */
    
    float r,g,b; /*!< color values (red, green, blue) for this object */
+#ifndef	NEW_E3D_FORMAT
    e3d_array_uv_detail *clouds_uv; /*!< detailed texture coordinates used by clouds. */
    GLuint cloud_vbo; /*! the vertex buffer object for the clouds uv*/
+#endif
 
    e3d_object *e3d_data; /*!< e3d model data */
    unsigned int last_acessed_time; /*!< timestamp when this object was last accessed. */
@@ -283,6 +338,7 @@ extern object3d *objects_list[MAX_OBJ_3D]; /*!< global variable containing up to
 
 //proto
 
+#ifndef	NEW_E3D_FORMAT
 /*!
  * \ingroup load_3d
  * \brief   loads detail, attachs it to the \a cur_object and returns it.
@@ -294,6 +350,7 @@ extern object3d *objects_list[MAX_OBJ_3D]; /*!< global variable containing up to
  * \callgraph
  */
 e3d_object * load_e3d_detail(e3d_object *cur_object);
+#endif
 
 /*!
  * \ingroup load_3d
