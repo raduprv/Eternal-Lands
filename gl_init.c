@@ -733,7 +733,7 @@ void init_gl_extensions()
 	if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0 && use_vertex_buffers){
 		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_buffer_object");
 		LOG_TO_CONSOLE(c_green2, str);
-		have_vertex_buffers=0;
+		have_vertex_buffers=1;
 	} else {
 		have_vertex_buffers=0;
 	}
