@@ -478,7 +478,11 @@ void draw_3d_objects(unsigned int object_type)
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
-		if(/*dist > 10*10 &&*/ 10000*max(max(objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x, objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y), objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z)/(dist) < ((is_transparent)?15:10)) continue;
+#ifdef	NEW_E3D_FORMAT
+		if( (10000*objects_list[l]->e3d_data->materials[get_3dobject_material(j)].max_size)/(dist) < ((is_transparent)?15:10)) continue;
+#else
+		if( (10000*objects_list[l]->e3d_data->max_size)/(dist) < ((is_transparent)?15:10)) continue;
+#endif
 #endif  //SIMPLE_LOD
 #ifdef	NEW_E3D_FORMAT
 		draw_3d_object_detail(objects_list[l], get_3dobject_material(j));
@@ -1096,6 +1100,8 @@ e3d_object *load_e3d (const char *file_name)
 	cur_object->max_y=our_header.max_y;
 	cur_object->max_z=our_header.max_z;
 #endif
+	// calculate the max size for cruse LOD processing
+	cur_object->max_size= max(max(cur_object->max_x-cur_object->min_x, cur_object->max_y-cur_object->min_y), cur_object->max_z-cur_object->min_z);
 
 #ifdef	BUG_FIX_3D_OBJECTS_MIN_MAX
 	len_x = (cur_object->max_x - cur_object->min_x);

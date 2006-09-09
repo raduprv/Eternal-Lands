@@ -438,7 +438,11 @@ void draw_3d_object_shadows(unsigned int object_type)
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
-		if(/*dist > 10*10 &&*/ 1000*max(max(objects_list[l]->e3d_data->max_x-objects_list[l]->e3d_data->min_x, objects_list[l]->e3d_data->max_y-objects_list[l]->e3d_data->min_y), objects_list[l]->e3d_data->max_z-objects_list[l]->e3d_data->min_z)/(dist) < 5) continue;
+#ifdef	NEW_E3D_FORMAT
+		if( (10000*objects_list[l]->e3d_data->materials[get_3dobject_material(j)].max_size)/(dist) < ((is_transparent)?15:10)) continue;
+#else
+		if( (10000*objects_list[l]->e3d_data->max_size)/(dist) < ((is_transparent)?15:10)) continue;
+#endif
 #endif  //SIMPLE_LOD
 #ifdef	NEW_E3D_FORMAT
 		draw_3d_object_shadow_detail(objects_list[l], get_3dobject_material(j));

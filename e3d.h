@@ -41,7 +41,7 @@ typedef struct
 	int options;	/*!< flag determining whether this object is transparent or not */
 
     /*!
-     * \name min/max values of x,y,z
+     * \name min/max values of x,y,z as well as the max size/dimension of the material
      */
     /*! @{ */
 	float min_x;
@@ -50,6 +50,7 @@ typedef struct
 	float max_x;
 	float max_y;
 	float max_z;
+	float max_size;
     /*! @} */
 
 	void* triangles_indicies_index;
@@ -270,7 +271,7 @@ typedef struct
 #endif
     
     /*!
-     * \name min/max of x,y,z
+     * \name min/max of x,y,z as well as the max size/dimension
      */
     /*! @{ */
 	float min_x;
@@ -279,6 +280,7 @@ typedef struct
 	float max_x;
 	float max_y;
 	float max_z;
+	float max_size;
     /*! @} */
     
 	char is_transparent; /*!< flag determining whether this object is transparent or not */

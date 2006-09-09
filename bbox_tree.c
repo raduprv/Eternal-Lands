@@ -360,7 +360,6 @@ static int comp_items(const void *in_a, const void *in_b)
 				else
 				{
 					if (am == bm)return memcmp(a->md5, b->md5, sizeof(MD5_DIGEST));
-					//if (am == bm)return(a->ID - b->ID);   // drats, this is usually unique
 					else return 1;
 				}
 				return 0;
