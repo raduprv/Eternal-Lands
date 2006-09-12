@@ -313,10 +313,15 @@ void load_ogg_file(char *file_name)
 ALuint get_loaded_buffer(int i)
 {
 	int error;
+#ifdef  ALUT_WAV
 	ALsizei size,freq;
-	ALenum  format;
-	ALvoid  *data;
 	ALboolean loop;
+#else
+    ALsizei	size;
+	ALfloat freq;
+#endif  //ALUT_WAV
+	ALenum  format;
+	ALvoid*	data= NULL;
 	FILE *fin;
 	
 	if(!alIsBuffer(sound_buffer[i]))
@@ -345,14 +350,20 @@ ALuint get_loaded_buffer(int i)
 			have_music=0;
 		}
 
+#ifdef  ALUT_WAV
 #ifdef OSX
 		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
 #else
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq, &loop);
-#endif
+#endif  //OSX
 		alBufferData(sound_buffer[i],format,data,size,freq);
 		alutUnloadWAV(format,data,size,freq);
+#else
+        data= alutLoadMemoryFromFile (sound_files[i], &format, &size, &freq);
+        alBufferData(sound_buffer[i],format,data,size,(int)freq);
+		free(data);
+#endif  //ALUT_WAV
 	}
 	return sound_buffer[i];
 }
@@ -374,19 +385,26 @@ int ensure_sample_loaded(int index)
 	{//this file is not currently loaded
 
 		//try to open the file
+#ifdef  ALUT_WAV
 #ifndef OSX
 		alutLoadWAVFile(szPath,&pSample->format,&data,&pSample->size,&pSample->freq,&loop);
 #else
 		alutLoadWAVFile(szPath,&pSample->format,&data,&pSample->size,&pSample->freq);
-#endif
+#endif  //OSX
+#else
+        data= alutLoadMemoryFromFile(szPath, &pSample->format, &pSample->size, &pSample->freq);
+#endif  //ALUT_WAV
 		if(!data)
 		{//couldn't load the file
-		#ifdef ELC
+#ifdef ELC
 			LOG_ERROR("%s: %s",snd_buff_error, "NO SOUND DATA");
-		#else
-			printf("ensure_sample_loaded : alutLoadWAVFile(%s) = %s\n",
-				szPath, "NO SOUND DATA");
-		#endif
+#else
+#ifdef  ALUT_WAV
+			printf("ensure_sample_loaded : alutLoadWAVFile(%s) = %s\n",	szPath, "NO SOUND DATA");
+#else
+			printf("ensure_sample_loaded : alutLoadMemoryFromFile(%s) = %s\n",	szPath, "NO SOUND DATA");
+#endif  //ALUT_WAV
+#endif  //ELC
 			return 1;
 		}
 
@@ -394,11 +412,11 @@ int ensure_sample_loaded(int index)
 		alGenBuffers(1, pBuffer);
 		if((error=alGetError()) != AL_NO_ERROR) 
 		{//couldn't generate a buffer
-		#ifdef ELC
+#ifdef ELC
 			LOG_ERROR("%s: %s",snd_buff_error, alGetString(error));
-		#else
+#else
 			printf("ensure_sample_loaded ['%s',#%d]: alGenBuffers = %s\n",szPath, index, alGetString(error));
-		#endif
+#endif
 			*pBuffer=0;
 			return 2;
 		}
@@ -420,7 +438,11 @@ int ensure_sample_loaded(int index)
 		pSample->length = (pSample->size*1000) / ((pSample->bits >> 3)*pSample->channels*pSample->freq);
 
 		//get rid of the temporary data
+#ifdef  ALUT_WAV
 		alutUnloadWAV(pSample->format,data,pSample->size,pSample->freq);
+#else
+		free(data);
+#endif  //ALUT_WAV
     }
 
 	pSample->loaded_status = 1;
