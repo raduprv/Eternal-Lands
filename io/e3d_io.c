@@ -214,6 +214,8 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_object->materials[i].max_x = SwapLEFloat(material.max_x);
 		cur_object->materials[i].max_y = SwapLEFloat(material.max_y);
 		cur_object->materials[i].max_z = SwapLEFloat(material.max_z);
+		// calculate the max size for cruse LOD processing
+		cur_object->materials[i].max_size= max(max(cur_object->materials[i].max_x-cur_object->materials[i].min_x, cur_object->materials[i].max_y-cur_object->materials[i].min_y), cur_object->materials[i].max_z-cur_object->materials[i].min_z);
 		cur_object->materials[i].triangles_indicies_index = indicies_size*SDL_SwapLE32(material.triangles.index) + index_pointer;
 		cur_object->materials[i].triangles_indicies_count = SDL_SwapLE32(material.triangles.count);
 		cur_object->materials[i].triangles_indicies_min = SDL_SwapLE32(material.triangles_min_index);
