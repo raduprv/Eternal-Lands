@@ -205,16 +205,15 @@ void cal_render_actor(actor *act)
 	struct CalCoreMesh *_coremesh;
 	struct CalCoreMesh *_weaponmesh;
 	struct CalCoreMesh *_shieldmesh;
-	int boneid=-1;
+	//int boneid=-1;
 	float reverse_scale;
-	int glow=-1;
+	//int glow=-1;
 
 	if(act->calmodel==NULL) {
 		return;//Wtf!?
 	}
 	skel=CalModel_GetSkeleton(act->calmodel);
 
-	//glDisable(GL_TEXTURE_2D);
 	glPushMatrix();
 	// the dynamic scaling
 	if(act->scale != 1.0f){
@@ -236,39 +235,45 @@ void cal_render_actor(actor *act)
 			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 			// get the number of meshes
-
 			meshCount = CalRenderer_GetMeshCount(pCalRenderer);
+
+			// check for weapons or shields being worn
+			if (act->is_enhanced_model) {
+				if(actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index!=-1) _weaponmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index);
+				else _weaponmesh=NULL;
+				if(act->body_parts->shield_meshindex!=-1) _shieldmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,act->body_parts->shield_meshindex);
+				else _shieldmesh=NULL;
+			} else {
+				// non-enhanced never have weapon or shields
+				_weaponmesh=NULL;
+				_shieldmesh=NULL;
+			}
 
 			// render all meshes of the model
 			for(meshId = 0; meshId < meshCount; meshId++){
 				// get the number of submeshes
    				submeshCount = CalRenderer_GetSubmeshCount(pCalRenderer,meshId);
-				glPushMatrix();
 
-				//Special treatment for weapons and shields only for enhanced models
-				boneid=-1;
-				glow=-1;
-
-				if (act->is_enhanced_model) {
+				if(act->is_enhanced_model && (_weaponmesh || _shieldmesh)) {
+					//Special treatment for weapons and shields only for enhanced models
+					int glow=-1;
+					int boneid=-1;
+					
 					_mesh=CalModel_GetAttachedMesh(act->calmodel,meshId);//Get current rendered mesh
 					_coremesh=CalMesh_GetCoreMesh(_mesh);//Get the coremesh
 
-					if(actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index!=-1)_weaponmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index);
-					else _weaponmesh=NULL;
-					if(act->body_parts->shield_meshindex!=-1)_shieldmesh=CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,act->body_parts->shield_meshindex);
-					else _shieldmesh=NULL;
-
-
 					if (_coremesh==_weaponmesh) boneid=26;//If it's a weapon snap to WeaponR bone
-					if (_coremesh==_shieldmesh) boneid=21;//If it's a shield snap to WeaponL bone
+					else if (_coremesh==_shieldmesh) boneid=21;//If it's a shield snap to WeaponL bone
 					if (boneid!=-1) {
-						reverse_scale=1.0/actors_defs[act->actor_type].skel_scale;
+						glPushMatrix();
+						reverse_scale= 1.0/actors_defs[act->actor_type].skel_scale;
 						CalSkeleton_GetBonePoints(skel,&points[0][0]);
 
 						glTranslatef(points[boneid][0],points[boneid][1],points[boneid][2]);
 						glScalef(reverse_scale,reverse_scale,reverse_scale);
 						glTranslatef(-points[boneid][0],-points[boneid][1],-points[boneid][2]);
 
+						// find the proper place to bind this object to
 						switch(boneid){
 							case 26:
 								if(actors_defs[act->actor_type].weapon[act->cur_weapon].glow>0){
@@ -283,56 +288,64 @@ void cal_render_actor(actor *act)
 								break;
 						}
 					}
-				}
 
-				if(glow>0){
-					glEnable(GL_COLOR_MATERIAL);
-					glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
-						glEnable(GL_BLEND);
-						glDisable(GL_LIGHTING);
-					}
-
-					if(use_shadow_mapping){
-						glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
-						ELglActiveTextureARB(shadow_unit);
-						glDisable(depth_texture_target);
-						disable_texgen();
-						ELglActiveTextureARB(GL_TEXTURE0);
-					}
-
-					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.5f);
-					glPushMatrix();
-					glScalef(0.99f, 0.99f, 0.99f);
-					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
-					glPopMatrix();
-
-					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.85f);
-					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
-					glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.99f);
-					glPushMatrix();
-					glScalef(1.01f, 1.01f, 1.01f);
-					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
-					glPopMatrix();
-
-					if(use_shadow_mapping){
-						glPopAttrib();
-					}
-					glColor3f(1.0f, 1.0f, 1.0f);
-					glDisable(GL_COLOR_MATERIAL);
-					if (!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
-						glDisable(GL_BLEND);
-						glEnable(GL_LIGHTING);
-					} else {
-						glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-						if ((act->buffs & BUFF_INVISIBILITY)) {
-							glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+					// now check for a glowing weapon
+					if(glow>0){
+						glEnable(GL_COLOR_MATERIAL);
+						glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+						if(!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
+							glEnable(GL_BLEND);
+							glDisable(GL_LIGHTING);
 						}
+
+						if(use_shadow_mapping){
+							glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
+							ELglActiveTextureARB(shadow_unit);
+							glDisable(depth_texture_target);
+							disable_texgen();
+							ELglActiveTextureARB(GL_TEXTURE0);
+						}
+
+						glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.5f);
+						glPushMatrix();
+						glScalef(0.99f, 0.99f, 0.99f);
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+						glPopMatrix();
+
+						glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.85f);
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+						glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.99f);
+						glPushMatrix();
+						glScalef(1.01f, 1.01f, 1.01f);
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+						glPopMatrix();
+
+						if(use_shadow_mapping){
+							glPopAttrib();
+						}
+						glColor3f(1.0f, 1.0f, 1.0f);
+						glDisable(GL_COLOR_MATERIAL);
+						if(!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
+							glDisable(GL_BLEND);
+							glEnable(GL_LIGHTING);
+						} else {
+							glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+							if((act->buffs & BUFF_INVISIBILITY)) {
+								glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+							}
+						}
+					} else {
+						// enhanced actors without glowing items
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+					}
+					if(boneid >= 0){
+						//if this was a weapon or shield, restore the transformation matrix
+						glPopMatrix();
 					}
 				} else {
+					// non-enhanced actors, or enhanced without attached meshes
 					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
 				}
-				glPopMatrix();
 			}
 
 			// clear vertex array state
@@ -354,13 +367,11 @@ void cal_render_actor(actor *act)
   	glDisable(GL_DEPTH_TEST);
   	glDisable(GL_TEXTURE_2D);
 
-  	if (render_skeleton) cal_render_bones(act);
+  	if(render_skeleton) cal_render_bones(act);
 
 	glEnable(GL_LIGHTING);
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_TEXTURE_2D);
 #endif
 	glPopMatrix();
-
-	//glEnable(GL_TEXTURE_2D);
 }
