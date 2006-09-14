@@ -880,13 +880,14 @@ void init_errors()
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
-#endif
+
 	//XML errors. should these have their own group?
 	add_xml_identifier (misc, "badnode", xml_bad_node, "There is something wrong with one of a node's fields.", sizeof(xml_bad_node));
 	add_xml_identifier (misc, "badroot", xml_bad_root_node, "The root node in %s was incorrect.", sizeof(xml_bad_root_node));
 	add_xml_identifier (misc, "undefnode", xml_undefined_node, "Found an unexpected node type while parsing %s (%s).", sizeof(xml_undefined_node));
 	add_xml_identifier (misc, "use_builtin_chans", using_builtin_chanlist, "Could not load a channel list from file. Using a limited built-in set instead.", sizeof(using_builtin_chanlist));
 	add_xml_identifier (misc, "use_eng_chans", using_eng_chanlist, "Could not load a channel list for language code %s. Using the english set instead.", sizeof(using_eng_chanlist));
+#endif
 
 	//Particle errors
 	add_xml_identifier(particles,"version",particles_filever_wrong,"Particle file %s version (%i) doesn't match file reader version (%i)!",sizeof(particles_filever_wrong));

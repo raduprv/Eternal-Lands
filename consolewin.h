@@ -44,7 +44,9 @@ void update_console_win ();
  */
 void create_console_root_window (int width, int height);
 
+#ifndef	MAP_EDITOR
 int input_field_resize(widget_list *w, Uint32 x, Uint32 y);
+#endif	//MAP_EDITOR
 
 int history_grep(char * text, int len);
 
