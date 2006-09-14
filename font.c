@@ -39,6 +39,7 @@ int get_font_char(unsigned char cur_char)
 					//color, won't show
 					return -1;
 				}
+			/*
 			else if(cur_char>127+c_grey4)
 				{
 					if(cur_char==252)
@@ -98,6 +99,7 @@ int get_font_char(unsigned char cur_char)
 							cur_char-=(UUML-127);
 						}
 				}
+				*/
 		}
 
 	// finally, adjust for the missing lead characters

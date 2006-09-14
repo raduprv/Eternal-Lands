@@ -1,6 +1,8 @@
 #include "global.h"
 #include <math.h>
 
+GLuint depth_map_id = 0;
+
 void SetShadowMatrix()
 {
 	float dot;

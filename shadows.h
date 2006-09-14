@@ -9,6 +9,7 @@ extern float fSunPos[4];
 extern int shadows_on;
 extern int day_shadows_on;
 extern int night_shadows_on;
+extern GLuint depth_map_id;
 
 void SetShadowMatrix();
 void draw_3d_object_shadow(object3d * object_id);
