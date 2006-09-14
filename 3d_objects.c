@@ -614,36 +614,37 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 #endif
 #endif
 
-	if (id < 0 || id >= MAX_OBJ_3D)
+	if(id < 0 || id >= MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Invalid object id %d", id);
 		return 0;
 	}
-	
-	if (objects_list[id] != NULL)
+
+	if(objects_list[id] != NULL)
 	{
-		LOG_ERROR ("There's already an object with ID %d", id);
+		LOG_ERROR("There's already an object with ID %d", id);
 		return 0;
 	}
 
 	//convert any '\' in '/'
-	clean_file_name (fname, file_name, 128);
+	clean_file_name(fname, file_name, 128);
 	my_tolower(fname);
 
-	returned_e3d=load_e3d_cache(fname);
+	returned_e3d= load_e3d_cache(fname);
 	if(returned_e3d==NULL)
 	{
 		LOG_ERROR (nasty_error_str, fname);
-    		//replace it with the null object, to avoid object IDs corruption
-    		returned_e3d = load_e3d_cache ("./3dobjects/misc_objects/badobject.e3d");
-    		if (returned_e3d == NULL)
+    	//replace it with the null object, to avoid object IDs corruption
+    	returned_e3d= load_e3d_cache ("./3dobjects/misc_objects/badobject.e3d");
+    	if(returned_e3d == NULL){
 			return 0; // umm, not even found the place holder, this is teh SUCK!!!
+		}
 	}
 	// now, allocate the memory
-	our_object = calloc (1, sizeof (object3d));
+	our_object= calloc(1, sizeof (object3d));
 
 	// and fill it in
-	my_strncp (our_object->file_name, fname, 80);
+	my_strncp(our_object->file_name, fname, 80);
 	our_object->x_pos = x_pos;
 	our_object->y_pos = y_pos;
 	our_object->z_pos = z_pos;
@@ -697,6 +698,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 #ifdef	NEW_FRUSTUM
 #ifdef	NEW_E3D_FORMAT
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot);
+	
+	// watch for needing to load the detailed information
+	//load_e3d_detail_if_needed(returned_e3d);
 	
 	for (i = 0; i < returned_e3d->material_no; i++)
 	{	
@@ -1502,8 +1506,9 @@ void destroy_3d_object(int i)
 #ifndef	NEW_FRUSTUM
 	regenerate_near_objects = 1;
 #endif
-	if(i == highest_obj_3d+1)
+	if(i == highest_obj_3d+1){
 		highest_obj_3d = i;
+	}
 }
 
 Uint32 free_e3d_va(e3d_object *e3d_id)
@@ -1574,10 +1579,12 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 					free(e3d_id->materials[i].triangle_strips_indicies_count);
 				e3d_id->materials[i].triangle_strips_indicies_count = NULL;				
 			}
-			free(e3d_id->materials);
-			e3d_id->materials = NULL;
+			// don't free the low level material information
+			//free(e3d_id->materials);
+			//e3d_id->materials= NULL;
+			//e3d_id->material_no= 0;
 		}
-		if (have_vertex_buffers)
+		if (have_vertex_buffers && e3d_id->vbo[0] != 0)
 		{		
 			ELglDeleteBuffersARB(2, e3d_id->vbo);
 
@@ -1594,6 +1601,11 @@ void destroy_e3d(e3d_object *e3d_id)
 {
 	// release the detailed data
 	free_e3d_va(e3d_id);
+#ifdef	NEW_E3D_FORMAT
+	// free the materials (not free'd in free_e3d_va)
+	if(e3d_id->materials) free(e3d_id->materials);
+	e3d_id->materials= NULL;
+#endif  //NEW_E3D_FORMAT
 	// and finally free the main object
 	free(e3d_id);
 }

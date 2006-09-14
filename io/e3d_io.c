@@ -142,10 +142,13 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	// Now reading the materials
 	fseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
 	
-	cur_object->materials = (e3d_draw_list*)malloc(cur_object->material_no*sizeof(e3d_draw_list));
-	memset(cur_object->materials, 0, cur_object->material_no*sizeof(e3d_draw_list));
+	// only allocate the materials structure if it doesn't exist (on initial load)
+	if(cur_object->materials == NULL){
+		cur_object->materials = (e3d_draw_list*)malloc(cur_object->material_no*sizeof(e3d_draw_list));
+		memset(cur_object->materials, 0, cur_object->material_no*sizeof(e3d_draw_list));
 
-	mem_size += cur_object->material_no*sizeof(e3d_draw_list);
+		mem_size += cur_object->material_no*sizeof(e3d_draw_list);
+	}
 
 	if (cur_object->index_no <= 256)
 	{
