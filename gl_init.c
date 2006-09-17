@@ -449,6 +449,8 @@ void init_video()
 	SDL_GL_SetAttribute( SDL_GL_DOUBLEBUFFER, 1 );
 	check_gl_mode();
 
+	SDL_WM_SetIcon(SDL_LoadBMP("icon.bmp"), NULL);
+	/* Set the window manager title bar */
 
 	//try to find a stencil buffer (it doesn't always work on Linux)
 	if(!SDL_SetVideoMode(window_width, window_height, bpp, flags))
@@ -530,8 +532,6 @@ void init_video()
 	}
 #endif
 
-	SDL_WM_SetIcon(SDL_LoadBMP("icon.bmp"), NULL);
-	/* Set the window manager title bar */
 #ifdef MAP_EDITOR2
 	SDL_WM_SetCaption( "Map Editor", "mapeditor" );
 #else
