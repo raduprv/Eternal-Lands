@@ -12,6 +12,10 @@ char have_display = 0;
 float cx=0;
 float cy=0;
 float cz=0;
+float old_cx=0;
+float old_cy=0;
+float old_cz=0;
+float c_delta= 0.1f;
 float rx=-60;
 float ry=0;
 float rz=45;
@@ -206,6 +210,8 @@ void move_camera ()
 
 void update_camera()
 {
+	int adjust_view= 0;
+
 	if(camera_rotation_frames)
 		{
 			rz+=camera_rotation_speed;
@@ -216,7 +222,7 @@ void update_camera()
 			}
 			camera_rotation_frames--;
 #ifdef	NEW_FRUSTUM
-			set_all_intersect_update_needed(main_bbox_tree);
+			adjust_view++;
 #else
 			regenerate_near_objects=
 			regenerate_near_2d_objects=1;
@@ -227,7 +233,9 @@ void update_camera()
 			if(camera_x_speed>0.005 || camera_x_speed<-0.005){
 				cx-=camera_x_speed;
 #ifdef	NEW_FRUSTUM
-				set_all_intersect_update_needed(main_bbox_tree);
+				if(fabs(cx-old_cx) >= c_delta){
+					adjust_view++;
+				}
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
@@ -240,7 +248,9 @@ void update_camera()
 			if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
 				cy-=camera_y_speed;
 #ifdef	NEW_FRUSTUM
-				set_all_intersect_update_needed(main_bbox_tree);
+				if(fabs(cy-old_cy) >= c_delta){
+					adjust_view++;
+				}
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
@@ -250,10 +260,19 @@ void update_camera()
 		}
 	if(camera_z_frames)
 		{
-			if(camera_z_speed>0.0005 || camera_z_speed<-0.005)
+			if(camera_z_speed>0.0005 || camera_z_speed<-0.005){
 				cz-=camera_z_speed;
+#ifdef  PARANOID_CAMERA
+#ifdef	NEW_FRUSTUM
+				if(fabs(cz-old_cz) >= c_delta){
+					adjust_view++;
+				}
+#endif
+#endif
+			}
 			camera_z_frames--;
 		}
+		
 	if(camera_tilt_frames) {
 		if(camera_tilt_speed<0) {
 			if(rx>-60)rx+=camera_tilt_speed;
@@ -277,7 +296,7 @@ void update_camera()
 				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
 #ifdef	NEW_FRUSTUM
-				set_all_intersect_update_needed(main_bbox_tree);
+				adjust_view++;
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
@@ -289,7 +308,7 @@ void update_camera()
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 #ifdef	NEW_FRUSTUM
-				set_all_intersect_update_needed(main_bbox_tree);
+				adjust_view++;
 #else
 				regenerate_near_objects=
 				regenerate_near_2d_objects=1;
@@ -298,6 +317,14 @@ void update_camera()
 				camera_zoom_frames = 0;
 		}
 	}
+#ifdef  NEW_FRUSTUM
+	if(adjust_view){
+		set_all_intersect_update_needed(main_bbox_tree);
+		old_cx= cx;
+		old_cy= cy;
+		old_cz= cz;
+	}
+#endif
 	if(zoom_level<sitting) {
 		new_zoom_level=zoom_level=sitting;
 		resize_root_window();

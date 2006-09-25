@@ -12,6 +12,7 @@ extern GLuint paper1_text;
 
 extern char have_display; /*!< Flag indicating whether any window is showing the scene */
 extern float cx,cy,cz;
+extern float old_cx,old_cy,old_cz,c_delta;
 extern float rx,ry,rz;
 extern float camera_rotation_speed; /*!< current speed for rotations of the camera */
 extern int camera_rotation_frames;
