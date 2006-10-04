@@ -197,7 +197,7 @@ int my_namecmp(char *check)
 	my_tolower(username);
 	
 	for(;i<20 && username[i] && check[i]==username[i];i++);
-	if(check[i]==username[i]||((check[i]==' '||!isalpha(check[i])) && !username[i])) return 0;
+	if(check[i]==username[i]||((check[i]==' '||!isalpha((unsigned char)check[i])) && !username[i])) return 0;
 	return 1;
 }
 
