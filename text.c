@@ -541,6 +541,11 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		total_nr_lines -= msg->wrap_lines;
 		msg->deleted = 1;
 		update_text_windows(msg);
+		msg->data[0]= '\0';
+		msg->len= 0;
+		msg->size= 0;
+		free(msg->data);
+		msg->data= NULL;
 	}
 
 	// Allow for a null byte and up to 8 extra newlines and colour codes.
@@ -958,6 +963,7 @@ void clear_display_text_buffer ()
 	last_message= -1;
 	last_server_message_time= cur_time;
 	total_nr_lines= 0;
+	not_from_the_end_console = 1;
 
 	clear_console();
 	if(use_windowed_chat == 2){
