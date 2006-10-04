@@ -505,7 +505,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 					}
 #ifdef COUNTERS
-					if (!strncmp(in_data+4, "You successfully created 1 ", 27)) {
+					if ( (data_length > 27) && (!strncmp(in_data+4, "You successfully created 1 ", 27)) ) {
 						char *product = malloc(data_length-4-27+1);
 
 						strncpy(product, in_data+4+27, data_length-4-27);
