@@ -151,7 +151,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 			}
 		case CHAT_LOCAL:
 			offset = 0;
-			if(input_text[offset] != 17+c_grey1)
+			if(input_text[offset] != 127+c_grey1)
 			{
 				//it's not a chat message, so show it
 				return 0;
