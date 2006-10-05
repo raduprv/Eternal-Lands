@@ -665,6 +665,7 @@
 #define REMOVE_3D_OBJ 76
 #define GET_ITEMS_COOLDOWN 77
 #define SEND_BUFFS 78
+#define SEND_SPECIAL_EFFECT 79
 
 // reserved for future expansion 220-229, not being used in the server yet
 #define MAP_SET_OBJECTS 220
@@ -821,6 +822,51 @@
 typedef enum {
 	BUFF_INVISIBILITY = 1
 }buffs;
+/*! @} */
+
+/*!
+ * \name Special spell effects
+ */
+/*! @{ */
+//when one player uses the poison spell on another one. Player to Player
+#define SPECIAL_EFFECT_POISON 0
+
+//when one player heals another. Player to Player
+#define SPECIAL_EFFECT_REMOTE_HEAL 1
+
+//when one player harms another. Player to Player
+#define SPECIAL_EFFECT_HARM 2
+
+//when one player casts shield on himself. Player
+#define SPECIAL_EFFECT_SHIELD 3
+
+//when one player casts restoration. Player
+#define SPECIAL_EFFECT_RESTORATION 4
+
+//when one player casts a smite summonings. Player
+#define SPECIAL_EFFECT_SMITE_SUMMONINGS 5
+
+//when a player goes invisible. Player
+#define SPECIAL_EFFECT_CLOAK 6
+
+//when a player becomes visible. Player
+#define SPECIAL_EFFECT_DECLOAK 7
+
+//when an invasion starts. Location
+#define SPECIAL_EFFECT_INVASION_BEAMING 8
+
+//when a player casts heal summoned. Player
+#define SPECIAL_EFFECT_HEAL_SUMMONED 9
+
+//When a player casts mana drain. Player to Player.
+#define SPECIAL_EFFECT_MANA_DRAIN 10
+
+//when a player teleports to range. Player, Location
+#define SPECIAL_EFFECT_TELEPORT_TO_RANGE 11
+
+//when a player teleports to range. Player, Location
+#define SPECIAL_EFFECT_HEAL 12
+
 /*! @} */
 
 #endif

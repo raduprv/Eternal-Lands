@@ -1126,6 +1126,15 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				update_actor_buffs(SDL_SwapLE16(*((short *)(in_data+3))), in_data[5]);
 			}
 			break;
+			
+		case SEND_SPECIAL_EFFECT:
+			{
+#ifdef SFX
+				parse_special_effect(in_data[3], &in_data[4]);
+#endif
+			}
+			break;
+
 
 		default:
 			{

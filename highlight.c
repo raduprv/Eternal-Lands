@@ -118,8 +118,21 @@ void display_highlight_marker(const highlight_marker *marker) {
 	// the center as the marker gets older, and we also want the shrinking to be faster
 	// when the marker is large, and slower as it gets to the center, hence the (a*a)
 	// instead of just (a).
+#ifndef SFX
 	const float center_offset_x = ((TILESIZE_X / 2) * (a*a));
 	const float center_offset_y = ((TILESIZE_X / 2) * (a*a));
+#else
+	//for original HIGHLIGHT_TYPE_WALKING_DESTINATION
+	float center_offset_x = ((TILESIZE_X / 2) * (a*a));
+	float center_offset_y = ((TILESIZE_X / 2) * (a*a));
+	
+	//We want an expanding highlight for spells
+	//should not need to worry about divide by zero since "a" is a float, right?
+	if (marker->type != HIGHLIGHT_TYPE_WALKING_DESTINATION){
+		center_offset_x = ((TILESIZE_X / 2) / (a*a));
+		center_offset_y = ((TILESIZE_X / 2) / (a*a));
+	}
+#endif
 
 	//we want the marker to start a bit above ground and move itself closer to the
 	// ground as it gets older.
@@ -133,6 +146,14 @@ void display_highlight_marker(const highlight_marker *marker) {
 		case HIGHLIGHT_TYPE_WALKING_DESTINATION:
 			glColor4f(0.0f, 1.0f, 0.0f, a);
 			break;
+#ifdef SFX
+		case HIGHLIGHT_TYPE_SMITE_SUMMONINGS:
+			glColor4f(1.0f, 0.0f, 0.0f, a);
+			break;
+		case HIGHLIGHT_TYPE_HEAL_SUMMONED:
+			glColor4f(0.0f, 0.0f, 1.0f, a);
+			break;
+#endif
 	}
 	
 	glBegin(GL_POLYGON);
@@ -163,6 +184,39 @@ void display_highlight_marker(const highlight_marker *marker) {
 	glVertex3f(x - 2*dx - center_offset_x, y + 1*dy + center_offset_y, z);
 	glVertex3f(x - 2*dx - center_offset_x, y + 2*dy + center_offset_y, z);
 	glEnd();
+#ifdef SFX
+	//make the spell markers a little fancier with additional marks
+	if (marker->type != HIGHLIGHT_TYPE_WALKING_DESTINATION) {
+		glBegin(GL_POLYGON);
+		glVertex3f(x - 0*dx, y + 2.83*dy + center_offset_y, z);
+		glVertex3f(x + .71*dx, y + 2.12*dy + center_offset_y, z);
+		glVertex3f(x - 0*dx, y + 0*dy + center_offset_y, z);
+		glVertex3f(x - .71*dx, y + 2.12*dy + center_offset_y, z);
+		glVertex3f(x - 0*dx, y + 2.83*dy + center_offset_y, z);
+		glEnd();		
+		glBegin(GL_POLYGON);
+		glVertex3f(x - 0*dx, y - 2.83*dy - center_offset_y, z);
+		glVertex3f(x - .71*dx, y - 2.12*dy - center_offset_y, z);
+		glVertex3f(x - 0*dx, y + 0*dy - center_offset_y, z);
+		glVertex3f(x + .71*dx, y - 2.12*dy - center_offset_y, z);
+		glVertex3f(x - 0*dx, y - 2.83*dy - center_offset_y, z);
+		glEnd();		
+		glBegin(GL_POLYGON);
+		glVertex3f(x + 2.83*dx + center_offset_x, y + 0*dy, z);
+		glVertex3f(x + 2.12*dx + center_offset_x, y - .71*dy, z);
+		glVertex3f(x - 0*dx + center_offset_x, y + 0*dy, z);
+		glVertex3f(x + 2.12*dx + center_offset_x, y + .71*dy, z);
+		glVertex3f(x + 2.83*dx + center_offset_x, y + 0*dy, z);
+		glEnd();		
+		glBegin(GL_POLYGON);
+		glVertex3f(x - 2.83*dx - center_offset_x, y + 0*dy, z);
+		glVertex3f(x - 2.12*dx - center_offset_x, y + .71*dy, z);
+		glVertex3f(x - 0*dx - center_offset_x, y + 0*dy, z);
+		glVertex3f(x - 2.12*dx - center_offset_x, y - .71*dy, z);
+		glVertex3f(x - 2.83*dx - center_offset_x, y + 0*dy, z);
+		glEnd();		
+	}
+#endif
 }
 
 void display_highlight_markers() {
