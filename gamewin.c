@@ -775,7 +775,9 @@ int display_game_handler (window_info *win)
 
 	Leave2DMode ();
 
+#ifdef SFX
 	display_special_effects();
+#endif //SFX
 	display_highlight_markers();
 	
 	glEnable (GL_LIGHTING);
