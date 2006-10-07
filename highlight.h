@@ -9,6 +9,7 @@
 extern int highlighting_enabled;
 
 void add_highlight(short x, short y, int type);
+float get_tile_display_height(short x, short y);
 void display_highlight_markers();
 
 #endif

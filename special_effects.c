@@ -58,7 +58,7 @@ void display_special_effect(const special_effect *marker) {
 	
 	//the -11 is a fudge factor to take into account the height of actor occupying
 	// the tile.  This may need to be adjusted for non-elves.
-	float z = get_tile_display_height(marker->x, marker->y) - 11;
+	float z = get_tile_display_height(marker->x, marker->y);
 	
 	float x = (float)marker->x/2;
 	float y = (float)marker->y/2;
