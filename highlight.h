@@ -2,11 +2,9 @@
 #ifndef __HIGHLIGHT_H__
 #define __HIGHLIGHT_H__
 
+#define TILESIZE_X					(0.5f)
+#define TILESIZE_Y					(0.5f)
 #define HIGHLIGHT_TYPE_WALKING_DESTINATION 	1
-#ifdef SFX
-#define HIGHLIGHT_TYPE_SMITE_SUMMONINGS		4
-#define HIGHLIGHT_TYPE_HEAL_SUMMONED		5
-#endif
 
 extern int highlighting_enabled;
 
