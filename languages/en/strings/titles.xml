@@ -43,5 +43,7 @@
     <tab_adv_video>Advanced video</tab_adv_video>
     <tab_font>Font</tab_font>
     <game_version>Eternal Lands Version %d.%d.%d%s</game_version>
+    <t_kills>Counters</t_kills>
+    <t_session>Session</t_session>
   </titles>
 </root>

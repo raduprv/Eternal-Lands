@@ -141,7 +141,15 @@ Let's try one more thing...</last_try>
     <noshadowmapping>Shadowmapping disabled (need newer hardware)</noshadowmapping>
     <toobigshadowmap>Shadow map size not supported! Shadow map size reduced to %d!</toobigshadowmap>
     <invalid>Stop playing with the configuration file and select valid modes!</invalid>
-  </video>
+    <noframebuffer>Framebuffer disabled (need newer driver)</noframebuffer>
+    <fboattachmenterror>Framebuffer: attachment error</fboattachmenterror>
+    <fbomissingattachmenterror>Framebuffer: missing attachment</fbomissingattachmenterror>
+    <fboduplicateattachmenterror>Framebuffer: duplicate attachment</fboduplicateattachmenterror>
+    <fbodimensionserror>Framebuffer: dimensions error</fbodimensionserror>
+    <fboformatserror>Framebuffer: formats error</fboformatserror>
+    <fbodrawbuffererror>Framebuffer: draw buffer error</fbodrawbuffererror>
+    <fboreadbuffererror>Framebuffer: read buffer error</fboreadbuffererror>
+    <fbounknowerror>Framebuffer: unkown error</fbounknowerror></video>
   <rules>
     <proceed>Read the rules and you can play in %dsec</proceed>
     <ready>Read all rules (scroll to the bottom) and click on "I Accept" to play!</ready>

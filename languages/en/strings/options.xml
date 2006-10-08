@@ -267,23 +267,35 @@
     </render_mesh>
     <shadow_map_size>
       <name>Shadow Map Size</name>
-	  <desc>This parameter determines the quality of the shadow maps. You should as minimum set it to 512.</desc>
+      <desc>This parameter determines the quality of the shadow maps. You should as minimum set it to 512.</desc>
     </shadow_map_size>
     <use_old_clicker>
       <name>Mouse Bug</name>
-   	  <desc>If the above option doesn't move you when you click, try this one</desc>
+      <desc>If the above option doesn't move you when you click, try this one</desc>
     </use_old_clicker>
     <use_frame_buffer>
       <name>Toggle Frame Buffer Support</name>
-	  <desc>Toggle frame buffer support. At the moment just for reflection the frame buffer is used.</desc>
+      <desc>Toggle frame buffer support. At the moment just for reflection the frame buffer is used.</desc>
     </use_frame_buffer>
     <use_clipboard>
       <name>Use Clipboard For Pasting</name>
-	  <desc>Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)</desc>
+      <desc>Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)</desc>
     </use_clipboard>
     <use_compiled_vertex_array>
       <name>Compiled Vertex Array</name>
-	  <desc>Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.</desc>
+      <desc>Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.</desc>
     </use_compiled_vertex_array>
+    <show_statbars_in_hud>
+      <name>StatBars In HUD</name>
+      <desc>Toggle showing statbars in the HUD. Needs Stats in HUD</desc>
+    </show_statbars_in_hud>
+    <autoupdate>
+      <name>Automatic Updates</name>
+      <desc>Toggles whether updates are automatically downloaded.</desc>
+    </autoupdate>
+    <windows_on_top>
+      <name>Windows On Top</name>
+      <desc>Allows the Manufacture, Storage and Inventory windows to appear above the map and console.</desc>
+    </windows_on_top>
   </options>
 </root>
