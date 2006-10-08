@@ -1,0 +1,19 @@
+# set this to "no" if you don't want this file to be overwritten
+UPDATE_CONF=yes
+
+# tune these for your setup & compile options
+FEATURES=PNG_SCREENSHOT USE_FRAMEBUFFER NEW_FRUSTUM BUG_FIX_3D_OBJECTS_MIN_MAX NEW_TEX OPTIONS_I18N ATI_9200_FIX NEW_ACTOR_ANIMATION AUTO_UPDATE COUNTERS FONTS_FIX
+
+PLATFORM=-march=i686
+XDIR=-L/usr/X11R6/lib
+CWARN=-Wall
+#-Wdeclaration-after-statement -Wall -Werror
+CXXWARN=-Wall
+#-Wall -Werror
+
+#EXTRA_LIBS=-lalut
+#EXTRA_STATICLIBS=libs/libalut.a
+
+CC=gcc
+CXX=g++
+LINK=gcc

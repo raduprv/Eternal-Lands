@@ -1,68 +1,48 @@
 .PHONY: clean release docs
 
-# tune these for your setup & compile options
-OPTIONS=-DLINUX -DELC -DPNG_SCREENSHOT -DUSE_FRAMEBUFFER -DNEW_FRUSTUM -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DOPTIONS_I18N -DATI_9200_FIX -DNEW_ACTOR_ANIMATION -DAUTO_UPDATE -DCOUNTERS -DFONTS_FIX
-
-#-DX86_64
-#-DTIMER_CHECK
-#-DWRITE_XML
-#-DNOTEPAD		# enable in-game notepad
-#-DCUSTOM_LOOK	# allows you to customize your look. (EXPERIMENTAL)
-#-DUID		# use unique ID sent from server for custom looks. (INCOMPLETE)
-#-DANTI_ALIAS	# allows to enable/disable anti-aliasing in el.ini
-#-DMEMORY_DEBUG	# gather information about memory allocation and freeing
-#-DPNG_SCREENSHOT	# make screenshots in W3C's PNG format in game
-#-DATI_9200_FIX	# flickering fix for ATI 92xx
-#-DNEW_WEATHER	# new weather effects
-#-DOPTIONS_I18N	# make option labels & descriptions translatable
-#-DUSE_FRAMEBUFFER	# use framebuffer for reflection
-#-DNEW_TEX		# use new texture coordinates for enhanced actors
-#-DNEW_FRUSTUM	# use new frustum culling (AABB trees)
-#-DBUG_FIX_3D_OBJECTS_MIN_MAX # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects or use the new file format.
-#-DUSE_LISPSM	# uses light space optimized shadow maps (EXPERIMENTAL)
-#-DAUTO_UPDATE	# enable minor automatic file updating
-#-DAFK_FIX	# fixes afk messages to count only PM's, and store and count local messages if the option is selected
-#-DFONTS_FIX		# dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
-#-DNEW_E3D_FORMAT	# Enables the new e3d file format. Only works with files in the new file format! Needs -DNEW_FRUSTUM. 
-
-PLATFORM=-march=i686
-XDIR=-L/usr/X11R6/lib
-CWARN=-Wall
-#-Wdeclaration-after-statement -Wall -Werror
-CXXWARN=-Wall
-#-Wall -Werror
-
 # basic compiling and linking - rarely changed
-CFLAGS=$(PLATFORM) $(CWARN) -O -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
-_CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
-CXXFLAGS=$(PLATFORM) $(CXXWARN) -O -ggdb -pipe $(OPTIONS)
-_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
+OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
+CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
+_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS)
+_CXXFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
 
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng $(EXTRA_LIBS)
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
-STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a
+STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a $(EXTRA_STATICLIBS)
 
 # the objects we need
+ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
+MEMORY_DEBUG_COBJ = elmemory.o
+NEW_E3D_FORMAT_COBJ = io/e3d_io.o io/elc_io.o
+NEW_FRUSTUM_COBJ = bbox_tree.o
+NOTEPAD_COBJ = notepad.o
+SFX_COBJ = special_effects.o
+TERRAIN_COBJ = normals.o terrain.o
+USE_FRAMEBUFFER_COBJ = framebuffer.o
+USE_LISPSM = lispsm.o
+USE_SHADER = shader.o
 COBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o alphamap.o asc.o \
-	books.o buddy.o bags.o bbox_tree.o \
+	books.o buddy.o bags.o \
 	cache.o cal.o chat.o colors.o console.o consolewin.o counters.o cursors.o	\
 	dialogues.o draw_scene.o	\
-	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
-	framebuffer.o filter.o font.o frustum.o	\
+	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
+	filter.o font.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
-	ignore.o init.o interface.o io/e3d_io.o io/elc_io.o items.o	\
-	keys.o knowledge.o lights.o lispsm.o list.o loginwin.o loading_win.o	\
+	ignore.o init.o interface.o items.o	\
+	keys.o knowledge.o lights.o list.o loginwin.o loading_win.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
 	md2loader.o md5.o misc.o multiplayer.o	\
-	new_actors.o new_character.o normals.o notepad.o	\
+	new_actors.o new_character.o 	\
 	openingwin.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
-	questlog.o queue.o reflection.o	rules.o skills.o \
-	sector.o session.o shader.o shadows.o sort.o sound.o spells.o stats.o storage.o symbol_table.o tabs.o	\
-	terrain.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
+	questlog.o queue.o reflection.o	rules.o	\
+	skills.o sector.o session.o shadows.o sound.o	\
+	spells.o stats.o storage.o	\
+	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	update.o weather.o widgets.o \
-	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
 CXXOBJS=cal3d_wrapper.o
 
@@ -77,6 +57,9 @@ LINK=gcc
 # the compile targets
 $(EXE): $(OBJS)
 	$(LINK) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS)
+
+#recompile on Makefile or conf change
+$(OBJS): Makefile.linux make.conf
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
@@ -100,4 +83,17 @@ docs:
 	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
 	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
 
+make.conf: make.defaults
+	@if (test -f $@ -a '$(UPDATE_CONF)' != 'yes'); \
+	then \
+		echo '**'; \
+		echo '* WARNING: $< is newer than $@!'; \
+		echo '* Proceeding in 10 seconds, hit Ctrl-C to abort...'; \
+		echo '*'; \
+		sleep 10; \
+	else \
+		cp $< $@; \
+	fi
+
 -include .depend
+-include make.conf
