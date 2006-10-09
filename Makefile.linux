@@ -1,5 +1,7 @@
 .PHONY: clean release docs
 
+-include make.conf
+
 # basic compiling and linking - rarely changed
 OPTIONS = -DLINUX -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags)
@@ -96,4 +98,3 @@ make.conf: make.defaults
 	fi
 
 -include .depend
--include make.conf
