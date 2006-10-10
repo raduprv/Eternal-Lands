@@ -7,53 +7,68 @@
 //much of this is based on the highlight.c code
 #define SPECIAL_EFFECT_LIFESPAN	(500)
 #define SPECIAL_EFFECT_HEAL_LIFESPAN (2000)
-#define NUMBER_OF_SPECIAL_EFFECTS	(10)
+#define NUMBER_OF_SPECIAL_EFFECTS	(20)	// 20 active in one area should be enough, right?
 
 typedef struct {
-	short x;
-	short y;
-	Uint16 id;
+	short x;		// used to store x_tile_pos and y_tile_pos
+	short y;		// will probably need a z too eventually
+	actor *owner;	// will be NULL for stationary effects
 	int timeleft;
 	int lifespan;	// total lifespan of effect
-	int type;
-	int active;
+	int type;		// type of effect / spell that was cast
+	int active;	
 	int caster;		//is this caster or target
 } special_effect;
 
 special_effect sfx_markers[NUMBER_OF_SPECIAL_EFFECTS];
 
 int sfx_enabled = 1;
+
 const static float dx = (TILESIZE_X / 6);
 const static float dy = (TILESIZE_Y / 6);
 
-
-special_effect *get_free_special_effect(short x, short y) {
+//Allocate a spot for a new special effect
+special_effect *get_free_special_effect() {
 	int i;
-	//first try to find one that already occupies this tile
-	for(i = 0; i < NUMBER_OF_SPECIAL_EFFECTS; i++) {
-		if (sfx_markers[i].active && sfx_markers[i].x == x && sfx_markers[i].y == y) {
-			return &sfx_markers[i];
-		}
-	}
-	//otherwise, find the first free slot
+	//find the first free slot
 	for(i = 0; i < NUMBER_OF_SPECIAL_EFFECTS; i++) {
 		if (!sfx_markers[i].active) {
 			return &sfx_markers[i];
 		}
 	}
-	return NULL;
+	return NULL;	// all memory for special effects has been taken
 }
 
-//effect on player casting spell for all events *except* 
+// Initialize a new special effect
 void add_sfx(int effect, Uint16 playerid, int caster)
 {
+	Uint8 str[70];
 	actor *this_actor = get_actor_ptr_from_id(playerid);
-	special_effect *m = get_free_special_effect(this_actor->x_tile_pos, this_actor->y_tile_pos);
-	if (m == NULL) return;
-	
-	m->x = this_actor->x_tile_pos;
-	m->y = this_actor->y_tile_pos;
-	m->id = playerid;				//future use to update position of moving target/actor
+	special_effect *m = get_free_special_effect();
+	if (m == NULL) 
+	{
+		snprintf (str, sizeof (str), "Could not add special effect.  Increase NUMBER_OF_SPECIAL_EFFECTS.");	
+		LOG_TO_CONSOLE (c_purple2, str);
+		return;
+	}
+	if (this_actor == NULL ) return;
+		
+	switch (effect)
+	{
+		case SPECIAL_EFFECT_SMITE_SUMMONINGS:
+		case SPECIAL_EFFECT_HEAL_SUMMONED:
+		case SPECIAL_EFFECT_INVASION_BEAMING:
+		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
+			m->x = this_actor->x_tile_pos;		//static effects will not store a actor by convention
+			m->y - this_actor->y_tile_pos;		// but we need to know where they were cast
+			break;						
+		default:								// all others are movable effects
+			m->owner = this_actor;				//let sfx_marker know who is target of effect
+			m->x = m->owner->x_tile_pos;
+			m->y = m->owner->y_tile_pos;
+			break;
+	}
+
 	m->type = effect;
 	if (effect == SPECIAL_EFFECT_HEAL)
 	{
@@ -66,7 +81,7 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 		m->lifespan = SPECIAL_EFFECT_LIFESPAN;
 	}
 	m->active = 1;
-	m->caster = caster;
+	m->caster = caster;							// should = 1 if caster of spell, 0 otherwise
 }
 
 //basic shape template that allows for rotation and duplication
@@ -130,14 +145,28 @@ void do_double_spikes(float x, float y, float z, float center_offset_x, float ce
 	glPopMatrix();
 }
 
-void display_special_effect(const special_effect *marker) {
+void display_special_effect(special_effect *marker) {
 	
 	// (a) varies from 1..0 depending on the age of this marker
 	const float a = ((float)marker->timeleft) / ((float)marker->lifespan);
+
+	float x,y;
 	
 	// place x,y in the center of the actor's tile
-	float x = (float)marker->x/2 + (TILESIZE_X / 2);
-	float y = (float)marker->y/2 + (TILESIZE_Y / 2);
+	switch (marker->type)
+	{
+		case SPECIAL_EFFECT_SMITE_SUMMONINGS:			// group "static" tile-based effects
+		case SPECIAL_EFFECT_HEAL_SUMMONED:
+		case SPECIAL_EFFECT_INVASION_BEAMING:
+		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
+			x= (float)marker->x/2 + (TILESIZE_X / 2);	// "static" tile based effects
+			y= (float)marker->y/2 + (TILESIZE_Y / 2);	// "static" tile based effects
+			break;						
+		default:										// all others are movable effects
+			x = marker->owner->x_pos + (TILESIZE_X / 2);	// movable effects need current position
+			y = marker->owner->y_pos + (TILESIZE_X / 2);
+			break;
+	}
 
 	// height of terrain at the effect's location
 	float z = get_tile_display_height(marker->x, marker->y);
@@ -145,7 +174,7 @@ void display_special_effect(const special_effect *marker) {
 	//	center_offset_x&y are for radial distance from actor in ground plane
 	//	base_offset_z is for height off the ground (z)
 	float center_offset_x, center_offset_y, base_offset_z;
-
+	
 	switch (marker->type) {
 		case SPECIAL_EFFECT_SMITE_SUMMONINGS:
 			center_offset_x = ((TILESIZE_X / 2) / (a*a));	//fast expanding
@@ -161,6 +190,9 @@ void display_special_effect(const special_effect *marker) {
 			glColor4f(0.0f, 0.0f, 1.0f, a);
 			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
 			break;
+		case SPECIAL_EFFECT_INVASION_BEAMING:
+		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
+			break;
 		case SPECIAL_EFFECT_HEAL:
 			center_offset_x = (TILESIZE_X / 2);				//constant radius
 			center_offset_y = (TILESIZE_X / 2);
@@ -170,13 +202,13 @@ void display_special_effect(const special_effect *marker) {
 				}
 			else {
 				glColor4f(1.0f, 1.0f, 1.0f, 2.0f*a);		//fade out
-				base_offset_z = z + 2.0f;					//rotate over location
+				base_offset_z = z + 2.0f;					//pause over location
 				}
 			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
 			break;
 		case SPECIAL_EFFECT_RESTORATION:
-			center_offset_x = (TILESIZE_X / 2);				//constant radius
-			center_offset_y = (TILESIZE_X / 2);
+			center_offset_x = (TILESIZE_X / 2.5);				//constant radius
+			center_offset_y = (TILESIZE_X / 2.5);
 			if (a > 0) base_offset_z = z + 1.5/(a+.5) - 1;	//beam up effect
 			glColor4f(1.0f-a, 0.0f, 0.0f+a, a);				//color gradient
 			do_double_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
@@ -200,11 +232,6 @@ void display_special_effect(const special_effect *marker) {
 			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
 			break;
 		default: // for all the spells we have not gotten to yet
-			center_offset_x = ((TILESIZE_X / 2) * (a*a));
-			center_offset_y = ((TILESIZE_X / 2) * (a*a));
-			base_offset_z = z + a*0.3f;						//drop toward ground
-			glColor4f(0.0f, 1.0f, 1.0f, a);
-			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
 			break;
 	}
 
@@ -237,13 +264,6 @@ void display_special_effects() {
 	glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
 }
-
-//special effects targeted to a particular location
-//void add_special_effect_location(int effect, Uint16 x, Uint16 y)
-//{
-	//temporary code just to show an effect
-//	add_sfx(x,y, effect, 0);
-//}
 
 //send server data packet to appropriate method depending on desired effect
 void parse_special_effect(int sfx, const Uint16 *data)
