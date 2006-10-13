@@ -162,17 +162,7 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 	if (actor_id->calmodel!=NULL) {
-/*		if (actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY)) {
-			//display as a ghost
-			glDisable(GL_LIGHTING);
-			glBlendFunc(GL_ONE,GL_SRC_ALPHA);
-			glEnable(GL_BLEND);
-		}
-*/		cal_render_actor(actor_id);
-//		if (actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY)) {
-//			glDisable(GL_BLEND);
-//			glEnable(GL_LIGHTING);
-//		}
+		cal_render_actor(actor_id);
 	} 
 
 	//now, draw their damage & nametag
@@ -267,7 +257,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
 	int i;
 #ifdef CUSTOM_LOOK
-	unsigned char playerpath[256], guildpath[256];
+	unsigned char playerpath[256], guildpath[256], onlyname[32]={0};
+	int j;
 #endif
 
 	for(i=0;i<max_actors;i++)
@@ -277,7 +268,20 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 					{
 #ifdef CUSTOM_LOOK
 						snprintf(guildpath, sizeof(guildpath), "custom/guild/%d/", actors_list[i]->body_parts->guild_id);
-						snprintf(playerpath, sizeof(playerpath), "custom/player/%d/", actors_list[i]->body_parts->uniq_id);
+						for(j=0;j<30;j++){
+                            if(actors_list[i]->actor_name[j]==' ' || actors_list[i]->actor_name[j]>125){
+								j=31;
+							}
+							else if(actors_list[i]->actor_name[0]>'z'){
+								onlyname[j]=actors_list[i]->actor_name[j+1];
+							}
+							else
+							{
+								onlyname[j]=actors_list[i]->actor_name[j];
+							}
+						}
+						my_tolower(onlyname);
+						snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
 						if(which_part==KIND_OF_WEAPON)
 							{
@@ -418,6 +422,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	enhanced_actor *this_actor;
 #ifdef CUSTOM_LOOK
 	unsigned char playerpath[256], guildpath[256];
+	unsigned char onlyname[32]={0};
+	Uint32 j;
 #endif
 #if defined(CUSTOM_LOOK) || defined(MINIMAP)
 	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
@@ -570,8 +576,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	this_actor=calloc(1,sizeof(enhanced_actor));
 
 #if defined(CUSTOM_LOOK) || defined(MINIMAP)
-// FIXME: NEW_CLIENT should have player AND guild id, otherwise BOTH should be guessed (lachesis)
-	/* Guess player and guild id */
+	/* build a clean player name and a guild id */
 	{
 		/* get the name string into a working buffer */
 		unsigned char buffer[256], *name, *guild;
@@ -583,8 +588,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 
 		/* skip leading color codes */
-		for (name = buffer; *name && (*name >= 127 + c_lbound) && (*name <= 127 + c_ubound); name++);
-
+		for(name=buffer; *name && (*name >= 127+c_lbound) && (*name <= 127+c_ubound); name++);
+		/* trim off any guild tag, leaving solely the name (onlyname)*/
+		for(j=0; name[j] && name[j]>32;j++){
+			onlyname[j]=name[j];
+		}
+		
 		/* search for string end or color mark */
 		this_actor->guild_tag_color = 0;
 		for (guild = name; *guild && ((*guild < 127 + c_lbound) || (*guild > 127 + c_ubound)); guild++);
@@ -597,7 +606,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 		/* perform case insensitive comparison/hashing */
 		my_tolower(name);
-		//my_tolower(guild);
+		my_tolower(onlyname);
 		
 		//perfect hashing of guildtag
  		switch(strlen(guild))
@@ -617,7 +626,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 #ifdef  CUSTOM_LOOK
 	/* precompute the paths to custom files */
-	snprintf(playerpath, sizeof(playerpath), "custom/player/%u/", uniq_id);
+	snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 	snprintf(guildpath, sizeof(guildpath), "custom/guild/%u/", guild_id);
 #endif  //CUSTOM_LOOK
 
