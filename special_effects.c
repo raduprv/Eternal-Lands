@@ -60,7 +60,7 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 		case SPECIAL_EFFECT_INVASION_BEAMING:
 		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
 			m->x = this_actor->x_tile_pos;		//static effects will not store a actor by convention
-			m->y - this_actor->y_tile_pos;		// but we need to know where they were cast
+			m->y = this_actor->y_tile_pos;		// but we need to know where they were cast
 			break;						
 		default:								// all others are movable effects
 			m->owner = this_actor;				//let sfx_marker know who is target of effect
