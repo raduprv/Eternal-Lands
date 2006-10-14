@@ -20,6 +20,8 @@ TCPsocket my_socket= 0;
 SDLNet_SocketSet set= 0;
 #define MAX_TCP_BUFFER  8192
 Uint8 tcp_in_data[MAX_TCP_BUFFER];
+Uint8 tcp_out_data[MAX_TCP_BUFFER];
+int tcp_out_loc= 0;
 int previously_logged_in= 0;
 time_t last_heart_beat;
 
@@ -61,14 +63,15 @@ int on_the_move (const actor *act)
 
 int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 {
-	int i;
-	Uint8 new_str[1024];//should be enough
-	//static int spamcount = 0;
-
 	if(disconnected) {
 		return 0;
 	}
 
+	if(tcp_out_loc > 0 && tcp_out_loc + len + 2 >= MAX_TCP_BUFFER){
+		// wouldn't fit, send what we have
+		my_tcp_flush(my_socket);
+	}
+	
 	// LabRat's anti-bagspam code
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
@@ -85,7 +88,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 			send_input_text_line (badstr, strlen(badstr));
 			spamcount = 0;  /reset spam count so the #abuse staff don't get swamped..
 		}*/
-		
+
 		// The anti bagspam code in all its glory - don't allow us to drop a bag if following
 		// a path - I tried coding every DROP_ALL part of the code, but it was longwinded and
 		// this way, after a couple of hours break, seemed the more logical and straightforward
@@ -96,14 +99,14 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 		//
 		return 1;
 	}
-	
+
 	//check to see if we have too many packets being sent of the same to reduce server flood
 	if(len < sizeof (tcp_cache))	// only if it fits
 	{
 		if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
 		{
 			Uint32	time_limit= 600;
-			
+
 			if( str[0]==SEND_PM || str[0]==RAW_TEXT)time_limit=1500;
 			if( str[0]==SIT_DOWN){
 				if(last_sit+1500>cur_time) return 0;
@@ -128,14 +131,46 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	//update the heartbeat timer
 	last_heart_beat= time(NULL);
 
-	new_str[0]= str[0];//copy the protocol
-	*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data length
-	//copy the rest of the data
-	for(i=1; i<len; i++) {
-		new_str[i+2]= str[i];
+	// check to see if the data would fit in the buffer
+	if(len + 2 < MAX_TCP_BUFFER){
+		// yes, buffer it for later processing
+		tcp_out_data[tcp_out_loc]= str[0];	//copy the protocol byte
+		*((short *)(tcp_out_data+tcp_out_loc+1))= SDL_SwapLE16((Uint16)len);//the data length
+		// copy the rest of the data
+		memcpy(&tcp_out_data[tcp_out_loc+3], &str[1], len-1);
+		// adjust then buffer offset
+		tcp_out_loc+= len+2;
+	} else {
+		// no, send it as is now
+		Uint8 new_str[1024];	//should be enough
+
+		new_str[0]= str[0];	//copy the protocol byte
+		*((short *)(new_str+1))= SDL_SwapLE16((Uint16)len);//the data length
+		// copy the rest of the data
+		memcpy(&new_str[3], &str[1], len-1);
+		//for(i=1; i<len; i++) {
+		//	new_str[i+2]= str[i];
+		//}
+		return SDLNet_TCP_Send(my_socket, new_str, len+2);
 	}
-	return SDLNet_TCP_Send(my_socket, new_str, len+2);
+	// error, should never reach here
+	return 0;
 }
+
+int my_tcp_flush (TCPsocket my_socket)
+{
+	int ret;
+	
+	if(disconnected || tcp_out_loc == 0) {
+		return 0;
+	}
+
+	ret= SDLNet_TCP_Send(my_socket, tcp_out_data, tcp_out_loc);
+	tcp_out_loc= 0;
+	
+	return(ret);
+}
+
 
 void send_version_to_server(IPaddress *ip)
 {
@@ -172,7 +207,8 @@ void send_version_to_server(IPaddress *ip)
 void connect_to_server()
 {
 	IPaddress	ip;
-	
+
+	tcp_out_loc= 0; // clear the tcp output buffer
 	if(this_version_is_invalid) return;
 	if(set)
 		{
@@ -250,6 +286,8 @@ void connect_to_server()
 	if(time(NULL) > c_time) {
 		time(&c_time);//note the current time
 	}
+
+	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
 
 void send_login_info()
@@ -282,6 +320,7 @@ void send_login_info()
 		{
 			//we got a nasty error, log it
 		}
+	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
 
 
@@ -312,6 +351,7 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 		//we got a nasty error, log it
 	}
 	create_char_error_str[0]= 0;//no error
+	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
 
 // TEMP LOGAND [5/25/2004]
