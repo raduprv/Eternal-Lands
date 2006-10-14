@@ -100,6 +100,7 @@ int start_rendering()
 
 			//advance the clock
 			cur_time = SDL_GetTicks();
+
 			//check for network data
 			if(!queue_isempty(message_queue)) {
 				message_t *message;
@@ -111,6 +112,8 @@ int start_rendering()
 					free(message);
 				}
 			}
+			my_tcp_flush(my_socket);    // make sure the tcp output buffer is set
+
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) < limit_fps))
 			{
 				//draw everything
