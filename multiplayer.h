@@ -63,6 +63,9 @@ void move_to (short int x, short int y);
  */
 int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len);
 
+int my_tcp_flush (TCPsocket my_socket);
+
+
 /*!
  * \ingroup network_actors
  * \brief   Tries to connect to the server.
