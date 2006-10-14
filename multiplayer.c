@@ -140,6 +140,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 		memcpy(&tcp_out_data[tcp_out_loc+3], &str[1], len-1);
 		// adjust then buffer offset
 		tcp_out_loc+= len+2;
+		return(len+2);
 	} else {
 		// no, send it as is now
 		Uint8 new_str[1024];	//should be enough
