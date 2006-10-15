@@ -6,8 +6,9 @@
 #ifdef SFX
 //much of this is based on the highlight.c code
 #define SPECIAL_EFFECT_LIFESPAN	(500)
+#define SPECIAL_EFFECT_SHIELD_LIFESPAN (1500)
 #define SPECIAL_EFFECT_HEAL_LIFESPAN (2000)
-#define NUMBER_OF_SPECIAL_EFFECTS	(20)	// 20 active in one area should be enough, right?
+#define NUMBER_OF_SPECIAL_EFFECTS	(100)	// 20 active in one area should be enough, right?
 
 typedef struct {
 	short x;		// used to store x_tile_pos and y_tile_pos
@@ -53,6 +54,7 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 	}
 	if (this_actor == NULL ) return;
 		
+	// this switch is for differentiating static vs mobile effects
 	switch (effect)
 	{
 		case SPECIAL_EFFECT_SMITE_SUMMONINGS:
@@ -64,22 +66,30 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 			break;						
 		default:								// all others are movable effects
 			m->owner = this_actor;				//let sfx_marker know who is target of effect
-			m->x = m->owner->x_tile_pos;
+			m->x = m->owner->x_tile_pos;		// NOTE: x_tile_pos is 2x x_pos (and same for y)
 			m->y = m->owner->y_tile_pos;
 			break;
 	}
 
 	m->type = effect;
-	if (effect == SPECIAL_EFFECT_HEAL)
+	
+	// this switch is for setting different effect lengths
+	switch (effect)
 	{
-		m->timeleft = SPECIAL_EFFECT_HEAL_LIFESPAN;
-		m->lifespan = SPECIAL_EFFECT_HEAL_LIFESPAN;
+		case SPECIAL_EFFECT_HEAL:
+			m->timeleft = SPECIAL_EFFECT_HEAL_LIFESPAN;
+			m->lifespan = SPECIAL_EFFECT_HEAL_LIFESPAN;
+			break;
+		case SPECIAL_EFFECT_SHIELD:
+			m->timeleft = SPECIAL_EFFECT_SHIELD_LIFESPAN;
+			m->lifespan = SPECIAL_EFFECT_SHIELD_LIFESPAN;
+			break;
+		default:
+			m->timeleft = SPECIAL_EFFECT_LIFESPAN;
+			m->lifespan = SPECIAL_EFFECT_LIFESPAN;
+			break;
 	}
-	else
-	{
-		m->timeleft = SPECIAL_EFFECT_LIFESPAN;
-		m->lifespan = SPECIAL_EFFECT_LIFESPAN;
-	}
+		
 	m->active = 1;
 	m->caster = caster;							// should = 1 if caster of spell, 0 otherwise
 }
@@ -145,13 +155,149 @@ void do_double_spikes(float x, float y, float z, float center_offset_x, float ce
 	glPopMatrix();
 }
 
+void draw_shield_effect(float x, float y, float z, float age)
+{
+	float center_offset_y = TILESIZE_Y * 0.7f;
+	float top_z = 0;
+	int i = 0;
+	int elementsDrawn = 0;
+	float final_z = 0;
+	float d_y = 0;
+	float ageAsc = 1.0f - age;
+
+//save the world
+	glPushMatrix();
+		glTranslatef(x,y,z);
+
+		if (age > 0.5f)
+		{
+			// Move up
+			glRotatef(980.0f * ageAsc * 2.0f, 0.0f, 0.0f, 1.0f);
+		
+			elementsDrawn = 200 * ageAsc * 2.0f;
+		
+			top_z = 2.0f * ageAsc * 2.0f;
+			
+			d_y = 0.30f - (0.30f * ageAsc * 2.0f);
+		}
+		else
+		{
+			// Roll back
+			glRotatef(980.0f, 0.0f, 0.0f, 1.0f);
+		
+			elementsDrawn = 200 * (1.0f - ageAsc) * 2.0f;
+		
+			top_z = 2.0f;
+			
+			d_y = 0.0f;
+		}
+
+		for (i = 0; i < elementsDrawn; i++)
+		{
+				top_z -= 0.01;
+				d_y += 0.0015f;
+
+				final_z = top_z;
+				final_z -= (0.5f - ((float)rand() / (float)RAND_MAX)) / 6.0f;
+
+				glRotatef(-4.9, 0.0f, 0.0f, 1.0f);
+
+				// Draw crystal
+				glBegin(GL_TRIANGLE_FAN);
+				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+				glVertex3f(0, center_offset_y + d_y, final_z);
+				glColor4f(0.0f, 0.0f, 0.0f, 0.5f);
+				glVertex3f(0.0f, center_offset_y + d_y, final_z + 0.06f);
+				glVertex3f(0.02f, center_offset_y + d_y, final_z);
+				glVertex3f(0.0f, center_offset_y + d_y, final_z - 0.06f);
+				glVertex3f(-0.02f, center_offset_y + d_y, final_z);
+				glVertex3f(0.0f, center_offset_y + d_y, final_z + 0.06f);
+				glEnd();
+		}
+
+	//return to the world
+	glPopMatrix();
+}
+
+void draw_heal_effect(float x, float y, float z, float age)
+{
+	float top_z = 0;
+	int i = 0;
+	float final_z = 0;
+	float d_y = 0;
+	float ageAsc = 1.0f - age;
+	float alpha = 1.0f;
+
+	//save the world
+		glPushMatrix();
+		glTranslatef(x,y,z);
+
+		if (age > 0.5f)
+		{
+			// Move up
+			top_z = 2.0f * ageAsc * 2.0f;
+			alpha = 1.0f;
+		}
+		else
+		{
+			// Hover				
+			top_z = 2.0f;
+			alpha = 2.0f - (ageAsc * 2.0f);
+		}
+
+		for (i = 0; i < 200; i++)
+		{
+				d_y = 0.4f + (0.2f * (float)rand() / (float)RAND_MAX);
+				final_z = top_z;
+				final_z -= (0.5f - ((float)rand() / (float)RAND_MAX)) / 15.0f;
+
+				glRotatef(-1.8 /*360 / elementsDrawn = 100*/, 0.0f, 0.0f, 1.0f);
+				
+				// Draw crystal ring
+				glBegin(GL_TRIANGLE_FAN);
+				glColor4f(1.0f, 1.0f, 1.0f, alpha);
+				glVertex3f(0, d_y, final_z);
+				glColor4f(0.0f, 0.0f, 1.0f, alpha / 2.0f);
+				glVertex3f(0.0f, d_y, final_z + 0.06f);
+				glVertex3f(0.02f, d_y, final_z);
+				glVertex3f(0.0f, d_y, final_z - 0.06f);
+				glVertex3f(-0.02f, d_y, final_z);
+				glVertex3f(0.0f, d_y, final_z + 0.06f);
+				glEnd();
+
+				if (i % 4 == 0) // Every n-th
+				{
+					final_z = top_z * ((float)rand() / (float)RAND_MAX);
+					// Draw crystall fallout
+					glBegin(GL_TRIANGLE_FAN);
+					glColor4f(1.0f, 1.0f, 1.0f, alpha);
+					glVertex3f(0, d_y, final_z);
+					glColor4f(0.0f, 0.0f, 1.0f, alpha / 2.0f);
+					glVertex3f(0.0f, d_y, final_z + 0.06f);
+					glVertex3f(0.02f, d_y, final_z);
+					glVertex3f(0.0f, d_y, final_z - 0.06f);
+					glVertex3f(-0.02f, d_y, final_z);
+					glVertex3f(0.0f, d_y, final_z + 0.06f);
+					glEnd();
+				}
+		}
+	//return to the world
+	glPopMatrix();
+}
+
 void display_special_effect(special_effect *marker) {
 	
 	// (a) varies from 1..0 depending on the age of this marker
 	const float a = ((float)marker->timeleft) / ((float)marker->lifespan);
 
-	float x,y;
+	// x and y are the location for the effect
+	//	center_offset_x&y are for radial distance from actor in ground plane
+	//	base_offset_z is for height off the ground (z)
+	float x,y,center_offset_x, center_offset_y, base_offset_z;;
 	
+	// height of terrain at the effect's location
+	float z = get_tile_display_height(marker->x, marker->y);
+
 	// place x,y in the center of the actor's tile
 	switch (marker->type)
 	{
@@ -167,14 +313,7 @@ void display_special_effect(special_effect *marker) {
 			y = marker->owner->y_pos + (TILESIZE_X / 2);
 			break;
 	}
-
-	// height of terrain at the effect's location
-	float z = get_tile_display_height(marker->x, marker->y);
-	
-	//	center_offset_x&y are for radial distance from actor in ground plane
-	//	base_offset_z is for height off the ground (z)
-	float center_offset_x, center_offset_y, base_offset_z;
-	
+		
 	switch (marker->type) {
 		case SPECIAL_EFFECT_SMITE_SUMMONINGS:
 			center_offset_x = ((TILESIZE_X / 2) / (a*a));	//fast expanding
@@ -194,17 +333,7 @@ void display_special_effect(special_effect *marker) {
 		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
 			break;
 		case SPECIAL_EFFECT_HEAL:
-			center_offset_x = (TILESIZE_X / 2);				//constant radius
-			center_offset_y = (TILESIZE_X / 2);
-			if (a > 0.5f) {
-				glColor4f(1.0f, 1.0f, 1.0f, 1.0f);			//keep solid at the start
-				base_offset_z = z + 3.0f/(2.0f*a) - 1.0f;	//move up quickly
-				}
-			else {
-				glColor4f(1.0f, 1.0f, 1.0f, 2.0f*a);		//fade out
-				base_offset_z = z + 2.0f;					//pause over location
-				}
-			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
+			draw_heal_effect(x,y,z,a);						//Kindar Naar's effect
 			break;
 		case SPECIAL_EFFECT_RESTORATION:
 			center_offset_x = (TILESIZE_X / 2.5);				//constant radius
@@ -225,11 +354,7 @@ void display_special_effect(special_effect *marker) {
 			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
 			break;
 		case SPECIAL_EFFECT_SHIELD:
-			center_offset_x = ((TILESIZE_X / 2) / (a));		//relatively slow expanding
-			center_offset_y = ((TILESIZE_X / 2) / (a));	
-			base_offset_z = z + a*0.3f;						//drop toward ground
-			glColor4f(1.0f-a/2, 1.0f-a/2, 1.0f, a);			//color change effect
-			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
+			draw_shield_effect(x,y,z,a);					//Kindar Naar's effect
 			break;
 		default: // for all the spells we have not gotten to yet
 			break;
