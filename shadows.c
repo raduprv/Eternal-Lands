@@ -406,6 +406,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 		for (i=start; i<stop; i++)
 		{
 			l = get_intersect_item_ID(main_bbox_tree, i);
+			if (objects_list[l] == NULL) continue;
 			//track the usage
 			cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		}
