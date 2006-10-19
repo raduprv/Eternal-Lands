@@ -114,24 +114,31 @@ const dict_elem shirt_color_dict[] =
 	};
 
 const dict_elem skin_color_dict[] =
-	{ { "brown" , SKIN_BROWN  },
-	  { "normal", SKIN_NORMAL },
-	  { "pale"  , SKIN_PALE   },
-	  { "tan"   , SKIN_TAN    },
-	  { "darkblue", SKIN_DARK_BLUE  },
-	  { NULL    , -1          }
+	{ { "brown"	, SKIN_BROWN	},
+	  { "normal", SKIN_NORMAL	},
+	  { "pale"	, SKIN_PALE		},
+	  { "tan"	, SKIN_TAN		},
+	  { "darkblue", SKIN_DARK_BLUE },	// Elf's only
+	  { "white" , SKIN_WHITE    },		// Draegoni only
+	  { NULL	, -1			}
 	};
 
 const dict_elem hair_color_dict[] =
-	{ { "black" , HAIR_BLACK  },
+	{ { "black"	, HAIR_BLACK  },
 	  { "blond" , HAIR_BLOND  },
 	  { "brown" , HAIR_BROWN  },
 	  { "grey"  , HAIR_GRAY   },
 	  { "red"   , HAIR_RED    },
 	  { "white" , HAIR_WHITE  },
-	  { "blue"  , HAIR_BLUE   },
-	  { "green" , HAIR_GREEN  },
-	  { "purple", HAIR_PURPLE },
+	  { "blue"  , HAIR_BLUE   },	// Draegoni only
+	  { "green" , HAIR_GREEN  },	// Draegoni only
+	  { "purple", HAIR_PURPLE },	// Draegoni only
+	  { "strawberry",	HAIR_STRAWBERRY},
+	  { "light blond",	HAIR_LIGHT_BLOND},
+	  { "dirty blond",	HAIR_DIRTY_BLOND},
+	  { "brown gray",	HAIR_BROWN_GRAY},
+	  { "dark gray"	,	HAIR_DARK_GRAY},
+	  { "dark red"	,	HAIR_DARK_RED},
 	  { NULL    , -1          }
 	};
 
@@ -2346,9 +2353,7 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 }
 
 int parse_actor_script (xmlNode *cfg) {
-	xmlNode *item;
-	xmlNode *defaults= NULL;
-	int ok, act_idx,i;
+	int ok, act_idx, i;
 	actor_types *act;
 	struct CalCoreSkeleton *skel;
 
@@ -2465,7 +2470,7 @@ int parse_actor_script (xmlNode *cfg) {
 
 		// If this not an enhanced actor, load the single mesh and exit
 		if(strcmp (act->head[0].model_name, "") == 0)
-			act->shirt[0].mesh_index = cal_load_mesh (act, act->file_name, NULL); //save the single meshindex as torso
+			act->shirt[0].mesh_index= cal_load_mesh(act, act->file_name, NULL); //save the single meshindex as torso
 	}
 
 	return ok;

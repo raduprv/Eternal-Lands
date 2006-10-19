@@ -98,7 +98,8 @@
 #define SKIN_NORMAL		1
 #define SKIN_PALE		2
 #define SKIN_TAN		3
-#define SKIN_DARK_BLUE	4
+#define SKIN_DARK_BLUE	4	// for Elf
+#define SKIN_WHITE		5	// for Draegoni
 /*! @} */
 
 /*!
@@ -142,15 +143,22 @@
  * \name Hair colors
  */
 /*! @{ */
-#define HAIR_BLACK 0
-#define HAIR_BLOND 1
-#define HAIR_BROWN 2
-#define HAIR_GRAY 3
-#define HAIR_RED 4
-#define HAIR_WHITE 5
-#define HAIR_BLUE 6		// for Draegoni
-#define HAIR_GREEN 7	// for Draegoni
+#define HAIR_BLACK	0
+#define HAIR_BLOND	1
+#define HAIR_BROWN	2
+#define HAIR_GRAY	3
+#define HAIR_RED	4
+#define HAIR_WHITE	5
+#define HAIR_BLUE	6	// for Draegoni
+#define HAIR_GREEN	7	// for Draegoni
 #define HAIR_PURPLE 8	// for Draegoni
+#define HAIR_DARK_BROWN	9
+#define HAIR_STRAWBERRY	10
+#define HAIR_LIGHT_BLOND	11
+#define HAIR_DIRTY_BLOND	12
+#define HAIR_BROWN_GRAY	13
+#define HAIR_DARK_GRAY	14
+#define HAIR_DARK_RED	15
 /*! @} */
 
 /*!
