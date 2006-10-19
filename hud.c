@@ -909,7 +909,12 @@ int	display_misc_handler(window_info *win)
 {
 	get_and_set_texture_id(hud_text);
 
+	// allow for transparency
+	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER, 0.09f);
+	
 	glBegin(GL_QUADS);
+
 	//draw the compass
 	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-64,64,win->len_y);
 	//draw the clock
@@ -918,8 +923,6 @@ int	display_misc_handler(window_info *win)
 	glEnd();
 
 	//draw the compass needle
-	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-	glAlphaFunc(GL_GREATER, 0.09f);
 	glPushMatrix();
 	glTranslatef(32, win->len_y-32, 0);
 	glRotatef(compass_direction*rz, 0.0f, 0.0f, 1.0f);
