@@ -276,7 +276,8 @@ int mix_handler()
 	str[1]=items_no;
 	if(items_no){
 		//don't send an empty string
-		my_tcp_send(my_socket,str,items_no*3+2);
+		str[items_no*3+2]= 5;   // TODO: add a way that the client can specify this!!
+		my_tcp_send(my_socket,str,items_no*3+3);
 		// and copy this recipe
 		for(i=36;i<36+6;i++){
 			manu_recipe[i-36]=manufacture_list[i];
