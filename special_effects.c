@@ -8,7 +8,8 @@
 #define SPECIAL_EFFECT_LIFESPAN	(500)
 #define SPECIAL_EFFECT_SHIELD_LIFESPAN (1500)
 #define SPECIAL_EFFECT_HEAL_LIFESPAN (2000)
-#define NUMBER_OF_SPECIAL_EFFECTS	(100)	// 20 active in one area should be enough, right?
+#define SPECIAL_EFFECT_RESTORATION_LIFESPAN (1500)
+#define NUMBER_OF_SPECIAL_EFFECTS	(100)	// 100 active in one area should be enough, right?
 
 typedef struct {
 	short x;		// used to store x_tile_pos and y_tile_pos
@@ -77,8 +78,9 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 	switch (effect)
 	{
 		case SPECIAL_EFFECT_HEAL:
-			m->timeleft = SPECIAL_EFFECT_HEAL_LIFESPAN;
-			m->lifespan = SPECIAL_EFFECT_HEAL_LIFESPAN;
+		case SPECIAL_EFFECT_RESTORATION:
+			m->timeleft = SPECIAL_EFFECT_RESTORATION_LIFESPAN;
+			m->lifespan = SPECIAL_EFFECT_RESTORATION_LIFESPAN;
 			break;
 		case SPECIAL_EFFECT_SHIELD:
 			m->timeleft = SPECIAL_EFFECT_SHIELD_LIFESPAN;
@@ -285,6 +287,91 @@ void draw_heal_effect(float x, float y, float z, float age)
 	glPopMatrix();
 }
 
+void draw_restoration_effect(float x, float y, float z, float age)
+{
+	//adapted from RedBook
+    float theta, phi, theta1, cosTheta, sinTheta, cosTheta1, sinTheta1;
+    float ringDelta, sideDelta, cosPhi, sinPhi, dist, alpha;
+	float TubeRadius, Radius; 
+	
+	//could use LOD here
+	int sides = 6;
+	int rings = 12;
+	int h,i,j;
+	
+	sideDelta = 2.0 * 3.14159 / sides;
+	ringDelta = 2.0 * 3.14159 / rings;
+	theta = 0.0f;
+	cosTheta = 1.0f;
+	sinTheta = 0.0f;
+	
+	float z_trans = z - 4*age + 4; //empirically, about height of actor
+	
+	GLuint TorusDL = glGenLists(1);
+	glNewList(TorusDL, GL_COMPILE);
+    
+	glPushMatrix();
+		glTranslatef(x,y,z_trans);
+		// Make 3 tubes, would be nice if we could generalize alpha equations to have
+		//  any number of tubes
+		for (h = -2; h < 1; h++)
+		{
+			if (h == 0)								// set to fade each in and out
+				if (age >= 0.5f)
+					alpha = -16*(age*age) + 24*age - 8.0f;
+				else
+					alpha = 0.0f;
+			else if (h == -1)
+				if ((age <= 0.75f) && (age > 0.25f))
+					alpha = -16*(age*age) + 16*age - 3.0f;
+				else
+					alpha = 0.0f;
+			else if (h == -2)
+				if (age <= 0.5f)
+					alpha = -16*(age*age) + 8*age;
+				else
+					alpha = 0.0f;
+			else
+				alpha = 0.0f;	//should not get here, but make sure nothing would display anyhow
+			
+			TubeRadius = alpha * TILESIZE_X/16;		// adjust radii based on quadratic function too
+			Radius = alpha * TILESIZE_X/1.3f;		// and according to age
+			
+			//only display tubes if aboveground
+			if (z_trans + h >= z)
+				for (i = 0; i < rings; i++)
+				{
+					theta1 = theta + ringDelta;
+					cosTheta1 = cos(theta1);
+					sinTheta1 = sin(theta1);
+					glBegin(GL_QUAD_STRIP);
+						// set our fade in and out with color shift
+						glColor4f(age, alpha, 1.0f, alpha);
+						phi = 0.0;
+						for (j = 0; j < sides; j++)
+						{
+							phi = phi + sideDelta;
+							cosPhi = cos(phi);
+							sinPhi = sin(phi);
+							dist = Radius + (TubeRadius * cosPhi);
+		
+							glNormal3f(cosTheta1 * cosPhi, -sinTheta1 * cosPhi, sinPhi + 1*h);
+							glVertex3f(cosTheta1 * dist, -sinTheta1 * dist, TubeRadius * sinPhi + 1*h);
+		
+							glNormal3f(cosTheta * cosPhi, -sinTheta * cosPhi, sinPhi + 1*h);
+							glVertex3f(cosTheta * dist, -sinTheta * dist, TubeRadius * sinPhi + 1*h);
+						}
+					glEnd();
+					theta = theta1;
+					cosTheta = cosTheta1;
+					sinTheta = sinTheta1;
+				}
+		}
+		glEndList();
+		glCallList(TorusDL);
+	glPopMatrix();
+}
+
 void display_special_effect(special_effect *marker) {
 	
 	// (a) varies from 1..0 depending on the age of this marker
@@ -336,11 +423,7 @@ void display_special_effect(special_effect *marker) {
 			draw_heal_effect(x,y,z,a);						//Kindar Naar's effect
 			break;
 		case SPECIAL_EFFECT_RESTORATION:
-			center_offset_x = (TILESIZE_X / 2.5);				//constant radius
-			center_offset_y = (TILESIZE_X / 2.5);
-			if (a > 0) base_offset_z = z + 1.5/(a+.5) - 1;	//beam up effect
-			glColor4f(1.0f-a, 0.0f, 0.0f+a, a);				//color gradient
-			do_double_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
+			draw_restoration_effect(x,y,z,a);
 			break;
 		//this is an example using the marker->caster for PvP effects
 		case SPECIAL_EFFECT_REMOTE_HEAL:
