@@ -298,6 +298,8 @@ void draw_restoration_effect(float x, float y, float z, float age)
 	int sides = 6;
 	int rings = 12;
 	int h,i,j;
+	float z_trans;
+	GLuint TorusDL;
 	
 	sideDelta = 2.0 * 3.14159 / sides;
 	ringDelta = 2.0 * 3.14159 / rings;
@@ -305,9 +307,9 @@ void draw_restoration_effect(float x, float y, float z, float age)
 	cosTheta = 1.0f;
 	sinTheta = 0.0f;
 	
-	float z_trans = z - 4*age + 4; //empirically, about height of actor
+	z_trans = z - 4*age + 4; //empirically, about height of actor
 	
-	GLuint TorusDL = glGenLists(1);
+	TorusDL = glGenLists(1);
 	glNewList(TorusDL, GL_COMPILE);
     
 	glPushMatrix();
@@ -380,7 +382,7 @@ void display_special_effect(special_effect *marker) {
 	// x and y are the location for the effect
 	//	center_offset_x&y are for radial distance from actor in ground plane
 	//	base_offset_z is for height off the ground (z)
-	float x,y,center_offset_x, center_offset_y, base_offset_z;;
+	float x,y,center_offset_x, center_offset_y, base_offset_z;
 	
 	// height of terrain at the effect's location
 	float z = get_tile_display_height(marker->x, marker->y);
