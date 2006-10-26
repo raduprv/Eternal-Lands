@@ -2343,10 +2343,8 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
 				ok= 0;
 			}
-#ifdef	USE_ACTOR_DEFAULTS
 		} else if (item->type == XML_ENTITY_REF_NODE) {
 			ok &= parse_actor_nodes(act, item->children, defaults);
-#endif	//USE_ACTOR_DEFAULTS
 		}
 	}
 	return ok;
