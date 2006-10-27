@@ -119,6 +119,7 @@ const dict_elem skin_color_dict[] =
 	  { "pale"	, SKIN_PALE		},
 	  { "tan"	, SKIN_TAN		},
 	  { "darkblue", SKIN_DARK_BLUE },	// Elf's only
+	  { "darkb_lue", SKIN_DARK_BLUE },	// Elf's only, synonym
 	  { "white" , SKIN_WHITE    },		// Draegoni only
 	  { NULL	, -1			}
 	};
@@ -133,12 +134,13 @@ const dict_elem hair_color_dict[] =
 	  { "blue"  , HAIR_BLUE   },	// Draegoni only
 	  { "green" , HAIR_GREEN  },	// Draegoni only
 	  { "purple", HAIR_PURPLE },	// Draegoni only
+	  { "dark_brown",   HAIR_DARK_BROWN},
 	  { "strawberry",	HAIR_STRAWBERRY},
-	  { "light blond",	HAIR_LIGHT_BLOND},
-	  { "dirty blond",	HAIR_DIRTY_BLOND},
-	  { "brown gray",	HAIR_BROWN_GRAY},
-	  { "dark gray"	,	HAIR_DARK_GRAY},
-	  { "dark red"	,	HAIR_DARK_RED},
+	  { "light_blond",	HAIR_LIGHT_BLOND},
+	  { "dirty_blond",	HAIR_DIRTY_BLOND},
+	  { "brown_gray",	HAIR_BROWN_GRAY},
+	  { "dark_gray"	,	HAIR_DARK_GRAY},
+	  { "dark_red"	,	HAIR_DARK_RED},
 	  { NULL    , -1          }
 	};
 
