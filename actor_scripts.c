@@ -119,7 +119,7 @@ const dict_elem skin_color_dict[] =
 	  { "pale"	, SKIN_PALE		},
 	  { "tan"	, SKIN_TAN		},
 	  { "darkblue", SKIN_DARK_BLUE },	// Elf's only
-	  { "darkb_lue", SKIN_DARK_BLUE },	// Elf's only, synonym
+	  { "dark_blue", SKIN_DARK_BLUE },	// Elf's only, synonym
 	  { "white" , SKIN_WHITE    },		// Draegoni only
 	  { NULL	, -1			}
 	};
