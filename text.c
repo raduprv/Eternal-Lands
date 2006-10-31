@@ -280,12 +280,13 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 	}
 #endif
 
-	//check if ignored
 	//Make sure we don't check our own messages.
 	if( !(channel == CHAT_PERSONAL && len >= strlen(pm_from_str) && strncasecmp (text_to_add+1, pm_from_str, strlen(pm_from_str)) != 0) &&
 		!(channel == CHAT_MODPM && len >= strlen(mod_pm_from_str) && strncasecmp (text_to_add+1, mod_pm_from_str, strlen(mod_pm_from_str)) != 0)
 	) {
-		if (pre_check_if_ignored (text_to_add, len, channel))
+
+		//check if ignored - don't ignore Mod PM's (that would be asking for trouble)
+		if (channel != CHAT_MODPM && pre_check_if_ignored (text_to_add, len, channel))
 		{
 			return 0;
 		}
