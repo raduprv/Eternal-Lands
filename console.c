@@ -684,6 +684,46 @@ int command_glinfo(char *text, int len)
 	return 1;
 }
 
+
+/*  Display book names that match the specified string, or all if
+ *  no string specified.  Highlighing the books that have been read.
+ */
+int knowledge_command(char *text, int len)
+{
+	char this_string[80];
+	char *cr;
+	int i;
+
+	// this bit of code is repeat enough to justify doing it once somewhere...
+	// find first space, then skip any spaces
+	while(*text && !isspace(*text))
+		text++;
+	while(*text && isspace(*text))
+		text++;
+
+	LOG_TO_CONSOLE(c_green2,knowledge_cmd_str);
+	for (i=0; i<KNOWLEDGE_LIST_SIZE; i++)
+	{
+		// only display books that contain the specified parameter string
+		// shows all books if no string specified
+		if ((strlen(knowledge_list[i].name) > 0) &&
+			(get_string_occurance(text, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
+		{
+			// remove any trailing carrage return
+			strncpy(this_string, knowledge_list[i].name, sizeof(this_string) -1);
+			if ( (cr = strchr(this_string, '\n')) != NULL)
+				*cr = '\0';
+			// highlight books that have been read
+			if (knowledge_list[i].present)
+				LOG_TO_CONSOLE(c_grey1,this_string);
+			else
+				LOG_TO_CONSOLE(c_grey2,this_string);
+		}
+	}
+	return 1;
+}
+
+
 int command_log_conn_data(char *text, int len)
 {
 	if(!log_conn_data){
@@ -863,6 +903,8 @@ void init_commands(const char *filename)
 	add_command(cmd_unignore, &command_unignore);
 	add_command(cmd_unfilter, &command_unfilter);
 	add_command(cmd_glinfo, &command_glinfo);
+	add_command(cmd_knowledge_short, &knowledge_command);
+	add_command(cmd_knowledge, &knowledge_command);
 	add_command("log conn data", &command_log_conn_data);
 	add_command(cmd_msg, &command_msg);
 	add_command(cmd_afk, &command_afk);

@@ -133,6 +133,7 @@ char
 	/* console.c */
 	help_cmd_markpos_str[50],
 	location_info_str[40],
+	knowledge_cmd_str[40],
 	marked_str[30],
 	unmarked_str[30],
 	/*draw_scene.c*/
@@ -276,6 +277,8 @@ char	name_too_long[75],
 	cmd_filters[20],
 	cmd_unfilter[20],
 	cmd_glinfo[10],
+	cmd_knowledge[20],
+	cmd_knowledge_short[10],
 	cmd_markpos[20],
 	cmd_mark[20],
 	cmd_unmark[20],
@@ -795,6 +798,8 @@ void init_console()
 	add_xml_identifier(cmd_grp,"msg",cmd_msg,"msg",sizeof(cmd_msg));
 	add_xml_identifier(cmd_grp,"afk",cmd_afk,"afk",sizeof(cmd_afk));
 	add_xml_identifier(cmd_grp,"glinfo",cmd_glinfo,"glinfo",sizeof(cmd_glinfo));
+	add_xml_identifier(cmd_grp,"knowledge",cmd_knowledge,"knowledge",sizeof(cmd_knowledge));
+	add_xml_identifier(cmd_grp,"knowledge_short",cmd_knowledge_short,"know",sizeof(cmd_knowledge_short));
 }
 #endif
 
@@ -1027,6 +1032,7 @@ void init_help()
 	add_xml_identifier(misc,"accept",accept_str,"Accept",sizeof(accept_str));
 	add_xml_identifier(misc,"cmd_markpos",help_cmd_markpos_str,"Usage: #markpos <x-coord>,<y-coord> <name>",sizeof(help_cmd_markpos_str));
 	add_xml_identifier(misc,"location_info",location_info_str,"Location %d,%d marked with %s",sizeof(location_info_str));
+	add_xml_identifier(misc,"knowledge_command",knowledge_cmd_str,"List of matching knowledge:",sizeof(knowledge_cmd_str));
 	add_xml_identifier(misc,"marked",marked_str,"%s marked",sizeof(marked_str));
 	add_xml_identifier(misc,"unmarked",unmarked_str,"%s unmarked",sizeof(unmarked_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));

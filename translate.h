@@ -239,6 +239,8 @@ extern char
 		cmd_filters[20],
 		cmd_unfilter[20],
 		cmd_glinfo[10],
+		cmd_knowledge[20],
+		cmd_knowledge_short[10],
 		cmd_markpos[20],
 		cmd_mark[20],
 		cmd_unmark[20],
@@ -250,6 +252,7 @@ extern char
 		cmd_afk[5],
 		help_cmd_markpos_str[50],
 		location_info_str[40],
+		knowledge_cmd_str[40],
 		marked_str[30],
 		unmarked_str[30],
 		/*draw_scene.c*/
