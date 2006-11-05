@@ -645,7 +645,8 @@ extern char	win_notepad[20],
 		button_save_notes[30],
 		game_version_str[60],
 		label_note_name[20],
-		label_cursor_coords[17];
+		label_cursor_coords[17],
+		label_mark_filter[13];
 #endif  // DOXYGEN_SKIP_THIS
 #endif  // ELC
 

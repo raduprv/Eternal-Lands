@@ -7,6 +7,10 @@ int showing_continent = 0;
 
 int mouse_over_minimap = 0;
 
+#define MARK_FILTER_MAX_LEN 40
+int mark_filter_active = 0;
+char mark_filter_text[MARK_FILTER_MAX_LEN] = "";
+
 int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint32 ctrl_on = flags & ELW_CTRL;
@@ -100,6 +104,13 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		adding_mark = 0;
 		clear_input_line ();
 	}
+	// enable, disable or reset the mark filter
+	else if ((key == K_MARKFILTER) || (mark_filter_active && (ch == SDLK_ESCAPE)))
+	{
+		if (!mark_filter_active || (ch == SDLK_ESCAPE))
+			mark_filter_active ^= 1;
+		memset(mark_filter_text, 0, sizeof(char)*MARK_FILTER_MAX_LEN);
+	}
 	// now try the keypress handler for all root windows
 	else if ( keypress_root_common (key, unikey) )
 	{
@@ -113,6 +124,23 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		// Undo stupid quickbar hack
 		if ( !get_show_window (quickbar_win) )
 			show_window (quickbar_win);
+	}
+	else if (mark_filter_active && !adding_mark)
+	{
+		size_t filt_len = strlen(mark_filter_text);
+#ifndef OSX
+		if (ch == SDLK_BACKSPACE && filt_len > 0)
+#else
+		if (((ch == SDLK_BACKSPACE) || (ch == 127)) && filt_len > 0)
+#endif
+		{
+			mark_filter_text[filt_len-1] = '\0';
+		}
+		else if (IS_PRINT(ch) && (filt_len < (size_t)(MARK_FILTER_MAX_LEN-1)))
+		{
+			mark_filter_text[filt_len] = ch;
+			mark_filter_text[filt_len+1] = '\0';
+		}
 	}
 	else
 	{

@@ -547,7 +547,8 @@ char	win_notepad[20],
 	button_save_notes[30],
 	label_note_name[20],
 	game_version_str[60],
-	label_cursor_coords[17];
+	label_cursor_coords[17],
+	label_mark_filter[13];
 #endif  // ELC
 /*! \} */
 
@@ -1272,6 +1273,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "b_save", button_save_notes, "Save Notes", sizeof(button_save_notes));
 	add_xml_identifier (titles_str, "l_nname", label_note_name, "Note name", sizeof(label_note_name));
 	add_xml_identifier (titles_str, "l_cursor_coords", label_cursor_coords, "Cursor position", sizeof(label_cursor_coords));
+	add_xml_identifier (titles_str, "l_mark_filter", label_mark_filter, "Mark filter", sizeof(label_mark_filter));
 	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
 }
 #endif // ELC

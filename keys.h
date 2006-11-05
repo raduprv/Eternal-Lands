@@ -65,6 +65,7 @@ extern Uint32 K_NEXT_CHAT_TAB;      /*!< key used to switch to next chat tab */
 extern Uint32 K_PREV_CHAT_TAB;      /*!< key used to switch to previous tab */
 extern Uint32 K_TABCOMPLETE;        /*!< key used to autocomplete commands/buddy names */
 extern Uint32 K_WINDOWS_ON_TOP;        /*!< key used to toggle the windows_on_top option */
+extern Uint32 K_MARKFILTER;         /*!< key used to toggle the TAB map mark filtering function */
 /*! @} */
 
 /*! \name Quickbar access keys */

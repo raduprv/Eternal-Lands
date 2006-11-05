@@ -42,4 +42,8 @@ extern marking marks[200]; /*!< a global array of marks */
  */
 void create_map_root_window (int width, int height);
 
+/* controls TAB map mark filtering */
+extern int mark_filter_active;    /* true when filter active */
+extern char mark_filter_text[];   /* the text of the current filter */
+
 #endif // def __MAPWIN_H__
