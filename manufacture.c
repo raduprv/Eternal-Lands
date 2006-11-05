@@ -107,7 +107,7 @@ int	display_manufacture_handler(window_info *win)
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			sprintf(str,"%i",manufacture_list[i].quantity);
+			sprintf((char *)str,"%i",manufacture_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
 		}
 	}
@@ -143,13 +143,13 @@ int	display_manufacture_handler(window_info *win)
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			sprintf(str,"%i",manufacture_list[i].quantity);
+			sprintf((char *)str,"%i",manufacture_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
 		}
 	}
 	
 	//now, draw the inventory text, if any.
-	draw_string_small(4,win->len_y-85,items_string,4);
+	draw_string_small(4,win->len_y-85,(unsigned char *)items_string,4);
 
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
@@ -249,16 +249,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int clear_handler()
-{
-	int i;
-	
-	for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
-	build_manufacture_list();
-	return 1;
-}
-
-int mix_handler()
+int mix_handler(Uint8 quantity)
 {
 	Uint8 str[20];
 	int items_no=0;
@@ -276,7 +267,7 @@ int mix_handler()
 	str[1]=items_no;
 	if(items_no){
 		//don't send an empty string
-		str[items_no*3+2]= 5;   // TODO: add a way that the client can specify this!!
+		str[items_no*3+2]= quantity;
 		my_tcp_send(my_socket,str,items_no*3+3);
 		// and copy this recipe
 		for(i=36;i<36+6;i++){
@@ -287,25 +278,82 @@ int mix_handler()
 	return 1;
 }
 
+int clear_handler()
+{
+	int i;
+
+	/*
+	**  Once mixing, if you clear the ingredients, mixing continues.
+	**  Not only this but you can't stop mixing by pressing one of the mix buttons
+	**  as there are now no ingredients.  You have to move to stop or wait for a stop event.
+	**  My thought was to send a mix command with a quantity of zero.  The server could
+	**  interpret this as "stop mixing" or do nothing if not already mixing.
+	**  Unfortunately, this is not suppported.  It sort of works but
+	**  will manufacture 1 item if you're not already mixing.
+	*/
+	/*mix_handler(0);*/
+	/* this works OK but is a hack */
+	Uint8 str[] = {HARVEST, 0, 0};
+	my_tcp_send (my_socket, str, 3);
+
+	for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
+	build_manufacture_list();
+	return 1;
+}
+
+/* ">" button clicked - manufacture just one item */
+int mixone_handler()
+{
+  return mix_handler(1);
+}
+
+/* ">>" button clicked - manufacture the maxiumum nuber of items */
+int mixall_handler()
+{
+  return mix_handler(255);
+}
+
+/* mouse over ">" button - show tool tip */
+int mouseover_mixone_handler(window_info *win, int mx, int my)
+{
+  show_help(mix_str, 33*6+25, manufacture_menu_y_len+10);
+	return 0;
+}
+
+/* mouse over ">>" button - show tool tip */
+int mouseover_mixall_handler(window_info *win, int mx, int my)
+{
+  show_help(mixall_str, 33*8-5, manufacture_menu_y_len+10);
+  return 0;
+}
+
 void display_manufacture_menu()
 {
 	if(manufacture_win < 0){
 		static int clear_button_id=100;
-		static int mix_button_id=101;
+		static int mixone_button_id=101;
+		static int mixall_button_id=102;
 		int our_root_win = -1;
 
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		manufacture_win= create_window(win_manufacture, our_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
+		manufacture_win= create_window((Uint8 *)win_manufacture, our_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
 
-		mix_button_id=button_add_extended(manufacture_win, mix_button_id, NULL, 33*6+15, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, mix_str);
-		widget_set_OnClick(manufacture_win, mix_button_id, mix_handler);
+		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id,
+			NULL, 33*6+15, manufacture_menu_y_len-36, 33, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
+		widget_set_OnClick(manufacture_win, mixone_button_id, mixone_handler);
+		widget_set_OnMouseover(manufacture_win, mixone_button_id, mouseover_mixone_handler);
 		
-		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, 33*9+8, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
+		mixall_button_id=button_add_extended(manufacture_win, mixall_button_id,
+			NULL, 33*8, manufacture_menu_y_len-36, 33, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
+		widget_set_OnClick(manufacture_win, mixall_button_id, mixall_handler);
+		widget_set_OnMouseover(manufacture_win, mixall_button_id, mouseover_mixall_handler);
+		
+		clear_button_id=button_add_extended(manufacture_win, clear_button_id, NULL, 33*9+18, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
 		widget_set_OnClick(manufacture_win, clear_button_id, clear_handler);
 	} else {
 		show_window(manufacture_win);

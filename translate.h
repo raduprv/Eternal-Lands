@@ -284,6 +284,7 @@ extern char
 		knowledge_read_book[15],
 		/*manufacture.c*/
 		mix_str[5],
+		mixall_str[10],
 		clear_str[6], 
 		reset_str[6],
 		/*multiplayer.c*/

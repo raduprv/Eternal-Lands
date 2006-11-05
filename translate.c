@@ -159,6 +159,7 @@ char
 	/*manufacture.c*/
 	drop_all_str[11],
 	mix_str[5],
+	mixall_str[10],
 	clear_str[6],
 	reset_str[6],
 	/*multiplayer.c*/
@@ -1012,6 +1013,7 @@ void init_help()
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
+	add_xml_identifier(misc,"mix_all",mixall_str,"Mix all",sizeof(mixall_str));
 	add_xml_identifier(misc,"dropall",drop_all_str,"Drop All",sizeof(drop_all_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));
 	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
