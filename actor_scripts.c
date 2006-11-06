@@ -1556,6 +1556,8 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				LOG_ERROR("unknown weapon property \"%s\"", item->name);
 				ok = 0;
 			}
+		} else if (item->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_actor_weapon (act, item->children, defaults);
 		}
 	}
 
