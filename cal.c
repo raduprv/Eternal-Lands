@@ -38,6 +38,7 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 
 	actors_list[id]->cur_anim=anim;
 	actors_list[id]->anim_time=0.0;
+	actors_list[id]->last_anim_update= cur_time;
 
 	CalModel_Update(actors_list[id]->calmodel,0.0001);//Make changes take effect now
 
@@ -219,6 +220,19 @@ void cal_render_actor(actor *act)
 	if(act->scale != 1.0f){
 		glScalef(act->scale,act->scale,act->scale);
 	}
+
+#ifdef	DYNAMIC_ANIMATIONS
+	if(!act->stop_animation){
+#ifdef	NEW_ACTOR_ANIMATION
+		act->anim_time=act->anim_time+(((cur_time-act->last_anim_update)*act->cur_anim.duration_scale)/1000.0);
+		CalModel_Update(act->calmodel, (((cur_time-act->last_anim_update)*act->cur_anim.duration_scale)/1000.0));
+#else
+		act->anim_time=act->anim_time+(cur_time-act->last_anim_update)/1000.0;
+		CalModel_Update(act->calmodel,((cur_time-act->last_anim_update)/1000.0));
+#endif
+		act->last_anim_update= cur_time;
+	}
+#endif	//DYNAMIC_ANIMATIONS
 
 	// get the renderer of the model
 #ifdef DEBUG

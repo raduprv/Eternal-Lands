@@ -324,6 +324,7 @@ typedef struct
 	struct cal_anim cur_idle_anims[16];
 	int IsOnIdle;
 	float anim_time;
+	Uint32	last_anim_update;
 
 	/*! \name Actors positions
 	 *  \brief Updated in the timer thread

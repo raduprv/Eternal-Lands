@@ -369,6 +369,7 @@ void cal_actor_set_random_idle(int id)
 	actors_list[id]->IsOnIdle=1;
 	actors_list[id]->cur_anim.duration=0;
 	actors_list[id]->anim_time=0.0;
+	actors_list[id]->last_anim_update= cur_time;
 	actors_list[id]->cur_anim.anim_index=-1;
 #ifdef NEW_SOUND
 	stop_sound(actors_list[id]->cur_anim_sound_cookie);
@@ -491,6 +492,7 @@ void animate_actors()
 				}
 			}
 
+#ifndef	DYNAMIC_ANIMATIONS
 			if (actors_list[i]->calmodel!=NULL){
 #ifdef	NEW_ACTOR_ANIMATION
 				actors_list[i]->anim_time=actors_list[i]->anim_time+(((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0);
@@ -500,6 +502,7 @@ void animate_actors()
 				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 #endif
 			}
+#endif	//DYNAMIC_ANIMATIONS
 		}
 	}
 	// unlock the actors_list since we are done now
