@@ -38,8 +38,8 @@ extern int tab_stats_collection_id; /*!< pointer to the \see tab_collection for 
 extern int tab_help_win; /*!< handler for the help tabbed window */
 /* @} */
 
-Uint16 tab_help_x;
-Uint16 tab_help_y;
+int tab_help_x;
+int tab_help_y;
 
 extern int tab_help_collection_id; /*!< pointer to the \see tab_collection for help windows */
 
