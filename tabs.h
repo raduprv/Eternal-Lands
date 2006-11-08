@@ -28,8 +28,8 @@ extern int STATS_TAB_STATS, STATS_TAB_KNOWLEDGE, STATS_TAB_QUESTLOG;
 extern int tab_stats_win; /*!< handler for the stats tabbed window */
 /* @} */
 
-Uint16 tab_stats_x;
-Uint16 tab_stats_y;
+int tab_stats_x;
+int tab_stats_y;
 
 extern int tab_stats_collection_id; /*!< pointer to the \see tab_collection for statistics windows */
 

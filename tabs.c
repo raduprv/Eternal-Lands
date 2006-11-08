@@ -4,15 +4,15 @@
 
 int tab_stats_win = -1;
 int tab_stats_collection_id = 16;
-Uint16 tab_stats_x = 150;
-Uint16 tab_stats_y = 70;
+int tab_stats_x = 150;
+int tab_stats_y = 70;
 Uint16 tab_stats_len_x = STATS_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_stats_len_y = STATS_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
 int tab_help_win = -1;
 int tab_help_collection_id = 17;
-Uint16 tab_help_x = 150;
-Uint16 tab_help_y = 70;
+int tab_help_x = 150;
+int tab_help_y = 70;
 Uint16 tab_help_len_x = HELP_TAB_WIDTH + 2*TAB_MARGIN;
 Uint16 tab_help_len_y = HELP_TAB_HEIGHT + TAB_TAG_HEIGHT + 2*TAB_MARGIN;
 
