@@ -492,13 +492,16 @@ void animate_actors()
 				}
 			}
 
+#ifdef	NEW_ACTOR_ANIMATION
+			actors_list[i]->anim_time+= ((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0;
+#else
+			actors_list[i]->anim_time+= (cur_time-last_update)/1000.0;
+#endif
 #ifndef	DYNAMIC_ANIMATIONS
 			if (actors_list[i]->calmodel!=NULL){
 #ifdef	NEW_ACTOR_ANIMATION
-				actors_list[i]->anim_time=actors_list[i]->anim_time+(((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0);
 				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
 #else
-				actors_list[i]->anim_time=actors_list[i]->anim_time+(cur_time-last_update)/1000.0;
 				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 #endif
 			}
