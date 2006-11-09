@@ -835,7 +835,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
 		msg->chan_idx = tmp_chan;
 	}
-	else if (key == K_TABCOMPLETE)
+	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
 	}

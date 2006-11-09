@@ -101,7 +101,7 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 			console_text_changed = 1;
 		}
 	}
-	else if (key == K_TABCOMPLETE)
+	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
 	}

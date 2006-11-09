@@ -1375,7 +1375,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		return 1;
 	}
-	else if (key == K_TABCOMPLETE)
+	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
 	{
 		do_tab_complete(&input_text_line);
 	}

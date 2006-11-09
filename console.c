@@ -139,59 +139,119 @@ void add_name_to_tablist(const unsigned char *name)
 	name_count++;
 }
 
-#define COMMAND 1
-#define NAME 2
-#define CHANNEL 3
+/* strmrchr: returns a pointer to the last occurence of c in s,
+ * beginning the (reversed) search at begin */
+const char *strmrchr(const char *s, const char *begin, int c)
+{
+	char *copy = strdup(s);
+	char *cbegin = copy+(begin-s);
+	char *result;
 
-const char *tab_complete(const text_message *input)
+	*cbegin = '\0';
+	result = strrchr(copy, c);
+	free(copy);
+
+	if(result == NULL) {
+		return NULL;
+	} else {
+		return s+(result-copy);
+	}
+}
+
+enum compl_type {
+	COMMAND = 1,
+	NAME,
+	NAME_PM,
+	CHANNEL
+};
+
+struct compl_str {
+	const char *str;
+	enum compl_type type;
+};
+
+struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos)
 {
 	static char last_complete[48] = {0};
 	static int have_last_complete = 0;
 	static int last_count = -1;
-	const char *return_value = NULL;
+	static enum compl_type last_type = NAME;
+	struct compl_str return_value = {NULL, 0};
 
-	if(input != NULL && input->len > 0 &&
-		(*input->data == '#' || *input->data == *char_cmd_str ||
-		*input->data == '/' || *input->data == *char_slash_str ||
-		(input->len > 1 && (input->data[0] == '@' || input->data[0] == *char_at_str) &&
-		(input->data[1] == '@' || input->data[1] == *char_at_str))))
+	if(input != NULL && input->len > 0 )
 	{
 		const char *input_string = input->data;
-		Uint8 type;
 		int count;
 		int i;
 		short retries;
 		node_t *step;
 
-		if(*input_string == '/' || *input_string == char_slash_str[0]) {
-			input_string++;
-			type = NAME;
-		} else if (input_string[0] == '@' || input_string[0] == char_at_str[0]) {
-			input_string+=2;
-			type = CHANNEL;
-		} else {
-			type = COMMAND;
-			if(*input_string == '#' || *input_string == char_cmd_str[0]) {
-				input_string++;
+		if(!have_last_complete) {
+			if(strchr(input_string, ' ') != NULL) {
+				/* If we have a space in the input string, we're pretty certain 
+				 * it's not a name, command or channel name. */
+				return_value.type = NAME;
+			} else if(*input_string == '/' || *input_string == char_slash_str[0]) {
+				return_value.type = NAME_PM;
+			} else if (input_string[0] == '@' || input_string[0] == char_at_str[0]) {
+				return_value.type = CHANNEL;
+			} else if(*input_string == '#' || *input_string == char_cmd_str[0]) {
+				return_value.type = COMMAND;
+			} else {
+				return_value.type = NAME;
 			}
+		} else {
+			return_value.type = last_type;
 		}
+		switch(return_value.type) {
+			case CHANNEL:
+				input_string++;
+				/* No break, increment twice for channel */
+			case NAME_PM:
+			case COMMAND:
+				input_string++;
+			break;
+			case NAME:
+			{
+				const char *last_space = strmrchr(input_string, input_string+cursor_pos, ' ');
+				if(last_space != NULL) {
+					/* Update the cursor position to be relative to last_complete */
+					cursor_pos -= last_space+1-input_string;
+					input_string = last_space+1;
+				}
+			}
+			break;
+		}
+
 		if((*input_string && strncasecmp(input_string, last_complete, strlen(last_complete)) != 0) || !have_last_complete) {
 			/* New input string, start over */
 			last_count = -1;
-			snprintf(last_complete, sizeof(last_complete), "%s", input_string);
+			if(return_value.type == NAME) {
+				/* If it's a name (completed anywhere), isolate the word 
+				 * we're currently typing */
+				size_t i;
+				for(i = 0; i < sizeof(last_complete) && input_string[i] && i < cursor_pos
+					&& !isspace((unsigned char)input_string[i]); i++) {
+					last_complete[i] = input_string[i];
+				}
+				last_complete[i] = '\0';
+			} else {
+				snprintf(last_complete, sizeof(last_complete), "%s", input_string);
+			}
 			have_last_complete = 1;
 		}
 		/* Look through the list */
-		for(retries = 0; retries < 2 && !return_value; retries++) {
-			switch(type) {
+		for(retries = 0; retries < 2 && !return_value.str; retries++) {
+			switch(return_value.type) {
 				case NAME:
+				case NAME_PM:
 					for(i = 0, count = 0; i < name_count; i++) {
 						if(strncasecmp(name_list[i], last_complete, strlen(last_complete)) == 0) {
 							/* We have a match! */
 							if(count > last_count) {
 								/* This hasn't been returned yet, let's return it */
 								last_count = count++;
-								return_value = name_list[i];
+								return_value.str = name_list[i];
 								break;
 							}
 							count++;
@@ -205,7 +265,7 @@ const char *tab_complete(const text_message *input)
 							if(count > last_count) {
 								/* We found something we haven't returned earlier, let's return it. */
 								last_count = count++;
-								return_value = ((chan_name*)(step->data))->name;
+								return_value.str = ((chan_name*)(step->data))->name;
 								break;
 							}
 							count++;
@@ -220,7 +280,7 @@ const char *tab_complete(const text_message *input)
 							if(count > last_count) {
 								/* We found something we haven't returned earlier, let's return it. */
 								last_count = count++;
-								return_value = commands[i].command;
+								return_value.str = commands[i].command;
 								break;
 							}
 							count++;
@@ -228,12 +288,13 @@ const char *tab_complete(const text_message *input)
 					}
 				break;
 			}
-			if(!return_value && count) {
+			if(!return_value.str && count) {
 				/* We checked the whole list and found something, but not
 				 * anything we haven't returned earlier. Let's start from the beginning again. */
 				last_count = -1;
 			}
 		}
+		last_type = return_value.type;
 	} else {
 		have_last_complete = 0;
 		*last_complete = '\0';
@@ -244,32 +305,51 @@ const char *tab_complete(const text_message *input)
 
 void do_tab_complete(text_message *input)
 {
-	const char *completed_str = tab_complete(input);
-	if(completed_str != NULL)
+	text_field *tf = input_widget->widget_info;
+	struct compl_str completed = tab_complete(input, tf->cursor);
+	if(completed.str != NULL)
 	{
 		char suffix = '\0';
 
 		/* Append a space if there isn't one already. */
-		if(completed_str[strlen(completed_str)-1] != ' ')
-		{
+		if(completed.str[strlen(completed.str)-1] != ' ') {
 			suffix = ' ';
 		}
-		if (input->data[0] == '@' || input->data[0] == char_at_str[0]) {
-			snprintf(input->data, input->size, "%c%c%s%c", input->data[0], input->data[1], completed_str, suffix);
-		} else {
-			snprintf(input->data, input->size, "%c%s%c", *input->data, completed_str, suffix);
-		}
-		input->len = strlen(input->data);
-		if(input_widget && input_widget->widget_info) {
-			text_field *tf = input_widget->widget_info;
-			tf->cursor = tf->buffer->len;
+		switch(completed.type) {
+			case CHANNEL:
+				snprintf(input->data, input->size, "%c%c%s%c", input->data[0], input->data[1], completed.str, suffix);
+				input->len = strlen(input->data);
+				tf->cursor = tf->buffer->len+1;
+			break;
+			case COMMAND:
+			case NAME_PM:
+				snprintf(input->data, input->size, "%c%s%c", *input->data, completed.str, suffix);
+				input->len = strlen(input->data);
+				tf->cursor = tf->buffer->len;
+			break;
+			case NAME:
+			{
+				const unsigned char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
+				/* Find the length of the data we're removing */
+				int len = input->data+tf->cursor-1-(last_space ? last_space : (input->data-1));
+				int i;
+
+				/* Erase the current input word */
+				for (i = tf->cursor; i <= input->len; i++) {
+					input->data[i-len] = input->data[i];
+				}
+				input->len -= len;
+				tf->cursor -= len;
+				paste_in_input_field(completed.str);
+				input->len = strlen(input->data);
+			}
 		}
 	}
 }
 
 void reset_tab_completer(void)
 {
-	tab_complete(NULL);
+	tab_complete(NULL, 0);
 }
 
 int test_for_console_command(char *text, int length)
@@ -863,6 +943,7 @@ void init_commands(const char *filename)
 	/* Read keywords from commands.lst */
 	if(fp) {
 		char buffer[255];
+		size_t buffer_len;
 		char *ptr;
 
 		while(fgets(buffer, sizeof(buffer), fp)) {
@@ -870,11 +951,15 @@ void init_commands(const char *filename)
 			if((ptr = strchr(buffer, '#')) != NULL) {
 				*ptr = '\0';
 			}
+			buffer_len = strlen(buffer);
 			/* Skip empty lines */
-			if(strlen(buffer) > 1) {
-				/* Get rid of the \n. */
-				if(buffer[strlen(buffer)-1] == '\n') {
-					buffer[strlen(buffer)-1] = '\0';
+			if(strcmp(buffer, "\r\n") != 0 && strcmp(buffer, "\n") != 0
+				&& strlen(buffer) > 0) {
+				/* Get rid of the newline. */
+				if(buffer[buffer_len-2] == '\r' && buffer[buffer_len-1] == '\n') {
+					buffer[buffer_len-2] = '\0';
+				} else if(buffer[buffer_len-1] == '\n') {
+					buffer[buffer_len-1] = '\0';
 				}
 				add_command(buffer, NULL);
 			}
