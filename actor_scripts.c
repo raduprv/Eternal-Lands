@@ -1488,24 +1488,13 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return ok;
 }
 
-int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *cfg, xmlNode *defaults) {
 	xmlNode *item;
 	char str[255];
-	int ok, type_idx;
-	weapon_part *weapon;
+	int ok;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
-	type_idx= get_int_property(cfg, "id");
-	if(type_idx < 0){
-		type_idx= get_property(cfg, "type", "weapon type", weapon_type_dict);
-	}
-	if(type_idx < 0 || type_idx >= ACTOR_WEAPON_SIZE){
-		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
-		return 0;
-	}
-
-	weapon = &(act->weapon[type_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
@@ -1563,9 +1552,30 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				ok = 0;
 			}
 		} else if (item->type == XML_ENTITY_REF_NODE) {
-			ok &= parse_actor_weapon (act, item->children, defaults);
+			ok &= parse_actor_weapon_detail (act, weapon, item->children, defaults);
 		}
 	}
+
+	return ok;
+}
+
+int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+	int ok, type_idx;
+	weapon_part *weapon;
+
+	if (cfg == NULL || cfg->children == NULL) return 0;
+
+	type_idx= get_int_property(cfg, "id");
+	if(type_idx < 0){
+		type_idx= get_property(cfg, "type", "weapon type", weapon_type_dict);
+	}
+	if(type_idx < 0 || type_idx >= ACTOR_WEAPON_SIZE){
+		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
+		return 0;
+	}
+
+	weapon = &(act->weapon[type_idx]);
+	ok= parse_actor_weapon_detail(act, weapon, cfg, defaults);
 
 #ifdef	USE_ACTOR_DEFAULTS
 	// check for default entries, if found, use them to fill in missing data
