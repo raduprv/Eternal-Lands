@@ -43,6 +43,10 @@ int poor_man=0;
 int anti_alias=0;
 #endif  //ANTI_ALIAS
 
+#ifdef SFX
+int special_effects=0;
+#endif  //SFX
+
 int isometric=1;
 int mouse_limit=15;
 int no_adjust_shadows=0;

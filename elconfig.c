@@ -157,6 +157,9 @@ void change_poor_man(int *poor_man)
 		shadows_on=0;
 		clouds_shadows=0;
 		use_shadow_mapping=0;
+#ifdef SFX
+		special_effects=0;
+#endif
 #ifndef MAP_EDITOR2
 		use_fog=0;
 #endif
@@ -1355,6 +1358,9 @@ void init_vars()
  #ifdef ANTI_ALIAS
 	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", SPECIALVID);
  #endif //ANTI_ALIAS
+#ifdef SFX
+	add_var (BOOL, "special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", SPECIALVID);
+#endif //SFX
 #ifndef MAP_EDITOR2
 	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
