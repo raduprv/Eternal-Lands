@@ -449,8 +449,6 @@ void display_special_effect(special_effect *marker) {
 
 void display_special_effects() {
 	int i;
-	//probably want to do a config check to turn on/off sfx
-	if (!sfx_enabled) return;
 	
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
