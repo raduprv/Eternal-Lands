@@ -1171,7 +1171,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case SEND_SPECIAL_EFFECT:
 			{
 #ifdef SFX
-				parse_special_effect(in_data[3], &in_data[4]);
+				if (special_effects){
+					parse_special_effect(in_data[3], &in_data[4]);
+				}
 #endif
 			}
 			break;
