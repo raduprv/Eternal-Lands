@@ -2,7 +2,10 @@
 #include <math.h>
 #include "global.h"
 #include "highlight.h"
-
+/* to do
+ more effects
+ adjust effects based on actor size and if sitting
+*/
 #ifdef SFX
 //much of this is based on the highlight.c code
 #define SPECIAL_EFFECT_LIFESPAN	(500)
@@ -20,11 +23,14 @@ typedef struct {
 	int type;		// type of effect / spell that was cast
 	int active;	
 	int caster;		//is this caster or target
+	Uint32 last_time;	//for timing length of effect especially while in console
 } special_effect;
 
 special_effect sfx_markers[NUMBER_OF_SPECIAL_EFFECTS];
 
 int sfx_enabled = 1;
+extern int console_root_win;
+extern Uint32 cur_time, last_time;
 
 const static float dx = (TILESIZE_X / 6);
 const static float dy = (TILESIZE_Y / 6);
@@ -73,7 +79,8 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 	}
 
 	m->type = effect;
-	
+	m->last_time = cur_time;					//global cur_time
+
 	// this switch is for setting different effect lengths
 	switch (effect)
 	{
@@ -91,7 +98,7 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 			m->lifespan = SPECIAL_EFFECT_LIFESPAN;
 			break;
 	}
-		
+	
 	m->active = 1;
 	m->caster = caster;							// should = 1 if caster of spell, 0 otherwise
 }
@@ -387,6 +394,9 @@ void display_special_effect(special_effect *marker) {
 	// height of terrain at the effect's location
 	float z = get_tile_display_height(marker->x, marker->y);
 
+	// check to see if actor has left the map (grue, died, changed maps)
+	if (!marker->owner) return;
+
 	// place x,y in the center of the actor's tile
 	switch (marker->type)
 	{
@@ -448,8 +458,8 @@ void display_special_effect(special_effect *marker) {
 }
 
 void display_special_effects() {
-	int i;
-	
+	int i; 
+
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glEnable(GL_BLEND);
@@ -458,8 +468,9 @@ void display_special_effects() {
 
 	for(i = 0; i < NUMBER_OF_SPECIAL_EFFECTS; i++) {
 		if (sfx_markers[i].active) {
-			sfx_markers[i].timeleft -= (cur_time - last_time);
+			sfx_markers[i].timeleft -= (cur_time - sfx_markers[i].last_time); //use global cur_time
 			if (sfx_markers[i].timeleft > 0) {
+				sfx_markers[i].last_time = cur_time;
 				display_special_effect(&sfx_markers[i]);
 			} else {
 				// This marker has lived long enough now.
