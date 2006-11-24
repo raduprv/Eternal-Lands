@@ -459,7 +459,7 @@ int command_unmark(char *text, int len)
 	if(*text) {
 		for (i = 0; i < max_mark; i ++)
 		{
-			if (my_strcompare(marks[i].text, text))
+			if (my_strcompare(marks[i].text, text) && (marks[i].x != -1))
 			{
 				char str[512];
 				marks[i].x = marks[i].y = -1;
