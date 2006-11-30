@@ -10,9 +10,11 @@
 //much of this is based on the highlight.c code
 #define SPECIAL_EFFECT_LIFESPAN	(500)
 #define SPECIAL_EFFECT_SHIELD_LIFESPAN (1500)
-#define SPECIAL_EFFECT_HEAL_LIFESPAN (2000)
+#define SPECIAL_EFFECT_HEAL_LIFESPAN (5000)
 #define SPECIAL_EFFECT_RESTORATION_LIFESPAN (1500)
 #define NUMBER_OF_SPECIAL_EFFECTS	(100)	// 100 active in one area should be enough, right?
+
+#define STATIC_SFX -2
 
 typedef struct {
 	short x;		// used to store x_tile_pos and y_tile_pos
@@ -22,15 +24,13 @@ typedef struct {
 	int lifespan;	// total lifespan of effect
 	int type;		// type of effect / spell that was cast
 	int active;	
-	int caster;		//is this caster or target
+	int caster;		//is this caster or target, static effects will be set to STATIC_SFX
 	Uint32 last_time;	//for timing length of effect especially while in console
 } special_effect;
 
 special_effect sfx_markers[NUMBER_OF_SPECIAL_EFFECTS];
 
 int sfx_enabled = 1;
-extern int console_root_win;
-extern Uint32 cur_time, last_time;
 
 const static float dx = (TILESIZE_X / 6);
 const static float dy = (TILESIZE_Y / 6);
@@ -164,7 +164,7 @@ void do_double_spikes(float x, float y, float z, float center_offset_x, float ce
 	glPopMatrix();
 }
 
-void draw_shield_effect(float x, float y, float z, float age)
+void draw_heal_effect(float x, float y, float z, float age)
 {
 	float center_offset_y = TILESIZE_Y * 0.7f;
 	float top_z = 0;
@@ -228,7 +228,7 @@ void draw_shield_effect(float x, float y, float z, float age)
 	glPopMatrix();
 }
 
-void draw_heal_effect(float x, float y, float z, float age)
+void draw_restoration_effect(float x, float y, float z, float age)
 {
 	float top_z = 0;
 	int i = 0;
@@ -294,7 +294,7 @@ void draw_heal_effect(float x, float y, float z, float age)
 	glPopMatrix();
 }
 
-void draw_restoration_effect(float x, float y, float z, float age)
+void draw_teleport_effect(float x, float y, float z, float age)
 {
 	//adapted from RedBook
     float theta, phi, theta1, cosTheta, sinTheta, cosTheta1, sinTheta1;
@@ -327,24 +327,24 @@ void draw_restoration_effect(float x, float y, float z, float age)
 		{
 			if (h == 0)								// set to fade each in and out
 				if (age >= 0.5f)
-					alpha = -16*(age*age) + 24*age - 8.0f;
+					alpha = -8*(age*age) + 12*age - 4.0f;
 				else
 					alpha = 0.0f;
 			else if (h == -1)
 				if ((age <= 0.75f) && (age > 0.25f))
-					alpha = -16*(age*age) + 16*age - 3.0f;
+					alpha = -8*(age*age) + 8*age - 1.5f;
 				else
 					alpha = 0.0f;
 			else if (h == -2)
 				if (age <= 0.5f)
-					alpha = -16*(age*age) + 8*age;
+					alpha = -8*(age*age) + 4*age;
 				else
 					alpha = 0.0f;
 			else
 				alpha = 0.0f;	//should not get here, but make sure nothing would display anyhow
 			
-			TubeRadius = alpha * TILESIZE_X/16;		// adjust radii based on quadratic function too
-			Radius = alpha * TILESIZE_X/1.3f;		// and according to age
+			TubeRadius = alpha * TILESIZE_X/16 * 2;		// adjust radii based on quadratic function too
+			Radius = alpha * TILESIZE_X/1.3f * 2;		// and according to age
 			
 			//only display tubes if aboveground
 			if (z_trans + h >= z)
@@ -355,7 +355,7 @@ void draw_restoration_effect(float x, float y, float z, float age)
 					sinTheta1 = sin(theta1);
 					glBegin(GL_QUAD_STRIP);
 						// set our fade in and out with color shift
-						glColor4f(age, alpha, 1.0f, alpha);
+						glColor4f(age, alpha * 2, 1.0f, alpha);
 						phi = 0.0;
 						for (j = 0; j < sides; j++)
 						{
@@ -394,9 +394,6 @@ void display_special_effect(special_effect *marker) {
 	// height of terrain at the effect's location
 	float z = get_tile_display_height(marker->x, marker->y);
 
-	// check to see if actor has left the map (grue, died, changed maps)
-	if (!marker->owner) return;
-
 	// place x,y in the center of the actor's tile
 	switch (marker->type)
 	{
@@ -414,7 +411,7 @@ void display_special_effect(special_effect *marker) {
 	}
 		
 	switch (marker->type) {
-		case SPECIAL_EFFECT_SMITE_SUMMONINGS:
+/*		case SPECIAL_EFFECT_SMITE_SUMMONINGS:
 			center_offset_x = ((TILESIZE_X / 2) / (a*a));	//fast expanding
 			center_offset_y = ((TILESIZE_X / 2) / (a*a));
 			base_offset_z = z + a*0.3f;						//drop toward ground
@@ -429,16 +426,18 @@ void display_special_effect(special_effect *marker) {
 			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
 			break;
 		case SPECIAL_EFFECT_INVASION_BEAMING:
+
 		case SPECIAL_EFFECT_TELEPORT_TO_RANGE:
+			draw_teleport_effect(x,y,z,a);
 			break;
+*/
 		case SPECIAL_EFFECT_HEAL:
 			draw_heal_effect(x,y,z,a);						//Kindar Naar's effect
 			break;
 		case SPECIAL_EFFECT_RESTORATION:
 			draw_restoration_effect(x,y,z,a);
 			break;
-		//this is an example using the marker->caster for PvP effects
-		case SPECIAL_EFFECT_REMOTE_HEAL:
+/*		case SPECIAL_EFFECT_REMOTE_HEAL:
 			center_offset_x = ((TILESIZE_X / 2) * (a*a));
 			center_offset_y = ((TILESIZE_X / 2) * (a*a));
 			if (a > 0) base_offset_z = z + 1.5/(a+.5) - 1;	//beam up effect
@@ -449,8 +448,9 @@ void display_special_effect(special_effect *marker) {
 			do_shape_spikes(x, y, z, center_offset_x, center_offset_y, base_offset_z, a);
 			break;
 		case SPECIAL_EFFECT_SHIELD:
-			draw_shield_effect(x,y,z,a);					//Kindar Naar's effect
+			draw_shield_effect(x,y,z,a);					
 			break;
+*/
 		default: // for all the spells we have not gotten to yet
 			break;
 	}
@@ -523,14 +523,17 @@ void parse_special_effect(int sfx, const Uint16 *data)
 			{
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
+#ifdef DEBUG
 				snprintf (str, sizeof (str), "effect %d,  x pos=%d, y pos=%d",sfx,var_a,var_b);	
 				LOG_TO_CONSOLE (c_purple2, str);
-				//need good function here when implemented
+#endif
 			}
 			break;
 		default:
+#ifdef DEBUG
 			snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
 			LOG_TO_CONSOLE (c_purple2, str);
+#endif
 			break;
 	}
 }
