@@ -87,6 +87,7 @@
 #define hobgoblin 74
 #define yeti 75
 #define snake4 76
+#define feros 77
 
 /*! @} */
 
@@ -127,6 +128,7 @@
 #define SHIRT_FUR 18
 #define SHIRT_STEEL_PLATE_ARMOR 19
 #define SHIRT_TITANIUM_PLATE_ARMOR 20
+#define SHIRT_BRONZE_PLATE_ARMOR 21
 
 /*! @} */
 
@@ -176,7 +178,7 @@
 #define BOOTS_IRON_GREAVE 8
 #define BOOTS_STEEL_GREAVE 9
 #define BOOTS_TITANIUM_GREAVE 10
-#define BOOTS_HYDROGENIUM_GREAVE 11
+#define BOOTS_BRONZE_GREAVE 11
 #define BOOTS_AUGMENTED_LEATHER_GREAVE 12
 /*! @} */
 
@@ -198,7 +200,7 @@
 #define PANTS_FUR 11
 #define PANTS_STEEL_CUISSES 12
 #define PANTS_TITANIUM_CUISSES 13
-#define PANTS_HYDROGENIUM_CUISSES 14
+#define PANTS_BRONZE_CUISSES 14
 #define PANTS_AUGMENTED_LEATHER_CUISSES 15
 /*! @} */
 
@@ -269,7 +271,7 @@
 #define HELMET_CROWN_OF_LIFE 6
 #define HELMET_STEEL 7
 #define HELMET_TITANIUM 8
-#define HELMET_HYDROGENIUM 9
+#define HELMET_BRONZE 9
 #define HELMET_NONE 20
 /*! @} */
 
@@ -282,7 +284,7 @@
 #define SHIELD_IRON 2
 #define SHIELD_STEEL 3
 #define SHIELD_TITANIUM 4
-#define SHIELD_HYDROGENIUM 5
+#define SHIELD_BRONZE 5
 #define SHIELD_NONE 11
 /*! @} */
 
@@ -348,6 +350,7 @@
 #define SWORD_EAGLE_WING 55
 #define SWORD_RAPIER 56
 #define SWORD_JAGGED_SABER 57
+#define SWORD_BRONZE 58
 
 /*! @} */
 

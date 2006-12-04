@@ -156,7 +156,7 @@ const dict_elem boots_color_dict[] =
 	  { "iron greaves", BOOTS_IRON_GREAVE },
 	  { "steel greaves", BOOTS_STEEL_GREAVE },
 	  { "titanium greaves", BOOTS_TITANIUM_GREAVE },
-	  { "hydrogenium greaves", BOOTS_HYDROGENIUM_GREAVE },
+	  { "bronze greaves", BOOTS_BRONZE_GREAVE },
 	  { "augmented leather", BOOTS_AUGMENTED_LEATHER_GREAVE },
 	  { NULL          , -1                }
 	};
@@ -175,7 +175,7 @@ const dict_elem legs_color_dict[] =
 	  { "iron cuisses", PANTS_IRON_CUISSES },
 	  { "steel cuisses"       , PANTS_STEEL_CUISSES        },
 	  { "titanium cuisses"     , PANTS_TITANIUM_CUISSES      },
-	  { "hydrogenium cuisses", PANTS_HYDROGENIUM_CUISSES },
+	  { "bronze cuisses", PANTS_BRONZE_CUISSES },
 	  { "augmented leather", PANTS_AUGMENTED_LEATHER_CUISSES },
 	  { "fur"         , PANTS_FUR          },
 	  { NULL          , -1                 }
@@ -218,8 +218,8 @@ const dict_elem shield_type_dict[] =
 	  { "wood enhanced", SHIELD_WOOD_ENHANCED },
 	  { "iron"         , SHIELD_IRON          },
 	  { "steel"        , SHIELD_STEEL         },
-	  { "titanium"     , SHIELD_TITANIUM         },
-	  { "hydrogenium"  , SHIELD_HYDROGENIUM         },
+	  { "titanium"     , SHIELD_TITANIUM      },
+	  { "bronze"       , SHIELD_BRONZE        },
 	  { "none"         , SHIELD_NONE          },
 	  { NULL           , -1                   }
 	};
@@ -283,6 +283,7 @@ const dict_elem weapon_type_dict[] =
 	  { "sword 12"                    , SWORD_EAGLE_WING         },
 	  { "sword 13"                    , SWORD_RAPIER             },
 	  { "sword 14"                    , SWORD_JAGGED_SABER       },
+	  { "bronze sword"                , SWORD_BRONZE             },
 	  { NULL                          , -1                       }
 	};
 
@@ -304,8 +305,8 @@ const dict_elem helmet_type_dict[] =
 	  { "crown_mana"  , HELMET_CROWN_OF_MANA   },
 	  { "crown_life"  , HELMET_CROWN_OF_LIFE   },
 	  { "steel"  , HELMET_STEEL   },
-	  { "titanium"  , HELMET_TITANIUM   },
-	  { "hydrogenium"  , HELMET_HYDROGENIUM   },
+	  { "titanium",HELMET_TITANIUM},
+	  { "bronze" , HELMET_BRONZE  },
 	  { "none"   , HELMET_NONE    },
 	  { NULL     , -1             }
 	};
