@@ -450,10 +450,17 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 		{
 			x_rot += 90.0f;
 			z_rot = 0.0f;
+#ifdef	M_SQRT2
+			bbox.bbmin[X] *= M_SQRT2;
+			bbox.bbmax[X] *= M_SQRT2;
+			bbox.bbmin[Y] *= M_SQRT2;
+			bbox.bbmax[Y] *= M_SQRT2;
+#else	//M_SQRT2
 			bbox.bbmin[X] *= sqrt(2);
 			bbox.bbmax[X] *= sqrt(2);
 			bbox.bbmin[Y] *= sqrt(2);
 			bbox.bbmax[Y] *= sqrt(2);
+#endif	//M_SQRT2
 		}
 		else if (returned_obj_2d_def->object_type == FENCE) x_rot += 90.0f;
 	}
