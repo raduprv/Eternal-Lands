@@ -88,6 +88,7 @@
 #define yeti 75
 #define snake4 76
 #define feros 77
+#define dragon1 78
 
 /*! @} */
 
