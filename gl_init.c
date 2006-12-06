@@ -966,11 +966,16 @@ void set_new_video_mode(int fs,int mode)
 
 	if(have_vertex_buffers){
 		e3d_object * obj;
-		for(i=0;i<cache_e3d->max_item;i++){
-			if(!cache_e3d->cached_items[i])continue;
-			obj=cache_e3d->cached_items[i]->cache_item;
+
+		for(i=0; i<cache_e3d->max_item; i++){
+			if(!cache_e3d->cached_items[i] )continue;
+			obj= cache_e3d->cached_items[i]->cache_item;
 
 			if(obj->vbo[0]){
+#ifndef	NO_FREE_VA
+				// lets free all the data on res change so that VBO's get rebuilt properly!
+				free_e3d_va(obj);
+#else	//NO_FREE_VA
 				const GLuint buf[3]={obj->vbo[0], obj->vbo[1], obj->vbo[2]};
 			
 				ELglDeleteBuffersARB(3, buf);
@@ -978,9 +983,10 @@ void set_new_video_mode(int fs,int mode)
 				obj->vbo[0]=0;
 				obj->vbo[1]=0;
 				obj->vbo[2]=0;
-				CHECK_GL_ERRORS();
+#endif	//NO_FREE_VA
 			}
 		}
+		CHECK_GL_ERRORS();
 		
 #ifndef	NEW_E3D_FORMAT
 		for(i=0;i<highest_obj_3d;i++){
