@@ -79,7 +79,7 @@ int	display_manufacture_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
 	for(i=0;i<36;i++) {
-		if(manufacture_list[i].quantity) {
+		if(manufacture_list[i].quantity > 0) {
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end;
@@ -114,7 +114,7 @@ int	display_manufacture_handler(window_info *win)
 
 	//ok, now let's draw the mixed objects
 	for(i=36;i<36+6;i++) {
-		if(manufacture_list[i].quantity){
+		if(manufacture_list[i].quantity > 0){
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
 			int x_start,x_end,y_start,y_end;
@@ -179,7 +179,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	//see if we clicked on any item in the main category
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);
 
-	if (pos >= 0 && manufacture_list[pos].quantity)
+	if (pos >= 0 && manufacture_list[pos].quantity > 0)
 	{
 		if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE)) {
 			str[0]=LOOK_AT_INVENTORY_ITEM;
@@ -190,7 +190,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			int j;
 			
 			for(j=36;j<36+6;j++)
-				if(manufacture_list[j].pos==manufacture_list[pos].pos && manufacture_list[j].quantity){
+				if(manufacture_list[j].pos==manufacture_list[pos].pos && manufacture_list[j].quantity > 0){
 					//found an empty space in the "production pipe"
 					manufacture_list[j].quantity++;
 					manufacture_list[j].pos=manufacture_list[pos].pos;
@@ -201,7 +201,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			
 
 			for(j=36;j<36+6;j++)
-				if(!manufacture_list[j].quantity){
+				if(!manufacture_list[j].quantity > 0){
 					//found an empty space in the "production pipe"
 					manufacture_list[j].quantity++;
 					manufacture_list[j].pos=manufacture_list[pos].pos;
@@ -215,7 +215,7 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 	
 	//see if we clicked on any item from the "production pipe"
-	if (pos >= 0 && manufacture_list[36+pos].quantity)
+	if (pos >= 0 && manufacture_list[36+pos].quantity > 0)
 	{
 		if(action_mode==ACTION_LOOK || (flags&ELW_RIGHT_MOUSE)){
 			str[0]=LOOK_AT_INVENTORY_ITEM;
@@ -251,13 +251,13 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 
 int mix_handler(Uint8 quantity)
 {
-	Uint8 str[20];
+	Uint8 str[32];
 	int items_no=0;
 	int i;
 
 	str[0]=MANUFACTURE_THIS;
 	for(i=36;i<36+6;i++){
-		if(manufacture_list[i].quantity){
+		if(manufacture_list[i].quantity > 0){
 			str[items_no*3+2]=manufacture_list[i].pos;
 			*((Uint16 *)(str+items_no*3+2+1))=SDL_SwapLE16(manufacture_list[i].quantity);
 			items_no++;
