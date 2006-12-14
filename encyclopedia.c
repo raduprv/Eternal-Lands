@@ -12,7 +12,7 @@ int encyclopedia_menu_y_len=350;
 int encyclopedia_scroll_id=0;
 
 _Category Category[100];
-_Page Page[500];
+_Page Page[MAX_ENC_PAGES];
 int num_category=0,numpage=-1,numtext,x,y,numimage,id,color,size,ref,currentpage=0,isize,tsize,tid,ssize,mouseover=0,xposupdate,yposupdate,lastextlen=0;
 float u,v,uend,vend,xend,yend,r,g,b;
 char *s,*ss;
@@ -372,13 +372,17 @@ void ReadCategoryXML(xmlNode * a_node)
 		if (cur_node->type==XML_ELEMENT_NODE){
 			//<Page>
 			if(!xmlStrcasecmp(cur_node->name,"Page")){
-
-				numpage++;
-				numtext=0;
-				numimage=0;
-				x=2;
-				y=2;
-				ParsePage(cur_node->properties);
+				if(numpage < MAX_ENC_PAGES-1){
+					numpage++;
+					numtext=0;
+					numimage=0;
+					x=2;
+					y=2;
+					ParsePage(cur_node->properties);
+				} else {
+					log_error("Too many Enc Pages, limit of %d hit", MAX_ENC_PAGES);
+					return;
+				}
 			}
 
 			//<Size>

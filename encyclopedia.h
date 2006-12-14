@@ -62,7 +62,8 @@ extern int encyclopedia_win; /*!< encyclopedia windows handler */
 extern int encyclopedia_menu_x;
 extern int encyclopedia_menu_y;
 
-extern _Page Page[500]; /*!< fixed array of pages for the encyclopedia */
+#define	MAX_ENC_PAGES	1000
+extern _Page Page[MAX_ENC_PAGES]; /*!< fixed array of pages for the encyclopedia */
 extern int numpage;
 
 /*!
