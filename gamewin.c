@@ -776,8 +776,8 @@ int display_game_handler (window_info *win)
 	Leave2DMode ();
 
 #ifdef SFX
-	if (special_effects){
-		display_special_effects();
+	if(special_effects){
+		display_special_effects(1);
 	}
 #endif //SFX
 	display_highlight_markers();

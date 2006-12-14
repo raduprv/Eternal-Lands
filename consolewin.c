@@ -72,6 +72,12 @@ int display_console_handler (window_info *win)
 		set_font (0);	// switch to fixed
 	}
 
+#ifdef SFX
+	if(special_effects){
+		display_special_effects(0);
+	}
+#endif //SFX
+
 	draw_delay = 20;
 	return 1;
 }

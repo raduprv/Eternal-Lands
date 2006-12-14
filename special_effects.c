@@ -457,21 +457,25 @@ void display_special_effect(special_effect *marker) {
 
 }
 
-void display_special_effects() {
+void display_special_effects(int do_render) {
 	int i; 
 
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_LIGHTING);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-	glEnable(GL_ALPHA_TEST);
+	if(do_render){
+		glDisable(GL_TEXTURE_2D);
+		glDisable(GL_LIGHTING);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glEnable(GL_ALPHA_TEST);
+	}
 
 	for(i = 0; i < NUMBER_OF_SPECIAL_EFFECTS; i++) {
 		if (sfx_markers[i].active) {
 			sfx_markers[i].timeleft -= (cur_time - sfx_markers[i].last_time); //use global cur_time
 			if (sfx_markers[i].timeleft > 0) {
 				sfx_markers[i].last_time = cur_time;
-				display_special_effect(&sfx_markers[i]);
+				if(do_render){
+					display_special_effect(&sfx_markers[i]);
+				}
 			} else {
 				// This marker has lived long enough now.
 				sfx_markers[i].active = 0;
@@ -479,9 +483,11 @@ void display_special_effects() {
 		}
 	}
 
-	glDisable(GL_ALPHA_TEST);
-	glEnable(GL_LIGHTING);
-	glDisable(GL_BLEND);
+	if(do_render){
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_LIGHTING);
+		glDisable(GL_BLEND);
+	}
 }
 
 //send server data packet to appropriate method depending on desired effect

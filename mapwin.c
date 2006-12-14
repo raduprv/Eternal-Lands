@@ -51,6 +51,12 @@ int display_map_handler (window_info * win)
 		CHECK_GL_ERRORS ();
 	}	
 
+#ifdef SFX
+	if(special_effects){
+		display_special_effects(0);
+	}
+#endif //SFX
+
 	draw_delay = 20;
 	return 1;
 }
