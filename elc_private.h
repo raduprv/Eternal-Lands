@@ -5,19 +5,19 @@
 #define ELC_PRIVATE_H
 
 /* VERSION DEFINITIONS */
-#define VER_STRING	"1.3.2.0"
+#define VER_STRING	"1.3.3.0"
 #define VER_MAJOR	1
 #define VER_MINOR	3
-#define VER_RELEASE	2
+#define VER_RELEASE	3
 #define VER_BUILD	0
 #define COMPANY_NAME	""
-#define FILE_VERSION	"1.3.2"
+#define FILE_VERSION	"1.3.3 i586"
 #define FILE_DESCRIPTION	"Eternal-Lands Client"
 #define INTERNAL_NAME	""
 #define LEGAL_COPYRIGHT	""
 #define LEGAL_TRADEMARKS	""
-#define ORIGINAL_FILENAME	"elc.exe"
+#define ORIGINAL_FILENAME	""
 #define PRODUCT_NAME	"Eternal-Lands Client"
-#define PRODUCT_VERSION	"1.3.2"
+#define PRODUCT_VERSION	"1.3.3"
 
 #endif /*ELC_PRIVATE_H*/
