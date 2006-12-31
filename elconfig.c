@@ -103,11 +103,13 @@ void change_int(int * var, int value)
 
 void change_float(float * var, float * value)
 {
+#ifdef	ELC
 	if(var == &name_zoom){
 		if(*value > 2.0){
 			*value= 2.0;
 		}
 	}
+#endif	//ELC
 	if(*value >= 0) {
 		*var= *value;
 	} else {
