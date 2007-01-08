@@ -381,8 +381,8 @@ int display_counters_handler(window_info *win)
 		}
 		sprintf(buffer, "%12d", counters[i][j].n_session);
 		draw_string_small(x + 200, y, buffer, 1);
-		sprintf(buffer, "%5d", counters[i][j].n_total);
-		draw_string_small(x + 370, y, buffer, 1);
+		sprintf(buffer, "%12d", counters[i][j].n_total);
+		draw_string_small(x + 314, y, buffer, 1);
 		y += 16;
 	}
 
