@@ -1,8 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
 #ifdef FONTS_FIX
-#include <dirent.h>
-#include <unistd.h>
+  #ifdef _MSC_VER
+    #include <io.h>
+  #else //!_MSC_VER
+    #include <dirent.h>
+    #include <unistd.h>
+  #endif //_MSC_VER
 #endif //FONTS_FIX
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
@@ -976,8 +980,13 @@ int load_font_textures ()
 	int use_mipmaps_save=use_mipmaps;
 	int i = 0;
 #ifdef FONTS_FIX
+#ifdef _MSC_VER
+	struct _finddata_t c_file;
+	long hFile;
+#else //!_MSC_VER
 	DIR *dp;
 	struct dirent *ep;
+#endif //_MSC_VER
 	char file[60] = "";
 	char str[60] = "";
 #endif //FONTS_FIX
@@ -1001,32 +1010,50 @@ int load_font_textures ()
 	fonts[2]->texture_id = load_texture_cache ("./textures/font2.bmp", 0);
 	fonts[3]->texture_id = load_texture_cache ("./textures/font3.bmp", 0);
 #else
+	i = 1;
 	// Force the selection of the base font.
 	add_multi_option("chat_font", "Type 1");
 	add_multi_option("name_font", "Type 1");
 	// Find what font's exist and load them
+#ifdef _MSC_VER
+	chdir("./textures/");
+	if( (hFile = _findfirst( "font*.bmp", &c_file )) == -1L ){
+		chdir("..");
+		return 0;
+	}
+	do {
+		strcpy(file, c_file.name);
+#else //!_MSC_VER
 	dp = opendir ("./textures/");
 	if (dp == NULL) {
 		return 0;
 	}
-	i = 1;
 	while ((ep = readdir (dp)) && i < FONTS_ARRAY_SIZE) {
 		strcpy(file, "");
 		strcpy(file, ep->d_name);
+#endif //_MSC_VER
 		if (!strncasecmp(file, "font", 4) && !strcasecmp(file+strlen(file) - 4, ".bmp") && strncasecmp(file+strlen(file) - 10, "_alpha", 6) && strlen(file) + 11 <= 60 && strlen(file) > 8) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
-			file[strlen(file) - 4] = 0;
+#ifdef _MSC_VER
+			strcpy(str, file);
+#else //!_MSC_VER
 			snprintf(str, sizeof(str), "./textures/%s", file);
-			snprintf(file, sizeof(file), "%s.bmp", str);
-			fonts[i]->texture_id = load_texture_cache (file, 0);
+#endif //!_MSC_VER
 			file[strlen(file) - 4] = 0;
-			snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file+11);
+			fonts[i]->texture_id = load_texture_cache (str, 0);
+			snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
 			add_multi_option("chat_font", font_names[i]);
 			add_multi_option("name_font", font_names[i]);
 			i++;
 		}
 	}
-	(void) closedir (dp);
+#ifdef _MSC_VER
+	while ( _findnext( hFile, &c_file ) == 0 );
+	_findclose( hFile );
+	chdir("..");
+#else //!_MSC_VER
+ 	(void) closedir (dp);
+#endif //_MSC_VER
 #endif //FONTS_FIX
 	
 	poor_man=poor_man_save;
