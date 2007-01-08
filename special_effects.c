@@ -53,11 +53,6 @@ void add_sfx(int effect, Uint16 playerid, int caster)
 	Uint8 str[70];
 	actor *this_actor = get_actor_ptr_from_id(playerid);
 	special_effect *m = get_free_special_effect();
-
-	if(game_root_win >= 0 && game_root_win < windows_list.num_windows && windows_list.window[game_root_win].window_id == game_root_win &&
-		!windows_list.window[game_root_win].displayed){
-		return;	//not in main, so it won't be shown
-	}
 	if (m == NULL) 
 	{
 		snprintf (str, sizeof (str), "Could not add special effect.  Increase NUMBER_OF_SPECIAL_EFFECTS.");	
