@@ -8,6 +8,8 @@
 
 #include "global.h"
 
+#define BUTTONRADIUS 15
+
 /*!
  * \ingroup misc
  * \brief Swaps a float properly

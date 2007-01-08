@@ -718,7 +718,7 @@ const struct WIDGET_TYPE square_button_type = { NULL, square_button_draw, NULL, 
 
 int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, const char *text)
 {
-	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * 11 * size) + 30*size;
+	Uint16 len_x = lx > 0 ? lx : (Uint16)(strlen(text) * 11 * size) + 2*BUTTONRADIUS*size;
 	Uint16 len_y = ly > 0 ? ly : (Uint16)(18 * size) + 12*size;
 
 	button *T = calloc (1, sizeof(button));
@@ -740,7 +740,7 @@ int button_draw(widget_list *W)
 		extra_space = 0;
 	}
 
-	draw_smooth_button((unsigned char *)l->text, W->size, W->pos_x, W->pos_y, W->len_x-20*W->size, 1, W->r, W->g, W->b, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+	draw_smooth_button((unsigned char *)l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, 0, 0.0f, 0.0f, 0.0f, 0.0f);
 	
 	return 1;
 }

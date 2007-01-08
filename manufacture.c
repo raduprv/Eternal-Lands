@@ -330,12 +330,12 @@ void display_manufacture_menu()
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id,
-			NULL, 33*6+15, manufacture_menu_y_len-36, 33, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
+			NULL, 33*6+15, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");
 		widget_set_OnClick(manufacture_win, mixone_button_id, mixone_handler);
 		widget_set_OnMouseover(manufacture_win, mixone_button_id, mouseover_mixone_handler);
 		
 		mixall_button_id=button_add_extended(manufacture_win, mixall_button_id,
-			NULL, 33*8, manufacture_menu_y_len-36, 33, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
+			NULL, 33*8, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">>");
 		widget_set_OnClick(manufacture_win, mixall_button_id, mixall_handler);
 		widget_set_OnMouseover(manufacture_win, mixall_button_id, mouseover_mixall_handler);
 		

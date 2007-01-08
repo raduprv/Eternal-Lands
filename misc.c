@@ -703,7 +703,7 @@ void draw_box(char * name, int x, int y, int w, int h, int rad)
 
 void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha)
 {
-	int radius=lines*15*size;
+	int radius=lines*BUTTONRADIUS*size;
 	float width_ratio=(size*DEFAULT_FONT_X_LEN)/12.0f;
 	int xstr=0;
 	
