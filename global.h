@@ -38,9 +38,9 @@
 		#if _MSC_VER < 1400 // VC 2003 needs these defines, VC 2005 will error with them included
 			#define atan2f atan2
 			#define acosf acos
+			#define ceilf ceil
+			#define floorf floor
 		#endif  // _MSC_VER < 1400
-		#define ceilf ceil
-		#define floorf floor
 		#define rint(X) floor(X+0.5f)
 	#endif
 	#ifdef __MINGW32__
