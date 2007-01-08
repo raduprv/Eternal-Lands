@@ -1410,8 +1410,11 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			repeat_spell();
 		}
 	}
-	else if (key == K_MAP)
-	{
+	else if ((key == K_MAP) || (key == K_MARKFILTER))
+ 	{
+		// if K_MARKFILTER pressed, open the map window with the filter active
+		if (key == K_MARKFILTER)
+			mark_filter_active = 1;
 		if ( switch_to_game_map () )
 		{
 			hide_window (game_root_win);
