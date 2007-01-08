@@ -66,7 +66,7 @@ int display_trade_handler(window_info *win)
 	
 	//Now let's draw the goods on trade...
 	
-	for(i=0; i<16; i++){
+	for(i=16; i>=0; --i){
 		if(your_trade_list[i].quantity){
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
@@ -93,11 +93,18 @@ int display_trade_handler(window_info *win)
 			glEnd();
 			
 			sprintf(str,"%i",your_trade_list[i].quantity);
-			draw_string_small(x_start,y_end-15,str,1);
+			draw_string_small(x_start,(i&1)?(y_end-12):(y_end-22),str,1);
+			//by doing the images in reverse, you can't cover up the digits>4
+			//also, by offsetting each one, numbers don't overwrite each other:
+			//before: 123456 in one box and 56 in the other could allow
+			//        1234                  56  which looks legitimate
+			//now:    123456
+			//            56 - the odd/even numbers are staggered
+			//                 stopping potential scams
 		}
 	}
 
-	for(i=0; i<16; i++){
+	for(i=16; i>=0; --i){
 		if(others_trade_list[i].quantity){
 			GLfloat u_start, v_start, u_end, v_end;
 			int x_start, x_end, y_start, y_end;
@@ -124,12 +131,14 @@ int display_trade_handler(window_info *win)
 			glEnd();
 			
 			sprintf(str,"%i",others_trade_list[i].quantity);
-			draw_string_small(x_start,y_end-15,str,1);
+			draw_string_small(x_start,(!(i&1))?(y_end-12):(y_end-22),str,1);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
-				str[0]='S';
-				str[1]=0;
-				draw_string_small(x_end-9,y_start+2,str,1);
+				str[0]='s';
+				str[1]='t';
+				str[2]='o';
+				str[3]=0;
+				draw_string_small(x_start,y_start-1,str,1);
 			}
 		}
 	}
