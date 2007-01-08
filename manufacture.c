@@ -173,8 +173,9 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 	int pos;
 	Uint8 str[100];
 
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	int quanitytomove = 1;
+	if ((flags & ELW_CTRL) || (flags & ELW_SHIFT) || (flags & ELW_ALT))
+		quanitytomove = 10;
 
 	//see if we clicked on any item in the main category
 	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);
@@ -190,23 +191,15 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 			int j;
 			
 			for(j=36;j<36+6;j++)
-				if(manufacture_list[j].pos==manufacture_list[pos].pos && manufacture_list[j].quantity > 0){
+				if((manufacture_list[j].pos==manufacture_list[pos].pos && manufacture_list[j].quantity > 0)
+					|| (!manufacture_list[j].quantity > 0)){
 					//found an empty space in the "production pipe"
-					manufacture_list[j].quantity++;
+					if (manufacture_list[pos].quantity < quanitytomove)
+						quanitytomove = manufacture_list[pos].quantity;
+					manufacture_list[j].quantity += quanitytomove;
 					manufacture_list[j].pos=manufacture_list[pos].pos;
 					manufacture_list[j].image_id=manufacture_list[pos].image_id;
-					manufacture_list[pos].quantity--;
-					return 1;
-				}
-			
-
-			for(j=36;j<36+6;j++)
-				if(!manufacture_list[j].quantity > 0){
-					//found an empty space in the "production pipe"
-					manufacture_list[j].quantity++;
-					manufacture_list[j].pos=manufacture_list[pos].pos;
-					manufacture_list[j].image_id=manufacture_list[pos].image_id;
-					manufacture_list[pos].quantity--;
+					manufacture_list[pos].quantity -= quanitytomove;
 					return 1;
 				}
 		}
@@ -225,22 +218,15 @@ int click_manufacture_handler(window_info *win, int mx, int my, Uint32 flags)
 		} else {
 			int j;
 			for(j=0;j<36;j++)
-				if(manufacture_list[j].quantity && manufacture_list[j].pos==manufacture_list[36+pos].pos) {
-					//found an empty space in the "production pipe"
-					manufacture_list[j].quantity++;
+				if((manufacture_list[j].quantity && manufacture_list[j].pos==manufacture_list[36+pos].pos)
+				|| (!manufacture_list[j].quantity)){
+					//found item in ingredients slot, move from "production pipe" back to this slot
+					if (manufacture_list[36+pos].quantity < quanitytomove)
+						quanitytomove = manufacture_list[36+pos].quantity;
+					manufacture_list[j].quantity += quanitytomove;
 					manufacture_list[j].pos=manufacture_list[36+pos].pos;
 					manufacture_list[j].image_id=manufacture_list[36+pos].image_id;
-					manufacture_list[36+pos].quantity--;
-					return 1;
-				}
-
-			for(j=0;j<36;j++)
-				if(!manufacture_list[j].quantity) {
-					//found an empty space in the "production pipe"
-					manufacture_list[j].quantity++;
-					manufacture_list[j].pos=manufacture_list[36+pos].pos;
-					manufacture_list[j].image_id=manufacture_list[36+pos].image_id;
-					manufacture_list[36+pos].quantity--;
+					manufacture_list[36+pos].quantity -= quanitytomove;
 					return 1;
 				}
 		}
