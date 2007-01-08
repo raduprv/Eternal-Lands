@@ -240,6 +240,8 @@ void switch_vidmode(int *pointer, int mode)
 		win_height,
 		win_bpp;
 
+	int flags = SDL_OPENGL;
+
 	if(mode>18 || mode<1) {
 		//warn about this error
 		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
@@ -351,9 +353,6 @@ void switch_vidmode(int *pointer, int mode)
 //#ifndef OSX
 //	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, SDL_OPENGL|SDL_FULLSCREEN)) {
 //#else
-	int flags;
-	flags= SDL_OPENGL;
-
 	if(full_screen) flags |= SDL_FULLSCREEN;
 	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, flags)) {
 //#endif
