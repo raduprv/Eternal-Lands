@@ -126,4 +126,5 @@ int get_message_from_server(void *thread_args);
 
 void process_message_from_server(const Uint8 *in_data, int data_length);
 
+void send_heart_beat();
 #endif

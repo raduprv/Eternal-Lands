@@ -5,6 +5,7 @@
 #include "elwindows.h"
 #include "queue.h"
 #include "actors.h"
+#include "update.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -60,6 +61,17 @@ int on_the_move (const actor *act)
 	if (act == NULL) return 0;
 	return act->moving || (act->que[0] >= move_n && act->que[0] <= move_nw);
 }
+
+
+void send_heart_beat()
+{
+	Uint8 command;
+
+	last_heart_beat= time(NULL);
+	command= HEART_BEAT;
+	my_tcp_send(my_socket, &command, 1);
+}
+
 
 int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 {
@@ -166,7 +178,15 @@ int my_tcp_flush (TCPsocket my_socket)
 		return 0;
 	}
 
+	// if we are already sending data, lets see about sending a heartbeat a little bit early
+	if(last_heart_beat+20 <= time(NULL)){
+		send_heart_beat();
+	}
+
+	// send all the data in the buffer
 	ret= SDLNet_TCP_Send(my_socket, tcp_out_data, tcp_out_loc);
+
+	// empty the buffer
 	tcp_out_loc= 0;
 	
 	return(ret);
