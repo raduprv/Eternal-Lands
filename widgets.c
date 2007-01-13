@@ -1737,12 +1737,14 @@ int text_field_draw (widget_list *w)
 {
 	text_field *tf;
 	int cursor;
-	int mx = mouse_x - windows_list.window[w->window_id].pos_x - w->pos_x;
-	int my = mouse_y - windows_list.window[w->window_id].pos_y - w->pos_y;
+	int mx, my;
 
-	if (w == NULL) {
+	if (w == NULL || w->window_id < 0 || w->widget_info == NULL) {
 		return 0;
 	}
+
+	mx = mouse_x - windows_list.window[w->window_id].pos_x - w->pos_x;
+	my = mouse_y - windows_list.window[w->window_id].pos_y - w->pos_y;
 
 	tf = w->widget_info;
 	if (w->Flags & TEXT_FIELD_BORDER)

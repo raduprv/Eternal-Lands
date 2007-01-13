@@ -246,7 +246,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 
 	imsg = msg_start;
 	ichar = offset_start;
-	if (msgs[imsg].data == NULL) return;
+	if (msgs[imsg].data == NULL || msgs[imsg].deleted) return;
 
 	if (width < displayed_font_x_size || height < displayed_font_y_size)
 		// no point in trying
@@ -283,7 +283,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			{
 				ichar = 0;
 				if (++imsg >= msgs_size) imsg = 0;
-				if (msgs[imsg].data == NULL || imsg == msg_start) 
+				if (msgs[imsg].data == NULL || imsg == msg_start || msgs[imsg].deleted) 
 					// nothing to draw
 					return;
 			}
@@ -292,7 +292,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				break;
 			}
 		}
-		if (msgs[imsg].data == NULL) return;
+		if (msgs[imsg].data == NULL || msgs[imsg].deleted) return;
 	}
 #endif //! MAP_EDITOR2
 
@@ -387,7 +387,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				}
 			}
 #endif
-			if (msgs[imsg].data == NULL || imsg == msg_start) break;
+			if (msgs[imsg].data == NULL || imsg == msg_start || msgs[imsg].deleted) break;
 			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 			ichar = 0;
 		}
