@@ -124,8 +124,25 @@ void kill_3d_object(int object_id)
 
 void move_3d_object(int object_id)
 {
-	objects_list[object_id]->x_pos=scene_mouse_x;
-	objects_list[object_id]->y_pos=scene_mouse_y;
+    float window_ratio;
+    float x,y,x1,y1,a,t,t1;
+    window_ratio=(GLfloat)window_width/(GLfloat)window_height;
+
+    //x=(float)((mouse_x)*2.8f*(float)zoom_level/(float)window_width)-(2.8f*zoom_level/2.0f);
+    x=(float)((mouse_x)*window_ratio*2.0*(float)zoom_level/(float)window_width)-(window_ratio*zoom_level);
+    y=(float)((window_height-mouse_y)*2.0f*zoom_level/window_height)-(2.0*zoom_level/2.0f);
+
+    a=(rz)*3.1415926/180;
+    t=(rx)*3.1415926/180;
+    t1=(rx+90)*3.1415926/180;
+
+    y=((float)y - objects_list[object_id]->z_pos*cos(t1))/(float)cos(t);
+
+    x1=x*cos(a)+y*sin(a);
+    y1=y*cos(a)-x*sin(a);
+
+    objects_list[object_id]->x_pos = -cx+x1;
+	objects_list[object_id]->y_pos = -cy+y1;
 }
 
 void clone_3d_object(int object_id)
@@ -219,8 +236,8 @@ void get_2d_object_under_mouse()
 	float least_z;
 
 	selected_2d_object=-1;
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-mx;
+	y=(int)-my;
 
 	least_z = 1.0;
 	glClearDepth (least_z);
@@ -602,8 +619,8 @@ void visualise_lights()
 	int i;
 	int x,y;
 
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-mx;
+	y=(int)-my;
 
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix

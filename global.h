@@ -82,15 +82,11 @@ extern int window_width;
 extern int window_height;
 extern int bpp;
 
-extern float zoom_level;
 
 extern Uint32 cur_time, last_time;
 
-extern float cx,cy,cz;
-extern float rx,ry,rz;
 extern float camera_x_end_point;
 extern float camera_z_end_point;
-extern float terrain_scale;
 extern int last_texture;
 
 extern float gcr,gcg,gcb;

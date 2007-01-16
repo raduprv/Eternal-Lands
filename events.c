@@ -7,6 +7,10 @@ int undo_tile_height;
 int undo_tile = -1;
 int calhm = 0;
 
+#define ROT_LSPEED    1.0f 
+#define ROT_HSPEED   10.0f
+#define ROT_DELTA(flag) (flag ? ROT_HSPEED : ROT_LSPEED)
+
 void zoomin(){
 	zoom_level -= ctrl_on ? 2.5f : 0.25f;
 	if(zoom_level<1.0f) zoom_level = 1.0f;
@@ -23,468 +27,358 @@ int HandleEvent(SDL_Event *event)
 	int done=0;
 	Uint8 ch=0;
 
-	mod_key_status=SDL_GetModState();
-	if(mod_key_status&KMOD_SHIFT)shift_on=1;
-	else shift_on=0;
+    mod_key_status=SDL_GetModState();
 
-	mod_key_status=SDL_GetModState();
-	if(mod_key_status&KMOD_CTRL)ctrl_on=1;
-	else ctrl_on=0;
-
-	mod_key_status=SDL_GetModState();
-	if(mod_key_status&KMOD_ALT)alt_on=1;
-	else alt_on=0;
-
-	view_particles_window=get_show_window(particles_window);
-	switch( event->type ) {
-
-	    case SDL_KEYDOWN:
-	      /* overhead view */
-	      if(event->key.keysym.sym == SDLK_o){
-		if(rx == -60) rx = 0;
-		else rx = -60;
-	      }
-		if (event->key.keysym.sym == SDLK_1 && ctrl_on){gcr=1.0f;gcg=1.0f;gcb=1.0f;}
-		if (event->key.keysym.sym == SDLK_2 && ctrl_on){gcr=1.0f;gcg=0.0f;gcb=0.0f;}
-		if (event->key.keysym.sym == SDLK_3 && ctrl_on){gcr=0.0f;gcg=1.0f;gcb=0.0f;}
-		if (event->key.keysym.sym == SDLK_4 && ctrl_on){gcr=0.0f;gcg=0.0f;gcb=1.0f;}
-		if (event->key.keysym.sym == SDLK_5 && ctrl_on){gcr=0.0f;gcg=0.0f;gcb=0.0f;}
-		if (event->key.keysym.sym == SDLK_F12){zoom_level=3.75f;window_resize();}
-
-		if (event->key.keysym.sym == SDLK_TAB)heights_3d=!heights_3d;
-		if (event->key.keysym.sym == SDLK_g)view_grid=!view_grid;
-
-		if ( event->key.keysym.sym == SDLK_ESCAPE )
-
-		{
-
-			done = 1;
-
-		}
-
-		if ( event->key.keysym.sym == SDLK_b && ctrl_on){
-			toggle_window(browser_win);
-		}
-		if ( event->key.keysym.sym == SDLK_p && ctrl_on) {
-			toggle_particles_window();
-			toggle_window(particles_window);
-		}
-		if ( event->key.keysym.sym == SDLK_w && ctrl_on){
-			toggle_window(o3dow_win);
-		}
-		if ( event->key.keysym.sym == SDLK_r && ctrl_on){
-			toggle_window(replace_window_win);
-		}
-		if ( event->key.keysym.sym == SDLK_e && ctrl_on){
-			toggle_window(edit_window_win);
-		}
-		if ( event->key.keysym.sym == SDLK_h && ctrl_on){
-			calhm = !calhm;
-		}
-		if ( event->key.keysym.sym == SDLK_z && ctrl_on){
-			if(undo_object != NULL){
-				switch (undo_type){
-					case mode_3d:
-					{
-						object3d *o = (object3d *) undo_object;
-						add_e3d(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot, o->self_lit, o->blended, o->r, o->g, o->b);
-						free(undo_object);
-						undo_object = NULL;
-						break;
-					}
-					case mode_2d:
-					{
-						obj_2d *o = (obj_2d *) undo_object;
-						add_2d_obj(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot);
-						free(undo_object);
-						undo_object = NULL;
-						break;
-					}
-					case mode_light:
-					{
-						light *o = (light *) undo_object;
-						add_light(o->pos_x, o->pos_y, o->pos_z, o->r, o->g, o->b, 1.0f, o->locked);
-						free(undo_object);
-						undo_object = NULL;
-						break;
-					}
-					case mode_particles:
-					{
-						particle_sys *o = (particle_sys *) undo_object;
-						create_particle_sys(o->def,o->x_pos,o->y_pos,o->z_pos);
-						free(undo_object);
-						undo_object = NULL;
-						break;
-					}
-				}
-			} else {
-				if(undo_tile != -1 && undo_type == mode_tile){
-					tile_map[undo_tile] = undo_tile_value;
-					undo_tile = -1;
-				}
-			}
-		}
+    shift_on = mod_key_status&KMOD_SHIFT ? 1 : 0;
+    ctrl_on  = mod_key_status&KMOD_CTRL  ? 1 : 0;
+    alt_on   = mod_key_status&KMOD_ALT   ? 1 : 0;
 
 
-		if ( event->key.keysym.sym == SDLK_LEFT )
-		{
-			if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->z_rot-=1.0f;
-			else objects_list[selected_3d_object]->z_rot-=10.0f;
+    view_particles_window=get_show_window(particles_window);
 
-			else
-			if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
-			if(shift_on)obj_2d_list[selected_2d_object]->z_rot-=1.01f;
-			else obj_2d_list[selected_2d_object]->z_rot-=10.0f;
+    switch( event->type ) {
+        case SDL_KEYDOWN:
+            if (ctrl_on && !alt_on && !shift_on) {
+                switch(event->key.keysym.sym) {
+                    // FIXME what mean gcr,gcg,gcb and why this not in structure
+                    case SDLK_1: gcr=1.0f; gcg=1.0f; gcb=1.0f; break;
+                    case SDLK_2: gcr=1.0f; gcg=0.0f; gcb=0.0f; break;
+                    case SDLK_3: gcr=0.0f; gcg=1.0f; gcb=0.0f; break;
+                    case SDLK_4: gcr=0.0f; gcg=0.0f; gcb=1.0f; break;
+                    case SDLK_5: gcr=0.0f; gcg=0.0f; gcb=0.0f; break;
 
-			else
-				{
-   					cx += sin((rz+90)*3.1415926/180);
-					cy += cos((rz+90)*3.1415926/180);
-				}
-		}
-		if ( event->key.keysym.sym == SDLK_RIGHT )
-		{
-			if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->z_rot+=1.0f;
-			else objects_list[selected_3d_object]->z_rot+=10.0f;
+                    case SDLK_b: toggle_window(browser_win);        break;
+                    case SDLK_w: toggle_window(o3dow_win);          break;
+                    case SDLK_r: toggle_window(replace_window_win); break;
+                    case SDLK_e: toggle_window(edit_window_win);    break;
+                    case SDLK_h: calhm = !calhm;                    break;
 
-			else
-			if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
-			if(shift_on)obj_2d_list[selected_2d_object]->z_rot+=1.01f;
-			else obj_2d_list[selected_2d_object]->z_rot+=10.0f;
+                    case SDLK_p: 
+                        toggle_particles_window(); 
+                        toggle_window(particles_window); 
+                        break;
 
-			else
-				{
-   					cx -= sin((rz+90)*3.1415926/180);
-					cy -= cos((rz+90)*3.1415926/180);
-				}
-		}
+                    case SDLK_z:
+                        if(undo_object != NULL) {
+                            switch (undo_type) {
+                                case mode_3d: {
+                                        object3d *o = (object3d *)undo_object;
+                                        add_e3d(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot, o->self_lit, o->blended, o->r, o->g, o->b);
+                                        free(undo_object);
+                                        undo_object = NULL;
+                                    }
+                                    break;
 
-		if ( event->key.keysym.sym == SDLK_UP)
-		{
-			if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->x_rot-=1.0f;
-			else objects_list[selected_3d_object]->x_rot-=10.0f;
+                                case mode_2d: {
+                                        obj_2d *o = (obj_2d *) undo_object;
+                                        add_2d_obj(o->file_name, o->x_pos, o->y_pos, o->z_pos, o->x_rot, o->y_rot, o->z_rot);
+                                        free(undo_object);
+                                        undo_object = NULL;
+                                    }
+                                    break;
 
-			else
-			if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
-			if(shift_on)obj_2d_list[selected_2d_object]->x_rot-=1.01f;
-			else obj_2d_list[selected_2d_object]->x_rot-=10.0f;
+                                case mode_light: {
+                                        light *o = (light *) undo_object;
+                                        add_light(o->pos_x, o->pos_y, o->pos_z, o->r, o->g, o->b, 1.0f, o->locked);
+                                        free(undo_object);
+                                        undo_object = NULL;
+                                    }
+                                    break;
 
-			else
-				{
-	   				cx -= sin(rz*3.1415926/180);
-					cy -= cos(rz*3.1415926/180);
-				}
+                                case mode_particles: {
+                                        particle_sys *o = (particle_sys *)undo_object;
+                                        create_particle_sys(o->def,o->x_pos,o->y_pos,o->z_pos);
+                                        free(undo_object);
+                                        undo_object = NULL;
+                                    }
+                                    break;
+                            }
+                        } else {
+                            if(undo_tile != -1 && undo_type == mode_tile) {
+                                tile_map[undo_tile] = undo_tile_value;
+                                undo_tile = -1;
+                            }
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            } else if (!ctrl_on && !alt_on && !shift_on) {
+                switch(event->key.keysym.sym) {
+                    case SDLK_o:
+                        // FIXME what doing rx variable
+                        if(rx == -60)
+                            rx = 0;
+                        else 
+                            rx = -60;
+                        break;
 
-		}
+                    case SDLK_F12:      zoom_level=3.75f; window_resize(); break;
+                    case SDLK_TAB:      heights_3d=!heights_3d; break;
+                    case SDLK_g:        view_grid=!view_grid; break;
 
-		if ( event->key.keysym.sym == SDLK_DOWN )
-		{
-			if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
-			if(shift_on)objects_list[selected_3d_object]->x_rot+=1.0f;
-			else objects_list[selected_3d_object]->x_rot+=10.0f;
+                    // FIXME what this?
+                    case SDLK_ESCAPE:   done = 1; break;
 
-			else
-			if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
-			if(shift_on)obj_2d_list[selected_2d_object]->x_rot+=1.01f;
-			else obj_2d_list[selected_2d_object]->x_rot+=10.0f;
+                    case SDLK_F1:       game_minute=(game_minute >  60*5 ?     0: game_minute + 1); break;
+                    case SDLK_F2:       game_minute=(game_minute == 0    ? 60*5 : game_minute - 1); break;
+                    case SDLK_n:        game_minute=0;  break;
+                    case SDLK_d:        game_minute=60; break;
 
-			else
-				{
-   					cx += sin(rz*3.1415926/180);
-					cy += cos(rz*3.1415926/180);
-				}
+                    case SDLK_KP_PLUS:
+                        if(view_tiles_list){
+                            if(tile_offset<192)
+                                tile_offset+=64;
+						} else 
+                            grid_height+=0.1f;
+                        break;
 
-		}
+                    case SDLK_KP_MINUS:
+                        if(view_tiles_list){
+                            if(tile_offset>0)
+                                tile_offset -= 64;
+						} else 
+                            grid_height -= 0.1f;
+                        break;
 
-		if ( event->key.keysym.sym == SDLK_HOME )
-		{
-   				if(shift_on)rz +=1.0f;
-   				else rz +=20.0f;
-		}
-		if ( event->key.keysym.sym == SDLK_END )
-		{
-   				if(shift_on)rz -=1.0f;
-   				else rz -=20.0f;
-		}
+                    default:
+                        break;
+                }
+            }
 
+            // process key, what push not depening on extended keys
+            switch(event->key.keysym.sym) {
+                case SDLK_LEFT:
+                    if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
+                        objects_list[selected_3d_object]->z_rot -= ROT_DELTA(shift_on);  
 
-		if ( event->key.keysym.sym == SDLK_PAGEUP )
-		{
-			//if(!ctrl_on && !shift_on && !alt_on)
-			if (!shift_on && !ctrl_on)
-			{
-				if (view_particles_window)
-					particles_win_zoomin();
-				else 
-					zoomin();
-			}
-			else if (cur_mode == mode_3d && selected_3d_object != -1)
-			{
-				if (shift_on)
-					objects_list[selected_3d_object]->y_rot -= 1.0f;
-				else
-					objects_list[selected_3d_object]->y_rot -= 10.0f;
-			}
-		}
-		if ( event->key.keysym.sym == SDLK_PAGEDOWN )
-		{
-			//if(!ctrl_on && !shift_on && !alt_on)
-			if (!shift_on && !ctrl_on)
-			{
-				if (view_particles_window)
-					particles_win_zoomout ();
-				else
-					zoomout ();
-			}
-			else if (cur_mode == mode_3d && selected_3d_object != -1)
-			{
-				if (shift_on)
-					objects_list[selected_3d_object]->y_rot += 1.0f;
-				else
-					objects_list[selected_3d_object]->y_rot += 10.0f;
-			}
-		}
+                    else if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
+                        obj_2d_list[selected_2d_object]->z_rot -= ROT_DELTA(shift_on);
+    
+                    else {
+                        mx += sin((rz+90)*3.1415926/180);
+                        my += cos((rz+90)*3.1415926/180);
+                    }
+                    break;
 
+                case SDLK_RIGHT:
+                    if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
+                        objects_list[selected_3d_object]->z_rot += ROT_DELTA(shift_on);  
 
-		if ( event->key.keysym.sym == SDLK_INSERT || event->key.keysym.sym == SDLK_BACKSPACE )
-		{
-			if (cur_mode == mode_3d && selected_3d_object != -1)
-			{
-				if (shift_on)
-					objects_list[selected_3d_object]->z_pos += 0.01f;
-				else
-					objects_list[selected_3d_object]->z_pos += 0.1f;
-			}
-			else if (cur_mode == mode_2d && selected_2d_object != -1)
-			{
-				if (shift_on)
-					obj_2d_list[selected_2d_object]->z_pos += 0.01f;
-				else 
-					obj_2d_list[selected_2d_object]->z_pos += 0.1f;
-			}
-			else if (cur_mode == mode_light && selected_light != -1 && !lights_list[selected_light]->locked)
-			{
-				if (shift_on)
-					lights_list[selected_light]->pos_z += 0.01f;
-				else 
-					lights_list[selected_light]->pos_z += 0.1f;
-			}
-			else if (cur_mode == mode_particles)
-			{
-				if (selected_particles_object != -1)
-				{
-					if (shift_on)
-					{
-						particles_list[selected_particles_object]->z_pos += 0.01f;
-						if (particles_list[selected_particles_object]->def->use_light) 
-							lights_list[particles_list[selected_particles_object]->light]->pos_z += 0.01f;
-					}
-					else 
-					{
-						particles_list[selected_particles_object]->z_pos += 0.1f;
-						if (particles_list[selected_particles_object]->def->use_light) 
-							lights_list[particles_list[selected_particles_object]->light]->pos_z += 0.1f;
-					}
-				}
-				
-				if (view_particles_window)
-				{
-					if (shift_on)
-						particles_win_move_preview (0.01f);
-					else 
-						particles_win_move_preview (0.1f);
-				}
-			}
-			else if (cur_mode == mode_height && selected_height != -1)
-			{
-				if (selected_height < 31) selected_height++;
-			}
+                    else if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
+                        obj_2d_list[selected_2d_object]->z_rot += ROT_DELTA(shift_on);
 
-		}
-
-		if ( event->key.keysym.sym == SDLK_DELETE )
-		{
-			if (cur_mode == mode_3d && selected_3d_object != -1)
-			{
-				if (shift_on)
-					objects_list[selected_3d_object]->z_pos -= 0.01f;
-				else 
-					objects_list[selected_3d_object]->z_pos -= 0.1f;
-			}
-			else if (cur_mode == mode_2d && selected_2d_object != -1)
-			{
-				if (shift_on)
-					obj_2d_list[selected_2d_object]->z_pos -= 0.01f;
-				else 
-					obj_2d_list[selected_2d_object]->z_pos -= 0.1f;
-			}
-			else if (cur_mode == mode_light && selected_light != -1 && !lights_list[selected_light]->locked)
-			{
-				if (shift_on)
-					lights_list[selected_light]->pos_z -= 0.01f;
-				else 
-					lights_list[selected_light]->pos_z -= 0.1f;
-			}
-			else if (cur_mode==mode_particles)
-			{
-				if (selected_particles_object != -1)
-				{
-					if (shift_on)
-					{
-						particles_list[selected_particles_object]->z_pos -= 0.01f;
-						if (particles_list[selected_particles_object]->def->use_light) 
-							lights_list[particles_list[selected_particles_object]->light]->pos_z -= 0.01f;
-					}
-					else
-					{
-						particles_list[selected_particles_object]->z_pos -= 0.1f;
-						if (particles_list[selected_particles_object]->def->use_light) 
-							lights_list[particles_list[selected_particles_object]->light]->pos_z -= 0.1f;
-					}
-				}
-				
-				if (view_particles_window)
-				{
-					if (shift_on)
-						particles_win_move_preview (-0.01f);
-					else
-						particles_win_move_preview (-0.1f);
-				}
-			}
-			else if (cur_mode == mode_height && selected_height != -1)
-			{
-				if (selected_height > 0)
-					selected_height--;
-			}
-		}
-
-		if ( event->key.keysym.sym == SDLK_F1 )
-		{
-			game_minute++;
-			if(game_minute>60*5)game_minute=0;
-		}
-
-		if ( event->key.keysym.sym == SDLK_n)
-		{
-			game_minute=0;
-		}
-
-		if ( event->key.keysym.sym == SDLK_d)
-		{
-			game_minute=60;
-		}
+                    else {
+                        mx -= sin((rz+90)*3.1415926/180);
+                        my -= cos((rz+90)*3.1415926/180);
+                    }
+                    break;
 
 
-		if ( event->key.keysym.sym == SDLK_F2 )
-		{
-			if(game_minute==0)game_minute=60*5;
-			else
-			game_minute--;
-		}
+                case SDLK_UP:
+                    if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
+                        objects_list[selected_3d_object]->x_rot -= ROT_DELTA(shift_on);
+                    else if (ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
+                        obj_2d_list[selected_2d_object]->x_rot -= ROT_DELTA(shift_on);
+                    else {
+                        mx -= sin(rz*3.1415926/180);
+                        my -= cos(rz*3.1415926/180);
+                    }
+                    break;
+                
+                case SDLK_DOWN:
+                    if(ctrl_on && cur_mode==mode_3d && selected_3d_object!=-1)
+                        objects_list[selected_3d_object]->x_rot += ROT_DELTA(shift_on);
+                    else if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
+                        obj_2d_list[selected_2d_object]->x_rot += ROT_DELTA(shift_on);
+                    else {
+                        mx += sin(rz*3.1415926/180);
+                        my += cos(rz*3.1415926/180);
+                    }
 
-		if(event->key.keysym.sym == SDLK_KP_PLUS)
-			{
-				if(view_tiles_list)
-					{
-						if(tile_offset<192)tile_offset+=64;
-					}
-				else
-					{
-						grid_height+=0.1f;
-					}
-			}
-		
-		if(event->key.keysym.sym == SDLK_KP_MINUS)
-			{
-				if(view_tiles_list)
-					{
-						if(tile_offset>0)tile_offset-=64;
-					}
-				else
-					{
-						grid_height-=0.1f;
-					}
-			}
-        
-	//see if we get any text
-        if ((event->key.keysym.unicode & 0xFF80)==0)
-  		ch = event->key.keysym.unicode & 0x7F;
-  		//check wehter we should switch shadows on/off
-  		if((ch=='s' || ch=='S') && alt_on)shadows_on=!shadows_on;
+                    break;
 
-  		//do we want to toggle the transparency of a 3d object?
-  		if(ch=='b' && selected_3d_object!=-1 && cur_mode==mode_3d)
-  		objects_list[selected_3d_object]->blended=!objects_list[selected_3d_object]->blended;
-  		if(ch=='l' && selected_3d_object!=-1 && cur_mode==mode_3d)
-  		objects_list[selected_3d_object]->self_lit=!objects_list[selected_3d_object]->self_lit;
-  		//do the lightening stuff
-  		if(ch=='1' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
-  		if(objects_list[selected_3d_object]->r<1.0f)objects_list[selected_3d_object]->r+=0.05f;
-  		if(ch=='1' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
-  		if(objects_list[selected_3d_object]->r>0.0f)objects_list[selected_3d_object]->r-=0.05f;
-  		if(ch=='2' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
-  		if(objects_list[selected_3d_object]->g<1.0f)objects_list[selected_3d_object]->g+=0.05f;
-  		if(ch=='2' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
-  		if(objects_list[selected_3d_object]->g>0.0f)objects_list[selected_3d_object]->g-=0.05f;
-  		if(ch=='3' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
-  		if(objects_list[selected_3d_object]->b<1.0f)objects_list[selected_3d_object]->b+=0.05f;
-  		if(ch=='3' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
-  		if(objects_list[selected_3d_object]->b>0.0f)objects_list[selected_3d_object]->b-=0.05f;
-		//for lights now
-  		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
-  		if(lights_list[selected_light]->r<5.0f)lights_list[selected_light]->r+=0.1f;
-  		if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
-  		if(lights_list[selected_light]->r>0.0f)lights_list[selected_light]->r-=0.1f;
-  		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
-  		if(lights_list[selected_light]->g<5.0f)lights_list[selected_light]->g+=0.1f;
-  		if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
-  		if(lights_list[selected_light]->g>0.0f)lights_list[selected_light]->g-=0.1f;
-  		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
-  		if(lights_list[selected_light]->b<5.0f)lights_list[selected_light]->b+=0.1f;
-  		if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
-  		if(lights_list[selected_light]->b>0.0f)lights_list[selected_light]->b-=0.1f;
-		//for ambient light
-  		if(ch=='1' && cur_mode==mode_map && !alt_on)
-  		if(ambient_r<1.0f)ambient_r+=0.02f;
-  		if(ch=='1' && cur_mode==mode_map && alt_on)
-  		if(ambient_r>-0.05f)ambient_r-=0.02f;
-  		if(ch=='2' && cur_mode==mode_map && !alt_on)
-  		if(ambient_g<1.0f)ambient_g+=0.02f;
-  		if(ch=='2' && cur_mode==mode_map && alt_on)
-  		if(ambient_g>-0.05f)ambient_g-=0.02f;
-  		if(ch=='3' && cur_mode==mode_map && !alt_on)
-  		if(ambient_b<1.0f)ambient_b+=0.02f;
-  		if(ch=='3' && cur_mode==mode_map && alt_on)
-  		if(ambient_b>-0.05f)ambient_b-=0.02f;
-  		if((ch=='d' || ch=='D') && cur_mode==mode_map)dungeon=!dungeon;
+                case SDLK_HOME: rz += (shift_on ? 1.0f : 20.0f); break;
+                case SDLK_END:  rz -= (shift_on ? 1.0f : 20.0f); break;
+                case SDLK_PAGEUP:
+                    if (!shift_on && !ctrl_on)
+                        if (view_particles_window)
+                            particles_win_zoomin();
+                        else 
+                            zoomin();
+                    else if (cur_mode == mode_3d && selected_3d_object != -1)
+                        objects_list[selected_3d_object]->y_rot -= (shift_on ? 1.0f : 10.0f);  
 
-  		if(ch=='m')map_has_changed=(minimap_on=!minimap_on);
+                    break;
+
+                case SDLK_PAGEDOWN:
+                    if (!shift_on && !ctrl_on) {
+                        if (view_particles_window)
+                            particles_win_zoomout ();
+                        else
+                            zoomout ();
+                    } else if (cur_mode == mode_3d && selected_3d_object != -1) {
+                        objects_list[selected_3d_object]->y_rot += (shift_on ? 1.0f : 10.0f);
+                    }
+                    break;
+
+                case SDLK_INSERT:
+                case SDLK_BACKSPACE:
+                    if (cur_mode == mode_3d && selected_3d_object != -1) {
+                        objects_list[selected_3d_object]->z_pos += (shift_on ? 0.01f : 0.1f);
+                    } else if (cur_mode == mode_2d && selected_2d_object != -1) {
+                        obj_2d_list[selected_2d_object]->z_pos += (shift_on ? 0.01f : 0.1f);
+                    } else if (cur_mode == mode_light && selected_light != -1 && !lights_list[selected_light]->locked) {
+                        lights_list[selected_light]->pos_z += (shift_on ? 0.01f : 0.1f);
+                    } else if (cur_mode == mode_particles) {
+                        if (selected_particles_object != -1) {
+                            particles_list[selected_particles_object]->z_pos += (shift_on ? 0.01f : 0.1f);
+                            if (particles_list[selected_particles_object]->def->use_light) 
+                                lights_list[particles_list[selected_particles_object]->light]->pos_z += (shift_on ? 0.01f : 0.1f);
+                        }
+                        if (view_particles_window) {
+                            particles_win_move_preview (shift_on ? 0.01f : 0.1f);
+                        }
+                    } else if (cur_mode == mode_height && selected_height != -1) {
+                        if (selected_height < 31) 
+                            selected_height++;
+                    }
+                    break;
+
+                case SDLK_DELETE:
+                    if (cur_mode == mode_3d && selected_3d_object != -1) {
+                        objects_list[selected_3d_object]->z_pos -= (shift_on ? 0.01f : 0.1f);
+                    } else if (cur_mode == mode_2d && selected_2d_object != -1) {
+                        obj_2d_list[selected_2d_object]->z_pos -= (shift_on ? 0.01f : 0.1f);
+                    } else if (cur_mode == mode_light && selected_light != -1 && !lights_list[selected_light]->locked) {
+                        lights_list[selected_light]->pos_z -= (shift_on ? 0.01f : 0.1f);
+                    } else if (cur_mode==mode_particles) {
+                        if (selected_particles_object != -1) {
+                            particles_list[selected_particles_object]->z_pos -= (shift_on ? 0.01f : 0.1f);
+                            if (particles_list[selected_particles_object]->def->use_light) 
+                                lights_list[particles_list[selected_particles_object]->light]->pos_z -= (shift_on ? 0.01f : 0.1f);
+                        }
+                        if (view_particles_window)
+                            particles_win_move_preview (shift_on ? -0.01f : -0.1f);
+
+                    } else if (cur_mode == mode_height && selected_height != -1) {
+                        if (selected_height > 0)
+                            selected_height--;
+                    }
+                    break; // END DELETE
+                default:
+                    break;
+            
+            } //switch(event->key.keysym.sym)  
 
 
-		break;
 
-		case SDL_VIDEORESIZE:
-		    	{
-			     window_width = event->resize.w;
-			     window_height = event->resize.h;
+
+            //see if we get any text
+            if ((event->key.keysym.unicode & 0xFF80)==0)
+                ch = event->key.keysym.unicode & 0x7F;
+            
+            //check wehter we should switch shadows on/off
+            if((ch=='s' || ch=='S') && alt_on)
+                shadows_on=!shadows_on;
+            
+            //do we want to toggle the transparency of a 3d object?
+            if(ch=='b' && selected_3d_object!=-1 && cur_mode==mode_3d)
+                objects_list[selected_3d_object]->blended=!objects_list[selected_3d_object]->blended;
+            
+            if(ch=='l' && selected_3d_object!=-1 && cur_mode==mode_3d)
+                objects_list[selected_3d_object]->self_lit=!objects_list[selected_3d_object]->self_lit;
+            
+            //do the lightening stuff
+            if(ch=='1' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
+                if(objects_list[selected_3d_object]->r<1.0f)
+                    objects_list[selected_3d_object]->r+=0.05f;
+            
+            if(ch=='1' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
+                if(objects_list[selected_3d_object]->r>0.0f)
+                    objects_list[selected_3d_object]->r-=0.05f;
+            
+            if(ch=='2' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
+                if(objects_list[selected_3d_object]->g<1.0f)
+                    objects_list[selected_3d_object]->g+=0.05f;
+            
+            if(ch=='2' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
+                if(objects_list[selected_3d_object]->g>0.0f)
+                    objects_list[selected_3d_object]->g-=0.05f;
+            
+            if(ch=='3' && selected_3d_object!=-1 && cur_mode==mode_3d && !alt_on)
+                if(objects_list[selected_3d_object]->b<1.0f)
+                    objects_list[selected_3d_object]->b+=0.05f;
+            
+            if(ch=='3' && selected_3d_object!=-1 && cur_mode==mode_3d && alt_on)
+                if(objects_list[selected_3d_object]->b>0.0f)
+                    objects_list[selected_3d_object]->b-=0.05f;
+            
+            //for lights now
+            if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
+                if(lights_list[selected_light]->r<5.0f)
+                    lights_list[selected_light]->r+=0.1f;
+            
+            if(ch=='1' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
+                if(lights_list[selected_light]->r>0.0f)
+                    lights_list[selected_light]->r-=0.1f;
+            
+            if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
+                if(lights_list[selected_light]->g<5.0f)
+                    lights_list[selected_light]->g+=0.1f;
+            
+            if(ch=='2' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
+                if(lights_list[selected_light]->g>0.0f)
+                    lights_list[selected_light]->g-=0.1f;
+            
+            if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && !alt_on && !lights_list[selected_light]->locked)
+            if(lights_list[selected_light]->b<5.0f)lights_list[selected_light]->b+=0.1f;
+            if(ch=='3' && selected_light!=-1 && cur_mode==mode_light && alt_on && !lights_list[selected_light]->locked)
+            if(lights_list[selected_light]->b>0.0f)lights_list[selected_light]->b-=0.1f;
+            
+            //for ambient light
+            if(ch=='1' && cur_mode==mode_map && !alt_on)
+            if(ambient_r<1.0f)ambient_r+=0.02f;
+            if(ch=='1' && cur_mode==mode_map && alt_on)
+            if(ambient_r>-0.05f)ambient_r-=0.02f;
+            if(ch=='2' && cur_mode==mode_map && !alt_on)
+            if(ambient_g<1.0f)ambient_g+=0.02f;
+            if(ch=='2' && cur_mode==mode_map && alt_on)
+            if(ambient_g>-0.05f)ambient_g-=0.02f;
+            if(ch=='3' && cur_mode==mode_map && !alt_on)
+            if(ambient_b<1.0f)ambient_b+=0.02f;
+            if(ch=='3' && cur_mode==mode_map && alt_on)
+            if(ambient_b>-0.05f)ambient_b-=0.02f;
+            if((ch=='d' || ch=='D') && cur_mode==mode_map)dungeon=!dungeon;
+            
+            if(ch=='m') map_has_changed=(minimap_on=!minimap_on);
+            
+
+            break;
+
+        case SDL_VIDEORESIZE:
+            window_width = event->resize.w;
+            window_height = event->resize.h;
 #ifdef LINUX
-                	     if(SDL_SetVideoMode(window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE))
-	      	      	  	   {
-			                  window_resize();
-	                  	   }
+            if(SDL_SetVideoMode(window_width, window_height, bpp, SDL_OPENGL|SDL_RESIZABLE))
+                window_resize();
 #else
-                     	     handle_window_resize();
+            handle_window_resize();
 #endif
-	    	    	break;
-	    	    	}
+            break;
 
-	    case SDL_QUIT:
-		done = 1;
-		break;
-	}
+        case SDL_USEREVENT:
+            switch(event->user.code){
+                case EVENT_UPDATE_CAMERA:
+                    update_camera();
+                    break;
+            }
+            break;
+
+        case SDL_QUIT:
+		    done = 1;
+		    break;
+    }
 
 	// zooming with mousewheel...
 	if(event->type==SDL_MOUSEBUTTONDOWN){
@@ -498,7 +392,7 @@ int HandleEvent(SDL_Event *event)
 	  }
 	} // *
 
-	if(event->type==SDL_MOUSEMOTION)
+    if(event->type==SDL_MOUSEMOTION)
 				{
 					mouse_x= event->motion.x;
 					mouse_y= event->motion.y;
@@ -519,6 +413,17 @@ int HandleEvent(SDL_Event *event)
 			char tool_bar_click=0;
 			mouse_x=event->motion.x;
 			mouse_y=event->motion.y;
+
+            get_world_x_y();
+
+            if ( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )
+            {
+                camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;
+                camera_rotation_frames = 40;
+                camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 220;
+                camera_tilt_frames = 40;
+//                printf("mouse_delta_x %i mouse_delta_y %i rotation_speed %f tilt_speed %f \n",mouse_delta_x,mouse_delta_y,camera_rotation_speed,camera_tilt_speed);   
+            }
 
  		           //get the buttons state
 			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_LEFT))
@@ -544,8 +449,8 @@ int HandleEvent(SDL_Event *event)
 
 			if(shift_on && left_click==1 && cur_mode != mode_height){
 				get_world_x_y();
-				cx=0-scene_mouse_x;
-				cy=0-scene_mouse_y;
+				mx=scene_mouse_x;
+				my=scene_mouse_y;
 				return(done);
 			}
 
@@ -597,7 +502,6 @@ int HandleEvent(SDL_Event *event)
 
 			
 
-			get_world_x_y();
 			if(!tool_bar_click)
 				{
 					if(left_click==1)
@@ -623,7 +527,8 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_clone)
 									{
 										get_3d_object_under_mouse();
-										if(selected_3d_object!=-1)clone_3d_object(selected_3d_object);
+										if(selected_3d_object!=-1)
+                                            clone_3d_object(selected_3d_object);
 										return(done);
 									}
 
@@ -685,12 +590,14 @@ int HandleEvent(SDL_Event *event)
 								if(cur_tool==tool_clone)
 									{
 										get_2d_object_under_mouse();
-										if(selected_2d_object!=-1)clone_2d_object(selected_2d_object);
+										if(selected_2d_object!=-1)
+                                            clone_2d_object(selected_2d_object);
 										return(done);
 									}
 
 								//if we have an object attached to us, drop it
-								if(left_click==1 && cur_tool==tool_select && selected_2d_object!=-1)clone_2d_object(selected_2d_object);
+								if(left_click==1 && cur_tool==tool_select && selected_2d_object!=-1)
+                                    clone_2d_object(selected_2d_object);
 								else
 								{
 									if(selected_2d_object==-1){
@@ -837,21 +744,27 @@ int HandleEvent(SDL_Event *event)
 						}
 						//no left click==1
 						else
-						if(cur_mode==mode_3d && cur_tool==tool_select && selected_3d_object!=-1)move_3d_object(selected_3d_object);
-						else
-						if(cur_mode==mode_2d && cur_tool==tool_select && selected_2d_object!=-1)move_2d_object(selected_2d_object);
-						else
-						if(cur_mode==mode_particles && cur_tool==tool_select && !view_particles_window && selected_particles_object!=-1)move_particles_object(selected_particles_object);
-						else
-						if(cur_mode==mode_light && cur_tool==tool_select && selected_light!=-1 && !lights_list[selected_light]->locked)move_light(selected_light);
-						else
-						if(cur_mode==mode_tile && cur_tool==tool_select && selected_tile!=255)move_tile_a_tile=1;
-						else move_tile_a_tile=0;
-						if(cur_mode==mode_height && cur_tool==tool_select && selected_height!=-1)move_tile_a_height=1;
-						else move_tile_a_height=0;
+						  if(cur_mode==mode_3d && cur_tool==tool_select && selected_3d_object!=-1)
+                            move_3d_object(selected_3d_object);
+						  else if(cur_mode==mode_2d && cur_tool==tool_select && selected_2d_object!=-1)
+                            move_2d_object(selected_2d_object);
+						  else if(cur_mode==mode_particles && cur_tool==tool_select && !view_particles_window && selected_particles_object!=-1)
+                            move_particles_object(selected_particles_object);
+						  else if(cur_mode==mode_light && cur_tool==tool_select && selected_light!=-1 && !lights_list[selected_light]->locked)
+                            move_light(selected_light);
+						  else if(cur_mode==mode_tile && cur_tool==tool_select && selected_tile!=255)
+                            move_tile_a_tile=1;
+						  else 
+                            move_tile_a_tile=0;
+
+						if(cur_mode==mode_height && cur_tool==tool_select && selected_height!=-1)
+                            move_tile_a_height=1;
+						else 
+                            move_tile_a_height=0;
 				}
-			
  		   }
+
+
 		   
 			if((left_click>=1))
 				if(drag_windows(mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) > 0)

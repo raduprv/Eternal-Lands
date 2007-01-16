@@ -9,5 +9,13 @@ void zoomin();
 void zoomout();
 int HandleEvent(SDL_Event *event);
 
+/*!
+ * \name    Event types
+ * @{
+ */
+enum {
+        EVENT_UPDATE_CAMERA    /*!< camera update event */
+};
+/*! @} */
 
 #endif	//__EVENTS_H

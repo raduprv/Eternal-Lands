@@ -1,132 +1,208 @@
 #include <SDL.h>
 #include "global.h"
 #include <math.h>
+#include <string.h>
+
+float cx=0;
+float cy=0;
+float cz=0;
+float old_cx=0;
+float old_cy=0;
+float old_cz=0;
+float c_delta= 0.1f;
+float rx=-60;
+float ry=0;
+float rz=45;
+
+float mx = 0;
+float my = 0;
+float mz = 0;
+
+
+float terrain_scale=2.0f;
+float zoom_level=3.0f;
+float name_zoom=1.0f;
+
+
+
+float fine_camera_rotation_speed=10.0f;
+float normal_camera_rotation_speed=10.0f;
+
+float camera_rotation_speed;
+int camera_rotation_frames;
+
+float camera_tilt_speed;
+int camera_tilt_frames;
+
+double camera_x_speed;
+int camera_x_frames;
+
+double camera_y_speed;
+int camera_y_frames;
+
+double camera_z_speed;
+int camera_z_frames;
+
+int camera_zoom_dir;
+int camera_zoom_frames=0;
+float new_zoom_level=3.0f;
+float camera_distance = 2.5f;
+
+void move_camera();
 
 void draw_scene()
 {
-	char str [256];
-	int fps;
-	int any_reflection=0;
+    char str[256];
+    int fps;
+    int any_reflection=0;
 
-	if(!shadows_on)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
-	glLoadIdentity();					// Reset The Matrix
-	Move();
-	if(minimap_on)
-		{
-			Enter2DMode();
-			draw_minimap();
-			Leave2DMode();
-			SDL_GL_SwapBuffers();
-			return;
-		}
-	//CalculateFrustum();
-	new_minute();
-	any_reflection=find_reflection();
-	if(!dungeon)draw_global_light();
-	else draw_dungeon_light();
-	update_scene_lights();
-	draw_lights();
 
-	if(any_reflection>1)
-		{
-			if(!dungeon)draw_sky_background();
-			else draw_dungeon_sky_background();
-			CHECK_GL_ERRORS();
-			glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-			if(view_tile || cur_mode==mode_tile)draw_tile_map();
-			CHECK_GL_ERRORS();
-			if(view_2d || cur_mode==mode_2d)display_2d_objects();
-			CHECK_GL_ERRORS();
-			display_3d_reflection();
-			glNormal3f(0.0f,0.0f,1.0f);
-			draw_lake_tiles();
-		}
-	else
-		{
-            glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-            if(view_tile || cur_mode==mode_tile)draw_tile_map();
-	    if(any_reflection)draw_lake_tiles();
-			CHECK_GL_ERRORS();
-            if(view_2d || cur_mode==mode_2d)display_2d_objects();
-		}
+    if(!shadows_on)
+        glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
+    else
+        glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
+
+    glLoadIdentity();   // Reset The Matrix
+    if(minimap_on) {
+        Enter2DMode();
+        draw_minimap();
+        Leave2DMode();
+        SDL_GL_SwapBuffers();
+        return;
+    }
+
+
+    move_camera();
+
+    //CalculateFrustum();
+    new_minute();
+
+    any_reflection=find_reflection();
+
+    if(!dungeon)
+        draw_global_light();
+    else 
+        draw_dungeon_light();
+
+    update_scene_lights();
+    draw_lights();
+
+	if(any_reflection>1) {
+        if(!dungeon)
+            draw_sky_background();
+        else 
+            draw_dungeon_sky_background();
+
+        CHECK_GL_ERRORS();
+        glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
+
+        if(view_tile || cur_mode==mode_tile)
+            draw_tile_map();
+        CHECK_GL_ERRORS();
+
+        if(view_2d || cur_mode==mode_2d)
+            display_2d_objects();
+        CHECK_GL_ERRORS();
+
+        display_3d_reflection();
+        glNormal3f(0.0f,0.0f,1.0f);
+        draw_lake_tiles();
+    } else {
+        glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
+
+        if(view_tile || cur_mode==mode_tile)
+            draw_tile_map();
+
+	    if(any_reflection)
+            draw_lake_tiles();
+        CHECK_GL_ERRORS();
+        
+        if(view_2d || cur_mode==mode_2d)
+            display_2d_objects();
+    }
 
 	CHECK_GL_ERRORS();
 
-	if(view_3d || cur_mode==mode_3d)
-	{
-		if(shadows_on)
-			{
-				if(!dungeon)
-					{
-						if(day_shadows_on)draw_sun_shadowed_scene();
-						else draw_night_shadowed_scene();
-					}
-				else
-					{
-						draw_night_shadowed_scene();
-					}
-			}
-		else
-			{
-				display_objects();
-			}
-	}
-	//if the shadows are off, then draw everything front to back
-	if(!shadows_on)
-		{
-			glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
-			if(view_2d || cur_mode==mode_2d)display_2d_objects();
-			if(view_tile || cur_mode==mode_tile)draw_tile_map();
-			if(find_reflection())draw_lake_tiles();
-		}
+	if(view_3d || cur_mode==mode_3d) {
+        if(shadows_on) {
+            if(!dungeon) {
+                if(day_shadows_on)
+                    draw_sun_shadowed_scene();
+                else 
+                    draw_night_shadowed_scene();
 
-	if(view_particles || cur_mode==mode_particles)
-		{
-			glDisable(GL_LIGHTING);
-			display_particles();
-			if(view_particle_handles)display_particle_handles();
-			glEnable(GL_LIGHTING);
-		}
+            } else {
+                draw_night_shadowed_scene();
+            }
+        } else {
+            display_objects();
+        }
+    }
 
-	if(view_grid)draw_heights_wireframe();
-	if(view_height || cur_mode==mode_height)draw_height_map();
-	if(view_light || cur_mode==mode_light)visualise_lights();
-	if(move_tile_a_tile)move_tile();
-	if(move_tile_a_height)move_height_tile();
+    //if the shadows are off, then draw everything front to back
+    if(!shadows_on) {
+        glNormal3f(0.0f,0.0f,1.0f);//the normal for ground objects and such points up
+        if(view_2d || cur_mode==mode_2d)display_2d_objects();
+        if(view_tile || cur_mode==mode_tile)draw_tile_map();
+        if(find_reflection())draw_lake_tiles();
+    }
 
-	Enter2DMode();
+    if(view_particles || cur_mode==mode_particles) {
+        glDisable(GL_LIGHTING);
+        display_particles();
+        if(view_particle_handles)
+             display_particle_handles();
+        glEnable(GL_LIGHTING);
+    }
 
-	//get the FPS, etc
-	if(cur_time-last_time) fps=1000/(cur_time-last_time);
-	else fps=1000;
+    if(view_grid)
+        draw_heights_wireframe();
 
-	glColor3f(1.0f,1.0f,1.0f);//default color is white
-	sprintf(str, "Sx: %03.1f,Sy: %03.1f, Sz: %03.1f, cx: %03.2f, cy: %03.2f,rx: %03.2f, rz: %03.2f\nFPS: %i, Minute: %i",fLightPos[0],fLightPos[1],fLightPos[2],cx,cy,rx,rz,fps,game_minute);
+    if(view_height || cur_mode==mode_height)
+        draw_height_map();
 
-	draw_string(10,40,(unsigned char*)str,2);
-	draw_toolbar();
+    if(view_light || cur_mode==mode_light)
+        visualise_lights();
 
-	display_windows(1);
+    if(move_tile_a_tile)
+        move_tile();
 
-	draw_3d_obj_info();
-	draw_2d_obj_info();
-	draw_light_info();
-	draw_height_info();
-	//display_new_map_menu();
-	display_map_settings();
+    if(move_tile_a_height)
+        move_height_tile();
 
-	Leave2DMode();
-	glEnable(GL_LIGHTING);
-	SDL_GL_SwapBuffers();
+    Enter2DMode();
+
+    //get the FPS, etc
+    if(cur_time-last_time) 
+        fps=1000/(cur_time-last_time);
+    else 
+        fps=1000;
+
+    glColor3f(1.0f,1.0f,1.0f); //default color is white
+    snprintf(str,sizeof(str), "Sx: %03.1f,Sy: %03.1f, Sz: %03.1f, cx: %03.2f, cy: %03.2f,rx: %03.2f, rz: %03.2f\nFPS: %i, Minute: %i",fLightPos[0],fLightPos[1],fLightPos[2],cx,cy,rx,rz,fps,game_minute);
+
+    draw_string(10,40,str,2);
+    draw_toolbar();
+
+    display_windows(1);
+
+    draw_3d_obj_info();
+    draw_2d_obj_info();
+    draw_light_info();
+    draw_height_info();
+    //display_new_map_menu();
+    display_map_settings();
+
+    Leave2DMode();
+    glEnable(GL_LIGHTING);
+    SDL_GL_SwapBuffers();
 }
 
 void Move()
 {
- 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
-	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx, cy, cz);
-
+    glRotatef(rx, 1.0f, 0.0f, 0.0f);
+    glRotatef(rz, 0.0f, 0.0f, 1.0f);
+    glTranslatef(cx, cy, cz);
 }
 
 #define TIMER_RATE 20;
@@ -135,26 +211,163 @@ int normal_animation_timer=0;
 
 Uint32 my_timer(unsigned int some_int)
 {
-	int new_time;
-	if(my_timer_clock==0)my_timer_clock=SDL_GetTicks();
-	else my_timer_clock+=TIMER_RATE;
+    int new_time;
+    SDL_Event e;
 
-	if(normal_animation_timer>2)
-		{
-			normal_animation_timer=0;
-			update_particles();
-			if(lake_waves_timer>2)
-				{
-					lake_waves_timer=0;
-					make_lake_water_noise();
-				}
-			lake_waves_timer++;
-			water_movement_u+=0.0004f;
-			water_movement_v+=0.0002f;
-		}
-	normal_animation_timer++;
 
-	new_time=TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
-	if(new_time<10) new_time=10;
-	return new_time;
+    if(my_timer_clock==0)
+        my_timer_clock=SDL_GetTicks();
+    else 
+        my_timer_clock+=TIMER_RATE;
+
+    if(normal_animation_timer>2) {
+        normal_animation_timer=0;
+        update_particles();
+
+        if(lake_waves_timer>2) {
+            lake_waves_timer=0;
+            make_lake_water_noise();
+        }
+        lake_waves_timer++;
+        water_movement_u+=0.0004f;
+        water_movement_v+=0.0002f;
+    }
+    normal_animation_timer++;
+
+    e.type = SDL_USEREVENT;
+    e.user.code = EVENT_UPDATE_CAMERA;
+    SDL_PushEvent(&e);
+
+
+    new_time=TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
+
+    if(new_time<10) 
+        new_time=10;
+
+    return new_time;
 }
+
+
+void move_camera ()
+{
+    float x, y, z;
+    static int lagged=1;
+
+    x=mx;
+    y=my;
+    z=mz;
+
+    camera_x_speed=(x-(-cx))/16.0;
+    camera_x_frames=16;
+    camera_y_speed=(y-(-cy))/16.0;
+    camera_y_frames=16;
+    camera_z_speed=(z-(-cz))/16.0;
+    camera_z_frames=16;
+
+//    glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
+    glRotatef(rx, 1.0f, 0.0f, 0.0f);
+    glRotatef(rz, 0.0f, 0.0f, 1.0f);
+    glTranslatef(cx, cy, cz);
+
+}
+
+
+void update_camera()
+{
+    int adjust_view= 0;
+
+
+    if(camera_rotation_frames) {
+
+        rz+=camera_rotation_speed;
+        if(rz > 360) {
+            rz -= 360;
+        } else if (rz < 0) {
+            rz += 360;
+        }
+        camera_rotation_frames--;
+        adjust_view++;
+    }
+
+    if(camera_x_frames) {
+        if(camera_x_speed>0.005 || camera_x_speed<-0.005){
+            cx-=camera_x_speed;
+            if(fabs(cx-old_cx) >= c_delta){
+                adjust_view++;
+            }
+        }
+        camera_x_frames--;
+    }
+
+    if(camera_y_frames) {
+        if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
+            cy-=camera_y_speed;
+            if(fabs(cy-old_cy) >= c_delta){
+                adjust_view++;
+            }
+        }
+        camera_y_frames--;
+    }
+
+    if(camera_z_frames) {
+        if(camera_z_speed>0.0005 || camera_z_speed<-0.005) {
+            cz-=camera_z_speed;
+#ifdef  PARANOID_CAMERA
+            if(fabs(cz-old_cz) >= c_delta){
+                adjust_view++;
+            }
+#endif
+        }
+        camera_z_frames--;
+    }
+
+    if(camera_tilt_frames) {
+        if(camera_tilt_speed<0) {
+            if(rx>-70)
+                rx+=camera_tilt_speed;
+            
+            if(rx<-70) {
+                rx=-70;
+                camera_tilt_frames=0;
+            } else
+                camera_tilt_frames--;
+        } else {
+            if(rx< 0)
+                rx+=camera_tilt_speed;
+            if(rx > 0) {
+                rx=0;
+                camera_tilt_frames=0;
+            } else
+                camera_tilt_frames--;
+        }
+    }
+
+/*
+    if(camera_zoom_frames) {
+        if(camera_zoom_dir == 1) {
+            if(zoom_level<3.75f){
+                new_zoom_level+=0.05f;
+                camera_zoom_frames--;
+                adjust_view++;
+            } else 
+                camera_zoom_frames = 0;
+        } else {
+//            if(zoom_level>sitting){
+//                new_zoom_level-=0.05f;
+//                camera_zoom_frames--;
+//                adjust_view++;
+//            } else 
+                camera_zoom_frames = 0;
+        }
+    }
+*/
+    if(adjust_view){
+//        set_all_intersect_update_needed(main_bbox_tree);
+        old_cx= cx;
+        old_cy= cy;
+        old_cz= cz;
+    }
+
+}
+
+

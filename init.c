@@ -141,8 +141,12 @@ void init_stuff()
 	init_texture_cache();
 	init_e3d_cache();
 	init_2d_obj_cache();
-	for(i=0;i<256;i++)tile_list[i]=0;
-	for(i=0;i<max_lights;i++)lights_list[i]=0;
+
+	for(i=0; i<256; i++)
+        tile_list[i]=0;
+
+	for(i=0; i<max_lights; i++)
+        lights_list[i]=0;
 
 	new_map(256,256);
 	load_all_tiles();
@@ -167,7 +171,9 @@ void init_stuff()
 #else
 	have_multitexture=0;
 #endif
-	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
+
+	if(have_multitexture)
+        ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 
 	//load the fonts texture
 	init_fonts();
@@ -193,13 +199,14 @@ void init_stuff()
 	init_browser();
 
     if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
-        {
-   		    char str[120];
-    		sprintf(str, "Couldn't initialize the timer: %s\n", SDL_GetError());
-    		log_error(str);
-    		SDL_Quit();
-	       	exit(1);
-        }
+    { 
+        char str[120];
+        snprintf(str, sizeof(str), "Couldn't initialize the timer: %s\n", SDL_GetError());
+        log_error(str);
+        SDL_Quit();
+	    exit(1);
+    }
+
 	SDL_SetTimer (1000/(18*4), my_timer_pointer);
 
 	SDL_EnableUNICODE(1);
@@ -209,20 +216,25 @@ void init_stuff()
 	// creating windows
 	display_browser();
 	toggle_window(browser_win);
+
 	display_o3dow();
 	toggle_window(o3dow_win);
+
 	display_replace_window();
 	toggle_window(replace_window_win);
+
 	display_edit_window();
 	toggle_window(edit_window_win);
-	create_particles_window ();
 
+	create_particles_window ();
 }
 
 void window_resize()
 {
 	float window_ratio;
-	if (window_height==0)window_height=1;			// Prevent A Divide By Zero
+
+	if (window_height==0)
+        window_height=1;			// Prevent A Divide By Zero
 
 	glViewport(0, 0, window_width, window_height);					// Reset The Current Viewport
 

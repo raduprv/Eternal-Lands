@@ -398,8 +398,8 @@ void new_map(int m_x_size,int m_y_size)
 
 	load_map_tiles();
 	//reset the camera coordinates
-	cx=0;
-	cy=0;
+	mx=0;
+	my=0;
 	
 	dungeon=0;
 }

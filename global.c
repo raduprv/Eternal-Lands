@@ -3,15 +3,12 @@
 int have_arb_compression=0;
 int have_s3_compression=0;
 int elwin_mouse;
-int name_zoom=1;
 
 int map_meters_size_x;
 int map_meters_size_y;
 
 int window_width=800;
 int window_height=570;
-
-float zoom_level=3.0f;
 
 int bpp;
 
@@ -22,15 +19,8 @@ int video_mode=2;
 int limit_fps=60;
 int auto_save_time=0;
 
-float cx=0;
-float cy=0;
-float cz=0;
-float rx=-60;
-float ry=0;
-float rz=45;
 float camera_x_end_point;
 float camera_z_end_point;
-float terrain_scale=2.0f;
 
 int last_texture=-2;
 int font_text;
