@@ -4,10 +4,10 @@
 #include <libxml/tree.h>
 #include <string.h>
 #include <stdarg.h>
-#include "translate.h"
-#ifdef MAP_EDITOR
+//#include "translate.h"
+//#ifdef MAP_EDITOR
 #include "global.h"
-#endif
+//#endif
 
 #define GROUP 0
 #define DIGROUP 1

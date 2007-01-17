@@ -6,7 +6,7 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
-#include "global.h"
+//#include "global.h"
 
 #define FLOATINGMESSAGE_NORTH 	1
 #define FLOATINGMESSAGE_EAST  	2
