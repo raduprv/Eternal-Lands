@@ -936,7 +936,7 @@ void display_particles()
 		if (use_point_particles) draw_point_particle_sys(particles_list[l]);
 		else draw_text_particle_sys(particles_list[l]);
 	}
-#else
+#else	//NEW_FRUSTUM
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 	{
 		if(particles_list[i])
@@ -962,7 +962,7 @@ void display_particles()
 			}
 		}
 	}
-#endif
+#endif	//NEW_FRUSTUM
 	UNLOCK_PARTICLES_LIST();
 	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
