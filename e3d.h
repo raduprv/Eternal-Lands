@@ -29,7 +29,7 @@
 //#define MAX_E3D_CACHE 1000 /* unused */
 /*! @} */
 
-extern int highest_obj_3d;  /*!< pointer to the highes 3D object in map */
+extern Uint32 highest_obj_3d;  /*!< pointer to the highest 3D object in map */
 #ifndef	NEW_FRUSTUM
 extern int no_near_3d_objects;
 #endif
