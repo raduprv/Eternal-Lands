@@ -1,16 +1,25 @@
-#ifdef NEW_WEATHER
-
 #include <math.h>
 #include <string.h>
-
 #include "global.h"
-#include "text.h"
-#include "multiplayer.h"
-#include "map_io.h"
-#include "shadows.h"
 #include "lights.h"
-#include "actors.h"
-#include "sound.h"
+
+#define MAX_RAIN_DROPS 25000
+
+typedef struct {
+	float x1[3], x2[3]; // vertices
+} rain_drop;
+
+rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
+int use_fog = 1;
+
+#ifdef DEBUG
+GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
+#else
+static GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f }; // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+#endif
+
+
+#ifdef NEW_WEATHER
 
 #define WEATHER_TYPE     0x07
 #define WEATHER_NONE     0x00
@@ -32,9 +41,6 @@
 #define WEATHER_AFTER_FADE  5000 // ms
 
 #define WEATHER_NUM_RAND 0x10000
-
-#define MAX_RAIN_DROPS 25000
-
 #define MAX_THUNDERS 20
 
 typedef struct {
@@ -43,19 +49,12 @@ typedef struct {
 	char done;
 } thunder;
 
-typedef struct {
-	float x1[3], x2[3]; // vertices
-} rain_drop;
-
-int use_fog = 1;
-
 long weather_flags = WEATHER_NONE;
 Uint32 weather_start_time;
 Uint32 weather_stop_time;
 Uint32 weather_time;
 float weather_severity = 1.0;
 
-const float rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
 const float snow_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 const float sand_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
 const float default_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
@@ -71,9 +70,7 @@ int weather_rand_values[WEATHER_NUM_RAND];
 
 thunder thunders[MAX_THUNDERS];
 int num_thunders = 0;
-int lightning_stop = 0;
-
-rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
+Uint32 lightning_stop = 0;
 
 float fog_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 float fog_alpha;
@@ -271,28 +268,6 @@ void update_rain(int ticks, int num_rain_drops)
 			rain_drops[i].x2[2] = rain_drops[i].x1[2] - 0.08f;
 		}
 	}
-}
-
-void render_rain(int num_rain_drops)
-{
-	if (!num_rain_drops) return;
-
-	glPushAttrib(GL_LIGHTING_BIT);
-	glDisable(GL_LIGHTING);
-	
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4fv(rain_color);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	
-	glVertexPointer(3,GL_FLOAT,0,rain_drops);
-	glDrawArrays(GL_LINES,0,num_rain_drops);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glPopAttrib();
 }
 
 void update_snow(int ticks, float severity)
@@ -703,22 +678,12 @@ void add_thunder(int type, int sound_delay)
 	thunders[i].done = 0; // now allow timer thread to read
 
 	// start a lightning
-	lightning_stop = weather_time + 100 + (int)((300.0f * (float)weather_rand()) / RAND_MAX);
+	lightning_stop = weather_time + 100 + (Uint32)((300.0f * (float)weather_rand()) / RAND_MAX);
 }
 
 #else // def NEW_WEATHER
 
-#include <stdlib.h>
-#include <math.h>
-#include "global.h"
-#include "pathfinder.h"
-#include "lights.h"
-
 #define MAX_THUNDERS 5
-
-#define MAX_RAIN_DROPS 25000
-#define RAIN_SPEED 2
-#define RAIN_DROP_LEN 5
 
 typedef struct
 {
@@ -732,11 +697,6 @@ typedef struct
 	int rot;
 }thunder;
 
-typedef struct
-{
-	float x1[3], x2[3]; // vertices
-}rain_drop;
-
 int seconds_till_rain_starts=-1;
 int seconds_till_rain_stops=-1;
 int is_raining=0;
@@ -745,29 +705,53 @@ int weather_light_offset=0;
 int rain_light_offset=0;
 int thunder_light_offset;
 thunder thunders[MAX_THUNDERS];
-int lightning_text;
 
 Uint32 rain_control_counter=0;
 Uint32 thunder_control_counter=0;
 int num_rain_drops=0, max_rain_drops=0;
 
-rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 int rain_table_valid = 0;
-int use_fog = 1;
 
 #ifdef DEBUG
 int rain_calls = 0;
 int last_rain_calls = 0;
 #endif
 
-#ifdef DEBUG
-GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
-#else
-static GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f }; // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-#endif
 float rain_strength_bias = 1.0f;
 GLfloat fogColor[4] = { 0.0f, 0.0f, 0.0f , 0.13f }; // use same alpha like in rain_color
 float fogAlpha = 0.0f;
+
+void init_weather() {
+	clear_thunders();
+	build_rain_table();
+}
+
+void start_weather(int seconds_till_start, float severity)
+{
+	seconds_till_rain_starts= seconds_till_start;
+	seconds_till_rain_stops= -1;
+	rain_strength_bias= severity;
+}
+
+void stop_weather(int seconds_till_stop, float severity)
+{
+	seconds_till_rain_stops= seconds_till_stop;
+	seconds_till_rain_starts= -1;
+	rain_strength_bias= severity;	// failsafe incase we never saw the start (logged in and already raining?
+}
+
+void clear_weather()
+{
+	seconds_till_rain_starts= -1;
+	seconds_till_rain_stops= 0;
+	weather_light_offset= 0;
+	rain_light_offset= 0;
+}
+
+void render_weather()
+{
+	if(is_raining && num_rain_drops > 0) render_rain(num_rain_drops);
+}
 
 void build_rain_table()
 {
@@ -829,27 +813,6 @@ void update_rain()
 					rain_drops[i].x2[2] -= 0.40f;
 				}
 		}
-}
-
-void render_rain()
-{
-	if(!num_rain_drops) return;
-	glPushAttrib(GL_LIGHTING_BIT);
-	glDisable(GL_LIGHTING);
-	
-	glDisable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	glColor4fv(rain_color);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	
-	glVertexPointer(3,GL_FLOAT,0,rain_drops);
-	glDrawArrays(GL_LINES,0,num_rain_drops);
-
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisable(GL_BLEND);
-	glEnable(GL_TEXTURE_2D);
-	glPopAttrib();
 }
 
 void rain_control()
@@ -1104,7 +1067,7 @@ void render_fog() {
 			// blend ambient and diffuse light to build a base fog color
 			GLfloat tmp = 0.5f*sun_ambient_light[i] + diffuseBias*difuse_light[i];
 			if (is_raining) {
-			// blend base color with rain color
+				// blend base color with rain color
 				fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
 			} else {
 				fogColor[i] = tmp;
@@ -1146,4 +1109,44 @@ void render_fog() {
 	glFogfv(GL_FOG_COLOR, fogColor);
 }
 
-#endif
+#endif	//NEW_WEATHER
+
+
+void render_rain(int num_rain_drops)
+{
+	int idx, max;
+
+	if(num_rain_drops <= 0) return;
+
+	glPushAttrib(GL_LIGHTING_BIT);
+	glDisable(GL_LIGHTING);
+	
+	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	glColor4fv(rain_color);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	
+	glVertexPointer(3,GL_FLOAT,0,rain_drops);
+
+	// ATI hack ... sometimes problems with large arrays
+	idx= 0;
+	max= num_rain_drops;
+	while(idx < max) {
+	    int num;
+		   
+		num= max-idx;
+		if(num > 3000){
+			num= 3000;
+		}
+	    glDrawArrays(GL_LINES, idx, num);
+	    idx+= num;
+	}
+
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisable(GL_BLEND);
+	glEnable(GL_TEXTURE_2D);
+	glPopAttrib();
+}
+

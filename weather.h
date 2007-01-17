@@ -6,28 +6,22 @@
 #ifndef __WEATHER_H__
 #define __WEATHER_H__
 
-#ifdef NEW_WEATHER
-
 extern int use_fog;			/*!< Whether we are using fog or not */
-
 void init_weather();
 void start_weather(int seconds_till_start, float severity);
 void stop_weather(int seconds_till_stop, float severity);
 void clear_weather();
-int weather_use_fog();
-void render_fog();
 void render_weather();
+
+#ifdef NEW_WEATHER
+int weather_use_fog();
 void weather_sound_control();
 float weather_bias_light(float value);
-void add_thunder(int type, int sound_delay);
 void weather_color_bias(const float * src, float * dst);
 
 #else // def NEW_WEATHER
 
-#ifdef DEBUG
-#include "actors.h"
-#endif
-
+#define weather_use_fog()	(use_fog)
 extern int seconds_till_rain_starts;    /*!< Seconds till the rain starts */
 extern int seconds_till_rain_stops;     /*!< Seconts till the rain stops */
 extern int is_raining;                  /*!< Specifies if it's raining - if it is, draw the raindrops */
@@ -43,7 +37,6 @@ extern int rain_sound;                  /*!< Specifies the rain sound */
 extern int weather_light_offset;        /*!< Sets the current light offset */
 extern int rain_light_offset;           /*!< Sets the current rain offset */
 extern int thunder_light_offset;        /*!< Sets the current thunder light offset */
-extern int use_fog;			/*!< Whether we are using fog or not */
 
 /*!
  * \ingroup	other
@@ -93,19 +86,6 @@ void rain_control();
 void thunder_control();
 
 /*!
- * \ingroup	network_misc
- * \brief 	add_thunder
- *
- *		Adds a thunder of the specified type with the given sound_delay.
- * 
- * \param   	type
- * \param   	sound_delay
- *
- * \todo Fix documentation
- */
-void add_thunder(int type,int sound_delay);
-
-/*!
  * \ingroup	display_weather
  * \brief	Gets the current light level for the weather
  *
@@ -123,6 +103,21 @@ void get_weather_light_level();
  */
 void clear_thunders();
 
+#endif	//NEW_WEATHER
+
+/*!
+ * \ingroup	network_misc
+ * \brief 	add_thunder
+ *
+ *		Adds a thunder of the specified type with the given sound_delay.
+ * 
+ * \param   	type
+ * \param   	sound_delay
+ *
+ * \todo Fix documentation
+ */
+void add_thunder(int type,int sound_delay);
+
 /*!
  * \ingroup display_weather
  * \brief Sets the fog according to weather & athmospherical effects
@@ -131,6 +126,5 @@ void clear_thunders();
  */
 
 void render_fog();
-#endif
 
 #endif

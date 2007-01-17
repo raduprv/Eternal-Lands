@@ -599,11 +599,8 @@ int display_game_handler (window_info *win)
 			render_light_view();
 			CHECK_GL_ERRORS ();
 		}
-#ifdef	NEW_WEATHER
 		if (weather_use_fog()) render_fog();
-#else
-		if (use_fog) render_fog();
-#endif
+
 		if (any_reflection > 1)
 		{
 		  	if (!dungeon)
@@ -621,12 +618,7 @@ int display_game_handler (window_info *win)
 		if (!dungeon && shadows_on && is_day)
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
-#ifdef	NEW_WEATHER
 			if (weather_use_fog() && any_reflection) blend_reflection_fog();
-#else
-			if (use_fog && any_reflection) blend_reflection_fog();
-#endif
-
 			draw_sun_shadowed_scene (any_reflection);
 		}
 		else 
@@ -663,11 +655,8 @@ int display_game_handler (window_info *win)
 		return 1;
 	}
 
-#ifdef NEW_WEATHER
-	render_weather();
-#else
-	if (is_raining) render_rain ();
-#endif
+	render_weather();	// draw weather effects
+
 	CHECK_GL_ERRORS ();
 	//particles should be last, we have no Z writting
 	display_particles ();
@@ -719,16 +708,16 @@ int display_game_handler (window_info *win)
 		glColor3f (1.0f, 1.0f, 1.0f);
 		if(me){
  			snprintf(str,sizeof(str),"Busy: %i",me->busy);
-	 		draw_string (400, 0, str, 1);
+	 		draw_string (400, 4, str, 1);
 			snprintf(str,sizeof(str),"Command: %i",me->last_command);
  			draw_string (400, 20, str, 1);
 			snprintf(str,sizeof(str),"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
- 			draw_string (550, 0, str, 1);
+ 			draw_string (550, 4, str, 1);
 			snprintf(str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
  			draw_string (550, 20, str, 1);
 		}
 		snprintf (str, sizeof(str),"Lights: %i", show_lights);
-		draw_string (win->len_x-hud_x-105, 25, str, 1);
+		draw_string (win->len_x-hud_x-105, 32, str, 1);
 
 #ifndef NEW_WEATHER
 		snprintf(str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
@@ -740,7 +729,7 @@ int display_game_handler (window_info *win)
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
 		snprintf (str, sizeof(str), "FPS: %i", fps[0]);
-		draw_string (win->len_x-hud_x-95, 5, str, 1);
+		draw_string (win->len_x-hud_x-95, 4, str, 1);
 #ifdef DEBUG
 		//LRNR: stats testing
 		snprintf(str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);

@@ -641,12 +641,7 @@ void init_stuff()
 	update_loading_win(read_config_str, 2);
 	read_bin_cfg();
 	update_loading_win(init_weather_str, 3);
-#ifdef NEW_WEATHER
-	init_weather();
-#else
-	clear_thunders();
-	build_rain_table();
-#endif
+	init_weather();	// initialize the weather system
 	build_levels_table();//for some HUD stuff
 
 	// Sound initialisation is done when loading the config and setting the no_sound/no_music variables

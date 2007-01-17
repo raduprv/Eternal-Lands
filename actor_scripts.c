@@ -5,6 +5,7 @@
 #include <time.h>
 #include "actors.h"
 
+// mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now
 const dict_elem actor_type_dict[] =
 	{ { "human female"          , human_female           },
 	  { "human male"            , human_male             },

@@ -19,7 +19,7 @@ struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
 struct near_3d_object * first_near_3d_object=NULL;
 int no_near_3d_objects=0;
 #endif
-int highest_obj_3d= 0;
+Uint32 highest_obj_3d= 0;
 int objects_list_placeholders = 0;
 
 #ifndef	NEW_FRUSTUM
@@ -296,6 +296,7 @@ void draw_3d_object_detail(object3d * object_id)
 
 	materials_no=object_id->e3d_data->materials_no;
 	for(i=0;i<materials_no;i++) {
+		int idx, max;
 		get_and_set_texture_id(array_order[i].texture_id);
 #ifdef	DEBUG
 		// a quick check for errors
@@ -306,7 +307,19 @@ void draw_3d_object_detail(object3d * object_id)
 				array_order[i].start, array_order[i].count);
 		}
 #endif	// DEBUG
-		glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+		// ATI bug fix for large arrays
+		idx= array_order[i].start;
+		max= array_order[i].start+array_order[i].count;
+		while(idx < max) {
+		    int num;
+		   
+			num= max-idx;
+			if(num > 3000){
+				num= 3000;
+			}
+		    glDrawArrays(GL_TRIANGLES, idx, num);
+		    idx+= num;
+		}
 	}
 
 	glPopMatrix();//restore the scene
@@ -690,7 +703,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	objects_list[id] = our_object;
 	// watch the top end
-	if(id >= highest_obj_3d)
+	if((Uint32)id >= highest_obj_3d)
 	{
 		highest_obj_3d = id+1;
 	}
@@ -1104,8 +1117,6 @@ e3d_object *load_e3d (const char *file_name)
 	cur_object->max_y=our_header.max_y;
 	cur_object->max_z=our_header.max_z;
 #endif
-	// calculate the max size for cruse LOD processing
-	cur_object->max_size= max(max(cur_object->max_x-cur_object->min_x, cur_object->max_y-cur_object->min_y), cur_object->max_z-cur_object->min_z);
 
 #ifdef	BUG_FIX_3D_OBJECTS_MIN_MAX
 	len_x = (cur_object->max_x - cur_object->min_x);
@@ -1118,6 +1129,9 @@ e3d_object *load_e3d (const char *file_name)
 	cur_object->min_z = 0.0f;
 	cur_object->max_z = len_z;
 #endif
+	// calculate the max size for crude LOD processing
+	cur_object->max_size= max(max(cur_object->max_x-cur_object->min_x, cur_object->max_y-cur_object->min_y), cur_object->max_z-cur_object->min_z);
+
 	cur_object->is_transparent=our_header.is_transparent;
 	cur_object->is_ground=our_header.is_ground;
 	cur_object->face_no=faces_no;
@@ -1477,7 +1491,7 @@ void destroy_clouds_cache(object3d * obj)
 void clear_clouds_cache()
 {
 #ifndef	NEW_E3D_FORMAT
-	int i;
+	Uint32 i;
 
 	last_clear_clouds=cur_time;
 	for(i=0;i<highest_obj_3d;i++) {
@@ -1506,7 +1520,7 @@ void destroy_3d_object(int i)
 #ifndef	NEW_FRUSTUM
 	regenerate_near_objects = 1;
 #endif
-	if(i == highest_obj_3d+1){
+	if((Uint32)i == highest_obj_3d+1){
 		highest_obj_3d = i;
 	}
 }
@@ -1617,7 +1631,7 @@ void set_3d_object (Uint8 display, const void *ptr, int len)
 	
 	// first look for the override to process ALL objects
 	if (len < sizeof(*id_ptr) ){
-		int	i;
+		Uint32	i;
 		
 		for(i=0; i<= highest_obj_3d; i++){
 			if (objects_list[i]){
@@ -1648,7 +1662,7 @@ void state_3d_object (Uint8 state, const void *ptr, int len)
 	
 	// first look for the override to process ALL objects
 	if (len < sizeof(*id_ptr) ){
-		int	i;
+		Uint32	i;
 		
 		for(i=0; i<= highest_obj_3d; i++){
 			if (objects_list[i]){

@@ -158,14 +158,8 @@ void change_map (const char *mapname)
 	get_map_playlist();
 	have_a_map=1;
 	//also, stop the rain
-#ifdef NEW_WEATHER
 	clear_weather();
-#else
-	seconds_till_rain_starts=-1;
-	seconds_till_rain_stops=0;
-	weather_light_offset=0;
-	rain_light_offset=0;
-#endif
+
 	if ( get_show_window (map_root_win) )
 	{
 		hide_window(map_root_win);

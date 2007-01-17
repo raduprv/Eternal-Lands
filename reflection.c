@@ -213,8 +213,21 @@ void draw_3d_reflection(object3d * object_id)
 	for(i=0;i<materials_no;i++)
 		if(array_order[i].count>0)
 			{
+				int	idx, max;
 				get_and_set_texture_id(array_order[i].texture_id);
-				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+				// ATI bug fix for large arrays
+				idx= array_order[i].start;
+				max= array_order[i].start+array_order[i].count;
+				while(idx < max) {
+		    		int num;
+		   
+					num= max-idx;
+					if(num > 3000){
+						num= 3000;
+					}
+		    		glDrawArrays(GL_TRIANGLES, idx, num);
+		    		idx+= num;
+				}
 			}
 	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	CHECK_GL_ERRORS();

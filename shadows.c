@@ -362,11 +362,25 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	for(i=0;i<materials_no;i++){
 		if(array_order[i].count>0)
 			{
+				int	idx, max;
+
 				CHECK_GL_ERRORS();
 				if(is_transparent){
 					get_and_set_texture_id(array_order[i].texture_id);
 				}
-				glDrawArrays(GL_TRIANGLES,array_order[i].start,array_order[i].count);
+				// ATI bug fix for large arrays
+				idx= array_order[i].start;
+				max= array_order[i].start+array_order[i].count;
+				while(idx < max) {
+		    		int num;
+		   
+					num= max-idx;
+					if(num > 3000){
+						num= 3000;
+					}
+		    		glDrawArrays(GL_TRIANGLES, idx, num);
+		    		idx+= num;
+				}
 			}
 	}
 	//if(use_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -858,11 +872,7 @@ void render_light_view()
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
 #ifndef MAP_EDITOR2
-#ifdef	NEW_WEATHER
 			if (weather_use_fog()) glDisable(GL_FOG);
-#else
-			if (use_fog) glDisable(GL_FOG);
-#endif
 #endif
 			glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 			CHECK_GL_ERRORS();
@@ -1052,11 +1062,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			detail_unit=GL_TEXTURE2_ARB;
 
 #ifndef MAP_EDITOR2
-#ifdef	NEW_WEATHER
 			if (weather_use_fog()) glDisable(GL_FOG);
-#else
-			if (use_fog) glDisable(GL_FOG);
-#endif
 #endif
 
 			ELglActiveTextureARB(shadow_unit);
@@ -1076,11 +1082,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 
 #ifndef MAP_EDITOR2
-#ifdef	NEW_WEATHER
 			if (weather_use_fog()) glEnable(GL_FOG);
-#else
-			if (use_fog) glEnable(GL_FOG);
-#endif
 #endif		
 #ifndef	NEW_FRUSTUM
 			CalculateFrustum();
@@ -1104,11 +1106,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_blended_objects();
 
 #ifndef MAP_EDITOR2
-#ifdef	NEW_WEATHER
 			if (weather_use_fog()) glDisable(GL_FOG);
-#else
-			if (use_fog) glDisable(GL_FOG);
-#endif
 #endif
 
 			ELglActiveTextureARB(shadow_unit);
@@ -1184,11 +1182,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glDisable(GL_DEPTH_TEST);
 
 #ifndef MAP_EDITOR2
-#ifdef	NEW_WEATHER
 			if (weather_use_fog()) glEnable(GL_FOG);
-#else
-			if (use_fog) glEnable(GL_FOG);
-#endif
 #endif
 
 			glEnable(GL_BLEND);
