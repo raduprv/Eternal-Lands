@@ -709,21 +709,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-#ifdef NEW_WEATHER
-				float rain_strength_bias;
+				float severity;
 
-#endif
 				if (data_length > 4) {
-					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
+					severity= 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
 				} else {
-					rain_strength_bias = 1.0f;
+					severity= 1.0f;
 				}
-#ifdef NEW_WEATHER
-				start_weather(*((Uint8 *)(in_data+3)), rain_strength_bias);
-#else
-				seconds_till_rain_starts=*((Uint8 *)(in_data+3));
-				seconds_till_rain_stops=-1;
-#endif
+				start_weather(*((Uint8 *)(in_data+3)), severity);
 			}
 			break;
 
@@ -732,21 +725,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-#ifdef NEW_WEATHER
-				float rain_strength_bias;
+				float severity;
 
-#endif
 				if (data_length > 4) {
-					rain_strength_bias = 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
+					severity= 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
 				} else {
-					rain_strength_bias = 1.0f;
+					severity= 1.0f;
 				}
-#ifdef NEW_WEATHER
-				stop_weather(*((Uint8 *)(in_data+3)), rain_strength_bias);
-#else
-				seconds_till_rain_stops=*((Uint8 *)(in_data+3));
-				seconds_till_rain_starts=-1;
-#endif
+				stop_weather(*((Uint8 *)(in_data+3)), severity);
 			}
 			break;
 
@@ -1267,9 +1253,12 @@ int get_message_from_server(void *thread_args)
 
 	while(!*done)
 	{
-		/* Sleep while disconnected or no data */
-		if(disconnected || SDLNet_CheckSockets(set, 0) <= 0 || !SDLNet_SocketReady(my_socket)) {
-			SDL_Delay(10);
+		// Sleep while disconnected
+		if(disconnected){
+			SDL_Delay(100);	// 10 times per second should be often enough
+			continue; //Continue to make the main loop check int done.
+		} else if(SDLNet_CheckSockets(set, 100) <= 0 || !SDLNet_SocketReady(my_socket)) {
+			//if no data, loop back and check again, the delay is in SDLNet_CheckSockets()
 			continue; //Continue to make the main loop check int done.
 		}
 		if ((received = SDLNet_TCP_Recv(my_socket, &tcp_in_data[in_data_used], sizeof (tcp_in_data) - in_data_used)) > 0) {
