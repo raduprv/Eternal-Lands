@@ -48,25 +48,6 @@ int get_font_width(int cur_char);
 int get_nstring_width(const unsigned char *str, int len);
 int set_font_parameters (int num);
 
-// converts a character into which entry in font.bmp to use, negative on error or no output
-int find_font_char(unsigned char cur_char)
-{
-	if(cur_char >= 127+c_lbound && cur_char<=127+c_ubound)
-		{
-			float r,g,b;
-			//must be a color
-			cur_char -= 127+c_lbound;
-			r=(float)colors_list[cur_char].r1/255.0f;
-			g=(float)colors_list[cur_char].g1/255.0f;
-			b=(float)colors_list[cur_char].b1/255.0f;
-			//This fixes missing letters in the font on some clients
-			//No idea why going from 3f to 4f helps, but it does
-			glColor4f(r,g,b,1.0);
-			return(-1);	// nothing to do
-		}
-	return(get_font_char(cur_char));
-}
-
 int get_font_char(unsigned char cur_char)
 {
 	if(cur_char<FONT_START_CHAR)	//null or invalid character
@@ -167,14 +148,31 @@ int get_font_char(unsigned char cur_char)
 	return((int)cur_char);
 }
 
+// converts a character into which entry in font.bmp to use, negative on error or no output
+int find_font_char(unsigned char cur_char)
+{
+	if(cur_char >= 127+c_lbound && cur_char<=127+c_ubound)
+		{
+			float r,g,b;
+			//must be a color
+			cur_char -= 127+c_lbound;
+			r=(float)colors_list[cur_char].r1/255.0f;
+			g=(float)colors_list[cur_char].g1/255.0f;
+			b=(float)colors_list[cur_char].b1/255.0f;
+			//This fixes missing letters in the font on some clients
+			//No idea why going from 3f to 4f helps, but it does
+			glColor4f(r,g,b,1.0);
+			return(-1);	// nothing to do
+		}
+	return(get_font_char(cur_char));
+}
+
 // returns how far to move for the next char, or negative on error
 int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float displayed_font_x_size, float displayed_font_y_size)
 {
 	float u_start,u_end,v_start,v_end;
 	int chr,col,row;
 	int displayed_font_x_width;
-	int font_x_size=FONT_X_SPACING;
-	int font_y_size=FONT_Y_SPACING;
 	int	font_bit_width, ignored_bits;
 
 	chr= find_font_char(cur_char);
@@ -184,20 +182,19 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 		}
 
 	// first, see where that char is, in the font.bmp
-	col=chr/FONT_CHARS_PER_LINE;
-	row=chr%FONT_CHARS_PER_LINE;
+	col= chr/FONT_CHARS_PER_LINE;
+	row= chr%FONT_CHARS_PER_LINE;
 
 	//displayed_font_x_width=(int)displayed_font_x_size;
-	font_bit_width=get_font_width(chr);
-	displayed_font_x_width=(int)(0.5f+((float)font_bit_width)*displayed_font_x_size/12.0);
-	ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
+	font_bit_width= get_font_width(chr);
+	displayed_font_x_width= (int)(0.5f+((float)font_bit_width)*displayed_font_x_size/12.0);
+	ignored_bits= (12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
 
 	//now get the texture coordinates
-	u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
-	u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
-	v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-	v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
-	//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
+	u_start= (float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
+	u_end= (float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+	v_start= (float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+	v_end= (float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
 
 	// and place the text from the graphics on the map
 	glTexCoord2f(u_start,v_start);
@@ -593,12 +590,13 @@ void print_string_escaped (const char *str)
 int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor)
 {
 	char buf[1024]; 
+	unsigned int	ibuf;
+	unsigned int nchar;
 	int font_bit_width;
 	int nlines;
 	float line_width;
-	int isrc, ibuf, idst;
+	int isrc, idst;
 	int lastline, lastsrc;
-	int nchar;
 	int dcursor = 0;
 
 	if (str == NULL) {
@@ -720,8 +718,8 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 
 void draw_string_small(int x, int y,const unsigned char * our_string,int max_lines)
 {
-	int displayed_font_x_size=SMALL_FONT_X_LEN;
-	int displayed_font_y_size=SMALL_FONT_Y_LEN;
+	//int displayed_font_x_size=SMALL_FONT_X_LEN;
+	//int displayed_font_y_size=SMALL_FONT_Y_LEN;
 
 	unsigned char cur_char;
 	int i;
@@ -745,7 +743,7 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 				}
 			else if(cur_char=='\n')
 				{
-					cur_y+=displayed_font_y_size;
+					cur_y+=SMALL_FONT_Y_LEN;
 					cur_x=x;
 					i++;
 					current_lines++;
@@ -753,7 +751,7 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 					continue;
 				}
 
-			cur_x+=draw_char_scaled(cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
+			cur_x+=draw_char_scaled(cur_char, cur_x, cur_y, SMALL_FONT_X_LEN, SMALL_FONT_Y_LEN);
 
 			i++;
 		}
@@ -774,8 +772,8 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	float displayed_font_y_size;
 
 	float displayed_font_x_width;
-	int font_x_size=FONT_X_SPACING;
-	int font_y_size=FONT_Y_SPACING;
+	//int font_x_size=FONT_X_SPACING;
+	//int font_y_size=FONT_Y_SPACING;
 	int	font_bit_width, ignored_bits;
 
 	unsigned char cur_char;
@@ -784,18 +782,6 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	float cur_x,cur_y;
 	int current_lines=0;
 
-	/*
-	if(big)
-		{
-			displayed_font_x_size=0.17*zoom_level*name_zoom/3.0;
-			displayed_font_y_size=0.25*zoom_level*name_zoom/3.0;
-		}
-	else
-		{
-			displayed_font_x_size=SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0;
-			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level*name_zoom/3.0;
-		}
-	*/
 	displayed_font_x_size=font_x_scale*zoom_level*name_zoom/3.0;
 	displayed_font_y_size=font_y_scale*zoom_level*name_zoom/3.0;
 
@@ -833,18 +819,16 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					col=chr/FONT_CHARS_PER_LINE;
 					row=chr%FONT_CHARS_PER_LINE;
 
-
 					font_bit_width=get_font_width(chr);
 					displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
 					ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
 					if(ignored_bits < 0)ignored_bits=0;
 
 					//now get the texture coordinates
-					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
-					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
-					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
-					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
-					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
+					u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
+					u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+					v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+					v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
 
 					glTexCoord2f(u_start,v_start);
 					glVertex3f(cur_x,0,cur_y+displayed_font_y_size);
@@ -857,9 +841,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 
 					glTexCoord2f(u_end,v_start);
 					glVertex3f(cur_x+displayed_font_x_width,0,cur_y+displayed_font_y_size);
-					
 
-					//cur_x+=displayed_font_x_size;
 					cur_x+=displayed_font_x_width;
 				}
 			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?

@@ -132,20 +132,20 @@ void set_health_color(float percent, float multiplier, float a)
 
 void draw_actor_banner(actor * actor_id, float offset_z)
 {
-	char str[60];
-	float ratio=640.0f/(0.66f*window_width);
-	float healthbar_x=-0.25f*zoom_level/3.0f*ratio;
-	float healthbar_y=0.0001;
-	float healthbar_z=offset_z+0.1f;	//was 0.2f
-	float healthbar_x_len=0.5f*zoom_level/3.0f*ratio;
-	float healthbar_x_len_converted=0;
-	float healthbar_x_len_loss=0;
-	float healthbar_x_loss_fade=1.0f;
-	float healthbar_z_len=0.05f*zoom_level/3.0f*ratio;
-	char temp[255];
-
 	// are we actively drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
+		char str[60];
+		float ratio=640.0f/(0.66f*window_width);
+		float healthbar_x=-0.25f*zoom_level/3.0f*ratio;
+		float healthbar_y=0.0001;
+		float healthbar_z=offset_z+0.1f;	//was 0.2f
+		float healthbar_x_len=0.5f*zoom_level/3.0f*ratio;
+		float healthbar_x_len_converted=0;
+		float healthbar_x_len_loss=0;
+		float healthbar_x_loss_fade=1.0f;
+		float healthbar_z_len=0.05f*zoom_level/3.0f*ratio;
+		char temp[255];
+
   		// account for the dynamic scaling
 		if(actor_id->scale != 1.0f){
             healthbar_z *= actor_id->scale;
@@ -321,7 +321,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 		glColor3f(1,1,1);
 		if(actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_BLEND);
-		if(!actor_id->ghost && !(actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_LIGHTING);
+		else if(!actor_id->ghost && !(actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_LIGHTING);
 		if(use_shadow_mapping)
 			{
 				last_texture=-1;

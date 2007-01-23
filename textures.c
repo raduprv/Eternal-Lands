@@ -35,6 +35,7 @@ int get_texture_id(int i)
 	return texture_cache[i].texture_id;
 }
 
+#ifndef	USE_INLINE
 void	bind_texture_id(int texture_id)
 {
 	if(last_texture!=texture_id)
@@ -47,17 +48,26 @@ void	bind_texture_id(int texture_id)
 int get_and_set_texture_id(int i)
 {
 	int	texture_id;
-	
+
+#ifdef	DEBUG
 	if(i<0||i>TEXTURE_CACHE_MAX) {
 		log_error("We tried binding a texture ID of %d\n", i);
 		return 0;
 	}
-	
-	texture_id=get_texture_id(i);
+#endif	//DEBUG
+
+	// do we need to make a hard load or do we already have it?
+	if(!texture_cache[i].texture_id)
+	{
+		texture_id= get_texture_id(i);
+	} else {
+		texture_id= texture_cache[i].texture_id;
+	}
 	bind_texture_id(texture_id);
 
 	return(texture_id);
 }
+#endif	//USE_INLINE
 
 int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig_y_size)
 {
@@ -165,12 +175,12 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 //load a bmp texture, in respect to the color key
 GLuint load_bmp8_color_key(char * FileName)
 {
-	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
+	int y,x_padding,x_size,y_size,colors_no;
 	Uint8 * file_mem;
-	Uint8 * file_mem_start;
+	//Uint8 * file_mem_start;
 	Uint8 * texture_mem;
-	Uint8 * read_buffer;
-	Uint8 * color_pallete;
+	Uint8 read_buffer[2048];
+	Uint8 color_pallete[256*4];
 	FILE *f = NULL;
 	GLuint texture;
 
@@ -178,13 +188,14 @@ GLuint load_bmp8_color_key(char * FileName)
   	f = my_fopen (FileName, "rb");
   	if (!f)
 		return 0;
-  	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
-  	file_mem_start=file_mem;
-  	fread (file_mem, 1, 50, f);//header only
+  	file_mem= read_buffer;
+  	//file_mem= (Uint8 *) calloc ( 20000, sizeof(Uint8));
+  	//file_mem_start= file_mem;
+  	fread(file_mem, 1, 50+4, f);	//header only, plus first 4 bytes of the color pallete
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!= SDL_SwapLE16(19778))//BM (the identifier)
 	{
-		free(file_mem_start);
+		//free(file_mem_start);
 		fclose (f);
 		return 0;
 	}
@@ -195,7 +206,7 @@ GLuint load_bmp8_color_key(char * FileName)
 	file_mem+=6;
 	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 	{
-		free(file_mem_start);
+		//free(file_mem_start);
 		fclose (f);
 		return 0;
 	}
@@ -203,7 +214,7 @@ GLuint load_bmp8_color_key(char * FileName)
 	file_mem+=2;
 	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 	{
-		free(file_mem_start);
+		//free(file_mem_start);
 		fclose (f);
 		return 0;
 	}
@@ -212,11 +223,12 @@ GLuint load_bmp8_color_key(char * FileName)
 	colors_no=SDL_SwapLE32(*((int *)file_mem));
 	if(!colors_no)
 		colors_no=256;
-	file_mem+=8;//here comes the pallete
+	//file_mem+=8;//here comes the pallete
 
-	color_pallete=file_mem+4;
-	fread (file_mem, 1, colors_no*4+4, f);//header only
-	file_mem+=colors_no*4;
+	//color_pallete=file_mem+4;
+	//fread (file_mem, 1, colors_no*4+4, f);//header only
+	//file_mem+=colors_no*4;	// not needed, value isn't used
+	fread(color_pallete, 1, colors_no*4, f);	// just the color pallete
 
 	x_padding=x_size%4;
 	if(x_padding)
@@ -225,27 +237,35 @@ GLuint load_bmp8_color_key(char * FileName)
 		x_padding=0;
 
 	//now, allocate the memory for the file
-	texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
-	read_buffer = (Uint8 *) calloc ( 2000, sizeof(Uint8));
+	texture_mem= (Uint8 *) calloc(x_size*y_size*4, sizeof(Uint8));
+	//read_buffer= (Uint8 *) calloc(2000, sizeof(Uint8));
 
-	for(y=0;y<y_size;y++)
+	for(y=0; y<y_size; y++)
 	{
-		fread (read_buffer, 1, x_size-x_padding, f);
-		for(x=0;x<x_size;x++)
+		int	x;
+		int	y_offset= y*x_size;
+
+		fread(read_buffer, 1, x_size-x_padding, f);
+		for(x=0; x<x_size; x++)
 		{
-			current_pallete_entry=*(read_buffer+x);
-			b=*(color_pallete+current_pallete_entry*4);
-			g=*(color_pallete+current_pallete_entry*4+1);
-			r=*(color_pallete+current_pallete_entry*4+2);
-			*(texture_mem+(y*x_size+x)*4)=r;
-			*(texture_mem+(y*x_size+x)*4+1)=g;
-			*(texture_mem+(y*x_size+x)*4+2)=b;
-			a=(r+b+g)/3;
-			*(texture_mem+(y*x_size+x)*4+3)=a;
+			int r,g,b, current_pallete_entry, texture_offset;
+
+			// find what color we are really using
+			current_pallete_entry= (*(read_buffer+x))*4;
+			b= color_pallete[current_pallete_entry];
+			g= color_pallete[current_pallete_entry+1];
+			r= color_pallete[current_pallete_entry+2];
+
+			// and store the converted version in the proper spot
+			texture_offset= (y_offset+x)*4;
+			texture_mem[texture_offset]= r;
+			texture_mem[texture_offset+1]= g;
+			texture_mem[texture_offset+2]= b;
+			texture_mem[texture_offset+3]= (r+b+g)/3;	// a
 		}
 	}
 
-	free(read_buffer);
+	//free(read_buffer);
 	fclose (f);
 	
 	load_alphamap(FileName, texture_mem, x_size, y_size);
@@ -289,7 +309,7 @@ GLuint load_bmp8_color_key(char * FileName)
 
 	CHECK_GL_ERRORS();
 
-	free(file_mem_start);
+	//free(file_mem_start);
 	free(texture_mem);
 	return texture;
 }

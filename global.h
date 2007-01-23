@@ -78,6 +78,8 @@ typedef long int point;
 typedef int point;
 #endif
 
+extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to resync */
+
 #include "client_serv.h"
 #ifdef MEMORY_DEBUG
  #include <stdlib.h> // make sure this is loaded before elmemory bc it defines malloc/calloc
@@ -91,7 +93,6 @@ typedef int point;
 #include "knowledge.h"
 #include "elc_private.h"
 #include "asc.h"
-//#include "md2.h"
 #include "actors.h"
 #include "new_actors.h"
 #include "actor_scripts.h"

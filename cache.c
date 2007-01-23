@@ -248,6 +248,7 @@ Uint32 cache_compact(cache_struct *cache)
 }
 
 
+#ifndef	USE_INLINE
 // detailed items
 void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
 {
@@ -257,6 +258,7 @@ void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
 			item_ptr->access_count++;
 		}
 }
+#endif	//USE_INLINE
 
 cache_item_struct *cache_find (cache_struct *cache, const char *name)
 {

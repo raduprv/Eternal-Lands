@@ -401,11 +401,7 @@ void draw_3d_object(object3d * object_id)
 void draw_3d_objects(unsigned int object_type)
 {
 	unsigned int    start, stop;
-#ifdef	NEW_E3D_FORMAT
-	unsigned int    i, j, l;
-#else
 	unsigned int    i, l;
-#endif
 	int is_selflit, is_transparent, is_ground;
 #ifdef  SIMPLE_LOD
 	int x, y, dist;
@@ -431,6 +427,8 @@ void draw_3d_objects(unsigned int object_type)
 		for (i=start; i<stop; i++)
 		{
 #ifdef	NEW_E3D_FORMAT
+			int	j;
+
 			j = get_intersect_item_ID(main_bbox_tree, i);
 			l = get_3dobject_index(j);
 #else
@@ -479,6 +477,8 @@ void draw_3d_objects(unsigned int object_type)
 	for (i=start; i<stop; i++)
 	{
 #ifdef	NEW_E3D_FORMAT
+		int	j;
+
 		j = get_intersect_item_ID(main_bbox_tree, i);
 		l = get_3dobject_index(j);
 #else

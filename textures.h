@@ -88,7 +88,19 @@ int		get_texture_id(int i);
  *
  * \param   	texture_id OpenGL's texture ID (not the position in the cache system)
  */
+#ifndef	USE_INLINE
 void	bind_texture_id(int texture_id);
+#else	//USE_INLINE
+static __inline__ void	bind_texture_id(int texture_id)
+{
+	if(last_texture!=texture_id)
+	{
+		last_texture=texture_id;
+		glBindTexture(GL_TEXTURE_2D, texture_id);
+	}
+}
+#endif	//USE_INLINE
+
 
 /*!
  * \ingroup 	cache
@@ -102,7 +114,26 @@ void	bind_texture_id(int texture_id);
  * \sa		get_texture_id
  * \callgraph
  */
+#ifndef	USE_INLINE
 int		get_and_set_texture_id(int i);
+#else	//USE_INLINE
+//inline version doesn't have range checking!
+static __inline__ int get_and_set_texture_id(int i)
+{
+	int	texture_id;
+
+	// do we need to make a hard load or do we already have it?
+	if(!texture_cache[i].texture_id)
+	{
+		texture_id= get_texture_id(i);
+	} else {
+		texture_id= texture_cache[i].texture_id;
+	}
+	bind_texture_id(texture_id);
+
+	return(texture_id);
+}
+#endif	//USE_INLINE
 
 #ifdef MAP_EDITOR2
 /*!

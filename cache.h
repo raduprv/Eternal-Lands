@@ -192,7 +192,19 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item);
  * \param cache     the cache to search
  * \param item      the item to search for
  */
+#ifndef	USE_INLINE
 void cache_use(cache_struct *cache, cache_item_struct *item);
+#else	//USE_INLINE
+static __inline__ void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
+{
+	if(item_ptr)
+		{
+			item_ptr->access_time= cur_time;
+			item_ptr->access_count++;
+		}
+}
+#endif	//USE_INLINE
+
 
 /*!
  * \ingroup cache
