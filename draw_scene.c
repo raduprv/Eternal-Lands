@@ -304,7 +304,7 @@ void update_camera()
 			} else 
 				camera_zoom_frames = 0;
 		} else {
-			if(zoom_level>sitting){
+			if(zoom_level>1.50f){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 #ifdef	NEW_FRUSTUM
@@ -325,8 +325,8 @@ void update_camera()
 		old_cz= cz;
 	}
 #endif
-	if(zoom_level<sitting) {
-		new_zoom_level=zoom_level=sitting;
+	if(zoom_level<1.50f) {
+		new_zoom_level=zoom_level=1.50f;
 		resize_root_window();
 	}
 }

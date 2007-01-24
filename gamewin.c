@@ -1381,10 +1381,12 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_ZOOMIN)
 	{
 		if (zoom_level >= 1.50f) new_zoom_level = zoom_level - 0.25;
+		else zoom_level= 1.50f;
 	}
 	else if (key == K_ZOOMOUT)
 	{
-		if (zoom_level <= 3.50f) new_zoom_level = zoom_level + 0.25;
+		if (zoom_level <= 3.75f) new_zoom_level = zoom_level + 0.25;
+		else zoom_level= 3.75f;
 	}
 #ifdef PNG_SCREENSHOT
 	else if (key == K_SCREENSHOT)
