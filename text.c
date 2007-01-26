@@ -260,7 +260,8 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 			strncpy(harvest_name, text_to_add+1+23, len-1-23-1);
 			harvest_name[len-1-23-1] = '\0';
 			harvesting = 1;
-		} else if (my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) {
+		} else if ((my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) ||
+				((my_strncompare(text_to_add+1, "You need to have a ", 20) && strstr(text_to_add, "order to harvest") != NULL))){
 			harvesting = 0;
 		}
 	} else if (channel == CHAT_LOCAL) {
