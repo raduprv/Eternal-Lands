@@ -406,8 +406,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					len= filter_or_ignore_text(text_buf, len, sizeof (text_buf), in_data[3]);
 					if (len > 0)
 					{
-						//how to display it
-						put_text_in_buffer(in_data[3], text_buf, len);
+						/* if from the server popup channel, and popup window usage enable */
+						if (use_server_pop_win && (in_data[3] == server_pop_chan))
+							display_server_popup_win(text_buf);
+						/* else write to the chat window/console */
+						else
+							put_text_in_buffer(in_data[3], text_buf, len);
 					}
 				}
 			}

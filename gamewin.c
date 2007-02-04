@@ -1067,6 +1067,8 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (storage_win);
 		if (dialogue_win >= 0)
 			hide_window (dialogue_win);
+		if (server_popup_win >= 0)
+			hide_window (server_popup_win );
 #ifdef NOTEPAD
 		if (notepad_win >= 0)
 			hide_window (notepad_win);

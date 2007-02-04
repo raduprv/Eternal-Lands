@@ -14,7 +14,7 @@ SRCS= 2d_objects.c 3d_objects.c  \
     openingwin.c \
     particles.c paste.c pathfinder.c pm_log.c   \
     questlog.c reflection.c rules.c \
-    sector.c session.c shadows.c sound.c spells.c stats.c tabs.c  \
+    sector.c session.c serverpopup.c shadows.c sound.c spells.c stats.c tabs.c  \
     text.c textures.c tile_map.c timers.c translate.c trade.c   \
     update.c weather.c widgets.c \
 	books/fontdef.c books/parser.c books/symbols.c books/typesetter.c

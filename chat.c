@@ -1583,7 +1583,7 @@ int display_chan_sel_handler(window_info *win)
 		glVertex2i(win->len_x, y-2);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - 5, NULL);
+	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - 5, NULL, NULL);
 	draw_string_zoomed(x, y+=5, channel_help_str, num_lines, local_zoom);
 	win->len_y = 187 + num_lines * DEFAULT_FONT_Y_LEN * local_zoom + 2;
 	

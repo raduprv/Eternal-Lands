@@ -137,11 +137,12 @@ void draw_window_string (int x, int y, const unsigned char *str, int width, int 
  * \param zoom		the scale factor for the text
  * \param width		the width of the text window
  * \param cursor	pointer to the cursor position, or NULL if not used
+ * \param max_line_width	pointer the maximum line length after wrapping, or NULL if not used
  *
  * \retval int the number of window lines the string will use
  * \callgraph
  */
-int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor);
+int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor, float *max_line_width);
 
 /*!
  * \ingroup text_font

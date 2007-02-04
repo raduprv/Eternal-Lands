@@ -277,3 +277,6 @@ session.o: session.c
 
 elc_private.res: elc_private.rc 
 	$(WINDRES) -i elc_private.rc --input-format=rc -o elc_private.res -O coff 
+
+serverpopup.o: serverpopup.c
+	$(CC) -c serverpopup.c -o serverpopup.o $(CFLAGS)

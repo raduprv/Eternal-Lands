@@ -133,7 +133,7 @@ void set_create_char_error (const char *msg, int len)
 		if (len > maxlen) len = maxlen;
 		snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %.*s", reg_error_str, len, msg);
 		create_char_error_str[len+prelen] = '\0';
-		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20, NULL);
+		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20, NULL, NULL);
 	}
 
 	LOG_TO_CONSOLE(c_red1, create_char_error_str);

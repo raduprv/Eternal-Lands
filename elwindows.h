@@ -10,6 +10,15 @@
 #include "widgets.h"
 
 /*!
+ * \name Title bar & other constants
+ */
+/*! @{ */
+#define	ELW_TITLE_HEIGHT	16
+#define	ELW_BOX_SIZE		20
+#define ELW_TITLE_SIZE 35
+/*! @} */
+
+/*!
  * A simple window handler setup to reduce the code needed to do windows
  *
  */
@@ -29,7 +38,7 @@ typedef	struct	{
 	float	border_color[4];	/*!< r,g,b,a for the border */
 	float	line_color[4];		/*!< r,g,b,a for any internal lines */
 
-	char	window_name[35];	/*!< should be a unique name suitable for display */
+	char	window_name[ELW_TITLE_SIZE];	/*!< should be a unique name suitable for display */
 
 	char	displayed;	/*!< is the window currently being displayed? */
 	//char	collapsed;	// is it collapsed or expanded?
@@ -67,14 +76,6 @@ typedef	struct	{
 	void * data; /*!< data for this window */
 	widget_list *widgetlist; /*!< list of widgets for this window */
 } window_info;
-
-/*!
- * \name Title bar & other constants
- */
-/*! @{ */
-#define	ELW_TITLE_HEIGHT	16
-#define	ELW_BOX_SIZE		20
-/*! @} */
 
 /*!
  * \name property flags in create

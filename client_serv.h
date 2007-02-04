@@ -817,6 +817,7 @@
 #define CHAT_CHANNEL2	6
 #define CHAT_CHANNEL3	7
 #define CHAT_MODPM	8
+#define CHAT_POPUP 0xFF
 /*! @} */
 
 /*!

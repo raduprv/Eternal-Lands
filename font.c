@@ -587,125 +587,125 @@ void print_string_escaped (const char *str)
 }
 #endif
 
-int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor)
+int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor, float *max_line_width)
 {
-	char buf[1024]; 
+	char *buf;
 	unsigned int	ibuf;
 	unsigned int nchar;
 	int font_bit_width;
 	int nlines;
 	float line_width;
 	int isrc, idst;
-	int lastline, lastsrc;
+	int lastline;
 	int dcursor = 0;
-
+	/* the generic special text window code needs to know the
+	   maximum line length in pixels.  This information is used
+	   but was previously throw away in this function.  Others
+	   may fine it useful for setting the winow size, so pass back
+	   to the caller if they provide somewhere to store it. */
+	float local_max_line_width = 0;
+  
 	if (str == NULL) {
 		return 0;
 	}
+
+	/* allocate the working buffer so it can hold the maximum 
+	   the source string can take.  Previously, the fixed length
+	   buffer was sometimes not big enough.  The code looked
+	   to attempt to cope but was floored.  When ever the wrap
+	   caused more characters to be in the output, some of the
+	   source would be lost.  This is still possable if the source
+	   size cannot take the extra characters.  For example, try
+	   #glinfo and watch as the end characters are lost.  At least
+	   characters are no longer lost wrap process. If you make
+	   size large enough for no character will be lost.  Twice
+	   the actual string length is probably enough */
+	buf = (char *)calloc(size, sizeof(char));
 	
 	nlines = 1;
 	isrc = ibuf = idst = 0;
 	line_width = 0;
-	lastsrc = 0;
-	while (1)
-	{
-		lastline = 0;
-	
-		// fill the buffer
-		while (isrc < len && str[isrc] != '\0')
-		{
-			// skip old line breaks
-			if (str[isrc] == '\r') {
-				if (cursor && isrc < *cursor) {
-					dcursor--;
-				}
-				isrc++;
-				continue;
-			}
-			
-			// see if it's an explicit line break
-			if (str[isrc] == '\n') {
-				nlines++;
-				line_width = 0;
-			} else {
-				font_bit_width = (int) (0.5f + get_char_width (str[isrc]) * 11.0f * zoom / 12.0f);
-				if (line_width + font_bit_width > width)
-				{
-					// search back for a space
-					for (nchar = 0; ibuf-nchar-1 > lastline; nchar++) {
-						if (buf[ibuf-nchar-1] == ' ') {
-							break;
-						}
-					}
-					if (ibuf-nchar-1 <= lastline)
-						// no space found, introduce a break in 
-						// the middle of the word
-						nchar = 0;
-					
-					// introduce the break, and reset the counters
-					ibuf -= nchar;
-					isrc -= nchar;
-					// ignore any old soft breaks after the space
-					while (str[isrc] == '\r') isrc++;
+	lastline = 0;
 
-					buf[ibuf] = '\r';
-					nlines++; ibuf++;
-					if (cursor && isrc < *cursor) {
-						dcursor++;
-					}
-					if (ibuf >= sizeof (buf) - 1) {
+	// fill the buffer
+	while (isrc < len && str[isrc] != '\0')
+	{
+		// skip old line breaks
+		if (str[isrc] == '\r') {
+			if (cursor && isrc < *cursor) {
+				dcursor--;
+			}
+			isrc++;
+			continue;
+		}
+
+		// see if it's an explicit line break
+		if (str[isrc] == '\n') {
+			nlines++;
+			if (line_width > local_max_line_width)
+				local_max_line_width = line_width;
+			line_width = 0;
+		} else {
+			font_bit_width = (int) (0.5f + get_char_width (str[isrc]) * 11.0f * zoom / 12.0f);
+			if (line_width + font_bit_width > width)
+			{
+				// search back for a space
+				for (nchar = 0; ibuf-nchar-1 > lastline; nchar++) {
+					if (buf[ibuf-nchar-1] == ' ') {
 						break;
 					}
-					
-					lastline = ibuf;
-					line_width = font_bit_width;
-				} else {
-					line_width += font_bit_width;
 				}
-			}
+				if (ibuf-nchar-1 <= lastline)
+					// no space found, introduce a break in 
+					// the middle of the word
+					nchar = 0;
 
-			
-			// copy the character into the buffer
-			buf[ibuf] = str[isrc];
-			isrc++; ibuf++;
-			if (ibuf >= sizeof (buf) - 1) break;
-		}
-		if (str[isrc] == '\0') {
-			isrc = len;
-		}
-		
-		// buffer is full or end of string, let's copy back
-		nchar = ibuf;
-		if (isrc < len && isrc - lastsrc < nchar) {
-			nchar = isrc - lastsrc;
+				// introduce the break, and reset the counters
+				ibuf -= nchar;
+
+				/* previously, we just stepped back by nchar.
+				   however, if this text contained an \r we would
+				   not move back far enough and so loose characters.
+				   any \r in the src will be stepped over at the
+				   top of the loop */
+				while (nchar > 0)
+				{
+					isrc--;      
+					if (str[isrc] != '\r')
+						nchar--;
+				}  
+
+				buf[ibuf] = '\r';
+				nlines++; ibuf++;
+				if (cursor && isrc < *cursor) {
+					dcursor++;
+				}
+				if (ibuf >= size - 1) {
+					break;
+				}
+
+				if (line_width > local_max_line_width)
+					local_max_line_width = line_width;
+
+				lastline = ibuf;
+				line_width = font_bit_width;
+			} else {
+				line_width += font_bit_width;
+			}
 		}
 
-		for (idst = 0; idst < nchar; idst++)
-		{
-			if (lastsrc + idst >= size - 1) {
-				break;
-			}
-			str[lastsrc+idst] = buf[idst];
-		}
-		
-		// see if we're done
-		if (isrc >= len) 
-		{
-			str[lastsrc+idst] = '\0';
+		// copy the character into the buffer
+		buf[ibuf] = str[isrc];
+		isrc++; ibuf++;
+    
+		if (ibuf >= size - 1) {
 			break;
 		}
-				
-		// move stuff to the beginning of the buffer, if necessary
-		nchar = sizeof (buf) - ibuf - 1;
-		for (idst = 0; idst < nchar; idst++) {
-			buf[idst] = buf[ibuf+idst];
-		}
-		
-		// update the counters
-		ibuf = nchar;
-		lastsrc = isrc;
 	}
-	
+  
+	strncpy(str, buf, size);
+	str[size-1] = '\0';
+  
 	if (cursor) {
 		*cursor += dcursor;
 		if(*cursor > size-1) {
@@ -713,6 +713,11 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 			*cursor = size-1;
 		}
 	}
+	free(buf);
+	if (line_width > local_max_line_width)
+		local_max_line_width = line_width;
+	if (max_line_width!=NULL)
+		*max_line_width = local_max_line_width;
 	return nlines;
 }
 

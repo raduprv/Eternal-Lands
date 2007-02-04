@@ -153,6 +153,7 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "storage.h"
 #include "cal.h"
 #include "session.h"
+#include "serverpopup.h"
 
 #ifdef COUNTERS
 #include "counters.h"

@@ -36,6 +36,7 @@ typedef struct
 	float wrap_zoom;
 	Uint8 wrap_lines;
 	char deleted;
+	float max_line_width;
 } text_message;
 
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
@@ -80,7 +81,7 @@ void init_text_buffers ();
  * \param data  The data to write to the logfile
  * \param len   The length of data.
  */
-void write_to_log(Uint8 * data,int len);
+void write_to_log(const Uint8 * const data,int len);
 
 /*!
  * \ingroup text_font

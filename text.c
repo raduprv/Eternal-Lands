@@ -73,7 +73,7 @@ void update_text_windows (text_message * pmsg)
 	}
 }
 
-void write_to_log (Uint8 *data, int len)
+void write_to_log (const Uint8 * const data, int len)
 {
 	int i, j;
 	Uint8 ch;
@@ -976,6 +976,7 @@ void clear_display_text_buffer ()
 int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
 {
 	int nlines;
+	float max_line_width = 0;
 
 	if (msg == NULL || msg->data == NULL)
 		return 0;
@@ -984,13 +985,14 @@ int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
 	{
 		if (msg->chan_idx != CHAT_NONE)
 			total_nr_lines -= msg->wrap_lines;
- 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor);
+ 		nlines = reset_soft_breaks(msg->data, msg->len, msg->size, zoom, width, cursor, &max_line_width);
 		if (msg->chan_idx != CHAT_NONE)
 			total_nr_lines += nlines;
 		msg->len = strlen(msg->data);
 		msg->wrap_lines = nlines;
 		msg->wrap_width = width;
 		msg->wrap_zoom = zoom;
+		msg->max_line_width = max_line_width;
 	} else {
 		nlines = msg->wrap_lines;
 	}
