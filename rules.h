@@ -43,6 +43,7 @@ typedef struct {
     /* \} */
 	char ** short_str; /*!< the short description of the rule */
 	char ** long_str; /*!< the long description of the rule */
+	int y_virt; /*!< virtual window offset of rule start */
 } rule_string;
 
 

@@ -39,9 +39,14 @@ int rules_scroll_id = 0;
 int reached_end=0;
 int read_all_rules=0;
 int have_rules=0;
-int rule_offset=0;
 rule_string * display_rules;
 int last_display=-1;
+
+/* virtual window */
+int virt_win_len = 0;			/* length in pixels of all rules/info and current expanded rules */
+int virt_win_offset = 0;		/* virtual line number at top of displayed text */
+int recalc_virt_win_len = 1;	/* if true, force a virtual window recal before display */
+int set_rule_offset = -1;		/* if > 0, set the first displayed rule to this */
 
 /*Interface*/
 int countdown = 0;
@@ -52,14 +57,15 @@ int rules_root_accept_id = 0;
 int next_win_id;
 
 /* Colors */
-const float rules_winRGB[8][3] = {{0.0f,1.0f,0.0f},{1.0f,0.0f,0.0f},{1.2f,0.5f,1.2f},{1.0f,0.3f,1.0f},{0.1f,0.5f,0.9f},{0.1f,0.5f,1.0f},{0.8f,0.0f,0.0f},{1.0f,1.0f,1.0f}};
+const float rules_winRGB[8][3] = {{0.0f,1.0f,0.0f},{1.0f,0.0f,0.0f},{1.2f,0.5f,1.2f},{1.0f,0.3f,1.0f},{0.1f,0.5f,0.9f},{0.1f,0.3f,0.8f},{0.8f,0.0f,0.0f},{1.0f,1.0f,1.0f}};
 
 /* Rule parser */
 static struct rules_struct rules = {0,{{NULL,0,NULL,0,0}}};
 
 void free_rules(rule_string * d);
 rule_string * get_interface_rules(int chars_per_line);
-int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3]);
+int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3]);
+int rules_root_scroll_handler();
 
 void add_rule(char * short_desc, char * long_desc, int type)
 {
@@ -139,13 +145,13 @@ int read_rules()
 
 int rules_scroll_handler ()
 {
-	rule_offset = vscrollbar_get_pos (rules_win, rules_scroll_id);
+	virt_win_offset = vscrollbar_get_pos (rules_win, rules_scroll_id);
 	return 1;
 }
 
 int click_rules_handler (window_info *win, int mx, int my, Uint32 flags)
 {
-	rule_string *rules_ptr = display_rules + rule_offset;
+	rule_string *rules_ptr = display_rules;
 	int i;
 
 	if(flags&ELW_WHEEL_UP) {
@@ -162,6 +168,7 @@ int click_rules_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
 			{
 				rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
+				recalc_virt_win_len = 1;
 				return 1;
 			}
 		}
@@ -171,7 +178,7 @@ int click_rules_handler (window_info *win, int mx, int my, Uint32 flags)
 
 int mouseover_rules_handler (window_info *win, int mx, int my)
 {
-	rule_string *rules_ptr = display_rules + rule_offset;
+	rule_string *rules_ptr = display_rules;
 	int i;
 
 	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
@@ -192,10 +199,8 @@ int mouseover_rules_handler (window_info *win, int mx, int my)
 
 int display_rules_handler(window_info *win)
 {
-	int len;
-	if(rule_offset < 0)rule_offset=0;
-	len=(float)draw_rules(display_rules, rule_offset, 0, 20, win->len_x, win->len_y-40,0.8f, rules_winRGB)/(float)rules.no*250;
-
+	if (virt_win_offset < 0) virt_win_offset=0;
+	draw_rules(display_rules, 0, 18*0.8, win->len_x, win->len_y-18*0.8, 0.8f, rules_winRGB);
 	return 1;
 }
 
@@ -277,7 +282,9 @@ void reset_rules(rule_string * r)
 		r[i].highlight=0;
 		r[i].mouseover=0;
 	}
-	rule_offset=0;
+	virt_win_offset = 0;
+	recalc_virt_win_len = 1;
+	set_rule_offset = -1;
 }
 
 void highlight_rule (int type, const Uint8 *rule, int no)
@@ -355,14 +362,14 @@ void highlight_rule (int type, const Uint8 *rule, int no)
 			if(display_rules[j].type!=-1){
 				display_rules[j].highlight=1;
 				display_rules[j].show_long_desc=1;
+				recalc_virt_win_len = 1;
 			}
 		}
 		
 		for(i=0;display_rules[i].type!=-1;i++)
 			if(display_rules[i].type == RULE && display_rules[i].highlight) {
-				rule_offset=i;//Get the first highlighted entry
-				if (type == RULE_WIN)
-					vscrollbar_set_pos (rules_win, rules_scroll_id, rule_offset);
+				set_rule_offset = i;	//Get the first highlighted entry
+				recalc_virt_win_len = 1;
 				return;
 			}
 	}
@@ -386,27 +393,118 @@ rule_string * get_interface_rules(int chars_per_line)
 	return _rules;
 }
 
-int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3])
+/*	Originally, the rules window scrolled by stepping the rule number
+	displayed at the top of the window. This did not allow you to scroll
+	through a long rule. This change switches to scrolling a line at a
+	time and uses a virtual window concept that models the full text 
+	currently expanded. This function calculates the virtual length of
+	the rules window so we can set the scroll bar length. Called initially,
+	then after rules are expanded and contracted. The code mirrors the 
+	draw_rules() function with the intent to track the y axis increase as 
+	if actually being drawn. Scrolling is now controlled by an offset into
+	this virtual window.
+*/
+void calc_virt_win_len(rule_string * rules_ptr, int win_heigth, float text_size)
+{
+	int i, j;
+	float zoom = text_size;
+	int ydiff = 0;
+	int max_scroll_pos = 0;
+
+	virt_win_len = 0;
+	recalc_virt_win_len = 0;
+
+	/* model the draw_rules() keeping track of the y axis value
+		NOTE: if draw_rules() is modified, you need to modify this too */
+	for(i=0;;i++)
+	{
+		if (rules_ptr[i].type == -1)
+			break;
+
+		switch(rules_ptr[i].type)
+		{
+			case TITLE:
+				zoom=text_size*1.5f;
+				ydiff=30*zoom;
+				break;
+			case RULE:
+				zoom=text_size;
+				ydiff=20*zoom;
+				break;
+			case INFO:
+        		zoom=text_size;
+        		virt_win_len+=10*zoom;
+        		ydiff=20*zoom;
+        		break;
+			}
+		/* remember the offset for each rule start */
+		rules_ptr[i].y_virt = virt_win_len; 
+		for (j=0; rules_ptr[i].short_str[j]; j++)
+			if (j)
+				virt_win_len+=18*zoom;
+		virt_win_len+=ydiff;
+		if (rules_ptr[i].show_long_desc && rules_ptr[i].long_str)
+		{
+			for (j=0; rules_ptr[i].long_str[j]; j++)
+				if (j)
+					virt_win_len+=18*zoom;
+			virt_win_len+=ydiff;
+		}
+	}
+
+	/* make sure the max scroll value leaves a mostly full screen */
+	max_scroll_pos = virt_win_len - win_heigth * 0.9;
+
+	/* set the scroll bar lengths and increment values */
+	vscrollbar_set_bar_len(rules_root_win, rules_root_scroll_id, max_scroll_pos);
+	vscrollbar_set_pos_inc(rules_root_win, rules_root_scroll_id, 18*zoom);
+	vscrollbar_set_bar_len(rules_win, rules_scroll_id, max_scroll_pos);
+	vscrollbar_set_pos_inc(rules_win, rules_scroll_id, 18*zoom);
+
+	/* if we're been asked to start at a particular rule, set the scroll offset */
+	if (set_rule_offset >= 0)
+	{
+		virt_win_offset = rules_ptr[set_rule_offset].y_virt;
+		set_rule_offset = -1;
+		vscrollbar_set_pos(rules_root_win, rules_root_scroll_id, virt_win_offset);
+		vscrollbar_set_pos(rules_win, rules_scroll_id, virt_win_offset);
+	}
+
+	/* closing a rule could leave the offset past the end, so fix that if needed */
+	if (vscrollbar_get_pos(rules_root_win, rules_root_scroll_id) >= max_scroll_pos)
+	{
+		vscrollbar_set_pos(rules_root_win, rules_root_scroll_id, max_scroll_pos -1);
+		rules_root_scroll_handler();
+	}
+	if (vscrollbar_get_pos(rules_win, rules_scroll_id) >= max_scroll_pos)
+	{
+		vscrollbar_set_pos(rules_win, rules_scroll_id, max_scroll_pos -1);
+		rules_scroll_handler();
+	}
+
+} /* end calc_virt_win_len() */
+
+
+int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, float text_size, const float rgb[8][3])
 {
 	int xdiff=0,ydiff=18,i,j=0,tmplen=0,len=0;
 	char str[1024];
 	char *ptr;
 	float zoom=text_size;
-	int x=0, y=y_in;
-	int nr;
-	
-	if(rules_ptr[rules_no+1].type==-1) read_all_rules = reached_end = 1;
-	else reached_end=0;
+	int x=0, y_curr=y_in;
+	int nr = 1;
 
-	nr = 1;
-	for(i=0;i < rules_no; i++)
-		if (rules_ptr[i].type == RULE) nr++;
-		
-	for(i=rules_no;y<leny;i++){
+	if (recalc_virt_win_len)
+		calc_virt_win_len(rules_ptr, leny-y_in, text_size);
+
+	reached_end=0;
+
+	for(i=0;(y_curr-virt_win_offset)<leny;i++){
 		ptr=str;
 		len=0;
 		switch(rules_ptr[i].type){
 			case -1:
+				read_all_rules = reached_end = 1;
 				rules_ptr[i].y_start=2*leny;//Minor trick
 				return i;
 			case TITLE:
@@ -432,34 +530,40 @@ int draw_rules(rule_string * rules_ptr, int rules_no, int x_in, int y_in, int le
 				else glColor3f(rgb[5][0],rgb[5][1],rgb[5][2]);
 				zoom=text_size;
 				x=x_in+20;
-				y+=10*zoom;
+				y_curr+=10*zoom;
 				ydiff=20*zoom;
 				xdiff=0;
 				break;
 		}
 		rules_ptr[i].x_start=x;
-		rules_ptr[i].y_start=y;
-		for(j=0;rules_ptr[i].short_str[j] &&y<leny;j++){//Draw the lines
+		rules_ptr[i].y_start=(y_curr-virt_win_offset);
+		for(j=0;rules_ptr[i].short_str[j];j++){//Draw the lines
 			if(j==1)ptr=str;
-			if(j) y+=18*zoom;
+			if(j) y_curr+=18*zoom;
+			if ((leny - (y_curr-virt_win_offset)) < (18*zoom)) break;
 			strcpy(ptr,rules_ptr[i].short_str[j]);
-			if(!j)draw_string_zoomed(x,y,str,0,zoom);
-			else draw_string_zoomed(x+xdiff,y,str,0,zoom);
+			if (y_curr>=(virt_win_offset + y_in))
+			{
+				if(!j)draw_string_zoomed(x,(y_curr-virt_win_offset),str,0,zoom);
+				else draw_string_zoomed(x+xdiff,(y_curr-virt_win_offset),str,0,zoom);
+			}
 			tmplen=strlen(str)*11*zoom;
 			if(tmplen>len)len=tmplen;
 		}
-		y+=ydiff;
-		rules_ptr[i].y_end=y;
+		y_curr+=ydiff;
+		rules_ptr[i].y_end=(y_curr-virt_win_offset);
 		rules_ptr[i].x_end=rules_ptr[i].x_start+len;
 		if(rules_ptr[i].show_long_desc && rules_ptr[i].long_str){//Draw the lines of the long description
 			if(rules_ptr[i].highlight) glColor3f(rgb[6][0],rgb[6][1],rgb[6][2]);
 			else glColor3f(rgb[7][0],rgb[7][1],rgb[7][2]);
-			for(j=0;rules_ptr[i].long_str[j]&& y<leny;j++){
-				if(j)y+=18*zoom;
+			for(j=0;rules_ptr[i].long_str[j];j++){
+				if(j)y_curr+=18*zoom;
+				if ((leny - (y_curr-virt_win_offset))< (18*zoom)) break;
 				strcpy(str,rules_ptr[i].long_str[j]);
-				draw_string_zoomed(x+20,y,str,0,zoom);
+				if (y_curr>=(virt_win_offset + y_in))
+					draw_string_zoomed(x+20,(y_curr-virt_win_offset),str,0,zoom);
 			}
-			y+=ydiff;
+			y_curr+=ydiff;
 		}
 	}
 	
@@ -474,8 +578,6 @@ int has_accepted=0;
 
 void init_rules_interface(float text_size, int count, int len_x, int len_y)
 {
-//	float window_ratio = (float)len_x / 640.0f;
-	
 	if(rules.no)
 	{
 		if (last_display)
@@ -501,7 +603,7 @@ void draw_rules_interface (int len_x, int len_y)
 	float window_ratio = (float) len_x / 640.0f;
 
 	y = 66*window_ratio;
-    
+
 	if ((countdown <= 0) && (read_all_rules))
 	{
 		widget_unset_flag(rules_root_win, rules_root_accept_id, WIDGET_DISABLED);
@@ -529,10 +631,10 @@ void draw_rules_interface (int len_x, int len_y)
 	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - 40 * window_ratio, str, 0);
 	
 	set_font(3);
-	draw_rules (display_rules, rule_offset, diff + 30 * window_ratio, 60 * window_ratio, len_y + diff / 2 - 50, len_y - 140 * window_ratio, 1.0f, rules_winRGB);
+	draw_rules (display_rules, diff + 30 * window_ratio, 60 * window_ratio, len_y + diff / 2 - 50, 360 * window_ratio, 1.0f, rules_winRGB);
 	set_font(0);
 
-    	glDisable (GL_ALPHA_TEST);
+	glDisable (GL_ALPHA_TEST);
 }
 
 int rules_root_win = -1;
@@ -541,7 +643,7 @@ int display_rules_root_handler (window_info *win)
 {
 	if (SDL_GetAppState () & SDL_APPACTIVE)
 	{	
-		if(rule_offset < 0)rule_offset=0;
+		if(virt_win_offset < 0) virt_win_offset=0;
 		draw_console_pic (cons_text);
 		draw_rules_interface (win->len_x, win->len_y);
 		CHECK_GL_ERRORS();
@@ -554,7 +656,7 @@ int display_rules_root_handler (window_info *win)
 int mouseover_rules_root_handler (window_info *win, int mx, int my)
 {
 	int i;
-	rule_string *rules_ptr = display_rules + rule_offset;
+	rule_string *rules_ptr = display_rules;
 
 	for (i = 0; rules_ptr[i].type != -1 && rules_ptr[i].y_start < win->len_y; i++)
 	{
@@ -578,7 +680,7 @@ void switch_rules_to_next ()
 
 int rules_root_scroll_handler ()
 {
-	rule_offset = vscrollbar_get_pos (rules_root_win, rules_root_scroll_id);
+	virt_win_offset = vscrollbar_get_pos (rules_root_win, rules_root_scroll_id);
 	return 1;
 }
 
@@ -591,7 +693,7 @@ int click_rules_root_accept ()
 int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	int i;
-	rule_string *rules_ptr = display_rules + rule_offset;
+	rule_string *rules_ptr = display_rules;
 
 	if(flags&ELW_WHEEL_UP) {
 		vscrollbar_scroll_up(rules_root_win, rules_root_scroll_id);
@@ -607,6 +709,7 @@ int click_rules_root_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (mx > rules_ptr[i].x_start && mx < rules_ptr[i].x_end && my > rules_ptr[i].y_start && my < rules_ptr[i].y_end)
 			{
 				rules_ptr[i].show_long_desc = !rules_ptr[i].show_long_desc;
+				recalc_virt_win_len = 1;
 				return 1;
 				break;
 			}
@@ -624,12 +727,12 @@ int keypress_rules_root_handler (window_info *win, int mx, int my, Uint32 key, U
 	{
 		return 1;
 	}
-	else if (keysym == SDLK_DOWN && !reached_end)
+	else if (keysym == SDLK_DOWN)
 	{
 		vscrollbar_scroll_down(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
 	}
-	else if (keysym == SDLK_UP && rule_offset > 0)
+	else if (keysym == SDLK_UP)
 	{
 		vscrollbar_scroll_up(rules_root_win, rules_root_scroll_id);
 		rules_root_scroll_handler();
