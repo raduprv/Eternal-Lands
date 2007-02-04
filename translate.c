@@ -162,6 +162,8 @@ char
 	mixall_str[10],
 	clear_str[6],
 	reset_str[6],
+	manu_add_str[60],
+	manu_remove_str[60],
 	/*multiplayer.c*/
 	connect_to_server_str[50],
 	reconnect_str[50],
@@ -1017,6 +1019,8 @@ void init_help()
 	add_xml_identifier(misc,"mix_all",mixall_str,"Mix all",sizeof(mixall_str));
 	add_xml_identifier(misc,"dropall",drop_all_str,"Drop All",sizeof(drop_all_str));
 	add_xml_identifier(misc,"clear",clear_str,"Clear",sizeof(clear_str));
+	add_xml_identifier(misc,"manu_add",manu_add_str,"Left-click or scrollwheel to add 1; or 10 with CTRL",sizeof(manu_add_str));
+	add_xml_identifier(misc,"manu_remove",manu_remove_str,"Left-click or scrollwheel to remove 1; or 10 with CTRL",sizeof(manu_remove_str));
 	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
 	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
 	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",sizeof(reconnect_str));

@@ -323,18 +323,41 @@ int mixall_handler()
   return mix_handler(255);
 }
 
+/* mouse over slots - show tool tips */
+int mouseover_manufacture_slot_handler(window_info *win, int mx, int my)
+{
+	int pos;
+	if (!show_help_text)
+		return 0;
+
+	/* see if we clicked on any item in the main category */
+	pos=get_mouse_pos_in_grid(mx, my, 12, 3, 0, 0, 33, 33);
+	if (pos >= 0 && manufacture_list[pos].quantity > 0){
+		show_help(manu_add_str, 0, manufacture_menu_y_len+10);
+	}
+
+	/* see if we clicked on any item from the "production pipe" */
+	pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
+	if (pos >= 0 && manufacture_list[36+pos].quantity > 0){
+		show_help(manu_remove_str, 0, manufacture_menu_y_len+10);
+	}
+	return 0;
+}
+
 /* mouse over ">" button - show tool tip */
 int mouseover_mixone_handler(window_info *win, int mx, int my)
 {
-  show_help(mix_str, 33*6+25, manufacture_menu_y_len+10);
+	if (show_help_text)
+		show_help(mix_str, 33*6+25, manufacture_menu_y_len+10);
 	return 0;
 }
 
 /* mouse over ">>" button - show tool tip */
 int mouseover_mixall_handler(window_info *win, int mx, int my)
 {
-  show_help(mixall_str, 33*8-5, manufacture_menu_y_len+10);
-  return 0;
+	if (show_help_text)
+		show_help(mixall_str, 33*8-5, manufacture_menu_y_len+10);
+	return 0;
 }
 
 void display_manufacture_menu()
@@ -352,6 +375,7 @@ void display_manufacture_menu()
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );
+		set_window_handler(manufacture_win, ELW_HANDLER_MOUSEOVER, &mouseover_manufacture_slot_handler );
 
 		mixone_button_id=button_add_extended(manufacture_win, mixone_button_id,
 			NULL, 33*6+15, manufacture_menu_y_len-36, 43, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, ">");

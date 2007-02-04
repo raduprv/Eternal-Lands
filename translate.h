@@ -287,6 +287,8 @@ extern char
 		mixall_str[10],
 		clear_str[6], 
 		reset_str[6],
+		manu_add_str[60],
+		manu_remove_str[60],
 		/*multiplayer.c*/
 		connect_to_server_str[50],
 		reconnect_str[50],
