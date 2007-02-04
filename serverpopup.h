@@ -7,6 +7,6 @@ extern int server_popup_win_y;
 extern int use_server_pop_win;
 extern int server_pop_chan;
 
-void display_server_popup_win(const Uint8 *message);
+void display_server_popup_win(const Uint8 * const message);
 
 #endif
