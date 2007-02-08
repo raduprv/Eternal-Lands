@@ -7,7 +7,6 @@
 #define __WEATHER_H__
 
 extern int use_fog;			/*!< Whether we are using fog or not */
-void init_weather();
 void start_weather(int seconds_till_start, float severity);
 void stop_weather(int seconds_till_stop, float severity);
 void clear_weather();
@@ -102,6 +101,8 @@ void get_weather_light_level();
  *
  */
 void clear_thunders();
+
+void init_weather();
 
 #endif	//NEW_WEATHER
 

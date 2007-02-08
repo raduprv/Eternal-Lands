@@ -392,7 +392,9 @@ char	reg_error_str[15],
 	init_lights_str[35],
 	init_logs_str[35],
 	read_config_str[35],
+#ifndef NEW_WEATHER
 	init_weather_str[35],
+#endif //NEW_WEATHER
 	init_audio_str[35],
 	load_icons_str[35],
 	load_textures_str[35],
@@ -760,7 +762,9 @@ void init_console()
 	add_xml_identifier(loading_msg,"init_lights",init_lights_str,"Initializing lights",sizeof(init_lights_str));
 	add_xml_identifier(loading_msg,"init_logs",init_logs_str,"Initializing logs",sizeof(init_logs_str));
 	add_xml_identifier(loading_msg,"read_config",read_config_str,"Reading configuration",sizeof(read_config_str));
+#ifndef NEW_WEATHER
 	add_xml_identifier(loading_msg,"init_weather",init_weather_str,"Initializing weather",sizeof(init_weather_str));
+#endif //NEW_WEATHER
 	add_xml_identifier(loading_msg,"init_audio",init_audio_str,"Initializing audio",sizeof(init_audio_str));
 	add_xml_identifier(loading_msg,"load_icons",load_icons_str,"Loading icons",sizeof(load_icons_str));
 	add_xml_identifier(loading_msg,"load_textures",load_textures_str,"Loading textures",sizeof(load_textures_str));

@@ -3,36 +3,65 @@
 #include "global.h"
 #include "lights.h"
 
-#define MAX_RAIN_DROPS 25000
-
 typedef struct {
-	float x1[3], x2[3]; // vertices
+	float x1[3];
+#ifndef NEW_WEATHER
+	float x2[3]; // vertices
+#endif //!NEW_WEATHER
 } rain_drop;
 
 rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 int use_fog = 1;
 
-#ifdef DEBUG
-GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
-#else
-static GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f }; // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
-#endif
-
-
 #ifdef NEW_WEATHER
 
-#define WEATHER_TYPE     0x07
-#define WEATHER_NONE     0x00
-#define WEATHER_RAIN     0x01
-#define WEATHER_SNOW     0x02
-#define WEATHER_SAND     0x03
-#define WEATHER_TYPE4    0x04
-#define WEATHER_TYPE5    0x05
-#define WEATHER_TYPE6    0x06
-#define WEATHER_TYPE7    0x07
-#define WEATHER_ACTIVE   0x08
-#define WEATHER_STARTING 0x10
-#define WEATHER_STOPPING 0x20
+#define MAX_ZONES 50
+#define ZONE_BOUNDARY 25
+
+#define MAX_RAIN_DROPS 100000
+
+#define RAND_ONE ((float)rand() / RAND_MAX)
+
+typedef struct {
+	int min_x;
+	int max_x;
+	int min_y;
+	int max_y;
+	int type;
+} weatherzone_t;
+
+weatherzone_t weatherzone[MAX_ZONES];
+
+int wind_speed_srv = 0,	//strength of wind, as set by server. 100 is about the max
+	wind_direction_srv = 0,	//wind direction, in degrees, as set by server. 0 and 360 == north
+	wind_speed_variance = 5,	//how much variance in wind speed to randomize. typically 1-5
+	wind_direction_variance = 360,	//how much variance in wind direction to randomize. typically 0-30
+	wind_speed = 0,	//strength of wind, based on server's setting and local randomization
+	wind_direction = 0;	//wind direction, based on server's setting and local randomization
+
+#define WEATHER_TYPES 7	//including NONE
+
+float weather_ratios[WEATHER_TYPES] = {	//Warning! must always add up to 1.0f!
+	1.00f,	//WEATHER_NONE
+	0.00f,	//WEATHER_RAIN
+	0.00f,	//WEATHER_SNOW
+	0.00f,	//WEATHER_HAIL
+	0.00f,	//WEATHER_SAND
+	0.00f,	//WEATHER_DUST
+	0.00f	//WEATHER_LAVA
+};
+
+#define WEATHER_NONE	0x00
+#define WEATHER_RAIN	0x01
+#define WEATHER_SNOW	0x02
+#define WEATHER_HAIL	0x03
+#define WEATHER_SAND	0x04
+#define WEATHER_DUST	0x05
+#define WEATHER_LAVA	0x06
+#define WEATHER_TYPE7	0x07
+#define WEATHER_ACTIVE	0x08
+#define WEATHER_STARTING	0x10
+#define WEATHER_STOPPING	0x20
 
 #define WEATHER_DARKEN     30000 // ms
 #define WEATHER_FADEIN     30000 // ms
@@ -40,7 +69,6 @@ static GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f }; // glBlendFunc(GL_SR
 #define WEATHER_CLEAROFF   WEATHER_DARKEN // need to be equal
 #define WEATHER_AFTER_FADE  5000 // ms
 
-#define WEATHER_NUM_RAND 0x10000
 #define MAX_THUNDERS 20
 
 typedef struct {
@@ -54,61 +82,70 @@ Uint32 weather_start_time;
 Uint32 weather_stop_time;
 Uint32 weather_time;
 float weather_severity = 1.0;
+float severity_mod = 0.0f;
 
-const float snow_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-const float sand_color[4] = { 1.0f, 1.0f, 1.0f, 1.0f };
-const float default_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+const float precip_colour[][4] = { 
+	{ 0.0f, 0.0f, 0.0f, 0.00f },	//WEATHER_NONE
+	{ 0.5f, 0.5f, 0.5f, 0.80f },	//WEATHER_RAIN
+	{ 0.8f, 0.9f, 1.0f, 0.70f },	//WEATHER_SNOW
+	{ 0.6f, 0.8f, 1.0f, 1.00f },	//WEATHER_HAIL
+	{ 1.0f, 0.85f, 0.0f, 0.9f },	//WEATHER_SAND
+	{ 0.5f, 0.3f, 0.1f, 0.75f },	//WEATHER_DUST
+	{ 0.75f, 0.0f, 0.0f, 1.0f } };	//WEATHER_LAVA
 
-const float
-	min_fog = 0.03f,
-	rain_fog = 0.15f,
-	snow_fog = 0.15f,
-	sand_fog = 0.15f;
+const float min_fog = 0.01f;
+const float fog_level[WEATHER_TYPES] = {
+	0.00f,	//WEATHER_NONE
+	0.15f,	//WEATHER_RAIN
+	0.10f,	//WEATHER_SNOW
+	0.10f,	//WEATHER_HAIL
+	0.15f,	//WEATHER_SAND
+	0.10f,	//WEATHER_DUST
+	0.05f	//WEATHER_LAVA
+};
+const float precip_z_delta[WEATHER_TYPES] = {
+	0.00f,	//WEATHER_NONE
+	0.25f,	//WEATHER_RAIN
+	0.005f,	//WEATHER_SNOW
+	0.75f,	//WEATHER_HAIL
+	0.04f,	//WEATHER_SAND
+	0.005f,	//WEATHER_DUST
+	0.05f	//WEATHER_LAVA
+};
+const float precip_wind_effect[WEATHER_TYPES] = {
+	0.00f,	//WEATHER_NONE
+	2.50f,	//WEATHER_RAIN
+	0.10f,	//WEATHER_SNOW
+	0.05f,	//WEATHER_HAIL
+	1.50f,	//WEATHER_SAND
+	0.50f,	//WEATHER_DUST
+	1.00f	//WEATHER_LAVA
+};
+const float precip_part_per[WEATHER_TYPES] = {
+	0.00f,	//WEATHER_NONE
+	0.75f,	//WEATHER_RAIN
+	1.00f,	//WEATHER_SNOW
+	0.25f,	//WEATHER_HAIL
+	1.00f,	//WEATHER_SAND
+	1.00f,	//WEATHER_DUST
+	0.01f	//WEATHER_LAVA
+};
 
-int weather_rand_index = 0;
-int weather_rand_values[WEATHER_NUM_RAND];
 
 thunder thunders[MAX_THUNDERS];
 int num_thunders = 0;
 Uint32 lightning_stop = 0;
 
-float fog_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
+float rain_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 float fog_alpha;
 
-long get_weather_type();
 float get_fadein_bias();
 float get_fadeout_bias();
 float get_fadeinout_bias();
 float interpolate(float affinity, float first, float second);
-void weather_srand(int seed);
-int weather_rand();
 void update_rain(int ticks, int num_rain_drops);
 void render_rain(int num_rain_drops);
-void update_snow(int ticks, float severity);
-void render_snow(float severity);
-void update_sand(int ticks, float severity);
-void render_sand(float severity);
 
-long get_weather_type()
-{
-	long result;
-
-	switch (map_flags & (PLAINS|SNOW|DESERT)) {
-#ifdef DEBUG
-		case 0:      result = WEATHER_RAIN; break;
-#else
-		case 0:      result = WEATHER_NONE; break;
-#endif
-		case PLAINS: result = WEATHER_RAIN; break;
-		case SNOW:   result = WEATHER_SNOW; break;
-		case DESERT: result = WEATHER_SAND; break;
-		default:
-			LOG_TO_CONSOLE(c_red2, "Invalid map flags, combination of PLAINS, SNOW and DESERT not allowed");
-			result = WEATHER_NONE;
-	}
-
-	return result;
-}
 
 /*
  * |<-----seconds_till_start----->|<--WEATHER_FADEIN-->|                   
@@ -199,33 +236,66 @@ float get_fadeinout_bias()
 	}
 }
 
+
+float precip_avg(float* ary){
+	float total = 0.0f;
+	int i;
+	for(i = 0; i < WEATHER_TYPES; ++i){
+		total += ary[i] * weather_ratios[i];
+	}
+	return total;
+}
+
+
+void set_rain_color(void){
+	int i, j;
+	for(i = 0; i < 4; ++i){
+		rain_color[i] = 0.0f;
+		for(j = 0; j < WEATHER_TYPES; ++j){
+			rain_color[i] += precip_colour[j][i] * weather_ratios[j];
+		}
+	}
+}
+
 float interpolate(float affinity, float first, float second)
 {
 	// Lachesis: I like linear interpolation, but cosine would work too
 	return (1.0f - affinity)*first + affinity*second;
 }
 
-void weather_srand(int seed) 
-{
-	int i;
 
-	srand(seed);
-	for (i = 0; i < WEATHER_NUM_RAND; i++) {
-		weather_rand_values[i] = rand();
-	}
-
-	weather_rand_index = 0;
+void __inline__ make_rain_drop(int i, float x, float y, float z){
+	rain_drops[i].x1[0] = x + 20.0f * RAND_ONE - 10.0f;
+	rain_drops[i].x1[1] = y + 20.0f * RAND_ONE - 10.0f;
+	rain_drops[i].x1[2] = z + 10.0f * RAND_ONE +  2.0f;
 }
 
-int weather_rand() {
-	int result = weather_rand_values[weather_rand_index];
-	weather_rand_index = (weather_rand_index + 1) % WEATHER_NUM_RAND;
-	return result;
+void update_wind(void){
+	int dir_d = wind_direction_srv + (int)((float)(RAND_ONE * wind_direction_variance * 2 - wind_direction_variance));
+	int speed_d = wind_speed_srv + (int)((float)(RAND_ONE * wind_speed_variance * 2 - wind_speed_variance));
+	if(dir_d < wind_direction){
+		--wind_direction;
+	} else if(dir_d > wind_direction){
+		++wind_direction;
+	}
+	wind_direction %= 360;
+	if(speed_d <= 0){
+		speed_d = 0;
+	} else if(speed_d > 1000){
+		speed_d = 1000;
+	}
+	if(speed_d < wind_speed){
+		--wind_speed;
+	} else if(speed_d > wind_speed){
+		++wind_speed;
+	}
 }
 
 void update_rain(int ticks, int num_rain_drops)
 {
-	int i; float x, y, z;
+	int i; float x, y, z, wind_effect, x_move, y_move, max_part;
+	double z_delta;
+	char tmp[200];
 
 	if (num_rain_drops > MAX_RAIN_DROPS) num_rain_drops = MAX_RAIN_DROPS;
 
@@ -239,56 +309,45 @@ void update_rain(int ticks, int num_rain_drops)
 	z = your_actor->z_pos; 
 	UNLOCK_ACTORS_LISTS();
 
-	if (ticks) {
+	z_delta = precip_avg(&precip_z_delta)*ticks/100.0f;
+	wind_effect = precip_avg(&precip_wind_effect)/1000.0f;
+	max_part = precip_avg(&precip_part_per);
+	x_move = wind_effect * ( sinf((float)wind_direction*M_PI/180) * wind_speed );
+	y_move = wind_effect * ( cosf((float)wind_direction*M_PI/180) * wind_speed );
+
+	if (ticks > 0) {
 		// update
-		for(i=0;i<num_rain_drops;i++)
-		{
-			if(rain_drops[i].x1[2] < -1.0f)
-			{
-				rain_drops[i].x1[0] = x + 20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
-				rain_drops[i].x1[1] = y + 20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
-				rain_drops[i].x1[2] = z + 10.0f * ((float)weather_rand() / RAND_MAX) +  2.0f;
-				rain_drops[i].x2[0] = rain_drops[i].x1[0];
-				rain_drops[i].x2[1] = rain_drops[i].x1[1];
-				rain_drops[i].x2[2] = rain_drops[i].x1[2] - 0.08f;
+		for(i=0;i<num_rain_drops;i++){
+			if(rain_drops[i].x1[2] < -1.0f){
+				//is it below the ground? if so, do we redraw it?
+				if(i < max_part*num_rain_drops){
+					make_rain_drop(i, x, y, z);
+				}
 			} else {
-				rain_drops[i].x1[2] -= 0.03f*ticks;
-				rain_drops[i].x2[2] -= 0.03f*ticks;
+				//it's moving. so find out how much by, and wrap around the X/Y if it's too far away (as wind can cause)
+				rain_drops[i].x1[0] += x_move*(1.1-0.2*RAND_ONE);
+				if(rain_drops[i].x1[0] < x - 20.0f){
+					rain_drops[i].x1[0] = x + 20.0f;
+				} else if(rain_drops[i].x1[0] > x + 20.0f){
+					rain_drops[i].x1[0] = x - 20.0f;
+				}
+				rain_drops[i].x1[1] += y_move*(1.1-0.2*RAND_ONE);
+				if(rain_drops[i].x1[1] < y - 20.0f){
+					rain_drops[i].x1[1] = y + 20.0f;
+				} else if(rain_drops[i].x1[1] > y + 20.0f){
+					rain_drops[i].x1[1] = y - 20.0f;
+				}
+				rain_drops[i].x1[2] -= z_delta;
 			}
 		}
 	} else {
 		// init
-		for(i=0;i<MAX_RAIN_DROPS;i++)
-		{
-			rain_drops[i].x1[0] = x +  20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
-			rain_drops[i].x1[1] = y +  20.0f * ((float)weather_rand() / RAND_MAX) - 10.0f;
-			rain_drops[i].x1[2] = z +  10.0f * ((float)weather_rand() / RAND_MAX) + 10.0f;
-			rain_drops[i].x2[0] = rain_drops[i].x1[0];
-			rain_drops[i].x2[1] = rain_drops[i].x1[1];
-			rain_drops[i].x2[2] = rain_drops[i].x1[2] - 0.08f;
+		for(i=0;i<max_part*num_rain_drops;i++){
+			make_rain_drop(i, x, y, z);
 		}
 	}
 }
 
-void update_snow(int ticks, float severity)
-{
-}
-
-void render_snow(float severity)
-{
-}
-
-void update_sand(int ticks, float severity)
-{
-}
-
-void render_sand(float severity)
-{
-}
-
-void init_weather() {
-	weather_srand(SDL_GetTicks());
-}
 
 void start_weather(int seconds_till_start, float severity)
 {
@@ -296,13 +355,10 @@ void start_weather(int seconds_till_start, float severity)
 	if (weather_flags & WEATHER_STARTING) {
 		LOG_TO_CONSOLE(c_red2, "Premature start of weather effect!");
 	}
-
 	// mark time when effect is intended to start
 	weather_start_time = weather_time + 1000*seconds_till_start;
 	// severity of effect
 	weather_severity = severity;
-	// determine type of effect
-	weather_flags = (weather_flags & ~WEATHER_TYPE) | get_weather_type();
 	// switch weather on
 	weather_flags |= WEATHER_ACTIVE | WEATHER_STARTING; 
 }
@@ -313,8 +369,6 @@ void stop_weather(int seconds_till_stop, float severity)
 		// We missed the start. So let's set up the data
 		// severity of effect
 		weather_severity = severity;
-		// determine type of effect
-		weather_flags = (weather_flags & ~WEATHER_TYPE) | get_weather_type();
 	} else {
 		if (weather_flags & WEATHER_STOPPING) {
 			// WTH? we are already stopping!
@@ -327,24 +381,57 @@ void stop_weather(int seconds_till_stop, float severity)
 	weather_flags |= WEATHER_ACTIVE | WEATHER_STOPPING;
 }
 
-void clear_weather() {
+void clear_weather(){
+	int i=0, len;
+	char weatherzone_file_name[256];
+	FILE *fp;
+	char strLine[255];
+	char *tmp;
+
+	memset (weatherzone, 0, sizeof(weatherzone));
+
+	tmp = strrchr(map_file_name, '/');
+	if (tmp == NULL){
+		tmp = map_file_name;
+	} else {
+		tmp++;
+	}
+	snprintf (weatherzone_file_name, sizeof (weatherzone_file_name), "./maps/%s", tmp);
+	len = strlen (weatherzone_file_name);
+	tmp = strrchr (weatherzone_file_name, '.');
+	if (tmp == NULL){
+		tmp = &weatherzone_file_name[len];
+	} else {
+		tmp++;
+	}
+	len -= strlen(tmp);
+	snprintf (tmp, sizeof (weatherzone_file_name) - len, "elw");
+
+	// don't consider absence of weather zones file an error, so don't use my_fopen
+	fp=fopen(weatherzone_file_name,"r");
+	if (fp == NULL){
+		weatherzone[0].min_x = weatherzone[0].min_y = 0;
+		weatherzone[0].max_x = 6*tile_map_size_x;
+		weatherzone[0].max_y = 6*tile_map_size_y;
+		weatherzone[0].type = WEATHER_RAIN;
+		return;
+	}
+
+	while(1){
+		fscanf(fp,"%d %d %d %d %d",&weatherzone[i].min_x,&weatherzone[i].min_y,&weatherzone[i].max_x,&weatherzone[i].max_y,&weatherzone[i].type);
+		i++;
+		if(!fgets(strLine, 100, fp))break;
+	}
+	fclose(fp);
 	weather_flags = WEATHER_NONE;
 	num_thunders = 0;
 }
 
-int weather_use_fog()
-{
+int weather_use_fog(){
 	if (!use_fog) return 0;
-	switch (weather_flags & (WEATHER_TYPE|WEATHER_ACTIVE))
-	{
-		case WEATHER_RAIN|WEATHER_ACTIVE: 
-		case WEATHER_SNOW|WEATHER_ACTIVE: 
-		case WEATHER_SAND|WEATHER_ACTIVE: 
-			return 1;
-		default:
-			return 0;
-	}
+	return weather_flags&WEATHER_ACTIVE;
 }
+
 
 void render_fog()
 {
@@ -354,27 +441,11 @@ void render_fog()
 	float particle_alpha, diffuse_bias, tmpf;
 	char have_particles;
 
-	// if weather effect is active, get type-dependent data
-	switch (weather_flags & (WEATHER_TYPE|WEATHER_ACTIVE)) {
-		case WEATHER_RAIN|WEATHER_ACTIVE: 
-			density = interpolate(current_severity, min_fog, rain_fog);
-			memcpy(fog_color, rain_color, sizeof(fog_color));
-			have_particles = 1;
-			break;
-		case WEATHER_SNOW|WEATHER_ACTIVE: 
-			density = interpolate(current_severity, min_fog, snow_fog); 
-			memcpy(fog_color, snow_color, sizeof(fog_color));
-			have_particles = 1;
-			break;
-		case WEATHER_SAND|WEATHER_ACTIVE: 
-			density = interpolate(current_severity, min_fog, sand_fog); 
-			memcpy(fog_color, sand_color, sizeof(fog_color));
-			have_particles = 1;
-			break;
-		default: 
-			density = min_fog;
-			memcpy(fog_color, default_color, sizeof(fog_color));
-			have_particles = 0;
+	if(weather_flags & WEATHER_ACTIVE){
+		density = interpolate(current_severity, min_fog, precip_avg(&fog_level));
+		have_particles = 1;
+	} else {
+		have_particles = 0;
 	}
 
 	// estimate portion of scene colours that the fog covers
@@ -382,7 +453,7 @@ void render_fog()
 	fog_alpha = 1.0f - tmpf*tmpf;
 
 	// estimate portion of scene colours that the particles cover
-	particle_alpha = (have_particles)? 0.2f*fog_color[3]*current_severity : 0.0f;
+	particle_alpha = (have_particles)? 0.2f*rain_color[3]*current_severity : 0.0f;
 	// in dungeons and at night we use smaller light sources ==> less diffuse light
 	diffuse_bias = (dungeon || !is_day)? 0.2f : 0.5f;
 
@@ -392,27 +463,27 @@ void render_fog()
 		float tmp = 0.5f*sun_ambient_light[i] + diffuse_bias*difuse_light[i];
 		if (have_particles) {
 			// blend base color with weather particle color
-			fog_color[i] = interpolate(particle_alpha, tmp, fog_color[i]);
+			rain_color[i] = interpolate(particle_alpha, tmp, rain_color[i]);
 		} else {
-			fog_color[i] = tmp;
+			rain_color[i] = tmp;
 		}
 	}
 
 	// set clear color to fog color
-	glClearColor(fog_color[0], fog_color[1], fog_color[2], 0.0f);
+	glClearColor(rain_color[0], rain_color[1], rain_color[2], 0.0f);
 
 	// set fog parameters
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_EXP2);
 	glFogf(GL_FOG_DENSITY, density);
-	glFogfv(GL_FOG_COLOR, fog_color);
+	glFogfv(GL_FOG_COLOR, rain_color);
 }
 
 void weather_color_bias(const float * src, float * dst) {
 	int i;
 
 	for (i = 0; i < 3; i++) {
-		dst[i] = interpolate(fog_alpha, src[i], fog_color[i]);
+		dst[i] = interpolate(fog_alpha, src[i], rain_color[i]);
 	}
 
 	dst[3] = src[3];
@@ -421,30 +492,72 @@ void weather_color_bias(const float * src, float * dst) {
 void render_weather()
 {
 	static Uint32 last_frame = 0;
+	int tx=-cx*2, ty=-cy*2, i=0;
+	float weather_counts[WEATHER_TYPES], weather_ttl = 0.000001f, tempf1 = 0.0f, tempf2 = 0.0f;
 
 	weather_time = SDL_GetTicks();
 
+	update_wind();
+
+	for(i = 0; i < WEATHER_TYPES; ++i){
+		weather_counts[i] = 0.0f;
+	}
+
+	for(i = 0; i < MAX_ZONES && weatherzone[i].max_x > 0; ++i){
+		if(tx < weatherzone[i].min_x - ZONE_BOUNDARY ||
+			tx > weatherzone[i].max_x + ZONE_BOUNDARY ||
+			ty < weatherzone[i].min_y - ZONE_BOUNDARY ||
+			ty > weatherzone[i].max_y + ZONE_BOUNDARY){
+				continue;	//out of range
+		}
+		if(tx > weatherzone[i].min_x + ZONE_BOUNDARY &&
+			tx < weatherzone[i].max_x - ZONE_BOUNDARY &&
+			ty > weatherzone[i].min_y + ZONE_BOUNDARY &&
+			ty < weatherzone[i].max_y - ZONE_BOUNDARY){
+				weather_counts[weatherzone[i].type] += 1.0f;	//fully in range
+				continue;
+		}
+		//it's within the zone boundary. now we figure how close it is
+		if(tx > weatherzone[i].min_x && tx < weatherzone[i].max_x){
+			tempf1 = 0.0f;
+		} else if(tx < weatherzone[i].min_x){
+			tempf1 = weatherzone[i].min_x - tx;
+		} else {
+			tempf1 = tx - weatherzone[i].max_x;
+		}
+		if(ty > weatherzone[i].min_y && ty < weatherzone[i].max_y){
+			tempf2 = 0.0f;
+		} else if(ty < weatherzone[i].min_y){
+			tempf2 = weatherzone[i].min_y - ty;
+		} else {
+			tempf2 = ty - weatherzone[i].max_y;
+		}
+		if(tempf2 > tempf1){
+			tempf1 = tempf2;
+		}
+		weather_counts[weatherzone[i].type] += 1.0f - ( tempf1 / ZONE_BOUNDARY );
+	}
+	for(i = 0; i < WEATHER_TYPES; ++i){
+		weather_ttl += weather_counts[i];
+	}
+	if(weather_ttl < 1.0f){
+		severity_mod = weather_ttl;
+	} else {
+		severity_mod = 1.0f;
+	}
+	for(i = 0; i < WEATHER_TYPES; ++i){
+		weather_ratios[i] = weather_counts[i] / weather_ttl;
+	}
 	if (weather_flags & WEATHER_ACTIVE) {
 		// 0 means initialization
 		Uint32 ticks = last_frame? weather_time - last_frame : 0;
-		float severity = weather_severity * get_fadeinout_bias();
+		float severity = weather_severity * severity_mod * get_fadeinout_bias();
 		int num_rain_drops;
 
 		// update and render view
-		switch (weather_flags & WEATHER_TYPE) {
-			case WEATHER_RAIN:
-				num_rain_drops = MAX_RAIN_DROPS * severity;
-				update_rain(ticks, num_rain_drops);
-				render_rain(num_rain_drops);
-				break;
-			case WEATHER_SNOW:
-				update_snow(ticks, severity);
-				render_snow(severity);
-				break;
-			case WEATHER_SAND:
-				update_sand(ticks, severity);
-				render_sand(severity);
-		}
+		num_rain_drops = MAX_RAIN_DROPS * severity;
+		update_rain(ticks, num_rain_drops);
+		render_rain(num_rain_drops);
 
 		last_frame = weather_time;
 
@@ -539,7 +652,7 @@ float weather_bias_light(float value)
 
 	if (weather_time >= last_call + 10) {
 		if (weather_time < lightning_stop) {
-			lightning = (weather_rand() <= RAND_MAX/2);
+			lightning = (RAND_ONE < 0.5f);
 		} else {
 			lightning = 0;
 		}
@@ -585,23 +698,19 @@ void weather_sound_control()
 	if (weather_flags & WEATHER_ACTIVE)
 	{
 		// 0 means initialization
-		float severity = weather_severity * get_fadeinout_bias();
+		float severity = weather_severity * severity_mod * get_fadeinout_bias();
 		int source_state;
 		int i;
 
-		// update and render view
-		switch (weather_flags & WEATHER_TYPE)
-		{
-			case WEATHER_RAIN:
+		if(weather_ratios[WEATHER_RAIN] > 0.0f){
 #ifdef NEW_SOUND
-				sound_source_set_gain(rain_sound,severity);
+			sound_source_set_gain(rain_sound,severity*weather_ratios[WEATHER_RAIN]);
 #else
-				alSourcef(rain_sound, AL_GAIN, severity);
-				alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
-				if (source_state != AL_PLAYING) alSourcePlay(rain_sound);
+			alSourcef(rain_sound, AL_GAIN, severity*weather_ratios[WEATHER_RAIN]);
+			alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
+			if (source_state != AL_PLAYING) alSourcePlay(rain_sound);
 #endif	//NEW_SOUND
-				break;
-			default:
+		} else {
 #ifdef NEW_SOUND
 				sound_source_set_gain(rain_sound,0.0f);
 #else
@@ -678,10 +787,20 @@ void add_thunder(int type, int sound_delay)
 	thunders[i].done = 0; // now allow timer thread to read
 
 	// start a lightning
-	lightning_stop = weather_time + 100 + (Uint32)((300.0f * (float)weather_rand()) / RAND_MAX);
+	lightning_stop = weather_time + 100 + (Uint32)(300.0f * RAND_ONE);
 }
 
-#else // def NEW_WEATHER
+#else // !def NEW_WEATHER
+
+#define MAX_RAIN_DROPS 25000
+
+#ifdef DEBUG
+GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
+#else
+static GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f }; // glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)
+#endif
+
+
 
 #define MAX_THUNDERS 5
 
@@ -1114,6 +1233,7 @@ void render_fog() {
 
 void render_rain(int num_rain_drops)
 {
+	//TODO: it'd be really nifty if the points close to the camera were rendered as a particle or similar, while the rest stay points
 	int idx, max;
 
 	if(num_rain_drops <= 0) return;
@@ -1124,14 +1244,20 @@ void render_rain(int num_rain_drops)
 	glDisable(GL_TEXTURE_2D);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+#ifdef NEW_WEATHER
+	set_rain_color();
+#endif //NEW_WEATHER
 	glColor4fv(rain_color);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	
 	glVertexPointer(3,GL_FLOAT,0,rain_drops);
 
 	// ATI hack ... sometimes problems with large arrays
-	idx= 0;
-	max= num_rain_drops;
+	idx = 0;
+	max = num_rain_drops;
+#ifdef NEW_WEATHER
+	max *= precip_avg(&precip_part_per);
+#endif //NEW_WEATHER
 	while(idx < max) {
 	    int num;
 		   
@@ -1139,7 +1265,11 @@ void render_rain(int num_rain_drops)
 		if(num > 3000){
 			num= 3000;
 		}
+#ifdef NEW_WEATHER
+	    glDrawArrays(GL_POINTS, idx, num);
+#else //!NEW_WEATHER
 	    glDrawArrays(GL_LINES, idx, num);
+#endif //NEW_WEATHER
 	    idx+= num;
 	}
 
