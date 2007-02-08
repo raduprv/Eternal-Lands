@@ -114,5 +114,6 @@ int http_get_file(char *server, char *path, FILE *fp);
  * 		The function initializes the custom looks auto update system and starts downloading if enabled
  */
 void    init_custom_update();
+extern int custom_update;
 
 #endif

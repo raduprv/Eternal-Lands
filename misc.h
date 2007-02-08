@@ -184,6 +184,7 @@ void open_web_link(char * url);
  */
 FILE *my_fopen (const char *fname, const char *mode);
 int file_exists(const char *fname);
+int	mkdir_tree(const char *file);
 
 #ifdef PNG_SCREENSHOT
 /*!

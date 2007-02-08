@@ -16,6 +16,16 @@
 #endif
 
 #define IMG_SetError(a) SDL_SetError(a)
+#ifndef S_ISDIR
+#define S_ISDIR(x) (((x) & S_IFMT) == S_IFDIR)
+#endif // S_ISDIR
+
+#ifdef WINDOWS
+#define MKDIR(file) mkdir(file)
+#else
+//#define MKDIR(file) (mkdir(file, S_IRWXU | S_IRWXG) || chmod(file, S_IRWXU | S_IRWXG | S_ISGID))
+#define MKDIR(file) (mkdir(file, S_IRWXU | S_IRWXG))
+#endif //WINDOWS
 
 Uint8 last_pixel_color[4];
 #ifdef	NEW_FRUSTUM
@@ -582,11 +592,7 @@ void makeScreenShot ()
 	ret = file_exists(fname);
 	if(ret == 0)
 	{
-#ifndef WINDOWS
-		if (mkdir(fname, 0755) < 0)
-#else //WINDOWS
-		if (mkdir(fname) < 0)
-#endif //!WINDOWS
+		if(MKDIR(fname) < 0)
 		{
 			LOG_ERROR ("Unable to create directory \"%s\"\n", fname);
 			return;
@@ -737,4 +743,55 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	if(str) {
 		draw_string_zoomed(xstr, y+radius/2.0f, str, lines, size);
 	}
+}
+
+int	mkdir_tree(const char *file)
+{
+	// First, check directory exists
+	char dir[1024];
+	char *slash;
+	struct stat stats;
+
+	strncpy(dir, file, 1024);
+	slash= dir;
+
+	// Skip over leading periods. this also prevents ../ accesses on purpose
+	while(*slash == '.'){
+		slash++;
+	}
+
+	// Skip over leading slashes.
+	while(*slash == '/'){
+		slash++;
+	}
+
+	while(slash){
+		// watch for hidden ..
+		if(*slash == '.' && slash[1] == '.'){
+			log_error("cannot create directory %s", dir);
+			return 0;
+		}
+		// find the next slash
+		slash= strchr(slash, '/');
+		if(slash == NULL){
+			break;
+		}
+
+		// place a NULL there to break the string up
+		*slash= '\0';
+		if(!(stat(dir, &stats) == 0 && S_ISDIR(stats.st_mode) ) )
+		if(MKDIR(dir)!= 0) {
+			log_error("cannot create directory %s", dir);
+			return 0;
+		}
+		// put the / back in, then advance past it
+		*slash++ = '/';
+
+		// Avoid unnecessary calls to mkdir when given
+		// file names containing multiple adjacent slashes.
+		while (*slash == '/'){
+			slash++;
+		}
+	}
+	return 1;
 }

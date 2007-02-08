@@ -19,18 +19,21 @@
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 int temp_counter;           // collision prevention during downloads just incase more then one ever starts
-int update_busy;            // state & lockout control to prevent two updates running at the saem rime
+int update_busy;            // state & lockout control to prevent two updates running at the same time
 char    update_server[128]; // the current server we are getting updates from
 int num_update_servers;
-char    *update_servers[32];    // we cant handle more then 32 different servers
+char *update_servers[32];	// we cant handle more then 32 different servers
+int is_this_files_lst= 0;	// files.lst changes its name if it is a custom update
+char files_lst[256]= {0};
 
 // we need a simple queue system so that the MD5 processing is in parallel with downloading
+#define	MAX_UPDATE_QUEUE_SIZE	32768
 SDL_mutex *download_mutex;
 int download_queue_size;
-char    *download_queue[256];
+char    *download_queue[MAX_UPDATE_QUEUE_SIZE];
 char    *download_cur_file;
-char    download_temp_file[256];
-Uint8	*download_MD5s[256];
+char    download_temp_file[1024];
+Uint8	*download_MD5s[MAX_UPDATE_QUEUE_SIZE];
 Uint8	*download_cur_md5;
 
 // initialize the auto update system, start the downloading
@@ -94,6 +97,8 @@ void    init_update()
 	
 	// start the process
 	if(download_mutex){
+		strcpy(files_lst, "files.lst");
+		is_this_files_lst= 1;
 		handle_update_download(NULL);
 	}
 }
@@ -115,8 +120,8 @@ void    handle_update_download(struct http_get_struct *get)
 			free(get);
 
 			// yes, lets start using the new file
-			remove("files.lst");
-			sts= rename("./tmp/temp000.dat", "files.lst");
+			remove(files_lst);
+			sts= rename("./tmp/temp000.dat", files_lst);
 
 			// trigger processing this file
 			if(!sts){
@@ -137,7 +142,7 @@ void    handle_update_download(struct http_get_struct *get)
 
 	// we need to download the update file if we get here
 	if(++update_attempt_count < 3){
-		char	filename[256];
+		char	filename[1024];
 		FILE    *fp;
 		
 		// select a server
@@ -166,17 +171,19 @@ void    handle_update_download(struct http_get_struct *get)
 		}
 		// failsafe, try to make sure the directory is there
 		if(mkdir_res < 0){
-#ifdef  WINDOWS
-			mkdir_res= mkdir("./tmp");
-#else   //WINDOWS
-			mkdir_res= mkdir("./tmp", 0777);
-#endif  //WINDOWS
+			mkdir_res= mkdir_tree("./tmp");
 		}
 		sprintf(filename, "./tmp/temp000.dat");
 		++temp_counter;
 		fp= my_fopen(filename, "wb+");
 		if(fp){
-			sprintf(filename, "http://%s/updates%d%d%d/files.lst", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE);
+			if(is_this_files_lst)	//files.lst
+			{
+			     sprintf(filename, "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, files_lst);
+			} else {	//custom_files.lst
+			     sprintf(filename, "http://%s/updates/%s", update_server, files_lst);
+			}
+			log_error("* server %s filename %s", update_server, filename);
 			http_threaded_get_file(update_server, filename, fp, NULL, EVENT_UPDATES_DOWNLOADED);
 		}
 		// and keep running until we get a response
@@ -204,9 +211,10 @@ int    do_threaded_update(void *ptr)
 	char    buffer[1024];
 	FILE    *fp;
 	char	*buf;
+	int	num_files= 0;
 	
 	// open the update file
-	fp= my_fopen("files.lst", "r");
+	fp= my_fopen(files_lst, "r");
 	if(fp == NULL){
 		// error, we stop processing now
 		update_busy= 0;
@@ -215,7 +223,7 @@ int    do_threaded_update(void *ptr)
 
 	buf= fgets(buffer, 1024, fp);
 	while(buf && !ferror(fp)){
-		char	filename[256];
+		char	filename[1024];
 		char    asc_md5[256];
 		Uint8	md5[16];
 		Uint8	digest[16];
@@ -249,6 +257,7 @@ int    do_threaded_update(void *ptr)
   				// if MD5's don't match, start a download
   				if(memcmp(md5, digest, 16) != 0){
 					add_to_download(filename, md5);
+					num_files++;
 				}
 			}
 		}
@@ -262,6 +271,12 @@ int    do_threaded_update(void *ptr)
 	}
 	update_busy= 0;
 
+#ifdef	CUSTOM_UPDATE
+	// watch for being able to do custom updates now
+	if(num_files == 0 && custom_update && is_this_files_lst){
+		init_custom_update();
+	}
+#endif	//CUSTOM_UPDATE
 	// all done
 	return(0);
 }
@@ -272,7 +287,7 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 	log_error("Download needed for %s", filename);
 	// lock the mutex
 	SDL_mutexP(download_mutex);
-	if(download_queue_size <256){
+	if(download_queue_size < MAX_UPDATE_QUEUE_SIZE){
 		// add the file to the list, and increase the count
 		download_queue[download_queue_size]= strdup(filename);
 		download_MD5s[download_queue_size]= calloc(1, 16);
@@ -281,7 +296,7 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 		
 		// start a thread if one isn't running
 		if(!download_cur_file){
-			char	buffer[256];
+			char	buffer[1024];
 			FILE    *fp;
 
 			snprintf(download_temp_file, sizeof(buffer), "./tmp/temp%03d.dat", ++temp_counter);
@@ -292,7 +307,13 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 				download_cur_file= download_queue[--download_queue_size];
 				download_cur_md5= download_MD5s[download_queue_size];
 				snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
-				buffer[sizeof(buffer)-1]= '\0';
+				if(is_this_files_lst){
+                    snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+                } else {
+                    snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+                }
+                buffer[sizeof(buffer)-1]= '\0';
+                log_error("@@ %s %s",update_server,buffer);
 				http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 			}
 		}
@@ -315,10 +336,14 @@ void    handle_file_download(struct http_get_struct *get)
 	SDL_mutexP(download_mutex);
 	if(get->status == 0){
 		// the download was successful
-		// replace the current file
-		// TODO: check for remove/rename errors
-		remove(download_cur_file);
-		sts= rename(download_temp_file, download_cur_file);
+		// check to see if the directory tree needs to be created
+		sts= mkdir_tree(download_cur_file)? 0:1;
+		if(!sts){
+			// replace the current file
+			// TODO: check for remove/rename errors
+			remove(download_cur_file);
+			sts= rename(download_temp_file, download_cur_file);
+		}
 
 		// check for errors
 		if(!sts){
@@ -327,7 +352,7 @@ void    handle_file_download(struct http_get_struct *get)
 				restart_required++;
 			}
 		} else {
-			log_error("Unable to finish processing of %d (%d)", download_cur_file, errno);
+			log_error("Unable to finish processing of %s (%d)", download_cur_file, errno);
 			// the final renamed failed, no restart permitted
 			allow_restart= 0;
 			restart_required= 0;
@@ -361,7 +386,11 @@ void    handle_file_download(struct http_get_struct *get)
 			// build the prope URL to download
 			download_cur_file= download_queue[--download_queue_size];
 			download_cur_md5= download_MD5s[download_queue_size];
-			snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+			if(is_this_files_lst) {
+                snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+			} else {
+                snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+			}
 			buffer[sizeof(buffer)-1]= '\0';
 			http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 		}
@@ -371,11 +400,19 @@ void    handle_file_download(struct http_get_struct *get)
 	if(!update_busy && restart_required && allow_restart && download_queue_size <= 0 && !download_cur_file){
 		// yes, now trigger a restart
 		log_error("Restart required because of update");
+		//TODO: display something on the screen for a little bit before restarting
 		exit_now= 1;
 	}
 
 	// unlock mutex
 	SDL_mutexV(download_mutex);
+
+#ifdef	CUSTOM_UPDATE
+	// watch for being able to do custom updates now
+	if(!update_busy && download_queue_size <= 0 && !download_cur_file && custom_update && is_this_files_lst){
+		init_custom_update();
+	}
+#endif	//CUSTOM_UPDATE
 }
 
 
@@ -459,7 +496,7 @@ int http_get_file(char *server, char *path, FILE *fp)
 	}
 	
 	// send the GET request, try to avoid ISP caching
-	snprintf(message, sizeof(message), "GET %s HTTP/1.0\r\nCACHE-CONTROL:NO-CACHE\r\n\r\n", path);
+	snprintf(message, sizeof(message), "GET %s HTTP/1.0\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, "autoupdate", FILE_VERSION);
 	len= strlen(message);
 	if(SDLNet_TCP_Send(http_sock,message,len) < len){
 		// close the socket to prevent memory leaks
@@ -531,6 +568,7 @@ void    init_custom_update()
 	}
 	// initialize variables
 	update_busy++;
+	allow_restart= 0;			// FAILSAFE: dont accidentally trigger a restart
 	update_attempt_count= 0;	// no downloads have been attempted
 	temp_counter= 0;			//start with download name with 0
 
@@ -546,7 +584,7 @@ void    init_custom_update()
 	// load the server list
 	num_update_servers= 0;
 	update_server[0]= '\0';
-	fp= my_fopen("custom.lst", "r");
+	fp= my_fopen("custom_mirrors.lst", "r");
 	if(fp){
 		char    buffer[1024];
 		char	*ptr;
@@ -580,7 +618,10 @@ void    init_custom_update()
 
 	// start the process
 	if(download_mutex){
+		strcpy(files_lst, "custom_files.lst");
+		is_this_files_lst= 0;
 		handle_update_download(NULL);
 	}
 }
 #endif  //CUSTOM_UPDATE
+
