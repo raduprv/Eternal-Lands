@@ -3,6 +3,12 @@
 #include "global.h"
 #include "lights.h"
 
+#ifdef NEW_WEATHER
+#define MAX_RAIN_DROPS 100000
+#else //!NEW_WEATHER
+#define MAX_RAIN_DROPS 25000
+#endif //NEW_WEATHER
+
 typedef struct {
 	float x1[3];
 #ifndef NEW_WEATHER
@@ -17,8 +23,6 @@ int use_fog = 1;
 
 #define MAX_ZONES 50
 #define ZONE_BOUNDARY 25
-
-#define MAX_RAIN_DROPS 100000
 
 #define RAND_ONE ((float)rand() / RAND_MAX)
 
@@ -791,8 +795,6 @@ void add_thunder(int type, int sound_delay)
 }
 
 #else // !def NEW_WEATHER
-
-#define MAX_RAIN_DROPS 25000
 
 #ifdef DEBUG
 GLfloat rain_color[4] = { 0.8f, 0.8f, 0.8f, 0.13f };
