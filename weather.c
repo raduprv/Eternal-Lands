@@ -90,7 +90,7 @@ float severity_mod = 0.0f;
 
 const float precip_colour[][4] = { 
 	{ 0.0f, 0.0f, 0.0f, 0.00f },	//WEATHER_NONE
-	{ 0.5f, 0.5f, 0.5f, 0.80f },	//WEATHER_RAIN
+	{ 0.5f, 0.5f, 0.5f, 0.60f },	//WEATHER_RAIN
 	{ 0.8f, 0.9f, 1.0f, 0.70f },	//WEATHER_SNOW
 	{ 0.6f, 0.8f, 1.0f, 1.00f },	//WEATHER_HAIL
 	{ 1.0f, 0.85f, 0.0f, 0.9f },	//WEATHER_SAND
@@ -241,8 +241,8 @@ float get_fadeinout_bias()
 }
 
 
-float precip_avg(float* ary){
-	float total = 0.0f;
+double precip_avg(const float * ary){
+	double total = 0.0f;
 	int i;
 	for(i = 0; i < WEATHER_TYPES; ++i){
 		total += ary[i] * weather_ratios[i];
@@ -258,6 +258,9 @@ void set_rain_color(void){
 		for(j = 0; j < WEATHER_TYPES; ++j){
 			rain_color[i] += precip_colour[j][i] * weather_ratios[j];
 		}
+	}
+	for(i = 0; i < 3; ++i){
+		rain_color[i] = interpolate(weather_severity/2.0f, rain_color[i], 0.5f*sun_ambient_light[i] + ((dungeon || !is_day)? 0.2f : 0.5f)*difuse_light[i]);
 	}
 }
 
@@ -313,9 +316,9 @@ void update_rain(int ticks, int num_rain_drops)
 	z = your_actor->z_pos; 
 	UNLOCK_ACTORS_LISTS();
 
-	z_delta = precip_avg(&precip_z_delta)*ticks/100.0f;
-	wind_effect = precip_avg(&precip_wind_effect)/1000.0f;
-	max_part = precip_avg(&precip_part_per);
+	z_delta = precip_avg(precip_z_delta)*ticks/100.0f;
+	wind_effect = precip_avg(precip_wind_effect)/1000.0f;
+	max_part = precip_avg(precip_part_per);
 	x_move = wind_effect * ( sinf((float)wind_direction*M_PI/180) * wind_speed );
 	y_move = wind_effect * ( cosf((float)wind_direction*M_PI/180) * wind_speed );
 
@@ -446,7 +449,7 @@ void render_fog()
 	char have_particles;
 
 	if(weather_flags & WEATHER_ACTIVE){
-		density = interpolate(current_severity, min_fog, precip_avg(&fog_level));
+		density = interpolate(current_severity, min_fog, precip_avg(fog_level));
 		have_particles = 1;
 	} else {
 		have_particles = 0;
@@ -1248,6 +1251,7 @@ void render_rain(int num_rain_drops)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #ifdef NEW_WEATHER
 	set_rain_color();
+	glPointSize(1.0);
 #endif //NEW_WEATHER
 	glColor4fv(rain_color);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -1258,7 +1262,7 @@ void render_rain(int num_rain_drops)
 	idx = 0;
 	max = num_rain_drops;
 #ifdef NEW_WEATHER
-	max *= precip_avg(&precip_part_per);
+	max *= precip_avg(precip_part_per);
 #endif //NEW_WEATHER
 	while(idx < max) {
 	    int num;
