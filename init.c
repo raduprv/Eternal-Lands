@@ -665,7 +665,7 @@ void init_stuff()
 		
 		sprintf(buffer, "./textures/particle%d.bmp", i);
 		if(file_exists(buffer)){
-			particle_textures[i]= load_texture_cache(buffer, 0);
+			particle_textures[i]= load_texture_cache_deferred(buffer, 0);
 		}
 	}
 	update_loading_win(NULL, 5);
@@ -685,7 +685,7 @@ void init_stuff()
 
 		sprintf(buffer, "./textures/portraits%d.bmp", i+1);
 		if(file_exists(buffer)){
-			portraits_tex[i]= load_texture_cache(buffer, 0);
+			portraits_tex[i]= load_texture_cache_deferred(buffer, 0);
 		}
 	}
 	update_loading_win(NULL, 5);
@@ -693,11 +693,11 @@ void init_stuff()
 	sigils_text= load_texture_cache("./textures/sigils.bmp",0);
 	//Load the map legend and continent map
 	legend_text= load_texture_cache("./maps/legend.bmp",0);
-	cont_text= load_texture_cache (cont_map_file_names[0], 128);
+	cont_text= load_texture_cache_deferred(cont_map_file_names[0], 128);
 	
 	//Paper & book
-	paper1_text= load_texture_cache("./textures/paper1.bmp",0);
-	book1_text= load_texture_cache("./textures/book1.bmp",0);
+	paper1_text= load_texture_cache_deferred("./textures/paper1.bmp",0);
+	book1_text= load_texture_cache_deferred("./textures/book1.bmp",0);
 
 	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	CHECK_GL_ERRORS();

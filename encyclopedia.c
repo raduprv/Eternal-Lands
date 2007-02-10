@@ -235,7 +235,7 @@ void ParseImage(xmlAttr *a_node)
 			}
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				id=load_texture_cache(cur_attr->children->content,0);
+				id=load_texture_cache_deferred(cur_attr->children->content,0);
 			}
 			//x=""
 			if(!xmlStrcasecmp(cur_attr->name,"x")){
@@ -269,7 +269,7 @@ void ParseSimage(xmlAttr *a_node)
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
 			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				id=load_texture_cache(cur_attr->children->content,0);
+				id=load_texture_cache_deferred(cur_attr->children->content,0);
 			}
 			//isize=""
 			if(!xmlStrcasecmp(cur_attr->name,"isize")){

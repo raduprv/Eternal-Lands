@@ -294,7 +294,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 				}
 		}
 
-	cur_object->texture_id=load_texture_cache(texture_file_name,0);
+	cur_object->texture_id=load_texture_cache_deferred(texture_file_name,0);
 	//now get the object type
 	i=get_string_occurance("type:",obj_file_mem,f_size,0);
 	obj_file_mem+=i;

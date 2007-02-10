@@ -13,7 +13,7 @@ void draw_window_alphaborder(window_info *win) {
 	int w = win->len_x, h= win->len_y; // width, height
 
 	if (!alpha_border_tex) {
-		alpha_border_tex = load_texture_cache("textures/alphaborder.bmp", 0);
+		alpha_border_tex= load_texture_cache_deferred("textures/alphaborder.bmp", 0);
 		if (!alpha_border_tex) return;
 	}
 	

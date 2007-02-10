@@ -991,11 +991,11 @@ int load_font_textures ()
 	poor_man=0;
 	use_mipmaps=0;
 	
-	fonts[0]->texture_id = load_texture_cache ("./textures/font.bmp", 0);
+	fonts[0]->texture_id = load_texture_cache("./textures/font.bmp", 0);
 #ifndef FONTS_FIX
-	fonts[1]->texture_id = load_texture_cache ("./textures/fontv.bmp", 0);
-	fonts[2]->texture_id = load_texture_cache ("./textures/font2.bmp", 0);
-	fonts[3]->texture_id = load_texture_cache ("./textures/font3.bmp", 0);
+	fonts[1]->texture_id = load_texture_cache_deferred("./textures/fontv.bmp", 0);
+	fonts[2]->texture_id = load_texture_cache_deferred("./textures/font2.bmp", 0);
+	fonts[3]->texture_id = load_texture_cache_deferred("./textures/font3.bmp", 0);
 #else
 	i = 1;
 	// Force the selection of the base font.
@@ -1027,7 +1027,7 @@ int load_font_textures ()
 			snprintf(str, sizeof(str), "./textures/%s", file);
 #endif //!_MSC_VER
 			file[strlen(file) - 4] = 0;
-			fonts[i]->texture_id = load_texture_cache (str, 0);
+			fonts[i]->texture_id = load_texture_cache_deferred(str, 0);
 			snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
 			add_multi_option("chat_font", font_names[i]);
 			add_multi_option("name_font", font_names[i]);

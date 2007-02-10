@@ -208,7 +208,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		
 		fread(&material, 1, sizeof(e3d_material), file);
 		snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material.material_name);
-		cur_object->materials[i].texture_id = load_texture_cache(text_file_name, 0);
+		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 0);
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
 		cur_object->materials[i].min_x = SwapLEFloat(material.min_x);

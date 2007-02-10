@@ -1261,7 +1261,8 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			if(cur_object->is_transparent)material_list[i].material_id=load_texture_cache(text_file_name,0);
 			else material_list[i].material_id=load_texture_cache(text_file_name,255);
 */
-			material_list[i].material_id=load_texture_cache(text_file_name,0);
+			//material_list[i].material_id=load_texture_cache(text_file_name,0);
+			material_list[i].material_id=load_texture_cache_deferred(text_file_name,0);
 		}
 
 	//assign the proper texture to each face
