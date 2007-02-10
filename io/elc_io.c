@@ -40,7 +40,7 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 	size = fread((char*)&header, 1, sizeof(elc_file_header), file);
 	if (size != sizeof(elc_file_header)) 
 	{
-		LOG_ERROR("File '%s' to small!", filename);
+		LOG_ERROR("File '%s' too small!", filename);
 		return -1;
 	}
 
@@ -61,10 +61,10 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 	switch (check_version(header, version))
 	{
 		case -2: 	
-			LOG_ERROR("File '%s' to old! Download newer file.", filename);
+			LOG_ERROR("File '%s' too old! Download newer file.", filename);
 			return -1;
 		case -1:
-			LOG_ERROR("Client to old for file '%s'! Download newer client.", filename);
+			LOG_ERROR("Client too old for file '%s'! Download newer client.", filename);
 			return -1;
 		case 0:
 			break;
@@ -117,3 +117,4 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 	return 0;
 }
 #endif
+
