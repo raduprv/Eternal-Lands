@@ -6,6 +6,9 @@
 #include "global.h"
 #endif
 #include "loading_win.h"
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
 
 int map_type=1;
 Uint32 map_flags=0;
@@ -224,8 +227,23 @@ int load_map (const char * file_name)
 	int particles_no=0;
 	int particles_io_size;
 
+#ifdef	ZLIB
+	gzFile *f = NULL;
+	// first try with a .gz extension
+	{
+		char gzfilename[1024];
+		strcpy(gzfilename, file_name);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(file_name, "rb");
+		}
+	}
+#else	//ZLIB
 	FILE *f = NULL;
 	f=my_fopen(file_name, "rb");
+#endif	//ZLIB
 	if(!f)return 0;
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -238,7 +256,11 @@ int load_map (const char * file_name)
 	main_bbox_tree_items = create_bbox_items(1024);
 #endif
 	// XXX (Grum): non-portable
+#ifdef	ZLIB
+	gzread(f, mem_map_header, sizeof(cur_map_header));//header only
+#else	//ZLIB
 	fread(mem_map_header, 1, sizeof(cur_map_header), f);//header only
+#endif	//ZLIB
 
 #ifdef EL_BIG_ENDIAN
 	cur_map_header.tile_map_x_len = SDL_SwapLE32(cur_map_header.tile_map_x_len);
@@ -313,7 +335,11 @@ int load_map (const char * file_name)
 	new_minute();
 
 	//read the tiles map
+#ifdef	ZLIB
+	gzread(f, tile_map, tile_map_size_x*tile_map_size_y);
+#else	//ZLIB
 	fread(tile_map, 1, tile_map_size_x*tile_map_size_y, f);
+#endif	//ZLIB
 
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
@@ -348,7 +374,11 @@ int load_map (const char * file_name)
 #endif
 
 	//read the heights map
+#ifdef	ZLIB
+	gzread(f, height_map, tile_map_size_x*tile_map_size_y*6*6);
+#else	//ZLIB
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);
+#endif	//ZLIB
 
 #ifndef MAP_EDITOR2
 	//create the tile map that will be used for pathfinding
@@ -374,7 +404,11 @@ int load_map (const char * file_name)
 	for(i=0;i<obj_3d_no;i++)
 		{
 			char * cur_3do_pointer=(char *)&cur_3d_obj_io;
+#ifdef	ZLIB
+			gzread(f, cur_3do_pointer, obj_3d_io_size);
+#else	//ZLIB
 			fread(cur_3do_pointer, 1, obj_3d_io_size, f);
+#endif	//ZLIB
 			
 #ifdef EL_BIG_ENDIAN
 			cur_3d_obj_io.x_pos = SwapFloat(cur_3d_obj_io.x_pos);
@@ -415,7 +449,11 @@ int load_map (const char * file_name)
 	for(i=0;i<obj_2d_no;i++)
 		{
 			char * cur_2do_pointer=(char *)&cur_2d_obj_io;
+#ifdef	ZLIB
+			gzread(f, cur_2do_pointer, obj_2d_io_size);
+#else	//ZLIB
 			fread(cur_2do_pointer, 1, obj_2d_io_size, f);
+#endif	//ZLIB
 			
 #ifdef EL_BIG_ENDIAN
 			cur_2d_obj_io.x_pos = SwapFloat(cur_2d_obj_io.x_pos);
@@ -443,7 +481,11 @@ int load_map (const char * file_name)
 	for(i=0;i<lights_no;i++)
 		{
 			char * cur_light_pointer=(char *)&cur_light_io;
+#ifdef	ZLIB
+			gzread(f, cur_light_pointer, lights_io_size);
+#else	//ZLIB
 			fread(cur_light_pointer, 1, lights_io_size, f);
+#endif	//ZLIB
 			
 			#ifdef EL_BIG_ENDIAN
 				cur_light_io.pos_x = SwapFloat(cur_light_io.pos_x);
@@ -477,7 +519,11 @@ int load_map (const char * file_name)
 	for(i=0;i<particles_no;i++)
 		{
 			char *cur_particles_pointer=(char *)&cur_particles_io;
+#ifdef	ZLIB
+			gzread(f, cur_particles_pointer,particles_io_size);
+#else	//ZLIB
 			fread(cur_particles_pointer,1,particles_io_size,f);
+#endif	//ZLIB
 			
 #ifdef EL_BIG_ENDIAN
 			cur_particles_io.x_pos = SwapFloat(cur_particles_io.x_pos);
@@ -499,7 +545,11 @@ int load_map (const char * file_name)
 	init_terrain(f, tile_map_size_x*6*4, tile_map_size_y*6*4);
 #endif
 	
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
 	fclose(f);
+#endif	//ZLIB
 	update_loading_win(bld_sectors_str, 20);
 #ifdef	NEW_FRUSTUM
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
@@ -665,6 +715,7 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 	new_minute();
 }
 
+
 int save_map(char * file_name)
 {
 	int i,j;
@@ -687,8 +738,11 @@ int save_map(char * file_name)
 	int particles_no=0;
 	int particles_io_size;
 
+#ifdef	ZLIBW
+	gzFile *f = NULL;
+#else	//ZLIBW
 	FILE *f = NULL;
-
+#endif	//ZLIBW
 
 	//get the sizes of structures (they might change in the future)
 	obj_3d_io_size=sizeof(object3d_io);
@@ -735,7 +789,11 @@ int save_map(char * file_name)
 	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
 
 	//ok, now let's open/create the file, and start writting the header...
+#ifdef	ZLIBW
+	f=gzopen(file_name, "wb");
+#else	//ZLIBW
 	f=my_fopen(file_name, "wb");
+#endif	//ZLIBW
 	if (f == NULL)
 	{
 		// unable to open output file
@@ -746,13 +804,25 @@ int save_map(char * file_name)
 	}
 
 	//write the header
+#ifdef	ZLIBW
+	gzwrite(f, mem_map_header, sizeof(map_header));
+#else	//ZLIBW
 	fwrite(mem_map_header, sizeof(map_header), 1, f);
+#endif	//ZLIBW
 
 	//write the tiles map
+#ifdef	ZLIBW
+	gzwrite(f, tile_map, tile_map_size_x*tile_map_size_y);
+#else	//ZLIBW
 	fwrite(tile_map, tile_map_size_x*tile_map_size_y, 1, f);
+#endif	//ZLIBW
 
 	//write the heights map
+#ifdef	ZLIBW
+	gzwrite(f, height_map, tile_map_size_x*tile_map_size_y*6*6);
+#else	//ZLIBW
 	fwrite(height_map, tile_map_size_x*tile_map_size_y*6*6, 1, f);
+#endif	//ZLIBW
 
 	//write the 3d objects
 	j=0;
@@ -784,7 +854,11 @@ int save_map(char * file_name)
 					cur_3d_obj_io.g=objects_list[i]->g;
 					cur_3d_obj_io.b=objects_list[i]->b;
 
+#ifdef	ZLIBW
+					gzwrite(f, cur_3do_pointer, sizeof(object3d_io));
+#else	//ZLIBW
 					fwrite(cur_3do_pointer, sizeof(object3d_io), 1, f);
+#endif	//ZLIBW
 
 					j++;
 				}
@@ -813,7 +887,11 @@ int save_map(char * file_name)
 					cur_2d_obj_io.y_rot=obj_2d_list[i]->y_rot;
 					cur_2d_obj_io.z_rot=obj_2d_list[i]->z_rot;
 
+#ifdef	ZLIBW
+					gzwrite(f, cur_2do_pointer, sizeof(obj_2d_io));
+#else	//ZLIBW
 					fwrite(cur_2do_pointer, sizeof(obj_2d_io), 1, f);
+#endif	//ZLIBW
 
 					j++;
 				}
@@ -840,7 +918,11 @@ int save_map(char * file_name)
 					cur_light_io.g=lights_list[i]->g;
 					cur_light_io.b=lights_list[i]->b;
 
+#ifdef	ZLIBW
+					gzwrite(f, cur_light_pointer, sizeof(light_io));
+#else	//ZLIBW
 					fwrite(cur_light_pointer, sizeof(light_io), 1, f);
+#endif	//ZLIBW
 
 					j++;
 				}
@@ -860,12 +942,20 @@ int save_map(char * file_name)
 					cur_particles_io.x_pos=particles_list[i]->x_pos;
 					cur_particles_io.y_pos=particles_list[i]->y_pos;
 					cur_particles_io.z_pos=particles_list[i]->z_pos;
+#ifdef	ZLIBW
+					gzwrite(f, cur_particles_pointer,sizeof(particles_io));
+#else	//ZLIBW
 					fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+#endif	//ZLIBW
 					j++;
 				}
 		}
 
+#ifdef	ZLIBW
+	gzclose(f);
+#else	//ZLIBW
 	fclose(f);
+#endif	//ZLIBW
 
 	return 1;
 
