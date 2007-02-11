@@ -1,6 +1,9 @@
 #ifdef NEW_E3D_FORMAT
 #include "e3d_io.h"
 #include <float.h>
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
 
 e3d_object* load_e3d_detail(e3d_object* cur_object)
 {
@@ -8,7 +11,6 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	e3d_T2F_N3F_V3F_vertex* vertex_list;
 	e3d_T2F_V3F_vertex* vertex_ground_list;
 	e3d_material material;
-	FILE* file;
 	char cur_dir[1024];
 	int i, j, l, mem_size, vertex_size, size, file_pos, triangle_strips_no, indicies_size;
 	char text_file_name[1024];
@@ -19,6 +21,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	unsigned int* int_list;
 	float* float_mem;
 	void* index_pointer;
+#ifdef	ZLIB
+	gzFile* file;
+#else	//ZLIB
+	FILE* file;
+#endif	//ZLIB
 	
 	if (cur_object == NULL) return NULL;
 
@@ -44,23 +51,44 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_dir[i+1] = 0;
 	}
 
-	file = my_fopen(cur_object->file_name, "rb");
+#ifdef	ZLIB
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, cur_object->file_name);
+		strcat(gzfilename, ".gz");
+		file= gzopen(gzfilename, "rb");
+		if(!file){
+			// didn't work, try the name that was specified
+			file= gzopen(cur_object->file_name, "rb");
+		}
+	}
+#else	//ZLIB
+	file= my_fopen(cur_object->file_name, "rb");
+#endif	//ZLIB
 	if (file == NULL)
 	{
 		LOG_ERROR("Can't open file \"%s\"!", cur_object->file_name);
 		free(cur_object);
 		return NULL;
 	}
-		
+
 	if (read_and_check_elc_header(file, EL3D_FILE_MAGIC_NUMBER, EL3D_FILE_VERSION_NUMBER, cur_object->file_name) != 0)
 	{
 		LOG_ERROR("File \"%s\" has wrong header!", cur_object->file_name);
 		free(cur_object);
+#ifdef	ZLIB
+		gzclose(file);
+#else	//ZLIB
 		fclose(file);
+#endif	//ZLIB
 		return NULL;
 	}
 	
+#ifdef	ZLIB
+	gzread(file, (char*)&header, sizeof(e3d_header));
+#else	//ZLIB
 	fread((char*)&header, 1, sizeof(e3d_header), file);
+#endif	//ZLIB
 
 	cur_object->vertex_no = SDL_SwapLE32(header.vertex_no);
 	cur_object->index_no = SDL_SwapLE32(header.index_no);
@@ -72,7 +100,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	if (SDL_SwapLE32(header.index_size) != sizeof(unsigned int))
 	{
 		LOG_ERROR("File \"%s\" has wrong index size!", cur_object->file_name);
+#ifdef	ZLIB
+		gzclose(file);
+#else	//ZLIB
 		fclose(file);
+#endif	//ZLIB
 		return NULL;
 	}
 	
@@ -88,7 +120,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 
 	if (vertex_size == size)
 	{
+#ifdef	ZLIB
+		gzread(file, cur_object->vertex_data, cur_object->vertex_no*vertex_size);
+#else	//ZLIB
 		fread(cur_object->vertex_data, cur_object->vertex_no, vertex_size, file);
+#endif	//ZLIB
 	}
 	else
 	{
@@ -97,7 +133,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 			vertex_list = cur_object->vertex_data;
 			for (i = 0; i < cur_object->vertex_no; i++)
 			{
+#ifdef	ZLIB
+				gzread(file, &vertex_list[i], size);
+#else	//ZLIB
 				fread(&vertex_list[i], 1, size, file);
+#endif	//ZLIB
 				fseek(file, vertex_size-size, SEEK_CUR);
 			}
 		}
@@ -106,7 +146,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 			vertex_ground_list = cur_object->vertex_data;
 			for (i = 0; i < cur_object->vertex_no; i++)
 			{
+#ifdef	ZLIB
+				gzread(file, &vertex_ground_list[i], size);
+#else	//ZLIB
 				fread(&vertex_ground_list[i], 1, size, file);
+#endif	//ZLIB
 				fseek(file, vertex_size-size, SEEK_CUR);
 			}
 		}
@@ -132,12 +176,20 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		free(cur_object->vertex_data);
 		free(cur_object->indicies);
 		free(cur_object);
+#ifdef	ZLIB
+		gzclose(file);
+#else	//ZLIB
 		fclose(file);
+#endif	//ZLIB
 		return NULL;
 	}
 
 	index_buffer = (unsigned int*)malloc(cur_object->index_no*sizeof(unsigned int));
+#ifdef	ZLIB
+	gzread(file, index_buffer, cur_object->index_no*sizeof(unsigned int));
+#else	//ZLIB
 	fread(index_buffer, cur_object->index_no, sizeof(unsigned int), file);
+#endif	//ZLIB
 	
 	// Now reading the materials
 	fseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
@@ -206,7 +258,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	{
 		file_pos = ftell(file);
 		
+#ifdef	ZLIB
+		gzread(file, &material, sizeof(e3d_material));
+#else	//ZLIB
 		fread(&material, 1, sizeof(e3d_material), file);
+#endif	//ZLIB
 		snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material.material_name);
 		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 0);
 
@@ -236,7 +292,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		
 			buffer = (unsigned int*)malloc(triangle_strips_no*sizeof(e3d_triangle_list));
 		
+#ifdef	ZLIB
+			gzread(file, buffer, triangle_strips_no*sizeof(e3d_triangle_list));
+#else	//ZLIB
 			fread(buffer, triangle_strips_no, sizeof(e3d_triangle_list), file);
+#endif	//ZLIB
 			for (j = 0; j < triangle_strips_no; j++)
 			{
 				cur_object->materials[i].triangle_strips_indicies_index[j] = indicies_size*SDL_SwapLE32(buffer[j*2+0]) + index_pointer;
@@ -248,7 +308,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		file_pos += SDL_SwapLE32(material.material_size);
 		fseek(file, file_pos, SEEK_SET);
 	}
-	fclose(file);
+#ifdef	ZLIB
+		gzclose(file);
+#else	//ZLIB
+		fclose(file);
+#endif	//ZLIB
 
 	if (have_vertex_buffers)
 	{

@@ -6,6 +6,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
 #ifdef NEW_E3D_FORMAT
 #include "io/e3d_io.h"
 #endif
@@ -1077,7 +1080,6 @@ void display_blended_objects()
 e3d_object *load_e3d (const char *file_name)
 {
 	int vertex_no,faces_no,materials_no;
-	FILE *f = NULL;
 	e3d_object *cur_object;
 	//int transparency=0; unused?
 	e3d_header our_header;
@@ -1086,12 +1088,35 @@ e3d_object *load_e3d (const char *file_name)
 #endif
 	char *our_header_pointer=(char *)&our_header;
 
-	f = my_fopen(file_name, "rb");
-	if(!f) return NULL;
+#ifdef	ZLIB
+	gzFile *f = NULL;
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, file_name);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(file_name, "rb");
+		}
+	}
+#else	//ZLIB
+	FILE *f = NULL;
+	f= my_fopen(file_name, "rb");
+#endif	//ZLIB
+	if(!f){
+		LOG_ERROR("Can't open file \"%s\"!", file_name);
+		return NULL;
+	}
 
 	//load and parse the header
+#ifdef	ZLIB
+	gzread(f, our_header_pointer, sizeof(e3d_header));
+	gzclose(f);
+#else	//ZLIB
 	fread(our_header_pointer, 1, sizeof(e3d_header), f);
-	fclose (f);
+	fclose(f);
+#endif	//ZLIB
 
 	faces_no=SDL_SwapLE32(our_header.face_no);
 	vertex_no=SDL_SwapLE32(our_header.vertex_no);
@@ -1155,7 +1180,6 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 {
 	int vertex_no,faces_no,materials_no;
 	int i,l;
-	FILE *f = NULL;
 	e3d_vertex *vertex_list;
 	e3d_face *face_list;
 	e3d_material *material_list;
@@ -1168,6 +1192,11 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
 	int	mem=0;
+#ifdef	ZLIB
+	gzFile *f = NULL;
+#else	//ZLIB
+	FILE *f = NULL;
+#endif	//ZLIB
 #ifndef	NEW_FRUSTUM
 	float radius, x_len, y_len, z_len;
 #endif
@@ -1193,18 +1222,43 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			cur_dir[i+1]=0;
 		}
 
-	f = my_fopen(cur_object->file_name, "rb");
-	if(!f) return NULL;
+#ifdef	ZLIB
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, cur_object->file_name);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(cur_object->file_name, "rb");
+		}
+	}
+#else	//ZLIB
+	f= my_fopen(cur_object->file_name, "rb");
+#endif	//ZLIB
+	if (f == NULL)
+	{
+		LOG_ERROR("Can't open file \"%s\"!", cur_object->file_name);
+		return NULL;
+	}
 
 	//load and parse the header
+#ifdef	ZLIB
+	gzread(f, our_header_pointer, sizeof(e3d_header));
+#else	//ZLIB
 	fread(our_header_pointer, 1, sizeof(e3d_header), f);
+#endif	//ZLIB
 	faces_no=SDL_SwapLE32(our_header.face_no);	// or should we grab from the cur_object?
 	vertex_no=SDL_SwapLE32(our_header.vertex_no);
 	materials_no=SDL_SwapLE32(our_header.material_no);
 
 	//read the rest of the file (vertex,faces, materials)
 	face_list=calloc(faces_no, SDL_SwapLE32(our_header.face_size));
+#ifdef	ZLIB
+	gzread(f, face_list, faces_no*SDL_SwapLE32(our_header.face_size));
+#else	//ZLIB
 	fread(face_list, faces_no, SDL_SwapLE32(our_header.face_size), f);
+#endif	//ZLIB
 
 	vertex_list=calloc(vertex_no, SDL_SwapLE32(our_header.vertex_size));
   	if(!vertex_list)
@@ -1214,16 +1268,32 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			LOG_TO_CONSOLE(c_red2,str);
 			free(face_list);
 			face_list = NULL;
+#ifdef	ZLIB
+			gzclose(f);
+#else	//ZLIB
 			fclose(f);
+#endif	//ZLIB
 			return NULL;
 		}
+#ifdef	ZLIB
+	gzread(f, vertex_list, vertex_no*SDL_SwapLE32(our_header.vertex_size));
+#else	//ZLIB
 	fread(vertex_list, vertex_no, SDL_SwapLE32(our_header.vertex_size), f);
+#endif	//ZLIB
 
 	material_list=calloc(materials_no, SDL_SwapLE32(our_header.material_size));
+#ifdef	ZLIB
+	gzread(f, material_list, materials_no*SDL_SwapLE32(our_header.material_size));
+#else	//ZLIB
 	fread(material_list, materials_no, SDL_SwapLE32(our_header.material_size), f);
+#endif	//ZLIB
 
-	fclose (f);
-	
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
+	fclose(f);
+#endif	//ZLIB
+
 #ifdef EL_BIG_ENDIAN
 	for(i = 0; i < vertex_no; i++)
 	{
