@@ -5,6 +5,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -76,9 +79,13 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	Uint8 * file_mem_start;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
-	FILE *f = NULL;
 	char filename[512];//Create a buffer...
 	char * name;
+#ifdef	ZLIB
+	gzFile *f = NULL;
+#else	//ZLIB
+	FILE *f = NULL;
+#endif	//ZLIB
 
 	/* copy (maybe truncating) FileName into a buffer */
 	snprintf(filename, sizeof(filename), "%s", FileName);
@@ -94,17 +101,38 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	/* safely add '_alpha.bmp' to the string */
 	strncat(filename, "_alpha.bmp", sizeof(filename) - strlen(filename) - 1);
 
-	f = fopen (filename, "rb");
+#ifdef	ZLIB
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, filename);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(filename, "rb");
+		}
+	}
+#else	//ZLIB
+	f= fopen(filename, "rb");
+#endif	//ZLIB
   	if (!f)
 		return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
-  	fread (file_mem, 1, 50, f);//header only
+#ifdef	ZLIB
+  	gzread(f, file_mem, 50);//header only
+#else	//ZLIB
+  	fread(file_mem, 1, 50, f);//header only
+#endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!= SDL_SwapLE16(19778))//BM (the identifier)
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	file_mem+=18;
@@ -114,7 +142,11 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	if(x_size != orig_x_size || y_size != orig_y_size){
 		log_error("The alphamap for %s was not the same size as the original - we didn't load the alphamap...", FileName);
 		free(file_mem_start);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
 		fclose(f);
+#endif	//ZLIB
 
 		return 0;
 	}
@@ -122,7 +154,11 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 
@@ -130,7 +166,11 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	file_mem+=16;
@@ -141,7 +181,11 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	file_mem+=8;//here comes the pallete
 
 	color_pallete=file_mem+4;
-	fread (file_mem, 1, colors_no*4+4, f);//header only
+#ifdef	ZLIB
+	gzread(f, file_mem, colors_no*4+4);//header only
+#else	//ZLIB
+	fread(file_mem, 1, colors_no*4+4, f);//header only
+#endif	//ZLIB
 	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
@@ -153,7 +197,11 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 
 	for(y=0;y<y_size;y++)
 	{
-		fread (read_buffer, 1, x_size-x_padding, f);
+#ifdef	ZLIB
+		gzread(f, read_buffer, x_size-x_padding);
+#else	//ZLIB
+		fread(read_buffer, 1, x_size-x_padding, f);
+#endif	//ZLIB
 		for(x=0;x<x_size;x++)
 		{
 			current_pallete_entry=*(read_buffer+x);
@@ -165,7 +213,11 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 		}
 	}
 
-	fclose (f);
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
+	fclose(f);
+#endif	//ZLIB
 	free(file_mem_start);
 	free(read_buffer);
 
@@ -173,7 +225,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 }
 
 //load a bmp texture, in respect to the color key
-GLuint load_bmp8_color_key(char * FileName)
+GLuint load_bmp8_color_key(char * filename)
 {
 	int y,x_padding,x_size,y_size,colors_no;
 	Uint8 * file_mem;
@@ -181,22 +233,47 @@ GLuint load_bmp8_color_key(char * FileName)
 	Uint8 * texture_mem;
 	Uint8 read_buffer[2048];
 	Uint8 color_pallete[256*4];
-	FILE *f = NULL;
 	GLuint texture;
+#ifdef	ZLIB
+	gzFile *f = NULL;
+#else	//ZLIB
+	FILE *f = NULL;
+#endif	//ZLIB
 
 	CHECK_GL_ERRORS();
-  	f = my_fopen (FileName, "rb");
+#ifdef	ZLIB
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, filename);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(filename, "rb");
+		}
+	}
+#else	//ZLIB
+	f= fopen(filename, "rb");
+#endif	//ZLIB
   	if (!f)
 		return 0;
   	file_mem= read_buffer;
   	//file_mem= (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	//file_mem_start= file_mem;
+#ifdef	ZLIB
+  	gzread(f, file_mem, 50+4);	//header only, plus first 4 bytes of the color pallete
+#else	//ZLIB
   	fread(file_mem, 1, 50+4, f);	//header only, plus first 4 bytes of the color pallete
+#endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!= SDL_SwapLE16(19778))//BM (the identifier)
 	{
 		//free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	file_mem+=18;
@@ -207,7 +284,11 @@ GLuint load_bmp8_color_key(char * FileName)
 	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 	{
 		//free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 
@@ -215,7 +296,11 @@ GLuint load_bmp8_color_key(char * FileName)
 	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 	{
 		//free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	file_mem+=16;
@@ -225,10 +310,14 @@ GLuint load_bmp8_color_key(char * FileName)
 		colors_no=256;
 	//file_mem+=8;//here comes the pallete
 
+#ifdef	ZLIB
+	gzread(f, color_pallete, colors_no*4);	// just the color pallete
+#else	//ZLIB
 	//color_pallete=file_mem+4;
 	//fread (file_mem, 1, colors_no*4+4, f);//header only
 	//file_mem+=colors_no*4;	// not needed, value isn't used
 	fread(color_pallete, 1, colors_no*4, f);	// just the color pallete
+#endif	//ZLIB
 
 	x_padding=x_size%4;
 	if(x_padding)
@@ -245,7 +334,11 @@ GLuint load_bmp8_color_key(char * FileName)
 		int	x;
 		int	y_offset= y*x_size;
 
+#ifdef	ZLIB
+		gzread(f, read_buffer, x_size-x_padding);
+#else	//ZLIB
 		fread(read_buffer, 1, x_size-x_padding, f);
+#endif	//ZLIB
 		for(x=0; x<x_size; x++)
 		{
 			int r,g,b, current_pallete_entry, texture_offset;
@@ -266,9 +359,13 @@ GLuint load_bmp8_color_key(char * FileName)
 	}
 
 	//free(read_buffer);
-	fclose (f);
-	
-	load_alphamap(FileName, texture_mem, x_size, y_size);
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
+	fclose(f);
+#endif	//ZLIB
+
+	load_alphamap(filename, texture_mem, x_size, y_size);
 	//ok, now, hopefully, the file is loaded and converted...
 	//so, assign the texture, and such
 
@@ -315,7 +412,7 @@ GLuint load_bmp8_color_key(char * FileName)
 }
 
 //load a bmp texture, with the specified global alpha
-GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
+GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
 {
 	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
@@ -323,21 +420,42 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	Uint8 * texture_mem;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
-	FILE *f = NULL;
 	GLuint texture;
 	short format;
-
-  	f = my_fopen (FileName, "rb");
+#ifdef	ZLIB
+	gzFile *f = NULL;
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, filename);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(filename, "rb");
+		}
+	}
+#else	//ZLIB
+	FILE *f = NULL;
+	f= fopen(filename, "rb");
+#endif	//ZLIB
   	if (!f)
 		return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
-  	fread (file_mem, 1, 50, f);//header only
+#ifdef	ZLIB
+  	gzread(f, file_mem, 50);//header only
+#else	//ZLIB
+  	fread(file_mem, 1, 50, f);//header only
+#endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	file_mem+=18;
@@ -350,7 +468,11 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	if(format != SDL_SwapLE16(8) && format != SDL_SwapLE16(24)) //8 or 24 bit/pixel?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 
@@ -358,7 +480,11 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	
@@ -378,7 +504,11 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 		file_mem+=8;//here comes the pallete
 		
 		color_pallete=file_mem+4;
-		fread (file_mem, 1, colors_no*4+4, f);//header only
+#ifdef	ZLIB
+		gzread(f, file_mem, colors_no*4+4);//header only
+#else	//ZLIB
+		fread(file_mem, 1, colors_no*4+4, f);//header only
+#endif	//ZLIB
 		file_mem+=colors_no*4;
 		
 		//now, allocate the memory for the file
@@ -387,8 +517,12 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 
 		for(y=0;y<y_size;y++)
 		{
-			//fread (texture_mem+y*x_size, 1, x_size-x_padding, f);
-			fread (read_buffer, 1, x_size-x_padding, f);
+#ifdef	ZLIB
+			gzread(f, read_buffer, x_size-x_padding);
+#else	//ZLIB
+			//fread(texture_mem+y*x_size, 1, x_size-x_padding, f);
+			fread(read_buffer, 1, x_size-x_padding, f);
+#endif	//ZLIB
 			for(x=0; x<x_size; x++)
 			{
 				current_pallete_entry=*(read_buffer+x);
@@ -405,7 +539,11 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 	
 	else // decode 24 bpp bitmap
 	{
+#ifdef	ZLIB
+		gzread(f, file_mem, 4); // Skip 4 bytes
+#else	//ZLIB
 		fread(file_mem, 1, 4, f); // Skip 4 bytes
+#endif	//ZLIB
 		
 		//now, allocate the memory for the file
 		texture_mem = (Uint8 *) calloc ( x_size*y_size*4, sizeof(Uint8));
@@ -413,7 +551,11 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 		
 		for(y = 0; y < y_size; y++)
 		{
-			fread (read_buffer, 1, (x_size-x_padding)* 3, f);
+#ifdef	ZLIB
+			gzread(f, read_buffer, (x_size-x_padding)* 3);
+#else	//ZLIB
+			fread(read_buffer, 1, (x_size-x_padding)* 3, f);
+#endif	//ZLIB
 			for(x = 0; x < x_size; x++)
 			{
 				*(texture_mem+(y*x_size+x)*4)   = *(read_buffer+ x*3 + 2);
@@ -426,7 +568,11 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a)
 
 	free(file_mem_start);
 	free(read_buffer);
-	fclose (f);
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
+	fclose(f);
+#endif	//ZLIB
 	//ok, now, hopefully, the file is loaded and converted...
 	//so, assign the texture, and such
 
@@ -521,7 +667,7 @@ int load_texture_cache_deferred (const char * file_name, unsigned char alpha)
 
 #ifndef MAP_EDITOR2
 //load a bmp texture, and remaps it
-GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair, short shirt,
+GLuint load_bmp8_remapped_skin(char * filename, Uint8 a, short skin, short hair, short shirt,
 							   short pants, short boots)
 {
 	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,current_pallete_entry;
@@ -530,20 +676,41 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	Uint8 * texture_mem;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
-	FILE *f = NULL;
 	GLuint texture;
-
-  	f = my_fopen (FileName, "rb");
+#ifdef	ZLIB
+	gzFile *f = NULL;
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, filename);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(filename, "rb");
+		}
+	}
+#else	//ZLIB
+	FILE *f = NULL;
+	f= fopen(filename, "rb");
+#endif	//ZLIB
   	if (!f)
 		return 0;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
-  	fread (file_mem, 1, 50, f);//header only
+#ifdef	ZLIB
+  	gzread(f, file_mem, 50);//header only
+#else	//ZLIB
+  	fread(file_mem, 1, 50, f);//header only
+#endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=SDL_SwapLE16(19778))//BM (the identifier)
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	file_mem+=18;
@@ -554,7 +721,11 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	if(*((short *)file_mem)!=SDL_SwapLE16(8))//8 bit/pixel?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 
@@ -562,7 +733,11 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return 0;
 	}
 	file_mem+=16;
@@ -572,7 +747,11 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	file_mem+=8;//here comes the pallete
 
 	color_pallete=file_mem+4;
-	fread (file_mem, 1, colors_no*4+4, f);//header only
+#ifdef	ZLIB
+	gzread(f, file_mem, colors_no*4+4);//header only
+#else	//ZLIB
+	fread(file_mem, 1, colors_no*4+4, f);//header only
+#endif	//ZLIB
 	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
@@ -586,7 +765,11 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 	r=g=b=0;	//keep the compiler happy
 	for(y=0;y<y_size;y++)
 	{
-		fread (read_buffer, 1, x_size-x_padding, f);
+#ifdef	ZLIB
+		gzread(f, read_buffer, x_size-x_padding);
+#else	//ZLIB
+		fread(read_buffer, 1, x_size-x_padding, f);
+#endif	//ZLIB
 
 		for(x=0;x<x_size;x++)
 		{
@@ -758,7 +941,11 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 
 	free(file_mem_start);
 	free(read_buffer);
-	fclose (f);
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
+	fclose(f);
+#endif	//ZLIB
 	//ok, now, hopefully, the file is loaded and converted...
 	//so, assign the texture, and such
 
@@ -805,26 +992,47 @@ GLuint load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 }
 
 
-void load_bmp8_to_coordinates (const char *FileName, Uint8 *texture_space, int x_pos, int y_pos, Uint8 alpha)
+void load_bmp8_to_coordinates (const char *filename, Uint8 *texture_space, int x_pos, int y_pos, Uint8 alpha)
 {
 	int x, y, x_padding, x_size, y_size, colors_no, r, g, b, current_pallete_entry;
 	Uint8 *file_mem;
 	Uint8 *file_mem_start;
 	Uint8 *read_buffer;
 	Uint8 *color_pallete;
+#ifdef	ZLIB
+	gzFile *f = NULL;
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, filename);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(filename, "rb");
+		}
+	}
+#else	//ZLIB
 	FILE *f = NULL;
-
-  	f = my_fopen (FileName, "rb");
+	f= fopen(filename, "rb");
+#endif	//ZLIB
   	if (f == NULL)
 		return;
   	file_mem = calloc (20000, sizeof(Uint8));
   	file_mem_start = file_mem;
-  	fread (file_mem, 1, 50, f);//header only
+#ifdef	ZLIB
+  	gzread(f, file_mem, 50);//header only
+#else	//ZLIB
+  	fread(file_mem, 1, 50, f);//header only
+#endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if (*((short *) file_mem) != SDL_SwapLE16 (19778)) // BM (the identifier)
 	{
 		free (file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return;
 	}
 	file_mem += 18;
@@ -835,7 +1043,11 @@ void load_bmp8_to_coordinates (const char *FileName, Uint8 *texture_space, int x
 	if (*((short *)file_mem) != SDL_SwapLE16(8)) // 8 bit/pixel?
 	{
 		free (file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return;
 	}
 
@@ -843,7 +1055,11 @@ void load_bmp8_to_coordinates (const char *FileName, Uint8 *texture_space, int x
 	if (*((int *)file_mem) != SDL_SwapLE32 (0)) // any compression?
 	{
 		free (file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return;
 	}
 	file_mem += 16;
@@ -854,7 +1070,11 @@ void load_bmp8_to_coordinates (const char *FileName, Uint8 *texture_space, int x
 	file_mem += 8; // here comes the pallete
 
 	color_pallete = file_mem + 4;
-	fread (file_mem, 1, colors_no*4+4, f); // header only
+#ifdef	ZLIB
+	gzread(f, file_mem, colors_no*4+4); // header only
+#else	//ZLIB
+	fread(file_mem, 1, colors_no*4+4, f); // header only
+#endif	//ZLIB
 	file_mem += colors_no * 4;
 
 	x_padding = x_size % 4;
@@ -868,7 +1088,11 @@ void load_bmp8_to_coordinates (const char *FileName, Uint8 *texture_space, int x
 
 	for (y = y_size - 1; y >= 0; y--)
 	{
-		fread (read_buffer, 1, x_size+x_padding, f);
+#ifdef	ZLIB
+		gzread(f, read_buffer, x_size+x_padding);
+#else	//ZLIB
+		fread(read_buffer, 1, x_size+x_padding, f);
+#endif	//ZLIB
 		for (x = 0; x < x_size; x++)
 		{
 			int texture_y;
@@ -886,7 +1110,11 @@ void load_bmp8_to_coordinates (const char *FileName, Uint8 *texture_space, int x
 
 	free (file_mem_start);
 	free (read_buffer);
-	fclose (f);
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
+	fclose(f);
+#endif	//ZLIB
 }
 
 
@@ -964,27 +1192,49 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 #ifdef MAP_EDITOR2
 /////////////////////////////////////////////////////////////////////////////////////
 //load a bmp file, convert it to the rgba format, but don't assign it to any texture object
-char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img)
+char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 {
 	int x,y,x_padding,x_size,y_size,colors_no,r,g,b,a,current_pallete_entry; //i unused?
 	Uint8 * file_mem;
 	Uint8 * file_mem_start;
 	Uint8 * read_buffer;
 	Uint8 * color_pallete;
-	FILE *f = NULL;
 	Uint8 *texture_mem;
-
-  	f = fopen (FileName, "rb");
+#ifdef	ZLIB
+	gzFile *f = NULL;
+	{
+		char	gzfilename[1024];
+		strcpy(gzfilename, filename);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "rb");
+		if(!f){
+			// didn't work, try the name that was specified
+			f= gzopen(filename, "rb");
+		}
+	}
+#else	//ZLIB
+	FILE *f = NULL;
+	f= fopen(filename, "rb");
+#endif	//ZLIB
   	if (!f)
 		return NULL;
   	file_mem = (Uint8 *) calloc ( 20000, sizeof(Uint8));
   	file_mem_start=file_mem;
-  	fread (file_mem, 1, 50, f);//header only
+#ifdef	ZLIB
+  	gzread(f, file_mem, 50);//header only
+#else	//ZLIB
+  	fread(file_mem, 1, 50, f);//header only
+#endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
   	if(*((short *) file_mem)!=19778)//BM (the identifier)
 	{
 		free(file_mem_start);
 		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return NULL;
 	}
 	file_mem+=18;
@@ -995,7 +1245,11 @@ char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img)
 	if(*((short *)file_mem)!=8)//8 bit/pixel?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return NULL;
 	}
 
@@ -1003,7 +1257,11 @@ char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img)
 	if(*((int *)file_mem)!=0)//any compression?
 	{
 		free(file_mem_start);
-		fclose (f);
+#ifdef	ZLIB
+		gzclose(f);
+#else	//ZLIB
+		fclose(f);
+#endif	//ZLIB
 		return NULL;
 	}
 	file_mem+=16;
@@ -1013,7 +1271,11 @@ char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img)
 	file_mem+=8;//here comes the pallete
 
 	color_pallete=file_mem+4;
-	fread (file_mem, 1, colors_no*4+4, f);//header only
+#ifdef	ZLIB
+	gzread(f, file_mem, colors_no*4+4);//header only
+#else	//ZLIB
+	fread(file_mem, 1, colors_no*4+4, f);//header only
+#endif	//ZLIB
 	file_mem+=colors_no*4;
 
 	x_padding=x_size%4;
@@ -1026,7 +1288,11 @@ char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img)
 
 	for(y=0;y<y_size;y++)
 	{
-		fread (read_buffer, 1, x_size-x_padding, f);
+#ifdef	ZLIB
+		gzread(f, read_buffer, x_size-x_padding);
+#else	//ZLIB
+		fread(read_buffer, 1, x_size-x_padding, f);
+#endif	//ZLIB
 
 		for(x=0;x<x_size;x++)
 		{
@@ -1051,7 +1317,11 @@ char * load_bmp8_color_key_no_texture_img(char * FileName, img_struct * img)
 	
 	free(file_mem_start);
 	free(read_buffer);
-	fclose (f);
+#ifdef	ZLIB
+	gzclose(f);
+#else	//ZLIB
+	fclose(f);
+#endif	//ZLIB
 	return texture_mem;
 }
 #endif

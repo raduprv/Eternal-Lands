@@ -664,7 +664,7 @@ void init_stuff()
 		char	buffer[256];
 		
 		sprintf(buffer, "./textures/particle%d.bmp", i);
-		if(file_exists(buffer)){
+		if(gzfile_exists(buffer)){
 			particle_textures[i]= load_texture_cache_deferred(buffer, 0);
 		}
 	}
@@ -674,7 +674,7 @@ void init_stuff()
 		char	buffer[256];
 
 		sprintf(buffer, "./textures/items%d.bmp", i+1);
-		if(file_exists(buffer)){
+		if(gzfile_exists(buffer)){
 			items_text[i]= load_texture_cache(buffer, 0);
 		}
 	}
@@ -684,7 +684,7 @@ void init_stuff()
 		char	buffer[256];
 
 		sprintf(buffer, "./textures/portraits%d.bmp", i+1);
-		if(file_exists(buffer)){
+		if(gzfile_exists(buffer)){
 			portraits_tex[i]= load_texture_cache_deferred(buffer, 0);
 		}
 	}
