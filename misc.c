@@ -7,6 +7,9 @@
 #endif //_MSC_VER
 #include <sys/types.h>
 #include <sys/stat.h>
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
 #ifdef PNG_SCREENSHOT
  #include <png.h>
 #endif //PNG_SCREENSHOT
@@ -428,6 +431,21 @@ int file_exists(const char *fname)
 	{
 		return (statres != ENOENT);
 	}
+}
+
+int gzfile_exists(const char *fname)
+{
+#ifdef	ZLIB
+	char	gzfname[1024];
+
+	strcpy(gzfname, fname);
+	strcat(gzfname, ".gz");
+	if(file_exists(gzfname)){
+		return 1;
+	}
+#endif
+
+	return(file_exists(fname));
 }
 
 #ifdef PNG_SCREENSHOT
