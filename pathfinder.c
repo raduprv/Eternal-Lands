@@ -79,7 +79,11 @@ void pf_add_tile_to_open_list(PF_TILE *current, PF_TILE *neighbour)
 		int f, g, h;
 		int diagonal = (neighbour->x != current->x && neighbour->y != current->y);
 
+#ifdef	FUZZY_PATHS
+		g = current->g + (diagonal ? 14 : 10) + rand()%3;
+#else	//FUZZY_PATHS
 		g = current->g + (diagonal ? 14 : 10);
+#endif	//FUZZY_PATHS
 		h = PF_HEUR(neighbour, pf_dst_tile);
 		f = g + h;
 
@@ -208,8 +212,13 @@ void pf_move()
 		}
 
 		if (pf_cur_tile == t) {
+#ifdef	FUZZY_PATHS
+			int	limit= i-(10+rand()%3);
+#else	//FUZZY_PATHS
+			int	limit= i-12;
+#endif	//FUZZY_PATHS
 			for (pf_cur_tile = pf_dst_tile; pf_cur_tile; pf_cur_tile = pf_cur_tile->parent) {
-				if (j++ == i-12) {
+				if (j++ == limit) {
 					break;
 				}
 			}
