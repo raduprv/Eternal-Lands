@@ -451,6 +451,24 @@ int gzfile_exists(const char *fname)
 	return(file_exists(fname));
 }
 
+#ifdef ZLIB
+gzFile * my_gzopen(const char * filename)
+{
+	char gzfilename[1024];
+	gzFile * result;
+
+	snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
+	result= gzopen(gzfilename, "rb");
+	if(result == NULL) {
+		// didn't work, try the name that was specified
+		result= gzopen(filename, "rb");
+	}
+
+	return result;
+}
+#endif // ZLIB
+
+
 #ifdef PNG_SCREENSHOT
 /* Save a PNG type image to an SDL datasource */
 static void png_write_data(png_structp ctx, png_bytep area, png_size_t size)
@@ -816,21 +834,4 @@ int	mkdir_tree(const char *file)
 	}
 	return 1;
 }
-
-#ifdef ZLIB
-gzFile * my_gzopenext(const char * filename)
-{
-	char gzfilename[1024];
-	gzFile * result;
-
-	snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
-	result = gzopen(gzfilename, "rb");
-	if (result == NULL) {
-		// didn't work, try the name that was specified
-		result = gzopen(filename, "rb");
-	}
-
-	return result;
-}
-#endif // ZLIB
 
