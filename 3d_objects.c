@@ -1096,7 +1096,6 @@ e3d_object *load_e3d (const char *file_name)
 	f= my_fopen(file_name, "rb");
 #endif	//ZLIB
 	if(!f){
-		LOG_ERROR("Can't open file \"%s\"!", file_name);
 		return NULL;
 	}
 

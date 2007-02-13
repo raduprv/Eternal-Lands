@@ -463,6 +463,9 @@ gzFile * my_gzopen(const char * filename)
 		// didn't work, try the name that was specified
 		result= gzopen(filename, "rb");
 	}
+	if(result == NULL) {
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
+	}
 
 	return result;
 }
