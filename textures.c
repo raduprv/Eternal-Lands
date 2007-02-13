@@ -102,16 +102,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	strncat(filename, "_alpha.bmp", sizeof(filename) - strlen(filename) - 1);
 
 #ifdef	ZLIB
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, filename);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(filename, "rb");
-		}
-	}
+	f= my_gzopen(filename);
 #else	//ZLIB
 	f= fopen(filename, "rb");
 #endif	//ZLIB

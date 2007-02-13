@@ -1090,16 +1090,7 @@ e3d_object *load_e3d (const char *file_name)
 
 #ifdef	ZLIB
 	gzFile *f = NULL;
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, file_name);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(file_name, "rb");
-		}
-	}
+	f= my_gzopen(file_name);
 #else	//ZLIB
 	FILE *f = NULL;
 	f= my_fopen(file_name, "rb");

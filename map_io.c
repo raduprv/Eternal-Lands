@@ -229,17 +229,7 @@ int load_map (const char * file_name)
 
 #ifdef	ZLIB
 	gzFile *f = NULL;
-	// first try with a .gz extension
-	{
-		char gzfilename[1024];
-		strcpy(gzfilename, file_name);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(file_name, "rb");
-		}
-	}
+	f= my_gzopen(file_name);
 #else	//ZLIB
 	FILE *f = NULL;
 	f=my_fopen(file_name, "rb");
