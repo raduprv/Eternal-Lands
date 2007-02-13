@@ -17,6 +17,9 @@
 #ifdef OSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
+#ifdef ZLIB
+#include <zlib.h>
+#endif // ZLIB
 
 #define IMG_SetError(a) SDL_SetError(a)
 #ifndef S_ISDIR
@@ -813,3 +816,21 @@ int	mkdir_tree(const char *file)
 	}
 	return 1;
 }
+
+#ifdef ZLIB
+gzFile * my_gzopenext(const char * filename)
+{
+	char gzfilename[1024];
+	gzFile * result;
+
+	snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
+	result = gzopen(gzfilename, "rb");
+	if (result == NULL) {
+		// didn't work, try the name that was specified
+		result = gzopen(filename, "rb");
+	}
+
+	return result;
+}
+#endif // ZLIB
+

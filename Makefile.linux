@@ -9,7 +9,9 @@ _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shel
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS)
 _CXXFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
 
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng $(EXTRA_LIBS)
+ZLIB_LIBS = -lz
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng $(EXTRA_LIBS) \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a $(EXTRA_STATICLIBS)
 

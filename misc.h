@@ -7,6 +7,9 @@
 #define __MISC_H__
 
 #include "global.h"
+#ifdef ZLIB
+#include <zlib.h>
+#endif // ZLIB
 
 #define BUTTONRADIUS 15
 
@@ -281,6 +284,17 @@ void draw_box(char * name, int x, int y, int w, int h, int rad);
  * \param ha The alpha color for highlighted buttons
  */
 void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, float r, float g, float b, int highlight, float hr, float hg, float hb, float ha);
+
+#ifdef ZLIB
+/*!
+ * \ingroup misc
+ * \brief Append '.gz' to a filename and try to open it using gzopen
+ *
+ * Appends the '.gz' to a filename and tries to open the file with that
+ * name. If it fails, tries to open the file with the original filename.
+ */
+gzFile * my_gzopenext(const char * filename);
+#endif // ZLIB
 
 static __inline__ int min2i (int x, int y)
 {
