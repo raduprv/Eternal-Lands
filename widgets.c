@@ -1646,7 +1646,8 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 	unsigned short i = 0;
 	unsigned short nrlines = 0, line = 0;
 	int px = 0;
-	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom * chat_zoom;
+	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
+	text_zoom *= 0.95f;	//a kludge that works, for currently unknown reasons
 
 	nrlines = y/displayed_font_y_size;
 
@@ -1655,7 +1656,7 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 			if (str[i] == '\r' || str[i] == '\n'){
 				return i;
 			}
-			px += get_char_width(str[i]) * text_zoom * chat_zoom;
+			px += get_char_width(str[i]) * text_zoom;
 		}
 		return i-1;
 	}
@@ -1668,7 +1669,7 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 					if (str[i] == '\r' || str[i] == '\n'){
 						return i;
 					}
-					px += get_char_width(str[i]) * text_zoom * chat_zoom;
+					px += get_char_width(str[i]) * text_zoom;
 				}
 				return i-1;
 			}
@@ -1691,7 +1692,7 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 
 	tf = w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
-	tf->cursor = get_edit_pos (mx, my, msg->data, msg->len, 1);
+	tf->cursor = get_edit_pos (mx, my, msg->data, msg->len, msg->wrap_zoom);
 
 	return 1;
 }
