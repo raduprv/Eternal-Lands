@@ -1641,51 +1641,41 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	return 0;
 }
 
-// XXX rewrite: there's bound to be a simpler way to do this.
 unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigned int maxchar, float text_zoom)
 {
-	unsigned short i = 0, c = 0, k = 0;
-	unsigned short nnls = 0, ncs = 0;
-	float displayed_font_x_size = 11.0 * text_zoom;
-	float displayed_font_y_size = 18.0 * text_zoom;
+	unsigned short i = 0;
+	unsigned short nrlines = 0, line = 0;
+	int px = 0;
+	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom * chat_zoom;
 
-	ncs = x/displayed_font_x_size;
-	nnls = y/displayed_font_y_size;
+	nrlines = y/displayed_font_y_size;
 
-	if (c == nnls)
-	{   
-		while (k < ncs && str[i+k] != '\0')
-		{
-			if (str[i+k] == '\r' || str[i+k] == '\n')
-			{
-				return i+k;
+	if (line == nrlines){
+		for (px = 0; px < x && str[i] != '\0'; ++i){
+			if (str[i] == '\r' || str[i] == '\n'){
+				return i;
 			}
-			k++;
+			px += get_char_width(str[i]) * text_zoom * chat_zoom;
 		}
-		return i+k;
+		return i-1;
 	}
-	while (i < maxchar && str[i] != '\0')
-	{
-		if (str[i] == '\n' || str[i] == '\r')
-		{
-			c++;
-			if (c == nnls)
-			{
-				i++;
-				while (k < ncs && str[i+k] != '\0')
-				{
-					if (str[i+k] == '\r' || str[i+k] == '\n')
-					{
-						return i+k;
+	while (i < maxchar && str[i] != '\0'){
+		if (str[i] == '\n' || str[i] == '\r'){
+			++line;
+			if (line == nrlines){
+				++i;	//skip the newline char
+				for (px = 0; px < x && str[i] != '\0'; ++i){
+					if (str[i] == '\r' || str[i] == '\n'){
+						return i;
 					}
-					k++;
+					px += get_char_width(str[i]) * text_zoom * chat_zoom;
 				}
-				return i+k;
+				return i-1;
 			}
 		}
-		i++;
+		++i;
 	}
-	return i+k;
+	return i-1;
 }
 
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
