@@ -212,6 +212,7 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 	return(displayed_font_x_width);	// return how far to move for the next character
 }
 
+#ifndef MAP_EDITOR2
 void recolour_message(text_message *msg){
 	if (msg->chan_idx >= CHAT_CHANNEL1 && msg->chan_idx <= CHAT_CHANNEL3 && msg->len > 0 && msg->data[0] && !msg->deleted){
 		if (active_channels[current_channel] != msg->channel){
@@ -221,6 +222,7 @@ void recolour_message(text_message *msg){
 		}
 	}
 }
+#endif
 
 void recolour_messages(text_message *msgs){
 	int i;

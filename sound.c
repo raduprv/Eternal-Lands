@@ -1616,10 +1616,12 @@ void init_sound()
 		have_sound=have_music=0;
 		return;
 	}
+#ifndef MAP_EDITOR2
 #ifndef NEW_WEATHER
 	//force the rain sound to be recreated
 	rain_sound = 0;
 #endif //NEW_WEATHER
+#endif MAP_EDITOR2
 	inited = 1;
 }
 #endif	//NEW_SOUND
