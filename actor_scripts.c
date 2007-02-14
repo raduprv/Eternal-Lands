@@ -1351,7 +1351,6 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		}
 	}
 
-#ifdef	USE_ACTOR_DEFAULTS
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
@@ -1367,7 +1366,6 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				get_item_string_value(shirt->torso_name, sizeof(shirt->torso_name), default_node, "torso");
 		}
 	}
-#endif	//USE_ACTOR_DEFAULTS
 	
 	// check the critical information
 	actor_check_string(act, "shirt", "arms", shirt->arms_name);
@@ -1409,7 +1407,6 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		}
 	}
 
-#ifdef	USE_ACTOR_DEFAULTS
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
@@ -1421,7 +1418,6 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				get_item_string_value(skin->head_name, sizeof(skin->head_name), default_node, "head");
 		}
 	}
-#endif	//USE_ACTOR_DEFAULTS
 	
 	// check the critical information
 	actor_check_string(act, "skin", "hands", skin->hands_name);
@@ -1466,7 +1462,6 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		}
 	}
 
-#ifdef	USE_ACTOR_DEFAULTS
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
@@ -1480,7 +1475,6 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 			}
 		}
 	}
-#endif	//USE_ACTOR_DEFAULTS
 
 	// check the critical information
 	actor_check_string(act, "legs", "skin", legs->legs_name);
@@ -1579,7 +1573,6 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	weapon = &(act->weapon[type_idx]);
 	ok= parse_actor_weapon_detail(act, weapon, cfg, defaults);
 
-#ifdef	USE_ACTOR_DEFAULTS
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
@@ -1596,7 +1589,6 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 			// TODO: combat animations
 		}
 	}
-#endif	//USE_ACTOR_DEFAULTS
 
 	// check the critical information
 	if(type_idx!=WEAPON_NONE){   // no weapon doesn't have a skin/model
@@ -1638,7 +1630,6 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 		}
 	}
 
-#ifdef	USE_ACTOR_DEFAULTS
 	// check for default entries, if found, use them to fill in missing data
 	if(default_node){
 		if(part->skin_name==NULL || *part->skin_name=='\0')
@@ -1653,7 +1644,6 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 				part->mesh_index= cal_load_mesh(act, part->model_name, part_name);
 		}
 	}
-#endif	//USE_ACTOR_DEFAULTS
 
 	// check the critical information
 	if(strcmp(part_name, "head")){ // heads don't have seperate skins here
@@ -2137,7 +2127,6 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		}
 	}
 
-#ifdef	USE_ACTOR_DEFAULTS
 	// check for default entries, if found, use them to fill in missing data
 	if(defaults){
 		xmlNode *default_node= get_default_node(cfg, defaults);
@@ -2147,7 +2136,6 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				get_item_string_value(boots->boots_name, sizeof(boots->boots_name), default_node, "skin");
 		}
 	}
-#endif	//USE_ACTOR_DEFAULTS
 	
 	// check the critical information
 	actor_check_string(act, "boots", "boots", boots->boots_name);
