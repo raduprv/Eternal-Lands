@@ -1647,36 +1647,35 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 	unsigned short nrlines = 0, line = 0;
 	int px = 0;
 	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
-	text_zoom *= 0.95f;	//a kludge that works, for currently unknown reasons
 
 	nrlines = y/displayed_font_y_size;
 
-	if (line == nrlines){
-		for (px = 0; px < x && str[i] != '\0'; ++i){
-			if (str[i] == '\r' || str[i] == '\n'){
+	for (; line < nrlines && i < maxchar; i++) {
+		switch (str[i]) {
+			case '\r':
+			case '\n':
+				++line;
+				break;
+			case '\0':
 				return i;
-			}
-			px += get_char_width(str[i]) * text_zoom;
 		}
-		return i - (str[i] == '\0'?0:1);
 	}
-	while (i < maxchar && str[i] != '\0'){
-		if (str[i] == '\n' || str[i] == '\r'){
-			++line;
-			if (line == nrlines){
-				++i;	//skip the newline char
-				for (px = 0; px < x && str[i] != '\0'; ++i){
-					if (str[i] == '\r' || str[i] == '\n'){
-						return i;
-					}
-					px += get_char_width(str[i]) * text_zoom;
-				}
-				return  i - (str[i] == '\0'?0:1);
-			}
+
+	++i;	//skip the newline char
+	for (; i < maxchar; i++) {
+		switch (str[i]) {
+			case '\r':
+			case '\n':
+			case '\0':
+				return i;
+			default:
+				// lachesis: for formula see draw_char_scaled
+				px += (int) (0.5 + get_char_width(str[i]) * text_zoom * DEFAULT_FONT_X_LEN / 12.0);
+				if (px >= x) return i;
 		}
-		++i;
 	}
-	return  i - (str[i] == '\0'?0:1);
+
+	return maxchar - 1;
 }
 
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
