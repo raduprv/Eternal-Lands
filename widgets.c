@@ -1658,7 +1658,7 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 			}
 			px += get_char_width(str[i]) * text_zoom;
 		}
-		return i-1;
+		return i - (str[i] == '\0'?0:1);
 	}
 	while (i < maxchar && str[i] != '\0'){
 		if (str[i] == '\n' || str[i] == '\r'){
@@ -1671,12 +1671,12 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 					}
 					px += get_char_width(str[i]) * text_zoom;
 				}
-				return i-1;
+				return  i - (str[i] == '\0'?0:1);
 			}
 		}
 		++i;
 	}
-	return i-1;
+	return  i - (str[i] == '\0'?0:1);
 }
 
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
