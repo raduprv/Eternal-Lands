@@ -228,22 +228,17 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 #ifdef CUSTOM_LOOK
 void custom_path(char * path, char * custom1, char * custom2) {
 	unsigned char buffer[256];
-	FILE * fh;
 
 	/* Check if custom1 has path readable */
 	snprintf(buffer, sizeof(buffer), "%s%s", custom1, path);
-	fh = fopen(buffer, "r");
-	if (fh) {
-		fclose(fh);
+	if(gzfile_exists(buffer)) {
 		my_strcp(path, buffer);
 		return;
 	}
 
 	/* Check if custom2 has path readable */
 	snprintf(buffer, sizeof(buffer), "%s%s", custom2, path);
-	fh = fopen(buffer, "r");
-	if (fh) {
-		fclose(fh);
+	if(gzfile_exists(buffer)) {
 		my_strcp(path, buffer);
 		return;
 	}
