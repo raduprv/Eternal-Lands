@@ -1641,12 +1641,14 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	return 0;
 }
 
-unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigned int maxchar, float text_zoom)
+unsigned int get_edit_pos(int x, int y, char *str, unsigned int maxchar, float text_zoom)
 {
-	unsigned short i = 0;
-	unsigned short nrlines = 0, line = 0;
+	unsigned int i = 0;
+	unsigned int nrlines = 0, line = 0;
 	int px = 0;
 	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
+
+	if(maxchar == 0) return 0;	// nothing to do, there is no string
 
 	nrlines = y/displayed_font_y_size;
 
@@ -1661,13 +1663,14 @@ unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigne
 		}
 	}
 
-	++i;	//skip the newline char
+	if(line > 0) ++i;	//skip the newline char
 	for (; i < maxchar; i++) {
 		switch (str[i]) {
 			case '\r':
 			case '\n':
 			case '\0':
 				return i;
+				break;
 			default:
 				// lachesis: for formula see draw_char_scaled
 				px += (int) (0.5 + get_char_width(str[i]) * text_zoom * DEFAULT_FONT_X_LEN / 12.0);
