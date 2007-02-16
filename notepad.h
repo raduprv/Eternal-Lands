@@ -23,7 +23,7 @@ extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was
  * \param text_zoom         zoom factor for the text
  * \retval unsigned int     the edit position within \a str
  */
-unsigned int get_edit_pos(unsigned short x, unsigned short y, char *str, unsigned int maxchar, float text_zoom);
+unsigned int get_edit_pos(int x, int y, char *str, unsigned int maxchar, float text_zoom);
 
 /*!
  * \ingroup notepad_window
