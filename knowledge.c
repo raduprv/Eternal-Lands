@@ -3,18 +3,17 @@
 #include "global.h"
 
 int knowledge_win= -1;
-int knowledge_menu_x=100;
-int knowledge_menu_y=20;
-int knowledge_menu_x_len=STATS_TAB_WIDTH;
-int knowledge_menu_y_len=STATS_TAB_HEIGHT;
-int knowledge_scroll_id = 13;
+int knowledge_menu_x= 100;
+int knowledge_menu_y= 20;
+int knowledge_menu_x_len= STATS_TAB_WIDTH;
+int knowledge_menu_y_len= STATS_TAB_HEIGHT;
+int knowledge_scroll_id= 13;
 int knowledge_book_image_id;
 int knowledge_book_label_id;
-int knowledge_book_id = 0;
-//int knowledge_menu_dragged=0;
-//int knowledge_scroll_dragged=0;
+int knowledge_book_id= 0;
 
 knowledge knowledge_list[KNOWLEDGE_LIST_SIZE];
+int knowledge_count= 0;
 
 char knowledge_string[400]="";
 
@@ -35,7 +34,7 @@ int add_knowledge_book_image() {
 	v=-ftsize*ytile;
 	uend=u+ftsize;
 	vend=v-ftsize;
-	id = load_texture_cache("textures/items1.bmp", 0);
+	id= load_texture_cache_deferred("textures/items1.bmp", 0);
 	return image_add_extended(knowledge_win, 0, NULL, 500, 215, 50, 50, 0, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f); 
 }
 
@@ -60,7 +59,7 @@ int display_knowledge_handler(window_info *win)
 		snprintf(points_string, sizeof(points_string), "%s", completed_research);
 	else
 		snprintf(points_string, sizeof(points_string), "%4i/%-4i",your_info.research_completed,your_info.research_total);
-	if(your_info.researching < KNOWLEDGE_LIST_SIZE)
+	if(your_info.researching < knowledge_count)
 	{
 		research_string = knowledge_list[your_info.researching].name;
 	}
@@ -138,7 +137,7 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 {
 	int	i;
 
-	for(i=0;i<KNOWLEDGE_LIST_SIZE;i++)knowledge_list[i].mouse_over=0;
+	for(i=0;i<knowledge_count;i++)knowledge_list[i].mouse_over=0;
 	if(mx>win->len_x-20)
 		return 0;
 	if(my>192)
@@ -173,7 +172,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 		x/=240;
 		y/=10;
 		idx = x + 2 *(y + vscrollbar_get_pos (knowledge_win, knowledge_scroll_id));
-		if(idx < KNOWLEDGE_LIST_SIZE)
+		if(idx < knowledge_count)
 			{
 				str[0] = GET_KNOWLEDGE_INFO;
 				*(Uint16 *)(str+1) = SDL_SwapLE16((short)idx);
@@ -223,7 +222,9 @@ void get_knowledge_list (Uint16 size, const char *list)
 
 void get_new_knowledge(Uint16 idx)
 {
-	knowledge_list[idx].present=1;
+	if(idx < KNOWLEDGE_LIST_SIZE){
+		knowledge_list[idx].present= 1;
+	}
 }
 
 void fill_knowledge_win ()
@@ -232,7 +233,7 @@ void fill_knowledge_win ()
 	set_window_handler(knowledge_win, ELW_HANDLER_CLICK, &click_knowledge_handler );
 	set_window_handler(knowledge_win, ELW_HANDLER_MOUSEOVER, &mouseover_knowledge_handler );
 	
-	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, KNOWLEDGE_LIST_SIZE/2-19);
+	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, (knowledge_count+2)/2-19);
 	knowledge_book_image_id = add_knowledge_book_image();
 	widget_set_OnClick(knowledge_win, knowledge_book_image_id, &handle_knowledge_book);
 	widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);

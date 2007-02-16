@@ -159,10 +159,13 @@ void load_knowledge_list()
 	char filename[200];
 	
 	memset(knowledge_list, 0, sizeof(knowledge_list));
-	i=0;
+	i= 0;
+	knowledge_count= 0;
+	// try the language specific knowledge list
 	snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
 	if((f=my_fopen(filename,"rb"))==NULL)
 		{
+			// Failed, try the default/english knowledge list
 			f=my_fopen("languages/en/knowledge.lst","rb");
 		}
 	if(!f)return;
@@ -175,6 +178,9 @@ void load_knowledge_list()
 			my_xmlStrncopy(&out, strLine, sizeof(knowledge_list[i].name)-1);
 			i++;
 		}
+	// memorize the count
+	knowledge_count= i;
+	// close the file
 	fclose(f);
 }
 

@@ -6,7 +6,7 @@
 #ifndef __KNOWLEDGE_H__
 #define __KNOWLEDGE_H__
 
-#define KNOWLEDGE_LIST_SIZE 500 /*!< maximum size of the \ref knowledge_list */
+#define KNOWLEDGE_LIST_SIZE 1024 /*!< maximum size of the \ref knowledge_list */
 
 /*!
  * knowledge structure
@@ -31,6 +31,7 @@ extern int knowledge_menu_y;
 
 extern knowledge knowledge_list[KNOWLEDGE_LIST_SIZE]; /*!< global array of knowledgeable items */
 extern char knowledge_string[400];
+extern int	knowledge_count;
 
 /*!
  * \ingroup knowledge_window
