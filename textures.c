@@ -102,6 +102,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 	strncat(filename, "_alpha.bmp", sizeof(filename) - strlen(filename) - 1);
 
 #ifdef	ZLIB
+	if(!gzfile_exists(filename))	return 0;	// no file at all
 	f= my_gzopen(filename);
 #else	//ZLIB
 	f= fopen(filename, "rb");
@@ -233,16 +234,8 @@ GLuint load_bmp8_color_key(char * filename)
 
 	CHECK_GL_ERRORS();
 #ifdef	ZLIB
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, filename);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(filename, "rb");
-		}
-	}
+	if(!gzfile_exists(filename))	return 0;	// no file at all
+	f= my_gzopen(filename);
 #else	//ZLIB
 	f= fopen(filename, "rb");
 #endif	//ZLIB
@@ -415,16 +408,8 @@ GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
 	short format;
 #ifdef	ZLIB
 	gzFile *f = NULL;
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, filename);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(filename, "rb");
-		}
-	}
+	if(!gzfile_exists(filename))	return 0;	// no file at all
+	f= my_gzopen(filename);
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
@@ -670,16 +655,8 @@ GLuint load_bmp8_remapped_skin(char * filename, Uint8 a, short skin, short hair,
 	GLuint texture;
 #ifdef	ZLIB
 	gzFile *f = NULL;
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, filename);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(filename, "rb");
-		}
-	}
+	if(!gzfile_exists(filename))	return 0;	// no file at all
+	f= my_gzopen(filename);
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
@@ -992,16 +969,8 @@ void load_bmp8_to_coordinates (const char *filename, Uint8 *texture_space, int x
 	Uint8 *color_pallete;
 #ifdef	ZLIB
 	gzFile *f = NULL;
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, filename);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(filename, "rb");
-		}
-	}
+	if(!gzfile_exists(filename))	return 0;	// no file at all
+	f= my_gzopen(filename);
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
@@ -1193,16 +1162,8 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	Uint8 *texture_mem;
 #ifdef	ZLIB
 	gzFile *f = NULL;
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, filename);
-		strcat(gzfilename, ".gz");
-		f= gzopen(gzfilename, "rb");
-		if(!f){
-			// didn't work, try the name that was specified
-			f= gzopen(filename, "rb");
-		}
-	}
+	if(!gzfile_exists(filename))	return 0;	// no file at all
+	f= my_gzopen(filename);
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
