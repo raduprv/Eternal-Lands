@@ -969,7 +969,7 @@ void load_bmp8_to_coordinates (const char *filename, Uint8 *texture_space, int x
 	Uint8 *color_pallete;
 #ifdef	ZLIB
 	gzFile *f = NULL;
-	if(!gzfile_exists(filename))	return 0;	// no file at all
+	if(!gzfile_exists(filename))	return;	// no file at all
 	f= my_gzopen(filename);
 #else	//ZLIB
 	FILE *f = NULL;
