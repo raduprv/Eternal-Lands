@@ -69,7 +69,7 @@ void destroy_all_actors();
  *
  * \callgraph
  */
-void add_command_to_actor(int actor_id, char command);
+void add_command_to_actor(int actor_id, unsigned char command);
 
 /*!
  * \ingroup	network_actors

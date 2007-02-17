@@ -950,7 +950,7 @@ void update_all_actors()
 	my_tcp_send(my_socket,str,1);
 }
 
-void add_command_to_actor(int actor_id, char command)
+void add_command_to_actor(int actor_id, unsigned char command)
 {
 	//int i=0;
 	int k=0;
