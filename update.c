@@ -16,12 +16,15 @@
 #include	<sys/types.h>
 #include	<sys/stat.h>
 #endif	//WINDOWS
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 int temp_counter;           // collision prevention during downloads just incase more then one ever starts
 int update_busy;            // state & lockout control to prevent two updates running at the same time
 char    update_server[128]; // the current server we are getting updates from
-int num_update_servers;
+unsigned int num_update_servers;
 char *update_servers[32];	// we cant handle more then 32 different servers
 int is_this_files_lst= 0;	// files.lst changes its name if it is a custom update
 char files_lst[256]= {0};
@@ -40,7 +43,7 @@ Uint8	*download_cur_md5;
 void    init_update()
 {
 	FILE    *fp;
-	
+
 	if(update_busy){
 		return;
 	}
@@ -209,20 +212,33 @@ void    do_updates()
 int    do_threaded_update(void *ptr)
 {
 	char    buffer[1024];
-	FILE    *fp;
 	char	*buf;
 	int	num_files= 0;
-	
+#ifdef	ZLIB
+	gzFile *fp= NULL;
+#else	//ZLIB
+	FILE *fp= NULL;
+#endif	//ZLIB
+
 	// open the update file
+#ifdef	ZLIB
+	fp= my_gzopen(files_lst);
+#else	//ZLIB
 	fp= my_fopen(files_lst, "r");
+#endif	//ZLIB
 	if(fp == NULL){
 		// error, we stop processing now
 		update_busy= 0;
 		return(0);
 	}
 
+#ifdef	ZLIB
+	buf= gzgets(fp, buffer, 1024);
+	while(buf && buf != Z_NULL){
+#else	//ZLIB
 	buf= fgets(buffer, 1024, fp);
 	while(buf && !ferror(fp)){
+#endif	//ZLIB
 		char	filename[1024];
 		char    asc_md5[256];
 		Uint8	md5[16];
@@ -263,11 +279,19 @@ int    do_threaded_update(void *ptr)
 		}
 			
 		// read the next line, if any
+#ifdef	ZLIB
+		buf= gzgets(fp, buffer, 1024);
+#else	//ZLIB
 		buf= fgets(buffer, 1024, fp);
+#endif	//ZLIB
 	}
 	// close the file, clear that we are busy
 	if(fp){
+#ifdef	ZLIB
+		gzclose(fp);
+#else	//ZLIB
 		fclose(fp);
+#endif	//ZLIB
 	}
 	update_busy= 0;
 
