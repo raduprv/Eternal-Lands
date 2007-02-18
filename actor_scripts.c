@@ -6,6 +6,7 @@
 #include "actors.h"
 
 // mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now
+// NOTE: with the new XML standards being used, these are being phased out in preference to the numeric's in the XML
 const dict_elem actor_type_dict[] =
 	{ { "human female"          , human_female           },
 	  { "human male"            , human_male             },
@@ -368,15 +369,15 @@ void cal_actor_set_random_idle(int id)
 	//actors_list[id]->cur_anim=anim;
 	//actors_list[id]->anim_time=0.0;
 	CalModel_Update(actors_list[id]->calmodel,0.0001);//Make changes take effect now
-	actors_list[id]->IsOnIdle=1;
-	actors_list[id]->cur_anim.duration=0;
-	actors_list[id]->anim_time=0.0;
+	actors_list[id]->IsOnIdle= 1;
+	actors_list[id]->cur_anim.duration= 0;
+	actors_list[id]->anim_time= 0.0;
 	actors_list[id]->last_anim_update= cur_time;
-	actors_list[id]->cur_anim.anim_index=-1;
+	actors_list[id]->cur_anim.anim_index= -1;
 #ifdef NEW_SOUND
 	stop_sound(actors_list[id]->cur_anim_sound_cookie);
 #endif	//NEW_SOUND
-	actors_list[id]->cur_anim_sound_cookie = 0;
+	actors_list[id]->cur_anim_sound_cookie= 0;
 	//if (actors_list[id]->cur_anim.anim_index==-1) actors_list[id]->busy=0;
 }
 
@@ -403,34 +404,40 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 void animate_actors()
 {
 	int i;
-	static int last_update=0;
+	static int last_update= 0;
 	char str[255];
+
 	// lock the actors_list so that nothing can interere with this look
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
-	for(i=0;i<max_actors;i++) {
+	for(i=0; i<max_actors; i++) {
 		if(actors_list[i]) {
 			if(actors_list[i]->moving) {
 				actors_list[i]->movement_frames_left--;
-				if(!actors_list[i]->movement_frames_left){//we moved all the way
+				if(!actors_list[i]->movement_frames_left){	//we moved all the way
 					Uint8 last_command;
-					actors_list[i]->moving=0;//don't move next time, ok?
-					actors_list[i]->after_move_frames_left=3;//this is done to prevent going to idle imediatelly
+
+					actors_list[i]->moving= 0;	//don't move next time, ok?
+					actors_list[i]->after_move_frames_left= 3;	//this is done to prevent going to idle imediatelly
 					//now, we need to update the x/y_tile_pos, and round off
 					//the x/y_pos according to x/y_tile_pos
-					last_command=actors_list[i]->last_command;
+					last_command= actors_list[i]->last_command;
 					switch(last_command) {
 						case move_n:
 						case run_n:
-							actors_list[i]->y_tile_pos++;break;
+							actors_list[i]->y_tile_pos++;
+							break;
 						case move_s:
 						case run_s:
-							actors_list[i]->y_tile_pos--;break;
+							actors_list[i]->y_tile_pos--;
+							break;
 						case move_e:
 						case run_e:
-							actors_list[i]->x_tile_pos++;break;
+							actors_list[i]->x_tile_pos++;
+							break;
 						case move_w:
 						case run_w:
-							actors_list[i]->x_tile_pos--;break;
+							actors_list[i]->x_tile_pos--;
+							break;
 						case move_ne:
 						case run_ne:
 							actors_list[i]->x_tile_pos++;
@@ -454,8 +461,8 @@ void animate_actors()
 					}
 
 					//ok, now update the x/y_pos
-					actors_list[i]->x_pos=actors_list[i]->x_tile_pos*0.5;
-					actors_list[i]->y_pos=actors_list[i]->y_tile_pos*0.5;
+					actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
+					actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
 #ifdef  MINIMAP
 					// and update the minimap if we need to
 					if(actors_list[i]->actor_id == yourself){
@@ -463,19 +470,19 @@ void animate_actors()
 					}
 #endif  //MINIMAP
 				} else {
-					actors_list[i]->x_pos+=actors_list[i]->move_x_speed;
-					actors_list[i]->y_pos+=actors_list[i]->move_y_speed;
-					actors_list[i]->z_pos+=actors_list[i]->move_z_speed;
+					actors_list[i]->x_pos+= actors_list[i]->move_x_speed;
+					actors_list[i]->y_pos+= actors_list[i]->move_y_speed;
+					actors_list[i]->z_pos+= actors_list[i]->move_z_speed;
 				}
 			} else {//Not moving
 				if(actors_list[i]->after_move_frames_left){
 					actors_list[i]->after_move_frames_left--;
-					if (actors_list[i]->actor_id==yourself)  {
+					if (actors_list[i]->actor_id == yourself)  {
 						snprintf(str,sizeof(str),"Left: %d",actors_list[i]->after_move_frames_left);
 					}
 					if(!actors_list[i]->after_move_frames_left){
-						//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Free");
-						actors_list[i]->busy=0;
+						//if (actors_list[i]->actor_id == yourself) LOG_TO_CONSOLE(c_green2,"Free");
+						actors_list[i]->busy= 0;
 					}
 				}
 			}
@@ -483,10 +490,10 @@ void animate_actors()
 			if(actors_list[i]->rotating) {
 				actors_list[i]->rotate_frames_left--;
 				if(!actors_list[i]->rotate_frames_left)//we rotated all the way
-					actors_list[i]->rotating=0;//don't rotate next time, ok?
-				actors_list[i]->x_rot+=actors_list[i]->rotate_x_speed;
-				actors_list[i]->y_rot+=actors_list[i]->rotate_y_speed;
-				actors_list[i]->z_rot+=actors_list[i]->rotate_z_speed;
+					actors_list[i]->rotating= 0;//don't rotate next time, ok?
+				actors_list[i]->x_rot+= actors_list[i]->rotate_x_speed;
+				actors_list[i]->y_rot+= actors_list[i]->rotate_y_speed;
+				actors_list[i]->z_rot+= actors_list[i]->rotate_z_speed;
 				if(actors_list[i]->z_rot >= 360) {
 					actors_list[i]->z_rot -= 360;
 				} else if (actors_list[i]->z_rot <= 0) {
@@ -513,13 +520,13 @@ void animate_actors()
 	// unlock the actors_list since we are done now
 	UNLOCK_ACTORS_LISTS();
 
-	last_update=cur_time;
+	last_update= cur_time;
 }
 
 
 
 
-int coun=0;
+int coun= 0;
 void move_to_next_frame()
 {
 	int i;
