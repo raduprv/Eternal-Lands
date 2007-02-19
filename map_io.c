@@ -780,7 +780,15 @@ int save_map(char * file_name)
 
 	//ok, now let's open/create the file, and start writting the header...
 #ifdef	ZLIBW
-	f=gzopen(file_name, "wb");
+	{
+		char gzfilename[1024];
+		strcpy(gzfilename, file_name);
+		strcat(gzfilename, ".gz");
+		f= gzopen(gzfilename, "wb");
+		if(!f){	// failed for a strange reason, possibly permissions?
+			f= gzopen(file_name, "wb");
+		}
+	}
 #else	//ZLIBW
 	f=my_fopen(file_name, "wb");
 #endif	//ZLIBW
