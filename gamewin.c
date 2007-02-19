@@ -482,12 +482,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
+Uint32 next_fps_time = 0;	// made global so the other modes can keep it from goin stale
+int last_count = 0;
 int display_game_handler (window_info *win)
 {
 	static int main_count = 0;
 	static int times_FPS_below_3 = 0;
-	static int next_fps_time = 0;
-	static int last_count = 0;
 	static int fps[5]={100};
 	static float fps_average=100.0f;
 	static int shadows_were_disabled=0;
@@ -648,6 +648,9 @@ int display_game_handler (window_info *win)
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{
+		// remember the time stamp to improve FPS quality when switching modes
+		next_fps_time=cur_time+1000;
+		last_count=0;
 		draw_delay = 20;
 		// Return to 2D mode to draw the other windows
 		glPopMatrix (); // restore the state
@@ -665,7 +668,7 @@ int display_game_handler (window_info *win)
 
 	Enter2DMode ();
 	//get the FPS, etc
-	
+
 	if (next_fps_time<cur_time){
 		fps[4]=fps[3];
 		fps[3]=fps[2];

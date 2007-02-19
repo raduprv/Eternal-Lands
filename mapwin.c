@@ -57,6 +57,10 @@ int display_map_handler (window_info * win)
 	}
 #endif //SFX
 
+	// remember the time stamp to improve FPS quality when switching modes
+	next_fps_time=cur_time+1000;
+	last_count=0;
+
 	draw_delay = 20;
 	return 1;
 }

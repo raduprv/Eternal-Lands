@@ -174,7 +174,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 {
 	static char last_complete[48] = {0};
 	static int have_last_complete = 0;
-	static int last_count = -1;
+	static int last_str_count = -1;
 	static enum compl_type last_type = NAME;
 	struct compl_str return_value = {NULL, 0};
 
@@ -225,7 +225,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 
 		if((*input_string && strncasecmp(input_string, last_complete, strlen(last_complete)) != 0) || !have_last_complete) {
 			/* New input string, start over */
-			last_count = -1;
+			last_str_count = -1;
 			if(return_value.type == NAME) {
 				/* If it's a name (completed anywhere), isolate the word 
 				 * we're currently typing */
@@ -248,9 +248,9 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 					for(i = 0, count = 0; i < name_count; i++) {
 						if(strncasecmp(name_list[i], last_complete, strlen(last_complete)) == 0) {
 							/* We have a match! */
-							if(count > last_count) {
+							if(count > last_str_count) {
 								/* This hasn't been returned yet, let's return it */
-								last_count = count++;
+								last_str_count = count++;
 								return_value.str = name_list[i];
 								break;
 							}
@@ -262,9 +262,9 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 					for(step = queue_front_node(chan_name_queue), count = 0; step->next != NULL; step = step->next) {
 						if(strncasecmp(((chan_name*)(step->data))->name, last_complete, strlen(last_complete)) == 0) {
 							/* Yay! The chan-name begins with the string we're searching for. */
-							if(count > last_count) {
+							if(count > last_str_count) {
 								/* We found something we haven't returned earlier, let's return it. */
-								last_count = count++;
+								last_str_count = count++;
 								return_value.str = ((chan_name*)(step->data))->name;
 								break;
 							}
@@ -277,9 +277,9 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 					for(i = 0, count = 0; i < command_count; i++) {
 						if(strncasecmp(commands[i].command, last_complete, strlen(last_complete)) == 0) {
 							/* Yay! The command begins with the string we're searching for. */
-							if(count > last_count) {
+							if(count > last_str_count) {
 								/* We found something we haven't returned earlier, let's return it. */
-								last_count = count++;
+								last_str_count = count++;
 								return_value.str = commands[i].command;
 								break;
 							}
@@ -291,14 +291,14 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 			if(!return_value.str && count) {
 				/* We checked the whole list and found something, but not
 				 * anything we haven't returned earlier. Let's start from the beginning again. */
-				last_count = -1;
+				last_str_count = -1;
 			}
 		}
 		last_type = return_value.type;
 	} else {
 		have_last_complete = 0;
 		*last_complete = '\0';
-		last_count = -1;
+		last_str_count = -1;
 	}
 	return return_value;
 }
