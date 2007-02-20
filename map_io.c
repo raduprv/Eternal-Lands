@@ -780,7 +780,7 @@ int save_map(char * file_name)
 
 	//ok, now let's open/create the file, and start writting the header...
 #ifdef	ZLIBW
-	f=my_gzopen(file_name, "wb");
+	f=my_gzopen(file_name, "wb9");	// with high level compression
 #else	//ZLIBW
 	f=my_fopen(file_name, "wb");
 #endif	//ZLIBW
