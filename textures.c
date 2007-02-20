@@ -103,7 +103,7 @@ int load_alphamap(char * FileName, char * texture_mem, int orig_x_size, int orig
 
 #ifdef	ZLIB
 	if(!gzfile_exists(filename))	return 0;	// no file at all
-	f= my_gzopen(filename);
+	f= my_gzopen(filename, "rb");
 #else	//ZLIB
 	f= fopen(filename, "rb");
 #endif	//ZLIB

@@ -292,8 +292,12 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
  *
  * Appends the '.gz' to a filename and tries to open the file with that
  * name. If it fails, tries to open the file with the original filename.
+ *
+ * \param filename The file to open
+ * \param mode The i/o mode (see open())
+ * \return a zlib file handle
  */
-gzFile * my_gzopen(const char * filename);
+gzFile * my_gzopen(const char * filename, const char * mode);
 #endif // ZLIB
 
 static __inline__ int min2i (int x, int y)

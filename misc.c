@@ -452,16 +452,16 @@ int gzfile_exists(const char *fname)
 }
 
 #ifdef ZLIB
-gzFile * my_gzopen(const char * filename)
+gzFile * my_gzopen(const char * filename, const char * mode)
 {
 	char gzfilename[1024];
 	gzFile * result;
 
 	snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
-	result= gzopen(gzfilename, "rb");
+	result= gzopen(gzfilename, mode);
 	if(result == NULL) {
 		// didn't work, try the name that was specified
-		result= gzopen(filename, "rb");
+		result= gzopen(filename, mode);
 	}
 	if(result == NULL) {
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
