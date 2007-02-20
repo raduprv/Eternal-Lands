@@ -222,7 +222,7 @@ int    do_threaded_update(void *ptr)
 
 	// open the update file
 #ifdef	ZLIB
-	fp= my_gzopen(files_lst);
+	fp= my_gzopen(files_lst, "rb");
 #else	//ZLIB
 	fp= my_fopen(files_lst, "r");
 #endif	//ZLIB
