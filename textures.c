@@ -235,7 +235,7 @@ GLuint load_bmp8_color_key(char * filename)
 	CHECK_GL_ERRORS();
 #ifdef	ZLIB
 	if(!gzfile_exists(filename))	return 0;	// no file at all
-	f= my_gzopen(filename);
+	f= my_gzopen(filename, "rb");
 #else	//ZLIB
 	f= fopen(filename, "rb");
 #endif	//ZLIB
@@ -409,7 +409,7 @@ GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
 #ifdef	ZLIB
 	gzFile *f = NULL;
 	if(!gzfile_exists(filename))	return 0;	// no file at all
-	f= my_gzopen(filename);
+	f= my_gzopen(filename, "rb");
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
@@ -656,7 +656,7 @@ GLuint load_bmp8_remapped_skin(char * filename, Uint8 a, short skin, short hair,
 #ifdef	ZLIB
 	gzFile *f = NULL;
 	if(!gzfile_exists(filename))	return 0;	// no file at all
-	f= my_gzopen(filename);
+	f= my_gzopen(filename, "rb");
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
@@ -970,7 +970,7 @@ void load_bmp8_to_coordinates (const char *filename, Uint8 *texture_space, int x
 #ifdef	ZLIB
 	gzFile *f = NULL;
 	if(!gzfile_exists(filename))	return;	// no file at all
-	f= my_gzopen(filename);
+	f= my_gzopen(filename, "rb");
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
@@ -1163,7 +1163,7 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 #ifdef	ZLIB
 	gzFile *f = NULL;
 	if(!gzfile_exists(filename))	return 0;	// no file at all
-	f= my_gzopen(filename);
+	f= my_gzopen(filename, "rb");
 #else	//ZLIB
 	FILE *f = NULL;
 	f= fopen(filename, "rb");
