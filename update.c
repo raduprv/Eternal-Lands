@@ -130,7 +130,7 @@ void    handle_update_download(struct http_get_struct *get)
 			if(!sts){
 				do_updates();
 			} else {
-				log_error("Unable to finish files.lst processing (%d)", errno);
+				log_error("Unable to finish %d processing (%d)", files_lst, errno);
 			}
 			
 			// and go back to normal processing
