@@ -367,6 +367,10 @@ void draw_3d_object(object3d * object_id)
 	}
 
 	if(is_transparent) {
+#ifdef	NEW_ALPHA
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+#endif	NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
 		glEnable(GL_ALPHA_TEST);
 		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
@@ -384,6 +388,9 @@ void draw_3d_object(object3d * object_id)
 	if(is_transparent) {
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
+#ifdef	NEW_ALPHA
+		glDisable(GL_BLEND);
+#endif	//NEW_ALPHA
 	}
 
 	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
@@ -458,6 +465,10 @@ void draw_3d_objects(unsigned int object_type)
 	}
 
 	if(is_transparent) {
+#ifdef	NEW_ALPHA
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+#endif	//NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
 		glEnable(GL_ALPHA_TEST);
 		if(is_ground)	glAlphaFunc(GL_GREATER,0.23f);
@@ -545,6 +556,9 @@ void draw_3d_objects(unsigned int object_type)
 	if(is_transparent) {
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
+#ifdef	NEW_ALPHA
+		glDisable(GL_BLEND);
+#endif	//NEW_ALPHA
 	}
 
 	CHECK_GL_ERRORS();
@@ -963,10 +977,10 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -980,10 +994,10 @@ void display_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -1037,10 +1051,10 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -1055,10 +1069,10 @@ void display_blended_objects()
 			draw_3d_object(objects_list[nobj->pos]);
 	}
 #else
-	draw_3d_objects(TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 
 	CHECK_GL_ERRORS();
@@ -1317,12 +1331,14 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		{
 			char text_file_name[500];
 			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material_list[i].material_name);
-/* // FIXME: Why is this commented out?
-			if(cur_object->is_transparent)material_list[i].material_id=load_texture_cache(text_file_name,0);
-			else material_list[i].material_id=load_texture_cache(text_file_name,255);
-*/
-			//material_list[i].material_id=load_texture_cache(text_file_name,0);
-			material_list[i].material_id=load_texture_cache_deferred(text_file_name,0);
+// FIXME: Why is this commented out?
+#ifdef	NEW_ALPHA
+			if(cur_object->is_transparent)material_list[i].material_id= load_texture_cache_deferred(text_file_name, -1);
+			else material_list[i].material_id= load_texture_cache_deferred(text_file_name, 255);
+			//material_list[i].material_id=load_texture_cache_deferred(text_file_name, -1);
+#else	//NEW_ALPHA
+			material_list[i].material_id=load_texture_cache(text_file_name,0);
+#endif	//NEW_ALPHA
 		}
 
 	//assign the proper texture to each face
