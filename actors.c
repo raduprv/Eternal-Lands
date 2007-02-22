@@ -43,7 +43,8 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 	ERR();
 #endif
 
-	if(!remappable)texture_id= load_texture_cache_deferred(skin_name,255);
+	//if(!remappable)texture_id= load_texture_cache_deferred(skin_name,255);
+	if(!remappable)texture_id= load_texture_cache_deferred(skin_name, -1);
 	else
 		{
 			log_error("remapped skin for %s", skin_name);
