@@ -43,10 +43,12 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 	ERR();
 #endif
 
-	if(!remappable)texture_id=load_texture_cache(skin_name,150);
+	if(!remappable)texture_id= load_texture_cache_deferred(skin_name,255);
 	else
 		{
-			texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
+			log_error("remapped skin for %s", skin_name);
+			//texture_id=load_bmp8_remapped_skin(skin_name,150,skin_color,hair_color,shirt_color,pants_color,boots_color);
+			exit(-1);
 		}
 
 	our_actor = calloc(1, sizeof(actor));
@@ -87,7 +89,6 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 	//clear the que
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
 
-//	our_actor->model_data=returned_md2;
 	our_actor->texture_id=texture_id;
 	our_actor->skin=skin_color;
 	our_actor->hair=hair_color;
@@ -769,18 +770,11 @@ void add_actor_from_server (const char *in_data, int len)
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
 
-	/*remapable=*(in_data+11);
-	skin=*(in_data+12);
-	hair=*(in_data+13);
-	shirt=*(in_data+14);
-	pants=*(in_data+15);
-	boots=*(in_data+16);
-	*/
 	frame=*(in_data+11);
 	max_health=SDL_SwapLE16(*((short *)(in_data+12)));
 	cur_health=SDL_SwapLE16(*((short *)(in_data+14)));
 	kind_of_actor=*(in_data+16);
-	if(len > 17+strlen(in_data+17)+2){
+	if(len > 17+(int)strlen(in_data+17)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+17+strlen(in_data+17)+1)))/((float)ACTOR_SCALE_BASE));
 	}
 

@@ -6,6 +6,8 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
+#define	MAX_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
+
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
 extern int sit_lock; 	/*!< The sit_lock variable holds you in a sitting position.*/
@@ -66,7 +68,7 @@ extern int no_near_actors;
 extern struct near_actor near_actors[1000];
 
 /*!
- * The enhanced actor structure holds information about the actors md2 extensions such as if the actor is wearing any armour, weapons etc.
+ * The enhanced actor structure holds information about the actors extensions such as if the actor is wearing any armour, weapons etc.
  */
 typedef struct
 {
@@ -81,31 +83,37 @@ typedef struct
 	int shield_meshindex;
 	int helmet_meshindex;
 	int cape_meshindex;
-	/*! \name The extended md2s (for more complex models that can carry and remove weapons, armour etc.)*/
-	/*! \{ */
-	//md2 *legs;
-	//md2 *head;
-	//md2 *torso;
-	//md2 *weapon;
-	//md2 *shield;
-	//md2 *helmet;
-	//md2 *cape;
-	/*! \} */
 
 	/*! \name The texture names*/
 	/*! \{ */
-	char pants_tex[256];
-	char boots_tex[256];
-	char torso_tex[256];
-	char arms_tex[256];
-	char hands_tex[256];
-	char head_tex[256];
-	char hair_tex[256];
-	char weapon_tex[256];
-	char shield_tex[256];
-	char helmet_tex[256];
-	char cape_tex[256];
-	char hands_tex_save[256];
+	char pants_tex[MAX_PATH];
+	char pants_mask[MAX_PATH];
+
+	char boots_tex[MAX_PATH];
+	char boots_mask[MAX_PATH];
+
+	char torso_tex[MAX_PATH];
+	char arms_tex[MAX_PATH];
+	char torso_mask[MAX_PATH];
+	char arms_mask[MAX_PATH];
+
+	char hands_tex[MAX_PATH];
+	char head_tex[MAX_PATH];
+	char hands_mask[MAX_PATH];
+	char head_mask[MAX_PATH];
+
+	char head_base[MAX_PATH];
+	char body_base[MAX_PATH];
+	char arms_base[MAX_PATH];
+	char legs_base[MAX_PATH];
+	char boots_base[MAX_PATH];
+
+	char hair_tex[MAX_PATH];
+	char weapon_tex[MAX_PATH];
+	char shield_tex[MAX_PATH];
+	char helmet_tex[MAX_PATH];
+	char cape_tex[MAX_PATH];
+	char hands_tex_save[MAX_PATH];
 		
 	/*! \} */
 
@@ -122,8 +130,9 @@ typedef struct
 /*! Sets the main model type*/
 typedef struct
 {
-	char model_name[256];
-	char skin_name[256];
+	char model_name[MAX_PATH];
+	char skin_name[MAX_PATH];
+	char skin_mask[MAX_PATH];
 	int glow;
 	int mesh_index;
 }body_part;
@@ -131,8 +140,9 @@ typedef struct
 /*! Sets the weapon type (including animation frame names)*/
 typedef struct
 {
-	char model_name[256];
-	char skin_name[256];
+	char model_name[MAX_PATH];
+	char skin_name[MAX_PATH];
+	char skin_mask[MAX_PATH];
 	int glow;
 	int mesh_index;
 
@@ -145,31 +155,38 @@ typedef struct
 /*! Defines the main models looks*/
 typedef struct
 {
-	char model_name[256];
-	char arms_name[256];
-	char torso_name[256];
+	char model_name[MAX_PATH];
+	char arms_name[MAX_PATH];
+	char torso_name[MAX_PATH];
+	char arms_mask[MAX_PATH];
+	char torso_mask[MAX_PATH];
 	int mesh_index;
 }shirt_part;
 
 /*! Sets the models hands and head*/
 typedef struct
 {
-	char hands_name[256];
-	char head_name[256];
+	char hands_name[MAX_PATH];
+	char head_name[MAX_PATH];
+	char arms_name[MAX_PATH];
+	char body_name[MAX_PATH];
+	char legs_name[MAX_PATH];
+	char feet_name[MAX_PATH];
 	int mesh_index;
 }skin_part;
 
 /*! Sets the models hair name*/
 typedef struct
 {
-	char hair_name[256];
+	char hair_name[MAX_PATH];
 	int mesh_index;
 }hair_part;
 
-/*! Holds info about the boots md2*/
+/*! Holds info about the boots */
 typedef struct
 {
-	char boots_name[256];
+	char boots_name[MAX_PATH];
+	char boots_mask[MAX_PATH];
 	int glow;
 	int mesh_index;
 }boots_part;
@@ -177,8 +194,9 @@ typedef struct
 /*! Holds info about the legs type*/
 typedef struct
 {
-	char legs_name[256];
-	char model_name[256];
+	char legs_name[MAX_PATH];
+	char model_name[MAX_PATH];
+	char legs_mask[MAX_PATH];
 	int glow;
 	int mesh_index;
 }legs_part;
@@ -191,19 +209,19 @@ typedef struct cal_anim_group
 	char name[32];
 	int count;
 	struct cal_anim anim[16];
-} wtf_is_this;
+} cal_animations;
 
-
-#define ACTOR_HEAD_SIZE   5
+// TODO: would be nice to make these dynamic
+#define ACTOR_HEAD_SIZE   10
 #define ACTOR_SHIELD_SIZE (SHIELD_NONE+1)
 #define ACTOR_CAPE_SIZE   (CAPE_NONE+1)
 #define ACTOR_HELMET_SIZE (HELMET_NONE+1)
 #define ACTOR_WEAPON_SIZE 80
-#define ACTOR_SHIRT_SIZE  22
+#define ACTOR_SHIRT_SIZE  100
 #define ACTOR_SKIN_SIZE   10
 #define ACTOR_HAIR_SIZE   20
-#define ACTOR_BOOTS_SIZE  20
-#define ACTOR_LEGS_SIZE   20
+#define ACTOR_BOOTS_SIZE  40
+#define ACTOR_LEGS_SIZE   50
 
 typedef struct
 {
@@ -211,7 +229,7 @@ typedef struct
 	/*! \{ */
 	int actor_type;
 	char actor_name[66];
-	char skin_name[256];
+	char skin_name[MAX_PATH];
 	char file_name[256];
 	/*! \} */
 
@@ -219,7 +237,7 @@ typedef struct
 	float scale;
 	float mesh_scale;
 	float skel_scale;
-	char skeleton_name[256];
+	char skeleton_name[MAX_PATH];
 
 	struct CalCoreModel *coremodel;
 	//Animation indexes
@@ -365,9 +383,8 @@ typedef struct
 	/*! \} */
 
 	/*! \{ */
-	//md2 *model_data;	/*!< Is a pointer to the md2 model data loaded when the actor was first added*/
 	char remapped_colors;	/*!< If the actors colours are remapped it will holds the texture in actor->texture_id*/
-	int texture_id;		/*!< Sets the texture ID, if the remapped_colors==1 - remember to glDeleteTextures*/
+	int texture_id;			/*!< Sets the texture ID, if the remapped_colors==1 - remember to glDeleteTextures*/
 	char skin_name[256];	/*!< Sets the skin name*/
 	char actor_name[256];	/*!< Sets the actors name - holds the guild name as well after a special 127+color character*/
 	/*! \} */
@@ -376,7 +393,7 @@ typedef struct
 	/*! \{ */
 	char que[MAX_CMD_QUEUE+1];		/*!< Holds the current command queue*/
 	char last_command;	/*!< Holds the last command*/
-	char busy;		/*!< if the actor is busy executing the current command*/
+	char busy;			/*!< if the actor is busy executing the current command*/
 	char sitting;		/*!< Specifies if the actor is currently sitting*/
 	char fighting;		/*!< Specifies if the actor is currently fighting*/
 	/*! \} */
@@ -443,18 +460,6 @@ extern int	max_actors;		/*!< The current number of actors in the actors_list + 1
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
 /*!
- * \ingroup 	display_actors
- * \brief	Gets the frame number in the md2 file from the current frame
- * 
- * 		Gets the frame number in the md2 file from the current frame - called when displaying the given actor.
- *
- * \param	model_data The MD2 model data, we wish to find the position of the cur_frame in
- * \param	cur_frame The name of the current frame.
- * \retval int	Returns the position of the frame on succes, -1 on failure (if the given frame was not found)
- */
-//int get_frame_number(const md2 *model_data, const char *cur_frame);
-
-/*!
  * \ingroup	display_actors
  * \brief	Draws the actors banner (healthbar, name, etc)
  *
@@ -466,36 +471,6 @@ extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
  * \callgraph
  */
 void draw_actor_banner(actor * actor_id, float offset_z);
-
-/*!
- * \ingroup	display_actors
- * \brief	Draws a halo around the md2 with the colours given by r g b
- *
- * 		Draws a halo around the model given by the md2 pointer and the cur_frame. The r g b values define what colour the halo will be
- *
- * \param	model_data A pointer to the md2 model data
- * \param	cur_frame The current frame in the model_data
- * \param	r (0<=r<=1)
- * \param	g (0<=g<=1)
- * \param	b (0<=b<=1)
- *
- * \callgraph
- */
-//void draw_model_halo(md2 *model_data,char *cur_frame, float r, float g, float b);
-
-/*!
- * \ingroup	display_actors
- * \brief	Draws the model from the data given by the md2*
- *
- * 		Draws the cur_frame of the md2 model pointed to with model_data. The ghost parameter is not used yet.
- *
- * \param	model_data A pointer to the md2 model
- * \param	cur_frame The current frame
- * \param	ghost Whether the model is a "ghost" or not
- *
- * \callgraph
- */
-//void draw_model(md2 *model_data,char *cur_frame, int ghost);
 
 /*!
  * \ingroup	display_actors
@@ -519,7 +494,6 @@ void display_actors(int banner, int reflections);
  * \callgraph
  */
 void add_actor_from_server (const char * in_data, int len);
-//void draw_interface_body_part(md2 *model_data);
 
 /*!
  * \ingroup	display_actors

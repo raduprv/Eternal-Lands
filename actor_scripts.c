@@ -1351,6 +1351,10 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
 			} else if(xmlStrcasecmp(item->name, "torso") == 0) {
 				get_string_value(shirt->torso_name, sizeof(shirt->torso_name), item);
+			} else if(xmlStrcasecmp (item->name, "armsmask") == 0) {
+				get_string_value(shirt->arms_mask, sizeof(shirt->arms_mask), item);
+			} else if(xmlStrcasecmp(item->name, "torsomask") == 0) {
+				get_string_value(shirt->torso_mask, sizeof(shirt->torso_mask), item);
 			} else {
 				LOG_ERROR("unknown shirt property \"%s\"", item->name);
 				ok= 0;
@@ -1407,6 +1411,14 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 				get_string_value (skin->hands_name, sizeof (skin->hands_name), item);
 			} else if (xmlStrcasecmp (item->name, "head") == 0) {
 				get_string_value (skin->head_name, sizeof (skin->head_name), item);
+			} else if (xmlStrcasecmp (item->name, "torso") == 0) {
+				get_string_value (skin->body_name, sizeof (skin->body_name), item);
+			} else if (xmlStrcasecmp (item->name, "arms") == 0) {
+				get_string_value (skin->arms_name, sizeof (skin->arms_name), item);
+			} else if (xmlStrcasecmp (item->name, "legs") == 0) {
+				get_string_value (skin->legs_name, sizeof (skin->legs_name), item);
+			} else if (xmlStrcasecmp (item->name, "feet") == 0) {
+				get_string_value (skin->feet_name, sizeof (skin->feet_name), item);
 			} else {
 				LOG_ERROR("unknown skin property \"%s\"", item->name);
 				ok = 0;
@@ -1458,6 +1470,8 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 			} else if (xmlStrcasecmp (item->name, "mesh") == 0) {
 				get_string_value (legs->model_name, sizeof (legs->model_name), item);
 				legs->mesh_index = cal_load_mesh (act, legs->model_name, "legs");
+			} else if (xmlStrcasecmp (item->name, "skinmask") == 0) {
+				get_string_value (legs->legs_mask, sizeof (legs->legs_mask), item);
 			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
@@ -1506,6 +1520,8 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 				weapon->mesh_index = cal_load_weapon_mesh (act, weapon->model_name, "weapon");
 			} else if (xmlStrcasecmp (item->name, "skin") == 0) {
 				get_string_value (weapon->skin_name, sizeof (weapon->skin_name), item);
+			} else if (xmlStrcasecmp (item->name, "skinmask") == 0) {
+				get_string_value (weapon->skin_mask, sizeof (weapon->skin_mask), item);
 			} else if (xmlStrcasecmp (item->name, "CAL_attack_up1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_up_1_frame=cal_load_anim(act, str
@@ -1626,6 +1642,8 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 					part->mesh_index = cal_load_mesh (act, part->model_name, part_name);
 			} else if(xmlStrcasecmp(item->name, "skin") == 0) {
 				get_string_value (part->skin_name, sizeof (part->skin_name), item);
+			} else if(xmlStrcasecmp(item->name, "skinmask") == 0) {
+				get_string_value (part->skin_mask, sizeof (part->skin_mask), item);
 			} else if(xmlStrcasecmp(item->name, "glow") == 0) {
 				int mode= find_description_index (glow_mode_dict, item->children->content, "glow mode");
 				if(mode < 0) mode = GLOW_NONE;
@@ -2123,6 +2141,8 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, "skin") == 0) {
 				get_string_value (boots->boots_name, sizeof (boots->boots_name), item);
+			} else if (xmlStrcasecmp (item->name, "botsmask") == 0) {
+				get_string_value (boots->boots_mask, sizeof (boots->boots_mask), item);
 			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
@@ -2148,17 +2168,6 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	actor_check_string(act, "boots", "boots", boots->boots_name);
 
 	return ok;
-}
-
-void MD2_to_CMF(char *str)
-{
-	int l;
-	l=strlen(str);
-
-	if (l<3) return;
-	str[l-3]='c';
-	str[l-2]='m';
-	str[l-1]='f';
 }
 
 //Searches if a mesh is already loaded- TODO:MAKE THIS BETTER
@@ -2246,10 +2255,6 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 		res = cal_search_mesh (act, fn, kind);
 		if (res != -1) return res;
 	}
-	//sscanf(fn,"./md2/%s",temp);
-	//MD2_to_CMF(temp);
-	//sprintf(fname,"./Meshes/%s",temp);
-	//LOG_TO_CONSOLE(c_green2,fn);
 
 	//Load coremesh
 	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
@@ -2283,11 +2288,6 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 		res = cal_search_mesh (act, fn, kind);
 		if (res!=-1) return res;
 	}
-
-	//sscanf(fn,"./md2/%s",temp);
-	//MD2_to_CMF(temp);
-	//sprintf(fname,"./Meshes/%s",temp);
-	//LOG_TO_CONSOLE(c_green2,fn);
 
 	//Load coremesh
 	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
