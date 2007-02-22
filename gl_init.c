@@ -389,7 +389,8 @@ void init_video()
 {
 	int rgb_size[3];
 
-	if( SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1 )
+	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
+	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{
 			log_error("%s: %s\n", no_sdl_str, SDL_GetError());
 			SDL_Quit();
@@ -1030,9 +1031,8 @@ void set_new_video_mode(int fs,int mode)
 				{
 	            	alpha=texture_cache[i].alpha;
 	            	//our texture was freed, we have to reload it
-	        		if(alpha==0)texture_cache[i].texture_id=load_bmp8_color_key(texture_cache[i].file_name);
-	            	else
-						texture_cache[i].texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
+	        		if(alpha<=0) texture_cache[i].texture_id= load_bmp8_color_key(texture_cache[i].file_name, alpha);
+	            	else texture_cache[i].texture_id= load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
 				}
 		}
 
@@ -1047,9 +1047,9 @@ void set_new_video_mode(int fs,int mode)
 					if(actors_list[i]->remapped_colors)//if it is not remapable, then it is already in the cache
 						{
 							//reload the skin
-							actors_list[i]->texture_id=load_bmp8_remapped_skin(actors_list[i]->skin_name,
-																			   150,actors_list[i]->skin,actors_list[i]->hair,actors_list[i]->shirt,
-																			   actors_list[i]->pants,actors_list[i]->boots);
+							//actors_list[i]->texture_id=load_bmp8_remapped_skin(actors_list[i]->skin_name,
+							//												   150,actors_list[i]->skin,actors_list[i]->hair,actors_list[i]->shirt,
+							//												   actors_list[i]->pants,actors_list[i]->boots);
 						}
 					if(actors_list[i]->is_enhanced_model)
 						{
