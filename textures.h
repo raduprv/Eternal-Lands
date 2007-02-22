@@ -15,6 +15,13 @@
 
 #define TEXTURE_CACHE_MAX 2000
 extern texture_cache_struct texture_cache[TEXTURE_CACHE_MAX]; /*!< global texture cache */
+typedef struct
+{
+	Uint8 *texture;	/*!< a pointer to the texture */
+	int	x_size;		/*!< the width of the texture in pixels */
+	int	y_size;		/*!< the height of the texture in pixels */
+}texture_struct;
+
 
 /*!
  * \ingroup 	load_bmp
@@ -26,7 +33,7 @@ extern texture_cache_struct texture_cache[TEXTURE_CACHE_MAX]; /*!< global textur
  * \retval GLuint  	The texture ID given as a GLuint.
  * \callgraph
  */
-GLuint load_bmp8_color_key(char * FileName);
+GLuint load_bmp8_color_key(char * FileName, int alpha);
 
 /*!
  * \ingroup 	load_bmp
@@ -52,7 +59,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
  * \retval int  	The position in the texture_cache array
  * \callgraph
  */
-int load_texture_cache (const char * file_name,unsigned char alpha);
+int load_texture_cache (const char * file_name, int alpha);
 
 /*!
  * \ingroup 	cache
@@ -66,7 +73,7 @@ int load_texture_cache (const char * file_name,unsigned char alpha);
  * \retval int  	The position in the texture_cache array
  * \callgraph
  */
-int load_texture_cache_deferred (const char * file_name,unsigned char alpha);
+int load_texture_cache_deferred (const char * file_name, int alpha);
 
 /*!
  * \ingroup 	cache
