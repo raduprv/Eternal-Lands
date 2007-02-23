@@ -32,7 +32,7 @@ void init_actors_lists()
 }
 
 //return the ID (number in the actors_list[]) of the new allocated actor
-int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
+int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float z_pos, float z_rot, float scale, char remappable, short skin_color, short hair_color, short shirt_color, short pants_color, short boots_color, int actor_id)
 {
 	int texture_id;
 	int i;
@@ -43,8 +43,8 @@ int add_actor (char * skin_name, float x_pos, float y_pos, float z_pos, float z_
 	ERR();
 #endif
 
-	//if(!remappable)texture_id= load_texture_cache_deferred(skin_name,255);
-	if(!remappable)texture_id= load_texture_cache_deferred(skin_name, -1);
+	if(actors_defs[actor_type].ghost)	texture_id= load_texture_cache_deferred(skin_name, 150);
+	else if(!remappable)texture_id= load_texture_cache_deferred(skin_name, -1);
 	else
 		{
 			log_error("remapped skin for %s", skin_name);
@@ -841,7 +841,7 @@ void add_actor_from_server (const char *in_data, int len)
 					}
 		}
 
-	i= add_actor(actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, scale, 0, 0, 0, 0, 0, 0, actor_id);
+	i= add_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, scale, 0, 0, 0, 0, 0, 0, actor_id);
 
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
 
