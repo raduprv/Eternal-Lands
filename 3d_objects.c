@@ -1337,7 +1337,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 			else material_list[i].material_id= load_texture_cache_deferred(text_file_name, 255);
 			//material_list[i].material_id=load_texture_cache_deferred(text_file_name, -1);
 #else	//NEW_ALPHA
-			material_list[i].material_id=load_texture_cache(text_file_name,0);
+			material_list[i].material_id=load_texture_cache_deferred(text_file_name,0);
 #endif	//NEW_ALPHA
 		}
 
