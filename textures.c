@@ -460,7 +460,7 @@ int get_and_set_texture_id(int i)
 #endif	//DEBUG
 
 	// do we need to make a hard load or do we already have it?
-	if(!texture_cache[i].texture_i)
+	if(!texture_cache[i].texture_id)
 	{
 		texture_id= get_texture_id(i);
 	} else {
