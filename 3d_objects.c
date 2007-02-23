@@ -1331,8 +1331,8 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		{
 			char text_file_name[500];
 			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material_list[i].material_name);
-// FIXME: Why is this commented out?
 #ifdef	NEW_ALPHA
+			// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
 			if(cur_object->is_transparent)material_list[i].material_id= load_texture_cache_deferred(text_file_name, -1);
 			else material_list[i].material_id= load_texture_cache_deferred(text_file_name, 255);
 			//material_list[i].material_id=load_texture_cache_deferred(text_file_name, -1);
