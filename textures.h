@@ -20,6 +20,7 @@ typedef struct
 	Uint8 *texture;	/*!< a pointer to the texture */
 	int	x_size;		/*!< the width of the texture in pixels */
 	int	y_size;		/*!< the height of the texture in pixels */
+	int	has_alpha;	/*!< was an alpha map applied to this texture? */
 }texture_struct;
 
 
