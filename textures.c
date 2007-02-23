@@ -90,6 +90,7 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 		}
 	}
 	// memorize the dimensions
+	tex->has_alpha= 0;
 	tex->x_size= x_size;
 	tex->y_size= y_size;
 
@@ -542,6 +543,8 @@ GLuint load_bmp8_color_key(char * filename, int alpha)
 		// no texture alpha found, use the constant
 		texture_set_alpha(tex, 255, 15);
 #endif	//NEW_ALPHA
+	} else {
+		tex->has_alpha++;
 	}
 	//ok, now, hopefully, the file is loaded and converted...
 	//so, assign the texture, and such
@@ -738,29 +741,32 @@ texture_struct *load_bmp8_alpha (const char *filename, texture_struct *tex, Uint
 	texture_mem= tex->texture;
 
 	if(!load_alphamap(filename, texture_mem, x_size, y_size)){
-		// no texture alpha found, use the constant
+		// no texture alpha found found, use the constant
 		texture_set_alpha(tex, alpha, -1);
+	} else {
+		tex->has_alpha++;
 	}
 
 	return(tex);
 }
 
-void load_bmp8_to_coordinates (const char *filename, Uint8 *texture_space, int x_pos, int y_pos, Uint8 alpha)
+int load_bmp8_to_coordinates (const char *filename, Uint8 *texture_space, int x_pos, int y_pos, Uint8 alpha)
 {
 	texture_struct	texture;
 	texture_struct	*tex;
 
 	tex= load_bmp8_alpha(filename, &texture, alpha);
 	if(!tex || !tex->texture){	// oops, failed
-		return;
+		return 0;
 	}
 	copy_bmp8_to_coordinates(tex, texture_space, x_pos, y_pos);
 
 	// release the temporary memory
 	free(tex->texture);
+	return(tex->has_alpha);
 }
 
-void load_bmp8_to_coordinates_mask2 (const char *filename, const char *basename, const char *maskname, Uint8 *texture_space, int x_pos, int y_pos, Uint8 alpha)
+int load_bmp8_to_coordinates_mask2 (const char *filename, const char *basename, const char *maskname, Uint8 *texture_space, int x_pos, int y_pos, Uint8 alpha)
 {
 	//int x_size, y_size;
 	texture_struct	texture;
@@ -771,15 +777,15 @@ void load_bmp8_to_coordinates_mask2 (const char *filename, const char *basename,
 	texture_struct	*mask;
 
 	// first, watch for being able to do simplified processing
-	if(!basename || !maskname || !*basename || !*maskname){
+	// no masking, or both textures are the same file
+	if(!basename || !maskname || !*basename || !*maskname || !strcmp(filename, basename)){
 		// yes, either the mask or the base is missing, just do a load
-		load_bmp8_to_coordinates(filename, texture_space, x_pos, y_pos, alpha);
-		return;
+		return load_bmp8_to_coordinates(filename, texture_space, x_pos, y_pos, alpha);
 	}
 //log_error("%s %s %s", filename, basename, maskname);
 	tex= load_bmp8_alpha(filename, &texture, alpha);
 	if(!tex){	// oops, failed
-		return;
+		return 0;
 	}
 	//x_size= tex->x_size;
 	//y_size= tex->y_size;
@@ -790,7 +796,7 @@ void load_bmp8_to_coordinates_mask2 (const char *filename, const char *basename,
 		// just place what we have and free the memory
 		copy_bmp8_to_coordinates(tex, texture_space, x_pos, y_pos);
 		free(tex->texture);
-		return;
+		return(tex->has_alpha);
 	}
 
 	// now load the mask in
@@ -800,11 +806,12 @@ void load_bmp8_to_coordinates_mask2 (const char *filename, const char *basename,
 		copy_bmp8_to_coordinates(tex, texture_space, x_pos, y_pos);
 		free(tex->texture);
 		free(base->texture);
-		return;
+		return(tex->has_alpha);
 	}
 
 	// lets combine them all together into one
 	texture_mask2(tex, base, mask);
+	tex->has_alpha+= base->has_alpha;
 
 	// and copy it where we need it
 	copy_bmp8_to_coordinates(tex, texture_space, x_pos, y_pos);
@@ -813,6 +820,8 @@ void load_bmp8_to_coordinates_mask2 (const char *filename, const char *basename,
 	free(tex->texture);
 	free(base->texture);
 	free(mask->texture);
+
+	return(tex->has_alpha);
 }
 
 
@@ -821,70 +830,80 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 {
 	GLuint texture;
 	Uint8 * texture_mem;
+	int	has_alpha= 0;
 
 	texture_mem=(Uint8*)calloc(1,256*256*4);
 	if(this_actor->pants_tex[0]){
 #ifdef	MASKING
-		load_bmp8_to_coordinates_mask2(this_actor->pants_tex,this_actor->legs_base,this_actor->pants_mask,texture_mem,78,175,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->pants_tex,this_actor->legs_base,this_actor->pants_mask,texture_mem,78,175,a);
 #else	//MASKING
-		load_bmp8_to_coordinates(this_actor->pants_tex,texture_mem,78,175,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->pants_tex,texture_mem,78,175,a);
 #endif	//MASKING
 	}
 	if(this_actor->boots_tex[0]){
 #ifdef	MASKING
-		load_bmp8_to_coordinates_mask2(this_actor->boots_tex,this_actor->boots_base,this_actor->boots_mask,texture_mem,0,175,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->boots_tex,this_actor->boots_base,this_actor->boots_mask,texture_mem,0,175,a);
 #else	//MASKING
-		load_bmp8_to_coordinates(this_actor->boots_tex,texture_mem,0,175,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->boots_tex,texture_mem,0,175,a);
 #endif	//MASKING
 	}
 #ifdef NEW_TEX
 	if(this_actor->torso_tex[0]){
 #ifdef	MASKING
-		load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->body_base, this_actor->torso_mask, texture_mem,158,149,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->body_base, this_actor->torso_mask, texture_mem,158,149,a);
 #else	//MASKING
-		load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,149,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,149,a);
 #endif	//MASKING
 	}
 #else
 	if(this_actor->torso_tex[0]){
 #ifdef	MASKING
-		load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->torso_base, this_actor->torso_mask, texture_mem,158,156,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->torso_base, this_actor->torso_mask, texture_mem,158,156,a);
 #else	//MASKING
-		load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,156,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,156,a);
 #endif	//MASKING
 	}
 #endif
 	if(this_actor->arms_tex[0]){
 #ifdef	MASKING
-		load_bmp8_to_coordinates_mask2(this_actor->arms_tex,this_actor->arms_base,this_actor->arms_mask,texture_mem,0,96,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->arms_tex,this_actor->arms_base,this_actor->arms_mask,texture_mem,0,96,a);
 #else	//MASKING
-		load_bmp8_to_coordinates(this_actor->arms_tex,texture_mem,0,96,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->arms_tex,texture_mem,0,96,a);
 #endif	//MASKING
 	}
 	if(this_actor->hands_tex[0]){
 #ifdef	MASKING
-		load_bmp8_to_coordinates_mask2(this_actor->hands_tex,this_actor->hands_tex_save,this_actor->hands_mask,texture_mem,67,64,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->hands_tex,this_actor->hands_tex_save,this_actor->hands_mask,texture_mem,67,64,a);
 #else	//MASKING
-		load_bmp8_to_coordinates(this_actor->hands_tex,texture_mem,67,64,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->hands_tex,texture_mem,67,64,a);
 #endif	//MASKING
 	}
 	if(this_actor->head_tex[0]){
 #ifdef	MASKING
-		load_bmp8_to_coordinates_mask2(this_actor->head_tex,this_actor->head_base,this_actor->head_mask,texture_mem,67,0,a);
+		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->head_tex,this_actor->head_base,this_actor->head_mask,texture_mem,67,0,a);
 #else	//MASKING
-		load_bmp8_to_coordinates(this_actor->head_tex,texture_mem,67,0,a);
+		has_alpha+= load_bmp8_to_coordinates(this_actor->head_tex,texture_mem,67,0,a);
 #endif	//MASKING
 	}
-	if(this_actor->hair_tex[0])load_bmp8_to_coordinates(this_actor->hair_tex,texture_mem,0,0,a);
+	if(this_actor->hair_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->hair_tex,texture_mem,0,0,a);
 #ifdef NEW_TEX
-	if(this_actor->weapon_tex[0])load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,178,77,a);
-	if(this_actor->shield_tex[0])load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,100,77,a);
+	if(this_actor->weapon_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,178,77,a);
+	if(this_actor->shield_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,100,77,a);
 #else
-	if(this_actor->weapon_tex[0])load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158,77,a);
-	if(this_actor->shield_tex[0])load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,80,96,a);
+	if(this_actor->weapon_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->weapon_tex,texture_mem,158,77,a);
+	if(this_actor->shield_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->shield_tex,texture_mem,80,96,a);
 #endif
-	if(this_actor->helmet_tex[0])load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80,149,a);
-	if(this_actor->cape_tex[0])load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131,0,a);
+	if(this_actor->helmet_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->helmet_tex,texture_mem,80,149,a);
+	if(this_actor->cape_tex[0])
+		has_alpha+= load_bmp8_to_coordinates(this_actor->cape_tex,texture_mem,131,0,a);
+
+	this_actor->has_alpha= has_alpha;
 
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe

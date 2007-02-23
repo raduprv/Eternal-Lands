@@ -60,8 +60,8 @@ struct near_actor {
 #else
 	int dist;//distance from our actor
 #endif
-	int ghost;//If it's a ghost or not
 	int buffs;	// The buffs on this actor
+	char ghost;//If it's a ghost or not
 };
 
 extern int no_near_actors;
@@ -114,6 +114,7 @@ typedef struct
 	char helmet_tex[MAX_PATH];
 	char cape_tex[MAX_PATH];
 	char hands_tex_save[MAX_PATH];
+	char has_alpha;//is there alpha masking?
 		
 	/*! \} */
 
@@ -427,6 +428,7 @@ typedef struct
 	int cur_health;		/*!< Sets the current health of the actor*/
 	int max_health;		/*!< Sets the maximum health of the actor*/
 	char ghost;		/*!< Sets the actor type to ghost (Disable lightning, enable blending (GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA))*/
+	char has_alpha;		/*!< is alpha blending needed for this actor? */
 	int kind_of_actor;	/*!< Defines the kind_of_actor (NPC, HUMAN, COMPUTER_CONTROLLED_HUMAN, PKABLE, PKABLE_COMPUTER_CONTROLLED)*/
 	Uint32 buffs;		/*!<Contains the buffs on this actor as bits (currently only invisibility)*/
 	/*! \} */

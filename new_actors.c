@@ -48,6 +48,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	texture_id= load_bmp8_enhanced_actor(this_actor, 255);
 
 	our_actor = calloc(1, sizeof(actor));
+	our_actor->has_alpha= this_actor->has_alpha;
 
 	memset(our_actor->current_displayed_text, 0, MAX_CURRENT_DISPLAYED_TEXT_LEN);
 	our_actor->current_displayed_text_time_left =  0;
