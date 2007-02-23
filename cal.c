@@ -239,11 +239,13 @@ void cal_render_actor(actor *act)
 		if(CalRenderer_BeginRendering(pCalRenderer)){
 			// set global OpenGL states
 #ifdef	ALPHA_ACTORS
-			//glEnable(GL_ALPHA_TEST);
-			//glAlphaFunc(GL_GREATER,0.06f);
-			glEnable(GL_BLEND);
-			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-			glDisable(GL_CULL_FACE);
+			if(!act->ghost){
+				glEnable(GL_ALPHA_TEST);
+				glAlphaFunc(GL_GREATER,0.06f);
+				glEnable(GL_BLEND);
+				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+				glDisable(GL_CULL_FACE);
+			}
 #endif	//ALPHA_ACTORS
 
 			// will use vertex arrays, so enable them
@@ -370,9 +372,11 @@ void cal_render_actor(actor *act)
 			glDisableClientState(GL_VERTEX_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #ifdef	ALPHA_ACTORS
-			//glDisable(GL_ALPHA_TEST);
-			glEnable(GL_CULL_FACE);
-			glDisable(GL_BLEND);
+			if(!act->ghost){
+				glDisable(GL_ALPHA_TEST);
+				glEnable(GL_CULL_FACE);
+				glDisable(GL_BLEND);
+			}
 #endif	//ALPHA_ACTORS
 
 			// end the rendering
