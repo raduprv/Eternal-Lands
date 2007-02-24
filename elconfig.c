@@ -32,7 +32,7 @@
 #define FLOAT		3 	// Change float									func(float*,float*)
 #define INT			4	// Change int									func(int*,int)
 #define MULTI		5   // INT with multiselect widget
-#define PASSWORD 6
+#define PASSWORD	6
 
 // Defines for config variables
 #define VIDEO		0
@@ -936,9 +936,7 @@ static __inline__ void check_option_var(char* name)
 			our_vars.var[i]->func (our_vars.var[i]->var);
 			break;
 		case STRING:
-#ifdef ELC
 		case PASSWORD:
-#endif //ELC
 			value_s= (char*)our_vars.var[i]->var;
 			our_vars.var[i]->func (our_vars.var[i]->var, value_s, our_vars.var[i]->len);
 			break;
@@ -1034,9 +1032,7 @@ int check_var (char *str, var_name_type type)
 				our_vars.var[i]->func (our_vars.var[i]->var); //only call if value has changed
 			return 1;
 		case STRING:
-#ifdef ELC
 		case PASSWORD:
-#endif //ELC
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
 			return 1;
 		case FLOAT:
@@ -1116,9 +1112,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 			*integer=(int)def;
 			break;
 		case STRING:
-#ifdef ELC
 		case PASSWORD:
-#endif //ELC
 			our_vars.var[no]->len=(int)def;
 			break;
 		case FLOAT:
@@ -1849,7 +1843,7 @@ void elconfig_populate_tabs(void)
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
-				widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+				widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/3, elconfig_tabs[tab_id].y, 332, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
 			break;
 			case PASSWORD:
