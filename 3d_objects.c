@@ -372,7 +372,7 @@ void draw_3d_object(object3d * object_id)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		}
-#endif	NEW_ALPHA
+#endif	//NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
 		glEnable(GL_ALPHA_TEST);
 		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
@@ -474,7 +474,7 @@ void draw_3d_objects(unsigned int object_type)
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 		}
-#endif	NEW_ALPHA
+#endif	//NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
 		glEnable(GL_ALPHA_TEST);
 		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
@@ -517,11 +517,13 @@ void draw_3d_objects(unsigned int object_type)
 		if( (10000*objects_list[l]->e3d_data->max_size)/(dist) < ((is_transparent)?15:10)) continue;
 #endif
 #endif  //SIMPLE_LOD
+
 #ifdef	NEW_E3D_FORMAT
 		draw_3d_object_detail(objects_list[l], get_3dobject_material(j));
 #else
 		draw_3d_object_detail(objects_list[l]);
 #endif
+
 #ifdef MAP_EDITOR2
 		if ((selected_3d_object == -1) && read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 #else
