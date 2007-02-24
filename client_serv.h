@@ -880,6 +880,39 @@ typedef enum {
 //when a player teleports to range. Player, Location
 #define SPECIAL_EFFECT_HEAL 12
 
+//when a player finds a rare stone
+#define SPECIAL_EFFECT_HARVEST_RARE_STONE 13
+
+//when a player is blessed by MN with exp
+#define SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING 14
+
+//when a player is blessed by MN with money
+#define SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING 15
+
+//when a wall colapses over a player
+#define SPECIAL_EFFECT_HARVEST_WALL_COLAPSE 16
+
+//when a bees sting a player
+#define SPECIAL_EFFECT_HARVEST_BEES 17
+
+//when a radeon hits
+#define SPECIAL_EFFECT_HARVEST_RADEON 18
+
+//when a tool breaks
+#define SPECIAL_EFFECT_HARVEST_TOOL_BREAKS 19
+
+//when teleport nexus actor_id,x1,y1,x2,y2
+#define SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS 20
+
+//when MN takes your health
+#define SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED 21
+
+//when a manufacture tool breaks
+#define SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS 22
+
+//when a special item is created
+#define SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM 23
+
 /*! @} */
 
 #endif
