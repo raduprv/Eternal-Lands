@@ -52,16 +52,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	}
 
 #ifdef	ZLIB
-	{
-		char	gzfilename[1024];
-		strcpy(gzfilename, cur_object->file_name);
-		strcat(gzfilename, ".gz");
-		file= gzopen(gzfilename, "rb");
-		if(!file){
-			// didn't work, try the name that was specified
-			file= gzopen(cur_object->file_name, "rb");
-		}
-	}
+	file= my_gzopen(cur_object->file_name, "rb");
 #else	//ZLIB
 	file= my_fopen(cur_object->file_name, "rb");
 #endif	//ZLIB
@@ -112,7 +103,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	else size = sizeof(e3d_T2F_V3F_vertex);
 
 	// Now reading the vertices
+#ifdef	ZLIB
+	gzseek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
+#else	//ZLIB
 	fseek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
+#endif	//ZLIB
 	
 	cur_object->vertex_data = malloc(cur_object->vertex_no*size);
 	
@@ -135,10 +130,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 			{
 #ifdef	ZLIB
 				gzread(file, &vertex_list[i], size);
+				gzseek(file, vertex_size-size, SEEK_CUR);
 #else	//ZLIB
 				fread(&vertex_list[i], 1, size, file);
-#endif	//ZLIB
 				fseek(file, vertex_size-size, SEEK_CUR);
+#endif	//ZLIB
 			}
 		}
 		else
@@ -148,10 +144,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 			{
 #ifdef	ZLIB
 				gzread(file, &vertex_ground_list[i], size);
+				gzseek(file, vertex_size-size, SEEK_CUR);
 #else	//ZLIB
 				fread(&vertex_ground_list[i], 1, size, file);
-#endif	//ZLIB
 				fseek(file, vertex_size-size, SEEK_CUR);
+#endif	//ZLIB
 			}
 		}
 	}
@@ -166,7 +163,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #endif
 	
 	// Now reading the indicies
+#ifdef	ZLIB
+	gzseek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
+#else	//ZLIB
 	fseek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
+#endif	//ZLIB
 	
 	size = SDL_SwapLE32(header.index_size);
 	// They have the size we expected
@@ -192,7 +193,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #endif	//ZLIB
 	
 	// Now reading the materials
+#ifdef	ZLIB
+	gzseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
+#else	//ZLIB
 	fseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
+#endif	//ZLIB
 	
 	// only allocate the materials structure if it doesn't exist (on initial load)
 	if(cur_object->materials == NULL){
@@ -256,17 +261,29 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 
 	for (i = 0; i < cur_object->material_no; i++)
 	{
-		file_pos = ftell(file);
 		
 #ifdef	ZLIB
+		file_pos = gztell(file);
 		gzread(file, &material, sizeof(e3d_material));
 #else	//ZLIB
+		file_pos = ftell(file);
 		fread(&material, 1, sizeof(e3d_material), file);
 #endif	//ZLIB
 		snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material.material_name);
-		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 0);
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
+#ifdef	NEW_ALPHA
+		// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
+		if(cur_object->materials[i].options & 0x00000001){	// is this object transparent?
+			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, -1);
+		} else {
+			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, 255);
+		}
+#else	//NEW_ALPHA
+		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 255);
+		//cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 0);
+#endif	//NEW_ALPHA
+
 		cur_object->materials[i].min_x = SwapLEFloat(material.min_x);
 		cur_object->materials[i].min_y = SwapLEFloat(material.min_y);
 		cur_object->materials[i].min_z = SwapLEFloat(material.min_z);
@@ -306,12 +323,16 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		}
 
 		file_pos += SDL_SwapLE32(material.material_size);
+#ifdef	ZLIB
+		gzseek(file, file_pos, SEEK_SET);
+#else	//ZLIB
 		fseek(file, file_pos, SEEK_SET);
+#endif	//ZLIB
 	}
 #ifdef	ZLIB
-		gzclose(file);
+	gzclose(file);
 #else	//ZLIB
-		fclose(file);
+	fclose(file);
 #endif	//ZLIB
 
 	if (have_vertex_buffers)

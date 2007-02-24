@@ -15,12 +15,12 @@
 /*!
  * the magic number for an e3d file.
  */
-const static MAGIC_NUMBER EL3D_FILE_MAGIC_NUMBER = {'e', '3', 'd', 'x'};
+static const MAGIC_NUMBER EL3D_FILE_MAGIC_NUMBER = {'e', '3', 'd', 'x'};
 
 /*!
  * the current version number for an e3d file.
  */
-const static VERSION_NUMBER EL3D_FILE_VERSION_NUMBER = {1, 0, 0, 0};
+static const VERSION_NUMBER EL3D_FILE_VERSION_NUMBER = {1, 0, 0, 0};
 
 /*!
  * the header structure for an e3d file.

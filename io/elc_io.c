@@ -29,7 +29,11 @@ static __inline__ int check_version(const elc_file_header header, const VERSION_
 
 #define	BLOCK_SIZE	1024*1024
 
+#ifdef	ZLIB
+int read_and_check_elc_header(gzFile* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
+#else	//ZLIB
 int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
+#endif	//ZLIB
 {
 	elc_file_header header;
 	int size, header_offset, block;
@@ -37,7 +41,11 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 	MD5 md5;
 	MD5_DIGEST md5_digest;
 	
+#ifdef	ZLIB
+	size = gzread(file, (char*)&header, sizeof(elc_file_header));
+#else	//ZLIB
 	size = fread((char*)&header, 1, sizeof(elc_file_header), file);
+#endif	//ZLIB
 	if (size != sizeof(elc_file_header)) 
 	{
 		LOG_ERROR("File '%s' too small!", filename);
@@ -84,6 +92,10 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 
 	header_offset = SDL_SwapLE32(header.header_offset);
 
+#ifdef	ZLIB
+	block = BLOCK_SIZE;
+	gzseek(file, header_offset, SEEK_SET);
+#else	//ZLIB
 	fseek(file, 0, SEEK_END);
 	size = ftell(file) - header_offset;
 	if (size <= 0)
@@ -92,9 +104,21 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		return -1;
 	}
 	fseek(file, header_offset, SEEK_SET);
+#endif	//ZLIB
 
 	MD5Open(&md5);
 	mem = malloc(BLOCK_SIZE);
+#ifdef	ZLIB
+	while (block > 0)
+	{
+		size= gzread(file, mem, block);
+		if (size > 0){
+			MD5Digest(&md5, mem, size);
+		} else {
+			break;
+		}
+	}
+#else	//ZLIB
 	while (size > 0)
 	{
 		block = BLOCK_SIZE;
@@ -103,6 +127,7 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		MD5Digest(&md5, mem, block);
 		size -= block;
 	}
+#endif	//ZLIB
 	free(mem);
 	MD5Close(&md5, md5_digest);
 
@@ -112,7 +137,11 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		return -1;
 	}
 
+#ifdef	ZLIB
+	gzseek(file, SDL_SwapLE32(header.header_offset), SEEK_SET);
+#else	//ZLIB
 	fseek(file, SDL_SwapLE32(header.header_offset), SEEK_SET);
+#endif	//ZLIB
 
 	return 0;
 }

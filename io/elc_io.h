@@ -22,6 +22,10 @@ typedef struct
 	int header_offset;	/*!< the header offset */
 } elc_file_header;
 
+#ifdef	ZLIB
+int read_and_check_elc_header(gzFile* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename);
+#else	//ZLIB
 int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename);
+#endif	//ZLIB
 
 #endif
