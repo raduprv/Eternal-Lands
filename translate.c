@@ -1262,7 +1262,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "tab_misc", ttab_misc, "Misc", sizeof(ttab_misc));
 	add_xml_identifier (titles_str, "tab_chat", ttab_chat, "Chat", sizeof(ttab_chat));
 	add_xml_identifier (titles_str, "tab_video", ttab_video, "Video", sizeof(ttab_video));
-	add_xml_identifier (titles_str, "tab_adv_video", ttab_specialvideo, "Advanced video", sizeof(ttab_specialvideo));
+	add_xml_identifier (titles_str, "tab_adv_video", ttab_specialvideo, "Adv Video", sizeof(ttab_specialvideo));
 	add_xml_identifier (titles_str, "tab_font", ttab_font, "Font", sizeof(ttab_font));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));

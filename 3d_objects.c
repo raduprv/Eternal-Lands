@@ -16,16 +16,16 @@
 	#undef OSX 0 //this is needed since i386 fixes some PPC issues here
 #endif
 
+int use_3d_alpha_blend= 1;
+Uint32 highest_obj_3d= 0;
+int objects_list_placeholders = 0;
 object3d *objects_list[MAX_OBJ_3D];
+
 #ifndef	NEW_FRUSTUM
 struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
 struct near_3d_object * first_near_3d_object=NULL;
 int no_near_3d_objects=0;
-#endif
-Uint32 highest_obj_3d= 0;
-int objects_list_placeholders = 0;
 
-#ifndef	NEW_FRUSTUM
 struct near_3d_object near_blended_3d_objects[MAX_NEAR_BLENDED_3D_OBJECTS];
 struct near_3d_object * first_near_blended_3d_object=NULL;
 int no_near_blended_3d_objects=0;
@@ -368,8 +368,10 @@ void draw_3d_object(object3d * object_id)
 
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		if(use_3d_alpha_blend){
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		}
 #endif	NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
 		glEnable(GL_ALPHA_TEST);
@@ -386,11 +388,13 @@ void draw_3d_object(object3d * object_id)
 	
 	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
 	if(is_transparent) {
-		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
 #ifdef	NEW_ALPHA
-		glDisable(GL_BLEND);
+		if(use_3d_alpha_blend){
+			glDisable(GL_BLEND);
+		}
 #endif	//NEW_ALPHA
+		glDisable(GL_ALPHA_TEST);
 	}
 
 	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
@@ -466,12 +470,14 @@ void draw_3d_objects(unsigned int object_type)
 
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-#endif	//NEW_ALPHA
+		if(use_3d_alpha_blend){
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		}
+#endif	NEW_ALPHA
 		//enable alpha filtering, so we have some alpha key
 		glEnable(GL_ALPHA_TEST);
-		if(is_ground)	glAlphaFunc(GL_GREATER,0.23f);
+		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
 		else glAlphaFunc(GL_GREATER,0.06f);
 		glDisable(GL_CULL_FACE);
 	}
@@ -554,11 +560,13 @@ void draw_3d_objects(unsigned int object_type)
 		glEnable(GL_LIGHTING);
 	}
 	if(is_transparent) {
-		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
 #ifdef	NEW_ALPHA
-		glDisable(GL_BLEND);
+		if(use_3d_alpha_blend){
+			glDisable(GL_BLEND);
+		}
 #endif	//NEW_ALPHA
+		glDisable(GL_ALPHA_TEST);
 	}
 
 	CHECK_GL_ERRORS();

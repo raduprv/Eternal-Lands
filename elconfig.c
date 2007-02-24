@@ -71,7 +71,7 @@ struct {
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
 int elconfig_menu_x_len= 520;
-int elconfig_menu_y_len= 462;
+int elconfig_menu_y_len= 463;
 
 int windows_on_top= 0;
 int options_set= 0;
@@ -1180,6 +1180,9 @@ void init_vars()
 	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",VIDEO);
 #endif	//MAP_EDITOR2
 	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
+#ifdef	NEW_ALPHA
+	add_var(BOOL,"use_3d_alpha_blend","3dalpha",&use_3d_alpha_blend,change_var,1,"3D Alpha Blending","Toggle the use of the alpha blending on 3D objects",VIDEO);
+#endif	//NEW_ALPHA
 #ifdef	USE_FRAMEBUFFER
 	add_var(BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",VIDEO);
 #else

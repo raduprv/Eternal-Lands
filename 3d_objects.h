@@ -6,6 +6,8 @@
 #ifndef __OBJ_3D_H__
 #define __OBJ_3D_H__
 
+extern int use_3d_alpha_blend;	// do 3d models use alpha blending?
+
 #ifndef	NEW_FRUSTUM
 struct near_3d_object {
        int dist;
@@ -17,9 +19,7 @@ struct near_3d_object {
 extern struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
 extern struct near_3d_object * first_near_3d_object;
 extern int regenerate_near_objects;
-#endif
 
-#ifndef	NEW_FRUSTUM
 /*!
  * \ingroup 	display_3d
  * \brief 	Draws the 3d object pointed to by object_id
