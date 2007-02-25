@@ -83,7 +83,7 @@ typedef struct
 	MD5_DIGEST md5; /*!< the MD5 digest of the file */
 	char file_name[128]; /*!< filename where this object is stored. */
 } e3d_object;
-#else
+#else	// NEW_3D_FORMAT
 
 //the new array structures
 
@@ -289,7 +289,7 @@ typedef struct
 	cache_item_struct *cache_ptr; /*!< pointer to a cache item. If this is !=NULL, this points to a valid cached item of this object */
 	char file_name[128]; /*!< filename where this object is stored. */
 }e3d_object;
-#endif
+#endif	// NEW_3D_FORMAT
 
 /*!
  * object3d structure
