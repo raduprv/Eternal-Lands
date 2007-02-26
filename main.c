@@ -112,9 +112,12 @@ int start_rendering()
 					free(message);
 				}
 			}
+#ifdef	OLC
+			olc_process();
+#endif	//OLC
 			my_tcp_flush(my_socket);    // make sure the tcp output buffer is set
 
-			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) < limit_fps))
+			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
 				//draw everything
 				draw_scene();
@@ -182,6 +185,7 @@ int start_rendering()
 	xmlCleanupParser();
 	FreeXML();
 #ifdef	USE_FRAMEBUFFER
+	// shouldn't this be before SDL_Quit()? that shutsdown the video mode
 	if (use_frame_buffer) free_reflection_framebuffer();
 #endif
 
@@ -223,6 +227,9 @@ int main(int argc, char **argv)
 	gargv=argv;
 
 	// do basic initialization
+#ifdef	OLC
+	olc_init();
+#endif	//OLC
 	init_translatables();
 	init_vars();
 	init_stuff();
@@ -231,6 +238,9 @@ int main(int argc, char **argv)
 #ifdef MEMORY_DEBUG
 	elm_cleanup();
 #endif //MEMORY_DEBUG
+#ifdef	OLC
+	olc_shutdown();
+#endif	//OLC
 
 #ifndef WINDOWS
 	// attempt to restart if requested

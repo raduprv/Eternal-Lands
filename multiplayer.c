@@ -65,11 +65,16 @@ int on_the_move (const actor *act)
 
 void send_heart_beat()
 {
-	Uint8 command;
+	Uint8 command[64];
+	int	len;
 
 	last_heart_beat= time(NULL);
-	command= HEART_BEAT;
-	my_tcp_send(my_socket, &command, 1);
+	command[0]= HEART_BEAT;
+	len= 1;
+#ifdef	OLC
+	len+= olc_heartbeat(command+len);
+#endif	//OLC
+	my_tcp_send(my_socket, command, len);
 }
 
 
@@ -164,7 +169,11 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 		//for(i=1; i<len; i++) {
 		//	new_str[i+2]= str[i];
 		//}
+#ifdef	OLC
+		return olc_tcp_send(my_socket, new_str, len+2);
+#else	//OLC
 		return SDLNet_TCP_Send(my_socket, new_str, len+2);
+#endif	//OLC
 	}
 	// error, should never reach here
 	return 0;
@@ -184,7 +193,14 @@ int my_tcp_flush (TCPsocket my_socket)
 	}
 
 	// send all the data in the buffer
+#ifdef	OLC
+	ret= olc_tcp_send(my_socket, tcp_out_data, tcp_out_loc);
+	if(ret > 0){
+		ret= olc_tcp_flush();
+	}
+#else	//OLC
 	ret= SDLNet_TCP_Send(my_socket, tcp_out_data, tcp_out_loc);
+#endif	//OLC
 
 	// empty the buffer
 	tcp_out_loc= 0;
@@ -195,7 +211,8 @@ int my_tcp_flush (TCPsocket my_socket)
 
 void send_version_to_server(IPaddress *ip)
 {
-	Uint8 str[20];
+	Uint8 str[64];
+	int	len;
 
 	str[0]= SEND_VERSION;
 	*((short *)(str+1))= SDL_SwapLE16((short)version_first_digit);
@@ -221,8 +238,12 @@ void send_version_to_server(IPaddress *ip)
 	str[13]= ip->port&0xFF;
 	str[14]= (ip->port >> 8)&0xFF;
 #endif	//EL_BIG_ENDIAN
+	len= 15;
 
-	my_tcp_send(my_socket,str,15);
+#ifdef	OLC
+	len+= olc_version(str+len);
+#endif	//OLC
+	my_tcp_send(my_socket, str, len);
 }
 
 void connect_to_server()
@@ -1033,8 +1054,17 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case PING_REQUEST:
 			{
+#ifdef	OLC
+				// add in the status information
+				char	buf[1024];
+				int	len= data_length;
+				memcpy(buf, in_data, data_length);
+				len+= olc_ping_request(buf+len);
+				my_tcp_send(my_socket, buf, len);
+#else	//OLC
 				// just send the pack back as it is
-				my_tcp_send(my_socket,in_data,data_length);
+				my_tcp_send(my_socket, in_data, data_length);
+#endif	//OLC
 			}
 			break;
 			
@@ -1192,7 +1222,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		default:
 			{
 				// Unknown packet type??
-                ;
+#ifdef	OLC
+				// do OL specific packet handling
+				olc_packet_handler(in_data, data_length);
+#endif	//OLC
 			}
 			break;
 		}

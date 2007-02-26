@@ -661,8 +661,13 @@ void init_stuff()
 	update_loading_win(load_icons_str, 4);
 	//load the necesary textures
 	//font_text= load_texture_cache("./textures/font.bmp",0);
+#ifdef	NEW_ALPHA
+	icons_text= load_texture_cache("./textures/gamebuttons.bmp", -1);
+	hud_text= load_texture_cache("./textures/gamebuttons2.bmp", -1);
+#else	//NEW_ALPHA
 	icons_text= load_texture_cache("./textures/gamebuttons.bmp",0);
 	hud_text= load_texture_cache("./textures/gamebuttons2.bmp",0);
+#endif	//NEW_ALPHA
 	update_loading_win(load_textures_str, 4);
 	cons_text= load_texture_cache("./textures/console.bmp",255);
 
@@ -734,6 +739,9 @@ void init_stuff()
 	load_questlog();
 	init_buddy();
 	init_channel_names();
+#ifdef	OLC
+	olc_finish_init();
+#endif	//OLC
 
 #ifdef  AUTO_UPDATE
 	if(auto_update){

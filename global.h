@@ -181,4 +181,8 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #ifdef	NEW_FRUSTUM
 	#include "bbox_tree.h"
 #endif
+#ifdef	OLC
+	#include "olc.h"
+#endif	//OLC
+
 #endif
