@@ -1621,7 +1621,7 @@ void init_sound()
 	//force the rain sound to be recreated
 	rain_sound = 0;
 #endif //NEW_WEATHER
-#endif MAP_EDITOR2
+#endif //MAP_EDITOR2
 	inited = 1;
 }
 #endif	//NEW_SOUND
