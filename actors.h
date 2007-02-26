@@ -6,7 +6,7 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
-#define	MAX_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
+#define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
@@ -86,34 +86,34 @@ typedef struct
 
 	/*! \name The texture names*/
 	/*! \{ */
-	char pants_tex[MAX_PATH];
-	char pants_mask[MAX_PATH];
+	char pants_tex[MAX_FILE_PATH];
+	char pants_mask[MAX_FILE_PATH];
 
-	char boots_tex[MAX_PATH];
-	char boots_mask[MAX_PATH];
+	char boots_tex[MAX_FILE_PATH];
+	char boots_mask[MAX_FILE_PATH];
 
-	char torso_tex[MAX_PATH];
-	char arms_tex[MAX_PATH];
-	char torso_mask[MAX_PATH];
-	char arms_mask[MAX_PATH];
+	char torso_tex[MAX_FILE_PATH];
+	char arms_tex[MAX_FILE_PATH];
+	char torso_mask[MAX_FILE_PATH];
+	char arms_mask[MAX_FILE_PATH];
 
-	char hands_tex[MAX_PATH];
-	char head_tex[MAX_PATH];
-	char hands_mask[MAX_PATH];
-	char head_mask[MAX_PATH];
+	char hands_tex[MAX_FILE_PATH];
+	char head_tex[MAX_FILE_PATH];
+	char hands_mask[MAX_FILE_PATH];
+	char head_mask[MAX_FILE_PATH];
 
-	char head_base[MAX_PATH];
-	char body_base[MAX_PATH];
-	char arms_base[MAX_PATH];
-	char legs_base[MAX_PATH];
-	char boots_base[MAX_PATH];
+	char head_base[MAX_FILE_PATH];
+	char body_base[MAX_FILE_PATH];
+	char arms_base[MAX_FILE_PATH];
+	char legs_base[MAX_FILE_PATH];
+	char boots_base[MAX_FILE_PATH];
 
-	char hair_tex[MAX_PATH];
-	char weapon_tex[MAX_PATH];
-	char shield_tex[MAX_PATH];
-	char helmet_tex[MAX_PATH];
-	char cape_tex[MAX_PATH];
-	char hands_tex_save[MAX_PATH];
+	char hair_tex[MAX_FILE_PATH];
+	char weapon_tex[MAX_FILE_PATH];
+	char shield_tex[MAX_FILE_PATH];
+	char helmet_tex[MAX_FILE_PATH];
+	char cape_tex[MAX_FILE_PATH];
+	char hands_tex_save[MAX_FILE_PATH];
 	char has_alpha;//is there alpha masking?
 		
 	/*! \} */
@@ -131,9 +131,9 @@ typedef struct
 /*! Sets the main model type*/
 typedef struct
 {
-	char model_name[MAX_PATH];
-	char skin_name[MAX_PATH];
-	char skin_mask[MAX_PATH];
+	char model_name[MAX_FILE_PATH];
+	char skin_name[MAX_FILE_PATH];
+	char skin_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
 }body_part;
@@ -141,9 +141,9 @@ typedef struct
 /*! Sets the weapon type (including animation frame names)*/
 typedef struct
 {
-	char model_name[MAX_PATH];
-	char skin_name[MAX_PATH];
-	char skin_mask[MAX_PATH];
+	char model_name[MAX_FILE_PATH];
+	char skin_name[MAX_FILE_PATH];
+	char skin_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
 
@@ -156,38 +156,38 @@ typedef struct
 /*! Defines the main models looks*/
 typedef struct
 {
-	char model_name[MAX_PATH];
-	char arms_name[MAX_PATH];
-	char torso_name[MAX_PATH];
-	char arms_mask[MAX_PATH];
-	char torso_mask[MAX_PATH];
+	char model_name[MAX_FILE_PATH];
+	char arms_name[MAX_FILE_PATH];
+	char torso_name[MAX_FILE_PATH];
+	char arms_mask[MAX_FILE_PATH];
+	char torso_mask[MAX_FILE_PATH];
 	int mesh_index;
 }shirt_part;
 
 /*! Sets the models hands and head*/
 typedef struct
 {
-	char hands_name[MAX_PATH];
-	char head_name[MAX_PATH];
-	char arms_name[MAX_PATH];
-	char body_name[MAX_PATH];
-	char legs_name[MAX_PATH];
-	char feet_name[MAX_PATH];
+	char hands_name[MAX_FILE_PATH];
+	char head_name[MAX_FILE_PATH];
+	char arms_name[MAX_FILE_PATH];
+	char body_name[MAX_FILE_PATH];
+	char legs_name[MAX_FILE_PATH];
+	char feet_name[MAX_FILE_PATH];
 	int mesh_index;
 }skin_part;
 
 /*! Sets the models hair name*/
 typedef struct
 {
-	char hair_name[MAX_PATH];
+	char hair_name[MAX_FILE_PATH];
 	int mesh_index;
 }hair_part;
 
 /*! Holds info about the boots */
 typedef struct
 {
-	char boots_name[MAX_PATH];
-	char boots_mask[MAX_PATH];
+	char boots_name[MAX_FILE_PATH];
+	char boots_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
 }boots_part;
@@ -195,9 +195,9 @@ typedef struct
 /*! Holds info about the legs type*/
 typedef struct
 {
-	char legs_name[MAX_PATH];
-	char model_name[MAX_PATH];
-	char legs_mask[MAX_PATH];
+	char legs_name[MAX_FILE_PATH];
+	char model_name[MAX_FILE_PATH];
+	char legs_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
 }legs_part;
@@ -230,7 +230,7 @@ typedef struct
 	/*! \{ */
 	int actor_type;
 	char actor_name[66];
-	char skin_name[MAX_PATH];
+	char skin_name[MAX_FILE_PATH];
 	char file_name[256];
 	/*! \} */
 
@@ -238,7 +238,7 @@ typedef struct
 	float scale;
 	float mesh_scale;
 	float skel_scale;
-	char skeleton_name[MAX_PATH];
+	char skeleton_name[MAX_FILE_PATH];
 
 	struct CalCoreModel *coremodel;
 	//Animation indexes
