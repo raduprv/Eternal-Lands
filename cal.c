@@ -244,7 +244,7 @@ void cal_render_actor(actor *act)
 				//glAlphaFunc(GL_GREATER,0.06f);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-				glDisable(GL_CULL_FACE);
+				//glDisable(GL_CULL_FACE);
 			}
 #endif	//ALPHA_ACTORS
 
@@ -372,9 +372,9 @@ void cal_render_actor(actor *act)
 			glDisableClientState(GL_VERTEX_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #ifdef	ALPHA_ACTORS
-			if(!act->ghost){
+			if(!act->ghost && act->has_alpha){
 				//glDisable(GL_ALPHA_TEST);
-				glEnable(GL_CULL_FACE);
+				//glEnable(GL_CULL_FACE);
 				glDisable(GL_BLEND);
 			}
 #endif	//ALPHA_ACTORS

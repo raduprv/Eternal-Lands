@@ -479,7 +479,7 @@ void draw_3d_objects(unsigned int object_type)
 		glEnable(GL_ALPHA_TEST);
 		if(is_ground)glAlphaFunc(GL_GREATER,0.23f);
 		else glAlphaFunc(GL_GREATER,0.06f);
-		glDisable(GL_CULL_FACE);
+		//glDisable(GL_CULL_FACE);
 	}
 
 #ifdef	NEW_E3D_FORMAT
@@ -562,7 +562,7 @@ void draw_3d_objects(unsigned int object_type)
 		glEnable(GL_LIGHTING);
 	}
 	if(is_transparent) {
-		glEnable(GL_CULL_FACE);
+		//glEnable(GL_CULL_FACE);
 #ifdef	NEW_ALPHA
 		if(use_3d_alpha_blend){
 			glDisable(GL_BLEND);
