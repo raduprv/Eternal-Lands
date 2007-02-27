@@ -1026,14 +1026,16 @@ int load_font_textures ()
 		strcpy(file, ep->d_name);
 #endif //_MSC_VER
 		len= strlen(file);
-		if(len +11 <= 60 && len > 8 && !strncasecmp(file, "font", 4) && (!strcasecmp(file+len-4, ".bmp") || !strcasecmp(file+len-7, ".bmp.gz"))&& strncasecmp(file+len-10, "_alpha", 6)&& strncasecmp(file+len-13, "_alpha", 6)) {
+		if (len + strlen("./textures/") <= sizeof(str) && !strncasecmp(file, "font", 4) 
+				&& (has_suffix(file, len, ".bmp", 4) || has_suffix(file, len, ".bmp.gz", 7))
+				&& (!has_suffix(file, len, "_alpha.bmp", 10)) && (!has_suffix(file, len, "_alpha.bmp.gz", 13))) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
 #ifdef _MSC_VER
 			strcpy(str, file);
 #else //!_MSC_VER
 			snprintf(str, sizeof(str), "./textures/%s", file);
 #endif //!_MSC_VER
-			if(!strcasecmp(file+strlen(file) - 7, ".bmp.gz")){
+			if(has_suffix(file, len, ".bmp.gz", 7)){
 				file[len - 7]= 0;
 			} else {
 				file[len - 4]= 0;

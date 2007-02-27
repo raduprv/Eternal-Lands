@@ -838,3 +838,10 @@ int	mkdir_tree(const char *file)
 	return 1;
 }
 
+int substrtest(const char * haystack, int hlen, int pos, const char * needle, int nlen)
+{
+	if (pos < 0) pos += hlen;
+	if (pos < 0) return -1;
+	if (pos + nlen > hlen) return -1;
+	return strncasecmp(haystack + pos, needle, nlen);
+}

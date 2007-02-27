@@ -300,6 +300,38 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 gzFile * my_gzopen(const char * filename, const char * mode);
 #endif // ZLIB
 
+/*!
+ * \ingroup misc
+ * \brief Test whether a string contains another string at a certain position
+ *
+ * \c substrtest() test whether \p haystack contains \p needle at position \pos.
+ *
+ * \param haystack the string to test within
+ * \param hlen the length of haystack
+ * \param pos the position at which to test for \p needle
+ * \param needle the string to test for
+ * \param nlen the length of \p needle
+ * \return Zero if needle was found, nonzero otherwise (sic!).
+ */
+int substrtest(const char * haystack, int hlen, int pos, const char * needle, int nlen);
+
+/*!
+ * \ingroup misc
+ * \brief tests whether a string ends on \p suffix
+ *
+ * Tests whether \p str ends on \p suffix.
+ *
+ * \param str the string to examine
+ * \param len the length of \p str
+ * \param suffix the suffix to test for
+ * \param slen the length of \p suffix
+ * \return nonzero if \p str ends on \p suffix, zero otherwise.
+ */
+static __inline__ int has_suffix(const char * str, int len, const char * suffix, int slen)
+{
+	return !substrtest(str, len, -slen, suffix, slen);
+}
+
 static __inline__ int min2i (int x, int y)
 {
 	return (x <= y)? x : y;
