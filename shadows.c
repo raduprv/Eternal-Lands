@@ -1103,6 +1103,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 #ifndef MAP_EDITOR2
 			display_actors(1, 0);  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
 #endif
+			display_alpha_objects();
 			display_blended_objects();
 
 #ifndef MAP_EDITOR2

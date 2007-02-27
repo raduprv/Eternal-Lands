@@ -628,13 +628,14 @@ int display_game_handler (window_info *win)
 				blend_reflection_fog();
 				draw_lake_tiles ();
 			}
-			draw_tile_map ();
+			draw_tile_map();
 			CHECK_GL_ERRORS ();
-			display_2d_objects ();
-			CHECK_GL_ERRORS ();
-			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
-			display_objects ();
-			display_actors (1, 0);
+			display_2d_objects();
+			CHECK_GL_ERRORS();
+			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
+			display_objects();
+			display_actors(1, 0);
+			display_alpha_objects();
 			display_blended_objects();
 		}
 		CHECK_GL_ERRORS ();
@@ -1385,13 +1386,13 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (key == K_ZOOMIN)
 	{
-		if (zoom_level >= 1.50f) new_zoom_level = zoom_level - 0.25;
-		else zoom_level= 1.50f;
+		new_zoom_level = zoom_level - 0.25;
+		if (zoom_level < 1.50f) zoom_level= 1.50f;
 	}
 	else if (key == K_ZOOMOUT)
 	{
-		if (zoom_level <= 3.75f) new_zoom_level = zoom_level + 0.25;
-		else zoom_level= 3.75f;
+		new_zoom_level = zoom_level + 0.25;
+		if (zoom_level > 3.75f) zoom_level= 3.75f;
 	}
 #ifdef PNG_SCREENSHOT
 	else if (key == K_SCREENSHOT)

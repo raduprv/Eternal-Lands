@@ -581,6 +581,7 @@ void display_3d_reflection()
 #ifndef MAP_EDITOR2
 	display_actors(0, 1);
 #endif
+	display_alpha_objects();
 //	display_blended_objects();
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif  //NEW_FRUSTUM

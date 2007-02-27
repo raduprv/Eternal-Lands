@@ -989,8 +989,6 @@ void display_objects()
 #else
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 
 	glDisableClientState(GL_NORMAL_ARRAY);
@@ -1006,8 +1004,6 @@ void display_objects()
 #else
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 	
 	CHECK_GL_ERRORS();
@@ -1022,6 +1018,48 @@ void display_objects()
 			ELglActiveTextureARB(base_unit);
 		}
 	CHECK_GL_ERRORS();
+}
+
+void display_alpha_objects()
+{
+#ifdef	NEW_FRUSTUM
+	CHECK_GL_ERRORS();
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+			
+	if(have_multitexture && !dungeon && clouds_shadows){
+		//bind the detail texture
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		ELglActiveTextureARB(base_unit);
+		glEnable(GL_TEXTURE_2D);
+	}
+
+	CHECK_GL_ERRORS();
+
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glNormal3f(0,0,1);
+
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	
+	CHECK_GL_ERRORS();
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	if(have_multitexture && !dungeon && clouds_shadows)
+		{
+			//disable the second texture unit
+			ELglActiveTextureARB(detail_unit);
+			glDisable(GL_TEXTURE_2D);
+			ELglActiveTextureARB(base_unit);
+		}
+	CHECK_GL_ERRORS();
+#endif	//NEW_FRUSTUM
 }
 
 void display_blended_objects()
