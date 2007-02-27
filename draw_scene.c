@@ -292,7 +292,7 @@ void update_camera()
 	}
 	if(camera_zoom_frames) {
 		if(camera_zoom_dir == 1) {
-			if(zoom_level<3.75f){
+			if(new_zoom_level<3.75f){
 				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
 #ifdef	NEW_FRUSTUM
@@ -304,7 +304,7 @@ void update_camera()
 			} else 
 				camera_zoom_frames = 0;
 		} else {
-			if(zoom_level>1.50f){
+			if(new_zoom_level>1.50f){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
 #ifdef	NEW_FRUSTUM
