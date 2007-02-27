@@ -998,7 +998,7 @@ int load_font_textures ()
 	fonts[1]->texture_id = load_texture_cache_deferred("./textures/fontv.bmp", 0);
 	fonts[2]->texture_id = load_texture_cache_deferred("./textures/font2.bmp", 0);
 	fonts[3]->texture_id = load_texture_cache_deferred("./textures/font3.bmp", 0);
-#else
+#else	//FONTS_FIX
 	i = 1;
 	// Force the selection of the base font.
 	add_multi_option("chat_font", "Type 1");
@@ -1011,6 +1011,8 @@ int load_font_textures ()
 		return 0;
 	}
 	do {
+		int	len;
+		
 		strcpy(file, c_file.name);
 #else //!_MSC_VER
 	dp = opendir ("./textures/");
@@ -1018,17 +1020,24 @@ int load_font_textures ()
 		return 0;
 	}
 	while ((ep = readdir (dp)) && i < FONTS_ARRAY_SIZE) {
+		int	len;
+		
 		strcpy(file, "");
 		strcpy(file, ep->d_name);
 #endif //_MSC_VER
-		if (!strncasecmp(file, "font", 4) && !strcasecmp(file+strlen(file) - 4, ".bmp") && strncasecmp(file+strlen(file) - 10, "_alpha", 6) && strlen(file) + 11 <= 60 && strlen(file) > 8) {
+		len= strlen(file);
+		if(len +11 <= 60 && len > 8 && !strncasecmp(file, "font", 4) && (!strcasecmp(file+len-4, ".bmp") || !strcasecmp(file+len-7, ".bmp.gz"))&& strncasecmp(file+len-10, "_alpha", 6)&& strncasecmp(file+len-13, "_alpha", 6)) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
 #ifdef _MSC_VER
 			strcpy(str, file);
 #else //!_MSC_VER
 			snprintf(str, sizeof(str), "./textures/%s", file);
 #endif //!_MSC_VER
-			file[strlen(file) - 4] = 0;
+			if(!strcasecmp(file+strlen(file) - 7, ".bmp.gz")){
+				file[len - 7]= 0;
+			} else {
+				file[len - 4]= 0;
+			}
 			fonts[i]->texture_id = load_texture_cache_deferred(str, 0);
 			snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
 			add_multi_option("chat_font", font_names[i]);
