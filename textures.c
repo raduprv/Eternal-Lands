@@ -541,7 +541,12 @@ GLuint load_bmp8_color_key(char * filename, int alpha)
 	if(!load_alphamap(filename, texture_mem, x_size, y_size) && alpha < 0){
 #ifdef	NEW_ALPHA
 		// no texture alpha found, use the constant
-		texture_set_alpha(tex, 255, 15);
+		if(alpha < -1){
+			// a specific alpha threshold was mentioned
+			texture_set_alpha(tex, 255, -alpha);
+		} else {
+			texture_set_alpha(tex, 255, 15);
+	}
 #endif	//NEW_ALPHA
 	} else {
 		tex->has_alpha++;
