@@ -9,7 +9,7 @@ int calhm = 0;
 
 #define ROT_LSPEED    1.0f 
 #define ROT_HSPEED   10.0f
-#define ROT_DELTA(flag) (flag ? ROT_HSPEED : ROT_LSPEED)
+#define ROT_DELTA(flag) (flag ? ROT_LSPEED : ROT_HSPEED)
 
 void zoomin(){
 	zoom_level -= ctrl_on ? 2.5f : 0.25f;
