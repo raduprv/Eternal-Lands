@@ -704,8 +704,10 @@ void check_mouse_minimap()
 
 	x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
 	y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
-	mx=-x_map_pos*3;
-	my=-y_map_pos*3;
+	//mx=-x_map_pos*3;
+	//my=-y_map_pos*3;
+	mx=x_map_pos*3;
+	my=y_map_pos*3;
 	minimap_on=0;
 }
 
