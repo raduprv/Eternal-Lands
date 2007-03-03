@@ -27,7 +27,7 @@ int font_text;
 
 float gcr=0.8f,gcg=0.8f,gcb=0.8f;
 
-texture_cache_struct texture_cache[1000];
+texture_cache_struct texture_cache[TEXTURE_CACHE_MAX];
 e3d_cache_struct e3d_cache[1000];
 obj_2d_cache_struct obj_2d_def_cache[max_obj_2d_def];
 

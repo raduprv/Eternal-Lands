@@ -1,5 +1,6 @@
 #ifndef __TILE_H__
 #define __TILE_H__
+#include	"textures.h"
 
 typedef struct
 {
@@ -8,7 +9,7 @@ typedef struct
 	int y;
 } img_struct;
 
-img_struct map_tiles[256];
+texture_struct map_tiles[256];
 
 extern unsigned char *tile_map;
 extern unsigned char *height_map;

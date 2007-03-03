@@ -23,6 +23,7 @@
 #endif
 
 #include <SDL.h>
+#include <SDL_endian.h>
 #include <SDL_opengl.h>
 
 #ifdef LINUX
@@ -32,6 +33,7 @@
 #include "gui_support.h"
 #endif
 
+#include "cache.h"
 #include "../elc/translate.h"
 #include "../elc/elconfig.h"
 #include "colors.h"
@@ -95,16 +97,6 @@ extern float gcr,gcg,gcb;
 extern int texture2;
 extern int texture3;
 //end of debug
-
-typedef struct
-{
-	GLuint texture_id;
-	int last_access_time;
-    char file_name[100];
-	unsigned char alpha;
-}texture_cache_struct;
-
-extern texture_cache_struct texture_cache[1000];
 
 extern  Uint8 *e3d_file_mem;
 extern  Uint8 *handle_e3d_file_mem;

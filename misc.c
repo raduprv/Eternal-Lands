@@ -1,4 +1,23 @@
+#include <stdlib.h>
+#include <math.h>
+#include <string.h>
+#ifndef _MSC_VER
+  #include <dirent.h>
+  #include <errno.h>
+#endif //_MSC_VER
+#include <sys/types.h>
+#include <sys/stat.h>
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
 #include "global.h"
+//#ifdef OSX
+//#include <ApplicationServices/ApplicationServices.h>
+//#endif
+#ifdef ZLIB
+#include <zlib.h>
+#endif // ZLIB
+
 extern char* selected_file;
 
 char* selected_file;
@@ -513,9 +532,10 @@ void load_all_tiles()
 		if(cur_text==-1)return;
 		tile_list[i]=cur_text;
 		tiles_no=i;
-		map_tiles[i].img=load_bmp8_color_key_no_texture_img(str,map_tiles+i);
+		//map_tiles[i].img=load_bmp8_color_key_no_texture_img(str,map_tiles+i,255);
+		load_bmp8_texture(str,map_tiles+i,255);
 	}
-	map_tiles[255].img=NULL;
+	map_tiles[255].texture=NULL;
 }
 
 
@@ -1257,6 +1277,44 @@ void save_particle_def_file_continued()
 	save_particle_def(&def);
 }
 
+//warning: when checking directories, do not include the trailing slash, for portability reasons
+int file_exists(const char *fname)
+{
+	int statres;
+	struct stat fstat;
+
+	statres= stat(fname, &fstat);
+	if(statres < 0)
+	{
+		statres= errno;
+	}
+	if(statres != ENOENT && statres != 0)
+	{
+		//something went wrong...
+		LOG_ERROR("Error when checking file or directory %s (error code %d)\n", fname, statres);
+		return -1;
+	}
+	else
+	{
+		return (statres != ENOENT);
+	}
+}
+
+int gzfile_exists(const char *fname)
+{
+#ifdef	ZLIB
+	char	gzfname[1024];
+
+	strcpy(gzfname, fname);
+	strcat(gzfname, ".gz");
+	if(file_exists(gzfname)){
+		return 1;
+	}
+#endif
+
+	return(file_exists(fname));
+}
+
 FILE *my_fopen (const char *fname, const char *mode)
 {
 	FILE *file = fopen (fname, mode);
@@ -1268,3 +1326,25 @@ FILE *my_fopen (const char *fname, const char *mode)
 	}
 	return file;
 }
+
+#ifdef ZLIB
+gzFile * my_gzopen(const char * filename, const char * mode)
+{
+	char gzfilename[1024];
+	gzFile * result;
+
+	snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
+	result= gzopen(gzfilename, mode);
+	if(result == NULL) {
+		// didn't work, try the name that was specified
+		result= gzopen(filename, mode);
+	}
+	if(result == NULL) {
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
+	}
+
+	return result;
+}
+#endif // ZLIB
+
+

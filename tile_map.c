@@ -5,7 +5,7 @@
 void destroy_map_tiles()
 {
 	int i=0;
-	for(;i<256;i++) if(map_tiles[i].img) free(map_tiles[i].img);
+	for(;i<256;i++) if(map_tiles[i].texture) free(map_tiles[i].texture);
 }
 
 
