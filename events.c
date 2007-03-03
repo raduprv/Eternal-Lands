@@ -156,8 +156,8 @@ int HandleEvent(SDL_Event *event)
                         obj_2d_list[selected_2d_object]->z_rot -= ROT_DELTA(shift_on);
     
                     else {
-                        mx += sin((rz+90)*3.1415926/180);
-                        my += cos((rz+90)*3.1415926/180);
+                        mx -= sin((rz+90)*3.1415926/180);
+                        my -= cos((rz+90)*3.1415926/180);
                     }
                     break;
 
@@ -169,8 +169,8 @@ int HandleEvent(SDL_Event *event)
                         obj_2d_list[selected_2d_object]->z_rot += ROT_DELTA(shift_on);
 
                     else {
-                        mx -= sin((rz+90)*3.1415926/180);
-                        my -= cos((rz+90)*3.1415926/180);
+                        mx += sin((rz+90)*3.1415926/180);
+                        my += cos((rz+90)*3.1415926/180);
                     }
                     break;
 
@@ -181,8 +181,8 @@ int HandleEvent(SDL_Event *event)
                     else if (ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
                         obj_2d_list[selected_2d_object]->x_rot -= ROT_DELTA(shift_on);
                     else {
-                        mx -= sin(rz*3.1415926/180);
-                        my -= cos(rz*3.1415926/180);
+                        mx += sin(rz*3.1415926/180);
+                        my += cos(rz*3.1415926/180);
                     }
                     break;
                 
@@ -192,8 +192,8 @@ int HandleEvent(SDL_Event *event)
                     else if(ctrl_on && cur_mode==mode_2d && selected_2d_object!=-1)
                         obj_2d_list[selected_2d_object]->x_rot += ROT_DELTA(shift_on);
                     else {
-                        mx += sin(rz*3.1415926/180);
-                        my += cos(rz*3.1415926/180);
+                        mx -= sin(rz*3.1415926/180);
+                        my -= cos(rz*3.1415926/180);
                     }
 
                     break;
