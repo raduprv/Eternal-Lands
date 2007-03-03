@@ -33,6 +33,10 @@
 #include "gui_support.h"
 #endif
 
+#ifdef	ZLIB
+#include	<zlib.h>
+#endif
+
 #include "cache.h"
 #include "../elc/translate.h"
 #include "../elc/elconfig.h"

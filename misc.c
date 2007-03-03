@@ -7,16 +7,10 @@
 #endif //_MSC_VER
 #include <sys/types.h>
 #include <sys/stat.h>
-#ifdef	ZLIB
-#include	<zlib.h>
-#endif
 #include "global.h"
 //#ifdef OSX
 //#include <ApplicationServices/ApplicationServices.h>
 //#endif
-#ifdef ZLIB
-#include <zlib.h>
-#endif // ZLIB
 
 extern char* selected_file;
 
@@ -226,7 +220,7 @@ void open_3d_obj()
 
   ofn.lStructSize = sizeof (ofn);
   ofn.hwndOwner = 0;
-  ofn.lpstrFilter = "Custom e3d (*.e3d)\0*.e3d\0\0";
+  ofn.lpstrFilter = "Custom e3d (*.e3d)\0*.e3d\0.e3d.gz\0\0";
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "e3d";

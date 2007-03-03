@@ -74,5 +74,22 @@ void save_map_file_continued();
 
 extern char* selected_file;
 FILE *my_fopen (const char *fname, const char *mode);
+int file_exists(const char *fname);
+int gzfile_exists(const char *fname);
+#ifdef ZLIB
+/*!
+ * \ingroup misc
+ * \brief Append '.gz' to a filename and try to open it using gzopen
+ *
+ * Appends the '.gz' to a filename and tries to open the file with that
+ * name. If it fails, tries to open the file with the original filename.
+ *
+ * \param filename The file to open
+ * \param mode The i/o mode (see open())
+ * \return a zlib file handle
+ */
+gzFile * my_gzopen(const char * filename, const char * mode);
+#endif // ZLIB
+
 
 #endif	//__MISC_H

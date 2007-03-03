@@ -443,7 +443,6 @@ e3d_object * load_e3d(char *file_name)
 {
 	int vertex_no,faces_no,materials_no;
 	int i,k,l;
-	FILE *f = NULL;
 	e3d_vertex *vertex_list;
 	e3d_face *face_list;
 	e3d_material *material_list;
@@ -456,6 +455,11 @@ e3d_object * load_e3d(char *file_name)
 	e3d_array_normal *array_normal;
 	e3d_array_uv_main *array_uv_main;
 	e3d_array_order *array_order;
+#ifdef	ZLIB
+	gzFile *f = NULL;
+#else	//ZLIB
+	FILE *f = NULL;
+#endif	//ZLIB
 
 	//get the current directory
 	l=strlen(file_name);
@@ -479,8 +483,11 @@ e3d_object * load_e3d(char *file_name)
 		}
 
 
-
-	f = fopen(file_name, "rb");
+#ifdef	ZLIB
+	f= my_gzopen(file_name, "rb");
+#else	//ZLIB
+	f= fopen(file_name, "rb");
+#endif	//ZLIB
 	if(!f)
         {
             char str[120];
@@ -490,7 +497,11 @@ e3d_object * load_e3d(char *file_name)
         }
 
 	//load and parse the header
+#ifdef	ZLIB
+	gzread(f, our_header_pointer, sizeof(e3d_header));
+#else	//ZLIB
 	fread(our_header_pointer, 1, sizeof(e3d_header), f);
+#endif	//ZLIB
 
 	faces_no=our_header.face_no;
 	vertex_no=our_header.vertex_no;
@@ -498,7 +509,11 @@ e3d_object * load_e3d(char *file_name)
 
 	//read the rest of the file (vertex,faces, materials)
 	face_list=(e3d_face*) calloc(faces_no, our_header.face_size);
+#ifdef	ZLIB
+	gzread(f, face_list, faces_no*our_header.face_size);
+#else	//ZLIB
 	fread(face_list, faces_no, our_header.face_size, f);
+#endif	//ZLIB
 
 	vertex_list=(e3d_vertex*) calloc(vertex_no, our_header.vertex_size);
   	if(!vertex_list)
@@ -507,15 +522,31 @@ e3d_object * load_e3d(char *file_name)
 			sprintf(str,"Hmm, object name:%s seems to be corrupted. Skipping the object. Warning: This might cause further problems.",file_name);
 			//log_to_console(c_red2,str);
 			free(face_list);
+#ifdef	ZLIB
+			gzclose(f);
+#else	//ZLIB
 			fclose(f);
+#endif	//ZLIB
 			return NULL;
 		}
+#ifdef	ZLIB
+	gzread(f, vertex_list, vertex_no*our_header.vertex_size);
+#else	//ZLIB
 	fread(vertex_list, vertex_no, our_header.vertex_size, f);
+#endif	//ZLIB
 
 	material_list=(e3d_material*) calloc(materials_no, our_header.material_size);
+#ifdef	ZLIB
+	gzread(f, material_list, materials_no*our_header.material_size);
+#else	//ZLIB
 	fread(material_list, materials_no, our_header.material_size, f);
+#endif	//ZLIB
 
+#ifdef	ZLIB
+	gzclose (f);
+#else	//ZLIB
 	fclose (f);
+#endif	//ZLIB
 
 	//allocate memory for our new, converted structures
 	array_order=(e3d_array_order*) calloc(materials_no, sizeof(e3d_array_order));

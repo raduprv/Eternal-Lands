@@ -26,6 +26,7 @@ void init_filters()
 	e3d_filter=gtk_file_filter_new();
 	gtk_file_filter_set_name(e3d_filter, "3D object");
 	gtk_file_filter_add_pattern(e3d_filter, "*.e3d");
+	gtk_file_filter_add_pattern(e3d_filter, "*.e3d.gz");
 	
 	e2d_filter=gtk_file_filter_new();
 	gtk_file_filter_set_name(e2d_filter, "2D object");
@@ -34,6 +35,7 @@ void init_filters()
 	map_filter=gtk_file_filter_new();
 	gtk_file_filter_set_name(map_filter, "Map file");
 	gtk_file_filter_add_pattern(map_filter, "*.elm");
+	gtk_file_filter_add_pattern(map_filter, "*.elm.gz");
 	
 	part_filter=gtk_file_filter_new();
 	gtk_file_filter_set_name(part_filter, "Particle file");
