@@ -753,7 +753,8 @@ GLuint generate_minimap()
 {
         int x=0,y=0,i,j;
         float scale=(float)256/tile_map_size_x;//Set the scale...
-        img_struct * cur_img;
+        //img_struct * cur_img;
+        texture_struct * cur_img;
         GLuint texture;
 
         char map[256*256*4]={0};
@@ -770,10 +771,10 @@ GLuint generate_minimap()
                                                 for(j=0;j<scale;j++)
                                                         {
                                                                 if((cur_img=&map_tiles[tile_map[x*tile_map_size_y+y]])==NULL||
-                                                                    cur_img->img==NULL)
+                                                                    cur_img->texture==NULL)
                                                                 	*((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=0x00000000;
 								else
-                                                                	*((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=*((Uint32 *)(cur_img->img+(((i+y*(int)scale)&(cur_img->y-1))*cur_img->x+((j+x*(int)scale)&(cur_img->x-1)))*4));
+                                                                	*((Uint32 *)(map+(((x*(int)scale+j)+(i+y*(int)scale)*256)*4)))=*((Uint32 *)(cur_img->texture+(((i+y*(int)scale)&(cur_img->y_size-1))*cur_img->x_size+((j+x*(int)scale)&(cur_img->x_size-1)))*4));
                                                         }
                                                 }
                                         }
