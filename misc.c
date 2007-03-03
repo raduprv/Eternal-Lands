@@ -220,7 +220,7 @@ void open_3d_obj()
 
   ofn.lStructSize = sizeof (ofn);
   ofn.hwndOwner = 0;
-  ofn.lpstrFilter = "Custom e3d (*.e3d)\0*.e3d\0.e3d.gz\0\0";
+  ofn.lpstrFilter = "Custom e3d (*.e3d)\0*.e3d\0Compressed e3d (*.e3d.gz)\0*.e3d.gz\0\0";
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "e3d";
@@ -260,7 +260,7 @@ void get_2d_object_under_mouse()
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 
-	for (i = 0; i < max_obj_2d; i++)
+	for (i = 0; i < MAX_OBJ_2D; i++)
 	{
 		if (obj_2d_list[i])
 		{
@@ -311,7 +311,7 @@ void clone_2d_object(int object_id)
 	if(ctrl_on)
 		{
 			collide=0;
-			for(i=0;i<max_obj_2d;i++)
+			for(i=0;i<MAX_OBJ_2D;i++)
 				{
 					if(obj_2d_list[i])
 						{

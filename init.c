@@ -36,7 +36,7 @@ void init_e3d_cache()
 void init_2d_obj_cache()
 {
 	int i;
-	for(i=0;i<max_obj_2d_def;i++)
+	for(i=0;i<MAX_OBJ_2D_DEF;i++)
 		{
 			obj_2d_def_cache[i].file_name[0]=0;
 			obj_2d_def_cache[i].obj_2d_def_id=0;

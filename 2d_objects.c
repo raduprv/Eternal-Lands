@@ -316,7 +316,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	file_name_lenght=strlen(file_name);
 
-	for(i=0;i<max_obj_2d_def;i++)
+	for(i=0;i<MAX_OBJ_2D_DEF;i++)
 		{
 			j=0;
 			while(j<file_name_lenght)
@@ -332,7 +332,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	//find a place to store it
 	i=0;
-	while(i<max_obj_2d_def)
+	while(i<MAX_OBJ_2D_DEF)
 		{
 			if(!obj_2d_def_cache[i].file_name[0])//we found a place to store it
 				{
@@ -357,7 +357,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 
 	//find a free spot, in the obj_2d_list
 	i=0;
-	while(i<max_obj_2d)
+	while(i<MAX_OBJ_2D)
 		{
 			if(!obj_2d_list[i])break;
 			i++;
@@ -404,7 +404,7 @@ void display_2d_objects()
 	x= (int)-cx;
 	y= (int)-cy;
 	glDisable(GL_CULL_FACE);
-	for(i=0;i<max_obj_2d;i++)
+	for(i=0;i<MAX_OBJ_2D;i++)
 		{
 			if(obj_2d_list[i])
 			     {
