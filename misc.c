@@ -233,7 +233,8 @@ void open_3d_obj()
     {
 		char proper_path[128];
 		get_proper_path (szFileName, exec_path, proper_path, sizeof (proper_path) );
-selected_3d_object=add_e3d(proper_path,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+		if(!strcmp(proper_path+strlen(proper_path)-3, ".gz")) proper_path[strlen(proper_path)-3]= '\0';
+		selected_3d_object=add_e3d(proper_path,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 		cur_tool=tool_select;//change the current tool
     }
 
@@ -1147,7 +1148,7 @@ void open_3d_obj_continued()
 {
   if (selected_file)
     {
-
+		if(!strcmp(selected_file+strlen(selected_file)-3, ".gz")) selected_file[strlen(selected_file)-3]= '\0';
 		selected_3d_object=add_e3d(selected_file,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 		cur_tool=tool_select;//change the current tool
 		if(selected_particles_object>=0)particles_list[selected_particles_object]->ttl=-1; // we dont want the particle sys to disapear
