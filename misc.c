@@ -1020,7 +1020,7 @@ void open_map_file()
 
   ofn.lStructSize = sizeof (ofn);
   ofn.hwndOwner = 0;
-  ofn.lpstrFilter = "Eternal Lands Map (*.elm)\0*.elm\0\0";
+  ofn.lpstrFilter = "Compressed Map (*.elm.gz)\0*.elm.gz\0Eternal Lands Map (*.elm)\0*.elm\0\0";
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "elm";
@@ -1049,7 +1049,7 @@ void save_map_file()
 
   ofn.lStructSize = sizeof (ofn);
   ofn.hwndOwner = 0;
-  ofn.lpstrFilter = "Eternal Lands Map (*.elm)\0*.elm\0\0";
+  ofn.lpstrFilter = "Compressed Map (*.elm.gz)\0*.elm.gz\0Eternal Lands Map (*.elm)\0*.elm\0\0";
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
   ofn.lpstrDefExt = "elm";
