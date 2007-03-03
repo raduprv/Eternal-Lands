@@ -75,7 +75,11 @@ int save_map(char * file_name)
 	int particles_no=0;
 	int particles_io_size;
 
+#ifdef	ZLIBW
+	gzFile *f = NULL;
+#else	//ZLIBW
 	FILE *f = NULL;
+#endif	//ZLIBW
 
 
 	//get the sizes of structures (they might change in the future)
@@ -123,7 +127,16 @@ int save_map(char * file_name)
 	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
 
 	//ok, now let's open/create the file, and start writting the header...
-	f=fopen(file_name, "wb");
+#ifdef	ZLIBW
+	{
+		char	gzfile_name[1024];
+		strcpy(gzfile_name, file_name);
+		strcat(gzfile_name, ".gz");
+		f= gzopen(gzfile_name, "wb");
+	}
+#else	//ZLIBW
+	f= fopen(file_name, "wb");
+#endif	//ZLIBW
 
 	if (!f) {
 		char msg[500];
@@ -131,6 +144,16 @@ int save_map(char * file_name)
 		LOG_ERROR(msg);
 	} else {
 
+#ifdef	ZLIBW
+		//write the header
+		gzwrite(f, mem_map_header, sizeof(map_header));
+
+		//write the tiles map
+		gzwrite(f, tile_map, tile_map_size_x*tile_map_size_y);
+
+		//write the heights map
+		gzwrite(f, height_map, tile_map_size_x*tile_map_size_y*6*6);
+#else	//ZLIBW
 		//write the header
 		fwrite(mem_map_header, sizeof(map_header), 1, f);
 
@@ -139,6 +162,7 @@ int save_map(char * file_name)
 
 		//write the heights map
 		fwrite(height_map, tile_map_size_x*tile_map_size_y*6*6, 1, f);
+#endif	//ZLIBW
 
 		//write the 3d objects
 		j=0;
@@ -170,7 +194,11 @@ int save_map(char * file_name)
 						cur_3d_obj_io.g=objects_list[i]->g;
 						cur_3d_obj_io.b=objects_list[i]->b;
 
+#ifdef	ZLIBW
+						gzwrite(f, cur_3do_pointer, sizeof(object3d_io));
+#else	//ZLIBW
 						fwrite(cur_3do_pointer, sizeof(object3d_io), 1, f);
+#endif	//ZLIBW
 
 						j++;
 					}
@@ -199,7 +227,11 @@ int save_map(char * file_name)
 						cur_2d_obj_io.y_rot=obj_2d_list[i]->y_rot;
 						cur_2d_obj_io.z_rot=obj_2d_list[i]->z_rot;
 
+#ifdef	ZLIBW
+						gzwrite(f, cur_2do_pointer, sizeof(obj_2d_io));
+#else	//ZLIBW
 						fwrite(cur_2do_pointer, sizeof(obj_2d_io), 1, f);
+#endif	//ZLIBW
 
 						j++;
 					}
@@ -226,7 +258,11 @@ int save_map(char * file_name)
 						cur_light_io.g=lights_list[i]->g;
 						cur_light_io.b=lights_list[i]->b;
 
+#ifdef	ZLIBW
+						gzwrite(f, cur_light_pointer, sizeof(light_io));
+#else	//ZLIBW
 						fwrite(cur_light_pointer, sizeof(light_io), 1, f);
+#endif	//ZLIBW
 
 						j++;
 					}
@@ -246,12 +282,20 @@ int save_map(char * file_name)
 						cur_particles_io.x_pos=particles_list[i]->x_pos;
 						cur_particles_io.y_pos=particles_list[i]->y_pos;
 						cur_particles_io.z_pos=particles_list[i]->z_pos;
+#ifdef	ZLIBW
+						gzwrite(f, cur_particles_pointer,sizeof(particles_io));
+#else	//ZLIBW
 						fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+#endif	//ZLIBW
 						j++;
 					}
 			}
 
+#ifdef	ZLIBW
+		gzclose(f);
+#else	//ZLIBW
 		fclose(f);
+#endif	//ZLIBW
 	}
 
 	return 1;
@@ -281,11 +325,20 @@ int load_map(char * file_name)
 	int particles_no=0;
 	int particles_io_size;
 
+#ifdef	ZLIBW
+	gzFile *f = NULL;
+	f= my_gzopen(file_name, "rb");
+#else	//ZLIBW
 	FILE *f = NULL;
-	f=fopen(file_name, "rb");
+	f= fopen(file_name, "rb");
+#endif	//ZLIBW
 	if(!f)return 0;
 
+#ifdef	ZLIBW
+	gzread(f, mem_map_header, sizeof(cur_map_header));//header only
+#else	//ZLIBW
 	fread(mem_map_header, 1, sizeof(cur_map_header), f);//header only
+#endif	//ZLIBW
 	
 	//verify if we have a valid file
 	if(cur_map_header.file_sig[0]!='e')return 0;
@@ -326,20 +379,32 @@ int load_map(char * file_name)
 	new_minute();
 
 	//read the tiles map
+#ifdef	ZLIBW
+	gzread(f, tile_map, tile_map_size_x*tile_map_size_y);
+#else	//ZLIBW
 	fread(tile_map, 1, tile_map_size_x*tile_map_size_y, f);
+#endif	//ZLIBW
 
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
 
 	//read the heights map
+#ifdef	ZLIBW
+	gzread(f, height_map, tile_map_size_x*tile_map_size_y*6*6);
+#else	//ZLIBW
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);
+#endif	//ZLIBW
 
 	//read the 3d objects
 	for (i = 0; i < obj_3d_no; i++)
 	{
 		char *cur_3do_pointer = (char *)&cur_3d_obj_io;
 		
+#ifdef	ZLIBW
+		gzread (f, cur_3do_pointer, obj_3d_io_size);
+#else	//ZLIBW
 		fread (cur_3do_pointer, 1, obj_3d_io_size, f);
+#endif	//ZLIBW
 
 		add_e3d_keep_deleted (cur_3d_obj_io.file_name, cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos, cur_3d_obj_io.z_pos, cur_3d_obj_io.x_rot, cur_3d_obj_io.y_rot, cur_3d_obj_io.z_rot, cur_3d_obj_io.self_lit, cur_3d_obj_io.blended, cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b);
 	}
@@ -348,7 +413,11 @@ int load_map(char * file_name)
 	for(i=0;i<obj_2d_no;i++)
 		{
 			char * cur_2do_pointer=(char *)&cur_2d_obj_io;
+#ifdef	ZLIBW
+			gzread(f, cur_2do_pointer, obj_2d_io_size);
+#else	//ZLIBW
 			fread(cur_2do_pointer, 1, obj_2d_io_size, f);
+#endif	//ZLIBW
 
 			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
 			cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot);
@@ -359,7 +428,11 @@ int load_map(char * file_name)
 	for(i=0;i<lights_no;i++)
 		{
 			char * cur_light_pointer=(char *)&cur_light_io;
+#ifdef	ZLIBW
+			gzread(f, cur_light_pointer, lights_io_size);
+#else	//ZLIBW
 			fread(cur_light_pointer, 1, lights_io_size, f);
+#endif	//ZLIBW
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,0);
 		}
 
@@ -367,13 +440,21 @@ int load_map(char * file_name)
 	for(i=0;i<particles_no;i++)
 		{
 			char *cur_particles_pointer=(char *)&cur_particles_io;
+#ifdef	ZLIBW
+			gzread(f, cur_particles_pointer,particles_io_size);
+#else	//ZLIBW
 			fread(cur_particles_pointer,1,particles_io_size,f);
+#endif	//ZLIBW
 
 			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
 			if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things fuck up...
 		}
 
+#ifdef	ZLIBW
+	gzclose(f);
+#else	//ZLIBW
 	fclose(f);
+#endif	//ZLIBW
 
 	return 1;
 }
