@@ -24,8 +24,8 @@ NOTEPAD_COBJ = notepad.o
 SFX_COBJ = special_effects.o
 TERRAIN_COBJ = normals.o terrain.o
 USE_FRAMEBUFFER_COBJ = framebuffer.o
-USE_LISPSM = lispsm.o
-USE_SHADER = shader.o
+USE_LISPSM_COBJ = lispsm.o
+USE_SHADER_COBJ = shader.o
 COBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o alphamap.o asc.o \
 	books.o buddy.o bags.o \
