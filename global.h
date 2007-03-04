@@ -112,7 +112,9 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "shadows.h"
 #include "particles.h"
 #include "spells.h"
+#ifndef	MAP_EDITOR
 #include "sound.h"
+#endif	//MAP_EDITOR
 #include "ignore.h"
 #include "filter.h"
 #include "weather.h"
