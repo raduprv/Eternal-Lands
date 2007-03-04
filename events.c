@@ -402,17 +402,19 @@ int HandleEvent(SDL_Event *event)
 				}
 			else
 				{
-					mouse_x= event->button.x;
-					mouse_y= event->button.y;
-					mouse_delta_x= mouse_delta_y= 0;
+					// why was this here? whats broken by removing it?
+					//mouse_x= event->button.x;
+					//mouse_y= event->button.y;
+					//mouse_delta_x= mouse_delta_y= 0;
 				}
 
 
 	if(event->type==SDL_MOUSEMOTION || event->type==SDL_MOUSEBUTTONDOWN || event->type==SDL_MOUSEBUTTONUP)
 		{
 			char tool_bar_click=0;
-			mouse_x=event->motion.x;
-			mouse_y=event->motion.y;
+			// why was this here? whats broken by removing it?
+			//mouse_x=event->motion.x;
+			//mouse_y=event->motion.y;
 
             get_world_x_y();
 
