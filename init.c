@@ -26,9 +26,9 @@ int ini_file_size=0;
 int disconnected= 1;
 #ifdef AUTO_UPDATE
 int auto_update= 1;
-#ifdef  CUSTOM_LOOK
+#ifdef  CUSTOM_UPDATE
 int custom_update= 0;
-#endif  //CUSTOM_LOOK
+#endif  //CUSTOM_UPDATE
 #endif  //AUTO_UPDATE
 
 int exit_now=0;
