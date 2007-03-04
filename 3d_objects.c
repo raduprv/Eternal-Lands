@@ -978,6 +978,19 @@ void display_objects()
 
 	CHECK_GL_ERRORS();
 
+	glEnableClientState(GL_NORMAL_ARRAY);
+#ifndef	NEW_FRUSTUM
+	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
+		if(!objects_list[nobj->pos])
+			regenerate_near_objects=1;
+		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
+			draw_3d_object(objects_list[nobj->pos]);
+	}
+#else
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
+#endif
+
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0,0,1);
 
@@ -993,19 +1006,6 @@ void display_objects()
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 #endif
 	
-	glEnableClientState(GL_NORMAL_ARRAY);
-#ifndef	NEW_FRUSTUM
-	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-		if(!objects_list[nobj->pos])
-			regenerate_near_objects=1;
-		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
-			draw_3d_object(objects_list[nobj->pos]);
-	}
-#else
-	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
-#endif
-
 	CHECK_GL_ERRORS();
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
@@ -1018,6 +1018,46 @@ void display_objects()
 			ELglActiveTextureARB(base_unit);
 		}
 	CHECK_GL_ERRORS();
+}
+
+void display_ground_objects()
+{
+#ifdef	NEW_FRUSTUM
+	CHECK_GL_ERRORS();
+	glEnable(GL_CULL_FACE);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			
+	if(have_multitexture && !dungeon && clouds_shadows){
+		//bind the detail texture
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		ELglActiveTextureARB(base_unit);
+		glEnable(GL_TEXTURE_2D);
+	}
+
+	CHECK_GL_ERRORS();
+
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glNormal3f(0,0,1);
+
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
+	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
+	
+	CHECK_GL_ERRORS();
+	glDisable(GL_CULL_FACE);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	if(have_multitexture && !dungeon && clouds_shadows)
+		{
+			//disable the second texture unit
+			ELglActiveTextureARB(detail_unit);
+			glDisable(GL_TEXTURE_2D);
+			ELglActiveTextureARB(base_unit);
+		}
+	CHECK_GL_ERRORS();
+#endif	//NEW_FRUSTUM
 }
 
 void display_alpha_objects()
@@ -1041,9 +1081,6 @@ void display_alpha_objects()
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0,0,1);
 
-	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
-	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
-	
 	glEnableClientState(GL_NORMAL_ARRAY);
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
@@ -1381,6 +1418,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 #ifdef	NEW_ALPHA
 			// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
 			if(cur_object->is_ground)material_list[i].material_id= load_texture_cache_deferred(text_file_name, -58);
+			else if(cur_object->is_transparent)material_list[i].material_id= load_texture_cache_deferred(text_file_name, -1);
 			else if(cur_object->is_transparent)material_list[i].material_id= load_texture_cache_deferred(text_file_name, -1);
 			else material_list[i].material_id= load_texture_cache_deferred(text_file_name, -1);//255);
 			//material_list[i].material_id=load_texture_cache_deferred(text_file_name, -1);

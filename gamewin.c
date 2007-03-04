@@ -634,6 +634,7 @@ int display_game_handler (window_info *win)
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_objects();
+			display_ground_objects();
 			display_actors(1, 0);
 			display_alpha_objects();
 			display_blended_objects();

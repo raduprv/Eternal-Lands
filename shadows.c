@@ -1100,6 +1100,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 			display_objects();
+			display_ground_objects();
 #ifndef MAP_EDITOR2
 			display_actors(1, 0);  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
 #endif
