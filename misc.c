@@ -1052,7 +1052,7 @@ void save_map_file()
   ofn.lpstrFilter = "Compressed Map (*.elm.gz)\0*.elm.gz\0Eternal Lands Map (*.elm)\0*.elm\0\0";
   ofn.lpstrFile = szFileName;
   ofn.nMaxFile = MAX_PATH;
-  ofn.lpstrDefExt = "elm";
+  ofn.lpstrDefExt = "elm.gz";
   strcpy(temp,exec_path);
   strcat(temp,"\\maps\\");
   ofn.lpstrInitialDir = temp;
