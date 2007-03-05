@@ -31,7 +31,10 @@
 
 #include <SDL.h>
 #include <SDL_endian.h>
-#include <SDL_opengl.h>
+//#include <SDL_opengl.h>
+#include	<GL/gl.h>
+#include	<GL/glu.h>
+#include	<GL/glext.h>
 
 #ifdef LINUX
 #include <gtk/gtk.h>
@@ -179,6 +182,13 @@ extern int icons_text;
 extern int video_mode;
 extern int auto_save_time;
 extern int limit_fps;
+
+#ifndef LINUX //extensions
+extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
+extern PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB;
+extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
+extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
+#endif
 
 #ifndef POINT_SIZE_MIN_ARB
 #define POINT_SIZE_MIN_ARB 0x8126
