@@ -13,6 +13,13 @@
 #include <math.h>
 #include <time.h>
 
+#ifndef min
+	#define min(x, y) (x<y?x:y)
+#endif //min
+#ifndef max
+	#define max(x, y) (x>y?x:y)
+#endif //max
+
 #if defined (_MSC_VER) || defined (__MINGW32__)
 	#define snprintf sane_snprintf
 #else
@@ -37,7 +44,7 @@
 #include	<zlib.h>
 #endif
 
-#include "cache.h"
+#include "../elc/cache.h"
 #include "../elc/translate.h"
 #include "../elc/elconfig.h"
 #include "colors.h"
@@ -149,11 +156,10 @@ extern color_rgb colors_list[25];
 #define c_steel 20
 #define c_bronze 21
 
-#ifndef LINUX //extensions
-extern PFNGLMULTITEXCOORD2FARBPROC		glMultiTexCoord2fARB;
-extern PFNGLMULTITEXCOORD2FVARBPROC	glMultiTexCoord2fvARB;
-extern PFNGLACTIVETEXTUREARBPROC		glActiveTextureARB;
-extern PFNGLCLIENTACTIVETEXTUREARBPROC	glClientActiveTextureARB;
+#ifdef EL_BIG_ENDIAN
+	#define SwapLEFloat(X) SwapFloat(X)
+#else
+	#define SwapLEFloat(X) (X)
 #endif
 
 extern int have_multitexture;

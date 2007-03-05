@@ -6,6 +6,106 @@ float mrandom(float max)
   return ((float) max * (rand () % 8 ));
 }
 
+#ifdef NEW_E3D_FORMAT
+void draw_3d_reflection(object3d * object_id)
+{
+	unsigned int type;
+	int texture_id, i;
+	float x_pos,y_pos,z_pos;
+	float x_rot,y_rot,z_rot;
+
+	//also, update the last time this object was used
+	object_id->last_acessed_time=cur_time;
+
+	if(object_id->self_lit && (night_shadows_on || dungeon))
+	{
+		glDisable(GL_LIGHTING);
+		//set_material(object_id->r,object_id->g,object_id->b);
+		glColor3f(object_id->r,object_id->g,object_id->b);
+	}
+
+	CHECK_GL_ERRORS();
+
+	glPushMatrix();//we don't want to affect the rest of the scene
+	x_pos = object_id->x_pos;
+	y_pos = object_id->y_pos;
+	z_pos = object_id->z_pos;
+	glTranslatef (x_pos, y_pos, z_pos);
+
+	x_rot = object_id->x_rot;
+	y_rot = object_id->y_rot;
+	z_rot = object_id->z_rot;
+	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+
+	CHECK_GL_ERRORS();
+
+	// No ground objects
+	type = GL_T2F_N3F_V3F;
+
+	if (have_vertex_buffers && object_id->e3d_data->vbo[0] && 
+	    object_id->e3d_data->vbo[1])
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
+		glInterleavedArrays(type, 0, 0);
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+	}
+	else glInterleavedArrays(type, 0, object_id->e3d_data->vertex_data);
+		
+	CHECK_GL_ERRORS();
+
+	for (i = 0; i < object_id->e3d_data->material_no; i++)
+	{
+		if (object_id->e3d_data->materials[i].options & 0x00000001)
+		{
+			//enable alpha filtering, so we have some alpha key
+			glEnable(GL_ALPHA_TEST);
+			glAlphaFunc(GL_GREATER, 0.05f);
+			glDisable(GL_CULL_FACE);
+		}
+		else
+		{
+			glDisable(GL_ALPHA_TEST);
+			glEnable(GL_CULL_FACE);
+		}
+
+		texture_id = get_texture_id(object_id->e3d_data->materials[i].texture_id);
+		if (last_texture != texture_id)
+		{
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+			last_texture = texture_id;
+		}
+
+		ELglDrawRangeElementsEXT(GL_TRIANGLES,
+			object_id->e3d_data->materials[i].triangles_indicies_min,
+			object_id->e3d_data->materials[i].triangles_indicies_max,
+			object_id->e3d_data->materials[i].triangles_indicies_count,
+			object_id->e3d_data->index_type,
+			object_id->e3d_data->materials[i].triangles_indicies_index);
+	}
+
+	glPopMatrix();//restore the scene
+	CHECK_GL_ERRORS();
+
+	if (have_multitexture && clouds_shadows)
+	{
+		glClientActiveTextureARB(GL_TEXTURE1_ARB);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+
+	if (object_id->self_lit && (night_shadows_on || dungeon)) glEnable(GL_LIGHTING);
+	if (object_id->e3d_data->materials[object_id->e3d_data->material_no].options & 0x00000001)
+	{
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_CULL_FACE);
+	}
+	CHECK_GL_ERRORS();
+}
+
+#else	//NEW_E3D_FORMAT
 
 void draw_3d_reflection(object3d * object_id)
 {
@@ -91,6 +191,7 @@ void draw_3d_reflection(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 }
+#endif	//NEW_E3D_FORMAT
 
 //if there is any reflecting tile, returns 1, otherwise 0
 int find_reflection()
@@ -199,6 +300,9 @@ void display_3d_reflection()
 			         		dist2=y-(int)objects_list[i]->y_pos;
 			         		if(dist1*dist1+dist2*dist2<=21*21)
 			         			{
+#ifdef	NEW_E3D_FORMAT
+                     						draw_3d_reflection(objects_list[i]);
+#else	//NEW_E3D_FORMAT
 									float x_len, y_len, z_len;
 									float radius;
 
@@ -215,6 +319,7 @@ void display_3d_reflection()
 									if(SphereInFrustum(objects_list[i]->x_pos,objects_list[i]->y_pos,
 										objects_list[i]->z_pos,radius))
                      						draw_3d_reflection(objects_list[i]);
+#endif	//NEW_E3D_FORMAT
 								}
 						}
                  }

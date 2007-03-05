@@ -160,6 +160,9 @@ void init_stuff()
 	init_colors();
 	clear_error_log();
 
+#ifdef NEW_E3D_FORMAT
+	init_gl_extensions();
+#else
    //now load the multitexturing extension
 #ifndef LINUX
 	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");
@@ -170,6 +173,7 @@ void init_stuff()
 	else have_multitexture=1;
 #else
 	have_multitexture=0;
+#endif
 #endif
 
 	if(have_multitexture)

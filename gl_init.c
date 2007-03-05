@@ -1,5 +1,87 @@
 #include "global.h"
 
+#ifdef NEW_E3D_FORMAT
+int use_vertex_buffers=0;
+int have_vertex_buffers=0;
+int have_texture_non_power_of_two = 0;
+int gl_extensions_loaded = 0;
+
+void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
+void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);
+void (APIENTRY * ELglActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglClientActiveTextureARB) (GLenum texture);
+void (APIENTRY * ELglBindBufferARB)(GLenum target, GLuint buffer);
+void (APIENTRY * ELglBufferDataARB)(GLenum target, GLsizeiptrARB size, const void * data, GLenum usage);
+void (APIENTRY * ELglGenBuffersARB)(GLsizei no, GLuint *buffer);
+void (APIENTRY * ELglDeleteBuffersARB)(GLsizei no, const GLuint *buffer);
+void (APIENTRY * ELglMultiDrawElementsEXT) (GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount);
+void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
+
+void Emul_glMultiDrawElements(GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount)
+{
+	int i;
+
+	for (i = 0; i < primcount; i++)
+	{ 
+		if (count[i] > 0) glDrawElements(mode, count[i], type, indices[i]);
+	}
+}
+
+void Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
+{
+	glDrawElements(mode, count, type, indices);
+}
+
+void init_gl_extensions()
+{
+	Uint8 * extensions;
+	int ext_str_len;
+	char str[150];
+	//now load the multitexturing extension
+	ELglBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
+	ELglGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
+	ELglDeleteBuffersARB = SDL_GL_GetProcAddress("glDeleteBuffersARB");
+	ELglBufferDataARB = SDL_GL_GetProcAddress("glBufferDataARB");
+	ELglMultiDrawElementsEXT=SDL_GL_GetProcAddress("glMultiDrawElementsEXT");
+	ELglDrawRangeElementsEXT=SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
+
+	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
+	ext_str_len=strlen(extensions);
+
+	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
+	ELglMultiTexCoord2fARB = SDL_GL_GetProcAddress("glMultiTexCoord2fARB");
+	ELglMultiTexCoord2fvARB	= SDL_GL_GetProcAddress("glMultiTexCoord2fvARB");
+	ELglClientActiveTextureARB = SDL_GL_GetProcAddress("glClientActiveTextureARB");
+	if(ELglActiveTextureARB && ELglMultiTexCoord2fARB && ELglMultiTexCoord2fvARB && ELglClientActiveTextureARB) {
+		have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
+		if(have_multitexture==-1) {
+			have_multitexture=0;
+		} else {
+			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB,&have_multitexture);
+		}
+	} else {
+		have_multitexture=0;
+	}
+
+	if(ELglMultiDrawElementsEXT && strstr(extensions, "GL_EXT_multi_draw_arrays")){
+	} else {
+		ELglMultiDrawElementsEXT=&Emul_glMultiDrawElements;
+	}
+	if(ELglDrawRangeElementsEXT && strstr(extensions, "GL_EXT_draw_range_elements")){
+	} else {
+		ELglDrawRangeElementsEXT=&Emul_glDrawRangeElements;
+	}
+
+	if (strstr(extensions, "GL_ARB_texture_non_power_of_two"))
+	{		
+		have_texture_non_power_of_two = 1;
+	}
+
+	CHECK_GL_ERRORS();
+	gl_extensions_loaded = 1;
+}
+#endif
+
 void init_gl()
 {
     int rgb_size[3];

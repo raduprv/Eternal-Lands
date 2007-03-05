@@ -3,6 +3,169 @@
 #include <string.h>
 #include "global.h"
 
+#ifdef NEW_E3D_FORMAT
+#include "../elc/md5.h"
+#include "../elc/io/e3d_io.h"
+
+typedef struct
+{
+	float x, y, z;
+} float3;
+
+static __inline__ void get_texture_object_linear_plane(float obj_z_rot, float obj_x_pos, float obj_y_pos, float* s_plane, float* t_plane)
+{
+	float w, cos_w, sin_w;
+
+	w = -obj_z_rot * M_PI / 180.0f;
+	cos_w = cos(w);
+	sin_w = sin(w);
+	
+	s_plane[0] = cos_w / texture_scale;
+	s_plane[1] = sin_w / texture_scale;
+	s_plane[2] = 1.0f / texture_scale;
+	s_plane[3] = obj_x_pos / texture_scale + clouds_movement_u;
+	t_plane[0] = -sin_w / texture_scale;
+	t_plane[1] = cos_w / texture_scale;
+	t_plane[2] = 1.0f / texture_scale;
+	t_plane[3] = obj_y_pos / texture_scale + clouds_movement_v;
+}
+
+void draw_3d_object(object3d * object_id)
+{
+	unsigned int type;
+	int texture_id, i;
+	float s_plane[4], t_plane[4];
+	float x_pos,y_pos,z_pos;
+	float x_rot,y_rot,z_rot;
+
+	//also, update the last time this object was used
+	object_id->last_acessed_time=cur_time;
+
+	if(object_id->blended)
+	{
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE,GL_ONE);
+	}
+
+	if(object_id->self_lit && (night_shadows_on || dungeon))
+	{
+		glDisable(GL_LIGHTING);
+		//set_material(object_id->r,object_id->g,object_id->b);
+		glColor3f(object_id->r,object_id->g,object_id->b);
+	}
+
+	CHECK_GL_ERRORS();
+
+	glPushMatrix();//we don't want to affect the rest of the scene
+	x_pos = object_id->x_pos;
+	y_pos = object_id->y_pos;
+	z_pos = object_id->z_pos;
+	glTranslatef (x_pos, y_pos, z_pos);
+
+	x_rot = object_id->x_rot;
+	y_rot = object_id->y_rot;
+	z_rot = object_id->z_rot;
+	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
+	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
+	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+
+	CHECK_GL_ERRORS();
+
+	if (have_multitexture && clouds_shadows)
+	{
+		glClientActiveTextureARB(GL_TEXTURE1_ARB);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+		ELglActiveTextureARB(GL_TEXTURE1_ARB);
+		get_texture_object_linear_plane(object_id->z_rot, object_id->x_pos, object_id->y_pos, s_plane, t_plane);
+		glTexGenfv(GL_S, GL_EYE_PLANE, s_plane);
+		glTexGenfv(GL_T, GL_EYE_PLANE, t_plane);
+		ELglActiveTextureARB(GL_TEXTURE0_ARB);
+	
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+
+	if (object_id->e3d_data->is_ground)
+	{
+		type = GL_T2F_V3F;
+		glNormal3f(0, 0, 1);
+	}
+	else
+	{
+		type = GL_T2F_N3F_V3F;
+		glEnableClientState(GL_NORMAL_ARRAY);
+	}
+
+	if (have_vertex_buffers && object_id->e3d_data->vbo[0] && 
+	    object_id->e3d_data->vbo[1])
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
+		glInterleavedArrays(type, 0, 0);
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+	}
+	else glInterleavedArrays(type, 0, object_id->e3d_data->vertex_data);
+		
+	CHECK_GL_ERRORS();
+
+	for (i = 0; i < object_id->e3d_data->material_no; i++)
+	{
+		if (object_id->e3d_data->materials[i].options & 0x00000001)
+		{
+			//enable alpha filtering, so we have some alpha key
+			glEnable(GL_ALPHA_TEST);
+			if (object_id->e3d_data->is_ground) glAlphaFunc(GL_GREATER, 0.23f);
+			else glAlphaFunc(GL_GREATER, 0.06f);
+			glDisable(GL_CULL_FACE);
+		}
+		else
+		{
+			glDisable(GL_ALPHA_TEST);
+			glEnable(GL_CULL_FACE);
+		}
+
+		texture_id = get_texture_id(object_id->e3d_data->materials[i].texture_id);
+		if (last_texture != texture_id)
+		{
+			glBindTexture(GL_TEXTURE_2D, texture_id);
+			last_texture = texture_id;
+		}
+
+		ELglDrawRangeElementsEXT(GL_TRIANGLES,
+			object_id->e3d_data->materials[i].triangles_indicies_min,
+			object_id->e3d_data->materials[i].triangles_indicies_max,
+			object_id->e3d_data->materials[i].triangles_indicies_count,
+			object_id->e3d_data->index_type,
+			object_id->e3d_data->materials[i].triangles_indicies_index);
+	}
+
+	glPopMatrix();//restore the scene
+	CHECK_GL_ERRORS();
+
+	if (have_multitexture && clouds_shadows)
+	{
+		glClientActiveTextureARB(GL_TEXTURE1_ARB);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	}
+
+	if (!object_id->e3d_data->is_ground)
+	{
+		glDisableClientState(GL_NORMAL_ARRAY);
+	}
+
+	if (object_id->blended) glDisable(GL_BLEND);
+	if (object_id->self_lit && (night_shadows_on || dungeon)) glEnable(GL_LIGHTING);
+	if (object_id->e3d_data->materials[object_id->e3d_data->material_no].options & 0x00000001)
+	{
+		glDisable(GL_ALPHA_TEST);
+		glEnable(GL_CULL_FACE);
+	}
+	CHECK_GL_ERRORS();
+}
+
+#else	//NEW_E3D_FORMAT
 
 void draw_3d_object(object3d * object_id)
 {
@@ -235,6 +398,7 @@ void draw_3d_object(object3d * object_id)
 	CHECK_GL_ERRORS();
 
 }
+#endif	//NEW_E3D_FORMAT
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.
 //If not, load it, and return the handle
@@ -262,8 +426,31 @@ e3d_object * load_e3d_cache(char * file_name)
 				}
 		}
 	//e3d not found in the cache, so load it, and store it
+#ifdef	NEW_E3D_FORMAT
+	// allocate the memory
+	e3d_id = (e3d_object*)malloc(sizeof(e3d_object));
+	if (e3d_id == NULL) 
+	{
+		LOG_ERROR("Can't alloc data for file \"%s\"!", file_name);
+		return NULL;
+	}
+	// and fill in the data
+	memset(e3d_id, 0, sizeof(e3d_object));
+	if (e3d_id == NULL) 
+	{
+		LOG_ERROR("Memset Error for file \"%s\"!", file_name);
+		return NULL;
+	}
+	sprintf(e3d_id->file_name, "%s", file_name);
+	e3d_id = load_e3d_detail(e3d_id);
+	if (e3d_id == NULL)
+	{
+		return NULL;
+	}
+#else	//NEW_E3D_FORMAT
 	e3d_id=load_e3d(file_name);
 	if(e3d_id==NULL)return NULL;
+#endif	//NEW_E3D_FORMAT
 
 	//find a place to store it
 	i=0;
@@ -325,7 +512,9 @@ int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_p
 	our_object->g = g;
 	our_object->b = b;
 
+#ifndef	NEW_E3D_FORMAT
 	our_object->clouds_uv = NULL;
+#endif	//NEW_E3D_FORMAT
 
 	our_object->self_lit = self_lit;
 	our_object->blended = blended;
@@ -402,6 +591,9 @@ void display_objects()
 					dist2=y-(int)objects_list[i]->y_pos;
 					if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
 						{
+#ifdef	NEW_E3D_FORMAT
+	                     				draw_3d_object(objects_list[i]);
+#else	//NEW_E3D_FORMAT
 							float x_len;
 							float y_len;
 							float z_len;
@@ -423,6 +615,7 @@ void display_objects()
 									//anything_under_the_mouse(i,UNDER_MOUSE_3D_OBJ);
 	//CHECK_GL_ERRORS();
 								}
+#endif	//NEW_E3D_FORMAT
 						}
 				}
 		}
@@ -439,6 +632,7 @@ void display_objects()
 	CHECK_GL_ERRORS();
 }
 
+#ifndef	NEW_E3D_FORMAT
 e3d_object * load_e3d(char *file_name)
 {
 	int vertex_no,faces_no,materials_no;
@@ -690,9 +884,11 @@ e3d_object * load_e3d(char *file_name)
 
 	return cur_object;
 }
+#endif	//NEW_E3D_FORMAT
 
 void compute_clouds_map(object3d * object_id)
 {
+#ifndef	NEW_E3D_FORMAT
 	float x1,y1,x,y,z,m;
 	float cos_m,sin_m;
 	float x_pos,y_pos,z_pos;
@@ -733,10 +929,12 @@ void compute_clouds_map(object3d * object_id)
 		}
 
 	object_id->clouds_uv=array_detail;
+#endif	//NEW_E3D_FORMAT
 }
 
 void clear_clouds_cache()
 {
+#ifndef	NEW_E3D_FORMAT
 	int i;
 
 	last_clear_clouds=cur_time;
@@ -751,6 +949,7 @@ void clear_clouds_cache()
 						}
 				}
 		}
+#endif	//NEW_E3D_FORMAT
 }
 
 void destroy_3d_object(int i)
@@ -761,6 +960,36 @@ void destroy_3d_object(int i)
 
 void destroy_e3d(e3d_object *e3d_id)
 {
+#ifdef	NEW_E3D_FORMAT
+	if (e3d_id != NULL)
+	{
+		if (e3d_id->vertex_data != NULL)
+		{
+			free(e3d_id->vertex_data);
+			e3d_id->vertex_data = NULL;
+		}
+		if (e3d_id->indicies != NULL)
+		{
+			free(e3d_id->indicies);
+			e3d_id->indicies = NULL;
+		}
+		if (e3d_id->materials != NULL)
+		{
+			free(e3d_id->materials);
+			e3d_id->materials= NULL;
+			e3d_id->material_no= 0;
+		}
+		if (have_vertex_buffers && e3d_id->vbo[0] != 0)
+		{		
+			ELglDeleteBuffersARB(2, e3d_id->vbo);
+
+			e3d_id->vbo[0] = 0;
+			e3d_id->vbo[1] = 0;
+		}
+		// and finally free the main object
+		free(e3d_id);
+	}
+#else	//NEW_E3D_FORMAT
 	if(e3d_id->array_vertex)
 		{
 			free(e3d_id->array_vertex);
@@ -786,6 +1015,7 @@ void destroy_e3d(e3d_object *e3d_id)
 		}
 	// and finally free the main object
 	free(e3d_id);
+#endif	//NEW_E3D_FORMAT
 }
 
 void flag_for_destruction()
@@ -862,6 +1092,54 @@ void CreateRotationMatrix(float matrix[4][4],float ax,float ay,float az)
 }
 
 
+#ifdef	NEW_E3D_FORMAT
+void rotatehm(float xrot, float yrot, float zrot, void* T, int nv, int is_ground)
+{
+	float TT[4][4];
+	int i;
+	float t[3];
+	float d[3];
+
+	e3d_T2F_N3F_V3F_vertex* T0;
+	e3d_T2F_V3F_vertex* T1;
+
+	CreateIdentityMatrix(TT);
+	CreateRotationMatrix(TT,xrot,yrot,zrot);
+
+	if (is_ground)
+	{
+		T1 = (e3d_T2F_V3F_vertex*)T;
+		for (i = 0; i < nv; i++)
+		{
+			t[0] = T1[i].x;
+			t[1] = T1[i].y;
+			t[2] = T1[i].z;
+
+			VecMulMatrix(t, TT, d);
+
+			T1[i].x = d[0];
+			T1[i].y = d[1];
+			T1[i].z = d[2];
+		}
+	}
+	else
+	{
+		T0 = (e3d_T2F_N3F_V3F_vertex*)T;
+		for (i = 0; i < nv; i++)
+		{
+			t[0] = T0[i].x;
+			t[1] = T0[i].y;
+			t[2] = T0[i].z;
+
+			VecMulMatrix(t, TT, d);
+
+			T0[i].x = d[0];
+			T0[i].y = d[1];
+			T0[i].z = d[2];
+		}
+	}
+}
+#else	//NEW_E3D_FORMAT
 void rotatehm(float xrot, float yrot, float zrot, e3d_array_vertex *T, int nv)
 {
 	float TT[4][4];
@@ -877,6 +1155,7 @@ void rotatehm(float xrot, float yrot, float zrot, e3d_array_vertex *T, int nv)
 	}
 
 }
+#endif	//NEW_E3D_FORMAT
 
 int TriangleTest(float x0, float y0, float x1, float y1, float x2, float y2, float x3, float y3)
 {
@@ -890,6 +1169,71 @@ int TriangleTest(float x0, float y0, float x1, float y1, float x2, float y2, flo
 
 void clear_e3d_heightmap(int K)
 {
+#ifdef	NEW_E3D_FORMAT
+	void *T;
+	void *TT;
+	e3d_T2F_N3F_V3F_vertex* T0;
+	e3d_T2F_V3F_vertex* T1;
+	int vertex_no;
+	int minx, miny, maxx, maxy;							
+	int i, j, size, is_ground;
+	float x_pos, y_pos;
+	float min_x, min_y, max_x, max_y;
+
+	TT = NULL;
+	T = objects_list[K]->e3d_data->vertex_data;
+
+	vertex_no = objects_list[K]->e3d_data->vertex_no;
+	x_pos = objects_list[K]->x_pos;
+	y_pos = objects_list[K]->y_pos;
+	min_x = 0;
+	min_y = 0;
+	max_x = 0;
+	max_y = 0;
+
+	is_ground = objects_list[K]->e3d_data->is_ground;
+	if (is_ground)
+	{
+		size = sizeof(e3d_T2F_V3F_vertex);
+	}
+	else
+	{
+		size = sizeof(e3d_T2F_N3F_V3F_vertex);
+	}
+
+	// Check if we need to rotate the vertex
+	if(objects_list[K]->x_rot!=0.0 || objects_list[K]->y_rot!=0.0 || objects_list[K]->z_rot!=0.0)
+	{
+		TT = malloc(vertex_no * size);
+		memcpy(TT, T, vertex_no * size);
+		T = TT;
+		rotatehm(objects_list[K]->x_rot*(3.14159265/180), objects_list[K]->y_rot*(3.14159265/180), objects_list[K]->z_rot*(3.14159265/180), T, vertex_no, is_ground);
+	}
+
+	// Calculating min and max x and y values of the object
+	if (is_ground)
+	{
+		T1 = (e3d_T2F_V3F_vertex*)T;
+		for (i = 0; i < vertex_no; i++)
+		{
+			if (T1[i].x < min_x) min_x = T1[i].x;
+			if (T1[i].x > max_x) max_x = T1[i].x;
+			if (T1[i].y < min_y) min_y = T1[i].y;
+			if (T1[i].y > max_y) max_y = T1[i].y;
+		}
+	}
+	else
+	{
+		T0 = (e3d_T2F_N3F_V3F_vertex*)T;
+		for (i = 0; i < vertex_no; i++)
+		{
+			if (T0[i].x < min_x) min_x = T0[i].x;
+			if (T0[i].x > max_x) max_x = T0[i].x;
+			if (T0[i].y < min_y) min_y = T0[i].y;
+			if (T0[i].y > max_y) max_y = T0[i].y;
+		}
+	}
+#else	// NEW_E3D_FORMAT
 	int face_no = objects_list[K]->e3d_data->face_no;
 	float x_pos = objects_list[K]->x_pos;
 	float y_pos = objects_list[K]->y_pos;
@@ -916,6 +1260,7 @@ void clear_e3d_heightmap(int K)
 		if(T[i].y < min_y) min_y = T[i].y;
 		if(T[i].y > max_y) max_y = T[i].y;
 	}
+#endif	// NEW_3D_FORMAT
 
 	// Calculating min and max positions on the heightmap
 	minx = (x_pos + min_x) / 0.5f;
@@ -973,7 +1318,11 @@ void change_heightmap(unsigned char *hm, unsigned char h)
 	if(*hm<h)*hm=h;
 }
 
+#ifdef	NEW_E3D_FORMAT
+void method1(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j)
+#else	// NEW_E3D_FORMAT
 void method1(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j)
+#endif	// NEW_E3D_FORMAT
 {
 	float x1 = T[0].x + x_pos, x2 = T[1].x + x_pos, x3 = T[2].x + x_pos;
 	float y1 = T[0].y + y_pos, y2 = T[1].y + y_pos, y3 = T[2].y + y_pos;
@@ -987,7 +1336,11 @@ void method1(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, 
 	}
 }
 
+#ifdef	NEW_E3D_FORMAT
+void method2(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j)
+#else	// NEW_E3D_FORMAT
 void method2(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j)
+#endif	// NEW_E3D_FORMAT
 {
 	float x1 = T[0].x + x_pos, x2 = T[1].x + x_pos, x3 = T[2].x + x_pos;
 	float y1 = T[0].y + y_pos, y2 = T[1].y + y_pos, y3 = T[2].y + y_pos;
@@ -1013,7 +1366,11 @@ void method2(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, 
 	}
 }
 
+#ifdef	NEW_E3D_FORMAT
+void method3(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j)
+#else	// NEW_E3D_FORMAT
 void method3(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, int j)
+#endif	// NEW_E3D_FORMAT
 {
 	float x1 = T[0].x + x_pos, x2 = T[1].x + x_pos, x3 = T[2].x + x_pos;
 	float y1 = T[0].y + y_pos, y2 = T[1].y + y_pos, y3 = T[2].y + y_pos;
@@ -1059,6 +1416,145 @@ void method3(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, 
 
 void add_e3d_heightmap(int K, int D)
 {
+#ifdef	NEW_E3D_FORMAT
+	void *T;
+	void *TT;
+	float3 *T3;
+	void* index_pointer;
+	unsigned char *u8;
+	unsigned short *u16;
+	unsigned int *u32;
+	e3d_T2F_N3F_V3F_vertex* T0;
+	e3d_T2F_V3F_vertex* T1;
+	int vertex_no;
+	int minx, miny, maxx, maxy;							
+	int i, j, k, l, m, size, is_ground, index;
+	int start, idx, face_no;
+	float x_pos, y_pos, z_pos;
+	float min_x, min_y, max_x, max_y;
+	void (*method)(float3 *T, float x_pos, float y_pos, float z_pos, int i, int j);
+	
+	
+	method = D==1 ? method1 : (D==2)?method2:method3;
+
+	TT = NULL;
+	T = objects_list[K]->e3d_data->vertex_data;
+
+	vertex_no = objects_list[K]->e3d_data->vertex_no;
+	x_pos = objects_list[K]->x_pos;
+	y_pos = objects_list[K]->y_pos;
+	z_pos = objects_list[K]->z_pos;
+	min_x = 0;
+	min_y = 0;
+	max_x = 0;
+	max_y = 0;
+
+	is_ground = objects_list[K]->e3d_data->is_ground;
+	if (is_ground)
+	{
+		size = sizeof(e3d_T2F_V3F_vertex);
+	}
+	else
+	{
+		size = sizeof(e3d_T2F_N3F_V3F_vertex);
+	}
+
+	// Check if we need to rotate the vertex
+	if(objects_list[K]->x_rot!=0.0 || objects_list[K]->y_rot!=0.0 || objects_list[K]->z_rot!=0.0)
+	{
+		TT = malloc(vertex_no * size);
+		memcpy(TT, T, vertex_no * size);
+		T = TT;
+		rotatehm(objects_list[K]->x_rot*(3.14159265/180), objects_list[K]->y_rot*(3.14159265/180), objects_list[K]->z_rot*(3.14159265/180), T, vertex_no, is_ground);
+	}
+
+	u8 = (unsigned char*)objects_list[K]->e3d_data->indicies;
+	u16 = (unsigned short*)objects_list[K]->e3d_data->indicies;
+	u32 = (unsigned int*)objects_list[K]->e3d_data->indicies;
+
+	// Calculating min and max x and y values of the object
+	if (is_ground)
+	{
+		T1 = (e3d_T2F_V3F_vertex*)T;
+		for (i = 0; i < vertex_no; i++)
+		{
+			if (T1[i].x < min_x) min_x = T1[i].x;
+			if (T1[i].x > max_x) max_x = T1[i].x;
+			if (T1[i].y < min_y) min_y = T1[i].y;
+			if (T1[i].y > max_y) max_y = T1[i].y;
+		}
+	}
+	else
+	{
+		T0 = (e3d_T2F_N3F_V3F_vertex*)T;
+		for (i = 0; i < vertex_no; i++)
+		{
+			if (T0[i].x < min_x) min_x = T0[i].x;
+			if (T0[i].x > max_x) max_x = T0[i].x;
+			if (T0[i].y < min_y) min_y = T0[i].y;
+			if (T0[i].y > max_y) max_y = T0[i].y;
+		}
+	}
+
+	if (objects_list[K]->e3d_data->index_no <= 256) size = 1;
+	else
+	{
+		if (objects_list[K]->e3d_data->index_no <= 256*256) size = 2;
+		else size = 4;
+	}
+
+	face_no = 0;
+	for (i = 0; i < objects_list[K]->e3d_data->material_no; i++)
+	{
+		face_no += objects_list[K]->e3d_data->materials[i].triangles_indicies_count / 3;
+	}
+
+	T3 = (float3*)malloc(face_no * 3 * sizeof(float3));
+
+	index = 0;
+	for (i = 0; i < objects_list[K]->e3d_data->material_no; i++)
+	{
+		start = objects_list[K]->e3d_data->materials[i].triangles_indicies_index - index_pointer;
+		start /= size;
+		for (j = 0; j < objects_list[K]->e3d_data->materials[i].triangles_indicies_count; j++)
+		{
+			if (size == 1) idx = u8[start+j];
+			else
+			{
+				if (size == 2) idx = u16[start+j];
+				else idx = u32[start+j];
+			}
+			if (is_ground)
+			{
+				T3[index].x = T1[idx].x;
+				T3[index].y = T1[idx].y;
+				T3[index].z = T1[idx].z;
+			}
+			else
+			{
+				T3[index].x = T0[idx].x;
+				T3[index].y = T0[idx].y;
+				T3[index].z = T0[idx].z;
+			}
+			index++;
+		}
+	}
+	// Calculating min and max positions on the heightmap
+	minx = (x_pos + min_x) / 0.5f;
+	miny = (y_pos + min_y) / 0.5f;
+	maxx = (x_pos + max_x) / 0.5f + 1;
+	maxy = (y_pos + max_y) / 0.5f + 1;
+
+	for(i = minx; i < maxx; i++){
+		for(j = miny; j< maxy; j++){
+			for(k = 0; k < face_no * 3; k +=3)
+			{
+				method(&T3[k], x_pos, y_pos, z_pos, i, j);
+			}
+		}
+	}
+	free(T3);
+#else	// NEW_E3D_FORMAT
 	int face_no = objects_list[K]->e3d_data->face_no;
 	float x_pos = objects_list[K]->x_pos, y_pos = objects_list[K]->y_pos, z_pos = objects_list[K]->z_pos;
 	float min_x = 0, min_y = 0, max_x = 0, max_y = 0;
@@ -1100,6 +1596,7 @@ void add_e3d_heightmap(int K, int D)
 			}
 		}
 	}
+#endif	// NEW_E3D_FORMAT
 	// Freeing if there is rotation
 	if(TT!=NULL)
 		free(TT);

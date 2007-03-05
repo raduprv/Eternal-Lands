@@ -91,5 +91,49 @@ int gzfile_exists(const char *fname);
 gzFile * my_gzopen(const char * filename, const char * mode);
 #endif // ZLIB
 
+static __inline__ int min2i (int x, int y)
+{
+	return (x <= y)? x : y;
+}
+
+static __inline__ int max2i (int x, int y)
+{
+	return (x >= y)? x : y;
+}
+
+static __inline__ unsigned min2u (unsigned x, unsigned y)
+{
+	return (x <= y)? x : y;
+}
+
+static __inline__ unsigned max2u (unsigned x, unsigned y)
+{
+	return (x >= y)? x : y;
+}
+
+static __inline__ float min2f (float x, float y)
+{
+	return (x <= y)? x : y;
+}
+
+static __inline__ float max2f (float x, float y)
+{
+	return (x >= y)? x : y;
+}
+
+static __inline unsigned clampu(unsigned x, unsigned l, unsigned u)
+{
+	return min2u(max2u(x,l),u);
+}
+
+static __inline int clampi(int x, int l, int u)
+{
+	return min2i(max2i(x,l),u);
+}
+
+static __inline float clampf(float x, float l, float u)
+{
+	return min2f(max2f(x,l),u);
+}
 
 #endif	//__MISC_H
