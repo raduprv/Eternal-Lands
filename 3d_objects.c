@@ -151,12 +151,6 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 #endif  //DEBUG
 	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
 
-	ELglMultiDrawElementsEXT(GL_TRIANGLE_STRIP,
-		object_id->e3d_data->materials[material_index].triangle_strips_indicies_count,
-		object_id->e3d_data->index_type,
-		(const void**)object_id->e3d_data->materials[material_index].triangle_strips_indicies_index,
-		object_id->e3d_data->materials[material_index].triangle_strips_no);
-
 	ELglDrawRangeElementsEXT(GL_TRIANGLES,
 		object_id->e3d_data->materials[material_index].triangles_indicies_min,
 		object_id->e3d_data->materials[material_index].triangles_indicies_max,
@@ -1744,22 +1738,6 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 		{
 			free(e3d_id->indicies);
 			e3d_id->indicies = NULL;
-		}
-		if (e3d_id->materials != NULL)
-		{
-			for (i = 0; i < e3d_id->material_no; i++)
-			{
-				if (e3d_id->materials[i].triangle_strips_indicies_index != NULL)
-					free(e3d_id->materials[i].triangle_strips_indicies_index);
-				e3d_id->materials[i].triangle_strips_indicies_index = NULL;
-				if (e3d_id->materials[i].triangle_strips_indicies_count != NULL)
-					free(e3d_id->materials[i].triangle_strips_indicies_count);
-				e3d_id->materials[i].triangle_strips_indicies_count = NULL;				
-			}
-			// don't free the low level material information
-			//free(e3d_id->materials);
-			//e3d_id->materials= NULL;
-			//e3d_id->material_no= 0;
 		}
 		if (have_vertex_buffers && e3d_id->vbo[0] != 0)
 		{		

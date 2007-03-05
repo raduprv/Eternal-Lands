@@ -251,12 +251,6 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 #endif  //DEBUG
 	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
 
-	ELglMultiDrawElementsEXT(GL_TRIANGLE_STRIP, 
-		object_id->e3d_data->materials[material_index].triangle_strips_indicies_count,
-		object_id->e3d_data->index_type, 
-		(const void**)object_id->e3d_data->materials[material_index].triangle_strips_indicies_index,
-		object_id->e3d_data->materials[material_index].triangle_strips_no);
-	
 	ELglDrawRangeElementsEXT(GL_TRIANGLES,
 		object_id->e3d_data->materials[material_index].triangles_indicies_min,
 		object_id->e3d_data->materials[material_index].triangles_indicies_max,

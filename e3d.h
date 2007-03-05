@@ -6,10 +6,11 @@
 #ifndef __E3D_H__
 #define __E3D_H__
 
-#ifdef	NEW_FRUSTUM
 #ifdef	NEW_E3D_FORMAT
 #include "md5.h"
 #endif
+
+#ifdef	NEW_FRUSTUM
 #include "vmath.h"
 #endif
 /*!
@@ -57,9 +58,6 @@ typedef struct
 	int triangles_indicies_count;
 	int triangles_indicies_min;
 	int triangles_indicies_max;
-	int triangle_strips_no;
-	void** triangle_strips_indicies_index;
-	int* triangle_strips_indicies_count;
 } e3d_draw_list;
 
 /*!
@@ -83,7 +81,7 @@ typedef struct
 	MD5_DIGEST md5; /*!< the MD5 digest of the file */
 	char file_name[128]; /*!< filename where this object is stored. */
 } e3d_object;
-#else	// NEW_3D_FORMAT
+#else	// NEW_E3D_FORMAT
 
 //the new array structures
 
@@ -289,7 +287,7 @@ typedef struct
 	cache_item_struct *cache_ptr; /*!< pointer to a cache item. If this is !=NULL, this points to a valid cached item of this object */
 	char file_name[128]; /*!< filename where this object is stored. */
 }e3d_object;
-#endif	// NEW_3D_FORMAT
+#endif	// NEW_E3D_FORMAT
 
 /*!
  * object3d structure

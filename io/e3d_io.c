@@ -12,9 +12,8 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	e3d_T2F_V3F_vertex* vertex_ground_list;
 	e3d_material material;
 	char cur_dir[1024];
-	int i, j, l, mem_size, vertex_size, size, file_pos, triangle_strips_no, indicies_size;
+	int i, l, mem_size, vertex_size, material_size, size, file_pos, indicies_size;
 	char text_file_name[1024];
-	unsigned int* buffer;
 	unsigned int* index_buffer;
 	unsigned char* char_list;
 	unsigned short* short_list;
@@ -86,6 +85,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	cur_object->material_no = SDL_SwapLE32(header.material_no);
 	cur_object->is_ground = header.is_ground;
 	vertex_size = SDL_SwapLE32(header.vertex_size);
+	material_size = SDL_SwapLE32(header.material_size);
 
 	// They have the size we expected
 	if (SDL_SwapLE32(header.index_size) != sizeof(unsigned int))
@@ -272,6 +272,9 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material.material_name);
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
+#ifdef	MAP_EDITOR
+		cur_object->materials[i].texture_id = load_texture_cache(text_file_name,0);
+#else	//MAP_EDITOR
 #ifdef	NEW_ALPHA
 		// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
 		if(cur_object->materials[i].options & 0x00000001){	// is this object transparent?
@@ -280,9 +283,10 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, 255);
 		}
 #else	//NEW_ALPHA
-		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 255);
-		//cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 0);
+//		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 255);
+		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 0);
 #endif	//NEW_ALPHA
+#endif	//MAP_EDITOR
 
 		cur_object->materials[i].min_x = SwapLEFloat(material.min_x);
 		cur_object->materials[i].min_y = SwapLEFloat(material.min_y);
@@ -291,38 +295,13 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_object->materials[i].max_y = SwapLEFloat(material.max_y);
 		cur_object->materials[i].max_z = SwapLEFloat(material.max_z);
 		// calculate the max size for cruse LOD processing
-		cur_object->materials[i].max_size= max(max(cur_object->materials[i].max_x-cur_object->materials[i].min_x, cur_object->materials[i].max_y-cur_object->materials[i].min_y), cur_object->materials[i].max_z-cur_object->materials[i].min_z);
-		cur_object->materials[i].triangles_indicies_index = indicies_size*SDL_SwapLE32(material.triangles.index) + index_pointer;
-		cur_object->materials[i].triangles_indicies_count = SDL_SwapLE32(material.triangles.count);
+		cur_object->materials[i].max_size= max2f(max2f(cur_object->materials[i].max_x-cur_object->materials[i].min_x, cur_object->materials[i].max_y-cur_object->materials[i].min_y), cur_object->materials[i].max_z-cur_object->materials[i].min_z);
+		cur_object->materials[i].triangles_indicies_index = indicies_size*SDL_SwapLE32(material.index) + index_pointer;
+		cur_object->materials[i].triangles_indicies_count = SDL_SwapLE32(material.count);
 		cur_object->materials[i].triangles_indicies_min = SDL_SwapLE32(material.triangles_min_index);
 		cur_object->materials[i].triangles_indicies_max = SDL_SwapLE32(material.triangles_max_index);
-		triangle_strips_no = SDL_SwapLE32(material.triangle_strips_no);
 
-		cur_object->materials[i].triangle_strips_no = triangle_strips_no;
-
-		if (triangle_strips_no > 0)
-		{
-			cur_object->materials[i].triangle_strips_indicies_index = (void**)malloc(triangle_strips_no*sizeof(void*));
-			cur_object->materials[i].triangle_strips_indicies_count = (int*)malloc(triangle_strips_no*sizeof(int));
-		
-			mem_size += triangle_strips_no*(sizeof(int)+sizeof(void*));
-		
-			buffer = (unsigned int*)malloc(triangle_strips_no*sizeof(e3d_triangle_list));
-		
-#ifdef	ZLIB
-			gzread(file, buffer, triangle_strips_no*sizeof(e3d_triangle_list));
-#else	//ZLIB
-			fread(buffer, triangle_strips_no, sizeof(e3d_triangle_list), file);
-#endif	//ZLIB
-			for (j = 0; j < triangle_strips_no; j++)
-			{
-				cur_object->materials[i].triangle_strips_indicies_index[j] = indicies_size*SDL_SwapLE32(buffer[j*2+0]) + index_pointer;
-				cur_object->materials[i].triangle_strips_indicies_count[j] = SDL_SwapLE32(buffer[j*2+1]);
-			}
-			free(buffer);
-		}
-
-		file_pos += SDL_SwapLE32(material.material_size);
+		file_pos += SDL_SwapLE32(material_size);
 #ifdef	ZLIB
 		gzseek(file, file_pos, SEEK_SET);
 #else	//ZLIB
@@ -367,8 +346,9 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_object->vbo[1] = 0;
 	}
 
+#ifndef	MAP_EDITOR
 	cache_adj_size(cache_e3d, mem_size, cur_object);
-
+#endif	//MAP_EDITOR
 	return cur_object;
 }
 #endif

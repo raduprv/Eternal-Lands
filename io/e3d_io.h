@@ -6,7 +6,10 @@
 #ifndef	__E3D_IO_H__
 #define __E3D_IO_H__
 
-#ifndef	E3D_CONVERTER
+#ifdef	MAP_EDITOR
+#include "../../map_editor/global.h"
+#include "../../map_editor/e3d.h"
+#else
 #include "../global.h"
 #include "../e3d.h"
 #endif
@@ -34,6 +37,7 @@ typedef struct
 	int index_size;		/*!< the size of each index in the file */
 	int index_offset;	/*!< the offset of the indicies in the file */
 	int material_no;	/*!< the number of materials in the file */
+ 	int material_size;	/*!< the size of this material in the file */
 	int material_offset;	/*!< the offset of the materials in the file */
 	
 	char is_ground;		/*!< flag determining whether this is a ground object or not */
@@ -99,22 +103,12 @@ typedef struct
 } e3d_T2F_V3F_vertex;
 
 /*!
- * defines the triangle list used in el3d
- */
-typedef struct
-{
-	int index;		/*!< index of the index list */
-	int count;		/*!< number of indicies */
-} e3d_triangle_list;
-
-/*!
  * defines the material used in e3d
  */
 typedef struct
 {
- 	int material_size;	/*!< the size of this material in the file */
 	int options;		/*!< flag determining whether this object is transparent or not */
-	char material_name[64];	/*!< name of the material */
+	char material_name[128];	/*!< name of the material */
 
     /*!
      * \name min/max values of x,y,z
@@ -130,9 +124,8 @@ typedef struct
 	
 	int triangles_min_index;
 	int triangles_max_index;
-	e3d_triangle_list triangles;
-	int triangle_strips_no;	/*!< number of triangle strip lists */
-	/* el3d_triangle_list strip_lists[strip_list_no]; */
+	int index;		/*!< index of the index list */
+	int count;		/*!< number of indicies */
 } e3d_material;
 
 #ifndef	E3D_CONVERTER

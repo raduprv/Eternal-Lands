@@ -1,6 +1,6 @@
 #ifdef NEW_E3D_FORMAT
-#ifdef	E3D_CONVERTER
-#include "../../converter/global.h"
+#ifdef	MAP_EDITOR
+#include "../../map_editor/global.h"
 #else
 #include "../global.h"
 #endif

@@ -108,18 +108,7 @@ void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLe
 void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
 #endif
 #ifdef NEW_E3D_FORMAT
-void (APIENTRY * ELglMultiDrawElementsEXT) (GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount);
 void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
-
-void Emul_glMultiDrawElements(GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount)
-{
-	int i;
-
-	for (i = 0; i < primcount; i++)
-	{ 
-		if (count[i] > 0) glDrawElements(mode, count[i], type, indices[i]);
-	}
-}
 
 void Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
 {
@@ -635,7 +624,6 @@ void init_gl_extensions()
 	ELglGenerateMipmapEXT=SDL_GL_GetProcAddress("glGenerateMipmapEXT");
 #endif
 #ifdef NEW_E3D_FORMAT
-	ELglMultiDrawElementsEXT=SDL_GL_GetProcAddress("glMultiDrawElementsEXT");
 	ELglDrawRangeElementsEXT=SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
 #endif
 
@@ -775,14 +763,6 @@ void init_gl_extensions()
 	}
 
 #ifdef NEW_E3D_FORMAT
-	if(ELglMultiDrawElementsEXT && strstr(extensions, "GL_EXT_multi_draw_arrays")){
-		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_multi_draw_arrays");
-		LOG_TO_CONSOLE(c_green2,str);
-	} else {
-		snprintf(str,sizeof(str),gl_ext_not_found_emul_it,"GL_EXT_multi_draw_arrays");
-		LOG_TO_CONSOLE(c_yellow1,str);
-		ELglMultiDrawElementsEXT=&Emul_glMultiDrawElements;
-	}
 	if(ELglDrawRangeElementsEXT && strstr(extensions, "GL_EXT_draw_range_elements")){
 		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_draw_range_elements");
 		LOG_TO_CONSOLE(c_green2,str);

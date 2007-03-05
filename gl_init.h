@@ -109,7 +109,6 @@ extern void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum targ
 extern void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
 #endif
 #ifdef NEW_E3D_FORMAT
-extern void (APIENTRY * ELglMultiDrawElementsEXT) (GLenum mode, GLsizei* count, GLenum type, const GLvoid **indices, GLsizei primcount);
 extern void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 #endif
 /*! @} */
