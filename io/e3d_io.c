@@ -280,7 +280,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		if(cur_object->materials[i].options & 0x00000001){	// is this object transparent?
 			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, -1);
 		} else {
-			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, 255);
+			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, -1);	//255);
 		}
 #else	//NEW_ALPHA
 //		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 255);
