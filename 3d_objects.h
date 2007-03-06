@@ -120,6 +120,8 @@ int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, floa
  * \callgraph
  */
 void display_objects();
+void display_ground_objects();
+void display_alpha_objects();
 
 /*!
  * \ingroup	display_3d

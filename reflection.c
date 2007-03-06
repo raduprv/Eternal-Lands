@@ -644,9 +644,11 @@ void display_3d_reflection()
 //	draw_tile_map();
 //	display_2d_objects();
 	display_objects();
+	display_ground_objects();
 #ifndef MAP_EDITOR2
 	display_actors(0, 1);
 #endif
+	display_alpha_objects();
 //	display_blended_objects();
 #ifdef NEW_FRUSTUM
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
