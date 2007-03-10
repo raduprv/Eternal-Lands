@@ -154,10 +154,10 @@ void draw_tile_map()
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
-	if(cx<0)x=(cx*-1)/3;
-	else x=cx/3;
-	if(cy<0)y=(cy*-1)/3;
-	else y=cy/3;
+	if(camera_x<0)x=(camera_x*-1)/3;
+	else x=camera_x/3;
+	if(camera_y<0)y=(camera_y*-1)/3;
+	else y=camera_y/3;
 	
 	x_start = (int)x - 8;
 	y_start = (int)y - 8;
@@ -370,10 +370,10 @@ void draw_tile_map()
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
-	if(cx<0)x=(cx*-1)/3;
-	else x=cx/3;
-	if(cy<0)y=(cy*-1)/3;
-	else y=cy/3;
+	if(camera_x<0)x=(camera_x*-1)/3;
+	else x=camera_x/3;
+	if(camera_y<0)y=(camera_y*-1)/3;
+	else y=camera_y/3;
 	
 	x_start = (int)x - 8;
 	y_start = (int)y - 8;

@@ -499,7 +499,7 @@ void weather_color_bias(const float * src, float * dst) {
 void render_weather()
 {
 	static Uint32 last_frame = 0;
-	int tx=-cx*2, ty=-cy*2, i=0;
+	int tx=-camera_x*2, ty=-camera_y*2, i=0;
 	float weather_counts[WEATHER_TYPES], weather_ttl = 0.000001f, tempf1 = 0.0f, tempf2 = 0.0f;
 
 	weather_time = SDL_GetTicks();
