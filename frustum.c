@@ -275,30 +275,12 @@ static __inline__ void calc_plane(VECTOR4 plane, const VECTOR3 p1, const VECTOR3
 void enable_reflection_clip_planes()
 {
 	glEnable(GL_CLIP_PLANE0);
-#ifdef	USE_EXTRA_CLIP_PLANES
-	glEnable(GL_CLIP_PLANE1);
-	glEnable(GL_CLIP_PLANE2);
-	glEnable(GL_CLIP_PLANE3);
-	glEnable(GL_CLIP_PLANE4);
-#endif
 	glClipPlane(GL_CLIP_PLANE0, reflection_clip_planes[0]);
-#ifdef	USE_EXTRA_CLIP_PLANES
-	glClipPlane(GL_CLIP_PLANE1, reflection_clip_planes[1]);
-	glClipPlane(GL_CLIP_PLANE2, reflection_clip_planes[2]);
-	glClipPlane(GL_CLIP_PLANE3, reflection_clip_planes[3]);
-	glClipPlane(GL_CLIP_PLANE4, reflection_clip_planes[4]);
-#endif
 }
 
 void disable_reflection_clip_planes()
 {
 	glDisable(GL_CLIP_PLANE0);
-#ifdef	USE_EXTRA_CLIP_PLANES
-	glDisable(GL_CLIP_PLANE1);
-	glDisable(GL_CLIP_PLANE2);
-	glDisable(GL_CLIP_PLANE3);
-	glDisable(GL_CLIP_PLANE4);
-#endif
 }
 
 void set_current_frustum(unsigned int intersect_type)
@@ -306,15 +288,15 @@ void set_current_frustum(unsigned int intersect_type)
 	switch (intersect_type)
 	{
 		case INTERSECTION_TYPE_DEFAULT:
-			current_frustum_size = 6;
+			current_frustum_size = 7;
 			current_frustum = &main_frustum;
 			break;
 		case INTERSECTION_TYPE_SHADOW:
-			current_frustum_size = 6;
+			current_frustum_size = 7;
 			current_frustum = &shadow_frustum;
 			break;
 		case INTERSECTION_TYPE_REFLECTION:
-			current_frustum_size = 9;
+			current_frustum_size = 7;
 			current_frustum = &reflection_frustum;
 			break;
 		default:
@@ -342,24 +324,16 @@ int aabb_in_frustum(const AABBOX bbox)
 	return 1;
 }
 
-void calculate_reflection_frustum(unsigned int num, float water_height)
+void calculate_reflection_frustum(float water_height)
 {
 	MATRIX4x4 proj;
 	MATRIX4x4 modl;
 	MATRIX4x4 clip;
-	MATRIX4x4 inv;
-	VECTOR3 pos, p1, p2, p3, p4;
-	float x_min, x_max, y_min, y_max, x_scaled, y_scaled;
-	unsigned int cur_intersect_type, i, l, start, stop, x, y;
+	VECTOR3 p1, p2, p3;
 
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_REFLECTION].intersect_update_needed == 0) return;
 		
-	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, water_height);
-	glScalef(1.0f, 1.0f, -1.0f);
-	glTranslatef(0.0f, 0.0f, -water_height);
 	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
-	glPopMatrix();
 	glGetFloatv(GL_PROJECTION_MATRIX, proj);
 	
 	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
@@ -382,71 +356,20 @@ void calculate_reflection_frustum(unsigned int num, float water_height)
 	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
 	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
 
-	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
-
-	VMInvert(inv, clip);
-	
-	x_min = BOUND_HUGE;
-	x_max = -BOUND_HUGE;
-	y_min = BOUND_HUGE;
-	y_max = -BOUND_HUGE;
-	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = get_terrain_x(l);
-		y = get_terrain_y(l);
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		x_min = min2f(x_min, x_scaled);
-		x_max = max2f(x_max, x_scaled+3.0f);
-		y_min = min2f(y_min, y_scaled);
-		y_max = max2f(y_max, y_scaled+3.0f);
-	}
-	
-	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_frustum_from_clip_matrix(reflection_frustum, clip);
 	
-	VMake(pos, inv[3]/inv[15], inv[7]/inv[15], inv[11]/inv[15]);
-	VMake(p1, x_min, y_min, water_height);
-	VMake(p2, x_min, y_max, water_height);
-	VMake(p3, x_max, y_min, water_height);
-	VMake(p4, x_max, y_max, water_height);
-	calc_plane(reflection_frustum[4].plane, p2, p1, p3);
-	calc_plane(reflection_frustum[5].plane, pos, p2, p1);
-	calc_plane(reflection_frustum[6].plane, pos, p3, p4);
-	calc_plane(reflection_frustum[7].plane, pos, p4, p2);
-	calc_plane(reflection_frustum[8].plane, pos, p1, p3);
-	calc_plane_mask(&reflection_frustum[4]);
-	calc_plane_mask(&reflection_frustum[5]);
+	VMake(p1, -1.0f, -1.0f, water_height);
+	VMake(p2, -1.0f, 1.0f, water_height);
+	VMake(p3, 1.0f, -1.0f, water_height);
+	calc_plane(reflection_frustum[6].plane, p2, p1, p3);
 	calc_plane_mask(&reflection_frustum[6]);
-	calc_plane_mask(&reflection_frustum[7]);
-	calc_plane_mask(&reflection_frustum[8]);
+	reflection_clip_planes[0][A] = reflection_frustum[6].plane[A];
+	reflection_clip_planes[0][B] = reflection_frustum[6].plane[B];
+	reflection_clip_planes[0][C] = reflection_frustum[6].plane[C];
+	reflection_clip_planes[0][D] = reflection_frustum[6].plane[D];
 
-	reflection_clip_planes[0][A] = reflection_frustum[4].plane[A];
-	reflection_clip_planes[0][B] = reflection_frustum[4].plane[B];
-	reflection_clip_planes[0][C] = reflection_frustum[4].plane[C];
-	reflection_clip_planes[0][D] = reflection_frustum[4].plane[D];
-	reflection_clip_planes[1][A] = reflection_frustum[5].plane[A];
-	reflection_clip_planes[1][B] = reflection_frustum[5].plane[B];
-	reflection_clip_planes[1][C] = reflection_frustum[5].plane[C];
-	reflection_clip_planes[1][D] = reflection_frustum[5].plane[D];
-	reflection_clip_planes[2][A] = reflection_frustum[6].plane[A];
-	reflection_clip_planes[2][B] = reflection_frustum[6].plane[B];
-	reflection_clip_planes[2][C] = reflection_frustum[6].plane[C];
-	reflection_clip_planes[2][D] = reflection_frustum[6].plane[D];
-	reflection_clip_planes[3][A] = reflection_frustum[7].plane[A];
-	reflection_clip_planes[3][B] = reflection_frustum[7].plane[B];
-	reflection_clip_planes[3][C] = reflection_frustum[7].plane[C];
-	reflection_clip_planes[3][D] = reflection_frustum[7].plane[D];
-	reflection_clip_planes[4][A] = reflection_frustum[8].plane[A];
-	reflection_clip_planes[4][B] = reflection_frustum[8].plane[B];
-	reflection_clip_planes[4][C] = reflection_frustum[8].plane[C];
-	reflection_clip_planes[4][D] = reflection_frustum[8].plane[D];
-	set_frustum(main_bbox_tree, reflection_frustum, 511);
+	set_frustum(main_bbox_tree, reflection_frustum, 127);
 	check_bbox_tree(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
 
 void calculate_shadow_frustum()

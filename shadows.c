@@ -213,17 +213,77 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 			ELglUnlockArraysEXT();
 		}
 		
-		if (object_id->e3d_data->is_ground) type = GL_T2F_V3F;
-		else type = GL_T2F_N3F_V3F;
-		
-		if (have_vertex_buffers && object_id->e3d_data->vbo[0] && 
-		    object_id->e3d_data->vbo[1])
+		if (!is_ground(object_id->e3d_data->vertex_options))
 		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
-			glInterleavedArrays(type, 0, 0);
-			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+			if (have_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+					object_id->e3d_data->normal_vbo);
+				glNormalPointer(GL_FLOAT, 0, 0);
+			}
+			else
+			{
+				glNormalPointer(GL_FLOAT, 0,
+					object_id->e3d_data->normal_data);
+			}
 		}
-		else glInterleavedArrays(type, 0, object_id->e3d_data->vertex_data);
+
+#ifdef	USE_TANGENT_AND_EXTRA_UV
+		if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
+		{
+			if (have_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+					object_id->e3d_data->tangent_vbo);
+				VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
+					GL_FALSE, 0, 0);
+			}
+			else
+			{
+				VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
+					GL_FALSE, 0,
+					object_id->e3d_data->tangent_data);
+			}
+		}
+
+		if (use_extra_uv && has_extra_uv(object_id->e3d_data->vertex_options))
+		{
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			ELglActiveTextureARB(GL_TEXTURE2_ARB);
+			if (have_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+					object_id->e3d_data->extra_uv_vbo);
+				glTexCoordPointer(2, GL_FLOAT, 0, 0);
+			}
+			else
+			{
+				glTexCoordPointer(2, GL_FLOAT, 0,
+					object_id->e3d_data->extra_uv_data);
+			}
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+#endif	//USE_TANGENT_AND_EXTRA_UV
+
+		if (have_vertex_buffers)
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+				object_id->e3d_data->texture_vbo);
+			glTexCoordPointer(2, GL_FLOAT, 0, 0);
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+				object_id->e3d_data->vertex_vbo);
+			glVertexPointer(3, GL_FLOAT, 0, 0);
+			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+				object_id->e3d_data->indicies_vbo);
+		}
+		else
+		{
+			glTexCoordPointer(2, GL_FLOAT, 0,
+				object_id->e3d_data->texture_data);
+			glVertexPointer(3, GL_FLOAT, 0,
+				object_id->e3d_data->vertex_data);
+		}
 		
 		CHECK_GL_ERRORS();
 
@@ -428,6 +488,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 		{
 			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 			glAlphaFunc(GL_GREATER,0.05f);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
 	

@@ -148,7 +148,7 @@ int SphereInFrustum(float x, float y, float z, float radius);
  */
 int check_tile_in_frustrum(float x,float y);
 #else
-void calculate_reflection_frustum(unsigned int num, float water_height);
+void calculate_reflection_frustum(float water_height);
 void calculate_shadow_frustum();
 void enable_reflection_clip_planes();
 void disable_reflection_clip_planes();

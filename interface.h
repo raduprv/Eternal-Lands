@@ -138,6 +138,7 @@ void get_old_world_x_y();
  *
  */
 void Enter2DMode();
+void Enter2DModeExtended(int width, int height);
 
 /*!
  * \ingroup interfaces

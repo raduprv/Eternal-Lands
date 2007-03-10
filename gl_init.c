@@ -952,6 +952,7 @@ void set_new_video_mode(int fs,int mode)
 			if(!cache_e3d->cached_items[i] )continue;
 			obj= cache_e3d->cached_items[i]->cache_item;
 
+#ifndef	NEW_E3D_FORMAT
 			if(obj->vbo[0]){
 #ifndef	NO_FREE_VA
 				// lets free all the data on res change so that VBO's get rebuilt properly!
@@ -966,6 +967,9 @@ void set_new_video_mode(int fs,int mode)
 				obj->vbo[2]=0;
 #endif	//NO_FREE_VA
 			}
+#else	//NEW_E3D_FORMAT
+			free_e3d_va(obj);
+#endif	//NEW_E3D_FORMAT
 		}
 		CHECK_GL_ERRORS();
 		
@@ -980,7 +984,7 @@ void set_new_video_mode(int fs,int mode)
 				CHECK_GL_ERRORS();
 			}
 		}
-#endif
+#endif	//NEW_E3D_FORMAT
 	}
 
 #ifndef	USE_FRAMEBUFFER
@@ -1041,40 +1045,7 @@ void set_new_video_mode(int fs,int mode)
 
 	if(have_vertex_buffers){
 		e3d_object * obj;
-#ifdef	NEW_E3D_FORMAT
-		unsigned int vertex_size, indicies_size;
-		
-		for (i = 0;i < cache_e3d->max_item; i++)
-		{
-			if (!cache_e3d->cached_items[i]) continue;
-			obj = cache_e3d->cached_items[i]->cache_item;
-
-			if ((obj->vertex_data == NULL)|| (obj->materials == NULL) || (obj->indicies == NULL)) continue;
-			
-			if (obj->is_ground == 0) vertex_size = sizeof(e3d_T2F_N3F_V3F_vertex);
-			else vertex_size = sizeof(e3d_T2F_V3F_vertex);
-			
-			if (obj->index_no <= 256) indicies_size = 1;
-			else
-			{
-				if (obj->index_no <= 256*256) indicies_size = 2;
-				else indicies_size = 4;
-			}
-
-			//Generate the buffers
-			ELglGenBuffersARB(3, obj->vbo);
-		
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[0]);
-			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->vertex_no*vertex_size, obj->vertex_data, GL_STATIC_DRAW_ARB);
-		
-			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, obj->vbo[1]);
-			ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB, obj->index_no*indicies_size, obj->indicies, GL_STATIC_DRAW_ARB);
-			
-			CHECK_GL_ERRORS();
-		}
-				
-		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-#else
+#ifndef	NEW_E3D_FORMAT
 		for(i=0;i<cache_e3d->max_item;i++){
 			if(!cache_e3d->cached_items[i])continue;
 			obj=cache_e3d->cached_items[i]->cache_item;
@@ -1103,8 +1074,8 @@ void set_new_video_mode(int fs,int mode)
 					CHECK_GL_ERRORS();
 			}
 		}
-#endif		
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#endif	//NEW_E3D_FORMAT
 		CHECK_GL_ERRORS();
 	}
 	

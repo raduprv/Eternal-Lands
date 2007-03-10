@@ -213,22 +213,27 @@ void get_old_world_x_y()
 #endif
 }
 
-void Enter2DMode()
+void Enter2DModeExtended(int width, int height)
 {
 	if (weather_use_fog()) glDisable(GL_FOG);
 	glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
-	glViewport(0, 0, window_width, window_height);
+	glViewport(0, 0, width, height);
 
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0, (GLdouble)window_width, (GLdouble)window_height, 0.0, -250.0, 250.0);
+	glOrtho(0.0, (GLdouble)width, (GLdouble)height, 0.0, -250.0, 250.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
+}
+
+void Enter2DMode()
+{
+	Enter2DModeExtended(window_width, window_height);
 }
 
 void Leave2DMode()

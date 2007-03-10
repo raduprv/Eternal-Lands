@@ -65,7 +65,6 @@ void draw_actor_reflection(actor * actor_id)
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-	z_pos+=-water_deepth_offset*2;
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 
@@ -338,21 +337,18 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 #ifdef	USE_FRAMEBUFFER
 static __inline__ int adapt_size(int size)
 {
-	int i;
+	int i, j;
 	
 	glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &i);
 
 	size = min2i(size, i);
 	
 	if (have_texture_non_power_of_two) return size;
-	else return 1024;
-/*
 	{
-		i = 1;
-		while (i < size) i += i;
-		return i/2;
+		j = 1;
+		while (j < size) j += j;
+		return min2i(j, i);
 	}
-*/
 }
 
 void free_reflection_framebuffer()
@@ -522,7 +518,6 @@ void display_3d_reflection()
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
 	enable_reflection_clip_planes();
 #endif
-
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
         	if(!objects_list[nobj->pos])
@@ -575,6 +570,7 @@ void display_3d_reflection()
 #else   //NEW_FRUSTUM
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
+	calculate_reflection_frustum(water_deepth_offset);
 //	draw_tile_map();
 //	display_2d_objects();
 	display_objects();
@@ -628,19 +624,20 @@ void display_3d_reflection()
 #endif
 	glPushMatrix();	
 
-	init_depth();
 	glTranslatef(0.0f, 0.0f, water_deepth_offset);
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
-#ifdef	NEW_FRUSTUM	
-	enable_reflection_clip_planes();
-#endif
-
 	glNormal3f(0.0f, 0.0f, 1.0f);
+	init_depth();
 #ifdef NEW_FRUSTUM
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 #endif
+	calculate_reflection_frustum(water_deepth_offset);
+#ifdef	NEW_FRUSTUM	
+	enable_reflection_clip_planes();
+#endif
+
 //	draw_tile_map();
 //	display_2d_objects();
 	display_objects();
@@ -1042,7 +1039,6 @@ void draw_lake_tiles()
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
 		glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
-
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB, GL_INTERPOLATE);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB, GL_TEXTURE);
@@ -1140,8 +1136,13 @@ void draw_sky_background()
 		glClearDepth(0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepth(1.0f);
+		Enter2DModeExtended(reflection_texture_width, reflection_texture_height);
 	}
-#endif
+	else
+	{
+		Enter2DMode();
+	}
+#endif	//USE_FRAMEBUFFER
 
 #ifdef NEW_WEATHER
 	for (i = 0; i < 3; i++) {
@@ -1174,14 +1175,34 @@ void draw_sky_background()
 	}
 #endif
 	
+#ifndef	USE_FRAMEBUFFER
 	Enter2DMode();
+#endif	//USE_FRAMEBUFFER
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 
-	glColor3fv(lights_c[0]); glVertex3i(0,0,0);
-	glColor3fv(lights_c[1]); glVertex3i(0,window_height,0);
-	glColor3fv(lights_c[2]); glVertex3i(window_width,window_height,0);
-	glColor3fv(lights_c[3]); glVertex3i(window_width,0,0);
+	if (use_frame_buffer && show_reflection)
+	{
+		glColor3fv(lights_c[0]);
+		glVertex3i(0, 0, 0);
+		glColor3fv(lights_c[1]);
+		glVertex3i(0, reflection_texture_height, 0);
+		glColor3fv(lights_c[2]);
+		glVertex3i(reflection_texture_width, reflection_texture_height, 0);
+		glColor3fv(lights_c[3]);
+		glVertex3i(reflection_texture_width, 0, 0);
+	}
+	else
+	{
+		glColor3fv(lights_c[0]);
+		glVertex3i(0, 0, 0);
+		glColor3fv(lights_c[1]);
+		glVertex3i(0, window_height, 0);
+		glColor3fv(lights_c[2]);
+		glVertex3i(window_width, window_height, 0);
+		glColor3fv(lights_c[3]);
+		glVertex3i(window_width, 0, 0);
+	}
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -1192,7 +1213,7 @@ void draw_sky_background()
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
-#endif
+#endif	//USE_FRAMEBUFFER
 }
 
 void draw_dungeon_sky_background()
@@ -1218,6 +1239,11 @@ void draw_dungeon_sky_background()
 		glClearDepth(0.0f);
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepth(1.0f);
+		Enter2DModeExtended(reflection_texture_width, reflection_texture_height);
+	}
+	else
+	{
+		Enter2DMode();
 	}
 #endif // FRAMEBUFFER
 
@@ -1236,15 +1262,27 @@ void draw_dungeon_sky_background()
 	glColor3fv(color);
 #endif // MAP_EDITOR
 	
+#ifndef	USE_FRAMEBUFFER
 	Enter2DMode();
+#endif	//USE_FRAMEBUFFER
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	//draw the sky background
 
-	glVertex3i(0,0,0);
-	glVertex3i(0,window_height,0);
-	glVertex3i(window_width,window_height,0);
-	glVertex3i(window_width,0,0);
+	if (use_frame_buffer && show_reflection)
+	{
+		glVertex3i(0, 0, 0);
+		glVertex3i(0, reflection_texture_height, 0);
+		glVertex3i(reflection_texture_width, reflection_texture_height, 0);
+		glVertex3i(reflection_texture_width, 0, 0);
+	}
+	else
+	{
+		glVertex3i(0, 0, 0);
+		glVertex3i(0, window_height, 0);
+		glVertex3i(window_width, window_height, 0);
+		glVertex3i(window_width, 0, 0);
+	}
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
@@ -1255,5 +1293,5 @@ void draw_dungeon_sky_background()
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
-#endif
+#endif	//USE_FRAMEBUFFER
 }

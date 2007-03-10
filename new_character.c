@@ -232,7 +232,6 @@ int display_newchar_handler (window_info *win)
 
 	CalculateFrustum ();
 #ifdef	NEW_FRUSTUM
-	calculate_reflection_frustum(0, -0.25f);
 	set_click_line();
 #endif
 	any_reflection = find_reflection ();

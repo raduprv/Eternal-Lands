@@ -72,8 +72,7 @@ static __inline__ void get_texture_object_linear_plane(float obj_z_rot, float ob
 
 void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 {
-	unsigned int type;
-	float s_plane[4], t_plane[4];//, r_plane[4], q_plane[4];
+	float s_plane[4], t_plane[4];
 
 	// check for having to load the arrays
 	load_e3d_detail_if_needed(object_id->e3d_data);
@@ -113,17 +112,77 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 			ELglUnlockArraysEXT();
 		}
 		
-		if (object_id->e3d_data->is_ground) type = GL_T2F_V3F;
-		else type = GL_T2F_N3F_V3F;
-		
-		if (have_vertex_buffers && object_id->e3d_data->vbo[0] && 
-		    object_id->e3d_data->vbo[1])
+		if (!is_ground(object_id->e3d_data->vertex_options))
 		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
-			glInterleavedArrays(type, 0, 0);
-			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+			if (have_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+					object_id->e3d_data->normal_vbo);
+				glNormalPointer(GL_FLOAT, 0, 0);
+			}
+			else
+			{
+				glNormalPointer(GL_FLOAT, 0,
+					object_id->e3d_data->normal_data);
+			}
 		}
-		else glInterleavedArrays(type, 0, object_id->e3d_data->vertex_data);
+
+#ifdef	USE_TANGENT_AND_EXTRA_UV
+		if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
+		{
+			if (have_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+					object_id->e3d_data->tangent_vbo);
+				VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
+					GL_FALSE, 0, 0);
+			}
+			else
+			{
+				VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
+					GL_FALSE, 0,
+					object_id->e3d_data->tangent_data);
+			}
+		}
+
+		if (use_extra_uv && has_extra_uv(object_id->e3d_data->vertex_options))
+		{
+			glClientActiveTextureARB(GL_TEXTURE2_ARB);
+			ELglActiveTextureARB(GL_TEXTURE2_ARB);
+			if (have_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+					object_id->e3d_data->extra_uv_vbo);
+				glTexCoordPointer(2, GL_FLOAT, 0, 0);
+			}
+			else
+			{
+				glTexCoordPointer(2, GL_FLOAT, 0,
+					object_id->e3d_data->extra_uv_data);
+			}
+			ELglActiveTextureARB(GL_TEXTURE0_ARB);
+			glClientActiveTextureARB(GL_TEXTURE0_ARB);
+		}
+#endif	//USE_TANGENT_AND_EXTRA_UV
+
+		if (have_vertex_buffers)
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+				object_id->e3d_data->texture_vbo);
+			glTexCoordPointer(2, GL_FLOAT, 0, 0);
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+				object_id->e3d_data->vertex_vbo);
+			glVertexPointer(3, GL_FLOAT, 0, 0);
+			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+				object_id->e3d_data->indicies_vbo);
+		}
+		else
+		{
+			glTexCoordPointer(2, GL_FLOAT, 0,
+				object_id->e3d_data->texture_data);
+			glVertexPointer(3, GL_FLOAT, 0,
+				object_id->e3d_data->vertex_data);
+		}
 		
 		CHECK_GL_ERRORS();
 
@@ -644,7 +703,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	MD5_DIGEST ZERO_MD5 = {0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 	MD5_DIGEST fake_md5;
 #else
-	unsigned int is_transparent;
+	unsigned int is_transparent, ground;
 #endif
 #endif
 
@@ -735,7 +794,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	
 	// watch for needing to load the detailed information
 	//load_e3d_detail_if_needed(returned_e3d);
-	
+
+	ground = is_ground(returned_e3d->vertex_options);
+
 	for (i = 0; i < returned_e3d->material_no; i++)
 	{	
 		bbox.bbmin[X] = returned_e3d->materials[i].min_x;
@@ -748,8 +809,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		matrix_mul_aabb(&bbox, our_object->matrix);
 		texture_id = returned_e3d->materials[i].texture_id;
 		is_transparent = returned_e3d->materials[i].options & 0x00000001;
-		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, returned_e3d->is_ground, is_transparent, self_lit, texture_id, returned_e3d->md5);
-		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, returned_e3d->is_ground, is_transparent, self_lit, texture_id, returned_e3d->md5, dynamic);
+		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, returned_e3d->md5);
+		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, returned_e3d->md5, dynamic);
 	}
 #else
 	bbox.bbmin[X] = returned_e3d->min_x;
@@ -1723,8 +1784,6 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 	
 	return(e3d_id->cache_ptr->size - sizeof(*e3d_id));
 #else
-	int i;
-
 	set_all_intersect_update_needed(main_bbox_tree);
 	
 	if (e3d_id != NULL)
@@ -1734,17 +1793,60 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 			free(e3d_id->vertex_data);
 			e3d_id->vertex_data = NULL;
 		}
+		if (e3d_id->normal_data != NULL)
+		{
+			free(e3d_id->normal_data);
+			e3d_id->normal_data = NULL;
+		}
+		if (e3d_id->texture_data != NULL)
+		{
+			free(e3d_id->texture_data);
+			e3d_id->texture_data = NULL;
+		}
+		if (e3d_id->tangent_data != NULL)
+		{
+			free(e3d_id->tangent_data);
+			e3d_id->tangent_data = NULL;
+		}
+		if (e3d_id->extra_uv_data != NULL)
+		{
+			free(e3d_id->extra_uv_data);
+			e3d_id->extra_uv_data = NULL;
+		}
 		if (e3d_id->indicies != NULL)
 		{
 			free(e3d_id->indicies);
 			e3d_id->indicies = NULL;
 		}
-		if (have_vertex_buffers && e3d_id->vbo[0] != 0)
+		if (e3d_id->vertex_vbo != 0) 
 		{		
-			ELglDeleteBuffersARB(2, e3d_id->vbo);
-
-			e3d_id->vbo[0] = 0;
-			e3d_id->vbo[1] = 0;
+			ELglDeleteBuffersARB(1, &e3d_id->vertex_vbo);
+			e3d_id->vertex_vbo = 0;
+		}
+		if (e3d_id->normal_vbo != 0) 
+		{		
+			ELglDeleteBuffersARB(1, &e3d_id->normal_vbo);
+			e3d_id->normal_vbo = 0;
+		}
+		if (e3d_id->texture_vbo != 0) 
+		{		
+			ELglDeleteBuffersARB(1, &e3d_id->texture_vbo);
+			e3d_id->texture_vbo = 0;
+		}
+		if (e3d_id->tangent_vbo != 0) 
+		{		
+			ELglDeleteBuffersARB(1, &e3d_id->tangent_vbo);
+			e3d_id->tangent_vbo = 0;
+		}
+		if (e3d_id->extra_uv_vbo != 0) 
+		{		
+			ELglDeleteBuffersARB(1, &e3d_id->extra_uv_vbo);
+			e3d_id->extra_uv_vbo = 0;
+		}
+		if (e3d_id->indicies_vbo != 0) 
+		{		
+			ELglDeleteBuffersARB(1, &e3d_id->indicies_vbo);
+			e3d_id->indicies_vbo = 0;
 		}
 	}
 

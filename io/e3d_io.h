@@ -15,6 +15,26 @@
 #endif
 #include "elc_io.h"
 
+__inline__ static int get_vertex_size(int vo)
+{
+	int size;
+
+	size = 5;
+	if (!is_ground(vo))
+	{
+		size += 3;
+	}
+	if (!has_tangen(vo))
+	{
+		size += 3;
+	}
+	if (!has_extra_uv(vo))
+	{
+		size += 2;
+	}
+	return size * sizeof(float);
+}
+
 /*!
  * the magic number for an e3d file.
  */
@@ -40,67 +60,12 @@ typedef struct
  	int material_size;	/*!< the size of this material in the file */
 	int material_offset;	/*!< the offset of the materials in the file */
 	
-	char is_ground;		/*!< flag determining whether this is a ground object or not */
+	char vertex_options;	/*!< flag determining whether this is a ground object, has tangents or extra uv's */
 	char reserved_1;
 	char reserved_2;
 	char reserved_3;
 
 } e3d_header;
-
-/*!
- * defines a vertex in e3d format, containing vertex coordinates as well as coordinates of the normal and texture.
- */
-typedef struct
-{
-  /*!
-   * \name texture coordinates
-   */
-  /*! @{ */
-	float u;
-	float v;
-  /*! @} */
-
-  /*!
-   * \name normal coordinates
-   */
-  /*! @{ */
-	float nx;
-	float ny;
-	float nz;
-  /*! @} */
-
-  /*!
-   * \name vertex coordinates
-   */
-  /*! @{ */
-	float x;
-	float y;
-	float z;
-  /*! @} */
-} e3d_T2F_N3F_V3F_vertex;
-
-/*!
- * defines a vertex in e3d format, containing vertex coordinates as well as texture coordinates.
- */
-typedef struct
-{
-  /*!
-   * \name texture coordinates
-   */
-  /*! @{ */
-	float u;
-	float v;
-  /*! @} */
-
-  /*!
-   * \name vertex coordinates
-   */
-  /*! @{ */
-	float x;
-	float y;
-	float z;
-  /*! @} */
-} e3d_T2F_V3F_vertex;
 
 /*!
  * defines the material used in e3d
@@ -128,15 +93,13 @@ typedef struct
 	int count;		/*!< number of indicies */
 } e3d_material;
 
-#ifndef	E3D_CONVERTER
 e3d_object* load_e3d_detail(e3d_object* cur_object);
 
 static __inline void load_e3d_detail_if_needed(e3d_object* e3d_data)
 {
-	if ((e3d_data->vertex_data == NULL)|| (e3d_data->materials == NULL) || (e3d_data->indicies == NULL))
+	if ((e3d_data->vertex_data == NULL) && (e3d_data->vertex_vbo == 0))
 	{
 		load_e3d_detail(e3d_data);
 	}
 }
-#endif
 #endif

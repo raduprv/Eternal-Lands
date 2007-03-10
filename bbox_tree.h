@@ -317,7 +317,7 @@ static __inline__ unsigned int get_intersect_item_ID(BBOX_TREE* bbox_tree, unsig
 	return bbox_tree->intersect[idx].items[index].ID;
 }
 
-static __inline__ const AABBOX get_intersect_item_bbox(BBOX_TREE* bbox_tree, unsigned int index)
+static __inline__ AABBOX get_intersect_item_bbox(BBOX_TREE* bbox_tree, unsigned int index)
 {
 	unsigned int idx;
 
