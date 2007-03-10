@@ -250,7 +250,6 @@ void send_version_to_server(IPaddress *ip)
 void connect_to_server()
 {
 	IPaddress	ip;
-	port = 2001;	// DELETE ME!
 
 	tcp_out_loc= 0; // clear the tcp output buffer
 	if(this_version_is_invalid) return;
