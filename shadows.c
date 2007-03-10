@@ -454,8 +454,8 @@ void draw_3d_object_shadows(unsigned int object_type)
 	int is_transparent;
 	int x, y, dist;
 
-	x= -cx;
-	y= -cy;
+	x= -camera_x;
+	y= -camera_y;
 
 	cur_e3d= NULL;
 #ifdef  DEBUG
@@ -650,8 +650,8 @@ void display_actors_shadow()
 {
 	int i;
 	int x,y;
-	x=-cx;
-	y=-cy;
+	x=-camera_x;
+	y=-camera_y;
 
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -938,7 +938,7 @@ void render_light_view()
 			glPushMatrix();
 			glLoadMatrixd(light_view_mat);
 #ifndef USE_LISPSM
-			glTranslatef((int)cx,(int)cy,(int)cz);
+			glTranslatef((int)camera_x,(int)camera_y,(int)camera_z);
 #endif
 #ifdef NEW_FRUSTUM
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
@@ -1071,7 +1071,7 @@ void setup_shadow_mapping()
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx-(int)cx,cy-(int)cy,cz-(int)cz);
+	glTranslatef(camera_x-(int)camera_x,camera_y-(int)camera_y,camera_z-(int)camera_z);
 #endif
 	glBindTexture(depth_texture_target,depth_map_id);
 	setup_2d_texgen();
@@ -1262,10 +1262,10 @@ void draw_sun_shadowed_scene(int any_reflection)
 #endif
 			
 			glBegin(GL_QUADS);
-				glVertex4f(-cx+20.0f,-cy+20.0f,0.0f,1.0f);
-				glVertex4f(-cx+20.0f,-cy-20.0f,0.0f,1.0f);
-				glVertex4f(-cx-20.0f,-cy-20.0f,0.0f,1.0f);
-				glVertex4f(-cx-20.0f,-cy+20.0f,0.0f,1.0f);
+				glVertex4f(-camera_x+20.0f,-camera_y+20.0f,0.0f,1.0f);
+				glVertex4f(-camera_x+20.0f,-camera_y-20.0f,0.0f,1.0f);
+				glVertex4f(-camera_x-20.0f,-camera_y-20.0f,0.0f,1.0f);
+				glVertex4f(-camera_x-20.0f,-camera_y+20.0f,0.0f,1.0f);
 			glEnd();
 
 			glDisable(GL_BLEND);

@@ -27,21 +27,21 @@ OPTIONS=-DOSX86 -DELC -DNO_MUSIC -DATI_9200_FIX -DBUG_FIX_3D_OBJECTS_MIN_MAX -DN
 
 PLATFORM=-arch i386 -malign-natural #-arch ppc64 -arch i386 -mpowerpc
 XDIR=-L/usr/X11R6/lib
-FRAMEWORKS=-framework OpenAL -framework OpenGL -framework SDL -framework SDL_net -framework cal3d
+FRAMEWORKS=-framework OpenAL -framework OpenGL -framework SDL -framework SDL_net -framework SDL_image -framework cal3d
 CWARN= #-Wall
 #-Wdeclaration-after-statement -Wall -Werror
 CXXWARN= #-Wall
 #-Wall -Werror
 
 # basic compiling and linking - rarely changed
-CFLAGS=$(PLATFORM) $(CWARN) -O -pipe $(OPTIONS) -I/usr/include -I/usr/include/libxml2 -I/Library/Frameworks/SDL.framework/Headers -D_REENTRANT -I/Library/Frameworks/SDL_net.framework/Versions/A/Headers/ -I/System/Library/Frameworks/OpenGL.framework/Headers/ -I/Library/Frameworks/cal3d.framework/Headers/
+CFLAGS=$(PLATFORM) $(CWARN) -O -pipe $(OPTIONS) -I/usr/include -I/usr/include/libxml2 -I/Library/Frameworks/SDL.framework/Headers -D_REENTRANT -I/Library/Frameworks/SDL_net.framework/Versions/A/Headers/ -I/Library/Frameworks/SDL_image.framework/Versions/A/Headers/ -I/System/Library/Frameworks/OpenGL.framework/Headers/ -I/Library/Frameworks/cal3d.framework/Headers/
 _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) -I/usr/include/libxml2 -I/usr/local/include
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O -ggdb -pipe $(OPTIONS)
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
 
 LDFLAGS=-Wl SDLmain.o $(FRAMEWORKS) -flat_namespace -lobjc -L/usr/lib -lxml2 -lz -lpthread -liconv $(XDIR) -lm -lstdc++ -lc -Wno-long-double -headerpad_max_install_names
 _LDFLAGS=$(XDIR) -Wl -flat_namespace -framework OpenAL -framework OpenGL -lpthread -lz 
-STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a
+STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a
 
 # the objects we need
 COBJS=2d_objects.o 3d_objects.o	\
@@ -65,7 +65,17 @@ COBJS=2d_objects.o 3d_objects.o	\
 	update.o weather.o widgets.o \
 	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o
 	
-CXXOBJS=cal3d_wrapper.o
+CXXOBJS=cal3d_wrapper.o eye_candy_wrapper.o \
+ eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
+ eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
+ eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \
+ eye_candy/effect_sword.o eye_candy/effect_summon.o \
+ eye_candy/effect_selfmagic.o eye_candy/effect_targetmagic.o \
+ eye_candy/effect_ongoing.o eye_candy/effect_impact.o \
+ eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
+ eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
+ eye_candy/effect_breath.o
+
 
 OBJS=$(COBJS) $(CXXOBJS)
 

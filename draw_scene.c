@@ -9,12 +9,12 @@
 GLuint paper1_text;
 
 char have_display = 0;
-float cx=0;
-float cy=0;
-float cz=0;
-float old_cx=0;
-float old_cy=0;
-float old_cz=0;
+float camera_x=0;
+float camera_y=0;
+float camera_z=0;
+float old_camera_x=0;
+float old_camera_y=0;
+float old_camera_z=0;
 float c_delta= 0.1f;
 float rx=-60;
 float ry=0;
@@ -114,7 +114,7 @@ void draw_scene()
 		if (current_cursor != elwin_mouse) change_cursor(elwin_mouse);
 		elwin_mouse = -1;
 	}
-
+	
 	SDL_GL_SwapBuffers();
 	CHECK_GL_ERRORS();
 	
@@ -164,11 +164,12 @@ void move_camera ()
 	x=me->tmp.x_pos+0.25f;
 	y=me->tmp.y_pos+0.25f;
 	z=-2.2f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+sitting;
+	
 
 	if(lagged){
-		cx-=(x-(-cx));
-		cy-=(y-(-cy));
-		cz-=(z-(-cz));
+		camera_x-=(x-(-camera_x));
+		camera_y-=(y-(-camera_y));
+		camera_z-=(z-(-camera_z));
 		camera_x_frames=0;
 		camera_y_frames=0;
 		camera_z_frames=0;
@@ -181,27 +182,29 @@ void move_camera ()
 #endif
 	} else {
 		//move near the actor, but smoothly
-		camera_x_speed=(x-(-cx))/16.0;
+		camera_x_speed=(x-(-camera_x))/16.0;
 		camera_x_frames=16;
-		camera_y_speed=(y-(-cy))/16.0;
+		camera_y_speed=(y-(-camera_y))/16.0;
 		camera_y_frames=16;
-		camera_z_speed=(z-(-cz))/16.0;
+		camera_z_speed=(z-(-camera_z))/16.0;
 		camera_z_frames=16;
 	}
 	
 	//check to see if we are out of the map
 	// lachesis: disabled. Not necessary anymore and breaks usability of some maps.
 	/*
-	if(cx>-7.5f)cx=-7.5f;
-	if(cy>-7.5f)cy=-7.5f;
-	if(cx<-(tile_map_size_x*3-7.9))cx=(float)-(tile_map_size_x*3-7.9);
-	if(cy<-(tile_map_size_x*3-7.9))cy=(float)-(tile_map_size_x*3-7.9);
+	if(camera_x>-7.5f)camera_x=-7.5f;
+	if(camera_y>-7.5f)camera_y=-7.5f;
+	if(camera_x<-(tile_map_size_x*3-7.9))camera_x=(float)-(tile_map_size_x*3-7.9);
+	if(camera_y<-(tile_map_size_x*3-7.9))camera_y=(float)-(tile_map_size_x*3-7.9);
 	// */
 
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx,cy, cz);
+	glTranslatef(camera_x,camera_y, camera_z);
+	
+//	printf("pos=(%f, %f, %f)\n", camera_x, camera_y, camera_z);
 
 #ifndef NEW_SOUND	//test only
 	update_position();
@@ -231,9 +234,9 @@ void update_camera()
 	if(camera_x_frames)
 		{
 			if(camera_x_speed>0.005 || camera_x_speed<-0.005){
-				cx-=camera_x_speed;
+				camera_x-=camera_x_speed;
 #ifdef	NEW_FRUSTUM
-				if(fabs(cx-old_cx) >= c_delta){
+				if(fabs(camera_x-old_camera_x) >= c_delta){
 					adjust_view++;
 				}
 #else
@@ -246,9 +249,9 @@ void update_camera()
 	if(camera_y_frames)
 		{
 			if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
-				cy-=camera_y_speed;
+				camera_y-=camera_y_speed;
 #ifdef	NEW_FRUSTUM
-				if(fabs(cy-old_cy) >= c_delta){
+				if(fabs(camera_y-old_camera_y) >= c_delta){
 					adjust_view++;
 				}
 #else
@@ -261,10 +264,10 @@ void update_camera()
 	if(camera_z_frames)
 		{
 			if(camera_z_speed>0.0005 || camera_z_speed<-0.005){
-				cz-=camera_z_speed;
+				camera_z-=camera_z_speed;
 #ifdef  PARANOID_CAMERA
 #ifdef	NEW_FRUSTUM
-				if(fabs(cz-old_cz) >= c_delta){
+				if(fabs(camera_z-old_camera_z) >= c_delta){
 					adjust_view++;
 				}
 #endif
@@ -320,9 +323,9 @@ void update_camera()
 #ifdef  NEW_FRUSTUM
 	if(adjust_view){
 		set_all_intersect_update_needed(main_bbox_tree);
-		old_cx= cx;
-		old_cy= cy;
-		old_cz= cz;
+		old_camera_x= camera_x;
+		old_camera_y= camera_y;
+		old_camera_z= camera_z;
 	}
 #endif
 	if(zoom_level<1.50f) {

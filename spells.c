@@ -3,6 +3,7 @@
 #include "global.h"
 #include "elwindows.h"
 #include "interface.h"
+#include "eye_candy_wrapper.h"
 
 #define SIGILS_NO 50
 #define MAX_DATA_FILE_SIZE 560

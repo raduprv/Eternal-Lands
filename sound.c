@@ -350,7 +350,7 @@ ALuint get_loaded_buffer(int i)
 			have_music=0;
 		}
 
-#ifdef  ALUT_WAV
+#ifdef ALUT_WAV
 #ifdef OSX
 		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
@@ -361,6 +361,7 @@ ALuint get_loaded_buffer(int i)
 		alutUnloadWAV(format,data,size,freq);
 #else
         data= alutLoadMemoryFromFile (sound_files[i], &format, &size, &freq);
+
         alBufferData(sound_buffer[i],format,data,size,(int)freq);
 		free(data);
 #endif  //ALUT_WAV
@@ -626,8 +627,8 @@ unsigned int add_sound_object(int type,int x, int y)
 	else
 		alSourcei(pSource->source,AL_LOOPING,AL_FALSE);
 
-	tx = cx*(-2);
-	ty = cy*(-2);
+	tx = camera_x*(-2);
+	ty = camera_y*(-2);
 	distanceSq=(tx-x)*(tx-x)+(ty-y)*(ty-y);
 	maxDistanceSq = pNewType->distance*pNewType->distance;
 
@@ -674,8 +675,8 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops)
 		}
 	}
 
-	tx=-cx*2;
-	ty=-cy*2;
+	tx=-camera_x*2;
+	ty=-camera_y*2;
 	distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
 
 	alGenSources(1, &sound_source[i]);
@@ -820,8 +821,8 @@ void update_sound(int ms)
 	int source;
 	int x,y,distanceSq,maxDistSq;
 	int relative;
-	int tx=-cx*2;
-	int ty=-cy*2;
+	int tx=-camera_x*2;
+	int ty=-camera_y*2;
 	ALfloat sourcePos[3]={0.0f,0.0f,0.0f};
 	ALfloat listenerPos[]={tx,ty,0.0f};
 
@@ -967,8 +968,8 @@ void update_position()
 {
 	int i,state,relative,error;
 	int x,y,distance;
-	int tx=-cx*2;
-	int ty=-cy*2;
+	int tx=-camera_x*2;
+	int ty=-camera_y*2;
 	ALfloat sourcePos[3];
 	ALfloat listenerPos[]={tx,ty,0.0};
 
@@ -1017,7 +1018,7 @@ int update_music(void *dummy)
 			if(playing_music)
 				{
 					int day_time = (game_minute>=30 && game_minute<60*3+30);
-					int tx=-cx*2,ty=-cy*2;
+					int tx=-camera_x*2,ty=-camera_y*2;
 					if(fade) {
 						fade++;
 						if(fade > 6) {
@@ -1087,7 +1088,7 @@ int update_music(void *dummy)
 			else if(music_on)
 				{
 					int day_time = (game_minute>=30 && game_minute<60*3+30);
-					int tx=-cx*2,ty=-cy*2;
+					int tx=-camera_x*2,ty=-camera_y*2;
 					if(playlist[list_pos+1].file_name[0]) {
 						list_pos++;
 						if(tx > playlist[list_pos].min_x &&
@@ -1519,7 +1520,7 @@ void init_sound(char *sound_config_path)
 void init_sound()
 {
 	int i,error;
-	ALfloat listenerPos[]={-cx*2,-cy*2,0.0};
+	ALfloat listenerPos[]={-camera_x*2,-camera_y*2,0.0};
 	ALfloat listenerVel[]={0.0,0.0,0.0};
 	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
 	if(inited){

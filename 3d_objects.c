@@ -473,8 +473,8 @@ void draw_3d_objects(unsigned int object_type)
 #ifdef  SIMPLE_LOD
 	int x, y, dist;
 	
-	x= -cx;
-	y= -cy;
+	x= -camera_x;
+	y= -camera_y;
 #endif
 
  	cur_e3d= NULL;
@@ -942,8 +942,8 @@ int get_near_3d_objects()
 	first_near_3d_object = NULL;
 	first_near_blended_3d_object = NULL;
      
-	x = -cx;
-	y = -cy;
+	x = -camera_x;
+	y = -camera_y;
      
 	get_supersector (SECTOR_GET (global_x_pos, global_y_pos), &sx, &sy, &ex, &ey);
 #else
@@ -956,8 +956,8 @@ int get_near_3d_objects()
 	first_near_3d_object = NULL;
 	first_near_blended_3d_object = NULL;
      
-	x = -cx;
-	y = -cy;
+	x = -camera_x;
+	y = -camera_y;
      
 	get_supersector (SECTOR_GET (xxx->x_pos, xxx->y_pos), &sx, &sy, &ex, &ey);
 #endif

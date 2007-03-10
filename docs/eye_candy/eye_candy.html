@@ -1,0 +1,751 @@
+<HTML>
+  <HEAD>
+    <TITLE>Eye Candy extension for Eternal Lands: Function call documentation</TITLE>
+  </HEAD>
+  <BODY>
+    <B>Introduction:</B><BR>
+    <BR>
+    The <I>Eye Candy</I> object files were designed with the intent of adding a
+    new suite of realistic special effects to Eternal Lands.  Developed in
+    C++, they are connected to the game (written in C) through a wrapper,
+    <I>eye_candy_wrapper</I> (.cpp and .h).<BR>
+    <BR>
+    Eye Candy effects are largely based on textured point sprites,
+    although certain effects use polygons as well.  The point sprites can
+    have multiple frames, although none are currently setup as
+    frame-by-frame animations (the infrastructure allows for this,
+    however).  Instead, existing point sprites randomly pick a frame from
+    a range of possible choices.  The sprites can be drawn using one of
+    three methods, two of which are wrapped: OpenGL point sprites (not
+    supported on all cards, but theoretically faster), fast billboarded
+    quads, and accurate billboarded quads (not wrapped).  There is not
+    that much difference between "<I>fast</I>" and "<I>accurate</I>" billboarded
+    quads in terms of visual accuracy and speed, so only one of those is
+    wrapped.<BR>
+    <BR>
+    The advantage to using point sprite-based effects is that you can cram
+    a great deal of detail into a particle without using many polygons. 
+    Even the most basic approximation of a sphere (a tetrahedron) takes
+    four polygons, and textures will not wrap well around such a boxy
+    shape.  Textured polys allow for wispy, translucent features, smooth
+    curves, and all kinds of other effects.  Additionally, they lend
+    themselves naturally to looking as though they are filled when
+    tranlucency is used; translucent polygons look like shells.<BR>
+    <BR>
+    The primary disadvantage to point sprites is that they are, quite
+    simply, sprites.  Thus, they tend to work better for objects that
+    don't vary much depending on which angle you look at them from, and
+    appear most realistic when there are many on the screen at once, all
+    behaving according to some realistic movement rules.<BR>
+    <BR>
+    Actual polygons are used in a few locations in the Eye Candy package,
+    in places where point sprites are not suitable.  These include
+    teleporation effects (for a translucent column of light) and blowing
+    leaves/flower petals.  Fireflies, however, are point sprites, as they
+    are expected to only be used in the dark when you wouldn't expect to
+    see the insect body in detail.<BR>
+    <BR>
+    Translucency is done in the package using two blend methods.  The
+    default, and more common, is "glowing" particles.  These blend
+    accumulatively.  A glowing particle will never make its background
+    darker.  Infinite accumulation of glowing particles, assuming that
+    there is at least some R, G, and B in them, will always result in
+    white.  They work well for magic and light sources.  "Non-glowing"
+    particles blend with an average (as with glowing, weighted
+    proportional to transparency).  Infinite accumulation of non-glowing
+    particles results purely in the color of the particle itself.  They
+    work well for things like dust, debris, and smoke.<BR>
+    <BR>
+    All effects (except fireflies and leaves/petals, which don't need it)
+    have a level of detail flag.  This is the maximum level of detail to
+    use.  The number of particles that the effect will use is roughly
+    proportional to its level of detail, although different effects may use
+    more or less particles than others.  Naturally, lower level of detail is
+    faster but poorer quality.  Eye Candy also has a built-in particle
+    limit.  As you near this limit, it automatically tells effects to lower
+    their level of detail.  Effects won't kill off particles, but any new
+    particles that they create will be done according to the new LOD.<BR>
+    <BR>
+    As a user of Eye Candy, the C++ internals shouldn't largely concern
+    you, but they will be addressed briefly here.  The main, controlling
+    object is EyeCandy.  There is only ever one EyeCandy object (in our
+    case, it is defined in eye_candy_wrapper.cpp).  It acts as the control
+    mechanism for all of the effects and particles, and it is how the
+    wrapper interfaces with them.  Effect objects are created manually,
+    but destroy themselves -- either automatically when the effect
+    finishes, or when told to by having their "recall" flag set (after
+    making sure that their particles expire peacefully).  Particle objects
+    are created by the effect, and handle all of the details of their
+    drawing.  Particles frequently are positioned by Spawners, which pick
+    coordinates in 3-space based on various rules, and are moved by
+    Movers, which can simulate things like gravity and wind.  Each
+    specific effect class has its own effect_*.cpp file, and is based on
+    an object that inherits from Effect (and typically uses particles that
+    inherit from Particle).  An additional object used by the system is
+    math_cache.cpp, which slightly speeds up exponent functions by use of a
+    cache.  Note that the Eye Candy system uses a different coordinate
+    system than Eternal Lands (Y is up/down in Eye Candy, while in Eternal
+    Lands, Z is up/down).  The wrapper takes care of hiding this from
+    the user.<BR>
+    <BR>
+    As for the wrapper, which users will interface with it, it adds an
+    additional series of data structures: ec_reference, ec_bounds,
+    ec_obstructions, and ec_effects.<BR>
+    <BR>
+    <I>ec_reference</I>: This is the core element that you can use to control an
+    effect once you create it.  Each effect creation function will return
+    a reference.  You can use the reference to change the location of the
+    positions of an effect, add a target to the end of the list, or change
+    a target, through:<BR>
+    <BR>
+    * void ec_set_position(ec_reference ref, float x, float y, float
+    z);<BR>
+    * void ec_set_position2(ec_reference ref, float x, float y, float
+    z);<BR>
+    * void ec_add_target(ec_reference ref, float x, float y, float z);<BR>
+    * int ec_change_target(ec_reference ref, int index, float x, float y, 
+      float z);<BR>
+    <BR>
+    What position, position2, and targets mean in the context of a given
+    effect will be described in the section for that effect.  Changing a
+    target returns nonzero for success, a value of zero means that the
+    index you sent doesn't exist.  An effect can be recalled (without the
+    reference deleted), or recalled with the reference deleted, by:<BR>
+    <BR>
+    * void ec_recall_effect(ec_reference ref);<BR>
+    * void ec_delete_reference(ec_reference ref);<BR>
+    <BR>
+    A reference MUST be deleted when no longer needed, or you will have a
+    memory leak.  This means that you must save all references to effects
+    until you are sure the effect is no longer needed, even for one-off
+    effects (say, a bag-drop effect, or a heal spell effect).  Note that
+    recalling an effect doesn't mean that the effect will instantly
+    disappear.  Rather, no new particles will be created for the effect,
+    and existing particles decide when to disappear.  Usually, this means
+    effectively instantly, but some effects may simply "finish up" first.<BR>
+    <BR>
+    <I>ec_bounds</I>: Some effects, such as blowing leaves/petals, fireflies, and
+    clouds want to know how far their elements are allowed to move. 
+    Fireflies will slowly turn back when they hit their bounds.  Leaves
+    will lift off skyward, disappearing once they get to a certain height. 
+    Leaf bounds can additionally be interconnected so a leaf can blow from
+    one region into the next if so desired.  The same bounds can be used
+    by multiple effects.  Bounds are created by:<BR>
+    <BR>
+    * ec_bounds ec_create_bounds_list();<BR>
+    <BR>
+    Note that bounds, too, need to be freed when no longer desired.  They
+    are freed by function:<BR>
+    <BR>
+    * void ec_free_bounds_list(ec_bounds bounds);<BR>
+    <BR>
+    The only type of bounds currently supported is sinous polar coordinate
+    bounds.  That is, to say, the boundary is the sum of a series of sine
+    functions of the angle from the center of the effect.  You specify a
+    frequency, an offset, and an exponent for each layer to be added
+    together, as in:<BR>
+    <BR>
+    * ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float
+    offset, float scalar, float power);<BR>
+    <BR>
+    The reason for chosing polar coordinates bounds is simplicity in
+    design.  It is easy to define a smooth force gradient at the border of
+    a sinous shape in polar coordinates.  They are also fast and easy to
+    determine where the nearest bound is compared to a particular
+    particle.  Essentially any non-complex, smooth shape can be defined
+    using such coordinates with a bit of fiddling.  If an easier to define
+    mechanism is desired, I could work on that.<BR>
+    <BR>
+    <I>ec_obstructions</I>: Some effects are set up so as to allow you to
+    define objects that can obstruct their path.  Technically, all effects
+    can handle it, but on many, it was deemed not worth the effort.  In
+    effects that take obstruction lists, you can always pass NULL to them
+    as the list to get the default obstruction list (no obstructions).  If
+    you do send an obstruction list, objects will attempt to diverge
+    around the object by using as much force as you tell the obstruction
+    to exert, once they're within the distance you specify.  The same
+    obstruction list can be used by multiple effects.  First, you
+    need to create the obstruction list:<BR>
+    <BR>
+    * ec_obstructions ec_create_obstruction_list();<BR>
+    <BR>
+    Once you have the list, you can add three types of obstructions to
+    the end of it:<BR>
+    <BR>
+    * void ec_add_spherical_obstruction(ec_obstructions obstructions,
+    float x, float y, float z, float max_distance, float force);<BR>
+    * void ec_add_simple_cylindrical_obstruction(ec_obstructions
+    obstructions, float x, float y, float max_distance, float force);<BR>
+    * void ec_add_cylindrical_obstruction(ec_obstructions obstructions,
+    float x1, float y1, float z1, float x2, float y2, float z2, float
+    max_distance, float force);<BR>
+    <BR>
+    A spherical obstruction is, as its name sounds, an obstruction shaped
+    like a sphere.  A simple cylindrical obstruction is unbounded
+    vertically and always aligned vertically.  A regular cylindrical
+    obstruction can be oriented at any angle and has a finite length but
+    is, as one might expect, significantly slower.  New obstruction types
+    can be added as needed to Eye Candy; they're fairly simple to define.<BR>
+    <BR>
+    An existing obstruction can be deleted by:<BR>
+    <BR>
+    * int ec_delete_obstruction(ec_obstructions obstructions, int index);<BR>
+    <BR>
+    If an object obstructing the path moves, delete it and then re-add the
+    obstruction to the end of the list.  When you no longer need an
+    obstruction list, free it with:<BR>
+    <BR>
+    * void ec_free_obstruction_list(ec_obstructions obstructions);<BR>
+    <BR>
+    <I>ec_effects:</I> A list of running effects.  Currently, only one class of effects (blowing
+    objects: wind and petals) uses this, and you should only list those
+    effects.  The wind effect uses this to know what its neighboring effects
+    are to pass blowing objects around.  The functions used are:<BR>
+    <BR>
+    * ec_effects ec_create_effects_list();<BR>
+    * ec_free_effects_list(ec_effects effects);<BR>
+    * void ec_add_effect(ec_effects effects, ec_reference ref);<BR>
+    <BR>
+    Lastly, we'll briefly look at the functions that set everything in
+    motion.  When Eternal Lands starts out, we need to initialize Eye
+    Candy with ec_init.  When we're ready to draw, we should call ec_idle,
+    then ec_draw.  When the draw method (point particles or billboarded
+    quads) changes, one should call ec_set_draw_method.  When poor man is
+    enabled, we want a notably lower max particles (causing the LOD to
+    fall), thus we call ec_set_draw_detail.  Lastly, before we
+    start drawing, it is wise to assign Eye Candy some lights to use so
+    that special effects can make things around them glow to a nice effect
+    (the more lights you assign, the smoother the lighting will be).  The
+    function calls are, respectively:<BR>
+    <BR>
+    * void ec_init();<BR>
+    * void ec_idle();<BR>
+    * void ec_draw();<BR>
+    * void ec_set_draw_method();<BR>
+    * void ec_set_draw_detail();<BR>
+    * void ec_add_light(GLenum light_id);<BR>
+    <BR>
+    <I>Room for improvement:</I> Probably the biggest room for improvement
+    in this would be in textures.  There are only a few kinds of textures,
+    and none are used as animations.  With fancy, animated textures, the sky
+    is the limit.  Also, things like new features for effects (as mentioned
+    above -- say, wind for the smoke effect) and new effects would be nice.<BR>
+    <BR>
+    This concludes the introduction.  We will now look at the various
+    effects, with screenshots and usage instructions.<BR>
+    <BR>
+    <BR>
+    <B>Effects:</B>
+    <BR>
+    <I>Effect:</I> Generic<BR>
+    <I>Function call:</I> ec_reference ec_create_generic();<BR>
+    <I>Arguments:</I> None.<BR>
+    <I>Description:</I> Not really an effect in itself, this function creates a
+    reference to an unspecified effect.  This is mainly used for effects
+    that take an arbitrary number of targets so that the reference can be
+    gotten before the effect is launched, thus allowing it to load up
+    targets ahead of time.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/bag_pickup.jpg">Pickup bag</A><BR>
+    <I>Function call:</I> ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the bag and the level of detail (1-10)<BR>
+    <I>Description:</I> An effect for picking up a bag, to replace the
+    current "particle starburst" effect.  Looks like a bag expanding, then
+    being jerked up into nothing.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/bag_drop.jpg">Drop bag</A><BR>
+    <I>Function call:</I> ec_reference ec_create_bag_drop(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the bag and the level of detail (1-10)<BR>
+    <I>Description:</I> An effect for dropping a bag.  Like the inverse of
+    the bag pickup effect.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/breath_fire.jpg">Fire breath (dragon, etc)</A> <BR>
+    <I>Function call:</I> ec_reference ec_create_breath_fire(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);<BR>
+    <I>Arguments:</I> The coordinates of the attacker, the coordinates of the target, an obstruction list (NULL for none), the level of detail (1-10), and the scale (screenshot: scale=2)<BR>
+    <I>Description:</I> A breath weapon for a fire breathing dragon,
+    although shifting the "strength" variable could scale it to other kinds
+    of fire-breathing creatures.  A thick column of flame heads toward the
+    target, eventually turning to rising black smoke and fading out.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/breath_ice.jpg">Ice breath (dragon, etc)</A> <BR>
+    <I>Function call:</I> ec_reference ec_create_breath_ice(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);<BR>
+    <I>Arguments:</I> The coordinates of the attacker, the coordinates of the target, an obstruction list (NULL for none), the level of detail (1-10), and the scale (screenshot: scale=2)<BR>
+    <I>Description:</I> Like above, but for ice breath.  A cloud of icy
+    fog heads toward the target.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/breath_poison.jpg">Poison breath (dragon, etc)</A> <BR>
+    <I>Function call:</I> ec_reference ec_create_breath_poison(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);<BR>
+    <I>Arguments:</I> The coordinates of the attacker, the coordinates of the target, an obstruction list (NULL for none), the level of detail (1-10), and the scale (screenshot: scale=2)<BR>
+    <I>Description:</I> Like above, but for poison breath.  A cloud of green
+    gas turns pitch black as it hits the target.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/breath_magic.jpg">Magic breath (dragon, etc)</A> <BR>
+    <I>Function call:</I> ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);<BR>
+    <I>Arguments:</I> The coordinates of the attacker, the coordinates of the target, an obstruction list (NULL for none), the level of detail (1-10), and the scale (screenshot: scale=2)<BR>
+    <I>Description:</I> Like above, but for magic breath.  A column of
+    multicolored light streams toward the target, then fades out.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/breath_lightning.jpg">Lightning breath (dragon, etc)</A> <BR>
+    <I>Function call:</I> ec_reference ec_create_breath_lightning(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);<BR>
+    <I>Arguments:</I> The coordinates of the attacker, the coordinates of the target, an obstruction list (NULL for none), the level of detail (1-10), and the scale (screenshot: scale=2)<BR>
+    <I>Description:</I> Like the above, but for lightning breath.  A thick
+    column of electricity shoots toward the target, small tines streaming
+    off the center as it flies, with the column fading into sparks at the
+    end.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/breath_wind.jpg">Wind breath (dragon, etc)</A> <BR>
+    <I>Function call:</I> ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);<BR>
+    <I>Arguments:</I> The coordinates of the attacker, the coordinates of the target, an obstruction list (NULL for none), the level of detail (1-10), and the scale (screenshot: scale=2)<BR>
+    <I>Description:</I> Like the above, but for wind breath.  Bits of dust
+    form and fly at high speed into the target.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/campfire.jpg">Campfire</A><BR>
+    <I>Function call:</I> ec_reference ec_create_campfire(float x, float y, float z, ec_obstructions obstructions, int LOD, float scale);<BR>
+    <I>Arguments:</I> The coordinates of the campfire, an obstruction list (NULL for none), the level of detail (1-10), and the scale (screenshot: scale=1)<BR>
+    <I>Description:</I> A standard campfire; kicks off sparks and smoke. 
+    Obstruction list provided to, say, have the flames go around a log. 
+    "Scale" allows it to scale from embers to a bonfire.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/cloud.jpg">Clouds / Uneven fog</A><BR>
+    <I>Function call:</I> ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the center of the cloud, the density (and thus opacity) of the cloud, a bounds list for what area of ground the cloud will hover over, and the level of detail (1-10) (screenshot: density=1)<BR>
+    <I>Description:</I> Made on request from Roja, although I'm not sure of
+    the scale that was desired.  These clouds are designed with the
+    assumption of large scale.  On the ground, they look like uneven fog (vs
+    your generic constant-attenuation fog; it's more realistic, but
+    obviously not as fast).  They do a bit of swarm-logic, each cell looking
+    only at its neighbors, to figure out where it is in the cloud, and thus
+    what it's normal should be (it adjusts over time).  They also drift
+    around.  If smaller clouds are desired, I can modify the effect to take
+    scale into account.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/fireflies.jpg">Fireflies</A><BR>
+    <I>Function call:</I> ec_reference ec_create_fireflies(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds);<BR>
+    <I>Arguments:</I> The coordinates of the center of where the fireflies gather, an obstruction list (NULL for none), the amount of fireflies per unit area, and a bounds list for what area of ground the fireflies will float over. (screenshot: densit=1)<BR>
+    <I>Description:</I> Fireflies are a nice nighttime effect that causes
+    fireflies to float around, seemingly with intent or motive -- sometimes
+    heading long distances, sometimes stopping or drifting around one area. 
+    They flash on occasion in a semirandom fashion.  They refuse to leave
+    their bounds.  You can, however, have multiple firefly effects overlap
+    if you want to keep the bounds small and make it hard to recognize where
+    the bounds are.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/fountain.jpg">Fountain</A><BR>
+    <I>Function call:</I> ec_reference ec_create_fountain(float x, float y, float z, int backlit, float scale, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the fountain, whether it is backlit (1=true, 0=false), how big the fountain is, and the level of detail (1-10) (screenshot: scale=1, backlit=0)<BR>
+    <I>Description:</I> The fountain is, well, a fountain.  Water shoots up
+    from where you set the fountain and then falls, subject to gravity,
+    splashing when it hits the ground below.  It looks best to position the
+    fountain (where the water is emitted) higher than the ground.  The
+    "backlit" option is as it sounds -- whether the water looks backlit or
+    not (backlit water is made of glowing particles).  Scale allows it to
+    range from a trickle to a geyser.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/harvesting_radon_pouch.jpg">Radon pouch</A><BR>
+    <I>Function call:</I> ec_reference ec_create_harvesting_radon_pouch(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the effect and the level of detail (1-10)<BR>
+    <I>Description:</I> A green and brown glow outgasses from where you
+    launch it.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/harvesting_cavern_wall.jpg">Cavern wall</A><BR>
+    <I>Function call:</I> ec_reference ec_create_harvesting_cavern_wall(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the effect and the level of detail (1-10)<BR>
+    <I>Description:</I> A very large cave-in occurs; dark-colored debris
+    tumbles down for a few seconds.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/harvesting_mother_nature.jpg">Mother nature</A><BR>
+    <I>Function call:</I> ec_reference ec_create_harvesting_mother_nature(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the effect and the level of detail (1-10)<BR>
+    <I>Description:</I> A brief, intense spinning column of yellow energy hits you.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/harvesting_queen_of_nature.jpg">Queen of Nature</A><BR>
+    <I>Function call:</I> ec_reference ec_create_harvesting_queen_of_nature(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the effect and the level of detail (1-10)<BR>
+    <I>Description:</I> Colorful orbs form and hover in a column around you,
+    slowly fading from existence.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/harvesting_bees.jpg">Bees</A><BR>
+    <I>Function call:</I> ec_reference ec_create_harvesting_bees(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the effect and the level of detail (1-10)<BR>
+    <I>Description:</I> A cluster of bees swarm erratically around the
+    center of the effect.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/harvesting_bag_of_gold.jpg">Bag of gold</A><BR>
+    <I>Function call:</I> ec_reference ec_create_harvesting_bag_of_gold(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the effect and the level of detail (1-10)<BR>
+    <I>Description:</I> Similar to the bag-pickup effect, but with a halo.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/harvesting_rare_stone.jpg">Rare stone</A><BR>
+    <I>Function call:</I> ec_reference ec_create_harvesting_rare_stone(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The coordinates of the effect and the level of detail (1-10)<BR>
+    <I>Description:</I> A bright pair of halos and little sparkles.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/impact_magic_protection.jpg">Spell strikes magic protection</A><BR>
+    <I>Function call:</I> ec_reference ec_create_impact_magic_protection(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);<BR>
+    <I>Arguments:</I> The coordinates of the actor being hit, the vector from the attacker to the struck actor (does not need to be normalized), the level of detail (1-10), and the strength of the impact or the shield (0-5)<BR>
+    <I>Description:</I> From the impact point, a cone of purple particles
+    (same color as the magic protection effect) backscatters in the
+    direction of whatever hit you (specified in the angle vector passed to
+    this function).<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/impact_shield.jpg">Attack strikes magical shield</A><BR>
+    <I>Function call:</I> ec_reference ec_create_impact_shield(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);<BR>
+    <I>Arguments:</I> The coordinates of the actor being hit, the vector from the attacker to the struck actor (does not need to be normalized), the level of detail (1-10), and the strength of the impact or the shield (0-5)<BR>
+    <I>Description:</I> Like the above, but white particles (like the shield
+    effect)<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/impact_magic_immunity.jpg">Spell strikes magic immunity</A><BR>
+    <I>Function call:</I> ec_reference ec_create_impact_magic_immunity(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);<BR>
+    <I>Arguments:</I> The coordinates of the actor being hit, the vector from the attacker to the struck actor (does not need to be normalized), the level of detail (1-10), and the strength of the impact or the shield (0-5)<BR>
+    <I>Description:</I> Like the above, but multicolored particles (like the
+    magic immunity effect)<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/impact_poison.jpg">Player gets poisoned / poison hurts
+    player</A><BR>
+    <I>Function call:</I> ec_reference ec_create_impact_poison(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);<BR>
+    <I>Arguments:</I> The coordinates of the actor being poisoned, the direction you want the poison to go (could be random; does not need to be normalized), the level of detail (1-10), and the size of the effect (0-5)<BR>
+    <I>Description:</I> A puff of staticky green and black, like a cloud of
+    toxic mist, briefly forms and dissipates where the effect is spawned.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/impact_blood.jpg">Blood</A><BR>
+    <I>Function call:</I> ec_reference ec_create_impact_blood(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);<BR>
+    <I>Arguments:</I> The coordinates of the actor being hit, the vector from the attacker to the struck actor (does not need to be normalized), the level of detail (1-10), and the strength of the impact or the shield (0-5)<BR>
+    <I>Description:</I> Like the poison effect, but blood-toned.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/lamp.jpg">Lamp</A><BR>
+    <I>Function call:</I> ec_reference ec_create_lamp(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the lamp and its level of detail (1-10)<BR>
+    <I>Description:</I> A glowing orb of light with embers that lift off
+    around it, like a magical fire.  Note that while it looks great on its
+    own, placing one of these directly into the current lamp models doesn't
+    look right.  The current lamps have too much opacity on them, so things
+    stick out and jut out without a smooth transition.  It either needs a
+    more transparent lamp, or could work as a sort of "altar flame" style
+    where it sits atop the lamp post.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/ongoing_magic_protection.jpg">Magic protection in effect</A><BR>
+    <I>Function call:</I> ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, int LOD, float scale);<BR>
+    <I>Arguments:</I> The location of the spell, the level of detail (1-10), and its intensity (1-5) (screenshot: intensity=5)<BR>
+    <I>Description:</I> Creates the magic protection effect, which lasts
+    until you recall it.  It should have its scale reduced as the minutes
+    tick past and the spell weakens.  Purple sparkles form in an ellipsoid around the
+    center, radiating outwards as they fade.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/ongoing_shield.jpg">Shield spell in effect</A><BR>
+    <I>Function call:</I> ec_reference ec_create_ongoing_shield(float x, float y, float z, int LOD, float scale);<BR>
+    <I>Arguments:</I> The location of the spell, the level of detail (1-10), and its intensity (1-5) (screenshot: intensity=5)<BR>
+    <I>Description:</I> Life above, but for the shield effect.  White
+    particles form on a cylinder, spiralling upwards and outwards as they
+    fade.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/ongoing_magic_immunity.jpg">Magic immunity in effect</A><BR>
+    <I>Function call:</I> ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, int LOD, float scale);<BR>
+    <I>Arguments:</I> The location of the spell, the level of detail (1-10), and its intensity (1-5) (screenshot: intensity=5)<BR>
+    <I>Description:</I> Like magic protection, but with a larger, more spherical
+    spawning surface, and using larger, multicolored particles.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/ongoing_poison.jpg">Poisoned (ongoing)</A><BR>
+    <I>Function call:</I> ec_reference ec_create_ongoing_poison(float x, float y, float z, int LOD, float scale);<BR>
+    <I>Arguments:</I> The location of the poisoned actor, the level of detail (1-10), and its intensity (1-5) (screenshot: intensity=5)<BR>
+    <I>Description:</I> Green and black misty/bubbly effect that forms along
+    the actor's body.  Like above, lasts until recalled.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/selfmagic_heal.jpg">"Heal" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_selfmagic_heal(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster and the level of detail (1-10)<BR>
+    <I>Description:</I> A smooth, glowing green cloud forms at the feet and
+    expands upwards.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/selfmagic_magic_protection.jpg">"Magic protection" spell (being cast)</A><BR>
+    <I>Function call:</I> ec_reference ec_create_selfmagic_magic_protection(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster and the level of detail (1-10)<BR>
+    <I>Description:</I> A spherical shell of purple particles expands around
+    the body and pinches at the top.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/selfmagic_shield.jpg">"Shield" spell (being cast)</A><BR>
+    <I>Function call:</I> ec_reference ec_create_selfmagic_shield(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster and the level of detail (1-10)<BR>
+    <I>Description:</I> <BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/selfmagic_restoration.jpg">"Restoration" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_selfmagic_restoration(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster and the level of detail (1-10)<BR>
+    <I>Description:</I> Like the heal spell, but with a countercurrent of
+    outward-spiralling yellow particles.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/selfmagic_bones_to_gold.jpg">"Bones to gold" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_selfmagic_bones_to_gold(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster and the level of detail (1-10)<BR>
+    <I>Description:</I> A rising, bubbling yellow and white effect.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/selfmagic_teleport_to_the_portals_room.jpg">"Teleport to the portals room" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_selfmagic_teleport_to_the_portals_room(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster and the level of detail (1-10)<BR>
+    <I>Description:</I> A teleporter-style column of light appears at the
+    caster.  Teleporter-style sparkles form along its height and fade out as
+    they drift away.  The column fades out.  This effect would work well
+    along with having the actor fade out before the column does.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/selfmagic_magic_immunity.jpg">"Magic immunity" spell (being cast)</A><BR>
+    <I>Function call:</I> ec_reference ec_create_selfmagic_magic_immunity(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster and the level of detail (1-10)<BR>
+    <I>Description:</I> Like magic resistance, but with dense, large,
+    multicolored orbs.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/smoke.jpg">Smoke</A><BR>
+    <I>Function call:</I> ec_reference ec_create_smoke(float x, float y, float z, float scale, int LOD);<BR>
+    <I>Arguments:</I> The location of the column of smoke, the rate smoke is coming out, and the level of detail (1-10) (screenshot: scale=1)<BR>
+    <I>Description:</I> An effect designed for chimneys and other smoke
+    sources.  Produces a typically thick, dark smoke, uneffected by wind
+    (if we want wind to blow smoke, I could add that option).  Can range
+    from a tiny puff to forest-fire size.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_rabbit.jpg">Summon rabbit</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_rabbit(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> All summons follow the same pattern: a fractal
+    pattern on the ground kicks off sparkles that rise up while orbs of
+    light dance over it.  The more powerful the creature being summoned, the
+    larger the summon circle and the "redder" the color.  "Similar"
+    creatures being summoned (say, gargoyles, or wolves) tend to have summon
+    effects that look similar -- same particle types, similar IFS patterns,
+    etc.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_rat.jpg">Summon rat</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_rat(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_beaver.jpg">Summon beaver</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_beaver(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_deer.jpg">Summon deer</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_deer(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_green_snake.jpg">Summon green snake</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_green_snake(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_red_snake.jpg">Summon red snake</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_red_snake(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_brown_snake.jpg">Summon brown snake</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_brown_snake(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_fox.jpg">Summon fox</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_fox(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_boar.jpg">Summon boar</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_boar(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_wolf.jpg">Summon wolf</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_wolf(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_puma.jpg">Summon puma</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_puma(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_bear.jpg">Summon bear</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_bear(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_skeleton.jpg">Summon skeleton</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_skeleton(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_small_gargoyle.jpg">Summon small gargoyle</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_small_gargoyle(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_medium_gargoyle.jpg">Summon medium gargoyle</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_medium_gargoyle(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_large_gargoyle.jpg">Summon large gargoyle</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_large_gargoyle(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_fluffy.jpg">Summon fluffy</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_fluffy(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_chimeran_wolf.jpg">Summon chimeran wolf</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_chimeran_wolf(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_yeti.jpg">Summon yeti</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_yeti(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_arctic_chimeran.jpg">Summon arctic chimeran</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_arctic_chimeran(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/summon_giant.jpg">Summon giant</A><BR>
+    <I>Function call:</I> ec_reference ec_create_summon_giant(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the summon and the level of detail (1-10)<BR>
+    <I>Description:</I> See "Summon rabbit" for a description of summons.<BR>
+    <BR>
+    <I>Effect:</I> Serpent sword<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_serpent(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> This effect detects differences in the location that
+    the effect is centered on from how it was the last time it drew.  From
+    this, it determines the momentum of the blade.  The faster the blade
+    goes, the more sparkles/glow it kicks off.  Since it's not moving in the
+    demo, no screenshot available.  The serpent sword kicks off a yellowish
+    green.<BR>
+    <BR>
+    <I>Effect:</I> Cutlass<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_cutlass(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off a bit of white.<BR>
+    <BR>
+    <I>Effect:</I> Emerald claymore<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_emerald_claymore(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off a pure green.<BR>
+    <BR>
+    <I>Effect:</I> Sunbreaker<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_sunbreaker(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off a bright yellow.<BR>
+    <BR>
+    <I>Effect:</I> Orc slayer<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_orc_slayer(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off a bit of misty red.<BR>
+    <BR>
+    <I>Effect:</I> Eagle wing<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_eagle_wing(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off teal.<BR>
+    <BR>
+    <I>Effect:</I> Jagged saber<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_jagged_saber(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off purple.<BR>
+    <BR>
+    <I>Effect:</I> Sword of fire<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_of_fire(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off flames.<BR>
+    <BR>
+    <I>Effect:</I> Sword of ice<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_of_ice(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off blue mist.<BR>
+    <BR>
+    <I>Effect:</I> Sword of magic<BR>
+    <I>Function call:</I> ec_reference ec_create_sword_of_magic(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);<BR>
+    <I>Arguments:</I> One endpoint of the sword's blade, the opposite endpoint of the sword's blade, and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but kicks off multicolored sparkles.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_remote_heal.jpg">"Remote heal" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_targetmagic_remote_heal(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, a list of any obstructions in the way (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> Green lights spin around the initial position (even
+    if it moves), then beeline for the target (dodging obstacles), causing an
+    glowing green cloud effect like the heal spell.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_poison.jpg">"Poison" spell (being cast)</A><BR>
+    <I>Function call:</I> ec_reference ec_create_targetmagic_poison(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, a list of any obstructions in the way (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> Like the above, but on target causes a bubbling green
+    and black mist.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_teleport_to_range.jpg">"Teleport to range" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_targetmagic_teleport_to_range(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, a list of any obstructions in the way (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> A teleporter-style column of light appears at the
+    caster.  Orbs of light appear in it and move towards the target
+    position, where they turn into a new teleporter-style column of light. 
+    Both columns fade out. This effect would work well along with having the
+    actor fade out as the orbs form, then fade in as the new column of light
+    forms.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_harm.jpg">"Harm" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_targetmagic_harm(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, a list of any obstructions in the way (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but instead of the initial lights
+    heading for the target, they head above the target.  Colored lights
+    streak down on top of the target.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_life_drain.jpg">"Life drain" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_targetmagic_life_drain(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, a list of any obstructions in the way (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but the initial lights start out as red
+    on the *target*, then beeline for the caster, turning green along the
+    way, culiminating in a heal-style effect.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_heal_summoned.jpg">"Heal summoned" spell</A><BR>
+    <I>Function call:</I> void ec_launch_targetmagic_heal_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, a list of any obstructions in the way (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> Note that this is a "launch" effect that returns
+    void, not a create effect that returns ec_reference.  Since this spell
+    takes multiple targets, you need to create a generic reference first,
+    add the targets, then run this function.  Acts like remote heal, but for
+    many targets (with a less dramatic effect on each).<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_smite_summoned.jpg">"Smite summoned" spell</A><BR>
+    <I>Function call:</I> void ec_launch_targetmagic_smite_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, a list of any obstructions in the way (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> Like above, but the resultant effect on each target
+    is like a small harm spell.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/targetmagic_drain_mana.jpg">"Drain mana" spell</A><BR>
+    <I>Function call:</I> ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);<BR>
+    <I>Arguments:</I> The location of the caster, the location of the target, an obstruction list (NULL for none), and the level of detail (1-10)<BR>
+    <I>Description:</I> Like life drain, but uses purple.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/teleporter.jpg">Teleporter</A><BR>
+    <I>Function call:</I> ec_reference ec_create_teleporter(float x, float y, float z, int LOD);<BR>
+    <I>Arguments:</I> The location of the teleporter and the level of detail (1-10)<BR>
+    <I>Description:</I> A column of white light reaches high into the sky. 
+    Glowing white sparkles randomly form within and drift around, fading
+    out.  Particles form along the entire height, but are more likely to
+    form lower down.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/wind_leaves.jpg">Blowing leaves</A><BR>
+    <I>Function call:</I> ec_reference ec_create_wind_leaves(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);<BR>
+    <I>Arguments:</I> The coordinates of the center of where the leaves blow, an obstruction list (NULL for none), the amount of leaves per unit area, a bounds list for what area of ground the leaves will blow over, and the vector of the prevailing wind (the magnitude of the vector is the wind strength) (screenshot: density=1)<BR>
+    <I>Description:</I> Makes it look like a windy fall day.  Leaves form
+    high up and descend down.  They blow around freely, following the wind,
+    which has a prevailing direction, but varies across time and from
+    location to location, causing swirls, eddy currents, etc.  Leaves can
+    settle down on the ground, then aloft again.  When they leave the
+    bounds, they can pass off to another wind effect.  However, if there is
+    no effect to pass to, they blow upwards into the sky and dissapear.<BR>
+    <BR>
+    <I>Effect:</I> <A HREF="images/wind_petals.jpg">Blowing flower petals</A><BR>
+    <I>Function call:</I> ec_reference ec_create_wind_petals(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);<BR>
+    <I>Arguments:</I> The coordinates of the center of where the petals blow, an obstruction list (NULL for none), the amount of petals per unit area, a bounds list for what area of ground the petals will blow over, and the vector of the prevailing wind (the magnitude of the vector is the wind strength) (screenshot: density=1)<BR>
+    <I>Description:</I> Like the leaf effect, but with flower petals.<BR>
+    <BR>
+  </BODY>
+</HTML>

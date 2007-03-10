@@ -5,6 +5,7 @@
 #else
 #include "global.h"
 #endif
+#include "eye_candy_wrapper.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -142,9 +143,11 @@ void disable_local_lights()
     glDisable(GL_LIGHT1);
     glDisable(GL_LIGHT2);
     glDisable(GL_LIGHT3);
+/*
     glDisable(GL_LIGHT4);
     glDisable(GL_LIGHT5);
     glDisable(GL_LIGHT6);
+*/
 }
 
 void enable_local_lights()
@@ -155,9 +158,11 @@ void enable_local_lights()
     if(show_lights >= 1)	glEnable(GL_LIGHT1);
     if(show_lights >= 2)	glEnable(GL_LIGHT2);
     if(show_lights >= 3)	glEnable(GL_LIGHT3);
+/*
     if(show_lights >= 4)	glEnable(GL_LIGHT4);
     if(show_lights >= 5)	glEnable(GL_LIGHT5);
     if(show_lights >= 6)	glEnable(GL_LIGHT6);
+*/
 }
 
 
@@ -200,6 +205,7 @@ void draw_lights()
 		glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
 		glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
 	}
+/*
 	if(show_lights >= 4){
 		glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
 		glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
@@ -215,6 +221,7 @@ void draw_lights()
 		glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
 		glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
 	}
+*/
 #else	
 	j= 0;
 	
@@ -355,10 +362,11 @@ void update_scene_lights()
 
 	light_4_diffuse[0]=0;light_4_diffuse[1]=0;light_4_diffuse[2]=0;light_4_diffuse[3]=1.0;
 
+/*
 	light_5_diffuse[0]=0;light_5_diffuse[1]=0;light_5_diffuse[2]=0;light_5_diffuse[3]=1.0;
 
 	light_6_diffuse[0]=0;light_6_diffuse[1]=0;light_6_diffuse[2]=0;light_6_diffuse[3]=1.0;
-
+*/
 	for(i=0;i<MAX_LIGHTS;i++)
 		{
 			if(lights_list[i])
@@ -397,6 +405,7 @@ void update_scene_lights()
 										max_dist=light_4_dist;
 										max_light=4;
 									}
+/*
 								if(light_5_dist>max_dist)
 									{
 										max_dist=light_5_dist;
@@ -407,6 +416,7 @@ void update_scene_lights()
 										max_dist=light_6_dist;
 										max_light=6;
 									}
+*/
 							}
 							// we have all the lights and we are farther, next light
 							if(all_full && dist > max_dist)	continue;
@@ -526,6 +536,7 @@ void update_scene_lights()
 										}
 									continue;
 								}
+/*
 							if((light_5_dist>=50.0*50.0) || (all_full && (max_light==5)))
 								{
 									//see if we should recompute the max distance
@@ -573,6 +584,7 @@ void update_scene_lights()
 									all_full=1;
 									continue;
 								}
+*/
 
 						}
 				}
@@ -622,6 +634,7 @@ void init_lights()
 	glLightf(GL_LIGHT3,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT3);
 
+/*
 	glLightf(GL_LIGHT4, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT4,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT4,GL_DIFFUSE,light_diffuse);
@@ -640,15 +653,18 @@ void init_lights()
 	glLightfv(GL_LIGHT6,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT6,GL_DIFFUSE,light_diffuse);
 	glLightfv(GL_LIGHT6,GL_AMBIENT,no_light);
-	glLightf(GL_LIGHT6,GL_LINEAR_ATTENUATION,linear_att);
+	glLightf(GL_LIGHT6, GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT6);
-
+*/
 	glLightfv(GL_LIGHT7,GL_AMBIENT,no_light);
 	glLightfv(GL_LIGHT7,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,no_light);
 	glLightf(GL_LIGHT7,GL_CONSTANT_ATTENUATION,0);
 	glEnable(GL_LIGHT7);
 
+        ec_add_light(GL_LIGHT4);
+        ec_add_light(GL_LIGHT5);
+        ec_add_light(GL_LIGHT6);
 
 	glEnable(GL_LIGHTING);
 

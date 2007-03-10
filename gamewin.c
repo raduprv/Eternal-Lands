@@ -3,6 +3,7 @@
 #include "global.h"
 #include "weather.h"
 #include "draw_scene.h"
+#include "eye_candy_wrapper.h"
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -644,8 +645,8 @@ int display_game_handler (window_info *win)
 	{
 		display_actors (1, 0);	// we need to 'touch' all the actors even if not drawing to avoid problems
 	}
-
 	CHECK_GL_ERRORS ();
+
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{
@@ -664,8 +665,16 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 	//particles should be last, we have no Z writting
 	display_particles ();
+
 	CHECK_GL_ERRORS ();
 	//we do this because we don't want the rain/particles to mess with our cursor
+
+        // Eye candy
+	ec_idle();
+	ec_draw();
+	last_texture = -1;
+
+	CHECK_GL_ERRORS ();
 
 	Enter2DMode ();
 	//get the FPS, etc
@@ -767,6 +776,7 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 
 	Leave2DMode ();
+
 
 #ifdef SFX
 	if(special_effects){
@@ -1430,9 +1440,11 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
 #ifdef	NEW_FRUSTUM
-		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
+//		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
+		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
 #else
-		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
+//		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
+		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
 #endif
 	}
 	else if (keysym == SDLK_F6)

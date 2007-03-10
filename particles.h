@@ -352,3 +352,4 @@ void update_fountain_sys(particle_sys *system_id);
 #endif
 
 extern int use_point_particles; /*!< specifies if we use point particles or not */
+extern int enable_blood; /*!< specifies whether or not to use the blood special effect in combat */

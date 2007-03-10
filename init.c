@@ -14,6 +14,7 @@
 #include "loading_win.h"
 #include "update.h"
 #include "misc.h"
+#include "eye_candy_wrapper.h"
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -549,7 +550,7 @@ void init_stuff()
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.
 	init_fonts();
-
+	
 	//read the config file
 	read_config();
 
@@ -595,6 +596,9 @@ void init_stuff()
 
 	update_loading_win(init_opengl_str, 5);
 	init_gl_extensions();
+	
+	// Setup the new eye candy system
+	ec_init();
 
 	// check for invalid combinations
 	check_options();

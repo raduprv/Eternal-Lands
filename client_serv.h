@@ -475,62 +475,74 @@
 
 /*!
  * \name Actor commands
+ * 
+ * Note to other developers: #defines are generally *bad form*.  They
+ * interfere with innocent calls, like my call to eye_candy.idle(), in very
+ * confusing ways (in my case, "expected unqualified-id before numeric
+ * constant").  This is what enums are for; please use them.  I'm fixing this
+ * one for you as an example.
+ *
+ *  - Karen (meme@daughtersoftiresias.org)
  */
 /*! @{ */
-#define nothing 0
-#define kill_me 1
-#define die1 3
-#define die2 4
-#define pain1 5
-#define pain2 17
-#define pick 6
-#define drop 7
-#define idle 8
-#define harvest 9
-#define cast 10
-#define ranged 11
-#define meele 12
-#define sit_down 13
-#define stand_up 14
-#define turn_left 15
-#define turn_right 16
-#define enter_combat 18
-#define leave_combat 19
+typedef enum actor_commands
+{
+  nothing = 0,
+  kill_me = 1,
+  die1 = 3,
+  die2 = 4,
+  pain1 = 5,
+  pain2 = 17,
+  pick = 6,
+  drop = 7,
+  idle = 8,
+  harvest = 9,
+  cast = 10,
+  ranged = 11,
+  meele = 12,
+  sit_down = 13,
+  stand_up = 14,
+  turn_left = 15,
+  turn_right = 16,
+  enter_combat = 18,
+  leave_combat = 19,
 
-#define move_n 20
-#define move_ne 21
-#define move_e 22
-#define move_se 23
-#define move_s 24
-#define move_sw 25
-#define move_w 26
-#define move_nw 27
+  move_n = 20,
+  move_ne = 21,
+  move_e = 22,
+  move_se = 23,
+  move_s = 24,
+  move_sw = 25,
+  move_w = 26,
+  move_nw = 27,
 
 
-#define run_n 30
-#define run_ne 31
-#define run_e 32
-#define run_se 33
-#define run_s 34
-#define run_sw 35
-#define run_w 36
-#define run_nw 37
+  run_n = 30,
+  run_ne = 31,
+  run_e = 32,
+  run_se = 33,
+  run_s = 34,
+  run_sw = 35,
+  run_w = 36,
+  run_nw = 37,
 
-#define turn_n 38
-#define turn_ne 39
-#define turn_e 40
-#define turn_se 41
-#define turn_s 42
-#define turn_sw 43
-#define turn_w 44
-#define turn_nw 45
+  turn_n = 38,
+  turn_ne = 39,
+  turn_e = 40,
+  turn_se = 41,
+  turn_s = 42,
+  turn_sw = 43,
+  turn_w = 44,
+  turn_nw = 45,
 
-#define attack_up_1 46
-#define attack_up_2 47
-#define attack_up_3 48
-#define attack_up_4 49
-#define attack_down_1 50
-#define attack_down_2 51
+  attack_up_1 = 46,
+  attack_up_2 = 47,
+  attack_up_3 = 48,
+  attack_up_4 = 49,
+  attack_down_1 = 50,
+  attack_down_2 = 51,
+} actor_commands;
+
 /*! @} */
 
 /*!
@@ -890,13 +902,13 @@ typedef enum {
 #define SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING 15
 
 //when a wall colapses over a player
-#define SPECIAL_EFFECT_HARVEST_WALL_COLAPSE 16
+#define SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE 16
 
 //when a bees sting a player
 #define SPECIAL_EFFECT_HARVEST_BEES 17
 
 //when a radeon hits
-#define SPECIAL_EFFECT_HARVEST_RADEON 18
+#define SPECIAL_EFFECT_HARVEST_RADON 18
 
 //when a tool breaks
 #define SPECIAL_EFFECT_HARVEST_TOOL_BREAKS 19

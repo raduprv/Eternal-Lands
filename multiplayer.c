@@ -6,6 +6,7 @@
 #include "queue.h"
 #include "actors.h"
 #include "update.h"
+#include "eye_candy_wrapper.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -249,6 +250,7 @@ void send_version_to_server(IPaddress *ip)
 void connect_to_server()
 {
 	IPaddress	ip;
+	port = 2001;	// DELETE ME!
 
 	tcp_out_loc= 0; // clear the tcp output buffer
 	if(this_version_is_invalid) return;
@@ -501,6 +503,80 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				new_minute();
+///////////////////////////////////////////////////////////////////////////////
+// Special Effects Test Code #1/2 (Repeating effects)
+// Uncomment an effect to test it; delete section when FX are integrated.
+// NOTE: When actually calling functions for real, they should have their
+//       returned references saved, and freed when no longer needed.
+///////////////////////////////////////////////////////////////////////////////
+//				ec_create_bag_pickup(49.0, 70.0, 0.0, 10);
+//				ec_create_bag_drop(49.0, 70.0, 0.0, 10);
+//				ec_create_breath_fire(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
+//				ec_create_breath_ice(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
+//				ec_create_breath_poison(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
+//				ec_create_breath_magic(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
+//				ec_create_breath_lightning(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
+//				ec_create_breath_wind(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
+//				ec_create_harvesting_radon_pouch(49.0, 70.0, 0.0, 10);
+//				ec_create_harvesting_cavern_wall(49.0, 70.0, 0.0, 10);
+//				ec_create_harvesting_mother_nature(49.0, 70.0, 0.0, 10);
+//				ec_create_harvesting_queen_of_nature(49.0, 70.0, 0.0, 10);
+//				ec_create_harvesting_bees(49.0, 70.0, 0.3, 10);
+//				ec_create_harvesting_bag_of_gold(48.5, 70.0, 0.3, 10);
+//				ec_create_harvesting_rare_stone(48.5, 70.0, 0.3, 10);
+//				ec_create_impact_magic_protection(49.0, 70.0, 0.5, -1.0, 0.0, 0.0, 10, 5.0);
+//				ec_create_impact_shield(49.0, 70.0, 0.5, -1.0, 0.0, 0.0, 10, 5.0);
+//				ec_create_impact_magic_immunity(49.0, 70.0, 0.5, -1.0, 0.0, 0.0, 10, 5.0);
+//				ec_create_impact_poison(49.0, 70.0, 0.5, -1.0, 0.0, 0.0, 10, 5.0);
+//				ec_create_impact_blood(49.0, 70.0, 0.5, -1.0, 0.0, 0.0, 10, 5.0);
+//				ec_create_selfmagic_heal(49.0, 70.0, 0.1, 10);
+//				ec_create_selfmagic_magic_protection(49.0, 70.0, 0.0, 10);
+//				ec_create_selfmagic_shield(49.0, 70.0, 0.1, 10);
+//				ec_create_selfmagic_restoration(49.0, 70.0, 0.1, 10);
+//				ec_create_selfmagic_bones_to_gold(49.0, 70.0, 0.1, 10);
+//				ec_create_selfmagic_teleport_to_the_portals_room(49.0, 70.0, 0.1, 10);
+//				ec_create_selfmagic_magic_immunity(49.0, 70.0, 0.1, 10);
+//				ec_create_alert(49.25, 70.25, 0.1, 10);
+//				ec_create_summon_rabbit(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_rat(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_beaver(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_deer(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_green_snake(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_red_snake(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_brown_snake(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_fox(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_boar(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_wolf(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_puma(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_bear(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_skeleton(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_small_gargoyle(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_medium_gargoyle(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_large_gargoyle(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_fluffy(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_chimeran_wolf(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_yeti(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_arctic_chimeran(49.0, 70.0, 0.0, 10);
+//				ec_create_summon_giant(49.0, 70.0, 0.0, 10);
+//				ec_create_targetmagic_remote_heal(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+//				ec_create_targetmagic_poison(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+//				ec_create_targetmagic_teleport_to_range(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+//				ec_create_targetmagic_harm(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+//				ec_create_targetmagic_life_drain(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+//				ec_reference ref;
+//				ref = ec_create_generic();
+//				ec_add_target(ref, 52.0, 70.0, 0.5);
+//				ec_add_target(ref, 50.0, 68.0, 0.5);
+//				ec_add_target(ref, 50.0, 72.0, 0.5);
+//				ec_launch_targetmagic_heal_summoned(ref, 49.0, 70.0, 0.5, NULL, 10);
+//				ec_reference ref;
+//				ref = ec_create_generic();
+//				ec_add_target(ref, 52.0, 70.0, 0.5);
+//				ec_add_target(ref, 50.0, 68.0, 0.5);
+//				ec_add_target(ref, 50.0, 72.0, 0.5);
+//				ec_launch_targetmagic_smite_summoned(ref, 49.0, 70.0, 0.5, NULL, 10);
+//				ec_create_targetmagic_drain_mana(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+///////////////////////////////////////////////////////////////////////////////
 			}
 			break;
 
@@ -524,6 +600,53 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				
 				previously_logged_in=1;
+				
+///////////////////////////////////////////////////////////////////////////////
+// Special Effects Test Code #2/2 (Lasting effects)
+// Uncomment an effect to test it; delete section when FX are integrated.
+// NOTE: When actually calling functions for real, they should have their
+//       returned references saved, and freed when no longer needed.
+///////////////////////////////////////////////////////////////////////////////
+				ec_bounds bounds = ec_create_bounds_list();
+				ec_add_polar_coords_bound(bounds, 0.0, 0.0, 8.0, 1.0);
+				ec_add_polar_coords_bound(bounds, 2.0, 0.0, 3.0, 1.0);
+				ec_add_polar_coords_bound(bounds, 5.0, 0.1, 1.5, 0.7);
+//				ec_create_campfire(49.0, 70.0, 0.0, NULL, 10, 1.0);
+//				ec_create_cloud(45.0, 65.0, 1.0, 1.0, bounds, 10);
+//				ec_create_fireflies(49.0, 70.0, 0.0, NULL, 1.0, bounds);
+//				ec_create_fountain(49.0, 70.0, 0.2, 0.0, 0, 1.0, 10);
+//				ec_create_lamp(47.4, 69.6, 3.3, 10);
+//				ec_create_ongoing_magic_protection(49.0, 70.0, 0.0, 10, 5.0);
+//				ec_create_ongoing_shield(49.0, 70.0, 0.0, 10, 5.0);
+//				ec_create_ongoing_magic_immunity(49.0, 70.0, 0.0, 10, 5.0);
+//				ec_create_ongoing_poison(49.0, 70.0, 0.0, 10, 5.0);
+//				ec_create_smoke(49.0, 70.0, 0.0, 1.0, 10);
+//				// Sword effects won't be very visible because the swords won't be moving.
+//				ec_create_sword_serpent(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_cutlass(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_emerald_claymore(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_sunbreaker(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_orc_slayer(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_eagle_wing(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_jagged_saber(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_of_fire(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_of_ice(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_sword_of_magic(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
+//				ec_create_teleporter(49.0, 70.0, 0.0, 10);
+				ec_reference ref1;
+				ec_reference ref2;
+				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
+				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
+				ec_effects eff_list = ec_create_effects_list();
+				ec_add_effect(eff_list, ref2);
+				ec_add_wind_effect_list(ref1, eff_list);
+				ec_free_effects_list(eff_list);
+//				eff_list = ec_create_effects_list();
+//				ec_add_effect(eff_list, ref1);
+//				ec_add_wind_effect_list(ref2, eff_list);
+//				ec_free_effects_list(eff_list);
+//				ec_create_wind_petals(49.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
+///////////////////////////////////////////////////////////////////////////////
 			}
 			break;
 
@@ -831,9 +954,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 
 #ifdef	NEW_FRUSTUM
-				add_particle_sys_at_tile("./particles/bag_in.part", SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))), 1);
+//				add_particle_sys_at_tile("./particles/bag_in.part", SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))), 1);
 #else
-				add_particle_sys_at_tile ( "./particles/bag_in.part", SDL_SwapLE16 ( *( (Uint16 *)(in_data+3) ) ), SDL_SwapLE16 ( *( (Uint16 *)(in_data+5) ) ) );
+//				add_particle_sys_at_tile ( "./particles/bag_in.part", SDL_SwapLE16 ( *( (Uint16 *)(in_data+3) ) ), SDL_SwapLE16 ( *( (Uint16 *)(in_data+5) ) ) );
 #endif
 			}
 			break;

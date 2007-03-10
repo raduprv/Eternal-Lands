@@ -318,11 +318,11 @@ static __inline__ int light_depht_comp(BBOX_ITEM* a, BBOX_ITEM* b)
 
 	if ((lights_list[ai] == NULL) || (lights_list[bi] == NULL)) return 0;
 	
-	ax = lights_list[ai]->pos_x + cx;
-	ay = lights_list[ai]->pos_y + cy;
+	ax = lights_list[ai]->pos_x + camera_x;
+	ay = lights_list[ai]->pos_y + camera_y;
 	az = lights_list[ai]->pos_z;
-	bx = lights_list[bi]->pos_x + cx;
-	by = lights_list[bi]->pos_y + cy;
+	bx = lights_list[bi]->pos_x + camera_x;
+	by = lights_list[bi]->pos_y + camera_y;
 	bz = lights_list[bi]->pos_z;
 	ad = ax*ax+ay*ay+az*az;
 	bd = bx*bx+by*by+bz*bz;

@@ -87,6 +87,8 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
+	our_actor->alpha=0.5;
+	our_actor->has_alpha=1;
 	//clear the que
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
 
@@ -567,8 +569,8 @@ void get_actors_in_range()
 
 	no_near_actors=0;
 
-	x=-cx;
-	y=-cy;
+	x=-camera_x;
+	y=-camera_y;
 
 	for(i=0;i<max_actors;i++){
 		if(actors_list[i]) {
@@ -597,8 +599,8 @@ void display_actors(int banner, int reflections)
 	int i;
 	int x,y;
 	int	has_ghosts=0;
-	x=-cx;
-	y=-cy;
+	x=-camera_x;
+	y=-camera_y;
 
 	get_actors_in_range();
 	vertex_arrays_built=0;	// clear the counter

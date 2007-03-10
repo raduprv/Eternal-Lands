@@ -1,0 +1,70 @@
+
+#ifndef EFFECT_FOUNTAIN_H
+#define EFFECT_FOUNTAIN_H
+
+// I N C L U D E S ////////////////////////////////////////////////////////////
+
+#include "eye_candy.h"
+
+namespace ec
+{
+
+// C L A S S E S //////////////////////////////////////////////////////////////
+
+class FountainParticle : public Particle
+{
+public:
+  FountainParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _base_height, const bool _backlight, const float _sqrt_scale, const coord_t _max_size, const coord_t size_scalar);
+  ~FountainParticle() {}
+  
+  virtual bool idle(const u_int64_t delta_t);
+  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual light_t estimate_light_level() const { return 0.0; };	// No glow.
+  virtual light_t get_light_level() { return 0.0; }; // Same.
+  virtual void draw(const u_int64_t usec);
+  
+  coord_t base_height;
+  bool backlight;
+  float sqrt_scale;
+  coord_t max_size;
+};
+
+class FountainEffect : public Effect
+{
+public: 
+  FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _backlight, const coord_t _base_height, const float _scale, const u_int16_t _LOD);
+  ~FountainEffect(); 
+  
+  virtual EffectEnum get_type() { return EC_FOUNTAIN; };
+  bool idle(const u_int64_t usec);
+  virtual void request_LOD(const u_int16_t _LOD)
+  {
+    if (_LOD <= desired_LOD)
+      LOD = _LOD;
+    else
+      LOD = desired_LOD;
+    max_size = 3 * scale * 90 / (_LOD + 10);
+    size_scalar = sqrt_scale * 6 / (_LOD + 5);
+    count_scalar = 15000 / _LOD;
+  };
+
+  GradientMover* mover;
+  ParticleMover* basic_mover;
+  ParticleSpawner* spawner;
+  Vec3* pos;
+  int big_particles;
+  interval_t count;
+  coord_t base_height;
+  bool backlight;
+  float scale;
+  float sqrt_scale;
+  coord_t max_size;
+  coord_t size_scalar;
+  u_int32_t count_scalar;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+}	// End namespace ec
+
+#endif	// defined EFFECT_FOUNTAIN_H

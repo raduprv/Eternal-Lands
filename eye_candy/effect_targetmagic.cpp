@@ -1,0 +1,864 @@
+
+// I N C L U D E S ////////////////////////////////////////////////////////////
+
+#include "eye_candy.h"
+#include "math_cache.h"
+
+#include "effect_targetmagic.h"
+
+namespace ec
+{
+
+extern MathCache_Lorange math_cache;
+
+// C L A S S   F U N C T I O N S //////////////////////////////////////////////
+
+TargetMagicParticle::TargetMagicParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const TargetMagicEffect::TargetMagicType _type, ParticleSpawner* _spawner2, ParticleMover* _mover2, Vec3* _target, u_int16_t _effect_id, u_int16_t _state) : Particle(_effect, _mover, _pos, _velocity)
+{
+  type = _type;
+  color[0] = red;
+  color[1] = green;
+  color[2] = blue;
+  texture = _texture;
+  state = _state;
+  size = _size * (0.5 + randcoord());
+  if (state != 0)
+    size *= 10.0 / _LOD;
+  alpha = _alpha;
+  if ((type != TargetMagicEffect::HARM) && (type != TargetMagicEffect::SMITE_SUMMONED))
+    velocity /= size;
+  else
+    velocity /= 6.0;
+  flare_max = 15.0;
+  flare_exp = 0.4;
+  flare_frequency = 30.0;
+  LOD = _LOD;
+  spawner2 = _spawner2;
+  mover2 = _mover2;
+  target = _target;
+  effect_id = _effect_id;
+}
+
+bool TargetMagicParticle::idle(const u_int64_t delta_t)
+{
+  if (effect->recall)
+    return false;
+  
+  const u_int64_t age = get_time() - born;
+  const interval_t float_time = delta_t / 1000000.0;
+  Vec3 cur_target = *target;
+  cur_target.y += 0.5;
+  
+  if ((state == 0) && (age < 300000))
+  {
+    switch(type)
+    {
+      case TargetMagicEffect::REMOTE_HEAL:
+      {
+        break;
+      }
+      case TargetMagicEffect::POISON:
+      {
+        const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.0);
+        alpha *= scalar;
+        break;
+      }
+      case TargetMagicEffect::TELEPORT_TO_RANGE:
+      {
+        break;
+      }
+      case TargetMagicEffect::HARM:
+      {
+        pos.y = ((TargetMagicEffect*)effect)->effect_centers[0].y;
+        energy = ((GravityMover*)mover)->calculate_energy(*this);
+        break;
+      }
+      case TargetMagicEffect::LIFE_DRAIN:
+      {
+        const coord_t scalar = math_cache.powf_05_close(float_time * 0.8);
+        if (size < 4.0)
+          size /= scalar;
+        break;
+      }
+      case TargetMagicEffect::HEAL_SUMMONED:
+      {
+        break;
+      }
+      case TargetMagicEffect::SMITE_SUMMONED:
+      {
+        pos.y = ((TargetMagicEffect*)effect)->effect_centers[effect_id].y;
+        energy = ((GravityMover*)mover)->calculate_energy(*this);
+        break;
+      }
+      case TargetMagicEffect::DRAIN_MANA:
+      {
+        break;
+      }
+    }
+  }
+  else if (state == 0)
+  {
+    const coord_t speed = fabs(((cur_target - pos).magnitude() * 1.85) / (0.7 - (age - 300000) / 1000000.0));
+    Vec3* center = ((TargetMagicEffect*)effect)->pos;
+    Vec3 to_source = *center - pos;
+    Vec3 to_target = cur_target - pos;
+    const coord_t dist_to_source = to_source.magnitude();
+    const coord_t dist_to_target = to_target.magnitude();
+    to_source /= dist_to_source;
+    to_target /= dist_to_target;
+    velocity = mover->nonpreserving_vec_shift(velocity, to_target * speed, 1.0 - math_cache.powf_05_close(3 * float_time));
+    energy = mover->calculate_energy(*this);
+    
+    if (((dist_to_source > dist_to_target) && (to_source.angle_to_prenormalized(to_target) < PI / 4)) || (age > 1200000))
+    {
+      if (dist_to_target > 0.5)
+      {
+        // Bring us closer to the center (since we might have just flown past it)
+        const percent_t percent = 0.5 / dist_to_target;
+        const percent_t inv_percent = 1.0 - percent;
+        pos = pos * percent + cur_target * inv_percent;
+      }
+      ((TargetMagicEffect*)effect)->effect_count++;
+      new TargetMagicEffect2(base, (TargetMagicEffect*)effect, ((TargetMagicEffect*)effect)->pos, type, spawner2, mover2, ((TargetMagicEffect*)effect)->target_alpha, effect_id, LOD);
+      return false;
+    }
+
+    switch(type)
+    {
+      case TargetMagicEffect::REMOTE_HEAL:
+      {
+        break;
+      }
+      case TargetMagicEffect::POISON:
+      {
+        break;
+      }
+      case TargetMagicEffect::TELEPORT_TO_RANGE:
+      {
+        break;
+      }
+      case TargetMagicEffect::HARM:
+      {
+        break;
+      }
+      case TargetMagicEffect::LIFE_DRAIN:
+      {
+        const color_t scalar = math_cache.powf_05_close(float_time * 4.0);
+        if (color[0] > 0.2)
+        color[0] *= scalar;
+        if (color[1] < 1.0)
+          color[1] /= scalar;
+        break;
+      }
+      case TargetMagicEffect::HEAL_SUMMONED:
+      {
+        break;
+      }
+      case TargetMagicEffect::SMITE_SUMMONED:
+      {
+        break;
+      }
+      case TargetMagicEffect::DRAIN_MANA:
+      {
+        break;
+      }
+    }
+  }
+  else
+  {
+    switch(type)
+    {
+      case TargetMagicEffect::REMOTE_HEAL:
+      {
+        if (alpha < 0.01)
+          return false;
+
+        const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+        energy *= scalar;
+        if (size < 6)
+          size /= scalar;
+        alpha *= scalar;
+        break;
+      }
+      case TargetMagicEffect::POISON:
+      {
+        if (alpha < 0.01)
+          return false;
+
+        const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+        energy *= scalar;
+        if (size < 6)
+          size /= scalar;
+        alpha *= scalar;
+        break;
+      }
+      case TargetMagicEffect::TELEPORT_TO_RANGE:
+      {
+        if (alpha < 0.03)
+          return false;
+
+        const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 500000);
+        alpha *= scalar;
+        break;
+      }
+      case TargetMagicEffect::HARM:
+      {
+        if (pos.y < target->y - 0.5)
+          return false;
+        break;
+      }
+      case TargetMagicEffect::LIFE_DRAIN:
+      {
+        if (alpha < 0.01)
+          return false;
+
+        const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+        if (color[0] > 0.2)
+        color[0] *= scalar;
+        if (color[1] < 1.0)
+          color[1] /= scalar;
+        energy *= scalar;
+        if (size < 5)
+          size /= scalar;
+        alpha *= scalar;
+        break;
+      }
+      case TargetMagicEffect::HEAL_SUMMONED:
+      {
+        if (alpha < 0.01)
+          return false;
+
+        const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
+        energy *= scalar;
+        if (size < 5)
+          size /= scalar;
+        alpha *= scalar;
+        break;
+      }
+      case TargetMagicEffect::SMITE_SUMMONED:
+      {
+        if (pos.y < target->y - 0.5)
+          return false;
+        break;
+      }
+      case TargetMagicEffect::DRAIN_MANA:
+      {
+        if (alpha < 0.01)
+          return false;
+
+        const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.5);
+        energy *= scalar;
+        alpha *= scalar;
+        break;
+      }
+    }
+  }
+  
+  return true;
+}
+
+void TargetMagicParticle::draw(const u_int64_t usec)
+{
+  if ((type == TargetMagicEffect::POISON) && (state == 2))
+  {
+    glEnable(GL_LIGHTING);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Vec3 normal;
+    normal.randomize();
+    normal.normalize();
+    glNormal3f(normal.x, normal.y, normal.z);
+
+    Particle::draw(usec);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+    glDisable(GL_LIGHTING);
+  }
+  else if (((type == TargetMagicEffect::HARM) || (type == TargetMagicEffect::SMITE_SUMMONED)) && (state) && (random() & 1))
+  {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    Particle::draw(usec);
+
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  }
+  else
+  {
+    Particle::draw(usec);
+  }
+}
+
+GLuint TargetMagicParticle::get_texture(const u_int16_t res_index)
+{
+  return texture->get_texture(res_index);
+}
+
+TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const u_int16_t _LOD)
+{
+  if (EC_DEBUG)
+    std::cout << "TargetMagicEffect (" << this << ") created(1)." << std::endl;
+  std::vector<Vec3*> targets;
+  targets.push_back(_target);
+  initialize(_base, _dead, _pos, targets, _type, _obstructions, _LOD);
+}
+
+TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const u_int16_t _LOD)
+{
+  if (EC_DEBUG)
+    std::cout << "TargetMagicEffect (" << this << ") created(2)." << std::endl;
+  initialize(_base, _dead, _pos, _targets, _type, _obstructions, _LOD);
+}
+
+void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const u_int16_t _LOD)
+{
+  base = _base;
+  dead = _dead;
+  targets = _targets;
+  pos = _pos;
+  type = _type;
+  obstructions = _obstructions;
+  LOD = _LOD;
+  desired_LOD = _LOD;
+  spawner = NULL;
+  mover = NULL;
+  spawner2 = NULL;
+  mover2 = NULL;
+  effect_count = 0;
+
+  switch(type)
+  {
+    case REMOTE_HEAL:
+    {
+      effect_centers.push_back(*_pos);
+
+      spawner = new FilledDiscSpawner(0.75);
+      spawner2 = new SierpinskiIFSParticleSpawner();
+      mover = new GravityMover(this, &(effect_centers[0]), 1e11);
+      while (particles.size() < 6)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += effect_centers[0];
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case POISON:
+    {
+      effect_centers.push_back(*_pos);
+
+      spawner = new HollowSphereSpawner(0.75);
+      mover = new GravityMover(this, &(effect_centers[0]), 3e11);
+      mover2 = new SimpleGravityMover(this);
+      while (particles.size() < 22)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += effect_centers[0];
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 10.0, 1.0, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), &(base->TexInverse), LOD, type, NULL, mover2, targets[0], 0, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case TELEPORT_TO_RANGE:
+    {
+      effect_centers.push_back(*_pos);
+
+      mover = new ParticleMover(this);
+      mover2 = new GravityMover(this, &(effect_centers[0]), 6e10);
+      spawner = new FilledDiscSpawner(0.2);
+
+      while (particles.size() < 12)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += effect_centers[0];
+        Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 3.75, 0.8 + randcoord(0.2), 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type, spawner, mover, targets[0], 0, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+
+      const float sqrt_LOD = fastsqrt(LOD);
+      const coord_t size_scalar = 15 / (LOD + 5);
+      for (int i = 0; i < LOD * 100; i++)
+      {
+        const Vec3 coords = spawner->get_new_coords() + effect_centers[0] + Vec3(0.0, -0.7 + randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
+        Vec3 velocity;
+        velocity.randomize(0.2);
+        const coord_t size = size_scalar * (0.5 + 1.5 * randcoord());
+        velocity /= size;
+        Particle* p = new TargetMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2),  0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexShimmer), LOD, type, spawner, mover, targets[0], 0, 0);
+        p->state = 1;
+        if (!base->push_back_particle(p))
+          break;
+      }
+      
+//      const float radius = 0.5 * powf(2, 0.18) / 1.5;
+      const float radius = 0.377628;
+      for (int i = 0; i < LOD * 2; i++)
+      {
+        const percent_t percent = ((percent_t)i + 1) / (LOD * 2);
+        capless_cylinders.push_back(new CaplessCylinder(effect_centers[0] - Vec3(0.0, 0.7, 0.0), effect_centers[0] + Vec3(0.0, -0.7 + 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD / 2.0 + 2), radius * percent, (int)(25 * (percent + 0.2))));
+      }
+
+      break;
+    }
+    case HARM:
+    {
+      effect_centers.push_back(*_pos);
+      
+      mover = new ParticleMover(this);
+      mover2 = new GravityMover(this, &(effect_centers[0]), 6e10);
+      spawner = new FilledDiscSpawner(0.2);
+
+      while (particles.size() < 8)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += effect_centers[0];
+        Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 12.0, 1.0, 0.7 + randcolor(0.3), 0.2 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type, spawner, mover, targets[0], 0, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case LIFE_DRAIN:
+    {
+      pos = targets[0];	//Redoing these variables, since this effect runs backwards.
+      targets[0] = _pos;
+      target = *targets[0];
+      effect_centers.push_back(*pos);
+
+      spawner = new FilledDiscSpawner(0.75);
+      mover = new GravityMover(this, &(effect_centers[0]), 1e11);
+      mover2 = new GravityMover(this, &target, 5e10);
+      while (particles.size() < 6)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += target;
+        Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.25 + randcolor(0.25), 0.15 + randcolor(0.15), &(base->TexVoid), LOD, type, spawner, mover2, targets[0], 0, 2);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      while (particles.size() < 12)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.35;
+        Vec3 velocity;
+        velocity.randomize(0.3);
+        coords += effect_centers[0];
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 15.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.25 + randcolor(0.25), &(base->TexTwinflare), LOD, type, spawner, mover, targets[0], 0, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case HEAL_SUMMONED:	
+    {
+      for (int i = 0; i < (int)targets.size(); i++)
+        effect_centers.push_back(*_pos);
+
+      spawner = new FilledDiscSpawner(0.75);
+      spawner2 = new SierpinskiIFSParticleSpawner();
+      mover = new GravityMover(this, &(effect_centers[0]), 1e11);
+      for (int i = 0; i < 4 * (int)targets.size(); i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += effect_centers[i / 4];
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 8.25, 1.0, 0.25 + randcolor(0.4), 0.6 + randcolor(0.3), 0.15 + randcolor(0.1), &(base->TexTwinflare), LOD, type, spawner2, mover, targets[i / 4], i / 4, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case SMITE_SUMMONED:
+    {
+      for (int i = 0; i < (int)targets.size(); i++)
+        effect_centers.push_back(*_pos);
+
+      mover = new ParticleMover(this);
+      mover2 = new GravityMover(this, &(effect_centers[0]), 6e10);
+      spawner = new FilledDiscSpawner(0.2);
+
+      for (int i = 0; i < 4 * (int)targets.size(); i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += effect_centers[i / 4];
+        Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 14.25, 1.0, 0.7 + randcolor(0.3), 0.2 + randcolor(0.3), 0.2, &(base->TexTwinflare), LOD, type, spawner, mover, targets[i / 4], i / 4, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case DRAIN_MANA:	//Use crystal particles.
+    {
+      pos = targets[0];	//Redoing these variables, since this effect runs backwards.
+      targets[0] = _pos;
+      target = *targets[0];
+      effect_centers.push_back(*pos);
+
+      spawner = new FilledDiscSpawner(0.75);
+      spawner2 = new HollowSphereSpawner(0.75);
+      mover = new GravityMover(this, &(effect_centers[0]), 8e10);
+      mover2 = new GravityMover(this, &target, 4e11);
+      while (particles.size() < 6)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.75;
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        coords += target;
+        Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexVoid), LOD, type, spawner2, mover2, targets[0], 0, 2);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      while (particles.size() < 12)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(0.65);
+        coords += effect_centers[0];
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexCrystal), LOD, type, spawner2, mover, targets[0], 0, 0);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+  }
+}
+
+TargetMagicEffect::~TargetMagicEffect()
+{
+  if (spawner)
+    delete spawner;
+  if (mover)
+    delete mover;
+  if (spawner2)
+    delete spawner2;
+  if (mover2)
+    delete mover2;
+  while (capless_cylinders.size() > 0)
+    capless_cylinders.erase(capless_cylinders.begin());
+  if (EC_DEBUG)
+    std::cout << "TargetMagicEffect (" << this << ") destroyed." << std::endl;
+}
+
+bool TargetMagicEffect::idle(const u_int64_t usec)
+{
+  if ((particles.size() == 0) && (effect_count == 0))
+    return false;
+
+  if (recall)
+    return true;
+
+  const u_int64_t cur_time = get_time();
+  const u_int64_t age = cur_time - born;
+  for (int i = 0; i < (int)effect_centers.size(); i++)
+  {
+    if (age < 300000)
+    {
+      effect_centers[i].x = pos->x;
+      effect_centers[i].y += usec / 1500000.0;
+      effect_centers[i].z = pos->z;
+    }
+    else
+    {
+      const percent_t percent = fabs((interval_t)(age - 300000) / 700000.0);
+      const percent_t inv_percent = 1.0 - percent;
+      effect_centers[i].x = (pos->x * inv_percent) + (targets[i]->x * percent);
+      effect_centers[i].y = (pos->y * inv_percent) + (targets[i]->y * percent) + 0.5;
+      effect_centers[i].z = (pos->z * inv_percent) + (targets[i]->z * percent);
+    }
+  }
+  
+  switch(type)
+  {
+    case REMOTE_HEAL:
+    {
+      break;
+    }
+    case POISON:
+    {
+      break;
+    }
+    case TELEPORT_TO_RANGE:
+    {
+      if (age > 1200000)
+      {
+        const alpha_t scalar = math_cache.powf_05_close((interval_t)usec / 400000);
+        for (int i = 0; i < LOD * 2; i++)
+          capless_cylinders[i]->alpha *= scalar;
+        if ((age > 2200000) && ((int)capless_cylinders.size() == LOD * 4))
+        {
+          for (int i = LOD * 2; i < LOD * 4; i++)
+            capless_cylinders[i]->alpha *= scalar;
+        }
+
+        if (target_alpha)
+        {
+          if (age < 500000)
+          {
+            *target_alpha = 1.0 - (age / 500000.0);
+          }
+          else if (age < 600000)
+          {
+            *target_alpha = 0.0;
+          }
+        }
+      }
+      break;
+    }
+    case HARM:
+    {
+      effect_centers[0].y = square(age / 100000.0) + 0.5;
+      break;
+    }
+    case LIFE_DRAIN:
+    {
+      target.x = targets[0]->x;
+      target.y = targets[0]->y;
+      target.z = targets[0]->z;
+      break;
+    }
+    case HEAL_SUMMONED:
+    {
+      break;
+    }
+    case SMITE_SUMMONED:
+    {
+      for (int i = 0; i < (int)targets.size(); i++)
+        effect_centers[i].y = square(age / 100000.0) + 0.5;
+      break;
+    }
+    case DRAIN_MANA:
+    {
+      target.x = targets[0]->x;
+      target.y = targets[0]->y;
+      target.z = targets[0]->z;
+      break;
+    }
+  }
+  return true;
+}
+
+void TargetMagicEffect::draw(const u_int64_t usec)
+{
+  for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter != capless_cylinders.end(); iter++)
+    (*iter)->draw();
+}
+
+TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effect, Vec3* _pos, const TargetMagicEffect::TargetMagicType _type, ParticleSpawner* _spawner, ParticleMover* _mover, float* _target_alpha, u_int16_t _effect_id, const u_int16_t _LOD)
+{
+  base = _base;
+  effect = _effect;
+  pos = _pos;
+  center = *pos;
+  type = _type;
+  LOD = _LOD;
+  spawner = _spawner;
+  mover = _mover;
+  effect_id = _effect_id;
+  target_alpha = _target_alpha;
+  
+  switch(type)
+  {
+    case TargetMagicEffect::REMOTE_HEAL:
+    {
+      for (int i = 0; i < 20 * LOD; i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.05;
+        Vec3 velocity = coords * 40;
+        velocity.y += 0.25;
+        coords += center;
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 0.6, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case TargetMagicEffect::POISON:
+    {
+      for (int i = 0; i < 6 * LOD; i++)
+      {
+        Vec3 coords = center;
+        Vec3 velocity;
+        velocity.randomize(0.2);
+        velocity.y += 1.0;
+        Particle *p;
+        if (randfloat() < 0.4)
+          p = new TargetMagicParticle(this, mover, coords, velocity, 0.75, 1.0, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
+        else
+          p = new TargetMagicParticle(this, mover, coords, velocity, 0.75, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, &(base->TexWater), LOD, type, NULL, NULL, &center, effect_id, 2);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case TargetMagicEffect::TELEPORT_TO_RANGE:
+    {
+      center = *(effect->targets[0]);
+      const float sqrt_LOD = fastsqrt(LOD);
+      const coord_t size_scalar = 15 / (LOD + 5);
+      for (int i = 0; i < LOD * 10; i++)
+      {
+        Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
+        Vec3 velocity(0.0, randcoord(0.1), 0.0);
+        velocity.randomize(0.2);
+        const coord_t size = size_scalar * (0.5 + 1.5 * randcoord());
+        velocity /= size;
+        Particle* p = new TargetMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2),  0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexShimmer), LOD, type, spawner, mover, effect->targets[0], effect_id, 1);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      
+//      const float radius = 0.5 * powf(2, 0.18) / 1.5;
+      const float radius = 0.377628;
+      if ((int)effect->capless_cylinders.size() < LOD * 4)
+      {
+        for (int i = 0; i < LOD * 2; i++)
+        {
+          const percent_t percent = ((percent_t)i + 1) / (LOD * 2);
+          effect->capless_cylinders.push_back(new CaplessCylinder(center, center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD / 2.0 + 2), radius * percent, (int)(25 * (percent + 0.2))));
+          }
+      }
+      break;
+    }
+    case TargetMagicEffect::HARM:
+    {
+      center = *(effect->targets[0]);
+      motion_blur_points = 3;
+      motion_blur_fade_rate = 0.0001;
+      for (int i = 0; i < 5 * LOD; i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 1.2;
+        Vec3 velocity(randcoord(1.0), (-70.0 + randcoord(10.0)) * 10.0 / LOD, randcoord(1.0));
+        coords += center;
+        coords.y += randcoord(16.0) - 8.0;
+        Particle* p;
+        if (i & 1)
+          p = new TargetMagicParticle(this, mover, coords, velocity, 2.0 + randcoord(6.0), 0.7 + randalpha(0.3), 1.0, 1.0, 1.0, &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+        else
+          p = new TargetMagicParticle(this, mover, coords, velocity, 2.0 + randcoord(6.0), 1.0, 0.6 + randcolor(0.4), randcolor(0.5), randcolor(0.5), &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case TargetMagicEffect::LIFE_DRAIN:
+    {
+      center = *(effect->targets[0]);
+      for (int i = 0; i < 20 * LOD; i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.05;
+        Vec3 velocity = coords * 30;
+        velocity.y += 0.5;
+        coords += center;
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 0.6, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case TargetMagicEffect::HEAL_SUMMONED:
+    {
+      for (int i = 0; i < 10 * LOD; i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.05;
+        Vec3 velocity = coords * 30;
+        velocity.y += 0.25;
+        coords += center;
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 1.0, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexCrystal), LOD, type, NULL, NULL, &center, effect_id, 1);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case TargetMagicEffect::SMITE_SUMMONED:
+    {
+      center = *(effect->targets[effect_id]);
+      motion_blur_points = 3;
+      motion_blur_fade_rate = 0.0001;
+      for (int i = 0; i < 3 * LOD; i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 1.2;
+        Vec3 velocity(randcoord(1.0), (-100.0 + randcoord(15.0)) * 10.0 / LOD, randcoord(1.0));
+        coords += center;
+        coords.y += randcoord(10.0) + 8.0;
+        Particle* p;
+        if (rand() & 1)
+          p = new TargetMagicParticle(this, mover, coords, velocity, 3.5 + randcoord(7.0), 0.5 + randalpha(0.3), 1.0, 1.0, 1.0, &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+        else
+          p = new TargetMagicParticle(this, mover, coords, velocity, 3.5 + randcoord(7.0), 1.0, 0.3 + randcolor(0.4), 0.3 + randcolor(0.5), randcolor(0.5), &(base->TexShimmer), LOD, type, NULL, NULL, &center, effect_id, 1);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case TargetMagicEffect::DRAIN_MANA:
+    {
+      center = *(effect->targets[0]);
+      for (int i = 0; i < 20 * LOD; i++)
+      {
+        Vec3 coords = spawner->get_new_coords() * 0.05;
+        Vec3 velocity = coords * 20;
+        coords += center;
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 1.6, 1.0, 0.4 + randcolor(0.3), 0.2, 0.7, &(base->TexCrystal), LOD, type, NULL, NULL, &center, effect_id, 1);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+  }
+}
+
+TargetMagicEffect2::~TargetMagicEffect2()
+{
+  while (capless_cylinders.size() > 0)
+    capless_cylinders.erase(capless_cylinders.begin());
+}
+
+
+bool TargetMagicEffect2::idle(const u_int64_t usec)
+{
+  if (particles.size() == 0)
+  {
+    effect->effect_count--;
+    return false;
+  }
+  
+  if (type == TargetMagicEffect::TELEPORT_TO_RANGE)
+  {
+    if (target_alpha != NULL)
+    {
+      const u_int64_t cur_time = get_time();
+      const u_int64_t age = cur_time - born;
+      if (age < 500000)
+      {
+        *target_alpha = age / 500000.0;
+      }
+      else
+      {
+        *target_alpha = 1.0;
+      }
+    }
+  }
+
+  center.y += usec / 1500000.0;
+
+  return true;
+}
+
+
+///////////////////////////////////////////////////////////////////////////////
+
+};

@@ -132,6 +132,7 @@ void change_map (const char *mapname)
 	close_dialogue();	// close the dialogue window if open
 	close_storagewin(); //if storage is open, close it
 	destroy_all_particles();
+	ec_delete_all_effects();
 #ifdef NEW_SOUND
 	stop_all_sounds();
 #else

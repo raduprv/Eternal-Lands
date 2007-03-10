@@ -1,0 +1,1075 @@
+
+#ifndef EYE_CANDY_H
+#define EYE_CANDY_H
+
+// I N C L U D E S ////////////////////////////////////////////////////////////
+
+#include <vector>
+#include <map>
+#include <iostream>
+#include <cassert>
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glext.h>
+#include <GL/glut.h>
+#include <sys/time.h>
+#include <time.h>
+#include <stdlib.h>
+#include <math.h>
+
+namespace ec
+{
+
+// T Y P E D E F S ////////////////////////////////////////////////////////////
+
+typedef float coord_t;
+typedef GLfloat color_t;
+typedef float alpha_t;
+typedef float energy_t;
+typedef float light_t;
+typedef float percent_t;
+typedef float angle_t;
+typedef float interval_t;
+
+// P R O T O T Y P E S ////////////////////////////////////////////////////////
+
+double randdouble(void);
+float randfloat(void);
+double randdouble(const double scale);
+float randfloat(const float scale);
+int randint(const int upto);
+u_int8_t rand8();	//Functions to ensure a minimum entropy range for the rand function.
+u_int16_t rand16();
+u_int32_t rand32();
+u_int64_t rand64();
+u_int8_t rand7();
+u_int16_t rand15();
+u_int32_t rand31();
+u_int64_t rand63();
+coord_t randcoord(void);
+coord_t randcoord(const coord_t scale);
+color_t randcolor(void);
+color_t randcolor(const color_t scale);
+alpha_t randalpha(void);
+alpha_t randalpha(const alpha_t scale);
+energy_t randenergy(void);
+energy_t randenergy(const energy_t scale);
+light_t randlight(void);
+light_t randlight(const light_t scale);
+percent_t randpercent(void);
+percent_t randpercent(const percent_t scale);
+angle_t randangle(void);
+angle_t randangle(const angle_t scale);
+double square(const double d);
+float square(const float f);
+int square(const int i);
+double cube(const double d);
+float cube(const float f);
+int cube(const int i);
+__attribute__ ((noinline)) float fastsqrt(float f);
+__attribute__ ((noinline)) float invsqrt(float f);
+u_int64_t get_time();
+
+// M E M B E R S //////////////////////////////////////////////////////////////
+
+const int EC_DEBUG = 1;
+const float PI =3.141592654;
+const energy_t G = 6.673e-11;
+const int MaxMotionBlurPoints = 5;
+const coord_t MAX_DRAW_DISTANCE_SQUARED = 250;
+
+// E N U M S //////////////////////////////////////////////////////////////////
+
+enum EffectEnum
+{
+  EC_LAMP = 0,
+  EC_CAMPFIRE = 1,
+  EC_FOUNTAIN = 2,
+  EC_TELEPORTER = 3,
+  EC_FIREFLY = 4,
+  EC_SWORD = 5,
+  EC_SUMMON = 6,
+  EC_SELFMAGIC = 7,
+  EC_TARGETMAGIC = 8,
+  EC_ONGOING = 9,
+  EC_IMPACT = 10,
+  EC_SMOKE = 11,
+  EC_BAG = 12,
+  EC_CLOUD = 13,
+  EC_HARVESTING = 14,
+  EC_WIND = 15,
+  EC_BREATH = 16
+};
+
+// C L A S S E S //////////////////////////////////////////////////////////////
+
+class Vec3
+{
+public:
+  Vec3() {};
+  Vec3(coord_t _x, coord_t _y, coord_t _z) { x = _x; y = _y; z = _z; };
+  ~Vec3() {};
+  
+  Vec3 operator+=(const Vec3& rhs)
+  {
+    x += rhs.x;
+    y += rhs.y; 
+    z += rhs.z;
+    return *this;
+  };
+  
+  Vec3 operator-=(const Vec3& rhs)
+  {
+    x -= rhs.x;
+    y -= rhs.y; 
+    z -= rhs.z;
+    return *this;
+  };
+  
+  Vec3 operator+(const Vec3& rhs) const
+  {
+    Vec3 lhs(x, y, z);
+    lhs += rhs;
+    return lhs;
+  };
+  
+  Vec3 operator-(const Vec3& rhs) const
+  {
+    Vec3 lhs(x, y, z);
+    lhs -= rhs;
+    return lhs;
+  };
+  
+  Vec3 operator*=(const coord_t d)
+  {
+    x *= d;
+    y *= d;
+    z *= d;
+    return *this;
+  };
+  
+  Vec3 operator/=(const coord_t d)
+  {
+    x /= d;
+    y /= d;
+    z /= d;
+    return *this;
+  };
+  
+  Vec3 operator*(const coord_t d) const
+  {
+    Vec3 lhs(x, y, z);
+    lhs *= d;
+    return lhs;
+  };
+  
+  Vec3 operator/(const coord_t d) const
+  {
+    Vec3 lhs(x, y, z);
+    lhs /= d;
+    return lhs;
+  };
+  
+  bool operator==(const Vec3& rhs) const
+  {
+    if ((x == rhs.x) && (y == rhs.y) && (z == rhs.z))
+      return true;
+    else
+      return false;
+  };
+  
+  bool operator!=(const Vec3& rhs) const
+  {
+    return !(*this == rhs);
+  };
+  
+  Vec3 operator=(const Vec3 rhs)
+  {
+    x = rhs.x;
+    y = rhs.y;
+    z = rhs.z;
+    return *this;
+  };
+  
+  Vec3 operator-()
+  {
+    return Vec3(-x, -y, -z);
+  };
+  
+  coord_t magnitude() const
+  {
+    return fastsqrt(square(x) + square(y) + square(z));
+  };
+
+  coord_t magnitude_squared() const
+  {
+    return square(x) + square(y) + square(z);
+  };
+
+  Vec3 normalize()
+  {
+    (*this) *= invsqrt(magnitude_squared());
+    return *this;
+  };
+  
+  Vec3 normalize(const coord_t scale)
+  {
+    (*this) *= (scale * invsqrt(magnitude_squared()));
+    return *this;
+  };
+  
+  void randomize(const coord_t scale = 1.0)
+  {
+    x = scale * (randcoord() * 2.0 - 1.0);
+    y = scale * (randcoord() * 2.0 - 1.0);
+    z = scale * (randcoord() * 2.0 - 1.0);
+  };
+  
+  angle_t dot(const Vec3 rhs) const
+  {
+    return x * rhs.x + y * rhs.y + z * rhs.z;
+  };
+  
+  angle_t angle_to(const Vec3 rhs) const
+  {
+    Vec3 lhs_normal = *this;
+    lhs_normal.normalize();
+    Vec3 rhs_normal = rhs;
+    rhs_normal.normalize();
+    return acos(lhs_normal.x * rhs_normal.x + lhs_normal.y * rhs_normal.y + lhs_normal.z * rhs_normal.z);
+  };
+  
+  angle_t angle_to_prenormalized(const Vec3 rhs) const
+  {
+    return acos(x * rhs.x + y * rhs.y + z * rhs.z);
+  };
+  
+  Vec3 cross(const Vec3 rhs) const
+  {
+    return Vec3(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
+  };
+  
+  coord_t x, y, z;
+};
+
+inline std::ostream& operator<<(std::ostream& lhs, const Vec3 rhs)
+{
+  return lhs << "<" << rhs.x << ", " << rhs.y << ", " << rhs.z << ">";
+};
+
+
+class Quaternion
+{
+public:
+  Quaternion() { vec.x = 0.0; vec.y = 0.0; vec.z = 0.0; scalar = 1.0; };
+  Quaternion(angle_t _x, angle_t _y, angle_t _z, angle_t _scalar) { vec.x = _x; vec.y = _y; vec.z = _z; scalar = _scalar; };
+  Quaternion(angle_t _scalar, const Vec3 _vec) { scalar = _scalar; vec = _vec; };
+  ~Quaternion() {};
+  
+  Quaternion conjugate() const
+  {
+    return Quaternion(-vec.x, -vec.y, -vec.z, scalar);
+  };
+
+  Quaternion inverse(const Quaternion rhs) const
+  {
+    return rhs.conjugate();
+  };
+
+  angle_t magnitude() const
+  {
+    return fastsqrt(square(vec.x) + square(vec.y) + square(vec.z) + square(scalar));
+  };
+
+  Quaternion normalize()
+  {
+    const angle_t inv_sqrt = invsqrt(vec.magnitude_squared() + square(scalar));
+    vec *= inv_sqrt;
+    scalar *= inv_sqrt;
+    return *this;
+  };
+
+  Quaternion operator*(const Quaternion rhs) const
+  {
+    Quaternion ret;
+    ret.scalar = vec.dot(rhs.vec);
+    ret.vec = vec.cross(rhs.vec) + vec * rhs.scalar + rhs.vec * scalar;
+    ret.normalize();
+    return ret;
+  };
+
+  Quaternion operator*=(const Quaternion rhs)
+  {
+    (*this) = (*this) * rhs;
+    return *this;
+  };
+
+  GLfloat* get_matrix(GLfloat* ret) const
+  {
+    const angle_t xx = vec.x * vec.x;
+    const angle_t xy = vec.x * vec.y;
+    const angle_t xz = vec.x * vec.z;
+    const angle_t xw = vec.x * scalar;
+    const angle_t yy = vec.y * vec.y;
+    const angle_t yz = vec.y * vec.z; 
+    const angle_t yw = vec.y * scalar;
+    const angle_t zz = vec.z * vec.z;
+    const angle_t zw = vec.z * scalar;
+
+    ret[0] = 1 - 2 * (yy + zz);
+    ret[1] =     2 * (xy - zw);
+    ret[2] =     2 * (xz + yw);
+    ret[3] = 0;
+    
+    ret[4] =     2 * (xy + zw);
+    ret[5] = 1 - 2 * (xx - zz);
+    ret[6] =     2 * (yz + xw);
+    ret[7] = 0;
+    
+    ret[8] =      2 * (xz + yw);
+    ret[9] =      2 * (yz - xw);
+    ret[10] = 1 - 2 * (xx + yy);
+    ret[11] = 0;
+    
+    ret[12] = 0;
+    ret[13] = 0;
+    ret[14] = 0;
+    ret[15] = 1;
+    
+    return ret;
+  };
+
+  void from_matrix(const GLfloat* matrix)
+  {
+#if 0		// Assumedly slower but equivalent version
+    const angle_t trace = matrix[0] + matrix[5] + matrix[10] + 1;
+    if (trace > 0)
+    {
+      const angle_t s = 0.5 * invsqrt(trace);
+      scalar = 0.25 / s;
+      vec = Vec3(matrix[9] - matrix[6], matrix[2] - matrix[8], matrix[4] - matrix[1]) * s;
+    }
+    else
+    {
+      if ((matrix[0] > matrix[5]) && (matrix[0] > matrix[10]))
+      {
+        const angle_t s = 2.0 * fastsqrt(1.0 + matrix[0] - matrix[5] - matrix[10]);
+        vec.x = 0.5 / s;
+        vec.y = (matrix[1] + matrix[4]) / s;
+        vec.z = (matrix[2] + matrix[8]) / s;
+        scalar = (matrix[6] + matrix[9]) / s;
+      }
+      else if (matrix[5] > matrix[10])
+      {
+        const angle_t s = 2.0 * fastsqrt(1.0 + matrix[5] - matrix[0] - matrix[10]);
+        vec.x = (matrix[1] + matrix[4]) / s;
+        vec.y = 0.5 / s;
+        vec.z = (matrix[6] + matrix[9]) / s;
+        scalar = (matrix[2] + matrix[8]) / s;
+      }
+      else
+      {
+        const angle_t s = 2.0 * fastsqrt(1.0 + matrix[10] - matrix[0] - matrix[5]);
+        vec.x = (matrix[2] + matrix[8]) / s;
+        vec.y = (matrix[6] + matrix[9]) / s;
+        vec.z = 0.5 / s;
+        scalar = (matrix[1] + matrix[4]) / s;
+      }
+    }
+#else
+    scalar = fastsqrt(fmax( 0, 1 + matrix[0] + matrix[5] + matrix[10])) / 2;
+    vec.x = fastsqrt(fmax( 0, 1 + matrix[0] - matrix[5] - matrix[10])) / 2;
+    vec.y = fastsqrt(fmax( 0, 1 - matrix[0] + matrix[5] - matrix[10])) / 2;
+    vec.z = fastsqrt(fmax( 0, 1 - matrix[0] - matrix[5] + matrix[10])) / 2;
+    vec.x = copysign(vec.x, matrix[9] - matrix[6] ); 
+    vec.y = copysign(vec.y, matrix[2] - matrix[8] );
+    vec.z = copysign(vec.z, matrix[4] - matrix[1] );
+#endif
+  };
+  
+  void from_axis_and_angle(const Vec3 axis, const angle_t angle)
+  {
+    vec = axis * sin(angle * 0.5);
+    scalar = cos(angle * 0.5);
+    normalize();
+  };
+  
+  void get_axis_and_angle(Vec3& axis, angle_t& angle) const
+  {
+    angle = acos(scalar);
+    angle_t sin_angle = fastsqrt(1.0 - square(scalar));
+    
+    if (fabs(sin_angle) < 0.0001)
+      sin_angle = 1;
+    
+    axis = vec / sin_angle;
+  };
+  
+  Vec3 vec;
+  angle_t scalar;
+};
+
+inline std::ostream& operator<<(std::ostream& lhs, const Quaternion rhs)
+{
+  return lhs << "[" << rhs.vec << ", " << rhs.scalar << "]";
+};
+
+class Texture
+{
+public:
+  Texture();
+  ~Texture();
+  
+  void push_texture(const std::string filename);
+  GLuint get_texture(const u_int16_t res_index) const;
+  GLuint get_texture(const u_int16_t res_index, const int frame) const;
+  GLuint get_texture(const u_int16_t res_index, const u_int64_t born, const u_int64_t changerate) const;
+  
+  std::vector<GLuint> texture_ids[4];
+};
+
+class Shape
+{
+public:
+  Shape() { };
+  virtual ~Shape();
+  
+  virtual void draw();
+  
+  Vec3 pos;
+  Vec3 color;
+  alpha_t alpha;
+
+protected:
+  int vertex_count;
+  coord_t* vertices;
+  coord_t* normals;
+  int facet_count;
+  GLuint* facets;
+
+  class Facet
+  {
+  public:
+    Facet(int f1, int f2, int f3) { f[0] = f1; f[1] = f2; f[2] = f3; };
+    ~Facet() {};
+    
+    int f[3];
+  };
+};
+
+class CaplessCylinder : public Shape
+{
+public:
+  CaplessCylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
+  ~CaplessCylinder() {};
+  
+  coord_t radius;
+  Vec3 start;
+  Vec3 end;
+  Vec3 orig_start;
+  Vec3 orig_end;
+};
+
+class Cylinder : public Shape
+{
+public:
+  Cylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
+  ~Cylinder() {};
+
+  coord_t radius;
+  Vec3 start;
+  Vec3 end;
+  Vec3 orig_start;
+  Vec3 orig_end;
+};
+
+class Sphere : public Shape
+{
+public:
+  Sphere(const Vec3 pos, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
+  ~Sphere() {};
+
+  void average_points(const coord_t p1_first, const coord_t p2_first, const coord_t p1_second, const coord_t p2_second, coord_t& p, coord_t& q);
+  
+  coord_t radius;
+};
+
+class Obstruction
+{
+public:
+  Obstruction(const coord_t _max_distance, const coord_t _force);
+  virtual ~Obstruction() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3 position) = 0;
+  
+  coord_t max_distance;
+  coord_t max_distance_squared;
+  coord_t force;
+};
+
+class SimpleCylinderObstruction : public Obstruction	// Vertical and infinite.  Speeds up the math if you don't need the extra detail.
+{
+public:
+  SimpleCylinderObstruction(Vec3* _pos, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force) { pos = _pos; };
+  virtual ~SimpleCylinderObstruction() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3 position);
+
+  Vec3* pos;
+};
+
+class CylinderObstruction : public Obstruction	// Note: assumes that (*end - *start) doesn't change.
+{
+public:
+  CylinderObstruction(Vec3* _start, Vec3* _end, const coord_t _max_distance, const coord_t _force);
+  virtual ~CylinderObstruction() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3 position);
+
+  Vec3* start;
+  Vec3* end;
+  Vec3 length_vec;
+  coord_t length_vec_mag;
+};
+
+class SphereObstruction : public Obstruction
+{
+public:
+  SphereObstruction(Vec3* _pos, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force) { pos = _pos; };
+  virtual ~SphereObstruction() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3 position);
+  
+  Vec3* pos;
+};
+
+class PolarCoordElement
+{
+public:
+  PolarCoordElement(const coord_t _frequency, const coord_t _offset, const coord_t _scalar, const coord_t _power);
+  ~PolarCoordElement() {};
+  
+  coord_t get_radius(const angle_t angle) const;
+
+  coord_t frequency;
+  coord_t offset;
+  coord_t scalar;
+  coord_t power;
+};
+
+class ParticleMover;
+class EyeCandy;
+class Effect;
+
+class ParticleHistory
+{
+public:
+  ParticleHistory() {};
+  ParticleHistory(const coord_t _size, const GLuint _texture, const color_t _red, const color_t _green, const color_t _blue, const alpha_t _alpha, const Vec3 _pos)
+  {
+    size = _size;
+    texture = _texture;
+    color[0] = _red;
+    color[1] = _green;
+    color[2] = _blue;
+    alpha = _alpha;
+    pos = _pos;
+  };
+  ~ParticleHistory() {};
+
+  coord_t size;
+  GLuint texture;
+  color_t color[3];
+  alpha_t alpha;
+  Vec3 pos;
+};
+
+class Particle
+{
+public:
+  Particle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity);
+  virtual ~Particle();
+  
+  virtual bool idle(const u_int64_t delta_t) = 0;
+  virtual GLuint get_texture(const u_int16_t res_index) = 0;
+  virtual light_t estimate_light_level() const = 0;
+  virtual light_t get_light_level() { return alpha * size / 1500; };
+  virtual bool deletable() { return true; };
+  
+  virtual void draw(const u_int64_t usec);
+  virtual coord_t flare() const;
+ 
+  ParticleMover* mover;
+  Vec3 velocity;
+  Vec3 pos;
+  color_t color[3];
+  alpha_t alpha;
+  coord_t size;
+  u_int64_t born;
+  energy_t energy;
+  coord_t flare_max;	// Bigger values mean bigger flares.  1.0 to max particle size.
+  coord_t flare_exp;	// Lower values mean rarer flares.  0.0 to 1.0.
+  coord_t flare_frequency; // Geographic scalar between flares.
+  u_int16_t state;
+  Effect* effect;
+  EyeCandy* base;
+  
+  ParticleHistory* motion_blur;
+  int cur_motion_blur_point;
+};
+
+class ParticleMover
+{
+public:
+  ParticleMover(Effect* _effect);
+  virtual ~ParticleMover() {};
+  
+  virtual void move(Particle& p, u_int64_t usec) { p.pos += p.velocity * (usec / 1000000.0); };
+  virtual energy_t calculate_energy(const Particle& p) { return 0; };
+
+  Vec3 vec_shift(const Vec3 src, const Vec3 dest, const percent_t percent) const;
+  Vec3 vec_shift_amount(const Vec3 src, const Vec3 dest, const coord_t amount) const;
+  Vec3 nonpreserving_vec_shift(const Vec3 src, const Vec3 dest, const percent_t percent) const;
+  Vec3 nonpreserving_vec_shift_amount(const Vec3 src, const Vec3 dest, const percent_t amount) const;
+
+  Effect* effect;
+  EyeCandy* base;
+};
+
+class GradientMover : public ParticleMover
+{
+public:
+  GradientMover(Effect* _effect) : ParticleMover(_effect) {};
+  virtual ~GradientMover() {};
+  
+  virtual void move(Particle& p, u_int64_t usec);
+
+  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+  virtual Vec3 get_obstruction_gradient(const Vec3& pos) const;
+};
+
+class SmokeMover : public GradientMover
+{
+public:
+  SmokeMover(Effect* _effect) : GradientMover(_effect) { strength = 1.0; };
+  SmokeMover(Effect* _effect, const coord_t _strength) : GradientMover(_effect) { strength = _strength; };
+  virtual ~SmokeMover() {};
+  
+//  virtual void move(Particle& p, u_int64_t usec);
+  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+  
+  coord_t strength;
+};
+
+class SpiralMover : public GradientMover
+{
+public:
+  SpiralMover(Effect* _effect, Vec3* _center, const coord_t _spiral_speed, const coord_t _pinch_rate) : GradientMover(_effect) { center = _center; spiral_speed = _spiral_speed; pinch_rate = _pinch_rate; };
+  virtual ~SpiralMover() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+  
+  Vec3* center;
+  coord_t spiral_speed;
+  coord_t pinch_rate;
+};
+
+class PolarCoordsBoundingMover : public GradientMover
+{
+public:
+  PolarCoordsBoundingMover(Effect* _effect, const Vec3 _center_pos, const std::vector<PolarCoordElement> _bounding_range, const coord_t _force);
+  virtual ~PolarCoordsBoundingMover() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+
+  std::vector<PolarCoordElement> bounding_range;
+  coord_t force;
+  Vec3 center_pos;
+};
+
+class SimpleGravityMover : public GradientMover		// Your basic downward acceleration.
+{
+public:
+  SimpleGravityMover(Effect* _effect) : GradientMover(_effect) {};
+  virtual ~SimpleGravityMover() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+};
+
+class GravityMover : public GradientMover	// A full-featured gravity simulator.
+{
+public:
+  GravityMover(Effect* _effect, Vec3* _center);
+  GravityMover(Effect* _effect, Vec3* _center, const energy_t _mass);
+  virtual ~GravityMover() {};
+  
+  void set_gravity_center(Vec3* _gravity_center);
+  virtual void move(Particle& p, u_int64_t usec);
+  energy_t calculate_velocity_energy(const Particle& p) const;
+  energy_t calculate_position_energy(const Particle& p) const;
+  coord_t gravity_dist(const Particle& p, const Vec3& center) const;
+  energy_t calculate_energy(const Particle& p) const;
+
+  Vec3 old_gravity_center;
+  Vec3* gravity_center_ptr;
+  Vec3 gravity_center;
+  energy_t mass;
+  energy_t max_gravity;
+};
+
+class ParticleSpawner
+{
+public:
+  ParticleSpawner() {};
+  virtual ~ParticleSpawner() {};
+  
+  virtual Vec3 get_new_coords() = 0;
+};
+
+class IFSParticleElement
+{
+public:
+  IFSParticleElement(const coord_t _scale)  { scale = _scale; inv_scale = 1.0 - _scale; };
+  virtual ~IFSParticleElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& center) = 0;
+
+  coord_t scale;
+  coord_t inv_scale;
+};
+
+class IFSLinearElement : public IFSParticleElement
+{
+public:
+  IFSLinearElement(const Vec3 _center, const coord_t _scale) : IFSParticleElement(_scale) { center = _center; };
+  virtual ~IFSLinearElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+  Vec3 center;
+};
+
+class IFSSinusoidalElement : public IFSParticleElement
+{
+public:
+  IFSSinusoidalElement(const coord_t _scale, const Vec3 _offset, const Vec3 _scalar, const Vec3 _scalar2) : IFSParticleElement(_scale) { offset = _offset; scalar = _scalar; scalar2 = _scalar2; };
+  virtual ~IFSSinusoidalElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+  
+  Vec3 offset;
+  Vec3 scalar;
+  Vec3 scalar2;
+};
+
+class IFSSphericalElement : public IFSParticleElement
+{
+public:
+  IFSSphericalElement(const coord_t _scale, const Vec3 _numerator_adjust, const Vec3 _denominator_adjust) : IFSParticleElement(_scale) { numerator_adjust = _numerator_adjust; denominator_adjust = _denominator_adjust; };
+  virtual ~IFSSphericalElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+  Vec3 numerator_adjust;
+  Vec3 denominator_adjust;
+};
+
+class IFSRingElement : public IFSParticleElement
+{
+public:
+  IFSRingElement(const coord_t _scale, const Vec3 _numerator_adjust, const Vec3 _denominator_adjust) : IFSParticleElement(_scale) { numerator_adjust = _numerator_adjust; denominator_adjust = _denominator_adjust; };
+  virtual ~IFSRingElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+  Vec3 numerator_adjust;
+  Vec3 denominator_adjust;
+};
+
+class IFSSwirlElement : public IFSParticleElement
+{
+public:
+  IFSSwirlElement(const coord_t _scale) : IFSParticleElement(_scale) {};
+  virtual ~IFSSwirlElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+};
+
+class IFS2DSwirlElement : public IFSParticleElement
+{
+public:
+  IFS2DSwirlElement(const coord_t _scale) : IFSParticleElement(_scale) {};
+  virtual ~IFS2DSwirlElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+};
+
+class IFSHorseshoeElement : public IFSParticleElement
+{
+public:
+  IFSHorseshoeElement(const coord_t _scale) : IFSParticleElement(_scale) {};
+  virtual ~IFSHorseshoeElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+};
+
+class IFS2DHorseshoeElement : public IFSParticleElement
+{
+public:
+  IFS2DHorseshoeElement(const coord_t _scale) : IFSParticleElement(_scale) {};
+  virtual ~IFS2DHorseshoeElement() {};
+  
+  virtual Vec3 get_new_coords(const Vec3& pos);
+};
+
+class IFSParticleSpawner : public ParticleSpawner
+{
+public:
+  IFSParticleSpawner() { pos = Vec3(0.0, 0.0, 0.0); };
+  IFSParticleSpawner(const int count, const coord_t size);
+  IFSParticleSpawner(const int count, const Vec3 scale);
+  virtual ~IFSParticleSpawner();
+  
+  virtual void generate(const int count, const Vec3 scale);
+  virtual Vec3 get_new_coords();
+  
+  std::vector<IFSParticleElement*> ifs_elements;
+  Vec3 pos;
+};
+
+class SierpinskiIFSParticleSpawner : public IFSParticleSpawner	// Just a sample.
+{
+public:
+  SierpinskiIFSParticleSpawner()
+  {
+    ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 1, 0.0), 0.5));
+    ifs_elements.push_back(new IFSLinearElement(Vec3(1, -1, -1), 0.5));
+    ifs_elements.push_back(new IFSLinearElement(Vec3(-1.155, -1, -1.155), 0.5));
+    ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, -1, 1), 0.5));
+  };
+};
+
+class FilledSphereSpawner : public ParticleSpawner
+{
+public:
+  FilledSphereSpawner(const coord_t _radius) { radius = _radius; };
+  virtual ~FilledSphereSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  
+  coord_t radius;
+};
+
+class FilledEllipsoidSpawner : public ParticleSpawner
+{
+public:
+  FilledEllipsoidSpawner(const Vec3 _radius) { radius = _radius; };
+  virtual ~FilledEllipsoidSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  
+  Vec3 radius;
+};
+
+class HollowSphereSpawner : public ParticleSpawner
+{
+public:
+  HollowSphereSpawner(const coord_t _radius) { radius = _radius; };
+  virtual ~HollowSphereSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  
+  coord_t radius;
+};
+
+class HollowEllipsoidSpawner : public ParticleSpawner
+{
+public:
+  HollowEllipsoidSpawner(const Vec3 _radius) { radius = _radius; };
+  virtual ~HollowEllipsoidSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  
+  Vec3 radius;
+};
+
+class FilledDiscSpawner : public ParticleSpawner
+{
+public:
+  FilledDiscSpawner(const coord_t _radius) { radius = _radius; };
+  virtual ~FilledDiscSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  
+  coord_t radius;
+};
+
+class HollowDiscSpawner : public ParticleSpawner
+{
+public:
+  HollowDiscSpawner(const coord_t _radius) { radius = _radius; };
+  virtual ~HollowDiscSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  
+  coord_t radius;
+};
+
+class FilledPolarCoordsSpawner : public ParticleSpawner
+{
+public:
+  FilledPolarCoordsSpawner(const std::vector<PolarCoordElement> _bounding_range) { bounding_range = _bounding_range; };
+  virtual ~FilledPolarCoordsSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  coord_t get_area() const;
+  
+  std::vector<PolarCoordElement> bounding_range;
+};
+
+class HollowPolarCoordsSpawner : public ParticleSpawner
+{
+public:
+  HollowPolarCoordsSpawner(const std::vector<PolarCoordElement> _bounding_range) { bounding_range = _bounding_range; };
+  virtual ~HollowPolarCoordsSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  coord_t get_area() const;
+  
+  std::vector<PolarCoordElement> bounding_range;
+};
+
+class Effect
+{
+public:
+  Effect()
+  {
+    state = 0;
+    motion_blur_points = 0;
+    motion_blur_fade_rate = 0.001;
+    born = get_time();
+    recall = false;	//NOTE: All effects *must* respect recall!  If this is flagged, all of its particles should disappear ASAP, and the effect should then return false.
+    desired_LOD = 10;
+    LOD = desired_LOD;
+    active = true;
+  };
+  virtual ~Effect() {};
+  
+  void register_particle(Particle* p) { particles[p] = true; };
+  void unregister_particle(Particle* p) { particles.erase(particles.find(p)); };
+  
+  virtual EffectEnum get_type() = 0;
+  virtual bool idle(const u_int64_t usec) = 0;
+  virtual void draw(const u_int64_t usec) { };
+  virtual void request_LOD(const u_int16_t _LOD)
+  {
+    if (_LOD <= desired_LOD)
+      LOD = _LOD;
+    else
+      LOD = desired_LOD;
+  };
+  static u_int64_t get_max_end_time() { return 0x8000000000000000ull; };
+  virtual u_int64_t get_expire_time() { return 0x8000000000000000ull; };
+  
+  EyeCandy* base;
+  int motion_blur_points;
+  percent_t motion_blur_fade_rate; 	//0 to 1; higher means less fade.
+  u_int16_t state;
+  u_int64_t born;
+  bool* dead;				//Provided by the effect caller; set when this effect is going away.
+  Vec3* pos;
+  std::vector<Obstruction*> obstructions;
+  std::map<Particle*, bool> particles;
+  bool active;
+  bool recall;
+  u_int16_t desired_LOD;
+  u_int16_t LOD;
+};
+
+class EyeCandy
+{
+public:
+  enum DrawType
+  {
+    POINT_SPRITES,
+    FAST_BILLBOARDS,
+    ACCURATE_BILLBOARDS
+  };
+
+  EyeCandy();
+  EyeCandy(int _max_particles);
+  ~EyeCandy();
+  
+  void set_thresholds(int _max_particles, int min_framerate);
+  void load_textures(const std::string basepath);
+  void push_back_effect(Effect* e);
+  bool push_back_particle(Particle* p);
+  void set_camera(const Vec3& _camera) { camera = _camera; };
+  void set_dimensions(const coord_t _width, const coord_t _height) { width = _width; height = _height; temp_sprite_scalar = sprite_scalar * _height; };
+  void set_sprite_scalar(const coord_t _scalar) { sprite_scalar = _scalar; temp_sprite_scalar = _scalar * height; };
+  void draw();
+  void idle();
+  void add_light(GLenum light_id);
+  void start_draw();
+  void end_draw();
+  void draw_point_sprite_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+  void draw_fast_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+  void draw_accurate_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
+
+  Texture TexSimple;
+  Texture TexFlare;
+  Texture TexVoid;
+  Texture TexTwinflare;
+  Texture TexInverse;
+  Texture TexCrystal;
+  Texture TexShimmer;
+  Texture TexWater;
+  Texture Tex2Lava;
+  Texture TexLeafMaple;
+  Texture TexLeafOak;
+  Texture TexLeafAsh;
+  Texture TexPetal;
+  Texture TexSnowflake;
+  int max_particles;
+  u_int64_t max_usec_per_particle_move;
+  coord_t max_point_size;
+  Vec3 camera;
+  coord_t width;
+  coord_t height;
+  u_int64_t time_diff;
+  light_t lighting_scalar;
+  light_t light_estimate;
+  std::vector< std::pair<Particle*, light_t> > light_particles;
+  unsigned int LOD_1_threshold;
+  unsigned int LOD_2_threshold;
+  unsigned int LOD_3_threshold;
+  unsigned int LOD_4_threshold;
+  unsigned int LOD_5_threshold;
+  unsigned int LOD_6_threshold;
+  unsigned int LOD_7_threshold;
+  unsigned int LOD_8_threshold;
+  u_int64_t LOD_9_threshold;
+  u_int64_t LOD_1_time_threshold;
+  u_int64_t LOD_2_time_threshold;
+  u_int64_t LOD_3_time_threshold;
+  u_int64_t LOD_4_time_threshold;
+  u_int64_t LOD_5_time_threshold;
+  u_int64_t LOD_6_time_threshold;
+  u_int64_t LOD_7_time_threshold;
+  u_int64_t LOD_8_time_threshold;
+  u_int64_t LOD_9_time_threshold;
+  int allowable_particles_to_add;
+  u_int16_t last_forced_LOD;
+  DrawType draw_method;
+  coord_t billboard_scalar;
+  coord_t sprite_scalar;
+  coord_t temp_sprite_scalar;
+  Vec3 corner_offset1;
+  Vec3 corner_offset2;
+  std::vector<Effect*> effects;
+  std::vector<Particle*> particles;
+  std::vector<GLenum> lights;
+};
+
+///////////////////////////////////////////////////////////////////////////////
+
+}	// End namespace ec
+
+#endif	// defined EYE_CANDY_H

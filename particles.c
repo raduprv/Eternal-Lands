@@ -9,6 +9,7 @@
  #include "global.h"
 #endif
 #include "string.h"
+#include "eye_candy_wrapper.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -34,6 +35,7 @@ int use_point_particles = 1;
 int use_point_particles = 0;
 #endif
 int particles_percentage=100;
+int enable_blood = 0;
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
 int particle_textures[MAX_PARTICLE_TEXTURES];
 particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
@@ -542,18 +544,20 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	{
 		case 2:
 #ifdef	NEW_FRUSTUM
-			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
+//			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
 #else
-			add_particle_sys ("./particles/fire_big.part", x, y, z);
+//			add_particle_sys ("./particles/fire_big.part", x, y, z);
 #endif
+			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.4);
 			break;
 		case 1:
 		default:
 #ifdef	NEW_FRUSTUM
-			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
+//			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
 #else
-			add_particle_sys ("./particles/fire_small.part", x, y, z);
+//			add_particle_sys ("./particles/fire_small.part", x, y, z);
 #endif
+			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 0.7);
 	}
 }
 
@@ -564,6 +568,9 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	int i;
 	particle_sys *sys;
 	
+	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
+	return;
+/*
 	LOCK_PARTICLES_LIST();
 	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
 	{
@@ -588,6 +595,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 		}
 	}
 	UNLOCK_PARTICLES_LIST();
+*/
 }
 
 /*********************************************************************
@@ -895,8 +903,8 @@ void display_particles()
 	if(!particles_percentage)
 	  return;
 
-	x=-cx;
-	y=-cy;
+	x=-camera_x;
+	y=-camera_y;
 
 	CHECK_GL_ERRORS();
 	glPushAttrib(GL_ENABLE_BIT|GL_DEPTH_BUFFER_BIT);
@@ -1305,7 +1313,7 @@ void update_particles() {
 #else
 	int i;
 #ifdef ELC
-	int x = -cx, y = -cy;
+	int x = -camera_x, y = -camera_y;
 #endif
 #endif
 	

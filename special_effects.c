@@ -2,6 +2,7 @@
 #include <math.h>
 #include "global.h"
 #include "highlight.h"
+#include "eye_candy_wrapper.h"
 /* to do
  more effects
  adjust effects based on actor size and if sitting
@@ -496,6 +497,9 @@ void parse_special_effect(int sfx, const Uint16 *data)
 	Uint8 str[100];
 	int offset = 0;
 	Uint16 var_a, var_b =0;
+	actor* caster;
+	actor* target;
+	float x1, y1, z1, x2, y2, z2;
 	
 	switch(sfx){
 		//player only
@@ -506,9 +510,19 @@ void parse_special_effect(int sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_DECLOAK:
 		case	SPECIAL_EFFECT_HEAL_SUMMONED:
 		case	SPECIAL_EFFECT_HEAL:
+		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
+		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
+		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
+		case	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE:
+		case	SPECIAL_EFFECT_HARVEST_BEES:
+		case	SPECIAL_EFFECT_HARVEST_RADON:
+		case	SPECIAL_EFFECT_HARVEST_TOOL_BREAKS:
+		case	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS:
+		case	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED:
+		case	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS:
+		case	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM:
 			{
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
-				add_sfx(sfx,var_a,1);
 			}
 			break;
 		//player to player, var_a is caster, var_b is recipient/target
@@ -519,8 +533,6 @@ void parse_special_effect(int sfx, const Uint16 *data)
 			{
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
-				add_sfx(sfx,var_a,1); //caster
-				add_sfx(sfx,var_b,0); //target
 			}
 			break;
 		//location (a&b variable are not known until implemented by server)
@@ -542,6 +554,97 @@ void parse_special_effect(int sfx, const Uint16 *data)
 #endif
 			break;
 	}
+
+	caster = get_actor_ptr_from_id(var_a);
+	if (caster == NULL)
+		return;
+	if (var_b)
+	{
+		target = get_actor_ptr_from_id(var_b);
+		if (target == NULL)
+			return;
+	}
+	
+	switch (sfx)
+	{
+		case	SPECIAL_EFFECT_SHIELD:
+			ec_create_selfmagic_shield2(target, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_RESTORATION:
+			ec_create_selfmagic_restoration2(caster, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SMITE_SUMMONINGS:
+			break;
+		case	SPECIAL_EFFECT_CLOAK:
+			break;
+		case	SPECIAL_EFFECT_DECLOAK:
+			break;
+		case	SPECIAL_EFFECT_HEAL_SUMMONED:
+			break;
+		case	SPECIAL_EFFECT_HEAL:
+			ec_create_selfmagic_heal2(caster, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_POISON:
+			ec_create_targetmagic_poison2(caster, target, NULL, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_REMOTE_HEAL:
+			ec_create_targetmagic_remote_heal2(caster, target, NULL, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARM:
+			ec_create_targetmagic_harm2(caster, target, NULL, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_MANA_DRAIN:
+			ec_create_targetmagic_drain_mana2(caster, target, NULL, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_INVASION_BEAMING:
+		case	SPECIAL_EFFECT_TELEPORT_TO_RANGE:
+			ec_create_targetmagic_teleport_to_range(caster->x_pos, caster->y_pos, caster->z_pos, target->x_pos, target->y_pos, target->z_pos, NULL, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
+			ec_create_harvesting_rare_stone(caster->x_pos + sin(caster->z_rot), caster->y_pos + cos(caster->z_rot), caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
+			ec_create_harvesting_queen_of_nature(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
+			ec_create_harvesting_bag_of_gold(caster->x_pos + sin(caster->z_rot), caster->y_pos + cos(caster->z_rot), caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE:
+			ec_create_harvesting_cavern_wall(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_BEES:
+			ec_create_harvesting_bees(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_RADON:
+			ec_create_harvesting_radon_pouch(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS:
+			ec_create_selfmagic_teleport_to_the_portals_room(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED:
+			ec_create_harvesting_mother_nature(caster->x_pos + sin(caster->z_rot), caster->y_pos + cos(caster->z_rot), caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		default:
+#ifdef DEBUG
+			snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
+			LOG_TO_CONSOLE (c_purple2, str);
+#endif
+			break;
+	}
+//			ec_create_selfmagic_magic_protection(49.0, 70.0, 0.0, (poor_man ? 6 : 10));
+//			ec_create_selfmagic_bones_to_gold(caster, (poor_man ? 6 : 10));
+//			ec_create_selfmagic_magic_immunity(caster, (poor_man ? 6 : 10));
+//			ref = ec_create_generic();
+//			ec_add_target(ref, 52.0, 70.0, 0.5);
+//			ec_add_target(ref, 50.0, 68.0, 0.5);
+//			ec_add_target(ref, 50.0, 72.0, 0.5);
+//			ec_launch_targetmagic_heal_summoned(ref, caster, NULL, (poor_man ? 6 : 10));
+//			ref = ec_create_generic();
+//			ec_add_target(ref, 52.0, 70.0, 0.5);
+//			ec_add_target(ref, 50.0, 68.0, 0.5);
+//			ec_add_target(ref, 50.0, 72.0, 0.5);
+//			ec_launch_targetmagic_smite_summoned(ref, caster, NULL, (poor_man ? 6 : 10));
+//			ec_create_targetmagic_life_drain(caster, target, NULL, (poor_man ? 6 : 10));
 }
 
 #endif //SFX

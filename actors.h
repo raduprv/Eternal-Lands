@@ -6,6 +6,12 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
+#include <SDL/SDL.h>
+#include <SDL/SDL_net.h>
+#include <SDL/SDL_thread.h>
+#include "cal_types.h"
+#include "client_serv.h"
+
 #define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
@@ -392,7 +398,7 @@ typedef struct
 
 	/*! \name Command queue and current animations*/
 	/*! \{ */
-	char que[MAX_CMD_QUEUE+1];		/*!< Holds the current command queue*/
+	actor_commands que[MAX_CMD_QUEUE+1];	/*!< Holds the current command queue*/
 	char last_command;	/*!< Holds the last command*/
 	char busy;			/*!< if the actor is busy executing the current command*/
 	char sitting;		/*!< Specifies if the actor is currently sitting*/
@@ -431,6 +437,7 @@ typedef struct
 	char has_alpha;		/*!< is alpha blending needed for this actor? */
 	int kind_of_actor;	/*!< Defines the kind_of_actor (NPC, HUMAN, COMPUTER_CONTROLLED_HUMAN, PKABLE, PKABLE_COMPUTER_CONTROLLED)*/
 	Uint32 buffs;		/*!<Contains the buffs on this actor as bits (currently only invisibility)*/
+	float alpha;		/*!< Allows special effects to change the transparency of an actor >*/
 	/*! \} */
 
 	/*! \name Overhead text (text bubbles)*/

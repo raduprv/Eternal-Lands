@@ -497,8 +497,8 @@ int get_nearby_2d_objects()
 #ifdef MAP_EDITOR2
 	no_nearby_2d_objects=0;
 	
-	x = -cx;
-	y = -cy;
+	x = -camera_x;
+	y = -camera_y;
 	
 	get_supersector(SECTOR_GET(global_x_pos,global_y_pos), &sx, &sy, &ex, &ey);
 #else
@@ -507,8 +507,8 @@ int get_nearby_2d_objects()
 	no_nearby_2d_objects=0;
 	
 	if (xxx == NULL) return 0;
-	x = -cx;
-	y = -cy;
+	x = -camera_x;
+	y = -camera_y;
 	
 	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
 #endif
@@ -560,7 +560,7 @@ void get_2d_object_under_mouse()
 	glLoadIdentity();
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(cx, cy, cz);
+	glTranslatef(camera_x, camera_y, camera_z);
 	
 	for(i=0;i<no_nearby_2d_objects;i++){
 		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer) {
@@ -664,8 +664,8 @@ void display_2d_objects()
 	unsigned int i, l, start, stop;
 	int x, y, dist;
 
-	x= -cx;
-	y= -cy;
+	x= -camera_x;
+	y= -camera_y;
 
 	//First draw everyone with the same alpha test
 	glEnable(GL_ALPHA_TEST);

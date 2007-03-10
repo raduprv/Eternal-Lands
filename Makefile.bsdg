@@ -38,7 +38,7 @@ _CFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shel
 CXXFLAGS=$(PLATFORM) $(CPPWARN) -O -ggdb -pipe -I/usr/local/include $(OPTIONS)
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS)
 
-LDFLAGS=$(shell sdl11-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng
+LDFLAGS=$(shell sdl11-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm -lpng
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
 
@@ -64,7 +64,16 @@ COBJS=2d_objects.o 3d_objects.o	\
 	weather.o widgets.o \
 	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o
 	
-CXXOBJS=cal3d_wrapper.o
+CXXOBJS=cal3d_wrapper.o eye_candy_wrapper.o \
+ eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
+ eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
+ eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \
+ eye_candy/effect_sword.o eye_candy/effect_summon.o \
+ eye_candy/effect_selfmagic.o eye_candy/effect_targetmagic.o \
+ eye_candy/effect_ongoing.o eye_candy/effect_impact.o \
+ eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
+ eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
+ eye_candy/effect_breath.o
 
 OBJS=$(COBJS) $(CXXOBJS)
 
