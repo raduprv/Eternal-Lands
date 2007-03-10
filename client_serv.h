@@ -853,78 +853,83 @@ typedef enum {
  * \name Special spell effects
  */
 /*! @{ */
-//when one player uses the poison spell on another one. Player to Player
-#define SPECIAL_EFFECT_POISON 0
+typedef enum {
+	//when one player uses the poison spell on another one. Player to Player
+	SPECIAL_EFFECT_POISON = 0,	
 
-//when one player heals another. Player to Player
-#define SPECIAL_EFFECT_REMOTE_HEAL 1
+	//when one player heals another. Player to Player
+	SPECIAL_EFFECT_REMOTE_HEAL = 1,	
 
-//when one player harms another. Player to Player
-#define SPECIAL_EFFECT_HARM 2
+	//when one player harms another. Player to Player
+	SPECIAL_EFFECT_HARM = 2,	
 
-//when one player casts shield on himself. Player
-#define SPECIAL_EFFECT_SHIELD 3
+	//when one player casts shield on himself. Player
+	SPECIAL_EFFECT_SHIELD = 3,	
 
-//when one player casts restoration. Player
-#define SPECIAL_EFFECT_RESTORATION 4
+	//when one player casts restoration. Player
+	SPECIAL_EFFECT_RESTORATION = 4,	
 
-//when one player casts a smite summonings. Player
-#define SPECIAL_EFFECT_SMITE_SUMMONINGS 5
+	//when one player casts a smite summonings. Player
+	SPECIAL_EFFECT_SMITE_SUMMONINGS = 5,	
 
-//when a player goes invisible. Player
-#define SPECIAL_EFFECT_CLOAK 6
+	//when a player goes invisible. Player
+	SPECIAL_EFFECT_CLOAK = 6,	
 
-//when a player becomes visible. Player
-#define SPECIAL_EFFECT_DECLOAK 7
+	//when a player becomes visible. Player
+	SPECIAL_EFFECT_DECLOAK = 7,	
 
-//when an invasion starts. Location
-#define SPECIAL_EFFECT_INVASION_BEAMING 8
+	//when an invasion starts. Location
+	SPECIAL_EFFECT_INVASION_BEAMING = 8,	
 
-//when a player casts heal summoned. Player
-#define SPECIAL_EFFECT_HEAL_SUMMONED 9
+	//when a player casts heal summoned. Player
+	SPECIAL_EFFECT_HEAL_SUMMONED = 9,	
 
-//When a player casts mana drain. Player to Player.
-#define SPECIAL_EFFECT_MANA_DRAIN 10
+	//When a player casts mana drain. Player to Player.
+	SPECIAL_EFFECT_MANA_DRAIN = 10,	
 
-//when a player teleports to range. Player, Location
-#define SPECIAL_EFFECT_TELEPORT_TO_RANGE 11
+	//when a player teleports to range. Player, Location
+	SPECIAL_EFFECT_TELEPORT_TO_RANGE = 11,	
 
-//when a player teleports to range. Player, Location
-#define SPECIAL_EFFECT_HEAL 12
+	//when a player teleports to range. Player, Location
+	SPECIAL_EFFECT_HEAL = 12,	
 
-//when a player finds a rare stone
-#define SPECIAL_EFFECT_HARVEST_RARE_STONE 13
+	//when a player finds a rare stone
+	SPECIAL_EFFECT_HARVEST_RARE_STONE = 13,	
 
-//when a player is blessed by MN with exp
-#define SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING 14
+	//when a player is blessed by MN with exp
+	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING = 14,	
 
-//when a player is blessed by MN with money
-#define SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING 15
+	//when a player is blessed by MN with money
+	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING = 15,	
 
-//when a wall colapses over a player
-#define SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE 16
+	//when a wall colapses over a player
+	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE = 16,	
 
-//when a bees sting a player
-#define SPECIAL_EFFECT_HARVEST_BEES 17
+	//when a bees sting a player
+	SPECIAL_EFFECT_HARVEST_BEES = 17,	
 
-//when a radeon hits
-#define SPECIAL_EFFECT_HARVEST_RADON 18
+	//when a radeon hits
+	SPECIAL_EFFECT_HARVEST_RADON = 18,	
 
-//when a tool breaks
-#define SPECIAL_EFFECT_HARVEST_TOOL_BREAKS 19
+	//when a tool breaks
+	SPECIAL_EFFECT_HARVEST_TOOL_BREAKS = 19,	
 
-//when teleport nexus actor_id,x1,y1,x2,y2
-#define SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS 20
+	//when teleport nexus actor_id,x1,y1,x2,y2
+	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS = 20,	
 
-//when MN takes your health
-#define SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED 21
+	//when MN takes your health
+	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED = 21,	
 
-//when a manufacture tool breaks
-#define SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS 22
+	//when a manufacture tool breaks
+	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS = 22,	
 
-//when a special item is created
-#define SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM 23
+	//when a special item is created
+	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM = 23,	
 
-/*! @} */
+	//when a "who doesn't see me" spell is cast
+	SPECIAL_EFFECT_MAKE_PLAYER_GLOW = 24
 
+} special_effect_enum;	
+	/*! @} */
+	
 #endif

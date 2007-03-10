@@ -178,7 +178,9 @@ void change_poor_man(int *poor_man)
 		depth_map_id= 0;
 #endif
 	}
+#ifdef SFX
 	ec_set_draw_detail();
+#endif
 }
 
 #ifdef	NOT_USED
@@ -222,7 +224,9 @@ void change_point_particles(int *value)
 		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
 	}
 	
+#ifdef SFX
 	ec_set_draw_method();
+#endif
 }
 
 void change_particles_percentage(int *pointer, int value)

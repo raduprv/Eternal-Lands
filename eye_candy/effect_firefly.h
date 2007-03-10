@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_FIREFLY_H
 #define EFFECT_FIREFLY_H
@@ -46,3 +47,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_FIREFLY_H
+
+#endif	// #ifdef SFX

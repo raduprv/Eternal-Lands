@@ -1,10 +1,4 @@
-/*
-TODO:
- * Don't let the random delete kill off unreplacable particles.
- * Make certain effects be more dilligent in LOD reduction.
-
- * Tie particle limitation into framerate as well as particle count.
-*/
+#ifdef SFX
 
 #include "eye_candy_wrapper.h"
 #include "cal3d_wrapper.h"
@@ -1464,3 +1458,4 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_add_wind_effect_list(ec_reference refer
   ((ec::WindEffect*)(cast_reference->effect))->set_pass_off(*cast_effects);
 }
 
+#endif	// #ifdef SFX

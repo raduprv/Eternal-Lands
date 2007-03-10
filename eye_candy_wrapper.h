@@ -1,3 +1,5 @@
+#ifdef SFX
+
 //****************************************************************************//
 // eye_candy_wrapper.h                                                            //
 // Copyright (C) 2006 Karen Pease
@@ -268,3 +270,5 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
 #endif
 
 //****************************************************************************//
+
+#endif	// #ifdef SFX

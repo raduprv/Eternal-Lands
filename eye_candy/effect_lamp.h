@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_LAMP_H
 #define EFFECT_LAMP_H
@@ -75,3 +76,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_LAMP_H
+
+#endif	// #ifdef SFX

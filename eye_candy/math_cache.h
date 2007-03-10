@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef MATH_CACHE_H
 #define MATH_CACHE_H
@@ -102,3 +103,5 @@ protected:
 };
 
 #endif
+
+#endif	// #ifdef SFX

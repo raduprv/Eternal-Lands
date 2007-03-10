@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_TELEPORTER_H
 #define EFFECT_TELEPORTER_H
@@ -48,3 +49,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_TELEPORTER_H
+
+#endif	// #ifdef SFX

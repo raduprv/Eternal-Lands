@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_SUMMON_H
 #define EFFECT_SUMMON_H
@@ -100,3 +101,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_SUMMON_H
+
+#endif	// #ifdef SFX

@@ -502,6 +502,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				new_minute();
+#ifdef SFX
 ///////////////////////////////////////////////////////////////////////////////
 // Special Effects Test Code #1/2 (Repeating effects)
 // Uncomment an effect to test it; delete section when FX are integrated.
@@ -576,6 +577,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_launch_targetmagic_smite_summoned(ref, 49.0, 70.0, 0.5, NULL, 10);
 //				ec_create_targetmagic_drain_mana(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
 ///////////////////////////////////////////////////////////////////////////////
+#endif
 			}
 			break;
 
@@ -599,7 +601,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				
 				previously_logged_in=1;
-				
+
+#ifdef SFX				
 ///////////////////////////////////////////////////////////////////////////////
 // Special Effects Test Code #2/2 (Lasting effects)
 // Uncomment an effect to test it; delete section when FX are integrated.
@@ -646,6 +649,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_free_effects_list(eff_list);
 //				ec_create_wind_petals(49.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
 ///////////////////////////////////////////////////////////////////////////////
+#endif
 			}
 			break;
 

@@ -56,7 +56,9 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	y=y+0.25f;
 
         //Launch the animation
+#ifdef SFX
 	ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
+#endif
 
 #ifdef	NEW_FRUSTUM
 	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
@@ -157,13 +159,17 @@ void remove_bag(int which_bag)
 	//center the object
 	x = x + 0.25f;
 	y = y + 0.25f;
+ #ifdef SFX
 	ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
+ #endif
 #else
 //	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
         x = bag_list[which_bag].x;
         y = bag_list[which_bag].y;
         z = -2.2f+height_map[bag_list[which_bag].y*tile_map_size_x*6+bag_list[which_bag].x]*0.2f;
+ #ifdef SFX
 	ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
+ #endif
 	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
 	for(i=0;i<MAX_3D_OBJECTS;i++){
 		if(k!=-1 && sectors[sector].e3d_local[i]==-1){

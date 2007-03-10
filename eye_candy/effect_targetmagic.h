@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_TARGETMAGIC_H
 #define EFFECT_TARGETMAGIC_H
@@ -99,3 +100,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_TARGETMAGIC_H
+
+#endif	// #ifdef SFX

@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_WIND_H
 #define EFFECT_WIND_H
@@ -88,3 +89,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_WIND_H
+
+#endif	// #ifdef SFX

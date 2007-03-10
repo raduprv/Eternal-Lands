@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_SMOKE_H
 #define EFFECT_SMOKE_H
@@ -63,3 +64,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_SMOKE_H
+
+#endif	// #ifdef SFX

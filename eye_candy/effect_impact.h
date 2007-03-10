@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_IMPACT_H
 #define EFFECT_IMPACT_H
@@ -62,3 +63,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_IMPACT_H
+
+#endif	// #ifdef SFX

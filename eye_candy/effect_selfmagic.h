@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_SELFMAGIC_H
 #define EFFECT_SELFMAGIC_H
@@ -69,3 +70,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_SELFMAGIC_H
+
+#endif	// #ifdef SFX

@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_BREATH_H
 #define EFFECT_BREATH_H
@@ -88,3 +89,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_BREATH_H
+
+#endif	// #ifdef SFX

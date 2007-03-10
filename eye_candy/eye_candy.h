@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EYE_CANDY_H
 #define EYE_CANDY_H
@@ -1073,3 +1074,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EYE_CANDY_H
+
+#endif	// #ifdef SFX

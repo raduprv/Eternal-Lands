@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_BAG_H
 #define EFFECT_BAG_H
@@ -46,3 +47,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_BAG_H
+
+#endif	// #ifdef SFX

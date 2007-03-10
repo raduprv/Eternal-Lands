@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_FOUNTAIN_H
 #define EFFECT_FOUNTAIN_H
@@ -68,3 +69,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_FOUNTAIN_H
+
+#endif	// #ifdef SFX

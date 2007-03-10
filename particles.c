@@ -548,7 +548,9 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 #else
 //			add_particle_sys ("./particles/fire_big.part", x, y, z);
 #endif
+#ifdef SFX
 			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.4);
+#endif
 			break;
 		case 1:
 		default:
@@ -557,7 +559,10 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 #else
 //			add_particle_sys ("./particles/fire_small.part", x, y, z);
 #endif
+#ifdef SFX
 			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 0.7);
+#endif
+			break;
 	}
 }
 
@@ -568,7 +573,9 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	int i;
 	particle_sys *sys;
 	
+#ifdef SFX
 	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
+#endif
 	return;
 /*
 	LOCK_PARTICLES_LIST();

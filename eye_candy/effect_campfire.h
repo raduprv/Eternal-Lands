@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_CAMPFIRE_H
 #define EFFECT_CAMPFIRE_H
@@ -59,3 +60,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_CAMPFIRE_H
+
+#endif	// #ifdef SFX

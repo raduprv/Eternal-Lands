@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_ONGOING_H
 #define EFFECT_ONGOING_H
@@ -58,3 +59,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_ONGOING_H
+
+#endif	// #ifdef SFX

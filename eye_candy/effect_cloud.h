@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_CLOUD_H
 #define EFFECT_CLOUD_H
@@ -50,3 +51,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_CLOUD_H
+
+#endif	// #ifdef SFX

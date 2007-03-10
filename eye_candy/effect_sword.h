@@ -1,3 +1,4 @@
+#ifdef SFX
 
 #ifndef EFFECT_SWORD_H
 #define EFFECT_SWORD_H
@@ -65,3 +66,5 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_SWORD_H
+
+#endif	// #ifdef SFX
