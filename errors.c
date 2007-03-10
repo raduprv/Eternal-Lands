@@ -15,7 +15,7 @@ void log_error(char * message, ...)
 	FILE *f = NULL;
 	char *file_name="error_log.txt";
 
-  	f = fopen (file_name, "a");
+	f = fopen (file_name, "a");
 	if(!f) return;
 	va_start(ap, message);
 		vfprintf (f, message, ap);

@@ -7,6 +7,21 @@
 #ifdef	NEW_E3D_FORMAT
 #include "../elc/md5.h"
 
+__inline__ static int is_ground(int vo)
+{
+	return (vo & 1) != 0;
+}
+
+__inline__ static int has_tangen(int vo)
+{
+	return (vo & 2) != 0;
+}
+
+__inline__ static int has_extra_uv(int vo)
+{
+	return (vo & 4) != 0;
+}
+
 typedef struct
 {
 	int texture_id;
@@ -36,20 +51,29 @@ typedef struct
  */
 typedef struct
 {
-	void* vertex_data; /*!< an array of el3d vertex data */
+	void* vertex_data; /*!< an array of e3d vertex data */
+	void* normal_data; /*!< an array of e3d normal data */
+	void* texture_data; /*!< an array of e3d texture data */
+	void* tangent_data; /*!< an array of e3d tangent data */
+	void* extra_uv_data; /*!< an array of e3d extra texture data */
 	void* indicies; /*!< an array of el3d indicies */
 	e3d_draw_list* materials; /*!< an array of triangle data for every material */
-	int vertex_no; /*!< number of vertexes, normals and texture coordinates in this object */
+	int vertex_no; /*!< number of vertexe, normal, tangent, texture and extra texture coordinates in this object */
 	int index_no; /*!< number of all indicies */
 	int material_no; /*!< number of materials in this object */
 	int index_type; /*!< type of the indicies: GL_UNSIGNED_BYTE, GL_UNSIGNED_WORD or GL_UNSIGNED_INT */
 
-   	GLuint vbo[2]; /*!< Vertex buffer objects */
+	GLuint vertex_vbo; /*!< an array of e3d vertex data */
+	GLuint normal_vbo; /*!< an array of e3d normal data */
+	GLuint texture_vbo; /*!< an array of e3d texture data */
+	GLuint tangent_vbo; /*!< an array of e3d tangent data */
+	GLuint extra_uv_vbo; /*!< an array of e3d extra texture data */
+	GLuint indicies_vbo; /*!< an array of el3d indicies */
     
-	char is_ground; /*!< flag determining whether this is a ground object or not */
+	char vertex_options;	/*!< flag determining whether this is a ground object, has tangents or extra uv's */
 
 	MD5_DIGEST md5; /*!< the MD5 digest of the file */
-	char file_name[1024]; /*!< filename where this object is stored. */
+	char file_name[128]; /*!< filename where this object is stored. */
 } e3d_object;
 #else	// NEW_E3D_FORMAT
 

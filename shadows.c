@@ -40,9 +40,7 @@ void SetShadowMatrix()
 #ifdef NEW_E3D_FORMAT
 void draw_3d_object_shadow(object3d * object_id)
 {
-	unsigned int type;
 	int texture_id, i;
-	float s_plane[4], t_plane[4];
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
@@ -79,14 +77,24 @@ void draw_3d_object_shadow(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 
-	if (have_vertex_buffers && object_id->e3d_data->vbo[0] && 
-	    object_id->e3d_data->vbo[1])
+	if (have_vertex_buffers)
 	{
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
-		glInterleavedArrays(type, 0, 0);
-		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+			object_id->e3d_data->texture_vbo);
+		glTexCoordPointer(2, GL_FLOAT, 0, 0);
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
+			object_id->e3d_data->vertex_vbo);
+		glVertexPointer(3, GL_FLOAT, 0, 0);
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+			object_id->e3d_data->indicies_vbo);
 	}
-	else glInterleavedArrays(type, 0, object_id->e3d_data->vertex_data);
+	else
+	{
+		glTexCoordPointer(2, GL_FLOAT, 0,
+			object_id->e3d_data->texture_data);
+		glVertexPointer(3, GL_FLOAT, 0,
+			object_id->e3d_data->vertex_data);
+	}
 		
 	CHECK_GL_ERRORS();
 
@@ -96,7 +104,7 @@ void draw_3d_object_shadow(object3d * object_id)
 		{
 			//enable alpha filtering, so we have some alpha key
 			glEnable(GL_ALPHA_TEST);
-			if (object_id->e3d_data->is_ground) glAlphaFunc(GL_GREATER, 0.23f);
+			if (is_ground(object_id->e3d_data->vertex_options)) glAlphaFunc(GL_GREATER, 0.23f);
 			else glAlphaFunc(GL_GREATER, 0.06f);
 			glDisable(GL_CULL_FACE);
 			glEnable(GL_TEXTURE_2D);
@@ -233,7 +241,12 @@ void display_shadows()
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
+#ifndef	NEW_E3D_FORMAT
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
+#else	//NEW_E3D_FORMAT
+				if (!is_ground(objects_list[i]->e3d_data->vertex_options)
+					&& objects_list[i]->z_pos>-0.20f)
+#endif	//NEW_E3D_FORMAT
 					{
 						 int dist1;
 						 int dist2;
@@ -269,7 +282,12 @@ void display_night_shadows(int phase)
 
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
+#ifndef	NEW_E3D_FORMAT
 				if(!objects_list[i]->e3d_data->is_ground && objects_list[i]->z_pos>-0.20f)
+#else	//NEW_E3D_FORMAT
+				if (!is_ground(objects_list[i]->e3d_data->vertex_options)
+					&& objects_list[i]->z_pos>-0.20f)
+#endif	//NEW_E3D_FORMAT
 					{
 					 float dist1;
 					 float dist2;
@@ -364,7 +382,11 @@ void display_3d_ground_objects()
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
+#ifndef	NEW_E3D_FORMAT
 					 if(objects_list[i]->e3d_data->is_ground)
+#else	//NEW_E3D_FORMAT
+					if (!is_ground(objects_list[i]->e3d_data->vertex_options))
+#endif	//NEW_E3D_FORMAT
 						{
 					 		int dist1;
 					 		int dist2;
@@ -431,7 +453,11 @@ void display_3d_non_ground_objects()
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
+#ifndef	NEW_E3D_FORMAT
 					 if(!objects_list[i]->e3d_data->is_ground)
+#else	//NEW_E3D_FORMAT
+					if (!is_ground(objects_list[i]->e3d_data->vertex_options))
+#endif	//NEW_E3D_FORMAT
 						{
 							int dist1;
 							int dist2;
