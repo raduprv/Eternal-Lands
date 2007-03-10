@@ -69,7 +69,6 @@ LINK=gcc
 
 # the compile targets
 $(EXE): $(OBJS)
-	$(MAKE) -C eye_candy
 	$(LINK) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS)
 
 #recompile on Makefile or conf change
@@ -89,7 +88,6 @@ static:
 
 clean:
 	rm -f $(OBJS) $(EXE) .depend
-	$(MAKE) -C eye_candy clean
 
 docs:	
 	cd docs && doxygen Doxyfile

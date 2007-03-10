@@ -1177,10 +1177,11 @@ void draw_sky_background()
 	
 #ifndef	USE_FRAMEBUFFER
 	Enter2DMode();
-#endif	//USE_FRAMEBUFFER
+#endif	//!USE_FRAMEBUFFER
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 
+#ifdef USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		glColor3fv(lights_c[0]);
@@ -1193,6 +1194,7 @@ void draw_sky_background()
 		glVertex3i(reflection_texture_width, 0, 0);
 	}
 	else
+#endif // USE_FRAMEBUFFER
 	{
 		glColor3fv(lights_c[0]);
 		glVertex3i(0, 0, 0);
@@ -1264,11 +1266,12 @@ void draw_dungeon_sky_background()
 	
 #ifndef	USE_FRAMEBUFFER
 	Enter2DMode();
-#endif	//USE_FRAMEBUFFER
+#endif	//!USE_FRAMEBUFFER
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	//draw the sky background
 
+#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		glVertex3i(0, 0, 0);
@@ -1277,6 +1280,7 @@ void draw_dungeon_sky_background()
 		glVertex3i(reflection_texture_width, 0, 0);
 	}
 	else
+#endif // USE_FRAMEBUFFER
 	{
 		glVertex3i(0, 0, 0);
 		glVertex3i(0, window_height, 0);
