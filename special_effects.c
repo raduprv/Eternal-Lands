@@ -513,6 +513,13 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_DECLOAK:
 		case	SPECIAL_EFFECT_HEAL_SUMMONED:
 		case	SPECIAL_EFFECT_HEAL:
+#ifndef	EYE_CANDY
+			{
+			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+				add_sfx(sfx,var_a,1);
+			}
+			break;
+#endif	EYE_CANDY
 		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
 		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
@@ -526,7 +533,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM:
 		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
 			{
-				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 			}
 			break;
 		//player to player, var_a is caster, var_b is recipient/target
@@ -537,6 +544,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			{
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
+#ifndef	EYE_CANDY
+				add_sfx(sfx,var_a,1);	//caster 	 
+                add_sfx(sfx,var_b,0);	//target
+#endif	//EYE_CANDY
 			}
 			break;
 		//location (a&b variable are not known until implemented by server)
