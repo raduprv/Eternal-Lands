@@ -48,16 +48,18 @@ COBJS=2d_objects.o 3d_objects.o	\
 	update.o weather.o widgets.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
-CXXOBJS=cal3d_wrapper.o eye_candy_wrapper.o \
- eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
- eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
- eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \
- eye_candy/effect_sword.o eye_candy/effect_summon.o \
- eye_candy/effect_selfmagic.o eye_candy/effect_targetmagic.o \
- eye_candy/effect_ongoing.o eye_candy/effect_impact.o \
- eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
- eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
- eye_candy/effect_breath.o
+SFX_CXXOBJ = eye_candy_wrapper.o \
+	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
+	eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
+	eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \
+	eye_candy/effect_sword.o eye_candy/effect_summon.o \
+	eye_candy/effect_selfmagic.o eye_candy/effect_targetmagic.o \
+	eye_candy/effect_ongoing.o eye_candy/effect_impact.o \
+	eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
+	eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
+	eye_candy/effect_breath.o
+CXXOBJS=cal3d_wrapper.o \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
 
 OBJS=$(COBJS) $(CXXOBJS)
 
@@ -72,7 +74,7 @@ $(EXE): $(OBJS)
 	$(LINK) $(CFLAGS) $(LDFLAGS) -o $(EXE) $(OBJS)
 
 #recompile on Makefile or conf change
-$(OBJS): Makefile.linux make.conf
+.depend $(OBJS): Makefile.linux make.conf
 
 $(COBJS): %.o : %.c
 	$(CC) $(CFLAGS) -c -o $@ $<
