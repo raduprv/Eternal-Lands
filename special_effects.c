@@ -3,7 +3,9 @@
 #include "global.h"
 #include "highlight.h"
 #include "client_serv.h"
+#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
+#endif	//EYE_CANDY
 /* to do
  more effects
  adjust effects based on actor size and if sitting
@@ -567,6 +569,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			return;
 	}
 	
+#ifdef	EYE_CANDY
 	switch (sfx)
 	{
 		case	SPECIAL_EFFECT_SHIELD:
@@ -649,6 +652,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_add_target(ref, 50.0, 72.0, 0.5);
 //			ec_launch_targetmagic_smite_summoned(ref, caster, NULL, (poor_man ? 6 : 10));
 //			ec_create_targetmagic_life_drain(caster, target, NULL, (poor_man ? 6 : 10));
+#endif	//EYE_CANDY
 }
 
 #endif //SFX

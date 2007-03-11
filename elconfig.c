@@ -179,7 +179,9 @@ void change_poor_man(int *poor_man)
 #endif
 	}
 #ifdef SFX
+#ifdef	EYE_CANDY
 	ec_set_draw_detail();
+#endif	//EYE_CANDY
 #endif
 }
 
@@ -225,7 +227,9 @@ void change_point_particles(int *value)
 	}
 	
 #ifdef SFX
+#ifdef	EYE_CANDY
 	ec_set_draw_method();
+#endif	//EYE_CANDY
 #endif
 }
 

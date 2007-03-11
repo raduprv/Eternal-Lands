@@ -641,7 +641,9 @@ void next_command()
 /*						if(actors_list[i]->remapped_colors)
 						glDeleteTextures(1,&actors_list[i]->texture_id);
 #ifdef SFX
+#ifdef	EYE_CANDY
 						ec_actor_delete(actors_list[i]);
+#endif	//EYE_CANDY
 #endif
 						free(actors_list[i]);
 						actors_list[i]=0;*/ //Obsolete
@@ -903,7 +905,9 @@ void destroy_actor(int actor_id)
 				actors_list[i]->cur_anim_sound_cookie = 0;
 #endif	//NEW_SOUND
 #ifdef SFX
+#ifdef	EYE_CANDY
 				ec_actor_delete(actors_list[i]);
+#endif	//EYE_CANDY
 #endif
 				free(actors_list[i]);
 				actors_list[i]=NULL;
@@ -940,7 +944,9 @@ void destroy_all_actors()
 			actors_list[i]->cur_anim_sound_cookie = 0;
 #endif	//NEW_SOUND
 #ifdef SFX
+#ifdef	EYE_CANDY
 			ec_actor_delete(actors_list[i]);
+#endif	//EYE_CANDY
 #endif
 			free(actors_list[i]);
 			actors_list[i]=NULL;

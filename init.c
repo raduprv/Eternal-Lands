@@ -14,7 +14,9 @@
 #include "loading_win.h"
 #include "update.h"
 #include "misc.h"
+#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
+#endif	//EYE_CANDY
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -599,7 +601,9 @@ void init_stuff()
 	
 	// Setup the new eye candy system
 #ifdef SFX
+#ifdef	EYE_CANDY
 	ec_init();
+#endif	//EYE_CANDY
 #endif
 
 	// check for invalid combinations

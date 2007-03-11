@@ -9,7 +9,9 @@
  #include "global.h"
 #endif
 #include "string.h"
+#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
+#endif	//EYE_CANDY
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -549,7 +551,9 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 //			add_particle_sys ("./particles/fire_big.part", x, y, z);
 #endif
 #ifdef SFX
+#ifdef	EYE_CANDY
 			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.4);
+#endif	//EYE_CANDY
 #endif
 			break;
 		case 1:
@@ -560,7 +564,9 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 //			add_particle_sys ("./particles/fire_small.part", x, y, z);
 #endif
 #ifdef SFX
+#ifdef	EYE_CANDY
 			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 0.7);
+#endif	//EYE_CANDY
 #endif
 			break;
 	}
@@ -574,7 +580,9 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	particle_sys *sys;
 	
 #ifdef SFX
+#ifdef	EYE_CANDY
 	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
+#endif	//EYE_CANDY
 #endif
 	return;
 /*

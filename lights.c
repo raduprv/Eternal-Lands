@@ -5,7 +5,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
+#endif	//EYE_CANDY
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -663,9 +665,11 @@ void init_lights()
 	glEnable(GL_LIGHT7);
 
 #ifdef SFX
+#ifdef	EYE_CANDY
         ec_add_light(GL_LIGHT4);
         ec_add_light(GL_LIGHT5);
         ec_add_light(GL_LIGHT6);
+#endif	//EYE_CANDY
 #endif
 
 	glEnable(GL_LIGHTING);

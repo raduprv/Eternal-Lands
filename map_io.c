@@ -133,7 +133,9 @@ void change_map (const char *mapname)
 	close_storagewin(); //if storage is open, close it
 	destroy_all_particles();
 #ifdef SFX
+#ifdef	EYE_CANDY
 	ec_delete_all_effects();
+#endif	//EYE_CANDY
 #endif
 #ifdef NEW_SOUND
 	stop_all_sounds();
