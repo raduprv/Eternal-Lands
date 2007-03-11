@@ -21,19 +21,19 @@ const float WALK_RATE = 1.0;
 
 ec_internal_obstructions null_obstructions;
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_init()
+extern "C" void ec_init()
 {
   eye_candy.load_textures("./textures/eye_candy/");
   ec_cur_time = ec::get_time();
   ec_set_draw_method();
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_light(GLenum light_id)
+extern "C" void ec_add_light(GLenum light_id)
 {
   eye_candy.add_light(light_id);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_set_draw_method()
+extern "C" void ec_set_draw_method()
 {
   if (use_point_particles)
     eye_candy.draw_method = ec::EyeCandy::POINT_SPRITES;
@@ -41,7 +41,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_set_draw_method()
     eye_candy.draw_method = ec::EyeCandy::FAST_BILLBOARDS;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_set_draw_detail()
+extern "C" void ec_set_draw_detail()
 {
   if (poor_man)
     eye_candy.set_thresholds(3500, 20);	//Max particles, min framerate.
@@ -60,7 +60,7 @@ void ec_set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone)
   position.z = points[bone][2];
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_idle()
+extern "C" void ec_idle()
 {
 //  GLfloat rot_matrix[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, rot_matrix);
@@ -93,7 +93,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_idle()
   ec_cur_time = new_time;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_draw()
+extern "C" void ec_draw()
 {
   glPushMatrix();
   glRotatef(90, 1.0, 0.0, 0.0);
@@ -101,7 +101,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_draw()
   glPopMatrix();
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_actor_delete(actor* _actor)
+extern "C" void ec_actor_delete(actor* _actor)
 {
   for (int i = 0; i < (int)references.size(); )
   {
@@ -127,13 +127,13 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_actor_delete(actor* _actor)
   }
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_recall_effect(const ec_reference ref)
+extern "C" void ec_recall_effect(const ec_reference ref)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
   cast_reference->effect->recall = true;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_delete_all_effects()
+extern "C" void ec_delete_all_effects()
 {
   while (references.size())
   {
@@ -144,7 +144,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_delete_all_effects()
   }
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_delete_effect_loc(float x, float y)
+extern "C" void ec_delete_effect_loc(float x, float y)
 {
   for (int i = 0; i < (int)references.size(); )
   {
@@ -160,7 +160,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_delete_effect_loc(float x, float y)
   }
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_delete_effect_loc_type(float x, float y, ec_EffectEnum type)
+extern "C" void ec_delete_effect_loc_type(float x, float y, ec_EffectEnum type)
 {
   for (int i = 0; i < (int)references.size(); )
   {
@@ -176,7 +176,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_delete_effect_loc_type(float x, float y
   }
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_delete_effect_type(ec_EffectEnum type)
+extern "C" void ec_delete_effect_type(ec_EffectEnum type)
 {
   for (int i = 0; i < (int)references.size(); )
   {
@@ -192,29 +192,29 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_delete_effect_type(ec_EffectEnum type)
   }
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_delete_reference(ec_reference ref)
+extern "C" void ec_delete_reference(ec_reference ref)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
   cast_reference->effect->recall = true;
   delete cast_reference;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_set_position(ec_reference ref, float x, float y, float z)
+extern "C" void ec_set_position(ec_reference ref, float x, float y, float z)
 {
   ((ec_internal_reference*)ref)->position = ec::Vec3(x, 0, -y);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_set_position2(ec_reference ref, float x, float y, float z)
+extern "C" void ec_set_position2(ec_reference ref, float x, float y, float z)
 {
   ((ec_internal_reference*)ref)->position2 = ec::Vec3(x, 0, -y);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_obstructions ec_create_obstruction_list()
+extern "C" ec_obstructions ec_create_obstruction_list()
 {
   return (ec_obstructions)(new ec_internal_obstructions);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_free_obstruction_list(ec_obstructions obstructions)
+extern "C" void ec_free_obstruction_list(ec_obstructions obstructions)
 {
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
   for (std::vector<ec::Obstruction*>::iterator iter = cast_obstructions->obstructions.begin(); iter != cast_obstructions->obstructions.end(); iter++)
@@ -222,7 +222,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_free_obstruction_list(ec_obstructions o
   delete cast_obstructions;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API int ec_delete_obstruction(ec_obstructions obstructions, int index)
+extern "C" int ec_delete_obstruction(ec_obstructions obstructions, int index)
 {
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
   if (index >= (int)cast_obstructions->obstructions.size())
@@ -232,21 +232,21 @@ extern "C" EYE_CANDY_WRAPPER_API int ec_delete_obstruction(ec_obstructions obstr
   return true;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_spherical_obstruction(ec_obstructions obstructions, float x, float y, float z, float max_distance, float force)
+extern "C" void ec_add_spherical_obstruction(ec_obstructions obstructions, float x, float y, float z, float max_distance, float force)
 {
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
   cast_obstructions->positions.push_back(ec::Vec3(x, z, -y));
   cast_obstructions->obstructions.push_back(new ec::SphereObstruction(&(*(cast_obstructions->positions.rbegin())), max_distance, force));
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_simple_cylindrical_obstruction(ec_obstructions obstructions, float x, float y, float max_distance, float force)
+extern "C" void ec_add_simple_cylindrical_obstruction(ec_obstructions obstructions, float x, float y, float max_distance, float force)
 {
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
   cast_obstructions->positions.push_back(ec::Vec3(x, 0, -y));
   cast_obstructions->obstructions.push_back(new ec::SimpleCylinderObstruction(&(*(cast_obstructions->positions.rbegin())), max_distance, force));
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_cylindrical_obstruction(ec_obstructions obstructions, float x1, float y1, float z1, float x2, float y2, float z2, float max_distance, float force)
+extern "C" void ec_add_cylindrical_obstruction(ec_obstructions obstructions, float x1, float y1, float z1, float x2, float y2, float z2, float max_distance, float force)
 {
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
   cast_obstructions->positions.push_back(ec::Vec3(x1 + 0.25, z1, -(y1 + 0.25)));
@@ -256,43 +256,43 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_add_cylindrical_obstruction(ec_obstruct
   cast_obstructions->obstructions.push_back(new ec::CylinderObstruction(start, end, max_distance, force));
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_bounds ec_create_bounds_list()
+extern "C" ec_bounds ec_create_bounds_list()
 {
   return (ec_bounds)(new ec_internal_bounds);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_free_bounds_list(ec_bounds bounds)
+extern "C" void ec_free_bounds_list(ec_bounds bounds)
 {
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   delete cast_bounds;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power)
+extern "C" void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power)
 {
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   ec::PolarCoordElement e(frequency, offset, scalar, power);
   cast_bounds->push_back(e);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_effects ec_create_effects_list()
+extern "C" ec_effects ec_create_effects_list()
 {
   return (ec_effects)(new ec_internal_effects);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_free_effects_list(ec_effects effects)
+extern "C" void ec_free_effects_list(ec_effects effects)
 {
   ec_internal_effects* cast_effects = (ec_internal_effects*)effects;
   delete cast_effects;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_effect(ec_effects effects, ec_reference ref)
+extern "C" void ec_add_effect(ec_effects effects, ec_reference ref)
 {
   ec_internal_effects* cast_effects = (ec_internal_effects*)effects;
   ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
   cast_effects->push_back(cast_reference->effect);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API int ec_in_range(float x, float y, float z, Uint64 effect_max_time)
+extern "C" int ec_in_range(float x, float y, float z, Uint64 effect_max_time)
 {
   float dist_squared = (ec::Vec3(x, z, -y) - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
   if (dist_squared < ec::square(MAX_EFFECT_DISTANCE + (effect_max_time * WALK_RATE) / 1000000.0))
@@ -307,20 +307,20 @@ extern "C" EYE_CANDY_WRAPPER_API int ec_in_range(float x, float y, float z, Uint
   }
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_generic()
+extern "C" ec_reference ec_create_generic()
 {
   references.push_back(new ec_internal_reference);
   return (ec_reference)(references[references.size() - 1]);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_target(ec_reference reference, float x, float y, float z)
+extern "C" void ec_add_target(ec_reference reference, float x, float y, float z)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)reference;
   ec::Vec3 target(x, z, -y);
   cast_reference->targets.push_back(target);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API int ec_change_target(ec_reference reference, int index, float x, float y, float z)
+extern "C" int ec_change_target(ec_reference reference, int index, float x, float y, float z)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)reference;
   if (index >= (int)cast_reference->targets.size())
@@ -329,7 +329,7 @@ extern "C" EYE_CANDY_WRAPPER_API int ec_change_target(ec_reference reference, in
   return true;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::BagEffect::get_max_end_time()))
     return NULL;
@@ -340,7 +340,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_bag_pickup(float x, floa
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_bag_drop(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_bag_drop(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::BagEffect::get_max_end_time()))
     return NULL;
@@ -351,7 +351,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_bag_drop(float x, float 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_fire(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
+extern "C" ec_reference ec_create_breath_fire(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
@@ -366,7 +366,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_fire(float sx, fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_ice(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
+extern "C" ec_reference ec_create_breath_ice(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
@@ -381,7 +381,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_ice(float sx, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_poison(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
+extern "C" ec_reference ec_create_breath_poison(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
@@ -396,7 +396,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_poison(float sx, 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
+extern "C" ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
@@ -411,7 +411,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_magic(float sx, f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_lightning(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
+extern "C" ec_reference ec_create_breath_lightning(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
@@ -426,7 +426,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_lightning(float s
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
+extern "C" ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
@@ -441,7 +441,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_breath_wind(float sx, fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_campfire(float x, float y, float z, ec_obstructions obstructions, int LOD, float scale)
+extern "C" ec_reference ec_create_campfire(float x, float y, float z, ec_obstructions obstructions, int LOD, float scale)
 {
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
   if (cast_obstructions == NULL)
@@ -453,7 +453,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_campfire(float x, float 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD)
+extern "C" ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD)
 {
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
@@ -463,7 +463,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_cloud(float x, float y, 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_fireflies(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds)
+extern "C" ec_reference ec_create_fireflies(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds)
 {
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
   if (cast_obstructions == NULL)
@@ -476,7 +476,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_fireflies(float x, float
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_fountain(float x, float y, float z, float base_height, int backlit, float scale, int LOD)
+extern "C" ec_reference ec_create_fountain(float x, float y, float z, float base_height, int backlit, float scale, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -485,7 +485,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_fountain(float x, float 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_radon_pouch(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_harvesting_radon_pouch(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
@@ -496,7 +496,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_radon_pouch(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_cavern_wall(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_harvesting_cavern_wall(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
@@ -507,7 +507,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_cavern_wall(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_mother_nature(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_harvesting_mother_nature(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
@@ -518,7 +518,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_mother_nature
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_queen_of_nature(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_harvesting_queen_of_nature(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
@@ -529,7 +529,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_queen_of_natu
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_bees(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_harvesting_bees(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
@@ -540,7 +540,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_bees(float x,
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_bag_of_gold(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_harvesting_bag_of_gold(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
@@ -551,7 +551,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_bag_of_gold(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_rare_stone(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_harvesting_rare_stone(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
@@ -562,7 +562,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_harvesting_rare_stone(fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_magic_protection(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
+extern "C" ec_reference ec_create_impact_magic_protection(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
 {
   if (!ec_in_range(x, y, z, ec::ImpactEffect::get_max_end_time()))
     return NULL;
@@ -576,7 +576,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_magic_protection(
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_shield(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
+extern "C" ec_reference ec_create_impact_shield(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
 {
   if (!ec_in_range(x, y, z, ec::ImpactEffect::get_max_end_time()))
     return NULL;
@@ -590,7 +590,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_shield(float x, f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_magic_immunity(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
+extern "C" ec_reference ec_create_impact_magic_immunity(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
 {
   if (!ec_in_range(x, y, z, ec::ImpactEffect::get_max_end_time()))
     return NULL;
@@ -604,7 +604,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_magic_immunity(fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_poison(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
+extern "C" ec_reference ec_create_impact_poison(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
 {
   if (!ec_in_range(x, y, z, ec::ImpactEffect::get_max_end_time()))
     return NULL;
@@ -618,7 +618,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_poison(float x, f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_blood(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
+extern "C" ec_reference ec_create_impact_blood(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength)
 {
   if (!ec_in_range(x, y, z, ec::ImpactEffect::get_max_end_time()))
     return NULL;
@@ -632,7 +632,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_impact_blood(float x, fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_lamp(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_lamp(float x, float y, float z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -641,7 +641,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_lamp(float x, float y, f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -650,7 +650,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_magic_protection
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_shield(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_shield(float x, float y, float z, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -659,7 +659,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_shield(float x, 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -668,7 +668,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_magic_immunity(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_poison(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_poison(float x, float y, float z, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -677,7 +677,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_ongoing_poison(float x, 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_heal(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_selfmagic_heal(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -688,7 +688,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_heal(float x, 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_heal2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_selfmagic_heal2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -700,7 +700,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_heal2(actor* c
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_protection(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_selfmagic_magic_protection(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -711,7 +711,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_protecti
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_protection2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_selfmagic_magic_protection2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -723,7 +723,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_protecti
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_shield(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_selfmagic_shield(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -734,7 +734,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_shield(float x
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_shield2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_selfmagic_shield2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -746,7 +746,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_shield2(actor*
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_restoration(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_selfmagic_restoration(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -757,7 +757,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_restoration(fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_restoration2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_selfmagic_restoration2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -769,7 +769,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_restoration2(a
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_bones_to_gold(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_selfmagic_bones_to_gold(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -780,7 +780,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_bones_to_gold(
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_bones_to_gold2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_selfmagic_bones_to_gold2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -792,7 +792,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_bones_to_gold2
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_teleport_to_the_portals_room(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_selfmagic_teleport_to_the_portals_room(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -803,7 +803,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_teleport_to_th
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_teleport_to_the_portals_room2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_selfmagic_teleport_to_the_portals_room2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -815,7 +815,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_teleport_to_th
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_immunity(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_selfmagic_magic_immunity(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -826,7 +826,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_immunity
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_immunity2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_selfmagic_magic_immunity2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -838,7 +838,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_selfmagic_magic_immunity
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_alert(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_alert(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -849,7 +849,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_alert(float x, float y, 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_alert2(actor* caster, int LOD)
+extern "C" ec_reference ec_create_alert2(actor* caster, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -861,7 +861,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_alert2(actor* caster, in
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_smoke(float x, float y, float z, float scale, int LOD)
+extern "C" ec_reference ec_create_smoke(float x, float y, float z, float scale, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
@@ -872,7 +872,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_smoke(float x, float y, 
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_rabbit(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_rabbit(float x, float y, float z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -881,7 +881,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_rabbit(float x, f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_rat(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_rat(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -892,7 +892,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_rat(float x, floa
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_beaver(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_beaver(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -903,7 +903,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_beaver(float x, f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_deer(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_deer(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -914,7 +914,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_deer(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_green_snake(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_green_snake(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -925,7 +925,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_green_snake(float
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_red_snake(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_red_snake(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -936,7 +936,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_red_snake(float x
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_brown_snake(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_brown_snake(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -947,7 +947,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_brown_snake(float
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_fox(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_fox(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -958,7 +958,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_fox(float x, floa
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_boar(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_boar(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -969,7 +969,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_boar(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_wolf(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_wolf(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -980,7 +980,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_wolf(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_puma(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_puma(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -991,7 +991,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_puma(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_bear(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_bear(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1002,7 +1002,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_bear(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_skeleton(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_skeleton(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1013,7 +1013,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_skeleton(float x,
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_small_gargoyle(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_small_gargoyle(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1024,7 +1024,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_small_gargoyle(fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_medium_gargoyle(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_medium_gargoyle(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1035,7 +1035,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_medium_gargoyle(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_large_gargoyle(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_large_gargoyle(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1046,7 +1046,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_large_gargoyle(fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_fluffy(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_fluffy(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1057,7 +1057,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_fluffy(float x, f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_chimeran_wolf(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_chimeran_wolf(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1068,7 +1068,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_chimeran_wolf(flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_yeti(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_yeti(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1079,7 +1079,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_yeti(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_arctic_chimeran(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_arctic_chimeran(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1090,7 +1090,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_arctic_chimeran(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_giant(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_summon_giant(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
@@ -1101,7 +1101,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_summon_giant(float x, fl
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_serpent(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_serpent(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1111,7 +1111,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_serpent(float star
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_cutlass(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_cutlass(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1121,7 +1121,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_cutlass(float star
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_emerald_claymore(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_emerald_claymore(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1131,7 +1131,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_emerald_claymore(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_sunbreaker(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_sunbreaker(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1141,7 +1141,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_sunbreaker(float s
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_orc_slayer(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_orc_slayer(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1151,7 +1151,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_orc_slayer(float s
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_eagle_wing(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_eagle_wing(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1161,7 +1161,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_eagle_wing(float s
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_jagged_saber(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_jagged_saber(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1171,7 +1171,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_jagged_saber(float
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_of_fire(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_of_fire(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1181,7 +1181,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_of_fire(float star
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_of_ice(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_of_ice(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1191,7 +1191,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_of_ice(float start
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_of_magic(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
+extern "C" ec_reference ec_create_sword_of_magic(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
@@ -1201,7 +1201,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_sword_of_magic(float sta
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_remote_heal(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_remote_heal(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1216,7 +1216,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_remote_heal(
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_remote_heal2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_remote_heal2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1233,7 +1233,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_remote_heal2
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_poison(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_poison(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1248,7 +1248,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_poison(float
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_poison2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_poison2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1265,7 +1265,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_poison2(acto
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_teleport_to_range(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_teleport_to_range(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1280,7 +1280,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_teleport_to_
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_harm(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_harm(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1295,7 +1295,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_harm(float s
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_harm2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_harm2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1312,7 +1312,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_harm2(actor*
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_life_drain(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_life_drain(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1327,7 +1327,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_life_drain(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_life_drain2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_life_drain2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1344,7 +1344,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_life_drain2(
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_launch_targetmagic_heal_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD)
+extern "C" void ec_launch_targetmagic_heal_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)reference;
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
@@ -1363,7 +1363,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_launch_targetmagic_heal_summoned(ec_ref
   eye_candy.push_back_effect(cast_reference->effect);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_launch_targetmagic_smite_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD)
+extern "C" void ec_launch_targetmagic_smite_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)reference;
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
@@ -1382,7 +1382,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_launch_targetmagic_smite_summoned(ec_re
   eye_candy.push_back_effect(cast_reference->effect);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1397,7 +1397,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_drain_mana(f
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
+extern "C" ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* target, ec_obstructions obstructions, int LOD)
 {
   if (!ec_in_range(caster->x_pos, caster->y_pos, caster->z_pos, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
@@ -1414,7 +1414,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_targetmagic_drain_mana2(
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_teleporter(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_teleporter(float x, float y, float z, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
@@ -1423,7 +1423,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_teleporter(float x, floa
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_wind_leaves(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
+extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
@@ -1437,7 +1437,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_wind_leaves(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_wind_petals(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
+extern "C" ec_reference ec_create_wind_petals(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
@@ -1451,7 +1451,7 @@ extern "C" EYE_CANDY_WRAPPER_API ec_reference ec_create_wind_petals(float x, flo
   return (ec_reference)ret;
 }
 
-extern "C" EYE_CANDY_WRAPPER_API void ec_add_wind_effect_list(ec_reference reference, ec_effects effects)
+extern "C" void ec_add_wind_effect_list(ec_reference reference, ec_effects effects)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)reference;
   ec_internal_effects* cast_effects = (ec_internal_effects*)effects;

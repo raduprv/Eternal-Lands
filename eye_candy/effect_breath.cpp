@@ -316,7 +316,7 @@ BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _targ
   mover = NULL;
   count = 0;
   count_scalar = 3000 / LOD;
-  size_scalar = scale * fastsqrt(LOD) / sqrt(10);
+  size_scalar = scale * fastsqrt(LOD) / sqrt(10.0);
   
   spawner = new FilledSphereSpawner(scale / 3.0);
   mover = new SmokeMover(this, 10.0);

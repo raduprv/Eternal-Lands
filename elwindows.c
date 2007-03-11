@@ -1051,6 +1051,10 @@ int	draw_window(window_info *win)
 	draw_window_border(win);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
+#ifdef SFX
+	ec_idle();
+#endif
+
 	if(win->display_handler)
 	{
 		ret_val=(*win->display_handler)(win);

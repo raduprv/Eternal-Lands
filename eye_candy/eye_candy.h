@@ -9,17 +9,18 @@
 #include <map>
 #include <iostream>
 #include <cassert>
-#include <SDL/SDL.h>
+#include <SDL.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glext.h>
-#include <GL/glut.h>
 #include <stdlib.h>
 #include <math.h>
 
-#ifndef WINDOWS
-#include <sys/time.h>
-#include <time.h>
+#ifdef WINDOWS
+ #include <windows.h>     
+#else
+ #include <sys/time.h>
+ #include <time.h>
 #endif
 
 namespace ec
@@ -72,12 +73,14 @@ double cube(const double d);
 float cube(const float f);
 int cube(const int i);
 #ifdef WINDOWS
-__declspec_noinline float fastsqrt(float f);
-__declspec_noinline float invsqrt(float f);
+__declspec(noinline) float fastsqrt(float f);
+__declspec(noinline) float invsqrt(float f);
  #define copysign _copysign
  #define fmax(a, b) ((a < b) ? b : a)
+ #define round(a) (a - floor(a) < 0.5f ? floor(a) : ceil(a))
  #define remainderf(a, b) (a - (float)round(a / b) * b)
-#else
+ #define random rand
+#else	
 __attribute__ ((noinline)) float fastsqrt(float f);
 __attribute__ ((noinline)) float invsqrt(float f);
 #endif

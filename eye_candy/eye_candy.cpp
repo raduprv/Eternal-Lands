@@ -2,8 +2,8 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_image.h>
+#include <SDL.h>
+#include <SDL_image.h>
 #include <errno.h>
 
 #include "eye_candy.h"

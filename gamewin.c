@@ -671,7 +671,7 @@ int display_game_handler (window_info *win)
 
         // Eye candy
 #ifdef SFX
-	ec_idle();
+//	ec_idle();
 	ec_draw();
 #endif
 	last_texture = -1;

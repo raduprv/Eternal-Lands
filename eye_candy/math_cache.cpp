@@ -4,6 +4,7 @@
 
 #include <iostream>
 #include <math.h>
+#include "eye_candy.h"
 
 #include "math_cache.h"
 

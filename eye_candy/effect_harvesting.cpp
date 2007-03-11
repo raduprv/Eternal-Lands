@@ -107,9 +107,9 @@ bool HarvestingParticle::idle(const Uint64 delta_t)
     }
     case HarvestingEffect::RARE_STONE:
     {
-      color[0] = 0.7 + 0.3 * sin(age / 530000);
-      color[1] = 0.7 + 0.3 * sin(age / 970000 + 1.3);
-      color[2] = 0.7 + 0.3 * sin(age / 780000 + 1.9);
+      color[0] = 0.7 + 0.3 * sin(age / 530000.0);
+      color[1] = 0.7 + 0.3 * sin(age / 970000.0 + 1.3);
+      color[2] = 0.7 + 0.3 * sin(age / 780000.0 + 1.9);
     
       if (age < 700000)
       {

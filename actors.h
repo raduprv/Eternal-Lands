@@ -6,9 +6,9 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
-#include <SDL/SDL.h>
-#include <SDL/SDL_net.h>
-#include <SDL/SDL_thread.h>
+#include <SDL.h>
+#include <SDL_net.h>
+#include <SDL_thread.h>
 #include "cal_types.h"
 #include "client_serv.h"
 

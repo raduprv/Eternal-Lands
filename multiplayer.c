@@ -406,6 +406,12 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 
 void process_message_from_server (const Uint8 *in_data, int data_length)
 {
+#ifdef SFX	//Test code; delete when SFX are well-in.
+	ec_bounds bounds;
+	ec_reference ref, ref1, ref2;
+	ec_effects eff_list;
+#endif
+
 	Uint8 text_buf[MAX_TCP_BUFFER];
 	
 	//see what kind of data we got
@@ -609,7 +615,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 // NOTE: When actually calling functions for real, they should have their
 //       returned references saved, and freed when no longer needed.
 ///////////////////////////////////////////////////////////////////////////////
-				ec_bounds bounds = ec_create_bounds_list();
+				bounds = ec_create_bounds_list();
 				ec_add_polar_coords_bound(bounds, 0.0, 0.0, 8.0, 1.0);
 				ec_add_polar_coords_bound(bounds, 2.0, 0.0, 3.0, 1.0);
 				ec_add_polar_coords_bound(bounds, 5.0, 0.1, 1.5, 0.7);
@@ -635,11 +641,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_create_sword_of_ice(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_sword_of_magic(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_teleporter(49.0, 70.0, 0.0, 10);
-				ec_reference ref1;
-				ec_reference ref2;
 				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
 				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
-				ec_effects eff_list = ec_create_effects_list();
+				eff_list = ec_create_effects_list();
 				ec_add_effect(eff_list, ref2);
 				ec_add_wind_effect_list(ref1, eff_list);
 				ec_free_effects_list(eff_list);
