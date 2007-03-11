@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-ImpactParticle::ImpactParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const ImpactEffect::ImpactType _type) : Particle(_effect, _mover, _pos, _velocity)
+ImpactParticle::ImpactParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const ImpactEffect::ImpactType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   type = _type;
   color[0] = red;
@@ -31,7 +31,7 @@ ImpactParticle::ImpactParticle(Effect* _effect, ParticleMover* _mover, const Vec
   state = 0;
 }
 
-bool ImpactParticle::idle(const u_int64_t delta_t)
+bool ImpactParticle::idle(const Uint64 delta_t)
 {
   const float float_time = delta_t / 1000000.0;
   switch(type)
@@ -81,7 +81,7 @@ bool ImpactParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-void ImpactParticle::draw(const u_int64_t usec)
+void ImpactParticle::draw(const Uint64 usec)
 {
   if (state == 1)
   {
@@ -102,12 +102,12 @@ void ImpactParticle::draw(const u_int64_t usec)
   }
 }
 
-GLuint ImpactParticle::get_texture(const u_int16_t res_index)
+GLuint ImpactParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 _angle, const ImpactType _type, const u_int16_t _LOD, const float _strength)
+ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 _angle, const ImpactType _type, const Uint16 _LOD, const float _strength)
 {
   if (EC_DEBUG)
     std::cout << "ImpactEffect (" << this << ") created." << std::endl;
@@ -237,7 +237,7 @@ ImpactEffect::~ImpactEffect()
     std::cout << "ImpactEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool ImpactEffect::idle(const u_int64_t usec)
+bool ImpactEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;

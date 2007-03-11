@@ -23,11 +23,11 @@ public:
     POISON
   };
 
-  OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const OngoingType _type, const u_int16_t _LOD, const float _strength);
+  OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const OngoingType _type, const Uint16 _LOD, const float _strength);
   ~OngoingEffect(); 
   
   virtual EffectEnum get_type() { return EC_ONGOING; };
-  bool idle(const u_int64_t usec);
+  bool idle(const Uint64 usec);
 
   ParticleSpawner* spawner;
   ParticleMover* mover;
@@ -40,16 +40,16 @@ public:
 class OngoingParticle : public Particle
 {
 public:
-  OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const OngoingEffect::OngoingType _type);
+  OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const OngoingEffect::OngoingType _type);
   ~OngoingParticle() {}
   
-  virtual bool idle(const u_int64_t delta_t);
-  void draw(const u_int64_t usec);
-  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual bool idle(const Uint64 delta_t);
+  void draw(const Uint64 usec);
+  virtual GLuint get_texture(const Uint16 res_index);
   virtual light_t estimate_light_level() const { return 0.002; };
   
   Texture* texture;
-  u_int16_t LOD;
+  Uint16 LOD;
   OngoingEffect::OngoingType type;
 };
 

@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-TargetMagicParticle::TargetMagicParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const TargetMagicEffect::TargetMagicType _type, ParticleSpawner* _spawner2, ParticleMover* _mover2, Vec3* _target, u_int16_t _effect_id, u_int16_t _state) : Particle(_effect, _mover, _pos, _velocity)
+TargetMagicParticle::TargetMagicParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const TargetMagicEffect::TargetMagicType _type, ParticleSpawner* _spawner2, ParticleMover* _mover2, Vec3* _target, Uint16 _effect_id, Uint16 _state) : Particle(_effect, _mover, _pos, _velocity)
 {
   type = _type;
   color[0] = red;
@@ -40,12 +40,12 @@ TargetMagicParticle::TargetMagicParticle(Effect* _effect, ParticleMover* _mover,
   effect_id = _effect_id;
 }
 
-bool TargetMagicParticle::idle(const u_int64_t delta_t)
+bool TargetMagicParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
   
-  const u_int64_t age = get_time() - born;
+  const Uint64 age = get_time() - born;
   const interval_t float_time = delta_t / 1000000.0;
   Vec3 cur_target = *target;
   cur_target.y += 0.5;
@@ -258,7 +258,7 @@ bool TargetMagicParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-void TargetMagicParticle::draw(const u_int64_t usec)
+void TargetMagicParticle::draw(const Uint64 usec)
 {
   if ((type == TargetMagicEffect::POISON) && (state == 2))
   {
@@ -288,12 +288,12 @@ void TargetMagicParticle::draw(const u_int64_t usec)
   }
 }
 
-GLuint TargetMagicParticle::get_texture(const u_int16_t res_index)
+GLuint TargetMagicParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const u_int16_t _LOD)
+TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ") created(1)." << std::endl;
@@ -302,14 +302,14 @@ TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, V
   initialize(_base, _dead, _pos, targets, _type, _obstructions, _LOD);
 }
 
-TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const u_int16_t _LOD)
+TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ") created(2)." << std::endl;
   initialize(_base, _dead, _pos, _targets, _type, _obstructions, _LOD);
 }
 
-void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const u_int16_t _LOD)
+void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const Uint16 _LOD)
 {
   base = _base;
   dead = _dead;
@@ -554,7 +554,7 @@ TargetMagicEffect::~TargetMagicEffect()
     std::cout << "TargetMagicEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool TargetMagicEffect::idle(const u_int64_t usec)
+bool TargetMagicEffect::idle(const Uint64 usec)
 {
   if ((particles.size() == 0) && (effect_count == 0))
     return false;
@@ -562,8 +562,8 @@ bool TargetMagicEffect::idle(const u_int64_t usec)
   if (recall)
     return true;
 
-  const u_int64_t cur_time = get_time();
-  const u_int64_t age = cur_time - born;
+  const Uint64 cur_time = get_time();
+  const Uint64 age = cur_time - born;
   for (int i = 0; i < (int)effect_centers.size(); i++)
   {
     if (age < 300000)
@@ -652,13 +652,13 @@ bool TargetMagicEffect::idle(const u_int64_t usec)
   return true;
 }
 
-void TargetMagicEffect::draw(const u_int64_t usec)
+void TargetMagicEffect::draw(const Uint64 usec)
 {
   for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter != capless_cylinders.end(); iter++)
     (*iter)->draw();
 }
 
-TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effect, Vec3* _pos, const TargetMagicEffect::TargetMagicType _type, ParticleSpawner* _spawner, ParticleMover* _mover, float* _target_alpha, u_int16_t _effect_id, const u_int16_t _LOD)
+TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effect, Vec3* _pos, const TargetMagicEffect::TargetMagicType _type, ParticleSpawner* _spawner, ParticleMover* _mover, float* _target_alpha, Uint16 _effect_id, const Uint16 _LOD)
 {
   base = _base;
   effect = _effect;
@@ -829,7 +829,7 @@ TargetMagicEffect2::~TargetMagicEffect2()
 }
 
 
-bool TargetMagicEffect2::idle(const u_int64_t usec)
+bool TargetMagicEffect2::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
   {
@@ -841,8 +841,8 @@ bool TargetMagicEffect2::idle(const u_int64_t usec)
   {
     if (target_alpha != NULL)
     {
-      const u_int64_t cur_time = get_time();
-      const u_int64_t age = cur_time - born;
+      const Uint64 cur_time = get_time();
+      const Uint64 age = cur_time - born;
       if (age < 500000)
       {
         *target_alpha = age / 500000.0;

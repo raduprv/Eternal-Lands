@@ -570,7 +570,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	switch (sfx)
 	{
 		case	SPECIAL_EFFECT_SHIELD:
-			ec_create_selfmagic_shield2(target, (poor_man ? 6 : 10));
+			ec_create_selfmagic_shield2(caster, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_RESTORATION:
 			ec_create_selfmagic_restoration2(caster, (poor_man ? 6 : 10));

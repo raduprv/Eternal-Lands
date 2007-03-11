@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-HarvestingParticle::HarvestingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const HarvestingEffect::HarvestingType _type) : Particle(_effect, _mover, _pos, _velocity)
+HarvestingParticle::HarvestingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const HarvestingEffect::HarvestingType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   type = _type;
   color[0] = red;
@@ -30,13 +30,13 @@ HarvestingParticle::HarvestingParticle(Effect* _effect, ParticleMover* _mover, c
   state = 0;
 }
 
-bool HarvestingParticle::idle(const u_int64_t delta_t)
+bool HarvestingParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
     
   const interval_t float_time = delta_t / 1000000.0;
-  const u_int64_t age = get_time() - born;
+  const Uint64 age = get_time() - born;
   switch(type)
   {
     case HarvestingEffect::RADON_POUCH:
@@ -80,7 +80,7 @@ bool HarvestingParticle::idle(const u_int64_t delta_t)
     }
     case HarvestingEffect::BEES:
     {
-      const u_int64_t age = get_time() - born;
+      const Uint64 age = get_time() - born;
       if (age < 650000)
         break;
     
@@ -132,7 +132,7 @@ bool HarvestingParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-void HarvestingParticle::draw(const u_int64_t usec)
+void HarvestingParticle::draw(const Uint64 usec)
 {
   if (((type == HarvestingEffect::RADON_POUCH) && (state == 0)) || (type == HarvestingEffect::MOTHER_NATURE) || (type == HarvestingEffect::QUEEN_OF_NATURE) || ((type == HarvestingEffect::BAG_OF_GOLD) && (state == 0)) || (type == HarvestingEffect::RARE_STONE))
     Particle::draw(usec);
@@ -149,7 +149,7 @@ void HarvestingParticle::draw(const u_int64_t usec)
   }
 }
 
-GLuint HarvestingParticle::get_texture(const u_int16_t res_index)
+GLuint HarvestingParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
@@ -162,7 +162,7 @@ light_t HarvestingParticle::get_light_level()
     return 0.0;
 };
 
-HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const HarvestingType _type, const u_int16_t _LOD)
+HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const HarvestingType _type, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "HarvestingEffect (" << this << ") created." << std::endl;
@@ -361,7 +361,7 @@ HarvestingEffect::~HarvestingEffect()
     std::cout << "HarvestingEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool HarvestingEffect::idle(const u_int64_t usec)
+bool HarvestingEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;

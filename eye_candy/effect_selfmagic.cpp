@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-SelfMagicParticle::SelfMagicParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const SelfMagicEffect::SelfMagicType _type) : Particle(_effect, _mover, _pos, _velocity)
+SelfMagicParticle::SelfMagicParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const SelfMagicEffect::SelfMagicType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   type = _type;
   color[0] = red;
@@ -31,7 +31,7 @@ SelfMagicParticle::SelfMagicParticle(Effect* _effect, ParticleMover* _mover, con
   state = 0;
 }
 
-bool SelfMagicParticle::idle(const u_int64_t delta_t)
+bool SelfMagicParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -200,12 +200,12 @@ bool SelfMagicParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint SelfMagicParticle::get_texture(const u_int16_t res_index)
+GLuint SelfMagicParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const SelfMagicType _type, const u_int16_t _LOD)
+SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const SelfMagicType _type, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "SelfMagicEffect (" << this << ") created." << std::endl;
@@ -399,7 +399,7 @@ SelfMagicEffect::~SelfMagicEffect()
     std::cout << "SelfMagicEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool SelfMagicEffect::idle(const u_int64_t usec)
+bool SelfMagicEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;
@@ -411,8 +411,8 @@ bool SelfMagicEffect::idle(const u_int64_t usec)
   effect_center.y += usec / 1500000.0;
   effect_center.z = pos->z;
   
-  const u_int64_t cur_time = get_time();
-  const u_int64_t age = cur_time - born;
+  const Uint64 cur_time = get_time();
+  const Uint64 age = cur_time - born;
   switch(type)
   {
     case HEAL:
@@ -494,7 +494,7 @@ bool SelfMagicEffect::idle(const u_int64_t usec)
   return true;
 }
 
-void SelfMagicEffect::draw(const u_int64_t usec)
+void SelfMagicEffect::draw(const Uint64 usec)
 {
   for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter != capless_cylinders.end(); iter++)
     (*iter)->draw();

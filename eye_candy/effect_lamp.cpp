@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-LampParticle::LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const u_int16_t _LOD) : Particle(_effect, _mover, _pos, _velocity)
+LampParticle::LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   LOD = _LOD;
   color[0] = 1.0;
@@ -30,7 +30,7 @@ LampParticle::LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
   flare_frequency = 2.0;
 }
 
-bool LampParticle::idle(const u_int64_t delta_t)
+bool LampParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -47,12 +47,12 @@ bool LampParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint LampParticle::get_texture(const u_int16_t res_index)
+GLuint LampParticle::get_texture(const Uint16 res_index)
 {
   return base->TexFlare.get_texture(res_index);
 }
 
-LampBigParticle::LampBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const u_int16_t _LOD) : Particle(_effect, _mover, _pos, _velocity)
+LampBigParticle::LampBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   LOD = _LOD;
   color[0] = 1.0;
@@ -68,7 +68,7 @@ LampBigParticle::LampBigParticle(Effect* _effect, ParticleMover* _mover, const V
   flare_frequency = 2.0;
 }
 
-bool LampBigParticle::idle(const u_int64_t delta_t)
+bool LampBigParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -88,7 +88,7 @@ bool LampBigParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint LampBigParticle::get_texture(const u_int16_t res_index)
+GLuint LampBigParticle::get_texture(const Uint16 res_index)
 {
   return base->TexFlare.get_texture(res_index);
 }
@@ -108,7 +108,7 @@ LampFlareParticle::LampFlareParticle(Effect* _effect, ParticleMover* _mover, con
   true_pos = _pos;
 }
 
-bool LampFlareParticle::idle(const u_int64_t delta_t)
+bool LampFlareParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -116,12 +116,12 @@ bool LampFlareParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint LampFlareParticle::get_texture(const u_int16_t res_index)
+GLuint LampFlareParticle::get_texture(const Uint16 res_index)
 {
   return base->TexVoid.get_texture(res_index);
 }
 
-LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const u_int16_t _LOD)
+LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "LampEffect (" << this << ") created." << std::endl;
@@ -166,7 +166,7 @@ LampEffect::~LampEffect()
     std::cout << "LampEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool LampEffect::idle(const u_int64_t usec)
+bool LampEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;

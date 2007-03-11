@@ -15,29 +15,29 @@ namespace ec
 class LampParticle : public Particle
 {
 public:
-  LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const u_int16_t _LOD);
+  LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const Uint16 _LOD);
   ~LampParticle() {}
   
-  virtual bool idle(const u_int64_t delta_t);
-  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual bool idle(const Uint64 delta_t);
+  virtual GLuint get_texture(const Uint16 res_index);
   virtual light_t estimate_light_level() const { return 0.0; };	// We don't want the particle system lights to be used on the lamp, since it will assumedly already have one.
   virtual light_t get_light_level() { return 0.0; }; // Same.
   
-  u_int16_t LOD;
+  Uint16 LOD;
 };
 
 class LampBigParticle : public Particle
 {
 public:
-  LampBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const u_int16_t _LOD);
+  LampBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const Uint16 _LOD);
   ~LampBigParticle() {}
   
-  virtual bool idle(const u_int64_t delta_t);
-  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual bool idle(const Uint64 delta_t);
+  virtual GLuint get_texture(const Uint16 res_index);
   virtual light_t estimate_light_level() const { return 0.0; };	// Like above
   virtual light_t get_light_level() { return 0.0; }; // Same.
   
-  u_int16_t LOD;
+  Uint16 LOD;
 };
 
 class LampFlareParticle : public Particle
@@ -46,8 +46,8 @@ public:
   LampFlareParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity);
   ~LampFlareParticle() {}
   
-  virtual bool idle(const u_int64_t delta_t);
-  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual bool idle(const Uint64 delta_t);
+  virtual GLuint get_texture(const Uint16 res_index);
   virtual light_t estimate_light_level() const { return 0.0; };	// Like above
   virtual light_t get_light_level() { return 0.0; }; // Same.
   virtual bool deletable() { return false; };
@@ -59,11 +59,11 @@ public:
 class LampEffect : public Effect
 {
 public: 
-  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const u_int16_t _LOD);
+  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Uint16 _LOD);
   ~LampEffect(); 
   
   virtual EffectEnum get_type() { return EC_LAMP; };
-  bool idle(const u_int64_t usec);
+  bool idle(const Uint64 usec);
 
   GradientMover* mover;
   ParticleMover* stationary;

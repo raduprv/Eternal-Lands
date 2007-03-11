@@ -29,7 +29,7 @@ TeleporterParticle::TeleporterParticle(Effect* _effect, ParticleMover* _mover, c
   flare_frequency = 2.0;
 }
 
-bool TeleporterParticle::idle(const u_int64_t delta_t)
+bool TeleporterParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -43,12 +43,12 @@ bool TeleporterParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint TeleporterParticle::get_texture(const u_int16_t res_index)
+GLuint TeleporterParticle::get_texture(const Uint16 res_index)
 {
   return base->TexShimmer.get_texture(res_index);
 }
 
-TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const u_int16_t _LOD)
+TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "TeleporterEffect (" << this << ") created." << std::endl;
@@ -93,7 +93,7 @@ TeleporterEffect::~TeleporterEffect()
     std::cout << "TeleporterEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool TeleporterEffect::idle(const u_int64_t usec)
+bool TeleporterEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;
@@ -113,8 +113,8 @@ bool TeleporterEffect::idle(const u_int64_t usec)
   
   for (int i = 0; i < (int)targets.size(); )
   {
-    std::vector< std::pair<float *, u_int64_t> >::iterator iter = targets.begin() + i;
-    u_int64_t age = get_time() - iter->second;
+    std::vector< std::pair<float *, Uint64> >::iterator iter = targets.begin() + i;
+    Uint64 age = get_time() - iter->second;
     if (age < 500000)
     {
       *(iter->first) = 1.0 - (age / 500000.0);;
@@ -135,13 +135,13 @@ bool TeleporterEffect::idle(const u_int64_t usec)
   return true;
 }
 
-void TeleporterEffect::draw(const u_int64_t usec)
+void TeleporterEffect::draw(const Uint64 usec)
 {
   for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter != capless_cylinders.end(); iter++)
     (*iter)->draw();
 }
 
-void TeleporterEffect::request_LOD(const u_int16_t _LOD)
+void TeleporterEffect::request_LOD(const Uint16 _LOD)
 {
   if (_LOD <= desired_LOD)
     LOD = _LOD;
@@ -164,7 +164,7 @@ void TeleporterEffect::request_LOD(const u_int16_t _LOD)
 
 void TeleporterEffect::add_actor_alpha_pointer(float* ptr)
 {
-  targets.push_back( std::pair<float*, u_int64_t>(ptr, get_time()));
+  targets.push_back( std::pair<float*, Uint64>(ptr, get_time()));
 }
 
 ///////////////////////////////////////////////////////////////////////////////

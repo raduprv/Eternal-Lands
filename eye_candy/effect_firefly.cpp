@@ -28,7 +28,7 @@ FireflyParticle::FireflyParticle(Effect* _effect, ParticleMover* _mover, const V
   max_height = _max_height;
 }
 
-bool FireflyParticle::idle(const u_int64_t delta_t)
+bool FireflyParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -54,7 +54,7 @@ bool FireflyParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint FireflyParticle::get_texture(const u_int16_t res_index)
+GLuint FireflyParticle::get_texture(const Uint16 res_index)
 {
   return base->TexVoid.get_texture(res_index);
 }
@@ -92,7 +92,7 @@ FireflyEffect::~FireflyEffect()
     std::cout << "FireflyEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool FireflyEffect::idle(const u_int64_t usec)
+bool FireflyEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;

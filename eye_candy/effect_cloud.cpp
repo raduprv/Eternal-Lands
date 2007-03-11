@@ -29,7 +29,7 @@ CloudParticle::CloudParticle(Effect* _effect, ParticleMover* _mover, const Vec3 
   normal = Vec3(0.0, 1.0, 0.0);
 }
 
-bool CloudParticle::idle(const u_int64_t delta_t)
+bool CloudParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -131,12 +131,12 @@ bool CloudParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint CloudParticle::get_texture(const u_int16_t res_index)
+GLuint CloudParticle::get_texture(const Uint16 res_index)
 {
   return base->TexSimple.get_texture(res_index);
 }
 
-void CloudParticle::draw(const u_int64_t usec)
+void CloudParticle::draw(const Uint64 usec)
 {
   glEnable(GL_LIGHTING);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -149,7 +149,7 @@ void CloudParticle::draw(const u_int64_t usec)
   glDisable(GL_LIGHTING);
 }
 
-CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, const std::vector<PolarCoordElement> bounding_range, const u_int16_t _LOD)
+CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, const std::vector<PolarCoordElement> bounding_range, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "CloudEffect (" << this << ") created." << std::endl;
@@ -202,7 +202,7 @@ CloudEffect::~CloudEffect()
     std::cout << "CloudEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool CloudEffect::idle(const u_int64_t usec)
+bool CloudEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;

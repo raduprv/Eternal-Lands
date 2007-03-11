@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-SwordParticle::SwordParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD) : Particle(_effect, _mover, _pos, _velocity)
+SwordParticle::SwordParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   color[0] = red + randcolor(0.2) - 0.1;
   if (color[0] > 1.0)
@@ -41,7 +41,7 @@ SwordParticle::SwordParticle(Effect* _effect, ParticleMover* _mover, const Vec3 
   LOD = _LOD;
 }
 
-bool SwordParticle::idle(const u_int64_t delta_t)
+bool SwordParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -55,12 +55,12 @@ bool SwordParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint SwordParticle::get_texture(const u_int16_t res_index)
+GLuint SwordParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start, Vec3* _end, const SwordType _type, const u_int16_t _LOD)
+SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start, Vec3* _end, const SwordType _type, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "SwordEffect (" << this << ") created." << std::endl;
@@ -168,7 +168,7 @@ SwordEffect::~SwordEffect()
     std::cout << "SwordEffect (" << this << ") destroyed." << std::endl;
 }
 
-void SwordEffect::request_LOD(const u_int16_t _LOD)
+void SwordEffect::request_LOD(const Uint16 _LOD)
 {
   if (_LOD <= desired_LOD)
     LOD = _LOD;
@@ -242,7 +242,7 @@ void SwordEffect::request_LOD(const u_int16_t _LOD)
   alpha /= 13.0 / (LOD + 3);
 }
 
-bool SwordEffect::idle(const u_int64_t usec)
+bool SwordEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;

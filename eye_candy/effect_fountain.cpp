@@ -35,7 +35,7 @@ FountainParticle::FountainParticle(Effect* _effect, ParticleMover* _mover, const
   state = 0;
 }
 
-void FountainParticle::draw(const u_int64_t usec)
+void FountainParticle::draw(const Uint64 usec)
 {
   if (!backlight)
   {
@@ -69,7 +69,7 @@ void FountainParticle::draw(const u_int64_t usec)
   }
 }
 
-bool FountainParticle::idle(const u_int64_t delta_t)
+bool FountainParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -105,7 +105,7 @@ bool FountainParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint FountainParticle::get_texture(const u_int16_t res_index)
+GLuint FountainParticle::get_texture(const Uint16 res_index)
 {
   if (state == 1)
     return base->TexWater.get_texture(res_index);
@@ -113,7 +113,7 @@ GLuint FountainParticle::get_texture(const u_int16_t res_index)
     return base->TexFlare.get_texture(res_index);
 }
 
-FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _backlight, const coord_t _base_height, const float _scale, const u_int16_t _LOD)
+FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _backlight, const coord_t _base_height, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "FountainEffect (" << this << ") created." << std::endl;
@@ -156,7 +156,7 @@ FountainEffect::~FountainEffect()
     std::cout << "FountainEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool FountainEffect::idle(const u_int64_t usec)
+bool FountainEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;

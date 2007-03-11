@@ -34,17 +34,17 @@ Texture::~Texture()
   }
 }
 
-GLuint Texture::get_texture(const u_int16_t res_index) const
+GLuint Texture::get_texture(const Uint16 res_index) const
 {
   return get_texture(res_index, randint(texture_ids[res_index].size()));
 }
 
-GLuint Texture::get_texture(const u_int16_t res_index, const int frame) const
+GLuint Texture::get_texture(const Uint16 res_index, const int frame) const
 {
   return texture_ids[res_index][frame];
 }
 
-GLuint Texture::get_texture(const u_int16_t res_index, const u_int64_t born, const u_int64_t changerate) const
+GLuint Texture::get_texture(const Uint16 res_index, const Uint64 born, const Uint64 changerate) const
 {
   return get_texture(res_index, ((get_time() - born) / changerate) % texture_ids[res_index].size());
 }
@@ -503,7 +503,7 @@ Particle::~Particle()
   delete[] motion_blur;
 };
 
-void Particle::draw(const u_int64_t usec)
+void Particle::draw(const Uint64 usec)
 {
   if (base->draw_method == EyeCandy::POINT_SPRITES)
   {
@@ -644,7 +644,7 @@ Vec3 ParticleMover::nonpreserving_vec_shift_amount(const Vec3 src, const Vec3 de
   return nonpreserving_vec_shift(src, dest, percent);
 }
 
-void GradientMover::move(Particle& p, u_int64_t usec)
+void GradientMover::move(Particle& p, Uint64 usec)
 {
   const coord_t scalar = usec / 1000000.0;
   Vec3 gradient_velocity = p.velocity + get_force_gradient(p.pos) * scalar;
@@ -733,7 +733,7 @@ void GravityMover::set_gravity_center(Vec3* _gravity_center)
   gravity_center_ptr = _gravity_center;
 }
 
-void GravityMover::move(Particle& p, u_int64_t usec)
+void GravityMover::move(Particle& p, Uint64 usec)
 {
   old_gravity_center = gravity_center;
   gravity_center = *gravity_center_ptr;
@@ -1063,15 +1063,15 @@ void EyeCandy::set_thresholds(int _max_particles, int min_framerate)
   LOD_3_threshold = max_particles * 91 / 100;
   LOD_2_threshold = max_particles * 94 / 100;
   LOD_1_threshold = max_particles * 97 / 100;
-  LOD_9_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.9));
-  LOD_8_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.8));
-  LOD_7_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.7));
-  LOD_6_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.6));
-  LOD_5_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.5));
-  LOD_4_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.4));
-  LOD_3_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.3));
-  LOD_2_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.2));
-  LOD_1_time_threshold = (u_int64_t)(1000000.0 / (min_framerate * 1.1));
+  LOD_9_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.9));
+  LOD_8_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.8));
+  LOD_7_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.7));
+  LOD_6_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.6));
+  LOD_5_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.5));
+  LOD_4_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.4));
+  LOD_3_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.3));
+  LOD_2_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.2));
+  LOD_1_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.1));
 //  allowable_particles_to_add = max_particles;
 }
 
@@ -1340,7 +1340,7 @@ void EyeCandy::draw()
 
 void EyeCandy::idle()
 {
-  const u_int64_t cur_time = get_time();
+  const Uint64 cur_time = get_time();
   for (int i = 0; i < (int)effects.size(); )
   {
     std::vector<Effect*>::iterator iter = effects.begin() + i;
@@ -1391,7 +1391,7 @@ void EyeCandy::idle()
   }
 
   // If we're nearing our particle limit, lower our level of detail.
-  u_int16_t change_LOD;
+  Uint16 change_LOD;
   if (particles.size() > LOD_1_threshold)
     change_LOD = 1;
   else if (particles.size() > LOD_2_threshold)
@@ -1413,7 +1413,7 @@ void EyeCandy::idle()
   else
     change_LOD = 10;
 
-  u_int16_t change_LOD2;
+  Uint16 change_LOD2;
   if (time_diff > LOD_1_time_threshold)
     change_LOD2 = 1;
   else if (time_diff > LOD_2_time_threshold)
@@ -1632,79 +1632,79 @@ int randint(const int upto)
   return rand() % upto;
 }
 
-u_int8_t rand8()
+Uint8 rand8()
 {
-  return (u_int8_t)rand();
+  return (Uint8)rand();
 }
 
-u_int16_t rand16()
+Uint16 rand16()
 {
 #if RAND_MAX >= 0xFFFF
-  return (u_int16_t)rand();
+  return (Uint16)rand();
 #elif RAND_MAX > 0xFF
-  return (((u_int16_t)rand()) << 8) | (u_int16_t)rand();
+  return (((Uint16)rand()) << 8) | (Uint16)rand();
 #else
-  return (((u_int16_t)rand8()) << 8) | (u_int16_t)rand8();
+  return (((Uint16)rand8()) << 8) | (Uint16)rand8();
 #endif
 }
 
-u_int32_t rand32()
+Uint32 rand32()
 {
 #if RAND_MAX >= 0xFFFFFFFF
-  return (u_int32_t)rand();
+  return (Uint32)rand();
 #elif RAND_MAX > 0xFFFF
-  return (((u_int32_t)rand()) << 16) | (u_int32_t)rand();
+  return (((Uint32)rand()) << 16) | (Uint32)rand();
 #else
-  return (((u_int32_t)rand16()) << 16) | (u_int32_t)rand16();
+  return (((Uint32)rand16()) << 16) | (Uint32)rand16();
 #endif
 }
 
-u_int64_t rand64()
+Uint64 rand64()
 {
 #if RAND_MAX >= 0xFFFFFFFFFFFFFFFF
-  return (u_int64_t)rand();
+  return (Uint64)rand();
 #elif RAND_MAX > 0xFFFFFFFF
-  return (((u_int64_t)rand()) << 32) | (u_int64_t)rand();
+  return (((Uint64)rand()) << 32) | (Uint64)rand();
 #else
-  return (((u_int64_t)rand16()) << 32) | (u_int64_t)rand16();
+  return (((Uint64)rand16()) << 32) | (Uint64)rand16();
 #endif
 }
 
-u_int8_t rand7()
+Uint8 rand7()
 {
-  return (u_int8_t)rand();
+  return (Uint8)rand();
 }
 
-u_int16_t rand15()
+Uint16 rand15()
 {
 #if RAND_MAX >= 0x8FFF
-  return (u_int16_t)rand();
+  return (Uint16)rand();
 #elif RAND_MAX > 0xFF
-  return (((u_int16_t)rand()) << 8) | (u_int16_t)rand();
+  return (((Uint16)rand()) << 8) | (Uint16)rand();
 #else
-  return (((u_int16_t)rand8()) << 8) | (u_int16_t)rand8();
+  return (((Uint16)rand8()) << 8) | (Uint16)rand8();
 #endif
 }
 
-u_int32_t rand31()
+Uint32 rand31()
 {
 #if RAND_MAX >= 0x8FFFFFFF
-  return (u_int32_t)rand();
+  return (Uint32)rand();
 #elif RAND_MAX > 0xFFFF
-  return (((u_int32_t)rand()) << 16) | (u_int32_t)rand();
+  return (((Uint32)rand()) << 16) | (Uint32)rand();
 #else
-  return (((u_int32_t)rand16()) << 16) | (u_int32_t)rand16();
+  return (((Uint32)rand16()) << 16) | (Uint32)rand16();
 #endif
 }
 
-u_int64_t rand63()
+Uint64 rand63()
 {
 #if RAND_MAX >= 0x8FFFFFFFFFFFFFFF
-  return (u_int64_t)rand();
+  return (Uint64)rand();
 #elif RAND_MAX > 0xFFFFFFFF
-  return (((u_int64_t)rand()) << 32) | (u_int64_t)rand();
+  return (((Uint64)rand()) << 32) | (Uint64)rand();
 #else
-  return (((u_int64_t)rand16()) << 32) | (u_int64_t)rand16();
+  return (((Uint64)rand16()) << 32) | (Uint64)rand16();
 #endif
 }
 
@@ -1854,12 +1854,20 @@ float fastsqrt(float f)	// This could probably stand to be faster; use invsqrt w
   return 1.0 / invsqrt(f);
 }
 
+#ifdef WINDOWS
+__declspec_noinline float invsqrt_workaround(int i)
+#else
 __attribute__ ((noinline)) float invsqrt_workaround(int i)
+#endif
 {
   return *(float*)((void*)&i);
 }
 
+#ifdef WINDOWS
+__declspec_noinline float invsqrt(float f)	// The famous Quake3 inverse square root function.  About 4x faster in my benchmarks!
+#else
 __attribute__ ((noinline)) float invsqrt(float f)	// The famous Quake3 inverse square root function.  About 4x faster in my benchmarks!
+#endif
 {
   float half = 0.5f * f;
   int i = *(int*)((void*)&f);
@@ -1869,13 +1877,21 @@ __attribute__ ((noinline)) float invsqrt(float f)	// The famous Quake3 inverse s
   return f;
 }
 
-u_int64_t get_time()
+Uint64 get_time()
 {
+#ifdef WINDOWS
+  FILETIME ft;
+  GetSystemTimeAsFileTime(&ft);
+  Uint64 ret = ft.dwHighDateTime;
+  ret <<= 32;
+  ret |= ft.dwLowDateTime;
+  return ret;
+#else
   struct timeval t;
   gettimeofday(&t, NULL);
-  return ((u_int64_t)t.tv_sec)*1000000ul + (u_int64_t)t.tv_usec;
+  return ((Uint64)t.tv_sec)*1000000ul + (Uint64)t.tv_usec;
+#endif
 }
-
 
 ///////////////////////////////////////////////////////////////////////////////
 

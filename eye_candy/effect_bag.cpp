@@ -27,7 +27,7 @@ BagParticle::BagParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos
   state = 0;
 }
 
-void BagParticle::draw(const u_int64_t usec)
+void BagParticle::draw(const Uint64 usec)
 {
   glEnable(GL_LIGHTING);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -57,12 +57,12 @@ void BagParticle::draw(const u_int64_t usec)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
-bool BagParticle::idle(const u_int64_t delta_t)
+bool BagParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
 
-  const u_int64_t age = get_time() - born;
+  const Uint64 age = get_time() - born;
   const interval_t float_time = delta_t / 1000000.0;
   if (age > 220000)
   {
@@ -76,12 +76,12 @@ bool BagParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint BagParticle::get_texture(const u_int16_t res_index)
+GLuint BagParticle::get_texture(const Uint16 res_index)
 {
   return base->TexFlare.get_texture(res_index);
 }
 
-BagEffect::BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _picked_up, const u_int16_t _LOD)
+BagEffect::BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _picked_up, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "BagEffect (" << this << ") created." << std::endl;
@@ -117,7 +117,7 @@ BagEffect::~BagEffect()
     std::cout << "BagEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool BagEffect::idle(const u_int64_t usec)
+bool BagEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;

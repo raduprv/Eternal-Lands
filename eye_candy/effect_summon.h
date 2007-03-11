@@ -15,31 +15,31 @@ namespace ec
 class OuterSummonParticle : public Particle
 {
 public:
-  OuterSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, const u_int16_t _LOD);
+  OuterSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, const Uint16 _LOD);
   ~OuterSummonParticle() {}
   
-  virtual bool idle(const u_int64_t delta_t);
-  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual bool idle(const Uint64 delta_t);
+  virtual GLuint get_texture(const Uint16 res_index);
   virtual light_t estimate_light_level() const { return 0.002; };
   
-  u_int16_t LOD;
+  Uint16 LOD;
 };
 
 class InnerSummonParticle : public Particle
 {
 public:
-  InnerSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD);
+  InnerSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD);
   ~InnerSummonParticle() {}
   
-  virtual bool idle(const u_int64_t delta_t);
-  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual bool idle(const Uint64 delta_t);
+  virtual GLuint get_texture(const Uint16 res_index);
   virtual light_t estimate_light_level() const { return 0.002; };
-  static u_int64_t get_max_end_time() { return 6000000; };
-  virtual u_int64_t get_expire_time() { return 6000000 + born; };
+  static Uint64 get_max_end_time() { return 6000000; };
+  virtual Uint64 get_expire_time() { return 6000000 + born; };
   virtual bool deletable() { return false; };
   
   Texture* texture;
-  u_int16_t LOD;
+  Uint16 LOD;
 };
 
 class SummonEffect : public Effect
@@ -70,12 +70,12 @@ public:
     GIANT
   };
 
-  SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const SummonType _type, const u_int16_t _LOD);
+  SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const SummonType _type, const Uint16 _LOD);
   ~SummonEffect(); 
   
   virtual EffectEnum get_type() { return EC_SUMMON; };
-  bool idle(const u_int64_t usec);
-  virtual void request_LOD(const u_int16_t _LOD);
+  bool idle(const Uint64 usec);
+  virtual void request_LOD(const Uint16 _LOD);
 
   IFSParticleSpawner* inner_spawner;
   IFSParticleSpawner* outer_spawner;
@@ -91,8 +91,8 @@ public:
   color_t outer_color[3];
   color_t inner_color[3];
   Texture* inner_texture;
-  int64_t count;
-  u_int32_t count_scalar;
+  Sint64 count;
+  Uint32 count_scalar;
   SummonType type;
 };
 

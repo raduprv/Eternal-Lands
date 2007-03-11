@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-BreathParticle::BreathParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const BreathEffect::BreathType _type) : Particle(_effect, _mover, _pos, _velocity)
+BreathParticle::BreathParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const BreathEffect::BreathType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   type = _type;
   color[0] = red;
@@ -31,7 +31,7 @@ BreathParticle::BreathParticle(Effect* _effect, ParticleMover* _mover, const Vec
   state = 0;
 }
 
-bool BreathParticle::idle(const u_int64_t delta_t)
+bool BreathParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -186,12 +186,12 @@ bool BreathParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint BreathParticle::get_texture(const u_int16_t res_index)
+GLuint BreathParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-BreathSmokeParticle::BreathSmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, Texture* _texture, const u_int16_t _LOD, const BreathEffect::BreathType _type) : Particle(_effect, _mover, _pos, _velocity)
+BreathSmokeParticle::BreathSmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, Texture* _texture, const Uint16 _LOD, const BreathEffect::BreathType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   texture = _texture;
   type = _type;
@@ -250,7 +250,7 @@ BreathSmokeParticle::BreathSmokeParticle(Effect* _effect, ParticleMover* _mover,
   state = 0;
 }
 
-void BreathSmokeParticle::draw(const u_int64_t usec)
+void BreathSmokeParticle::draw(const Uint64 usec)
 {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
@@ -259,7 +259,7 @@ void BreathSmokeParticle::draw(const u_int64_t usec)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
-bool BreathSmokeParticle::idle(const u_int64_t delta_t)
+bool BreathSmokeParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -294,12 +294,12 @@ bool BreathSmokeParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint BreathSmokeParticle::get_texture(const u_int16_t res_index)
+GLuint BreathSmokeParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const std::vector<ec::Obstruction*> _obstructions, const BreathType _type, const u_int16_t _LOD, const percent_t _scale)
+BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const std::vector<ec::Obstruction*> _obstructions, const BreathType _type, const Uint16 _LOD, const percent_t _scale)
 {
   if (EC_DEBUG)
     std::cout << "BreathEffect (" << this << ") created." << std::endl;
@@ -384,7 +384,7 @@ BreathEffect::~BreathEffect()
     std::cout << "BreathEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool BreathEffect::idle(const u_int64_t usec)
+bool BreathEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;
@@ -392,8 +392,8 @@ bool BreathEffect::idle(const u_int64_t usec)
   if (recall)
     return true;
     
-  const u_int64_t cur_time = get_time();
-  const u_int64_t age = cur_time - born;
+  const Uint64 cur_time = get_time();
+  const Uint64 age = cur_time - born;
   if (age > 1100000)
     return true;
 

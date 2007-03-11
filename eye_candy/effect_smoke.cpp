@@ -32,7 +32,7 @@ SmokeParticle::SmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 
   state = 0;
 }
 
-void SmokeParticle::draw(const u_int64_t usec)
+void SmokeParticle::draw(const Uint64 usec)
 {
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   Vec3 shifted_pos = pos - *(((SmokeEffect*)effect)->pos);
@@ -42,7 +42,7 @@ void SmokeParticle::draw(const u_int64_t usec)
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 }
 
-bool SmokeParticle::idle(const u_int64_t delta_t)
+bool SmokeParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -66,12 +66,12 @@ bool SmokeParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint SmokeParticle::get_texture(const u_int16_t res_index)
+GLuint SmokeParticle::get_texture(const Uint16 res_index)
 {
   return base->TexSimple.get_texture(res_index);
 }
 
-SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _scale, const u_int16_t _LOD)
+SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "SmokeEffect (" << this << ") created." << std::endl;
@@ -115,7 +115,7 @@ SmokeEffect::~SmokeEffect()
     std::cout << "SmokeEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool SmokeEffect::idle(const u_int64_t usec)
+bool SmokeEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;

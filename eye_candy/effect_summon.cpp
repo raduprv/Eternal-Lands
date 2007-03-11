@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-OuterSummonParticle::OuterSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, const u_int16_t _LOD) : Particle(_effect, _mover, _pos, _velocity)
+OuterSummonParticle::OuterSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   color[0] = red;
   color[1] = green;
@@ -28,7 +28,7 @@ OuterSummonParticle::OuterSummonParticle(Effect* _effect, ParticleMover* _mover,
   LOD = _LOD;
 }
 
-bool OuterSummonParticle::idle(const u_int64_t delta_t)
+bool OuterSummonParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -42,12 +42,12 @@ bool OuterSummonParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint OuterSummonParticle::get_texture(const u_int16_t res_index)
+GLuint OuterSummonParticle::get_texture(const Uint16 res_index)
 {
   return base->TexFlare.get_texture(res_index);
 }
 
-InnerSummonParticle::InnerSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD) : Particle(_effect, _mover, _pos, _velocity)
+InnerSummonParticle::InnerSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   color[0] = red;
   color[1] = green;
@@ -63,15 +63,15 @@ InnerSummonParticle::InnerSummonParticle(Effect* _effect, ParticleMover* _mover,
   state = 0;
 }
 
-bool InnerSummonParticle::idle(const u_int64_t delta_t)
+bool InnerSummonParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
 
   if (state == 0)
   {
-    const u_int64_t cur_time = get_time();
-    const u_int64_t age = cur_time - born;
+    const Uint64 cur_time = get_time();
+    const Uint64 age = cur_time - born;
     if (age > 1200000)
       state = 1;
   }
@@ -87,12 +87,12 @@ bool InnerSummonParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint InnerSummonParticle::get_texture(const u_int16_t res_index)
+GLuint InnerSummonParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const SummonType _type, const u_int16_t _LOD)
+SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const SummonType _type, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "SummonEffect (" << this << ") created." << std::endl;
@@ -539,7 +539,7 @@ SummonEffect::~SummonEffect()
     std::cout << "SummonEffect (" << this << ") destroyed." << std::endl;
 }
 
-void SummonEffect::request_LOD(const u_int16_t _LOD)
+void SummonEffect::request_LOD(const Uint16 _LOD)
 {
   if (_LOD <= desired_LOD)
     LOD = _LOD;
@@ -721,7 +721,7 @@ void SummonEffect::request_LOD(const u_int16_t _LOD)
   count_scalar = 3000 / _LOD;
 }
 
-bool SummonEffect::idle(const u_int64_t usec)
+bool SummonEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;
@@ -729,8 +729,8 @@ bool SummonEffect::idle(const u_int64_t usec)
   if (recall)
     return false;
   
-  const u_int64_t cur_time = get_time();
-  const u_int64_t age = cur_time - born;
+  const Uint64 cur_time = get_time();
+  const Uint64 age = cur_time - born;
   if (age < 1000000)
   {
     count += usec;

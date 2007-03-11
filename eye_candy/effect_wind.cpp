@@ -139,13 +139,13 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
 */
 }
 
-bool WindParticle::idle(const u_int64_t delta_t)
+bool WindParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
     
   WindEffect* wind_effect = (WindEffect*)effect;
-  const u_int64_t age = get_time() - born;
+  const Uint64 age = get_time() - born;
   const interval_t usec = delta_t / 1000000.0;
   const Vec3 cur_wind = get_wind_vec();
 //  std::cout << "Wind vec: " << cur_wind.magnitude() << ", " << cur_wind << std::endl;
@@ -281,7 +281,7 @@ bool WindParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint WindParticle::get_texture(const u_int16_t res_index)	// Shouldn't be needed.  But just in case...
+GLuint WindParticle::get_texture(const Uint16 res_index)	// Shouldn't be needed.  But just in case...
 {
   switch (type)
   {
@@ -295,7 +295,7 @@ GLuint WindParticle::get_texture(const u_int16_t res_index)	// Shouldn't be need
   return 0;	// Control should never reach here.
 }
 
-void WindParticle::draw(const u_int64_t usec)
+void WindParticle::draw(const Uint64 usec)
 {
   glEnable(GL_LIGHTING);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -580,7 +580,7 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
   }
 }
 
-bool WindEffect::idle(const u_int64_t usec)
+bool WindEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;

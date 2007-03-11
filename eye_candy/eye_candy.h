@@ -9,14 +9,18 @@
 #include <map>
 #include <iostream>
 #include <cassert>
+#include <SDL/SDL.h>
 #include <GL/gl.h>
 #include <GL/glu.h>
 #include <GL/glext.h>
 #include <GL/glut.h>
-#include <sys/time.h>
-#include <time.h>
 #include <stdlib.h>
 #include <math.h>
+
+#ifndef WINDOWS
+#include <sys/time.h>
+#include <time.h>
+#endif
 
 namespace ec
 {
@@ -39,14 +43,14 @@ float randfloat(void);
 double randdouble(const double scale);
 float randfloat(const float scale);
 int randint(const int upto);
-u_int8_t rand8();	//Functions to ensure a minimum entropy range for the rand function.
-u_int16_t rand16();
-u_int32_t rand32();
-u_int64_t rand64();
-u_int8_t rand7();
-u_int16_t rand15();
-u_int32_t rand31();
-u_int64_t rand63();
+Uint8 rand8();	//Functions to ensure a minimum entropy range for the rand function.
+Uint16 rand16();
+Uint32 rand32();
+Uint64 rand64();
+Uint8 rand7();
+Uint16 rand15();
+Uint32 rand31();
+Uint64 rand63();
 coord_t randcoord(void);
 coord_t randcoord(const coord_t scale);
 color_t randcolor(void);
@@ -67,9 +71,17 @@ int square(const int i);
 double cube(const double d);
 float cube(const float f);
 int cube(const int i);
+#ifdef WINDOWS
+__declspec_noinline float fastsqrt(float f);
+__declspec_noinline float invsqrt(float f);
+ #define copysign _copysign
+ #define fmax(a, b) ((a < b) ? b : a)
+ #define remainderf(a, b) (a - (float)round(a / b) * b)
+#else
 __attribute__ ((noinline)) float fastsqrt(float f);
 __attribute__ ((noinline)) float invsqrt(float f);
-u_int64_t get_time();
+#endif
+Uint64 get_time();
 
 // M E M B E R S //////////////////////////////////////////////////////////////
 
@@ -422,9 +434,9 @@ public:
   ~Texture();
   
   void push_texture(const std::string filename);
-  GLuint get_texture(const u_int16_t res_index) const;
-  GLuint get_texture(const u_int16_t res_index, const int frame) const;
-  GLuint get_texture(const u_int16_t res_index, const u_int64_t born, const u_int64_t changerate) const;
+  GLuint get_texture(const Uint16 res_index) const;
+  GLuint get_texture(const Uint16 res_index, const int frame) const;
+  GLuint get_texture(const Uint16 res_index, const Uint64 born, const Uint64 changerate) const;
   
   std::vector<GLuint> texture_ids[4];
 };
@@ -591,13 +603,13 @@ public:
   Particle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity);
   virtual ~Particle();
   
-  virtual bool idle(const u_int64_t delta_t) = 0;
-  virtual GLuint get_texture(const u_int16_t res_index) = 0;
+  virtual bool idle(const Uint64 delta_t) = 0;
+  virtual GLuint get_texture(const Uint16 res_index) = 0;
   virtual light_t estimate_light_level() const = 0;
   virtual light_t get_light_level() { return alpha * size / 1500; };
   virtual bool deletable() { return true; };
   
-  virtual void draw(const u_int64_t usec);
+  virtual void draw(const Uint64 usec);
   virtual coord_t flare() const;
  
   ParticleMover* mover;
@@ -606,12 +618,12 @@ public:
   color_t color[3];
   alpha_t alpha;
   coord_t size;
-  u_int64_t born;
+  Uint64 born;
   energy_t energy;
   coord_t flare_max;	// Bigger values mean bigger flares.  1.0 to max particle size.
   coord_t flare_exp;	// Lower values mean rarer flares.  0.0 to 1.0.
   coord_t flare_frequency; // Geographic scalar between flares.
-  u_int16_t state;
+  Uint16 state;
   Effect* effect;
   EyeCandy* base;
   
@@ -625,7 +637,7 @@ public:
   ParticleMover(Effect* _effect);
   virtual ~ParticleMover() {};
   
-  virtual void move(Particle& p, u_int64_t usec) { p.pos += p.velocity * (usec / 1000000.0); };
+  virtual void move(Particle& p, Uint64 usec) { p.pos += p.velocity * (usec / 1000000.0); };
   virtual energy_t calculate_energy(const Particle& p) { return 0; };
 
   Vec3 vec_shift(const Vec3 src, const Vec3 dest, const percent_t percent) const;
@@ -643,7 +655,7 @@ public:
   GradientMover(Effect* _effect) : ParticleMover(_effect) {};
   virtual ~GradientMover() {};
   
-  virtual void move(Particle& p, u_int64_t usec);
+  virtual void move(Particle& p, Uint64 usec);
 
   virtual Vec3 get_force_gradient(const Vec3& pos) const;
   virtual Vec3 get_obstruction_gradient(const Vec3& pos) const;
@@ -656,7 +668,7 @@ public:
   SmokeMover(Effect* _effect, const coord_t _strength) : GradientMover(_effect) { strength = _strength; };
   virtual ~SmokeMover() {};
   
-//  virtual void move(Particle& p, u_int64_t usec);
+//  virtual void move(Particle& p, Uint64 usec);
   virtual Vec3 get_force_gradient(const Vec3& pos) const;
   
   coord_t strength;
@@ -705,7 +717,7 @@ public:
   virtual ~GravityMover() {};
   
   void set_gravity_center(Vec3* _gravity_center);
-  virtual void move(Particle& p, u_int64_t usec);
+  virtual void move(Particle& p, Uint64 usec);
   energy_t calculate_velocity_energy(const Particle& p) const;
   energy_t calculate_position_energy(const Particle& p) const;
   coord_t gravity_dist(const Particle& p, const Vec3& center) const;
@@ -957,31 +969,31 @@ public:
   void unregister_particle(Particle* p) { particles.erase(particles.find(p)); };
   
   virtual EffectEnum get_type() = 0;
-  virtual bool idle(const u_int64_t usec) = 0;
-  virtual void draw(const u_int64_t usec) { };
-  virtual void request_LOD(const u_int16_t _LOD)
+  virtual bool idle(const Uint64 usec) = 0;
+  virtual void draw(const Uint64 usec) { };
+  virtual void request_LOD(const Uint16 _LOD)
   {
     if (_LOD <= desired_LOD)
       LOD = _LOD;
     else
       LOD = desired_LOD;
   };
-  static u_int64_t get_max_end_time() { return 0x8000000000000000ull; };
-  virtual u_int64_t get_expire_time() { return 0x8000000000000000ull; };
+  static Uint64 get_max_end_time() { return 0x8000000000000000ull; };
+  virtual Uint64 get_expire_time() { return 0x8000000000000000ull; };
   
   EyeCandy* base;
   int motion_blur_points;
   percent_t motion_blur_fade_rate; 	//0 to 1; higher means less fade.
-  u_int16_t state;
-  u_int64_t born;
+  Uint16 state;
+  Uint64 born;
   bool* dead;				//Provided by the effect caller; set when this effect is going away.
   Vec3* pos;
   std::vector<Obstruction*> obstructions;
   std::map<Particle*, bool> particles;
   bool active;
   bool recall;
-  u_int16_t desired_LOD;
-  u_int16_t LOD;
+  Uint16 desired_LOD;
+  Uint16 LOD;
 };
 
 class EyeCandy
@@ -1029,12 +1041,12 @@ public:
   Texture TexPetal;
   Texture TexSnowflake;
   int max_particles;
-  u_int64_t max_usec_per_particle_move;
+  Uint64 max_usec_per_particle_move;
   coord_t max_point_size;
   Vec3 camera;
   coord_t width;
   coord_t height;
-  u_int64_t time_diff;
+  Uint64 time_diff;
   light_t lighting_scalar;
   light_t light_estimate;
   std::vector< std::pair<Particle*, light_t> > light_particles;
@@ -1046,18 +1058,18 @@ public:
   unsigned int LOD_6_threshold;
   unsigned int LOD_7_threshold;
   unsigned int LOD_8_threshold;
-  u_int64_t LOD_9_threshold;
-  u_int64_t LOD_1_time_threshold;
-  u_int64_t LOD_2_time_threshold;
-  u_int64_t LOD_3_time_threshold;
-  u_int64_t LOD_4_time_threshold;
-  u_int64_t LOD_5_time_threshold;
-  u_int64_t LOD_6_time_threshold;
-  u_int64_t LOD_7_time_threshold;
-  u_int64_t LOD_8_time_threshold;
-  u_int64_t LOD_9_time_threshold;
+  Uint64 LOD_9_threshold;
+  Uint64 LOD_1_time_threshold;
+  Uint64 LOD_2_time_threshold;
+  Uint64 LOD_3_time_threshold;
+  Uint64 LOD_4_time_threshold;
+  Uint64 LOD_5_time_threshold;
+  Uint64 LOD_6_time_threshold;
+  Uint64 LOD_7_time_threshold;
+  Uint64 LOD_8_time_threshold;
+  Uint64 LOD_9_time_threshold;
   int allowable_particles_to_add;
-  u_int16_t last_forced_LOD;
+  Uint16 last_forced_LOD;
   DrawType draw_method;
   coord_t billboard_scalar;
   coord_t sprite_scalar;

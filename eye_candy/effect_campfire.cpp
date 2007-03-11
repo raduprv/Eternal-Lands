@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const float _sqrt_scale, const int _state, const u_int16_t _LOD) : Particle(_effect, _mover, _pos, _velocity)
+CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   color[0] = 1.0;
   color[1] = 0.4 + randfloat() / 2;
@@ -31,7 +31,7 @@ CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const
     size *= 0.7;
 }
 
-bool CampfireParticle::idle(const u_int64_t delta_t)
+bool CampfireParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -71,7 +71,7 @@ bool CampfireParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint CampfireParticle::get_texture(const u_int16_t res_index)
+GLuint CampfireParticle::get_texture(const Uint16 res_index)
 {
   if (state == 0)
     return base->TexFlare.get_texture(res_index);
@@ -79,7 +79,7 @@ GLuint CampfireParticle::get_texture(const u_int16_t res_index)
    return base->TexSimple.get_texture(res_index);
 }
 
-void CampfireParticle::draw(const u_int64_t usec)
+void CampfireParticle::draw(const Uint64 usec)
 {
   if (state == 0)
   {
@@ -93,7 +93,7 @@ void CampfireParticle::draw(const u_int64_t usec)
   }
 }
 
-CampfireBigParticle::CampfireBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _sqrt_scale, const u_int16_t _LOD) : Particle(_effect, _mover, _pos, _velocity)
+CampfireBigParticle::CampfireBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _sqrt_scale, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   const float LOD = _LOD / 10.0;
   color[0] = 1.0;
@@ -110,7 +110,7 @@ CampfireBigParticle::CampfireBigParticle(Effect* _effect, ParticleMover* _mover,
   flare_frequency = 2.0;
 }
 
-bool CampfireBigParticle::idle(const u_int64_t delta_t)
+bool CampfireBigParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
@@ -118,12 +118,12 @@ bool CampfireBigParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-GLuint CampfireBigParticle::get_texture(const u_int16_t res_index)
+GLuint CampfireBigParticle::get_texture(const Uint16 res_index)
 {
   return base->TexFlare.get_texture(res_index);
 }
 
-CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _scale, const u_int16_t _LOD)
+CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "CampfireEffect (" << this << ") created." << std::endl;
@@ -170,7 +170,7 @@ CampfireEffect::~CampfireEffect()
     std::cout << "CampfireEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool CampfireEffect::idle(const u_int64_t usec)
+bool CampfireEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;

@@ -14,7 +14,7 @@ extern MathCache_Lorange math_cache;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const u_int16_t _LOD, const OngoingEffect::OngoingType _type) : Particle(_effect, _mover, _pos, _velocity)
+OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const OngoingEffect::OngoingType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   type = _type;
   color[0] = red;
@@ -31,7 +31,7 @@ OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const V
   state = 0;
 }
 
-bool OngoingParticle::idle(const u_int64_t delta_t)
+bool OngoingParticle::idle(const Uint64 delta_t)
 {
   const interval_t float_time = delta_t / 1000000.0;
   switch(type)
@@ -73,7 +73,7 @@ bool OngoingParticle::idle(const u_int64_t delta_t)
   return true;
 }
 
-void OngoingParticle::draw(const u_int64_t usec)
+void OngoingParticle::draw(const Uint64 usec)
 {
   if ((type == OngoingEffect::POISON) && (state == 1))
   {
@@ -93,12 +93,12 @@ void OngoingParticle::draw(const u_int64_t usec)
   }
 }
 
-GLuint OngoingParticle::get_texture(const u_int16_t res_index)
+GLuint OngoingParticle::get_texture(const Uint16 res_index)
 {
   return texture->get_texture(res_index);
 }
 
-OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const OngoingType _type, const u_int16_t _LOD, const float _strength)
+OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const OngoingType _type, const Uint16 _LOD, const float _strength)
 {
   if (EC_DEBUG)
     std::cout << "OngoingEffect (" << this << ") created." << std::endl;
@@ -153,7 +153,7 @@ OngoingEffect::~OngoingEffect()
     std::cout << "OngoingEffect (" << this << ") destroyed." << std::endl;
 }
 
-bool OngoingEffect::idle(const u_int64_t usec)
+bool OngoingEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;

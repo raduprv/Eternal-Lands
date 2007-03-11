@@ -18,23 +18,23 @@ public:
   BagParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t size);
   ~BagParticle() {}
   
-  virtual bool idle(const u_int64_t delta_t);
-  virtual GLuint get_texture(const u_int16_t res_index);
+  virtual bool idle(const Uint64 delta_t);
+  virtual GLuint get_texture(const Uint16 res_index);
   virtual light_t estimate_light_level() const { return 0.0; };	// No glow.
   virtual light_t get_light_level() { return 0.0; }; // Same.
-  virtual void draw(const u_int64_t usec);
+  virtual void draw(const Uint64 usec);
 };
 
 class BagEffect : public Effect
 {
 public: 
-  BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _picked_up, const u_int16_t _LOD);
+  BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _picked_up, const Uint16 _LOD);
   ~BagEffect(); 
   
   virtual EffectEnum get_type() { return EC_BAG; };
-  bool idle(const u_int64_t usec);
-  static u_int64_t get_max_end_time() { return 2000000; };
-  virtual u_int64_t get_expire_time() { return 2000000 + born; };
+  bool idle(const Uint64 usec);
+  static Uint64 get_max_end_time() { return 2000000; };
+  virtual Uint64 get_expire_time() { return 2000000 + born; };
 
   GravityMover* mover;
   ParticleSpawner* spawner;
