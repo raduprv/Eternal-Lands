@@ -14,6 +14,8 @@
 #ifndef CAL_EYE_CANDY_WRAPPER_H
 #define CAL_EYE_CANDY_WRAPPER_H
 
+#include <SDL/SDL.h>
+
 #ifdef __cplusplus
 #include "eye_candy/eye_candy.h"
 #include "eye_candy/effect_lamp.h"
@@ -163,7 +165,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   EYE_CANDY_WRAPPER_API ec_effects ec_create_effects_list();
   EYE_CANDY_WRAPPER_API void ec_free_effects_list(ec_effects effects);
   EYE_CANDY_WRAPPER_API void ec_add_effect(ec_effects effects, ec_reference ref);
-  EYE_CANDY_WRAPPER_API int ec_check_distance(float x, float y, float z, u_int64_t effect_max_length);
+  EYE_CANDY_WRAPPER_API int ec_check_distance(float x, float y, float z, Uint64 effect_max_length);
   EYE_CANDY_WRAPPER_API ec_reference ec_create_generic();
   EYE_CANDY_WRAPPER_API void ec_add_target(ec_reference reference, float x, float y, float z);
   EYE_CANDY_WRAPPER_API int ec_change_target(ec_reference reference, int index, float x, float y, float z);

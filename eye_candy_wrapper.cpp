@@ -4,7 +4,7 @@
 #include "cal3d_wrapper.h"
 
 ec::EyeCandy eye_candy;
-u_int64_t ec_cur_time;
+Uint64 ec_cur_time;
 std::vector<ec_internal_reference*> references;
 
 extern int use_point_particles; /*!< specifies if we use point particles or not */
@@ -69,7 +69,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_idle()
 //  const float z = rot_matrix[14];
   eye_candy.set_camera(ec::Vec3(-camera_x, -camera_z, camera_y));
   eye_candy.set_dimensions(window_width, window_height);
-  u_int64_t new_time = ec::get_time();
+  Uint64 new_time = ec::get_time();
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -292,7 +292,7 @@ extern "C" EYE_CANDY_WRAPPER_API void ec_add_effect(ec_effects effects, ec_refer
   cast_effects->push_back(cast_reference->effect);
 }
 
-extern "C" EYE_CANDY_WRAPPER_API int ec_in_range(float x, float y, float z, u_int64_t effect_max_time)
+extern "C" EYE_CANDY_WRAPPER_API int ec_in_range(float x, float y, float z, Uint64 effect_max_time)
 {
   float dist_squared = (ec::Vec3(x, z, -y) - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
   if (dist_squared < ec::square(MAX_EFFECT_DISTANCE + (effect_max_time * WALK_RATE) / 1000000.0))
