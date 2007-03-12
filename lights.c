@@ -145,7 +145,7 @@ void disable_local_lights()
     glDisable(GL_LIGHT1);
     glDisable(GL_LIGHT2);
     glDisable(GL_LIGHT3);
-#ifndef SFX
+#ifndef EYE_CANDY
     glDisable(GL_LIGHT4);
     glDisable(GL_LIGHT5);
     glDisable(GL_LIGHT6);
@@ -160,7 +160,7 @@ void enable_local_lights()
     if(show_lights >= 1)	glEnable(GL_LIGHT1);
     if(show_lights >= 2)	glEnable(GL_LIGHT2);
     if(show_lights >= 3)	glEnable(GL_LIGHT3);
-#ifndef SFX
+#ifndef EYE_CANDY
     if(show_lights >= 4)	glEnable(GL_LIGHT4);
     if(show_lights >= 5)	glEnable(GL_LIGHT5);
     if(show_lights >= 6)	glEnable(GL_LIGHT6);
@@ -207,7 +207,7 @@ void draw_lights()
 		glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
 		glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
 	}
- #ifndef SFX
+ #ifndef EYE_CANDY
 	if(show_lights >= 4){
 		glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
 		glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
@@ -636,7 +636,7 @@ void init_lights()
 	glLightf(GL_LIGHT3,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT3);
 
-#ifndef SFX
+#ifndef EYE_CANDY
 	glLightf(GL_LIGHT4, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT4,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT4,GL_DIFFUSE,light_diffuse);
@@ -664,13 +664,11 @@ void init_lights()
 	glLightf(GL_LIGHT7,GL_CONSTANT_ATTENUATION,0);
 	glEnable(GL_LIGHT7);
 
-#ifdef SFX
 #ifdef	EYE_CANDY
         ec_add_light(GL_LIGHT4);
         ec_add_light(GL_LIGHT5);
         ec_add_light(GL_LIGHT6);
 #endif	//EYE_CANDY
-#endif
 
 	glEnable(GL_LIGHTING);
 

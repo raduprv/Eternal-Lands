@@ -866,9 +866,9 @@ Vec3 IFS2DSwirlElement::get_new_coords(const Vec3& pos)
 Vec3 IFSHorseshoeElement::get_new_coords(const Vec3& pos)
 {
   const coord_t r = pos.magnitude();
-  const angle_t theta_x = atan2(pos.z, pos.y + 0.0000001);
-  const angle_t theta_y = atan2(pos.x, pos.z + 0.0000001);
-  const angle_t theta_z = atan2(pos.y, pos.x + 0.0000001);
+  const angle_t theta_x = atan2(pos.z, pos.y + 0.0000001f);
+  const angle_t theta_y = atan2(pos.x, pos.z + 0.0000001f);
+  const angle_t theta_z = atan2(pos.y, pos.x + 0.0000001f);
   const Vec3 result(r * cos(2 * theta_x), r * cos(2 * theta_y), r * cos(2 * theta_z));
   return (pos * inv_scale) + (result * scale);
 }
@@ -1855,7 +1855,7 @@ float fastsqrt(float f)	// This could probably stand to be faster; use invsqrt w
 }
 
 #ifdef WINDOWS
-__declspec_noinline float invsqrt_workaround(int i)
+__declspec(noinline) float invsqrt_workaround(int i)
 #else
 __attribute__ ((noinline)) float invsqrt_workaround(int i)
 #endif
@@ -1864,7 +1864,7 @@ __attribute__ ((noinline)) float invsqrt_workaround(int i)
 }
 
 #ifdef WINDOWS
-__declspec_noinline float invsqrt(float f)	// The famous Quake3 inverse square root function.  About 4x faster in my benchmarks!
+__declspec(noinline) float invsqrt(float f)	// The famous Quake3 inverse square root function.  About 4x faster in my benchmarks!
 #else
 __attribute__ ((noinline)) float invsqrt(float f)	// The famous Quake3 inverse square root function.  About 4x faster in my benchmarks!
 #endif

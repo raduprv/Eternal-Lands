@@ -7,6 +7,8 @@ ec::EyeCandy eye_candy;
 Uint64 ec_cur_time;
 std::vector<ec_internal_reference*> references;
 
+extern "C"
+{
 extern int use_point_particles; /*!< specifies if we use point particles or not */
 extern int enable_blood; /*!< specifies whether or not to use the blood special effect in combat */
 extern int poor_man; /*<! specifies whether we need to limit our resources */
@@ -15,6 +17,7 @@ extern int window_height;
 extern float camera_x;
 extern float camera_y;
 extern float camera_z;
+}
 
 const float MAX_EFFECT_DISTANCE = 16.0;
 const float WALK_RATE = 1.0;

@@ -5,6 +5,14 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
+#ifdef WINDOWS
+ #include <windows.h>     
+#else
+ #include <sys/time.h>
+ #include <time.h>
+#endif
+
+#include <string>
 #include <vector>
 #include <map>
 #include <iostream>
@@ -15,13 +23,6 @@
 #include <GL/glext.h>
 #include <stdlib.h>
 #include <math.h>
-
-#ifdef WINDOWS
- #include <windows.h>     
-#else
- #include <sys/time.h>
- #include <time.h>
-#endif
 
 namespace ec
 {
