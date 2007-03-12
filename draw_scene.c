@@ -3,12 +3,12 @@
 #include <math.h>
 #include <string.h>
 
-float cx=0;
-float cy=0;
-float cz=0;
-float old_cx=0;
-float old_cy=0;
-float old_cz=0;
+float camera_x=0;
+float camera_y=0;
+float camera_z=0;
+float old_camera_x=0;
+float old_camera_y=0;
+float old_camera_z=0;
 float c_delta= 0.1f;
 float rx=-60;
 float ry=0;
@@ -179,7 +179,7 @@ void draw_scene()
         fps=1000;
 
     glColor3f(1.0f,1.0f,1.0f); //default color is white
-    snprintf(str,sizeof(str), "Sx: %03.1f,Sy: %03.1f, Sz: %03.1f, cx: %03.2f, cy: %03.2f,rx: %03.2f, rz: %03.2f\nFPS: %i, Minute: %i",fLightPos[0],fLightPos[1],fLightPos[2],-cx,-cy,rx,rz,fps,game_minute);
+    snprintf(str,sizeof(str), "Sx: %03.1f,Sy: %03.1f, Sz: %03.1f, camera_x: %03.2f, camera_y: %03.2f,rx: %03.2f, rz: %03.2f\nFPS: %i, Minute: %i",fLightPos[0],fLightPos[1],fLightPos[2],-camera_x,-camera_y,rx,rz,fps,game_minute);
 
     draw_string(10,40,str,2);
     draw_toolbar();
@@ -202,7 +202,7 @@ void Move()
 {
     glRotatef(rx, 1.0f, 0.0f, 0.0f);
     glRotatef(rz, 0.0f, 0.0f, 1.0f);
-    glTranslatef(cx, cy, cz);
+    glTranslatef(camera_x, camera_y, camera_z);
 }
 
 #define TIMER_RATE 20;
@@ -257,17 +257,17 @@ void move_camera ()
     y=my;
     z=mz;
 
-    camera_x_speed=(x-(-cx))/16.0;
+    camera_x_speed=(x-(-camera_x))/16.0;
     camera_x_frames=16;
-    camera_y_speed=(y-(-cy))/16.0;
+    camera_y_speed=(y-(-camera_y))/16.0;
     camera_y_frames=16;
-    camera_z_speed=(z-(-cz))/16.0;
+    camera_z_speed=(z-(-camera_z))/16.0;
     camera_z_frames=16;
 
 //    glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
     glRotatef(rx, 1.0f, 0.0f, 0.0f);
     glRotatef(rz, 0.0f, 0.0f, 1.0f);
-    glTranslatef(cx, cy, cz);
+    glTranslatef(camera_x, camera_y, camera_z);
 
 }
 
@@ -291,8 +291,8 @@ void update_camera()
 
     if(camera_x_frames) {
         if(camera_x_speed>0.005 || camera_x_speed<-0.005){
-            cx-=camera_x_speed;
-            if(fabs(cx-old_cx) >= c_delta){
+            camera_x-=camera_x_speed;
+            if(fabs(camera_x-old_camera_x) >= c_delta){
                 adjust_view++;
             }
         }
@@ -301,8 +301,8 @@ void update_camera()
 
     if(camera_y_frames) {
         if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
-            cy-=camera_y_speed;
-            if(fabs(cy-old_cy) >= c_delta){
+            camera_y-=camera_y_speed;
+            if(fabs(camera_y-old_camera_y) >= c_delta){
                 adjust_view++;
             }
         }
@@ -311,9 +311,9 @@ void update_camera()
 
     if(camera_z_frames) {
         if(camera_z_speed>0.0005 || camera_z_speed<-0.005) {
-            cz-=camera_z_speed;
+            camera_z-=camera_z_speed;
 #ifdef  PARANOID_CAMERA
-            if(fabs(cz-old_cz) >= c_delta){
+            if(fabs(camera_z-old_camera_z) >= c_delta){
                 adjust_view++;
             }
 #endif
@@ -363,9 +363,9 @@ void update_camera()
 */
     if(adjust_view){
 //        set_all_intersect_update_needed(main_bbox_tree);
-        old_cx= cx;
-        old_cy= cy;
-        old_cz= cz;
+        old_camera_x= camera_x;
+        old_camera_y= camera_y;
+        old_camera_z= camera_z;
     }
 
 }

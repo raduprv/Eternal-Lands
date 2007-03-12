@@ -234,8 +234,8 @@ void display_shadows()
 	int i;
 	int x,y;
 
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 	glEnable(GL_CULL_FACE);
 	for(i=0;i<max_obj_3d;i++)
 		{
@@ -270,8 +270,8 @@ void display_night_shadows(int phase)
 	float closest_light_dist=100.0f;
 	float next_closest_light_dist=100.0f;
 
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 	glEnable(GL_CULL_FACE);
 	for(i=0;i<max_obj_3d;i++)
 		{
@@ -363,8 +363,8 @@ void display_3d_ground_objects()
 	int i;
 	int x,y;
 
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -434,8 +434,8 @@ void display_3d_non_ground_objects()
 	int i;
 	int x,y;
 
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);

@@ -113,8 +113,8 @@ void update_scene_lights()
 	float max_dist=0;
 	int max_light=0;
 
-	x=-cx;
-	y=-cy;
+	x=-camera_x;
+	y=-camera_y;
 	//reset the lights
 	light_0_dist=255.0f;light_1_dist=255.0f;light_2_dist=255.0f;light_3_dist=255.0f;
 	light_4_dist=255.0f;light_5_dist=255.0f;light_6_dist=255.0f;

@@ -640,8 +640,8 @@ void display_objects()
 	int i;
 	int x,y;
 
-	x=(int) -cx;
-	y=(int) -cy;
+	x=(int) -camera_x;
+	y=(int) -camera_y;
 	CHECK_GL_ERRORS();
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);

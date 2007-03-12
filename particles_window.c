@@ -206,7 +206,7 @@ void draw_velocity(float x,float y,float z,float x2,float y2,float z2)
 static float preview_zoom=1.5;
 void display_particles_window_preview(window_info *win)
 {
-	float save_cx=cx,save_cy=cy,save_cz=cz;
+	float save_cx=camera_x,save_cy=camera_y,save_cz=camera_z;
 	float save_rx=rx;
 	int save_view_particles=view_particles;
 	int viewx=win->pos_x+previewx+1;
@@ -214,9 +214,9 @@ void display_particles_window_preview(window_info *win)
 	int viewy=window_height-(win->pos_y+previewy2)+1;
 	int viewh=previewy2-previewy-2;
 
-	cx=-particles_list[part_sys]->x_pos;
-	cy=-particles_list[part_sys]->y_pos;
-	cz=-particles_list[part_sys]->z_pos;
+	camera_x=-particles_list[part_sys]->x_pos;
+	camera_y=-particles_list[part_sys]->y_pos;
+	camera_z=-particles_list[part_sys]->z_pos;
 	rx=-75.0;
 
 	view_particles=1;
@@ -236,7 +236,7 @@ void display_particles_window_preview(window_info *win)
 	glPushMatrix();
  	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(0.0,0.0, cz);
+	glTranslatef(0.0,0.0, camera_z);
 	glEnable(GL_LIGHTING);
 	if(def.use_light){
 		draw_dungeon_light();
@@ -354,9 +354,9 @@ void display_particles_window_preview(window_info *win)
 	glMatrixMode(GL_MODELVIEW);
 	glPopAttrib();
 
-	cx=save_cx;
-	cy=save_cy;
-	cz=save_cz;
+	camera_x=save_cx;
+	camera_y=save_cy;
+	camera_z=save_cz;
 	rx=save_rx;
 	view_particles=save_view_particles;
 }

@@ -116,8 +116,8 @@ void get_world_x_y()
 	x1=x*cos(a)+y*sin(a);
 	y1=y*cos(a)-x*sin(a);
 
-	scene_mouse_x=-cx+x1;
-	scene_mouse_y=-cy+y1;
+	scene_mouse_x=-camera_x+x1;
+	scene_mouse_y=-camera_y+y1;
 }
 
 void Enter2DMode()

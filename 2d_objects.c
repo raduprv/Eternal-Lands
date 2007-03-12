@@ -401,8 +401,8 @@ void display_2d_objects()
 	int i;
 	int x,y;
 
-	x= (int)-cx;
-	y= (int)-cy;
+	x= (int)-camera_x;
+	y= (int)-camera_y;
 	glDisable(GL_CULL_FACE);
 	for(i=0;i<MAX_OBJ_2D;i++)
 		{

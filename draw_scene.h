@@ -7,7 +7,7 @@ void update_camera();
 
 Uint32 my_timer(unsigned int some_int);
 
-extern float cx,cy,cz;
+extern float camera_x,camera_y,camera_z;
 extern float rx,ry,rz;
 extern float mx,my,mz;
 extern float camera_rotation_speed; /*!< current speed for rotations of the camera */

@@ -85,8 +85,8 @@ void get_3d_object_under_mouse()
 	float least_z;
 
 	selected_3d_object=-1;
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 
 
 	least_z = 1.0;
@@ -154,8 +154,8 @@ void move_3d_object(int object_id)
     x1=x*cos(a)+y*sin(a);
     y1=y*cos(a)-x*sin(a);
 
-    objects_list[object_id]->x_pos = -cx+x1;
-	objects_list[object_id]->y_pos = -cy+y1;
+    objects_list[object_id]->x_pos = -camera_x+x1;
+	objects_list[object_id]->y_pos = -camera_y+y1;
 }
 
 void clone_3d_object(int object_id)
@@ -437,8 +437,8 @@ void get_particles_object_under_mouse() {
 	float least_z;
 
 	selected_particles_object=-1;
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 
 	least_z = 1.0;
 	glClearDepth (least_z);
@@ -666,8 +666,8 @@ void get_light_under_mouse()
 	float least_z;
 
 	selected_light=-1;
-	x=(int)-cx;
-	y=(int)-cy;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 
 	least_z = 1.0;
 	glClearDepth (least_z);
@@ -913,10 +913,10 @@ void draw_heights_wireframe()
 	int x_start,x_end,y_start,y_end;
 	float x_scaled,y_scaled;
 
-	if(cx<0)x=(int)((cx*-1.0)/3.0*6.0);
-	else x=(int)(cx/3.0);
-	if(cy<0)y=(int)((cy*-1.0)/3.0*6.0);
-	else y=(int)(cy/3.0);
+	if(camera_x<0)x=(int)((camera_x*-1.0)/3.0*6.0);
+	else x=(int)(camera_x/3.0);
+	if(camera_y<0)y=(int)((camera_y*-1.0)/3.0*6.0);
+	else y=(int)(camera_y/3.0);
 	x_start=(int)x-4*6;
 	y_start=(int)y-4*6;
 	x_end=(int)x+4*6;
@@ -961,10 +961,10 @@ void draw_height_map()
 
 	//get only the tiles around the camera
 	//we have the axes inverted, btw the go from 0 to -255
-	if(cx<0)x=(int)((cx*-1.0)/3.0*6.0);
-	else x=(int)(cx/3.0);
-	if(cy<0)y=(int)((cy*-1.0)/3.0*6.0);
-	else y=(int)(cy/3.0);
+	if(camera_x<0)x=(int)((camera_x*-1.0)/3.0*6.0);
+	else x=(int)(camera_x/3.0);
+	if(camera_y<0)y=(int)((camera_y*-1.0)/3.0*6.0);
+	else y=(int)(camera_y/3.0);
 	x_start=x-(int)(zoom_level*6.0);
 	y_start=y-(int)(zoom_level*6.0);
 	x_end=x+(int)(zoom_level*6.0);
