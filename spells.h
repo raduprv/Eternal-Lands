@@ -127,7 +127,7 @@ void display_sigils_menu();
  *
  * \param sigils_we_have    the mask to determine the sigils which the actor has.
  */
-void get_sigils_we_have(Uint32 sigils_we_have);
+void get_sigils_we_have(Uint32 sigils_we_have, Uint32 sigils2);
 
 /*!
  * \ingroup spells_window

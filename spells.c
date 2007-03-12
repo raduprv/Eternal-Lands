@@ -5,7 +5,9 @@
 #include "interface.h"
 #include "eye_candy_wrapper.h"
 
-#define SIGILS_NO 50
+#define SIGILS_NO 64
+#define	NUM_SIGILS_LINE	12	// how many sigils per line displayed
+#define	NUM_SIGILS_ROW	3	// how many rows of sigils are there?
 #define MAX_DATA_FILE_SIZE 560
 
 typedef struct
@@ -20,8 +22,8 @@ sigil_def sigils_list[SIGILS_NO];
 int sigil_win=-1;
 int sigil_menu_x=10;
 int sigil_menu_y=20;
-int sigil_menu_x_len=12*33+20;
-int sigil_menu_y_len=6*33;
+int sigil_menu_x_len=NUM_SIGILS_LINE*33+20;
+int sigil_menu_y_len=(3+NUM_SIGILS_ROW)*33;
 
 int sigils_text;
 Uint8 spell_text[256];
@@ -65,6 +67,7 @@ void make_sigils_list()
 	spell_text[0]=0;
 	i=0;
 
+	// TODO: load this data from a file
 	sigils_list[i].sigil_img=0;
 	my_strcp(sigils_list[i].name,sig_change.str);
 	my_strcp(sigils_list[i].description,sig_change.desc);
@@ -338,9 +341,9 @@ int display_sigils_handler(window_info *win)
 			//get the x and y
 			cur_pos=i;
 
-			x_start=33*(cur_pos%12)+1;
+			x_start=33*(cur_pos%NUM_SIGILS_LINE)+1;
 			x_end=x_start+32;
-			y_start=33*(cur_pos/12);
+			y_start=33*(cur_pos/NUM_SIGILS_LINE);
 			y_end=y_start+32;
 
 			draw_2d_thing (u_start, v_start, u_end, v_end, x_start, y_start, x_end, y_end);
@@ -389,7 +392,7 @@ int display_sigils_handler(window_info *win)
 	glDisable(GL_TEXTURE_2D);
 	glColor3f(0.77f,0.57f,0.39f);
 	
-	rendergrid (12, 3, 0, 0, 33, 33);
+	rendergrid (NUM_SIGILS_LINE, NUM_SIGILS_ROW, 0, 0, 33, 33);
 	rendergrid (6, 1, 5, win->len_y-37, 33, 33);
 	
 	glEnable(GL_TEXTURE_2D);
@@ -409,8 +412,8 @@ int click_sigils_handler(window_info *win, int mx, int my, Uint32 flags)
 	} else if(mx>=350 && mx<=381 && my>=112 && my<=143&&mqb_data[0] && mqb_data[0]->spell_id!=-1) {
 		add_spell_to_quickbar();
 		return 1;
-	} else if(mx>0 && mx<12*33 && my>0 && my<3*33) {
-		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
+	} else if(mx>0 && mx<NUM_SIGILS_LINE*33 && my>0 && my<NUM_SIGILS_ROW*33) {
+		int pos=get_mouse_pos_in_grid(mx,my, NUM_SIGILS_LINE, NUM_SIGILS_ROW, 0, 0, 33, 33);
 
 		if (pos >= 0 && sigils_list[pos].have_sigil) {
 			int j;
@@ -453,8 +456,8 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	}
 	
 	//see if we clicked on any sigil in the main category
-	if(mx>0 && mx<12*33 && my>0 && my<3*33) {
-		int pos=get_mouse_pos_in_grid(mx,my, 12, 3, 0, 0, 33, 33);
+	if(mx>0 && mx<NUM_SIGILS_LINE*33 && my>0 && my<NUM_SIGILS_ROW*33) {
+		int pos=get_mouse_pos_in_grid(mx,my, NUM_SIGILS_LINE, NUM_SIGILS_ROW, 0, 0, 33, 33);
 		
 		if (pos >= 0 && sigils_list[pos].have_sigil)
 		{
@@ -483,11 +486,12 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-void get_sigils_we_have(Uint32 sigils_we_have)
+void get_sigils_we_have(Uint32 sigils_we_have, Uint32 sigils2)
 {
 	int i;
 	int po2=1;
 
+	// the first 32 sigils
 	for(i=0;i<32;i++)
 		{
 			if((sigils_we_have&po2))sigils_list[i].have_sigil=1;
@@ -495,6 +499,14 @@ void get_sigils_we_have(Uint32 sigils_we_have)
 			po2*=2;
 		}
 
+	// the next optional sigils
+	po2= 1;
+	for(i=32;i<SIGILS_NO;i++)
+		{
+			if((sigils2&po2))sigils_list[i].have_sigil=1;
+			else sigils_list[i].have_sigil=0;
+			po2*=2;
+		}
 }
 
 //Quickspell I/O start
