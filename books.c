@@ -1004,15 +1004,16 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 			x=140;
 			
 			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) {
-				char str[5];
-				int id=b->id;
-		
-				if (10000 > id > 11000) {
-					str[0]=SEND_BOOK;
-					*((Uint16*)(str+1))=SDL_SwapLE16(id);
-					*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
-					my_tcp_send(my_socket, str, 5);
-				}
+//				char str[5];
+//				int id=b->id;
+
+//				// Lachesis: Please either fix this branching condition or remove it.
+//				if (10000 > id > 11000) {
+//					str[0]=SEND_BOOK;
+//					*((Uint16*)(str+1))=SDL_SwapLE16(id);
+//					*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF); // Swap not actually necessary.. But it's cleaner.
+//					my_tcp_send(my_socket, str, 5);
+//				}
 				
 				hide_window(win->window_id);
 				book_opened=-1;
@@ -1039,15 +1040,16 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 			
 			if(mx>win->len_x/2-15 && mx < win->len_x/2+15) {
-				char str[5];
-				int id=b->id;
+//				char str[5];
+//				int id=b->id;
 		
-				if (10000 > id > 11000) {
-					str[0]=SEND_BOOK;
-					*((Uint16*)(str+1))=SDL_SwapLE16(id);
-					*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF);
-					my_tcp_send(my_socket, str, 5);
-				}
+//				// Lachesis: Please either fix this branching condition or remove it.
+//				if (10000 > id > 11000) {
+//					str[0]=SEND_BOOK;
+//					*((Uint16*)(str+1))=SDL_SwapLE16(id);
+//					*((Uint16*)(str+3))=SDL_SwapLE16(0xFFFF);
+//					my_tcp_send(my_socket, str, 5);
+//				}
 				
 				hide_window(win->window_id);
 				book_opened=-1;

@@ -6,6 +6,10 @@
 #ifndef __TILE_H__
 #define __TILE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef MAP_EDITOR2
 typedef struct
 {
@@ -43,4 +47,9 @@ void draw_tile_map();
  * \callgraph
  */
 void load_map_tiles();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

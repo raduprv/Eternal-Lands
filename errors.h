@@ -6,6 +6,10 @@
 #ifndef __ERRORS_H__
 #define __ERRORS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \ingroup misc_utils
  * \brief   empties the error_log.txt file
@@ -93,6 +97,10 @@ void log_conn(const Uint8 *in_data, Uint32 data_length);
  * \callgraph
  */
 void log_func_err(const Uint8 * file, const Uint8 * func, Uint32 line);
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif

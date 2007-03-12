@@ -8,6 +8,10 @@
 
 #include "misc.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef	NEW_FRUSTUM
 /*!
  * returns the sector associated with the coordinates x and y
@@ -87,5 +91,9 @@ int sector_add_2do(int objectid);
  * \callgraph
  */
 void sector_add_map();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

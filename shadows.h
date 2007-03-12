@@ -6,6 +6,10 @@
 #ifndef __SHADOWS_H__
 #define __SHADOWS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern float sun_position[4];
 
 extern int shadows_on; /*!< flag indicating whether shadows are enabled or disabled */
@@ -86,4 +90,9 @@ void make_shadow_framebuffer();
  * \callgraph
  */
 void change_shadow_framebuffer_size();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

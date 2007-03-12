@@ -6,6 +6,10 @@
 #ifndef __PASTE_H__
 #define __PASTE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \ingroup hotkey
  * \brief Pastes the contents of the given buffer to the chat window
@@ -57,4 +61,9 @@ void windows_paste(void);
 
 #endif // not def WINDOWS
 #endif // not def OSX
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif // not def __PASTE_H__

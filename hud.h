@@ -8,6 +8,10 @@
 
 #include "elwindows.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name orientation constants
  */
@@ -267,5 +271,9 @@ void change_flags(int win_id, Uint32 flags);
  * \sa change_flags
  */
 Uint32 get_flags(int win_id);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	//__HUD_H

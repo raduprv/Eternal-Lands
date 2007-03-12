@@ -6,6 +6,10 @@
 #ifndef __WEATHER_H__
 #define __WEATHER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int use_fog;			/*!< Whether we are using fog or not */
 void start_weather(int seconds_till_start, float severity);
 void stop_weather(int seconds_till_stop, float severity);
@@ -127,5 +131,9 @@ void add_thunder(int type,int sound_delay);
  */
 
 void render_fog();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

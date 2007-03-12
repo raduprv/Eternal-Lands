@@ -6,6 +6,10 @@
 #ifndef __NOTEPAD_H__
 #define __NOTEPAD_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef NOTEPAD
 extern int notepad_win; /*!< ID of the notepad window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
@@ -59,6 +63,10 @@ void display_notepad();
  * \retval int  always 1
  */
 int notepadSaveFile();
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif

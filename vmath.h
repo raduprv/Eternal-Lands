@@ -12,6 +12,10 @@
 #include "misc.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Vector item names.
  */
@@ -317,9 +321,9 @@ static __inline__ void VInvertSelect4(VECTOR4 v1, const VECTOR4 v2, const VECTOR
  */
 static __inline__ void VAbs(VECTOR3 v1, const VECTOR3 v2)
 {
-	v1[X] = abs(v2[X]);
-	v1[Y] = abs(v2[Y]);
-	v1[Z] = abs(v2[Z]);
+	v1[X] = fabs(v2[X]);
+	v1[Y] = fabs(v2[Y]);
+	v1[Z] = fabs(v2[Z]);
 }
 
 /*!
@@ -520,9 +524,9 @@ static __inline__ void Normalize(VECTOR3 v1, const VECTOR3 v2)
  */
 static __inline__ void VAssignS3(SHORT_VEC3 v1, const VECTOR3 v2)
 {
-	v1[X] = v2[X]*32767.0f;
-	v1[Y] = v2[Y]*32767.0f;
-	v1[Z] = v2[Z]*32767.0f;
+	v1[X] = (short) (v2[X]*32767.0f);
+	v1[Y] = (short) (v2[Y]*32767.0f);
+	v1[Z] = (short) (v2[Z]*32767.0f);
 }
 
 /*!
@@ -605,4 +609,9 @@ void calculate_Light_Matrix(int useBodyVec, double nearDist,
 	const VECTOR3D lightDir, const MATRIX4x4D ModelViewMatrix,
 	const MATRIX4x4D ProjectionMatrix, MATRIX4x4D lightView,
 	MATRIX4x4D lightProjection);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

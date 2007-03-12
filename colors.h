@@ -6,6 +6,10 @@
 #ifndef __COLORS_H__
 #define __COLORS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * A color structure for RGB color values.
  */
@@ -37,4 +41,9 @@ extern color_rgb colors_list[30]; /*!< the global list of colors we use */
  * \sa init_stuff
  */
 void init_colors();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

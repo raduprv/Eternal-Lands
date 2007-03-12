@@ -7,6 +7,10 @@
 #define __TRANSLATE_H__
 #include <libxml/parser.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define XML_ID_SIZE 64
 
 /*!
@@ -694,5 +698,9 @@ void load_translatables();
  * \callgraph
  */
 void add_options_distringid(char * xml_id, dichar * var, char * str, char * desc);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

@@ -8,6 +8,10 @@
 
 #include "elwindows.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern GLuint paper1_text;
 
 extern char have_display; /*!< Flag indicating whether any window is showing the scene */
@@ -101,5 +105,9 @@ void get_tmp_actor_data();
  *		Window handler that updates the \see have_display flag.
  */
 int update_have_display(window_info *win);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

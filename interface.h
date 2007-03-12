@@ -6,6 +6,10 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int have_a_map;  /*!< flag indicating whether a map is available or not */
 extern int auto_camera; /*!< if this is true, we are using the auto camera */
 
@@ -365,5 +369,9 @@ void hide_all_root_windows ();
  * \callgraph
  */
 void resize_all_root_windows (Uint32 w, Uint32 h);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

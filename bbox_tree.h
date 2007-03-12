@@ -12,6 +12,10 @@
 #endif
 #include "md5.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define TYPE_2D_NO_ALPHA_OBJECT					0x00
 #define TYPE_2D_ALPHA_OBJECT					0x01
 #define TYPE_3D_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT		0x02
@@ -937,5 +941,10 @@ void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigne
 	unsigned int view_mask, const VECTOR3 light_dir);
 
 extern LINE click_line;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif
 #endif

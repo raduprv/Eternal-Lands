@@ -23,7 +23,6 @@ NEW_FRUSTUM_COBJ = bbox_tree.o
 NOTEPAD_COBJ = notepad.o
 SFX_COBJ = special_effects.o
 TERRAIN_COBJ = normals.o terrain.o
-USE_FRAMEBUFFER_COBJ = framebuffer.o
 USE_LISPSM_COBJ = lispsm.o
 USE_SHADER_COBJ = shader.o
 COBJS=2d_objects.o 3d_objects.o	\
@@ -32,7 +31,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	cache.o cal.o chat.o colors.o console.o consolewin.o counters.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
-	filter.o font.o frustum.o	\
+	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o lights.o list.o loginwin.o loading_win.o	\

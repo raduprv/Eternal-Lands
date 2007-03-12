@@ -8,6 +8,10 @@
 #include <time.h>
 #include "queue.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define	MAX_BUDDY	100
 
 /*!
@@ -26,8 +30,8 @@ typedef struct
 extern int buddy_win; /*!< The identifier of the buddy window */
 /*! @} */
 
-int buddy_menu_x;
-int buddy_menu_y;
+extern int buddy_menu_x;
+extern int buddy_menu_y;
 
 /*!
  * \ingroup	other
@@ -92,5 +96,9 @@ extern queue_t *buddy_request_queue;
 extern time_t c_time;
 
 extern _buddy buddy_list[];
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

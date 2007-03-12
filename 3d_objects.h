@@ -6,6 +6,10 @@
 #ifndef __OBJ_3D_H__
 #define __OBJ_3D_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int use_3d_alpha_blend;	// do 3d models use alpha blending?
 
 #ifndef	NEW_FRUSTUM
@@ -214,5 +218,9 @@ void clear_objects_list_placeholders();
  *
  */
 void inc_objects_list_placeholders();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

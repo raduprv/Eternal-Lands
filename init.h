@@ -6,6 +6,10 @@
 #ifndef __INIT_H__
 #define __INIT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * Binary configuration data
  */
@@ -209,5 +213,9 @@ void init_stuff();
  *
  */
 void unload_e3d_list();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	//__INIT_H__

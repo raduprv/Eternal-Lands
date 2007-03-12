@@ -8,6 +8,10 @@
 
 //#include "global.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define FLOATINGMESSAGE_NORTH 	1
 #define FLOATINGMESSAGE_EAST  	2
 #define FLOATINGMESSAGE_SOUTH 	3
@@ -248,5 +252,9 @@ void fill_stats_win ();
 extern int floatingmessages_enabled;
 void drawactor_floatingmessages(int actor_id, float healthbar_z);
 void add_floating_message(int actor_id, char * str, int direction, float r, float g, float b, int active_time);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

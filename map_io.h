@@ -6,13 +6,17 @@
 #ifndef __MAP_IO_H__
 #define __MAP_IO_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern char map_file_name[256]; /*!< filename of the current map */
-#define PLAINS 		0x00000001 //It can rain here
-#define SNOW 		0x00000002 //It can snow here
-#define DESERT 		0x00000004 //It can be darned hot here :P
-#define DUNGEON 	0x00000008
-#define HOUSE		0x00000010
-#define BOAT		0x00000020 //Tilt the ground level slightly?
+#define MF_PLAINS 		0x00000001 //It can rain here
+#define MF_SNOW 		0x00000002 //It can snow here
+#define MF_DESERT 		0x00000004 //It can be darned hot here :P
+#define MF_DUNGEON 	0x00000008
+#define MF_HOUSE		0x00000010
+#define MF_BOAT		0x00000020 //Tilt the ground level slightly?
 /*
 #define RESERVED 	0x00000040 
 #define RESERVED	0x00000080 
@@ -313,6 +317,10 @@ void new_map(int size_x, int size_y, int tile_type);
  * \todo Don't exit(1) on failure!
  */
 int save_map(char * filename);
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif

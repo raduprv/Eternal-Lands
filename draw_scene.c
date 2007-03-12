@@ -213,7 +213,9 @@ void move_camera ()
 
 void update_camera()
 {
+#ifdef NEW_FRUSTUM
 	int adjust_view= 0;
+#endif
 
 	if(camera_rotation_frames)
 		{

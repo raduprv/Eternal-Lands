@@ -6,6 +6,10 @@
 #ifndef __PARTICLES_H__
 #define __PARTICLES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Particle system constants
  */
@@ -308,7 +312,6 @@ void update_particles();
  */
 void add_teleporters_from_list (const Uint8 *teleport_list);
 
-#ifdef MAP_EDITOR
 /*!
  * \ingroup loadsave
  * \brief Saves the given particle system definition to a file
@@ -319,12 +322,12 @@ void add_teleporters_from_list (const Uint8 *teleport_list);
  * \retval int
  * \callgraph
  */
+#ifdef MAP_EDITOR
 int save_particle_def(particle_sys_def *def);
 #elif defined(MAP_EDITOR2)
 int save_particle_def(particle_sys_def *def);
 #endif
 
-#ifdef	NEW_FRUSTUM
 /*
  * \ingroup	particles
  * \brief	Destroys the particle system at position i in the particles_list
@@ -335,6 +338,7 @@ int save_particle_def(particle_sys_def *def);
  *
  * \callgraph
  */
+#ifdef	NEW_FRUSTUM
 //void destroy_particle_sys(int i);
 #endif
 
@@ -348,8 +352,14 @@ void update_teleporter_sys(particle_sys *system_id);
 void update_fire_sys(particle_sys *system_id);
 void update_burst_sys(particle_sys *system_id);
 void update_fountain_sys(particle_sys *system_id);
-#endif
-#endif
+#endif // MAP_EDITOR2
 
 extern int use_point_particles; /*!< specifies if we use point particles or not */
 extern int enable_blood; /*!< specifies whether or not to use the blood special effect in combat */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif // __PARTICLES_H__
+

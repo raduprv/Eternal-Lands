@@ -4,6 +4,9 @@
 #include "global.h"
 #include <time.h>
 #include "actors.h"
+#if defined SFX && defined EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 // mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now
 // NOTE: with the new XML standards being used, these are being phased out in preference to the numeric's in the XML

@@ -6,6 +6,10 @@
 #ifndef	CPUID_H
 #define	CPUID_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * The flag of SSE (Streaming SIMD Extensions).
  */
@@ -67,5 +71,9 @@ static __inline__ int get_sse()
 	}
 	return ret;
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

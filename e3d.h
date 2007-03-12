@@ -13,6 +13,11 @@
 #ifdef	NEW_FRUSTUM
 #include "vmath.h"
 #endif
+
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name    3D objects array sizes
  */
@@ -389,5 +394,9 @@ e3d_object * load_e3d_detail(e3d_object *cur_object);
  * \sa init_e3d_cache
  */
 Uint32 free_e3d_va(e3d_object *e3d_id);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

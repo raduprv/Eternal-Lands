@@ -5,6 +5,9 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <float.h>
+#if defined SFX && defined EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 //For stat() etc.. below
 #include <sys/types.h>

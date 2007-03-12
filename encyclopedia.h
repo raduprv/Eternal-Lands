@@ -9,6 +9,10 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define ENCYC_OFFSET	40
 
 /*!
@@ -97,4 +101,9 @@ void ReadXML(const char *filename);
  * \sa start_rendering
  */
 void FreeXML();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

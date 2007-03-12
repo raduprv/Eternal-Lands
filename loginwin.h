@@ -6,6 +6,10 @@
 #ifndef __LOGINWIN_H__
 #define __LOGINWIN_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int login_root_win; /*!< ID for the login root window */
 
 /*!
@@ -33,5 +37,9 @@ void set_login_error (const char *msg, int len);
  * \pre If \ref login_root_win >= 0, this function won't perform any action.
  */
 void create_login_root_window (int width, int height);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // def __LOGINWIN_H__

@@ -6,6 +6,10 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name contstant sizes
  */
@@ -250,4 +254,9 @@ int load_font_textures ();
 void reload_fonts();
 
 void cleanup_fonts(void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

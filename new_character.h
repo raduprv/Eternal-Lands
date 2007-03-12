@@ -6,6 +6,10 @@
 #ifndef __NEW_CHARACTER_H__
 #define __NEW_CHARACTER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define RAND(min,max) (min + rand () % (max - min + 1))
 
 /*!
@@ -97,4 +101,9 @@ void create_newchar_root_window ();
 
 void show_account_win ();
 void show_color_race_win();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

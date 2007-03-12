@@ -6,6 +6,10 @@
 #ifndef __MANUFACTURE_H__
 #define __MANUFACTURE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern item manufacture_list[ITEM_NUM_ITEMS]; /*!< global list of manufacturable items */
 
 extern int manufacture_menu_x;
@@ -40,5 +44,9 @@ void build_manufacture_list();
 void display_manufacture_menu();
 
 //int check_manufacture_interface();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

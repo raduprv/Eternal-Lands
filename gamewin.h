@@ -6,6 +6,10 @@
 #ifndef __GAMEWIN_H__
 #define __GAMEWIN_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define HUD_MARGIN_X 64
 #define HUD_MARGIN_Y 49
 
@@ -78,5 +82,9 @@ int keypress_root_common (Uint32 key, Uint32 unikey);
  * \callgraph
  */
 void create_game_root_window (int width, int height);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // def __GAMEWIN_H__

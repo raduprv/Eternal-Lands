@@ -3,6 +3,10 @@
 #include "cal3d_wrapper.h"
 #include "cal_types.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 enum Boolean CalMixer_ExecuteAction_Stop(struct CalMixer *self, int id, float delayIn, float delayOut);
 struct CalMesh *CalModel_GetAttachedMesh(struct CalModel *self,int i);
 void CalCoreSkeleton_Scale(struct CalCoreSkeleton *self,float factor);
@@ -26,4 +30,9 @@ struct cal_anim cal_load_anim(actor_types *act, char *str);
 #endif
 
 void cal_actor_set_anim(int id,struct cal_anim anim);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

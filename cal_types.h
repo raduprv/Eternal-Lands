@@ -1,6 +1,10 @@
 #ifndef __CAL_TYPES_H__
 #define __CAL_TYPES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif	//NEW_SOUND
@@ -18,6 +22,8 @@ struct cal_anim
 #endif	//NEW_SOUND
 };
 
-
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

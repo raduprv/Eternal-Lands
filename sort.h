@@ -6,6 +6,10 @@
 #ifndef __SORT_H__
 #define __SORT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! \name callback to get a key */
 typedef const char * (* gen_mkey_retrieve_func)(void * pdata, int i) ;
 /*! \name callback to swap two entries */
@@ -52,5 +56,9 @@ int gen_mkeyfind(void * pdata, gen_mkey_retrieve_func get, int n, const char *
  */
 void gen_mkeymerge(void * psrc, void * pdst, gen_mkey_retrieve_func get, 
 		gen_mkey_copy_func put, int n, int m);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // ndef __GEN_MKEYSORT_H__

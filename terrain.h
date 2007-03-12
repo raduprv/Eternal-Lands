@@ -7,6 +7,10 @@
 #ifndef	TERRAIN_H
 #define	TERRAIN_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * The hf-map is a float array of map_tile_size_x*map_tile_size_y size 
  * storing the height for the vertexes of the terrain.
@@ -48,6 +52,10 @@ extern void init_terrain(FILE *file, const unsigned int size_x, const unsigned i
  * \callgraph
  */
 extern void free_terrain();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 #endif

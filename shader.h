@@ -3,6 +3,10 @@
 #ifndef SHADER_H
 #define SHADER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \brief	Frees the given shader.
  *
@@ -22,6 +26,10 @@ extern void free_shader(GLhandleARB ProgramObject);
  * \callgraph
  */
 extern GLhandleARB init_normal_mapping_shader();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 #endif

@@ -6,6 +6,10 @@
 #ifndef __PATHFINDER_H__
 #define __PATHFINDER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Pathfinder limitting
  * @{
@@ -137,5 +141,9 @@ void pf_move_to_mouse_position();
  * \callgraph
  */
 int pf_get_mouse_position(int mouse_x, int mouse_y, int * px, int * py);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __PATHFINDER_H__ */

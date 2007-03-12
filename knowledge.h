@@ -6,6 +6,10 @@
 #ifndef __KNOWLEDGE_H__
 #define __KNOWLEDGE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define KNOWLEDGE_LIST_SIZE 1024 /*!< maximum size of the \ref knowledge_list */
 
 /*!
@@ -80,5 +84,9 @@ void get_new_knowledge(Uint16 idx);
  * \callgraph
  */
 void fill_knowledge_win ();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

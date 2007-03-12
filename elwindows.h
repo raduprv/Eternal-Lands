@@ -9,6 +9,10 @@
 #include "keys.h"
 #include "widgets.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Title bar & other constants
  */
@@ -636,5 +640,9 @@ int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coo
 //int	display_handler(window_info *win);
 //int	click_handler(window_info *win);
 //int	mouseover_handler(window_info *win);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	//__EL_WINDOWS_H

@@ -6,6 +6,10 @@
 #ifndef __CURSORS_H__
 #define __CURSORS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Cursor types
  */
@@ -108,5 +112,9 @@ void build_cursors();
 void check_cursor_change();
 
 void cursors_cleanup(void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

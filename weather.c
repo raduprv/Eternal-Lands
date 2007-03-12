@@ -302,7 +302,6 @@ void update_rain(int ticks, int num_rain_drops)
 {
 	int i; float x, y, z, wind_effect, x_move, y_move, max_part;
 	double z_delta;
-	char tmp[200];
 
 	if (num_rain_drops > MAX_RAIN_DROPS) num_rain_drops = MAX_RAIN_DROPS;
 
@@ -955,7 +954,7 @@ void rain_control()
 	else return;
 
 	/* disable rain on snow maps for now */
-	if (map_flags & SNOW) {
+	if (map_flags & MF_SNOW) {
 		is_raining = 0;
 		if (rain_sound) {
 			stop_sound(rain_sound);
@@ -1085,7 +1084,7 @@ void thunder_control()
 {
 	int i;
 	int sounds[5]={snd_thndr_1,snd_thndr_2,snd_thndr_3,snd_thndr_4,snd_thndr_5};
-	if(map_flags&SNOW) return;
+	if(map_flags & MF_SNOW) return;
 
 	if(thunder_control_counter+100<cur_time)
 		{
@@ -1130,7 +1129,7 @@ void add_thunder(int type,int sound_delay)
 {
 	int i;
 
-	if(map_flags&SNOW) return;
+	if(map_flags & MF_SNOW) return;
 
 	for(i=0;i<MAX_THUNDERS;i++)
 		{
@@ -1182,7 +1181,7 @@ void render_fog() {
 	GLfloat rainStrength, rainAlpha, diffuseBias;
 	int i; float tmpf;
 
-	if(!(map_flags&SNOW)) {
+	if(!(map_flags& MF_SNOW)) {
 		rainStrength = num_rain_drops/(float) MAX_RAIN_DROPS;
 		rainAlpha = 0.2f*rain_color[3]*rainStrength;
 			// in dungeons and at night we use smaller light sources ==> less diffuse light

@@ -2,6 +2,9 @@
 #include <string.h>
 #include <math.h>
 #include "global.h"
+#ifdef SFX
+#include "special_effects.h"
+#endif
 
 int console_root_win = -1;
 

@@ -12,6 +12,10 @@
 #include "cal_types.h"
 #include "client_serv.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
@@ -578,5 +582,9 @@ actor *	get_actor_ptr_from_id( int actor_id );
 float cal_get_maxz2(actor *act);
 
 void end_actors_lists(void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

@@ -7,6 +7,10 @@
 #ifndef NORMALS_LOW_MEM_H
 #define NORMALS_LOW_MEM_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define min(a,b) (a>b?b:a)
 #define max(a,b) (a>b?a:b)
 
@@ -180,5 +184,10 @@ static __inline__ void calc_normal_map_lo_mem(unsigned short* h_map, const unsig
 	build_normal_texures_lo_mem(normal_map, size_x, size_y);
 	free(normal_map);
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif
 #endif

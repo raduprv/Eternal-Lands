@@ -6,6 +6,10 @@
 #ifndef __DIALOGUES_H__
 #define __DIALOGUES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Response count
  */
@@ -87,5 +91,9 @@ void display_dialogue();
  * \sa close_window
  */
 void close_dialogue();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

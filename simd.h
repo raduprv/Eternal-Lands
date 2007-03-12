@@ -7,6 +7,10 @@
 #ifndef	SIMD_H
 #define SIMD_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifdef	X86_64
 #ifndef	SSE2
 #define	SSE2
@@ -48,6 +52,10 @@ extern void init_sse();
 #endif
 
 #define use_low_mem 0
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif
 #endif

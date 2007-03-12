@@ -6,6 +6,10 @@
 #ifndef __STORAGE_H__
 #define __STORAGE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define STORAGE_ITEMS_SIZE 200
 
 /*! \name window handler
@@ -74,5 +78,9 @@ void close_storagewin();
  * \callgraph
  */
 void display_storage_menu();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

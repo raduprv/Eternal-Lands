@@ -6,6 +6,10 @@
 #ifndef __SYMBOL_TABLE_H__
 #define __SYMBOL_TABLE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name symbol table data
  */
@@ -106,5 +110,9 @@ void st_destroy(symbol_table * st);
  * \param freedata callback to destroy user data
  */
 void st_destroyExt(symbol_table * st, void (* freedata)(void *));
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // ndef __SYMBOL_TABLE_H__

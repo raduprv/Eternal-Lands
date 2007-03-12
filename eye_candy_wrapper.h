@@ -14,7 +14,8 @@
 #ifndef CAL_EYE_CANDY_WRAPPER_H
 #define CAL_EYE_CANDY_WRAPPER_H
 
-#include <SDL.h>
+#include "global.h"
+#include "actors.h"
 
 #ifdef __cplusplus
 #include "eye_candy/eye_candy.h"
@@ -36,8 +37,6 @@
 #include "eye_candy/effect_wind.h"
 #include "eye_candy/effect_breath.h"
 #endif
-
-#include "actors.h"
 
 //****************************************************************************//
 // Defines for Win32 and MingW32                                              //
@@ -126,6 +125,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_init();
   void ec_add_light(GLenum light_id);
   void ec_set_draw_method();
+  void ec_set_draw_detail();
   void ec_idle();
   void ec_draw();
   void ec_actor_delete(actor* _actor);

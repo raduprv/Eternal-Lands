@@ -6,6 +6,10 @@
 #ifndef __BOOKS_H__
 #define __BOOKS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! The book texture*/
 extern int book1_text;
 
@@ -73,5 +77,9 @@ void open_book(int id);
  * \param	book_id The unique book ID
  */
 void close_book(int book_id);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

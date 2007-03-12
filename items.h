@@ -6,6 +6,10 @@
 #ifndef __ITEMS_H__
 #define __ITEMS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * Any item in EL has assigned an item struct
  */
@@ -217,5 +221,9 @@ void get_items_cooldown (const Uint8 *data, int len);
  *
  */
 void update_cooldown ();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

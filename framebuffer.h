@@ -6,6 +6,10 @@
 #ifndef	FRAMEBUFFER_H
 #define	FRAMEBUFFER_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \ingroup 	display_utils
  * \brief 	Free framebuffer.
@@ -88,5 +92,10 @@ void make_depth_framebuffer(int width, int height, int *FBO, int *FBOTexture);
  * \callgraph
  */
 void change_depth_framebuffer_size(int width, int height, int *FBO, int *FBOTexture);
+
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

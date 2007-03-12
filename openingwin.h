@@ -6,6 +6,10 @@
 #ifndef __OPENINGWIN_H__
 #define __OPENINGWIN_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int opening_root_win; /*!< handler for the opening window */
 
 /*!
@@ -32,5 +36,9 @@ void create_opening_root_window (int width, int height);
  * \callgraph
  */
 void opening_win_update_zoom();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // def __OPENINGWIN_H__

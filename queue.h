@@ -4,6 +4,10 @@
 #include <SDL_types.h>
 #include <SDL_thread.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 //Move to multiplayer.h?
 typedef struct message
 {
@@ -32,5 +36,9 @@ void *queue_pop (queue_t *queue);
 void *queue_delete_node(queue_t *queue, node_t *node);
 int queue_isempty (const queue_t *queue);
 node_t *queue_front_node(const queue_t *queue);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif //QUEUE_H_

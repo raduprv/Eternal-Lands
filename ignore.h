@@ -6,6 +6,10 @@
 #ifndef __IGNORE_H__
 #define __IGNORE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! \name Array size */
 /*! @{ */
 #define MAX_IGNORES 1000  /*!< defines the max. number of entries in ignore_list */
@@ -81,5 +85,9 @@ void load_ignores();
  *
  */
 int list_ignores();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

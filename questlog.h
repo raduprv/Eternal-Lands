@@ -6,6 +6,10 @@
 #ifndef __QUESTLOG_H__
 #define __QUESTLOG_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name windows handlers
  */
@@ -77,5 +81,9 @@ void goto_questlog_entry(int ln);
  * \callgraph
  */
 void fill_questlog_win ();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	//__QUESTLOG_H__

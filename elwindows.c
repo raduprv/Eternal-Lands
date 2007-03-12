@@ -4,6 +4,9 @@
 #include "keys.h"
 #include "elwindows.h"
 #include "widgets.h"
+#if defined SFX && defined EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.

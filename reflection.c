@@ -424,6 +424,7 @@ static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos
 	glEnd();
 }
 
+#ifdef NEW_FRUSTUM
 static __inline__ void init_depth()
 {
 	float x, y, x_scaled, y_scaled;
@@ -457,6 +458,7 @@ static __inline__ void init_depth()
 	glDepthRange(0.0f, 1.0f);
 	glDepthFunc(GL_LESS);
 }
+#endif // NEW_FRUSTUM
 
 void display_3d_reflection()
 {
@@ -491,13 +493,11 @@ void display_3d_reflection()
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
-	init_depth();
 #ifdef	NEW_FRUSTUM
+	init_depth();
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
-#endif	//NEW_FRUSTUM
 	calculate_reflection_frustum(water_deepth_offset);
-#ifdef	NEW_FRUSTUM	
 	enable_reflection_clip_planes();
 #endif	//NEW_FRUSTUM
 
@@ -772,8 +772,10 @@ void draw_lake_tiles()
 	int x,y;
 	float x_scaled,y_scaled;
 	int water_id;
+#ifdef NEW_FRUSTUM
 	float blend_float = 0.75f;
 	float blend_vec[4] = {blend_float, blend_float, blend_float, blend_float};
+#endif
 	glEnable(GL_CULL_FACE);
 	
 #ifndef	NEW_FRUSTUM

@@ -3,9 +3,12 @@
 #include "global.h"
 #include "weather.h"
 #include "draw_scene.h"
+#ifdef SFX
+#include "special_effects.h"
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#endif // SFX
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -1446,20 +1449,18 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
 #ifdef	NEW_FRUSTUM
-//		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
- #ifdef SFX
-#ifdef	EYE_CANDY
+	#if defined SFX && defined EYE_CANDY
 		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
-#endif	//EYE_CANDY
- #endif
-#else
-//		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
- #ifdef SFX
-#ifdef	EYE_CANDY
+	#else // SFX && EYE_CANDY
+		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
+	#endif // SFX && EYE_CANDY
+#else // NEW_FRUSTUM
+	#if defined SFX && defined EYE_CANDY
 		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
-#endif	//EYE_CANDY
- #endif
-#endif
+	#else // SFX && EYE_CANDY
+		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
+	#endif // SFX && EYE_CANDY
+#endif // NEW_FRUSTUM
 	}
 	else if (keysym == SDLK_F6)
 	{

@@ -6,6 +6,10 @@
 #ifndef __HELP_H__
 #define __HELP_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \names windows handlers
  */
@@ -29,5 +33,9 @@ int help_menu_y_len=200;
  * \return None
  */
 void fill_help_win ();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

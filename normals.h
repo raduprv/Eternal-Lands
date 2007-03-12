@@ -7,6 +7,10 @@
 #ifndef NORMAL_H
 #define NORMAL_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * The number of normals per vertex in x direction.
  */
@@ -250,5 +254,10 @@ static __inline__ int get_extra_texcoord(const unsigned int tile_x, const unsign
 	return (y+tile_y*VERTEXES_PER_TILE_Y)*(normal_map_size_x/NORMALS_PER_VERTEX_X)+(x+VERTEXES_PER_TILE_X*tile_x);
 }
 
+#ifdef __cplusplus
+} // extern "C"
 #endif
+
+#endif
+
 #endif

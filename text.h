@@ -8,6 +8,10 @@
 
 #include <SDL_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DISPLAY_TEXT_BUFFER_SIZE 5000 /*!< maximum number of lines in the text buffer */
 
 #define CHAT_ALL	((Uint8) -1)
@@ -310,5 +314,9 @@ int rewrap_message(text_message * buf, float zoom, int width, int * cursor);
 void cleanup_text_buffers(void);
 
 #define LOG_TO_CONSOLE(color,buffer)	put_colored_text_in_buffer(color,CHAT_SERVER,(const Uint8*)buffer,-1) /*!< logs the text in buffer with the specified color to the console. */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

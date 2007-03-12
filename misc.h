@@ -11,6 +11,10 @@
 #include <zlib.h>
 #endif // ZLIB
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define BUTTONRADIUS 15
 
 /*!
@@ -376,5 +380,9 @@ static __inline float clampf(float x, float l, float u)
 {
 	return min2f(max2f(x,l),u);
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

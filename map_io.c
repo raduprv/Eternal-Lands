@@ -9,6 +9,9 @@
 #ifdef	ZLIB
 #include	<zlib.h>
 #endif
+#if defined SFX && defined EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 int map_type=1;
 Uint32 map_flags=0;

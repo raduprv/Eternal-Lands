@@ -6,6 +6,10 @@
 #ifndef __RULES_H__
 #define __RULES_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * holds the data for up to 40 rules.
  */
@@ -150,5 +154,9 @@ void highlight_rule (int type, const Uint8 *rules, int no);
  * \callgraph
  */
 void create_rules_root_window (int width, int height, int next, int time);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

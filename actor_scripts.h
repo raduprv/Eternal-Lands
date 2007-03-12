@@ -6,6 +6,10 @@
 #ifndef __ACTOR_SCRIPTS_H__
 #define __ACTOR_SCRIPTS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \ingroup	move_actors
  * \brief	Finds the next frame in the md2-file for the current command.
@@ -152,4 +156,9 @@ void you_sit_down();
  *
  */
 void you_stand_up();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

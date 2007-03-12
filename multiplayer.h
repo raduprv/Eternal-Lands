@@ -6,6 +6,10 @@
 #ifndef __MULTIPLAYER_H__
 #define __MULTIPLAYER_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 extern char create_char_error_str[520]; /*!< buffer for messages that came from errors during the creation of a new character */
 extern char log_in_error_str[520]; /*!< buffer for messagees that came from errors during login */
@@ -126,4 +130,9 @@ int get_message_from_server(void *thread_args);
 void process_message_from_server(const Uint8 *in_data, int data_length);
 
 void send_heart_beat();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

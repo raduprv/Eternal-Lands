@@ -12,6 +12,10 @@
  #include "global.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 
 #define TEXTURE_CACHE_MAX 2000
 extern texture_cache_struct texture_cache[TEXTURE_CACHE_MAX]; /*!< global texture cache */
@@ -195,5 +199,9 @@ GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
 int		load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a);
 #endif	//ELC
 #endif  //MAP_EDITOR2
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

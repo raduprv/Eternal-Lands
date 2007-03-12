@@ -11,6 +11,10 @@
 #include "translate.h"
 #endif
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int elconfig_win;
 extern int elconfig_menu_x;
 extern int elconfig_menu_y;
@@ -163,5 +167,9 @@ void change_windows_on_top(int *var);
 void add_multi_option(char * name, char * str);
 
 void change_windowed_chat (int *wc, int val);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

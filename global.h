@@ -72,6 +72,9 @@
 #include <SDL_net.h>
 #include <SDL_thread.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
 #ifdef X86_64
 typedef long int point;
 #else
@@ -79,6 +82,9 @@ typedef int point;
 #endif
 
 extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to resync */
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #include "client_serv.h"
 #ifdef MEMORY_DEBUG

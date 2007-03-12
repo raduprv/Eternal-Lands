@@ -6,6 +6,10 @@
 #ifndef __GL_INIT_H__
 #define __GL_INIT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! \name window dimensions 
  * @{ */
 extern int window_width; /*!< width of the window */
@@ -233,5 +237,9 @@ int print_gl_errors(const char *file, const char *func, int line);
 #define GL_DEPTH_ATTACHMENT_EXT				0x8D00
 #endif
 /*! @} */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

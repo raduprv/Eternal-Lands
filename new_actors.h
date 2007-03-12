@@ -6,6 +6,10 @@
 #ifndef __NEW_ACTORS_H__
 #define __NEW_ACTORS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern float sitting; /*!< used to compute several actor related z values */
 
 /*!
@@ -101,4 +105,9 @@ void build_glow_color_table();
  */
 actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

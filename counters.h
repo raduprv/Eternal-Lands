@@ -3,6 +3,10 @@
 #ifndef __COUNTERS_H__
 #define __COUNTERS_H___
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int harvesting;
 extern char harvest_name[32];
 extern int counters_win;
@@ -24,6 +28,10 @@ void increment_summon_counter(char *string);
 
 void counters_set_product_name(char *name);
 void counters_set_spell_name(int spell_id, char *name, int len);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif /* __COUNTERS_H__ */
 

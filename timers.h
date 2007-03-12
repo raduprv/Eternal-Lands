@@ -6,6 +6,10 @@
 #ifndef __TIMERS_H__
 #define __TIMERS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int	my_timer_adjust;             /*!< my_timer_adjust */
 
 extern SDL_TimerID draw_scene_timer;     /*!< draw_scene_timer */
@@ -46,6 +50,10 @@ Uint32 check_misc(Uint32 interval, void * data);
  * \callgraph
  */
 void check_timers(void);
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif

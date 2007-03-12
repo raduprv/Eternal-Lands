@@ -6,6 +6,10 @@
 #ifndef __REFLECTION_H__
 #define __REFLECTION_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int lake_waves_timer;
 extern float water_movement_u; /*!< movement of the water in u direction */
 extern float water_movement_v; /*!< movement of the water in v direction */
@@ -129,4 +133,9 @@ void make_reflection_framebuffer(int width, int height);
  * \callgraph
  */
 void change_reflection_framebuffer_size(int width, int height);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

@@ -6,6 +6,10 @@
 #ifndef __SKILLS_H__
 #define __SKILLS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \names windows handlers
  */
@@ -29,5 +33,9 @@ int skills_menu_y_len=200;
  * \return None
  */
 void fill_skills_win ();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

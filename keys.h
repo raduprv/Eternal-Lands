@@ -8,6 +8,10 @@
 
 #include <SDL_types.h>
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Key Modifiers
  */
@@ -97,5 +101,9 @@ extern Uint32 K_SPELL6;
  * \callgraph
  */
 void read_key_config();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	//__KEYS_H__

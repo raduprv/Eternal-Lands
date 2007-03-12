@@ -9,6 +9,10 @@
 #ifndef __EVENTS_H__
 #define __EVENTS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name    Event types
  * @{
@@ -51,5 +55,9 @@ void	quick_use(int use_id);
  * \callgraph
  */
 int HandleEvent(SDL_Event *event);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	// __EVENTS_H__

@@ -6,6 +6,10 @@
 #ifndef __UPDATE_H__
 #define __UPDATE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // structure for requesting a file via http+thread
 struct http_get_struct {
 	char	server[128];
@@ -115,5 +119,9 @@ int http_get_file(char *server, char *path, FILE *fp);
  */
 void    init_custom_update();
 extern int custom_update;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

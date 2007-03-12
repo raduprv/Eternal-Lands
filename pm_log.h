@@ -8,6 +8,10 @@
 
 #include "chat.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define DEFAULT_AFK_MINUTES 5
 
 /*!
@@ -124,5 +128,9 @@ void print_message(int no);
  * \callgraph
  */
 int is_talking_about_me (const Uint8 * server_msg, int len, char everywhere);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

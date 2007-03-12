@@ -6,6 +6,10 @@
 #ifndef __CLIENT_SERV_H__
 #define __CLIENT_SERV_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Actor types
  */
@@ -935,5 +939,9 @@ typedef enum {
 
 } special_effect_enum;	
 	/*! @} */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 	
 #endif

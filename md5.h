@@ -35,6 +35,10 @@ documentation and/or software.
 #ifndef H__MD5
 #define H__MD5
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 // sizeof(unsigned long) == 8 on 64 bit system and MD5Close will segfault.
 //typedef unsigned long UINT4;
 typedef unsigned int UINT4;
@@ -84,5 +88,9 @@ void MD5Digest(MD5 *md5, const void *input, unsigned int input_len);
  * \sa MD5Digest
  */
 void MD5Close(MD5 *md5, MD5_DIGEST digest);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

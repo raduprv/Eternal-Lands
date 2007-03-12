@@ -9,6 +9,10 @@
 #include <SDL_types.h>
 #include "text.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 typedef struct {
 	Sint8 label[64];
 	int content_id;
@@ -1383,5 +1387,9 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
  * \callgraph
  */
 int AddXMLWindow(char *fn);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

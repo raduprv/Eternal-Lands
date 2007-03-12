@@ -28,6 +28,10 @@
 #include <vorbis/vorbisfile.h>
 #endif	//NO_MUSIC
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define SOUNDS_NONE 0
 #define SOUNDS_ENVIRO 1
 #define SOUNDS_ACTOR 2
@@ -266,4 +270,9 @@ int display_song_name();
 void change_sounds(int * var, int value);
 
 void toggle_music(int * var);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif //__SOUND_H__

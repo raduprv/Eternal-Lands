@@ -1,6 +1,10 @@
 #ifndef __BAGS_H__
 #define __BAGS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define NUM_BAGS 200
 #define ITEMS_PER_BAG 50
 
@@ -118,5 +122,9 @@ void remove_bag(int which_bag);
  * \bug Uses a fixed upper limit to search \ref bag_list. We should use a defined constant instead.
  */
 void open_bag(int object_id);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

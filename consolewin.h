@@ -6,6 +6,10 @@
 #ifndef __CONSOLE_WIN__
 #define __CONSOLE_WIN__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define CONSOLE_SEP_HEIGHT	18
 
 /*! \name windows handlers
@@ -49,5 +53,9 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y);
 #endif	//MAP_EDITOR
 
 int history_grep(char * text, int len);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // def __CONSOLE_WIN__

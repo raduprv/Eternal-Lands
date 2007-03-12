@@ -6,6 +6,10 @@
 #ifndef __CHAT_H__
 #define __CHAT_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #define MAX_TEXT_MESSAGE_LENGTH 160 /*!< The server will disconnect us when we send longer messages */
 #define MAX_CHAT_TABS		12	/*!< Size of the \see channels array */
 #define MAX_ACTIVE_CHANNELS	10	/*!< Maximum number of channels in use */
@@ -293,5 +297,9 @@ void chan_target_name(char * text, int len);
 int chat_input_key(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey);
 
 int resize_chat_handler(window_info *win, int width, int height);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // def __CHAT_H__

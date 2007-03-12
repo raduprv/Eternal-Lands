@@ -6,9 +6,12 @@
 #include "queue.h"
 #include "actors.h"
 #include "update.h"
+#ifdef SFX
+#include "special_effects.h"
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#endif // SFX
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -411,7 +414,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef SFX	//Test code; delete when SFX are well-in.
 #ifdef	EYE_CANDY
 	ec_bounds bounds;
-	ec_reference ref, ref1, ref2;
+	ec_reference /* ref, */ ref1, ref2;
 	ec_effects eff_list;
 #endif	//EYE_CANDY
 #endif
@@ -1356,7 +1359,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 #ifdef SFX
 				if (special_effects){
-					parse_special_effect(in_data[3], &in_data[4]);
+					parse_special_effect(in_data[3], (const Uint16 *) &in_data[4]);
 				}
 #endif
 			}

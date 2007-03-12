@@ -6,6 +6,10 @@
 #ifndef __ASC_H__
 #define __ASC_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * Check if a character is a color character
  */
@@ -253,5 +257,9 @@ double get_float_value (xmlNode *node);
 int get_int_property (xmlNode *node, const char *prop);
 char *get_string_property (xmlNode *node, const char *prop);
 int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

@@ -8,6 +8,10 @@
 
 #include "text.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #ifndef DEF_INFO
  #define DEF_INFO ""
 #endif
@@ -58,4 +62,9 @@ void do_tab_complete(text_message *input);
 void reset_tab_completer(void);
 
 int save_local_data(char * text, int len);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

@@ -393,7 +393,7 @@ void display_special_effect(special_effect *marker) {
 	// x and y are the location for the effect
 	//	center_offset_x&y are for radial distance from actor in ground plane
 	//	base_offset_z is for height off the ground (z)
-	float x,y,center_offset_x, center_offset_y, base_offset_z;
+	float x,y/*,center_offset_x, center_offset_y, base_offset_z*/;
 	
 	// height of terrain at the effect's location
 	float z = get_tile_display_height(marker->x, marker->y);
@@ -502,7 +502,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	Uint16 var_a, var_b =0;
 	actor* caster;
 	actor* target;
-	float x1, y1, z1, x2, y2, z2;
+	//float x1, y1, z1, x2, y2, z2;
 	
 	switch(sfx){
 		//player only
@@ -519,7 +519,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				add_sfx(sfx,var_a,1);
 			}
 			break;
-#endif	EYE_CANDY
+#endif // EYE_CANDY
 		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
 		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:

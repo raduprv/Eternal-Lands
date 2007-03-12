@@ -6,6 +6,10 @@
 #ifndef __TABS_H__
 #define __TABS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! \name Sizes for tabbed windows
  * @{ */
 #define STATS_TAB_WIDTH  580 /*!< width of the statistics tabbed windows */
@@ -28,8 +32,8 @@ extern int STATS_TAB_STATS, STATS_TAB_KNOWLEDGE, STATS_TAB_QUESTLOG;
 extern int tab_stats_win; /*!< handler for the stats tabbed window */
 /* @} */
 
-int tab_stats_x;
-int tab_stats_y;
+extern int tab_stats_x;
+extern int tab_stats_y;
 
 extern int tab_stats_collection_id; /*!< pointer to the \see tab_collection for statistics windows */
 
@@ -38,8 +42,8 @@ extern int tab_stats_collection_id; /*!< pointer to the \see tab_collection for 
 extern int tab_help_win; /*!< handler for the help tabbed window */
 /* @} */
 
-int tab_help_x;
-int tab_help_y;
+extern int tab_help_x;
+extern int tab_help_y;
 
 extern int tab_help_collection_id; /*!< pointer to the \see tab_collection for help windows */
 
@@ -62,5 +66,9 @@ void display_tab_stats ();
  * \callgraph
  */
 void display_tab_help ();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // def __TABS_H__

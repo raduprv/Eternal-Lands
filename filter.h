@@ -8,6 +8,10 @@
 
 #include	"ignore.h"	/* just in case it hasn't been included */
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 extern int use_global_filters; /*!< global flag, indicating whether global filtering is used or not */
 extern char text_filter_replace[]; /*!< string, that contains the word to replace each entry in \see filter_list with */
 extern int caps_filter; /*!< global flag, indicating whether filter of caps is enabled or not */
@@ -83,6 +87,10 @@ int list_filters();
 
 #ifdef DEBUG
 void print_filter_list ();
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif

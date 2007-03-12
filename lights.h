@@ -8,6 +8,10 @@
 #ifndef __LIGHTS_H__
 #define __LIGHTS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * A light structure stores the position and color of a light
  */
@@ -215,4 +219,9 @@ void new_minute();
 
 
 void cleanup_lights(void);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

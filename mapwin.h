@@ -6,6 +6,10 @@
 #ifndef __MAPWIN_H__
 #define __MAPWIN_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*! \name windows handlers 
  * @{ */
 extern int map_root_win; /*!< handler for the map window */
@@ -45,5 +49,9 @@ void create_map_root_window (int width, int height);
 /* controls TAB map mark filtering */
 extern int mark_filter_active;    /* true when filter active */
 extern char mark_filter_text[];   /* the text of the current filter */
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif // def __MAPWIN_H__

@@ -1,3 +1,9 @@
+#ifndef _MINIMAP_H_
+#define _MINIMAP_H_
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 int minimap_win;
 
@@ -9,3 +15,10 @@ void change_minimap();
 
 //called when player moves
 void update_exploration_map();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif // _MINIMAP_H_
+

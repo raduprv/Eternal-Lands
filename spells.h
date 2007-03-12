@@ -6,6 +6,10 @@
 #ifndef __SPELLS_H__
 #define __SPELLS_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * \name Server spell messages
  */
@@ -144,4 +148,9 @@ void load_quickspells();
 void save_quickspells();
 void init_quickspell();
 void add_spell_to_quickbar();
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif

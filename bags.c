@@ -140,7 +140,9 @@ void remove_bag(int which_bag)
 #ifndef	NEW_FRUSTUM
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
 #endif
+#if defined SFX && defined EYE_CANDY
 	float x, y, z;
+#endif
 	
 	if (which_bag >= NUM_BAGS) return;
 
@@ -151,31 +153,29 @@ void remove_bag(int which_bag)
 	}
 
 #ifdef	NEW_FRUSTUM
-//	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
-        x = bag_list[which_bag].x;
-        y = bag_list[which_bag].y;
-        z = -2.2f+height_map[bag_list[which_bag].y*tile_map_size_x*6+bag_list[which_bag].x]*0.2f;
+	#if defined SFX && defined EYE_CANDY
+	x = bag_list[which_bag].x;
+	y = bag_list[which_bag].y;
+	z = -2.2f+height_map[bag_list[which_bag].y*tile_map_size_x*6+bag_list[which_bag].x]*0.2f;
 	//convert from height values to meters
 	x /= 2;
 	y /= 2;
 	//center the object
 	x = x + 0.25f;
 	y = y + 0.25f;
- #ifdef SFX
-#ifdef	EYE_CANDY
 	ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
-#endif	//;EYE_CANDY
- #endif
-#else
-//	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
-        x = bag_list[which_bag].x;
-        y = bag_list[which_bag].y;
-        z = -2.2f+height_map[bag_list[which_bag].y*tile_map_size_x*6+bag_list[which_bag].x]*0.2f;
- #ifdef SFX
-#ifdef	EYE_CANDY
+	#else // SFX && EYE_CANDY
+	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
+ #endif // SFX && EYE_CANDY
+#else // NEW_FRUSTUM
+	#if defined SFX && defined EYE_CANDY
+	x = bag_list[which_bag].x;
+	y = bag_list[which_bag].y;
+	z = -2.2f+height_map[bag_list[which_bag].y*tile_map_size_x*6+bag_list[which_bag].x]*0.2f;
 	ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
-#endif	//;EYE_CANDY
- #endif
+	#else // SFX && EYE_CANDY
+	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
+	#endif // SFX && EYE_CANDY
 	sector=SECTOR_GET(objects_list[bag_list[which_bag].obj_3d_id]->x_pos, objects_list[bag_list[which_bag].obj_3d_id]->y_pos);
 	for(i=0;i<MAX_3D_OBJECTS;i++){
 		if(k!=-1 && sectors[sector].e3d_local[i]==-1){
@@ -188,7 +188,7 @@ void remove_bag(int which_bag)
 
 	sectors[sector].e3d_local[k]=sectors[sector].e3d_local[j];
 	sectors[sector].e3d_local[j]=-1;
-#endif
+#endif // NEW_FRUSTUM
 
 	destroy_3d_object(bag_list[which_bag].obj_3d_id);
 	bag_list[which_bag].obj_3d_id=-1;

@@ -6,6 +6,10 @@
 #ifndef __FILE_CACHE_H__
 #define __FILE_CACHE_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * a single item storable in the cache
  */
@@ -220,5 +224,9 @@ static __inline__ void	cache_use(cache_struct *cache, cache_item_struct *item_pt
 void *cache_find_item (cache_struct *cache, const char *name);
 
 void cache_delete(cache_struct *cache);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

@@ -6,6 +6,10 @@
 #ifndef __OBJ_2D_H__
 #define __OBJ_2D_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  *\name 	2D Object array sizes
  *		The sizes of the arrays where we keep 2d objects and 2d object definitions
@@ -199,6 +203,10 @@ void destroy_2d_object(int i);
  * 	Draws all 2D objects and evaluates collision with the mouse pointer - if there's a collision it sets selected_2d_object accordingly
  */
 void get_2d_object_under_mouse();
+#endif
+
+#ifdef __cplusplus
+} // extern "C"
 #endif
 
 #endif

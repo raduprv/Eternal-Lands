@@ -6,6 +6,10 @@
 #ifndef __FILE_MD2_H__
 #define __FILE_MD2_H__
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 /*!
  * Contains the header information of an MD2 file
  */
@@ -227,5 +231,9 @@ Uint32 free_md2_va(md2 *md2_ptr);
  * \callgraph
  */
 Uint32 build_md2_va(md2 *cur_md2, frame_md2 *cur_frame);
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif

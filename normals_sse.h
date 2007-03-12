@@ -8,6 +8,10 @@
 #ifndef NORMALS_SSE_H
 #define NORMALS_SSE_H
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 #include "simd.h"
 
 #ifdef	USE_SSE3
@@ -419,5 +423,10 @@ static __inline__ void calc_normal_map_sse(unsigned short* h_map, unsigned int s
 #endif
 	calc_normal_map_float_sse(h_map_f, size_x, size_y);
 }
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif
 #endif
