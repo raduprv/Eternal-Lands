@@ -32,9 +32,7 @@ GLuint depth_map_id = 0;
 #define depth_map_scale 15.0
 #define light_view_near -30.0
 #define light_view_far 6.0*/
-#ifdef	USE_FRAMEBUFFER
 int shadow_fbo = 0;
-#endif
 
 GLfloat light_view_hscale=13.0;
 GLfloat light_view_top=10.0;
@@ -48,7 +46,6 @@ extern int cur_e3d_count;
 #endif
 extern e3d_object   *cur_e3d;
 
-#ifdef	USE_FRAMEBUFFER
 void free_shadow_framebuffer()
 {
 	free_depth_framebuffer(&shadow_fbo, &depth_map_id);
@@ -63,7 +60,6 @@ void change_shadow_framebuffer_size()
 {
 	change_depth_framebuffer_size(shadow_map_size, shadow_map_size, &shadow_fbo, &depth_map_id);
 }
-#endif
 
 void calc_light_frustum(float light_xrot)
 {
@@ -864,11 +860,7 @@ void render_light_view()
 			}
 #endif
 
-#ifdef	USE_FRAMEBUFFER
 			if (!use_frame_buffer && !depth_map_id)
-#else
-			if(!depth_map_id)
-#endif
 				{
 					GLint depthbits=16;
 					GLenum internalformat=GL_DEPTH_COMPONENT16_ARB;
@@ -907,7 +899,6 @@ void render_light_view()
 					CHECK_GL_ERRORS();
 				}
 
-#ifdef	USE_FRAMEBUFFER
 			if (use_frame_buffer && have_framebuffer_object)
 			{
 				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, shadow_fbo);
@@ -916,7 +907,6 @@ void render_light_view()
         			glDrawBuffer(GL_NONE);
 	        		glReadBuffer(GL_NONE);
 			}
-#endif
 			CHECK_GL_ERRORS();
 
 			glPushAttrib(GL_ALL_ATTRIB_BITS);
@@ -950,18 +940,12 @@ void render_light_view()
 			set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif
 
-#ifdef	USE_FRAMEBUFFER
 			if (!use_frame_buffer)
 			{
 				glBindTexture(depth_texture_target, depth_map_id);
 				glCopyTexSubImage2D(depth_texture_target, 0, 0, 0, 0, 0, shadow_map_size, shadow_map_size);
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}
-#else
-			glBindTexture(depth_texture_target, depth_map_id);
-			glCopyTexSubImage2D(depth_texture_target, 0, 0, 0, 0, 0, shadow_map_size, shadow_map_size);
-			glClear(GL_DEPTH_BUFFER_BIT);
-#endif
 
 			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);
@@ -972,14 +956,12 @@ void render_light_view()
 			glBindTexture(GL_TEXTURE_2D,0);
 			last_texture=-1;
 			CHECK_GL_ERRORS();
-#ifdef	USE_FRAMEBUFFER
 			if (use_frame_buffer)
 			{
 				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         			glDrawBuffer(GL_BACK);
 	      			glReadBuffer(GL_BACK);
 			}
-#endif
 			CHECK_GL_ERRORS();
 		}
 }

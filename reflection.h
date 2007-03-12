@@ -102,7 +102,6 @@ void draw_dungeon_sky_background();
  */
 void draw_lake_water_tile(float x_pos, float y_pos);
 
-#ifdef	USE_FRAMEBUFFER
 /*!
  * \ingroup reflections
  * \brief Frees the reflection frame buffer.
@@ -130,5 +129,4 @@ void make_reflection_framebuffer(int width, int height);
  * \callgraph
  */
 void change_reflection_framebuffer_size(int width, int height);
-#endif
 #endif

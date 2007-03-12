@@ -169,14 +169,8 @@ void change_poor_man(int *poor_man)
 #ifdef	TERRAIN
 		use_normal_mapping= 0;
 #endif
-#ifdef	USE_FRAMEBUFFER
 		use_frame_buffer= 0;
 		update_fbo_and_shadow_mapping();
-#else
-		//...and the texture used for shadow mapping
-		glDeleteTextures(1, &depth_map_id);
-		depth_map_id= 0;
-#endif
 	}
 #ifdef SFX
 #ifdef	EYE_CANDY
@@ -376,9 +370,7 @@ void switch_vidmode(int *pointer, int mode)
 		}
 #endif
 	}
-#ifdef	USE_FRAMEBUFFER
 	update_fbo_and_shadow_mapping();
-#endif
 }
 
 void toggle_full_screen_mode(int * fs)
@@ -415,12 +407,8 @@ void change_shadow_map_size(int *pointer, int value)
 	{
 		error= 0;
 
-#ifdef	USE_FRAMEBUFFER
 		if (use_frame_buffer && have_framebuffer_object) glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
 		else max_size= min2i(window_width, window_height);
-#else
-		max_size= min2i(window_width, window_height);
-#endif
 
 		if (size > max_size) {
 			while ((size > max_size) && (index > 0)) {
@@ -458,7 +446,6 @@ void change_shadow_map_size(int *pointer, int value)
 		}
 
 		shadow_map_size= size;
-#ifdef	USE_FRAMEBUFFER
 		if (depth_map_id == 0) {
 			glDeleteTextures(1, &depth_map_id);
 			depth_map_id= 0;
@@ -476,10 +463,6 @@ void change_shadow_map_size(int *pointer, int value)
 				free_reflection_framebuffer();
 			}
 		}
-#else
-		glDeleteTextures(1, &depth_map_id);
-		depth_map_id= 0;
-#endif
 	}
 
 	if (pointer != NULL) {
@@ -778,12 +761,7 @@ void change_shadow_mapping (int *sm)
 			LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
 		}
 	}
-#ifdef	USE_FRAMEBUFFER
 	update_fbo_and_shadow_mapping();
-#else
-	glDeleteTextures(1, &depth_map_id);
-	depth_map_id= 0;
-#endif //USE_FRAMEBUFFER
 }
 
 #ifndef MAP_EDITOR2
@@ -816,7 +794,6 @@ void change_normal_mapping(int *nm)
 #endif // TERRAIN
 #endif // ELC
 
-#ifdef	USE_FRAMEBUFFER
 void change_reflection(int *rf)
 {
 	*rf= !*rf;
@@ -842,20 +819,11 @@ void change_frame_buffer(int *fb)
 	}
 	update_fbo_and_shadow_mapping();
 }
-#endif //USE_FRAMEBUFFER
 
 void change_shadows(int *sh)
 {
 	*sh= !*sh;
-#ifdef	USE_FRAMEBUFFER
 	update_fbo_and_shadow_mapping();
-#else
-	//...and the texture used for shadow mapping
-#ifndef OSX
-	glDeleteTextures(1, &depth_map_id);
-#endif //OSX
-	depth_map_id= 0;
-#endif
 }
 
 #ifdef MAP_EDITOR
@@ -961,9 +929,7 @@ static __inline__ void check_option_var(char* name)
 void check_options()
 {
 	check_option_var("use_point_particles");
-#ifdef	USE_FRAMEBUFFER
 	check_option_var("use_frame_buffer");
-#endif
 	check_option_var("use_shadow_mapping");
 	check_option_var("shadow_map_size");
 #ifdef	TERRAIN
@@ -1188,11 +1154,7 @@ void init_vars()
 #ifdef	NEW_ALPHA
 	add_var(BOOL,"use_3d_alpha_blend","3dalpha",&use_3d_alpha_blend,change_var,1,"3D Alpha Blending","Toggle the use of the alpha blending on 3D objects",VIDEO);
 #endif	//NEW_ALPHA
-#ifdef	USE_FRAMEBUFFER
 	add_var(BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",VIDEO);
-#else
-	add_var(BOOL,"show_reflection","refl",&show_reflection,change_var,1,"Show Reflections","Toggle the reflections",VIDEO);
-#endif
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",SPECIALVID);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
@@ -1355,9 +1317,7 @@ void init_vars()
 	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
 #endif // def ELC
-#ifdef	USE_FRAMEBUFFER
 	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", SPECIALVID);
-#endif // TERRAIN
 
 	//Global vars...
 	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...

@@ -807,9 +807,7 @@ void init_stuff()
 		show_window (rules_root_win);
 	}
 
-#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
-#endif
 
 }
 

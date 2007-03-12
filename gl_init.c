@@ -44,9 +44,7 @@ float gamma_var = 1.00f;
 float perspective = 0.15f;
 float near_plane = 40.0f; // don't cut off anything
 int have_texture_non_power_of_two = 0;
-#ifdef	USE_FRAMEBUFFER
 int use_frame_buffer = 0;
-#endif
 int gl_extensions_loaded = 0;
 
 struct list {
@@ -95,7 +93,6 @@ void (APIENTRY * ELglUniform4fvARB)(GLint location, GLsizei count, const GLfloat
 void (APIENTRY * ELglVertexAttribPointerARB)(GLuint index, int size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
 void (APIENTRY * ELglEnableVertexAttribArrayARB)(GLuint index);
 void (APIENTRY * ELglDisableVertexAttribArrayARB)(GLuint index);
-#ifdef	USE_FRAMEBUFFER
 GLboolean (APIENTRY * ELglIsRenderbufferEXT) (GLuint renderbuffer);
 void (APIENTRY * ELglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);
 GLboolean (APIENTRY * ELglIsFramebufferEXT) (GLuint framebuffer);
@@ -106,7 +103,6 @@ void (APIENTRY * ELglFramebufferTexture3DEXT) (GLenum target, GLenum attachment,
 void (APIENTRY * ELglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
 void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
-#endif
 #ifdef NEW_E3D_FORMAT
 void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
@@ -611,7 +607,6 @@ void init_gl_extensions()
 	ELglVertexAttribPointerARB=SDL_GL_GetProcAddress("glVertexAttribPointerARB");
 	ELglEnableVertexAttribArrayARB=SDL_GL_GetProcAddress("glEnableVertexAttribArrayARB");
 	ELglDisableVertexAttribArrayARB=SDL_GL_GetProcAddress("glDisableVertexAttribArrayARB");
-#ifdef	USE_FRAMEBUFFER
 	ELglIsRenderbufferEXT=SDL_GL_GetProcAddress("glIsRenderbufferEXT");
 	ELglGetRenderbufferParameterivEXT=SDL_GL_GetProcAddress("glGetRenderbufferParameterivEXT");
 	ELglIsFramebufferEXT=SDL_GL_GetProcAddress("glIsFramebufferEXT");
@@ -622,7 +617,6 @@ void init_gl_extensions()
 	ELglFramebufferRenderbufferEXT=SDL_GL_GetProcAddress("glFramebufferRenderbufferEXT");
 	ELglGetFramebufferAttachmentParameterivEXT=SDL_GL_GetProcAddress("glGetFramebufferAttachmentParameterivEXT");
 	ELglGenerateMipmapEXT=SDL_GL_GetProcAddress("glGenerateMipmapEXT");
-#endif
 #ifdef NEW_E3D_FORMAT
 	ELglDrawRangeElementsEXT=SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
 #endif
@@ -728,13 +722,10 @@ void init_gl_extensions()
 	}
 	
 	if(ELglGenRenderbuffersEXT && ELglDeleteRenderbuffersEXT && ELglBindRenderbufferEXT && ELglRenderbufferStorageEXT &&
-#ifdef	USE_FRAMEBUFFER
 	   ELglIsRenderbufferEXT && ELglGetRenderbufferParameterivEXT && ELglIsFramebufferEXT && ELglCheckFramebufferStatusEXT &&
 	   ELglFramebufferTexture1DEXT && ELglFramebufferTexture2DEXT && ELglFramebufferTexture3DEXT && 
 	   ELglFramebufferRenderbufferEXT && ELglGetFramebufferAttachmentParameterivEXT && ELglGenerateMipmapEXT &&
-#endif
 	   ELglGenFramebuffersEXT && ELglDeleteFramebuffersEXT && ELglBindFramebufferEXT && strstr(extensions, "GL_EXT_framebuffer_object")){
-#ifdef	USE_FRAMEBUFFER
 		if (ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT)
 		{
 			snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_framebuffer_object");
@@ -747,19 +738,10 @@ void init_gl_extensions()
 			LOG_TO_CONSOLE(c_red1, str);
 			have_framebuffer_object = 0;
 		}
-#else
-		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_EXT_framebuffer_object");
-		LOG_TO_CONSOLE(c_green2, str);
-		have_framebuffer_object=1;
-#endif
 	} else {
-#ifdef	USE_FRAMEBUFFER
 		snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
 		LOG_TO_CONSOLE(c_red1, str);
 		have_framebuffer_object = 0;
-#else
-		//snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
-#endif
 	}
 
 #ifdef NEW_E3D_FORMAT
@@ -986,12 +968,6 @@ void set_new_video_mode(int fs,int mode)
 		}
 #endif	//NEW_E3D_FORMAT
 	}
-
-#ifndef	USE_FRAMEBUFFER
-	//...and the texture used for shadow mapping
-	glDeleteTextures(1,&depth_map_id);
-	depth_map_id=0;
-#endif
 
 	//destroy the current context
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);

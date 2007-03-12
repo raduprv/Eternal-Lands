@@ -24,7 +24,6 @@ int lake_waves_timer=0;
 float water_movement_u=0;
 float water_movement_v=0;
 int show_reflection=1;
-#ifdef	USE_FRAMEBUFFER
 int water_reflection_fbo = 0;
 int water_reflection_fbo_renderbuffer = 0;
 int water_reflection_fbo_texture = 0;
@@ -32,7 +31,6 @@ int reflection_texture_width = 0;
 int reflection_texture_height = 0;
 double projectionlMatrixd[16];
 double modelMatrixd[16];
-#endif
 
 float mrandom(float max)
 {
@@ -334,7 +332,6 @@ int find_local_reflection(int x_pos,int y_pos,int range)
 }
 #endif  //NEW_FRUSTUM
 
-#ifdef	USE_FRAMEBUFFER
 static __inline__ int adapt_size(int size)
 {
 	int i, j;
@@ -460,156 +457,22 @@ static __inline__ void init_depth()
 	glDepthRange(0.0f, 1.0f);
 	glDepthFunc(GL_LESS);
 }
-#endif
 
 void display_3d_reflection()
 {
-#ifndef	USE_FRAMEBUFFER
-	/*
-	 * TODO: Render to texture, then create ripples and other nifty things 
-	 * 	 Fix the bug with reflections showing up when z<water_deepth_offset even if it's not a reflective tile that's beneath it.
-	 */
-#if !defined(MAP_EDITOR2) && !defined(NEW_FRUSTUM)
-	int i;
-#endif
-	int x,y;
-#ifndef NEW_FRUSTUM
+#ifndef	NEW_FRUSTUM
 	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
-#endif
-	float window_ratio;
-#ifndef NEW_FRUSTUM
-	struct near_3d_object * nobj;
-#else
-	unsigned int cur_intersect_type;	
-#endif
-	
-	window_ratio=(GLfloat)window_width/(GLfloat)window_height;
-
-#ifndef NEW_FRUSTUM
-	if(regenerate_near_objects)if(!get_near_3d_objects())return;
-#endif
-	
-	x=-camera_x;
-	y=-camera_y;
-	
-	CHECK_GL_ERRORS();
-
-	//glDisable(GL_STENCIL_TEST);
-	//glDisable(GL_DEPTH_TEST);
-	
-#ifndef	NEW_FRUSTUM
-	glEnable(GL_CLIP_PLANE0);
-	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
-#endif
-
-	//glDisable(GL_CULL_FACE);
-	glCullFace(GL_FRONT);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-
-	set_material(0.1f,0.2f,0.3f);
-	glPushMatrix();
-#ifdef	NEW_FRUSTUM
-	glTranslatef(0.0f, 0.0f, water_deepth_offset);
-#endif
-	glScalef(1.0f, 1.0f, -1.0f);
-#ifdef	NEW_FRUSTUM	
-	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
-	enable_reflection_clip_planes();
-#endif
-#ifndef	NEW_FRUSTUM
-	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-        	if(!objects_list[nobj->pos])
-			regenerate_near_objects=1;
-		else if(!objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=442){
-			int range=1+(objects_list[nobj->pos]->z_pos+objects_list[nobj->pos]->e3d_data->max_z-water_deepth_offset)/3.0f;
-			
-			if(find_local_reflection(objects_list[nobj->pos]->x_pos, objects_list[nobj->pos]->y_pos, range)!=2) continue;
-       	 		draw_3d_reflection(objects_list[nobj->pos]);
-		}
-	}
-
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glNormal3f(0.0f,0.0f,1.0f);
-	
-	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-        	if(!objects_list[nobj->pos])
-			regenerate_near_objects=1;
-		else if(objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=442){
-			int range=1+(objects_list[nobj->pos]->z_pos+objects_list[nobj->pos]->e3d_data->max_z-water_deepth_offset)/3.0f;
-			
-			if(find_local_reflection(objects_list[nobj->pos]->x_pos, objects_list[nobj->pos]->y_pos, range)!=2) continue;
-       	 		draw_3d_reflection(objects_list[nobj->pos]);
-		}
-	}
-
-#ifndef MAP_EDITOR2
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	for(i=0;i<no_near_actors;i++) {
-		if(near_actors[i].dist<=100 && !near_actors[i].ghost && !(near_actors[i].buffs & BUFF_INVISIBILITY)){ 
-			actor * act=actors_list[near_actors[i].actor];
-
-			if(act){
-				int range=1+(act->z_pos+cal_get_maxz2(act)-water_deepth_offset)/3.0f;
-
-				if(find_local_reflection(act->x_pos, act->y_pos, range)!=2) continue;
-				if(act->is_enhanced_model)
-					draw_enhanced_actor_reflection(act);
-				else 
-					draw_actor_reflection(act);
-			}
-		}
-	}
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-#endif
-#else   //NEW_FRUSTUM
-	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
-	calculate_reflection_frustum(water_deepth_offset);
-//	draw_tile_map();
-//	display_2d_objects();
-	display_objects();
-	display_ground_objects();
-#ifndef MAP_EDITOR2
-	display_actors(0, 1);
-#endif
-	display_alpha_objects();
-//	display_blended_objects();
-	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
-#endif  //NEW_FRUSTUM
-	glPopMatrix();
-	reset_material();
-
-#ifndef	NEW_FRUSTUM
-	glDisable(GL_CLIP_PLANE0);
-#else
-	disable_reflection_clip_planes();
-#endif
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glCullFace(GL_BACK);
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
-	CHECK_GL_ERRORS();
-#else	
-#ifndef NEW_FRUSTUM
-	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
-#endif
+#endif	//NEW_FRUSTUM
 	int view_port[4];
-#ifdef NEW_FRUSTUM
+#ifdef	NEW_FRUSTUM
 	unsigned int cur_intersect_type;
-#endif
+#endif	//NEW_FRUSTUM
 #ifndef NEW_FRUSTUM
 	if (regenerate_near_objects)
 	{
 		if (!get_near_3d_objects()) return;
 	}
-#endif
+#endif	//NEW_FRUSTUM
 	if (use_frame_buffer)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
@@ -621,7 +484,7 @@ void display_3d_reflection()
 #ifndef	NEW_FRUSTUM
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
-#endif
+#endif	//NEW_FRUSTUM
 	glPushMatrix();	
 
 	glTranslatef(0.0f, 0.0f, water_deepth_offset);
@@ -629,14 +492,14 @@ void display_3d_reflection()
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
 	init_depth();
-#ifdef NEW_FRUSTUM
+#ifdef	NEW_FRUSTUM
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
-#endif
+#endif	//NEW_FRUSTUM
 	calculate_reflection_frustum(water_deepth_offset);
 #ifdef	NEW_FRUSTUM	
 	enable_reflection_clip_planes();
-#endif
+#endif	//NEW_FRUSTUM
 
 //	draw_tile_map();
 //	display_2d_objects();
@@ -654,9 +517,9 @@ void display_3d_reflection()
 	glPopMatrix();
 #ifndef	NEW_FRUSTUM
 	glDisable(GL_CLIP_PLANE0);
-#else
+#else	//NEW_FRUSTUM
 	disable_reflection_clip_planes();
-#endif
+#endif	//NEW_FRUSTUM
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
 	reset_material();
@@ -666,7 +529,6 @@ void display_3d_reflection()
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
-#endif
 }
 
 void make_lake_water_noise()
@@ -909,18 +771,10 @@ void draw_lake_tiles()
 #endif
 	int x,y;
 	float x_scaled,y_scaled;
-#if	defined(USE_FRAMEBUFFER) || defined(NEW_FRUSTUM)
 	int water_id;
-#endif
-#ifdef	USE_FRAMEBUFFER
 	float blend_float = 0.75f;
 	float blend_vec[4] = {blend_float, blend_float, blend_float, blend_float};
-#endif
 	glEnable(GL_CULL_FACE);
-#ifndef	USE_FRAMEBUFFER
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-#endif
 	
 #ifndef	NEW_FRUSTUM
 	//get only the tiles around the camera
@@ -935,7 +789,6 @@ void draw_lake_tiles()
 	y_end   = (int)y + 8;
 #endif
 #ifndef	NEW_FRUSTUM
-#ifdef	USE_FRAMEBUFFER
 	if(x_start < 0) x_start = 0;
 	if(x_end >= tile_map_size_x) x_end = tile_map_size_x - 1;
 	if(y_start < 0) y_start = 0;
@@ -985,36 +838,6 @@ void draw_lake_tiles()
 		}
 	}
 #else
-	for(y=y_start;y<=y_end;y++)
-		{
-			int actualy=y;
-			if(actualy<0)actualy=0;
-			else if(actualy>=tile_map_size_y)actualy=tile_map_size_y-1;
-			actualy*=tile_map_size_x;
-			y_scaled=y*3.0f;
-			for(x=x_start;x<=x_end;x++)
-				{
-					int actualx=x;
-					if(actualx<0)actualx=0;
-					else if(actualx>=tile_map_size_x)actualx=tile_map_size_x-1;
-					x_scaled=x*3.0f;
-					if(IS_WATER_TILE(tile_map[actualy+actualx]) && check_tile_in_frustrum(x_scaled,y_scaled))
-						{
-							if(!tile_map[actualy+actualx])
-								{
-									if(dungeon)
-										get_and_set_texture_id(tile_list[231]);
-									else
-										get_and_set_texture_id(tile_list[0]);
-								}
-							else
-								get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-							draw_lake_water_tile(x_scaled,y_scaled);
-						}
-				}
-		}
-#endif
-#else
 	if(dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 
@@ -1030,7 +853,6 @@ void draw_lake_tiles()
 		else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
 		draw_lake_water_tile(x_scaled,y_scaled);
 	}
-#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		ELglActiveTextureARB(base_unit);
@@ -1069,25 +891,21 @@ void draw_lake_tiles()
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-#endif
-	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = get_terrain_x(l);
-		y = get_terrain_y(l);
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
-		else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-		draw_lake_water_tile(x_scaled,y_scaled);
+		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+		for (i = start; i < stop; i++)
+		{
+			l = get_intersect_item_ID(main_bbox_tree, i);
+			x = get_terrain_x(l);
+			y = get_terrain_y(l);
+			y_scaled = y*3.0f;
+			x_scaled = x*3.0f;
+			if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
+			else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
+			draw_lake_water_tile(x_scaled,y_scaled);
+		}
 	}
-#ifdef	USE_FRAMEBUFFER	
-	}
-#endif
 #endif
 	
-#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		ELglActiveTextureARB(detail_unit);
@@ -1106,9 +924,6 @@ void draw_lake_tiles()
 	{
 		glDisable(GL_BLEND);
 	}
-#else
-	glDisable(GL_BLEND);
-#endif
 	glDisable(GL_CULL_FACE);
 }
 
@@ -1124,7 +939,6 @@ void draw_sky_background()
 	int i, j;
 #endif
 #endif
-#ifdef	USE_FRAMEBUFFER
 	int view_port[4];
 	
 	if (use_frame_buffer && show_reflection)
@@ -1142,7 +956,6 @@ void draw_sky_background()
 	{
 		Enter2DMode();
 	}
-#endif	//USE_FRAMEBUFFER
 
 #ifdef NEW_WEATHER
 	for (i = 0; i < 3; i++) {
@@ -1175,13 +988,9 @@ void draw_sky_background()
 	}
 #endif
 	
-#ifndef	USE_FRAMEBUFFER
-	Enter2DMode();
-#endif	//!USE_FRAMEBUFFER
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 
-#ifdef USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		glColor3fv(lights_c[0]);
@@ -1194,7 +1003,6 @@ void draw_sky_background()
 		glVertex3i(reflection_texture_width, 0, 0);
 	}
 	else
-#endif // USE_FRAMEBUFFER
 	{
 		glColor3fv(lights_c[0]);
 		glVertex3i(0, 0, 0);
@@ -1209,13 +1017,11 @@ void draw_sky_background()
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
-#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
-#endif	//USE_FRAMEBUFFER
 }
 
 void draw_dungeon_sky_background()
@@ -1227,11 +1033,8 @@ void draw_dungeon_sky_background()
 	int i;
 #endif //  NEW_WEATHER
 #endif // MAP_EDITOR2
-#ifdef USE_FRAMEBUFFER
 	int view_port[4];
-#endif // USE_FRAMEBUFFER
 
-#ifdef USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
@@ -1247,7 +1050,6 @@ void draw_dungeon_sky_background()
 	{
 		Enter2DMode();
 	}
-#endif // FRAMEBUFFER
 
 #ifdef MAP_EDITOR2
 	glColor3fv(baseColor);
@@ -1264,14 +1066,10 @@ void draw_dungeon_sky_background()
 	glColor3fv(color);
 #endif // MAP_EDITOR
 	
-#ifndef	USE_FRAMEBUFFER
-	Enter2DMode();
-#endif	//!USE_FRAMEBUFFER
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 	//draw the sky background
 
-#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		glVertex3i(0, 0, 0);
@@ -1280,7 +1078,6 @@ void draw_dungeon_sky_background()
 		glVertex3i(reflection_texture_width, 0, 0);
 	}
 	else
-#endif // USE_FRAMEBUFFER
 	{
 		glVertex3i(0, 0, 0);
 		glVertex3i(0, window_height, 0);
@@ -1291,11 +1088,9 @@ void draw_dungeon_sky_background()
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	Leave2DMode();
-#ifdef	USE_FRAMEBUFFER
 	if (use_frame_buffer && show_reflection)
 	{
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
-#endif	//USE_FRAMEBUFFER
 }

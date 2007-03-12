@@ -177,9 +177,7 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 	#include "normals.h"
 #endif
 
-#ifdef	USE_FRAMEBUFFER
-	#include "framebuffer.h"
-#endif
+#include "framebuffer.h"
 #ifdef	NEW_FRUSTUM
 	#include "bbox_tree.h"
 #endif

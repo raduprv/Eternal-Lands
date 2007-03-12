@@ -184,10 +184,8 @@ int start_rendering()
 	cleanup_mem();
 	xmlCleanupParser();
 	FreeXML();
-#ifdef	USE_FRAMEBUFFER
 	// shouldn't this be before SDL_Quit()? that shutsdown the video mode
 	if (use_frame_buffer) free_reflection_framebuffer();
-#endif
 
 	return(0);
 }

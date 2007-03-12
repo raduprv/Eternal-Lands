@@ -1,4 +1,3 @@
-#ifdef	USE_FRAMEBUFFER
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
 #else
@@ -182,4 +181,3 @@ void change_depth_framebuffer_size(int width, int height, int *FBO, int *FBOText
 	free_depth_framebuffer(FBO, FBOTexture);
 	make_depth_framebuffer(width, height, FBO, FBOTexture);
 }
-#endif

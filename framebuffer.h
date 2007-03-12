@@ -1,4 +1,3 @@
-#ifdef	USE_FRAMEBUFFER
 /*!
  * \file
  * \ingroup 	display_utils
@@ -90,5 +89,4 @@ void make_depth_framebuffer(int width, int height, int *FBO, int *FBOTexture);
  */
 void change_depth_framebuffer_size(int width, int height, int *FBO, int *FBOTexture);
 
-#endif
 #endif

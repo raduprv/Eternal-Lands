@@ -42,10 +42,7 @@ extern int have_arb_shadow;
 extern int have_ogsl_pixel_shader;
 extern int have_ogsl_vertex_shader;
 extern int have_texture_non_power_of_two; /*! < flag that indicates whether the GL_ARB_texture_non_power_of_two extension is supported or not*/
-#ifdef	USE_FRAMEBUFFER
 extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
-
-#endif
 /*! @} */
 extern int gl_extensions_loaded; /*< specifies if the OpenGL extensions were loaded or not */
 
@@ -96,7 +93,6 @@ extern void (APIENTRY * ELglUniform4fvARB)(GLint location, GLsizei count, const 
 extern void (APIENTRY * ELglVertexAttribPointerARB)(GLuint index, int size, GLenum type, GLboolean normalized, GLsizei stride, const void *pointer);
 extern void (APIENTRY * ELglEnableVertexAttribArrayARB)(GLuint index);
 extern void (APIENTRY * ELglDisableVertexAttribArrayARB)(GLuint index);
-#ifdef	USE_FRAMEBUFFER
 extern GLboolean (APIENTRY * ELglIsRenderbufferEXT) (GLuint renderbuffer);
 extern void (APIENTRY * ELglGetRenderbufferParameterivEXT) (GLenum target, GLenum pname, GLint *params);
 extern GLboolean (APIENTRY * ELglIsFramebufferEXT) (GLuint framebuffer);
@@ -107,7 +103,6 @@ extern void (APIENTRY * ELglFramebufferTexture3DEXT) (GLenum target, GLenum atta
 extern void (APIENTRY * ELglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 extern void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
 extern void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
-#endif
 #ifdef NEW_E3D_FORMAT
 extern void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 #endif
@@ -219,7 +214,6 @@ int print_gl_errors(const char *file, const char *func, int line);
 #ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
 #define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
 #endif
-#ifdef	USE_FRAMEBUFFER
 #ifndef GL_FRAMEBUFFER_EXT
 #define GL_FRAMEBUFFER_EXT				0x8D40
 #endif
@@ -237,7 +231,6 @@ int print_gl_errors(const char *file, const char *func, int line);
 #endif
 #ifndef GL_DEPTH_ATTACHMENT_EXT
 #define GL_DEPTH_ATTACHMENT_EXT				0x8D00
-#endif
 #endif
 /*! @} */
 
