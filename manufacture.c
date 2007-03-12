@@ -292,20 +292,6 @@ int clear_handler()
 {
 	int i;
 
-	/*
-	**  Once mixing, if you clear the ingredients, mixing continues.
-	**  Not only this but you can't stop mixing by pressing one of the mix buttons
-	**  as there are now no ingredients.  You have to move to stop or wait for a stop event.
-	**  My thought was to send a mix command with a quantity of zero.  The server could
-	**  interpret this as "stop mixing" or do nothing if not already mixing.
-	**  Unfortunately, this is not suppported.  It sort of works but
-	**  will manufacture 1 item if you're not already mixing.
-	*/
-	/*mix_handler(0);*/
-	/* this works OK but is a hack */
-	Uint8 str[] = {HARVEST, 0, 0};
-	my_tcp_send (my_socket, str, 3);
-
 	for(i=0; i<6; i++) manu_recipe[i].quantity= manu_recipe[i].image_id= 0; // clear the recipe
 	build_manufacture_list();
 	return 1;
