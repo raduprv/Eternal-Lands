@@ -497,7 +497,9 @@ void display_special_effects(int do_render) {
 //send server data packet to appropriate method depending on desired effect
 void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 {
+#ifdef DEBUG
 	Uint8 str[100];
+#endif
 	int offset = 0;
 	Uint16 var_a, var_b =0;
 	actor* caster;
