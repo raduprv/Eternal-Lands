@@ -47,9 +47,9 @@ extern "C" void ec_set_draw_method()
 extern "C" void ec_set_draw_detail()
 {
   if (poor_man)
-    eye_candy.set_thresholds(3500, 20);	//Max particles, min framerate.
+    eye_candy.set_thresholds(3500, 12);	//Max particles, min framerate.
   else
-    eye_candy.set_thresholds(15000, 20);
+    eye_candy.set_thresholds(15000, 12);
 }
 
 void ec_set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone)

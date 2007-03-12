@@ -29,6 +29,9 @@ CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const
   state = _state;
   if (state)
     size *= 0.7;
+#ifdef DEBUG_CAMPFIRE
+  std::cout << "Creating particle: RGB=" << color[0] << ", " << color[1] << ", " << color[2] << "; size=" << size << "; alpha=" << alpha << "; LOD=" << _LOD << "; state=" << state << std::endl;
+#endif
 }
 
 bool CampfireParticle::idle(const Uint64 delta_t)

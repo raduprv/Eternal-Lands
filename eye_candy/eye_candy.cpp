@@ -1063,15 +1063,15 @@ void EyeCandy::set_thresholds(int _max_particles, int min_framerate)
   LOD_3_threshold = max_particles * 91 / 100;
   LOD_2_threshold = max_particles * 94 / 100;
   LOD_1_threshold = max_particles * 97 / 100;
-  LOD_9_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.9));
-  LOD_8_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.8));
-  LOD_7_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.7));
-  LOD_6_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.6));
-  LOD_5_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.5));
-  LOD_4_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.4));
-  LOD_3_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.3));
-  LOD_2_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.2));
-  LOD_1_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.1));
+  LOD_9_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.8));
+  LOD_8_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.6));
+  LOD_7_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.4));
+  LOD_6_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.2));
+  LOD_5_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.0));
+  LOD_4_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.8));
+  LOD_3_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.6));
+  LOD_2_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.4));
+  LOD_1_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.2));
 //  allowable_particles_to_add = max_particles;
 }
 
