@@ -798,6 +798,10 @@ typedef enum actor_commands
 #define CRA_EXP_NEXT 72
 #define CRA_S_CUR 73
 #define CRA_S_BASE 74
+#define ENG_EXP 75
+#define ENG_EXP_NEXT 76
+#define ENG_S_CUR 77
+#define ENG_S_BASE 78
 /*! @} */
 
 /*!
