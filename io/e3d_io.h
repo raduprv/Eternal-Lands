@@ -24,11 +24,11 @@ __inline__ static int get_vertex_size(int vo)
 	{
 		size += 3;
 	}
-	if (!has_tangen(vo))
+	if (has_tangen(vo))
 	{
 		size += 3;
 	}
-	if (!has_extra_uv(vo))
+	if (has_extra_uv(vo))
 	{
 		size += 2;
 	}

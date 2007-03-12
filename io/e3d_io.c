@@ -5,19 +5,112 @@
 #include	<zlib.h>
 #endif
 
+static void free_e3d_pointer(e3d_object* cur_object)
+{
+	if (cur_object != NULL)
+	{
+		if (cur_object->vertex_data != NULL)
+		{
+			free(cur_object->vertex_data);
+			cur_object->vertex_data = NULL;
+		}
+		if (cur_object->normal_data != NULL)
+		{
+			free(cur_object->normal_data);
+			cur_object->normal_data = NULL;
+		}
+		if (cur_object->texture_data != NULL)
+		{
+			free(cur_object->texture_data);
+			cur_object->texture_data = NULL;
+		}
+		if (cur_object->tangent_data != NULL)
+		{
+			free(cur_object->tangent_data);
+			cur_object->tangent_data = NULL;
+		}
+		if (cur_object->extra_uv_data != NULL)
+		{
+			free(cur_object->extra_uv_data);
+			cur_object->extra_uv_data = NULL;
+		}
+		if (cur_object->indicies != NULL)
+		{
+			free(cur_object->indicies);
+			cur_object->indicies = NULL;
+		}
+		if (cur_object->materials != NULL)
+		{
+			free(cur_object->materials);
+			cur_object->materials = NULL;
+		}
+		free(cur_object);
+	}
+}
+
+#ifdef	ZLIB
+static int check_pointer(void* ptr, e3d_object* cur_object, const char* str, gzFile* file)
+#else	//ZLIB
+static int check_pointer(void* ptr, e3d_object* cur_object, const char* str, FILE* file)
+#endif	//ZLIB
+{
+	if (ptr == NULL)
+	{
+		LOG_ERROR("Can't allocate memory for %s!", str);
+		free_e3d_pointer(cur_object);
+#ifdef	ZLIB
+		gzclose(file);
+#else	//ZLIB
+		fclose(file);
+#endif	//ZLIB
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+#define CHECK_POINTER(ptr, str) check_pointer((ptr), cur_object, (str), file)
+
+#ifdef	ZLIB
+static int check_size(int read_size, int size, e3d_object* cur_object, const char* filename, const char* str, gzFile* file)
+#else	//ZLIB
+static int check_size(int read_size, int size, e3d_object* cur_object, const char* filename, const char* str, FILE* file)
+#endif	//ZLIB
+{
+	if (read_size < size)
+	{
+		LOG_ERROR("File \"%s\" has too small %s size!", filename, str);
+		free_e3d_pointer(cur_object);
+#ifdef	ZLIB
+		gzclose(file);
+#else	//ZLIB
+		fclose(file);
+#endif	//ZLIB
+		return 0;
+	}
+	else
+	{
+		return 1;
+	}
+}
+
+#define CHECK_SIZE(rsize, size, str) check_size((rsize), (size), cur_object, cur_object->file_name, (str), file)
+
 e3d_object* load_e3d_detail(e3d_object* cur_object)
 {
 	e3d_header header;
 	e3d_material material;
 	char cur_dir[1024];
-	int i, idx, l, mem_size, vertex_size, material_size, size;
+	int i, idx, l, mem_size, vertex_size, material_size, index_size, size;
 	int file_pos, indicies_size;
 	char text_file_name[1024];
 	unsigned int* index_buffer;
 	unsigned char* char_list;
 	unsigned short* short_list;
 	unsigned int* int_list;
-	float float_buffer[16];
+	float* float_buffer;
 	char* tmp_buffer;
 	void* index_pointer;
 	float* float_pointer;
@@ -59,14 +152,14 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	if (file == NULL)
 	{
 		LOG_ERROR("Can't open file \"%s\"!", cur_object->file_name);
-		free(cur_object);
+		free_e3d_pointer(cur_object);
 		return NULL;
 	}
 
 	if (read_and_check_elc_header(file, EL3D_FILE_MAGIC_NUMBER, EL3D_FILE_VERSION_NUMBER, cur_object->file_name) != 0)
 	{
 		LOG_ERROR("File \"%s\" has wrong header!", cur_object->file_name);
-		free(cur_object);
+		free_e3d_pointer(cur_object);
 #ifdef	ZLIB
 		gzclose(file);
 #else	//ZLIB
@@ -87,11 +180,17 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	cur_object->vertex_options = header.vertex_options;
 	vertex_size = SDL_SwapLE32(header.vertex_size);
 	material_size = SDL_SwapLE32(header.material_size);
+	index_size = SDL_SwapLE32(header.index_size);
 
-	// They have the size we expected
-	if (SDL_SwapLE32(header.index_size) != sizeof(unsigned int))
+	size = get_vertex_size(cur_object->vertex_options);
+
+	// They have at least the size we expected
+	if (!CHECK_SIZE(vertex_size, size, "vertex")) return NULL;
+	if (!CHECK_SIZE(material_size, sizeof(e3d_material), "material")) return NULL;
+	if (index_size != sizeof(unsigned int))
 	{
 		LOG_ERROR("File \"%s\" has wrong index size!", cur_object->file_name);
+		free_e3d_pointer(cur_object);
 #ifdef	ZLIB
 		gzclose(file);
 #else	//ZLIB
@@ -106,12 +205,14 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #else	//ZLIB
 	fseek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
 #endif	//ZLIB
-	
+
 	cur_object->vertex_data = malloc(cur_object->vertex_no * 3 * sizeof(float));
 	mem_size = cur_object->vertex_no * 3 * sizeof(float);
+	if (!CHECK_POINTER(cur_object->vertex_data, "vertex data")) return NULL;
 
 	cur_object->texture_data = malloc(cur_object->vertex_no * 2 * sizeof(float));
 	mem_size += cur_object->vertex_no * 2 * sizeof(float);
+	if (!CHECK_POINTER(cur_object->texture_data, "texture data")) return NULL;
 
 	if (is_ground(cur_object->vertex_options))
 	{
@@ -121,12 +222,14 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	{
 		cur_object->normal_data = malloc(cur_object->vertex_no * 3 * sizeof(float));
 		mem_size = cur_object->vertex_no * 3 * sizeof(float);
+		if (!CHECK_POINTER(cur_object->normal_data, "normal data")) return NULL;
 	}
 
 	if (has_tangen(cur_object->vertex_options))
 	{
 		cur_object->tangent_data = malloc(cur_object->vertex_no * 3 * sizeof(float));
 		mem_size += cur_object->vertex_no * 3 * sizeof(float);
+		if (!CHECK_POINTER(cur_object->tangent_data, "tangent data")) return NULL;
 	}
 	else
 	{
@@ -137,18 +240,21 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	{
 		cur_object->extra_uv_data = malloc(cur_object->vertex_no * 2 * sizeof(float));
 		mem_size += cur_object->vertex_no * 2 * sizeof(float);
+		if (!CHECK_POINTER(cur_object->extra_uv_data, "extra uv data")) return NULL;
 	}
 	else
 	{
 		cur_object->extra_uv_data = NULL;
 	}
 
-	if (have_vertex_buffers)
-	{
-		mem_size = 0;
-	}
-
+	float_buffer = (float*) malloc(size);
+	if (!CHECK_POINTER(float_buffer, "float buffer")) return NULL;
 	tmp_buffer = (char*) malloc(cur_object->vertex_no * vertex_size);
+	if (!CHECK_POINTER(tmp_buffer, "tmp buffer"))
+	{
+		free(float_buffer);
+		return NULL;
+	}
 
 #ifdef	ZLIB
 	gzread(file, tmp_buffer, cur_object->vertex_no * vertex_size);
@@ -156,7 +262,6 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	fread(tmp_buffer, cur_object->vertex_no, vertex_size, file);
 #endif	//ZLIB
 
-	size = get_vertex_size(cur_object->vertex_options);
 	idx = 0;
 	for (i = 0; i < cur_object->vertex_no; i++)
 	{
@@ -192,51 +297,23 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		}
 	}
 
+	free(float_buffer);
 	free(tmp_buffer);
+
 	// Now reading the indicies
 #ifdef	ZLIB
 	gzseek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
 #else	//ZLIB
 	fseek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
 #endif	//ZLIB
-	
-	size = SDL_SwapLE32(header.index_size);
-	// They have the size we expected
-	if (size != sizeof(unsigned int))
-	{
-		LOG_ERROR("File \"%s\" has wrong index size!", cur_object->file_name);
-		free(cur_object->vertex_data);
-		free(cur_object->indicies);
-		free(cur_object);
-#ifdef	ZLIB
-		gzclose(file);
-#else	//ZLIB
-		fclose(file);
-#endif	//ZLIB
-		return NULL;
-	}
 
-	index_buffer = (unsigned int*)malloc(cur_object->index_no*sizeof(unsigned int));
+	index_buffer = (unsigned int*)malloc(cur_object->index_no * sizeof(unsigned int));
+	if (!CHECK_POINTER(index_buffer, "index buffer")) return NULL;
 #ifdef	ZLIB
-	gzread(file, index_buffer, cur_object->index_no*sizeof(unsigned int));
+	gzread(file, index_buffer, cur_object->index_no * sizeof(unsigned int));
 #else	//ZLIB
 	fread(index_buffer, cur_object->index_no, sizeof(unsigned int), file);
 #endif	//ZLIB
-	
-	// Now reading the materials
-#ifdef	ZLIB
-	gzseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
-#else	//ZLIB
-	fseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
-#endif	//ZLIB
-	
-	// only allocate the materials structure if it doesn't exist (on initial load)
-	if(cur_object->materials == NULL){
-		cur_object->materials = (e3d_draw_list*)malloc(cur_object->material_no*sizeof(e3d_draw_list));
-		memset(cur_object->materials, 0, cur_object->material_no*sizeof(e3d_draw_list));
-
-		mem_size += cur_object->material_no*sizeof(e3d_draw_list);
-	}
 
 	if (cur_object->index_no <= 256)
 	{
@@ -257,14 +334,18 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		}
 	}
 
-	cur_object->indicies = malloc(cur_object->index_no*indicies_size);
+	cur_object->indicies = malloc(cur_object->index_no * indicies_size);
+	mem_size += cur_object->index_no * indicies_size;
+	if (!CHECK_POINTER(cur_object->indicies, "indicies"))
+	{
+		free(index_buffer);
+		return NULL;
+	}
 
 	if (have_vertex_buffers) index_pointer = 0;
 	else index_pointer = cur_object->indicies;
 	
-	mem_size += cur_object->index_no*indicies_size;
-	
-	// Optimize the storage format for better use with the OpenGL glMultiDrawElements function
+	// Optimize the storage format for better use with the OpenGL glDrawElements function
 	if (indicies_size == 1)
 	{
 		char_list = (unsigned char*)cur_object->indicies;
@@ -289,7 +370,24 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 			}
 		}
 	}
+	free(index_buffer);
 
+	// only allocate the materials structure if it doesn't exist (on initial load)
+	if (cur_object->materials == NULL)
+	{
+		cur_object->materials = (e3d_draw_list*)malloc(cur_object->material_no*sizeof(e3d_draw_list));
+		if (!CHECK_POINTER(cur_object->materials, "materials")) return NULL;
+		memset(cur_object->materials, 0, cur_object->material_no * sizeof(e3d_draw_list));
+	}
+	mem_size += cur_object->material_no * sizeof(e3d_draw_list);
+
+	// Now reading the materials
+#ifdef	ZLIB
+	gzseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
+#else	//ZLIB
+	fseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
+#endif	//ZLIB
+	
 	for (i = 0; i < cur_object->material_no; i++)
 	{
 		
