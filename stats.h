@@ -100,6 +100,7 @@ struct attributes_struct
 	names potion_skill; /*!< name and short name of potion skill */
 	names summoning_skill; /*!< name and short name of summoning skill */
 	names crafting_skill; /*!< name and short name of crafting skill */
+	names engineering_skill; /*!< name and short name of engineering skill */
 	
 	names food; /*!< name and short name of food level */
 	unsigned char pickpoints[30]; /*!< available pickpoints */
@@ -157,6 +158,7 @@ typedef struct
 	attrib_16 potion_skill; /*!< base and current value of the potion skill */
 	attrib_16 summoning_skill; /*!< base and current value of the summoning skill */
 	attrib_16 crafting_skill; /*!< base and current value of the crafting skill */
+	attrib_16 engineering_skill; /*!< base and current value of the engineering skill */
 
 	attrib_16 carry_capacity; /*!< base and current value of the carry capacity */
 	
@@ -182,6 +184,8 @@ typedef struct
 	Uint32 summoning_exp_next_lev; /*!< experience level to reach next summoning level */
 	Uint32 crafting_exp; /*!< current crafting experience */
 	Uint32 crafting_exp_next_lev; /*!< experience level to reach next crafting level */
+	Uint32 engineering_exp; /*!< current engineering experience */
+	Uint32 engineering_exp_next_lev; /*!< experience level to reach next engineering level */
 
 	Uint16 researching; /*!< flag to indicate whether a player is currently researching anything or not */
 	Uint16 research_completed; /*!< if a player is currently researching anything, this value will show how much pages are already read */
