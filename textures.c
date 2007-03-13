@@ -94,8 +94,14 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 	tex->x_size= x_size;
 	tex->y_size= y_size;
 
+	x_padding=x_size%4;
+	if(x_padding)
+		x_padding=4-x_padding;
+	if(x_size<=x_padding)
+		x_padding=0;
+
 	//now, allocate the memory for the file
-	texture_mem= tex->texture= (Uint8 *) calloc(x_size*y_size*4, sizeof(Uint8));
+	texture_mem= tex->texture= (Uint8 *) calloc((x_size+x_padding)*y_size*4, sizeof(Uint8));
 	if(!texture_mem){
 #ifdef	ZLIB
 		gzclose(f);
@@ -104,12 +110,6 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 #endif	//ZLIB
 		return NULL;	// memory error!
 	}
-
-	x_padding=x_size%4;
-	if(x_padding)
-		x_padding=4-x_padding;
-	if(x_size<=x_padding)
-		x_padding=0;
 
 	if(format == SDL_SwapLE16(8))
 	{
@@ -148,7 +148,7 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 				texture_mem[texture_offset]= r;
 				texture_mem[texture_offset+1]= g;
 				texture_mem[texture_offset+2]= b;
-				if(alpha){
+				if(alpha){	// fixed or estimated?
 					texture_mem[texture_offset+3]= alpha;
 				} else {
 					texture_mem[texture_offset+3]= (r+b+g)/3;	// a
