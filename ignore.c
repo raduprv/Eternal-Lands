@@ -247,6 +247,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 				}
 				name[i] = '\0';
 			break;
+			}
 	}
 	if(*name && name_is_valid(name)) {
 		add_name_to_tablist(name);
