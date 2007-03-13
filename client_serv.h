@@ -544,7 +544,7 @@ typedef enum actor_commands
   attack_up_3 = 48,
   attack_up_4 = 49,
   attack_down_1 = 50,
-  attack_down_2 = 51,
+  attack_down_2 = 51
 } actor_commands;
 
 /*! @} */
