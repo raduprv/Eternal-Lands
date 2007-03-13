@@ -17,11 +17,12 @@ extern MathCache_Lorange math_cache;
 CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   color[0] = 1.0;
-  color[1] = 0.4 + randfloat() / 2;
+  color[1] = 0.35 + randfloat() / 2.5;
   color[2] = 0.2;
-  size = _sqrt_scale * 7 * (0.5 + 5 * randfloat()) / (_LOD + 4);
+  LOD = _LOD;
+  size = _sqrt_scale * 6 * (0.5 + 5 * randfloat()) / (_LOD + 2.0);
   size_max = 270 * _scale / (_LOD + 10);
-  alpha = 0.5 + randfloat(0.5);
+  alpha = randfloat(0.5) + (1.0 - (_LOD + 20.0) / 60.0);
   velocity /= size;
   flare_max = 1.5;
   flare_exp = 0.3;
@@ -39,25 +40,32 @@ bool CampfireParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
 
-  if (alpha < 0.03)
+  if (alpha < 0.13 - LOD * 0.01)
     return false;
   
-  const float scalar = math_cache.powf_05_close((interval_t)delta_t / 1000000);
+  const float scalar = math_cache.powf_05_close((interval_t)delta_t / (3000000 - LOD * 200000));
   if (state != 2)
     color[0] = color[0] * scalar * 0.3 + color[0] * 0.7;
 
   if (state == 1)
   {
     alpha *= scalar;
-    if ((alpha <= 0.15) && (random() & 1))
+    if ((alpha <= 0.25 - LOD * 0.01) && (random() & 1))
     {
       state = 2;
-      size *= 2.0;
-      alpha = 0.29;
-      pos.y -= 0.45;
+      size *= 1.8;
+      alpha = 0.13 + randfloat(0.16);
+      pos.y -= 0.29 + randfloat(0.13);
       color[0] = 0.07;
       color[1] = 0.05;
       color[2] = 0.05;
+      velocity.x *= 2.3;
+      velocity.z *= 2.3;
+      while (size > 5.0)
+      {
+        size *= 0.75;
+        alpha = fastsqrt(alpha);
+      }
     }
   }
   else if (state == 0)
@@ -102,7 +110,7 @@ CampfireBigParticle::CampfireBigParticle(Effect* _effect, ParticleMover* _mover,
   color[0] = 1.0;
   color[1] = 0.5 + randfloat() / 2;
   color[2] = 0.3;
-  size = 7.5 * (2.0 + randfloat()) / (LOD + 2.5);
+  size = 7.5 * (2.0 + randfloat()) / 2.5;
   alpha = 7.0 / size / (LOD + 5);
   size *= _sqrt_scale;
   if (alpha > 1.0)
@@ -155,7 +163,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const s
   }
 */
   big_particles = 0;
-  for (int i = 0; i < (LOD + 5) * 2; i++)
+  for (int i = 0; i < 20; i++)
   {
     const Vec3 coords = spawner->get_new_coords() * 1.3 + *pos + Vec3(0.0, 0.15, 0.0);
     Particle* p = new CampfireBigParticle(this, stationary, coords, Vec3(0.0, 0.0, 0.0), sqrt_scale, LOD);
@@ -193,7 +201,7 @@ bool CampfireEffect::idle(const Uint64 usec)
     else
       coords = spawner->get_new_coords() * 0.3 + *pos + Vec3(0.0, 0.12, 0.0);
     Vec3 velocity;
-    velocity.randomize(0.15 * sqrt_scale);
+    velocity.randomize(0.1 * sqrt_scale);
     velocity.y = velocity.y * 0.75 + 0.15 * scale;
     Particle* p = new CampfireParticle(this, mover, coords, velocity, scale, sqrt_scale, state, LOD);
     if (!base->push_back_particle(p))

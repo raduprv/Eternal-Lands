@@ -24,6 +24,7 @@ public:
   virtual light_t estimate_light_level() const { return 0.002; };	// We don't want the particle system lights to be used on the pos, since it will assumedly already have one.
 
   coord_t size_max;  
+  Uint16 LOD;
 };
 
 class CampfireBigParticle : public Particle
