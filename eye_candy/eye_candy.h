@@ -18,9 +18,15 @@
 #include <iostream>
 #include <cassert>
 #include <SDL.h>
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
+#if defined (OSX) or (OSX86)
+	#include <OpenGL/gl.h>
+	#include <OpenGL/glu.h>
+	#include <OpenGL/glext.h>
+#else
+	#include <GL/gl.h>
+	#include <GL/glu.h>
+	#include <GL/glext.h>
+#endif
 #include <stdlib.h>
 #include <math.h>
 
