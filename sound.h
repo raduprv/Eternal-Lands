@@ -13,7 +13,7 @@
 	#include <alc.h>
 	#include <alut.h>
 #elif defined(OSX)
-	#include <OpenAL/alut.h>
+	#include <alut.h>		//oddity as of Xcode 2.4
 	#include <OpenAL/alc.h>
 #else
 	#include <AL/al.h>
