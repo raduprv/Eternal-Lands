@@ -233,6 +233,19 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 				}
 				name[i] = '\0';
 			}
+			else if(strncasecmp(input_text+offset, ig_from_str, strlen(ig_from_str)) == 0)
+			{
+				offset = strlen(ig_from_str)+2;
+				for (i = 0; i < 15 && i+offset < len; i++)
+				{
+					ch = input_text[i+offset];	//skip the prefix
+					if (ch == ':' || ch == '-' || ch == ' ')
+					{
+						break;
+					}
+					name[i] = ch;
+				}
+				name[i] = '\0';
 			break;
 	}
 	if(*name && name_is_valid(name)) {

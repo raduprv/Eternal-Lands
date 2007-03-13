@@ -352,6 +352,7 @@ extern char
 		/*text.c*/
 		pm_from_str[10],
 		gm_from_str[10],
+		ig_from_str[10],
 		mod_pm_from_str[15],
 		/*trade.c*/
 		quantity_str[30],

@@ -261,6 +261,7 @@ char	name_too_long[75],
 	supported_extensions_str[30],
 	pm_from_str[10],
 	gm_from_str[10],
+	ig_from_str[10],
 	mod_pm_from_str[15],
 	help_request_str[20],
 	help_cmd_str[10],
@@ -745,6 +746,7 @@ void init_console()
 	add_xml_identifier(misc,"pm_from",pm_from_str,"[PM from",sizeof(pm_from_str));
 	add_xml_identifier(misc,"mod_pm_from",mod_pm_from_str,"[Mod PM from",sizeof(mod_pm_from_str));
 	add_xml_identifier(misc,"gm_from",gm_from_str,"#GM from",sizeof(gm_from_str));
+	add_xml_identifier(misc,"ig_from",gm_from_str,"#Ig [",sizeof(ig_from_str));
 	add_xml_identifier(misc,"date_format",date_format,"Today is the %s day in the month of %s, the year %04d, Age of the Eternals",sizeof(date_format));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
