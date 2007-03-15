@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -117,25 +117,18 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
   {
     case RABBIT:
     {
-      inner_color[0] = 0.7;
-      inner_color[1] = 0.6;
-      inner_color[2] = 0.4;
-      outer_color[0] = 0.6;
+      outer_color[0] = 0.7;
       outer_color[1] = 0.3;
-      outer_color[2] = 0.75;
+      outer_color[2] = 0.7;
       inner_texture = &(base->TexVoid);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.155, 0.0, 1.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.155, 0.0, 1.0), 0.5));
-      outer_alpha = 1.0;
       break;
     }
     case RAT:
     {
-      inner_color[0] = 0.6;
-      inner_color[1] = 0.5;
-      inner_color[2] = 0.3;
-      outer_color[0] = 0.55;
+      outer_color[0] = 0.65;
       outer_color[1] = 0.3;
       outer_color[2] = 0.8;
       inner_texture = &(base->TexFlare);
@@ -143,15 +136,11 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 0.5), 0.9));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.2, 0.0, -0.9), 0.3));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.9, 0.0, -0.3), 0.5));
-      outer_alpha = 1.0;
       break;
     }
     case BEAVER:
     {
-      inner_color[0] = 0.7;
-      inner_color[1] = 0.7;
-      inner_color[2] = 0.3;
-      outer_color[0] = 0.5;
+      outer_color[0] = 0.65;
       outer_color[1] = 0.3;
       outer_color[2] = 0.85;
       inner_texture = &(base->TexVoid);
@@ -159,29 +148,45 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -0.3), 0.2));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -0.3), 0.2));
-      outer_alpha = 1.0;
+      break;
+    }
+    case SKUNK:
+    {
+      outer_color[0] = 0.6;
+      outer_color[1] = 0.3;
+      outer_color[2] = 0.9;
+      inner_texture = &(base->TexVoid);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.5), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.3), 0.2));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.5, 0.0, -1.0), 0.2));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, -0.3), 0.2));
+      break;
+    }
+    case RACOON:
+    {
+      outer_color[0] = 0.5;
+      outer_color[1] = 0.3;
+      outer_color[2] = 0.95;
+      inner_texture = &(base->TexVoid);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.5), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.5, 0.0, -0.3), 0.2));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.5, 0.0, -1.0), 0.2));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.2));
       break;
     }
     case DEER:
     {
-      inner_color[0] = 0.7;
-      inner_color[1] = 0.8;
-      inner_color[2] = 0.4;
-      outer_color[0] = 0.45;
+      outer_color[0] = 0.4;
       outer_color[1] = 0.3;
-      outer_color[2] = 0.9;
+      outer_color[2] = 0.95;
       inner_texture = &(base->TexVoid);
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.3, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.2));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
-      outer_alpha = 1.0;
       break;
     }
     case GREEN_SNAKE:
     {
-      inner_color[0] = 0.3;
-      inner_color[1] = 1.0;
-      inner_color[2] = 0.2;
       outer_color[0] = 0.3;
       outer_color[1] = 0.3;
       outer_color[2] = 1.0;
@@ -190,66 +195,50 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(0.3, 0.0, 0.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(1.1, 0.0, 2.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(2.9, 0.0, 2.2), Vec3(0.81, 0.0, 0.71), Vec3(0.77, 0.0, 0.71)));
-      outer_alpha = 1.0;
       break;
     }
     case RED_SNAKE:
     {
-      inner_color[0] = 1.0;
-      inner_color[1] = 0.2;
-      inner_color[2] = 0.3;
       outer_color[0] = 0.3;
-      outer_color[1] = 0.45;
-      outer_color[2] = 0.9;
+      outer_color[1] = 0.5;
+      outer_color[2] = 0.95;
       inner_texture = &(base->TexFlare);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.3, 0.0, 0.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.1, 0.0, 2.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.9, 0.0, 2.2), Vec3(0.81, 0.0, 0.71), Vec3(0.77, 0.0, 0.71)));
-      outer_alpha = 1.0;
       break;
     }
     case BROWN_SNAKE:
     {
-      inner_color[0] = 0.7;
-      inner_color[1] = 0.6;
-      inner_color[2] = 0.5;
       outer_color[0] = 0.3;
-      outer_color[1] = 0.55;
-      outer_color[2] = 0.8;
+      outer_color[1] = 0.65;
+      outer_color[2] = 0.85;
       inner_texture = &(base->TexFlare);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 1.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(5.3, 0.0, 3.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(5.1, 0.0, 5.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(5.9, 0.0, 5.2), Vec3(0.81, 0.0, 0.71), Vec3(0.77, 0.0, 0.71)));
-      outer_alpha = 1.0;
       break;
     }
     case FOX:
     {
-      inner_color[0] = 0.9;
-      inner_color[1] = 0.5;
-      inner_color[2] = 0.5;
       outer_color[0] = 0.3;
-      outer_color[1] = 0.7;
-      outer_color[2] = 0.7;
+      outer_color[1] = 0.75;
+      outer_color[2] = 0.75;
       inner_texture = &(base->TexVoid);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.3));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.8, 0.0, 0.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.3));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.7, 0.0, 0.5), 0.3));
       outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.5));
-      outer_alpha = 1.0;
       break;
     }
     case BOAR:
     {
-      inner_color[0] = 0.5;
-      inner_color[1] = 0.4;
-      inner_color[2] = 0.4;
       outer_color[0] = 0.3;
-      outer_color[1] = 0.8;
-      outer_color[2] = 0.55;
+      outer_color[1] = 0.85;
+      outer_color[2] = 0.65;
       inner_texture = &(base->TexVoid);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.3));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.0), 0.3));
@@ -259,17 +248,13 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.5));
 //      outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(2.5, Vec3(1.3, 0.0, 2.3), Vec3(0.88, 0.0, 0.93), Vec3(1.0, 0.0, 1.0)));
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(0.0, 0.0, 0.0), Vec3(1.0, 1e6, 1.0)));
-      outer_alpha = 1.0;
       break;
     }
     case WOLF:
     {
-      inner_color[0] = 0.5;
-      inner_color[1] = 0.5;
-      inner_color[2] = 0.5;
       outer_color[0] = 0.3;
-      outer_color[1] = 0.9;
-      outer_color[2] = 0.45;
+      outer_color[1] = 0.95;
+      outer_color[2] = 0.5;
       inner_texture = &(base->TexFlare);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.3));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.7, 0.0, 0.3), 0.7));
@@ -277,16 +262,81 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.6));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.7), 0.5));
       outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.05));
-      outer_alpha = 1.0;
+      break;
+    }
+    case SPIDER:
+    {
+      outer_color[0] = 0.3;
+      outer_color[1] = 1.0;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexWater);
+      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.3, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.2));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
+      break;
+    }
+    case SKELETON:
+    {
+      outer_color[0] = 0.4;
+      outer_color[1] = 1.0;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexInverse);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
+      break;
+    }
+    case SMALL_GARGOYLE:
+    {
+      outer_color[0] = 0.5;
+      outer_color[1] = 0.95;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexInverse);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.2, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
+      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.2, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
+      break;
+    }
+    case MEDIUM_GARGOYLE:
+    {
+      outer_color[0] = 0.6;
+      outer_color[1] = 0.9;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexInverse);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.35, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
+      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.35, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
+      break;
+    }
+    case LARGE_GARGOYLE:
+    {
+      outer_color[0] = 0.65;
+      outer_color[1] = 0.85;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexInverse);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
+      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
       break;
     }
     case PUMA:
     {
-      inner_color[0] = 0.8;
-      inner_color[1] = 0.8;
-      inner_color[2] = 0.6;
-      outer_color[0] = 0.3;
-      outer_color[1] = 1.0;
+      outer_color[0] = 0.75;
+      outer_color[1] = 0.8;
       outer_color[2] = 0.3;
       inner_texture = &(base->TexCrystal);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.3));
@@ -296,16 +346,41 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.7), 0.5));
       outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.05));
       outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.3));
-      outer_alpha = 1.0;
+      break;
+    }
+    case FEMALE_GOBLIN:
+    {
+      outer_color[0] = 0.8;
+      outer_color[1] = 0.8;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexCrystal);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.7), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.7), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -0.5), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 0.3), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, 1.0), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.7, 0.0, 1.0), 0.7));
+      break;
+    }
+    case POLAR_BEAR:
+    {
+      outer_color[0] = 0.8;
+      outer_color[1] = 0.75;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexCrystal);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 0.5), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.01));
       break;
     }
     case BEAR:
     {
-      inner_color[0] = 0.3;
-      inner_color[1] = 0.2;
-      inner_color[2] = 0.2;
-      outer_color[0] = 0.45;
-      outer_color[1] = 0.9;
+      outer_color[0] = 0.85;
+      outer_color[1] = 0.75;
       outer_color[2] = 0.3;
       inner_texture = &(base->TexCrystal);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
@@ -314,106 +389,167 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -0.5), 0.5));
       outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.01));
-      outer_alpha = 1.0;
       break;
     }
-    case SKELETON:
+    case ARMED_MALE_GOBLIN:
     {
-      inner_color[0] = 1.0;
-      inner_color[1] = 1.0;
-      inner_color[2] = 0.8;
-      outer_color[0] = 0.55;
-      outer_color[1] = 0.8;
+      outer_color[0] = 0.85;
+      outer_color[1] = 0.7;
       outer_color[2] = 0.3;
-      inner_texture = &(base->TexInverse);
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
+      inner_texture = &(base->TexFlare);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
-      outer_alpha = 1.0;
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.7), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 0.5), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -0.3), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, -1.0), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.7, 0.0, -1.0), 0.7));
       break;
     }
-    case SMALL_GARGOYLE:
+    case ARMED_SKELETON:
     {
-      inner_color[0] = 0.6;
-      inner_color[1] = 0.6;
-      inner_color[2] = 0.6;
-      outer_color[0] = 0.7;
+      outer_color[0] = 0.9;
       outer_color[1] = 0.7;
       outer_color[2] = 0.3;
       inner_texture = &(base->TexInverse);
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.2, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.2, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_alpha = 1.0;
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.6), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.6), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.2, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.2, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.0), 0.5));
       break;
     }
-    case MEDIUM_GARGOYLE:
+    case FEMALE_ORC:
     {
-      inner_color[0] = 0.7;
-      inner_color[1] = 0.7;
-      inner_color[2] = 0.7;
-      outer_color[0] = 0.75;
+      outer_color[0] = 0.9;
+      outer_color[1] = 0.65;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexFlare);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.5, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.7), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.5));
+      break;
+    }
+    case MALE_ORC:
+    {
+      outer_color[0] = 0.9;
       outer_color[1] = 0.6;
       outer_color[2] = 0.3;
-      inner_texture = &(base->TexInverse);
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.35, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.35, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_alpha = 1.0;
+      inner_texture = &(base->TexFlare);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.7, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.5, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.7), 0.5));
       break;
     }
-    case LARGE_GARGOYLE:
+    case ARMED_FEMALE_ORC:
     {
-      inner_color[0] = 0.8;
-      inner_color[1] = 0.8;
-      inner_color[2] = 0.8;
-      outer_color[0] = 0.8;
+      outer_color[0] = 0.9;
+      outer_color[1] = 0.6;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexFlare);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.5, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.7), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.5));
+      break;
+    }
+    case ARMED_MALE_ORC:
+    {
+      outer_color[0] = 0.9;
       outer_color[1] = 0.55;
       outer_color[2] = 0.3;
-      inner_texture = &(base->TexInverse);
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.6, 0.0, -1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.2), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 1.0), 0.5));
-      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_alpha = 1.0;
+      inner_texture = &(base->TexFlare);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.5, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.3, 0.0, 0.0), 0.8));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.7), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.7), 0.5));
+      break;
+    }
+    case TIGER:
+    {
+      outer_color[0] = 0.95;
+      outer_color[1] = 0.5;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexCrystal);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, 1.0), 0.3));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.9, 0.0, -0.3), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.4, 0.0, -0.6), 0.7));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, 1.0), 0.2));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.6), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.05));
+      outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.3));
+      break;
+    }
+    case CYCLOPS:
+    {
+      outer_color[0] = 0.95;
+      outer_color[1] = 0.45;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexFlare);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -0.9), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -0.5), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -0.5), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -0.5), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, 0.1), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 1.0), 0.5));
       break;
     }
     case FLUFFY:
     {
-      inner_color[0] = 1.0;
-      inner_color[1] = 1.0;
-      inner_color[2] = 1.0;
-      outer_color[0] = 0.85;
-      outer_color[1] = 0.5;
+      outer_color[0] = 0.95;
+      outer_color[1] = 0.4;
       outer_color[2] = 0.3;
       inner_texture = &(base->TexWater);
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.3, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.0), 0.2));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.2));
-      outer_alpha = 1.0;
       break;
     }
-    case CHIMERAN_WOLF:
+    case GIANT_SNAKE:
     {
-      inner_color[0] = 0.9;
-      inner_color[1] = 1.0;
-      inner_color[2] = 0.8;
-      outer_color[0] = 0.9;
-      outer_color[1] = 0.45;
+      outer_color[0] = 1.0;
+      outer_color[1] = 0.35;
       outer_color[2] = 0.3;
+      inner_texture = &(base->TexFlare);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.5, 0.0, 1.0), 0.5));
+      outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.3, 0.0, 0.8), Vec3(0.30, 0.0, 0.54), Vec3(1.0, 0.0, 0.85)));
+      outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.1, 0.0, 2.2), Vec3(0.21, 0.0, 0.77), Vec3(0.89, 0.0, 0.91)));
+      outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(0.5, Vec3(3.9, 0.0, 2.2), Vec3(0.81, 0.0, 0.71), Vec3(0.77, 0.0, 0.71)));
+      break;
+    }
+    case PHANTOM_WARRIOR:
+    {
+      outer_color[0] = 1.0;
+      outer_color[1] = 0.3;
+      outer_color[2] = 0.3;
+      inner_texture = &(base->TexVoid);
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, -1.0), 0.3));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, -1.0), 0.3));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.2, 0.0, 1.0), 0.3));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-0.4, 0.0, 1.0), 0.3));
+      outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.5, 0.0, 0.0), 0.9));
+      break;
+    }
+    case MOUNTAIN_CHIMERAN:
+    {
+      outer_color[0] = 1.0;
+      outer_color[1] = 0.35;
+      outer_color[2] = 0.35;
       inner_texture = &(base->TexFlare);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.5), 0.3));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.3));
@@ -424,32 +560,24 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.3));
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_alpha = 1.0;
       break;
     }
     case YETI:
     {
-      inner_color[0] = 1.0;
-      inner_color[1] = 0.9;
-      inner_color[2] = 1.0;
       outer_color[0] = 1.0;
-      outer_color[1] = 0.3;
-      outer_color[2] = 0.3;
+      outer_color[1] = 0.4;
+      outer_color[2] = 0.4;
       inner_texture = &(base->TexFlare);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, 0.0, -1.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.155, 0.0, 1.0), 0.5));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.155, 0.0, 1.0), 0.5));
-      outer_alpha = 1.0;
       break;
     }
     case ARCTIC_CHIMERAN:
     {
-      inner_color[0] = 1.0;
-      inner_color[1] = 1.0;
-      inner_color[2] = 1.0;
       outer_color[0] = 1.0;
-      outer_color[1] = 0.4;
-      outer_color[2] = 0.4;
+      outer_color[1] = 0.45;
+      outer_color[2] = 0.45;
       inner_texture = &(base->TexVoid);
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(1.0, 0.0, 0.5), 0.8));
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(0.8, 0.0, -1.0), 0.8));
@@ -460,14 +588,10 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFSLinearElement(Vec3(-1.0, 0.0, 0.2), 0.8));
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(1.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_alpha = 1.0;
       break;
     }
     case GIANT:
     {
-      inner_color[0] = 1.0;
-      inner_color[1] = 0.2;
-      inner_color[2] = 0.1;
       outer_color[0] = 1.0;
       outer_color[1] = 0.5;
       outer_color[2] = 0.5;
@@ -475,10 +599,10 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
       outer_spawner->ifs_elements.push_back(new IFS2DSwirlElement(0.5));
       outer_spawner->ifs_elements.push_back(new IFSSinusoidalElement(2.5, Vec3(1.3, 0.0, 2.3), Vec3(0.88, 0.0, 0.93), Vec3(1.0, 0.0, 1.0)));
       outer_spawner->ifs_elements.push_back(new IFSRingElement(0.5, Vec3(0.0, 0.0, 1.0), Vec3(1.0, 1e6, 1.0)));
-      outer_alpha = 1.0;
       break;
     }
   }
+  outer_alpha = 1.0;
   
   request_LOD(_LOD);
   
@@ -572,6 +696,22 @@ void SummonEffect::request_LOD(const Uint16 _LOD)
       outer_size = inner_size / 11;
       break;
     }
+    case SKUNK:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 3.2 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 11;
+      break;
+    }
+    case RACOON:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 3.2 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 11;
+      break;
+    }
     case DEER:
     {
       inner_alpha = 1.6 / (LOD + 3);
@@ -628,10 +768,66 @@ void SummonEffect::request_LOD(const Uint16 _LOD)
       outer_size = inner_size / 9;
       break;
     }
+    case SPIDER:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 4.4 / (LOD + 3);
+      gravity_mover->mass = 4e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 12;
+      break;
+    }
+    case SKELETON:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 5.2 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 13;
+      break;
+    }
+    case SMALL_GARGOYLE:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 5.4 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 13;
+      break;
+    }
+    case MEDIUM_GARGOYLE:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 5.6 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 13;
+      break;
+    }
+    case LARGE_GARGOYLE:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 5.8 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 13;
+      break;
+    }
     case PUMA:
     {
       inner_alpha = 1.6 / (LOD + 3);
       inner_size = 39.0 * 5.8 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 13;
+      break;
+    }
+    case FEMALE_GOBLIN:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 5.9 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 13;
+      break;
+    }
+    case POLAR_BEAR:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 6.0 / (LOD + 3);
       gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
       outer_size = inner_size / 13;
       break;
@@ -644,15 +840,39 @@ void SummonEffect::request_LOD(const Uint16 _LOD)
       outer_size = inner_size / 13;
       break;
     }
-    case SKELETON:
+    case ARMED_MALE_GOBLIN:
     {
       inner_alpha = 1.6 / (LOD + 3);
-      inner_size = 39.0 * 6.2 / (LOD + 3);
+      inner_size = 39.0 * 6.1 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 13;
+      break;
+    }
+    case ARMED_SKELETON:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 6.0 / (LOD + 3);
       gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
       outer_size = inner_size / 15;
       break;
     }
-    case SMALL_GARGOYLE:
+    case FEMALE_ORC:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 6.2 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 14;
+      break;
+    }
+    case MALE_ORC:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 6.3 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 15;
+      break;
+    }
+    case ARMED_FEMALE_ORC:
     {
       inner_alpha = 1.6 / (LOD + 3);
       inner_size = 39.0 * 6.4 / (LOD + 3);
@@ -660,18 +880,26 @@ void SummonEffect::request_LOD(const Uint16 _LOD)
       outer_size = inner_size / 15;
       break;
     }
-    case MEDIUM_GARGOYLE:
+    case ARMED_MALE_ORC:
     {
       inner_alpha = 1.6 / (LOD + 3);
-      inner_size = 39.0 * 6.6 / (LOD + 3);
+      inner_size = 39.0 * 6.5 / (LOD + 3);
       gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
       outer_size = inner_size / 15;
       break;
     }
-    case LARGE_GARGOYLE:
+    case TIGER:
     {
       inner_alpha = 1.6 / (LOD + 3);
       inner_size = 39.0 * 6.8 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 15;
+      break;
+    }
+    case CYCLOPS:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 6.6 / (LOD + 3);
       gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
       outer_size = inner_size / 15;
       break;
@@ -684,7 +912,23 @@ void SummonEffect::request_LOD(const Uint16 _LOD)
       outer_size = inner_size / 12;
       break;
     }
-    case CHIMERAN_WOLF:
+    case GIANT_SNAKE:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 7.3 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 16;
+      break;
+    }
+    case PHANTOM_WARRIOR:
+    {
+      inner_alpha = 1.6 / (LOD + 3);
+      inner_size = 39.0 * 7.3 / (LOD + 3);
+      gravity_mover->mass = 5e8 * inner_size * (LOD + 3) / 10.0;
+      outer_size = inner_size / 17;
+      break;
+    }
+    case MOUNTAIN_CHIMERAN:
     {
       inner_alpha = 1.6 / (LOD + 3);
       inner_size = 39.0 * 7.5 / (LOD + 3);
@@ -758,4 +1002,4 @@ bool SummonEffect::idle(const Uint64 usec)
 
 };
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

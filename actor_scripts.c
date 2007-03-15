@@ -643,11 +643,9 @@ void next_command()
 					case kill_me:
 /*						if(actors_list[i]->remapped_colors)
 						glDeleteTextures(1,&actors_list[i]->texture_id);
-#ifdef SFX
 #ifdef	EYE_CANDY
 						ec_actor_delete(actors_list[i]);
 #endif	//EYE_CANDY
-#endif
 						free(actors_list[i]);
 						actors_list[i]=0;*/ //Obsolete
 						break;
@@ -907,11 +905,9 @@ void destroy_actor(int actor_id)
 				stop_sound(actors_list[i]->cur_anim_sound_cookie);
 				actors_list[i]->cur_anim_sound_cookie = 0;
 #endif	//NEW_SOUND
-#ifdef SFX
 #ifdef	EYE_CANDY
 				ec_actor_delete(actors_list[i]);
 #endif	//EYE_CANDY
-#endif
 				free(actors_list[i]);
 				actors_list[i]=NULL;
 				if(i==max_actors-1)max_actors--;
@@ -946,11 +942,9 @@ void destroy_all_actors()
 			stop_sound(actors_list[i]->cur_anim_sound_cookie);
 			actors_list[i]->cur_anim_sound_cookie = 0;
 #endif	//NEW_SOUND
-#ifdef SFX
 #ifdef	EYE_CANDY
 			ec_actor_delete(actors_list[i]);
 #endif	//EYE_CANDY
-#endif
 			free(actors_list[i]);
 			actors_list[i]=NULL;
 		}

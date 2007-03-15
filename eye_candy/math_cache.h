@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef MATH_CACHE_H
 #define MATH_CACHE_H
@@ -104,4 +104,4 @@ protected:
 
 #endif
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

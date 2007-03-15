@@ -545,27 +545,31 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	switch (kind)
 	{
 		case 2:
-#if defined SFX && defined EYE_CANDY
+#ifdef EYE_CANDY
 			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.4);
-#else // SFX && EYE_CANDY
-	#ifdef	NEW_FRUSTUM
+#else // EYE_CANDY
+ #ifdef SFX
+  #ifdef NEW_FRUSTUM
 			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
-	#else
+  #else
 			add_particle_sys ("./particles/fire_big.part", x, y, z);
-	#endif
-#endif	// SFX && EYE_CANDY
+  #endif // NEW_FRUSTRUM
+ #endif // SFX  
+#endif // EYE_CANDY
 			break;
 		case 1:
 		default:
-#if defined SFX && defined EYE_CANDY
+#ifdef EYE_CANDY
 			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 0.7);
-#else // SFX && EYE_CANDY
-	#ifdef	NEW_FRUSTUM
+#else // EYE_CANDY
+ #ifdef SFX
+  #ifdef NEW_FRUSTUM
 			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
-	#else
+  #else
 			add_particle_sys ("./particles/fire_small.part", x, y, z);
-	#endif
-#endif	// SFX && EYE_CANDY
+  #endif // NEW_FRUSTRUM
+ #endif // SFX  
+#endif // EYE_CANDY
 			break;
 	}
 }
@@ -579,9 +583,10 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	particle_sys *sys;
 #endif	// SFX && EYE_CANDY
 	
-#if defined SFX && defined EYE_CANDY
+#ifdef EYE_CANDY
 	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
-#else // SFX && EYE_CANDY
+#else // EYE_CANDY
+ #ifdef SFX
 	LOCK_PARTICLES_LIST();
 	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
 	{
@@ -606,7 +611,8 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 		}
 	}
 	UNLOCK_PARTICLES_LIST();
-#endif	// SFX && EYE_CANDY
+ #endif // SFX
+#endif // EYE_CANDY
 	return;
 }
 

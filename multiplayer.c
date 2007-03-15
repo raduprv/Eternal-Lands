@@ -411,13 +411,11 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 
 void process_message_from_server (const Uint8 *in_data, int data_length)
 {
-#ifdef SFX	//Test code; delete when SFX are well-in.
-#ifdef	EYE_CANDY
+#ifdef EYE_CANDY	//Test code; delete when Eye Candy effects are well-in.
 	ec_bounds bounds;
 	ec_reference /* ref, */ ref1, ref2;
 	ec_effects eff_list;
-#endif	//EYE_CANDY
-#endif
+#endif //EYE_CANDY
 
 	Uint8 text_buf[MAX_TCP_BUFFER];
 	
@@ -515,7 +513,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				new_minute();
-#ifdef SFX
 #ifdef	EYE_CANDY
 ///////////////////////////////////////////////////////////////////////////////
 // Special Effects Test Code #1/2 (Repeating effects)
@@ -592,7 +589,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_create_targetmagic_drain_mana(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
 ///////////////////////////////////////////////////////////////////////////////
 #endif	//EYE_CANDY
-#endif
 			}
 			break;
 
@@ -617,7 +613,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				
 				previously_logged_in=1;
 
-#ifdef SFX
 #ifdef	EYE_CANDY
 ///////////////////////////////////////////////////////////////////////////////
 // Special Effects Test Code #2/2 (Lasting effects)
@@ -664,7 +659,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_create_wind_petals(49.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
 ///////////////////////////////////////////////////////////////////////////////
 #endif	//EYE_CANDY
-#endif
 			}
 			break;
 

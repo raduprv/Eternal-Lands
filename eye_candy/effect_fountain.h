@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_FOUNTAIN_H
 #define EFFECT_FOUNTAIN_H
@@ -70,4 +70,4 @@ public:
 
 #endif	// defined EFFECT_FOUNTAIN_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

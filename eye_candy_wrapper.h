@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 //****************************************************************************//
 // eye_candy_wrapper.h                                                            //
@@ -202,6 +202,8 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_summon_rabbit(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_rat(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_beaver(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_skunk(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_racoon(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_deer(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_green_snake(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_red_snake(float x, float y, float z, int LOD);
@@ -209,17 +211,30 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_summon_fox(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_boar(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_wolf(float x, float y, float z, int LOD);
-  ec_reference ec_create_summon_puma(float x, float y, float z, int LOD);
-  ec_reference ec_create_summon_bear(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_skeleton(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_small_gargoyle(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_medium_gargoyle(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_large_gargoyle(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_puma(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_female_goblin(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_polar_bear(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_bear(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_male_goblin(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_skeleton(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_female_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_male_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_female_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_male_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_cyclops(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_fluffy(float x, float y, float z, int LOD);
-  ec_reference ec_create_summon_chimeran_wolf(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_phantom_warrior(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_mountain_chimeran(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_yeti(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_arctic_chimeran(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_giant(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_giant_snake(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_spider(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_tiger(float x, float y, float z, int LOD);
   ec_reference ec_create_sword_serpent(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
   ec_reference ec_create_sword_cutlass(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
   ec_reference ec_create_sword_emerald_claymore(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
@@ -257,4 +272,4 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
 
 //****************************************************************************//
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

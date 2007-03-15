@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -133,6 +133,7 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
   // Normalize axis weights
   percent_t sum = 0;
   for (int i = 0; i < 3; i++)
+    coord_t distance_squared = (camera - *(e->pos)).magnitude_squared();
     sum += axis_weights[i];
   for (int i = 0; i < 3; i++)
     axis_weights[i] /= sum;
@@ -143,11 +144,12 @@ bool WindParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
-    
+  
   WindEffect* wind_effect = (WindEffect*)effect;
   const Uint64 age = get_time() - born;
   const interval_t usec = delta_t / 1000000.0;
   const Vec3 cur_wind = get_wind_vec();
+
 //  std::cout << "Wind vec: " << cur_wind.magnitude() << ", " << cur_wind << std::endl;
   float divisor;
   switch (type)
@@ -173,6 +175,7 @@ bool WindParticle::idle(const Uint64 delta_t)
       break;
     }
   }
+
   const float scalar = math_cache.powf_05_close((interval_t)delta_t / divisor);
   velocity = velocity * scalar + cur_wind * (1.0 - scalar);
     
@@ -195,7 +198,7 @@ bool WindParticle::idle(const Uint64 delta_t)
   {
     state = 1;
   }
-  
+
   if (state == 0)
   {
     if (pos.y > max_height)
@@ -241,7 +244,6 @@ bool WindParticle::idle(const Uint64 delta_t)
     }
   }
     
-
   // Rotate the blowing object.
   angle_t rot_scalar;
   switch (type)
@@ -277,7 +279,7 @@ bool WindParticle::idle(const Uint64 delta_t)
       quaternion *= cur_rotation;
     }
   }
-  
+
   return true;
 }
 
@@ -297,6 +299,10 @@ GLuint WindParticle::get_texture(const Uint16 res_index)	// Shouldn't be needed.
 
 void WindParticle::draw(const Uint64 usec)
 {
+  coord_t distance_squared = (base->camera - pos).magnitude_squared();
+  if (distance_squared > MAX_DRAW_DISTANCE_SQUARED)
+    return;
+
   glEnable(GL_LIGHTING);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
   glEnable(GL_TEXTURE_2D);
@@ -406,14 +412,16 @@ void WindParticle::draw(const Uint64 usec)
 
 Vec3 WindParticle::get_wind_vec() const
 {
-  WindEffect* e = (WindEffect*)effect;
+  const WindEffect* e = (WindEffect*)effect;
   const float time_offset = (float)((unsigned short)(get_time() / 10000)) * PI / 2000.0;	// Translation: Convert to milliseconds, truncate the higher-order digits, convert to a float, make it wraparound in radians, and scale it down some.
   const unsigned short individual_offset = (unsigned short)(long)(void*)(this); 	// Based on the memory address in order to give each particle a unique bias.
   srand(individual_offset);
   const float offset = randfloat() * 0.5;
+
   const coord_t x = 1.0 * sin(offset + pos.x * 0.5283 + pos.z * 0.7111 + time_offset * 0.6817) * sin(offset + pos.x * 1.2019 + pos.z * 0.5985 + time_offset * 1.5927) * e->max_adjust / (fabs(pos.y - e->center.y) + 1);
   const coord_t y = 1.0 * sin(offset + pos.x * 0.4177 + pos.z * 1.3127 + time_offset * 1.1817) * sin(offset + pos.x * 0.5828 + pos.z * 0.6888 + time_offset * 2.1927) * e->max_adjust * 1.5;
   const coord_t z = 1.0 * sin(offset + pos.x * 1.1944 + pos.z * 0.9960 + time_offset * 1.6817) * sin(offset + pos.x * 0.6015 + pos.z * 1.4809 + time_offset * 1.4927) * e->max_adjust / (fabs(pos.y - e->center.y) + 1);
+
 //  Vec3 random_component;
 //  random_component.randomize(max_adjust / 4);
 //  std::cout << this << ",\t" << pos << ",\t" << velocity << ":\t" << Vec3(x, y, z) << ",\t" << (e->overall_wind + Vec3(x, y, z)) << std::endl;
@@ -646,4 +654,4 @@ bool WindEffect::idle(const Uint64 usec)
 
 };
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

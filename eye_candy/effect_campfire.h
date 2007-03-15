@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_CAMPFIRE_H
 #define EFFECT_CAMPFIRE_H
@@ -62,4 +62,4 @@ public:
 
 #endif	// defined EFFECT_CAMPFIRE_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

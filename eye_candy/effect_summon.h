@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_SUMMON_H
 #define EFFECT_SUMMON_H
@@ -50,6 +50,8 @@ public:
     RABBIT,
     RAT,
     BEAVER,
+    SKUNK,
+    RACOON,
     DEER,
     GREEN_SNAKE,
     RED_SNAKE,
@@ -57,14 +59,27 @@ public:
     FOX,
     BOAR,
     WOLF,
-    PUMA,
-    BEAR,
+    SPIDER,
     SKELETON,
     SMALL_GARGOYLE,
     MEDIUM_GARGOYLE,
     LARGE_GARGOYLE,
+    PUMA,
+    FEMALE_GOBLIN,
+    POLAR_BEAR,
+    BEAR,
+    ARMED_MALE_GOBLIN,
+    ARMED_SKELETON,
+    FEMALE_ORC,
+    MALE_ORC,
+    ARMED_FEMALE_ORC,
+    ARMED_MALE_ORC,
+    TIGER,
+    CYCLOPS,
     FLUFFY,
-    CHIMERAN_WOLF,
+    GIANT_SNAKE,
+    PHANTOM_WARRIOR,
+    MOUNTAIN_CHIMERAN,
     YETI,
     ARCTIC_CHIMERAN,
     GIANT
@@ -102,4 +117,4 @@ public:
 
 #endif	// defined EFFECT_SUMMON_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

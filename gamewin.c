@@ -675,12 +675,11 @@ int display_game_handler (window_info *win)
 	//we do this because we don't want the rain/particles to mess with our cursor
 
         // Eye candy
-#ifdef SFX
 #ifdef	EYE_CANDY
 //	ec_idle();
 	ec_draw();
 #endif	//EYE_CANDY
-#endif
+
 	last_texture = -1;
 
 	CHECK_GL_ERRORS ();
@@ -1449,17 +1448,21 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
 #ifdef	NEW_FRUSTUM
-	#if defined SFX && defined EYE_CANDY
+ #ifdef EYE_CANDY
 		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
-	#else // SFX && EYE_CANDY
+ #else // EYE_CANDY
+  #ifdef SFX
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
-	#endif // SFX && EYE_CANDY
+  #endif // SFX
+ #endif // EYE_CANDY
 #else // NEW_FRUSTUM
-	#if defined SFX && defined EYE_CANDY
+ #ifdef EYE_CANDY
 		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
-	#else // SFX && EYE_CANDY
+ #else // EYE_CANDY
+  #ifdef SFX
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
-	#endif // SFX && EYE_CANDY
+  #endif // SFX
+ #endif // EYE_CANDY
 #endif // NEW_FRUSTUM
 	}
 	else if (keysym == SDLK_F6)

@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -505,82 +505,93 @@ Particle::~Particle()
 
 void Particle::draw(const Uint64 usec)
 {
-  if (base->draw_method == EyeCandy::POINT_SPRITES)
+  switch (base->draw_method)
   {
-    coord_t tempsize = base->temp_sprite_scalar * size * invsqrt(square(pos.x - base->camera.x) + square(pos.y - base->camera.y) + square(pos.z - base->camera.z));
-    tempsize *= flare();
-  
-    alpha_t tempalpha = alpha;
-    if (tempsize < 5.0)			// Pseudo-antialiasing.  Makes the particles look nice.
+    case EyeCandy::POINT_SPRITES:
     {
-      tempalpha /= square(5.0 / tempsize);
-      tempsize = 5.0;
-    }
-    else if (tempsize > base->max_point_size)
-      tempsize = base->max_point_size;
-    tempalpha = 1.0;
-    int res_index;
-    if (tempsize <= 16)
-      res_index = 0;
-    else if (tempsize <= 32)
-      res_index = 1;
-    else if (tempsize <= 64)
-      res_index = 2;
-    else
-      res_index = 3;
-    const GLuint texture = get_texture(res_index);
-    base->draw_point_sprite_particle(tempsize, texture, color[0], color[1], color[2], tempalpha, pos);
-    if (effect->motion_blur_points > 0)
-    {
-      const alpha_t faderate = math_cache.powf_0_1_rough_close(effect->motion_blur_fade_rate, (float)usec / 1000000);
-    
-      for (int i = 0; i < effect->motion_blur_points; i++)
-        base->draw_point_sprite_particle(motion_blur[i].size, motion_blur[i].texture, motion_blur[i].color[0], motion_blur[i].color[1], motion_blur[i].color[2], motion_blur[i].alpha, motion_blur[i].pos);
+      coord_t tempsize = base->temp_sprite_scalar * size * invsqrt(square(pos.x - base->camera.x) + square(pos.y - base->camera.y) + square(pos.z - base->camera.z));
+      tempsize *= flare();
       
-      motion_blur[cur_motion_blur_point] = ParticleHistory(tempsize, texture, color[0], color[1], color[2], tempalpha, pos);
-      cur_motion_blur_point++;
-      
-      for (int i = 0; i < effect->motion_blur_points; i++)
-        motion_blur[i].alpha *= faderate;
-      
-      if (cur_motion_blur_point == effect->motion_blur_points)
-        cur_motion_blur_point = 0;
-    }
-  }
-  else
-  {
-    coord_t tempsize = base->billboard_scalar * size;
-    tempsize *= flare();
-    
-    const GLuint texture = get_texture(3);	// Always hires, since we're not checking distance.
-//    std::cout << this << ": " << tempsize << ", " << size << ": " << pos << std::endl;
-    if (base->draw_method == EyeCandy::FAST_BILLBOARDS)
-      base->draw_fast_billboard_particle(tempsize, texture, color[0], color[1], color[2], alpha, pos);
-    else
-      base->draw_accurate_billboard_particle(tempsize, texture, color[0], color[1], color[2], alpha, pos);
-    if (effect->motion_blur_points > 0)
-    {
-      const alpha_t faderate = math_cache.powf_0_1_rough_close(effect->motion_blur_fade_rate, (float)usec / 1000000);
-    
-      if (base->draw_method == EyeCandy::FAST_BILLBOARDS)
+      if (tempsize > base->max_allowable_point_size)
       {
-        for (int i = 0; i < effect->motion_blur_points; i++)
-          base->draw_fast_billboard_particle(motion_blur[i].size, motion_blur[i].texture, motion_blur[i].color[0], motion_blur[i].color[1], motion_blur[i].color[2], motion_blur[i].alpha, motion_blur[i].pos);
+        //Fall through.
       }
       else
       {
-        for (int i = 0; i < effect->motion_blur_points; i++)
-          base->draw_accurate_billboard_particle(motion_blur[i].size, motion_blur[i].texture, motion_blur[i].color[0], motion_blur[i].color[1], motion_blur[i].color[2], motion_blur[i].alpha, motion_blur[i].pos);
+        alpha_t tempalpha = alpha;
+        if (tempsize < 5.0)			// Pseudo-antialiasing.  Makes the particles look nice.
+        {
+          tempalpha /= square(5.0 / tempsize);
+          tempsize = 5.0;
+        }
+        else if (tempsize > base->max_point_size)
+          tempsize = base->max_point_size;
+    
+        int res_index;
+        if (tempsize <= 16)
+          res_index = 0;
+        else if (tempsize <= 32)
+          res_index = 1;
+        else if (tempsize <= 64)
+          res_index = 2;
+        else
+          res_index = 3;
+        const GLuint texture = get_texture(res_index);
+        base->draw_point_sprite_particle(tempsize, texture, color[0], color[1], color[2], tempalpha, pos);
+        if (effect->motion_blur_points > 0)
+        {
+          const alpha_t faderate = math_cache.powf_0_1_rough_close(effect->motion_blur_fade_rate, (float)usec / 1000000);
+        
+          for (int i = 0; i < effect->motion_blur_points; i++)
+            base->draw_point_sprite_particle(motion_blur[i].size, motion_blur[i].texture, motion_blur[i].color[0], motion_blur[i].color[1], motion_blur[i].color[2], motion_blur[i].alpha, motion_blur[i].pos);
+          
+          motion_blur[cur_motion_blur_point] = ParticleHistory(tempsize, texture, color[0], color[1], color[2], tempalpha, pos);
+          cur_motion_blur_point++;
+          
+          for (int i = 0; i < effect->motion_blur_points; i++)
+            motion_blur[i].alpha *= faderate;
+          
+          if (cur_motion_blur_point == effect->motion_blur_points)
+            cur_motion_blur_point = 0;
+        }
+        break;
       }
+    }
+    default:
+    {
+      coord_t tempsize = base->billboard_scalar * size;
+      tempsize *= flare();
       
-      motion_blur[cur_motion_blur_point] = ParticleHistory(tempsize, texture, color[0], color[1], color[2], alpha, pos);
-      cur_motion_blur_point++;
+      const GLuint texture = get_texture(3);	// Always hires, since we're not checking distance.
+  //    std::cout << this << ": " << tempsize << ", " << size << ": " << pos << std::endl;
+      if (base->draw_method != EyeCandy::ACCURATE_BILLBOARDS)
+        base->draw_fast_billboard_particle(tempsize, texture, color[0], color[1], color[2], alpha, pos);
+      else
+        base->draw_accurate_billboard_particle(tempsize, texture, color[0], color[1], color[2], alpha, pos);
+      if (effect->motion_blur_points > 0)
+      {
+        const alpha_t faderate = math_cache.powf_0_1_rough_close(effect->motion_blur_fade_rate, (float)usec / 1000000);
       
-      for (int i = 0; i < effect->motion_blur_points; i++)
-        motion_blur[i].alpha *= faderate;
-      
-      if (cur_motion_blur_point == effect->motion_blur_points)
-        cur_motion_blur_point = 0;
+        if (base->draw_method != EyeCandy::ACCURATE_BILLBOARDS)
+        {
+          for (int i = 0; i < effect->motion_blur_points; i++)
+            base->draw_fast_billboard_particle(motion_blur[i].size, motion_blur[i].texture, motion_blur[i].color[0], motion_blur[i].color[1], motion_blur[i].color[2], motion_blur[i].alpha, motion_blur[i].pos);
+        }
+        else
+        {
+          for (int i = 0; i < effect->motion_blur_points; i++)
+            base->draw_accurate_billboard_particle(motion_blur[i].size, motion_blur[i].texture, motion_blur[i].color[0], motion_blur[i].color[1], motion_blur[i].color[2], motion_blur[i].alpha, motion_blur[i].pos);
+        }
+        
+        motion_blur[cur_motion_blur_point] = ParticleHistory(tempsize, texture, color[0], color[1], color[2], alpha, pos);
+        cur_motion_blur_point++;
+        
+        for (int i = 0; i < effect->motion_blur_points; i++)
+          motion_blur[i].alpha *= faderate;
+        
+        if (cur_motion_blur_point == effect->motion_blur_points)
+          cur_motion_blur_point = 0;
+      }
     }
   }
 }
@@ -1012,7 +1023,7 @@ EyeCandy::EyeCandy()
 {
   set_thresholds(10000, 20);
   max_usec_per_particle_move = 100000;
-  sprite_scalar = 1.2;
+  sprite_scalar = 0.03;
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
@@ -1028,7 +1039,7 @@ EyeCandy::EyeCandy(int _max_particles)
 {
   set_thresholds(_max_particles, 20);
   max_usec_per_particle_move = 100000;
-  sprite_scalar = 1.2;
+  sprite_scalar = 0.03;
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
@@ -1232,7 +1243,7 @@ void EyeCandy::start_draw()
   glDepthMask(false);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-  if (draw_method == FAST_BILLBOARDS)
+  if ((draw_method == FAST_BILLBOARDS) || (draw_method == POINT_SPRITES))	//We need to do this for point sprites as well because if the particle is too big, it falls through to fast billboards.
   {
     float modelview[16];
     glGetFloatv(GL_MODELVIEW_MATRIX, modelview);
@@ -1254,6 +1265,7 @@ void EyeCandy::start_draw()
 
     glEnable(GL_POINT_SPRITE_ARB);
     glTexEnvf(GL_POINT_SPRITE_ARB, GL_COORD_REPLACE_ARB, GL_TRUE);
+    glGetFloatv(GL_POINT_SIZE_MAX_ARB, &max_allowable_point_size);    
   }
 }
 
@@ -1352,7 +1364,7 @@ void EyeCandy::idle()
       e->recall = true;
     }
 
-    float distance_squared = (camera - *(e->pos)).magnitude_squared();
+    coord_t distance_squared = (camera - *(e->pos)).magnitude_squared();
 //    std::cout << camera << ", " << *e->pos << ": " << (camera - *(e->pos)).magnitude_squared() << " <? " << MAX_DRAW_DISTANCE_SQUARED << std::endl;
     if (!e->active)
     {
@@ -1897,4 +1909,4 @@ Uint64 get_time()
 
 };
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

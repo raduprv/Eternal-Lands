@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_TARGETMAGIC_H
 #define EFFECT_TARGETMAGIC_H
@@ -101,4 +101,4 @@ public:
 
 #endif	// defined EFFECT_TARGETMAGIC_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

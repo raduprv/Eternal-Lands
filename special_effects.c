@@ -10,7 +10,7 @@
  more effects
  adjust effects based on actor size and if sitting
 */
-#ifdef SFX
+#if defined SFX || defined EYE_CANDY
 //much of this is based on the highlight.c code
 #define SPECIAL_EFFECT_LIFESPAN	(500)
 #define SPECIAL_EFFECT_SHIELD_LIFESPAN (1500)
@@ -534,6 +534,42 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS:
 		case	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM:
 		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
+		case	SPECIAL_EFFECT_SUMMON_RABBIT:
+		case	SPECIAL_EFFECT_SUMMON_RAT:
+		case	SPECIAL_EFFECT_SUMMON_BEAVER:
+		case	SPECIAL_EFFECT_SUMMON_SKUNK:
+		case	SPECIAL_EFFECT_SUMMON_RACOON:
+		case	SPECIAL_EFFECT_SUMMON_DEER:
+		case	SPECIAL_EFFECT_SUMMON_GREEN_SNAKE:
+		case	SPECIAL_EFFECT_SUMMON_RED_SNAKE:
+		case	SPECIAL_EFFECT_SUMMON_BROWN_SNAKE:
+		case	SPECIAL_EFFECT_SUMMON_FOX:
+		case	SPECIAL_EFFECT_SUMMON_BOAR:
+		case	SPECIAL_EFFECT_SUMMON_WOLF:
+		case	SPECIAL_EFFECT_SUMMON_SKELETON:
+		case	SPECIAL_EFFECT_SUMMON_SMAL_GARG:
+		case	SPECIAL_EFFECT_SUMMON_MEDIUM_GARG:
+		case	SPECIAL_EFFECT_SUMMON_BIG_GARG:
+		case	SPECIAL_EFFECT_SUMMON_PUMA:
+		case	SPECIAL_EFFECT_SUMMON_FEM_GOBLIN:
+		case	SPECIAL_EFFECT_SUMMON_POLAR_BEAR:
+		case	SPECIAL_EFFECT_SUMMON_BEAR:
+		case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_GOB:
+		case	SPECIAL_EFFECT_SUMMON_ARMED_SKELETON:
+		case	SPECIAL_EFFECT_SUMMON_FEMALE_ORC:
+		case	SPECIAL_EFFECT_SUMMON_MALE_ORC:
+		case	SPECIAL_EFFECT_SUMMON_ARMED_FEM_ORC:
+		case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_ORC:
+		case	SPECIAL_EFFECT_SUMMON_CYCLOP:
+		case	SPECIAL_EFFECT_SUMMON_FLUFFY_RABBIT:
+		case	SPECIAL_EFFECT_SUMMON_PHANTOM_WARRIOR:
+		case	SPECIAL_EFFECT_SUMMON_MOUNTAIN_CHIM:
+		case	SPECIAL_EFFECT_SUMMON_YETI:
+		case	SPECIAL_EFFECT_SUMMON_ARCTIC_CHIM:
+		case	SPECIAL_EFFECT_SUMMON_GIANT:
+		case	SPECIAL_EFFECT_SUMMON_GIANT_SNAKE:
+		case	SPECIAL_EFFECT_SUMMON_SPIDER:
+		case	SPECIAL_EFFECT_SUMMON_TIGER:
 			{
 			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 			}
@@ -644,11 +680,120 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			break;
 		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
 			ec_create_alert2(caster, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_RABBIT:
+			ec_create_summon_rabbit(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_RAT:
+			ec_create_summon_rat(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_BEAVER:
+			ec_create_summon_beaver(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_SKUNK:
+			ec_create_summon_skunk(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_RACOON:
+			ec_create_summon_racoon(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_DEER:
+			ec_create_summon_deer(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_GREEN_SNAKE:
+			ec_create_summon_green_snake(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_RED_SNAKE:
+			ec_create_summon_red_snake(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_BROWN_SNAKE:
+			ec_create_summon_brown_snake(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_FOX:
+			ec_create_summon_fox(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_BOAR:
+			ec_create_summon_boar(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_WOLF:
+			ec_create_summon_wolf(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_SKELETON:
+			ec_create_summon_skeleton(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_SMAL_GARG:
+			ec_create_summon_small_gargoyle(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_MEDIUM_GARG:
+			ec_create_summon_medium_gargoyle(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_BIG_GARG:
+			ec_create_summon_large_gargoyle(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_PUMA:
+			ec_create_summon_puma(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_FEM_GOBLIN:
+			ec_create_summon_female_goblin(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_POLAR_BEAR:
+			ec_create_summon_polar_bear(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_BEAR:
+			ec_create_summon_bear(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_GOB:
+			ec_create_summon_armed_male_goblin(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_ARMED_SKELETON:
+			ec_create_summon_armed_skeleton(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_FEMALE_ORC:
+			ec_create_summon_female_orc(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_MALE_ORC:
+			ec_create_summon_male_orc(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_ARMED_FEM_ORC:
+			ec_create_summon_armed_female_orc(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_ORC:
+			ec_create_summon_armed_male_orc(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_CYCLOP:
+			ec_create_summon_cyclops(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_FLUFFY_RABBIT:
+			ec_create_summon_fluffy(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_PHANTOM_WARRIOR:
+			ec_create_summon_phantom_warrior(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_MOUNTAIN_CHIM:
+			ec_create_summon_mountain_chimeran(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_YETI:
+			ec_create_summon_yeti(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_ARCTIC_CHIM:
+			ec_create_summon_arctic_chimeran(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_GIANT:
+			ec_create_summon_giant(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_GIANT_SNAKE:
+			ec_create_summon_giant_snake(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_SPIDER:
+			ec_create_summon_spider(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
+		case	SPECIAL_EFFECT_SUMMON_TIGER:
+			ec_create_summon_tiger(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
+			break;
 		default:
-#ifdef DEBUG
+ #ifdef DEBUG
 			snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
 			LOG_TO_CONSOLE (c_purple2, str);
-#endif
+ #endif
 			break;
 	}
 //			ec_create_selfmagic_magic_protection(49.0, 70.0, 0.0, (poor_man ? 6 : 10));
@@ -668,4 +813,4 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 #endif	//EYE_CANDY
 }
 
-#endif //SFX
+#endif //SFX or EYE_CANDY

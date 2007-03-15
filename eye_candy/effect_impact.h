@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_IMPACT_H
 #define EFFECT_IMPACT_H
@@ -64,4 +64,4 @@ public:
 
 #endif	// defined EFFECT_IMPACT_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

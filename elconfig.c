@@ -175,11 +175,9 @@ void change_poor_man(int *poor_man)
 		use_frame_buffer= 0;
 		update_fbo_and_shadow_mapping();
 	}
-#ifdef SFX
 #ifdef	EYE_CANDY
 	ec_set_draw_detail();
 #endif	//EYE_CANDY
-#endif
 }
 
 #ifdef	NOT_USED
@@ -223,11 +221,9 @@ void change_point_particles(int *value)
 		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
 	}
 	
-#ifdef SFX
 #ifdef	EYE_CANDY
 	ec_set_draw_method();
 #endif	//EYE_CANDY
-#endif
 }
 
 void change_particles_percentage(int *pointer, int value)

@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_SELFMAGIC_H
 #define EFFECT_SELFMAGIC_H
@@ -71,4 +71,4 @@ public:
 
 #endif	// defined EFFECT_SELFMAGIC_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

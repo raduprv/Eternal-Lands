@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EYE_CANDY_H
 #define EYE_CANDY_H
@@ -1025,7 +1025,7 @@ public:
   void push_back_effect(Effect* e);
   bool push_back_particle(Particle* p);
   void set_camera(const Vec3& _camera) { camera = _camera; };
-  void set_dimensions(const coord_t _width, const coord_t _height) { width = _width; height = _height; temp_sprite_scalar = sprite_scalar * _height; };
+  void set_dimensions(const coord_t _width, const coord_t _height, const angle_t _zoom) { width = _width; height = _height; zoom = _zoom; temp_sprite_scalar = sprite_scalar * _height / _zoom; };
   void set_sprite_scalar(const coord_t _scalar) { sprite_scalar = _scalar; temp_sprite_scalar = _scalar * height; };
   void draw();
   void idle();
@@ -1053,9 +1053,11 @@ public:
   int max_particles;
   Uint64 max_usec_per_particle_move;
   coord_t max_point_size;
+  coord_t max_allowable_point_size;
   Vec3 camera;
   coord_t width;
   coord_t height;
+  angle_t zoom;
   Uint64 time_diff;
   light_t lighting_scalar;
   light_t light_estimate;
@@ -1097,4 +1099,4 @@ public:
 
 #endif	// defined EYE_CANDY_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

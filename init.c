@@ -600,11 +600,9 @@ void init_stuff()
 	init_gl_extensions();
 	
 	// Setup the new eye candy system
-#ifdef SFX
 #ifdef	EYE_CANDY
 	ec_init();
 #endif	//EYE_CANDY
-#endif
 
 	// check for invalid combinations
 	check_options();

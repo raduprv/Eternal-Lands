@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -472,4 +472,4 @@ bool BreathEffect::idle(const Uint64 usec)
 
 };
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

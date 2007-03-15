@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -171,4 +171,4 @@ void TeleporterEffect::add_actor_alpha_pointer(float* ptr)
 
 };
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

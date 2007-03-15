@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_TELEPORTER_H
 #define EFFECT_TELEPORTER_H
@@ -50,4 +50,4 @@ public:
 
 #endif	// defined EFFECT_TELEPORTER_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY

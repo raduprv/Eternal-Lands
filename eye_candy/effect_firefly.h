@@ -1,4 +1,4 @@
-#ifdef SFX
+#ifdef EYE_CANDY
 
 #ifndef EFFECT_FIREFLY_H
 #define EFFECT_FIREFLY_H
@@ -48,4 +48,4 @@ public:
 
 #endif	// defined EFFECT_FIREFLY_H
 
-#endif	// #ifdef SFX
+#endif	// #ifdef EYE_CANDY
