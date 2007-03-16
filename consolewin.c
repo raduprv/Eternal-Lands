@@ -85,6 +85,10 @@ int display_console_handler (window_info *win)
 	next_fps_time=cur_time+1000;
 	last_count=0;
 
+#ifdef	EYE_CANDY
+	ec_idle();
+#endif	//EYE_CANDY
+
 	draw_delay = 20;
 	return 1;
 }

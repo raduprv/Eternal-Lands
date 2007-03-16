@@ -69,12 +69,12 @@ protected:
   static int get_lower_index(const float power);
   static void get_lower_index_and_percent(const float power, int& index, float& percent);
 
-  double powf_map[10001][129];
-  double sqrt_map[129];
-  double sin_map[10002];
-  double sin_map2[10002];
-  double cos_map[10002];
-  double cos_map2[10002];
+  float powf_map[10001][129];
+  float sqrt_map[129];
+  float sin_map[10002];
+  float sin_map2[10002];
+  float cos_map[10002];
+  float cos_map2[10002];
 };
 
 class MathCache_Lorange		//Currently unused.
@@ -95,7 +95,7 @@ protected:
   static int get_lower_index(const float power);
   static void get_lower_index_and_percent(const float power, int& index, float& percent);
 
-  double powf_map[10001][65];
+  float powf_map[10001][65];
 };
 
 ////////////////////////////////////////////////////////////////////////////////

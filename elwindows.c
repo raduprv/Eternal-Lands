@@ -1054,10 +1054,6 @@ int	draw_window(window_info *win)
 	draw_window_border(win);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-#ifdef	EYE_CANDY
-	ec_idle();
-#endif	//EYE_CANDY
-
 	if(win->display_handler)
 	{
 		ret_val=(*win->display_handler)(win);

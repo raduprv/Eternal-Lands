@@ -181,8 +181,10 @@ bool WindParticle::idle(const Uint64 delta_t)
     
   if (pos.y < min_height)
   {
-    velocity /= ((min_height - pos.y + 1.0) * 20);
+    velocity /= ((min_height - pos.y + 1.0) * 8);
     pos.y = min_height;
+    if (!(rand() % 3))
+      velocity.y = -velocity.y * 1.5;
   }
   else
   {
@@ -363,9 +365,9 @@ void WindParticle::draw(const Uint64 usec)
 
   glBindTexture(GL_TEXTURE_2D, texture);
   glColorMaterial(GL_FRONT_AND_BACK, GL_AMBIENT);
-  glColor4f(color[0] * 35, color[1] * 35, color[2] * 35, alpha);
+  glColor4f(color[0] * 3, color[1] * 3, color[2] * 3, alpha);
   glColorMaterial(GL_FRONT_AND_BACK, GL_DIFFUSE);
-  glColor4f(color[0] * 1.5, color[1] * 1.5, color[2] * 1.5, alpha);
+  glColor4f(color[0] * 1.5, color[1], color[2], alpha);
 
   if (effect->LOD < 4)
   {

@@ -20,6 +20,7 @@ extern int game_root_win; /*!< the root (game) window */
 extern int use_old_clicker;
 extern Uint32 next_fps_time;
 extern int last_count;
+extern float fps_average;
 
 /*!
  * \ingroup events

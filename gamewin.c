@@ -13,6 +13,7 @@
 int game_root_win = -1;
 int gamewin_in_id = 4442;
 int use_old_clicker=0;
+float fps_average = 100.0;
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
@@ -495,7 +496,6 @@ int display_game_handler (window_info *win)
 	static int main_count = 0;
 	static int times_FPS_below_3 = 0;
 	static int fps[5]={100};
-	static float fps_average=100.0f;
 	static int shadows_were_disabled=0;
 	unsigned char str[180];
 	int i;
@@ -676,7 +676,7 @@ int display_game_handler (window_info *win)
 
         // Eye candy
 #ifdef	EYE_CANDY
-//	ec_idle();
+	ec_idle();
 	ec_draw();
 #endif	//EYE_CANDY
 

@@ -6,6 +6,7 @@
 #include "gl_init.h"
 #include "particles.h"
 #include "init.h"
+#include "gamewin.h"
 
 ec::EyeCandy eye_candy;
 Uint64 ec_cur_time;
@@ -39,9 +40,9 @@ extern "C" void ec_set_draw_method()
 extern "C" void ec_set_draw_detail()
 {
   if (poor_man)
-    eye_candy.set_thresholds(3500, 12);	//Max particles, min framerate.
+    eye_candy.set_thresholds(3500, 10);	//Max particles, min framerate.
   else
-    eye_candy.set_thresholds(15000, 12);
+    eye_candy.set_thresholds(15000, 10);
 }
 
 void ec_set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone)
@@ -84,6 +85,7 @@ extern "C" void ec_idle()
     i++;
   }
   eye_candy.time_diff = new_time - ec_cur_time;
+  eye_candy.framerate = fps_average;
   eye_candy.idle();
   ec_cur_time = new_time;
 }

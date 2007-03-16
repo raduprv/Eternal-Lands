@@ -646,8 +646,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_create_sword_of_ice(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_sword_of_magic(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_teleporter(49.0, 70.0, 0.0, 10);
-				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
-				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
+				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, NULL, 0.5, bounds, 1.0, 0.0, 0.0);
+				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, NULL, 0.5, bounds, 1.0, 0.0, 0.0);
 				eff_list = ec_create_effects_list();
 				ec_add_effect(eff_list, ref2);
 				ec_add_wind_effect_list(ref1, eff_list);

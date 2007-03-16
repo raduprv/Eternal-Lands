@@ -1021,7 +1021,7 @@ coord_t HollowPolarCoordsSpawner::get_area() const
 
 EyeCandy::EyeCandy()
 {
-  set_thresholds(10000, 20);
+  set_thresholds(10000, 12);
   max_usec_per_particle_move = 100000;
   sprite_scalar = 0.03;
   max_point_size = 500.0;
@@ -1033,11 +1033,12 @@ EyeCandy::EyeCandy()
   height = 600;
   temp_sprite_scalar = sprite_scalar * height;
   last_forced_LOD = 10;
+  framerate = 100.0;
 }
 
 EyeCandy::EyeCandy(int _max_particles)
 {
-  set_thresholds(_max_particles, 20);
+  set_thresholds(_max_particles, 12);
   max_usec_per_particle_move = 100000;
   sprite_scalar = 0.03;
   max_point_size = 500.0;
@@ -1049,6 +1050,7 @@ EyeCandy::EyeCandy(int _max_particles)
   height = 600;
   temp_sprite_scalar = sprite_scalar * height;
   last_forced_LOD = 10;
+  framerate = 100.0;
 }
 
 EyeCandy::~EyeCandy()
@@ -1074,15 +1076,15 @@ void EyeCandy::set_thresholds(int _max_particles, int min_framerate)
   LOD_3_threshold = max_particles * 91 / 100;
   LOD_2_threshold = max_particles * 94 / 100;
   LOD_1_threshold = max_particles * 97 / 100;
-  LOD_9_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.8));
-  LOD_8_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.6));
-  LOD_7_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.4));
-  LOD_6_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.2));
-  LOD_5_time_threshold = (Uint64)(1000000.0 / (min_framerate * 2.0));
-  LOD_4_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.8));
-  LOD_3_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.6));
-  LOD_2_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.4));
-  LOD_1_time_threshold = (Uint64)(1000000.0 / (min_framerate * 1.2));
+  LOD_9_time_threshold = min_framerate * 3.7;
+  LOD_8_time_threshold = min_framerate * 3.4;
+  LOD_7_time_threshold = min_framerate * 3.1;
+  LOD_6_time_threshold = min_framerate * 2.8;
+  LOD_5_time_threshold = min_framerate * 2.5;
+  LOD_4_time_threshold = min_framerate * 2.2;
+  LOD_3_time_threshold = min_framerate * 1.9;
+  LOD_2_time_threshold = min_framerate * 1.6;
+  LOD_1_time_threshold = min_framerate * 1.3;
 //  allowable_particles_to_add = max_particles;
 }
 
@@ -1426,28 +1428,28 @@ void EyeCandy::idle()
     change_LOD = 10;
 
   Uint16 change_LOD2;
-  if (time_diff > LOD_1_time_threshold)
+  if (framerate < LOD_1_time_threshold)
     change_LOD2 = 1;
-  else if (time_diff > LOD_2_time_threshold)
+  else if (framerate < LOD_2_time_threshold)
     change_LOD2 = 2;
-  else if (time_diff > LOD_3_time_threshold)
+  else if (framerate < LOD_3_time_threshold)
     change_LOD2 = 3;
-  else if (time_diff > LOD_4_time_threshold)
+  else if (framerate < LOD_4_time_threshold)
     change_LOD2 = 4;
-  else if (time_diff > LOD_5_time_threshold)
+  else if (framerate < LOD_5_time_threshold)
     change_LOD2 = 5;
-  else if (time_diff > LOD_6_time_threshold)
+  else if (framerate < LOD_6_time_threshold)
     change_LOD2 = 6;
-  else if (time_diff > LOD_7_time_threshold)
+  else if (framerate < LOD_7_time_threshold)
     change_LOD2 = 7;
-  else if (time_diff > LOD_8_time_threshold)
+  else if (framerate < LOD_8_time_threshold)
     change_LOD2 = 8;
-  else if (time_diff > LOD_9_time_threshold)
+  else if (framerate < LOD_9_time_threshold)
     change_LOD2 = 9;
   else
     change_LOD2 = 10;
     
-//  std::cout << change_LOD << " / " << change_LOD2 << " (" << allowable_particles_to_add << " remaining)" << std::endl;
+//  std::cout << framerate << ", " << LOD_9_time_threshold << " : " << last_forced_LOD << ": " << change_LOD << " / " << change_LOD2 << " (" << allowable_particles_to_add << " remaining)" << std::endl;
 
   if (change_LOD > change_LOD2)	//Pick whichever one is lower.
     change_LOD = change_LOD2;
@@ -1455,7 +1457,7 @@ void EyeCandy::idle()
   for (std::vector<Effect*>::iterator iter = effects.begin(); iter != effects.end(); iter++)
     (*iter)->request_LOD(change_LOD);
 
-  const float particle_cleanout_rate = (1.0 - math_cache.powf_05_close(time_diff / 3000000.0 / change_LOD));
+  const float particle_cleanout_rate = (1.0 - math_cache.powf_05_close(5.0 / (framerate * square(change_LOD))));
 //  std::cout << (1.0 / particle_cleanout_rate) << std::endl;
   float counter = randfloat();
   for (int i = 0; i < (int)particles.size(); )	//Iterate using an int, not an iterator, because we may be adding/deleting entries, and that messes up iterators.
