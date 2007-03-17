@@ -14,7 +14,7 @@ std::vector<ec_internal_reference*> references;
 
 const float MAX_EFFECT_DISTANCE = 16.0;
 const float WALK_RATE = 1.0;
-int effect_active = 0;
+volatile int effect_active = 0;
 
 ec_internal_obstructions null_obstructions;
 
