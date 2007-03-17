@@ -28,9 +28,9 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
   {
     case WindEffect::LEAVES:
     {
-      color[0] = 0.3 + randcolor(0.4);
-      color[1] = 0.2 + randcolor(0.3);
-      color[2] = 0.0 + randcolor(0.3);
+      color[0] = 0.35 + randcolor(0.3);
+      color[1] = 0.2 + randcolor(0.2);
+      color[2] = 0.0 + randcolor(0.25);
       size = 0.08;
       alpha = 1.0;
       subtype = rand() % 3;	// Store it in case we need it later -- say, for a texture.

@@ -546,7 +546,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	{
 		case 2:
 #ifdef EYE_CANDY
-			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.9);
+			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 2.5);
 #else // EYE_CANDY
  #ifdef SFX
   #ifdef NEW_FRUSTUM
@@ -560,7 +560,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 		case 1:
 		default:
 #ifdef EYE_CANDY
-			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.4);
+			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.8);
 #else // EYE_CANDY
  #ifdef SFX
   #ifdef NEW_FRUSTUM

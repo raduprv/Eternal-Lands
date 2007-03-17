@@ -80,7 +80,6 @@ void Texture::push_texture(const std::string filename)
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
   glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
   glTexImage2D(GL_TEXTURE_2D, 0, tex->format->BytesPerPixel, tex->w, tex->h, 0, (tex->format->BytesPerPixel == 4 ? GL_RGBA : GL_RGB), GL_UNSIGNED_BYTE, tex->pixels);
-  SDL_FreeSurface(tex);
   
   if (tex->w == 16)
     texture_ids[0].push_back(texture_id);
@@ -90,6 +89,8 @@ void Texture::push_texture(const std::string filename)
     texture_ids[2].push_back(texture_id);
   if (tex->w == 128)
     texture_ids[3].push_back(texture_id);
+
+  SDL_FreeSurface(tex);
 }
 
 Shape::~Shape()
@@ -1023,7 +1024,7 @@ EyeCandy::EyeCandy()
 {
   set_thresholds(10000, 12);
   max_usec_per_particle_move = 100000;
-  sprite_scalar = 0.03;
+  sprite_scalar = 0.37;
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
@@ -1040,7 +1041,7 @@ EyeCandy::EyeCandy(int _max_particles)
 {
   set_thresholds(_max_particles, 12);
   max_usec_per_particle_move = 100000;
-  sprite_scalar = 0.03;
+  sprite_scalar = 0.37;
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
@@ -1343,6 +1344,8 @@ void EyeCandy::draw()
       glLightfv(light_id, GL_POSITION, light_pos);
       glLightfv(light_id, GL_DIFFUSE, light_color);
     }
+    for (int i = light_particles.size(); i < lights.size(); i++)
+      glDisable(lights[i]);
   }
   else
   {

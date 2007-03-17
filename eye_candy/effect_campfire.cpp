@@ -37,27 +37,30 @@ bool CampfireParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
 
-  if (alpha < 0.13 - LOD * 0.01)
+  if (alpha < 0.12 - LOD * 0.01)
     return false;
   
-  const float scalar = math_cache.powf_05_close((interval_t)delta_t / (3000000 - LOD * 200000));
+  const float scalar = square(math_cache.powf_05_close((interval_t)delta_t / (3000000 - LOD * 200000)));
   if (state != 2)
     color[0] = color[0] * scalar * 0.3 + color[0] * 0.7;
 
   if (state == 1)
   {
     alpha *= scalar;
-    if ((alpha <= 0.25 - LOD * 0.01) && (random() & 1))
+    if ((alpha <= 0.24 - LOD * 0.01) && (rand() & 1))
     {
       state = 2;
-      size *= 1.8;
-      alpha = 0.13 + randfloat(0.16);
-      pos.y -= 0.29 + randfloat(0.13);
+      size *= 1.6;
+      alpha = 0.2 + randfloat(0.15);
+      pos.y -= 0.3 + randfloat(0.1);
       color[0] = 0.07;
       color[1] = 0.05;
       color[2] = 0.05;
-      velocity.x *= 2.3;
-      velocity.z *= 2.3;
+      velocity.x *= 2;
+      velocity.z *= 2;
+      const float scale = ((CampfireEffect*)effect)->sqrt_scale;
+      velocity.x += (randfloat(scale) - scale / 2) / 3;
+      velocity.z += (randfloat(scale) - scale / 2) / 3;
       while (size > 5.0)
       {
         size *= 0.75;

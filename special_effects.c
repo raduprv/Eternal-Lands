@@ -676,7 +676,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			ec_create_selfmagic_teleport_to_the_portals_room(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED:
-			ec_create_harvesting_mother_nature(caster->x_pos + sin(caster->z_rot), caster->y_pos + cos(caster->z_rot), caster->z_pos, (poor_man ? 6 : 10));
+			ec_create_harvesting_mother_nature(caster->x_pos, caster->y_pos, caster->z_pos, (poor_man ? 6 : 10));
 			break;
 		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
 			ec_create_alert2(caster, (poor_man ? 6 : 10));

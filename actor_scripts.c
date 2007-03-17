@@ -1130,6 +1130,13 @@ void get_actor_damage(int actor_id, int damage)
 {
 	//int i=0;
 	actor * act;
+#ifdef EYE_CANDY
+	float blood_level;
+        float bone_list[1024][3];
+        int total_bones;
+        int bone;
+        float bone_x, bone_y, bone_z;
+#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -1153,6 +1160,19 @@ void get_actor_damage(int actor_id, int damage)
 		}
 #endif
 	}
+	
+#ifdef EYE_CANDY
+	if (enable_blood)
+	{
+		blood_level=(int)powf(damage / powf(act->max_health, 0.5), 0.75) + 0.5;
+	        total_bones = CalSkeleton_GetBonePoints(CalModel_GetSkeleton(act->calmodel), &bone_list[0][0]);
+	        bone = rand() % total_bones;
+	        bone_x = bone_list[bone][0] + act->x_pos;
+	        bone_y = bone_list[bone][1] + act->y_pos;
+	        bone_z = bone_list[bone][2] + act->z_pos;
+	        ec_create_impact_blood(bone_x, bone_y, bone_z, ((float)rand()) / RAND_MAX / 5.0, ((float)rand()) / RAND_MAX / 5.0, ((float)rand()) / RAND_MAX / 5.0, (poor_man ? 6 : 10), blood_level);
+	}
+#endif
 }
 
 void get_actor_heal(int actor_id, int quantity)

@@ -70,7 +70,7 @@ bool ImpactParticle::idle(const Uint64 delta_t)
     }
     case ImpactEffect::BLOOD:
     {
-      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
+      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0);
       alpha -= scalar;
       if (alpha < 0.02)
         return false;
@@ -217,7 +217,7 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
         offset.randomize(0.7);
         velocity += offset;
         velocity.normalize(0.8 * vel_scalar);
-        Particle * p = new ImpactParticle(this, mover, coords, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), randcolor(0.4), randcolor(0.4), &(base->TexWater), LOD, type);
+        Particle * p = new ImpactParticle(this, mover, coords, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), 0.15 + randcolor(0.1), 0.15 + randcolor(0.1), &(base->TexWater), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
           break;

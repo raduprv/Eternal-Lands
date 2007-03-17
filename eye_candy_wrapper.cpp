@@ -14,6 +14,7 @@ std::vector<ec_internal_reference*> references;
 
 const float MAX_EFFECT_DISTANCE = 16.0;
 const float WALK_RATE = 1.0;
+int effect_active = 0;
 
 ec_internal_obstructions null_obstructions;
 
@@ -58,12 +59,25 @@ void ec_set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone)
 
 extern "C" void ec_idle()
 {
+  while (effect_active)	// Semaphore check
+    usleep(1000);
+  effect_active = true;
+
 //  GLfloat rot_matrix[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, rot_matrix);
 //  const float x = rot_matrix[12];
 //  const float y = rot_matrix[13];
 //  const float z = rot_matrix[14];
-  eye_candy.set_camera(ec::Vec3(-camera_x, -camera_z, camera_y));
+  
+  const float s_rx = sin(rx * ec::PI / 180);
+  const float c_rx = cos(rx * ec::PI / 180);
+  const float s_rz = sin(rz * ec::PI / 180);
+  const float c_rz = cos(rz * ec::PI / 180);
+  float new_camera_x = -zoom_level*camera_distance * s_rx * s_rz + camera_x;
+  float new_camera_y = zoom_level*camera_distance * s_rx * c_rz + camera_y;
+  float new_camera_z = -zoom_level*camera_distance * c_rx + camera_z;
+  eye_candy.set_camera(ec::Vec3(-new_camera_x, -new_camera_z, new_camera_y));
+  
   eye_candy.set_dimensions(window_width, window_height, zoom_level);
   Uint64 new_time = ec::get_time();
   for (int i = 0; i < (int)references.size(); )
@@ -85,17 +99,26 @@ extern "C" void ec_idle()
     i++;
   }
   eye_candy.time_diff = new_time - ec_cur_time;
-  eye_candy.framerate = fps_average;
+  eye_candy.framerate = 1000000.0 / (eye_candy.time_diff + 1);
+//  eye_candy.framerate = fps_average;
   eye_candy.idle();
   ec_cur_time = new_time;
+
+  effect_active = false;
 }
 
 extern "C" void ec_draw()
 {
+  while (effect_active)	// Semaphore check
+    usleep(1000);
+  effect_active = true;
+
   glPushMatrix();
   glRotatef(90, 1.0, 0.0, 0.0);
   eye_candy.draw();
   glPopMatrix();
+  
+  effect_active = false;
 }
 
 extern "C" void ec_actor_delete(actor* _actor)
