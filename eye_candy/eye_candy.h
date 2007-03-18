@@ -87,6 +87,7 @@ __declspec(noinline) float invsqrt(float f);
  #define round(a) (a - floor(a) < 0.5f ? floor(a) : ceil(a))
  #define remainderf(a, b) (a - (float)round(a / b) * b)
  #define random rand
+ #define usleep(a) Sleep(a / 1000)
 #else	
 __attribute__ ((noinline)) float fastsqrt(float f);
 __attribute__ ((noinline)) float invsqrt(float f);

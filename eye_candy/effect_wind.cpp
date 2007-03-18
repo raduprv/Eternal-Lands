@@ -549,32 +549,35 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
   }
   
   // Eliminate overlap and insert nulls between extents that don't reach each other.
-  WindNeighbor* previous = &(*(neighbors.begin() + (neighbors.size() - 1)));
-  for (int i = 0; i < (int)neighbors.size(); i++)
+  if (neighbors.size())
   {
-    std::vector<WindNeighbor>::iterator iter = neighbors.begin() + i;
-    WindNeighbor* current = &(*iter);
-    angle_t end_angle = previous->end_angle;
-    if (end_angle - current->start_angle > PI)
-      end_angle -= 2 * PI;
-    if (end_angle > current->start_angle)
-    {	// Narrow down the angles.
-      angle_t average = (end_angle + current->start_angle) / 2;
-      if (average < 0)
-        average += 2 * PI;
-      previous->end_angle = average;
-      current->start_angle = average;
+    WindNeighbor* previous = &(*(neighbors.begin() + (neighbors.size() - 1)));
+    for (int i = 0; i < (int)neighbors.size(); i++)
+    {
+      std::vector<WindNeighbor>::iterator iter = neighbors.begin() + i;
+      WindNeighbor* current = &(*iter);
+      angle_t end_angle = previous->end_angle;
+      if (end_angle - current->start_angle > PI)
+        end_angle -= 2 * PI;
+      if (end_angle > current->start_angle)
+      {	// Narrow down the angles.
+        angle_t average = (end_angle + current->start_angle) / 2;
+        if (average < 0)
+          average += 2 * PI;
+        previous->end_angle = average;
+        current->start_angle = average;
+      }
+      else
+      {	// Insert a null
+        WindNeighbor n;
+        n.neighbor = NULL;
+        n.start_angle = previous->end_angle;
+        n.end_angle = current->start_angle;
+        neighbors.insert(iter, n);
+        i++;
+      }
+      previous = current;
     }
-    else
-    {	// Insert a null
-      WindNeighbor n;
-      n.neighbor = NULL;
-      n.start_angle = previous->end_angle;
-      n.end_angle = current->start_angle;
-      neighbors.insert(iter, n);
-      i++;
-    }
-    previous = current;
   }
 
   // Spawn leaves
