@@ -30,6 +30,8 @@
 #include <stdlib.h>
 #include <math.h>
 
+#include "dont_optimize.h"
+
 namespace ec
 {
 
@@ -79,18 +81,14 @@ int square(const int i);
 double cube(const double d);
 float cube(const float f);
 int cube(const int i);
+float fastsqrt(const float f);
 #ifdef WINDOWS
-__declspec(noinline) float fastsqrt(float f);
-__declspec(noinline) float invsqrt(float f);
  #define copysign _copysign
  #define fmax(a, b) ((a < b) ? b : a)
  #define round(a) (a - floor(a) < 0.5f ? floor(a) : ceil(a))
  #define remainderf(a, b) (a - (float)round(a / b) * b)
  #define random rand
  #define usleep(a) Sleep(a / 1000)
-#else	
-__attribute__ ((noinline)) float fastsqrt(float f);
-__attribute__ ((noinline)) float invsqrt(float f);
 #endif
 Uint64 get_time();
 

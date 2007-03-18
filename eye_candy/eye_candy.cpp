@@ -1344,7 +1344,7 @@ void EyeCandy::draw()
       glLightfv(light_id, GL_POSITION, light_pos);
       glLightfv(light_id, GL_DIFFUSE, light_color);
     }
-    for (int i = light_particles.size(); i < lights.size(); i++)
+    for (int i = light_particles.size(); i < (int)lights.size(); i++)
       glDisable(lights[i]);
   }
   else
@@ -1869,29 +1869,6 @@ int cube(const int i)
 float fastsqrt(float f)	// This could probably stand to be faster; use invsqrt wherever possible.
 {
   return 1.0 / invsqrt(f);
-}
-
-#ifdef WINDOWS
-__declspec(noinline) float invsqrt_workaround(int i)
-#else
-__attribute__ ((noinline)) float invsqrt_workaround(int i)
-#endif
-{
-  return *(float*)((void*)&i);
-}
-
-#ifdef WINDOWS
-__declspec(noinline) float invsqrt(float f)	// The famous Quake3 inverse square root function.  About 4x faster in my benchmarks!
-#else
-__attribute__ ((noinline)) float invsqrt(float f)	// The famous Quake3 inverse square root function.  About 4x faster in my benchmarks!
-#endif
-{
-  float half = 0.5f * f;
-  int i = *(int*)((void*)&f);
-  i = 0x5f3759df - (i >> 1);
-  f = invsqrt_workaround(i);
-  f = f * (1.5f - half * f * f);
-  return f;
 }
 
 Uint64 get_time()

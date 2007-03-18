@@ -517,8 +517,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 ///////////////////////////////////////////////////////////////////////////////
 // Special Effects Test Code #1/2 (Repeating effects)
 // Uncomment an effect to test it; delete section when FX are integrated.
-// NOTE: When actually calling functions for real, they should have their
-//       returned references saved, and freed when no longer needed.
 ///////////////////////////////////////////////////////////////////////////////
 //				ec_create_bag_pickup(49.0, 70.0, 0.0, 10);
 //				ec_create_bag_drop(49.0, 70.0, 0.0, 10);
@@ -617,8 +615,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 ///////////////////////////////////////////////////////////////////////////////
 // Special Effects Test Code #2/2 (Lasting effects)
 // Uncomment an effect to test it; delete section when FX are integrated.
-// NOTE: When actually calling functions for real, they should have their
-//       returned references saved, and freed when no longer needed.
 ///////////////////////////////////////////////////////////////////////////////
 				bounds = ec_create_bounds_list();
 				ec_add_polar_coords_bound(bounds, 0.0, 0.0, 8.0, 1.0);
