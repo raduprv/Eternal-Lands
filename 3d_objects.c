@@ -21,6 +21,13 @@ Uint32 highest_obj_3d= 0;
 int objects_list_placeholders = 0;
 object3d *objects_list[MAX_OBJ_3D];
 
+#ifdef EYE_CANDY
+ #include "eye_candy_wrapper.h"
+
+ec_obstructions fire_obstructions;
+ec_obstructions general_obstructions;
+#endif
+
 #ifndef	NEW_FRUSTUM
 struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
 struct near_3d_object * first_near_3d_object=NULL;
@@ -866,6 +873,65 @@ int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, floa
 			else break;
 		}
 	}
+	
+#ifdef EYE_CANDY
+/*
+	if (!strncmp(file_name), "tre", 3)	//Trees
+	{
+		if ((!strncmp(file_name + 6, "tree", 4)) && (atoi(file_name + 10) != 0))
+			ec_add_cylindrical_obstruction();
+		else if ((!strncmp(file_name + 6, "bush", 4)) && (atoi(file_name + 10) != 0))
+			ec_add_cylindrical_obstruction();
+		else if ((!strncmp(file_name + 6, "hedg", 4)) && (atoi(file_name + 11) != 0))
+			ec_add_cylindrical_obstruction();
+	}
+	else if (!strncmp(file_name), "rui", 3)	//Ruins
+	{
+		if (!strncmp(file_name + 6, "wall_tall", 9))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "wall_long", 9))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "wall_door", 9))	
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "wall_win", 8))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "ruinwalls", 9))
+			ec_add_cylindrical_obstruction();
+	}
+	else if (!strncmp(file_name), "roc", 3)	//Rocks
+	{
+		if (!strncmp(file_name + 6, "rock_big", 8))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "stalagmite", 10))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "mountain", 8))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "cliff", 5))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "rock_huge", 9))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "ice_rockbig", 11))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "ice_rockhuge", 12))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "snow_rockbig", 12))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "snow_rockhuge", 13))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "dragon", 6))
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 6, "ici", 3))	//Icicle
+			ec_add_cylindrical_obstruction();
+	}
+	else if (!strncmp(file_name + 6), "gro", 3)	//Ground_objs
+	{
+		if (!strncmp(file_name + 12, "shr", 3))	//Shrub
+			ec_add_cylindrical_obstruction();
+		else if (!strncmp(file_name + 12, "hays", 4))	//Haystack
+			ec_add_cylindrical_obstruction();
+	}
+*/
+#endif	// EYE_CANDY
 	
 #ifdef	NEW_FRUSTUM
 	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b, dynamic);

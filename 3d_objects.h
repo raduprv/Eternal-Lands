@@ -24,6 +24,11 @@ extern struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
 extern struct near_3d_object * first_near_3d_object;
 extern int regenerate_near_objects;
 
+#ifdef EYE_CANDY
+extern ec_obstructions fire_obstructions;
+extern ec_obstructions general_obstructions;
+#endif
+
 /*!
  * \ingroup 	display_3d
  * \brief 	Draws the 3d object pointed to by object_id

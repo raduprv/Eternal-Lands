@@ -41,7 +41,7 @@ bool BreathParticle::idle(const Uint64 delta_t)
   
   switch(type)
   {
-    case BreathEffect::FIRE:
+    case BreathEffect::FIRE:	// Fall through; these cases are all very similar in terms of behavior.
     case BreathEffect::ICE:
     case BreathEffect::POISON:
     case BreathEffect::MAGIC:
