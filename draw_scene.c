@@ -257,12 +257,12 @@ void move_camera ()
     y=my;
     z=mz;
 
-    camera_x_speed=(x-(-camera_x))/16.0;
-    camera_x_frames=16;
-    camera_y_speed=(y-(-camera_y))/16.0;
-    camera_y_frames=16;
-    camera_z_speed=(z-(-camera_z))/16.0;
-    camera_z_frames=16;
+    camera_x_speed=(x-(-camera_x))/1.0;
+    camera_x_frames=1;
+    camera_y_speed=(y-(-camera_y))/1.0;
+    camera_y_frames=1;
+    camera_z_speed=(z-(-camera_z))/1.0;
+    camera_z_frames=1;
 
 //    glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
     glRotatef(rx, 1.0f, 0.0f, 0.0f);
