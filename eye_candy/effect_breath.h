@@ -37,7 +37,7 @@ public:
     else
       LOD = desired_LOD;
     count_scalar = 3000 / LOD;
-    size_scalar = scale * fastsqrt(LOD) / sqrt(10);
+    size_scalar = scale * fastsqrt(LOD) / sqrt(10.0);
   };
   static Uint64 get_max_end_time() { return 5000000; };
   virtual Uint64 get_expire_time() { return 5000000 + born; };
