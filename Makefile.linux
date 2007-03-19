@@ -5,6 +5,7 @@ CC=gcc
 
 WARN = -Wall -W #-Werror
 OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DROTATE_PARTICLES
+#-DNEW_E3D_FORMAT
 #-DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
 GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
@@ -20,7 +21,7 @@ GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
 LIBS=$(shell sdl-config --libs) -lGL $(shell xml2-config --libs)
 
 OBJS=2d_objects.o 3d_objects.o	\
-	e3d_io.c elc_io.o md5.o \
+	e3d_io.o elc_io.o md5.o \
 	asc.o colors.o browser.o draw_scene.o	\
 	elconfig.o elwindows.o errors.o events.o font.o frustum.o	\
 	gl_init.o global.o gui.o gui_callbacks.o	\
