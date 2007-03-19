@@ -172,7 +172,9 @@ void change_poor_man(int *poor_man)
 #ifdef	TERRAIN
 		use_normal_mapping= 0;
 #endif
+#ifndef MAP_EDITOR
 		use_frame_buffer= 0;
+#endif
 		update_fbo_and_shadow_mapping();
 	}
 #ifdef	EYE_CANDY
@@ -799,6 +801,7 @@ void change_reflection(int *rf)
 	update_fbo_and_shadow_mapping();
 }
 
+#ifndef MAP_EDITOR
 void change_frame_buffer(int *fb)
 {
 	if (*fb)
@@ -818,6 +821,7 @@ void change_frame_buffer(int *fb)
 	}
 	update_fbo_and_shadow_mapping();
 }
+#endif
 
 void change_shadows(int *sh)
 {
@@ -1316,8 +1320,9 @@ void init_vars()
 	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
 #endif // def ELC
+#ifndef MAP_EDITOR
 	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", SPECIALVID);
-
+#endif
 	//Global vars...
 	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
 	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
