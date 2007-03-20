@@ -10,8 +10,6 @@
 namespace ec
 {
 
-extern MathCache_Lorange math_cache;
-
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
 BagParticle::BagParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size) : Particle(_effect, _mover, _pos, _velocity)

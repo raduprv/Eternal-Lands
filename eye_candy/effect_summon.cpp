@@ -10,8 +10,6 @@
 namespace ec
 {
 
-extern MathCache_Lorange math_cache;
-
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
 OuterSummonParticle::OuterSummonParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)

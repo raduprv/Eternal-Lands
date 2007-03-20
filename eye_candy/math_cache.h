@@ -5,6 +5,10 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
+#include <SDL.h>
+
+#include "types.h"
+
 namespace ec
 {
 
@@ -37,8 +41,8 @@ great, but good enough), the sin functions are quite precise.
 Still, with minimal performance gain, I think that implementing them was a
 waste.
 */
-
-class MathCache_Hirange
+/*
+class MathCache_Hirange	// Currently unused. 
 {
 public:
   MathCache_Hirange();
@@ -76,12 +80,12 @@ protected:
   float cos_map[10002];
   float cos_map2[10002];
 };
-
-class MathCache_Lorange		//Currently unused.
+*/
+class MathCache
 {
 public:
-  MathCache_Lorange();
-  ~MathCache_Lorange() {};
+  MathCache();
+  ~MathCache() {};
   
   float powf_05_rough(const float power) const;
   float powf_05_close(const float power) const;
@@ -90,12 +94,250 @@ public:
   float powf_0_1_close_rough(const float base, const float power) const;
   float powf_0_1_close_close(const float base, const float power) const;
 
+  static float invsqrt(float f)
+  {
+      union { int i; float f; } tmp;
+      float half = 0.5f * f;
+      tmp.f = f;
+      tmp.i = 0x5f3759df - (tmp.i >> 1);   
+      f = tmp.f;
+      f = f * (1.5f - half * f * f);       
+      return f;    
+  };
+
+  static int randint(const int upto)
+  {
+    return rand() % upto;
+  };
   
+  static Uint8 rand8()
+  {
+    return (Uint8)rand();
+  };
+  
+  static Uint16 rand16()
+  {
+#if RAND_MAX >= 0xFFFF
+    return (Uint16)rand();
+#elif RAND_MAX > 0xFF
+    return (((Uint16)rand()) << 8) | (Uint16)rand();
+#else
+    return (((Uint16)rand8()) << 8) | (Uint16)rand8();
+#endif
+  };
+  
+  static Uint32 rand32()
+  {
+#if RAND_MAX >= 0xFFFFFFFF
+    return (Uint32)rand();
+#elif RAND_MAX > 0xFFFF
+    return (((Uint32)rand()) << 16) | (Uint32)rand();
+#else
+    return (((Uint32)rand16()) << 16) | (Uint32)rand16();
+#endif
+  };
+  
+  static Uint64 rand64()
+  {
+#if RAND_MAX >= 0xFFFFFFFFFFFFFFFF
+    return (Uint64)rand();
+#elif RAND_MAX > 0xFFFFFFFF
+    return (((Uint64)rand()) << 32) | (Uint64)rand();
+#else
+    return (((Uint64)rand16()) << 32) | (Uint64)rand16();
+#endif
+  };
+  
+  static Uint8 rand7()
+  {
+    return (Uint8)rand();
+  };
+  
+  static Uint16 rand15()
+  {
+#if RAND_MAX >= 0x8FFF
+    return (Uint16)rand();
+#elif RAND_MAX > 0xFF
+    return (((Uint16)rand()) << 8) | (Uint16)rand();
+#else
+    return (((Uint16)rand8()) << 8) | (Uint16)rand8();
+#endif
+  };
+  
+  static Uint32 rand31()
+  {
+#if RAND_MAX >= 0x8FFFFFFF
+    return (Uint32)rand();
+#elif RAND_MAX > 0xFFFF
+    return (((Uint32)rand()) << 16) | (Uint32)rand();
+#else
+    return (((Uint32)rand16()) << 16) | (Uint32)rand16();
+#endif
+  };
+  
+  static Uint64 rand63()
+  {
+#if RAND_MAX >= 0x8FFFFFFFFFFFFFFF
+    return (Uint64)rand();
+#elif RAND_MAX > 0xFFFFFFFF
+    return (((Uint64)rand()) << 32) | (Uint64)rand();
+#else
+    return (((Uint64)rand16()) << 32) | (Uint64)rand16();
+#endif
+  };
+  
+  static double randdouble()
+  {
+    return (double)rand() / (double)RAND_MAX;
+  };
+  
+  static float randfloat()
+  {
+    return (float)rand() / (float)RAND_MAX;
+  };
+  
+  static double randdouble(const double scale)
+  {
+    return scale * randdouble();
+  };
+  
+  static float randfloat(const float scale)
+  {
+    return scale * randfloat(); 
+  };
+  
+  static coord_t randcoord(void)
+  {
+    if (sizeof(coord_t) == 4)	// Compiler should optimize this out.
+      return (coord_t)randfloat();
+    else
+      return (coord_t)randdouble();
+  };
+  
+  static coord_t randcoord(const coord_t scale)
+  {
+    return scale * randcoord();
+  };
+  
+  static color_t randcolor(void)
+  {
+    if (sizeof(color_t) == 4)
+      return (color_t)randfloat();
+    else
+      return (color_t)randdouble();
+  };
+  
+  static color_t randcolor(const color_t scale)
+  {
+    return scale * randcolor();
+  };
+  
+  static alpha_t randalpha(void)
+  {
+    if (sizeof(alpha_t) == 4)
+      return (alpha_t)randfloat();
+    else
+      return (alpha_t)randdouble();
+  };
+  
+  static alpha_t randalpha(const alpha_t scale)
+  {
+    return scale * randalpha();
+  };
+  
+  static energy_t randenergy(void)
+  {
+    if (sizeof(energy_t) == 4)
+      return (energy_t)randfloat();
+    else
+      return (energy_t)randdouble();
+  };
+  
+  static energy_t randenergy(const energy_t scale)
+  {
+    return scale * randenergy();
+  };
+  
+  static light_t randlight(void)
+  {
+    if (sizeof(light_t) == 4)
+      return (light_t)randfloat();
+    else
+      return (light_t)randdouble();
+  };
+  
+  static light_t randlight(const light_t scale)
+  {
+    return scale * randlight();
+  };
+  
+  static percent_t randpercent(void)
+  {
+    if (sizeof(percent_t) == 4)
+      return (percent_t)randfloat();
+    else
+      return (percent_t)randdouble();
+  };
+  
+  static percent_t randpercent(const percent_t scale)
+  {
+    return scale * randpercent();
+  };
+  
+  static angle_t randangle(void)
+  {
+    if (sizeof(angle_t) == 4)
+      return (angle_t)randfloat();
+    else
+      return (angle_t)randdouble();
+  };
+  
+  static angle_t randangle(const angle_t scale)
+  {
+    return scale * randangle();
+  };
+  
+  static double square(const double d)
+  {
+    return d * d;
+  };
+  
+  static float square(const float f)
+  {
+    return f * f;
+  };
+  
+  static int square(const int i)
+  {
+    return i * i;
+  };
+  
+  static double cube(const double d)
+  {
+    return d * d * d;
+  };
+  
+  static float cube(const float f)
+  {
+    return f * f * f;
+  };
+  
+  static int cube(const int i)
+  {
+    return i * i * i;
+  };
+  
+  static float fastsqrt(float f)	// This could probably stand to be faster; use invsqrt wherever possible.
+  {
+    return 1.0 / invsqrt(f);
+  };
+
 protected:
   static int get_lower_index(const float power);
   static void get_lower_index_and_percent(const float power, int& index, float& percent);
 
   float powf_map[10001][65];
+
 };
 
 ////////////////////////////////////////////////////////////////////////////////

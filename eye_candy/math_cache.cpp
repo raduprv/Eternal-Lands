@@ -15,6 +15,7 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
+/*
 MathCache_Hirange::MathCache_Hirange()
 {
   // powf
@@ -1477,8 +1478,9 @@ float MathCache_Hirange::cos_close(const float angle) const
   const float percent = remainderf(angle * 10000 / (2 * PI), 1) + (angle < 0 ? 1 : 0);
   return (cos_map[index] * (1.0 - percent)) + (cos_map[index + 1] * percent);
 }
+*/
 
-MathCache_Lorange::MathCache_Lorange()
+MathCache::MathCache()
 {
   for (int i = 1; i < 10001; i++)
   {
@@ -1501,7 +1503,7 @@ MathCache_Lorange::MathCache_Lorange()
 
 // Sorry about the formatting on this one, but it's such a massive unrolled
 // block that the brackets would make it unwieldy.
-int MathCache_Lorange::get_lower_index(const float power)
+int MathCache::get_lower_index(const float power)
 {
   if (power < 1.0)
     if (power < 1.0 / 65536.0)
@@ -1695,7 +1697,7 @@ int MathCache_Lorange::get_lower_index(const float power)
               return 32;
 }
 
-void MathCache_Lorange::get_lower_index_and_percent(const float power, int& index, float& percent)
+void MathCache::get_lower_index_and_percent(const float power, int& index, float& percent)
 {
   if (power < 1.0)
     if (power < 1.0 / 65536.0)
@@ -2147,13 +2149,13 @@ void MathCache_Lorange::get_lower_index_and_percent(const float power, int& inde
             }
 }
 
-float MathCache_Lorange::powf_05_rough(const float power) const
+float MathCache::powf_05_rough(const float power) const
 {
   const int index = get_lower_index(power);
   return powf_map[5000][index];
 }
 
-float MathCache_Lorange::powf_05_close(const float power) const
+float MathCache::powf_05_close(const float power) const
 {
   float percent;
   int index;
@@ -2161,14 +2163,14 @@ float MathCache_Lorange::powf_05_close(const float power) const
   return (powf_map[5000][index] * (1.0 - percent)) + (powf_map[5000][index + 1] * percent);
 }
 
-float MathCache_Lorange::powf_0_1_rough_rough(const float base, const float power) const
+float MathCache::powf_0_1_rough_rough(const float base, const float power) const
 {
   const int index1 = (int)(base * 10000);
   const int index2 = get_lower_index(power);
   return powf_map[index1][index2];
 }
 
-float MathCache_Lorange::powf_0_1_rough_close(const float base, const float power) const
+float MathCache::powf_0_1_rough_close(const float base, const float power) const
 {
   const int index1 = (int)(base * 10000);
   float percent2;
@@ -2177,7 +2179,7 @@ float MathCache_Lorange::powf_0_1_rough_close(const float base, const float powe
   return (powf_map[index1][index2] * (1.0 - percent2)) + (powf_map[index1][index2 + 1] * percent2);
 }
 
-float MathCache_Lorange::powf_0_1_close_rough(const float base, const float power) const
+float MathCache::powf_0_1_close_rough(const float base, const float power) const
 {
   const int index1 = (int)(base * 10000);
   const float percent1 = (base - (float)index1 / 10000) * 10000;
@@ -2185,7 +2187,7 @@ float MathCache_Lorange::powf_0_1_close_rough(const float base, const float powe
   return (powf_map[index1][index2] * (1.0 - percent1)) + (powf_map[index1 + 1][index2] * percent1);
 }
 
-float MathCache_Lorange::powf_0_1_close_close(const float base, const float power) const
+float MathCache::powf_0_1_close_close(const float base, const float power) const
 {
   const int index1 = (int)(base * 10000);
   const float percent1 = (base - (float)index1 / 10000) * 10000;

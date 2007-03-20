@@ -30,58 +30,52 @@
 #include <stdlib.h>
 #include <math.h>
 
-#include "dont_optimize.h"
+#include "types.h"
+#include "math_cache.h"
 
 namespace ec
 {
 
-// T Y P E D E F S ////////////////////////////////////////////////////////////
-
-typedef float coord_t;
-typedef GLfloat color_t;
-typedef float alpha_t;
-typedef float energy_t;
-typedef float light_t;
-typedef float percent_t;
-typedef float angle_t;
-typedef float interval_t;
+extern MathCache math_cache;
 
 // P R O T O T Y P E S ////////////////////////////////////////////////////////
 
-double randdouble(void);
-float randfloat(void);
-double randdouble(const double scale);
-float randfloat(const float scale);
-int randint(const int upto);
-Uint8 rand8();	//Functions to ensure a minimum entropy range for the rand function.
-Uint16 rand16();
-Uint32 rand32();
-Uint64 rand64();
-Uint8 rand7();
-Uint16 rand15();
-Uint32 rand31();
-Uint64 rand63();
-coord_t randcoord(void);
-coord_t randcoord(const coord_t scale);
-color_t randcolor(void);
-color_t randcolor(const color_t scale);
-alpha_t randalpha(void);
-alpha_t randalpha(const alpha_t scale);
-energy_t randenergy(void);
-energy_t randenergy(const energy_t scale);
-light_t randlight(void);
-light_t randlight(const light_t scale);
-percent_t randpercent(void);
-percent_t randpercent(const percent_t scale);
-angle_t randangle(void);
-angle_t randangle(const angle_t scale);
-double square(const double d);
-float square(const float f);
-int square(const int i);
-double cube(const double d);
-float cube(const float f);
-int cube(const int i);
-float fastsqrt(const float f);
+#define randdouble MathCache::randdouble	// Aliases to static functions to make things easier to type.
+#define randfloat MathCache::randfloat
+#define randdouble MathCache::randdouble
+#define randfloat MathCache::randfloat
+#define randint MathCache::randint
+#define rand8 Uint8 rand8();	//Functions to ensure a minimum entropy range for the rand function.
+#define rand16 MathCache::rand16
+#define rand32 MathCache::rand32
+#define rand64 MathCache::rand64
+#define rand7 MathCache::rand7
+#define rand15 MathCache::rand15
+#define rand31 MathCache::rand31
+#define rand63 MathCache::rand63
+#define randcoord MathCache::randcoord
+#define randcoord MathCache::randcoord
+#define randcolor MathCache::randcolor
+#define randcolor MathCache::randcolor
+#define randalpha MathCache::randalpha
+#define randalpha MathCache::randalpha
+#define randenergy MathCache::randenergy
+#define randenergy MathCache::randenergy
+#define randlight MathCache::randlight
+#define randlight MathCache::randlight
+#define randpercent MathCache::randpercent
+#define randpercent MathCache::randpercent
+#define randangle MathCache::randangle
+#define randangle MathCache::randangle
+#define square MathCache::square
+#define square MathCache::square
+#define square MathCache::square
+#define cube MathCache::cube
+#define cube MathCache::cube
+#define cube MathCache::cube
+#define invsqrt MathCache::invsqrt
+#define fastsqrt MathCache::fastsqrt
+
 #ifdef WINDOWS
  #define copysign _copysign
  #define fmax(a, b) ((a < b) ? b : a)
@@ -90,6 +84,7 @@ float fastsqrt(const float f);
  #define random rand
  #define usleep(a) Sleep(a / 1000)
 #endif
+
 Uint64 get_time();
 
 // M E M B E R S //////////////////////////////////////////////////////////////

@@ -10,8 +10,6 @@
 namespace ec
 {
 
-extern MathCache_Lorange math_cache;
-
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
 CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)

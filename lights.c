@@ -48,6 +48,7 @@ GLfloat light_3_position[4];
 GLfloat light_3_diffuse[4];
 GLfloat light_3_dist;
 
+ #ifndef EYE_CANDY
 GLfloat light_4_position[4];
 GLfloat light_4_diffuse[4];
 GLfloat light_4_dist;
@@ -59,7 +60,8 @@ GLfloat light_5_dist;
 GLfloat light_6_position[4];
 GLfloat light_6_diffuse[4];
 GLfloat light_6_dist;
-#endif
+ #endif	// EYE_CANDY
+#endif	// NEW_FRUSTRUM
 
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
@@ -249,7 +251,11 @@ void draw_lights()
 		vec4[2] = lights_list[l]->b;
 		vec4[3] = 1.0f;
 		glLightfv(GL_LIGHT0+j, GL_DIFFUSE, vec4);
+#ifdef EYE_CANDY
 		if (j >= 6) break;
+#else
+		if (j >= 4) break;
+#endif
 		else j++;
 	}
 
@@ -362,13 +368,13 @@ void update_scene_lights()
 
 	light_3_diffuse[0]=0;light_3_diffuse[1]=0;light_3_diffuse[2]=0;light_3_diffuse[3]=1.0;
 
+#ifndef EYE_CANDY
 	light_4_diffuse[0]=0;light_4_diffuse[1]=0;light_4_diffuse[2]=0;light_4_diffuse[3]=1.0;
 
-/*
 	light_5_diffuse[0]=0;light_5_diffuse[1]=0;light_5_diffuse[2]=0;light_5_diffuse[3]=1.0;
 
 	light_6_diffuse[0]=0;light_6_diffuse[1]=0;light_6_diffuse[2]=0;light_6_diffuse[3]=1.0;
-*/
+#endif
 	for(i=0;i<MAX_LIGHTS;i++)
 		{
 			if(lights_list[i])
@@ -402,12 +408,12 @@ void update_scene_lights()
 										max_dist=light_3_dist;
 										max_light=3;
 									}
+#ifndef EYE_CANDY
 								if(light_4_dist>max_dist)
 									{
 										max_dist=light_4_dist;
 										max_light=4;
 									}
-/*
 								if(light_5_dist>max_dist)
 									{
 										max_dist=light_5_dist;
@@ -418,9 +424,9 @@ void update_scene_lights()
 										max_dist=light_6_dist;
 										max_light=6;
 									}
-*/
+#endif	// !EYE_CANDY
 							}
-							// we have all the lights and we are farther, next light
+							// we have all the lights and we are farter, next light
 							if(all_full && dist > max_dist)	continue;
 							
 							if((light_0_dist>=50.0*50.0) || (all_full && (max_light==0)))
@@ -515,6 +521,7 @@ void update_scene_lights()
 										}
 									continue;
 								}
+#ifndef EYE_CANDY
 							if((light_4_dist>=50.0*50.0) || (all_full && (max_light==4)))
 								{
 									//see if we should recompute the max distance
@@ -538,7 +545,7 @@ void update_scene_lights()
 										}
 									continue;
 								}
-/*
+
 							if((light_5_dist>=50.0*50.0) || (all_full && (max_light==5)))
 								{
 									//see if we should recompute the max distance
@@ -586,7 +593,7 @@ void update_scene_lights()
 									all_full=1;
 									continue;
 								}
-*/
+#endif // !EYE_CANDY
 
 						}
 				}

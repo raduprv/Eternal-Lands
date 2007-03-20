@@ -198,7 +198,11 @@ void draw_tile_map()
 
 			num = -1;
 			
+#ifdef EYE_CANDY
+			for (i = 0; i < 4; i++)
+#else
 			for (i = 0; i < 7; i++)
+#endif
 				if (glIsEnabled(GL_LIGHT0+i)) num++;
 			
 			if (etr == 0)

@@ -10,8 +10,6 @@
 namespace ec
 {
 
-extern MathCache_Lorange math_cache;
-
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
 FountainParticle::FountainParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _base_height, const bool _backlight, const float _sqrt_scale, const coord_t _max_size, const coord_t size_scalar) : Particle(_effect, _mover, _pos, _velocity)
