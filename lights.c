@@ -251,7 +251,7 @@ void draw_lights()
 		vec4[2] = lights_list[l]->b;
 		vec4[3] = 1.0f;
 		glLightfv(GL_LIGHT0+j, GL_DIFFUSE, vec4);
-#ifdef EYE_CANDY
+#ifndef EYE_CANDY
 		if (j >= 6) break;
 #else
 		if (j >= 4) break;
