@@ -126,8 +126,8 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_add_light(GLenum light_id);
   void ec_set_draw_method();
   void ec_set_draw_detail();
-  void ec_idle();
-  void ec_draw();
+  void ec_idle(); //!< \callergraph
+  void ec_draw(); //!< \callergraph
   void ec_actor_delete(actor* _actor);
   void ec_recall_effect(ec_reference ref);
   void ec_delete_all_effects();

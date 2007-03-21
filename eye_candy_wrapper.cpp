@@ -14,7 +14,6 @@ std::vector<ec_internal_reference*> references;
 
 const float MAX_EFFECT_DISTANCE = 30.0;
 const float WALK_RATE = 1.0;
-//volatile int effect_active = 0;
 
 ec_internal_obstructions null_obstructions;
 
@@ -59,11 +58,6 @@ void ec_set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone)
 
 extern "C" void ec_idle()
 {
-//  std::cout << "Idle: " << eye_candy.particles.size() << std::endl;
-//  while (effect_active)	// Semaphore check.
-//    usleep(1000);
-//  effect_active = true;
-
 //  GLfloat rot_matrix[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, rot_matrix);
 //  const float x = rot_matrix[12];
@@ -111,21 +105,14 @@ extern "C" void ec_idle()
   eye_candy.idle();
   ec_cur_time = new_time;
 
-//  effect_active = false;
 }
 
 extern "C" void ec_draw()
 {
-//  while (effect_active)	// Semaphore check
-//    usleep(1000);
-//  effect_active = true;
-
   glPushMatrix();
   glRotatef(90, 1.0, 0.0, 0.0);
   eye_candy.draw();
   glPopMatrix();
-  
-//  effect_active = false;
 }
 
 extern "C" void ec_actor_delete(actor* _actor)

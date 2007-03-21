@@ -80,6 +80,7 @@ WARN_LOGFILE           =
 #---------------------------------------------------------------------------
 INPUT                  = ../
 FILE_PATTERNS          = *.c \
+                         *.cpp \
                          *.h \
                          *.doxy
 RECURSIVE              = YES
@@ -190,7 +191,9 @@ INCLUDE_FILE_PATTERNS  =
 PREDEFINED             = ELC \
                          DOXYGEN_SKIP_THIS \
                          DEBUG \
-                         EXTRA_DEBUG
+                         EXTRA_DEBUG \
+                         PNG_SCREENSHOT NEW_TEX OPTIONS_I18N ATI_9200_FIX NEW_ACTOR_ANIMATION AUTO_UPDATE COUNTERS FONTS_FIX COMMENT_BUFFER AFK_FIX CUSTOM_LOOK CUSTOM_UPDATE SIMPLE_LOD USE_ACTOR_DEFAULTS NOTEPAD USE_INLINE NEW_WEATHER ZLIB SFX \
+                         EYE_CANDY
 EXPAND_AS_DEFINED      = 
 SKIP_FUNCTION_MACROS   = YES
 #---------------------------------------------------------------------------
