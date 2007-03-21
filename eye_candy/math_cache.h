@@ -5,6 +5,10 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
+#ifdef __SSE__
+ #include <xmmintrin.h>
+#endif
+
 #include <SDL.h>
 
 #include "types.h"
@@ -96,13 +100,19 @@ public:
 
   static float invsqrt(float f)
   {
-      union { int i; float f; } tmp;
-      float half = 0.5f * f;
-      tmp.f = f;
-      tmp.i = 0x5f3759df - (tmp.i >> 1);   
-      f = tmp.f;
-      f = f * (1.5f - half * f * f);       
-      return f;    
+#ifdef __SSE__
+    union { __m128 m128; struct { float x, y, z, w; }; } f2;
+    f2.m128 = _mm_rsqrt_ss(_mm_set_ss(f));
+    return f2.x;
+#else
+    union { int i; float f; } tmp;
+    float half = 0.5f * f;
+    tmp.f = f;
+    tmp.i = 0x5f3759df - (tmp.i >> 1);   
+    f = tmp.f;
+    f = f * (1.5f - half * f * f);       
+    return f;    
+#endif
   };
 
   static int randint(const int upto)
@@ -329,7 +339,7 @@ public:
   
   static float fastsqrt(float f)	// This could probably stand to be faster; use invsqrt wherever possible.
   {
-    return 1.0 / invsqrt(f);
+    return f * invsqrt(f);
   };
 
 protected:

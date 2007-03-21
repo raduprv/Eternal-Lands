@@ -31,7 +31,6 @@ public:
 
   ParticleSpawner* spawner;
   ParticleMover* mover;
-  Vec3* pos;
   Vec3 effect_center;
   OngoingType type;
   float strength;

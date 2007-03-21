@@ -96,7 +96,6 @@ public:
   IFSParticleSpawner* outer_spawner;
   SmokeMover* smoke_mover;
   GravityMover* gravity_mover;
-  Vec3* pos;
   Vec3 gravity_center;
   coord_t outer_size;
   coord_t outer_radius;

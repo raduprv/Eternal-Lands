@@ -168,8 +168,10 @@ bool FountainEffect::idle(const Uint64 usec)
   {
     const Vec3 coords = spawner->get_new_coords() + *pos + Vec3(0.0, 0.1 * sqrt_scale, 0.0);
     Vec3 velocity;
-    velocity.randomize(0.1 * sqrt_scale);
-    velocity += Vec3(0.0, 1.0 * scale, 0.0);
+    velocity.randomize(0.2 * sqrt_scale);
+    velocity.y = 0.0;
+    velocity.normalize((0.15 + randfloat(0.1)) * sqrt_scale);
+    velocity += Vec3(0.0, 1.2 * scale, 0.0);
     Particle* p = new FountainParticle(this, mover, coords, velocity, base_height, backlight, sqrt_scale, max_size, size_scalar);
     if (!base->push_back_particle(p))
     {

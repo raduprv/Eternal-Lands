@@ -625,13 +625,74 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, un
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
 #endif
 {
+#ifdef EYE_CANDY
+  if (!strncmp("fou", file_name + 12, 3))
+    ec_create_fountain(x_pos, y_pos, z_pos + 0.15, (z_pos >= 0.8 ? z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
+  else if (!strncmp("smo", file_name + 12, 3))
+  {
+    if (file_name[17] == '1')
+      ec_create_smoke(x_pos, y_pos, z_pos, 0.6, (poor_man ? 6 : 10));
+    else if (file_name[17] == '2')
+      ec_create_smoke(x_pos, y_pos, z_pos, 1.0, (poor_man ? 6 : 10));
+    else if (file_name[17] == '3')
+      ec_create_smoke(x_pos, y_pos, z_pos, 1.6, (poor_man ? 6 : 10));
+    else if (file_name[17] == '_')
+      ec_create_smoke(x_pos, y_pos, z_pos, 2.3, (poor_man ? 6 : 10));
+    else
+      ec_create_smoke(x_pos, y_pos, z_pos, 1.0, (poor_man ? 6 : 10));
+  }
+  else if (!strncmp("tel", file_name + 12, 3))
+  {
+    if (file_name[21] == 'i')
+      ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
+    else if (file_name[21] == 'o')
+      ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
+    else
+      ec_create_teleporter(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
+  }
+  else if (!strncmp("fir", file_name + 12, 3))
+  {
+    if (!strncmp("big", file_name + 17, 3))
+      ec_create_campfire(x_pos, y_pos, z_pos, NULL, (poor_man ? 6 : 10), 2.0);
+    else if (!strncmp("for", file_name + 17, 3))
+      ec_create_campfire(x_pos, y_pos - 0.2, z_pos, NULL, (poor_man ? 6 : 10), 3.0);
+    else if (!strncmp("min", file_name + 17, 3))
+      ec_create_campfire(x_pos, y_pos, z_pos, NULL, (poor_man ? 6 : 10), 0.4);
+    else if (!strncmp("sma", file_name + 17, 3))
+      ec_create_campfire(x_pos, y_pos, z_pos, NULL, (poor_man ? 6 : 10), 0.6);
+    else if (!strncmp("tor", file_name + 17, 3))
+      ec_create_lamp(x_pos, y_pos, z_pos + 0.06, 1.2, (poor_man ? 6 : 10));
+    else
+    {
+ #ifdef SFX
 	particle_sys_def *def = load_particle_def(file_name);
 	if (!def) return -1;
 
-#ifdef	NEW_FRUSTUM
+  #ifdef	NEW_FRUSTUM
 	return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
-#else
+  #else
 	return create_particle_sys (def, x_pos, y_pos, z_pos);
+  #endif
+ #endif
+    }
+  }
+  else if (!strncmp("can", file_name + 12, 3))
+    ec_create_lamp(x_pos, y_pos, z_pos + 0.4, 0.8, (poor_man ? 6 : 10));
+  else
+  {
+#endif
+#ifdef SFX
+	particle_sys_def *def = load_particle_def(file_name);
+	if (!def) return -1;
+
+ #ifdef	NEW_FRUSTUM
+	return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
+ #else
+	return create_particle_sys (def, x_pos, y_pos, z_pos);
+ #endif
+#endif
+#ifdef EYE_CANDY
+  }
 #endif
 }
 

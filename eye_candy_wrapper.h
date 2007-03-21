@@ -177,7 +177,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_impact_magic_immunity(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_impact_poison(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_impact_blood(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
-  ec_reference ec_create_lamp(float x, float y, float z, int LOD);
+  ec_reference ec_create_lamp(float x, float y, float z, float scale, int LOD);
   ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, int LOD, float scale);
   ec_reference ec_create_ongoing_shield(float x, float y, float z, int LOD, float scale);
   ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, int LOD, float scale);

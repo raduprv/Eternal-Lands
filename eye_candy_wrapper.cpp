@@ -12,16 +12,16 @@ ec::EyeCandy eye_candy;
 Uint64 ec_cur_time;
 std::vector<ec_internal_reference*> references;
 
-const float MAX_EFFECT_DISTANCE = 16.0;
+const float MAX_EFFECT_DISTANCE = 30.0;
 const float WALK_RATE = 1.0;
-volatile int effect_active = 0;
+//volatile int effect_active = 0;
 
 ec_internal_obstructions null_obstructions;
 
 extern "C" void ec_init()
 {
   eye_candy.load_textures("./textures/eye_candy/");
-  ec_cur_time = ec::get_time();
+  ec_cur_time = 0;
   ec_set_draw_method();
 }
 
@@ -59,9 +59,10 @@ void ec_set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone)
 
 extern "C" void ec_idle()
 {
-  while (effect_active)	// Semaphore check
-    usleep(1000);
-  effect_active = true;
+//  std::cout << "Idle: " << eye_candy.particles.size() << std::endl;
+//  while (effect_active)	// Semaphore check.
+//    usleep(1000);
+//  effect_active = true;
 
 //  GLfloat rot_matrix[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, rot_matrix);
@@ -73,9 +74,9 @@ extern "C" void ec_idle()
   const float c_rx = cos(rx * ec::PI / 180);
   const float s_rz = sin(rz * ec::PI / 180);
   const float c_rz = cos(rz * ec::PI / 180);
-  float new_camera_x = -zoom_level*camera_distance * s_rx * s_rz + camera_x;
-  float new_camera_y = zoom_level*camera_distance * s_rx * c_rz + camera_y;
-  float new_camera_z = -zoom_level*camera_distance * c_rx + camera_z;
+  float new_camera_x = zoom_level*camera_distance * s_rx * s_rz + camera_x;
+  float new_camera_y = -zoom_level*camera_distance * s_rx * c_rz + camera_y;
+  float new_camera_z = zoom_level*camera_distance * c_rx + camera_z;
   eye_candy.set_camera(ec::Vec3(-new_camera_x, -new_camera_z, new_camera_y));
   
   eye_candy.set_dimensions(window_width, window_height, zoom_level);
@@ -95,30 +96,36 @@ extern "C" void ec_idle()
     if ((*iter)->target)
       ec_set_vec3_actor_bone((*iter)->position2, (*iter)->target, 25);
     for (int j = 0; j < (int)(*iter)->target_actors.size(); j++)
-      ec_set_vec3_actor_bone((*iter)->targets[j], (*iter)->target_actors[j], 25);
+    {
+      if ((*iter)->target_actors[j])
+        ec_set_vec3_actor_bone((*iter)->targets[j], (*iter)->target_actors[j], 25);
+    }
     i++;
   }
-  eye_candy.time_diff = new_time - ec_cur_time;
+  if (ec_cur_time == 0)
+    eye_candy.time_diff = 100000;
+  else
+    eye_candy.time_diff = new_time - ec_cur_time;
   eye_candy.framerate = 1000000.0 / (eye_candy.time_diff + 1);
 //  eye_candy.framerate = fps_average;
   eye_candy.idle();
   ec_cur_time = new_time;
 
-  effect_active = false;
+//  effect_active = false;
 }
 
 extern "C" void ec_draw()
 {
-  while (effect_active)	// Semaphore check
-    usleep(1000);
-  effect_active = true;
+//  while (effect_active)	// Semaphore check
+//    usleep(1000);
+//  effect_active = true;
 
   glPushMatrix();
   glRotatef(90, 1.0, 0.0, 0.0);
   eye_candy.draw();
   glPopMatrix();
   
-  effect_active = false;
+//  effect_active = false;
 }
 
 extern "C" void ec_actor_delete(actor* _actor)
@@ -126,11 +133,18 @@ extern "C" void ec_actor_delete(actor* _actor)
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
+    if ((*iter)->dead)
+    {
+      delete *iter;
+      references.erase(iter);
+      continue;
+    }
+
     if (((*iter)->caster == _actor) || ((*iter)->target == _actor))
     {
       (*iter)->effect->recall = true;
-      delete *iter;
-      references.erase(iter);
+      (*iter)->caster = NULL;
+      (*iter)->target = NULL;
       continue;
     }
     for (int j = 0; j < (int)(*iter)->target_actors.size(); )
@@ -138,7 +152,7 @@ extern "C" void ec_actor_delete(actor* _actor)
       std::vector<actor*>::iterator iter2 = (*iter)->target_actors.begin() + j;
       if (*iter2 == _actor)
       {
-        (*iter)->target_actors.erase(iter2);
+        (*iter2) = NULL;
         continue;
       }
       j++;
@@ -155,12 +169,18 @@ extern "C" void ec_recall_effect(const ec_reference ref)
 
 extern "C" void ec_delete_all_effects()
 {
-  while (references.size())
+  for (int i = 0; i < (int)references.size(); )
   {
-    std::vector<ec_internal_reference*>::iterator iter = references.begin();
+    std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
+    if ((*iter)->dead)
+    {
+      delete *iter;
+      references.erase(iter);
+      continue;
+    }
+
     (*iter)->effect->recall = true;
-    delete *iter;
-    references.erase(iter);
+    i++;
   }
 }
 
@@ -169,11 +189,16 @@ extern "C" void ec_delete_effect_loc(float x, float y)
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
+    if ((*iter)->dead)
+    {
+      delete *iter;
+      references.erase(iter);
+      continue;
+    }
+
     if (((*iter)->position.x == x) && ((*iter)->position.z == -y))
     {
       (*iter)->effect->recall = true;
-      delete *iter;
-      references.erase(iter);
       continue;
     }
     i++;
@@ -185,11 +210,16 @@ extern "C" void ec_delete_effect_loc_type(float x, float y, ec_EffectEnum type)
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
+    if ((*iter)->dead)
+    {
+      delete *iter;
+      references.erase(iter);
+      continue;
+    }
+
     if (((*iter)->position.x == x) && ((*iter)->position.z == -y) && (type == (ec_EffectEnum)(*iter)->effect->get_type()))
     {
       (*iter)->effect->recall = true;
-      delete *iter;
-      references.erase(iter);
       continue;
     }
     i++;
@@ -201,11 +231,16 @@ extern "C" void ec_delete_effect_type(ec_EffectEnum type)
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
+    if ((*iter)->dead)
+    {
+      delete *iter;
+      references.erase(iter);
+      continue;
+    }
+
     if (type == (ec_EffectEnum)(*iter)->effect->get_type())
     {
       (*iter)->effect->recall = true;
-      delete *iter;
-      references.erase(iter);
       continue;
     }
     i++;
@@ -215,7 +250,6 @@ extern "C" void ec_delete_effect_type(ec_EffectEnum type)
 extern "C" void ec_delete_reference(ec_reference ref)
 {
   ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
-  cast_reference->effect->recall = true;
   delete cast_reference;
 }
 
@@ -500,7 +534,7 @@ extern "C" ec_reference ec_create_fountain(float x, float y, float z, float base
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::FountainEffect(&eye_candy, &ret->dead, &ret->position, base_height, backlit, scale, LOD);
+  ret->effect = new ec::FountainEffect(&eye_candy, &ret->dead, &ret->position, backlit, base_height, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -652,11 +686,11 @@ extern "C" ec_reference ec_create_impact_blood(float x, float y, float z, float 
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_lamp(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_lamp(float x, float y, float z, float scale, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::LampEffect(&eye_candy, &ret->dead, &ret->position, LOD);
+  ret->effect = new ec::LampEffect(&eye_candy, &ret->dead, &ret->position, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -883,8 +917,6 @@ extern "C" ec_reference ec_create_alert2(actor* caster, int LOD)
 
 extern "C" ec_reference ec_create_smoke(float x, float y, float z, float scale, int LOD)
 {
-  if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
-    return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
   ret->effect = new ec::SmokeEffect(&eye_candy, &ret->dead, &ret->position, scale, LOD);

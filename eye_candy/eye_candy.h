@@ -93,7 +93,7 @@ const int EC_DEBUG = 1;
 const float PI =3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
-const coord_t MAX_DRAW_DISTANCE_SQUARED = 250;
+const coord_t MAX_DRAW_DISTANCE_SQUARED = 700;
 
 // E N U M S //////////////////////////////////////////////////////////////////
 
@@ -967,7 +967,7 @@ public:
     LOD = desired_LOD;
     active = true;
   };
-  virtual ~Effect() {};
+  virtual ~Effect() { *dead = true; };
   
   void register_particle(Particle* p) { particles[p] = true; };
   void unregister_particle(Particle* p) { particles.erase(particles.find(p)); };

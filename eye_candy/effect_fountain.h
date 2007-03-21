@@ -52,7 +52,6 @@ public:
   GradientMover* mover;
   ParticleMover* basic_mover;
   ParticleSpawner* spawner;
-  Vec3* pos;
   int big_particles;
   interval_t count;
   coord_t base_height;

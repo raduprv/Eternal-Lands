@@ -710,7 +710,7 @@ Vec3 PolarCoordsBoundingMover::get_force_gradient(const Vec3& pos) const
 
 Vec3 SimpleGravityMover::get_force_gradient(const Vec3& pos) const
 {
-  return Vec3(0.0, -0.98, 0.0);
+  return Vec3(0.0, -1.6, 0.0);
 }
 
 Vec3 GradientMover::get_obstruction_gradient(const Vec3& pos) const
@@ -1398,7 +1398,6 @@ void EyeCandy::idle()
     if (!ret)
     {
       e->recall = true;
-      *(e->dead) = true;
       effects.erase(iter);
       delete e;
     }
