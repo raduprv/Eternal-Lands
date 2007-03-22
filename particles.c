@@ -633,11 +633,11 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
     if (file_name[17] == '1')
       ec_create_smoke(x_pos, y_pos, z_pos, 0.6, (poor_man ? 6 : 10));
     else if (file_name[17] == '2')
-      ec_create_smoke(x_pos, y_pos, z_pos, 1.0, (poor_man ? 6 : 10));
+      ec_create_smoke(x_pos, y_pos, z_pos, 0.3, (poor_man ? 6 : 10));
     else if (file_name[17] == '3')
-      ec_create_smoke(x_pos, y_pos, z_pos, 1.6, (poor_man ? 6 : 10));
+      ec_create_smoke(x_pos, y_pos, z_pos, 1.1, (poor_man ? 6 : 10));
     else if (file_name[17] == '_')
-      ec_create_smoke(x_pos, y_pos, z_pos, 2.3, (poor_man ? 6 : 10));
+      ec_create_smoke(x_pos, y_pos, z_pos, 1.8, (poor_man ? 6 : 10));
     else
       ec_create_smoke(x_pos, y_pos, z_pos, 1.0, (poor_man ? 6 : 10));
   }

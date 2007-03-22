@@ -51,9 +51,9 @@ void ec_set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone)
 
   CalSkeleton_GetBonePoints(CalModel_GetSkeleton(_actor->calmodel), &points[0][0]);
 
-  position.x = points[bone][0];
-  position.y = points[bone][1];
-  position.z = points[bone][2];
+  position.x = points[bone][0] + _actor->x_pos + 0.25;
+  position.y = points[bone][1] + _actor->z_pos;
+  position.z = points[bone][2] - (_actor->y_pos + 0.25);
 }
 
 extern "C" void ec_idle()
@@ -269,28 +269,20 @@ extern "C" int ec_delete_obstruction(ec_obstructions obstructions, int index)
   return true;
 }
 
-extern "C" void ec_add_spherical_obstruction(ec_obstructions obstructions, float x, float y, float z, float max_distance, float force)
+extern "C" void ec_add_box_obstruction(ec_obstructions obstructions, object3d* obj3d, e3d_object *e3dobj, float max_distance, float force)
 {
+/*
   ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
-  cast_obstructions->positions.push_back(ec::Vec3(x, z, -y));
-  cast_obstructions->obstructions.push_back(new ec::SphereObstruction(&(*(cast_obstructions->positions.rbegin())), max_distance, force));
-}
-
-extern "C" void ec_add_simple_cylindrical_obstruction(ec_obstructions obstructions, float x, float y, float max_distance, float force)
-{
-  ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
-  cast_obstructions->positions.push_back(ec::Vec3(x, 0, -y));
-  cast_obstructions->obstructions.push_back(new ec::SimpleCylinderObstruction(&(*(cast_obstructions->positions.rbegin())), max_distance, force));
-}
-
-extern "C" void ec_add_cylindrical_obstruction(ec_obstructions obstructions, float x1, float y1, float z1, float x2, float y2, float z2, float max_distance, float force)
-{
-  ec_internal_obstructions* cast_obstructions = (ec_internal_obstructions*)obstructions;
-  cast_obstructions->positions.push_back(ec::Vec3(x1 + 0.25, z1, -(y1 + 0.25)));
-  ec::Vec3* start = &(*(cast_obstructions->positions.rbegin()));
-  cast_obstructions->positions.push_back(ec::Vec3(x2 + 0.25, z2, -(y2 + 0.25)));
-  ec::Vec3* end = &(*(cast_obstructions->positions.rbegin()));
-  cast_obstructions->obstructions.push_back(new ec::CylinderObstruction(start, end, max_distance, force));
+  ec_internal_obstruction obstruction;
+  obstruction->obj3d = obj3d;
+  obstruction->e3dobj = e3dobj;
+  obstruction->center = Vec3d(obj3d->x_pos + 0.25, obj3d->z_pos, -(obj3d->y_pos + 0.25));
+  obstruction->rot_x = obj3d->x_rot;
+  obstruction->rot_y = obj3d->z_rot;
+  obstruction->rot_z = -(obj3d->y_rot);
+  obstruction->obstruction = new ec::BoxObstruction(start, end, &obstruction->center, &obstruction->rot_x, &obstruction->rot_y, &obstruction->rot_z, max_distance, force));
+  cast_obstructions->positions.push_back(obstruction);
+*/
 }
 
 extern "C" ec_bounds ec_create_bounds_list()

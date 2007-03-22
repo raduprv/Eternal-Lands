@@ -467,6 +467,43 @@ Vec3 SphereObstruction::get_force_gradient(const Vec3 position)
     return Vec3(0.0, 0.0, 0.0);
 }
 
+Vec3 BoxObstruction::get_force_gradient(const Vec3 position)
+{	// Arbitrary-rotation box.
+  const float rx = -*rot_x;
+  const float ry = -*rot_y;
+  const float rz = -*rot_z;
+  
+  const float s_rx = sin(rx * ec::PI / 180);
+  const float c_rx = cos(rx * ec::PI / 180);
+  const float s_ry = sin(ry * ec::PI / 180);
+  const float c_ry = cos(ry * ec::PI / 180);
+  const float s_rz = sin(rz * ec::PI / 180);
+  const float c_rz = cos(rz * ec::PI / 180);
+  
+  const Vec3 tr_position = position - *center;
+  
+  Vec3 rotx_position;
+  rotx_position.x = tr_position.x;
+  rotx_position.y = tr_position.y * c_rx - tr_position.z * s_rx;
+  rotx_position.z = tr_position.y * s_rx + tr_position.z * c_rx;
+
+  Vec3 roty_position;
+  roty_position.x = rotx_position.z * s_ry + rotx_position.x * c_ry;
+  roty_position.y = rotx_position.y;
+  roty_position.z = rotx_position.z * c_ry - rotx_position.x * s_ry;
+  
+  Vec3 rotz_position;
+  rotz_position.x = roty_position.x;
+  rotz_position.y = roty_position.y * c_rz - roty_position.z * s_rz;
+  rotz_position.z = roty_position.y * s_rz + roty_position.z * c_rz;
+
+  if ((rotz_position.x < start.x) || (rotz_position.y < start.y) || (rotz_position.z < start.z) || (rotz_position.x > end.x) || (rotz_position.z > end.z) || (rotz_position.z > end.z))
+    return Vec3(0.0, 0.0, 0.0);
+  
+  const coord_t distsquared = (rotz_position - *center).magnitude_squared();
+  return tr_position * (force / (distsquared + 0.0001));
+}
+
 PolarCoordElement::PolarCoordElement(const coord_t _frequency, const coord_t _offset, const coord_t _scalar, const coord_t _power)
 {
   frequency = _frequency;

@@ -560,6 +560,31 @@ public:
   Vec3* pos;
 };
 
+class BoxObstruction : public Obstruction
+{
+public:
+  BoxObstruction(const Vec3 _start, const Vec3 _end, Vec3* _center, float* _rot_x, float* _rot_y, float* _rot_z, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force)
+  {
+    start = _start;
+    end = _end;
+    center = _center;
+    rot_x = _rot_x;
+    rot_y = _rot_y;
+    rot_z = _rot_z;
+  };
+  virtual ~BoxObstruction() {};
+  
+  virtual Vec3 get_force_gradient(const Vec3 position);
+
+  Vec3 start;
+  Vec3 end;
+  Vec3* center;
+  float* rot_x;
+  float* rot_y;
+  float* rot_z;
+};
+
+
 class PolarCoordElement
 {
 public:

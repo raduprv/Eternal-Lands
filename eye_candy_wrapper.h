@@ -140,9 +140,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_obstructions ec_create_obstruction_list();
   void ec_free_obstruction_list(ec_obstructions obstructions);
   int ec_delete_obstruction(ec_obstructions obstructions, int index);
-  void ec_add_spherical_obstruction(ec_obstructions obstructions, float x, float y, float z, float max_distance, float force);
-  void ec_add_simple_cylindrical_obstruction(ec_obstructions obstructions, float x, float y, float max_distance, float force);
-  void ec_add_cylindrical_obstruction(ec_obstructions obstructions, float x1, float y1, float z1, float x2, float y2, float z2, float max_distance, float force);
+  void ec_add_box_obstruction(ec_obstructions obstructions, object3d* obj3d, e3d_object *e3dobj, float max_distance, float force);
   ec_bounds ec_create_bounds_list();
   void ec_free_bounds_list(ec_bounds bounds);
   void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power);

@@ -72,7 +72,7 @@ GLuint SmokeParticle::get_texture(const Uint16 res_index)
 SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
-    std::cout << "SmokeEffect (" << this << ") created at " << *_pos << "." << std::endl;
+    std::cout << "SmokeEffect (" << this << ") created (" << *_pos << ", " << _scale << ")" << std::endl;
   base = _base;
   dead = _dead;
   pos = _pos;
