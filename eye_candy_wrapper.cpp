@@ -127,6 +127,7 @@ extern "C" void ec_actor_delete(actor* _actor)
       continue;
     }
 
+    i++;
     if (((*iter)->caster == _actor) || ((*iter)->target == _actor))
     {
       (*iter)->effect->recall = true;
@@ -134,17 +135,12 @@ extern "C" void ec_actor_delete(actor* _actor)
       (*iter)->target = NULL;
       continue;
     }
-    for (int j = 0; j < (int)(*iter)->target_actors.size(); )
+    for (int j = 0; j < (int)(*iter)->target_actors.size(); j++)
     {
       std::vector<actor*>::iterator iter2 = (*iter)->target_actors.begin() + j;
       if (*iter2 == _actor)
-      {
         (*iter2) = NULL;
-        continue;
-      }
-      j++;
     }
-    i++;
   }
 }
 
@@ -183,12 +179,12 @@ extern "C" void ec_delete_effect_loc(float x, float y)
       continue;
     }
 
+    i++;
     if (((*iter)->position.x == x) && ((*iter)->position.z == -y))
     {
       (*iter)->effect->recall = true;
       continue;
     }
-    i++;
   }
 }
 
@@ -225,12 +221,12 @@ extern "C" void ec_delete_effect_type(ec_EffectEnum type)
       continue;
     }
 
+    i++;
     if (type == (ec_EffectEnum)(*iter)->effect->get_type())
     {
       (*iter)->effect->recall = true;
       continue;
     }
-    i++;
   }
 }
 

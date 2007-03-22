@@ -21,7 +21,7 @@ SmokeParticle::SmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 
   color[1] = square(randcolor(0.1)) + color_scale;
   color[2] = square(randcolor(0.1)) + color_scale;
   size = size_scalar * (0.5 + randcoord());
-  alpha = (0.06 + randcoord(0.12)) * alpha_scale;
+  alpha = (0.05 + randcoord(0.1)) * alpha_scale;
   if (alpha > 1.0)
     alpha = 1.0;
   flare_max = 1.0;
