@@ -200,12 +200,12 @@ extern "C" void ec_delete_effect_loc_type(float x, float y, ec_EffectEnum type)
       continue;
     }
 
+    i++;
     if (((*iter)->position.x == x) && ((*iter)->position.z == -y) && (type == (ec_EffectEnum)(*iter)->effect->get_type()))
     {
       (*iter)->effect->recall = true;
       continue;
     }
-    i++;
   }
 }
 
