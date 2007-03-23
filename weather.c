@@ -972,7 +972,7 @@ void rain_control()
 		// gracefully stop rain
 		if (seconds_till_rain_stops > 60) {
 			is_raining=1;
-			rainParam = rain_strength_bias*(min(60,seconds_till_rain_stops) - 60)/30.0f;
+			rainParam = rain_strength_bias*(min2i(60,seconds_till_rain_stops) - 60)/30.0f;
 			num_rain_drops = rainParam*MAX_RAIN_DROPS;
 #ifdef NEW_SOUND
 			if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)

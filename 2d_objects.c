@@ -692,7 +692,7 @@ void display_2d_objects()
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-obj_2d_list[l]->x_pos)*(x-obj_2d_list[l]->x_pos) + (y-obj_2d_list[l]->y_pos)*(y-obj_2d_list[l]->y_pos);
-		if(/*dist > 10*10 &&*/ 1000*max(obj_2d_list[l]->obj_pointer->x_size, obj_2d_list[l]->obj_pointer->y_size)/(dist) < 5) continue;
+		if(/*dist > 10*10 &&*/ 1000*max2f(obj_2d_list[l]->obj_pointer->x_size, obj_2d_list[l]->obj_pointer->y_size)/(dist) < 5) continue;
 #endif  //SIMPLE_LOD
 		draw_2d_object(obj_2d_list[l]);
 	}
@@ -705,7 +705,7 @@ void display_2d_objects()
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-obj_2d_list[l]->x_pos)*(x-obj_2d_list[l]->x_pos) + (y-obj_2d_list[l]->y_pos)*(y-obj_2d_list[l]->y_pos);
-		if(/*dist > 10*10 &&*/ 1000*max(obj_2d_list[l]->obj_pointer->x_size, obj_2d_list[l]->obj_pointer->y_size)/(dist) < 5) continue;
+		if(/*dist > 10*10 &&*/ 1000*max2f(obj_2d_list[l]->obj_pointer->x_size, obj_2d_list[l]->obj_pointer->y_size)/(dist) < 5) continue;
 #endif  //SIMPLE_LOD
 		glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
 		draw_2d_object(obj_2d_list[l]);

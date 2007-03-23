@@ -1308,7 +1308,7 @@ e3d_object *load_e3d (const char *file_name)
 	cur_object->max_z = len_z;
 #endif
 	// calculate the max size for crude LOD processing
-	cur_object->max_size= max(max(cur_object->max_x-cur_object->min_x, cur_object->max_y-cur_object->min_y), cur_object->max_z-cur_object->min_z);
+	cur_object->max_size= max3f(cur_object->max_x-cur_object->min_x, cur_object->max_y-cur_object->min_y, cur_object->max_z-cur_object->min_z);
 
 	cur_object->is_transparent=our_header.is_transparent;
 	cur_object->is_ground=our_header.is_ground;

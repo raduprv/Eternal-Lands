@@ -5,6 +5,9 @@
 #ifdef SFX
 #include "special_effects.h"
 #endif
+#ifdef EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 int console_root_win = -1;
 

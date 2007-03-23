@@ -161,7 +161,7 @@ static __inline__ void calc_light_aabb(AABBOX* bbox, float pos_x, float pos_y, f
 {
 	float h, r;
 
-	h = max2f(abs(diff_r), max2f(abs(diff_g), abs(diff_b)));
+	h = max2f(fabsf(diff_r), max2f(fabsf(diff_g), fabsf(diff_b)));
 
 	r = (h/clamp-1)/att;
 

@@ -336,6 +336,31 @@ static __inline__ int has_suffix(const char * str, int len, const char * suffix,
 	return !substrtest(str, len, -slen, suffix, slen);
 }
 
+/*!
+ * \name min_max
+ * \brief min/max computation (please read docs)
+ *
+ * These functions compute min's, max's and related things in a safe and fast manner.
+ * Why not use a macro like this?
+ * \begincode
+ * #define min(x,y) ((x) < (y) ? (x) : (y))
+ * \endcode
+ * Because it requires a lot of care to use properly and inline functions can do
+ * the same in a sometimes faster and safe manner. The C preprocessor is only a
+ * text replacer, and the above macro will evaluate each of the arguments x and y
+ * twice! Not only may this involve tiny performance hits, much more important will it
+ * cause undesirable results if the evaluation has side effects, like in
+ * \begincode
+ *   X = min(rand(), rand())
+ * \endcode
+ * in order to generate a variate X that is more likely to be small. Using the above macro, 
+ * X would still be uniformly distributed. Even if you don't dothat kind of jerk, please
+ * use these inline functions in order to help avoiding others making these mistakes.
+ *
+ *  -Lachesis
+ * @{
+ */
+
 static __inline__ int min2i (int x, int y)
 {
 	return (x <= y)? x : y;
@@ -366,20 +391,27 @@ static __inline__ float max2f (float x, float y)
 	return (x >= y)? x : y;
 }
 
-static __inline unsigned clampu(unsigned x, unsigned l, unsigned u)
+static __inline float max3f (float x, float y, float z)
+{
+	return max2f(x, max2f(y, z));
+}
+
+static __inline__ unsigned clampu(unsigned x, unsigned l, unsigned u)
 {
 	return min2u(max2u(x,l),u);
 }
 
-static __inline int clampi(int x, int l, int u)
+static __inline__ int clampi(int x, int l, int u)
 {
 	return min2i(max2i(x,l),u);
 }
 
-static __inline float clampf(float x, float l, float u)
+static __inline__ float clampf(float x, float l, float u)
 {
 	return min2f(max2f(x,l),u);
 }
+
+/*! @} */
 
 #ifdef __cplusplus
 } // extern "C"

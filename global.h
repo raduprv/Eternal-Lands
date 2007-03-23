@@ -11,13 +11,6 @@
  #define M_PI 3.14159265358979323846
 #endif //M_PI
 
-#ifndef min
-	#define min(x, y) (x<y?x:y)
-#endif //min
-#ifndef max
-	#define max(x, y) (x>y?x:y)
-#endif //max
-
 //only ever use WINDOWS anywhere else, in case we need to add another 'catch' to enable WINDOWS
 #if defined(_WIN32) || defined(_WIN64)
 	#ifndef	WINDOWS
@@ -40,6 +33,7 @@
 			#define acosf acos
 			#define ceilf ceil
 			#define floorf floor
+			#define fabsf fabs
 		#endif  // _MSC_VER < 1400
 		#define rint(X) floor(X+0.5f)
 	#endif

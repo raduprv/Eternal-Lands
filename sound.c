@@ -2200,7 +2200,7 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	int i;
 	source_data tempSource;
 	//take a copy of the source about to be overwritten
-	tempSource=sound_source_data[min(used_sources,MAX_SOURCES-1)];
+	tempSource=sound_source_data[min2i(used_sources,MAX_SOURCES-1)];
 	//ensure it is stopped and ready
 	alSourcei(tempSource.source,AL_BUFFER,0);
 	alSourceStop(tempSource.source);
@@ -2210,7 +2210,7 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	tempSource.cookie=0;
 
 	//shunt source objects down a place
-	for(i=min(used_sources,MAX_SOURCES-1);i>index;--i)
+	for(i=min2i(used_sources,MAX_SOURCES-1);i>index;--i)
 	{
 		sound_source_data[i] = sound_source_data[i-1];
 	}
