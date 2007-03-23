@@ -128,9 +128,11 @@ void render_coronas()
 	render_corona(light_1_position[0],light_1_position[1],light_1_position[2],1,1,1);
 	render_corona(light_2_position[0],light_2_position[1],light_2_position[2],1,1,1);
 	render_corona(light_3_position[0],light_3_position[1],light_3_position[2],1,1,1);
+#ifndef EYE_CANDY
 	render_corona(light_4_position[0],light_4_position[1],light_4_position[2],1,1,1);
 	render_corona(light_5_position[0],light_5_position[1],light_5_position[2],1,1,1);
 	render_corona(light_6_position[0],light_6_position[1],light_6_position[2],1,1,1);
+#endif /* EYE_CANDY */
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
@@ -358,7 +360,11 @@ void update_scene_lights()
 	x= -camera_x;
 	y= -camera_y;
 	//reset the lights
+#ifdef EYE_CANDY
+	light_0_dist= light_1_dist= light_2_dist= light_3_dist= 60.0*60.0;
+#else
 	light_0_dist= light_1_dist= light_2_dist= light_3_dist= light_4_dist= light_5_dist= light_6_dist= 60.0*60.0;
+#endif
 
 	light_0_diffuse[0]=0;light_0_diffuse[1]=0;light_0_diffuse[2]=0;light_0_diffuse[3]=1.0;
 

@@ -665,35 +665,43 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
     else
     {
  #ifdef SFX
-	particle_sys_def *def = load_particle_def(file_name);
-	if (!def) return -1;
+			particle_sys_def *def = load_particle_def(file_name);
+			if (!def) return -1;
 
   #ifdef	NEW_FRUSTUM
-	return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
+			return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
   #else
-	return create_particle_sys (def, x_pos, y_pos, z_pos);
+			return create_particle_sys (def, x_pos, y_pos, z_pos);
   #endif
- #endif
+ #endif /* SFX */
     }
   }
   else if (!strncmp("can", file_name + 12, 3))
     ec_create_lamp(x_pos, y_pos, z_pos + 0.4, 0.8, (poor_man ? 6 : 10));
   else
   {
-#endif
+#endif /* EYE_CANDY */
 #ifdef SFX
-	particle_sys_def *def = load_particle_def(file_name);
-	if (!def) return -1;
+		particle_sys_def *def = load_particle_def(file_name);
+		if (!def) return -1;
 
  #ifdef	NEW_FRUSTUM
-	return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
+		return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
  #else
-	return create_particle_sys (def, x_pos, y_pos, z_pos);
+		return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
 #endif
 #ifdef EYE_CANDY
   }
 #endif
+
+	// Lachesis: Quick hack in order to remove compile warning.
+	//
+	// This is not the proper way to hook-in eye candy, because
+	// this function expects to return a particle system id. Additionally,
+	// eye candy is already hooked-in at some of the proper spots -- e.g.
+	// add_fire_at_tile(). Will contact Rei about this.
+	return 0;
 }
 
 #ifdef	NEW_FRUSTUM

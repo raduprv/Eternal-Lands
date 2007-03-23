@@ -4,6 +4,9 @@
 #ifdef SFX
 #include "special_effects.h"
 #endif
+#ifdef EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 int map_root_win = -1;
 int showing_continent = 0;
