@@ -9,6 +9,8 @@
 #include <SDL_syswm.h>
 #endif
 
+int have_keyboard_focus = 1;
+
 int adding_mark = 0;
 int mark_x , mark_y;
 int max_mark = 0;
@@ -20,9 +22,7 @@ int mod_key_status;
 int shift_on;
 int alt_on;
 int ctrl_on;
-#ifdef OSX
 int meta_on;
-#endif
 
 void	quick_use(int use_id)
 {
@@ -61,10 +61,8 @@ int HandleEvent (SDL_Event *event)
 	if (mod_key_status & KMOD_CTRL) ctrl_on = 1;
 	else ctrl_on = 0;
 
-#ifdef OSX
         if (mod_key_status & KMOD_META) meta_on = 1;
         else meta_on = 0;
-#endif
 	
 	switch( event->type )
 	{
@@ -78,11 +76,16 @@ int HandleEvent (SDL_Event *event)
 #endif
 
 		case SDL_KEYDOWN:
+			if(!have_keyboard_focus){
+				break;  //don't have focus, so we shouldn't be getting keystrokes
+			}
 			key=(Uint16)event->key.keysym.sym;
-			
-			if (shift_on) key |= ELW_SHIFT;
-			if (ctrl_on) key |= ELW_CTRL;
-			if (alt_on) key |= ELW_ALT;
+
+			//use the modifiers that were on when the key was pressed, not when we go to check
+			if (event->key.keysym.mod & KMOD_SHIFT) key |= ELW_SHIFT;
+			if (event->key.keysym.mod & KMOD_CTRL) key |= ELW_CTRL;
+			if (event->key.keysym.mod & KMOD_ALT) key |= ELW_ALT;
+			//if (event->key.keysym.mod & KMOD_META) key |= ELW_something_if_needed_later;
 
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
@@ -102,6 +105,7 @@ int HandleEvent (SDL_Event *event)
 
 		case SDL_ACTIVEEVENT:
 			if (event->active.state & SDL_APPINPUTFOCUS){
+				have_keyboard_focus = event->active.gain;
 				SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
 			}
 			break;
@@ -160,11 +164,7 @@ int HandleEvent (SDL_Event *event)
 				if (event->button.button == SDL_BUTTON_MIDDLE)
 					middle_click++;
 			}
-#ifndef OSX
-			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_MIDDLE)))
-#else
                         else if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
-#endif
 				middle_click++;
 			else
 				middle_click= 0;
@@ -181,11 +181,7 @@ int HandleEvent (SDL_Event *event)
 			if (alt_on) flags |= ELW_ALT;
 			if (ctrl_on) flags |= ELW_CTRL;
 			if (left_click) flags |= ELW_LEFT_MOUSE;
-#ifndef OSX
-			if (middle_click) flags |= ELW_MID_MOUSE;
-#else
 			if (middle_click || meta_on) flags |= ELW_MID_MOUSE;
-#endif
 			if (right_click) flags |= ELW_RIGHT_MOUSE;
 
 			if (event->type == SDL_MOUSEBUTTONDOWN)
