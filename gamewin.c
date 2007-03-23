@@ -1449,7 +1449,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		actor *me = get_actor_ptr_from_id (yourself);
 #ifdef	NEW_FRUSTUM
  #ifdef EYE_CANDY
-		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
+		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, (poor_man ? 6 : 10), 0.7);
  #else // EYE_CANDY
   #ifdef SFX
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
@@ -1457,7 +1457,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
  #endif // EYE_CANDY
 #else // NEW_FRUSTUM
  #ifdef EYE_CANDY
-		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, NULL, (poor_man ? 6 : 10), 0.7);
+		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, (poor_man ? 6 : 10), 0.7);
  #else // EYE_CANDY
   #ifdef SFX
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);

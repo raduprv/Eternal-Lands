@@ -639,20 +639,20 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			ec_create_selfmagic_heal2(caster, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_POISON:
-			ec_create_targetmagic_poison2(caster, target, NULL, (poor_man ? 6 : 10));
+			ec_create_targetmagic_poison2(caster, target, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_REMOTE_HEAL:
-			ec_create_targetmagic_remote_heal2(caster, target, NULL, (poor_man ? 6 : 10));
+			ec_create_targetmagic_remote_heal2(caster, target, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_HARM:
-			ec_create_targetmagic_harm2(caster, target, NULL, (poor_man ? 6 : 10));
+			ec_create_targetmagic_harm2(caster, target, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_MANA_DRAIN:
-			ec_create_targetmagic_drain_mana2(caster, target, NULL, (poor_man ? 6 : 10));
+			ec_create_targetmagic_drain_mana2(caster, target, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_INVASION_BEAMING:
 		case	SPECIAL_EFFECT_TELEPORT_TO_RANGE:
-			ec_create_targetmagic_teleport_to_range(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, target->x_pos, target->y_pos, target->z_pos, NULL, (poor_man ? 6 : 10));
+			ec_create_targetmagic_teleport_to_range(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, target->x_pos, target->y_pos, target->z_pos, (poor_man ? 6 : 10));
 			break;
 		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 			ec_create_harvesting_rare_stone(caster->x_pos + sin(caster->z_rot) + 0.25, caster->y_pos + cos(caster->z_rot) + 0.25, caster->z_pos, (poor_man ? 6 : 10));
@@ -803,13 +803,13 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_add_target(ref, 52.0, 70.0, 0.5);
 //			ec_add_target(ref, 50.0, 68.0, 0.5);
 //			ec_add_target(ref, 50.0, 72.0, 0.5);
-//			ec_launch_targetmagic_heal_summoned(ref, caster, NULL, (poor_man ? 6 : 10));
+//			ec_launch_targetmagic_heal_summoned(ref, caster, (poor_man ? 6 : 10));
 //			ref = ec_create_generic();
 //			ec_add_target(ref, 52.0, 70.0, 0.5);
 //			ec_add_target(ref, 50.0, 68.0, 0.5);
 //			ec_add_target(ref, 50.0, 72.0, 0.5);
-//			ec_launch_targetmagic_smite_summoned(ref, caster, NULL, (poor_man ? 6 : 10));
-//			ec_create_targetmagic_life_drain(caster, target, NULL, (poor_man ? 6 : 10));
+//			ec_launch_targetmagic_smite_summoned(ref, caster, (poor_man ? 6 : 10));
+//			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
 #endif	//EYE_CANDY
 }
 

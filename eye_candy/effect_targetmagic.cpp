@@ -546,8 +546,12 @@ TargetMagicEffect::~TargetMagicEffect()
     delete spawner2;
   if (mover2)
     delete mover2;
-  while (capless_cylinders.size() > 0)
-    capless_cylinders.erase(capless_cylinders.begin());
+  while (capless_cylinders.size())
+  {
+    std::vector<Shape*>::iterator iter = capless_cylinders.begin();
+    delete *iter;
+    capless_cylinders.erase(iter);
+  }
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ") destroyed." << std::endl;
 }
@@ -822,8 +826,12 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
 
 TargetMagicEffect2::~TargetMagicEffect2()
 {
-  while (capless_cylinders.size() > 0)
-    capless_cylinders.erase(capless_cylinders.begin());
+  while (capless_cylinders.size())
+  {
+    std::vector<Shape*>::iterator iter = capless_cylinders.begin();
+    delete *iter;
+    capless_cylinders.erase(iter);
+  }
 }
 
 

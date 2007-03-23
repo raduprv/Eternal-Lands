@@ -520,12 +520,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 ///////////////////////////////////////////////////////////////////////////////
 //				ec_create_bag_pickup(49.0, 70.0, 0.0, 10);
 //				ec_create_bag_drop(49.0, 70.0, 0.0, 10);
-//				ec_create_breath_fire(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
-//				ec_create_breath_ice(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
-//				ec_create_breath_poison(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
-//				ec_create_breath_magic(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
-//				ec_create_breath_lightning(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
-//				ec_create_breath_wind(49.0, 70.0, 1.5, 52, 70, 0.2, NULL, 10, 2.0);
+//				ec_create_breath_fire(49.0, 70.0, 1.5, 52, 70, 0.2, 10, 2.0);
+//				ec_create_breath_ice(49.0, 70.0, 1.5, 52, 70, 0.2, 10, 2.0);
+//				ec_create_breath_poison(49.0, 70.0, 1.5, 52, 70, 0.2, 10, 2.0);
+//				ec_create_breath_magic(49.0, 70.0, 1.5, 52, 70, 0.2, 10, 2.0);
+//				ec_create_breath_lightning(49.0, 70.0, 1.5, 52, 70, 0.2, 10, 2.0);
+//				ec_create_breath_wind(49.0, 70.0, 1.5, 52, 70, 0.2, 10, 2.0);
 //				ec_create_harvesting_radon_pouch(49.0, 70.0, 0.0, 10);
 //				ec_create_harvesting_cavern_wall(49.0, 70.0, 0.0, 10);
 //				ec_create_harvesting_mother_nature(49.0, 70.0, 0.0, 10);
@@ -567,24 +567,24 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_create_summon_yeti(49.0, 70.0, 0.0, 10);
 //				ec_create_summon_arctic_chimeran(49.0, 70.0, 0.0, 10);
 //				ec_create_summon_giant(49.0, 70.0, 0.0, 10);
-//				ec_create_targetmagic_remote_heal(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
-//				ec_create_targetmagic_poison(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
-//				ec_create_targetmagic_teleport_to_range(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
-//				ec_create_targetmagic_harm(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
-//				ec_create_targetmagic_life_drain(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+//				ec_create_targetmagic_remote_heal(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, 10);
+//				ec_create_targetmagic_poison(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, 10);
+//				ec_create_targetmagic_teleport_to_range(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, 10);
+//				ec_create_targetmagic_harm(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, 10);
+//				ec_create_targetmagic_life_drain(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, 10);
 //				ec_reference ref;
 //				ref = ec_create_generic();
 //				ec_add_target(ref, 52.0, 70.0, 0.5);
 //				ec_add_target(ref, 50.0, 68.0, 0.5);
 //				ec_add_target(ref, 50.0, 72.0, 0.5);
-//				ec_launch_targetmagic_heal_summoned(ref, 49.0, 70.0, 0.5, NULL, 10);
+//				ec_launch_targetmagic_heal_summoned(ref, 49.0, 70.0, 0.5, 10);
 //				ec_reference ref;
 //				ref = ec_create_generic();
 //				ec_add_target(ref, 52.0, 70.0, 0.5);
 //				ec_add_target(ref, 50.0, 68.0, 0.5);
 //				ec_add_target(ref, 50.0, 72.0, 0.5);
-//				ec_launch_targetmagic_smite_summoned(ref, 49.0, 70.0, 0.5, NULL, 10);
-//				ec_create_targetmagic_drain_mana(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, NULL, 10);
+//				ec_launch_targetmagic_smite_summoned(ref, 49.0, 70.0, 0.5, 10);
+//				ec_create_targetmagic_drain_mana(49.0, 70.0, 0.5, 52.0, 70.0, 0.5, 10);
 ///////////////////////////////////////////////////////////////////////////////
 #endif	//EYE_CANDY
 			}
@@ -620,9 +620,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				ec_add_polar_coords_bound(bounds, 0.0, 0.0, 8.0, 1.0);
 				ec_add_polar_coords_bound(bounds, 2.0, 0.0, 3.0, 1.0);
 				ec_add_polar_coords_bound(bounds, 5.0, 0.1, 1.5, 0.7);
-//				ec_create_campfire(49.0, 70.0, 0.0, NULL, 10, 1.0);
+//				ec_create_campfire(49.0, 70.0, 0.0, 10, 1.0);
 //				ec_create_cloud(45.0, 65.0, 1.0, 1.0, bounds, 10);
-//				ec_create_fireflies(49.0, 70.0, 0.0, NULL, 1.0, bounds);
+//				ec_create_fireflies(49.0, 70.0, 0.0, 1.0, bounds);
 //				ec_create_fountain(49.0, 70.0, 0.2, 0.0, 0, 1.0, 10);
 //				ec_create_lamp(47.4, 69.6, 3.3, 10);
 //				ec_create_ongoing_magic_protection(49.0, 70.0, 0.0, 10, 5.0);
@@ -642,8 +642,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_create_sword_of_ice(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_sword_of_magic(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_teleporter(49.0, 70.0, 0.0, 10);
-				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, NULL, 0.5, bounds, 1.0, 0.0, 0.0);
-				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, NULL, 0.5, bounds, 1.0, 0.0, 0.0);
+				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, 0.5, bounds, 1.0, 0.0, 0.0);
+				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, 0.5, bounds, 1.0, 0.0, 0.0);
 				eff_list = ec_create_effects_list();
 				ec_add_effect(eff_list, ref2);
 				ec_add_wind_effect_list(ref1, eff_list);
@@ -652,7 +652,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_add_effect(eff_list, ref1);
 //				ec_add_wind_effect_list(ref2, eff_list);
 //				ec_free_effects_list(eff_list);
-//				ec_create_wind_petals(49.0, 70.0, 0.05, NULL, 1.0, bounds, 1.0, 0.0, 0.0);
+//				ec_create_wind_petals(49.0, 70.0, 0.05, 1.0, bounds, 1.0, 0.0, 0.0);
 ///////////////////////////////////////////////////////////////////////////////
 #endif	//EYE_CANDY
 			}

@@ -23,9 +23,6 @@ object3d *objects_list[MAX_OBJ_3D];
 
 #ifdef EYE_CANDY
  #include "eye_candy_wrapper.h"
-
-ec_obstructions fire_obstructions;
-ec_obstructions general_obstructions;
 #endif
 
 #ifndef	NEW_FRUSTUM
@@ -852,8 +849,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 #endif
 
 #ifdef EYE_CANDY
-        printf("Bounding: %f, %f, %f -> %f, %f, %f\n", returned_e3d->min_x, returned_e3d->min_y, returned_e3d->min_z, returned_e3d->max_x, returned_e3d->max_y, returned_e3d->max_z);
-	printf("Rotation: %f, %f, %f\n", our_object->x_rot, our_object->y_rot, our_object->z_rot);
+//	ec_add_box_obstruction(our_object, returned_e3d, 2.0);
+//        printf("Bounding: %f, %f, %f -> %f, %f, %f\n", returned_e3d->min_x, returned_e3d->min_y, returned_e3d->min_z, returned_e3d->max_x, returned_e3d->max_y, returned_e3d->max_z);
+//	printf("Rotation: %f, %f, %f\n", our_object->x_rot, our_object->y_rot, our_object->z_rot);
 #endif	// EYE_CANDY
 
 	return id;
@@ -1740,7 +1738,13 @@ void destroy_3d_object(int i)
 	if ((i < 0) || (i >= MAX_OBJ_3D)) return;
 #endif
 	if (objects_list[i] == NULL) return;
+
+#ifdef  EYE_CANDY
+//	ec_remove_obstruction(objects_list[i]);
+#endif
+
 	destroy_clouds_cache(objects_list[i]);
+
 #ifdef	NEW_FRUSTUM
 
 	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->self_lit);

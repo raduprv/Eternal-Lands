@@ -499,9 +499,8 @@ Vec3 BoxObstruction::get_force_gradient(const Vec3 position)
 
   if ((rotz_position.x < start.x) || (rotz_position.y < start.y) || (rotz_position.z < start.z) || (rotz_position.x > end.x) || (rotz_position.z > end.z) || (rotz_position.z > end.z))
     return Vec3(0.0, 0.0, 0.0);
-  
-  const coord_t distsquared = (rotz_position - *center).magnitude_squared();
-  return tr_position * (force / (distsquared + 0.0001));
+  else
+    return Vec3((tr_position.x > center->x ? force : -force), (tr_position.y > center->y ? force : -force), (tr_position.z > center->z ? force : -force));
 }
 
 PolarCoordElement::PolarCoordElement(const coord_t _frequency, const coord_t _offset, const coord_t _scalar, const coord_t _power)

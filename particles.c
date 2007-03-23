@@ -546,7 +546,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	{
 		case 2:
 #ifdef EYE_CANDY
-			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 2.5);
+			ec_create_campfire(x, y, z, (poor_man ? 6 : 10), 2.5);
 #else // EYE_CANDY
  #ifdef SFX
   #ifdef NEW_FRUSTUM
@@ -560,7 +560,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 		case 1:
 		default:
 #ifdef EYE_CANDY
-			ec_create_campfire(x, y, z, NULL, (poor_man ? 6 : 10), 1.8);
+			ec_create_campfire(x, y, z, (poor_man ? 6 : 10), 1.8);
 #else // EYE_CANDY
  #ifdef SFX
   #ifdef NEW_FRUSTUM
@@ -653,13 +653,13 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
   else if (!strncmp("fir", file_name + 12, 3))
   {
     if (!strncmp("big", file_name + 17, 3))
-      ec_create_campfire(x_pos, y_pos, z_pos, NULL, (poor_man ? 6 : 10), 2.0);
+      ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 2.0);
     else if (!strncmp("for", file_name + 17, 3))
-      ec_create_campfire(x_pos, y_pos - 0.2, z_pos, NULL, (poor_man ? 6 : 10), 3.0);
+      ec_create_campfire(x_pos, y_pos - 0.2, z_pos, (poor_man ? 6 : 10), 3.0);
     else if (!strncmp("min", file_name + 17, 3))
-      ec_create_campfire(x_pos, y_pos, z_pos, NULL, (poor_man ? 6 : 10), 0.4);
+      ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 0.4);
     else if (!strncmp("sma", file_name + 17, 3))
-      ec_create_campfire(x_pos, y_pos, z_pos, NULL, (poor_man ? 6 : 10), 0.6);
+      ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 0.6);
     else if (!strncmp("tor", file_name + 17, 3))
       ec_create_lamp(x_pos, y_pos, z_pos + 0.06, 1.2, (poor_man ? 6 : 10));
     else

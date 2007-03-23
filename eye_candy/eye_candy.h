@@ -563,7 +563,7 @@ public:
 class BoxObstruction : public Obstruction
 {
 public:
-  BoxObstruction(const Vec3 _start, const Vec3 _end, Vec3* _center, float* _rot_x, float* _rot_y, float* _rot_z, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force)
+  BoxObstruction(const Vec3 _start, const Vec3 _end, Vec3* _center, float* _rot_x, float* _rot_y, float* _rot_z, const coord_t _force) : Obstruction(1.0, _force)
   {
     start = _start;
     end = _end;

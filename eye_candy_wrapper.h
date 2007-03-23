@@ -16,6 +16,7 @@
 
 #include "global.h"
 #include "actors.h"
+#include "e3d.h"
 
 #ifdef __cplusplus
 #include "eye_candy/eye_candy.h"
@@ -55,14 +56,12 @@
 //****************************************************************************//
 
 typedef void* ec_reference;
-typedef void* ec_obstructions;
 typedef void* ec_bounds;
 typedef void* ec_effects;
 
 #ifdef __cplusplus
 extern "C"
 {
-
 typedef class ec_internal_reference
 {
 public:
@@ -85,11 +84,19 @@ public:
   bool dead;
 } ec_internal_reference;
 
-typedef struct ec_internal_obstructions
+typedef struct ec_internal_obstruction
 {
-  std::vector<ec::Vec3> positions;
-  std::vector<ec::Obstruction*> obstructions;
-} ec_internal_obstructions;
+  object3d* obj3d;
+  e3d_object* e3dobj;
+  ec::Vec3 center;
+  float rot_x;
+  float rot_y;
+  float rot_z;
+  bool fire_related;
+  ec::Obstruction* obstruction;
+} ec_internal_obstruction;
+
+typedef std::vector<ec_internal_obstruction> ec_internal_obstructions;
 
 typedef std::vector<ec::PolarCoordElement> ec_internal_bounds;
 
@@ -137,10 +144,9 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_delete_reference(ec_reference ref);
   void ec_set_position(ec_reference ref, float x, float y, float z);
   void ec_set_position2(ec_reference ref, float x, float y, float z);
-  ec_obstructions ec_create_obstruction_list();
-  void ec_free_obstruction_list(ec_obstructions obstructions);
-  int ec_delete_obstruction(ec_obstructions obstructions, int index);
-  void ec_add_box_obstruction(ec_obstructions obstructions, object3d* obj3d, e3d_object *e3dobj, float max_distance, float force);
+  void ec_clear_obstruction_list();
+  void ec_free_obstruction_list();
+  void ec_add_box_obstruction(object3d* obj3d, e3d_object *e3dobj, float force);
   ec_bounds ec_create_bounds_list();
   void ec_free_bounds_list(ec_bounds bounds);
   void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power);
@@ -153,15 +159,15 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   int ec_change_target(ec_reference reference, int index, float x, float y, float z);
   ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD);
   ec_reference ec_create_bag_drop(float x, float y, float z, int LOD);
-  ec_reference ec_create_breath_fire(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);
-  ec_reference ec_create_breath_ice(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);
-  ec_reference ec_create_breath_poison(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);
-  ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);
-  ec_reference ec_create_breath_lightning(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);
-  ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, ec_obstructions obstructions, int LOD, float scale);
-  ec_reference ec_create_campfire(float x, float y, float z, ec_obstructions obstructions, int LOD, float scale);
+  ec_reference ec_create_breath_fire(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_ice(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_poison(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_lightning(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_campfire(float x, float y, float z, int LOD, float scale);
   ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD);
-  ec_reference ec_create_fireflies(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds);
+  ec_reference ec_create_fireflies(float x, float y, float z, float density, ec_bounds bounds);
   ec_reference ec_create_fountain(float x, float y, float z, float base_height, int backlit, float scale, int LOD);
   ec_reference ec_create_harvesting_radon_pouch(float x, float y, float z, int LOD);
   ec_reference ec_create_harvesting_cavern_wall(float x, float y, float z, int LOD);
@@ -243,23 +249,23 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_sword_of_fire(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
   ec_reference ec_create_sword_of_ice(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
   ec_reference ec_create_sword_of_magic(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
-  ec_reference ec_create_targetmagic_remote_heal(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_remote_heal2(actor* caster, actor* target, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_poison(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_poison2(actor* caster, actor* target, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_teleport_to_range(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_teleport_to_range2(actor* caster, actor* target, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_harm(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_harm2(actor* caster, actor* target, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_life_drain(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_life_drain2(actor* caster, actor* target, ec_obstructions obstructions, int LOD);
-  void ec_launch_targetmagic_heal_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD);
-  void ec_launch_targetmagic_smite_summoned(ec_reference reference, float start_x, float start_y, float start_z, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, ec_obstructions obstructions, int LOD);
-  ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* target, ec_obstructions obstructions, int LOD);
+  ec_reference ec_create_targetmagic_remote_heal(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
+  ec_reference ec_create_targetmagic_remote_heal2(actor* caster, actor* target, int LOD);
+  ec_reference ec_create_targetmagic_poison(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
+  ec_reference ec_create_targetmagic_poison2(actor* caster, actor* target, int LOD);
+  ec_reference ec_create_targetmagic_teleport_to_range(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
+  ec_reference ec_create_targetmagic_teleport_to_range2(actor* caster, actor* target, int LOD);
+  ec_reference ec_create_targetmagic_harm(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
+  ec_reference ec_create_targetmagic_harm2(actor* caster, actor* target, int LOD);
+  ec_reference ec_create_targetmagic_life_drain(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
+  ec_reference ec_create_targetmagic_life_drain2(actor* caster, actor* target, int LOD);
+  void ec_launch_targetmagic_heal_summoned(ec_reference reference, float start_x, float start_y, float start_z, int LOD);
+  void ec_launch_targetmagic_smite_summoned(ec_reference reference, float start_x, float start_y, float start_z, int LOD);
+  ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
+  ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* target, int LOD);
   ec_reference ec_create_teleporter(float x, float y, float z, int LOD);
-  ec_reference ec_create_wind_leaves(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
-  ec_reference ec_create_wind_petals(float x, float y, float z, ec_obstructions obstructions, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
+  ec_reference ec_create_wind_leaves(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
+  ec_reference ec_create_wind_petals(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
   void ec_add_wind_effect_list(ec_reference reference, ec_effects effects);
 
 #ifdef __cplusplus
