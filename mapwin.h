@@ -34,6 +34,8 @@ extern int mark_x, mark_y; /*!< map coordinates of the position of the mark */
 extern int max_mark; /*!< max. number of marks we can handle */
 extern marking marks[200]; /*!< a global array of marks */
 
+extern int reload_tab_map; /*!< flag that indicates the tabmap needs to be reloaded */
+
 /*!
  * \ingroup interface_map
  * \brief Creates the map window

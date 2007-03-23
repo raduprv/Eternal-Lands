@@ -1069,15 +1069,17 @@ void set_new_video_mode(int fs,int mode)
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);
 	check_options();
+	reload_tab_map = 1;
 }
 
 void toggle_full_screen()
 {
+	reload_tab_map = 1;
 	full_screen=!full_screen;
 	set_new_video_mode(full_screen,video_mode);
 	build_video_mode_array();
-    SDL_SetGamma(gamma_var, gamma_var, gamma_var);
-    SDL_SetModState(KMOD_NONE); // force ALL keys up
+	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
+	SDL_SetModState(KMOD_NONE); // force ALL keys up
 }
 
 

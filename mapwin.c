@@ -13,6 +13,8 @@ int showing_continent = 0;
 
 int mouse_over_minimap = 0;
 
+int reload_tab_map = 0;
+
 #define MARK_FILTER_MAX_LEN 40
 int mark_filter_active = 0;
 char mark_filter_text[MARK_FILTER_MAX_LEN] = "";
@@ -52,9 +54,15 @@ int display_map_handler (window_info * win)
 	{
 		draw_hud_interface ();
 		Leave2DMode ();
+		if(reload_tab_map && map_root_win >= 0 && windows_list.window[map_root_win].displayed){
+			//need to reload the BMP
+			switch_from_game_map();
+			switch_to_game_map();
+		}
 		draw_game_map (!showing_continent, mouse_over_minimap);
 		Enter2DMode ();
 		CHECK_GL_ERRORS ();
+		reload_tab_map = 0;
 	}	
 
 #ifdef SFX
