@@ -903,6 +903,17 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			break;
 
 
+		case SEND_WEATHER:
+			{
+				while(data_length >= 8){
+					get_weather_from_server(in_data+3);
+					in_data+= 5;
+					data_length-= 5;
+				}
+			}
+			break;
+
+
 		case SYNC_CLOCK:
 			{
 #ifdef EXTRA_DEBUG

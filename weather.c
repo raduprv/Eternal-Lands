@@ -19,29 +19,14 @@ typedef struct {
 rain_drop rain_drops[MAX_RAIN_DROPS];   /*!< Defines the number of rain drops */
 int use_fog = 1;
 
-#ifdef NEW_WEATHER
-
-#define MAX_ZONES 50
-#define ZONE_BOUNDARY 25
-
-#define RAND_ONE ((float)rand() / RAND_MAX)
-
-typedef struct {
-	int min_x;
-	int max_x;
-	int min_y;
-	int max_y;
-	int type;
-} weatherzone_t;
-
-weatherzone_t weatherzone[MAX_ZONES];
-
 int wind_speed_srv = 0,	//strength of wind, as set by server. 100 is about the max
 	wind_direction_srv = 0,	//wind direction, in degrees, as set by server. 0 and 360 == north
-	wind_speed_variance = 5,	//how much variance in wind speed to randomize. typically 1-5
-	wind_direction_variance = 360,	//how much variance in wind direction to randomize. typically 0-30
 	wind_speed = 0,	//strength of wind, based on server's setting and local randomization
 	wind_direction = 0;	//wind direction, based on server's setting and local randomization
+
+#ifdef NEW_WEATHER
+
+#define RAND_ONE ((float)rand() / RAND_MAX)
 
 #define WEATHER_TYPES 7	//including NONE
 
@@ -56,13 +41,7 @@ float weather_ratios[WEATHER_TYPES] = {	//Warning! must always add up to 1.0f!
 };
 
 #define WEATHER_NONE	0x00
-#define WEATHER_RAIN	0x01
-#define WEATHER_SNOW	0x02
-#define WEATHER_HAIL	0x03
-#define WEATHER_SAND	0x04
-#define WEATHER_DUST	0x05
-#define WEATHER_LAVA	0x06
-#define WEATHER_TYPE7	0x07
+#define WEATHER_RAIN	0x01	//special case because of associated sound effects
 #define WEATHER_ACTIVE	0x08
 #define WEATHER_STARTING	0x10
 #define WEATHER_STOPPING	0x20
@@ -149,6 +128,7 @@ float get_fadeinout_bias();
 float interpolate(float affinity, float first, float second);
 void update_rain(int ticks, int num_rain_drops);
 void render_rain(int num_rain_drops);
+void set_weather_ratio(Uint8 type, Uint8 value);
 
 
 /*
@@ -241,6 +221,63 @@ float get_fadeinout_bias()
 }
 
 
+
+void set_weather_ratio(Uint8 type, Uint8 value){
+	float fval = (float)(value%100)/100.0f;
+	float total = 0.0f, cutr = 1.0f;
+	int i;
+	if(weather_ratios[type] >= fval){
+		weather_ratios[type] = fval;
+	}
+	for(i = 1; i < WEATHER_TYPES; ++i){
+		if(i != type){
+			total += weather_ratios[i];
+		}
+	}
+	if(total + fval >= 1.0f){
+		total = 0.0f;
+		cutr = (1.0f - fval)/total;
+		for(i = 1; i < WEATHER_TYPES; ++i){
+			if(i != type){
+				weather_ratios[i] *= cutr;
+				total += weather_ratios[i];
+			}
+		}
+	}
+	weather_ratios[i] = fval;
+	weather_ratios[0] = 1.0f - (total + fval);
+}
+
+
+void get_weather_from_server(Uint8* data){
+	//first, catch non-precipitations
+	if(data[0] == weather_effect_wind){
+		wind_direction_srv = (2 * data[1])%360;
+		wind_speed_srv = data[2];
+		return;
+	} else if(data[0] == weather_effect_leaves){
+		//EC_TAG
+		return;
+	} else if(data[0] > WEATHER_TYPES){
+		LOG_TO_CONSOLE(c_red1, "Server sent an unknown weather type");
+		return;
+		//from now on, deal with the set of precipitations
+	}else if(data[2] == 0 && !(weather_flags & WEATHER_ACTIVE)){
+		return;	//stop? but we're already stopped...
+	} else if(data[2] != 0 && (weather_flags & WEATHER_ACTIVE)){
+		set_weather_ratio(data[0], data[2]);
+		return;
+	} else if(data[2] != 0 && !(weather_flags & WEATHER_ACTIVE)){
+		set_weather_ratio(data[0], data[2]);
+		start_weather(data[1], ((float)(data[2]))/100.0f);
+		return;
+	} else {
+		stop_weather(data[1], ((float)(data[2]))/100.0f);
+	}
+}
+
+
+
 double precip_avg(const float * ary){
 	double total = 0.0f;
 	int i;
@@ -278,8 +315,8 @@ void __inline__ make_rain_drop(int i, float x, float y, float z){
 }
 
 void update_wind(void){
-	int dir_d = wind_direction_srv + (int)((float)(RAND_ONE * wind_direction_variance * 2 - wind_direction_variance));
-	int speed_d = wind_speed_srv + (int)((float)(RAND_ONE * wind_speed_variance * 2 - wind_speed_variance));
+	int dir_d = wind_direction_srv + (int)((float)(RAND_ONE * 60 - 30));
+	int speed_d = wind_speed_srv + (int)((float)(RAND_ONE * ((float)wind_speed)/5.0f - ((float)wind_speed)/10.0f));
 	if(dir_d < wind_direction){
 		--wind_direction;
 	} else if(dir_d > wind_direction){
@@ -388,49 +425,13 @@ void stop_weather(int seconds_till_stop, float severity)
 }
 
 void clear_weather(){
-	int i=0, len;
-	char weatherzone_file_name[256];
-	FILE *fp;
-	char strLine[255];
-	char *tmp;
-
-	memset (weatherzone, 0, sizeof(weatherzone));
-
-	tmp = strrchr(map_file_name, '/');
-	if (tmp == NULL){
-		tmp = map_file_name;
-	} else {
-		tmp++;
-	}
-	snprintf (weatherzone_file_name, sizeof (weatherzone_file_name), "./maps/%s", tmp);
-	len = strlen (weatherzone_file_name);
-	tmp = strrchr (weatherzone_file_name, '.');
-	if (tmp == NULL){
-		tmp = &weatherzone_file_name[len];
-	} else {
-		tmp++;
-	}
-	len -= strlen(tmp);
-	snprintf (tmp, sizeof (weatherzone_file_name) - len, "elw");
-
-	// don't consider absence of weather zones file an error, so don't use my_fopen
-	fp=fopen(weatherzone_file_name,"r");
-	if (fp == NULL){
-		weatherzone[0].min_x = weatherzone[0].min_y = 0;
-		weatherzone[0].max_x = 6*tile_map_size_x;
-		weatherzone[0].max_y = 6*tile_map_size_y;
-		weatherzone[0].type = WEATHER_RAIN;
-		return;
-	}
-
-	while(1){
-		fscanf(fp,"%d %d %d %d %d",&weatherzone[i].min_x,&weatherzone[i].min_y,&weatherzone[i].max_x,&weatherzone[i].max_y,&weatherzone[i].type);
-		i++;
-		if(!fgets(strLine, 100, fp))break;
-	}
-	fclose(fp);
+	int i;
 	weather_flags = WEATHER_NONE;
 	num_thunders = 0;
+	weather_ratios[0] = 1.0f;
+	for(i = 1; i < WEATHER_TYPES; ++i){
+		weather_ratios[i] = 0.0f;
+	}
 }
 
 int weather_use_fog(){
@@ -498,62 +499,11 @@ void weather_color_bias(const float * src, float * dst) {
 void render_weather()
 {
 	static Uint32 last_frame = 0;
-	int tx=-camera_x*2, ty=-camera_y*2, i=0;
-	float weather_counts[WEATHER_TYPES], weather_ttl = 0.000001f, tempf1 = 0.0f, tempf2 = 0.0f;
 
 	weather_time = SDL_GetTicks();
 
 	update_wind();
 
-	for(i = 0; i < WEATHER_TYPES; ++i){
-		weather_counts[i] = 0.0f;
-	}
-
-	for(i = 0; i < MAX_ZONES && weatherzone[i].max_x > 0; ++i){
-		if(tx < weatherzone[i].min_x - ZONE_BOUNDARY ||
-			tx > weatherzone[i].max_x + ZONE_BOUNDARY ||
-			ty < weatherzone[i].min_y - ZONE_BOUNDARY ||
-			ty > weatherzone[i].max_y + ZONE_BOUNDARY){
-				continue;	//out of range
-		}
-		if(tx > weatherzone[i].min_x + ZONE_BOUNDARY &&
-			tx < weatherzone[i].max_x - ZONE_BOUNDARY &&
-			ty > weatherzone[i].min_y + ZONE_BOUNDARY &&
-			ty < weatherzone[i].max_y - ZONE_BOUNDARY){
-				weather_counts[weatherzone[i].type] += 1.0f;	//fully in range
-				continue;
-		}
-		//it's within the zone boundary. now we figure how close it is
-		if(tx > weatherzone[i].min_x && tx < weatherzone[i].max_x){
-			tempf1 = 0.0f;
-		} else if(tx < weatherzone[i].min_x){
-			tempf1 = weatherzone[i].min_x - tx;
-		} else {
-			tempf1 = tx - weatherzone[i].max_x;
-		}
-		if(ty > weatherzone[i].min_y && ty < weatherzone[i].max_y){
-			tempf2 = 0.0f;
-		} else if(ty < weatherzone[i].min_y){
-			tempf2 = weatherzone[i].min_y - ty;
-		} else {
-			tempf2 = ty - weatherzone[i].max_y;
-		}
-		if(tempf2 > tempf1){
-			tempf1 = tempf2;
-		}
-		weather_counts[weatherzone[i].type] += 1.0f - ( tempf1 / ZONE_BOUNDARY );
-	}
-	for(i = 0; i < WEATHER_TYPES; ++i){
-		weather_ttl += weather_counts[i];
-	}
-	if(weather_ttl < 1.0f){
-		severity_mod = weather_ttl;
-	} else {
-		severity_mod = 1.0f;
-	}
-	for(i = 0; i < WEATHER_TYPES; ++i){
-		weather_ratios[i] = weather_counts[i] / weather_ttl;
-	}
 	if (weather_flags & WEATHER_ACTIVE) {
 		// 0 means initialization
 		Uint32 ticks = last_frame? weather_time - last_frame : 0;
@@ -869,6 +819,24 @@ void clear_weather()
 	seconds_till_rain_stops= 0;
 	weather_light_offset= 0;
 	rain_light_offset= 0;
+}
+
+void get_weather_from_server(Uint8* data){
+	if(data[0] == weather_effect_wind){
+		wind_direction = wind_direction_srv = (2 * data[1])%360;
+		wind_speed = wind_speed_srv = data[2];
+		return;
+	} else if(data[0] == weather_effect_leaves){
+		//EC_TAG
+		return;
+	} else if(data[0] != weather_effect_rain){
+		return;	//old weather can only handle rain
+	}
+	if(is_raining){
+		stop_weather(data[1], ((float)(data[2]))/100.0f);
+	} else {
+		start_weather(data[1], ((float)(data[2]))/100.0f);
+	}
 }
 
 void render_weather()

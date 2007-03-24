@@ -549,6 +549,28 @@ typedef enum actor_commands
 
 /*! @} */
 
+
+/*!
+ * \name Weather types
+ */
+/*! @{ */
+typedef enum
+{
+	//precipitation types MUST come first, in the same order as in weather.c . same indexen.
+	weather_effect_rain = 1,
+	weather_effect_snow = 2,
+	weather_effect_hail = 3,
+	weather_effect_sand = 4,
+	weather_effect_dust = 5,
+	weather_effect_lava = 6,
+	//other effects can be put at the end
+	weather_effect_wind = 20,
+	weather_effect_leaves = 21
+} weather_type;
+
+/*! @} */
+
+
 /*!
  * \name To server commands
  */
@@ -630,8 +652,8 @@ typedef enum actor_commands
 #define TELEPORT_IN 12
 #define TELEPORT_OUT 13
 #define PLAY_SOUND 14
-#define START_RAIN 15
-#define STOP_RAIN 16
+#define START_RAIN 15	//delete later on
+#define STOP_RAIN 16	//delete later on
 #define THUNDER 17
 #define HERE_YOUR_STATS 18
 #define HERE_YOUR_INVENTORY 19
@@ -694,6 +716,7 @@ typedef enum actor_commands
 #define GET_ITEMS_COOLDOWN 77
 #define SEND_BUFFS 78
 #define SEND_SPECIAL_EFFECT 79
+#define SEND_WEATHER 80
 
 // reserved for future expansion 220-229, not being used in the server yet
 #define MAP_SET_OBJECTS 220
