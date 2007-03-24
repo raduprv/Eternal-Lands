@@ -78,7 +78,7 @@ void write_to_log (const Uint8 * const data, int len)
 	int i, j;
 	Uint8 ch;
 	char str[4096];
-	Uint8 starttime[200];
+	Uint8 starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 	char logmsg[4096];
 
@@ -114,8 +114,8 @@ void write_to_log (const Uint8 * const data, int len)
 		}
 		time(&c_time);
 		l_time = localtime(&c_time);
-		strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
-		snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[l_time->tm_isdst>0]);
+		strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
+		snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
 		if(log_chat>=3){
 			fwrite (starttime, strlen(starttime), 1, chat_log);
 		}
