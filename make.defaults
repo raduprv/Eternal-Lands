@@ -11,6 +11,7 @@ CWARN=-Wall
 CXXWARN=-Wall
 #-Wall -Werror
 
+#EXTRA_INCLUDES=-IC:\\Programme\\Dev-Cpp\\Include
 #EXTRA_LIBS=-lalut
 #EXTRA_STATICLIBS=libs/libalut.a
 
