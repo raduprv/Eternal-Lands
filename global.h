@@ -24,6 +24,10 @@
 #ifdef	WINDOWS
 	#include <windows.h>
 	#ifdef	_MSC_VER	// now we do test for VC
+		// Lachesis: Make sure snprintf is declared before we #define it to be something else, 
+		// else we'll eventually break C++ headers that use it
+		#include <stdio.h>
+
 		#define stat _stat
 		#define	snprintf sane_snprintf
 		#define strncasecmp _strnicmp
@@ -38,6 +42,10 @@
 		#define rint(X) floor(X+0.5f)
 	#endif
 	#ifdef __MINGW32__
+		// Lachesis: Make sure snprintf is declared before we #define it to be something else, 
+		// else we'll eventually break C++ headers that use it
+		#include <stdio.h>
+
 		#define snprintf sane_snprintf
 	#endif
 #elif defined(OSX)
