@@ -16,7 +16,7 @@ void stop_weather(int seconds_till_stop, float severity);
 void clear_weather();
 void render_weather();
 
-void get_weather_from_server(Uint8* data);
+void get_weather_from_server(const Uint8* data);
 
 extern int wind_speed;	//strength of wind, based on server's setting and local randomization. range of 1..100
 extern int wind_direction;	//wind direction, based on server's setting and local randomization. 0 and 360 are north

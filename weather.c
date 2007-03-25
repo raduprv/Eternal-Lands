@@ -249,7 +249,7 @@ void set_weather_ratio(Uint8 type, Uint8 value){
 }
 
 
-void get_weather_from_server(Uint8* data){
+void get_weather_from_server(const Uint8* data){
 	//first, catch non-precipitations
 	if(data[0] == weather_effect_wind){
 		wind_direction_srv = (2 * data[1])%360;
@@ -821,7 +821,7 @@ void clear_weather()
 	rain_light_offset= 0;
 }
 
-void get_weather_from_server(Uint8* data){
+void get_weather_from_server(const Uint8* data){
 	if(data[0] == weather_effect_wind){
 		wind_direction = wind_direction_srv = (2 * data[1])%360;
 		wind_speed = wind_speed_srv = data[2];
