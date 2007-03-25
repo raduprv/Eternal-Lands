@@ -1,282 +1,156 @@
-# Project: elc
-# Makefile created by Dev-C++ 4.9.9.2
-
-CPP  = g++.exe -D__DEBUG__
-CC   = gcc.exe -D__DEBUG__
-WINDRES = windres.exe
-RES  = elc_private.res
-OBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o elconfig.o elwindows.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o help.o hud.o ignore.o init.o interface.o items.o keys.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o openingwin.o particles.o paste.o pathfinder.o pm_log.o questlog.o reflection.o rules.o sector.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o timers.o trade.o translate.o weather.o widgets.o alphamap.o bags.o highlight.o notepad.o storage.o cal3d_wrapper.o cal.o queue.o skills.o loading_win.o framebuffer.o bbox_tree.o minimap.o update.o list.o session.o $(RES)
-LINKOBJ  = 2d_objects.o 3d_objects.o actor_scripts.o actors.o asc.o books.o buddy.o cache.o chat.o colors.o console.o consolewin.o cursors.o dialogues.o draw_scene.o elconfig.o elwindows.o encyclopedia.o errors.o events.o filter.o font.o frustum.o gamewin.o gl_init.o help.o hud.o ignore.o init.o interface.o items.o keys.o knowledge.o lights.o loginwin.o main.o manufacture.o map_io.o mapwin.o md2loader.o md5.o misc.o multiplayer.o new_actors.o new_character.o openingwin.o particles.o paste.o pathfinder.o pm_log.o questlog.o reflection.o rules.o sector.o shadows.o sound.o spells.o stats.o tabs.o text.o textures.o tile_map.o timers.o trade.o translate.o weather.o widgets.o alphamap.o bags.o highlight.o notepad.o storage.o cal3d_wrapper.o cal.o queue.o skills.o loading_win.o framebuffer.o bbox_tree.o minimap.o update.o list.o session.o $(RES)
-LIBS =  -L"C:/Program Files/SDL-1.2.9/lib" -L"lib" -L"C:/Program Files/cal3d-0.10.0/src/cal3d" -L"C:/Program Files/SDL_net-1.2.5/VisualC" -mwindows "/Program Files/cal3d-0.10.0/src/cal3d/cal3d_wrapper.o" -lcal3d -lSDL_net -lopengl32 -lglu32 -lSDL -lALut -lOpenAL32 -lvorbisfile -lvorbis -logg -llibxml2 -liconv  -g3 -march=i686 -msse 
-INCS =  -I"C:/Program Files/SDL-1.2.9/include"  -I"include"  -I"."  -I"C:/Dev-Cpp/include/GL"  -I"C:/Dev-Cpp/include/al"  -I"C:/Dev-Cpp/include/SDL"  -I"C:/Program Files/SDL_net-1.2.5"  -I"C:/Program Files/cal3d-0.10.0/src" 
-CXXINCS =  -I"C:/Program Files/SDL-1.2.9/include"  -I"lib/gcc/mingw32/3.4.2/include"  -I"include/c++/3.4.2/backward"  -I"include/c++/3.4.2/mingw32"  -I"include/c++/3.4.2"  -I"include"  -I"."  -I"C:/Dev-Cpp/include/GL"  -I"C:/Dev-Cpp/include/al"  -I"C:/Dev-Cpp/include/SDL"  -I"C:/Program Files/SDL_net-1.2.5"  -I"C:/Program Files/cal3d-0.10.0/src" 
-BIN  = "../../../../../../Program Files/Eternal Lands 1.2.0/elc.exe"
-CXXFLAGS = $(CXXINCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DNEW_FRUSTUM -DNETWORK_THREAD -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DWIDGETS_FIX -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP -DCUSTOM_LOOK   -fexpensive-optimizations -O3 -g3 -march=i686 -msse
-CFLAGS = $(INCS) -D__GNUWIN32__ -Wall -fexceptions -DWIN32 -DWINDOWS -DELC -DNEW_FRUSTUM -DNETWORK_THREAD -DBUG_FIX_3D_OBJECTS_MIN_MAX -DNEW_TEX -DATI_9200_FIX -DWIDGETS_FIX -DNEW_ACTOR_ANIMATION -DCOMMAND_BUFFER -DAUTO_UPDATE -DMINIMAP -DCUSTOM_LOOK   -fexpensive-optimizations -O3 -g3 -march=i686 -msse
-RM = rm -f
-
-.PHONY: all all-before all-after clean clean-custom
-
-all: all-before "../../../../../../Program Files/Eternal Lands 1.2.0/elc.exe" all-after
-
-
-clean: clean-custom
-	${RM} $(OBJ) $(BIN)
-
-$(BIN): $(OBJ)
-	$(CPP) $(LINKOBJ) -o "..\..\..\..\..\..\Program Files\Eternal Lands 1.2.0\elc.exe" $(LIBS)
-
-2d_objects.o: 2d_objects.c
-	$(CC) -c 2d_objects.c -o 2d_objects.o $(CFLAGS)
-
-3d_objects.o: 3d_objects.c
-	$(CC) -c 3d_objects.c -o 3d_objects.o $(CFLAGS)
-
-actor_scripts.o: actor_scripts.c
-	$(CC) -c actor_scripts.c -o actor_scripts.o $(CFLAGS)
-
-actors.o: actors.c
-	$(CC) -c actors.c -o actors.o $(CFLAGS)
-
-asc.o: asc.c
-	$(CC) -c asc.c -o asc.o $(CFLAGS)
-
-books.o: books.c
-	$(CC) -c books.c -o books.o $(CFLAGS)
-
-buddy.o: buddy.c
-	$(CC) -c buddy.c -o buddy.o $(CFLAGS)
-
-cache.o: cache.c
-	$(CC) -c cache.c -o cache.o $(CFLAGS)
-
-chat.o: chat.c
-	$(CC) -c chat.c -o chat.o $(CFLAGS)
-
-colors.o: colors.c
-	$(CC) -c colors.c -o colors.o $(CFLAGS)
-
-console.o: console.c
-	$(CC) -c console.c -o console.o $(CFLAGS)
-
-consolewin.o: consolewin.c
-	$(CC) -c consolewin.c -o consolewin.o $(CFLAGS)
-
-cursors.o: cursors.c
-	$(CC) -c cursors.c -o cursors.o $(CFLAGS)
-
-dialogues.o: dialogues.c
-	$(CC) -c dialogues.c -o dialogues.o $(CFLAGS)
-
-draw_scene.o: draw_scene.c
-	$(CC) -c draw_scene.c -o draw_scene.o $(CFLAGS)
-
-elconfig.o: elconfig.c
-	$(CC) -c elconfig.c -o elconfig.o $(CFLAGS)
-
-elwindows.o: elwindows.c
-	$(CC) -c elwindows.c -o elwindows.o $(CFLAGS)
-
-encyclopedia.o: encyclopedia.c
-	$(CC) -c encyclopedia.c -o encyclopedia.o $(CFLAGS)
-
-errors.o: errors.c
-	$(CC) -c errors.c -o errors.o $(CFLAGS)
-
-events.o: events.c
-	$(CC) -c events.c -o events.o $(CFLAGS)
-
-filter.o: filter.c
-	$(CC) -c filter.c -o filter.o $(CFLAGS)
-
-font.o: font.c
-	$(CC) -c font.c -o font.o $(CFLAGS)
-
-frustum.o: frustum.c
-	$(CC) -c frustum.c -o frustum.o $(CFLAGS)
-
-gamewin.o: gamewin.c
-	$(CC) -c gamewin.c -o gamewin.o $(CFLAGS)
-
-gl_init.o: gl_init.c
-	$(CC) -c gl_init.c -o gl_init.o $(CFLAGS)
-
-help.o: help.c
-	$(CC) -c help.c -o help.o $(CFLAGS)
-
-hud.o: hud.c
-	$(CC) -c hud.c -o hud.o $(CFLAGS)
-
-ignore.o: ignore.c
-	$(CC) -c ignore.c -o ignore.o $(CFLAGS)
-
-init.o: init.c
-	$(CC) -c init.c -o init.o $(CFLAGS)
-
-interface.o: interface.c
-	$(CC) -c interface.c -o interface.o $(CFLAGS)
-
-items.o: items.c
-	$(CC) -c items.c -o items.o $(CFLAGS)
-
-keys.o: keys.c
-	$(CC) -c keys.c -o keys.o $(CFLAGS)
-
-knowledge.o: knowledge.c
-	$(CC) -c knowledge.c -o knowledge.o $(CFLAGS)
-
-lights.o: lights.c
-	$(CC) -c lights.c -o lights.o $(CFLAGS)
-
-loginwin.o: loginwin.c
-	$(CC) -c loginwin.c -o loginwin.o $(CFLAGS)
-
-main.o: main.c
-	$(CC) -c main.c -o main.o $(CFLAGS)
-
-manufacture.o: manufacture.c
-	$(CC) -c manufacture.c -o manufacture.o $(CFLAGS)
-
-map_io.o: map_io.c
-	$(CC) -c map_io.c -o map_io.o $(CFLAGS)
-
-mapwin.o: mapwin.c
-	$(CC) -c mapwin.c -o mapwin.o $(CFLAGS)
-
-md2loader.o: md2loader.c
-	$(CC) -c md2loader.c -o md2loader.o $(CFLAGS)
-
-md5.o: md5.c
-	$(CC) -c md5.c -o md5.o $(CFLAGS)
-
-misc.o: misc.c
-	$(CC) -c misc.c -o misc.o $(CFLAGS)
-
-multiplayer.o: multiplayer.c
-	$(CC) -c multiplayer.c -o multiplayer.o $(CFLAGS)
-
-new_actors.o: new_actors.c
-	$(CC) -c new_actors.c -o new_actors.o $(CFLAGS)
-
-new_character.o: new_character.c
-	$(CC) -c new_character.c -o new_character.o $(CFLAGS)
-
-openingwin.o: openingwin.c
-	$(CC) -c openingwin.c -o openingwin.o $(CFLAGS)
-
-particles.o: particles.c
-	$(CC) -c particles.c -o particles.o $(CFLAGS)
-
-paste.o: paste.c
-	$(CC) -c paste.c -o paste.o $(CFLAGS)
-
-pathfinder.o: pathfinder.c
-	$(CC) -c pathfinder.c -o pathfinder.o $(CFLAGS)
-
-pm_log.o: pm_log.c
-	$(CC) -c pm_log.c -o pm_log.o $(CFLAGS)
-
-questlog.o: questlog.c
-	$(CC) -c questlog.c -o questlog.o $(CFLAGS)
-
-reflection.o: reflection.c
-	$(CC) -c reflection.c -o reflection.o $(CFLAGS)
-
-rules.o: rules.c
-	$(CC) -c rules.c -o rules.o $(CFLAGS)
-
-sector.o: sector.c
-	$(CC) -c sector.c -o sector.o $(CFLAGS)
-
-shadows.o: shadows.c
-	$(CC) -c shadows.c -o shadows.o $(CFLAGS)
-
-sound.o: sound.c
-	$(CC) -c sound.c -o sound.o $(CFLAGS)
-
-spells.o: spells.c
-	$(CC) -c spells.c -o spells.o $(CFLAGS)
-
-stats.o: stats.c
-	$(CC) -c stats.c -o stats.o $(CFLAGS)
-
-tabs.o: tabs.c
-	$(CC) -c tabs.c -o tabs.o $(CFLAGS)
-
-text.o: text.c
-	$(CC) -c text.c -o text.o $(CFLAGS)
-
-textures.o: textures.c
-	$(CC) -c textures.c -o textures.o $(CFLAGS)
-
-tile_map.o: tile_map.c
-	$(CC) -c tile_map.c -o tile_map.o $(CFLAGS)
-
-timers.o: timers.c
-	$(CC) -c timers.c -o timers.o $(CFLAGS)
-
-trade.o: trade.c
-	$(CC) -c trade.c -o trade.o $(CFLAGS)
-
-translate.o: translate.c
-	$(CC) -c translate.c -o translate.o $(CFLAGS)
-
-weather.o: weather.c
-	$(CC) -c weather.c -o weather.o $(CFLAGS)
-
-widgets.o: widgets.c
-	$(CC) -c widgets.c -o widgets.o $(CFLAGS)
-
-alphamap.o: alphamap.c
-	$(CC) -c alphamap.c -o alphamap.o $(CFLAGS)
-
-bags.o: bags.c
-	$(CC) -c bags.c -o bags.o $(CFLAGS)
-
-highlight.o: highlight.c
-	$(CC) -c highlight.c -o highlight.o $(CFLAGS)
-
-notepad.o: notepad.c
-	$(CC) -c notepad.c -o notepad.o $(CFLAGS)
-
-storage.o: storage.c
-	$(CC) -c storage.c -o storage.o $(CFLAGS)
-
-cal3d_wrapper.o: cal3d_wrapper.cpp
-	$(CPP) -c cal3d_wrapper.cpp -o cal3d_wrapper.o $(CXXFLAGS)
-
-cal.o: cal.c
-	$(CC) -c cal.c -o cal.o $(CFLAGS)
-
-queue.o: queue.c
-	$(CC) -c queue.c -o queue.o $(CFLAGS)
-
-skills.o: skills.c
-	$(CC) -c skills.c -o skills.o $(CFLAGS)
-
-loading_win.o: loading_win.c
-	$(CC) -c loading_win.c -o loading_win.o $(CFLAGS)
-
-framebuffer.o: framebuffer.c
-	$(CPP) -c framebuffer.c -o framebuffer.o $(CXXFLAGS)
-
-bbox_tree.o: bbox_tree.c
-	$(CC) -c bbox_tree.c -o bbox_tree.o $(CFLAGS)
-
-minimap.o: minimap.c
-	$(CC) -c minimap.c -o minimap.o $(CFLAGS)
-
-update.o: update.c
-	$(CC) -c update.c -o update.o $(CFLAGS)
-
-list.o: list.c
-	$(CC) -c list.c -o list.o $(CFLAGS)
-
-session.o: session.c
-	$(CC) -c session.c -o session.o $(CFLAGS)
-
-elc_private.res: elc_private.rc 
-	$(WINDRES) -i elc_private.rc --input-format=rc -o elc_private.res -O coff 
-
-serverpopup.o: serverpopup.c
-	$(CC) -c serverpopup.c -o serverpopup.o $(CFLAGS)
+.PHONY: clean release docs all
+
+# IMPORTANT: Dev-C++ doesn't seem to get this right, so you have to copy
+# make.defaults to make.conf manually if you don't have the latter
+
+-include make.conf
+
+# basic compiling and linking - rarely changed
+OPTIONS = -DWINDOWS -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
+CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing
+_CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing
+CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing
+_CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing
+
+ZLIB_LIBS = -lz
+EYE_CANDY_LIBS = -lSDL_image
+# WARNING: the order is important! If -lX uses -lY, then you must list -lX before -lY (sic!)
+LDFLAGS= $(EXTRA_LIBS) $(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS)) \
+	-llibxml2 -lSDL_net -lsdl -lalut -lopenal32 -lglu32 -lopengl32 -liconv -lvorbisfile -lvorbis -logg -lcal3d -lm -lpng -lstdc++
+_LDFLAGS=-lopengl32 -lz
+STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a $(EXTRA_STATICLIBS)
+
+# the objects we need
+ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
+MEMORY_DEBUG_COBJ = elmemory.o
+NEW_E3D_FORMAT_COBJ = io/e3d_io.o io/elc_io.o
+NEW_FRUSTUM_COBJ = bbox_tree.o
+NOTEPAD_COBJ = notepad.o
+SFX_COBJ = special_effects.o
+TERRAIN_COBJ = normals.o terrain.o
+USE_LISPSM_COBJ = lispsm.o
+USE_SHADER_COBJ = shader.o
+COBJS=2d_objects.o 3d_objects.o	\
+	actor_scripts.o actors.o alphamap.o asc.o \
+	books.o buddy.o bags.o \
+	cache.o cal.o chat.o colors.o console.o consolewin.o counters.o cursors.o	\
+	dialogues.o draw_scene.o	\
+	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
+	filter.o font.o framebuffer.o frustum.o	\
+	gamewin.o gl_init.o hud.o help.o highlight.o	\
+	ignore.o init.o interface.o items.o	\
+	keys.o knowledge.o lights.o list.o loginwin.o loading_win.o	\
+	main.o manufacture.o map_io.o mapwin.o	\
+	md2loader.o md5.o misc.o multiplayer.o	\
+	new_actors.o new_character.o 	\
+	openingwin.o	\
+	particles.o paste.o pathfinder.o pm_log.o	\
+	questlog.o queue.o reflection.o	rules.o	\
+	skills.o sector.o serverpopup.o session.o shadows.o sound.o	\
+	spells.o stats.o storage.o	\
+	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
+	update.o weather.o widgets.o \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
+	
+EYE_CANDY_CXXOBJ = eye_candy_wrapper.o \
+	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
+	eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
+	eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \
+	eye_candy/effect_sword.o eye_candy/effect_summon.o \
+	eye_candy/effect_selfmagic.o eye_candy/effect_targetmagic.o \
+	eye_candy/effect_ongoing.o eye_candy/effect_impact.o \
+	eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
+	eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
+	eye_candy/effect_breath.o
+CXXOBJS=cal3d_wrapper.o \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
+
+OBJS=$(COBJS) $(CXXOBJS)
+
+HEADER_DIRS = . books eye_candy io
+
+EXE=el.exe
+
+CC=gcc.exe
+CXX=g++.exe
+LINK=gcc.exe
+
+TMP_LIB = libelc.a
+
+# the compile targets
+all: $(EXE);
+
+# work around command line length restriction
+$(TMP_LIB): $(OBJS)
+	rm -f $@
+	ar q $@ $(filter 2%, $(OBJS))
+	ar q $@ $(filter 3%, $(OBJS))
+	ar q $@ $(filter a%, $(OBJS))
+	ar q $@ $(filter b%, $(OBJS))
+	ar q $@ $(filter c%, $(OBJS))
+	ar q $@ $(filter d%, $(OBJS))
+	ar q $@ $(filter e%, $(OBJS))
+	ar q $@ $(filter f%, $(OBJS))
+	ar q $@ $(filter g%, $(OBJS))
+	ar q $@ $(filter h%, $(OBJS))
+	ar q $@ $(filter i%, $(OBJS))
+	ar q $@ $(filter j%, $(OBJS))
+	ar q $@ $(filter k%, $(OBJS))
+	ar q $@ $(filter l%, $(OBJS))
+	ar q $@ $(filter-out main.o, $(filter m%, $(OBJS)))
+	ar q $@ $(filter n%, $(OBJS))
+	ar q $@ $(filter o%, $(OBJS))
+	ar q $@ $(filter p%, $(OBJS))
+	ar q $@ $(filter q%, $(OBJS))
+	ar q $@ $(filter r%, $(OBJS))
+	ar q $@ $(filter s%, $(OBJS))
+	ar q $@ $(filter t%, $(OBJS))
+	ar q $@ $(filter u%, $(OBJS))
+	ar q $@ $(filter v%, $(OBJS))
+	ar q $@ $(filter w%, $(OBJS))
+	ar q $@ $(filter x%, $(OBJS))
+	ar q $@ $(filter y%, $(OBJS))
+	ar q $@ $(filter z%, $(OBJS))
+	ranlib $@
+
+$(EXE): main.o $(TMP_LIB)
+	$(LINK) $(CFLAGS) $< -L. -lelc $(LDFLAGS) -o $(EXE)
+
+#recompile on Makefile or conf change
+.depend $(OBJS): Makefile.win make.conf
+
+$(COBJS): %.o : %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(CXXOBJS): %.o : %.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+release:
+	$(MAKE) -f Makefile.win 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
+
+static:
+	$(MAKE) -f Makefile.win 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS) -lstdc++ -lGL -lGLU'
+
+clean:
+	rm -f $(OBJS) $(EXE) .depend
+
+docs:	
+	cd docs && doxygen Doxyfile
+
+.depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
+	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
+	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
+
+make.conf: make.defaults
+	@if (test -f $@ -a '$(UPDATE_CONF)' != 'yes'); \
+	then \
+		echo '**'; \
+		echo '* WARNING: $< is newer than $@!'; \
+		echo '* Proceeding in 10 seconds, hit Ctrl-C to abort...'; \
+		echo '*'; \
+		sleep 10; \
+	else \
+		cp $< $@; \
+	fi
+
+-include .depend

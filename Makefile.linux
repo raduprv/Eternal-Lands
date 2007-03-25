@@ -62,6 +62,7 @@ CXXOBJS=cal3d_wrapper.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
 
 OBJS=$(COBJS) $(CXXOBJS)
+HEADER_DIRS = . books eye_candy io
 
 EXE=el.x86.linux.bin
 
@@ -94,7 +95,7 @@ clean:
 docs:	
 	cd docs && doxygen Doxyfile
 
-.depend: *.h books/*.h io/*.h
+.depend: $(foreach HEADER_DIR, $(HEADER_DIRS), $(wildcard $(HEADER_DIR)/*.h))
 	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
 	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
 
