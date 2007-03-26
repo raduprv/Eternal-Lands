@@ -14,6 +14,7 @@ namespace ec
 // G L O B A L S //////////////////////////////////////////////////////////////
 
 MathCache math_cache;
+std::vector<Obstruction*> null_obstructions;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
@@ -415,13 +416,16 @@ Obstruction::Obstruction(const coord_t _max_distance, const coord_t _force)
   force = _force;
 }
 
-Vec3 SimpleCylinderObstruction::get_force_gradient(const Vec3 position)
+Vec3 SimpleCylinderObstruction::get_force_gradient(Particle& p)
 {	//Vertical cylinder, infinite height.
-  const Vec3 translated_pos = position - *(pos);
+  const Vec3 translated_pos = p.pos - *(pos);
 
   const coord_t distsquared = square(translated_pos.x) + square(translated_pos.z);
   if (distsquared < max_distance_squared)
+  {
+    p.pos -= p.velocity * (p.base->time_diff / 1000000.0) * 0.5;
     return translated_pos * (force / (distsquared + 0.0001));
+  }
   else
     return Vec3(0.0, 0.0, 0.0);
 }
@@ -434,15 +438,15 @@ CylinderObstruction::CylinderObstruction(Vec3* _start, Vec3* _end, const coord_t
   length_vec_mag = length_vec.magnitude();
 };
 
-Vec3 CylinderObstruction::get_force_gradient(const Vec3 position)
+Vec3 CylinderObstruction::get_force_gradient(Particle& p)
 {
   Vec3 v_offset;
-  const Vec3 v1 = position - *start;
+  const Vec3 v1 = p.pos - *start;
   angle_t dotprod1;
   if ((dotprod1 = length_vec.dot(v1)) <= 0)
     v_offset = v1;
   else if (length_vec_mag <= dotprod1)
-    v_offset = position - *end;
+    v_offset = p.pos - *end;
   else
   {
     const coord_t scalar = dotprod1 / length_vec_mag;
@@ -451,56 +455,108 @@ Vec3 CylinderObstruction::get_force_gradient(const Vec3 position)
   const coord_t distsquared = v_offset.magnitude_squared();
   
   if (distsquared < max_distance_squared)
+  {
+    p.pos -= p.velocity * (p.base->time_diff / 1000000.0) * 0.5;
     return v_offset * (force / (distsquared + 0.0001));
+  }
   else
     return Vec3(0.0, 0.0, 0.0);
 }
 
-Vec3 SphereObstruction::get_force_gradient(const Vec3 position)
+Vec3 SphereObstruction::get_force_gradient(Particle& p)
 {
-  const Vec3 translated_pos = position - *(pos);
+  const Vec3 translated_pos = p.pos - *(pos);
 
   const coord_t distsquared = square(translated_pos.x) + square(translated_pos.y) + square(translated_pos.z);
   if (distsquared < square(max_distance))
+  {
+    p.pos -= p.velocity * (p.base->time_diff / 1000000.0) * 0.5;
     return translated_pos * (force / (distsquared + 0.0001));
+  }
   else
     return Vec3(0.0, 0.0, 0.0);
 }
 
-Vec3 BoxObstruction::get_force_gradient(const Vec3 position)
+Vec3 BoxObstruction::get_force_gradient(Particle& p)
 {	// Arbitrary-rotation box.
-  const float rx = -*rot_x;
-  const float ry = -*rot_y;
-  const float rz = -*rot_z;
-  
-  const float s_rx = sin(rx * ec::PI / 180);
-  const float c_rx = cos(rx * ec::PI / 180);
-  const float s_ry = sin(ry * ec::PI / 180);
-  const float c_ry = cos(ry * ec::PI / 180);
-  const float s_rz = sin(rz * ec::PI / 180);
-  const float c_rz = cos(rz * ec::PI / 180);
-  
-  const Vec3 tr_position = position - *center;
-  
-  Vec3 rotx_position;
-  rotx_position.x = tr_position.x;
-  rotx_position.y = tr_position.y * c_rx - tr_position.z * s_rx;
-  rotx_position.z = tr_position.y * s_rx + tr_position.z * c_rx;
+  const Vec3 translated_pos = p.pos - *center;
 
+  // Is it anywhere close?
+  const coord_t distsquared = square(translated_pos.x) + square(translated_pos.z);
+  if (distsquared >= max_distance_squared)
+    return Vec3(0.0, 0.0, 0.0);	// Nope.
+
+  // So, it's close.  Is it actually bounded?
+  const float s_rx = *sin_rot_x;
+  const float c_rx = *cos_rot_x;
+  const float s_ry = *sin_rot_y;
+  const float c_ry = *cos_rot_y;
+  const float s_rz = *sin_rot_z;
+  const float c_rz = *cos_rot_z;
+  
   Vec3 roty_position;
-  roty_position.x = rotx_position.z * s_ry + rotx_position.x * c_ry;
-  roty_position.y = rotx_position.y;
-  roty_position.z = rotx_position.z * c_ry - rotx_position.x * s_ry;
-  
-  Vec3 rotz_position;
-  rotz_position.x = roty_position.x;
-  rotz_position.y = roty_position.y * c_rz - roty_position.z * s_rz;
-  rotz_position.z = roty_position.y * s_rz + roty_position.z * c_rz;
+  roty_position.x = translated_pos.z * s_ry + translated_pos.x * c_ry;
+  roty_position.y = translated_pos.y;
+  roty_position.z = translated_pos.z * c_ry - translated_pos.x * s_ry;
 
-  if ((rotz_position.x < start.x) || (rotz_position.y < start.y) || (rotz_position.z < start.z) || (rotz_position.x > end.x) || (rotz_position.z > end.z) || (rotz_position.z > end.z))
+  Vec3 rotx_position;
+  rotx_position.x = roty_position.x;
+  rotx_position.y = roty_position.y * c_rx - roty_position.z * s_rx;
+  rotx_position.z = roty_position.y * s_rx + roty_position.z * c_rx;
+
+  Vec3 rotz_position;
+  rotz_position.x = roty_position.x * c_rz - roty_position.y * s_rz;
+  rotz_position.y = roty_position.x * s_rz + roty_position.y * c_rz;
+  rotz_position.z = roty_position.z;
+  
+//  std::cout << position << " | " << translated_pos << " | " << rotz_position << std::endl;
+
+  if ((rotz_position.x < start.x) || (rotz_position.y < start.y) || (rotz_position.z < start.z) || (rotz_position.x > end.x) || (rotz_position.y > end.y) || (rotz_position.z > end.z))
+  {
+//    if ((start - end).magnitude_squared() > 60.0)
+//    {
+//      if (translated_pos.magnitude_squared() < 150.0)
+//    if ((center->x > 41.74) && (center->x < 41.75))
+//        std::cout << "B1: " << p.pos << ", " << translated_pos << ", " << rotz_position << ": " << start << ", " << end << ": " << Vec3(0.0, 0.0, 0.0) << std::endl;
+//    }
     return Vec3(0.0, 0.0, 0.0);
+  }
   else
-    return Vec3((tr_position.x > center->x ? force : -force), (tr_position.y > center->y ? force : -force), (tr_position.z > center->z ? force : -force));
+  {
+    p.pos -= p.velocity * (p.base->time_diff / 1000000.0) * 0.5;
+
+    Vec3 ret;
+    ret.x = 3 * force * (rotz_position.x - midpoint.x) / size.x;
+    ret.y = 3 * force * (rotz_position.y - start.y) / square(size.y + 0.7);
+    ret.z = 3 * force * (rotz_position.z - midpoint.z) / size.z;
+
+    const float s_rx2 = *sin_rot_x2;
+    const float c_rx2 = *cos_rot_x2;
+    const float s_ry2 = *sin_rot_y2;
+    const float c_ry2 = *cos_rot_y2;
+    const float s_rz2 = *sin_rot_z2;
+    const float c_rz2 = *cos_rot_z2;
+
+    Vec3 rotz_ret;
+    rotz_ret.x = ret.x * c_rz2 - ret.y * s_rz2;
+    rotz_ret.y = ret.x * s_rz2 + ret.y * c_rz2;
+    rotz_ret.z = ret.z;
+
+    Vec3 rotx_ret;
+    rotx_ret.x = rotz_ret.x;
+    rotx_ret.y = rotz_ret.y * c_rx2 - rotz_ret.z * s_rx2;
+    rotx_ret.z = rotz_ret.y * s_rx2 + rotz_ret.z * c_rx2;
+  
+    Vec3 roty_ret;
+    roty_ret.x = rotx_ret.z * s_ry2 + rotx_ret.x * c_ry2;
+    roty_ret.y = rotx_ret.y;
+    roty_ret.z = rotx_ret.z * c_ry2 - rotx_ret.x * s_ry2;
+  
+//    if ((center->x > 41.74) && (center->x < 41.75))
+//      std::cout << "B2: " << p.pos << ", " << translated_pos << ", " << rotz_position << ": " << (*center) << ": " << start << ", " << end << ": " << ret << ", " << roty_ret << std::endl;
+
+    return roty_ret;
+  }
 }
 
 PolarCoordElement::PolarCoordElement(const coord_t _frequency, const coord_t _offset, const coord_t _scalar, const coord_t _power)
@@ -694,8 +750,8 @@ Vec3 ParticleMover::nonpreserving_vec_shift_amount(const Vec3 src, const Vec3 de
 void GradientMover::move(Particle& p, Uint64 usec)
 {
   const coord_t scalar = usec / 1000000.0;
-  Vec3 gradient_velocity = p.velocity + get_force_gradient(p.pos) * scalar;
-  p.velocity = gradient_velocity + get_obstruction_gradient(p.pos) * scalar;
+  Vec3 gradient_velocity = p.velocity + get_force_gradient(p) * scalar;
+  p.velocity = gradient_velocity + get_obstruction_gradient(p) * scalar;
 #if 0	// Slow but clear version.  Consider this a comment.
   p.velocity.normalize(gradient_velocity.magnitude());
 #else	// Fast but obfuscated
@@ -704,19 +760,19 @@ void GradientMover::move(Particle& p, Uint64 usec)
   p.pos += p.velocity * scalar;
 }
 
-Vec3 GradientMover::get_force_gradient(const Vec3& pos) const
+Vec3 GradientMover::get_force_gradient(Particle& p) const
 {
   return Vec3(0.0, 0.0, 0.0);
 }
 
-Vec3 SmokeMover::get_force_gradient(const Vec3& pos) const
+Vec3 SmokeMover::get_force_gradient(Particle& p) const
 {
   return Vec3(0.0, 0.2 * strength, 0.0);
 }
 
-Vec3 SpiralMover::get_force_gradient(const Vec3& pos) const
+Vec3 SpiralMover::get_force_gradient(Particle& p) const
 {
-  Vec3 shifted_pos = pos - *center;
+  Vec3 shifted_pos = p.pos - *center;
   return Vec3(shifted_pos.z * spiral_speed - shifted_pos.x * pinch_rate, 0.0, shifted_pos.x * spiral_speed - shifted_pos.z * pinch_rate);
 }
 
@@ -727,9 +783,9 @@ PolarCoordsBoundingMover::PolarCoordsBoundingMover(Effect* _effect, const Vec3 _
   force = _force;
 }
 
-Vec3 PolarCoordsBoundingMover::get_force_gradient(const Vec3& pos) const
+Vec3 PolarCoordsBoundingMover::get_force_gradient(Particle& p) const
 {
-  Vec3 shifted_pos = pos - center_pos;
+  Vec3 shifted_pos = p.pos - center_pos;
   const coord_t radius = fastsqrt(square(shifted_pos.x) + square(shifted_pos.z));
   coord_t max_radius = 0.0;
   const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
@@ -744,16 +800,16 @@ Vec3 PolarCoordsBoundingMover::get_force_gradient(const Vec3& pos) const
     return Vec3(0.0, 0.0, 0.0);
 }
 
-Vec3 SimpleGravityMover::get_force_gradient(const Vec3& pos) const
+Vec3 SimpleGravityMover::get_force_gradient(Particle& p) const
 {
   return Vec3(0.0, -1.6, 0.0);
 }
 
-Vec3 GradientMover::get_obstruction_gradient(const Vec3& pos) const
+Vec3 GradientMover::get_obstruction_gradient(Particle& p) const
 {	//Unlike normal force gradients, obstruction gradients are used in a magnitude-preserving fashion.
   Vec3 ret(0.0, 0.0, 0.0);
-  for (std::vector<Obstruction*>::iterator iter = effect->obstructions.begin(); iter != effect->obstructions.end(); iter++)
-    ret += (*iter)->get_force_gradient(pos);
+  for (std::vector<Obstruction*>::iterator iter = effect->obstructions->begin(); iter != effect->obstructions->end(); iter++)
+    ret += (*iter)->get_force_gradient(p);
   return ret;
 }
 
@@ -827,8 +883,8 @@ void GravityMover::move(Particle& p, Uint64 usec)
   }
   
   // Factor in the force gradient, if any.
-  Vec3 gradient_velocity = p.velocity + get_force_gradient(p.pos);
-  Vec3 obstruction_velocity = gradient_velocity + get_obstruction_gradient(p.pos);
+  Vec3 gradient_velocity = p.velocity + get_force_gradient(p);
+  Vec3 obstruction_velocity = gradient_velocity + get_obstruction_gradient(p);
   const coord_t grad_mag_squared = gradient_velocity.magnitude_squared();
 #if 0	// Slow but clear.  Consider this a comment.
   if (grad_mag_squared)

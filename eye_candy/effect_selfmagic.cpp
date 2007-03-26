@@ -391,12 +391,9 @@ SelfMagicEffect::~SelfMagicEffect()
     delete spawner2;
   if (mover2)
     delete mover2;
-  while (capless_cylinders.size())
-  {
-    std::vector<Shape*>::iterator iter = capless_cylinders.begin();
-    delete *iter;
-    capless_cylinders.erase(iter);
-  }
+  for (size_t i = 0; i < capless_cylinders.size(); i++)
+    delete capless_cylinders[i];
+  capless_cylinders.clear();
   if (EC_DEBUG)
     std::cout << "SelfMagicEffect (" << this << ") destroyed." << std::endl;
 }

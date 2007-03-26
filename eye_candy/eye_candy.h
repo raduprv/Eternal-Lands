@@ -36,8 +36,6 @@
 namespace ec
 {
 
-extern MathCache math_cache;
-
 // P R O T O T Y P E S ////////////////////////////////////////////////////////
 
 #define randdouble MathCache::randdouble	// Aliases to static functions to make things easier to type.
@@ -94,6 +92,13 @@ const float PI =3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
 const coord_t MAX_DRAW_DISTANCE_SQUARED = 700;
+
+// E X T E R N S //////////////////////////////////////////////////////////////
+
+extern MathCache math_cache;
+
+class Obstruction;
+extern std::vector<Obstruction*> null_obstructions;	// Used where we don't want to have to pass a list.
 
 // E N U M S //////////////////////////////////////////////////////////////////
 
@@ -511,80 +516,6 @@ public:
   coord_t radius;
 };
 
-class Obstruction
-{
-public:
-  Obstruction(const coord_t _max_distance, const coord_t _force);
-  virtual ~Obstruction() {};
-  
-  virtual Vec3 get_force_gradient(const Vec3 position) = 0;
-  
-  coord_t max_distance;
-  coord_t max_distance_squared;
-  coord_t force;
-};
-
-class SimpleCylinderObstruction : public Obstruction	// Vertical and infinite.  Speeds up the math if you don't need the extra detail.
-{
-public:
-  SimpleCylinderObstruction(Vec3* _pos, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force) { pos = _pos; };
-  virtual ~SimpleCylinderObstruction() {};
-  
-  virtual Vec3 get_force_gradient(const Vec3 position);
-
-  Vec3* pos;
-};
-
-class CylinderObstruction : public Obstruction	// Note: assumes that (*end - *start) doesn't change.
-{
-public:
-  CylinderObstruction(Vec3* _start, Vec3* _end, const coord_t _max_distance, const coord_t _force);
-  virtual ~CylinderObstruction() {};
-  
-  virtual Vec3 get_force_gradient(const Vec3 position);
-
-  Vec3* start;
-  Vec3* end;
-  Vec3 length_vec;
-  coord_t length_vec_mag;
-};
-
-class SphereObstruction : public Obstruction
-{
-public:
-  SphereObstruction(Vec3* _pos, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force) { pos = _pos; };
-  virtual ~SphereObstruction() {};
-  
-  virtual Vec3 get_force_gradient(const Vec3 position);
-  
-  Vec3* pos;
-};
-
-class BoxObstruction : public Obstruction
-{
-public:
-  BoxObstruction(const Vec3 _start, const Vec3 _end, Vec3* _center, float* _rot_x, float* _rot_y, float* _rot_z, const coord_t _force) : Obstruction(1.0, _force)
-  {
-    start = _start;
-    end = _end;
-    center = _center;
-    rot_x = _rot_x;
-    rot_y = _rot_y;
-    rot_z = _rot_z;
-  };
-  virtual ~BoxObstruction() {};
-  
-  virtual Vec3 get_force_gradient(const Vec3 position);
-
-  Vec3 start;
-  Vec3 end;
-  Vec3* center;
-  float* rot_x;
-  float* rot_y;
-  float* rot_z;
-};
-
-
 class PolarCoordElement
 {
 public:
@@ -686,8 +617,8 @@ public:
   
   virtual void move(Particle& p, Uint64 usec);
 
-  virtual Vec3 get_force_gradient(const Vec3& pos) const;
-  virtual Vec3 get_obstruction_gradient(const Vec3& pos) const;
+  virtual Vec3 get_force_gradient(Particle& p) const;
+  virtual Vec3 get_obstruction_gradient(Particle& p) const;
 };
 
 class SmokeMover : public GradientMover
@@ -698,7 +629,7 @@ public:
   virtual ~SmokeMover() {};
   
 //  virtual void move(Particle& p, Uint64 usec);
-  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+  virtual Vec3 get_force_gradient(Particle& p) const;
   
   coord_t strength;
 };
@@ -709,7 +640,7 @@ public:
   SpiralMover(Effect* _effect, Vec3* _center, const coord_t _spiral_speed, const coord_t _pinch_rate) : GradientMover(_effect) { center = _center; spiral_speed = _spiral_speed; pinch_rate = _pinch_rate; };
   virtual ~SpiralMover() {};
   
-  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+  virtual Vec3 get_force_gradient(Particle& p) const;
   
   Vec3* center;
   coord_t spiral_speed;
@@ -722,7 +653,7 @@ public:
   PolarCoordsBoundingMover(Effect* _effect, const Vec3 _center_pos, const std::vector<PolarCoordElement> _bounding_range, const coord_t _force);
   virtual ~PolarCoordsBoundingMover() {};
   
-  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+  virtual Vec3 get_force_gradient(Particle& p) const;
 
   std::vector<PolarCoordElement> bounding_range;
   coord_t force;
@@ -735,7 +666,7 @@ public:
   SimpleGravityMover(Effect* _effect) : GradientMover(_effect) {};
   virtual ~SimpleGravityMover() {};
   
-  virtual Vec3 get_force_gradient(const Vec3& pos) const;
+  virtual Vec3 get_force_gradient(Particle& p) const;
 };
 
 class GravityMover : public GradientMover	// A full-featured gravity simulator.
@@ -978,6 +909,103 @@ public:
   std::vector<PolarCoordElement> bounding_range;
 };
 
+class Obstruction
+{
+public:
+  Obstruction(const coord_t _max_distance, const coord_t _force);
+  virtual ~Obstruction() {};
+  
+  virtual Vec3 get_force_gradient(Particle& p) = 0;
+  
+  coord_t max_distance;
+  coord_t max_distance_squared;
+  coord_t force;
+};
+
+class SimpleCylinderObstruction : public Obstruction	// Vertical and infinite.  Speeds up the math if you don't need the extra detail.
+{
+public:
+  SimpleCylinderObstruction(Vec3* _pos, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force) { pos = _pos; };
+  virtual ~SimpleCylinderObstruction() {};
+  
+  virtual Vec3 get_force_gradient(Particle& p);
+
+  Vec3* pos;
+};
+
+class CylinderObstruction : public Obstruction	// Note: assumes that (*end - *start) doesn't change.
+{
+public:
+  CylinderObstruction(Vec3* _start, Vec3* _end, const coord_t _max_distance, const coord_t _force);
+  virtual ~CylinderObstruction() {};
+  
+  virtual Vec3 get_force_gradient(Particle& p);
+
+  Vec3* start;
+  Vec3* end;
+  Vec3 length_vec;
+  coord_t length_vec_mag;
+};
+
+class SphereObstruction : public Obstruction
+{
+public:
+  SphereObstruction(Vec3* _pos, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force) { pos = _pos; };
+  virtual ~SphereObstruction() {};
+  
+  virtual Vec3 get_force_gradient(Particle& p);
+  
+  Vec3* pos;
+};
+
+class BoxObstruction : public Obstruction
+{
+public:
+  BoxObstruction(const Vec3 _start, const Vec3 _end, Vec3* _center, float* _sin_rot_x, float*_cos_rot_x, float* _sin_rot_y, float* _cos_rot_y, float* _sin_rot_z, float* _cos_rot_z, float* _sin_rot_x2, float*_cos_rot_x2, float* _sin_rot_y2, float* _cos_rot_y2, float* _sin_rot_z2, float* _cos_rot_z2, const coord_t _force) : Obstruction(1.0, _force)
+  {
+    start = _start;
+    end = _end;
+    midpoint = (start + end) / 2;
+    size = end - start;
+    max_distance_squared = size.magnitude_squared() / 4;
+    center = _center;
+    sin_rot_x = _sin_rot_x;
+    cos_rot_x = _cos_rot_x;
+    sin_rot_y = _sin_rot_y;
+    cos_rot_y = _cos_rot_y;
+    sin_rot_z = _sin_rot_z;
+    cos_rot_z = _cos_rot_z;
+    sin_rot_x2 = _sin_rot_x2;
+    cos_rot_x2 = _cos_rot_x2;
+    sin_rot_y2 = _sin_rot_y2;
+    cos_rot_y2 = _cos_rot_y2;
+    sin_rot_z2 = _sin_rot_z2;
+    cos_rot_z2 = _cos_rot_z2;
+  };
+  virtual ~BoxObstruction() {};
+  
+  virtual Vec3 get_force_gradient(Particle& p);
+
+  Vec3 start;
+  Vec3 end;
+  Vec3 midpoint; // Local coordinates
+  Vec3 size;
+  Vec3* center; // World coordinates
+  float max_distance_squared; // The squared radius of a verticle cylinder that describes the maximum area of effect of this bounded object.
+  float* sin_rot_x;
+  float* cos_rot_x;
+  float* sin_rot_y;
+  float* cos_rot_y;
+  float* sin_rot_z;
+  float* cos_rot_z;
+  float* sin_rot_x2;
+  float* cos_rot_x2;
+  float* sin_rot_y2;
+  float* cos_rot_y2;
+  float* sin_rot_z2;
+  float* cos_rot_z2;
+};
+
 class Effect
 {
 public:
@@ -991,6 +1019,7 @@ public:
     desired_LOD = 10;
     LOD = desired_LOD;
     active = true;
+    obstructions = &null_obstructions;
   };
   virtual ~Effect() { *dead = true; };
   
@@ -1017,7 +1046,7 @@ public:
   Uint64 born;
   bool* dead;				//Provided by the effect caller; set when this effect is going away.
   Vec3* pos;
-  std::vector<Obstruction*> obstructions;
+  std::vector<Obstruction*>* obstructions;
   std::map<Particle*, bool> particles;
   bool active;
   bool recall;

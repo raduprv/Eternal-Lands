@@ -132,7 +132,7 @@ GLuint CampfireBigParticle::get_texture(const Uint16 res_index)
   return base->TexFlare.get_texture(res_index);
 }
 
-CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _scale, const Uint16 _LOD)
+CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "CampfireEffect (" << this << ") created." << std::endl;

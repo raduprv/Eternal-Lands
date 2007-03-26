@@ -291,7 +291,7 @@ GLuint TargetMagicParticle::get_texture(const Uint16 res_index)
   return texture->get_texture(res_index);
 }
 
-TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const Uint16 _LOD)
+TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const TargetMagicType _type, std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ") created(1)." << std::endl;
@@ -300,14 +300,14 @@ TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, V
   initialize(_base, _dead, _pos, targets, _type, _obstructions, _LOD);
 }
 
-TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const Uint16 _LOD)
+TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ") created(2)." << std::endl;
   initialize(_base, _dead, _pos, _targets, _type, _obstructions, _LOD);
 }
 
-void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, const std::vector<ec::Obstruction*>& _obstructions, const Uint16 _LOD)
+void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
 {
   base = _base;
   dead = _dead;
@@ -546,12 +546,9 @@ TargetMagicEffect::~TargetMagicEffect()
     delete spawner2;
   if (mover2)
     delete mover2;
-  while (capless_cylinders.size())
-  {
-    std::vector<Shape*>::iterator iter = capless_cylinders.begin();
-    delete *iter;
-    capless_cylinders.erase(iter);
-  }
+  for (size_t i = 0; i < capless_cylinders.size(); i++)
+    delete capless_cylinders[i];
+  capless_cylinders.clear();
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ") destroyed." << std::endl;
 }
@@ -826,12 +823,9 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
 
 TargetMagicEffect2::~TargetMagicEffect2()
 {
-  while (capless_cylinders.size())
-  {
-    std::vector<Shape*>::iterator iter = capless_cylinders.begin();
-    delete *iter;
-    capless_cylinders.erase(iter);
-  }
+  for (size_t i = 0; i < capless_cylinders.size(); i++)
+    delete capless_cylinders[i];
+  capless_cylinders.clear();
 }
 
 

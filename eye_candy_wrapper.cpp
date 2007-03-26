@@ -1,8 +1,3 @@
-/*
-TODOs:
- * Make actors be obstructed properly.
-*/
-
 #ifdef EYE_CANDY
 
 #include "eye_candy_wrapper.h"
@@ -14,22 +9,29 @@ TODOs:
 #include "gamewin.h"
 
 ec::EyeCandy eye_candy;
-Uint64 ec_cur_time;
+Uint64 ec_cur_time, ec_last_time;
 std::vector<ec_internal_reference*> references;
 
 const float MAX_EFFECT_DISTANCE = 20.0;
+const float MAX_OBSTRUCT_DISTANCE_SQUARED = 90.0;
+const float OBSTRUCTION_FORCE = 2.0;
 const float WALK_RATE = 1.0;
 
-ec_internal_obstructions null_obstructions;
-ec_internal_obstructions obstructions;
+ec_object_obstructions object_obstructions;
+ec_actor_obstructions actor_obstructions;
+ec_actor_obstruction self_actor;
 std::vector<ec::Obstruction*> general_obstructions_list;
 std::vector<ec::Obstruction*> fire_obstructions_list;
 
 extern "C" void ec_init()
 {
   eye_candy.load_textures("./textures/eye_candy/");
+  ec_last_time = 0;
   ec_cur_time = 0;
   ec_set_draw_method();
+  //TODO: Free this when the program quits.  Not a big deal if it doesn't
+  //happen, but it'd be proper to do so.
+  self_actor.obstruction = new ec::SimpleCylinderObstruction(&(self_actor.center), 0.6, 3.0);
 }
 
 extern "C" void ec_add_light(GLenum light_id)
@@ -105,35 +107,73 @@ extern "C" void ec_idle()
     i++;
   }
   
-  general_obstructions_list.clear();
-  fire_obstructions_list.clear();
-  for (ec_internal_obstructions::iterator iter = obstructions.begin(); iter != obstructions.end(); iter++)
-  {
-    iter->center.x = iter->obj3d->x_pos + 0.25;
-    iter->center.y = iter->obj3d->z_pos + 0.25;
-    iter->center.z = -(iter->obj3d->y_pos + 0.25);
-    iter->rot_x = iter->obj3d->x_rot;
-    iter->rot_y = iter->obj3d->z_rot;
-    iter->rot_z = -(iter->obj3d->y_rot);
-    const float dist_squared = (iter->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
-    if (dist_squared < ec::square(MAX_EFFECT_DISTANCE))
-    {
-      general_obstructions_list.push_back(iter->obstruction);
-      if (iter->fire_related)
-        fire_obstructions_list.push_back(iter->obstruction);
-    }
-  }
-  
-  
   if (ec_cur_time == 0)
     eye_candy.time_diff = 100000;
   else
     eye_candy.time_diff = new_time - ec_cur_time;
   eye_candy.framerate = 1000000.0 / (eye_candy.time_diff + 1);
 //  eye_candy.framerate = fps_average;
-  eye_candy.idle();
+  ec_last_time = ec_cur_time;
   ec_cur_time = new_time;
 
+  if (ec_last_time % 1000000 >= ec_cur_time % 1000000)
+    ec_heartbeat();
+
+  eye_candy.idle();
+}
+
+extern "C" void ec_heartbeat()
+{
+//  std::cout << "Actor: <" << camera_x << ", " << camera_z << ", " << -camera_y << ">" << std::endl;
+//  if (!((int)(ec_cur_time / 1000000.0) % 9))
+//    ec_create_breath_fire(44.75, 38.0, 1.0, 44.75, 43.0, 0.6, 2, 1.5);
+  general_obstructions_list.clear();
+  fire_obstructions_list.clear();
+  for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); iter++)
+  {
+    (*iter)->center.x = (*iter)->obj3d->x_pos;
+    (*iter)->center.y = (*iter)->obj3d->z_pos;
+    (*iter)->center.z = -(*iter)->obj3d->y_pos;
+    const float dist_squared = ((*iter)->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
+    if (dist_squared > MAX_OBSTRUCT_DISTANCE_SQUARED)
+      continue;
+    (*iter)->center.x += 0.25;
+    (*iter)->center.y += 0.25;
+    (*iter)->center.z -= 0.25;
+    (*iter)->sin_rot_x = sin((*iter)->obj3d->x_rot);
+    (*iter)->cos_rot_x = cos((*iter)->obj3d->x_rot);
+    (*iter)->sin_rot_y = sin((*iter)->obj3d->z_rot);
+    (*iter)->cos_rot_y = cos((*iter)->obj3d->z_rot);
+    (*iter)->sin_rot_z = sin(-((*iter)->obj3d->y_rot));
+    (*iter)->cos_rot_z = cos(-((*iter)->obj3d->y_rot));
+    (*iter)->sin_rot_x2 = sin(-(*iter)->obj3d->x_rot);
+    (*iter)->cos_rot_x2 = cos(-(*iter)->obj3d->x_rot);
+    (*iter)->sin_rot_y2 = sin(-(*iter)->obj3d->z_rot);
+    (*iter)->cos_rot_y2 = cos(-(*iter)->obj3d->z_rot);
+    (*iter)->sin_rot_z2 = sin(((*iter)->obj3d->y_rot));
+    (*iter)->cos_rot_z2 = cos(((*iter)->obj3d->y_rot));
+    general_obstructions_list.push_back((*iter)->obstruction);
+    if ((*iter)->fire_related)
+      fire_obstructions_list.push_back((*iter)->obstruction);
+  }
+  for (ec_actor_obstructions::iterator iter = actor_obstructions.begin(); iter != actor_obstructions.end(); iter++)
+  {
+    (*iter)->center.x = (*iter)->obstructing_actor->x_pos;
+    (*iter)->center.y = (*iter)->obstructing_actor->z_pos;
+    (*iter)->center.z = -(*iter)->obstructing_actor->y_pos;
+    const float dist_squared = ((*iter)->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
+    if (dist_squared > MAX_OBSTRUCT_DISTANCE_SQUARED)
+      continue;
+    (*iter)->center.x += 0.25;
+    (*iter)->center.y += 0.25;
+    (*iter)->center.z -= 0.25;
+    general_obstructions_list.push_back((*iter)->obstruction);
+  }
+  // Last but not least... the actor.
+  self_actor.center.x = -camera_x;
+  self_actor.center.y = -camera_z;
+  self_actor.center.z = camera_y;
+  general_obstructions_list.push_back(self_actor.obstruction);
 }
 
 extern "C" void ec_draw()
@@ -169,6 +209,24 @@ extern "C" void ec_actor_delete(actor* _actor)
       std::vector<actor*>::iterator iter2 = (*iter)->target_actors.begin() + j;
       if (*iter2 == _actor)
         (*iter2) = NULL;
+    }
+  }
+  for (ec_actor_obstructions::iterator iter = actor_obstructions.begin(); iter != actor_obstructions.end(); iter++)
+  {
+    if ((*iter)->obstructing_actor == _actor)
+    {
+      for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); iter2++)
+      {
+        if (*iter2 == (*iter)->obstruction)
+        {
+          general_obstructions_list.erase(iter2);
+          break;
+        }
+      }
+      delete (*iter)->obstruction;
+      delete *iter;
+      actor_obstructions.erase(iter);
+      break;
     }
   }
 }
@@ -277,48 +335,98 @@ extern "C" void ec_set_position2(ec_reference ref, float x, float y, float z)
 
 extern "C" void ec_clear_obstruction_list()
 {
-  for (ec_internal_obstructions::iterator iter = obstructions.begin(); iter != obstructions.end(); iter++)
-    delete iter->obstruction;
+  for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); iter++)
+  {
+    delete (*iter)->obstruction;
+    delete *iter;
+  }
+  object_obstructions.clear();
+  for (ec_actor_obstructions::iterator iter = actor_obstructions.begin(); iter != actor_obstructions.end(); iter++)
+  {
+    delete (*iter)->obstruction;
+    delete *iter;
+  }
+  actor_obstructions.clear();
+  general_obstructions_list.clear();
+  fire_obstructions_list.clear();
 }
 
-extern "C" void ec_add_box_obstruction(object3d* obj3d, e3d_object *e3dobj, float force)
+extern "C" void ec_add_object_obstruction(object3d* obj3d, e3d_object *e3dobj, float force)
 {
-  std::cout << "Adding obstruction for " << obj3d->file_name << std::endl;
-  ec_internal_obstruction obstruction;
-  obstruction.obj3d = obj3d;
-  obstruction.e3dobj = e3dobj;
-  obstruction.center = ec::Vec3(obj3d->x_pos + 0.25, obj3d->z_pos, -(obj3d->y_pos + 0.25));
-  obstruction.rot_x = obj3d->x_rot;
-  obstruction.rot_y = obj3d->z_rot;
-  obstruction.rot_z = -(obj3d->y_rot);
-  obstruction.fire_related = false;
+  // First, verify that this object isn't "flat"
+  if ((e3dobj->min_x == e3dobj->max_x) || (e3dobj->min_y == e3dobj->max_y) || (e3dobj->min_z == e3dobj->max_z))
+    return;
+
+  ec_object_obstruction* obstruction = new ec_object_obstruction;
+  obstruction->obj3d = obj3d;
+  obstruction->e3dobj = e3dobj;
+  obstruction->center = ec::Vec3(obj3d->x_pos + 0.25, obj3d->z_pos, -(obj3d->y_pos + 0.25));
+  obstruction->sin_rot_x = sin(obj3d->x_rot);
+  obstruction->cos_rot_x = cos(obj3d->x_rot);
+  obstruction->sin_rot_y = sin(obj3d->z_rot);
+  obstruction->cos_rot_y = cos(obj3d->z_rot);
+  obstruction->sin_rot_z = sin(-(obj3d->y_rot));
+  obstruction->cos_rot_z = cos(-(obj3d->y_rot));
+  obstruction->sin_rot_x2 = sin(-obj3d->x_rot);
+  obstruction->cos_rot_x2 = cos(-obj3d->x_rot);
+  obstruction->sin_rot_y2 = sin(-obj3d->z_rot);
+  obstruction->cos_rot_y2 = cos(-obj3d->z_rot);
+  obstruction->sin_rot_z2 = sin((obj3d->y_rot));
+  obstruction->cos_rot_z2 = cos((obj3d->y_rot));
+  obstruction->fire_related = false;
   if (!strncmp(obj3d->file_name + 2, "misc_ob", 7))
   {
     if (!strncmp(obj3d->file_name + 15, "cook", 4) ||
         !strncmp(obj3d->file_name + 15, "pot_", 4) ||
         !strncmp(obj3d->file_name + 15, "cauld", 5))
-      obstruction.fire_related = true;
+      obstruction->fire_related = true;
   }
   else if (!strncmp(obj3d->file_name + 2, "struc", 5))
   {
     if (!strncmp(obj3d->file_name + 13, "chimn", 5) ||
         !strncmp(obj3d->file_name + 13, "forge", 5))
-      obstruction.fire_related = true;
+      obstruction->fire_related = true;
   }
   else if (!strncmp(obj3d->file_name + 2, "trees/fire", 10))
-    obstruction.fire_related = true;
-  obstruction.obstruction = new ec::BoxObstruction(ec::Vec3(e3dobj->min_x, e3dobj->min_z, -e3dobj->min_y), ec::Vec3(e3dobj->max_x, e3dobj->max_z, -e3dobj->max_y), &obstruction.center, &obstruction.rot_x, &obstruction.rot_y, &obstruction.rot_z, force);
-  obstructions.push_back(obstruction);
+    obstruction->fire_related = true;
+  obstruction->obstruction = new ec::BoxObstruction(ec::Vec3(e3dobj->min_x, e3dobj->min_z, -e3dobj->max_y), ec::Vec3(e3dobj->max_x, e3dobj->max_z, -e3dobj->min_y), &(obstruction->center), &(obstruction->sin_rot_x), &(obstruction->cos_rot_x), &(obstruction->sin_rot_y), &(obstruction->cos_rot_y), &(obstruction->sin_rot_z), &(obstruction->cos_rot_z), &(obstruction->sin_rot_x2), &(obstruction->cos_rot_x2), &(obstruction->sin_rot_y2), &(obstruction->cos_rot_y2), &(obstruction->sin_rot_z2), &(obstruction->cos_rot_z2), force);
+  object_obstructions.push_back(obstruction);
+}
+
+extern "C" void ec_add_actor_obstruction(actor* _actor, float force)
+{
+  ec_actor_obstruction* obstruction = new ec_actor_obstruction;
+  obstruction->obstructing_actor = _actor;
+  obstruction->center = ec::Vec3(_actor->x_pos + 0.25, _actor->z_pos, -(_actor->y_pos + 0.25));
+  obstruction->obstruction = new ec::SimpleCylinderObstruction(&(obstruction->center), 0.85, force);
+  actor_obstructions.push_back(obstruction);
 }
 
 extern "C" void ec_remove_obstruction(object3d* obj3d)
 {
-  for (ec_internal_obstructions::iterator iter = obstructions.begin(); iter != obstructions.end(); iter++)
+  for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); iter++)
   {
-    if (iter->obj3d == obj3d)
+    if ((*iter)->obj3d == obj3d)
     {
-      delete iter->obstruction;
-      obstructions.erase(iter);
+      for (std::vector<ec::Obstruction*>::iterator iter2 = general_obstructions_list.begin(); iter2 != general_obstructions_list.end(); iter2++)
+      {
+        if (*iter2 == (*iter)->obstruction)
+        {
+          general_obstructions_list.erase(iter2);
+          break;
+        }
+      }
+      for (std::vector<ec::Obstruction*>::iterator iter2 = fire_obstructions_list.begin(); iter2 != fire_obstructions_list.end(); iter2++)
+      {
+        if (*iter2 == (*iter)->obstruction)
+        {
+          fire_obstructions_list.erase(iter2);
+          break;
+        }
+      }
+      delete (*iter)->obstruction;
+      delete *iter;
+      object_obstructions.erase(iter);
       return;
     }
   }
@@ -364,15 +472,9 @@ extern "C" int ec_in_range(float x, float y, float z, Uint64 effect_max_time)
 {
   float dist_squared = (ec::Vec3(x, z, -y) - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
   if (dist_squared < ec::square(MAX_EFFECT_DISTANCE + (effect_max_time * WALK_RATE) / 1000000.0))
-  {
-//    std::cout << "In range: " << dist_squared << std::endl;
     return 1;
-  }
   else
-  {
-//    std::cout << "Not in range: " << dist_squared << std::endl;
     return 0;
-  }
 }
 
 extern "C" ec_reference ec_create_generic()
@@ -426,7 +528,7 @@ extern "C" ec_reference ec_create_breath_fire(float sx, float sy, float sz, floa
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + 0.25));
   ret->position2 = ec::Vec3(tx, tz, -(ty + 0.25));
-  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, general_obstructions_list, ec::BreathEffect::FIRE, LOD, scale);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::FIRE, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -438,7 +540,7 @@ extern "C" ec_reference ec_create_breath_ice(float sx, float sy, float sz, float
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + 0.25));
   ret->position2 = ec::Vec3(tx, tz, -(ty + 0.25));
-  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, general_obstructions_list, ec::BreathEffect::ICE, LOD, scale);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::ICE, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -450,7 +552,7 @@ extern "C" ec_reference ec_create_breath_poison(float sx, float sy, float sz, fl
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + 0.25));
   ret->position2 = ec::Vec3(tx, tz, -(ty + 0.25));
-  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, general_obstructions_list, ec::BreathEffect::POISON, LOD, scale);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::POISON, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -462,7 +564,7 @@ extern "C" ec_reference ec_create_breath_magic(float sx, float sy, float sz, flo
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + 0.25));
   ret->position2 = ec::Vec3(tx, tz, -(ty + 0.25));
-  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, general_obstructions_list, ec::BreathEffect::MAGIC, LOD, scale);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::MAGIC, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -474,7 +576,7 @@ extern "C" ec_reference ec_create_breath_lightning(float sx, float sy, float sz,
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + 0.25));
   ret->position2 = ec::Vec3(tx, tz, -(ty + 0.25));
-  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, general_obstructions_list, ec::BreathEffect::LIGHTNING, LOD, scale);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::LIGHTNING, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -486,7 +588,7 @@ extern "C" ec_reference ec_create_breath_wind(float sx, float sy, float sz, floa
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + 0.25));
   ret->position2 = ec::Vec3(tx, tz, -(ty + 0.25));
-  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, general_obstructions_list, ec::BreathEffect::WIND, LOD, scale);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::WIND, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -495,7 +597,7 @@ extern "C" ec_reference ec_create_campfire(float x, float y, float z, int LOD, f
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::CampfireEffect(&eye_candy, &ret->dead, &ret->position, fire_obstructions_list, scale, LOD);
+  ret->effect = new ec::CampfireEffect(&eye_candy, &ret->dead, &ret->position, &fire_obstructions_list, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -515,7 +617,7 @@ extern "C" ec_reference ec_create_fireflies(float x, float y, float z, float den
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, general_obstructions_list, density, *cast_bounds);
+  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1415,7 +1517,7 @@ extern "C" ec_reference ec_create_targetmagic_remote_heal(float start_x, float s
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
   ret->position2 = ec::Vec3(end_x, end_z, -end_y);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::REMOTE_HEAL, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::REMOTE_HEAL, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1429,7 +1531,7 @@ extern "C" ec_reference ec_create_targetmagic_remote_heal2(actor* caster, actor*
   ret->target = target;
   ec_set_vec3_actor_bone(ret->position, caster, 25);
   ret->position2 = ec::Vec3(target->x_pos, target->z_pos, -target->y_pos);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::REMOTE_HEAL, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::REMOTE_HEAL, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1441,7 +1543,7 @@ extern "C" ec_reference ec_create_targetmagic_poison(float start_x, float start_
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
   ret->position2 = ec::Vec3(end_x, end_z, -end_y);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::POISON, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::POISON, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1455,7 +1557,7 @@ extern "C" ec_reference ec_create_targetmagic_poison2(actor* caster, actor* targ
   ret->target = target;
   ec_set_vec3_actor_bone(ret->position, caster, 25);
   ret->position2 = ec::Vec3(target->x_pos, target->z_pos, -target->y_pos);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::POISON, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::POISON, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1467,7 +1569,7 @@ extern "C" ec_reference ec_create_targetmagic_teleport_to_range(float start_x, f
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
   ret->position2 = ec::Vec3(end_x, end_z, -end_y);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::TELEPORT_TO_RANGE, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::TELEPORT_TO_RANGE, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1479,7 +1581,7 @@ extern "C" ec_reference ec_create_targetmagic_harm(float start_x, float start_y,
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
   ret->position2 = ec::Vec3(end_x, end_z, -end_y);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::HARM, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::HARM, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1493,7 +1595,7 @@ extern "C" ec_reference ec_create_targetmagic_harm2(actor* caster, actor* target
   ret->target = target;
   ec_set_vec3_actor_bone(ret->position, caster, 25);
   ret->position2 = ec::Vec3(target->x_pos, target->z_pos, -target->y_pos);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::HARM, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::HARM, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1505,7 +1607,7 @@ extern "C" ec_reference ec_create_targetmagic_life_drain(float start_x, float st
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
   ret->position2 = ec::Vec3(end_x, end_z, -end_y);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::LIFE_DRAIN, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::LIFE_DRAIN, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1519,7 +1621,7 @@ extern "C" ec_reference ec_create_targetmagic_life_drain2(actor* caster, actor* 
   ret->target = target;
   ec_set_vec3_actor_bone(ret->position, caster, 25);
   ret->position2 = ec::Vec3(target->x_pos, target->z_pos, -target->y_pos);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::LIFE_DRAIN, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::LIFE_DRAIN, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1536,7 +1638,7 @@ extern "C" void ec_launch_targetmagic_heal_summoned(ec_reference reference, floa
   std::vector<ec::Vec3*> target_ptrs;
   for (std::vector<ec::Vec3>::iterator iter = cast_reference->targets.begin(); iter != cast_reference->targets.end(); iter++)
     target_ptrs.push_back(&(*iter));
-  cast_reference->effect = new ec::TargetMagicEffect(&eye_candy, &cast_reference->dead, &cast_reference->position, target_ptrs, ec::TargetMagicEffect::HEAL_SUMMONED, general_obstructions_list, LOD);
+  cast_reference->effect = new ec::TargetMagicEffect(&eye_candy, &cast_reference->dead, &cast_reference->position, target_ptrs, ec::TargetMagicEffect::HEAL_SUMMONED, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(cast_reference->effect);
 }
 
@@ -1552,7 +1654,7 @@ extern "C" void ec_launch_targetmagic_smite_summoned(ec_reference reference, flo
   std::vector<ec::Vec3*> target_ptrs;
   for (std::vector<ec::Vec3>::iterator iter = cast_reference->targets.begin(); iter != cast_reference->targets.end(); iter++)
     target_ptrs.push_back(&(*iter));
-  cast_reference->effect = new ec::TargetMagicEffect(&eye_candy, &cast_reference->dead, &cast_reference->position, target_ptrs, ec::TargetMagicEffect::SMITE_SUMMONED, general_obstructions_list, LOD);
+  cast_reference->effect = new ec::TargetMagicEffect(&eye_candy, &cast_reference->dead, &cast_reference->position, target_ptrs, ec::TargetMagicEffect::SMITE_SUMMONED, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(cast_reference->effect);
 }
 
@@ -1563,7 +1665,7 @@ extern "C" ec_reference ec_create_targetmagic_drain_mana(float start_x, float st
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
   ret->position2 = ec::Vec3(end_x, end_z, -end_y);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::DRAIN_MANA, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::DRAIN_MANA, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1577,7 +1679,7 @@ extern "C" ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* 
   ret->target = target;
   ec_set_vec3_actor_bone(ret->position, caster, 25);
   ret->position2 = ec::Vec3(target->x_pos, target->z_pos, -target->y_pos);
-  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::DRAIN_MANA, general_obstructions_list, LOD);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::DRAIN_MANA, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1597,7 +1699,7 @@ extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float d
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, general_obstructions_list, density, *cast_bounds, ec::WindEffect::LEAVES, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds, ec::WindEffect::LEAVES, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1608,7 +1710,7 @@ extern "C" ec_reference ec_create_wind_petals(float x, float y, float z, float d
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, general_obstructions_list, density, *cast_bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }

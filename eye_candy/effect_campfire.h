@@ -42,7 +42,7 @@ public:
 class CampfireEffect : public Effect
 {
 public: 
-  CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _scale, const Uint16 _LOD);
+  CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _scale, const Uint16 _LOD);
   ~CampfireEffect(); 
   
   virtual EffectEnum get_type() { return EC_CAMPFIRE; };

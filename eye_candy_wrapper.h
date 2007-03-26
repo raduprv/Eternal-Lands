@@ -84,19 +84,36 @@ public:
   bool dead;
 } ec_internal_reference;
 
-typedef struct ec_internal_obstruction
+typedef struct ec_object_obstruction
 {
   object3d* obj3d;
   e3d_object* e3dobj;
   ec::Vec3 center;
-  float rot_x;
-  float rot_y;
-  float rot_z;
+  float sin_rot_x;
+  float cos_rot_x;
+  float sin_rot_y;
+  float cos_rot_y;
+  float sin_rot_z;
+  float cos_rot_z;
+  float sin_rot_x2;
+  float cos_rot_x2;
+  float sin_rot_y2;
+  float cos_rot_y2;
+  float sin_rot_z2;
+  float cos_rot_z2;
   bool fire_related;
   ec::Obstruction* obstruction;
-} ec_internal_obstruction;
+} ec_object_obstruction;
 
-typedef std::vector<ec_internal_obstruction> ec_internal_obstructions;
+typedef struct ec_actor_obstruction
+{
+  actor* obstructing_actor;
+  ec::Vec3 center;
+  ec::Obstruction* obstruction;
+} ec_actor_obstruction;
+
+typedef std::vector<ec_object_obstruction*> ec_object_obstructions;
+typedef std::vector<ec_actor_obstruction*> ec_actor_obstructions;
 
 typedef std::vector<ec::PolarCoordElement> ec_internal_bounds;
 
@@ -134,6 +151,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_set_draw_method();
   void ec_set_draw_detail();
   void ec_idle(); //!< \callergraph
+  void ec_heartbeat();	// Once per second.
   void ec_draw(); //!< \callergraph
   void ec_actor_delete(actor* _actor);
   void ec_recall_effect(ec_reference ref);
@@ -146,7 +164,8 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_set_position2(ec_reference ref, float x, float y, float z);
   void ec_clear_obstruction_list();
   void ec_free_obstruction_list();
-  void ec_add_box_obstruction(object3d* obj3d, e3d_object *e3dobj, float force);
+  void ec_add_object_obstruction(object3d* obj3d, e3d_object *e3dobj, float force);
+  void ec_add_actor_obstruction(actor* actor, float force);
   ec_bounds ec_create_bounds_list();
   void ec_free_bounds_list(ec_bounds bounds);
   void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power);

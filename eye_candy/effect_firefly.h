@@ -31,7 +31,7 @@ public:
 class FireflyEffect : public Effect
 {
 public: 
-  FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _density, const std::vector<PolarCoordElement> bounding_range);
+  FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> bounding_range);
   ~FireflyEffect(); 
   
   virtual EffectEnum get_type() { return EC_FIREFLY; };

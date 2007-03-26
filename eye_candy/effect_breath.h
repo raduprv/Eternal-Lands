@@ -25,7 +25,7 @@ public:
     WIND
   };
 
-  BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const std::vector<ec::Obstruction*> _obstructions, const BreathType _type, const Uint16 _LOD, const percent_t _scale);
+  BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, std::vector<ec::Obstruction*>* _obstructions, const BreathType _type, const Uint16 _LOD, const percent_t _scale);
   ~BreathEffect(); 
   
   virtual EffectEnum get_type() { return EC_BREATH; };

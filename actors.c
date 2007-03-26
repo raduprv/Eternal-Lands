@@ -115,6 +115,10 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 
 	//It's unlocked later
 
+#ifdef EYE_CANDY
+	ec_add_actor_obstruction(our_actor, 2.0);
+#endif
+
 	return i;
 }
 
@@ -452,6 +456,7 @@ void draw_actor(actor * actor_id, int banner)
 	float x_rot,y_rot,z_rot;
 	int texture_id;
 	float healthbar_z=0;
+	
 	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
 	else
 		{

@@ -176,7 +176,7 @@ bool WindParticle::idle(const Uint64 delta_t)
 
   const float scalar = math_cache.powf_05_close((interval_t)delta_t / divisor);
   velocity = velocity * scalar + cur_wind * (1.0 - scalar);
-    
+  
   if (pos.y < min_height)
   {
     velocity /= ((min_height - pos.y + 1.0) * 8);
@@ -430,7 +430,7 @@ Vec3 WindParticle::get_wind_vec() const
   return e->overall_wind + Vec3(x, y, z);// + random_component;
 }
 
-WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _density, const std::vector<PolarCoordElement> _bounding_range, const WindType _type, const Vec3 _prevailing_wind)
+WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> _bounding_range, const WindType _type, const Vec3 _prevailing_wind)
 {
   if (EC_DEBUG)
     std::cout << "WindEffect (" << this << ") created." << std::endl;
@@ -445,7 +445,7 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vect
   max_adjust = 0.2 + prevailing_wind.magnitude() * 0.5;
   overall_wind_adjust = Vec3(0.0, 0.0, 0.0);
   bounding_range = _bounding_range;
-  mover = new ParticleMover(this);
+  mover = new GradientMover(this);
   spawner = new FilledPolarCoordsSpawner(_bounding_range);
   max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;
   count = LOD * max_LOD1_count;

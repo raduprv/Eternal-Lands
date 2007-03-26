@@ -85,12 +85,9 @@ TeleporterEffect::~TeleporterEffect()
 {
   delete mover;
   delete spawner;
-  while (capless_cylinders.size())
-  {
-    std::vector<Shape*>::iterator iter = capless_cylinders.begin();
-    delete *iter;
-    capless_cylinders.erase(iter);
-  }
+  for (size_t i = 0; i < capless_cylinders.size(); i++)
+    delete capless_cylinders[i];
+  capless_cylinders.clear();
   if (EC_DEBUG)
     std::cout << "TeleporterEffect (" << this << ") destroyed." << std::endl;
 }
@@ -152,12 +149,9 @@ void TeleporterEffect::request_LOD(const Uint16 _LOD)
   sqrt_LOD = fastsqrt(LOD);
   size_scalar = 15 / (LOD + 5);
   
-  while (capless_cylinders.size())
-  {
-    std::vector<Shape*>::iterator iter = capless_cylinders.begin();
-    delete *iter;
-    capless_cylinders.erase(iter);
-  }
+  for (size_t i = 0; i < capless_cylinders.size(); i++)
+    delete capless_cylinders[i];
+  capless_cylinders.clear();
 
 //  const float radius = 0.5 * pow(2, 0.18) / 1.5;
   const float radius = 0.377628;

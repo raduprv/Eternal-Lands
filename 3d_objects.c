@@ -710,6 +710,12 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	unsigned int is_transparent, ground;
 #endif
 #endif
+/*
+        if (!strncmp(file_name, "./3dobjects/trees/treeleaves4", 29))
+        {
+          return 0;
+        }
+*/
 
 	if(id < 0 || id >= MAX_OBJ_3D)
 	{
@@ -849,7 +855,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 #endif
 
 #ifdef EYE_CANDY
-//	ec_add_box_obstruction(our_object, returned_e3d, 2.0);
+	ec_add_object_obstruction(our_object, returned_e3d, 2.0);
 //        printf("Bounding: %f, %f, %f -> %f, %f, %f\n", returned_e3d->min_x, returned_e3d->min_y, returned_e3d->min_z, returned_e3d->max_x, returned_e3d->max_y, returned_e3d->max_z);
 //	printf("Rotation: %f, %f, %f\n", our_object->x_rot, our_object->y_rot, our_object->z_rot);
 #endif	// EYE_CANDY
@@ -1740,7 +1746,7 @@ void destroy_3d_object(int i)
 	if (objects_list[i] == NULL) return;
 
 #ifdef  EYE_CANDY
-//	ec_remove_obstruction(objects_list[i]);
+	ec_remove_obstruction(objects_list[i]);
 #endif
 
 	destroy_clouds_cache(objects_list[i]);

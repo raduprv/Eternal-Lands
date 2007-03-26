@@ -57,7 +57,7 @@ GLuint FireflyParticle::get_texture(const Uint16 res_index)
   return base->TexVoid.get_texture(res_index);
 }
 
-FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _density, const std::vector<PolarCoordElement> bounding_range)
+FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> bounding_range)
 {
   if (EC_DEBUG)
     std::cout << "FireflyEffect (" << this << ") created." << std::endl;

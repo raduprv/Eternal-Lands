@@ -30,7 +30,7 @@ public:
     angle_t end_angle;
   };
 
-  WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<ec::Obstruction*> _obstructions, const float _density, const std::vector<PolarCoordElement> _bounding_range, const WindType _type, const Vec3 _prevailing_wind);
+  WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> _bounding_range, const WindType _type, const Vec3 _prevailing_wind);
   ~WindEffect(); 
   
   void set_pass_off(std::vector<WindEffect*> pass_off_to); // Required!

@@ -297,7 +297,7 @@ GLuint BreathSmokeParticle::get_texture(const Uint16 res_index)
   return texture->get_texture(res_index);
 }
 
-BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const std::vector<ec::Obstruction*> _obstructions, const BreathType _type, const Uint16 _LOD, const percent_t _scale)
+BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, std::vector<ec::Obstruction*>* _obstructions, const BreathType _type, const Uint16 _LOD, const percent_t _scale)
 {
   if (EC_DEBUG)
     std::cout << "BreathEffect (" << this << ") created." << std::endl;
