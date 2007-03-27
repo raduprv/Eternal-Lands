@@ -12,7 +12,7 @@
 FILE* open_log (const char *fname, const char *mode)
 {
 	FILE *file = fopen (fname, mode);
-	Uint8 starttime[200];
+	Uint8 starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 	if (file == NULL)
 	{
@@ -21,8 +21,8 @@ FILE* open_log (const char *fname, const char *mode)
 	}
 	time (&c_time);
 	l_time = localtime (&c_time);
-	strftime(starttime, sizeof(starttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
-	snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", starttime, tzname[l_time->tm_isdst>0]);
+	strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
+	snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
 	fwrite (starttime, strlen(starttime), 1, file);
 	return file;
 }
