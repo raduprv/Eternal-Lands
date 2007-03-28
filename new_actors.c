@@ -3,6 +3,9 @@
 #include <string.h>
 #include <ctype.h>
 #include "global.h"
+#ifdef EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 float sitting=1.0f;
 glow_color glow_colors[10];
