@@ -505,9 +505,9 @@ Vec3 BoxObstruction::get_force_gradient(Particle& p)
   rotx_position.z = roty_position.y * s_rx + roty_position.z * c_rx;
 
   Vec3 rotz_position;
-  rotz_position.x = roty_position.x * c_rz - roty_position.y * s_rz;
-  rotz_position.y = roty_position.x * s_rz + roty_position.y * c_rz;
-  rotz_position.z = roty_position.z;
+  rotz_position.x = rotx_position.x * c_rz - rotx_position.y * s_rz;
+  rotz_position.y = rotx_position.x * s_rz + rotx_position.y * c_rz;
+  rotz_position.z = rotx_position.z;
   
 //  std::cout << position << " | " << translated_pos << " | " << rotz_position << std::endl;
 

@@ -68,7 +68,7 @@ bool ImpactParticle::idle(const Uint64 delta_t)
     }
     case ImpactEffect::BLOOD:
     {
-      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0);
+      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.8);
       alpha -= scalar;
       if (alpha < 0.02)
         return false;

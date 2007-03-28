@@ -236,7 +236,7 @@ void SwordEffect::request_LOD(const Uint16 _LOD)
     }
   }
   
-  size *= 13.0 / (LOD + 3);
+  size *= 40.0 / (LOD + 17);
   alpha /= 13.0 / (LOD + 3);
 }
 

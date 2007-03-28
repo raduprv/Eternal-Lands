@@ -1746,7 +1746,7 @@ void destroy_3d_object(int i)
 	if (objects_list[i] == NULL) return;
 
 #ifdef  EYE_CANDY
-	ec_remove_obstruction(objects_list[i]);
+	ec_remove_obstruction_by_object3d(objects_list[i]);
 #endif
 
 	destroy_clouds_cache(objects_list[i]);
@@ -1886,6 +1886,11 @@ void destroy_e3d(e3d_object *e3d_id)
 	e3d_id->materials= NULL;
 #endif  //NEW_E3D_FORMAT
 	// and finally free the main object
+
+#ifdef EYE_CANDY
+	ec_remove_obstruction_by_e3d_object(e3d_id);
+#endif	// EYE_CANDY
+
 	free(e3d_id);
 }
 

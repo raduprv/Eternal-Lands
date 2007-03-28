@@ -69,6 +69,11 @@ void destroy_map()
 						free(objects_list[i]->clouds_uv);
 					}
 #endif
+
+#ifdef  EYE_CANDY
+					ec_remove_obstruction_by_object3d(objects_list[i]);
+#endif
+
 					free(objects_list[i]);
 					objects_list[i]=NULL;//kill any refference to it
 				}

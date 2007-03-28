@@ -188,6 +188,9 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 					{
 						if(which_part==KIND_OF_WEAPON)
 							{
+#ifdef EYE_CANDY
+								ec_remove_weapon(actors_list[i]);
+#endif	// EYE_CANDY
 								if(actors_list[i]->cur_weapon == GLOVE_FUR || actors_list[i]->cur_weapon == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
 									glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -304,6 +307,58 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->cur_weapon=which_id;
 
 								actors_list[i]->body_parts->weapon_glow=actors_defs[actors_list[i]->actor_type].weapon[which_id].glow;
+#ifdef EYE_CANDY
+								switch (which_id)
+								{
+									case SWORD_1_FIRE:
+									case SWORD_2_FIRE:
+									case SWORD_3_FIRE:
+									case SWORD_4_FIRE:
+									case SWORD_4_THERMAL:
+									case SWORD_5_FIRE:
+									case SWORD_5_THERMAL:
+									case SWORD_6_FIRE:
+									case SWORD_6_THERMAL:
+									case SWORD_7_FIRE:
+									case SWORD_7_THERMAL:
+										ec_create_sword_of_fire(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_2_COLD:
+									case SWORD_3_COLD:
+									case SWORD_4_COLD:
+									case SWORD_5_COLD:
+									case SWORD_6_COLD:
+									case SWORD_7_COLD:
+										ec_create_sword_of_ice(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_3_MAGIC:
+									case SWORD_4_MAGIC:
+									case SWORD_5_MAGIC:
+									case SWORD_6_MAGIC:
+									case SWORD_7_MAGIC:
+										ec_create_sword_of_magic(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_EMERALD_CLAYMORE:
+										ec_create_sword_emerald_claymore(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_CUTLASS:
+										ec_create_sword_cutlass(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_SUNBREAKER:
+										ec_create_sword_sunbreaker(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_ORC_SLAYER:
+										ec_create_sword_orc_slayer(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_EAGLE_WING:
+										ec_create_sword_eagle_wing(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case SWORD_JAGGED_SABER:
+										ec_create_sword_jagged_saber(actors_list[i], (poor_man ? 6 : 10));
+										break;
+								}
+#endif
+
 								return;
 							}
 
@@ -852,6 +907,58 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 				actors_list[i]->stop_animation=1;
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			} else  CalModel_Update(actors_list[i]->calmodel,0);
+
+#ifdef EYE_CANDY
+			switch (weapon)
+			{
+				case SWORD_1_FIRE:
+				case SWORD_2_FIRE:
+				case SWORD_3_FIRE:
+				case SWORD_4_FIRE:
+				case SWORD_4_THERMAL:
+				case SWORD_5_FIRE:
+				case SWORD_5_THERMAL:
+				case SWORD_6_FIRE:
+				case SWORD_6_THERMAL:
+				case SWORD_7_FIRE:
+				case SWORD_7_THERMAL:
+					ec_create_sword_of_fire(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_2_COLD:
+				case SWORD_3_COLD:
+				case SWORD_4_COLD:
+				case SWORD_5_COLD:
+				case SWORD_6_COLD:
+				case SWORD_7_COLD:
+					ec_create_sword_of_ice(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_3_MAGIC:
+				case SWORD_4_MAGIC:
+				case SWORD_5_MAGIC:
+				case SWORD_6_MAGIC:
+				case SWORD_7_MAGIC:
+					ec_create_sword_of_magic(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_EMERALD_CLAYMORE:
+					ec_create_sword_emerald_claymore(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_CUTLASS:
+					ec_create_sword_cutlass(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_SUNBREAKER:
+					ec_create_sword_sunbreaker(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_ORC_SLAYER:
+					ec_create_sword_orc_slayer(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_EAGLE_WING:
+					ec_create_sword_eagle_wing(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case SWORD_JAGGED_SABER:
+					ec_create_sword_jagged_saber(actors_list[i], (poor_man ? 6 : 10));
+					break;
+			}
+#endif
 		}
 	} else actors_list[i]->calmodel=NULL;
 
