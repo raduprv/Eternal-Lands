@@ -2,6 +2,9 @@
 #include <math.h>
 #include <string.h>
 #include "global.h"
+#ifdef EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 #ifdef ELC
 #define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
