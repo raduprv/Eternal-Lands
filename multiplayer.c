@@ -723,14 +723,24 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 					}
 #ifdef COUNTERS
-					if ( (data_length > 27) && (!strncmp(in_data+4, "You successfully created 1 ", 27)) ) {
-						char *product = malloc(data_length-4-27+1);
-
-						strncpy(product, in_data+4+27, data_length-4-27);
-						product[data_length-4-27] = '\0';
-						
-						counters_set_product_name(product);
+				char *teststring = "You successfully created ";
+				int testlen = strlen(teststring);
+				if ( (data_length > testlen+4) && (!strncmp(in_data+4, teststring, testlen)) )
+				{
+					char *restofstring = malloc(data_length-4-testlen+1);
+					strncpy(restofstring, in_data+4+testlen, data_length-4-testlen);
+					restofstring[data_length-4-testlen] = '\0';
+					if (strlen(restofstring) > 0)
+					{
+						int product_count = atoi(restofstring);
+						char *product = restofstring;
+						while (*product!='\0' && *product!= ' ')
+							product++;
+						if (strlen(product)>1)
+							counters_set_product_info(product+1, product_count);
 					}
+					free(restofstring);
+				}
 #endif
 			}
 			break;

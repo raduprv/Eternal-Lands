@@ -26,7 +26,7 @@ void increment_manufacturing_counter();
 void increment_spell_counter(int spell_id);
 void increment_summon_counter(char *string);
 
-void counters_set_product_name(char *name);
+void counters_set_product_info(char *name, int count);
 void counters_set_spell_name(int spell_id, char *name, int len);
 
 #ifdef __cplusplus

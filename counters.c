@@ -49,6 +49,7 @@ static int mouseover_name = 0;
 static int mouseover_session = 0;
 static int mouseover_total = 0;
 
+static int product_count = 0;
 static char product_name[128];
 static char *spell_names[128] = { NULL };
 
@@ -574,29 +575,30 @@ void increment_death_counter(actor *a)
 /*
  * Called whenever we successfully make something.
  */
-void counters_set_product_name(char *name)
+void counters_set_product_info(char *name, int count)
 {
 	strncpy(product_name, name, sizeof(product_name));
+	product_count = count;
 }
 
 void increment_alchemy_counter()
 {
-	increment_counter(ALCHEMY, product_name, 1, 0);
+	increment_counter(ALCHEMY, product_name, product_count, 0);
 }
 
 void increment_crafting_counter()
 {
-	increment_counter(CRAFTING, product_name, 1, 0);
+	increment_counter(CRAFTING, product_name, product_count, 0);
 }
 
 void increment_potions_counter()
 {
-	increment_counter(POTIONS, product_name, 1, 0);
+	increment_counter(POTIONS, product_name, product_count, 0);
 }
 
 void increment_manufacturing_counter()
 {
-	increment_counter(MANUFACTURING, product_name, 1, 0);
+	increment_counter(MANUFACTURING, product_name, product_count, 0);
 }
 
 void increment_harvest_counter(int quantity)
