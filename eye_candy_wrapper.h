@@ -171,6 +171,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_remove_obstruction_by_e3d_object(e3d_object* obj3d);
   void ec_free_bounds_list(ec_bounds bounds);
   void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power);
+  void ec_add_smooth_polygon_bound(ec_bounds bounds, float x, float y, float z);
   ec_effects ec_create_effects_list();
   void ec_free_effects_list(ec_effects effects);
   void ec_remove_weapon(actor* _actor);
@@ -179,6 +180,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_generic();
   void ec_add_target(ec_reference reference, float x, float y, float z);
   int ec_change_target(ec_reference reference, int index, float x, float y, float z);
+  ec_reference ec_create_effect_from_map_code(char* code, float x, float y, float z, int LOD);
   ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD);
   ec_reference ec_create_bag_drop(float x, float y, float z, int LOD);
   ec_reference ec_create_breath_fire(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);

@@ -412,9 +412,9 @@ void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, cha
 void process_message_from_server (const Uint8 *in_data, int data_length)
 {
 #ifdef EYE_CANDY	//Test code; delete when Eye Candy effects are well-in.
-	ec_bounds bounds;
-	ec_reference /* ref, */ ref1, ref2;
-	ec_effects eff_list;
+//	ec_bounds bounds;
+//	ec_reference /* ref, */ ref1, ref2;
+//	ec_effects eff_list;
 #endif //EYE_CANDY
 
 	Uint8 text_buf[MAX_TCP_BUFFER];
@@ -616,10 +616,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 // Special Effects Test Code #2/2 (Lasting effects)
 // Uncomment an effect to test it; delete section when FX are integrated.
 ///////////////////////////////////////////////////////////////////////////////
-				bounds = ec_create_bounds_list();
-				ec_add_polar_coords_bound(bounds, 0.0, 0.0, 8.0, 1.0);
-				ec_add_polar_coords_bound(bounds, 2.0, 0.0, 3.0, 1.0);
-				ec_add_polar_coords_bound(bounds, 5.0, 0.1, 1.5, 0.7);
+//				bounds = ec_create_bounds_list();
+//				ec_add_polar_coords_bound(bounds, 0.0, 0.0, 8.0, 1.0);
+//				ec_add_polar_coords_bound(bounds, 2.0, 0.0, 3.0, 1.0);
+//				ec_add_polar_coords_bound(bounds, 5.0, 0.1, 1.5, 0.7);
 //				ec_create_campfire(49.0, 70.0, 0.0, 10, 1.0);
 //				ec_create_cloud(45.0, 65.0, 1.0, 1.0, bounds, 10);
 //				ec_create_fireflies(49.0, 70.0, 0.0, 1.0, bounds);
@@ -642,12 +642,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 //				ec_create_sword_of_ice(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_sword_of_magic(49.0, 70.0, 0.5, 49.5, 70.0, 0.0, 10);
 //				ec_create_teleporter(49.0, 70.0, 0.0, 10);
-				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, 0.5, bounds, 1.0, 0.0, 0.0);
-				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, 0.5, bounds, 1.0, 0.0, 0.0);
-				eff_list = ec_create_effects_list();
-				ec_add_effect(eff_list, ref2);
-				ec_add_wind_effect_list(ref1, eff_list);
-				ec_free_effects_list(eff_list);
+//				ref1 = ec_create_wind_leaves(49.0, 70.0, 0.05, 0.5, bounds, 1.0, 0.0, 0.0);
+//				ref2 = ec_create_wind_leaves(59.0, 70.0, 0.05, 0.5, bounds, 1.0, 0.0, 0.0);
+//				eff_list = ec_create_effects_list();
+//				ec_add_effect(eff_list, ref2);
+//				ec_add_wind_effect_list(ref1, eff_list);
+//				ec_free_effects_list(eff_list);
 //				eff_list = ec_create_effects_list();
 //				ec_add_effect(eff_list, ref1);
 //				ec_add_wind_effect_list(ref2, eff_list);

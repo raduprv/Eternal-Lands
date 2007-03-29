@@ -532,11 +532,24 @@ int load_map (const char * file_name)
 			cur_particles_io.z_pos = SwapFloat(cur_particles_io.z_pos);
 #endif
 			
-
+#ifdef EYE_CANDY
+			if (!strncmp(cur_particles_io.file_name, "ec://", 5))
+			{
+/*
+// Disabled due to feature freeze.
+				ec_create_effect_from_map_code(cur_particles_io.file_name + 5, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, (poor_man ? 6 : 10));
+*/
+			}
+			else
+			{
+#endif
 #ifdef	NEW_FRUSTUM
-			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
+				add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
 #else
-			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos);
+				add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos);
+#endif
+#ifdef EYE_CANDY
+			}
 #endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);

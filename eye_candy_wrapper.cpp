@@ -524,6 +524,11 @@ extern "C" void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, flo
   cast_bounds->push_back(e);
 }
 
+extern "C" void ec_add_smooth_polygon_bound(ec_bounds bounds, float x, float y, float z)
+{
+  // TODO
+}
+
 extern "C" ec_effects ec_create_effects_list()
 {
   return (ec_effects)(new ec_internal_effects);
@@ -594,6 +599,152 @@ extern "C" int ec_change_target(ec_reference reference, int index, float x, floa
     return false;
   cast_reference->targets[index] = ec::Vec3(x, z, -y);
   return true;
+}
+
+extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, float y, float z, int LOD)
+{
+/*
+// Disabled due to feature freeze.
+
+  unsigned char raw_code[54];
+  int i = 0;
+  while (i < 18)
+  {
+    raw_code[i * 3]     = ((code[i * 4 + 0] - ' ') >> 0) | ((code[i * 4 + 1] - ' ') << 6);
+    raw_code[i * 3 + 1] = ((code[i * 4 + 1] - ' ') >> 2) | ((code[i * 4 + 2] - ' ') << 4);
+    raw_code[i * 3 + 2] = ((code[i * 4 + 2] - ' ') >> 4) | ((code[i * 4 + 3] - ' ') << 2);
+    i++;
+  }
+  
+  const int bounds_count = raw_code[1];
+  ec_bounds bounds = ec_create_bounds_list();
+  for (i = 0; i < bounds_count; i++)
+    ec_add_smooth_polygon_bound(bounds, raw_code[i * 3 + 2] * 3.0, raw_code[i * 3 + 3] * 3.0, raw_code[i * 3 + 4] * 3.0);
+  
+  switch (raw_code[0])
+  {
+    case 0x00:	// Campfire
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ec_create_campfire(x, y, z, LOD, scale);
+      break;
+    }
+    case 0x01:	// Cloud
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] / 16.0;
+      ec_create_cloud(x, y, z, density, bounds, LOD);
+      break;
+    }
+    case 0x02:	// Fireflies
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] / 16.0;
+      ec_create_fireflies(x, y, z, density, bounds);
+      break;
+    }
+    case 0x03:	// Fountain
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
+      const int backlit = raw_code[46];
+      ec_create_fountain(x, y, z, base_height, backlit, scale, LOD);
+      break;
+    }
+    case 0x04:	// Lamp
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ec_create_lamp(x, y, z, scale, LOD);
+      break;
+    }
+    case 0x05:	// Magic protection
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ec_create_ongoing_magic_protection(x, y, z, LOD, scale);
+      break;
+    }
+    case 0x06:	// Shield
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ec_create_ongoing_shield(x, y, z, LOD, scale);
+      break;
+    }
+    case 0x07:	// Magic immunity
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ec_create_ongoing_magic_immunity(x, y, z, LOD, scale);
+      break;
+    }
+    case 0x08:	// Poison
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ec_create_ongoing_poison(x, y, z, LOD, scale);
+      break;
+    }
+    case 0x09:	// Smoke
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ec_create_smoke(x, y, z, scale, LOD);
+      break;
+    }
+    case 0x0A:	// Teleporter
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      ec_create_teleporter(x, y, z, LOD);
+      break;
+    }
+    case 0x0B:	// Leaves
+    {
+      const float density = raw_code[41] / 16.0;
+      ec_create_wind_leaves(x, y, z, density, bounds, 1.0, 0.0, 0.0);
+      break;
+    }
+    case 0x0C:	// Petals
+    {
+      const float density = raw_code[41] / 16.0;
+      ec_create_wind_petals(x, y, z, density, bounds, 1.0, 0.0, 0.0);
+      break;
+    }
+    case 0x0D:	// Waterfall
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
+      const float angle = raw_code[47] * 2 * ec::PI;
+      // Effect does not yet exist.
+      break;
+    }
+    case 0x0E:	// Bees
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      // Effect does not yet exist.
+      break;
+    }
+  }
+  ec_free_bounds_list(bounds);
+*/
 }
 
 extern "C" ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD)
