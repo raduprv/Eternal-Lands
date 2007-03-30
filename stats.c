@@ -121,7 +121,11 @@ void get_the_stats(Sint16 *stats)
 	your_info.crafting_skill.base=SDL_SwapLE16(stats[90]);
 	your_info.crafting_exp=SDL_SwapLE32(*((Uint32 *)(stats+91)));
 	your_info.crafting_exp_next_lev=SDL_SwapLE32(*((Uint32 *)(stats+93)));
-
+	your_info.engineering_skill.cur=SDL_SwapLE16(stats[95]);
+	your_info.engineering_skill.base=SDL_SwapLE16(stats[96]);
+	your_info.engineering_exp=SDL_SwapLE32(*((Uint32 *)(stats+97)));
+	your_info.engineering_exp_next_lev=SDL_SwapLE32(*((Uint32 *)(stats+99)));
+    
 	your_info.research_completed=SDL_SwapLE16(stats[47]);
 	your_info.researching=SDL_SwapLE16(stats[81]);
 	your_info.research_total=SDL_SwapLE16(stats[82]);
@@ -322,6 +326,20 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case CRA_S_BASE:
 			floatingmessages_add_level(yourself, value, attributes.crafting_skill.name);
 			your_info.crafting_skill.base=value;break;
+		case ENG_EXP:
+			floatingmessages_compare_stat(yourself, your_info.engineering_exp, value, attributes.engineering_skill.shortname);
+#ifdef COUNTERS
+			increment_engineering_counter();
+#endif
+			your_info.engineering_exp=value;
+			break;
+		case ENG_EXP_NEXT:
+			your_info.engineering_exp_next_lev=value;break;
+		case ENG_S_CUR:
+			your_info.engineering_skill.cur=value;break;
+		case ENG_S_BASE:
+			floatingmessages_add_level(yourself, value, attributes.engineering_skill.name);
+			your_info.engineering_skill.base=value;break;
 		case RESEARCHING:
 			your_info.researching=value;break;
 		case RESEARCH_COMPLETED:
@@ -573,6 +591,10 @@ int display_stats_handler(window_info *win)
 
 	y+=14;
 	watch_this_stat==10?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+	draw_skill(46,x,y,&(cur_stats.engineering_skill),&(attributes.engineering_skill),cur_stats.engineering_exp,cur_stats.engineering_exp_next_lev);
+
+	y+=14;
+	watch_this_stat==11?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	draw_skill(46,x,y,&(cur_stats.overall_skill),&(attributes.overall_skill),cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 
 	return 1;
@@ -583,7 +605,7 @@ int click_stats_handler(window_info *win, int mx, int my, Uint32 flags)
 	int	i;
 	int is_button = flags & ELW_MOUSE_BUTTON;
 
-	if(is_button && mx > check_grid_x_left && mx < check_grid_x_left+105 && my > check_grid_y_top && my < check_grid_y_top+140)
+	if(is_button && mx > check_grid_x_left && mx < check_grid_x_left+105 && my > check_grid_y_top && my < check_grid_y_top+14*(NUM_WATCH_STAT-1))
 	{
 		// we don't care which click did the select
 		// Grum: as long as it's not a wheel move

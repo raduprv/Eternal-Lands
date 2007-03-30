@@ -892,16 +892,17 @@ float clock_needle_v_end=1.0f-(float)223/256;
 
 void init_misc_display()
 {
+	int y_len = 150 + (NUM_WATCH_STAT-1) * 15;
 	//create the misc window
 	if(misc_win < 0)
 		{
-			misc_win= create_window("Misc", -1, 0, window_width-64, window_height-300, 64, 300, ELW_TITLE_NONE|ELW_SHOW_LAST);
+			misc_win= create_window("Misc", -1, 0, window_width-64, window_height-y_len, 64, y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 		}
 	else
 		{
-			move_window(misc_win, -1, 0, window_width-64, window_height-300);
+			move_window(misc_win, -1, 0, window_width-64, window_height-y_len);
 		}
 }
 
@@ -951,7 +952,7 @@ int	display_misc_handler(window_info *win)
 		snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
 		x= 3+(win->len_x - (get_string_width(str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string(x, 157, str, 1);
+		draw_string(x, 7+(NUM_WATCH_STAT-1)*15, str, 1);
 	}
 	if(show_stats_in_hud && video_mode > 2 && have_stats)
 	{
@@ -993,6 +994,9 @@ int	display_misc_handler(window_info *win)
 			y_bar+=15;
 			//CRAFT
 			draw_side_stats_bar(x_bar,y_bar,your_info.crafting_skill.base,your_info.crafting_exp, your_info.crafting_exp_next_lev);
+			y_bar+=15;
+			//ENGINEERING
+			draw_side_stats_bar(x_bar,y_bar,your_info.engineering_skill.base,your_info.engineering_exp, your_info.engineering_exp_next_lev);
 			y_bar+=15;
 			//OVERALL
 			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp, your_info.overall_exp_next_lev);
@@ -1077,6 +1081,14 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
+		snprintf(str,sizeof(str),"%-3s %3i",attributes.engineering_skill.shortname,your_info.engineering_skill.base);
+		draw_string_small(x, y, str, 1);
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
 		snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
 		draw_string_small(x, y, str, 1);
 	}	
@@ -1107,7 +1119,7 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 	//check to see if we clicked on the stats
-	if (show_stats_in_hud && video_mode > 2 && my < (9+1)*15)
+	if (show_stats_in_hud && video_mode > 2 && my < (NUM_WATCH_STAT-1)*15)
 	{
 		watch_this_stat = (my / 15) + 1;
 		return 1;
@@ -1636,7 +1648,13 @@ void draw_exp_display()
 		baselev = your_info.crafting_skill.base;
 		name = attributes.crafting_skill.name;
 		break;
-	case 10: // overall
+	case 10: // engineering
+		cur_exp = your_info.engineering_exp;
+		nl_exp = your_info.engineering_exp_next_lev;
+		baselev = your_info.engineering_skill.base;
+		name = attributes.engineering_skill.name;
+		break;
+	case 11: // overall
 	default:
 		cur_exp = your_info.overall_exp;
 		nl_exp = your_info.overall_exp_next_lev;

@@ -92,6 +92,11 @@ int display_session_handler(window_info *win)
 	draw_string_small(x + 200, y, buffer, 1);
 	y += 16;
 
+	draw_string_small(x, y, attributes.engineering_skill.name , 1);
+	sprintf(buffer, "%d", cur_stats.engineering_exp - session_stats.engineering_exp);
+	draw_string_small(x + 200, y, buffer, 1);
+	y += 16;
+
 	draw_string_small(x, y, attributes.overall_skill.name , 1);
 	sprintf(buffer, "%d", cur_stats.overall_exp - session_stats.overall_exp);
 	draw_string_small(x + 200, y, buffer, 1);

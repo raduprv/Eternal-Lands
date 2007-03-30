@@ -196,7 +196,7 @@ typedef struct
 	Uint16 research_total; /*!< if a player is currently researching anything, this value show the total amount of pages to read, until the book is completely read. */
 } player_attribs;
 
-#define	NUM_WATCH_STAT	11	/*!< allow watching stats 0-10 */
+#define	NUM_WATCH_STAT	12	/*!< allow watching stats 0-11 */
 
 extern int attrib_menu_x;
 extern int attrib_menu_y;

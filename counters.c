@@ -18,7 +18,8 @@ enum {
 	MANUFACTURING,
 	POTIONS,
 	SPELLS,
-	SUMMONS
+	SUMMONS,
+    ENGINEERING
 };
 
 /* Columns IDs */
@@ -302,6 +303,7 @@ void fill_counters_win()
 	multiselect_button_add(counters_win, multiselect_id, 0, 150, "Potions", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 175, "Spells", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 200, "Summons", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 225, "Engineering", 0);
 
 	counters_scroll_id = vscrollbar_add_extended(counters_win,
 			counters_scroll_id, NULL,
@@ -589,6 +591,11 @@ void increment_alchemy_counter()
 void increment_crafting_counter()
 {
 	increment_counter(CRAFTING, product_name, product_count, 0);
+}
+
+void increment_engineering_counter()
+{
+	increment_counter(ENGINEERING, product_name, product_count, 0);
 }
 
 void increment_potions_counter()

@@ -1229,6 +1229,7 @@ void init_stats()
 	add_xml_statid(skills,"summon",&(attributes.summoning_skill),"Summoning","sum");
 	add_xml_statid(skills,"manu",&(attributes.manufacturing_skill),"Manufacturing","man");
 	add_xml_statid(skills,"crafting",&(attributes.crafting_skill),"Crafting","cra");
+	add_xml_statid(skills,"engineering",&(attributes.engineering_skill),"Engineering","eng");
 	add_xml_statid(skills,"overall",&(attributes.overall_skill),"Overall","oa");
 }
 #endif
