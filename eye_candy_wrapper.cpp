@@ -107,6 +107,13 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
 
 extern "C" void ec_idle()
 {
+  const std::vector<std::string> ec_errors = ec::fetch_logs();
+  for (std::vector<std::string>::const_iterator iter = ec_errors.begin(); iter != ec_errors.end(); iter++)
+    log_error(iter->c_str());
+
+  if (ec::get_error_status())
+    return;
+
 //  GLfloat rot_matrix[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, rot_matrix);
 //  const float x = rot_matrix[12];
@@ -222,6 +229,9 @@ extern "C" void ec_heartbeat()
 
 extern "C" void ec_draw()
 {
+  if (ec::get_error_status())
+    return;
+
   glPushMatrix();
   glRotatef(90, 1.0, 0.0, 0.0);
   eye_candy.draw();
@@ -730,7 +740,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
       const float saturation = raw_code[42] / 256.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
-      const float angle = raw_code[47] * 2 * ec::PI;
+      const float angle = raw_code[47] * ec::PI / 128.0;
       // Effect does not yet exist.
       break;
     }
@@ -739,6 +749,15 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
       const float hue = raw_code[41] / 256.0;
       const float saturation = raw_code[42] / 256.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
+      // Effect does not yet exist.
+      break;
+    }
+    case 0x0F:	// Portal
+    {
+      const float hue_shift = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      const float angle = raw_code[45] * ec::PI / 128.0;
       // Effect does not yet exist.
       break;
     }

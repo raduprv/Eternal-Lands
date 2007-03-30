@@ -48,7 +48,7 @@ void log_error (const char* message, ...)
 	Uint8 logmsg[512];
 	Uint8 errmsg[512];
 	va_start(ap, message);
-		vsprintf(errmsg, message, ap);
+        vsnprintf(errmsg, sizeof(errmsg), message, ap);
 	va_end(ap);
 	if(!strcmp(errmsg,last_error)){
 		++repeats;

@@ -87,8 +87,8 @@ Uint64 get_time();
 
 // M E M B E R S //////////////////////////////////////////////////////////////
 
-const int EC_DEBUG = 1;
-const float PI =3.141592654;
+const int EC_DEBUG = 0;
+const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
 const coord_t MAX_DRAW_DISTANCE_SQUARED = 700;
@@ -1083,7 +1083,6 @@ public:
   void draw_point_sprite_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
   void draw_fast_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
   void draw_accurate_billboard_particle(const coord_t size, const GLuint texture, const color_t r, const color_t g, const color_t b, const alpha_t alpha, const Vec3 pos);
-
   Texture TexSimple;
   Texture TexFlare;
   Texture TexVoid;
@@ -1142,6 +1141,14 @@ public:
   std::vector<GLenum> lights;
 };
 
+extern std::vector<std::string> ec_logs;
+extern bool ec_error_status;
+
+inline void log_warning(std::string message) { ec_logs.push_back("WARNING: " + message + "\n"); };
+inline void log_error(std::string message) { ec_logs.push_back("ERROR: " + message + "\n"); ec_error_status = true; };
+inline std::vector<std::string> fetch_logs() { const std::vector<std::string> ret(ec_logs); ec_logs.clear(); return ret; };
+inline bool get_error_status() { return ec_error_status; };
+ 
 ///////////////////////////////////////////////////////////////////////////////
 
 }	// End namespace ec

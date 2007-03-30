@@ -15,6 +15,9 @@ namespace ec
 
 MathCache math_cache;
 std::vector<Obstruction*> null_obstructions;
+std::vector<std::string> ec_logs;
+bool ec_error_status = false;
+
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
@@ -56,23 +59,23 @@ void Texture::push_texture(const std::string filename)
   tex = IMG_Load(filename.c_str());
   if (!tex)
   {
-    std::cerr << "ERROR: Cannot load texture '" << filename << "'." << std::endl;
-    exit(1);
+    log_error("Cannot load texture '" + filename + "'.");
+    return;
   }
   if (tex->format->palette)
-  {
-    std::cerr << "ERROR: Cannot use paletted texture '" << filename << "'." << std::endl;
-    exit(1);
+  { 
+    log_error("Cannot use paletted texture '" + filename + "'.");
+    return;
   }
   if (tex->w != tex->h)
   {
-    std::cerr << "ERROR: Textures must be square; please fix '" << filename << "'." << std::endl;
-    exit(1);
+    log_error("Textures must be square; please fix '" + filename + "'.");
+    return;
   }
   if ((tex->w != 16) && (tex->w != 32) && (tex->w != 64) && (tex->w != 128))
   {
-    std::cerr << "ERROR: Only 16x16, 32x32, 64x64, and 128x128 textures supportex; fix '" << filename << "'." << std::endl;
-    exit(1);
+    log_error("Only 16x16, 32x32, 64x64, and 128x128 textures supportex; fix '" + filename + "'.");
+    return;
   }
 
   glGenTextures(1, &texture_id);
@@ -1380,6 +1383,9 @@ void EyeCandy::end_draw()
 
 void EyeCandy::draw()
 {
+  if (ec_error_status)
+    return;
+
   start_draw();
 
   // Draw effects (any special drawing functionality) and their particles.
@@ -1448,6 +1454,9 @@ void EyeCandy::draw()
 
 void EyeCandy::idle()
 {
+  if (ec_error_status)
+    return;
+
   const Uint64 cur_time = get_time();
   for (int i = 0; i < (int)effects.size(); )
   {
