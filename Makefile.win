@@ -42,7 +42,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	ignore.o init.o interface.o items.o	\
 	keys.o knowledge.o lights.o list.o loginwin.o loading_win.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
-	md2loader.o md5.o misc.o multiplayer.o	\
+	md5.o misc.o multiplayer.o	\
 	new_actors.o new_character.o 	\
 	openingwin.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\

@@ -12,7 +12,7 @@
 FILE* open_log (const char *fname, const char *mode)
 {
 	FILE *file = fopen (fname, mode);
-	Uint8 starttime[200], sttime[200];
+	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 	if (file == NULL)
 	{
@@ -39,14 +39,14 @@ void clear_error_log()
 	fflush (err_file);
 }
 
-Uint8 last_error[512];
+char last_error[512];
 int repeats =0;
 void log_error (const char* message, ...)
 {
 	va_list ap;
 	struct tm *l_time; time_t c_time;
-	Uint8 logmsg[512];
-	Uint8 errmsg[512];
+	char logmsg[512];
+	char errmsg[512];
 	va_start(ap, message);
         vsnprintf(errmsg, sizeof(errmsg), message, ap);
 	va_end(ap);
@@ -76,9 +76,9 @@ void log_error (const char* message, ...)
   	fflush (err_file);
 }
 
-void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *func, Uint32 line, ...)
+void log_error_detailed(const char *message, const char *file, const char *func, unsigned line, ...)
 {
-	Uint8	str[2048];
+	char	str[2048];
 	va_list ap;
 
 	if(err_file == NULL) {
@@ -86,7 +86,7 @@ void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *fu
 		snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 	}
-	snprintf(str, sizeof(str), "%s.%s:%d - %s", file, func, line, message);
+	snprintf(str, sizeof(str), "%s.%s:%u - %s", file, func, line, message);
 
 	va_start(ap, line);
 		vfprintf(err_file, str, ap);
@@ -107,13 +107,13 @@ void clear_func_log()
 	fflush(func_file);
 }
 
-void log_func_err(const Uint8 * file, const Uint8 * func, Uint32 line)
+void log_func_err(const char * file, const char * func, unsigned line)
 {
 	if(!func_file)
 		clear_func_log();
 	if(func_file)
 		{
-			fprintf(func_file,"%s.%s:%d\n",file,func,line);
+			fprintf(func_file,"%s.%s:%u\n",file,func,line);
 			fflush(func_file);
 		}
 }
@@ -131,7 +131,7 @@ void clear_conn_log()
 	fflush (conn_file);
 }
 
-void log_conn(const Uint8 *in_data, Uint32 data_length)
+void log_conn(const Uint8 *in_data, Uint16 data_length)
 {
   	if(!conn_file) {
 		char connection_log[256];

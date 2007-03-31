@@ -40,7 +40,7 @@ void log_error(const char *message, ...);
  * \param function      function in which the error occurred
  * \param line          line in the source file where the error occrred
  */
-void log_error_detailed(const Uint8 *message, const Uint8 *file, const Uint8 *function, Uint32 line, ...);
+void log_error_detailed(const char *message, const char *file, const char *function, unsigned line, ...);
 
 /*!
  * \ingroup misc_utils
@@ -60,7 +60,7 @@ void clear_conn_log();
  * \param in_data           the data to write to the log
  * \param data_length       the length of \a in_data
  */
-void log_conn(const Uint8 *in_data, Uint32 data_length);
+void log_conn(const Uint8 *in_data, Uint16 data_length);
 
 /*!
  * \name    LOG_ERROR macro
@@ -96,7 +96,7 @@ void log_conn(const Uint8 *in_data, Uint32 data_length);
  *
  * \callgraph
  */
-void log_func_err(const Uint8 * file, const Uint8 * func, Uint32 line);
+void log_func_err(const char * file, const char * func, unsigned line);
 #endif
 
 #ifdef __cplusplus
