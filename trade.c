@@ -92,7 +92,7 @@ int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 			
-			sprintf(str,"%i",your_trade_list[i].quantity);
+			safe_snprintf(str, sizeof(str), "%i",your_trade_list[i].quantity);
 			draw_string_small(x_start,(i&1)?(y_end-12):(y_end-22),str,1);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
@@ -130,7 +130,7 @@ int display_trade_handler(window_info *win)
 			draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 			
-			sprintf(str,"%i",others_trade_list[i].quantity);
+			safe_snprintf(str, sizeof(str), "%i",others_trade_list[i].quantity);
 			draw_string_small(x_start,(!(i&1))?(y_end-12):(y_end-22),str,1);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){

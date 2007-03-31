@@ -105,7 +105,7 @@ void load_e3d_list()
 		fscanf(fp,"%255s %d",temp,&id);
 		len = strlen(temp) + 1;
 		e3dlist[i].fn=(char*)malloc(len);
-		snprintf(e3dlist[i].fn, len, "%s", temp);
+		safe_snprintf(e3dlist[i].fn, len, "%s", temp);
 		e3dlist[i].id=id;
 	}
 	fclose(fp);
@@ -165,7 +165,7 @@ void load_knowledge_list()
 	i= 0;
 	knowledge_count= 0;
 	// try the language specific knowledge list
-	snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
+	safe_snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
 	if((f=my_fopen(filename,"rb"))==NULL)
 		{
 			// Failed, try the default/english knowledge list
@@ -252,7 +252,7 @@ void read_bin_cfg()
 	char el_cfg[256];
 	int i;
 
-	snprintf(el_cfg,  sizeof(el_cfg), "%sel.cfg", configdir);
+	safe_snprintf(el_cfg,  sizeof(el_cfg), "%sel.cfg", configdir);
 	// don't use my_fopen, absence of binary config is not an error
 	f=fopen(el_cfg,"rb");
 	if(!f)return;//no config file, use defaults
@@ -326,7 +326,7 @@ void read_bin_cfg()
 	for(i=0;i<6;i++){
 		if(cfg_mem.quantity[i]){
 			quantities.quantity[i].val=cfg_mem.quantity[i];
-			snprintf(quantities.quantity[i].str, sizeof(quantities.quantity[i].str),"%d", cfg_mem.quantity[i]);
+			safe_snprintf(quantities.quantity[i].str, sizeof(quantities.quantity[i].str),"%d", cfg_mem.quantity[i]);
 			quantities.quantity[i].len=strlen(quantities.quantity[i].str);
 		}
 	}
@@ -341,7 +341,7 @@ void save_bin_cfg()
 	char el_cfg[256];
 	int i;
 
-	snprintf(el_cfg, sizeof(el_cfg), "%sel.cfg", configdir);
+	safe_snprintf(el_cfg, sizeof(el_cfg), "%sel.cfg", configdir);
 	f=my_fopen(el_cfg,"wb");
 	if(!f)return;//blah, whatever
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
@@ -682,7 +682,7 @@ void init_stuff()
 	for(i=0; i<MAX_PARTICLE_TEXTURES; i++){
 		char	buffer[256];
 		
-		sprintf(buffer, "./textures/particle%d.bmp", i);
+		safe_snprintf(buffer, sizeof(buffer), "./textures/particle%d.bmp", i);
 		if(gzfile_exists(buffer)){
 			particle_textures[i]= load_texture_cache_deferred(buffer, 0);
 		}
@@ -692,7 +692,7 @@ void init_stuff()
 	for(i=0; i<MAX_ITEMS_TEXTURES; i++){
 		char	buffer[256];
 
-		sprintf(buffer, "./textures/items%d.bmp", i+1);
+		safe_snprintf(buffer, sizeof(buffer), "./textures/items%d.bmp", i+1);
 		if(gzfile_exists(buffer)){
 			items_text[i]= load_texture_cache(buffer, 0);
 		}
@@ -702,7 +702,7 @@ void init_stuff()
 	for(i=0; i<MAX_PORTRAITS_TEXTURES; i++){
 		char	buffer[256];
 
-		sprintf(buffer, "./textures/portraits%d.bmp", i+1);
+		safe_snprintf(buffer, sizeof(buffer), "./textures/portraits%d.bmp", i+1);
 		if(gzfile_exists(buffer)){
 			portraits_tex[i]= load_texture_cache_deferred(buffer, 0);
 		}
@@ -741,7 +741,7 @@ void init_stuff()
 		 	exit(1);
 		}
 	update_loading_win(load_encyc_str, 5);
-	sprintf(file_name,"languages/%s/Encyclopedia/index.xml", lang);
+	safe_snprintf(file_name, sizeof(file_name), "languages/%s/Encyclopedia/index.xml", lang);
 	ReadXML(file_name);
 	read_key_config();
 	load_questlog();

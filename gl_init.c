@@ -217,7 +217,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 640 || window_height != 480)
 					{
 						Uint8 str[100];
-						snprintf(str,sizeof(str),window_size_adjusted_str,"640x480");
+						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"640x480");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=640;
@@ -228,7 +228,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 780 || window_height != 550)
 					{
 						Uint8 str[100];
-						snprintf(str,sizeof(str),window_size_adjusted_str,"780x550");
+						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"780x550");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=780;
@@ -239,7 +239,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 990 || window_height != 720)
 					{
 						Uint8 str[100];
-						snprintf(str,sizeof(str),window_size_adjusted_str,"990x720");
+						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"990x720");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=990;
@@ -250,7 +250,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 1070 || window_height != 785)
 					{
 						Uint8 str[100];
-						snprintf(str,sizeof(str),window_size_adjusted_str,"1070x785");
+						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1070x785");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=1070;
@@ -261,7 +261,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 1250 || window_height != 990)
 					{
 						Uint8 str[100];
-						snprintf(str,sizeof(str),window_size_adjusted_str,"1250x990");
+						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1250x990");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
 				window_width=1250;
@@ -272,7 +272,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 1600 || window_height != 1200)
 				{
 					Uint8 str[100];
-					snprintf(str,sizeof(str),window_size_adjusted_str,"1600x1200");
+					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1600x1200");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
 				window_width=1600;
@@ -283,7 +283,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 1240 || window_height != 780)
 				{
 					Uint8 str[100];
-					snprintf(str,sizeof(str),window_size_adjusted_str,"1240x780");
+					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1240x780");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
 				window_width=1240;
@@ -294,7 +294,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 1420 || window_height != 810)
 				{
 					Uint8 str[100];
-					snprintf(str,sizeof(str),window_size_adjusted_str,"1420x810");
+					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1420x810");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
 				window_width=1420;
@@ -305,7 +305,7 @@ void setup_video_mode(int fs, int mode)
 				if(window_width != 1620 || window_height != 950)
 				{
 					Uint8 str[100];
-					snprintf(str,sizeof(str),window_size_adjusted_str,"1620x950");
+					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1620x950");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
 				window_width=1620;
@@ -335,8 +335,8 @@ void check_gl_mode()
 	if(!SDL_VideoModeOK(window_width, window_height, bpp, flags))
 		{
 			char vid_mode_str[25];
-			snprintf (vid_mode_str, sizeof (vid_mode_str), "%ix%ix%i", window_width, window_height, bpp);
-			snprintf(str,sizeof(str),no_stencil_str,vid_mode_str);
+			safe_snprintf (vid_mode_str, sizeof (vid_mode_str), "%ix%ix%i", window_width, window_height, bpp);
+			safe_snprintf(str,sizeof(str),no_stencil_str,vid_mode_str);
 			LOG_TO_CONSOLE(c_red1,str);
 
 			SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 0);
@@ -356,8 +356,8 @@ void check_gl_mode()
 					window_height=480;
 					bpp=32;
 
-					snprintf (vid_mode_str, sizeof (vid_mode_str), "%ix%ix%i", old_width, old_height, old_bpp);
-					snprintf(str,sizeof(str),safemode_str,vid_mode_str);
+					safe_snprintf (vid_mode_str, sizeof (vid_mode_str), "%ix%ix%i", old_width, old_height, old_bpp);
+					safe_snprintf(str,sizeof(str),safemode_str,vid_mode_str);
 					LOG_TO_CONSOLE(c_red1,str);
 
 					full_screen=1;
@@ -631,7 +631,7 @@ void init_gl_extensions()
 			LOG_TO_CONSOLE(c_red1,gl_ext_no_multitexture);
 		} else {
 			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB,&have_multitexture);
-			snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_multitexture");
+			safe_snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_multitexture");
 			LOG_TO_CONSOLE(c_green2,str);
 		}
 	} else {
@@ -644,27 +644,27 @@ void init_gl_extensions()
 		if(have_compiled_vertex_array < 0) {
 			have_compiled_vertex_array=0;
 			use_compiled_vertex_array=0;
-			snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
+			safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
 			LOG_TO_CONSOLE(c_red1,str);
 		} else if (!use_compiled_vertex_array) {
-			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_EXT_compiled_vertex_array");
+			safe_snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_EXT_compiled_vertex_array");
 			LOG_TO_CONSOLE(c_green2,str);
 		} else {
-			snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_compiled_vertex_array");
+			safe_snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_compiled_vertex_array");
 			LOG_TO_CONSOLE(c_green2,str);
 		}
 	} else {
 		have_compiled_vertex_array=0;
-		snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
+		safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_compiled_vertex_array");
 		LOG_TO_CONSOLE(c_red1,str);
 	}
 
 	have_point_sprite = get_string_occurance("GL_ARB_point_sprite",extensions,ext_str_len,0)>=0 || get_string_occurance("GL_NV_point_sprite",extensions,ext_str_len,0)>=0;
 	if(!have_point_sprite){
-		snprintf(str,sizeof(str),gl_ext_not_found,"GL_*_point_sprite");
+		safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_*_point_sprite");
 		LOG_TO_CONSOLE(c_red1,str);
 	} else {
-		snprintf(str,sizeof(str),gl_ext_found,"GL_*_point_sprite");
+		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_*_point_sprite");
 		LOG_TO_CONSOLE(c_green2,str);
 	}
 	
@@ -674,7 +674,7 @@ void init_gl_extensions()
 		have_arb_compression=0;
 	} else {
 		have_arb_compression=1;
-		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_texture_compression");
+		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_texture_compression");
 		LOG_TO_CONSOLE(c_green2,str);
 	}
 	
@@ -683,7 +683,7 @@ void init_gl_extensions()
 		have_s3_compression=0;
 	} else {
 		have_s3_compression=1;
-		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_texture_compression_s3tc");
+		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_texture_compression_s3tc");
 		LOG_TO_CONSOLE(c_green2,str);
 	}
 
@@ -692,15 +692,15 @@ void init_gl_extensions()
 	if(have_sgis_generate_mipmap<0)	{
 		have_sgis_generate_mipmap=0;
 		use_mipmaps=0;
-		snprintf(str,sizeof(str),gl_ext_not_found,"GL_SGIS_generate_mipmap");
+		safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_SGIS_generate_mipmap");
 		LOG_TO_CONSOLE(c_red1,str);
 	} else if(!use_mipmaps) {
 		have_sgis_generate_mipmap=0;
-		snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_SGIS_generate_mipmap");
+		safe_snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_SGIS_generate_mipmap");
 		LOG_TO_CONSOLE(c_green2,str);
 	} else  {
 		have_sgis_generate_mipmap=1;
-		snprintf(str,sizeof(str),gl_ext_found,"GL_SGIS_generate_mipmap");
+		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_SGIS_generate_mipmap");
 		LOG_TO_CONSOLE(c_green2,str);
 	}
 
@@ -709,12 +709,12 @@ void init_gl_extensions()
 		have_arb_shadow=0;
 	} else {
 		have_arb_shadow=1;
-		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_shadow");
+		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_shadow");
 		LOG_TO_CONSOLE(c_green2,str);
 	}
 
 	if(get_string_occurance("GL_ARB_vertex_buffer_object",extensions,ext_str_len,0)>=0 && use_vertex_buffers){
-		snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_buffer_object");
+		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_ARB_vertex_buffer_object");
 		LOG_TO_CONSOLE(c_green2, str);
 		have_vertex_buffers=1;
 	} else {
@@ -728,28 +728,28 @@ void init_gl_extensions()
 	   ELglGenFramebuffersEXT && ELglDeleteFramebuffersEXT && ELglBindFramebufferEXT && strstr(extensions, "GL_EXT_framebuffer_object")){
 		if (ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT) == GL_FRAMEBUFFER_COMPLETE_EXT)
 		{
-			snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_framebuffer_object");
+			safe_snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_framebuffer_object");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_framebuffer_object = 1;
 		}
 		else
 		{
-			snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
+			safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
 			LOG_TO_CONSOLE(c_red1, str);
 			have_framebuffer_object = 0;
 		}
 	} else {
-		snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
+		safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_EXT_framebuffer_object");
 		LOG_TO_CONSOLE(c_red1, str);
 		have_framebuffer_object = 0;
 	}
 
 #ifdef NEW_E3D_FORMAT
 	if(ELglDrawRangeElementsEXT && strstr(extensions, "GL_EXT_draw_range_elements")){
-		snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_draw_range_elements");
+		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_draw_range_elements");
 		LOG_TO_CONSOLE(c_green2,str);
 	} else {
-		snprintf(str,sizeof(str),gl_ext_not_found_emul_it,"GL_EXT_draw_range_elements");
+		safe_snprintf(str,sizeof(str),gl_ext_not_found_emul_it,"GL_EXT_draw_range_elements");
 		LOG_TO_CONSOLE(c_yellow1,str);
 		ELglDrawRangeElementsEXT=&Emul_glDrawRangeElements;
 	}
@@ -757,7 +757,7 @@ void init_gl_extensions()
 
 	if (strstr(extensions, "GL_ARB_texture_non_power_of_two"))
 	{		
-		snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_texture_non_power_of_two");
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_texture_non_power_of_two");
 		LOG_TO_CONSOLE(c_green2, str);
 		have_texture_non_power_of_two = 1;
 	}
@@ -765,28 +765,28 @@ void init_gl_extensions()
 	//Test for ARB{fp,vp}
 	if(ELglGenProgramsARB && ELglDeleteProgramsARB && ELglBindProgramARB && ELglProgramStringARB){
 		if(strstr(extensions, "GL_ARB_fragment_program")){
-			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_fragment_program");
+			safe_snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_fragment_program");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_arb_pixel_shader=1;
 		} else {
 			/*
-			 * snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_fragment_program");
+			 * safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_fragment_program");
 			 * LOG_TO_CONSOLE(c_green2, str);
 			 */
 		}
 		if(strstr(extensions, "GL_ARB_vertex_program")){
-			snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_vertex_program");
+			safe_snprintf(str,sizeof(str),gl_ext_found_not_used,"GL_ARB_vertex_program");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_arb_vertex_shader=1;
 		} else {
 			/*
-			 * snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_vertex_program");
+			 * safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_vertex_program");
 			 * LOG_TO_CONSOLE(c_green2, str);
 			 */
 		}
 	}  else {
 		/*
-		 * snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_{fragment,vertex}_{program,shader}");
+		 * safe_snprintf(str,sizeof(str),gl_ext_not_found,"GL_ARB_{fragment,vertex}_{program,shader}");
 		 * LOG_TO_CONSOLE(c_green2, str);
 		 */
 	}
@@ -802,21 +802,21 @@ void init_gl_extensions()
 	{
 		if(strstr(extensions,"GL_ARB_vertex_shader"))
 		{
-			snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_shader");
+			safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_shader");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_ogsl_vertex_shader=1;
 		}
 		
 		if(strstr(extensions,"GL_ARB_fragment_shader"))
 		{
-			snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_fragment_shader");
+			safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_fragment_shader");
 			LOG_TO_CONSOLE(c_green2, str);
 			have_ogsl_pixel_shader=1;
 		}
 	} 
 	else 
 	{
-		snprintf(str,sizeof(str), gl_ext_not_found, "OpenGL Shading Language");
+		safe_snprintf(str,sizeof(str), gl_ext_not_found, "OpenGL Shading Language");
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 

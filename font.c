@@ -705,7 +705,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 		}
 	}
   
-	strncpy(str, buf, size);
+	safe_strncpy(str, buf, size);
 	str[size-1] = '\0';
   
 	if (cursor) {
@@ -1013,7 +1013,7 @@ int load_font_textures ()
 	do {
 		int	len;
 		
-		strcpy(file, c_file.name);
+		safe_strncpy(file, c_file.name, sizeof(file));
 #else //!_MSC_VER
 	dp = opendir ("./textures/");
 	if (dp == NULL) {
@@ -1022,8 +1022,7 @@ int load_font_textures ()
 	while ((ep = readdir (dp)) && i < FONTS_ARRAY_SIZE) {
 		int	len;
 		
-		strcpy(file, "");
-		strcpy(file, ep->d_name);
+		safe_strncpy(file, ep->d_name, sizeof(file));
 #endif //_MSC_VER
 		len= strlen(file);
 		if (len + strlen("./textures/") <= sizeof(str) && !strncasecmp(file, "font", 4) 
@@ -1031,9 +1030,9 @@ int load_font_textures ()
 				&& (!has_suffix(file, len, "_alpha.bmp", 10)) && (!has_suffix(file, len, "_alpha.bmp.gz", 13))) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
 #ifdef _MSC_VER
-			strcpy(str, file);
+			safe_strncpy(str, file, sizeof(str));
 #else //!_MSC_VER
-			snprintf(str, sizeof(str), "./textures/%s", file);
+			safe_snprintf(str, sizeof(str) - 1, "./textures/%s", file);
 #endif //!_MSC_VER
 			if(has_suffix(file, len, ".bmp.gz", 7)){
 				file[len - 7]= 0;
@@ -1041,7 +1040,7 @@ int load_font_textures ()
 				file[len - 4]= 0;
 			}
 			fonts[i]->texture_id = load_texture_cache_deferred(str, 0);
-			snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
+			safe_snprintf(font_names[i], sizeof(font_names[i]), "Type %i - %s", i + 1, file);
 			add_multi_option("chat_font", font_names[i]);
 			add_multi_option("name_font", font_names[i]);
 			i++;

@@ -493,7 +493,7 @@ void read_mapinfo ()
 			continent_maps[imap].x_end = x_end;
 			continent_maps[imap].y_end = y_end;
 			continent_maps[imap].name = malloc ((strlen (map_name) + 1) * sizeof (char));
-			strcpy (continent_maps[imap].name, map_name);
+			safe_strncpy (continent_maps[imap].name, map_name, sizeof(continent_maps[imap].name));
 			imap++;
 		}
 		
@@ -730,7 +730,7 @@ void draw_game_map (int map, int mouse_mini)
 		if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
 			// we're pointing on the map, display position
 			char buf[10];
-			sprintf(buf, "%d,%d", map_x, map_y);
+			safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
 			glColor3f(1.0f,1.0f,0.0f);
 			screen_x = 25 - 1.5*strlen(buf);
 			screen_y = 150 + 11;
@@ -973,12 +973,12 @@ void save_markings()
 
 #ifndef WINDOWS
 #ifdef OSX  //this might be applicable for linux too, but have not tested to be sure
-      snprintf (marks_file, sizeof(marks_file), "%s/%s.txt", configdir, strrchr (map_file_name,'/') + 1);	
+      safe_snprintf (marks_file, sizeof(marks_file), "%s/%s.txt", configdir, strrchr (map_file_name,'/') + 1);	
 #else
-      snprintf (marks_file, sizeof(marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
+      safe_snprintf (marks_file, sizeof(marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
 #endif //OSX
 #else
-      snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
+      safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
 #endif
       fp = my_fopen(marks_file,"w");
       if ( fp ) {

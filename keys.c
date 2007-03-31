@@ -80,12 +80,12 @@ void read_key_config()
 
 #ifndef WINDOWS
 	char key_ini[256];
-	snprintf (key_ini, sizeof (key_ini), "%s/key.ini", configdir);
+	safe_snprintf (key_ini, sizeof (key_ini), "%s/key.ini", configdir);
 	// don't use my_fopen, not everyone keeps local settings
 	f=fopen(key_ini,"rb"); //try to load local settings
 	if(!f) //use global settings
 		{
-			snprintf (key_ini, sizeof (key_ini), "%s/key.ini", datadir);
+			safe_snprintf (key_ini, sizeof (key_ini), "%s/key.ini", datadir);
 			f=my_fopen(key_ini,"rb");
 		}
 

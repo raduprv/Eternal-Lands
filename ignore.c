@@ -36,7 +36,7 @@ int add_to_ignore_list(Uint8 *name, char save_name)
 						{
 							FILE *f = NULL;
 							char local_ignores[256];
-							snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
+							safe_snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
 							f=my_fopen(local_ignores, "a");
 							if (f != NULL)
 							{
@@ -74,7 +74,7 @@ int remove_from_ignore_list(Uint8 *name)
 	if(found)
 		{
 			char local_ignores[256];
-			snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
+			safe_snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
 			f=my_fopen(local_ignores, "w");
 			if (f != NULL)
 			{
@@ -333,7 +333,7 @@ void clear_ignore_list()
 void load_ignores()
 {
 	char local_ignores[256];
-	snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
+	safe_snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
 	clear_ignore_list();
 	load_ignores_list(local_ignores);
 	if(use_global_ignores)load_ignores_list("global_ignores.txt");
@@ -349,7 +349,7 @@ int list_ignores()
 			LOG_TO_CONSOLE(c_grey1,no_ignores_str);
 			return 1;
 		}
-	snprintf(str,sizeof(str),"%s:\n",ignores_str);
+	safe_snprintf(str,sizeof(str),"%s:\n",ignores_str);
 	for(i=0;i<MAX_IGNORES;i++)
 		{
 			if(ignore_list[i].used)

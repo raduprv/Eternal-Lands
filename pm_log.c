@@ -83,14 +83,14 @@ void print_return_message()
 	LOG_TO_CONSOLE(c_green1,not_afk);
 	if(pm_log.ppl && pm_log.msgs)
 		{
-			snprintf(str, sizeof(str), new_messages, pm_log.msgs);
+			safe_snprintf(str, sizeof(str), new_messages, pm_log.msgs);
 			LOG_TO_CONSOLE(c_green2,str);
 			print_title("#", afk_names, afk_messages);
 			LOG_TO_CONSOLE(c_green2, afk_title);
 			while(++m<pm_log.ppl)
 				{
 					char name[35];
-					snprintf(name, sizeof(name), "%2d: %16s         %2d",m+1,pm_log.afk_msgs[m].name,pm_log.afk_msgs[m].msgs);
+					safe_snprintf(name, sizeof(name), "%2d: %16s         %2d",m+1,pm_log.afk_msgs[m].name,pm_log.afk_msgs[m].msgs);
 					LOG_TO_CONSOLE(c_green2,name);
 				}
 			LOG_TO_CONSOLE(c_green2,afk_print_help);
@@ -126,7 +126,7 @@ int add_name_to_pm_log(char *name, int len)
 	pm_log.afk_msgs[z].msgs= 0;
 	pm_log.afk_msgs[z].messages= NULL;
 	pm_log.afk_msgs[z].name= (char*)calloc(len+1, sizeof(char));
-	snprintf(pm_log.afk_msgs[z].name, len+1, "%s", name);
+	safe_snprintf(pm_log.afk_msgs[z].name, len+1, "%s", name);
 	return z;
 }
 
@@ -146,17 +146,17 @@ void add_message_to_pm_log (char *message, int len, Uint8 channel)
 	int z;
 	char mymsg[512]; //, *msg_pointer;
 
-	strcpy(mymsg, message);
+	safe_strncpy(mymsg, message, sizeof(mymsg));
 	if (channel == CHAT_LOCAL) {
         char *msg_pointer;
         
 		msg_pointer = strstr(mymsg, " ") - 1;
 		*msg_pointer = 0;
-		strncpy(last_msg_from, mymsg, sizeof(last_msg_from));
-		strncpy(mymsg, msg_pointer+2, sizeof(mymsg));
+		safe_strncpy(last_msg_from, mymsg, sizeof(last_msg_from));
+		safe_strncpy(mymsg, msg_pointer+2, sizeof(mymsg));
 	} else {
 		//*mymsg = message;
-		strncpy(last_msg_from, last_pm_from, sizeof(last_msg_from));
+		safe_strncpy(last_msg_from, last_pm_from, sizeof(last_msg_from));
 	}
 	last_msg_len = strlen(last_msg_from);
 	z = have_name (last_msg_from, last_msg_len);
@@ -179,12 +179,12 @@ void add_message_to_pm_log (char *message, int len, Uint8 channel)
 	pm_log.afk_msgs[z].messages = realloc (pm_log.afk_msgs[z].messages, (pm_log.afk_msgs[z].msgs+1) * sizeof (char *));
 	// time name message
 #ifndef AFK_FIX
-	snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
+	safe_snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_pm_from, len, message);
 #else
-	snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_msg_from, strlen(mymsg), mymsg);
+	safe_snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_msg_from, strlen(mymsg), mymsg);
 #endif //AFK_FIX
 	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs] = calloc (strlen (buf) + 1, sizeof (char));
-	strcpy (pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf);
+	safe_strncpy (pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf, sizeof(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]));
 	pm_log.afk_msgs[z].msgs++;
 	pm_log.msgs++;
 }
@@ -193,7 +193,7 @@ int my_namecmp(char *check)
 {
 	int i=0;
 	char username[32];
-	strcpy(username,username_str);
+	safe_strncpy(username, username_str, sizeof(username));
 	my_tolower(username);
 	
 	for(;i<20 && username[i] && check[i]==username[i];i++);
@@ -212,7 +212,7 @@ int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
 		return 0; //Only do local chat
 	}
 
-	snprintf (msg, sizeof(msg), "%.*s", len, server_msg);
+	safe_snprintf (msg, sizeof(msg), "%.*s", len, server_msg);
 	my_tolower (msg);
 
 	while (msg[a] && msg[a] != ':' && (msg[a] < 127+c_red1 || msg[a] > 127+c_grey4))
@@ -236,7 +236,7 @@ void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 	
 	if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
 	{
-		snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, last_pm_from, afk_message);
+		safe_snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, last_pm_from, afk_message);
 	}
 	else 
 	{
@@ -257,7 +257,7 @@ void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 		
 		if (have_name(name, i-1) < 0)
 		{
-			snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, name, afk_message);
+			safe_snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, name, afk_message);
 #ifndef AFK_FIX
 			add_name_to_pm_log (name, i-1);
 #endif //AFK_FIX

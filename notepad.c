@@ -189,13 +189,13 @@ int notepadLoadFile ()
 	
 	notepad_loaded = 1;
 
-	snprintf (file, sizeof (file), "%snotes.xml", configdir);
+	safe_snprintf (file, sizeof (file), "%snotes.xml", configdir);
 	doc = xmlParseFile (file);
 	if (doc == NULL )
 	{
 #ifndef WINDOWS
 		// try the data directory then
-		snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
+		safe_snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
 		doc = xmlParseFile (file);
 		if (doc == NULL )
 		{
@@ -281,7 +281,7 @@ int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 	// Update: don't check when saving on exit (w == NULL)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0 && w != NULL) return 0;
     
-	snprintf (file, sizeof (file), "%snotes.xml", configdir);
+	safe_snprintf (file, sizeof (file), "%snotes.xml", configdir);
 
 	doc = xmlNewDoc (BAD_CAST "1.0");
 	root_node = xmlNewNode (NULL, BAD_CAST "PAD");
@@ -296,7 +296,7 @@ int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 	{
 #ifndef WINDOWS
 		// error writing. try the data directory
-		snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
+		safe_snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
 		if (xmlSaveFormatFileEnc(file, doc, "ISO-8859-1", 1) < 0)
 		{
 			LOG_ERROR(cant_save_notes, file);

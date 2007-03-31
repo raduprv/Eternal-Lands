@@ -370,7 +370,7 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 		{
 			if(!obj_2d_def_cache[i].file_name[0])//we found a place to store it
 				{
-					snprintf(obj_2d_def_cache[i].file_name, sizeof(obj_2d_def_cache[i].file_name), "%s", file_name);
+					safe_snprintf(obj_2d_def_cache[i].file_name, sizeof(obj_2d_def_cache[i].file_name), "%s", file_name);
 					obj_2d_def_cache[i].obj_2d_def_id=obj_2d_def_id;
 					return obj_2d_def_id;
 				}

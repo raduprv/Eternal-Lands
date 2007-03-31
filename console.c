@@ -35,7 +35,7 @@ void add_line_to_history(const char *line, int len)
 	char *copy;
 
 	copy = malloc(len+1);
-	snprintf(copy, len+1, "%.*s", len, line);
+	safe_snprintf(copy, len+1, "%.*s", len, line);
 	list_push(&command_buffer, copy);
 	command_buffer_offset = NULL;
 }
@@ -46,7 +46,7 @@ char *history_get_line_up(void)
 		/* This is the first up keypress.
 		 * Return the first line we have, if there's one and remember what we had. */
 		command_buffer_offset = command_buffer;
-		snprintf(first_input, sizeof(first_input), "%.*s", input_text_line.len, input_text_line.data);
+		safe_snprintf(first_input, sizeof(first_input), "%.*s", input_text_line.len, input_text_line.data);
 	} else if(command_buffer_offset->next != NULL) {
 		command_buffer_offset = command_buffer_offset->next;
 	}
@@ -112,7 +112,7 @@ void add_command(const char *command, int (*callback)())
 			commands = realloc(commands, commands_size*sizeof(*commands));
 		}
 	}
-	snprintf(commands[command_count].command, sizeof(commands[command_count].command), "%s", command);
+	safe_snprintf(commands[command_count].command, sizeof(commands[command_count].command), "%s", command);
 	commands[command_count].callback = callback;
 	command_count++;
 }
@@ -135,7 +135,7 @@ void add_name_to_tablist(const unsigned char *name)
 		list_size *= 2;
 		name_list = realloc(name_list, list_size * sizeof(*name_list));
 	}
-	snprintf(name_list[name_count], sizeof(name_list[name_count]), "%s", name);
+	safe_snprintf(name_list[name_count], sizeof(name_list[name_count]), "%s", name);
 	name_count++;
 }
 
@@ -236,7 +236,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 				}
 				last_complete[i] = '\0';
 			} else {
-				snprintf(last_complete, sizeof(last_complete), "%s", input_string);
+				safe_snprintf(last_complete, sizeof(last_complete), "%s", input_string);
 			}
 			have_last_complete = 1;
 		}
@@ -317,13 +317,13 @@ void do_tab_complete(text_message *input)
 		}
 		switch(completed.type) {
 			case CHANNEL:
-				snprintf(input->data, input->size, "%c%c%s%c", input->data[0], input->data[1], completed.str, suffix);
+				safe_snprintf(input->data, input->size, "%c%c%s%c", input->data[0], input->data[1], completed.str, suffix);
 				input->len = strlen(input->data);
 				tf->cursor = tf->buffer->len+1;
 			break;
 			case COMMAND:
 			case NAME_PM:
-				snprintf(input->data, input->size, "%c%s%c", *input->data, completed.str, suffix);
+				safe_snprintf(input->data, input->size, "%c%s%c", *input->data, completed.str, suffix);
 				input->len = strlen(input->data);
 				tf->cursor = tf->buffer->len;
 			break;
@@ -424,10 +424,10 @@ int command_markpos(char *text, int len)
 		return 1;
 	}
 	if (put_mark_on_position(map_x, map_y, ptr)) {
-		snprintf (msg, sizeof(msg), location_info_str, map_x, map_y, ptr);
+		safe_snprintf (msg, sizeof(msg), location_info_str, map_x, map_y, ptr);
 		LOG_TO_CONSOLE(c_orange1,msg);
 	} else {
-		snprintf (msg,sizeof(msg), invalid_location_str, map_x, map_y);
+		safe_snprintf (msg,sizeof(msg), invalid_location_str, map_x, map_y);
 		LOG_TO_CONSOLE(c_red2,msg);
 	}
 	return 1;
@@ -442,7 +442,7 @@ int command_mark(char *text, int len)
 		for(;isspace(*text); text++);
 		if(strlen(text) > 0) {
 			put_mark_on_current_position(text);
-			snprintf (str, sizeof(str), marked_str, text);
+			safe_snprintf (str, sizeof(str), marked_str, text);
 			LOG_TO_CONSOLE(c_orange1,str);
 		}
 	}
@@ -464,7 +464,7 @@ int command_unmark(char *text, int len)
 				char str[512];
 				marks[i].x = marks[i].y = -1;
 				save_markings();
-				snprintf(str, sizeof(str), unmarked_str, marks[i].text);
+				safe_snprintf(str, sizeof(str), unmarked_str, marks[i].text);
 				LOG_TO_CONSOLE(c_orange1, str);
 				break;
 			}
@@ -558,14 +558,14 @@ int command_ignore(char *text, int len)
 	if (i > 15 && ch != '\0')
 	{
 		Uint8 str[100];
-		snprintf (str, sizeof(str), "%s %s", name_too_long, not_added_to_ignores);
+		safe_snprintf (str, sizeof(str), "%s %s", name_too_long, not_added_to_ignores);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
 	if (i < 3)
 	{
 		Uint8 str[100];
-		snprintf (str, sizeof(str), "%s %s", name_too_short, not_added_to_ignores);
+		safe_snprintf (str, sizeof(str), "%s %s", name_too_short, not_added_to_ignores);
 		LOG_TO_CONSOLE (c_red1, name_too_short);
 		return 1;
 	}
@@ -574,7 +574,7 @@ int command_ignore(char *text, int len)
 	if (result == -1)
 	{
 		Uint8 str[100];
-		snprintf (str, sizeof(str), already_ignoring, name);
+		safe_snprintf (str, sizeof(str), already_ignoring, name);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
@@ -585,7 +585,7 @@ int command_ignore(char *text, int len)
 	else
 	{
 		Uint8 str[100];
-		snprintf (str, sizeof(str), added_to_ignores, name);
+		safe_snprintf (str, sizeof(str), added_to_ignores, name);
 		LOG_TO_CONSOLE (c_green1, str);
 	}
 	return 1;
@@ -613,13 +613,13 @@ int command_filter(char *text, int len)
 
 	if (i >= sizeof (name) - 1 && ch != '\0')
 	{
-		snprintf (str, sizeof (str), "%s %s", word_too_long, not_added_to_filter);
+		safe_snprintf (str, sizeof (str), "%s %s", word_too_long, not_added_to_filter);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
 	else if (i < 3)
 	{
-		snprintf (str, sizeof (str), "%s %s", word_too_short, not_added_to_filter);
+		safe_snprintf (str, sizeof (str), "%s %s", word_too_short, not_added_to_filter);
 		LOG_TO_CONSOLE (c_red1, word_too_short);
 		return 1;
 	}
@@ -627,7 +627,7 @@ int command_filter(char *text, int len)
 	result = add_to_filter_list (name, 1, save_ignores);
 	if (result == -1)
 	{
-		snprintf (str, sizeof (str), already_filtering, name);
+		safe_snprintf (str, sizeof (str), already_filtering, name);
 		LOG_TO_CONSOLE (c_red1, str);
 	}
 	else if (result == -2)
@@ -636,7 +636,7 @@ int command_filter(char *text, int len)
 	}
 	else
 	{
-		snprintf (str, sizeof (str), added_to_filters, name);
+		safe_snprintf (str, sizeof (str), added_to_filters, name);
 		LOG_TO_CONSOLE (c_green1, str);
 	}
 	return 1;
@@ -667,25 +667,25 @@ int command_unignore(char *text, int len)
 
 	if (i>15 && ch != '\0')
 	{
-		snprintf (str, sizeof (str), "%s %s", name_too_long, not_removed_from_ignores);
+		safe_snprintf (str, sizeof (str), "%s %s", name_too_long, not_removed_from_ignores);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
 	if (i < 3)
 	{
-		snprintf (str, sizeof (str), "%s %s", name_too_short, not_removed_from_filter);
+		safe_snprintf (str, sizeof (str), "%s %s", name_too_short, not_removed_from_filter);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
 	result = remove_from_ignore_list (name);
 	if (result == -1)
 	{
-		snprintf (str, sizeof (str), not_ignoring, name);
+		safe_snprintf (str, sizeof (str), not_ignoring, name);
 		LOG_TO_CONSOLE (c_red1, str);
 	}
 	else
 	{
-		snprintf (str, sizeof (str), removed_from_ignores, name);
+		safe_snprintf (str, sizeof (str), removed_from_ignores, name);
 		LOG_TO_CONSOLE (c_green1, str);
 	}
 	return 1;
@@ -716,25 +716,25 @@ int command_unfilter(char *text, int len)
 
 	if (i >= sizeof (name) - 1 && ch != '\0')
 	{
-		snprintf (str, sizeof (str), "%s %s", word_too_long, not_removed_from_filter);
+		safe_snprintf (str, sizeof (str), "%s %s", word_too_long, not_removed_from_filter);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
 	if (i < 3)
 	{
-		snprintf (str, sizeof (str), "%s %s", word_too_short, not_removed_from_filter);
+		safe_snprintf (str, sizeof (str), "%s %s", word_too_short, not_removed_from_filter);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
 	result = remove_from_filter_list (name);
 	if(result == -1)
 	{
-		snprintf (str, sizeof (str), not_filtering, name);
+		safe_snprintf (str, sizeof (str), not_filtering, name);
 		LOG_TO_CONSOLE (c_red1, str);
 	}
 	else
 	{
-		snprintf (str, sizeof (str), removed_from_filter, name);
+		safe_snprintf (str, sizeof (str), removed_from_filter, name);
 		LOG_TO_CONSOLE (c_green1, str);
 	}
 	return 1;
@@ -746,19 +746,19 @@ int command_glinfo(char *text, int len)
 	Uint8 this_string[8192];
 
 	my_string = (GLubyte *)glGetString(GL_RENDERER);
-	snprintf(this_string,sizeof(this_string),"%s: %s",video_card_str,my_string);
+	safe_snprintf(this_string, sizeof(this_string),"%s: %s",video_card_str,my_string);
 	LOG_TO_CONSOLE(c_red2,this_string);
 
 	my_string = (GLubyte *)glGetString(GL_VENDOR);
-	snprintf(this_string,sizeof(this_string),"%s: %s",video_vendor_str,my_string);
+	safe_snprintf(this_string, sizeof(this_string),"%s: %s",video_vendor_str,my_string);
 	LOG_TO_CONSOLE(c_yellow3,this_string);
 
 	my_string = (GLubyte *)glGetString(GL_VERSION);
-	snprintf(this_string,sizeof(this_string),"%s: %s",opengl_version_str,my_string);
+	snprintf(this_string, sizeof(this_string),"%s: %s",opengl_version_str,my_string);
 	LOG_TO_CONSOLE(c_yellow2,this_string);
 
 	my_string = (GLubyte *)glGetString(GL_EXTENSIONS);
-	snprintf(this_string,sizeof(this_string),"%s: %s",supported_extensions_str,my_string);
+	safe_snprintf(this_string,sizeof(this_string),"%s: %s",supported_extensions_str,my_string);
 	LOG_TO_CONSOLE(c_grey1,this_string);
 
 	return 1;
@@ -790,7 +790,7 @@ int knowledge_command(char *text, int len)
 			(get_string_occurance(text, knowledge_list[i].name, strlen(knowledge_list[i].name), 1) != -1))
 		{
 			// remove any trailing carrage return
-			strncpy(this_string, knowledge_list[i].name, sizeof(this_string) -1);
+			safe_strncpy(this_string, knowledge_list[i].name, sizeof(this_string));
 			if ( (cr = strchr(this_string, '\n')) != NULL)
 				*cr = '\0';
 			// highlight books that have been read
@@ -853,7 +853,7 @@ int command_afk(char *text, int len)
 	{
 		if (len > 0) 
 		{
-			snprintf(afk_message, sizeof(afk_message), "%.*s", len, text);
+			safe_snprintf(afk_message, sizeof(afk_message), "%.*s", len, text);
 		}
 		go_afk();
 		last_action_time = cur_time-afk_time-1;
@@ -1011,13 +1011,13 @@ void print_version_string (char *buf, size_t len)
 	
 	if (client_version_patch > 0)
 	{
-		snprintf (extra, sizeof(extra), "p%d Beta %s", client_version_patch, DEF_INFO);
+		safe_snprintf (extra, sizeof(extra), "p%d Beta %s", client_version_patch, DEF_INFO);
 	}
 	else
 	{
-		snprintf (extra, sizeof(extra), " Beta %s", DEF_INFO);
+		safe_snprintf (extra, sizeof(extra), " Beta %s", DEF_INFO);
 	}
-	snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
+	safe_snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
 }
 
 /* Currently UNUSED

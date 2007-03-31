@@ -166,25 +166,25 @@ void    handle_update_download(struct http_get_struct *get)
 					}
 				}
 			}
-			strncpy(update_server, update_servers[num], sizeof(update_server));
+			safe_strncpy(update_server, update_servers[num], sizeof(update_server));
 			update_server[127]= '\0';
 			log_error("downloading from mirror %d of %d %s", num, num_update_servers, update_server);
 		} else {
-			strcpy(update_server, update_servers[0]);
+			safe_strncpy(update_server, update_servers[0], sizeof(update_server));
 		}
 		// failsafe, try to make sure the directory is there
 		if(mkdir_res < 0){
 			mkdir_res= mkdir_tree("./tmp");
 		}
-		sprintf(filename, "./tmp/temp000.dat");
+		safe_snprintf(filename, sizeof(filename), "./tmp/temp000.dat");
 		++temp_counter;
 		fp= my_fopen(filename, "wb+");
 		if(fp){
 			if(is_this_files_lst)	//files.lst
 			{
-			     sprintf(filename, "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, files_lst);
+			     safe_snprintf(filename, sizeof(filename), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, files_lst);
 			} else {	//custom_files.lst
-			     sprintf(filename, "http://%s/updates/%s", update_server, files_lst);
+			     safe_snprintf(filename, sizeof(filename), "http://%s/updates/%s", update_server, files_lst);
 			}
 			log_error("* server %s filename %s", update_server, filename);
 			http_threaded_get_file(update_server, filename, fp, NULL, EVENT_UPDATES_DOWNLOADED);
@@ -323,18 +323,18 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 			char	buffer[1024];
 			FILE    *fp;
 
-			snprintf(download_temp_file, sizeof(buffer), "./tmp/temp%03d.dat", ++temp_counter);
+			safe_snprintf(download_temp_file, sizeof(buffer), "./tmp/temp%03d.dat", ++temp_counter);
 			buffer[sizeof(buffer)-1]= '\0';
 			fp= my_fopen(download_temp_file, "wb+");
 			if(fp){
 				// build the prope URL to download
 				download_cur_file= download_queue[--download_queue_size];
 				download_cur_md5= download_MD5s[download_queue_size];
-				snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+				safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 				if(is_this_files_lst){
-                    snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+                    safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
                 } else {
-                    snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+                    safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
                 }
                 buffer[sizeof(buffer)-1]= '\0';
                 log_error("@@ %s %s",update_server,buffer);
@@ -404,16 +404,16 @@ void    handle_file_download(struct http_get_struct *get)
 		char	buffer[512];
 		FILE    *fp;
 
-		sprintf(download_temp_file, "./tmp/temp%03d.dat", ++temp_counter);
+		safe_snprintf(download_temp_file, sizeof(download_temp_file), "./tmp/temp%03d.dat", ++temp_counter);
 		fp= my_fopen(download_temp_file, "wb+");
 		if(fp){
 			// build the prope URL to download
 			download_cur_file= download_queue[--download_queue_size];
 			download_cur_md5= download_MD5s[download_queue_size];
 			if(is_this_files_lst) {
-                snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+                safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 			} else {
-                snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+                safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
 			}
 			buffer[sizeof(buffer)-1]= '\0';
 			http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
@@ -448,8 +448,8 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 	log_error("Downloading %s from %s", path, server);
 	// allocate & fill the spec structure
 	spec= (struct http_get_struct  *)calloc(1, sizeof(struct http_get_struct));
-	strcpy(spec->server, server);
-	strcpy(spec->path, path);
+	safe_strncpy(spec->server, server, sizeof(spec->server));
+	safe_strncpy(spec->path, path, sizeof(spec->server));
 	download_cur_md5= spec->md5= md5;
 	spec->fp= fp;
 	spec->event= event;
@@ -520,7 +520,7 @@ int http_get_file(char *server, char *path, FILE *fp)
 	}
 	
 	// send the GET request, try to avoid ISP caching
-	snprintf(message, sizeof(message), "GET %s HTTP/1.0\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, "autoupdate", FILE_VERSION);
+	safe_snprintf(message, sizeof(message), "GET %s HTTP/1.0\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, "autoupdate", FILE_VERSION);
 	len= strlen(message);
 	if(SDLNet_TCP_Send(http_sock,message,len) < len){
 		// close the socket to prevent memory leaks

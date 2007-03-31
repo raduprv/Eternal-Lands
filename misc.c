@@ -4,6 +4,7 @@
 #ifndef _MSC_VER
   #include <dirent.h>
   #include <errno.h>
+  #include <unistd.h>
 #endif //_MSC_VER
 #include <sys/types.h>
 #include <sys/stat.h>
@@ -336,7 +337,7 @@ void find_last_url(const unsigned char *source_string, const int len)
 	j = 0;
 	if(final_url_start > final_url_start_2)
 	{
-		snprintf(current_url, sizeof(current_url), "http://");
+		safe_snprintf(current_url, sizeof(current_url), "http://");
 		j = 7;
 	} else {
 		final_url_start = final_url_start_2;
@@ -370,8 +371,8 @@ int go_to_url(void * url)
 	}
 
 	// build the command line and execute it
-	snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, url),
-	system(browser_command);
+	safe_snprintf (browser_command, sizeof (browser_command), "%s \"%s\"", browser_name, url),
+	system(browser_command);	// Do not use this command on UNIX.
 
 	return 0;
 }
@@ -389,8 +390,7 @@ void open_web_link(char * url)
 #ifndef WINDOWS
 		char browser_command[400];
 		
-		snprintf(browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, url);
-		system(browser_command);
+		execl(browser_name, browser_name, url);
 #else
 		SDL_Thread *go_to_url_thread;
 
@@ -441,7 +441,7 @@ int gzfile_exists(const char *fname)
 #ifdef	ZLIB
 	char	gzfname[1024];
 
-	strcpy(gzfname, fname);
+	safe_strncpy(gzfname, fname, sizeof(gzfname) - 4);
 	strcat(gzfname, ".gz");
 	if(file_exists(gzfname)){
 		return 1;
@@ -457,7 +457,7 @@ gzFile * my_gzopen(const char * filename, const char * mode)
 	char gzfilename[1024];
 	gzFile * result;
 
-	snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
+	safe_snprintf(gzfilename, sizeof(gzfilename), "%s.gz", filename);
 	result= gzopen(gzfilename, mode);
 	if(result == NULL) {
 		// didn't work, try the name that was specified
@@ -629,7 +629,7 @@ void makeScreenShot ()
 	int amask = 0x00000000;
 
 	/* see if the screenshots directory exists */
-	snprintf (fname, sizeof (fname), "%sscreenshots", configdir);
+	safe_snprintf (fname, sizeof (fname), "%sscreenshots", configdir);
 
 	ret = file_exists(fname);
 	if(ret == 0)
@@ -650,7 +650,7 @@ void makeScreenShot ()
 	/* try to find a file name which isn't taken yet */
 	for (ishot = 1; ishot < 1000; ishot++)
 	{
-		snprintf (fname+dlen, sizeof(fname)-dlen, "/elscreen%03d.png", ishot);
+		safe_snprintf (fname+dlen, sizeof(fname)-dlen, "/elscreen%03d.png", ishot);
 		ret = file_exists(fname);
 		if(ret == 0)
 		{
@@ -665,7 +665,7 @@ void makeScreenShot ()
 	/* if all numbered file names have been taken, use the default */
 	if (ishot >= 1000)
 	{
-		snprintf (fname+dlen, sizeof(fname)-dlen, "/elscreen.png");
+		safe_snprintf (fname+dlen, sizeof(fname)-dlen, "/elscreen.png");
 	}
 
 	/* read the pixels from the GL scene */
@@ -794,7 +794,7 @@ int	mkdir_tree(const char *file)
 	char *slash;
 	struct stat stats;
 
-	strncpy(dir, file, 1024);
+	safe_strncpy(dir, file, sizeof(dir));
 	slash= dir;
 
 	// Skip over leading periods. this also prevents ../ accesses on purpose

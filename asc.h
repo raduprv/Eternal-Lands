@@ -68,6 +68,39 @@ Sint32 get_string_occurance (const char *needle, const char *haystack, const Uin
 
 /*!
  * \ingroup	misc_utils
+ * \brief	The function copies the string from source to dest, making sure it doesn't overflow and remains null terminated.  Strncpy doesn't guarantee the null termination.
+ *
+ * \param	dest The destination char array
+ * \param	source The source char array
+ * \param	len The sizeof the array.
+ */
+char* safe_strncpy(char *dest, const char * source, const size_t len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	The function copies the string from source to dest, making sure it doesn't overflow and remains null terminated, and furthermore that it doesn't copy more than a certain number of chars.  Strncpy doesn't guarantee the null termination.
+ *
+ * \param	dest The destination char array
+ * \param	source The source char array
+ * \param	dest_len The sizeof the destination array.
+ * \param	src_len The desired number of characters from source.
+ */
+char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, const size_t src_len);
+
+/*!
+ * \ingroup	misc_utils
+ * \brief	Like snprintf, but guarentees nul termination.
+ *
+ * \param	dest The destination char array
+ * \param	len The sizeof the destination array.
+ * \param	format A printf-style format string
+ * \param	... arguments to be passed to snprintf
+ */
+int safe_snprintf(char *dest, const size_t len, const char* format, ...);
+
+
+/*!
+ * \ingroup	misc_utils
  * \brief	The function copies the string from source to dest
  *
  * 		The function copies the string from source to destination, and put a terminating \\0

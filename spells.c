@@ -479,7 +479,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 	}
 	
 	if(mx>=350 && mx<=381 && my>=112 && my<=143 && mqb_data[0] && mqb_data[0]->spell_id != -1) {
-		snprintf(spell_text, sizeof(spell_text), "Click to add the spell to the quickbar");
+		safe_snprintf(spell_text, sizeof(spell_text), "Click to add the spell to the quickbar");
 		return 0;
 	}
 
@@ -519,7 +519,7 @@ int have_spell_name(int spell_id)
 	for(i=1;i<7;i++){
 		if(mqb_data[i] && mqb_data[i]->spell_id==spell_id && mqb_data[i]->spell_name[0]){
 			if(mqb_data[0])
-				snprintf(mqb_data[0]->spell_name, sizeof(mqb_data[0]->spell_name), "%s", mqb_data[i]->spell_name);
+				safe_snprintf(mqb_data[0]->spell_name, sizeof(mqb_data[0]->spell_name), "%s", mqb_data[i]->spell_name);
 			return 1;
 		}
 	}
@@ -587,7 +587,7 @@ void set_spell_name (int id, const char *data, int len)
 	{
 		if (mqb_data[i] != NULL && mqb_data[i]->spell_id==id)
 		{
-			snprintf (mqb_data[i]->spell_name, sizeof(mqb_data[i]->spell_name), "%.*s", len, data);
+			safe_snprintf (mqb_data[i]->spell_name, sizeof(mqb_data[i]->spell_name), "%.*s", len, data);
 		}
 	}
 
@@ -661,15 +661,15 @@ void load_quickspells ()
 	quickspells_loaded = 1;
 	
 #ifndef WINDOWS
-	snprintf(username, sizeof(username), "%s", username_str);
+	safe_snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
-	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
+	safe_snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "rb"); // try local file first
 	if (!fp)
 #endif
 	{
 		//write to the data file, to ensure data integrity, we will write all the information
-		sprintf(fname,"spells_%s.dat",username_str);
+		safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 		my_tolower(fname);
 		fp=fopen(fname,"rb");
 		if(!fp)
@@ -702,15 +702,15 @@ void save_quickspells()
 		return;
 	
 #ifndef WINDOWS	
-	snprintf(username, sizeof(username), "%s", username_str);
+	safe_snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
-	snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
+	safe_snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "wb"); // try local file first
 	if (!fp)
 #endif
 	{
 		//write to the data file, to ensure data integrity, we will write all the information
-		sprintf(fname,"spells_%s.dat",username_str);
+		safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 		my_tolower(fname);
 		fp=fopen(fname,"wb");
 		if(!fp)
@@ -850,7 +850,7 @@ int cast_handler()
 	}
 
 	if(count<2) {
-		sprintf(spell_text,"%c%s",127+c_red2,sig_too_few_sigs);
+		safe_snprintf(spell_text, sizeof(spell_text), "%c%s",127+c_red2,sig_too_few_sigs);
 		have_error_message=1;
 		return 1;
 	}

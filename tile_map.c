@@ -508,7 +508,7 @@ void load_map_tiles()
 	char str[200];
 	
 	for(i=0;i<255;i++){
-		snprintf(str,sizeof(str), "./tiles/tile%i.bmp",i);
+		safe_snprintf(str,sizeof(str), "./tiles/tile%i.bmp",i);
 		if(IS_WATER_TILE(i) && IS_REFLECTING(i))
 			tile_list[i]=load_texture_cache(str,70);
 		else 	tile_list[i]=load_texture_cache(str,255);
@@ -527,7 +527,7 @@ void load_map_tiles()
 			if(!tile_list[cur_tile] && cur_tile!=255)//if it is 255, it's a null tile, don't load it
 				{
 					//tile not loaded, so load it
-					sprintf(str,"./tiles/tile%i.bmp",cur_tile);
+					safe_snprintf(str, sizeof(str), "./tiles/tile%i.bmp",cur_tile);
 					if(IS_WATER_TILE(cur_tile) && IS_REFLECTING(cur_tile))
 					  tile_list[cur_tile]=load_texture_cache(str,70);
 					else tile_list[cur_tile]=load_texture_cache(str,255);

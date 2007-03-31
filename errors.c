@@ -22,7 +22,7 @@ FILE* open_log (const char *fname, const char *mode)
 	time (&c_time);
 	l_time = localtime (&c_time);
 	strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
-	snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
+	safe_snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
 	fwrite (starttime, strlen(starttime), 1, file);
 	return file;
 }
@@ -32,7 +32,7 @@ void clear_error_log()
 {
 	char error_log[256];
 
-	snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
+	safe_snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
 	if(!err_file) {
 		err_file = open_log (error_log, "w");
 	}
@@ -49,6 +49,7 @@ void log_error (const char* message, ...)
 	char errmsg[512];
 	va_start(ap, message);
         vsnprintf(errmsg, sizeof(errmsg), message, ap);
+        errmsg[sizeof(errmsg) - 1] = '\0';
 	va_end(ap);
 	if(!strcmp(errmsg,last_error)){
 		++repeats;
@@ -56,12 +57,12 @@ void log_error (const char* message, ...)
 	}
 	if(repeats) fprintf(err_file, "Last message repeated %d time%c\n", repeats,(repeats>1?'s':' '));
 	repeats=0;
-	strcpy(last_error,errmsg);
+	safe_strncpy(last_error, errmsg, sizeof(last_error));
 
 	if(err_file == NULL)
 	{
 		char error_log[256];
-		snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
+		safe_snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 	}
 	time(&c_time);
@@ -83,10 +84,10 @@ void log_error_detailed(const char *message, const char *file, const char *func,
 
 	if(err_file == NULL) {
 		char error_log[256];
-		snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
+		safe_snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 	}
-	snprintf(str, sizeof(str), "%s.%s:%u - %s", file, func, line, message);
+	safe_snprintf(str, sizeof(str), "%s.%s:%u - %s", file, func, line, message);
 
 	va_start(ap, line);
 		vfprintf(err_file, str, ap);
@@ -101,7 +102,7 @@ void clear_func_log()
 {
 	if(!func_file) {
 		char func_log[256];
-		snprintf(func_log, sizeof(func_log), "%sfunction_log.txt", configdir);
+		safe_snprintf(func_log, sizeof(func_log), "%sfunction_log.txt", configdir);
 		func_file = open_log(func_log, "w");
 	}
 	fflush(func_file);
@@ -125,7 +126,7 @@ void clear_conn_log()
 {
 	if(!conn_file) {
 		char connection_log[256];
-		snprintf(connection_log, sizeof(connection_log), "%sconnection_log.txt", configdir);
+		safe_snprintf(connection_log, sizeof(connection_log), "%sconnection_log.txt", configdir);
 		conn_file = open_log (connection_log, "w");
 	}
 	fflush (conn_file);
@@ -135,7 +136,7 @@ void log_conn(const Uint8 *in_data, Uint16 data_length)
 {
   	if(!conn_file) {
 		char connection_log[256];
-		snprintf(connection_log, sizeof(connection_log), "%sconnection_log.txt", configdir);
+		safe_snprintf(connection_log, sizeof(connection_log), "%sconnection_log.txt", configdir);
 		conn_file = open_log (connection_log, "a");
 	}
   	fwrite (in_data, data_length, 1, conn_file);

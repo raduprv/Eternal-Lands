@@ -125,6 +125,59 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 	return -1.0f;
 }
 
+char* safe_strncpy(char *dest, const char * source, const size_t len)
+{
+	if (len > 0)
+	{
+		strncpy(dest, source, len - 1);
+		dest[len - 1] = '\0';
+	}
+	return dest;
+}
+
+char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, const size_t src_len)
+{
+	if (dest_len > 0)
+	{
+		if (src_len > dest_len)
+		{
+			strncpy(dest, source, dest_len - 1);
+			dest[dest_len - 1] = '\0';
+		}
+		else
+		{
+			strncpy(dest, source, src_len);
+			dest[src_len] = '\0';
+		}
+	}
+	return dest;
+}
+
+int safe_snprintf(char *dest, const size_t len, const char* format, ...)
+{
+	int ret;
+	if (len > 0)
+	{
+		va_list ap;
+		va_start(ap, format);
+#ifdef __MINGW32__
+		ret = vsnprintf(dest, len, format, ap);
+#else
+ #if defined(WINDOWS) && (defined(__MINGW32__) || defined(_MSC_VER))
+		ret = _vsnprintf(dest, len, format, ap);
+ #else
+		ret = vsnprintf(dest, len, format, ap);
+ #endif
+#endif
+		va_end(ap);
+		dest[len - 1] = '\0';
+		if ((ret < 0) || (ret >= len))
+			return len;
+		return ret;
+	}
+	return 0;
+}
+
 void my_strcp(Uint8 *dest,const Uint8 * source)
 {
 	while(*source)

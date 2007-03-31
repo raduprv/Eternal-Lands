@@ -126,6 +126,7 @@ int get_cur_map (const char * file_name)
 
 void change_map (const char *mapname)
 {
+
 #ifdef	NEW_FRUSTUM
 	set_all_intersect_update_needed(main_bbox_tree);
 #else
@@ -150,7 +151,7 @@ void change_map (const char *mapname)
 #endif	//NEW_SOUND
 	if (!load_map(mapname)) {
 		char error[255];
-		snprintf(error, sizeof(error), cant_change_map, mapname);
+		safe_snprintf(error, sizeof(error), cant_change_map, mapname);
 		LOG_TO_CONSOLE(c_red4, error);
 		LOG_TO_CONSOLE(c_red4, empty_map_str);
 		LOG_ERROR(cant_change_map, mapname);
@@ -190,7 +191,7 @@ void change_map (const char *mapname)
 #endif	//NEW_SOUND
 	if (!load_map(mapname)) {
 		char error[255];
-		snprintf(error, sizeof(error), cant_change_map, mapname);
+		safe_snprintf(error, sizeof(error), cant_change_map, mapname);
 		LOG_TO_CONSOLE(c_red4, error);
 		LOG_TO_CONSOLE(c_red4, empty_map_str);
 		LOG_ERROR(cant_change_map, mapname);
@@ -596,7 +597,7 @@ int load_empty_map()
 		LOG_TO_CONSOLE(c_red3, disconnected_from_server);
 		//Fake a map to make sure we don't get any crashes.
 #endif
-		snprintf(map_file_name, sizeof(map_file_name), "./maps/nomap.elm");
+		safe_snprintf(map_file_name, sizeof(map_file_name), "./maps/nomap.elm");
 		tile_map_size_y = 256;
 		tile_map_size_x = 256;
 		dungeon = 0;
@@ -628,9 +629,9 @@ void load_map_marks()
 		return;
 	}
 #ifndef WINDOWS
-	snprintf (marks_file, sizeof (marks_file), "%s%s.txt", configdir, mapname + 1);
+	safe_snprintf (marks_file, sizeof (marks_file), "%s%s.txt", configdir, mapname + 1);
 #else
-	snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
+	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
 #endif
 	// don't use my_fopen here, not everyone uses map markers
 	fp = fopen(marks_file, "r");
@@ -642,7 +643,7 @@ void load_map_marks()
 		if (strlen (text) > 1) {
 			sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
 			text[strlen(text)-1] = '\0'; //remove the newline
-			strncpy (marks[max_mark].text, strstr(strstr(text, " ")+1, " ")+1, 500);
+			safe_strncpy(marks[max_mark].text, strstr(strstr(text, " ")+1, " ") + 1, sizeof(marks[max_mark].text));
 			max_mark++;
 			if ( max_mark > 200 ) break;
 		}
@@ -852,7 +853,7 @@ int save_map(char * file_name)
 					//clear the object
 					for(k=0;k<sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
 
-					sprintf(cur_3d_obj_io.file_name,"%s",objects_list[i]->file_name);
+					safe_sprintf(cur_3d_obj_io.file_name, sizeof(cur_3d_obj_io.file_name), "%s", objects_list[i]->file_name);
 					cur_3d_obj_io.x_pos=objects_list[i]->x_pos;
 					cur_3d_obj_io.y_pos=objects_list[i]->y_pos;
 					cur_3d_obj_io.z_pos=objects_list[i]->z_pos;
@@ -892,7 +893,7 @@ int save_map(char * file_name)
 					//clear the object
 					for(k=0;k<sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
 
-					sprintf(cur_2d_obj_io.file_name,"%s",obj_2d_list[i]->file_name);
+					safe_snprintf(cur_2d_obj_io.file_name, sizeof(cur_2d_obj_io.file_name), "%s", obj_2d_list[i]->file_name);
 					cur_2d_obj_io.x_pos=obj_2d_list[i]->x_pos;
 					cur_2d_obj_io.y_pos=obj_2d_list[i]->y_pos;
 					cur_2d_obj_io.z_pos=obj_2d_list[i]->z_pos;
@@ -952,7 +953,7 @@ int save_map(char * file_name)
 					char *cur_particles_pointer=(char *)&cur_particles_io;
 					Uint32 k=0;
 					for(k=0;k<sizeof(particles_io);k++)cur_particles_pointer[k]=0;
-					sprintf(cur_particles_io.file_name,"%s",particles_list[i]->def->file_name);
+					safe_snprintf(cur_particles_io.file_name, sizeof(cur_particles_io.file_name), "%s",particles_list[i]->def->file_name);
 					cur_particles_io.x_pos=particles_list[i]->x_pos;
 					cur_particles_io.y_pos=particles_list[i]->y_pos;
 					cur_particles_io.z_pos=particles_list[i]->z_pos;
@@ -1031,7 +1032,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 		
 		nb_left -= 12;
 		max_name_len = nb_left > sizeof (obj_name) ? sizeof (obj_name) : nb_left;
-		name_len = snprintf (obj_name, max_name_len, "%s", &data[offset]);
+		name_len = safe_snprintf (obj_name, max_name_len, "%s", &data[offset]);
 		if (name_len < 0 || name_len >= sizeof (obj_name))
 		{
 			// Warn about this error!

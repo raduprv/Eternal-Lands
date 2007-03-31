@@ -107,7 +107,7 @@ int	display_manufacture_handler(window_info *win)
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			sprintf((char *)str,"%i",manufacture_list[i].quantity);
+			safe_snprintf((char *)str, sizeof(str), "%i",manufacture_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
 		}
 	}
@@ -143,7 +143,7 @@ int	display_manufacture_handler(window_info *win)
 				draw_2d_thing(u_start,v_start,u_end,v_end,x_start,y_start,x_end,y_end);
 			glEnd();
 
-			sprintf((char *)str,"%i",manufacture_list[i].quantity);
+			safe_snprintf((char *)str, sizeof(str), "%i", manufacture_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
 		}
 	}

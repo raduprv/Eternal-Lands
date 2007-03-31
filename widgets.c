@@ -546,7 +546,7 @@ int label_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uin
 	Uint16 len_y = (Uint16)(18 * 1.0);
 
 	label *T = (label *) calloc (1, sizeof(label));
-	snprintf (T->text, sizeof(T->text), "%s", text);
+	safe_snprintf (T->text, sizeof(T->text), "%s", text);
 
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, &label_type, (void *)T, NULL);
 }
@@ -571,7 +571,7 @@ int label_set_text(int window_id, Uint32 widget_id, char *text)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		label *l = (label *) w->widget_info;
-		snprintf(l->text, sizeof(l->text), "%s", text);
+		safe_snprintf(l->text, sizeof(l->text), "%s", text);
 		return 1;
 	}
 	return 0;
@@ -722,7 +722,7 @@ int button_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 x, U
 	Uint16 len_y = ly > 0 ? ly : (Uint16)(18 * size) + 12*size;
 
 	button *T = calloc (1, sizeof(button));
-	snprintf (T->text, sizeof(T->text), "%s", text);
+	safe_snprintf (T->text, sizeof(T->text), "%s", text);
 
 	return widget_add (window_id, wid, OnInit, x, y, len_x, len_y, Flags, size, r, g, b, &round_button_type, T, NULL);
 }
@@ -776,7 +776,7 @@ int button_set_text(int window_id, Uint32 widget_id, char *text)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		button *l = (button *) w->widget_info;
-		snprintf(l->text, sizeof(l->text), "%s",  text);
+		safe_snprintf(l->text, sizeof(l->text), "%s",  text);
 		return 1;
 	}
 	return 0;
@@ -2101,7 +2101,7 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 		M->buttons = realloc(M->buttons, sizeof(*M->buttons) * M->max_buttons * 2);
 		M->max_buttons *= 2;
 	}
-	snprintf(M->buttons[current_button].text, sizeof(M->buttons[current_button].text), "%s", text);
+	safe_snprintf(M->buttons[current_button].text, sizeof(M->buttons[current_button].text), "%s", text);
 	if(selected) {
 		M->selected_button = current_button;
 	}
@@ -2178,7 +2178,7 @@ int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, Uint32 
 					if(*(int *)button->data*10 + i_tmp > button->max) {
 						/* Make sure we don't exceed any limits */
 						*(int *)button->data = button->max;
-						snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", (int)button->max);
+						safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", (int)button->max);
 					} else {
 						if(atoi(button->input_buffer) >= button->min) {
 							*(int *)button->data = *(int *)button->data * 10 + i_tmp;
@@ -2221,7 +2221,7 @@ int spinbutton_keypress(widget_list *widget, int mx, int my, Uint32 key, Uint32 
 							button->input_buffer[i+1] = '\0';
 						}
 						if(atof(button->input_buffer) > button->max) {
-							snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", button->max);
+							safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", button->max);
 						}
 					}
 					if(atof(button->input_buffer) >= button->min && atof(button->input_buffer) <= button->max) {
@@ -2280,7 +2280,7 @@ int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags)
 							}
 						break;
 					}
-					snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
+					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%i", *(int *)button->data);
 				break;
 				case SPIN_FLOAT:
 					switch (action) {
@@ -2296,7 +2296,7 @@ int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags)
 							}
 						break;
 					}
-					snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
+					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);
 				break;
 			}
 			return 1;
@@ -2319,16 +2319,16 @@ int spinbutton_draw(widget_list *widget)
 				/* The input buffer has a value less than minimum. 
 				 * Don't change the data variable and mark the text in red */
 				glColor3f(1, 0, 0);
-				snprintf(str, sizeof (str), "%s", button->input_buffer);
+				safe_snprintf(str, sizeof (str), "%s", button->input_buffer);
 			} else {
 				*(int *)button->data = atoi(button->input_buffer);
-				snprintf(str, sizeof (str), "%i", *(int *)button->data);
+				safe_snprintf(str, sizeof (str), "%i", *(int *)button->data);
 			}
 		break;
 		case SPIN_FLOAT:
 			if(atof(button->input_buffer) < button->min) {
 				glColor3f(1, 0, 0);
-				snprintf(str, sizeof (str), "%s", button->input_buffer);
+				safe_snprintf(str, sizeof (str), "%s", button->input_buffer);
 			} else {
 				char *pointer = strchr(button->input_buffer, '.');
 				int accuracy;
@@ -2341,11 +2341,11 @@ int spinbutton_draw(widget_list *widget)
 				if(accuracy > 3) {
 					accuracy = 3;
 				}
-				snprintf(format, sizeof (format), "%%.%if", accuracy);
-				snprintf(str, sizeof (str), format, *(float *)button->data);
+				safe_snprintf(format, sizeof (format), "%%.%if", accuracy);
+				safe_snprintf(str, sizeof (str), format, *(float *)button->data);
 				if(accuracy == 0 && pointer != NULL) {
 					/* We have a . at the end of the input buffer, but 
-					 * snprintf() doesn't write it, so we have to do it manually. */
+					 * safe_snprintf() doesn't write it, so we have to do it manually. */
 					strncat(str, ".", sizeof(str)-1);
 				}
 			}
@@ -2413,11 +2413,11 @@ int spinbutton_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 x
 	switch(data_type)
 	{
 		case SPIN_FLOAT:
-			snprintf(T->input_buffer, sizeof(T->input_buffer), "%.2f", *(float *)T->data);
+			safe_snprintf(T->input_buffer, sizeof(T->input_buffer), "%.2f", *(float *)T->data);
 		break;
 		case SPIN_INT:
 			T->interval = (int)T->interval;
-			snprintf(T->input_buffer, sizeof(T->input_buffer), "%i", *(int *)T->data);
+			safe_snprintf(T->input_buffer, sizeof(T->input_buffer), "%i", *(int *)T->data);
 		break;
 	}
 

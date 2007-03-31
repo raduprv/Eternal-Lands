@@ -261,10 +261,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					float a=1.0f-(float)(cur_time-actor_id->last_health_loss)/2000.0f;
 
 					if(actor_id->damage>0){
-						sprintf(str,"%i",actor_id->damage);
+						safe_snprintf(str, sizeof(str), "%i",actor_id->damage);
 						glColor4f(1.0f, 0.1f, 0.2f, a);
 					} else {
-						sprintf(str,"%i",-actor_id->damage);
+						safe_snprintf(str, sizeof(str), "%i",-actor_id->damage);
 						glColor4f(0.3f, 1.0f, 0.3f, a);
 					}
 
@@ -273,7 +273,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					draw_ingame_string(-(((float)get_string_width(str) * (0.17*zoom_level*name_zoom/3.0))/12.0)*0.5f, healthbar_z/2.0f+((1.0f-a)*0.5f), str, 1, 0.14, 0.21);
 					glDisable(GL_BLEND);
 				} else {
-					sprintf(str,"%i",actor_id->damage);
+					safe_snprintf(str, sizeof(str), "%i",actor_id->damage);
 					glColor3f (1.0f, 0.3f, 0.3f);
 					//draw_ingame_string(-0.1,healthbar_z-2.0f,str,1,1);
 					//draw_ingame_string(-0.1,healthbar_z/2.0f,str,1,1);
@@ -303,7 +303,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						} else if(actor_id->is_enhanced_model && (actor_id->kind_of_actor==PKABLE_HUMAN || actor_id->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)) glColor3f(1.0f,0.0f,0.0f);
 						else glColor3f(1.0f,1.0f,0.0f);
 						//draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healthbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
-						snprintf(temp, sizeof (temp), "%s", actor_id->actor_name);
+						safe_snprintf(temp, sizeof (temp), "%s", actor_id->actor_name);
 #ifdef	DEBUG
 						if (actor_id->calmodel!=NULL) strcat(temp," <CAL>");
 #endif	//DEBUG
@@ -316,7 +316,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 						//choose color for the health
 						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
-						sprintf(hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
+						safe_snprintf(hp, sizeof(hp), "%d/%d", actor_id->cur_health, actor_id->max_health);
 						if(view_health_bar)	off= (0.35*zoom_level*name_zoom/3.0);
 						else off= 0.0;
 						draw_ingame_string(-(((float)get_string_width(hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healthbar_z-(0.05*zoom_level*name_zoom/3.0), hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
@@ -792,7 +792,7 @@ void add_actor_from_server (const char *in_data, int len)
 	if(actor_type < 0 || actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
 		char    str[256];
 
-		sprintf(str, "Illegal/missing actor definition %d", actor_type);
+		safe_snprintf(str, sizeof(str), "Illegal/missing actor definition %d", actor_type);
 		log_error(str);
 	}
 
@@ -922,7 +922,7 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
 {
 	int len_to_add;
 	len_to_add = strlen(text);
-	snprintf(actor_ptr->current_displayed_text, sizeof(actor_ptr->current_displayed_text), "%s", text);
+	safe_snprintf(actor_ptr->current_displayed_text, sizeof(actor_ptr->current_displayed_text), sizeof(actor_ptr->current_displayed_text), "%s", text);
 	actor_ptr->current_displayed_text_time_left = len_to_add*MS_PER_CHAR;
 
 	actor_ptr->current_displayed_text_time_left += MINI_BUBBLE_MS;

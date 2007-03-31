@@ -204,7 +204,7 @@ void get_map_playlist()
 		tmp = map_file_name;
 	else
 		tmp++;
-	snprintf (map_list_file_name, sizeof (map_list_file_name), "./music/%s", tmp);
+	safe_snprintf (map_list_file_name, sizeof (map_list_file_name), "./music/%s", tmp);
 	len = strlen (map_list_file_name);
 	tmp = strrchr (map_list_file_name, '.');
 	if (tmp == NULL)
@@ -212,7 +212,7 @@ void get_map_playlist()
 	else
 		tmp++;
 	len -= strlen (tmp);
-	snprintf (tmp, sizeof (map_list_file_name) - len, "pll");
+	safe_snprintf (tmp, sizeof (map_list_file_name) - len, "pll");
 
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(map_list_file_name,"r");
@@ -231,7 +231,7 @@ void get_map_playlist()
 					tmp_buf[len]= '\0';
 				}
 			}
-			strncpy(playlist[i].file_name, tmp_buf, 64);
+			safe_strncpy(playlist[i].file_name, tmp_buf, sizeof(playlist[i].file_name));
 			playlist[i].file_name[63]= '\0';
 			i++;
 			if(!fgets(strLine, 100, fp))break;
@@ -288,9 +288,9 @@ void load_ogg_file(char *file_name)
 	ov_clear(&ogg_stream);
 
 	if(file_name[0]!='.' && file_name[0]!='/')
-		snprintf (file_name2, sizeof (file_name2), "./music/%s", file_name);
+		safe_snprintf (file_name2, sizeof (file_name2), "./music/%s", file_name);
 	else
-		snprintf(file_name2, sizeof (file_name2), "%s", file_name);
+		safe_snprintf(file_name2, sizeof (file_name2), "%s", file_name);
 
 	ogg_file = my_fopen(file_name2, "rb");
 
@@ -460,7 +460,7 @@ void play_music(int list) {
 
 	if(!have_music)return;
 
-	snprintf(list_file_name, sizeof(list_file_name), "./music/%d.pll", list);
+	safe_snprintf(list_file_name, sizeof(list_file_name), "./music/%d.pll", list);
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(list_file_name,"r");
 	if(!fp)return;
@@ -1131,7 +1131,7 @@ void stream_music(ALuint buffer)
         result = ov_read(&ogg_stream, data + size, MUSIC_BUFFER_SIZE - size, 1, 2, 1,
 						 &section);
 #endif
-		snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
+		safe_snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
         if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
 		{
             if (result != OV_HOLE) size += result;
@@ -1461,7 +1461,7 @@ void init_sound(char *sound_config_path)
 	mSoundDevice = alcOpenDevice( NULL );
 	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundDevice){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1475,7 +1475,7 @@ void init_sound(char *sound_config_path)
 
 	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1547,7 +1547,7 @@ void init_sound()
 	mSoundDevice = alcOpenDevice( NULL );
 	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundDevice){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1561,7 +1561,7 @@ void init_sound()
 
 	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1611,7 +1611,7 @@ void init_sound()
 #endif	//NO_MUSIC
 	if((error=alGetError()) != AL_NO_ERROR){
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
@@ -1706,7 +1706,7 @@ void destroy_sound()
 	if((error=alGetError()) != AL_NO_ERROR) 
 	{
 		char str[256];
-		snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 	}
@@ -1828,7 +1828,7 @@ int display_song_name(){
 		vorbis_comment *comments;
 		comments = ov_comment(&ogg_stream, -1);
 		if(comments == NULL){
-			snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
 			LOG_TO_CONSOLE(c_grey1, musname);
 			return 1;
 		}
@@ -1842,11 +1842,11 @@ int display_song_name(){
 			}
 		}
 		if(artist && title){
-			snprintf(musname, sizeof(musname), snd_media_ogg_info, title, artist, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info, title, artist, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
 		}else if(title){
-			snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, title, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, title, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
 		}else{
-			snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
+			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
 		}
 		LOG_TO_CONSOLE(c_grey1, musname);
 	}
@@ -1875,9 +1875,9 @@ void load_sound_config_data(char *file)
 	sound_type *pData=NULL;
 
 #ifndef WINDOWS
-	snprintf(path, sizeof(path), "%s/%s", datadir, file);
+	safe_snprintf(path, sizeof(path), "%s/%s", datadir, file);
 #else
-	snprintf(path, sizeof(path), "%s", file);
+	safe_snprintf(path, sizeof(path), "%s", file);
 #endif // !WINDOWS
 
 	//can we open the file as xml?
@@ -1885,7 +1885,7 @@ void load_sound_config_data(char *file)
 	{
 	#ifdef ELC
 		char str[200];
-		snprintf(str, sizeof(str), book_open_err_str, path);
+		safe_snprintf(str, sizeof(str), book_open_err_str, path);
 		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	#endif
@@ -1917,7 +1917,7 @@ void load_sound_config_data(char *file)
 
 				sVal = xmlGetProp(soundNode,(xmlChar*)"name");
 				if(sVal)
-					strncpy(pData->name,sVal,MAX_SOUND_NAME_LENGTH);
+					safe_strncpy(pData->name, sVal, sizeof(pData->name));
 				else
 				{
 				#ifdef ELC
@@ -2183,7 +2183,7 @@ int store_sample_name(char *name)
 	if(num_samples < MAX_BUFFERS)
 	{
 		// This file is not yet stored, store it
-		strncpy(sound_sample_data[num_samples].file_path,name,MAX_FILENAME_LENGTH);
+		safe_strncpy(sound_sample_data[num_samples].file_path, name, sizeof(sound_sample_data[num_samples].file_path));
 		return num_samples++;
 	}
 

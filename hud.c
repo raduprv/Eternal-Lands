@@ -710,7 +710,7 @@ void show_help(char *help_message, int x, int y)
 	glEnable(GL_TEXTURE_2D);
 	
 	glColor3f(1.0f,1.0f,1.0f);
-	snprintf(str, sizeof(str), "%s", help_message);
+	safe_snprintf(str, sizeof(str), "%s", help_message);
 	draw_string_small(x, y,help_message,1);
 }
 
@@ -774,7 +774,7 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	glEnable(GL_TEXTURE_2D);
 	
 	// handle the text
-	snprintf(buf, sizeof(buf), "%d", val);
+	safe_snprintf(buf, sizeof(buf), "%d", val);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	draw_string_small(x-(1+8*strlen(buf)), y-3, buf, 1);
 }
@@ -949,7 +949,7 @@ int	display_misc_handler(window_info *win)
 		char str[6];	// one extra incase the length of the day ever changes
 		int	x;
 
-		snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
+		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
 		x= 3+(win->len_x - (get_string_width(str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string(x, 7+(NUM_WATCH_STAT-1)*15, str, 1);
@@ -1009,7 +1009,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 		
@@ -1017,7 +1017,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1025,7 +1025,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1033,7 +1033,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1041,7 +1041,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1049,7 +1049,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1057,7 +1057,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1065,7 +1065,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1073,7 +1073,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1081,7 +1081,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.engineering_skill.shortname,your_info.engineering_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.engineering_skill.shortname,your_info.engineering_skill.base);
 		draw_string_small(x, y, str, 1);
 		y+=15;
 
@@ -1089,7 +1089,7 @@ int	display_misc_handler(window_info *win)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else
 			glColor3f(1.0f,1.0f,1.0f);
-		snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
 		draw_string_small(x, y, str, 1);
 	}	
 	return	1;
@@ -1282,7 +1282,7 @@ int	display_quickbar_handler(window_info *win)
 				glColor3f(1.0f, 1.0f, 1.0f);
 		}
 			
-			snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
 			draw_string_small(x_start,y_end-15,str,1);
 		}
 	}

@@ -242,14 +242,14 @@ void custom_path(char * path, char * custom1, char * custom2) {
 	if(!path || !*path)	return;
 
 	/* Check if custom1 has path readable */
-	snprintf(buffer, sizeof(buffer), "%s%s", custom1, path);
+	safe_snprintf(buffer, sizeof(buffer), "%s%s", custom1, path);
 	if(gzfile_exists(buffer)) {
 		my_strcp(path, buffer);
 		return;
 	}
 
 	/* Check if custom2 has path readable */
-	snprintf(buffer, sizeof(buffer), "%s%s", custom2, path);
+	safe_snprintf(buffer, sizeof(buffer), "%s%s", custom2, path);
 	if(gzfile_exists(buffer)) {
 		my_strcp(path, buffer);
 		return;
@@ -274,7 +274,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 				if(actors_list[i]->actor_id==actor_id)
 					{
 #ifdef CUSTOM_LOOK
-						snprintf(guildpath, sizeof(guildpath), "custom/guild/%d/", actors_list[i]->body_parts->guild_id);
+						safe_snprintf(guildpath, sizeof(guildpath), "custom/guild/%d/", actors_list[i]->body_parts->guild_id);
 						for(j=0;j<30;j++){
                             if(actors_list[i]->actor_name[j]==' ' || actors_list[i]->actor_name[j]>125){
 								j=31;
@@ -288,7 +288,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							}
 						}
 						my_tolower(onlyname);
-						snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
+						safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
 						if(which_part==KIND_OF_WEAPON)
 							{
@@ -538,7 +538,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	if(actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
 		char    str[256];
 
-		sprintf(str, "Illegal/missing enhanced actor definition %d", actor_type);
+		safe_snprintf(str, sizeof(str), "Illegal/missing enhanced actor definition %d", actor_type);
 		log_error(str);
 	}
 
@@ -695,8 +695,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 #ifdef  CUSTOM_LOOK
 	/* precompute the paths to custom files */
-	snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
-	snprintf(guildpath, sizeof(guildpath), "custom/guild/%u/", guild_id);
+	safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
+	safe_snprintf(guildpath, sizeof(guildpath), "custom/guild/%u/", guild_id);
 #endif  //CUSTOM_LOOK
 
 	/* store the ids */
@@ -864,7 +864,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		if(kind_of_actor != NPC) {
 			/* Skip leading color codes */
 			for (; *name && IS_COLOR(*name); name++);
-			snprintf(buffer, sizeof(buffer), "%.30s", name);
+			safe_snprintf(buffer, sizeof(buffer), "%.30s", name);
 			/* Remove guild tag, etc. */
 			for(ptr = buffer; *ptr && *ptr <= 127 + c_lbound && !isspace(*ptr); ptr++);
 			*ptr = '\0';
@@ -1010,7 +1010,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	a->stop_animation=1;//helps when the actor is dead...
 	a->kind_of_actor=HUMAN;
 	
-	snprintf(a->actor_name, sizeof(a->actor_name), "Player");
+	safe_snprintf(a->actor_name, sizeof(a->actor_name), "Player");
 	
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);

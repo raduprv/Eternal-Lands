@@ -109,15 +109,15 @@ FILE *open_counters_file(char *mode)
 	char filename[256], username[16];
 	int i;
 	
-	strncpy(username, username_str, sizeof(username));
+	safe_strncpy(username, username_str, sizeof(username));
 	for (i = 0; username[i]; i++) {
 		username[i] = tolower(username[i]);
 	}
 
 #ifndef WINDOWS
-	snprintf(filename, sizeof(filename), "%s/counters_%s.dat", configdir, username);
+	safe_snprintf(filename, sizeof(filename), "%s/counters_%s.dat", configdir, username);
 #else
-	snprintf(filename, sizeof(filename), "counters_%s.dat", username);
+	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", username);
 #endif
 
 	return my_fopen(filename, mode);
@@ -382,9 +382,9 @@ int display_counters_handler(window_info *win)
 		if (counters[i][j].name) {
 			draw_string_small(x, y, counters[i][j].name, 1);
 		}
-		sprintf(buffer, "%12d", counters[i][j].n_session);
+		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_session);
 		draw_string_small(x + 200, y, buffer, 1);
-		sprintf(buffer, "%12d", counters[i][j].n_total);
+		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_total);
 		draw_string_small(x + 314, y, buffer, 1);
 		y += 16;
 	}
@@ -398,10 +398,10 @@ int display_counters_handler(window_info *win)
 		session_total += counters[i][j].n_session;
 	}
 
-	sprintf(buffer, "%12d", session_total);
+	safe_snprintf(buffer, sizeof(buffer), "%12d", session_total);
 	draw_string_small(x + 200, win->len_y - 20, buffer, 1);
 
-	sprintf(buffer, "%5d", total);
+	safe_snprintf(buffer, sizeof(buffer), "%5d", total);
 	draw_string_small(x + 370, win->len_y - 20, buffer, 1);
 
 	return 1;
@@ -579,7 +579,7 @@ void increment_death_counter(actor *a)
  */
 void counters_set_product_info(char *name, int count)
 {
-	strncpy(product_name, name, sizeof(product_name));
+	safe_strncpy(product_name, name, sizeof(product_name));
 	product_count = count;
 }
 
@@ -624,8 +624,7 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 		int i, j;
 		
 		spell_names[spell_id+1] = malloc(len+1);
-		strncpy(spell_names[spell_id+1], name, len);
-		spell_names[spell_id+1][len] = '\0';
+		safe_strncpy(spell_names[spell_id + 1], name, sizeof(spell_names[spell_id + 1]));
 
 		i = SPELLS - 1;
 

@@ -556,7 +556,7 @@ extern void	init_actors_lists();
  * \param	actor_ptr A pointer to the actor
  * \param	text The text we wish to add to the current_displayed_text buffer in the actors structure.
  */
-void	add_displayed_text_to_actor( actor * actor_ptr, const char* text );
+void	add_displayed_text_to_actor( actor * actor_ptr, const char* text);
 
 /*!
  * \ingroup	misc_utils

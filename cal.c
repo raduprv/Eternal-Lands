@@ -83,7 +83,9 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 
 #ifdef NEW_SOUND
 	if(sound)
-		strncpy(res.sound,sound,MAX_SOUND_NAME_LENGTH);
+	{
+		safe_strncpy(res.sound,sound, sizeof(res.sound));
+	}
 	else
 		res.sound[0]='\0';
 #endif	//NEW_SOUND

@@ -205,7 +205,7 @@ void	read_command_line()
 					else
 						{
 							char str[200];
-							snprintf(str,sizeof(str),"%s %s",gargv[i],gargv[i+1]);
+							safe_snprintf(str,sizeof(str),"%s %s",gargv[i],gargv[i+1]);
 							check_var(str+1,COMMAND_LINE_SHORT_VAR);
 						}
 				}
@@ -266,7 +266,7 @@ int makeargv(char *s, char *delimiters, char ***argvp)
 	snew = s + strspn(s, delimiters);
 	if ((t = malloc(strlen(snew) + 1)) == NULL)
 		return -1;
-	strcpy(t, snew);
+	strcpy(t, snew);	// It's fine that this isn't strncpy, since t is sizeof(snew) + 1.
 
 	numtokens = 0;
 	if (strtok(t, delimiters) != NULL)

@@ -237,7 +237,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			{
 				char str[5];
 
-				snprintf(str, sizeof(str), "%d", value-your_info.ethereal_points.cur);
+				safe_snprintf(str, sizeof(str), "%d", value-your_info.ethereal_points.cur);
 				add_floating_message(yourself, str, FLOATINGMESSAGE_MIDDLE, 0.3, 0.3, 1.0, 1500);
 				your_info.ethereal_points.cur=value;
 				break;
@@ -405,7 +405,7 @@ void draw_stat_final(int len, int x, int y, char * name, char * value);
 void draw_stat(int len, int x, int y, attrib_16 * var, names * name)
 {
 	char str[9];
-	snprintf(str,sizeof(str),"%2i/%-2i",var->cur,var->base);
+	safe_snprintf(str,sizeof(str),"%2i/%-2i",var->cur,var->base);
 	str[8]=0;
 	draw_stat_final(len,x,y,name->name,str);
 }
@@ -416,9 +416,9 @@ void draw_skill(int len, int x, int y, attrib_16 * lvl, names * name, int exp, i
 	char lvlstr[9];
 	char expstr[25];
 
-	snprintf(lvlstr, sizeof(lvlstr), "%2i/%-2i", lvl->cur, lvl->base);
-	snprintf(expstr,sizeof(expstr),"[%2i/%-2i]", exp, exp_next);
-	snprintf(str, sizeof(str), "%-7s %-22s", lvlstr, expstr);
+	safe_snprintf(lvlstr, sizeof(lvlstr), "%2i/%-2i", lvl->cur, lvl->base);
+	safe_snprintf(expstr,sizeof(expstr),"[%2i/%-2i]", exp, exp_next);
+	safe_snprintf(str, sizeof(str), "%-7s %-22s", lvlstr, expstr);
 	draw_stat_final(len, x, y, name->name, str);
 }
 
@@ -426,7 +426,7 @@ void draw_statf(int len, int x, int y, attrib_16f * var, names * name)
 {
 	char str[9];
 
-	snprintf(str,sizeof(str),"%2i/%-2i",var->cur(),var->base());
+	safe_snprintf(str,sizeof(str),"%2i/%-2i",var->cur(),var->base());
 	str[8]=0;
 	draw_stat_final(len,x,y,name->name,str);
 }
@@ -435,7 +435,7 @@ void draw_stat_final(int len, int x, int y, char * name, char * value)
 {
 	char str[80];
 
-	snprintf(str,sizeof(str),"%-15s %s",name,value);
+	safe_snprintf(str,sizeof(str),"%-15s %s",name,value);
 	draw_string_small(x,y,str,1);
 }
 
@@ -505,7 +505,7 @@ int display_stats_handler(window_info *win)
 
 	//other attribs
 	y+=20;
-	sprintf(str,"%i",cur_stats.food_level);
+	safe_snprintf(str, sizeof(str), "%i",cur_stats.food_level);
 	draw_stat_final(24,x,y,attributes.food.name,str);
 	
 	y+=14;
@@ -516,7 +516,7 @@ int display_stats_handler(window_info *win)
 
 	//other info
 	y-=28;
-	sprintf(str,"%i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
+	safe_snprintf(str, sizeof(str), "%i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
 	draw_stat_final(24,205,y,attributes.pickpoints,str);
 
 	//nexuses here
@@ -724,7 +724,7 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
 	m->color[1]=g;
 	m->color[2]=b;
 
-	snprintf(m->message, sizeof(m->message), "%s", str);
+	safe_snprintf(m->message, sizeof(m->message), "%s", str);
 
 	m->direction=direction;
 	m->active_time=active_time;
@@ -766,7 +766,7 @@ void floatingmessages_add_level(int actor_id, int level, const char * skillname)
 {
 	char str[50];
 
-	snprintf(str,sizeof(str),"%d %s",level, skillname);
+	safe_snprintf(str,sizeof(str),"%d %s",level, skillname);
 	add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 2000);
 }
 
@@ -775,7 +775,7 @@ void floatingmessages_compare_stat(int actor_id, int value, int new_value, const
 	char str[50];
 	int diff=new_value-value;
 
-	snprintf(str, sizeof(str), "%s: %c%d", skillname, diff<0?' ':'+', diff);
+	safe_snprintf(str, sizeof(str), "%s: %c%d", skillname, diff<0?' ':'+', diff);
 
 	if(diff<0)
 		add_floating_message(actor_id, str, FLOATINGMESSAGE_SOUTH, 1.0, 0.3, 0.3,1500);

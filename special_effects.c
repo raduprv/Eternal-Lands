@@ -59,7 +59,7 @@ void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 	special_effect *m = get_free_special_effect();
 	if (m == NULL) 
 	{
-		snprintf (str, sizeof (str), "Could not add special effect.  Increase NUMBER_OF_SPECIAL_EFFECTS.");	
+		safe_snprintf (str, sizeof (str), "Could not add special effect.  Increase NUMBER_OF_SPECIAL_EFFECTS.");	
 		LOG_TO_CONSOLE (c_purple2, str);
 		return;
 	}
@@ -595,14 +595,14 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
 #ifdef DEBUG
-				snprintf (str, sizeof (str), "effect %d,  x pos=%d, y pos=%d",sfx,var_a,var_b);	
+				safe_snprintf (str, sizeof (str), "effect %d,  x pos=%d, y pos=%d",sfx,var_a,var_b);	
 				LOG_TO_CONSOLE (c_purple2, str);
 #endif
 			}
 			break;
 		default:
 #ifdef DEBUG
-			snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
+			safe_snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
 			LOG_TO_CONSOLE (c_purple2, str);
 #endif
 			break;
@@ -791,7 +791,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			break;
 		default:
  #ifdef DEBUG
-			snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
+			safe_snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
 			LOG_TO_CONSOLE (c_purple2, str);
  #endif
 			break;

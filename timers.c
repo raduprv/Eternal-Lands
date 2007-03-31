@@ -144,7 +144,7 @@ void check_timers()
 	if((int)(cur_time-last_my_timer)>10000)//OK, too long has passed, this is most likely a timer failure! log it and restart the timer
 	{
 		char str[120];
-		snprintf(str, sizeof(str), timer_lagging_behind, "draw_scene");
+		safe_snprintf(str, sizeof(str), timer_lagging_behind, "draw_scene");
 		log_error(str);
 		LOG_TO_CONSOLE(c_red2,str);
 		SDL_RemoveTimer(draw_scene_timer);
@@ -155,7 +155,7 @@ void check_timers()
 	if((int)(cur_time-misc_timer_clock)>10000)
 	{
 		char str[120];
-		snprintf(str, sizeof(str), timer_lagging_behind, "misc");
+		safe_snprintf(str, sizeof(str), timer_lagging_behind, "misc");
 		log_error(str);
 		LOG_TO_CONSOLE(c_red2,str);
 		SDL_RemoveTimer(misc_timer);

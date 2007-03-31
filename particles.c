@@ -137,7 +137,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	setlocale(LC_NUMERIC,"en_US");
 #endif
 	// System info
-	snprintf(def->file_name, sizeof(def->file_name), "%s", filename);
+	safe_snprintf(def->file_name, sizeof(def->file_name), "%s", filename);
 	fscanf(f,"%i\n",&def->part_sys_type);
 	fscanf(f,"%x,%x\n",&def->sblend,&def->dblend);
 	fscanf(f,"%i\n",&def->total_particle_no);
@@ -1606,13 +1606,13 @@ void dump_part_sys_info()
 				partdefs++;
 				LOG_TO_CONSOLE(c_grey1,defs_list[i]->file_name);
 			}
-	sprintf(str,"#%s: %i",my_tolower(definitions_str),partdefs);
+	safe_snprintf(str, sizeof(str), "#%s: %i",my_tolower(definitions_str),partdefs);
 	LOG_TO_CONSOLE(c_grey1,str);
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		if(particles_list[i])partsys++;
-	sprintf(str,"#%s: %i",part_sys_str,partsys);
+	safe_snprintf(str, sizeof(str), "#%s: %i",part_sys_str,partsys);
 	LOG_TO_CONSOLE(c_grey1,str);
-	sprintf(str,"#%s: %i%%",part_part_str,particles_percentage);
+	safe_snprintf(str, sizeof(str), "#%s: %i%%",part_part_str,particles_percentage);
 	LOG_TO_CONSOLE(c_grey1,str);
 }
 */

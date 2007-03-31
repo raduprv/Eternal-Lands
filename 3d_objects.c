@@ -1384,7 +1384,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 #ifdef	ZLIB
 	{
 		char	gzfilename[1024];
-		strcpy(gzfilename, cur_object->file_name);
+		safe_strncpy(gzfilename, cur_object->file_name, sizeof(gzfilename) - 4);
 		strcat(gzfilename, ".gz");
 		f= gzopen(gzfilename, "rb");
 		if(!f){
@@ -1423,7 +1423,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
   	if(!vertex_list)
 		{
 			char str[200];
-			snprintf(str,sizeof(str),"%s: %s: %s",reg_error_str,corrupted_object,cur_object->file_name);
+			safe_snprintf(str,sizeof(str),"%s: %s: %s",reg_error_str,corrupted_object,cur_object->file_name);
 			LOG_TO_CONSOLE(c_red2,str);
 			free(face_list);
 			face_list = NULL;
@@ -1485,7 +1485,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	for(i=0;i<materials_no;i++)
 		{
 			char text_file_name[500];
-			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material_list[i].material_name);
+			safe_snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material_list[i].material_name);
 #ifdef	NEW_ALPHA
 			// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
 			if(cur_object->is_ground)material_list[i].material_id= load_texture_cache_deferred(text_file_name, -58);
@@ -1531,7 +1531,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 								char str[200];
 								size=0;
 								start=0;
-								snprintf(str,sizeof(str),"%s: %s . %s",bad_object,cur_object->file_name,multiple_material_same_texture);
+								safe_snprintf(str,sizeof(str),"%s: %s . %s",bad_object,cur_object->file_name,multiple_material_same_texture);
 								LOG_TO_CONSOLE(c_red2,str);
 								goto skip_this_mat;
 							}

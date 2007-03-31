@@ -123,7 +123,7 @@ void set_create_char_error (const char *msg, int len)
 	if (len <= 0)
 	{
 		// server didn't send a message, use the default
-		snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %s", reg_error_str, char_name_in_use);
+		safe_snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %s", reg_error_str, char_name_in_use);
 	}
 	else
 	{
@@ -131,7 +131,7 @@ void set_create_char_error (const char *msg, int len)
 		int maxlen = sizeof (create_char_error_str) - prelen - 1;
 
 		if (len > maxlen) len = maxlen;
-		snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %.*s", reg_error_str, len, msg);
+		safe_snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %.*s", reg_error_str, len, msg);
 		create_char_error_str[len+prelen] = '\0';
 		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20, NULL, NULL);
 	}
@@ -139,7 +139,7 @@ void set_create_char_error (const char *msg, int len)
 	LOG_TO_CONSOLE(c_red1, create_char_error_str);
 	
 	put_small_colored_text_in_box(c_red1, create_char_error_str, strlen(create_char_error_str), 200, buf);
-	snprintf(create_char_error_str, sizeof(create_char_error_str), "%s", buf);
+	safe_snprintf(create_char_error_str, sizeof(create_char_error_str), "%s", buf);
 	display_time=cur_time+6000;
 
 	creating_char=1;
@@ -524,8 +524,8 @@ void create_character()
 
 void login_from_new_char()
 {
-	snprintf(username_str, sizeof(username_str), "%s", inputs[0].str);
-	snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
+	safe_snprintf(username_str, sizeof(username_str), "%s", inputs[0].str);
+	safe_snprintf(password_str, sizeof(password_str), "%s", inputs[1].str);
 	
 	// now destroy reference to ourself, otherwise we'll mess up the ID's
 	destroy_all_actors();
@@ -622,7 +622,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 			}
 		}
 	} else {
-		snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
+		safe_snprintf(actors_list[0]->actor_name, sizeof(actors_list[0]->actor_name), "%s", inputs[0].str);
 	}
 	
 	return 1;

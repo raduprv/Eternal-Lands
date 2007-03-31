@@ -628,14 +628,14 @@ void * add_xml_group(int type, int no, ...)
 			group_id * grp;
 			grp=(group_id*)calloc(no,sizeof(group_id));
 			for(;i<no;i++)
-				snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
+				safe_snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
 			return grp;
 		}
 		case DIGROUP: {
 			group_id_di * grp;
 			grp=(group_id_di*)calloc(no,sizeof(group_id_di));
 			for(;i<no;i++)
-				snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
+				safe_snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
 			return grp;
 		}
 #ifdef ELC
@@ -643,7 +643,7 @@ void * add_xml_group(int type, int no, ...)
 			group_stat * grp;
 			grp=(group_stat*)calloc(no,sizeof(group_stat));
 			for(;i<no;i++)
-				snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
+				safe_snprintf (grp[i].xml_id, sizeof (grp[i].xml_id), "%s", va_arg (ap, char*));
 			return grp;
 		}
 #endif
@@ -656,10 +656,10 @@ void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char *
 {
 	group->distrings=(distring_item**)realloc(group->distrings,(group->no+1)*sizeof(distring_item*));
 	group->distrings[group->no]=(distring_item*)calloc(1,sizeof(distring_item));
-	snprintf (group->distrings[group->no]->xml_id, sizeof (group->distrings[group->no]->xml_id), "%s", xml_id);
+	safe_snprintf (group->distrings[group->no]->xml_id, sizeof (group->distrings[group->no]->xml_id), "%s", xml_id);
 	group->distrings[group->no]->var=var;
-	snprintf(var->str, sizeof(var->str), "%s", str);
-	snprintf(var->desc, sizeof(var->desc), "%s", desc);
+	safe_snprintf(var->str, sizeof(var->str), "%s", str);
+	safe_snprintf(var->desc, sizeof(var->desc), "%s", desc);
 	group->no++;
 }
 
@@ -668,10 +668,10 @@ void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name,
 {
 	group->statstrings=(statstring_item**)realloc(group->statstrings,(group->no+1)*sizeof(statstring_item*));
 	group->statstrings[group->no]=(statstring_item*)calloc(1,sizeof(statstring_item));
-	snprintf (group->statstrings[group->no]->xml_id, sizeof (group->statstrings[group->no]->xml_id), "%s", xml_id);
+	safe_snprintf (group->statstrings[group->no]->xml_id, sizeof (group->statstrings[group->no]->xml_id), "%s", xml_id);
 	group->statstrings[group->no]->var=var;
-	strncpy(var->name, name, 20);
-	strncpy(var->shortname, shortname, 7);
+	safe_strncpy(var->name, name, sizeof(var->name));
+	safe_strncpy(var->shortname, shortname, sizeof(var->shortname));
 	group->no++;
 }
 #endif
@@ -680,9 +680,9 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 {
 	group->strings=(string_item**)realloc(group->strings,(group->no+1)*sizeof(string_item*));
 	group->strings[group->no]=(string_item*)calloc(1,sizeof(string_item));
-	snprintf (group->strings[group->no]->xml_id, sizeof (group->strings[group->no]->xml_id), "%s", xml_id);
+	safe_snprintf (group->strings[group->no]->xml_id, sizeof (group->strings[group->no]->xml_id), "%s", xml_id);
 	group->strings[group->no]->var=var;
-	strncpy(var, def, max_len-1);
+	safe_strncpy(var, def, max_len);
 	group->strings[group->no]->max_len=max_len-1;
 	group->no++;
 }
@@ -1291,7 +1291,7 @@ void save_strings(xmlDoc * doc, char * name)
 	char str[50];
 	
 	//default language is en - change this if you want to save the strings to another folder...
-	snprintf (str, sizeof (str), "languages/en/strings/%s", name); 
+	safe_snprintf (str, sizeof (str), "languages/en/strings/%s", name); 
 	xmlSaveFormatFileEnc (str, doc, "UTF-8", 1);//We'll save the file in UTF-8
 }
 #endif
@@ -1386,10 +1386,10 @@ struct xml_struct load_strings(char * file)
 {
 	char file_name[120];
 	struct xml_struct tmp={NULL,NULL};
-	sprintf(file_name,"languages/%s/strings/%s",lang,file);
+	safe_snprintf(file_name, sizeof(file_name), "languages/%s/strings/%s",lang,file);
 	tmp=load_strings_file(file_name);
 	if(tmp.file==NULL||tmp.root==NULL){
-		sprintf(file_name,"languages/en/strings/%s",file);
+		safe_snprintf(file_name, sizeof(file_name), "languages/en/strings/%s",file);
 		tmp=load_strings_file(file_name);
 		if(tmp.file==NULL){
 			//Notify about this error - english only

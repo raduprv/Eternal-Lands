@@ -93,8 +93,8 @@ void write_to_log (const Uint8 * const data, int len)
 		char chat_log_file[100];
 		char srv_log_file[100];
 #ifndef WINDOWS
-		snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
-		snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
+		safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
+		safe_snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
 #else
 		strcpy (chat_log_file, "chat_log.txt");
 		strcpy (srv_log_file, "srv_log.txt");
@@ -115,7 +115,7 @@ void write_to_log (const Uint8 * const data, int len)
 		time(&c_time);
 		l_time = localtime(&c_time);
 		strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
-		snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
+		safe_snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
 		if(log_chat>=3){
 			fwrite (starttime, strlen(starttime), 1, chat_log);
 		}
@@ -219,8 +219,10 @@ void send_input_text_line (char *line, int line_len)
 int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 {
 	int l, idx;
-
+	
 	if (len <= 0) return 0;	// no point
+	
+	text_to_add[len - 1] = '\0';	// A basic precaution.
 
 	//check for auto receiving #help
 	for (idx = 0; idx < len; idx++)
@@ -232,6 +234,28 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 	{
 		auto_open_encyclopedia = 0;
 	}
+	
+	/*
+	DANGER, WILL ROBINSON!
+	
+	The below code should not exist in it's present form.  I'd change it,
+	but I'd need access to the server.  Simply checking text output (which
+	is used for all sorts of things) for the phrase "Game Date" is very
+	dangerous.  Example: what if, in the future, we allow spaces in
+	character names?  Someone chooses the name "Game Date" and walks around
+	saying "hi".  Everyone's clients in the area interpret this as being a
+	Game Date command.
+	
+	I've made the below code not *as* dangerous. Had a user been able to
+	fake out the below code, previously, it would have caused a buffer overflow
+	in their client if they didn't write in only numbers after it.  Now, they
+	won't crash; it'll just be misparsed.
+	
+	General practice recommendation: don't mix server commands with user
+	input.
+	
+	 - Karen
+	*/
 	if(my_strncompare(text_to_add+1,"Game Date", 9))
 	{
 		//we assume that the server will still send little-endian dd/mm/yyyy... we could make it safer by parsing the format too, but it's simpler to assume
@@ -240,15 +264,26 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 		char new_str[100];
 		const Uint8 *ptr=text_to_add;
 		short unsigned int day=1, month=1, year=0;
+		int offset = 0;
 
-		while(!isdigit(*ptr)){ptr++;}
+		while(!isdigit(ptr[offset]))
+		{
+		  offset++;
+		  if (offset >= sizeof(new_str))
+		  {
+			LOG_ERROR("error (1) parsing date string: %s",text_to_add);
+			//something evil this way comes...
+			return;
+		  }
+		}
+		ptr += offset;
 
 		if( ( sscanf(ptr,"%hu%*[-/]%hu%*[-/]%hu",&day,&month,&year) < 3 )
 				|| ( day > 30 || month > 12 || year > 9999 ) ){
-			LOG_ERROR("error parsing date string: %s",text_to_add);
+			LOG_ERROR("error (2) parsing date string: %s",text_to_add);
 			//something evil this way comes...
 		}else{
-			snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
+			safe_snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
 			LOG_TO_CONSOLE(c_green1, new_str);
 			return 0;
 		}
@@ -347,12 +382,12 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 			char name[32];
 			int i;
 			int cur_char;
-			/*entropy says: I really fail to understand the logic of that snprintf. And gcc can't understand it either
+			/*entropy says: I really fail to understand the logic of that safe_snprintf. And gcc can't understand it either
 			  because the name is corrupted. so we implement it the old fashioned way.
 			  Grum responds: actually it's the MingW compiler on windows that doesn't understand it, because it doesn't
 			  terminate the string when the buffer threatens to overflow. It works fine with gcc on Unix, and using
-			  sane_snprintf should also fix it on windows.
-			snprintf (name, l, "%s", &text_to_add[1]);
+			  sane_safe_snprintf should also fix it on windows.
+			safe_snprintf (name, l, "%s", &text_to_add[1]);
 			*/
 			for (i = 0; i < sizeof (name); i++)
 			{
@@ -577,31 +612,31 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		if(!IS_COLOR(text_to_add[0]))
 		{
 			// force the color
-			snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
+			safe_snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
 		}
 		else
 		{
 			// color set by server
-			snprintf(msg->data, minlen, "%.*s", len, text_to_add);
+			safe_snprintf(msg->data, minlen, "%.*s", len, text_to_add);
 		}
 	}
 	else
 	{
 		char nr_str[16];
 		if (cnr >= 1000000000)
-			snprintf (nr_str, sizeof (nr_str), "guild");
+			safe_snprintf (nr_str, sizeof (nr_str), "guild");
 		else
-			snprintf (nr_str, sizeof (nr_str), "%u", cnr);
+			safe_snprintf (nr_str, sizeof (nr_str), "%u", cnr);
 
 		if(!IS_COLOR(text_to_add[0]))
 		{
 			// force the color
-			snprintf(msg->data, minlen, "%c%.*s @ %s%.*s", color + 127, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			safe_snprintf(msg->data, minlen, "%c%.*s @ %s%.*s", color + 127, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
 		}
 		else
 		{
 			// color set by server
-			snprintf(msg->data, minlen, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			safe_snprintf(msg->data, minlen, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
 		}
 	}
 

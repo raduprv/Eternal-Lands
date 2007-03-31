@@ -27,7 +27,7 @@ char storage_text[202]={0};
 
 void get_storage_text (const Uint8 *in_data, int len)
 {
-	snprintf(storage_text, sizeof(storage_text), "%.*s", len, in_data);
+	safe_snprintf(storage_text, sizeof(storage_text), "%.*s", len, in_data);
 }
 
 void get_storage_categories (const char *in_data, int len)
@@ -84,7 +84,7 @@ void move_to_category(int cat)
 	if(cat<0||cat>=no_storage_categories) return;
 	storage_categories[cat].name[0]=127+c_red3;
 	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
-	sprintf(windows_list.window[storage_win].window_name, "%s - %s", win_storage, storage_categories[cat].name+1);
+	safe_snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), "%s - %s", win_storage, storage_categories[cat].name+1);
 
 	str[0]=GET_STORAGE_CATEGORY;
 	*((Uint8 *)(str+1))=storage_categories[cat].id;
@@ -224,7 +224,7 @@ int display_storage_handler(window_info * win)
 				int x = (i%6)*32+161+16;
 				int len;
 
-				snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
+				safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
 				len = strlen(str) * 8;
 				if(x - len > 161) {
 					x -= len;
@@ -239,7 +239,7 @@ int display_storage_handler(window_info * win)
 	if(cur_item_over!=-1 && mouse_in_window(win->window_id, mouse_x, mouse_y) == 1 && active_storage_item!=storage_items[cur_item_over].pos){
 		char str[20];
 
-		sprintf(str,"%d",storage_items[cur_item_over].quantity);
+		safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
 
 		show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
 	}
@@ -384,7 +384,7 @@ void display_storage_menu()
 	} else {
 		int i;
 
-		snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), win_storage);
+		safe_snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), win_storage);
 		no_storage=0;
 		
 		for(i=0;i<no_storage_categories;i++)storage_categories[i].name[0]=127+c_orange1;

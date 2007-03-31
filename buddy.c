@@ -139,7 +139,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 	if(flags&ELW_RIGHT_MOUSE) {
 		if(flags&ELW_CTRL) {
 			//CTRL + right click, delete buddy.
-			snprintf(str, sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
+			safe_snprintf(str, sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
 			my_tcp_send(my_socket, str, strlen(str+1)+1);
 		} else {
 			//Right click, open edit window
@@ -151,7 +151,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		clear_input_line();
 
 		// insert the person's name
-		snprintf (str, sizeof(str),"/%s ", buddy_list[y].name);
+		safe_snprintf (str, sizeof(str),"/%s ", buddy_list[y].name);
 		//put_string_in_buffer (&input_text_line, str, 0);
 		//We'll just reuse the paste function here
 		paste_in_input_field(str);
@@ -198,7 +198,7 @@ int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 	} else {
 		char string[255];
 
-		snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, buddy_name_buffer);
+		safe_snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, buddy_name_buffer);
 		my_tcp_send(my_socket, string, strlen(string+1)+1);
 		hide_window(buddy_add_win);
 		buddy_name_buffer[0] = '\0';
@@ -212,10 +212,10 @@ int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 	char string[255];
 
 	if(buddy_delete) {
-		snprintf(string, sizeof(string), "%c#del_buddy %s", RAW_TEXT, buddy_to_change);
+		safe_snprintf(string, sizeof(string), "%c#del_buddy %s", RAW_TEXT, buddy_to_change);
 		buddy_delete = 0;
 	} else {
-		snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
+		safe_snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
 	}
 	my_tcp_send(my_socket, string, strlen(string+1)+1);
 	//BUDDY-FIXME: once server-side offline buddies are supported, the next line can go
@@ -303,11 +303,11 @@ int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 		/* We didn't find it */
 		return 0;
 	}
-	snprintf(string, sizeof(string), "%c#accept_buddy %s", RAW_TEXT, accept_windows[i].name);
+	safe_snprintf(string, sizeof(string), "%c#accept_buddy %s", RAW_TEXT, accept_windows[i].name);
 
 	my_tcp_send(my_socket, string, strlen(string+1)+1);
 	if(accept_windows[i].checkbox >= 0 && checkbox_get_checked(accept_windows[i].window_id, accept_windows[i].checkbox) > 0) {
-		snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, accept_windows[i].name);
+		safe_snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, accept_windows[i].name);
 
 		my_tcp_send(my_socket, string, strlen(string+1)+1);
 	}
@@ -459,7 +459,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 			return -1;
 		}
 		
-		snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", (char *)argument);
+		safe_snprintf(accept_windows[current_window].name, sizeof (accept_windows[current_window].name), "%s", (char *)argument);
 		if(is_in_buddylist(accept_windows[current_window].name)) {
 			/* We don't need to make room for the checkbox because the buddy is already in our list. */
 			win_height -= 20;
@@ -467,7 +467,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		accept_windows[current_window].window_id = create_window(title, game_root_win, 0, 200, 200, buddy_accept_x_len, win_height, ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER);
 		set_window_handler(accept_windows[current_window].window_id, ELW_HANDLER_DISPLAY, &display_accept_buddy_handler);
 		/* Add text */
-		snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
+		safe_snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
 		//label_add_extended(buddy_accept_win, label_id++, NULL, x, y, 0, 0, 0, 0.8, -1, -1, -1, string);
 		accept_windows[current_window].text = malloc((strlen(string)+5)*sizeof(*accept_windows[current_window].text));
 		put_small_colored_text_in_box(c_blue1, string, strlen(string), buddy_accept_x_len-10, accept_windows[current_window].text);
@@ -477,7 +477,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 			accept_windows[current_window].checkbox = checkbox_add(accept_windows[current_window].window_id, NULL, x, y, 15, 15, NULL);
 			x += 20;
 
-			snprintf (string, sizeof (string), buddy_add_to_list_str);
+			safe_snprintf (string, sizeof (string), buddy_add_to_list_str);
 			label_add_extended(accept_windows[current_window].window_id, label_id++, NULL, x, y, 0, 0.8, -1, -1, -1, string);
 
 			y += 20;
@@ -547,10 +547,10 @@ void add_buddy (const char *name, int type, int len)
 				//colour change, not a new entry
 				if(buddy_log_notice == 1){
 					if(buddy_list[i].type == 0xFE){//logging on
-						snprintf (message, sizeof(message), buddy_logon_str, len, name);
+						safe_snprintf (message, sizeof(message), buddy_logon_str, len, name);
 						LOG_TO_CONSOLE (c_green1, message);
 					}else if(type == 0xFE){//logging off
-						snprintf (message, sizeof(message), buddy_logoff_str, len, name);
+						safe_snprintf (message, sizeof(message), buddy_logoff_str, len, name);
 						LOG_TO_CONSOLE (c_green1, message);
 					}//else it's just a normal colour change
 				}
@@ -568,7 +568,7 @@ void add_buddy (const char *name, int type, int len)
 			{
 				// found then add buddy
 				buddy_list[i].type = type;
-				snprintf (buddy_list[i].name, sizeof(buddy_list[i].name), "%.*s", len, name);
+				safe_snprintf (buddy_list[i].name, sizeof(buddy_list[i].name), "%.*s", len, name);
 				//BUDDY-FIXME: once server-side offline buddies are supported, this if-block will be removed (as del_buddy will only happen when the buddy really is deleted)
 				if (buddy_log_notice == 1)
 				{
@@ -582,7 +582,7 @@ void add_buddy (const char *name, int type, int len)
 					time (&n_time);
 					if (difftime (c_time, n_time) > -5.0f) break;
 					
-					snprintf (message, sizeof(message), buddy_logon_str, len, name);
+					safe_snprintf (message, sizeof(message), buddy_logon_str, len, name);
 					LOG_TO_CONSOLE (c_green1, message);
 				}
 				break;
@@ -616,7 +616,7 @@ void del_buddy (const char *name, int len)
 				time (&n_time);
 				if (difftime (c_time, n_time) > -5.0f) break;
 				
-				snprintf (message, sizeof(message), buddy_logoff_str, len, name);
+				safe_snprintf (message, sizeof(message), buddy_logoff_str, len, name);
 				LOG_TO_CONSOLE (c_green1, message);
 			}
 			break;
@@ -648,6 +648,6 @@ int is_in_buddylist(const char *name)
 
 void add_buddy_confirmation(char *name) {
 	char *name_copy = malloc(strlen(name)+1);
-	snprintf(name_copy, strlen(name)+1, "%s", name);
+	safe_snprintf(name_copy, strlen(name)+1, "%s", name);
 	queue_push(buddy_request_queue, name_copy);
 }

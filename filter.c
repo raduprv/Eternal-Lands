@@ -46,12 +46,12 @@ int add_to_filter_list (const Uint8 *name, char local, char save_name)
 		if (filter_list[i].len <= 0)
 		{
 			// excellent, a free spot
-			strncpy (left, name, sizeof(left));
+			safe_strncpy (left, name, sizeof(left));
 			for (t = 0; ; t++)
 			{
 				if (left[t] == '\0')
 				{
-					strncpy (right, "smeg", sizeof(right));
+					safe_strncpy (right, "smeg", sizeof(right));
 					break;
 				}
 				if(left[t]=='=')
@@ -63,7 +63,7 @@ int add_to_filter_list (const Uint8 *name, char local, char save_name)
 						left[tp] = '\0';
 					}
 					for (tp = t + 1; left[tp] != '\0' && !(left[tp]&0x80) && isspace(left[tp]); tp++) ;
-					strncpy (right, &left[tp], sizeof(right));
+					safe_strncpy (right, &left[tp], sizeof(right));
 					break;
 				}
 			}
@@ -72,7 +72,7 @@ int add_to_filter_list (const Uint8 *name, char local, char save_name)
 			{
 				FILE *f = NULL;
 				char local_filters[256];
-				snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
+				safe_snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
 				f = my_fopen (local_filters, "a");
 				if (f != NULL)
 				{
@@ -126,7 +126,7 @@ int remove_from_filter_list (const Uint8 *name)
 	if (local)
 	{
 		char local_filters[256];
-		snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
+		safe_snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
 		f = my_fopen (local_filters, "w");
 		if (f != NULL)
 		{
@@ -250,7 +250,7 @@ int filter_storage_text (Uint8 * input_text, int len) {
 
 	if (istart == 0)
 	{
-		sprintf (input_text, "<none>");
+		safe_snprintf (input_text, sizeof(input_text), "<none>");
 		len = 6;
 	} 
 	else
@@ -356,7 +356,7 @@ int filter_text (Uint8 *buff, int len, int size)
 
 			if (bad_len == rep_len)
 			{
-				strncpy (buff+i, filter_list[idx].replacement, rep_len);
+				safe_strncpy (buff+i, filter_list[idx].replacement, rep_len);
 			}
 			else if (new_len + rep_len - bad_len >= size - 1)
 			{
@@ -446,7 +446,7 @@ void clear_filter_list ()
 void load_filters()
 {
 	char local_filters[256];
-	snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
+	safe_snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
 	clear_filter_list ();
 	load_filters_list (local_filters, 1);
 	if (use_global_filters) load_filters_list ("global_filters.txt", 0);
@@ -468,7 +468,7 @@ int list_filters()
 		size *= 2;
 	str = calloc (size, sizeof (char));
 
-	sprintf(str,"%s:\n",filters_str);
+	safe_snprintf(str, size * sizeof(char), "%s:\n",filters_str);
 	for (i = 0; i < MAX_FILTERS; i++)
 	{
 		if (filter_list[i].len > 0 && (use_global_filters || filter_list[i].local))

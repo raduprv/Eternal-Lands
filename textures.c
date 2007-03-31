@@ -482,7 +482,7 @@ int load_alphamap(const char * FileName, char * texture_mem, int orig_x_size, in
 	char * name;
 
 	/* copy (maybe truncating) FileName into a buffer */
-	snprintf(filename, sizeof(filename), "%s", FileName);
+	safe_snprintf(filename, sizeof(filename), "%s", FileName);
 	/* find last dot */
 	name = strrchr(filename, '.');
 	if (name == NULL)
@@ -693,7 +693,7 @@ int load_texture_cache_deferred (const char * file_name, int alpha)
 	}
 
 	if(texture_slot >= 0 && !texture_cache[texture_slot].file_name[0]) {//we found a place to store it
-		snprintf(texture_cache[texture_slot].file_name, sizeof(texture_cache[texture_slot].file_name), "%s", file_name);
+		safe_snprintf(texture_cache[texture_slot].file_name, sizeof(texture_cache[texture_slot].file_name), "%s", file_name);
 		texture_cache[texture_slot].texture_id= 0;
 		//if(texture_slot == 0) texture_cache[texture_slot].texture_id= 1;
 		texture_cache[texture_slot].alpha= alpha;

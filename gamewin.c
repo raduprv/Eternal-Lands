@@ -303,7 +303,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 #ifdef DEBUG
 				char log[100];
 				
-				snprintf(log,sizeof(log),"Actor id: %d",object_under_mouse);
+				safe_snprintf(log,sizeof(log),"Actor id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
 #endif
 				str[0] = GET_PLAYER_INFO;
@@ -316,7 +316,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 #ifdef DEBUG
 				char log[100];
 				
-				snprintf(log,sizeof(log),"Object id: %d",object_under_mouse);
+				safe_snprintf(log,sizeof(log),"Object id: %d",object_under_mouse);
 				LOG_TO_CONSOLE(c_green1, log);
 #endif
 				str[0] = LOOK_AT_MAP_OBJECT;
@@ -728,20 +728,20 @@ int display_game_handler (window_info *win)
 
 		glColor3f (1.0f, 1.0f, 1.0f);
 		if(me){
- 			snprintf(str,sizeof(str),"Busy: %i",me->busy);
+ 			safe_snprintf(str,sizeof(str),"Busy: %i",me->busy);
 	 		draw_string (400, 4, str, 1);
-			snprintf(str,sizeof(str),"Command: %i",me->last_command);
+			safe_snprintf(str,sizeof(str),"Command: %i",me->last_command);
  			draw_string (400, 20, str, 1);
-			snprintf(str,sizeof(str),"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
+			safe_snprintf(str,sizeof(str),"Coords: %-3i %3i",me->x_tile_pos, me->y_tile_pos);
  			draw_string (550, 4, str, 1);
-			snprintf(str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
+			safe_snprintf(str,sizeof(str),"Coords: %.3g %.3g",me->x_pos, me->y_pos);
  			draw_string (550, 20, str, 1);
 		}
-		snprintf (str, sizeof(str),"Lights: %i", show_lights);
+		safe_snprintf (str, sizeof(str),"Lights: %i", show_lights);
 		draw_string (win->len_x-hud_x-105, 32, str, 1);
 
 #ifndef NEW_WEATHER
-		snprintf(str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
+		safe_snprintf(str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
 				is_raining, seconds_till_rain_starts, seconds_till_rain_stops, num_rain_drops,
 				rain_strength_bias, rain_color[3], fogAlpha);
 		draw_string (0, win->len_y - hud_y - 40, str, 1);
@@ -749,11 +749,11 @@ int display_game_handler (window_info *win)
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
-		snprintf (str, sizeof(str), "FPS: %i", fps[0]);
+		safe_snprintf (str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string (win->len_x-hud_x-95, 4, str, 1);
 #ifdef DEBUG
 		//LRNR: stats testing
-		snprintf(str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
+		safe_snprintf(str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
 		draw_string (win->len_x-hud_x-183, 19, str, 1);
 		e3d_count= e3d_total= 0;
 #endif //DEBUG

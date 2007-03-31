@@ -442,7 +442,7 @@ void change_shadow_map_size(int *pointer, int value)
 		}
 		if (error == 1) {
 			memset(error_str, 0, sizeof(error_str));
-			snprintf(error_str, sizeof(error_str), shadow_map_size_not_supported_str, size);
+			safe_snprintf(error_str, sizeof(error_str), shadow_map_size_not_supported_str, size);
 			LOG_TO_CONSOLE(c_yellow2, error_str);
 		}
 
@@ -969,7 +969,7 @@ int check_var (char *str, var_name_type type)
 			{
 #ifdef ELC
 				char str[200];
-				snprintf (str, sizeof(str), "Reached newline without an ending \" in %s", our_vars.var[i]->name);
+				safe_snprintf (str, sizeof(str), "Reached newline without an ending \" in %s", our_vars.var[i]->name);
 				LOG_TO_CONSOLE(c_red2,str);
 #endif // ELC
 				break;
@@ -1125,9 +1125,9 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
 #else
 	our_vars.var[no]->short_desc= malloc(strlen(short_desc)+1);
-	strcpy(our_vars.var[no]->short_desc, short_desc);
+	safe_strncpy(our_vars.var[no]->short_desc, short_desc, sizeof(our_vars.var[no]->short_desc));
 	our_vars.var[no]->long_desc= malloc(strlen(long_desc)+1);
-	strcpy(our_vars.var[no]->long_desc, long_desc);
+	safe_strncpy(our_vars.var[no]->long_desc, long_desc, sizeof(our_vars.var[no]->long_desc));
 #endif
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
@@ -1397,7 +1397,7 @@ FILE* open_el_ini (const char *mode)
 	FILE *f;
 	mode_t modes;
 
-	snprintf (el_ini, sizeof (el_ini), "%s/el.ini", configdir);
+	safe_snprintf (el_ini, sizeof (el_ini), "%s/el.ini", configdir);
 	f= my_fopen (el_ini, mode);	// try local file first
 	if (f == NULL)
 	{
@@ -1406,7 +1406,7 @@ FILE* open_el_ini (const char *mode)
 		char *data;
 
 		//OK, no local el.ini - copy the defaults
-		snprintf (el_ini, sizeof (el_ini), "%s/el.ini", datadir);
+		safe_snprintf (el_ini, sizeof (el_ini), "%s/el.ini", datadir);
 		f= fopen(el_ini, mode);
 
 		if(f == NULL)
@@ -1414,7 +1414,7 @@ FILE* open_el_ini (const char *mode)
 			return NULL;//Shit, no global el.ini either? Fortunately we'll write one on exit...
 		}
 
-		snprintf(el_tmp, sizeof (el_tmp), "%s/el.ini", configdir);
+		safe_snprintf(el_tmp, sizeof (el_tmp), "%s/el.ini", configdir);
 		f2= my_fopen (el_tmp, "w");
 
 		if(f2 == NULL) {
@@ -1439,7 +1439,7 @@ FILE* open_el_ini (const char *mode)
 		free(data);
 
 		//Now load it as read-only
-		snprintf(el_ini, sizeof (el_ini), "%s/el.ini", configdir);
+		safe_snprintf(el_ini, sizeof (el_ini), "%s/el.ini", configdir);
 		f= my_fopen(el_ini, mode);
 	}
 

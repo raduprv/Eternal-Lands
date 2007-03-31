@@ -63,7 +63,7 @@ void cache_dump_sizes(cache_struct *cache)
 							size/=1024;
 							scale='K';
 						}
-					snprintf(str,sizeof(str), "%s %6d%c - %d: %s", cache_size_str, size, scale, i, cache->cached_items[i]->name);
+					safe_snprintf(str,sizeof(str), "%s %6d%c - %d: %s", cache_size_str, size, scale, i, cache->cached_items[i]->name);
 					put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, str, -1);
 #ifdef MAP_EDITOR2
 					log_error(str);

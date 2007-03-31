@@ -240,7 +240,7 @@ int close_channel (window_info *win)
 	{
 		if (channels[ichan].tab_id == id)
 		{
-			snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, channels[ichan].chan_nr);
+			safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, channels[ichan].chan_nr);
 			my_tcp_send(my_socket, str, strlen(str+1)+1);
 
 			// Safe to remove?
@@ -891,7 +891,7 @@ void put_string_in_input_field(const Uint8 *text)
 	int tmp_chan;
 
 	if(text != NULL) {
-		msg->len = msg->len = snprintf(msg->data, msg->size, "%s", text);
+		msg->len = msg->len = safe_snprintf(msg->data, msg->size, "%s", text);
 		tf->cursor = tf->buffer->len;
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
@@ -1028,8 +1028,8 @@ void add_chan_name(int no, char * name, char * desc)
 		return;
 	}
 	entry->channel = no;
-	strcpy(entry->name, name);
-	strcpy(entry->description, desc);
+	safe_strncpy(entry->name, name, sizeof(entry->name));
+	safe_strncpy(entry->description, desc, sizeof(entry->description));
 	queue_push(chan_name_queue, entry);
 	len = chan_name_queue->nodes-CS_MAX_DISPLAY_CHANS;
 	if(len > 0 && chan_sel_scroll_id == -1 && chan_sel_win != -1) {
@@ -1047,8 +1047,8 @@ void add_spec_chan_name(int no, char * name, char * desc)
 			return;
 		}
 	entry->channel = no;
-	strcpy(entry->name, name);
-	strcpy(entry->description, desc);
+	safe_strncpy(entry->name, name, sizeof(entry->name));
+	safe_strncpy(entry->description, desc, sizeof(entry->description));
 	pseudo_chans[no]=entry;
 }
 
@@ -1095,17 +1095,17 @@ void init_channel_names(void)
 	// Load the file, depending on WINDOWS = def|undef
 	// Then parse it. If that fails, fallback onto the english one. If that fails, use builtins.
 #ifdef WINDOWS
-	snprintf (file, sizeof (file), "%slanguages/%s/strings/channels.xml", configdir, lang);
+	safe_snprintf (file, sizeof (file), "%slanguages/%s/strings/channels.xml", configdir, lang);
 #else
 	// try the data directory then
-	snprintf (file, sizeof (file), "%s/languages/%s/strings/channels.xml", datadir, lang);
+	safe_snprintf (file, sizeof (file), "%s/languages/%s/strings/channels.xml", datadir, lang);
 #endif
 	doc = xmlParseFile (file);
 	if (doc == NULL ) {
 #ifdef WINDOWS
-		snprintf (file, sizeof (file), "%slanguages/en/strings/channels.xml", configdir);
+		safe_snprintf (file, sizeof (file), "%slanguages/en/strings/channels.xml", configdir);
 #else
-		snprintf (file, sizeof (file), "%s/languages/en/strings/channels.xml", datadir);
+		safe_snprintf (file, sizeof (file), "%s/languages/en/strings/channels.xml", datadir);
 #endif
 		doc = xmlParseFile (file);
 		if (doc == NULL) { //darn, don't have that either?
@@ -1411,7 +1411,7 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 			if(mx > x-4 && mx < x+3 && my > y-4 && my < y+3)
 			{
 				// Drop this channel via #lc
-				snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
+				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
 				my_tcp_send(my_socket, str, strlen(str+1)+1);
 				// Can I remove this?
 				remove_tab(tabs[itab].channel);
@@ -1483,8 +1483,8 @@ chan_name *tab_label (Uint8 chan)
 		}
 	}
 	//we didn't find it, so we use the generic version
-	snprintf (name, sizeof(name), pseudo_chans[0]->name, cnr);
-	snprintf (desc, sizeof(desc), pseudo_chans[0]->description, cnr);
+	safe_snprintf (name, sizeof(name), pseudo_chans[0]->name, cnr);
+	safe_snprintf (desc, sizeof(desc), pseudo_chans[0]->description, cnr);
 	add_chan_name(cnr,name,desc);
 
 	if(chan_sel_scroll_id >= 0 && steps > 8) {
@@ -1613,7 +1613,7 @@ int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 		if(mouse_x >= win->pos_x+5 && mouse_x-5 <= win->pos_x + 8*((signed)strlen(((chan_name*)(step->data))->name))) {
 			char tmp[20];
-			sprintf(tmp, "#jc %d", ((chan_name*)(step->data))->channel);
+			safe_snprintf(tmp, "#jc %d", ((chan_name*)(step->data))->channel);
 			send_input_text_line(tmp, strlen(tmp));
 		}
 	}
@@ -2005,9 +2005,9 @@ int command_jlc(char * text, int len)
 	if(num <= 0) {
 		return 0;//Don't know this name
 	}
-	snprintf(number, sizeof(number), " %d", num);
+	safe_snprintf(number, sizeof(number), " %d", num);
 	if(strlen(number) <= strlen(text)) { //it is entirely possible that the number
-		strcpy(text, number);	//could be longer than the name, and hence we may
+		safe_strncpy(text, number, strlen(text));	//could be longer than the name, and hence we may
 	}							//not have enough storage space to replace the name
 	return 0; //note: this change could also put us over the 160-char limit if not checked
 }
@@ -2022,6 +2022,6 @@ void chan_target_name(char * text, int len)
 		send_input_text_line (text, len);
 		return;
 	}
-	snprintf(buffer, sizeof(buffer), "@@%d%s", num, text+2+mylen);
+	safe_snprintf(buffer, sizeof(buffer), "@@%d%s", num, text+2+mylen);
 	send_input_text_line (buffer, strlen(buffer));
 }

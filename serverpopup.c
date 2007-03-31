@@ -338,8 +338,7 @@ void display_server_popup_win(const Uint8 * const message)
 		 make the copy bigger than we need so it can be text rewrapped */
 	message_body_size = 2*strlen(message);
 	message_body = (Uint8 *)calloc(message_body_size, sizeof(Uint8));
-	strncpy(message_body, &message[body_index], strlen(&message[body_index]));
-	message_body[message_body_size-1] = '\0';
+	safe_strncpy(message_body, &message[body_index], message_body_size * sizeof(Uint8));
 		
 	/* initialise the window text widget text buffer */
 	widget_text.chan_idx = CHAT_NONE;

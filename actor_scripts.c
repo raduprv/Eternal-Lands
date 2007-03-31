@@ -361,7 +361,7 @@ void cal_actor_set_random_idle(int id)
 		}
 		if (actors_list[id]->cur_idle_anims[i].anim_index!=random_anim_index)
 			if (random_anim_index>=0) CalMixer_BlendCycle(mixer,random_anim_index,0.5,0.05);
-		//sprintf(str,"%d",random_anim);
+		//safe_snprintf(str, sizeof(str),"%d",random_anim);
 		//LOG_TO_CONSOLE(c_green2,str);
 		actors_list[id]->cur_idle_anims[i].anim_index=random_anim_index;
 		//anim.anim_index,1.0,0.05);else
@@ -481,7 +481,7 @@ void animate_actors()
 				if(actors_list[i]->after_move_frames_left){
 					actors_list[i]->after_move_frames_left--;
 					if (actors_list[i]->actor_id == yourself)  {
-						snprintf(str,sizeof(str),"Left: %d",actors_list[i]->after_move_frames_left);
+						safe_snprintf(str,sizeof(str),"Left: %d",actors_list[i]->after_move_frames_left);
 					}
 					if(!actors_list[i]->after_move_frames_left){
 						//if (actors_list[i]->actor_id == yourself) LOG_TO_CONSOLE(c_green2,"Free");
@@ -1304,7 +1304,7 @@ void    actor_check_string(actor_types *act, const char *section, const char *ty
 	char	str[256];
 	
 	if(value == NULL || *value=='\0'){
-		sprintf(str, "Data Error in %s(%d): Missing %s.%s",
+		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Missing %s.%s",
 			act->actor_name, act->actor_type,
 			section, type
 		);
@@ -1316,7 +1316,7 @@ void    actor_check_int(actor_types *act, const char *section, const char *type,
 	char    str[256];
 
 	if(value < 0){
-		sprintf(str, "Data Error in %s(%d): Missing %s.%s",
+		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Missing %s.%s",
 		    act->actor_name, act->actor_type,
 		    section, type
 		);
@@ -1827,7 +1827,7 @@ int cal_get_idle_group(actor_types *act,char *name)
 
 	//Create a new named group
 	res=act->group_count;
-	strncpy(act->idle_group[res].name, name, sizeof(act->idle_group[res].name));
+	safe_strncpy(act->idle_group[res].name, name, sizeof(act->idle_group[res].name));
 	++act->group_count;
 
 	return res;
@@ -1876,7 +1876,7 @@ void parse_idle_group(actor_types *act,char *str)
 
 	gindex=cal_get_idle_group(act,gname);
 	cal_group_addanim(act,gindex,fname);
-	//sprintf(temp,"%d",gindex);
+	//safe_snprintf(temp, sizeof(temp), "%d",gindex);
 	//LOG_TO_CONSOLE(c_green2,gname);
 	//LOG_TO_CONSOLE(c_green2,fname);
 	//LOG_TO_CONSOLE(c_green2,temp);
@@ -2414,8 +2414,8 @@ int parse_actor_script (xmlNode *cfg) {
 		char	str[256];
 		char    name[256];
 
-		strcpy(name,get_string_property(cfg, "type"));
-		sprintf(str, "Data Error in %s(%d): Actor ID out of range %d",
+		safe_strncpy(name, get_string_property(cfg, "type"), sizeof(name));
+		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Actor ID out of range %d",
 			name, act_idx, act_idx
 		);
 		log_error(str);
@@ -2428,15 +2428,15 @@ int parse_actor_script (xmlNode *cfg) {
 		char	str[256];
 		char    name[256];
 
-		strcpy(name,get_string_property(cfg, "type"));
-		sprintf(str, "Data Error in %s(%d): Already loaded %s(%d)",
+		safe_strncpy(name, get_string_property(cfg, "type"), sizeof(name));
+		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Already loaded %s(%d)",
 			name, act_idx, act->actor_name, act->actor_type
 		);
 		log_error(str);
 	}
 	ok= 1;
 	act->actor_type= act_idx;	// memorize the ID & name to help in debugging
-	strcpy(act->actor_name, get_string_property(cfg, "type"));
+	safe_strncpy(act->actor_name, get_string_property(cfg, "type"), sizeof(act->actor_name));
 	actor_check_string(act, "actor", "name", act->actor_name);
 
 	//Initialize Cal3D settings
@@ -2446,7 +2446,7 @@ int parse_actor_script (xmlNode *cfg) {
 	act->skel_scale= 1.0;
 	act->group_count= 0;
 	for (i=0; i<16; ++i) {
-		strncpy(act->idle_group[i].name, "", sizeof(act->idle_group[i].name));
+		safe_strncpy(act->idle_group[i].name, "", sizeof(act->idle_group[i].name));
 		act->idle_group[i].count= 0;
 	}
 
@@ -2549,7 +2549,7 @@ int read_actor_defs (const char *dir, const char *index) {
 	char fname[120];
 	int ok = 1;
 
-	snprintf (fname, sizeof(fname), "%s/%s", dir, index);
+	safe_snprintf (fname, sizeof(fname), "%s/%s", dir, index);
 
 	doc = xmlReadFile (fname, NULL, 0);
 	if (doc == NULL) {
@@ -2581,9 +2581,9 @@ void init_actor_defs () {
 	memset (actors_defs, 0, sizeof (actors_defs));
 
 #ifndef WINDOWS
-	snprintf (defdir, sizeof (defdir), "%s/%s", datadir, dirname);
+	safe_snprintf (defdir, sizeof (defdir), "%s/%s", datadir, dirname);
 #else
-	my_strcp (defdir, dirname);
+	safe_strncpy (defdir, dirname, sizeof(defdir));
 #endif
 
 	ok = read_actor_defs (defdir, idxname);

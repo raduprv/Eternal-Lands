@@ -123,7 +123,7 @@ book * create_book(char * title, int type, int id)
 	}
 	b->type=type;
 	b->id=id;
-	snprintf(b->title, sizeof(b->title), "%s", title);
+	safe_snprintf(b->title, sizeof(b->title), "%s", title);
 	
 	add_book(b);
 	
@@ -447,21 +447,21 @@ book * read_book(char * file, int type, int id)
 	char path[1024];
 
 #ifndef WINDOWS
-	snprintf(path, sizeof(path), "%s/languages/%s/%s", datadir, lang, file);
+	safe_snprintf(path, sizeof(path), "%s/languages/%s/%s", datadir, lang, file);
 #else
-	snprintf(path, sizeof(path), "languages/%s/%s", lang, file);
+	safe_snprintf(path, sizeof(path), "languages/%s/%s", lang, file);
 #endif // !WINDOWS
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 #ifndef WINDOWS
-		snprintf(path, sizeof(path), "%s/%s", datadir, file);
+		safe_snprintf(path, sizeof(path), "%s/%s", datadir, file);
 #else
-		snprintf(path, sizeof(path), "%s", file);
+		safe_snprintf(path, sizeof(path), "%s", file);
 #endif // !WINDOWS
 		if((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 			char str[200];
 
-			snprintf(str, sizeof(str), book_open_err_str, path);
+			safe_snprintf(str, sizeof(str), book_open_err_str, path);
 			log_error(str);
 			LOG_TO_CONSOLE(c_red1,str);
 		}
@@ -526,21 +526,21 @@ void read_knowledge_book_index()
 	char path[1024];
 	
 #ifndef _WIN32
-	snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
+	safe_snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
 #else
-	snprintf(path, sizeof(path), "knowledge.xml");
+	safe_snprintf(path, sizeof(path), "knowledge.xml");
 #endif // !_WIN32
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 #ifndef _WIN32
-		snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
+		safe_snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
 #else
-		snprintf(path, sizeof(path), "knowledge.xml");
+		safe_snprintf(path, sizeof(path), "knowledge.xml");
 #endif // !_WIN32
 		if((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 			char str[200];
 
-			snprintf(str, sizeof(str), "Can't open knowledge book index: %s", path);
+			safe_snprintf(str, sizeof(str), "Can't open knowledge book index: %s", path);
 			log_error(str);
 			LOG_TO_CONSOLE(c_red1,str);
 		}
@@ -593,7 +593,7 @@ void read_local_book (const char *data, int len)
 	char file_name[200];
 	book *b;
 
-	snprintf (file_name, sizeof(file_name), "%.*s", len-3, data+3);
+	safe_snprintf (file_name, sizeof(file_name), "%.*s", len-3, data+3);
 	
 	b = get_book (SDL_SwapLE16 (*((Uint16*)(data+1))));
 	if (b == NULL)
@@ -602,7 +602,7 @@ void read_local_book (const char *data, int len)
 		if (b == NULL)
 		{
 			char str[200];
-			snprintf (str, sizeof(str), book_open_err_str, file_name);
+			safe_snprintf (str, sizeof(str), book_open_err_str, file_name);
 			LOG_TO_CONSOLE(c_red1, str);
 			return;
 		}
@@ -763,7 +763,7 @@ void display_page(book * b, page * p)
 	
 	glColor3f(0.385f,0.285f, 0.19f);
 	
-	snprintf(str,sizeof(str),"%d",p->page_no);
+	safe_snprintf(str,sizeof(str),"%d",p->page_no);
 	if(b->type==1)
 		draw_string_zoomed(140,b->max_lines*18*0.9f+2,str,0,1.0);
 	else if(b->type==2)
@@ -865,7 +865,7 @@ int display_book_handler(window_info *win)
 		x=50;
 		p=b->active_page-5;
 		if(p>=0){
-			snprintf(str,sizeof(str),"%d",p+1);
+			safe_snprintf(str,sizeof(str),"%d",p+1);
 
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -877,7 +877,7 @@ int display_book_handler(window_info *win)
 		x=100;
 		p=b->active_page-2;
 		if(p>=0){
-			snprintf(str,sizeof(str),"%d",p+1);
+			safe_snprintf(str,sizeof(str),"%d",p+1);
 			
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -889,7 +889,7 @@ int display_book_handler(window_info *win)
 		x=win->len_x-120;
 		p=b->active_page+2;
 		if(p<b->no_pages){
-			snprintf(str,sizeof(str),"%d",p+1);
+			safe_snprintf(str,sizeof(str),"%d",p+1);
 			
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -901,7 +901,7 @@ int display_book_handler(window_info *win)
 		x=win->len_x-70;
 		p=b->active_page+5;
 		if(p<b->no_pages){
-			snprintf(str,sizeof(str),"%d",p+1);
+			safe_snprintf(str,sizeof(str),"%d",p+1);
 			
 			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
@@ -915,7 +915,7 @@ int display_book_handler(window_info *win)
 		for(i=1;i<5;i++){
 			p=b->active_page-i*b->type;
 			if(p>=0){
-				snprintf(str,sizeof(str),"%d",p+1);
+				safe_snprintf(str,sizeof(str),"%d",p+1);
 				
 				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 					glColor3f(0.95f, 0.76f, 0.52f);
@@ -930,7 +930,7 @@ int display_book_handler(window_info *win)
 		for(i=1;i<5;i++){
 			p=b->active_page+i*b->type;
 			if(p<b->no_pages){
-				snprintf(str,sizeof(str),"%d",p+1);
+				safe_snprintf(str,sizeof(str),"%d",p+1);
 				
 				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
 					glColor3f(0.95f, 0.76f, 0.52f);
@@ -1107,7 +1107,7 @@ void display_book_window(book *b)
 		windows_list.window[*p].data=b;
 	} else {
 		if((point)windows_list.window[*p].data!=(point)b) {
-			snprintf(windows_list.window[*p].window_name, sizeof(windows_list.window[*p].window_name), "%s", b->title);
+			safe_snprintf(windows_list.window[*p].window_name, sizeof(windows_list.window[*p].window_name), "%s", b->title);
 			windows_list.window[*p].data=b;
 			if(!get_show_window(*p))
 				show_window(*p);

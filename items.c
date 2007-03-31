@@ -118,7 +118,7 @@ void reset_quantity (int pos)
 			return;
 	}
 
-	snprintf (quantities.quantity[pos].str, sizeof(quantities.quantity[pos].str), "%d", val);
+	safe_snprintf (quantities.quantity[pos].str, sizeof(quantities.quantity[pos].str), "%d", val);
 	quantities.quantity[pos].len = strlen (quantities.quantity[pos].str);
 	quantities.quantity[pos].val = val;
 }
@@ -177,7 +177,7 @@ void drag_item(int item, int storage, int mini)
 	glEnd();
 	
 	if(!mini && quantity!=-1){
-		snprintf(str,sizeof(str),"%i",quantity);
+		safe_snprintf(str,sizeof(str),"%i",quantity);
 		draw_string_small(mouse_x-25,mouse_y+10,str,1);
 	}
 }
@@ -382,18 +382,18 @@ int display_items_handler(window_info *win)
 			}
 			
 			if(!item_is_weared){
-				snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+				safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
 				draw_string_small(x_start,y_end-15,str,1);
 			}
 		}
 	}
 	
 	//draw the load string
-	snprintf(str,sizeof(str),"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
+	safe_snprintf(str,sizeof(str),"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
 	draw_string_small ((video_mode>4?win->len_x-8*strlen (str)-10:2), (video_mode>4?win->len_y-107:quantity_y_offset-19), str, 1);
 
 	glColor3f(0.57f,0.67f,0.49f);
-	snprintf(str,sizeof(str),equip_str);
+	safe_snprintf(str,sizeof(str),equip_str);
 	draw_string_small (wear_items_x_offset + 33 - (8 * strlen(str))/2, wear_items_y_offset-18, str, 1);
 	glColor3f(1.0f,1.0f,1.0f);
 	
@@ -734,7 +734,7 @@ int show_items_handler(window_info * win)
 		w->pos_x=win->len_x - (strlen(drop_all_str)*11+18);
 	}
 	
-	strncpy(str,items_string,sizeof(items_string));
+	safe_strncpy(str,items_string,sizeof(items_string));
 	put_small_text_in_box(str,strlen(str),win->len_x-10,items_string);
 
 	return 1;

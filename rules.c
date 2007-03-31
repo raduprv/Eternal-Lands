@@ -120,7 +120,7 @@ int read_rules()
 	char file_name[120];
 	xmlDoc * doc;
 	xmlNode * root;
-	sprintf(file_name,"languages/%s/rules.xml",lang);
+	safe_snprintf(file_name, sizeof(file_name), "languages/%s/rules.xml",lang);
 	
 	if ((doc = xmlReadFile(file_name, NULL, 0)) == NULL) {
 		if((doc=xmlReadFile("languages/en/rules.xml",NULL,0))==NULL){
@@ -518,7 +518,7 @@ int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, 
 				if(rules_ptr[i].highlight) glColor3f(rgb[1][0],rgb[1][1],rgb[1][2]);
 				else if(rules_ptr[i].mouseover) glColor3f(rgb[2][0],rgb[2][1],rgb[2][2]);
 				else glColor3f(rgb[3][0],rgb[3][1],rgb[3][2]);
-				sprintf(str,"%d: ", nr++);
+				safe_snprintf(str, sizeof(str), "%d: ", nr++);
 				ptr+=strlen(str);
 				zoom=text_size;
 				xdiff=(ptr-str)*11*zoom;
@@ -541,7 +541,7 @@ int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, 
 			if(j==1)ptr=str;
 			if(j) y_curr+=18*zoom;
 			if ((leny - (y_curr-virt_win_offset)) < (18*zoom)) break;
-			strcpy(ptr,rules_ptr[i].short_str[j]);
+			safe_strncpy(ptr, rules_ptr[i].short_str[j], sizeof(str) - (ptr - str));
 			if (y_curr>=(virt_win_offset + y_in))
 			{
 				if(!j)draw_string_zoomed(x,(y_curr-virt_win_offset),str,0,zoom);
@@ -559,7 +559,7 @@ int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, 
 			for(j=0;rules_ptr[i].long_str[j];j++){
 				if(j)y_curr+=18*zoom;
 				if ((leny - (y_curr-virt_win_offset))< (18*zoom)) break;
-				strcpy(str,rules_ptr[i].long_str[j]);
+				safe_strncpy(str, rules_ptr[i].long_str[j], sizeof(str));
 				if (y_curr>=(virt_win_offset + y_in))
 					draw_string_zoomed(x+20,(y_curr-virt_win_offset),str,0,zoom);
 			}
@@ -624,9 +624,9 @@ void draw_rules_interface (int len_x, int len_y)
 	glColor3f (0.77f, 0.57f, 0.39f);
 	
 	if (countdown != 0) 
-		sprintf (str, you_can_proceed, countdown / 2);
+		safe_snprintf (str, sizeof(str), you_can_proceed, countdown / 2);
 	else 
-		strcpy (str, accepted_rules);
+		safe_strncpy (str, accepted_rules, sizeof(str));
 		
 	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - 40 * window_ratio, str, 0);
 	
