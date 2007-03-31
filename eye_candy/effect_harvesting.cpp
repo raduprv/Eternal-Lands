@@ -163,7 +163,7 @@ light_t HarvestingParticle::get_light_level()
 HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const HarvestingType _type, const Uint16 _LOD)
 {
   if (EC_DEBUG)
-    std::cout << "HarvestingEffect (" << this << ") created." << std::endl;
+    std::cout << "HarvestingEffect (" << this << ") created (" << type << ")." << std::endl;
   base = _base;
   dead = _dead;
   pos = _pos;

@@ -87,7 +87,7 @@ Uint64 get_time();
 
 // M E M B E R S //////////////////////////////////////////////////////////////
 
-const int EC_DEBUG = 0;
+const int EC_DEBUG = 1;
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;

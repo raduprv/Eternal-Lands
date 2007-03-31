@@ -696,7 +696,7 @@ coord_t Particle::flare() const
   assert(flare_frequency);
   if (flare_max == 1.0)
     return 1.0;
-  const int offset = long(&alpha);	//Unique to the particle.
+  const short offset = (short)long(&alpha);	//Unique to the particle.
   math_cache.powf_0_1_rough_close(fabs(sin((pos.x + pos.y + pos.z + offset) / flare_frequency)), flare_exp);
   const coord_t flare_val = 1.0 / (math_cache.powf_0_1_rough_close(fabs(sin((pos.x + pos.y + pos.z) / flare_frequency + offset)), flare_exp));
   if (flare_val > flare_max)

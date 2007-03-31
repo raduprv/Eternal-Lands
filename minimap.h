@@ -5,7 +5,7 @@
 extern "C" {
 #endif
 
-int minimap_win;
+extern int minimap_win;
 
 void display_minimap();
 int display_minimap_handler(window_info *win);
