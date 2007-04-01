@@ -1307,6 +1307,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		change_windows_on_top(&windows_on_top);
 	}
+#ifdef PNG_SCREENSHOT
+	else if (key == K_SCREENSHOT)
+	{
+		makeScreenShot();
+	}
+#endif
 	else
 	{
 		return 0; // nothing we can handle
@@ -1412,12 +1418,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		new_zoom_level= new_zoom_level + 0.25;
 		if (new_zoom_level > 3.75f) new_zoom_level= 3.75f;
 	}
-#ifdef PNG_SCREENSHOT
-	else if (key == K_SCREENSHOT)
-	{
-		makeScreenShot();
-	}
-#endif
 	else if (key == K_REPEATSPELL)	// REPEAT spell command
 	{
 		if ( get_show_window (sigil_win) && !get_show_window (trade_win) )
