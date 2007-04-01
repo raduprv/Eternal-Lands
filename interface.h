@@ -9,6 +9,7 @@
 #define mode_height 4
 #define mode_map 5
 #define mode_particles 6
+#define mode_eye_candy 7
 
 //tools
 #define tool_kill 0
@@ -38,6 +39,7 @@ extern int view_light;
 extern int view_height;
 extern int view_particles;
 extern int view_particle_handles;
+extern int view_eye_candy;
 
 extern int selected_3d_object;
 extern int selected_2d_object;

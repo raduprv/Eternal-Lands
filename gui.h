@@ -8,6 +8,7 @@
 #define SAVE_MAP    4
 #define OPEN_PARTICLES_OBJ 5
 #define SAVE_PARTICLE_DEF 6
+#define OPEN_EYE_CANDY_OBJ 7
 
 extern char* selected_file;
 
@@ -27,8 +28,10 @@ extern GtkFileFilter * part_filter;
 void init_filters();
 void show_open_window(char * name, char * folder, GtkFileFilter * filter);
 void show_save_window(char * name, char * folder, char * select, GtkFileFilter *filter);
+void show_eye_candy_window();
 #else
 extern int continue_with;
 extern GtkWidget* file_selector;
+extern GtkWidget* effect_selector;
 extern GtkWidget* create_fileselection (void);
 #endif

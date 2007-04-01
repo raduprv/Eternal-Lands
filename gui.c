@@ -15,6 +15,7 @@ char particles_folder[256];
 char * selected_file=NULL;
 GtkWidget * gtk_open_win=NULL;
 GtkWidget * gtk_save_win=NULL;
+GtkWidget * gtk_effect_win=NULL;
 
 GtkFileFilter * e3d_filter=NULL;
 GtkFileFilter * e2d_filter=NULL;
@@ -184,6 +185,30 @@ void show_save_window(char * name, char * folder, char * select, GtkFileFilter *
 	else gtk_file_chooser_set_current_name(GTK_FILE_CHOOSER(gtk_save_win), "my_map.elm");
 
 	gtk_widget_show(gtk_save_win);
+}
+
+void show_eye_candy_window()
+{
+	if(!gtk_effect_win) {
+		gtk_effect_win=gtk_dialog_new_with_buttons("Select eye candy effect",
+		                NULL,
+		                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, 
+				GTK_STOCK_OK, //Cancel button
+				GTK_RESPONSE_ACCEPT,//Open button
+				NULL);
+
+		g_signal_connect_swapped (gtk_effect_win,
+				"response", 
+				G_CALLBACK (gtk_widget_destroy),
+				gtk_effect_win);
+
+		gtk_widget_show_all (gtk_effect_win);
+
+	} else {
+		gtk_window_set_title(GTK_WINDOW(gtk_open_win), "Select eye candy effect");
+	}
+	
+	gtk_widget_show(gtk_effect_win);
 }
 
 #else

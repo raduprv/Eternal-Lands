@@ -1137,10 +1137,10 @@ void open_3d_obj()
 #ifdef GTK2
 	show_open_window("Open 3D object", obj_3d_folder, e3d_filter);
 #else
-	gtk_window_set_title(GTK_WINDOW(file_selector), "open 3d object");
+	gtk_window_set_title(GTK_WINDOW(effect_selector), "open 3d object");
 	//gtk_file_selection_complete(GTK_FILE_SELECTION(file_selector), "*.e3d");
 	continue_with = OPEN_3D_OBJ;
-	gtk_widget_show(file_selector);
+	gtk_widget_show(effect_selector);
 #endif
 }
 #endif
@@ -1157,6 +1157,7 @@ void open_3d_obj_continued()
 #endif
     }
 }
+
 #ifdef LINUX
 void open_particles_obj()
 {
@@ -1178,6 +1179,30 @@ void open_particles_obj_continued()
 		cur_tool=tool_select;//change the current tool
 #ifdef GTK2
 		cur_mode=mode_particles;
+#endif
+    }
+}
+
+#ifdef LINUX
+void open_eye_candy_obj()
+{
+#ifdef GTK2
+	show_eye_candy_window();
+#else
+	gtk_window_set_title(GTK_WINDOW(file_selector), "Select eye candy effect");
+	continue_with = OPEN_EYE_CANDY_OBJ;
+	gtk_widget_show(file_selector);
+#endif
+}
+#endif
+void open_eye_candy_obj_continued()
+{
+  if (selected_file)
+    {
+
+		cur_tool=tool_select;//change the current tool
+#ifdef GTK2
+		cur_mode=mode_eye_candy;
 #endif
     }
 }
