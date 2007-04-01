@@ -435,9 +435,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				// extract the channel number
 				if (data_length > 4) 
 				{
-					if (len > sizeof(text_buf) - 1)
+					if (len > sizeof(text_buf) - 2)
 					{
-						len= sizeof(text_buf) - 1;
+						len= sizeof(text_buf) - 2;
 					}
 					memcpy(text_buf, &in_data[4], len);
 					text_buf[len] = '\0';

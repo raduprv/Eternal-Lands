@@ -222,8 +222,6 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 	
 	if (len <= 0) return 0;	// no point
 	
-	text_to_add[len - 1] = '\0';	// A basic precaution.
-
 	//check for auto receiving #help
 	for (idx = 0; idx < len; idx++)
 	{
