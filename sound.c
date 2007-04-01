@@ -68,6 +68,9 @@ typedef struct
 }source_data;
 #endif	//NEW_SOUND
 
+ALCdevice *mSoundDevice;			// These lines may need to be removed again in the patch.
+ALCcontext *mSoundContext;			// Please check.
+
 int have_sound=0;
 int have_music=0;
 int sound_opts=3;

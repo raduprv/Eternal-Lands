@@ -6,6 +6,7 @@
 int	stats_win= -1;
 player_attribs your_info;
 player_attribs someone_info;
+struct attributes_struct attributes;
 int attrib_menu_x=100;
 int attrib_menu_y=20;
 int attrib_menu_x_len=STATS_TAB_WIDTH;
