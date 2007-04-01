@@ -35,7 +35,7 @@ struct pm_struct
         afk_struct * afk_msgs; /*!< array of \see afk_struct elements */
 };
 
-struct pm_struct pm_log;
+extern struct pm_struct pm_log;
 extern int afk; /*!< flag indicating whether a player is currently AFK or not */
 extern int last_action_time; /*!< timestamp of the last action for this player */
 extern int afk_time; /*!< number of minutes after which the client will go AFK automatically. This can be set via the el.ini file. */

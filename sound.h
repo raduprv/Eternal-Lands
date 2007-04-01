@@ -47,8 +47,8 @@ extern int playing_music; /*!< flag indicating if music is currently playing */
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
 
-ALCdevice *mSoundDevice;			// These lines may need to be removed again in the patch.
-ALCcontext *mSoundContext;			// Please check.
+extern ALCdevice *mSoundDevice;			// These lines may need to be removed again in the patch.
+extern ALCcontext *mSoundContext;			// Please check.
 
 #ifdef NEW_SOUND
 	#define MAX_SOUND_NAME_LENGTH 15

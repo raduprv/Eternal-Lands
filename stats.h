@@ -114,7 +114,7 @@ struct attributes_struct
 	names carry_capacity; /*!< name and short name of carry capacity */
 };
 
-struct attributes_struct attributes; /*!< global variable for an actors attributes */
+extern struct attributes_struct attributes; /*!< global variable for an actors attributes */
 
 /*!
  * The player_attribs structure takes care of all the attributes of a player.
@@ -205,7 +205,7 @@ extern int watch_this_stat; /*!< indicator to select the stat that get's display
 
 extern int have_stats; /*!< indicator for whether or not the stats have been send to us yet*/
 
-player_attribs your_info; /*!< the players attributes */
+extern player_attribs your_info; /*!< the players attributes */
 
 /*!
  * \ingroup stats_window
