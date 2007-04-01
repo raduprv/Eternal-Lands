@@ -493,7 +493,7 @@ void read_mapinfo ()
 			continent_maps[imap].x_end = x_end;
 			continent_maps[imap].y_end = y_end;
 			continent_maps[imap].name = malloc ((strlen (map_name) + 1) * sizeof (char));
-			safe_strncpy (continent_maps[imap].name, map_name, sizeof(continent_maps[imap].name));
+			strcpy(continent_maps[imap].name, map_name);
 			imap++;
 		}
 		

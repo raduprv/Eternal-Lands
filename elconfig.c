@@ -1125,9 +1125,9 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
 #else
 	our_vars.var[no]->short_desc= malloc(strlen(short_desc)+1);
-	safe_strncpy(our_vars.var[no]->short_desc, short_desc, sizeof(our_vars.var[no]->short_desc));
+	strcpy(our_vars.var[no]->short_desc, short_desc);
 	our_vars.var[no]->long_desc= malloc(strlen(long_desc)+1);
-	safe_strncpy(our_vars.var[no]->long_desc, long_desc, sizeof(our_vars.var[no]->long_desc));
+	strcpy(our_vars.var[no]->long_desc, long_desc);
 #endif
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
