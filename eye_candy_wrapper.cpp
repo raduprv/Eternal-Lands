@@ -766,8 +766,8 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     }
   }
   ec_free_bounds_list(bounds);
-*/
 }
+*/
 
 extern "C" ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD)
 {
