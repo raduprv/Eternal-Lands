@@ -922,7 +922,7 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text )
 {
 	int len_to_add;
 	len_to_add = strlen(text);
-	safe_snprintf(actor_ptr->current_displayed_text, sizeof(actor_ptr->current_displayed_text), sizeof(actor_ptr->current_displayed_text), "%s", text);
+	safe_snprintf(actor_ptr->current_displayed_text, sizeof(actor_ptr->current_displayed_text), "%s", text);
 	actor_ptr->current_displayed_text_time_left = len_to_add*MS_PER_CHAR;
 
 	actor_ptr->current_displayed_text_time_left += MINI_BUBBLE_MS;

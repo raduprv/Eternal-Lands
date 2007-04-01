@@ -1613,7 +1613,7 @@ int click_chan_sel_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 		if(mouse_x >= win->pos_x+5 && mouse_x-5 <= win->pos_x + 8*((signed)strlen(((chan_name*)(step->data))->name))) {
 			char tmp[20];
-			safe_snprintf(tmp, "#jc %d", ((chan_name*)(step->data))->channel);
+			safe_snprintf(tmp, sizeof(tmp), "#jc %d", ((chan_name*)(step->data))->channel);
 			send_input_text_line(tmp, strlen(tmp));
 		}
 	}

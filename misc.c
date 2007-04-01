@@ -388,9 +388,14 @@ void open_web_link(char * url)
 	// browser name can override the windows default, and if not defined in Linux, don't error
 	if(*browser_name){
 #ifndef WINDOWS
+		/* removed because unsafe (can be used to inject commands thru URLs)
 		char browser_command[400];
 		
-		execl(browser_name, browser_name, url);
+		safe_snprintf(browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, url);
+		system(browser_command);
+		*/
+		/* Lachesis: this is not portable but should do here */
+		if (fork() == 0) execl(browser_name, browser_name, url, NULL);
 #else
 		SDL_Thread *go_to_url_thread;
 
