@@ -50,31 +50,6 @@ particle_sys_def *defs_list[MAX_PARTICLE_DEFS];
 
 void destroy_all_particle_defs();
 
-#ifndef ELC
-Uint32	clean_file_name(char *dest, const char *src, Uint32 max_len)
-{
-	Uint32	len;
-	Uint32	i;
-
-	len=strlen(src);
-	if(len >= max_len)len=max_len-1;
-	for(i=0;i<len;i++)
-		{
-			if(src[i]=='\\')
-				{
-					dest[i]='/';
-				}
-			else
-				{
-					dest[i]=src[i];
-				}
-		}
-	//always place a null that the end
-	dest[len]='\0';
-	return(len);
-}
-#endif
-
 int part_strcmp(char * s1, char *s2)
 {
 	while(*s1 && *s2)

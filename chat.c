@@ -1028,8 +1028,8 @@ void add_chan_name(int no, char * name, char * desc)
 		return;
 	}
 	entry->channel = no;
-	safe_strncpy(entry->name, name, sizeof(entry->name));
-	safe_strncpy(entry->description, desc, sizeof(entry->description));
+	safe_strncpy(entry->name, name, strlen(name) + 1);
+	safe_strncpy(entry->description, desc, strlen(desc) + 1);
 	queue_push(chan_name_queue, entry);
 	len = chan_name_queue->nodes-CS_MAX_DISPLAY_CHANS;
 	if(len > 0 && chan_sel_scroll_id == -1 && chan_sel_win != -1) {
@@ -1047,8 +1047,8 @@ void add_spec_chan_name(int no, char * name, char * desc)
 			return;
 		}
 	entry->channel = no;
-	safe_strncpy(entry->name, name, sizeof(entry->name));
-	safe_strncpy(entry->description, desc, sizeof(entry->description));
+	safe_strncpy(entry->name, name, strlen(name) + 1);
+	safe_strncpy(entry->description, desc, strlen(desc) + 1);
 	pseudo_chans[no]=entry;
 }
 

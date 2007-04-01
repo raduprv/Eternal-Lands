@@ -176,43 +176,43 @@ void SwordEffect::request_LOD(const Uint16 _LOD)
   {
     case SERPENT:
     {
-      alpha = 0.6;
+      alpha = 0.55;
       size = 1.1;
       break;
     }
     case CUTLASS:
     {
-      alpha = 0.12;
+      alpha = 0.1;
       size = 2.0;
       break;
     }
     case EMERALD_CLAYMORE:
     {
-      alpha = 0.6;
+      alpha = 0.55;
       size = 0.75;
       break;
     }
     case SUNBREAKER:
     {
-      alpha = 0.75;
+      alpha = 0.7;
       size = 1.1;
       break;
     }
     case ORC_SLAYER:
     {
-      alpha = 0.15;
+      alpha = 0.1;
       size = 1.3;
       break;
     }
     case EAGLE_WING:
     {
-      alpha = 0.3;
+      alpha = 0.2;
       size = 2.25;
       break;
     }
     case JAGGED_SABER:
     {
-      alpha = 0.6;
+      alpha = 0.55;
       size = 2.25;
       break;
     }
