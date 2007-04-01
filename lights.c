@@ -678,9 +678,9 @@ void init_lights()
 	glEnable(GL_LIGHT7);
 
 #ifdef	EYE_CANDY
-        ec_add_light(GL_LIGHT4);
-        ec_add_light(GL_LIGHT5);
-        ec_add_light(GL_LIGHT6);
+	ec_add_light(GL_LIGHT4);
+	ec_add_light(GL_LIGHT5);
+	ec_add_light(GL_LIGHT6);
 #endif	//EYE_CANDY
 
 	glEnable(GL_LIGHTING);
