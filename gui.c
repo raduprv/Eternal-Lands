@@ -12,15 +12,30 @@ char obj_2d_folder[256];
 char obj_3d_folder[256];
 char particles_folder[256];
 
-char * selected_file=NULL;
-GtkWidget * gtk_open_win=NULL;
-GtkWidget * gtk_save_win=NULL;
-GtkWidget * gtk_effect_win=NULL;
-
-GtkFileFilter * e3d_filter=NULL;
-GtkFileFilter * e2d_filter=NULL;
-GtkFileFilter * map_filter=NULL;
-GtkFileFilter * part_filter=NULL;
+char * selected_file = NULL;
+GtkWidget * gtk_open_win = NULL;
+GtkWidget * gtk_save_win = NULL;
+GtkWidget * gtk_effect_win = NULL;
+GtkWidget * gtk_effect_list_box = NULL;
+GtkWidget * gtk_effect_hue_box = NULL;
+GtkWidget * gtk_effect_saturation_box = NULL;
+GtkWidget * gtk_effect_scale_box = NULL;
+GtkWidget * gtk_effect_density_box = NULL;
+GtkWidget * gtk_effect_base_height_box = NULL;
+GtkWidget * gtk_effect_list = NULL;
+GtkWidget * gtk_effect_hue = NULL;
+GtkWidget * gtk_effect_saturation = NULL;
+GtkWidget * gtk_effect_scale = NULL;
+GtkWidget * gtk_effect_density = NULL;
+GtkWidget * gtk_effect_base_height = NULL;
+GtkObject * gtk_effect_hue_obj = NULL;
+GtkObject * gtk_effect_saturation_obj = NULL;
+GtkObject * gtk_effect_scale_obj = NULL;
+GtkObject * gtk_effect_density_obj = NULL;
+GtkFileFilter * e3d_filter = NULL;
+GtkFileFilter * e2d_filter = NULL;
+GtkFileFilter * map_filter = NULL;
+GtkFileFilter * part_filter = NULL;
 
 void init_filters()
 {	
@@ -190,9 +205,10 @@ void show_save_window(char * name, char * folder, char * select, GtkFileFilter *
 void show_eye_candy_window()
 {
 	if(!gtk_effect_win) {
+		GtkWidget* label;
 		gtk_effect_win=gtk_dialog_new_with_buttons("Select eye candy effect",
 		                NULL,
-		                GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, 
+		                GTK_DIALOG_DESTROY_WITH_PARENT, 
 				GTK_STOCK_OK, //Cancel button
 				GTK_RESPONSE_ACCEPT,//Open button
 				NULL);
@@ -202,8 +218,105 @@ void show_eye_candy_window()
 				G_CALLBACK (gtk_widget_destroy),
 				gtk_effect_win);
 
-		gtk_widget_show_all (gtk_effect_win);
+		gtk_effect_list = gtk_combo_box_new_text();
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Fire");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Cloud/Fog");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Fireflies");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Fountain");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Lamp/Candle/Torch");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Magic Protection");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Shield");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Magic Immunity");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Poison");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Smoke");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Teleporter");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Leaves");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Flower Petals");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Waterfall");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Bees");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Portal");
+		g_signal_connect_swapped (gtk_effect_list,
+				"changed", 
+				G_CALLBACK (change_eye_candy_effect),
+				gtk_effect_list);
+		gtk_widget_show(gtk_effect_list);
+		gtk_effect_list_box = gtk_hbox_new(FALSE, 10);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_list_box), gtk_effect_list, TRUE, TRUE, 0);
+		label = gtk_label_new("Select your effect:");
+		gtk_widget_show(label);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_list_box), label, TRUE, TRUE, 0);
+		gtk_widget_show(gtk_effect_list_box);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_list_box, TRUE, TRUE, 0);
 
+		gtk_effect_hue = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_hue_obj = gtk_adjustment_new(0.0, 0.0, 1.01, 0.01, 0.1, 0.01)));
+		gtk_scale_set_digits(GTK_SCALE(gtk_effect_hue), 2);
+		gtk_widget_show(gtk_effect_hue);
+		gtk_effect_hue_box = gtk_hbox_new(FALSE, 10);
+		gtk_widget_set_size_request(gtk_effect_hue, 220, -1);
+		label = gtk_label_new("Hue:");
+		gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+		gtk_widget_set_size_request(label, 85, -1);
+		gtk_widget_show(label);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_hue_box), label, TRUE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_hue_box), gtk_effect_hue, TRUE, TRUE, 0);
+		gtk_widget_hide(gtk_effect_hue_box);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_hue_box, TRUE, TRUE, 0);
+		
+		gtk_effect_saturation = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_saturation_obj = gtk_adjustment_new(0.0, 0.0, 1.01, 0.01, 0.1, 0.01)));
+		gtk_scale_set_digits(GTK_SCALE(gtk_effect_saturation), 2);
+		gtk_widget_show(gtk_effect_saturation);
+		gtk_effect_saturation_box = gtk_hbox_new(FALSE, 10);
+		gtk_widget_set_size_request(gtk_effect_saturation, 220, -1);
+		label = gtk_label_new("Saturation:");
+		gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+		gtk_widget_set_size_request(label, 85, -1);
+		gtk_widget_show(label);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_saturation_box), label, TRUE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_saturation_box), gtk_effect_saturation, TRUE, TRUE, 0);
+		gtk_widget_hide(gtk_effect_saturation_box);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_saturation_box, TRUE, TRUE, 0);
+		
+		gtk_effect_scale = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_scale_obj = gtk_adjustment_new(1.0, 0.0, 20.1, 0.02, 1.0, 0.1)));
+		gtk_scale_set_digits(GTK_SCALE(gtk_effect_scale), 1);
+		gtk_widget_show(gtk_effect_scale);
+		gtk_effect_scale_box = gtk_hbox_new(FALSE, 10);
+		gtk_widget_set_size_request(gtk_effect_scale, 220, -1);
+		label = gtk_label_new("Scale:");
+		gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+		gtk_widget_set_size_request(label, 85, -1);
+		gtk_widget_show(label);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_scale_box), label, TRUE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_scale_box), gtk_effect_scale, TRUE, TRUE, 0);
+		gtk_widget_hide(gtk_effect_scale_box);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_scale_box, TRUE, TRUE, 0);
+		
+		gtk_effect_density = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_density_obj = gtk_adjustment_new(1.0, 0.0, 20.1, 0.02, 1.0, 0.1)));
+		gtk_scale_set_digits(GTK_SCALE(gtk_effect_density), 1);
+		gtk_widget_show(gtk_effect_density);
+		gtk_effect_density_box = gtk_hbox_new(FALSE, 10);
+		gtk_widget_set_size_request(gtk_effect_density, 220, -1);
+		label = gtk_label_new("Density:");
+		gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+		gtk_widget_set_size_request(label, 85, -1);
+		gtk_widget_show(label);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_density_box), label, TRUE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_density_box), gtk_effect_density, TRUE, TRUE, 0);
+		gtk_widget_hide(gtk_effect_density_box);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_density_box, TRUE, TRUE, 0);
+		
+		gtk_effect_base_height = gtk_entry_new_with_max_length(30);
+		gtk_entry_set_text(GTK_ENTRY(gtk_effect_base_height), "0.0");
+		gtk_widget_show(gtk_effect_base_height);
+		gtk_effect_base_height_box = gtk_hbox_new(FALSE, 10);
+		gtk_widget_set_size_request(gtk_effect_base_height, 220, -1);
+		label = gtk_label_new("Base Height:");
+		gtk_misc_set_alignment(GTK_MISC(label), 0, 0);
+		gtk_widget_set_size_request(label, 85, -1);
+		gtk_widget_show(label);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_base_height_box), label, TRUE, TRUE, 0);
+		gtk_box_pack_start(GTK_BOX(gtk_effect_base_height_box), gtk_effect_base_height, TRUE, TRUE, 0);
+		gtk_widget_hide(gtk_effect_base_height_box);
+		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_base_height_box, TRUE, TRUE, 0);
 	} else {
 		gtk_window_set_title(GTK_WINDOW(gtk_open_win), "Select eye candy effect");
 	}
