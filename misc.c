@@ -349,9 +349,10 @@ void find_last_url(const unsigned char *source_string, const int len)
 			break; //URL too long, perhaps an exploit attempt
 		}
 		cur_char = source_string[i];
+		// TODO: better cleaning of illegal chars in a URL
 		if(!cur_char || cur_char == ' ' || cur_char == '\n' || cur_char == '<'
-			|| cur_char == '>' || cur_char == '|' || cur_char == '"'
-			|| cur_char == ']') {
+			|| cur_char == '>' || cur_char == '|' || cur_char == '"' || cur_char == '\''
+			|| cur_char == ']' || cur_char == ';' || cur_char == '\\' || (cur_char&0x80) != 0) {
 			break;
 		}
 		current_url[j] = cur_char;
@@ -395,7 +396,11 @@ void open_web_link(char * url)
 		system(browser_command);
 		*/
 		/* Lachesis: this is not portable but should do here */
-		if (fork() == 0) execl(browser_name, browser_name, url, NULL);
+		if (fork() == 0){
+			execl(browser_name, browser_name, url, NULL);
+			// in case the exec errors
+			exit(1);
+		}
 #else
 		SDL_Thread *go_to_url_thread;
 
