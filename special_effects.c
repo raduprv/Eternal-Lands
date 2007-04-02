@@ -619,183 +619,184 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	}
 	
 #ifdef	EYE_CANDY
-	switch (sfx)
-	{
-		case	SPECIAL_EFFECT_SHIELD:
-			ec_create_selfmagic_shield2(caster, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_RESTORATION:
-			ec_create_selfmagic_restoration2(caster, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SMITE_SUMMONINGS:
-			break;
-		case	SPECIAL_EFFECT_CLOAK:
-			break;
-		case	SPECIAL_EFFECT_DECLOAK:
-			break;
-		case	SPECIAL_EFFECT_HEAL_SUMMONED:
-			break;
-		case	SPECIAL_EFFECT_HEAL:
-			ec_create_selfmagic_heal2(caster, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_POISON:
-			ec_create_targetmagic_poison2(caster, target, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_REMOTE_HEAL:
-			ec_create_targetmagic_remote_heal2(caster, target, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARM:
-			ec_create_targetmagic_harm2(caster, target, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_MANA_DRAIN:
-			ec_create_targetmagic_drain_mana2(caster, target, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_INVASION_BEAMING:
-		case	SPECIAL_EFFECT_TELEPORT_TO_RANGE:
-			ec_create_targetmagic_teleport_to_range(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, target->x_pos, target->y_pos, target->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
-			ec_create_harvesting_rare_stone(caster->x_pos + sin(caster->z_rot) + 0.25, caster->y_pos + cos(caster->z_rot) + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
-			ec_create_harvesting_queen_of_nature(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
-			ec_create_harvesting_bag_of_gold(caster->x_pos + 0.25 + sin(caster->z_rot), caster->y_pos + 0.25 + cos(caster->z_rot), caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE:
-			ec_create_harvesting_cavern_wall(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_BEES:
-			ec_create_harvesting_bees(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_RADON:
-			ec_create_harvesting_radon_pouch(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS:
-			ec_create_selfmagic_teleport_to_the_portals_room(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED:
-			ec_create_harvesting_mother_nature(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
-			ec_create_alert2(caster, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_RABBIT:
-			ec_create_summon_rabbit(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_RAT:
-			ec_create_summon_rat(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_BEAVER:
-			ec_create_summon_beaver(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_SKUNK:
-			ec_create_summon_skunk(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_RACOON:
-			ec_create_summon_racoon(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_DEER:
-			ec_create_summon_deer(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_GREEN_SNAKE:
-			ec_create_summon_green_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_RED_SNAKE:
-			ec_create_summon_red_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_BROWN_SNAKE:
-			ec_create_summon_brown_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_FOX:
-			ec_create_summon_fox(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_BOAR:
-			ec_create_summon_boar(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_WOLF:
-			ec_create_summon_wolf(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_SKELETON:
-			ec_create_summon_skeleton(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_SMAL_GARG:
-			ec_create_summon_small_gargoyle(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_MEDIUM_GARG:
-			ec_create_summon_medium_gargoyle(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_BIG_GARG:
-			ec_create_summon_large_gargoyle(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_PUMA:
-			ec_create_summon_puma(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_FEM_GOBLIN:
-			ec_create_summon_female_goblin(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_POLAR_BEAR:
-			ec_create_summon_polar_bear(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_BEAR:
-			ec_create_summon_bear(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_GOB:
-			ec_create_summon_armed_male_goblin(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_ARMED_SKELETON:
-			ec_create_summon_armed_skeleton(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_FEMALE_ORC:
-			ec_create_summon_female_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_MALE_ORC:
-			ec_create_summon_male_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_ARMED_FEM_ORC:
-			ec_create_summon_armed_female_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_ORC:
-			ec_create_summon_armed_male_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_CYCLOP:
-			ec_create_summon_cyclops(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_FLUFFY_RABBIT:
-			ec_create_summon_fluffy(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_PHANTOM_WARRIOR:
-			ec_create_summon_phantom_warrior(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_MOUNTAIN_CHIM:
-			ec_create_summon_mountain_chimeran(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_YETI:
-			ec_create_summon_yeti(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_ARCTIC_CHIM:
-			ec_create_summon_arctic_chimeran(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_GIANT:
-			ec_create_summon_giant(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_GIANT_SNAKE:
-			ec_create_summon_giant_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_SPIDER:
-			ec_create_summon_spider(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		case	SPECIAL_EFFECT_SUMMON_TIGER:
-			ec_create_summon_tiger(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
-			break;
-		default:
- #ifdef DEBUG
-			safe_snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
-			LOG_TO_CONSOLE (c_purple2, str);
- #endif
-			break;
-	}
+	if (use_eye_candy) {
+		switch (sfx)
+		{
+			case	SPECIAL_EFFECT_SHIELD:
+				ec_create_selfmagic_shield2(caster, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_RESTORATION:
+				ec_create_selfmagic_restoration2(caster, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SMITE_SUMMONINGS:
+				break;
+			case	SPECIAL_EFFECT_CLOAK:
+				break;
+			case	SPECIAL_EFFECT_DECLOAK:
+				break;
+			case	SPECIAL_EFFECT_HEAL_SUMMONED:
+				break;
+			case	SPECIAL_EFFECT_HEAL:
+				ec_create_selfmagic_heal2(caster, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_POISON:
+				ec_create_targetmagic_poison2(caster, target, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_REMOTE_HEAL:
+				ec_create_targetmagic_remote_heal2(caster, target, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARM:
+				ec_create_targetmagic_harm2(caster, target, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_MANA_DRAIN:
+				ec_create_targetmagic_drain_mana2(caster, target, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_INVASION_BEAMING:
+			case	SPECIAL_EFFECT_TELEPORT_TO_RANGE:
+				ec_create_targetmagic_teleport_to_range(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, target->x_pos, target->y_pos, target->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
+				ec_create_harvesting_rare_stone(caster->x_pos + sin(caster->z_rot) + 0.25, caster->y_pos + cos(caster->z_rot) + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
+				ec_create_harvesting_queen_of_nature(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
+				ec_create_harvesting_bag_of_gold(caster->x_pos + 0.25 + sin(caster->z_rot), caster->y_pos + 0.25 + cos(caster->z_rot), caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE:
+				ec_create_harvesting_cavern_wall(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_BEES:
+				ec_create_harvesting_bees(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_RADON:
+				ec_create_harvesting_radon_pouch(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS:
+				ec_create_selfmagic_teleport_to_the_portals_room(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED:
+				ec_create_harvesting_mother_nature(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
+				ec_create_alert2(caster, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_RABBIT:
+				ec_create_summon_rabbit(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_RAT:
+				ec_create_summon_rat(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_BEAVER:
+				ec_create_summon_beaver(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_SKUNK:
+				ec_create_summon_skunk(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_RACOON:
+				ec_create_summon_racoon(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_DEER:
+				ec_create_summon_deer(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_GREEN_SNAKE:
+				ec_create_summon_green_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_RED_SNAKE:
+				ec_create_summon_red_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_BROWN_SNAKE:
+				ec_create_summon_brown_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_FOX:
+				ec_create_summon_fox(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_BOAR:
+				ec_create_summon_boar(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_WOLF:
+				ec_create_summon_wolf(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_SKELETON:
+				ec_create_summon_skeleton(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_SMAL_GARG:
+				ec_create_summon_small_gargoyle(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_MEDIUM_GARG:
+				ec_create_summon_medium_gargoyle(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_BIG_GARG:
+				ec_create_summon_large_gargoyle(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_PUMA:
+				ec_create_summon_puma(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_FEM_GOBLIN:
+				ec_create_summon_female_goblin(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_POLAR_BEAR:
+				ec_create_summon_polar_bear(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_BEAR:
+				ec_create_summon_bear(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_GOB:
+				ec_create_summon_armed_male_goblin(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_ARMED_SKELETON:
+				ec_create_summon_armed_skeleton(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_FEMALE_ORC:
+				ec_create_summon_female_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_MALE_ORC:
+				ec_create_summon_male_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_ARMED_FEM_ORC:
+				ec_create_summon_armed_female_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_ORC:
+				ec_create_summon_armed_male_orc(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_CYCLOP:
+				ec_create_summon_cyclops(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_FLUFFY_RABBIT:
+				ec_create_summon_fluffy(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_PHANTOM_WARRIOR:
+				ec_create_summon_phantom_warrior(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_MOUNTAIN_CHIM:
+				ec_create_summon_mountain_chimeran(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_YETI:
+				ec_create_summon_yeti(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_ARCTIC_CHIM:
+				ec_create_summon_arctic_chimeran(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_GIANT:
+				ec_create_summon_giant(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_GIANT_SNAKE:
+				ec_create_summon_giant_snake(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_SPIDER:
+				ec_create_summon_spider(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SUMMON_TIGER:
+				ec_create_summon_tiger(caster->x_pos + 0.25, caster->y_pos + 0.25, caster->z_pos, (poor_man ? 6 : 10));
+				break;
+			default:
+	 #ifdef DEBUG
+				safe_snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
+				LOG_TO_CONSOLE (c_purple2, str);
+	 #endif
+				break;
+		} /* switch(sfx) */
 //			ec_create_selfmagic_magic_protection(49.0, 70.0, 0.0, (poor_man ? 6 : 10));
 //			ec_create_selfmagic_bones_to_gold(caster, (poor_man ? 6 : 10));
 //			ec_create_selfmagic_magic_immunity(caster, (poor_man ? 6 : 10));
@@ -810,6 +811,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_add_target(ref, 50.0, 72.0, 0.5);
 //			ec_launch_targetmagic_smite_summoned(ref, caster, (poor_man ? 6 : 10));
 //			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
+	} /* if (use_eye_candy) */
 #endif	//EYE_CANDY
 }
 

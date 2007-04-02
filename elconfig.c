@@ -5,7 +5,7 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <float.h>
-#if defined SFX && defined EYE_CANDY
+#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
 
@@ -46,9 +46,10 @@
 #define MISC		5
 #define FONT 		6
 #define CHAT		7
-#define SPECIALVID	8
+#define ADVVID	8
+#define LODTAB  9
 
-#define MAX_TABS 9
+#define MAX_TABS 10
 
 #define CHECKBOX_SIZE		15
 #define SPACING				5	//Space between widgets and labels and lines
@@ -73,7 +74,7 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-int elconfig_menu_x_len= 520;
+int elconfig_menu_x_len= 540;
 int elconfig_menu_y_len= 463;
 
 int windows_on_top= 0;
@@ -1143,38 +1144,38 @@ void init_vars()
 	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 #ifndef MAP_EDITOR2
  #ifdef DEBUG
-	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", SPECIALVID);
-	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", SPECIALVID);
+	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID);
+	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID);
  #endif//DEBUG
 #endif //MAP_EDITOR2
-	add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows",VIDEO);
-	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", VIDEO);
-	add_var(MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",VIDEO,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
+	add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", LODTAB);
+	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", ADVVID);
+	add_var(MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",ADVVID,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 #ifndef MAP_EDITOR2
-	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",VIDEO);
+	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",LODTAB);
 #endif	//MAP_EDITOR2
-	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",VIDEO);
+	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",LODTAB);
 #ifdef	NEW_ALPHA
-	add_var(BOOL,"use_3d_alpha_blend","3dalpha",&use_3d_alpha_blend,change_var,1,"3D Alpha Blending","Toggle the use of the alpha blending on 3D objects",VIDEO);
+	add_var(BOOL,"use_3d_alpha_blend","3dalpha",&use_3d_alpha_blend,change_var,1,"3D Alpha Blending","Toggle the use of the alpha blending on 3D objects",ADVVID);
 #endif	//NEW_ALPHA
-	add_var(BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",VIDEO);
-	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",SPECIALVID);
-	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",SPECIALVID);
+	add_var(BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",LODTAB);
+	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",LODTAB);
+	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
-	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",SPECIALVID);
-	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",SPECIALVID);
+	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
+	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
 #ifndef MAP_EDITOR
 #ifdef	NOT_USED
-	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",SPECIALVID);
+	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",ADVVID);
 #endif
-	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects, restart required to activate it",SPECIALVID);
+	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
 
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
-	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",SPECIALVID);
-	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",SPECIALVID,0,100);
-	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,1,"Enable Blood","Enable blood special effects during combat.",SPECIALVID);
+	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
+	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",LODTAB,0,100);
+	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,1,"Enable Blood","Enable blood special effects during combat.",LODTAB);
  #ifdef	TERRAIN
-	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", SPECIALVID);
+	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", LODTAB);
  #endif // TERRAIN
 #endif // ELC
 
@@ -1232,7 +1233,7 @@ void init_vars()
 	add_var(BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
 #endif
 	add_var(BOOL,"compass_north","comp",&compass_direction_checkbox,change_compass_direction,1,"Compass Direction","Set the compass direction for a static compass",HUD);
-	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//SPECIALVID);
+	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
 
 #ifndef MAP_EDITOR2
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
@@ -1282,9 +1283,9 @@ void init_vars()
 #endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
-	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", SPECIALVID);
+	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", VIDEO);
 #ifndef MAP_EDITOR2
-	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If the above option doesn't move you when you click, try this one", SPECIALVID);
+	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If the above option doesn't move you when you click, try this one", VIDEO);
  #ifdef ELC
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
@@ -1303,25 +1304,25 @@ void init_vars()
 #endif
 #ifndef OSX
 	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", VIDEO);
-	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
+	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else
         add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
-	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", SPECIALVID, 0.01, 0.80, 0.01);
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", SPECIALVID, 1.0, 60.0, 0.5);
+	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
+	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #endif
  #ifdef ANTI_ALIAS
-	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", SPECIALVID);
+	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
  #endif //ANTI_ALIAS
 #ifdef SFX
-	add_var (BOOL, "special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", SPECIALVID);
+	add_var (BOOL, "special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", LODTAB);
 #endif //SFX
 #ifndef MAP_EDITOR2
 	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
 #endif // def ELC
 #ifndef MAP_EDITOR
-	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", SPECIALVID);
+	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", ADVVID);
 #endif
 	//Global vars...
 	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
@@ -1334,13 +1335,16 @@ void init_vars()
 #endif //ELC
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 #ifdef ELC
-	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",SPECIALVID,0.10,3.00,0.05);
+	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
 #endif //ELC
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
 	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show POS","Show position on the minimap",HUD);
 	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
 	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
+#endif
+#ifdef EYE_CANDY
+	add_var(BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", LODTAB);
 #endif
 
 #if defined ELC && ! defined MAP_EDITOR2
@@ -1921,7 +1925,8 @@ void display_elconfig_win(void)
 		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0);
 		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0);
 		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0);
-		elconfig_tabs[SPECIALVID].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_specialvideo, 0, 0);
+		elconfig_tabs[LODTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_lod, 0, 0);
+		elconfig_tabs[ADVVID].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_advvideo, 0, 0);
 
 		elconfig_populate_tabs();
 	}

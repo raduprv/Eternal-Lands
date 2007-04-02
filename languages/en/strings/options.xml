@@ -297,5 +297,9 @@
       <name>Windows On Top</name>
       <desc>Allows the Manufacture, Storage and Inventory windows to appear above the map and console.</desc>
     </windows_on_top>
+    <use_eye_candy>
+      <name>Enable Eye Candy</name>
+      <desc>Toggles most visual effects, like spells' and harvesting events'</desc>
+    </use_eye_candy>
   </options>
 </root>

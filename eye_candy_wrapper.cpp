@@ -8,6 +8,10 @@
 #include "init.h"
 #include "gamewin.h"
 
+extern "C" {
+  int use_eye_candy = 1;
+}
+
 ec::EyeCandy eye_candy;
 Uint64 ec_cur_time, ec_last_time;
 std::vector<ec_internal_reference*> references;
@@ -23,6 +27,7 @@ ec_actor_obstructions actor_obstructions;
 ec_actor_obstruction self_actor;
 std::vector<ec::Obstruction*> general_obstructions_list;
 std::vector<ec::Obstruction*> fire_obstructions_list;
+bool force_idle = false;
 
 extern "C" void ec_init()
 {
@@ -110,6 +115,10 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
 
 extern "C" void ec_idle()
 {
+  if ((!use_eye_candy) && (!force_idle))
+    return;
+  force_idle = false;
+
   const std::vector<std::string> ec_errors = ec::fetch_logs();
   for (std::vector<std::string>::const_iterator iter = ec_errors.begin(); iter != ec_errors.end(); iter++)
     log_error(iter->c_str());
@@ -144,19 +153,22 @@ extern "C" void ec_idle()
       continue;
     }
     
-    if ((*iter)->caster)
+    if (use_eye_candy)
     {
-      if ((*iter)->effect->get_type() == ec::EC_SWORD)
-        get_sword_positions((*iter)->caster, (*iter)->position, (*iter)->position2);
-      else
-        set_vec3_actor_bone((*iter)->position, (*iter)->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
-    }
-    if ((*iter)->target)
-      set_vec3_actor_bone((*iter)->position2, (*iter)->target, 25, ec::Vec3(0.0, 0.0, 0.0));
-    for (int j = 0; j < (int)(*iter)->target_actors.size(); j++)
-    {
-      if ((*iter)->target_actors[j])
-        set_vec3_actor_bone((*iter)->targets[j], (*iter)->target_actors[j], 25, ec::Vec3(0.0, 0.0, 0.0));
+      if ((*iter)->caster)
+      {
+        if ((*iter)->effect->get_type() == ec::EC_SWORD)
+          get_sword_positions((*iter)->caster, (*iter)->position, (*iter)->position2);
+        else
+          set_vec3_actor_bone((*iter)->position, (*iter)->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+      }
+      if ((*iter)->target)
+        set_vec3_actor_bone((*iter)->position2, (*iter)->target, 25, ec::Vec3(0.0, 0.0, 0.0));
+      for (int j = 0; j < (int)(*iter)->target_actors.size(); j++)
+      {
+        if ((*iter)->target_actors[j])
+          set_vec3_actor_bone((*iter)->targets[j], (*iter)->target_actors[j], 25, ec::Vec3(0.0, 0.0, 0.0));
+      }
     }
     i++;
   }
@@ -170,7 +182,7 @@ extern "C" void ec_idle()
   ec_last_time = ec_cur_time;
   ec_cur_time = new_time;
 
-  if (ec_last_time % 1000000 >= ec_cur_time % 1000000)
+  if (use_eye_candy && ec_last_time % 1000000 >= ec_cur_time % 1000000)
     ec_heartbeat();
 
   eye_candy.idle();
@@ -234,15 +246,18 @@ extern "C" void ec_draw()
 {
   if (ec::get_error_status())
     return;
-
-  glPushMatrix();
-  glRotatef(90, 1.0, 0.0, 0.0);
-  eye_candy.draw();
-  glPopMatrix();
+  
+  if (use_eye_candy) {
+    glPushMatrix();
+    glRotatef(90, 1.0, 0.0, 0.0);
+    eye_candy.draw();
+    glPopMatrix();
+  }
 }
 
 extern "C" void ec_actor_delete(actor* _actor)
 {
+  force_idle = true;
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -290,12 +305,14 @@ extern "C" void ec_actor_delete(actor* _actor)
 
 extern "C" void ec_recall_effect(const ec_reference ref)
 {
+  force_idle = true;
   ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
   cast_reference->effect->recall = true;
 }
 
 extern "C" void ec_delete_all_effects()
 {
+  force_idle = true;
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -313,6 +330,7 @@ extern "C" void ec_delete_all_effects()
 
 extern "C" void ec_delete_effect_loc(float x, float y)
 {
+  force_idle = true;
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -334,6 +352,7 @@ extern "C" void ec_delete_effect_loc(float x, float y)
 
 extern "C" void ec_delete_effect_loc_type(float x, float y, ec_EffectEnum type)
 {
+  force_idle = true;
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -355,6 +374,7 @@ extern "C" void ec_delete_effect_loc_type(float x, float y, ec_EffectEnum type)
 
 extern "C" void ec_delete_effect_type(ec_EffectEnum type)
 {
+  force_idle = true;
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -376,6 +396,7 @@ extern "C" void ec_delete_effect_type(ec_EffectEnum type)
 
 extern "C" void ec_delete_reference(ec_reference ref)
 {
+  force_idle = true;
   ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
   delete cast_reference;
 }
@@ -555,6 +576,7 @@ extern "C" void ec_free_effects_list(ec_effects effects)
 
 extern "C" void ec_remove_weapon(actor* _actor)
 {
+  force_idle = true;
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -621,6 +643,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
 {
   unsigned char raw_code[54];
   int i = 0;
+
   while (i < 18)
   {
     raw_code[i * 3]     = ((code[i * 4 + 0] - ' ') >> 0) | ((code[i * 4 + 1] - ' ') << 6);

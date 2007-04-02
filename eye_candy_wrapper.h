@@ -11,8 +11,8 @@
 // your option) any later version.                                            //
 //****************************************************************************//
 
-#ifndef CAL_EYE_CANDY_WRAPPER_H
-#define CAL_EYE_CANDY_WRAPPER_H
+#ifndef EYE_CANDY_WRAPPER_H
+#define EYE_CANDY_WRAPPER_H
 
 #include "global.h"
 #include "actors.h"
@@ -37,6 +37,12 @@
 #include "eye_candy/effect_harvesting.h"
 #include "eye_candy/effect_wind.h"
 #include "eye_candy/effect_breath.h"
+#endif
+
+#ifdef __cplusplus
+extern "C" int use_eye_candy;
+#else
+extern int use_eye_candy;
 #endif
 
 //****************************************************************************//
@@ -296,7 +302,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
 }
 #endif
 
-#endif
+#endif /* EYE_CANDY_WRAPPER_H */
 
 //****************************************************************************//
 

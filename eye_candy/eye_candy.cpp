@@ -1456,7 +1456,7 @@ void EyeCandy::idle()
 {
   if (ec_error_status)
     return;
-
+  
   const Uint64 cur_time = get_time();
   for (int i = 0; i < (int)effects.size(); )
   {

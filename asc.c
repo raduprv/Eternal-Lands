@@ -139,7 +139,7 @@ char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, cons
 {
 	if (dest_len > 0)
 	{
-		if (src_len > dest_len)
+		if (src_len >= dest_len)
 		{
 			strncpy(dest, source, dest_len - 1);
 			dest[dest_len - 1] = '\0';

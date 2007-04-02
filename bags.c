@@ -57,7 +57,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 
         //Launch the animation
 #ifdef	EYE_CANDY
-	ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
+	if (use_eye_candy) ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
 #endif	//EYE_CANDY
 
 #ifdef	NEW_FRUSTUM
@@ -161,7 +161,7 @@ void remove_bag(int which_bag)
 	//center the object
 	x = x + 0.25f;
 	y = y + 0.25f;
-	ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
+	if (use_eye_candy) ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
  #else // EYE_CANDY
   #ifdef SFX
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
@@ -172,7 +172,7 @@ void remove_bag(int which_bag)
 	x = bag_list[which_bag].x;
 	y = bag_list[which_bag].y;
 	z = -2.2f+height_map[bag_list[which_bag].y*tile_map_size_x*6+bag_list[which_bag].x]*0.2f;
-	ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
+	if (use_eye_candy) ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
  #else // EYE_CANDY
   #ifdef SFX
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y);
