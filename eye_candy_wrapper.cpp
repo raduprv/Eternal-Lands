@@ -136,9 +136,9 @@ extern "C" void ec_idle()
   const float c_rx = cos(rx * ec::PI / 180);
   const float s_rz = sin(rz * ec::PI / 180);
   const float c_rz = cos(rz * ec::PI / 180);
-  float new_camera_x = zoom_level*camera_distance * s_rx * s_rz + camera_x;
+  float new_camera_x = -zoom_level*camera_distance * s_rx * s_rz + camera_x;
   float new_camera_y = -zoom_level*camera_distance * s_rx * c_rz + camera_y;
-  float new_camera_z = zoom_level*camera_distance * c_rx + camera_z;
+  float new_camera_z = -zoom_level*camera_distance * c_rx + camera_z;
   eye_candy.set_camera(ec::Vec3(-new_camera_x, -new_camera_z, new_camera_y));
   
   eye_candy.set_dimensions(window_width, window_height, zoom_level);
