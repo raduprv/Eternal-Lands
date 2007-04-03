@@ -217,7 +217,7 @@ int check_if_filtered (const Uint8 *name)
 }
 
 // Filter the lines that contain the desired string from the inventory listing
-int filter_storage_text (Uint8 * input_text, int len) {
+int filter_storage_text (Uint8 * input_text, int len, int size) {
 	int istart, iline, ic, diff;
 	int flen;
 
@@ -250,7 +250,7 @@ int filter_storage_text (Uint8 * input_text, int len) {
 
 	if (istart == 0)
 	{
-		safe_snprintf (input_text, sizeof(input_text), "<none>");
+		safe_snprintf (input_text, size, "<none>");
 		len = 6;
 	} 
 	else
@@ -271,7 +271,7 @@ int filter_text (Uint8 *buff, int len, int size)
 	// See if a search term has been added to the #storage command, and if so, 
         // only list those items with that term
 	if (storage_filter[0] != '\0' && len > 31 && my_strncompare (buff+1, "Items you have in your storage:", 31))
-		len = 33 + filter_storage_text (buff+33, len-33);
+		len = 33 + filter_storage_text (buff+33, len-33, size-33);
 
 	//do we need to do CAPS filtering?
 	if (caps_filter)
@@ -356,7 +356,7 @@ int filter_text (Uint8 *buff, int len, int size)
 
 			if (bad_len == rep_len)
 			{
-				safe_strncpy (buff+i, filter_list[idx].replacement, rep_len);
+				safe_strncpy2(buff+i, filter_list[idx].replacement, size-i, rep_len);
 			}
 			else if (new_len + rep_len - bad_len >= size - 1)
 			{

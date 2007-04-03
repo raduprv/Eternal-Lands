@@ -734,7 +734,7 @@ int show_items_handler(window_info * win)
 		w->pos_x=win->len_x - (strlen(drop_all_str)*11+18);
 	}
 	
-	safe_strncpy(str,items_string,sizeof(items_string));
+	safe_strncpy(str,items_string,sizeof(str));
 	put_small_text_in_box(str,strlen(str),win->len_x-10,items_string);
 
 	return 1;

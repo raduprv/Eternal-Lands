@@ -1005,6 +1005,9 @@ void init_commands(const char *filename)
 	command_buffer_offset = NULL;
 }
 
+
+// NOTE: Len = length of the buffer, not the string (Verified)
+
 void print_version_string (char *buf, size_t len)
 {
 	char extra[100];

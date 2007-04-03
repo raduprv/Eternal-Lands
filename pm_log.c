@@ -184,7 +184,7 @@ void add_message_to_pm_log (char *message, int len, Uint8 channel)
 	safe_snprintf (buf, sizeof(buf), "<%1d:%02d> %s: %.*s", game_minute/60, game_minute%60, last_msg_from, strlen(mymsg), mymsg);
 #endif //AFK_FIX
 	pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs] = calloc (strlen (buf) + 1, sizeof (char));
-	safe_strncpy (pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf, sizeof(pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs]));
+	safe_strncpy (pm_log.afk_msgs[z].messages[pm_log.afk_msgs[z].msgs], buf, (strlen(buf) + 1) * sizeof(char));
 	pm_log.afk_msgs[z].msgs++;
 	pm_log.msgs++;
 }

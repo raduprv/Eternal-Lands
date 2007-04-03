@@ -397,7 +397,7 @@ void open_web_link(char * url)
 		*/
 		/* Lachesis: this is not portable but should do here */
 		if (fork() == 0){
-			execl(browser_name, browser_name, url, NULL);
+			execlp(browser_name, browser_name, url, NULL);
 			// in case the exec errors
 			_exit(1);
 		}

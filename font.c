@@ -705,7 +705,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 		}
 	}
   
-	safe_strncpy(str, buf, size);
+	safe_strncpy(str, buf, size * sizeof(char));
 	str[size-1] = '\0';
   
 	if (cursor) {
@@ -1032,7 +1032,7 @@ int load_font_textures ()
 #ifdef _MSC_VER
 			safe_strncpy(str, file, sizeof(str));
 #else //!_MSC_VER
-			safe_snprintf(str, sizeof(str) - 1, "./textures/%s", file);
+			safe_snprintf(str, sizeof(str), "./textures/%s", file);
 #endif //!_MSC_VER
 			if(has_suffix(file, len, ".bmp.gz", 7)){
 				file[len - 7]= 0;

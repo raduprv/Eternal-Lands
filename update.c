@@ -323,7 +323,7 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 			char	buffer[1024];
 			FILE    *fp;
 
-			safe_snprintf(download_temp_file, sizeof(buffer), "./tmp/temp%03d.dat", ++temp_counter);
+			safe_snprintf(download_temp_file, sizeof(download_temp_file), "./tmp/temp%03d.dat", ++temp_counter);
 			buffer[sizeof(buffer)-1]= '\0';
 			fp= my_fopen(download_temp_file, "wb+");
 			if(fp){
@@ -449,7 +449,7 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 	// allocate & fill the spec structure
 	spec= (struct http_get_struct  *)calloc(1, sizeof(struct http_get_struct));
 	safe_strncpy(spec->server, server, sizeof(spec->server));
-	safe_strncpy(spec->path, path, sizeof(spec->server));
+	safe_strncpy(spec->path, path, sizeof(spec->path));
 	download_cur_md5= spec->md5= md5;
 	spec->fp= fp;
 	spec->event= event;
