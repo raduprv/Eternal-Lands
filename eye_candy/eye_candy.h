@@ -18,7 +18,7 @@
 #include <iostream>
 #include <cassert>
 #include <SDL.h>
-#if defined (OSX) or (OSX86)
+#if defined (OSX) || (OSX86)
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
 	#include <OpenGL/glext.h>
@@ -81,6 +81,11 @@ namespace ec
  #define remainderf(a, b) (a - (float)round(a / b) * b)
  #define random rand
  #define usleep(a) Sleep(a / 1000)
+ 
+ #pragma warning (disable : 4100) // Unreferenced formal parameter
+ #pragma warning (disable : 4127) // Conditional expression is constant
+ #pragma warning (disable : 4244) // Conversion from type1 to type2
+ #pragma warning (disable : 4305) // Truncation from type1 to type2
 #endif
 
 Uint64 get_time();

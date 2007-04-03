@@ -57,7 +57,7 @@ bool BreathParticle::idle(const Uint64 delta_t)
         if ((state == 1) && (alpha < 0.04))
         {
           state = 2;
-          if (rand() & 0x03 == 0x03)
+          if ((rand() & 0x03) == 0x03)
           {
             Vec3 velocity_offset;
             velocity_offset.randomize(0.2);
@@ -90,7 +90,7 @@ bool BreathParticle::idle(const Uint64 delta_t)
         if ((state == 1) && (alpha < 0.04))
         {
           state = 2;
-          if (rand() & 0x07 == 0x07)
+          if ((rand() & 0x07) == 0x07)
           {
             Vec3 velocity_offset;
             velocity_offset.randomize(1.0);
@@ -123,7 +123,7 @@ bool BreathParticle::idle(const Uint64 delta_t)
         if ((state == 1) && (alpha < 0.04))
         {
           state = 2;
-          if (rand() & 0x3F == 0x3F)
+          if ((rand() & 0x3F) == 0x3F)
           {
             Vec3 velocity_offset;
             velocity_offset.randomize();

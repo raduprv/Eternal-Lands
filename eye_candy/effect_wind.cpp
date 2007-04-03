@@ -524,7 +524,7 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
     }
     n.start_angle = start_angle;
     if (n.start_angle < 0)
-      n.end_angle += 2 * PI;
+      n.start_angle += 2 * PI;
 
     angle_shift = 0.01;
     float end_angle = angle - angle_shift;

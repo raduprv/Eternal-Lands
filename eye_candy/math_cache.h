@@ -101,11 +101,11 @@ public:
   static float invsqrt(float f)
   {
 #ifdef __SSE__
-    union { __m128 m128; struct { float x, y, z, w; }; } f2;
+    union match { __m128 m128; struct { float x, y, z, w; }; } f2;
     f2.m128 = _mm_rsqrt_ss(_mm_set_ss(f));
     return f2.x;
 #else
-    union { int i; float f; } tmp;
+    union match { int i; float f; } tmp;
     float half = 0.5f * f;
     tmp.f = f;
     tmp.i = 0x5f3759df - (tmp.i >> 1);   
