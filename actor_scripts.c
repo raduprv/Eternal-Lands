@@ -4,6 +4,7 @@
 #include "global.h"
 #include <time.h>
 #include "actors.h"
+#include "translate.h"
 #ifdef EYE_CANDY
  #include "eye_candy_wrapper.h"
 #endif
