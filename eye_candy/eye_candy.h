@@ -5,7 +5,7 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
-#ifdef _MSC_VER
+#ifdef WINDOWS
  #include <windows.h>     
 #else
  #include <sys/time.h>

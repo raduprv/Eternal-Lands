@@ -1745,7 +1745,7 @@ void EyeCandy::draw_accurate_billboard_particle(coord_t size, const GLuint textu
 
 Uint64 get_time()
 {
-#ifdef _MSC_VER
+#ifdef WINDOWS
   FILETIME ft;
   GetSystemTimeAsFileTime(&ft);
   Uint64 ret = ft.dwHighDateTime;

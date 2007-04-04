@@ -65,10 +65,12 @@ FEATURES += USE_INLINE                      # (undocumented)
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
-CWARN=-Wall
-#-Wdeclaration-after-statement -Wall -Werror
-CXXWARN=-Wall
-#-Wall -Werror
+CWARN=-Wall 
+#-Wno-sign-compare -Wno-pointer-sign
+#-Wdeclaration-after-statement -Werror
+CXXWARN=-Wall 
+#-Wno-sign-compare
+#-Werror
 
 #EXTRA_INCLUDES=-IC:\\Programme\\Dev-Cpp\\Include
 #EXTRA_LIBS=-lalut
