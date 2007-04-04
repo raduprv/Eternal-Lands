@@ -3,7 +3,7 @@
 #ifndef MATH_CACHE_H
 #define MATH_CACHE_H
 
-#ifdef WINDOWS
+#ifdef _MSC_VER
  #pragma warning (disable : 4100) // Unreferenced formal parameter
  #pragma warning (disable : 4127) // Conditional expression is constant
  #pragma warning (disable : 4244) // Conversion from type1 to type2

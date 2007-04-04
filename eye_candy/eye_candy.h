@@ -5,7 +5,7 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
-#ifdef WINDOWS
+#ifdef _MSC_VER
  #include <windows.h>     
 #else
  #include <sys/time.h>
@@ -74,13 +74,13 @@ namespace ec
 #define invsqrt MathCache::invsqrt
 #define fastsqrt MathCache::fastsqrt
 
-#ifdef WINDOWS
+#ifdef _MSC_VER
  #define copysign _copysign
- #define fmax(a, b) ((a < b) ? b : a)
- #define round(a) (a - floor(a) < 0.5f ? floor(a) : ceil(a))
- #define remainderf(a, b) (a - (float)round(a / b) * b)
+ inline float fmax(const float a, const float b) { return ((a < b) ? b : a); };
+ inline float round(const float a) { return (a - floor(a) < 0.5f ? floor(a) : ceil(a)); };
+ inline float remainderf(const float a, const float b) { return (a - (float)round(a / b) * b); };
  #define random rand
- #define usleep(a) Sleep(a / 1000)
+ inline void usleep(const unsigned long a) { Sleep(a / 1000); } ;
  
  #pragma warning (disable : 4100) // Unreferenced formal parameter
  #pragma warning (disable : 4127) // Conditional expression is constant
