@@ -294,7 +294,7 @@ GLuint TargetMagicParticle::get_texture(const Uint16 res_index)
 TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _target, const TargetMagicType _type, std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
 {
   if (EC_DEBUG)
-    std::cout << "TargetMagicEffect (" << this << ") created(1)." << std::endl;
+    std::cout << "TargetMagicEffect (" << this << ", " << _type << ") created(1)." << std::endl;
   std::vector<Vec3*> targets;
   targets.push_back(_target);
   initialize(_base, _dead, _pos, targets, _type, _obstructions, _LOD);
@@ -303,7 +303,7 @@ TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, V
 TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
 {
   if (EC_DEBUG)
-    std::cout << "TargetMagicEffect (" << this << ") created(2)." << std::endl;
+    std::cout << "TargetMagicEffect (" << this << ", " << _type << ") created(2)." << std::endl;
   initialize(_base, _dead, _pos, _targets, _type, _obstructions, _LOD);
 }
 

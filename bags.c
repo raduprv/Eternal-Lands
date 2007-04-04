@@ -138,7 +138,7 @@ void remove_bag(int which_bag)
 #ifndef	NEW_FRUSTUM
 	int sector, i, j=MAX_3D_OBJECTS-1, k=-1;
 #endif
-#if defined SFX && defined EYE_CANDY
+#ifdef EYE_CANDY
 	float x, y, z;
 #endif
 	

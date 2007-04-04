@@ -373,6 +373,10 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 #endif
 
 	// watch for a change
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 	if(object_id->e3d_data != cur_e3d){
 		if(cur_e3d != NULL){
            	if(use_compiled_vertex_array)ELglUnlockArraysEXT();

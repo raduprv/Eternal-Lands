@@ -466,6 +466,7 @@ void animate_actors()
 					//ok, now update the x/y_pos
 					actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
 					actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
+
 #ifdef  MINIMAP
 					// and update the minimap if we need to
 					if(actors_list[i]->actor_id == yourself){
@@ -476,6 +477,7 @@ void animate_actors()
 					actors_list[i]->x_pos+= actors_list[i]->move_x_speed;
 					actors_list[i]->y_pos+= actors_list[i]->move_y_speed;
 					actors_list[i]->z_pos+= actors_list[i]->move_z_speed;
+
 				}
 			} else {//Not moving
 				if(actors_list[i]->after_move_frames_left){

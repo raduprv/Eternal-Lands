@@ -188,12 +188,17 @@ void draw_3d_reflection(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
 	if(have_vertex_buffers && object_id->e3d_data->vbo[0] && object_id->e3d_data->vbo[1] && object_id->e3d_data->vbo[2]){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
 		glTexCoordPointer(2,GL_FLOAT,0,0);
 		
 		if(!object_id->e3d_data->is_ground){
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
+			glEnableClientState(GL_NORMAL_ARRAY);
 			glNormalPointer(GL_FLOAT,0,0);
 		}
 		
@@ -203,7 +208,10 @@ void draw_3d_reflection(object3d * object_id)
 		glVertexPointer(3,GL_FLOAT,0,array_vertex);
 		glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
 		if(!object_id->e3d_data->is_ground)
+		{
+			glEnableClientState(GL_NORMAL_ARRAY);
 			glNormalPointer(GL_FLOAT,0,array_normal);	
+		}
 	}
 	
 	if(use_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);

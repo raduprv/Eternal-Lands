@@ -3,6 +3,13 @@
 #ifndef MATH_CACHE_H
 #define MATH_CACHE_H
 
+#ifdef WINDOWS
+ #pragma warning (disable : 4100) // Unreferenced formal parameter
+ #pragma warning (disable : 4127) // Conditional expression is constant
+ #pragma warning (disable : 4244) // Conversion from type1 to type2
+ #pragma warning (disable : 4305) // Truncation from type1 to type2
+#endif
+
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
 #ifdef __SSE__
@@ -100,12 +107,14 @@ public:
 
   static float invsqrt(float f)
   {
-#ifdef __SSE__
-    union match { __m128 m128; struct { float x, y, z, w; }; } f2;
+#ifdef __SSE__	// Hardware fast invsqrt.
+    typedef union match { __m128 m128; struct { float x, y, z, w; }; } match; 
+    match f2;
     f2.m128 = _mm_rsqrt_ss(_mm_set_ss(f));
     return f2.x;
-#else
-    union match { int i; float f; } tmp;
+#else		// Quake fast invsqrt.
+    typedef union match { int i; float f; } match;
+    match tmp;
     float half = 0.5f * f;
     tmp.f = f;
     tmp.i = 0x5f3759df - (tmp.i >> 1);   

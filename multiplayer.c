@@ -783,23 +783,26 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 					}
 #ifdef COUNTERS
-				char *teststring = "You successfully created ";
-				int testlen = strlen(teststring);
-				if ( (data_length > testlen+4) && (!strncmp(in_data+4, teststring, testlen)) )
+				// Start a new block, since C doesn't like variables declared in the middle of a block.
 				{
-					char *restofstring = malloc(data_length - 4 - testlen + 1);
-					safe_strncpy(restofstring, in_data + 4 + testlen, data_length - 4 - testlen + 1);
-					if (strlen(restofstring) > 0)
+					char *teststring = "You successfully created ";
+					int testlen = strlen(teststring);
+					if ( (data_length > testlen+4) && (!strncmp(in_data+4, teststring, testlen)) )
 					{
-						int product_count = atoi(restofstring);
-						char *product = restofstring;
-						while (*product!='\0' && *product!= ' ')
-							product++;
-						if (strlen(product)>1)
-							counters_set_product_info(product+1, product_count);
+						char *restofstring = malloc(data_length - 4 - testlen + 1);
+						safe_strncpy(restofstring, in_data + 4 + testlen, data_length - 4 - testlen + 1);
+						if (strlen(restofstring) > 0)
+						{
+							int product_count = atoi(restofstring);
+							char *product = restofstring;
+							while (*product!='\0' && *product!= ' ')
+								product++;
+							if (strlen(product)>1)
+								counters_set_product_info(product+1, product_count);
+						}
+						free(restofstring);
 					}
-					free(restofstring);
-				}
+				}  // End counters block
 #endif
 			}
 			break;
@@ -1001,6 +1004,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case START_RAIN:
 			{
+				float severity;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -1009,7 +1013,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged START_RAIN packet received.\n");
 				  break;
 				}
-				float severity;
 
 				if (data_length > 4) {
 					severity= 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
@@ -1022,6 +1025,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case STOP_RAIN:
 			{
+				float severity;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -1030,7 +1034,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged STOP_RAIN packet received.\n");
 				  break;
 				}
-				float severity;
 
 				if (data_length > 4) {
 					severity= 0.1f + 0.9f*(*((Uint8 *)(in_data+4))/255.0f);
@@ -1085,12 +1088,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case PONG:
 			{
+				Uint8 str[160];
 				if (data_length <= 6)
 				{
 				  log_error("CAUTION: Possibly forged SYNC_CLOCK packet received.\n");
 				  break;
 				}
-				Uint8 str[160];
 				safe_snprintf(str, sizeof(str), "%s: %i ms",server_latency, SDL_GetTicks()-SDL_SwapLE32(*((Uint32 *)(in_data+3))));
 				LOG_TO_CONSOLE(c_green1,str);
 			}

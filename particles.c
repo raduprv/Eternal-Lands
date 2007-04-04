@@ -919,6 +919,8 @@ void draw_point_particle_sys(particle_sys *system_id)
 	if(use_vertex_array)
 		{
 			glEnableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_NORMAL_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			glEnableClientState(GL_COLOR_ARRAY);
 			LOCK_PARTICLES_LIST(); //lock it to avoid timing issues
 			glVertexPointer(3,GL_FLOAT,sizeof(particle),&(system_id->particles[0].x));
