@@ -66,7 +66,7 @@ bool CloudParticle::idle(const Uint64 delta_t)
   for (int i = 0; (i < 1) || (neighbors_map.size() < 20); i++)
   {
     std::map<Particle*, bool>::iterator iter = eff->particles.begin();
-    const int offset = randint(eff->particles.size());
+    const int offset = randint((int)eff->particles.size());
     for (int j = 0; j < offset; j++)
       iter++;
     CloudParticle* neighbor = (CloudParticle*)iter->first;

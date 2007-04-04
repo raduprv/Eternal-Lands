@@ -82,10 +82,11 @@ namespace ec
  #define random rand
  inline void usleep(const unsigned long a) { Sleep(a / 1000); } ;
  
- #pragma warning (disable : 4100) // Unreferenced formal parameter
- #pragma warning (disable : 4127) // Conditional expression is constant
- #pragma warning (disable : 4244) // Conversion from type1 to type2
- #pragma warning (disable : 4305) // Truncation from type1 to type2
+ #pragma warning (disable : 4100) // Unreferenced formal parameter (Justification: I may have a parameter passed for later use.  No harm done.)
+ #pragma warning (disable : 4127) // Conditional expression is constant (Justification: Needed for sizeof() checks that will be optimized out; allows for type polymorphism)
+ #pragma warning (disable : 4244) // Conversion from type1 to type2 (Justification: This occurs on cases like "float f=1.0;".  In such cases, I don't want to hear a peep out of the compiler; that code does just what I want it to do.  Specifying 1.0f would hurt type polymorphism.)
+ #pragma warning (disable : 4305) // Truncation from type1 to type2 (Justification: Like above.)
+ #pragma warning (disable : 4311) // Explicitly asting a pointer to a non-pointer type (Justification: Occasionally I use the pointer to an object as salt in a function -- salt that's consistant across that object but not between objects)
 #endif
 
 Uint64 get_time();

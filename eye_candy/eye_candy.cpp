@@ -39,7 +39,7 @@ Texture::~Texture()
 
 GLuint Texture::get_texture(const Uint16 res_index) const
 {
-  return get_texture(res_index, randint(texture_ids[res_index].size()));
+  return (GLuint)get_texture(res_index, randint(texture_ids[res_index].size()));
 }
 
 GLuint Texture::get_texture(const Uint16 res_index, const int frame) const
@@ -49,7 +49,7 @@ GLuint Texture::get_texture(const Uint16 res_index, const int frame) const
 
 GLuint Texture::get_texture(const Uint16 res_index, const Uint64 born, const Uint64 changerate) const
 {
-  return get_texture(res_index, ((get_time() - born) / changerate) % texture_ids[res_index].size());
+  return (GLuint)get_texture(res_index, ((get_time() - born) / changerate) % texture_ids[res_index].size());
 }
 
 void Texture::push_texture(const std::string filename)
@@ -347,15 +347,15 @@ Sphere::Sphere(const Vec3 _pos, const Vec3 _color, const alpha_t _alpha, const c
       const SphericalCoord p3(spherical_vertices[p3_index]);
       coord_t p4, q4;
       average_points(p1.first, p2.first, p1.second, p2.second, p4, q4);
-      const int p4_index = spherical_vertices.size();
+      const int p4_index = (int)spherical_vertices.size();
       spherical_vertices.push_back(SphericalCoord(p4, q4));
       coord_t p5, q5;
       average_points(p2.first, p3.first, p2.second, p3.second, p5, q5);
-      const int p5_index = spherical_vertices.size();
+      const int p5_index = (int)spherical_vertices.size();
       spherical_vertices.push_back(SphericalCoord(p5, q5));
       coord_t p6, q6;
       average_points(p3.first, p1.first, p3.second, p1.second, p6, q6);
-      const int p6_index = spherical_vertices.size();
+      const int p6_index = (int)spherical_vertices.size();
       spherical_vertices.push_back(SphericalCoord(p6, q6));
       spherical_facets2.push_back(Facet(p1_index, p4_index, p6_index));
       spherical_facets2.push_back(Facet(p2_index, p5_index, p4_index));
@@ -366,7 +366,7 @@ Sphere::Sphere(const Vec3 _pos, const Vec3 _color, const alpha_t _alpha, const c
   }
 
   // Convert spherical to rectangular.
-  vertex_count = spherical_vertices.size();
+  vertex_count = (int)spherical_vertices.size();
   vertices = new coord_t[vertex_count * 3];
   normals = new coord_t[vertex_count * 3];
 
@@ -384,7 +384,7 @@ Sphere::Sphere(const Vec3 _pos, const Vec3 _color, const alpha_t _alpha, const c
 
   
   // Convert facets to OpenGL-suitable array.
-  facet_count = spherical_facets.size();
+  facet_count = (int)spherical_facets.size();
   facets = new GLuint[facet_count * 3];
   for (int i = 0; i < facet_count; i++)
   {
@@ -1021,8 +1021,8 @@ void IFSParticleSpawner::generate(const int count, const Vec3 scale)
 
 Vec3 IFSParticleSpawner::get_new_coords()
 {
-  std::vector<IFSParticleElement*>::iterator iter = ifs_elements.begin() + randint(ifs_elements.size());
-  pos = ifs_elements[randint(ifs_elements.size())]->get_new_coords(pos);
+  std::vector<IFSParticleElement*>::iterator iter = ifs_elements.begin() + randint((int)ifs_elements.size());
+  pos = ifs_elements[randint((int)ifs_elements.size())]->get_new_coords(pos);
   return pos;
 }
 
@@ -1410,7 +1410,7 @@ void EyeCandy::draw()
   if (particles.size() > 0)
   {
     while (light_particles.size() < lights.size())
-      light_particles.push_back(std::pair<Particle*, float>(particles[randint(particles.size())], 0.0));
+      light_particles.push_back(std::pair<Particle*, float>(particles[randint((int)particles.size())], 0.0));
     for (int i = 0; i < (int)light_particles.size(); i++)
     {
       Particle* p = light_particles[i].first;
@@ -1419,7 +1419,7 @@ void EyeCandy::draw()
         int j;
         for (j = 0; j < 40; j++)
         {
-          light_particles[i] = std::pair<Particle*, float>(*(particles.begin() + randint(particles.size())), 0.0);
+          light_particles[i] = std::pair<Particle*, float>(*(particles.begin() + randint((int)particles.size())), 0.0);
           Particle* p = light_particles[i].first;
           if (p->get_light_level() > 0.0001)
             break;
@@ -1441,7 +1441,7 @@ void EyeCandy::draw()
       glLightfv(light_id, GL_POSITION, light_pos);
       glLightfv(light_id, GL_DIFFUSE, light_color);
     }
-    for (int i = light_particles.size(); i < (int)lights.size(); i++)
+    for (int i = (int)light_particles.size(); i < (int)lights.size(); i++)
       glDisable(lights[i]);
   }
   else
