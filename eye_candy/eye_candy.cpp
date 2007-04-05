@@ -701,8 +701,10 @@ coord_t Particle::flare() const
   if (EC_DEBUG)
   {
     if (isnan(exp_base) || isinf(exp_base))
+    {
       std::cout << "ERROR (Report Me!): " << exp_base << ": " << effect << ": "<<  pos << ", " << offset << ", " << flare_frequency << std::endl << std::flush;
-    exit(1);
+      exit(1);
+    }
   }
   const coord_t exp = math_cache.powf_0_1_rough_close(exp_base, flare_exp);
   const coord_t flare_val = 1.0 / (exp + 0.00001);
