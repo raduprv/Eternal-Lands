@@ -272,7 +272,7 @@ void TargetMagicParticle::draw(const Uint64 usec)
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDisable(GL_LIGHTING);
   }
-  else if (((type == TargetMagicEffect::HARM) || (type == TargetMagicEffect::SMITE_SUMMONED)) && (state) && (random() & 1))
+  else if (((type == TargetMagicEffect::HARM) || (type == TargetMagicEffect::SMITE_SUMMONED)) && (state) && (rand() & 1))
   {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 

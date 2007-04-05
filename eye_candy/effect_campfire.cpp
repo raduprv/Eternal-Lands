@@ -190,7 +190,7 @@ bool CampfireEffect::idle(const Uint64 usec)
   while (((int)particles.size() < LOD * 100) && (math_cache.powf_0_1_rough_close(randfloat(), (interval_t)usec / 80000 * LOD) < 0.5))
   {
     int state = 1;
-    if (random() & 1)
+    if (rand() & 1)
       state = 0;
 
     Vec3 coords;

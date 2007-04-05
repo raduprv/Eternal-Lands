@@ -5,7 +5,7 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
-#ifdef WINDOWS
+#if defined(_WIN32) || defined(_WIN64)
  #include <windows.h>     
 #else
  #include <sys/time.h>
@@ -79,7 +79,6 @@ namespace ec
  inline float fmax(const float a, const float b) { return ((a < b) ? b : a); };
  inline float round(const float a) { return (a - floor(a) < 0.5f ? floor(a) : ceil(a)); };
  inline float remainderf(const float a, const float b) { return (a - (float)round(a / b) * b); };
- #define random rand
  inline void usleep(const unsigned long a) { Sleep(a / 1000); } ;
  
  #pragma warning (disable : 4100) // Unreferenced formal parameter (Justification: I may have a parameter passed for later use.  No harm done.)
