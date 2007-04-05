@@ -697,6 +697,14 @@ coord_t Particle::flare() const
   if (flare_max == 1.0)
     return 1.0;
   const short offset = (short)long(&alpha);	//Unique to the particle.
+  if (EC_DEBUG)
+  {
+    if (isnan(pos.x) || isinf(pos.x) || isnan(pos.y) || isinf(pos.y) || isnan(pos.z) || isinf(pos.z) || isnan(flare_frequency) || isinf(flare_frequency))
+    {
+      std::cout << "ERROR (Report Me!): " << "???" << ": " << effect << ": "<<  pos << ", " << offset << ", " << flare_frequency << std::endl << std::flush;
+      exit(1);
+    }
+  }
   const float exp_base = fabs(sin((pos.x + pos.y + pos.z + offset) / flare_frequency));
   if (EC_DEBUG)
   {
