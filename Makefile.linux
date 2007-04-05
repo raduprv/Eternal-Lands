@@ -68,9 +68,15 @@ HEADER_DIRS = . books eye_candy io
 
 EXE=el.x86.linux.bin
 
+ifndef CC
 CC=gcc
+endif
+ifndef CXX
 CXX=g++
+endif
+ifndef LINK
 LINK=gcc
+endif
 
 # the compile targets
 $(EXE): $(OBJS)

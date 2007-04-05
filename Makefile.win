@@ -73,9 +73,15 @@ HEADER_DIRS = . books eye_candy io
 
 EXE=el.exe
 
+ifndef CC
 CC=gcc.exe
+endif
+ifndef CXX
 CXX=g++.exe
+endif
+ifndef LINK
 LINK=gcc.exe
+endif
 
 TMP_LIB = libelc.a
 
