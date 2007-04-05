@@ -7,6 +7,7 @@
 
 #if defined(_WIN32) || defined(_WIN64)
  #include <windows.h>     
+ #include <float.h>
 #else
  #include <sys/time.h>
  #include <time.h>
@@ -76,6 +77,8 @@ namespace ec
 
 #ifdef _MSC_VER
  #define copysign _copysign
+ #define isnan _isnan
+ #define isinf !_finite
  inline float fmax(const float a, const float b) { return ((a < b) ? b : a); };
  inline float round(const float a) { return (a - floor(a) < 0.5f ? floor(a) : ceil(a)); };
  inline float remainderf(const float a, const float b) { return (a - (float)round(a / b) * b); };
