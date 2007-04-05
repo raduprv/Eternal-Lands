@@ -99,9 +99,9 @@ void set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone, const ec::
   roty_position.y = rotx_position.y;
   roty_position.z = rotx_position.z * c_ry - rotx_position.x * s_ry;
 
-  position.x = roty_position.x + _actor->x_pos + 0.40;
+  position.x = roty_position.x + _actor->x_pos + 0.50;
   position.y = roty_position.z + ec_get_z(_actor);
-  position.z = -(roty_position.y + _actor->y_pos + 0.40);
+  position.z = -(roty_position.y + _actor->y_pos + 0.50);
 }
 
 extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip)
@@ -208,8 +208,8 @@ extern "C" void ec_heartbeat()
     const float dist_squared = ((*iter)->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
     if (dist_squared > MAX_OBSTRUCT_DISTANCE_SQUARED)
       continue;
-    (*iter)->center.x += 0.40;
-    (*iter)->center.y += 0.40;
+    (*iter)->center.x += 0.50;
+    (*iter)->center.y += 0.50;
     (*iter)->center.z -= 0.25;
     (*iter)->sin_rot_x = sin((*iter)->obj3d->x_rot * (ec::PI / 180));
     (*iter)->cos_rot_x = cos((*iter)->obj3d->x_rot * (ec::PI / 180));
@@ -235,8 +235,8 @@ extern "C" void ec_heartbeat()
     const float dist_squared = ((*iter)->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
     if (dist_squared > MAX_OBSTRUCT_DISTANCE_SQUARED)
       continue;
-    (*iter)->center.x += 0.40;
-    (*iter)->center.y += 0.40;
+    (*iter)->center.x += 0.50;
+    (*iter)->center.y += 0.50;
     (*iter)->center.z -= 0.25;
     general_obstructions_list.push_back((*iter)->obstruction);
   }
@@ -443,7 +443,7 @@ extern "C" void ec_add_object_obstruction(object3d* obj3d, e3d_object *e3dobj, f
   ec_object_obstruction* obstruction = new ec_object_obstruction;
   obstruction->obj3d = obj3d;
   obstruction->e3dobj = e3dobj;
-  obstruction->center = ec::Vec3(obj3d->x_pos + 0.40, obj3d->z_pos, -(obj3d->y_pos + 0.40));
+  obstruction->center = ec::Vec3(obj3d->x_pos + 0.50, obj3d->z_pos, -(obj3d->y_pos + 0.50));
   obstruction->sin_rot_x = sin(obj3d->x_rot * (ec::PI / 180));
   obstruction->cos_rot_x = cos(obj3d->x_rot * (ec::PI / 180));
   obstruction->sin_rot_y = sin(obj3d->z_rot * (ec::PI / 180));
@@ -480,7 +480,7 @@ extern "C" void ec_add_actor_obstruction(actor* _actor, float force)
 {
   ec_actor_obstruction* obstruction = new ec_actor_obstruction;
   obstruction->obstructing_actor = _actor;
-  obstruction->center = ec::Vec3(_actor->x_pos + 0.40, ec_get_z(_actor), -(_actor->y_pos + 0.40));
+  obstruction->center = ec::Vec3(_actor->x_pos + 0.50, ec_get_z(_actor), -(_actor->y_pos + 0.50));
   obstruction->obstruction = new ec::SimpleCylinderObstruction(&(obstruction->center), 0.85, force);
   actor_obstructions.push_back(obstruction);
 }
@@ -824,8 +824,8 @@ extern "C" ec_reference ec_create_breath_fire(float sx, float sy, float sz, floa
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(sx, sz, -(sy + 0.40));
-  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.40));
+  ret->position = ec::Vec3(sx, sz, -(sy + 0.50));
+  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.50));
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::FIRE, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -836,8 +836,8 @@ extern "C" ec_reference ec_create_breath_ice(float sx, float sy, float sz, float
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(sx, sz, -(sy + 0.40));
-  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.40));
+  ret->position = ec::Vec3(sx, sz, -(sy + 0.50));
+  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.50));
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::ICE, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -848,8 +848,8 @@ extern "C" ec_reference ec_create_breath_poison(float sx, float sy, float sz, fl
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(sx, sz, -(sy + 0.40));
-  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.40));
+  ret->position = ec::Vec3(sx, sz, -(sy + 0.50));
+  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.50));
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::POISON, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -860,8 +860,8 @@ extern "C" ec_reference ec_create_breath_magic(float sx, float sy, float sz, flo
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(sx, sz, -(sy + 0.40));
-  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.40));
+  ret->position = ec::Vec3(sx, sz, -(sy + 0.50));
+  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.50));
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::MAGIC, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -872,8 +872,8 @@ extern "C" ec_reference ec_create_breath_lightning(float sx, float sy, float sz,
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(sx, sz, -(sy + 0.40));
-  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.40));
+  ret->position = ec::Vec3(sx, sz, -(sy + 0.50));
+  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.50));
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::LIGHTNING, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -884,8 +884,8 @@ extern "C" ec_reference ec_create_breath_wind(float sx, float sy, float sz, floa
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(sx, sz, -(sy + 0.40));
-  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.40));
+  ret->position = ec::Vec3(sx, sz, -(sy + 0.50));
+  ret->position2 = ec::Vec3(tx, tz, -(ty + 0.50));
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::WIND, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1126,7 +1126,7 @@ extern "C" ec_reference ec_create_selfmagic_heal(float x, float y, float z, int 
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + 0.40, z, -(y + 0.40));
+  ret->position = ec::Vec3(x + 0.50, z, -(y + 0.50));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::HEAL, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1149,7 +1149,7 @@ extern "C" ec_reference ec_create_selfmagic_magic_protection(float x, float y, f
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + 0.40, z, -(y + 0.40));
+  ret->position = ec::Vec3(x + 0.50, z, -(y + 0.50));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::MAGIC_PROTECTION, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1172,7 +1172,7 @@ extern "C" ec_reference ec_create_selfmagic_shield(float x, float y, float z, in
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + 0.40, z, -(y + 0.40));
+  ret->position = ec::Vec3(x + 0.50, z, -(y + 0.50));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::SHIELD, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1194,7 +1194,7 @@ extern "C" ec_reference ec_create_selfmagic_restoration(float x, float y, float 
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + 0.40, z, -(y + 0.40));
+  ret->position = ec::Vec3(x + 0.50, z, -(y + 0.50));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::RESTORATION, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1217,7 +1217,7 @@ extern "C" ec_reference ec_create_selfmagic_bones_to_gold(float x, float y, floa
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + 0.40, z, -(y + 0.40));
+  ret->position = ec::Vec3(x + 0.50, z, -(y + 0.50));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::BONES_TO_GOLD, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1240,7 +1240,7 @@ extern "C" ec_reference ec_create_selfmagic_teleport_to_the_portals_room(float x
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + 0.40, z, -(y + 0.40));
+  ret->position = ec::Vec3(x, z, -y);
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::TELEPORT_TO_THE_PORTALS_ROOM, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1263,7 +1263,7 @@ extern "C" ec_reference ec_create_selfmagic_magic_immunity(float x, float y, flo
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + 0.40, z, -(y + 0.40));
+  ret->position = ec::Vec3(x + 0.50, z, -(y + 0.50));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::MAGIC_IMMUNITY, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1995,7 +1995,7 @@ extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float d
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   ret->position = ec::Vec3(x, z, -y);
-  ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.40));
+  ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.50));
   ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds, ec::WindEffect::LEAVES, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2006,7 +2006,7 @@ extern "C" ec_reference ec_create_wind_petals(float x, float y, float z, float d
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
   ret->position = ec::Vec3(x, z, -y);
-  ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.40));
+  ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.50));
   ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
