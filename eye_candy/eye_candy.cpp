@@ -773,9 +773,9 @@ void GradientMover::move(Particle& p, Uint64 usec)
   Vec3 gradient_velocity = p.velocity + get_force_gradient(p) * scalar;
   p.velocity = gradient_velocity + get_obstruction_gradient(p) * scalar;
 #if 0	// Slow but clear version.  Consider this a comment.
-  p.velocity.normalize(gradient_velocity.magnitude());
+  p.velocity.normalize(gradient_velocity.magnitude() + 0.000001);
 #else	// Fast but obfuscated
-  p.velocity *= invsqrt(p.velocity.magnitude_squared() / gradient_velocity.magnitude_squared());
+  p.velocity *= invsqrt(p.velocity.magnitude_squared() / (gradient_velocity.magnitude_squared() + 0.000001));
 #endif
   p.pos += p.velocity * scalar;
 }
@@ -794,21 +794,13 @@ Vec3 SpiralMover::get_force_gradient(Particle& p) const
 {
   if (EC_DEBUG)
   {
-    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z))
+    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
     {
       std::cout << "ERROR (3, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
       exit(1);
     }
   }
   Vec3 shifted_pos = p.pos - *center;
-  if (EC_DEBUG)
-  {
-    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z))
-    {
-      std::cout << "ERROR (4, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " <<  p.pos << ", " << p.velocity << std::endl << std::flush;
-      exit(1);
-    }
-  }
   return Vec3(shifted_pos.z * spiral_speed - shifted_pos.x * pinch_rate, 0.0, shifted_pos.x * spiral_speed - shifted_pos.z * pinch_rate);
 }
 
@@ -906,7 +898,7 @@ void GravityMover::move(Particle& p, Uint64 usec)
 #if 0	// Slow but clear.  Consider this a comment.
     const coord_t new_velocity = fastsqrt(2.0 * new_velocity_energy);
     if (new_velocity)
-      p.velocity.normalize(new_velocity);
+      p.velocity.normalize(new_velocity + 0.000001);
     else
       p.velocity = Vec3(0.0, 0.0, 0.0);
 #else	// Fast but obfuscated
@@ -924,12 +916,12 @@ void GravityMover::move(Particle& p, Uint64 usec)
   const coord_t grad_mag_squared = gradient_velocity.magnitude_squared();
 #if 0	// Slow but clear.  Consider this a comment.
   if (grad_mag_squared)
-    obstruction_velocity.normalize(gradient_velocity.magnitude());
+    obstruction_velocity.normalize(gradient_velocity.magnitude() + 0.00001);
   else
     obstruction_velocity = Vec3(0.0, 0.0, 0.0);
 #else	// Fast but obfuscated.
   if (grad_mag_squared)
-    obstruction_velocity *= invsqrt(obstruction_velocity.magnitude_squared() / grad_mag_squared + 0.000001);
+    obstruction_velocity *= invsqrt(obstruction_velocity.magnitude_squared() / (grad_mag_squared + 0.00001) + 0.00001);
   else
     obstruction_velocity = Vec3(0.0, 0.0, 0.0);
 #endif
@@ -1491,6 +1483,9 @@ void EyeCandy::idle()
     return;
   
   const Uint64 cur_time = get_time();
+  if (time_diff < 10)
+    time_diff = 10;
+  
   for (int i = 0; i < (int)effects.size(); )
   {
     std::vector<Effect*>::iterator iter = effects.begin() + i;
