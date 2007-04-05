@@ -792,7 +792,23 @@ Vec3 SmokeMover::get_force_gradient(Particle& p) const
 
 Vec3 SpiralMover::get_force_gradient(Particle& p) const
 {
+  if (EC_DEBUG)
+  {
+    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z))
+    {
+      std::cout << "ERROR (3, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
+      exit(1);
+    }
+  }
   Vec3 shifted_pos = p.pos - *center;
+  if (EC_DEBUG)
+  {
+    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z))
+    {
+      std::cout << "ERROR (4, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " <<  p.pos << ", " << p.velocity << std::endl << std::flush;
+      exit(1);
+    }
+  }
   return Vec3(shifted_pos.z * spiral_speed - shifted_pos.x * pinch_rate, 0.0, shifted_pos.x * spiral_speed - shifted_pos.z * pinch_rate);
 }
 

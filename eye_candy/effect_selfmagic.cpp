@@ -81,6 +81,14 @@ bool SelfMagicParticle::idle(const Uint64 delta_t)
     case SelfMagicEffect::SHIELD:
     {
 
+      if (EC_DEBUG)
+      {
+        if (isnan(pos.x) || isinf(pos.x) || isnan(pos.y) || isinf(pos.y) || isnan(pos.z) || isinf(pos.z))
+        {
+          std::cout << "ERROR (5, Report Me!): " << effect << ": " << this << ": " <<  pos << ", " << velocity << std::endl << std::flush;
+          exit(1);
+        }
+      }
       const interval_t float_time = delta_t / 1000000.0;
 
       if (state == 0)
@@ -259,6 +267,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       effect_center.y += 0.2;
       spawner = new HollowDiscSpawner(0.45);
       mover = new SpiralMover(this, &effect_center, 15.0, 14.0);
+
       while ((int)particles.size() < LOD * 100)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
