@@ -215,7 +215,7 @@ void show_eye_candy_window()
 
 		g_signal_connect_swapped (gtk_effect_win,
 				"response", 
-				G_CALLBACK (gtk_widget_destroy),
+				G_CALLBACK (confirm_eye_candy_effect),
 				gtk_effect_win);
 
 		gtk_effect_list = gtk_combo_box_new_text();
@@ -318,7 +318,7 @@ void show_eye_candy_window()
 		gtk_widget_hide(gtk_effect_base_height_box);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_base_height_box, TRUE, TRUE, 0);
 	} else {
-		gtk_window_set_title(GTK_WINDOW(gtk_open_win), "Select eye candy effect");
+		gtk_window_set_title(GTK_WINDOW(gtk_effect_win), "Select eye candy effect");
 	}
 	
 	gtk_widget_show(gtk_effect_win);

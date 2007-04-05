@@ -1032,7 +1032,19 @@ void display_map_settings()
 {
 	unsigned char str[128];
 	int x_menu,y_menu;
-	if(cur_mode!=mode_map)return;
+	if (
+	    (cur_mode != mode_map) &&
+	    (
+	     (cur_mode != mode_eye_candy) ||
+	     (
+	      (eye_candy_effect != 1) &&
+	      (eye_candy_effect != 2) &&
+	      (eye_candy_effect != 11) &&
+	      (eye_candy_effect != 12)
+	     )
+	    )
+	   )
+	  return;
 
 	x_menu=0;
 	y_menu=window_height-62;
