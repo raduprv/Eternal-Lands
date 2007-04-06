@@ -18,7 +18,6 @@ std::vector<Obstruction*> null_obstructions;
 std::vector<std::string> ec_logs;
 bool ec_error_status = false;
 
-
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
 Texture::Texture()
@@ -1773,7 +1772,7 @@ void EyeCandy::draw_accurate_billboard_particle(coord_t size, const GLuint textu
 
 Uint64 get_time()
 {
-#ifdef WINDOWS
+#if defined(_WIN32) || defined(_WIN64)
   FILETIME ft;
   GetSystemTimeAsFileTime(&ft);
   Uint64 ret = ft.dwHighDateTime;

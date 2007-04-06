@@ -118,7 +118,7 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
         pos = pos * percent + cur_target * inv_percent;
       }
       ((TargetMagicEffect*)effect)->effect_count++;
-      new TargetMagicEffect2(base, (TargetMagicEffect*)effect, ((TargetMagicEffect*)effect)->pos, type, spawner2, mover2, ((TargetMagicEffect*)effect)->target_alpha, effect_id, LOD);
+      new TargetMagicEffect2(base, (TargetMagicEffect*)effect, ((TargetMagicEffect*)effect)->targets[0], type, spawner2, mover2, ((TargetMagicEffect*)effect)->target_alpha, effect_id, LOD);
       return false;
     }
 
@@ -251,7 +251,9 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
         break;
       }
     }
+    pos += ((TargetMagicEffect2*)effect)->shift;
   }
+
   
   return true;
 }
@@ -853,6 +855,13 @@ bool TargetMagicEffect2::idle(const Uint64 usec)
       }
     }
   }
+
+  const Vec3 last_effect_center = center;
+    
+  center.x = pos->x;
+  center.z = pos->z;
+  
+  shift = center - last_effect_center;
 
   center.y += usec / 1500000.0;
 

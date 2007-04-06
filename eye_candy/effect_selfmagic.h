@@ -41,6 +41,7 @@ public:
   ParticleSpawner* spawner2;
   ParticleMover* mover2;
   Vec3 effect_center;
+  Vec3 shift;
   Sint64 count;
   Uint64 count_scalar;
   SelfMagicType type;

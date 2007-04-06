@@ -18,6 +18,8 @@
 
 #ifdef MAP_EDITOR
 	#include "../map_editor/global.h"
+	#include "../map_editor/browser.h"
+	#include "../map_editor/interface.h"
 #elif defined(MAP_EDITOR2)
 	#include "../map_editor2/global.h"
 #else

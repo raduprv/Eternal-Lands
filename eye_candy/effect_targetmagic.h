@@ -67,6 +67,7 @@ public:
   ParticleMover* mover;
   Vec3 center;
   Vec3 gravity_center;
+  Vec3 shift;
   Uint16 LOD;
   TargetMagicEffect::TargetMagicType type;
   std::vector<Shape*> capless_cylinders;
