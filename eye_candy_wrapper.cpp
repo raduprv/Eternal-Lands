@@ -21,8 +21,8 @@ const float MAX_OBSTRUCT_DISTANCE_SQUARED = 90.0;
 const float OBSTRUCTION_FORCE = 2.0;
 const float WALK_RATE = 1.0;
 const float SWORD_LENGTH = 0.45;
-const float X_OFFSET = 0.00;
-const float Y_OFFSET = 0.00;
+const float X_OFFSET = 0.25;
+const float Y_OFFSET = 0.25;
 
 ec_object_obstructions object_obstructions;
 ec_actor_obstructions actor_obstructions;
