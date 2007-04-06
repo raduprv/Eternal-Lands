@@ -5,15 +5,11 @@
 #include <stdarg.h>
 #include <limits.h>
 #include <float.h>
-#ifdef EYE_CANDY
-#include "eye_candy_wrapper.h"
-#endif
-
 //For stat() etc.. below
 #include <sys/types.h>
 #include <sys/stat.h>
 #ifndef _MSC_VER
-#include <unistd.h>
+	#include <unistd.h>
 #endif //_MSC_VER
 
 #ifdef MAP_EDITOR
@@ -26,10 +22,16 @@
 	#include "global.h"
 	#include "chat.h"
 #endif
+
 #include "elconfig.h"
 #include "text.h"
 #include "consolewin.h"
 #include "queue.h"
+
+#ifdef EYE_CANDY
+	#include "eye_candy_wrapper.h"
+#endif
+
 
 #define SPECINT		INT //Multiple ints, non-default func				func(int*,int)
 #define BOOL		1	// Change variable 								func(int*)

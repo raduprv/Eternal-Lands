@@ -12,7 +12,7 @@
 #define CAL_CAL3D_WRAPPER_H
 
 #ifdef __cplusplus
-#include <cal3d/global.h>
+  #include <cal3d/global.h>
 #endif
 
 //****************************************************************************//
