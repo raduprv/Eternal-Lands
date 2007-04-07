@@ -1808,9 +1808,9 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	{
 		offset = 0;
 	}
-	else if (offset >= tf->buffer[msg].len)
+	else if (offset > tf->buffer[msg].len)
 	{
-		offset = tf->buffer[msg].len - 1;
+		offset = tf->buffer[msg].len;
 	}
 		
 	tf->msg = msg;
