@@ -377,6 +377,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
+	glDisable(GL_TEXTURE_2D);
 	if(object_id->e3d_data != cur_e3d){
 		if(cur_e3d != NULL){
            	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
@@ -389,6 +390,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 		if(is_transparent)
 			{
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glEnable(GL_TEXTURE_2D);
 				if(have_vertex_buffers && object_id->e3d_data->vbo[0]){
 					ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
 					glTexCoordPointer(2,GL_FLOAT,0,0);
@@ -419,7 +421,8 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 				int	idx, max;
 
 				CHECK_GL_ERRORS();
-				if(is_transparent){
+				if(is_transparent)
+				{
 					get_and_set_texture_id(array_order[i].texture_id);
 				}
 				// ATI bug fix for large arrays

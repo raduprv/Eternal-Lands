@@ -15,6 +15,11 @@
 
 int map_type=1;
 Uint32 map_flags=0;
+#ifndef SHOW_FLICKERING
+float offset_2d = 0.0f;
+const float offset_2d_increment = (1.0f / 131072.0f);	// (1.0f / 8388608.0f) is the minimum for 32-bit floating point.
+const float offset_2d_max = 0.01f;
+#endif
 
 void destroy_map()
 {
@@ -464,6 +469,14 @@ int load_map (const char * file_name)
 			cur_2d_obj_io.x_rot = SwapFloat(cur_2d_obj_io.x_rot);
 			cur_2d_obj_io.y_rot = SwapFloat(cur_2d_obj_io.y_rot);
 			cur_2d_obj_io.z_rot = SwapFloat(cur_2d_obj_io.z_rot);
+#endif
+
+#ifndef SHOW_FLICKERING
+			// Add in low-order bits to prevent flicker.
+			cur_2d_obj_io.z_pos += offset_2d;
+			offset_2d += offset_2d_increment;
+			if (offset_2d >= offset_2d_max)
+				offset_2d = 0.0;
 #endif
 			
 #ifdef	NEW_FRUSTUM

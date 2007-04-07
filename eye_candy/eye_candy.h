@@ -1077,7 +1077,7 @@ public:
   ~EyeCandy();
   
   void set_thresholds(int _max_particles, int min_framerate);
-  void load_textures(const std::string basepath);
+  void load_textures();
   void push_back_effect(Effect* e);
   bool push_back_particle(Particle* p);
   void set_camera(const Vec3& _camera) { camera = _camera; };

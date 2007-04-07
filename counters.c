@@ -624,7 +624,7 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 		int i, j;
 		
 		spell_names[spell_id+1] = malloc(len+1);
-		strcpy(spell_names[spell_id + 1], name);
+		safe_strncpy(spell_names[spell_id + 1], name, len + 1);
 
 		i = SPELLS - 1;
 

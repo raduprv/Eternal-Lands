@@ -33,7 +33,7 @@ bool force_idle = false;
 
 extern "C" void ec_init()
 {
-  eye_candy.load_textures("./textures/eye_candy/");
+  eye_candy.load_textures();
   ec_last_time = 0;
   ec_cur_time = 0;
   ec_set_draw_method();

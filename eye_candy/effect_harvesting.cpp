@@ -257,7 +257,7 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         velocity.randomize(0.5);
         velocity.y *= 3;
         velocity.y += 2.0;
-        Particle * p = new HarvestingParticle(this, mover, coords, velocity, 3.75, 0.3, 1.0, 0.5 + randcolor(0.5), 0.5, &(base->TexTwinflare), LOD, type);
+        Particle * p = new HarvestingParticle(this, mover, coords, velocity, 3.0, 0.3, 1.0, 0.5 + randcolor(0.5), 0.5, &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }

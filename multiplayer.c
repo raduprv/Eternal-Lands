@@ -1408,7 +1408,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				if (data_length <= 4)
 				{
-				  log_error("CAUTION: Possibly forged GET_YOUR_TRADEOBJECTS packet received.\n");
+				  log_error("CAUTION: Possibly forged GET_ACTIVE_SPELL packet received.\n");
 				  break;
 				}
 				get_active_spell(in_data[3],in_data[4]);
@@ -1428,7 +1428,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_ACTIVE_SPELL_LIST:
 			{
-				if (data_length <= 13)
+				if (data_length <= 3)
 				{
 				  log_error("CAUTION: Possibly forged GET_ACTIVE_SPELL_LIST packet received.\n");
 				  break;

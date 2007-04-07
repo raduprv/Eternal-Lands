@@ -55,7 +55,7 @@ bool SelfMagicParticle::idle(const Uint64 delta_t)
         if (alpha < 0.008)
           return false;
 
-        const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 13.0);
+        const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 15.0);
         energy *= scalar;
         if (size < 10)
           size /= scalar;
@@ -245,10 +245,10 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       mover = new GravityMover(this, &effect_center, 1e10);
       while ((int)particles.size() < LOD * 100)
       {
-        Vec3 coords = spawner->get_new_coords() * 0.6;
+        Vec3 coords = spawner->get_new_coords() * 0.5;
         Vec3 velocity = -coords * 3;
         coords += effect_center;
-        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 0.75, 0.7, 0.4, 0.7, 0.2, &(base->TexFlare), LOD, type);
+        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 0.7, 0.5, 0.4, 0.7, 0.2, &(base->TexFlare), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
