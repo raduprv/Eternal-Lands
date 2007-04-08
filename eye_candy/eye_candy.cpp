@@ -696,14 +696,6 @@ coord_t Particle::flare() const
   if (flare_max == 1.0)
     return 1.0;
   const short offset = (short)long(&alpha);	//Unique to the particle.
-  if (EC_DEBUG)
-  {
-    if (isnan(pos.x) || isinf(pos.x) || isnan(pos.y) || isinf(pos.y) || isnan(pos.z) || isinf(pos.z) || isnan(velocity.x) || isinf(velocity.x) || isnan(velocity.y) || isinf(velocity.y) || isnan(velocity.z) || isinf(velocity.z) || isnan(flare_frequency) || isinf(flare_frequency))
-    {
-      std::cout << "ERROR (1, Report Me!): " << effect << ": "<<  pos << ", " << velocity << ", " << offset << ", " << flare_frequency << std::endl << std::flush;
-      exit(1);
-    }
-  }
   const float exp_base = fabs(sin((pos.x + pos.y + pos.z + offset) / flare_frequency));
   const coord_t exp = math_cache.powf_0_1_rough_close(exp_base, flare_exp);
   const coord_t flare_val = 1.0 / (exp + 0.00001);
@@ -762,53 +754,15 @@ void GradientMover::move(Particle& p, Uint64 usec)
 {
   const coord_t scalar = usec / 1000000.0;
   Vec3 gradient_velocity = p.velocity + get_force_gradient(p) * scalar;
-  if (EC_DEBUG)
-  {
-    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
-    {
-      std::cout << "ERROR (2, Report Me!): " << p.effect << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
-      exit(1);
-    }
-  }
   p.velocity = gradient_velocity + get_obstruction_gradient(p) * scalar;
-  if (EC_DEBUG)
-  {
-    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
-    {
-      std::cout << "ERROR (4, Report Me!): " << p.effect << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
-      exit(1);
-    }
-  }
-  Vec3 old_velocity = p.velocity;
+  if (p.velocity.magnitude_squared() > 10000.0)
+    p.velocity.normalize(100.0);
 #if 0	// Slow but clear version.  Consider this a comment.
   p.velocity.normalize(gradient_velocity.magnitude() + 0.000001);
 #else	// Fast but obfuscated
   p.velocity *= invsqrt(p.velocity.magnitude_squared() / (gradient_velocity.magnitude_squared() + 0.000001));
 #endif
-  if (EC_DEBUG)
-  {
-    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
-    {
-      std::cout << "ERROR (7, Report Me!): " << p.effect << ", " << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
-      std::cout << "Old velocity: " << old_velocity << std::endl;
-      std::cout << "New velocity: " << p.velocity << std::endl;
-      std::cout << "Old velocity magsquared: " << old_velocity.magnitude_squared() << std::endl;
-      std::cout << "Gradient velocity: " << gradient_velocity << std::endl;
-      std::cout << "Gradient velocity magsquared: " << (gradient_velocity.magnitude_squared() + 0.000001) << std::endl;
-      std::cout << "To pass to invsqrt: " << (old_velocity.magnitude_squared() / (gradient_velocity.magnitude_squared() + 0.000001)) << std::endl;
-      std::cout << "Invsqrt: " << invsqrt(old_velocity.magnitude_squared() / (gradient_velocity.magnitude_squared() + 0.000001)) << std::endl;
-      exit(1);
-    }
-  }
   p.pos += p.velocity * scalar;
-  if (EC_DEBUG)
-  {
-    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
-    {
-      std::cout << "ERROR (8, Report Me!): " << p.effect << ", " << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
-      exit(1);
-    }
-  }
 }
 
 Vec3 GradientMover::get_force_gradient(Particle& p) const
@@ -823,14 +777,6 @@ Vec3 SmokeMover::get_force_gradient(Particle& p) const
 
 Vec3 SpiralMover::get_force_gradient(Particle& p) const
 {
-  if (EC_DEBUG)
-  {
-    if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
-    {
-      std::cout << "ERROR (3, Report Me!): " << p.effect << ", " << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
-      exit(1);
-    }
-  }
   Vec3 shifted_pos = p.pos - *center;
   return Vec3(shifted_pos.z * spiral_speed - shifted_pos.x * pinch_rate, 0.0, shifted_pos.x * spiral_speed - shifted_pos.z * pinch_rate);
 }

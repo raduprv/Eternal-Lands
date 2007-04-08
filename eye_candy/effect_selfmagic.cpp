@@ -22,11 +22,6 @@ SelfMagicParticle::SelfMagicParticle(Effect* _effect, ParticleMover* _mover, con
   size = _size * (0.5 + randcoord()) * 10 / _LOD;
   alpha = _alpha;
   velocity /= size;
-  if (isnan(pos.x) || isinf(pos.x) || isnan(pos.y) || isinf(pos.y) || isnan(pos.z) || isinf(pos.z) || isnan(velocity.x) || isinf(velocity.x) || isnan(velocity.y) || isinf(velocity.y) || isnan(velocity.z) || isinf(velocity.z))
-  {
-    std::cout << "ERROR (5, Report Me!): " << effect << ": " << this << ": " <<  pos << ", " << velocity << ", " << size << std::endl << std::flush;
-    exit(1);
-  }
   flare_max = 5.0;
   flare_exp = 0.1;
   flare_frequency = 3.0;
@@ -85,15 +80,6 @@ bool SelfMagicParticle::idle(const Uint64 delta_t)
     }
     case SelfMagicEffect::SHIELD:
     {
-
-      if (EC_DEBUG)
-      {
-        if (isnan(pos.x) || isinf(pos.x) || isnan(pos.y) || isinf(pos.y) || isnan(pos.z) || isinf(pos.z) || isnan(velocity.x) || isinf(velocity.x) || isnan(velocity.y) || isinf(velocity.y) || isnan(velocity.z) || isinf(velocity.z))
-        {
-          std::cout << "ERROR (6, Report Me!): " << effect << ": " << this << ": " <<  pos << ", " << velocity << std::endl << std::flush;
-          exit(1);
-        }
-      }
       const interval_t float_time = delta_t / 1000000.0;
 
       if (state == 0)
