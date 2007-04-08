@@ -713,11 +713,13 @@ int display_game_handler (window_info *win)
 					shadows_on = 0;
 					shadows_were_disabled=1;
 				}
+#ifdef EYE_CANDY
 				if (use_eye_candy)
 				{
 					use_eye_candy = 0;
 					eye_candy_was_disabled = 1;
 				}
+#endif //EYE_CANDY
 			}
 		}
 		else 
@@ -729,10 +731,12 @@ int display_game_handler (window_info *win)
 				shadows_were_disabled=0;
 			}
 			
+#ifdef EYE_CANDY
 			if (eye_candy_was_disabled){
 				use_eye_candy = 1;
 				eye_candy_was_disabled = 0;
 			}
+#endif //EYE_CANDY
 		}
 	}
 	if (show_fps)
