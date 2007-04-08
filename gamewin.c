@@ -497,7 +497,9 @@ int display_game_handler (window_info *win)
 	static int times_FPS_below_3 = 0;
 	static int fps[5]={100};
 	static int shadows_were_disabled=0;
+#ifdef EYE_CANDY
 	static int eye_candy_was_disabled=0;
+#endif //EYE_CANDY
 	unsigned char str[180];
 	int i;
 	int any_reflection = 0;
@@ -704,9 +706,12 @@ int display_game_handler (window_info *win)
 		if (fps_average < 5.0f)
 		{
 			times_FPS_below_3++;
-			if (times_FPS_below_3 > 10 && shadows_on)
-			{
-				put_colored_text_in_buffer (c_red1, CHAT_SERVER, low_framerate_str, -1);
+			if (times_FPS_below_3 > 10 && (shadows_on
+#ifdef EYE_CANDY
+					|| use_eye_candy
+#endif //EYE_CANDY
+					)){
+				put_colored_text_in_buffer (c_red1, CHAT_SERVER, (unsigned char*)low_framerate_str, -1);
 				times_FPS_below_3 = 0;
 				if (shadows_on)
 				{
@@ -730,7 +735,7 @@ int display_game_handler (window_info *win)
 				shadows_on = 1;
 				shadows_were_disabled=0;
 			}
-			
+
 #ifdef EYE_CANDY
 			if (eye_candy_was_disabled){
 				use_eye_candy = 1;
@@ -767,7 +772,7 @@ int display_game_handler (window_info *win)
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
-		safe_snprintf (str, sizeof(str), "FPS: %i", fps[0]);
+		safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string (win->len_x-hud_x-95, 4, str, 1);
 #ifdef DEBUG
 		//LRNR: stats testing
@@ -900,7 +905,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		}
 		if(line != NULL)
 		{
-			put_string_in_input_field(line);
+			put_string_in_input_field((unsigned char*)line);
 		}
 	}
 	else if(disconnected && !alt_on && !ctrl_on && !locked_to_console)
