@@ -766,7 +766,7 @@ void GradientMover::move(Particle& p, Uint64 usec)
   {
     if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
     {
-      std::cout << "ERROR (2, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
+      std::cout << "ERROR (2, Report Me!): " << p.effect << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
       exit(1);
     }
   }
@@ -775,10 +775,11 @@ void GradientMover::move(Particle& p, Uint64 usec)
   {
     if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
     {
-      std::cout << "ERROR (4, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
+      std::cout << "ERROR (4, Report Me!): " << p.effect << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
       exit(1);
     }
   }
+  Vec3 old_velocity = p.velocity;
 #if 0	// Slow but clear version.  Consider this a comment.
   p.velocity.normalize(gradient_velocity.magnitude() + 0.000001);
 #else	// Fast but obfuscated
@@ -788,7 +789,14 @@ void GradientMover::move(Particle& p, Uint64 usec)
   {
     if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
     {
-      std::cout << "ERROR (7, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
+      std::cout << "ERROR (7, Report Me!): " << p.effect << ", " << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
+      std::cout << "Old velocity: " << old_velocity << std::endl;
+      std::cout << "New velocity: " << p.velocity << std::endl;
+      std::cout << "Old velocity magsquared: " << old_velocity.magnitude_squared() << std::endl;
+      std::cout << "Gradient velocity: " << gradient_velocity << std::endl;
+      std::cout << "Gradient velocity magsquared: " << (gradient_velocity.magnitude_squared() + 0.000001) << std::endl;
+      std::cout << "To pass to invsqrt: " << (old_velocity.magnitude_squared() / (gradient_velocity.magnitude_squared() + 0.000001)) << std::endl;
+      std::cout << "Invsqrt: " << invsqrt(old_velocity.magnitude_squared() / (gradient_velocity.magnitude_squared() + 0.000001)) << std::endl;
       exit(1);
     }
   }
@@ -797,7 +805,7 @@ void GradientMover::move(Particle& p, Uint64 usec)
   {
     if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
     {
-      std::cout << "ERROR (8, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
+      std::cout << "ERROR (8, Report Me!): " << p.effect << ", " << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
       exit(1);
     }
   }
@@ -819,7 +827,7 @@ Vec3 SpiralMover::get_force_gradient(Particle& p) const
   {
     if (isnan(p.pos.x) || isinf(p.pos.x) || isnan(p.pos.y) || isinf(p.pos.y) || isnan(p.pos.z) || isinf(p.pos.z) || isnan(p.velocity.x) || isinf(p.velocity.x) || isnan(p.velocity.y) || isinf(p.velocity.y) || isnan(p.velocity.z) || isinf(p.velocity.z))
     {
-      std::cout << "ERROR (3, Report Me!): " << p.effect << ", " << *center << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
+      std::cout << "ERROR (3, Report Me!): " << p.effect << ", " << ": " << &p << ": " << p.pos << ", " << p.velocity << std::endl << std::flush;
       exit(1);
     }
   }
