@@ -781,9 +781,9 @@ void draw_global_light()
         difuse_light[0] *= 2.0f;
         difuse_light[1] *= 2.0f;
         difuse_light[2] *= 2.0f;
-        sun_ambient_light[0]=0.0f;
-        sun_ambient_light[1]=0.0f;
-        sun_ambient_light[2]=0.0f;
+        sun_ambient_light[0] /= 3.0f;
+        sun_ambient_light[1] /= 3.0f;
+        sun_ambient_light[2] /= 3.0f;
 #endif	//NEW_LIGHTING
 
 	sun_ambient_light[3]=1.0f;
@@ -845,9 +845,11 @@ void make_gradient_light(int start,int steps,float *light_table, float r_start,
 //build the light table for smooth transition between night and day
 void build_global_light_table()
 {
+#ifndef NEW_LIGHTING
 	//the sun light
   	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
 	make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
+
 	//lake light
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
@@ -864,11 +866,34 @@ void build_global_light_table()
 	make_gradient_light(60,30,(float *)sky_lights_c3,0.0f,0.1f,0.1f,0.5f,0.4f,0.4f);
 	make_gradient_light(90,30,(float *)sky_lights_c3,0.5f,0.4f,0.4f,0.0f,0.7f,0.9f);
 
+	make_gradient_light(0,30,(float *)sky_lights_c4,0.2f,0.8f,1.0f,1.0f,0.8f,0.2f);
+	make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
+	make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
+	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
+#else
+  	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.57f,0.345f,0.08f);
+	make_gradient_light(30,30,(float *)global_lights,0.568f,0.348f,0.08f,0.05f,0.05f,0.08f);
+
+	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
+	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
+	make_gradient_light(60,30,(float *)sky_lights_c1,0.0f,0.1f,0.1f,0.6f,0.3f,0.3f);
+	make_gradient_light(90,30,(float *)sky_lights_c1,0.6f,0.3f,0.3f,0.1f,0.3f,0.6f);
+
+	make_gradient_light(0,30,(float *)sky_lights_c2,0.0f,0.4f,0.6f,0.6f,0.4f,0.0f);
+	make_gradient_light(30,30,(float *)sky_lights_c2,0.6f,0.4f,0.0f,0.0f,0.1f,0.1f);
+	make_gradient_light(60,30,(float *)sky_lights_c2,0.0f,0.1f,0.1f,0.6f,0.2f,0.1f);
+	make_gradient_light(90,30,(float *)sky_lights_c2,0.6f,0.2f,0.1f,0.0f,0.4f,0.6f);
+
+	make_gradient_light(0,30,(float *)sky_lights_c3,0.0f,0.7f,0.9f,0.9f,0.7f,0.0f);
+	make_gradient_light(30,30,(float *)sky_lights_c3,0.9f,0.9f,0.0f,0.0f,0.1f,0.1f);
+	make_gradient_light(60,30,(float *)sky_lights_c3,0.0f,0.1f,0.1f,0.5f,0.4f,0.4f);
+	make_gradient_light(90,30,(float *)sky_lights_c3,0.5f,0.4f,0.4f,0.0f,0.7f,0.9f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c4,0.2f,0.8f,1.0f,1.0f,0.8f,0.2f);
 	make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
 	make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
+#endif
 
 }
 

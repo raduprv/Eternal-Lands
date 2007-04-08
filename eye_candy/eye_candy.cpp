@@ -110,7 +110,7 @@ void Shape::draw()
   glEnableClientState(GL_NORMAL_ARRAY);
   glEnableClientState(GL_INDEX_ARRAY);
 #endif
-  
+
   glPushMatrix();
   glTranslated(pos.x, pos.y, pos.z);
   glDisable(GL_TEXTURE_2D);

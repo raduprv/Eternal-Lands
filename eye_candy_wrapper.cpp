@@ -128,6 +128,7 @@ extern "C" void ec_idle()
 {
   if ((!use_eye_candy) && (!force_idle))
     return;
+    
   force_idle = false;
 
   const std::vector<std::string> ec_errors = ec::fetch_logs();
@@ -136,7 +137,7 @@ extern "C" void ec_idle()
 
   if (ec::get_error_status())
     return;
-
+    
 //  GLfloat rot_matrix[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, rot_matrix);
 //  const float x = rot_matrix[12];

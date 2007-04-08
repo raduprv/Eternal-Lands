@@ -895,7 +895,8 @@ void render_light_view()
 #else
 					glTexImage2D(depth_texture_target,0,internalformat,
 						     shadow_map_size,shadow_map_size,
-						     0,GL_DEPTH_COMPONENT,GL_UNSIGNED_BYTE,NULL);					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
+						     0,GL_DEPTH_COMPONENT,GL_UNSIGNED_BYTE,NULL);
+						     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
 
 					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);

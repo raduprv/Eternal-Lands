@@ -2,6 +2,11 @@
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
+#ifdef DEBUG_POINT_PARTICLES
+  #include <iostream>
+  #include <sstream>
+#endif
+
 #include "eye_candy.h"
 #include "math_cache.h"
 
@@ -42,7 +47,14 @@ bool CampfireParticle::idle(const Uint64 delta_t)
 #ifdef DEBUG_POINT_PARTICLES
   coord_t tempsize = base->temp_sprite_scalar * size * invsqrt(square(pos.x - base->camera.x) + square(pos.y - base->camera.y) + square(pos.z - base->camera.z));
   tempsize *= flare();
-  std::cout << "Position: " << pos << "; Camera: " << base->camera << "; Distance: " << (pos - base->camera).magnitude() << "; Size: " << size << "; Draw size: " << tempsize << "; Base sprite scalar: " << base->temp_sprite_scalar << std::endl;
+  std::stringstream strstr;
+  strstr << "Position: " << pos << "; Camera: " << base->camera << "; Distance: " << (pos - base->camera).magnitude() << "; Size: " << size << "; Draw size: " << tempsize << "; Base sprite scalar: " << base->temp_sprite_scalar;
+  char buffer[1024];
+  strstr.get(buffer, sizeof(buffer));
+  buffer[sizeof(buffer) - 1] = '\0';
+  std::string s(buffer);
+  std::cout << s << std::endl;
+  log_warning(s);
   return true;
 #endif
 
