@@ -735,12 +735,12 @@ int button_add(int window_id, int (*OnInit)(), const char *text, Uint16 x, Uint1
 int button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	float extra_space = (W->len_x - get_string_width(l->text)*W->size)/2.0f;
+	float extra_space = (W->len_x - get_string_width((unsigned char*)l->text)*W->size)/2.0f;
 	if(extra_space < 0) {
 		extra_space = 0;
 	}
 
-	draw_smooth_button((unsigned char *)l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, 0, 0.0f, 0.0f, 0.0f, 0.0f);
+	draw_smooth_button(l->text, W->size, W->pos_x, W->pos_y, W->len_x-2*BUTTONRADIUS*W->size, 1, W->r, W->g, W->b, 0, 0.0f, 0.0f, 0.0f, 0.0f);
 	
 	return 1;
 }
@@ -748,7 +748,7 @@ int button_draw(widget_list *W)
 int square_button_draw(widget_list *W)
 {
 	button *l = (button *)W->widget_info;
-	float extra_space = (W->len_x - get_string_width(l->text)*W->size*(0.11f/0.12f))/2.0f;
+	float extra_space = (W->len_x - get_string_width((unsigned char*)l->text)*W->size*(0.11f/0.12f))/2.0f;
 	if(extra_space < 0) {
 		extra_space = 0;
 	}
@@ -1426,7 +1426,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 		col->max_tabs = new_max;
 	}
 		
-	my_strncp (col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
+	my_strncp ((char*)col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
 	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
 	col->tabs[nr].closable = closable ? 1 : 0;
 
@@ -1442,7 +1442,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 	else
 	{
 		// compute tag width from label width
-		col->tabs[nr].tag_width = 10 + ((float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width(col->tabs[nr].label)/12.0f));
+		col->tabs[nr].tag_width = 10 + ((float)w->size * (DEFAULT_FONT_X_LEN * (float)get_string_width((unsigned char*)col->tabs[nr].label)/12.0f));
 		if (col->tabs[nr].closable) 
 			col->tabs[nr].tag_width += col->tag_height;
 	}
@@ -1884,7 +1884,7 @@ int pword_field_draw (widget_list *w)
 		return 0;
 	}
 	pword = (password_entry*) w->widget_info;
-	difference = (get_string_width(pword->password)*w->size - w->len_x)/12;
+	difference = (get_string_width((unsigned char*)pword->password)*w->size - w->len_x)/12;
 
 	/*if you want the text cursor, uncomment the following... as clicking goes
 	to the end of the line, and you can't jump part way through, using the text
@@ -1908,13 +1908,13 @@ int pword_field_draw (widget_list *w)
 	glEnable (GL_TEXTURE_2D);
 	
 	if (pword->status == P_NONE) {
-		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, "N/A", 1, w->size);
+		draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)"N/A", 1, w->size);
 	} else if(pword->status == P_TEXT) {
 		if(difference > 0) {
 			/* Only draw the end of the string */
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, pword->password+difference, 1, w->size);
+			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)pword->password+difference, 1, w->size);
 		} else {
-			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, pword->password, 1, w->size);
+			draw_string_zoomed(w->pos_x + 2, w->pos_y + 2, (unsigned char*)pword->password, 1, w->size);
 		}
 	} else if(pword->status == P_NORMAL) {
 		text = calloc(1, pword->max_chars);
@@ -1958,7 +1958,7 @@ int pword_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16
 {
 	password_entry *T = calloc (1, sizeof (password_entry));
 	T->status = status;
-	T->password = buffer;
+	T->password = (char*)buffer;
 	T->max_chars = buffer_size;
 
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, 0, size, r, g, b, &pword_field_type, T, NULL);
@@ -2353,7 +2353,7 @@ int spinbutton_draw(widget_list *widget)
 	}
 	/* Numbers */
 	glColor3f(widget->r, widget->g, widget->b);
-	draw_string_zoomed(widget->pos_x + 2, widget->pos_y + 2, str, 1, widget->size);
+	draw_string_zoomed(widget->pos_x + 2, widget->pos_y + 2, (unsigned char*)str, 1, widget->size);
 	glDisable(GL_TEXTURE_2D);
 	/* Border */
 	glBegin(GL_LINE_LOOP);

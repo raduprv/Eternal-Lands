@@ -271,7 +271,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					draw_ingame_string(-(((float)get_string_width(str) * (0.17*zoom_level*name_zoom/3.0))/12.0)*0.5f, healthbar_z/2.0f+((1.0f-a)*0.5f), str, 1, 0.14, 0.21);
+					draw_ingame_string(-(((float)get_string_width((unsigned char *)str) * (0.17*zoom_level*name_zoom/3.0))/12.0)*0.5f, healthbar_z/2.0f+((1.0f-a)*0.5f), (unsigned char*)str, 1, 0.14, 0.21);
 					glDisable(GL_BLEND);
 				} else {
 					safe_snprintf(str, sizeof(str), "%i",actor_id->damage);
@@ -308,7 +308,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 #ifdef	DEBUG
 						if (actor_id->calmodel!=NULL) strcat(temp," <CAL>");
 #endif	//DEBUG
-						draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(font_size_x*zoom_level*name_zoom/3.0))/2.0/12.0, healthbar_z+(0.06f*zoom_level/3.0), temp, 1, font_size_x, font_size_y);
+						draw_ingame_string(-((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*zoom_level*name_zoom/3.0))/2.0/12.0, healthbar_z+(0.06f*zoom_level/3.0), (unsigned char*)temp, 1, font_size_x, font_size_y);
 					}
 				if(view_hp && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC))
 					{
@@ -320,7 +320,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 						safe_snprintf(hp, sizeof(hp), "%d/%d", actor_id->cur_health, actor_id->max_health);
 						if(view_health_bar)	off= (0.35*zoom_level*name_zoom/3.0);
 						else off= 0.0;
-						draw_ingame_string(-(((float)get_string_width(hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healthbar_z-(0.05*zoom_level*name_zoom/3.0), hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
+						draw_ingame_string(-(((float)get_string_width((unsigned char*)hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healthbar_z-(0.05*zoom_level*name_zoom/3.0), (unsigned char*)hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
 					}
 				set_font(0);	// back to fixed pitch
 			}
@@ -397,7 +397,7 @@ void draw_actor_overtext( actor* actor_ptr )
 	actor_ptr->current_displayed_text_time_left -= (cur_time-last_time);
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)) return;	// not actually drawing, fake it
 
-	textwidth = ((float)get_string_width(actor_ptr->current_displayed_text)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	textwidth = ((float)get_string_width((unsigned char*)(actor_ptr->current_displayed_text))*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
 	textheight = (0.06f*zoom_level/3.0)*4;
 	margin = 0.02f*zoom_level;
 	z = 1.2f;// distance over the player

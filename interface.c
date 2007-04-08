@@ -674,7 +674,7 @@ void draw_game_map (int map, int mouse_mini)
 			glEnd();
 		        glEnable(GL_TEXTURE_2D);
 		        glColor3f(1.0f,1.0f,0.0f);
-			draw_string_zoomed (screen_x, screen_y, input_text_line.data, 1, 0.3);
+			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, 0.3);
 		}
 
 		// if filtering marks, display the label and the current filter text
@@ -690,10 +690,10 @@ void draw_game_map (int map, int mouse_mini)
 			glColor3f(1.0f,1.0f,0.0f);
 			screen_x = 25 - 1.5*strlen(label_mark_filter);
 			screen_y = 150 + 25;
-			draw_string_zoomed(screen_x, screen_y, label_mark_filter, 1, 0.3);
+			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
 			screen_x = 25 - 1.5*strlen(show_mark_filter_text);
 			screen_y = 150 + 32;
-			draw_string_zoomed(screen_x, screen_y, show_mark_filter_text, 1, 0.3);
+			draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
 		}
 
 		// crave the markings
@@ -722,7 +722,7 @@ void draw_game_map (int map, int mouse_mini)
 				glEnd();
 	        		glEnable(GL_TEXTURE_2D);
 	        		glColor3f(0.2f,1.0f,0.0f);
-				draw_string_zoomed(screen_x,screen_y,marks[i].text,1,0.3);
+				draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
 			}
 	 	}
 
@@ -734,10 +734,10 @@ void draw_game_map (int map, int mouse_mini)
 			glColor3f(1.0f,1.0f,0.0f);
 			screen_x = 25 - 1.5*strlen(buf);
 			screen_y = 150 + 11;
-			draw_string_zoomed(screen_x, screen_y, buf, 1, 0.3);
+			draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
 			screen_x = 25 - 1.5*strlen(label_cursor_coords);
 			screen_y = 150 + 4;
-			draw_string_zoomed(screen_x, screen_y, label_cursor_coords, 1, 0.3);
+			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
 		}
 
 	}

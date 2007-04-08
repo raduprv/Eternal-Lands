@@ -138,7 +138,7 @@ void set_create_char_error (const char *msg, int len)
 
 	LOG_TO_CONSOLE(c_red1, create_char_error_str);
 	
-	put_small_colored_text_in_box(c_red1, create_char_error_str, strlen(create_char_error_str), 200, buf);
+	put_small_colored_text_in_box(c_red1, (unsigned char*)create_char_error_str, strlen(create_char_error_str), 200, buf);
 	safe_snprintf(create_char_error_str, sizeof(create_char_error_str), "%s", buf);
 	display_time=cur_time+6000;
 
@@ -307,8 +307,8 @@ int display_newchar_handler (window_info *win)
 	}
 
 	glColor3f(251/255.0f, 250/255.0f, 190/255.0f);
-	draw_string_small(132, win->len_y-hud_y+15, zoom_in_out, 1);
-	draw_string_small(132, win->len_y-hud_y+32, rotate_camera, 1);
+	draw_string_small(132, win->len_y-hud_y+15, (unsigned char*)zoom_in_out, 1);
+	draw_string_small(132, win->len_y-hud_y+32, (unsigned char*)rotate_camera, 1);
 	
 	Leave2DMode ();
 
@@ -487,7 +487,7 @@ int check_character(int type, char ch)
 
 void add_text_to_buffer(int color, char * text, int time_to_display)
 {
-	put_small_colored_text_in_box(color, text, strlen(text), 200, create_char_error_str);
+	put_small_colored_text_in_box(color, (unsigned char*)text, strlen(text), 200, create_char_error_str);
 	display_time=cur_time+time_to_display;
 }
 
@@ -539,9 +539,9 @@ int display_namepass_handler (window_info * win)
 {
 	glColor3f(0.77f,0.57f,0.39f);
 	
-	draw_string_small(20, 20, login_username_str, 1);
-	draw_string_small(20, 60, login_password_str, 1);
-	draw_string_small(20, 90, confirm_password, 1);
+	draw_string_small(20, 20, (unsigned char*)login_username_str, 1);
+	draw_string_small(20, 60, (unsigned char*)login_password_str, 1);
+	draw_string_small(20, 90, (unsigned char*)confirm_password, 1);
 	draw_smooth_button(inputs[0].str, DEFAULT_SMALL_RATIO, 100, 16, 120, 1, 0.77f, 0.57f ,0.39f, active == 0, 0.32f, 0.23f, 0.15f, 0.5f);
 	draw_smooth_button(hidden?get_pass_str(inputs[1].pos):inputs[1].str, DEFAULT_SMALL_RATIO, 100, 56, 120, 1, 0.77f, 0.57f ,0.39f, active == 1, 0.32f, 0.23f, 0.15f, 0.5f);
 	draw_smooth_button(hidden?get_pass_str(inputs[2].pos):inputs[2].str, DEFAULT_SMALL_RATIO, 100, 86, 120, 1, 0.77f, 0.57f ,0.39f, active == 2, 0.32f, 0.23f, 0.15f, 0.5f);
@@ -554,7 +554,7 @@ int display_namepass_handler (window_info * win)
 	draw_smooth_button(char_back, DEFAULT_SMALL_RATIO, 160, 230, 60, 1, 0.77f, 0.57f ,0.39f, 0, 0.32f, 0.23f, 0.15f, 0.5f);
 
 	if(display_time>cur_time){
-		draw_string_small(30, 168, create_char_error_str, 3);
+		draw_string_small(30, 168, (unsigned char*)create_char_error_str, 3);
 	}
 	
 	return 1;
@@ -743,30 +743,30 @@ int display_color_race_handler (window_info *win)
 	//Appearance
 	draw_box(appearance_str, 270, 10, 120, win->len_y-17, 0);
 	x=330;
-	draw_string_small(x-(get_string_width(head_str)*8.0f/12.0f)/2.0f, 25, head_str, 1);
-	draw_string_small(x-(get_string_width(skin_str)*8.0f/12.0f)/2.0f, 48, skin_str, 1);
-	draw_string_small(x-(get_string_width(hair_str)*8.0f/12.0f)/2.0f, 71, hair_str, 1);
-	draw_string_small(x-(get_string_width(shirt_str)*8.0f/12.0f)/2.0f, 94, shirt_str, 1);
-	draw_string_small(x-(get_string_width(pants_str)*8.0f/12.0f)/2.0f, 117, pants_str, 1);
-	draw_string_small(x-(get_string_width(boots_str)*8.0f/12.0f)/2.0f, 140, boots_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)head_str)*8.0f/12.0f)/2.0f, 25, (unsigned char*)head_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)skin_str)*8.0f/12.0f)/2.0f, 48, (unsigned char*)skin_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)hair_str)*8.0f/12.0f)/2.0f, 71, (unsigned char*)hair_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)shirt_str)*8.0f/12.0f)/2.0f, 94, (unsigned char*)shirt_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)pants_str)*8.0f/12.0f)/2.0f, 117, (unsigned char*)pants_str, 1);
+	draw_string_small(x-(get_string_width((unsigned char*)boots_str)*8.0f/12.0f)/2.0f, 140, (unsigned char*)boots_str, 1);
 	
 	//<<
 	x=280;
-	draw_string_small(x, 25, "<<", 1);
-	draw_string_small(x, 48, "<<", 1);
-	draw_string_small(x, 71, "<<", 1);
-	draw_string_small(x, 94, "<<", 1);
-	draw_string_small(x, 117, "<<", 1);
-	draw_string_small(x, 140, "<<", 1);
+	draw_string_small(x, 25, (unsigned char*)"<<", 1);
+	draw_string_small(x, 48, (unsigned char*)"<<", 1);
+	draw_string_small(x, 71, (unsigned char*)"<<", 1);
+	draw_string_small(x, 94, (unsigned char*)"<<", 1);
+	draw_string_small(x, 117, (unsigned char*)"<<", 1);
+	draw_string_small(x, 140, (unsigned char*)"<<", 1);
 	
 	//>>
 	x=364;
-	draw_string_small(x, 25, ">>", 1);
-	draw_string_small(x, 48, ">>", 1);
-	draw_string_small(x, 71, ">>", 1);
-	draw_string_small(x, 94, ">>", 1);
-	draw_string_small(x, 117, ">>", 1);
-	draw_string_small(x, 140, ">>", 1);
+	draw_string_small(x, 25, (unsigned char*)">>", 1);
+	draw_string_small(x, 48, (unsigned char*)">>", 1);
+	draw_string_small(x, 71, (unsigned char*)">>", 1);
+	draw_string_small(x, 94, (unsigned char*)">>", 1);
+	draw_string_small(x, 117, (unsigned char*)">>", 1);
+	draw_string_small(x, 140, (unsigned char*)">>", 1);
 	
 	switch(race_help){
 		case 1:

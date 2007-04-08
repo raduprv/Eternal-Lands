@@ -311,9 +311,9 @@ int load_map (const char * file_name)
 	tile_map_size_y=cur_map_header.tile_map_y_len;
 
 	//allocate memory for the tile map (it was destroyed)
-	tile_map=(char *)calloc(tile_map_size_x*tile_map_size_y, 1);
+	tile_map=(unsigned char *)calloc(tile_map_size_x*tile_map_size_y, 1);
 	//allocates the memory for the heights now
-	height_map=(char *)calloc(tile_map_size_x*tile_map_size_y*6*6, 1);
+	height_map=(unsigned char *)calloc(tile_map_size_x*tile_map_size_y*6*6, 1);
 
 	//get the sizes of structures (they might change in the future)
 	obj_3d_io_size=cur_map_header.obj_3d_struct_len;

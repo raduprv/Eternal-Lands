@@ -50,7 +50,7 @@ int display_encyclopedia_handler(window_info *win)
 					glColor3f(0.3,0.6,1.0);
 					else
 					glColor3f(t->r,t->g,t->b);
-					draw_string(t->x,t->y-j,t->text,1);
+					draw_string(t->x,t->y-j,(unsigned char*)t->text,1);
 				}
 			else
 				{
@@ -58,7 +58,7 @@ int display_encyclopedia_handler(window_info *win)
 					glColor3f(0.3,0.6,1.0);
 					else
 					glColor3f(t->r,t->g,t->b);
-					draw_string_small(t->x,t->y-j,t->text,1);
+					draw_string_small(t->x,t->y-j,(unsigned char*)t->text,1);
 				}
 		}
 		// No next line?
@@ -118,7 +118,7 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 					//changing page
 					int i;
 					for(i=0;i<numpage+1;i++){
-						if(!xmlStrcasecmp(Page[i].Name,t->ref)){
+						if(!xmlStrcasecmp((xmlChar*)Page[i].Name,(xmlChar*)t->ref)){
 							currentpage=i;
 							vscrollbar_set_pos(encyclopedia_win, encyclopedia_scroll_id, 0);
 							vscrollbar_set_bar_len(encyclopedia_win, encyclopedia_scroll_id, Page[currentpage].max_y);
@@ -135,24 +135,24 @@ int click_encyclopedia_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-void GetColorFromName (const char *t)
+void GetColorFromName (const xmlChar *t)
 {
-	if(!xmlStrcasecmp("silver",t)){r=192/255.0f; g=192/255.0f; b=192/255.0f;return;}
-	if(!xmlStrcasecmp("grey",t)){r=128/255.0f; g=128/255.0f; b=128/255.0f;return;}
-	if(!xmlStrcasecmp("maroon",t)){r=128/255.0f; g=0.0f; b=0.0f;return;}
-	if(!xmlStrcasecmp("green",t)){r=0.0f; g=128/255.0f; b=0.0f;return;}
-	if(!xmlStrcasecmp("navy",t)){r=0.0f; g=0.0f; b=128/255.0f;return;}
-	if(!xmlStrcasecmp("olive",t)){r=128/255.0f; g=128/255.0f; b=0.0f;return;}
-	if(!xmlStrcasecmp("purple",t)){r=128/255.0f; g=0.0f; b=128/255.0f;return;}
-	if(!xmlStrcasecmp("teal",t)){r=0.0f; g=128/255.0f; b=128/255.0f;return;}
-	if(!xmlStrcasecmp("white",t)){r=1.0f; g=1.0f; b=1.0f;return;}
-	if(!xmlStrcasecmp("black",t)){r=0.0f; g=0.0f; b=0.0f;return;}
-	if(!xmlStrcasecmp("red",t)){r=1.0f; g=0.0f; b=0.0f;return;}
-	if(!xmlStrcasecmp("lime",t)){r=0.0f; g=1.0f; b=0.0f;return;}
-	if(!xmlStrcasecmp("blue",t)){r=0.0f; g=0.0f; b=1.0f;return;}
-	if(!xmlStrcasecmp("magenta",t)){r=1.0f; g=0.0f; b=1.0f;return;}
-	if(!xmlStrcasecmp("yellow",t)){r=1.0f; g=1.0f; b=0.0f;return;}
-	if(!xmlStrcasecmp("cyan",t)){r=0.0f; g=1.0f; b=1.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"silver",t)){r=192/255.0f; g=192/255.0f; b=192/255.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"grey",t)){r=128/255.0f; g=128/255.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"maroon",t)){r=128/255.0f; g=0.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"green",t)){r=0.0f; g=128/255.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"navy",t)){r=0.0f; g=0.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"olive",t)){r=128/255.0f; g=128/255.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"purple",t)){r=128/255.0f; g=0.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"teal",t)){r=0.0f; g=128/255.0f; b=128/255.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"white",t)){r=1.0f; g=1.0f; b=1.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"black",t)){r=0.0f; g=0.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"red",t)){r=1.0f; g=0.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"lime",t)){r=0.0f; g=1.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"blue",t)){r=0.0f; g=0.0f; b=1.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"magenta",t)){r=1.0f; g=0.0f; b=1.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"yellow",t)){r=1.0f; g=1.0f; b=0.0f;return;}
+	if(!xmlStrcasecmp((xmlChar*)"cyan",t)){r=0.0f; g=1.0f; b=1.0f;return;}
 }
 
 
@@ -163,19 +163,19 @@ void ParseLink(xmlAttr *a_node)
 
 	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
-			if(!xmlStrcasecmp(cur_attr->name,"ref")){
-				ss=cur_attr->children->content;
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"ref")){
+				ss=(char*)cur_attr->children->content;
 			}
-			if(!xmlStrcasecmp(cur_attr->name,"title")){
-				s=cur_attr->children->content;
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"title")){
+				s=(char*)cur_attr->children->content;
 			}
 			//x=""
-			if(!xmlStrcasecmp(cur_attr->name,"x")){
-				x=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
+				x=atoi((char*)cur_attr->children->content);
 			}
 			//y=""
-			if(!xmlStrcasecmp(cur_attr->name,"y")){
-				y=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
+				y=atoi((char*)cur_attr->children->content);
 			}
 		}
 	}
@@ -188,16 +188,16 @@ void ParseColor(xmlAttr *a_node)
 	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//r=""
-			if(!xmlStrcasecmp(cur_attr->name,"r")){
-				r=atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"r")){
+				r=atof((char*)cur_attr->children->content);
 			}
 			//g=""
-			if(!xmlStrcasecmp(cur_attr->name,"g")){
-				g=atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"g")){
+				g=atof((char*)cur_attr->children->content);
 			}
 			//b=""
-			if(!xmlStrcasecmp(cur_attr->name,"b")){
-				b=atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"b")){
+				b=atof((char*)cur_attr->children->content);
 			}
 		}
 	}
@@ -210,52 +210,52 @@ void ParseImage(xmlAttr *a_node)
 	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//u=""
-			if(!xmlStrcasecmp(cur_attr->name,"u")){
-				u=(float)atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"u")){
+				u=(float)atof((char*)cur_attr->children->content);
 			}
 			//v=""
-			if(!xmlStrcasecmp(cur_attr->name,"v")){
-				v=(float)atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"v")){
+				v=(float)atof((char*)cur_attr->children->content);
 			}
 			//uend=""
-			if(!xmlStrcasecmp(cur_attr->name,"uend")){
-				uend=(float)atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"uend")){
+				uend=(float)atof((char*)cur_attr->children->content);
 			}
 			//vend=""
-			if(!xmlStrcasecmp(cur_attr->name,"vend")){
-				vend=(float)atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"vend")){
+				vend=(float)atof((char*)cur_attr->children->content);
 			}
 			//xend=""
-			if(!xmlStrcasecmp(cur_attr->name,"xlen")){
-				xend=(float)atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"xlen")){
+				xend=(float)atof((char*)cur_attr->children->content);
 			}
 			//yend=""
-			if(!xmlStrcasecmp(cur_attr->name,"ylen")){
-				yend=(float)atof(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"ylen")){
+				yend=(float)atof((char*)cur_attr->children->content);
 			}
 			//name=""
-			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				id=load_texture_cache_deferred(cur_attr->children->content,0);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"name")){
+				id=load_texture_cache_deferred((char*)cur_attr->children->content,0);
 			}
 			//x=""
-			if(!xmlStrcasecmp(cur_attr->name,"x")){
-				x=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
+				x=atoi((char*)cur_attr->children->content);
 			}
 			//y=""
-			if(!xmlStrcasecmp(cur_attr->name,"y")){
-				y=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
+				y=atoi((char*)cur_attr->children->content);
 			}
 			//mouseover=""
-			if(!xmlStrcasecmp(cur_attr->name,"mouseover")){
-				mouseover=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"mouseover")){
+				mouseover=atoi((char*)cur_attr->children->content);
 			}
 			//xposupdate=""
-			if(!xmlStrcasecmp(cur_attr->name,"xposupdate")){
-				xposupdate=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"xposupdate")){
+				xposupdate=atoi((char*)cur_attr->children->content);
 			}
 			//yposupdate=""
-			if(!xmlStrcasecmp(cur_attr->name,"yposupdate")){
-				yposupdate=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"yposupdate")){
+				yposupdate=atoi((char*)cur_attr->children->content);
 			}
 		}
 	}
@@ -268,44 +268,44 @@ void ParseSimage(xmlAttr *a_node)
 	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
-			if(!xmlStrcasecmp(cur_attr->name,"name")){
-				id=load_texture_cache_deferred(cur_attr->children->content,0);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"name")){
+				id=load_texture_cache_deferred((char*)cur_attr->children->content,0);
 			}
 			//isize=""
-			if(!xmlStrcasecmp(cur_attr->name,"isize")){
-				isize=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"isize")){
+				isize=atoi((char*)cur_attr->children->content);
 			}
 			//tsize=""
-			if(!xmlStrcasecmp(cur_attr->name,"tsize")){
-				tsize=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"tsize")){
+				tsize=atoi((char*)cur_attr->children->content);
 			}
 			//tid=""
-			if(!xmlStrcasecmp(cur_attr->name,"tid")){
-				tid=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"tid")){
+				tid=atoi((char*)cur_attr->children->content);
 			}
 			//size=""
-			if(!xmlStrcasecmp(cur_attr->name,"size")){
-				ssize=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"size")){
+				ssize=atoi((char*)cur_attr->children->content);
 			}
 			//x=""
-			if(!xmlStrcasecmp(cur_attr->name,"x")){
-				x=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
+				x=atoi((char*)cur_attr->children->content);
 			}
 			//y=""
-			if(!xmlStrcasecmp(cur_attr->name,"y")){
-				y=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
+				y=atoi((char*)cur_attr->children->content);
 			}
 			//mouseover=""
-			if(!xmlStrcasecmp(cur_attr->name,"mouseover")){
-				mouseover=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"mouseover")){
+				mouseover=atoi((char*)cur_attr->children->content);
 			}
 			//xposupdate=""
-			if(!xmlStrcasecmp(cur_attr->name,"xposupdate")){
-				xposupdate=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"xposupdate")){
+				xposupdate=atoi((char*)cur_attr->children->content);
 			}
 			//yposupdate=""
-			if(!xmlStrcasecmp(cur_attr->name,"yposupdate")){
-				yposupdate=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"yposupdate")){
+				yposupdate=atoi((char*)cur_attr->children->content);
 			}
 
 		}
@@ -319,12 +319,12 @@ void ParsePos(xmlAttr *a_node)
 	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//x=""
-			if(!xmlStrcasecmp(cur_attr->name,"x")){
-				x=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
+				x=atoi((char*)cur_attr->children->content);
 			}
 			//y=""
-			if(!xmlStrcasecmp(cur_attr->name,"y")){
-				y=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
+				y=atoi((char*)cur_attr->children->content);
 			}
 		}
 	}
@@ -337,9 +337,9 @@ void ParsePage(xmlAttr *a_node)
 	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//name=""
-			if(!xmlStrcasecmp(cur_attr->name,"name")){
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"name")){
 				Page[numpage].Name=NULL;
-				MY_XMLSTRCPY(&Page[numpage].Name, cur_attr->children->content);
+				MY_XMLSTRCPY(&Page[numpage].Name, (char*)cur_attr->children->content);
 			}
 		}
 	}
@@ -352,12 +352,12 @@ void ParseText(xmlAttr *a_node)
 	for (cur_attr = a_node; cur_attr; cur_attr = cur_attr->next) {
 		if (cur_attr->type==XML_ATTRIBUTE_NODE){
 			//x=""
-			if(!xmlStrcasecmp(cur_attr->name,"x")){
-				x=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"x")){
+				x=atoi((char*)cur_attr->children->content);
 			}
 			//y=""
-			if(!xmlStrcasecmp(cur_attr->name,"y")){
-				y=atoi(cur_attr->children->content);
+			if(!xmlStrcasecmp(cur_attr->name,(xmlChar*)"y")){
+				y=atoi((char*)cur_attr->children->content);
 			}
 
 		}
@@ -371,7 +371,7 @@ void ReadCategoryXML(xmlNode * a_node)
 	for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
 		if (cur_node->type==XML_ELEMENT_NODE){
 			//<Page>
-			if(!xmlStrcasecmp(cur_node->name,"Page")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"Page")){
 				if(numpage < MAX_ENC_PAGES-1){
 					numpage++;
 					numtext=0;
@@ -386,21 +386,21 @@ void ReadCategoryXML(xmlNode * a_node)
 			}
 
 			//<Size>
-			if(!xmlStrcasecmp(cur_node->name,"Size"))
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"Size"))
 			{
 				if (cur_node->children != NULL)
-					size = (xmlStrcasecmp ("Big", cur_node->children->content) == 0) ? 1 : 0;
+					size = (xmlStrcasecmp ((xmlChar*)"Big", cur_node->children->content) == 0) ? 1 : 0;
 			}
 
 			//<Color>
-			if(!xmlStrcasecmp(cur_node->name,"Color")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"Color")){
 				ParseColor(cur_node->properties);
 				if (cur_node->children != NULL)
 					GetColorFromName (cur_node->children->content);
 			}
 
 			//<Text>
-			if(!xmlStrcasecmp(cur_node->name,"Text")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"Text")){
 				_Text *T=(_Text*)malloc(sizeof(_Text));
 				_Text *t=&Page[numpage].T;
 				T->Next=NULL;
@@ -414,7 +414,7 @@ void ReadCategoryXML(xmlNode * a_node)
 				lastextlen = 0;
 				if (cur_node->children != NULL)
 				{
-					MY_XMLSTRCPY (&T->text, cur_node->children->content);
+					MY_XMLSTRCPY (&T->text, (char*)cur_node->children->content);
 					lastextlen = strlen (T->text) * ((T->size) ? 11 : 8);
 					x += lastextlen;
 				}
@@ -424,19 +424,19 @@ void ReadCategoryXML(xmlNode * a_node)
 			}
 
 			//<nl>
-			if(!xmlStrcasecmp(cur_node->name,"nl")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nl")){
 				x=2;
 				y+=(size)?18:15;
 			}
 			
 			//<nlkx>
-			if(!xmlStrcasecmp(cur_node->name,"nlkx")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"nlkx")){
 				y+=(size)?18:15;
 				x-=lastextlen;
 			}
 
 			//<Image>
-			if(!xmlStrcasecmp(cur_node->name,"image")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"image")){
 				_Image *I=(_Image*)malloc(sizeof(_Image));
 				_Image *i=&Page[numpage].I;
 				xposupdate=1; yposupdate=1;
@@ -472,7 +472,7 @@ void ReadCategoryXML(xmlNode * a_node)
 			}
 
 			//<sImage>
-			if(!xmlStrcasecmp(cur_node->name,"simage")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"simage")){
 				_Image *I=(_Image*)malloc(sizeof(_Image));
 				_Image *i=&Page[numpage].I;
 				int picsperrow,xtile,ytile;
@@ -521,12 +521,12 @@ void ReadCategoryXML(xmlNode * a_node)
 			}
 
 			//<Pos>
-			if(!xmlStrcasecmp(cur_node->name,"pos")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"pos")){
 				ParsePos(cur_node->properties);
 			}
 
 			//<link>
-			if(!xmlStrcasecmp(cur_node->name,"link")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"link")){
 				_Text *T=(_Text*)malloc(sizeof(_Text));
 				_Text *t=&Page[numpage].T;
 				ParseLink(cur_node->properties);
@@ -561,11 +561,11 @@ void ReadIndexXML(xmlNode * a_node)
 
 	for (cur_node = a_node; cur_node; cur_node = cur_node->next) {
 		if (cur_node->type==XML_ELEMENT_NODE){
-			if(!xmlStrcasecmp(cur_node->name,"Category")){
+			if(!xmlStrcasecmp(cur_node->name,(xmlChar*)"Category")){
 				xmlDocPtr doc;
 				char tmp[100];
 				Category[num_category].Name=NULL;
-				MY_XMLSTRCPY(&Category[num_category].Name, cur_node->children->content);
+				MY_XMLSTRCPY(&Category[num_category].Name, (char*)cur_node->children->content);
 
 				//we load the category now
 				safe_snprintf(tmp,sizeof(tmp),"languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);

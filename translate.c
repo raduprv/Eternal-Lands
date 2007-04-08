@@ -659,8 +659,8 @@ void add_xml_distringid(group_id_di * group, char * xml_id, dichar * var, char *
 	group->distrings[group->no]=(distring_item*)calloc(1,sizeof(distring_item));
 	safe_snprintf (group->distrings[group->no]->xml_id, sizeof (group->distrings[group->no]->xml_id), "%s", xml_id);
 	group->distrings[group->no]->var=var;
-	safe_snprintf(var->str, sizeof(var->str), "%s", str);
-	safe_snprintf(var->desc, sizeof(var->desc), "%s", desc);
+	safe_snprintf((char*)var->str, sizeof(var->str), "%s", str);
+	safe_snprintf((char*)var->desc, sizeof(var->desc), "%s", desc);
 	group->no++;
 }
 
@@ -671,8 +671,8 @@ void add_xml_statid(group_stat * group, char * xml_id, names * var, char * name,
 	group->statstrings[group->no]=(statstring_item*)calloc(1,sizeof(statstring_item));
 	safe_snprintf (group->statstrings[group->no]->xml_id, sizeof (group->statstrings[group->no]->xml_id), "%s", xml_id);
 	group->statstrings[group->no]->var=var;
-	safe_strncpy(var->name, name, sizeof(var->name));
-	safe_strncpy(var->shortname, shortname, sizeof(var->shortname));
+	safe_strncpy((char*)var->name, name, sizeof(var->name));
+	safe_strncpy((char*)var->shortname, shortname, sizeof(var->shortname));
 	group->no++;
 }
 #endif
@@ -1186,11 +1186,11 @@ void init_stats()
 	group_stat * skills = &(stats_str[4]);
 
 	//Initial strings
-	add_xml_identifier(stats_extra,"base",attributes.base,"Basic Attributes",sizeof(attributes.base));
-	add_xml_identifier(stats_extra,"cross",attributes.cross,"Cross Attributes",sizeof(attributes.cross));
-	add_xml_identifier(stats_extra,"nexus",attributes.nexus,"Nexus",sizeof(attributes.nexus));
-	add_xml_identifier(stats_extra,"skills",attributes.skills,"Skills",sizeof(attributes.skills));
-	add_xml_identifier(stats_extra,"pickpoints",attributes.pickpoints,"Pickpoints",sizeof(attributes.pickpoints));
+	add_xml_identifier(stats_extra,"base",(char*)attributes.base,"Basic Attributes",sizeof(attributes.base));
+	add_xml_identifier(stats_extra,"cross",(char*)attributes.cross,"Cross Attributes",sizeof(attributes.cross));
+	add_xml_identifier(stats_extra,"nexus",(char*)attributes.nexus,"Nexus",sizeof(attributes.nexus));
+	add_xml_identifier(stats_extra,"skills",(char*)attributes.skills,"Skills",sizeof(attributes.skills));
+	add_xml_identifier(stats_extra,"pickpoints",(char*)attributes.pickpoints,"Pickpoints",sizeof(attributes.pickpoints));
 
 	add_xml_statid(base,"phy",&(attributes.phy),"Physique","phy");
 	add_xml_statid(base,"coo",&(attributes.coo),"Coordination","coo");
@@ -1439,15 +1439,15 @@ void copy_strings(xmlNode * in, distring_item * string)
 	for(;cur; cur = cur-> next) {
 		if(cur->type == XML_ELEMENT_NODE) {
 			if(cur->children) {
-				if(!xmlStrcasecmp(cur->name,"name")) {
-					char *p=string->var->str;
-					my_xmlStrncopy(&p, cur->children->content, sizeof(string->var->str) -1);
+				if(!xmlStrcasecmp(cur->name, (xmlChar*)"name")) {
+					char *p=(char*)string->var->str;
+					my_xmlStrncopy(&p,  (char*)cur->children->content, sizeof(string->var->str) -1);
 #ifdef WRITE_XML
 					string->var->saved_str=1;
 #endif
-				} else if (!xmlStrcasecmp(cur->name,"desc")) {
-					char *p=string->var->desc;
-					my_xmlStrncopy(&p, cur->children->content, sizeof(string->var->desc) -1);
+				} else if (!xmlStrcasecmp(cur->name, (xmlChar*)"desc")) {
+					char *p=(char*)string->var->desc;
+					my_xmlStrncopy(&p, (char*)cur->children->content, sizeof(string->var->desc) -1);
 #ifdef WRITE_XML
 					string->var->saved_desc=1;
 #endif
@@ -1470,15 +1470,15 @@ void copy_stats(xmlNode * in, statstring_item * string)
 	for(; cur; cur = cur-> next) {
 		if(cur->type == XML_ELEMENT_NODE) {
 			if(cur->children){
-				if(!xmlStrcasecmp(cur->name,"name")) {
-					char *p=string->var->name;
-					my_xmlStrncopy(&p, cur->children->content, 20);
+				if(!xmlStrcasecmp(cur->name, (xmlChar*)"name")) {
+					char *p=(char*)string->var->name;
+					my_xmlStrncopy(&p, (char*)cur->children->content, 20);
 #ifdef WRITE_XML
 					string->var->saved_name=1;
 #endif
-				} else if (!xmlStrcasecmp(cur->name,"shortname")){
-					char *p=string->var->shortname;
-					my_xmlStrncopy(&p, cur->children->content, 7);
+				} else if (!xmlStrcasecmp(cur->name, (xmlChar*)"shortname")){
+					char *p=(char*)string->var->shortname;
+					my_xmlStrncopy(&p, (char*)cur->children->content, 7);
 #ifdef WRITE_XML
 					string->var->saved_shortname=1;
 #endif
@@ -1502,7 +1502,7 @@ void parse_statstrings(xmlNode * in, group_stat * group)
 		if(cur->type == XML_ELEMENT_NODE) {
 			if(cur->children) {
 				for(i=0;i<group->no;i++){
-					if(!xmlStrcasecmp(cur->name,group->statstrings[i]->xml_id)) {
+					if(!xmlStrcasecmp(cur->name, (xmlChar*)group->statstrings[i]->xml_id)) {
 						copy_stats(cur->children,group->statstrings[i]);
 #ifdef WRITE_XML
 						group->statstrings[i]->saved=1;
@@ -1532,7 +1532,7 @@ void parse_distrings(xmlNode * in, group_id_di * group)
 		if(cur->type==XML_ELEMENT_NODE) {
 			if(cur->children) {
 				for(i=0;i<group->no;i++){
-					if(!xmlStrcasecmp(cur->name,group->distrings[i]->xml_id)){
+					if(!xmlStrcasecmp(cur->name, (xmlChar*)group->distrings[i]->xml_id)){
 						copy_strings(cur->children,group->distrings[i]);
 #ifdef WRITE_XML
 						group->distrings[i]->saved=1;
@@ -1561,8 +1561,8 @@ void parse_strings(xmlNode * in, group_id * group)
 		if(cur->type==XML_ELEMENT_NODE) {
 			if(cur->children) {
 				for(i=0;i<group->no;i++){
-					if(!xmlStrcasecmp(cur->name,group->strings[i]->xml_id))	{
-						my_xmlStrncopy(&group->strings[i]->var, cur->children->content, group->strings[i]->max_len);
+					if(!xmlStrcasecmp(cur->name, (xmlChar*)group->strings[i]->xml_id))	{
+						my_xmlStrncopy(&group->strings[i]->var, (char*)cur->children->content, group->strings[i]->max_len);
 #ifdef WRITE_XML
 						group->strings[i]->saved=1;
 #endif
@@ -1595,7 +1595,7 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 			for(i=0;i<size;i++) {
 				switch(type) {
 					case GROUP:
-						if(!xmlStrcasecmp(cur->name,group[i].xml_id)) {
+						if(!xmlStrcasecmp(cur->name, (xmlChar*)group[i].xml_id)) {
 							parse_strings(cur,&(group[i]));
 #ifdef WRITE_XML
 							group[i].saved=1;
@@ -1604,7 +1604,7 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 						}
 						break;
 					case DIGROUP:
-						if(!xmlStrcasecmp(cur->name,Group[i].xml_id)) {
+						if(!xmlStrcasecmp(cur->name, (xmlChar*)Group[i].xml_id)) {
 							parse_distrings(cur,&(Group[i]));
 #ifdef WRITE_XML
 							Group[i].saved=1;
@@ -1614,7 +1614,7 @@ void parse_groups(xmlNode * in, void * gPtr, int size, int type)
 						break;
 #ifdef ELC
 					case STAT_GROUP:
-						if(!xmlStrcasecmp(cur->name,stat[i].xml_id)) {
+						if(!xmlStrcasecmp(cur->name, (xmlChar*)stat[i].xml_id)) {
 							parse_statstrings(cur,&(stat[i]));
 #ifdef WRITE_XML
 							stat[i].saved=1;

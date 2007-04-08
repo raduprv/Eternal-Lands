@@ -857,16 +857,16 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	else 
 	{
 		/* Extract the name for use in the tab completion list. */
-		const unsigned char *name = in_data+28;
-		unsigned char *ptr;
-		unsigned char buffer[32];
+		const unsigned char *name = (unsigned char*) in_data+28;
+		char *ptr;
+		char buffer[32];
 
 		if(kind_of_actor != NPC) {
 			/* Skip leading color codes */
 			for (; *name && IS_COLOR(*name); name++);
 			safe_snprintf(buffer, sizeof(buffer), "%.30s", name);
 			/* Remove guild tag, etc. */
-			for(ptr = buffer; *ptr && *ptr <= 127 + c_lbound && !isspace(*ptr); ptr++);
+			for(ptr = buffer; *ptr && *ptr > 0 && !isspace(*ptr); ptr++);
 			*ptr = '\0';
 			add_name_to_tablist(buffer);
 		}

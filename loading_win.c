@@ -67,7 +67,7 @@ int display_loading_win_handler(window_info *win)
 	// the last texture, so that the font will be loaded
 	last_texture = -1;
 	glColor3f (1.0, 1.0, 1.0);
-	draw_string ((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - 20, version_str, 1);
+	draw_string ((win->len_x - version_width) / 2, (win->len_y * 2) / 3 - 20, (unsigned char*)version_str, 1);
 	draw_string_small((win->len_x - (get_string_width(text_buffer)*SMALL_FONT_X_LEN)/12)/2, (win->len_y*2)/3 + PROGRESSBAR_HEIGHT + 2, text_buffer, 1);
 
 	glDisable(GL_TEXTURE_2D);
@@ -123,7 +123,7 @@ int create_loading_win (int width, int height, int snapshot)
 			delete_texture = 0;
 
 			print_version_string (version_str, sizeof (version_str));
-			version_width = (get_string_width (version_str) * DEFAULT_FONT_X_LEN) / 12;		
+			version_width = (get_string_width ((unsigned char*)version_str) * DEFAULT_FONT_X_LEN) / 12;		
 		}
 	}
 	
@@ -140,7 +140,7 @@ void update_loading_win (char *text, float progress_increase)
 			progressbar_set_progress(loading_win, loading_win_progress_bar, total_progress);
 		}
 		if(text != NULL && strlen(text) <= 255) {
-			put_small_text_in_box(text, strlen(text), window_width, text_buffer);
+			put_small_text_in_box((unsigned char*)text, strlen(text), window_width, (char*)text_buffer);
 		}
 		// The loading window is supposed to display stuff while
 		// loading maps when the draw_scene loop is held up. Hence

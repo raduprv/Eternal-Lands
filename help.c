@@ -45,7 +45,7 @@ int display_help_handler(window_info *win)
 				glColor3f(0.3,0.6,1.0);
 				else
 				glColor3f(t->r,t->g,t->b);
-				draw_string(t->x,t->y-j,t->text,1);
+				draw_string(t->x,t->y-j,(unsigned char*)t->text,1);
 			}
 			else
 			{
@@ -53,7 +53,7 @@ int display_help_handler(window_info *win)
 				glColor3f(0.3,0.6,1.0);
 				else
 				glColor3f(t->r,t->g,t->b);
-				draw_string_small(t->x,t->y-j,t->text,1);
+				draw_string_small(t->x,t->y-j,(unsigned char*)t->text,1);
 			}
 		}
 		t=t->Next;
@@ -103,7 +103,7 @@ int click_help_handler(window_info *win, int mx, int my, Uint32 flags)
 					//changing page
 					int i;
 					for(i=0;i<numpage+1;i++){
-						if(!xmlStrcasecmp(Page[i].Name,t->ref)){
+						if(!xmlStrcasecmp((xmlChar*)Page[i].Name,(xmlChar*)t->ref)){
 							helppage=i;
 							vscrollbar_set_pos(help_win, help_menu_scroll_id, 0);
 							vscrollbar_set_bar_len(help_win, help_menu_scroll_id, Page[helppage].max_y);

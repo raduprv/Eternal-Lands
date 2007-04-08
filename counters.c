@@ -352,15 +352,15 @@ int display_counters_handler(window_info *win)
 
 	if (mouseover_name) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small(x, y, "Name", 1);
+	draw_string_small(x, y, (unsigned char*)"Name", 1);
 
 	if (mouseover_session) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small(x + 200, y, "This Session", 1);
+	draw_string_small(x + 200, y, (unsigned char*)"This Session", 1);
 
 	if (mouseover_total) glColor3f(0.6f, 0.6f, 0.6f);
 	else glColor3f(1.0f, 1.0f, 1.0f);
-	draw_string_small(x + 370, y, "Total", 1);
+	draw_string_small(x + 370, y, (unsigned char*)"Total", 1);
 
 	if (counters_scroll_id != -1) {
 		scroll = vscrollbar_get_pos(counters_win, counters_scroll_id);
@@ -380,18 +380,18 @@ int display_counters_handler(window_info *win)
 		}
 		
 		if (counters[i][j].name) {
-			draw_string_small(x, y, counters[i][j].name, 1);
+			draw_string_small(x, y, (unsigned char*)counters[i][j].name, 1);
 		}
 		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_session);
-		draw_string_small(x + 200, y, buffer, 1);
+		draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
 		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_total);
-		draw_string_small(x + 314, y, buffer, 1);
+		draw_string_small(x + 314, y, (unsigned char*)buffer, 1);
 		y += 16;
 	}
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 
-	draw_string_small(x, win->len_y - 20, "Totals:", 1);
+	draw_string_small(x, win->len_y - 20, (unsigned char*)"Totals:", 1);
 		
 	for (j = 0, total = 0, session_total = 0; j < entries[i]; j++) {
 		total += counters[i][j].n_total;
@@ -399,10 +399,10 @@ int display_counters_handler(window_info *win)
 	}
 
 	safe_snprintf(buffer, sizeof(buffer), "%12d", session_total);
-	draw_string_small(x + 200, win->len_y - 20, buffer, 1);
+	draw_string_small(x + 200, win->len_y - 20, (unsigned char*)buffer, 1);
 
 	safe_snprintf(buffer, sizeof(buffer), "%5d", total);
-	draw_string_small(x + 370, win->len_y - 20, buffer, 1);
+	draw_string_small(x + 370, win->len_y - 20, (unsigned char*)buffer, 1);
 
 	return 1;
 }
@@ -640,7 +640,7 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 void increment_spell_counter(int spell_id)
 {
 	if (!spell_names[spell_id+1]) {
-		char str[2];
+		Uint8 str[2];
 
 		str[0] = SPELL_NAME;
 		str[1] = (Sint8)spell_id;

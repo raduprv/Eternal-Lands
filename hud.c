@@ -689,7 +689,7 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 
 void show_help(char *help_message, int x, int y)
 {
-	Uint8 str[125];
+	char str[125];
 	int len=strlen(help_message)*8+1;
 	int width=window_width-80;
 	
@@ -711,7 +711,7 @@ void show_help(char *help_message, int x, int y)
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	safe_snprintf(str, sizeof(str), "%s", help_message);
-	draw_string_small(x, y,help_message,1);
+	draw_string_small(x, y, (unsigned char*)help_message,1);
 }
 
 // the stats display
@@ -747,7 +747,7 @@ void init_stats_display()
 
 void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, float r2, float g2, float b2)
 {
-	unsigned char	buf[32];
+	char buf[32];
 
 	glDisable(GL_TEXTURE_2D);
 	if(len >= 0){
@@ -776,7 +776,7 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	glColor3f(0.8f, 0.8f, 0.8f);
-	draw_string_small(x-(1+8*strlen(buf)), y-3, buf, 1);
+	draw_string_small(x-(1+8*strlen(buf)), y-3, (unsigned char*)buf, 1);
 }
 
 void draw_side_stats_bar(const int x, const int y, const int baselev, const int cur_exp, const int nl_exp)
@@ -848,10 +848,10 @@ int	display_stats_bar_handler(window_info *win)
 		{
         		if(mouse_in_window(win->window_id, mouse_x, mouse_y))
 				{
-					if(statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+100) show_help(attributes.material_points.name,health_bar_start_x+110,-3);
-					if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+100) show_help(attributes.food.name,food_bar_start_x+110,-3);
-					if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+100) show_help(attributes.ethereal_points.name,mana_bar_start_x+110,-3);
-					if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+100) show_help(attributes.carry_capacity.name,load_bar_start_x+110,-3);
+					if(statbar_cursor_x>health_bar_start_x && statbar_cursor_x < health_bar_start_x+100) show_help((char*)attributes.material_points.name,health_bar_start_x+110,-3);
+					if(statbar_cursor_x>food_bar_start_x && statbar_cursor_x < food_bar_start_x+100) show_help((char*)attributes.food.name,food_bar_start_x+110,-3);
+					if(statbar_cursor_x>mana_bar_start_x && statbar_cursor_x < mana_bar_start_x+100) show_help((char*)attributes.ethereal_points.name,mana_bar_start_x+110,-3);
+					if(statbar_cursor_x>load_bar_start_x && statbar_cursor_x < load_bar_start_x+100) show_help((char*)attributes.carry_capacity.name,load_bar_start_x+110,-3);
 				}
 		}
 
@@ -950,9 +950,9 @@ int	display_misc_handler(window_info *win)
 		int	x;
 
 		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
-		x= 3+(win->len_x - (get_string_width(str)*11)/12)/2;
+		x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string(x, 7+(NUM_WATCH_STAT-1)*15, str, 1);
+		draw_string(x, 7+(NUM_WATCH_STAT-1)*15, (unsigned char*)str, 1);
 	}
 	if(show_stats_in_hud && video_mode > 2 && have_stats)
 	{
@@ -1010,7 +1010,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 		
 		if (++stat == watch_this_stat)
@@ -1018,7 +1018,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1026,7 +1026,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1034,7 +1034,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1042,7 +1042,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1050,7 +1050,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1058,7 +1058,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1066,7 +1066,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1074,7 +1074,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1082,7 +1082,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.engineering_skill.shortname,your_info.engineering_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1090,7 +1090,7 @@ int	display_misc_handler(window_info *win)
 		else
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
-		draw_string_small(x, y, str, 1);
+		draw_string_small(x, y, (unsigned char*)str, 1);
 	}	
 	return	1;
 }
@@ -1183,7 +1183,7 @@ void init_quickbar ()
 
 int	display_quickbar_handler(window_info *win)
 {
-	Uint8 str[80];
+	char str[80];
 	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 
@@ -1283,7 +1283,7 @@ int	display_quickbar_handler(window_info *win)
 		}
 			
 			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
-			draw_string_small(x_start,y_end-15,str,1);
+			draw_string_small(x_start,y_end-15,(unsigned char*)str,1);
 		}
 	}
 	
@@ -1590,7 +1590,7 @@ void draw_exp_display()
 	int exp_adjusted_x_len;
 	int nl_exp, baselev, cur_exp;
 	int delta_exp;
-	char * name;
+	unsigned char * name;
 	float prev_exp;
 
 	switch(watch_this_stat){

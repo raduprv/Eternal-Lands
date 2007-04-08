@@ -241,7 +241,7 @@ int close_channel (window_info *win)
 		if (channels[ichan].tab_id == id)
 		{
 			safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, channels[ichan].chan_nr);
-			my_tcp_send(my_socket, str, strlen(str+1)+1);
+			my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
 
 			// Safe to remove?
 			if (tab_bar_win != -1) remove_tab_button(channels[ichan].chan_nr);
@@ -753,22 +753,22 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	{
 		if (msg->data[0] == '%' && msg->len > 1) 
 		{
-			if ( (check_var (&(msg->data[1]), IN_GAME_VAR) ) < 0)
+			if ( (check_var ((char*)&(msg->data[1]), IN_GAME_VAR) ) < 0)
 			{
-				send_input_text_line (msg->data, msg->len);
+				send_input_text_line ((char*)msg->data, msg->len);
 			}
 		}
 		else if ( msg->data[0] == '#' || msg->data[0] == char_cmd_str[0] )
 		{
-			test_for_console_command (msg->data, msg->len);
+			test_for_console_command ((char*)msg->data, msg->len);
 		}
 		else
 		{
 			if(msg->data[0] == char_at_str[0])
 				msg->data[0] = '@';
-			send_input_text_line (msg->data, msg->len);
+			send_input_text_line ((char*)msg->data, msg->len);
 		}
-		add_line_to_history(msg->data, msg->len);
+		add_line_to_history((char*)msg->data, msg->len);
 		clear_input_line();
 	}
 #ifndef OSX
@@ -821,7 +821,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 			&& (msg->data[0] == '/' || msg->data[0]== char_slash_str[0])
 			&& last_pm_from[0])
 		{
-			tf->cursor += put_string_in_buffer (msg, last_pm_from, 1);
+			tf->cursor += put_string_in_buffer (msg, (unsigned char*)last_pm_from, 1);
 			tf->cursor += put_char_in_buffer (msg, ' ', tf->cursor);
 		}
 		else if (msg->len < msg->size - 1)
@@ -891,7 +891,7 @@ void put_string_in_input_field(const Uint8 *text)
 	int tmp_chan;
 
 	if(text != NULL) {
-		msg->len = msg->len = safe_snprintf(msg->data, msg->size, "%s", text);
+		msg->len = msg->len = safe_snprintf((char*)msg->data, msg->size, "%s", text);
 		tf->cursor = tf->buffer->len;
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
@@ -1087,7 +1087,7 @@ void init_channel_names(void)
 	int channelno;
 	
 	// Temp info
-	char *attrib;
+	xmlChar *attrib;
 	int attriblen;
 	
 	queue_initialise(&chan_name_queue);
@@ -1144,13 +1144,13 @@ void init_channel_names(void)
 			/* NO-OP. better performance to check now than later */
 		} else if ((!xmlStrcmp (cur->name, (const xmlChar *)"label"))) {
 			// Get the name.
-			attrib = xmlGetProp (cur, "name");
+			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL) {
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen (attrib);
+			attriblen = strlen ((char*)attrib);
 			if (attriblen < 1) {
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
@@ -1158,23 +1158,23 @@ void init_channel_names(void)
 			}
 			/*channelname = malloc (attriblen)+1;
 			my_xmlStrncopy (&channelname, attrib, attriblen);*/
-			channelname = xmlStrdup(attrib);
+			channelname = (char*)xmlStrdup(attrib);
 			xmlFree (attrib);
 
 			// Get the index number
-			attrib = xmlGetProp (cur, "index");
+			attrib = xmlGetProp (cur, (xmlChar*)"index");
 			if (attrib == NULL) {
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen (attrib);
+			attriblen = strlen ((char*)attrib);
 			if (attriblen < 1) {
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			channelno = atoi (attrib);
+			channelno = atoi ((char*)attrib);
 			xmlFree (attrib);
 
 			// Get the description.
@@ -1182,44 +1182,44 @@ void init_channel_names(void)
 				free (channelname);
 				LOG_ERROR (xml_bad_node);
 				continue;
-			} else if (strlen (cur->children->content) < 1) {
+			} else if (strlen ((char*)cur->children->content) < 1) {
 				free (channelname);
 				LOG_ERROR (xml_bad_node);
 				continue;
 			}
 			attrib = cur->children->content;
-			attriblen = strlen (attrib);
+			attriblen = strlen ((char*)attrib);
 			/*channeldesc = malloc (attriblen)+1;
 			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
-			channeldesc = xmlStrdup(attrib);
+			channeldesc = (char*)xmlStrdup(attrib);
 			
 			// Add it.
 			add_spec_chan_name(channelno, channelname, channeldesc);
 		} else if ((!xmlStrcmp (cur->name, (const xmlChar *)"channel"))) {
 			// Get the channel.
-			attrib = xmlGetProp (cur, "number");
+			attrib = xmlGetProp (cur, (xmlChar*)"number");
 			if (attrib == NULL){
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen (attrib);
+			attriblen = strlen ((char*)attrib);
 			if (attriblen < 1){
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			channelno = atoi (attrib);
+			channelno = atoi ((char*)attrib);
 			xmlFree (attrib);
 			
 			// Get the name.
-			attrib = xmlGetProp (cur, "name");
+			attrib = xmlGetProp (cur, (xmlChar*)"name");
 			if (attrib == NULL){
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
 				continue;
 			}
-			attriblen = strlen (attrib);
+			attriblen = strlen ((char*)attrib);
 			if (attriblen < 1){
 				LOG_ERROR (xml_bad_node);
 				xmlFree (attrib);
@@ -1227,7 +1227,7 @@ void init_channel_names(void)
 			}
 			/*channelname = malloc (attriblen)+1;
 			my_xmlStrncopy (&channelname, attrib, attriblen);*/
-			channelname = xmlStrdup(attrib);
+			channelname = (char*)xmlStrdup(attrib);
 			xmlFree (attrib);
 			
 			// Get the description.
@@ -1235,7 +1235,7 @@ void init_channel_names(void)
 				free (channelname);
 				LOG_ERROR (xml_bad_node);
 				continue;
-			} else if (strlen (cur->children->content) < 1) {
+			} else if (strlen ((char*)cur->children->content) < 1) {
 				free (channelname);
 				LOG_ERROR (xml_bad_node);
 				continue;
@@ -1244,12 +1244,12 @@ void init_channel_names(void)
 			/*attriblen = strlen (attrib);
 			channeldesc = malloc (attriblen);
 			my_xmlStrncopy (&channeldesc, attrib, attriblen);*/
-			channeldesc = xmlStrdup(attrib);
+			channeldesc = (char*)xmlStrdup(attrib);
 			
 			// Add it.
 			add_chan_name(channelno, channelname, channeldesc);
 		} else {
-			LOG_ERROR (xml_undefined_node, file, (cur->name != NULL && strlen(cur->name) < 100) ? cur->name	: (const xmlChar *)"not a string");
+			LOG_ERROR (xml_undefined_node, file, (cur->name != NULL && strlen((char*)cur->name) < 100) ? cur->name	: (const xmlChar *)"not a string");
 		}
 		cur = cur->next;         // Advance to the next node.
 	}
@@ -1412,7 +1412,7 @@ int tab_bar_button_click (widget_list *w, int mx, int my, Uint32 flags)
 			{
 				// Drop this channel via #lc
 				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[tabs[itab].channel-CHAT_CHANNEL1]);
-				my_tcp_send(my_socket, str, strlen(str+1)+1);
+				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
 				// Can I remove this?
 				remove_tab(tabs[itab].channel);
 				if(current_tab == itab) {
@@ -1564,7 +1564,7 @@ int display_chan_sel_handler(window_info *win)
 	}
 	for (i = 0; i < CS_MAX_DISPLAY_CHANS; ++i) {//loathe not having auto-moving widgets...
 		glColor3f(0.5f, 0.75f, 1.0f);
-		draw_string_zoomed(x, y, ((chan_name*)(step->data))->name, 1, local_zoom);
+		draw_string_zoomed(x, y, (unsigned char*)((chan_name*)(step->data))->name, 1, local_zoom);
 		if(mouse_y > win->pos_y+y && mouse_y < win->pos_y+y+20 && mouse_x >= win->pos_x+5
 			&& mouse_x-5 <= win->pos_x + 8*((signed)strlen(((chan_name*)(step->data))->name))) {
 			show_help(((chan_name*)(step->data))->description, mouse_x-win->pos_x,mouse_y-win->pos_y-15);
@@ -1584,7 +1584,7 @@ int display_chan_sel_handler(window_info *win)
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - 5, NULL, NULL);
-	draw_string_zoomed(x, y+=5, channel_help_str, num_lines, local_zoom);
+	draw_string_zoomed(x, y+=5, (unsigned char*)channel_help_str, num_lines, local_zoom);
 	win->len_y = 187 + num_lines * DEFAULT_FONT_Y_LEN * local_zoom + 2;
 	
 	return 0;
@@ -2014,7 +2014,8 @@ int command_jlc(char * text, int len)
 
 void chan_target_name(char * text, int len)
 {
-	unsigned int num, mylen;
+	unsigned int num;
+	int mylen;
 	char buffer[MAX_TEXT_MESSAGE_LENGTH];
 
 	num = chan_int_from_name(text+2, &mylen);

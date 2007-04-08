@@ -1668,11 +1668,11 @@ int mouseover_option_handler(widget_list *widget, int mx, int my)
 		return 0;
 	}
 #ifdef OPTIONS_I18N
-	put_small_text_in_box(our_vars.var[i]->display.desc, strlen(our_vars.var[i]->display.desc),
-								elconfig_menu_x_len-TAB_MARGIN*2, elconf_description_buffer);
+	put_small_text_in_box(our_vars.var[i]->display.desc, strlen((char*)our_vars.var[i]->display.desc),
+								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer);
 #else
 	put_small_text_in_box(our_vars.var[i]->long_desc, strlen(our_vars.var[i]->long_desc),
-								elconfig_menu_x_len-TAB_MARGIN*2, elconf_description_buffer);
+								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer);
 #endif
 	return 1;
 }
@@ -1774,7 +1774,7 @@ void elconfig_populate_tabs(void)
 											elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
 				//Add label for the checkbox
 #ifdef OPTIONS_I18N
-				label_id= label_add(elconfig_tabs[tab_id].tab, NULL, our_vars.var[i]->display.str, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
+				label_id= label_add(elconfig_tabs[tab_id].tab, NULL, (char*)our_vars.var[i]->display.str, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
 #else
 				label_id= label_add(elconfig_tabs[tab_id].tab, NULL, our_vars.var[i]->short_desc, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
 #endif
@@ -1788,7 +1788,7 @@ void elconfig_populate_tabs(void)
 				/* interval is always 1 */
 
 #ifdef OPTIONS_I18N
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
@@ -1806,7 +1806,7 @@ void elconfig_populate_tabs(void)
 				interval= (float *)queue_pop(our_vars.var[i]->queue);
 
 #ifdef OPTIONS_I18N
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
@@ -1823,7 +1823,7 @@ void elconfig_populate_tabs(void)
 			case STRING:
 
 #ifdef OPTIONS_I18N
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
@@ -1843,7 +1843,7 @@ void elconfig_populate_tabs(void)
 			case MULTI:
 
 #ifdef OPTIONS_I18N
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);

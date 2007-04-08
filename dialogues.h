@@ -15,8 +15,8 @@ extern "C" {
  */
 #define MAX_RESPONSES 40 /*!< max. number of response entries in \see dialogue_responces */
 
-extern char dialogue_string[2048]; /*!< buffer for strings in a dialogue */
-extern char npc_name[20]; /*!< buffer for the NPCs name */
+extern unsigned char dialogue_string[2048]; /*!< buffer for strings in a dialogue */
+extern unsigned char npc_name[20]; /*!< buffer for the NPCs name */
 extern int cur_portrait; /*!< pointer to the portrait used by a particular NPC */
 
 /*!

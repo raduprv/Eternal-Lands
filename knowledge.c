@@ -100,11 +100,11 @@ int display_knowledge_handler(window_info *win)
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	//draw text
-	draw_string_small(4,210,knowledge_string,4);
+	draw_string_small(4,210,(unsigned char*)knowledge_string,4);
 	glColor3f(1.0f,1.0f,1.0f);
-	draw_string_small(10,320,researching_str,1);
-	draw_string_small(120,320,research_string,1);
-	draw_string_small(355,320,points_string,1);
+	draw_string_small(10,320,(unsigned char*)researching_str,1);
+	draw_string_small(120,320,(unsigned char*)research_string,1);
+	draw_string_small(355,320,(unsigned char*)points_string,1);
 	// Draw knowledges
 	for(i = 2*scroll; i < 2 * (scroll + 19); i++)
 	{
@@ -121,7 +121,7 @@ int display_knowledge_handler(window_info *win)
 			glColor3f (0.5f, 0.5f, 0.5f);
 		}
 
-		draw_string_zoomed(x,y,knowledge_list[i].name,1,0.7);
+		draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,0.7);
 
 		x += 240;
 		if (i % 2 == 1)
@@ -152,7 +152,7 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int x,y,idx;
-	char str[3];
+	Uint8 str[3];
 
 	x= mx;
 	y= my;

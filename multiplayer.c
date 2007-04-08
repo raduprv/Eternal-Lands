@@ -282,7 +282,7 @@ void connect_to_server()
 			exit(4); //most of the time this is a major error, but do what you want.
         }
 
-	if(SDLNet_ResolveHost(&ip,server_address,port)==-1)
+	if(SDLNet_ResolveHost(&ip,(char*)server_address,port)==-1)
 		{
 			LOG_TO_CONSOLE(c_red2,failed_resolve);
 			return;
@@ -363,7 +363,7 @@ void send_login_info()
 	for(j=0; j<len; j++) str[i+j+1]= password_str[j];
 	str[i+j+1]= 0;
 
-	len= strlen(str);
+	len = strlen((char*)str);
 	len++;//send the last 0 too
 	if(my_tcp_send(my_socket, str, len)<len)
 		{
@@ -373,7 +373,7 @@ void send_login_info()
 }
 
 
-void send_new_char(Uint8 * user_str, Uint8 * pass_str, char skin, char hair, char shirt, char pants, char boots,char head, char type)
+void send_new_char(char * user_str, char * pass_str, char skin, char hair, char shirt, char pants, char boots,char head, char type)
 {
 	int i,j,len;
 	unsigned char str[120];
@@ -443,12 +443,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					text_buf[len] = '\0';
 					
 					// do filtering and ignoring
-					len= filter_or_ignore_text(text_buf, len, sizeof (text_buf), in_data[3]);
+					len= filter_or_ignore_text((char*)text_buf, len, sizeof (text_buf), in_data[3]);
 					if (len > 0)
 					{
 						/* if from the server popup channel, and popup window usage enable */
 						if (use_server_pop_win && (in_data[3] == server_pop_chan))
-							display_server_popup_win(text_buf);
+							display_server_popup_win((char*)text_buf);
 						/* else write to the chat window/console */
 						else
 							put_text_in_buffer(in_data[3], text_buf, len);
@@ -467,7 +467,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged ADD_NEW_ACTOR packet received.\n");
 				  break;
 				}
-				add_actor_from_server(&in_data[3], data_length-3);
+				add_actor_from_server((char*)&in_data[3], data_length-3);
 			}
 			break;
 
@@ -481,7 +481,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged ADD_ENHANCED_ACTOR packet received.\n");
 				  break;
 				}
-				add_enhanced_actor_from_server(&in_data[3], data_length-3);
+				add_enhanced_actor_from_server((char*)&in_data[3], data_length-3);
 			}
 			break;
 
@@ -715,7 +715,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION(2): Possibly forged GET_KNOWLEDGE_LIST packet received.\n");
 				  break;
 				}
-				get_knowledge_list(size, in_data+3);
+				get_knowledge_list(size, (char*)in_data+3);
 			}
 			break;
 
@@ -787,10 +787,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				{
 					char *teststring = "You successfully created ";
 					int testlen = strlen(teststring);
-					if ( (data_length > testlen+4) && (!strncmp(in_data+4, teststring, testlen)) )
+					if ( (data_length > testlen+4) && (!strncmp((char*)in_data+4, teststring, testlen)) )
 					{
 						char *restofstring = malloc(data_length - 4 - testlen + 1);
-						safe_strncpy(restofstring, in_data + 4 + testlen, data_length - 4 - testlen + 1);
+						safe_strncpy(restofstring, (char*)in_data + 4 + testlen, data_length - 4 - testlen + 1);
 						if (strlen(restofstring) > 0)
 						{
 							int product_count = atoi(restofstring);
@@ -813,7 +813,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged SPELL_ITEM_TEXT packet received.\n");
 				  break;
 				}
-				put_small_text_in_box(in_data+3,data_length-3,6*51+100,spell_text);
+				put_small_text_in_box(in_data+3, data_length-3, 6*51+100, (char*)spell_text);
 				if(sigil_win==-1||!windows_list.window[sigil_win].displayed)
 					put_text_in_buffer (CHAT_SERVER, in_data+3, data_length-3);
 				have_error_message=1;
@@ -839,7 +839,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged CHANGE_MAP packet received.\n");
 				  break;
 				}
-				safe_strncpy2(mapname, in_data + 3, sizeof(mapname), data_length - 3);
+				safe_strncpy2(mapname, (char*)in_data + 3, sizeof(mapname), data_length - 3);
 				change_map(mapname);
 			}
 			break;
@@ -949,7 +949,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged LOG_IN_NOT_OK packet received.\n");
 				  break;
 				}
-				set_login_error (&in_data[3], data_length - 3);
+				set_login_error ((char*)&in_data[3], data_length - 3);
 			}
 			break;
 
@@ -973,7 +973,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged CREATE_CHAR_NOT_OKAY packet received.\n");
 				  break;
 				}
-				set_create_char_error (&in_data[3], data_length - 3);
+				set_create_char_error ((char*)&in_data[3], data_length - 3);
 				return;
 			}
 			break;
@@ -1088,7 +1088,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case PONG:
 			{
-				Uint8 str[160];
+				char str[160];
 				if (data_length <= 6)
 				{
 				  log_error("CAUTION: Possibly forged SYNC_CLOCK packet received.\n");
@@ -1272,7 +1272,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged NPC_TEXT packet received.\n");
 				  break;
 				}
-				put_small_text_in_box(&in_data[3],data_length-3,dialogue_menu_x_len-70,dialogue_string);
+				put_small_text_in_box(&in_data[3], data_length-3, dialogue_menu_x_len-70, (char*)dialogue_string);
 				display_dialogue();
 				if (in_data[3] >= 127 && in_data[4] >= 127)
 				{
@@ -1281,7 +1281,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						len = sizeof (text_buf) - 1;
 					memcpy (text_buf, &in_data[4], len);
 					text_buf[len] = '\0';
-					add_questlog (text_buf, len);
+					add_questlog ((char*)text_buf, len);
 				}
 			}
 			break;
@@ -1293,7 +1293,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged NPC_INFO packet received.\n");
 				  break;
 				}
-				safe_strncpy2(npc_name, &in_data[3], sizeof(npc_name), 20);
+				safe_strncpy2((char*)npc_name, (char*)&in_data[3], sizeof(npc_name), 20);
 				cur_portrait=in_data[23];
 			}
 			break;
@@ -1515,7 +1515,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged NPC_SAY_OVERTEXT packet received.\n");
 				  break;
 				}
-				safe_strncpy2(buf, in_data + 5, sizeof(buf), data_length - 5);
+				safe_strncpy2(buf, (char*)in_data + 5, sizeof(buf), data_length - 5);
 				add_displayed_text_to_actor(
 					get_actor_ptr_from_id( SDL_SwapLE16(*((Uint16 *)(in_data+3))) ), buf);
 			}
@@ -1545,9 +1545,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				if(in_data[3]==1)
-					add_buddy(&in_data[5],in_data[4],data_length-5);
+					add_buddy((char*)&in_data[5],in_data[4],data_length-5);
 				else if(in_data[3]==0)
-					del_buddy(&in_data[4],data_length-4);
+					del_buddy((char*)&in_data[4],data_length-4);
 			}
 			break;
 
@@ -1595,7 +1595,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged READ_BOOK packet received.\n");
 				  break;
 				}
-				read_network_book(in_data+3, data_length-3);
+				read_network_book((char*)in_data+3, data_length-3);
 			}
 			break;
 
@@ -1616,7 +1616,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged STORAGE_LIST packet received.\n");
 				  break;
 				}
-				get_storage_categories(in_data+3, data_length-3);
+				get_storage_categories((char*)in_data+3, data_length-3);
 			}
 			break;
 
@@ -1653,7 +1653,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION(2): Possibly forged SPELL_CAST packet received.\n");
 				  break;
 				}
-				process_network_spell(in_data+3, data_length-3);
+				process_network_spell((char*)in_data+3, data_length-3);
 #ifdef COUNTERS
 					if (in_data[3] == S_SUCCES) {
 						// increment the spell counter

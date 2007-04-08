@@ -178,7 +178,7 @@ void drag_item(int item, int storage, int mini)
 	
 	if(!mini && quantity!=-1){
 		safe_snprintf(str,sizeof(str),"%i",quantity);
-		draw_string_small(mouse_x-25,mouse_y+10,str,1);
+		draw_string_small(mouse_x-25, mouse_y+10, (unsigned char*)str, 1);
 	}
 }
 
@@ -263,7 +263,7 @@ void get_new_inventory_item (const Uint8 *data)
 
 int display_items_handler(window_info *win)
 {
-	Uint8 str[80];
+	char str[80];
 	int x,y,i;
 	int item_is_weared=0;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
@@ -276,15 +276,15 @@ int display_items_handler(window_info *win)
 	for(i=0;i<6;x+=(video_mode>4?69:51),++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
-			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, quantities.quantity[i].str,1);
+			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
 			glColor3f(0.3f, 0.5f, 1.0f);
 		} else if(i==quantities.selected){
 			glColor3f(0.0f, 1.0f, 0.3f);
-			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, quantities.quantity[i].str,1);
+			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
 			glColor3f(0.3f, 0.5f, 1.0f);
-		} else  draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, quantities.quantity[i].str,1);
+		} else  draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
 	}
-	draw_string_small(win->len_x-strlen(quantity_str)*8-5, quantity_y_offset-19, quantity_str, 1);
+	draw_string_small(win->len_x-strlen(quantity_str)*8-5, quantity_y_offset-19, (unsigned char*)quantity_str, 1);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -382,23 +382,23 @@ int display_items_handler(window_info *win)
 			}
 			
 			if(!item_is_weared){
-				safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
-				draw_string_small(x_start,y_end-15,str,1);
+				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
+				draw_string_small(x_start, y_end-15, (unsigned char*)str, 1);
 			}
 		}
 	}
 	
 	//draw the load string
 	safe_snprintf(str,sizeof(str),"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small ((video_mode>4?win->len_x-8*strlen (str)-10:2), (video_mode>4?win->len_y-107:quantity_y_offset-19), str, 1);
+	draw_string_small ((video_mode>4?win->len_x-8*strlen (str)-10:2), (video_mode>4?win->len_y-107:quantity_y_offset-19), (unsigned char*)str, 1);
 
 	glColor3f(0.57f,0.67f,0.49f);
 	safe_snprintf(str,sizeof(str),equip_str);
-	draw_string_small (wear_items_x_offset + 33 - (8 * strlen(str))/2, wear_items_y_offset-18, str, 1);
+	draw_string_small (wear_items_x_offset + 33 - (8 * strlen(str))/2, wear_items_y_offset-18, (unsigned char*)str, 1);
 	glColor3f(1.0f,1.0f,1.0f);
 	
 	//now, draw the inventory text, if any.
-	draw_string_small(4, win->len_y - (video_mode>4?85:105), items_string, 4);
+	draw_string_small(4, win->len_y - (video_mode>4?85:105), (unsigned char*)items_string, 4);
 	
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
@@ -735,7 +735,7 @@ int show_items_handler(window_info * win)
 	}
 	
 	safe_strncpy(str,items_string,sizeof(str));
-	put_small_text_in_box(str,strlen(str),win->len_x-10,items_string);
+	put_small_text_in_box((unsigned char*)str, strlen(str), win->len_x-10, items_string);
 
 	return 1;
 }

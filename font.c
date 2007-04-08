@@ -886,7 +886,7 @@ int get_char_width(unsigned char cur_char)
 
 int get_string_width(const unsigned char *str)
 {
-	return get_nstring_width(str, strlen(str));
+	return get_nstring_width(str, strlen((char*)str));
 }
 
 
@@ -952,7 +952,7 @@ void reload_fonts()
 	for(i=0;i < FONTS_ARRAY_SIZE; i++){
 		if(fonts[i] != NULL){
 			if(fonts[i]->texture_id>=0){
-				glDeleteTextures(1, &texture_cache[fonts[i]->texture_id].texture_id);
+				glDeleteTextures(1, (GLuint*)&texture_cache[fonts[i]->texture_id].texture_id);
 				texture_cache[fonts[i]->texture_id].texture_id=0;
 				get_texture_id(fonts[i]->texture_id);
 			}

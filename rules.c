@@ -80,12 +80,12 @@ void add_rule(char * short_desc, char * long_desc, int type)
 	rules.rule[no].type=type;
 }
 
-char * get_id_str(xmlNode * node, char *id)
+char * get_id_str(xmlNode * node, xmlChar *id)
 {
 	xmlNode * cur;
 	for(cur=node;cur;cur=cur->next) {
 		if(cur->type == XML_ELEMENT_NODE && cur->children){
-			if(!xmlStrcasecmp(cur->name,id)) return cur->children->content;
+			if(!xmlStrcasecmp(cur->name,id)) return (char*)cur->children->content;
 		}
 	}
 
@@ -101,12 +101,12 @@ int parse_rules(xmlNode * root)
 	for(cur=root;cur;cur=cur->next){
 		if(cur->type == XML_ELEMENT_NODE){
 			if(cur->children){
-				if(!xmlStrcasecmp(cur->name,"title")) {
-					add_rule(cur->children->content, NULL, TITLE);
-				} else if(!xmlStrcasecmp(cur->name,"rule")) {
-					add_rule(get_id_str(cur->children, "short"), get_id_str(cur->children, "long"), RULE);
-				} else if(!xmlStrcasecmp(cur->name,"info")) {
-					add_rule(get_id_str(cur->children, "short"), get_id_str(cur->children, "long"), INFO);
+				if(!xmlStrcasecmp(cur->name, (xmlChar*)"title")) {
+					add_rule((char*)cur->children->content, NULL, TITLE);
+				} else if(!xmlStrcasecmp(cur->name, (xmlChar*)"rule")) {
+					add_rule(get_id_str(cur->children, (xmlChar*)"short"), get_id_str(cur->children, (xmlChar*)"long"), RULE);
+				} else if(!xmlStrcasecmp(cur->name, (xmlChar*)"info")) {
+					add_rule(get_id_str(cur->children, (xmlChar*)"short"), get_id_str(cur->children, (xmlChar*)"long"), INFO);
 				}
 			}
 		}
@@ -544,8 +544,8 @@ int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, 
 			safe_strncpy(ptr, rules_ptr[i].short_str[j], sizeof(str) - (ptr - str));
 			if (y_curr>=(virt_win_offset + y_in))
 			{
-				if(!j)draw_string_zoomed(x,(y_curr-virt_win_offset),str,0,zoom);
-				else draw_string_zoomed(x+xdiff,(y_curr-virt_win_offset),str,0,zoom);
+				if(!j)draw_string_zoomed(x, (y_curr-virt_win_offset), (unsigned char*)str, 0, zoom);
+				else draw_string_zoomed(x+xdiff, (y_curr-virt_win_offset), (unsigned char*)str, 0, zoom);
 			}
 			tmplen=strlen(str)*11*zoom;
 			if(tmplen>len)len=tmplen;
@@ -561,7 +561,7 @@ int draw_rules(rule_string * rules_ptr, int x_in, int y_in, int lenx, int leny, 
 				if ((leny - (y_curr-virt_win_offset))< (18*zoom)) break;
 				safe_strncpy(str, rules_ptr[i].long_str[j], sizeof(str));
 				if (y_curr>=(virt_win_offset + y_in))
-					draw_string_zoomed(x+20,(y_curr-virt_win_offset),str,0,zoom);
+					draw_string_zoomed(x+20, (y_curr-virt_win_offset), (unsigned char*)str, 0, zoom);
 			}
 			y_curr+=ydiff;
 		}
@@ -628,7 +628,7 @@ void draw_rules_interface (int len_x, int len_y)
 	else 
 		safe_strncpy (str, accepted_rules, sizeof(str));
 		
-	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - 40 * window_ratio, str, 0);
+	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - 40 * window_ratio, (unsigned char*)str, 0);
 	
 	set_font(3);
 	draw_rules (display_rules, diff + 30 * window_ratio, 60 * window_ratio, len_y + diff / 2 - 50, 360 * window_ratio, 1.0f, rules_winRGB);

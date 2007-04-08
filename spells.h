@@ -25,7 +25,7 @@ typedef enum {
 /*! @} */
 
 typedef struct {
-	Uint8 spell_name[60];//The spell_name
+	char spell_name[60];//The spell_name
 	Sint8 spell_image;//image_id
 	Sint8 spell_id;
 	Uint8 spell_str[30];

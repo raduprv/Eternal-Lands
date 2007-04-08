@@ -130,11 +130,11 @@ int display_login_handler (window_info *win)
 	draw_console_pic(login_text);
 
 	// ok, start drawing the interface...
-	draw_string (username_text_x, username_text_y, login_username_str, 1);
-	draw_string (password_text_x, password_text_y, login_password_str, 1);
+	draw_string (username_text_x, username_text_y, (unsigned char*)login_username_str, 1);
+	draw_string (password_text_x, password_text_y, (unsigned char*)login_password_str, 1);
 
 	num_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str), sizeof(login_rules_str), 1, new_char_x + new_char_x_len - username_text_x, NULL, NULL);
-	draw_string_zoomed(username_text_x, log_in_y + 60, login_rules_str, num_lines, 1);
+	draw_string_zoomed(username_text_x, log_in_y + 60, (unsigned char*)login_rules_str, num_lines, 1);
 
 	// start drawing the actual interface pieces
 	get_and_set_texture_id (login_screen_menus);
@@ -168,11 +168,11 @@ int display_login_handler (window_info *win)
 	glEnd();
 
 	glColor3f (0.0f, 0.9f, 1.0f);
-	draw_string (username_bar_x + 4, username_text_y, username_str, 1);
-	draw_string (password_bar_x + 4, password_text_y, display_password_str, 1);
+	draw_string (username_bar_x + 4, username_text_y, (unsigned char*)username_str, 1);
+	draw_string (password_bar_x + 4, password_text_y, (unsigned char*)display_password_str, 1);
 	glColor3f (1.0f, 0.0f, 0.0f);
 	// print the current error, if any
-	draw_string (0, log_in_y + 40, log_in_error_str, 5);
+	draw_string (0, log_in_y + 40, (unsigned char*)log_in_error_str, 5);
 	
 	CHECK_GL_ERRORS ();
 	draw_delay = 20;

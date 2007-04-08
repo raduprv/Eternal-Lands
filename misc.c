@@ -292,7 +292,7 @@ int mouse_in_sphere(float x, float y, float z, float radius)
 }
 #endif
 
-void find_last_url(const unsigned char *source_string, const int len)
+void find_last_url(const char *source_string, const int len)
 {
 	char cur_char;
 	char search_for[][10] = {"http://", "https://", "ftp://"};
@@ -726,8 +726,8 @@ void draw_box(char * name, int x, int y, int w, int h, int rad)
 	int l=0;
 
 	if(name){
-		l=(w-10-(get_string_width(name)*8.0f/12.0f))/2.0f;
-		draw_string_small(x+l+5, y-6, name, 1);
+		l=(w-10-(get_string_width((unsigned char*)name)*8.0f/12.0f))/2.0f;
+		draw_string_small(x+l+5, y-6, (unsigned char*)name, 1);
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -766,7 +766,7 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	int xstr=0;
 	
 	if(str){
-		xstr=x+radius+(w-(get_string_width(str)*width_ratio))/2.0f;
+		xstr=x+radius+(w-(get_string_width((unsigned char*)str)*width_ratio))/2.0f;
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -793,7 +793,7 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	}
 
 	if(str) {
-		draw_string_zoomed(xstr, y+radius/2.0f, str, lines, size);
+		draw_string_zoomed(xstr, y+radius/2.0f, (unsigned char*)str, lines, size);
 	}
 }
 

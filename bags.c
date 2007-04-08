@@ -258,8 +258,8 @@ void get_bags_items_list (const Uint8 *data)
 
 int display_ground_items_handler(window_info *win)
 {
-	Uint8 str[80];
-	Uint8 my_str[10];
+	char str[80];
+	char my_str[10];
 	int i;
 
 	glEnable(GL_TEXTURE_2D);
@@ -267,7 +267,7 @@ int display_ground_items_handler(window_info *win)
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string_small(win->len_x-28, 23, my_str, 2);
+	draw_string_small(win->len_x-28, 23, (unsigned char*)my_str, 2);
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
@@ -301,7 +301,7 @@ int display_ground_items_handler(window_info *win)
 			glEnd();
 					
 			safe_snprintf(str,sizeof(str),"%i",ground_item_list[i].quantity);
-			draw_string_small(x_start,y_end-15,str,1);
+			draw_string_small(x_start,y_end-15,(unsigned char*)str,1);
 		}
 	}
 	

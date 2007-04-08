@@ -35,8 +35,8 @@ Sint8 on_cast[6];
 int clear_mouseover=0;
 int cast_mouseover=0;
 
-char	last_spell_str[20];
-int		last_spell_len= 0;
+Uint8 last_spell_str[20];
+int last_spell_len= 0;
 int spell_result=0;
 
 mqbdata * mqb_data[7]={NULL};//mqb_data will hold the magic quickbar name, image, pos.
@@ -69,158 +69,158 @@ void make_sigils_list()
 
 	// TODO: load this data from a file
 	sigils_list[i].sigil_img=0;
-	my_strcp(sigils_list[i].name,sig_change.str);
-	my_strcp(sigils_list[i].description,sig_change.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_change.str);
+	my_strcp(sigils_list[i].description,(char*)sig_change.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=1;
-	my_strcp(sigils_list[i].name,sig_restore.str);
-	my_strcp(sigils_list[i].description,sig_restore.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_restore.str);
+	my_strcp(sigils_list[i].description,(char*)sig_restore.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=2;
-	my_strcp(sigils_list[i].name,sig_space.str);
-	my_strcp(sigils_list[i].description,sig_space.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_space.str);
+	my_strcp(sigils_list[i].description,(char*)sig_space.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=3;
-	my_strcp(sigils_list[i].name,sig_increase.str);
-	my_strcp(sigils_list[i].description,sig_increase.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_increase.str);
+	my_strcp(sigils_list[i].description,(char*)sig_increase.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=4;
-	my_strcp(sigils_list[i].name,sig_decrease.str);
-	my_strcp(sigils_list[i].description,sig_decrease.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_decrease.str);
+	my_strcp(sigils_list[i].description,(char*)sig_decrease.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=5;
-	my_strcp(sigils_list[i].name,sig_temp.str);
-	my_strcp(sigils_list[i].description,sig_temp.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_temp.str);
+	my_strcp(sigils_list[i].description,(char*)sig_temp.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=6;
-	my_strcp(sigils_list[i].name,sig_perm.str);
-	my_strcp(sigils_list[i].description,sig_perm.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_perm.str);
+	my_strcp(sigils_list[i].description,(char*)sig_perm.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=7;
-	my_strcp(sigils_list[i].name,sig_move.str);
-	my_strcp(sigils_list[i].description,sig_move.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_move.str);
+	my_strcp(sigils_list[i].description,(char*)sig_move.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=8;
-	my_strcp(sigils_list[i].name,sig_local.str);
-	my_strcp(sigils_list[i].description,sig_local.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_local.str);
+	my_strcp(sigils_list[i].description,(char*)sig_local.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=9;
-	my_strcp(sigils_list[i].name,sig_global.str);
-	my_strcp(sigils_list[i].description,sig_global.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_global.str);
+	my_strcp(sigils_list[i].description,(char*)sig_global.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=10;
-	my_strcp(sigils_list[i].name,sig_fire.str);
-	my_strcp(sigils_list[i].description,sig_fire.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_fire.str);
+	my_strcp(sigils_list[i].description,(char*)sig_fire.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=11;
-	my_strcp(sigils_list[i].name,sig_water.str);
-	my_strcp(sigils_list[i].description,sig_water.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_water.str);
+	my_strcp(sigils_list[i].description,(char*)sig_water.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=12;
-	my_strcp(sigils_list[i].name,sig_air.str);
-	my_strcp(sigils_list[i].description,sig_air.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_air.str);
+	my_strcp(sigils_list[i].description,(char*)sig_air.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=13;
-	my_strcp(sigils_list[i].name,sig_earth.str);
-	my_strcp(sigils_list[i].description,sig_earth.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_earth.str);
+	my_strcp(sigils_list[i].description,(char*)sig_earth.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=14;
-	my_strcp(sigils_list[i].name,sig_spirit.str);
-	my_strcp(sigils_list[i].description,sig_spirit.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_spirit.str);
+	my_strcp(sigils_list[i].description,(char*)sig_spirit.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=15;
-	my_strcp(sigils_list[i].name,sig_matter.str);
-	my_strcp(sigils_list[i].description,sig_matter.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_matter.str);
+	my_strcp(sigils_list[i].description,(char*)sig_matter.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=16;
-	my_strcp(sigils_list[i].name,sig_energy.str);
-	my_strcp(sigils_list[i].description,sig_energy.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_energy.str);
+	my_strcp(sigils_list[i].description,(char*)sig_energy.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=17;
-	my_strcp(sigils_list[i].name,sig_magic.str);
-	my_strcp(sigils_list[i].description,sig_magic.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_magic.str);
+	my_strcp(sigils_list[i].description,(char*)sig_magic.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=18;
-	my_strcp(sigils_list[i].name,sig_destroy.str);
-	my_strcp(sigils_list[i].description,sig_destroy.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_destroy.str);
+	my_strcp(sigils_list[i].description,(char*)sig_destroy.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=19;
-	my_strcp(sigils_list[i].name,sig_create.str);
-	my_strcp(sigils_list[i].description,sig_create.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_create.str);
+	my_strcp(sigils_list[i].description,(char*)sig_create.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=20;
-	my_strcp(sigils_list[i].name,sig_knowledge.str);
-	my_strcp(sigils_list[i].description,sig_knowledge.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_knowledge.str);
+	my_strcp(sigils_list[i].description,(char*)sig_knowledge.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=21;
-	my_strcp(sigils_list[i].name,sig_protection.str);
-	my_strcp(sigils_list[i].description,sig_protection.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_protection.str);
+	my_strcp(sigils_list[i].description,(char*)sig_protection.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=22;
-	my_strcp(sigils_list[i].name,sig_remove.str);
-	my_strcp(sigils_list[i].description,sig_remove.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_remove.str);
+	my_strcp(sigils_list[i].description,(char*)sig_remove.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=23;
-	my_strcp(sigils_list[i].name,sig_health.str);
-	my_strcp(sigils_list[i].description,sig_health.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_health.str);
+	my_strcp(sigils_list[i].description,(char*)sig_health.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=24;
-	my_strcp(sigils_list[i].name,sig_life.str);
-	my_strcp(sigils_list[i].description,sig_life.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_life.str);
+	my_strcp(sigils_list[i].description,(char*)sig_life.desc);
 	sigils_list[i].have_sigil=1;
 
 	i++;
 	sigils_list[i].sigil_img=25;
-	my_strcp(sigils_list[i].name,sig_death.str);
-	my_strcp(sigils_list[i].description,sig_death.desc);
+	my_strcp(sigils_list[i].name,(char*)sig_death.str);
+	my_strcp(sigils_list[i].description,(char*)sig_death.desc);
 	sigils_list[i].have_sigil=1;
 
 	for(i=0;i<6;i++)on_cast[i]=-1;
@@ -461,7 +461,7 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 		
 		if (pos >= 0 && sigils_list[pos].have_sigil)
 		{
-			my_strcp(spell_text,sigils_list[pos].name);
+			my_strcp((char*)spell_text,sigils_list[pos].name);
 			have_error_message=0;
 		}
 		return 0;
@@ -472,14 +472,14 @@ int mouseover_sigils_handler(window_info *win, int mx, int my)
 		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, 5, win->len_y-37, 33, 33);
 		
 		if (pos >= 0 && on_cast[pos]!=-1){
-			my_strcp(spell_text,sigils_list[on_cast[pos]].name);
+			my_strcp((char*)spell_text,sigils_list[on_cast[pos]].name);
 			have_error_message=0;
 		}
 		return 0;
 	}
 	
 	if(mx>=350 && mx<=381 && my>=112 && my<=143 && mqb_data[0] && mqb_data[0]->spell_id != -1) {
-		safe_snprintf(spell_text, sizeof(spell_text), "Click to add the spell to the quickbar");
+		safe_snprintf((char*)spell_text, sizeof(spell_text), "Click to add the spell to the quickbar");
 		return 0;
 	}
 
@@ -632,7 +632,7 @@ void process_network_spell (const char *data, int len)
 	
 	if(mqb_data[0]->spell_id!=data[1]){
 		if(!have_spell_name(data[1])){
-			char str[2];
+			Uint8 str[2];
 			
 			str[0]=SPELL_NAME;
 			str[1]=data[1];
@@ -646,7 +646,7 @@ void process_network_spell (const char *data, int len)
 
 void load_quickspells ()
 {
-	Uint8 fname[256];
+	char fname[256];
 	char data[MAX_DATA_FILE_SIZE];
 	FILE *fp;
 	Uint8 i;
@@ -689,7 +689,7 @@ void load_quickspells ()
 
 void save_quickspells()
 {
-	Uint8 fname[128];
+	char fname[128];
 	FILE *fp;
 	Uint8 i;
 	char data[MAX_DATA_FILE_SIZE];
@@ -850,7 +850,7 @@ int cast_handler()
 	}
 
 	if(count<2) {
-		safe_snprintf(spell_text, sizeof(spell_text), "%c%s",127+c_red2,sig_too_few_sigs);
+		safe_snprintf((char*)spell_text, sizeof(spell_text), "%c%s",127+c_red2,sig_too_few_sigs);
 		have_error_message=1;
 		return 1;
 	}

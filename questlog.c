@@ -212,7 +212,7 @@ int draw_questlog_string(char *t)
 			t++;
 		temp[i] = '\0';
 		i = 0;
-		draw_string_small (2, questlog_y, temp, 1);
+		draw_string_small (2, questlog_y, (unsigned char*)temp, 1);
 		questlog_y += 15;
 		if (questlog_y > questlog_menu_y_len - 15)
 			return 1;

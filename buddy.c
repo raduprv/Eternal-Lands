@@ -85,7 +85,7 @@ int display_buddy_handler(window_info *win)
 				case 0xFE:glColor3f(0.5,0.55,0.60);break;
 				default:glColor3f(1.0,1.0,1.0);//invalid number? make it white
 			}
-			draw_string_zoomed(x,y,buddy_list[i].name,1,0.7);
+			draw_string_zoomed(x,y,(unsigned char*)buddy_list[i].name,1,0.7);
 			y+=10;
 		}
 	}
@@ -101,7 +101,7 @@ int display_buddy_handler(window_info *win)
 			glVertex2i(win->len_x-20, 0);
 		glEnd();
 		glEnable(GL_TEXTURE_2D);
-		draw_string_zoomed(win->len_x/3+10,1,buddy_request_str,1,0.7);
+		draw_string_zoomed(win->len_x/3+10,1,(unsigned char*)buddy_request_str,1,0.7);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
 	return 1;
@@ -140,7 +140,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		if(flags&ELW_CTRL) {
 			//CTRL + right click, delete buddy.
 			safe_snprintf(str, sizeof(str), "%c#del_buddy %s", RAW_TEXT, buddy_list[y].name);
-			my_tcp_send(my_socket, str, strlen(str+1)+1);
+			my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
 		} else {
 			//Right click, open edit window
 			create_buddy_interface_win(buddy_change_str, &buddy_list[y]);
@@ -154,7 +154,7 @@ int click_buddy_handler (window_info *win, int mx, int my, Uint32 flags)
 		safe_snprintf (str, sizeof(str),"/%s ", buddy_list[y].name);
 		//put_string_in_buffer (&input_text_line, str, 0);
 		//We'll just reuse the paste function here
-		paste_in_input_field(str);
+		paste_in_input_field((unsigned char*)str);
 	}
 	return 1;
 }
@@ -193,13 +193,13 @@ int clikaa(widget_list *w){
 
 int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 {
-	if(strlen(buddy_name_buffer) == 0) {
+	if(strlen((char*)buddy_name_buffer) == 0) {
 		return 1;
 	} else {
 		char string[255];
 
 		safe_snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, buddy_name_buffer);
-		my_tcp_send(my_socket, string, strlen(string+1)+1);
+		my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
 		hide_window(buddy_add_win);
 		buddy_name_buffer[0] = '\0';
 		description_buffer[0] = '\0';
@@ -217,7 +217,7 @@ int click_change_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 	} else {
 		safe_snprintf(string, sizeof(string), "%c#change_buddy %s %i", RAW_TEXT, buddy_to_change, multiselect_get_selected(buddy_change_win, buddy_type_input_id));
 	}
-	my_tcp_send(my_socket, string, strlen(string+1)+1);
+	my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
 	//BUDDY-FIXME: once server-side offline buddies are supported, the next line can go
 	time(&c_time);
 	destroy_window(buddy_change_win);
@@ -236,25 +236,25 @@ int display_add_buddy_handler(window_info *win)
 		glVertex3i(win->len_x, win->len_y-40,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	draw_string_small(5, win->len_y-5-30, description_buffer, 2);
+	draw_string_small(5, win->len_y-5-30, (unsigned char*)description_buffer, 2);
 	return 1;
 }
 int name_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	put_small_colored_text_in_box(c_orange1, buddy_long_name_str, strlen(buddy_long_name_str),
-                               buddy_add_x_len-10, description_buffer);
+	put_small_colored_text_in_box(c_orange1, (unsigned char*)buddy_long_name_str, strlen(buddy_long_name_str),
+                               buddy_add_x_len-10, (char*)description_buffer);
 	return 1;
 }
 int type_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	put_small_colored_text_in_box(c_orange1, buddy_long_type_str, strlen(buddy_long_type_str),
-                               buddy_add_x_len-10, description_buffer);
+	put_small_colored_text_in_box(c_orange1, (unsigned char*)buddy_long_type_str, strlen(buddy_long_type_str),
+                               buddy_add_x_len-10, (char*)description_buffer);
 	return 1;
 }
 int delete_onmouseover_handler(widget_list *widget, int mx, int my)
 {
-	put_small_colored_text_in_box(c_orange1, buddy_long_delete_str, strlen(buddy_long_delete_str), 
-							buddy_change_x_len-10, description_buffer);
+	put_small_colored_text_in_box(c_orange1, (unsigned char*)buddy_long_delete_str, strlen(buddy_long_delete_str), 
+							buddy_change_x_len-10, (char*)description_buffer);
 	return 1;
 }
 
@@ -266,7 +266,7 @@ int display_accept_buddy_handler(window_info *win)
 		glColor3f(0.77f, 0.57f, 0.39f);
 		for(i = 0; i < MAX_ACCEPT_BUDDY_WINDOWS; i++) {
 			if(accept_windows[i].window_id == win->window_id) {
-				draw_string_small(5, 5, accept_windows[i].text, 2);
+				draw_string_small(5, 5, (unsigned char*)accept_windows[i].text, 2);
 				break;
 			}
 		}
@@ -278,8 +278,8 @@ int display_accept_buddy_handler(window_info *win)
 
 int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
 {
-	if(unikey == '\r' && strlen(buddy_name_buffer) > 0) {
-		buddy_name_buffer[strlen(buddy_name_buffer)-1] = '\0';
+	if(unikey == '\r' && strlen((char*)buddy_name_buffer) > 0) {
+		buddy_name_buffer[strlen((char*)buddy_name_buffer)-1] = '\0';
 		return click_add_buddy_handler(widget, mx, my, ELW_LEFT_MOUSE);
 	} else {
 		return 0;
@@ -288,7 +288,7 @@ int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key,
 
 int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 {
-	unsigned char string[255];
+	char string[255];
 	int window_id = w->window_id;
 	int i;
 
@@ -305,11 +305,11 @@ int click_accept_yes(widget_list *w, int mx, int my, Uint32 flags)
 	}
 	safe_snprintf(string, sizeof(string), "%c#accept_buddy %s", RAW_TEXT, accept_windows[i].name);
 
-	my_tcp_send(my_socket, string, strlen(string+1)+1);
+	my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
 	if(accept_windows[i].checkbox >= 0 && checkbox_get_checked(accept_windows[i].window_id, accept_windows[i].checkbox) > 0) {
 		safe_snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, accept_windows[i].name);
 
-		my_tcp_send(my_socket, string, strlen(string+1)+1);
+		my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
 	}
 	destroy_window(accept_windows[i].window_id);
 	accept_windows[i].window_id = -1;
@@ -368,7 +368,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 			set_window_handler(buddy_add_win, ELW_HANDLER_DISPLAY, &display_add_buddy_handler);
 			/* Add name input and label */
 			label_id = label_add_extended(buddy_add_win, label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
-			string_width = get_string_width(buddy_name_str)*0.9f;
+			string_width = get_string_width((unsigned char*)buddy_name_str)*0.9f;
 			x = string_width+5;
 			y = 5;
 			buddy_name_input_id = pword_field_add_extended(buddy_add_win, buddy_name_input_id, NULL, x, y, buddy_add_x_len-x*2+10, 20, P_TEXT, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_buffer, 15);
@@ -377,7 +377,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 			widget_set_OnKey(buddy_add_win, buddy_name_input_id, name_input_keypress_handler);
 			/* Add "Add buddy" button */
 			y += 5+20;
-			extra_space = 2+((buddy_add_x_len-string_width*2) - get_string_width(buddy_add_str))/2-15;
+			extra_space = 2+((buddy_add_x_len-string_width*2) - get_string_width((unsigned char*)buddy_add_str))/2-15;
 			buddy_add_button_id = button_add(buddy_add_win, NULL, buddy_add_str, x+extra_space, y);
 			widget_set_OnClick(buddy_add_win, buddy_add_button_id, click_add_buddy_handler);
 			return buddy_add_win;
@@ -400,14 +400,14 @@ int create_buddy_interface_win(const char *title, void *argument)
 		/* Add name label and name */
 		label_id = label_add_extended(buddy_change_win, label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_name_str);
 		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
-		x += get_string_width(buddy_name_str)*0.9f+5;
+		x += get_string_width((unsigned char*)buddy_name_str)*0.9f+5;
 		label_id = label_add_extended(buddy_change_win, ++label_id, NULL, x, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_to_change);
 		widget_set_OnMouseover(buddy_change_win, label_id, name_onmouseover_handler);
 		label_id++;
 		x = 5;
 		/* Add type label and input widget */
 		y += 25;
-		x += string_width = get_string_width(buddy_type_str)*0.9f;
+		x += string_width = get_string_width((unsigned char*)buddy_type_str)*0.9f;
 		label_id = label_add_extended(buddy_change_win, label_id, NULL, 5, y, 0, 0.9f, 0.77f, 0.57f, 0.39f, buddy_type_str);
 
 		buddy_type_input_id = multiselect_add(buddy_change_win, NULL, x, y, buddy_add_x_len-string_width*2);
@@ -424,7 +424,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		y += 5+multiselect_get_height(buddy_change_win, buddy_type_input_id);
 		/* Delete buddy checkbox and label */
 		//Center the checkbox+label
-		extra_space = 2+ceilf((buddy_change_x_len-string_width*2 - (20 + get_string_width(buddy_delete_str)*0.9f))/2.0);
+		extra_space = 2+ceilf((buddy_change_x_len-string_width*2 - (20 + get_string_width((unsigned char*)buddy_delete_str)*0.9f))/2.0);
 		checkbox_add(buddy_change_win, NULL, x+extra_space, y, 15, 15, &buddy_delete);
 		x += 20;
 		label_add_extended(buddy_change_win, label_id, NULL, extra_space+x, y, 0, 0.9f, 0.77f, 0.59f, 0.39f, buddy_delete_str);
@@ -434,7 +434,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		x -= 20;
 		y += 20;
 		/* Add button */
-		extra_space = 2+((buddy_change_x_len-string_width*2) - get_string_width(buddy_change_str))/2-15;
+		extra_space = 2+((buddy_change_x_len-string_width*2) - get_string_width((unsigned char*)buddy_change_str))/2-15;
 		buddy_change_button_id = button_add(buddy_change_win, NULL, buddy_change_str, x+extra_space, y);
 		widget_set_OnClick(buddy_change_win, buddy_change_button_id, click_change_buddy_handler);
 		return buddy_change_win;
@@ -470,7 +470,7 @@ int create_buddy_interface_win(const char *title, void *argument)
 		safe_snprintf(string, sizeof(string), buddy_wants_to_add_str, accept_windows[current_window].name);
 		//label_add_extended(buddy_accept_win, label_id++, NULL, x, y, 0, 0, 0, 0.8, -1, -1, -1, string);
 		accept_windows[current_window].text = malloc((strlen(string)+5)*sizeof(*accept_windows[current_window].text));
-		put_small_colored_text_in_box(c_blue1, string, strlen(string), buddy_accept_x_len-10, accept_windows[current_window].text);
+		put_small_colored_text_in_box(c_blue1, (unsigned char*)string, strlen(string), buddy_accept_x_len-10, accept_windows[current_window].text);
 		y += 40;
 		/* Add checkbox if we don't have him/her in our list. */
 		if(!is_in_buddylist(accept_windows[current_window].name)) {
@@ -484,10 +484,10 @@ int create_buddy_interface_win(const char *title, void *argument)
 			x = 5;
 		}
 		/* Add buttons */
-		x = (buddy_accept_x_len - (get_string_width(yes_str)*0.9 + 2 + 10 + 2 + get_string_width(no_str)))/2-40;
+		x = (buddy_accept_x_len - (get_string_width((unsigned char*)yes_str)*0.9 + 2 + 10 + 2 + get_string_width((unsigned char*)no_str)))/2-40;
 		yes_button = button_add_extended(accept_windows[current_window].window_id, 101, NULL, x, y, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, yes_str);
 		
-		x += get_string_width(yes_str) + 2 + 50 ;
+		x += get_string_width((unsigned char*)yes_str) + 2 + 50 ;
 		no_button = button_add_extended(accept_windows[current_window].window_id, 102, NULL, x, y, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, no_str);
 		widget_set_OnClick(accept_windows[current_window].window_id, yes_button, click_accept_yes);
 		widget_set_OnClick(accept_windows[current_window].window_id, no_button, click_accept_no);

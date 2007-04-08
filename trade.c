@@ -41,7 +41,7 @@ int display_trade_handler(window_info *win)
 		glColor3f(1.0f,0.0f,0.0f);
 	}
 	
-	draw_string_small(x+33-strlen(accept_str)*4, win->len_y-58, accept_str, 1);
+	draw_string_small(x+33-strlen(accept_str)*4, win->len_y-58, (unsigned char*)accept_str, 1);
 
 	if(trade_other_accepted<=0){    // RED
 		glColor3f(1.0f,0.0f,0.0f);
@@ -51,16 +51,16 @@ int display_trade_handler(window_info *win)
 		glColor3f(0.0f,1.0f,0.0f);
 	}
 	
-	draw_string_small(x+6*33-strlen(accept_str)*4, win->len_y-58, accept_str, 1);
+	draw_string_small(x+6*33-strlen(accept_str)*4, win->len_y-58, (unsigned char*)accept_str, 1);
 	
 	glColor3f(0.77f,0.57f,0.39f);	
 	
 	//Draw the trade session names
-	draw_string_small(10+2*33-strlen(you_str)*4,11,you_str,1);
-	draw_string_small(10+7*33-strlen(other_player_trade_name)*4,11,other_player_trade_name,1);
+	draw_string_small(10+2*33-strlen(you_str)*4,11,(unsigned char*)you_str,1);
+	draw_string_small(10+7*33-strlen(other_player_trade_name)*4,11,(unsigned char*)other_player_trade_name,1);
 
 	//Draw the X for aborting the trade
-	draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, "X", 1);
+	draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, (unsigned char*)"X", 1);
 	
 	glColor3f(1.0f,1.0f,1.0f);
 	
@@ -93,7 +93,7 @@ int display_trade_handler(window_info *win)
 			glEnd();
 			
 			safe_snprintf(str, sizeof(str), "%i",your_trade_list[i].quantity);
-			draw_string_small(x_start,(i&1)?(y_end-12):(y_end-22),str,1);
+			draw_string_small(x_start,(i&1)?(y_end-12):(y_end-22),(unsigned char*)str,1);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
 			//before: 123456 in one box and 56 in the other could allow
@@ -131,14 +131,14 @@ int display_trade_handler(window_info *win)
 			glEnd();
 			
 			safe_snprintf(str, sizeof(str), "%i",others_trade_list[i].quantity);
-			draw_string_small(x_start,(!(i&1))?(y_end-12):(y_end-22),str,1);
+			draw_string_small(x_start,(!(i&1))?(y_end-12):(y_end-22),(unsigned char*)str,1);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
 				str[0]='s';
 				str[1]='t';
 				str[2]='o';
 				str[3]=0;
-				draw_string_small(x_start,y_start-1,str,1);
+				draw_string_small(x_start,y_start-1,(unsigned char*)str,1);
 			}
 		}
 	}
@@ -183,7 +183,7 @@ int display_trade_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	
 	//now, draw the inventory text, if any.
-	draw_string_small(4,win->len_y-35,items_string,3);
+	draw_string_small(4,win->len_y-35,(unsigned char*)items_string,3);
 
 	return 1;
 }

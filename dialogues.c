@@ -3,8 +3,8 @@
 #include "global.h"
 #include "elwindows.h"
 
-char dialogue_string[2048];
-char npc_name[20];
+unsigned char dialogue_string[2048];
+unsigned char npc_name[20];
 int cur_portrait=8;
 int portraits_tex[MAX_PORTRAITS_TEXTURES];
 
@@ -44,7 +44,7 @@ void build_response_entries (const Uint8 *data, int total_length)
 			if (last_index + 3 + len + 2 + 2 > total_length)
 				break;
 			dialogue_responces[i].in_use=1;
-			my_strncp(dialogue_responces[i].text,&data[last_index+2], len);
+			my_strncp(dialogue_responces[i].text,(char*)&data[last_index+2], len);
 			dialogue_responces[i].response_id=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+len)));
 			dialogue_responces[i].to_actor=SDL_SwapLE16(*((Uint16 *)(data+last_index+2+2+len)));
 			dialogue_responces[i].x_len=len*8;
@@ -71,7 +71,7 @@ int	display_dialogue_handler(window_info *win)
 	int npc_name_x_start,len;
 
 	//calculate the npc_name_x_start (to have it centered on the screen)
-	len= strlen(npc_name);
+	len= strlen((char*)npc_name);
 	npc_name_x_start= win->len_x/2-(len*8)/2;
 
 	glDisable(GL_TEXTURE_2D);
@@ -115,7 +115,7 @@ int	display_dialogue_handler(window_info *win)
 	//now, draw the character name
 	glColor3f(1.0f,1.0f,1.0f);
 	draw_string_small(npc_name_x_start,win->len_y-16,npc_name,1);
-	draw_string_small(win->len_x-60,win->len_y-16,close_str,1);
+	draw_string_small(win->len_x-60,win->len_y-16,(unsigned char*)close_str,1);
 
 	//ok, now draw the responses
 	for(i=0;i<MAX_RESPONSES;i++)
@@ -126,7 +126,7 @@ int	display_dialogue_handler(window_info *win)
 						glColor3f(1.0f,0.5f,0.0f);
 					else
 						glColor3f(1.0f,1.0f,0.0f);
-					draw_string_small(dialogue_responces[i].x_start+5,dialogue_responces[i].y_start+7*14,dialogue_responces[i].text,1);
+					draw_string_small(dialogue_responces[i].x_start+5,dialogue_responces[i].y_start+7*14,(unsigned char*)dialogue_responces[i].text,1);
 				}
 
 		}

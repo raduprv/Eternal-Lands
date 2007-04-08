@@ -242,20 +242,20 @@ int notepadLoadFile ()
 			if (cur->children == NULL)
 				len = 0;
 			else
-				len = strlen (cur->children->content);
+				len = strlen ((char*)cur->children->content);
 			while (nsize <= len)
 				nsize += nsize;
 			data[no_notes].data = calloc ( nsize, sizeof (char) );
 			data[no_notes].size = nsize;
 			if (len > 0)
-				my_strcp (data[no_notes].data, cur->children->content);
+				my_strcp (data[no_notes].data, (char*)cur->children->content);
 			data[no_notes].len = len;
 				    
 			rewrap_message(&data[no_notes], 1.0f, note_win_x_len - 70, NULL);
 			
 			note[no_notes] = malloc ( sizeof (struct Note) );
-			name = xmlGetProp (cur, "NAME");
-			my_strncp (note[no_notes]->name, name, NOTE_NAME_LEN);
+			name = xmlGetProp (cur, (xmlChar*)"NAME");
+			my_strncp (note[no_notes]->name, (char*)name, NOTE_NAME_LEN);
 			note[no_notes]->window = -1;
 			xmlFree(name);
 			no_notes++;
