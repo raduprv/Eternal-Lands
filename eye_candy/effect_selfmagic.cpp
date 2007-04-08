@@ -207,7 +207,7 @@ GLuint SelfMagicParticle::get_texture(const Uint16 res_index)
 SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const SelfMagicType _type, const Uint16 _LOD)
 {
   if (EC_DEBUG)
-    std::cout << "SelfMagicEffect (" << this << ") created." << std::endl;
+    std::cout << "SelfMagicEffect (" << this << ") created (" << _type << ")." << std::endl;
   base = _base;
   dead = _dead;
   pos = _pos;
