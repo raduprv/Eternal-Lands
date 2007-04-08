@@ -44,8 +44,8 @@ void cache_system_init(Uint32 max_items)
 
 void cache_dump_sizes(cache_struct *cache)
 {
-	Sint32	i;
-	Uint8	str[256];
+	Sint32 i;
+	char str[256];
 
 	for(i=0; i<cache->max_item; i++)
 		{
@@ -64,11 +64,11 @@ void cache_dump_sizes(cache_struct *cache)
 							scale='K';
 						}
 					safe_snprintf(str,sizeof(str), "%s %6d%c - %d: %s", cache_size_str, size, scale, i, cache->cached_items[i]->name);
-					put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, str, -1);
+					put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, (unsigned char*)str, -1);
 #ifdef MAP_EDITOR2
 					log_error(str);
 #else
-					write_to_log(str, strlen(str));
+					write_to_log((unsigned char*)str, strlen(str));
 #endif
 				}
 		}
