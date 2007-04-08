@@ -35,11 +35,11 @@ typedef struct
 	Uint8 chan_idx;
 	Uint32 channel;
 	Uint16 len, size;
-	Uint8 *data;
+	char *data;
 	Uint16 wrap_width;
 	float wrap_zoom;
 	Uint8 wrap_lines;
-	char deleted;
+	Uint8 deleted;
 	float max_line_width;
 } text_message;
 
@@ -109,7 +109,7 @@ void send_input_text_line (char *line, int len);
  * \retval int
  * \callgraph
  */
-int filter_or_ignore_text(unsigned char *text_to_add, int len, int size, Uint8 channel);
+int filter_or_ignore_text(char *text_to_add, int len, int size, Uint8 channel);
 
 /*!
  * \ingroup text_font

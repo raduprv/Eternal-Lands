@@ -78,7 +78,7 @@ void write_to_log (const Uint8 * const data, int len)
 	int i, j;
 	Uint8 ch;
 	char str[4096];
-	Uint8 starttime[200], sttime[200];
+	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 	char logmsg[4096];
 
@@ -208,7 +208,7 @@ void send_input_text_line (char *line, int line_len)
 	str[j] = 0;	// always a NULL at the end
 
 	len = strlen (&str[1]);
-	if (my_tcp_send (my_socket, str, len+1) < len+1)
+	if (my_tcp_send (my_socket, (Uint8*)str, len+1) < len+1)
 	{
 		//we got a nasty error, log it
 	}
@@ -216,7 +216,7 @@ void send_input_text_line (char *line, int line_len)
 	return;
 }
 
-int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
+int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 {
 	int l, idx;
 	
@@ -225,7 +225,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 	//check for auto receiving #help
 	for (idx = 0; idx < len; idx++)
 	{
-		if (!IS_COLOR (text_to_add[idx])) break;
+		if (!IS_COLOR ((unsigned char)text_to_add[idx])) break;
 	}
 	l = len - idx;
 	if (l >= strlen(help_request_str) && text_to_add[idx] == '#' && (strncasecmp (&text_to_add[idx], help_request_str, strlen(help_request_str)) == 0 || strncasecmp (&text_to_add[idx], "#mod chat", 9) == 0))
@@ -254,13 +254,17 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 	
 	 - Karen
 	*/
-	if(my_strncompare(text_to_add+1,"Game Date", 9))
+	/*
+	ed (ttlanhil): made it check if it's a server colour. still not perfect
+	(this should have been done server-side instead of parsing the date), but safer
+	*/
+	if((unsigned char)text_to_add[0] == 127+c_green1 && my_strncompare(text_to_add+1,"Game Date", 9))
 	{
 		//we assume that the server will still send little-endian dd/mm/yyyy... we could make it safer by parsing the format too, but it's simpler to assume
 		const char * const month_names[] = { "Aluwia", "Seedar", "Akbar", "Zartia", "Elandra", "Viasia", "Fruitfall", "Mortia", "Carnelar", "Nimlos", "Chimar", "Vespia" };
 		const char * const day_names[] = { "1st", "2nd", "3rd", "4th", "5th", "6th", "7th", "8th", "9th", "10th", "11th", "12th", "13th", "14th", "15th", "16th", "17th", "18th", "19th", "20th", "21st", "22nd", "23rd", "24th", "25th", "26th", "27th", "28th", "29th", "30th" };
 		char new_str[100];
-		const Uint8 *ptr=text_to_add;
+		const char *ptr=text_to_add;
 		short unsigned int day=1, month=1, year=0;
 		int offset = 0;
 
@@ -336,7 +340,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 				add_message_to_pm_log (text_to_add, len, channel);
 #endif //AFK_FIX
 			}
-			else if (channel == CHAT_LOCAL && text_to_add[0] == 127 + c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
+			else if (channel == CHAT_LOCAL && (unsigned char)text_to_add[0] == 127 + c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
 			{
 				// player mentions our name in local chat
 #ifndef AFK_FIX
@@ -354,7 +358,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 				// check if this was a trade attempt
 				int i;
 				for (i = 1; i < len; i++) {
-					if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR (text_to_add[i])) {
+					if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR ((unsigned char)text_to_add[i])) {
 						break;
 					}
 				}
@@ -369,7 +373,7 @@ int filter_or_ignore_text (Uint8 *text_to_add, int len, int size, Uint8 channel)
 	find_last_url (text_to_add, len);
 
 	// look for buddy-wants-to-add-you messages
-	if(channel == CHAT_SERVER && text_to_add[0] == c_green1+127)
+	if(channel == CHAT_SERVER && (unsigned char)text_to_add[0] == c_green1+127)
 	{
 		for (l = 1; l < len; l++)
 		{
@@ -559,7 +563,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 
 	// check for auto-length
 	if (len < 0)
-		len = strlen (text_to_add);
+		len = strlen ((char*)text_to_add);
 
 	// set the time when we got this message
 	last_server_message_time = cur_time;
@@ -652,7 +656,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	update_text_windows(msg);
 	
 	// log the message
-	write_to_log (msg->data, msg->len);
+	write_to_log ((unsigned char*)msg->data, msg->len);
 
 	return;
 }
