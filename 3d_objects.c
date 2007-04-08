@@ -864,10 +864,10 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 	// we need somethign for the md5 data, but we dont have that info, lets use the memory pointer
 	memcpy(fake_md5, ZERO_MD5, sizeof(MD5_DIGEST));
-	fake_md5[0]=(((unsigned int)returned_e3d)>>24) & 0xFF;
-	fake_md5[1]=(((unsigned int)returned_e3d)>>16) & 0xFF;
-	fake_md5[2]=(((unsigned int)returned_e3d)>>8) & 0xFF;
-	fake_md5[3]=(((unsigned int)returned_e3d)) & 0xFF;
+	fake_md5[0]=(((point)returned_e3d)>>24) & 0xFF;
+	fake_md5[1]=(((point)returned_e3d)>>16) & 0xFF;
+	fake_md5[2]=(((point)returned_e3d)>>8) & 0xFF;
+	fake_md5[3]=(((point)returned_e3d)) & 0xFF;
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, fake_md5);
 	else add_3dobject_to_abt(main_bbox_tree, id, bbox, blended, returned_e3d->is_ground, returned_e3d->is_transparent, self_lit, texture_id, fake_md5, dynamic);
 
