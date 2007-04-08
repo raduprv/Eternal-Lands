@@ -20,9 +20,10 @@ const float MAX_EFFECT_DISTANCE = 16.0;
 const float MAX_OBSTRUCT_DISTANCE_SQUARED = 90.0;
 const float OBSTRUCTION_FORCE = 2.0;
 const float WALK_RATE = 1.0;
-const float SWORD_LENGTH = 0.45;
-const float X_OFFSET = 0.50;
-const float Y_OFFSET = 0.50;
+const float SWORD_HILT_LENGTH = 0.1;
+const float SWORD_BLADE_LENGTH = 0.5;
+const float X_OFFSET = 0.25;
+const float Y_OFFSET = 0.25;
 
 ec_object_obstructions object_obstructions;
 ec_actor_obstructions actor_obstructions;
@@ -72,7 +73,9 @@ void set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone, const ec::
 {
   float points[1024][3];
 
-  CalSkeleton_GetBonePoints(CalModel_GetSkeleton(_actor->calmodel), &points[0][0]);
+  const int num_bones = CalSkeleton_GetBonePoints(CalModel_GetSkeleton(_actor->calmodel), &points[0][0]);
+  if (num_bones <= bone)
+    return;
 
   ec::Vec3 unrotated_position;
   unrotated_position.x = points[bone][0] + shift.x;
@@ -117,7 +120,8 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
   ec::Vec3 sword_angle = (sword_pos - base).normalize();
   
 //  const ec::Vec3 rot_sword_angle(sword_angle.x, sword_angle.y * c_rx - sword_angle.z * s_rx, sword_angle.y * s_rx + sword_angle.z * c_rx);
-  tip = base + sword_angle * SWORD_LENGTH;
+  base += sword_angle * SWORD_HILT_LENGTH;
+  tip = base + sword_angle * SWORD_BLADE_LENGTH;
 }
 
 extern "C" void ec_idle()
@@ -166,11 +170,13 @@ extern "C" void ec_idle()
       {
         if ((*iter)->effect->get_type() == ec::EC_SWORD)
           get_sword_positions((*iter)->caster, (*iter)->position, (*iter)->position2);
-        else
+        else if ((*iter)->effect->get_type() == ec::EC_TARGETMAGIC)
           set_vec3_actor_bone((*iter)->position, (*iter)->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+        else
+          (*iter)->position = ec::Vec3((*iter)->caster->x_pos, ec_get_z((*iter)->caster), -(*iter)->caster->y_pos);
       }
       if ((*iter)->target)
-        set_vec3_actor_bone((*iter)->position2, (*iter)->target, 25, ec::Vec3(0.0, 0.0, 0.0));
+          (*iter)->position2 = ec::Vec3((*iter)->target->x_pos, ec_get_z((*iter)->target), -(*iter)->target->y_pos);
       for (int j = 0; j < (int)(*iter)->target_actors.size(); j++)
       {
         if ((*iter)->target_actors[j])

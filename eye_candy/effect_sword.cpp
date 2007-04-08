@@ -61,7 +61,7 @@ GLuint SwordParticle::get_texture(const Uint16 res_index)
 SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start, Vec3* _end, const SwordType _type, const Uint16 _LOD)
 {
   if (EC_DEBUG)
-    std::cout << "SwordEffect (" << this << ") created." << std::endl;
+    std::cout << "SwordEffect (" << this << ") created (" << _type << ")." << std::endl;
   base = _base;
   dead = _dead;
   pos = _start;
@@ -146,9 +146,9 @@ SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start, Vec3* _end,
     }
     case SWORD_OF_MAGIC:
     {
-      color[0] = 0.5;
-      color[1] = 0.4;
-      color[2] = 0.8;
+      color[0] = 0.7;
+      color[1] = 0.6;
+      color[2] = 0.4;
       texture = &(base->TexShimmer);
       break;
     }
@@ -249,12 +249,12 @@ bool SwordEffect::idle(const Uint64 usec)
     return true;
 
   const Vec3 pos_change = old_end - *end;
-  float speed = square(pos_change.magnitude() * 1000000.0 / usec);
+  float speed = square(pos_change.magnitude() * 1000000.0 / usec) / 1.5;
   if (speed > 4.0)
     speed = 4.0;
   else if (speed < 0.1)
     speed = 0.1;
-  
+    
   while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec / 12000 * speed) < 0.5)
   {
     const percent_t percent = square(randpercent());
