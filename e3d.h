@@ -59,7 +59,7 @@ __inline__ static int has_extra_uv(int vo)
 
 typedef struct
 {
-	int texture_id;
+	GLuint texture_id;
 	int options;	/*!< flag determining whether this object is transparent or not */
 
     /*!

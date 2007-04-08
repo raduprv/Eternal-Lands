@@ -12,9 +12,7 @@
 
 static __inline__ void print_fbo_errors(const char *file, const char *func, int line)
 {
-	int error_no;
-
-	error_no = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	GLuint error_no = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
 	switch (error_no)
 	{
@@ -49,7 +47,7 @@ static __inline__ void print_fbo_errors(const char *file, const char *func, int 
 	}	
 }
 
-void free_color_framebuffer(int *FBO, int *FBORenderBuffer, int *FBOTexture)
+void free_color_framebuffer(GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
 {
 	if (FBO[0] > 0)
 	{
@@ -68,7 +66,7 @@ void free_color_framebuffer(int *FBO, int *FBORenderBuffer, int *FBOTexture)
 	}
 }
 
-void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffer, int *FBOTexture)
+void make_color_framebuffer(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
 {
 	GLint depth_bits, depth_format;
 
@@ -112,13 +110,13 @@ void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffe
 	CHECK_GL_ERRORS();
 }
 
-void change_color_framebuffer_size(int width, int height, int *FBO, int *FBORenderBuffer, int *FBOTexture)
+void change_color_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
 {
 	free_color_framebuffer(FBO, FBORenderBuffer, FBOTexture);
 	make_color_framebuffer(width, height, FBO, FBORenderBuffer, FBOTexture);
 }
 
-void free_depth_framebuffer(int *FBO, int *FBOTexture)
+void free_depth_framebuffer(GLuint *FBO, GLuint *FBOTexture)
 {
 	if (FBO[0] > 0)
 	{
@@ -132,7 +130,7 @@ void free_depth_framebuffer(int *FBO, int *FBOTexture)
 	}
 }
 
-void make_depth_framebuffer(int width, int height, int *FBO, int *FBOTexture)
+void make_depth_framebuffer(int width, int height, GLuint *FBO, GLuint *FBOTexture)
 {
 	GLint depth_bits, depth_format;
 
@@ -178,7 +176,7 @@ void make_depth_framebuffer(int width, int height, int *FBO, int *FBOTexture)
 
 }
 
-void change_depth_framebuffer_size(int width, int height, int *FBO, int *FBOTexture)
+void change_depth_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBOTexture)
 {
 	free_depth_framebuffer(FBO, FBOTexture);
 	make_depth_framebuffer(width, height, FBO, FBOTexture);

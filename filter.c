@@ -7,9 +7,9 @@
 
 typedef struct
 {
-	Uint8 name[64];
+	char name[64];
 	int len;
-	Uint8 replacement[64];
+	char replacement[64];
 	int rlen;
 	char wildcard_type; /* 0=none, 1=*word, 2=word*, 3=*word* */
 	char local;
@@ -22,7 +22,7 @@ int caps_filter=1;
 char storage_filter[128];
 
 //returns -1 if the name is already filtered, 1 on sucess, -2 if no more filter slots
-int add_to_filter_list (const Uint8 *name, char local, char save_name)
+int add_to_filter_list (const char *name, char local, char save_name)
 {
 	int i;
 	char left[256];
@@ -102,7 +102,7 @@ int add_to_filter_list (const Uint8 *name, char local, char save_name)
 }
 
 //returns -1 if the name is not filtered, 1 on sucess
-int remove_from_filter_list (const Uint8 *name)
+int remove_from_filter_list (const char *name)
 {
 	int i;
 	int local = 0;
@@ -160,7 +160,7 @@ void print_filter_list ()
 #endif
 
 //returns length to be filtered, 0 if not filtered
-int check_if_filtered (const Uint8 *name)
+int check_if_filtered (const char *name)
 {
 	int t, i, l;
 
@@ -217,7 +217,7 @@ int check_if_filtered (const Uint8 *name)
 }
 
 // Filter the lines that contain the desired string from the inventory listing
-int filter_storage_text (Uint8 * input_text, int len, int size) {
+int filter_storage_text (char * input_text, int len, int size) {
 	int istart, iline, ic, diff;
 	int flen;
 
@@ -235,7 +235,7 @@ int filter_storage_text (Uint8 * input_text, int len, int size) {
 			if (diff > 0)
 			{
 				len -= diff;
-				memmove (input_text + istart, input_text + iline, len * sizeof (Uint8));
+				memmove (input_text + istart, input_text + iline, len * sizeof (char));
 				ic -= diff;
 			}
 			while (ic < len && input_text[ic] != '\n')
@@ -264,7 +264,7 @@ int filter_storage_text (Uint8 * input_text, int len, int size) {
 }  
 
 //returns the new length of the text
-int filter_text (Uint8 *buff, int len, int size)
+int filter_text (char *buff, int len, int size)
 {
 	int i, t, bad_len, rep_len, new_len, idx;
 
@@ -280,7 +280,7 @@ int filter_text (Uint8 *buff, int len, int size)
 
 		// skip any coloring
 		idx = 0;
-		while (IS_COLOR (buff[idx]) && clen > 0)
+		while (IS_COLOR ((unsigned char)buff[idx]) && clen > 0)
 		{
 			idx++;
 			clen--;
@@ -305,7 +305,7 @@ int filter_text (Uint8 *buff, int len, int size)
 			}
 		}
 		
-		while (buff[idx] != '\0' && (buff[idx] == ' ' || buff[idx] == ':' || IS_COLOR (buff[idx])) && clen > 0)
+		while (buff[idx] != '\0' && (buff[idx] == ' ' || buff[idx] == ':' || IS_COLOR ((unsigned char)buff[idx])) && clen > 0)
 		{
 			idx++;
 			clen--;
@@ -387,10 +387,10 @@ void load_filters_list (const char *file_name, char local)
 {
 	int f_size;
 	FILE *f = NULL;
-	Uint8 *filter_list_mem;
+	char *filter_list_mem;
 	int i,j;
-	Uint8 name[64];
-	Uint8 ch;
+	char name[64];
+	char ch;
 
 	// don't use my_fopen, absence of filters is not an error
 	f = fopen (file_name, "rb");
@@ -399,7 +399,7 @@ void load_filters_list (const char *file_name, char local)
 	f_size = ftell (f);
 
 	//ok, allocate memory for it
-	filter_list_mem = (Uint8 *) calloc (f_size, 1);
+	filter_list_mem = (char *) calloc (f_size, 1);
 	fseek (f, 0, SEEK_SET);
 	fread (filter_list_mem, 1, f_size, f);
 	fclose (f);
@@ -455,7 +455,7 @@ void load_filters()
 int list_filters()
 {
 	int i, size, minlen;
-	Uint8 *str;
+	char *str;
 
 	if (filtered_so_far == 0)
 	{

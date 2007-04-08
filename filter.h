@@ -28,7 +28,7 @@ extern char storage_filter[128]; /*!< string to use as filter when using the #st
  * \param save_name     inidicator whether to save this name in the configuration files.
  * \retval int
  */
-int add_to_filter_list (const Uint8 *name, char local, char save_name);
+int add_to_filter_list (const char *name, char local, char save_name);
 
 /*!
  * \ingroup actors_utils
@@ -39,7 +39,7 @@ int add_to_filter_list (const Uint8 *name, char local, char save_name);
  * \param name      the name to remove from the list.
  * \retval int
  */
-int remove_from_filter_list (const Uint8 *name);
+int remove_from_filter_list (const char *name);
 
 /*!
  * \ingroup actors_utils
@@ -52,7 +52,7 @@ int remove_from_filter_list (const Uint8 *name);
  * \retval int
  * \callgraph
  */
-int filter_text (Uint8 *input_text, int len, int size);
+int filter_text (char *input_text, int len, int size);
 
 /*!
  * \ingroup loadsave

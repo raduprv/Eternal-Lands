@@ -49,7 +49,7 @@ int test_for_console_command (char *text, int len);
 void command_cleanup(void);
 
 void add_command(const char *command, int (*callback)());
-void add_name_to_tablist(const unsigned char *name);
+void add_name_to_tablist(const char *name);
 
 void init_commands(const char *filename);
 

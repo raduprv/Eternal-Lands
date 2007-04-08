@@ -24,9 +24,9 @@ int lake_waves_timer=0;
 float water_movement_u=0;
 float water_movement_v=0;
 int show_reflection=1;
-int water_reflection_fbo = 0;
-int water_reflection_fbo_renderbuffer = 0;
-int water_reflection_fbo_texture = 0;
+GLuint water_reflection_fbo = 0;
+GLuint water_reflection_fbo_renderbuffer = 0;
+GLuint water_reflection_fbo_texture = 0;
 int reflection_texture_width = 0;
 int reflection_texture_height = 0;
 double projectionlMatrixd[16];
@@ -436,7 +436,8 @@ static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos
 static __inline__ void init_depth()
 {
 	float x, y, x_scaled, y_scaled;
-	int i, l, start, stop;
+	int i, l;
+	unsigned int start, stop;
 
 	glDepthFunc(GL_ALWAYS);
 	glDepthRange(1.0f, 1.0f);

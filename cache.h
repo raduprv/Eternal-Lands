@@ -19,7 +19,7 @@ typedef struct
 	Uint32	size;			/*!< size of item */
 	Uint32	access_time;	/*!< last time used */
 	Uint32	access_count;	/*!< number of usages since last checkpoint */
-	Uint8	*name;			/*!< original source or name, NOTE: this is NOT free()'d and allows dups! */
+	char	*name;			/*!< original source or name, NOTE: this is NOT free()'d and allows dups! */
 }cache_item_struct;
 
 /*!
@@ -157,7 +157,7 @@ void cache_set_size_limit(cache_struct *cache, Uint32 size_limit);
  * \retval cache_item_struct*   a pointer to a \see cache_item_struct of the given \a item.
  * \callgraph
  */
-cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size);
+cache_item_struct *cache_add_item(cache_struct *cache, char *name, void *item, Uint32 size);
 
 /*!
  * \ingroup cache
@@ -171,7 +171,7 @@ cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, 
  *
  * \callgraph
  */
-void cache_set_name(cache_struct *cache, Uint8 *name, void *item);
+void cache_set_name(cache_struct *cache, char *name, void *item);
 
 /*!
  * \ingroup cache

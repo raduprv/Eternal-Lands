@@ -64,7 +64,7 @@ float get_float_after_string (const char* needle, const char* haystack, Uint32 m
  * \param	beginning Whether it should return the offset to the beginning of the string or the end of the string
  * \retval Sint32	Returns either the offset to the beginning of the string or to the end of the string - if the string was not found in the char array it returns -1 on failure.
  */
-Sint32 get_string_occurance (const char *needle, const char *haystack, const Uint32 max_len, const Uint8 beginning);
+Sint32 get_string_occurance (const char *needle, const char *haystack, const Uint32 max_len, const char beginning);
 
 /*!
  * \ingroup	misc_utils
@@ -109,7 +109,7 @@ int safe_snprintf(char *dest, const size_t len, const char* format, ...);
  * \param	source The source char array
  * \todo	We should just use strcpy instead...
  */
-void my_strcp(Uint8 *dest,const Uint8 * source);
+void my_strcp(char *dest,const char * source);
 
 /*!
  * \ingroup	misc_utils
@@ -133,7 +133,7 @@ void my_strncp (char *dest, const char *source, size_t len);
  * \param	source The source string
  * \todo	Err, use strcat instead...
  */
-void my_strcat(Uint8 *dest,const Uint8 * source);
+void my_strcat(char *dest, const char * source);
 
 /*!
  * \ingroup	misc_utils
@@ -146,7 +146,7 @@ void my_strcat(Uint8 *dest,const Uint8 * source);
  * \param	len The number of bytes to compare
  * \retval Sint32	Returns 1 on match, 0 if the strings doesn't match.
  */
-Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len);
+Sint32 my_strncompare(const char *dest, const char *src, Sint32 len);
 
 /*!
  * \ingroup	misc_utils
@@ -159,7 +159,7 @@ Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len);
  * \retval Sint32 	Returns 1 on match, 0 if the strings doesn't match.
  * \sa my_strncompare
  */
-Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
+Sint32 my_strcompare(const char *dest, const char *src);
 
 /*!
  * \ingroup	misc_utils
@@ -171,7 +171,7 @@ Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src);
  * \param	len The length of characters you wish to check
  * \retval Sint32	Returns 1 if enough characters are uppercase, 0 if they are lowercase.
  */
-Sint32 my_isupper(const Uint8 *src, int len);
+Sint32 my_isupper(const char *src, int len);
 
 /*!
  * \ingroup	misc_utils
@@ -273,8 +273,8 @@ int sane_snprintf (char *buffer, size_t size, const char *format, ...);
 #endif 
 #endif
 
-void get_file_digest(const Uint8*, Uint8[16]);
-void get_string_digest(const Uint8*, Uint8[16]);
+void get_file_digest(const char*, Uint8[16]);
+void get_string_digest(const char*, Uint8[16]);
 
 // Element type and dictionaries for actor definitions
 typedef struct {
@@ -284,7 +284,7 @@ typedef struct {
 
 int find_description_index (const dict_elem dict[], const char *elem, const char *desc);
 void get_string_value (char *buf, size_t maxlen, xmlNode *node);
-void get_item_string_value (char *buf, size_t maxlen, xmlNode *node, const char *name);
+void get_item_string_value (char *buf, size_t maxlen, xmlNode *node, const unsigned char *name);
 int get_bool_value (xmlNode *node);
 double get_float_value (xmlNode *node);
 int get_int_property (xmlNode *node, const char *prop);

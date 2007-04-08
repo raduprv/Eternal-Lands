@@ -216,7 +216,7 @@ void setup_video_mode(int fs, int mode)
 			case 2:
 				if(window_width != 640 || window_height != 480)
 					{
-						Uint8 str[100];
+						char str[100];
 						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"640x480");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
@@ -227,7 +227,7 @@ void setup_video_mode(int fs, int mode)
 			case 4:
 				if(window_width != 780 || window_height != 550)
 					{
-						Uint8 str[100];
+						char str[100];
 						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"780x550");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
@@ -238,7 +238,7 @@ void setup_video_mode(int fs, int mode)
 			case 6:
 				if(window_width != 990 || window_height != 720)
 					{
-						Uint8 str[100];
+						char str[100];
 						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"990x720");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
@@ -249,7 +249,7 @@ void setup_video_mode(int fs, int mode)
 			case 8:
 				if(window_width != 1070 || window_height != 785)
 					{
-						Uint8 str[100];
+						char str[100];
 						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1070x785");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
@@ -260,7 +260,7 @@ void setup_video_mode(int fs, int mode)
 			case 10:
 				if(window_width != 1250 || window_height != 990)
 					{
-						Uint8 str[100];
+						char str[100];
 						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1250x990");
 						LOG_TO_CONSOLE(c_yellow1,str);
 					}
@@ -271,7 +271,7 @@ void setup_video_mode(int fs, int mode)
 			case 12:
 				if(window_width != 1600 || window_height != 1200)
 				{
-					Uint8 str[100];
+					char str[100];
 					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1600x1200");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
@@ -282,7 +282,7 @@ void setup_video_mode(int fs, int mode)
 			case 14:
 				if(window_width != 1240 || window_height != 780)
 				{
-					Uint8 str[100];
+					char str[100];
 					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1240x780");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
@@ -293,7 +293,7 @@ void setup_video_mode(int fs, int mode)
 			case 16:
 				if(window_width != 1420 || window_height != 810)
 				{
-					Uint8 str[100];
+					char str[100];
 					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1420x810");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
@@ -304,7 +304,7 @@ void setup_video_mode(int fs, int mode)
 			case 18:
 				if(window_width != 1620 || window_height != 950)
 				{
-					Uint8 str[100];
+					char str[100];
 					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1620x950");
 					LOG_TO_CONSOLE(c_yellow1,str);
 				}
@@ -563,7 +563,7 @@ void init_video()
 
 void init_gl_extensions()
 {
-	Uint8 * extensions;
+	char * extensions;
 	int ext_str_len;
 	char str[150];
 	//now load the multitexturing extension
@@ -622,7 +622,7 @@ void init_gl_extensions()
 #endif
 
 	//see if we really have multitexturing
-	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
+	extensions=(char *)glGetString(GL_EXTENSIONS);
 	ext_str_len=strlen(extensions);
 	if(ELglActiveTextureARB && ELglMultiTexCoord2fARB && ELglMultiTexCoord2fvARB && ELglClientActiveTextureARB) {
 		have_multitexture=get_string_occurance("GL_ARB_multitexture",extensions,ext_str_len,0);
@@ -905,7 +905,7 @@ void set_new_video_mode(int fs,int mode)
 		{
 			if(texture_cache[i].file_name[0])
 				{
-					glDeleteTextures(1,&texture_cache[i].texture_id);
+					glDeleteTextures(1,(GLuint*)&texture_cache[i].texture_id);
 					texture_cache[i].texture_id=0;//force a reload
 					CHECK_GL_ERRORS();
 				}

@@ -395,7 +395,7 @@ typedef struct
 
 	/*! \{ */
 	char remapped_colors;	/*!< If the actors colours are remapped it will holds the texture in actor->texture_id*/
-	int texture_id;			/*!< Sets the texture ID, if the remapped_colors==1 - remember to glDeleteTextures*/
+	GLuint texture_id;			/*!< Sets the texture ID, if the remapped_colors==1 - remember to glDeleteTextures*/
 	char skin_name[256];	/*!< Sets the skin name*/
 	char actor_name[256];	/*!< Sets the actors name - holds the guild name as well after a special 127+color character*/
 	/*! \} */

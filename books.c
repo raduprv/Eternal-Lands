@@ -357,28 +357,28 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 	_image *img;
 	char *text=NULL;
 
-	x=xmlGetInt(cur,"x");
-	y=xmlGetInt(cur,"y");
-	w=xmlGetInt(cur,"w");
-	h=xmlGetInt(cur,"h");
+	x=xmlGetInt(cur,(xmlChar*)"x");
+	y=xmlGetInt(cur,(xmlChar*)"y");
+	w=xmlGetInt(cur,(xmlChar*)"w");
+	h=xmlGetInt(cur,(xmlChar*)"h");
 	
-	u_start=xmlGetFloat(cur,"u_start");
-	u_end=xmlGetFloat(cur,"u_end");
+	u_start=xmlGetFloat(cur,(xmlChar*)"u_start");
+	u_end=xmlGetFloat(cur,(xmlChar*)"u_end");
 	if(!u_end)
 		u_end=1;
 	
-	v_start=xmlGetFloat(cur,"v_start");
+	v_start=xmlGetFloat(cur,(xmlChar*)"v_start");
 	if(!v_start)
 		v_start=1;
-	v_end=xmlGetFloat(cur,"v_end");
+	v_end=xmlGetFloat(cur,(xmlChar*)"v_end");
 	
-	image_path=xmlGetProp(cur,"src");
+	image_path=(char*)xmlGetProp(cur,(xmlChar*)"src");
 	if(!image_path) return;
 
 	img=create_image(image_path, x, y, w, h, u_start, v_start, u_end, v_end);
 
 	if(cur->children && cur->children->content){
-		MY_XMLSTRCPY(&text, cur->children->content);
+		MY_XMLSTRCPY(&text, (char*)cur->children->content);
 	}
 	
 	if(add_image_to_page(text, img, b, p)==NULL)
@@ -392,7 +392,7 @@ void add_xml_image_to_page(xmlNode * cur, book * b, page *p)
 void add_xml_str_to_page(xmlNode * cur, int type, book * b, page *p)
 {
 	char * string=NULL;
-	if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, cur->children->content)!=-1){
+	if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, (char*)cur->children->content)!=-1){
 		add_str_to_page(string, type, b, p);
 	} else {
 #ifndef OSX
@@ -409,13 +409,13 @@ void add_xml_page(xmlNode *cur, book * b)
 	page *p=add_page(b);
 	for(;cur;cur=cur->next){
 		if(cur->type == XML_ELEMENT_NODE){
-			if (!xmlStrcasecmp(cur->name,"title")){
+			if (!xmlStrcasecmp(cur->name,(xmlChar*)"title")){
 				add_xml_str_to_page(cur,_TITLE,b,p);
-			} else if (!xmlStrcasecmp(cur->name,"author")){
+			} else if (!xmlStrcasecmp(cur->name,(xmlChar*)"author")){
 				add_xml_str_to_page(cur,_AUTHOR,b,p);
-			} else if (!xmlStrcasecmp(cur->name,"text")){
+			} else if (!xmlStrcasecmp(cur->name,(xmlChar*)"text")){
 				add_xml_str_to_page(cur,_TEXT,b,p);
-			} else if (!xmlStrcasecmp(cur->name,"image")){
+			} else if (!xmlStrcasecmp(cur->name,(xmlChar*)"image")){
 				add_xml_image_to_page(cur, b, p);
 			}
 		}
@@ -429,7 +429,7 @@ book * parse_book(xmlNode *in, char * title, int type, int id)
 	
 	for(cur=in;cur;cur=cur->next){
 		if(cur->type == XML_ELEMENT_NODE){
-			if(!xmlStrcasecmp(cur->name,"page")){
+			if(!xmlStrcasecmp(cur->name,(xmlChar*)"page")){
 				add_xml_page(cur->children,b);
 			}
 		}
@@ -467,12 +467,12 @@ book * read_book(char * file, int type, int id)
 		}
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
 		log_error("Error while parsing: %s", path);
-	} else if(xmlStrcasecmp(root->name,"book")){
+	} else if(xmlStrcasecmp(root->name,(xmlChar*)"book")){
 		log_error("Root element in %s is not <book>", path);
-	} else if((title=xmlGetProp(root,"title"))==NULL){
+	} else if((title=xmlGetProp(root,(xmlChar*)"title"))==NULL){
 		log_error("Root element in %s does not contain a title=\"<short title>\" property.", path);
 	} else {
-		b=parse_book(root->children, title, type, id);
+		b=parse_book(root->children, (char*)title, type, id);
 	}
 	
 	if(title) {
@@ -493,12 +493,12 @@ void parse_knowledge_item(xmlNode *in)
 
 	for(cur=in;cur;cur=cur->next){
 		if(cur->type == XML_ELEMENT_NODE){
-			if(!xmlStrcasecmp(cur->name,"Knowledge")){
-				if ((strID=xmlGetProp(cur,"ID"))==NULL){
+			if(!xmlStrcasecmp(cur->name,(xmlChar*)"Knowledge")){
+				if ((strID=(char*)xmlGetProp(cur,(xmlChar*)"ID"))==NULL){
 					log_error("Knowledge Item does not contain an ID property.");
 				} else {
 					id = atoi(strID);
-					if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, cur->children->content)!=-1){
+					if(cur->children && cur->children->content && MY_XMLSTRCPY(&string, (char*)cur->children->content)!=-1){
 						if (read_book(string, 2, id + KNOWLEDGE_BOOK_OFFSET) != NULL) {
 							knowledge_list[id].has_book = 1;
 						}
@@ -546,7 +546,7 @@ void read_knowledge_book_index()
 		}
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
 		log_error("Error while parsing: %s", path);
-	} else if(xmlStrcasecmp(root->name,"Knowledge_Books")){
+	} else if(xmlStrcasecmp(root->name,(xmlChar*)"Knowledge_Books")){
 		log_error("Root element in %s is not <Knowledge_Books>", path);
 	} else {
 		parse_knowledge_item(root->children);
@@ -582,7 +582,7 @@ void open_book(int id)
 		*((Uint16*)(str+1))=SDL_SwapLE16((Uint16)id);
 		*((Uint16*)(str+3))=SDL_SwapLE16(0);
 
-		my_tcp_send(my_socket, str, 5);
+		my_tcp_send(my_socket, (Uint8*)str, 5);
 	} else {
 		display_book_window(b);
 	}
@@ -758,16 +758,16 @@ void display_page(book * b, page * p)
 
 	for(i=0, l=p->lines; *l; i++,l++){
 		glColor3f(0.34f,0.25f, 0.16f);
-		draw_string_zoomed(10,i*18*0.9f,*l,0,1.0f);
+		draw_string_zoomed(10,i*18*0.9f,(unsigned char*)*l,0,1.0f);
 	}
 	
 	glColor3f(0.385f,0.285f, 0.19f);
 	
 	safe_snprintf(str,sizeof(str),"%d",p->page_no);
 	if(b->type==1)
-		draw_string_zoomed(140,b->max_lines*18*0.9f+2,str,0,1.0);
+		draw_string_zoomed(140,b->max_lines*18*0.9f+2,(unsigned char*)str,0,1.0);
 	else if(b->type==2)
-		draw_string_zoomed(110,b->max_lines*18*0.9f+2,str,0,1.0);
+		draw_string_zoomed(110,b->max_lines*18*0.9f+2,(unsigned char*)str,0,1.0);
 	set_font(0);
 }
 
@@ -844,22 +844,22 @@ int display_book_handler(window_info *win)
 	glTranslatef(0,win->len_y-18,0);
 	book_mouse_y-=(win->len_y-18);
 	x=10;
-	if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>10 && book_mouse_x<(get_string_width("<-")*11.0f/12.0f)){
+	if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>10 && book_mouse_x<(get_string_width((unsigned char*)"<-")*11.0f/12.0f)){
 		glColor3f(0.95f, 0.76f, 0.52f);
-		draw_string(10,-2,"<-",0);
+		draw_string(10,-2,(unsigned char*)"<-",0);
 		
 		glColor3f(0.77f,0.59f, 0.38f);
-		draw_string(win->len_x-33,-2,"->",0);
-	} else if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>win->len_x-33 && book_mouse_x<win->len_x-33+(get_string_width("->")*11.0f/12.0f)){
+		draw_string(win->len_x-33,-2,(unsigned char*)"->",0);
+	} else if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>win->len_x-33 && book_mouse_x<win->len_x-33+(get_string_width((unsigned char*)"->")*11.0f/12.0f)){
 		glColor3f(0.95f, 0.76f, 0.52f);
-		draw_string(win->len_x-33,-2,"->",0);
+		draw_string(win->len_x-33,-2,(unsigned char*)"->",0);
 		
 		glColor3f(0.77f,0.59f, 0.38f);
-		draw_string(10,-2,"<-",0);
+		draw_string(10,-2,(unsigned char*)"<-",0);
 	} else {
 		glColor3f(0.77f,0.59f, 0.38f);
-		draw_string(10,-2,"<-",0);
-		draw_string(win->len_x-33,-2,"->",0);
+		draw_string(10,-2,(unsigned char*)"<-",0);
+		draw_string(win->len_x-33,-2,(unsigned char*)"->",0);
 	}
 	if(b->type==1) {
 		x=50;
@@ -867,48 +867,48 @@ int display_book_handler(window_info *win)
 		if(p>=0){
 			safe_snprintf(str,sizeof(str),"%d",p+1);
 
-			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width((unsigned char*)str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 				glColor3f(0.77f,0.59f, 0.38f);
 			} else 
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 		}
 		x=100;
 		p=b->active_page-2;
 		if(p>=0){
 			safe_snprintf(str,sizeof(str),"%d",p+1);
 			
-			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width((unsigned char*)str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 				glColor3f(0.77f,0.59f, 0.38f);
 			} else 
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 		}
 		x=win->len_x-120;
 		p=b->active_page+2;
 		if(p<b->no_pages){
 			safe_snprintf(str,sizeof(str),"%d",p+1);
 			
-			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width((unsigned char*)str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 				glColor3f(0.77f,0.59f, 0.38f);
 			} else 
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 		}
 		x=win->len_x-70;
 		p=b->active_page+5;
 		if(p<b->no_pages){
 			safe_snprintf(str,sizeof(str),"%d",p+1);
 			
-			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+			if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width((unsigned char*)str)*11.0f/12.0f)){
 				glColor3f(0.95f, 0.76f, 0.52f);
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 				glColor3f(0.77f,0.59f, 0.38f);
 			} else 
-				draw_string(x,0,str,0);
+				draw_string(x,0,(unsigned char*)str,0);
 		}
 	} else if(b->type==2) {
 		x=win->len_x/2-60;
@@ -917,12 +917,12 @@ int display_book_handler(window_info *win)
 			if(p>=0){
 				safe_snprintf(str,sizeof(str),"%d",p+1);
 				
-				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width((unsigned char*)str)*11.0f/12.0f)){
 					glColor3f(0.95f, 0.76f, 0.52f);
-					draw_string(x,0,str,0);
+					draw_string(x,0,(unsigned char*)str,0);
 					glColor3f(0.77f,0.59f, 0.38f);
 				} else
-					draw_string(x,0,str,0);
+					draw_string(x,0,(unsigned char*)str,0);
 			}
 			x-=40;
 		}
@@ -932,12 +932,12 @@ int display_book_handler(window_info *win)
 			if(p<b->no_pages){
 				safe_snprintf(str,sizeof(str),"%d",p+1);
 				
-				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width(str)*11.0f/12.0f)){
+				if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>x && book_mouse_x<x+(get_string_width((unsigned char*)str)*11.0f/12.0f)){
 					glColor3f(0.95f, 0.76f, 0.52f);
-					draw_string(x,0,str,0);
+					draw_string(x,0,(unsigned char*)str,0);
 					glColor3f(0.77f,0.59f, 0.38f);
 				} else
-					draw_string(x,0,str,0);
+					draw_string(x,0,(unsigned char*)str,0);
 			}
 			x+=40;
 		}
@@ -946,7 +946,7 @@ int display_book_handler(window_info *win)
 	if(book_mouse_y>0 && book_mouse_y<18 && book_mouse_x>win->len_x/2-15 && book_mouse_x<win->len_x/2+15)
 		glColor3f(0.95f, 0.76f, 0.52f);
 	
-	draw_string(win->len_x/2-15,0,"[X]",0);
+	draw_string(win->len_x/2-15,0,(unsigned char*)"[X]",0);
 	glPopMatrix();
 	return 1;
 }
@@ -980,7 +980,7 @@ int click_book_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0]=SEND_BOOK;
 				*((Uint16*)(str+1))=SDL_SwapLE16(id);
 				*((Uint16*)(str+3))=SDL_SwapLE16(pages);
-				my_tcp_send(my_socket, str, 5);
+				my_tcp_send(my_socket, (Uint8*)str, 5);
 
 				if(b->active_page+b->type<b->no_pages)
 					b->active_page+=b->type;

@@ -341,7 +341,7 @@ int		select_window(int win_id);
  *
  * \post    If this functions returns -1, it indicates an unhandled exception has occured.
  */
-int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
+int		create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
 
 /*!
  * \ingroup elwindows

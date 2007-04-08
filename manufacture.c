@@ -357,7 +357,7 @@ void display_manufacture_menu()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
-		manufacture_win= create_window((Uint8 *)win_manufacture, our_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
+		manufacture_win= create_window(win_manufacture, our_root_win, 0, manufacture_menu_x, manufacture_menu_y, manufacture_menu_x_len, manufacture_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(manufacture_win, ELW_HANDLER_DISPLAY, &display_manufacture_handler );
 		set_window_handler(manufacture_win, ELW_HANDLER_CLICK, &click_manufacture_handler );

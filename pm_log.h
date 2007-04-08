@@ -104,7 +104,7 @@ void add_message_to_pm_log (char *msg, int len, Uint8 channel);
  *
  * \callgraph
  */
-void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel);
+void send_afk_message (const char *server_msg, int len, Uint8 channel);
 
 /*!
  * \ingroup actor_utils
@@ -127,7 +127,7 @@ void print_message(int no);
  * \retval int
  * \callgraph
  */
-int is_talking_about_me (const Uint8 * server_msg, int len, char everywhere);
+int is_talking_about_me (const char * server_msg, int len, char everywhere);
 
 #ifdef __cplusplus
 } // extern "C"

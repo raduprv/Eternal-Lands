@@ -35,8 +35,11 @@ floating_message floating_messages[MAX_NUMBER_OF_FLOATING_MESSAGES];
 
 int floatingmessages_enabled = 1;
 
-void floatingmessages_add_level(int actor_id, int level, const char * skillname);
-void floatingmessages_compare_stat(int actor_id, int value, int new_value, const char *skillname);
+void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname);
+void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname);
+
+void draw_stat_final(int len, int x, int y, const unsigned char * name, const char * value);
+
 
 void get_the_stats(Sint16 *stats)
 {
@@ -401,8 +404,6 @@ void init_attribf()
 	your_info.eth.cur=get_cur_eth;
 }
 
-void draw_stat_final(int len, int x, int y, char * name, char * value);
-
 void draw_stat(int len, int x, int y, attrib_16 * var, names * name)
 {
 	char str[9];
@@ -432,18 +433,18 @@ void draw_statf(int len, int x, int y, attrib_16f * var, names * name)
 	draw_stat_final(len,x,y,name->name,str);
 }
 
-void draw_stat_final(int len, int x, int y, char * name, char * value)
+void draw_stat_final(int len, int x, int y, const unsigned char * name, const char * value)
 {
 	char str[80];
 
 	safe_snprintf(str,sizeof(str),"%-15s %s",name,value);
-	draw_string_small(x,y,str,1);
+	draw_string_small(x, y, (unsigned char*)str, 1);
 }
 
 int display_stats_handler(window_info *win)
 {
 	player_attribs cur_stats = your_info;
-	Uint8 str[10];
+	char str[10];
 	int x,y;
 	
 	x=5;
@@ -639,7 +640,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	glColor4f(message->color[0], message->color[1], message->color[2], f > cut ? 1.0f : (f / cut));
 	f /= message->active_time/1000.0f;
 	
-	width = ((float)get_string_width(message->message) * (INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+	width = ((float)get_string_width((unsigned char*)message->message) * (INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
 	
 	switch(message->direction){
 		case FLOATINGMESSAGE_EAST:
@@ -664,7 +665,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 			y=healthbar_z+zoom_level*0.2f-(f*0.5f);
 			break;
 	}
-	draw_ingame_string(x, y, message->message, 1, 0.14, 0.21);
+	draw_ingame_string(x, y, (unsigned char*)message->message, 1, 0.14, 0.21);
 }
 
 void drawactor_floatingmessages(int actor_id, float healthbar_z) {
@@ -763,7 +764,7 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
 	last_direction_added[4]=direction;
 }
 
-void floatingmessages_add_level(int actor_id, int level, const char * skillname)
+void floatingmessages_add_level(int actor_id, int level, const unsigned char * skillname)
 {
 	char str[50];
 
@@ -771,7 +772,7 @@ void floatingmessages_add_level(int actor_id, int level, const char * skillname)
 	add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 0.3, 1.0, 2000);
 }
 
-void floatingmessages_compare_stat(int actor_id, int value, int new_value, const char *skillname) 
+void floatingmessages_compare_stat(int actor_id, int value, int new_value, const unsigned char *skillname) 
 {
 	char str[50];
 	int diff=new_value-value;

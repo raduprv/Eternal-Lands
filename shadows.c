@@ -32,7 +32,7 @@ GLuint depth_map_id = 0;
 #define depth_map_scale 15.0
 #define light_view_near -30.0
 #define light_view_far 6.0*/
-int shadow_fbo = 0;
+GLuint shadow_fbo = 0;
 
 GLfloat light_view_hscale=13.0;
 GLfloat light_view_top=10.0;

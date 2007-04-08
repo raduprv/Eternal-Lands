@@ -117,7 +117,7 @@ void add_command(const char *command, int (*callback)())
 	command_count++;
 }
 
-void add_name_to_tablist(const unsigned char *name)
+void add_name_to_tablist(const char *name)
 {
 	static int list_size = 0;
 	int i;
@@ -180,7 +180,7 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 
 	if(input != NULL && input->len > 0 )
 	{
-		const char *input_string = input->data;
+		const char *input_string = (char*)input->data;
 		int count;
 		int i;
 		short retries;
@@ -329,7 +329,7 @@ void do_tab_complete(text_message *input)
 			break;
 			case NAME:
 			{
-				const unsigned char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
+				const char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
 				/* Find the length of the data we're removing */
 				int len = input->data+tf->cursor-1-(last_space ? last_space : (input->data-1));
 				int i;
@@ -340,7 +340,7 @@ void do_tab_complete(text_message *input)
 				}
 				input->len -= len;
 				tf->cursor -= len;
-				paste_in_input_field(completed.str);
+				paste_in_input_field((unsigned char*)completed.str);
 				input->len = strlen(input->data);
 			}
 		}
@@ -535,7 +535,7 @@ int command_ver(char *text, int len)
 
 int command_ignore(char *text, int len)
 {
-	Uint8 name[16];
+	char name[16];
 	int i;
 	Uint8 ch='\0';
 	int result;
@@ -557,14 +557,14 @@ int command_ignore(char *text, int len)
 
 	if (i > 15 && ch != '\0')
 	{
-		Uint8 str[100];
+		char str[100];
 		safe_snprintf (str, sizeof(str), "%s %s", name_too_long, not_added_to_ignores);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
 	}
 	if (i < 3)
 	{
-		Uint8 str[100];
+		char str[100];
 		safe_snprintf (str, sizeof(str), "%s %s", name_too_short, not_added_to_ignores);
 		LOG_TO_CONSOLE (c_red1, name_too_short);
 		return 1;
@@ -573,7 +573,7 @@ int command_ignore(char *text, int len)
 	result = add_to_ignore_list (name, save_ignores);
 	if (result == -1)
 	{
-		Uint8 str[100];
+		char str[100];
 		safe_snprintf (str, sizeof(str), already_ignoring, name);
 		LOG_TO_CONSOLE (c_red1, str);
 		return 1;
@@ -584,7 +584,7 @@ int command_ignore(char *text, int len)
 	}
 	else
 	{
-		Uint8 str[100];
+		char str[100];
 		safe_snprintf (str, sizeof(str), added_to_ignores, name);
 		LOG_TO_CONSOLE (c_green1, str);
 	}
@@ -593,8 +593,8 @@ int command_ignore(char *text, int len)
 
 int command_filter(char *text, int len)
 {
-	Uint8 name[256];
-	Uint8 str[100];
+	char name[256];
+	char str[100];
 	int i;
 	Uint8 ch = '\0';
 	int result;
@@ -644,8 +644,8 @@ int command_filter(char *text, int len)
 
 int command_unignore(char *text, int len)
 {
-	Uint8 name[16];
-	Uint8 str[200];
+	char name[16];
+	char str[200];
 	int i;
 	Uint8 ch = '\0';
 	int result;
@@ -693,8 +693,8 @@ int command_unignore(char *text, int len)
 
 int command_unfilter(char *text, int len)
 {
-	Uint8 name[64];
-	Uint8 str[200];
+	char name[64];
+	char str[200];
 	int i;
 	Uint8 ch = '\0';
 	int result;
@@ -743,7 +743,7 @@ int command_unfilter(char *text, int len)
 int command_glinfo(char *text, int len)
 {
 	GLubyte *my_string;
-	Uint8 this_string[8192];
+	char this_string[8192];
 
 	my_string = (GLubyte *)glGetString(GL_RENDERER);
 	safe_snprintf(this_string, sizeof(this_string),"%s: %s",video_card_str,my_string);

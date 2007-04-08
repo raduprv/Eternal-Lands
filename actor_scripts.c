@@ -1328,8 +1328,8 @@ void    actor_check_int(actor_types *act, const char *section, const char *type,
 }
 
 xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults) {
-	xmlNode	*item;
-	char	*group;
+	xmlNode *item;
+	char *group;
 	
 	// first, check for errors
 	if(defaults == NULL || cfg == NULL){
@@ -1337,17 +1337,17 @@ xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults) {
 	}
 	
 	//lets find out what group to look for
-	group= get_string_property(cfg, "group");
+	group = get_string_property(cfg, "group");
 	
 	// look for defaul entries with the same name
 	for(item=defaults->children; item; item=item->next){
 		if(item->type == XML_ELEMENT_NODE) {
 			if(xmlStrcasecmp(item->name, cfg->name) == 0){
-				char	*item_group;
+				char *item_group;
 			
-				item_group= get_string_property(item, "group");
+				item_group = get_string_property(item, "group");
 				// either both have no group, or both groups match
-				if(xmlStrcasecmp(item_group, group) == 0){
+				if(xmlStrcasecmp((xmlChar*)item_group, (xmlChar*)group) == 0){
 					// this is the default entry we want then!
 					return item;
 				}
@@ -1379,16 +1379,16 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	ok= 1;
 	for(item=cfg->children; item; item=item->next) {
 		if(item->type == XML_ELEMENT_NODE) {
-			if(xmlStrcasecmp (item->name, "arms") == 0) {
+			if(xmlStrcasecmp (item->name, (xmlChar*)"arms") == 0) {
 				get_string_value(shirt->arms_name, sizeof(shirt->arms_name), item);
-			} else if(xmlStrcasecmp(item->name, "mesh") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value(shirt->model_name, sizeof(shirt->model_name), item);
 				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
-			} else if(xmlStrcasecmp(item->name, "torso") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"torso") == 0) {
 				get_string_value(shirt->torso_name, sizeof(shirt->torso_name), item);
-			} else if(xmlStrcasecmp (item->name, "armsmask") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"armsmask") == 0) {
 				get_string_value(shirt->arms_mask, sizeof(shirt->arms_mask), item);
-			} else if(xmlStrcasecmp(item->name, "torsomask") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"torsomask") == 0) {
 				get_string_value(shirt->torso_mask, sizeof(shirt->torso_mask), item);
 			} else {
 				LOG_ERROR("unknown shirt property \"%s\"", item->name);
@@ -1403,13 +1403,13 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		
 		if(default_node){
 			if(shirt->arms_name==NULL || *shirt->arms_name=='\0')
-				get_item_string_value(shirt->arms_name, sizeof(shirt->arms_name), default_node, "arms");
+				get_item_string_value(shirt->arms_name, sizeof(shirt->arms_name), default_node, (xmlChar*)"arms");
 			if(shirt->model_name==NULL || *shirt->model_name=='\0'){
-				get_item_string_value(shirt->model_name, sizeof(shirt->model_name), default_node, "mesh");
+				get_item_string_value(shirt->model_name, sizeof(shirt->model_name), default_node, (xmlChar*)"mesh");
 				shirt->mesh_index= cal_load_mesh(act, shirt->model_name, "shirt");
 			}
 			if(shirt->torso_name==NULL || *shirt->torso_name=='\0')
-				get_item_string_value(shirt->torso_name, sizeof(shirt->torso_name), default_node, "torso");
+				get_item_string_value(shirt->torso_name, sizeof(shirt->torso_name), default_node, (xmlChar*)"torso");
 		}
 	}
 	
@@ -1442,17 +1442,17 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "hands") == 0) {
+			if (xmlStrcasecmp (item->name, (xmlChar*)"hands") == 0) {
 				get_string_value (skin->hands_name, sizeof (skin->hands_name), item);
-			} else if (xmlStrcasecmp (item->name, "head") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"head") == 0) {
 				get_string_value (skin->head_name, sizeof (skin->head_name), item);
-			} else if (xmlStrcasecmp (item->name, "torso") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"torso") == 0) {
 				get_string_value (skin->body_name, sizeof (skin->body_name), item);
-			} else if (xmlStrcasecmp (item->name, "arms") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"arms") == 0) {
 				get_string_value (skin->arms_name, sizeof (skin->arms_name), item);
-			} else if (xmlStrcasecmp (item->name, "legs") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"legs") == 0) {
 				get_string_value (skin->legs_name, sizeof (skin->legs_name), item);
-			} else if (xmlStrcasecmp (item->name, "feet") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"feet") == 0) {
 				get_string_value (skin->feet_name, sizeof (skin->feet_name), item);
 			} else {
 				LOG_ERROR("unknown skin property \"%s\"", item->name);
@@ -1467,9 +1467,9 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		
 		if(default_node){
 			if(skin->hands_name==NULL || *skin->hands_name=='\0')
-				get_item_string_value(skin->hands_name, sizeof(skin->hands_name), default_node, "hands");
+				get_item_string_value(skin->hands_name, sizeof(skin->hands_name), default_node, (xmlChar*)"hands");
 			if(skin->head_name==NULL || *skin->head_name=='\0')
-				get_item_string_value(skin->head_name, sizeof(skin->head_name), default_node, "head");
+				get_item_string_value(skin->head_name, sizeof(skin->head_name), default_node, (xmlChar*)"head");
 		}
 	}
 	
@@ -1500,15 +1500,15 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "skin") == 0) {
+			if (xmlStrcasecmp (item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (legs->legs_name, sizeof (legs->legs_name), item);
-			} else if (xmlStrcasecmp (item->name, "mesh") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (legs->model_name, sizeof (legs->model_name), item);
 				legs->mesh_index = cal_load_mesh (act, legs->model_name, "legs");
-			} else if (xmlStrcasecmp (item->name, "skinmask") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"skinmask") == 0) {
 				get_string_value (legs->legs_mask, sizeof (legs->legs_mask), item);
-			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
-				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
+				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
 				legs->glow = mode;
 			} else {
@@ -1524,9 +1524,9 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		
 		if(default_node){
 			if(legs->legs_name==NULL || *legs->legs_name=='\0')
-				get_item_string_value(legs->legs_name, sizeof(legs->legs_name), default_node, "skin");
+				get_item_string_value(legs->legs_name, sizeof(legs->legs_name), default_node, (xmlChar*)"skin");
 			if(legs->model_name==NULL || *legs->model_name=='\0'){
-				get_item_string_value(legs->model_name, sizeof(legs->model_name), default_node, "mesh");
+				get_item_string_value(legs->model_name, sizeof(legs->model_name), default_node, (xmlChar*)"mesh");
 				legs->mesh_index= cal_load_mesh(act, legs->model_name, "legs");
 			}
 		}
@@ -1550,55 +1550,55 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "mesh") == 0) {
+			if (xmlStrcasecmp (item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (weapon->model_name, sizeof (weapon->model_name), item);
 				weapon->mesh_index = cal_load_weapon_mesh (act, weapon->model_name, "weapon");
-			} else if (xmlStrcasecmp (item->name, "skin") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (weapon->skin_name, sizeof (weapon->skin_name), item);
-			} else if (xmlStrcasecmp (item->name, "skinmask") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"skinmask") == 0) {
 				get_string_value (weapon->skin_mask, sizeof (weapon->skin_mask), item);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_up1") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_up_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_up2") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_up_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_down1") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_down2") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
-				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
+				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
 				weapon->glow = mode;
 			} else {
@@ -1637,10 +1637,10 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		
 		if(default_node){
 			if(weapon->skin_name==NULL || *weapon->skin_name=='\0')
-				get_item_string_value(weapon->skin_name, sizeof(weapon->skin_name), default_node, "skin");
+				get_item_string_value(weapon->skin_name, sizeof(weapon->skin_name), default_node, (xmlChar*)"skin");
 			if(type_idx!=GLOVE_FUR && type_idx!=GLOVE_LEATHER){ // these dont have meshes
 				if(weapon->model_name==NULL || *weapon->model_name=='\0'){
-					get_item_string_value(weapon->model_name, sizeof(weapon->model_name), default_node, "mesh");
+					get_item_string_value(weapon->model_name, sizeof(weapon->model_name), default_node, (xmlChar*)"mesh");
 					weapon->mesh_index= cal_load_weapon_mesh(act, weapon->model_name, "weapon");
 				}
 			}
@@ -1669,18 +1669,18 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 
 	for(item=cfg; item; item=item->next) {
 		if(item->type == XML_ELEMENT_NODE) {
-			if(xmlStrcasecmp(item->name, "mesh") == 0) {
+			if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (part->model_name, sizeof (part->model_name), item);
 				if(strcmp("shield",part_name)==0)
 					part->mesh_index = cal_load_weapon_mesh (act, part->model_name, part_name);
 				else
 					part->mesh_index = cal_load_mesh (act, part->model_name, part_name);
-			} else if(xmlStrcasecmp(item->name, "skin") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (part->skin_name, sizeof (part->skin_name), item);
-			} else if(xmlStrcasecmp(item->name, "skinmask") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skinmask") == 0) {
 				get_string_value (part->skin_mask, sizeof (part->skin_mask), item);
-			} else if(xmlStrcasecmp(item->name, "glow") == 0) {
-				int mode= find_description_index (glow_mode_dict, item->children->content, "glow mode");
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"glow") == 0) {
+				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if(mode < 0) mode = GLOW_NONE;
 				part->glow= mode;
 			} else {
@@ -1694,10 +1694,10 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	if(default_node){
 		if(part->skin_name==NULL || *part->skin_name=='\0')
 			if(strcmp(part_name, "head")){ // heads don't have seperate skins here
-				get_item_string_value(part->skin_name, sizeof(part->skin_name), default_node, "skin");
+				get_item_string_value(part->skin_name, sizeof(part->skin_name), default_node, (xmlChar*)"skin");
 			}
 		if(part->model_name==NULL || *part->model_name=='\0'){
-			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, "mesh");
+			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, (xmlChar*)"mesh");
 			if(strcmp("shield",part_name)==0)
 				part->mesh_index= cal_load_weapon_mesh(act, part->model_name, part_name);
 			else
@@ -1898,247 +1898,247 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	for (item = cfg; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
 
-			if (xmlStrcasecmp (item->name, "CAL_IDLE_GROUP") == 0) {
+			if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_IDLE_GROUP") == 0) {
 				get_string_value (str,sizeof(str),item);
      				//act->cal_walk_frame=cal_load_anim(act,str);
 				//LOG_TO_CONSOLE(c_green2,str);
 				parse_idle_group(act,str);
 				//Not functional!
-			} else if (xmlStrcasecmp (item->name, "CAL_walk") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_walk") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_walk_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_run") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_run") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_run_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_die1") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_die1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_die2") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_die2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_pain1") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pain1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_pain1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_pain2") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pain2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_pain2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_pick") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pick") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_pick_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_drop") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_drop") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_drop_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_idle") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_idle1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_idle2") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_idle2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_idle_sit") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle_sit") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_idle_sit_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
- 			} else if (xmlStrcasecmp (item->name, "CAL_harvest") == 0) {
+ 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_harvest") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_harvest_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_cast") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_cast") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_cast_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_sit_down") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_sit_down") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_sit_down_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_stand_up") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_stand_up") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_stand_up_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_in_combat") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_in_combat") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_in_combat_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_out_combat") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_out_combat") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_out_combat_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_combat_idle") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_combat_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_combat_idle_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_1") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_2") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_3") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_3") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_3_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_up_4") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_4") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_4_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_down_1") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, "CAL_attack_down_2") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
-					, get_string_property(item,"sound")
+					, get_string_property(item, "sound")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2174,12 +2174,12 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
-			if (xmlStrcasecmp (item->name, "skin") == 0) {
+			if (xmlStrcasecmp (item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (boots->boots_name, sizeof (boots->boots_name), item);
-			} else if (xmlStrcasecmp (item->name, "botsmask") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"botsmask") == 0) {
 				get_string_value (boots->boots_mask, sizeof (boots->boots_mask), item);
-			} else if (xmlStrcasecmp (item->name, "glow") == 0) {
-				int mode = find_description_index (glow_mode_dict, item->children->content, "glow mode");
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
+				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
 				boots->glow = mode;
 			} else {
@@ -2195,7 +2195,7 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		
 		if(default_node){
 			if(boots->boots_name==NULL || *boots->boots_name=='\0')
-				get_item_string_value(boots->boots_name, sizeof(boots->boots_name), default_node, "skin");
+				get_item_string_value(boots->boots_name, sizeof(boots->boots_name), default_node, (xmlChar*)"skin");
 		}
 	}
 	
@@ -2344,52 +2344,52 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	
 	for(item=cfg->children; item; item=item->next) {
 		if(item->type == XML_ELEMENT_NODE) {
-			if(xmlStrcasecmp(item->name, "ghost") == 0) {
+			if(xmlStrcasecmp(item->name, (xmlChar*)"ghost") == 0) {
 				act->ghost= get_bool_value (item);
-			} else if(xmlStrcasecmp(item->name, "skin") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skin") == 0) {
 				get_string_value(act->skin_name, sizeof (act->skin_name), item);
-			} else if(xmlStrcasecmp(item->name, "mesh") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value(act->file_name, sizeof (act->file_name), item);
-			} else if(xmlStrcasecmp(item->name, "scale")==0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"scale")==0) {
 				act->scale= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, "mesh_scale")==0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh_scale")==0) {
 				act->mesh_scale= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, "bone_scale")==0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"bone_scale")==0) {
 				act->skel_scale= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, "skeleton")==0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skeleton")==0) {
 				get_string_value(act->skeleton_name, sizeof (act->skeleton_name), item);
 				act->coremodel= CalCoreModel_New("Model");
 				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
 					log_error("Cal3d error: %s: %s\n", act->skeleton_name, CalError_GetLastErrorDescription());
 				}
-			} else if(xmlStrcasecmp(item->name, "walk_speed") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"walk_speed") == 0) {
 				act->walk_speed= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, "run_speed") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"run_speed") == 0) {
 				act->run_speed= get_float_value(item);
 
-			} else if(xmlStrcasecmp(item->name, "defaults") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"defaults") == 0) {
 				defaults= item;
-			} else if(xmlStrcasecmp(item->name, "frames") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"frames") == 0) {
 				ok &= parse_actor_frames(act, item->children, defaults);
-			} else if(xmlStrcasecmp(item->name, "shirt") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"shirt") == 0) {
 				ok &= parse_actor_shirt(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "hskin") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"hskin") == 0) {
 				ok &= parse_actor_skin(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "hair") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"hair") == 0) {
 				ok &= parse_actor_hair(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "boots") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"boots") == 0) {
 				ok &= parse_actor_boots(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "legs") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"legs") == 0) {
 				ok &= parse_actor_legs(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "cape") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"cape") == 0) {
 				ok &= parse_actor_cape(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "head") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"head") == 0) {
 				ok &= parse_actor_head(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "shield") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"shield") == 0) {
 				ok &= parse_actor_shield(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "weapon") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"weapon") == 0) {
 				ok &= parse_actor_weapon(act, item, defaults);
-			} else if(xmlStrcasecmp(item->name, "helmet") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"helmet") == 0) {
 				ok &= parse_actor_helmet(act, item, defaults);
 			} else {
 				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
@@ -2532,7 +2532,7 @@ int parse_actor_defs (xmlNode *node) {
 
 	for (def = node->children; def; def = def->next) {
 		if (def->type == XML_ELEMENT_NODE)
-			if (xmlStrcasecmp (def->name, "actor") == 0) {
+			if (xmlStrcasecmp (def->name, (xmlChar*)"actor") == 0) {
 				ok &= parse_actor_script (def);
 			} else {
 				LOG_ERROR("parse error: actor or include expected");
@@ -2564,7 +2564,7 @@ int read_actor_defs (const char *dir, const char *index) {
 	if (root == NULL) {
 		LOG_ERROR("Unable to parse actor definition file %s", fname);
 		ok = 0;
-	} else if (xmlStrcasecmp (root->name, "actors") != 0) {
+	} else if (xmlStrcasecmp (root->name, (xmlChar*)"actors") != 0) {
 		LOG_ERROR("Unknown key \"%s\" (\"actors\" expected).", root->name);
 		ok = 0;
 	} else {

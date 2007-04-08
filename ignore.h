@@ -20,7 +20,7 @@ extern "C" {
  */
 typedef struct
 {
-	Uint8 name[16]; /*!< name of the player to ignore */
+	char name[16]; /*!< name of the player to ignore */
 	char used; /*! flag, indicating whether this ignore_slot is in use or not */
 }ignore_slot;
 
@@ -41,7 +41,7 @@ extern int use_global_ignores; /*!< flag, indicating whether to use global ignor
  *
  * \pre If \a name is already present in \ref ignore_list, the function will return -1.
  */
-int add_to_ignore_list(Uint8 *name, char save_name);
+int add_to_ignore_list(char *name, char save_name);
 
 /*!
  * \ingroup actors_utils
@@ -52,7 +52,7 @@ int add_to_ignore_list(Uint8 *name, char save_name);
  * \param name  the name to remove from \ref ignore_list
  * \retval int  1, if the entry was found and removed, else -1
  */
-int remove_from_ignore_list(Uint8 *name);
+int remove_from_ignore_list(char *name);
 
 /*!
  * \ingroup actors_utils
@@ -65,7 +65,7 @@ int remove_from_ignore_list(Uint8 *name);
  * \param channel        the channel the message comes from
  * \retval int          true (1) if the sender of \a input_text is already ignored, else false (0).
  */
-int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel);
+int pre_check_if_ignored (const char *input_text, int len, Uint8 channel);
 
 /*!
  * \ingroup loadsave

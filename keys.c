@@ -64,7 +64,7 @@ Uint32 K_TABCOMPLETE=CTRL|' ';
 Uint32 K_WINDOWS_ON_TOP=ALT|'w';
 Uint32 K_MARKFILTER=CTRL|'f';
 
-unsigned int CRC32(unsigned char *data, int len);
+Uint32 CRC32(char *data, int len);
 unsigned short get_key_code(char *key);
 unsigned int parse_key_string(char *s);
 void add_key(unsigned int *key,unsigned int n);
@@ -73,8 +73,8 @@ void add_key(unsigned int *key,unsigned int n);
 void read_key_config()
 {
 	FILE *f = NULL;
-	Uint8 * file_mem;
-	Uint8 * file_mem_start;
+	char * file_mem;
+	char * file_mem_start;
 	struct stat key_file;
 	int key_file_size,t;
 
@@ -101,7 +101,7 @@ void read_key_config()
 	}
 
 	key_file_size = key_file.st_size;
-	file_mem = (Uint8 *) calloc(key_file_size+2, sizeof(Uint8));
+	file_mem = (char *) calloc(key_file_size+2, sizeof(Uint8));
 	file_mem_start=file_mem;
 	fread (file_mem, 1, key_file_size+1, f);
 
@@ -407,7 +407,7 @@ Uint16 get_key_code(char *key)
 }
 
 
-Uint32 CRC32(unsigned char *data, int len)
+Uint32 CRC32(char *data, int len)
 {
     unsigned int result=0;
     int i,j;

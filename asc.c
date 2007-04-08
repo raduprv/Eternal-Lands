@@ -30,7 +30,7 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * len);
 // the string otherwise it returns the offset to the end of the string. Needle
 // must be null-terminated. hyastack need not be, but must be at least max_len
 // bytes long
-Sint32 get_string_occurance (const char* needle, const char* haystack, const Uint32 max_len, const Uint8 beginning)
+Sint32 get_string_occurance (const char* needle, const char* haystack, const Uint32 max_len, const char beginning)
 {
 	const Uint32 n_len = strlen(needle);
 	Uint32 istart, i;
@@ -178,7 +178,7 @@ int safe_snprintf(char *dest, const size_t len, const char* format, ...)
 	return 0;
 }
 
-void my_strcp(Uint8 *dest,const Uint8 * source)
+void my_strcp(char *dest,const char * source)
 {
 	while(*source)
 	{
@@ -196,7 +196,7 @@ void my_strncp (char *dest, const char *source, size_t len)
 	*dest = '\0';
 }
 
-void my_strcat(Uint8 *dest,const Uint8 * source)
+void my_strcat(char *dest,const char * source)
 {
 	int i,l,dl;
 	
@@ -206,10 +206,10 @@ void my_strcat(Uint8 *dest,const Uint8 * source)
 	dest[dl+i]='\0';
 }
 
-Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len)
+Sint32 my_strncompare(const char *dest, const char *src, Sint32 len)
 {
 	int i;
-	Uint8 ch1,ch2;
+	char ch1,ch2;
 
 	for(i=0;i<len;i++)
 		{
@@ -223,7 +223,7 @@ Sint32 my_strncompare(const Uint8 *dest, const Uint8 *src, Sint32 len)
 	else return 1;
 }
 
-Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src)
+Sint32 my_strcompare(const char *dest, const char *src)
 {
 	Uint32 len;
 
@@ -233,7 +233,7 @@ Sint32 my_strcompare(const Uint8 *dest, const Uint8 *src)
 }
 
 // is this string more then one character and all alpha in it are CAPS?
-Sint32 my_isupper(const Uint8 *src, int len)
+Sint32 my_isupper(const char *src, int len)
 {
 	int alpha=0;
 	if (len < 0)	len=strlen(src);
@@ -250,7 +250,7 @@ Sint32 my_isupper(const Uint8 *src, int len)
 
 char *my_tolower (char *src)
 {
-	Uint8 *dest = src;
+	char *dest = src;
 
 	if (dest == NULL || dest[0] == '\0')
 		return dest;
@@ -331,7 +331,7 @@ Uint32 clean_file_name (char *dest, const char *src, Uint32 max_len)
 
 float xmlGetFloat(xmlNode * n, xmlChar * c)
 {
-	char * t=xmlGetProp(n,c);
+	char * t=(char*)xmlGetProp(n,c);
 	float f=t?atof(t):0.0f;
 	xmlFree(t);
 	return f;
@@ -339,7 +339,7 @@ float xmlGetFloat(xmlNode * n, xmlChar * c)
 
 int xmlGetInt(xmlNode *n, xmlChar *c)
 {
-	char *t=xmlGetProp(n,c);
+	char *t=(char*)xmlGetProp(n,c);
 	int i=t?atoi(t):0;
 	xmlFree(t);
 	return i;
@@ -359,7 +359,7 @@ int my_xmlStrncopy(char ** out, const char * in, int len)
 		char *outbuf2;
 		
 		lin=strlen(in);
-		l2=xmlUTF8Strlen(in);
+		l2=xmlUTF8Strlen((xmlChar*)in);
 		
 		if(l2<0) lout=l1;
 		else if (len>0 && len<l2) lout=len;
@@ -410,7 +410,7 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 	return 1;
 }
 
-void get_file_digest(const Uint8 * filename, Uint8 digest[16])
+void get_file_digest(const char * filename, Uint8 digest[16])
 {
 	MD5 md5;
 	Uint8 buffer[1024];
@@ -512,10 +512,10 @@ void get_string_value (char *buf, size_t maxlen, xmlNode *node) {
 	if (node->children == NULL)
 		buf[0] = '\0';
 	else
-		my_strncp (buf, node->children->content, maxlen);
+		my_strncp (buf, (char*)node->children->content, maxlen);
 }
 
-void get_item_string_value (char *buf, size_t maxlen, xmlNode *item, const char *name) {
+void get_item_string_value (char *buf, size_t maxlen, xmlNode *item, const unsigned char *name) {
 	xmlNode	*node;
 	
 	// look for this entry in the children
@@ -525,7 +525,7 @@ void get_item_string_value (char *buf, size_t maxlen, xmlNode *item, const char 
 				if (node->children == NULL)
 					buf[0] = '\0';
 				else
-					my_strncp (buf, node->children->content, maxlen);
+					my_strncp (buf, (char*)node->children->content, maxlen);
 				return;
 			}
 		}
@@ -541,7 +541,7 @@ int get_bool_value (xmlNode *node) {
 
 double get_float_value (xmlNode *node) {
 	if (node->children == NULL) return 0.0;
-	return atof (node->children->content);
+	return atof ((char*)node->children->content);
 }
 
 int get_int_property (xmlNode *node, const char *prop)
@@ -552,7 +552,7 @@ int get_int_property (xmlNode *node, const char *prop)
 	{
 		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0)
 		{
-			return atoi (attr->children->content);
+			return atoi ((char*)attr->children->content);
 		}
 	}
 
@@ -564,7 +564,7 @@ int get_property (xmlNode *node, const char *prop, const char *desc, const dict_
 
 	for (attr = node->properties; attr; attr = attr->next) {
 		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0) {
-			return find_description_index (dict,  attr->children->content, desc);
+			return find_description_index (dict, (char*)attr->children->content, desc);
 		}
 	}
 
@@ -577,7 +577,7 @@ char *get_string_property (xmlNode *node, const char *prop) {
 
 	for (attr = node->properties; attr; attr = attr->next) {
 		if (attr->type == XML_ATTRIBUTE_NODE && xmlStrcasecmp (attr->name, (Uint8 *)prop) == 0) {
-			return attr->children->content;
+			return (char*)attr->children->content;
 		}
 	}
 

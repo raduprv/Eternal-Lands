@@ -49,7 +49,7 @@ static const int scroll_width = 20;
 static int min_width;
 static int min_height;
 static text_message widget_text;
-static Uint8 *message_body;
+static char *message_body;
 static int textId;
 static int buttonId;
 static int scroll_id;
@@ -281,7 +281,7 @@ static int resize_handler(window_info *win, int width, int height)
 /*
 	Create the server popup window, destroying an existing window first.
 */
-void display_server_popup_win(const Uint8 * const message)
+void display_server_popup_win(const char * const message)
 {		 
 	const int unusable_width = 75;
 	const int unusable_height = 75;
@@ -311,7 +311,7 @@ void display_server_popup_win(const Uint8 * const message)
 	}
 	
 	/* write the message to the log file */
-	write_to_log(message, strlen(message));
+	write_to_log((unsigned char*)message, strlen(message));
 		
 	/* copy the first line of text into the title buffer */
 	for (i=0, j=0; (i<strlen(message)) && (j<ELW_TITLE_SIZE-1); ++i)
@@ -337,7 +337,7 @@ void display_server_popup_win(const Uint8 * const message)
 	/* make a copy of the message body so we can modify it and so the caller can free the memory
 		 make the copy bigger than we need so it can be text rewrapped */
 	message_body_size = 2*strlen(message);
-	message_body = (Uint8 *)calloc(message_body_size, sizeof(Uint8));
+	message_body = (char *)calloc(message_body_size, sizeof(Uint8));
 	safe_strncpy(message_body, &message[body_index], message_body_size * sizeof(Uint8));
 		
 	/* initialise the window text widget text buffer */
@@ -444,8 +444,8 @@ void display_server_popup_win(const Uint8 * const message)
 	}
 	
 	/* use the title width to set the minimum width, numbers from draw_window_title() would help */
-	if (min_width < (50 + ((get_string_width(win_title)*8)/12))){
-		min_width = 50 + ((get_string_width(win_title)*8)/12);
+	if (min_width < (50 + ((get_string_width((unsigned char*)win_title)*8)/12))){
+		min_width = 50 + ((get_string_width((unsigned char*)win_title)*8)/12);
 	}
 		
 	/* insure a minimum width */

@@ -569,7 +569,7 @@ int	select_window (int win_id)
 
 
 // specific windows functions
-int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags)
+int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags)
 {
 	window_info *win;
 	int	win_id=-1;
@@ -903,7 +903,7 @@ int	draw_window_title(window_info *win)
 	// draw the name of the window
 	if(win->flags&ELW_TITLE_NAME)
 		{
-			int	len=(get_string_width(win->window_name)*8)/12;
+			int	len=(get_string_width((unsigned char*)win->window_name)*8)/12;
 			int	x_pos=(win->len_x-len)/2;
 
 			glColor4f(0.0f,0.0f,0.0f,1.0f);
@@ -926,7 +926,7 @@ int	draw_window_title(window_info *win)
 			glEnable(GL_TEXTURE_2D);
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			// center text
-			draw_string_small((win->len_x-len)/2, 1-ELW_TITLE_HEIGHT, win->window_name, 1);
+			draw_string_small((win->len_x-len)/2, 1-ELW_TITLE_HEIGHT, (unsigned char*)win->window_name, 1);
 		}
 
 	return 1;
@@ -1238,7 +1238,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 		static int time=0;
 		if(time+60000<cur_time){
 			/*Server testing - required*/
-			char str[1];
+			Uint8 str[1];
 			str[0]=PING_REQUEST;
 			my_tcp_send(my_socket, str, 1);
 			time=cur_time;

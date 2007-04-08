@@ -9,7 +9,7 @@ int save_ignores=1;
 int use_global_ignores=1;
 
 //returns -1 if the name is already ignored, 1 on sucess, -2 if no more ignore slots
-int add_to_ignore_list(Uint8 *name, char save_name)
+int add_to_ignore_list(char *name, char save_name)
 {
 	int i;
 	
@@ -55,7 +55,7 @@ int add_to_ignore_list(Uint8 *name, char save_name)
 }
 
 //returns -1 if the name is already ignored, 1 on sucess
-int remove_from_ignore_list(Uint8 *name)
+int remove_from_ignore_list(char *name)
 {
 	int i;
 	int found = 0;
@@ -96,7 +96,7 @@ int remove_from_ignore_list(Uint8 *name)
 
 
 //returns 1 if ignored, 0 if not ignored
-int check_if_ignored (const Uint8 *name)
+int check_if_ignored (const char *name)
 {
 	int i;
 
@@ -108,7 +108,7 @@ int check_if_ignored (const Uint8 *name)
 	return 0;	// nope
 }
 
-int name_is_valid(const Uint8 *name)
+int name_is_valid(const char *name)
 {
 	int i, len;
 	for(i = 0, len = strlen(name); i < len; i++) {
@@ -120,10 +120,10 @@ int name_is_valid(const Uint8 *name)
 	return 1;
 }
 //returns 1 if ignored, 0 if not ignored
-int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
+int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 {
 	int i, offset;
-	Uint8 name[16] = {0};
+	char name[16] = {0};
 	Uint8 ch;
 
 	switch(channel)
@@ -158,7 +158,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 				return 0;
 			}
 			*/
-			while (IS_COLOR (input_text[offset]))
+			while (IS_COLOR ((unsigned char)input_text[offset]))
 			{
 				offset++;
 			}
@@ -174,7 +174,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 			name[i] = '\0';
 			if(!name_is_valid(name)) {
 				//This can be a lot. Let's separate them based on the color for now.
-				switch(*input_text) {
+				switch((unsigned char)*input_text) {
 					case 127+c_grey1:
 						//Check for summoning messages
 						//(*) NAME summoned a %s
@@ -201,7 +201,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 		case CHAT_CHANNEL1:
 		case CHAT_CHANNEL2:
 		case CHAT_CHANNEL3:
-			for(offset = 0; IS_COLOR (input_text[offset]); offset++);
+			for(offset = 0; IS_COLOR ((unsigned char)input_text[offset]); offset++);
 			if (input_text[offset] == '[')
 			{
 				offset++;
@@ -218,7 +218,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 			name[i] = '\0';
 		break;
 		case CHAT_GM:
-			for(offset = 0; IS_COLOR(input_text[offset]); offset++);
+			for(offset = 0; IS_COLOR((unsigned char)input_text[offset]); offset++);
 			if(strncasecmp(input_text+offset, gm_from_str, strlen(gm_from_str)) == 0)
 			{
 				offset = strlen(gm_from_str)+2;
@@ -252,7 +252,7 @@ int pre_check_if_ignored (const Uint8 *input_text, int len, Uint8 channel)
 	if(*name && name_is_valid(name)) {
 		add_name_to_tablist(name);
 	} else {
-		for(offset = 0; IS_COLOR(input_text[offset]); offset++);
+		for(offset = 0; IS_COLOR((unsigned char)input_text[offset]); offset++);
 		for (i = 0; i < 15 && i+offset < len; i++) {
 			ch = input_text[i+offset];
 			if (ch == ' ' || ch == ':' || IS_COLOR(ch)) {
@@ -278,9 +278,9 @@ void load_ignores_list(char * file_name)
 {
 	int f_size;
 	FILE *f = NULL;
-	Uint8 * ignore_list_mem;
+	char * ignore_list_mem;
 	int i,j;
-	Uint8 name[64];
+	char name[64];
 	Uint8 ch;
 
 	// don't use my_fopen, absence of ignores is not an error
@@ -290,7 +290,7 @@ void load_ignores_list(char * file_name)
 	f_size = ftell(f);
 
 	//ok, allocate memory for it
-	ignore_list_mem=(Uint8 *)calloc(f_size, 1);
+	ignore_list_mem=(char *)calloc(f_size, 1);
 	fseek (f, 0, SEEK_SET);
 	fread (ignore_list_mem, 1, f_size, f);
 	fclose (f);
@@ -342,7 +342,7 @@ void load_ignores()
 int list_ignores()
 {
 	int i;
-	Uint8 str[MAX_IGNORES*19];
+	char str[MAX_IGNORES*19];
 	
 	if(!ignored_so_far)
 		{

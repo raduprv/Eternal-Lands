@@ -21,7 +21,7 @@ extern "C" {
  *  
  * \callgraph
  */
-void free_color_framebuffer(int *FBO, int *FBORenderBuffer, int *FBOTexture);
+void free_color_framebuffer(GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture);
 
 /*!
  * \ingroup 	display_utils
@@ -36,7 +36,7 @@ void free_color_framebuffer(int *FBO, int *FBORenderBuffer, int *FBOTexture);
  *  
  * \callgraph
  */
-void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffer, int *FBOTexture);
+void make_color_framebuffer(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture);
 
 /*!
  * \ingroup 	display_utils
@@ -51,7 +51,7 @@ void make_color_framebuffer(int width, int height, int *FBO, int *FBORenderBuffe
  *  
  * \callgraph
  */
-void change_color_framebuffer_size(int width, int height, int *FBO, int *FBORenderBuffer, int *FBOTexture);
+void change_color_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture);
 
 /*!
  * \ingroup 	display_utils
@@ -63,7 +63,7 @@ void change_color_framebuffer_size(int width, int height, int *FBO, int *FBORend
  *  
  * \callgraph
  */
-void free_depth_framebuffer(int *FBO, int *FBOTexture);
+void free_depth_framebuffer(GLuint *FBO, GLuint *FBOTexture);
 
 /*!
  * \ingroup 	display_utils
@@ -77,7 +77,7 @@ void free_depth_framebuffer(int *FBO, int *FBOTexture);
  *  
  * \callgraph
  */
-void make_depth_framebuffer(int width, int height, int *FBO, int *FBOTexture);
+void make_depth_framebuffer(int width, int height, GLuint *FBO, GLuint *FBOTexture);
 
 /*!
  * \ingroup 	display_utils
@@ -91,7 +91,7 @@ void make_depth_framebuffer(int width, int height, int *FBO, int *FBOTexture);
  *  
  * \callgraph
  */
-void change_depth_framebuffer_size(int width, int height, int *FBO, int *FBOTexture);
+void change_depth_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBOTexture);
 
 
 #ifdef __cplusplus

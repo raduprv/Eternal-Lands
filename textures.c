@@ -472,7 +472,7 @@ int get_and_set_texture_id(int i)
 }
 #endif	//USE_INLINE
 
-int load_alphamap(const char * FileName, char * texture_mem, int orig_x_size, int orig_y_size)
+int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, int orig_y_size)
 {
 	int x_size, y_size;
 	texture_struct	texture;

@@ -79,8 +79,8 @@ int find_category(int id)
 
 void move_to_category(int cat)
 {
-	char str[4];
-		
+	Uint8 str[4];
+	
 	if(cat<0||cat>=no_storage_categories) return;
 	storage_categories[cat].name[0]=127+c_red3;
 	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
@@ -182,10 +182,10 @@ int display_storage_handler(window_info * win)
 	glEnable(GL_TEXTURE_2D);
 	
 	for(i=pos=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES); i<no_storage_categories && storage_categories[i].id!=-1 && i<pos+STORAGE_CATEGORIES_DISPLAY; i++,n++){
-		draw_string_small(20, 20+n*13, storage_categories[i].name,1);
+		draw_string_small(20, 20+n*13, (unsigned char*)storage_categories[i].name,1);
 	}
 	if(storage_text[0]){
-		draw_string_small(18, 220, storage_text, 1);
+		draw_string_small(18, 220, (unsigned char*)storage_text, 1);
 	}
 	
 	glColor3f(1.0f,1.0f,1.0f);
@@ -298,22 +298,22 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 				move_to_category(cat);
 			} else if(mx>150 && mx<352){
 				if(item_dragged!=-1 && left_click){
-					char str[6];
-	
+					Uint8 str[6];
+
 					str[0]=DEPOSITE_ITEM;
 					str[1]=item_list[item_dragged].pos;
 					*((Uint32*)(str+2))=SDL_SwapLE32(item_quantity);
-	
+
 					my_tcp_send(my_socket, str, 6);
 	
 					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
 				} else if(right_click){
 					storage_item_dragged=-1;
 					item_dragged=-1;
-	
+
 					if(cur_item_over!=-1) {
-						char str[2];
-						
+						Uint8 str[2];
+
 						str[0]=LOOK_AT_STORAGE_ITEM;
 						str[1]=storage_items[cur_item_over].pos;
 	

@@ -201,10 +201,10 @@ int my_namecmp(char *check)
 	return 1;
 }
 
-int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
+int is_talking_about_me (const char *server_msg, int len, char everywhere)
 {
 	int a=0;
-	unsigned char msg[200];
+	char msg[200];
 	if(len > 198)
 		return 0;
 	if (!everywhere && (server_msg[0] == '[' || server_msg[0] == '#'))
@@ -215,12 +215,12 @@ int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
 	safe_snprintf (msg, sizeof(msg), "%.*s", len, server_msg);
 	my_tolower (msg);
 
-	while (msg[a] && msg[a] != ':' && (msg[a] < 127+c_red1 || msg[a] > 127+c_grey4))
+	while (msg[a] && msg[a] != ':' && IS_PRINT((unsigned char)msg[a]))
 		a++;
 	//We do need the name of ourselves...
 	while (a < 199 && msg[a] != '\0')
 	{
-		if((msg[a]==' '||(msg[a]>127+c_red1 && msg[a]<127+c_grey4)) && !my_namecmp(msg+1+a))
+		if((msg[a]==' '||(IS_COLOR((unsigned char)msg[a]))) && !my_namecmp(msg+1+a))
 			return 1;
 		else
 			a++;
@@ -228,7 +228,7 @@ int is_talking_about_me (const Uint8 *server_msg, int len, char everywhere)
 	return 0;
 }
 
-void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
+void send_afk_message (const char *server_msg, int len, Uint8 channel)
 {
 	Uint8 sendtext[MAX_TEXT_MESSAGE_LENGTH]={0};
 	
@@ -236,7 +236,7 @@ void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 	
 	if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
 	{
-		safe_snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, last_pm_from, afk_message);
+		safe_snprintf ((char*)sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, last_pm_from, afk_message);
 	}
 	else 
 	{
@@ -247,7 +247,7 @@ void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 		// Copy the name. This ought to work for both local chat and
 		// trade attempts
 		i = j = 0;
-		while (j < len && (server_msg[j] < 127+c_red1 || server_msg[j] > 127+c_grey4) )
+		while (j < len && IS_PRINT((unsigned char)server_msg[j]) )
 		{
 			name[i++] = server_msg[j];
 			if (server_msg[j] == ':' || server_msg[j] == ' ') break;
@@ -257,7 +257,7 @@ void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 		
 		if (have_name(name, i-1) < 0)
 		{
-			safe_snprintf (sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, name, afk_message);
+			safe_snprintf ((char*)sendtext, sizeof(sendtext), "%c%s %s", SEND_PM, name, afk_message);
 #ifndef AFK_FIX
 			add_name_to_pm_log (name, i-1);
 #endif //AFK_FIX
@@ -270,6 +270,6 @@ void send_afk_message (const Uint8 *server_msg, int len, Uint8 channel)
 	}
 	if (sendtext[1] != '\0') 
 	{
-		my_tcp_send (my_socket, sendtext, strlen (&sendtext[1]) + 1);
+		my_tcp_send (my_socket, sendtext, strlen ((char*)&sendtext[1]) + 1);
 	}
 }

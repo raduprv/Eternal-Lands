@@ -325,7 +325,7 @@ void *cache_find_item (cache_struct *cache, const char *name)
 	return NULL;
 }
 
-cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, Uint32 size)
+cache_item_struct *cache_add_item(cache_struct *cache, char *name, void *item, Uint32 size)
 {
 	Sint32	i;
 
@@ -367,7 +367,7 @@ cache_item_struct *cache_add_item(cache_struct *cache, Uint8 *name, void *item, 
 	return(cache->recent_item);
 }
 
-void cache_set_name(cache_struct *cache, Uint8 *name, void *item)
+void cache_set_name(cache_struct *cache, char *name, void *item)
 {
 	cache_item_struct *item_ptr;
 
