@@ -693,23 +693,36 @@ void reset_material()
 {
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
 	GLfloat mat_specular[]={ 0.0, 0.0, 0.0, 1.0 };
-	GLfloat mat_diffuse[]={ 1.0, 1.0, 1.0, 1.0 };
 	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
+#ifdef NEW_LIGHTING
+	GLfloat mat_diffuse[]={ 1.0, 1.0, 1.0, 1.0 };
+#endif //NEW_LIGHTING
 
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+#ifdef NEW_LIGHTING
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+#else	//NEW_LIGHTING
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
+#endif	//NEW_LIGHTING
 }
 
 void set_material(float r, float g, float b)
 {
 	GLfloat mat_emission[]={ r, g, b, 1.0 };
+#ifdef NEW_LIGHTING
 	GLfloat mat_ambient[]={ r, g, b, 1.0 };
+#endif	//NEW_LIGHTING
+
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_emission);
+#ifdef NEW_LIGHTING
 	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_emission);
+#else	//NEW_LIGHTING
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_emission);
+#endif	//NEW_LIGHTING
 }
 
 int sun_use_static_position=0;
@@ -764,12 +777,14 @@ void draw_global_light()
 			sun_ambient_light[2]=difuse_light[2]/3.5f+0.15f;
 		}
 
+#ifdef NEW_LIGHTING
         difuse_light[0] *= 2.0f;
         difuse_light[1] *= 2.0f;
         difuse_light[2] *= 2.0f;
         sun_ambient_light[0]=0.0f;
         sun_ambient_light[1]=0.0f;
         sun_ambient_light[2]=0.0f;
+#endif	//NEW_LIGHTING
 
 	sun_ambient_light[3]=1.0f;
 	glLightfv(GL_LIGHT7,GL_AMBIENT,sun_ambient_light);
@@ -793,7 +808,11 @@ void draw_dungeon_light()
 	ambient_light[0]=ambient_r;
 	ambient_light[1]=ambient_g;
 	ambient_light[2]=ambient_b;
-	ambient_light[0]=0.0f;
+#ifdef NEW_LIGHTING
+	ambient_light[0]=0.0f;	// was 0 even right??
+#else	//NEW_LIGHTING
+	ambient_light[3]=1.0f;
+#endif	//NEW_LIGHTING
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);

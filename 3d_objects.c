@@ -1501,7 +1501,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	}
 #endif
 
-#ifndef TRUST_E3D_NORMALS
+#ifdef NEW_LIGHTING
 	// Zero them out.
 	for(i = 0; i < vertex_no; i++)
 	{
@@ -1541,7 +1541,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		vertex_list[i].ny /= magnitude;
 		vertex_list[i].nz /= magnitude;
 	}
-#endif
+#endif	//NEW_LIGHITNG
 	
 	//now, load all the materials, and use the material ID (which isn't used now) to
 	//temporary store the texture_ids
