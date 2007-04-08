@@ -4,7 +4,7 @@
 #include "global.h"
 #include "elwindows.h"
 
-#define NUM_COUNTERS 9
+#define NUM_COUNTERS 10
 #define NUM_LINES 18
 #define MAX(a,b) (a > b ? a : b)
 
