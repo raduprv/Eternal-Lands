@@ -28,12 +28,23 @@ CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const
   state = _state;
   if (state)
     size *= 0.7;
+
+#ifdef DEBUG_POINT_PARTICLES
+  size = 10.0;
+#endif
 }
 
 bool CampfireParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
+
+#ifdef DEBUG_POINT_PARTICLES
+  coord_t tempsize = base->temp_sprite_scalar * size * invsqrt(square(pos.x - base->camera.x) + square(pos.y - base->camera.y) + square(pos.z - base->camera.z));
+  tempsize *= flare();
+  std::cout << "Position: " << pos << "; Camera: " << base->camera << "; Distance: " << (pos - base->camera).magnitude() << "; Size: " << size << "; Draw size: " << tempsize << "; Base sprite scalar: " << base->temp_sprite_scalar << std::endl;
+  return true;
+#endif
 
   if (alpha < 0.12 - LOD * 0.01)
     return false;
@@ -144,7 +155,11 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
   sqrt_scale = fastsqrt(scale);
   LOD = _LOD;
   desired_LOD = _LOD;
+#ifdef DEBUG_POINT_PARTICLES
+  mover = new ParticleMover(this);
+#else
   mover = new SmokeMover(this);
+#endif
   stationary = new ParticleMover(this);
   spawner = new FilledSphereSpawner(0.2 * sqrt_scale);
   active = true;
@@ -160,6 +175,10 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
       break;
   }
 */
+#ifdef DEBUG_POINT_PARTICLES
+  Particle* p = new CampfireParticle(this, mover, *pos + Vec3(0.0, 0.2, 0.0), Vec3(0.0, 0.0, 0.0), 10.0, sqrt(10.0), 0, 10);
+  base->push_back_particle(p);
+#else
   big_particles = 0;
   for (int i = 0; i < 20; i++)
   {
@@ -169,6 +188,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
       break;
     big_particles++;
   }
+#endif
 }
 
 CampfireEffect::~CampfireEffect()
@@ -183,7 +203,11 @@ bool CampfireEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
     return false;
-    
+
+#ifdef DEBUG_POINT_PARTICLES
+  return true;
+#endif
+
   if (recall)
     return true;
   

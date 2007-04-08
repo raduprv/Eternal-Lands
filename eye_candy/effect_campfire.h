@@ -48,7 +48,7 @@ public:
   virtual EffectEnum get_type() { return EC_CAMPFIRE; };
   bool idle(const Uint64 usec);
 
-  GradientMover* mover;
+  ParticleMover* mover;
   ParticleMover* stationary;
   ParticleSpawner* spawner;
   int big_particles;

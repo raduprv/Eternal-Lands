@@ -48,7 +48,7 @@ bool SmokeParticle::idle(const Uint64 delta_t)
   const alpha_t alpha_scalar = 1.0 - math_cache.powf_05_close((float)delta_t / (60000000 * sqrt_scale));
   alpha -= alpha_scalar;
 
-  if (alpha < 0.004)
+  if (alpha < 0.006)
     return false;
   
   const coord_t size_scalar = math_cache.powf_05_close((float)delta_t / (1500000 * sqrt_scale));
@@ -80,9 +80,9 @@ SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   scale = _scale;
   sqrt_scale = fastsqrt(scale);
   max_size = scale * 270 / (_LOD + 10);
-  size_scalar = sqrt_scale * 50 / (_LOD + 5);
-  alpha_scalar = 4.3 / (fastsqrt(_LOD) + 1.0);
-  count_scalar = 1000000 / _LOD;
+  size_scalar = sqrt_scale * 75 / (_LOD + 5);
+  alpha_scalar = 6.5 / (fastsqrt(_LOD) + 1.0);
+  count_scalar = 500000 / _LOD;
   LOD = _LOD;
   desired_LOD = _LOD;
   mover = new GradientMover(this);

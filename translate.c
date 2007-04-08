@@ -1007,7 +1007,7 @@ void init_help()
 	//Miscellaneous
 	add_xml_identifier(misc,"values",values_str,"values",sizeof(values_str));
 	add_xml_identifier(misc,"close",close_str,"[close]",sizeof(close_str));
-	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows disabled!",sizeof(low_framerate_str));
+	add_xml_identifier(misc,"low",low_framerate_str,"Low framerate detected, shadows and eye candy disabled!",sizeof(low_framerate_str));
 	add_xml_identifier(misc,"size",window_size_adjusted_str,"Window size adjusted to %s",sizeof(window_size_adjusted_str));
 	add_xml_identifier(misc,"trade",no_open_on_trade,"You can't open this window while on trade.",sizeof(no_open_on_trade));
 	add_xml_identifier(misc,"user",login_username_str,"Username:",sizeof(login_username_str));

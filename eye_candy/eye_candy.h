@@ -99,7 +99,7 @@ const int EC_DEBUG = 1;
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
-const coord_t MAX_DRAW_DISTANCE_SQUARED = 700;
+const coord_t MAX_DRAW_DISTANCE_SQUARED = 600;
 
 // E X T E R N S //////////////////////////////////////////////////////////////
 

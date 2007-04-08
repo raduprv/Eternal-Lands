@@ -497,6 +497,7 @@ int display_game_handler (window_info *win)
 	static int times_FPS_below_3 = 0;
 	static int fps[5]={100};
 	static int shadows_were_disabled=0;
+	static int eye_candy_was_disabled=0;
 	unsigned char str[180];
 	int i;
 	int any_reflection = 0;
@@ -705,10 +706,18 @@ int display_game_handler (window_info *win)
 			times_FPS_below_3++;
 			if (times_FPS_below_3 > 10 && shadows_on)
 			{
-				shadows_on = 0;
 				put_colored_text_in_buffer (c_red1, CHAT_SERVER, low_framerate_str, -1);
 				times_FPS_below_3 = 0;
-				shadows_were_disabled=1;
+				if (shadows_on)
+				{
+					shadows_on = 0;
+					shadows_were_disabled=1;
+				}
+				if (use_eye_candy)
+				{
+					use_eye_candy = 0;
+					eye_candy_was_disabled = 1;
+				}
 			}
 		}
 		else 
@@ -718,6 +727,11 @@ int display_game_handler (window_info *win)
 			if(shadows_were_disabled){
 				shadows_on = 1;
 				shadows_were_disabled=0;
+			}
+			
+			if (eye_candy_was_disabled){
+				use_eye_candy = 1;
+				eye_candy_was_disabled = 0;
 			}
 		}
 	}

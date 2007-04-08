@@ -16,13 +16,13 @@ ec::EyeCandy eye_candy;
 Uint64 ec_cur_time, ec_last_time;
 std::vector<ec_internal_reference*> references;
 
-const float MAX_EFFECT_DISTANCE = 20.0;
+const float MAX_EFFECT_DISTANCE = 16.0;
 const float MAX_OBSTRUCT_DISTANCE_SQUARED = 90.0;
 const float OBSTRUCTION_FORCE = 2.0;
 const float WALK_RATE = 1.0;
 const float SWORD_LENGTH = 0.45;
-const float X_OFFSET = 0.25;
-const float Y_OFFSET = 0.25;
+const float X_OFFSET = 0.50;
+const float Y_OFFSET = 0.50;
 
 ec_object_obstructions object_obstructions;
 ec_actor_obstructions actor_obstructions;

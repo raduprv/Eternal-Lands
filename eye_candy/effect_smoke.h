@@ -43,9 +43,9 @@ public:
     else
       LOD = desired_LOD;
     max_size = scale * 270 / (_LOD + 10);
-    size_scalar = sqrt_scale * 60 / (_LOD + 5);
-    alpha_scalar = 4.3 / (fastsqrt(_LOD) + 1.0);
-    count_scalar = 120000 / _LOD;
+    size_scalar = sqrt_scale * 75 / (_LOD + 5);
+    alpha_scalar = 6.5 / (fastsqrt(_LOD) + 1.0);
+    count_scalar = 500000 / _LOD;
   };
 
   ParticleMover* mover;
