@@ -1485,7 +1485,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		vertex_list[i].ny = SwapFloat(vertex_list[i].ny);
 		vertex_list[i].nz = SwapFloat(vertex_list[i].nz);
 	}
-		
+
 	for(i = 0; i < faces_no; i++)
 	{
 		face_list[i].au = SwapFloat(face_list[i].au);
@@ -1498,6 +1498,48 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		face_list[i].b = SDL_SwapLE32(face_list[i].b);
 		face_list[i].c = SDL_SwapLE32(face_list[i].c);
 		face_list[i].material = SDL_SwapLE32(face_list[i].material);
+	}
+#endif
+
+#ifndef TRUST_E3D_NORMALS
+	// Zero them out.
+	for(i = 0; i < vertex_no; i++)
+	{
+		vertex_list[i].nx = 0.0f;
+		vertex_list[i].ny = 0.0f;
+		vertex_list[i].nz = 0.0f;
+	}
+
+	// Sum up the normals for the faces
+	for(i = 0; i < faces_no; i++)
+	{
+		float v1x = vertex_list[face_list[i].b].x - vertex_list[face_list[i].a].x;
+		float v1y = vertex_list[face_list[i].b].y - vertex_list[face_list[i].a].y;
+		float v1z = vertex_list[face_list[i].b].z - vertex_list[face_list[i].a].z;
+		float v2x = vertex_list[face_list[i].c].x - vertex_list[face_list[i].a].x;
+		float v2y = vertex_list[face_list[i].c].y - vertex_list[face_list[i].a].y;
+		float v2z = vertex_list[face_list[i].c].z - vertex_list[face_list[i].a].z;
+		float nx = v1y * v2z - v1z * v2y;
+		float ny = v1z * v2x - v1x * v2z;
+		float nz = v1x * v2y - v1y * v2x;
+		vertex_list[face_list[i].a].nx += nx;
+		vertex_list[face_list[i].a].ny += ny;
+		vertex_list[face_list[i].a].nz += nz;
+		vertex_list[face_list[i].b].nx += nx;
+		vertex_list[face_list[i].b].ny += ny;
+		vertex_list[face_list[i].b].nz += nz;
+		vertex_list[face_list[i].c].nx += nx;
+		vertex_list[face_list[i].c].ny += ny;
+		vertex_list[face_list[i].c].nz += nz;
+	}
+
+	// Normalize the normals
+	for(i = 0; i < vertex_no; i++)
+	{
+		float magnitude = sqrt(vertex_list[i].nx * vertex_list[i].nx + vertex_list[i].ny * vertex_list[i].ny + vertex_list[i].nz * vertex_list[i].nz) + 0.000001;
+		vertex_list[i].nx /= magnitude;
+		vertex_list[i].ny /= magnitude;
+		vertex_list[i].nz /= magnitude;
 	}
 #endif
 	
