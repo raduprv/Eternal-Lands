@@ -19,7 +19,7 @@ extern "C" {
  * Check if a character is printable. In this context, that means
  * printable ascii, or non-ascii if it's not a color code
  */
-#define IS_PRINT(c) ((c) >= 32 && !IS_COLOR (c))
+#define IS_PRINT(c) (((c) >= 32 && (c) <= 126) || ((c) >= SPECIALCHAR_LBOUND && (c) <= SPECIALCHAR_UBOUND))
 
 /*!
  * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \\0 is reached.
