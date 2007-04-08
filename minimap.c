@@ -58,7 +58,7 @@ int display_minimap_handler(window_info *win)
 		glLineWidth(1.0f); 
 		glEnable(GL_TEXTURE_2D);
 		glColor3f(0.8f,0.8f,0.8f);
-		draw_string_small(14,125,"no minimap for this place",1);
+		draw_string_small(14,125,(unsigned char*)"no minimap for this place",1);
 	} else {
 		//draw minimap
 		

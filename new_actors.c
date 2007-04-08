@@ -236,7 +236,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 #ifdef CUSTOM_LOOK
 void custom_path(char * path, char * custom1, char * custom2) {
-	unsigned char buffer[256];
+	char buffer[256];
 
 	// check to see if ANY processing needs to be done
 	if(!path || !*path)	return;
@@ -264,7 +264,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 {
 	int i;
 #ifdef CUSTOM_LOOK
-	unsigned char playerpath[256], guildpath[256], onlyname[32]={0};
+	char playerpath[256], guildpath[256], onlyname[32]={0};
 	int j;
 #endif
 
@@ -490,8 +490,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	int kind_of_actor;
 	enhanced_actor *this_actor;
 #ifdef CUSTOM_LOOK
-	unsigned char playerpath[256], guildpath[256];
-	unsigned char onlyname[32]={0};
+	char playerpath[256], guildpath[256];
+	char onlyname[32]={0};
 	Uint32 j;
 #endif
 #if defined(CUSTOM_LOOK) || defined(MINIMAP)
@@ -648,7 +648,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	/* build a clean player name and a guild id */
 	{
 		/* get the name string into a working buffer */
-		unsigned char buffer[256], *name, *guild;
+		char buffer[256], *name, *guild;
 #ifdef UID
 		my_strncp(buffer,&in_data[32],sizeof(buffer));
 #else
@@ -657,7 +657,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 
 		/* skip leading color codes */
-		for(name=buffer; *name && (*name >= 127+c_lbound) && (*name <= 127+c_ubound); name++);
+		for(name=buffer; *name && IS_COLOR((unsigned char)*name); name++);
 		/* trim off any guild tag, leaving solely the name (onlyname)*/
 		for(j=0; name[j] && name[j]>32;j++){
 			onlyname[j]=name[j];
@@ -665,7 +665,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		
 		/* search for string end or color mark */
 		this_actor->guild_tag_color = 0;
-		for (guild = name; *guild && ((*guild < 127 + c_lbound) || (*guild > 127 + c_ubound)); guild++);
+		for (guild = name; *guild && IS_PRINT((unsigned char)*guild); guild++);
 		if (*guild) {
 			/* separate the two strings */
 			this_actor->guild_tag_color = *guild - 127;
