@@ -754,9 +754,9 @@ void GradientMover::move(Particle& p, Uint64 usec)
 {
   const coord_t scalar = usec / 1000000.0;
   Vec3 gradient_velocity = p.velocity + get_force_gradient(p) * scalar;
+  if (gradient_velocity.magnitude_squared() > 10000.0)
+    gradient_velocity.normalize(100.0);
   p.velocity = gradient_velocity + get_obstruction_gradient(p) * scalar;
-  if (p.velocity.magnitude_squared() > 10000.0)
-    p.velocity.normalize(100.0);
 #if 0	// Slow but clear version.  Consider this a comment.
   p.velocity.normalize(gradient_velocity.magnitude() + 0.000001);
 #else	// Fast but obfuscated
