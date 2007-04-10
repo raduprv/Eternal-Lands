@@ -255,6 +255,8 @@ void reload_fonts();
 
 void cleanup_fonts(void);
 
+int get_font_char(unsigned char cur_char);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

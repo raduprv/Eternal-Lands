@@ -43,7 +43,6 @@ int	chat_font=0;
 int	name_font=0;
 int	book_font=0;
 
-int get_font_char(unsigned char cur_char);
 int get_font_width(int cur_char);
 int get_nstring_width(const unsigned char *str, int len);
 int set_font_parameters (int num);
