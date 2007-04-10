@@ -363,6 +363,52 @@ void draw_tile_map()
 	float x_scaled,y_scaled;
 	int cur_texture;
 
+#if 1
+	{
+		int num = -1;
+#ifdef EYE_CANDY
+		for (i = 0; i < 4; i++)
+#else
+		for (i = 0; i < 7; i++)
+#endif
+			if (glIsEnabled(GL_LIGHT0+i)) num++;
+
+		float fv[4];
+			
+		printf("\nNum:\t%d\n", num);
+		printf("\nshow_lights:\t%d\n", show_lights);
+		printf("\nnum_lights:\t%d\n", num_lights);
+
+		for (i = 0; i < 8; i++)
+		{
+			if (glIsEnabled(GL_LIGHT0+i))
+			{
+				printf("\nLight%d:\n", i);
+				glGetLightfv(GL_LIGHT0+i, GL_POSITION, fv);
+				printf("\tPosition:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+				glGetLightfv(GL_LIGHT0+i, GL_DIFFUSE, fv);
+				printf("\tDiffuse:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+				glGetLightfv(GL_LIGHT0+i, GL_SPECULAR, fv);
+				printf("\tSpecular:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+				glGetLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, fv);
+				printf("\tSpot direction:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+				glGetLightfv(GL_LIGHT0+i, GL_AMBIENT, fv);
+				printf("\tAmbient:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+				glGetLightfv(GL_LIGHT0+i, GL_SPECULAR, fv);
+				printf("\tSpecular:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
+				glGetLightfv(GL_LIGHT0+i, GL_SPOT_CUTOFF, fv);
+				printf("\tSpot cutoff:\t%f\n", fv[0]);
+				glGetLightfv(GL_LIGHT0+i, GL_CONSTANT_ATTENUATION, fv);
+				printf("\tConstant attentuation:\t%f\n", fv[0]);
+				glGetLightfv(GL_LIGHT0+i, GL_LINEAR_ATTENUATION, fv);
+				printf("\tLinear attentuation:\t%f\n", fv[0]);
+				glGetLightfv(GL_LIGHT0+i, GL_QUADRATIC_ATTENUATION, fv);
+				printf("\tQuadratic attentuation:\t%f\n", fv[0]);
+			}
+		}
+	}
+#endif // Disabled debugging info
+
 	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//bind the detail texture

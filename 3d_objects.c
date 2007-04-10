@@ -305,12 +305,12 @@ void draw_3d_object_detail(object3d * object_id)
 
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+//	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_COLOR_ARRAY);
-	glDisable(GL_TEXTURE_2D);
+//	glDisable(GL_TEXTURE_2D);
 	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
-		glEnable(GL_TEXTURE_2D);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//		glEnable(GL_TEXTURE_2D);
+//		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		ELglClientActiveTextureARB(detail_unit);
 		if(have_vertex_buffers && object_id->cloud_vbo){
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->cloud_vbo);
@@ -321,8 +321,8 @@ void draw_3d_object_detail(object3d * object_id)
 
 	// watch for a change
 	if(object_id->e3d_data != cur_e3d){
-		glEnable(GL_TEXTURE_2D);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//		glEnable(GL_TEXTURE_2D);
+//		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		if(cur_e3d != NULL){
            	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 		}

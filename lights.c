@@ -699,8 +699,8 @@ void reset_material()
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
 	GLfloat mat_specular[]={ 1.0, 1.0, 1.0, 1.0 };
 #ifdef NEW_LIGHTING
-	GLfloat mat_ambient[]={ 0.15, 0.15, 0.15, 1.0 };
-	GLfloat mat_diffuse[]={ 2.0, 2.0, 2.0, 1.0 };
+	GLfloat mat_ambient[]={ 0.2, 0.2, 0.2, 1.0 };
+	GLfloat mat_diffuse[]={ 1.0, 1.0, 1.0, 1.0 };
 #else
 	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
 #endif //NEW_LIGHTING
@@ -785,9 +785,10 @@ void draw_global_light()
 		}
 
 #ifdef NEW_LIGHTING
-        difuse_light[0] *= 1.0f;
-        difuse_light[1] *= 1.0f;
-        difuse_light[2] *= 1.0f;
+	glEnable(GL_LIGHT7);
+        difuse_light[0] *= 2.0f;
+        difuse_light[1] *= 2.0f;
+        difuse_light[2] *= 2.0f;
         sun_ambient_light[0] /= 3.0f;
         sun_ambient_light[1] /= 3.0f;
         sun_ambient_light[2] /= 3.0f;
@@ -803,7 +804,6 @@ void draw_global_light()
 	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
 }
-
 
 void draw_dungeon_light()
 {
@@ -879,7 +879,7 @@ void build_global_light_table()
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else
   	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.57f,0.345f,0.08f);
-	make_gradient_light(30,30,(float *)global_lights,0.568f,0.348f,0.08f,0.6f,0.6f,0.08f);
+	make_gradient_light(30,30,(float *)global_lights,0.568f,0.348f,0.08f,0.06f,0.06f,0.08f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
