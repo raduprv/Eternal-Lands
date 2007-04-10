@@ -204,6 +204,10 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 	// watch for a change
 	if (object_id->e3d_data != cur_e3d)
 	{
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		glEnable(GL_TEXTURE_2D);
+		glEnableClientState(GL_TEXTURE_ARRAY);
 		if ((cur_e3d != NULL) && (use_compiled_vertex_array))
 		{
 			ELglUnlockArraysEXT();
@@ -211,6 +215,7 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 		
 		if (!is_ground(object_id->e3d_data->vertex_options))
 		{
+			glEnableClientState(GL_NORMAL_ARRAY);
 			if (have_vertex_buffers)
 			{
 				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
@@ -373,12 +378,11 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 #endif
 
 	// watch for a change
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisable(GL_TEXTURE_2D);
 	if(object_id->e3d_data != cur_e3d){
+		glDisableClientState(GL_NORMAL_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisableClientState(GL_COLOR_ARRAY);
+		glDisable(GL_TEXTURE_2D);
 		if(cur_e3d != NULL){
            	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
@@ -389,6 +393,7 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 
 		if(is_transparent)
 			{
+				glEnable(GL_TEXTURE_2D);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 				glEnable(GL_TEXTURE_2D);
 				if(have_vertex_buffers && object_id->e3d_data->vbo[0]){
@@ -491,9 +496,15 @@ void draw_3d_object_shadows(unsigned int object_type)
 		{
 			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 			glAlphaFunc(GL_GREATER,0.05f);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+//			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
-	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
+//	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisable(GL_TEXTURE_2D);
 	
 	// now loop through each object
 	for (i=start; i<stop; i++)
@@ -1109,7 +1120,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 #ifndef MAP_EDITOR2
 			if (weather_use_fog()) glDisable(GL_FOG);
 #endif
-
 			ELglActiveTextureARB(shadow_unit);
 			glEnable(depth_texture_target);
 			setup_shadow_mapping();
@@ -1125,7 +1135,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 			last_texture=-1;
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			CHECK_GL_ERRORS();
-
 #ifndef MAP_EDITOR2
 			if (weather_use_fog()) glEnable(GL_FOG);
 #endif		
@@ -1144,6 +1153,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_2d_objects();
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
+
 			display_objects();
 			display_ground_objects();
 #ifndef MAP_EDITOR2

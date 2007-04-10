@@ -699,8 +699,8 @@ void reset_material()
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
 	GLfloat mat_specular[]={ 1.0, 1.0, 1.0, 1.0 };
 #ifdef NEW_LIGHTING
-	GLfloat mat_ambient[]={ 0.2, 0.2, 0.2, 1.0 };
-	GLfloat mat_diffuse[]={ 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_ambient[]={ 0.5, 0.5, 0.5, 1.0 };
+	GLfloat mat_diffuse[]={ 2.0, 2.0, 2.0, 1.0 };
 #else
 	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
 #endif //NEW_LIGHTING
@@ -786,12 +786,13 @@ void draw_global_light()
 
 #ifdef NEW_LIGHTING
 	glEnable(GL_LIGHT7);
-        difuse_light[0] *= 2.0f;
-        difuse_light[1] *= 2.0f;
-        difuse_light[2] *= 2.0f;
-        sun_ambient_light[0] /= 3.0f;
-        sun_ambient_light[1] /= 3.0f;
-        sun_ambient_light[2] /= 3.0f;
+//	printf("Light: %f, %f, %f\n", difuse_light[0], difuse_light[1], difuse_light[2]);
+        difuse_light[0] *= 1.0f;
+        difuse_light[1] *= 1.0f;
+        difuse_light[2] *= 1.0f;
+        sun_ambient_light[0] /= 6.0f;
+        sun_ambient_light[1] /= 6.0f;
+        sun_ambient_light[2] /= 6.0f;
 #endif	//NEW_LIGHTING
 
 	sun_ambient_light[3]=1.0f;
@@ -961,6 +962,13 @@ void new_minute()
 }
 
 #ifdef NEW_LIGHTING
+
+#if defined(_WIN32) || defined(_WIN64)
+  #include <windows.h>
+#else
+  #include <sys/time.h>
+#endif
+
 void light_idle()
 {
   Uint64 new_time;
@@ -975,7 +983,7 @@ void light_idle()
   gettimeofday(&t, NULL);
   new_time = ((Uint64)t.tv_sec)*1000000ul + (Uint64)t.tv_usec;
 #endif
-  if ((new_time - old_time) / 250000)
+  if (new_time / 250000 - old_time / 250000)
   {	// A new second.
 	// Reload the next texture cache entry to reset
 	// the saturation for the current lighting.  Don't want to do too

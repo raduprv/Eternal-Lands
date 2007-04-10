@@ -363,9 +363,11 @@ void draw_tile_map()
 	float x_scaled,y_scaled;
 	int cur_texture;
 
-#if 1
+#if 0
 	{
 		int num = -1;
+		float fv[4];
+			
 #ifdef EYE_CANDY
 		for (i = 0; i < 4; i++)
 #else
@@ -373,8 +375,6 @@ void draw_tile_map()
 #endif
 			if (glIsEnabled(GL_LIGHT0+i)) num++;
 
-		float fv[4];
-			
 		printf("\nNum:\t%d\n", num);
 		printf("\nshow_lights:\t%d\n", show_lights);
 		printf("\nnum_lights:\t%d\n", num_lights);

@@ -72,7 +72,7 @@ bool CampfireParticle::idle(const Uint64 delta_t)
     {
       state = 2;
       size *= 1.6;
-      alpha = 0.2 + randfloat(0.15);
+      alpha = 0.15 + randfloat(0.2);
       pos.y -= 0.3 + randfloat(0.1);
       color[0] = 0.07;
       color[1] = 0.05;
@@ -82,7 +82,7 @@ bool CampfireParticle::idle(const Uint64 delta_t)
       const float scale = ((CampfireEffect*)effect)->sqrt_scale;
       velocity.x += (randfloat(scale) - scale / 2) / 3;
       velocity.z += (randfloat(scale) - scale / 2) / 3;
-      while (size > 5.0)
+      while (size > 10.0)
       {
         size *= 0.75;
         alpha = fastsqrt(alpha);

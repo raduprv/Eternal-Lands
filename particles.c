@@ -632,9 +632,9 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
   else if (!strncmp("fir", file_name + 12, 3))
   {
     if (!strncmp("big", file_name + 17, 3))
-      ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 2.0);
+      ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 1.5);
     else if (!strncmp("for", file_name + 17, 3))
-      ec_create_campfire(x_pos, y_pos - 0.2, z_pos, (poor_man ? 6 : 10), 3.0);
+      ec_create_campfire(x_pos, y_pos - 0.2, z_pos, (poor_man ? 6 : 10), 2.0);
     else if (!strncmp("min", file_name + 17, 3))
       ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 0.4);
     else if (!strncmp("sma", file_name + 17, 3))

@@ -500,7 +500,6 @@ void draw_3d_objects(unsigned int object_type)
 #ifdef  DEBUG
 	cur_e3d_count= 0;
 #endif  //DEBUG
-
 	get_intersect_start_stop(main_bbox_tree, object_type, &start, &stop);
 	// nothing to draw?
 	if(start >= stop){
@@ -531,9 +530,9 @@ void draw_3d_objects(unsigned int object_type)
 		// and all done
 		return;
 	}
-	
+
 	// find the modes we need
-    is_selflit= is_self_lit_3d_object(object_type);
+	is_selflit= is_self_lit_3d_object(object_type);
 	is_transparent= is_alpha_3d_object(object_type);
 	is_ground= is_ground_3d_object(object_type);
 	// set the modes we need
@@ -558,10 +557,6 @@ void draw_3d_objects(unsigned int object_type)
 		glDisable(GL_CULL_FACE);
 	}
 
-/*
-	// NOTICE: The below code is an ASSUMPTION that appropriate client
-	// states will be used!
-*/
 #ifdef	NEW_E3D_FORMAT
 	if (have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping))
 	{
