@@ -214,6 +214,9 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 #endif  //DEBUG
 	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
 
+#ifdef NEW_LIGHTING
+	reset_material();
+#endif
 	ELglDrawRangeElementsEXT(GL_TRIANGLES,
 		object_id->e3d_data->materials[material_index].triangles_indicies_min,
 		object_id->e3d_data->materials[material_index].triangles_indicies_max,
@@ -300,26 +303,16 @@ void draw_3d_object_detail(object3d * object_id)
 #endif
 	CHECK_GL_ERRORS();
 
-	/*
-	DANGER:
-	
-	The below client state management code is commented out because client
-	states are assumed to be managed by the caller, since these will be
-	rendered in series.  IF THIS ASSUMPTION IS EVER VIOLATED, this code
-	may well crash.  glDrawArrays DOES NOT TAKE KINDLY TO THINGS THAT ARE
-	ENABLED BUT FOR WHICH THE ARRAYS HAVE NOT BEEN SET.
-	
-	You have been warned. 
-	*/
-//	glEnableClientState(GL_VERTEX_ARRAY);
-//	glDisableClientState(GL_NORMAL_ARRAY);
-//	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-//	glDisableClientState(GL_COLOR_ARRAY);
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+	glDisable(GL_TEXTURE_2D);
 	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping)){
-		ELglClientActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		ELglClientActiveTextureARB(detail_unit);
 		if(have_vertex_buffers && object_id->cloud_vbo){
-//			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->cloud_vbo);
 			glTexCoordPointer(2, GL_FLOAT, 0, 0);
 		} else  glTexCoordPointer(2,GL_FLOAT,0,clouds_uv);
@@ -328,7 +321,8 @@ void draw_3d_object_detail(object3d * object_id)
 
 	// watch for a change
 	if(object_id->e3d_data != cur_e3d){
-//		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+		glEnable(GL_TEXTURE_2D);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		if(cur_e3d != NULL){
            	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 		}
@@ -345,7 +339,7 @@ void draw_3d_object_detail(object3d * object_id)
 		}
 
 		if(!is_ground) {
-//			glEnableClientState(GL_NORMAL_ARRAY);
+			glEnableClientState(GL_NORMAL_ARRAY);
 			if(have_vertex_buffers && vbo[1]){
 				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, vbo[1]);
 				glNormalPointer(GL_FLOAT,0,0);
@@ -395,6 +389,9 @@ void draw_3d_object_detail(object3d * object_id)
 			if(num > 3000){
 				num= 3000;
 			}
+#ifdef NEW_LIGHTING
+		    reset_material();
+#endif
 		    glDrawArrays(GL_TRIANGLES, idx, num);
 		    idx+= num;
 		}
@@ -509,6 +506,10 @@ void draw_3d_objects(unsigned int object_type)
 	if(start >= stop){
 		return;
 	}
+	
+#ifdef NEW_LIGHTING
+	reset_material();
+#endif
 	// reduce CPU usage while minimized
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
 		// not actually drawing, fake it

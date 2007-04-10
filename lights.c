@@ -9,6 +9,11 @@
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
 
+#ifdef NEW_LIGHTING
+int last_texture_start = 0;
+Uint64 old_time = 0;
+#endif // NEW_LIGHTING
+
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
@@ -692,10 +697,12 @@ void init_lights()
 void reset_material()
 {
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
-	GLfloat mat_specular[]={ 0.0, 0.0, 0.0, 1.0 };
-	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_specular[]={ 1.0, 1.0, 1.0, 1.0 };
 #ifdef NEW_LIGHTING
-	GLfloat mat_diffuse[]={ 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_ambient[]={ 0.15, 0.15, 0.15, 1.0 };
+	GLfloat mat_diffuse[]={ 2.0, 2.0, 2.0, 1.0 };
+#else
+	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
 #endif //NEW_LIGHTING
 
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
@@ -778,9 +785,9 @@ void draw_global_light()
 		}
 
 #ifdef NEW_LIGHTING
-        difuse_light[0] *= 2.0f;
-        difuse_light[1] *= 2.0f;
-        difuse_light[2] *= 2.0f;
+        difuse_light[0] *= 1.0f;
+        difuse_light[1] *= 1.0f;
+        difuse_light[2] *= 1.0f;
         sun_ambient_light[0] /= 3.0f;
         sun_ambient_light[1] /= 3.0f;
         sun_ambient_light[2] /= 3.0f;
@@ -848,7 +855,7 @@ void build_global_light_table()
 #ifndef NEW_LIGHTING
 	//the sun light
   	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
-	make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
+	make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.06f,0.06f,0.08f);
 
 	//lake light
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
@@ -872,7 +879,7 @@ void build_global_light_table()
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else
   	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.57f,0.345f,0.08f);
-	make_gradient_light(30,30,(float *)global_lights,0.568f,0.348f,0.08f,0.05f,0.05f,0.08f);
+	make_gradient_light(30,30,(float *)global_lights,0.568f,0.348f,0.08f,0.6f,0.6f,0.08f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
@@ -951,8 +958,61 @@ void new_minute()
 			enable_local_lights();
 	    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
 		}
-
 }
+
+#ifdef NEW_LIGHTING
+void light_idle()
+{
+  Uint64 new_time;
+#if defined(_WIN32) || defined(_WIN64)
+  FILETIME ft;
+  GetSystemTimeAsFileTime(&ft);
+  new_time = ft.dwHighDateTime;
+  new_time <<= 32;
+  new_time |= ft.dwLowDateTime;
+#else
+  struct timeval t;
+  gettimeofday(&t, NULL);
+  new_time = ((Uint64)t.tv_sec)*1000000ul + (Uint64)t.tv_usec;
+#endif
+  if ((new_time - old_time) / 250000)
+  {	// A new second.
+	// Reload the next texture cache entry to reset
+	// the saturation for the current lighting.  Don't want to do too
+	// many at once; we want this to be imperceptible.
+	int i;
+	for (i = last_texture_start; i < TEXTURE_CACHE_MAX; i++)
+	{
+		if (texture_cache[i].file_name[0])
+		{
+			int alpha= texture_cache[i].alpha;
+			if(alpha <= 0)
+				reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+			else
+				reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+			break;
+		}
+	}
+	if (i == TEXTURE_CACHE_MAX)
+	{
+		for (i = 0; i < last_texture_start; i++)
+		{
+			if (texture_cache[i].file_name[0])
+			{
+				int alpha= texture_cache[i].alpha;
+				if(alpha <= 0)
+					reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+				else
+					reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+				break;
+			}
+		}
+	}
+	last_texture_start = i + 1;
+  }
+  old_time = new_time;
+}
+#endif
 
 /* currently UNUSED
 void draw_test_light()

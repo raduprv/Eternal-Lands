@@ -220,6 +220,10 @@ void new_minute();
 
 void cleanup_lights(void);
 
+#ifdef NEW_LIGHTING
+void light_idle(void);
+#endif
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

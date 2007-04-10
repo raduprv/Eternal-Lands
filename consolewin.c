@@ -92,6 +92,10 @@ int display_console_handler (window_info *win)
 	ec_idle();
 #endif	//EYE_CANDY
 
+#ifdef NEW_LIGHTING
+	light_idle();
+#endif // NEW_LIGHTING
+
 	draw_delay = 20;
 	return 1;
 }

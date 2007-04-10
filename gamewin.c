@@ -622,7 +622,7 @@ int display_game_handler (window_info *win)
 #ifdef ATI_9200_FIX
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
-		
+
 		if (!dungeon && shadows_on && is_day)
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
@@ -636,6 +636,7 @@ int display_game_handler (window_info *win)
 				blend_reflection_fog();
 				draw_lake_tiles ();
 			}
+
 			draw_tile_map();
 			CHECK_GL_ERRORS ();
 			display_2d_objects();
@@ -682,6 +683,10 @@ int display_game_handler (window_info *win)
 	ec_idle();
 	ec_draw();
 #endif	//EYE_CANDY
+
+#ifdef NEW_LIGHTING
+	light_idle();
+#endif // NEW_LIGHTING
 
 	last_texture = -1;
 

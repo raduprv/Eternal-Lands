@@ -96,6 +96,9 @@ void draw_2d_object(obj_2d * object_id)
 
 	get_and_set_texture_id(obj_def_pointer->texture_id);
 
+#ifdef NEW_LIGHTING
+	reset_material();
+#endif
 	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);

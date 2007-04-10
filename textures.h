@@ -35,6 +35,7 @@ typedef struct
  * 		Opens an 8-bit bmp-file and loads the file as a color-key (a=(r+b+g)/3). It will generate the texture as well and return the texture ID.
  *
  * \param   	FileName The filename you wish to load the color-key from.
+ * \param	alpha The alpha value
  * \retval GLuint  	The texture ID given as a GLuint.
  * \callgraph
  */
@@ -52,6 +53,34 @@ GLuint load_bmp8_color_key(char * FileName, int alpha);
  * \callgraph
  */
 GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
+
+/*!
+ * \ingroup 	reload_bmp
+ * \brief 	Reloads a color-key from a bmp-file.
+ *
+ * 		Opens an 8-bit bmp-file and loads the file as a color-key (a=(r+b+g)/3). It will generate the texture as well and return the texture ID.
+ *
+ * \param   	FileName The filename you wish to load the color-key from.
+ * \param	alpha The alpha value
+ * \param	texture The already loaded texture id
+ * \retval GLuint  	The texture ID given as a GLuint.
+ * \callgraph
+ */
+GLuint reload_bmp8_color_key(char * FileName, int alpha, GLuint texture);
+
+/*!
+ * \ingroup 	reload_bmp
+ * \brief 	Loads a bitmap texture with a fixed alpha.
+ *
+ *      	Loads an 8-bit bitmap texture and sets the alpha value to a.
+ *
+ * \param   	FileName The filename of the bitmap.
+ * \param   	a The alpha value
+ * \param	texture The already loaded texture id
+ * \retval GLuint  	The texture ID as a GLuint.
+ * \callgraph
+ */
+GLuint reload_bmp8_fixed_alpha(char * FileName, Uint8 a, GLuint texture);
 
 /*!
  * \ingroup 	cache

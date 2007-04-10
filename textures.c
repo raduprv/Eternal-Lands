@@ -38,6 +38,7 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
   	fread(file_mem, 1, 50+4, f);	//header only, plus first 4 bytes of the color pallete
 #endif	//ZLIB
   	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
+
   	if(*((short *) file_mem)!= SDL_SwapLE16(19778))//BM (the identifier)
 	{
 		//free(file_mem_start);
@@ -183,6 +184,31 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 			}
 		}
 	}
+
+#ifdef NEW_LIGHTING
+	// If nighttime, use a nighttime texture.
+	if ((strncmp(filename, "./textures", 10)) &&	// Exclude the textures dir, which contains buttons and the like.
+	    (strncmp(filename, "./maps", 6)))		// Also exclude maps
+	{
+		int i;
+		float percent_grey;
+		if (dungeon || !is_day)
+		  percent_grey = 0.65f;
+		else if ((game_minute < 60))
+		  percent_grey = 0.65f * (1.0f - (float)game_minute / 60.0f);
+		else if (game_minute > 180)
+		  percent_grey = 0.65f * (game_minute - 180) / 60.0f;
+		else
+		  percent_grey = 0.0f;
+		for (i = 0; i < x_size * y_size * 4; i += 4)
+		{
+			float average = (texture_mem[i] + texture_mem[i + 1] + texture_mem[i + 2]) / 3;
+			texture_mem[i + 0] = (Uint8)(texture_mem[i + 0] * (1.0 - percent_grey) + average * percent_grey);
+			texture_mem[i + 1] = (Uint8)(texture_mem[i + 1] * (1.0 - percent_grey) + average * percent_grey);
+			texture_mem[i + 2] = (Uint8)(texture_mem[i + 2] * (1.0 - percent_grey) + average * percent_grey);
+		}
+	}
+#endif
 
 	//free(read_buffer);
 #ifdef	ZLIB
@@ -422,12 +448,12 @@ int get_texture_id(int i)
 {
 	int new_texture_id;
 	int alpha;
-
+	
 	if(!texture_cache[i].texture_id)
 	{
-		// we need the alhpa to know how to load it
+		// we need the alpha to know how to load it
 		alpha= texture_cache[i].alpha;
-		//our texture was freed, we have to reload it
+		// our texture was freed, we have to reload it
 		if(alpha <= 0) {
 			new_texture_id= load_bmp8_color_key(texture_cache[i].file_name, alpha);
 		} else {
@@ -636,6 +662,99 @@ GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
+
+	if(have_arb_compression)
+	{
+		if(have_s3_compression)
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+		else
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
+	}
+	else
+	{
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+	}
+	CHECK_GL_ERRORS();
+
+	free(tex->texture);
+	return texture;
+}
+
+// reload a bmp texture, in respect to the color key
+GLuint reload_bmp8_color_key(char * filename, int alpha, GLuint texture)
+{
+	int x_size, y_size;
+	Uint8 *texture_mem;
+	texture_struct	ttexture;
+	texture_struct	*tex;
+
+	tex= load_bmp8_texture(filename, &ttexture, 0);
+	if(!tex){	// oops, failed
+		return 0;
+	}
+	x_size= tex->x_size;
+	y_size= tex->y_size;
+	texture_mem= tex->texture;
+
+	if(!load_alphamap(filename, texture_mem, x_size, y_size) && alpha < 0){
+#ifdef	NEW_ALPHA
+		// no texture alpha found, use the constant
+		if(alpha < -1){
+			// a specific alpha threshold was mentioned
+			texture_set_alpha(tex, 255, -alpha);
+		} else {
+			texture_set_alpha(tex, 255, 15);
+	}
+#endif	//NEW_ALPHA
+	} else {
+		tex->has_alpha++;
+	}
+	//ok, now, hopefully, the file is loaded and converted...
+	//so, assign the texture, and such
+
+	CHECK_GL_ERRORS();
+	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
+	bind_texture_id(texture);
+
+	if(have_arb_compression)
+	{
+		if(have_s3_compression)
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+		else
+			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+
+	}
+	else
+	{
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+	}
+
+	CHECK_GL_ERRORS();
+
+	free(tex->texture);
+	return texture;
+}
+
+//reload a bmp texture, with the specified global alpha
+GLuint reload_bmp8_fixed_alpha(char * filename, Uint8 a, GLuint texture)
+{
+	int x_size, y_size;
+	Uint8 *texture_mem;
+	texture_struct	ttexture;
+	texture_struct	*tex;
+
+	tex= load_bmp8_texture(filename, &ttexture, a);
+	if(!tex){	// oops, failed
+		return 0;
+	}
+	x_size= tex->x_size;
+	y_size= tex->y_size;
+	texture_mem= tex->texture;
+
+	CHECK_GL_ERRORS();
+	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
+	bind_texture_id(texture);
 
 	if(have_arb_compression)
 	{
