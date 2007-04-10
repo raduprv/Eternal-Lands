@@ -331,7 +331,7 @@ int filter_text (char *buff, int len, int size)
 	while (i < new_len)
 	{
 		/* skip non-alpha characters */
-		while (i < new_len && !isalpha (buff[i])) i++;
+		while (i < new_len && !isalpha ((unsigned char)buff[i])) i++;
 		if (i >= new_len) break;
 		
 		/* check if we need to filter this word */
