@@ -699,8 +699,8 @@ void reset_material()
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
 	GLfloat mat_specular[]={ 1.0, 1.0, 1.0, 1.0 };
 #ifdef NEW_LIGHTING
-	GLfloat mat_ambient[]={ 0.5, 0.5, 0.5, 1.0 };
-	GLfloat mat_diffuse[]={ 2.0, 2.0, 2.0, 1.0 };
+	GLfloat mat_ambient[]={ 0.4, 0.4, 0.4, 1.0 };
+	GLfloat mat_diffuse[]={ 2.5, 2.5, 2.5, 1.0 };
 #else
 	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
 #endif //NEW_LIGHTING
@@ -813,7 +813,7 @@ void draw_global_light()
 	sun_ambient_light[0]+=0.2f;
 	sun_ambient_light[1]+=0.2f;
 	sun_ambient_light[2]+=0.2f;
-	if(sun_use_static_position || !is_day)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
+	if(sun_use_static_position)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
 	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
 }
@@ -969,7 +969,14 @@ void new_minute()
 		{
 			is_day=0;
 			enable_local_lights();
+#ifdef NEW_LIGHTING
+			sun_position[0]=sun_pos[0].x;
+			sun_position[1]=sun_pos[0].y;
+			sun_position[2]=sun_pos[0].z;
+			sun_position[3]=sun_pos[0].w;
+#else
 		    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
+#endif
 		}
 }
 
