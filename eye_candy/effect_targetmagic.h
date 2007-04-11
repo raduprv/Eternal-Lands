@@ -70,9 +70,9 @@ public:
   Vec3 shift;
   Uint16 LOD;
   TargetMagicEffect::TargetMagicType type;
-  std::vector<Shape*> capless_cylinders;
   Uint16 effect_id;
   float* target_alpha;
+  bool dummy_dead;
 };
 
 class TargetMagicParticle : public Particle

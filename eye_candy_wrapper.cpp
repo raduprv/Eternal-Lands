@@ -174,10 +174,10 @@ extern "C" void ec_idle()
         else if ((*iter)->effect->get_type() == ec::EC_TARGETMAGIC)
           set_vec3_actor_bone((*iter)->position, (*iter)->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
         else
-          (*iter)->position = ec::Vec3((*iter)->caster->x_pos, ec_get_z((*iter)->caster), -(*iter)->caster->y_pos);
+          (*iter)->position = ec::Vec3((*iter)->caster->x_pos + X_OFFSET, ec_get_z((*iter)->caster), -((*iter)->caster->y_pos + Y_OFFSET));
       }
       if ((*iter)->target)
-          (*iter)->position2 = ec::Vec3((*iter)->target->x_pos, ec_get_z((*iter)->target), -(*iter)->target->y_pos);
+          (*iter)->position2 = ec::Vec3((*iter)->target->x_pos, ec_get_z((*iter)->target) + 0.4, -(*iter)->target->y_pos);
       for (int j = 0; j < (int)(*iter)->target_actors.size(); j++)
       {
         if ((*iter)->target_actors[j])
@@ -1147,7 +1147,7 @@ extern "C" ec_reference ec_create_selfmagic_heal2(actor* caster, int LOD)
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  set_vec3_actor_bone(ret->position, ret->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::HEAL, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1170,7 +1170,7 @@ extern "C" ec_reference ec_create_selfmagic_magic_protection2(actor* caster, int
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  set_vec3_actor_bone(ret->position, ret->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::MAGIC_PROTECTION, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1193,6 +1193,7 @@ extern "C" ec_reference ec_create_selfmagic_shield2(actor* caster, int LOD)
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::SHIELD, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1215,7 +1216,7 @@ extern "C" ec_reference ec_create_selfmagic_restoration2(actor* caster, int LOD)
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  set_vec3_actor_bone(ret->position, ret->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::RESTORATION, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1238,7 +1239,7 @@ extern "C" ec_reference ec_create_selfmagic_bones_to_gold2(actor* caster, int LO
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  set_vec3_actor_bone(ret->position, ret->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::BONES_TO_GOLD, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1249,7 +1250,7 @@ extern "C" ec_reference ec_create_selfmagic_teleport_to_the_portals_room(float x
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x, z, -y);
+  ret->position = ec::Vec3(x + X_OFFSET, z, -(y + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::TELEPORT_TO_THE_PORTALS_ROOM, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1261,7 +1262,7 @@ extern "C" ec_reference ec_create_selfmagic_teleport_to_the_portals_room2(actor*
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  set_vec3_actor_bone(ret->position, ret->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::TELEPORT_TO_THE_PORTALS_ROOM, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1284,7 +1285,7 @@ extern "C" ec_reference ec_create_selfmagic_magic_immunity2(actor* caster, int L
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  set_vec3_actor_bone(ret->position, ret->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::MAGIC_IMMUNITY, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1295,7 +1296,7 @@ extern "C" ec_reference ec_create_alert(float x, float y, float z, int LOD)
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x, z, -y);
+  ret->position = ec::Vec3(x + X_OFFSET, z, -(y + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::ALERT, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1307,7 +1308,7 @@ extern "C" ec_reference ec_create_alert2(actor* caster, int LOD)
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  set_vec3_actor_bone(ret->position, ret->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::ALERT, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;

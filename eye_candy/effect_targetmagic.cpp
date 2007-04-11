@@ -48,6 +48,8 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
   Vec3 cur_target = *target;
   cur_target.y += 0.5;
   
+//  std::cout << "A) " << this << ", " << state << ": " << pos << ", " << alpha << std::endl;
+  
   if ((state == 0) && (age < 300000))
   {
     switch(type)
@@ -118,7 +120,7 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
         pos = pos * percent + cur_target * inv_percent;
       }
       ((TargetMagicEffect*)effect)->effect_count++;
-      new TargetMagicEffect2(base, (TargetMagicEffect*)effect, ((TargetMagicEffect*)effect)->targets[0], type, spawner2, mover2, ((TargetMagicEffect*)effect)->target_alpha, effect_id, LOD);
+      base->push_back_effect(new TargetMagicEffect2(base, (TargetMagicEffect*)effect, ((TargetMagicEffect*)effect)->targets[0], type, spawner2, mover2, ((TargetMagicEffect*)effect)->target_alpha, effect_id, LOD));
       return false;
     }
 
@@ -171,10 +173,10 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
       {
         if (alpha < 0.01)
           return false;
-
+          
         const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 5.0);
         energy *= scalar;
-        if (size < 6)
+        if (size < 10)
           size /= scalar;
         alpha *= scalar;
         break;
@@ -297,9 +299,10 @@ TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, V
 {
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ", " << _type << ") created(1)." << std::endl;
-  std::vector<Vec3*> targets;
-  targets.push_back(_target);
-  initialize(_base, _dead, _pos, targets, _type, _obstructions, _LOD);
+  std::vector<Vec3*> new_targets;
+  new_targets.push_back(_target);
+//  std::cout << "Target: " << _target << std::endl;
+  initialize(_base, _dead, _pos, new_targets, _type, _obstructions, _LOD);
 }
 
 TargetMagicEffect::TargetMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const std::vector<Vec3*> _targets, const TargetMagicType _type, std::vector<ec::Obstruction*>* _obstructions, const Uint16 _LOD)
@@ -540,6 +543,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
 
 TargetMagicEffect::~TargetMagicEffect()
 {
+  std::cout << "4" << std::endl << std::flush;
   if (spawner)
     delete spawner;
   if (mover)
@@ -548,11 +552,13 @@ TargetMagicEffect::~TargetMagicEffect()
     delete spawner2;
   if (mover2)
     delete mover2;
+  std::cout << "5" << std::endl << std::flush;
   for (size_t i = 0; i < capless_cylinders.size(); i++)
     delete capless_cylinders[i];
   capless_cylinders.clear();
   if (EC_DEBUG)
-    std::cout << "TargetMagicEffect (" << this << ") destroyed." << std::endl;
+    std::cout << "TargetMagicEffect (" << this << ") destroyed." << std::endl << std::flush;
+  std::cout << "6" << std::endl << std::flush;
 }
 
 bool TargetMagicEffect::idle(const Uint64 usec)
@@ -671,6 +677,9 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
   mover = _mover;
   effect_id = _effect_id;
   target_alpha = _target_alpha;
+  dead = &dummy_dead;
+  
+//  std::cout << "Target center: " << center << std::endl << std::flush;
   
   switch(type)
   {
@@ -679,10 +688,10 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
       for (int i = 0; i < 20 * LOD; i++)
       {
         Vec3 coords = spawner->get_new_coords() * 0.05;
-        Vec3 velocity = coords * 40;
-        velocity.y += 0.25;
+        Vec3 velocity = -coords * 30;
+        velocity.y += 0.5;
         coords += center;
-        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 0.6, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 0.7, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
         if (!base->push_back_particle(p))
           break;
       }
@@ -825,9 +834,6 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
 
 TargetMagicEffect2::~TargetMagicEffect2()
 {
-  for (size_t i = 0; i < capless_cylinders.size(); i++)
-    delete capless_cylinders[i];
-  capless_cylinders.clear();
 }
 
 
@@ -860,6 +866,8 @@ bool TargetMagicEffect2::idle(const Uint64 usec)
     
   center.x = pos->x;
   center.z = pos->z;
+  
+//  std::cout << "Center: " << center << "; Pos (" << pos << "): " << *pos << std::endl << std::flush;
   
   shift = center - last_effect_center;
 

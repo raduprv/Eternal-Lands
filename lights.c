@@ -754,14 +754,26 @@ void draw_global_light()
 	//add the thunder light to the ambient/difuse light
 
 #ifdef NEW_WEATHER
+ #ifdef NEW_LIGHTING
+	difuse_light[0] = weather_bias_light(global_lights[i][0]);
+	difuse_light[1] = weather_bias_light(global_lights[i][1]);
+	difuse_light[2] = weather_bias_light(global_lights[i][2]);
+ #else
 	difuse_light[0] = weather_bias_light(global_lights[i][0] - 0.15f);
 	difuse_light[1] = weather_bias_light(global_lights[i][1] - 0.15f);
 	difuse_light[2] = weather_bias_light(global_lights[i][2] - 0.15f);
+ #endif
 #else
 #ifndef MAP_EDITOR2
+ #ifdef NEW_LIGHTING
+	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90;
+	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60;
+	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15;
+ #else
 	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
 	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
 	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
+ #endif
 #else
 	difuse_light[0]=global_lights[i][0];
 	difuse_light[1]=global_lights[i][1];
@@ -801,7 +813,7 @@ void draw_global_light()
 	sun_ambient_light[0]+=0.2f;
 	sun_ambient_light[1]+=0.2f;
 	sun_ambient_light[2]+=0.2f;
-	if(sun_use_static_position)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
+	if(sun_use_static_position || !is_day)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
 	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
 }
@@ -879,8 +891,8 @@ void build_global_light_table()
 	make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else
-  	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.57f,0.345f,0.08f);
-	make_gradient_light(30,30,(float *)global_lights,0.568f,0.348f,0.08f,0.06f,0.06f,0.08f);
+  	make_gradient_light(0,40,(float *)global_lights,0.6f,0.6f,0.6f,0.5f,0.35f,0.1f);
+	make_gradient_light(40,20,(float *)global_lights,0.498f,0.348f,0.1f,0.15f,0.15f,0.2f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
@@ -957,7 +969,7 @@ void new_minute()
 		{
 			is_day=0;
 			enable_local_lights();
-	    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
+		    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
 		}
 }
 
@@ -978,6 +990,7 @@ void light_idle()
   new_time = ft.dwHighDateTime;
   new_time <<= 32;
   new_time |= ft.dwLowDateTime;
+  new_time /= 10;
 #else
   struct timeval t;
   gettimeofday(&t, NULL);

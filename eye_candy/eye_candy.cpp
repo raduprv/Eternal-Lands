@@ -1756,6 +1756,7 @@ Uint64 get_time()
   Uint64 ret = ft.dwHighDateTime;
   ret <<= 32;
   ret |= ft.dwLowDateTime;
+  ret /= 10;
   return ret;
 #else
   struct timeval t;

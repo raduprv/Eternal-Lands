@@ -206,8 +206,6 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 	{
 		glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
-		glEnable(GL_TEXTURE_2D);
-		glEnableClientState(GL_TEXTURE_ARRAY);
 		if ((cur_e3d != NULL) && (use_compiled_vertex_array))
 		{
 			ELglUnlockArraysEXT();
@@ -395,7 +393,6 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 			{
 				glEnable(GL_TEXTURE_2D);
 				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				glEnable(GL_TEXTURE_2D);
 				if(have_vertex_buffers && object_id->e3d_data->vbo[0]){
 					ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
 					glTexCoordPointer(2,GL_FLOAT,0,0);
@@ -503,9 +500,13 @@ void draw_3d_object_shadows(unsigned int object_type)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+#ifdef NEW_E3D_FORMAT	// Always supplies a texture pointer
+	glEnableClientState(GL_COLOR_ARRAY);
+	glEnable(GL_TEXTURE_2D);
+#else	// Doesn't always.
 	glDisableClientState(GL_COLOR_ARRAY);
 	glDisable(GL_TEXTURE_2D);
-	
+#endif
 	// now loop through each object
 	for (i=start; i<stop; i++)
 	{
