@@ -1389,6 +1389,9 @@ void EyeCandy::draw()
     return;
 
 #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   glColor4f(1.0, 1.0, 1.0, 0.3);
   glNormal3f(0.0, 0.0, 1.0);
@@ -1410,11 +1413,17 @@ void EyeCandy::draw()
     glVertex3f(52, 0.0, -72);
   }
   glEnd();
+  glEnable(GL_TEXTURE_2D);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_BLEND);
 #endif
 
   start_draw();
 
 #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_BLEND);
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   glColor4f(1.0, 1.0, 1.0, 0.3);
   glNormal3f(0.0, 0.0, 1.0);
@@ -1436,6 +1445,9 @@ void EyeCandy::draw()
     glVertex3f(52, 0.0, -76);
   }
   glEnd();
+  glEnable(GL_TEXTURE_2D);
+  glDisable(GL_COLOR_MATERIAL);
+  glDisable(GL_BLEND);
 #endif
 
   // Draw effects (any special drawing functionality) and their particles.

@@ -507,7 +507,7 @@ int display_game_handler (window_info *win)
 
 	if (!have_a_map) return 1;
 	if (yourself==-1) return 1; //we don't have ourselves
-
+	
 	for(i=0; i<max_actors; i++)
 	{
         	if(actors_list[i] && actors_list[i]->actor_id == yourself) 
@@ -592,27 +592,33 @@ int display_game_handler (window_info *win)
 #endif
 
 #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glColor4f(1.0, 1.0, 1.0, 0.3);
 		glNormal3f(0.0, 0.0, 1.0);
 		glBegin(GL_QUADS);
 		{
-			glVertex3f(49, 0.0, -66);
-			glVertex3f(49, 0.9, -66);
-			glVertex3f(51, 0.9, -66);
-			glVertex3f(51, 0.0, -66);
+			glVertex3f(49, 66, 0.0);
+			glVertex3f(49, 66, 0.9);
+			glVertex3f(51, 66, 0.9);
+			glVertex3f(51, 66, 0.0);
 		}
 		glEnd();
 		
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_QUADS);
 		{
-			glVertex3f(50, 0.0, -68);
-			glVertex3f(50, 0.95, -68);
-			glVertex3f(52, 0.95, -68);
-			glVertex3f(52, 0.0, -68);
+			glVertex3f(50, 68, 0.0);
+			glVertex3f(50, 68, 0.95);
+			glVertex3f(52, 68, 0.95);
+			glVertex3f(52, 68, 0.0);
 		}
 		glEnd();
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_COLOR_MATERIAL);
+		glDisable(GL_BLEND);
 #endif
 		if (!dungeon){
 			draw_global_light ();
@@ -627,27 +633,33 @@ int display_game_handler (window_info *win)
 		CHECK_GL_ERRORS ();
 
 #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glColor4f(1.0, 1.0, 1.0, 0.3);
 		glNormal3f(0.0, 0.0, 1.0);
 		glBegin(GL_QUADS);
 		{
-			glVertex3f(49, 0.0, -62);
-			glVertex3f(49, 0.8, -62);
-			glVertex3f(51, 0.8, -62);
-			glVertex3f(51, 0.0, -62);
+			glVertex3f(49, 62, 0.0);
+			glVertex3f(49, 62, 0.8);
+			glVertex3f(51, 62, 0.8);
+			glVertex3f(51, 62, 0.0);
 		}
 		glEnd();
 		
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_QUADS);
 		{
-			glVertex3f(50, 0.0, -64);
-			glVertex3f(50, 0.85, -64);
-			glVertex3f(52, 0.85, -64);
-			glVertex3f(52, 0.0, -64);
+			glVertex3f(50, 64, 0.0);
+			glVertex3f(50, 64, 0.85);
+			glVertex3f(52, 64, 0.85);
+			glVertex3f(52, 64, 0.0);
 		}
 		glEnd();
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_COLOR_MATERIAL);
+		glDisable(GL_BLEND);
 #endif
 		if (!dungeon && shadows_on && is_day){
 			render_light_view();
@@ -669,27 +681,33 @@ int display_game_handler (window_info *win)
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glDisable(GL_TEXTURE_2D);
+		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 		glColor4f(1.0, 1.0, 1.0, 0.3);
 		glNormal3f(0.0, 0.0, 1.0);
 		glBegin(GL_QUADS);
 		{
-			glVertex3f(49, 0.0, -58);
-			glVertex3f(49, 0.7, -58);
-			glVertex3f(51, 0.7, -58);
-			glVertex3f(51, 0.0, -58);
+			glVertex3f(49, 58, 0.0);
+			glVertex3f(49, 58, 0.7);
+			glVertex3f(51, 58, 0.7);
+			glVertex3f(51, 58, 0.0);
 		}
 		glEnd();
 		
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glBegin(GL_QUADS);
 		{
-			glVertex3f(50, 0.0, -60);
-			glVertex3f(50, 0.75, -60);
-			glVertex3f(52, 0.75, -60);
-			glVertex3f(52, 0.0, -60);
+			glVertex3f(50, 60, 0.0);
+			glVertex3f(50, 60, 0.75);
+			glVertex3f(52, 60, 0.75);
+			glVertex3f(52, 60, 0.0);
 		}
 		glEnd();
+		glEnable(GL_TEXTURE_2D);
+		glDisable(GL_COLOR_MATERIAL);
+		glDisable(GL_BLEND);
 #endif
 
 		if (!dungeon && shadows_on && is_day)
