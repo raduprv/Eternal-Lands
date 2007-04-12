@@ -15,6 +15,10 @@ Uint64 old_time = 0;
 int last_dungeon;
 #endif // NEW_LIGHTING
 
+#ifdef DEBUG_TIME
+const float debug_time_accel = 120.0f;
+#endif
+
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
  *
@@ -72,8 +76,12 @@ GLfloat light_6_dist;
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
+#ifdef NEW_LIGHTING
+sun sun_pos[360];
+#else
 sun sun_pos[60*3];
-short game_minute=60;
+#endif
+short game_minute=0;
 
 int test_point_visible(float x,float y,float z)
 {
@@ -782,6 +790,8 @@ void draw_global_light()
 #endif
 #endif
 
+//	printf("%f, %f, %f: %f, %f, %f\n", global_lights[i][0], global_lights[i][1], global_lights[i][2], weather_bias_light(global_lights[i][0]), weather_bias_light(global_lights[i][1]), weather_bias_light(global_lights[i][2]));
+
 	if(map_type==2)
 		{
 			//the ambient light should be almost as the normal light, but a little bluer
@@ -892,8 +902,10 @@ void build_global_light_table()
 	make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else
-  	make_gradient_light(0,30,(float *)global_lights,0.6f,0.6f,0.6f,0.7f,0.45f,0.0f);
-	make_gradient_light(30,30,(float *)global_lights,0.698f,0.448f,0.0f,0.12f,0.12f,0.15f);
+  	make_gradient_light(0,15,(float *)global_lights,0.6f,0.6f,0.6f, 0.7f,0.45f,0.3f);
+  	make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.65f,0.35f,0.25f);
+  	make_gradient_light(29,16,(float *)global_lights,0.65f,0.35f,0.25f, 0.5f,0.28f,0.15f);
+	make_gradient_light(44,16,(float *)global_lights,0.5f,0.28f,0.15f, 0.12f,0.12f,0.15f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
@@ -920,12 +932,23 @@ void build_global_light_table()
 
 void build_sun_pos_table()
 {
-	float x,y,z,d;
+	float d = 400;
 	int i;
+#ifdef NEW_LIGHTING
+	for(i=0;i<360;i++)
+		{
+			sun_pos[i].x=d*cos((float)(i-30)*M_PI/180.0f);
+			sun_pos[i].y=0.0f;
+			sun_pos[i].z=d*(sin((float)(i-30)*M_PI/180.0f) + 0.4);
+			if (sun_pos[i].z < 100)
+			  sun_pos[i].z = 100 - sun_pos[i].z;
+			sun_pos[i].w=0.0f;
+		}
+#else
+	float x,y,z;
 	int start=60;
 
 	x=0;
-	d=400;
 	for(i=0;i<60*3;i++)
 		{
 			z = d*sin((float)(i+start)*0.6f*M_PI/180.0f);
@@ -937,6 +960,7 @@ void build_sun_pos_table()
 			sun_pos[i].z=z;
 			sun_pos[i].w=0.0f;
 		}
+#endif
 }
 
 void new_minute()
@@ -956,6 +980,29 @@ void new_minute()
 	if(game_minute>=60*4)light_level=59;
 
 	//is it day?
+#ifdef NEW_LIGHTING
+	sun_position[0]=sun_pos[game_minute].x;
+	sun_position[1]=sun_pos[game_minute].y;
+	sun_position[2]=sun_pos[game_minute].z;
+	sun_position[3]=sun_pos[game_minute].w;
+	if (((game_minute >= 0) && (game_minute < 30)) || ((game_minute >= 210) && (game_minute < 240)))
+		{
+			disable_local_lights();
+			is_day=0;
+			calc_shadow_matrix();
+		}
+	else if(game_minute>=30 && game_minute<210 && !dungeon)
+		{
+			disable_local_lights();
+			is_day=1;
+			calc_shadow_matrix();
+		}
+	else//it's too dark, or we are in a dungeon
+		{
+			is_day=0;
+			enable_local_lights();
+		}
+#else
 	if(game_minute>=30 && game_minute<60*3+30 && !dungeon)
 		{
 			disable_local_lights();
@@ -970,15 +1017,9 @@ void new_minute()
 		{
 			is_day=0;
 			enable_local_lights();
-#ifdef NEW_LIGHTING
-			sun_position[0]=sun_pos[(390 - game_minute) % 360].x;
-			sun_position[1]=sun_pos[(390 - game_minute) % 360].y;
-			sun_position[2]=sun_pos[(390 - game_minute) % 360].z;
-			sun_position[3]=sun_pos[(390 - game_minute) % 360].w;
-#else
 		    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
-#endif
 		}
+#endif
 }
 
 #ifdef NEW_LIGHTING
@@ -1004,7 +1045,27 @@ void light_idle()
   gettimeofday(&t, NULL);
   new_time = ((Uint64)t.tv_sec)*1000000ul + (Uint64)t.tv_usec;
 #endif
+#ifdef DEBUG_TIME
+  if (new_time / (Uint64)(60000000 / debug_time_accel) - old_time / (Uint64)(60000000 / debug_time_accel))
+  {
+    game_minute++;
+    if (game_minute >= 360)
+      game_minute -= 360;
+    new_minute();
+  }
+#endif
+
+#ifdef DEBUG_TIME
+  if (old_time != 0)
+  {
+    int count = new_time / (Uint64)(250000 / debug_time_accel) - old_time / (Uint64)(250000 / debug_time_accel);
+    if (count > 10)
+      count = 10;
+    int j;
+    for (j = 0; j < count; j++)
+#else
   if (new_time / 250000 - old_time / 250000)
+#endif
   {	// A new second.
 	// Reload the next texture cache entry to reset
 	// the saturation for the current lighting.  Don't want to do too
@@ -1041,6 +1102,9 @@ void light_idle()
 	}
 	last_texture_start = i + 1;
   }
+#ifdef DEBUG_TIME
+  }
+#endif
   old_time = new_time;
   last_dungeon = dungeon;
 }

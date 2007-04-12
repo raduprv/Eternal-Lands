@@ -626,7 +626,11 @@ int display_game_handler (window_info *win)
 			draw_dungeon_light ();
 		}
 		// only draw scene lights if inside or it is night
+#ifdef NEW_LIGHTING
+		if (dungeon || !(game_minute >= 0 && game_minute < 240)){
+#else
 		if (dungeon || !is_day){
+#endif
 			update_scene_lights ();
 			draw_lights ();
 		}
@@ -661,7 +665,12 @@ int display_game_handler (window_info *win)
 		glDisable(GL_COLOR_MATERIAL);
 		glDisable(GL_BLEND);
 #endif
+
+#ifdef NEW_LIGHTING
+		if (!dungeon && shadows_on && (game_minute >= 0 && game_minute < 240)){
+#else
 		if (!dungeon && shadows_on && is_day){
+#endif
 			render_light_view();
 			CHECK_GL_ERRORS ();
 		}
@@ -710,7 +719,11 @@ int display_game_handler (window_info *win)
 		glDisable(GL_BLEND);
 #endif
 
+#ifdef NEW_LIGHTING
+		if (!dungeon && shadows_on && (game_minute >= 0 && game_minute < 240))
+#else
 		if (!dungeon && shadows_on && is_day)
+#endif
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
 			if (weather_use_fog() && any_reflection) blend_reflection_fog();

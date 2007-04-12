@@ -87,7 +87,11 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 
 	//debug
 
+#ifdef NEW_LIGHTING
+	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
 	if (object_id->self_lit && (!is_day || dungeon)) 
+#endif
 	{
 		glColor3f(object_id->r,object_id->g,object_id->b);
 	}
@@ -277,7 +281,12 @@ void draw_3d_object_detail(object3d * object_id)
 
 	//debug
 
-	if(object_id->self_lit && (!is_day || dungeon)) {
+#ifdef NEW_LIGHTING
+	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
+	if (object_id->self_lit && (!is_day || dungeon)) 
+#endif
+	{
 		glColor3f(object_id->r,object_id->g,object_id->b);
 	}
 	CHECK_GL_ERRORS();
@@ -435,7 +444,12 @@ void draw_3d_object(object3d * object_id)
 
 	//debug
 
-	if(object_id->self_lit && (!is_day || dungeon)) {
+#ifdef NEW_LIGHTING
+	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
+	if (object_id->self_lit && (!is_day || dungeon)) 
+#endif
+	{
 #ifndef OSX
  		glDisable(GL_LIGHTING);
 #endif
@@ -468,7 +482,12 @@ void draw_3d_object(object3d * object_id)
 	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	cur_e3d= NULL;
 	
-	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
+#ifdef NEW_LIGHTING
+	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
+	if (object_id->self_lit && (!is_day || dungeon)) 
+#endif
+		glEnable(GL_LIGHTING);
 	if(is_transparent) {
 		glEnable(GL_CULL_FACE);
 #ifdef	NEW_ALPHA
@@ -544,7 +563,11 @@ void draw_3d_objects(unsigned int object_type)
 	is_transparent= is_alpha_3d_object(object_type);
 	is_ground= is_ground_3d_object(object_type);
 	// set the modes we need
-	if (is_selflit && (!is_day || dungeon))
+#ifdef NEW_LIGHTING
+	if (is_selflit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
+	if (is_selflit && (!is_day || dungeon)) 
+#endif
 	{
 #ifndef OSX
 		glDisable(GL_LIGHTING);
@@ -650,7 +673,11 @@ void draw_3d_objects(unsigned int object_type)
 #endif
 	}
 	// restore the settings
-	if (is_selflit && (!is_day || dungeon))
+#ifdef NEW_LIGHTING
+	if (is_selflit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
+	if (is_selflit && (!is_day || dungeon)) 
+#endif
 	{
 		glEnable(GL_LIGHTING);
 	}

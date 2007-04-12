@@ -156,7 +156,11 @@ void draw_3d_reflection(object3d * object_id)
 	array_uv_main=object_id->e3d_data->array_uv_main;
 	array_order=object_id->e3d_data->array_order;
 
-	if(object_id->self_lit && (!is_day || dungeon))
+#ifdef NEW_LIGHTING
+	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
+	if (object_id->self_lit && (!is_day || dungeon)) 
+#endif
 		{
 			glDisable(GL_LIGHTING);
 			glColor3f(object_id->r,object_id->g,object_id->b);
@@ -239,7 +243,12 @@ void draw_3d_reflection(object3d * object_id)
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();
 
-	if(object_id->self_lit && (!is_day || dungeon))glEnable(GL_LIGHTING);
+#ifdef NEW_LIGHTING
+	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+#else
+	if (object_id->self_lit && (!is_day || dungeon)) 
+#endif
+		glEnable(GL_LIGHTING);
 	if(is_transparent)
 		{
 			glDisable(GL_ALPHA_TEST);

@@ -527,6 +527,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+#ifdef DEBUG_TIME
+				return;
+#endif
 				if (data_length <= 4)
 				{
 				  log_error("CAUTION: Possibly forged NEW_MINUTE packet received.\n");
