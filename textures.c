@@ -193,7 +193,7 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 	{
 		int i;
 		float percent_grey;
-		if ((game_minute > 250) || (game_minute < 10))
+		if ((game_minute > 230) || (game_minute < 10))
 		  percent_grey = 0.55f;
 		else if ((game_minute < 40))
 		  percent_grey = 0.55f * (1.0f - (game_minute - 10.0f) / 30.0f);

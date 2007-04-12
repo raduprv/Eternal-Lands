@@ -903,9 +903,9 @@ void build_global_light_table()
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else
   	make_gradient_light(0,15,(float *)global_lights,0.6f,0.6f,0.6f, 0.7f,0.45f,0.3f);
-  	make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.65f,0.35f,0.25f);
-  	make_gradient_light(29,16,(float *)global_lights,0.65f,0.35f,0.25f, 0.5f,0.28f,0.15f);
-	make_gradient_light(44,16,(float *)global_lights,0.5f,0.28f,0.15f, 0.12f,0.12f,0.15f);
+  	make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.7f,0.4f,0.25f);
+  	make_gradient_light(29,16,(float *)global_lights,0.7f,0.4f,0.25f, 0.6f,0.35f,0.15f);
+	make_gradient_light(44,16,(float *)global_lights,0.6f,0.35f,0.15f, 0.12f,0.12f,0.15f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
@@ -939,8 +939,8 @@ void build_sun_pos_table()
 		{
 			sun_pos[i].x=d*cos((float)(i-30)*M_PI/180.0f);
 			sun_pos[i].y=0.0f;
-			sun_pos[i].z=d*(sin((float)(i-30)*M_PI/180.0f) + 0.4);
-			if (sun_pos[i].z < 100)
+			sun_pos[i].z=d*(sin((float)(i-30)*M_PI/180.0f) + 0.6);
+			if (sun_pos[i].z < 50)
 			  sun_pos[i].z = 100 - sun_pos[i].z;
 			sun_pos[i].w=0.0f;
 		}
