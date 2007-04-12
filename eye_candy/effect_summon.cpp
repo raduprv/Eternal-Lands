@@ -969,7 +969,7 @@ bool SummonEffect::idle(const Uint64 usec)
     return false;
   
   if (recall)
-    return false;
+    return true;
   
   const Uint64 cur_time = get_time();
   const Uint64 age = cur_time - born;

@@ -1,3 +1,99 @@
+/*!
+\brief Eye Candy extension for Eternal Lands
+
+Introduction:
+
+The Eye Candy object files were designed with the intent of adding a
+new suite of realistic special effects to Eternal Lands.  Developed in
+C++, they are connected to the game (written in C) through a wrapper,
+eye_candy_wrapper (.cpp and .h).
+
+Eye Candy effects are largely based on textured point sprites, although
+certain effects use polygons as well.  The point sprites can have multiple
+frames, although none are currently setup as frame-by-frame animations (the
+infrastructure allows for this, however).  Instead, existing point sprites
+randomly pick a frame from a range of possible choices.  The sprites can be
+drawn using one of three methods, two of which are wrapped: OpenGL point
+sprites (not supported on all cards, but theoretically faster), fast
+billboarded quads, and accurate billboarded quads (not wrapped).  There is
+not that much difference between "fast" and "accurate" billboarded quads in
+terms of visual accuracy and speed, so only one of those is wrapped.
+
+The advantage to using point sprite-based effects is that you can cram a
+great deal of detail into a particle without using many polygons.  Even the
+most basic approximation of a sphere (a tetrahedron) takes four polygons,
+and textures will not wrap well around such a boxy shape.  Textured polys
+allow for wispy, translucent features, smooth curves, and all kinds of other
+effects.  Additionally, they lend themselves naturally to looking as though
+they are filled when tranlucency is used; translucent polygons look like
+shells.
+
+The primary disadvantage to point sprites is that they are, quite simply,
+sprites.  Thus, they tend to work better for objects that don't vary much
+depending on which angle you look at them from, and appear most realistic
+when there are many on the screen at once, all behaving according to some
+realistic movement rules.
+
+Actual polygons are used in a few locations in the Eye Candy package, in
+places where point sprites are not suitable.  These include teleporation
+effects (for a translucent column of light) and blowing leaves/flower
+petals.  Fireflies, however, are point sprites, as they are expected to only
+be used in the dark when you wouldn't expect to see the insect body in
+detail.
+
+Translucency is done in the package using two blend methods.  The default,
+and more common, is "glowing" particles.  These blend accumulatively.  A
+glowing particle will never make its background darker.  Infinite
+accumulation of glowing particles, assuming that there is at least some R,
+G, and B in them, will always result in white.  They work well for magic and
+light sources.  "Non-glowing" particles blend with an average (as with
+glowing, weighted proportional to transparency).  Infinite accumulation of
+non-glowing particles results purely in the color of the particle itself. 
+They work well for things like dust, debris, and smoke.
+
+All effects (except fireflies and leaves/petals, which don't need it) have a
+level of detail flag.  This is the maximum level of detail to use.  The
+number of particles that the effect will use is roughly proportional to its
+level of detail, although different effects may use more or less particles
+than others.  Naturally, lower level of detail is faster but poorer quality. 
+Eye Candy also has a built-in particle limit.  As you near this limit, it
+automatically tells effects to lower their level of detail.  Any new
+particles that they create will be done according to the new LOD.  Lastly,
+the framerate of eternallands will also automatically adjust the level of
+detail.  When the total particle count is too high, eye candy will start to
+kill off particles.  Effects that are far enough away that they become
+"inactive" will eventually have their particle counts pruned away to
+nothing.
+
+The main, controlling object is EyeCandy.  There is only ever one EyeCandy
+object (in our case, it is defined in eye_candy_wrapper.cpp).  It acts as
+the control mechanism for all of the effects and particles, and it is how
+the wrapper interfaces with them.  Effect objects are created manually, but
+destroy themselves -- either automatically when the effect finishes, or when
+told to by having their "recall" flag set (after making sure that their
+particles expire peacefully).  Particle objects are created by the effect,
+and handle all of the details of their drawing.  Particles frequently are
+positioned by Spawners, which pick coordinates in 3-space based on various
+rules, and are moved by Movers, which can simulate things like gravity and
+wind.  Each specific effect class has its own effect_*.cpp file, and is
+based on an object that inherits from Effect (and typically uses particles
+that inherit from Particle).  An additional object used by the system is
+math_cache.cpp, which speeds up certain mathematics functions.
+
+Note that the Eye Candy system uses a different coordinate system
+than Eternal Lands (Y is up/down in Eye Candy, while in Eternal Lands, Z is
+up/down).  The wrapper takes care of hiding this from the user -- and even
+from Eye Candy itself.
+
+Lastly, one guiding principle when editing this code: independence.  Eye
+Candy is a completely indepenent piece of code.  It's *only* interface with
+the rest of Eternal Lands is eye_candy_wrapper.  This is by design.  Please
+do not put includes to any other EL code (and thus use any EL globals,
+functions, etc) in Eye Candy.  Rather, work through the wrapper to exchange
+any information you feel is necessary.  This way, Eye Candy remains clean
+and project-independent.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EYE_CANDY_H
@@ -133,6 +229,18 @@ enum EffectEnum
 
 // C L A S S E S //////////////////////////////////////////////////////////////
 
+/*!
+\brief Vec3: A three-coordinate vector
+
+Vec3 contains an x, y, and z coordinate and nothing else.  Unlike
+std::vectors, which are for data storage, these are a fixed-size, fixed-type
+structure used for mathematics vector operations -- namely, for particle
+coordinates and velocities.
+
+Possible speed improvement: use SSE like in the math cache's invsqrt to
+group the variables together into a single 128-bit structure for collective
+math ops.
+*/
 class Vec3
 {
 public:
@@ -288,6 +396,16 @@ inline std::ostream& operator<<(std::ostream& lhs, const Vec3 rhs)
 };
 
 
+/*!
+This class is a standard quaternion.  Think of a quaternion ("quat") as a
+vector to rotate around and an angle.  That's not exactly correct, but close
+enough.  The standard method of storing an x rotation, y rotation, and z
+rotation us subject to a phenominon called "Gimbal locking" and doesn't
+accumulate well.
+
+Like with Vec3s, this class could potentially be sped up by grouping its
+x, y, and z into a single 128-bit element for aggregate SSE ops.
+*/
 class Quaternion
 {
 public:
@@ -444,6 +562,15 @@ inline std::ostream& operator<<(std::ostream& lhs, const Quaternion rhs)
   return lhs << "[" << rhs.vec << ", " << rhs.scalar << "]";
 };
 
+/*!
+\brief A class for dealing with textures
+
+Uses SDL_image to load textures of any common format.  Designed to support
+four levels of detail for each texture: 16x16, 32x32, 64x64, and 128x128;
+this is the index into texture_ids.  Textures are designed to be animated,
+and the frame can be specified or chosen randomly via the get_texture
+memeber functions.
+*/
 class Texture
 {
 public:
@@ -458,6 +585,13 @@ public:
   std::vector<GLuint> texture_ids[4];
 };
 
+/*!
+\brief The base class for drawing untextured geometric primitives
+
+A variety of geometric primitives inherit from Shape.  They all make use
+of its draw routine, but set their vertex data on their own.  Shapes are
+used for things like columns of light.
+*/
 class Shape
 {
 public:
@@ -524,6 +658,13 @@ public:
   coord_t radius;
 };
 
+/*!
+\brief The basic element of a geometric boundary comprised of sinous polar
+coordinates elements.
+
+This will be replaced shortly with a more map editor-friendly boundary
+element.
+*/
 class PolarCoordElement
 {
 public:
@@ -542,6 +683,12 @@ class ParticleMover;
 class EyeCandy;
 class Effect;
 
+/*!
+\brief An ultra-simplified particle element
+
+Used for a cheap kind of motion blur, if desired.  Contains only the most
+elementary drawing information.
+*/
 class ParticleHistory
 {
 public:
@@ -565,6 +712,17 @@ public:
   Vec3 pos;
 };
 
+/*!
+\brief That which adds the term "particle" to the term "particle effect"
+
+Apart from the occasional Shape, Particles are what you see when an effect
+is going off.  Particles are created in Effects, and are referenced both in
+the effect and the base EyeCandy object.  A particle can order itself to be
+deleted by returning false in its idle function, but the EyeCandy object
+retains the right to terminate it at any time without warning.  Particles
+can be set to "flare" randomly as they move through space, and they can
+optionally use a basic form of motion blur (not usually worth it).
+*/
 class Particle
 {
 public:
@@ -599,6 +757,13 @@ public:
   int cur_motion_blur_point;
 };
 
+/*!
+\brief A base class for classes that can move particles around
+
+Movers take in a particle and a length of time, and put the particle in its
+new position.  The most basic particle mover simply follows your typical
+"position += velocity * time" algorithm.
+*/
 class ParticleMover
 {
 public:
@@ -617,6 +782,9 @@ public:
   EyeCandy* base;
 };
 
+/*!
+\brief A Mover which applies an acceleration gradient.
+*/
 class GradientMover : public ParticleMover
 {
 public:
@@ -629,6 +797,9 @@ public:
   virtual Vec3 get_obstruction_gradient(Particle& p) const;
 };
 
+/*!
+\brief A simple example of a gradient mover, used for simple smoke effects.
+*/
 class SmokeMover : public GradientMover
 {
 public:
@@ -642,6 +813,13 @@ public:
   coord_t strength;
 };
 
+/*!
+\brief A gradient mover which whirls/pinches particles. 
+
+If spiral speed is equal to -pinch_rate, particles will follow a rough
+circle.  A greater magnitude pinch and they'll go inwards.  A lesser
+magnitude pinch and they'll spiral outwards.
+*/
 class SpiralMover : public GradientMover
 {
 public:
@@ -655,6 +833,9 @@ public:
   coord_t pinch_rate;
 };
 
+/*!
+\brief A gradient mover that confines particles to a bounding range
+*/
 class PolarCoordsBoundingMover : public GradientMover
 {
 public:
@@ -668,6 +849,10 @@ public:
   Vec3 center_pos;
 };
 
+/*!
+\brief A simple gradient mover that implements downward-only gravitational
+acceleration.
+*/
 class SimpleGravityMover : public GradientMover		// Your basic downward acceleration.
 {
 public:
@@ -677,6 +862,20 @@ public:
   virtual Vec3 get_force_gradient(Particle& p) const;
 };
 
+/*!
+\brief A true gravity mover
+
+This mover implements a near physics-sim-quality gravitational attraction
+mechanism (single source gravity only, though).  This includes things like
+tracking how much potential/kinetic energy a particle has in order to
+compensate for the uneven acceleration that occurs between frames -- a
+particle passing right past the center may be 5 units away on one frame, and
+0.1 units on the next frame.  The latter frame will experience a much
+greater gravitational attraction, even though it really should be taking a
+smooth curve.  The only better way to keep particles moving properly than
+our energy-tracking mechanism would be to actually integrate across the path,
+and there's no way we'd have the CPU time for that.
+*/
 class GravityMover : public GradientMover	// A full-featured gravity simulator.
 {
 public:
@@ -698,6 +897,12 @@ public:
   energy_t max_gravity;
 };
 
+/*!
+\brief The base class for particle spawners
+
+Particle spawners are effort-saving objects that can be called to determine
+coordinates for placement of new particles.
+*/
 class ParticleSpawner
 {
 public:
@@ -707,6 +912,10 @@ public:
   virtual Vec3 get_new_coords() = 0;
 };
 
+/*!
+\brief Base class for objects used in setting up an IFS (Iterative Function
+System) particle spawner's shape.
+*/
 class IFSParticleElement
 {
 public:
@@ -719,6 +928,9 @@ public:
   coord_t inv_scale;
 };
 
+/*!
+\brief Your standard IFS linear-interpolation between points
+*/
 class IFSLinearElement : public IFSParticleElement
 {
 public:
@@ -729,6 +941,9 @@ public:
   Vec3 center;
 };
 
+/*!
+\brief A "flame" extension to IFS.  Only works so-so in this case.
+*/
 class IFSSinusoidalElement : public IFSParticleElement
 {
 public:
@@ -742,6 +957,9 @@ public:
   Vec3 scalar2;
 };
 
+/*!
+\brief A "flame" extension to IFS.  Only works so-so in this case.
+*/
 class IFSSphericalElement : public IFSParticleElement
 {
 public:
@@ -753,6 +971,9 @@ public:
   Vec3 denominator_adjust;
 };
 
+/*!
+\brief A "flame" extension to IFS.  Only works so-so in this case.
+*/
 class IFSRingElement : public IFSParticleElement
 {
 public:
@@ -764,6 +985,9 @@ public:
   Vec3 denominator_adjust;
 };
 
+/*!
+\brief A "flame" extension to IFS.  Only works so-so in this case.
+*/
 class IFSSwirlElement : public IFSParticleElement
 {
 public:
@@ -773,6 +997,9 @@ public:
   virtual Vec3 get_new_coords(const Vec3& pos);
 };
 
+/*!
+\brief A "flame" extension to IFS.  Only works so-so in this case.
+*/
 class IFS2DSwirlElement : public IFSParticleElement
 {
 public:
@@ -782,6 +1009,9 @@ public:
   virtual Vec3 get_new_coords(const Vec3& pos);
 };
 
+/*!
+\brief A "flame" extension to IFS.  Only works so-so in this case.
+*/
 class IFSHorseshoeElement : public IFSParticleElement
 {
 public:
@@ -791,6 +1021,9 @@ public:
   virtual Vec3 get_new_coords(const Vec3& pos);
 };
 
+/*!
+\brief A "flame" extension to IFS.  Only works so-so in this case.
+*/
 class IFS2DHorseshoeElement : public IFSParticleElement
 {
 public:
@@ -800,6 +1033,10 @@ public:
   virtual Vec3 get_new_coords(const Vec3& pos);
 };
 
+/*!
+\brief An IFS (Iterative Function System) particle spawner, for fractaline
+spawning shapes.
+*/
 class IFSParticleSpawner : public ParticleSpawner
 {
 public:
@@ -815,6 +1052,9 @@ public:
   Vec3 pos;
 };
 
+/*!
+\brief A sample IFS spawner: spawns particles in a Sierpinski tetrahedron.
+*/
 class SierpinskiIFSParticleSpawner : public IFSParticleSpawner	// Just a sample.
 {
 public:
@@ -827,6 +1067,9 @@ public:
   };
 };
 
+/*!
+\brief Spawns particles throughout a sphere.
+*/
 class FilledSphereSpawner : public ParticleSpawner
 {
 public:
@@ -838,6 +1081,9 @@ public:
   coord_t radius;
 };
 
+/*!
+\brief Spawns particles throughout an ellipsoid.
+*/
 class FilledEllipsoidSpawner : public ParticleSpawner
 {
 public:
@@ -849,6 +1095,9 @@ public:
   Vec3 radius;
 };
 
+/*!
+\brief Spawns particles on the rim of a sphere.
+*/
 class HollowSphereSpawner : public ParticleSpawner
 {
 public:
@@ -860,6 +1109,9 @@ public:
   coord_t radius;
 };
 
+/*!
+\brief Spawns particles on the rim of an ellipsoid.
+*/
 class HollowEllipsoidSpawner : public ParticleSpawner
 {
 public:
@@ -871,6 +1123,9 @@ public:
   Vec3 radius;
 };
 
+/*!
+\brief Spawns particles throughout a two-dimensional disc.
+*/
 class FilledDiscSpawner : public ParticleSpawner
 {
 public:
@@ -882,6 +1137,9 @@ public:
   coord_t radius;
 };
 
+/*!
+\brief Spawns particles on the rim of a two-dimensional disc.
+*/
 class HollowDiscSpawner : public ParticleSpawner
 {
 public:
@@ -893,6 +1151,10 @@ public:
   coord_t radius;
 };
 
+/*!
+\brief Spawns particles within a range defined by addition of sinusoidal
+elements in polar coordinates.
+*/
 class FilledPolarCoordsSpawner : public ParticleSpawner
 {
 public:
@@ -905,6 +1167,10 @@ public:
   std::vector<PolarCoordElement> bounding_range;
 };
 
+/*!
+\brief Spawns particles on the edge of a range defined by addition of
+sinusoidal elements in polar coordinates.
+*/
 class HollowPolarCoordsSpawner : public ParticleSpawner
 {
 public:
@@ -917,6 +1183,9 @@ public:
   std::vector<PolarCoordElement> bounding_range;
 };
 
+/*!
+\brief Base class for obstructions -- objects that deflect particles.
+*/
 class Obstruction
 {
 public:

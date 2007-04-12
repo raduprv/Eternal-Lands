@@ -12,6 +12,7 @@
 #ifdef NEW_LIGHTING
 int last_texture_start = 0;
 Uint64 old_time = 0;
+int last_dungeon;
 #endif // NEW_LIGHTING
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -891,8 +892,8 @@ void build_global_light_table()
 	make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else
-  	make_gradient_light(0,40,(float *)global_lights,0.6f,0.6f,0.6f,0.5f,0.35f,0.1f);
-	make_gradient_light(40,20,(float *)global_lights,0.498f,0.348f,0.1f,0.15f,0.15f,0.2f);
+  	make_gradient_light(0,30,(float *)global_lights,0.6f,0.6f,0.6f,0.7f,0.45f,0.0f);
+	make_gradient_light(30,30,(float *)global_lights,0.698f,0.448f,0.0f,0.12f,0.12f,0.15f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
@@ -970,10 +971,10 @@ void new_minute()
 			is_day=0;
 			enable_local_lights();
 #ifdef NEW_LIGHTING
-			sun_position[0]=sun_pos[0].x;
-			sun_position[1]=sun_pos[0].y;
-			sun_position[2]=sun_pos[0].z;
-			sun_position[3]=sun_pos[0].w;
+			sun_position[0]=sun_pos[(390 - game_minute) % 360].x;
+			sun_position[1]=sun_pos[(390 - game_minute) % 360].y;
+			sun_position[2]=sun_pos[(390 - game_minute) % 360].z;
+			sun_position[3]=sun_pos[(390 - game_minute) % 360].w;
 #else
 		    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
 #endif
@@ -1018,7 +1019,8 @@ void light_idle()
 				reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
 			else
 				reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
-			break;
+			if (dungeon == last_dungeon)
+				break;
 		}
 	}
 	if (i == TEXTURE_CACHE_MAX)
@@ -1032,13 +1034,15 @@ void light_idle()
 					reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
 				else
 					reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
-				break;
+				if (dungeon == last_dungeon)
+					break;
 			}
 		}
 	}
 	last_texture_start = i + 1;
   }
   old_time = new_time;
+  last_dungeon = dungeon;
 }
 #endif
 

@@ -214,9 +214,6 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 #endif  //DEBUG
 	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
 
-#ifdef NEW_LIGHTING
-	reset_material();
-#endif
 	ELglDrawRangeElementsEXT(GL_TRIANGLES,
 		object_id->e3d_data->materials[material_index].triangles_indicies_min,
 		object_id->e3d_data->materials[material_index].triangles_indicies_max,
@@ -399,9 +396,6 @@ void draw_3d_object_detail(object3d * object_id)
 			if(num > 3000){
 				num= 3000;
 			}
-#ifdef NEW_LIGHTING
-		    reset_material();
-#endif
 		    glDrawArrays(GL_TRIANGLES, idx, num);
 		    idx+= num;
 		}
@@ -447,6 +441,12 @@ void draw_3d_object(object3d * object_id)
 #endif
 		glColor3f(object_id->r,object_id->g,object_id->b);
 	}
+#ifdef NEW_LIGHTING
+	else
+	{
+		reset_material();
+	}
+#endif
 
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
@@ -517,9 +517,6 @@ void draw_3d_objects(unsigned int object_type)
 		return;
 	}
 
-#ifdef NEW_LIGHTING
-	reset_material();
-#endif
 	// reduce CPU usage while minimized
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
 		// not actually drawing, fake it
@@ -553,6 +550,12 @@ void draw_3d_objects(unsigned int object_type)
 		glDisable(GL_LIGHTING);
 #endif
 	}
+#ifdef NEW_LIGHTING
+	else
+	{
+		reset_material();
+	}
+#endif
 
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
@@ -1082,6 +1085,29 @@ void display_objects()
 
 	CHECK_GL_ERRORS();
 
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glColor4f(1.0, 1.0, 1.0, 0.3);
+		glNormal3f(0.0, 0.0, 1.0);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(49, 0.0, -46);
+			glVertex3f(49, 0.4, -46);
+			glVertex3f(51, 0.4, -46);
+			glVertex3f(51, 0.0, -46);
+		}
+		glEnd();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(50, 0.0, -48);
+			glVertex3f(50, 0.45, -48);
+			glVertex3f(52, 0.45, -48);
+			glVertex3f(52, 0.0, -48);
+		}
+		glEnd();
+#endif
 	glEnableClientState(GL_NORMAL_ARRAY);
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
@@ -1146,6 +1172,29 @@ void display_ground_objects()
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0,0,1);
 
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glColor4f(1.0, 1.0, 1.0, 0.3);
+		glNormal3f(0.0, 0.0, 1.0);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(49, 0.0, -42);
+			glVertex3f(49, 0.3, -42);
+			glVertex3f(51, 0.3, -42);
+			glVertex3f(51, 0.0, -42);
+		}
+		glEnd();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(50, 0.0, -44);
+			glVertex3f(50, 0.35, -44);
+			glVertex3f(52, 0.35, -44);
+			glVertex3f(52, 0.0, -44);
+		}
+		glEnd();
+#endif
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	
@@ -1234,6 +1283,29 @@ void display_blended_objects()
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0,0,1);
 
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glColor4f(1.0, 1.0, 1.0, 0.3);
+		glNormal3f(0.0, 0.0, 1.0);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(49, 0.0, -34);
+			glVertex3f(49, 0.1, -34);
+			glVertex3f(51, 0.1, -34);
+			glVertex3f(51, 0.0, -34);
+		}
+		glEnd();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(50, 0.0, -36);
+			glVertex3f(50, 0.15, -36);
+			glVertex3f(52, 0.15, -36);
+			glVertex3f(52, 0.0, -36);
+		}
+		glEnd();
+#endif
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_blended_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])

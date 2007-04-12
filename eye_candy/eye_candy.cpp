@@ -1388,7 +1388,55 @@ void EyeCandy::draw()
   if (ec_error_status)
     return;
 
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glColor4f(1.0, 1.0, 1.0, 0.3);
+  glNormal3f(0.0, 0.0, 1.0);
+  glBegin(GL_QUADS);
+  {
+    glVertex3f(49, 0.0, -70);
+    glVertex3f(49, 1.0, -70);
+    glVertex3f(51, 1.0, -70);
+    glVertex3f(51, 0.0, -70);
+  }
+  glEnd();
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBegin(GL_QUADS);
+  {
+    glVertex3f(50, 0.0, -72);
+    glVertex3f(50, 1.05, -72);
+    glVertex3f(52, 1.05, -72);
+    glVertex3f(52, 0.0, -72);
+  }
+  glEnd();
+#endif
+
   start_draw();
+
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glColor4f(1.0, 1.0, 1.0, 0.3);
+  glNormal3f(0.0, 0.0, 1.0);
+  glBegin(GL_QUADS);
+  {
+    glVertex3f(49, 0.0, -74);
+    glVertex3f(49, 1.1, -74);
+    glVertex3f(51, 1.1, -74);
+    glVertex3f(51, 0.0, -74);
+  }
+  glEnd();
+
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+  glBegin(GL_QUADS);
+  {
+    glVertex3f(50, 0.0, -76);
+    glVertex3f(50, 1.15, -76);
+    glVertex3f(52, 1.15, -76);
+    glVertex3f(52, 0.0, -76);
+  }
+  glEnd();
+#endif
 
   // Draw effects (any special drawing functionality) and their particles.
   for (std::vector<Effect*>::const_iterator iter = effects.begin(); iter != effects.end(); iter++)
@@ -1462,7 +1510,7 @@ void EyeCandy::idle()
   const Uint64 cur_time = get_time();
   if (time_diff < 10)
     time_diff = 10;
-  
+    
   for (int i = 0; i < (int)effects.size(); )
   {
     std::vector<Effect*>::iterator iter = effects.begin() + i;

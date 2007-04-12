@@ -591,6 +591,29 @@ int display_game_handler (window_info *win)
 		get_weather_light_level ();
 #endif
 
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glColor4f(1.0, 1.0, 1.0, 0.3);
+		glNormal3f(0.0, 0.0, 1.0);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(49, 0.0, -66);
+			glVertex3f(49, 0.9, -66);
+			glVertex3f(51, 0.9, -66);
+			glVertex3f(51, 0.0, -66);
+		}
+		glEnd();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(50, 0.0, -68);
+			glVertex3f(50, 0.95, -68);
+			glVertex3f(52, 0.95, -68);
+			glVertex3f(52, 0.0, -68);
+		}
+		glEnd();
+#endif
 		if (!dungeon){
 			draw_global_light ();
 		} else {
@@ -603,6 +626,29 @@ int display_game_handler (window_info *win)
 		}
 		CHECK_GL_ERRORS ();
 
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glColor4f(1.0, 1.0, 1.0, 0.3);
+		glNormal3f(0.0, 0.0, 1.0);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(49, 0.0, -62);
+			glVertex3f(49, 0.8, -62);
+			glVertex3f(51, 0.8, -62);
+			glVertex3f(51, 0.0, -62);
+		}
+		glEnd();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(50, 0.0, -64);
+			glVertex3f(50, 0.85, -64);
+			glVertex3f(52, 0.85, -64);
+			glVertex3f(52, 0.0, -64);
+		}
+		glEnd();
+#endif
 		if (!dungeon && shadows_on && is_day){
 			render_light_view();
 			CHECK_GL_ERRORS ();
@@ -621,6 +667,29 @@ int display_game_handler (window_info *win)
 		CHECK_GL_ERRORS ();
 #ifdef ATI_9200_FIX
 		glClear(GL_DEPTH_BUFFER_BIT);
+#endif
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glColor4f(1.0, 1.0, 1.0, 0.3);
+		glNormal3f(0.0, 0.0, 1.0);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(49, 0.0, -58);
+			glVertex3f(49, 0.7, -58);
+			glVertex3f(51, 0.7, -58);
+			glVertex3f(51, 0.0, -58);
+		}
+		glEnd();
+		
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glBegin(GL_QUADS);
+		{
+			glVertex3f(50, 0.0, -60);
+			glVertex3f(50, 0.75, -60);
+			glVertex3f(52, 0.75, -60);
+			glVertex3f(52, 0.0, -60);
+		}
+		glEnd();
 #endif
 
 		if (!dungeon && shadows_on && is_day)
