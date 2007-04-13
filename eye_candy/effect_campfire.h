@@ -1,3 +1,7 @@
+/*!
+\brief A special effect that creates a fire (of any size)
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_CAMPFIRE_H

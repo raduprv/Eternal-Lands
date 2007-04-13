@@ -1,3 +1,7 @@
+/*!
+\brief Special effects for bag dropping and retrieval.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_BAG_H

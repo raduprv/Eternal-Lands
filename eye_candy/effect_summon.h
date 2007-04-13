@@ -1,3 +1,7 @@
+/*!
+\brief Special effects for summoning creatures.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_SUMMON_H

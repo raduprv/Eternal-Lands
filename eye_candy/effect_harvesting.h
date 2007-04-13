@@ -1,3 +1,7 @@
+/*!
+\brief Special effects for all of the harvesting events.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_HARVESTING_H

@@ -1,3 +1,8 @@
+/*!
+\brief A special effect that creates a persistant column of light with
+sparkles for teleportation.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_TELEPORTER_H

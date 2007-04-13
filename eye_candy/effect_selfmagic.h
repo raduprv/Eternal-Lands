@@ -1,3 +1,7 @@
+/*!
+\brief Special effects for magic cast on one's self
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_SELFMAGIC_H

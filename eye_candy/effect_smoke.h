@@ -1,3 +1,7 @@
+/*!
+\brief A special effect that creates a column of black smoke in the air.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_SMOKE_H

@@ -1,5 +1,7 @@
 #ifdef EYE_CANDY
 
+// I N C L U D E S ////////////////////////////////////////////////////////////
+
 #include "eye_candy_wrapper.h"
 #include "cal3d_wrapper.h"
 #include "draw_scene.h"
@@ -7,6 +9,8 @@
 #include "particles.h"
 #include "init.h"
 #include "gamewin.h"
+
+// G L O B A L S //////////////////////////////////////////////////////////////
 
 extern "C" {
   int use_eye_candy = 1;
@@ -31,6 +35,10 @@ ec_actor_obstruction self_actor;
 std::vector<ec::Obstruction*> general_obstructions_list;
 std::vector<ec::Obstruction*> fire_obstructions_list;
 bool force_idle = false;
+
+float average_framerate = 20000.0;	// Windows has such horrible timer resolution, I have to average these out.  Anyways, it doesn't hurt to do this in Linux, either.
+
+// F U N C T I O N S //////////////////////////////////////////////////////////
 
 extern "C" void ec_init()
 {
@@ -130,7 +138,7 @@ extern "C" void ec_idle()
     return;
     
   force_idle = false;
-
+  
   const std::vector<std::string> ec_errors = ec::fetch_logs();
   for (std::vector<std::string>::const_iterator iter = ec_errors.begin(); iter != ec_errors.end(); iter++)
     log_error(iter->c_str());
@@ -191,10 +199,13 @@ extern "C" void ec_idle()
     eye_candy.time_diff = 100000;
   else
     eye_candy.time_diff = new_time - ec_cur_time;
-  eye_candy.framerate = 1000000.0 / (eye_candy.time_diff + 1);
+  average_framerate = average_framerate * 0.6 + 1000000.0 / eye_candy.time_diff * 0.4;
+  eye_candy.framerate = average_framerate;
 //  eye_candy.framerate = fps_average;
   ec_last_time = ec_cur_time;
   ec_cur_time = new_time;
+  
+  eye_candy.max_fps = average_framerate;
 
   if (use_eye_candy && ec_last_time % 1000000 >= ec_cur_time % 1000000)
     ec_heartbeat();
@@ -2028,5 +2039,7 @@ extern "C" void ec_add_wind_effect_list(ec_reference reference, ec_effects effec
   ec_internal_effects* cast_effects = (ec_internal_effects*)effects;
   ((ec::WindEffect*)(cast_reference->effect))->set_pass_off(*cast_effects);
 }
+
+///////////////////////////////////////////////////////////////////////////////
 
 #endif	// #ifdef EYE_CANDY

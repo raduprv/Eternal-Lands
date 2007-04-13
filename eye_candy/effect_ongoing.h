@@ -1,3 +1,8 @@
+/*!
+\brief Special effects for elements focused on a target that don't disappear
+right away.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_ONGOING_H

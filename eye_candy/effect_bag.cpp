@@ -64,7 +64,7 @@ bool BagParticle::idle(const Uint64 delta_t)
   const interval_t float_time = delta_t / 1000000.0;
   if (age > 220000)
   {
-    const alpha_t alpha_scalar = math_cache.powf_05_close(float_time * 6.0);
+    const alpha_t alpha_scalar = math_cache.powf_05_close(float_time * 3.0);
     alpha *= alpha_scalar;
 
     if (alpha < 0.02)
@@ -92,14 +92,14 @@ BagEffect::BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _picke
     effect_center.y += 0.2;
   LOD = _LOD;
   desired_LOD = _LOD;
-  mover = new GravityMover(this, &effect_center, 2e10);
-  spawner = new HollowSphereSpawner(0.3);
+  mover = new GravityMover(this, &effect_center, 4e9);
+  spawner = new HollowSphereSpawner(0.14 + 0.02 * (float)picked_up);
 
   const coord_t size = 20 / LOD;
   for (int i = 0; i < LOD * (30 + 30 * (int)picked_up); i++)
   {
     Vec3 coords = spawner->get_new_coords();
-    Vec3 velocity = coords / 10.0;
+    Vec3 velocity = coords * 1.3;
     coords += effect_center;
     Particle* p = new BagParticle(this, mover, coords, velocity, size);
     if (!base->push_back_particle(p))
@@ -122,9 +122,9 @@ bool BagEffect::idle(const Uint64 usec)
     
   effect_center.x = pos->x;
   if (picked_up)
-    effect_center.y += usec / 1000000.0;
+    effect_center.y += usec / 2000000.0;
   else
-    effect_center.y -= usec / 1000000.0;
+    effect_center.y -= usec / 2000000.0;
   effect_center.z = pos->z;
   
   return true;

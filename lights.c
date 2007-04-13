@@ -839,11 +839,7 @@ void draw_dungeon_light()
 	ambient_light[0]=ambient_r;
 	ambient_light[1]=ambient_g;
 	ambient_light[2]=ambient_b;
-#ifdef NEW_LIGHTING
-	ambient_light[0]=0.0f;	// was 0 even right??
-#else	//NEW_LIGHTING
 	ambient_light[3]=1.0f;
-#endif	//NEW_LIGHTING
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);

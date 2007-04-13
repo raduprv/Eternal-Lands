@@ -19,18 +19,32 @@ namespace ec
 
 CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
-  color[0] = 1.0;
-  color[1] = 0.35 + randfloat() / 2.5;
-  color[2] = 0.2;
+  state = _state;
+  if (state != 2)
+  {
+    color[0] = 1.0;
+    color[1] = 0.35 + randfloat(0.35);
+    color[2] = 0.2;
+  }
+  else
+  {
+    color[0] = 0.07;
+    color[1] = 0.06;
+    color[2] = 0.06;
+  }
   LOD = _LOD;
-  size = _sqrt_scale * 6 * (0.5 + 5 * randfloat()) / (_LOD + 2.0);
+  size = _sqrt_scale * 8 * (1.0 + 4 * randfloat()) / (_LOD + 0.5);
   size_max = 270 * _scale / (_LOD + 10);
   alpha = randfloat(0.5) + (1.0 - (_LOD + 20.0) / 60.0);
+  if (state == 2)
+  {
+    size *= 2.5;
+    alpha *= 0.6;
+  }
   velocity /= size;
   flare_max = 1.5;
   flare_exp = 0.3;
   flare_frequency = 5.0;
-  state = _state;
   if (state)
     size *= 0.7;
 
@@ -62,40 +76,19 @@ bool CampfireParticle::idle(const Uint64 delta_t)
     return false;
   
   const float scalar = square(math_cache.powf_05_close((interval_t)delta_t / (3000000 - LOD * 200000)));
-  if (state != 2)
-    color[0] = color[0] * scalar * 0.3 + color[0] * 0.7;
 
-  if (state == 1)
-  {
-    alpha *= scalar;
-    if ((alpha <= 0.24 - LOD * 0.01) && (rand() & 1))
-    {
-      state = 2;
-      size *= 1.6;
-      alpha = 0.15 + randfloat(0.2);
-      pos.y -= 0.3 + randfloat(0.1);
-      color[0] = 0.07;
-      color[1] = 0.05;
-      color[2] = 0.05;
-      velocity.x *= 2;
-      velocity.z *= 2;
-      const float scale = ((CampfireEffect*)effect)->sqrt_scale;
-      velocity.x += (randfloat(scale) - scale / 2) / 3;
-      velocity.z += (randfloat(scale) - scale / 2) / 3;
-      while (size > 10.0)
-      {
-        size *= 0.75;
-        alpha = fastsqrt(alpha);
-      }
-    }
-  }
-  else if (state == 0)
+  if (state == 0)
     alpha = alpha * square(scalar) * 0.6 + alpha * 0.4;
-  else
+  else if (state == 1)
     alpha *= scalar;
+  else
+    alpha = alpha * scalar * 0.45  + alpha * 0.55;
 
-  velocity.x = velocity.x * scalar;
-  velocity.z = velocity.z * scalar;
+  if (state != 2)
+  {
+    velocity.x = velocity.x * scalar;
+    velocity.z = velocity.z * scalar;
+  }
   size = size / scalar * 0.3 + size * 0.7;
   if (size >= size_max)
     size = size_max;
@@ -163,7 +156,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
   dead = _dead;
   pos = _pos;
   obstructions = _obstructions;
-  scale = _scale;
+  scale = _scale * 0.7;
   sqrt_scale = fastsqrt(scale);
   LOD = _LOD;
   desired_LOD = _LOD;
@@ -173,7 +166,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
   mover = new SmokeMover(this);
 #endif
   stationary = new ParticleMover(this);
-  spawner = new FilledSphereSpawner(0.2 * sqrt_scale);
+  spawner = new FilledSphereSpawner(0.15 * sqrt_scale);
   active = true;
 /*
   for (int i = 0; i < LOD * 10; i++)
@@ -225,18 +218,28 @@ bool CampfireEffect::idle(const Uint64 usec)
   
   while (((int)particles.size() < LOD * 100) && (math_cache.powf_0_1_rough_close(randfloat(), (interval_t)usec / 80000 * LOD) < 0.5))
   {
-    int state = 1;
+    int state = 0;
     if (rand() & 1)
-      state = 0;
+      state = 1;
+    else if (!(rand() % 3))
+      state = 2;
 
     Vec3 coords;
-    if (!state)
+    if (state == 0)
       coords = spawner->get_new_coords() + *pos + Vec3(0.0, 0.07, 0.0);
-    else
+    else if (state == 1)
       coords = spawner->get_new_coords() * 0.3 + *pos + Vec3(0.0, 0.12, 0.0);
+    else
+      coords = spawner->get_new_coords() + *pos + Vec3(0.0, 0.2 + randfloat(0.5), 0.0);
     Vec3 velocity;
-    velocity.randomize(0.1 * sqrt_scale);
-    velocity.y = velocity.y * 0.75 + 0.15 * scale;
+    velocity.randomize(0.3 * sqrt_scale);
+    velocity.y = velocity.y * 0.55 + 0.15 * scale;
+    if (state == 2)
+    {
+      velocity.x *= 1.5;
+      velocity.y *= 1.5;
+      velocity.z *= 1.5;
+    }
     Particle* p = new CampfireParticle(this, mover, coords, velocity, scale, sqrt_scale, state, LOD);
     if (!base->push_back_particle(p))
       break;

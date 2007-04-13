@@ -1131,6 +1131,7 @@ EyeCandy::EyeCandy()
   temp_sprite_scalar = sprite_scalar * height;
   last_forced_LOD = 10;
   framerate = 100.0;
+  max_fps = 100.0;
 }
 
 EyeCandy::EyeCandy(int _max_particles)
@@ -1148,6 +1149,7 @@ EyeCandy::EyeCandy(int _max_particles)
   temp_sprite_scalar = sprite_scalar * height;
   last_forced_LOD = 10;
   framerate = 100.0;
+  max_fps = 100.0;
 }
 
 EyeCandy::~EyeCandy()
@@ -1595,7 +1597,9 @@ void EyeCandy::idle()
     change_LOD = 10;
 
   Uint16 change_LOD2;
-  if (framerate < LOD_1_time_threshold)
+  if (framerate > max_fps - 1.5)
+    change_LOD2 = 10;
+  else if (framerate < LOD_1_time_threshold)
     change_LOD2 = 1;
   else if (framerate < LOD_2_time_threshold)
     change_LOD2 = 2;

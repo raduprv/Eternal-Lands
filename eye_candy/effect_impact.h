@@ -1,3 +1,8 @@
+/*!
+\brief Special effects for events involving something striking something else,
+or effects that look like that (such as blood or a burst of poison damage)
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_IMPACT_H

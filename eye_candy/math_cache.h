@@ -1,3 +1,18 @@
+/*!
+\brief A class for speeding up various mathematics options.
+
+Why not use built-in, standard math operations?  Quite simply, particle
+systems are CPU intensive, but not that picky about accuracy, while the
+standard calls are accurate but slow.  
+
+Optimizing this class, in addition to optimizing the Vec3 class, is a nice
+way to get a global performance increase across EyeCandy.  A good target
+would be the powf functions: widely used and still not that fast.  One
+possibility would be, instead of caching powf itself, cache exp and log
+(both of which should cache much more easily, in a smaller cache that could
+readily fit into the CPU's cache) and then use them to recreate powf.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef MATH_CACHE_H

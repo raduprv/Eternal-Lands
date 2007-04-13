@@ -1,3 +1,7 @@
+/*!
+\brief A special effect that spawns a region full of fireflies.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_FIREFLY_H

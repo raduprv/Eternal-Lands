@@ -1199,6 +1199,9 @@ public:
   coord_t force;
 };
 
+/*!
+\brief An obstruction shaped like a vertical cylinder of infinite length (fast)
+*/
 class SimpleCylinderObstruction : public Obstruction	// Vertical and infinite.  Speeds up the math if you don't need the extra detail.
 {
 public:
@@ -1210,6 +1213,9 @@ public:
   Vec3* pos;
 };
 
+/*!
+\brief An obstruction shaped like a cylinder of finite length at any angle (slow)
+*/
 class CylinderObstruction : public Obstruction	// Note: assumes that (*end - *start) doesn't change.
 {
 public:
@@ -1224,6 +1230,9 @@ public:
   coord_t length_vec_mag;
 };
 
+/*!
+\brief An obstruction shaped like a sphere (fast)
+*/
 class SphereObstruction : public Obstruction
 {
 public:
@@ -1235,6 +1244,9 @@ public:
   Vec3* pos;
 };
 
+/*!
+\brief An obstruction shaped like a box at any angle (slow)
+*/
 class BoxObstruction : public Obstruction
 {
 public:
@@ -1283,6 +1295,19 @@ public:
   float* cos_rot_z2;
 };
 
+/*!
+\brief The base element for every kind of eye candy effect
+
+An eye candy effect is a single visual phenominon composed of many particles.
+Example effects would include things like a "fountain" or a "fire".  Effects
+can run their course and then expire (simply by returning false in their
+idle function) or be persistent.  Effects are manually created by the caller
+(using the c++ "new" operator), but delete themselves.  For the caller to
+stop an effect, they need to flag it's recall flag; an effect must respect
+the recall flag when it sees it and clean up its state, then return false
+in its idle function.  Effects can also draw non-particle elements if they
+wish in their draw function.
+*/
 class Effect
 {
 public:
@@ -1331,6 +1356,24 @@ public:
   Uint16 LOD;
 };
 
+/*!
+\brief The core object of all eye candy
+
+The EyeCandy object (there should only ever be one) encapsulates all of the
+effects and particles that will occur in a program.  There are numerous
+options, flags, and settings that can be set for the eye candy object. 
+A few critical notes:
+
+1) When initializing the object, be sure to load_textures().
+2) Optimially, give it a few lights (the add_light() function).
+3) Between idle calls, set how much time has passed (time_diff) and the
+camera's location (set_camera()).
+4) The key functions to call every cycle are ec_idle() and ec_draw().
+5) When not drawing, don't call ec_draw().  If you wish to save CPU time,
+you can skip calling ec_idle() most of the time, but if you ever delete
+effects, you'll want to let it run once to help clear out the system.
+
+*/
 class EyeCandy
 {
 public:
@@ -1384,6 +1427,7 @@ public:
   angle_t zoom;
   Uint64 time_diff;
   float framerate;
+  float max_fps;
   light_t lighting_scalar;
   light_t light_estimate;
   std::vector< std::pair<Particle*, light_t> > light_particles;

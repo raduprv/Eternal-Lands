@@ -1,3 +1,7 @@
+/*!
+\brief Special effects for magic that requires a target.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_TARGETMAGIC_H

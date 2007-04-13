@@ -1,3 +1,7 @@
+/*!
+\brief Special effects that have objects blow around under the wind.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_WIND_H

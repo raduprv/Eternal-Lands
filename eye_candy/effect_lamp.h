@@ -1,3 +1,8 @@
+/*!
+\brief A special effect involving a small flame and a bright halo, useful
+for lanterns and torches.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_LAMP_H

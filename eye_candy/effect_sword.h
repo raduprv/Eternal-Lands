@@ -1,3 +1,7 @@
+/*!
+\brief Special effects for making magical swords sparkle as they're swung.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_SWORD_H

@@ -1,3 +1,8 @@
+/*!
+\brief A special effect that cloud; when low down, it looks like slowly
+drifting fog.
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_CLOUD_H

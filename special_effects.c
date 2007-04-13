@@ -6,8 +6,8 @@
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 
-const float X_OFFSET = 0.0;
-const float Y_OFFSET = 0.0;
+const float X_OFFSET = 0.25;
+const float Y_OFFSET = 0.25;
 
 #endif	//EYE_CANDY
 /* to do

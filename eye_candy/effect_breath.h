@@ -1,3 +1,7 @@
+/*!
+\brief Special effects for dragons or other creatures with breath weapons
+*/
+
 #ifdef EYE_CANDY
 
 #ifndef EFFECT_BREATH_H
