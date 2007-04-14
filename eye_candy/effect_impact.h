@@ -55,7 +55,13 @@ public:
   virtual bool idle(const Uint64 delta_t);
   void draw(const Uint64 usec);
   virtual GLuint get_texture(const Uint16 res_index);
-  virtual light_t estimate_light_level() const { return 0.002; };
+  virtual light_t estimate_light_level() const
+  {
+    if ((type == ImpactEffect::BLOOD) || (type == ImpactEffect::POISON))
+      return 0.0;
+    else
+      return 0.002;
+  };
   
   Texture* texture;
   Uint16 LOD;

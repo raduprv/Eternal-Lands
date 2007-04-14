@@ -620,7 +620,7 @@ float weather_bias_light(float value)
 	} else {
 		const float bias = get_weather_light_bias();
 #ifdef NEW_LIGHTING
-		const float severity = 0.65f*weather_severity + 0.35f; // slightly bias light by weather severity
+		const float severity = 0.9 * weather_severity; // Bias light by weather severity (the old way obliterates lighting, making everything but shadows black)
 #else
 		const float severity = 0.15f*weather_severity + 0.85f; // slightly bias light by weather severity
 #endif

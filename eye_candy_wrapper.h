@@ -20,6 +20,7 @@
 
 #ifdef __cplusplus
 #include "eye_candy/eye_candy.h"
+#include "eye_candy/math_cache.h"
 #include "eye_candy/effect_lamp.h"
 #include "eye_candy/effect_campfire.h"
 #include "eye_candy/effect_fountain.h"

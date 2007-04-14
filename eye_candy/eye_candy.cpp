@@ -1120,7 +1120,7 @@ EyeCandy::EyeCandy()
 {
   set_thresholds(10000, 12);
   max_usec_per_particle_move = 100000;
-  sprite_scalar = 0.3;
+  sprite_scalar = 0.11;
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
@@ -1138,7 +1138,7 @@ EyeCandy::EyeCandy(int _max_particles)
 {
   set_thresholds(_max_particles, 12);
   max_usec_per_particle_move = 100000;
-  sprite_scalar = 0.3;
+  sprite_scalar = 0.11;
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
@@ -1520,7 +1520,7 @@ void EyeCandy::idle()
 {
   if (ec_error_status)
     return;
-  
+    
   const Uint64 cur_time = get_time();
   if (time_diff < 10)
     time_diff = 10;

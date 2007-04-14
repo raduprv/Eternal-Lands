@@ -161,7 +161,7 @@ extern "C" void ec_idle()
   float new_camera_z = -zoom_level*camera_distance * c_rx + camera_z;
   eye_candy.set_camera(ec::Vec3(-new_camera_x, -new_camera_z, new_camera_y));
   
-  eye_candy.set_dimensions(window_width, window_height, zoom_level);
+  eye_candy.set_dimensions(window_width, window_height, powf(zoom_level, 0.1));
   Uint64 new_time = ec::get_time();
   for (int i = 0; i < (int)references.size(); )
   {

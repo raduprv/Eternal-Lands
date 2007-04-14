@@ -808,7 +808,7 @@ void draw_global_light()
 		}
 
 #ifdef NEW_LIGHTING
-	glEnable(GL_LIGHT7);
+//	glEnable(GL_LIGHT7);
 //	printf("Light: %f, %f, %f\n", difuse_light[0], difuse_light[1], difuse_light[2]);
         difuse_light[0] *= 1.0f;
         difuse_light[1] *= 1.0f;
@@ -835,11 +835,23 @@ void draw_dungeon_light()
 	GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat ambient_light[4];
 
+#ifdef NEW_LIGHTING
+	glEnable(GL_LIGHT7);
+	difuse_light[0] = ambient_r / 4.5f;
+	difuse_light[1] = ambient_g / 4.5f;
+	difuse_light[2] = ambient_b / 4.5f;
+	difuse_light[3] = 1.0;
+	ambient_light[0] = ambient_r / 27.0f;
+	ambient_light[1] = ambient_g / 27.0f;
+	ambient_light[2] = ambient_b / 27.0f;
+	ambient_light[3] = 1.0;
+#else
 	//the ambient light should be half of the difuse light
 	ambient_light[0]=ambient_r;
 	ambient_light[1]=ambient_g;
 	ambient_light[2]=ambient_b;
 	ambient_light[3]=1.0f;
+#endif
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
@@ -899,8 +911,8 @@ void build_global_light_table()
 	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else
   	make_gradient_light(0,15,(float *)global_lights,0.6f,0.6f,0.6f, 0.7f,0.45f,0.3f);
-  	make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.7f,0.4f,0.25f);
-  	make_gradient_light(29,16,(float *)global_lights,0.7f,0.4f,0.25f, 0.6f,0.35f,0.15f);
+  	make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.65f,0.4f,0.25f);
+  	make_gradient_light(29,16,(float *)global_lights,0.65f,0.4f,0.25f, 0.6f,0.35f,0.15f);
 	make_gradient_light(44,16,(float *)global_lights,0.6f,0.35f,0.15f, 0.12f,0.12f,0.15f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
@@ -981,7 +993,7 @@ void new_minute()
 	sun_position[1]=sun_pos[game_minute].y;
 	sun_position[2]=sun_pos[game_minute].z;
 	sun_position[3]=sun_pos[game_minute].w;
-	if (((game_minute >= 0) && (game_minute < 30)) || ((game_minute >= 210) && (game_minute < 240)))
+	if (((game_minute >= 5) && (game_minute < 30)) || ((game_minute >= 210) && (game_minute < 235)))
 		{
 			disable_local_lights();
 			is_day=0;

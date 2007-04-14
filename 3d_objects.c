@@ -88,7 +88,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 	//debug
 
 #ifdef NEW_LIGHTING
-	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+	if (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon)) 
 #else
 	if (object_id->self_lit && (!is_day || dungeon)) 
 #endif
@@ -282,7 +282,7 @@ void draw_3d_object_detail(object3d * object_id)
 	//debug
 
 #ifdef NEW_LIGHTING
-	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+	if (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon)) 
 #else
 	if (object_id->self_lit && (!is_day || dungeon)) 
 #endif
@@ -445,7 +445,7 @@ void draw_3d_object(object3d * object_id)
 	//debug
 
 #ifdef NEW_LIGHTING
-	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+	if (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon)) 
 #else
 	if (object_id->self_lit && (!is_day || dungeon)) 
 #endif
@@ -483,7 +483,7 @@ void draw_3d_object(object3d * object_id)
 	cur_e3d= NULL;
 	
 #ifdef NEW_LIGHTING
-	if (object_id->self_lit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+	if (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon)) 
 #else
 	if (object_id->self_lit && (!is_day || dungeon)) 
 #endif
@@ -564,7 +564,7 @@ void draw_3d_objects(unsigned int object_type)
 	is_ground= is_ground_3d_object(object_type);
 	// set the modes we need
 #ifdef NEW_LIGHTING
-	if (is_selflit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+	if (is_selflit && (!(game_minute >= 5 && game_minute < 235) || dungeon)) 
 #else
 	if (is_selflit && (!is_day || dungeon)) 
 #endif
@@ -674,7 +674,7 @@ void draw_3d_objects(unsigned int object_type)
 	}
 	// restore the settings
 #ifdef NEW_LIGHTING
-	if (is_selflit && (!(game_minute >= 0 && game_minute < 240) || dungeon)) 
+	if (is_selflit && (!(game_minute >= 5 && game_minute < 235) || dungeon)) 
 #else
 	if (is_selflit && (!is_day || dungeon)) 
 #endif
@@ -1059,7 +1059,11 @@ int get_near_3d_objects()
 					dist1 = x - object_id->x_pos;
 					dist2 = y - object_id->y_pos;
 					dist = dist1*dist1 + dist2*dist2;
+#ifdef NEW_LIGHTING
 					if (dist <= 35*35)
+#else
+					if (dist <= 45*45)
+#endif
 					{
 						float x_len, y_len, z_len;
 						float radius;
