@@ -252,8 +252,8 @@ bool SwordEffect::idle(const Uint64 usec)
   float speed = square(pos_change.magnitude() * 1000000.0 / usec) / 1.5;
   if (speed > 4.0)
     speed = 4.0;
-  else if (speed < 0.1)
-    speed = 0.1;
+  else if (speed < 0.15)
+    speed = 0.15;
     
   while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec / 12000 * speed) < 0.5)
   {

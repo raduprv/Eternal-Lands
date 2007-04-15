@@ -156,7 +156,7 @@ bool SelfMagicParticle::idle(const Uint64 delta_t)
     }
     case SelfMagicEffect::TELEPORT_TO_THE_PORTALS_ROOM:
     {
-      if (alpha < 0.03)
+      if (alpha < 0.005)
         return false;
 
       const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 500000);
@@ -404,9 +404,16 @@ SelfMagicEffect::~SelfMagicEffect()
 bool SelfMagicEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
-    return false;
-  
-  if (recall)
+  {
+    if (capless_cylinders.size())
+    {
+      if ((*capless_cylinders.rbegin())->alpha < 0.004)
+        return false;
+    }
+    else
+      return false;
+  }
+  else if (recall)
     return true;
     
   const Vec3 last_effect_center = effect_center;
@@ -463,11 +470,24 @@ bool SelfMagicEffect::idle(const Uint64 usec)
     }
     case TELEPORT_TO_THE_PORTALS_ROOM:
     {
-      if (age > 1500000)
+      if (age > 500000)
       {
-        const alpha_t scalar = math_cache.powf_05_close((interval_t)usec / 500000);
+        const alpha_t scalar = math_cache.powf_05_close((interval_t)usec / 200000.0);
+        for (int i = 0; i < (int)capless_cylinders.size(); i++)
+        {
+          float percent = float(i) / float(capless_cylinders.size()) * 0.8; 
+          std::vector<Shape*>::const_iterator iter = capless_cylinders.begin() + i;
+          (*iter)->alpha = (*iter)->alpha * percent + (*iter)->alpha * scalar * (1.0 - percent);
+        }
+/*
         for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter != capless_cylinders.end(); iter++)
+        {
           (*iter)->alpha *= scalar;
+//          std::cout << (*iter)->alpha << scalar << ((*iter)->alpha * scalar) << std::endl;
+          if ((*iter)->alpha > 0.005)
+            break;
+        }
+*/
       }
       
       if (target_alpha)

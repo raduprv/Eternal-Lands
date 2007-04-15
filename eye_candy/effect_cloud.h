@@ -40,14 +40,14 @@ public:
 class CloudEffect : public Effect
 {
 public: 
-  CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, const std::vector<PolarCoordElement> bounding_range, const Uint16 _LOD);
-  ~CloudEffect(); 
+  CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, BoundingRange* bounding_range, const Uint16 _LOD);
+  ~CloudEffect();
   
   virtual EffectEnum get_type() { return EC_CLOUD; };
   bool idle(const Uint64 usec);
 
-  PolarCoordsBoundingMover* mover;
-  FilledPolarCoordsSpawner* spawner;
+  BoundingMover* mover;
+  FilledBoundingSpawner* spawner;
   Vec3 center;
 };
 

@@ -35,14 +35,14 @@ public:
 class FireflyEffect : public Effect
 {
 public: 
-  FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> bounding_range);
+  FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* bounding_range);
   ~FireflyEffect(); 
   
   virtual EffectEnum get_type() { return EC_FIREFLY; };
   bool idle(const Uint64 usec);
 
-  PolarCoordsBoundingMover* mover;
-  FilledPolarCoordsSpawner* spawner;
+  BoundingMover* mover;
+  FilledBoundingSpawner* spawner;
   Vec3 center;
 };
 

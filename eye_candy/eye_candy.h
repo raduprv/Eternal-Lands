@@ -661,9 +661,6 @@ public:
 /*!
 \brief The basic element of a geometric boundary comprised of sinous polar
 coordinates elements.
-
-This will be replaced shortly with a more map editor-friendly boundary
-element.
 */
 class PolarCoordElement
 {
@@ -677,6 +674,22 @@ public:
   coord_t offset;
   coord_t scalar;
   coord_t power;
+};
+
+/*!
+\brief The basic element of a geometric boundary comprised of sinous polar
+coordinates elements.
+*/
+class SmoothPolygonElement
+{
+public:
+  SmoothPolygonElement(const angle_t _angle, const coord_t _radius) { angle = _angle; radius = _radius; };
+  ~SmoothPolygonElement() {};
+  
+  coord_t get_radius(const angle_t angle) const;
+  
+  angle_t angle;
+  coord_t radius;
 };
 
 class ParticleMover;
@@ -834,19 +847,65 @@ public:
 };
 
 /*!
-\brief A gradient mover that confines particles to a bounding range
+\brief Defines a range to be used by bounding movers and spawners.
 */
-class PolarCoordsBoundingMover : public GradientMover
+class BoundingRange
 {
 public:
-  PolarCoordsBoundingMover(Effect* _effect, const Vec3 _center_pos, const std::vector<PolarCoordElement> _bounding_range, const coord_t _force);
-  virtual ~PolarCoordsBoundingMover() {};
+  BoundingRange() {};
+  virtual ~BoundingRange() {};
   
-  virtual Vec3 get_force_gradient(Particle& p) const;
+  virtual coord_t get_radius(const angle_t angle) const = 0;
+};
 
-  std::vector<PolarCoordElement> bounding_range;
+/*!
+\brief A bounding range composed of a sum of sinusoidal elements in polar
+coordinates space.
+*/
+
+class PolarCoordsBoundingRange : public BoundingRange
+{
+public:
+  PolarCoordsBoundingRange() {};
+  ~PolarCoordsBoundingRange() {};
+  
+  virtual coord_t get_radius(const angle_t angle) const;
+  
+  std::vector<PolarCoordElement> elements;
+};
+
+/*!
+\brief A bounding range composed of a series of angles and radii forming a 
+polygon that is smoothly interpolated.
+*/
+
+class SmoothPolygonBoundingRange : public BoundingRange
+{
+public:
+  SmoothPolygonBoundingRange() {};
+  ~SmoothPolygonBoundingRange() {};
+  
+  virtual coord_t get_radius(const angle_t angle) const;
+  
+  std::vector<SmoothPolygonElement> elements;
+};
+
+/*!
+\brief A gradient mover that confines particles to a bounding range
+
+This is a base class for specific bounding movers.
+*/
+class BoundingMover : public GradientMover
+{
+public:
+  BoundingMover(Effect* _effect, const Vec3 _center_pos, BoundingRange* _bounding_range, const coord_t _force);
+  ~BoundingMover() {};
+
+  virtual Vec3 get_force_gradient(Particle& p) const;
+  
   coord_t force;
   Vec3 center_pos;
+  BoundingRange* bounding_range;
 };
 
 /*!
@@ -1152,35 +1211,33 @@ public:
 };
 
 /*!
-\brief Spawns particles within a range defined by addition of sinusoidal
-elements in polar coordinates.
+\brief Spawns particles within a range
 */
-class FilledPolarCoordsSpawner : public ParticleSpawner
+class FilledBoundingSpawner : public ParticleSpawner
 {
 public:
-  FilledPolarCoordsSpawner(const std::vector<PolarCoordElement> _bounding_range) { bounding_range = _bounding_range; };
-  virtual ~FilledPolarCoordsSpawner() {};
+  FilledBoundingSpawner(BoundingRange* _bounding_range) { bounding_range = _bounding_range; };
+  virtual ~FilledBoundingSpawner() {};
   
   virtual Vec3 get_new_coords();
   coord_t get_area() const;
   
-  std::vector<PolarCoordElement> bounding_range;
+  BoundingRange* bounding_range;
 };
 
 /*!
-\brief Spawns particles on the edge of a range defined by addition of
-sinusoidal elements in polar coordinates.
+\brief Spawns particles on the edge of a range
 */
-class HollowPolarCoordsSpawner : public ParticleSpawner
+class HollowBoundingSpawner : public ParticleSpawner
 {
 public:
-  HollowPolarCoordsSpawner(const std::vector<PolarCoordElement> _bounding_range) { bounding_range = _bounding_range; };
-  virtual ~HollowPolarCoordsSpawner() {};
+  HollowBoundingSpawner(BoundingRange* _bounding_range) { bounding_range = _bounding_range; };
+  virtual ~HollowBoundingSpawner() {};
   
   virtual Vec3 get_new_coords();
   coord_t get_area() const;
   
-  std::vector<PolarCoordElement> bounding_range;
+  BoundingRange* bounding_range;
 };
 
 /*!

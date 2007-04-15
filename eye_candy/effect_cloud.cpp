@@ -147,7 +147,7 @@ void CloudParticle::draw(const Uint64 usec)
   glDisable(GL_LIGHTING);
 }
 
-CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, const std::vector<PolarCoordElement> bounding_range, const Uint16 _LOD)
+CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, BoundingRange* bounding_range, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "CloudEffect (" << this << ") created." << std::endl;
@@ -157,8 +157,8 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   center = *pos;
   LOD = _LOD;
   desired_LOD = _LOD;
-  mover = new PolarCoordsBoundingMover(this, center, bounding_range, 1.0);
-  spawner = new FilledPolarCoordsSpawner(bounding_range);
+  mover = new BoundingMover(this, center, bounding_range, 1.0);
+  spawner = new FilledBoundingSpawner(bounding_range);
   int count = (int)(spawner->get_area() * 0.03 * (LOD  + 1));
   if (count < 21)
     count = 21;

@@ -34,7 +34,7 @@ public:
     angle_t end_angle;
   };
 
-  WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> _bounding_range, const WindType _type, const Vec3 _prevailing_wind);
+  WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* _bounding_range, const WindType _type, const Vec3 _prevailing_wind);
   ~WindEffect(); 
   
   void set_pass_off(std::vector<WindEffect*> pass_off_to); // Required!
@@ -42,7 +42,6 @@ public:
   
   EffectEnum get_type() { return EC_WIND; };
   bool idle(const Uint64 usec);
-  coord_t get_radius(const angle_t angle) const;
   virtual void request_LOD(const Uint16 _LOD)
   {
     if (_LOD <= desired_LOD)
@@ -53,7 +52,7 @@ public:
   };
 
   ParticleMover* mover;
-  FilledPolarCoordsSpawner* spawner;
+  FilledBoundingSpawner* spawner;
   WindType type;
   Vec3 center;
   Vec3 prevailing_wind;
@@ -63,7 +62,7 @@ public:
   int max_LOD1_count;
   int count;
   std::vector<WindNeighbor> neighbors;	// Where to pass particles off to.
-  std::vector<PolarCoordElement> bounding_range;
+  BoundingRange* bounding_range;
 };
 
 class WindParticle : public Particle

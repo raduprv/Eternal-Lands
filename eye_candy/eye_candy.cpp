@@ -781,21 +781,49 @@ Vec3 SpiralMover::get_force_gradient(Particle& p) const
   return Vec3(shifted_pos.z * spiral_speed - shifted_pos.x * pinch_rate, 0.0, shifted_pos.x * spiral_speed - shifted_pos.z * pinch_rate);
 }
 
-PolarCoordsBoundingMover::PolarCoordsBoundingMover(Effect* _effect, const Vec3 _center_pos, const std::vector<PolarCoordElement> _bounding_range, const coord_t _force) : GradientMover(_effect)
+coord_t PolarCoordsBoundingRange::get_radius(const angle_t angle) const
+{
+  float radius = 0.0;
+  for (std::vector<PolarCoordElement>::const_iterator iter = elements.begin(); iter != elements.end(); iter++)
+    radius += iter->get_radius(angle);
+  return radius;
+}
+
+coord_t SmoothPolygonBoundingRange::get_radius(const angle_t angle) const
+{
+  std::vector<SmoothPolygonElement>::const_iterator lower, upper;
+  lower = elements.end();
+  for (upper = elements.begin(); upper != elements.end(); upper++)
+  {
+    if (upper->angle >= angle)
+      break;
+    lower = upper;
+  }
+  if (upper == elements.end())
+    upper = elements.begin();
+  float upper_percent;
+  if (upper->angle > lower->angle)
+    upper_percent = (angle - lower->angle) / (upper->angle - lower->angle);
+  else if (angle > lower->angle)
+    upper_percent = (angle - lower->angle) / (upper->angle + 2 * PI - lower->angle);
+  else
+    upper_percent = (angle + 2 * PI - lower->angle) / (upper->angle + 2 * PI - lower->angle);
+  return upper_percent * upper->radius + (1.0 - upper_percent) * lower->radius;
+}
+
+BoundingMover::BoundingMover(Effect* _effect, const Vec3 _center_pos, BoundingRange* _bounding_range, const coord_t _force) : GradientMover(_effect)
 {
   center_pos = _center_pos;
   bounding_range = _bounding_range;
   force = _force;
 }
 
-Vec3 PolarCoordsBoundingMover::get_force_gradient(Particle& p) const
+Vec3 BoundingMover::get_force_gradient(Particle& p) const
 {
   Vec3 shifted_pos = p.pos - center_pos;
   const coord_t radius = fastsqrt(square(shifted_pos.x) + square(shifted_pos.z));
-  coord_t max_radius = 0.0;
   const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
-  for (std::vector<PolarCoordElement>::const_iterator iter = bounding_range.begin(); iter != bounding_range.end(); iter++)
-    max_radius += iter->get_radius(angle);
+  const coord_t max_radius = bounding_range->get_radius(angle);
   if (radius > max_radius)
   {
     const coord_t diff = (radius - max_radius) / radius;
@@ -1081,38 +1109,34 @@ Vec3 HollowDiscSpawner::get_new_coords()
   return ret;
 }
 
-Vec3 FilledPolarCoordsSpawner::get_new_coords()
+Vec3 FilledBoundingSpawner::get_new_coords()
 {
   const angle_t angle = randangle(2 * PI);
-  coord_t radius = 0.0;
-  for (std::vector<PolarCoordElement>::iterator iter = bounding_range.begin(); iter != bounding_range.end(); iter++)
-    radius += iter->get_radius(angle);
+  const coord_t radius = bounding_range->get_radius(angle);
   const coord_t scalar = fastsqrt(randcoord());
   return Vec3(sin(angle) * scalar * radius, 0.0, cos(angle) * scalar * radius);
 }
 
-coord_t FilledPolarCoordsSpawner::get_area() const
+coord_t FilledBoundingSpawner::get_area() const
 {	// Not 100% accurate, but goot enough.  :)
   coord_t avg_radius = 0;
-  for (std::vector<PolarCoordElement>::const_iterator iter = bounding_range.begin(); iter != bounding_range.end(); iter++)
-    avg_radius += iter->scalar;
+  for (float f = 0; f < 2 * PI; f += (2 * PI / 256.0))
+    avg_radius += bounding_range->get_radius(f);
   return PI * square(avg_radius);
 }
 
-Vec3 HollowPolarCoordsSpawner::get_new_coords()
+Vec3 HollowBoundingSpawner::get_new_coords()
 {
   const angle_t angle = randangle(2 * PI);
-  coord_t radius = 0.0;
-  for (std::vector<PolarCoordElement>::iterator iter = bounding_range.begin(); iter != bounding_range.end(); iter++)
-    radius += iter->get_radius(angle);
+  const coord_t radius = bounding_range->get_radius(angle);
   return Vec3(sin(angle) * radius, 0.0, cos(angle) * radius);
 }
 
-coord_t HollowPolarCoordsSpawner::get_area() const
+coord_t HollowBoundingSpawner::get_area() const
 {	// Not 100% accurate, but goot enough.  :)
   coord_t avg_radius = 0;
-  for (std::vector<PolarCoordElement>::const_iterator iter = bounding_range.begin(); iter != bounding_range.end(); iter++)
-    avg_radius += iter->scalar;
+  for (float f = 0; f < 2 * PI; f += (2 * PI / 256.0))
+    avg_radius += bounding_range->get_radius(f);
   return PI * square(avg_radius);
 }
 

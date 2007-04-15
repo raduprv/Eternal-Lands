@@ -206,10 +206,8 @@ bool WindParticle::idle(const Uint64 delta_t)
 
     Vec3 shifted_pos = pos - wind_effect->center;
     const coord_t radius = fastsqrt(square(shifted_pos.x) + square(shifted_pos.z));
-    coord_t max_radius = 0.0;
     const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
-    for (std::vector<PolarCoordElement>::const_iterator iter = wind_effect->bounding_range.begin(); iter != wind_effect->bounding_range.end(); iter++)
-      max_radius += iter->get_radius(angle);
+    const coord_t max_radius = wind_effect->bounding_range->get_radius(angle);
     if (radius > max_radius)
     {	// Pass it off to a neighboring effect.
       if (wind_effect->neighbors.size() == 0)
@@ -430,7 +428,7 @@ Vec3 WindParticle::get_wind_vec() const
   return e->overall_wind + Vec3(x, y, z);// + random_component;
 }
 
-WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> _bounding_range, const WindType _type, const Vec3 _prevailing_wind)
+WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* _bounding_range, const WindType _type, const Vec3 _prevailing_wind)
 {
   if (EC_DEBUG)
     std::cout << "WindEffect (" << this << ") created." << std::endl;
@@ -446,7 +444,7 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec:
   overall_wind_adjust = Vec3(0.0, 0.0, 0.0);
   bounding_range = _bounding_range;
   mover = new GradientMover(this);
-  spawner = new FilledPolarCoordsSpawner(_bounding_range);
+  spawner = new FilledBoundingSpawner(_bounding_range);
   max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;
   count = LOD * max_LOD1_count;
   switch (type)
@@ -477,14 +475,6 @@ WindEffect::~WindEffect()
     std::cout << "WindEffect (" << this << ") destroyed." << std::endl;
 }
 
-coord_t WindEffect::get_radius(const angle_t angle) const
-{
-  coord_t radius = 0;
-  for (std::vector<PolarCoordElement>::const_iterator iter = bounding_range.begin(); iter != bounding_range.end(); iter++)
-    radius += iter->get_radius(angle);
-  return radius;
-}
-
 void WindEffect::set_pass_off(std::vector<Effect*> pass_off_to)
 {
   std::vector<WindEffect*> new_vec;
@@ -504,8 +494,8 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
     const coord_t dist = (center - eff->center).magnitude();
     const angle_t angle = center.angle_to(eff->center);
     const angle_t opposite_angle = remainderf(angle + PI, 2 * PI);
-    const coord_t radius1 = get_radius(angle);
-    const coord_t radius2 = eff->get_radius(opposite_angle);
+    const coord_t radius1 = bounding_range->get_radius(angle);
+    const coord_t radius2 = eff->bounding_range->get_radius(opposite_angle);
     if (dist > radius1 + radius2)
       continue;
 
@@ -516,8 +506,8 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
       if (start_angle < 0)
         start_angle += 2 * PI;
       const percent_t distance_penalty = cos(angle_shift);
-      const coord_t radius1 = get_radius(angle);
-      const coord_t radius2 = eff->get_radius(opposite_angle);
+      const coord_t radius1 = bounding_range->get_radius(angle);
+      const coord_t radius2 = eff->bounding_range->get_radius(opposite_angle);
       const coord_t newdist = (radius1 + radius2) / distance_penalty;
       if (dist < newdist)
         break;
@@ -533,8 +523,8 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
       if (end_angle >= 2 * PI)
         end_angle -= 2 * PI;
       const percent_t distance_penalty = cos(angle_shift);
-      const coord_t radius1 = get_radius(angle);
-      const coord_t radius2 = eff->get_radius(opposite_angle);
+      const coord_t radius1 = bounding_range->get_radius(angle);
+      const coord_t radius2 = eff->bounding_range->get_radius(opposite_angle);
       const coord_t newdist = (radius1 + radius2) / distance_penalty;
       if (dist < newdist)
         break;

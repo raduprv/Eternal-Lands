@@ -35,6 +35,7 @@ ec_actor_obstruction self_actor;
 std::vector<ec::Obstruction*> general_obstructions_list;
 std::vector<ec::Obstruction*> fire_obstructions_list;
 bool force_idle = false;
+volatile bool idle_semaphore = false;
 
 float average_framerate = 20000.0;	// Windows has such horrible timer resolution, I have to average these out.  Anyways, it doesn't hurt to do this in Linux, either.
 
@@ -134,8 +135,13 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
 
 extern "C" void ec_idle()
 {
+  if (idle_semaphore)
+    return;
+
   if ((!use_eye_candy) && (!force_idle))
     return;
+    
+  idle_semaphore = true;
     
   force_idle = false;
   
@@ -144,7 +150,10 @@ extern "C" void ec_idle()
     log_error(iter->c_str());
 
   if (ec::get_error_status())
+  {
+    idle_semaphore = false;
     return;
+  }
     
 //  GLfloat rot_matrix[16];
 //  glGetFloatv(GL_MODELVIEW_MATRIX, rot_matrix);
@@ -211,6 +220,8 @@ extern "C" void ec_idle()
     ec_heartbeat();
 
   eye_candy.idle();
+  
+  idle_semaphore = false;
 }
 
 extern "C" void ec_heartbeat()
@@ -567,25 +578,29 @@ extern "C" void ec_remove_obstruction_by_e3d_object(e3d_object* e3dobj)
 
 extern "C" ec_bounds ec_create_bounds_list()
 {
-  return (ec_bounds)(new ec_internal_bounds);
+  return (ec_bounds)(new ec::SmoothPolygonBoundingRange());
 }
 
 extern "C" void ec_free_bounds_list(ec_bounds bounds)
 {
-  ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
+  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   delete cast_bounds;
 }
 
+/*
 extern "C" void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power)
 {
-  ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
+  ec::PolarCoordsBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   ec::PolarCoordElement e(frequency, offset, scalar, power);
-  cast_bounds->push_back(e);
+  cast_bounds->elements.push_back(e);
 }
+*/
 
-extern "C" void ec_add_smooth_polygon_bound(ec_bounds bounds, float x, float y, float z)
+extern "C" void ec_add_smooth_polygon_bound(ec_bounds bounds, float angle, float radius)
 {
-  // TODO
+  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
+  ec::SmoothPolygonElement e(angle, radius);
+  cast_bounds->elements.push_back(e);
 }
 
 extern "C" ec_effects ec_create_effects_list()
@@ -661,9 +676,6 @@ extern "C" int ec_change_target(ec_reference reference, int index, float x, floa
   return true;
 }
 
-/*
-// Disabled due to feature freeze.
-
 extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, float y, float z, int LOD)
 {
   unsigned char raw_code[54];
@@ -677,10 +689,12 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     i++;
   }
   
-  const int bounds_count = raw_code[1];
+  int bounds_count = raw_code[1];
+  if (bounds_count > 19)
+    bounds_count = 19;
   ec_bounds bounds = ec_create_bounds_list();
   for (i = 0; i < bounds_count; i++)
-    ec_add_smooth_polygon_bound(bounds, raw_code[i * 3 + 2] * 3.0, raw_code[i * 3 + 3] * 3.0, raw_code[i * 3 + 4] * 3.0);
+    ec_add_smooth_polygon_bound(bounds, raw_code[i * 2 + 2] * (2 * ec::PI) / 256.0f, raw_code[i * 2 + 3]);
   
   switch (raw_code[0])
   {
@@ -815,7 +829,6 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
   }
   ec_free_bounds_list(bounds);
 }
-*/
 
 extern "C" ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD)
 {
@@ -922,20 +935,20 @@ extern "C" ec_reference ec_create_campfire(float x, float y, float z, int LOD, f
 
 extern "C" ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD)
 {
-  ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
+  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::CloudEffect(&eye_candy, &ret->dead, &ret->position, density, *cast_bounds, LOD);
+  ret->effect = new ec::CloudEffect(&eye_candy, &ret->dead, &ret->position, density, cast_bounds, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
 extern "C" ec_reference ec_create_fireflies(float x, float y, float z, float density, ec_bounds bounds)
 {
-  ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
+  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds);
+  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, cast_bounds);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -2014,10 +2027,10 @@ extern "C" ec_reference ec_create_teleporter(float x, float y, float z, int LOD)
 extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
+  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds, ec::WindEffect::LEAVES, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, cast_bounds, ec::WindEffect::LEAVES, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -2025,10 +2038,10 @@ extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float d
 extern "C" ec_reference ec_create_wind_petals(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ec_internal_bounds* cast_bounds = (ec_internal_bounds*)bounds;
+  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, *cast_bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, cast_bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }

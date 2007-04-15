@@ -708,8 +708,8 @@ void reset_material()
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
 	GLfloat mat_specular[]={ 1.0, 1.0, 1.0, 1.0 };
 #ifdef NEW_LIGHTING
-	GLfloat mat_ambient[]={ 0.4, 0.4, 0.4, 1.0 };
-	GLfloat mat_diffuse[]={ 2.5, 2.5, 2.5, 1.0 };
+	GLfloat mat_ambient[]={ 0.45, 0.45, 0.45, 1.0 };
+	GLfloat mat_diffuse[]={ 2.3, 2.3, 2.3, 1.0 };
 #else
 	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
 #endif //NEW_LIGHTING

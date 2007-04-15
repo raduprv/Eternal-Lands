@@ -99,10 +99,11 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
   }
   else if (state == 0)
   {
-    const coord_t speed = fabs(((cur_target - pos).magnitude() * 1.85) / (0.7 - (age - 300000) / 1000000.0));
+    Vec3 temp_pos = pos + velocity * float_time;
+    const coord_t speed = fabs(((cur_target - temp_pos).magnitude() * 1.85) / (0.7 - (age - 300000) / 1000000.0));
     Vec3* center = ((TargetMagicEffect*)effect)->pos;
-    Vec3 to_source = *center - pos;
-    Vec3 to_target = cur_target - pos;
+    Vec3 to_source = *center - temp_pos;
+    Vec3 to_target = cur_target - temp_pos;
     const coord_t dist_to_source = to_source.magnitude();
     const coord_t dist_to_target = to_target.magnitude();
     to_source /= dist_to_source;
@@ -543,7 +544,6 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
 
 TargetMagicEffect::~TargetMagicEffect()
 {
-  std::cout << "4" << std::endl << std::flush;
   if (spawner)
     delete spawner;
   if (mover)
@@ -552,13 +552,11 @@ TargetMagicEffect::~TargetMagicEffect()
     delete spawner2;
   if (mover2)
     delete mover2;
-  std::cout << "5" << std::endl << std::flush;
   for (size_t i = 0; i < capless_cylinders.size(); i++)
     delete capless_cylinders[i];
   capless_cylinders.clear();
   if (EC_DEBUG)
     std::cout << "TargetMagicEffect (" << this << ") destroyed." << std::endl << std::flush;
-  std::cout << "6" << std::endl << std::flush;
 }
 
 bool TargetMagicEffect::idle(const Uint64 usec)

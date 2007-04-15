@@ -121,9 +121,6 @@ typedef struct ec_actor_obstruction
 
 typedef std::vector<ec_object_obstruction*> ec_object_obstructions;
 typedef std::vector<ec_actor_obstruction*> ec_actor_obstructions;
-
-typedef std::vector<ec::PolarCoordElement> ec_internal_bounds;
-
 typedef std::vector<ec::Effect*> ec_internal_effects;
 
 #endif
@@ -178,8 +175,8 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_remove_obstruction_by_object3d(object3d* obj3d);
   void ec_remove_obstruction_by_e3d_object(e3d_object* obj3d);
   void ec_free_bounds_list(ec_bounds bounds);
-  void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power);
-  void ec_add_smooth_polygon_bound(ec_bounds bounds, float x, float y, float z);
+//  void ec_add_polar_coords_bound(ec_bounds bounds, float frequency, float offset, float scalar, float power);
+  void ec_add_smooth_polygon_bound(ec_bounds bounds, float angle, float radius);
   ec_effects ec_create_effects_list();
   void ec_free_effects_list(ec_effects effects);
   void ec_remove_weapon(actor* _actor);

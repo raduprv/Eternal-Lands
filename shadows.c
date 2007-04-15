@@ -1148,7 +1148,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 #ifndef	NEW_FRUSTUM
 			CalculateFrustum();
 #endif
-			
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();

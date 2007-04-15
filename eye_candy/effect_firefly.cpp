@@ -57,7 +57,7 @@ GLuint FireflyParticle::get_texture(const Uint16 res_index)
   return base->TexVoid.get_texture(res_index);
 }
 
-FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, const std::vector<PolarCoordElement> bounding_range)
+FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* bounding_range)
 {
   if (EC_DEBUG)
     std::cout << "FireflyEffect (" << this << ") created." << std::endl;
@@ -66,8 +66,8 @@ FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vect
   pos = _pos;
   center = *pos;
   obstructions = _obstructions;
-  mover = new PolarCoordsBoundingMover(this, center, bounding_range, 1.0);
-  spawner = new FilledPolarCoordsSpawner(bounding_range);
+  mover = new BoundingMover(this, center, bounding_range, 1.0);
+  spawner = new FilledBoundingSpawner(bounding_range);
   const int count = (int)(spawner->get_area() * _density * 0.15);
 
   for (int i = 0; i < count; i++)
