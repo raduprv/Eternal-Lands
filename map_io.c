@@ -549,7 +549,9 @@ int load_map (const char * file_name)
 #ifdef EYE_CANDY
 			if (!strncmp(cur_particles_io.file_name, "ec://", 5))
 			{
+#ifdef	NOT_FOR_RELEASE
 				ec_create_effect_from_map_code(cur_particles_io.file_name + 5, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, (poor_man ? 6 : 10));
+#endif	//NOT_FOR_RELEASE
 			}
 			else
 			{
