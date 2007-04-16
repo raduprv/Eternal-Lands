@@ -676,6 +676,7 @@ extern "C" int ec_change_target(ec_reference reference, int index, float x, floa
   return true;
 }
 
+#ifdef	NOT_FOR_RELEASE
 extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, float y, float z, int LOD)
 {
   unsigned char raw_code[54];
@@ -831,6 +832,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
   ec_free_bounds_list(bounds);
   return ref;
 }
+#endif	//NOT_FOR_RELEASE
 
 extern "C" ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD)
 {
