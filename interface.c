@@ -12,7 +12,9 @@ int check_interface_buttons()
 			if(mouse_x>=32 && mouse_x<=63)cur_mode=mode_2d;
 			if(mouse_x>=64 && mouse_x<=95)cur_mode=mode_3d;
 			if(mouse_x>=96 && mouse_x<=127)cur_mode=mode_particles;
+#ifdef	EYE_CANDY
 			if(mouse_x>=128 && mouse_x<=160)cur_mode=mode_eye_candy;
+#endif	//EYE_CANDY
 			if(mouse_x>=160 && mouse_x<=191)cur_mode=mode_light;
 			if(mouse_x>=192 && mouse_x<=223)cur_mode=mode_height;
 			if(mouse_x>=224 && mouse_x<=255)cur_mode=mode_map;
@@ -41,6 +43,7 @@ int check_interface_buttons()
 							while (SDL_PollEvent (&event));	//clears all the events
 							left_click=2;
 						}
+#ifdef	EYE_CANDY
 					if(cur_mode==mode_eye_candy)
 						{
 							SDL_Event event;
@@ -48,6 +51,7 @@ int check_interface_buttons()
 							while (SDL_PollEvent (&event));	//clears all the events
 							left_click=2;
 						}
+#endif	//EYE_CANDY
 					if(cur_mode==mode_tile)
 						{
 							view_tiles_list=1;
@@ -209,11 +213,13 @@ void draw_toolbar()
 	else glColor3f(0.0f,1.0f,1.0f);
 	draw_2d_thing((float)192/255,1.0f-(float)32/255,(float)224/255,1.0f-(float)64/255, 96,0,128,32);
 
+#ifdef	EYE_CANDY
 	if(cur_mode!=mode_eye_candy && view_eye_candy)
 	glColor3f(1.0f,1.0f,1.0f);
 	else if(!view_eye_candy && cur_mode!=mode_eye_candy)glColor3f(0.3f,0.3f,0.3f);
 	else glColor3f(0.0f,1.0f,1.0f);
 	draw_2d_thing((float)224/255,1.0f-(float)32/255,(float)255/255,1.0f-(float)64/255, 128,0,160,32);
+#endif	//EYE_CANDY
 
 	if(cur_mode!=mode_light && view_light)
 	glColor3f(1.0f,1.0f,1.0f);
@@ -1032,9 +1038,11 @@ void display_map_settings()
 {
 	unsigned char str[128];
 	int x_menu,y_menu;
+
 	if (
-	    (cur_mode != mode_map) &&
-	    (
+	    (cur_mode != mode_map)
+#ifdef	EYE_CANDY
+	    && (
 	     (cur_mode != mode_eye_candy) ||
 	     (
 	      (eye_candy_effect != 1) &&
@@ -1043,6 +1051,7 @@ void display_map_settings()
 	      (eye_candy_effect != 12)
 	     )
 	    )
+#endif	//EYE_CANDY
 	   )
 	  return;
 

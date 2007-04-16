@@ -204,6 +204,7 @@ void show_save_window(char * name, char * folder, char * select, GtkFileFilter *
 
 void show_eye_candy_window()
 {
+#ifdef	EYE_CANDY
 	if(!gtk_effect_win) {
 		GtkWidget* label;
 		gtk_effect_win=gtk_dialog_new_with_buttons("Select eye candy effect",
@@ -322,6 +323,7 @@ void show_eye_candy_window()
 	}
 	
 	gtk_widget_show(gtk_effect_win);
+#endif	//EYE_CANDY
 }
 
 #else
