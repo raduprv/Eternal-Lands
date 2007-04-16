@@ -186,7 +186,8 @@ void calc_shadow_matrix()
 #ifdef NEW_E3D_FORMAT
 void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_index)
 {
-	unsigned int type;
+	void* data_ptr;
+	int vertex_size;
 
 	// check for having to load the arrays
 	load_e3d_detail_if_needed(object_id->e3d_data);
@@ -211,79 +212,38 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 			ELglUnlockArraysEXT();
 		}
 		
-		if (!is_ground(object_id->e3d_data->vertex_options))
-		{
-			glEnableClientState(GL_NORMAL_ARRAY);
-			if (have_vertex_buffers)
-			{
-				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-					object_id->e3d_data->normal_vbo);
-				glNormalPointer(GL_FLOAT, 0, 0);
-			}
-			else
-			{
-				glNormalPointer(GL_FLOAT, 0,
-					object_id->e3d_data->normal_data);
-			}
-		}
-
-#ifdef	USE_TANGENT_AND_EXTRA_UV
-		if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
-		{
-			if (have_vertex_buffers)
-			{
-				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-					object_id->e3d_data->tangent_vbo);
-				VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
-					GL_FALSE, 0, 0);
-			}
-			else
-			{
-				VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
-					GL_FALSE, 0,
-					object_id->e3d_data->tangent_data);
-			}
-		}
-
-		if (use_extra_uv && has_extra_uv(object_id->e3d_data->vertex_options))
-		{
-			glClientActiveTextureARB(GL_TEXTURE2_ARB);
-			ELglActiveTextureARB(GL_TEXTURE2_ARB);
-			if (have_vertex_buffers)
-			{
-				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-					object_id->e3d_data->extra_uv_vbo);
-				glTexCoordPointer(2, GL_FLOAT, 0, 0);
-			}
-			else
-			{
-				glTexCoordPointer(2, GL_FLOAT, 0,
-					object_id->e3d_data->extra_uv_data);
-			}
-			ELglActiveTextureARB(GL_TEXTURE0_ARB);
-			glClientActiveTextureARB(GL_TEXTURE0_ARB);
-		}
-#endif	//USE_TANGENT_AND_EXTRA_UV
-
 		if (have_vertex_buffers)
 		{
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->texture_vbo);
-			glTexCoordPointer(2, GL_FLOAT, 0, 0);
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
 				object_id->e3d_data->vertex_vbo);
-			glVertexPointer(3, GL_FLOAT, 0, 0);
-			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->indicies_vbo);
+			data_ptr = 0;
 		}
 		else
 		{
-			glTexCoordPointer(2, GL_FLOAT, 0,
-				object_id->e3d_data->texture_data);
-			glVertexPointer(3, GL_FLOAT, 0,
-				object_id->e3d_data->vertex_data);
+			data_ptr = object_id->e3d_data->vertex_data;
 		}
-		
+		vertex_size = get_vertex_size(object_id->e3d_data->vertex_options);
+
+		if (material_is_transparent(object_id->e3d_data->materials[material_index].options))
+		{
+			glEnable(GL_TEXTURE_2D);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
+				data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
+		}
+		else
+		{
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		}
+
+		glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
+			data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
+		if (have_vertex_buffers)
+		{
+			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+				object_id->e3d_data->indicies_vbo);
+		}
+
 		CHECK_GL_ERRORS();
 
 		// lock this new one

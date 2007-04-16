@@ -14,26 +14,6 @@ static void free_e3d_pointer(e3d_object* cur_object)
 			free(cur_object->vertex_data);
 			cur_object->vertex_data = NULL;
 		}
-		if (cur_object->normal_data != NULL)
-		{
-			free(cur_object->normal_data);
-			cur_object->normal_data = NULL;
-		}
-		if (cur_object->texture_data != NULL)
-		{
-			free(cur_object->texture_data);
-			cur_object->texture_data = NULL;
-		}
-		if (cur_object->tangent_data != NULL)
-		{
-			free(cur_object->tangent_data);
-			cur_object->tangent_data = NULL;
-		}
-		if (cur_object->extra_uv_data != NULL)
-		{
-			free(cur_object->extra_uv_data);
-			cur_object->extra_uv_data = NULL;
-		}
 		if (cur_object->indicies != NULL)
 		{
 			free(cur_object->indicies);
@@ -102,9 +82,10 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 {
 	e3d_header header;
 	e3d_material material;
+	e3d_extra_texture extra_texture;
 	char cur_dir[1024];
-	int i, idx, l, mem_size, vertex_size, material_size, index_size, size;
-	int file_pos, indicies_size;
+	int i, j, l, idx, mem_size, vertex_size, material_size;
+	int file_pos, indicies_size, float_count, index_size, v_size, m_size;
 	char text_file_name[1024];
 	unsigned int* index_buffer;
 	unsigned char* char_list;
@@ -182,11 +163,13 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	material_size = SDL_SwapLE32(header.material_size);
 	index_size = SDL_SwapLE32(header.index_size);
 
-	size = get_vertex_size(cur_object->vertex_options);
+	v_size = get_vertex_size(cur_object->vertex_options);
+	m_size = get_material_size(cur_object->vertex_options);
+	float_count = get_vertex_float_count(cur_object->vertex_options);
 
 	// They have at least the size we expected
-	if (!CHECK_SIZE(vertex_size, size, "vertex")) return NULL;
-	if (!CHECK_SIZE(material_size, sizeof(e3d_material), "material")) return NULL;
+	if (!CHECK_SIZE(vertex_size, v_size, "vertex")) return NULL;
+	if (!CHECK_SIZE(material_size, m_size, "material")) return NULL;
 	if (index_size != sizeof(unsigned int))
 	{
 		LOG_ERROR("File \"%s\" has wrong index size!", cur_object->file_name);
@@ -206,48 +189,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	fseek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
 #endif	//ZLIB
 
-	cur_object->vertex_data = malloc(cur_object->vertex_no * 3 * sizeof(float));
-	mem_size = cur_object->vertex_no * 3 * sizeof(float);
+	cur_object->vertex_data = malloc(cur_object->vertex_no * v_size);
+	mem_size = cur_object->vertex_no * v_size;
 	if (!CHECK_POINTER(cur_object->vertex_data, "vertex data")) return NULL;
 
-	cur_object->texture_data = malloc(cur_object->vertex_no * 2 * sizeof(float));
-	mem_size += cur_object->vertex_no * 2 * sizeof(float);
-	if (!CHECK_POINTER(cur_object->texture_data, "texture data")) return NULL;
-
-	if (is_ground(cur_object->vertex_options))
-	{
-		cur_object->normal_data = NULL;
-	}
-	else
-	{
-		cur_object->normal_data = malloc(cur_object->vertex_no * 3 * sizeof(float));
-		mem_size = cur_object->vertex_no * 3 * sizeof(float);
-		if (!CHECK_POINTER(cur_object->normal_data, "normal data")) return NULL;
-	}
-
-	if (has_tangen(cur_object->vertex_options))
-	{
-		cur_object->tangent_data = malloc(cur_object->vertex_no * 3 * sizeof(float));
-		mem_size += cur_object->vertex_no * 3 * sizeof(float);
-		if (!CHECK_POINTER(cur_object->tangent_data, "tangent data")) return NULL;
-	}
-	else
-	{
-		cur_object->tangent_data = NULL;
-	}
-
-	if (has_extra_uv(cur_object->vertex_options))
-	{
-		cur_object->extra_uv_data = malloc(cur_object->vertex_no * 2 * sizeof(float));
-		mem_size += cur_object->vertex_no * 2 * sizeof(float);
-		if (!CHECK_POINTER(cur_object->extra_uv_data, "extra uv data")) return NULL;
-	}
-	else
-	{
-		cur_object->extra_uv_data = NULL;
-	}
-
-	float_buffer = (float*) malloc(size);
+	float_buffer = (float*) malloc(v_size);
 	if (!CHECK_POINTER(float_buffer, "float buffer")) return NULL;
 	tmp_buffer = (char*) malloc(cur_object->vertex_no * vertex_size);
 	if (!CHECK_POINTER(tmp_buffer, "tmp buffer"))
@@ -263,37 +209,14 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #endif	//ZLIB
 
 	idx = 0;
+	float_pointer = cur_object->vertex_data;
 	for (i = 0; i < cur_object->vertex_no; i++)
 	{
-		memcpy(float_buffer, &tmp_buffer[idx], size);
+		memcpy(float_buffer, &tmp_buffer[idx], v_size);
 		idx += vertex_size;
-		l = 0;
-		float_pointer = cur_object->texture_data;
-		float_pointer[i * 2 + 0] = SwapLEFloat(float_buffer[l++]);
-		float_pointer[i * 2 + 1] = SwapLEFloat(float_buffer[l++]);
-		if (!is_ground(cur_object->vertex_options))
+		for (j = 0; j < float_count; j++)
 		{
-			float_pointer = cur_object->normal_data;
-			float_pointer[i * 3 + 0] = SwapLEFloat(float_buffer[l++]);
-			float_pointer[i * 3 + 1] = SwapLEFloat(float_buffer[l++]);
-			float_pointer[i * 3 + 2] = SwapLEFloat(float_buffer[l++]);
-		}
-		float_pointer = cur_object->vertex_data;
-		float_pointer[i * 3 + 0] = SwapLEFloat(float_buffer[l++]);
-		float_pointer[i * 3 + 1] = SwapLEFloat(float_buffer[l++]);
-		float_pointer[i * 3 + 2] = SwapLEFloat(float_buffer[l++]);
-		if (has_tangen(cur_object->vertex_options))
-		{
-			float_pointer = cur_object->tangent_data;
-			float_pointer[i * 3 + 0] = SwapLEFloat(float_buffer[l++]);
-			float_pointer[i * 3 + 1] = SwapLEFloat(float_buffer[l++]);
-			float_pointer[i * 3 + 2] = SwapLEFloat(float_buffer[l++]);
-		}
-		if (has_extra_uv(cur_object->vertex_options))
-		{
-			float_pointer = cur_object->extra_uv_data;
-			float_pointer[i * 2 + 0] = SwapLEFloat(float_buffer[l++]);
-			float_pointer[i * 2 + 1] = SwapLEFloat(float_buffer[l++]);
+			float_pointer[i * float_count + j] = SwapLEFloat(float_buffer[j]);
 		}
 	}
 
@@ -388,6 +311,14 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	fseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
 #endif	//ZLIB
 	
+	cur_object->min_x = 1e10f;
+	cur_object->min_y = 1e10f;
+	cur_object->min_z = 1e10f;
+	cur_object->max_x = -1e10f;
+	cur_object->max_y = -1e10f;
+	cur_object->max_z = -1e10f;
+	cur_object->max_size = -1e10f;
+
 	for (i = 0; i < cur_object->material_no; i++)
 	{
 		
@@ -406,9 +337,12 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #else	//MAP_EDITOR
 #ifdef	NEW_ALPHA
 		// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
-		if(cur_object->materials[i].options & 0x00000001){	// is this object transparent?
+		if (material_is_transparent(cur_object->materials[i].options))
+		{	// is this object transparent?
 			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, -1);
-		} else {
+		}
+		else
+		{
 			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, -1);	//255);
 		}
 #else	//NEW_ALPHA
@@ -425,12 +359,43 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_object->materials[i].max_z = SwapLEFloat(material.max_z);
 		// calculate the max size for cruse LOD processing
 		cur_object->materials[i].max_size= max2f(max2f(cur_object->materials[i].max_x-cur_object->materials[i].min_x, cur_object->materials[i].max_y-cur_object->materials[i].min_y), cur_object->materials[i].max_z-cur_object->materials[i].min_z);
+
+		cur_object->min_x = min2f(cur_object->min_x, cur_object->materials[i].min_x);
+		cur_object->min_y = min2f(cur_object->min_y, cur_object->materials[i].min_y);
+		cur_object->min_z = min2f(cur_object->min_z, cur_object->materials[i].min_z);
+		cur_object->max_x = min2f(cur_object->max_x, cur_object->materials[i].max_x);
+		cur_object->max_y = min2f(cur_object->max_y, cur_object->materials[i].max_y);
+		cur_object->max_z = min2f(cur_object->max_z, cur_object->materials[i].max_z);
+		cur_object->max_size = min2f(cur_object->max_size, cur_object->materials[i].max_size);
+
 		cur_object->materials[i].triangles_indicies_index = indicies_size*SDL_SwapLE32(material.index) + index_pointer;
 		cur_object->materials[i].triangles_indicies_count = SDL_SwapLE32(material.count);
 		cur_object->materials[i].triangles_indicies_min = SDL_SwapLE32(material.triangles_min_index);
 		cur_object->materials[i].triangles_indicies_max = SDL_SwapLE32(material.triangles_max_index);
 
+#ifdef	USE_EXTRA_TEXTURE
+		if (has_extra_texture(cur_object->vertex_options))		
+		{
+#ifdef	ZLIB
+			gzread(file, &extra_texture, sizeof(e3d_extra_texture));
+#else	//ZLIB
+			fread(&extra_texture, 1, sizeof(e3d_extra_texture), file);
+#endif	//ZLIB
+			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, extra_texture.material_name);
+#ifdef	MAP_EDITOR
+			cur_object->materials[i].extra_texture_id = load_texture_cache(text_file_name,0);
+#else	//MAP_EDITOR
+#ifdef	NEW_ALPHA
+			cur_object->materials[i].extra_texture_id = load_texture_cache_deferred(text_file_name, -1);
+#else	//NEW_ALPHA
+			cur_object->materials[i].extra_texture_id = load_texture_cache_deferred(text_file_name, 0);
+#endif	//NEW_ALPHA
+#endif	//MAP_EDITOR
+
+		}
+#endif	//USE_EXTRA_TEXTURE
 		file_pos += SDL_SwapLE32(material_size);
+
 #ifdef	ZLIB
 		gzseek(file, file_pos, SEEK_SET);
 #else	//ZLIB
@@ -450,57 +415,12 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
 			cur_object->vertex_vbo);
 		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB,
-			cur_object->vertex_no * 3 * sizeof(float),
+			cur_object->vertex_no * v_size,
 			cur_object->vertex_data, GL_STATIC_DRAW_ARB);
 #ifndef	MAP_EDITOR
 		free(cur_object->vertex_data);
 		cur_object->vertex_data = NULL;
 #endif	//MAP_EDITOR
-
-		if (!is_ground(cur_object->vertex_options))
-		{
-			ELglGenBuffersARB(1, &cur_object->normal_vbo);
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				cur_object->normal_vbo);
-			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB,
-				cur_object->vertex_no * 3 * sizeof(float),
-				cur_object->normal_data, GL_STATIC_DRAW_ARB);
-			free(cur_object->normal_data);
-			cur_object->normal_data = NULL;
-		}
-		
-		ELglGenBuffersARB(1, &cur_object->texture_vbo);
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-			cur_object->texture_vbo);
-		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB,
-			cur_object->vertex_no * 2 * sizeof(float),
-			cur_object->texture_data, GL_STATIC_DRAW_ARB);
-		free(cur_object->texture_data);
-		cur_object->texture_data = NULL;
-		
-		if (has_tangen(cur_object->vertex_options))
-		{
-			ELglGenBuffersARB(1, &cur_object->tangent_vbo);
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				cur_object->tangent_vbo);
-			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB,
-				cur_object->vertex_no * 3 * sizeof(float),
-				cur_object->tangent_data, GL_STATIC_DRAW_ARB);
-			free(cur_object->tangent_data);
-			cur_object->tangent_data = NULL;
-		}
-		
-		if (has_extra_uv(cur_object->vertex_options))
-		{
-			ELglGenBuffersARB(1, &cur_object->extra_uv_vbo);
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				cur_object->extra_uv_vbo);
-			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB,
-				cur_object->vertex_no * 2 * sizeof(float),
-				cur_object->extra_uv_data, GL_STATIC_DRAW_ARB);
-			free(cur_object->extra_uv_data);
-			cur_object->extra_uv_data = NULL;
-		}
 		
 		ELglGenBuffersARB(1, &cur_object->indicies_vbo);
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,

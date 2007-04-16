@@ -8,32 +8,11 @@
 
 #ifdef	MAP_EDITOR
 #include "../../map_editor/global.h"
-#include "../../map_editor/e3d.h"
 #else
 #include "../global.h"
-#include "../e3d.h"
 #endif
 #include "elc_io.h"
-
-__inline__ static int get_vertex_size(int vo)
-{
-	int size;
-
-	size = 5;
-	if (!is_ground(vo))
-	{
-		size += 3;
-	}
-	if (has_tangen(vo))
-	{
-		size += 3;
-	}
-	if (has_extra_uv(vo))
-	{
-		size += 2;
-	}
-	return size * sizeof(float);
-}
+#include "../e3d_object.h"
 
 /*!
  * the magic number for an e3d file.
@@ -92,6 +71,26 @@ typedef struct
 	int index;		/*!< index of the index list */
 	int count;		/*!< number of indicies */
 } e3d_material;
+
+/*!
+ * defines the extra texture used in e3d
+ */
+typedef struct
+{
+	char material_name[128];	/*!< name of the material */
+} e3d_extra_texture;
+
+__inline__ static int get_material_size(int vertex_options)
+{
+	if (has_extra_texture(vertex_options))
+	{
+		return sizeof(e3d_material) + sizeof(e3d_extra_texture);
+	}
+	else
+	{
+		return sizeof(e3d_material);
+	}
+}
 
 e3d_object* load_e3d_detail(e3d_object* cur_object);
 
