@@ -36,6 +36,8 @@ void draw_3d_object(object3d * object_id)
 	float s_plane[4], t_plane[4];
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
+	void* data_ptr;
+	int vertex_size;
 
 	//also, update the last time this object was used
 	object_id->last_acessed_time=cur_time;
@@ -85,90 +87,63 @@ void draw_3d_object(object3d * object_id)
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 
-	if (is_ground(object_id->e3d_data->vertex_options))
+	if (have_vertex_buffers)
 	{
-		glNormal3f(0, 0, 1);
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vertex_vbo);
+		data_ptr = 0;
 	}
 	else
 	{
+		data_ptr = object_id->e3d_data->vertex_data;
+	}
+	vertex_size = get_vertex_size(object_id->e3d_data->vertex_options);
+
+	if (has_normal(object_id->e3d_data->vertex_options))
+	{
 		glEnableClientState(GL_NORMAL_ARRAY);
-		if (have_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->normal_vbo);
-			glNormalPointer(GL_FLOAT, 0, 0);
-		}
-		else
-		{
-			glNormalPointer(GL_FLOAT, 0,
-				object_id->e3d_data->normal_data);
-		}
+		glNormalPointer(GL_FLOAT, vertex_size,
+			data_ptr + get_normal_offset(object_id->e3d_data->vertex_options));
+	}
+	else
+	{
+		glNormal3f(0, 0, 1);
 	}
 
-#ifdef	USE_TANGENT_AND_EXTRA_UV
+#ifdef	USE_TANGENT
 	if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
 	{
 		EnableVertexAttribArray(tangent_attribut);
-		if (have_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->tangent_vbo);
-			VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
-				GL_FALSE, 0, 0);
-		}
-		else
-		{
-			VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
-				GL_FALSE, 0,
-				object_id->e3d_data->tangent_data);
-		}
+		VertexAttribPointer(tangent_attribut, TANGENT_FLOAT_COUNT, GL_FLOAT,
+			GL_FALSE, vertex_size, data_ptr + get_tangent_offset(vertex_options));
 	}
-
-	if (use_extra_uv && has_extra_uv(object_id->e3d_data->vertex_options))
+#endif	//USE_TANGENT
+#ifdef	USE_EXTRA_TEXTURE
+	if (use_extra_texture && has_extra_texture(object_id->e3d_data->vertex_options))
 	{
 		glClientActiveTextureARB(GL_TEXTURE2_ARB);
 		ELglActiveTextureARB(GL_TEXTURE2_ARB);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		if (have_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->extra_uv_vbo);
-			glTexCoordPointer(2, GL_FLOAT, 0, 0);
-		}
-		else
-		{
-			glTexCoordPointer(2, GL_FLOAT, 0,
-				object_id->e3d_data->extra_uv_data);
-		}
+		glTexCoordPointer(EXTRA_TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
+			data_ptr + get_extra_texture_offset(vertex_options));
 		ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
-#endif	//USE_TANGENT_AND_EXTRA_UV
+#endif	//USE_EXTRA_TEXTURE
 
+	glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
+		data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
+	glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
+		data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
 	if (have_vertex_buffers)
 	{
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-			object_id->e3d_data->texture_vbo);
-		glTexCoordPointer(2, GL_FLOAT, 0, 0);
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-			object_id->e3d_data->vertex_vbo);
-		glVertexPointer(3, GL_FLOAT, 0, 0);
-		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-			object_id->e3d_data->indicies_vbo);
-	}
-	else
-	{
-		glTexCoordPointer(2, GL_FLOAT, 0,
-			object_id->e3d_data->texture_data);
-		glVertexPointer(3, GL_FLOAT, 0,
-			object_id->e3d_data->vertex_data);
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->indicies_vbo);
 	}
 
 	CHECK_GL_ERRORS();
 
 	for (i = 0; i < object_id->e3d_data->material_no; i++)
 	{
-		if (object_id->e3d_data->materials[i].options & 0x00000001)
+		if (material_is_transparent(object_id->e3d_data->materials[i].options))
 		{
 			//enable alpha filtering, so we have some alpha key
 			glEnable(GL_ALPHA_TEST);
@@ -213,23 +188,24 @@ void draw_3d_object(object3d * object_id)
 		glDisableClientState(GL_NORMAL_ARRAY);
 	}
 
-#ifdef	USE_TANGENT_AND_EXTRA_UV
+#ifdef	USE_TANGENT
 	if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
 	{
 		DisableVertexAttribArray(tangent_attribut);
 	}
-
-	if (use_extra_uv && has_extra_uv(object_id->e3d_data->vertex_options))
+#endif	//USE_TANGENT
+#ifdef	USE_EXTRA_TEXTURE
+	if (use_extra_texture && has_extra_texture(object_id->e3d_data->vertex_options))
 	{
 		glClientActiveTextureARB(GL_TEXTURE2_ARB);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
-#endif	//USE_TANGENT_AND_EXTRA_UV
+#endif	//USE_EXTRA_TEXTURE
 
 	if (object_id->blended) glDisable(GL_BLEND);
 	if (object_id->self_lit && (night_shadows_on || dungeon)) glEnable(GL_LIGHTING);
-	if (object_id->e3d_data->materials[object_id->e3d_data->material_no].options & 0x00000001)
+	if (material_is_transparent(object_id->e3d_data->materials[object_id->e3d_data->material_no-1].options))
 	{
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
@@ -962,11 +938,9 @@ e3d_object * load_e3d(char *file_name)
 
 	return cur_object;
 }
-#endif	//NEW_E3D_FORMAT
 
 void compute_clouds_map(object3d * object_id)
 {
-#ifndef	NEW_E3D_FORMAT
 	float x1,y1,x,y,z,m;
 	float cos_m,sin_m;
 	float x_pos,y_pos,z_pos;
@@ -1007,12 +981,10 @@ void compute_clouds_map(object3d * object_id)
 		}
 
 	object_id->clouds_uv=array_detail;
-#endif	//NEW_E3D_FORMAT
 }
 
 void clear_clouds_cache()
 {
-#ifndef	NEW_E3D_FORMAT
 	int i;
 
 	last_clear_clouds=cur_time;
@@ -1027,8 +999,8 @@ void clear_clouds_cache()
 						}
 				}
 		}
-#endif	//NEW_E3D_FORMAT
 }
+#endif	//NEW_E3D_FORMAT
 
 void destroy_3d_object(int i)
 {
@@ -1046,26 +1018,6 @@ void destroy_e3d(e3d_object *e3d_id)
 			free(e3d_id->vertex_data);
 			e3d_id->vertex_data = NULL;
 		}
-		if (e3d_id->normal_data != NULL)
-		{
-			free(e3d_id->normal_data);
-			e3d_id->normal_data = NULL;
-		}
-		if (e3d_id->texture_data != NULL)
-		{
-			free(e3d_id->texture_data);
-			e3d_id->texture_data = NULL;
-		}
-		if (e3d_id->tangent_data != NULL)
-		{
-			free(e3d_id->tangent_data);
-			e3d_id->tangent_data = NULL;
-		}
-		if (e3d_id->extra_uv_data != NULL)
-		{
-			free(e3d_id->extra_uv_data);
-			e3d_id->extra_uv_data = NULL;
-		}
 		if (e3d_id->indicies != NULL)
 		{
 			free(e3d_id->indicies);
@@ -1081,26 +1033,6 @@ void destroy_e3d(e3d_object *e3d_id)
 		{		
 			ELglDeleteBuffersARB(1, &e3d_id->vertex_vbo);
 			e3d_id->vertex_vbo = 0;
-		}
-		if (e3d_id->normal_vbo != 0) 
-		{		
-			ELglDeleteBuffersARB(1, &e3d_id->normal_vbo);
-			e3d_id->normal_vbo = 0;
-		}
-		if (e3d_id->texture_vbo != 0) 
-		{		
-			ELglDeleteBuffersARB(1, &e3d_id->texture_vbo);
-			e3d_id->texture_vbo = 0;
-		}
-		if (e3d_id->tangent_vbo != 0) 
-		{		
-			ELglDeleteBuffersARB(1, &e3d_id->tangent_vbo);
-			e3d_id->tangent_vbo = 0;
-		}
-		if (e3d_id->extra_uv_vbo != 0) 
-		{		
-			ELglDeleteBuffersARB(1, &e3d_id->extra_uv_vbo);
-			e3d_id->extra_uv_vbo = 0;
 		}
 		if (e3d_id->indicies_vbo != 0) 
 		{		
@@ -1268,19 +1200,24 @@ int TriangleTest(float x0, float y0, float x1, float y1, float x2, float y2, flo
 void clear_e3d_heightmap(int K)
 {
 #ifdef	NEW_E3D_FORMAT
-	void *T;
-	void *TT;
 	float3 *TF;
+	void* T;
 	int vertex_no;
 	int minx, miny, maxx, maxy;							
 	int i, j;
 	float x_pos, y_pos;
 	float min_x, min_y, max_x, max_y;
 
-	TT = NULL;
-	T = objects_list[K]->e3d_data->vertex_data;
-
 	vertex_no = objects_list[K]->e3d_data->vertex_no;
+
+	T = objects_list[K]->e3d_data->vertex_data + get_vertex_offset(objects_list[K]->e3d_data->vertex_options);
+	TF = malloc(vertex_no * sizeof(float3));
+	for (i = 0; i < vertex_no; i++)
+	{
+		memcpy(TF, T, sizeof(float3));
+		T += get_vertex_size(objects_list[K]->e3d_data->vertex_options);
+	}
+
 	x_pos = objects_list[K]->x_pos;
 	y_pos = objects_list[K]->y_pos;
 	min_x = 0;
@@ -1291,14 +1228,10 @@ void clear_e3d_heightmap(int K)
 	// Check if we need to rotate the vertex
 	if(objects_list[K]->x_rot!=0.0 || objects_list[K]->y_rot!=0.0 || objects_list[K]->z_rot!=0.0)
 	{
-		TT = malloc(vertex_no * sizeof(float3));
-		memcpy(TT, T, vertex_no * sizeof(float3));
-		T = TT;
-		rotatehm(objects_list[K]->x_rot*(3.14159265/180), objects_list[K]->y_rot*(3.14159265/180), objects_list[K]->z_rot*(3.14159265/180), T, vertex_no);
+		rotatehm(objects_list[K]->x_rot*(3.14159265/180), objects_list[K]->y_rot*(3.14159265/180), objects_list[K]->z_rot*(3.14159265/180), TF, vertex_no);
 	}
 
 	// Calculating min and max x and y values of the object
-	TF = (float3*)T;
 	for (i = 0; i < vertex_no; i++)
 	{
 		if (TF[i].x < min_x) min_x = TF[i].x;
@@ -1346,9 +1279,13 @@ void clear_e3d_heightmap(int K)
 			height_map[(j*tile_map_size_x*6)+i]=11;
 		}
 	}
+#ifdef	NEW_E3D_FORMAT
+	free(TF);
+#else	// NEW_E3D_FORMAT
 	// Freeing if there is rotation
 	if(TT!=NULL)
 		free(TT);
+#endif	// NEW_3D_FORMAT
 }
 
 
@@ -1490,9 +1427,8 @@ void method3(e3d_array_vertex *T, float x_pos, float y_pos, float z_pos, int i, 
 void add_e3d_heightmap(int K, int D)
 {
 #ifdef	NEW_E3D_FORMAT
-	void *T;
-	void *TT;
 	float3 *T3;
+	void *T;
 	void* index_pointer;
 	unsigned char *u8;
 	unsigned short *u16;
@@ -1509,10 +1445,18 @@ void add_e3d_heightmap(int K, int D)
 	
 	method = D==1 ? method1 : (D==2)?method2:method3;
 
-	TT = NULL;
-	T = objects_list[K]->e3d_data->vertex_data;
+	vertex_no = objects_list[K]->e3d_data->vertex_no;
 
 	vertex_no = objects_list[K]->e3d_data->vertex_no;
+
+	T = objects_list[K]->e3d_data->vertex_data + get_vertex_offset(objects_list[K]->e3d_data->vertex_options);
+	TF = malloc(vertex_no * sizeof(float3));
+	for (i = 0; i < vertex_no; i++)
+	{
+		memcpy(TF, T, sizeof(float3));
+		T += get_vertex_size(objects_list[K]->e3d_data->vertex_options);
+	}
+
 	x_pos = objects_list[K]->x_pos;
 	y_pos = objects_list[K]->y_pos;
 	z_pos = objects_list[K]->z_pos;
@@ -1524,9 +1468,6 @@ void add_e3d_heightmap(int K, int D)
 	// Check if we need to rotate the vertex
 	if(objects_list[K]->x_rot!=0.0 || objects_list[K]->y_rot!=0.0 || objects_list[K]->z_rot!=0.0)
 	{
-		TT = malloc(vertex_no * sizeof(float3));
-		memcpy(TT, T, vertex_no * sizeof(float3));
-		T = TT;
 		rotatehm(objects_list[K]->x_rot*(3.14159265/180), objects_list[K]->y_rot*(3.14159265/180), objects_list[K]->z_rot*(3.14159265/180), T, vertex_no);
 	}
 
@@ -1534,7 +1475,6 @@ void add_e3d_heightmap(int K, int D)
 	u16 = (unsigned short*)objects_list[K]->e3d_data->indicies;
 	u32 = (unsigned int*)objects_list[K]->e3d_data->indicies;
 
-	TF = (float3*)T;
 	// Calculating min and max x and y values of the object
 	for (i = 0; i < vertex_no; i++)
 	{
@@ -1639,7 +1579,11 @@ void add_e3d_heightmap(int K, int D)
 		}
 	}
 #endif	// NEW_E3D_FORMAT
+#ifdef	NEW_E3D_FORMAT
+	free(TF);
+#else	// NEW_E3D_FORMAT
 	// Freeing if there is rotation
 	if(TT!=NULL)
 		free(TT);
+#endif	// NEW_3D_FORMAT
 }

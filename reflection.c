@@ -7,11 +7,15 @@ float mrandom(float max)
 }
 
 #ifdef NEW_E3D_FORMAT
+#include "../elc/e3d_object.h"
+
 void draw_3d_reflection(object3d * object_id)
 {
 	int texture_id, i;
 	float x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
+	void* data_ptr;
+	int vertex_size;
 
 	//also, update the last time this object was used
 	object_id->last_acessed_time=cur_time;
@@ -40,77 +44,57 @@ void draw_3d_reflection(object3d * object_id)
 
 	CHECK_GL_ERRORS();
 
+	if (have_vertex_buffers)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vertex_vbo);
+		data_ptr = 0;
+	}
+	else
+	{
+		data_ptr = object_id->e3d_data->vertex_data;
+	}
+	vertex_size = get_vertex_size(object_id->e3d_data->vertex_options);
+
 	// No ground objects
 
-#ifdef	USE_TANGENT_AND_EXTRA_UV
+	glNormalPointer(GL_FLOAT, vertex_size,
+		data_ptr + get_normal_offset(object_id->e3d_data->vertex_options));
+
+#ifdef	USE_TANGENT
 	if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
 	{
 		EnableVertexAttribArray(tangent_attribut);
-		if (have_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->tangent_vbo);
-			VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
-				GL_FALSE, 0, 0);
-		}
-		else
-		{
-			VertexAttribPointer(tangent_attribut, 3, GL_FLOAT,
-				GL_FALSE, 0,
-				object_id->e3d_data->tangent_data);
-		}
+		VertexAttribPointer(tangent_attribut, TANGENT_FLOAT_COUNT, GL_FLOAT,
+			GL_FALSE, vertex_size, data_ptr + get_tangent_offset(vertex_options));
 	}
-
-	if (use_extra_uv && has_extra_uv(object_id->e3d_data->vertex_options))
+#endif	//USE_TANGENT
+#ifdef	USE_EXTRA_TEXTURE
+	if (use_extra_texture && has_extra_texture(object_id->e3d_data->vertex_options))
 	{
 		glClientActiveTextureARB(GL_TEXTURE2_ARB);
 		ELglActiveTextureARB(GL_TEXTURE2_ARB);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		if (have_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->extra_uv_vbo);
-			glTexCoordPointer(2, GL_FLOAT, 0, 0);
-		}
-		else
-		{
-			glTexCoordPointer(2, GL_FLOAT, 0,
-				object_id->e3d_data->extra_uv_data);
-		}
+		glTexCoordPointer(EXTRA_TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
+			data_ptr + get_extra_texture_offset(vertex_options));
 		ELglActiveTextureARB(GL_TEXTURE0_ARB);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
-#endif	//USE_TANGENT_AND_EXTRA_UV
+#endif	//USE_EXTRA_TEXTURE
 
+	glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
+		data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
+	glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
+		data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
 	if (have_vertex_buffers)
 	{
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-			object_id->e3d_data->normal_vbo);
-		glNormalPointer(GL_FLOAT, 0, 0);
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-			object_id->e3d_data->texture_vbo);
-		glTexCoordPointer(2, GL_FLOAT, 0, 0);
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-			object_id->e3d_data->vertex_vbo);
-		glVertexPointer(3, GL_FLOAT, 0, 0);
-		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-			object_id->e3d_data->indicies_vbo);
-	}
-	else
-	{
-		glNormalPointer(GL_FLOAT, 0,
-			object_id->e3d_data->normal_data);
-		glTexCoordPointer(2, GL_FLOAT, 0,
-			object_id->e3d_data->texture_data);
-		glVertexPointer(3, GL_FLOAT, 0,
-			object_id->e3d_data->vertex_data);
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, object_id->e3d_data->indicies_vbo);
 	}
 		
 	CHECK_GL_ERRORS();
 
 	for (i = 0; i < object_id->e3d_data->material_no; i++)
 	{
-		if (object_id->e3d_data->materials[i].options & 0x00000001)
+		if (material_is_transparent(object_id->e3d_data->materials[i].options))
 		{
 			//enable alpha filtering, so we have some alpha key
 			glEnable(GL_ALPHA_TEST);
@@ -149,22 +133,23 @@ void draw_3d_reflection(object3d * object_id)
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 
-#ifdef	USE_TANGENT_AND_EXTRA_UV
+#ifdef	USE_TANGENT
 	if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
 	{
 		DisableVertexAttribArray(tangent_attribut);
 	}
-
-	if (use_extra_uv && has_extra_uv(object_id->e3d_data->vertex_options))
+#endif	//USE_TANGENT
+#ifdef	USE_EXTRA_TEXTURE
+	if (use_extra_texture && has_extra_texture(object_id->e3d_data->vertex_options))
 	{
 		glClientActiveTextureARB(GL_TEXTURE2_ARB);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glClientActiveTextureARB(GL_TEXTURE0_ARB);
 	}
-#endif	//USE_TANGENT_AND_EXTRA_UV
+#endif	//USE_EXTRA_TEXTURE
 
 	if (object_id->self_lit && (night_shadows_on || dungeon)) glEnable(GL_LIGHTING);
-	if (object_id->e3d_data->materials[object_id->e3d_data->material_no].options & 0x00000001)
+	if (material_is_transparent(object_id->e3d_data->materials[object_id->e3d_data->material_no-1].options))
 	{
 		glDisable(GL_ALPHA_TEST);
 		glEnable(GL_CULL_FACE);
