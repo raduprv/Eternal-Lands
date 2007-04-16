@@ -4,12 +4,12 @@ UPDATE_CONF=yes
 # tune these for your setup & compile options
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
 FEATURES += AFK_FIX                         # fixes afk messages to count only PM's, and store and count local messages if the option is selected
-#FEATURES += ALPHA_ACTORS                    # (undocumented)
+FEATURES += ALPHA_ACTORS                    # (undocumented)
 #FEATURES += ALUT_WAV                        # use deprecated WAV loader
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 FEATURES += ATI_9200_FIX                    # flickering fix for ATI 92xx
 FEATURES += AUTO_UPDATE                     # enable minor automatic file updating
-FEATURES += BUG_FIX_3D_OBJECTS_MIN_MAX      # Just a smal work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects or use the new file format.
+FEATURES += BUG_FIX_3D_OBJECTS_MIN_MAX      # Just a small work around for the new frustum with the buggy 3d objects. This is not nessecary if you have correct 3d objects or use the new file format.
 FEATURES += COUNTERS                        # enables kill/production/etc counters in the client
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
@@ -20,27 +20,27 @@ FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
 FEATURES += EYE_CANDY                       # (undocumented)
 FEATURES += FONTS_FIX                       # dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
-#FEATURES += FUZZY_PATHS                     # (undocumented)
+FEATURES += FUZZY_PATHS                     # (undocumented)
 #FEATURES += LITTLE_ENDIAN                   # indicate that ELC is running on a little-endian computer
-#FEATURES += MASKING                         # (undocumented)
+FEATURES += MASKING                         # (undocumented)
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
-FEATURES += MINIMAP                         # (undocumented)
+#FEATURES += MINIMAP                         # (undocumented)
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
-#FEATURES += NEW_ALPHA                       # (undocumented)
+FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += NEW_E3D_FORMAT                  # Enables the new e3d file format. Only works with files in the new file format! Needs -DNEW_FRUSTUM. 
 FEATURES += NEW_FRUSTUM                     # use new frustum culling (AABB trees)
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)
 #FEATURES += NEW_SOUND                       # (undocumented)
 FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
-FEATURES += NEW_WEATHER                     # new weather effects
+#FEATURES += NEW_WEATHER                     # new weather effects
 #FEATURES += NO_MUSIC                        # (undocumented)
 #FEATURES += NO_PF_MACRO                     # (undocumented)
 FEATURES += NOTEPAD                         # enable in-game notepad
 FEATURES += OPTIONS_I18N                    # make option labels & descriptions translatable
 #FEATURES += PARANOID_CAMERA                 # (undocumented)
-FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game
+#FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game
 FEATURES += SFX                             # experimental visual spell effects
 FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
 #FEATURES += TERRAIN                         # (undocumented)
@@ -58,7 +58,7 @@ FEATURES += USE_INLINE                      # (undocumented)
 #FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += X86_64                          # Compile for a computer with 64-bit memory addresses
-#FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
+FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz
 
 PLATFORM=-march=i686
@@ -70,9 +70,10 @@ CXXWARN=-Wall
 #-Wno-sign-compare
 #-Werror
 
+## These needed to be adjusted on a per system basis based on compile options & library versions
 #EXTRA_INCLUDES=-IC:\\Programme\\Dev-Cpp\\Include
-#EXTRA_LIBS=-lalut
-#EXTRA_STATICLIBS=libs/libalut.a
+#EXTRA_LIBS=-lalut -lz
+#EXTRA_STATICLIBS=libs/libalut.a libs/zlib.a
 
 CC=gcc
 CXX=g++
