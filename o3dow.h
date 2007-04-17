@@ -9,7 +9,7 @@ extern int o3dow_dragged;
 extern int view_o3dow;
 extern int o3dow_win;
 extern int c1,c2,c3,c4;
-int minay,minaz,maxay,maxaz,minax,maxax,minh,maxh,randomheight, randomanglex, randomangley, randomanglez;
+extern int minay,minaz,maxay,maxaz,minax,maxax,minh,maxh,randomheight, randomanglex, randomangley, randomanglez;
 
 void init_o3dow();
 void display_o3dow();

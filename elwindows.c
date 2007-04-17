@@ -740,6 +740,7 @@ int	mouseover_window(int win_id, int x, int y)
 	return 0;
 }
 
+
 void	*set_window_handler(int win_id, int handler_id, int (*handler)() )
 {
 	void	*old_handler;

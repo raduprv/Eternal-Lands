@@ -351,8 +351,16 @@ int HandleEvent(SDL_Event *event)
             if(ambient_b>-0.05f)ambient_b-=0.02f;
             if((ch=='d' || ch=='D') && cur_mode==mode_map)dungeon=!dungeon;
             
-            if(ch=='m') map_has_changed=(minimap_on=!minimap_on);
-            
+            if ((ch=='m') || ((ch == 'q') && (minimap_on)))
+            {
+              if (cur_mode == mode_eye_candy)
+              {
+                eye_candy_add_effect();
+                cur_mode = mode_tile;
+              }
+              
+              map_has_changed=(minimap_on=!minimap_on);
+            }
 
             break;
 
@@ -433,6 +441,7 @@ int HandleEvent(SDL_Event *event)
 			else{
 				if(left_click) end_drag_windows();
 				left_click = 0;
+				last_ec_index = -2;
 			}
 
 			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_RIGHT))
@@ -458,14 +467,30 @@ int HandleEvent(SDL_Event *event)
 
 			if(minimap_on && left_click==1)
 				{
-					check_mouse_minimap();
-					return(done);
+					if (cur_mode != mode_eye_candy)
+					{
+						check_mouse_minimap();
+						return(done);
+					}
+					else
+					{
+						add_eye_candy_point();
+						return(done);
+					}
 				}
 			else
-			if(minimap_on && right_click && cur_mode==mode_tile)
+			if(minimap_on && right_click)
 				{
-					draw_mouse_minimap();
-					return(done);
+					if (cur_mode == mode_tile)
+					{
+						draw_mouse_minimap();
+						return(done);
+					}
+					else if (cur_mode == mode_eye_candy)
+					{
+						delete_eye_candy_point();
+						return(done);
+					}
 				}
 
 			if(left_click && cur_mode==mode_tile && cur_tool==tool_select && selected_tile!=255  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)

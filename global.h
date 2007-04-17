@@ -78,9 +78,6 @@
 #include "edit_window.h"
 #include "../elc/particles.h"
 #include "particles_window.h"
-#ifdef	EYE_CANDY
-#include "eye_candy_window.h"
-#endif	//EYE_CANDY
 #include "gl_init.h"
 #define sector_size_x 15
 #define sector_size_y 15

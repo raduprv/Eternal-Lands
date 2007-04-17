@@ -7,7 +7,7 @@
 #define DATA_DIR "./"
 #endif
 
-char lang[10];
+extern char lang[10];
 extern char datadir[256];
 extern char configdir[256];
 extern int use_clipboard; /*!< whether to use CLIPBOARD or PRIMARY for pasting */
