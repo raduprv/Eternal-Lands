@@ -353,11 +353,13 @@ int HandleEvent(SDL_Event *event)
             
             if ((ch=='m') || ((ch == 'q') && (minimap_on)))
             {
+#ifdef	EYE_CANDY
               if (cur_mode == mode_eye_candy)
               {
                 eye_candy_add_effect();
                 cur_mode = mode_tile;
               }
+#endif	//EYE_CANDY
               
               map_has_changed=(minimap_on=!minimap_on);
             }
@@ -441,7 +443,9 @@ int HandleEvent(SDL_Event *event)
 			else{
 				if(left_click) end_drag_windows();
 				left_click = 0;
+#ifdef	EYE_CANDY
 				last_ec_index = -2;
+#endif	//EYE_CANDY
 			}
 
 			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_RIGHT))
@@ -467,6 +471,7 @@ int HandleEvent(SDL_Event *event)
 
 			if(minimap_on && left_click==1)
 				{
+#ifdef	EYE_CANDY
 					if (cur_mode != mode_eye_candy)
 					{
 						check_mouse_minimap();
@@ -477,6 +482,10 @@ int HandleEvent(SDL_Event *event)
 						add_eye_candy_point();
 						return(done);
 					}
+#else	//EYE_CANDY
+					check_mouse_minimap();
+					return(done);
+#endif	//EYE_CANDY
 				}
 			else
 			if(minimap_on && right_click)
@@ -486,11 +495,13 @@ int HandleEvent(SDL_Event *event)
 						draw_mouse_minimap();
 						return(done);
 					}
+#ifdef	EYE_CANDY
 					else if (cur_mode == mode_eye_candy)
 					{
 						delete_eye_candy_point();
 						return(done);
 					}
+#endif	//EYE_CANDY
 				}
 
 			if(left_click && cur_mode==mode_tile && cur_tool==tool_select && selected_tile!=255  && scene_mouse_y>0 && scene_mouse_x>0 && scene_mouse_y<tile_map_size_y*3 && scene_mouse_x<tile_map_size_x*3)
