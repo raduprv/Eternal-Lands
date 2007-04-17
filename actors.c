@@ -624,35 +624,7 @@ void display_actors(int banner, int reflections)
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 38, 0.0);
-			glVertex3f(49, 38, 0.2);
-			glVertex3f(51, 38, 0.2);
-			glVertex3f(51, 38, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 40, 0.0);
-			glVertex3f(50, 40, 0.25);
-			glVertex3f(52, 40, 0.25);
-			glVertex3f(52, 40, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
-#endif
+
 	for (i = 0; i < no_near_actors; i++)
 	{
 		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))

@@ -1121,35 +1121,6 @@ void display_objects()
 
 	CHECK_GL_ERRORS();
 
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 46, 0.0);
-			glVertex3f(49, 46, 0.4);
-			glVertex3f(51, 46, 0.4);
-			glVertex3f(51, 46, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 48, 0.0);
-			glVertex3f(50, 48, 0.45);
-			glVertex3f(52, 48, 0.45);
-			glVertex3f(52, 48, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
-#endif
 	glEnableClientState(GL_NORMAL_ARRAY);
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
@@ -1214,35 +1185,6 @@ void display_ground_objects()
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0,0,1);
 
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 42, 0.0);
-			glVertex3f(49, 42, 0.3);
-			glVertex3f(51, 42, 0.3);
-			glVertex3f(51, 42, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 44, 0.0);
-			glVertex3f(50, 44, 0.35);
-			glVertex3f(52, 44, 0.35);
-			glVertex3f(52, 44, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
-#endif
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	
@@ -1331,35 +1273,6 @@ void display_blended_objects()
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glNormal3f(0,0,1);
 
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 34, 0.0);
-			glVertex3f(49, 34, 0.1);
-			glVertex3f(51, 34, 0.1);
-			glVertex3f(51, 34, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 36, 0.0);
-			glVertex3f(50, 36, 0.15);
-			glVertex3f(52, 36, 0.15);
-			glVertex3f(52, 36, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
-#endif
 #ifndef	NEW_FRUSTUM
 	for(nobj=first_near_blended_3d_object;nobj;nobj=nobj->next){
 		if(!objects_list[nobj->pos])

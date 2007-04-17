@@ -591,35 +591,6 @@ int display_game_handler (window_info *win)
 		get_weather_light_level ();
 #endif
 
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 66, 0.0);
-			glVertex3f(49, 66, 0.9);
-			glVertex3f(51, 66, 0.9);
-			glVertex3f(51, 66, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 68, 0.0);
-			glVertex3f(50, 68, 0.95);
-			glVertex3f(52, 68, 0.95);
-			glVertex3f(52, 68, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
-#endif
 		if (!dungeon){
 			draw_global_light ();
 		} else {
@@ -635,36 +606,6 @@ int display_game_handler (window_info *win)
 			draw_lights ();
 		}
 		CHECK_GL_ERRORS ();
-
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 62, 0.0);
-			glVertex3f(49, 62, 0.8);
-			glVertex3f(51, 62, 0.8);
-			glVertex3f(51, 62, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 64, 0.0);
-			glVertex3f(50, 64, 0.85);
-			glVertex3f(52, 64, 0.85);
-			glVertex3f(52, 64, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
-#endif
 
 #ifdef NEW_LIGHTING
 		if (!dungeon && shadows_on && (game_minute >= 0 && game_minute < 240)){
@@ -688,35 +629,6 @@ int display_game_handler (window_info *win)
 		CHECK_GL_ERRORS ();
 #ifdef ATI_9200_FIX
 		glClear(GL_DEPTH_BUFFER_BIT);
-#endif
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 58, 0.0);
-			glVertex3f(49, 58, 0.7);
-			glVertex3f(51, 58, 0.7);
-			glVertex3f(51, 58, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 60, 0.0);
-			glVertex3f(50, 60, 0.75);
-			glVertex3f(52, 60, 0.75);
-			glVertex3f(52, 60, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
 #endif
 
 #ifdef NEW_LIGHTING

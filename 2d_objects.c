@@ -649,35 +649,6 @@ void display_2d_objects()
 			glEnable(GL_TEXTURE_2D);
 		}
 
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-		glDisable(GL_TEXTURE_2D);
-		glEnable(GL_COLOR_MATERIAL);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-		glColor4f(1.0, 1.0, 1.0, 0.3);
-		glNormal3f(0.0, 0.0, 1.0);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(49, 50, 0.0);
-			glVertex3f(49, 50, 0.5);
-			glVertex3f(51, 50, 0.5);
-			glVertex3f(51, 50, 0.0);
-		}
-		glEnd();
-		
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glBegin(GL_QUADS);
-		{
-			glVertex3f(50, 52, 0.0);
-			glVertex3f(50, 52, 0.55);
-			glVertex3f(52, 52, 0.55);
-			glVertex3f(52, 52, 0.0);
-		}
-		glEnd();
-		glEnable(GL_TEXTURE_2D);
-		glDisable(GL_COLOR_MATERIAL);
-		glDisable(GL_BLEND);
-#endif
 	for(i=0;i<no_nearby_2d_objects;i++){
 		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer && !obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test) {
 			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);

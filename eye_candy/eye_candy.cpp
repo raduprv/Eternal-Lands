@@ -126,22 +126,50 @@ void Shape::draw()
   glDisableClientState(GL_NORMAL_ARRAY);
   glDisableClientState(GL_INDEX_ARRAY);
 #else
+
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)
     {
-      glNormal3d(normals[facets[i * 3] * 3], normals[facets[i * 3] * 3 + 1], normals[facets[i * 3] * 3 + 2]);
-      glVertex3d(vertices[facets[i * 3] * 3], vertices[facets[i * 3] * 3 + 1], vertices[facets[i * 3] * 3 + 2]);
-      glNormal3d(normals[facets[i * 3 + 1] * 3], normals[facets[i * 3 + 1] * 3 + 1], normals[facets[i * 3 + 1] * 3 + 2]);
-      glVertex3d(vertices[facets[i * 3 + 1] * 3], vertices[facets[i * 3 + 1] * 3 + 1], vertices[facets[i * 3 + 1] * 3 + 2]);
-      glNormal3d(normals[facets[i * 3 + 2] * 3], normals[facets[i * 3 + 2] * 3 + 1], normals[facets[i * 3 + 2] * 3 + 2]);
-      glVertex3d(vertices[facets[i * 3 + 2] * 3], vertices[facets[i * 3 + 2] * 3 + 1], vertices[facets[i * 3 + 2] * 3 + 2]);
+      glNormal3f(normals[facets[i * 3] * 3], normals[facets[i * 3] * 3 + 1], normals[facets[i * 3] * 3 + 2]);
+      glVertex3f(vertices[facets[i * 3] * 3], vertices[facets[i * 3] * 3 + 1], vertices[facets[i * 3] * 3 + 2]);
+      glNormal3f(normals[facets[i * 3 + 1] * 3], normals[facets[i * 3 + 1] * 3 + 1], normals[facets[i * 3 + 1] * 3 + 2]);
+      glVertex3f(vertices[facets[i * 3 + 1] * 3], vertices[facets[i * 3 + 1] * 3 + 1], vertices[facets[i * 3 + 1] * 3 + 2]);
+      glNormal3f(normals[facets[i * 3 + 2] * 3], normals[facets[i * 3 + 2] * 3 + 1], normals[facets[i * 3 + 2] * 3 + 2]);
+      glVertex3f(vertices[facets[i * 3 + 2] * 3], vertices[facets[i * 3 + 2] * 3 + 1], vertices[facets[i * 3 + 2] * 3 + 2]);
     }
   }
   glEnd();
 #endif
-  glEnable(GL_TEXTURE_2D);
   glPopMatrix();
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+  std::cout << "C=<" << color.x << ", " << color.y << ", " << color.z << ">; N=<" << normals[0] << ", " << normals[1] << ", " << normals[2] << ">" << std::endl;
+  const float offset = -(int(this) % 1000) / 40.0f;
+  glColor4f(1.0, 1.0, 1.0, 0.25);
+  glNormal3f(0.0, 0.0, 1.0);
+  glBegin(GL_QUADS);
+  {
+    glVertex3f(9.0, 0.0, -15 + offset);
+    glVertex3f(9.0, 1.5, -15 + offset);
+    glVertex3f(10.0, 1.5, -15 + offset);
+    glVertex3f(10.0, 0.0, -15 + offset);
+  }
+  glDisable(GL_TEXTURE_2D);
+  glEnable(GL_COLOR_MATERIAL);
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  glColor4f(1.0, 1.0, 1.0, 0.25);
+  glNormal3f(0.0, 0.0, 1.0);
+  glBegin(GL_QUADS);
+  {
+    glVertex3f(10.5, 0.0, -15 + offset);
+    glVertex3f(10.5, 1.5, -15 + offset);
+    glVertex3f(11.5, 1.5, -15 + offset);
+    glVertex3f(11.5, 0.0, -15 + offset);
+  }
+  glEnd();
+#endif
+  glEnable(GL_TEXTURE_2D);
 }
 
 CaplessCylinder::CaplessCylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys)
@@ -1413,7 +1441,7 @@ void EyeCandy::draw()
 {
   if (ec_error_status)
     return;
-
+/*
 #ifdef DEBUG_TTLANHIL_TRANSPARENCY
   glDisable(GL_TEXTURE_2D);
   glEnable(GL_COLOR_MATERIAL);
@@ -1421,60 +1449,18 @@ void EyeCandy::draw()
   glBlendFunc(GL_SRC_ALPHA, GL_ONE);
   glColor4f(1.0, 1.0, 1.0, 0.3);
   glNormal3f(0.0, 0.0, 1.0);
+  const float offset = 0.0f;
   glBegin(GL_QUADS);
   {
-    glVertex3f(49, 0.0, -70);
-    glVertex3f(49, 1.0, -70);
-    glVertex3f(51, 1.0, -70);
-    glVertex3f(51, 0.0, -70);
+    glVertex3f(9, 0.0, -16 + offset);
+    glVertex3f(9, 1.0, -16 + offset);
+    glVertex3f(11, 1.0, -16 + offset);
+    glVertex3f(11, 0.0, -16 + offset);
   }
   glEnd();
-
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBegin(GL_QUADS);
-  {
-    glVertex3f(50, 0.0, -72);
-    glVertex3f(50, 1.05, -72);
-    glVertex3f(52, 1.05, -72);
-    glVertex3f(52, 0.0, -72);
-  }
-  glEnd();
-  glEnable(GL_TEXTURE_2D);
-  glDisable(GL_COLOR_MATERIAL);
-  glDisable(GL_BLEND);
 #endif
-
+*/
   start_draw();
-
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_COLOR_MATERIAL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  glColor4f(1.0, 1.0, 1.0, 0.3);
-  glNormal3f(0.0, 0.0, 1.0);
-  glBegin(GL_QUADS);
-  {
-    glVertex3f(49, 0.0, -74);
-    glVertex3f(49, 1.1, -74);
-    glVertex3f(51, 1.1, -74);
-    glVertex3f(51, 0.0, -74);
-  }
-  glEnd();
-
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-  glBegin(GL_QUADS);
-  {
-    glVertex3f(50, 0.0, -76);
-    glVertex3f(50, 1.15, -76);
-    glVertex3f(52, 1.15, -76);
-    glVertex3f(52, 0.0, -76);
-  }
-  glEnd();
-  glEnable(GL_TEXTURE_2D);
-  glDisable(GL_COLOR_MATERIAL);
-  glDisable(GL_BLEND);
-#endif
 
   // Draw effects (any special drawing functionality) and their particles.
   for (std::vector<Effect*>::const_iterator iter = effects.begin(); iter != effects.end(); iter++)

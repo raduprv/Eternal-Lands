@@ -407,7 +407,7 @@ bool SelfMagicEffect::idle(const Uint64 usec)
   {
     if (capless_cylinders.size())
     {
-      if ((*capless_cylinders.rbegin())->alpha < 0.004)
+      if ((*capless_cylinders.rbegin())->alpha < 0.01)
         return false;
     }
     else
