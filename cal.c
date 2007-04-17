@@ -212,9 +212,6 @@ void cal_render_actor(actor *act)
 	float reverse_scale;
 	//int glow=-1;
 	
-	act->has_alpha=1;
-	act->alpha=0.5;
-
 	if(act->calmodel==NULL) {
 		return;//Wtf!?
 	}

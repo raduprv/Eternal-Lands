@@ -91,8 +91,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
-	our_actor->alpha=0.5;
-	our_actor->has_alpha=1;
+	our_actor->has_alpha=0;
 	//clear the que
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
 
@@ -621,6 +620,7 @@ void display_actors(int banner, int reflections)
 			glEnable(GL_TEXTURE_2D);
 			ELglClientActiveTextureARB(base_unit);
 		}
+
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_NORMAL_ARRAY);

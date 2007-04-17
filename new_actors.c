@@ -84,8 +84,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
-	our_actor->alpha=0.5;
-	our_actor->has_alpha=1;
 	
 	//clear the que
 	for(k=0; k<MAX_CMD_QUEUE; k++)	our_actor->que[k]=nothing;

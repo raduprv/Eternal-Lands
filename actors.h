@@ -441,7 +441,6 @@ typedef struct
 	char has_alpha;		/*!< is alpha blending needed for this actor? */
 	int kind_of_actor;	/*!< Defines the kind_of_actor (NPC, HUMAN, COMPUTER_CONTROLLED_HUMAN, PKABLE, PKABLE_COMPUTER_CONTROLLED)*/
 	Uint32 buffs;		/*!<Contains the buffs on this actor as bits (currently only invisibility)*/
-	float alpha;		/*!< Allows special effects to change the transparency of an actor >*/
 	/*! \} */
 
 	/*! \name Overhead text (text bubbles)*/
