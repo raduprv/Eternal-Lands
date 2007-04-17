@@ -25,7 +25,7 @@ public:
   virtual bool idle(const Uint64 delta_t);
   virtual void draw(const Uint64 usec);
   virtual GLuint get_texture(const Uint16 res_index);
-  virtual light_t estimate_light_level() const { return 0.002; };	// We don't want the particle system lights to be used on the pos, since it will assumedly already have one.
+  virtual light_t estimate_light_level() const { return 0.003; };	// We don't want the particle system lights to be used on the pos, since it will assumedly already have one.
 
   coord_t size_max;  
   Uint16 LOD;

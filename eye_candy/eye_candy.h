@@ -93,7 +93,6 @@ functions, etc) in Eye Candy.  Rather, work through the wrapper to exchange
 any information you feel is necessary.  This way, Eye Candy remains clean
 and project-independent.
 */
-
 #ifdef EYE_CANDY
 
 #ifndef EYE_CANDY_H

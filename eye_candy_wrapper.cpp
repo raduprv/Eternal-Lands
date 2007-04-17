@@ -12,6 +12,10 @@
 
 // G L O B A L S //////////////////////////////////////////////////////////////
 
+#ifdef MAP_EDITOR
+extern int day_shadows_on;
+#endif
+
 extern "C" {
   int use_eye_candy = 1;
 }
@@ -184,6 +188,13 @@ extern "C" void ec_idle()
     
     if (use_eye_candy)
     {
+#ifdef MAP_EDITOR
+      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
+        (*iter)->effect->active = (!day_shadows_on);
+#else
+      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
+        (*iter)->effect->active = (!is_day);
+#endif
       if ((*iter)->caster)
       {
         if ((*iter)->effect->get_type() == ec::EC_SWORD)
@@ -208,6 +219,8 @@ extern "C" void ec_idle()
     eye_candy.time_diff = 100000;
   else
     eye_candy.time_diff = new_time - ec_cur_time;
+  if (eye_candy.time_diff > 400000)	// Don't want it to jump if it's been very long between frames.
+    eye_candy.time_diff = 400000;
   average_framerate = average_framerate * 0.6 + 1000000.0 / eye_candy.time_diff * 0.4;
   eye_candy.framerate = average_framerate;
 //  eye_candy.framerate = fps_average;

@@ -620,13 +620,18 @@ float weather_bias_light(float value)
 	} else {
 		const float bias = get_weather_light_bias();
 #ifdef NEW_LIGHTING
-		const float severity = 0.9 * weather_severity; // Bias light by weather severity (the old way obliterates lighting, making everything but shadows black)
+		const float severity = 0.7 * weather_severity; // Bias light by weather severity (the old way obliterates lighting, making everything but shadows black)
 #else
 		const float severity = 0.15f*weather_severity + 0.85f; // slightly bias light by weather severity
 #endif
 		float result = value*(1.0f - severity*bias);
 
+#ifdef NEW_LIGHTING
+		if ((result < 0.1f) && (result < value))
+		  result = (value < 0.1 ? value : 0.1);
+#else
 		if (result < 0.0f) result = 0.0f;
+#endif
 		else if (result > 1.0f) result = 1.0f;
 		
 //		printf("%f, %f, %f, %f, %f -> %f\n", value, get_weather_light_bias(), bias, weather_severity, severity, result);
