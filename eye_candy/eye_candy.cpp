@@ -154,16 +154,17 @@ void Shape::draw()
 #endif
   glPopMatrix();
   #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+    const float offset = -(int(this) % 1000) / 40.0f;
     glColor4f(1.0, 1.0, 1.0, 0.25);
     glNormal3f(0.0, 0.0, 1.0);
     glBegin(GL_TRIANGLES);
     {
-      glVertex3f(9.0, 0.0, -15);
-      glVertex3f(9.0, 1.5, -15);
-      glVertex3f(10.0, 1.5, -15);
-      glVertex3f(10.0, 1.5, -15);
-      glVertex3f(10.0, 0.0, -15);
-      glVertex3f(9.0, 0.0, -15);
+      glVertex3f(9.0, 0.0, -15 + offset);
+      glVertex3f(9.0, 1.5, -15 + offset);
+      glVertex3f(10.0, 1.5, -15 + offset);
+      glVertex3f(10.0, 1.5, -15 + offset);
+      glVertex3f(10.0, 0.0, -15 + offset);
+      glVertex3f(9.0, 0.0, -15 + offset);
     }
     glEnd();
   #endif
