@@ -165,6 +165,7 @@ void Shape::draw()
       glVertex3f(10.0, 0.0, -15);
       glVertex3f(9.0, 0.0, -15);
     }
+    glEnd();
   #endif
   glEnable(GL_TEXTURE_2D);
 }
