@@ -127,10 +127,18 @@ void Shape::draw()
   glDisableClientState(GL_INDEX_ARRAY);
 #else
 
+  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+    std::cout << "glBegin(GL_TRIANGLES)" << std::endl;
+  #endif
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)
     {
+      #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+        std::cout << "  V1: F=" << facets[i * 3] << ": N=<" << normals[facets[i * 3] * 3] << ", " << normals[facets[i * 3] * 3 + 1] << ", " << normals[facets[i * 3] * 3 + 2] << ">; V=<" << vertices[facets[i * 3] * 3] << ", " << vertices[facets[i * 3] * 3 + 1] << ", " << vertices[facets[i * 3] * 3 + 2] << ">" << std::endl;
+        std::cout << "  V2: F=" << facets[i * 3 + 1] << ": N=<" << normals[facets[i * 3 + 1] * 3] << ", " << normals[facets[i * 3 + 1] * 3 + 1] << ", " << normals[facets[i * 3 + 1] * 3 + 2] << ">; V=<" << vertices[facets[i * 3 + 1] * 3] << ", " << vertices[facets[i * 3 + 1] * 3 + 1] << ", " << vertices[facets[i * 3 + 1] * 3 + 2] << ">" << std::endl;
+        std::cout << "  V3: F=" << facets[i * 3 + 2] << ": N=<" << normals[facets[i * 3 + 2] * 3] << ", " << normals[facets[i * 3 + 2] * 3 + 1] << ", " << normals[facets[i * 3 + 2] * 3 + 2] << ">; V=<" << vertices[facets[i * 3 + 2] * 3] << ", " << vertices[facets[i * 3 + 2] * 3 + 1] << ", " << vertices[facets[i * 3 + 2] * 3 + 2] << ">" << std::endl;
+      #endif
       glNormal3f(normals[facets[i * 3] * 3], normals[facets[i * 3] * 3 + 1], normals[facets[i * 3] * 3 + 2]);
       glVertex3f(vertices[facets[i * 3] * 3], vertices[facets[i * 3] * 3 + 1], vertices[facets[i * 3] * 3 + 2]);
       glNormal3f(normals[facets[i * 3 + 1] * 3], normals[facets[i * 3 + 1] * 3 + 1], normals[facets[i * 3 + 1] * 3 + 2]);
@@ -140,35 +148,24 @@ void Shape::draw()
     }
   }
   glEnd();
+  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+    std::cout << "glEnd()" << std::endl;
+  #endif
 #endif
   glPopMatrix();
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-  std::cout << "C=<" << color.x << ", " << color.y << ", " << color.z << ">; N=<" << normals[0] << ", " << normals[1] << ", " << normals[2] << ">" << std::endl;
-  const float offset = -(int(this) % 1000) / 40.0f;
-  glColor4f(1.0, 1.0, 1.0, 0.25);
-  glNormal3f(0.0, 0.0, 1.0);
-  glBegin(GL_QUADS);
-  {
-    glVertex3f(9.0, 0.0, -15 + offset);
-    glVertex3f(9.0, 1.5, -15 + offset);
-    glVertex3f(10.0, 1.5, -15 + offset);
-    glVertex3f(10.0, 0.0, -15 + offset);
-  }
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_COLOR_MATERIAL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  glColor4f(1.0, 1.0, 1.0, 0.25);
-  glNormal3f(0.0, 0.0, 1.0);
-  glBegin(GL_QUADS);
-  {
-    glVertex3f(10.5, 0.0, -15 + offset);
-    glVertex3f(10.5, 1.5, -15 + offset);
-    glVertex3f(11.5, 1.5, -15 + offset);
-    glVertex3f(11.5, 0.0, -15 + offset);
-  }
-  glEnd();
-#endif
+  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+    glColor4f(1.0, 1.0, 1.0, 0.25);
+    glNormal3f(0.0, 0.0, 1.0);
+    glBegin(GL_TRIANGLES);
+    {
+      glVertex3f(9.0, 0.0, -15);
+      glVertex3f(9.0, 1.5, -15);
+      glVertex3f(10.0, 1.5, -15);
+      glVertex3f(10.0, 1.5, -15);
+      glVertex3f(10.0, 0.0, -15);
+      glVertex3f(9.0, 0.0, -15);
+    }
+  #endif
   glEnable(GL_TEXTURE_2D);
 }
 
