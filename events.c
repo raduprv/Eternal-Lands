@@ -1,4 +1,5 @@
 #include "global.h"
+#include "eye_candy_window.h"
 
 int undo_type;
 void *undo_object = NULL;

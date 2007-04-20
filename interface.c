@@ -1,4 +1,5 @@
 #include "global.h"
+#include "eye_candy_window.h"
 #include <math.h>
 
 int show_position_on_minimap=0;
@@ -878,7 +879,7 @@ void draw_minimap()
 	if(window_width<window_height) scale=window_width/256;
 	else scale=window_height/256;
 
-    x_map_pos=(float)mx/(float)(tile_map_size_x*3.0f)*256.0f*scale;
+        x_map_pos=(float)mx/(float)(tile_map_size_x*3.0f)*256.0f*scale;
 	y_map_pos=(float)my/(float)(tile_map_size_y*3.0f)*256.0f*scale;
 	
 	minimap_x_start/=scale*scale;
@@ -916,6 +917,9 @@ void draw_minimap()
 			glColor3f(1.0f,1.0f,1.0f);
 			glEnable(GL_TEXTURE_2D);
 		}
+#ifdef EYE_CANDY
+	draw_bounds_on_minimap();
+#endif
 }
 
 int map_size=0;
