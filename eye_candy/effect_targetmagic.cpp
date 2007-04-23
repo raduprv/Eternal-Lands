@@ -49,6 +49,7 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
   cur_target.y += 0.5;
   
 //  std::cout << "A) " << this << ", " << state << ": " << pos << ", " << alpha << std::endl;
+//  std::cout << "A) " << this << ": " << velocity << ", " << pos << std::endl;
   
   if ((state == 0) && (age < 300000))
   {
@@ -257,6 +258,7 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
     pos += ((TargetMagicEffect2*)effect)->shift;
   }
 
+//  std::cout << "B) " << this << ": " << velocity << ", " << pos << std::endl;
   
   return true;
 }
@@ -676,6 +678,7 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
   effect_id = _effect_id;
   target_alpha = _target_alpha;
   dead = &dummy_dead;
+  shift = Vec3(0.0, 0.0, 0.0);
   
 //  std::cout << "Target center: " << center << std::endl << std::flush;
   
@@ -868,6 +871,7 @@ bool TargetMagicEffect2::idle(const Uint64 usec)
 //  std::cout << "Center: " << center << "; Pos (" << pos << "): " << *pos << std::endl << std::flush;
   
   shift = center - last_effect_center;
+  std::cout << "S: " << shift << ": " << center << ", " << last_effect_center << std::endl;
 
   center.y += usec / 1500000.0;
 

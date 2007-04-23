@@ -59,7 +59,7 @@ bool HarvestingParticle::idle(const Uint64 delta_t)
       if (alpha < 0.01)
         return false;
 
-      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 5);
+      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 3);
       if (size < 10)
         size /= scalar;
       alpha *= scalar;
@@ -249,14 +249,14 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     {
       effect_center.y += 0.2;
       spawner = new HollowDiscSpawner(0.1);
-      mover = new SpiralMover(this, &effect_center, 30.0, 18.0);
+      mover = new SpiralMover(this, &effect_center, 18.0, 11.0);
       while ((int)particles.size() < LOD * 100)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
-        velocity.randomize(0.5);
+        velocity.randomize(0.3);
         velocity.y *= 3;
-        velocity.y += 2.0;
+        velocity.y += 1.4;
         Particle * p = new HarvestingParticle(this, mover, coords, velocity, 3.0, 0.2, 1.0, 0.5 + randcolor(0.5), 0.5, &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;

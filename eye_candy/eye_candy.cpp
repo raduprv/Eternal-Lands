@@ -128,8 +128,19 @@ void Shape::draw()
 #else
 
   #ifdef DEBUG_TTLANHIL_TRANSPARENCY
-    std::cout << "glBegin(GL_TRIANGLES)" << std::endl;
-  #endif
+  std::cout << "glBegin(GL_TRIANGLES)" << std::endl;
+  glBegin(GL_TRIANGLES);
+  {
+      glNormal3f(normals[facets[i * 3] * 3], normals[facets[i * 3] * 3 + 1], normals[facets[i * 3] * 3 + 2]);
+      glVertex3f(vertices[facets[i * 3] * 3], vertices[facets[i * 3] * 3 + 1], vertices[facets[i * 3] * 3 + 2]);
+      glNormal3f(normals[facets[i * 3 + 1] * 3], normals[facets[i * 3 + 1] * 3 + 1], normals[facets[i * 3 + 1] * 3 + 2]);
+      glVertex3f(vertices[facets[i * 3 + 1] * 3], vertices[facets[i * 3 + 1] * 3 + 1], vertices[facets[i * 3 + 1] * 3 + 2]);
+      glNormal3f(normals[facets[i * 3 + 2] * 3], normals[facets[i * 3 + 2] * 3 + 1], normals[facets[i * 3 + 2] * 3 + 2]);
+      glVertex3f(vertices[facets[i * 3 + 2] * 3], vertices[facets[i * 3 + 2] * 3 + 1], vertices[facets[i * 3 + 2] * 3 + 2]);
+  }
+  glEnd();
+  std::cout << "glEnd()" << std::endl;
+  #else
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)
@@ -148,8 +159,6 @@ void Shape::draw()
     }
   }
   glEnd();
-  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
-    std::cout << "glEnd()" << std::endl;
   #endif
 #endif
   glPopMatrix();
@@ -1182,7 +1191,7 @@ EyeCandy::EyeCandy()
   temp_sprite_scalar = sprite_scalar * height;
   last_forced_LOD = 10;
   framerate = 100.0;
-  max_fps = 100.0;
+  max_fps = 255.0;
 }
 
 EyeCandy::EyeCandy(int _max_particles)
@@ -1200,7 +1209,7 @@ EyeCandy::EyeCandy(int _max_particles)
   temp_sprite_scalar = sprite_scalar * height;
   last_forced_LOD = 10;
   framerate = 100.0;
-  max_fps = 100.0;
+  max_fps = 255.0;
 }
 
 EyeCandy::~EyeCandy()

@@ -817,6 +817,9 @@ void render_light_view()
 	VECTOR3D lightDir;
 	double d;
 #endif
+#ifdef DEBUG_LIGHTING
+	printf("Rendering light view: %d, %d\n", game_minute, is_day);
+#endif
 	if(use_shadow_mapping)
 		{
 #ifdef USE_LISPSM

@@ -227,7 +227,7 @@ extern "C" void ec_idle()
   ec_last_time = ec_cur_time;
   ec_cur_time = new_time;
   
-  eye_candy.max_fps = average_framerate;
+  eye_candy.max_fps = (limit_fps ? limit_fps : 255);
 
   if (use_eye_candy && ec_last_time % 1000000 >= ec_cur_time % 1000000)
     ec_heartbeat();
@@ -1291,7 +1291,7 @@ extern "C" ec_reference ec_create_selfmagic_teleport_to_the_portals_room(float x
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x + X_OFFSET, z, -(y + Y_OFFSET));
+  ret->position = ec::Vec3(x, z, -y);
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::TELEPORT_TO_THE_PORTALS_ROOM, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
