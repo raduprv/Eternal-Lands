@@ -10,6 +10,13 @@ extern "C" {
 
 typedef struct
 {
+	int x;
+	int y;
+	int obj_3d_id;
+} bag;
+
+typedef struct
+{
 	int pos;
 	int image_id;
 	int quantity;
@@ -109,6 +116,16 @@ void add_bags_from_list (const Uint8 *data);
  * \callgraph
  */
 void remove_bag(int which_bag);
+
+/*!
+ * \ingroup item
+ * \brief   Removes all the bag from a map.
+ *
+ *      Removes all the bag on a map.
+ *
+ * \callgraph
+ */
+void remove_all_bags();
 
 /*!
  * \ingroup item

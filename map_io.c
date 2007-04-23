@@ -131,6 +131,9 @@ int get_cur_map (const char * file_name)
 
 void change_map (const char *mapname)
 {
+#ifndef	MAP_EDITOR
+	remove_all_bags();
+#endif	//MAP_EDITOR
 
 #ifdef	NEW_FRUSTUM
 	set_all_intersect_update_needed(main_bbox_tree);

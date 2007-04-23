@@ -4,13 +4,6 @@
 #include "elwindows.h"
 #include "eye_candy_wrapper.h"
 
-typedef struct
-{
-	int x;
-	int y;
-	int obj_3d_id;
-} bag;
-
 ground_item ground_item_list[ITEMS_PER_BAG];
 bag bag_list[NUM_BAGS];
 
@@ -119,6 +112,15 @@ void add_bags_from_list (const Uint8 *data)
 #endif
 		//now, find a place into the bags list, so we can destroy the bag properly
 	
+		if (bag_list[bag_id].obj_3d_id != -1) {
+			char	buf[256];
+
+			// oops, slot already taken!
+			snprintf(buf, sizeof(buf), "Oops, trying to add an existing bag! id=%d\n", bag_id);
+			LOG_ERROR(buf);
+			return;
+		}
+
 		bag_list[bag_id].x=bag_x;
 		bag_list[bag_id].y=bag_y;
 		bag_list[bag_id].obj_3d_id=obj_3d_id;
@@ -194,6 +196,14 @@ void remove_bag(int which_bag)
 
 	destroy_3d_object(bag_list[which_bag].obj_3d_id);
 	bag_list[which_bag].obj_3d_id=-1;
+}
+
+void remove_all_bags(){
+	int i;
+
+	for(i=0; i<NUM_BAGS; i++){    // clear bags list!!!!
+		bag_list[i].obj_3d_id= -1;
+	}
 }
 
 void open_bag(int object_id)
