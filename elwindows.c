@@ -1255,6 +1255,15 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				// but don't close storage if trade is open
 				if(win_id != storage_win || trade_win < 0 || !windows_list.window[trade_win].displayed){
 					hide_window(win_id);
+#ifndef	OLD_CLOSE_BAG
+					if(win_id == ground_items_win){	// are we closing the ground item/bag window?
+						// we need to tell the server we closed the bag
+						unsigned char protocol_name;
+  	 
+  	                    protocol_name= S_CLOSE_BAG;
+  	                    my_tcp_send(my_socket,&protocol_name,1);
+					}
+#endif	//OLD_CLOSE_BAG
 				}
 				if (win->close_handler != NULL)
 					win->close_handler (win);

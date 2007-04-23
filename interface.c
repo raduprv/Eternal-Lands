@@ -407,8 +407,7 @@ void add_char_to_password(unsigned char ch)
 
 void draw_ingame_interface()
 {
-	//check_menus_out_of_screen();
-
+#ifdef	OLD_CLOSE_BAG
 	// watch for closing a bag
 	if(ground_items_win >= 0)
 		{
@@ -424,6 +423,7 @@ void draw_ingame_interface()
 					my_tcp_send(my_socket,&protocol_name,1);
 				}
 		}
+#endif	//OLD_CLOSE_BAG
 
 	glColor3f(1.0f, 1.0f, 1.0f);
 	draw_hud_frame();
