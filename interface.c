@@ -6,6 +6,15 @@ int show_position_on_minimap=0;
 
 int check_interface_buttons()
 {
+#ifdef EYE_CANDY
+	if (minimap_on)
+	{
+		if (left_click)
+		  add_eye_candy_point();
+		else
+		  last_ec_index = -2;
+	}
+#endif
 	if((left_click!=1 && right_click!=1) || mouse_x>=14*32 || mouse_y>=32)return -1;//no interface buttons were selected
 	if(left_click==1)
 		{
