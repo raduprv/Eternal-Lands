@@ -498,7 +498,9 @@ char	reg_error_str[15],
 	too_many_notes[100],
 	wrong_note_node[100],
 	cant_save_notes[100],
-	exceed_note_buffer[100];
+	exceed_note_buffer[100],
+    user_no_more_notes[100],
+    user_no_more_note_tabs[100];
 #else
 	;
 #endif  // ELC
@@ -858,6 +860,9 @@ void init_errors()
 	add_xml_identifier(load,"notenode",wrong_note_node,"Incorrect node type - could not copy.",sizeof(wrong_note_node));
 	add_xml_identifier(load,"savenotes",cant_save_notes,"Unable to write notes to file %s",sizeof(cant_save_notes));
 	add_xml_identifier(load,"exceednotes",exceed_note_buffer,"Tried to exceed notepad buffer! Ignored.",sizeof(exceed_note_buffer));
+	add_xml_identifier(load,"nomorenotes",user_no_more_notes,"No room for more notes.",sizeof(user_no_more_notes));
+	add_xml_identifier(load,"nomorenotetabs",user_no_more_note_tabs,"No room for more note tabs.",sizeof(user_no_more_note_tabs));
+
 
 	//Miscellaneous errors
 	add_xml_identifier(misc,"error",reg_error_str,"Error",sizeof(reg_error_str));

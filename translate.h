@@ -599,7 +599,9 @@ extern char	reg_error_str[15],
 		too_many_notes[100],
 		wrong_note_node[100],
 		cant_save_notes[100],
-		exceed_note_buffer[100];
+		exceed_note_buffer[100],
+		user_no_more_notes[100],
+		user_no_more_note_tabs[100];
 #else
 		;
 #endif  // ELC
