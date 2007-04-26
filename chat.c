@@ -528,20 +528,21 @@ void change_to_current_chat_tab(const char *input)
 	Uint8 channel;
 	int ichan;
 	int itab;
+	int input_len = strlen(input);
 
 	if(input[0] == '@' || input[0] == char_at_str[0])
 	{
 		channel = CHAT_CHANNEL1 + current_channel;
 	}
-	else if(my_strncompare(input, "#gm", 3) || my_strncompare(input, gm_cmd_str, strlen(gm_cmd_str)))
+	else if(my_strncompare(input, "#gm ", 4) || (my_strncompare(input, gm_cmd_str, strlen(gm_cmd_str)) && input_len > strlen(gm_cmd_str)+1 && input[strlen(gm_cmd_str)] == ' '))
 	{
 		channel = CHAT_GM;
 	}
-	else if(my_strncompare(input, "#mod", 4) || my_strncompare(input, mod_cmd_str, strlen(mod_cmd_str)))
+	else if(my_strncompare(input, "#mod ", 5) || (my_strncompare(input, mod_cmd_str, strlen(mod_cmd_str)) && input_len > strlen(mod_cmd_str)+1 && input[strlen(mod_cmd_str)] == ' '))
 	{
 		channel = CHAT_MOD;
 	}
-	else if(my_strncompare(input, "#bc", 3) || my_strncompare(input, bc_cmd_str, strlen(bc_cmd_str)))
+	else if(my_strncompare(input, "#bc ", 4) || (my_strncompare(input, bc_cmd_str, strlen(bc_cmd_str)) && input_len > strlen(bc_cmd_str)+1 && input[strlen(bc_cmd_str)] == ' '))
 	{
 		channel = CHAT_SERVER;
 	}
@@ -1830,20 +1831,21 @@ void change_to_current_tab(const char *input)
 {
 	Uint8 channel;
 	int itab;
+	int input_len = strlen(input);
 
 	if(input[0] == '@' || input[0] == char_at_str[0])
 	{
 		channel = CHAT_CHANNEL1 + current_channel;
 	}
-	else if(my_strncompare(input, "#gm", 3) || my_strncompare(input, gm_cmd_str,strlen(gm_cmd_str)))
+	else if(my_strncompare(input, "#gm ", 4) || (my_strncompare(input, gm_cmd_str,strlen(gm_cmd_str)) && input_len > strlen(gm_cmd_str)+1 && input[strlen(gm_cmd_str)] == ' '))
 	{
 		channel = CHAT_GM;
 	}
-	else if(my_strncompare(input, "#mod", 4) || my_strncompare(input, mod_cmd_str, strlen(mod_cmd_str)))
+	else if(my_strncompare(input, "#mod ", 5) || (my_strncompare(input, mod_cmd_str, strlen(mod_cmd_str)) && input_len > strlen(mod_cmd_str)+1 && input[strlen(mod_cmd_str)] == ' '))
 	{
 		channel = CHAT_MOD;
 	}
-	else if(my_strncompare(input, "#bc", 3) || my_strncompare(input, bc_cmd_str, strlen(bc_cmd_str)))
+	else if(my_strncompare(input, "#bc ", 4) || (my_strncompare(input, bc_cmd_str, strlen(bc_cmd_str)) && input_len > strlen(bc_cmd_str)+1 && input[strlen(bc_cmd_str)] == ' '))
 	{
 		channel = CHAT_SERVER;
 	}
