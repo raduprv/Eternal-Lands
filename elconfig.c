@@ -104,6 +104,7 @@ void change_var(int * var)
 	*var= !*var;
 }
 
+#ifdef	EYE_CANDY
 void change_min_ec_framerate(float * var, float * value)
 {
 	if(*value >= 0) {
@@ -131,6 +132,7 @@ void change_max_ec_framerate(float * var, float * value)
 	}
 	ec_set_draw_detail();
 }
+#endif	//EYE_CANDY
 
 void change_int(int * var, int value)
 {
