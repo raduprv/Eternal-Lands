@@ -104,6 +104,34 @@ void change_var(int * var)
 	*var= !*var;
 }
 
+void change_min_ec_framerate(float * var, float * value)
+{
+	if(*value >= 0) {
+		if (*value < max_ec_framerate) {
+			*var = *value;
+		} else {
+			*var = max_ec_framerate - 1;
+	  	}
+	} else {
+		*var= 0;
+	}
+	ec_set_draw_detail();
+}
+
+void change_max_ec_framerate(float * var, float * value)
+{
+	if(*value >= 1) {
+		if (*value > min_ec_framerate) {
+			*var = *value;
+		} else {
+			*var = min_ec_framerate + 1;
+	  	}
+	} else {
+		*var= 1;
+	}
+	ec_set_draw_detail();
+}
+
 void change_int(int * var, int value)
 {
 	if(value>=0) *var= value;
@@ -1177,7 +1205,11 @@ void init_vars()
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
 	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",LODTAB,0,100);
+ #ifdef EYE_CANDY
 	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",LODTAB);
+	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,0,"Min eye candy framerate","If your framerate is below this amount, eye candy will use minimum detail.",LODTAB,0.0,FLT_MAX,1.0);
+	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,0,"Max eye candy framerate","If your framerate is above this amount, eye candy will use maximum detail.",LODTAB,1.0,FLT_MAX,1.0);
+ #endif
  #ifdef	TERRAIN
 	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", LODTAB);
  #endif // TERRAIN

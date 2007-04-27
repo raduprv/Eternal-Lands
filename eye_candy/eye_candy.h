@@ -1444,7 +1444,7 @@ public:
   EyeCandy(int _max_particles);
   ~EyeCandy();
   
-  void set_thresholds(int _max_particles, int min_framerate);
+  void set_thresholds(const int _max_particles, const float min_framerate, const float max_framerate);
   void load_textures();
   void push_back_effect(Effect* e);
   bool push_back_particle(Particle* p);

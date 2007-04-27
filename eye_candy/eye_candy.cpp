@@ -127,29 +127,29 @@ void Shape::draw()
   glDisableClientState(GL_INDEX_ARRAY);
 #else
 
-  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+ #ifdef DEBUG_TTLANHIL_TRANSPARENCY
   std::cout << "glBegin(GL_TRIANGLES)" << std::endl;
   glBegin(GL_TRIANGLES);
   {
-      glNormal3f(normals[facets[i * 3] * 3], normals[facets[i * 3] * 3 + 1], normals[facets[i * 3] * 3 + 2]);
-      glVertex3f(vertices[facets[i * 3] * 3], vertices[facets[i * 3] * 3 + 1], vertices[facets[i * 3] * 3 + 2]);
-      glNormal3f(normals[facets[i * 3 + 1] * 3], normals[facets[i * 3 + 1] * 3 + 1], normals[facets[i * 3 + 1] * 3 + 2]);
-      glVertex3f(vertices[facets[i * 3 + 1] * 3], vertices[facets[i * 3 + 1] * 3 + 1], vertices[facets[i * 3 + 1] * 3 + 2]);
-      glNormal3f(normals[facets[i * 3 + 2] * 3], normals[facets[i * 3 + 2] * 3 + 1], normals[facets[i * 3 + 2] * 3 + 2]);
-      glVertex3f(vertices[facets[i * 3 + 2] * 3], vertices[facets[i * 3 + 2] * 3 + 1], vertices[facets[i * 3 + 2] * 3 + 2]);
+  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
+      std::cout << "  V1: F=" << facets[0 * 3] << ": N=<" << normals[facets[0 * 3] * 3] << ", " << normals[facets[0 * 3] * 3 + 1] << ", " << normals[facets[0 * 3] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3] * 3] << ", " << vertices[facets[0 * 3] * 3 + 1] << ", " << vertices[facets[0 * 3] * 3 + 2] << ">" << std::endl;
+      std::cout << "  V2: F=" << facets[0 * 3 + 1] << ": N=<" << normals[facets[0 * 3 + 1] * 3] << ", " << normals[facets[0 * 3 + 1] * 3 + 1] << ", " << normals[facets[0 * 3 + 1] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3 + 1] * 3] << ", " << vertices[facets[0 * 3 + 1] * 3 + 1] << ", " << vertices[facets[0 * 3 + 1] * 3 + 2] << ">" << std::endl;
+      std::cout << "  V3: F=" << facets[0 * 3 + 2] << ": N=<" << normals[facets[0 * 3 + 2] * 3] << ", " << normals[facets[0 * 3 + 2] * 3 + 1] << ", " << normals[facets[0 * 3 + 2] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3 + 2] * 3] << ", " << vertices[facets[0 * 3 + 2] * 3 + 1] << ", " << vertices[facets[0 * 3 + 2] * 3 + 2] << ">" << std::endl;
+  #endif
+      glNormal3f(normals[facets[0 * 3] * 3], normals[facets[0 * 3] * 3 + 1], normals[facets[0 * 3] * 3 + 2]);
+      glVertex3f(5 * vertices[facets[0 * 3] * 3], 5 * vertices[facets[0 * 3] * 3 + 1], 5 * vertices[facets[0 * 3] * 3 + 2]);
+      glNormal3f(normals[facets[0 * 3 + 1] * 3], normals[facets[0 * 3 + 1] * 3 + 1], normals[facets[0 * 3 + 1] * 3 + 2]);
+      glVertex3f(5 * vertices[facets[0 * 3 + 1] * 3], 5 * vertices[facets[0 * 3 + 1] * 3 + 1], 5 * vertices[facets[0 * 3 + 1] * 3 + 2]);
+      glNormal3f(normals[facets[0 * 3 + 2] * 3], normals[facets[0 * 3 + 2] * 3 + 1], normals[facets[0 * 3 + 2] * 3 + 2]);
+      glVertex3f(5 * vertices[facets[0 * 3 + 2] * 3], 5 * vertices[facets[0 * 3 + 2] * 3 + 1], 5 * vertices[facets[0 * 3 + 2] * 3 + 2]);
   }
   glEnd();
   std::cout << "glEnd()" << std::endl;
-  #else
+ #else
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)
     {
-      #ifdef DEBUG_TTLANHIL_TRANSPARENCY
-        std::cout << "  V1: F=" << facets[i * 3] << ": N=<" << normals[facets[i * 3] * 3] << ", " << normals[facets[i * 3] * 3 + 1] << ", " << normals[facets[i * 3] * 3 + 2] << ">; V=<" << vertices[facets[i * 3] * 3] << ", " << vertices[facets[i * 3] * 3 + 1] << ", " << vertices[facets[i * 3] * 3 + 2] << ">" << std::endl;
-        std::cout << "  V2: F=" << facets[i * 3 + 1] << ": N=<" << normals[facets[i * 3 + 1] * 3] << ", " << normals[facets[i * 3 + 1] * 3 + 1] << ", " << normals[facets[i * 3 + 1] * 3 + 2] << ">; V=<" << vertices[facets[i * 3 + 1] * 3] << ", " << vertices[facets[i * 3 + 1] * 3 + 1] << ", " << vertices[facets[i * 3 + 1] * 3 + 2] << ">" << std::endl;
-        std::cout << "  V3: F=" << facets[i * 3 + 2] << ": N=<" << normals[facets[i * 3 + 2] * 3] << ", " << normals[facets[i * 3 + 2] * 3 + 1] << ", " << normals[facets[i * 3 + 2] * 3 + 2] << ">; V=<" << vertices[facets[i * 3 + 2] * 3] << ", " << vertices[facets[i * 3 + 2] * 3 + 1] << ", " << vertices[facets[i * 3 + 2] * 3 + 2] << ">" << std::endl;
-      #endif
       glNormal3f(normals[facets[i * 3] * 3], normals[facets[i * 3] * 3 + 1], normals[facets[i * 3] * 3 + 2]);
       glVertex3f(vertices[facets[i * 3] * 3], vertices[facets[i * 3] * 3 + 1], vertices[facets[i * 3] * 3 + 2]);
       glNormal3f(normals[facets[i * 3 + 1] * 3], normals[facets[i * 3 + 1] * 3 + 1], normals[facets[i * 3 + 1] * 3 + 2]);
@@ -159,24 +159,9 @@ void Shape::draw()
     }
   }
   glEnd();
-  #endif
+ #endif
 #endif
   glPopMatrix();
-  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
-    const float offset = -(int(this) % 1000) / 40.0f;
-    glColor4f(1.0, 1.0, 1.0, 0.25);
-    glNormal3f(0.0, 0.0, 1.0);
-    glBegin(GL_TRIANGLES);
-    {
-      glVertex3f(9.0, 0.0, -15 + offset);
-      glVertex3f(9.0, 1.5, -15 + offset);
-      glVertex3f(10.0, 1.5, -15 + offset);
-      glVertex3f(10.0, 1.5, -15 + offset);
-      glVertex3f(10.0, 0.0, -15 + offset);
-      glVertex3f(9.0, 0.0, -15 + offset);
-    }
-    glEnd();
-  #endif
   glEnable(GL_TEXTURE_2D);
 }
 
@@ -1178,7 +1163,7 @@ coord_t HollowBoundingSpawner::get_area() const
 
 EyeCandy::EyeCandy()
 {
-  set_thresholds(10000, 12);
+  set_thresholds(10000, 13, 37);
   max_usec_per_particle_move = 100000;
   sprite_scalar = 0.11;
   max_point_size = 500.0;
@@ -1196,7 +1181,7 @@ EyeCandy::EyeCandy()
 
 EyeCandy::EyeCandy(int _max_particles)
 {
-  set_thresholds(_max_particles, 12);
+  set_thresholds(_max_particles, 13, 37);
   max_usec_per_particle_move = 100000;
   sprite_scalar = 0.11;
   max_point_size = 500.0;
@@ -1223,9 +1208,10 @@ EyeCandy::~EyeCandy()
 
 }
 
-void EyeCandy::set_thresholds(int _max_particles, int min_framerate)
+void EyeCandy::set_thresholds(const int _max_particles, const float min_framerate, const float max_framerate)
 {
   max_particles = _max_particles;
+  const float range = max_framerate - min_framerate;
   LOD_9_threshold = max_particles * 73 / 100;
   LOD_8_threshold = max_particles * 76 / 100;
   LOD_7_threshold = max_particles * 79 / 100;
@@ -1235,15 +1221,15 @@ void EyeCandy::set_thresholds(int _max_particles, int min_framerate)
   LOD_3_threshold = max_particles * 91 / 100;
   LOD_2_threshold = max_particles * 94 / 100;
   LOD_1_threshold = max_particles * 97 / 100;
-  LOD_9_time_threshold = min_framerate * 3.7;
-  LOD_8_time_threshold = min_framerate * 3.4;
-  LOD_7_time_threshold = min_framerate * 3.1;
-  LOD_6_time_threshold = min_framerate * 2.8;
-  LOD_5_time_threshold = min_framerate * 2.5;
-  LOD_4_time_threshold = min_framerate * 2.2;
-  LOD_3_time_threshold = min_framerate * 1.9;
-  LOD_2_time_threshold = min_framerate * 1.6;
-  LOD_1_time_threshold = min_framerate * 1.3;
+  LOD_9_time_threshold = min_framerate + range * (8.0 / 8.0);
+  LOD_8_time_threshold = min_framerate + range * (7.0 / 8.0);
+  LOD_7_time_threshold = min_framerate + range * (6.0 / 8.0);
+  LOD_6_time_threshold = min_framerate + range * (5.0 / 8.0);
+  LOD_5_time_threshold = min_framerate + range * (4.0 / 8.0);
+  LOD_4_time_threshold = min_framerate + range * (3.0 / 8.0);
+  LOD_3_time_threshold = min_framerate + range * (2.0 / 8.0);
+  LOD_2_time_threshold = min_framerate + range * (1.0 / 8.0);
+  LOD_1_time_threshold = min_framerate + range * (0.0 / 8.0);
 //  allowable_particles_to_add = max_particles;
 }
 

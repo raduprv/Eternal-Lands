@@ -44,6 +44,8 @@
 extern "C" int use_eye_candy;
 #else
 extern int use_eye_candy;
+extern float min_ec_framerate;
+extern float max_ec_framerate;
 #endif
 
 //****************************************************************************//
