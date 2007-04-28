@@ -67,7 +67,7 @@ bool BagParticle::idle(const Uint64 delta_t)
     const alpha_t alpha_scalar = math_cache.powf_05_close(float_time * 3.0);
     alpha *= alpha_scalar;
 
-    if (alpha < 0.02)
+    if (alpha < 0.01)
       return false;
   }
   

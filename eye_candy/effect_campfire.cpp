@@ -28,23 +28,26 @@ CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const
   }
   else
   {
-    color[0] = 0.07;
-    color[1] = 0.06;
-    color[2] = 0.06;
+    color[0] = randfloat(0.1);
+    color[1] = randfloat(0.08);
+    color[2] = randfloat(0.08);
   }
   LOD = _LOD;
-  size = _sqrt_scale * 13.5 * (1.0 + 4 * randfloat()) / (_LOD + 8.0);
+  size = _sqrt_scale * 9.5 * (1.0 + 4 * randfloat()) / (_LOD + 5.0);
   size_max = 270 * _scale / (_LOD + 10);
   alpha = randfloat(0.5) + (1.0 - (_LOD + 20.0) / 60.0);
   if (state == 2)
   {
-    size *= 2.0 / _sqrt_scale;
-    alpha *= 0.7 * (_sqrt_scale < 1.0 ? _sqrt_scale : 1.0);
-    if (alpha > 0.3)
-      alpha = 0.3;
+    size *= 1.9;
+    alpha *= 2.0;
+    if (alpha > 1.0 - LOD * 0.07)
+      alpha = 1.0 - LOD * 0.07;
   }
-  if (alpha > 1.0)
-    alpha = 1.0;
+  while (alpha > 1.0)
+  {
+    alpha *= 0.7;
+    size /= 0.7;
+  }
   velocity /= size;
   flare_max = 1.5;
   flare_exp = 0.3;
@@ -225,7 +228,7 @@ bool CampfireEffect::idle(const Uint64 usec)
     int state = 0;
     if (rand() & 1)
       state = 1;
-    else if (randfloat() < 0.2)	// Smoke
+    else if (randfloat() < 0.3)	// Smoke
       state = 2;
 
     Vec3 coords;

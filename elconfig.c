@@ -110,6 +110,8 @@ void change_min_ec_framerate(float * var, float * value)
 	if(*value >= 0) {
 		if (*value < max_ec_framerate) {
 			*var = *value;
+		} else if (!max_ec_framerate) {
+			*var = *value;
 		} else {
 			*var = max_ec_framerate - 1;
 	  	}
@@ -124,7 +126,9 @@ void change_max_ec_framerate(float * var, float * value)
 	if(*value >= 1) {
 		if (*value > min_ec_framerate) {
 			*var = *value;
-		} else {
+		} else if (!min_ec_framerate) {
+			*var = *value;
+	  	} else {
 			*var = min_ec_framerate + 1;
 	  	}
 	} else {
