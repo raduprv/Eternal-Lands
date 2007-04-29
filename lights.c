@@ -840,13 +840,13 @@ void draw_dungeon_light()
 
 #ifdef NEW_LIGHTING
 	glEnable(GL_LIGHT7);
-	difuse_light[0] = ambient_r / 2.5f;
-	difuse_light[1] = ambient_g / 2.5f;
-	difuse_light[2] = ambient_b / 2.5f;
+	difuse_light[0] = ambient_r / 2.0f;
+	difuse_light[1] = ambient_g / 2.0f;
+	difuse_light[2] = ambient_b / 2.0f;
 	difuse_light[3] = 1.0;
-	ambient_light[0] = ambient_r / 15.0f;
-	ambient_light[1] = ambient_g / 15.0f;
-	ambient_light[2] = ambient_b / 15.0f;
+	ambient_light[0] = ambient_r / 12.0f;
+	ambient_light[1] = ambient_g / 12.0f;
+	ambient_light[2] = ambient_b / 12.0f;
 	ambient_light[3] = 1.0;
 #else
 	//the ambient light should be half of the difuse light

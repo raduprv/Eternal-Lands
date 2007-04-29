@@ -146,6 +146,7 @@ void TeleporterEffect::request_LOD(const Uint16 _LOD)
     LOD = _LOD;
   else
     LOD = desired_LOD;
+  
   sqrt_LOD = fastsqrt(LOD);
   size_scalar = 15 / (LOD + 5);
   
