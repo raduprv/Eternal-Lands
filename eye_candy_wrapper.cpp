@@ -235,7 +235,7 @@ extern "C" void ec_idle()
     eye_candy.time_diff = new_time - ec_cur_time;
   if (eye_candy.time_diff > 400000)	// Don't want it to jump if it's been very long between frames.
     eye_candy.time_diff = 400000;
-  average_framerate = average_framerate * 0.6 + 1000000.0 / eye_candy.time_diff * 0.4;
+  average_framerate = average_framerate * 0.7 + 1000000.0 / eye_candy.time_diff * 0.3;
   eye_candy.framerate = average_framerate;
 //  eye_candy.framerate = fps_average;
   ec_last_time = ec_cur_time;

@@ -156,7 +156,7 @@ SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start, Vec3* _end,
   
   old_end = *end;
   desired_LOD = _LOD;
-  request_LOD(LOD);
+  request_LOD((float)LOD);
 }
 
 SwordEffect::~SwordEffect()
@@ -166,10 +166,13 @@ SwordEffect::~SwordEffect()
     std::cout << "SwordEffect (" << this << ") destroyed." << std::endl;
 }
 
-void SwordEffect::request_LOD(const Uint16 _LOD)
+void SwordEffect::request_LOD(const float _LOD)
 {
-  if (_LOD <= desired_LOD)
-    LOD = _LOD;
+  if (fabs(_LOD - (float)LOD) < 1.0)
+    return;
+  const Uint16 rounded_LOD = (Uint16)round(_LOD);
+  if (rounded_LOD <= desired_LOD)
+    LOD = rounded_LOD;
   else
     LOD = desired_LOD;
   switch(type)

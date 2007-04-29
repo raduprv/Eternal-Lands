@@ -1221,15 +1221,16 @@ void EyeCandy::set_thresholds(const int _max_particles, const float min_framerat
   LOD_3_threshold = max_particles * 91 / 100;
   LOD_2_threshold = max_particles * 94 / 100;
   LOD_1_threshold = max_particles * 97 / 100;
-  LOD_9_time_threshold = min_framerate + range * (8.0 / 8.0);
-  LOD_8_time_threshold = min_framerate + range * (7.0 / 8.0);
-  LOD_7_time_threshold = min_framerate + range * (6.0 / 8.0);
-  LOD_6_time_threshold = min_framerate + range * (5.0 / 8.0);
-  LOD_5_time_threshold = min_framerate + range * (4.0 / 8.0);
-  LOD_4_time_threshold = min_framerate + range * (3.0 / 8.0);
-  LOD_3_time_threshold = min_framerate + range * (2.0 / 8.0);
-  LOD_2_time_threshold = min_framerate + range * (1.0 / 8.0);
-  LOD_1_time_threshold = min_framerate + range * (0.0 / 8.0);
+  LOD_10_time_threshold = min_framerate + range * (9.0 / 9.0);
+  LOD_9_time_threshold = min_framerate + range * (8.0 / 9.0);
+  LOD_8_time_threshold = min_framerate + range * (7.0 / 9.0);
+  LOD_7_time_threshold = min_framerate + range * (6.0 / 9.0);
+  LOD_6_time_threshold = min_framerate + range * (5.0 / 9.0);
+  LOD_5_time_threshold = min_framerate + range * (4.0 / 9.0);
+  LOD_4_time_threshold = min_framerate + range * (3.0 / 9.0);
+  LOD_3_time_threshold = min_framerate + range * (2.0 / 9.0);
+  LOD_2_time_threshold = min_framerate + range * (1.0 / 9.0);
+  LOD_1_time_threshold = min_framerate + range * (0.0 / 9.0);
 //  allowable_particles_to_add = max_particles;
 }
 
@@ -1578,53 +1579,57 @@ void EyeCandy::idle()
   }
 
   // If we're nearing our particle limit, lower our level of detail.
-  Uint16 change_LOD;
-  if (particles.size() > LOD_1_threshold)
-    change_LOD = 1;
-  else if (particles.size() > LOD_2_threshold)
-    change_LOD = 2;
-  else if (particles.size() > LOD_3_threshold)
-    change_LOD = 3;
-  else if (particles.size() > LOD_4_threshold)
-    change_LOD = 4;
-  else if (particles.size() > LOD_5_threshold)
-    change_LOD = 5;
-  else if (particles.size() > LOD_6_threshold)
-    change_LOD = 6;
-  else if (particles.size() > LOD_7_threshold)
-    change_LOD = 7;
-  else if (particles.size() > LOD_8_threshold)
-    change_LOD = 8;
-  else if (particles.size() > LOD_9_threshold)
-    change_LOD = 9;
+  float change_LOD;
+  if (particles.size() < LOD_9_threshold)
+    change_LOD = 10.0;
+  else if (particles.size() < LOD_8_threshold)
+    change_LOD = 10 - float(particles.size() - LOD_9_threshold) / float(LOD_8_threshold - LOD_9_threshold);
+  else if (particles.size() < LOD_7_threshold)
+    change_LOD = 9.0 - float(particles.size() - LOD_8_threshold) / float(LOD_7_threshold - LOD_8_threshold);
+  else if (particles.size() < LOD_6_threshold)
+    change_LOD = 8.0 - float(particles.size() - LOD_7_threshold) / float(LOD_6_threshold - LOD_7_threshold);
+  else if (particles.size() < LOD_5_threshold)
+    change_LOD = 7.0 - float(particles.size() - LOD_6_threshold) / float(LOD_5_threshold - LOD_6_threshold);
+  else if (particles.size() < LOD_4_threshold)
+    change_LOD = 6.0 - float(particles.size() - LOD_5_threshold) / float(LOD_4_threshold - LOD_5_threshold);
+  else if (particles.size() < LOD_3_threshold)
+    change_LOD = 5.0 - float(particles.size() - LOD_4_threshold) / float(LOD_3_threshold - LOD_4_threshold);
+  else if (particles.size() < LOD_2_threshold)
+    change_LOD = 4.0 - float(particles.size() - LOD_3_threshold) / float(LOD_2_threshold - LOD_3_threshold);
+  else if (particles.size() < LOD_1_threshold)
+    change_LOD = 3.0 - float(particles.size() - LOD_2_threshold) / float(LOD_1_threshold - LOD_2_threshold);
+  else if ((int)particles.size() < max_particles)
+    change_LOD = 2.0 - float(particles.size() - LOD_1_threshold) / float(max_particles - LOD_1_threshold);
   else
-    change_LOD = 10;
+    change_LOD = 1.0;
 
-  Uint16 change_LOD2;
+  float change_LOD2;
   if (framerate > max_fps - 1.5)
-    change_LOD2 = 10;
-  else if (framerate < LOD_1_time_threshold)
-    change_LOD2 = 1;
-  else if (framerate < LOD_2_time_threshold)
-    change_LOD2 = 2;
-  else if (framerate < LOD_3_time_threshold)
-    change_LOD2 = 3;
-  else if (framerate < LOD_4_time_threshold)
-    change_LOD2 = 4;
-  else if (framerate < LOD_5_time_threshold)
-    change_LOD2 = 5;
-  else if (framerate < LOD_6_time_threshold)
-    change_LOD2 = 6;
-  else if (framerate < LOD_7_time_threshold)
-    change_LOD2 = 7;
-  else if (framerate < LOD_8_time_threshold)
-    change_LOD2 = 8;
-  else if (framerate < LOD_9_time_threshold)
-    change_LOD2 = 9;
+    change_LOD2 = 10.0;
+  else if (framerate >= LOD_10_time_threshold)
+    change_LOD2 = 10.0;
+  else if (framerate >= LOD_9_time_threshold)
+    change_LOD2 = 10.0 - float(framerate - LOD_9_time_threshold) / float(LOD_10_time_threshold - LOD_9_time_threshold);
+  else if (framerate >= LOD_8_time_threshold)
+    change_LOD2 = 9.0 - float(framerate - LOD_8_time_threshold) / float(LOD_9_time_threshold - LOD_8_time_threshold);
+  else if (framerate >= LOD_7_time_threshold)
+    change_LOD2 = 8.0 - float(framerate - LOD_7_time_threshold) / float(LOD_8_time_threshold - LOD_7_time_threshold);
+  else if (framerate >= LOD_6_time_threshold)
+    change_LOD2 = 7.0 - float(framerate - LOD_6_time_threshold) / float(LOD_7_time_threshold - LOD_6_time_threshold);
+  else if (framerate >= LOD_5_time_threshold)
+    change_LOD2 = 6.0 - float(framerate - LOD_5_time_threshold) / float(LOD_6_time_threshold - LOD_5_time_threshold);
+  else if (framerate >= LOD_4_time_threshold)
+    change_LOD2 = 5.0 - float(framerate - LOD_4_time_threshold) / float(LOD_5_time_threshold - LOD_4_time_threshold);
+  else if (framerate >= LOD_3_time_threshold)
+    change_LOD2 = 4.0 - float(framerate - LOD_3_time_threshold) / float(LOD_4_time_threshold - LOD_3_time_threshold);
+  else if (framerate >= LOD_2_time_threshold)
+    change_LOD2 = 3.0 - float(framerate - LOD_2_time_threshold) / float(LOD_3_time_threshold - LOD_2_time_threshold);
+  else if (framerate >= LOD_1_time_threshold)
+    change_LOD2 = 2.0 - float(framerate - LOD_1_time_threshold) / float(LOD_2_time_threshold - LOD_1_time_threshold);
   else
-    change_LOD2 = 10;
+    change_LOD2 = 1.0;
     
-//  std::cout << framerate << ", " << LOD_9_time_threshold << " : " << last_forced_LOD << ": " << change_LOD << " / " << change_LOD2 << " (" << allowable_particles_to_add << " remaining)" << std::endl;
+//  std::cout << framerate << ", " << LOD_10_time_threshold << " : " << last_forced_LOD << ": " << change_LOD << " / " << change_LOD2 << " (" << allowable_particles_to_add << " remaining)" << std::endl;
 
   if (change_LOD > change_LOD2)	//Pick whichever one is lower.
     change_LOD = change_LOD2;
@@ -1696,7 +1701,7 @@ void EyeCandy::idle()
       i++;
     }
   }
-  last_forced_LOD = change_LOD;
+  last_forced_LOD = (Uint16)round(change_LOD);
   
 //  allowable_particles_to_add = 1 + (int)(particles.size() * 0.00005 * time_diff / 1000000.0 * (max_particles - particles.size()) * change_LOD);
 //  std::cout << "Current: " << particles.size() << "; Allowable new: " << allowable_particles_to_add << std::endl;

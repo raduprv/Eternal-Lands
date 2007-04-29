@@ -1387,10 +1387,13 @@ public:
   virtual EffectEnum get_type() = 0;
   virtual bool idle(const Uint64 usec) = 0;
   virtual void draw(const Uint64 usec) { };
-  virtual void request_LOD(const Uint16 _LOD)
+  virtual void request_LOD(const float _LOD)
   {
-    if (_LOD <= desired_LOD)
-      LOD = _LOD;
+    if (fabs(_LOD - (float)LOD) < 1.0)
+      return;
+    const Uint16 rounded_LOD = (Uint16)round(_LOD);
+    if (rounded_LOD <= desired_LOD)
+      LOD = rounded_LOD;
     else
       LOD = desired_LOD;
   };
@@ -1505,6 +1508,7 @@ public:
   float LOD_7_time_threshold;
   float LOD_8_time_threshold;
   float LOD_9_time_threshold;
+  float LOD_10_time_threshold;
   int allowable_particles_to_add;
   Uint16 last_forced_LOD;
   DrawType draw_method;

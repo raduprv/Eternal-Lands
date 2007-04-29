@@ -42,15 +42,18 @@ public:
   
   virtual EffectEnum get_type() { return EC_FOUNTAIN; };
   bool idle(const Uint64 usec);
-  virtual void request_LOD(const Uint16 _LOD)
+  virtual void request_LOD(const float _LOD)
   {
-    if (_LOD <= desired_LOD)
-      LOD = _LOD;
+    if (fabs(_LOD - (float)LOD) < 1.0)
+      return;
+    const Uint16 rounded_LOD = (Uint16)round(_LOD);
+    if (rounded_LOD <= desired_LOD)
+      LOD = rounded_LOD;
     else
       LOD = desired_LOD;
     max_size = 3 * scale * 90 / (_LOD + 10);
     size_scalar = sqrt_scale * 6 / (_LOD + 5);
-    count_scalar = 15000 / _LOD;
+    count_scalar = 15000 / LOD;
   };
 
   GradientMover* mover;

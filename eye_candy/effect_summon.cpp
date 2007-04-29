@@ -602,7 +602,7 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
   }
   outer_alpha = 1.0;
   
-  request_LOD(_LOD);
+  request_LOD((float)_LOD);
   
   inner_color[0] = outer_color[0];
   inner_color[1] = outer_color[1];
@@ -661,10 +661,13 @@ SummonEffect::~SummonEffect()
     std::cout << "SummonEffect (" << this << ") destroyed." << std::endl;
 }
 
-void SummonEffect::request_LOD(const Uint16 _LOD)
+void SummonEffect::request_LOD(const float _LOD)
 {
-  if (_LOD <= desired_LOD)
-    LOD = _LOD;
+  if (fabs(_LOD - (float)LOD) < 1.0)
+    return;
+  const Uint16 rounded_LOD = (Uint16)round(_LOD);
+  if (rounded_LOD <= desired_LOD)
+    LOD = rounded_LOD;
   else
     LOD = desired_LOD;
 
@@ -960,7 +963,7 @@ void SummonEffect::request_LOD(const Uint16 _LOD)
     }
   }
   outer_radius = outer_size * (LOD + 3) / 10;
-  count_scalar = 3000 / _LOD;
+  count_scalar = 3000 / LOD;
 }
 
 bool SummonEffect::idle(const Uint64 usec)

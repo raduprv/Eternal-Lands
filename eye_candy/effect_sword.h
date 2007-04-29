@@ -52,7 +52,7 @@ public:
   
   virtual EffectEnum get_type() { return EC_SWORD; };
   bool idle(const Uint64 usec);
-  virtual void request_LOD(const Uint16 _LOD);
+  virtual void request_LOD(const float _LOD);
 
   ParticleMover* mover;
   Vec3* start;

@@ -94,7 +94,7 @@ public:
   
   virtual EffectEnum get_type() { return EC_SUMMON; };
   bool idle(const Uint64 usec);
-  virtual void request_LOD(const Uint16 _LOD);
+  virtual void request_LOD(const float _LOD);
 
   IFSParticleSpawner* inner_spawner;
   IFSParticleSpawner* outer_spawner;

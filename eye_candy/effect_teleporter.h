@@ -38,7 +38,7 @@ public:
   virtual EffectEnum get_type() { return EC_TELEPORTER; };
   bool idle(const Uint64 usec);
   void draw(const Uint64 usec);
-  virtual void request_LOD(const Uint16 _LOD);
+  virtual void request_LOD(const float _LOD);
   void add_actor_alpha_pointer(float* ptr);
 
   ParticleMover* mover;

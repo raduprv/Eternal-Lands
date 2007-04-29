@@ -99,7 +99,7 @@ bool TeleporterEffect::idle(const Uint64 usec)
 
   if (recall)
     return true;
-
+    
   while (((int)particles.size() < LOD * 50) && (math_cache.powf_0_1_rough_close(randfloat(), (float)usec / 100000 * LOD) < 0.5))
   {
     const Vec3 coords = spawner->get_new_coords() + *pos + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
@@ -140,10 +140,13 @@ void TeleporterEffect::draw(const Uint64 usec)
     (*iter)->draw();
 }
 
-void TeleporterEffect::request_LOD(const Uint16 _LOD)
+void TeleporterEffect::request_LOD(const float _LOD)
 {
-  if (_LOD <= desired_LOD)
-    LOD = _LOD;
+  if (fabs(_LOD - (float)LOD) < 1.5)
+    return;
+  const Uint16 rounded_LOD = (Uint16)round(_LOD);
+  if (rounded_LOD <= desired_LOD)
+    LOD = rounded_LOD;
   else
     LOD = desired_LOD;
   
