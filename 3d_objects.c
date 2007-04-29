@@ -1231,6 +1231,7 @@ void display_alpha_objects()
 	CHECK_GL_ERRORS();
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
 	if(have_multitexture && !dungeon && clouds_shadows)
 		{
 			//disable the second texture unit
@@ -1306,6 +1307,7 @@ void display_blended_objects()
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisable(GL_BLEND);
 	if(have_multitexture && !dungeon && clouds_shadows)
 		{
@@ -1551,7 +1553,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 	}
 #endif
 
-#ifdef NEW_LIGHTING
+#ifdef FIX_NORMALS
 	// Zero them out.
 	for(i = 0; i < vertex_no; i++)
 	{
@@ -1591,7 +1593,7 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 		vertex_list[i].ny /= magnitude;
 		vertex_list[i].nz /= magnitude;
 	}
-#endif	//NEW_LIGHITNG
+#endif	//FIX_NORMALS
 	
 	//now, load all the materials, and use the material ID (which isn't used now) to
 	//temporary store the texture_ids

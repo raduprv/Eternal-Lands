@@ -64,7 +64,7 @@ public:
 class LampEffect : public Effect
 {
 public: 
-  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float scale, const Uint16 _LOD);
+  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float scale, const bool halo, const Uint16 _LOD);
   ~LampEffect(); 
   
   virtual EffectEnum get_type() { return EC_LAMP; };
@@ -75,7 +75,9 @@ public:
   ParticleSpawner* spawner;
   int big_particles;
   float scale;
+  float new_scale;
   float sqrt_scale;
+  bool halo;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

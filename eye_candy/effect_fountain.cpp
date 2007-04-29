@@ -18,8 +18,8 @@ FountainParticle::FountainParticle(Effect* _effect, ParticleMover* _mover, const
   backlight = _backlight;
   sqrt_scale = _sqrt_scale;
   max_size = _max_size;
-  color[0] = 0.89;
-  color[1] = 0.95;
+  color[0] = 0.85;
+  color[1] = 0.91;
   color[2] = 1.0;
   size = size_scalar * (0.5 + 5 * randcoord());
   alpha = sqrt_scale * 3.5 / size;

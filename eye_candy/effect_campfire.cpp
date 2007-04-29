@@ -228,7 +228,7 @@ bool CampfireEffect::idle(const Uint64 usec)
     int state = 0;
     if (rand() & 1)
       state = 1;
-    else if (randfloat() < 0.3)	// Smoke
+    else if (randfloat() < 0.15)	// Smoke
       state = 2;
 
     Vec3 coords;

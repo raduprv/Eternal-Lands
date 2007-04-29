@@ -696,7 +696,7 @@ int display_game_handler (window_info *win)
 	ec_draw();
 #endif	//EYE_CANDY
 
-#ifdef NEW_LIGHTING
+#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
 	light_idle();
 #endif // NEW_LIGHTING
 

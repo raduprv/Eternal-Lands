@@ -11,12 +11,15 @@
 
 #ifdef NEW_LIGHTING
 int last_texture_start = 0;
-Uint64 old_time = 0;
 int last_dungeon;
 #endif // NEW_LIGHTING
 
 #ifdef DEBUG_TIME
 const float debug_time_accel = 120.0f;
+#endif
+
+#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
+Uint64 old_time = 0;
 #endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -837,13 +840,13 @@ void draw_dungeon_light()
 
 #ifdef NEW_LIGHTING
 	glEnable(GL_LIGHT7);
-	difuse_light[0] = ambient_r / 4.5f;
-	difuse_light[1] = ambient_g / 4.5f;
-	difuse_light[2] = ambient_b / 4.5f;
+	difuse_light[0] = ambient_r / 2.5f;
+	difuse_light[1] = ambient_g / 2.5f;
+	difuse_light[2] = ambient_b / 2.5f;
 	difuse_light[3] = 1.0;
-	ambient_light[0] = ambient_r / 27.0f;
-	ambient_light[1] = ambient_g / 27.0f;
-	ambient_light[2] = ambient_b / 27.0f;
+	ambient_light[0] = ambient_r / 15.0f;
+	ambient_light[1] = ambient_g / 15.0f;
+	ambient_light[2] = ambient_b / 15.0f;
 	ambient_light[3] = 1.0;
 #else
 	//the ambient light should be half of the difuse light
@@ -1030,7 +1033,7 @@ void new_minute()
 #endif
 }
 
-#ifdef NEW_LIGHTING
+#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
 
 #if defined(_WIN32) || defined(_WIN64)
   #include <windows.h>
@@ -1078,6 +1081,7 @@ void light_idle()
 	// Reload the next texture cache entry to reset
 	// the saturation for the current lighting.  Don't want to do too
 	// many at once; we want this to be imperceptible.
+#ifdef NEW_LIGHTING
 	int i;
 	for (i = last_texture_start; i < TEXTURE_CACHE_MAX; i++)
 	{
@@ -1109,12 +1113,15 @@ void light_idle()
 		}
 	}
 	last_texture_start = i + 1;
+#endif
   }
 #ifdef DEBUG_TIME
   }
 #endif
   old_time = new_time;
+#ifdef NEW_LIGHTING
   last_dungeon = dungeon;
+#endif
 }
 #endif
 

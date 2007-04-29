@@ -18,6 +18,9 @@ extern int day_shadows_on;
 
 extern "C" {
   int use_eye_candy = 1;
+  int use_lamp_halo = 0;
+  float min_ec_framerate = 13.0;
+  float max_ec_framerate = 37.0;
 }
 
 ec::EyeCandy eye_candy;
@@ -42,8 +45,6 @@ bool force_idle = false;
 volatile bool idle_semaphore = false;
 
 float average_framerate = 20000.0;	// Windows has such horrible timer resolution, I have to average these out.  Anyways, it doesn't hurt to do this in Linux, either.
-float min_ec_framerate = 13.0;
-float max_ec_framerate = 37.0;
 
 // F U N C T I O N S //////////////////////////////////////////////////////////
 
@@ -212,6 +213,17 @@ extern "C" void ec_idle()
       {
         if ((*iter)->target_actors[j])
           set_vec3_actor_bone((*iter)->targets[j], (*iter)->target_actors[j], 25, ec::Vec3(0.0, 0.0, 0.0));
+      }
+      
+      if (((*iter)->effect->get_type() == ec::EC_LAMP) && (!(*iter)->effect->recall))
+      {
+        ec::LampEffect* eff = (ec::LampEffect*)((*iter)->effect);
+        if (eff->halo != use_lamp_halo)
+        {
+          ec_create_lamp((*iter)->position.x, -(*iter)->position.z, (*iter)->position.y, eff->scale, eff->LOD);
+          eff->recall = true;
+          force_idle = true;
+        }
       }
     }
     i++;
@@ -1132,7 +1144,7 @@ extern "C" ec_reference ec_create_lamp(float x, float y, float z, float scale, i
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::LampEffect(&eye_candy, &ret->dead, &ret->position, scale, LOD);
+  ret->effect = new ec::LampEffect(&eye_candy, &ret->dead, &ret->position, scale, use_lamp_halo, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
