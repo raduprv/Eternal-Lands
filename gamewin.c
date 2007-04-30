@@ -1462,7 +1462,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_ZOOMIN)
 	{
 		new_zoom_level= new_zoom_level - 0.25;
-		if (new_zoom_level < 1.50f) new_zoom_level= 1.50f;
+		if (new_zoom_level < 1.00f) new_zoom_level= 1.00f;
 	}
 	else if (key == K_ZOOMOUT)
 	{

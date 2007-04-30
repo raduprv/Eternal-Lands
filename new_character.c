@@ -362,7 +362,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 	} else if (key == K_CAMERADOWN) {
 		if (rx < -45) rx += 1.0f;
 	} else if (key == K_ZOOMIN) {
-		if (zoom_level >= 1.50f) new_zoom_level = zoom_level - 0.25;
+		if (zoom_level >= 1.00f) new_zoom_level = zoom_level - 0.25;
 	} else if (key == K_ZOOMOUT) {
 		if (zoom_level <= 3.50f) new_zoom_level = zoom_level + 0.25;
 	} else if(key==K_OPTIONS){
