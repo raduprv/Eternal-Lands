@@ -12,6 +12,11 @@
 extern "C" {
 #endif
 
+#ifdef NEW_LIGHTING
+extern int use_new_lighting;
+extern int night_shift_textures;
+#endif
+
 /*!
  * A light structure stores the position and color of a light
  */

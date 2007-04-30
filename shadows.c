@@ -908,11 +908,7 @@ void render_light_view()
 			glPushMatrix();
 			glLoadMatrixd(light_view_mat);
 #ifndef USE_LISPSM
-// #ifdef NEW_LIGHTING
-//			glTranslatef(camera_x,camera_y,camera_z);
-// #else
 			glTranslatef((int)camera_x,(int)camera_y,(int)camera_z);
-// #endif
 #endif
 #ifdef NEW_FRUSTUM
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
@@ -1037,9 +1033,7 @@ void setup_shadow_mapping()
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-// #ifndef NEW_LIGHTING
 	glTranslatef(camera_x-(int)camera_x,camera_y-(int)camera_y,camera_z-(int)camera_z);
-// #endif
 #endif
 	glBindTexture(depth_texture_target,depth_map_id);
 	setup_2d_texgen();

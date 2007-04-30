@@ -531,8 +531,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 #ifdef NEW_LIGHTING
-				while (game_minute >= 360)
-				  game_minute -= 360;
+				game_minute %= 360;
 #endif
 				new_minute();
 			}

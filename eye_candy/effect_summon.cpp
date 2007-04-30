@@ -602,6 +602,7 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
   }
   outer_alpha = 1.0;
   
+  LOD = -100;	// Force refresh
   request_LOD((float)_LOD);
   
   inner_color[0] = outer_color[0];

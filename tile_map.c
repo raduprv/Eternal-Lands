@@ -256,7 +256,8 @@ void draw_tile_map()
 	else etr = 0;
 	
 #ifdef NEW_LIGHTING
-	reset_material()
+	if (use_new_lighting)
+		reset_material();
 #endif
 	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping && !use_normal_mapping))
 	{
@@ -439,7 +440,8 @@ void draw_tile_map()
 	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
 #endif
 #ifdef NEW_LIGHTING
-	reset_material();
+	if (use_new_lighting)
+		reset_material();
 #endif
 
 	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping))

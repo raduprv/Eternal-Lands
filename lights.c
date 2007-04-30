@@ -12,6 +12,9 @@
 #ifdef NEW_LIGHTING
 int last_texture_start = 0;
 int last_dungeon;
+int use_new_lighting = 0;
+int night_shift_textures = 0;
+int old_night_shift_textures = 0;
 #endif // NEW_LIGHTING
 
 #ifdef DEBUG_TIME
@@ -711,37 +714,34 @@ void reset_material()
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
 	GLfloat mat_specular[]={ 1.0, 1.0, 1.0, 1.0 };
 #ifdef NEW_LIGHTING
-	GLfloat mat_ambient[]={ 0.45, 0.45, 0.45, 1.0 };
-	GLfloat mat_diffuse[]={ 2.3, 2.3, 2.3, 1.0 };
+	if (use_new_lighting)
+	{
+		GLfloat mat_ambient[]={ 0.45, 0.45, 0.45, 1.0 };
+		GLfloat mat_diffuse[]={ 2.3, 2.3, 2.3, 1.0 };
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	}
+	else
+	{
+		GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
+	}
 #else
 	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
+	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
 #endif //NEW_LIGHTING
 
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
-#ifdef NEW_LIGHTING
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-#else	//NEW_LIGHTING
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
-#endif	//NEW_LIGHTING
 }
 
 void set_material(float r, float g, float b)
 {
 	GLfloat mat_emission[]={ r, g, b, 1.0 };
-#ifdef NEW_LIGHTING
-	GLfloat mat_ambient[]={ r, g, b, 1.0 };
-#endif	//NEW_LIGHTING
 
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_emission);
-#ifdef NEW_LIGHTING
-	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_emission);
-#else	//NEW_LIGHTING
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_emission);
-#endif	//NEW_LIGHTING
 }
 
 int sun_use_static_position=0;
@@ -767,25 +767,39 @@ void draw_global_light()
 
 #ifdef NEW_WEATHER
  #ifdef NEW_LIGHTING
-	difuse_light[0] = weather_bias_light(global_lights[i][0]);
-	difuse_light[1] = weather_bias_light(global_lights[i][1]);
-	difuse_light[2] = weather_bias_light(global_lights[i][2]);
- #else
-	difuse_light[0] = weather_bias_light(global_lights[i][0] - 0.15f);
-	difuse_light[1] = weather_bias_light(global_lights[i][1] - 0.15f);
-	difuse_light[2] = weather_bias_light(global_lights[i][2] - 0.15f);
+ 	if (use_new_lighting)
+ 	{
+		difuse_light[0] = weather_bias_light(global_lights[i][0]);
+		difuse_light[1] = weather_bias_light(global_lights[i][1]);
+		difuse_light[2] = weather_bias_light(global_lights[i][2]);
+	}
+	else
+	{
+ #endif // NEW_LIGHTING
+		difuse_light[0] = weather_bias_light(global_lights[i][0] - 0.15f);
+		difuse_light[1] = weather_bias_light(global_lights[i][1] - 0.15f);
+		difuse_light[2] = weather_bias_light(global_lights[i][2] - 0.15f);
+ #ifdef NEW_LIGHTING
+	}
  #endif
 #else
 #ifndef MAP_EDITOR2
  #ifdef NEW_LIGHTING
-	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90;
-	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60;
-	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15;
- #else
-	difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
-	difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
-	difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
- #endif
+ 	if (use_new_lighting)
+ 	{
+		difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90;
+		difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60;
+		difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15;
+	}
+	else
+	{
+ #endif // NEW_LIGHTING
+		difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
+		difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
+		difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
+ #ifdef NEW_LIGHTING
+ 	}
+ #endif // NEW_LIGHTING
 #else
 	difuse_light[0]=global_lights[i][0];
 	difuse_light[1]=global_lights[i][1];
@@ -811,14 +825,17 @@ void draw_global_light()
 		}
 
 #ifdef NEW_LIGHTING
-//	glEnable(GL_LIGHT7);
-//	printf("Light: %f, %f, %f\n", difuse_light[0], difuse_light[1], difuse_light[2]);
-        difuse_light[0] *= 1.0f;
-        difuse_light[1] *= 1.0f;
-        difuse_light[2] *= 1.0f;
-        sun_ambient_light[0] /= 6.0f;
-        sun_ambient_light[1] /= 6.0f;
-        sun_ambient_light[2] /= 6.0f;
+	if (use_new_lighting)
+	{
+//		glEnable(GL_LIGHT7);
+//		printf("Light: %f, %f, %f\n", difuse_light[0], difuse_light[1], difuse_light[2]);
+		difuse_light[0] *= 1.0f;
+		difuse_light[1] *= 1.0f;
+		difuse_light[2] *= 1.0f;
+		sun_ambient_light[0] /= 6.0f;
+		sun_ambient_light[1] /= 6.0f;
+		sun_ambient_light[2] /= 6.0f;
+	}
 #endif	//NEW_LIGHTING
 
 	sun_ambient_light[3]=1.0f;
@@ -839,22 +856,29 @@ void draw_dungeon_light()
 	GLfloat ambient_light[4];
 
 #ifdef NEW_LIGHTING
-	glEnable(GL_LIGHT7);
-	difuse_light[0] = ambient_r / 2.0f;
-	difuse_light[1] = ambient_g / 2.0f;
-	difuse_light[2] = ambient_b / 2.0f;
-	difuse_light[3] = 1.0;
-	ambient_light[0] = ambient_r / 12.0f;
-	ambient_light[1] = ambient_g / 12.0f;
-	ambient_light[2] = ambient_b / 12.0f;
-	ambient_light[3] = 1.0;
-#else
+	if (use_new_lighting)
+	{
+		glEnable(GL_LIGHT7);
+		difuse_light[0] = ambient_r / 2.0f;
+		difuse_light[1] = ambient_g / 2.0f;
+		difuse_light[2] = ambient_b / 2.0f;
+		difuse_light[3] = 1.0;
+		ambient_light[0] = ambient_r / 12.0f;
+		ambient_light[1] = ambient_g / 12.0f;
+		ambient_light[2] = ambient_b / 12.0f;
+		ambient_light[3] = 1.0;
+	}
+	else
+	{
+#endif // NEW_LIGHTING
 	//the ambient light should be half of the difuse light
-	ambient_light[0]=ambient_r;
-	ambient_light[1]=ambient_g;
-	ambient_light[2]=ambient_b;
-	ambient_light[3]=1.0f;
-#endif
+		ambient_light[0]=ambient_r;
+		ambient_light[1]=ambient_g;
+		ambient_light[2]=ambient_b;
+		ambient_light[3]=1.0f;
+#ifdef NEW_LIGHTING
+	}
+#endif // NEW_LIGHTING
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
@@ -887,57 +911,66 @@ void make_gradient_light(int start,int steps,float *light_table, float r_start,
 //build the light table for smooth transition between night and day
 void build_global_light_table()
 {
-#ifndef NEW_LIGHTING
-	//the sun light
-  	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
-	make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.06f,0.06f,0.08f);
-
-	//lake light
-	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
-	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c1,0.0f,0.1f,0.1f,0.6f,0.3f,0.3f);
-	make_gradient_light(90,30,(float *)sky_lights_c1,0.6f,0.3f,0.3f,0.1f,0.3f,0.6f);
-
-	make_gradient_light(0,30,(float *)sky_lights_c2,0.0f,0.4f,0.6f,0.6f,0.4f,0.0f);
-	make_gradient_light(30,30,(float *)sky_lights_c2,0.6f,0.4f,0.0f,0.0f,0.1f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c2,0.0f,0.1f,0.1f,0.6f,0.2f,0.1f);
-	make_gradient_light(90,30,(float *)sky_lights_c2,0.6f,0.2f,0.1f,0.0f,0.4f,0.6f);
-
-	make_gradient_light(0,30,(float *)sky_lights_c3,0.0f,0.7f,0.9f,0.9f,0.7f,0.0f);
-	make_gradient_light(30,30,(float *)sky_lights_c3,0.9f,0.9f,0.0f,0.0f,0.1f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c3,0.0f,0.1f,0.1f,0.5f,0.4f,0.4f);
-	make_gradient_light(90,30,(float *)sky_lights_c3,0.5f,0.4f,0.4f,0.0f,0.7f,0.9f);
-
-	make_gradient_light(0,30,(float *)sky_lights_c4,0.2f,0.8f,1.0f,1.0f,0.8f,0.2f);
-	make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
-	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
-#else
-  	make_gradient_light(0,15,(float *)global_lights,0.6f,0.6f,0.6f, 0.7f,0.45f,0.3f);
-  	make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.65f,0.4f,0.25f);
-  	make_gradient_light(29,16,(float *)global_lights,0.65f,0.4f,0.25f, 0.6f,0.35f,0.15f);
-	make_gradient_light(44,16,(float *)global_lights,0.6f,0.35f,0.15f, 0.12f,0.12f,0.15f);
-
-	make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
-	make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c1,0.0f,0.1f,0.1f,0.6f,0.3f,0.3f);
-	make_gradient_light(90,30,(float *)sky_lights_c1,0.6f,0.3f,0.3f,0.1f,0.3f,0.6f);
-
-	make_gradient_light(0,30,(float *)sky_lights_c2,0.0f,0.4f,0.6f,0.6f,0.4f,0.0f);
-	make_gradient_light(30,30,(float *)sky_lights_c2,0.6f,0.4f,0.0f,0.0f,0.1f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c2,0.0f,0.1f,0.1f,0.6f,0.2f,0.1f);
-	make_gradient_light(90,30,(float *)sky_lights_c2,0.6f,0.2f,0.1f,0.0f,0.4f,0.6f);
-
-	make_gradient_light(0,30,(float *)sky_lights_c3,0.0f,0.7f,0.9f,0.9f,0.7f,0.0f);
-	make_gradient_light(30,30,(float *)sky_lights_c3,0.9f,0.9f,0.0f,0.0f,0.1f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c3,0.0f,0.1f,0.1f,0.5f,0.4f,0.4f);
-	make_gradient_light(90,30,(float *)sky_lights_c3,0.5f,0.4f,0.4f,0.0f,0.7f,0.9f);
-
-	make_gradient_light(0,30,(float *)sky_lights_c4,0.2f,0.8f,1.0f,1.0f,0.8f,0.2f);
-	make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
-	make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
-	make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
-#endif
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+	{
+		//the sun/moon light
+  		make_gradient_light(0,15,(float *)global_lights,0.6f,0.6f,0.6f, 0.7f,0.45f,0.3f);
+  		make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.65f,0.4f,0.25f);
+  		make_gradient_light(29,16,(float *)global_lights,0.65f,0.4f,0.25f, 0.6f,0.35f,0.15f);
+		make_gradient_light(44,16,(float *)global_lights,0.6f,0.35f,0.15f, 0.12f,0.12f,0.15f);
+	
+		//lake light
+		make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
+		make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c1,0.0f,0.1f,0.1f,0.6f,0.3f,0.3f);
+		make_gradient_light(90,30,(float *)sky_lights_c1,0.6f,0.3f,0.3f,0.1f,0.3f,0.6f);
+	
+		make_gradient_light(0,30,(float *)sky_lights_c2,0.0f,0.4f,0.6f,0.6f,0.4f,0.0f);
+		make_gradient_light(30,30,(float *)sky_lights_c2,0.6f,0.4f,0.0f,0.0f,0.1f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c2,0.0f,0.1f,0.1f,0.6f,0.2f,0.1f);
+		make_gradient_light(90,30,(float *)sky_lights_c2,0.6f,0.2f,0.1f,0.0f,0.4f,0.6f);
+	
+		make_gradient_light(0,30,(float *)sky_lights_c3,0.0f,0.7f,0.9f,0.9f,0.7f,0.0f);
+		make_gradient_light(30,30,(float *)sky_lights_c3,0.9f,0.9f,0.0f,0.0f,0.1f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c3,0.0f,0.1f,0.1f,0.5f,0.4f,0.4f);
+		make_gradient_light(90,30,(float *)sky_lights_c3,0.5f,0.4f,0.4f,0.0f,0.7f,0.9f);
+	
+		make_gradient_light(0,30,(float *)sky_lights_c4,0.2f,0.8f,1.0f,1.0f,0.8f,0.2f);
+		make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
+		make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
+	}
+	else
+	{
+#endif // NEW_LIGHTING
+		//the sun light
+  		make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
+		make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.06f,0.06f,0.08f);
+	
+		//lake light
+		make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
+		make_gradient_light(30,30,(float *)sky_lights_c1,0.6f,0.3f,0.0f,0.0f,0.01f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c1,0.0f,0.1f,0.1f,0.6f,0.3f,0.3f);
+		make_gradient_light(90,30,(float *)sky_lights_c1,0.6f,0.3f,0.3f,0.1f,0.3f,0.6f);
+	
+		make_gradient_light(0,30,(float *)sky_lights_c2,0.0f,0.4f,0.6f,0.6f,0.4f,0.0f);
+		make_gradient_light(30,30,(float *)sky_lights_c2,0.6f,0.4f,0.0f,0.0f,0.1f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c2,0.0f,0.1f,0.1f,0.6f,0.2f,0.1f);
+		make_gradient_light(90,30,(float *)sky_lights_c2,0.6f,0.2f,0.1f,0.0f,0.4f,0.6f);
+	
+		make_gradient_light(0,30,(float *)sky_lights_c3,0.0f,0.7f,0.9f,0.9f,0.7f,0.0f);
+		make_gradient_light(30,30,(float *)sky_lights_c3,0.9f,0.9f,0.0f,0.0f,0.1f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c3,0.0f,0.1f,0.1f,0.5f,0.4f,0.4f);
+		make_gradient_light(90,30,(float *)sky_lights_c3,0.5f,0.4f,0.4f,0.0f,0.7f,0.9f);
+	
+		make_gradient_light(0,30,(float *)sky_lights_c4,0.2f,0.8f,1.0f,1.0f,0.8f,0.2f);
+		make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
+		make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
+		make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
+#ifdef NEW_LIGHTING
+	}
+#endif // NEW_LIGHTING
 
 }
 
@@ -946,7 +979,9 @@ void build_sun_pos_table()
 	float d = 400;
 	int i;
 #ifdef NEW_LIGHTING
-	for(i=0;i<360;i++)
+	if (use_new_lighting)
+	{
+		for(i=0;i<360;i++)
 		{
 			sun_pos[i].x=d*cos((float)(i-30)*M_PI/180.0f);
 			sun_pos[i].y=0.0f;
@@ -955,12 +990,15 @@ void build_sun_pos_table()
 			  sun_pos[i].z = 100 - sun_pos[i].z;
 			sun_pos[i].w=0.0f;
 		}
-#else
-	float x,y,z;
-	int start=60;
-
-	x=0;
-	for(i=0;i<60*3;i++)
+	}
+	else
+	{
+#endif // NEW_LIGHTING
+		float x,y,z;
+		int start=60;
+		
+		x=0;
+		for(i=0;i<60*3;i++)
 		{
 			z = d*sin((float)(i+start)*0.6f*M_PI/180.0f);
 			y = d*cos((float)(i+start)*0.6f*M_PI/180.0f);
@@ -971,7 +1009,9 @@ void build_sun_pos_table()
 			sun_pos[i].z=z;
 			sun_pos[i].w=0.0f;
 		}
-#endif
+#ifdef NEW_LIGHTING
+	}
+#endif // NEW_LIGHTING
 }
 
 void new_minute()
@@ -992,29 +1032,34 @@ void new_minute()
 
 	//is it day?
 #ifdef NEW_LIGHTING
-	sun_position[0]=sun_pos[game_minute].x;
-	sun_position[1]=sun_pos[game_minute].y;
-	sun_position[2]=sun_pos[game_minute].z;
-	sun_position[3]=sun_pos[game_minute].w;
-	if (((game_minute >= 5) && (game_minute < 30)) || ((game_minute >= 210) && (game_minute < 235)))
+	if (use_new_lighting)
+	{
+		sun_position[0]=sun_pos[game_minute].x;
+		sun_position[1]=sun_pos[game_minute].y;
+		sun_position[2]=sun_pos[game_minute].z;
+		sun_position[3]=sun_pos[game_minute].w;
+		if (((game_minute >= 5) && (game_minute < 30)) || ((game_minute >= 210) && (game_minute < 235)))
 		{
 			disable_local_lights();
 			is_day=0;
 			calc_shadow_matrix();
 		}
-	else if(game_minute>=30 && game_minute<210 && !dungeon)
+		else if(game_minute>=30 && game_minute<210 && !dungeon)
 		{
 			disable_local_lights();
 			is_day=1;
 			calc_shadow_matrix();
 		}
-	else//it's too dark, or we are in a dungeon
+		else//it's too dark, or we are in a dungeon
 		{
 			is_day=0;
 			enable_local_lights();
 		}
-#else
-	if(game_minute>=30 && game_minute<60*3+30 && !dungeon)
+	}
+	else
+	{
+#endif // NEW_LIGHTING
+		if(game_minute>=30 && game_minute<60*3+30 && !dungeon)
 		{
 			disable_local_lights();
 			is_day=1;
@@ -1024,13 +1069,15 @@ void new_minute()
 			sun_position[3]=sun_pos[game_minute-30].w;
 			calc_shadow_matrix();
 		}
-	else//it's too dark, or we are in a dungeon
+		else//it's too dark, or we are in a dungeon
 		{
 			is_day=0;
 			enable_local_lights();
 		    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
 		}
-#endif
+#ifdef NEW_LIGHTING
+	}
+#endif // NEW_LIGHTING
 }
 
 #if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
@@ -1082,23 +1129,10 @@ void light_idle()
 	// the saturation for the current lighting.  Don't want to do too
 	// many at once; we want this to be imperceptible.
 #ifdef NEW_LIGHTING
-	int i;
-	for (i = last_texture_start; i < TEXTURE_CACHE_MAX; i++)
+	if (night_shift_textures || old_night_shift_textures)
 	{
-		if (texture_cache[i].file_name[0])
-		{
-			int alpha= texture_cache[i].alpha;
-			if(alpha <= 0)
-				reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
-			else
-				reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
-			if (dungeon == last_dungeon)
-				break;
-		}
-	}
-	if (i == TEXTURE_CACHE_MAX)
-	{
-		for (i = 0; i < last_texture_start; i++)
+		int i;
+		for (i = last_texture_start; i < TEXTURE_CACHE_MAX; i++)
 		{
 			if (texture_cache[i].file_name[0])
 			{
@@ -1107,12 +1141,29 @@ void light_idle()
 					reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
 				else
 					reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
-				if (dungeon == last_dungeon)
+				if ((dungeon == last_dungeon) && (night_shift_textures == old_night_shift_textures))
 					break;
 			}
 		}
+		if (i == TEXTURE_CACHE_MAX)
+		{
+			for (i = 0; i < last_texture_start; i++)
+			{
+				if (texture_cache[i].file_name[0])
+				{
+					int alpha= texture_cache[i].alpha;
+					if(alpha <= 0)
+						reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+					else
+						reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+					if ((dungeon == last_dungeon) && (night_shift_textures == old_night_shift_textures))
+						break;
+				}
+			}
+		}
+		last_texture_start = i + 1;
 	}
-	last_texture_start = i + 1;
+	old_night_shift_textures = night_shift_textures;
 #endif
   }
 #ifdef DEBUG_TIME

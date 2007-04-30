@@ -186,30 +186,33 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 	}
 
 #ifdef NEW_LIGHTING
-	// If nighttime, use a nighttime texture.
-	if ((!dungeon) &&
-	    (strncmp(filename, "./textures", 10)) &&	// Exclude the textures dir, which contains buttons and the like.
-	    (strncmp(filename, "./maps", 6)))		// Also exclude maps
+	if (night_shift_textures)
 	{
-		int i;
-		float percent_grey;
-		if ((game_minute > 230) || (game_minute < 10))
-		  percent_grey = 0.55f;
-		else if ((game_minute < 40))
-		  percent_grey = 0.55f * (1.0f - (game_minute - 10.0f) / 30.0f);
-		else if (game_minute > 200)
-		  percent_grey = 0.55f * (game_minute - 200) / 30.0f;
-		else
-		  percent_grey = 0.0f;
-		for (i = 0; i < x_size * y_size * 4; i += 4)
+		// If nighttime, use a nighttime texture.
+		if ((!dungeon) &&
+		    (strncmp(filename, "./textures", 10)) &&	// Exclude the textures dir, which contains buttons and the like.
+		    (strncmp(filename, "./maps", 6)))		// Also exclude maps
 		{
-			float average = ((float)texture_mem[i] + (float)texture_mem[i + 1] + (float)texture_mem[i + 2]) / 3;
-			texture_mem[i + 0] = (Uint8)(texture_mem[i + 0] * (1.0 - percent_grey) + average * percent_grey);
-			texture_mem[i + 1] = (Uint8)(texture_mem[i + 1] * (1.0 - percent_grey) + average * percent_grey);
-			texture_mem[i + 2] = (Uint8)(texture_mem[i + 2] * (1.0 - percent_grey) + average * percent_grey);
+			int i;
+			float percent_grey;
+			if ((game_minute > 230) || (game_minute < 10))
+			  percent_grey = 0.6f;
+			else if ((game_minute < 40))
+			  percent_grey = 0.6f * (1.0f - (game_minute - 10.0f) / 30.0f);
+			else if (game_minute > 200)
+			  percent_grey = 0.6f * (game_minute - 200) / 30.0f;
+			else
+			  percent_grey = 0.0f;
+			for (i = 0; i < x_size * y_size * 4; i += 4)
+			{
+				float average = ((float)texture_mem[i] + (float)texture_mem[i + 1] + (float)texture_mem[i + 2]) / 3;
+				texture_mem[i + 0] = (Uint8)(texture_mem[i + 0] * (1.0 - percent_grey) + average * percent_grey);
+				texture_mem[i + 1] = (Uint8)(texture_mem[i + 1] * (1.0 - percent_grey) + average * percent_grey);
+				texture_mem[i + 2] = (Uint8)(texture_mem[i + 2] * (1.0 - percent_grey) + average * percent_grey);
+			}
 		}
 	}
-#endif
+#endif	
 
 	//free(read_buffer);
 #ifdef	ZLIB

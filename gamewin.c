@@ -598,20 +598,28 @@ int display_game_handler (window_info *win)
 		}
 		// only draw scene lights if inside or it is night
 #ifdef NEW_LIGHTING
-		if (dungeon || !(game_minute >= 5 && game_minute < 235)){
+		if (
+		    ( (use_new_lighting) && (dungeon || !(game_minute >= 5 && game_minute < 235))) ||
+		    ((!use_new_lighting) && (dungeon || !is_day))
+		   )
 #else
-		if (dungeon || !is_day){
+		if (dungeon || !is_day)
 #endif
+		{
 			update_scene_lights ();
 			draw_lights ();
 		}
 		CHECK_GL_ERRORS ();
 
 #ifdef NEW_LIGHTING
-		if (!dungeon && shadows_on && (game_minute >= 0 && game_minute < 240)){
+		if (
+		    ( (use_new_lighting) && (!dungeon && shadows_on && (game_minute >= 0 && game_minute < 240))) ||
+		    ((!use_new_lighting) && (!dungeon && shadows_on && is_day))
+		   )
 #else
-		if (!dungeon && shadows_on && is_day){
+		if (!dungeon && shadows_on && is_day)
 #endif
+		{
 			render_light_view();
 			CHECK_GL_ERRORS ();
 		}
@@ -632,7 +640,10 @@ int display_game_handler (window_info *win)
 #endif
 
 #ifdef NEW_LIGHTING
-		if (!dungeon && shadows_on && (game_minute >= 5 && game_minute < 235))
+		if (
+		    ( (use_new_lighting) && (!dungeon && shadows_on && (game_minute >= 5 && game_minute < 235))) ||
+		    ((!use_new_lighting) && (!dungeon && shadows_on && is_day))
+		   )
 #else
 		if (!dungeon && shadows_on && is_day)
 #endif
