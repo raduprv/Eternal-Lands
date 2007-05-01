@@ -679,6 +679,13 @@ int display_game_handler (window_info *win)
 	}
 	CHECK_GL_ERRORS ();
 
+#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
+	light_idle();
+#endif // NEW_LIGHTING
+
+#ifdef	EYE_CANDY
+	ec_idle();
+#endif
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{
@@ -701,15 +708,10 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 	//we do this because we don't want the rain/particles to mess with our cursor
 
-        // Eye candy
 #ifdef	EYE_CANDY
-	ec_idle();
 	ec_draw();
 #endif	//EYE_CANDY
 
-#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
-	light_idle();
-#endif // NEW_LIGHTING
 
 	last_texture = -1;
 
