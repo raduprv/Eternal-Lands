@@ -382,6 +382,9 @@ void init_video()
 			exit(1);
 		}
 
+#ifdef EYE_CANDY
+	ec_clear_textures();
+#endif //EYE_CANDY
 	setup_video_mode(full_screen, video_mode);
 
 	/* Detect the display depth */
@@ -557,6 +560,10 @@ void init_video()
 	build_video_mode_array();
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &have_stencil);
 	last_texture=-1;	//no active texture
+
+#ifdef EYE_CANDY
+	ec_load_textures();
+#endif //EYE_CANDY
 
 	check_options();
 }
@@ -969,6 +976,10 @@ void set_new_video_mode(int fs,int mode)
 #endif	//NEW_E3D_FORMAT
 	}
 
+#ifdef EYE_CANDY
+	ec_clear_textures();
+#endif //EYE_CANDY
+
 	//destroy the current context
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
@@ -983,6 +994,9 @@ void set_new_video_mode(int fs,int mode)
 	build_cursors();
 	change_cursor(current_cursor);
 
+#ifdef EYE_CANDY
+	ec_load_textures();
+#endif //EYE_CANDY
 
 	//now, reload the textures
 	for(i=0;i<1000;i++)

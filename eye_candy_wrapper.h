@@ -153,6 +153,8 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
 // EyeCandy wrapper functions declaration                                     //
 //****************************************************************************//
 
+  void ec_clear_textures();
+  void ec_load_textures();
   void ec_init();
   void ec_add_light(GLenum light_id);
   void ec_set_draw_method();

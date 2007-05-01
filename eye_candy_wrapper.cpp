@@ -48,6 +48,16 @@ float average_framerate = 20000.0;	// Windows has such horrible timer resolution
 
 // F U N C T I O N S //////////////////////////////////////////////////////////
 
+extern "C" void ec_clear_textures()
+{
+  eye_candy.clear_textures();
+}
+
+extern "C" void ec_load_textures()
+{
+  eye_candy.load_textures();
+}
+
 extern "C" void ec_init()
 {
   eye_candy.load_textures();

@@ -16,10 +16,10 @@ SmokeParticle::SmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 
 {
   sqrt_scale = _sqrt_scale;
   max_size = _max_size;
-  const color_t color_scale = square(randcolor(0.4));
-  color[0] = square(randcolor(0.15)) + color_scale + 0.25;
-  color[1] = square(randcolor(0.15)) + color_scale + 0.25;
-  color[2] = square(randcolor(0.15)) + color_scale + 0.25;
+  const color_t color_scale = square(randcolor(0.6));
+  color[0] = square(randcolor(0.15)) + color_scale + 0.15;
+  color[1] = square(randcolor(0.15)) + color_scale + 0.15;
+  color[2] = square(randcolor(0.15)) + color_scale + 0.15;
   size = size_scalar * (0.5 + randcoord());
   alpha = (0.05 + randcoord(0.1)) * alpha_scale;
   if (alpha > 1.0)

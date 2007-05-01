@@ -577,6 +577,7 @@ public:
   ~Texture();
   
   void push_texture(const std::string filename);
+  void clear(void);
   GLuint get_texture(const Uint16 res_index) const;
   GLuint get_texture(const Uint16 res_index, const int frame) const;
   GLuint get_texture(const Uint16 res_index, const Uint64 born, const Uint64 changerate) const;
@@ -1448,6 +1449,7 @@ public:
   ~EyeCandy();
   
   void set_thresholds(const int _max_particles, const float min_framerate, const float max_framerate);
+  void clear_textures();
   void load_textures();
   void push_back_effect(Effect* e);
   bool push_back_particle(Particle* p);

@@ -716,8 +716,8 @@ void reset_material()
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
 	{
-		GLfloat mat_ambient[]={ 0.45, 0.45, 0.45, 1.0 };
-		GLfloat mat_diffuse[]={ 2.3, 2.3, 2.3, 1.0 };
+		GLfloat mat_ambient[]={ 0.3, 0.3, 0.3, 1.0 };
+		GLfloat mat_diffuse[]={ 3.6, 3.6, 3.6, 1.0 };
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
 	}
@@ -829,12 +829,12 @@ void draw_global_light()
 	{
 //		glEnable(GL_LIGHT7);
 //		printf("Light: %f, %f, %f\n", difuse_light[0], difuse_light[1], difuse_light[2]);
-		difuse_light[0] *= 1.0f;
-		difuse_light[1] *= 1.0f;
-		difuse_light[2] *= 1.0f;
-		sun_ambient_light[0] /= 6.0f;
-		sun_ambient_light[1] /= 6.0f;
-		sun_ambient_light[2] /= 6.0f;
+		difuse_light[0] *= 1.5f;
+		difuse_light[1] *= 1.5f;
+		difuse_light[2] *= 1.5f;
+		sun_ambient_light[0] /= 3.0f;
+		sun_ambient_light[1] /= 3.0f;
+		sun_ambient_light[2] /= 3.0f;
 	}
 #endif	//NEW_LIGHTING
 

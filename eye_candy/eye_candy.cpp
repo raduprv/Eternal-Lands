@@ -26,14 +26,7 @@ Texture::Texture()
 
 Texture::~Texture()
 {
-  for (int i = 0; i < 4; i++)
-  {
-    for (std::vector<GLuint>::iterator iter = texture_ids[i].begin(); iter != texture_ids[i].end(); iter++)
-    {
-      const GLuint texture = *iter;
-      glDeleteTextures(1, &texture);
-    }
-  }
+  clear();
 }
 
 GLuint Texture::get_texture(const Uint16 res_index) const
@@ -49,6 +42,18 @@ GLuint Texture::get_texture(const Uint16 res_index, const int frame) const
 GLuint Texture::get_texture(const Uint16 res_index, const Uint64 born, const Uint64 changerate) const
 {
   return (GLuint)get_texture(res_index, ((get_time() - born) / changerate) % texture_ids[res_index].size());
+}
+
+void Texture::clear()
+{
+  for (int i = 0; i < 4; i++)
+  {
+    for (std::vector<GLuint>::iterator iter = texture_ids[i].begin(); iter != texture_ids[i].end(); iter++)
+    {
+      const GLuint texture = *iter;
+      glDeleteTextures(1, &texture);
+    }
+  }
 }
 
 void Texture::push_texture(const std::string filename)
@@ -1232,6 +1237,24 @@ void EyeCandy::set_thresholds(const int _max_particles, const float min_framerat
   LOD_2_time_threshold = min_framerate + range * (1.0 / 9.0);
   LOD_1_time_threshold = min_framerate + range * (0.0 / 9.0);
 //  allowable_particles_to_add = max_particles;
+}
+
+void EyeCandy::clear_textures()
+{
+  //clear any existing textures
+  TexCrystal.clear();
+  TexFlare.clear();
+  TexInverse.clear();
+  TexLeafAsh.clear();
+  TexLeafMaple.clear();
+  TexLeafOak.clear();
+  TexPetal.clear();
+  TexShimmer.clear();
+  TexSimple.clear();
+  TexSnowflake.clear();
+  TexTwinflare.clear();
+  TexVoid.clear();
+  TexWater.clear();
 }
 
 void EyeCandy::load_textures()
