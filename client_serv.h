@@ -277,7 +277,7 @@ extern "C" {
 #define HELMET_STEEL 7
 #define HELMET_TITANIUM 8
 #define HELMET_BRONZE 9
-#define HELMET_NONE 20
+#define HELMET_NONE 100
 /*! @} */
 
 /*!
