@@ -581,8 +581,8 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_SUMMON_TIGER:
 			{
 			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
-			 	x = ((float)SDL_SwapLE64 (*((Uint64 *)(&data[offset+1]))));
-			 	y = ((float)SDL_SwapLE64 (*((Uint64 *)(&data[offset+5]))));
+			 	x = ((float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+1]))));
+			 	y = ((float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+2]))));
 			 	printf("%f, %f\n", x, y); 
 			}
 			break;

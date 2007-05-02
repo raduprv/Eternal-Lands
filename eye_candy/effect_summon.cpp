@@ -35,12 +35,12 @@ bool OuterSummonParticle::idle(const Uint64 delta_t)
     return false;
  
 #ifdef DEBUG_NANS 
-  std::cout << "Position: " << pos << std::endl << std::flush;
+  std::cout << this <<  ": A: Position: " << pos << std::endl << std::flush;
 #endif
   if (!pos.is_valid())	// Outer summon particles are at risk for running off to infinity.
     return false;
 #ifdef DEBUG_NANS
-  std::cout << "Declared valid." << std::endl << std::flush;
+  std::cout << "A: Declared valid." << std::endl << std::flush;
 #endif
   
   const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 100000);
@@ -75,6 +75,15 @@ bool InnerSummonParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
 
+#ifdef DEBUG_NANS 
+  std::cout << this <<  ": B: Position: " << pos << std::endl << std::flush;
+#endif
+  if (!pos.is_valid())	// Outer summon particles are at risk for running off to infinity.
+    return false;
+#ifdef DEBUG_NANS
+  std::cout << "B: Declared valid." << std::endl << std::flush;
+#endif
+  
   if (state == 0)
   {
     const Uint64 cur_time = get_time();
