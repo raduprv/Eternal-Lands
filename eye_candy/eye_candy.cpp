@@ -1084,6 +1084,8 @@ Vec3 IFSParticleSpawner::get_new_coords()
 {
   std::vector<IFSParticleElement*>::iterator iter = ifs_elements.begin() + randint((int)ifs_elements.size());
   pos = ifs_elements[randint((int)ifs_elements.size())]->get_new_coords(pos);
+  if (!pos.is_valid())
+    pos = Vec3(0.0, 0.0, 0.0);
   return pos;
 }
 
