@@ -33,6 +33,9 @@ bool OuterSummonParticle::idle(const Uint64 delta_t)
 
   if (alpha < 0.03)
     return false;
+    
+  if (!pos.is_valid())	// Outer summon particles are at risk for running off to infinity.
+    return false;
 
   const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 100000);
   alpha *= scalar;

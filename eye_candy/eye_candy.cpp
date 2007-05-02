@@ -721,6 +721,11 @@ coord_t Particle::flare() const
   assert(flare_frequency);
   if (flare_max == 1.0)
     return 1.0;
+#ifdef DEBUG_NANS
+//  std::cout << "Beginning test." << std::endl;
+  if (!pos.is_valid())
+    std::cout << "ERROR: Invalid particle " << this << ": pos=" << pos << "; velocity=" << velocity << "; effect=" << effect << std::endl;
+#endif
   const short offset = (short)long(&alpha);	//Unique to the particle.
   const float exp_base = fabs(sin((pos.x + pos.y + pos.z + offset) / flare_frequency));
   const coord_t exp = math_cache.powf_0_1_rough_close(exp_base, flare_exp);

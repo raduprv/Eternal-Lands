@@ -871,7 +871,6 @@ bool TargetMagicEffect2::idle(const Uint64 usec)
 //  std::cout << "Center: " << center << "; Pos (" << pos << "): " << *pos << std::endl << std::flush;
   
   shift = center - last_effect_center;
-  std::cout << "S: " << shift << ": " << center << ", " << last_effect_center << std::endl;
 
   center.y += usec / 1500000.0;
 

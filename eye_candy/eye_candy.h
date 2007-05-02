@@ -386,6 +386,17 @@ public:
     return Vec3(y * rhs.z - z * rhs.y, z * rhs.x - x * rhs.z, x * rhs.y - y * rhs.x);
   };
   
+  bool is_valid() const
+  {
+//    std::cout << "Is valid?" << std::endl;
+//    std::cout << x << ", " << finitef(x) << "; " << y << ", " << finitef(y) << "; " << z << ", " << finitef(z) << std::endl;
+//    std::cout << (finitef(x) && finitef(z) && finitef(y)) << std::endl;
+    if (finitef(x) && finitef(z) && finitef(y))
+      return true;
+    else
+      return false;
+  }
+  
   coord_t x, y, z;
 };
 
