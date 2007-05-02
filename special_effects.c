@@ -538,6 +538,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS:
 		case	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM:
 		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
+			{
+			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+			}
+			break;
 		case	SPECIAL_EFFECT_SUMMON_RABBIT:
 		case	SPECIAL_EFFECT_SUMMON_RAT:
 		case	SPECIAL_EFFECT_SUMMON_BEAVER:
@@ -576,6 +580,8 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_SUMMON_TIGER:
 			{
 			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+//			 	x = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+//			 	y = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 			}
 			break;
 		//player to player, var_a is caster, var_b is recipient/target

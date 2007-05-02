@@ -1704,6 +1704,7 @@ void EyeCandy::idle()
       i++;
       continue;
     }
+    p->mover->move(*p, time_diff);
     const bool ret = p->idle(time_diff);
     if (!ret)
     {
@@ -1724,10 +1725,7 @@ void EyeCandy::idle()
       delete p;
     }
     else
-    {
-      p->mover->move(*p, time_diff);
       i++;
-    }
   }
   last_forced_LOD = (Uint16)round(change_LOD);
   
