@@ -1704,6 +1704,7 @@ void EyeCandy::idle()
       i++;
       continue;
     }
+
     p->mover->move(*p, time_diff);
     const bool ret = p->idle(time_diff);
     if (!ret)

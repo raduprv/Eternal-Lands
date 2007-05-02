@@ -33,9 +33,16 @@ bool OuterSummonParticle::idle(const Uint64 delta_t)
 
   if (alpha < 0.03)
     return false;
-  
+ 
+#ifdef DEBUG_NANS 
+  std::cout << "Position: " << pos << std::endl << std::flush;
+#endif
   if (!pos.is_valid())	// Outer summon particles are at risk for running off to infinity.
     return false;
+#ifdef DEBUG_NANS
+  std::cout << "Declared valid." << std::endl << std::flush;
+#endif
+  
   const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 100000);
   alpha *= scalar;
   
@@ -604,7 +611,7 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
   }
   outer_alpha = 1.0;
   
-  LOD = -100;	// Force refresh
+  LOD = 100;	// Force refresh
   request_LOD((float)_LOD);
   
   inner_color[0] = outer_color[0];

@@ -95,6 +95,11 @@ float ec_get_z(actor* _actor)
   return -2.2f+height_map[_actor->tmp.y_tile_pos*tile_map_size_x*6+_actor->tmp.x_tile_pos]*0.2f;
 }
 
+float ec_get_z2(int x, int y)
+{
+  return -2.2f+height_map[y*tile_map_size_x*6+x]*0.2f;
+}
+
 void set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone, const ec::Vec3 shift)
 {
   float points[1024][3];
