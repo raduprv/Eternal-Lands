@@ -672,7 +672,7 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
   pos = _pos;
   center = *pos;
   type = _type;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   spawner = _spawner;
   mover = _mover;
   effect_id = _effect_id;

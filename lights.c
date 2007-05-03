@@ -716,7 +716,7 @@ void reset_material()
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
 	{
-		GLfloat mat_ambient[]={ 0.3, 0.3, 0.3, 1.0 };
+		GLfloat mat_ambient[]={ 0.4, 0.4, 0.4, 1.0 };
 		GLfloat mat_diffuse[]={ 3.6, 3.6, 3.6, 1.0 };
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
 		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);

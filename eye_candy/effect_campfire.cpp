@@ -165,7 +165,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
   obstructions = _obstructions;
   scale = _scale * 0.7;
   sqrt_scale = fastsqrt(scale);
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
 #ifdef DEBUG_POINT_PARTICLES
   mover = new ParticleMover(this);

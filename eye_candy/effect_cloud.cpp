@@ -155,7 +155,7 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   dead = _dead;
   pos = _pos;
   center = *pos;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
   spawner = new FilledBoundingSpawner(bounding_range);

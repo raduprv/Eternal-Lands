@@ -507,7 +507,7 @@ int display_game_handler (window_info *win)
 
 	if (!have_a_map) return 1;
 	if (yourself==-1) return 1; //we don't have ourselves
-	
+
 	for(i=0; i<max_actors; i++)
 	{
         	if(actors_list[i] && actors_list[i]->actor_id == yourself) 
@@ -517,7 +517,7 @@ int display_game_handler (window_info *win)
 	
 	main_count++;
 	last_count++;
-	
+
 	//if (quickbar_win>0) windows_list.window[quickbar_win].displayed=1;
 
 	if (fps[0] < 5)
@@ -851,7 +851,6 @@ int display_game_handler (window_info *win)
 	// Return to 2D mode to draw the other windows
 	glPopMatrix ();	// restore the state
 	Enter2DMode ();
-
 	return 1;
 }
 

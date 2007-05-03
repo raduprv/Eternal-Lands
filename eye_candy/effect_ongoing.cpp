@@ -106,7 +106,7 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Ong
   effect_center = *pos;
   effect_center.y += 0.5;
   type = _type;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   spawner = NULL;
   mover = NULL;

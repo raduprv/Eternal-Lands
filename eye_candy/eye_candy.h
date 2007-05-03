@@ -388,10 +388,7 @@ public:
   
   bool is_valid() const
   {
-//    std::cout << "Is valid?" << std::endl;
-//    std::cout << x << ", " << finitef(x) << "; " << y << ", " << finitef(y) << "; " << z << ", " << finitef(z) << std::endl;
-//    std::cout << (finitef(x) && finitef(z) && finitef(y)) << std::endl;
-    if (finitef(x) && finitef(z) && finitef(y))
+    if (isfinite(x) && isfinite(z) && isfinite(y))
       return true;
     else
       return false;

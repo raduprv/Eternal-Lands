@@ -53,7 +53,7 @@ TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   base = _base;
   dead = _dead;
   pos = _pos;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   sqrt_LOD = fastsqrt(LOD);
   size_scalar = 15 / (LOD + 5);

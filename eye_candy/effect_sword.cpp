@@ -155,9 +155,9 @@ SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start, Vec3* _end,
   }
   
   old_end = *end;
-  LOD = -100;
+  LOD = 100;
   desired_LOD = _LOD;
-  request_LOD((float)_LOD);
+  request_LOD((float)base->last_forced_LOD);
 }
 
 SwordEffect::~SwordEffect()

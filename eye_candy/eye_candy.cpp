@@ -1548,7 +1548,6 @@ void EyeCandy::draw()
     for (int i = 0; i < (int)lights.size(); i++)
       glDisable(lights[i]);	// Save the graphics card some work when rendering the rest of the scene, ne? :)
   }
-  
 }
 
 void EyeCandy::idle()
@@ -1711,9 +1710,6 @@ void EyeCandy::idle()
     const bool ret = p->idle(time_diff);
     if (!ret)
     {
-#ifdef DEBUG_NANS 
-      std::cout << p <<  ": Deleting." << std::endl << std::flush;
-#endif
       iter = particles.begin() + i;	//Why the heck do I need to redo this just because I've push_back'ed entries to the vector in idle()?  :P  Makes no sense.  My best guess: array resizing.
       particles.erase(iter);
       for (int j = 0; j < (int)light_particles.size(); )
@@ -1732,17 +1728,11 @@ void EyeCandy::idle()
     }
     else
       i++;
-#ifdef DEBUG_NANS 
-    std::cout << p <<  ": Moving on." << std::endl << std::flush;
-#endif
   }
   last_forced_LOD = (Uint16)round(change_LOD);
   
 //  allowable_particles_to_add = 1 + (int)(particles.size() * 0.00005 * time_diff / 1000000.0 * (max_particles - particles.size()) * change_LOD);
 //  std::cout << "Current: " << particles.size() << "; Allowable new: " << allowable_particles_to_add << std::endl;
-#ifdef DEBUG_NANS 
-  std::cout << "Loop done." << std::endl << std::flush;
-#endif
 }
 
 void EyeCandy::add_light(GLenum light_id)

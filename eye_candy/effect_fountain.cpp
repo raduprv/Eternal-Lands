@@ -126,7 +126,7 @@ FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const b
   size_scalar = sqrt_scale * 4.5 / (_LOD + 5);
   base_height = _base_height + 0.1;
   count_scalar = 15000 / _LOD;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   mover = new SimpleGravityMover(this);
   basic_mover = new ParticleMover(this);

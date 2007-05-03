@@ -307,7 +307,7 @@ BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _targ
   target = _target;
   obstructions = _obstructions;
   type = _type;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   scale = _scale;
   spawner = NULL;

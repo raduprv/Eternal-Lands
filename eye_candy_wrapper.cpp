@@ -261,6 +261,17 @@ extern "C" void ec_idle()
   if (use_eye_candy && ec_last_time % 1000000 >= ec_cur_time % 1000000)
     ec_heartbeat();
 
+/*
+  // Put debugging effects here.    
+  if (ec_last_time % 100000 >= ec_cur_time % 100000)
+  {
+    float test_x = 48.0 + ec::randfloat(6.0);
+    float test_y = 48.0 + ec::randfloat(6.0);
+    ec_create_selfmagic_teleport_to_the_portals_room(test_x, test_y, 0.0, 10);
+    ec_create_summon_rabbit(test_x, test_y, 0.0, 10);
+  }
+*/
+
   eye_candy.idle();
   
   idle_semaphore = false;

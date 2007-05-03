@@ -583,7 +583,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 			 	x = ((float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+1]))));
 			 	y = ((float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+2]))));
-			 	printf("%f, %f\n", x, y); 
+//			 	printf("%f, %f\n", x, y); 
 			}
 			break;
 		//player to player, var_a is caster, var_b is recipient/target

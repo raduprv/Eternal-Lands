@@ -137,7 +137,7 @@ LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _sc
   else
     new_scale = scale;
   sqrt_scale = fastsqrt(new_scale);
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   mover = new SmokeMover(this);
   stationary = new ParticleMover(this);

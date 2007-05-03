@@ -19,7 +19,7 @@ SelfMagicParticle::SelfMagicParticle(Effect* _effect, ParticleMover* _mover, con
   color[1] = green;
   color[2] = blue;
   texture = _texture;
-  size = _size * (0.5 + randcoord()) * 10 / _LOD;
+  size = _size * (0.5 + randcoord()) * 13 / (_LOD + 3);
   alpha = _alpha;
   velocity /= size;
   flare_max = 5.0;
@@ -213,7 +213,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
   pos = _pos;
   effect_center = *pos;
   type = _type;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   spawner = NULL;
   mover = NULL;
@@ -324,7 +324,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       mover = new ParticleMover(this);
       spawner = new FilledDiscSpawner(0.2);
       const float sqrt_LOD = fastsqrt(LOD);
-      size_scalar = 15 / (LOD + 5);
+      size_scalar = 1.0;
       for (int i = 0; i < LOD * 100; i++)
       {
         const Vec3 coords = spawner->get_new_coords() + effect_center + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
@@ -483,7 +483,7 @@ bool SelfMagicEffect::idle(const Uint64 usec)
         for (std::vector<Shape*>::iterator iter = capless_cylinders.begin(); iter != capless_cylinders.end(); iter++)
         {
           (*iter)->alpha *= scalar;
-//          std::cout << (*iter)->alpha << scalar << ((*iter)->alpha * scalar) << std::endl;
+//          std::coutk << (*iter)->alpha << scalar << ((*iter)->alpha * scalar) << std::endl;
           if ((*iter)->alpha > 0.005)
             break;
         }

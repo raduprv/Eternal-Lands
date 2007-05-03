@@ -115,7 +115,7 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
   center = *pos;
   angle = _angle;
   type = _type;
-  LOD = _LOD;
+  LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   spawner = NULL;
   mover = NULL;
