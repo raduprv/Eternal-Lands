@@ -17,6 +17,26 @@ namespace ec
 
 // C L A S S E S //////////////////////////////////////////////////////////////
 
+class LampEffect : public Effect
+{
+public: 
+  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float scale, const bool halo, const Uint16 _LOD);
+  ~LampEffect(); 
+  
+  virtual EffectEnum get_type() { return EC_LAMP; };
+  bool idle(const Uint64 usec);
+
+  GradientMover* mover;
+  GradientMover* mover2;
+  ParticleMover* mover3;
+  ParticleSpawner* spawner;
+  int big_particles;
+  float scale;
+  float new_scale;
+  float sqrt_scale;
+  bool halo;
+};
+
 class LampParticle : public Particle
 {
 public:
@@ -35,10 +55,11 @@ class LampBigParticle : public Particle
 {
 public:
   LampBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const Uint16 _LOD);
-  ~LampBigParticle() {}
+  ~LampBigParticle() { ((LampEffect*)effect)->big_particles--; };
   
   virtual bool idle(const Uint64 delta_t);
   virtual GLuint get_texture(const Uint16 res_index);
+  virtual void draw(const Uint64 usec);
   virtual light_t estimate_light_level() const { return 0.0; };	// Like above
   virtual light_t get_light_level() { return 0.0; }; // Same.
   
@@ -59,25 +80,6 @@ public:
   
   Vec3 true_pos;
   coord_t true_size;
-};
-
-class LampEffect : public Effect
-{
-public: 
-  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float scale, const bool halo, const Uint16 _LOD);
-  ~LampEffect(); 
-  
-  virtual EffectEnum get_type() { return EC_LAMP; };
-  bool idle(const Uint64 usec);
-
-  GradientMover* mover;
-  ParticleMover* stationary;
-  ParticleSpawner* spawner;
-  int big_particles;
-  float scale;
-  float new_scale;
-  float sqrt_scale;
-  bool halo;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

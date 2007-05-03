@@ -640,7 +640,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
     else if (!strncmp("sma", file_name + 17, 3))
       ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 0.6);
     else if (!strncmp("tor", file_name + 17, 3))
-      ec_create_lamp(x_pos, y_pos, z_pos + 0.06, 1.2, (poor_man ? 6 : 10));
+      ec_create_lamp(x_pos, y_pos, z_pos, 1.2, (poor_man ? 6 : 10));
     else
     {
  #ifdef SFX
@@ -656,7 +656,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
     }
   }
   else if (!strncmp("can", file_name + 12, 3))
-    ec_create_lamp(x_pos, y_pos, z_pos + 0.01, 0.8, (poor_man ? 6 : 10));
+    ec_create_lamp(x_pos, y_pos, z_pos, 0.4, (poor_man ? 6 : 10));
   else
   {
 #endif /* EYE_CANDY */

@@ -18,7 +18,7 @@ LampParticle::LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
   color[0] = 1.0;
   color[1] = 0.7 + randfloat(0.2);
   color[2] = 0.6;
-  size = 9 * (0.5 + 1.5 * randcoord()) / (LOD + 2);
+  size = 4 * (0.15 + 2.3 * randcoord() * randcoord()) / (LOD + 2);
   alpha = 7.0 / size;
   if (alpha > 1.0)
     alpha = 1.0;
@@ -39,10 +39,10 @@ bool LampParticle::idle(const Uint64 delta_t)
     return false;
   }
   
-  const float scalar = math_cache.powf_05_close((float)delta_t / 800000);
-  color[0] = color[0] * scalar * 0.5 + color[0] * 0.5;
-  color[1] = color[1] * scalar * 0.5 + color[1] * 0.5;
-  color[2] = color[2] * scalar * 0.5 + color[2] * 0.5;
+  const float scalar = math_cache.powf_05_close((float)delta_t / 400000);
+//  color[0] = color[0] * scalar * 0.5 + color[0] * 0.5;
+//  color[1] = color[1] * scalar * 0.5 + color[1] * 0.5;
+//  color[2] = color[2] * scalar * 0.5 + color[2] * 0.5;
   alpha *= scalar;
   
   return true;
@@ -59,8 +59,8 @@ LampBigParticle::LampBigParticle(Effect* _effect, ParticleMover* _mover, const V
   color[0] = 1.0;
   color[1] = 0.4 + randfloat(0.3);
   color[2] = 0.3;
-  size = 15 * (2.0 + randcoord()) / (LOD + 2);
-  alpha = 5.0 * 5 / size / (LOD + 2);
+  size = 8 * (2.0 + randcoord()) / (LOD + 2);
+  alpha = 1.4 * 5 / size / (LOD + 2);
   if (alpha > 1.0)
     alpha = 1.0;
   size *= _scale;
@@ -68,6 +68,7 @@ LampBigParticle::LampBigParticle(Effect* _effect, ParticleMover* _mover, const V
   flare_max = 1.0;
   flare_exp = 0.0;
   flare_frequency = 2.0;
+  state = ((rand() % 3) == 0);
 }
 
 bool LampBigParticle::idle(const Uint64 delta_t)
@@ -75,17 +76,14 @@ bool LampBigParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
 
-  if ((alpha < 0.25) || (get_time() - born > 8000000))
-  {
-    ((LampEffect*)effect)->big_particles--;
-    return false;
-  }
+  const float scalar = 1.0 - math_cache.powf_05_close((interval_t)delta_t * LOD / 32000000.0);
+//  color[0] = color[0] * scalar * 0.5 + color[0] * 0.5;
+//  color[1] = color[1] * scalar * 0.5 + color[1] * 0.5;
+//  color[2] = color[2] * scalar * 0.5 + color[2] * 0.5;
+  alpha -= scalar;
   
-  const float scalar = math_cache.powf_05_close((interval_t)delta_t * LOD / 50000000.0);
-  color[0] = color[0] * scalar * 0.5 + color[0] * 0.5;
-  color[1] = color[1] * scalar * 0.5 + color[1] * 0.5;
-  color[2] = color[2] * scalar * 0.5 + color[2] * 0.5;
-  alpha *= scalar;
+  if (alpha < 0.03)
+    return false;
   
   return true;
 }
@@ -93,6 +91,20 @@ bool LampBigParticle::idle(const Uint64 delta_t)
 GLuint LampBigParticle::get_texture(const Uint16 res_index)
 {
   return base->TexFlare.get_texture(res_index);
+}
+
+void LampBigParticle::draw(const Uint64 usec)
+{
+  if (state == 0)
+  {
+    Particle::draw(usec);
+  }
+  else
+  {
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    Particle::draw(usec);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+  }
 }
 
 LampFlareParticle::LampFlareParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale) : Particle(_effect, _mover, _pos, _velocity)
@@ -140,8 +152,9 @@ LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _sc
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   mover = new SmokeMover(this);
-  stationary = new ParticleMover(this);
-  spawner = new FilledSphereSpawner(0.05 * sqrt_scale);
+  mover2 = new SmokeMover(this, 1.2);
+  mover3 = new ParticleMover(this);
+  spawner = new FilledSphereSpawner(0.04 * sqrt_scale);
   
   
 /*
@@ -163,20 +176,23 @@ LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _sc
     coords.z *= 0.5;
     coords.y += 0.1 * sqrt_scale;
     coords += *pos;
-    Particle* p = new LampBigParticle(this, stationary, coords, Vec3(0.0, 0.0, 0.0), new_scale, LOD);
+    Vec3 velocity;
+    velocity.randomize(0.10 * sqrt_scale);
+    Particle* p = new LampBigParticle(this, mover2, coords, velocity, new_scale, LOD);
     if (!base->push_back_particle(p))
       break;
     big_particles++;
   }
   
   if (halo)
-    base->push_back_particle(new LampFlareParticle(this, stationary, *pos + Vec3(0.0, 0.15 * sqrt_scale, 0.0), Vec3(0.0, 0.0, 0.0), sqrt_scale));
+    base->push_back_particle(new LampFlareParticle(this, mover3, *pos + Vec3(0.0, 0.15 * sqrt_scale, 0.0), Vec3(0.0, 0.0, 0.0), 0.65 * sqrt_scale));
 }
 
 LampEffect::~LampEffect()
 {
   delete mover;
-  delete stationary;
+  delete mover2;
+  delete mover3;
   delete spawner;
   if (EC_DEBUG)
     std::cout << "LampEffect (" << this << ") destroyed." << std::endl;
@@ -189,26 +205,28 @@ bool LampEffect::idle(const Uint64 usec)
     
   if (recall)
     return true;
-
-  while (((int)particles.size() < LOD * 7) && (math_cache.powf_0_1_rough_close(randfloat(), (LOD * 7 - particles.size()) * (interval_t)usec / 15000 / square(LOD)) < 0.5))
+    
+  while (((int)particles.size() < LOD * 15) && (math_cache.powf_0_1_rough_close(randfloat(), (LOD * 15 - particles.size()) * (interval_t)usec / 20000 / square(LOD)) < 0.5))
   {
     Vec3 coords = spawner->get_new_coords() + *pos;
-    coords.y += 0.05 * sqrt_scale;
+    coords.y += 0.11 * sqrt_scale;
     Vec3 velocity;
-    velocity.randomize(0.025 * sqrt_scale);
+    velocity.randomize(0.01 * sqrt_scale);
     Particle* p = new LampParticle(this, mover, coords, velocity, new_scale, LOD);
     if (!base->push_back_particle(p))
       break;
   }
 
-  while ((big_particles < LOD * 2) && (math_cache.powf_0_1_rough_close(randfloat(), (LOD * 2 - big_particles) * (interval_t)usec / 35000 / square(LOD)) < 0.5))
+  while ((big_particles < LOD * 7) && ((math_cache.powf_0_1_rough_close(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0 / square(LOD)) < 0.5) || (big_particles < LOD * 2)))
   {
     Vec3 coords = spawner->get_new_coords();
-    coords.x *= 0.5;
-    coords.z *= 0.5;
+    coords.y *= 1.6;
     coords.y += 0.1 * sqrt_scale;
     coords += *pos;
-    Particle* p = new LampBigParticle(this, stationary, coords, Vec3(0.0, 0.0, 0.0), new_scale, LOD);
+    Vec3 velocity;
+    velocity.randomize(0.8 * sqrt_scale);
+    velocity.y *= 3.0;
+    Particle* p = new LampBigParticle(this, mover2, coords, velocity, new_scale, LOD);
     if (!base->push_back_particle(p))
       break;
     big_particles++;
