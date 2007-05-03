@@ -174,6 +174,7 @@ namespace ec
  #define copysign _copysign
  #define isnan _isnan
  #define isinf !_finite
+ #define isfinite _finite
  inline float fmax(const float a, const float b) { return ((a < b) ? b : a); };
  inline float round(const float a) { return (a - floor(a) < 0.5f ? floor(a) : ceil(a)); };
  inline float remainderf(const float a, const float b) { return (a - (float)round(a / b) * b); };
