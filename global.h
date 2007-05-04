@@ -113,7 +113,6 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "lights.h"
 #include "multiplayer.h"
 #include "text.h"
-#ifndef MAP_EDITOR
 #include "interface.h"
 #include "hud.h"
 #include "map_io.h"
@@ -121,7 +120,9 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "shadows.h"
 #include "particles.h"
 #include "spells.h"
+#ifndef MAP_EDITOR
 #include "sound.h"
+#endif  // MAP_EDITOR
 #include "ignore.h"
 #include "filter.h"
 #include "weather.h"
@@ -191,6 +192,5 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #ifdef	OLC
 	#include "olc.h"
 #endif	//OLC
-#endif  // MAP_EDITOR
 
 #endif

@@ -5,9 +5,13 @@
 #endif
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
-#else
+#else	//MAP_EDITOR2
+#ifdef MAP_EDITOR
+#include "../map_editor/global.h"
+#else //MAP_EDITOR
  #include "global.h"
-#endif
+#endif	//MAP_EDITOR
+#endif	//MAP_EDITOR2
 #include "string.h"
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
