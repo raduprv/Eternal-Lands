@@ -67,6 +67,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	
 CXXOBJS=cal3d_wrapper.o eye_candy_wrapper.o \
  eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
+ eye_candy/effect_candle.o \
  eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
  eye_candy/effect_teleporter.o eye_candy/effect_firefly.o \
  eye_candy/effect_sword.o eye_candy/effect_summon.o \

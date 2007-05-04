@@ -660,7 +660,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
     }
   }
   else if (!strncmp("can", file_name + 12, 3))
-    ec_create_lamp(x_pos, y_pos, z_pos, 0.4, (poor_man ? 6 : 10));
+    ec_create_candle(x_pos, y_pos, z_pos, 0.5, (poor_man ? 6 : 10));
   else
   {
 #endif /* EYE_CANDY */

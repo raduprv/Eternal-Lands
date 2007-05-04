@@ -224,7 +224,8 @@ enum EffectEnum
   EC_CLOUD = 13,
   EC_HARVESTING = 14,
   EC_WIND = 15,
-  EC_BREATH = 16
+  EC_BREATH = 16,
+  EC_CANDLE = 17
 };
 
 // C L A S S E S //////////////////////////////////////////////////////////////

@@ -881,6 +881,14 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
       // Effect does not yet exist.
       break;
     }
+    case 0x10:	// Candle
+    {
+//      const float hue_shift = raw_code[41] / 256.0;
+//      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ref = ec_create_candle(x, y, z, scale, LOD);
+      break;
+    }
   }
   ec_free_bounds_list(bounds);
   return ref;
@@ -1171,6 +1179,15 @@ extern "C" ec_reference ec_create_lamp(float x, float y, float z, float scale, i
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
   ret->effect = new ec::LampEffect(&eye_candy, &ret->dead, &ret->position, scale, use_lamp_halo, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_candle(float x, float y, float z, float scale, int LOD)
+{
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::CandleEffect(&eye_candy, &ret->dead, &ret->position, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }

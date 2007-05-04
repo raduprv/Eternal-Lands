@@ -22,6 +22,7 @@
 #include "eye_candy/eye_candy.h"
 #include "eye_candy/math_cache.h"
 #include "eye_candy/effect_lamp.h"
+#include "eye_candy/effect_candle.h"
 #include "eye_candy/effect_campfire.h"
 #include "eye_candy/effect_fountain.h"
 #include "eye_candy/effect_teleporter.h"
@@ -146,7 +147,8 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   EC_CLOUD = 13,
   EC_HARVESTING = 14,
   EC_WIND = 15,
-  EC_BREATH = 16
+  EC_BREATH = 16,
+  EC_CANDLE = 17
 } ec_EffectEnum;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -217,6 +219,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_impact_poison(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_impact_blood(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_lamp(float x, float y, float z, float scale, int LOD);
+  ec_reference ec_create_candle(float x, float y, float z, float scale, int LOD);
   ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, int LOD, float scale);
   ec_reference ec_create_ongoing_shield(float x, float y, float z, int LOD, float scale);
   ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, int LOD, float scale);
