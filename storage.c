@@ -45,11 +45,13 @@ void get_storage_categories (const char *in_data, int len)
 		{
 			storage_categories[i].name[idxp++] = in_data[idx++];
 		}
+		// always make sure the string is terminated
+		storage_categories[i].name[idxp] = '\0';
+
+		// was the string too long?
 		if (idxp >= sizeof (storage_categories[i].name) - 1)
 		{
-			// not enough room for the whole string, terminate...
-			storage_categories[i].name[idxp] = '\0';
-			// ... and skip rest of string
+			// skip rest of string
 			while (idx < len && in_data[idx] != '\0') idx++;
 		}
 		idx++;
