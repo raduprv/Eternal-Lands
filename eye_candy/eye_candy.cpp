@@ -119,7 +119,12 @@ void Shape::draw()
   glPushMatrix();
   glTranslated(pos.x, pos.y, pos.z);
   glDisable(GL_TEXTURE_2D);
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+  std::cout << pos << ", " << alpha << std::endl;
+  glColor4f(color.x, color.y, color.z, 0.2);
+#else
   glColor4f(color.x, color.y, color.z, alpha);
+#endif
 
 #if 0
   glNormalPointer(GL_DOUBLE, 0, normals);
@@ -136,21 +141,19 @@ void Shape::draw()
   std::cout << "glBegin(GL_TRIANGLES)" << std::endl;
   glBegin(GL_TRIANGLES);
   {
-  #ifdef DEBUG_TTLANHIL_TRANSPARENCY
       std::cout << "  V1: F=" << facets[0 * 3] << ": N=<" << normals[facets[0 * 3] * 3] << ", " << normals[facets[0 * 3] * 3 + 1] << ", " << normals[facets[0 * 3] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3] * 3] << ", " << vertices[facets[0 * 3] * 3 + 1] << ", " << vertices[facets[0 * 3] * 3 + 2] << ">" << std::endl;
       std::cout << "  V2: F=" << facets[0 * 3 + 1] << ": N=<" << normals[facets[0 * 3 + 1] * 3] << ", " << normals[facets[0 * 3 + 1] * 3 + 1] << ", " << normals[facets[0 * 3 + 1] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3 + 1] * 3] << ", " << vertices[facets[0 * 3 + 1] * 3 + 1] << ", " << vertices[facets[0 * 3 + 1] * 3 + 2] << ">" << std::endl;
       std::cout << "  V3: F=" << facets[0 * 3 + 2] << ": N=<" << normals[facets[0 * 3 + 2] * 3] << ", " << normals[facets[0 * 3 + 2] * 3 + 1] << ", " << normals[facets[0 * 3 + 2] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3 + 2] * 3] << ", " << vertices[facets[0 * 3 + 2] * 3 + 1] << ", " << vertices[facets[0 * 3 + 2] * 3 + 2] << ">" << std::endl;
-  #endif
       glNormal3f(normals[facets[0 * 3] * 3], normals[facets[0 * 3] * 3 + 1], normals[facets[0 * 3] * 3 + 2]);
-      glVertex3f(5 * vertices[facets[0 * 3] * 3], 5 * vertices[facets[0 * 3] * 3 + 1], 5 * vertices[facets[0 * 3] * 3 + 2]);
+      glVertex3f(3 + 5 * vertices[facets[0 * 3] * 3], 5 * vertices[facets[0 * 3] * 3 + 1], 5 * vertices[facets[0 * 3] * 3 + 2]);
       glNormal3f(normals[facets[0 * 3 + 1] * 3], normals[facets[0 * 3 + 1] * 3 + 1], normals[facets[0 * 3 + 1] * 3 + 2]);
-      glVertex3f(5 * vertices[facets[0 * 3 + 1] * 3], 5 * vertices[facets[0 * 3 + 1] * 3 + 1], 5 * vertices[facets[0 * 3 + 1] * 3 + 2]);
+      glVertex3f(3 + 5 * vertices[facets[0 * 3 + 1] * 3], 5 * vertices[facets[0 * 3 + 1] * 3 + 1], 5 * vertices[facets[0 * 3 + 1] * 3 + 2]);
       glNormal3f(normals[facets[0 * 3 + 2] * 3], normals[facets[0 * 3 + 2] * 3 + 1], normals[facets[0 * 3 + 2] * 3 + 2]);
-      glVertex3f(5 * vertices[facets[0 * 3 + 2] * 3], 5 * vertices[facets[0 * 3 + 2] * 3 + 1], 5 * vertices[facets[0 * 3 + 2] * 3 + 2]);
+      glVertex3f(3 + 5 * vertices[facets[0 * 3 + 2] * 3], 5 * vertices[facets[0 * 3 + 2] * 3 + 1], 5 * vertices[facets[0 * 3 + 2] * 3 + 2]);
   }
   glEnd();
   std::cout << "glEnd()" << std::endl;
- #else
+ #endif
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)
@@ -164,9 +167,20 @@ void Shape::draw()
     }
   }
   glEnd();
- #endif
 #endif
   glPopMatrix();
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+  glBegin(GL_TRIANGLES);
+  {
+      glNormal3f(normals[facets[0 * 3] * 3], normals[facets[0 * 3] * 3 + 1], normals[facets[0 * 3] * 3 + 2]);
+      glVertex3f(13 + 5 * vertices[facets[0 * 3] * 3], 5 * vertices[facets[0 * 3] * 3 + 1], -12 + 5 * vertices[facets[0 * 3] * 3 + 2]);
+      glNormal3f(normals[facets[0 * 3 + 1] * 3], normals[facets[0 * 3 + 1] * 3 + 1], normals[facets[0 * 3 + 1] * 3 + 2]);
+      glVertex3f(13 + 5 * vertices[facets[0 * 3 + 1] * 3], 5 * vertices[facets[0 * 3 + 1] * 3 + 1], -12 + 5 * vertices[facets[0 * 3 + 1] * 3 + 2]);
+      glNormal3f(normals[facets[0 * 3 + 2] * 3], normals[facets[0 * 3 + 2] * 3 + 1], normals[facets[0 * 3 + 2] * 3 + 2]);
+      glVertex3f(13 + 5 * vertices[facets[0 * 3 + 2] * 3], 5 * vertices[facets[0 * 3 + 2] * 3 + 1], -12 + 5 * vertices[facets[0 * 3 + 2] * 3 + 2]);
+  }
+  glEnd();
+#endif
   glEnable(GL_TEXTURE_2D);
 }
 

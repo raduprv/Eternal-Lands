@@ -154,7 +154,7 @@ LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _sc
   mover = new SmokeMover(this);
   mover2 = new SmokeMover(this, 1.2);
   mover3 = new ParticleMover(this);
-  spawner = new FilledSphereSpawner(0.04 * sqrt_scale);
+  spawner = new FilledSphereSpawner(0.05 * sqrt_scale);
   
   
 /*

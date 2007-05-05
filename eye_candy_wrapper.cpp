@@ -14,6 +14,8 @@
 
 #ifdef MAP_EDITOR
 extern int day_shadows_on;
+
+ec::SmoothPolygonBoundingRange initial_bounds;
 #endif
 
 extern "C" {
@@ -67,6 +69,11 @@ extern "C" void ec_init()
   //TODO: Free this when the program quits.  Not a big deal if it doesn't
   //happen, but it'd be proper to do so.
   self_actor.obstruction = new ec::SimpleCylinderObstruction(&(self_actor.center), 0.6, 3.0);
+
+#ifdef MAP_EDITOR
+  ec::SmoothPolygonElement e(0.0, 8.0);
+  initial_bounds.elements.push_back(e);
+#endif
 }
 
 extern "C" void ec_add_light(GLenum light_id)
@@ -261,16 +268,15 @@ extern "C" void ec_idle()
   if (use_eye_candy && ec_last_time % 1000000 >= ec_cur_time % 1000000)
     ec_heartbeat();
 
-/*
+#ifdef DEBUG_TTLANHIL_TRANSPARENCY
   // Put debugging effects here.    
-  if (ec_last_time % 100000 >= ec_cur_time % 100000)
+  if (ec_last_time % 5000000 >= ec_cur_time % 5000000)
   {
-    float test_x = 48.0 + ec::randfloat(6.0);
-    float test_y = 48.0 + ec::randfloat(6.0);
+    float test_x = 15.0;// + ec::randfloat(6.0);
+    float test_y = 15.0;// + ec::randfloat(6.0);
     ec_create_selfmagic_teleport_to_the_portals_room(test_x, test_y, 0.0, 10);
-    ec_create_summon_rabbit(test_x, test_y, 0.0, 10);
   }
-*/
+#endif
 
   eye_candy.idle();
   

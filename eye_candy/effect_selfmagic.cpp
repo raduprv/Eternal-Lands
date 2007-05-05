@@ -325,8 +325,10 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       spawner = new FilledDiscSpawner(0.2);
       const float sqrt_LOD = fastsqrt(LOD);
       size_scalar = 1.0;
+#ifndef DEBUG_TTLANHIL_TRANSPARENCY
       for (int i = 0; i < LOD * 100; i++)
       {
+#endif
         const Vec3 coords = spawner->get_new_coords() + effect_center + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
         Vec3 velocity(0.0, randcoord(0.1), 0.0);
         velocity.randomize(0.2);
@@ -335,15 +337,23 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
         Particle* p = new SelfMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2),  0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
+#ifndef DEBUG_TTLANHIL_TRANSPARENCY
       }
+#endif
       
 //      const float radius = 0.5 * powf(2, 0.18) / 1.5;
       const float radius = 0.377628;
+#ifndef DEBUG_TTLANHIL_TRANSPARENCY
       for (int i = 0; i < LOD * 4; i++)
       {
         const percent_t percent = ((percent_t)i + 1) / (LOD * 4);
+#else
+        const float percent = 1.0;
+#endif
         capless_cylinders.push_back(new CaplessCylinder(effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
+#ifndef DEBUG_TTLANHIL_TRANSPARENCY
       }
+#endif
       
       break;
     }

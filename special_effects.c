@@ -520,13 +520,18 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_DECLOAK:
 		case	SPECIAL_EFFECT_HEAL_SUMMONED:
 		case	SPECIAL_EFFECT_HEAL:
-#ifndef	EYE_CANDY
 			{
-			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
-				add_sfx(sfx,var_a,1);
+#ifdef EYE_CANDY
+				if (!use_eye_candy)
+				{
+#endif // EYE_CANDY
+				 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
+					add_sfx(sfx,var_a,1);
+#ifdef EYE_CANDY
+				}
+#endif // EYE_CANDY
 			}
 			break;
-#endif // EYE_CANDY
 		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
 		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
@@ -594,10 +599,15 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			{
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
-#ifndef	EYE_CANDY
-				add_sfx(sfx,var_a,1);	//caster 	 
-                add_sfx(sfx,var_b,0);	//target
-#endif	//EYE_CANDY
+#ifdef EYE_CANDY
+				if (use_eye_candy)
+				{
+#endif // EYE_CANDY
+					add_sfx(sfx,var_a,1);	//caster 	 
+					add_sfx(sfx,var_b,0);	//target
+#ifdef EYE_CANDY
+				}
+#endif // EYE_CANDY
 			}
 			break;
 		//location (a&b variable are not known until implemented by server)
@@ -621,10 +631,11 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	}
 
 	caster = get_actor_ptr_from_id(var_a);
- 	x = caster->x_pos;
- 	y = caster->y_pos;
+
 	if (caster == NULL)
 		return;
+ 	x = caster->x_pos;
+ 	y = caster->y_pos;
 	if (var_b)
 	{
 		target = get_actor_ptr_from_id(var_b);

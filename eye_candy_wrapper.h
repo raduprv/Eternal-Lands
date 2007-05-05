@@ -50,6 +50,10 @@ extern float min_ec_framerate;
 extern float max_ec_framerate;
 #endif
 
+#ifdef MAP_EDITOR
+extern ec::SmoothPolygonBoundingRange initial_bounds;
+#endif
+
 ////////////////////////////////////////////////////////////////////////////////
 // Defines for Win32 and MingW32                                              //
 ////////////////////////////////////////////////////////////////////////////////
