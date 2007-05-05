@@ -556,7 +556,7 @@ void move_to_next_frame()
 			} else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
 				// lets see if we want to change the idle animation
 				// make sure we have at least two idles, and add a randomizer to continue
-				if(actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0,10) == 0){
+				if(actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0,50) == 0){
 					// pick what we want the next idle to be
 					// 75% chance to do idle1
 					if(RAND(0, 3) == 0){
