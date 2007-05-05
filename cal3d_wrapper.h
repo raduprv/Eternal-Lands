@@ -431,6 +431,7 @@ CAL3D_WRAPPER_API enum Boolean  CalCoreSubmesh_EnableTangents(struct CalCoreSubm
   CAL3D_WRAPPER_API struct CalMixer *CalMixer_New(struct CalModel *pModel);
   CAL3D_WRAPPER_API void CalMixer_UpdateAnimation(struct CalMixer *self, float deltaTime);
   CAL3D_WRAPPER_API void CalMixer_UpdateSkeleton(struct CalMixer *self);
+  CAL3D_WRAPPER_API void CalMixer_SetAnimationTime(struct CalMixer *self, float animationTime);
 
 //****************************************************************************//
 // CalModel wrapper functions declaration                                     //

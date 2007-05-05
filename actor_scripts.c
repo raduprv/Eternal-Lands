@@ -552,13 +552,29 @@ void move_to_next_frame()
 
 			if ((actors_list[i]->IsOnIdle)&&(actors_list[i]->anim_time>=5.0)&&(actors_list[i]->stop_animation!=1)) {
 				cal_actor_set_random_idle(i);
+#ifdef	IDLE_FIX
+			} else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
+				// lets see if we want to change the idle animation
+				// make sure we have at least two idles, and add a randomizer to continue
+				if(actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0,10) == 0){
+					// pick what we want the next idle to be
+					// 75% chance to do idle1
+					if(RAND(0, 3) == 0){
+						// and check to see if we are changing the animation or not
+						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index){
+							cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
+						}
+					} else {
+						// and check to see if we are changing the animation or not
+						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_idle1_frame.anim_index){
+							cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
+						}
+					}
+				}
+#endif	//IDLE_FIX
 			}
 
 			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
-			// XXX (Grum): this is weird. Either the closing brace shouldn't be there,
-			// in which case we can forget about the whole if statement, or it should
-			// and then we're dereferencing a NULL pointer.
-			//} else actors_list[i]->busy=0;
 
 			//first thing, decrease the damage time, so we will see the damage splash only for 2 seconds
 			if(actors_list[i]->damage_ms) {
@@ -604,13 +620,16 @@ void next_command()
 					if(actors_list[i]->fighting){
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
 					} else if(!actors_list[i]->sitting) {
-						if(!actors_list[i]->sit_idle){
+						// we are standing, see if we can activate a stand idle
+						if(!actors_list[i]->stand_idle){
 							if (actors_defs[actors_list[i]->actor_type].group_count == 0)
 							{
-								if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND (0, 1))
+								// 75% chance to do idle1
+								if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 3) == 0){
 									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
-								else
+								} else {
 									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
+								}
 
 							}
 							else
@@ -619,12 +638,13 @@ void next_command()
 								actors_list[i]->IsOnIdle=1;
 							}
 
-							actors_list[i]->sit_idle=1;
+							actors_list[i]->stand_idle=1;
 						}
 					} else	{
-						if(!actors_list[i]->stand_idle) {
+						// we are sitting, see if we can activate the sit idle
+						if(!actors_list[i]->sit_idle) {
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle_sit_frame);
-							actors_list[i]->stand_idle=1;
+							actors_list[i]->sit_idle=1;
 						}
 					}
 				}
@@ -1841,7 +1861,7 @@ int cal_get_idle_group(actor_types *act,char *name)
 
 struct cal_anim cal_load_idle(actor_types *act, char *str)
 {
-	struct cal_anim res = {-1,0,0};
+	struct cal_anim res = {-1,0,0, 0.0f};
 	struct CalCoreAnimation *coreanim;
 
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);

@@ -3,7 +3,7 @@
 
 #include "cal.h"
 
-void cal_actor_set_anim(int id,struct cal_anim anim)
+void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 {
 	struct CalMixer *mixer;
 	int i;
@@ -17,7 +17,7 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 	//Stop previous animation if needed
 	if (actors_list[id]->IsOnIdle!=1) {
 		if ((actors_list[id]->cur_anim.anim_index!=-1)&&(actors_list[id]->cur_anim.kind==0)) {
-			CalMixer_ClearCycle(mixer,actors_list[id]->cur_anim.anim_index,0.05);
+			CalMixer_ClearCycle(mixer,actors_list[id]->cur_anim.anim_index, delay);
 		}
 
 		if ((actors_list[id]->cur_anim.anim_index!=-1)&&(actors_list[id]->cur_anim.kind==1)) {
@@ -27,14 +27,16 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 
 	if (actors_list[id]->IsOnIdle==1) {
 		for (i=0;i<actors_defs[actors_list[id]->actor_type].group_count;++i) {
-			CalMixer_ClearCycle(mixer,actors_list[id]->cur_idle_anims[i].anim_index,0.05);
+			CalMixer_ClearCycle(mixer,actors_list[id]->cur_idle_anims[i].anim_index, delay);
 		}
 	}
 
-	if (anim.kind==0)
-		CalMixer_BlendCycle(mixer,anim.anim_index,1.0,0.05);
-	else
+	if (anim.kind==0){
+		CalMixer_BlendCycle(mixer,anim.anim_index,1.0, delay);
+		CalMixer_SetAnimationTime(mixer, 0.0f);	//always start at the beginning of a cycling animation
+	} else {
 		CalMixer_ExecuteAction_Stop(mixer,anim.anim_index,0.0,0.0);
+	}
 
 	actors_list[id]->cur_anim=anim;
 	actors_list[id]->anim_time=0.0;
@@ -59,6 +61,10 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 #endif
 }
 
+void cal_actor_set_anim(int id,struct cal_anim anim)
+{
+	cal_actor_set_anim_delay(id, anim, 0.05f);
+}
 
 #ifdef	NEW_ACTOR_ANIMATION
 	#ifdef NEW_SOUND
@@ -71,15 +77,17 @@ struct cal_anim cal_load_anim(actor_types *act, char *str, int duration)
 struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound)
 	#else
 struct cal_anim cal_load_anim(actor_types *act, char *str)
-	#endif	//MEW_SOUND
+	#endif	//NEW_SOUND
 #endif
 {
 	char fname[255]={0};
-	struct cal_anim res={-1,0,0};
+	struct cal_anim res={-1,0,0,0.0f};
 	struct CalCoreAnimation *coreanim;
 
-	if(sscanf(str,"%s %d",fname,&res.kind) != 2)
+	if(sscanf(str,"%s %d",fname,&res.kind) != 2){
+		log_error("Bad animation formation: %s", str);
 		return res;
+	}
 
 #ifdef NEW_SOUND
 	if(sound)

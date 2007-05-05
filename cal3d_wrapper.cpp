@@ -24,6 +24,11 @@ extern "C" CAL3D_WRAPPER_API void CalMixer_RemoveAction(CalMixer *self,int id)
 	self->removeAction(id);
 }
 
+extern "C" CAL3D_WRAPPER_API void CalMixer_SetAnimationTime(CalMixer *self, float animationTime)
+{
+	self->setAnimationTime(animationTime);
+}
+
 extern "C" CAL3D_WRAPPER_API void CalCoreAnimation_Scale(CalCoreAnimation *self, float factor)
 {
 	self->scale(factor);

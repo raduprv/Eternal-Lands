@@ -26,10 +26,11 @@ struct cal_anim cal_load_anim(actor_types *act, char *str, int duration);
 struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound);
 	#else
 struct cal_anim cal_load_anim(actor_types *act, char *str);
-	#endif	//MEW_SOUND
+	#endif	//NEW_SOUND
 #endif
 
-void cal_actor_set_anim(int id,struct cal_anim anim);
+void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay);
+void cal_actor_set_anim(int id, struct cal_anim anim);
 
 #ifdef __cplusplus
 } // extern "C"
