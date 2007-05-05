@@ -562,12 +562,12 @@ void move_to_next_frame()
 					if(RAND(0, 3) == 0){
 						// and check to see if we are changing the animation or not
 						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index){
-							cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
+							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame, 0.5f); // normal idle
 						}
 					} else {
 						// and check to see if we are changing the animation or not
 						if(actors_list[i]->cur_anim.anim_index != actors_defs[actors_list[i]->actor_type].cal_idle1_frame.anim_index){
-							cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
+							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame, 0.5f); // normal idle
 						}
 					}
 				}
