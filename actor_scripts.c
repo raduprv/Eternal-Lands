@@ -1508,7 +1508,7 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value (legs->model_name, sizeof (legs->model_name), item);
 				legs->mesh_index = cal_load_mesh (act, legs->model_name, "legs");
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"skinmask") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"legsmask") == 0) {
 				get_string_value (legs->legs_mask, sizeof (legs->legs_mask), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
@@ -2179,7 +2179,7 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, (xmlChar*)"skin") == 0) {
 				get_string_value (boots->boots_name, sizeof (boots->boots_name), item);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"botsmask") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"bootsmask") == 0) {
 				get_string_value (boots->boots_mask, sizeof (boots->boots_mask), item);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
