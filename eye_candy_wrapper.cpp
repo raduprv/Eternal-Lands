@@ -23,6 +23,7 @@ extern "C" {
   int use_lamp_halo = 0;
   float min_ec_framerate = 13.0;
   float max_ec_framerate = 37.0;
+  int transparency_resolution_fix = 0;
 }
 
 ec::EyeCandy eye_candy;
@@ -91,6 +92,8 @@ extern "C" void ec_set_draw_method()
 
 extern "C" void ec_set_draw_detail()
 {
+  std::cout << "ec_set_draw_detail" << std::endl << std::flush;
+  eye_candy.poor_transparency_resolution = transparency_resolution_fix;
   if (poor_man)
     eye_candy.set_thresholds(3500, min_ec_framerate, max_ec_framerate);	//Max particles, min framerate, max framerate
   else
@@ -268,12 +271,12 @@ extern "C" void ec_idle()
   if (use_eye_candy && ec_last_time % 1000000 >= ec_cur_time % 1000000)
     ec_heartbeat();
 
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
+#if 0
   // Put debugging effects here.    
-  if (ec_last_time % 5000000 >= ec_cur_time % 5000000)
+  if (ec_last_time % 100000 >= ec_cur_time % 100000)
   {
-    float test_x = 15.0;// + ec::randfloat(6.0);
-    float test_y = 15.0;// + ec::randfloat(6.0);
+    float test_x = 15.0 + ec::randfloat(6.0);
+    float test_y = 15.0 + ec::randfloat(6.0);
     ec_create_selfmagic_teleport_to_the_portals_room(test_x, test_y, 0.0, 10);
   }
 #endif

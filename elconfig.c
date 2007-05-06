@@ -104,6 +104,12 @@ void change_var(int * var)
 	*var= !*var;
 }
 
+void change_ec_flag(int * var)
+{
+	*var= !*var;
+	ec_set_draw_detail();
+}
+
 #ifdef	EYE_CANDY
 void change_min_ec_framerate(float * var, float * value)
 {
@@ -1218,6 +1224,7 @@ void init_vars()
  #ifdef EYE_CANDY
 	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",LODTAB);
 	add_var(BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",LODTAB);
+	add_var(BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_ec_flag,0,"Transparency resolution fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",LODTAB);
 	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,0,"Max eye candy framerate","If your framerate is above this amount, eye candy will use maximum detail.",LODTAB,1.0,FLT_MAX,1.0);
 	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,0,"Min eye candy framerate","If your framerate is below this amount, eye candy will use minimum detail.",LODTAB,0.0,FLT_MAX,1.0);
  #endif

@@ -109,6 +109,7 @@ Shape::~Shape()
 
 void Shape::draw()
 {
+  glColor4f(color.x, color.y, color.z, alpha);
 
 #if 0
   glEnableClientState(GL_VERTEX_ARRAY);
@@ -119,12 +120,6 @@ void Shape::draw()
   glPushMatrix();
   glTranslated(pos.x, pos.y, pos.z);
   glDisable(GL_TEXTURE_2D);
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-  std::cout << pos << ", " << alpha << std::endl;
-  glColor4f(color.x, color.y, color.z, 0.2);
-#else
-  glColor4f(color.x, color.y, color.z, alpha);
-#endif
 
 #if 0
   glNormalPointer(GL_DOUBLE, 0, normals);
@@ -154,10 +149,19 @@ void Shape::draw()
   glEnd();
   std::cout << "glEnd()" << std::endl;
  #endif
+  if (base->poor_transparency_resolution)
+    srand((unsigned int)(void*)this);
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)
     {
+      if (base->poor_transparency_resolution && (alpha < 0.05))
+      {
+        if (randfloat() < (alpha / 0.05))
+          glColor4f(color.x, color.y, color.z, 0.05);
+        else
+          continue;
+      }
       glNormal3f(normals[facets[i * 3] * 3], normals[facets[i * 3] * 3 + 1], normals[facets[i * 3] * 3 + 2]);
       glVertex3f(vertices[facets[i * 3] * 3], vertices[facets[i * 3] * 3 + 1], vertices[facets[i * 3] * 3 + 2]);
       glNormal3f(normals[facets[i * 3 + 1] * 3], normals[facets[i * 3 + 1] * 3 + 1], normals[facets[i * 3 + 1] * 3 + 2]);
@@ -184,7 +188,7 @@ void Shape::draw()
   glEnable(GL_TEXTURE_2D);
 }
 
-CaplessCylinder::CaplessCylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys)
+CaplessCylinder::CaplessCylinder(EyeCandy* _base, const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys) : Shape(_base)
 {
   radius = _radius;
   start = _start;
@@ -244,7 +248,7 @@ CaplessCylinder::CaplessCylinder(const Vec3 _start, const Vec3 _end, const Vec3 
   facets[(subdivisions - 1) * 6 + 4] = 0;
 }
 
-Cylinder::Cylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys)
+Cylinder::Cylinder(EyeCandy* _base, const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys) : Shape(_base)
 {
   radius = _radius;
   start = _start;
@@ -344,7 +348,7 @@ Cylinder::Cylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const 
   facets[subdivisions * 3 * 2 + (subdivisions - 1) * 6 + 4] = subdivisions * 2;
 }
 
-Sphere::Sphere(const Vec3 _pos, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys)
+Sphere::Sphere(EyeCandy* _base, const Vec3 _pos, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys) : Shape(_base)
 {
   radius = _radius;
   pos = _pos;
@@ -1203,6 +1207,7 @@ EyeCandy::EyeCandy()
   last_forced_LOD = 10;
   framerate = 100.0;
   max_fps = 255.0;
+  poor_transparency_resolution = false;
 }
 
 EyeCandy::EyeCandy(int _max_particles)
@@ -1221,6 +1226,7 @@ EyeCandy::EyeCandy(int _max_particles)
   last_forced_LOD = 10;
   framerate = 100.0;
   max_fps = 255.0;
+  poor_transparency_resolution = false;
 }
 
 EyeCandy::~EyeCandy()

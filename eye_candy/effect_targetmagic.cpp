@@ -410,7 +410,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       for (int i = 0; i < LOD * 2; i++)
       {
         const percent_t percent = ((percent_t)i + 1) / (LOD * 2);
-        capless_cylinders.push_back(new CaplessCylinder(effect_centers[0] - Vec3(0.0, 0.7, 0.0), effect_centers[0] + Vec3(0.0, -0.7 + 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD / 2.0 + 2), radius * percent, (int)(25 * (percent + 0.2))));
+        capless_cylinders.push_back(new CaplessCylinder(base, effect_centers[0] - Vec3(0.0, 0.7, 0.0), effect_centers[0] + Vec3(0.0, -0.7 + 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD / 2.0 + 2), radius * percent, (int)(25 * (percent + 0.2))));
       }
 
       break;
@@ -740,7 +740,7 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
         for (int i = 0; i < LOD * 2; i++)
         {
           const percent_t percent = ((percent_t)i + 1) / (LOD * 2);
-          effect->capless_cylinders.push_back(new CaplessCylinder(center, center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD / 2.0 + 2), radius * percent, (int)(25 * (percent + 0.2))));
+          effect->capless_cylinders.push_back(new CaplessCylinder(base, center, center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD / 2.0 + 2), radius * percent, (int)(25 * (percent + 0.2))));
           }
       }
       break;

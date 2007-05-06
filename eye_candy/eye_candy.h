@@ -195,7 +195,7 @@ const int EC_DEBUG = 1;
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
-const coord_t MAX_DRAW_DISTANCE_SQUARED = 600;
+const coord_t MAX_DRAW_DISTANCE_SQUARED = 400;
 
 // E X T E R N S //////////////////////////////////////////////////////////////
 
@@ -602,10 +602,12 @@ A variety of geometric primitives inherit from Shape.  They all make use
 of its draw routine, but set their vertex data on their own.  Shapes are
 used for things like columns of light.
 */
+class EyeCandy;
+
 class Shape
 {
 public:
-  Shape() { };
+  Shape(EyeCandy* _base) { base = _base; };
   virtual ~Shape();
   
   virtual void draw();
@@ -613,6 +615,7 @@ public:
   Vec3 pos;
   Vec3 color;
   alpha_t alpha;
+  EyeCandy* base;
 
 protected:
   int vertex_count;
@@ -634,7 +637,7 @@ protected:
 class CaplessCylinder : public Shape
 {
 public:
-  CaplessCylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
+  CaplessCylinder(EyeCandy* _base, const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
   ~CaplessCylinder() {};
   
   coord_t radius;
@@ -647,7 +650,7 @@ public:
 class Cylinder : public Shape
 {
 public:
-  Cylinder(const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
+  Cylinder(EyeCandy* _base, const Vec3 _start, const Vec3 _end, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
   ~Cylinder() {};
 
   coord_t radius;
@@ -660,7 +663,7 @@ public:
 class Sphere : public Shape
 {
 public:
-  Sphere(const Vec3 pos, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
+  Sphere(EyeCandy* _base, const Vec3 pos, const Vec3 _color, const alpha_t _alpha, const coord_t _radius, const int polys);
   ~Sphere() {};
 
   void average_points(const coord_t p1_first, const coord_t p2_first, const coord_t p1_second, const coord_t p2_second, coord_t& p, coord_t& q);
@@ -703,7 +706,6 @@ public:
 };
 
 class ParticleMover;
-class EyeCandy;
 class Effect;
 
 /*!
@@ -1522,6 +1524,7 @@ public:
   float LOD_9_time_threshold;
   float LOD_10_time_threshold;
   int allowable_particles_to_add;
+  bool poor_transparency_resolution;
   Uint16 last_forced_LOD;
   DrawType draw_method;
   coord_t billboard_scalar;

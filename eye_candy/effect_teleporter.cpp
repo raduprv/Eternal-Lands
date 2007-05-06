@@ -77,7 +77,7 @@ TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   for (int i = 0; i < LOD * 4; i++)
   {
     const percent_t percent = ((coord_t)i + 1) / (LOD * 4);
-    capless_cylinders.push_back(new CaplessCylinder(*pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
+    capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
   }
 }
 
@@ -162,7 +162,7 @@ void TeleporterEffect::request_LOD(const float _LOD)
   for (int i = 0; i < LOD * 4; i++)
   {
     const percent_t percent = ((coord_t)i + 1) / (LOD * 4);
-    capless_cylinders.push_back(new CaplessCylinder(*pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
+    capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
   }
 }
 

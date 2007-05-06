@@ -350,7 +350,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
 //#else
 //        const float percent = 1.0;
 //#endif
-        capless_cylinders.push_back(new CaplessCylinder(effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
+        capless_cylinders.push_back(new CaplessCylinder(base, effect_center, effect_center + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
 //#ifndef DEBUG_TTLANHIL_TRANSPARENCY
       }
 //#endif
