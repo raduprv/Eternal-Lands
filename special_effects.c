@@ -528,10 +528,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 					add_sfx(sfx,var_a,1);
 #ifdef EYE_CANDY
+					break;
 				}
 #endif // EYE_CANDY
 			}
-			break;
 		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
 		case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:

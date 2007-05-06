@@ -43,6 +43,9 @@
 
 #ifdef __cplusplus
 extern "C" int use_eye_candy;
+ #ifdef MAP_EDITOR
+extern ec::SmoothPolygonBoundingRange initial_bounds;
+ #endif
 #else
 extern int use_eye_candy;
 extern int use_lamp_halo;
@@ -50,9 +53,6 @@ extern float min_ec_framerate;
 extern float max_ec_framerate;
 #endif
 
-#ifdef MAP_EDITOR
-extern ec::SmoothPolygonBoundingRange initial_bounds;
-#endif
 
 ////////////////////////////////////////////////////////////////////////////////
 // Defines for Win32 and MingW32                                              //

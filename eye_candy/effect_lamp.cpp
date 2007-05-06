@@ -59,7 +59,7 @@ LampBigParticle::LampBigParticle(Effect* _effect, ParticleMover* _mover, const V
   color[0] = 1.0;
   color[1] = 0.4 + randfloat(0.3);
   color[2] = 0.3;
-  size = 8 * (2.0 + randcoord()) / (LOD + 2);
+  size = 9 * (2.0 + randcoord()) / (LOD + 2);
   alpha = 1.4 * 5 / size / (LOD + 2);
   if (alpha > 1.0)
     alpha = 1.0;
@@ -112,7 +112,7 @@ LampFlareParticle::LampFlareParticle(Effect* _effect, ParticleMover* _mover, con
   color[0] = 1.0;
   color[1] = 0.5;
   color[2] = 0.1;
-  size = _scale * 8;
+  size = _scale * 9.5;
   true_size = size;
   alpha = 1.0;
   velocity = Vec3(0.0, 0.0, 0.0);
@@ -154,7 +154,7 @@ LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _sc
   mover = new SmokeMover(this);
   mover2 = new SmokeMover(this, 1.2);
   mover3 = new ParticleMover(this);
-  spawner = new FilledSphereSpawner(0.05 * sqrt_scale);
+  spawner = new FilledSphereSpawner(0.065 * sqrt_scale);
   
   
 /*
@@ -217,7 +217,7 @@ bool LampEffect::idle(const Uint64 usec)
       break;
   }
 
-  while ((big_particles < LOD * 7) && ((math_cache.powf_0_1_rough_close(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0 / square(LOD)) < 0.5) || (big_particles < LOD * 2)))
+  while ((big_particles < LOD * 7) && ((math_cache.powf_0_1_rough_close(randfloat(), (LOD * 7 - big_particles) * (interval_t)usec / 9000.0 / square(LOD)) < 0.5) || (big_particles < LOD * 4)))
   {
     Vec3 coords = spawner->get_new_coords();
     coords.y *= 1.6;
