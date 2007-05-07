@@ -705,12 +705,9 @@ int command_unfilter(char *text, int len)
 	for (i = 0; i < sizeof (name) - 1; i++)
 	{
 		ch = text[i];
-		if (ch==' ' || ch=='\0')
-		{
-			ch = '\0';
+		if (ch == '\0')
 			break;
-		}
-		name[i]=ch;
+		name[i] = ch;
 	}
 	name[i] = '\0';
 
