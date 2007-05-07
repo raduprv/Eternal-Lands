@@ -163,6 +163,12 @@ void init_stuff()
 #ifdef NEW_E3D_FORMAT
 	init_gl_extensions();
 #else
+
+	// Setup the new eye candy system
+#ifdef	EYE_CANDY
+	ec_init();
+#endif	//EYE_CANDY
+
    //now load the multitexturing extension
 #ifndef LINUX
 	glActiveTextureARB		= (PFNGLACTIVETEXTUREARBPROC)		SDL_GL_GetProcAddress("glActiveTextureARB");

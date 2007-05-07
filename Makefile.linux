@@ -37,6 +37,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 
 CXXOBJS=eye_candy_window.o eye_candy_wrapper.o \
 	eye_candy.o math_cache.o effect_lamp.o \
+	effect_candle.o \
 	effect_campfire.o effect_fountain.o \
 	effect_teleporter.o effect_firefly.o \
 	effect_sword.o effect_summon.o \
@@ -90,6 +91,9 @@ math_cache.o: ../elc/eye_candy/math_cache.cpp ../elc/eye_candy/math_cache.h
 
 effect_lamp.o: ../elc/eye_candy/effect_lamp.cpp ../elc/eye_candy/effect_lamp.h
 	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_lamp.cpp
+
+effect_candle.o: ../elc/eye_candy/effect_candle.cpp ../elc/eye_candy/effect_candle.h
+	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_candle.cpp
 
 effect_campfire.o: ../elc/eye_candy/effect_campfire.cpp ../elc/eye_candy/effect_campfire.h
 	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_campfire.cpp

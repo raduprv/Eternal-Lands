@@ -140,6 +140,11 @@ void get_world_x_y()
 
 	scene_mouse_x=-camera_x+x1;
 	scene_mouse_y=-camera_y+y1;
+
+#ifdef EYE_CANDY
+	if (cur_mode == mode_eye_candy)
+		update_eye_candy_position(scene_mouse_x, scene_mouse_y, height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)]);
+#endif
 }
 
 void Enter2DMode()

@@ -4,6 +4,10 @@
 #include <gtk/gtk.h>
 #include "global.h"
 
+#ifdef EYE_CANDY
+#include "eye_candy_window.h"
+#endif
+
 char map_file_name[256]={0};
 char particle_file_name[256]={0};
 

@@ -154,6 +154,11 @@ void draw_scene()
              display_particle_handles();
         glEnable(GL_LIGHTING);
     }
+    
+#ifdef  EYE_CANDY
+    ec_idle();
+    ec_draw();
+#endif
 
     if(view_grid)
         draw_heights_wireframe();
