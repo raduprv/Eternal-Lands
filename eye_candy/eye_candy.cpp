@@ -109,6 +109,9 @@ Shape::~Shape()
 
 void Shape::draw()
 {
+  if (!base->draw_shapes)
+    return;
+
   glColor4f(color.x, color.y, color.z, alpha);
 
 #if 0
@@ -1173,6 +1176,7 @@ coord_t FilledBoundingSpawner::get_area() const
   coord_t avg_radius = 0;
   for (float f = 0; f < 2 * PI; f += (2 * PI / 256.0))
     avg_radius += bounding_range->get_radius(f);
+  avg_radius /= 256.0;
   return PI * square(avg_radius);
 }
 
@@ -1188,6 +1192,7 @@ coord_t HollowBoundingSpawner::get_area() const
   coord_t avg_radius = 0;
   for (float f = 0; f < 2 * PI; f += (2 * PI / 256.0))
     avg_radius += bounding_range->get_radius(f);
+  avg_radius /= 256.0;
   return PI * square(avg_radius);
 }
 
@@ -1208,6 +1213,7 @@ EyeCandy::EyeCandy()
   framerate = 100.0;
   max_fps = 255.0;
   poor_transparency_resolution = false;
+  draw_shapes = true;
 }
 
 EyeCandy::EyeCandy(int _max_particles)
@@ -1227,6 +1233,7 @@ EyeCandy::EyeCandy(int _max_particles)
   framerate = 100.0;
   max_fps = 255.0;
   poor_transparency_resolution = false;
+  draw_shapes = true;
 }
 
 EyeCandy::~EyeCandy()

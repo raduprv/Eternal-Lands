@@ -195,7 +195,7 @@ const int EC_DEBUG = 1;
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
-const coord_t MAX_DRAW_DISTANCE_SQUARED = 400;
+const coord_t MAX_DRAW_DISTANCE_SQUARED = 100;
 
 // E X T E R N S //////////////////////////////////////////////////////////////
 
@@ -1525,6 +1525,7 @@ public:
   float LOD_10_time_threshold;
   int allowable_particles_to_add;
   bool poor_transparency_resolution;
+  bool draw_shapes;
   Uint16 last_forced_LOD;
   DrawType draw_method;
   coord_t billboard_scalar;
