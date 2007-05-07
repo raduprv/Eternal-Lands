@@ -609,7 +609,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
   {
     if (!strncmp("fou", file_name + 12, 3))
       ec_create_fountain(x_pos, y_pos, z_pos + 0.15, (z_pos >= 0.8 ? z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
-    else if (!strncmp("smo", file_name + 12, 3))
+    else if ((use_fancy_smoke) && (!strncmp("smo", file_name + 12, 3)))
     {
       if (file_name[17] == '1')
         ec_create_smoke(x_pos, y_pos, z_pos, 0.3, (poor_man ? 6 : 10));

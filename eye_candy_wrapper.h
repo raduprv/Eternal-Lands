@@ -52,6 +52,8 @@ extern int use_lamp_halo;
 extern float min_ec_framerate;
 extern float max_ec_framerate;
 extern int transparency_resolution_fix;
+extern int use_light_columns;
+extern int use_fancy_smoke;
 #endif
 
 

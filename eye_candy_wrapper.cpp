@@ -24,6 +24,8 @@ extern "C" {
   float min_ec_framerate = 13.0;
   float max_ec_framerate = 37.0;
   int transparency_resolution_fix = 0;
+  int use_light_columns = 1;
+  int use_fancy_smoke = 1;
 }
 
 ec::EyeCandy eye_candy;
@@ -94,6 +96,7 @@ extern "C" void ec_set_draw_detail()
 {
   std::cout << "ec_set_draw_detail" << std::endl << std::flush;
   eye_candy.poor_transparency_resolution = transparency_resolution_fix;
+  eye_candy.draw_shapes = use_light_columns;
   if (poor_man)
     eye_candy.set_thresholds(3500, min_ec_framerate, max_ec_framerate);	//Max particles, min framerate, max framerate
   else
