@@ -135,33 +135,16 @@ void Shape::draw()
   glDisableClientState(GL_INDEX_ARRAY);
 #else
 
- #ifdef DEBUG_TTLANHIL_TRANSPARENCY
-  std::cout << "glBegin(GL_TRIANGLES)" << std::endl;
-  glBegin(GL_TRIANGLES);
-  {
-      std::cout << "  V1: F=" << facets[0 * 3] << ": N=<" << normals[facets[0 * 3] * 3] << ", " << normals[facets[0 * 3] * 3 + 1] << ", " << normals[facets[0 * 3] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3] * 3] << ", " << vertices[facets[0 * 3] * 3 + 1] << ", " << vertices[facets[0 * 3] * 3 + 2] << ">" << std::endl;
-      std::cout << "  V2: F=" << facets[0 * 3 + 1] << ": N=<" << normals[facets[0 * 3 + 1] * 3] << ", " << normals[facets[0 * 3 + 1] * 3 + 1] << ", " << normals[facets[0 * 3 + 1] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3 + 1] * 3] << ", " << vertices[facets[0 * 3 + 1] * 3 + 1] << ", " << vertices[facets[0 * 3 + 1] * 3 + 2] << ">" << std::endl;
-      std::cout << "  V3: F=" << facets[0 * 3 + 2] << ": N=<" << normals[facets[0 * 3 + 2] * 3] << ", " << normals[facets[0 * 3 + 2] * 3 + 1] << ", " << normals[facets[0 * 3 + 2] * 3 + 2] << ">; V=<" << vertices[facets[0 * 3 + 2] * 3] << ", " << vertices[facets[0 * 3 + 2] * 3 + 1] << ", " << vertices[facets[0 * 3 + 2] * 3 + 2] << ">" << std::endl;
-      glNormal3f(normals[facets[0 * 3] * 3], normals[facets[0 * 3] * 3 + 1], normals[facets[0 * 3] * 3 + 2]);
-      glVertex3f(3 + 5 * vertices[facets[0 * 3] * 3], 5 * vertices[facets[0 * 3] * 3 + 1], 5 * vertices[facets[0 * 3] * 3 + 2]);
-      glNormal3f(normals[facets[0 * 3 + 1] * 3], normals[facets[0 * 3 + 1] * 3 + 1], normals[facets[0 * 3 + 1] * 3 + 2]);
-      glVertex3f(3 + 5 * vertices[facets[0 * 3 + 1] * 3], 5 * vertices[facets[0 * 3 + 1] * 3 + 1], 5 * vertices[facets[0 * 3 + 1] * 3 + 2]);
-      glNormal3f(normals[facets[0 * 3 + 2] * 3], normals[facets[0 * 3 + 2] * 3 + 1], normals[facets[0 * 3 + 2] * 3 + 2]);
-      glVertex3f(3 + 5 * vertices[facets[0 * 3 + 2] * 3], 5 * vertices[facets[0 * 3 + 2] * 3 + 1], 5 * vertices[facets[0 * 3 + 2] * 3 + 2]);
-  }
-  glEnd();
-  std::cout << "glEnd()" << std::endl;
- #endif
   if (base->poor_transparency_resolution)
     srand((unsigned int)(void*)this);
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)
     {
-      if (base->poor_transparency_resolution && (alpha < 0.05))
+      if (base->poor_transparency_resolution && (alpha < 0.03))
       {
-        if (randfloat() < (alpha / 0.05))
-          glColor4f(color.x, color.y, color.z, 0.05);
+        if (randfloat() < (alpha / 0.03))
+          glColor4f(color.x, color.y, color.z, 0.03);
         else
           continue;
       }
@@ -176,18 +159,6 @@ void Shape::draw()
   glEnd();
 #endif
   glPopMatrix();
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-  glBegin(GL_TRIANGLES);
-  {
-      glNormal3f(normals[facets[0 * 3] * 3], normals[facets[0 * 3] * 3 + 1], normals[facets[0 * 3] * 3 + 2]);
-      glVertex3f(13 + 5 * vertices[facets[0 * 3] * 3], 5 * vertices[facets[0 * 3] * 3 + 1], -12 + 5 * vertices[facets[0 * 3] * 3 + 2]);
-      glNormal3f(normals[facets[0 * 3 + 1] * 3], normals[facets[0 * 3 + 1] * 3 + 1], normals[facets[0 * 3 + 1] * 3 + 2]);
-      glVertex3f(13 + 5 * vertices[facets[0 * 3 + 1] * 3], 5 * vertices[facets[0 * 3 + 1] * 3 + 1], -12 + 5 * vertices[facets[0 * 3 + 1] * 3 + 2]);
-      glNormal3f(normals[facets[0 * 3 + 2] * 3], normals[facets[0 * 3 + 2] * 3 + 1], normals[facets[0 * 3 + 2] * 3 + 2]);
-      glVertex3f(13 + 5 * vertices[facets[0 * 3 + 2] * 3], 5 * vertices[facets[0 * 3 + 2] * 3 + 1], -12 + 5 * vertices[facets[0 * 3 + 2] * 3 + 2]);
-  }
-  glEnd();
-#endif
   glEnable(GL_TEXTURE_2D);
 }
 
@@ -1493,25 +1464,7 @@ void EyeCandy::draw()
 {
   if (ec_error_status)
     return;
-/*
-#ifdef DEBUG_TTLANHIL_TRANSPARENCY
-  glDisable(GL_TEXTURE_2D);
-  glEnable(GL_COLOR_MATERIAL);
-  glEnable(GL_BLEND);
-  glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  glColor4f(1.0, 1.0, 1.0, 0.3);
-  glNormal3f(0.0, 0.0, 1.0);
-  const float offset = 0.0f;
-  glBegin(GL_QUADS);
-  {
-    glVertex3f(9, 0.0, -16 + offset);
-    glVertex3f(9, 1.0, -16 + offset);
-    glVertex3f(11, 1.0, -16 + offset);
-    glVertex3f(11, 0.0, -16 + offset);
-  }
-  glEnd();
-#endif
-*/
+
   start_draw();
 
   // Draw effects (any special drawing functionality) and their particles.
