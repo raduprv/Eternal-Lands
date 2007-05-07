@@ -195,7 +195,7 @@ const int EC_DEBUG = 1;
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
-const coord_t MAX_DRAW_DISTANCE_SQUARED = 100;
+const coord_t MAX_DRAW_DISTANCE_SQUARED = 170;
 
 // E X T E R N S //////////////////////////////////////////////////////////////
 
@@ -1466,6 +1466,7 @@ public:
   void push_back_effect(Effect* e);
   bool push_back_particle(Particle* p);
   void set_camera(const Vec3& _camera) { camera = _camera; };
+  void set_center(const Vec3& _center) { center = _center; };
   void set_dimensions(const coord_t _width, const coord_t _height, const angle_t _zoom) { width = _width; height = _height; zoom = _zoom; temp_sprite_scalar = sprite_scalar * _height / _zoom; };
   void set_sprite_scalar(const coord_t _scalar) { sprite_scalar = _scalar; temp_sprite_scalar = _scalar * height; };
   void draw();
@@ -1495,6 +1496,7 @@ public:
   coord_t max_point_size;
   coord_t max_allowable_point_size;
   Vec3 camera;
+  Vec3 center;
   coord_t width;
   coord_t height;
   angle_t zoom;

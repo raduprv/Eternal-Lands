@@ -141,10 +141,10 @@ void Shape::draw()
   {
     for (int i = 0; i < facet_count; i++)
     {
-      if (base->poor_transparency_resolution && (alpha < 0.03))
+      if (base->poor_transparency_resolution && (alpha < 0.02942))	// Ttlanhil recommends this number.
       {
-        if (randfloat() < (alpha / 0.03))
-          glColor4f(color.x, color.y, color.z, 0.03);
+        if (randfloat() < (alpha / 0.02942))
+          glColor4f(color.x, color.y, color.z, 0.02942);
         else
           continue;
       }
@@ -1550,8 +1550,8 @@ void EyeCandy::idle()
       e->recall = true;
     }
 
-    coord_t distance_squared = (camera - *(e->pos)).magnitude_squared();
-//    std::cout << camera << ", " << *e->pos << ": " << (camera - *(e->pos)).magnitude_squared() << " <? " << MAX_DRAW_DISTANCE_SQUARED << std::endl;
+    coord_t distance_squared = (center - *(e->pos)).magnitude_squared();
+//    std::cout << center << ", " << *e->pos << ": " << (center - *(e->pos)).magnitude_squared() << " <? " << MAX_DRAW_DISTANCE_SQUARED << std::endl;
     if (!e->active)
     {
       if (distance_squared < MAX_DRAW_DISTANCE_SQUARED)
