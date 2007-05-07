@@ -52,8 +52,9 @@
 #define CHAT		7
 #define ADVVID	8
 #define LODTAB  9
+#define ECTAB  10
 
-#define MAX_TABS 10
+#define MAX_TABS 11
 
 #define CHECKBOX_SIZE		15
 #define SPACING				5	//Space between widgets and labels and lines
@@ -78,7 +79,7 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-int elconfig_menu_x_len= 540;
+int elconfig_menu_x_len= 660;
 int elconfig_menu_y_len= 463;
 
 int windows_on_top= 0;
@@ -1222,11 +1223,12 @@ void init_vars()
 	add_var(BOOL,"night_shift_textures","nst",&night_shift_textures,change_var,0,"Night Textures","Make the scene at night less colorful, as in the real world.  Will impose a small delay when changing to/from dungeon maps.",LODTAB);
  #endif
  #ifdef EYE_CANDY
-	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",LODTAB);
-	add_var(BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",LODTAB);
-	add_var(BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_ec_flag,0,"Transparency resolution fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",LODTAB);
-	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,0,"Max eye candy framerate","If your framerate is above this amount, eye candy will use maximum detail.",LODTAB,1.0,FLT_MAX,1.0);
-	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,0,"Min eye candy framerate","If your framerate is below this amount, eye candy will use minimum detail.",LODTAB,0.0,FLT_MAX,1.0);
+	add_var(BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
+	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
+	add_var(BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);
+	add_var(BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_ec_flag,0,"Transparency resolution fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",ECTAB);
+	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,0,"Max eye candy framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,1.0,FLT_MAX,1.0);
+	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,0,"Min eye candy framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,0.0,FLT_MAX,1.0);
  #endif
  #ifdef	TERRAIN
 	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", LODTAB);
@@ -1396,9 +1398,6 @@ void init_vars()
 	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show POS","Show position on the minimap",HUD);
 	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
 	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
-#endif
-#ifdef EYE_CANDY
-	add_var(BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", LODTAB);
 #endif
 
 #if defined ELC && ! defined MAP_EDITOR2
@@ -1981,6 +1980,7 @@ void display_elconfig_win(void)
 		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0);
 		elconfig_tabs[LODTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_lod, 0, 0);
 		elconfig_tabs[ADVVID].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_advvideo, 0, 0);
+		elconfig_tabs[ECTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_ec, 0, 0);
 
 		elconfig_populate_tabs();
 	}
