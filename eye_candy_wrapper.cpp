@@ -275,9 +275,12 @@ extern "C" void ec_idle()
   // Put debugging effects here.    
   if (ec_last_time % 100000 >= ec_cur_time % 100000)
   {
-    float test_x = 15.0 + ec::randfloat(6.0);
-    float test_y = 15.0 + ec::randfloat(6.0);
-    ec_create_selfmagic_teleport_to_the_portals_room(test_x, test_y, 0.0, 10);
+    float test_x = 31.0 + ec::randfloat(6.0);
+    float test_y = 36.0 + ec::randfloat(6.0);
+    if (rand() & 1)
+      ec_create_bag_pickup(test_x, test_y, 0.0, 10);
+    else
+      ec_create_bag_drop(test_x, test_y, 0.0, 10);
   }
 #endif
 
