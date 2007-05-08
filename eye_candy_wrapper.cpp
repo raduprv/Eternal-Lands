@@ -24,7 +24,7 @@ extern "C" {
   float min_ec_framerate = 13.0;
   float max_ec_framerate = 37.0;
   int transparency_resolution_fix = 0;
-  int use_light_columns = 1;
+  int light_columns_threshold = 5;
   int use_fancy_smoke = 1;
 }
 
@@ -94,9 +94,7 @@ extern "C" void ec_set_draw_method()
 
 extern "C" void ec_set_draw_detail()
 {
-  std::cout << "ec_set_draw_detail" << std::endl << std::flush;
   eye_candy.poor_transparency_resolution = transparency_resolution_fix;
-  eye_candy.draw_shapes = use_light_columns;
   if (poor_man)
     eye_candy.set_thresholds(3500, min_ec_framerate, max_ec_framerate);	//Max particles, min framerate, max framerate
   else
@@ -180,7 +178,7 @@ extern "C" void ec_idle()
     
   force_idle = false;
   
-  const std::vector<std::string> ec_errors = ec::fetch_logs();
+  const std::vector<std::string> ec_errors = ec::logger.fetch();
   for (std::vector<std::string>::const_iterator iter = ec_errors.begin(); iter != ec_errors.end(); iter++)
     log_error(iter->c_str());
 
@@ -205,7 +203,10 @@ extern "C" void ec_idle()
   float new_camera_z = -zoom_level*camera_distance * c_rx + camera_z;
   eye_candy.set_camera(ec::Vec3(-new_camera_x, -new_camera_z, new_camera_y));
   eye_candy.set_center(ec::Vec3(-camera_x, -camera_z, camera_y));
-  
+  if ((average_framerate >= light_columns_threshold * 1.15 + 2.5) && (!eye_candy.draw_shapes))
+    eye_candy.draw_shapes = true;
+  else if ((average_framerate < light_columns_threshold / 1.15 - 2.5) && (eye_candy.draw_shapes))
+    eye_candy.draw_shapes = false;  
   eye_candy.set_dimensions(window_width, window_height, powf(zoom_level, 0.1));
   Uint64 new_time = ec::get_time();
   for (int i = 0; i < (int)references.size(); )

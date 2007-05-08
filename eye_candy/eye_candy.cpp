@@ -15,8 +15,8 @@ namespace ec
 
 MathCache math_cache;
 std::vector<Obstruction*> null_obstructions;
-std::vector<std::string> ec_logs;
 bool ec_error_status = false;
+Logger logger;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
@@ -63,22 +63,22 @@ void Texture::push_texture(const std::string filename)
   tex = IMG_Load(filename.c_str());
   if (!tex)
   {
-    log_error("Cannot load texture '" + filename + "'.");
+    logger.log_error("Cannot load texture '" + filename + "'.");
     return;
   }
   if (tex->format->palette)
   { 
-    log_error("Cannot use paletted texture '" + filename + "'.");
+    logger.log_error("Cannot use paletted texture '" + filename + "'.");
     return;
   }
   if (tex->w != tex->h)
   {
-    log_error("Textures must be square; please fix '" + filename + "'.");
+    logger.log_error("Textures must be square; please fix '" + filename + "'.");
     return;
   }
   if ((tex->w != 16) && (tex->w != 32) && (tex->w != 64) && (tex->w != 128))
   {
-    log_error("Only 16x16, 32x32, 64x64, and 128x128 textures supportex; fix '" + filename + "'.");
+    logger.log_error("Only 16x16, 32x32, 64x64, and 128x128 textures supportex; fix '" + filename + "'.");
     return;
   }
 
@@ -136,7 +136,11 @@ void Shape::draw()
 #else
 
   if (base->poor_transparency_resolution)
-    srand((unsigned int)(void*)this);
+#ifdef X86_64
+    srand((Uint32)(Uint64)(void*)this);
+#else
+    srand((Uint32)(void*)this);
+#endif
   glBegin(GL_TRIANGLES);
   {
     for (int i = 0; i < facet_count; i++)

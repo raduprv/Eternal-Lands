@@ -1540,13 +1540,58 @@ public:
   std::vector<GLenum> lights;
 };
 
-extern std::vector<std::string> ec_logs;
 extern bool ec_error_status;
-
-inline void log_warning(std::string message) { ec_logs.push_back("WARNING: " + message + "\n"); };
-inline void log_error(std::string message) { ec_logs.push_back("ERROR: " + message + "\n"); ec_error_status = true; };
-inline std::vector<std::string> fetch_logs() { const std::vector<std::string> ret(ec_logs); ec_logs.clear(); return ret; };
 inline bool get_error_status() { return ec_error_status; };
+
+/*!
+\brief A class to simplify logging of output.
+*/
+class LoggerBuf : public std::streambuf
+{
+public:
+  LoggerBuf() { temp_log = ""; };
+  virtual ~LoggerBuf() {};
+
+  std::streamsize xsputn(const char_type* str, std::streamsize n)
+  {
+    std::string new_str(str, n);
+    temp_log += new_str;
+
+    std::cout << new_str;
+    
+    const std::streamsize ret = static_cast<std::streamsize>(new_str.length());
+    return ret;
+  };
+
+  int_type overflow(int_type ch)
+  {
+    if ((char)ch == '\n')
+    {
+      logs.push_back(temp_log + "\n");
+      temp_log = "";
+      std::cout << std::endl;
+    }
+    return ch;
+  }
+
+public:
+  std::string temp_log;
+  std::vector<std::string> logs;
+};
+
+class Logger : public std::ostream
+{
+public:
+  Logger() : std::ios(0), std::ostream(new LoggerBuf()) {};
+  ~Logger() { delete rdbuf(); };
+  
+  void log_text(const std::string message) { ((LoggerBuf*)rdbuf())->logs.push_back(message); };
+  void log_warning(const std::string message) { log_text("WARNING: " + message + "\n"); };
+  void log_error(const std::string message) { log_text("ERROR: " + message + "\n"); ec_error_status = true; };
+  std::vector<std::string> fetch() { const std::vector<std::string> ret(((LoggerBuf*)rdbuf())->logs); ((LoggerBuf*)rdbuf())->logs.clear(); return ret; };
+};
+ 
+extern Logger logger;
  
 ///////////////////////////////////////////////////////////////////////////////
 

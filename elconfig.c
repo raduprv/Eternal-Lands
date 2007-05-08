@@ -1227,9 +1227,9 @@ void init_vars()
 	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
 	add_var(BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);
 	add_var(BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_ec_flag,0,"Transparency resolution fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",ECTAB);
-	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,0,"Max eye candy framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,1.0,FLT_MAX,1.0);
-	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,0,"Min eye candy framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,0.0,FLT_MAX,1.0);
-	add_var(BOOL,"use_light_columns","ulc",&use_light_columns,change_ec_flag,0,"Use light columns","If your system has performance troubles around teleportation effects, disable this option.",ECTAB);
+	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,45,"Max eye candy framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,45.0,FLT_MAX,1.0);
+	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,15,"Min eye candy framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,15.0,FLT_MAX,1.0);
+	add_var(INT,"light_columns_threshold","lct",&light_columns_threshold,change_int,5,"Light columns threshold","If your framerate is below this amount, you will not get columns of light around teleportation effects (useful for slow systems).",ECTAB, 0, INT_MAX);
 	add_var(BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_ec_flag,0,"Use fancy smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
  #endif
  #ifdef	TERRAIN
