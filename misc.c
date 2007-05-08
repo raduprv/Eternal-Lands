@@ -1015,10 +1015,10 @@ void open_map_file()
   OPENFILENAME ofn;
   char szFileName[MAX_PATH],temp[MAX_PATH];
 
-  ZeroMemory (&ofn, sizeof (ofn));
+  ZeroMemory(&ofn, sizeof(ofn));
   szFileName[0] = 0;
 
-  ofn.lStructSize = sizeof (ofn);
+  ofn.lStructSize = sizeof(ofn);
   ofn.hwndOwner = 0;
   ofn.lpstrFilter = "Eternal Lands Map (*.elm*)\0*.elm*\0\0";
   ofn.lpstrFile = szFileName;
@@ -1031,12 +1031,13 @@ void open_map_file()
     ofn.Flags = OFN_EXPLORER | OFN_FILEMUSTEXIST | OFN_HIDEREADONLY | OFN_NOCHANGEDIR;
     if (GetOpenFileName (&ofn))
     {
-		char proper_path[128];
-		get_proper_path ( szFileName, exec_path, proper_path, sizeof (proper_path) );
+		char proper_path[MAX_PATH];
+		get_proper_path(szFileName, exec_path, proper_path, sizeof(proper_path));
 		load_map(proper_path);
     }
 }
 #endif
+
 extern particle_sys_def def;
 #ifndef LINUX
 void save_map_file()
