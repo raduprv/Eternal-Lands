@@ -53,6 +53,7 @@ static int mouseover_total = 0;
 static int product_count = 0;
 static char product_name[128];
 static char *spell_names[128] = { NULL };
+static int requested_spell_id = -1;
 
 int harvesting = 0;
 char harvest_name[32];
@@ -634,6 +635,12 @@ void counters_set_spell_name(int spell_id, char *name, int len)
 				break;
 			}
 		}
+		// the name lookup must have been previously requested in increment_spell_counter()
+		if (requested_spell_id == spell_id)
+		{
+			increment_counter(SPELLS, spell_names[spell_id+1], 1, spell_id);
+			requested_spell_id = -1;
+		}
 	}
 }
 
@@ -645,8 +652,12 @@ void increment_spell_counter(int spell_id)
 		str[0] = SPELL_NAME;
 		str[1] = (Sint8)spell_id;
 		my_tcp_send(my_socket, str, 2);
+		requested_spell_id = spell_id;
+
 	}
-	increment_counter(SPELLS, spell_names[spell_id+1], 1, spell_id);
+	// delay the increment until we have the name
+	else
+		increment_counter(SPELLS, spell_names[spell_id+1], 1, spell_id);
 }
 
 void increment_summon_counter(char *string)

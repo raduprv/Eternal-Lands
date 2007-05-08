@@ -684,6 +684,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 						}
 						free(restofstring);
 					}
+					// if we don't get the product name, make sure we don't just count it as the last item.
+					else
+						counters_set_product_info("",0);
 				}  // End counters block
 #endif
 			}
