@@ -454,17 +454,17 @@ book * read_book(char * file, int type, int id)
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
 #ifndef WINDOWS
-		safe_snprintf(path, sizeof(path), "%s/%s", datadir, file);
+		safe_snprintf(path, sizeof(path), "%s/languages/en/%s", datadir, file);
 #else
-		safe_snprintf(path, sizeof(path), "%s", file);
+		safe_snprintf(path, sizeof(path), "languages/en/%s", file);
 #endif // !WINDOWS
-		if((doc = xmlReadFile(path, NULL, 0)) == NULL) {
-			char str[200];
+	}
+	if(doc == NULL && ((doc = xmlReadFile(path, NULL, 0)) == NULL)) {
+		char str[200];
 
-			safe_snprintf(str, sizeof(str), book_open_err_str, path);
-			log_error(str);
-			LOG_TO_CONSOLE(c_red1,str);
-		}
+		safe_snprintf(str, sizeof(str), book_open_err_str, path);
+		log_error(str);
+		LOG_TO_CONSOLE(c_red1,str);
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
 		log_error("Error while parsing: %s", path);
 	} else if(xmlStrcasecmp(root->name,(xmlChar*)"book")){
