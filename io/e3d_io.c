@@ -88,7 +88,6 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	int file_pos, indicies_size, float_count, index_size, v_size, m_size;
 	char text_file_name[1024];
 	unsigned int* index_buffer;
-	unsigned char* char_list;
 	unsigned short* short_list;
 	unsigned int* int_list;
 	float* float_buffer;
@@ -238,23 +237,15 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	fread(index_buffer, cur_object->index_no, sizeof(unsigned int), file);
 #endif	//ZLIB
 
-	if (cur_object->index_no <= 256)
+	if (cur_object->index_no < 65536)
 	{
-		indicies_size = 1;
-		cur_object->index_type = GL_UNSIGNED_BYTE;
+		indicies_size = 2;
+		cur_object->index_type = GL_UNSIGNED_SHORT;
 	}
 	else
 	{
-		if (cur_object->index_no <= 256*256)
-		{
-			indicies_size = 2;
-			cur_object->index_type = GL_UNSIGNED_SHORT;
-		}
-		else
-		{
-			indicies_size = 4;
-			cur_object->index_type = GL_UNSIGNED_INT;
-		}
+		indicies_size = 4;
+		cur_object->index_type = GL_UNSIGNED_INT;
 	}
 
 	cur_object->indicies = malloc(cur_object->index_no * indicies_size);
@@ -269,28 +260,30 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	else index_pointer = cur_object->indicies;
 	
 	// Optimize the storage format for better use with the OpenGL glDrawElements function
-	if (indicies_size == 1)
+	if (indicies_size == 2)
 	{
-		char_list = (unsigned char*)cur_object->indicies;
+		short_list = (unsigned short*)cur_object->indicies;
 		for (i = 0; i < cur_object->index_no; i++)
-			char_list[i] = SDL_SwapLE32(index_buffer[i]);
+			short_list[i] = SDL_SwapLE32(index_buffer[i]);
 	}
 	else
 	{
-		if (indicies_size == 2)
+		if (indicies_size == 4)
 		{
-			short_list = (unsigned short*)cur_object->indicies;
+			int_list = (unsigned int*)cur_object->indicies;
 			for (i = 0; i < cur_object->index_no; i++)
-				short_list[i] = SDL_SwapLE32(index_buffer[i]);
+				int_list[i] = SDL_SwapLE32(index_buffer[i]);
 		}
 		else
 		{
-			if (indicies_size == 4)
-			{
-				int_list = (unsigned int*)cur_object->indicies;
-				for (i = 0; i < cur_object->index_no; i++)
-					int_list[i] = SDL_SwapLE32(index_buffer[i]);
-			}
+			LOG_ERROR("This should never happen!");
+			free_e3d_pointer(cur_object);
+#ifdef	ZLIB
+			gzclose(file);
+#else	//ZLIB
+			fclose(file);
+#endif	//ZLIB
+			return NULL;
 		}
 	}
 	free(index_buffer);
