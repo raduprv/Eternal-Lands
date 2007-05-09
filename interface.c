@@ -112,8 +112,8 @@ int check_interface_buttons()
 				  if(shift_on)view_particle_handles=!view_particle_handles;
 				  else view_particles=!view_particles;
 				}
-				if(mouse_x>=128 && mouse_x<=159)view_light=!view_light;
-				if(mouse_x>=160 && mouse_x<=191)view_height=!view_height;
+				if(mouse_x>=160 && mouse_x<=191)view_light=!view_light;
+				if(mouse_x>=192 && mouse_x<=223)view_height=!view_height;
 			}
 	return 1;
 
