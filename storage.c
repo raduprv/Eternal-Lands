@@ -56,9 +56,13 @@ void get_storage_categories (const char *in_data, int len)
 		}
 		idx++;
 	}
+	for (i = in_data[0]; i < STORAGE_CATEGORIES_SIZE; i++)
+	{
+		storage_categories[i].id = -1;
+		storage_categories[i].name[0] = '0';
+	}
 
-	if (i < STORAGE_CATEGORIES_SIZE) storage_categories[i].id = -1;
-	no_storage_categories = i;
+	no_storage_categories = in_data[0];
 	if (storage_win > 0) vscrollbar_set_bar_len(storage_win, STORAGE_SCROLLBAR_CATEGORIES, no_storage_categories - STORAGE_CATEGORIES_DISPLAY);
 
 	selected_category=-1;
