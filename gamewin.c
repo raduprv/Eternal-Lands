@@ -1121,8 +1121,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// hide all windows
 	else if(key==K_HIDEWINS)
 	{
-		if (ground_items_win >= 0)
+		if (ground_items_win >= 0){
+			unsigned char protocol_name;
+
 			hide_window (ground_items_win);
+			protocol_name= S_CLOSE_BAG;
+			my_tcp_send(my_socket,&protocol_name,1);
+		}
 		if (items_win >= 0)
 			hide_window (items_win);
 		if (buddy_win >= 0)
