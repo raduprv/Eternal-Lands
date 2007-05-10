@@ -105,13 +105,13 @@ void change_var(int * var)
 	*var= !*var;
 }
 
+#ifdef	EYE_CANDY
 void change_ec_flag(int * var)
 {
 	*var= !*var;
 	ec_set_draw_detail();
 }
 
-#ifdef	EYE_CANDY
 void change_min_ec_framerate(float * var, float * value)
 {
 	if(*value >= 0) {
