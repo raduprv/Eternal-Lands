@@ -604,7 +604,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, un
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
 #endif
 {
-#ifdef EYE_CANDY
+#if defined EYE_CANDY && ! defined MAP_EDITOR
   if (use_eye_candy)
   {
     if (!strncmp("fou", file_name + 12, 3))
@@ -676,7 +676,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
 		return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
 #endif
-#ifdef EYE_CANDY
+#if defined EYE_CANDY && ! defined MAP_EDITOR
     }
   }
   else

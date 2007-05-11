@@ -1213,9 +1213,9 @@ EyeCandy::EyeCandy(int _max_particles)
 
 EyeCandy::~EyeCandy()
 {
-  for (std::vector<Effect*>::iterator iter = effects.begin(); iter != effects.end(); iter++)
-    delete *iter;
   for (std::vector<Particle*>::iterator iter = particles.begin(); iter != particles.end(); iter++)
+    delete *iter;
+  for (std::vector<Effect*>::iterator iter = effects.begin(); iter != effects.end(); iter++)
     delete *iter;
   for (std::vector<GLenum>::iterator iter = lights.begin(); iter != lights.end(); iter++)
     glDisable(*iter);

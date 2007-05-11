@@ -219,6 +219,8 @@ void read_key_config()
 		K_WINDOWS_ON_TOP = parse_key_string(&file_mem[t]);
 	if((t = get_string_occurance("#K_MARKFILTER",file_mem,key_file_size,0)) != -1)
 		K_MARKFILTER = parse_key_string(&file_mem[t]);
+
+	free(file_mem);
 }
 
 Uint32 parse_key_string(char *s)

@@ -207,6 +207,7 @@ CampfireEffect::~CampfireEffect()
 {
   delete mover;
   delete spawner;
+  delete stationary;
   if (EC_DEBUG)
     std::cout << "CampfireEffect (" << this << ") destroyed." << std::endl;
 }

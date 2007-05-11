@@ -566,6 +566,7 @@ void ReadIndexXML(xmlNode * a_node)
 				char tmp[100];
 				Category[num_category].Name=NULL;
 				MY_XMLSTRCPY(&Category[num_category].Name, (char*)cur_node->children->content);
+				num_category++;
 
 				//we load the category now
 				safe_snprintf(tmp,sizeof(tmp),"languages/%s/Encyclopedia/%s.xml",lang,cur_node->children->content);

@@ -264,8 +264,16 @@ void free_rules(rule_string * d)
 	int i, j;
 	if(!d)return;
 	for(i=0;d[i].type!=-1;i++){
-		if(d[i].short_str) for(j=0;d[i].short_str[j];j++) free(d[i].short_str[j]);
-		if(d[i].long_str)  for(j=0;d[i].long_str[j];j++)  free(d[i].long_str[j]);
+		if(d[i].short_str)
+		{
+		    for(j=0;d[i].short_str[j];j++) free(d[i].short_str[j]);
+		    free(d[i].short_str);
+		}
+		if(d[i].long_str)
+		{
+		    for(j=0;d[i].long_str[j];j++)  free(d[i].long_str[j]);
+		    free(d[i].long_str);
+		}
 	}
 	free(d);
 }

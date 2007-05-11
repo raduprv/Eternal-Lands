@@ -419,6 +419,7 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 				{
 					Sint32	i=cache->max_item-1;
 					// remove it from the list
+					free(cache->cached_items[i]);
 					cache->cached_items[i]=NULL;
 					// work backwards to skip over empty slots
 					while(i>0 && cache->cached_items[i]==NULL)
@@ -439,6 +440,7 @@ void cache_remove(cache_struct *cache, cache_item_struct *item)
 							if(cache->cached_items[i] == item)
 								{
 									//remove it from the list
+									free(cache->cached_items[i]);
 									cache->cached_items[i]=NULL;
 									// and adjust first unused if needed
 									if(cache->first_unused > i)	cache->first_unused= i;;

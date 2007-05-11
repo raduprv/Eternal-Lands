@@ -243,6 +243,7 @@ void read_config()
 		username_box_selected = 0;
 		password_box_selected = 1;
 	}
+	closedir(d);
 }
 
 void read_bin_cfg()

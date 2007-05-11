@@ -68,6 +68,10 @@ void cleanup_mem(void)
 	cache_delete(cache_system);
 	cache_system = NULL;
 	/* map location information */
+	for (i = 0; continent_maps[i].name; i++)
+	{
+	    free(continent_maps[i].name);
+	}
 	free (continent_maps);
 }
 

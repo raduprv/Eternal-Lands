@@ -8,6 +8,9 @@
 #ifdef	NEW_E3D_FORMAT
 #include "io/e3d_io.h"
 #endif
+#ifdef EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 
 Uint32 flags;
 

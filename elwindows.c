@@ -711,14 +711,9 @@ void	destroy_window(int win_id)
 		win->destroy_handler (win);
 
 	// destroy our widgets
-	widget = win->widgetlist;
-	while (widget != NULL)
+	while (win->widgetlist != NULL)
 	{
-		if (widget->OnDestroy != NULL)
-			widget->OnDestroy (widget);
-		next = widget->next;
-		free (widget);
-		widget = next;
+	    widget_destroy(win_id, win->widgetlist->id);
 	}
 	win->widgetlist = NULL;
 	
