@@ -206,8 +206,6 @@ int check_replace_window_interface(window_info *win, int mx, int my)
 
 	}
 
-
-
 	if (mx > d1_x1 && mx <= d1_x2 && my > d1_y1 && my <= d1_y2)
 
 	{

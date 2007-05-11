@@ -12,9 +12,9 @@
 
 extern char* selected_file;
 
-#ifdef GTK2
-
 #include <gtk/gtk.h>
+
+#ifdef GTK2
 
 extern char map_file_name[256];
 extern char particle_file_name[256];

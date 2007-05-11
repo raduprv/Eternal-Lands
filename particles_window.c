@@ -63,7 +63,9 @@ void check_particle_sys_alive()
 		}
 	// If the current system has died, recreate it.
 	if(part_sys<0 || !particles_list[part_sys])
+	{
 		part_sys=create_particle_sys(&def,-666.0,-666.0,1.0);
+	}
 }
 
 void create_particles_window ()

@@ -586,7 +586,7 @@ int	draw_window(window_info *win)
 		}
 	else
 		{
-		ret_val=1;
+			ret_val=1;
 		}
 	glPopMatrix();
 	

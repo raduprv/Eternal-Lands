@@ -6,7 +6,7 @@ CXX=g++
 LINK=g++
 
 WARN = -Wall -W #-Werror
-OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DROTATE_PARTICLES -DEYE_CANDY
+OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DROTATE_PARTICLES -DEYE_CANDY -DSFX
 #-DNEW_E3D_FORMAT
 #-DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
@@ -150,5 +150,5 @@ cal3d_wrapper.o: ../elc/cal3d_wrapper.cpp ../elc/cal3d_wrapper.h
 	$(CC) $(CFLAGS) -c $*.c
 
 clean:
-	-rm -f $(OBJS) mapedit.x86.linux.bin
+	-rm -f $(OBJS) $(CXXOBJS) mapedit.x86.linux.bin
 

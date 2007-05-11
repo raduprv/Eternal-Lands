@@ -146,7 +146,7 @@ void draw_scene()
         if(view_tile || cur_mode==mode_tile)draw_tile_map();
         if(find_reflection())draw_lake_tiles();
     }
-
+    
     if(view_particles || cur_mode==mode_particles) {
         glDisable(GL_LIGHTING);
         display_particles();
