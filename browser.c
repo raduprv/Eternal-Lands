@@ -225,8 +225,10 @@ int display_browser_handler(window_info *win)
 		char fn[256];
 		
 		// Prepare to render
+		Leave2DMode();
 		glEnable(GL_CULL_FACE);
 		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		if(have_multitexture && clouds_shadows){
 			//bind the detail texture
 			glActiveTextureARB(GL_TEXTURE1_ARB);
@@ -235,7 +237,6 @@ int display_browser_handler(window_info *win)
 			glActiveTextureARB(GL_TEXTURE0_ARB);
 			glEnable(GL_TEXTURE_2D);
 		}
-		Leave2DMode();
 
 		// Now we draw the 4 objects
 		zoom_level=3.0;
@@ -307,7 +308,18 @@ int display_browser_handler(window_info *win)
 		window_resize();
 		// Back to normal
 		glViewport(0,0,window_width,window_height);
+		glDisable(GL_CULL_FACE);
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		if(have_multitexture && clouds_shadows)
+			{
+				//disable the second texture unit
+				glActiveTextureARB(GL_TEXTURE1_ARB);
+				glDisable(GL_TEXTURE_2D);
+				glActiveTextureARB(GL_TEXTURE0_ARB);
+			}
 		Enter2DMode();
+		CHECK_GL_ERRORS();
 
 		// Object names
 		draw_string(win->pos_x+2,win->pos_y+200-18,(unsigned char *)Dir[cd].Names[i],1);
