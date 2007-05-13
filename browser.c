@@ -334,12 +334,14 @@ int display_browser_handler(window_info *win)
 void init_browser()
 {
 	char temp[512];
+	char *pch;
+	int idx, line;
 	FILE *fp=fopen("browser.lst","r");
 	if(!fp){
 		log_error("browser.lst not found");
 		return;
 	}
-	
+	line = 1;
 	while(!feof(fp)){
 		fgets(temp,511,fp);
 		if(!strncmp(temp,"Category",8)){
@@ -363,11 +365,47 @@ void init_browser()
 				Dir[dc].Files[Dir[dc].nf][i++]=temp[j++];
 			}
 
-			sscanf(&temp[j+1],"%g,%g,%g,%g\n",&Dir[dc].xrot[Dir[dc].nf],&Dir[dc].yrot[Dir[dc].nf],&Dir[dc].zrot[Dir[dc].nf],&Dir[dc].size[Dir[dc].nf]);
+			idx = Dir[dc].nf;
+
+			pch = strtok(&temp[j+1], ",");
+			if (pch != 0)
+			{
+				Dir[dc].xrot[idx] = atof(pch);
+				pch = strtok(NULL, ",");
+				if (pch != 0)
+				{
+					Dir[dc].yrot[idx] = atof(pch);
+					pch = strtok(NULL, ",");
+					if (pch != 0)
+					{
+						Dir[dc].zrot[idx] = atof(pch);
+						pch = strtok(NULL, ",");
+						if (pch != 0)
+						{
+							Dir[dc].size[idx] = atof(pch);
+						}
+						else
+						{
+							log_error("line %d in browser.lst is too short!", line);
+						}
+					}
+					else
+					{
+						log_error("line %d in browser.lst is too short!", line);
+					}
+				}
+				else
+				{
+					log_error("line %d in browser.lst is too short!", line);
+				}
+			}
+			else
+			{
+				log_error("line %d in browser.lst is too short!", line);
+			}
 			Dir[dc].nf++;
 		}
+		line++;
 	}
 	dc++;
 }
-
-
