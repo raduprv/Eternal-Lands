@@ -57,6 +57,7 @@ void update_eye_candy_position(float x, float y, float z);
 void add_eye_candy_point();
 void delete_eye_candy_point();
 void eye_candy_add_effect();
+void eye_candy_done_adding_effect();
 int eye_candy_get_effect();
 void draw_bounds_on_minimap();
 

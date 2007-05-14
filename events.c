@@ -440,7 +440,9 @@ int HandleEvent(SDL_Event *event)
 
  		           //get the buttons state
 			if (SDL_GetMouseState (NULL, NULL) & SDL_BUTTON (SDL_BUTTON_LEFT))
+			{
 				left_click++;
+			}
 			else{
 				if(left_click) end_drag_windows();
 				left_click = 0;
@@ -524,7 +526,17 @@ int HandleEvent(SDL_Event *event)
 				else
 					height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)]=selected_height;
 			}
-
+			
+#ifdef EYE_CANDY
+			if (left_click && (cur_mode == mode_eye_candy))
+			{
+				eye_candy_add_effect();
+			}
+			if ((!left_click) && (cur_mode == mode_eye_candy))
+			{
+				eye_candy_done_adding_effect();
+			}
+#endif
 
 			if(check_interface_buttons()==1)tool_bar_click=1;
 			if(right_click==1 && cur_tool==tool_select && selected_tile!=255 && cur_mode==mode_tile)selected_tile=255;

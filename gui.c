@@ -281,7 +281,7 @@ void show_eye_candy_window()
 		gtk_widget_hide(gtk_effect_saturation_box);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_saturation_box, TRUE, TRUE, 0);
 		
-		gtk_effect_scale = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_scale_obj = gtk_adjustment_new(1.0, 0.0, 20.1, 0.02, 1.0, 0.1)));
+		gtk_effect_scale = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_scale_obj = gtk_adjustment_new(1.0, 0.01, 20.1, 0.02, 1.0, 0.1)));
 		gtk_scale_set_digits(GTK_SCALE(gtk_effect_scale), 1);
 		gtk_widget_show(gtk_effect_scale);
 		gtk_effect_scale_box = gtk_hbox_new(FALSE, 10);
@@ -295,7 +295,7 @@ void show_eye_candy_window()
 		gtk_widget_hide(gtk_effect_scale_box);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_scale_box, TRUE, TRUE, 0);
 		
-		gtk_effect_density = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_density_obj = gtk_adjustment_new(1.0, 0.0, 20.1, 0.02, 1.0, 0.1)));
+		gtk_effect_density = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_density_obj = gtk_adjustment_new(1.0, 0.01, 20.1, 0.02, 1.0, 0.1)));
 		gtk_scale_set_digits(GTK_SCALE(gtk_effect_density), 1);
 		gtk_widget_show(gtk_effect_density);
 		gtk_effect_density_box = gtk_hbox_new(FALSE, 10);

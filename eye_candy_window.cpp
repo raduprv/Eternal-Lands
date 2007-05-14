@@ -1,6 +1,3 @@
-// TODO: Eye candy lags horribly.  There are 10,000 particles on cloud, for
-// some reason, and they're taking forever in their idle func.
-
 #ifdef EYE_CANDY
 
 extern "C"
@@ -28,6 +25,7 @@ static int eye_candy_window_x=15;
 static int eye_candy_window_y=50;
 static int eye_candy_window_x_len=600;
 static int eye_candy_window_y_len=470;
+static bool ready_to_add = false;
 std::vector<EffectDefinition> effects;
 EffectDefinition current_effect;
 
@@ -45,6 +43,11 @@ extern "C" void create_eye_candy_window ()
 extern "C" void change_eye_candy_effect()
 {
   current_effect.effect = gtk_combo_box_get_active(GTK_COMBO_BOX(gtk_effect_list));
+  current_effect.hue = GTK_ADJUSTMENT(gtk_effect_hue_obj)->value;
+  current_effect.saturation = GTK_ADJUSTMENT(gtk_effect_saturation_obj)->value;
+  current_effect.scale = GTK_ADJUSTMENT(gtk_effect_scale_obj)->value;
+  current_effect.density = GTK_ADJUSTMENT(gtk_effect_density_obj)->value;
+  current_effect.base_height = atoi(gtk_entry_get_text(GTK_ENTRY(gtk_effect_base_height)));
   switch (current_effect.effect)
   {
     case 0:    // Fire
@@ -222,7 +225,7 @@ extern "C" void change_eye_candy_effect()
 
 void confirm_eye_candy_effect()
 {
-  current_effect.position = ec::Vec3(-1.0, -1.0, -1.0);
+//  current_effect.position = ec::Vec3(-1.0, -1.0, -1.0);
   current_effect.effect = gtk_combo_box_get_active(GTK_COMBO_BOX(gtk_effect_list));
   current_effect.hue = GTK_ADJUSTMENT(gtk_effect_hue_obj)->value;
   current_effect.saturation = GTK_ADJUSTMENT(gtk_effect_saturation_obj)->value;
@@ -230,7 +233,18 @@ void confirm_eye_candy_effect()
   current_effect.density = GTK_ADJUSTMENT(gtk_effect_density_obj)->value;
   current_effect.base_height = atoi(gtk_entry_get_text(GTK_ENTRY(gtk_effect_base_height)));
   gtk_widget_hide(gtk_effect_win);
-  minimap_on = 1;
+  switch (current_effect.effect)
+  {
+    case 1:    // Cloud/Fog
+    case 2:    // Fireflies
+    case 11:   // Leaves
+    case 12:   // Flower Petals
+    {
+      minimap_on = 1;
+      break;
+    }
+  }
+  ready_to_add = true;
 }
 
 extern "C" int display_eye_candy_window_handler()
@@ -250,6 +264,11 @@ extern "C" void update_eye_candy_position(float x, float y, float z)
     current_effect.position.x = x;
     current_effect.position.y = y;
     current_effect.position.z = z;
+    if (current_effect.reference)
+    {
+//      std::cout << "Setting position to " << x << ", " << y << ", " << z << std::endl;
+      ec_set_position(current_effect.reference, x, y, z);
+    }
   }
 }
 
@@ -344,8 +363,17 @@ extern "C" void delete_eye_candy_point()
 
 extern "C" void eye_candy_add_effect()
 {
-  effects.push_back(current_effect);
-  current_effect = EffectDefinition();
+  if (ready_to_add)
+  {
+    effects.push_back(current_effect);
+    current_effect = EffectDefinition();
+    ready_to_add = false;
+  }
+}
+
+extern "C" void eye_candy_done_adding_effect()
+{
+  ready_to_add = true;
 }
 
 extern "C" int eye_candy_get_effect()
