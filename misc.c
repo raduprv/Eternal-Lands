@@ -250,8 +250,8 @@ void get_2d_object_under_mouse()
 	float least_z;
 
 	selected_2d_object=-1;
-	x=(int)-mx;
-	y=(int)-my;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 
 	least_z = 1.0;
 	glClearDepth (least_z);
