@@ -685,7 +685,7 @@ void display_shadows()
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 
-	if(use_shadow_mapping)
+	if(!use_shadow_mapping)
 	{
 		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
 		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
