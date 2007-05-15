@@ -75,7 +75,7 @@ void calc_light_frustum(float light_xrot)
 	//Assuming a max zoom_level of 3.75 and near/far distances of 20.0, we'll set the hscale to the radius of a circle that
 	//can just contain the view frustum of the player. To simplify things, we'll assume the view frustum is horizontal.
 	//light_view_hscale=sqrt(window_ratio*window_ratio*3.75f*3.75f+12.0f*12.0f);
-	light_view_hscale=sqrt(window_ratio*window_ratio+14.0f*14.0f);
+	light_view_hscale=sqrt(window_ratio*window_ratio+20.0f*20.0f);
 	// For the others, we can just use the parametric ellipse formula to find the value for this angle
 	x=light_view_hscale*slight;
 	y=max_height*clight;
