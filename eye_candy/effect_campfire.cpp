@@ -191,6 +191,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
   Particle* p = new CampfireParticle(this, mover, *pos + Vec3(0.0, 0.2, 0.0), Vec3(0.0, 0.0, 0.0), 10.0, sqrt(10.0), 0, 10);
   base->push_back_particle(p);
 #else
+ #ifndef MAP_EDITOR
   big_particles = 0;
   for (int i = 0; i < 20; i++)
   {
@@ -200,6 +201,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
       break;
     big_particles++;
   }
+ #endif
 #endif
 }
 

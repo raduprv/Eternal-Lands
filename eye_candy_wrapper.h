@@ -54,6 +54,7 @@ extern float max_ec_framerate;
 extern int transparency_resolution_fix;
 extern int light_columns_threshold;
 extern int use_fancy_smoke;
+extern int max_idle_cycles_per_second;
 #endif
 
 
@@ -196,7 +197,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_free_effects_list(ec_effects effects);
   void ec_remove_weapon(actor* _actor);
   void ec_add_effect(ec_effects effects, ec_reference ref);
-  int ec_check_distance(float x, float y, float z, Uint64 effect_max_length);
+  int ec_in_range(float x, float y, float z, Uint64 effect_max_length);
   ec_reference ec_create_generic();
   void ec_add_target(ec_reference reference, float x, float y, float z);
   int ec_change_target(ec_reference reference, int index, float x, float y, float z);

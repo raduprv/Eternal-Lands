@@ -26,11 +26,13 @@ extern "C" {
   int transparency_resolution_fix = 0;
   int light_columns_threshold = 5;
   int use_fancy_smoke = 1;
+  int max_idle_cycles_per_second = 40;
 }
 
 ec::EyeCandy eye_candy;
 Uint64 ec_cur_time, ec_last_time;
 std::vector<ec_internal_reference*> references;
+int idle_cycles_this_second = 0;
 
 const float MAX_EFFECT_DISTANCE = 16.0;
 const float MAX_OBSTRUCT_DISTANCE_SQUARED = 90.0;
@@ -173,7 +175,7 @@ extern "C" void ec_idle()
 
   if ((!use_eye_candy) && (!force_idle))
     return;
-    
+  
   idle_semaphore = true;
     
   force_idle = false;
@@ -289,7 +291,11 @@ extern "C" void ec_idle()
   }
 #endif
 
-  eye_candy.idle();
+  if (ec::get_time() % 1000000 >= 1000000 * idle_cycles_this_second / max_idle_cycles_per_second)
+  {
+    eye_candy.idle();
+    idle_cycles_this_second++;
+  }
   
   idle_semaphore = false;
 }
@@ -299,6 +305,7 @@ extern "C" void ec_heartbeat()
 //  std::cout << "Actor: <" << camera_x << ", " << camera_z << ", " << -camera_y << ">" << std::endl;
 //  if (!((int)(ec_cur_time / 1000000.0) % 9))
 //    ec_create_breath_fire(44.75, 38.0, 1.0, 44.75, 43.0, 0.6, 2, 1.5);
+  idle_cycles_this_second = 0;
   general_obstructions_list.clear();
   fire_obstructions_list.clear();
   for (ec_object_obstructions::iterator iter = object_obstructions.begin(); iter != object_obstructions.end(); iter++)
@@ -509,12 +516,12 @@ extern "C" void ec_delete_reference(ec_reference ref)
 
 extern "C" void ec_set_position(ec_reference ref, float x, float y, float z)
 {
-  ((ec_internal_reference*)ref)->position = ec::Vec3(x, 0, -y);
+  ((ec_internal_reference*)ref)->position = ec::Vec3(x, z, -y);
 }
 
 extern "C" void ec_set_position2(ec_reference ref, float x, float y, float z)
 {
-  ((ec_internal_reference*)ref)->position2 = ec::Vec3(x, 0, -y);
+  ((ec_internal_reference*)ref)->position2 = ec::Vec3(x, z, -y);
 }
 
 extern "C" void ec_clear_obstruction_list()

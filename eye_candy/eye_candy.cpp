@@ -11,6 +11,8 @@
 namespace ec
 {
 
+const float MIN_SAFE_ALPHA = 0.02942f;
+
 // G L O B A L S //////////////////////////////////////////////////////////////
 
 MathCache math_cache;
@@ -145,10 +147,10 @@ void Shape::draw()
   {
     for (int i = 0; i < facet_count; i++)
     {
-      if (base->poor_transparency_resolution && (alpha < 0.02942))	// Ttlanhil recommends this number.
+      if (base->poor_transparency_resolution && (alpha < MIN_SAFE_ALPHA))	// Ttlanhil recommends this number.
       {
-        if (randfloat() < (alpha / 0.02942))
-          glColor4f(color.x, color.y, color.z, 0.02942);
+        if (randfloat() < (alpha / MIN_SAFE_ALPHA))
+          glColor4f(color.x, color.y, color.z, MIN_SAFE_ALPHA);
         else
           continue;
       }
@@ -642,6 +644,17 @@ void Particle::draw(const Uint64 usec)
         }
         else if (tempsize > base->max_point_size)
           tempsize = base->max_point_size;
+        
+        if (base->poor_transparency_resolution)
+        {
+          if (tempalpha < MIN_SAFE_ALPHA)
+          {
+            if (randfloat() < (tempalpha / MIN_SAFE_ALPHA))
+              tempalpha = MIN_SAFE_ALPHA;
+            else
+              return;
+          }
+        }
     
         int res_index;
         if (tempsize <= 16)
@@ -675,15 +688,27 @@ void Particle::draw(const Uint64 usec)
     }
     default:
     {
+      alpha_t tempalpha = alpha;
+      if (base->poor_transparency_resolution)
+      {
+        if (tempalpha < MIN_SAFE_ALPHA)
+        {
+          if (randfloat() < (tempalpha / MIN_SAFE_ALPHA))
+            tempalpha = MIN_SAFE_ALPHA;
+          else
+            return;
+        }
+      }
+    
       coord_t tempsize = base->billboard_scalar * size;
       tempsize *= flare();
       
       const GLuint texture = get_texture(3);	// Always hires, since we're not checking distance.
   //    std::cout << this << ": " << tempsize << ", " << size << ": " << pos << std::endl;
       if (base->draw_method != EyeCandy::ACCURATE_BILLBOARDS)
-        base->draw_fast_billboard_particle(tempsize, texture, color[0], color[1], color[2], alpha, pos);
+        base->draw_fast_billboard_particle(tempsize, texture, color[0], color[1], color[2], tempalpha, pos);
       else
-        base->draw_accurate_billboard_particle(tempsize, texture, color[0], color[1], color[2], alpha, pos);
+        base->draw_accurate_billboard_particle(tempsize, texture, color[0], color[1], color[2], tempalpha, pos);
       if (effect->motion_blur_points > 0)
       {
         const alpha_t faderate = math_cache.powf_0_1_rough_close(effect->motion_blur_fade_rate, (float)usec / 1000000);

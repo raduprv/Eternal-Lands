@@ -149,6 +149,7 @@ FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const b
 FountainEffect::~FountainEffect()
 {
   delete mover;
+  delete basic_mover;
   delete spawner;
   if (EC_DEBUG)
     std::cout << "FountainEffect (" << this << ") destroyed." << std::endl;

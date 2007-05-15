@@ -217,7 +217,7 @@ void SwordEffect::request_LOD(const float _LOD)
     }
     case JAGGED_SABER:
     {
-      alpha = 0.55;
+      alpha = 0.4;
       size = 2.25;
       break;
     }
