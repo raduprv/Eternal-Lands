@@ -61,11 +61,11 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 #FEATURES += USE_EXTRA_TEXTURE               # Use extra texture and texture coordinates for multitexturin objects. Needs NEW_E3D_FORMAT. (INCOMPLETE)
 #FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
-FEATURES += X86_64                          # Compile for a computer with 64-bit memory addresses
+#FEATURES += X86_64                          # Compile for a computer with 64-bit memory addresses
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 
-PLATFORM=-march=k8
+PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 CWARN=-Wall 
 #-Wno-sign-compare -Wno-pointer-sign
