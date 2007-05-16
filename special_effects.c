@@ -586,9 +586,8 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_SUMMON_TIGER:
 			{
 			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
-			 	x = ((float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+1]))));
-			 	y = ((float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+2]))));
-			 	printf("%f, %f\n", x, y); 
+			 	x = (float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
+			 	y = (float)SDL_SwapLE16 (*((Uint16 *)(&data[offset+2])));
 			}
 			break;
 		//player to player, var_a is caster, var_b is recipient/target
@@ -634,8 +633,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 
 	if (caster == NULL)
 		return;
- 	x = caster->x_pos;
- 	y = caster->y_pos;
+//	printf("%f,%f,%f | %f,%f | %d,%d\n", x / 2.0, y / 2.0, ec_get_z2((int)x, (int)y), caster->x_pos, caster->y_pos, caster->tmp.x_tile_pos, caster->tmp.y_tile_pos);
+// 	x = caster->x_pos;
+// 	y = caster->y_pos;
 	if (var_b)
 	{
 		target = get_actor_ptr_from_id(var_b);
@@ -708,112 +708,112 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				ec_create_alert2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_RABBIT:
-				ec_create_summon_rabbit(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_rabbit(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_RAT:
-				ec_create_summon_rat(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_rat(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_BEAVER:
-				ec_create_summon_beaver(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_beaver(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_SKUNK:
-				ec_create_summon_skunk(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_skunk(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_RACOON:
-				ec_create_summon_racoon(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_racoon(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_DEER:
-				ec_create_summon_deer(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_deer(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_GREEN_SNAKE:
-				ec_create_summon_green_snake(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_green_snake(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_RED_SNAKE:
-				ec_create_summon_red_snake(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_red_snake(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_BROWN_SNAKE:
-				ec_create_summon_brown_snake(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_brown_snake(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_FOX:
-				ec_create_summon_fox(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_fox(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_BOAR:
-				ec_create_summon_boar(x + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_boar(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_WOLF:
-				ec_create_summon_wolf(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_wolf(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_SKELETON:
-				ec_create_summon_skeleton(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_skeleton(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_SMAL_GARG:
-				ec_create_summon_small_gargoyle(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_small_gargoyle(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_MEDIUM_GARG:
-				ec_create_summon_medium_gargoyle(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_medium_gargoyle(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_BIG_GARG:
-				ec_create_summon_large_gargoyle(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_large_gargoyle(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_PUMA:
-				ec_create_summon_puma(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_puma(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_FEM_GOBLIN:
-				ec_create_summon_female_goblin(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_female_goblin(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_POLAR_BEAR:
-				ec_create_summon_polar_bear(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_polar_bear(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_BEAR:
-				ec_create_summon_bear(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_bear(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_GOB:
-				ec_create_summon_armed_male_goblin(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_armed_male_goblin(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_ARMED_SKELETON:
-				ec_create_summon_armed_skeleton(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_armed_skeleton(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_FEMALE_ORC:
-				ec_create_summon_female_orc(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_female_orc(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_MALE_ORC:
-				ec_create_summon_male_orc(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_male_orc(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_ARMED_FEM_ORC:
-				ec_create_summon_armed_female_orc(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_armed_female_orc(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_ARMED_MALE_ORC:
-				ec_create_summon_armed_male_orc(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_armed_male_orc(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_CYCLOP:
-				ec_create_summon_cyclops(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_cyclops(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_FLUFFY_RABBIT:
-				ec_create_summon_fluffy(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_fluffy(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_PHANTOM_WARRIOR:
-				ec_create_summon_phantom_warrior(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_phantom_warrior(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_MOUNTAIN_CHIM:
-				ec_create_summon_mountain_chimeran(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_mountain_chimeran(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_YETI:
-				ec_create_summon_yeti(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_yeti(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_ARCTIC_CHIM:
-				ec_create_summon_arctic_chimeran(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_arctic_chimeran(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_GIANT:
-				ec_create_summon_giant(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_giant(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_GIANT_SNAKE:
-				ec_create_summon_giant_snake(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_giant_snake(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_SPIDER:
-				ec_create_summon_spider(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_spider(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SUMMON_TIGER:
-				ec_create_summon_tiger(x + X_OFFSET, y + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
+				ec_create_summon_tiger(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
 			default:
 	 #ifdef DEBUG

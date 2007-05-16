@@ -24,7 +24,8 @@ public:
   
   virtual bool idle(const Uint64 delta_t);
   virtual GLuint get_texture(const Uint16 res_index);
-  virtual light_t estimate_light_level() const { return 0.0012; };
+  virtual light_t estimate_light_level() const { return 0.0; };
+  virtual light_t get_light_level() { return 0.0; };
   
   Texture* texture;
   Uint16 LOD;

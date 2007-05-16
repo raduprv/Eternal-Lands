@@ -291,7 +291,7 @@ extern "C" void ec_idle()
   }
 #endif
 
-  if (ec::get_time() % 1000000 >= 1000000 * idle_cycles_this_second / max_idle_cycles_per_second)
+  if ((unsigned int)(ec::get_time() % 1000000) >= (unsigned int)(1000000 * idle_cycles_this_second / max_idle_cycles_per_second))
   {
     eye_candy.idle();
     idle_cycles_this_second++;

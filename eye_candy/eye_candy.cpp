@@ -1667,7 +1667,7 @@ void EyeCandy::idle()
   else
     change_LOD2 = 1.0;
     
-//  std::cout << framerate << ", " << LOD_10_time_threshold << " : " << last_forced_LOD << ": " << change_LOD << " / " << change_LOD2 << " (" << allowable_particles_to_add << " remaining)" << std::endl;
+//  std::cout << framerate << ", " << LOD_10_time_threshold << " : " << last_forced_LOD << ": " << change_LOD << " / " << change_LOD2 << " (" << particles.size() << ")" << std::endl;
 
   if (change_LOD > change_LOD2)	//Pick whichever one is lower.
     change_LOD = change_LOD2;
