@@ -15,7 +15,7 @@ int check_interface_buttons()
 		  last_ec_index = -2;
 	}
 #endif
-	if((left_click!=1 && right_click!=1) || mouse_x>=14*32 || mouse_y>=32)return -1;//no interface buttons were selected
+	if((left_click!=1 && right_click!=1) || mouse_x>=15*32 || mouse_y>=32)return -1;//no interface buttons were selected
 	if(left_click==1)
 		{
 			if(mouse_x>=0 && mouse_x<=31)cur_mode=mode_tile;
