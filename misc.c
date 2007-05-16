@@ -523,7 +523,7 @@ void get_particles_object_under_mouse()
 	GLuint *buffer, z_coordinate;
 	double matrix[16];
 
-	selected_2d_object = -1;
+	selected_particles_object = -1;
 	x = (int)-camera_x;
 	y = (int)-camera_y;
 
@@ -600,7 +600,7 @@ void get_particles_object_under_mouse()
 	{
 		if (buffer[(i * 4) + 1] < z_coordinate)
 		{
-			selected_2d_object = buffer[(i*4)+3];
+			selected_particles_object = buffer[(i*4)+3];
 			z_coordinate = buffer[(i*4)+1];
 		}
 	}
@@ -797,7 +797,7 @@ void get_light_under_mouse()
 	GLuint *buffer, z_coordinate;
 	double matrix[16];
 
-	selected_2d_object = -1;
+	selected_light = -1;
 	x = (int)-camera_x;
 	y = (int)-camera_y;
 
@@ -868,7 +868,7 @@ void get_light_under_mouse()
 	{
 		if (buffer[(i * 4) + 1] < z_coordinate)
 		{
-			selected_2d_object = buffer[(i*4)+3];
+			selected_light = buffer[(i*4)+3];
 			z_coordinate = buffer[(i*4)+1];
 		}
 	}
