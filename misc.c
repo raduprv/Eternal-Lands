@@ -69,6 +69,7 @@ int evaluate_colision (float *ref)
 	float z;
 	glReadBuffer (GL_BACK);
 	glReadPixels (mouse_x, window_height-mouse_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &z);
+	printf("<ref, z>: <%f, %f>\n", *ref, z);
 	if(z < *ref) 
 	{
 		*ref = z;
@@ -80,17 +81,51 @@ int evaluate_colision (float *ref)
 void get_3d_object_under_mouse()
 {
 	//ok, first of all, let's see what objects we have in range...
-	int i;
-	int x,y;
-	float least_z;
+	int i, count, x, y, dist1, dist2, hits;
+	GLint viewport[4];
+	GLuint *buffer, z_coordinate;
+	double matrix[16];
 
-	selected_3d_object=-1;
-	x=(int)-camera_x;
-	y=(int)-camera_y;
+	selected_3d_object = -1;
+	x = (int)-camera_x;
+	y = (int)-camera_y;
 
+	count = 0;
+	for (i = 0; i < max_obj_3d; i++)
+	{
+		if (objects_list[i] && objects_list[i]->blended != 20)
+		{
+			dist1 = x - (int)objects_list[i]->x_pos;
+			dist2 = y - (int)objects_list[i]->y_pos;
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
+			{
+				count++;
+			}
+		}
+	}
 
-	least_z = 1.0;
-	glClearDepth (least_z);
+	if (count == 0)
+	{
+		return;
+	}
+	count++;
+	count *= 4;
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	buffer = malloc(count * sizeof(GLuint));
+	glSelectBuffer(count, buffer);
+
+	glGetDoublev(GL_PROJECTION_MATRIX, matrix);
+
+	glRenderMode(GL_SELECT);
+	glInitNames();
+	glPushName(0);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluPickMatrix(mouse_x, window_height-mouse_y, 1.0, 1.0, viewport);
+	glMultMatrixd(matrix);
+	glMatrixMode(GL_MODELVIEW);
+
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 	glEnable(GL_CULL_FACE);
@@ -99,33 +134,39 @@ void get_3d_object_under_mouse()
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < max_obj_3d; i++)
 	{
-		if (objects_list[i] && objects_list[i]->blended!=20)
+		if (objects_list[i] && objects_list[i]->blended != 20)
 		{
-			int dist1;
-			int dist2;
-
-			dist1=x-(int)objects_list[i]->x_pos;
-			dist2=y-(int)objects_list[i]->y_pos;
-			if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
+			dist1 = x - (int)objects_list[i]->x_pos;
+			dist2 = y - (int)objects_list[i]->y_pos;
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
 			{
+				glLoadName(i);
 				draw_3d_object(objects_list[i]);
-				if (evaluate_colision (&least_z))
-				{
-					selected_3d_object=i;
-					//glClear(GL_COLOR_BUFFER_BIT);
-					//glClear(GL_DEPTH_BUFFER_BIT);
-				}
 			}
 		}
 	}
-	
+
 	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
-}
 
+	hits = glRenderMode(GL_RENDER);
+	z_coordinate = 0xFFFFFFFF;
+	for (i = 0; i < hits; i++)
+	{
+		if (buffer[(i * 4) + 1] < z_coordinate)
+		{
+			selected_3d_object = buffer[(i*4)+3];
+			z_coordinate = buffer[(i*4)+1];
+		}
+	}
+	free(buffer);
+}
 
 void kill_3d_object(int object_id)
 {
@@ -245,16 +286,51 @@ void open_3d_obj()
 void get_2d_object_under_mouse()
 {
 	//ok, first of all, let's see what objects we have in range...
-	int i;
-	int x,y;
-	float least_z;
+	int i, count, x, y, dist1, dist2, hits;
+	GLint viewport[4];
+	GLuint *buffer, z_coordinate;
+	double matrix[16];
 
-	selected_2d_object=-1;
-	x=(int)-camera_x;
-	y=(int)-camera_y;
+	selected_2d_object = -1;
+	x = (int)-camera_x;
+	y = (int)-camera_y;
 
-	least_z = 1.0;
-	glClearDepth (least_z);
+	count = 0;
+	for (i = 0; i < MAX_OBJ_2D; i++)
+	{
+		if (obj_2d_list[i])
+		{
+			dist1 = x - (int)obj_2d_list[i]->x_pos;
+			dist2 = y - (int)obj_2d_list[i]->y_pos;
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
+			{
+				count++;
+			}
+		}
+	}
+
+	if (count == 0)
+	{
+		return;
+	}
+	count++;
+	count *= 4;
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	buffer = malloc(count * sizeof(GLuint));
+	glSelectBuffer(count, buffer);
+
+	glGetDoublev(GL_PROJECTION_MATRIX, matrix);
+
+	glRenderMode(GL_SELECT);
+	glInitNames();
+	glPushName(0);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluPickMatrix(mouse_x, window_height-mouse_y, 1.0, 1.0, viewport);
+	glMultMatrixd(matrix);
+	glMatrixMode(GL_MODELVIEW);
+
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 	glPushMatrix();
@@ -265,26 +341,33 @@ void get_2d_object_under_mouse()
 	{
 		if (obj_2d_list[i])
 		{
-			int dist1;
-			int dist2;
-
 			dist1 = x - (int)obj_2d_list[i]->x_pos;
 			dist2 = y - (int)obj_2d_list[i]->y_pos;
-			if ( dist1 * dist1 + dist2 * dist2 <= ( (40 * 40) * (zoom_level / 15.75f) ) )
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
 			{
-				draw_2d_object (obj_2d_list[i]);
-				if (evaluate_colision (&least_z))
-				{
-                     			selected_2d_object = i;
-					//glClear(GL_COLOR_BUFFER_BIT);
-				}
+				glLoadName(i);
+				draw_2d_object(obj_2d_list[i]);
 			}
 		}
 	}
-	
-	glPopMatrix();
-}
 
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	hits = glRenderMode(GL_RENDER);
+	z_coordinate = 0xFFFFFFFF;
+	for (i = 0; i < hits; i++)
+	{
+		if (buffer[(i * 4) + 1] < z_coordinate)
+		{
+			selected_2d_object = buffer[(i*4)+3];
+			z_coordinate = buffer[(i*4)+1];
+		}
+	}
+	free(buffer);
+}
 
 void kill_2d_object(int object_id)
 {
@@ -432,18 +515,57 @@ void display_particle_handles()
 	glEnable(GL_TEXTURE_2D);
 }
 
-void get_particles_object_under_mouse() {
+void get_particles_object_under_mouse()
+{
 	//ok, first of all, let's see what objects we have in range...
-	int i;
-	int x,y;
-	float least_z;
+	int i, count, x, y, dist1, dist2, hits;
+	GLint viewport[4];
+	GLuint *buffer, z_coordinate;
+	double matrix[16];
 
-	selected_particles_object=-1;
-	x=(int)-camera_x;
-	y=(int)-camera_y;
+	selected_2d_object = -1;
+	x = (int)-camera_x;
+	y = (int)-camera_y;
 
-	least_z = 1.0;
-	glClearDepth (least_z);
+	count = 0;
+
+	LOCK_PARTICLES_LIST();
+	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+	{
+		if (particles_list[i])
+		{
+			dist1 = x - (int)particles_list[i]->x_pos;
+			dist2 = y - (int)particles_list[i]->y_pos;
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
+			{
+				count++;
+			}
+		}
+	}
+
+	if (count == 0)
+	{
+		UNLOCK_PARTICLES_LIST();
+		return;
+	}
+	count++;
+	count *= 4;
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	buffer = malloc(count * sizeof(GLuint));
+	glSelectBuffer(count, buffer);
+
+	glGetDoublev(GL_PROJECTION_MATRIX, matrix);
+
+	glRenderMode(GL_SELECT);
+	glInitNames();
+	glPushName(0);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluPickMatrix(mouse_x, window_height-mouse_y, 1.0, 1.0, viewport);
+	glMultMatrixd(matrix);
+	glMatrixMode(GL_MODELVIEW);
+
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	glDisable(GL_TEXTURE_2D);
 
@@ -451,31 +573,38 @@ void get_particles_object_under_mouse() {
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 
-	LOCK_PARTICLES_LIST();
 	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
 	{
 		if (particles_list[i])
 		{
-			int dist1;
-			int dist2;
-
 			dist1 = x - (int)particles_list[i]->x_pos;
 			dist2 = y - (int)particles_list[i]->y_pos;
-			if (dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
 			{
+				glLoadName(i);
 				draw_particle_handle(particles_list[i]);
-				if (evaluate_colision (&least_z))
-				{
-					selected_particles_object = i;
-					//glClear (GL_COLOR_BUFFER_BIT);
-				}
 			}
 		}
 	}
-	
-	glPopMatrix();
+
 	UNLOCK_PARTICLES_LIST();
 	glEnable(GL_TEXTURE_2D);
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	hits = glRenderMode(GL_RENDER);
+	z_coordinate = 0xFFFFFFFF;
+	for (i = 0; i < hits; i++)
+	{
+		if (buffer[(i * 4) + 1] < z_coordinate)
+		{
+			selected_2d_object = buffer[(i*4)+3];
+			z_coordinate = buffer[(i*4)+1];
+		}
+	}
+	free(buffer);
 }
 
 void kill_particles_object(int object_id) {
@@ -663,16 +792,51 @@ void visualise_lights()
 void get_light_under_mouse()
 {
 	//ok, first of all, let's see what objects we have in range...
-	int i;
-	int x,y;
-	float least_z;
+	int i, count, x, y, dist1, dist2, hits;
+	GLint viewport[4];
+	GLuint *buffer, z_coordinate;
+	double matrix[16];
 
-	selected_light=-1;
-	x=(int)-camera_x;
-	y=(int)-camera_y;
+	selected_2d_object = -1;
+	x = (int)-camera_x;
+	y = (int)-camera_y;
 
-	least_z = 1.0;
-	glClearDepth (least_z);
+	count = 0;
+	for (i = 0; i < max_lights; i++)
+	{
+		if (lights_list[i])
+		{
+			dist1 = x - (int)lights_list[i]->pos_x;
+			dist2 = y - (int)lights_list[i]->pos_y;
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
+			{
+				count++;
+			}
+		}
+	}
+
+	if (count == 0)
+	{
+		return;
+	}
+	count++;
+	count *= 4;
+	glGetIntegerv(GL_VIEWPORT, viewport);
+	buffer = malloc(count * sizeof(GLuint));
+	glSelectBuffer(count, buffer);
+
+	glGetDoublev(GL_PROJECTION_MATRIX, matrix);
+
+	glRenderMode(GL_SELECT);
+	glInitNames();
+	glPushName(0);
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	gluPickMatrix(mouse_x, window_height-mouse_y, 1.0, 1.0, viewport);
+	glMultMatrixd(matrix);
+	glMatrixMode(GL_MODELVIEW);
+
 	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 
 	glPushMatrix();
@@ -683,24 +847,33 @@ void get_light_under_mouse()
 	{
 		if (lights_list[i])
 		{
-			int dist1;
-			int dist2;
-
 			dist1 = x - (int)lights_list[i]->pos_x;
 			dist2 = y - (int)lights_list[i]->pos_y;
-			if (dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
+			if (dist1 * dist1 + dist2 * dist2 <= ((40 * 40) * (zoom_level / 15.75f)))
 			{
-				draw_light_source (lights_list[i]);
-				if (evaluate_colision (&least_z))
-				{
-					selected_light = i;
-					//glClear(GL_COLOR_BUFFER_BIT);
-				}
+				glLoadName(i);
+				draw_light_source(lights_list[i]);
 			}
 		}
 	}
-	
+
 	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+
+	hits = glRenderMode(GL_RENDER);
+	z_coordinate = 0xFFFFFFFF;
+	for (i = 0; i < hits; i++)
+	{
+		if (buffer[(i * 4) + 1] < z_coordinate)
+		{
+			selected_2d_object = buffer[(i*4)+3];
+			z_coordinate = buffer[(i*4)+1];
+		}
+	}
+	free(buffer);
+
 }
 
 void move_light(int object_id)
