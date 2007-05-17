@@ -989,7 +989,7 @@ int vscrollbar_set_bar_len (int window_id, Uint32 widget_id, int bar_len)
 	widget_list *w = widget_find(window_id, widget_id);
 	if(w){
 		vscrollbar *c = (vscrollbar *)w->widget_info;
-		c->bar_len = bar_len;
+		c->bar_len = bar_len > 0 ? bar_len : 1;
 		return 1;
 	}
 
