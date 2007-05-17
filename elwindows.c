@@ -82,7 +82,7 @@ void	display_windows(int level)
 }
 
 
-int	click_in_windows(int mx, int my, Uint32 flags)
+int	click_in_windows(int _x, int _y, Uint32 flags)
 {
 	int	done= 0;
 	int	id;
@@ -115,12 +115,12 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 						if(windows_list.window[i].displayed > 0){
 							// at this level?
 							if(windows_list.window[i].order == id){
-								done= click_in_window(i, mx, my, flags);
+								done= click_in_window(i, _x, _y, flags);
 								if(done > 0){
 									if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
 									return i;
 								}
-								if(first_win == 0 && mouse_in_window(i, mx, my))	first_win= i;
+								if(first_win == 0 && mouse_in_window(i, _x, _y))	first_win= i;
 							} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
 								// try to find the next level
 								next_id= windows_list.window[i].order;
@@ -147,7 +147,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 				if(windows_list.window[i].displayed > 0){
 					// at this level?
 					if(windows_list.window[i].order == id){
-						done= click_in_window(i, mx, my, flags);
+						done= click_in_window(i, _x, _y, flags);
 						if(done > 0){
 							//select_window(i);	// these never get selected
 							return i;
@@ -177,7 +177,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 }
 
 
-int	drag_windows(int mx, int my, int dx, int dy)
+int	drag_windows(int _x, int _y, int dx, int dy)
 {
 	int	next_id;
 	int	id, i;
@@ -196,10 +196,10 @@ int	drag_windows(int mx, int my, int dx, int dy)
 							// at this level?
 							if(windows_list.window[i].order == id){
 								// check for being actively dragging or on the top bar
-								if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
+								if(windows_list.window[i].dragged || (mouse_in_window(i, _x, _y) && _y<windows_list.window[i].cur_y) ){
 									drag_id= i;
 									break;
-								} else if(mouse_in_window(i, mx, my)){
+								} else if(mouse_in_window(i, _x, _y)){
 									// stop processing if we are inside of another window
 									return 0;
 								}
@@ -232,10 +232,10 @@ int	drag_windows(int mx, int my, int dx, int dy)
 					// at this level?
 					if(windows_list.window[i].order == id){
 						// check for being actively dragging or on the top bar
-						if(windows_list.window[i].dragged || (mouse_in_window(i, mx, my) && my<windows_list.window[i].cur_y) ){
+						if(windows_list.window[i].dragged || (mouse_in_window(i, _x, _y) && _y<windows_list.window[i].cur_y) ){
 							drag_id= i;
 							break;
-						} else if(mouse_in_window(i, mx, my)){
+						} else if(mouse_in_window(i, _x, _y)){
 							// stop processing if we are inside of another window
 							return 0;
 						}
@@ -663,7 +663,7 @@ int	mouse_in_window(int win_id, int x, int y)
 int	click_in_window(int win_id, int x, int y, Uint32 flags)
 {
     window_info *win;
-    int	mx, my;
+    int	_x, _y;
    
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
@@ -679,12 +679,12 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				//if(double_click)	flags |= ELW_DBL_CLICK;
 			}
 			win= &windows_list.window[win_id];
-			mx= x - win->cur_x;
-			my= y - win->cur_y;
+			_x= x - win->cur_x;
+			_y= y - win->cur_y;
 			//check the X for close - but hide it
 			if(win->flags&ELW_CLOSE_BOX)
 				{
-        			if(my>0 && my<=20 && mx>(win->len_x-20) && mx<=win->len_x)
+        			if(_y>0 && _y<=20 && _x>(win->len_x-20) && _x<=win->len_x)
 						{
 							// the X was hit, hide this window
 							hide_window(win_id);
@@ -698,7 +698,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 			    
 				glPushMatrix();
 				glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-				ret_val= (*win->click_handler)(win, mx, my, flags);
+				ret_val= (*win->click_handler)(win, _x, _y, flags);
 				glPopMatrix();
 
 				//return	ret_val;	// with click-thru
@@ -713,19 +713,19 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 
 int	mouseover_window(int win_id, int x, int y)
 {
-	int	mx,	my;
+	int	_x,	_y;
 	int	ret_val=0;
 	
 	if(mouse_in_window(win_id, x, y) > 0)
 		{
 			//use the handler if present
 			if(windows_list.window[win_id].mouseover_handler){
-				mx= x - windows_list.window[win_id].cur_x;
-				my= y - windows_list.window[win_id].cur_y;
+				_x= x - windows_list.window[win_id].cur_x;
+				_y= y - windows_list.window[win_id].cur_y;
 
 				glPushMatrix();
 				glTranslatef((float)windows_list.window[win_id].cur_x, (float)windows_list.window[win_id].cur_y, 0.0f);
-				ret_val= (*windows_list.window[win_id].mouseover_handler)(&windows_list.window[win_id], mx, my);
+				ret_val= (*windows_list.window[win_id].mouseover_handler)(&windows_list.window[win_id], _x, _y);
 				glPopMatrix();
 
 			} 

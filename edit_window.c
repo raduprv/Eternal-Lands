@@ -256,10 +256,10 @@ int display_edit_window_handler(window_info *win)
 }
 
 
-int check_edit_window_interface(window_info *win, int mx, int my)
+int check_edit_window_interface(window_info *win, int _x, int _y)
 {
 	// Grum: this shouldn't happen
-   	if (view_edit_window && mx > win->len_x-20 && my <= 20)
+   	if (view_edit_window && _x > win->len_x-20 && _y <= 20)
 	{
 		view_edit_window=0;
 		return 1;
@@ -267,7 +267,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 
 	if(ew_selected_object==-1)return 0;
    
-	if (mx > g1_x1 && mx <= g1_x2 && my > g1_y1 && my <= g1_y2)
+	if (_x > g1_x1 && _x <= g1_x2 && _y > g1_y1 && _y <= g1_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->x_pos+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -275,7 +275,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->x_pos+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 
-	if (mx > g2_x1 && mx <= g2_x2 && my > g2_y1 && my <= g2_y2)
+	if (_x > g2_x1 && _x <= g2_x2 && _y > g2_y1 && _y <= g2_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->x_pos-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -283,7 +283,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->x_pos-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 	
-	if (mx > g3_x1 && mx <= g3_x2 && my > g3_y1 && my <= g3_y2)
+	if (_x > g3_x1 && _x <= g3_x2 && _y > g3_y1 && _y <= g3_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->y_pos+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -291,7 +291,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->y_pos+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 	
-	if (mx > g4_x1 && mx <= g4_x2 && my > g4_y1 && my <= g4_y2)
+	if (_x > g4_x1 && _x <= g4_x2 && _y > g4_y1 && _y <= g4_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->y_pos-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -299,7 +299,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->y_pos-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 	
-	if (mx > g5_x1 && mx <= g5_x2 && my > g5_y1 && my <= g5_y2)
+	if (_x > g5_x1 && _x <= g5_x2 && _y > g5_y1 && _y <= g5_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->z_pos+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -307,7 +307,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->z_pos+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 	
-	if (mx > g6_x1 && mx <= g6_x2 && my > g6_y1 && my <= g6_y2)
+	if (_x > g6_x1 && _x <= g6_x2 && _y > g6_y1 && _y <= g6_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->z_pos-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -315,7 +315,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->z_pos-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 
-	if (mx > g7_x1 && mx <= g7_x2 && my > g7_y1 && my <= g7_y2)
+	if (_x > g7_x1 && _x <= g7_x2 && _y > g7_y1 && _y <= g7_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->x_rot+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -323,7 +323,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->x_rot+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 	
-	if (mx > g8_x1 && mx <= g8_x2 && my > g8_y1 && my <= g8_y2)
+	if (_x > g8_x1 && _x <= g8_x2 && _y > g8_y1 && _y <= g8_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->x_rot-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -331,9 +331,9 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->x_rot-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 	
-	if (mx > g9_x1 && mx <= g9_x2 && my > g9_y1 && my <= g9_y2 && !ew_object_type)objects_list[ew_selected_object]->y_rot+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (mx > g10_x1 && mx <= g10_x2 && my > g10_y1 && my <= g10_y2 && !ew_object_type)objects_list[ew_selected_object]->y_rot-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (mx > g11_x1 && mx <= g11_x2 && my > g11_y1 && my <= g11_y2)
+	if (_x > g9_x1 && _x <= g9_x2 && _y > g9_y1 && _y <= g9_y2 && !ew_object_type)objects_list[ew_selected_object]->y_rot+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g10_x1 && _x <= g10_x2 && _y > g10_y1 && _y <= g10_y2 && !ew_object_type)objects_list[ew_selected_object]->y_rot-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g11_x1 && _x <= g11_x2 && _y > g11_y1 && _y <= g11_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->z_rot+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -341,7 +341,7 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->z_rot+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 	
-	if (mx > g12_x1 && mx <= g12_x2 && my > g12_y1 && my <= g12_y2)
+	if (_x > g12_x1 && _x <= g12_x2 && _y > g12_y1 && _y <= g12_y2)
 	{
 		if(ew_object_type)
 			obj_2d_list[ew_selected_object]->z_rot-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
@@ -349,17 +349,17 @@ int check_edit_window_interface(window_info *win, int mx, int my)
 			objects_list[ew_selected_object]->z_rot-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 	}
 
-	if (mx > g13_x1 && mx <= g13_x2 && my > g13_y1 && my <= g13_y2 && !ew_object_type)objects_list[ew_selected_object]->r+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (mx > g14_x1 && mx <= g14_x2 && my > g14_y1 && my <= g14_y2 && !ew_object_type)objects_list[ew_selected_object]->r-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (mx > g15_x1 && mx <= g15_x2 && my > g15_y1 && my <= g15_y2 && !ew_object_type)objects_list[ew_selected_object]->g+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (mx > g16_x1 && mx <= g16_x2 && my > g16_y1 && my <= g16_y2 && !ew_object_type)objects_list[ew_selected_object]->g-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (mx > g17_x1 && mx <= g17_x2 && my > g17_y1 && my <= g17_y2 && !ew_object_type)objects_list[ew_selected_object]->b+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
-	if (mx > g18_x1 && mx <= g18_x2 && my > g18_y1 && my <= g18_y2 && !ew_object_type)objects_list[ew_selected_object]->b-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g13_x1 && _x <= g13_x2 && _y > g13_y1 && _y <= g13_y2 && !ew_object_type)objects_list[ew_selected_object]->r+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g14_x1 && _x <= g14_x2 && _y > g14_y1 && _y <= g14_y2 && !ew_object_type)objects_list[ew_selected_object]->r-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g15_x1 && _x <= g15_x2 && _y > g15_y1 && _y <= g15_y2 && !ew_object_type)objects_list[ew_selected_object]->g+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g16_x1 && _x <= g16_x2 && _y > g16_y1 && _y <= g16_y2 && !ew_object_type)objects_list[ew_selected_object]->g-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g17_x1 && _x <= g17_x2 && _y > g17_y1 && _y <= g17_y2 && !ew_object_type)objects_list[ew_selected_object]->b+=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
+	if (_x > g18_x1 && _x <= g18_x2 && _y > g18_y1 && _y <= g18_y2 && !ew_object_type)objects_list[ew_selected_object]->b-=(shift_on)?(ctrl_on?0.001:(alt_on?0.01:0.1)):(ctrl_on?100:(alt_on?10:1));
 
-	if (mx > g19_x1 && mx <= g19_x2 && my > g19_y1 && my <= g19_y2 && !ew_object_type)objects_list[ew_selected_object]->blended=!objects_list[ew_selected_object]->blended;
-	if (mx > g20_x1 && mx <= g20_x2 && my > g20_y1 && my <= g20_y2 && !ew_object_type)objects_list[ew_selected_object]->self_lit=!objects_list[ew_selected_object]->self_lit;
+	if (_x > g19_x1 && _x <= g19_x2 && _y > g19_y1 && _y <= g19_y2 && !ew_object_type)objects_list[ew_selected_object]->blended=!objects_list[ew_selected_object]->blended;
+	if (_x > g20_x1 && _x <= g20_x2 && _y > g20_y1 && _y <= g20_y2 && !ew_object_type)objects_list[ew_selected_object]->self_lit=!objects_list[ew_selected_object]->self_lit;
 
-	if (mx > g21_x1 && mx <= g21_x2 && my > g21_y1 && my <= g21_y2)
+	if (_x > g21_x1 && _x <= g21_x2 && _y > g21_y1 && _y <= g21_y2)
 	{
 	   if(ew_object_type==1)
 			memcpy(obj_2d_list[ew_selected_object],&o2t,sizeof(obj_2d));

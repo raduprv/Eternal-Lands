@@ -136,8 +136,8 @@ extern	windows_info	windows_list;
 
 // windows manager function
 void	display_windows();
-int		click_in_windows(int mx, int my, Uint32 flags);
-int		drag_windows(int mx, int my, int dx, int dy);
+int		click_in_windows(int _x, int _y, Uint32 flags);
+int		drag_windows(int _x, int _y, int dx, int dy);
 void	end_drag_windows();
 int		select_window(int win_id);
 //void	close_windows();

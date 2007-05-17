@@ -47,17 +47,17 @@ int setobject(int n, char *fn,float xrot, float yrot, float zrot)
 
 }
 
-int check_browser_interface (window_info *win, int mx, int my)
+int check_browser_interface (window_info *win, int _x, int _y)
 {
-   	if (view_browser && mx > win->len_x-20 && my <= 20)
+   	if (view_browser && _x > win->len_x-20 && _y <= 20)
 	{
 		view_browser = 0;
 		return 1;
 	}
 
 	if(cd==-1){
-		int id = my / 18;
-		if (mx > 210) id += 22;
+		int id = _y / 18;
+		if (_x > 210) id += 22;
 
 		if(mc==1){
 			if(id<=cc){
@@ -80,13 +80,13 @@ int check_browser_interface (window_info *win, int mx, int my)
 					if(Cat[ccat].Sub[id]==&Dir[i])
 						cd=i;
 				}
-			} else if(mx > win->len_x-16 && my > 160 && my < 240){
+			} else if(_x > win->len_x-16 && _y > 160 && _y < 240){
 				mc=1;
 			}
 		}
 
 	}else{
-		if(mx>0 && mx<200 && my>0 && my<200){
+		if(_x>0 && _x<200 && _y>0 && _y<200){
 			char fn[256];
 			strcpy(fn,".");
 			strcat(fn,Dir[cd].Files[cp]);
@@ -94,7 +94,7 @@ int check_browser_interface (window_info *win, int mx, int my)
 			cur_tool=tool_select;
 			if(close_browser_on_select) toggle_window(browser_win);
 		}
-		if(cp+2<Dir[cd].nf && mx>0 && mx<200 && my>200 && my<400){
+		if(cp+2<Dir[cd].nf && _x>0 && _x<200 && _y>200 && _y<400){
 			char fn[256];
 			strcpy(fn,".");
 			strcat(fn,Dir[cd].Files[cp+2]);
@@ -102,7 +102,7 @@ int check_browser_interface (window_info *win, int mx, int my)
 			cur_tool=tool_select;
 			if(close_browser_on_select) toggle_window(browser_win);
 		}
-		if(cp+1<Dir[cd].nf && mx>200 && mx<400 && my>0 && my<200){
+		if(cp+1<Dir[cd].nf && _x>200 && _x<400 && _y>0 && _y<200){
 			char fn[256];
 			strcpy(fn,".");
 			strcat(fn,Dir[cd].Files[cp+1]);
@@ -110,7 +110,7 @@ int check_browser_interface (window_info *win, int mx, int my)
 			cur_tool=tool_select;
 			if(close_browser_on_select) toggle_window(browser_win);
 		}
-		if(cp+3<Dir[cd].nf && mx>200 && mx<400 && my>200 && my<400){
+		if(cp+3<Dir[cd].nf && _x>200 && _x<400 && _y>200 && _y<400){
 			char fn[256];
 			strcpy(fn,".");
 			strcat(fn,Dir[cd].Files[cp+3]);
@@ -120,15 +120,15 @@ int check_browser_interface (window_info *win, int mx, int my)
 		}
 	
 
-		if(mx > win->len_x-16 && mx < win->len_x && my > 18 && my < 18+16){
+		if(_x > win->len_x-16 && _x < win->len_x && _y > 18 && _y < 18+16){
 			if(cp>=4)cp-=4;	
 		}
 
-		if(mx > win->len_x-16 && mx < win->len_x && my > 380 && my < 380+16){
+		if(_x > win->len_x-16 && _x < win->len_x && _y > 380 && _y < 380+16){
 			if(cp<(Dir[cd].nf-4))cp+=4;
 		}
 
-		if(mx > win->len_x-16 && mx < win->len_x && my > 160 && my < 240){
+		if(_x > win->len_x-16 && _x < win->len_x && _y > 160 && _y < 240){
 			cp=0;
 			cd=-1;
 		}

@@ -190,13 +190,13 @@ int display_replace_window_handler(window_info *win)
 
 
 
-int check_replace_window_interface(window_info *win, int mx, int my)
+int check_replace_window_interface(window_info *win, int _x, int _y)
 
 {
 
 	// Grum: this shouldn't happen
 
-	if (view_replace_window && mx > win->len_x-20 && my <= 20)
+	if (view_replace_window && _x > win->len_x-20 && _y <= 20)
 
 	{
 
@@ -206,7 +206,7 @@ int check_replace_window_interface(window_info *win, int mx, int my)
 
 	}
 
-	if (mx > d1_x1 && mx <= d1_x2 && my > d1_y1 && my <= d1_y2)
+	if (_x > d1_x1 && _x <= d1_x2 && _y > d1_y1 && _y <= d1_y2)
 
 	{
 
@@ -250,7 +250,7 @@ int check_replace_window_interface(window_info *win, int mx, int my)
 
 	
 
-	if (mx > d2_x1 && mx <= d2_x2 && my > d2_y1 && my <= d2_y2)
+	if (_x > d2_x1 && _x <= d2_x2 && _y > d2_y1 && _y <= d2_y2)
 
 	{
 
@@ -300,7 +300,7 @@ int check_replace_window_interface(window_info *win, int mx, int my)
 
 
 
-	if (mx > d3_x1 && mx <= d3_x2 && my > d3_y1 && my <= d3_y2 && oid != -1 && nid != -1)
+	if (_x > d3_x1 && _x <= d3_x2 && _y > d3_y1 && _y <= d3_y2 && oid != -1 && nid != -1)
 
 	{
 
@@ -432,7 +432,7 @@ int check_replace_window_interface(window_info *win, int mx, int my)
 
 
 
-	if (mx > d4_x1 && mx <= d4_x2 && my > d4_y1 && my <= d4_y2)
+	if (_x > d4_x1 && _x <= d4_x2 && _y > d4_y1 && _y <= d4_y2)
 
 	{
 

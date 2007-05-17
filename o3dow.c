@@ -266,45 +266,45 @@ int display_o3dow_handler(window_info *win)
 }
 
 
-int check_o3dow_interface(window_info *win, int mx, int my)
+int check_o3dow_interface(window_info *win, int _x, int _y)
 {
 	// Grum: guess this shouldn't happen
-   	if (view_o3dow && mx > win->len_x - 20 && my <= 20)
+   	if (view_o3dow && _x > win->len_x - 20 && _y <= 20)
 	{
 		view_o3dow=0;
 		return 1;
 	}
    
-	if(mx>c1_x1 && mx<=c1_x2 && my>c1_y1 && my<=c1_y2)c1=!c1;
-	if(mx>c2_x1 && mx<=c2_x2 && my>c2_y1 && my<=c2_y2)c2=!c2;
-	if(mx>c3_x1 && mx<=c3_x2 && my>c3_y1 && my<=c3_y2)c3=!c3;
-	if(mx>c4_x1 && mx<=c4_x2 && my>c4_y1 && my<=c4_y2)c4=!c4;
-	if(mx>c5_x1 && mx<=c5_x2 && my>c5_y1 && my<=c5_y2)randomheight=!randomheight;
-	if(mx>c6_x1 && mx<=c6_x2 && my>c6_y1 && my<=c6_y2)randomanglex=!randomanglex;
-	if(mx>c7_x1 && mx<=c7_x2 && my>c7_y1 && my<=c7_y2)randomangley=!randomangley;
-	if(mx>c8_x1 && mx<=c8_x2 && my>c8_y1 && my<=c8_y2)randomanglez=!randomanglez;
+	if(_x>c1_x1 && _x<=c1_x2 && _y>c1_y1 && _y<=c1_y2)c1=!c1;
+	if(_x>c2_x1 && _x<=c2_x2 && _y>c2_y1 && _y<=c2_y2)c2=!c2;
+	if(_x>c3_x1 && _x<=c3_x2 && _y>c3_y1 && _y<=c3_y2)c3=!c3;
+	if(_x>c4_x1 && _x<=c4_x2 && _y>c4_y1 && _y<=c4_y2)c4=!c4;
+	if(_x>c5_x1 && _x<=c5_x2 && _y>c5_y1 && _y<=c5_y2)randomheight=!randomheight;
+	if(_x>c6_x1 && _x<=c6_x2 && _y>c6_y1 && _y<=c6_y2)randomanglex=!randomanglex;
+	if(_x>c7_x1 && _x<=c7_x2 && _y>c7_y1 && _y<=c7_y2)randomangley=!randomangley;
+	if(_x>c8_x1 && _x<=c8_x2 && _y>c8_y1 && _y<=c8_y2)randomanglez=!randomanglez;
 
 
-	if(mx>b1_x1 && mx<=b1_x2 && my>b1_y1 && my<=b1_y2)minh+=ctrl_on?100:alt_on?10:1;
-	if(mx>b2_x1 && mx<=b2_x2 && my>b2_y1 && my<=b2_y2)minh-=ctrl_on?100:alt_on?10:1;
-	if(mx>b3_x1 && mx<=b3_x2 && my>b3_y1 && my<=b3_y2)maxh+=ctrl_on?100:alt_on?10:1;
-	if(mx>b4_x1 && mx<=b4_x2 && my>b4_y1 && my<=b4_y2)maxh-=ctrl_on?100:alt_on?10:1;
+	if(_x>b1_x1 && _x<=b1_x2 && _y>b1_y1 && _y<=b1_y2)minh+=ctrl_on?100:alt_on?10:1;
+	if(_x>b2_x1 && _x<=b2_x2 && _y>b2_y1 && _y<=b2_y2)minh-=ctrl_on?100:alt_on?10:1;
+	if(_x>b3_x1 && _x<=b3_x2 && _y>b3_y1 && _y<=b3_y2)maxh+=ctrl_on?100:alt_on?10:1;
+	if(_x>b4_x1 && _x<=b4_x2 && _y>b4_y1 && _y<=b4_y2)maxh-=ctrl_on?100:alt_on?10:1;
 
-	if(mx>b5_x1 && mx<=b5_x2 && my>b5_y1 && my<=b5_y2)minax+=ctrl_on?100:alt_on?10:1;
-	if(mx>b6_x1 && mx<=b6_x2 && my>b6_y1 && my<=b6_y2)minax-=ctrl_on?100:alt_on?10:1;
-	if(mx>b7_x1 && mx<=b7_x2 && my>b7_y1 && my<=b7_y2)maxax+=ctrl_on?100:alt_on?10:1;
-	if(mx>b8_x1 && mx<=b8_x2 && my>b8_y1 && my<=b8_y2)maxax-=ctrl_on?100:alt_on?10:1;
+	if(_x>b5_x1 && _x<=b5_x2 && _y>b5_y1 && _y<=b5_y2)minax+=ctrl_on?100:alt_on?10:1;
+	if(_x>b6_x1 && _x<=b6_x2 && _y>b6_y1 && _y<=b6_y2)minax-=ctrl_on?100:alt_on?10:1;
+	if(_x>b7_x1 && _x<=b7_x2 && _y>b7_y1 && _y<=b7_y2)maxax+=ctrl_on?100:alt_on?10:1;
+	if(_x>b8_x1 && _x<=b8_x2 && _y>b8_y1 && _y<=b8_y2)maxax-=ctrl_on?100:alt_on?10:1;
 
-	if(mx>b9_x1 && mx<=b9_x2 && my>b9_y1 && my<=b9_y2)minay+=ctrl_on?100:alt_on?10:1;
+	if(_x>b9_x1 && _x<=b9_x2 && _y>b9_y1 && _y<=b9_y2)minay+=ctrl_on?100:alt_on?10:1;
 
-	if(mx>b10_x1 && mx<=b10_x2 && my>b10_y1 && my<=b10_y2)minay-=ctrl_on?100:alt_on?10:1;
-	if(mx>b11_x1 && mx<=b11_x2 && my>b11_y1 && my<=b11_y2)maxay+=ctrl_on?100:alt_on?10:1;
-	if(mx>b12_x1 && mx<=b12_x2 && my>b12_y1 && my<=b12_y2)maxay-=ctrl_on?100:alt_on?10:1;
+	if(_x>b10_x1 && _x<=b10_x2 && _y>b10_y1 && _y<=b10_y2)minay-=ctrl_on?100:alt_on?10:1;
+	if(_x>b11_x1 && _x<=b11_x2 && _y>b11_y1 && _y<=b11_y2)maxay+=ctrl_on?100:alt_on?10:1;
+	if(_x>b12_x1 && _x<=b12_x2 && _y>b12_y1 && _y<=b12_y2)maxay-=ctrl_on?100:alt_on?10:1;
 
-	if(mx>b13_x1 && mx<=b13_x2 && my>b13_y1 && my<=b13_y2)minaz+=ctrl_on?100:alt_on?10:1;
-	if(mx>b14_x1 && mx<=b14_x2 && my>b14_y1 && my<=b14_y2)minaz-=ctrl_on?100:alt_on?10:1;
-	if(mx>b15_x1 && mx<=b15_x2 && my>b15_y1 && my<=b15_y2)maxaz+=ctrl_on?100:alt_on?10:1;
-	if(mx>b16_x1 && mx<=b16_x2 && my>b16_y1 && my<=b16_y2)maxaz-=ctrl_on?100:alt_on?10:1;
+	if(_x>b13_x1 && _x<=b13_x2 && _y>b13_y1 && _y<=b13_y2)minaz+=ctrl_on?100:alt_on?10:1;
+	if(_x>b14_x1 && _x<=b14_x2 && _y>b14_y1 && _y<=b14_y2)minaz-=ctrl_on?100:alt_on?10:1;
+	if(_x>b15_x1 && _x<=b15_x2 && _y>b15_y1 && _y<=b15_y2)maxaz+=ctrl_on?100:alt_on?10:1;
+	if(_x>b16_x1 && _x<=b16_x2 && _y>b16_y1 && _y<=b16_y2)maxaz-=ctrl_on?100:alt_on?10:1;
 
 
    return 1;

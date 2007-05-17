@@ -609,19 +609,19 @@ int display_tiles_handler(window_info *win)
 	return 1;
 }
 
-int check_tiles_interface (window_info *win, int mx, int my)
+int check_tiles_interface (window_info *win, int _x, int _y)
 {
 	int tile_id;
 
-	if (mx > win->len_x - 20 && mouse_y < 20)
+	if (_x > win->len_x - 20 && mouse_y < 20)
 	{
 		view_tiles_list = 0;
 		return 0;
 	}
 	
-	if (my < 20) return 0; 
+	if (_y < 20) return 0; 
 
-	tile_id = 8 * ( (my-20) / 48 ) + mx / 48;	
+	tile_id = 8 * ( (_y-20) / 48 ) + _x / 48;	
 	tile_id+=tile_offset;
 	if(tile_id>tiles_no)return 0;//check to see if we clicked on an empty tile
 
@@ -693,14 +693,14 @@ int display_heights_handler(window_info *win)
 	return 1;
 }
 
-int check_height_interface (window_info *win, int mx, int my)
+int check_height_interface (window_info *win, int _x, int _y)
 {
 	int height_id;
 	
-	if (my < 20) return 0; 
+	if (_y < 20) return 0; 
 	//check to see if we clicked outside our rectangle
 
-	height_id = 8 * ( (my - 20) / 32 ) + mx / 32;
+	height_id = 8 * ( (_y - 20) / 32 ) + _x / 32;
 	cur_tool=tool_select;
 	selected_height=height_id;
 	
@@ -982,31 +982,31 @@ int new_map_display_handler ()
 	return 1;
 }
 
-int new_map_click_handler (window_info *win, int mx, int my)
+int new_map_click_handler (window_info *win, int _x, int _y)
 {
-	if (my > 2*17+2 && my < 3*17+2)
+	if (_y > 2*17+2 && _y < 3*17+2)
 	{
 		map_size = 0;
 	}
-	else if (my > 3*17+2 && my < 4*17+2)
+	else if (_y > 3*17+2 && _y < 4*17+2)
 	{
 		map_size = 1;
 	}
-	else if (my > 4*17+2 && my < 5*17+2)
+	else if (_y > 4*17+2 && _y < 5*17+2)
 	{
 		map_size = 2;
 	}
-	else if (my > 5*17+2 && my < 6*17+2)
+	else if (_y > 5*17+2 && _y < 6*17+2)
 	{
 		map_size = 3;
 	}
-	else if (my > 6*17+2 && my < 7*17+2)
+	else if (_y > 6*17+2 && _y < 7*17+2)
 	{
 		map_size = 4;
 	}
-	else if (my > 8*17+2 && my < 9*17+2)
+	else if (_y > 8*17+2 && _y < 9*17+2)
 	{
-		if (mx > 3*12+2 && mx < 7*12+2)
+		if (_x > 3*12+2 && _x < 7*12+2)
 		{
 			hide_window (new_map_menu);
 			switch (map_size)
@@ -1019,7 +1019,7 @@ int new_map_click_handler (window_info *win, int mx, int my)
 				default: LOG_ERROR ("Unknown map size!");
 			}
 		}
-		else if (mx > 11*12+2 && mx < 19*12+2)
+		else if (_x > 11*12+2 && _x < 19*12+2)
 		{
 			hide_window (new_map_menu);
 		}

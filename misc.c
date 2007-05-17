@@ -765,8 +765,8 @@ void visualise_lights()
 	int i;
 	int x,y;
 
-	x=(int)-mx;
-	y=(int)-my;
+	x=(int)-camera_x;
+	y=(int)-camera_y;
 
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix
