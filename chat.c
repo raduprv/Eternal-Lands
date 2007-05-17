@@ -1179,11 +1179,7 @@ void init_channel_names(void)
 			xmlFree (attrib);
 
 			// Get the description.
-			if (cur->children == NULL) {
-				free (channelname);
-				LOG_ERROR (xml_bad_node);
-				continue;
-			} else if (strlen ((char*)cur->children->content) < 1) {
+			if ((cur->children == NULL) || (strlen ((char*)cur->children->content) < 1)) {
 				free (channelname);
 				LOG_ERROR (xml_bad_node);
 				continue;
