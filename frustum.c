@@ -288,11 +288,11 @@ void set_current_frustum(unsigned int intersect_type)
 	switch (intersect_type)
 	{
 		case INTERSECTION_TYPE_DEFAULT:
-			current_frustum_size = 7;
+			current_frustum_size = 6;
 			current_frustum = &main_frustum;
 			break;
 		case INTERSECTION_TYPE_SHADOW:
-			current_frustum_size = 7;
+			current_frustum_size = 6;
 			current_frustum = &shadow_frustum;
 			break;
 		case INTERSECTION_TYPE_REFLECTION:
@@ -379,7 +379,6 @@ void calculate_shadow_frustum()
 	MATRIX4x4 clip;								// This will hold the clipping planes
 	VECTOR3	ld;
 	unsigned int cur_intersect_type;
-	VECTOR3 p1, p2, p3;
 
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed == 0) return;
 
@@ -419,13 +418,8 @@ void calculate_shadow_frustum()
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
 	VMake(ld, sun_position[X], sun_position[Y], sun_position[Z]);
-	VMake(p1, -1.0f, -1.0f, -0.251f);
-	VMake(p2, -1.0f, 1.0f, -0.251f);
-	VMake(p3, 1.0f, -1.0f, -0.251f);
-	calc_plane(shadow_frustum[6].plane, p2, p1, p3);
-	calc_plane_mask(&shadow_frustum[6]);
-	set_frustum(main_bbox_tree, shadow_frustum, 127);
-	check_bbox_tree_shadow(main_bbox_tree, shadow_frustum, 127, main_frustum, 127, ld);
+	set_frustum(main_bbox_tree, shadow_frustum, 63);
+	check_bbox_tree_shadow(main_bbox_tree, shadow_frustum, 63, main_frustum, 63, ld);
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
 
@@ -575,11 +569,6 @@ void CalculateFrustum()
 	NormalizePlane(m_Frustum, FRONT);
 #else
 	calculate_frustum_from_clip_matrix(main_frustum, clip);
-	VMake(p1, -1.0f, -1.0f, -0.251f);
-	VMake(p2, -1.0f, 1.0f, -0.251f);
-	VMake(p3, 1.0f, -1.0f, -0.251f);
-	calc_plane(main_frustum[6].plane, p2, p1, p3);
-	calc_plane_mask(&main_frustum[6]);
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
 	set_frustum(main_bbox_tree, main_frustum, 63);
