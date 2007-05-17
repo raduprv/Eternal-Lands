@@ -159,7 +159,7 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
   
   set_vec3_actor_bone(sword_pos, _actor, 28, ec::Vec3(-0.05, 0.0, -0.25));
   set_vec3_actor_bone(base, _actor, 27, ec::Vec3(0.0, 0.0, 0.0));
-  sword_pos.y = base.y - sword_pos.y + 0.2;
+  sword_pos.y = base.y - sword_pos.y + 0.2 + ec_get_z(_actor);
   
   ec::Vec3 sword_angle = (sword_pos - base).normalize();
   
