@@ -954,10 +954,11 @@ int	display_misc_handler(window_info *win)
 		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string(x, 7+(NUM_WATCH_STAT-1)*15, (unsigned char*)str, 1);
 	}
-	if(show_stats_in_hud && video_mode > 4 && have_stats)
+	if(show_stats_in_hud && video_mode > (view_digital_clock>0?4:2) && have_stats)
 	{
 		char str[20];
-		int y=0;
+		//int y=0;
+		int y=(view_digital_clock>0?0:20);
 		int x=6;
 		int stat = 0;
 
