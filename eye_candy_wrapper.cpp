@@ -261,6 +261,11 @@ extern "C" void ec_idle()
     i++;
   }
   
+  if (is_day)
+    eye_candy.use_lights = false;
+  else
+    eye_candy.use_lights = true;
+    
   if (ec_cur_time == 0)
     eye_candy.time_diff = 100000;
   else

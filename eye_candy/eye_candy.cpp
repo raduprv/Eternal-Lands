@@ -1204,6 +1204,7 @@ EyeCandy::EyeCandy()
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
+  use_lights = true;
   draw_method = FAST_BILLBOARDS;
   billboard_scalar = 0.2;
   width = 800;
@@ -1224,6 +1225,7 @@ EyeCandy::EyeCandy(int _max_particles)
   max_point_size = 500.0;
   lighting_scalar = 1000.0;
   light_estimate = 0.0;
+  use_lights = true;
   draw_method = FAST_BILLBOARDS;
   billboard_scalar = 0.2;
   width = 800;
@@ -1515,7 +1517,7 @@ void EyeCandy::draw()
 
   end_draw();
   // Draw lights.
-  if (particles.size() > 0)
+  if ((use_lights) && (particles.size() > 0))
   {
     while (light_particles.size() < lights.size())
       light_particles.push_back(std::pair<Particle*, float>(particles[randint((int)particles.size())], 0.0));

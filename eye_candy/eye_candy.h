@@ -1505,6 +1505,7 @@ public:
   float max_fps;
   light_t lighting_scalar;
   light_t light_estimate;
+  bool use_lights;
   std::vector< std::pair<Particle*, light_t> > light_particles;
   unsigned int LOD_1_threshold;
   unsigned int LOD_2_threshold;
