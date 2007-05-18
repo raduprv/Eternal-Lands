@@ -1120,9 +1120,9 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 	//check to see if we clicked on the stats
-	if (show_stats_in_hud && video_mode > 4 && my < (NUM_WATCH_STAT-1)*15)
+	if (show_stats_in_hud && video_mode > (view_digital_clock>0?4:2) && my - (view_digital_clock>0?0:20) >= 0 && my - (view_digital_clock>0?0:20) < (NUM_WATCH_STAT-1)*15)
 	{
-		watch_this_stat = (my / 15) + 1;
+		watch_this_stat = ((my - (view_digital_clock>0?0:20) ) / 15) + 1;
 		return 1;
 	}
 
