@@ -356,10 +356,10 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_object->min_x = min2f(cur_object->min_x, cur_object->materials[i].min_x);
 		cur_object->min_y = min2f(cur_object->min_y, cur_object->materials[i].min_y);
 		cur_object->min_z = min2f(cur_object->min_z, cur_object->materials[i].min_z);
-		cur_object->max_x = min2f(cur_object->max_x, cur_object->materials[i].max_x);
-		cur_object->max_y = min2f(cur_object->max_y, cur_object->materials[i].max_y);
-		cur_object->max_z = min2f(cur_object->max_z, cur_object->materials[i].max_z);
-		cur_object->max_size = min2f(cur_object->max_size, cur_object->materials[i].max_size);
+		cur_object->max_x = max2f(cur_object->max_x, cur_object->materials[i].max_x);
+		cur_object->max_y = max2f(cur_object->max_y, cur_object->materials[i].max_y);
+		cur_object->max_z = max2f(cur_object->max_z, cur_object->materials[i].max_z);
+		cur_object->max_size = max2f(cur_object->max_size, cur_object->materials[i].max_size);
 
 		cur_object->materials[i].triangles_indicies_index = indicies_size*SDL_SwapLE32(material.index) + index_pointer;
 		cur_object->materials[i].triangles_indicies_count = SDL_SwapLE32(material.count);
