@@ -1011,7 +1011,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	} else {
 		LOCK_ACTORS_LISTS();
 
-		if(command==leave_combat||command==enter_combat||command==die1||command==die2){
+		if(command==leave_combat||command==enter_combat||command==die1||command==die2)
+		{
 			int j= 0;
 
 			//Strip the queue for attack messages
@@ -1038,7 +1039,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				}
 			}
 
-			if(act->last_command == nothing){
+			if(act->last_command == nothing)
+			{
 				//We may be on idle, update the actor so we can reduce the rendering lag
 				CalModel_Update(act->calmodel, 5.0f);
 			}
@@ -1192,13 +1194,13 @@ void get_actor_damage(int actor_id, int damage)
 				bone = rand() % total_bones;
 				bone_x = bone_list[bone][0] + act->x_pos + 0.25;
 				bone_y = bone_list[bone][1] + act->y_pos + 0.25;
-				bone_z = bone_list[bone][2] + act->z_pos;
-				ec_create_impact_blood(bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 10.0, ((float)rand()) * blood_level / RAND_MAX / 10.0, ((float)rand()) * blood_level / RAND_MAX / 10.0, (poor_man ? 6 : 10), blood_level);
+				bone_z = bone_list[bone][2] + ec_get_z(act);
+//				printf("ec_create_impact_blood((%f %f, %f), (%f, %f, %f), %d, %f);", bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, (poor_man ? 6 : 10), blood_level);
+				ec_create_impact_blood(bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, (poor_man ? 6 : 10), blood_level);
 			}
 		}
 #endif
 	}
-	
 }
 
 void get_actor_heal(int actor_id, int quantity)
@@ -1222,7 +1224,6 @@ void get_actor_heal(int actor_id, int quantity)
 		act->cur_health+=quantity;
 	}
 	//if we got here, it means we don't have this actor, so get it from the server...
-
 }
 
 void get_actor_health(int actor_id, int quantity)
@@ -1326,7 +1327,8 @@ void move_self_forward()
 }
 
 
-void    actor_check_string(actor_types *act, const char *section, const char *type, const char *value){
+void    actor_check_string(actor_types *act, const char *section, const char *type, const char *value)
+{
 	char	str[256];
 	
 	if(value == NULL || *value=='\0'){
@@ -1350,7 +1352,8 @@ void    actor_check_int(actor_types *act, const char *section, const char *type,
 	}
 }
 
-xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults) {
+xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *item;
 	char *group;
 	
@@ -1382,7 +1385,8 @@ xmlNode *get_default_node(xmlNode *cfg, xmlNode *defaults) {
 	return NULL;
 }
 
-int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *item;
 	int ok, col_idx;
 	shirt_part *shirt;
@@ -1445,7 +1449,8 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return ok;
 }
 
-int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *item;
 	int ok, col_idx;
 	skin_part *skin;
@@ -1503,7 +1508,8 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return ok;
 }
 
-int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *item;
 	int ok, col_idx;
 	legs_part *legs;
@@ -1563,7 +1569,8 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return ok;
 }
 
-int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *item;
 	char str[255];
 	int ok;
@@ -1636,7 +1643,8 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 	return ok;
 }
 
-int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	int ok, type_idx;
 	weapon_part *weapon;
 
@@ -1684,7 +1692,8 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return ok;
 }
 
-int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, const char *part_name, xmlNode *default_node) {
+int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, const char *part_name, xmlNode *default_node)
+{
 	xmlNode *item;
 	int ok = 1;
 
@@ -1738,7 +1747,8 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	return ok;
 }
 
-int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *helmet;
@@ -1758,7 +1768,8 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
 }
 
-int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *cape;
@@ -1778,7 +1789,8 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return parse_actor_body_part(act,cape, cfg->children, "cape", default_node);
 }
 
-int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *head;
@@ -1798,7 +1810,8 @@ int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return parse_actor_body_part(act, head, cfg->children, "head", default_node);
 }
 
-int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
 	body_part *shield;
@@ -1818,7 +1831,8 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return parse_actor_body_part(act,shield, cfg->children, "shield", default_node);
 }
 
-int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	int col_idx;
 	size_t len;
 	char *buf;
@@ -1908,7 +1922,8 @@ void parse_idle_group(actor_types *act,char *str)
 	//LOG_TO_CONSOLE(c_green2,temp);
 }
 
-int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *item;
 	char str[255];
 	//char fname[255];
@@ -2177,7 +2192,8 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return ok;
 }
 
-int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode *item;
 	int ok, col_idx;
 	boots_part *boots;
@@ -2361,7 +2377,8 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	return res;
 }
 
-int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
+int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
+{
 	xmlNode	*item;
 	int	ok= 1;
 	
@@ -2425,7 +2442,8 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults) {
 	return ok;
 }
 
-int parse_actor_script (xmlNode *cfg) {
+int parse_actor_script (xmlNode *cfg)
+{
 	int ok, act_idx, i;
 	actor_types *act;
 	struct CalCoreSkeleton *skel;
@@ -2549,7 +2567,8 @@ int parse_actor_script (xmlNode *cfg) {
 	return ok;
 }
 
-int parse_actor_defs (xmlNode *node) {
+int parse_actor_defs (xmlNode *node)
+{
 	xmlNode *def;
 	int ok = 1;
 
@@ -2569,7 +2588,8 @@ int parse_actor_defs (xmlNode *node) {
 	return ok;
 }
 
-int read_actor_defs (const char *dir, const char *index) {
+int read_actor_defs (const char *dir, const char *index)
+{
 	xmlNode *root;
 	xmlDoc *doc;
 	char fname[120];
@@ -2598,7 +2618,8 @@ int read_actor_defs (const char *dir, const char *index) {
 	return ok;
 }
 
-void init_actor_defs () {
+void init_actor_defs()
+{
 	const char *dirname = "actor_defs", *idxname = "actor_defs.xml";
 	char defdir[256];
 	int ok;

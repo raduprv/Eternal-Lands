@@ -19,9 +19,11 @@ ImpactParticle::ImpactParticle(Effect* _effect, ParticleMover* _mover, const Vec
   color[1] = green;
   color[2] = blue;
   texture = _texture;
-  size = _size * (0.3 + randcoord()) * 15 / 3.16 * invsqrt(_LOD);
+  size = (0.3 + randcoord()) * 15 / 3.16 * invsqrt(_LOD);
   alpha = _alpha;
   velocity /= size;
+  size *= _size;
+//  std::cout << ": " << velocity << std::endl;
   flare_max = 1.0;
   flare_exp = 0.1;
   flare_frequency = 50.0;
@@ -213,8 +215,10 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
         Vec3 velocity = -angle;
         Vec3 offset;
         offset.randomize(0.7);
+//        std::cout << velocity << ", " << angle << ", " << vel_scalar << std::endl;
         velocity += offset;
         velocity.normalize(0.8 * vel_scalar);
+//        std::cout << velocity << std::endl;
         Particle * p = new ImpactParticle(this, mover, coords, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), 0.15 + randcolor(0.1), 0.15 + randcolor(0.1), &(base->TexWater), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
