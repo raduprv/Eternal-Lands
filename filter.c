@@ -356,7 +356,7 @@ int filter_text (char *buff, int len, int size)
 
 			if (bad_len == rep_len)
 			{
-				safe_strncpy2(buff+i, filter_list[idx].replacement, size-i, rep_len);
+				memcpy(buff+i, filter_list[idx].replacement, rep_len);
 			}
 			else if (new_len + rep_len - bad_len >= size - 1)
 			{
