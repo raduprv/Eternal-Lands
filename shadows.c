@@ -186,7 +186,7 @@ void calc_shadow_matrix()
 #ifdef NEW_E3D_FORMAT
 void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_index)
 {
-	void* data_ptr;
+	Uint8 * data_ptr;
 	int vertex_size;
 
 	// check for having to load the arrays

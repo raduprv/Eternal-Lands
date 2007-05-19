@@ -109,7 +109,7 @@ void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
 #ifdef NEW_E3D_FORMAT
 void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
-void Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
+void APIENTRY Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
 {
 	glDrawElements(mode, count, type, indices);
 }
@@ -1036,9 +1036,9 @@ void set_new_video_mode(int fs,int mode)
 		}
 #endif
 
+#ifndef	NEW_E3D_FORMAT
 	if(have_vertex_buffers){
 		e3d_object * obj;
-#ifndef	NEW_E3D_FORMAT
 		for(i=0;i<cache_e3d->max_item;i++){
 			if(!cache_e3d->cached_items[i])continue;
 			obj=cache_e3d->cached_items[i]->cache_item;
@@ -1068,9 +1068,9 @@ void set_new_video_mode(int fs,int mode)
 			}
 		}
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#endif	//NEW_E3D_FORMAT
 		CHECK_GL_ERRORS();
 	}
+#endif	//NEW_E3D_FORMAT
 	
 	//it is dependent on the window height...
 	init_hud_interface(2);//Last interface

@@ -77,7 +77,7 @@ static __inline__ void get_texture_object_linear_plane(float obj_z_rot, float ob
 void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 {
 	float s_plane[4], t_plane[4];
-	void* data_ptr;
+	Uint8 * data_ptr;
 	int vertex_size;
 
 	// check for having to load the arrays
