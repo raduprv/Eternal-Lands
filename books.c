@@ -509,7 +509,7 @@ void parse_knowledge_item(xmlNode *in)
 						log_error("An error occured when parsing the content of the <%s>-tag - Check it for letters that cannot be translated into iso8859-1\n", cur->name);
 #endif
 					}
-					free(strID);
+					xmlFree(strID);
 					free(string);
 					string = NULL;
 				}
