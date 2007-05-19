@@ -82,7 +82,9 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 {
 	e3d_header header;
 	e3d_material material;
+#ifdef USE_EXTRA_TEXTURE
 	e3d_extra_texture extra_texture;
+#endif //USE_EXTRA_TEXTURE
 	char cur_dir[1024];
 	int i, j, l, idx, mem_size, vertex_size, material_size;
 	int file_pos, indicies_size, float_count, index_size, v_size, m_size;
@@ -92,7 +94,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	unsigned int* int_list;
 	float* float_buffer;
 	char* tmp_buffer;
-	void* index_pointer;
+	Uint8* index_pointer;
 	float* float_pointer;
 #ifdef	ZLIB
 	gzFile* file;
