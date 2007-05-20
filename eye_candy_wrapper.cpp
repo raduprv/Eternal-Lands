@@ -94,15 +94,6 @@ extern "C" void ec_set_draw_method()
     eye_candy.draw_method = ec::EyeCandy::FAST_BILLBOARDS;
 }
 
-extern "C" void ec_set_draw_detail()
-{
-  eye_candy.poor_transparency_resolution = transparency_resolution_fix;
-  if (poor_man)
-    eye_candy.set_thresholds(3500, min_ec_framerate, max_ec_framerate);	//Max particles, min framerate, max framerate
-  else
-    eye_candy.set_thresholds(15000, min_ec_framerate, max_ec_framerate);
-}
-
 float ec_get_z(actor* _actor)
 {
   return -2.2f+height_map[_actor->tmp.y_tile_pos*tile_map_size_x*6+_actor->tmp.x_tile_pos]*0.2f;
@@ -195,6 +186,12 @@ extern "C" void ec_idle()
 //  const float x = rot_matrix[12];
 //  const float y = rot_matrix[13];
 //  const float z = rot_matrix[14];
+
+  eye_candy.poor_transparency_resolution = transparency_resolution_fix;
+  if (poor_man)
+    eye_candy.set_thresholds(3500, min_ec_framerate, max_ec_framerate);	//Max particles, min framerate, max framerate
+  else
+    eye_candy.set_thresholds(15000, min_ec_framerate, max_ec_framerate);
   
   const float s_rx = sin(rx * ec::PI / 180);
   const float c_rx = cos(rx * ec::PI / 180);

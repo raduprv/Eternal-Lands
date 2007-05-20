@@ -168,7 +168,6 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_init();
   void ec_add_light(GLenum light_id);
   void ec_set_draw_method();
-  void ec_set_draw_detail();
   float ec_get_z(actor* _actor);
   float ec_get_z2(int x, int y);
   void ec_idle(); //!< \callergraph
