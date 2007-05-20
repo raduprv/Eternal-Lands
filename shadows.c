@@ -461,7 +461,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #ifdef NEW_E3D_FORMAT	// Always supplies a texture pointer
-	glEnableClientState(GL_COLOR_ARRAY);
+//	glEnableClientState(GL_COLOR_ARRAY);	//No color pointer supplied!
 	glEnable(GL_TEXTURE_2D);
 #else	// Doesn't always.
 	glDisableClientState(GL_COLOR_ARRAY);

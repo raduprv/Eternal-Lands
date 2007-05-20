@@ -9,6 +9,7 @@
 #include "particles.h"
 #include "init.h"
 #include "gamewin.h"
+#include "shadows.h"
 
 // G L O B A L S //////////////////////////////////////////////////////////////
 
