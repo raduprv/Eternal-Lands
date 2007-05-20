@@ -2,6 +2,7 @@
 #include <math.h>
 
 GLuint depth_map_id = 0;
+int is_day = 1;
 
 void SetShadowMatrix()
 {

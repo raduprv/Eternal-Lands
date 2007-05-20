@@ -19,6 +19,8 @@ extern "C"
 int view_eye_candy_window=0;
 int last_ec_index = -2;	// None selected.
 int eye_candy_window = -1;
+int eye_candy_confirmed = 0;
+int eye_candy_initialized = 0;
 }
 
 static int eye_candy_window_x=15;
@@ -42,6 +44,8 @@ extern "C" void create_eye_candy_window ()
 
 extern "C" void change_eye_candy_effect()
 {
+  if (!eye_candy_initialized)
+    return;
   current_effect.effect = gtk_combo_box_get_active(GTK_COMBO_BOX(gtk_effect_list));
   current_effect.hue = GTK_ADJUSTMENT(gtk_effect_hue_obj)->value;
   current_effect.saturation = GTK_ADJUSTMENT(gtk_effect_saturation_obj)->value;
@@ -198,6 +202,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_base_height_box);
       if (current_effect.reference)
         ec_recall_effect(current_effect.reference);
+      current_effect.reference = NULL;
 //      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z);
       break;
     case 15:  // Portal
@@ -208,6 +213,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_base_height_box);
       if (current_effect.reference)
         ec_recall_effect(current_effect.reference);
+      current_effect.reference = NULL;
 //      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z);
       break;
     case 16:    // Candle
@@ -225,6 +231,7 @@ extern "C" void change_eye_candy_effect()
 
 void confirm_eye_candy_effect()
 {
+  eye_candy_confirmed = 1;
 //  current_effect.position = ec::Vec3(-1.0, -1.0, -1.0);
   current_effect.effect = gtk_combo_box_get_active(GTK_COMBO_BOX(gtk_effect_list));
   current_effect.hue = GTK_ADJUSTMENT(gtk_effect_hue_obj)->value;
@@ -363,17 +370,25 @@ extern "C" void delete_eye_candy_point()
 
 extern "C" void eye_candy_add_effect()
 {
-  if (ready_to_add)
+  if (eye_candy_initialized && ready_to_add)
   {
     effects.push_back(current_effect);
-    current_effect = EffectDefinition();
-    ready_to_add = false;
+    current_effect.reference = NULL;
+    change_eye_candy_effect();
   }
 }
 
 extern "C" void eye_candy_done_adding_effect()
 {
-  ready_to_add = true;
+  if (eye_candy_initialized)
+  {
+    ready_to_add = false;
+    if (current_effect.reference)
+    {
+      ec_recall_effect(current_effect.reference);
+      current_effect.reference = NULL;
+    }
+  }
 }
 
 extern "C" int eye_candy_get_effect()

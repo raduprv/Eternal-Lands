@@ -20,8 +20,8 @@ public:
   
   ~EffectDefinition()
   {
-    if (reference)
-      ec_recall_effect(reference);
+//    if (reference)
+//      ec_recall_effect(reference);
   };
 
   int effect;
@@ -47,6 +47,8 @@ extern "C"
 extern int view_eye_candy_window;
 extern int last_ec_index;
 extern int eye_candy_window;
+extern int eye_candy_confirmed;
+extern int eye_candy_initialized;
 
 void create_eye_candy_window();
 void change_eye_candy_effect();

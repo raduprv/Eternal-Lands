@@ -532,10 +532,6 @@ int HandleEvent(SDL_Event *event)
 			{
 				eye_candy_add_effect();
 			}
-			if ((!left_click) && (cur_mode == mode_eye_candy))
-			{
-				eye_candy_done_adding_effect();
-			}
 #endif
 
 			if(check_interface_buttons()==1)tool_bar_click=1;

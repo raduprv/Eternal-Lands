@@ -32,6 +32,9 @@ int check_interface_buttons()
 			if(mouse_x>=288 && mouse_x<=319)cur_tool=tool_clone;
 			if(mouse_x>=320 && mouse_x<=351)
 				{
+#ifdef EYE_CANDY
+					eye_candy_done_adding_effect();
+#endif
 					if(cur_mode==mode_3d)
 						{
 							SDL_Event event;
