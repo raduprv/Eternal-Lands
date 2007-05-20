@@ -571,6 +571,118 @@ void init_video()
 	check_options();
 }
 
+void evaluate_extension(int multitexture_count, const char* extensions)
+{
+	int has_arb_multitexture;
+	int has_arb_occlusion_query;
+	int has_arb_point_parameters;
+	int has_arb_point_sprite;
+	int has_arb_shader_objects;
+	int has_arb_shading_language_100;
+	int has_arb_shadow;
+	int has_arb_shadow_ambient;
+	int has_arb_texture_compression;
+	int has_arb_texture_env_add;
+	int has_arb_texture_env_combine;
+	int has_arb_texture_env_crossbar;
+	int has_arb_texture_rectangle;
+	int has_arb_vertex_buffer_object;
+	int has_arb_vertex_program;
+	int has_arb_vertex_shader;
+	int has_arb_fragment_program;
+	int has_arb_fragment_shader;
+	int has_arb_fragment_shader_shadow;
+	int has_ati_fragment_shader;
+	int has_ati_texture_env_combine3;
+	int has_nv_texture_env_combine4;
+	int has_nv_texture_shader;
+	int has_nv_texture_shader2;
+	int has_ext_draw_range_elements;
+	int options;
+
+	has_arb_multitexture = multitexture_count;
+
+	has_arb_occlusion_query = strstr(extensions, "GL_ARB_occlusion_query") > 0;
+	has_arb_point_parameters = strstr(extensions, "GL_ARB_point_parameters") > 0;
+	has_arb_point_sprite = strstr(extensions, "GL_ARB_point_sprite") > 0;
+	has_arb_shader_objects = strstr(extensions, "GL_ARB_shader_objects") > 0;
+	has_arb_shading_language_100 = strstr(extensions, "GL_ARB_shading_language_100") > 0;
+	has_arb_shadow = strstr(extensions, "GL_ARB_shadow") > 0;
+	has_arb_shadow_ambient = strstr(extensions, "GL_ARB_shadow_ambient") > 0;
+	has_arb_texture_compression = strstr(extensions, "GL_ARB_texture_compression") > 0;
+	has_arb_texture_env_add = strstr(extensions, "GL_ARB_texture_env_add") > 0;
+	has_arb_texture_env_combine = strstr(extensions, "GL_ARB_texture_env_combine") > 0;
+	has_arb_texture_env_crossbar = strstr(extensions, "GL_ARB_texture_env_crossbar") > 0;
+	has_arb_texture_rectangle = strstr(extensions, "GL_ARB_texture_rectangle") > 0;
+	has_arb_vertex_buffer_object = strstr(extensions, "GL_ARB_vertex_buffer_object") > 0;
+	has_arb_vertex_program = strstr(extensions, "GL_ARB_vertex_program") > 0;
+	has_arb_vertex_shader = strstr(extensions, "GL_ARB_vertex_program") > 0;
+	has_arb_fragment_program = strstr(extensions, "GL_ARB_fragment_program") > 0;
+	has_arb_fragment_shader = strstr(extensions, "GL_ARB_fragment_shader") > 0;
+	has_arb_fragment_shader_shadow = strstr(extensions, "GL_ARB_fragment_program_shadow") > 0;
+	has_ati_fragment_shader = strstr(extensions, "GL_ATI_fragment_shader") > 0;
+	has_ati_texture_env_combine3 = strstr(extensions, "GL_ATI_texture_env_combine3") > 0;
+	has_nv_texture_env_combine4 = strstr(extensions, "GL_NV_texture_env_combine4") > 0;
+	has_nv_texture_shader = strstr(extensions, "GL_NV_texture_shader") > 0;
+	has_nv_texture_shader2 = strstr(extensions, "GL_NV_texture_shader2") > 0;
+	has_ext_draw_range_elements = strstr(extensions, "GL_EXT_draw_range_elements") > 0;
+
+	options = (has_arb_multitexture >= 2) && has_arb_texture_env_add &&
+		has_arb_texture_env_combine && has_arb_vertex_program &&
+		has_arb_texture_compression && has_arb_vertex_buffer_object;
+
+	if (!options)
+	{
+		LOG_TO_CONSOLE(c_red1, "Your graphic card/driver don't support the minimum"
+			"requirements for the next el release. Please upgrade your driver."
+			" If this don't help, you need a better graphic card.");
+		return;
+	}
+
+	if (!has_arb_vertex_shader || (has_arb_fragment_program && !has_arb_fragment_shader) ||
+		(has_ati_fragment_shader && !has_arb_fragment_program && !has_arb_fragment_shader))
+	{
+		LOG_TO_CONSOLE(c_yellow1, "Please update your graphic card driver!");
+	}
+
+	options = ((has_ati_texture_env_combine3 && has_arb_texture_env_crossbar) ||
+		has_nv_texture_env_combine4) && (has_arb_multitexture >= 4) &&
+		has_ext_draw_range_elements && has_arb_shadow && has_arb_shadow_ambient &&
+		has_arb_point_parameters && has_arb_point_sprite;
+
+	if (!options)
+	{
+		LOG_TO_CONSOLE(c_yellow1, "Your graphic card supports the absolut minumin "
+			"requirements for the next el release, but don't expect that you can use"
+			" all features.");
+	}
+	else
+	{
+		options = (has_ati_fragment_shader || (has_nv_texture_shader &&
+			has_nv_texture_shader2)) && has_arb_occlusion_query &&
+			has_arb_texture_rectangle;
+		if (!options)
+		{
+			LOG_TO_CONSOLE(c_green2, "Your graphic card supports default "
+				"requirements for the next el release.");
+		}
+		else
+		{
+			if (has_arb_fragment_shader && has_arb_shader_objects &&
+				has_arb_vertex_shader && has_arb_shading_language_100)
+			{
+				LOG_TO_CONSOLE(c_blue2, "Your graphic card supports all "
+					"features el will use in the future.");
+			}
+			else
+			{
+				LOG_TO_CONSOLE(c_blue2, "Your graphic card supports more than the"
+				"default requirements for the next el release.");
+			}
+		}
+	}
+}
+
 void init_gl_extensions()
 {
 	char * extensions;
@@ -837,6 +949,7 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_red1,disabled_normal_mapping);
 	}
 #endif
+	evaluate_extension(have_multitexture, extensions);
 	CHECK_GL_ERRORS();
 	gl_extensions_loaded = 1;
 }
