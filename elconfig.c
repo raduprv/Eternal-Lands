@@ -119,7 +119,6 @@ void change_min_ec_framerate(float * var, float * value)
 	} else {
 		*var= 0;
 	}
-	printf("%f\n", min_ec_framerate);
 }
 
 void change_max_ec_framerate(float * var, float * value)
