@@ -108,7 +108,6 @@ void change_var(int * var)
 #ifdef EYE_CANDY
 void change_min_ec_framerate(float * var, float * value)
 {
-	printf("%f: %f, %f: ", *value, min_ec_framerate, max_ec_framerate);
 	if(*value >= 0) {
 		if (*value < max_ec_framerate) {
 			*var = *value;
