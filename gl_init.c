@@ -571,6 +571,7 @@ void init_video()
 	check_options();
 }
 
+#ifdef	GL_EXTENSION_CHECK
 void evaluate_extension(int multitexture_count, const char* extensions)
 {
 	int has_arb_multitexture;
@@ -682,6 +683,7 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 		}
 	}
 }
+#endif	//GL_EXTENSION_CHECK
 
 void init_gl_extensions()
 {
@@ -949,7 +951,9 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_red1,disabled_normal_mapping);
 	}
 #endif
+#ifdef	GL_EXTENSION_CHECK
 	evaluate_extension(have_multitexture, extensions);
+#endif	//GL_EXTENSION_CHECK
 	CHECK_GL_ERRORS();
 	gl_extensions_loaded = 1;
 }
