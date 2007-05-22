@@ -160,14 +160,14 @@ void init_stuff()
 	init_colors();
 	clear_error_log();
 
-#ifdef NEW_E3D_FORMAT
-	init_gl_extensions();
-#else
-
 	// Setup the new eye candy system
 #ifdef	EYE_CANDY
 	ec_init();
 #endif	//EYE_CANDY
+
+#ifdef NEW_E3D_FORMAT
+	init_gl_extensions();
+#else
 
    //now load the multitexturing extension
 #ifndef LINUX

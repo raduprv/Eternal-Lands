@@ -6,8 +6,7 @@ CXX=g++
 LINK=g++
 
 WARN = -Wall -W #-Werror
-OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DROTATE_PARTICLES -DEYE_CANDY -DSFX
-#-DNEW_E3D_FORMAT
+OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DROTATE_PARTICLES -DEYE_CANDY -DSFX -DNEW_E3D_FORMAT
 #-DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
 GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
