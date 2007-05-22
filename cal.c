@@ -232,10 +232,12 @@ void cal_render_actor(actor *act)
 	}
 
 #ifdef	DYNAMIC_ANIMATIONS
+	if(act->last_anim_update < cur_time)
 #ifdef	NEW_ACTOR_ANIMATION
-	CalModel_Update(act->calmodel, (((cur_time-act->last_anim_update)*act->cur_anim.duration_scale)/1000.0));
+		if(act->cur_anim.duration_scale > 0.0f)
+			CalModel_Update(act->calmodel, (((cur_time-act->last_anim_update)*act->cur_anim.duration_scale)/1000.0));
 #else
-	CalModel_Update(act->calmodel,((cur_time-act->last_anim_update)/1000.0));
+		CalModel_Update(act->calmodel,((cur_time-act->last_anim_update)/1000.0));
 #endif
 	act->last_anim_update= cur_time;
 #endif	//DYNAMIC_ANIMATIONS
