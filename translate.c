@@ -1485,7 +1485,7 @@ void copy_stats(xmlNode * in, statstring_item * string)
 #endif
 				} else if (!xmlStrcasecmp(cur->name, (xmlChar*)"shortname")){
 					char *p=(char*)string->var->shortname;
-					my_xmlStrncopy(&p, (char*)cur->children->content, 7);
+					my_xmlStrncopy(&p, (char*)cur->children->content, 6);
 #ifdef WRITE_XML
 					string->var->saved_shortname=1;
 #endif
