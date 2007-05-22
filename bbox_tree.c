@@ -415,12 +415,18 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 			stop = bbox_tree->intersect[i].stop[j];
 			for (k = start; k < stop; k++)
 			{
+#ifdef NEW_E3D_FORMAT
+                if (get_3dobject_index(bbox_tree->intersect[i].items[k].ID) == ID)
+#else
 				if (bbox_tree->intersect[i].items[k].ID == ID)
+#endif
 				{
 					size = stop - k -1;
 					if (size > 0) 
 						memmove(&bbox_tree->intersect[i].items[k], &bbox_tree->intersect[i].items[k+1], size*sizeof(BBOX_ITEM));
 					bbox_tree->intersect[i].stop[j]--;
+                    stop--;
+                    k--;
 				}
 			}
 		}
@@ -1075,8 +1081,13 @@ static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, uns
 	
 	for (i = 0; i < bbox_tree->nodes[node].dynamic_objects.index; i++)
 	{
+#ifdef NEW_E3D_FORMAT
+        if ((get_3dobject_index(bbox_tree->nodes[node].dynamic_objects.items[i].ID) == ID) &&
+            (get_type_mask_from_type(bbox_tree->nodes[node].dynamic_objects.items[i].type) == type_mask))
+#else
 		if ((bbox_tree->nodes[node].dynamic_objects.items[i].ID == ID) &&
 			(get_type_mask_from_type(bbox_tree->nodes[node].dynamic_objects.items[i].type) == type_mask))
+#endif
 		{
 			delete_dynamic_item_from_node(bbox_tree, node, i, ID, type_mask);
 			result = 1;
