@@ -50,6 +50,7 @@ extern int eye_candy_window;
 extern int eye_candy_confirmed;
 extern int eye_candy_initialized;
 
+void draw_eye_candy_obj_info();
 void create_eye_candy_window();
 void change_eye_candy_effect();
 void confirm_eye_candy_effect();

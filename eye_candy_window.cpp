@@ -536,4 +536,72 @@ ec::SmoothPolygonElement angle_to(float start_x, float start_y, float end_x, flo
   return ec::SmoothPolygonElement(angle, dist);
 }
 
+void draw_eye_candy_obj_info()
+{
+  unsigned char str[128];
+  int x_menu,y_menu;
+  if (cur_mode!=mode_eye_candy || !eye_candy_confirmed)
+    return;
+
+  x_menu=0;
+  y_menu=window_height-72;
+  //draw a black rectangle
+  glEnable(GL_BLEND);
+  glBlendFunc(GL_ONE,GL_SRC_ALPHA);
+  glDisable(GL_TEXTURE_2D);
+  glBegin(GL_QUADS);
+  glColor4f(0.0f,0.0f,0.0f,0.5f);
+  glVertex3i(x_menu,y_menu+70,0);
+  glVertex3i(x_menu,y_menu,0);
+  glVertex3i(x_menu+600,y_menu,0);
+  glVertex3i(x_menu+600,y_menu+70,0);
+  glColor3f(1.0f,1.0f,1.0f);
+  glEnd();
+  glEnable(GL_TEXTURE_2D);
+  glDisable(GL_BLEND);
+
+  x_menu+=2;
+  y_menu+=2;
+
+  sprintf((char *)str, "X Pos: %03.2f",current_effect.position.x);
+  draw_string(x_menu,y_menu,str,1);
+
+  y_menu+=17;
+  sprintf((char *)str, "Y Pos: %03.2f",current_effect.position.y);
+  draw_string(x_menu,y_menu,str,1);
+
+  y_menu+=17;
+  sprintf((char *)str, "Z Pos: %03.2f",current_effect.position.z);
+  draw_string(x_menu,y_menu,str,1);
+/////////////////////////////////////////////////
+  x_menu+=15*12;
+  y_menu-=17*2;
+
+  sprintf((char *)str, "Angle   : %03.2f",current_effect.angle);
+  draw_string(x_menu,y_menu,str,1);
+
+  y_menu+=17;
+  sprintf((char *)str, "Density : %03.2f",current_effect.density);
+  draw_string(x_menu,y_menu,str,1);
+
+  y_menu+=17;
+  sprintf((char *)str, "Scale   : %03.2f",current_effect.scale);
+  draw_string(x_menu,y_menu,str,1);
+/////////////////////////////////////////////////
+  x_menu+=17*12;
+  y_menu-=17*2;
+
+  sprintf((char *)str, "Hue       : %03.2f",current_effect.hue);
+  draw_string(x_menu,y_menu,str,1);
+
+  y_menu+=17;
+  sprintf((char *)str, "Saturation: %03.2f",current_effect.saturation);
+  draw_string(x_menu,y_menu,str,1);
+
+  y_menu+=17;
+  sprintf((char *)str, "Height    : %03.2f",current_effect.base_height);
+  draw_string(x_menu,y_menu,str,1);
+}
+
+
 #endif // EYE_CANDY

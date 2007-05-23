@@ -191,6 +191,7 @@ void draw_scene()
 
     display_windows(1);
 
+    draw_eye_candy_obj_info();
     draw_3d_obj_info();
     draw_2d_obj_info();
     draw_light_info();

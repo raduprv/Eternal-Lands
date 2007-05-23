@@ -18,6 +18,9 @@ int check_interface_buttons()
 	if((left_click!=1 && right_click!=1) || mouse_x>=15*32 || mouse_y>=32)return -1;//no interface buttons were selected
 	if(left_click==1)
 		{
+#ifdef EYE_CANDY
+			eye_candy_done_adding_effect();
+#endif
 			if(mouse_x>=0 && mouse_x<=31)cur_mode=mode_tile;
 			if(mouse_x>=32 && mouse_x<=63)cur_mode=mode_2d;
 			if(mouse_x>=64 && mouse_x<=95)cur_mode=mode_3d;
@@ -32,9 +35,6 @@ int check_interface_buttons()
 			if(mouse_x>=288 && mouse_x<=319)cur_tool=tool_clone;
 			if(mouse_x>=320 && mouse_x<=351)
 				{
-#ifdef EYE_CANDY
-					eye_candy_done_adding_effect();
-#endif
 					if(cur_mode==mode_3d)
 						{
 							SDL_Event event;
@@ -298,8 +298,9 @@ void draw_3d_obj_info()
 {
 	unsigned char str[128];
 	int x_menu,y_menu;
-	if(cur_mode!=mode_3d || selected_3d_object==-1 || objects_list[selected_3d_object] == NULL)return;
-
+	if (cur_mode!=mode_3d || selected_3d_object==-1 || objects_list[selected_3d_object] == NULL)
+		return;
+		
 	x_menu=0;
 	y_menu=window_height-72;
 	//draw a black rectangle
@@ -317,11 +318,9 @@ void draw_3d_obj_info()
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 
-
 	x_menu+=2;
 	y_menu+=2;
 
-	
 	sprintf((char *)str, "X Pos: %03.2f",objects_list[selected_3d_object]->x_pos);
 	draw_string(x_menu,y_menu,str,1);
 
@@ -380,7 +379,6 @@ void draw_3d_obj_info()
 	x_menu-=12*12*3;
 	sprintf((char *)str, "FN: %s",objects_list[selected_3d_object]->file_name);
 	draw_string(x_menu,y_menu,str,1);
-
 }
 
 void draw_2d_obj_info()
