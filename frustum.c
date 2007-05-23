@@ -465,7 +465,6 @@ void CalculateFrustum()
 	MATRIX4x4 modl;								// This will hold our modelview matrix
 	MATRIX4x4 clip;								// This will hold the clipping planes
 	unsigned int cur_intersect_type;
-	VECTOR3 p1, p2, p3;
 	
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_DEFAULT].intersect_update_needed == 0) return;
 #else
@@ -713,5 +712,3 @@ int check_tile_in_frustrum(float x,float y)
 	//else return 0;
 }
 #endif
-
-

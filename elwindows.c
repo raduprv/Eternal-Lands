@@ -698,7 +698,6 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 void	destroy_window(int win_id)
 {
 	window_info *win;
-	widget_list *widget, *next;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return;
 	if(windows_list.window[win_id].window_id != win_id)	return;
