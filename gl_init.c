@@ -581,7 +581,6 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 	int has_arb_shader_objects;
 	int has_arb_shading_language_100;
 	int has_arb_shadow;
-	int has_arb_shadow_ambient;
 	int has_arb_texture_compression;
 	int has_arb_texture_env_add;
 	int has_arb_texture_env_combine;
@@ -609,7 +608,6 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 	has_arb_shader_objects = strstr(extensions, "GL_ARB_shader_objects") > 0;
 	has_arb_shading_language_100 = strstr(extensions, "GL_ARB_shading_language_100") > 0;
 	has_arb_shadow = strstr(extensions, "GL_ARB_shadow") > 0;
-	has_arb_shadow_ambient = strstr(extensions, "GL_ARB_shadow_ambient") > 0;
 	has_arb_texture_compression = strstr(extensions, "GL_ARB_texture_compression") > 0;
 	has_arb_texture_env_add = strstr(extensions, "GL_ARB_texture_env_add") > 0;
 	has_arb_texture_env_combine = strstr(extensions, "GL_ARB_texture_env_combine") > 0;
@@ -648,12 +646,12 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 
 	options = ((has_ati_texture_env_combine3 && has_arb_texture_env_crossbar) ||
 		has_nv_texture_env_combine4) && (has_arb_multitexture >= 4) &&
-		has_ext_draw_range_elements && has_arb_shadow && has_arb_shadow_ambient &&
+		has_ext_draw_range_elements && has_arb_shadow &&
 		has_arb_point_parameters && has_arb_point_sprite;
 
 	if (!options)
 	{
-		LOG_TO_CONSOLE(c_yellow1, "Your graphic card supports the absolut minumin "
+		LOG_TO_CONSOLE(c_yellow1, "Your graphic card supports the absolute minumin "
 			"requirements for the next el release, but don't expect that you can use"
 			" all features.");
 	}
