@@ -81,7 +81,14 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 #endif
 {
 	char fname[255]={0};
-	struct cal_anim res={-1,0,0,0.0f};
+	struct cal_anim res={-1,0,0
+#ifdef  NEW_ACTOR_ANIMATION
+	,0.0f
+#endif
+#ifdef NEW_SOUND
+        ,{}
+#endif  //NEW_SOUND
+	};
 	struct CalCoreAnimation *coreanim;
 
 	if(sscanf(str,"%s %d",fname,&res.kind) != 2){

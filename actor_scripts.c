@@ -1875,7 +1875,14 @@ int cal_get_idle_group(actor_types *act,char *name)
 
 struct cal_anim cal_load_idle(actor_types *act, char *str)
 {
-	struct cal_anim res = {-1,0,0, 0.0f};
+	struct cal_anim res={-1,0,0
+#ifdef  NEW_ACTOR_ANIMATION
+	,0.0f
+#endif
+#ifdef NEW_SOUND
+	,{}
+#endif  //NEW_SOUND
+	};
 	struct CalCoreAnimation *coreanim;
 
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
