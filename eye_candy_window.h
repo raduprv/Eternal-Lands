@@ -14,7 +14,7 @@ class EffectDefinition
 public:
   EffectDefinition()
   {
-    position = ec::Vec3(-1.0, -1.0, -1.0);
+    position = ec::Vec3(-1.0, -1.0, 0.0);
     reference = NULL;
   };
   
@@ -56,11 +56,12 @@ void change_eye_candy_effect();
 void confirm_eye_candy_effect();
 int display_eye_candy_window_handler();
 int check_eye_candy_window_interface();
-void update_eye_candy_position(float x, float y, float z);
+void update_eye_candy_position(float x, float y);
 void add_eye_candy_point();
 void delete_eye_candy_point();
 void eye_candy_add_effect();
 void eye_candy_done_adding_effect();
+void eye_candy_adjust_z(float offset);
 int eye_candy_get_effect();
 void draw_bounds_on_minimap();
 

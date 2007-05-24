@@ -243,6 +243,8 @@ int HandleEvent(SDL_Event *event)
                     } else if (cur_mode == mode_height && selected_height != -1) {
                         if (selected_height < 31) 
                             selected_height++;
+                    } else if (cur_mode == mode_eye_candy && eye_candy_confirmed) {
+                    	eye_candy_adjust_z((shift_on ? 0.01f : 0.1f));
                     }
                     break;
 
@@ -265,6 +267,8 @@ int HandleEvent(SDL_Event *event)
                     } else if (cur_mode == mode_height && selected_height != -1) {
                         if (selected_height > 0)
                             selected_height--;
+                    } else if (cur_mode == mode_eye_candy && eye_candy_confirmed) {
+                    	eye_candy_adjust_z(-(shift_on ? 0.01f : 0.1f));
                     }
                     break; // END DELETE
                 default:

@@ -232,13 +232,7 @@ extern "C" void change_eye_candy_effect()
 void confirm_eye_candy_effect()
 {
   eye_candy_confirmed = 1;
-//  current_effect.position = ec::Vec3(-1.0, -1.0, -1.0);
-  current_effect.effect = gtk_combo_box_get_active(GTK_COMBO_BOX(gtk_effect_list));
-  current_effect.hue = GTK_ADJUSTMENT(gtk_effect_hue_obj)->value;
-  current_effect.saturation = GTK_ADJUSTMENT(gtk_effect_saturation_obj)->value;
-  current_effect.scale = GTK_ADJUSTMENT(gtk_effect_scale_obj)->value;
-  current_effect.density = GTK_ADJUSTMENT(gtk_effect_density_obj)->value;
-  current_effect.base_height = atoi(gtk_entry_get_text(GTK_ENTRY(gtk_effect_base_height)));
+  change_eye_candy_effect();
   gtk_widget_hide(gtk_effect_win);
   switch (current_effect.effect)
   {
@@ -264,18 +258,14 @@ extern "C" int check_eye_candy_window_interface()
   return 1;
 }
 
-extern "C" void update_eye_candy_position(float x, float y, float z)
+extern "C" void update_eye_candy_position(float x, float y)
 {
   if (!minimap_on)
   {
     current_effect.position.x = x;
     current_effect.position.y = y;
-    current_effect.position.z = z;
     if (current_effect.reference)
-    {
-//      std::cout << "Setting position to " << x << ", " << y << ", " << z << std::endl;
-      ec_set_position(current_effect.reference, x, y, z);
-    }
+      ec_set_position(current_effect.reference, x, y, current_effect.position.z);
   }
 }
 
@@ -305,7 +295,7 @@ extern "C" void add_eye_candy_point()
     const bool ret = find_bounds_index(x_map_pos, y_map_pos);
     if (!ret)  // Didn't click on anything; create new.
     {
-      if ((current_effect.bounds.elements.size() == 0) && (current_effect.position == ec::Vec3(-1.0, -1.0, -1.0)))
+      if ((current_effect.bounds.elements.size() == 0) && (current_effect.position == ec::Vec3(-1.0, -1.0, 0.0)))
         current_effect.position = ec::Vec3(x_map_pos, y_map_pos, z);
       else if (current_effect.bounds.elements.size() < 13)
         current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos, y_map_pos));
@@ -394,6 +384,12 @@ extern "C" void eye_candy_done_adding_effect()
 extern "C" int eye_candy_get_effect()
 {
   return current_effect.effect;
+}
+
+void eye_candy_adjust_z(float offset)
+{
+  current_effect.position.z += offset;
+//  change_eye_candy_effect();
 }
 
 extern "C" void draw_bounds_on_minimap()

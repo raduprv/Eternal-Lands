@@ -229,7 +229,7 @@ void show_eye_candy_window()
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Cloud/Fog");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Fireflies");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Fountain");
-		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Lamp/Candle/Torch");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Torch");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Magic Protection");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Shield");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Magic Immunity");
@@ -241,6 +241,7 @@ void show_eye_candy_window()
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Waterfall");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Bees");
 		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Portal");
+		gtk_combo_box_append_text(GTK_COMBO_BOX(gtk_effect_list), "Candle");
 		g_signal_connect_swapped (gtk_effect_list,
 				"changed", 
 				G_CALLBACK (change_eye_candy_effect),
@@ -255,6 +256,10 @@ void show_eye_candy_window()
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_list_box, TRUE, TRUE, 0);
 
 		gtk_effect_hue = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_hue_obj = gtk_adjustment_new(0.0, 0.0, 1.01, 0.01, 0.1, 0.01)));
+		g_signal_connect_swapped (gtk_effect_hue,
+				"value_changed", 
+				G_CALLBACK (change_eye_candy_effect),
+				gtk_effect_list);
 		gtk_scale_set_digits(GTK_SCALE(gtk_effect_hue), 2);
 		gtk_widget_show(gtk_effect_hue);
 		gtk_effect_hue_box = gtk_hbox_new(FALSE, 10);
@@ -269,6 +274,10 @@ void show_eye_candy_window()
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_hue_box, TRUE, TRUE, 0);
 		
 		gtk_effect_saturation = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_saturation_obj = gtk_adjustment_new(0.0, 0.0, 1.01, 0.01, 0.1, 0.01)));
+		g_signal_connect_swapped (gtk_effect_saturation,
+				"value_changed", 
+				G_CALLBACK (change_eye_candy_effect),
+				gtk_effect_list);
 		gtk_scale_set_digits(GTK_SCALE(gtk_effect_saturation), 2);
 		gtk_widget_show(gtk_effect_saturation);
 		gtk_effect_saturation_box = gtk_hbox_new(FALSE, 10);
@@ -283,6 +292,10 @@ void show_eye_candy_window()
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_saturation_box, TRUE, TRUE, 0);
 		
 		gtk_effect_scale = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_scale_obj = gtk_adjustment_new(1.0, 0.01, 20.1, 0.02, 1.0, 0.1)));
+		g_signal_connect_swapped (gtk_effect_scale,
+				"value_changed", 
+				G_CALLBACK (change_eye_candy_effect),
+				gtk_effect_list);
 		gtk_scale_set_digits(GTK_SCALE(gtk_effect_scale), 1);
 		gtk_widget_show(gtk_effect_scale);
 		gtk_effect_scale_box = gtk_hbox_new(FALSE, 10);
@@ -297,6 +310,10 @@ void show_eye_candy_window()
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_scale_box, TRUE, TRUE, 0);
 		
 		gtk_effect_density = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_density_obj = gtk_adjustment_new(1.0, 0.01, 20.1, 0.02, 1.0, 0.1)));
+		g_signal_connect_swapped (gtk_effect_density,
+				"value_changed", 
+				G_CALLBACK (change_eye_candy_effect),
+				gtk_effect_list);
 		gtk_scale_set_digits(GTK_SCALE(gtk_effect_density), 1);
 		gtk_widget_show(gtk_effect_density);
 		gtk_effect_density_box = gtk_hbox_new(FALSE, 10);
@@ -311,6 +328,10 @@ void show_eye_candy_window()
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_density_box, TRUE, TRUE, 0);
 		
 		gtk_effect_base_height = gtk_entry_new_with_max_length(30);
+		g_signal_connect_swapped (gtk_effect_base_height,
+				"value_changed", 
+				G_CALLBACK (change_eye_candy_effect),
+				gtk_effect_list);
 		gtk_entry_set_text(GTK_ENTRY(gtk_effect_base_height), "0.0");
 		gtk_widget_show(gtk_effect_base_height);
 		gtk_effect_base_height_box = gtk_hbox_new(FALSE, 10);
