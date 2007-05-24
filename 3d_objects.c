@@ -139,9 +139,12 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 
 		if (has_normal(object_id->e3d_data->vertex_options))
 		{
+			glEnableClientState(GL_NORMAL_ARRAY);
 			glNormalPointer(GL_FLOAT, vertex_size,
 				data_ptr + get_normal_offset(object_id->e3d_data->vertex_options));
 		}
+		else
+			glDisableClientState(GL_NORMAL_ARRAY);
 
 #ifdef	USE_TANGENT
 		if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
@@ -316,7 +319,6 @@ void draw_3d_object_detail(object3d * object_id)
 	You have been warned. 
 	*/
 //	glEnableClientState(GL_VERTEX_ARRAY);
-//	glDisableClientState(GL_NORMAL_ARRAY);
 //	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 //	glDisableClientState(GL_COLOR_ARRAY);
 //	glDisableClientState(GL_NORMAL_ARRAY);
