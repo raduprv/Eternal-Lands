@@ -598,6 +598,8 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 	int has_nv_texture_shader;
 	int has_nv_texture_shader2;
 	int has_ext_draw_range_elements;
+	int has_ext_texture_compression_s3tc;
+	int has_ext_framebuffer_object;
 	int options;
 
 	has_arb_multitexture = multitexture_count;
@@ -625,10 +627,13 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 	has_nv_texture_shader = strstr(extensions, "GL_NV_texture_shader") > 0;
 	has_nv_texture_shader2 = strstr(extensions, "GL_NV_texture_shader2") > 0;
 	has_ext_draw_range_elements = strstr(extensions, "GL_EXT_draw_range_elements") > 0;
+	has_ext_texture_compression_s3tc = strstr(extensions, "GL_EXT_texture_compression_s3tc") > 0;
+	has_ext_framebuffer_object = strstr(extensions, "GL_EXT_framebuffer_object") > 0;
 
 	options = (has_arb_multitexture >= 2) && has_arb_texture_env_add &&
 		has_arb_texture_env_combine && has_arb_vertex_program &&
-		has_arb_texture_compression && has_arb_vertex_buffer_object;
+		has_arb_texture_compression && has_arb_vertex_buffer_object &&
+		has_ext_texture_compression_s3tc;
 
 	if (!options)
 	{
@@ -659,7 +664,7 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 	{
 		options = (has_ati_fragment_shader || (has_nv_texture_shader &&
 			has_nv_texture_shader2)) && has_arb_occlusion_query &&
-			has_arb_texture_rectangle;
+			has_arb_texture_rectangle && has_ext_framebuffer_object;
 		if (!options)
 		{
 			LOG_TO_CONSOLE(c_green2, "Your graphic card supports default "

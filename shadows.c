@@ -881,11 +881,15 @@ void render_light_view()
 
 			if (use_frame_buffer && have_framebuffer_object)
 			{
+				CHECK_GL_ERRORS();
+				CHECK_FBO_ERRORS();
 				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, shadow_fbo);
 			        ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, depth_map_id, 0);
 				glClear(GL_DEPTH_BUFFER_BIT);
         			glDrawBuffer(GL_NONE);
 	        		glReadBuffer(GL_NONE);
+				CHECK_GL_ERRORS();
+				CHECK_FBO_ERRORS();
 			}
 			CHECK_GL_ERRORS();
 
@@ -938,9 +942,13 @@ void render_light_view()
 			CHECK_GL_ERRORS();
 			if (use_frame_buffer)
 			{
+				CHECK_GL_ERRORS();
+				CHECK_FBO_ERRORS();
 				ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
         			glDrawBuffer(GL_BACK);
 	      			glReadBuffer(GL_BACK);
+				CHECK_GL_ERRORS();
+				CHECK_FBO_ERRORS();
 			}
 			CHECK_GL_ERRORS();
 		}

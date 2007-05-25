@@ -501,9 +501,13 @@ void display_3d_reflection()
 #endif	//NEW_FRUSTUM
 	if (use_frame_buffer)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 	}
 	
 	glCullFace(GL_FRONT);
@@ -550,8 +554,12 @@ void display_3d_reflection()
 
 	if (use_frame_buffer)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 	}
 }
 
@@ -881,6 +889,8 @@ void draw_lake_tiles()
 	}
 	if (use_frame_buffer && show_reflection)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 		
@@ -899,6 +909,8 @@ void draw_lake_tiles()
 		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
 
 		ELglActiveTextureARB(base_unit);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		
 		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
 		for (i = start; i < stop; i++)
@@ -931,9 +943,11 @@ void draw_lake_tiles()
 		}
 	}
 #endif
-	
+
 	if (use_frame_buffer && show_reflection)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		ELglActiveTextureARB(detail_unit);
 		glDisable(GL_TEXTURE_2D);
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
@@ -945,6 +959,7 @@ void draw_lake_tiles()
 		last_texture=-1;
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 	}
 	else
 	{
@@ -966,7 +981,7 @@ void draw_sky_background()
 #endif
 #endif
 	int view_port[4];
-	
+
 	if (use_frame_buffer && show_reflection)
 	{
 		glGetIntegerv(GL_VIEWPORT, view_port);
@@ -1002,8 +1017,8 @@ void draw_sky_background()
 		lights_c[1][i] = sky_lights_c2[light_level][i];
 		lights_c[2][i] = sky_lights_c3[light_level][i];
 		lights_c[3][i] = sky_lights_c4[light_level][i];
-		
-#ifndef MAP_EDITOR2		
+
+#ifndef MAP_EDITOR2
 		for (j=0; j<4; j++) {
 			// make it darker according to weather
 			GLfloat tmp = lights_c[j][i] - (float)weather_light_offset/100.0f;
@@ -1013,7 +1028,7 @@ void draw_sky_background()
 #endif
 	}
 #endif
-	
+
 	glDisable(GL_TEXTURE_2D);
 	glBegin(GL_QUADS);
 

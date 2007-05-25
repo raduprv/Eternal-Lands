@@ -4,13 +4,7 @@
 #include "global.h"
 #endif
 
-#ifdef	DEBUG
-#define CHECK_FBO_ERRORS()	print_fbo_errors(__FILE__,  __FUNCTION__, __LINE__)
-#else	//DEBUG
-#define CHECK_FBO_ERRORS()	/*!< NOP */
-#endif	//DEBUG
-
-static __inline__ void print_fbo_errors(const char *file, const char *func, int line)
+void print_fbo_errors(const char *file, const char *func, int line)
 {
 	GLuint error_no = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
@@ -102,12 +96,15 @@ void make_color_framebuffer(int width, int height, GLuint *FBO, GLuint *FBORende
 
 	// attach render-buffer to frame-buffer depth-buffer
 	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, FBORenderBuffer[0]);
-	CHECK_GL_ERRORS();
 
+	CHECK_GL_ERRORS();
 	CHECK_FBO_ERRORS();
+
 	//Turn off our frame buffer object
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    	glBindTexture(GL_TEXTURE_2D, 0);
 	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 }
 
 void change_color_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
@@ -154,26 +151,22 @@ void make_depth_framebuffer(int width, int height, GLuint *FBO, GLuint *FBOTextu
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-    	glBindTexture(GL_TEXTURE_2D, 0);
-
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, FBO[0]);
-
-	glDrawBuffer(GL_NONE);
-	glReadBuffer(GL_NONE);
-	
-	// setting size of the render-buffer
-	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, depth_format, width, height);
 
 	// attach texture to frame-buffer depth-buffer
 	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, FBOTexture[0], 0);
 
-	CHECK_GL_ERRORS();
+	glDrawBuffer(GL_NONE);
+	glReadBuffer(GL_NONE);
 
+	CHECK_GL_ERRORS();
 	CHECK_FBO_ERRORS();
+
 	//Turn off our frame buffer object
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+    	glBindTexture(GL_TEXTURE_2D, 0);
 	CHECK_GL_ERRORS();
-
+	CHECK_FBO_ERRORS();
 }
 
 void change_depth_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBOTexture)

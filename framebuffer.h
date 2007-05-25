@@ -93,6 +93,12 @@ void make_depth_framebuffer(int width, int height, GLuint *FBO, GLuint *FBOTextu
  */
 void change_depth_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBOTexture);
 
+#ifdef	DEBUG
+void print_fbo_errors(const char *file, const char *func, int line);
+#define CHECK_FBO_ERRORS()	print_fbo_errors(__FILE__,  __FUNCTION__, __LINE__)
+#else	//DEBUG
+#define CHECK_FBO_ERRORS()	/*!< NOP */
+#endif	//DEBUG
 
 #ifdef __cplusplus
 } // extern "C"
