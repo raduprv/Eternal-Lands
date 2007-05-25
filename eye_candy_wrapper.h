@@ -100,6 +100,7 @@ public:
   actor* target;
   std::vector<actor*> target_actors;
   std::vector<ec::Vec3> targets;
+  ec::SmoothPolygonBoundingRange bounds;
   bool dead;
 } ec_internal_reference;
 

@@ -1027,20 +1027,20 @@ extern "C" ec_reference ec_create_campfire(float x, float y, float z, int LOD, f
 
 extern "C" ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD)
 {
-  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::CloudEffect(&eye_candy, &ret->dead, &ret->position, density, cast_bounds, LOD);
+  ret->effect = new ec::CloudEffect(&eye_candy, &ret->dead, &ret->position, density, &ret->bounds, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
 extern "C" ec_reference ec_create_fireflies(float x, float y, float z, float density, ec_bounds bounds)
 {
-  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, cast_bounds);
+  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, &ret->bounds);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -2128,10 +2128,10 @@ extern "C" ec_reference ec_create_teleporter(float x, float y, float z, int LOD)
 extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
+  ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, cast_bounds, ec::WindEffect::LEAVES, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, &ret->bounds, ec::WindEffect::LEAVES, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -2139,10 +2139,10 @@ extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float d
 extern "C" ec_reference ec_create_wind_petals(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ec::SmoothPolygonBoundingRange* cast_bounds = (ec::SmoothPolygonBoundingRange*)bounds;
+  ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, cast_bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, &ret->bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
