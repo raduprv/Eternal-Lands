@@ -73,7 +73,7 @@ __inline__ static int get_texture_offset(int vertex_options)
 	return 0;
 }
 
-__inline__ static int get_normal_offset(int vertex_options)
+__inline__ static int get_extra_texture_offset(int vertex_options)
 {
 	int size;
 
@@ -82,7 +82,21 @@ __inline__ static int get_normal_offset(int vertex_options)
 	return size;
 }
 
-__inline__ static int get_vertex_offset(int vertex_options)
+__inline__ static int get_normal_offset(int vertex_options)
+{
+	int size;
+
+	size = get_extra_texture_offset(vertex_options);
+	if (has_extra_texture(vertex_options))
+	{
+		size += 2 * sizeof(float);
+	}
+	
+
+	return size;
+}
+
+__inline__ static int get_tangent_offset(int vertex_options)
 {
 	int size;
 
@@ -92,26 +106,17 @@ __inline__ static int get_vertex_offset(int vertex_options)
 	{
 		size += 3 * sizeof(float);
 	}
-	
-	return size;
-}
-
-__inline__ static int get_tangent_offset(int vertex_options)
-{
-	int size;
-
-	size = get_vertex_offset(vertex_options) + 3 * sizeof(float);
 
 	return size;
 }
 
-__inline__ static int get_extra_texture_offset(int vertex_options)
+__inline__ static int get_vertex_offset(int vertex_options)
 {
 	int size;
 
 	size = get_tangent_offset(vertex_options);
 
-	if (has_tangen(vertex_options))
+	if (has_tangent(vertex_options))
 	{
 		size += 3 * sizeof(float);
 	}
