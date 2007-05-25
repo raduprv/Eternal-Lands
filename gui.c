@@ -329,7 +329,7 @@ void show_eye_candy_window()
 		
 		gtk_effect_base_height = gtk_entry_new_with_max_length(30);
 		g_signal_connect_swapped (gtk_effect_base_height,
-				"value_changed", 
+				"changed", 
 				G_CALLBACK (change_eye_candy_effect),
 				gtk_effect_list);
 		gtk_entry_set_text(GTK_ENTRY(gtk_effect_base_height), "0.0");

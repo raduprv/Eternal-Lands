@@ -1,3 +1,16 @@
+/*
+TODO: 
+ * Make cloud center properly with final bounds (start with the cout).
+ * Make initial bounds center properly, too.
+ * Let cloud Z be adjustable.
+ * Let objects be re-selectable for adjustable X, Y, and Z.
+ * Save effects.
+ * Test loading.
+ * Get Roja working.
+ * New effect options.
+ * New effects.
+*/
+
 #ifdef EYE_CANDY
 
 extern "C"
@@ -72,7 +85,8 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_base_height_box);
       if (current_effect.reference)
         ec_recall_effect(current_effect.reference);
-      current_effect.reference = ec_create_cloud(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, &initial_bounds, 10);
+      std::cout << current_effect.bounds.elements.size() << std::endl;
+      current_effect.reference = ec_create_cloud(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 10);
       break;
     case 2:    // Fireflies
       gtk_widget_show(gtk_effect_hue_box);
@@ -82,7 +96,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_base_height_box);
       if (current_effect.reference)
         ec_recall_effect(current_effect.reference);
-      current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, &initial_bounds);
+      current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds));
       break;
     case 3:    // Fountain
       gtk_widget_show(gtk_effect_hue_box);
@@ -172,7 +186,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_base_height_box);
       if (current_effect.reference)
         ec_recall_effect(current_effect.reference);
-      current_effect.reference = ec_create_wind_leaves(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, &initial_bounds, 1.0, 0.0, 0.0);
+      current_effect.reference = ec_create_wind_leaves(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
       break;
     case 12:  // Flower Petals
       gtk_widget_show(gtk_effect_hue_box);
@@ -182,7 +196,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_base_height_box);
       if (current_effect.reference)
         ec_recall_effect(current_effect.reference);
-      current_effect.reference = ec_create_wind_petals(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, &initial_bounds, 1.0, 0.0, 0.0);
+      current_effect.reference = ec_create_wind_petals(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
       break;
     case 13:  // Waterfall
       gtk_widget_show(gtk_effect_hue_box);
@@ -241,6 +255,7 @@ void confirm_eye_candy_effect()
     case 11:   // Leaves
     case 12:   // Flower Petals
     {
+      current_effect.position = ec::Vec3(-1.0, -1.0, 0.0);
       minimap_on = 1;
       break;
     }

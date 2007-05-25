@@ -145,7 +145,7 @@ void get_world_x_y()
 	scene_mouse_y=-camera_y+y1;
 
 #ifdef EYE_CANDY
-	if (cur_mode == mode_eye_candy)
+	if ((cur_mode == mode_eye_candy) && (!minimap_on))
 	{
 //		const float z = -2.2f + height_map[(int)(scene_mouse_y*2)*tile_map_size_x*6+(int)(scene_mouse_x*2)] * 0.2;
 		update_eye_candy_position(scene_mouse_x, scene_mouse_y);

@@ -532,7 +532,7 @@ int HandleEvent(SDL_Event *event)
 			}
 			
 #ifdef EYE_CANDY
-			if (mouse_x>=15*32 || mouse_y>=32)
+			if (!minimap_on && (mouse_x>=15*32 || mouse_y>=32))
 			{
 				if (left_click && (cur_mode == mode_eye_candy))
 				{
