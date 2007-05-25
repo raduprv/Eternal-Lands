@@ -28,7 +28,7 @@ __inline__ static int has_normal(int vertex_options)
 	return (vertex_options & OPTION_HAS_NORMAL) == 0;
 }
 
-__inline__ static int has_tangen(int vertex_options)
+__inline__ static int has_tangent(int vertex_options)
 {
 	return (vertex_options & OPTION_HAS_TANGENT) != 0;
 }
@@ -52,7 +52,7 @@ __inline__ static int get_vertex_float_count(int vertex_options)
 	{
 		count += NORMAL_FLOAT_COUNT;
 	}
-	if (has_tangen(vertex_options))
+	if (has_tangent(vertex_options))
 	{
 		count += TANGENT_FLOAT_COUNT;
 	}
