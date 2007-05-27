@@ -403,6 +403,7 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 {
 	unsigned int i, j, k, size, idx;
 	int start, stop;
+	unsigned int id;
 	
 	idx = bbox_tree->cur_intersect_type;
 	
@@ -416,7 +417,14 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 			for (k = start; k < stop; k++)
 			{
 #ifdef NEW_E3D_FORMAT
-                if (get_3dobject_index(bbox_tree->intersect[i].items[k].ID) == ID)
+		if ((type_mask == TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT) ||
+		    (type_mask == TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT) ||
+		    (type_mask == TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT) ||
+		    (type_mask == TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT))
+		    id = get_3dobject_index(bbox_tree->intersect[i].items[k].ID);
+		else id = bbox_tree->intersect[i].items[k].ID;
+
+                if (id == ID)
 #else
 				if (bbox_tree->intersect[i].items[k].ID == ID)
 #endif
@@ -1076,13 +1084,21 @@ static __inline__ void delete_dynamic_item_from_node(BBOX_TREE *bbox_tree, unsig
 static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, unsigned int node, unsigned int ID, unsigned int type_mask)
 {
 	unsigned int i, result;
+	unsigned int id;
 
 	result = 0;
 	
 	for (i = 0; i < bbox_tree->nodes[node].dynamic_objects.index; i++)
 	{
 #ifdef NEW_E3D_FORMAT
-        if ((get_3dobject_index(bbox_tree->nodes[node].dynamic_objects.items[i].ID) == ID) &&
+	    if ((type_mask == TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT) ||
+		(type_mask == TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT) ||
+		(type_mask == TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT) ||
+		(type_mask == TYPE_MASK_3D_NO_BLEND_NO_SELF_LIT_OBJECT))
+		id = get_3dobject_index(bbox_tree->nodes[node].dynamic_objects.items[i].ID);
+	    else id = bbox_tree->nodes[node].dynamic_objects.items[i].ID;
+
+        if ((id == ID) &&
             (get_type_mask_from_type(bbox_tree->nodes[node].dynamic_objects.items[i].type) == type_mask))
 #else
 		if ((bbox_tree->nodes[node].dynamic_objects.items[i].ID == ID) &&
