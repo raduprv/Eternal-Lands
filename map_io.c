@@ -513,7 +513,15 @@ int load_map (const char * file_name)
 				cur_light_io.g = SwapFloat(cur_light_io.g);
 				cur_light_io.b = SwapFloat(cur_light_io.b);
 			#endif
-			
+
+			if(cur_light_io.pos_x < 0.0f || cur_light_io.pos_x > tile_map_size_x*6 || cur_light_io.pos_y < 0.0f || cur_light_io.pos_y > tile_map_size_y*6 || cur_light_io.pos_z < -1000.0f || cur_light_io.pos_z > 1000.0f ||
+					cur_light_io.r < 0.0f || cur_light_io.r > 1000.0f || cur_light_io.g < 0.0f || cur_light_io.g > 1000.0f || cur_light_io.b < 0.0f || cur_light_io.b > 1000.0f){
+				LOG_ERROR("Bad light (number %d) when loading '%s'; co-ords [%f %f %f] colour [%f %f %f]", i, file_name, cur_light_io.pos_x, cur_light_io.pos_y, cur_light_io.pos_z, cur_light_io.r, cur_light_io.g, cur_light_io.b);
+				cur_light_io.pos_x = cur_light_io.pos_y = 1.0f;
+				cur_light_io.pos_z = 2.0f;
+				cur_light_io.r = cur_light_io.g = cur_light_io.b = 1.0f;
+				continue;
+			}
 #ifdef	NEW_FRUSTUM
 #ifdef MAP_EDITOR2
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,1, 0);
