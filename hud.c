@@ -789,6 +789,9 @@ void draw_side_stats_bar(const int x, const int y, const int baselev, const int 
 {
 	int len = 58-58.0f/(float)((float)(nl_exp-exp_lev[baselev])/(float)(nl_exp-cur_exp));
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	glDisable(GL_TEXTURE_2D);
 	if(len >= 0){
 		glBegin(GL_QUADS);
