@@ -1227,11 +1227,13 @@ int print_gl_errors(const char *file, const char *func, int line)
 	while ((glErr=glGetError()) != GL_NO_ERROR )
 	 {
 		anyErr=glErr;
-#ifdef	GLUT
+//#ifdef	GLUT
+//FIXME: this appears to be a GLU call, not GLUT, and we link with GLU normally...
+//unless this causes an error on some other compiler, the commented parts should be removed
 		log_error_detailed("OpenGL %s", file, func, line, gluErrorString(glErr));
-#else
-		log_error_detailed("OpenGL error %d", file, func, line, glErr);
-#endif // GLUT
+//#else
+//		log_error_detailed("OpenGL error %d", file, func, line, glErr);
+//#endif // GLUT
 	}
 	return anyErr;
 }
