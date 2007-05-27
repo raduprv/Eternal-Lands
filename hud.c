@@ -154,6 +154,9 @@ float logo_v_end=1.0f-(float)191/256;
 
 void draw_hud_frame()
 {
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	get_and_set_texture_id(hud_text);
 	glBegin(GL_QUADS);
 	draw_2d_thing(vertical_bar_u_start, vertical_bar_v_start, vertical_bar_u_end, vertical_bar_v_end,window_width-hud_x, 0, window_width, window_height);
@@ -161,6 +164,9 @@ void draw_hud_frame()
 	//draw the logo
 	draw_2d_thing(logo_u_start, logo_v_start, logo_u_end, logo_v_end,window_width-hud_x, 0, window_width, 64);
 	glEnd();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -920,6 +926,9 @@ void init_misc_display()
 
 int	display_misc_handler(window_info *win)
 {
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	get_and_set_texture_id(hud_text);
 
 	// allow for transparency
@@ -956,6 +965,9 @@ int	display_misc_handler(window_info *win)
 	glPopMatrix();
 	glDisable(GL_ALPHA_TEST);
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	//Digital Clock
 	if(view_digital_clock > 0){
 		char str[6];	// one extra incase the length of the day ever changes
@@ -1018,6 +1030,9 @@ int	display_misc_handler(window_info *win)
 			stat=0;	//reset the stat counter
 		}
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 		if (++stat == watch_this_stat)
 			glColor3f(0.77f, 0.57f, 0.39f);
 		else

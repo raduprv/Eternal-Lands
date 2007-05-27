@@ -356,9 +356,6 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 
 	glTexCoord2f(u_end,v_end);
 	glVertex3i(x_end,y_end,0);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
 }
 
 void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
@@ -375,9 +372,6 @@ void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_s
 
 	glTexCoord2f(u_start,v_end);
 	glVertex3i(x_end,y_end,0);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
 }
 
 
@@ -431,6 +425,9 @@ void add_char_to_password(unsigned char ch)
 
 void draw_ingame_interface()
 {
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 #ifdef	OLD_CLOSE_BAG
 	// watch for closing a bag
 	if(ground_items_win >= 0)
@@ -454,6 +451,9 @@ void draw_ingame_interface()
 
 	//draw_hud_interface();
 	display_spells_we_have();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 GLuint map_text;
