@@ -660,12 +660,14 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		uniq_id = 0;
 #endif
 
+#ifdef CUSTOM_LOOK
 		/* skip leading color codes */
 		for(name=buffer; *name && IS_COLOR((unsigned char)*name); name++);
 		/* trim off any guild tag, leaving solely the name (onlyname)*/
 		for(j=0; name[j] && name[j]>32;j++){
 			onlyname[j]=name[j];
 		}
+#endif //CUSTOM_LOOK
 		
 		/* search for string end or color mark */
 		this_actor->guild_tag_color = 0;
@@ -679,7 +681,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 		/* perform case insensitive comparison/hashing */
 		my_tolower(name);
+#ifdef CUSTOM_LOOK
 		my_tolower(onlyname);
+#endif //CUSTOM_LOOK
 		
 		//perfect hashing of guildtag
  		switch(strlen(guild))

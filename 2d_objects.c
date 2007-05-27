@@ -672,7 +672,10 @@ void display_2d_objects()
 
 #else
 	unsigned int i, l, start, stop;
-	int x, y, dist;
+	int x, y;
+#ifdef  SIMPLE_LOD
+	int dist;
+#endif //SIMPLE_LOD
 
 	x= -camera_x;
 	y= -camera_y;

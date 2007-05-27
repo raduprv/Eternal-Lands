@@ -1715,7 +1715,7 @@ int mouseover_option_handler(widget_list *widget, int mx, int my)
 	put_small_text_in_box(our_vars.var[i]->display.desc, strlen((char*)our_vars.var[i]->display.desc),
 								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer);
 #else
-	put_small_text_in_box(our_vars.var[i]->long_desc, strlen(our_vars.var[i]->long_desc),
+	put_small_text_in_box((unsigned char*)our_vars.var[i]->long_desc, strlen(our_vars.var[i]->long_desc),
 								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer);
 #endif
 	return 1;
@@ -1891,7 +1891,7 @@ void elconfig_populate_tabs(void)
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->short_desc), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
+				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width((unsigned char *)our_vars.var[i]->short_desc), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
 #endif
 				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
 					char *label= queue_pop(our_vars.var[i]->queue);

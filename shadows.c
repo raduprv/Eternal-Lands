@@ -423,7 +423,10 @@ void draw_3d_object_shadows(unsigned int object_type)
  	unsigned int    i, l;
 #endif
 	int is_transparent;
-	int x, y, dist;
+	int x, y;
+#ifdef SIMPLE_LOD
+	int dist;
+#endif //SIMPLE_LOD
 
 	x= -camera_x;
 	y= -camera_y;
