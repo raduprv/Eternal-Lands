@@ -643,14 +643,14 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
 #ifdef DEBUG
-				safe_snprintf (str, sizeof (str), "effect %d,  x pos=%d, y pos=%d",sfx,var_a,var_b);	
+				safe_snprintf ((char*)str, sizeof (str), "effect %d,  x pos=%d, y pos=%d",sfx,var_a,var_b);	
 				LOG_TO_CONSOLE (c_purple2, str);
 #endif
 			}
 			break;
 		default:
 #ifdef DEBUG
-			safe_snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
+			safe_snprintf ((char*)str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
 			LOG_TO_CONSOLE (c_purple2, str);
 #endif
 			break;
@@ -844,7 +844,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				break;
 			default:
 	 #ifdef DEBUG
-				safe_snprintf (str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
+				safe_snprintf ((char*)str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
 				LOG_TO_CONSOLE (c_purple2, str);
 	 #endif
 				break;

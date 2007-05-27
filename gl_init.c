@@ -641,7 +641,7 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 	if (!options)
 	{
 		LOG_TO_CONSOLE(c_red1, "Your graphic card/driver don't support the minimum"
-			"requirements for the next el release. Please upgrade your driver."
+			"requirements for the next EL release. Please upgrade your driver."
 			" If this don't help, you need a better graphic card.");
 		return;
 	}
@@ -659,8 +659,8 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 
 	if (!options)
 	{
-		LOG_TO_CONSOLE(c_yellow1, "Your graphic card supports the absolute minumin "
-			"requirements for the next el release, but don't expect that you can use"
+		LOG_TO_CONSOLE(c_yellow1, "Your graphic card supports the absolute minimum "
+			"requirements for the next EL release, but don't expect that you can use"
 			" all features.");
 	}
 	else
@@ -670,8 +670,8 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 			has_arb_texture_rectangle && has_ext_framebuffer_object;
 		if (!options)
 		{
-			LOG_TO_CONSOLE(c_green2, "Your graphic card supports default "
-				"requirements for the next el release.");
+			LOG_TO_CONSOLE(c_green2, "Your graphic card supports the default "
+				"requirements for the next EL release.");
 		}
 		else
 		{
@@ -679,12 +679,12 @@ void evaluate_extension(int multitexture_count, const char* extensions)
 				has_arb_vertex_shader && has_arb_shading_language_100)
 			{
 				LOG_TO_CONSOLE(c_blue2, "Your graphic card supports all "
-					"features el will use in the future.");
+					"features EL will use in the future.");
 			}
 			else
 			{
 				LOG_TO_CONSOLE(c_blue2, "Your graphic card supports more than the"
-				"default requirements for the next el release.");
+				"default requirements for the next EL release.");
 			}
 		}
 	}

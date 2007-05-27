@@ -1197,9 +1197,10 @@ void stop_all_sounds()
 //usefull when we change maps, etc.
 void kill_local_sounds()
 {
-	int error,queued,processed;
+	int error;
 #ifdef	OSX //to fix music quiting when switching maps since used_sources is not updated properly, might be generally applicable
 #ifndef NO_MUSIC
+	int queued, processed;
 	if(have_music)
 	{
 		playing_music = 0;
