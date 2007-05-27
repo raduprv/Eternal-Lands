@@ -1198,9 +1198,9 @@ void stop_all_sounds()
 void kill_local_sounds()
 {
 	int error;
-#ifdef	OSX //to fix music quiting when switching maps since used_sources is not updated properly, might be generally applicable
 #ifndef NO_MUSIC
 	int queued, processed;
+#ifdef	OSX //to fix music quiting when switching maps since used_sources is not updated properly, might be generally applicable
 	if(have_music)
 	{
 		playing_music = 0;
@@ -1212,8 +1212,8 @@ void kill_local_sounds()
 			alSourceUnqueueBuffers(music_source, 1, &buffer);
 		}
 	}
-#endif
-#endif	//OSX
+#endif //OSX
+#endif //!NO_MUSIC
 	if(!have_sound || !used_sources)return;
 	LOCK_SOUND_LIST();
 	alSourceStopv(used_sources,sound_source);
@@ -1238,8 +1238,8 @@ void kill_local_sounds()
 		ALuint buffer;
 		alSourceUnqueueBuffers(music_source, 1, &buffer);
 	}
-#endif
-#endif	//NO_MUSIC
+#endif //!OSX
+#endif //!NO_MUSIC
 }
 #endif	//NEW_SOUND
 
