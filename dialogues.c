@@ -132,6 +132,9 @@ int	display_dialogue_handler(window_info *win)
 		}
 
 	glColor3f(1.0f,1.0f,1.0f);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 0;
 }
 

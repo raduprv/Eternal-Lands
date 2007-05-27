@@ -563,6 +563,9 @@ void init_video()
 	build_video_mode_array();
 	SDL_GL_GetAttribute(SDL_GL_STENCIL_SIZE, &have_stencil);
 	last_texture=-1;	//no active texture
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 #ifdef EYE_CANDY
 	ec_load_textures();

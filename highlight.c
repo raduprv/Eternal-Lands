@@ -188,4 +188,7 @@ void display_highlight_markers() {
 	glDisable(GL_ALPHA_TEST);
 	glEnable(GL_LIGHTING);
 	glDisable(GL_BLEND);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }

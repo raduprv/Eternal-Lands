@@ -701,6 +701,9 @@ void drawactor_floatingmessages(int actor_id, float healthbar_z) {
 	}
 	
 	glDisable(GL_BLEND);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 floating_message *get_free_floatingmessage() {

@@ -643,6 +643,9 @@ void draw_rules_interface (int len_x, int len_y)
 	set_font(0);
 
 	glDisable (GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int rules_root_win = -1;

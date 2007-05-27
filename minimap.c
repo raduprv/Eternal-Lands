@@ -206,7 +206,9 @@ int display_minimap_handler(window_info *win)
 		//Messer, Gabel, Schere, Licht... ...sind für kleine developer nicht!
 		glDisable(GL_SCISSOR_TEST);
 	}  
-	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 0;
 }
 
@@ -407,6 +409,9 @@ void change_minimap()
 	bind_texture_id(exploration_text);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	load_exploration_map();
 }
 

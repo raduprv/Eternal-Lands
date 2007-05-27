@@ -756,6 +756,9 @@ void draw_box(char * name, int x, int y, int w, int h, int rad)
 		glEnd();
 	}
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -795,6 +798,9 @@ void draw_smooth_button(char * str, float size, int x, int y, int w, int lines, 
 	if(str) {
 		draw_string_zoomed(xstr, y+radius/2.0f, (unsigned char*)str, lines, size);
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int	mkdir_tree(const char *file)

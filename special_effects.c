@@ -136,6 +136,9 @@ void do_shape_spikes(float x, float y, float z, float center_offset_x, float cen
 		}
 	//return to the world
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 //example halos moving in opposite directions, not yet optimized, and still just an example
@@ -170,6 +173,9 @@ void do_double_spikes(float x, float y, float z, float center_offset_x, float ce
 		}
 	//return to the world
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_heal_effect(float x, float y, float z, float age)
@@ -234,6 +240,9 @@ void draw_heal_effect(float x, float y, float z, float age)
 
 	//return to the world
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_restoration_effect(float x, float y, float z, float age)
@@ -300,6 +309,9 @@ void draw_restoration_effect(float x, float y, float z, float age)
 		}
 	//return to the world
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_teleport_effect(float x, float y, float z, float age)
@@ -387,6 +399,9 @@ void draw_teleport_effect(float x, float y, float z, float age)
 		glEndList();
 		glCallList(TorusDL);
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void display_special_effect(special_effect *marker) {
@@ -462,12 +477,18 @@ void display_special_effect(special_effect *marker) {
 		default: // for all the spells we have not gotten to yet
 			break;
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 }
 
 void display_special_effects(int do_render) {
 	int i; 
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	if(do_render){
 		glDisable(GL_TEXTURE_2D);
 		glDisable(GL_LIGHTING);
@@ -476,6 +497,9 @@ void display_special_effects(int do_render) {
 		glEnable(GL_ALPHA_TEST);
 	}
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	for(i = 0; i < NUMBER_OF_SPECIAL_EFFECTS; i++) {
 		if (sfx_markers[i].active) {
 			sfx_markers[i].timeleft -= (cur_time - sfx_markers[i].last_time); //use global cur_time
@@ -496,6 +520,9 @@ void display_special_effects(int do_render) {
 		glEnable(GL_LIGHTING);
 		glDisable(GL_BLEND);
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 //send server data packet to appropriate method depending on desired effect
@@ -838,6 +865,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
 	} /* if (use_eye_candy) */
 #endif	//EYE_CANDY
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #endif //SFX or EYE_CANDY

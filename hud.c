@@ -712,6 +712,9 @@ void show_help(char *help_message, int x, int y)
 	glColor3f(1.0f,1.0f,1.0f);
 	safe_snprintf(str, sizeof(str), "%s", help_message);
 	draw_string_small(x, y, (unsigned char*)help_message,1);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 // the stats display
@@ -777,6 +780,9 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	safe_snprintf(buf, sizeof(buf), "%d", val);
 	glColor3f(0.8f, 0.8f, 0.8f);
 	draw_string_small(x-(1+8*strlen(buf)), y-3, (unsigned char*)buf, 1);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_side_stats_bar(const int x, const int y, const int baselev, const int cur_exp, const int nl_exp)
@@ -807,6 +813,9 @@ void draw_side_stats_bar(const int x, const int y, const int baselev, const int 
 	glVertex3i(x, y+13, 0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int	display_stats_bar_handler(window_info *win)
@@ -1093,6 +1102,9 @@ int	display_misc_handler(window_info *win)
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
 	}	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return	1;
 }
 
@@ -1313,6 +1325,9 @@ int	display_quickbar_handler(window_info *win)
 		}
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }

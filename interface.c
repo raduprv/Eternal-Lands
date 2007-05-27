@@ -215,6 +215,9 @@ void get_old_world_x_y()
 
 void Enter2DModeExtended(int width, int height)
 {
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	if (weather_use_fog()) glDisable(GL_FOG);
 	glPushAttrib(GL_LIGHTING_BIT|GL_DEPTH_BUFFER_BIT);
 	glDisable(GL_LIGHTING);
@@ -222,6 +225,9 @@ void Enter2DModeExtended(int width, int height)
 
 	glViewport(0, 0, width, height);
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
@@ -229,6 +235,9 @@ void Enter2DModeExtended(int width, int height)
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void Enter2DMode()
@@ -238,6 +247,9 @@ void Enter2DMode()
 
 void Leave2DMode()
 {
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
@@ -248,6 +260,9 @@ void Leave2DMode()
 	if (weather_use_fog()) glEnable(GL_FOG);
 	else glDisable(GL_FOG);
 	//glViewport(0, 0, window_width-hud_x, window_height-hud_y);	// Reset The Current Viewport
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 mode_flag video_modes[12];
@@ -322,6 +337,9 @@ void draw_console_pic(int which_texture)
 	glVertex3i(window_width,0,0);
 
 	glEnd();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_start,
@@ -338,6 +356,9 @@ void draw_2d_thing(float u_start,float v_start,float u_end,float v_end,int x_sta
 
 	glTexCoord2f(u_end,v_end);
 	glVertex3i(x_end,y_end,0);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_start,
@@ -354,6 +375,9 @@ void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_s
 
 	glTexCoord2f(u_start,v_end);
 	glVertex3i(x_end,y_end,0);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -551,6 +575,9 @@ int switch_to_game_map()
 void switch_from_game_map()
 {
 	glDeleteTextures(1,&map_text);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -840,6 +867,9 @@ void draw_game_map (int map, int mouse_mini)
 
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 

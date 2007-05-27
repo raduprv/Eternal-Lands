@@ -183,6 +183,9 @@ void draw_2d_object(obj_2d * object_id)
     		glEnd();
 		}
 	glPopMatrix();//restore the scene
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -621,6 +624,9 @@ void get_2d_object_under_mouse()
 	
 	glPopMatrix();
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif
 
@@ -725,6 +731,9 @@ void display_2d_objects()
 		}
 
 	glDisable(GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifdef	NEW_FRUSTUM

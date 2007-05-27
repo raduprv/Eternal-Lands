@@ -130,6 +130,9 @@ int display_knowledge_handler(window_info *win)
 			x = 2;
 		}
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

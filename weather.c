@@ -484,6 +484,9 @@ void render_fog()
 	glFogi(GL_FOG_MODE, GL_EXP2);
 	glFogf(GL_FOG_DENSITY, density);
 	glFogfv(GL_FOG_COLOR, rain_color);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void weather_color_bias(const float * src, float * dst) {
@@ -1220,6 +1223,9 @@ void render_fog() {
 	glFogi(GL_FOG_MODE, GL_EXP2);
 	glFogf(GL_FOG_DENSITY, fogDensity);
 	glFogfv(GL_FOG_COLOR, fogColor);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #endif	//NEW_WEATHER
@@ -1274,5 +1280,8 @@ void render_rain(int num_rain_drops)
 	glDisable(GL_BLEND);
 	glEnable(GL_TEXTURE_2D);
 	glPopAttrib();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 

@@ -164,7 +164,9 @@ int	display_manufacture_handler(window_info *win)
 	rendergrid(6,1,5, win->len_y-37, 33, 33);
 
 	glEnable(GL_TEXTURE_2D);
-
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

@@ -333,7 +333,9 @@ int display_ground_items_handler(window_info *win)
 
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

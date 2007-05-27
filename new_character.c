@@ -317,7 +317,9 @@ int display_newchar_handler (window_info *win)
 	Enter2DMode ();
 
 	main_count++;
-
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 
@@ -828,7 +830,9 @@ int display_color_race_handler (window_info *win)
 		draw_2d_thing((float)0/256,1.0f-(float)64/256,(float)31/256,1.0f-(float)95/256, 230, 131, 252, 153);
 	
 	glEnd();
-	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

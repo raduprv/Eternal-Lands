@@ -167,6 +167,9 @@ void cal_render_bones(actor *act)
 	}
 
 	glEnd();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 }
 
@@ -206,6 +209,9 @@ __inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer 
 				glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_INT, &meshFaces[0][0]);
 		}
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -419,4 +425,7 @@ void cal_render_actor(actor *act)
 	glEnable(GL_TEXTURE_2D);
 #endif
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }

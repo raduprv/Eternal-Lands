@@ -248,6 +248,9 @@ void display_spells_we_have()
 {
 	int i;
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
@@ -283,6 +286,9 @@ void display_spells_we_have()
 		}
 	}
 	glDisable(GL_BLEND);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int show_last_spell_help=0;
@@ -399,6 +405,9 @@ int display_sigils_handler(window_info *win)
 	
 	if(show_last_spell_help && mqb_data[0] && mqb_data[0]->spell_id!=-1)show_help(mqb_data[0]->spell_name,350-8*strlen(mqb_data[0]->spell_name),120);
 	show_last_spell_help=0;
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }
@@ -739,6 +748,9 @@ int display_quickspell_handler(window_info *win)
 	int x,y,width,height,i;
 	float u_start,v_start,u_end,v_end;
 	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.20f);
@@ -753,24 +765,27 @@ int display_quickspell_handler(window_info *win)
 			y=(i-1)*30+15;
 			width=quickspell_size/2;
 			height=quickspell_size/2;
-			
+
 			//location in window ready, now for the bitmap..
 			u_start=0.125f*(mqb_data[i]->spell_image%8);//0 to 7 across
 			v_start=1.0f-((float)32/256*(mqb_data[i]->spell_image/8));
-			
+
 			u_end=u_start+0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
 			v_end=v_start-0.125f-(1.0f/256.0f);//32 pixels(1/8th of 256, -1/256th)
-		
+
 			draw_2d_thing(u_start,v_start,u_end,v_end, x-width,y-height,x+width,y+height);
 		}
 	}
-	
+
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
 	
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
 		show_help(mqb_data[quickspell_over]->spell_name,-10-strlen(mqb_data[quickspell_over]->spell_name)*8,(quickspell_over-1)*30+10);
 	quickspell_over=-1;
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }

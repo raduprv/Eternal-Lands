@@ -184,6 +184,9 @@ int display_trade_handler(window_info *win)
 	
 	//now, draw the inventory text, if any.
 	draw_string_small(4,win->len_y-35,(unsigned char*)items_string,3);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }

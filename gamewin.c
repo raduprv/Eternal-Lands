@@ -686,6 +686,7 @@ int display_game_handler (window_info *win)
 #ifdef	EYE_CANDY
 	ec_idle();
 #endif
+CHECK_GL_ERRORS();
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{
@@ -851,6 +852,9 @@ int display_game_handler (window_info *win)
 	// Return to 2D mode to draw the other windows
 	glPopMatrix ();	// restore the state
 	Enter2DMode ();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

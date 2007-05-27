@@ -71,7 +71,9 @@ int display_loading_win_handler(window_info *win)
 	draw_string_small((win->len_x - (get_string_width(text_buffer)*SMALL_FONT_X_LEN)/12)/2, (win->len_y*2)/3 + PROGRESSBAR_HEIGHT + 2, text_buffer, 1);
 
 	glDisable(GL_TEXTURE_2D);
-
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

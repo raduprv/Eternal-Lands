@@ -103,6 +103,9 @@ int test_point_visible(float x,float y,float z)
 
 	gluProject(x,y,z,&MV[0],&PROJ[0],&viewp[0],&winx,&winy,&winz);
 	glReadPixels(winx,winy,1,1,GL_DEPTH_COMPONENT,GL_FLOAT,&z_value);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	if (winz<z_value)
 		return 1;
@@ -134,6 +137,9 @@ void render_corona(float x,float y,float z,float r,float g,float b)
 	glTexCoord2f(0,1);glVertex3f(-2,-2,0);
 	glEnd();
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void render_coronas()
@@ -156,6 +162,9 @@ void render_coronas()
 
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_BLEND);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif
 
@@ -174,6 +183,9 @@ void disable_local_lights()
     glDisable(GL_LIGHT5);
     glDisable(GL_LIGHT6);
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void enable_local_lights()
@@ -189,6 +201,9 @@ void enable_local_lights()
     if(show_lights >= 5)	glEnable(GL_LIGHT5);
     if(show_lights >= 6)	glEnable(GL_LIGHT6);
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -282,6 +297,9 @@ void draw_lights()
 	}
 
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifdef	NEW_FRUSTUM
@@ -706,6 +724,9 @@ void init_lights()
 	glEnable(GL_LIGHTING);
 
 	glNormal3f(0.0f,0.0f,1.0f);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -733,6 +754,9 @@ void reset_material()
 
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void set_material(float r, float g, float b)
@@ -742,6 +766,9 @@ void set_material(float r, float g, float b)
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_emission);
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_emission);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int sun_use_static_position=0;
@@ -847,6 +874,9 @@ void draw_global_light()
 	if(sun_use_static_position)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
 	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_dungeon_light()
@@ -882,6 +912,9 @@ void draw_dungeon_light()
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 

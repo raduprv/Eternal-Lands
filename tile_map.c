@@ -351,6 +351,9 @@ void draw_tile_map()
 		ELglActiveTextureARB(base_unit);
 	}
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #else
 void draw_tile_map()
@@ -552,6 +555,9 @@ void draw_tile_map()
 		}
 
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif
 

@@ -339,6 +339,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				glPopAttrib();
 			}
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_right, float y_top, float y_bottom, float y_actor)
@@ -381,6 +384,9 @@ void draw_bubble(float x_left, float x_right, float x_leg_left, float x_leg_righ
 	glEnd();
 
 	glDisable(GL_BLEND);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 //-- Logan Dugenoux [5/26/2004]
@@ -431,6 +437,9 @@ void draw_actor_overtext( actor* actor_ptr )
 		actor_ptr->current_displayed_text_time_left = 0;
 		actor_ptr->current_displayed_text[0] = 0;
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifndef	NEW_FRUSTUM
@@ -509,6 +518,9 @@ void draw_actor(actor * actor_id, int banner)
 	if (banner) draw_actor_banner(actor_id, healthbar_z);
 
 	glPopMatrix();	//we don't want to affect the rest of the scene
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void get_actors_in_range()
@@ -741,6 +753,9 @@ void display_actors(int banner, int reflections)
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 

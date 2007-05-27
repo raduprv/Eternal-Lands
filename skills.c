@@ -37,6 +37,9 @@ int display_skills_handler(window_info *win)
 				glVertex3i(t->x+4+xlen-8,t->y+ylen-j,0);
 				glEnd();
 				glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 			}
 			if(t->size)
 			{

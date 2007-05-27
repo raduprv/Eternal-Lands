@@ -273,6 +273,9 @@ int display_storage_handler(window_info * win)
 
 	rendergrid(6, 6, 160, 10, 32, 32);
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }

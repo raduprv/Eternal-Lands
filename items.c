@@ -416,6 +416,9 @@ int display_items_handler(window_info *win)
 	glColor3f(0.3f,0.5f,1.0f);
 	rendergrid(6, 1, quantity_x_offset, quantity_y_offset, (video_mode>4?69:51), 20);
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }

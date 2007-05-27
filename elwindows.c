@@ -922,6 +922,9 @@ int	draw_window_title(window_info *win)
 			// center text
 			draw_string_small((win->len_x-len)/2, 1-ELW_TITLE_HEIGHT, (unsigned char*)win->window_name, 1);
 		}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }
@@ -1004,6 +1007,9 @@ int	draw_window_border(window_info *win)
 	}
 	
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }
@@ -1013,6 +1019,9 @@ int	draw_window(window_info *win)
 	int	ret_val=0;
 	widget_list *W;
 	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	if(win == NULL || win->window_id < 0)
 		return -1;
 	W = win->widgetlist;
@@ -1042,8 +1051,10 @@ int	draw_window(window_info *win)
 	}
 	// now normal display processing
 	glPushMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-
 	draw_window_title(win);
 	draw_window_border(win);
 	glColor3f(1.0f, 1.0f, 1.0f);
@@ -1051,6 +1062,10 @@ int	draw_window(window_info *win)
 	if(win->display_handler)
 	{
 		ret_val=(*win->display_handler)(win);
+//the window's own display handler can cause OpenGL errors
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	}
 	else
 	{
@@ -1077,6 +1092,9 @@ int	draw_window(window_info *win)
 	}
 
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return(ret_val);
 }
@@ -1180,6 +1198,9 @@ void resize_window (int win_id, int new_width, int new_height)
 		(*win->resize_handler) (win, new_width, new_height);
 		glPopMatrix  ();
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int	get_show_window(int win_id)
@@ -1297,6 +1318,9 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 			return 0;	// click is not handled, and the window is transparent
 		return	1;	// click is handled
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 0;
 }
@@ -1351,6 +1375,9 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 		}
 		return	1;	// drag has been processed	
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 0;
 }
@@ -1402,6 +1429,9 @@ int	mouseover_window (int win_id, int x, int y)
 		if (!ret_val)
 			elwin_mouse = CURSOR_ARROW;
 #endif	//ELC
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 		return 1;
 	}
@@ -1439,6 +1469,9 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 					{
 						// widget handled it 
 						glPopMatrix ();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 						return 1;
 					}
 				}
@@ -1456,10 +1489,16 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
 			ret_val = (*win->keypress_handler) (win, mx, my, key, unikey);
 			glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 			return ret_val; // keypresses are fall-through
 		} 
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 0;
 }

@@ -1583,7 +1583,9 @@ int display_chan_sel_handler(window_info *win)
 	num_lines = reset_soft_breaks(channel_help_str, strlen(channel_help_str), sizeof(channel_help_str), local_zoom, win->len_x - 5, NULL, NULL);
 	draw_string_zoomed(x, y+=5, (unsigned char*)channel_help_str, num_lines, local_zoom);
 	win->len_y = 187 + num_lines * DEFAULT_FONT_Y_LEN * local_zoom + 2;
-	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 0;
 }
 
@@ -1669,7 +1671,9 @@ int draw_tab_x (widget_list *W)
 		glVertex2i(x+3,y-4);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
-
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

@@ -422,7 +422,10 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	}
 	
 	glEnd();
-	glDisable(GL_ALPHA_TEST);	
+	glDisable(GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int draw_string (int x, int y, const unsigned char * our_string, int max_lines)
@@ -450,6 +453,9 @@ int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, in
 	int cur_x,cur_y;
 	int current_lines= 1;
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
@@ -489,7 +495,9 @@ int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, in
 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
-	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return current_lines;
 }
 
@@ -569,6 +577,9 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 	
 	glEnd();
 	glDisable(GL_ALPHA_TEST);	
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifdef DEBUG
@@ -732,6 +743,9 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 	int cur_x,cur_y;
 	int current_lines=0;
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
    	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
     glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
@@ -765,6 +779,9 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 
     glEnd();
 	glDisable(GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifdef	ELC
@@ -860,6 +877,9 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 
     glEnd();
 	glDisable(GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif
 #endif	//ELC
@@ -960,6 +980,9 @@ void reload_fonts()
 
 	poor_man=poor_man_save;
 	use_mipmaps=use_mipmaps_save;
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 int load_font_textures ()

@@ -276,11 +276,17 @@ void enable_reflection_clip_planes()
 {
 	glEnable(GL_CLIP_PLANE0);
 	glClipPlane(GL_CLIP_PLANE0, reflection_clip_planes[0]);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void disable_reflection_clip_planes()
 {
 	glDisable(GL_CLIP_PLANE0);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void set_current_frustum(unsigned int intersect_type)

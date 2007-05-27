@@ -181,6 +181,9 @@ void calc_shadow_matrix()
 #ifdef NEW_FRUSTUM
 	main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed = 1;
 #endif // NEW_FRUSTUM
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifdef NEW_E3D_FORMAT
@@ -404,6 +407,9 @@ void draw_3d_object_shadow_detail(object3d * object_id)
 	}
 	//if(use_compiled_vertex_array)ELglUnlockArraysEXT();
 	glPopMatrix();//restore the scene
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif
 
@@ -554,6 +560,9 @@ void draw_3d_object_shadow(object3d * object_id)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		}
 	else glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif   //NEW_FRUSTUM
 
@@ -586,6 +595,9 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 	cal_render_actor(actor_id);
 
 	glPopMatrix();//restore the scene
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_actor_shadow(actor * actor_id)
@@ -645,6 +657,9 @@ void display_actors_shadow()
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif
 
@@ -702,6 +717,9 @@ void display_shadows()
 	glEnable(GL_TEXTURE_2D);
 #endif
 	glDisable(GL_POLYGON_OFFSET_FILL);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void display_3d_ground_objects()
@@ -751,6 +769,9 @@ void display_3d_ground_objects()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void display_3d_non_ground_objects()
@@ -804,6 +825,9 @@ void display_3d_non_ground_objects()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void render_light_view()
@@ -1011,6 +1035,9 @@ void setup_2d_texgen()
 
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void disable_texgen()
@@ -1031,6 +1058,9 @@ void disable_texgen()
 	glDisable(GL_TEXTURE_GEN_R);
 	glDisable(GL_TEXTURE_GEN_Q);
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void setup_shadow_mapping()
@@ -1076,6 +1106,9 @@ void setup_shadow_mapping()
 #ifndef USE_LISPSM
 	glPopMatrix();
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_sun_shadowed_scene(int any_reflection)
@@ -1253,4 +1286,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_blended_objects();
 
 		}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }

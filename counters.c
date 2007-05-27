@@ -404,7 +404,9 @@ int display_counters_handler(window_info *win)
 
 	safe_snprintf(buffer, sizeof(buffer), "%5d", total);
 	draw_string_small(x + 370, win->len_y - 20, (unsigned char*)buffer, 1);
-
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

@@ -104,6 +104,9 @@ int display_buddy_handler(window_info *win)
 		draw_string_zoomed(win->len_x/3+10,1,(unsigned char*)buddy_request_str,1,0.7);
 	}
 	glColor3f(0.77f, 0.57f, 0.39f);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 
@@ -237,6 +240,9 @@ int display_add_buddy_handler(window_info *win)
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
 	draw_string_small(5, win->len_y-5-30, (unsigned char*)description_buffer, 2);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 int name_onmouseover_handler(widget_list *widget, int mx, int my)

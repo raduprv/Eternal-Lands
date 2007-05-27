@@ -614,6 +614,9 @@ int image_draw(widget_list *W)
 	if (i->alpha > -1) {
 		glDisable(GL_ALPHA_TEST);
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 
@@ -657,6 +660,9 @@ int checkbox_draw(widget_list *W)
 	glVertex3i(W->pos_x,W->pos_y + W->len_y,0);
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 
@@ -767,6 +773,9 @@ int square_button_draw(widget_list *W)
 
 	glEnable(GL_TEXTURE_2D);
 	draw_string_zoomed(W->pos_x + 2 + extra_space, W->pos_y + 2, (unsigned char *)l->text, 1, W->size);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }
@@ -849,6 +858,9 @@ int progressbar_draw(widget_list *W)
 	}
 	
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 0;
 }
 
@@ -910,6 +922,9 @@ int vscrollbar_draw(widget_list *W)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 0;
 }
 
@@ -1275,6 +1290,9 @@ int tab_collection_draw (widget_list *w)
 	// show the content of the current tab
 	if (col->nr_tabs > 0)
 		show_window (col->tabs[col->cur_tab].content_id);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	
 	return 1;
 }
@@ -1781,6 +1799,9 @@ int text_field_draw (widget_list *w)
 	set_font(chat_font);	// switch to the chat font
 	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
 	set_font (0);	// switch to fixed
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }
@@ -1930,6 +1951,9 @@ int pword_field_draw (widget_list *w)
 		}
 		free(text);
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 
@@ -2387,6 +2411,9 @@ int spinbutton_draw(widget_list *widget)
 		glVertex3i(widget->pos_x+widget->len_x-20 + 5, widget->pos_y + widget->len_y - widget->len_y/4-2, 0); //Back to the beginning
 	glEnd();
 	glEnable(GL_TEXTURE_2D);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

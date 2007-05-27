@@ -176,6 +176,9 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	if (banner) draw_actor_banner(actor_id, healthbar_z);
 
 	glPopMatrix();	//we don't want to affect the rest of the scene
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void unwear_item_from_actor(int actor_id,Uint8 which_part)
@@ -230,6 +233,9 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 					}
 		}
 
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifdef CUSTOM_LOOK

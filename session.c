@@ -107,6 +107,9 @@ int display_session_handler(window_info *win)
 	timediff = cur_time - session_start_time;
 	safe_snprintf(buffer, sizeof(buffer), "%02d:%02d:%02d", timediff/3600000, (timediff/60000)%60, (timediff/1000)%60);
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return 1;
 }

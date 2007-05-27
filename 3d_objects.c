@@ -1773,7 +1773,9 @@ e3d_object * load_e3d_detail(e3d_object *cur_object)
 #endif
 	
 	cache_adj_size(cache_e3d, mem, cur_object);
-
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return cur_object;
 }
 #endif
@@ -1833,6 +1835,9 @@ void compute_clouds_map(object3d * object_id)
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->cloud_vbo);
 		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, face_no*3*sizeof(e3d_array_uv_detail), array_detail, GL_STATIC_DRAW_ARB);
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	}
 
 #endif
@@ -1851,6 +1856,9 @@ void destroy_clouds_cache(object3d * obj)
 		free(obj->clouds_uv);
 		obj->clouds_uv = NULL;
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 #endif
 }
 
@@ -1963,6 +1971,9 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 			e3d_id->indicies_vbo = 0;
 		}
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	return (e3d_id->cache_ptr->size - sizeof(*e3d_id));
 #endif

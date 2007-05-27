@@ -412,6 +412,9 @@ static __inline__ void RenderVertex(GLdouble vX,GLdouble vY, GLdouble vZ)
 
 	/* Use the window coords as texture coords */
 	ELglMultiTexCoord2fARB(detail_unit, tX, tY);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos)
@@ -445,6 +448,9 @@ static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos
 		}
 	}
 	glEnd();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifdef NEW_FRUSTUM
@@ -481,6 +487,9 @@ static __inline__ void init_depth()
 	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
 	glDepthRange(0.0f, 1.0f);
 	glDepthFunc(GL_LESS);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif // NEW_FRUSTUM
 
@@ -541,6 +550,9 @@ void display_3d_reflection()
 #ifdef NEW_FRUSTUM
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 #endif
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 
 	glPopMatrix();
 #ifndef	NEW_FRUSTUM
@@ -561,6 +573,9 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void make_lake_water_noise()
@@ -630,6 +645,9 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 					}
 			}
 	glEnd();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 
@@ -791,6 +809,9 @@ void blend_reflection_fog()
 
 	// ok, now we can write depth values
 	glDepthMask(GL_TRUE);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif
 
@@ -966,6 +987,9 @@ void draw_lake_tiles()
 		glDisable(GL_BLEND);
 	}
 	glDisable(GL_CULL_FACE);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_sky_background()
@@ -1063,6 +1087,9 @@ void draw_sky_background()
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void draw_dungeon_sky_background()
@@ -1134,4 +1161,7 @@ void draw_dungeon_sky_background()
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }

@@ -741,6 +741,9 @@ void display_image(_image *i)
 		glTexCoord2f(i->u[0],i->v[0]);	glVertex2i(i->x,i->y);
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void display_page(book * b, page * p)
@@ -794,6 +797,9 @@ void display_book(book * b, int type)
 			glPopMatrix();
 			break;
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 /*Book window*/
@@ -949,6 +955,9 @@ int display_book_handler(window_info *win)
 	
 	draw_string(win->len_x/2-15,0,(unsigned char*)"[X]",0);
 	glPopMatrix();
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 	return 1;
 }
 

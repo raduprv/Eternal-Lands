@@ -658,6 +658,9 @@ void change_aa(int *pointer) {
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
 	}
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 #endif // ANTI_ALIAS
 #ifdef ELC
