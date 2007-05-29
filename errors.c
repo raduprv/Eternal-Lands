@@ -87,6 +87,14 @@ void log_error_detailed(const char *message, const char *file, const char *func,
 		safe_snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 	}
+	if(!strcmp(errmsg,last_error)){
+		++repeats;
+		return;
+	}
+	if(repeats) fprintf(err_file, "Last message repeated %d time%c\n", repeats,(repeats>1?'s':' '));
+	repeats=0;
+
+	safe_strncpy(last_error, errmsg, sizeof(last_error));
 	safe_snprintf(str, sizeof(str), "%s.%s:%u - %s", file, func, line, message);
 
 	va_start(ap, line);
