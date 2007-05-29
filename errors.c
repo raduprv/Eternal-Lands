@@ -41,6 +41,7 @@ void clear_error_log()
 
 char last_error[512];
 int repeats =0;
+
 void log_error (const char* message, ...)
 {
 	va_list ap;
@@ -79,30 +80,41 @@ void log_error (const char* message, ...)
 
 void log_error_detailed(const char *message, const char *file, const char *func, unsigned line, ...)
 {
-	char	str[2048];
 	va_list ap;
-
-	if(err_file == NULL) {
-		char error_log[256];
-		safe_snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
-		err_file = open_log (error_log, "a");
-	}
+	struct tm *l_time; time_t c_time;
+	char logmsg[2048];
+	char errmsg[2048];
+	va_start(ap, line);
+        vsnprintf(logmsg, sizeof(logmsg), message, ap);
+        logmsg[sizeof(logmsg) - 1] = '\0';
+	va_end(ap);
+	safe_snprintf(errmsg, sizeof(errmsg), "%s.%s:%u - %s", file, func, line, logmsg);
 	if(!strcmp(errmsg,last_error)){
 		++repeats;
 		return;
 	}
 	if(repeats) fprintf(err_file, "Last message repeated %d time%c\n", repeats,(repeats>1?'s':' '));
 	repeats=0;
-
 	safe_strncpy(last_error, errmsg, sizeof(last_error));
-	safe_snprintf(str, sizeof(str), "%s.%s:%u - %s", file, func, line, message);
 
-	va_start(ap, line);
-		vfprintf(err_file, str, ap);
-	va_end(ap);
-	fprintf (err_file, "\n");
+	if(err_file == NULL)
+	{
+		char error_log[256];
+		safe_snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
+		err_file = open_log (error_log, "a");
+	}
+	time(&c_time);
+	l_time = localtime(&c_time);
+	strftime(logmsg, sizeof(logmsg), "[%H:%M:%S] ", l_time);
+	strcat(logmsg, errmsg);
+
+	if(message[strlen(message)-1] != '\n') {
+		strcat(logmsg, "\n");
+	}
+	fprintf(err_file, logmsg);
   	fflush (err_file);
 }
+
 
 #ifdef EXTRA_DEBUG
 FILE *func_file = NULL;
