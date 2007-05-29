@@ -1,8 +1,12 @@
 /*
 TODO: 
- * Make cloud center properly with final bounds (start with the cout).
- * Make initial bounds center properly, too.
+ * Stop crash when resetting bounds.
+ * Make bounds fit proportionally to the map, not the minimap.
+ * Make initial bounds center properly
  * Let cloud Z be adjustable.
+ * Make effect deactivation work right for effects with bounds
+ * Make element motion / creation / destruction / drawing take into account
+   camera location.
  * Let objects be re-selectable for adjustable X, Y, and Z.
  * Save effects.
  * Test loading.
@@ -65,6 +69,11 @@ extern "C" void change_eye_candy_effect()
   current_effect.scale = GTK_ADJUSTMENT(gtk_effect_scale_obj)->value;
   current_effect.density = GTK_ADJUSTMENT(gtk_effect_density_obj)->value;
   current_effect.base_height = atoi(gtk_entry_get_text(GTK_ENTRY(gtk_effect_base_height)));
+  if (current_effect.reference)
+  {
+    ec_recall_effect(current_effect.reference);
+    current_effect.reference = NULL;
+  }
   switch (current_effect.effect)
   {
     case 0:    // Fire
@@ -73,8 +82,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_campfire(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
       break;
     case 1:    // Cloud/Fog
@@ -83,9 +90,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_show(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
-      std::cout << current_effect.bounds.elements.size() << std::endl;
       current_effect.reference = ec_create_cloud(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 10);
       break;
     case 2:    // Fireflies
@@ -94,8 +98,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_show(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds));
       break;
     case 3:    // Fountain
@@ -104,8 +106,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_show(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_fountain(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.base_height, false, current_effect.scale, 10);
       break;
     case 4:    // Lamp/Torch
@@ -114,8 +114,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_lamp(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.scale, 10);
       break;
     case 5:    // Magic Protection
@@ -124,8 +122,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_ongoing_magic_protection(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
       break;
     case 6:    // Shield
@@ -134,8 +130,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_ongoing_shield(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
       break;
     case 7:    // Magic Immunity
@@ -144,8 +138,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_ongoing_magic_immunity(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
       break;
     case 8:    // Poison
@@ -154,8 +146,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_ongoing_poison(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
       break;
     case 9:    // Smoke
@@ -164,8 +154,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_smoke(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.scale, 10);
       break;
     case 10:  // Teleporter
@@ -174,8 +162,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_teleporter(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10);
       break;
     case 11:  // Leaves
@@ -184,8 +170,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_wind_leaves(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
       break;
     case 12:  // Flower Petals
@@ -194,8 +178,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_wind_petals(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
       break;
     case 13:  // Waterfall
@@ -204,8 +186,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_show(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
 //      current_effect.reference = ec_create_waterfall(current_effect.position.x, current_effect.position.y, current_effect.position.z);
       break;
     case 14:  // Bees
@@ -214,8 +194,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = NULL;
 //      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z);
       break;
@@ -225,8 +203,6 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = NULL;
 //      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z);
       break;
@@ -236,10 +212,17 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      if (current_effect.reference)
-        ec_recall_effect(current_effect.reference);
       current_effect.reference = ec_create_candle(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.scale, 10);
       break;
+  }
+}
+
+extern "C" void remove_current_eye_candy_effect()
+{
+  if (current_effect.reference)
+  {
+    ec_recall_effect(current_effect.reference);
+    current_effect.reference = NULL;
   }
 }
 
@@ -277,6 +260,14 @@ extern "C" void update_eye_candy_position(float x, float y)
 {
   if (!minimap_on)
   {
+    switch (current_effect.effect)
+    {
+      case 1:    // Cloud/Fog
+      case 2:    // Fireflies
+      case 11:   // Leaves
+      case 12:   // Flower Petals
+        return;
+    }
     current_effect.position.x = x;
     current_effect.position.y = y;
     if (current_effect.reference)
@@ -286,6 +277,7 @@ extern "C" void update_eye_candy_position(float x, float y)
 
 extern "C" void add_eye_candy_point()
 {
+  std::cout << "Add eye candy point: " << current_effect.bounds.elements.size() << std::endl;
   int minimap_x_start=window_width/2-128;
   int minimap_y_start;
   float x_map_pos;
@@ -380,6 +372,20 @@ extern "C" void eye_candy_add_effect()
     effects.push_back(current_effect);
     current_effect.reference = NULL;
     change_eye_candy_effect();
+    
+    current_effect.bounds = ec::SmoothPolygonBoundingRange();
+    switch (current_effect.effect)
+    {
+      case 1:    // Cloud/Fog
+      case 2:    // Fireflies
+      case 11:   // Leaves
+      case 12:   // Flower Petals
+      {
+        current_effect.position = ec::Vec3(-1.0, -1.0, 0.0);
+        minimap_on = 1;
+        break;
+      }
+    }
   }
 }
 

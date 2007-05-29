@@ -1063,17 +1063,6 @@ void display_map_settings()
 
 	if (
 	    (cur_mode != mode_map)
-#ifdef	EYE_CANDY
-	    && (
-	     (cur_mode != mode_eye_candy) ||
-	     (
-	      (eye_candy_get_effect() != 1) &&
-	      (eye_candy_get_effect() != 2) &&
-	      (eye_candy_get_effect() != 11) &&
-	      (eye_candy_get_effect() != 12)
-	     )
-	    )
-#endif	//EYE_CANDY
 	   )
 	  return;
 

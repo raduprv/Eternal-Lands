@@ -365,8 +365,9 @@ int HandleEvent(SDL_Event *event)
 #ifdef	EYE_CANDY
               if (cur_mode == mode_eye_candy)
               {
-                eye_candy_add_effect();
-                cur_mode = mode_tile;
+                  change_eye_candy_effect();
+//                eye_candy_add_effect();
+//                cur_mode = mode_tile;
               }
 #endif	//EYE_CANDY
               

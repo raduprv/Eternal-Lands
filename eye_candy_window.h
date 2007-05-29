@@ -54,6 +54,7 @@ void draw_eye_candy_obj_info();
 void create_eye_candy_window();
 void change_eye_candy_effect();
 void confirm_eye_candy_effect();
+void remove_current_eye_candy_effect();
 int display_eye_candy_window_handler();
 int check_eye_candy_window_interface();
 void update_eye_candy_position(float x, float y);
