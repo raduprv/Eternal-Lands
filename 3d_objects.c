@@ -1971,9 +1971,6 @@ Uint32 free_e3d_va(e3d_object *e3d_id)
 			e3d_id->indicies_vbo = 0;
 		}
 	}
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
 
 	return (e3d_id->cache_ptr->size - sizeof(*e3d_id));
 #endif

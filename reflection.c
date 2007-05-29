@@ -448,9 +448,6 @@ static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos
 		}
 	}
 	glEnd();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
 }
 
 #ifdef NEW_FRUSTUM
