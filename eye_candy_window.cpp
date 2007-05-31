@@ -1,13 +1,10 @@
 /*
 TODO: 
- * Stop crash when resetting bounds.
- * Make bounds fit proportionally to the map, not the minimap.
- * Make initial bounds center properly
- * Let cloud Z be adjustable.
+ * Fix motion of particles with a smooth bounding range.
  * Make effect deactivation work right for effects with bounds
  * Make element motion / creation / destruction / drawing take into account
    camera location.
- * Let objects be re-selectable for adjustable X, Y, and Z.
+ * Let effects be re-selectable for adjustable X, Y, and Z.
  * Save effects.
  * Test loading.
  * Get Roja working.
@@ -266,7 +263,10 @@ extern "C" void update_eye_candy_position(float x, float y)
       case 2:    // Fireflies
       case 11:   // Leaves
       case 12:   // Flower Petals
-        return;
+      {
+        if (current_effect.bounds.elements.size() > 1)
+          return;
+      }
     }
     current_effect.position.x = x;
     current_effect.position.y = y;
@@ -299,13 +299,13 @@ extern "C" void add_eye_candy_point()
 
   if (left_click <= 1)
   {
-    const bool ret = find_bounds_index(x_map_pos, y_map_pos);
+    const bool ret = find_bounds_index(x_map_pos * 3, y_map_pos * 3);
     if (!ret)  // Didn't click on anything; create new.
     {
       if ((current_effect.bounds.elements.size() == 0) && (current_effect.position == ec::Vec3(-1.0, -1.0, 0.0)))
-        current_effect.position = ec::Vec3(x_map_pos, y_map_pos, z);
+        current_effect.position = ec::Vec3(x_map_pos * 3, y_map_pos * 3, z);
       else if (current_effect.bounds.elements.size() < 13)
-        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos, y_map_pos));
+        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3, y_map_pos * 3));
       else
         ; // Can't add any more; too many already.
     }
@@ -313,10 +313,10 @@ extern "C" void add_eye_candy_point()
   else
   {
     if (last_ec_index == -1)  // Clicked on the center; drag it.
-      current_effect.position = ec::Vec3(x_map_pos, y_map_pos, z);
+      current_effect.position = ec::Vec3(x_map_pos * 3, y_map_pos * 3, z);
     else if (last_ec_index >= 0)      // Clicked on another point; drag it.
     {
-      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x_map_pos, y_map_pos);
+      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3, y_map_pos * 3);
       current_effect.bounds.elements.erase(current_effect.bounds.elements.begin() + last_ec_index);
       int i;
       for (i = 0; i < (int)current_effect.bounds.elements.size(); i++)
@@ -350,7 +350,7 @@ extern "C" void delete_eye_candy_point()
   x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
   y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
 
-  if (find_bounds_index(x_map_pos, y_map_pos))
+  if (find_bounds_index(x_map_pos * 3, y_map_pos * 3))
   {
     if (last_ec_index >= 0)  // Clicked on a bounds point; delete it
     {
@@ -359,6 +359,7 @@ extern "C" void delete_eye_candy_point()
     else if (last_ec_index == -1)  // Clicked on the center; cancel the effect
     {
       current_effect = EffectDefinition();
+      eye_candy_done_adding_effect();
       cur_mode = mode_tile;
       minimap_on = 0;
     }
@@ -374,6 +375,7 @@ extern "C" void eye_candy_add_effect()
     change_eye_candy_effect();
     
     current_effect.bounds = ec::SmoothPolygonBoundingRange();
+
     switch (current_effect.effect)
     {
       case 1:    // Cloud/Fog
@@ -381,9 +383,9 @@ extern "C" void eye_candy_add_effect()
       case 11:   // Leaves
       case 12:   // Flower Petals
       {
-        current_effect.position = ec::Vec3(-1.0, -1.0, 0.0);
-        minimap_on = 1;
-        break;
+        current_effect.effect = 1;
+        cur_mode = mode_tile;
+        return;
       }
     }
   }
@@ -398,6 +400,8 @@ extern "C" void eye_candy_done_adding_effect()
     {
       ec_recall_effect(current_effect.reference);
       current_effect.reference = NULL;
+      current_effect.bounds = ec::SmoothPolygonBoundingRange();
+      current_effect.position = ec::Vec3(-1.0, -1.0, 0.0);
     }
   }
 }
@@ -410,7 +414,7 @@ extern "C" int eye_candy_get_effect()
 void eye_candy_adjust_z(float offset)
 {
   current_effect.position.z += offset;
-//  change_eye_candy_effect();
+  change_eye_candy_effect();
 }
 
 extern "C" void draw_bounds_on_minimap()
@@ -469,8 +473,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
       else
         percent = (f + 2 * ec::PI - prev_iter->angle) / (next_iter->angle + (2 * ec::PI) - prev_iter->angle);
       const float dist = prev_iter->radius * (1.0 - percent) + next_iter->radius * percent;
-      const float temp_x = minimap_x_start + (eff.position.x + dist * sin(f)) * scale;
-      const float temp_y = minimap_y_end - (eff.position.y + dist * cos(f)) * scale;
+      const float temp_x = minimap_x_start + ((eff.position.x + dist * sin(f)) * scale) / 3;
+      const float temp_y = minimap_y_end - ((eff.position.y + dist * cos(f)) * scale) / 3;
       glVertex2f(temp_x, temp_y);
     }
   }
@@ -482,8 +486,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
     glBegin(GL_QUADS);
     for (std::vector<ec::SmoothPolygonElement>::const_iterator iter = eff.bounds.elements.begin(); iter != eff.bounds.elements.end(); iter++)
     {
-      const float temp_x = minimap_x_start + (eff.position.x + iter->radius * sin(iter->angle)) * scale;
-      const float temp_y = minimap_y_end - (eff.position.y + iter->radius * cos(iter->angle)) * scale;
+      const float temp_x = minimap_x_start + ((eff.position.x + iter->radius * sin(iter->angle)) * scale) / 3;
+      const float temp_y = minimap_y_end - ((eff.position.y + iter->radius * cos(iter->angle)) * scale) / 3;
       glVertex2f(temp_x - 2.0 * scale, temp_y - 2.0 * scale);
       glVertex2f(temp_x - 2.0 * scale, temp_y + 2.0 * scale);
       glVertex2f(temp_x + 2.0 * scale, temp_y + 2.0 * scale);
@@ -491,8 +495,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
     }
     
     glColor4f(1.0, 0.8, 0.6, 1.0);
-    const float temp_x = minimap_x_start + eff.position.x * scale;
-    const float temp_y = minimap_y_end - eff.position.y * scale;
+    const float temp_x = minimap_x_start + (eff.position.x * scale) / 3;
+    const float temp_y = minimap_y_end - (eff.position.y * scale) / 3;
     glVertex2f(temp_x - 2.0 * scale, temp_y - 2.0 * scale);
     glVertex2f(temp_x - 2.0 * scale, temp_y + 2.0 * scale);
     glVertex2f(temp_x + 2.0 * scale, temp_y + 2.0 * scale);
@@ -509,7 +513,7 @@ bool find_bounds_index(float x, float y)
     return false;
   }
 
-  if ((fabs(x - current_effect.position.x) < 3.0) && (fabs(y - current_effect.position.y) < 3.0))
+  if ((fabs(x - current_effect.position.x) < 9.0) && (fabs(y - current_effect.position.y) < 9.0))
   {
     last_ec_index = -1;
     return true;
@@ -520,7 +524,7 @@ bool find_bounds_index(float x, float y)
     std::vector<ec::SmoothPolygonElement>::const_iterator iter = current_effect.bounds.elements.begin() + i;
     const float temp_x = current_effect.position.x + iter->radius * sin(iter->angle);
     const float temp_y = current_effect.position.y + iter->radius * cos(iter->angle);
-    if ((fabs(x - temp_x) < 3.0) && (fabs(y - temp_y) < 3.0))
+    if ((fabs(x - temp_x) < 9.0) && (fabs(y - temp_y) < 9.0))
     {
       last_ec_index = i;
       return true;
