@@ -64,8 +64,7 @@ long weather_flags = WEATHER_NONE;
 Uint32 weather_start_time;
 Uint32 weather_stop_time;
 Uint32 weather_time;
-float weather_severity = 1.0;
-float severity_mod = 0.0f;
+float weather_severity = 1.0f;
 
 const float precip_colour[][4] = { 
 	{ 0.0f, 0.0f, 0.0f, 0.00f },	//WEATHER_NONE
@@ -223,7 +222,7 @@ float get_fadeinout_bias()
 
 
 void set_weather_ratio(Uint8 type, Uint8 value){
-	float fval = (float)(value%100)/100.0f;
+	float fval = value>=99?0.99999f:(float)(value)/100.0f;
 	float total = 0.0f, cutr = 1.0f;
 	int i;
 	if(weather_ratios[type] >= fval){
@@ -244,7 +243,7 @@ void set_weather_ratio(Uint8 type, Uint8 value){
 			}
 		}
 	}
-	weather_ratios[i] = fval;
+	weather_ratios[type] = fval;
 	weather_ratios[0] = 1.0f - (total + fval);
 }
 
@@ -398,6 +397,8 @@ void start_weather(int seconds_till_start, float severity)
 	if (weather_flags & WEATHER_STARTING) {
 		LOG_TO_CONSOLE(c_red2, "Premature start of weather effect!");
 	}
+	//If this function was called, then we're not type-aware
+	set_weather_ratio(2, 100);
 	// mark time when effect is intended to start
 	weather_start_time = weather_time + 1000*seconds_till_start;
 	// severity of effect
@@ -510,7 +511,7 @@ void render_weather()
 	if (weather_flags & WEATHER_ACTIVE) {
 		// 0 means initialization
 		Uint32 ticks = last_frame? weather_time - last_frame : 0;
-		float severity = weather_severity * severity_mod * get_fadeinout_bias();
+		float severity = weather_severity * get_fadeinout_bias();
 		int num_rain_drops;
 
 		// update and render view
@@ -679,7 +680,7 @@ void weather_sound_control()
 	if (weather_flags & WEATHER_ACTIVE)
 	{
 		// 0 means initialization
-		float severity = weather_severity * severity_mod * get_fadeinout_bias();
+		float severity = weather_severity * get_fadeinout_bias();
 		int source_state;
 		int i;
 
