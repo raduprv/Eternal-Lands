@@ -104,7 +104,18 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_ACTIVEEVENT:
-			if (event->active.state & SDL_APPINPUTFOCUS){
+			/* // ttlanhil: Is it possible to get an un-minimize/restore event without gaining focus?
+				//I don't think so, but if it is, we may need to use this code instead
+			if (event->active.state & SDL_APPINPUTFOCUS){	//do we have the keyboard focus?
+				have_keyboard_focus = event->active.gain;
+				SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
+			} else if ((event->active.state & SDL_APPACTIVE) && event->active.gain == 0){	//did we just get minimised?
+				have_keyboard_focus = 0;
+				SDL_SetModState(KMOD_NONE);
+			}
+			*/
+			//check if we just got keyboard focus, or were restored
+			if (event->active.state & SDL_APPINPUTFOCUS || event->active.state & SDL_APPACTIVE){
 				have_keyboard_focus = event->active.gain;
 				SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
 			}
@@ -113,7 +124,7 @@ int HandleEvent (SDL_Event *event)
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			// make sure the mouse button is our window, or else we ignore it
-			if(event->button.x >= window_width || event->button.y >= window_height)
+			if(event->button.x >= window_width || event->button.y >= window_height || (SDL_GetAppState() & !SDL_APPMOUSEFOCUS))
 			{
 				break;
 			}
