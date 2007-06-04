@@ -398,7 +398,7 @@ void start_weather(int seconds_till_start, float severity)
 		LOG_TO_CONSOLE(c_red2, "Premature start of weather effect!");
 	}
 	//If this function was called, then we're not type-aware
-	set_weather_ratio(2, 100);
+	set_weather_ratio(1, 100);
 	// mark time when effect is intended to start
 	weather_start_time = weather_time + 1000*seconds_till_start;
 	// severity of effect
