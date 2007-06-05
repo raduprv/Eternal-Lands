@@ -1,7 +1,5 @@
 /*
 TODO: 
- * Fix motion of particles with a smooth bounding range.
- * Make effect deactivation work right for effects with bounds
  * Make element motion / creation / destruction / drawing take into account
    camera location.
  * Let effects be re-selectable for adjustable X, Y, and Z.
