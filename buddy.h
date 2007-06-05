@@ -90,7 +90,7 @@ void clear_buddy();
 
 void add_buddy_confirmation(char *name);
 
-int is_in_buddy(const char *name);
+int is_in_buddylist(const char *name);
 
 extern queue_t *buddy_request_queue;
 

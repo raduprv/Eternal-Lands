@@ -706,6 +706,9 @@ void change_windows_on_top(int *var)
 		move_window(elconfig_win, -1, 0, elconfig_menu_x, elconfig_menu_y);
 		move_window(tab_stats_win, -1, 0, tab_stats_x, tab_stats_y);
 		move_window(server_popup_win, -1, 0, server_popup_win_x, server_popup_win_y);
+#ifdef MINIMAP
+		move_window(minimap_win, -1, 0, minimap_win_x, minimap_win_y);
+#endif //MINIMAP
 		// Display any open windows (checking they exist first)
 		if (storage_win > 0) {
 			if (windows_list.window[storage_win].displayed != 0 || windows_list.window[storage_win].reinstate != 0) {
@@ -752,6 +755,13 @@ void change_windows_on_top(int *var)
 				show_window(server_popup_win);
 			}
 		}
+#ifdef MINIMAP
+		if (minimap_win > 0) {
+			if (windows_list.window[minimap_win].displayed != 0 || windows_list.window[minimap_win].reinstate != 0) {
+				show_window(minimap_win);
+			}
+		}
+#endif //MINIMAP
 	} else {
 		// Change the root windows
 		move_window(storage_win, game_root_win, 0, storage_win_x, storage_win_y);
@@ -763,6 +773,9 @@ void change_windows_on_top(int *var)
 		move_window(elconfig_win, game_root_win, 0, elconfig_menu_x, elconfig_menu_y);
 		move_window(tab_stats_win, game_root_win, 0, tab_stats_x, tab_stats_y);
 		move_window(server_popup_win, game_root_win, 0, server_popup_win_x, server_popup_win_y);
+#ifdef MINIMAP
+		move_window(minimap_win, game_root_win, 0, minimap_win_x, minimap_win_y);
+#endif //MINIMAP
 		// Hide all the windows if needed
 		if (windows_list.window[game_root_win].displayed == 0) {
 			hide_window(game_root_win);

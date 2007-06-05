@@ -8,6 +8,8 @@ GLuint minimap_text = 0;
 GLuint circle_text = 0;
 GLuint exploration_text = 0;
 int minimap_win = -1;
+int minimap_win_x = 5;
+int minimap_win_y = 20;
 GLubyte exploration_map[256][256][4];
 char current_exploration_map_filename[256];
 
@@ -416,7 +418,7 @@ void display_minimap()
 		strcat(map_minimap_file_name, "_m.bmp");
 		minimap_text=load_bmp8_fixed_alpha(map_minimap_file_name,128);
 		circle_text = load_bmp8_fixed_alpha("./textures/circle.bmp",0);
-		minimap_win = create_window("Minimap", game_root_win, 0, 0, 0, 256/*+ELW_BOX_SIZE+1*/, 256+1, ELW_WIN_DEFAULT);
+		minimap_win = create_window("Minimap", windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 256, 256+1, ELW_WIN_DEFAULT);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		
 		//init exploration map

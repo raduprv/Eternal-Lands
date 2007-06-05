@@ -302,6 +302,11 @@ void read_bin_cfg()
 	buddy_menu_x=cfg_mem.buddy_menu_x;
 	buddy_menu_y=cfg_mem.buddy_menu_y;
 
+#ifdef MINIMAP
+	minimap_win_x=cfg_mem.minimap_win_x;
+	minimap_win_y=cfg_mem.minimap_win_y;
+#endif //MINIMAP
+
 	if(quickbar_relocatable>0)
 		{
 			if((quickbar_x=cfg_mem.quickbar_x)>window_width||quickbar_x<=0)quickbar_x=34;
@@ -475,6 +480,15 @@ void save_bin_cfg()
 		cfg_mem.buddy_menu_y=buddy_menu_y;
 	}
 
+#ifdef MINIMAP
+	if(minimap_win >= 0) {
+		cfg_mem.minimap_win_x=windows_list.window[minimap_win].cur_x;
+		cfg_mem.minimap_win_y=windows_list.window[minimap_win].cur_y;
+	} else {
+		cfg_mem.minimap_win_x=minimap_win_x;
+		cfg_mem.minimap_win_y=minimap_win_y;
+	}
+#endif //MINIMAP
 	cfg_mem.view_health_bar=view_health_bar;
 	cfg_mem.view_names=view_names;
 	cfg_mem.view_hp=view_hp;

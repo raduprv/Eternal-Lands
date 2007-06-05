@@ -50,7 +50,6 @@ unsigned char buddy_name_buffer[16] = {0};
 char description_buffer[255] = {0};
 _buddy buddy_list[MAX_BUDDY];
 
-int is_in_buddylist(const char *name);
 int create_buddy_interface_win(const char *title, void *argument);
 
 int compare2( const void *arg1, const void *arg2)

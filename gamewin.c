@@ -1152,6 +1152,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			hide_window (dialogue_win);
 		if (server_popup_win >= 0)
 			hide_window (server_popup_win );
+#ifdef MINIMAP
+		if (minimap_win >= 0)
+			hide_window (minimap_win );
+#endif //MINIMAP
 #ifdef NOTEPAD
 		if (notepad_win >= 0)
 			hide_window (notepad_win);

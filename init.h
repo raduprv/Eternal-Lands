@@ -116,8 +116,22 @@ typedef struct
 	int view_names;
 	int view_hp;
 
+#ifdef MINIMAP
+    /*!
+     * \name minimap window position
+     */
+    /*! @{ */
+	int minimap_win_x;
+	int minimap_win_y;
+    /*! @} */
+
+	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
+	int reserved[4];
+
+#else //!MINIMAP
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
 	int reserved[6];
+#endif //MINIMAP
 
     /*!
      * \name Camera position and attributes
