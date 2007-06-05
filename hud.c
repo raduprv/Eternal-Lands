@@ -64,6 +64,7 @@ Uint32 get_flags(int win_id);
 int hud_x= 64;
 int hud_y= 48;
 int hud_text;
+int view_analog_clock= 1;
 int view_digital_clock= 0;
 int	icons_win= -1;
 int	stats_bar_win= -1;
@@ -939,9 +940,11 @@ CHECK_GL_ERRORS();
 
 	//draw the compass
 	draw_2d_thing(compass_u_start, compass_v_start, compass_u_end, compass_v_end, 0,win->len_y-64,64,win->len_y);
-	//draw the clock
-	draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,
+	if(view_analog_clock > 0){
+		//draw the clock
+		draw_2d_thing(clock_u_start, clock_v_start, clock_u_end, clock_v_end,
 				  0, win->len_y-128, 64, win->len_y-64);
+	}
 	glEnd();
 
 	//draw the compass needle
@@ -954,16 +957,18 @@ CHECK_GL_ERRORS();
 	glEnd();
 	glPopMatrix();
 
-	//draw the clock needle
-	glAlphaFunc(GL_GREATER, 0.05f);
-	glPushMatrix();
-	glTranslatef(32, win->len_y-96, 0);
-	glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
-	glBegin(GL_QUADS);
-	draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
-	glEnd();
-	glPopMatrix();
-	glDisable(GL_ALPHA_TEST);
+	if(view_analog_clock > 0){
+		//draw the clock needle
+		glAlphaFunc(GL_GREATER, 0.05f);
+		glPushMatrix();
+		glTranslatef(32, win->len_y-96, 0);
+		glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
+		glBegin(GL_QUADS);
+		draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
+		glEnd();
+		glPopMatrix();
+		glDisable(GL_ALPHA_TEST);
+	}
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -971,18 +976,18 @@ CHECK_GL_ERRORS();
 	//Digital Clock
 	if(view_digital_clock > 0){
 		char str[6];	// one extra incase the length of the day ever changes
-		int	x;
+		int x;
 
 		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
 		x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string(x, 7+(NUM_WATCH_STAT-1)*15, (unsigned char*)str, 1);
+		draw_string(x, (view_analog_clock?7:67)+(NUM_WATCH_STAT-1)*15, (unsigned char*)str, 1);
 	}
-	if(show_stats_in_hud && video_mode > (view_digital_clock>0?4:2) && have_stats)
+	if(show_stats_in_hud && video_mode > ((view_digital_clock>0&&view_analog_clock>0)?4:2) && have_stats)
 	{
 		char str[20];
 		//int y=0;
-		int y=(view_digital_clock>0?0:20);
+		int y=(view_digital_clock>0?2:20)+(view_analog_clock>0?0:60);
 		int x=6;
 		int stat = 0;
 
@@ -1128,11 +1133,19 @@ CHECK_GL_ERRORS();
 
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 {
+	int clockheight = 0;
+
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	//check to see if we clicked on the clock
-	if(my>win->len_y-128 && my<win->len_y-64)
+	if(view_digital_clock>0){
+		clockheight+=16;
+	}
+	if(view_analog_clock>0){
+		clockheight+=64;
+	}
+	if(my>win->len_y-(64+clockheight) && my<win->len_y-64)
 	{
 		unsigned char protocol_name;
 

@@ -73,6 +73,7 @@ void init_quickbar();
 extern int hud_x;
 extern int hud_y;
 
+extern int view_analog_clock;
 extern int view_digital_clock;
 
 extern int quickbar_x;
