@@ -16,8 +16,7 @@ char current_exploration_map_filename[256];
  *
  *  -scrolling view when dragging mouse on minimap. how far?
  *  -draw arrow showing players direction?
- *  -different color for buddies
- *  -call save_exploration_map on client exit
+ *  -load/save the exploration data from ~
  *
  * POSSIBLE OPTIMIZATION:
  *  -the window's content only changes when actors are updated or map is changed.
@@ -42,7 +41,7 @@ int display_minimap_handler(window_info *win)
 	int i = 0;
 	actor *player;
 	actor *a;
-	
+
 	if(!minimap_text) 
 	{
 		//theres no minimap for this map :( draw a X
@@ -61,12 +60,12 @@ int display_minimap_handler(window_info *win)
 		draw_string_small(14,125,(unsigned char*)"no minimap for this place",1);
 	} else {
 		//draw minimap
-		
+
 		//lets not draw outside the window :)
 		//maybe put this in elwindows.c around the call to display handler?
 		glEnable(GL_SCISSOR_TEST);
 		glScissor(win->cur_x, window_height - win->cur_y - 256, 256, 256);
-		
+
 		//get player position in window coordinates
 		player = NULL;
 		for(i = 0; i < 1000; i++)
@@ -81,18 +80,7 @@ int display_minimap_handler(window_info *win)
 		
 		//how far can you see? 30 tiles? at least this looks right.
 		view_distance = (256.0f / size_x) * 30.0f;
-		
-		//grey out window
-		glDisable(GL_TEXTURE_2D);
-		glDisable(GL_BLEND);
-		glColor3f(0.5f,0.5f,0.5f);
-		glBegin(GL_QUADS);
-		glVertex2i(0,256);
-		glVertex2i(0,0); 
-		glVertex2i(256,0);
-		glVertex2i(256,256);
-		glEnd();
-		
+
 		//draw exploration map here.
 		glEnable(GL_TEXTURE_2D);
 		bind_texture_id(exploration_text);
@@ -140,9 +128,9 @@ int display_minimap_handler(window_info *win)
 		glBlendFunc(GL_DST_COLOR, GL_ZERO);
 		glColor4f(1.0f,1.0f,1.0f,1.0f);
 		glBegin(GL_QUADS);
-		glTexCoord2f(0.0f,0.0f); glVertex3i(1,256,0);
-		glTexCoord2f(0.0f,1.0f); glVertex3i(1,1,0);
-		glTexCoord2f(1.0f,1.0f); glVertex3i(256,1,0);
+		glTexCoord2f(0.0f,0.0f); glVertex3i(0,256,0);
+		glTexCoord2f(0.0f,1.0f); glVertex3i(0,0,0);
+		glTexCoord2f(1.0f,1.0f); glVertex3i(256,0,0);
 		glTexCoord2f(1.0f,0.0f); glVertex3i(256,256,0);
 		glEnd();
 		
@@ -156,24 +144,26 @@ int display_minimap_handler(window_info *win)
 			{
 				x = (a->x_tile_pos / size_x) * 256.0f;
 				y = 256.0f - ((a->y_tile_pos / size_y) * 256.0f);
-				
-				if(a->kind_of_actor == NPC)
+				if(a->kind_of_actor == NPC){
 					glColor3f(0.0f,0.0f,1.0f); //blue NPCs
-				else {
-					if(a->is_enhanced_model)
-						if(a->body_parts->guild_tag_color == 0)
-							glColor3f(1.0f,1.0f,1.0f); //white - players
-						else
-							glColor3ub(colors_list[a->body_parts->guild_tag_color].r1,
-								  colors_list[a->body_parts->guild_tag_color].g1,
-								  colors_list[a->body_parts->guild_tag_color].b1);
-					else
-						glColor3f(1.0f,1.0f,0.0f); //yellow animals/monsters
-					if(a->kind_of_actor ==  PKABLE_HUMAN || a->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)
-						glColor3f(1.0f,0.0f,0.0f); //red PKable
-				}
-				if(a->actor_id == yourself){
+				} else if(a->actor_id == yourself){
 					glColor3f(0.0f,1.0f,0.0f); //green yourself
+				} else if(a->kind_of_actor ==  PKABLE_HUMAN || a->kind_of_actor == PKABLE_COMPUTER_CONTROLLED) {
+					glColor3f(1.0f,0.0f,0.0f); //red PKable
+				} else if(a->is_enhanced_model && is_in_buddylist(a->actor_name)){
+					glColor3f(0.0f,0.9f,1.0f); //aqua buddy
+				} else if(IS_COLOR((unsigned char)a->actor_name[0])){
+					if(a->is_enhanced_model && is_in_buddylist(a->actor_name)){
+						glColor3f(0.0f,0.9f,1.0f); //aqua buddy
+					} else {
+						glColor3ub(colors_list[((unsigned char)a->actor_name[0])-127].r1,
+							colors_list[((unsigned char)a->actor_name[0])-127].g1,
+							colors_list[((unsigned char)a->actor_name[0])-127].b1);
+					}
+				} else if(!a->is_enhanced_model){
+					glColor3f(1.0f, 1.0f, 0.0f); //yellow animal/monster
+				} else {
+					glColor3f(1.0f, 1.0f, 1.0f); //white other player
 				}
 				
 				glBegin(GL_QUADS);
@@ -186,7 +176,6 @@ int display_minimap_handler(window_info *win)
 		}
 		//draw the corner, with the X. maybe in elwindows.c first call display handler and then call draw_window_border?
 		glDisable(GL_TEXTURE_2D);
-		/*
 		glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 		glBegin(GL_LINE_STRIP);
 		glVertex3i(win->len_x, ELW_BOX_SIZE, 0);
@@ -201,7 +190,6 @@ int display_minimap_handler(window_info *win)
 		glVertex2i(win->len_x-ELW_BOX_SIZE+3, ELW_BOX_SIZE-3);
 		glEnd();
 		glLineWidth(1.0f);
-		*/
 		
 		//Messer, Gabel, Schere, Licht... ...sind für kleine developer nicht!
 		glDisable(GL_SCISSOR_TEST);
@@ -428,7 +416,7 @@ void display_minimap()
 		strcat(map_minimap_file_name, "_m.bmp");
 		minimap_text=load_bmp8_fixed_alpha(map_minimap_file_name,128);
 		circle_text = load_bmp8_fixed_alpha("./textures/circle.bmp",0);
-		minimap_win = create_window("Minimap", game_root_win, 0, 0, 0, 256+ELW_BOX_SIZE+2, 256+2, ELW_WIN_DEFAULT);
+		minimap_win = create_window("Minimap", game_root_win, 0, 0, 0, 256/*+ELW_BOX_SIZE+1*/, 256+1, ELW_WIN_DEFAULT);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		
 		//init exploration map

@@ -927,10 +927,13 @@ int save_local_data(char * text, int len){
 #ifdef NOTEPAD
 	// save notepad contents if the file was loaded
 	if (notepad_loaded) notepadSaveFile (NULL, 0, 0, 0);
-#endif
+#endif //NOTEPAD
+#ifdef MINIMAP
+	save_exploration_map();
+#endif //MINIMAP
 #ifdef COUNTERS
 	flush_counters();
-#endif
+#endif //COUNTERS
 	return 0;
 }
 

@@ -16,6 +16,8 @@ void change_minimap();
 //called when player moves
 void update_exploration_map();
 
+void save_exploration_map();
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

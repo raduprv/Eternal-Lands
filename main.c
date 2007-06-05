@@ -160,9 +160,12 @@ int start_rendering()
 	free_icons();
 	free_vars();
 	cleanup_rules();
+#ifdef MINIMAP
+	save_exploration_map();
+#endif //MINIMAP
 #ifdef COUNTERS
 	cleanup_counters();
-#endif
+#endif //COUNTERS
 	cleanup_chan_names();
 	unload_e3d_list();	// do we really want to overwrite this file??
 	SDL_RemoveTimer(draw_scene_timer);

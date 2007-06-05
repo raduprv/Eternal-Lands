@@ -674,7 +674,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		for (guild = name; *guild && IS_PRINT((unsigned char)*guild); guild++);
 		if (*guild) {
 			/* separate the two strings */
-			this_actor->guild_tag_color = *guild - 127;
+			this_actor->guild_tag_color = (unsigned char)*guild - 127;
 			*guild = 0;
 			guild++;
 		}
