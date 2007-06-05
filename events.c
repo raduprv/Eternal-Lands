@@ -124,7 +124,7 @@ int HandleEvent (SDL_Event *event)
 		case SDL_MOUSEBUTTONDOWN:
 		case SDL_MOUSEBUTTONUP:
 			// make sure the mouse button is our window, or else we ignore it
-			if(event->button.x >= window_width || event->button.y >= window_height || (SDL_GetAppState() & !SDL_APPMOUSEFOCUS))
+			if(event->button.x >= window_width || event->button.y >= window_height || !(SDL_GetAppState() & SDL_APPMOUSEFOCUS))
 			{
 				break;
 			}
