@@ -1124,7 +1124,22 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
-	}	
+	} else if(show_stats_in_hud && have_stats){
+		int y=(view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)+(video_mode>2?30:64);
+		glColor3f(1.0f, 0.9f, 0.9f);
+		draw_string_small(6, y+=15, (unsigned char*)"Stats", 1);
+		draw_string_small(6, y+=15, (unsigned char*)"not", 1);
+		draw_string_small(6, y+=15, (unsigned char*)"shown.", 1);
+		draw_string_small(6, y+=15, (unsigned char*)"Change", 1);
+		draw_string_small(6, y+=15, (unsigned char*)"screen", 1);
+		if(video_mode<=2){
+			draw_string_small(6, y+=15, (unsigned char*)"size.", 1);
+		} else {
+			draw_string_small(6, y+=15, (unsigned char*)"size or", 1);
+			draw_string_small(6, y+=15, (unsigned char*)"disable", 1);
+			draw_string_small(6, y+=15, (unsigned char*)"a clock.", 1);
+		}
+	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
