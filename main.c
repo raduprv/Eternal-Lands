@@ -209,7 +209,7 @@ void	read_command_line()
 					else
 						{
 							char str[200];
-							safe_snprintf(str,sizeof(str),"%s %s",gargv[i],gargv[i+1]);
+							safe_snprintf(str,sizeof(str),"%s",gargv[i]);
 							check_var(str+1,COMMAND_LINE_SHORT_VAR);
 						}
 				}
