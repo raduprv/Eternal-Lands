@@ -90,6 +90,8 @@ void clear_buddy();
 
 void add_buddy_confirmation(char *name);
 
+int is_in_buddy(const char *name);
+
 extern queue_t *buddy_request_queue;
 
 //BUDDY-FIXME: once server-side offline buddies are supported, the next line can go

@@ -641,12 +641,16 @@ void clear_buddy()
 
 int is_in_buddylist(const char *name)
 {
-	if(name && *name) {
-		int i;
-		for(i = 0; i < MAX_BUDDY; i++) {
-			if(buddy_list[i].type < 0xff && strncmp(buddy_list[i].name, name, sizeof(buddy_list[i].name)) == 0) {
-				return 1;
-			}
+	int i;
+	if(!name || !*name) {
+		return 0;
+	}
+	while(name[0] != '\0' && IS_COLOR((unsigned char)name[0])){
+		++name;
+	}
+	for(i = 0; i < MAX_BUDDY; i++) {
+		if(buddy_list[i].type < 0xff && strncmp(buddy_list[i].name, name, strlen(buddy_list[i].name)) == 0) {
+			return 1;
 		}
 	}
 	return 0;
