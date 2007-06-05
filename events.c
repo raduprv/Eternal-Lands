@@ -9,8 +9,6 @@
 #include <SDL_syswm.h>
 #endif
 
-int have_keyboard_focus = 1;
-
 int adding_mark = 0;
 int mark_x , mark_y;
 int max_mark = 0;
@@ -76,7 +74,7 @@ int HandleEvent (SDL_Event *event)
 #endif
 
 		case SDL_KEYDOWN:
-			if(!have_keyboard_focus){
+			if(!(SDL_GetAppState() & SDL_APPINPUTFOCUS)){
 				break;  //don't have focus, so we shouldn't be getting keystrokes
 			}
 			key=(Uint16)event->key.keysym.sym;
@@ -104,21 +102,7 @@ int HandleEvent (SDL_Event *event)
 			break;
 
 		case SDL_ACTIVEEVENT:
-			/* // ttlanhil: Is it possible to get an un-minimize/restore event without gaining focus?
-				//I don't think so, but if it is, we may need to use this code instead
-			if (event->active.state & SDL_APPINPUTFOCUS){	//do we have the keyboard focus?
-				have_keyboard_focus = event->active.gain;
-				SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
-			} else if ((event->active.state & SDL_APPACTIVE) && event->active.gain == 0){	//did we just get minimised?
-				have_keyboard_focus = 0;
-				SDL_SetModState(KMOD_NONE);
-			}
-			*/
-			//check if we just got keyboard focus, or were restored
-			if (event->active.state & SDL_APPINPUTFOCUS || event->active.state & SDL_APPACTIVE){
-				have_keyboard_focus = event->active.gain;
-				SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
-			}
+			SDL_SetModState(KMOD_NONE); // force ALL keys up, else you can 'catch' the alt/ctrl keys due to an SDL bug
 			break;
 
 		case SDL_MOUSEBUTTONDOWN:
