@@ -379,7 +379,7 @@ void update_rain(int ticks, int num_rain_drops)
 				} else if(rain_drops[i].x1[1] > y + 20.0f){
 					rain_drops[i].x1[1] = y - 20.0f;
 				}
-				rain_drops[i].x1[2] -= z_delta;
+				rain_drops[i].x1[2] -= z_delta*(1.1-0.2*RAND_ONE);
 			}
 		}
 	} else {
