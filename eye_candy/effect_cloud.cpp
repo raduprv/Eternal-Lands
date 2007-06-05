@@ -150,13 +150,14 @@ void CloudParticle::draw(const Uint64 usec)
 CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, BoundingRange* bounding_range, const Uint16 _LOD)
 {
   if (EC_DEBUG)
-    std::cout << "CloudEffect (" << this << ") created." << std::endl;
+    std::cout << "CloudEffect (" << this << ") created (" << *_pos << ", " << bounding_range->get_radius(0.0) << ")." << std::endl;
   base = _base;
   dead = _dead;
   pos = _pos;
   center = *pos;
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
+  bounds = bounding_range;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
   spawner = new FilledBoundingSpawner(bounding_range);
   int count = (int)(spawner->get_area() * 0.03 * (LOD  + 1));

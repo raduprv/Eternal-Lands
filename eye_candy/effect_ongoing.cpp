@@ -109,6 +109,7 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Ong
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   spawner = NULL;
+  bounds = NULL;
   mover = NULL;
   strength = _strength;
   

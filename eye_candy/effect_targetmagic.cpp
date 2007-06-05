@@ -325,6 +325,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   obstructions = _obstructions;
   LOD = _LOD;
   desired_LOD = _LOD;
+  bounds = NULL;
   spawner = NULL;
   mover = NULL;
   spawner2 = NULL;

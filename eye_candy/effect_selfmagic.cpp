@@ -216,6 +216,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   spawner = NULL;
+  bounds = NULL;
   mover = NULL;
   spawner2 = NULL;
   mover2 = NULL;

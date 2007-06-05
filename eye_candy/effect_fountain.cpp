@@ -128,6 +128,7 @@ FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const b
   count_scalar = 15000 / _LOD;
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
+  bounds = NULL;
   mover = new SimpleGravityMover(this);
   basic_mover = new ParticleMover(this);
   spawner = new FilledSphereSpawner(0.05 * sqrt_scale);

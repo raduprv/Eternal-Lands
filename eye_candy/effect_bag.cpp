@@ -92,6 +92,7 @@ BagEffect::BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _picke
     effect_center.y += 0.2;
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
+  bounds = NULL;
   mover = new GravityMover(this, &effect_center, 4e9);
   spawner = new HollowSphereSpawner(0.14 + 0.02 * (float)picked_up);
 

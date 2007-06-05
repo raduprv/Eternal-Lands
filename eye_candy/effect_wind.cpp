@@ -443,6 +443,7 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec:
   max_adjust = 0.2 + prevailing_wind.magnitude() * 0.5;
   overall_wind_adjust = Vec3(0.0, 0.0, 0.0);
   bounding_range = _bounding_range;
+  bounds = bounding_range;
   mover = new GradientMover(this);
   spawner = new FilledBoundingSpawner(_bounding_range);
   max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;

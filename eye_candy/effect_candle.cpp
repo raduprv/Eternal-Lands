@@ -73,6 +73,7 @@ CandleEffect::CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float
   sqrt_scale = fastsqrt(scale);
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
+  bounds = NULL;
   mover = new SmokeMover(this, sqrt_scale);
   spawner = new FilledSphereSpawner(0.015 * sqrt_scale);
 }

@@ -195,7 +195,8 @@ const int EC_DEBUG = 1;
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
-const coord_t MAX_DRAW_DISTANCE_SQUARED = 180;
+const coord_t MAX_DRAW_DISTANCE = 13.5;
+const coord_t MAX_DRAW_DISTANCE_SQUARED = MAX_DRAW_DISTANCE * MAX_DRAW_DISTANCE;
 
 // E X T E R N S //////////////////////////////////////////////////////////////
 
@@ -977,7 +978,7 @@ coordinates for placement of new particles.
 class ParticleSpawner
 {
 public:
-  ParticleSpawner() {};
+  ParticleSpawner() { };
   virtual ~ParticleSpawner() {};
   
   virtual Vec3 get_new_coords() = 0;
@@ -1391,6 +1392,7 @@ public:
     LOD = desired_LOD;
     active = true;
     obstructions = &null_obstructions;
+    bounds = NULL;
   };
   virtual ~Effect() { *dead = true; };
   
@@ -1422,6 +1424,7 @@ public:
   Vec3* pos;
   std::vector<Obstruction*>* obstructions;
   std::map<Particle*, bool> particles;
+  BoundingRange* bounds;
   bool active;
   bool recall;
   Uint16 desired_LOD;

@@ -57,6 +57,7 @@ TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   desired_LOD = _LOD;
   sqrt_LOD = fastsqrt(LOD);
   size_scalar = 15 / (LOD + 5);
+  bounds = NULL;
   mover = new ParticleMover(this);
   spawner = new FilledDiscSpawner(0.2);
 

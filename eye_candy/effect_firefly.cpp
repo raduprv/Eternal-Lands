@@ -66,6 +66,7 @@ FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vect
   pos = _pos;
   center = *pos;
   obstructions = _obstructions;
+  bounds = bounding_range;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
   spawner = new FilledBoundingSpawner(bounding_range);
   const int count = (int)(spawner->get_area() * _density * 0.15);

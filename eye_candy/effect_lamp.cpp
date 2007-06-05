@@ -151,6 +151,7 @@ LampEffect::LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _sc
   sqrt_scale = fastsqrt(new_scale);
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
+  bounds = NULL;
   mover = new SmokeMover(this);
   mover2 = new SmokeMover(this, 1.2);
   mover3 = new ParticleMover(this);

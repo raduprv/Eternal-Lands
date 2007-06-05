@@ -120,6 +120,7 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   spawner = NULL;
+  bounds = NULL;
   mover = NULL;
   strength = _strength;
   const coord_t size_scalar = strength * 1.3;

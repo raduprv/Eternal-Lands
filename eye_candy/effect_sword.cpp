@@ -68,6 +68,7 @@ SwordEffect::SwordEffect(EyeCandy* _base, bool* _dead, Vec3* _start, Vec3* _end,
   start = _start;
   end = _end;
   type = _type;
+  bounds = NULL;
   mover = new ParticleMover(this);
   
   switch(type)

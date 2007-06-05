@@ -172,6 +172,7 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   spawner = NULL;
+  bounds = NULL;
   mover = NULL;
   spawner2 = NULL;
   mover2 = NULL;

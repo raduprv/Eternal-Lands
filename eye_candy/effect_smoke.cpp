@@ -85,6 +85,7 @@ SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   count_scalar = 500000 / _LOD;
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
+  bounds = NULL;
   mover = new GradientMover(this);
   spawner = new FilledDiscSpawner(0.2 * sqrt_scale);
 

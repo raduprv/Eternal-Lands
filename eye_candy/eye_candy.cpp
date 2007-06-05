@@ -843,11 +843,12 @@ coord_t PolarCoordsBoundingRange::get_radius(const angle_t angle) const
 
 coord_t SmoothPolygonBoundingRange::get_radius(const angle_t angle) const
 {
+  const float angle2 = (angle < 0 ? angle + 2 * PI : angle);
   std::vector<SmoothPolygonElement>::const_iterator lower, upper;
-  lower = elements.end();
+  lower = elements.begin() + (elements.size() - 1);
   for (upper = elements.begin(); upper != elements.end(); upper++)
   {
-    if (upper->angle >= angle)
+    if (upper->angle >= angle2)
       break;
     lower = upper;
   }
@@ -855,11 +856,11 @@ coord_t SmoothPolygonBoundingRange::get_radius(const angle_t angle) const
     upper = elements.begin();
   float upper_percent;
   if (upper->angle > lower->angle)
-    upper_percent = (angle - lower->angle) / (upper->angle - lower->angle);
-  else if (angle > lower->angle)
-    upper_percent = (angle - lower->angle) / (upper->angle + 2 * PI - lower->angle);
+    upper_percent = (angle2 - lower->angle) / (upper->angle - lower->angle);
+  else if (angle2 > lower->angle)
+    upper_percent = (angle2 - lower->angle) / (upper->angle + 2 * PI - lower->angle);
   else
-    upper_percent = (angle + 2 * PI - lower->angle) / (upper->angle + 2 * PI - lower->angle);
+    upper_percent = (angle2 + 2 * PI - lower->angle) / (upper->angle + 2 * PI - lower->angle);
   return upper_percent * upper->radius + (1.0 - upper_percent) * lower->radius;
 }
 
@@ -1581,29 +1582,62 @@ void EyeCandy::idle()
       e->recall = true;
     }
 
-    coord_t distance_squared = (center - *(e->pos)).magnitude_squared();
+    const Vec3 shifted_pos = *(e->pos) - center;
+    coord_t distance_squared = shifted_pos.magnitude_squared();
 //    std::cout << center << ", " << *e->pos << ": " << (center - *(e->pos)).magnitude_squared() << " <? " << MAX_DRAW_DISTANCE_SQUARED << std::endl;
     if (!e->active)
     {
-      if (distance_squared < MAX_DRAW_DISTANCE_SQUARED)
+      if (e->bounds)
       {
-        if (EC_DEBUG)
-          std::cout << "Activating effect " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
-        e->active = true;
+        const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
+        if (fastsqrt(distance_squared) < MAX_DRAW_DISTANCE + e->bounds->get_radius(angle))
+        {
+          if (EC_DEBUG)
+            std::cout << "Activating effect(2) " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+          e->active = true;
+        }
+        else if (!e->recall)
+        {
+          i++;
+          continue;
+        }
       }
-      else if (!e->recall)
+      else
       {
-        i++;
-        continue;
+        if (distance_squared < MAX_DRAW_DISTANCE_SQUARED)
+        {
+          if (EC_DEBUG)
+            std::cout << "Activating effect " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+          e->active = true;
+        }
+        else if (!e->recall)
+        {
+          i++;
+          continue;
+        }
       }
     }
     else
     {
-      if (distance_squared > MAX_DRAW_DISTANCE_SQUARED)
+      if (e->bounds)
       {
-        if (EC_DEBUG)
-          std::cout << "Deactivating effect " << e << "(" << distance_squared << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
-        e->active = false;
+        std::cout << "Considering deactivation." << std::endl;
+        const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
+        if (fastsqrt(distance_squared) > e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE)
+        {
+          if (EC_DEBUG)
+            std::cout << "Deactivating effect(2) " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+          e->active = false;
+        }
+      }
+      else
+      {
+        if (distance_squared > MAX_DRAW_DISTANCE_SQUARED)
+        {
+          if (EC_DEBUG)
+            std::cout << "Deactivating effect " << e << "(" << distance_squared << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+          e->active = false;
+        }
       }
     }
     

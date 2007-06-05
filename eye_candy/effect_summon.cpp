@@ -104,6 +104,7 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
   dead = _dead;
   pos = _pos;
   type = _type;
+  bounds = NULL;
   inner_spawner = new IFSParticleSpawner();
   outer_spawner = new IFSParticleSpawner();
   smoke_mover = new SmokeMover(this);
