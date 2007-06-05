@@ -823,7 +823,7 @@ void add_key(Uint32 *key,Uint32 n)
 			if(n==307 || n==308)//alt
 				*key|=(1<<29);
 			else
-				*(Uint16*)key=(Uint16)n;
+				*key = (n & 0xFFFF) | (*key & 0xFFFF0000);
 		}
 	}
 }
