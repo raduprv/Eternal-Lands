@@ -148,7 +148,7 @@ int display_minimap_handler(window_info *win)
 					glColor3f(0.0f,0.0f,1.0f); //blue NPCs
 				} else if(a->actor_id == yourself){
 					glColor3f(0.0f,1.0f,0.0f); //green yourself
-				} else if(a->kind_of_actor ==  PKABLE_HUMAN || a->kind_of_actor == PKABLE_COMPUTER_CONTROLLED) {
+				} else if(a->is_enhanced_model && (a->kind_of_actor ==  PKABLE_HUMAN || a->kind_of_actor == PKABLE_COMPUTER_CONTROLLED)) {
 					glColor3f(1.0f,0.0f,0.0f); //red PKable
 				} else if(a->is_enhanced_model && is_in_buddylist(a->actor_name)){
 					glColor3f(0.0f,0.9f,1.0f); //aqua buddy
