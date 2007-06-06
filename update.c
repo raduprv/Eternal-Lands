@@ -115,7 +115,7 @@ void    handle_update_download(struct http_get_struct *get)
 	
 	// try to make sure the directory is there
 	if(mkdir_res < 0){
-		mkdir_res= mkdir_tree("./tmp");
+		mkdir_res= mkdir_tree("./tmp/");
 	}
 	if(get != NULL){
 		// did we finish properly?
