@@ -113,6 +113,10 @@ void    handle_update_download(struct http_get_struct *get)
 	static int  mkdir_res= -1;  // flag as not tried
 	int sts;
 	
+	// try to make sure the directory is there
+	if(mkdir_res < 0){
+		mkdir_res= mkdir_tree("./tmp");
+	}
 	if(get != NULL){
 		// did we finish properly?
 		if(get->status == 0){
@@ -171,10 +175,6 @@ void    handle_update_download(struct http_get_struct *get)
 			log_error("downloading from mirror %d of %d %s", num, num_update_servers, update_server);
 		} else {
 			safe_strncpy(update_server, update_servers[0], sizeof(update_server));
-		}
-		// failsafe, try to make sure the directory is there
-		if(mkdir_res < 0){
-			mkdir_res= mkdir_tree("./tmp");
 		}
 		safe_snprintf(filename, sizeof(filename), "./tmp/temp000.dat");
 		++temp_counter;
