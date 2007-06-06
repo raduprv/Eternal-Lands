@@ -193,6 +193,7 @@ int display_minimap_handler(window_info *win)
 		glEnd();
 		glLineWidth(1.0f);
 		
+		glEnable(GL_TEXTURE_2D);
 		//Messer, Gabel, Schere, Licht... ...sind für kleine developer nicht!
 		glDisable(GL_SCISSOR_TEST);
 	}  
