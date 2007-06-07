@@ -210,7 +210,13 @@ void	read_command_line()
 					else
 						{
 							char str[200];
-							safe_snprintf(str,sizeof(str),"%s %s",gargv[i],gargv[i+1]);
+							if(strchr(gargv[i], '=') != NULL) {	//eg -u=name
+								safe_snprintf(str,sizeof(str),"%s",gargv[i]);
+							} else if(i>=gargc-1 || gargv[i+1][0] == '-') {	//eg -uname
+								safe_snprintf(str,sizeof(str),"%s",gargv[i]);
+							} else {	//eg -u name
+								safe_snprintf(str,sizeof(str),"%s %s",gargv[i],gargv[i+1]);
+							}
 							check_var(str+1,COMMAND_LINE_SHORT_VAR);
 						}
 				}
