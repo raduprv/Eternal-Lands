@@ -11,7 +11,7 @@ A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "elc.ico"
 //
 1 VERSIONINFO
 FILEVERSION 1,3,3,0
-PRODUCTVERSION 1,3,3,0
+PRODUCTVERSION 1,4,4,0
 FILETYPE VFT_APP
 {
   BLOCK "StringFileInfo"
@@ -19,14 +19,14 @@ FILETYPE VFT_APP
 		 BLOCK "040904E4"
 		 {
 			 VALUE "CompanyName", ""
-			 VALUE "FileVersion", "1.3.3 i586"
+			 VALUE "FileVersion", "1.4.0"
 			 VALUE "FileDescription", "Eternal-Lands Client"
 			 VALUE "InternalName", ""
 			 VALUE "LegalCopyright", ""
 			 VALUE "LegalTrademarks", ""
 			 VALUE "OriginalFilename", ""
 			 VALUE "ProductName", "Eternal-Lands Client"
-			 VALUE "ProductVersion", "1.3.3"
+			 VALUE "ProductVersion", "1.4.0"
 		 }
 	 }
   BLOCK "VarFileInfo"
