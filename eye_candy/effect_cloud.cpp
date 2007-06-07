@@ -159,7 +159,7 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   desired_LOD = _LOD;
   bounds = bounding_range;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
-  spawner = new FilledBoundingSpawner(bounding_range);
+  spawner = new NoncheckingFilledBoundingSpawner(bounding_range);
   int count = (int)(spawner->get_area() * 0.03 * (LOD  + 1));
   if (count < 21)
     count = 21;
@@ -168,7 +168,10 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   const coord_t size_scalar = 110.0 * invsqrt(LOD + 1);
   for (int i = 0; i < count; i++)
   {
-    const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, randcoord(5.0), 0.0);
+    Vec3 coords = spawner->get_new_coords();
+    if (coords.x == -32768.0)
+      break;
+    coords += center + Vec3(0.0, randcoord(5.0), 0.0);
     Vec3 velocity;
     velocity.randomize(0.15);
     velocity.y /= 3;

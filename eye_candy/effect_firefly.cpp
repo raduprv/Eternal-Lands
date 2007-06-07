@@ -68,12 +68,15 @@ FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vect
   obstructions = _obstructions;
   bounds = bounding_range;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
-  spawner = new FilledBoundingSpawner(bounding_range);
+  spawner = new NoncheckingFilledBoundingSpawner(bounding_range);
   const int count = (int)(spawner->get_area() * _density * 0.15);
 
   for (int i = 0; i < count; i++)
   {
-    const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
+    Vec3 coords = spawner->get_new_coords();
+    if (coords.x == -32768.0)
+      break;
+    coords += center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
     Vec3 velocity;
     velocity.randomize(0.2);
     velocity.y /= 3;

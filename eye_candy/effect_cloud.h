@@ -47,7 +47,7 @@ public:
   bool idle(const Uint64 usec);
 
   BoundingMover* mover;
-  FilledBoundingSpawner* spawner;
+  NoncheckingFilledBoundingSpawner* spawner;
   Vec3 center;
 };
 

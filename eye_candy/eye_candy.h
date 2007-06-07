@@ -1229,8 +1229,25 @@ public:
 class FilledBoundingSpawner : public ParticleSpawner
 {
 public:
-  FilledBoundingSpawner(BoundingRange* _bounding_range) { bounding_range = _bounding_range; };
+  FilledBoundingSpawner(BoundingRange* _bounding_range, Vec3* _center, Vec3* _camera) { bounding_range = _bounding_range; center = _center; camera = _camera;};
   virtual ~FilledBoundingSpawner() {};
+  
+  virtual Vec3 get_new_coords();
+  coord_t get_area() const;
+  
+  BoundingRange* bounding_range;
+  Vec3* center;
+  Vec3* camera;
+};
+
+/*!
+\brief Spawns particles within a range
+*/
+class NoncheckingFilledBoundingSpawner : public ParticleSpawner
+{
+public:
+  NoncheckingFilledBoundingSpawner(BoundingRange* _bounding_range) { bounding_range = _bounding_range; };
+  virtual ~NoncheckingFilledBoundingSpawner() {};
   
   virtual Vec3 get_new_coords();
   coord_t get_area() const;

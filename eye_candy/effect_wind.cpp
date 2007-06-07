@@ -445,7 +445,7 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec:
   bounding_range = _bounding_range;
   bounds = bounding_range;
   mover = new GradientMover(this);
-  spawner = new FilledBoundingSpawner(_bounding_range);
+  spawner = new FilledBoundingSpawner(_bounding_range, pos, &(base->camera));
   max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;
   LOD = base->last_forced_LOD;
   count = LOD * max_LOD1_count;
@@ -573,7 +573,10 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
   // Spawn leaves
   while ((int)particles.size() < count)
   {
-    const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
+    Vec3 coords = spawner->get_new_coords();
+    if (coords.x == -32768.0)
+      break;
+    coords += center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
     Vec3 velocity;
     velocity.randomize(max_adjust / 4);
     velocity.y /= 2;

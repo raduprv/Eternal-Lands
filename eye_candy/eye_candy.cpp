@@ -1166,13 +1166,43 @@ Vec3 HollowDiscSpawner::get_new_coords()
 
 Vec3 FilledBoundingSpawner::get_new_coords()
 {
+  Vec3 cur_pos;
+  const Vec3 camera_center_difference = *center - *camera;
+  int i;
+  for (i = 0; i < 30; i++)
+  {
+    const angle_t angle = randangle(2 * PI);
+    const coord_t scalar = fastsqrt(randcoord(MAX_DRAW_DISTANCE));
+    cur_pos = Vec3(sin(angle) * scalar, 0.0, cos(angle) * scalar);
+    const angle_t angle_to_center = atan2(cur_pos.x, cur_pos.z);
+    const coord_t radius = bounding_range->get_radius(angle_to_center);
+    if ((cur_pos - camera_center_difference).magnitude_squared() < square(radius))
+      break;
+  }
+  if (i == 10)
+    return Vec3(-32768.0, 0.0, 0.0);
+  else
+    return cur_pos;
+}
+
+coord_t FilledBoundingSpawner::get_area() const
+{	// Not 100% accurate, but goot enough.  :)
+  coord_t avg_radius = 0;
+  for (float f = 0; f < 2 * PI; f += (2 * PI / 256.0))
+    avg_radius += bounding_range->get_radius(f);
+  avg_radius /= 256.0;
+  return PI * square(avg_radius);
+}
+
+Vec3 NoncheckingFilledBoundingSpawner::get_new_coords()
+{
   const angle_t angle = randangle(2 * PI);
   const coord_t radius = bounding_range->get_radius(angle);
   const coord_t scalar = fastsqrt(randcoord());
   return Vec3(sin(angle) * scalar * radius, 0.0, cos(angle) * scalar * radius);
 }
 
-coord_t FilledBoundingSpawner::get_area() const
+coord_t NoncheckingFilledBoundingSpawner::get_area() const
 {	// Not 100% accurate, but goot enough.  :)
   coord_t avg_radius = 0;
   for (float f = 0; f < 2 * PI; f += (2 * PI / 256.0))
@@ -1621,7 +1651,6 @@ void EyeCandy::idle()
     {
       if (e->bounds)
       {
-        std::cout << "Considering deactivation." << std::endl;
         const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
         if (fastsqrt(distance_squared) > e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE)
         {
