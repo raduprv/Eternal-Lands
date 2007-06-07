@@ -384,8 +384,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 			if (object_under_mouse == -1)
 				return 1;
-			if (you_sit && sit_lock && !flag_ctrl)
+			if (you_sit && sit_lock && !flag_ctrl){
+				LOG_TO_CONSOLE(c_green1, no_walk_with_sitlock);
 				return 1;
+			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
 				str[0] = ATTACK_SOMEONE;
@@ -463,8 +465,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			short x, y;
 		
-			if (you_sit && sit_lock && !flag_ctrl)
+			if (you_sit && sit_lock && !flag_ctrl){
+				LOG_TO_CONSOLE(c_green1, no_walk_with_sitlock);
 				return 1;
+			}
 
 			if(use_old_clicker)
 				get_old_world_x_y();

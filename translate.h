@@ -440,6 +440,8 @@ extern char	reg_error_str[15],
 		/*font.c*/
 		cant_load_font[30],
 #ifdef ELC
+		/*gamewin.c*/
+		no_walk_with_sitlock[100],
 		/*gl_init.c*/
 		no_stencil_str[150],
 		safemode_str[150], 

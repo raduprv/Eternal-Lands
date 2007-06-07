@@ -335,8 +335,10 @@ char	reg_error_str[15],
 	using_eng_chanlist[120],
 	/*font.c*/
 	cant_load_font[30],
-	/*init.c*/
 #ifdef ELC
+	/*gamewin.c*/
+	no_walk_with_sitlock[100],
+	/*init.c*/
 	no_stencil_str[150],
 	safemode_str[150],
 	no_sdl_str[30],
@@ -861,6 +863,7 @@ void init_errors()
 
 
 	//Miscellaneous errors
+	add_xml_identifier(misc,"no_walk_sitlock",no_walk_with_sitlock,"Sitlock is enabled. Disable it or stand before walking.",sizeof(no_walk_with_sitlock));
 	add_xml_identifier(misc,"error",reg_error_str,"Error",sizeof(reg_error_str));
 	add_xml_identifier(misc,"objerr",object_error_str,"Object error",sizeof(object_error_str));
 	add_xml_identifier(misc,"nasty",nasty_error_str,"Something nasty happened while trying to process: %s",sizeof(nasty_error_str));
