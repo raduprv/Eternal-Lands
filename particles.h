@@ -243,7 +243,7 @@ extern void	end_particles_list();
  * \retval int
  * \callgraph
  */
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
 #else
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
@@ -261,7 +261,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
  * \retval int
  * \callgraph
  */
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, unsigned int dynamic);
 #else
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
@@ -269,7 +269,7 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
 
 // Grum: included here for the map editor
 void create_particle (particle_sys *sys, particle *result);
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 int create_particle_sys (particle_sys_def *def, float x, float y, float z, unsigned int dynamic);
 #else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z);
@@ -326,20 +326,6 @@ void add_teleporters_from_list (const Uint8 *teleport_list);
 int save_particle_def(particle_sys_def *def);
 #elif defined(MAP_EDITOR2)
 int save_particle_def(particle_sys_def *def);
-#endif
-
-/*
- * \ingroup	particles
- * \brief	Destroys the particle system at position i in the particles_list
- * 
- * 		Destroyes the particle system on position i in the particles_list - frees the memory and sets the particles_list[i]=NULL.
- *
- * \param	i The position in the particles_list
- *
- * \callgraph
- */
-#ifdef	NEW_FRUSTUM
-//void destroy_particle_sys(int i);
 #endif
 
 #ifdef MAP_EDITOR2

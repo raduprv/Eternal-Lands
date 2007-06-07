@@ -69,9 +69,6 @@ void draw_scene()
 {
 	CHECK_GL_ERRORS();
 
-	//clear the clouds cache too...
-	if(last_clear_clouds+10000<cur_time)clear_clouds_cache();
-
 #ifndef NEW_WEATHER
 	if (dungeon) {
 		glClearColor(0.0, 0.0, 0.0, 0.0);
@@ -174,12 +171,7 @@ void move_camera ()
 		camera_y_frames=0;
 		camera_z_frames=0;
 		lagged=0;
-#ifdef	NEW_FRUSTUM
 		set_all_intersect_update_needed(main_bbox_tree);
-#else
-		regenerate_near_objects=
-		regenerate_near_2d_objects=1;
-#endif
 	} else {
 		//move near the actor, but smoothly
 		camera_x_speed=(x-(-camera_x))/16.0;
@@ -213,9 +205,7 @@ void move_camera ()
 
 void update_camera()
 {
-#ifdef NEW_FRUSTUM
 	int adjust_view= 0;
-#endif
 
 	if(camera_rotation_frames)
 		{
@@ -226,25 +216,15 @@ void update_camera()
 				rz += 360;
 			}
 			camera_rotation_frames--;
-#ifdef	NEW_FRUSTUM
 			adjust_view++;
-#else
-			regenerate_near_objects=
-			regenerate_near_2d_objects=1;
-#endif
 		}
 	if(camera_x_frames)
 		{
 			if(camera_x_speed>0.005 || camera_x_speed<-0.005){
 				camera_x-=camera_x_speed;
-#ifdef	NEW_FRUSTUM
 				if(fabs(camera_x-old_camera_x) >= c_delta){
 					adjust_view++;
 				}
-#else
-				regenerate_near_objects=
-				regenerate_near_2d_objects=1;
-#endif
 			}
 			camera_x_frames--;
 		}
@@ -252,14 +232,9 @@ void update_camera()
 		{
 			if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
 				camera_y-=camera_y_speed;
-#ifdef	NEW_FRUSTUM
 				if(fabs(camera_y-old_camera_y) >= c_delta){
 					adjust_view++;
 				}
-#else
-				regenerate_near_objects=
-				regenerate_near_2d_objects=1;
-#endif
 			}
 			camera_y_frames--;
 		}
@@ -268,11 +243,9 @@ void update_camera()
 			if(camera_z_speed>0.0005 || camera_z_speed<-0.005){
 				camera_z-=camera_z_speed;
 #ifdef  PARANOID_CAMERA
-#ifdef	NEW_FRUSTUM
 				if(fabs(camera_z-old_camera_z) >= c_delta){
 					adjust_view++;
 				}
-#endif
 #endif
 			}
 			camera_z_frames--;
@@ -300,36 +273,24 @@ void update_camera()
 			if(new_zoom_level<3.75f){
 				new_zoom_level+=0.05f;
 				camera_zoom_frames--;
-#ifdef	NEW_FRUSTUM
 				adjust_view++;
-#else
-				regenerate_near_objects=
-				regenerate_near_2d_objects=1;
-#endif
 			} else 
 				camera_zoom_frames = 0;
 		} else {
 			if(new_zoom_level>1.00f){
 				new_zoom_level-=0.05f;
 				camera_zoom_frames--;
-#ifdef	NEW_FRUSTUM
 				adjust_view++;
-#else
-				regenerate_near_objects=
-				regenerate_near_2d_objects=1;
-#endif
 			} else 
 				camera_zoom_frames = 0;
 		}
 	}
-#ifdef  NEW_FRUSTUM
 	if(adjust_view){
 		set_all_intersect_update_needed(main_bbox_tree);
 		old_camera_x= camera_x;
 		old_camera_y= camera_y;
 		old_camera_z= camera_z;
 	}
-#endif
 	if(zoom_level<1.00f) {
 		new_zoom_level=zoom_level=1.00f;
 		resize_root_window();

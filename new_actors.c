@@ -111,24 +111,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	return i;
 }
 
-#ifndef	NEW_FRUSTUM
-float cal_get_maxz(actor *act)
-{
-	float points[1024][3];  // caution, 1k point limit
-	int nrPoints;
-	struct CalSkeleton *skel;
-	float maxz;
-	int i;
-
-	skel= CalModel_GetSkeleton(act->calmodel);
-	nrPoints= CalSkeleton_GetBonePoints(skel,&points[0][0]);
-	maxz= points[0][2];
-	for(i=1; i<nrPoints; ++i) if(maxz<points[i][2]) maxz= points[i][2];
-	return maxz;
-}
-#endif  //NEW_FRUSTUM
-
-
 void draw_enhanced_actor(actor * actor_id, int banner)
 {
 	double x_pos,y_pos,z_pos;
@@ -137,11 +119,7 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	bind_texture_id(actor_id->texture_id);
 
 	if (actor_id->calmodel!=NULL){
-#ifdef	NEW_FRUSTUM
 		healthbar_z= actor_id->max_z+0.2;
-#else
-		healthbar_z= cal_get_maxz(actor_id)+0.2;
-#endif
 	}
 	
 	if(actor_id->actor_id==yourself)sitting=healthbar_z/2.0f;

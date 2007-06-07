@@ -20,23 +20,19 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a 
 # the objects we need
 ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
 MEMORY_DEBUG_COBJ = elmemory.o
-NEW_E3D_FORMAT_COBJ = io/e3d_io.o io/elc_io.o
-NEW_FRUSTUM_COBJ = bbox_tree.o
 NOTEPAD_COBJ = notepad.o
 SFX_COBJ = special_effects.o
-TERRAIN_COBJ = normals.o terrain.o
-USE_LISPSM_COBJ = lispsm.o
-USE_SHADER_COBJ = shader.o
 MINIMAP_COBJ = minimap.o
 COBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o alphamap.o asc.o \
-	books.o buddy.o bags.o \
+	bbox_tree.o books.o buddy.o bags.o \
 	cache.o cal.o chat.o colors.o console.o consolewin.o counters.o cursors.o	\
 	dialogues.o draw_scene.o	\
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
+	io/e3d_io.o io/elc_io.o	\
 	keys.o knowledge.o lights.o list.o loginwin.o loading_win.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
 	md5.o misc.o multiplayer.o	\
@@ -44,7 +40,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	openingwin.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o queue.o reflection.o	rules.o	\
-	skills.o sector.o serverpopup.o session.o shadows.o sound.o	\
+	skills.o serverpopup.o session.o shadows.o sound.o	\
 	spells.o stats.o storage.o	\
 	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	update.o weather.o widgets.o \
@@ -96,7 +92,7 @@ release:
 	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)'
 
 static:
-	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS) -lstdc++ -lGL -lGLU'
+	$(MAKE) -f Makefile.linux 'CFLAGS=$(_CFLAGS)' 'CXXFLAGS=$(_CXXFLAGS)' 'LDFLAGS=$(_LDFLAGS)' 'OBJS=$(OBJS) $(STATICLIBS) -lstdc++ -lGL -lGLU'
 
 clean:
 	rm -f $(OBJS) $(EXE) .depend

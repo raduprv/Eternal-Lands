@@ -1,4 +1,3 @@
-#ifdef	NEW_FRUSTUM
 #ifdef MAP_EDITOR2
 #include "../map_editor2/global.h"
 #else
@@ -416,7 +415,6 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 			stop = bbox_tree->intersect[i].stop[j];
 			for (k = start; k < stop; k++)
 			{
-#ifdef NEW_E3D_FORMAT
 		if ((type_mask == TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT) ||
 		    (type_mask == TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT) ||
 		    (type_mask == TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT) ||
@@ -425,9 +423,6 @@ static __inline__ void delete_item_from_intersect_list(BBOX_TREE* bbox_tree, uns
 		else id = bbox_tree->intersect[i].items[k].ID;
 
                 if (id == ID)
-#else
-				if (bbox_tree->intersect[i].items[k].ID == ID)
-#endif
 				{
 					size = stop - k -1;
 					if (size > 0) 
@@ -1090,7 +1085,6 @@ static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, uns
 	
 	for (i = 0; i < bbox_tree->nodes[node].dynamic_objects.index; i++)
 	{
-#ifdef NEW_E3D_FORMAT
 	    if ((type_mask == TYPE_MASK_3D_BLEND_SELF_LIT_OBJECT) ||
 		(type_mask == TYPE_MASK_3D_BLEND_NO_SELF_LIT_OBJECT) ||
 		(type_mask == TYPE_MASK_3D_NO_BLEND_SELF_LIT_OBJECT) ||
@@ -1100,10 +1094,6 @@ static __inline__ unsigned int dynamic_aabb_is_in_node(BBOX_TREE *bbox_tree, uns
 
         if ((id == ID) &&
             (get_type_mask_from_type(bbox_tree->nodes[node].dynamic_objects.items[i].type) == type_mask))
-#else
-		if ((bbox_tree->nodes[node].dynamic_objects.items[i].ID == ID) &&
-			(get_type_mask_from_type(bbox_tree->nodes[node].dynamic_objects.items[i].type) == type_mask))
-#endif
 		{
 			delete_dynamic_item_from_node(bbox_tree, node, i, ID, type_mask);
 			result = 1;
@@ -1639,5 +1629,3 @@ void set_frustum(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask)
 		bbox_tree->intersect[idx].frustum_mask = mask;
 	}	
 }
-
-#endif

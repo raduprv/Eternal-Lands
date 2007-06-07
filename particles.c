@@ -205,7 +205,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	return def;
 }
 
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 static __inline__ void calc_particle_random_min_max(float f1, float f2, float* v_min, float* v_max)
 {
 	if (f1 < f2)
@@ -499,7 +499,7 @@ void destroy_all_particles()
 	LOCK_PARTICLES_LIST();
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 		{
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 			destroy_partice_sys_without_lock(i);
 #else
 			if(!particles_list[i])continue;
@@ -528,7 +528,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 			ec_create_campfire(x, y, z, (poor_man ? 6 : 10), 3.1);
 #else // EYE_CANDY
  #ifdef SFX
-  #ifdef NEW_FRUSTUM
+  #ifndef MAP_EDITOR
 			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
   #else
 			add_particle_sys ("./particles/fire_big.part", x, y, z);
@@ -542,7 +542,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 			ec_create_campfire(x, y, z, (poor_man ? 6 : 10), 2.4);
 #else // EYE_CANDY
  #ifdef SFX
-  #ifdef NEW_FRUSTUM
+  #ifndef MAP_EDITOR
 			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
   #else
 			add_particle_sys ("./particles/fire_small.part", x, y, z);
@@ -572,7 +572,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 		sys = particles_list[i];
 		if (particles_list[i] && strncmp (sys->def->file_name, "./particles/fire_", 17) == 0 && sys->x_pos == x && sys->y_pos == y)
 		{
-	#ifdef	NEW_FRUSTUM
+	#ifndef	MAP_EDITOR
 			destroy_partice_sys_without_lock(i);
 	#else
 			if (sys->def->use_light && lights_list[sys->light])
@@ -586,7 +586,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	#endif // MAP_EDITOR
 			free (sys);
 			particles_list[i] = NULL;
-	#endif // NEW_FRUSTUM
+	#endif // MAP_EDITOR
 		}
 	}
 	UNLOCK_PARTICLES_LIST();
@@ -598,7 +598,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #else
 int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
@@ -653,7 +653,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
 			particle_sys_def *def = load_particle_def(file_name);
 			if (!def) return -1;
 
-  #ifdef	NEW_FRUSTUM
+  #ifndef	MAP_EDITOR
 			return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
   #else
 			return create_particle_sys (def, x_pos, y_pos, z_pos);
@@ -670,7 +670,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
   		particle_sys_def *def = load_particle_def(file_name);
 		if (!def) return -1;
 
- #ifdef	NEW_FRUSTUM
+ #ifndef	MAP_EDITOR
 		return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
  #else
 		return create_particle_sys (def, x_pos, y_pos, z_pos);
@@ -685,7 +685,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
   		particle_sys_def *def = load_particle_def(file_name);
 		if (!def) return -1;
 
- #ifdef	NEW_FRUSTUM
+ #ifndef	MAP_EDITOR
 		return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
  #else
 		return create_particle_sys (def, x_pos, y_pos, z_pos);
@@ -703,7 +703,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
 	return 0;
 }
 
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, unsigned int dynamic)
 #else
 int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
@@ -737,7 +737,7 @@ int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
 			height= 8;
 		}
 	}
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height * 0.2f, dynamic);
 #else
 	return add_particle_sys (file_name, (float) x_tile / 2.0 + 0.25f, (float) y_tile / 2.0 + 0.25f, -2.2f + height * 0.2f);
@@ -785,7 +785,7 @@ void create_particle(particle_sys *sys,particle *result)
 	result->free=0;
 }
 
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 int create_particle_sys (particle_sys_def *def, float x, float y, float z, unsigned int dynamic)
 #else
 int create_particle_sys (particle_sys_def *def, float x, float y, float z)
@@ -794,7 +794,7 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	int	i,psys;
 	particle_sys *system_id;
 	particle *p;
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 	AABBOX bbox;
 #endif
 	
@@ -828,22 +828,10 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	system_id->ttl=def->ttl;
 
 	if(def->use_light) {
-#ifdef	NEW_FRUSTUM
-#ifdef MAP_EDITOR
-		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1, dynamic);
-#elif defined(MAP_EDITOR2)
-		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1, dynamic);
-#else
+#ifndef MAP_EDITOR
 		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f, dynamic);
-#endif
 #else
-#ifdef MAP_EDITOR
 		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1);
-#elif defined(MAP_EDITOR2)
-		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f,1);
-#else
-		system_id->light=add_light(def->lightx+x, def->lighty+y, def->lightz+z, def->lightr, def->lightg, def->lightb,1.0f);
-#endif
 #endif
 	}
 
@@ -860,7 +848,7 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	#endif
 #endif
 
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 	calc_bounding_box_for_particle_sys(&bbox, system_id);
 	
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_particle_sys_to_list(main_bbox_tree_items, psys, bbox, def->sblend, def->dblend);
@@ -979,12 +967,12 @@ int have_point_sprite=0;
 void display_particles()
 {
 
-#ifndef	NEW_FRUSTUM
+#ifdef	MAP_EDITOR
 	int i;
 #endif
 	int x,y;
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 	unsigned int i, l, start, stop;
 #endif
 
@@ -1005,7 +993,7 @@ void display_particles()
 
 	LOCK_PARTICLES_LIST();
 	// Perhaps we should have a depth sort here..?
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 	get_intersect_start_stop(main_bbox_tree, TYPE_PARTICLE_SYSTEM, &start, &stop);
 	for (i = start; i < stop; i++)
 	{
@@ -1032,7 +1020,7 @@ void display_particles()
 		if (use_point_particles) draw_point_particle_sys(particles_list[l]);
 		else draw_text_particle_sys(particles_list[l]);
 	}
-#else	//NEW_FRUSTUM
+#else	//MAP_EDITOR
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
 	{
 		if(particles_list[i])
@@ -1058,7 +1046,7 @@ void display_particles()
 			}
 		}
 	}
-#endif	//NEW_FRUSTUM
+#endif	//MAP_EDITOR
 	UNLOCK_PARTICLES_LIST();
 	glDisable(GL_CULL_FACE); //Intel fix
 	glPopAttrib();
@@ -1396,7 +1384,7 @@ void update_bag_part_sys(particle_sys *system_id)
 }
 
 void update_particles() {
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 	unsigned int i, l, start, stop;
 #else
 	int i;
@@ -1409,7 +1397,7 @@ void update_particles() {
 		return;
 	}
 	LOCK_PARTICLES_LIST();
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
 	{
 		if (particles_list[i])
@@ -1565,7 +1553,7 @@ void add_teleporters_from_list (const Uint8 *teleport_list)
 			x=x+0.25f;
 			y=y+0.25f;
 
-#ifdef	NEW_FRUSTUM
+#ifndef	MAP_EDITOR
 			add_particle_sys ("./particles/teleporter.part", x, y, z, 1);
 			add_e3d("./3dobjects/misc_objects/portal1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
 #else

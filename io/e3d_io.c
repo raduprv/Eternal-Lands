@@ -1,4 +1,3 @@
-#ifdef NEW_E3D_FORMAT
 #include "e3d_io.h"
 #include <float.h>
 #ifdef	ZLIB
@@ -437,4 +436,3 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #endif	//MAP_EDITOR
 	return cur_object;
 }
-#endif

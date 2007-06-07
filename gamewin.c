@@ -562,11 +562,7 @@ int display_game_handler (window_info *win)
 	if (new_zoom_level != zoom_level)
 	{
 		if (new_zoom_level > zoom_level)
-#ifdef	NEW_FRUSTUM
 			set_all_intersect_update_needed(main_bbox_tree);
-#else
-			regenerate_near_objects = regenerate_near_2d_objects = 1;
-#endif
 		zoom_level = new_zoom_level;
 		resize_root_window ();
 	}
@@ -575,9 +571,7 @@ int display_game_handler (window_info *win)
 	save_scene_matrix ();
 
 	CalculateFrustum ();
-#ifdef	NEW_FRUSTUM
 	set_click_line();
-#endif
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
 
@@ -1512,7 +1506,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (keysym == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
-#ifdef	NEW_FRUSTUM
  #ifdef EYE_CANDY
 		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.3f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, (poor_man ? 6 : 10), 0.7);
  #else // EYE_CANDY
@@ -1520,15 +1513,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
   #endif // SFX
  #endif // EYE_CANDY
-#else // NEW_FRUSTUM
- #ifdef EYE_CANDY
-		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.3f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, (poor_man ? 6 : 10), 0.7);
- #else // EYE_CANDY
-  #ifdef SFX
-		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f);
-  #endif // SFX
- #endif // EYE_CANDY
-#endif // NEW_FRUSTUM
 	}
 	else if (keysym == SDLK_F6)
 	{

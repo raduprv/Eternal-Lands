@@ -6,9 +6,7 @@
 #else
 #include "global.h"
 #endif
-#ifdef NEW_E3D_FORMAT
 #include "io/e3d_io.h"
-#endif
 
 #ifdef OSX
 #define GL_EXT_texture_env_combine 1
@@ -94,7 +92,6 @@ void calc_shadow_matrix()
 {
 	if(use_shadow_mapping)
 		{
-#ifndef USE_LISPSM
 			float xrot,zrot;
 
 			double scale1d[]={0.0,0.0,0.0,0.0,
@@ -142,7 +139,6 @@ void calc_shadow_matrix()
 			glMultMatrixd(light_view_mat);     // L^-1
 			glGetDoublev(GL_MODELVIEW_MATRIX,texgen_mat_1d);
 			glPopMatrix();
-#endif
 		}
 	else
 		{
@@ -178,15 +174,12 @@ void calc_shadow_matrix()
 			proj_on_ground[11] = 0.0f - sun_position[3] * ground_plane[2];
 			proj_on_ground[15] = dot - sun_position[3] * ground_plane[3];
 		}
-#ifdef NEW_FRUSTUM
 	main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed = 1;
-#endif // NEW_FRUSTUM
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifdef NEW_E3D_FORMAT
 void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_index)
 {
 	Uint8 * data_ptr;
@@ -284,144 +277,11 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 	CHECK_GL_ERRORS();
 
 }
-#else
-void draw_3d_object_shadow_detail(object3d * object_id)
-{
-#ifndef	NEW_FRUSTUM
-	float x_pos,y_pos,z_pos;
-	float x_rot,y_rot,z_rot;
-#endif
 
-	int materials_no;
-	int i;
-	char is_transparent;
-
-	e3d_array_vertex *array_vertex;
-	e3d_array_uv_main *array_uv_main;
-	e3d_array_order *array_order;
-
-	if(!object_id->display) return;	// not currently on the map, ignore it
-    if(object_id->blended)return;//blended objects can't have shadows
-    //if(object_id->self_lit)return;//light sources can't have shadows
-    if(object_id->e3d_data->min_z>=object_id->e3d_data->max_z)return;//we have a flat object
-	//track the usage
-	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
-
-	// check for having to load the arrays
-	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
-		{
-			load_e3d_detail(object_id->e3d_data);
-		}
-
-	array_vertex=object_id->e3d_data->array_vertex;
-	array_uv_main=object_id->e3d_data->array_uv_main;
-	array_order=object_id->e3d_data->array_order;
-
-	is_transparent=object_id->e3d_data->is_transparent;
-	materials_no=object_id->e3d_data->materials_no;
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
-#ifdef	NEW_FRUSTUM
-	glMultMatrixf(object_id->matrix);
-#else
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-	glTranslatef (x_pos, y_pos, z_pos);
-
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-#endif
-
-	// watch for a change
-	if(object_id->e3d_data != cur_e3d){
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		glDisable(GL_TEXTURE_2D);
-		if(cur_e3d != NULL){
-           	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
-		}
-		if(have_vertex_buffers && object_id->e3d_data->vbo[2]){
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
-			glVertexPointer(3,GL_FLOAT,0,0);
-		} else  glVertexPointer(3,GL_FLOAT,0,array_vertex);
-
-		if(is_transparent)
-			{
-				glEnable(GL_TEXTURE_2D);
-				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-				if(have_vertex_buffers && object_id->e3d_data->vbo[0]){
-					ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
-					glTexCoordPointer(2,GL_FLOAT,0,0);
-				} else glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-			}
-		CHECK_GL_ERRORS();
-		// lock this new one
-		if(use_compiled_vertex_array)ELglLockArraysEXT(0,object_id->e3d_data->face_no);
-		// gather statistics
-		if(object_id->e3d_data != cur_e3d){
-#ifdef  DEBUG
-			if(cur_e3d_count > 0 && cur_e3d != NULL){
-				e3d_count++;
-				e3d_total+= cur_e3d_count;
-			}
-			cur_e3d_count= 0;
-#endif  //DEBUG
-			cur_e3d= object_id->e3d_data;
-		}
-	}
-#ifdef  DEBUG
-	cur_e3d_count++;
-#endif  //DEBUG
-
-	for(i=0;i<materials_no;i++){
-		if(array_order[i].count>0)
-			{
-				int	idx, max;
-
-				CHECK_GL_ERRORS();
-				if(is_transparent)
-				{
-					get_and_set_texture_id(array_order[i].texture_id);
-				}
-				// ATI bug fix for large arrays
-				idx= array_order[i].start;
-				max= array_order[i].start+array_order[i].count;
-				while(idx < max) {
-		    		int num;
-		   
-					num= max-idx;
-					if(num > 3000){
-						num= 3000;
-					}
-		    		glDrawArrays(GL_TRIANGLES, idx, num);
-		    		idx+= num;
-				}
-			}
-	}
-	//if(use_compiled_vertex_array)ELglUnlockArraysEXT();
-	glPopMatrix();//restore the scene
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-#endif
-
-#ifdef  NEW_FRUSTUM
 void draw_3d_object_shadows(unsigned int object_type)
 {
 	unsigned int    start, stop;
-#ifdef NEW_E3D_FORMAT
 	unsigned int    i, j, l;
-#else
- 	unsigned int    i, l;
-#endif
 	int is_transparent;
 	int x, y;
 #ifdef SIMPLE_LOD
@@ -469,22 +329,14 @@ void draw_3d_object_shadows(unsigned int object_type)
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-#ifdef NEW_E3D_FORMAT	// Always supplies a texture pointer
+// Always supplies a texture pointer
 //	glEnableClientState(GL_COLOR_ARRAY);	//No color pointer supplied!
 	glEnable(GL_TEXTURE_2D);
-#else	// Doesn't always.
-	glDisableClientState(GL_COLOR_ARRAY);
-	glDisable(GL_TEXTURE_2D);
-#endif
 	// now loop through each object
 	for (i=start; i<stop; i++)
 	{
-#ifdef	NEW_E3D_FORMAT
 		j = get_intersect_item_ID(main_bbox_tree, i);
 		l = get_3dobject_index(j);
-#else
- 		l = get_intersect_item_ID(main_bbox_tree, i);
-#endif
 		if (objects_list[l] == NULL) continue;
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
@@ -492,25 +344,15 @@ void draw_3d_object_shadows(unsigned int object_type)
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
-#ifdef	NEW_E3D_FORMAT
 		if(objects_list[l]->e3d_data->materials && (10000*objects_list[l]->e3d_data->materials[get_3dobject_material(j)].max_size)/(dist) < ((is_transparent)?15:10)) continue;
-#else
-		if( (10000*objects_list[l]->e3d_data->max_size)/(dist) < ((is_transparent)?15:10)) continue;
-#endif
 #endif  //SIMPLE_LOD
-#ifdef	NEW_E3D_FORMAT
 		draw_3d_object_shadow_detail(objects_list[l], get_3dobject_material(j));
-#else
-		draw_3d_object_shadow_detail(objects_list[l]);
-#endif
 	}
 
     if(use_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
 	if(have_vertex_buffers){
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-#ifdef NEW_E3D_FORMAT
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-#endif
 	}
 	if(is_transparent)
 		{
@@ -530,44 +372,6 @@ void draw_3d_object_shadows(unsigned int object_type)
 #endif  //DEBUG
 	cur_e3d= NULL;
 }
-
-#else   //NEW_FRUSTUM
-
-void draw_3d_object_shadow(object3d * object_id)
-{
-	char is_transparent;
-
-	if(!object_id->display) return;	// not currently on the map, ignore it
-    if(object_id->blended)return;//blended objects can't have shadows
-    //if(object_id->self_lit)return;//light sources can't have shadows
-    if(object_id->e3d_data->min_z>=object_id->e3d_data->max_z)return;//we have a flat object
-
-	is_transparent=object_id->e3d_data->is_transparent;
-	if(is_transparent)
-		{
-			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-			glAlphaFunc(GL_GREATER,0.05f);
-		}
-	else glDisable(GL_TEXTURE_2D);//we don't need textures for non transparent objects
-
-	draw_3d_object_shadow_detail(object_id);
-	
-	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
-	cur_e3d= NULL;
-	if(have_vertex_buffers){
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	}
-	if(is_transparent)
-		{
-			glDisable(GL_ALPHA_TEST);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		}
-	else glEnable(GL_TEXTURE_2D);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-#endif   //NEW_FRUSTUM
 
 #ifndef MAP_EDITOR2
 void draw_enhanced_actor_shadow(actor * actor_id)
@@ -667,36 +471,11 @@ CHECK_GL_ERRORS();
 #endif
 
 void display_shadows()
-{
-#ifndef	NEW_FRUSTUM
-	struct near_3d_object * nobj;
-
-	if(regenerate_near_objects)
-		if(!get_near_3d_objects())return;
-#endif
-	
+{	
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(1.1f, 4.0f);
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
-
-#ifndef	NEW_FRUSTUM
-	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-		if(!objects_list[nobj->pos])
-			regenerate_near_objects=1;
-		else if(!objects_list[nobj->pos]->e3d_data->is_ground && objects_list[nobj->pos]->z_pos>-0.20f )//&& nobj->dist<=900 //It's already limited to max 29*29...
-			draw_3d_object_shadow(objects_list[nobj->pos]);
-	}
-
-	if(use_shadow_mapping){
-		for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-			if(!objects_list[nobj->pos])
-				regenerate_near_objects=1;
-			else if(objects_list[nobj->pos]->e3d_data->is_ground)//&& nobj->dist<=900 //It's already limited to max 29*29...
-				draw_3d_object_shadow(objects_list[nobj->pos]);
-		}
-	}
-#else
 
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_object_shadows(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
@@ -710,7 +489,6 @@ void display_shadows()
 		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 		draw_3d_object_shadows(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
 	}
-#endif
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
@@ -727,12 +505,6 @@ CHECK_GL_ERRORS();
 
 void display_3d_ground_objects()
 {
-#ifndef	NEW_FRUSTUM
-	struct near_3d_object *nobj;
-
-	if(regenerate_near_objects)if(!get_near_3d_objects())return;
-#endif
-
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -748,19 +520,10 @@ void display_3d_ground_objects()
 
    	glNormal3f(0,0,1);
 
-#ifndef	NEW_FRUSTUM
-    	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-		if(!objects_list[nobj->pos])
-			regenerate_near_objects=1;
-		else if(objects_list[nobj->pos]->e3d_data->is_ground && nobj->dist<=700)
-    	        	draw_3d_object(objects_list[nobj->pos]);
-    	}
-#else
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
-#endif
 
 	if(have_multitexture && !dungeon && clouds_shadows)
 		{
@@ -779,12 +542,6 @@ CHECK_GL_ERRORS();
 
 void display_3d_non_ground_objects()
 {
-#ifndef	NEW_FRUSTUM
-	struct near_3d_object * nobj;
-
-	if(regenerate_near_objects)if(!get_near_3d_objects())return;
-#endif
-
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
 	
@@ -803,19 +560,10 @@ void display_3d_non_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 		}
 
-#ifndef	NEW_FRUSTUM
-	for(nobj=first_near_3d_object;nobj;nobj=nobj->next){
-		if(!objects_list[nobj->pos])
-			regenerate_near_objects=1;
-		else if(!objects_list[nobj->pos]->e3d_data->is_ground)
-			draw_3d_object(objects_list[nobj->pos]);
-	}
-#else
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects( TYPE_3D_NO_BLEND_NO_GROUND_ALPHA_NO_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_SELF_LIT_OBJECT);
 	draw_3d_objects(TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT);
-#endif
 
 	if(have_multitexture && !dungeon && clouds_shadows)
 		{
@@ -835,37 +583,9 @@ CHECK_GL_ERRORS();
 
 void render_light_view()
 {
-#ifdef NEW_FRUSTUM
 	unsigned int cur_intersect_type;
-#endif
-#ifdef USE_LISPSM
-	MATRIX4x4D ModelViewMatrix;
-	MATRIX4x4D ProjectionMatrix;
-	VECTOR3D lightDir;
-	double d;
-#endif
 	if(use_shadow_mapping)
 		{
-#ifdef USE_LISPSM
-			if (main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed != 0)
-			{
-				glGetDoublev(GL_MODELVIEW_MATRIX, ModelViewMatrix);
-				glGetDoublev(GL_PROJECTION_MATRIX, ProjectionMatrix);
-			
-				lightDir[X] = -sun_position[X];
-				lightDir[Y] = -sun_position[Y];
-				lightDir[Z] = -sun_position[Z];
-				
-				d = sqrt(lightDir[X]*lightDir[X] + lightDir[Y]*lightDir[Y] + lightDir[Z]*lightDir[Z]);
-				lightDir[X] /= d;
-				lightDir[Y] /= d;
-				lightDir[Z] /= d;
-			
-				calculate_Light_Matrix(1, 1.0, lightDir, ModelViewMatrix,
-					ProjectionMatrix, light_view_mat, light_proj_mat);
-			}
-#endif
-
 			if (!use_frame_buffer && !depth_map_id)
 				{
 					GLint depthbits=16;
@@ -878,7 +598,6 @@ void render_light_view()
 					glGenTextures(1,&depth_map_id);
 					glBindTexture(depth_texture_target,depth_map_id);
 					CHECK_GL_ERRORS();
-#ifndef USE_LISPSM
 					glTexImage2D(depth_texture_target,0,internalformat,
 						     shadow_map_size,shadow_map_size,
 						     0,GL_DEPTH_COMPONENT,GL_FLOAT,NULL);
@@ -891,18 +610,6 @@ void render_light_view()
 					//TODO: Might want to use CLAMP_TO_BORDER for cards that support it?
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);
 					glTexParameteri(depth_texture_target,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);
-#else
-					glTexImage2D(depth_texture_target,0,internalformat,
-						     shadow_map_size,shadow_map_size,
-						     0,GL_DEPTH_COMPONENT,GL_UNSIGNED_BYTE,NULL);
-						     glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP);
-
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-					glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);	
-					glTexParameteri(GL_TEXTURE_2D, GL_DEPTH_TEXTURE_MODE_ARB, GL_LUMINANCE);					
-#endif
 					CHECK_GL_ERRORS();
 				}
 
@@ -938,18 +645,12 @@ void render_light_view()
 			glMatrixMode(GL_MODELVIEW);
 			glPushMatrix();
 			glLoadMatrixd(light_view_mat);
-#ifndef USE_LISPSM
 			glTranslatef((int)camera_x,(int)camera_y,(int)camera_z);
-#endif
-#ifdef NEW_FRUSTUM
 			cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 			set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_SHADOW);
 			calculate_shadow_frustum();
-#endif
 			display_shadows();
-#ifdef NEW_FRUSTUM
 			set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
-#endif
 
 			if (!use_frame_buffer)
 			{
@@ -983,7 +684,6 @@ void render_light_view()
 
 void setup_2d_texgen()
 {
-#ifndef USE_LISPSM
 	GLfloat plane[4];
 
 	glEnable(GL_TEXTURE_GEN_S);
@@ -1005,39 +705,6 @@ void setup_2d_texgen()
 	glTexGeni(GL_Q,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
 	plane[0]=texgen_mat[3];plane[1]=texgen_mat[7];plane[2]=texgen_mat[11];plane[3]=texgen_mat[15];
 	glTexGenfv(GL_Q,GL_EYE_PLANE,plane);
-#else
-	const GLdouble x[4] = {1.0, 0.0, 0.0, 0.0};
-	const GLdouble y[4] = {0.0, 1.0, 0.0, 0.0};
-	const GLdouble z[4] = {0.0, 0.0, 1.0, 0.0};
-	const GLdouble w[4] = {0.0, 0.0, 0.0, 1.0};
-	const GLdouble bias[16] = {0.5, 0.0, 0.0, 0.0, 
-				 	0.0, 0.5, 0.0, 0.0,
-					0.0, 0.0, 0.5, 0.0,
-					0.5, 0.5, 0.5, 1.0};
-
-	glEnable(GL_TEXTURE_GEN_S);
-	glEnable(GL_TEXTURE_GEN_T);
-	glEnable(GL_TEXTURE_GEN_R);
-	glEnable(GL_TEXTURE_GEN_Q);
-
-	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
-	
-	glTexGendv(GL_S, GL_EYE_PLANE, x);
-	glTexGendv(GL_T, GL_EYE_PLANE, y);
-	glTexGendv(GL_R, GL_EYE_PLANE, z);
-	glTexGendv(GL_Q, GL_EYE_PLANE, w);
-
-	glMatrixMode(GL_TEXTURE);
-	glLoadMatrixd(bias);
-	glMultMatrixd(light_proj_mat);
-	glMultMatrixd(light_view_mat);
-	glMatrixMode(GL_MODELVIEW);
-
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
-#endif
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1045,22 +712,10 @@ CHECK_GL_ERRORS();
 
 void disable_texgen()
 {
-#ifndef USE_LISPSM
 	glDisable(GL_TEXTURE_GEN_S);
 	glDisable(GL_TEXTURE_GEN_T);
 	glDisable(GL_TEXTURE_GEN_R);
 	glDisable(GL_TEXTURE_GEN_Q);
-#else
-	glMatrixMode(GL_TEXTURE);
-	glLoadIdentity();
-	glMatrixMode(GL_MODELVIEW);
-	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_NONE);
-	glDisable(GL_TEXTURE_2D);
-	glDisable(GL_TEXTURE_GEN_S);
-	glDisable(GL_TEXTURE_GEN_T);
-	glDisable(GL_TEXTURE_GEN_R);
-	glDisable(GL_TEXTURE_GEN_Q);
-#endif
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1068,14 +723,12 @@ CHECK_GL_ERRORS();
 
 void setup_shadow_mapping()
 {
-#ifndef USE_LISPSM
 	glPushMatrix();
 	glLoadIdentity();
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(camera_x-(int)camera_x,camera_y-(int)camera_y,camera_z-(int)camera_z);
-#endif
 	glBindTexture(depth_texture_target,depth_map_id);
 	setup_2d_texgen();
 
@@ -1106,9 +759,7 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_ALPHA_EXT,GL_PREVIOUS_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_ALPHA_EXT,GL_SRC_ALPHA);
 #endif
-#ifndef USE_LISPSM
 	glPopMatrix();
-#endif
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1143,9 +794,6 @@ void draw_sun_shadowed_scene(int any_reflection)
 #ifndef MAP_EDITOR2
 			if (weather_use_fog()) glEnable(GL_FOG);
 #endif		
-#ifndef	NEW_FRUSTUM
-			CalculateFrustum();
-#endif
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();

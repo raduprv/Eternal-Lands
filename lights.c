@@ -47,37 +47,6 @@ GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 
 int	show_lights;
-#ifndef	NEW_FRUSTUM
-GLfloat light_0_position[4];
-GLfloat light_0_diffuse[4];
-GLfloat light_0_dist;
-
-GLfloat light_1_position[4];
-GLfloat light_1_diffuse[4];
-GLfloat light_1_dist;
-
-GLfloat light_2_position[4];
-GLfloat light_2_diffuse[4];
-GLfloat light_2_dist;
-
-GLfloat light_3_position[4];
-GLfloat light_3_diffuse[4];
-GLfloat light_3_dist;
-
- #ifndef EYE_CANDY
-GLfloat light_4_position[4];
-GLfloat light_4_diffuse[4];
-GLfloat light_4_dist;
-
-GLfloat light_5_position[4];
-GLfloat light_5_diffuse[4];
-GLfloat light_5_dist;
-
-GLfloat light_6_position[4];
-GLfloat light_6_diffuse[4];
-GLfloat light_6_dist;
- #endif	// EYE_CANDY
-#endif	// NEW_FRUSTRUM
 
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
@@ -111,63 +80,6 @@ CHECK_GL_ERRORS();
 		return 1;
 	else 	return 0;
 }
-
-#ifndef	NEW_FRUSTUM
-void render_corona(float x,float y,float z,float r,float g,float b)
-{
-	float i;
-	int res;
-
-	res=0;
-	for (i=-0.1;i<0.1;i=i+0.2) {
-		if (test_point_visible(x,y,z+i)) res=1;
-	}
-
-	if (!res) return;
-
-	glColor3f(r,g,b);
-	glPushMatrix();
-	glTranslatef(x,y,z);
-	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
-	glRotatef(-rx, 1.0f, 0.0f, 0.0f);
-	glBegin(GL_QUADS);
-	glTexCoord2f(0,0);glVertex3f(-2,2,0);
-	glTexCoord2f(1,0);glVertex3f(2,2,0);
-	glTexCoord2f(1,1);glVertex3f(2,-2,0);
-	glTexCoord2f(0,1);glVertex3f(-2,-2,0);
-	glEnd();
-	glPopMatrix();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
-void render_coronas()
-{
-	glDisable(GL_LIGHTING);
-	glDisable(GL_DEPTH_TEST);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_COLOR,GL_ONE);
-	get_and_set_texture_id(particle_textures[0]);
-
-	render_corona(light_0_position[0],light_0_position[1],light_0_position[2],1,1,1);
-	render_corona(light_1_position[0],light_1_position[1],light_1_position[2],1,1,1);
-	render_corona(light_2_position[0],light_2_position[1],light_2_position[2],1,1,1);
-	render_corona(light_3_position[0],light_3_position[1],light_3_position[2],1,1,1);
-#ifndef EYE_CANDY
-	render_corona(light_4_position[0],light_4_position[1],light_4_position[2],1,1,1);
-	render_corona(light_5_position[0],light_5_position[1],light_5_position[2],1,1,1);
-	render_corona(light_6_position[0],light_6_position[1],light_6_position[2],1,1,1);
-#endif /* EYE_CANDY */
-
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_BLEND);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-#endif
-
 
 int	max_enabled;
 void disable_local_lights()
@@ -206,15 +118,10 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-
 void draw_lights()
 {
-#ifdef	NEW_FRUSTUM
 	unsigned int i, j, l, start, stop;
 	VECTOR4 vec4;
-#else
-	GLfloat spot_direction[] = { -0.0, -0.0, -0.0f };
-#endif
 	
 	if(show_lights <0){
 		if(max_enabled >= 0){
@@ -226,44 +133,6 @@ void draw_lights()
 	}
 	if(max_enabled >= 0 && show_lights != max_enabled)	enable_local_lights();
 	
-#ifndef	NEW_FRUSTUM
-	glLightfv(GL_LIGHT0, GL_POSITION, light_0_position);
-	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_0_diffuse);
-	glLightfv(GL_LIGHT0, GL_SPOT_DIRECTION, spot_direction);
-
-	if(show_lights >= 1){
-		glLightfv(GL_LIGHT1, GL_POSITION, light_1_position);
-		glLightfv(GL_LIGHT1,GL_DIFFUSE,light_1_diffuse);
-		glLightfv(GL_LIGHT1, GL_SPOT_DIRECTION, spot_direction);
-	}
-	if(show_lights >= 2){
-		glLightfv(GL_LIGHT2, GL_POSITION, light_2_position);
-		glLightfv(GL_LIGHT2,GL_DIFFUSE,light_2_diffuse);
-		glLightfv(GL_LIGHT2, GL_SPOT_DIRECTION, spot_direction);
-	}
-	if(show_lights >= 3){
-		glLightfv(GL_LIGHT3, GL_POSITION, light_3_position);
-		glLightfv(GL_LIGHT3,GL_DIFFUSE,light_3_diffuse);
-		glLightfv(GL_LIGHT3, GL_SPOT_DIRECTION, spot_direction);
-	}
- #ifndef EYE_CANDY
-	if(show_lights >= 4){
-		glLightfv(GL_LIGHT4, GL_POSITION, light_4_position);
-		glLightfv(GL_LIGHT4,GL_DIFFUSE,light_4_diffuse);
-		glLightfv(GL_LIGHT4, GL_SPOT_DIRECTION, spot_direction);
-	}
-	if(show_lights >= 5){
-		glLightfv(GL_LIGHT5, GL_POSITION, light_5_position);
-		glLightfv(GL_LIGHT5,GL_DIFFUSE,light_5_diffuse);
-		glLightfv(GL_LIGHT5, GL_SPOT_DIRECTION, spot_direction);
-	}
-	if(show_lights >= 6){
-		glLightfv(GL_LIGHT6, GL_POSITION, light_6_position);
-		glLightfv(GL_LIGHT6,GL_DIFFUSE,light_6_diffuse);
-		glLightfv(GL_LIGHT6, GL_SPOT_DIRECTION, spot_direction);
-	}
- #endif
-#else	
 	j= 0;
 	
 	get_intersect_start_stop(main_bbox_tree, TYPE_LIGHT, &start, &stop);
@@ -296,13 +165,11 @@ void draw_lights()
 		else j++;
 	}
 
-#endif
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifdef	NEW_FRUSTUM
 void destroy_light(int i)
 {
 	if((i < 0) || (i >= MAX_LIGHTS)) return;
@@ -311,27 +178,16 @@ void destroy_light(int i)
 	free(lights_list[i]);
 	lights_list[i]= NULL;
 }
-#endif
 
-#ifdef	NEW_FRUSTUM
 #if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked, unsigned int dynamic)
 #else
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, unsigned int dynamic)
 #endif
-#else
-#if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked)
-#else
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity)
-#endif
-#endif
 {
 	int i;
 	light *new_light;
-#ifdef	NEW_FRUSTUM
 	AABBOX bbox;
-#endif
 
 	//find a free spot, in the lights list
 	for(i=0; i<MAX_LIGHTS; i++)
@@ -360,11 +216,9 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	
 	lights_list[i] = new_light;
 	if (i >= num_lights) num_lights = i+1;	
-#ifdef	NEW_FRUSTUM
 	calc_light_aabb(&bbox, x, y, z, r*intensity, g*intensity, b*intensity, 1.41f, 1.0f, 0.004f); // 0.004 ~ 1/256
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_light_to_list(main_bbox_tree_items, i, bbox);
 	else add_light_to_abt(main_bbox_tree, i, bbox, dynamic);
-#endif
 
 	return i;
 }
@@ -385,269 +239,10 @@ void cleanup_lights(void)
 //should be called only when we change the camera pos
 void update_scene_lights()
 {
-#ifndef	NEW_FRUSTUM
-	int i;
-	float x,y;
-	float x_dist,y_dist,dist;
-	char all_full=0;
-	char max_changed=0;
-	float max_dist=0;
-	int max_light=0;
-
-	show_lights= max_light= -1;
-	x= -camera_x;
-	y= -camera_y;
-	//reset the lights
-#ifdef EYE_CANDY
-	light_0_dist= light_1_dist= light_2_dist= light_3_dist= 60.0*60.0;
-#else
-	light_0_dist= light_1_dist= light_2_dist= light_3_dist= light_4_dist= light_5_dist= light_6_dist= 60.0*60.0;
-#endif
-
-	light_0_diffuse[0]=0;light_0_diffuse[1]=0;light_0_diffuse[2]=0;light_0_diffuse[3]=1.0;
-
-	light_1_diffuse[0]=0;light_1_diffuse[1]=0;light_1_diffuse[2]=0;light_1_diffuse[3]=1.0;
-
-	light_2_diffuse[0]=0;light_2_diffuse[1]=0;light_2_diffuse[2]=0;light_2_diffuse[3]=1.0;
-
-	light_3_diffuse[0]=0;light_3_diffuse[1]=0;light_3_diffuse[2]=0;light_3_diffuse[3]=1.0;
-
-#ifndef EYE_CANDY
-	light_4_diffuse[0]=0;light_4_diffuse[1]=0;light_4_diffuse[2]=0;light_4_diffuse[3]=1.0;
-
-	light_5_diffuse[0]=0;light_5_diffuse[1]=0;light_5_diffuse[2]=0;light_5_diffuse[3]=1.0;
-
-	light_6_diffuse[0]=0;light_6_diffuse[1]=0;light_6_diffuse[2]=0;light_6_diffuse[3]=1.0;
-#endif
-	for(i=0;i<MAX_LIGHTS;i++)
-		{
-			if(lights_list[i])
-				{
-					// is the light is close enough to worry about?
-					x_dist= x-lights_list[i]->pos_x;
-					y_dist= y-lights_list[i]->pos_y;
-					dist= x_dist*x_dist+y_dist*y_dist;
-					if(dist<30.0*30.0)
-						{
-							if(max_changed)	{
-								max_dist=0;
-								max_changed=0;
-								if(light_0_dist>max_dist)
-									{
-										max_dist=light_0_dist;
-										max_light=0;
-									}
-								if(light_1_dist>max_dist)
-									{
-										max_dist=light_1_dist;
-										max_light=1;
-									}
-								if(light_2_dist>max_dist)
-									{
-										max_dist=light_2_dist;
-										max_light=2;
-									}
-								if(light_3_dist>max_dist)
-									{
-										max_dist=light_3_dist;
-										max_light=3;
-									}
-#ifndef EYE_CANDY
-								if(light_4_dist>max_dist)
-									{
-										max_dist=light_4_dist;
-										max_light=4;
-									}
-								if(light_5_dist>max_dist)
-									{
-										max_dist=light_5_dist;
-										max_light=5;
-									}
-								if(light_6_dist>max_dist)
-									{
-										max_dist=light_6_dist;
-										max_light=6;
-									}
-#endif	// !EYE_CANDY
-							}
-							// we have all the lights and we are farter, next light
-							if(all_full && dist > max_dist)	continue;
-							
-							if((light_0_dist>=50.0*50.0) || (all_full && (max_light==0)))
-								{
-									//see if we should recompute the max distance
-									if(all_full)max_changed=1;
-									else show_lights= 0;
-									
-									light_0_position[0]=lights_list[i]->pos_x;
-									light_0_position[1]=lights_list[i]->pos_y;
-									light_0_position[2]=lights_list[i]->pos_z;
-									light_0_position[3]=1.0;
-
-									light_0_diffuse[0]=lights_list[i]->r;
-									light_0_diffuse[1]=lights_list[i]->g;
-									light_0_diffuse[2]=lights_list[i]->b;
-									light_0_diffuse[3]=1.0;
-									light_0_dist=dist;
-									if(dist>max_dist)
-										{
-											max_dist=dist;
-											max_light=0;
-										}
-									continue;
-								}
-							if((light_1_dist>=50.0*50.0) || (all_full && (max_light==1)))
-								{
-									//see if we should recompute the max distance
-									if(all_full)max_changed=1;
-									else show_lights= 1;
-
-									light_1_position[0]=lights_list[i]->pos_x;
-									light_1_position[1]=lights_list[i]->pos_y;
-									light_1_position[2]=lights_list[i]->pos_z;
-									light_1_position[3]=1.0;
-
-									light_1_diffuse[0]=lights_list[i]->r;
-									light_1_diffuse[1]=lights_list[i]->g;
-									light_1_diffuse[2]=lights_list[i]->b;
-									light_1_diffuse[3]=1.0;
-									light_1_dist=dist;
-									if(dist>max_dist)
-										{
-											max_dist=dist;
-											max_light=1;
-										}
-									continue;
-								}
-							if((light_2_dist>=50.0*50.0) || (all_full && (max_light==2)))
-								{
-									//see if we should recompute the max distance
-									if(all_full)max_changed=1;
-									else show_lights= 2;
-
-									light_2_position[0]=lights_list[i]->pos_x;
-									light_2_position[1]=lights_list[i]->pos_y;
-									light_2_position[2]=lights_list[i]->pos_z;
-									light_2_position[3]=1.0;
-
-									light_2_diffuse[0]=lights_list[i]->r;
-									light_2_diffuse[1]=lights_list[i]->g;
-									light_2_diffuse[2]=lights_list[i]->b;
-									light_2_diffuse[3]=1.0;
-									light_2_dist=dist;
-									if(dist>max_dist)
-										{
-											max_dist=dist;
-											max_light=2;
-										}
-									continue;
-								}
-							if((light_3_dist>=50.0*50.0) || (all_full && (max_light==3)))
-								{
-									//see if we should recompute the max distance
-									if(all_full)max_changed=1;
-									else show_lights= 3;
-
-									light_3_position[0]=lights_list[i]->pos_x;
-									light_3_position[1]=lights_list[i]->pos_y;
-									light_3_position[2]=lights_list[i]->pos_z;
-									light_3_position[3]=1.0;
-
-									light_3_diffuse[0]=lights_list[i]->r;
-									light_3_diffuse[1]=lights_list[i]->g;
-									light_3_diffuse[2]=lights_list[i]->b;
-									light_3_diffuse[3]=1.0;
-									light_3_dist=dist;
-									if(dist>max_dist)
-										{
-											max_dist=dist;
-											max_light=3;
-										}
-									continue;
-								}
-#ifndef EYE_CANDY
-							if((light_4_dist>=50.0*50.0) || (all_full && (max_light==4)))
-								{
-									//see if we should recompute the max distance
-									if(all_full)max_changed=1;
-									else show_lights= 4;
-
-									light_4_position[0]=lights_list[i]->pos_x;
-									light_4_position[1]=lights_list[i]->pos_y;
-									light_4_position[2]=lights_list[i]->pos_z;
-									light_4_position[3]=1.0;
-
-									light_4_diffuse[0]=lights_list[i]->r;
-									light_4_diffuse[1]=lights_list[i]->g;
-									light_4_diffuse[2]=lights_list[i]->b;
-									light_4_diffuse[3]=1.0;
-									light_4_dist=dist;
-									if(dist>max_dist)
-										{
-											max_dist=dist;
-											max_light=4;
-										}
-									continue;
-								}
-
-							if((light_5_dist>=50.0*50.0) || (all_full && (max_light==5)))
-								{
-									//see if we should recompute the max distance
-									if(all_full)max_changed=1;
-									else show_lights= 5;
-
-									light_5_position[0]=lights_list[i]->pos_x;
-									light_5_position[1]=lights_list[i]->pos_y;
-									light_5_position[2]=lights_list[i]->pos_z;
-									light_5_position[3]=1.0;
-
-									light_5_diffuse[0]=lights_list[i]->r;
-									light_5_diffuse[1]=lights_list[i]->g;
-									light_5_diffuse[2]=lights_list[i]->b;
-									light_5_diffuse[3]=1.0;
-									light_5_dist=dist;
-									if(dist>max_dist)
-										{
-											max_dist=dist;
-											max_light=5;
-										}
-									continue;
-								}
-							if((light_6_dist>=50.0*50.0) || (all_full && (max_light==6)))
-								{
-									//see if we should recompute the max distance
-									if(all_full)max_changed=1;
-									else show_lights= 6;
-
-									light_6_position[0]=lights_list[i]->pos_x;
-									light_6_position[1]=lights_list[i]->pos_y;
-									light_6_position[2]=lights_list[i]->pos_z;
-									light_6_position[3]=1.0;
-
-									light_6_diffuse[0]=lights_list[i]->r;
-									light_6_diffuse[1]=lights_list[i]->g;
-									light_6_diffuse[2]=lights_list[i]->b;
-									light_6_diffuse[3]=1.0;
-									light_6_dist=dist;
-									if(dist>max_dist)
-										{
-											max_dist=dist;
-											max_light=6;
-										}
-									all_full=1;
-									continue;
-								}
-#endif // !EYE_CANDY
-
-						}
-				}
-		}
-#else
 	unsigned int start, stop;
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_LIGHT, &start, &stop);
 	show_lights = min2i(6, stop - start -1);
-#endif
 }
 
 void init_lights()

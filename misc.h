@@ -91,23 +91,6 @@ int anything_under_the_mouse(int object_id, int object_type);
  */
 void save_scene_matrix();
 
-#ifndef	NEW_FRUSTUM
-/*!
- * \ingroup misc
- * \brief   Checks if the mouse cursor is within a sphere with center in (\a x, \a y, \a z) and the given \a radius.
- *
- *      Checks the current mouse position against a sphere with center in (\a x, \a y, \a z) and the given \a radius.
- *
- * \param x         x coordinate of the sphere center
- * \param y         y coordinate of the sphere center
- * \param z         z coordinate of the sphere center
- * \param radius    radius of the sphere
- * \retval int      1 (true), if the mouse is inside the given sphere, else 0 (false).
- * \callgraph
- */
-int mouse_in_sphere(float x, float y, float z, float radius);
-#endif
-
 /*!
  * \ingroup misc
  * \brief   Checks, if the \a source_string contains an URL.
@@ -124,40 +107,11 @@ void find_last_url(const char *source_string, const int len);
 
 //some prototypes, that won't fit somewhere else
 
-#ifndef	NEW_FRUSTUM
-/*!
- * \ingroup misc
- * \brief   Checks if a sphere with center at (\a x, \a y, \a z) with the given \a radius is inside the view frustum.
- *
- *      Checks if a sphere with center at (\a x, \a y, \a z) with the given \a radius is inside the view frustum.
- *
- * \param x         the x coordinate of the sphere
- * \param y         the y coordinate of the sphere
- * \param z         the z coordinate of the sphere
- * \param radius    the radius of the sphere
- * \retval int      0 (false), if the sphere is outside the frustum, else 1 (true).
- */
-int SphereInFrustum(float x, float y, float z, float radius);
-
-/*!
- * \ingroup misc
- * \brief   Checks if the tile with the given coordinates \a x and \a y is inside the view frustum.
- *
- *      Checks if the tile with the given coordinates \a x and \a y is inside the view frustum.
- *
- * \param x         the x coordinate of the tile
- * \param y         the y coordiante of the tile
- * \retval int      1 (true), if the sphere with center in (\a x + 1.5, \a y + 1.5, 0) and radius 2.5 is inside the view frustum, else 0 (false)
- * \callgraph
- */
-int check_tile_in_frustrum(float x,float y);
-#else
 void calculate_reflection_frustum(float water_height);
 void calculate_shadow_frustum();
 void enable_reflection_clip_planes();
 void disable_reflection_clip_planes();
 void set_current_frustum(unsigned int intersect_type);
-#endif
 
 /*!
  * \ingroup misc

@@ -207,9 +207,6 @@ void change_poor_man(int *poor_man)
 #endif
 		use_fog= 0;
 #endif
-#ifdef	TERRAIN
-		use_normal_mapping= 0;
-#endif
 #ifndef MAP_EDITOR
 		use_frame_buffer= 0;
 #endif
@@ -828,22 +825,6 @@ void change_global_filters (int *use)
 }
 #endif //ndef MAP_EDITOR2
 
-#ifdef	TERRAIN
-void change_normal_mapping(int *nm)
-{
-	if (*nm) {
-		*nm= 0;
-	} else {
-		// don't check if we have hardware support when OpenGL
-		// extensions are not initialized yet.
-		if (!gl_extensions_loaded || (have_multitexture >= 4 && have_ogsl_vertex_shader && have_ogsl_pixel_shader)) {
-			*nm= 1;
-		} else {
-			LOG_TO_CONSOLE (c_red1, disabled_normal_mapping);
-		}
-	}
-}
-#endif // TERRAIN
 #endif // ELC
 
 void change_reflection(int *rf)
@@ -986,9 +967,6 @@ void check_options()
 	check_option_var("use_frame_buffer");
 	check_option_var("use_shadow_mapping");
 	check_option_var("shadow_map_size");
-#ifdef	TERRAIN
-	check_option_var("use_normal_mapping");
-#endif
 }
 
 int check_var (char *str, var_name_type type)
@@ -1238,9 +1216,6 @@ void init_vars()
 	add_var(BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_var,0,"Use fancy smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
 	add_var(INT,"max_idle_cycles_per_second","micps",&max_idle_cycles_per_second,change_int,40,"Max idle cycles per second","The eye candy 'idle' function, which moves particles around, will run no more than this often.  If your CPU is your limiting factor, lowering this can give you a higher framerate.  Raising it gives smoother particle motion (up to the limit of your framerate).",ECTAB, 1, INT_MAX);
  #endif
- #ifdef	TERRAIN
-	add_var (BOOL, "use_normal_mapping", "nm", &use_normal_mapping, change_normal_mapping, 0, "Normal Mapping", "If you want to use some better quality terrain, enable this. It will use more resources, but look prettier.", LODTAB);
- #endif // TERRAIN
 #endif // ELC
 
 	// Lachesis: this var is not used in the code.

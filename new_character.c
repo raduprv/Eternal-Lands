@@ -231,9 +231,7 @@ int display_newchar_handler (window_info *win)
 	save_scene_matrix ();
 
 	CalculateFrustum ();
-#ifdef	NEW_FRUSTUM
 	set_click_line();
-#endif
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
 	

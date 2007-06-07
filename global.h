@@ -148,7 +148,6 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "elconfig.h"
 #include "timers.h"
 #include "rules.h"
-#include "sector.h"
 #include "help.h"
 #include "tabs.h"
 #include "gamewin.h"
@@ -180,15 +179,8 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 
 #include "vmath.h"
 
-#ifdef TERRAIN
-	#include "terrain.h"
-	#include "normals.h"
-#endif
-
 #include "framebuffer.h"
-#ifdef	NEW_FRUSTUM
-	#include "bbox_tree.h"
-#endif
+#include "bbox_tree.h"
 #ifdef	OLC
 	#include "olc.h"
 #endif	//OLC

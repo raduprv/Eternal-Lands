@@ -649,9 +649,7 @@ void init_stuff()
 	update_loading_win(NULL, 4);
 	memset(tile_list, 0, sizeof(tile_list));
 	memset(lights_list, 0, sizeof(lights_list));
-#ifdef	NEW_FRUSTUM
 	main_bbox_tree = build_bbox_tree();
-#endif
 	init_particles_list();
 	update_loading_win(init_actor_defs_str, 4);
 	memset(actors_defs, 0, sizeof(actors_defs));

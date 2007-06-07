@@ -12,18 +12,7 @@
 #define PLANT 1
 #define FENCE 2
 
-#ifndef	NEW_FRUSTUM
-#define SECTOR_SIZE_X 15
-#define SECTOR_SIZE_Y 15
-#endif
-
 obj_2d *obj_2d_list[MAX_OBJ_2D];
-#ifndef	NEW_FRUSTUM
-int nearby_2d_objects[MAX_NEARBY_2D_OBJECTS];
-
-int no_nearby_2d_objects=0;
-int regenerate_near_2d_objects=1;
-#endif
 
 int map_meters_size_x;
 int map_meters_size_y;
@@ -59,7 +48,6 @@ void draw_2d_object(obj_2d * object_id)
 	x_pos=object_id->x_pos;
 	y_pos=object_id->y_pos;
 	z_pos=object_id->z_pos;
-#ifdef	NEW_FRUSTUM
 	if (object_type != PLANT)
 	{
 		glMultMatrixf(object_id->matrix);
@@ -76,23 +64,6 @@ void draw_2d_object(obj_2d * object_id)
 		glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 		glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 	}
-#else
-	glTranslatef (x_pos, y_pos, 0);
-
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
-	//find out what kind of object we have
-	if(object_type==FENCE)x_rot+=90;
-	if(object_type==PLANT)
-		{
-			x_rot+=90;
-			z_rot=-rz;
-		}
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-#endif
 
 	get_and_set_texture_id(obj_def_pointer->texture_id);
 
@@ -387,25 +358,16 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 	return obj_2d_def_id;
 }
 
-#ifdef	NEW_FRUSTUM
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot, unsigned int dynamic)
-#else
-int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
-			   float x_rot, float y_rot, float z_rot)
-#endif
 {
 	int i;//,len,k;
 	char	fname[128];
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;
-#ifdef	NEW_FRUSTUM
 	float len_x, len_y;
 	unsigned int alpha_test, texture_id;
 	AABBOX bbox;
-#else
-	short sector;
-#endif
 
 	//find a free spot, in the obj_2d_list
 	for(i=0; i<MAX_OBJ_2D; i++)
@@ -439,7 +401,6 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	obj_2d_list[i]=our_object;
 
-#ifdef	NEW_FRUSTUM
 	len_x = (returned_obj_2d_def->x_size);
 	len_y = (returned_obj_2d_def->y_size);
 	bbox.bbmin[X] = -len_x*0.5f;
@@ -483,103 +444,13 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_2dobject_to_list(main_bbox_tree_items, i, bbox, alpha_test, texture_id);
 	else add_2dobject_to_abt(main_bbox_tree, i, bbox, alpha_test, texture_id, dynamic);
-#else
-	//get the current sector
-	sector = (short) ((y_pos/SECTOR_SIZE_Y) * (map_meters_size_x/SECTOR_SIZE_X) + (x_pos/SECTOR_SIZE_X));
-	our_object->sector=sector;
-
-	regenerate_near_2d_objects=1;//We've added a new object...
-#endif
 	
 	return i;
 }
 
-#ifndef	NEW_FRUSTUM
-int get_nearby_2d_objects()
-{
-	int i;
-	float x,y;
-	int sx,sy,ex,ey,j,k;
-	
-#ifdef MAP_EDITOR2
-	no_nearby_2d_objects=0;
-	
-	x = -camera_x;
-	y = -camera_y;
-	
-	get_supersector(SECTOR_GET(global_x_pos,global_y_pos), &sx, &sy, &ex, &ey);
-#else
-	actor *xxx=pf_get_our_actor();
-	
-	no_nearby_2d_objects=0;
-	
-	if (xxx == NULL) return 0;
-	x = -camera_x;
-	y = -camera_y;
-	
-	get_supersector(SECTOR_GET(xxx->x_pos,xxx->y_pos), &sx, &sy, &ex, &ey);
-#endif
-	for (i = sx; i <= ex; i++)
-	{
-		for (j = sy; j <= ey; j++)
-		{
-			for (k = 0; k < 100;k++)
-			{
-				int l = sectors[(j*(tile_map_size_x>>2))+i].e2d_local[k];
-				if (l == -1) break;
-				if (obj_2d_list[l] != NULL)
-				{
-					float dist1, dist2;
-
-					dist1 = x - obj_2d_list[l]->x_pos;
-					dist2 = y - obj_2d_list[l]->y_pos;
-					if (dist1*dist1 + dist2*dist2 <= 220.0f)
-					{
-						nearby_2d_objects[no_nearby_2d_objects] = l;
-						no_nearby_2d_objects++;
-					}
-				}
-			}
-		}
-	}
-
-	regenerate_near_2d_objects = 0;
-
-	return no_nearby_2d_objects;
-}
-#endif
-
 #ifdef MAP_EDITOR2
 void get_2d_object_under_mouse()
 {
-#ifndef	NEW_FRUSTUM
-	int i;
-	float least_z = 1.0f;
-
-	if(regenerate_near_2d_objects)
-		if(!get_nearby_2d_objects())
-			return;
-
-	glClearDepth(least_z);
-	glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
-
-	glPushMatrix();
-	glLoadIdentity();
-	glRotatef(rx, 1.0f, 0.0f, 0.0f);
-	glRotatef(rz, 0.0f, 0.0f, 1.0f);
-	glTranslatef(camera_x, camera_y, camera_z);
-	
-	for(i=0;i<no_nearby_2d_objects;i++){
-		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer) {
-			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);
-			if(evaluate_collision(&least_z)){
-				selected_2d_object = nearby_2d_objects[i];
-			}
-		}
-	}
-
-	glPopMatrix();
-#else
 	unsigned int i, l;
 	float least_z = 1.0f;
 	
@@ -623,7 +494,6 @@ void get_2d_object_under_mouse()
 	}
 	
 	glPopMatrix();
-#endif
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -632,45 +502,6 @@ CHECK_GL_ERRORS();
 
 void display_2d_objects()
 {
-#ifndef	NEW_FRUSTUM
-	int i;
-
-	if(regenerate_near_2d_objects)
-		if(!get_nearby_2d_objects())
-			return;
-
-	//First draw everyone with the same alpha test
-	glEnable(GL_ALPHA_TEST);
-	glAlphaFunc(GL_GREATER,0.18f);
-
-	if(have_multitexture && !dungeon && !(!clouds_shadows && !use_shadow_mapping))
-	    {
-			if(clouds_shadows)
-				{
-					//bind the detail texture
-					ELglActiveTextureARB(detail_unit);
-					glEnable(GL_TEXTURE_2D);
-					glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-				}
-			ELglActiveTextureARB(base_unit);
-			glEnable(GL_TEXTURE_2D);
-		}
-
-	for(i=0;i<no_nearby_2d_objects;i++){
-		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer && !obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test) {
-			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);
-		}
-	}
-
-	//Then draw all that needs a change
-	for(i=0;i<no_nearby_2d_objects;i++){
-		if(obj_2d_list[nearby_2d_objects[i]] && obj_2d_list[nearby_2d_objects[i]]->obj_pointer && obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test){
-    		glAlphaFunc(GL_GREATER,obj_2d_list[nearby_2d_objects[i]]->obj_pointer->alpha_test);
-			draw_2d_object(obj_2d_list[nearby_2d_objects[i]]);
-		}
-	}
-
-#else
 	unsigned int i, l, start, stop;
 	int x, y;
 #ifdef  SIMPLE_LOD
@@ -723,7 +554,6 @@ void display_2d_objects()
 		glAlphaFunc(GL_GREATER, obj_2d_list[l]->obj_pointer->alpha_test);
 		draw_2d_object(obj_2d_list[l]);
 	}
-#endif
 
 	if(have_multitexture && !dungeon && !(!clouds_shadows && !use_shadow_mapping))
 	    {
@@ -739,7 +569,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifdef	NEW_FRUSTUM
 void destroy_2d_object(int i)
 {
 	if ((i < 0) || (i >= MAX_OBJ_2D)) return;
@@ -748,7 +577,6 @@ void destroy_2d_object(int i)
 	free(obj_2d_list[i]);
 	obj_2d_list[i] = NULL;
 }
-#endif
 
 // for support of the 1.0.3 server, change if an object is to be displayed or not
 void set_2d_object (Uint8 display, const void *ptr, int len)

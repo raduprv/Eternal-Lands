@@ -361,12 +361,7 @@ char	reg_error_str[15],
 	fbo_draw_buffer_error[100],
 	fbo_read_buffer_error[100],
 	fbo_unknow_error[100],
-#ifdef NEW_E3D_FORMAT
-		gl_ext_not_found_emul_it[100],
-#endif
-#ifdef	TERRAIN
-	disabled_normal_mapping[50],
-#endif	
+	gl_ext_not_found_emul_it[100],
 	fatal_error_str[10],
 	no_e3d_list[50],
 	enabled_vertex_arrays[50],
@@ -976,12 +971,7 @@ void init_errors()
 	add_xml_identifier(video,"fbodrawbuffererror",fbo_draw_buffer_error,"Framebuffer: draw buffer error",sizeof(fbo_draw_buffer_error));
 	add_xml_identifier(video,"fboreadbuffererror",fbo_read_buffer_error,"Framebuffer: read buffer error",sizeof(fbo_read_buffer_error));
 	add_xml_identifier(video,"fbounknowerror",fbo_unknow_error,"Framebuffer: unkown error",sizeof(fbo_unknow_error));
-#ifdef NEW_E3D_FORMAT
 	add_xml_identifier(video,"extnotfoundemulit",gl_ext_not_found_emul_it,"Couldn't find the %s extension, emulating it...",sizeof(gl_ext_not_found_emul_it));
-#endif
-#ifdef	TERRAIN
-	add_xml_identifier(video,"nonormalmapping",disabled_normal_mapping,"Normalmapping disabled (need newer hardware)",sizeof(disabled_normal_mapping));
-#endif	
 	add_xml_identifier(video,"invalid",invalid_video_mode,"Stop playing with the configuration file and select valid modes!",sizeof(invalid_video_mode));
 
 	//Rule errors

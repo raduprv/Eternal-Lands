@@ -35,11 +35,8 @@
 #endif //WINDOWS
 
 Uint8 last_pixel_color[4];
-#ifdef	NEW_FRUSTUM
 LINE click_line;
-#endif
 
-#ifdef	NEW_FRUSTUM
 void get_click_line(LINE* line)
 {
 	double proj[16];
@@ -113,7 +110,6 @@ void set_click_line()
 {
 	if (read_mouse_now) get_click_line(&click_line);
 }
-#endif
 
 void reset_under_the_mouse()
 {
@@ -275,22 +271,6 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
 	*oy /= ow;
 	*oz /= ow;
 }
-
-#ifndef	NEW_FRUSTUM
-int mouse_in_sphere(float x, float y, float z, float radius)
-{
-	GLfloat  winx, winy;
-	int m_y = window_height - mouse_y;
-	
-	project_ortho(x, y, z, &winx, &winy);
-	
-	radius = proj[0*4+0]*radius+proj[3*4+0];
-	radius = (1.0+radius)*viewport[2];
-	
-	return (mouse_x >= winx - radius  &&  mouse_x <= winx + radius  &&
-			m_y     >= winy - radius  &&  m_y     <= winy + radius);
-}
-#endif
 
 void find_last_url(const char *source_string, const int len)
 {

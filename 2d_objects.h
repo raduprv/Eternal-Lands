@@ -6,6 +6,8 @@
 #ifndef __OBJ_2D_H__
 #define __OBJ_2D_H__
 
+#include "vmath.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -17,11 +19,7 @@ extern "C" {
 /*! \{ */
 #define MAX_OBJ_2D 15000 /*!<Maximum number of 2d objects in a map*/
 #define MAX_OBJ_2D_DEF 1000 /*!<Maximum number of loaded 2d object definitions*/
-#ifndef	NEW_FRUSTUM
-#define MAX_NEARBY_2D_OBJECTS 1000 /*!<Maximum number of nearby 2d objects*/
-#endif
 /*! \} */
-
 
 /*! 
  * obj_2d_def is loaded from a .2do-file and is shared amongst all objects of that type in the obj_2d_def_cache array
@@ -68,11 +66,7 @@ typedef struct
 	float z_rot;
     /*! @} */
 
-#ifdef	NEW_FRUSTUM
 	MATRIX4x4 matrix; /*!< translation and rotaion matrix */
-#else
-   	short sector;  /*!< the \see sector in which this object should occur */
-#endif
 	char display;/*!< flag determining whether the object is to be shown on screen. */
 	char state; /*!< state flag for future expansion & data alignment. */
 	obj_2d_def *obj_pointer; /**< Points to the 2d object type in the obj_2d_def list */
@@ -92,10 +86,6 @@ extern obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF]; /*!< The 2d object 
 extern obj_2d *obj_2d_list[MAX_OBJ_2D]; /*!< The 2d object array - holds all 2d objects on that map*/
 
 extern float texture_scale; /*!< scaling factor for textures */
-
-#ifndef	NEW_FRUSTUM
-extern int regenerate_near_2d_objects;
-#endif
 
 /*
  * \ingroup	display_2d
@@ -134,13 +124,8 @@ void display_2d_objects();
  * \retval int 	Returns 0 on failure and the location in the obj_2d_list if it succeeds
  * \callgraph
  */
-#ifdef	NEW_FRUSTUM
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot, unsigned int dynamic);
-#else
-int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
-			   float x_rot, float y_rot, float z_rot);
-#endif
 			   
 /*!
  * \ingroup	load_2d
@@ -181,7 +166,6 @@ void state_2d_object (Uint8 state, const void *ptr, int len);
  */
 obj_2d_def * load_obj_2d_def_cache(char * file_name);
 
-#ifdef	NEW_FRUSTUM
 /*
  * \ingroup	display_2d
  * \brief	Destroys the 2d object at position i in the obj_2d_list
@@ -193,7 +177,6 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name);
  * \callgraph
  */
 void destroy_2d_object(int i);
-#endif
 
 #ifdef MAP_EDITOR2
 /*!

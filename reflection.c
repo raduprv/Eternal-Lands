@@ -123,190 +123,9 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 }
 #endif
 
-
-#ifndef NEW_FRUSTUM
-void draw_3d_reflection(object3d * object_id)
-{
-	float x_pos,y_pos,z_pos;
-	float x_rot,y_rot,z_rot;
-
-	int materials_no;
-	int i;
-
-	e3d_array_vertex *array_vertex;
-	e3d_array_normal *array_normal;
-	e3d_array_uv_main *array_uv_main;
-	e3d_array_order *array_order;
-
-	int is_transparent;
-
-	if(!object_id->display) return;	// not currently on the map, ignore it
-	CHECK_GL_ERRORS();
-	is_transparent=object_id->e3d_data->is_transparent;
-	materials_no=object_id->e3d_data->materials_no;
-
-	cache_use(cache_e3d, object_id->e3d_data->cache_ptr);
-	// check for having to load the arrays
-	if(!object_id->e3d_data->array_vertex || !object_id->e3d_data->array_normal || !object_id->e3d_data->array_uv_main || !object_id->e3d_data->array_order)
-		{
-			load_e3d_detail(object_id->e3d_data);
-		}
-	array_vertex=object_id->e3d_data->array_vertex;
-	array_normal=object_id->e3d_data->array_normal;
-	array_uv_main=object_id->e3d_data->array_uv_main;
-	array_order=object_id->e3d_data->array_order;
-
-#ifdef NEW_LIGHTING
-	if (
-	    ( (use_new_lighting) && (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon))) ||
-	    ((!use_new_lighting) && (object_id->self_lit && (!is_day || dungeon)))
-	   )
-#else
-	if (object_id->self_lit && (!is_day || dungeon)) 
-#endif
-		{
-			glDisable(GL_LIGHTING);
-			glColor3f(object_id->r,object_id->g,object_id->b);
-		}
-
-	if(is_transparent)
-		{
-			glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-			glAlphaFunc(GL_GREATER,0.05f);
-
-		}
-
-
-	CHECK_GL_ERRORS();
-	glPushMatrix();//we don't want to affect the rest of the scene
-	x_pos=object_id->x_pos;
-	y_pos=object_id->y_pos;
-	z_pos=object_id->z_pos;
-	//if(z_pos<0)z_pos+=-water_deepth_offset*2;
-	z_pos+=-water_deepth_offset*2;
-
-	glTranslatef (x_pos, y_pos,z_pos);
-	x_rot=object_id->x_rot;
-	y_rot=object_id->y_rot;
-	z_rot=object_id->z_rot;
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
-	CHECK_GL_ERRORS();
-
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_COLOR_ARRAY);
-	if(have_vertex_buffers && object_id->e3d_data->vbo[0] && object_id->e3d_data->vbo[1] && object_id->e3d_data->vbo[2]){
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[0]);
-		glTexCoordPointer(2,GL_FLOAT,0,0);
-		
-		if(!object_id->e3d_data->is_ground){
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[1]);
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(GL_FLOAT,0,0);
-		}
-		
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, object_id->e3d_data->vbo[2]);
-		glVertexPointer(3,GL_FLOAT,0,0);
-	} else {
-		glVertexPointer(3,GL_FLOAT,0,array_vertex);
-		glTexCoordPointer(2,GL_FLOAT,0,array_uv_main);
-		if(!object_id->e3d_data->is_ground)
-		{
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glNormalPointer(GL_FLOAT,0,array_normal);	
-		}
-	}
-	
-	if(use_compiled_vertex_array)ELglLockArraysEXT(0, object_id->e3d_data->face_no);
-	for(i=0;i<materials_no;i++)
-		if(array_order[i].count>0)
-			{
-				int	idx, max;
-				get_and_set_texture_id(array_order[i].texture_id);
-				// ATI bug fix for large arrays
-				idx= array_order[i].start;
-				max= array_order[i].start+array_order[i].count;
-				while(idx < max) {
-		    		int num;
-		   
-					num= max-idx;
-					if(num > 3000){
-						num= 3000;
-					}
-		    		glDrawArrays(GL_TRIANGLES, idx, num);
-		    		idx+= num;
-				}
-			}
-	if(use_compiled_vertex_array)ELglUnlockArraysEXT();
-	CHECK_GL_ERRORS();
-	glPopMatrix();//restore the scene
-	CHECK_GL_ERRORS();
-
-#ifdef NEW_LIGHTING
-	if (
-	    ( (use_new_lighting) && (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon))) ||
-	    ((!use_new_lighting) && (object_id->self_lit && (!is_day || dungeon)))
-	   )
-#else
-	if (object_id->self_lit && (!is_day || dungeon)) 
-#endif
-		glEnable(GL_LIGHTING);
-	if(is_transparent)
-		{
-			glDisable(GL_ALPHA_TEST);
-		}
-
-	if(have_vertex_buffers){
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	}
-
-	CHECK_GL_ERRORS();
-}
-#endif  //NEW_FRUSTUM
-
 //if there is any reflecting tile, returns 1, otherwise 0
 int find_reflection()
 {
-#ifndef	NEW_FRUSTUM
-	int x_start,x_end,y_start,y_end;
-	int x,y;
-	float x_scaled,y_scaled;
-	int found_water=0;
-
-	//get only the tiles around the camera
-	//we have the axes inverted, btw the go from 0 to -255
-	if(camera_x<0)x=(camera_x*-1)/3;
-	else x=camera_x/3;
-	if(camera_y<0)y=(camera_y*-1)/3;
-	else y=camera_y/3;
-	x_start=(int)x-4;
-	y_start=(int)y-4;
-	x_end=(int)x+4;
-	y_end=(int)y+4;
-	if(x_start<0)x_start=0;
-	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
-	if(y_start<0)y_start=0;
-	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
-	for(y=y_start;y<=y_end;y++)
-		{
-			y_scaled=y*3.0f;
-			for(x=x_start;x<=x_end;x++)
-				{
-					x_scaled=x*3.0f;
-					if(!check_tile_in_frustrum(x_scaled,y_scaled))continue;//outside of the frustrum
-					if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))
-						{
-							if(IS_REFLECTING(tile_map[y*tile_map_size_x+x])) return 2;
-							found_water=1;
-						}	  
-				}
-		}
-	return found_water;
-#else
 	unsigned int idx;
 	
 	idx = main_bbox_tree->cur_intersect_type;
@@ -316,44 +135,7 @@ int find_reflection()
 		if (main_bbox_tree->intersect[idx].start[TYPE_NO_REFLECTIV_WATER] < main_bbox_tree->intersect[idx].stop[TYPE_NO_REFLECTIV_WATER]) return 1;
 		else return 0;
 	}
-#endif
 }
-
-#ifndef NEW_FRUSTUM
-int find_local_reflection(int x_pos,int y_pos,int range)
-{
-	int x_start,x_end,y_start,y_end;
-	int x,y;
-	int found_water=0;
-
-	//get only the tiles around the camera
-	//we have the axes inverted, btw the go from 0 to -255
-	if(x_pos<0)x=(x_pos*-1)/3;
-	else x=x_pos/3;
-	if(y_pos<0)y=(y_pos*-1)/3;
-	else y=y_pos/3;
-	x_start=(int)x-range;
-	y_start=(int)y-range;
-	x_end=(int)x+range;
-	y_end=(int)y+range;
-	if(x_start<0)x_start=0;
-	if(x_end>=tile_map_size_x)x_end=tile_map_size_x-1;
-	if(y_start<0)y_start=0;
-	if(y_end>=tile_map_size_y)y_end=tile_map_size_y-1;
-	for(y=y_start;y<=y_end;y++)
-		{
-			for(x=x_start;x<=x_end;x++)
-				{
-					if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]))
-						{
-							if(IS_REFLECTING(tile_map[y*tile_map_size_x+x])) return 2;
-							found_water=1;
-						}
-				}
-		}
-	return found_water;
-}
-#endif  //NEW_FRUSTUM
 
 static __inline__ int adapt_size(int size)
 {
@@ -450,7 +232,6 @@ static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos
 	glEnd();
 }
 
-#ifdef NEW_FRUSTUM
 static __inline__ void init_depth()
 {
 	float x, y, x_scaled, y_scaled;
@@ -488,23 +269,12 @@ static __inline__ void init_depth()
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
-#endif // NEW_FRUSTUM
 
 void display_3d_reflection()
 {
-#ifndef	NEW_FRUSTUM
-	double water_clipping_p[4]={0.0, 0.0, -1.0, water_deepth_offset};
-#endif	//NEW_FRUSTUM
 	int view_port[4];
-#ifdef	NEW_FRUSTUM
 	unsigned int cur_intersect_type;
-#endif	//NEW_FRUSTUM
-#ifndef NEW_FRUSTUM
-	if (regenerate_near_objects)
-	{
-		if (!get_near_3d_objects()) return;
-	}
-#endif	//NEW_FRUSTUM
+
 	if (use_frame_buffer)
 	{
 		CHECK_GL_ERRORS();
@@ -517,23 +287,17 @@ void display_3d_reflection()
 	}
 	
 	glCullFace(GL_FRONT);
-#ifndef	NEW_FRUSTUM
-	glEnable(GL_CLIP_PLANE0);
-	glClipPlane(GL_CLIP_PLANE0, water_clipping_p);
-#endif	//NEW_FRUSTUM
 	glPushMatrix();	
 
 	glTranslatef(0.0f, 0.0f, water_deepth_offset);
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
-#ifdef	NEW_FRUSTUM
 	init_depth();
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_reflection_frustum(water_deepth_offset);
 	enable_reflection_clip_planes();
-#endif	//NEW_FRUSTUM
 
 //	draw_tile_map();
 //	display_2d_objects();
@@ -544,19 +308,13 @@ void display_3d_reflection()
 #endif
 	display_alpha_objects();
 //	display_blended_objects();
-#ifdef NEW_FRUSTUM
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
-#endif
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
 	glPopMatrix();
-#ifndef	NEW_FRUSTUM
-	glDisable(GL_CLIP_PLANE0);
-#else	//NEW_FRUSTUM
 	disable_reflection_clip_planes();
-#endif	//NEW_FRUSTUM
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
 	reset_material();
@@ -651,12 +409,7 @@ CHECK_GL_ERRORS();
 #ifndef MAP_EDITOR2
 void blend_reflection_fog()
 {
-#ifndef	NEW_FRUSTUM
-	int x_start,x_end,y_start,y_end;
-	int x,y;
-#else
 	unsigned int i, l, x, y, start, stop;
-#endif
 	float x_scaled,y_scaled;
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 #ifdef NEW_WEATHER
@@ -673,57 +426,7 @@ void blend_reflection_fog()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_LIGHTING);
 	glColor3f(0.0f, 0.0f, 0.0f); 
-
-#ifndef	NEW_FRUSTUM
-	//get only the tiles around the camera
-	//we have the axes inverted, btw the go from 0 to -255
-	if(camera_x<0)x=(camera_x*-1)/3;
-	else x=camera_x/3;
-	if(camera_y<0)y=(camera_y*-1)/3;
-	else y=camera_y/3;
-	x_start = (int)x - 8;
-	y_start = (int)y - 8;
-	x_end   = (int)x + 8;
-	y_end   = (int)y + 8;
-	for(y=y_start;y<=y_end;y++)
-		{
-			int actualy=y;
-			if(actualy<0)actualy=0;
-			else if(actualy>=tile_map_size_y)actualy=tile_map_size_y-1;
-			actualy*=tile_map_size_x;
-			y_scaled=y*3.0f;
-			for(x=x_start;x<=x_end;x++)
-				{
-					int actualx=x;
-					if(actualx<0)actualx=0;
-					else if(actualx>=tile_map_size_x)actualx=tile_map_size_x-1;
-					x_scaled=x*3.0f;
-					if(IS_WATER_TILE(tile_map[actualy+actualx]) && check_tile_in_frustrum(x_scaled,y_scaled))
-						{
-							// scale the colors down to what the fog lets through
-							glFogfv(GL_FOG_COLOR, blendColor);
-							glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-							glBegin(GL_QUADS);
-								glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
-								glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
-								glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
-								glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
-							glEnd();
-
-							// now add the fog by additive blending
-							glFogfv(GL_FOG_COLOR, fogColor);
-							glBlendFunc(GL_ONE, GL_ONE);
-							glBegin(GL_QUADS);
-								glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
-								glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
-								glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
-								glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
-							glEnd();
-						}
-				}
-		}
 	
-#else
 	glFogfv(GL_FOG_COLOR, blendColor);
 	glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
 	
@@ -798,7 +501,6 @@ void blend_reflection_fog()
 			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
 		glEnd();
 	}
-#endif
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
@@ -814,82 +516,14 @@ CHECK_GL_ERRORS();
 
 void draw_lake_tiles()
 {
-#ifdef	NEW_FRUSTUM
 	unsigned int i, l, start, stop;
-#else
-	int x_start,x_end,y_start,y_end;
-#endif
 	int x,y;
 	float x_scaled,y_scaled;
 	int water_id;
-#ifdef NEW_FRUSTUM
 	float blend_float = 0.75f;
 	float blend_vec[4] = {blend_float, blend_float, blend_float, blend_float};
-#endif
 	glEnable(GL_CULL_FACE);
 	
-#ifndef	NEW_FRUSTUM
-	//get only the tiles around the camera
-	//we have the axes inverted, btw the go from 0 to -255
-	if(camera_x<0)x=(camera_x*-1)/3;
-	else x=camera_x/3;
-	if(camera_y<0)y=(camera_y*-1)/3;
-	else y=camera_y/3;
-	x_start = (int)x - 8;
-	y_start = (int)y - 8;
-	x_end   = (int)x + 8;
-	y_end   = (int)y + 8;
-#endif
-#ifndef	NEW_FRUSTUM
-	if(x_start < 0) x_start = 0;
-	if(x_end >= tile_map_size_x) x_end = tile_map_size_x - 1;
-	if(y_start < 0) y_start = 0;
-	if(y_end >= tile_map_size_y) y_end = tile_map_size_y - 1;
-
-	if(dungeon) water_id = tile_list[231];
-	else water_id = tile_list[0];
-	
-	if (use_frame_buffer)
-	{
-		for(y = y_start; y <= y_end; y++)
-		{
-			y_scaled=y*3.0f;
-			for(x = x_start; x <= x_end; x++)
-			{
-				x_scaled = x*3.0f;
-				if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]) && check_tile_in_frustrum(x_scaled, y_scaled))
-				{
-					if(!tile_map[y*tile_map_size_x+x])
-					{
-						get_and_set_texture_id(water_id);
-					}
-					else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-					draw_lake_water_tile_framebuffer(x_scaled, y_scaled);
-				}
-			}
-		}
-	}
-	else
-	{
-		for(y = y_start; y <= y_end; y++)
-		{
-			y_scaled=y*3.0f;
-			for(x = x_start; x <= x_end; x++)
-			{
-				x_scaled = x*3.0f;
-				if(IS_WATER_TILE(tile_map[y*tile_map_size_x+x]) && check_tile_in_frustrum(x_scaled, y_scaled))
-				{
-					if(!tile_map[y*tile_map_size_x+x])
-					{
-						get_and_set_texture_id(water_id);
-					}
-					else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-					draw_lake_water_tile(x_scaled, y_scaled);
-				}
-			}
-		}
-	}
-#else
 	if(dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 
@@ -960,7 +594,6 @@ void draw_lake_tiles()
 			draw_lake_water_tile(x_scaled,y_scaled);
 		}
 	}
-#endif
 
 	if (use_frame_buffer && show_reflection)
 	{

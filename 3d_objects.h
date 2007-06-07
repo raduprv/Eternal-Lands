@@ -12,42 +12,6 @@ extern "C" {
 
 extern int use_3d_alpha_blend;	// do 3d models use alpha blending?
 
-#ifndef	NEW_FRUSTUM
-struct near_3d_object {
-       int dist;
-       float radius;
-       int pos;//pos in the 3d objects list
-       struct near_3d_object * next;
-};
-
-extern struct near_3d_object near_3d_objects[MAX_NEAR_3D_OBJECTS];
-extern struct near_3d_object * first_near_3d_object;
-extern int regenerate_near_objects;
-
-/*!
- * \ingroup 	display_3d
- * \brief 	Draws the 3d object pointed to by object_id
- *
- * 		Is usually called from display_objects. The function draws the 3d object pointed to with object_id, which is a part of the objects_list. 
- * \param 	object_id A pointer to the object3d that is going to be rendered.
- *
- * \sa 		display_objects
- * \callgraph
- */
-void draw_3d_object(object3d * object_id);
-
-/*!
- * \ingroup	display_3d
- * \brief	Generates a tree of the nearest 3d objects
- *
- * 		Generates a linear tree of the nearest 3d objects - the objects that are nearest are located in the beginning of the tree.
- * 
- * \return	Returns 1 on succes and 0 on failure.
- */
-int get_near_3d_objects();
-#endif
-
-#ifdef  NEW_FRUSTUM
 /*!
  * \ingroup	display_3d
  * \brief	Optimized display or a selected 3d object list
@@ -55,7 +19,6 @@ int get_near_3d_objects();
  * \return	nothing.
  */
 void draw_3d_objects();
-#endif
 
 /*!
  * \ingroup	load_3d
@@ -79,11 +42,7 @@ void draw_3d_objects();
  * \retval int	Returns 0 on error or the position in the objects_list on succes.
  * \callgraph
  */
-#ifdef	NEW_FRUSTUM
 int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic);
-#else
-int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b);
-#endif
 
 /*!
  * \ingroup	load_3d
@@ -109,11 +68,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
  *
  * \callgraph
  */
-#ifdef	NEW_FRUSTUM
 int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic);
-#else
-int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b);
-#endif
 
 /*!
  * \ingroup	display_3d

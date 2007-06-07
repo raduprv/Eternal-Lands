@@ -5,9 +5,7 @@
 #else
 #include "global.h"
 #endif
-#ifdef	NEW_E3D_FORMAT
 #include "io/e3d_io.h"
-#endif
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
@@ -106,14 +104,12 @@ void (APIENTRY * ELglFramebufferTexture3DEXT) (GLenum target, GLenum attachment,
 void (APIENTRY * ELglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
 void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
-#ifdef NEW_E3D_FORMAT
 void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
 
 void APIENTRY Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices)
 {
 	glDrawElements(mode, count, type, indices);
 }
-#endif
 
 void setup_video_mode(int fs, int mode)
 {
@@ -747,9 +743,7 @@ void init_gl_extensions()
 	ELglFramebufferRenderbufferEXT=SDL_GL_GetProcAddress("glFramebufferRenderbufferEXT");
 	ELglGetFramebufferAttachmentParameterivEXT=SDL_GL_GetProcAddress("glGetFramebufferAttachmentParameterivEXT");
 	ELglGenerateMipmapEXT=SDL_GL_GetProcAddress("glGenerateMipmapEXT");
-#ifdef NEW_E3D_FORMAT
 	ELglDrawRangeElementsEXT=SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
-#endif
 
 	//see if we really have multitexturing
 	extensions=(char *)glGetString(GL_EXTENSIONS);
@@ -874,7 +868,6 @@ void init_gl_extensions()
 		have_framebuffer_object = 0;
 	}
 
-#ifdef NEW_E3D_FORMAT
 	if(ELglDrawRangeElementsEXT && strstr(extensions, "GL_EXT_draw_range_elements")){
 		safe_snprintf(str,sizeof(str),gl_ext_found,"GL_EXT_draw_range_elements");
 		LOG_TO_CONSOLE(c_green2,str);
@@ -883,7 +876,6 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_yellow1,str);
 		ELglDrawRangeElementsEXT=&Emul_glDrawRangeElements;
 	}
-#endif
 
 	if (strstr(extensions, "GL_ARB_texture_non_power_of_two"))
 	{		
@@ -950,29 +942,12 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 
-#ifdef	TERRAIN
-	if (!have_ogsl_vertex_shader || !have_ogsl_pixel_shader)
-	{
-		use_normal_mapping=0;
-		LOG_TO_CONSOLE(c_red1,disabled_normal_mapping);
-	}
-#endif
 #ifdef	GL_EXTENSION_CHECK
 	evaluate_extension(have_multitexture, extensions);
 #endif	//GL_EXTENSION_CHECK
 	CHECK_GL_ERRORS();
 	gl_extensions_loaded = 1;
 }
-
-#ifdef	USE_LISPSM
-void ELPerspective(GLdouble fovy, GLdouble aspect, GLdouble zNear, GLdouble zFar)
-{
-	double range;
-	
-	range = zNear*tan(fovy*M_PI/360.0);
-	glFrustum(-range*aspect, range*aspect, -range, range, zNear, zFar);
-}
-#endif
 
 void resize_root_window()
 {
@@ -995,15 +970,6 @@ void resize_root_window()
 	//hud_x_adjust=(2.0/window_width)*hud_x;
 
 	//new zoom
-#ifdef	USE_LISPSM
-	if (isometric)
-	{
-		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
-		// first, move back to the actor
-		glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
-	}
-	else ELPerspective(6.0 + 9.0*zoom_level, window_ratio, 5.0, 5.0*near_plane);
-#else
 	if (isometric) {
 		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
 	} else {
@@ -1017,7 +983,6 @@ void resize_root_window()
 	}
 	// first, move back to the actor
 	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
-#endif
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix
@@ -1067,39 +1032,10 @@ void set_new_video_mode(int fs,int mode)
 			if(!cache_e3d->cached_items[i] )continue;
 			obj= cache_e3d->cached_items[i]->cache_item;
 
-#ifndef	NEW_E3D_FORMAT
-			if(obj->vbo[0]){
-#ifndef	NO_FREE_VA
-				// lets free all the data on res change so that VBO's get rebuilt properly!
-				free_e3d_va(obj);
-#else	//NO_FREE_VA
-				const GLuint buf[3]={obj->vbo[0], obj->vbo[1], obj->vbo[2]};
-			
-				ELglDeleteBuffersARB(3, buf);
-
-				obj->vbo[0]=0;
-				obj->vbo[1]=0;
-				obj->vbo[2]=0;
-#endif	//NO_FREE_VA
-			}
-#else	//NEW_E3D_FORMAT
 			free_e3d_va(obj);
-#endif	//NEW_E3D_FORMAT
 		}
 		CHECK_GL_ERRORS();
 		
-#ifndef	NEW_E3D_FORMAT
-		for(i=0;i<highest_obj_3d;i++){
-			if(objects_list[i] && objects_list[i]->cloud_vbo) {
-				const GLuint l=objects_list[i]->cloud_vbo;
-
-				ELglDeleteBuffersARB(1, &l);
-
-				objects_list[i]->cloud_vbo=0;
-				CHECK_GL_ERRORS();
-			}
-		}
-#endif	//NEW_E3D_FORMAT
 	}
 
 #ifdef EYE_CANDY
@@ -1158,53 +1094,12 @@ void set_new_video_mode(int fs,int mode)
 				}
 		}
 #endif
-
-#ifndef	NEW_E3D_FORMAT
-	if(have_vertex_buffers){
-		e3d_object * obj;
-		for(i=0;i<cache_e3d->max_item;i++){
-			if(!cache_e3d->cached_items[i])continue;
-			obj=cache_e3d->cached_items[i]->cache_item;
-
-			if(!obj->array_uv_main || !obj->array_normal || !obj->array_vertex)continue;
-
-			ELglGenBuffersARB(3, obj->vbo);
-
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[0]);
-			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->face_no*3*sizeof(e3d_array_uv_main), obj->array_uv_main, GL_STATIC_DRAW_ARB);
-
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[1]);
-			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->face_no*3*sizeof(e3d_array_normal), obj->array_normal, GL_STATIC_DRAW_ARB);
-
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, obj->vbo[2]);
-			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, obj->face_no*3*sizeof(e3d_array_vertex), obj->array_vertex, GL_STATIC_DRAW_ARB);
-					CHECK_GL_ERRORS();
-		}
-		
-		for(i=0;i<highest_obj_3d;i++){
-			if(objects_list[i] && objects_list[i]->clouds_uv) {
-				ELglGenBuffersARB(1, &objects_list[i]->cloud_vbo);
-	
-				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, objects_list[i]->cloud_vbo);
-				ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, objects_list[i]->e3d_data->face_no*3*sizeof(e3d_array_uv_detail), objects_list[i]->clouds_uv, GL_STATIC_DRAW_ARB);
-					CHECK_GL_ERRORS();
-			}
-		}
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		CHECK_GL_ERRORS();
-	}
-#endif	//NEW_E3D_FORMAT
 	
 	//it is dependent on the window height...
 	init_hud_interface(2);//Last interface
 	new_minute();
 
-#ifdef	NEW_FRUSTUM
 	set_all_intersect_update_needed(main_bbox_tree);
-#else
-	regenerate_near_objects=1;
-	regenerate_near_2d_objects=1;
-#endif
 
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);

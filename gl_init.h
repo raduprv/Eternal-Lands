@@ -107,9 +107,7 @@ extern void (APIENTRY * ELglFramebufferTexture3DEXT) (GLenum target, GLenum atta
 extern void (APIENTRY * ELglFramebufferRenderbufferEXT) (GLenum target, GLenum attachment, GLenum renderbuffertarget, GLuint renderbuffer);
 extern void (APIENTRY * ELglGetFramebufferAttachmentParameterivEXT) (GLenum target, GLenum attachment, GLenum pname, GLint *params);
 extern void (APIENTRY * ELglGenerateMipmapEXT) (GLenum target);
-#ifdef NEW_E3D_FORMAT
 extern void (APIENTRY * ELglDrawRangeElementsEXT) (GLenum mode, GLuint start, GLuint end, GLsizei count, GLenum type, const GLvoid *indices);
-#endif
 /*! @} */
 
 /*!

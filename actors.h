@@ -65,11 +65,7 @@ extern glow_color glow_colors[10]; /*!< Holds the glow colours defined in GLOW_*
  */
 struct near_actor {
 	int actor;//offset in the actors_list
-#ifdef	NEW_FRUSTUM
 	int select;
-#else
-	int dist;//distance from our actor
-#endif
 	int buffs;	// The buffs on this actor
 	char ghost;//If it's a ghost or not
 };

@@ -1,4 +1,3 @@
-#ifdef NEW_E3D_FORMAT
 #ifdef	MAP_EDITOR
 #include "../../map_editor/global.h"
 #else
@@ -145,5 +144,3 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 
 	return 0;
 }
-#endif
-

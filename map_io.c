@@ -28,9 +28,7 @@ void destroy_map()
 	ERR();
 #endif
 
-#ifdef	NEW_FRUSTUM
 	clear_bbox_tree(main_bbox_tree);
-#endif
 	//kill the tile and height map
 	if(tile_map)
 		{
@@ -63,18 +61,6 @@ void destroy_map()
 		{
 			if(objects_list[i])
 				{
-#ifndef	NEW_E3D_FORMAT
-					if(objects_list[i]->clouds_uv){
-						if(have_vertex_buffers){
-							const GLuint l=objects_list[i]->cloud_vbo;
-
-							ELglDeleteBuffersARB(1, &l);
-							objects_list[i]->cloud_vbo=0;
-						}
-						free(objects_list[i]->clouds_uv);
-					}
-#endif
-
 #ifdef  EYE_CANDY
 					ec_remove_obstruction_by_object3d(objects_list[i]);
 #endif
@@ -107,9 +93,6 @@ void destroy_map()
 		}
 	num_lights= 0;
 
-#ifdef	TERRAIN
-	free_terrain();
-#endif
 }
 
 #ifndef MAP_EDITOR2
@@ -135,12 +118,7 @@ void change_map (const char *mapname)
 	remove_all_bags();
 #endif	//MAP_EDITOR
 
-#ifdef	NEW_FRUSTUM
 	set_all_intersect_update_needed(main_bbox_tree);
-#else
-	regenerate_near_objects=1;//Regenerate the near 3d objects...
-	regenerate_near_2d_objects=1;//Regenerate the near 3d objects...
-#endif  //NEW_FRUSTUM
 	object_under_mouse=-1;//to prevent a nasty crash, while looking for bags, when we change the map
 #ifndef MAP_EDITOR2
 #ifdef EXTRA_DEBUG
@@ -224,10 +202,8 @@ void change_map (const char *mapname)
 int load_map (const char * file_name)
 {
 	int i;
-#ifdef	NEW_FRUSTUM
 	int cur_tile, j;
 	AABBOX bbox;
-#endif
 	map_header cur_map_header;
 	char * mem_map_header=(char *)&cur_map_header;
 
@@ -262,9 +238,7 @@ int load_map (const char * file_name)
 
 	destroy_map();
 
-#ifdef	NEW_FRUSTUM
 	main_bbox_tree_items = create_bbox_items(1024);
-#endif
 	// XXX (Grum): non-portable
 #ifdef	ZLIB
 	gzread(f, mem_map_header, sizeof(cur_map_header));//header only
@@ -353,7 +327,6 @@ int load_map (const char * file_name)
 
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
-#ifdef	NEW_FRUSTUM
 	for(i = 0; i < tile_map_size_y; i++)
 	{
 		bbox.bbmin[Y] = i*3.0f;
@@ -381,7 +354,6 @@ int load_map (const char * file_name)
 			}
 		}
 	}
-#endif
 
 	//read the heights map
 #ifdef	ZLIB
@@ -435,15 +407,9 @@ int load_map (const char * file_name)
 			if (cur_3d_obj_io.blended != 20)
 			{
 				if (cur_3d_obj_io.blended != 1) cur_3d_obj_io.blended = 0;
-#ifdef	NEW_FRUSTUM
 				add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
 					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
 					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b, 0);
-#else
-				add_e3d(cur_3d_obj_io.file_name,cur_3d_obj_io.x_pos,cur_3d_obj_io.y_pos,
-					cur_3d_obj_io.z_pos,cur_3d_obj_io.x_rot,cur_3d_obj_io.y_rot,cur_3d_obj_io.z_rot,
-					cur_3d_obj_io.self_lit,cur_3d_obj_io.blended,cur_3d_obj_io.r,cur_3d_obj_io.g,cur_3d_obj_io.b);
-#endif
 			}
 			else inc_objects_list_placeholders();
 
@@ -482,13 +448,8 @@ int load_map (const char * file_name)
 				offset_2d = offset_2d_increment;
 #endif
 			
-#ifdef	NEW_FRUSTUM
 			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
 					   cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot, 0);
-#else
-			add_2d_obj(cur_2d_obj_io.file_name,cur_2d_obj_io.x_pos,cur_2d_obj_io.y_pos,
-					   cur_2d_obj_io.z_pos,cur_2d_obj_io.x_rot,cur_2d_obj_io.y_rot,cur_2d_obj_io.z_rot);
-#endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
 			}
@@ -522,18 +483,10 @@ int load_map (const char * file_name)
 				cur_light_io.r = cur_light_io.g = cur_light_io.b = 1.0f;
 				continue;
 			}
-#ifdef	NEW_FRUSTUM
 #ifdef MAP_EDITOR2
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,1, 0);
 #else
 			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f, 0);
-#endif
-#else
-#ifdef MAP_EDITOR2
-			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,1);
-#else
-			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f);
-#endif
 #endif
 			if(i%100 == 0) {
 				update_loading_win(NULL, 0);
@@ -567,11 +520,7 @@ int load_map (const char * file_name)
 			else
 			{
 #endif
-#ifdef	NEW_FRUSTUM
 				add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
-#else
-				add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos);
-#endif
 #ifdef EYE_CANDY
 			}
 #endif
@@ -579,9 +528,6 @@ int load_map (const char * file_name)
 				update_loading_win(NULL, 0);
 			}
 		}
-#ifdef	TERRAIN
-	init_terrain(f, tile_map_size_x*6*4, tile_map_size_y*6*4);
-#endif
 	
 #ifdef	ZLIB
 	gzclose(f);
@@ -589,13 +535,9 @@ int load_map (const char * file_name)
 	fclose(f);
 #endif	//ZLIB
 	update_loading_win(bld_sectors_str, 20);
-#ifdef	NEW_FRUSTUM
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
 	free_bbox_items(main_bbox_tree_items);
 	main_bbox_tree_items = NULL;
-#else
-	sector_add_map();
-#endif
 	update_loading_win(init_done_str, 20);
 #ifdef EXTRA_DEBUG
 	ERR();//We finished loading the new map apparently...
@@ -631,9 +573,6 @@ int load_empty_map()
 		height_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
 #ifndef MAP_EDITOR2
 		pf_tile_map = calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(char));
-#endif
-#ifdef	TERRAIN
-		init_terrain(NULL, tile_map_size_x*6*4, tile_map_size_y*6*4);
 #endif
 		return 0;
 	}
@@ -680,10 +619,8 @@ void load_map_marks()
 void new_map(int m_x_size,int m_y_size,int tile_type)
 {
 	int i;
-#ifdef	NEW_FRUSTUM
 	unsigned int j;
 	AABBOX bbox;
-#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -697,7 +634,6 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 	for(i=0;i<m_x_size*m_y_size;i++)tile_map[i]=tile_type;
 	tile_map_size_x=m_x_size;
 	tile_map_size_y=m_y_size;
-#ifdef	NEW_FRUSTUM
 	main_bbox_tree_items = create_bbox_items(tile_map_size_x*tile_map_size_y);
 	for(i = 0; i < tile_map_size_y; i++)
 	{
@@ -728,16 +664,11 @@ void new_map(int m_x_size,int m_y_size,int tile_type)
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
 	free_bbox_items(main_bbox_tree_items);
 	main_bbox_tree_items = NULL;
-#endif
 
 	//allocates the memory for the heights now
 	height_map=(char *)calloc(m_x_size*m_y_size*6*6, 1);
 	//now, fill the map
 	for(i=0;i<m_x_size*m_y_size*6*6;i++)height_map[i]=11;
-
-#ifdef	TERRAIN
-	init_terrain(NULL, tile_map_size_x*6*4, tile_map_size_y*6*4);
-#endif
 
 	load_map_tiles();
 
@@ -1068,11 +999,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 		nb_left -= name_len + 1;
 		
 		if (!obj_err)
-#ifdef	NEW_FRUSTUM
 			add_e3d_at_id (id, obj_name, x, y, z, rx, ry, rz, 0, 0, 1.0f, 1.0f, 1.0f, 1);
-#else
-			add_e3d_at_id (id, obj_name, x, y, z, rx, ry, rz, 0, 0, 1.0f, 1.0f, 1.0f);
-#endif
 		else
 			all_ok = 0;
 	}
@@ -1081,11 +1008,7 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)
 }
 	
 void remove_3d_object_from_server (int id)
-{
-#ifndef	NEW_FRUSTUM
-	int sector, i, j = MAX_3D_OBJECTS-1, k = -1;
-#endif
-	
+{	
 	if (id < 0 || id > MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Trying to remove object with invalid id %d", id);
@@ -1097,24 +1020,6 @@ void remove_3d_object_from_server (int id)
 		return;
 	}
 
-#ifndef	NEW_FRUSTUM
-	sector = SECTOR_GET (objects_list[id]->x_pos, objects_list[id]->y_pos);
-	for (i = 0; i < MAX_3D_OBJECTS; i++)
-	{
-		if (k != -1 && sectors[sector].e3d_local[i] == -1)
-		{
-			j = i-1;
-			break;
-		}
-		else if (k==-1 && sectors[sector].e3d_local[i] == id)
-		{
-			k = i;
-		}
-	}
-
-	sectors[sector].e3d_local[k] = sectors[sector].e3d_local[j];
-	sectors[sector].e3d_local[j] = -1;
-#endif
 	destroy_3d_object (id);
 }
 #endif

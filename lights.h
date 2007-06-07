@@ -88,7 +88,6 @@ void disable_local_lights();
  */
 void draw_lights();
 
-#ifdef	NEW_FRUSTUM
 /*
  * \ingroup	lights
  * \brief	Destroys the light at position i in the lights_list
@@ -100,7 +99,6 @@ void draw_lights();
  * \callgraph
  */
 void destroy_light(int i);
-#endif
 
 /*!
  * \ingroup lights
@@ -117,18 +115,10 @@ void destroy_light(int i);
  * \param intensity     a (intensity) value of the lights color
  * \retval int          the index into the \ref lights_list array, where the light was added.
  */
-#ifdef	NEW_FRUSTUM
 #if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked, unsigned int dynamic);
 #else
 int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, unsigned int dynamic);
-#endif
-#else
-#if defined (MAP_EDITOR2) || defined (MAP_EDITOR)
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity, int locked);
-#else
-int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, GLfloat intensity);
-#endif
 #endif
 
 /*!

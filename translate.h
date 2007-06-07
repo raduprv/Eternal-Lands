@@ -465,12 +465,7 @@ extern char	reg_error_str[15],
 		fbo_draw_buffer_error[100],
 		fbo_read_buffer_error[100],
 		fbo_unknow_error[100],
-#ifdef NEW_E3D_FORMAT
 		gl_ext_not_found_emul_it[100],
-#endif
-#ifdef	TERRAIN
-		disabled_normal_mapping[50],
-#endif		
 		/*init.c*/
 		fatal_error_str[10],
 		no_e3d_list[50],

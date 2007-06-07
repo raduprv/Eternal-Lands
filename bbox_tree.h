@@ -1,4 +1,3 @@
-#ifdef	NEW_FRUSTUM
 #ifndef	BBOX_TREE_H
 #define BBOX_TREE_H
 
@@ -946,5 +945,4 @@ extern LINE click_line;
 } // extern "C"
 #endif
 
-#endif
 #endif

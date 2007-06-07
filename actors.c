@@ -442,25 +442,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifndef	NEW_FRUSTUM
-float cal_get_maxz2(actor *act)
-{
-	float points[1024][3];
-	int nrPoints;
-	struct CalSkeleton *skel;
-	float maxz;
-	int i;
-
-	if(!act||!act->calmodel)return 0;
-	skel=CalModel_GetSkeleton(act->calmodel);
-	if(!skel)return 0;
-	nrPoints = CalSkeleton_GetBonePoints(skel,&points[0][0]);
-	maxz=points[0][2];
-	for (i=1;i<nrPoints;++i) if (maxz<points[i][2]) maxz=points[i][2];
-	return maxz;
-}
-#endif
-
 void draw_actor(actor * actor_id, int banner)
 {
 	//int i;
@@ -481,11 +462,7 @@ void draw_actor(actor * actor_id, int banner)
 	//i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
 	//if(i >= 0)healthbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
 	if (actor_id->calmodel!=NULL){
-#ifdef	NEW_FRUSTUM
 		healthbar_z = actor_id->max_z+0.2;
-#else
-		healthbar_z=cal_get_maxz2(actor_id)+0.2;
-#endif
 	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
@@ -525,7 +502,6 @@ CHECK_GL_ERRORS();
 
 void get_actors_in_range()
 {
-#ifdef	NEW_FRUSTUM
 	float x_pos, y_pos, z_pos;
 	unsigned int i;
 	actor *me;
@@ -580,38 +556,6 @@ void get_actors_in_range()
 			}
 		}
 	}
-#else
-	int i;
-	int x,y;
-	actor *me=pf_get_our_actor();
-
-	if(!me) return;
-
-	no_near_actors=0;
-
-	x=-camera_x;
-	y=-camera_y;
-
-	for(i=0;i<max_actors;i++){
-		if(actors_list[i]) {
-			int dist1;
-			int dist2;
-			int dist;
-
-			if(!actors_list[i]->tmp.have_tmp)continue;
-			dist1=x-actors_list[i]->tmp.x_pos;
-			dist2=y-actors_list[i]->tmp.y_pos;
-
-			if((dist=dist1*dist1+dist2*dist2)<=7*7){
-				near_actors[no_near_actors].actor=i;
-				near_actors[no_near_actors].dist=dist;
-				near_actors[no_near_actors].ghost=actors_list[i]->ghost;
-				near_actors[no_near_actors].buffs=actors_list[i]->buffs;
-				no_near_actors++;
-			}
-		}
-	}
-#endif
 }
 
 void display_actors(int banner, int reflections)
@@ -656,11 +600,7 @@ void display_actors(int banner, int reflections)
 				{
 					draw_actor(cur_actor, banner);
 				}
-#ifdef	NEW_FRUSTUM
 				if (near_actors[i].select)
-#else
-				if (1)
-#endif
 				{
 					if (cur_actor->kind_of_actor == NPC)
 					{
@@ -716,11 +656,7 @@ void display_actors(int banner, int reflections)
 						draw_actor(cur_actor, banner);
 					}
 
-#ifdef	NEW_FRUSTUM
 					if (near_actors[i].select)
-#else
-					if (1)
-#endif
 					{
 						if (cur_actor->kind_of_actor == NPC)
 						{
