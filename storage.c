@@ -112,7 +112,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		
 		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
 		{
-			if (storage_items[i].pos == in_data[idx+6])
+			if ((storage_items[i].pos == in_data[idx+6]) && (storage_items[i].quantity > 0))
 			{
 				storage_items[i].image_id = SDL_SwapLE16 (*((Uint16*)(&in_data[idx])));
 				storage_items[i].quantity = SDL_SwapLE32 (*((Uint32*)(&in_data[idx+2])));
