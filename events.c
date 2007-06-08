@@ -363,12 +363,14 @@ int HandleEvent(SDL_Event *event)
             if ((ch=='m') || ((ch == 'q') && (minimap_on)))
             {
 #ifdef	EYE_CANDY
-              if (cur_mode == mode_eye_candy)
+              if ((cur_mode == mode_eye_candy) && (eye_candy_ready_to_add == 1))
               {
+                  eye_candy_ready_to_add = 2;
                   change_eye_candy_effect();
 //                eye_candy_add_effect();
 //                cur_mode = mode_tile;
               }
+              
 #endif	//EYE_CANDY
               
               map_has_changed=(minimap_on=!minimap_on);
@@ -484,7 +486,7 @@ int HandleEvent(SDL_Event *event)
 			if(minimap_on && left_click==1)
 				{
 #ifdef	EYE_CANDY
-					if (cur_mode != mode_eye_candy)
+					if ((cur_mode != mode_eye_candy) && eye_candy_ready_to_add)
 					{
 						check_mouse_minimap();
 						return(done);

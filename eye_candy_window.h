@@ -49,6 +49,7 @@ extern int last_ec_index;
 extern int eye_candy_window;
 extern int eye_candy_confirmed;
 extern int eye_candy_initialized;
+extern int eye_candy_ready_to_add;
 
 void draw_eye_candy_obj_info();
 void create_eye_candy_window();

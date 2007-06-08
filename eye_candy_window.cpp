@@ -1,6 +1,7 @@
 /*
 TODO: 
- * Make element motion / creation / destruction / drawing take into account
+ * Stop effect particles from stepping out of bounds.
+ * Make element motion / destruction / drawing take into account
    camera location.
  * Let effects be re-selectable for adjustable X, Y, and Z.
  * Save effects.
@@ -33,13 +34,13 @@ int last_ec_index = -2;	// None selected.
 int eye_candy_window = -1;
 int eye_candy_confirmed = 0;
 int eye_candy_initialized = 0;
+int eye_candy_ready_to_add = 0;
 }
 
 static int eye_candy_window_x=15;
 static int eye_candy_window_y=50;
 static int eye_candy_window_x_len=600;
 static int eye_candy_window_y_len=470;
-static bool ready_to_add = false;
 std::vector<EffectDefinition> effects;
 EffectDefinition current_effect;
 
@@ -238,7 +239,7 @@ void confirm_eye_candy_effect()
       break;
     }
   }
-  ready_to_add = true;
+  eye_candy_ready_to_add = 1;
 }
 
 extern "C" int display_eye_candy_window_handler()
@@ -366,7 +367,7 @@ extern "C" void delete_eye_candy_point()
 
 extern "C" void eye_candy_add_effect()
 {
-  if (eye_candy_initialized && ready_to_add)
+  if (eye_candy_initialized && eye_candy_ready_to_add)
   {
     effects.push_back(current_effect);
     current_effect.reference = NULL;
@@ -393,7 +394,7 @@ extern "C" void eye_candy_done_adding_effect()
 {
   if (eye_candy_initialized)
   {
-    ready_to_add = false;
+    eye_candy_ready_to_add = 0;
     if (current_effect.reference)
     {
       ec_recall_effect(current_effect.reference);
