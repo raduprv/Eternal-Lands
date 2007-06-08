@@ -445,6 +445,10 @@ CHECK_GL_ERRORS();
 
 GLuint map_text;
 GLuint cont_text;
+#ifdef CLICKABLE_CONTINENT_MAP
+GLuint inspect_map_text = 0;
+int show_continent_map_boundaries = 1;
+#endif
 GLuint legend_text=0;
 int cur_map;  //Is there a better way to do this?
 
@@ -580,7 +584,15 @@ void draw_game_map (int map, int mouse_mini)
 	
 	if(map){
 		map_small=get_texture_id(cont_text);
+#ifndef CLICKABLE_CONTINENT_MAP
 		map_large=map_text;
+#else
+		if(inspect_map_text == 0) {
+			map_large=map_text;
+		} else {
+			map_large = inspect_map_text;
+		}
+#endif
 	} else {
 		map_small=map_text;
 		map_large=get_texture_id(cont_text);
@@ -671,8 +683,8 @@ void draw_game_map (int map, int mouse_mini)
  
 		// draw a temporary mark until the text is entered
 		if (adding_mark) {
-        	        int x = mark_x;
-        	        int y = mark_y;
+			int x = mark_x;
+			int y = mark_y;
 
 			screen_x=(51+200*x/(tile_map_size_x*6));
 			screen_y=201-200*y/(tile_map_size_y*6);
@@ -691,6 +703,7 @@ void draw_game_map (int map, int mouse_mini)
 			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, 0.3);
 		}
 
+#ifndef CLICKABLE_CONTINENT_MAP
 		// if filtering marks, display the label and the current filter text
 		if (mark_filter_active) {
 			char * show_mark_filter_text;
@@ -737,9 +750,62 @@ void draw_game_map (int map, int mouse_mini)
 	        		glEnable(GL_TEXTURE_2D);
 	        		glColor3f(0.2f,1.0f,0.0f);
 				draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
+#else
+		if(inspect_map_text == 0) {
+			// if filtering marks, display the label and the current filter text
+			if (mark_filter_active) {
+				char * show_mark_filter_text;
+				int max_show_len = 15;
+				if (strlen(mark_filter_text) > max_show_len)
+				  show_mark_filter_text = &mark_filter_text[strlen(mark_filter_text)-max_show_len];
+				else if (strlen(mark_filter_text) == 0)
+					show_mark_filter_text = "_";
+				else
+				  show_mark_filter_text = mark_filter_text;
+				glColor3f(1.0f,1.0f,0.0f);
+				screen_x = 25 - 1.5*strlen(label_mark_filter);
+				screen_y = 150 + 25;
+				draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
+				screen_x = 25 - 1.5*strlen(show_mark_filter_text);
+				screen_y = 150 + 32;
+				draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
 			}
-	 	}
+	
+			// crave the markings
+			for(i=0;i<max_mark;i++)
+			 {
+				int x = marks[i].x;
+				int y = marks[i].y;
+				if ( x > 0 ) {
+	
+					// if filtering marks, don't display if it doesn't match the current filter
+					if (mark_filter_active
+						  && (get_string_occurance(mark_filter_text, marks[i].text, strlen(marks[i].text), 1) == -1))
+						continue;
+	
+					screen_x=(51+200*x/(tile_map_size_x*6));
+					screen_y=201-200*y/(tile_map_size_y*6);
+	
+					glColor3f(0.4f,1.0f,0.0f);
+					glDisable(GL_TEXTURE_2D);
+					glBegin(GL_LINES);
+						glVertex2i(screen_x-3,screen_y-3);
+						glVertex2i(screen_x+2,screen_y+2);
+					
+						glVertex2i(screen_x+2,screen_y-3);
+						glVertex2i(screen_x-3,screen_y+2);
+					glEnd();
+						glEnable(GL_TEXTURE_2D);
+						glColor3f(0.2f,1.0f,0.0f);
+					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
+				}
+#endif
+			}
+#ifndef CLICKABLE_CONTINENT_MAP
+		}
+#endif
 
+#ifndef CLICKABLE_CONTINENT_MAP
 		// draw coordinates
 		if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
 			// we're pointing on the map, display position
@@ -752,12 +818,30 @@ void draw_game_map (int map, int mouse_mini)
 			screen_x = 25 - 1.5*strlen(label_cursor_coords);
 			screen_y = 150 + 4;
 			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
+#else
+			// draw coordinates
+			if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
+				// we're pointing on the map, display position
+				char buf[10];
+				safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
+				glColor3f(1.0f,1.0f,0.0f);
+				screen_x = 25 - 1.5*strlen(buf);
+				screen_y = 150 + 11;
+				draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
+				screen_x = 25 - 1.5*strlen(label_cursor_coords);
+				screen_y = 150 + 4;
+				draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
+			}
+#endif
 		}
-
 	}
 
 	//if we're following a path, draw the destination on the map
+#ifndef CLICKABLE_CONTINENT_MAP
 	if (pf_follow_path)
+#else
+	if (pf_follow_path && inspect_map_text == 0)
+#endif
 	{
 		int px = pf_dst_tile->x;
 		int py = pf_dst_tile->y;
@@ -795,7 +879,11 @@ void draw_game_map (int map, int mouse_mini)
 	}
 	
 	//ok, now let's draw our possition...
+#ifndef CLICKABLE_CONTINENT_MAP
 	if(your_actor != NULL) {
+#else
+	if(your_actor != NULL && inspect_map_text == 0) {
+#endif
 		x = your_actor->x_tile_pos;
 		y = your_actor->y_tile_pos;
 	} else {
@@ -837,6 +925,32 @@ void draw_game_map (int map, int mouse_mini)
 		glEnd();
 	}
 
+#ifdef CLICKABLE_CONTINENT_MAP
+	if(!map && show_continent_map_boundaries) {
+		int i;
+		glColor3f (0.267f, 0.267f, 0.267f);
+		glDisable (GL_TEXTURE_2D);
+		glBegin(GL_LINES);
+		/* Draw borders for the maps */
+		for(i = 0; continent_maps[i].name != NULL; i++) {
+			if(continent_maps[i].cont == continent_maps[cur_map].cont) {
+				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_start / 512);
+				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_end / 512);
+				
+				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_end / 512);
+				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_end / 512);
+				
+				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_end / 512);
+				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_start / 512);
+				
+				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_start / 512);
+				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_start / 512);
+			}
+		}
+		glEnd();
+	}
+
+#endif
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
@@ -855,7 +969,7 @@ void draw_game_map (int map, int mouse_mini)
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_LIGHTING);
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 

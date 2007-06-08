@@ -97,6 +97,11 @@ extern const char* cont_map_file_names[];
 extern const int nr_continents;
 extern struct draw_map *continent_maps; /*!< global array of maps for the continents */
 
+#ifdef CLICKABLE_CONTINENT_MAP
+extern GLuint inspect_map_text;
+extern int show_continent_map_boundaries;
+
+#endif
 /*!
  * \ingroup loadsave
  * \brief Read the map info file

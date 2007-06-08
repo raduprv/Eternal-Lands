@@ -1376,6 +1376,9 @@ void init_vars()
 	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 #ifdef ELC
 	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
+#ifdef CLICKABLE_CONTINENT_MAP
+	add_var(BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map boundaries on continent map", "Show map boundaries on the continent map", MISC);
+#endif
 #endif //ELC
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);

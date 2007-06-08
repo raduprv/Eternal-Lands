@@ -29,7 +29,17 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
 	{
 		showing_continent = !showing_continent;
+#ifndef CLICKABLE_CONTINENT_MAP
 	} else if (!showing_continent)
+#else
+		if(inspect_map_text != 0)
+		{
+			glDeleteTextures(1,&inspect_map_text);
+			inspect_map_text = 0;
+		}
+	}
+	else if (!showing_continent && inspect_map_text == 0)
+#endif
 	{
 		if (left_click)
 		{
@@ -41,6 +51,47 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 				put_mark_on_map_on_mouse_position ();
 			else
 				delete_mark_on_map_on_mouse_position ();
+#ifdef CLICKABLE_CONTINENT_MAP
+		}
+	}
+	else if(showing_continent)
+	{
+		if (left_click)
+		{
+			int min_mouse_x = (window_width-hud_x)/6;
+			int min_mouse_y = 0;
+			
+			int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
+			int max_mouse_y = window_height - hud_y;
+			
+			int screen_map_width = max_mouse_x - min_mouse_x;
+			int screen_map_height = max_mouse_y - min_mouse_y;
+
+			int i;
+			/* Convert mouse coordinates to map coordinates (stolen from pf_get_mouse_position()) */
+			int m_px = ((mx-min_mouse_x) * 512) / screen_map_width;
+			int m_py = 512 - ((my * 512) / screen_map_height);
+
+			/* Check if we clicked on a map */
+			for(i = 0; continent_maps[i].name != NULL; i++) {
+				if(continent_maps[i].cont == continent_maps[cur_map].cont) {
+					if(m_px > continent_maps[i].x_start && m_px < continent_maps[i].x_end
+						&& m_py > continent_maps[i].y_start && m_py < continent_maps[i].y_end)
+					{
+						/* Load this map's bmp */
+						if(cur_map != i) {
+							char *bmp_map = strdup(continent_maps[i].name);
+							size_t name_len = strlen(bmp_map);
+							sprintf(bmp_map+name_len-3, "bmp");
+							inspect_map_text = load_bmp8_fixed_alpha(bmp_map, 128);
+							free(bmp_map);
+						}
+						showing_continent = !showing_continent;
+						break;
+					}
+				}
+			}
+#endif
 		}
 	}
 	
