@@ -145,6 +145,9 @@ effect_breath.o: ../elc/eye_candy/effect_breath.cpp ../elc/eye_candy/effect_brea
 cal3d_wrapper.o: ../elc/cal3d_wrapper.cpp ../elc/cal3d_wrapper.h
 	$(CXX) $(CXXFLAGS) -c ../elc/cal3d_wrapper.cpp
 
+textures.o: ../elc/textures.c ../elc/textures.h
+	$(CC) $(CFLAGS) -c ../elc/textures.c
+
 %.o:	%.c %.h
 	$(CC) $(CFLAGS) -c $*.c
 

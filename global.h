@@ -70,7 +70,7 @@
 #include "frustum.h"
 #include "misc.h"
 #include "../elc/client_serv.h"
-#include "textures.h"
+#include "../elc/textures.h"
 #include "font.h"
 #include "elwindows.h"
 #include "o3dow.h"

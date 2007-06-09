@@ -658,8 +658,12 @@ void load_all_tiles()
 		if(cur_text==-1)return;
 		tile_list[i]=cur_text;
 		tiles_no=i;
+#ifdef	OLD_TEXTURE_LOADER
 		//map_tiles[i].img=load_bmp8_color_key_no_texture_img(str,map_tiles+i,255);
 		load_bmp8_texture(str,map_tiles+i,255);
+#else	//OLD_TEXTURE_LOADER
+		load_texture(str,map_tiles+i,255);
+#endif	//OLD_TEXTURE_LOADER
 	}
 	map_tiles[255].texture=NULL;
 }

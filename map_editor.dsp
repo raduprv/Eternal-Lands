@@ -346,7 +346,7 @@ SOURCE=.\shadows.c
 # End Source File
 # Begin Source File
 
-SOURCE=.\textures.c
+SOURCE=..\elc\textures.c
 # End Source File
 # Begin Source File
 

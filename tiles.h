@@ -1,6 +1,6 @@
 #ifndef __TILE_H__
 #define __TILE_H__
-#include	"textures.h"
+#include "../elc/textures.h"
 
 typedef struct
 {
