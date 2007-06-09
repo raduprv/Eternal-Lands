@@ -603,6 +603,7 @@ void makeScreenShot ()
 {
 	char fname[256];
 	int ret;
+	int align;
 	int dlen, ishot, iline, w = window_width, h = window_height;
 	unsigned char *pixels;
 	SDL_Surface *surf;
@@ -659,16 +660,18 @@ void makeScreenShot ()
 	}
 
 	/* read the pixels from the GL scene */
-	pixels = malloc (3 * w * h);
+	glGetIntegerv(GL_PACK_ALIGNMENT, &align);
+	pixels = malloc(h * align * ((3 * w - 1) / align + 1));
 	glReadPixels (0, 0, w, h, GL_RGB, GL_UNSIGNED_BYTE, pixels);
-
 	/* Let SDL worry about creating a BMP from it: create a surface */
 	surf = SDL_CreateRGBSurface (SDL_SWSURFACE, w, h, 24, rmask, gmask, bmask, amask);
 
 	/* simply memcpy'ing the pixels results in an upside-down image,
 	 * so copy the lines in reverse order */
+	if (SDL_MUSTLOCK(surf)) SDL_LockSurface(surf);
 	for (iline = 0; iline < h; iline++)
 		memcpy ((char *)surf->pixels + surf->pitch*iline, pixels + surf->pitch*(h-iline-1), 3*w);
+	if (SDL_MUSTLOCK(surf)) SDL_UnlockSurface(surf);
 	//SDL_SaveBMP (surf, fname);
 	IMG_SavePNG (surf, fname);
 	free (pixels);
