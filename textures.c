@@ -14,7 +14,7 @@
 
 #ifndef	OLD_TEXTURE_LOADER
 #ifdef NEW_LIGHTING
-void do_night_shift_texture(texture_mem* GLubyte, uint_fast32_t x_size, uint_fast32_t y_size)
+void do_night_shift_texture(const char * filename, GLubyte * texture_mem, uint_fast32_t x_size, uint_fast32_t y_size)
 {
 	uint_fast32_t i;
 	float percent_grey, average;
@@ -153,7 +153,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	SDL_FreeSurface(texture_surface);
 
 #ifdef NEW_LIGHTING
-	do_night_shift_texture();
+	do_night_shift_texture(file_name, data, tex->x_size, tex->y_size);
 #endif
 	return tex;
 }
