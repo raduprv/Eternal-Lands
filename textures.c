@@ -8,8 +8,156 @@
 #ifdef	ZLIB
 #include	<zlib.h>
 #endif
+#ifndef	OLD_TEXTURE_LOADER
+#include <SDL_image.h>
+#endif	//OLD_TEXTURE_LOADER
 
+#ifndef	OLD_TEXTURE_LOADER
+#ifdef NEW_LIGHTING
+void do_night_shift_texture(texture_mem* GLubyte, uint_fast32_t x_size, uint_fast32_t y_size)
+{
+	uint_fast32_t i;
+	float percent_grey, average;
 
+	if (night_shift_textures)
+	{
+		// If nighttime, use a nighttime texture.
+		if ((!dungeon) &&
+			(strncmp(filename, "./textures", 10)) &&	// Exclude the textures dir, which contains buttons and the like.
+			(strncmp(filename, "./maps", 6)))		// Also exclude maps
+		{
+			if ((game_minute > 230) || (game_minute < 10))
+			{
+				percent_grey = 0.6f;
+			}
+			else
+			{
+				if ((game_minute < 40))
+				{
+					percent_grey = 0.6f * (1.0f - (game_minute - 10.0f) / 30.0f);
+				}
+				else
+				{
+					if (game_minute > 200)
+					{
+						percent_grey = 0.6f * (game_minute - 200) / 30.0f;
+					}
+					else
+					{
+						percent_grey = 0.0f;
+					}
+				}
+			}
+			for (i = 0; i < x_size * y_size * 4; i += 4)
+			{
+				average = texture_mem[i + 0];
+				average = texture_mem[i + 1];
+				average = texture_mem[i + 2];
+				average /= 3.0f;
+				texture_mem[i + 0] = (Uint8)(texture_mem[i + 0] * (1.0 - percent_grey) + average * percent_grey);
+				texture_mem[i + 1] = (Uint8)(texture_mem[i + 1] * (1.0 - percent_grey) + average * percent_grey);
+				texture_mem[i + 2] = (Uint8)(texture_mem[i + 2] * (1.0 - percent_grey) + average * percent_grey);
+			}
+		}
+	}
+}
+#endif	
+
+texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 alpha)
+{
+	SDL_Surface *texture_surface;
+	GLubyte* data;
+	uint_fast32_t texture_width, texture_height, idx;
+	uint_fast32_t pixel, temp, r, g, b, a;
+	uint_fast32_t bpp, i, j, index;
+
+	texture_surface = IMG_Load(file_name);
+	if (texture_surface == 0)
+	{
+		LOG_ERROR("%s", IMG_GetError());
+		return NULL;
+	}
+
+	// at this point, theTextureSurface contains some type of pixel data.
+	// SDL requires us to lock the surface before using the pixel data:
+	SDL_LockSurface(texture_surface);
+	tex->has_alpha = 0;
+	tex->x_size = texture_surface->w;
+	tex->y_size = texture_surface->h;
+
+	texture_width = texture_surface->w;
+	texture_height = texture_surface->h;
+
+	tex->texture = (GLubyte*) malloc(texture_width * texture_height * 4 * sizeof(GLubyte));
+	data = tex->texture;
+
+	idx = 0;
+	pixel = 0;
+	bpp = texture_surface->format->BytesPerPixel;
+
+	for (i = 0; i < texture_height; i++)
+	{
+		for (j = 0; j < texture_width; j++)
+		{
+			if ((texture_surface->format->BitsPerPixel == 8) &&
+				(texture_surface->format->palette != 0))
+			{
+				index = ((Uint8 *)texture_surface->pixels)[idx];
+				r = texture_surface->format->palette->colors[index].r;
+				g = texture_surface->format->palette->colors[index].g;
+				b = texture_surface->format->palette->colors[index].b;
+				a = (r + g + b) / 3;
+			}
+			else
+			{
+				memcpy(&pixel, &((Uint8 *)texture_surface->pixels)[idx], bpp);
+				/* Get Red component */
+				temp = pixel & texture_surface->format->Rmask;  /* Isolate red component */
+				temp = temp >> texture_surface->format->Rshift; /* Shift it down to 8-bit */
+				temp = temp << texture_surface->format->Rloss;  /* Expand to a full 8-bit number */
+				r = (Uint8)temp;
+
+				/* Get Green component */
+				temp = pixel & texture_surface->format->Gmask;  /* Isolate green component */
+				temp = temp >> texture_surface->format->Gshift; /* Shift it down to 8-bit */
+				temp = temp << texture_surface->format->Gloss;  /* Expand to a full 8-bit number */
+				g = (Uint8)temp;
+
+				/* Get Blue component */
+				temp = pixel & texture_surface->format->Bmask;  /* Isolate blue component */
+				temp = temp >> texture_surface->format->Bshift; /* Shift it down to 8-bit */
+				temp = temp << texture_surface->format->Bloss;  /* Expand to a full 8-bit number */
+				b = (Uint8)temp;
+
+				/* Get Alpha component */
+				temp = pixel & texture_surface->format->Amask;  /* Isolate alpha component */
+				temp = temp >> texture_surface->format->Ashift; /* Shift it down to 8-bit */
+				temp = temp << texture_surface->format->Aloss;  /* Expand to a full 8-bit number */
+				a = (Uint8)temp;
+			}
+			if (alpha)
+			{
+				a = alpha;
+			}
+			idx += bpp;
+
+			index = (texture_height - i - 1) * texture_width + j;
+			data[index * 4 + 0] = r;
+			data[index * 4 + 1] = g;
+			data[index * 4 + 2] = b;
+			data[index * 4 + 3] = a;
+		}
+	}
+
+	SDL_UnlockSurface(texture_surface);
+	SDL_FreeSurface(texture_surface);
+
+#ifdef NEW_LIGHTING
+	do_night_shift_texture();
+#endif
+	return tex;
+}
+#else	//OLD_TEXTURE_LOADER
 //load a bmp texture into a texture structure with an estimated alpha
 texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Uint8 alpha)
 {
@@ -223,6 +371,7 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 
 	return tex;
 }
+#endif	//OLD_TEXTURE_LOADER
 
 // set a default alpha value except where it's black, make that transparent
 void	texture_set_alpha(texture_struct *tex, Uint8 alpha, int cutoff)
@@ -508,6 +657,30 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 	texture_struct	texture;
 	texture_struct	ttexture;
 	texture_struct	*tex;
+#ifndef	OLD_TEXTURE_LOADER
+	char filename[1024];//Create a buffer...
+	char * name;
+
+	/* copy (maybe truncating) FileName into a buffer */
+	snprintf(filename, sizeof(filename), "%s", FileName);
+	/* find last dot */
+	name = strrchr(filename, '.');
+	if (name == NULL)
+	{
+		name = filename;
+	}
+	/* terminate filename before last dot */
+	*name = '\0';
+
+	/* safely add '_alpha.bmp' to the string */
+	strncat(filename, "_alpha", sizeof(filename) - strlen(filename) - 1);
+	name = strrchr(FileName, '.');
+	if (name == NULL)
+	{
+		name = ".bmp";
+	}
+	strncat(filename, name, sizeof(filename) - strlen(filename) - 1);
+#else	//OLD_TEXTURE_LOADER
 	char filename[512];//Create a buffer...
 	char * name;
 
@@ -524,11 +697,16 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 
 	/* safely add '_alpha.bmp' to the string */
 	strncat(filename, "_alpha.bmp", sizeof(filename) - strlen(filename) - 1);
+#endif	//OLD_TEXTURE_LOADER
 
 	// check for a file
 	if(!gzfile_exists(filename))	return 0;	// no file
 	// read in the texture
+#ifdef	OLD_TEXTURE_LOADER
 	tex= load_bmp8_texture(filename, &ttexture, 0);
+#else	//OLD_TEXTURE_LOADER
+	tex = load_texture(filename, &ttexture, 0);
+#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -560,7 +738,11 @@ GLuint load_bmp8_color_key(char * filename, int alpha)
 	texture_struct	*tex;
 	GLuint texture;
 
+#ifdef	OLD_TEXTURE_LOADER
 	tex= load_bmp8_texture(filename, &ttexture, 0);
+#else	//OLD_TEXTURE_LOADER
+	tex = load_texture(filename, &ttexture, 0);
+#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -635,7 +817,11 @@ GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
 	texture_struct	*tex;
 	GLuint texture;
 
+#ifdef	OLD_TEXTURE_LOADER
 	tex= load_bmp8_texture(filename, &ttexture, a);
+#else	//OLD_TEXTURE_LOADER
+	tex = load_texture(filename, &ttexture, a);
+#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -693,7 +879,11 @@ GLuint reload_bmp8_color_key(char * filename, int alpha, GLuint texture)
 	texture_struct	ttexture;
 	texture_struct	*tex;
 
+#ifdef	OLD_TEXTURE_LOADER
 	tex= load_bmp8_texture(filename, &ttexture, 0);
+#else	//OLD_TEXTURE_LOADER
+	tex = load_texture(filename, &ttexture, 0);
+#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -748,7 +938,11 @@ GLuint reload_bmp8_fixed_alpha(char * filename, Uint8 a, GLuint texture)
 	texture_struct	ttexture;
 	texture_struct	*tex;
 
+#ifdef	OLD_TEXTURE_LOADER
 	tex= load_bmp8_texture(filename, &ttexture, a);
+#else	//OLD_TEXTURE_LOADER
+	tex = load_texture(filename, &ttexture, a);
+#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -860,7 +1054,11 @@ texture_struct *load_bmp8_alpha (const char *filename, texture_struct *tex, Uint
 	int x_size, y_size;
 	Uint8 *texture_mem;
 
+#ifdef	OLD_TEXTURE_LOADER
 	tex= load_bmp8_texture(filename, tex, alpha);
+#else	//OLD_TEXTURE_LOADER
+	tex = load_texture(filename, tex, alpha);
+#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return NULL;
 	}

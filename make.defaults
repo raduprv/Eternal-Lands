@@ -56,6 +56,7 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 #FEATURES += CLICKABLE_CONTINENT_MAP         # Enables you to click on the continent map to view maps
+#FEATURES += OLD_TEXTURE_LOADER              # Enables old texture loader (only the new texture loader has support for png, tiff, jpeg, bmp etc.)
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
