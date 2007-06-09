@@ -1,6 +1,5 @@
 /*
 TODO: 
- * Stop effect particles from stepping out of bounds.
  * Make element motion / destruction / drawing take into account
    camera location.
  * Let effects be re-selectable for adjustable X, Y, and Z.
