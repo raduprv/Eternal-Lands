@@ -28,15 +28,17 @@
 	<channel number="111" name="Hungarian">Chat in Hungarian</channel>
 	<channel number="124" name="Trivia">Play Trivia!</channel>
 	<channel number="206" name="German">Chat in German</channel>
+	<channel number="231" name="Swedish">Chat in Swedish</channel>
 	<channel number="242" name="Italian">Chat in Italian</channel>
 	<channel number="255" name="Spanish">Chat in Spanish</channel>
 	<channel number="381" name="Ex-Yugoslavian">Chat in the Ex-Yugoslavian languages</channel>
-	<!--<channel number="421" name="Storylines">Chat with the storylines devs</channel>-->
-	<!--(from ttlanhil) it was marked, but so far there aren't enough people to justify listing it-->
 	<channel number="500" name="Portuguese">Chat in Portuguese</channel>
+	<channel number="777" name="African">Chat for Africans</channel>
 	<channel number="888" name="French">Chat in French</channel>
 	<channel number="999" name="Romanian">Chat in Romanian</channel>
+	<channel number="1192" name="Japanese">Chat in Japanese</channel>
 	<channel number="1500" name="Dutch">Chat in Dutch</channel>
+	<channel number="2000" name="Irish">Chat in Irish</channel>
 	<channel number="4900" name="Russian">Chat in Russian</channel>
 	<channel number="9872" name="*nix">Chat about *nix (linux, *BSD, etc)</channel>
 </channels>
