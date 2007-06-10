@@ -27,6 +27,14 @@ typedef struct
 	int	has_alpha;	/*!< was an alpha map applied to this texture? */
 }texture_struct;
 
+typedef enum
+{
+	TF_POINT,
+	TF_BILINEAR,
+	TF_TRILINEAR,
+	TF_ANISOTROPIC,
+	TF_ANISOTROPIC_AND_MIPMAPS
+} texture_filter;
 
 /*!
  * \ingroup 	load_bmp

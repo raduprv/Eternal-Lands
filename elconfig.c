@@ -303,6 +303,18 @@ void change_particles_percentage(int *pointer, int value)
 	}
 }
 
+void change_anisotropic_filter(float *pointer, float *value)
+{
+	if (gl_extensions_loaded && (*value > get_max_anisotropic_filter()))
+	{
+		*pointer = get_max_anisotropic_filter();
+	}
+	else
+	{
+		*pointer = *value;
+	}
+}
+
 void switch_vidmode(int *pointer, int mode)
 {
 	int win_width,
@@ -1230,6 +1242,7 @@ void init_vars()
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
+	add_var(FLOAT,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",ADVVID, 1.0f, 16.0f, 0.5f);
 	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
 #ifndef MAP_EDITOR
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);

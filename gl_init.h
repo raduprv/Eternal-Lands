@@ -33,6 +33,7 @@ extern int use_compiled_vertex_array; /*!< specified if we use compiled vertex a
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
 /*! @} */
+extern float anisotropic_filter;
 extern int gl_extensions_loaded; /*< specifies if the OpenGL extensions were loaded or not */
 
 /*!
@@ -124,41 +125,6 @@ int print_gl_errors(const char *file, const char *func, int line);
 #else	//DEBUG
 #define CHECK_GL_ERRORS()	/*!< NOP */
 #endif	//DEBUG
-/*! @} */
-
-/*!
- * \name OpenGL related constants
- */
-/*! @{ */
-#ifndef POINT_SIZE_MIN_ARB
-#define POINT_SIZE_MIN_ARB 0x8126
-#endif
-
-#ifndef COMPRESSED_RGBA_ARB
-#define COMPRESSED_RGBA_ARB				0x84EE
-#endif
-
-#ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
-#define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
-#endif
-#ifndef GL_FRAMEBUFFER_EXT
-#define GL_FRAMEBUFFER_EXT				0x8D40
-#endif
-#ifndef GL_RENDERBUFFER_EXT
-#define GL_RENDERBUFFER_EXT				0x8D41
-#endif
-#ifndef GL_FRAMEBUFFER_COMPLETE_EXT
-#define GL_FRAMEBUFFER_COMPLETE_EXT			0x8CD5
-#endif
-#ifndef GL_COLOR_ATTACHMENT0_EXT
-#define GL_COLOR_ATTACHMENT0_EXT			0x8CE0
-#endif
-#ifndef GL_DEPTH_COMPONENT24
-#define GL_DEPTH_COMPONENT24				0x81A6
-#endif
-#ifndef GL_DEPTH_ATTACHMENT_EXT
-#define GL_DEPTH_ATTACHMENT_EXT				0x8D00
-#endif
 /*! @} */
 
 #ifdef __cplusplus

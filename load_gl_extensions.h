@@ -253,5 +253,6 @@ extern PFNGLVALIDATEPROGRAMARBPROC ELglValidateProgramARB;
 extern void init_opengl_extensions();
 extern uint_fast32_t have_extension(extension_enum extension);
 extern uint_fast32_t get_texture_units();
+extern float get_max_anisotropic_filter();
 
 #endif	//_LOAD_GL_EXTENSIONS_H_

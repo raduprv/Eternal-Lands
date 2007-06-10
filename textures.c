@@ -12,6 +12,78 @@
 #include <SDL_image.h>
 #endif	//OLD_TEXTURE_LOADER
 
+__inline__ static void set_texture_filter(texture_filter filter, float anisotropic_filter)
+{
+	switch (filter)
+	{
+		case TF_POINT:
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			break;
+		case TF_BILINEAR:
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			break;
+		case TF_TRILINEAR:
+			glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_LINEAR);
+			break;
+		case TF_ANISOTROPIC:
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				anisotropic_filter);
+			break;
+		case TF_ANISOTROPIC_AND_MIPMAPS:
+			glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+			glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+				GL_LINEAR_MIPMAP_LINEAR);
+			glTexParameterf(GL_TEXTURE_2D, GL_TEXTURE_MAX_ANISOTROPY_EXT,
+				anisotropic_filter);
+			break;
+		default:
+			LOG_ERROR("Unsupported texture filter (%d)", filter);
+			break;
+	}
+}
+
+__inline__ static void set_texture_filter_parameter()
+{
+	if (poor_man)
+	{
+		set_texture_filter(TF_POINT, 0.0f);
+	}
+	else
+	{
+		if (use_mipmaps)
+		{
+			glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
+			if (anisotropic_filter > 1.0f)
+			{
+				set_texture_filter(TF_ANISOTROPIC, anisotropic_filter);
+			}
+			else
+			{
+				set_texture_filter(TF_TRILINEAR, 0.0f);
+			}
+		}		
+		else
+		{
+			if (anisotropic_filter > 1.0f)
+			{
+				set_texture_filter(TF_ANISOTROPIC_AND_MIPMAPS, anisotropic_filter);
+			}
+			else
+			{
+				set_texture_filter(TF_TRILINEAR, 0.0f);
+			}
+		}
+	}
+}
+
 #ifndef	OLD_TEXTURE_LOADER
 #ifdef NEW_LIGHTING
 void do_night_shift_texture(const char * filename, GLubyte * texture_mem, uint_fast32_t x_size, uint_fast32_t y_size)
@@ -770,34 +842,18 @@ GLuint load_bmp8_color_key(char * filename, int alpha)
 	glGenTextures(1, &texture);
 	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
 	bind_texture_id(texture);
-	if (poor_man)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
-	else if(use_mipmaps)
-	{
-		glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-	}
-	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
 
+	set_texture_filter_parameter();
 
 	if (have_extension(arb_texture_compression))
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 	}
 	else
@@ -839,32 +895,17 @@ GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	if(poor_man)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
-	else if(use_mipmaps)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-	}
-	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
+	set_texture_filter_parameter();
 
 	if (have_extension(arb_texture_compression))
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 	}
 	else
@@ -917,15 +958,17 @@ GLuint reload_bmp8_color_key(char * filename, int alpha, GLuint texture)
 	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
 	bind_texture_id(texture);
 
+	set_texture_filter_parameter();
+
 	if (have_extension(arb_texture_compression))
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 	}
 	else
@@ -963,15 +1006,17 @@ GLuint reload_bmp8_fixed_alpha(char * filename, Uint8 a, GLuint texture)
 	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
 	bind_texture_id(texture);
 
+	set_texture_filter_parameter();
+
 	if (have_extension(arb_texture_compression))
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 	}
 	else
@@ -1249,32 +1294,17 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 
-	if(poor_man)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
-	}
-	else if(use_mipmaps)
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_NEAREST);
-		glTexParameteri(GL_TEXTURE_2D, GL_GENERATE_MIPMAP_SGIS, GL_TRUE);
-	}
-	else
-	{
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
-		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	}
+	set_texture_filter_parameter();
 
 	if (have_extension(arb_texture_compression))
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 		else
 		{
-			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
 		}
 	}
 	else

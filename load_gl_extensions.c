@@ -4,6 +4,7 @@
 
 uint_fast32_t extensions = 0;
 GLint texture_units = 0;
+float max_anisotropic_filter = 1.0f;
 
 /*	GL_ARB_multitexture	*/
 PFNGLACTIVETEXTUREARBPROC ELglActiveTextureARB;
@@ -684,6 +685,7 @@ void init_opengl_extensions()
 	if (strstr(extensions_string, "GL_EXT_texture_filter_anisotropic") != NULL)
 	{
 		extensions |= 1 << ext_texture_filter_anisotropic;
+		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic_filter);
 	}
 /*	GL_EXT_texture_filter_anisotropic	*/
 /*	GL_SGIS_generate_mipmap			*/
@@ -703,3 +705,9 @@ uint_fast32_t get_texture_units()
 {
 	return texture_units;
 }
+
+float get_max_anisotropic_filter()
+{
+	return max_anisotropic_filter;
+}
+
