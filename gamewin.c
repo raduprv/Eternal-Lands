@@ -356,7 +356,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				
 				if (object_under_mouse>=0){
 					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
-					add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
+					if(this_actor != NULL)
+						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
 				}
 
 				str[0] = TOUCH_PLAYER;
@@ -397,7 +398,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			{
 				if (object_under_mouse>=0){
 					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
-					add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
+					if(this_actor != NULL)
+						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
 				}
 
 				str[0] = ATTACK_SOMEONE;
