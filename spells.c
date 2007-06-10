@@ -754,7 +754,8 @@ CHECK_GL_ERRORS();
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.20f);
-	glColor3f(1.0f,1.0f,1.0f);
+	glEnable(GL_BLEND);	// Turn Blending On
+	glBlendFunc(GL_SRC_ALPHA,GL_DST_ALPHA);
 
 	get_and_set_texture_id(sigils_text);
 	
@@ -765,6 +766,12 @@ CHECK_GL_ERRORS();
 			y=(i-1)*30+15;
 			width=quickspell_size/2;
 			height=quickspell_size/2;
+
+			if(quickspell_over==i){	//highlight if we are hovering over
+				glColor4f(1.0f,1.0f,1.0f,1.0f);
+			} else {	//otherwise shade it a bit
+				glColor4f(1.0f,1.0f,1.0f,0.6f);
+			}
 
 			//location in window ready, now for the bitmap..
 			u_start=0.125f*(mqb_data[i]->spell_image%8);//0 to 7 across
@@ -778,6 +785,8 @@ CHECK_GL_ERRORS();
 	}
 
 	glEnd();
+	glColor4f(1.0f,1.0f,1.0f,1.0f);
+	glDisable(GL_BLEND);	// Turn Blending Off
 	glDisable(GL_ALPHA_TEST);
 	
 	if(quickspell_over!=-1 && mqb_data[quickspell_over])
