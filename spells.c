@@ -549,17 +549,14 @@ void add_spell_to_quickbar()
 		}
 	}
 	
-	//Else move the other spells down the quickbar
 	if(mqb_data[6]) {
 		free(mqb_data[6]);
 	}
 			
-	for(i=6; i; i--){
-		mqb_data[i]=mqb_data[i-1];
-	}
+	for(i=1; i<7 && mqb_data[i] != NULL; ++i);
 	
-	mqb_data[0]=(mqbdata*)calloc(1,sizeof(mqbdata));
-	memcpy(mqb_data[0], mqb_data[1], sizeof(mqbdata));
+	mqb_data[i]=(mqbdata*)calloc(1,sizeof(mqbdata));
+	memcpy(mqb_data[i], mqb_data[0], sizeof(mqbdata));
 	save_quickspells();
 }
 
@@ -580,6 +577,28 @@ void remove_spell_from_quickbar (int pos)
 	}
 	mqb_data[6] = NULL;
 	save_quickspells();
+}
+
+
+void move_spell_on_quickbar (int pos, int direction)
+{
+	int i=pos;
+	mqbdata * mqb_temp;
+	if (pos < 1 || pos > 6 || mqb_data[pos] == NULL) return;
+	if ((pos ==1 && direction==0)||(pos==6 && direction==1)) return;
+	if (direction==0){
+		mqb_temp=mqb_data[i-1];
+		mqb_data[i-1]=mqb_data[i]; //move it up
+		mqb_data[i]=mqb_temp; //move it up
+		save_quickspells();
+	}
+	else if(direction==1){
+		if(mqb_data[pos+1] == NULL) return;
+		mqb_temp=mqb_data[i+1];
+		mqb_data[i+1]=mqb_data[i]; //move it down
+		mqb_data[i]=mqb_temp; //move it down
+		save_quickspells();
+	}
 }
 
 void set_spell_name (int id, const char *data, int len)
@@ -821,12 +840,22 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 
 	if(pos<7 && pos>=1 && mqb_data[pos])
 	{
-		if (flags & ELW_LEFT_MOUSE && mqb_data[pos]->spell_str[0])
+		if ((flags & ELW_LEFT_MOUSE)&&(flags & ELW_SHIFT))
+		{
+			move_spell_on_quickbar (pos,0);
+			return 1;
+		}
+		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & ELW_SHIFT))
+		{
+			move_spell_on_quickbar (pos,1);
+			return 1;
+		}
+		else if (flags & ELW_LEFT_MOUSE && mqb_data[pos]->spell_str[0])
 		{
 			my_tcp_send(my_socket, mqb_data[pos]->spell_str, 12);
 			return 1;
 		}
-		else if (flags & ELW_RIGHT_MOUSE)
+		else if ((flags & ELW_RIGHT_MOUSE)&&(flags & ELW_CTRL))
 		{
 			remove_spell_from_quickbar (pos);
 			return 1;
