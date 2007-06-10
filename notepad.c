@@ -141,7 +141,6 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 //Macro Definitions                             
 #define MAX_NOTES         10
 #define NOTE_NAME_LEN     16
-#define NOTE_DATA_LEN     1536
 #define MAX_TABS          3
 
 #define MIN_NOTE_SIZE	128
@@ -384,12 +383,11 @@ int tabOnDestroy (window_info *w)
 	return 1;
 }
 
-
 void openNoteTabContinued (int id)
 {
 	int tf_x = 20;
 	int tf_y = 45;
-	int tf_width = note_win_x_len - 70;
+	int tf_width = note_win_x_len - 70 + 20; // Grum: + 20 for scrollbar
 	int tf_height = note_win_y_len - 80;
 
 	if (tab_collection_get_nr_tabs (notepad_win, note_tabcollection_id) >= MAX_TABS)
@@ -402,10 +400,8 @@ void openNoteTabContinued (int id)
 	widget_set_color (notepad_win, note[id]->window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
-	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW, 1.0f, 0.77f, 0.57f, 0.39f, &note[id]->text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
-	// scroll bar
-	note[id]->scroll = vscrollbar_add (note[id]->window, NULL, tf_x + tf_width, tf_y, 20, tf_height);
-	widget_set_color (note[id]->window, note[id]->scroll, 0.77f, 0.57f, 0.39f);
+	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, 1.0f, 0.77f, 0.57f, 0.39f, &note[id]->text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+	
 	// remove button
 	note[id]->button = button_add (note[id]->window, NULL, button_remove_category, 20, 8);
 	widget_set_OnClick (note[id]->window, note[id]->button, notepadRemoveCategory);

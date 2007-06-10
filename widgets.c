@@ -1474,6 +1474,26 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 }
 
 // text field
+void _text_field_set_nr_lines (widget_list *w, int nr_lines)
+{
+	text_field* tf = w->widget_info;
+	if (tf != NULL)
+	{
+		tf->nr_lines = nr_lines;
+		if (tf->scroll_id != -1)
+		{
+			widget_list *sbw = widget_find (w->window_id, tf->scroll_id);
+			if (sbw != NULL && sbw->widget_info != NULL)
+			{
+				vscrollbar* sb = sbw->widget_info;
+				// set the scroll bar length to nr_lines - 2, 
+				// so that the last line is always visible
+				sb->bar_len = nr_lines > 2 ? nr_lines - 2 : 0;
+			}
+		}
+	}
+}
+
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
@@ -1593,7 +1613,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	}
 	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
 	{
-		int i = tf->cursor, n = 1;
+		int i = tf->cursor, n = 1, nr_lines;
 		
 		while (n < i && msg->data[i-n] == '\r') n++;
 		
@@ -1606,13 +1626,14 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		msg->wrap_width = 0;
 		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
 		msg->chan_idx = CHAT_NONE;
-		tf->nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space, &tf->cursor);
+		nr_lines = rewrap_message (msg, w->size, tf->text_width, &tf->cursor);
+		_text_field_set_nr_lines (w, nr_lines);
 		msg->chan_idx = tmp_chan;
 		return 1;
 	}
 	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
 	{
-		int i = tf->cursor, n = 1;
+		int i = tf->cursor, n = 1, nr_lines;
 		
 		while (i+n <= msg->len && msg->data[i+n] == '\r') n++;
 		
@@ -1624,13 +1645,16 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		msg->wrap_width = 0;
 		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
 		msg->chan_idx = CHAT_NONE;
-		tf->nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space, &tf->cursor);
+		nr_lines = rewrap_message (msg, w->size, tf->text_width, &tf->cursor);
+		_text_field_set_nr_lines (w, nr_lines);
 		msg->chan_idx = tmp_chan;
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( IS_PRINT(ch)
 			|| (ch == SDLK_RETURN && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
 	{
+		int nr_lines;
+		
 		if (ch == SDLK_RETURN)
 			ch = '\n';
 
@@ -1649,7 +1673,8 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		msg->wrap_width = 0;
 		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
 		msg->chan_idx = CHAT_NONE;
-		tf->nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space, &tf->cursor);
+		nr_lines = rewrap_message (msg, w->size, tf->text_width, &tf->cursor);
+		_text_field_set_nr_lines (w, nr_lines);
 		msg->chan_idx = tmp_chan;
 		while (msg->data[tf->cursor] == '\r') {
 			tf->cursor++;
@@ -1659,19 +1684,19 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	return 0;
 }
 
-unsigned int get_edit_pos(int x, int y, char *str, unsigned int maxchar, float text_zoom)
+unsigned int _get_edit_pos (int x, int y, const text_message *msg, int offset)
 {
-	unsigned int i = 0;
+	unsigned int i = offset;
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
-	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
+	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * msg->wrap_zoom;
 
-	if(maxchar == 0) return 0;	// nothing to do, there is no string
+	if (msg->len == 0) return 0;	// nothing to do, there is no string
 
 	nrlines = y/displayed_font_y_size;
 
-	for (; line < nrlines && i < maxchar; i++) {
-		switch (str[i]) {
+	for (; line < nrlines && i < msg->len; i++) {
+		switch (msg->data[i]) {
 			case '\r':
 			case '\n':
 				++line;
@@ -1682,8 +1707,8 @@ unsigned int get_edit_pos(int x, int y, char *str, unsigned int maxchar, float t
 	}
 
 	if(line > 0) ++i;	//skip the newline char
-	for (; i < maxchar; i++) {
-		switch (str[i]) {
+	for (; i < msg->len; i++) {
+		switch (msg->data[i]) {
 			case '\r':
 			case '\n':
 			case '\0':
@@ -1691,12 +1716,12 @@ unsigned int get_edit_pos(int x, int y, char *str, unsigned int maxchar, float t
 				break;
 			default:
 				// lachesis: for formula see draw_char_scaled
-				px += (int) (0.5 + get_char_width(str[i]) * text_zoom * DEFAULT_FONT_X_LEN / 12.0);
+				px += (int) (0.5 + get_char_width(msg->data[i]) * msg->wrap_zoom * DEFAULT_FONT_X_LEN / 12.0);
 				if (px >= x) return i;
 		}
 	}
 
-	return maxchar - 1;
+	return msg->len - 1;
 }
 
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
@@ -1712,7 +1737,7 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 
 	tf = w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
-	tf->cursor = get_edit_pos (mx, my, msg->data, msg->len, msg->wrap_zoom);
+	tf->cursor = _get_edit_pos (mx, my, msg, tf->offset);
 
 	return 1;
 }
@@ -1721,6 +1746,8 @@ const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_c
 
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
+	int res;
+	
 	text_field *T = calloc (1, sizeof (text_field));
 	T->x_space = x_space,
 	T->y_space = y_space,
@@ -1735,8 +1762,34 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->text_r = text_r;
 	T->text_g = text_g;
 	T->text_b = text_b;
+	T->text_width = lx - 2 * x_space;
+	if (Flags & TEXT_FIELD_SCROLLBAR)
+	{
+		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-20, y, 20, ly, 0, size, r, g, b, 0, 1, 1);		
+		T->text_width -= 20;
+	}
+	else
+	{
+		T->scroll_id = -1;
+		
+	}
 
-	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &text_field_type, T, NULL);
+	res = widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &text_field_type, T, NULL);
+	
+	if (buf != NULL)
+	{
+		// We need to set the correct nr of lines if we want the 
+		// scrollbar to work, but we couldn't do this earlier, since we 
+		// need the widget itself which was only just created.
+		widget_list *w = widget_find (window_id, wid);
+		if (w != NULL)
+		{
+			int nr_lines = rewrap_message (buf, w->size, T->text_width, &T->cursor);
+			_text_field_set_nr_lines (w, nr_lines);
+		}
+	}
+	
+	return res;
 }
 
 int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
@@ -1757,7 +1810,38 @@ int text_field_draw (widget_list *w)
 	mx = mouse_x - windows_list.window[w->window_id].pos_x - w->pos_x;
 	my = mouse_y - windows_list.window[w->window_id].pos_y - w->pos_y;
 
-	tf = w->widget_info;
+	tf = w->widget_info;	
+	if (tf->scroll_id != -1)
+	{
+		/* We have a scrollbar, so check its position and update
+		 * the text offset if necessary.
+		 */
+		int pos = vscrollbar_get_pos (w->window_id, tf->scroll_id);
+		if (pos > tf->line_offset)
+		{
+			int delta = pos - tf->line_offset, i;
+			for (i = tf->offset; i < tf->buffer->len; i++)
+			{
+				if (tf->buffer->data[i] == '\n' || tf->buffer->data[i] == '\r')
+					if (--delta == 0) break;
+			}
+			tf->offset = i+1;
+			tf->line_offset = pos; 
+		}
+		else if (pos < tf->line_offset)
+		{
+			int delta = tf->line_offset - pos + 1, i;
+			for (i = tf->offset; i > 0; i--)
+			{
+				if (tf->buffer->data[i-1] == '\n' || tf->buffer->data[i-1] == '\r')
+					if (--delta == 0) break;
+			}
+			tf->offset = i;
+			tf->line_offset = pos;
+		}
+	}
+
+
 	if (w->Flags & TEXT_FIELD_BORDER)
 	{
 		// draw the frame
@@ -1797,7 +1881,7 @@ int text_field_draw (widget_list *w)
 
 	glEnable(GL_TEXTURE_2D);
 	set_font(chat_font);	// switch to the chat font
-	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2 * tf->x_space, w->len_y - 2*tf->y_space, w->size);
+	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, tf->text_width, w->len_y - 2 * tf->y_space, w->size);
 	set_font (0);	// switch to fixed
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

@@ -16,21 +16,6 @@ extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was
 
 /*!
  * \ingroup notepad_window
- * \brief Computes and returns the current edit position in the notepad window.
- *
- *      Gets the current edit position in the notepad window.
- *
- * \param x                 current x coordinate
- * \param y                 current y coordinate
- * \param str               the string to search for the current edit position
- * \param maxchar           the highest character index into \a str that will be considered
- * \param text_zoom         zoom factor for the text
- * \retval unsigned int     the edit position within \a str
- */
-unsigned int get_edit_pos(int x, int y, char *str, unsigned int maxchar, float text_zoom);
-
-/*!
- * \ingroup notepad_window
  * \brief   Displays a popup window
  *
  *      Displays a popup window using the given \a label.
