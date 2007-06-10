@@ -767,9 +767,9 @@ int command_glinfo(char *text, int len)
  */
 int knowledge_command(char *text, int len)
 {
-	char this_string[80];
+	char this_string[80], count_str[40];
 	char *cr;
-	int i;
+	int i, num_read = 0, num_total = 0;
 
 	// this bit of code is repeat enough to justify doing it once somewhere...
 	// find first space, then skip any spaces
@@ -791,12 +791,17 @@ int knowledge_command(char *text, int len)
 			if ( (cr = strchr(this_string, '\n')) != NULL)
 				*cr = '\0';
 			// highlight books that have been read
-			if (knowledge_list[i].present)
+			if (knowledge_list[i].present){
 				LOG_TO_CONSOLE(c_grey1,this_string);
-			else
+				++num_read;
+			} else {
 				LOG_TO_CONSOLE(c_grey2,this_string);
+			}
+			++num_total;
 		}
 	}
+	snprintf(count_str, sizeof(count_str), book_count_str, num_read, num_total);
+	LOG_TO_CONSOLE(c_grey1, count_str);
 	return 1;
 }
 

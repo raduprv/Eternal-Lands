@@ -266,6 +266,7 @@ char	name_too_long[75],
 	help_request_str[20],
 	help_cmd_str[10],
 	date_format[100],
+	book_count_str[60],
 	char_cmd_str[2],
 	char_at_str[2],
 	char_slash_str[2],
@@ -749,6 +750,7 @@ void init_console()
 	add_xml_identifier(misc,"gm_from",gm_from_str,"#GM from",sizeof(gm_from_str));
 	add_xml_identifier(misc,"ig_from",gm_from_str,"#Ig [",sizeof(ig_from_str));
 	add_xml_identifier(misc,"date_format",date_format,"Today is the %s day in the month of %s, the year %04d, Age of the Eternals",sizeof(date_format));
+	add_xml_identifier(misc,"book_count",book_count_str,"You have read %d of %d books shown",sizeof(book_count_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));
 	add_xml_identifier(loading_msg,"init_random",init_random_str,"Generating random seed",sizeof(init_random_str));
