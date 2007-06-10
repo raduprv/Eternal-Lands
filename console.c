@@ -767,7 +767,7 @@ int command_glinfo(char *text, int len)
  */
 int knowledge_command(char *text, int len)
 {
-	char this_string[80], count_str[40];
+	char this_string[80], count_str[60];
 	char *cr;
 	int i, num_read = 0, num_total = 0;
 
