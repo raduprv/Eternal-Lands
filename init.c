@@ -733,7 +733,7 @@ void init_stuff()
 	paper1_text= load_texture_cache_deferred("./textures/paper1.bmp",0);
 	book1_text= load_texture_cache_deferred("./textures/book1.bmp",0);
 
-	if(have_multitexture)ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
+	ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	CHECK_GL_ERRORS();
 	create_char_error_str[0]= 0;
 	init_opening_interface();

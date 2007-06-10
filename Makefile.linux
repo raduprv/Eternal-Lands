@@ -10,9 +10,9 @@ CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) $(shell sdl-config --
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(shell sdl-config --cflags) $(shell xml2-config --cflags) -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 ZLIB_LIBS = -lz
-EYE_CANDY_LIBS = -lSDL_image -lpng
+EYE_CANDY_LIBS = -lpng
 PNG_SCREENSHOT_LIBS = -lpng
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm $(EXTRA_LIBS) -lalut \
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lvorbis -lvorbisfile -lcal3d -lm $(EXTRA_LIBS) -lalut \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a $(EXTRA_STATICLIBS)
@@ -33,7 +33,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
 	io/e3d_io.o io/elc_io.o	\
-	keys.o knowledge.o lights.o list.o loginwin.o loading_win.o	\
+	keys.o knowledge.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
 	main.o manufacture.o map_io.o mapwin.o	\
 	md5.o misc.o multiplayer.o	\
 	new_actors.o new_character.o 	\

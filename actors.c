@@ -567,15 +567,6 @@ void display_actors(int banner, int reflections)
 	y=-camera_y;
 
 	get_actors_in_range();
-	vertex_arrays_built=0;	// clear the counter
-	//MD2s don't have real normals...
-	glNormal3f(0.0f,0.0f,1.0f);
-	if(have_multitexture)
-		{
-			ELglActiveTextureARB(base_unit);
-			glEnable(GL_TEXTURE_2D);
-			ELglClientActiveTextureARB(base_unit);
-		}
 
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	glEnableClientState(GL_VERTEX_ARRAY);
@@ -685,7 +676,6 @@ void display_actors(int banner, int reflections)
 		glEnable(GL_LIGHTING);
 	}
 
-	if(have_multitexture) ELglClientActiveTextureARB(base_unit);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);

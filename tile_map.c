@@ -74,7 +74,7 @@ void draw_tile_map()
 	}
 #endif // Disabled debugging info
 
-	if(have_multitexture && !dungeon && clouds_shadows)
+	if (!dungeon && clouds_shadows)
 		{
 			//bind the detail texture
 			ELglActiveTextureARB(detail_unit);
@@ -89,7 +89,7 @@ void draw_tile_map()
 		reset_material();
 #endif
 
-	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping))
+	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
 			get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
@@ -158,7 +158,7 @@ void draw_tile_map()
 			glEnd();
 
 		}
-	if(have_multitexture && !dungeon && clouds_shadows)
+	if (!dungeon && clouds_shadows)
 		{
 			//disable the second texture unit
 			ELglActiveTextureARB(detail_unit);

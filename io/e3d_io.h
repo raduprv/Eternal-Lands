@@ -96,9 +96,19 @@ e3d_object* load_e3d_detail(e3d_object* cur_object);
 
 static __inline void load_e3d_detail_if_needed(e3d_object* e3d_data)
 {
-	if ((e3d_data->vertex_data == NULL) && (e3d_data->vertex_vbo == 0))
+	if (use_vertex_buffers)
 	{
-		load_e3d_detail(e3d_data);
+		if (e3d_data->vertex_vbo == 0)
+		{
+			load_e3d_detail(e3d_data);
+		}
+	}
+	else
+	{
+		if (e3d_data->vertex_data == NULL)
+		{
+			load_e3d_detail(e3d_data);
+		}
 	}
 }
 #endif

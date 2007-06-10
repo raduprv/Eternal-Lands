@@ -214,23 +214,12 @@ void change_poor_man(int *poor_man)
 	}
 }
 
-#ifdef	NOT_USED
-void change_vertex_array(int *pointer)
-{
-	*pointer= !*pointer;
-	if(use_vertex_array) {
-		LOG_TO_CONSOLE(c_green2,enabled_vertex_arrays);
-	}
-}
-#endif
-
-
 void change_compiled_vertex_array(int *value)
 {
 	if (*value) {
 		*value= 0;
 	}
-	else if (!gl_extensions_loaded || have_compiled_vertex_array)
+	else if (!gl_extensions_loaded || have_extension(ext_compiled_vertex_array))
 	{
 		// don't check if we have hardware support when OpenGL
 		// extensions are not initialized yet.
@@ -239,12 +228,54 @@ void change_compiled_vertex_array(int *value)
 	else LOG_TO_CONSOLE(c_green2,disabled_compiled_vertex_arrays);
 }
 
+void change_vertex_buffers(int *value)
+{
+	if (*value) {
+		*value= 0;
+	}
+	else if (!gl_extensions_loaded || have_extension(arb_vertex_buffer_object))
+	{
+		// don't check if we have hardware support when OpenGL
+		// extensions are not initialized yet.
+		*value= 1;
+	}
+//	else LOG_TO_CONSOLE(c_green2,disabled_vertex_buffers);
+}
+
+void change_clouds_shadows(int *value)
+{
+	if (*value) {
+		*value= 0;
+	}
+	else if (!gl_extensions_loaded || (get_texture_units() >= 2))
+	{
+		// don't check if we have hardware support when OpenGL
+		// extensions are not initialized yet.
+		*value= 1;
+	}
+//	else LOG_TO_CONSOLE(c_green2,disabled_clouds_shadows);
+}
+
+void change_mipmaps(int *value)
+{
+	if (*value) {
+		*value= 0;
+	}
+	else if (!gl_extensions_loaded || have_extension(sgis_generate_mipmap))
+	{
+		// don't check if we have hardware support when OpenGL
+		// extensions are not initialized yet.
+		*value= 1;
+	}
+//	else LOG_TO_CONSOLE(c_green2,disabled_mipmaps);
+}
+
 void change_point_particles(int *value)
 {
 	if (*value) {
 		*value= 0;
 	}
-	else if (!gl_extensions_loaded || have_point_sprite)
+	else if (!gl_extensions_loaded || have_extension(arb_point_sprite))
 	{
 		// don't check if we have hardware support when OpenGL
 		// extensions are not initialized yet.
@@ -436,11 +467,11 @@ void change_shadow_map_size(int *pointer, int value)
 
 	size= array[index];
 
-	if (gl_extensions_loaded && use_shadow_mapping && have_arb_shadow)
+	if (gl_extensions_loaded && use_shadow_mapping)
 	{
 		error= 0;
 
-		if (use_frame_buffer && have_framebuffer_object) glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
+		if (use_frame_buffer) glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
 		else max_size= min2i(window_width, window_height);
 
 		if (size > max_size) {
@@ -451,7 +482,7 @@ void change_shadow_map_size(int *pointer, int value)
 			error= 1;
 		}
 
-		if (!have_texture_non_power_of_two)
+		if (!have_extension(arb_texture_non_power_of_two))
 		{
 			switch (index)
 			{
@@ -479,22 +510,25 @@ void change_shadow_map_size(int *pointer, int value)
 		}
 
 		shadow_map_size= size;
-		if (depth_map_id == 0) {
+		if (depth_map_id != 0) {
 			glDeleteTextures(1, &depth_map_id);
 			depth_map_id= 0;
 		}
-		if (gl_extensions_loaded && have_framebuffer_object)
+		if (use_frame_buffer && use_shadow_mapping && shadows_on)
 		{
-			if (use_frame_buffer && use_shadow_mapping && have_arb_shadow && shadows_on) {
-				change_shadow_framebuffer_size();
-			} else {
-				free_shadow_framebuffer();
-			}
-			if (use_frame_buffer && show_reflection) {
-				change_reflection_framebuffer_size(window_width, window_height);
-			} else {
-				free_reflection_framebuffer();
-			}
+			change_shadow_framebuffer_size();
+		}
+		else
+		{
+			free_shadow_framebuffer();
+		}
+		if (use_frame_buffer && show_reflection)
+		{
+			change_reflection_framebuffer_size(window_width, window_height);
+		}
+		else
+		{
+			free_reflection_framebuffer();
 		}
 	}
 
@@ -801,7 +835,8 @@ void change_shadow_mapping (int *sm)
 	{
 		// don't check if we have hardware support when OpenGL
 		// extensions are not initialized yet.
-		if (!gl_extensions_loaded || (have_multitexture >= 3 && have_arb_shadow))
+		if (!gl_extensions_loaded || ((get_texture_units() >= 3) &&
+			have_extension(arb_shadow) && have_extension(arb_texture_env_combine)))
 		{
 			*sm= 1;
 		}
@@ -842,7 +877,7 @@ void change_frame_buffer(int *fb)
 	}
 	else
 	{
-		if (!gl_extensions_loaded || have_framebuffer_object)
+		if (!gl_extensions_loaded || have_extension(ext_framebuffer_object))
 		{
 			*fb= 1;
 		}
@@ -963,6 +998,10 @@ static __inline__ void check_option_var(char* name)
 
 void check_options()
 {
+	check_option_var("use_compiled_vertex_array");
+	check_option_var("use_vertex_buffers");
+	check_option_var("use_clouds_shadows");
+	check_option_var("use_mipmaps");
 	check_option_var("use_point_particles");
 	check_option_var("use_frame_buffer");
 	check_option_var("use_shadow_mapping");
@@ -1188,15 +1227,12 @@ void init_vars()
 #endif	//NEW_ALPHA
 	add_var(BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",LODTAB);
 	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",LODTAB);
-	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_var,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
+	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
-	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_var,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
+	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
 	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
 #ifndef MAP_EDITOR
-#ifdef	NOT_USED
-	add_var(BOOL,"use_vertex_array","vertex",&use_vertex_array,change_vertex_array,0,"Vertex Array","Toggle the use of the vertex array",ADVVID);
-#endif
-	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_var,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
+	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
 
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);

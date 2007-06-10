@@ -145,7 +145,11 @@ static __inline__ int adapt_size(int size)
 
 	size = min2i(size, i);
 	
-	if (have_texture_non_power_of_two) return size;
+	if (have_extension(arb_texture_non_power_of_two))
+	{
+		return size;
+	}
+	else
 	{
 		j = 1;
 		while (j < size) j += j;
@@ -370,7 +374,8 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 	v_step=3.0f*uv_tile;
 
 	glBegin(GL_TRIANGLE_STRIP);
-	if(have_multitexture)
+	if (use_shadow_mapping)
+	{
 		for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
 			{
 				for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
@@ -385,7 +390,9 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 
 					}
 			}
+	}
 	else
+	{
 		for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
 			{
 				for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
@@ -399,6 +406,7 @@ void draw_lake_water_tile(float x_pos, float y_pos)
 						glVertex3f(fx,fy, water_deepth_offset);
 					}
 			}
+	}
 	glEnd();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

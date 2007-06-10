@@ -93,7 +93,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 
 	CHECK_GL_ERRORS();
 
-	if (have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping))
+	if (!dungeon && (clouds_shadows || use_shadow_mapping))
 	{
 		ELglActiveTextureARB(detail_unit);
 		get_texture_object_linear_plane(object_id->z_rot, object_id->x_pos, object_id->y_pos, s_plane, t_plane);
@@ -110,7 +110,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 			ELglUnlockArraysEXT();
 		}
 		
-		if (have_vertex_buffers)
+		if (use_vertex_buffers)
 		{
 			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
 				object_id->e3d_data->vertex_vbo);
@@ -166,7 +166,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 			data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
 		glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
 			data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
-		if (have_vertex_buffers)
+		if (use_vertex_buffers)
 		{
 			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 				object_id->e3d_data->indicies_vbo);
@@ -299,7 +299,7 @@ void draw_3d_objects(unsigned int object_type)
 	// NOTICE: The below code is an ASSUMPTION that appropriate client
 	// states will be used!
 */
-	if (have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping))
+	if (!dungeon && (clouds_shadows||use_shadow_mapping))
 	{
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_GEN_S);
@@ -338,8 +338,11 @@ void draw_3d_objects(unsigned int object_type)
 		}
 	}
 	
-	if(use_compiled_vertex_array && (cur_e3d != NULL))ELglUnlockArraysEXT();
-	if(have_multitexture && !dungeon && (clouds_shadows||use_shadow_mapping))
+	if (use_compiled_vertex_array && (cur_e3d != NULL))
+	{
+		ELglUnlockArraysEXT();
+	}
+	if (!dungeon && (clouds_shadows || use_shadow_mapping))
 	{
 		ELglActiveTextureARB(detail_unit);
 		glDisable(GL_TEXTURE_GEN_S);
@@ -361,7 +364,8 @@ void draw_3d_objects(unsigned int object_type)
 	}
 #endif	//USE_EXTRA_TEXTURE
 
-	if(have_vertex_buffers){
+	if (use_vertex_buffers)
+	{
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 	}
@@ -590,7 +594,8 @@ void display_objects()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			
-	if(have_multitexture && !dungeon && clouds_shadows){
+	if (!dungeon && clouds_shadows)
+	{
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
@@ -615,13 +620,13 @@ void display_objects()
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	if(have_multitexture && !dungeon && clouds_shadows)
-		{
-			//disable the second texture unit
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(base_unit);
-		}
+	if (!dungeon && clouds_shadows)
+	{
+		//disable the second texture unit
+		ELglActiveTextureARB(detail_unit);
+		glDisable(GL_TEXTURE_2D);
+		ELglActiveTextureARB(base_unit);
+	}
 	CHECK_GL_ERRORS();
 }
 
@@ -632,7 +637,8 @@ void display_ground_objects()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			
-	if(have_multitexture && !dungeon && clouds_shadows){
+	if (!dungeon && clouds_shadows)
+	{
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
@@ -653,13 +659,13 @@ void display_ground_objects()
 	glDisable(GL_CULL_FACE);
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	if(have_multitexture && !dungeon && clouds_shadows)
-		{
-			//disable the second texture unit
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(base_unit);
-		}
+	if (!dungeon && clouds_shadows)
+	{
+		//disable the second texture unit
+		ELglActiveTextureARB(detail_unit);
+		glDisable(GL_TEXTURE_2D);
+		ELglActiveTextureARB(base_unit);
+	}
 	CHECK_GL_ERRORS();
 }
 
@@ -669,7 +675,8 @@ void display_alpha_objects()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			
-	if(have_multitexture && !dungeon && clouds_shadows){
+	if (!dungeon && clouds_shadows)
+	{
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
@@ -691,13 +698,13 @@ void display_alpha_objects()
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
-	if(have_multitexture && !dungeon && clouds_shadows)
-		{
-			//disable the second texture unit
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(base_unit);
-		}
+	if (!dungeon && clouds_shadows)
+	{
+		//disable the second texture unit
+		ELglActiveTextureARB(detail_unit);
+		glDisable(GL_TEXTURE_2D);
+		ELglActiveTextureARB(base_unit);
+	}
 	CHECK_GL_ERRORS();
 }
 
@@ -710,7 +717,8 @@ void display_blended_objects()
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 			
-	if(have_multitexture && !dungeon && clouds_shadows){
+	if (!dungeon && clouds_shadows)
+	{
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
@@ -741,13 +749,13 @@ void display_blended_objects()
 	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisableClientState(GL_NORMAL_ARRAY);
 	glDisable(GL_BLEND);
-	if(have_multitexture && !dungeon && clouds_shadows)
-		{
-			//disable the second texture unit
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(base_unit);
-		}
+	if (!dungeon && clouds_shadows)
+	{
+		//disable the second texture unit
+		ELglActiveTextureARB(detail_unit);
+		glDisable(GL_TEXTURE_2D);
+		ELglActiveTextureARB(base_unit);
+	}
 	CHECK_GL_ERRORS();
 }
 

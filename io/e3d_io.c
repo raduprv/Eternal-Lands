@@ -257,7 +257,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		return NULL;
 	}
 
-	if (have_vertex_buffers) index_pointer = 0;
+	if (use_vertex_buffers) index_pointer = 0;
 	else index_pointer = cur_object->indicies;
 	
 	// Optimize the storage format for better use with the OpenGL glDrawElements function
@@ -402,7 +402,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	fclose(file);
 #endif	//ZLIB
 
-	if (have_vertex_buffers)
+	if (use_vertex_buffers)
 	{
 		//Generate the buffers
 		ELglGenBuffersARB(1, &cur_object->vertex_vbo);
@@ -429,6 +429,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 				
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+	else
+	{
+		cur_object->vertex_vbo = 0;
+		cur_object->indicies_vbo = 0;
 	}
 
 #ifndef	MAP_EDITOR

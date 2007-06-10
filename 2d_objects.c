@@ -71,7 +71,7 @@ void draw_2d_object(obj_2d * object_id)
 	if (use_new_lighting)
 		reset_material();
 #endif
-	if(!have_multitexture || dungeon || (!clouds_shadows && !use_shadow_mapping))
+	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
 
@@ -515,19 +515,19 @@ void display_2d_objects()
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER, 0.18f);
 
-	if(have_multitexture && !dungeon && !(!clouds_shadows && !use_shadow_mapping))
-	    {
-			if(clouds_shadows)
-				{
-					//bind the detail texture
-					ELglActiveTextureARB(detail_unit);
-					glEnable(GL_TEXTURE_2D);
-					//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
-					glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-				}
-			ELglActiveTextureARB(base_unit);
+	if (!dungeon && !(!clouds_shadows && !use_shadow_mapping))
+	{
+		if(clouds_shadows)
+		{
+			//bind the detail texture
+			ELglActiveTextureARB(detail_unit);
 			glEnable(GL_TEXTURE_2D);
+			//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
+			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 		}
+		ELglActiveTextureARB(base_unit);
+		glEnable(GL_TEXTURE_2D);
+	}
 
 	get_intersect_start_stop(main_bbox_tree, TYPE_2D_NO_ALPHA_OBJECT, &start, &stop);
 	for (i = start; i < stop; i++)
@@ -555,13 +555,13 @@ void display_2d_objects()
 		draw_2d_object(obj_2d_list[l]);
 	}
 
-	if(have_multitexture && !dungeon && !(!clouds_shadows && !use_shadow_mapping))
-	    {
+	if (!dungeon && !(!clouds_shadows && !use_shadow_mapping))
+	{
     		//disable the multitexturing
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(base_unit);
-		}
+		ELglActiveTextureARB(detail_unit);
+		glDisable(GL_TEXTURE_2D);
+		ELglActiveTextureARB(base_unit);
+	}
 
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
