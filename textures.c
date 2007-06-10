@@ -141,7 +141,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	GLubyte* data;
 	uint_fast32_t texture_width, texture_height, idx;
 	uint_fast32_t pixel, temp, r, g, b, a;
-	uint_fast32_t bpp, i, j, index;
+	uint_fast32_t bpp, i, j, index, x_padding;
 
 	texture_surface = IMG_Load(file_name);
 	if (texture_surface == 0)
@@ -159,6 +159,17 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 
 	texture_width = texture_surface->w;
 	texture_height = texture_surface->h;
+
+	x_padding = texture_width % 4;
+
+	if (x_padding)
+	{
+		x_padding = 4 - x_padding;
+	}
+	if (texture_width <= x_padding)
+	{
+		x_padding = 0;
+	}
 
 	tex->texture = (GLubyte*) malloc(texture_width * texture_height * 4 * sizeof(GLubyte));
 	data = tex->texture;
@@ -219,6 +230,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 			data[index * 4 + 2] = b;
 			data[index * 4 + 3] = a;
 		}
+		idx += bpp * x_padding;
 	}
 
 	SDL_UnlockSurface(texture_surface);

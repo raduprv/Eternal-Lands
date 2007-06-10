@@ -18,11 +18,6 @@ void print_fbo_errors(const char *file, const char *func, int line)
 		case GL_FRAMEBUFFER_INCOMPLETE_MISSING_ATTACHMENT_EXT:
 			log_error_detailed(fbo_missing_attachment_error, file, func, line);
 			break;
-#ifdef FBO_DUPLICATE	//removed from FBO specification
-		case GL_FRAMEBUFFER_INCOMPLETE_DUPLICATE_ATTACHMENT_EXT:
-			log_error_detailed(fbo_duplicate_attachment_error, file, func, line);
-			break;
-#endif
 		case GL_FRAMEBUFFER_INCOMPLETE_DIMENSIONS_EXT:
 			log_error_detailed(fbo_dimensions_error, file, func, line);
 			break;
