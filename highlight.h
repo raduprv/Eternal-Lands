@@ -9,6 +9,8 @@ extern "C" {
 #define TILESIZE_X					(0.5f)
 #define TILESIZE_Y					(0.5f)
 #define HIGHLIGHT_TYPE_WALKING_DESTINATION 	1
+#define HIGHLIGHT_TYPE_SPELL_TARGET 	2
+#define HIGHLIGHT_TYPE_ATTACK_TARGET 	3
 
 extern int highlighting_enabled;
 

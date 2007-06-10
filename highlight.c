@@ -131,6 +131,12 @@ void display_highlight_marker(const highlight_marker *marker) {
 		case HIGHLIGHT_TYPE_WALKING_DESTINATION:
 			glColor4f(0.0f, 1.0f, 0.0f, a);
 			break;
+		case HIGHLIGHT_TYPE_SPELL_TARGET:
+			glColor4f(0.0f, 0.0f, 1.0f, a);
+			break;
+		case HIGHLIGHT_TYPE_ATTACK_TARGET:
+			glColor4f(1.0f, 0.0f, 0.0f, a);
+			break;
 	}
 	
 	glBegin(GL_POLYGON);

@@ -354,6 +354,11 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			} else if(spell_result==3){
 				Uint8 str[10];
 				
+				if (object_under_mouse>=0){
+					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
+					add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
+				}
+
 				str[0] = TOUCH_PLAYER;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
@@ -390,6 +395,11 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			}
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
+				if (object_under_mouse>=0){
+					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
+					add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_ATTACK_TARGET);
+				}
+
 				str[0] = ATTACK_SOMEONE;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send (my_socket, str, 5);
