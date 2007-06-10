@@ -387,7 +387,7 @@ void openNoteTabContinued (int id)
 {
 	int tf_x = 20;
 	int tf_y = 45;
-	int tf_width = note_win_x_len - 70 + 20; // Grum: + 20 for scrollbar
+	int tf_width = note_win_x_len - 50;
 	int tf_height = note_win_y_len - 80;
 
 	if (tab_collection_get_nr_tabs (notepad_win, note_tabcollection_id) >= MAX_TABS)

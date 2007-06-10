@@ -129,10 +129,10 @@ typedef struct
 {
 	int msg, offset, cursor;
 	float text_r, text_g, text_b;
-	int text_width;
 	int buf_size, buf_fill;
 	int nr_lines;
 	int scroll_id;
+	int scrollbar_width;
 	int line_offset;
 	text_message *buffer;
 	Uint8 chan_nr;

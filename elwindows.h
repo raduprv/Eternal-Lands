@@ -206,6 +206,7 @@ typedef	struct	{
 #define ELW_DBL_CLICK		(1<<25)	// future expansion
 #define ELW_WHEEL_UP		(1<<24)
 #define ELW_WHEEL_DOWN		(1<<23)
+#define ELW_WHEEL               (ELW_WHEEL_UP|ELW_WHEEL_DOWN)
 /*! @} */
 
 /*!

@@ -1626,7 +1626,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		msg->wrap_width = 0;
 		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
 		msg->chan_idx = CHAT_NONE;
-		nr_lines = rewrap_message (msg, w->size, tf->text_width, &tf->cursor);
+		nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 		_text_field_set_nr_lines (w, nr_lines);
 		msg->chan_idx = tmp_chan;
 		return 1;
@@ -1645,7 +1645,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		msg->wrap_width = 0;
 		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
 		msg->chan_idx = CHAT_NONE;
-		nr_lines = rewrap_message (msg, w->size, tf->text_width, &tf->cursor);
+		nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 		_text_field_set_nr_lines (w, nr_lines);
 		msg->chan_idx = tmp_chan;
 		return 1;
@@ -1673,7 +1673,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		msg->wrap_width = 0;
 		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
 		msg->chan_idx = CHAT_NONE;
-		nr_lines = rewrap_message (msg, w->size, tf->text_width, &tf->cursor);
+		nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
 		_text_field_set_nr_lines (w, nr_lines);
 		msg->chan_idx = tmp_chan;
 		while (msg->data[tf->cursor] == '\r') {
@@ -1729,13 +1729,24 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	text_field *tf;
 	text_message *msg;
 
-	// only handle mouse button clicks, not scroll wheels moves
+	tf = w->widget_info;
+	if (tf == NULL)
+		return 0;
+
+	// send scroll wheel moves to the scrollbar
+	if ((flags & ELW_WHEEL) != 0 && tf->scroll_id != -1)
+	{
+		widget_list* sbw = widget_find (w->window_id, tf->scroll_id);
+		return vscrollbar_click (sbw, mx, my, flags);
+	}
+	
+	// if no scrollbar, only handle mouse button clicks, 
+	// not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0;
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
-	tf = w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
 	tf->cursor = _get_edit_pos (mx, my, msg, tf->offset);
 
@@ -1762,16 +1773,15 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->text_r = text_r;
 	T->text_g = text_g;
 	T->text_b = text_b;
-	T->text_width = lx - 2 * x_space;
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
-		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-20, y, 20, ly, 0, size, r, g, b, 0, 1, 1);		
-		T->text_width -= 20;
+		T->scrollbar_width = 20;
+		T->scroll_id = vscrollbar_add_extended (window_id, widget_id++, NULL, x + lx-T->scrollbar_width, y, T->scrollbar_width, ly, 0, size, r, g, b, 0, 1, 1);		
 	}
 	else
 	{
 		T->scroll_id = -1;
-		
+		T->scrollbar_width = 0;
 	}
 
 	res = widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &text_field_type, T, NULL);
@@ -1784,7 +1794,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 		widget_list *w = widget_find (window_id, wid);
 		if (w != NULL)
 		{
-			int nr_lines = rewrap_message (buf, w->size, T->text_width, &T->cursor);
+			int nr_lines = rewrap_message (buf, w->size, lx - 2*x_space - T->scrollbar_width, &T->cursor);
 			_text_field_set_nr_lines (w, nr_lines);
 		}
 	}
@@ -1864,7 +1874,7 @@ int text_field_draw (widget_list *w)
 		glColor3f (tf->text_r, tf->text_g, tf->text_b);
 	}
 
-	if(mx > 0 && mx < w->len_x && my > 0 && my < w->len_y && !(w->Flags&WIDGET_CLICK_TRANSPARENT) && w->Flags&TEXT_FIELD_EDITABLE){
+	if(mx > 0 && mx < w->len_x - tf->scrollbar_width && my > 0 && my < w->len_y && !(w->Flags&WIDGET_CLICK_TRANSPARENT) && w->Flags&TEXT_FIELD_EDITABLE){
 		elwin_mouse = CURSOR_TEXT;
 	}
 
@@ -1881,7 +1891,7 @@ int text_field_draw (widget_list *w)
 
 	glEnable(GL_TEXTURE_2D);
 	set_font(chat_font);	// switch to the chat font
-	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, tf->text_width, w->len_y - 2 * tf->y_space, w->size);
+	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space, w->size);
 	set_font (0);	// switch to fixed
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
