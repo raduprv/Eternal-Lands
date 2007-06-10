@@ -53,7 +53,9 @@ int HandleEvent (SDL_Event *event)
 	if (mod_key_status & KMOD_SHIFT) shift_on = 1;
 	else shift_on = 0;
 
-	if (mod_key_status & KMOD_ALT && !(mod_key_status & KMOD_MODE)) alt_on = 1;
+	//AltGR users still do not have AltGr working properly. Currently we have to accept only the left ALT key
+	//if (mod_key_status & KMOD_ALT && !(mod_key_status & KMOD_MODE)) alt_on = 1;
+	if (mod_key_status & KMOD_LALT) alt_on = 1;
 	else alt_on = 0;
 
 	if (mod_key_status & KMOD_CTRL) ctrl_on = 1;
@@ -82,7 +84,9 @@ int HandleEvent (SDL_Event *event)
 			//use the modifiers that were on when the key was pressed, not when we go to check
 			if (event->key.keysym.mod & KMOD_SHIFT) key |= ELW_SHIFT;
 			if (event->key.keysym.mod & KMOD_CTRL) key |= ELW_CTRL;
-			if (event->key.keysym.mod & KMOD_ALT && !(event->key.keysym.mod & KMOD_MODE)) key |= ELW_ALT;
+			//AltGR users still do not have AltGr working properly. Currently we have to accept only the left ALT key
+			//if (event->key.keysym.mod & KMOD_ALT && !(event->key.keysym.mod & KMOD_MODE)) key |= ELW_ALT;
+			if (event->key.keysym.mod & KMOD_LALT) key |= ELW_ALT;
 			//if (event->key.keysym.mod & KMOD_META) key |= ELW_something_if_needed_later;
 
 			if (afk_time) 
