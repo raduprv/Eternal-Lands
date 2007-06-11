@@ -1,8 +1,21 @@
 #ifndef	_LOAD_GL_EXTENSIONS_H_
 #define	_LOAD_GL_EXTENSIONS_H_
 
+#if defined (OSX) || (OSX86)
+#include <OpenGL/gl.h>
+#include <OpenGL/glext.h>
+#else
 #include <GL/gl.h>
 #include <GL/glext.h>
+#endif
+
+#ifndef COMPRESSED_RGBA_ARB
+#define COMPRESSED_RGBA_ARB				0x84EE
+#endif
+
+#ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
+#define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
+#endif
 
 typedef enum {
 	arb_multitexture = 0,
