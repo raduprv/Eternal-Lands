@@ -31,6 +31,9 @@ bool FireflyParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
     
+  if ((pos - base->center).magnitude_squared() > MAX_DRAW_DISTANCE_SQUARED)
+    return false;
+
   Vec3 velocity_shift;
   velocity_shift.randomize();
   velocity_shift.y /= 3;
@@ -69,13 +72,14 @@ FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vect
   bounds = bounding_range;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
   spawner = new NoncheckingFilledBoundingSpawner(bounding_range);
-  const int count = (int)(spawner->get_area() * _density * 0.15);
+//  firefly_count = (int)(spawner->get_area() * _density * 0.15);
+  firefly_count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * _density * 0.25);
 
-  for (int i = 0; i < count; i++)
+  for (int i = 0; i < firefly_count; i++)
   {
     Vec3 coords = spawner->get_new_coords();
     if (coords.x == -32768.0)
-      break;
+      continue;
     coords += center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
     Vec3 velocity;
     velocity.randomize(0.2);
@@ -98,6 +102,23 @@ bool FireflyEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;
+  
+  if (recall)
+    return true;
+
+  for (int i = firefly_count - (int)particles.size(); i >= 0; i--)
+  {
+    Vec3 coords = spawner->get_new_coords();
+    if (coords.x == -32768.0)
+      continue;
+    coords += center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
+    Vec3 velocity;
+    velocity.randomize(0.2);
+    velocity.y /= 3;
+    Particle* p = new FireflyParticle(this, mover, coords, velocity, center.y + 0.1, center.y + 1.0);
+    if (!base->push_back_particle(p))
+      break;
+  }
 
   return true;
 }

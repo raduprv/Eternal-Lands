@@ -10,6 +10,8 @@
 namespace ec
 {
 
+const float range_scalar = 1.0;
+
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
 WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _min_height, const coord_t _max_height, const WindEffect::WindType _type) : Particle(_effect, _mover, _pos, _velocity)
@@ -195,9 +197,10 @@ bool WindParticle::idle(const Uint64 delta_t)
 //  std::cout << "Velocity: " << velocity.magnitude() << ", " << velocity << std::endl;
 
   if (age > 50000000)
-  {
     state = 1;
-  }
+  
+  if ((pos - base->center).magnitude_squared() > MAX_DRAW_DISTANCE_SQUARED)
+    state = 1;
 
   if (state == 0)
   {
@@ -445,8 +448,9 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec:
   bounding_range = _bounding_range;
   bounds = bounding_range;
   mover = new GradientMover(this);
-  spawner = new FilledBoundingSpawner(_bounding_range, pos, &(base->camera));
-  max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;
+  spawner = new FilledBoundingSpawner(_bounding_range, pos, &(base->center), range_scalar);
+//  max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;
+  max_LOD1_count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * _density * range_scalar * 2.0) / 10;
   LOD = base->last_forced_LOD;
   count = LOD * max_LOD1_count;
   switch (type)
@@ -571,12 +575,12 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
   }
 
   // Spawn leaves
-  while ((int)particles.size() < count)
+  for (int i = count - (int)particles.size(); i >= 0; i--)
   {
     Vec3 coords = spawner->get_new_coords();
     if (coords.x == -32768.0)
-      break;
-    coords += center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
+      continue;
+    coords += base->center + Vec3(0.0, 4.0 + randcoord(2.0), 0.0);
     Vec3 velocity;
     velocity.randomize(max_adjust / 4);
     velocity.y /= 2;
@@ -632,9 +636,14 @@ bool WindEffect::idle(const Uint64 usec)
     }
   }
 
-  while ((int)particles.size() < count)
+  for (int i = count - (int)particles.size(); i >= 0; i--)
   {
-    const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, 1.0 + randcoord(1.0), 0.0);
+    Vec3 coords = spawner->get_new_coords();
+    if (coords.x == -32768.0)
+      continue;
+//    std::cout << coords << ", ";
+    coords += base->center + Vec3(0.0, 4.0 + randcoord(2.0), 0.0);
+//    std::cout << coords << std::endl;
     Vec3 velocity;
     velocity.randomize(max_adjust / 2);
     velocity.y /= 2;

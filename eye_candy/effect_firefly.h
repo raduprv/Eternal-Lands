@@ -44,6 +44,7 @@ public:
   BoundingMover* mover;
   NoncheckingFilledBoundingSpawner* spawner;
   Vec3 center;
+  int firefly_count;
 };
 
 ///////////////////////////////////////////////////////////////////////////////

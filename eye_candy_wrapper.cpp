@@ -77,7 +77,7 @@ extern "C" void ec_init()
   self_actor.obstruction = new ec::SimpleCylinderObstruction(&(self_actor.center), 0.6, 3.0);
 
 #ifdef MAP_EDITOR
-  ec::SmoothPolygonElement e(0.0, 8.0);
+  ec::SmoothPolygonElement e(0.0, 25.0);
   initial_bounds.elements.push_back(e);
 #endif
 }
@@ -221,13 +221,6 @@ extern "C" void ec_idle()
     
     if (use_eye_candy)
     {
-#ifdef MAP_EDITOR
-      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
-        (*iter)->effect->active = (!day_shadows_on);
-#else
-      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
-        (*iter)->effect->active = (!is_day);
-#endif
       if ((*iter)->caster)
       {
         if ((*iter)->effect->get_type() == ec::EC_SWORD)
@@ -363,7 +356,29 @@ extern "C" void ec_draw()
   if (ec::get_error_status())
     return;
   
-  if (use_eye_candy) {
+  if (use_eye_candy)
+  {
+    // Update firefly activity.
+    for (int i = 0; i < (int)references.size(); )
+    {
+      std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
+      if ((*iter)->dead)
+      {
+        delete *iter;
+        references.erase(iter);
+        continue;
+      }
+    
+#ifdef MAP_EDITOR
+//      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
+//        (*iter)->effect->active = (!day_shadows_on);
+#else
+      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
+        (*iter)->effect->active = (!is_day);
+#endif
+      i++;
+    }
+  
     glPushMatrix();
     glRotatef(90, 1.0, 0.0, 0.0);
     eye_candy.draw();

@@ -1229,7 +1229,7 @@ public:
 class FilledBoundingSpawner : public ParticleSpawner
 {
 public:
-  FilledBoundingSpawner(BoundingRange* _bounding_range, Vec3* _center, Vec3* _camera) { bounding_range = _bounding_range; center = _center; camera = _camera;};
+  FilledBoundingSpawner(BoundingRange* _bounding_range, Vec3* _center, Vec3* _base_center, float _range_scalar = 1.0) { bounding_range = _bounding_range; center = _center; base_center = _base_center; range_scalar = _range_scalar; };
   virtual ~FilledBoundingSpawner() {};
   
   virtual Vec3 get_new_coords();
@@ -1237,7 +1237,8 @@ public:
   
   BoundingRange* bounding_range;
   Vec3* center;
-  Vec3* camera;
+  Vec3* base_center;
+  float range_scalar;
 };
 
 /*!

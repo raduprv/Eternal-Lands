@@ -1167,21 +1167,24 @@ Vec3 HollowDiscSpawner::get_new_coords()
 Vec3 FilledBoundingSpawner::get_new_coords()
 {
   Vec3 cur_pos;
-  const Vec3 camera_center_difference = *center - *camera;
-  int i;
-  for (i = 0; i < 30; i++)
+  const Vec3 camera_center_difference = *center - *base_center;
+//  int i;
+//  for (i = 0; i < 30; i++)
   {
     const angle_t angle = randangle(2 * PI);
-    const coord_t scalar = fastsqrt(randcoord(MAX_DRAW_DISTANCE));
+    const coord_t scalar = randcoord() * MAX_DRAW_DISTANCE * range_scalar;
     cur_pos = Vec3(sin(angle) * scalar, 0.0, cos(angle) * scalar);
     const angle_t angle_to_center = atan2(cur_pos.x, cur_pos.z);
     const coord_t radius = bounding_range->get_radius(angle_to_center);
-    if ((cur_pos - camera_center_difference).magnitude_squared() < square(radius))
-      break;
+//    std::cout << cur_pos << " - " << camera_center_difference << ".magnitude_squared() (" << (cur_pos - camera_center_difference).magnitude_squared() << ") < " << square(radius) << std::endl;
+//    if ((cur_pos - camera_center_difference).magnitude_squared() < square(radius))
+    if ((cur_pos - camera_center_difference).magnitude_squared() > square(radius))
+//      break;
+      return Vec3(-32768.0, 0.0, 0.0);
   }
-  if (i == 10)
-    return Vec3(-32768.0, 0.0, 0.0);
-  else
+//  if (i == 10)
+//    return Vec3(-32768.0, 0.0, 0.0);
+//  else
     return cur_pos;
 }
 
@@ -1539,10 +1542,23 @@ void EyeCandy::draw()
     e->draw(time_diff);
 
     // Draw particles
-    for (std::map<Particle*, bool>::const_iterator iter2 = (*iter)->particles.begin(); iter2 != (*iter)->particles.end(); iter2++)
+    if (e->bounds)
     {
-      Particle* p = iter2->first;
-      p->draw(time_diff);
+      for (std::map<Particle*, bool>::const_iterator iter2 = (*iter)->particles.begin(); iter2 != (*iter)->particles.end(); iter2++)
+      {
+        Particle* p = iter2->first;
+        const coord_t dist_squared = (p->pos - center).magnitude_squared();
+        if (dist_squared < MAX_DRAW_DISTANCE_SQUARED)
+          p->draw(time_diff);
+      }
+    }
+    else
+    {
+      for (std::map<Particle*, bool>::const_iterator iter2 = (*iter)->particles.begin(); iter2 != (*iter)->particles.end(); iter2++)
+      {
+        Particle* p = iter2->first;
+        p->draw(time_diff);
+      }
     }
   }
 
@@ -1623,7 +1639,7 @@ void EyeCandy::idle()
         if (fastsqrt(distance_squared) < MAX_DRAW_DISTANCE + e->bounds->get_radius(angle))
         {
           if (EC_DEBUG)
-            std::cout << "Activating effect(2) " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+            std::cout << "Activating effect(2) " << e << "(" << fastsqrt(distance_squared) << " < " << (MAX_DRAW_DISTANCE_SQUARED + e->bounds->get_radius(angle)) << ")" << std::endl;
           e->active = true;
         }
         else if (!e->recall)
