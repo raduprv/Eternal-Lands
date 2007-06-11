@@ -41,7 +41,8 @@ typedef enum {
 	ext_framebuffer_object = 20,
 	ext_texture_compression_s3tc = 21,
 	ext_texture_filter_anisotropic = 22,
-	sgis_generate_mipmap = 23
+	sgis_generate_mipmap = 23,
+	s3_compression = 24
 } extension_enum;
 
 /*	GL_ARB_multitexture	*/

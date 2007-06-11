@@ -264,9 +264,9 @@ void update_exploration_map()
 		glBindTexture(GL_TEXTURE_2D, exploration_text);	//failsafe
 		bind_texture_id(exploration_text);
 		
-		if(have_arb_compression)
+		if(have_extension(arb_texture_compression))
 		{
-			if(have_s3_compression)
+			if(have_extension(s3_compression))
 				glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,&exploration_map);
 			else
 				glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB,256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,&exploration_map);
@@ -331,9 +331,9 @@ void load_exploration_map()
 		glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	}
 	
-	if(have_arb_compression)
+	if(have_extension(arb_texture_compression))
 	{
-		if(have_s3_compression)
+		if(have_extension(s3_compression))
 			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_S3TC_DXT5_EXT, 256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,&exploration_map);
 		else
 			glTexImage2D(GL_TEXTURE_2D,0,COMPRESSED_RGBA_ARB, 256, 256,0,GL_RGBA,GL_UNSIGNED_BYTE,&exploration_map);
