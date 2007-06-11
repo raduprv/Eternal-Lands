@@ -78,6 +78,15 @@ void init_text_buffers ();
 
 /*!
  * \ingroup text_font
+ * \brief   Writes a timestamp to the logfile.
+ *
+ *      Writes a timestamp to the logfile.
+ *
+ */
+void timestamp_chat_log();
+
+/*!
+ * \ingroup text_font
  * \brief   Writes the given data up to a length of len to the logfile.
  *
  *      Writes the given data up to a length of len to the logfile.

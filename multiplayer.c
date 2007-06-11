@@ -534,6 +534,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				game_minute %= 360;
 #endif
 				new_minute();
+				if(!(game_minute%60)){
+					timestamp_chat_log();
+				}
 			}
 			break;
 

@@ -73,12 +73,61 @@ void update_text_windows (text_message * pmsg)
 	}
 }
 
+void open_chat_log(){
+	char chat_log_file[100];
+	char srv_log_file[100];
+	char starttime[200], sttime[200];
+	struct tm *l_time; time_t c_time;
+
+#ifndef WINDOWS
+	safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
+	safe_snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
+#else
+	strcpy (chat_log_file, "chat_log.txt");
+	strcpy (srv_log_file, "srv_log.txt");
+#endif
+	chat_log = my_fopen (chat_log_file, "a");
+	srv_log = my_fopen (srv_log_file, "a");
+
+	if (chat_log == NULL || srv_log == NULL)
+	{
+		LOG_TO_CONSOLE(c_red3, "Unable to open log file to write. We will NOT be recording anything.");
+		log_chat=0;
+		return;
+	}
+	time(&c_time);
+	l_time = localtime(&c_time);
+	strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
+	safe_snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
+	fwrite (starttime, strlen(starttime), 1, chat_log);
+}
+
+
+void timestamp_chat_log(){
+	char starttime[200], sttime[200];
+	struct tm *l_time; time_t c_time;
+
+	if(log_chat == 0) {
+		return; //we're not logging anything
+	}
+
+	if (chat_log == NULL){
+		open_chat_log();
+	} else {
+		time(&c_time);
+		l_time = localtime(&c_time);
+		strftime(sttime, sizeof(sttime), "Hourly time-stamp: log continued at %Y-%m-%d %H:%M:%S localtime", l_time);
+		safe_snprintf(starttime, sizeof(starttime), "%s (%s)\n", sttime, tzname[l_time->tm_isdst>0]);
+		fwrite (starttime, strlen(starttime), 1, chat_log);
+	}
+}
+
+
 void write_to_log (const Uint8 * const data, int len)
 {
 	int i, j;
 	Uint8 ch;
 	char str[4096];
-	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 	char logmsg[4096];
 
@@ -88,38 +137,11 @@ void write_to_log (const Uint8 * const data, int len)
 		return; //we're not logging anything
 	}
 
-	if (chat_log == NULL)
-	{
-		char chat_log_file[100];
-		char srv_log_file[100];
-#ifndef WINDOWS
-		safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
-		safe_snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
-#else
-		strcpy (chat_log_file, "chat_log.txt");
-		strcpy (srv_log_file, "srv_log.txt");
-#endif
-  		chat_log = my_fopen (chat_log_file, "a");
-  		srv_log = my_fopen (srv_log_file, "a");
-
-		if (chat_log == NULL || srv_log == NULL)
-		{
-			// quit to prevent error log filling up with messages
-			// caused by unability to open chat log
-			//SDL_Quit ();	//We don't need to do this anymore for chat_log
-			//exit (1);
-			LOG_TO_CONSOLE(c_red3, "Unable to open log file to write. We will NOT be recording anything.");
-			log_chat=0;
+	if (chat_log == NULL){
+		open_chat_log();
+		if(chat_log == NULL){
 			return;
 		}
-		time(&c_time);
-		l_time = localtime(&c_time);
-		strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
-		safe_snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
-		if(log_chat>=3){
-			fwrite (starttime, strlen(starttime), 1, chat_log);
-		}
-		fwrite (starttime, strlen(starttime), 1, chat_log);
 	}
 
 	j=0;
