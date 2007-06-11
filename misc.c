@@ -272,82 +272,123 @@ void unproject_ortho(GLfloat wx,GLfloat wy,GLfloat wz,GLfloat *ox,GLfloat *oy,GL
 	*oz /= ow;
 }
 
-void find_last_url(const char *source_string, const int len)
+
+/* find and store all urls in the provided string */
+void find_all_url(const char *source_string, const int len)
 {
-	char cur_char;
-	char search_for[][10] = {"http://", "https://", "ftp://"};
-	int i, j, url_start;
-	int last_url_start = 0;
-	int final_url_start = 0;
-	int final_url_start_2 = 0;
-
-	/* Search for www. first */
-	for(last_url_start = 0; ; last_url_start += url_start) {
-		url_start = get_string_occurance("www.", source_string+final_url_start+1, len-last_url_start, 1);
-		if(url_start <= 0) {
-			/* We either found what we're looking for, or we didn't find anything at all */
-			break;
-		}
-		url_start++;
-		if(final_url_start < url_start+last_url_start) {
-			final_url_start = url_start+last_url_start;
-		}
-	}
-
-	/* Now search for the rest */
-	for(last_url_start = 0; ; last_url_start += url_start) {
-		for(i = 0, url_start = -1; i < sizeof(search_for)/10 && url_start < 0; i++) {
-			url_start = get_string_occurance(search_for[i], source_string+final_url_start_2+1, len-last_url_start, 1);
-		}
-		if(url_start <= 0) {
-			/* We either found what we're looking for, or we didn't find anything at all */
-			break;
-		}
-		url_start++;
-		if(final_url_start_2 < url_start+last_url_start) {
-			final_url_start_2 = url_start+last_url_start;
-		}
-	}
-
-	if(!final_url_start && !final_url_start_2) { //no URL found
-		return;
-	}
-
-	//ok, we have an URL, now get it
-	j = 0;
-	if(final_url_start > final_url_start_2)
+	char search_for[][10] = {"http://", "https://", "ftp://", "www."};
+	int next_start = 0;
+    
+	while (next_start < len)
 	{
-		safe_snprintf(current_url, sizeof(current_url), "http://");
-		j = 7;
-	} else {
-		final_url_start = final_url_start_2;
+		int first_found = len-next_start; /* set to max */
+		int i;
+        
+		/* find the first of the url start strings */
+		for(i = 0; i < sizeof(search_for)/10; i++)
+		{
+			int found_at = get_string_occurance(search_for[i], source_string+next_start, len-next_start, 1);
+			if ((found_at >= 0) && (found_at < first_found))
+				first_found = found_at;
+		}
+        
+		/* if url found, store (if new) it then continue the search straight after the end */
+		if (first_found < len-next_start)
+		{
+			char *new_url = NULL;
+			char *add_start = "";
+			size_t url_len;
+			int url_start = next_start + first_found;
+			int have_already = 0;
+			
+			/* find the url end */
+			for (next_start = url_start; next_start < len; next_start++)
+			{
+				char cur_char = source_string[next_start];
+				if(!cur_char || cur_char == ' ' || cur_char == '\n' || cur_char == '<'
+					|| cur_char == '>' || cur_char == '|' || cur_char == '"' || cur_char == '\'' || cur_char == '`'
+					|| cur_char == ']' || cur_char == ';' || cur_char == '\\' || (cur_char&0x80) != 0)
+					break;
+			}
+            
+			/* prefix www. with http:// */
+			if (strncmp(&source_string[url_start], "www.", 4) == 0)
+				add_start = "http://";
+			
+			/* extract the string */
+			url_len = strlen(add_start) + (next_start-url_start) + 1;
+			new_url = (char *)malloc(sizeof(char)*url_len);
+			/* could use safe_xxx() functions but I think its simpler not to here */
+			strcpy(new_url, add_start);
+			strncat(new_url, &source_string[url_start], next_start-url_start );
+			new_url[url_len-1] = 0;
+			
+			/* check the new URL is not already in the list */
+			if (have_url_count)
+			{
+				list_node_t *local_head = newest_url;
+				while (local_head != NULL)
+				{
+					/* if its already stored, just make existing version active */
+					if (strcmp(local_head->data, new_url) == 0)
+					{
+						active_url = local_head;
+						have_already = 1;
+						free(new_url);
+						break;
+					}
+					local_head = local_head->next;
+				}
+			}
+			
+			/* if its a new url, create a new node in the url list */
+			if (!have_already)
+			{
+				/* if these's a max number of url and we've reached it, remove the oldest */
+				/* we don't need to worry if its the active_url as thats going to change */
+				if (max_url_count && (max_url_count==have_url_count))
+				{
+					list_node_t *local_head = newest_url;
+					/* go to the oldest in the list */
+					while (local_head->next != NULL)
+						local_head = local_head->next;
+					free(local_head->data);
+					if (local_head==newest_url)
+					{
+						/* the special case is when max_url_count=1... */
+						free(local_head);
+						newest_url = NULL;
+					}
+					else
+					{
+						local_head = local_head->prev;
+						free(local_head->next);
+						local_head->next = NULL;
+					}
+					have_url_count--;
+				}
+			
+				list_push(&newest_url, new_url);
+				active_url = newest_url;
+				have_url_count++;
+			}
+			
+		} /* end if url found */
+        
+		/* no more urls found so stop looking */
+		else
+			break;        
 	}
+    
+} /* end find_all_url() */
 
-	for(i = final_url_start; i < len; i++)
-	{
-		if(j > sizeof(current_url)-2) {
-			break; //URL too long, perhaps an exploit attempt
-		}
-		cur_char = source_string[i];
-		// TODO: better cleaning of illegal chars in a URL
-		if(!cur_char || cur_char == ' ' || cur_char == '\n' || cur_char == '<'
-			|| cur_char == '>' || cur_char == '|' || cur_char == '"' || cur_char == '\'' || cur_char == '`'
-			|| cur_char == ']' || cur_char == ';' || cur_char == '\\' || (cur_char&0x80) != 0) {
-			break;
-		}
-		current_url[j] = cur_char;
-		j++;
-	}
-	current_url[j] = 0;
-	have_url = 1;
-}
 
 #ifdef  WINDOWS
 int go_to_url(void * url)
 {
 	char browser_command[400];
 
-	if(!have_url || !*browser_name){
+	if(!have_url_count || !*browser_name){
 		return 0;
 	}
 

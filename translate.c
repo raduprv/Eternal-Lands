@@ -136,6 +136,11 @@ char
 	knowledge_cmd_str[40],
 	marked_str[30],
 	unmarked_str[30],
+	urlcmd_none_str[30],
+	urlcmd_list_str[30],
+	urlcmd_invalid_str[30],
+	urlcmd_afk_str[30],
+	urlcmd_clear_str[30],
 	/*draw_scene.c*/
 	low_framerate_str[100],
 	/*gl_init.c*/
@@ -1046,6 +1051,11 @@ void init_help()
 	add_xml_identifier(misc,"knowledge_command",knowledge_cmd_str,"List of matching knowledge:",sizeof(knowledge_cmd_str));
 	add_xml_identifier(misc,"marked",marked_str,"%s marked",sizeof(marked_str));
 	add_xml_identifier(misc,"unmarked",unmarked_str,"%s unmarked",sizeof(unmarked_str));
+	add_xml_identifier(misc,"no_urls",urlcmd_none_str,"No URL seen",sizeof(urlcmd_none_str));
+	add_xml_identifier(misc,"url_list",urlcmd_list_str,"URL list:",sizeof(urlcmd_list_str));
+	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
+	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
+	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
 

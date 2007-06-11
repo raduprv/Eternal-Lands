@@ -93,17 +93,17 @@ void save_scene_matrix();
 
 /*!
  * \ingroup misc
- * \brief   Checks, if the \a source_string contains an URL.
+ * \brief   Stores any URL found in \a source_string.
  *
- *      Checks the given \a source_string up to a length of \a len for being an URL and sets \ref have_url if this the case.
+ *		Scans the given \a source_string up to a length of \a len and stores all the URL it finds.  If any are found \ref have_url_count is incremented.
  *
  * \param source_string the string that contains the URL
  * \param len           the length of \a source_string.
  * \callgraph
  *
- * \pre If \a source_string does not contain a valid URL, this function will return without setting \ref have_url to true.
+ * \pre If \a source_string does not contain a valid URL, this function will return without incrementing \ref have_url_count.
  */
-void find_last_url(const char *source_string, const int len);
+void find_all_url(const char *source_string, const int len);
 
 //some prototypes, that won't fit somewhere else
 

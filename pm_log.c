@@ -14,6 +14,7 @@ char afk_title[101];
 #ifdef AFK_FIX
 int afk_local = 0;
 #endif //AFK_FIX
+static int url_before_afk = 0;
 
 struct pm_struct pm_log;
 
@@ -51,6 +52,7 @@ void go_afk()
 			my_tcp_send(my_socket,str,2);
 		}
 	afk++;
+	url_before_afk = have_url_count;
 }
 
 void go_ifk()
@@ -94,6 +96,11 @@ void print_return_message()
 					LOG_TO_CONSOLE(c_green2,name);
 				}
 			LOG_TO_CONSOLE(c_green2,afk_print_help);
+		}
+	if (have_url_count > url_before_afk)
+		{
+			snprintf(str, sizeof(str), "%s %d", urlcmd_afk_str, have_url_count - url_before_afk);
+			LOG_TO_CONSOLE(c_green2, str);
 		}
 }
 

@@ -40,6 +40,7 @@ void cleanup_mem(void)
 {
 	int i;
 
+	destroy_url_list();
 	history_destroy();
 	command_cleanup();
 	queue_destroy(buddy_request_queue);

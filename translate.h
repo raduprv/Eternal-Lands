@@ -259,6 +259,11 @@ extern char
 		knowledge_cmd_str[40],
 		marked_str[30],
 		unmarked_str[30],
+		urlcmd_none_str[30],
+		urlcmd_list_str[30],
+		urlcmd_invalid_str[30],
+		urlcmd_afk_str[30],
+		urlcmd_clear_str[30],
 		/*draw_scene.c*/
 		low_framerate_str[100],
 		/*filter.c*/

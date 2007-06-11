@@ -53,6 +53,8 @@ void add_name_to_tablist(const char *name);
 
 void init_commands(const char *filename);
 
+void destroy_url_list(void);
+
 void add_line_to_history(const char *line, int len);
 char *history_get_line_up(void);
 char *history_get_line_down(void);

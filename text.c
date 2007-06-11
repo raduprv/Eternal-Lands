@@ -370,7 +370,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	}
 
 	// parse for URLs
-	find_last_url (text_to_add, len);
+	find_all_url (text_to_add, len);
 
 	// look for buddy-wants-to-add-you messages
 	if(channel == CHAT_SERVER && (unsigned char)text_to_add[0] == c_green1+127)

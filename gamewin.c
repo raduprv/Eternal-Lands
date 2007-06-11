@@ -1297,9 +1297,9 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_BROWSER)
 	{
-		if (have_url)
+		if (have_url_count)
 		{
-			open_web_link(current_url);
+			open_web_link((char *)(active_url->data));
 		}
 	}
 	else if (keysym == SDLK_ESCAPE)

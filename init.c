@@ -37,8 +37,10 @@ int custom_update= 0;
 int exit_now=0;
 int restart_required=0;
 int allow_restart=1;
-int have_url=0;
-char current_url[160];
+int have_url_count=0;
+int max_url_count=100;
+list_node_t *newest_url = NULL;
+list_node_t *active_url = NULL;
 char browser_name[120];
 int poor_man=0;
 
