@@ -120,15 +120,18 @@ typedef struct
 
 #ifdef MINIMAP
     /*!
-     * \name minimap window position
+     * \name minimap window position and settings
      */
     /*! @{ */
 	int minimap_win_x;
 	int minimap_win_y;
+	int minimap_win_pin;
+	int minimap_win_above;
+	int minimap_zoom;
     /*! @} */
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[4];
+	int reserved[1];
 
 #else //!MINIMAP
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
