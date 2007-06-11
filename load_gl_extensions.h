@@ -9,14 +9,6 @@
 #include <GL/glext.h>
 #endif
 
-#ifndef COMPRESSED_RGBA_ARB
-#define COMPRESSED_RGBA_ARB				0x84EE
-#endif
-
-#ifndef COMPRESSED_RGBA_S3TC_DXT5_EXT
-#define COMPRESSED_RGBA_S3TC_DXT5_EXT                  0x83F3
-#endif
-
 typedef enum {
 	arb_multitexture = 0,
 	arb_texture_compression = 1,
@@ -41,8 +33,7 @@ typedef enum {
 	ext_framebuffer_object = 20,
 	ext_texture_compression_s3tc = 21,
 	ext_texture_filter_anisotropic = 22,
-	sgis_generate_mipmap = 23,
-	s3_compression = 24
+	sgis_generate_mipmap = 23
 } extension_enum;
 
 /*	GL_ARB_multitexture	*/
