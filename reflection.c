@@ -139,7 +139,7 @@ int find_reflection()
 
 static __inline__ int adapt_size(int size)
 {
-	int i, j;
+	GLint i, j;
 	
 	glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &i);
 
@@ -191,7 +191,7 @@ static __inline__ void RenderVertex(GLdouble vX,GLdouble vY, GLdouble vZ)
 {
 	GLdouble tX, tY, tZ;
 	/* Dummy viewport */
-	int vp[4] = {0, 0, 1, 1};
+	GLint vp[4] = {0, 0, 1, 1};
 	
 	/* Calculate the window coordinates of the vertex */
 	gluProject(vX, vY, vZ, modelMatrixd, projectionlMatrixd, vp, &tX, &tY, &tZ);
@@ -276,7 +276,7 @@ CHECK_GL_ERRORS();
 
 void display_3d_reflection()
 {
-	int view_port[4];
+	GLint view_port[4];
 	unsigned int cur_intersect_type;
 
 	if (use_frame_buffer)
@@ -642,10 +642,12 @@ void draw_sky_background()
 	int i, j;
 #endif
 #endif
-	int view_port[4];
+	GLint view_port[4];
 
 	if (use_frame_buffer && show_reflection)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
@@ -654,6 +656,8 @@ void draw_sky_background()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepth(1.0f);
 		Enter2DModeExtended(reflection_texture_width, reflection_texture_height);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 	}
 	else
 	{
@@ -722,8 +726,12 @@ void draw_sky_background()
 	Leave2DMode();
 	if (use_frame_buffer && show_reflection)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -739,10 +747,12 @@ void draw_dungeon_sky_background()
 	int i;
 #endif //  NEW_WEATHER
 #endif // MAP_EDITOR2
-	int view_port[4];
+	GLint view_port[4];
 
 	if (use_frame_buffer && show_reflection)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		glGetIntegerv(GL_VIEWPORT, view_port);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
@@ -751,6 +761,8 @@ void draw_dungeon_sky_background()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		glClearDepth(1.0f);
 		Enter2DModeExtended(reflection_texture_width, reflection_texture_height);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 	}
 	else
 	{
@@ -796,8 +808,12 @@ void draw_dungeon_sky_background()
 	Leave2DMode();
 	if (use_frame_buffer && show_reflection)
 	{
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
 	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

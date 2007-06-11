@@ -57,43 +57,27 @@ void free_color_framebuffer(GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTex
 
 void make_color_framebuffer(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
 {
-	GLint depth_bits, depth_format;
-
 	if ((width <= 0) || (height <= 0)) return;
 
-	// create objects
-	ELglGenFramebuffersEXT(1, FBO);// frame buffer
-	ELglGenRenderbuffersEXT(1, FBORenderBuffer);// render buffer
-	glGenTextures(1, FBOTexture);// texture
+	glGenTextures(1, FBOTexture);
+	ELglGenFramebuffersEXT(1, FBO);
+	ELglGenRenderbuffersEXT(1, FBORenderBuffer);
 
-	glGetIntegerv(GL_DEPTH_BITS, &depth_bits);
+	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, *FBO);
 
-	if (depth_bits == 16) depth_format = GL_DEPTH_COMPONENT16_ARB;
-	else depth_format = GL_DEPTH_COMPONENT24_ARB;
-
-	// initialize texture
-	glBindTexture(GL_TEXTURE_2D, FBOTexture[0]);
-	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
+	// initialize color texture
+	glBindTexture(GL_TEXTURE_2D, *FBOTexture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGB, GL_INT, NULL);
+	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D,
+		*FBOTexture, 0);
 
-	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, FBO[0]);
-
-	// attach texture to frame-buffer color-buffer
-	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D, FBOTexture[0], 0);
-
-	// attach render-buffer
-	ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, FBORenderBuffer[0]);
-
-	// setting size of the render-buffer
-	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_RGBA, width, height);
-	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, depth_format, width, height);
-
-	// attach render-buffer to frame-buffer depth-buffer
-	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_RENDERBUFFER_EXT, FBORenderBuffer[0]);
-
-	CHECK_GL_ERRORS();
-	CHECK_FBO_ERRORS();
+	// initialize depth renderbuffer
+	ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, *FBORenderBuffer);
+	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height);
+	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+		GL_RENDERBUFFER_EXT, *FBORenderBuffer);
 
 	//Turn off our frame buffer object
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
