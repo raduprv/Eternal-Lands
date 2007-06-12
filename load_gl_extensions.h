@@ -1,6 +1,10 @@
 #ifndef	_LOAD_GL_EXTENSIONS_H_
 #define	_LOAD_GL_EXTENSIONS_H_
 
+#ifdef _MSC_VER
+#include <windows.h>
+typedef unsigned int uint_fast32_t;
+#endif //MSVC
 #if defined (OSX) || (OSX86)
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
@@ -8,10 +12,6 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif
-#ifdef _MSC_VER
-#include <windows.h>
-typedef unsigned int uint_fast32_t;
-#endif //MSVC
 
 typedef enum {
 	arb_multitexture = 0,
