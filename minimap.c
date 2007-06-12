@@ -12,6 +12,7 @@ GLuint exploration_text = 0;
 int minimap_win = -1;
 int minimap_win_x = 5;
 int minimap_win_y = 20;
+//TODO: use minimap_flags as bitfield instead
 int minimap_win_pin = 0;	//keep open even when alt+d pressed
 int minimap_win_above = 0;	//keep above other windows
 int minimap_zoom = 2;		//zoom in, from 0 being only the visable area, 5 being full on largest maps
@@ -70,11 +71,6 @@ int display_minimap_handler(window_info *win)
 	} else {
 		//draw minimap
 
-		//lets not draw outside the window :)
-		//maybe put this in elwindows.c around the call to display handler?
-		glEnable(GL_SCISSOR_TEST);
-		glScissor(win->cur_x, window_height - win->cur_y - 256, 256, 256);
-
 		//get player position in window coordinates
 		player = NULL;
 		for(i = 0; i < 1000; i++)
@@ -90,10 +86,30 @@ int display_minimap_handler(window_info *win)
 		view_distance = size_x * 30.0f / zoom_multip;
 
 		if(minimap_zoom < max_zoom){
+			float su, sv, fu, fv;
 			ax = 128.0f-px;
 			ay = 128.0f-py;
-			sx =   (px-75.0f)/256.0f*zoom_multip;
-			sy =  -(py+75.0f)/256.0f*zoom_multip;
+			sx =  px/256.0f-0.50f*zoom_multip;
+			sy = -py/256.0f-0.50f*zoom_multip;
+
+			su = max2i(0.0f, -sx*256.0f/zoom_multip);
+			fu = min2i(256.0f, (1.0f-sx)*256.0f/zoom_multip);
+			sv = min2i(256.0f, 256.0f+(256.0f+sy*256.0f)/zoom_multip);
+			fv = max2i(0.0f, -256.0f+(1.0f+sy)*256.0f/zoom_multip);
+			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
+			glBegin(GL_QUADS);
+				glVertex2f(0.0f, 0.0f);
+				glVertex2f(0.0f, 256.0f);
+				glVertex2f(256.0f, 256.0f);
+				glVertex2f(256.0f, 0.0f);
+			glEnd();
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(win->cur_x+su, window_height - win->cur_y - sv, fu - su, sv - fv);
+		} else {
+			//lets not draw outside the window :)
+			//maybe put this in elwindows.c around the call to display handler?
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(win->cur_x, window_height - win->cur_y - 256, 256, 256);
 		}
 
 		if(player != NULL){
@@ -103,14 +119,14 @@ int display_minimap_handler(window_info *win)
 			bind_texture_id(exploration_text);
 			glColor4f(0.5f,0.5f,0.5f, 0.5f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(sx+zoom_multip,sy);
-				glVertex2i(0,0);
-			glTexCoord2f(sx+zoom_multip,sy+zoom_multip);
-				glVertex2i(256,0); 
-			glTexCoord2f(sx,sy+zoom_multip);
-				glVertex2i(256,256);
-			glTexCoord2f(sx,sy);
-				glVertex2i(0,256);
+			glTexCoord2f(sx, sy);
+				glVertex3i(0,256,0);
+			glTexCoord2f(sx, sy+zoom_multip);
+				glVertex3i(0,0,0);
+			glTexCoord2f(sx+zoom_multip, sy+zoom_multip);
+				glVertex3i(256,0,0);
+			glTexCoord2f(sx+zoom_multip, sy);
+				glVertex3i(256,256,0);
 			glEnd();
 
 			//white circle around player
