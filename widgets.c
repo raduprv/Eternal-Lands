@@ -2464,7 +2464,7 @@ int spinbutton_draw(widget_list *widget)
 				if(accuracy == 0 && pointer != NULL) {
 					/* We have a . at the end of the input buffer, but 
 					 * safe_snprintf() doesn't write it, so we have to do it manually. */
-					strncat(str, ".", sizeof(str)-1);
+					safe_strcat (str, ".", sizeof (str));
 				}
 			}
 		break;

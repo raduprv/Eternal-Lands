@@ -98,6 +98,27 @@ char* safe_strncpy2(char *dest, const char * source, const size_t dest_len, cons
  */
 int safe_snprintf(char *dest, const size_t len, const char* format, ...);
 
+/*!
+ * \ingroup     misc_utils
+ * \brief       Append string src to dest, guaranteeing null-termination
+ *
+ *              Append string \a src to \a dest, making sure that the result
+ *              is null-terminated and contains at most \a len characters 
+ *              (including the terminating nullbyte).
+ *              %Note that the "safe" predicate only applies to the 
+ *              result, both \a dest and \a src should be null-terminated
+ *              on entry. Also note that this function is \em not the same
+ *              as \c strncat: the third parameter to \c strncat is the 
+ *              number of characters to take from \a dest, not the total
+ *              number of characters in the result string.
+ *
+ * \param       dest The string to append to
+ * \param       src The string to be appended
+ * \param       len The maximum size of the result string
+ * \retval char* Pointer to the concatenated string dest
+ */
+char* safe_strcat (char *dest, const char *src, size_t len);
+
 
 /*!
  * \ingroup	misc_utils

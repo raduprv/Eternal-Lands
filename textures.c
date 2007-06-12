@@ -757,13 +757,13 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 	*name = '\0';
 
 	/* safely add '_alpha.bmp' to the string */
-	strncat(filename, "_alpha", sizeof(filename) - strlen(filename) - 1);
+	safe_strcat (filename, "_alpha", sizeof (filename));
 	name = strrchr(FileName, '.');
 	if (name == NULL)
 	{
 		name = ".bmp";
 	}
-	strncat(filename, name, sizeof(filename) - strlen(filename) - 1);
+	safe_strcat (filename, name, sizeof (filename));
 #else	//OLD_TEXTURE_LOADER
 	char filename[512];//Create a buffer...
 	char * name;
@@ -780,7 +780,7 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 	*name = '\0';
 
 	/* safely add '_alpha.bmp' to the string */
-	strncat(filename, "_alpha.bmp", sizeof(filename) - strlen(filename) - 1);
+	safe_strcat (filename, "_alpha.bmp", sizeof (filename));
 #endif	//OLD_TEXTURE_LOADER
 
 	// check for a file

@@ -178,6 +178,14 @@ int safe_snprintf(char *dest, const size_t len, const char* format, ...)
 	return 0;
 }
 
+char* safe_strcat (char* dest, const char* src, size_t len)
+{
+	size_t start_pos = strlen (dest);
+	if (start_pos < len)
+		safe_strncpy (dest+start_pos, src, len-start_pos);
+	return dest;
+}
+
 void my_strcp(char *dest,const char * source)
 {
 	while(*source)

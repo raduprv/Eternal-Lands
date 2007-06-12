@@ -354,8 +354,8 @@ int list_ignores()
 		{
 			if(ignore_list[i].used)
 				{
-					strncat(str, ignore_list[i].name,sizeof(str)-1);
-					strncat(str, ", ",sizeof(str)-1);
+					safe_strcat (str, ignore_list[i].name, sizeof(str));
+					safe_strcat (str, ", ", sizeof(str));
 				}
 		}
 

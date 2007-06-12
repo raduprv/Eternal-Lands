@@ -204,9 +204,9 @@ void read_config()
 
 	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
 #ifndef OSX
-	strncat (configdir, "/.elc/", sizeof(configdir)-1);
+	safe_strcat (configdir, "/.elc/", sizeof(configdir));
 #else
-	strncat (configdir, "/Library/Application\ Support/Eternal\ Lands/", sizeof(configdir)-1);
+	safe_strcat (configdir, "/Library/Application\ Support/Eternal\ Lands/", sizeof(configdir));
 #endif // OSX
 	d = opendir (configdir);
 	if (!d)
