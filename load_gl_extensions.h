@@ -8,6 +8,10 @@
 #include <GL/gl.h>
 #include <GL/glext.h>
 #endif
+#ifdef _MSC_VER
+#include <windows.h>
+typedef unsigned int uint_fast32_t;
+#endif //MSVC
 
 typedef enum {
 	arb_multitexture = 0,
