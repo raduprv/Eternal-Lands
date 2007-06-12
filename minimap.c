@@ -96,6 +96,7 @@ int display_minimap_handler(window_info *win)
 			fu = min2i(256.0f, (1.0f-sx)*256.0f/zoom_multip);
 			sv = min2i(256.0f, 256.0f+(256.0f+sy*256.0f)/zoom_multip);
 			fv = max2i(0.0f, -256.0f+(1.0f+sy)*256.0f/zoom_multip);
+			//draw a black background for the window
 			glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 			glBegin(GL_QUADS);
 				glVertex2f(0.0f, 0.0f);
@@ -104,6 +105,7 @@ int display_minimap_handler(window_info *win)
 				glVertex2f(256.0f, 0.0f);
 			glEnd();
 			glEnable(GL_SCISSOR_TEST);
+			//clip the drawable region to the map
 			glScissor(win->cur_x+su, window_height - win->cur_y - sv, fu - su, sv - fv);
 		} else {
 			//lets not draw outside the window :)
@@ -119,14 +121,14 @@ int display_minimap_handler(window_info *win)
 			bind_texture_id(exploration_text);
 			glColor4f(0.5f,0.5f,0.5f, 0.5f);
 			glBegin(GL_QUADS);
-			glTexCoord2f(sx, sy);
-				glVertex3i(0,256,0);
-			glTexCoord2f(sx, sy+zoom_multip);
-				glVertex3i(0,0,0);
-			glTexCoord2f(sx+zoom_multip, sy+zoom_multip);
-				glVertex3i(256,0,0);
 			glTexCoord2f(sx+zoom_multip, sy);
-				glVertex3i(256,256,0);
+				glVertex2i(0,0);
+			glTexCoord2f(sx+zoom_multip, sy+zoom_multip);
+				glVertex2i(256,0);
+			glTexCoord2f(sx, sy+zoom_multip);
+				glVertex2i(256,256);
+			glTexCoord2f(sx, sy);
+				glVertex2i(0,256);
 			glEnd();
 
 			//white circle around player
