@@ -786,6 +786,114 @@ CHECK_GL_ERRORS();
 
 #ifdef	ELC
 #ifndef MAP_EDITOR2
+void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * our_string,
+						int max_lines, float font_x_scale, float font_y_scale)
+{
+	float u_start,u_end,v_start,v_end;
+	int col,row;
+	float displayed_font_x_size;
+	float displayed_font_y_size;
+
+	float displayed_font_x_width;
+	int font_x_size=FONT_X_SPACING;
+	int font_y_size=FONT_Y_SPACING;
+	int	font_bit_width, ignored_bits;
+
+	unsigned char cur_char;
+	int chr;
+	int i;
+	float cur_x,cur_y;
+	int current_lines=0;
+
+	/*
+	if(big)
+		{
+			displayed_font_x_size=0.17*zoom_level*name_zoom/3.0;
+			displayed_font_y_size=0.25*zoom_level*name_zoom/3.0;
+		}
+	else
+		{
+			displayed_font_x_size=SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0;
+			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level*name_zoom/3.0;
+		}
+	*/
+	displayed_font_x_size=font_x_scale*name_zoom*12.0;
+	displayed_font_y_size=font_y_scale*name_zoom*12.0;
+
+   	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+    glAlphaFunc(GL_GREATER,0.1f);
+	get_and_set_texture_id(font_text);
+
+	i=0;
+	cur_x=x;
+	cur_y=y;
+	glBegin(GL_QUADS);
+	while(1)
+		{
+			cur_char=our_string[i];
+			if(!cur_char)
+				{
+					break;
+				}
+			else if(cur_char=='\n')
+				{
+					cur_y+=displayed_font_y_size;
+					cur_x=x;
+					i++;
+					current_lines++;
+					if(current_lines>=max_lines)break;
+					continue;
+				}
+			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
+				{
+					glEnd();	//Ooops - NV bug fix!!
+				}
+			chr=find_font_char(cur_char);
+			if(chr >= 0)
+				{
+					col=chr/FONT_CHARS_PER_LINE;
+					row=chr%FONT_CHARS_PER_LINE;
+
+
+					font_bit_width=get_font_width(chr);
+					displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
+					ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
+					if(ignored_bits < 0)ignored_bits=0;
+
+					//now get the texture coordinates
+					u_start=(float)(row*font_x_size+ignored_bits)/256.0f;
+					u_end=(float)(row*font_x_size+font_x_size-7-ignored_bits)/256.0f;
+					v_start=(float)1.0f-(1+col*font_y_size)/256.0f;
+					v_end=(float)1.0f-(col*font_y_size+font_y_size-1)/256.0f;
+					//v_end=(float)1.0f-(col*font_y_size+font_y_size-2)/256.0f;
+
+					glTexCoord2f(u_start,v_start);
+					glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
+		
+					glTexCoord2f(u_start,v_end);
+					glVertex3f(cur_x,cur_y,z);
+
+					glTexCoord2f(u_end,v_end);
+					glVertex3f(cur_x+displayed_font_x_width,cur_y,z);
+
+					glTexCoord2f(u_end,v_start);
+					glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
+					
+
+					//cur_x+=displayed_font_x_size;
+					cur_x+=displayed_font_x_width;
+				}
+			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
+				{
+					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
+				}
+
+			i++;
+		}
+
+    glEnd();
+	glDisable(GL_ALPHA_TEST);
+}
 void draw_ingame_string(float x, float y,const unsigned char * our_string,
 						int max_lines, float font_x_scale, float font_y_scale)
 {

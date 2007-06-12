@@ -8,6 +8,7 @@
 #endif
 
 #ifdef ELC
+#define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_Y_LEN*10.0)
 #define DRAW_INGAME_NORMAL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN, INGAME_FONT_Y_LEN)
 #define DRAW_INGAME_SMALL(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, SMALL_INGAME_FONT_X_LEN, SMALL_INGAME_FONT_Y_LEN)
 #define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
@@ -145,22 +146,26 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 {
 	// are we actively drawing?
 	if(SDL_GetAppState()&SDL_APPACTIVE){
-		char str[60];
-		float ratio=640.0f/(0.66f*window_width);
-		float healthbar_x=-0.25f*zoom_level/3.0f*ratio;
-		float healthbar_y=0.0001;
-		float healthbar_z=offset_z+0.1f;	//was 0.2f
-		float healthbar_x_len=0.5f*zoom_level/3.0f*ratio;
-		float healthbar_x_len_converted=0;
-		float healthbar_x_len_loss=0;
-		float healthbar_x_loss_fade=1.0f;
-		float healthbar_z_len=0.05f*zoom_level/3.0f*ratio;
-		char temp[255];
+		GLdouble model[16],proj[16];
+		GLint view[4];
+		GLdouble hx,hy,hz,a1,a2,a3;
+		float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
+		double healthbar_x=0.0;
+		double healthbar_y=-0.00000;
+		double healthbar_z=offset_z+.1;
+		double healthbar_x_len=ALT_INGAME_FONT_X_LEN*12*name_zoom*5*font_scale;
+		double healthbar_x_len_converted=0;
+		double healthbar_x_len_loss=0;
+		double healthbar_x_loss_fade=1.0f;
+		double healthbar_y_len=ALT_INGAME_FONT_Y_LEN*12*name_zoom*font_scale;
+
+		unsigned char str[60];
+		unsigned char temp[255];
 
   		// account for the dynamic scaling
-		if(actor_id->scale != 1.0f){
-            healthbar_z *= actor_id->scale;
-		}
+		/*if(actor_id->scale != 1.0f){
+			healthbar_z *= actor_id->scale;
+		}*/
 
 		if(use_shadow_mapping)
 			{
@@ -179,15 +184,30 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		if(glIsEnabled(GL_LIGHTING))glDisable(GL_LIGHTING);
 		if(glIsEnabled(GL_BLEND))glDisable(GL_BLEND);
 
+		glGetDoublev(GL_MODELVIEW_MATRIX, model);
+		glGetDoublev(GL_PROJECTION_MATRIX, proj);
+		glGetIntegerv(GL_VIEWPORT, view);
+		gluProject(healthbar_x,healthbar_y,healthbar_z,model, proj, view, &hx,&hy,&hz);
+
+				glPushMatrix();
+				glLoadIdentity();
+				glMatrixMode(GL_PROJECTION);
+				glPushMatrix();
+				glLoadIdentity();
+				glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
+		gluProject(hx,hy,hz,model, proj, view, &healthbar_x,&healthbar_y,&healthbar_z);
+
 		if(view_health_bar && actor_id->cur_health>=0 && actor_id->max_health>0 && (!actor_id->dead))
 			{
 				float percentage = (float)actor_id->cur_health/(float)actor_id->max_health;
 				float off;
 
 				if (view_hp)
-					off = -0.35f * zoom_level * name_zoom / 3.0f;
+				{
+					off = healthbar_x_len + 5.0f;
+				}
 				else
-					off = 0.0f;
+					off = healthbar_x_len / 2.0f;
 				if(actor_id->last_health_loss && cur_time-actor_id->last_health_loss<1000){//only when using floatingmessages
 					if(actor_id->damage>0){
 						healthbar_x_len_converted=healthbar_x_len*percentage;
@@ -202,20 +222,22 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					healthbar_x_len_converted=healthbar_x_len*percentage;
 					actor_id->last_health_loss=0;
 				}
-
 				glBegin(GL_QUADS);
 
 				//choose tint color
 				set_health_color(percentage, 0.5f, 1.0f);
 
-				glVertex3f(healthbar_x+off,healthbar_y,healthbar_z);
-				glVertex3f(healthbar_x+healthbar_x_len_converted+off,healthbar_y,healthbar_z);
-
+//				glVertex3d(hx+off,hy,hz);
+//				glVertex3d(hx+healthbar_x_len_converted+off,hy,hz);
+				hx-=off;
+				//hy-=healthbar_y_len/2.0;
+				glVertex3d(hx,hy,hz);
+				glVertex3d(hx+healthbar_x_len_converted,hy,hz);
 				//choose color for the bar
 				set_health_color(percentage, 1.0f, 1.0f);
+				glVertex3d(hx+healthbar_x_len_converted,hy+healthbar_y_len/2.0,hz);
+				glVertex3d(hx,hy+healthbar_y_len/2.0,hz);
 
-				glVertex3f(healthbar_x+healthbar_x_len_converted+off,healthbar_y,healthbar_z+healthbar_z_len);
-				glVertex3f(healthbar_x+off,healthbar_y,healthbar_z+healthbar_z_len);
 
 				glEnd();
 
@@ -226,13 +248,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					set_health_color(percentage, 0.5f, healthbar_x_loss_fade);
 
 					glBegin(GL_QUADS);
-						glVertex3f(healthbar_x+healthbar_x_len_converted+off, healthbar_y, healthbar_z);
-						glVertex3f(healthbar_x+healthbar_x_len_converted+healthbar_x_len_loss+off, healthbar_y, healthbar_z);
+						glVertex3d(hx+healthbar_x_len_converted, hy, hz);
+						glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy, hz);
 
 					set_health_color(percentage, 1.0f, healthbar_x_loss_fade);
 
-						glVertex3f(healthbar_x+healthbar_x_len_converted+healthbar_x_len_loss+off, healthbar_y, healthbar_z+healthbar_z_len);
-						glVertex3f(healthbar_x+healthbar_x_len_converted+off, healthbar_y, healthbar_z+healthbar_z_len);
+						glVertex3d(hx+healthbar_x_len_converted+healthbar_x_len_loss, hy+healthbar_y_len/2.0,hz);
+						glVertex3d(hx+healthbar_x_len_converted, hy+healthbar_y_len/2.0,hz);
 					glEnd();
 
 					glDisable(GL_BLEND);
@@ -244,11 +266,13 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				glDepthFunc(GL_LEQUAL);
 				glColor3f (0.0f, 0.0f, 0.0f);
 				glBegin(GL_LINE_LOOP);
-				glVertex3f (healthbar_x+off-0.001f, healthbar_y, healthbar_z-0.001f);
-				glVertex3f (healthbar_x+healthbar_x_len+off+0.001f, healthbar_y, healthbar_z-0.001f);
-				glVertex3f (healthbar_x+healthbar_x_len+off+0.001f, healthbar_y, healthbar_z+healthbar_z_len+0.001f);
-				glVertex3f (healthbar_x+off-0.001f, healthbar_y, healthbar_z+healthbar_z_len+0.001f);
+				glVertex3f (hx-1.0, hy-1.0, hz);
+				glVertex3f (hx+healthbar_x_len+1.0, hy-1.0,hz);
+				glVertex3f (hx+healthbar_x_len+1.0, hy+healthbar_y_len/2.0+1.0,hz);
+				glVertex3f (hx-1.0, hy+healthbar_y_len/2.0+1.0,hz);
 				glEnd();
+
+				hx+=off;
 			}
 
 		glEnable(GL_TEXTURE_2D);
@@ -258,26 +282,40 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		if(actor_id->damage_ms)
 			{
 				if(floatingmessages_enabled){
-					float a=1.0f-(float)(cur_time-actor_id->last_health_loss)/2000.0f;
+					float a=(float)(cur_time-actor_id->last_health_loss)/2000.0f;
+					gluProject(healthbar_x,healthbar_y,0,model, proj, view, &a1,&a2,&a3);
 
 					if(actor_id->damage>0){
-						safe_snprintf(str, sizeof(str), "%i",actor_id->damage);
-						glColor4f(1.0f, 0.1f, 0.2f, a);
+						safe_snprintf((char*)str, sizeof(str), "%i",actor_id->damage);
+						glColor4f(1.0f, 0.1f, 0.2f, 1.0f-a);
 					} else {
-						safe_snprintf(str, sizeof(str), "%i",-actor_id->damage);
-						glColor4f(0.3f, 1.0f, 0.3f, a);
+						safe_snprintf((char*)str, sizeof(str), "%i",-actor_id->damage);
+						glColor4f(0.3f, 1.0f, 0.3f, 1.0f-a);
 					}
 
 					glEnable(GL_BLEND);
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-					draw_ingame_string(-(((float)get_string_width((unsigned char *)str) * (0.17*zoom_level*name_zoom/3.0))/12.0)*0.5f, healthbar_z/2.0f+((1.0f-a)*0.5f), (unsigned char*)str, 1, 0.14, 0.21);
+					a*=2000;
+					a2=0;
+					if(a < 500){
+						a2 = 50.0 - 0.0002*a*a;
+						fprintf(stderr,"blar! %f\n",a2);
+					} else if(a < 950.0){
+						a2 = .09*(a-500.0) - .0002*(a-500.0)*(a-500.0);
+					} else if(a < 1355.0){
+						a2 = .081*(a-950.0) - .0002*(a-950.0)*(a-950.0);
+					} else if(a < 1720){
+						a2 = .0730*(a-1355.0) - .0002*(a-1355.0)*(a-1355.0);
+					} else {
+						a2 = .0640*(a-1720.0) - .0002*(a-1720.0)*(a-1720.0);
+					}
+					draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a2+hy,0, str, 1, font_scale*.14, font_scale*.21);
+
 					glDisable(GL_BLEND);
 				} else {
-					safe_snprintf(str, sizeof(str), "%i",actor_id->damage);
+					safe_snprintf((char*)str, sizeof(str), "%i",actor_id->damage);
 					glColor3f (1.0f, 0.3f, 0.3f);
-					//draw_ingame_string(-0.1,healthbar_z-2.0f,str,1,1);
-					//draw_ingame_string(-0.1,healthbar_z/2.0f,str,1,1);
-					DRAW_INGAME_NORMAL(-0.1f,healthbar_z/2.0f,str,1.0f);
+					DRAW_ORTHO_INGAME_NORMAL(-0.1f, healthbar_z/2.0f, 0.0f, str, 1.0f);
 				}
 			}
 		glDepthFunc(GL_LESS);
@@ -287,8 +325,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 				if(view_names)
 					{
-						float font_size_x=ratio*SMALL_INGAME_FONT_X_LEN;
-						float font_size_y=ratio*SMALL_INGAME_FONT_Y_LEN;
+						float font_size_x=font_scale*SMALL_INGAME_FONT_X_LEN;
+						float font_size_y=font_scale*SMALL_INGAME_FONT_Y_LEN;
 
 						if(actor_id->kind_of_actor==NPC)glColor3f(0.3f,0.8f,1.0f);
 						else if(actor_id->kind_of_actor==HUMAN || actor_id->kind_of_actor==COMPUTER_CONTROLLED_HUMAN){
@@ -302,24 +340,24 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 							}
 						} else if(actor_id->is_enhanced_model && (actor_id->kind_of_actor==PKABLE_HUMAN || actor_id->kind_of_actor==PKABLE_COMPUTER_CONTROLLED)) glColor3f(1.0f,0.0f,0.0f);
 						else glColor3f(1.0f,1.0f,0.0f);
-						//draw_ingame_string(-((float)get_string_width(actor_id->actor_name)*(SMALL_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0,healthbar_z+(0.06f*zoom_level/3.0),actor_id->actor_name,1,0);
-						safe_snprintf(temp, sizeof (temp), "%s", actor_id->actor_name);
+						safe_snprintf((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
 #ifdef	DEBUG
-						if (actor_id->calmodel!=NULL) strcat(temp," <CAL>");
+						if (actor_id->calmodel!=NULL) strcat((char*)temp," <CAL>");
 #endif	//DEBUG
-						draw_ingame_string(-((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*zoom_level*name_zoom/3.0))/2.0/12.0, healthbar_z+(0.06f*zoom_level/3.0), (unsigned char*)temp, 1, font_size_x, font_size_y);
+						draw_ortho_ingame_string(hx-((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0, hy+healthbar_y_len/2, hz, temp, 1, font_size_x, font_size_y);
 					}
 				if(view_hp && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC))
 					{
-						char hp[200];
-						float	off;
+						unsigned char hp[200];
+						float off = 0.0f, disp;
 
 						//choose color for the health
 						set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
-						safe_snprintf(hp, sizeof(hp), "%d/%d", actor_id->cur_health, actor_id->max_health);
-						if(view_health_bar)	off= (0.35*zoom_level*name_zoom/3.0);
-						else off= 0.0;
-						draw_ingame_string(-(((float)get_string_width((unsigned char*)hp)*(ratio*ALT_INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/2.0/12.0)+off, healthbar_z-(0.05*zoom_level*name_zoom/3.0), (unsigned char*)hp, 1, ratio*ALT_INGAME_FONT_X_LEN, ratio*ALT_INGAME_FONT_Y_LEN);
+						safe_snprintf((char*)hp, sizeof(hp), "%d/%d", actor_id->cur_health, actor_id->max_health);
+						disp=((float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom));
+						if(view_health_bar) off=5+disp;
+						draw_ortho_ingame_string(hx-disp+off, hy-healthbar_y_len/4, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
+						
 					}
 				set_font(0);	// back to fixed pitch
 			}
@@ -327,6 +365,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			{
 				draw_actor_overtext( actor_id );
 			}
+				glMatrixMode(GL_PROJECTION);
+				glPopMatrix();
+				glMatrixMode(GL_MODELVIEW);
+				glPopMatrix();
 
 		if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 

@@ -180,6 +180,7 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
  * \callgraph
  */
 void draw_ingame_string(float x, float y, const unsigned char * our_string, int max_lines, float font_x_scale, float font_y_scale);
+void draw_ortho_ingame_string(float x, float y, float z, const unsigned char * our_string, int max_lines, float font_x_scale, float font_y_scale);
 #endif	//ELC
 
 /*!
