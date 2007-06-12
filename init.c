@@ -208,24 +208,19 @@ void read_config()
 	strncat (configdir, "/.elc/", sizeof(configdir)-1);
 #else
 	strncat (configdir, "/Library/Application\ Support/Eternal\ Lands/", sizeof(configdir)-1);
-#endif
+#endif // OSX
 	d = opendir (configdir);
 	if (!d)
 	{
 		mkdir (configdir, 0700);
 	} else {
-
-		stat(configdir,&statbuff);
-		modes = statbuff.st_mode;
+		int fd = dirfd (d);
+		fstat (fd, &statbuff);
 		/* Set perms to 700 on configdir if they anything else */
-		if(((modes & S_IRWXU) == (S_IRUSR|S_IWUSR|S_IXUSR)) &&
-		   ((modes & S_IRWXG) == (S_IRGRP|S_IWGRP|S_IXGRP)) && 
-		   ((modes & S_IRWXO) == (S_IROTH|S_IWOTH|S_IXOTH)) ) {
-			chmod(configdir,S_IRWXU);
-		}
-
+		if (statbuff.st_mode != S_IRWXU)
+			fchmod (fd, S_IRWXU);
 	}
-#endif
+#endif // WINDOWS
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up

@@ -1488,7 +1488,6 @@ FILE* open_el_ini (const char *mode)
 	char el_ini[256];
 	char el_tmp[256];
 	FILE *f;
-	mode_t modes;
 
 	safe_snprintf (el_ini, sizeof (el_ini), "%s/el.ini", configdir);
 	f= my_fopen (el_ini, mode);	// try local file first
@@ -1537,15 +1536,12 @@ FILE* open_el_ini (const char *mode)
 	}
 
 	if(f) {
+		int fd = fileno (f);
 		struct stat statbuff;
-		stat(el_ini,&statbuff);
-		modes= statbuff.st_mode;
+		fstat (fd, &statbuff);
 		/* Set perms to 600 on el_ini if they are anything else */
-		if(((modes & S_IRWXU) == (S_IRUSR|S_IWUSR)) &&
-		   ((modes & S_IRWXG) == (S_IRGRP|S_IWGRP|S_IXGRP)) &&
-		   ((modes & S_IRWXO) == (S_IROTH|S_IWOTH|S_IXOTH))) {
-			chmod(el_ini,S_IRUSR|S_IWUSR);
-		}
+		if (statbuff.st_mode != (S_IRUSR|S_IWUSR))
+			fchmod (fd, S_IRUSR|S_IWUSR);
 	}
 
 	return f;
