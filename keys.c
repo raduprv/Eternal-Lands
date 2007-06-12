@@ -64,9 +64,9 @@ Uint32 K_TABCOMPLETE=CTRL|' ';
 Uint32 K_WINDOWS_ON_TOP=ALT|'w';
 Uint32 K_MARKFILTER=CTRL|'f';
 
-Uint32 CRC32(char *data, int len);
-unsigned short get_key_code(char *key);
-unsigned int parse_key_string(char *s);
+Uint32 CRC32 (const char *data, int len);
+unsigned short get_key_code (const char *key);
+unsigned int parse_key_string (const char *s);
 void add_key(unsigned int *key,unsigned int n);
 
 // load the dynamic definitions for keys
@@ -223,24 +223,26 @@ void read_key_config()
 	free(file_mem);
 }
 
-Uint32 parse_key_string(char *s)
+Uint32 parse_key_string (const char *s)
 {
 	char t1[100],t2[100],t3[100],t4[100];
 	Uint32 key=0;
-	*t1='#';
-	*t4='#';
-	*t3='#';
-	*t2='#';
-	sscanf(s,"%s %s %s %s",t1,t2,t3,t4);
-	if(t1)
-		add_key(&key,get_key_code(t1));
+	int nkey = sscanf (s, "%99s %99s %99s %99s", t1, t2, t3, t4);
 
-	if(*t2!='#'){
-		add_key(&key,get_key_code(t2));
-		if(*t3!='#'){
-			add_key(&key,get_key_code(t3));
-			if(*t4!='#')
-				add_key(&key,get_key_code(t4));
+	if (nkey > 0)
+	{
+		add_key (&key, get_key_code (t1));
+		if (nkey > 1 && t2[0] != '#')
+		{
+			add_key (&key, get_key_code (t2));
+			if (nkey > 2 && t3[0] != '#')
+			{
+				add_key (&key, get_key_code (t3));
+				if (nkey > 3 && t4[0] != '#')
+				{
+					add_key (&key, get_key_code (t4));
+				}
+			}
 		}
 	}
 
@@ -248,7 +250,7 @@ Uint32 parse_key_string(char *s)
 }
 
 
-Uint16 get_key_code(char *key)
+Uint16 get_key_code (const char *key)
 {
 	int len=strlen(key);
 
@@ -409,7 +411,7 @@ Uint16 get_key_code(char *key)
 }
 
 
-Uint32 CRC32(char *data, int len)
+Uint32 CRC32 (const char *data, int len)
 {
     unsigned int result=0;
     int i,j;

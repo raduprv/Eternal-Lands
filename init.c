@@ -127,7 +127,10 @@ void load_harvestable_list()
 	}
 	while(1)
 	{
-		fscanf(f, "%s", harvestable_objects[i]);
+		if (fscanf (f, "%254s", strLine) != 1)
+			break;
+		my_strncp (harvestable_objects[i], strLine, sizeof (harvestable_objects[i]));
+
 		i++;
 		if(!fgets(strLine, sizeof(strLine), f)) {
 			break;
@@ -148,7 +151,10 @@ void load_entrable_list()
 	if(!f)return;
 	while(1)
 		{
-			fscanf(f,"%s",entrable_objects[i]);
+			if (fscanf (f, "%254s", strLine) != 1)
+				break;
+			my_strncp (entrable_objects[i], strLine, sizeof (entrable_objects[i]));
+
 			i++;
 			if(!fgets(strLine, sizeof(strLine), f))break;
 		}

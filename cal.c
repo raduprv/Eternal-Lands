@@ -68,15 +68,15 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 
 #ifdef	NEW_ACTOR_ANIMATION
 	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound, int duration)
+struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration)
 	#else
-struct cal_anim cal_load_anim(actor_types *act, char *str, int duration)
+struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 	#endif	//NEW_SOUND
 #else
 	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, char *str, char *sound)
+struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound)
 	#else
-struct cal_anim cal_load_anim(actor_types *act, char *str)
+struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	#endif	//NEW_SOUND
 #endif
 {
@@ -91,7 +91,8 @@ struct cal_anim cal_load_anim(actor_types *act, char *str)
 	};
 	struct CalCoreAnimation *coreanim;
 
-	if(sscanf(str,"%s %d",fname,&res.kind) != 2){
+	if (sscanf (str, "%254s %d", fname, &res.kind) != 2)
+	{
 		log_error("Bad animation formation: %s", str);
 		return res;
 	}

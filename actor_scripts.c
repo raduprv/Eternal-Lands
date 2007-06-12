@@ -1912,14 +1912,14 @@ void cal_group_addanim(actor_types *act,int gindex, char *fanim)
 	++act->idle_group[gindex].count;
 }
 
-void parse_idle_group(actor_types *act,char *str)
+void parse_idle_group (actor_types *act, const char *str)
 {
 	char gname[255]={0};
 	char fname[255]={0};
 	//char temp[255];
 	int gindex;
 
-	if(sscanf(str,"%s %s",gname,fname)!=2)return;
+	if (sscanf (str, "%254s %254s", gname, fname) != 2) return;
 
 	gindex=cal_get_idle_group(act,gname);
 	cal_group_addanim(act,gindex,fname);

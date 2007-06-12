@@ -103,18 +103,20 @@ ALuint sound_buffer[MAX_BUFFERS];
 SDL_mutex *sound_list_mutex;
 
 #ifndef	NO_MUSIC
-	FILE* ogg_file;
-	OggVorbis_File ogg_stream;
-	vorbis_info* ogg_info;
+#define MAX_PLAYLIST_ENTRIES 50
 
-	ALuint music_buffers[4];
-	ALuint music_source;
+FILE* ogg_file;
+OggVorbis_File ogg_stream;
+vorbis_info* ogg_info;
 
-	int playing_music=0;
+ALuint music_buffers[4];
+ALuint music_source;
 
-	playlist_entry playlist[50];
-	int loop_list=1;
-	int list_pos=-1;
+int playing_music=0;
+
+playlist_entry playlist[MAX_PLAYLIST_ENTRIES];
+int loop_list=1;
+int list_pos=-1;
 #endif	//NO_MUSIC
 
 #ifdef NEW_SOUND
@@ -197,6 +199,9 @@ void get_map_playlist()
 	FILE *fp;
 	char strLine[255];
 	char *tmp;
+	// NOTE: keep the max length in this format line in sync with
+	// the size of tmp_buf
+	static const char pl_line_fmt[] = "%d %d %d %d %d %1023s";
 
 	if(!have_music)return;
 
@@ -222,23 +227,28 @@ void get_map_playlist()
 	if (fp == NULL) return;
 
 	while(1)
+	{
+		if (fscanf (fp, pl_line_fmt, &playlist[i].min_x, &playlist[i].min_y, &playlist[i].max_x, &playlist[i].max_y, &playlist[i].time, tmp_buf) == 6)
 		{
-			fscanf(fp,"%d %d %d %d %d %s",&playlist[i].min_x,&playlist[i].min_y,&playlist[i].max_x,&playlist[i].max_y,&playlist[i].time,tmp_buf);
 			// check for a comment
-			tmp= strstr(tmp_buf, "--");
-			if(tmp){
-				*tmp= '\0';
-				len= strlen(tmp_buf);
-				while(len > 0 && isspace(tmp_buf[len-1])){
+			tmp = strstr (tmp_buf, "--");
+			if (tmp)
+			{
+				*tmp = '\0';
+				len = strlen (tmp_buf);
+				while (len > 0 && isspace (tmp_buf[len-1]))
+				{
 					len--;
 					tmp_buf[len]= '\0';
 				}
 			}
-			safe_strncpy(playlist[i].file_name, tmp_buf, sizeof(playlist[i].file_name));
+			safe_strncpy (playlist[i].file_name, tmp_buf, sizeof(playlist[i].file_name));
 			playlist[i].file_name[63]= '\0';
-			i++;
-			if(!fgets(strLine, 100, fp))break;
+			if (++i >= MAX_PLAYLIST_ENTRIES)
+				break;
 		}
+		if (!fgets (strLine, 100, fp)) break;
+	}
 	fclose(fp);
 	loop_list=1;
 	list_pos=-1;
@@ -263,13 +273,13 @@ void play_ogg_file(char *file_name) {
 	load_ogg_file(file_name);
 	if(!have_music)return;
 
-    stream_music(music_buffers[0]);
+	stream_music(music_buffers[0]);
 	stream_music(music_buffers[1]);
 	stream_music(music_buffers[2]);
 	stream_music(music_buffers[3]);
     
-    alSourceQueueBuffers(music_source, 4, music_buffers);
-    alSourcePlay(music_source);
+	alSourceQueueBuffers(music_source, 4, music_buffers);
+	alSourcePlay(music_source);
 
 	if((error=alGetError()) != AL_NO_ERROR) 
     	{
@@ -447,7 +457,7 @@ int ensure_sample_loaded(int index)
 #else
 		free(data);
 #endif  //ALUT_WAV
-    }
+	}
 
 	pSample->loaded_status = 1;
 	return 0;
@@ -470,17 +480,22 @@ void play_music(int list) {
 
 	memset(playlist,0,sizeof(playlist));
 
-	while(1)
+	while (1)
+	{
+		if (fscanf (fp, "%254s", strLine) == 1)
 		{
-			fscanf(fp,"%s",playlist[i].file_name);
-			playlist[i].min_x=0;
-			playlist[i].min_y=0;
-			playlist[i].max_x=10000;
-			playlist[i].max_y=10000;
-			playlist[i].time=2;
-			i++;
-			if(!fgets(strLine, 100, fp))break;
+			my_strncp (playlist[i].file_name, strLine, sizeof (playlist[i].file_name));
+			playlist[i].min_x = 0;
+			playlist[i].min_y = 0;
+			playlist[i].max_x = 10000;
+			playlist[i].max_y = 10000;
+			playlist[i].time = 2;
+			if (++i > MAX_PLAYLIST_ENTRIES)
+				break;
+			if (!fgets (strLine, 100, fp))
+				break;
 		}
+	}
 	fclose(fp);
 	loop_list=0;
 	list_pos=0;
