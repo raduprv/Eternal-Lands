@@ -201,7 +201,6 @@ void read_config()
 #ifndef WINDOWS
 	DIR *d = NULL;
 	struct stat statbuff;
-	mode_t modes;
 
 	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
 #ifndef OSX
