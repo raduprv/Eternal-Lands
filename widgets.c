@@ -1476,11 +1476,9 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 // text field
 void _text_field_set_nr_visible_lines (widget_list *w)
 {
-	if (!(w->Flags & TEXT_FIELD_EDITABLE))
-		return;
-	
-	text_field* tf = w->widget_info;
-	if (tf != NULL)
+	text_field *tf = w->widget_info;
+
+	if (tf != NULL && (w->Flags & TEXT_FIELD_EDITABLE))
 	{
 		float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * tf->buffer[tf->msg].wrap_zoom);
 		tf->nr_visible_lines = (int) ((w->len_y - 2*tf->y_space) / displayed_font_y_size);
