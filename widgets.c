@@ -1474,6 +1474,19 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 }
 
 // text field
+void _text_field_set_nr_visible_lines (widget_list *w)
+{
+	if (!(w->Flags & TEXT_FIELD_EDITABLE))
+		return;
+	
+	text_field* tf = w->widget_info;
+	if (tf != NULL)
+	{
+		float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * tf->buffer[tf->msg].wrap_zoom);
+		tf->nr_visible_lines = (int) ((w->len_y - 2*tf->y_space) / displayed_font_y_size);
+	}
+}
+
 void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 {
 	text_field* tf = w->widget_info;
@@ -1486,9 +1499,10 @@ void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 			if (sbw != NULL && sbw->widget_info != NULL)
 			{
 				vscrollbar* sb = sbw->widget_info;
-				// set the scroll bar length to nr_lines - 2, 
-				// so that the last line is always visible
-				sb->bar_len = nr_lines > 2 ? nr_lines - 2 : 0;
+				// set the scroll bar length such that if
+				// we scroll down completely, the last line
+				// is on the bottom of the text field
+				sb->bar_len = nr_lines >= tf->nr_visible_lines ? nr_lines - tf->nr_visible_lines : 0;
 			}
 		}
 	}
@@ -1689,12 +1703,11 @@ unsigned int _get_edit_pos (int x, int y, const text_message *msg, int offset)
 	unsigned int i = offset;
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
-	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * msg->wrap_zoom;
+	float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * msg->wrap_zoom);
 
 	if (msg->len == 0) return 0;	// nothing to do, there is no string
 
-	nrlines = y/displayed_font_y_size;
-
+	nrlines = (int) (y/displayed_font_y_size);
 	for (; line < nrlines && i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':
@@ -1706,7 +1719,6 @@ unsigned int _get_edit_pos (int x, int y, const text_message *msg, int offset)
 		}
 	}
 
-	if(line > 0) ++i;	//skip the newline char
 	for (; i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':
@@ -1769,6 +1781,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->nr_lines = 1; //We'll always have one line in the text field.
 	T->chan_nr = chan_filt;
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
+	T->cursor_line = T->cursor;
 	T->next_blink = TF_BLINK_DELAY;
 	T->text_r = text_r;
 	T->text_g = text_g;
@@ -1795,6 +1808,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 		if (w != NULL)
 		{
 			int nr_lines = rewrap_message (buf, w->size, lx - 2*x_space - T->scrollbar_width, &T->cursor);
+			_text_field_set_nr_visible_lines (w);
 			_text_field_set_nr_lines (w, nr_lines);
 		}
 	}

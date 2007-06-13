@@ -127,10 +127,11 @@ typedef struct wl{
  */
 typedef struct
 {
-	int msg, offset, cursor;
+	int msg, offset;
+	int cursor, cursor_line;
 	float text_r, text_g, text_b;
 	int buf_size, buf_fill;
-	int nr_lines;
+	int nr_lines, nr_visible_lines;
 	int scroll_id;
 	int scrollbar_width;
 	int line_offset;

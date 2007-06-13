@@ -400,7 +400,7 @@ void openNoteTabContinued (int id)
 	widget_set_color (notepad_win, note[id]->window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
-	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, 1.0f, 0.77f, 0.57f, 0.39f, &note[id]->text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, 0.8f, 0.77f, 0.57f, 0.39f, &note[id]->text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
 	
 	// remove button
 	note[id]->button = button_add (note[id]->window, NULL, button_remove_category, 20, 8);
