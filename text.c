@@ -1036,7 +1036,7 @@ int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
 	int nlines;
 	float max_line_width = 0;
 
-	if (msg == NULL || msg->data == NULL)
+	if (msg->deleted || msg == NULL || msg->data == NULL)
 		return 0;
 	
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom)

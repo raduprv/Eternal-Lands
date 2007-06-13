@@ -402,7 +402,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		}
 
 		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
-		
+
 		ichar++;
 		i++;
 		if (cur_x - x > width - displayed_font_x_size)
