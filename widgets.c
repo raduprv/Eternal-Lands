@@ -1476,7 +1476,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 // text field
 void _text_field_set_nr_visible_lines (widget_list *w)
 {
-	text_field *tf = w->widget_info;
+	text_field* tf = w->widget_info;
 
 	if (tf != NULL && (w->Flags & TEXT_FIELD_EDITABLE))
 	{
@@ -1493,17 +1493,153 @@ void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 		tf->nr_lines = nr_lines;
 		if (tf->scroll_id != -1)
 		{
-			widget_list *sbw = widget_find (w->window_id, tf->scroll_id);
-			if (sbw != NULL && sbw->widget_info != NULL)
-			{
-				vscrollbar* sb = sbw->widget_info;
-				// set the scroll bar length such that if
-				// we scroll down completely, the last line
-				// is on the bottom of the text field
-				sb->bar_len = nr_lines >= tf->nr_visible_lines ? nr_lines - tf->nr_visible_lines : 0;
-			}
+			int bar_len = nr_lines >= tf->nr_visible_lines ? nr_lines - tf->nr_visible_lines : 0;
+			vscrollbar_set_bar_len (w->window_id, tf->scroll_id, bar_len);
 		}
 	}
+}
+
+void _text_field_scroll_to_cursor (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+
+	if (tf == NULL || tf->scroll_id == -1)
+		return;
+
+	// scroll only if the cursor is currently not visible
+	if (tf->cursor_line < tf->line_offset)
+		vscrollbar_set_pos (w->window_id, tf->scroll_id, tf->cursor_line);
+	else if (tf->cursor_line >= tf->line_offset + tf->nr_visible_lines)
+		vscrollbar_set_pos (w->window_id, tf->scroll_id, tf->cursor_line - tf->nr_visible_lines + 1);
+}
+
+void _text_field_cursor_left (widget_list *w, int skipword)
+{
+	text_field *tf = w->widget_info;
+	text_message* msg;
+	int i;
+	char c;
+
+	if (tf == NULL || tf->cursor <= 0)
+		return;
+
+	msg = &(tf->buffer[tf->msg]);
+	i = tf->cursor;
+	do
+	{
+		c = msg->data[--i];
+		if (c == '\r' || c == '\n')
+			tf->cursor_line--;
+	}
+	while (i > 0 && (c == '\r' || (skipword && !isspace (c))));
+	tf->cursor = i;
+
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
+}
+
+void _text_field_cursor_right (widget_list *w, int skipword)
+{
+	text_field *tf = w->widget_info;
+	text_message* msg;
+	int i;
+	char c;
+
+	if (tf == NULL)
+		return;
+
+	msg = &(tf->buffer[tf->msg]);
+	if (tf->cursor >= msg->len)
+		return;
+
+	i = tf->cursor;
+	do
+	{
+		c = msg->data[i++];
+		if (c == '\r' || c == '\n')
+			tf->cursor_line++;
+	}
+	while (i < msg->len && (c == '\r' || (skipword && !isspace (c))));
+	tf->cursor = i;
+
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
+}
+
+void _text_field_cursor_up (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+	int line_start;      // The beginning of the line we're processing
+	int prev_line_start; // Beginning of the line before the line with the cursor
+	int cursor_offset;   // Position of the cursor on this line
+	int prev_line_length;// Length of the previous line
+
+	if (tf == NULL || tf->cursor_line <= 0)
+		return;
+
+	// find where the cursor is on this line
+	msg = &(tf->buffer[tf->msg]);
+	for (line_start = tf->cursor; line_start > 0; line_start--)
+		if (msg->data[line_start-1] == '\r' || msg->data[line_start-1] == '\n')
+			break;
+	if (line_start == 0)
+		// shouldn't happen
+		return;
+	cursor_offset = tf->cursor - line_start;
+
+	// Now find where the previous line starts
+	for (prev_line_start = line_start-1; prev_line_start > 0; prev_line_start--)
+		if (msg->data[prev_line_start-1] == '\r' || msg->data[prev_line_start-1] == '\n')
+			break;
+	
+	prev_line_length = line_start - prev_line_start;
+	tf->cursor = cursor_offset >= prev_line_length ? line_start - 1 : prev_line_start + cursor_offset;
+	tf->cursor_line--;
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
+}
+
+void _text_field_cursor_down (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+	int line_start;      // The beginning of the line we're processing
+	int next_line_start; // Beginning of the line after the line with the cursor
+	int next_line_end;   // End of the line after the line with the cursor
+	int cursor_offset;   // Position of the cursor on this line
+	int next_line_length;// Length of the next line
+
+	if (tf == NULL || tf->cursor_line >= tf->nr_lines-1)
+		return;
+
+	// find where the cursor is on this line
+	msg = &(tf->buffer[tf->msg]);
+	for (line_start = tf->cursor; line_start > 0; line_start--)
+		if (msg->data[line_start-1] == '\r' || msg->data[line_start-1] == '\n')
+			break;
+	cursor_offset = tf->cursor - line_start;
+
+	// Now find where the next line starts
+	for (next_line_start = tf->cursor; next_line_start < msg->len; next_line_start++)
+		if (msg->data[next_line_start] == '\r' || msg->data[next_line_start] == '\n')
+			break;
+	if (next_line_start >= msg->len)
+		// shouldn't happen
+		return;
+	// skip newline
+	next_line_start++;
+
+	// Find where the next line ends
+	for (next_line_end = next_line_start; next_line_end < msg->len; next_line_end++)
+		if (msg->data[next_line_end] == '\r' || msg->data[next_line_end] == '\n')
+			break;
+
+	next_line_length = next_line_end - next_line_start;
+	tf->cursor = cursor_offset >= next_line_length ? next_line_end : next_line_start + cursor_offset;
+	tf->cursor_line++;
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
 }
 
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
@@ -1532,95 +1668,38 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 	if (keysym == SDLK_LEFT)
 	{
-		if (tf->cursor > 0) 
-		{
-			do
-			{
-				tf->cursor--;
-			}
-			while (tf->cursor > 0 && (msg->data[tf->cursor] == '\r' || (ctrl_on && !isspace(msg->data[tf->cursor]))));
-		}
-
+		_text_field_cursor_left (w, ctrl_on);
 		return 1;
 	}
 	else if (keysym == SDLK_RIGHT)
 	{
-		if (tf->cursor < msg->len)
-		{
-			do
-			{
-				tf->cursor++;
-			} while (tf->cursor < msg->len && (msg->data[tf->cursor] == '\r' || (ctrl_on && !isspace(msg->data[tf->cursor]))));
-		}
+		_text_field_cursor_right (w, ctrl_on);
 		return 1;
 	}
 	else if (keysym == SDLK_UP && !ctrl_on && !alt_on && tf->cursor >= 0)
 	{
-		size_t i;
-		size_t current_line_start; //The beginning of the line we're processing
-		size_t cursor_offset; //The cursor's offset on the current line
-		size_t prev_line_start; //Beginning of the line before the line with the cursor
-		unsigned int current_line;
-		unsigned int total_lines;
-
-		for(i = 0, current_line = 1, current_line_start = 0, prev_line_start = 0, total_lines = 1, cursor_offset = 0; i < msg->len; i++) {
-			if(msg->data[i] == '\r' || msg->data[i] == '\n') {
-				if(i < tf->cursor) {
-					cursor_offset = 0;
-					current_line++;
-					prev_line_start = current_line_start;
-					current_line_start = i+1;
-				}
-				total_lines++;
-			} else if(i < tf->cursor) {
-				cursor_offset++;
-			}
-		}
-		if(current_line > 0) {
-			for(i = tf->cursor = prev_line_start; i < prev_line_start+cursor_offset && i < msg->len
-					&& msg->data[i] != '\r' && msg->data[i] != '\n'; i++) {
-				tf->cursor++;
-			}
-		}
+		_text_field_cursor_up (w);
 		return 1;
 	}
 	else if (keysym == SDLK_DOWN && !ctrl_on && !alt_on && tf->cursor >= 0)
 	{
-		size_t i;
-		size_t cursor_offset; //The cursor's offset on the current line
-		size_t next_line_start; //Beginning of the line after the line with the cursor
-		unsigned int current_line;
-		unsigned int total_lines;
-
-		for(i = 0, current_line = 1, total_lines = 1, cursor_offset = 0, next_line_start = 0; i < msg->len; i++) {
-			if(msg->data[i] == '\r' || msg->data[i] == '\n') {
-				total_lines++;
-				if(i < tf->cursor) {
-					cursor_offset = 0;
-					current_line++;
-				} else if (total_lines - current_line == 1) {
-					next_line_start = i+1;
-				}
-			} else if(i < tf->cursor) {
-				cursor_offset++;
-			}
-		}
-		if(current_line < total_lines) {
-			for(i = tf->cursor = next_line_start; i < next_line_start+cursor_offset && i < msg->len
-					&& (i+1 > msg->len || (msg->data[i+1] != '\r' && msg->data[i+1] != '\n')); i++) {
-				tf->cursor++;
-			}
-		}
+		_text_field_cursor_down (w);
 		return 1;
 	}
 	else if (keysym == SDLK_HOME)
 	{
 		tf->cursor = 0;
+		tf->cursor_line = 0;
+		if (tf->scroll_id != -1)
+			_text_field_scroll_to_cursor (w);
 		return 1;
 	}
 	else if (keysym == SDLK_END)
 	{
 		tf->cursor = msg->len;
+		tf->cursor_line = tf->nr_lines - 1;
+		if (tf->scroll_id != -1)
+			_text_field_scroll_to_cursor (w);
 		return 1;
 	}
 	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
@@ -1696,14 +1775,16 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	return 0;
 }
 
-unsigned int _get_edit_pos (int x, int y, const text_message *msg, int offset)
+void _set_edit_pos (text_field* tf, int x, int y)
 {
-	unsigned int i = offset;
+	unsigned int i = tf->offset;
 	unsigned int nrlines = 0, line = 0;
 	int px = 0;
+	text_message* msg = &(tf->buffer[tf->msg]);
 	float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * msg->wrap_zoom);
 
-	if (msg->len == 0) return 0;	// nothing to do, there is no string
+	if (msg->len == 0)
+		return;	// nothing to do, there is no string
 
 	nrlines = (int) (y/displayed_font_y_size);
 	for (; line < nrlines && i < msg->len; i++) {
@@ -1713,31 +1794,36 @@ unsigned int _get_edit_pos (int x, int y, const text_message *msg, int offset)
 				++line;
 				break;
 			case '\0':
-				return i;
+				tf->cursor = i;
+				tf->cursor_line = tf->line_offset + line;
+				return;
 		}
 	}
 
+	tf->cursor_line = tf->line_offset + nrlines;
 	for (; i < msg->len; i++) {
 		switch (msg->data[i]) {
 			case '\r':
 			case '\n':
 			case '\0':
-				return i;
-				break;
+				tf->cursor = i;
+				return;
 			default:
 				// lachesis: for formula see draw_char_scaled
 				px += (int) (0.5 + get_char_width(msg->data[i]) * msg->wrap_zoom * DEFAULT_FONT_X_LEN / 12.0);
-				if (px >= x) return i;
+				if (px >= x)
+				{
+					tf->cursor = i;
+					return;
+				}
 		}
 	}
-
-	return msg->len - 1;
+	tf->cursor = msg->len;
 }
 
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 {
 	text_field *tf;
-	text_message *msg;
 
 	tf = w->widget_info;
 	if (tf == NULL)
@@ -1757,8 +1843,7 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
-	msg = &(tf->buffer[tf->msg]);
-	tf->cursor = _get_edit_pos (mx, my, msg, tf->offset);
+	_set_edit_pos (tf, mx, my);
 
 	return 1;
 }
