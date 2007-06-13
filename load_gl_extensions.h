@@ -4,6 +4,8 @@
 #ifdef _MSC_VER
 #include <windows.h>
 typedef unsigned int uint_fast32_t;
+#else
+#include <stdint.h>
 #endif //MSVC
 #if defined (OSX) || (OSX86)
 #include <OpenGL/gl.h>

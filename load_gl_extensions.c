@@ -1,7 +1,4 @@
 #include <SDL.h>
-#ifndef _MSC_VER
-#include <stdint.h>
-#endif //!MSVC
 #include "load_gl_extensions.h"
 
 uint_fast32_t extensions = 0;
