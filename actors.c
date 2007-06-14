@@ -371,7 +371,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				glMatrixMode(GL_MODELVIEW);
 				glPopMatrix();
 
-		if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
+		if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z+hz-zoom_level/10.0f);
 
 		glColor3f(1,1,1);
 		if(actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_BLEND);
