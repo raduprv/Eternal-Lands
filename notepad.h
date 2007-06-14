@@ -47,7 +47,7 @@ void display_notepad();
  *
  * \retval int  always 1
  */
-int notepadSaveFile();
+int notepad_save_file();
 #endif
 
 #ifdef __cplusplus

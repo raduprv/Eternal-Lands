@@ -1039,7 +1039,7 @@ int save_local_data(char * text, int len){
 	if (write_ini_on_exit) write_el_ini ();
 #ifdef NOTEPAD
 	// save notepad contents if the file was loaded
-	if (notepad_loaded) notepadSaveFile (NULL, 0, 0, 0);
+	if (notepad_loaded) notepad_save_file (NULL, 0, 0, 0);
 #endif //NOTEPAD
 #ifdef MINIMAP
 	save_exploration_map();

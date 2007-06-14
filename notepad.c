@@ -17,7 +17,7 @@
 
 #ifdef NOTEPAD
 
-void notepadAddContinued (const char *name);
+void notepad_add_continued (const char *name);
 
 int notepad_loaded = 0;
 
@@ -80,7 +80,7 @@ int accept_popup_window (widget_list *w, int mx, int my, Uint32 flags)
 		return 1;
 	
 	data[len] = '\0';
-	notepadAddContinued (&data[istart]);
+	notepad_add_continued (&data[istart]);
 	clear_popup_window (w, mx, my, flags);
 	return 1;
 }
@@ -150,7 +150,6 @@ struct Note
 {
 	char name[NOTE_NAME_LEN];	// Name to display on tab title.
 	int window;			// Track which window it owns.
-	int scroll;			// Track it's scrollbar
 	int input;			// Track it's text buffer
 	int button;			// Track it's close button
 	text_message text;	// Data in the window.
@@ -188,7 +187,7 @@ static void init_note(int id, const char* name)
 	my_strncp (note[id]->name, name, NOTE_NAME_LEN);
 }
 
-int notepadLoadFile ()
+int notepad_load_file ()
 {
 	char file[256];
 	xmlDocPtr doc;
@@ -278,7 +277,7 @@ int notepadLoadFile ()
 }
 
 
-int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
+int notepad_save_file (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i = 0;
 	char file[256];
@@ -317,7 +316,7 @@ int notepadSaveFile (widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-int notepadRemoveCategory (widget_list *w, int mx, int my, Uint32 flags)
+int notepad_remove_category (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i, id = -1, cur_tab, t, inote;
 
@@ -357,7 +356,7 @@ int notepadRemoveCategory (widget_list *w, int mx, int my, Uint32 flags)
 }
 
 
-int tabOnDestroy (window_info *w)
+int note_tab_destroy (window_info *w)
 {
 	int i, id = -1;
 
@@ -374,7 +373,6 @@ int tabOnDestroy (window_info *w)
 		return 0;
 	}
 	
-	if (note[id]->scroll >= 0) widget_destroy (note[id]->window, note[id]->scroll);
 	if (note[id]->input >= 0) widget_destroy (note[id]->window, note[id]->input);
 	if (note[id]->button >= 0) widget_destroy (note[id]->window, note[id]->button);
     
@@ -383,7 +381,7 @@ int tabOnDestroy (window_info *w)
 	return 1;
 }
 
-void openNoteTabContinued (int id)
+void open_note_tab_continued (int id)
 {
 	int tf_x = 20;
 	int tf_y = 45;
@@ -404,14 +402,14 @@ void openNoteTabContinued (int id)
 	
 	// remove button
 	note[id]->button = button_add (note[id]->window, NULL, button_remove_category, 20, 8);
-	widget_set_OnClick (note[id]->window, note[id]->button, notepadRemoveCategory);
+	widget_set_OnClick (note[id]->window, note[id]->button, notepad_remove_category);
 	widget_set_color (note[id]->window, note[id]->button, 0.77f, 0.57f, 0.39f);
     
-	set_window_handler (note[id]->window, ELW_HANDLER_DESTROY, tabOnDestroy);
+	set_window_handler (note[id]->window, ELW_HANDLER_DESTROY, note_tab_destroy);
 }
      
 
-int openNoteTab (widget_list *w, int mx, int my, Uint32 flags)
+int open_note_tab (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int i = 0, id = -1;
 
@@ -434,13 +432,13 @@ int openNoteTab (widget_list *w, int mx, int my, Uint32 flags)
 		return 0;
 	}
     
-	openNoteTabContinued (id);
+	open_note_tab_continued (id);
     
 	return 1;
 }
 
 
-void notepadAddContinued (const char *name)
+void notepad_add_continued (const char *name)
 {
 	int y_pos;
 	
@@ -467,14 +465,14 @@ void notepadAddContinued (const char *name)
 	note[no_notes-1]->text.size = MIN_NOTE_SIZE;
 	note[no_notes-1]->text.data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
     
-	widget_set_OnClick (main_note_tab_id, note[no_notes-1]->note_buttons, openNoteTab);
+	widget_set_OnClick (main_note_tab_id, note[no_notes-1]->note_buttons, open_note_tab);
 	widget_set_color(main_note_tab_id, note[no_notes-1]->note_buttons, 0.77f, 0.57f, 0.39f);
 	
-	openNoteTabContinued(no_notes-1);
+	open_note_tab_continued (no_notes-1);
 }
 
 
-int notepadAddCategory (widget_list *w, int mx, int my, Uint32 flags)
+int notepad_add_category (widget_list *w, int mx, int my, Uint32 flags)
 {
 	int x = (note_win_x_len - popup_x_len) / 2;
 	int y = (note_win_y_len - popup_y_len) / 2;
@@ -511,12 +509,12 @@ void display_notepad()
 
 		// Add Category
 		buttons[0] = button_add (main_note_tab_id, NULL, button_new_category, 0, 0);
-		widget_set_OnClick (main_note_tab_id, buttons[0], notepadAddCategory);
+		widget_set_OnClick (main_note_tab_id, buttons[0], notepad_add_category);
 		widget_set_color (main_note_tab_id, buttons[0], 0.77f, 0.57f, 0.39f);
 
 		// Save Notes
 		buttons[1] = button_add (main_note_tab_id, NULL, button_save_notes, 0, 0);
-		widget_set_OnClick(main_note_tab_id, buttons[1], notepadSaveFile);
+		widget_set_OnClick(main_note_tab_id, buttons[1], notepad_save_file);
 		widget_set_color(main_note_tab_id, buttons[1], 0.77f, 0.57f, 0.39f);
 		
 		// align the buttons
@@ -529,12 +527,12 @@ void display_notepad()
 		{
 			note[i] = NULL;
 		}
-		notepadLoadFile ();
+		notepad_load_file ();
 
 		for(i = 0; i < no_notes; i++)
 		{
 			note[i]->note_buttons = label_add (main_note_tab_id, NULL, note[i]->name, 5, 50+21*i);
-			widget_set_OnClick (main_note_tab_id, note[i]->note_buttons, openNoteTab);
+			widget_set_OnClick (main_note_tab_id, note[i]->note_buttons, open_note_tab);
 			widget_set_color(main_note_tab_id, note[i]->note_buttons, 0.77f, 0.57f, 0.39f);
 		}
 	}
