@@ -23,8 +23,7 @@ int max_zoom = 1;
  *
  *  -draw arrow showing players direction?
  *  -load/save the exploration data from ~
- *  -re-load textures when we change screen size / toggle fullscreen
- *  -update description below
+ *  -update description of the draw function below
  *
  * POSSIBLE OPTIMIZATION:
  *  -the window's content only changes when actors are updated or map is changed.
@@ -217,7 +216,7 @@ int display_minimap_handler(window_info *win)
 		glDisable(GL_TEXTURE_2D);
 
 		//display the actors
-		glPointSize(max2f(4.0f,1.2f*size_x/zoom_multip));
+		glPointSize(max2f(3.0f,1.2f*size_x/zoom_multip));
 		glBegin(GL_POINTS);
 		for(i = 0; i < 1000; i++)
 		{
@@ -419,6 +418,14 @@ CHECK_GL_ERRORS();
 
 int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags){
 	for(;pow(2,4+max_zoom) <= tile_map_size_x;++max_zoom);
+	if((flags & ELW_WHEEL) && my < win->len_y && mx > 0 && mx < win->len_x-ELW_BOX_SIZE){
+		if(flags & ELW_WHEEL_UP){
+			increase_zoom();
+		} else {
+			decrease_zoom();
+		}
+		return 1;
+	}
 	if(!flags & ELW_LEFT_MOUSE){
 		return 0;
 	} else if(mx < win->len_x-ELW_BOX_SIZE || mx > win->len_x){
