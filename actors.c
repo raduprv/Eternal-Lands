@@ -299,7 +299,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					a2=0;
 					if(a < 500){
 						a2 = 50.0 - 0.0002*a*a;
-						fprintf(stderr,"blar! %f\n",a2);
+						//Too soon since damage was taken? Not a big problem.
+						//fprintf(stderr,"blar! %f\n",a2);
 					} else if(a < 950.0){
 						a2 = .09*(a-500.0) - .0002*(a-500.0)*(a-500.0);
 					} else if(a < 1355.0){
@@ -309,7 +310,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					} else {
 						a2 = .0640*(a-1720.0) - .0002*(a-1720.0)*(a-1720.0);
 					}
-					draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a2+hy,0, str, 1, font_scale*.14, font_scale*.21);
+					draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a2+hy+20.0f, hz, str, 1, font_scale*.14, font_scale*.21);
 
 					glDisable(GL_BLEND);
 				} else {
