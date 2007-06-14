@@ -1,3 +1,4 @@
+#include <SDL_net.h>
 #include "zipfilesystem.hpp"
 
 void zip_file_system::add(uint_fast32_t idx, const std::string& path, zip_file_entry_list &files)
@@ -286,4 +287,3 @@ void zip_file_system::read_file_header(zip_file_entry &zfile, uint_fast32_t inde
 	zfile.offset_curfile += size_filename;
 	zfile.offset_curfile += size_file_extra;
 }
-

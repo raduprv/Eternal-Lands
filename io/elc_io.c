@@ -35,7 +35,10 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 #endif	//NEW_FILE_IO
 {
 	elc_file_header header;
-	int size, header_offset, block;
+	int size, header_offset;
+#ifndef	NEW_FILE_IO
+	int block;
+#endif	//NEW_FILE_IO
 	void* mem;
 	MD5 md5;
 	MD5_DIGEST md5_digest;

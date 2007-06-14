@@ -82,7 +82,7 @@ class el_file
 		 */
 		inline int_fast32_t read(int_fast32_t count, void* buffer)
 		{
-			count = std::max(std::min(count, get_size() - position), 0L);
+			count = std::max((long)(std::min(count, get_size() - position)), 0L);
 			memcpy(buffer, memory.get_memory(position), count);
 			position += count;
 
