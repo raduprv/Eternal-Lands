@@ -1408,7 +1408,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 				text_field *tf = input_widget->widget_info;
 				tf->cursor = tf->buffer->len;
 				if(input_widget->window_id == game_root_win) {
-					widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+					widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 				}
 			}
 		}
@@ -1613,7 +1613,7 @@ int show_game_handler (window_info *win) {
 	}
 	if(input_widget->window_id == game_root_win) {
 		if(tf->buffer->len > 0) {
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		} else {
 			widget_set_flags(input_widget->window_id, input_widget->id, input_widget->Flags|WIDGET_DISABLED);
 		}
@@ -1649,7 +1649,7 @@ void create_game_root_window (int width, int height)
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
 		if(input_text_line.len > 0) {
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		}
 		resize_root_window();
 	}

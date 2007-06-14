@@ -327,11 +327,12 @@ int widget_set_flags(int window_id, Uint32 widget_id, Uint32 f)
 	return 0;
 }
 
-int widget_unset_flag(int window_id, Uint32 widget_id, Uint32 f)
+int widget_unset_flags (int window_id, Uint32 widget_id, Uint32 f)
 {
 	widget_list *w = widget_find(window_id, widget_id);
-	if(w && (w->Flags&f)){
-		w->Flags = w->Flags^f;
+	if (w)
+	{
+		w->Flags &= ~f;
 		return 1;
 	}
 	return 0;
@@ -1005,6 +1006,8 @@ int vscrollbar_set_bar_len (int window_id, Uint32 widget_id, int bar_len)
 	if(w){
 		vscrollbar *c = (vscrollbar *)w->widget_info;
 		c->bar_len = bar_len > 0 ? bar_len : 1;
+		if (c->pos > c->bar_len)
+			c->pos = c->bar_len;
 		return 1;
 	}
 

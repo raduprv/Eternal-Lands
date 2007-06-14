@@ -259,7 +259,7 @@ int show_map_handler (window_info *win)
 
 int hide_map_handler (window_info * win)
 {
-	widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+	widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
 	return 1;
 }
 

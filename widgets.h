@@ -351,7 +351,7 @@ int widget_set_flags(int window_id, Uint32 widget_id, Uint32 f);
  * \ingroup	widgets
  * \brief 	Unsets the specified flags
  *
- * 		Finds the widget in the window and unsets the specified flag (should only be used with one flag at a time).
+ * 		Finds the widget in the window and unsets the specified flags.
  *
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The widget's unique ID
@@ -360,7 +360,7 @@ int widget_set_flags(int window_id, Uint32 widget_id, Uint32 f);
  *
  * \sa widget_find
  */
-int widget_unset_flag(int window_id, Uint32 widget_id, Uint32 f);
+int widget_unset_flags (int window_id, Uint32 widget_id, Uint32 f);
 
 /*!
  * \ingroup	widgets

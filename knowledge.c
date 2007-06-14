@@ -35,7 +35,7 @@ int add_knowledge_book_image() {
 	uend=u+ftsize;
 	vend=v-ftsize;
 	id= load_texture_cache_deferred("textures/items1.bmp", 0);
-	return image_add_extended(knowledge_win, 0, NULL, 500, 215, 50, 50, 0, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f); 
+	return image_add_extended(knowledge_win, 0, NULL, 500, 215, 50, 50, WIDGET_DISABLED, 1.0, 1.0, 1.0, 1.0, id, u, v, uend, vend, 0.05f); 
 }
 
 int handle_knowledge_book()
@@ -183,8 +183,8 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 				// Check if we display the book image and label
 				knowledge_book_id = idx;
 				if (knowledge_list[idx].present && knowledge_list[idx].has_book) {
-					widget_unset_flag(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
-					widget_unset_flag(knowledge_win, knowledge_book_label_id, WIDGET_DISABLED);
+					widget_unset_flags (knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
+					widget_unset_flags (knowledge_win, knowledge_book_label_id, WIDGET_DISABLED);
 				} else {
 					widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
 					widget_set_flags(knowledge_win, knowledge_book_label_id, WIDGET_DISABLED);
@@ -239,7 +239,6 @@ void fill_knowledge_win ()
 	knowledge_scroll_id = vscrollbar_add_extended (knowledge_win, knowledge_scroll_id, NULL, knowledge_menu_x_len - 20,  0, 20, 200, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 10, (knowledge_count+2)/2-19);
 	knowledge_book_image_id = add_knowledge_book_image();
 	widget_set_OnClick(knowledge_win, knowledge_book_image_id, &handle_knowledge_book);
-	widget_set_flags(knowledge_win, knowledge_book_image_id, WIDGET_DISABLED);
 	knowledge_book_label_id = label_add_extended(knowledge_win, knowledge_book_image_id + 1, NULL, 485, 265, WIDGET_DISABLED, 0.8, 1.0, 1.0, 1.0, knowledge_read_book);
 	widget_set_OnClick(knowledge_win, knowledge_book_label_id, &handle_knowledge_book);
 }

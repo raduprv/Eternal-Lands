@@ -815,7 +815,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	{
 		if(!get_show_window(map_root_win)) {
 			//Make sure the widget is visible.
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		}
 		// watch for the '//' shortcut
 		if (tf->cursor == 1 && (ch == '/' || ch == char_slash_str[0])
@@ -865,7 +865,7 @@ void paste_in_input_field (const Uint8 *text)
 	if (input_widget == NULL) {
 		return;
 	} else if (input_widget->window_id == game_root_win) {
-		widget_unset_flag(game_root_win, input_widget->id, WIDGET_DISABLED);
+		widget_unset_flags (game_root_win, input_widget->id, WIDGET_DISABLED);
 	}
 	
 	tf = input_widget->widget_info;
@@ -905,7 +905,7 @@ void put_string_in_input_field(const Uint8 *text)
 			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, tf->y_space*2 + ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
 		}
 		if(input_widget->window_id == game_root_win) {
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
 		}
 	}
 }

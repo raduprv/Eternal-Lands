@@ -614,7 +614,7 @@ void draw_rules_interface (int len_x, int len_y)
 
 	if ((countdown <= 0) && (read_all_rules))
 	{
-		widget_unset_flag(rules_root_win, rules_root_accept_id, WIDGET_DISABLED);
+		widget_unset_flags (rules_root_win, rules_root_accept_id, WIDGET_DISABLED);
 	}
 
 	glDisable(GL_TEXTURE_2D);

@@ -605,7 +605,7 @@ void change_windowed_chat (int *wc, int val)
 		if(get_show_window(game_root_win)) {
 			target_win= game_root_win;
 			if(input_text_line.len > 0) {
-				widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+				widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
 			} else {
 				widget_set_flags(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
 			}
@@ -620,7 +620,7 @@ void change_windowed_chat (int *wc, int val)
 		widget_move (input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
 		if(target_win == console_root_win) {
-			widget_unset_flag(input_widget->window_id, input_widget->id, WIDGET_CLICK_TRANSPARENT);
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_CLICK_TRANSPARENT);
 		}
 	}
 
