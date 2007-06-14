@@ -10,9 +10,10 @@ extern "C" {
 extern int minimap_win;
 extern int minimap_win_x;
 extern int minimap_win_y;
-extern int minimap_win_pin;
-extern int minimap_win_above;
+extern int minimap_flags;
 extern int minimap_zoom;
+
+__inline int minimap_get_pin();
 
 void display_minimap();
 int display_minimap_handler(window_info *win);

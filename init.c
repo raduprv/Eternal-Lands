@@ -307,8 +307,7 @@ void read_bin_cfg()
 #ifdef MINIMAP
 	minimap_win_x=cfg_mem.minimap_win_x;
 	minimap_win_y=cfg_mem.minimap_win_y;
-	minimap_win_pin=cfg_mem.minimap_win_pin;
-	minimap_win_above=cfg_mem.minimap_win_above;
+	minimap_flags=cfg_mem.minimap_flags;
 	minimap_zoom=cfg_mem.minimap_zoom;
 #endif //MINIMAP
 
@@ -493,8 +492,7 @@ void save_bin_cfg()
 		cfg_mem.minimap_win_x=minimap_win_x;
 		cfg_mem.minimap_win_y=minimap_win_y;
 	}
-	cfg_mem.minimap_win_pin=minimap_win_pin;
-	cfg_mem.minimap_win_above=minimap_win_above;
+	cfg_mem.minimap_flags=minimap_flags;
 	cfg_mem.minimap_zoom=minimap_zoom;
 #endif //MINIMAP
 	cfg_mem.view_health_bar=view_health_bar;

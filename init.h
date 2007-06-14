@@ -125,13 +125,12 @@ typedef struct
     /*! @{ */
 	int minimap_win_x;
 	int minimap_win_y;
-	int minimap_win_pin;
-	int minimap_win_above;
+	int minimap_flags;
 	int minimap_zoom;
     /*! @} */
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[1];
+	int reserved[2];
 
 #else //!MINIMAP
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!

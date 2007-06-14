@@ -499,6 +499,10 @@ CHECK_GL_ERRORS();
 	ec_load_textures();
 #endif //EYE_CANDY
 
+#ifdef MINIMAP
+	change_minimap();
+#endif //MINIMAP
+
 	check_options();
 }
 
