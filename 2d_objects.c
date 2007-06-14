@@ -6,6 +6,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef	NEW_FILE_IO
+#include "io/elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 #define INVALID -1
 #define GROUND 0
@@ -164,12 +167,18 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 {
 	int f_size;
 	int i,k,l;
+#ifndef	NEW_FILE_IO
 	FILE *f = NULL;
+#else	//NEW_FILE_IO
+	el_file_ptr file = NULL;
+#endif	//NEW_FILE_IO
 	char cur_dir[200]={0};
 	obj_2d_def *cur_object;
 	char *obj_file_mem;
 	char texture_file_name[256] = {0};
+#ifndef	NEW_FILE_IO
 	char *handle_obj_file_mem;
+#endif	//NEW_FILE_IO
 	float x_size,y_size;
 	float alpha_test;
 	int file_x_len;
@@ -199,6 +208,7 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 		}
 
 
+#ifndef	NEW_FILE_IO
 	f = my_fopen (file_name, "rb");
 	if(!f)
 	{
@@ -214,7 +224,13 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	fseek (f, 0, SEEK_SET);
 	fread (obj_file_mem, 1, f_size, f);
 	fclose (f);
+#else	//NEW_FILE_IO
+	file = el_open(file_name);
 
+	obj_file_mem = el_get_pointer(file);
+
+	f_size = el_get_size(file);
+#endif	//NEW_FILE_IO
 
 	//ok, the file is loaded, so parse it
 	file_x_len=get_integer_after_string("file_x_len:",obj_file_mem,f_size);
@@ -304,7 +320,11 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 					break;
 				}
 		}
+#ifndef	NEW_FILE_IO
 	free(handle_obj_file_mem);
+#else	//NEW_FILE_IO
+	el_close(file);
+#endif	//NEW_FILE_IO
 
 	return cur_object;
 }

@@ -28,11 +28,11 @@ static __inline__ int check_version(const elc_file_header header, const VERSION_
 
 #define	BLOCK_SIZE	1024*1024
 
-#ifdef	ZLIB
-int read_and_check_elc_header(gzFile* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+int read_and_check_elc_header(el_file_ptr file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
+#else	//NEW_FILE_IO
 int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 {
 	elc_file_header header;
 	int size, header_offset, block;
@@ -40,14 +40,14 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 	MD5 md5;
 	MD5_DIGEST md5_digest;
 	
-#ifdef	ZLIB
-	size = gzread(file, (char*)&header, sizeof(elc_file_header));
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	size = el_read(file, sizeof(elc_file_header), &header);
+#else	//NEW_FILE_IO
 	size = fread((char*)&header, 1, sizeof(elc_file_header), file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 	if (size != sizeof(elc_file_header)) 
 	{
-		LOG_ERROR("File '%s' too small!", filename);
+		LOG_ERROR("File '%s' too small! %d, %d", filename, size, sizeof(elc_file_header));
 		return -1;
 	}
 
@@ -91,10 +91,12 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 
 	header_offset = SDL_SwapLE32(header.header_offset);
 
-#ifdef	ZLIB
-	block = BLOCK_SIZE;
-	gzseek(file, header_offset, SEEK_SET);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	MD5Open(&md5);
+	size = el_get_size(file) - header_offset;
+	mem = &((uint8_t*)el_get_pointer(file))[header_offset];
+	MD5Digest(&md5, mem, size);
+#else	//NEW_FILE_IO
 	fseek(file, 0, SEEK_END);
 	size = ftell(file) - header_offset;
 	if (size <= 0)
@@ -103,21 +105,9 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		return -1;
 	}
 	fseek(file, header_offset, SEEK_SET);
-#endif	//ZLIB
 
 	MD5Open(&md5);
 	mem = malloc(BLOCK_SIZE);
-#ifdef	ZLIB
-	while (block > 0)
-	{
-		size= gzread(file, mem, block);
-		if (size > 0){
-			MD5Digest(&md5, mem, size);
-		} else {
-			break;
-		}
-	}
-#else	//ZLIB
 	while (size > 0)
 	{
 		block = BLOCK_SIZE;
@@ -126,8 +116,8 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		MD5Digest(&md5, mem, block);
 		size -= block;
 	}
-#endif	//ZLIB
 	free(mem);
+#endif	//NEW_FILE_IO
 	MD5Close(&md5, md5_digest);
 
 	if (memcmp(header.md5, md5_digest, sizeof(MD5_DIGEST)) != 0)
@@ -136,11 +126,11 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		return -1;
 	}
 
-#ifdef	ZLIB
-	gzseek(file, SDL_SwapLE32(header.header_offset), SEEK_SET);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_seek(file, SDL_SwapLE32(header.header_offset), SEEK_SET);
+#else	//NEW_FILE_IO
 	fseek(file, SDL_SwapLE32(header.header_offset), SEEK_SET);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 	return 0;
 }

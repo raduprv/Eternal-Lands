@@ -6,9 +6,6 @@
 #else
 #include "global.h"
 #endif
-#ifdef	ZLIB
-#include	<zlib.h>
-#endif
 #include "io/e3d_io.h"
 #ifdef OSX86
 	#undef OSX 0 //this is needed since i386 fixes some PPC issues here

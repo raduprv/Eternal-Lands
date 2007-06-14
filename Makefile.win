@@ -13,6 +13,7 @@ CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing 
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing $(EXTRA_INCLUDES)
 
 ZLIB_LIBS = -lz
+NEW_FILE_IO_LIBS = -lz
 EYE_CANDY_LIBS = -lpng
 PNG_SCREENSHOT_LIBS = -lpng
 # WARNING: the order is important! If -lX uses -lY, then you must list -lX before -lY (sic!)
@@ -27,6 +28,7 @@ MEMORY_DEBUG_COBJ = elmemory.o
 NOTEPAD_COBJ = notepad.o
 SFX_COBJ = special_effects.o
 MINIMAP_COBJ = minimap.o
+NEW_FILE_IO_CXXOBJ = io/elfilewrapper.o io/elfile.o io/zipfilesystem.o exceptions/extendedexception.o
 COBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o alphamap.o asc.o \
 	bbox_tree.o books.o buddy.o bags.o \
@@ -38,7 +40,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	ignore.o init.o interface.o items.o	\
 	io/e3d_io.o io/elc_io.o	\
 	keys.o knowledge.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
-	main.o manufacture.o map_io.o mapwin.o	\
+	main.o manufacture.o map.o io/map_io.o mapwin.o	\
 	md5.o misc.o multiplayer.o	\
 	new_actors.o new_character.o 	\
 	openingwin.o	\

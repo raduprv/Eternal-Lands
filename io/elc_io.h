@@ -7,6 +7,9 @@
 #define __ELC_IO_H__
 
 #include "../md5.h"
+#ifdef	NEW_FILE_IO
+#include "elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 typedef char MAGIC_NUMBER[4];
 typedef unsigned char VERSION_NUMBER[4];
@@ -22,10 +25,10 @@ typedef struct
 	int header_offset;	/*!< the header offset */
 } elc_file_header;
 
-#ifdef	ZLIB
-int read_and_check_elc_header(gzFile* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+int read_and_check_elc_header(el_file_ptr file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename);
+#else	//NEW_FILE_IO
 int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 #endif

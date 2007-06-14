@@ -11,6 +11,9 @@
 #ifndef	OLD_TEXTURE_LOADER
 #include <SDL_image.h>
 #endif	//OLD_TEXTURE_LOADER
+#ifdef	NEW_FILE_IO
+#include "io/elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 __inline__ static void set_texture_filter(texture_filter filter, float anisotropic_filter)
 {
@@ -143,7 +146,18 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	uint_fast32_t pixel, temp, r, g, b, a;
 	uint_fast32_t bpp, i, j, index, x_padding;
 
+#ifndef	NEW_FILE_IO
 	texture_surface = IMG_Load(file_name);
+#else	//NEW_FILE_IO
+	el_file_ptr file;
+
+	file = el_open(file_name);
+
+	texture_surface = IMG_Load_RW(SDL_RWFromMem(el_get_pointer(file), el_get_size(file)), 1);
+
+	el_close(file);
+#endif	//NEW_FILE_IO
+
 	if (texture_surface == 0)
 	{
 		LOG_ERROR("%s", IMG_GetError());

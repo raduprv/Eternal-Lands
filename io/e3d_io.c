@@ -1,8 +1,8 @@
 #include "e3d_io.h"
 #include <float.h>
-#ifdef	ZLIB
-#include	<zlib.h>
-#endif
+#ifdef	NEW_FILE_IO
+#include "elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 static void free_e3d_pointer(e3d_object* cur_object)
 {
@@ -27,21 +27,21 @@ static void free_e3d_pointer(e3d_object* cur_object)
 	}
 }
 
-#ifdef	ZLIB
-static int check_pointer(void* ptr, e3d_object* cur_object, const char* str, gzFile* file)
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+static int check_pointer(void* ptr, e3d_object* cur_object, const char* str, el_file_ptr file)
+#else	//NEW_FILE_IO
 static int check_pointer(void* ptr, e3d_object* cur_object, const char* str, FILE* file)
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 {
 	if (ptr == NULL)
 	{
 		LOG_ERROR("Can't allocate memory for %s!", str);
 		free_e3d_pointer(cur_object);
-#ifdef	ZLIB
-		gzclose(file);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+		el_close(file);
+#else	//NEW_FILE_IO
 		fclose(file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 		return 0;
 	}
 	else
@@ -52,21 +52,21 @@ static int check_pointer(void* ptr, e3d_object* cur_object, const char* str, FIL
 
 #define CHECK_POINTER(ptr, str) check_pointer((ptr), cur_object, (str), file)
 
-#ifdef	ZLIB
-static int check_size(int read_size, int size, e3d_object* cur_object, const char* filename, const char* str, gzFile* file)
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+static int check_size(int read_size, int size, e3d_object* cur_object, const char* filename, const char* str, el_file_ptr file)
+#else	//NEW_FILE_IO
 static int check_size(int read_size, int size, e3d_object* cur_object, const char* filename, const char* str, FILE* file)
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 {
 	if (read_size < size)
 	{
 		LOG_ERROR("File \"%s\" has too small %s size!", filename, str);
 		free_e3d_pointer(cur_object);
-#ifdef	ZLIB
-		gzclose(file);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+		el_close(file);
+#else	//NEW_FILE_IO
 		fclose(file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 		return 0;
 	}
 	else
@@ -95,11 +95,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	char* tmp_buffer;
 	Uint8* index_pointer;
 	float* float_pointer;
-#ifdef	ZLIB
-	gzFile* file;
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_file_ptr file;
+#else	//NEW_FILE_IO
 	FILE* file;
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 	
 	if (cur_object == NULL) return NULL;
 
@@ -125,11 +125,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		cur_dir[i+1] = 0;
 	}
 
-#ifdef	ZLIB
-	file= my_gzopen(cur_object->file_name, "rb");
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	file = el_open(cur_object->file_name);
+#else	//NEW_FILE_IO
 	file= my_fopen(cur_object->file_name, "rb");
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 	if (file == NULL)
 	{
 		LOG_ERROR("Can't open file \"%s\"!", cur_object->file_name);
@@ -141,19 +141,19 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	{
 		LOG_ERROR("File \"%s\" has wrong header!", cur_object->file_name);
 		free_e3d_pointer(cur_object);
-#ifdef	ZLIB
-		gzclose(file);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+		el_close(file);
+#else	//NEW_FILE_IO
 		fclose(file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 		return NULL;
 	}
 	
-#ifdef	ZLIB
-	gzread(file, (char*)&header, sizeof(e3d_header));
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_read(file, sizeof(e3d_header), &header);
+#else	//NEW_FILE_IO
 	fread((char*)&header, 1, sizeof(e3d_header), file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 	cur_object->vertex_no = SDL_SwapLE32(header.vertex_no);
 	cur_object->index_no = SDL_SwapLE32(header.index_no);
@@ -174,20 +174,20 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	{
 		LOG_ERROR("File \"%s\" has wrong index size!", cur_object->file_name);
 		free_e3d_pointer(cur_object);
-#ifdef	ZLIB
-		gzclose(file);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+		el_close(file);
+#else	//NEW_FILE_IO
 		fclose(file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 		return NULL;
 	}
 	
 	// Now reading the vertices
-#ifdef	ZLIB
-	gzseek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_seek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
+#else	//NEW_FILE_IO
 	fseek(file, SDL_SwapLE32(header.vertex_offset), SEEK_SET);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 	cur_object->vertex_data = malloc(cur_object->vertex_no * v_size);
 	mem_size = cur_object->vertex_no * v_size;
@@ -202,11 +202,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		return NULL;
 	}
 
-#ifdef	ZLIB
-	gzread(file, tmp_buffer, cur_object->vertex_no * vertex_size);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_read(file, cur_object->vertex_no * vertex_size, tmp_buffer);
+#else	//NEW_FILE_IO
 	fread(tmp_buffer, cur_object->vertex_no, vertex_size, file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 	idx = 0;
 	float_pointer = cur_object->vertex_data;
@@ -224,19 +224,19 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	free(tmp_buffer);
 
 	// Now reading the indicies
-#ifdef	ZLIB
-	gzseek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_seek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
+#else	//NEW_FILE_IO
 	fseek(file, SDL_SwapLE32(header.index_offset), SEEK_SET);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 	index_buffer = (unsigned int*)malloc(cur_object->index_no * sizeof(unsigned int));
 	if (!CHECK_POINTER(index_buffer, "index buffer")) return NULL;
-#ifdef	ZLIB
-	gzread(file, index_buffer, cur_object->index_no * sizeof(unsigned int));
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_read(file, cur_object->index_no * sizeof(unsigned int), index_buffer);
+#else	//NEW_FILE_IO
 	fread(index_buffer, cur_object->index_no, sizeof(unsigned int), file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 	if (cur_object->index_no < 65536)
 	{
@@ -279,11 +279,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		{
 			LOG_ERROR("This should never happen!");
 			free_e3d_pointer(cur_object);
-#ifdef	ZLIB
-			gzclose(file);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+			el_close(file);
+#else	//NEW_FILE_IO
 			fclose(file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 			return NULL;
 		}
 	}
@@ -299,11 +299,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	mem_size += cur_object->material_no * sizeof(e3d_draw_list);
 
 	// Now reading the materials
-#ifdef	ZLIB
-	gzseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_seek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
+#else	//NEW_FILE_IO
 	fseek(file, SDL_SwapLE32(header.material_offset), SEEK_SET);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 	
 	cur_object->min_x = 1e10f;
 	cur_object->min_y = 1e10f;
@@ -316,13 +316,13 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 	for (i = 0; i < cur_object->material_no; i++)
 	{
 		
-#ifdef	ZLIB
-		file_pos = gztell(file);
-		gzread(file, &material, sizeof(e3d_material));
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+		file_pos = el_tell(file);
+		el_read(file, sizeof(e3d_material), &material);
+#else	//NEW_FILE_IO
 		file_pos = ftell(file);
 		fread(&material, 1, sizeof(e3d_material), file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 		snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material.material_name);
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
@@ -370,11 +370,11 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #ifdef	USE_EXTRA_TEXTURE
 		if (has_extra_texture(cur_object->vertex_options))		
 		{
-#ifdef	ZLIB
-			gzread(file, &extra_texture, sizeof(e3d_extra_texture));
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+			el_read(file, sizeof(e3d_extra_texture), &extra_texture);
+#else	//NEW_FILE_IO
 			fread(&extra_texture, 1, sizeof(e3d_extra_texture), file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, extra_texture.material_name);
 #ifdef	MAP_EDITOR
 			cur_object->materials[i].extra_texture_id = load_texture_cache(text_file_name,0);
@@ -390,17 +390,17 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #endif	//USE_EXTRA_TEXTURE
 		file_pos += SDL_SwapLE32(material_size);
 
-#ifdef	ZLIB
-		gzseek(file, file_pos, SEEK_SET);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+		el_seek(file, file_pos, SEEK_SET);
+#else	//NEW_FILE_IO
 		fseek(file, file_pos, SEEK_SET);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 	}
-#ifdef	ZLIB
-	gzclose(file);
-#else	//ZLIB
+#ifdef	NEW_FILE_IO
+	el_close(file);
+#else	//NEW_FILE_IO
 	fclose(file);
-#endif	//ZLIB
+#endif	//NEW_FILE_IO
 
 	if (use_vertex_buffers)
 	{
