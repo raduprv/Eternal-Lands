@@ -72,9 +72,9 @@ int load_map(const char *file_name, update_func *update_function)
 	cur_map_header.lights_no = SDL_SwapLE32(cur_map_header.lights_no);
 	cur_map_header.lights_offset = SDL_SwapLE32(cur_map_header.lights_offset);
     
-	cur_map_header.ambient_r = SwapFloat(cur_map_header.ambient_r);
-	cur_map_header.ambient_g = SwapFloat(cur_map_header.ambient_g);
-	cur_map_header.ambient_b = SwapFloat(cur_map_header.ambient_b);
+	cur_map_header.ambient_r = SwapLEFloat(cur_map_header.ambient_r);
+	cur_map_header.ambient_g = SwapLEFloat(cur_map_header.ambient_g);
+	cur_map_header.ambient_b = SwapLEFloat(cur_map_header.ambient_b);
 	
 	cur_map_header.particles_struct_len = SDL_SwapLE32(cur_map_header.particles_struct_len);
 	cur_map_header.particles_no = SDL_SwapLE32(cur_map_header.particles_no);
@@ -175,15 +175,15 @@ int load_map(const char *file_name, update_func *update_function)
 		fread(cur_3do_pointer, 1, obj_3d_io_size, f);
 #endif	//NEW_FILE_IO
 			
-		cur_3d_obj_io.x_pos = SwapFloat(cur_3d_obj_io.x_pos);
-		cur_3d_obj_io.y_pos = SwapFloat(cur_3d_obj_io.y_pos);
-		cur_3d_obj_io.z_pos = SwapFloat(cur_3d_obj_io.z_pos);
-		cur_3d_obj_io.x_rot = SwapFloat(cur_3d_obj_io.x_rot);
-		cur_3d_obj_io.y_rot = SwapFloat(cur_3d_obj_io.y_rot);
-		cur_3d_obj_io.z_rot = SwapFloat(cur_3d_obj_io.z_rot);
-		cur_3d_obj_io.r = SwapFloat(cur_3d_obj_io.r);
-		cur_3d_obj_io.g = SwapFloat(cur_3d_obj_io.g);
-		cur_3d_obj_io.b = SwapFloat(cur_3d_obj_io.b);
+		cur_3d_obj_io.x_pos = SwapLEFloat(cur_3d_obj_io.x_pos);
+		cur_3d_obj_io.y_pos = SwapLEFloat(cur_3d_obj_io.y_pos);
+		cur_3d_obj_io.z_pos = SwapLEFloat(cur_3d_obj_io.z_pos);
+		cur_3d_obj_io.x_rot = SwapLEFloat(cur_3d_obj_io.x_rot);
+		cur_3d_obj_io.y_rot = SwapLEFloat(cur_3d_obj_io.y_rot);
+		cur_3d_obj_io.z_rot = SwapLEFloat(cur_3d_obj_io.z_rot);
+		cur_3d_obj_io.r = SwapLEFloat(cur_3d_obj_io.r);
+		cur_3d_obj_io.g = SwapLEFloat(cur_3d_obj_io.g);
+		cur_3d_obj_io.b = SwapLEFloat(cur_3d_obj_io.b);
 
 		if (cur_3d_obj_io.blended != 20)
 		{
@@ -214,12 +214,12 @@ int load_map(const char *file_name, update_func *update_function)
 		fread(cur_2do_pointer, 1, obj_2d_io_size, f);
 #endif	//NEW_FILE_IO
 			
-		cur_2d_obj_io.x_pos = SwapFloat(cur_2d_obj_io.x_pos);
-		cur_2d_obj_io.y_pos = SwapFloat(cur_2d_obj_io.y_pos);
-		cur_2d_obj_io.z_pos = SwapFloat(cur_2d_obj_io.z_pos);
-		cur_2d_obj_io.x_rot = SwapFloat(cur_2d_obj_io.x_rot);
-		cur_2d_obj_io.y_rot = SwapFloat(cur_2d_obj_io.y_rot);
-		cur_2d_obj_io.z_rot = SwapFloat(cur_2d_obj_io.z_rot);
+		cur_2d_obj_io.x_pos = SwapLEFloat(cur_2d_obj_io.x_pos);
+		cur_2d_obj_io.y_pos = SwapLEFloat(cur_2d_obj_io.y_pos);
+		cur_2d_obj_io.z_pos = SwapLEFloat(cur_2d_obj_io.z_pos);
+		cur_2d_obj_io.x_rot = SwapLEFloat(cur_2d_obj_io.x_rot);
+		cur_2d_obj_io.y_rot = SwapLEFloat(cur_2d_obj_io.y_rot);
+		cur_2d_obj_io.z_rot = SwapLEFloat(cur_2d_obj_io.z_rot);
 
 #ifndef SHOW_FLICKERING
 		// Add in low-order bits to prevent flicker.
@@ -250,12 +250,12 @@ int load_map(const char *file_name, update_func *update_function)
 		fread(cur_light_pointer, 1, lights_io_size, f);
 #endif	//NEW_FILE_IO
 			
-		cur_light_io.pos_x = SwapFloat(cur_light_io.pos_x);
-		cur_light_io.pos_y = SwapFloat(cur_light_io.pos_y);
-		cur_light_io.pos_z = SwapFloat(cur_light_io.pos_z);
-		cur_light_io.r = SwapFloat(cur_light_io.r);
-		cur_light_io.g = SwapFloat(cur_light_io.g);
-		cur_light_io.b = SwapFloat(cur_light_io.b);
+		cur_light_io.pos_x = SwapLEFloat(cur_light_io.pos_x);
+		cur_light_io.pos_y = SwapLEFloat(cur_light_io.pos_y);
+		cur_light_io.pos_z = SwapLEFloat(cur_light_io.pos_z);
+		cur_light_io.r = SwapLEFloat(cur_light_io.r);
+		cur_light_io.g = SwapLEFloat(cur_light_io.g);
+		cur_light_io.b = SwapLEFloat(cur_light_io.b);
 
 		if (cur_light_io.pos_x < 0.0f || cur_light_io.pos_x > tile_map_size_x * 60 ||
 			cur_light_io.pos_y < 0.0f || cur_light_io.pos_y > tile_map_size_y * 60 ||
@@ -292,9 +292,9 @@ int load_map(const char *file_name, update_func *update_function)
 		fread(cur_particles_pointer,1,particles_io_size,f);
 #endif	//NEW_FILE_IO
 			
-		cur_particles_io.x_pos = SwapFloat(cur_particles_io.x_pos);
-		cur_particles_io.y_pos = SwapFloat(cur_particles_io.y_pos);
-		cur_particles_io.z_pos = SwapFloat(cur_particles_io.z_pos);
+		cur_particles_io.x_pos = SwapLEFloat(cur_particles_io.x_pos);
+		cur_particles_io.y_pos = SwapLEFloat(cur_particles_io.y_pos);
+		cur_particles_io.z_pos = SwapLEFloat(cur_particles_io.z_pos);
 			
 #ifdef EYE_CANDY
 		if (!strncmp(cur_particles_io.file_name, "ec://", 5))
