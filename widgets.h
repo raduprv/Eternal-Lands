@@ -1264,6 +1264,20 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 
 /*!
  * \ingroup	textfields
+ * \brief       Clear an editable text field
+ * 
+ *              Clear an editable text field, erasing its current buffer and
+ *              moving the cursor to the start
+ * 
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param	widget_id The unique widget ID
+ * \retval int  	Returns 1 on success, 0 on error
+ * \callgraph
+ */
+int text_field_clear (int window_id, Uint32 widget_id);
+
+/*!
+ * \ingroup	textfields
  * \brief 	Sets the text color
  *
  * 		Sets the color with which the text is drawn. Not that color characters in the text override this setting.

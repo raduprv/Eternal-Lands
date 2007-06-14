@@ -43,33 +43,25 @@ int popup_y_len = 100;
 // widget id
 int note_widget_id = 0;
 
-int clear_popup_window (widget_list *w, int mx, int my, Uint32 flags)
+void clear_popup_window ()
 {
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	text_field_clear (popup_win, popup_field);
 
-	memset (popup_text.data, 0, popup_text.size);
-	popup_text.len = 0;
-
-	hide_window(popup_win);
-	return 1;
+	hide_window (popup_win);
 }
 
-int accept_popup_window (widget_list *w, int mx, int my, Uint32 flags)
+void accept_popup_window ()
 {
 	int istart, iend, len = popup_text.len;
 	char *data = popup_text.data;
-	
-	// only handle mouse button clicks, not scroll wheels moves
-	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
 	// skip leading spaces
 	istart = 0;
-	while ( istart <len && isspace (data[istart]) )
+	while ( istart < len && isspace (data[istart]) )
 		istart++;
 	if (istart >= len)
 		// empty string
-		return 1;
+		return;
 		
 	// stop at first character that's not a letter, digit, or space
 	iend = istart;
@@ -77,12 +69,67 @@ int accept_popup_window (widget_list *w, int mx, int my, Uint32 flags)
 		iend++;
 	if (iend == istart)
 		// empty string
-		return 1;
+		return;
 	
-	data[len] = '\0';
+	data[iend] = '\0';
 	notepad_add_continued (&data[istart]);
-	clear_popup_window (w, mx, my, flags);
+	clear_popup_window ();
+}
+
+int popup_cancel_button_handler (widget_list *w, int mx, int my, Uint32 flags)
+{
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
+	clear_popup_window ();
+
 	return 1;
+}
+
+int popup_ok_button_handler (widget_list *w, int mx, int my, Uint32 flags)
+{
+	// only handle mouse button clicks, not scroll wheels moves
+	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+
+	accept_popup_window ();
+	
+	return 1;
+}
+
+int keypress_popup_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	if (key == SDLK_RETURN)
+	{
+		accept_popup_window ();
+		return 1;
+	}
+	else if (key == SDLK_ESCAPE)
+	{
+		clear_popup_window ();
+		return 1;
+	}
+	else
+	{
+		// send other key presses to the text field
+		widget_list *tfw = widget_find (win->window_id, popup_field);
+		if (tfw != NULL)
+		{
+			// FIXME? This is a bit hackish, we don't allow the
+			// widget to process keypresses, so that we end up
+			// in this handler. But now we need the default
+			// widget handler to take care of this keypress, so
+			// we clear the flag, let the widget handle it, then
+			// set the flag again.
+			int res;
+			tfw->Flags ^= TEXT_FIELD_NO_KEYPRESS;
+			res = widget_handle_keypress (tfw, mx - tfw->pos_x, my - tfw->pos_y, key, unikey);
+			tfw->Flags |= TEXT_FIELD_NO_KEYPRESS;
+			return res;
+		}
+	}
+
+	// shouldn't get here
+	return 0;
 }
 
 void display_popup_win (int parent, int x, int y, char* label, int maxlen)
@@ -96,8 +143,8 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 
 	if(popup_win < 0)
 	{		  
-		popup_win = create_window (win_prompt, parent, 0, x, y, popup_x_len, popup_y_len, ELW_WIN_DEFAULT);	 
-          
+		popup_win = create_window (win_prompt, parent, 0, x, y, popup_x_len, popup_y_len, ELW_WIN_DEFAULT);
+
 		// clear the buffer
 		popup_text.data = calloc ( popup_text.size, sizeof (char) );
 
@@ -106,17 +153,21 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 		widget_set_color (popup_win, popup_label, 0.77f, 0.57f, 0.39f);
 		
 		// Input
-		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 28, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 28, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+		// disable the default text field key handler, we trap
+		// events in the window itself and call the text field 
+		// handler explicitly if necessary
+		widget_set_OnKey (popup_win, popup_field, NULL);
 		widget_set_color (popup_win, popup_field, 0.77f, 0.57f, 0.39f);
 
 		// Accept
 		popup_ok = button_add (popup_win, NULL, button_okay, 0, 0);
-		widget_set_OnClick (popup_win, popup_ok, accept_popup_window);
+		widget_set_OnClick (popup_win, popup_ok, popup_ok_button_handler);
 		widget_set_color (popup_win, popup_ok, 0.77f, 0.57f, 0.39f);
 
 		// Reject
 		popup_no = button_add (popup_win, NULL, button_cancel, 0, 0);
-		widget_set_OnClick (popup_win, popup_no, clear_popup_window);
+		widget_set_OnClick (popup_win, popup_no, popup_cancel_button_handler);
 		widget_set_color (popup_win, popup_no, 0.77f, 0.57f, 0.39f);
 		
 		// align the buttons
@@ -124,6 +175,8 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 		wno = widget_find(popup_win, popup_no);
 		widget_move(popup_win, popup_ok, (popup_x_len - wok->len_x - wno->len_x)/3, popup_y_len - (wok->len_y + 5));
 		widget_move(popup_win, popup_no, wok->len_x + 2*(popup_x_len - wok->len_x - wno->len_x)/3, popup_y_len - (wno->len_y + 5));
+
+		set_window_handler (popup_win, ELW_HANDLER_KEYPRESS, &keypress_popup_handler);
 	}
 	else
 	{
@@ -139,22 +192,25 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
  ******************************************/  
  
 //Macro Definitions                             
-#define MAX_NOTES         10
-#define NOTE_NAME_LEN     16
-#define MAX_TABS          3
+#define NOTE_LIST_INIT_SIZE 5
+#define NOTE_NAME_LEN       16
+#define MAX_TABS            3
 
 #define MIN_NOTE_SIZE	128
 
 // Private to this module
-struct Note
+typedef struct
 {
 	char name[NOTE_NAME_LEN];	// Name to display on tab title.
 	int window;			// Track which window it owns.
 	int input;			// Track it's text buffer
 	int button;			// Track it's close button
-	text_message text;	// Data in the window.
+	text_message text;		// Data in the window.
 	int note_buttons;
-} *note[MAX_NOTES];
+} note;
+
+note *note_list = 0;
+int note_list_size = 0;
 
 // Widgets and Windows
 int notepad_win = -1;
@@ -173,18 +229,18 @@ int note_win_y_len = 400;
 
 static void init_note(int id, const char* name)
 {
-	note[id]->text.chan_idx = CHAT_NONE;
-	note[id]->text.data = NULL;
-	note[id]->text.size = 0;
-	note[id]->text.len = 0;
-	note[id]->text.wrap_width = 0;
-	note[id]->text.wrap_zoom = 0;
-	note[id]->text.wrap_lines = 0;
-	note[id]->text.max_line_width = 0;
-	note[id]->text.deleted = 0;
-	note[id]->note_buttons = -1;
-	note[id]->window = -1;
-	my_strncp (note[id]->name, name, NOTE_NAME_LEN);
+	note_list[id].text.chan_idx = CHAT_NONE;
+	note_list[id].text.data = NULL;
+	note_list[id].text.size = 0;
+	note_list[id].text.len = 0;
+	note_list[id].text.wrap_width = 0;
+	note_list[id].text.wrap_zoom = 0;
+	note_list[id].text.wrap_lines = 0;
+	note_list[id].text.max_line_width = 0;
+	note_list[id].text.deleted = 0;
+	note_list[id].note_buttons = -1;
+	note_list[id].window = -1;
+	my_strncp (note_list[id].name, name, NOTE_NAME_LEN);
 }
 
 int notepad_load_file ()
@@ -194,6 +250,12 @@ int notepad_load_file ()
 	xmlNodePtr cur;
 	xmlChar *name;
 	
+	if (note_list == 0)
+	{
+		note_list = calloc (NOTE_LIST_INIT_SIZE, sizeof (note));
+		note_list_size = NOTE_LIST_INIT_SIZE;
+	}
+
 	notepad_loaded = 1;
 
 	safe_snprintf (file, sizeof (file), "%snotes.xml", configdir);
@@ -240,13 +302,13 @@ int notepad_load_file ()
 		{
 			int nsize = MIN_NOTE_SIZE, len = 0;
 		
-			if(no_notes >= MAX_NOTES)
+			if (no_notes >= note_list_size)
 			{
-				LOG_ERROR (too_many_notes);
-				return 2;
+				int new_size = note_list_size * 2;
+				note_list = realloc (note_list, new_size * sizeof (note));
+				note_list_size = new_size;
 			}
 
-			note[no_notes] = malloc ( sizeof (struct Note) );
 			name = xmlGetProp (cur, (xmlChar *)"NAME");
 			init_note(no_notes, (char *)name);
 			xmlFree(name);
@@ -257,13 +319,13 @@ int notepad_load_file ()
 				len = strlen ((char*)cur->children->content);
 			while (nsize <= len)
 				nsize += nsize;
-			note[no_notes]->text.data = calloc ( nsize, sizeof (char) );
-			note[no_notes]->text.size = nsize;
+			note_list[no_notes].text.data = calloc ( nsize, sizeof (char) );
+			note_list[no_notes].text.size = nsize;
 			if (len > 0)
-				my_strcp (note[no_notes]->text.data, (char*)cur->children->content);
-			note[no_notes]->text.len = len;
+				my_strcp (note_list[no_notes].text.data, (char*)cur->children->content);
+			note_list[no_notes].text.len = len;
 				    
-			rewrap_message(&note[no_notes]->text, 1.0f, note_win_x_len - 70, NULL);
+			rewrap_message(&note_list[no_notes].text, 1.0f, note_win_x_len - 70, NULL);
 			
 			no_notes++;
 		}
@@ -279,7 +341,7 @@ int notepad_load_file ()
 
 int notepad_save_file (widget_list *w, int mx, int my, Uint32 flags)
 {
-	int i = 0;
+	int i;
 	char file[256];
 	xmlDocPtr doc = NULL;                      // document pointer
 	xmlNodePtr root_node = NULL, node = NULL;  // node pointers
@@ -293,11 +355,10 @@ int notepad_save_file (widget_list *w, int mx, int my, Uint32 flags)
 	doc = xmlNewDoc (BAD_CAST "1.0");
 	root_node = xmlNewNode (NULL, BAD_CAST "PAD");
 	xmlDocSetRootElement (doc, root_node);
-	while (i < no_notes)
+	for (i = 0; i < no_notes; i++)
 	{
-		node = xmlNewChild (root_node, NULL, BAD_CAST "NOTE", BAD_CAST note[i]->text.data);
-		xmlNewProp (node, BAD_CAST "NAME", BAD_CAST note[i]->name);
-		i++;
+		node = xmlNewChild (root_node, NULL, BAD_CAST "NOTE", BAD_CAST note_list[i].text.data);
+		xmlNewProp (node, BAD_CAST "NAME", BAD_CAST note_list[i].name);
 	}
 	if (xmlSaveFormatFileEnc (file, doc, "ISO-8859-1", 1) < 0)
 	{
@@ -318,7 +379,7 @@ int notepad_save_file (widget_list *w, int mx, int my, Uint32 flags)
 
 int notepad_remove_category (widget_list *w, int mx, int my, Uint32 flags)
 {
-	int i, id = -1, cur_tab, t, inote;
+	int i, id = -1, cur_tab, t;
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -328,28 +389,28 @@ int notepad_remove_category (widget_list *w, int mx, int my, Uint32 flags)
      
 	for (i = 0; i < no_notes; i++)
 	{
-		if (t == note[i]->window)
+		if (t == note_list[i].window)
 		{
 			id = i;
 			break;
 		}
 	}
-	if (id >= MAX_NOTES || id == -1)
+	if (id >= no_notes || id == -1)
 	{
 		return 0;
 	}
 	
 	tab_collection_close_tab (notepad_win, note_tabcollection_id, cur_tab);
-	widget_destroy (main_note_tab_id, note[id]->note_buttons);
-	free (note[id]->text.data);
-	free (note[id]);
-	// shift all notes one up
-	for (inote = id+1; inote < no_notes; inote++)
+	widget_destroy (main_note_tab_id, note_list[id].note_buttons);
+	free (note_list[id].text.data);
+
+	// shift all notes after the deleted note one up
+	if (id < no_notes-1)
 	{
-		widget_move_rel (main_note_tab_id, note[inote]->note_buttons, 0, -21);
-		note[inote-1] = note[inote];
+		memmove (&(note_list[id]), &(note_list[id+1]), (no_notes-id-1) * sizeof (note));
+		for ( ; id < no_notes-1; id++)
+			widget_move_rel (main_note_tab_id, note_list[id].note_buttons, 0, -21);
 	}
-	note[no_notes-1] = NULL;
 	no_notes--;
      
 	return 1;
@@ -358,27 +419,18 @@ int notepad_remove_category (widget_list *w, int mx, int my, Uint32 flags)
 
 int note_tab_destroy (window_info *w)
 {
-	int i, id = -1;
+	int i;
 
 	for(i = 0; i < no_notes; i++)
 	{
-		if (w->window_id == note[i]->window)
+		if (note_list[i].window == w->window_id)
 		{
-			id = i;
-			break;
+			note_list[i].window = -1;
+			return 1;
 		}
 	}
-	if(id >= MAX_NOTES || id == -1)
-	{
-		return 0;
-	}
-	
-	if (note[id]->input >= 0) widget_destroy (note[id]->window, note[id]->input);
-	if (note[id]->button >= 0) widget_destroy (note[id]->window, note[id]->button);
-    
-	note[id]->window = -1;
-    
-	return 1;
+
+	return 0;
 }
 
 void open_note_tab_continued (int id)
@@ -394,18 +446,18 @@ void open_note_tab_continued (int id)
 		return;
 	}
 	 
-	note[id]->window = tab_add (notepad_win, note_tabcollection_id, note[id]->name, 0, 1);
-	widget_set_color (notepad_win, note[id]->window, 0.77f, 0.57f, 0.39f);
+	note_list[id].window = tab_add (notepad_win, note_tabcollection_id, note_list[id].name, 0, 1);
+	widget_set_color (notepad_win, note_list[id].window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
-	note[id]->input = text_field_add_extended (note[id]->window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, 0.8f, 0.77f, 0.57f, 0.39f, &note[id]->text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+	note_list[id].input = text_field_add_extended (note_list[id].window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, 0.8f, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
 	
 	// remove button
-	note[id]->button = button_add (note[id]->window, NULL, button_remove_category, 20, 8);
-	widget_set_OnClick (note[id]->window, note[id]->button, notepad_remove_category);
-	widget_set_color (note[id]->window, note[id]->button, 0.77f, 0.57f, 0.39f);
+	note_list[id].button = button_add (note_list[id].window, NULL, button_remove_category, 20, 8);
+	widget_set_OnClick (note_list[id].window, note_list[id].button, notepad_remove_category);
+	widget_set_color (note_list[id].window, note_list[id].button, 0.77f, 0.57f, 0.39f);
     
-	set_window_handler (note[id]->window, ELW_HANDLER_DESTROY, note_tab_destroy);
+	set_window_handler (note_list[id].window, ELW_HANDLER_DESTROY, note_tab_destroy);
 }
      
 
@@ -418,7 +470,7 @@ int open_note_tab (widget_list *w, int mx, int my, Uint32 flags)
 
 	for(i = 0; i < no_notes; i++)
 	{
-		if (w->id == note[i]->note_buttons)
+		if (w->id == note_list[i].note_buttons)
 		{
 			id = i;
 		}
@@ -427,7 +479,7 @@ int open_note_tab (widget_list *w, int mx, int my, Uint32 flags)
 	{
 		return 0;
 	}
-	if (note[id]->window >= 0)
+	if (note_list[id].window >= 0)
 	{
 		return 0;
 	}
@@ -448,25 +500,25 @@ void notepad_add_continued (const char *name)
 	}
 	else
 	{
-		widget_list *w = widget_find (main_note_tab_id, note[no_notes-1]->note_buttons);
+		widget_list *w = widget_find (main_note_tab_id, note_list[no_notes-1].note_buttons);
 		y_pos = w->pos_y + 21;
 	}
 
-	if (no_notes >= MAX_NOTES)
+	if (no_notes >= note_list_size)
 	{
-		LOG_ERROR (exceed_note_buffer);
-		return;
+		int new_size = note_list_size * 2;
+		note_list = realloc (note_list, new_size * sizeof (note));
+		note_list_size = new_size;
 	}
 	no_notes++;
 	
-	note[no_notes-1] = malloc ( sizeof (struct Note) );
 	init_note(no_notes-1, name);
-	note[no_notes-1]->note_buttons = label_add (main_note_tab_id, NULL, note[no_notes-1]->name, 5, y_pos);
-	note[no_notes-1]->text.size = MIN_NOTE_SIZE;
-	note[no_notes-1]->text.data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
+	note_list[no_notes-1].note_buttons = label_add (main_note_tab_id, NULL, note_list[no_notes-1].name, 5, y_pos);
+	note_list[no_notes-1].text.size = MIN_NOTE_SIZE;
+	note_list[no_notes-1].text.data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
     
-	widget_set_OnClick (main_note_tab_id, note[no_notes-1]->note_buttons, open_note_tab);
-	widget_set_color(main_note_tab_id, note[no_notes-1]->note_buttons, 0.77f, 0.57f, 0.39f);
+	widget_set_OnClick (main_note_tab_id, note_list[no_notes-1].note_buttons, open_note_tab);
+	widget_set_color(main_note_tab_id, note_list[no_notes-1].note_buttons, 0.77f, 0.57f, 0.39f);
 	
 	open_note_tab_continued (no_notes-1);
 }
@@ -480,15 +532,16 @@ int notepad_add_category (widget_list *w, int mx, int my, Uint32 flags)
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
-	if (no_notes >= MAX_NOTES)
+	if (no_notes >= note_list_size)
 	{
-		LOG_TO_CONSOLE(c_red2,user_no_more_notes);
-		return 1;
+		int new_size = note_list_size * 2;
+		note_list = realloc (note_list, new_size * sizeof (note));
+		note_list_size = new_size;
 	}
     
 	display_popup_win (main_note_tab_id, x, y, label_note_name, 16);
 	return 1;
-}   
+}
 
 	
 void display_notepad()
@@ -523,17 +576,13 @@ void display_notepad()
 		widget_move(main_note_tab_id, buttons[0], (note_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
 		widget_move(main_note_tab_id, buttons[1], wnew->len_x + 2*(note_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
 		
-		for(i = 0; i < MAX_NOTES; i++)
-		{
-			note[i] = NULL;
-		}
 		notepad_load_file ();
 
 		for(i = 0; i < no_notes; i++)
 		{
-			note[i]->note_buttons = label_add (main_note_tab_id, NULL, note[i]->name, 5, 50+21*i);
-			widget_set_OnClick (main_note_tab_id, note[i]->note_buttons, open_note_tab);
-			widget_set_color(main_note_tab_id, note[i]->note_buttons, 0.77f, 0.57f, 0.39f);
+			note_list[i].note_buttons = label_add (main_note_tab_id, NULL, note_list[i].name, 5, 50+21*i);
+			widget_set_OnClick (main_note_tab_id, note_list[i].note_buttons, open_note_tab);
+			widget_set_color(main_note_tab_id, note_list[i].note_buttons, 0.77f, 0.57f, 0.39f);
 		}
 	}
 	else

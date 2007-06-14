@@ -93,7 +93,7 @@ int widget_destroy (int window_id, Uint32 widget_id)
 
 	if (window_id < 0 || window_id >= windows_list.num_windows) return 0;
 	if (windows_list.window[window_id].window_id != window_id) return 0;
-	
+
 	n = windows_list.window[window_id].widgetlist;
 	if (n == NULL)
 	{
@@ -130,6 +130,12 @@ int widget_destroy (int window_id, Uint32 widget_id)
 			}
 			if (n->id == widget_id)
 			{
+				// unlink n first, otherwise recursive calls
+				// to widget_destroy (e.g. widgets destroying
+				// their scrollbar) may set a pointer to the
+				// widget being deleted here.
+				w->next = n->next;
+				
 				if (n->OnDestroy != NULL)
 				{
 					if(n->spec != NULL)
@@ -140,7 +146,6 @@ int widget_destroy (int window_id, Uint32 widget_id)
 				if (n->type != NULL)
 					if (n->type->destroy != NULL)
 						n->type->destroy (n);
-				w->next = n->next;
 				free (n);
 				return 1;
 			}
@@ -1940,7 +1945,7 @@ const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_c
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
 	int res;
-	
+
 	text_field *T = calloc (1, sizeof (text_field));
 	T->x_space = x_space,
 	T->y_space = y_space,
@@ -2116,6 +2121,31 @@ int text_field_set_buf_pos (int window_id, Uint32 widget_id, int msg, int offset
 	tf->offset = offset;
 
 	return  1;
+}
+
+int text_field_clear (int window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find (window_id, widget_id);
+	text_field *tf;
+	text_message *msg;
+
+	if (w == NULL)
+		return 0;
+	
+	tf = w->widget_info;
+	if (tf == NULL || !(w->Flags & TEXT_FIELD_EDITABLE))
+		return 0;
+	
+	msg = &(tf->buffer[tf->msg]);
+	memset (msg->data, 0, msg->size);
+	msg->len = 0;
+	
+	tf->cursor = 0;
+	tf->cursor_line = 0;
+	if (tf->scroll_id != -1)
+		vscrollbar_set_bar_len (window_id, tf->scroll_id, 0);
+	
+	return 1;
 }
 
 //password entry field. We act like a restricted text entry with multiple modes
