@@ -163,6 +163,9 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "cal.h"
 #include "session.h"
 #include "serverpopup.h"
+#ifdef MINES
+ #include "mines.h"
+#endif // MINES
 
 #ifdef COUNTERS
 #include "counters.h"

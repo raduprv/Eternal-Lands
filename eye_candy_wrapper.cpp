@@ -2169,6 +2169,56 @@ extern "C" void ec_add_wind_effect_list(ec_reference reference, ec_effects effec
   ((ec::WindEffect*)(cast_reference->effect))->set_pass_off(*cast_effects);
 }
 
+#ifdef MINES
+extern "C" ec_reference ec_create_mine_drop(float x, float y, float z, int LOD)
+{
+  if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::CREATE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_mine_prime(float x, float y, float z, int LOD)
+{
+  if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::PRIME, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_mine_remove(float x, float y, float z, int LOD)
+{
+  if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DEACTIVATE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD)
+{
+  if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(x, z, -y);
+  if (mine_type == 0) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE1, LOD);
+  } else if (mine_type == 1) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE2, LOD);
+  }
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+#endif // MINES
+
 ///////////////////////////////////////////////////////////////////////////////
 
 #endif	// #ifdef EYE_CANDY

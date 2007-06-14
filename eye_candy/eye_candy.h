@@ -226,7 +226,12 @@ enum EffectEnum
   EC_HARVESTING = 14,
   EC_WIND = 15,
   EC_BREATH = 16,
+#ifndef MINES
   EC_CANDLE = 17
+#else // MINES
+  EC_CANDLE = 17,
+  EC_MINES = 18
+#endif // MINES
 };
 
 // C L A S S E S //////////////////////////////////////////////////////////////

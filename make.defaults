@@ -58,6 +58,8 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 #FEATURES += CLICKABLE_CONTINENT_MAP         # Enables you to click on the continent map to view maps
 #FEATURES += OLD_TEXTURE_LOADER              # Enables old texture loader (only the new texture loader has support for png, tiff, jpeg, bmp etc.)
 FEATURES += NEW_FILE_IO                      # Enables being able to read gzip compressed files and hole zip archives. The zip archives need to be added using add_zip_archive in elfilewrapper.h and only absolut paths are supported for files in zip files. Requires -lzlib/-lz
+#FEATURES += MINES                            # Enables support for 
+mines (INCOMPLETE)
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

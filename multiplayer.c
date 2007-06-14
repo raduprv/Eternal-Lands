@@ -1660,6 +1660,52 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 			break;
 
+#ifdef MINES
+/* Future mines support - May need to be adjusted!!!! */
+		case REMOVE_MINE:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+				remove_mine(in_data[3]);
+			}
+			break;
+
+		case GET_NEW_MINE:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+				if (data_length <= 7)
+				{
+				  log_error("CAUTION: Possibly forged GET_NEW_BAG packet received.\n");
+				  break;
+				}
+				put_mine_on_ground(SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))), *((Uint8 *)(in_data+8)), *((Uint8 *)(in_data+7)));
+			}
+			break;
+
+		case GET_MINES_LIST:
+			{
+#ifdef EXTRA_DEBUG
+	ERR();
+#endif
+				Uint16 mines_no;
+				if (data_length <= 3)
+				{
+				  log_error("CAUTION: Possibly forged GET_BAGS_LIST packet received.\n");
+				  break;
+				}
+				mines_no = in_data[3];
+				if (data_length <= mines_no * 5 + 3)
+				{
+				  log_error("CAUTION(2): Possibly forged GET_BAGS_LIST packet received.\n");
+				  break;
+				}
+				add_mines_from_list(&in_data[3]);
+			}
+			break;
+#endif // MINES
 
 		default:
 			{
