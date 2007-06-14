@@ -1649,6 +1649,126 @@ void _text_field_cursor_down (widget_list *w)
 		_text_field_scroll_to_cursor (w);
 }
 
+void _text_field_delete_backward (widget_list * w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+	int i, n = 1, nr_lines, tmp_chan, nr_del_lines;
+	
+	if (tf == NULL)
+		return;
+	
+	msg = &(tf->buffer[tf->msg]);
+	i = tf->cursor;
+	while (n < i && msg->data[i-n] == '\r')
+		n++;
+	nr_del_lines = n-1;
+	if (msg->data[i-1] == '\n')
+		nr_del_lines++;
+	
+	for ( ; i <= msg->len; i++)
+		msg->data[i-n] = msg->data[i];
+	msg->len -= n;
+	
+	// set invalid width to force rewrap
+	msg->wrap_width = 0;
+	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+	tmp_chan = msg->chan_idx;
+	msg->chan_idx = CHAT_NONE;
+	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
+	_text_field_set_nr_lines (w, nr_lines);
+	msg->chan_idx = tmp_chan;
+
+	tf->cursor -= n;
+	tf->cursor_line -= nr_del_lines;
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
+
+}
+
+void _text_field_delete_forward (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+	int i, n = 1, nr_lines, tmp_chan;
+	
+	if (tf == NULL)
+		return;
+	
+	msg = &(tf->buffer[tf->msg]);
+	i = tf->cursor;
+	while (i+n <= msg->len && msg->data[i+n] == '\r')
+		n++;
+
+	for (i += n; i <= msg->len; i++)
+	msg->data[i-n] = msg->data[i];
+
+	msg->len -= n;
+	// set invalid width to force rewrap
+	msg->wrap_width = 0;
+	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+	tmp_chan = msg->chan_idx;
+	msg->chan_idx = CHAT_NONE;
+	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
+	_text_field_set_nr_lines (w, nr_lines);
+	msg->chan_idx = tmp_chan;
+	
+	// cursor position doesn't change, so no need to update it here
+}
+
+void _text_field_insert_char (widget_list *w, char ch)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+	int nr_lines, old_cursor, tmp_chan;
+
+	if (tf == NULL)
+		return;
+	
+	msg = &(tf->buffer[tf->msg]);
+	
+	if (ch == SDLK_RETURN)
+		ch = '\n';
+
+	// keep one position free, so that we can always introduce a
+	// soft line break if necessary.
+	if (msg->len >= msg->size-2)
+	{
+		if (w->Flags & TEXT_FIELD_CAN_GROW)
+		{
+			msg->size *= 2;
+			msg->data = realloc (msg->data, msg->size * sizeof (char) );
+		}
+	}
+	tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
+	if (ch == '\n')
+		tf->cursor_line++;
+	
+	// set invalid width to force rewrap
+	msg->wrap_width = 0;
+	//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
+	tmp_chan = msg->chan_idx;
+	msg->chan_idx = CHAT_NONE;
+	// Save the current character position, and rewrap the message.
+	// The difference between the old and the new position should
+	// be the number of extra line breaks introduced before the 
+	// cursor position
+	old_cursor = tf->cursor;
+	nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
+	tf->cursor_line += tf->cursor - old_cursor;
+	_text_field_set_nr_lines (w, nr_lines);
+	msg->chan_idx = tmp_chan;
+
+	// XXX FIXME: Grum: is the following even possible?
+	while (msg->data[tf->cursor] == '\r') {
+		tf->cursor++;
+		tf->cursor_line++;
+	}
+	
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
+}			
+
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
@@ -1656,7 +1776,6 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	text_field *tf;
 	text_message *msg;
 	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
-	int tmp_chan;
 
 	if (w == NULL) return 0;
 	if ( !(w->Flags & TEXT_FIELD_EDITABLE) ) return 0;
@@ -1664,7 +1783,6 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 	tf = w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
-	tmp_chan = msg->chan_idx;
 
 	if(IS_PRINT(ch) || keysym == SDLK_UP || keysym == SDLK_DOWN ||
 		keysym == SDLK_LEFT || keysym == SDLK_RIGHT || keysym == SDLK_HOME ||
@@ -1709,76 +1827,25 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			_text_field_scroll_to_cursor (w);
 		return 1;
 	}
-	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
+	else if (ch == SDLK_BACKSPACE)
 	{
-		int i = tf->cursor, n = 1, nr_lines;
-		
-		while (n < i && msg->data[i-n] == '\r') n++;
-		
-		for ( ; i <= msg->len; i++)
-			msg->data[i-n] = msg->data[i];
-
-		tf->cursor -= n;
-		msg->len -= n;
-		// set invalid width to force rewrap
-		msg->wrap_width = 0;
-		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-		msg->chan_idx = CHAT_NONE;
-		nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
-		_text_field_set_nr_lines (w, nr_lines);
-		msg->chan_idx = tmp_chan;
+		if (tf->cursor > 0)
+			_text_field_delete_backward (w);
 		return 1;
 	}
-	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
+	else if (ch == SDLK_DELETE)
 	{
-		int i = tf->cursor, n = 1, nr_lines;
-		
-		while (i+n <= msg->len && msg->data[i+n] == '\r') n++;
-		
-		for (i += n; i <= msg->len; i++)
-			msg->data[i-n] = msg->data[i];
-
-		msg->len -= n;
-		// set invalid width to force rewrap
-		msg->wrap_width = 0;
-		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-		msg->chan_idx = CHAT_NONE;
-		nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
-		_text_field_set_nr_lines (w, nr_lines);
-		msg->chan_idx = tmp_chan;
+		if (tf->cursor < msg->len)
+			_text_field_delete_forward (w);
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( IS_PRINT(ch)
 			|| (ch == SDLK_RETURN && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
 	{
-		int nr_lines;
-		
-		if (ch == SDLK_RETURN)
-			ch = '\n';
-
-		// keep one position free, so that we can always introduce a
-		// soft line break if necessary.
-		if (msg->len >= msg->size-2)
-		{
-			if (w->Flags & TEXT_FIELD_CAN_GROW)
-			{
-				msg->size *= 2;
-				msg->data = realloc (msg->data, msg->size * sizeof (char) );
-			}
-		}
-		tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-		// set invalid width to force rewrap
-		msg->wrap_width = 0;
-		//Set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines.
-		msg->chan_idx = CHAT_NONE;
-		nr_lines = rewrap_message (msg, w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
-		_text_field_set_nr_lines (w, nr_lines);
-		msg->chan_idx = tmp_chan;
-		while (msg->data[tf->cursor] == '\r') {
-			tf->cursor++;
-		}
+		_text_field_insert_char (w, ch);
 		return 1;
 	}
+	
 	return 0;
 }
 
