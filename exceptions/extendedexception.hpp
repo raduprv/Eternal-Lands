@@ -134,4 +134,15 @@ if ((value < min) || (value > max))	\
 	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error_str.str());	\
 }
 
+#define EXTENDED_FILE_NOT_FOUND_EXCEPTION(file_name)	\
+{	\
+	std::ostringstream error_str;	\
+	\
+	error_str << "File '" << file_name;	\
+	error_str << "' not found.";	\
+	\
+	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error_str.str());	\
+} while (0)
+
+
 #endif	// _EXTENDEDEXCEPTION_HPP_

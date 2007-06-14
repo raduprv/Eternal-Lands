@@ -4,6 +4,9 @@
 #include "global.h"
 #endif
 #include    <ctype.h>
+#ifdef	NEW_FILE_IO
+#include "io/elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 #define MAX_FILENAME_LENGTH 80
 #define MAX_BUFFERS 60 //remember, music uses 4 buffers too
@@ -335,7 +338,11 @@ ALuint get_loaded_buffer(int i)
 #endif  //ALUT_WAV
 	ALenum  format;
 	ALvoid*	data= NULL;
+#ifndef	NEW_FILE_IO
 	FILE *fin;
+#else	//NEW_FILE_IO
+	el_file_ptr file = NULL;
+#endif	//NEW_FILE_IO
 	
 	if(!alIsBuffer(sound_buffer[i]))
 	{
@@ -345,6 +352,7 @@ ALuint get_loaded_buffer(int i)
 		// actually exists...
 		// Maybe use alutLoadWAV? But that doesn't seem to exist on 
 		// OS/X...
+#ifndef	NEW_FILE_IO
 		fin = fopen (sound_files[i], "r");
 		if (fin == NULL) 
 		{
@@ -353,6 +361,13 @@ ALuint get_loaded_buffer(int i)
 		}
 		// okay, the file exists and is readable, close it
 		fclose (fin);
+#else	//NEW_FILE_IO
+		if (!el_file_exists(sound_files[i]))
+		{
+			LOG_ERROR(snd_wav_load_error, sound_files[i]);
+			return 0;
+		}
+#endif	//NEW_FILE_IO
 
 		alGenBuffers(1, sound_buffer+i);
 			
@@ -363,21 +378,39 @@ ALuint get_loaded_buffer(int i)
 			have_music=0;
 		}
 
+#ifdef	NEW_FILE_IO
+	file = el_open(sound_files[i]);
+#endif	//NEW_FILE_IO
 #ifdef ALUT_WAV
 #ifdef OSX
 		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
+ #ifdef	NEW_FILE_IO
+		alutLoadWAVMemory(el_get_pointer(file), el_get_size(file), &format, &data, &size, &freq);
+ #else	//NEW_FILE_IO
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
+ #endif	//NEW_FILE_IO
 #else
+ #ifdef	NEW_FILE_IO
+		alutLoadWAVMemory(el_get_pointer(file), el_get_size(file), &format, &data, &size, &freq, &loop);
+ #else	//NEW_FILE_IO
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq, &loop);
+ #endif	//NEW_FILE_IO
 #endif  //OSX
 		alBufferData(sound_buffer[i],format,data,size,freq);
 		alutUnloadWAV(format,data,size,freq);
 #else
+#ifdef	NEW_FILE_IO
+	data = alutLoadMemoryFromFileImage(el_get_pointer(file), el_get_size(file), &format, &size, &freq);
+#else	//NEW_FILE_IO
         data= alutLoadMemoryFromFile (sound_files[i], &format, &size, &freq);
+#endif	//NEW_FILE_IO
 
         alBufferData(sound_buffer[i],format,data,size,(int)freq);
 		free(data);
 #endif  //ALUT_WAV
+#ifdef	NEW_FILE_IO
+	el_close(file);
+#endif	//NEW_FILE_IO
 	}
 	return sound_buffer[i];
 }

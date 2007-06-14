@@ -11,7 +11,9 @@
 #include "global.h"
 #endif
 #include "md5.h"
-
+#ifdef	NEW_FILE_IO
+#include "io/elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 /* NOTE: This file contains implementations of the following, currently unused and commented functions:
  *          Look at the end of the file.
@@ -420,6 +422,25 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 
 void get_file_digest(const char * filename, Uint8 digest[16])
 {
+#ifdef	NEW_FILE_IO
+	MD5 md5;
+	el_file_ptr file = NULL;
+
+	file = el_open(filename);
+
+	memset (digest, 0, sizeof (digest));
+
+	if (file == NULL)
+	{
+		return;
+	}
+
+	MD5Open(&md5);
+	MD5Digest(&md5, el_get_pointer(file), el_get_size(file));
+	MD5Close(&md5, digest);
+
+	el_close(file);
+#else	//NEW_FILE_IO
 	MD5 md5;
 	Uint8 buffer[1024];
 	Sint32 length;
@@ -438,6 +459,7 @@ void get_file_digest(const char * filename, Uint8 digest[16])
 		}
 	MD5Close(&md5, digest);
 	fclose(fp);
+#endif	//NEW_FILE_IO
 }
 
 /* currently UNUSED

@@ -153,6 +153,11 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 
 	file = el_open(file_name);
 
+	if (file == NULL)
+	{
+		return NULL;
+	}
+
 	texture_surface = IMG_Load_RW(SDL_RWFromMem(el_get_pointer(file), el_get_size(file)), 1);
 
 	el_close(file);
@@ -798,7 +803,14 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 #endif	//OLD_TEXTURE_LOADER
 
 	// check for a file
+#ifndef	NEW_FILE_IO
 	if(!gzfile_exists(filename))	return 0;	// no file
+#else	//NEW_FILE_IO
+	if (!el_file_exists(filename))
+	{
+		return 0;	// no file
+	}
+#endif	//NEW_FILE_IO
 	// read in the texture
 #ifdef	OLD_TEXTURE_LOADER
 	tex= load_bmp8_texture(filename, &ttexture, 0);

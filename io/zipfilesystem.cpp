@@ -10,6 +10,11 @@ void zip_file_system::add(uint_fast32_t idx, const std::string& path, zip_file_e
 	long int size;
 
 	zip_files[idx].file->open(zip_files[idx].name.c_str(), std::ios::binary);
+	if (!zip_files[idx].file->is_open())
+	{
+		EXTENDED_FILE_NOT_FOUND_EXCEPTION(zip_files[idx].name);
+	}
+
 	zip_files[idx].file->seekg(0, std::ios::end);
 	size = zip_files[idx].file->tellg();
 

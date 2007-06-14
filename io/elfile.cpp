@@ -22,7 +22,7 @@ void el_file::open_gzip(const std::string& file_name)
 		}
 		if (file == 0)
 		{
-			EXTENDED_EXCEPTION("File not found!");
+			EXTENDED_FILE_NOT_FOUND_EXCEPTION(file_name);
 		}
 
 		size = 0;
