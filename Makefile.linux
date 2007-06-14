@@ -34,9 +34,9 @@ COBJS=2d_objects.o 3d_objects.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
-	io/e3d_io.o io/elc_io.o	\
+	io/e3d_io.o io/elc_io.o	io/map_io.o	\
 	keys.o knowledge.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
-	main.o manufacture.o map_io.o mapwin.o	\
+	main.o manufacture.o map.o mapwin.o	\
 	md5.o misc.o multiplayer.o	\
 	new_actors.o new_character.o 	\
 	openingwin.o	\
