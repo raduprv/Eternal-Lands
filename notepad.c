@@ -154,10 +154,6 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 		
 		// Input
 		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 28, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
-		// disable the default text field key handler, we trap
-		// events in the window itself and call the text field 
-		// handler explicitly if necessary
-		widget_set_OnKey (popup_win, popup_field, NULL);
 		widget_set_color (popup_win, popup_field, 0.77f, 0.57f, 0.39f);
 
 		// Accept
