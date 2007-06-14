@@ -103,14 +103,16 @@ int widget_destroy (int window_id, Uint32 widget_id)
 	
 	if (n->id == widget_id)
 	{
+		if (n->OnDestroy != NULL)
+		{
+			if (n->spec != NULL)
+				n->OnDestroy (n, n->spec);
+			else
+				n->OnDestroy (n);
+		}
 		if (n->type != NULL)
 			if (n->type->destroy != NULL)
 				n->type->destroy (n);
-		if (n->OnDestroy != NULL)
-		{
-			if(n->spec != NULL) n->OnDestroy (n);
-			else n->OnDestroy (n, n->spec);
-		}
 		windows_list.window[window_id].widgetlist = n->next;
 		free (n);
 		return 1;
@@ -128,14 +130,16 @@ int widget_destroy (int window_id, Uint32 widget_id)
 			}
 			if (n->id == widget_id)
 			{
+				if (n->OnDestroy != NULL)
+				{
+					if(n->spec != NULL)
+						n->OnDestroy (n, n->spec);
+					else
+						n->OnDestroy (n);
+				}
 				if (n->type != NULL)
 					if (n->type->destroy != NULL)
 						n->type->destroy (n);
-				if (n->OnDestroy != NULL)
-				{
-					if(n->spec != NULL) n->OnDestroy (n);
-					else n->OnDestroy (n, n->spec);
-				}
 				w->next = n->next;
 				free (n);
 				return 1;
@@ -1851,7 +1855,20 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	return 1;
 }
 
-const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, NULL, NULL, NULL, text_field_keypress, free_widget_info };
+int text_field_destroy (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	if (tf != NULL)
+	{
+		if (tf->scroll_id != -1)
+			widget_destroy (w->window_id, tf->scroll_id);
+		free (tf);
+	}
+
+	return 1;
+}
+
+const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, NULL, NULL, NULL, text_field_keypress, text_field_destroy };
 
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
