@@ -716,12 +716,11 @@ typedef enum
 #define GET_ITEMS_COOLDOWN 77
 #define SEND_BUFFS 78
 #define SEND_SPECIAL_EFFECT 79
-#define SEND_WEATHER 80
+#define REMOVE_MINE 80
+#define GET_NEW_MINE 81
+#define GET_MINES_LIST 82
 
-/* Tentative mines support - THIS MAY CHANGE!! */
-#define REMOVE_MINE 81
-#define GET_NEW_MINE 82
-#define GET_MINES_LIST 83
+#define SEND_WEATHER 100
 
 // reserved for future expansion 220-229, not being used in the server yet
 #define MAP_SET_OBJECTS 220
