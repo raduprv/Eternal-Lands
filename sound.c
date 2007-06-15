@@ -1587,6 +1587,9 @@ void init_sound()
 	if(inited){
 		return;
 	}
+
+	alutInitWithoutContext(0, 0);
+
 	have_sound=1;
 #ifndef	NO_MUSIC
 	have_music=1;
