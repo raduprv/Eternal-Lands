@@ -1,7 +1,13 @@
 #ifndef	_MEMORYBUFFER_HPP_
 #define	_MEMORYBUFFER_HPP_
 
+#ifdef _MSC_VER
+typedef unsigned int uint_fast32_t;
+typedef signed int int_fast32_t;
+#else
 #include <stdint.h>
+#endif //MSVC
+
 #include "../exceptions/extendedexception.hpp"
 
 class memory_buffer

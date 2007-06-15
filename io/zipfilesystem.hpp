@@ -18,7 +18,6 @@
 #include <vector>
 #include <string>
 #include <fstream>
-#include <stdint.h>
 #include <zlib.h>
 #include <SDL.h>
 #include "../exceptions/extendedexception.hpp"

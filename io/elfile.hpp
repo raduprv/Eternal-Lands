@@ -7,7 +7,6 @@
 #ifndef	_ELFILE_HPP_
 #define	_ELFILE_HPP_
 
-#include <stdint.h>
 #include <sys/stat.h>
 #include "zipfilesystem.hpp"
 
