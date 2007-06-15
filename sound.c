@@ -379,7 +379,7 @@ ALuint get_loaded_buffer(int i)
 		}
 
 #ifdef	NEW_FILE_IO
-	file = el_open(sound_files[i]);
+		file = el_open(sound_files[i]);
 #endif	//NEW_FILE_IO
 #ifdef ALUT_WAV
 #ifdef OSX
@@ -400,17 +400,26 @@ ALuint get_loaded_buffer(int i)
 		alutUnloadWAV(format,data,size,freq);
 #else
 #ifdef	NEW_FILE_IO
-	data = alutLoadMemoryFromFileImage(el_get_pointer(file), el_get_size(file), &format, &size, &freq);
+		data = alutLoadMemoryFromFileImage(el_get_pointer(file), el_get_size(file), &format, &size, &freq);
 #else	//NEW_FILE_IO
-        data= alutLoadMemoryFromFile (sound_files[i], &format, &size, &freq);
+        	data= alutLoadMemoryFromFile (sound_files[i], &format, &size, &freq);
 #endif	//NEW_FILE_IO
-
-        alBufferData(sound_buffer[i],format,data,size,(int)freq);
-		free(data);
+		if (data == AL_NONE)
+		{
+			LOG_ERROR ("Unable to sound file %s\n", sound_files[i]);
+		}
+		else
+		{
+			alBufferData(sound_buffer[i],format,data,size,(int)freq);
+			free(data);
+		}
 #endif  //ALUT_WAV
 #ifdef	NEW_FILE_IO
-	el_close(file);
+		el_close(file);
 #endif	//NEW_FILE_IO
+
+		if ((error = alGetError ()) != AL_NO_ERROR)
+			LOG_ERROR("(in get_loaded_buffer) %s: %s", snd_buff_error, alGetString(error));
 	}
 	return sound_buffer[i];
 }
