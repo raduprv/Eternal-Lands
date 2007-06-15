@@ -1634,15 +1634,15 @@ void init_sound()
 	my_strcp(sound_files[snd_fire],"./sound/fire.wav");
 	*/
 	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/rain1.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/teleport_in.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/teleport_out.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/teleporter.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder1.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder2.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder3.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder4.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder5.wav");
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/fire.wav");
+	safe_snprintf (sound_files[snd_tele_in], sizeof (sound_files[snd_tele_in]), "%s/%s", datadir, "sound/teleport_in.wav");
+	safe_snprintf (sound_files[snd_tele_out], sizeof (sound_files[snd_tele_out]), "%s/%s", datadir, "sound/teleport_out.wav");
+	safe_snprintf (sound_files[snd_teleprtr], sizeof (sound_files[snd_teleprtr]), "%s/%s", datadir, "sound/teleporter.wav");
+	safe_snprintf (sound_files[snd_thndr_1], sizeof (sound_files[snd_thndr_1]), "%s/%s", datadir, "sound/thunder1.wav");
+	safe_snprintf (sound_files[snd_thndr_2], sizeof (sound_files[snd_thndr_2]), "%s/%s", datadir, "sound/thunder2.wav");
+	safe_snprintf (sound_files[snd_thndr_3], sizeof (sound_files[snd_thndr_3]), "%s/%s", datadir, "sound/thunder3.wav");
+	safe_snprintf (sound_files[snd_thndr_4], sizeof (sound_files[snd_thndr_4]), "%s/%s", datadir, "sound/thunder4.wav");
+	safe_snprintf (sound_files[snd_thndr_5], sizeof (sound_files[snd_thndr_5]), "%s/%s", datadir, "sound/thunder5.wav");
+	safe_snprintf (sound_files[snd_fire], sizeof (sound_files[snd_fire]), "%s/%s", datadir, "sound/fire.wav");
 
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
