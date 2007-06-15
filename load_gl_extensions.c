@@ -224,6 +224,14 @@ PFNGLUSEPROGRAMOBJECTARBPROC ELglUseProgramObjectARB;
 PFNGLVALIDATEPROGRAMARBPROC ELglValidateProgramARB;
 /*	GL_ARB_shader_objects		*/
 
+/*	GL_EXT_fog_coord			*/
+PFNGLFOGCOORDPOINTEREXTPROC ELglFogCoordPointerEXT;
+PFNGLFOGCOORDDEXTPROC ELglFogCoorddEXT;
+PFNGLFOGCOORDDVEXTPROC ELglFogCoorddvEXT;
+PFNGLFOGCOORDFEXTPROC ELglFogCoordfEXT;
+PFNGLFOGCOORDFVEXTPROC ELglFogCoordfvEXT;
+/*	GL_EXT_fog_coord			*/
+
 static GLboolean el_init_GL_ARB_multitexture()
 {
 	GLboolean r = GL_TRUE;
@@ -498,6 +506,19 @@ static GLboolean el_init_GL_EXT_framebuffer_object()
 	return r;
 }
 
+static GLboolean el_init_GL_EXT_fog_coord()
+{
+	GLboolean r = GL_TRUE;
+
+	r = ((ELglFogCoordPointerEXT = (PFNGLFOGCOORDPOINTEREXTPROC)SDL_GL_GetProcAddress("glFogCoordPointerEXT")) != NULL) && r;
+	r = ((ELglFogCoorddEXT = (PFNGLFOGCOORDDEXTPROC)SDL_GL_GetProcAddress("glFogCoorddEXT")) != NULL) && r;
+	r = ((ELglFogCoorddvEXT = (PFNGLFOGCOORDDVEXTPROC)SDL_GL_GetProcAddress("glFogCoorddvEXT")) != NULL) && r;
+	r = ((ELglFogCoordfEXT = (PFNGLFOGCOORDFEXTPROC)SDL_GL_GetProcAddress("glFogCoordfEXT")) != NULL) && r;
+	r = ((ELglFogCoordfvEXT = (PFNGLFOGCOORDFVEXTPROC)SDL_GL_GetProcAddress("glFogCoordfvEXT")) != NULL) && r;
+
+	return r;
+}
+
 void init_opengl_extensions()
 {
 	GLboolean e;
@@ -693,6 +714,28 @@ void init_opengl_extensions()
 		extensions |= 1 << sgis_generate_mipmap;
 	}
 /*	GL_SGIS_generate_mipmap			*/
+/*	GL_ARB_texture_mirrored_repeat		*/
+	if (strstr(extensions_string, "GL_ARB_texture_mirrored_repeat") != NULL)
+	{
+		extensions |= 1 << arb_texture_mirrored_repeat;
+	}
+/*	GL_ARB_texture_mirrored_repeat		*/
+/*	GL_ARB_texture_rectangle		*/
+	if (strstr(extensions_string, "GL_ARB_texture_rectangle") != NULL)
+	{
+		extensions |= 1 << arb_texture_rectangle;
+	}
+/*	GL_ARB_texture_rectangle		*/
+/*	GL_EXT_fog_coord			*/
+	if (strstr(extensions_string, "GL_EXT_fog_coord") != NULL)
+	{
+		e = el_init_GL_EXT_fog_coord();
+		if (e == GL_TRUE)
+		{
+			extensions |= 1 << ext_fog_coord;
+		}
+	}
+/*	GL_EXT_fog_coord			*/
 }
 
 uint_fast32_t have_extension(extension_enum extension)

@@ -34,11 +34,13 @@ int max_zoom = 1;
  *   maybe draw on another buffer so the window dont have to be redrawn every frame?
  */
 
-int minimap_get_pin(void){
+int minimap_get_pin(void)
+{
 	return minimap_flags & 1<<0;
 }
 
-static __inline__ int minimap_get_above(void){
+static __inline__ int minimap_get_above(void)
+{
 	return minimap_flags & 1<<1;
 }
 
@@ -49,17 +51,19 @@ static __inline__ int minimap_get_FOW(void){
 	return minimap_flags & 1<<2;
 }
 
-static __inline__ float minimap_get_zoom(void){
-	return powf(2,min2i(minimap_zoom,max_zoom)-max_zoom);
+static __inline__ float minimap_get_zoom(void)
+{
+	return powf(2, min2i(minimap_zoom, max_zoom) - max_zoom);
 }
 
-
-static __inline__ void full_zoom(void){
+static __inline__ void full_zoom(void)
+{
 	minimap_zoom = 0;
 	minimap_touch();
 }
 
-static __inline__ void increase_zoom(void){
+static __inline__ void increase_zoom(void)
+{
 	if(minimap_zoom > max_zoom)minimap_zoom = max_zoom - 1;
 	else if(minimap_zoom > 0)--minimap_zoom;
 	minimap_touch();
@@ -98,13 +102,13 @@ static __inline__ int draw_framebuffer()
 		bind_texture_id(minimap_fbo_texture);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(0, 0);
+			glVertex2f(0.0f, 0.0f);
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(0, 256);
+			glVertex2f(0.0f, 256.0f);
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(256, 256);
+			glVertex2f(256.0f, 256.0f);
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(256, 0);
+			glVertex2f(256.0f, 0.0f);
 		glEnd();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -114,20 +118,22 @@ CHECK_GL_ERRORS();
 	return 0;
 }
 
+static __inline__ float mimap_translate(float value, float p, float zoom_multip)
+{
+	value -= p;
+	value /= zoom_multip;
+	value += 127.5f;
+
+	return value;
+}
+
 static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 {
-	float size_x = 256.0f / (tile_map_size_x * 6);
-	float size_y = 256.0f / (tile_map_size_y * 6);
-	float ax = 0.0f, ay = 0.0f;
+	float size_x = 255.0f / (tile_map_size_x * 6);
+	float size_y = 255.0f / (tile_map_size_y * 6);
 	actor *a;
-	uint_fast32_t i;//, j;
+	uint_fast32_t i;
 	float x, y;
-
-	if (minimap_zoom < max_zoom)
-	{
-		ax = 128.0f-px;
-		ay = 128.0f-py;
-	}
 
 	glDisable(GL_TEXTURE_2D);
 
@@ -141,19 +147,12 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		{
 			a = actors_list[i];
 			x = a->x_tile_pos * size_x;
-			y = 256.0f - (a->y_tile_pos * size_y);
+			y = 255.0f - (a->y_tile_pos * size_y);
 			if (minimap_zoom < max_zoom)
 			{
 				//adjustments to the other actor positions for zoom
-				x -= px;
-				x /= zoom_multip;
-				x += px;
-				x += ax;
-
-				y -= py;
-				y /= zoom_multip;
-				y += py;
-				y += ay;
+				x = mimap_translate(x, px, zoom_multip);
+				y = mimap_translate(y, py, zoom_multip);
 			}
 			if (a->kind_of_actor == NPC)
 			{
@@ -203,34 +202,23 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 
 static __inline__ void draw_map(float zoom_multip, float px, float py)
 {
-	float size_x = 256.0f/(tile_map_size_x * 6);
+	float size_x = 255.0f/(tile_map_size_x * 6);
 	float view_distance, sx = 0.0f, sy = 0.0f;
 	//how far can you see? 30 tiles? at least this looks right.
 	view_distance = size_x * 30.0f / zoom_multip;
 
 	glPushMatrix();
 
-	sx = 128.0f;
-	sy = 128.0f;
+	sx = 127.5f;
+	sy = 127.5f;
 
 	if (minimap_zoom < max_zoom)
 	{
-		float ax, ay;
-
-		ax = 128.0f - px;
-		ay = 128.0f - py;
-
 		//adjustments to the other actor positions for zoom
-		sx -= px;
-		sx /= zoom_multip;
-		sx += px;
-		sx += ax;
-
-		sy -= py;
-		sy /= zoom_multip;
-		sy += py;
-		sy += ay;
+		sx = mimap_translate(sx, px, zoom_multip);
+		sy = mimap_translate(sy, py, zoom_multip);
 	}
+
 	glTranslatef(sx, sy, 0.0f);
 	glScalef(1.0f / zoom_multip, 1.0f / zoom_multip, 1.0f);
 
@@ -242,19 +230,19 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 		glColor4f(0.25f, 0.25f, 0.25f, 0.0f);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(-128.0f, +128.0f);
+			glVertex2f(-127.5f, +127.5f);
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(+128.0f, +128.0f);
+			glVertex2f(+127.5f, +127.5f);
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(+128.0f, -128.0f);
+			glVertex2f(+127.5f, -127.5f);
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(-128.0f, -128.0f);
+			glVertex2f(-127.5f, -127.5f);
 		glEnd();
 
 		//white circle around player
 		bind_texture_id(circle_texture);
 		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_ONE_MINUS_DST_ALPHA);
+		glBlendFunc(GL_ONE, GL_ONE);
 		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 
 
@@ -263,23 +251,23 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 
 		if (minimap_zoom < max_zoom)
 		{
-			glTranslatef(128.0f, 128.0f, 0.0f);
+			glTranslatef(127.5f, 127.5f, 0.0f);
 		}
 		else
 		{
 			glTranslatef(px, py, 0.0f);
 		}
-		glScalef(0.35f / zoom_multip, 0.35f / zoom_multip, 1.0f);
+		glScalef(0.25f / zoom_multip, 0.25f / zoom_multip, 1.0f);
 
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(-128.0f, +128.0f);
+			glVertex2f(-127.5f, +127.5f);
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(+128.0f, +128.0f);
+			glVertex2f(+127.5f, +127.5f);
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(+128.0f, -128.0f);
+			glVertex2f(+127.5f, -127.5f);
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(-128.0f, -128.0f);
+			glVertex2f(-127.5f, -127.5f);
 		glEnd();
 		glPopMatrix();
 		glPushMatrix();
@@ -295,13 +283,13 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 
 	glBegin(GL_QUADS);
 		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(-128.0f, +128.0f);
+		glVertex2f(-127.5f, +127.5f);
 		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(+128.0f, +128.0f);
+		glVertex2f(+127.5f, +127.5f);
 		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(+128.0f, -128.0f);
+		glVertex2f(+127.5f, -127.5f);
 		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(-128.0f, -128.0f);
+		glVertex2f(-127.5f, -127.5f);
 	glEnd();
 
 	glPopMatrix();
@@ -337,8 +325,33 @@ static __inline__ void draw_into_minimap_fbo(float zoom_multip, float px, float 
 	glPushMatrix();
 	glLoadIdentity();
 
+	if (minimap_zoom < max_zoom)
+	{
+		float min_x, min_y, max_x, max_y;
+
+		//adjustments to the other actor positions for zoom
+		min_x = mimap_translate(0.0f, px, zoom_multip);
+		min_y = mimap_translate(0.0f, py, zoom_multip);
+		max_x = mimap_translate(255.0f, px, zoom_multip);
+		max_y = mimap_translate(255.0f, py, zoom_multip);
+
+		min_x = clampf(min_x, 0.0f, 255.0f);
+		min_y = clampf(min_y, 0.0f, 255.0f);
+		max_x = clampf(max_x, 0.0f, 255.0f);
+		max_y = clampf(max_y, 0.0f, 255.0f);
+
+		glEnable(GL_SCISSOR_TEST);
+		//clip the drawable region to the map
+		glScissor(min_x, min_y, max_x - min_x, max_y - min_y);
+	}
+
 	draw_map(zoom_multip, px, py);
 	draw_actor_points(zoom_multip, px, py);
+
+	if (minimap_zoom < max_zoom)
+	{
+		glDisable(GL_SCISSOR_TEST);
+	}
 
 	bind_texture_id(0);
 	//If we rendered to a framebuffer, draw it
@@ -366,9 +379,9 @@ static __inline__ void draw_into_minimap_fbo(float zoom_multip, float px, float 
 int display_minimap_handler(window_info *win)
 {
 	float zoom_multip;
-	float size_x = 256.0f/(tile_map_size_x * 6);
-	float size_y = 256.0f/(tile_map_size_y * 6);
-	float view_distance, px = 0.0f, py = 0.0f, ax = 0.0f, ay = 0.0f, sx = 0.0f, sy = 0.0f;
+	float size_x = 255.0f/(tile_map_size_x * 6);
+	float size_y = 255.0f/(tile_map_size_y * 6);
+	float view_distance, px = 0.0f, py = 0.0f;
 
 	zoom_multip = minimap_get_zoom();
 
@@ -399,13 +412,15 @@ int display_minimap_handler(window_info *win)
 		return 0;
 	}
 	px = your_actor->x_tile_pos * size_x;
-	py = 256.0f - (your_actor->y_tile_pos * size_y);
+	py = 255.0f - (your_actor->y_tile_pos * size_y);
 	//Do we already have a valid framebuffer texture? If so, we'll use that
+
 	if (draw_framebuffer())
 	{
 		minimap_display_sidebar(win);
 		return 0;
 	}
+
 	if (use_frame_buffer)
 	{
 		redraw_fbo = 0;
@@ -418,33 +433,44 @@ int display_minimap_handler(window_info *win)
 	}
 
 	//how far can you see? 30 tiles? at least this looks right.
-	view_distance = size_x * 30.0f / zoom_multip;
+	view_distance = size_x * 30.0f * zoom_multip;
 
-	if(minimap_zoom < max_zoom){
-		float su, sv, fu, fv;
-		ax = 128.0f-px;
-		ay = 128.0f-py;
-		sx =  px/256.0f-0.50f*zoom_multip;
-		sy = -py/256.0f-0.50f*zoom_multip;
+	if (minimap_zoom < max_zoom)
+	{
+		float min_x, min_y, max_x, max_y;
 
-		su = max2i(0.0f, -sx*256.0f/zoom_multip);
-		fu = min2i(256.0f, (1.0f-sx)*256.0f/zoom_multip);
-		sv = min2i(256.0f, 256.0f+(256.0f+sy*256.0f)/zoom_multip);
-		fv = max2i(0.0f, -256.0f+(1.0f+sy)*256.0f/zoom_multip);
+		//adjustments to the other actor positions for zoom
+		min_x = mimap_translate(0.0f, px, zoom_multip);
+		min_y = mimap_translate(0.0f, py, zoom_multip);
+		max_x = mimap_translate(255.0f, px, zoom_multip);
+		max_y = mimap_translate(255.0f, py, zoom_multip);
+
+		min_x = clampf(min_x, 0.0f, 255.0f);
+		min_y = clampf(min_y, 0.0f, 255.0f);
+		max_x = clampf(max_x, 0.0f, 255.0f);
+		max_y = clampf(max_y, 0.0f, 255.0f);
 
 		//draw a black background for the window
 		glColor4f(0.0f, 0.0f, 0.0f, 1.0f);
 		glBegin(GL_QUADS);
 			glVertex2f(0.0f, 0.0f);
-			glVertex2f(0.0f, 256.0f);
-			glVertex2f(256.0f, 256.0f);
-			glVertex2f(256.0f, 0.0f);
+			glVertex2f(0.0f, 255.0f);
+			glVertex2f(255.0f, 255.0f);
+			glVertex2f(255.0f, 0.0f);
 		glEnd();
+
+		glEnable(GL_SCISSOR_TEST);
+		//clip the drawable region to the map
+		glScissor(win->cur_x + min_x, window_height - win->cur_y - (256.0f - min_y),
+			max_x - min_x, max_y - min_y);
 	}
-	//lets not draw outside the window :)
-	//maybe put this in elwindows.c around the call to display handler?
-	glEnable(GL_SCISSOR_TEST);
-	glScissor(win->cur_x, window_height - win->cur_y - 256, 256, 256);
+	else
+	{
+		//lets not draw outside the window :)
+		//maybe put this in elwindows.c around the call to display handler?
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(win->cur_x, window_height - win->cur_y - 256, 256, 256);
+	}
 
 	draw_map(zoom_multip, px, py);
 	draw_actor_points(zoom_multip, px, py);
@@ -706,11 +732,11 @@ void update_exploration_map()
 	{
 		return;
 	}
-	px = (your_actor->x_tile_pos / size_x) * 256.0f;
-	py = ((your_actor->y_tile_pos / size_y) * 256.0f);
+	px = (your_actor->x_tile_pos / size_x) * 255.0f;
+	py = ((your_actor->y_tile_pos / size_y) * 255.0f);
 	
 	//how far can you see? 30 tiles? at least this looks right.
-	view_distance = (256.0f / size_x) * 26.0f;
+	view_distance = (255.0f / size_x) * 26.0f;
 	vd_square = view_distance*view_distance;
 
 	for(i = -view_distance; i < view_distance; i++)

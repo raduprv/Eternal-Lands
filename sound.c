@@ -385,13 +385,13 @@ ALuint get_loaded_buffer(int i)
 #ifdef OSX
 		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
  #ifdef	NEW_FILE_IO
-		alutLoadWAVMemory(el_get_pointer(file), el_get_size(file), &format, &data, &size, &freq);
+		alutLoadWAVMemory(el_get_pointer(file), &format, &data, &size, &freq);
  #else	//NEW_FILE_IO
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
  #endif	//NEW_FILE_IO
 #else
  #ifdef	NEW_FILE_IO
-		alutLoadWAVMemory(el_get_pointer(file), el_get_size(file), &format, &data, &size, &freq, &loop);
+		alutLoadWAVMemory(el_get_pointer(file), &format, &data, &size, &freq, &loop);
  #else	//NEW_FILE_IO
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq, &loop);
  #endif	//NEW_FILE_IO

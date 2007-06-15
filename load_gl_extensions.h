@@ -39,7 +39,10 @@ typedef enum {
 	ext_framebuffer_object = 20,
 	ext_texture_compression_s3tc = 21,
 	ext_texture_filter_anisotropic = 22,
-	sgis_generate_mipmap = 23
+	sgis_generate_mipmap = 23,
+	arb_texture_mirrored_repeat = 24,
+	arb_texture_rectangle = 25,
+	ext_fog_coord = 26
 } extension_enum;
 
 /*	GL_ARB_multitexture	*/
@@ -260,6 +263,14 @@ extern PFNGLUNIFORMMATRIX4FVARBPROC ELglUniformMatrix4fvARB;
 extern PFNGLUSEPROGRAMOBJECTARBPROC ELglUseProgramObjectARB;
 extern PFNGLVALIDATEPROGRAMARBPROC ELglValidateProgramARB;
 /*	GL_ARB_shader_objects		*/
+
+/*	GL_EXT_fog_coord			*/
+extern PFNGLFOGCOORDPOINTEREXTPROC ELglFogCoordPointerEXT;
+extern PFNGLFOGCOORDDEXTPROC ELglFogCoorddEXT;
+extern PFNGLFOGCOORDDVEXTPROC ELglFogCoorddvEXT;
+extern PFNGLFOGCOORDFEXTPROC ELglFogCoordfEXT;
+extern PFNGLFOGCOORDFVEXTPROC ELglFogCoordfvEXT;
+/*	GL_EXT_fog_coord			*/
 
 extern void init_opengl_extensions();
 extern uint_fast32_t have_extension(extension_enum extension);

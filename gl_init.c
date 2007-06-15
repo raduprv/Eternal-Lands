@@ -819,9 +819,9 @@ void init_gl_extensions()
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_shader_objects");
 		LOG_TO_CONSOLE(c_red1, str);
 	}
-	/*	GL_ARB_shader_objects				*/
+	/*	GL_ARB_shader_objects			*/
 
-	/*	GL_ARB_shading_language_100			*/
+	/*	GL_ARB_shading_language_100		*/
 	if (have_extension(arb_shading_language_100))
 	{
 		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_shading_language_100");
@@ -832,7 +832,46 @@ void init_gl_extensions()
 		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_shading_language_100");
 		LOG_TO_CONSOLE(c_red1, str);
 	}
-	/*	GL_ARB_shading_language_100			*/
+	/*	GL_ARB_shading_language_100		*/
+
+	/*	GL_ARB_texture_mirrored_repeat		*/
+	if (have_extension(arb_texture_mirrored_repeat))
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_texture_mirrored_repeat");
+		LOG_TO_CONSOLE(c_green2, str);
+	}
+	else
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_texture_mirrored_repeat");
+		LOG_TO_CONSOLE(c_red1, str);
+	}
+	/*	GL_ARB_texture_mirrored_repeat		*/
+
+	/*	GL_ARB_texture_rectangle		*/
+	if (have_extension(arb_texture_rectangle))
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_texture_rectangle");
+		LOG_TO_CONSOLE(c_green2, str);
+	}
+	else
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ARB_texture_rectangle");
+		LOG_TO_CONSOLE(c_red1, str);
+	}
+	/*	GL_ARB_texture_rectangle		*/
+
+	/*	GL_EXT_fog_coord			*/
+	if (have_extension(ext_fog_coord))
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_EXT_fog_coord");
+		LOG_TO_CONSOLE(c_green2, str);
+	}
+	else
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_fog_coord");
+		LOG_TO_CONSOLE(c_red1, str);
+	}
+	/*	GL_EXT_fog_coord			*/
 
 #ifdef	GL_EXTENSION_CHECK
 	evaluate_extension();
