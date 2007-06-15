@@ -1464,6 +1464,8 @@ void init_sound(char *sound_config_path)
 	if(inited)
 		return;
 
+	alutInitWithoutContext(0, 0);
+
 	//begin by setting all data to a known state
 	if(have_sound)
 		destroy_sound();
