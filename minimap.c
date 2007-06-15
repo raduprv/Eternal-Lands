@@ -868,7 +868,8 @@ void change_minimap(){
 		glDeleteTextures(1,&circle_texture);
 	if(exploration_texture)
 		glDeleteTextures(1,&exploration_texture);
-	minimap_free_framebuffer();
+	if(use_frame_buffer)
+		minimap_free_framebuffer();
 
 	//make filename
 	my_strcp(minimap_file_name,map_file_name);
@@ -884,7 +885,8 @@ void change_minimap(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	load_exploration_map();
 
-	minimap_make_framebuffer();
+	if(use_frame_buffer)
+		minimap_make_framebuffer();
 
 	for(max_zoom=0;pow(2,4+max_zoom) <= tile_map_size_x;++max_zoom);
 
