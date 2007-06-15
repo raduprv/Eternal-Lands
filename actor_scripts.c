@@ -473,6 +473,7 @@ void animate_actors()
 					if(actors_list[i]->actor_id == yourself){
 						update_exploration_map();
 					}
+					minimap_touch();
 #endif  //MINIMAP
 				} else {
 					actors_list[i]->x_pos+= actors_list[i]->move_x_speed;
@@ -945,6 +946,9 @@ void destroy_actor(int actor_id)
 				break;
 			}
 	}
+#ifdef MINIMAP
+	minimap_touch();
+#endif //MINIMAP
 }
 
 void destroy_all_actors()
@@ -975,6 +979,9 @@ void destroy_all_actors()
 	max_actors= 0;
 	my_timer_adjust= 0;
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
+#ifdef MINIMAP
+	minimap_touch();
+#endif //MINIMAP
 }
 
 

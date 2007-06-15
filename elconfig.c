@@ -542,6 +542,13 @@ void change_shadow_map_size(int *pointer, int value)
 		{
 			free_reflection_framebuffer();
 		}
+#ifdef MINIMAP
+		if (use_frame_buffer){
+			minimap_make_framebuffer();
+		} else {
+			minimap_free_framebuffer();
+		}
+#endif //MINIMAP
 	}
 
 	if (pointer != NULL) {
