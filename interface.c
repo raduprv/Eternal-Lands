@@ -928,12 +928,30 @@ void draw_game_map (int map, int mouse_mini)
 #ifdef CLICKABLE_CONTINENT_MAP
 	if(!map && show_continent_map_boundaries) {
 		int i;
+		/* Convert mouse coordinates to map coordinates (stolen from pf_get_mouse_position()) */
+		int min_mouse_x = (window_width-hud_x)/6;
+		int min_mouse_y = 0;
+		int max_mouse_x = min_mouse_x+((window_width-hud_x)/1.5);
+		int max_mouse_y = window_height - hud_y;
+		int screen_map_width = max_mouse_x - min_mouse_x;
+		int screen_map_height = max_mouse_y - min_mouse_y;
+		int m_px = ((mouse_x-min_mouse_x) * 512) / screen_map_width;
+		int m_py = 512 - ((mouse_y * 512) / screen_map_height);
+
 		glColor3f (0.267f, 0.267f, 0.267f);
 		glDisable (GL_TEXTURE_2D);
 		glBegin(GL_LINES);
 		/* Draw borders for the maps */
 		for(i = 0; continent_maps[i].name != NULL; i++) {
 			if(continent_maps[i].cont == continent_maps[cur_map].cont) {
+				int mouseover = 0;
+				if(!mouse_mini && m_px > continent_maps[i].x_start && m_px < continent_maps[i].x_end
+				&& m_py > continent_maps[i].y_start && m_py < continent_maps[i].y_end)
+				{
+					/* Mouse over this map */
+					glColor3f (0.4f, 0.4f, 0.4f);
+					mouseover = 1;
+				}
 				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_start / 512);
 				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_end / 512);
 				
@@ -945,6 +963,10 @@ void draw_game_map (int map, int mouse_mini)
 				
 				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_start / 512);
 				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_start / 512);
+				if(mouseover) {
+					/* Mouse was over the map, change the colour back */
+					glColor3f (0.267f, 0.267f, 0.267f);
+				}
 			}
 		}
 		glEnd();
