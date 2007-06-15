@@ -16,13 +16,14 @@ extern "C" {
 typedef struct {
 	Sint8 label[64];
 	int content_id;
-	Uint16 tag_x, tag_width;
+	Uint16 tag_width;
 	float label_r, label_g, label_b;
 	char closable;
 } tab;
 
 typedef struct {
-	int tag_height, nr_tabs, max_tabs, cur_tab;
+	int tag_height, button_size;
+	int nr_tabs, max_tabs, cur_tab, tab_offset, tab_last_visible;
 	tab *tabs;
 } tab_collection;
 
@@ -140,7 +141,6 @@ typedef struct
 	Uint16 x_space, y_space;
 	Uint32 next_blink;
 } text_field;
-
 
 typedef struct {
 	void *data;

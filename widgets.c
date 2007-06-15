@@ -1153,33 +1153,34 @@ int tab_collection_select_tab (int window_id, Uint32 widget_id, int tab)
 	return -1;
 }
 
+int _tab_collection_close_tab_real (tab_collection* col, int tab)
+{
+	if (col != NULL && tab >= 0 && tab < col->nr_tabs)
+	{
+		int i, w;
+		
+		w = col->tabs[tab].tag_width;
+		destroy_window (col->tabs[tab].content_id);
+		for (i = tab+1; i < col->nr_tabs; i++)
+			col->tabs[i-1] = col->tabs[i];
+
+		col->nr_tabs--;
+		if (tab < col->cur_tab || (tab == col->cur_tab && tab >= col->nr_tabs))
+			col->cur_tab--;
+		if (tab < col->tab_offset || (tab == col->tab_offset && tab >= col->nr_tabs))
+			col->tab_offset--;
+			
+		return col->cur_tab;
+	}
+
+	return -1;
+}
+
 int tab_collection_close_tab (int window_id, Uint32 widget_id, int tab) 
 {
 	widget_list *w = widget_find (window_id, widget_id);
 	if (w) 
-	{
-		tab_collection *col = (tab_collection *) w->widget_info;
-		if (tab >= 0 && tab < col->nr_tabs)
-		{
-			int i, w;
-			
-			w = col->tabs[tab].tag_width;
-			destroy_window (col->tabs[tab].content_id);
-			for (i = tab+1; i < col->nr_tabs; i++)
-			{
-				col->tabs[i].tag_x -= w;
-				col->tabs[i-1] = col->tabs[i];
-			}
-
-			col->nr_tabs--;
-			if (col->cur_tab > tab)
-				col->cur_tab--;
-			else if (col->cur_tab == tab)
-				col->cur_tab = 0;
-				
-			return col->cur_tab;
-		}
-	}
+		return _tab_collection_close_tab_real (w->widget_info, tab);
 	return -1;
 }
 
@@ -1194,7 +1195,9 @@ int free_tab_collection (widget_list *widget)
 int tab_collection_draw (widget_list *w)
 {
 	tab_collection *col;
-	int itab, ytagtop, ytagbot, xstart, xend;
+	int itab, ytagtop, ytagbot, xstart, xend, xmax;
+	int btn_size, arw_width;
+	int cur_start, cur_end;
 	int h;
 
 	if (!w) return 0;
@@ -1204,97 +1207,182 @@ int tab_collection_draw (widget_list *w)
 	h = col->tag_height;
 	ytagtop = w->pos_y;
 	ytagbot = w->pos_y + h;
-	
+	xstart = w->pos_x;
+	btn_size = col->button_size;
+	arw_width = btn_size / 4;
+	cur_start = cur_end = xstart;
+
 	glDisable(GL_TEXTURE_2D);
 
-	if (col->nr_tabs > 0) {
-		// draw the tags
-		for (itab = 0; itab < col->nr_tabs; itab++) 
+	if (col->tab_offset > 0)
+	{
+		// draw a "move left" button
+		if(w->r!=-1.0)
+			glColor3f(w->r, w->g, w->b);
+
+		// button outline
+		glBegin (GL_LINE_STRIP);
+			glVertex3i (xstart, ytagtop, 0);
+			glVertex3i (xstart, ytagtop+btn_size, 0);
+			glVertex3i (xstart+btn_size, ytagtop+btn_size, 0);
+			glVertex3i (xstart+btn_size, ytagtop, 0);
+			glVertex3i (xstart, ytagtop, 0);
+		glEnd ();
+
+		// left arrows
+		glBegin (GL_LINE_STRIP);
+			glVertex3i (xstart+2*arw_width, ytagtop+btn_size/2-arw_width, 0);
+			glVertex3i (xstart+arw_width, ytagtop+btn_size/2, 0);
+			glVertex3i (xstart+2*arw_width, ytagtop+btn_size/2+arw_width, 0);
+		glEnd ();
+
+		glBegin (GL_LINE_STRIP);
+			glVertex3i (xstart+3*arw_width, ytagtop+btn_size/2-arw_width, 0);
+			glVertex3i (xstart+2*arw_width, ytagtop+btn_size/2, 0);
+			glVertex3i (xstart+3*arw_width, ytagtop+btn_size/2+arw_width, 0);
+		glEnd ();
+
+		xstart += h;
+	}
+
+	// draw the tags
+	for (itab = col->tab_offset; itab < col->nr_tabs; itab++) 
+	{
+		xend = xstart + col->tabs[itab].tag_width;
+		xmax = w->pos_x + w->len_x;
+		if (itab < col->nr_tabs - 1)
+			xmax -= h;
+
+		// Check if there's still room for this tab, but always 
+		// draw at least one tab
+		if (itab > col->tab_offset && xend > xmax)
 		{
-			if(w->r!=-1.0)
-				glColor3f(w->r, w->g, w->b);
-
-			xstart = w->pos_x + col->tabs[itab].tag_x;
-			xend = xstart + col->tabs[itab].tag_width;
-
-			if(col->cur_tab == itab){
-				glBegin(GL_LINE_STRIP);
-					glVertex3i(xstart, ytagbot, 0);
-					draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
-					draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
-					glVertex3i(xend, ytagbot, 0);
-				glEnd();
-			} else if(col->cur_tab>itab){
-				glBegin (GL_LINE_STRIP);
-					glVertex3i (xstart, ytagbot, 0);
-					draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
-					glVertex3i (xend, ytagtop+1, 0);
-				glEnd ();
-			} else {
-				glBegin (GL_LINE_STRIP);
-					glVertex3i (xstart, ytagtop+1, 0);
-					draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
-					glVertex3i (xend, ytagbot, 0);
-				glEnd ();
-			}
-			if(itab+1<col->nr_tabs){
-				glBegin(GL_LINES);
-				glVertex2i(xend-DEFAULT_TAB_RADIUS, ytagtop+1);
-				glVertex2i(xend, ytagtop+1);
-				glEnd();
-			}
-			if(itab){
-				glBegin(GL_LINES);
-					glVertex2i(xstart+DEFAULT_TAB_RADIUS, ytagtop+1);
-					glVertex2i(xstart, ytagtop+1);
-				glEnd();
-			}
-			
-			// draw a close box if necessary
-			if (col->tabs[itab].closable)
-			{
-				glBegin (GL_LINE_LOOP);
-				glVertex3i (xstart+3, ytagbot-3, 0);
-				glVertex3i (xstart+3, ytagtop+3, 0);
-				glVertex3i (xstart+h-3, ytagtop+3, 0);
-				glVertex3i (xstart+h-3, ytagbot-3, 0);
-				glEnd ();
-
-				glBegin (GL_LINES);
-				glVertex3i (xstart+3, ytagbot-3, 0);
-				glVertex3i (xstart+h-3, ytagtop+3, 0);
-				glVertex3i (xstart+3, ytagtop+3, 0);
-				glVertex3i (xstart+h-3, ytagbot-3, 0);
-				glEnd ();
-			}
-
-			glEnable(GL_TEXTURE_2D);
-			
-			if (col->tabs[itab].label_r >= 0.0f)
-				glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
-				
-			if (col->tabs[itab].closable)
-				draw_string_zoomed (xstart+h, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
-			else
-				draw_string_zoomed (xstart+4, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
-			glDisable(GL_TEXTURE_2D);
+			// this tab doesn't fit. Simply extend the top line to 
+			// the end of the available width
+			glBegin (GL_LINES);
+				glVertex3i (xstart, ytagtop+1, 0);
+				glVertex3i (w->pos_x + w->len_x - h, ytagtop+1, 0);
+			glEnd ();
+			break;
 		}
+
+		if (itab == col->cur_tab)
+		{
+			cur_start = xstart;
+			cur_end = xend;
+		}
+
+		if(w->r!=-1.0)
+			glColor3f(w->r, w->g, w->b);
+
+		if(col->cur_tab == itab){
+			glBegin(GL_LINE_STRIP);
+				glVertex3i(xstart, ytagbot, 0);
+				draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
+				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
+				glVertex3i(xend, ytagbot, 0);
+			glEnd();
+		} else if(col->cur_tab>itab){
+			glBegin (GL_LINE_STRIP);
+				glVertex3i (xstart, ytagbot, 0);
+				draw_circle_ext(xstart, ytagtop, DEFAULT_TAB_RADIUS, -10, 180, 90);
+				glVertex3i (xend, ytagtop+1, 0);
+			glEnd ();
+		} else {
+			glBegin (GL_LINE_STRIP);
+				glVertex3i (xstart, ytagtop+1, 0);
+				draw_circle_ext(xend-2*DEFAULT_TAB_RADIUS, ytagtop, DEFAULT_TAB_RADIUS, -10, 89, 0);
+				glVertex3i (xend, ytagbot, 0);
+			glEnd ();
+		}
+		if(itab+1<col->nr_tabs){
+			glBegin(GL_LINES);
+			glVertex2i(xend-DEFAULT_TAB_RADIUS, ytagtop+1);
+			glVertex2i(xend, ytagtop+1);
+			glEnd();
+		}
+		if(itab){
+			glBegin(GL_LINES);
+				glVertex2i(xstart+DEFAULT_TAB_RADIUS, ytagtop+1);
+				glVertex2i(xstart, ytagtop+1);
+			glEnd();
+		}
+		
+		// draw a close box if necessary
+		if (col->tabs[itab].closable)
+		{
+			glBegin (GL_LINE_LOOP);
+			glVertex3i (xstart+3, ytagbot-3, 0);
+			glVertex3i (xstart+3, ytagtop+3, 0);
+			glVertex3i (xstart+h-3, ytagtop+3, 0);
+			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glEnd ();
+
+			glBegin (GL_LINES);
+			glVertex3i (xstart+3, ytagbot-3, 0);
+			glVertex3i (xstart+h-3, ytagtop+3, 0);
+			glVertex3i (xstart+3, ytagtop+3, 0);
+			glVertex3i (xstart+h-3, ytagbot-3, 0);
+			glEnd ();
+		}
+
+		glEnable(GL_TEXTURE_2D);
+		
+		if (col->tabs[itab].label_r >= 0.0f)
+			glColor3f (col->tabs[itab].label_r, col->tabs[itab].label_g, col->tabs[itab].label_b); 
+			
+		if (col->tabs[itab].closable)
+			draw_string_zoomed (xstart+h, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+		else
+			draw_string_zoomed (xstart+4, ytagbot-SMALL_FONT_Y_LEN-2, (unsigned char *)col->tabs[itab].label, 1, w->size);
+		glDisable(GL_TEXTURE_2D);
+
+		xstart = xend;
+	}
+
+	col->tab_last_visible = itab-1;
+	if (itab < col->nr_tabs)
+	{
+		// draw a "move right" button
+		xstart = w->pos_x + w->len_x - btn_size;
+
+		if(w->r!=-1.0)
+			glColor3f(w->r, w->g, w->b);
+
+		// button outline
+		glBegin (GL_LINE_STRIP);
+			glVertex3i (xstart, ytagtop, 0);
+			glVertex3i (xstart, ytagtop+btn_size, 0);
+			glVertex3i (xstart+btn_size, ytagtop+btn_size, 0);
+			glVertex3i (xstart+btn_size, ytagtop, 0);
+			glVertex3i (xstart, ytagtop, 0);
+		glEnd ();
+
+		// right arrows
+		glBegin (GL_LINE_STRIP);
+			glVertex3i (xstart+arw_width, ytagtop+btn_size/2-arw_width, 0);
+			glVertex3i (xstart+2*arw_width, ytagtop+btn_size/2, 0);
+			glVertex3i (xstart+arw_width, ytagtop+btn_size/2+arw_width, 0);
+		glEnd ();
+
+		glBegin (GL_LINE_STRIP);
+			glVertex3i (xstart+2*arw_width, ytagtop+btn_size/2-arw_width, 0);
+			glVertex3i (xstart+3*arw_width, ytagtop+btn_size/2, 0);
+			glVertex3i (xstart+2*arw_width, ytagtop+btn_size/2+arw_width, 0);
+		glEnd ();
 	}
 
 	if(w->r!=-1.0)
 		glColor3f(w->r, w->g, w->b);
-
-	xstart = w->pos_x + col->tabs[col->cur_tab].tag_x;
-	xend = xstart + col->tabs[col->cur_tab].tag_width;
 	
 	// draw the rest of the frame around the tab
 	glBegin (GL_LINE_STRIP);
-	glVertex3i (xend, ytagbot, 0);
+	glVertex3i (cur_end, ytagbot, 0);
 	glVertex3i (w->pos_x + w->len_x, ytagbot, 0);		
 	glVertex3i (w->pos_x + w->len_x, w->pos_y + w->len_y, 0);		
 	glVertex3i (w->pos_x, w->pos_y + w->len_y, 0);		
 	glVertex3i (w->pos_x, ytagbot, 0);		
-	glVertex3i (xstart, ytagbot, 0);
+	glVertex3i (cur_start, ytagbot, 0);
 	glEnd ();
 
 	glEnable(GL_TEXTURE_2D);
@@ -1316,40 +1404,40 @@ int tab_collection_click (widget_list *W, int x, int y, Uint32 flags)
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 	
+	// Check if we clicked a tab scroll button
+	if (col->tab_offset > 0 && x >= 0 && x <= col->button_size && y >= 0 && y <= col->button_size)
+	{
+		col->tab_offset--;
+		return 1;
+	}
+	
+	if (col->tab_last_visible < col->nr_tabs-1 && x >= W->len_x - col->button_size && x <= W->len_x && y >= 0 && y <= col->button_size)
+	{
+		if (col->tab_offset < col->nr_tabs-1)
+			col->tab_offset++;
+		return 1;
+	}
+
 	if (y < col->tag_height) 
 	{
+		int x_start = col->tab_offset > 0 ? col->tag_height : 0;
 		int itag, ctag = col->cur_tab;
 
 		// find which tag was clicked
-		for (itag = 0; itag < col->nr_tabs; itag++)  {
-			if (x > col->tabs[itag].tag_x && x < col->tabs[itag].tag_x + col->tabs[itag].tag_width) {
+		for (itag = col->tab_offset; itag <= col->tab_last_visible; itag++)
+		{
+			int x_end = x_start + col->tabs[itag].tag_width;
+			if (x >= x_start && x < x_end)
 				break;
-			}
+			x_start = x_end;
 		}
 
-		if (itag < col->nr_tabs)
+		if (itag <= col->tab_last_visible)
 		{
 			// check if close box was clicked
-			if (col->tabs[itag].closable && x > col->tabs[itag].tag_x + 3 && x < col->tabs[itag].tag_x + col->tag_height - 3 && y > 3 && y < col->tag_height - 3)
+			if (col->tabs[itag].closable && x > x_start + 3 && x < x_start + col->tag_height - 3 && y > 3 && y < col->tag_height - 3)
 			{
-				int i, w;
-
-				w = col->tabs[itag].tag_width;
-
-				destroy_window (col->tabs[itag].content_id);
-				col->tabs[itag].content_id = -1;
-
-				for (i = itag+1; i < col->nr_tabs; i++)
-				{
-					col->tabs[i].tag_x -= w;
-					col->tabs[i-1] = col->tabs[i];
-				}
-
-				col->nr_tabs--;
-				if (ctag > itag)
-					col->cur_tab--;
-				else if (ctag == itag)
-					col->cur_tab = 0;
+				_tab_collection_close_tab_real (col, itag);
 			}
 			// check if a new tab is selected
 			else if (itag != ctag)
@@ -1382,6 +1470,43 @@ int tab_collection_resize (widget_list *W, Uint32 width, Uint32 height)
 	return 1;
 }
 
+void _tab_collection_make_cur_visible (widget_list *W)
+{
+	tab_collection *col;
+
+	if (W == NULL)
+		return;
+
+	col = W->widget_info;
+	if (col == NULL)
+		return;
+
+	if (col->cur_tab < col->tab_offset)
+	{
+		col->tab_offset = col->cur_tab;
+	}
+	else if (col->cur_tab > col->tab_last_visible)
+	{
+		// find a tab offset such that the selected tab is the
+		// rightmost visible tab
+		int max_width = W->len_x - col->tag_height;
+		if (col->cur_tab < col->nr_tabs-1)
+			max_width -= col->tag_height;
+		
+		while (col->tab_offset < col->cur_tab)
+		{
+			int w = 0, i;
+
+			col->tab_offset++;
+			for (i = col->tab_offset; i <= col->cur_tab; i++)
+				w+= col->tabs[i].tag_width;
+			
+			if (w < max_width)
+				break;
+		}
+	}
+}
+
 int tab_collection_keypress (widget_list *W, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	int shift_on = key & ELW_SHIFT;
@@ -1396,6 +1521,7 @@ int tab_collection_keypress (widget_list *W, int mx, int my, Uint32 key, Uint32 
 		hide_window (col->tabs[col->cur_tab].content_id);
 		if (++col->cur_tab >= col->nr_tabs)
 			col->cur_tab = 0;
+		_tab_collection_make_cur_visible (W);
 		return 1;
 	}
 	else if (shift_on && keysym == K_ROTATELEFT)
@@ -1404,13 +1530,23 @@ int tab_collection_keypress (widget_list *W, int mx, int my, Uint32 key, Uint32 
 		hide_window (col->tabs[col->cur_tab].content_id);
 		if (--col->cur_tab < 0)
 			col->cur_tab = col->nr_tabs - 1;
+		_tab_collection_make_cur_visible (W);
 		return 1;
 	}
 
 	return 0;	
 }
 
-const struct WIDGET_TYPE tab_collection_type = { NULL, tab_collection_draw, tab_collection_click, NULL, NULL, tab_collection_resize, tab_collection_keypress, free_tab_collection };
+const struct WIDGET_TYPE tab_collection_type = { 
+	NULL, 
+	tab_collection_draw, 
+	tab_collection_click, 
+	NULL, 
+	NULL, 
+	tab_collection_resize, 
+	tab_collection_keypress, 
+	free_tab_collection
+};
 
 int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, int max_tabs, Uint16 tag_height)
 {
@@ -1423,7 +1559,10 @@ int tab_collection_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uin
 		T->tabs[itab].content_id = -1;
 	T->nr_tabs = 0;
 	T->tag_height = tag_height;
+	T->button_size = (9 * tag_height) / 10;
 	T->cur_tab = 0;
+	T->tab_offset = 0;
+	T->tab_last_visible = 0;
 
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &tab_collection_type, T, NULL);
 }
@@ -1459,11 +1598,6 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 	my_strncp ((char*)col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
 	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
 	col->tabs[nr].closable = closable ? 1 : 0;
-
-	if (nr == 0)
-		col->tabs[nr].tag_x = 0;
-	else
-		col->tabs[nr].tag_x = col->tabs[nr-1].tag_x + col->tabs[nr-1].tag_width;
 
 	if (tag_width > 0)
 	{

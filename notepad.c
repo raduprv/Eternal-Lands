@@ -190,7 +190,6 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 //Macro Definitions                             
 #define NOTE_LIST_INIT_SIZE 5
 #define NOTE_NAME_LEN       16
-#define MAX_TABS            3
 
 #define MIN_NOTE_SIZE	128
 
@@ -221,7 +220,7 @@ unsigned short no_notes = 0;
 int note_win_x = 30; // near left corner by default
 int note_win_y = 10;
 int note_win_x_len = 380;
-int note_win_y_len = 400;
+int note_win_y_len = 420;
 
 static void init_note(int id, const char* name)
 {
@@ -434,14 +433,8 @@ void open_note_tab_continued (int id)
 	int tf_x = 20;
 	int tf_y = 45;
 	int tf_width = note_win_x_len - 50;
-	int tf_height = note_win_y_len - 80;
+	int tf_height = note_win_y_len - 100;
 
-	if (tab_collection_get_nr_tabs (notepad_win, note_tabcollection_id) >= MAX_TABS)
-	{
-		LOG_TO_CONSOLE(c_red2,user_no_more_note_tabs);
-		return;
-	}
-	 
 	note_list[id].window = tab_add (notepad_win, note_tabcollection_id, note_list[id].name, 0, 1);
 	widget_set_color (notepad_win, note_list[id].window, 0.77f, 0.57f, 0.39f);
 
@@ -550,7 +543,7 @@ void display_notepad()
 	{
 		notepad_win = create_window (win_notepad, game_root_win, 0, note_win_x, note_win_y, note_win_x_len, note_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 		
-		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 5, note_win_x_len - 10, note_win_y_len - 10, 20);
+		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 25, note_win_x_len - 10, note_win_y_len - 30, 20);
 		widget_set_size (notepad_win, note_tabcollection_id, 0.7);
 		widget_set_color (notepad_win, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
 		main_note_tab_id = tab_add (notepad_win, note_tabcollection_id, tab_main, 0, 0);
