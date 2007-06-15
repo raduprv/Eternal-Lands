@@ -99,7 +99,7 @@ source_data sound_source_data[MAX_SOURCES];	//the active (playing) sources
 sound_type sound_type_data[MAX_BUFFERS];	// configuration of the sound types
 sound_sample sound_sample_data[MAX_BUFFERS];// path & buffer data for each sample	
 #else
-char sound_files[MAX_BUFFERS][30];
+char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
 ALuint sound_source[MAX_SOURCES];
 ALuint sound_buffer[MAX_BUFFERS];
 #endif	//NEW_SOUND
@@ -1621,6 +1621,7 @@ void init_sound()
 	}
 
 	// TODO: get this information from a file, sound.ini?	
+	/*
 	my_strcp(sound_files[snd_rain],"./sound/rain1.wav");
 	my_strcp(sound_files[snd_tele_in],"./sound/teleport_in.wav");
 	my_strcp(sound_files[snd_tele_out],"./sound/teleport_out.wav");
@@ -1631,6 +1632,17 @@ void init_sound()
 	my_strcp(sound_files[snd_thndr_4],"./sound/thunder4.wav");
 	my_strcp(sound_files[snd_thndr_5],"./sound/thunder5.wav");
 	my_strcp(sound_files[snd_fire],"./sound/fire.wav");
+	*/
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/rain1.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/teleport_in.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/teleport_out.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/teleporter.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder1.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder2.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder3.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder4.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/thunder5.wav");
+	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/fire.wav");
 
 	alListenerfv(AL_POSITION,listenerPos);
 	alListenerfv(AL_VELOCITY,listenerVel);
