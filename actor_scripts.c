@@ -1732,7 +1732,7 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	// check for default entries, if found, use them to fill in missing data
 	if(default_node){
 		if(part->skin_name==NULL || *part->skin_name=='\0')
-			if(strcmp(part_name, "head")){ // heads don't have seperate skins here
+			if(strcmp(part_name, "head")){ // heads don't have separate skins here
 				get_item_string_value(part->skin_name, sizeof(part->skin_name), default_node, (xmlChar*)"skin");
 			}
 		if(part->model_name==NULL || *part->model_name=='\0'){
@@ -1745,7 +1745,7 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	}
 
 	// check the critical information
-	if(strcmp(part_name, "head")){ // heads don't have seperate skins here
+	if(strcmp(part_name, "head")){ // heads don't have separate skins here
 		actor_check_string(act, part_name, "skin", part->skin_name);
 	}
 	actor_check_string(act, part_name, "model", part->model_name);

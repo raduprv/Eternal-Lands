@@ -210,15 +210,15 @@
       <desc>Should local chat be separate?</desc>
     </local_chat_separate>
     <guild_chat_separate>
-      <name>Seperate Guild Chat</name>
+      <name>Separate Guild Chat</name>
       <desc>Should guild chat be separate?</desc>
     </guild_chat_separate>
     <server_chat_separate>
-      <name>Seperate Server Messages</name>
+      <name>Separate Server Messages</name>
       <desc>Should the messages from the server be separate?</desc>
     </server_chat_separate>
     <mod_chat_separate>
-      <name>Seperate Moderator Chat</name>
+      <name>Separate Moderator Chat</name>
       <desc>Should moderator chat be separated from the rest?</desc>
     </mod_chat_separate>
     <highlight_tab_on_nick>
@@ -275,7 +275,7 @@
     </use_old_clicker>
     <use_frame_buffer>
       <name>Toggle Frame Buffer Support</name>
-      <desc>Toggle frame buffer support. At the moment just for reflection the frame buffer is used.</desc>
+      <desc>Toggle frame buffer support. At the moment frame buffer is only used for reflections.</desc>
     </use_frame_buffer>
     <use_clipboard>
       <name>Use Clipboard For Pasting</name>

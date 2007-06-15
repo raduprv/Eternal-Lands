@@ -77,7 +77,7 @@ void    handle_file_download(struct http_get_struct *get);
  * \brief	A threaded implementation of the http-GET
  *
  * 		The function gets the given file from the server and writes it to the open file pointed to by fp.
- *  This version does the get in a seperate thread and sends an event when done. it is up to the EVENT handler
+ *  This version does the get in a separate thread and sends an event when done. it is up to the EVENT handler
  *	to close the handle & free the spec pointer in data1
  *
  * \param	server The server you're getting the file from

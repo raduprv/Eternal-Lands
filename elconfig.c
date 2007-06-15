@@ -1249,10 +1249,10 @@ void init_vars()
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
-	add_var(FLOAT,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",ADVVID, 1.0f, 16.0f, 0.5f);
+	add_var(FLOAT,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",ADVVID, 1.0f, 16.0f, 0.5f);
 	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
 #ifndef MAP_EDITOR
-	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
+	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
 
 	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
 	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
@@ -1265,12 +1265,12 @@ void init_vars()
 	add_var(BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
 	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
 	add_var(BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);
-	add_var(BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_var,0,"Transparency resolution fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",ECTAB);
-	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,45,"Max eye candy framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,2.0,FLT_MAX,1.0);
-	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,15,"Min eye candy framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,1.0,FLT_MAX,1.0);
+	add_var(BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_var,0,"Transparency Resolution Fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",ECTAB);
+	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,45,"Max Eye Candy Framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,2.0,FLT_MAX,1.0);
+	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,15,"Min Eye Candy Framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,1.0,FLT_MAX,1.0);
 	add_var(INT,"light_columns_threshold","lct",&light_columns_threshold,change_int,5,"Light columns threshold","If your framerate is below this amount, you will not get columns of light around teleportation effects (useful for slow systems).",ECTAB, 0, INT_MAX);
-	add_var(BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_var,0,"Use fancy smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
-	add_var(INT,"max_idle_cycles_per_second","micps",&max_idle_cycles_per_second,change_int,40,"Max idle cycles per second","The eye candy 'idle' function, which moves particles around, will run no more than this often.  If your CPU is your limiting factor, lowering this can give you a higher framerate.  Raising it gives smoother particle motion (up to the limit of your framerate).",ECTAB, 1, INT_MAX);
+	add_var(BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_var,0,"Use Fancy Smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
+	add_var(INT,"max_idle_cycles_per_second","micps",&max_idle_cycles_per_second,change_int,40,"Max Idle Cycles Per Second","The eye candy 'idle' function, which moves particles around, will run no more than this often.  If your CPU is your limiting factor, lowering this can give you a higher framerate.  Raising it gives smoother particle motion (up to the limit of your framerate).",ECTAB, 1, INT_MAX);
  #endif
 #endif // ELC
 
@@ -1344,7 +1344,7 @@ void init_vars()
 	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the local ignores list on exit.",MISC);
 	add_var (BOOL, "use_global_filters", "gfil", &use_global_filters, change_global_filters, 1, "Global Filter", "Toggle the use of global text filters.", MISC);
 	/* add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
-	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps filter","Toggle the caps filter",MISC);
+	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps Filter","Toggle the caps filter",MISC);
 
 	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
@@ -1358,7 +1358,7 @@ void init_vars()
  #else
 	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log Messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
  #endif //ELC
-	add_var(BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use special text window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
+	add_var(BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
   #ifdef AUTO_UPDATE
      /* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
 	add_var(BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
@@ -1386,7 +1386,7 @@ void init_vars()
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
 	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Separate Personal Chat", "Should personal chat be separate?", CHAT);
-	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Separate Guild chat", "Should guild chat be separate?", CHAT);
+	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Separate Guild Chat", "Should guild chat be separate?", CHAT);
 	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Separate Server Messages", "Should the messages from the server be separate?", CHAT);
 	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
   #else
@@ -1433,12 +1433,12 @@ void init_vars()
 #ifdef ELC
 	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
 #ifdef CLICKABLE_CONTINENT_MAP
-	add_var(BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map boundaries on continent map", "Show map boundaries on the continent map", MISC);
+	add_var(BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 #endif
 #endif //ELC
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
-	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show POS","Show position on the minimap",HUD);
+	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show Pos","Show position on the minimap",HUD);
 	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
 	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
 #endif
