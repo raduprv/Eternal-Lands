@@ -98,12 +98,13 @@ typedef PLANE_DATA FRUSTUM_DATA[16];
 
 typedef struct
 {
+	MD5_DIGEST		md5;
 	AABBOX			bbox;
+	unsigned int		texture_id;
+	unsigned int		ID;
+	unsigned short		options;
 	unsigned char		type;
 	unsigned char		extra;
-	unsigned int		texture_id;
-	MD5_DIGEST		md5;
-	unsigned int		ID;
 } BBOX_ITEM;
 
 typedef struct

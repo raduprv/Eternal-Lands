@@ -621,6 +621,7 @@ typedef enum
 #define WITHDRAW_ITEM 46
 #define LOOK_AT_STORAGE_ITEM 47
 #define SPELL_NAME 48
+#define SEND_VIDEO_INFO 49
 
 #define PING_RESPONSE 60
 #define SET_ACTIVE_CHANNEL 61
