@@ -14,7 +14,7 @@ extern "C" CAL3D_WRAPPER_API void CalCoreSkeleton_Scale(CalCoreSkeleton *self,fl
 }
 
 
-extern "C" CAL3D_WRAPPER_API enum Boolean CalMixer_ExecuteAction_Stop(CalMixer *self, int id, float delayIn, float delayOut)
+extern "C" CAL3D_WRAPPER_API enum CalBoolean CalMixer_ExecuteAction_Stop(CalMixer *self, int id, float delayIn, float delayOut)
 {
 	return self->executeAction(id, delayIn, delayOut, 1.0f,true) ? True : False;
 }

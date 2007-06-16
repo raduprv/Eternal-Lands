@@ -7,7 +7,7 @@
 extern "C" {
 #endif
 
-enum Boolean CalMixer_ExecuteAction_Stop(struct CalMixer *self, int id, float delayIn, float delayOut);
+enum CalBoolean CalMixer_ExecuteAction_Stop(struct CalMixer *self, int id, float delayIn, float delayOut);
 struct CalMesh *CalModel_GetAttachedMesh(struct CalModel *self,int i);
 void CalCoreSkeleton_Scale(struct CalCoreSkeleton *self,float factor);
 void CalMixer_RemoveAction(struct CalMixer *self,int id);
