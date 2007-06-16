@@ -114,7 +114,7 @@ and project-independent.
 #include <iostream>
 #include <cassert>
 #include <SDL.h>
-#if defined (OSX) || (OSX86)
+#ifdef OSX
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
 	#include <OpenGL/glext.h>

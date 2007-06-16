@@ -7,7 +7,7 @@ typedef unsigned int uint_fast32_t;
 #else
 #include <stdint.h>
 #endif //MSVC
-#if defined (OSX) || (OSX86)
+#ifdef OSX
 #include <OpenGL/gl.h>
 #include <OpenGL/glext.h>
 #else
