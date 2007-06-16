@@ -384,11 +384,8 @@ ALuint get_loaded_buffer(int i)
 #ifdef ALUT_WAV
 #ifdef OSX
 		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
- #ifdef	NEW_FILE_IO
-		alutLoadWAVMemory(el_get_pointer(file), &format, &data, &size, &freq);
- #else	//NEW_FILE_IO
+		// OpenAL 1.0 on Macs do not properly support alutLoadWAVMemory
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
- #endif	//NEW_FILE_IO
 #else
  #ifdef	NEW_FILE_IO
 		alutLoadWAVMemory(el_get_pointer(file), &format, &data, &size, &freq, &loop);
@@ -1463,8 +1460,10 @@ void init_sound(char *sound_config_path)
 	
 	if(inited)
 		return;
-
+		
+#ifndef OSX
 	alutInitWithoutContext(0, 0);
+#endif
 
 	//begin by setting all data to a known state
 	if(have_sound)
@@ -1590,7 +1589,9 @@ void init_sound()
 		return;
 	}
 
+#ifndef OSX
 	alutInitWithoutContext(0, 0);
+#endif
 
 	have_sound=1;
 #ifndef	NO_MUSIC
