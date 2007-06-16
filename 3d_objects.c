@@ -7,9 +7,6 @@
 #include "global.h"
 #endif
 #include "io/e3d_io.h"
-#ifdef OSX86
-	#undef OSX 0 //this is needed since i386 fixes some PPC issues here
-#endif
 
 int use_3d_alpha_blend= 1;
 Uint32 highest_obj_3d= 0;
@@ -267,9 +264,7 @@ void draw_3d_objects(unsigned int object_type)
 	if (is_selflit && (!is_day || dungeon)) 
 #endif
 	{
-#ifndef OSX
 		glDisable(GL_LIGHTING);
-#endif
 	}
 #ifdef NEW_LIGHTING
 	else if (use_new_lighting)

@@ -40,6 +40,7 @@ FEATURES += NEW_TEX                         # use new texture coordinates for en
 FEATURES += NOTEPAD                         # enable in-game notepad
 #FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 FEATURES += OPTIONS_I18N                    # make option labels & descriptions translatable
+#FEATURES += OSX			# for Mac OS X client
 #FEATURES += PARANOID_CAMERA                 # (undocumented)
 #FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
 FEATURES += SFX                             # experimental visual spell effects

@@ -8,7 +8,7 @@
 #ifdef BSD
 #include <stdlib.h>
 #else
-#if defined (OSX) || defined (OSX86)
+#ifdef OSX
 #include <sys/malloc.h>
 #else
 #ifndef alloca         // newer versions of SDL have their own alloca!

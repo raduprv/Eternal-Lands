@@ -5,7 +5,7 @@
 #include <stdlib.h>
 
 #ifndef BSD
-	#if defined (OSX) || defined (OSX86)
+	#ifdef OSX
 		#include <sys/malloc.h>
 	#else
 		#include <malloc.h>

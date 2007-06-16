@@ -17,9 +17,6 @@
 		#define	WINDOWS
 	#endif	//!WINDOWS
 #endif	//_WIN32 || _WIN64
-#ifdef OSX86	//Most i386 = PPC, but not all
-	#define OSX
-#endif
 
 #ifdef	WINDOWS
 	#include <windows.h>
@@ -51,6 +48,9 @@
 #elif defined(OSX)
 	#ifndef NO_MUSIC
 		#define __MACOSX__	//necessary for Ogg on Macs
+	#endif
+	#ifdef __BIG_ENDIAN__
+		#define EL_BIG_ENDIAN
 	#endif
 	#include <OpenGL/gl.h>
 	#include <OpenGL/glu.h>
