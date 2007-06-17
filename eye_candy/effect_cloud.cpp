@@ -32,6 +32,19 @@ bool CloudParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
     
+  if (base->particles.size() > 1)
+  {
+    if ((pos - base->center).magnitude_squared() > MAX_DRAW_DISTANCE_SQUARED)
+    {
+      //Find everything that sees this as a neighbor and delete the references to this.
+      for (std::vector<CloudParticle*>::iterator iter = incoming_neighbors.begin(); iter != incoming_neighbors.end(); iter++)
+        (*iter)->remove_neighbor(this);
+      for (std::vector<CloudParticle*>::iterator iter = neighbors.begin(); iter != neighbors.end(); iter++)
+        (*iter)->remove_incoming_neighbor(this);
+      return false;
+    }
+  }
+  
   Vec3 velocity_shift;
   velocity_shift.randomize();
   velocity_shift.y /= 3;
@@ -50,8 +63,31 @@ bool CloudParticle::idle(const Uint64 delta_t)
   if (pos.y + size / 40 > max_height)
     velocity.y -= delta_t / 2500000.0;
 
+  if (effect->particles.size() <= 1)
+    return true;
+
+  if (!neighbors.size())
+  {
+    std::map<Particle*, bool>::iterator next_iter;
+    int offset;
+    CloudParticle* next;
+    while (true)
+    {
+      next_iter = effect->particles.begin();
+      offset = randint((int)effect->particles.size());
+      for (int j = 0; j < offset; j++)
+        next_iter++;
+      next = (CloudParticle*)next_iter->first;
+      if (next != this)
+        break;
+    }
+    neighbors.push_back(next);
+    next->add_incoming_neighbor(this);
+  }
+
   // Adjust our neighbors -- try a few points to see if they're closer.
   // First, create the map
+
   CloudEffect* eff = (CloudEffect*)effect;
   std::map<coord_t, CloudParticle*> neighbors_map;
   for (int i = 0; i < (int)neighbors.size(); i++)
@@ -62,16 +98,21 @@ bool CloudParticle::idle(const Uint64 delta_t)
   
   // Now, try to replace elements.
   coord_t maxdist = neighbors_map.rbegin()->first;
-//  std::cout << this << ": " << std::endl;
-  for (int i = 0; (i < 1) || (neighbors_map.size() < 20); i++)
+  for (int i = 0; (i < 1) || ((neighbors_map.size() < 20) && (i < 40)); i++)
   {
-    std::map<Particle*, bool>::iterator iter = eff->particles.begin();
-    const int offset = randint((int)eff->particles.size());
-    for (int j = 0; j < offset; j++)
-      iter++;
-    CloudParticle* neighbor = (CloudParticle*)iter->first;
-    if (neighbor == this)
-      continue;
+    std::map<Particle*, bool>::iterator iter; 
+    int offset;
+    CloudParticle* neighbor;
+    while (true)
+    {
+      iter = eff->particles.begin();
+      offset = randint((int)eff->particles.size());
+      for (int j = 0; j < offset; j++)
+        iter++;
+      neighbor = (CloudParticle*)iter->first;
+      if (neighbor != this)
+        break;
+    }
     const coord_t distsquared = (neighbor->pos - pos).magnitude_squared();
     if (neighbors_map.size() >= 20)
     {
@@ -80,32 +121,30 @@ bool CloudParticle::idle(const Uint64 delta_t)
       if (neighbors_map.count(distsquared))
         continue;
     }
-//    std::cout << "  Subst (" << distsquared << ", " << maxdist << ", " << neighbors_map.size() << "): ";
     if (neighbors_map.size() >= 20)
     {
       std::map<coord_t, CloudParticle*>::iterator iter = neighbors_map.begin();
       for (int j = 0; j < (int)neighbors_map.size() - 1; j++)
         iter++;
-//      std::cout << iter->second << ", " << iter->first;
       neighbors_map.erase(iter);
     }
-//    std::cout << " (" << neighbors_map.size() << ")";
     neighbors_map[distsquared] = neighbor;
     maxdist = neighbors_map.rbegin()->first;
-//    std::cout << " with " << neighbor << ", " << distsquared << " (" << neighbors_map.size() << "); " << maxdist << std::endl;
   }
-//  for (std::map<coord_t, CloudParticle*>::iterator iter = neighbors_map.begin(); iter != neighbors_map.end(); iter++)
-//    std::cout << "  " << iter->first << ": " << iter->second << std::endl;
 
   // Set our color based on how deep into the cloud we are, based on our neighbors.  Also rebuild the neighbors vector.
   coord_t distsquaredsum = 0;
   Vec3 centerpoint(0.0, 0.0, 0.0);
+  for (std::vector<CloudParticle*>::iterator iter = neighbors.begin(); iter != neighbors.end(); iter++)
+    (*iter)->remove_incoming_neighbor(this);
   neighbors.clear();
+
   for (std::map<coord_t, CloudParticle*>::iterator iter = neighbors_map.begin(); iter != neighbors_map.end(); iter++)
   {
     distsquaredsum += iter->first;
     centerpoint += iter->second->pos;	//Should really be (pos - iter->second->pos); will correct this below for speed.
     neighbors.push_back(iter->second);
+    iter->second->add_incoming_neighbor(this);
   }
   centerpoint = (pos * 20) - centerpoint;
   Vec3 new_normal = centerpoint;
@@ -147,6 +186,61 @@ void CloudParticle::draw(const Uint64 usec)
   glDisable(GL_LIGHTING);
 }
 
+void CloudParticle::remove_neighbor(const CloudParticle*const p)
+{
+  for (int i = 0; i < (int)neighbors.size(); )
+  {
+    std::vector<CloudParticle*>::iterator iter = neighbors.begin() + i;
+    if (*iter == p)
+    {
+      neighbors.erase(iter);
+      continue;
+    }
+    i++;
+  }
+  
+  if (effect->particles.size() <= 2)
+    return;
+
+  if (!neighbors.size())
+  {
+    std::map<Particle*, bool>::iterator next_iter;
+    int offset;
+    CloudParticle* next;
+    while (true)
+    {
+      next_iter = effect->particles.begin();
+      offset = randint((int)effect->particles.size());
+      for (int j = 0; j < offset; j++)
+        next_iter++;
+      next = (CloudParticle*)next_iter->first;
+      if ((next != this) && (next != p))
+        break;
+    }
+    neighbors.push_back(next);
+    next->add_incoming_neighbor(this);
+  }
+}
+
+void CloudParticle::add_incoming_neighbor(CloudParticle*const p)
+{
+  incoming_neighbors.push_back(p);
+}
+
+void CloudParticle::remove_incoming_neighbor(const CloudParticle*const p)
+{
+  for (int i = 0; i < (int)incoming_neighbors.size(); )
+  {
+    std::vector<CloudParticle*>::iterator iter = incoming_neighbors.begin() + i;
+    if (*iter == p)
+    {
+      incoming_neighbors.erase(iter);
+      continue;
+    }
+    i++;
+  }
+}
+
 CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, BoundingRange* bounding_range, const Uint16 _LOD)
 {
   if (EC_DEBUG)
@@ -160,12 +254,14 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   bounds = bounding_range;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
   spawner = new NoncheckingFilledBoundingSpawner(bounding_range);
-  int count = (int)(spawner->get_area() * 0.03 * (LOD  + 1));
+//  count = (int)(spawner->get_area() * 0.03 * (LOD  + 1));
+  count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * 0.03 * (LOD  + 1));
   if (count < 21)
     count = 21;
-  const alpha_t alpha = 0.1725 / (1.0 / _density + 0.15);
 
-  const coord_t size_scalar = 110.0 * invsqrt(LOD + 1);
+  alpha = 0.1725 / (1.0 / _density + 0.15);
+  size_scalar = 110.0 * invsqrt(LOD + 1);
+
   for (int i = 0; i < count; i++)
   {
     Vec3 coords = spawner->get_new_coords();
@@ -193,6 +289,7 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
     else
       next = (CloudParticle*)particles.begin()->first;
     p->neighbors.push_back(next);
+    next->add_incoming_neighbor(p);
   }
 }
 
@@ -206,8 +303,68 @@ CloudEffect::~CloudEffect()
 
 bool CloudEffect::idle(const Uint64 usec)
 {
-  if (particles.size() == 0)
+  if (recall && (particles.size() == 0))
     return false;
+    
+  if (recall)
+    return true;
+    
+  const int start_count = particles.size();
+  if (start_count == count)
+    return true;
+    
+  if (particles.size())
+  {
+    CloudParticle* last = (CloudParticle*)(particles.rbegin()->first);
+    for (int i = count - (int)particles.size(); i >= 0; i--)
+    {
+      Vec3 coords = spawner->get_new_coords();
+      if (coords.x == -32768.0)
+        continue;
+      coords += center + Vec3(0.0, randcoord(5.0), 0.0);
+      Vec3 velocity;
+      velocity.randomize(0.15);
+      velocity.y /= 3;
+      const coord_t size = size_scalar + randcoord(size_scalar);
+      CloudParticle* p = new CloudParticle(this, mover, coords, velocity, center.y, center.y + 20.0, size, alpha);
+      if (!base->push_back_particle(p))
+        break;
+      p->neighbors.push_back(last);
+      last->add_incoming_neighbor(p);
+    }
+  }
+  else
+  {
+    for (int i = count - (int)particles.size(); i >= 0; i--)
+    {
+      Vec3 coords = spawner->get_new_coords();
+      if (coords.x == -32768.0)
+        continue;
+      coords += center + Vec3(0.0, randcoord(5.0), 0.0);
+      Vec3 velocity;
+      velocity.randomize(0.15);
+      velocity.y /= 3;
+      const coord_t size = size_scalar + randcoord(size_scalar);
+      Particle* p = new CloudParticle(this, mover, coords, velocity, center.y, center.y + 20.0, size, alpha);
+      if (!base->push_back_particle(p))
+        break;
+    }
+  
+    // Load one neighbor for each one.  It'll get more on its own.
+    for (std::map<Particle*, bool>::iterator iter = particles.begin(); iter != particles.end(); iter++)
+    {
+      CloudParticle* p = (CloudParticle*)iter->first;
+      CloudParticle* next;
+      std::map<Particle*, bool>::iterator iter2 = iter;
+      iter2++;
+      if (iter2 != particles.end())
+        next = (CloudParticle*)iter2->first;
+      else
+        next = (CloudParticle*)particles.begin()->first;
+      p->neighbors.push_back(next);
+      next->add_incoming_neighbor(p);
+    }
+  }
   
   return true;
 }
