@@ -1,7 +1,5 @@
 /*
 TODO: 
- * Make element motion / destruction / drawing take into account
-   camera location.
  * Let effects be re-selectable for adjustable X, Y, and Z.
  * Save effects.
  * Test loading.

@@ -5,6 +5,7 @@ int use_vertex_buffers=0;
 int have_vertex_buffers=0;
 int have_texture_non_power_of_two = 0;
 int gl_extensions_loaded = 0;
+float anisotropic_filter = 1.0f;
 
 void (APIENTRY * ELglMultiTexCoord2fARB) (GLenum target, GLfloat s, GLfloat t);
 void (APIENTRY * ELglMultiTexCoord2fvARB) (GLenum target, const GLfloat *v);

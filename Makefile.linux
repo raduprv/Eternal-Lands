@@ -28,7 +28,7 @@ OBJS=2d_objects.o 3d_objects.o	\
 	elconfig.o elwindows.o errors.o events.o \
 	font.o frustum.o	\
 	gl_init.o global.o gui.o gui_callbacks.o	\
-	init.o interface.o lights.o	\
+	init.o interface.o lights.o load_gl_extensions.o	\
 	main.o map_io.o misc.o o3dow.o queue.o reflection.o	\
 	shadows.o\
 	textures.o tile_map.o translate.o \
@@ -69,6 +69,9 @@ md5.o: ../elc/md5.c ../elc/md5.h
 
 elconfig.o: ../elc/elconfig.c ../elc/elconfig.h
 	$(CC) $(CFLAGS) -c ../elc/elconfig.c
+
+load_gl_extensions.o: ../elc/load_gl_extensions.c ../elc/load_gl_extensions.h
+	$(CC) $(CFLAGS) -c ../elc/load_gl_extensions.c
 
 particles.o: ../elc/particles.c ../elc/particles.h
 	$(CC) $(CFLAGS) -c ../elc/particles.c
