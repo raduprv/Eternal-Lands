@@ -1541,7 +1541,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 									if(ctrl_on){
 										str[0]=DROP_ITEM;
 										str[1]=item_list[i].pos;
-										*((Uint16 *)(str+2))=item_list[i].quantity;
+										*((Uint32 *)(str+2))=item_list[i].quantity;
 										my_tcp_send(my_socket, str, 4);
 										return 1;
 									} else if(qb_action_mode==ACTION_LOOK)
