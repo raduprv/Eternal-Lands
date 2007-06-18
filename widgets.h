@@ -408,6 +408,20 @@ int widget_set_color(int window_id, Uint32 widget_id, float r, float g, float b)
  */
 int widget_get_width (int window_id, Uint32 widget_id);
 
+/*!
+ * \ingroup	widgets
+ * \brief 	Return the widget height
+ *
+ * 		Finds the widget in the given window and returns its height
+ *
+ * \param   	window_id The location of the window in the windows_list.window[] array
+ * \param   	widget_id The widget's unique ID
+ * \retval int  	Returns the width on succes or -1 on failure (when the widget was not found in the given window)
+ *
+ * \sa widget_find
+ */
+int widget_get_height (int window_id, Uint32 widget_id);
+
 // Label
 
 /*!

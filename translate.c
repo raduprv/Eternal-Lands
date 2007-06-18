@@ -41,7 +41,11 @@ char	tt_walk[30],
 	tt_help[30],
 	tt_customize[60],
 	tt_name[60];
-#endif
+#ifdef NOTEPAD
+char	tt_notepad[30];
+#endif // NOTEPAD
+#endif // ELC
+
 /*! \} */
 
 #ifdef ELC
@@ -1127,6 +1131,9 @@ void init_help()
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
 	add_xml_identifier(tooltips,"customize",tt_customize,"Customize your character",sizeof(tt_customize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
+#ifdef NOTEPAD
+	add_xml_identifier (tooltips, "notepad", tt_notepad, "Open your notepad", sizeof (tt_notepad));
+#endif // NOTEPAD
 	
 	//Buddy list
 	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));

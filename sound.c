@@ -403,7 +403,7 @@ ALuint get_loaded_buffer(int i)
 #endif	//NEW_FILE_IO
 		if (data == AL_NONE)
 		{
-			LOG_ERROR ("Unable to sound file %s\n", sound_files[i]);
+			LOG_ERROR ("Unable to load sound file %s\n", sound_files[i]);
 		}
 		else
 		{

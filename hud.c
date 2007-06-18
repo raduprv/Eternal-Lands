@@ -292,6 +292,14 @@ float buddy_icon_v_start=1.0f-(float)32/256;
 float colored_buddy_icon_u_start=(float)0/256;
 float colored_buddy_icon_v_start=1.0f-(float)96/256;
 
+#ifdef NOTEPAD
+float notepad_icon_u_start=(float)96/256;
+float notepad_icon_v_start=1.0f-(float)0/256;
+
+float colored_notepad_icon_u_start=(float)192/256;
+float colored_notepad_icon_v_start=1.0f-(float)0/256;
+#endif // NOTEPAD
+
 // to help highlight the proper icon
 int	icon_cursor_x;
 
@@ -403,7 +411,10 @@ void init_peace_icons()
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 	
 	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
-	
+
+#ifdef NOTEPAD
+	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_notepad, view_window, &notepad_win, DATA_WINDOW);
+#endif // NOTEPAD
 }
 
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)

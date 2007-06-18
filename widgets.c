@@ -380,6 +380,16 @@ int widget_get_width (int window_id, Uint32 widget_id)
 	return -1;
 }
 
+int widget_get_height (int window_id, Uint32 widget_id)
+{
+	widget_list *w = widget_find(window_id, widget_id);
+	if (w != NULL)
+	{
+		return w->len_y;
+	}
+	return -1;
+}
+
 int free_widget_info (widget_list *widget)
 {
 	free (widget->widget_info);

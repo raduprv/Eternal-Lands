@@ -201,6 +201,9 @@ extern char 	tt_walk[30],
 		tt_help[30],
 		tt_customize[60],
 		tt_name[60];
+#ifdef NOTEPAD
+extern char	tt_notepad[30];
+#endif // NOTEPAD
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
 
