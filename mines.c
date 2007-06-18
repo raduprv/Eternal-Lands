@@ -8,6 +8,70 @@
 
 mine mine_list[NUM_MINES];
 
+char * get_mine_e3d(mine_type)
+{
+	switch (mine_type)
+		{
+		case MINE_TYPE_SMALL_MINE:
+			{
+				return MINE_SMALL_MINE_E3D;
+			}
+			break;
+		case MINE_TYPE_MEDIUM_MINE:
+			{
+				return MINE_MEDIUM_MINE_E3D;
+			}
+			break;
+		case MINE_TYPE_HIGH_EXPLOSIVE_MINE:
+			{
+				return MINE_HIGH_EXPLOSIVE_MINE_E3D;
+			}
+			break;
+		case MINE_TYPE_TRAP:
+			{
+				return MINE_TRAP_E3D;
+			}
+			break;
+		case MINE_TYPE_CALTROP:
+			{
+				return MINE_CALTROP_E3D;
+			}
+			break;
+		case MINE_TYPE_POISONED_CALTROP:
+			{
+				return MINE_POISONED_CALTROP_E3D;
+			}
+			break;
+		case MINE_TYPE_BARRICADE:
+			{
+				return MINE_BARRICADE_E3D;
+			}
+			break;
+		case MINE_TYPE_MANA_DRAINER:
+			{
+				return MINE_MANA_DRAINER_E3D;
+			}
+			break;
+		case MINE_TYPE_MANA_BURNER:
+			{
+				return MINE_MANA_BURNER_E3D;
+			}
+			break;
+		case MINE_TYPE_UNINVIZIBILIZER:
+			{
+				return MINE_UNINVIZIBILIZER_E3D;
+			}
+			break;
+		case MINE_TYPE_MAGIC_IMMUNITY_REMOVAL:
+			{
+				return MINE_MAGIC_IMMUNITY_REMOVAL_E3D;
+			}
+			break;
+		}
+	log_error("An invalid mine type was requested!\n");
+	return "";
+}
+
 void put_mine_on_ground(int mine_x,int mine_y,int mine_type, int mine_id)
 {
 	float x,y,z;
@@ -33,7 +97,7 @@ void put_mine_on_ground(int mine_x,int mine_y,int mine_type, int mine_id)
 	if (use_eye_candy) ec_create_mine_drop(x, y, z, (poor_man ? 6 : 10));
 #endif	//EYE_CANDY
 
-	obj_3d_id=add_e3d("./3dobjects/trees/branch1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
+	obj_3d_id=add_e3d(get_mine_e3d(mine_type),x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
 	
 	//now, find a place into the mines list, so we can destroy the mine properly
 	mine_list[mine_id].x=mine_x;
@@ -84,7 +148,7 @@ void add_mines_from_list (const Uint8 *data)
 		x=x+0.25f;
 		y=y+0.25f;
 	
-		obj_3d_id=add_e3d("./3dobjects/trees/branch1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
+		obj_3d_id=add_e3d(get_mine_e3d(mine_type),x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
 
 		//now, find a place into the mines list, so we can destroy the mine properly
 		if (mine_list[mine_id].obj_3d_id != -1) {
@@ -115,15 +179,21 @@ int find_mine_id (int object_id)
 	return -1;
 }
 
-void remove_mine(int object_id)
+void click_mine(int object_id)
 {
-#ifdef EYE_CANDY
-	float x, y, z;
-#endif
 	int which_mine;
 	
 	// We need to find what mine we have got
 	which_mine = find_mine_id(object_id);
+
+	remove_mine(which_mine);
+}
+
+void remove_mine(int which_mine)
+{
+#ifdef EYE_CANDY
+	float x, y, z;
+#endif
 
 	if (which_mine == -1 || which_mine >= NUM_MINES) return;
 
@@ -143,7 +213,6 @@ void remove_mine(int object_id)
 	//center the object
 	x = x + 0.25f;
 	y = y + 0.25f;
-	printf("Removing mine\n");
 	if (use_eye_candy) ec_create_mine_remove(x, y, z, (poor_man ? 6 : 10));
  #else // EYE_CANDY
   #ifdef SFX
@@ -191,7 +260,6 @@ void prime_mine(int object_id)
 	//center the object
 	x = x + 0.25f;
 	y = y + 0.25f;
-	printf("Priming mine\n");
 	if (use_eye_candy) ec_create_mine_prime(x, y, z, (poor_man ? 6 : 10));
  #else // EYE_CANDY
   #ifdef SFX
@@ -217,15 +285,11 @@ void prime_mine(int object_id)
  #endif // EYE_CANDY
 }
 
-void detonate_mine(int object_id)
+void detonate_mine(int which_mine)
 {
 #ifdef EYE_CANDY
 	float x, y, z;
 #endif
-	int which_mine;
-	
-	// We need to find what mine we have got
-	which_mine = find_mine_id(object_id);
 
 	if (which_mine == -1 || which_mine >= NUM_MINES) return;
 
@@ -245,7 +309,6 @@ void detonate_mine(int object_id)
 	//center the object
 	x = x + 0.25f;
 	y = y + 0.25f;
-	printf("Detonating mine\n");
 	if (use_eye_candy) ec_create_mine_detonate(x, y, z, mine_list[which_mine].type, (poor_man ? 6 : 10));
  #else // EYE_CANDY
   #ifdef SFX

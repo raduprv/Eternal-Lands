@@ -9,6 +9,23 @@ extern "C" {
 
 #define NUM_MINES 200
 
+/*!
+ * \name e3d objects for mine types
+ */
+/*! @{ */
+#define MINE_SMALL_MINE_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_MEDIUM_MINE_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_HIGH_EXPLOSIVE_MINE_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_TRAP_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_CALTROP_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_POISONED_CALTROP_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_BARRICADE_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_MANA_DRAINER_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_MANA_BURNER_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_UNINVIZIBILIZER_E3D "./3dobjects/trees/branch1.e3d"
+#define MINE_MAGIC_IMMUNITY_REMOVAL_E3D "./3dobjects/trees/branch1.e3d"
+/*! @} */
+
 typedef struct
 {
 	int x;
@@ -46,6 +63,18 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id);
  * \bug No sanity checks on \a data are performed.
  */
 void add_mines_from_list (const Uint8 *data);
+
+/*!
+ * \ingroup item
+ * \brief   Removes the mine with the given \a object_id.
+ *
+ *      Searches for \a which_mine for the given \a object_id and passes this \a which_mine to remove_mine.
+ *
+ * \param object_id the object_id for the mine to remove
+ *
+ * \callgraph
+ */
+void click_mine(int object_id);
 
 /*!
  * \ingroup item

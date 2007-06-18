@@ -1006,6 +1006,23 @@ typedef enum {
 } special_effect_enum;	
 	/*! @} */
 
+/*!
+ * \name Mine types
+ */
+/*! @{ */
+#define MINE_TYPE_SMALL_MINE 0
+#define MINE_TYPE_MEDIUM_MINE 1
+#define MINE_TYPE_HIGH_EXPLOSIVE_MINE 2
+#define MINE_TYPE_TRAP 3
+#define MINE_TYPE_CALTROP 4
+#define MINE_TYPE_POISONED_CALTROP 5
+#define MINE_TYPE_BARRICADE 6
+#define MINE_TYPE_MANA_DRAINER 7
+#define MINE_TYPE_MANA_BURNER 8
+#define MINE_TYPE_UNINVIZIBILIZER 9
+#define MINE_TYPE_MAGIC_IMMUNITY_REMOVAL 10
+/*! @} */
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

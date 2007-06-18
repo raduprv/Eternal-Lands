@@ -75,6 +75,28 @@ bool MineParticle::idle(const Uint64 delta_t)
       }
       break;
     }
+    case MineEffect::DEACTIVATE:
+    {
+      color[0] = 0.7 + 0.3 * sin(age / 530000.0);
+      color[1] = 0.7 + 0.3 * sin(age / 970000.0 + 1.3);
+      color[2] = 0.7 + 0.3 * sin(age / 780000.0 + 1.9);
+    
+      if (age < 700000)
+      {
+        if (state == 0)
+          size = age / 45000.0;
+      }
+      else
+      {
+        const percent_t scalar = math_cache.powf_05_close(float_time * 1);
+        size *= scalar;
+        alpha *= scalar;
+    
+        if (alpha < 0.02)
+          return false;
+      }
+      break;
+    }
     case MineEffect::DETONATE_TYPE1:
     {
       if (alpha < 0.01)
@@ -99,7 +121,7 @@ bool MineParticle::idle(const Uint64 delta_t)
 
 void MineParticle::draw(const Uint64 usec)
 {
-  if ((type == MineEffect::PRIME) || ((type == MineEffect::DETONATE_TYPE1) && (state == 0)))
+  if ((type == MineEffect::PRIME) || (type == MineEffect::DEACTIVATE) || ((type == MineEffect::DETONATE_TYPE1) && (state == 0)))
     Particle::draw(usec);
   else
   {
@@ -121,7 +143,7 @@ GLuint MineParticle::get_texture(const Uint16 res_index)
 
 light_t MineParticle::get_light_level()
 {
-  if ((type == MineEffect::PRIME) || ((type == MineEffect::DETONATE_TYPE1) && (state == 0)))
+  if ((type == MineEffect::PRIME) || (type == MineEffect::DEACTIVATE) || ((type == MineEffect::DETONATE_TYPE1) && (state == 0)))
     return alpha * size / 1500;
   else
     return 0.0;
@@ -165,6 +187,30 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
       break;
     }
     case PRIME:
+    {
+      effect_center.y += 0.5;
+      mover = new ParticleMover(this);
+      spawner = new HollowSphereSpawner(0.3);
+  
+      for (int i = 0; i < LOD * 60; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity = coords / 10.0;
+        coords += effect_center;
+        Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.05, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
+        p->state = 1;
+        if (!base->push_back_particle(p))
+          break;
+      }
+      
+      Particle* p = new MineParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+      if (!base->push_back_particle(p))
+        break;
+      p = new MineParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+      base->push_back_particle(p);
+      break;
+    }
+    case DEACTIVATE:
     {
       effect_center.y += 0.5;
       mover = new ParticleMover(this);

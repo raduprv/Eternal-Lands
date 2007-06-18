@@ -470,7 +470,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 #ifdef MINES
 			if (objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
 			{
-				remove_mine (object_under_mouse);
+				click_mine (object_under_mouse);
 				return 1;
 			}
 			else
