@@ -925,8 +925,9 @@ void init_misc_display()
 		}
 }
 
-int	display_misc_handler(window_info *win)
+int display_misc_handler(window_info *win)
 {
+	int skill_modifier;
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1044,6 +1045,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.attack_skill.cur-your_info.attack_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 		
 		if (++stat == watch_this_stat)
@@ -1052,6 +1062,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.defense_skill.cur-your_info.defense_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1060,6 +1079,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.harvesting_skill.cur-your_info.harvesting_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1068,6 +1096,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.alchemy_skill.cur-your_info.alchemy_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1076,6 +1113,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.magic_skill.cur-your_info.magic_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1084,6 +1130,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.potion_skill.cur-your_info.potion_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1092,6 +1147,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.summoning_skill.cur-your_info.summoning_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1100,6 +1164,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.manufacturing_skill.cur-your_info.manufacturing_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1108,6 +1181,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.crafting_skill.cur-your_info.crafting_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
@@ -1116,6 +1198,15 @@ CHECK_GL_ERRORS();
 			glColor3f(1.0f,1.0f,1.0f);
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.engineering_skill.shortname,your_info.engineering_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.engineering_skill.cur-your_info.engineering_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
 		y+=15;
 
 		if (++stat == watch_this_stat)
