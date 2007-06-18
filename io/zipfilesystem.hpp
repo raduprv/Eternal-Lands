@@ -6,10 +6,6 @@
 #ifndef	_ZIPFILESYSTEM_HPP_
 #define	_ZIPFILESYSTEM_HPP_
 
-#ifndef	__cplusplus
-#error "Including C++ header in C translation unit!"
-#endif
-
 #ifdef	USE_TR1
 #include <tr1/unordered_map>
 #else

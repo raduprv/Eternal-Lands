@@ -5,6 +5,8 @@
 typedef unsigned int uint_fast32_t;
 typedef signed int int_fast32_t;
 typedef Uint8 uint8_t;
+typedef Uint16 uint16_t;
+typedef Uint32 uint32_t;
 #else
 #include <stdint.h>
 #endif //MSVC
