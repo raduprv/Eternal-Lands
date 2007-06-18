@@ -3,6 +3,10 @@
 #include <math.h>
 #include <string.h>
 
+#ifdef EYE_CANDY
+ #include "eye_candy_window.h" 
+#endif
+
 float camera_x=0;
 float camera_y=0;
 float camera_z=0;
@@ -158,6 +162,8 @@ void draw_scene()
 #ifdef  EYE_CANDY
     ec_idle();
     ec_draw();
+    if (cur_mode == mode_eye_candy)
+      draw_eye_candy_selectors();
 #endif
 
     if(view_grid)

@@ -589,7 +589,7 @@ int HandleEvent(SDL_Event *event)
 									{
 										get_3d_object_under_mouse();
 										if(selected_3d_object!=-1)
-                                            clone_3d_object(selected_3d_object);
+					                                            clone_3d_object(selected_3d_object);
 										return(done);
 									}
 
@@ -620,14 +620,17 @@ int HandleEvent(SDL_Event *event)
 									{
 										get_3d_object_under_mouse();
 										if(selected_3d_object!=-1){
-											if(calhm)
-												clear_e3d_heightmap(selected_3d_object);
-
-											if(alt_on){
-												ew_selected_object=selected_3d_object;
-												ew_object_type=0;
-												memcpy(&o3t,objects_list[ew_selected_object],sizeof(object3d));
-												selected_3d_object=-1;
+											if (selected_3d_object < max_obj_3d)
+											{
+												if(calhm)
+													clear_e3d_heightmap(selected_3d_object);
+													
+												if(alt_on){	
+													ew_selected_object=selected_3d_object;
+													ew_object_type=0;
+													memcpy(&o3t,objects_list[ew_selected_object],sizeof(object3d));
+													selected_3d_object=-1;
+												}
 											}
 										}
 									}
@@ -652,13 +655,13 @@ int HandleEvent(SDL_Event *event)
 									{
 										get_2d_object_under_mouse();
 										if(selected_2d_object!=-1)
-                                            clone_2d_object(selected_2d_object);
+				                                            clone_2d_object(selected_2d_object);
 										return(done);
 									}
 
 								//if we have an object attached to us, drop it
 								if(left_click==1 && cur_tool==tool_select && selected_2d_object!=-1)
-                                    clone_2d_object(selected_2d_object);
+                                				    clone_2d_object(selected_2d_object);
 								else
 								{
 									if(selected_2d_object==-1){
@@ -801,6 +804,18 @@ int HandleEvent(SDL_Event *event)
 										height_map[(int)(scene_mouse_y*2.0f)*tile_map_size_x*6+(int)(scene_mouse_x*2.0f)]=selected_height;
 								}
 							}
+#ifdef EYE_CANDY
+							if (cur_mode == mode_eye_candy)
+							{
+								get_3d_object_under_mouse();
+								if (selected_3d_object >= max_obj_3d)
+								{
+									select_eye_candy_effect(selected_3d_object);
+									selected_3d_object = -1;
+								}
+							}
+#endif
+							
 
 						}
 						//no left click==1

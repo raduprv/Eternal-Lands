@@ -85,6 +85,8 @@ void get_3d_object_under_mouse()
 	GLint viewport[4];
 	GLuint *buffer, z_coordinate;
 	double matrix[16];
+	
+	printf("Picking.\n");
 
 	selected_3d_object = -1;
 	x = (int)-camera_x;
@@ -104,10 +106,12 @@ void get_3d_object_under_mouse()
 		}
 	}
 
+#ifndef EYE_CANDY
 	if (count == 0)
 	{
 		return;
 	}
+#endif
 	count++;
 	count *= 4;
 	glGetIntegerv(GL_VIEWPORT, viewport);
@@ -147,6 +151,13 @@ void get_3d_object_under_mouse()
 			}
 		}
 	}
+
+#ifdef EYE_CANDY
+	if (cur_mode == mode_eye_candy)
+	{
+	  draw_eye_candy_selectors();
+	}
+#endif
 
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);

@@ -1,6 +1,5 @@
 /*
 TODO: 
- * Let effects be re-selectable for adjustable X, Y, and Z.
  * Save effects.
  * Test loading.
  * Get Roja working.
@@ -620,5 +619,85 @@ void draw_eye_candy_obj_info()
   draw_string(x_menu,y_menu,str,1);
 }
 
+void draw_eye_candy_selectors()
+{
+  glEnable(GL_COLOR);
+  glEnable(GL_LIGHTING);
+  glDisable(GL_TEXTURE_2D);
+  glColor4f(0.5, 0.5, 0.5, 1.0);
+  int i=0;
+  if (eye_candy_ready_to_add)
+    draw_eye_candy_selector(&current_effect, i);
+  i++;
+  for (std::vector<EffectDefinition>::const_iterator iter = effects.begin(); iter != effects.end(); iter++, i++)
+    draw_eye_candy_selector(&(*iter), i);
+  glDisable(GL_COLOR);
+  glDisable(GL_LIGHTING);
+  glEnable(GL_TEXTURE_2D);
+}
+    
+void draw_eye_candy_selector(const EffectDefinition*const effect, const int i)
+{
+  glPushMatrix();
+  glTranslatef(effect->position.x, effect->position.y, effect->position.z);
+  glLoadName(max_obj_3d + i);
+  glBegin(GL_QUADS);
+  {
+    // Front Face
+    glNormal3f(0.0, 0.0, 1.0);
+    glVertex3f(-0.07f, -0.07f,  0.07f);
+    glVertex3f( 0.07f, -0.07f,  0.07f);
+    glVertex3f( 0.07f,  0.07f,  0.07f);
+    glVertex3f(-0.07f,  0.07f,  0.07f);
+    // Back Face
+    glNormal3f(0.0, 0.0, -1.0);
+    glVertex3f(-0.07f, -0.07f, -0.07f);
+    glVertex3f(-0.07f,  0.07f, -0.07f);
+    glVertex3f( 0.07f,  0.07f, -0.07f);
+    glVertex3f( 0.07f, -0.07f, -0.07f);
+    // Top Face
+    glNormal3f(0.0, 1.0, 0.0);
+    glVertex3f(-0.07f,  0.07f, -0.07f);
+    glVertex3f(-0.07f,  0.07f,  0.07f);
+    glVertex3f( 0.07f,  0.07f,  0.07f);
+    glVertex3f( 0.07f,  0.07f, -0.07f);
+    // Bottom Face
+    glNormal3f(0.0, -1.0, 0.0);
+    glVertex3f(-0.07f, -0.07f, -0.07f);
+    glVertex3f( 0.07f, -0.07f, -0.07f);
+    glVertex3f( 0.07f, -0.07f,  0.07f);
+    glVertex3f(-0.07f, -0.07f,  0.07f);
+    // Right face
+    glNormal3f(1.0, 0.0, 0.0);
+    glVertex3f( 0.07f, -0.07f, -0.07f);
+    glVertex3f( 0.07f,  0.07f, -0.07f);
+    glVertex3f( 0.07f,  0.07f,  0.07f);
+    glVertex3f( 0.07f, -0.07f,  0.07f);
+    // Left Face
+    glNormal3f(-1.0, 0.0, 0.0);
+    glVertex3f(-0.07f, -0.07f, -0.07f);
+    glVertex3f(-0.07f, -0.07f,  0.07f);
+    glVertex3f(-0.07f,  0.07f,  0.07f);
+    glVertex3f(-0.07f,  0.07f, -0.07f);
+  }
+  glEnd();
+  glPopMatrix();
+}
+
+void select_eye_candy_effect(int i)
+{
+  if (i == max_obj_3d)	// The current selection
+    return;
+  
+  std::vector<EffectDefinition>::iterator iter = effects.begin() + (i - max_obj_3d - 1);
+  if (current_effect.reference)
+  {
+    ec_recall_effect(current_effect.reference);
+    current_effect.reference = NULL;
+  }
+  current_effect = *iter;
+  effects.erase(iter);
+  eye_candy_ready_to_add = 1;
+}
 
 #endif // EYE_CANDY

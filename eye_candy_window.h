@@ -66,10 +66,13 @@ void eye_candy_done_adding_effect();
 void eye_candy_adjust_z(float offset);
 int eye_candy_get_effect();
 void draw_bounds_on_minimap();
+void draw_eye_candy_selectors();
+void select_eye_candy_effect(int i);
 
 #ifdef __cplusplus
 }
 void draw_bound(EffectDefinition& eff, bool selected);
+void draw_eye_candy_selector(const EffectDefinition*const effect, const int i);
 bool find_bounds_index(float x, float y);
 ec::SmoothPolygonElement angle_to(float start_x, float start_y, float end_x, float end_y);
 
