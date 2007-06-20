@@ -228,7 +228,6 @@ int display_newchar_handler (window_info *win)
 	}
 	
 	move_camera ();
-	save_scene_matrix ();
 
 	CalculateFrustum ();
 	set_click_line();

@@ -84,15 +84,6 @@ int anything_under_the_mouse(int object_id, int object_type);
 
 /*!
  * \ingroup misc
- * \brief   Saves the scene matrices for later use.
- *
- *      Saves the scene matrices for the model, projection and viewport for later use.
- *
- */
-void save_scene_matrix();
-
-/*!
- * \ingroup misc
  * \brief   Stores any URL found in \a source_string.
  *
  *		Scans the given \a source_string up to a length of \a len and stores all the URL it finds.  If any are found \ref have_url_count is incremented.
