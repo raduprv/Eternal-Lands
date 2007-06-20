@@ -226,6 +226,11 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	fclose (f);
 #else	//NEW_FILE_IO
 	file = el_open(file_name);
+	if (!file)
+	{
+		free (cur_object);
+		return NULL;
+	}
 
 	obj_file_mem = el_get_pointer(file);
 
