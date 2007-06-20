@@ -20,6 +20,7 @@
 void notepad_add_continued (const char *name);
 
 int notepad_loaded = 0;
+float note_zoom = 0.8f;
 
 /******************************************
  *             Popup Section              *
@@ -218,10 +219,10 @@ int note_button_scroll_id = -1;
 unsigned short nr_notes = 0;
 
 // Coordinates
-int note_win_x = 30; // near left corner by default
-int note_win_y = 10;
-int note_win_x_len = 380;
-int note_win_y_len = 420;
+int notepad_win_x = 30; // near left corner by default
+int notepad_win_y = 10;
+int notepad_win_x_len = 380;
+int notepad_win_y_len = 420;
 
 // note button scrollbar parameters
 int note_button_scroll_width = 20;
@@ -397,7 +398,7 @@ int notepad_load_file ()
 				my_strcp (note_list[nr_notes].text.data, (char*)cur->children->content);
 			note_list[nr_notes].text.len = len;
 				    
-			rewrap_message(&note_list[nr_notes].text, 1.0f, note_win_x_len - 70, NULL);
+			rewrap_message(&note_list[nr_notes].text, 1.0f, notepad_win_x_len - 70, NULL);
 			
 			nr_notes++;
 		}
@@ -508,14 +509,15 @@ void open_note_tab_continued (int id)
 {
 	int tf_x = 20;
 	int tf_y = 45;
-	int tf_width = note_win_x_len - 50;
-	int tf_height = note_win_y_len - 100;
+	int tf_width = notepad_win_x_len - 50;
+	int tf_height = notepad_win_y_len - 100;
+	int tab;
 
 	note_list[id].window = tab_add (notepad_win, note_tabcollection_id, note_list[id].name, 0, 1);
 	widget_set_color (notepad_win, note_list[id].window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
-	note_list[id].input = text_field_add_extended (note_list[id].window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, 0.8f, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+	note_list[id].input = text_field_add_extended (note_list[id].window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, note_zoom, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
 	
 	// remove button
 	note_list[id].button = button_add (note_list[id].window, NULL, button_remove_category, 20, 8);
@@ -523,6 +525,9 @@ void open_note_tab_continued (int id)
 	widget_set_color (note_list[id].window, note_list[id].button, 0.77f, 0.57f, 0.39f);
     
 	set_window_handler (note_list[id].window, ELW_HANDLER_DESTROY, note_tab_destroy);
+
+	tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[id].window);
+	tab_collection_select_tab (notepad_win, note_tabcollection_id, tab);
 }
      
 int open_note_tab (widget_list *w, int mx, int my, Uint32 flags)
@@ -537,7 +542,14 @@ int open_note_tab (widget_list *w, int mx, int my, Uint32 flags)
 		if (w->id == note_list[i].button_id)
 		{
 			if (note_list[i].window < 0)
+			{
 				open_note_tab_continued (i);
+			}
+			else
+			{
+				int tab = tab_collection_get_tab_nr (notepad_win, note_tabcollection_id, note_list[i].window);
+				tab_collection_select_tab (notepad_win, note_tabcollection_id, tab);
+			}
 			return 1;
 		}
 	}
@@ -576,8 +588,8 @@ void notepad_add_continued (const char *name)
 
 int notepad_add_category (widget_list *w, int mx, int my, Uint32 flags)
 {
-	int x = (note_win_x_len - popup_x_len) / 2;
-	int y = (note_win_y_len - popup_y_len) / 2;
+	int x = (notepad_win_x_len - popup_x_len) / 2;
+	int y = (notepad_win_y_len - popup_y_len) / 2;
 	
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -601,13 +613,13 @@ void display_notepad()
      
 	if (notepad_win < 0)
 	{
-		int note_tabs_width = note_win_x_len - 10;
-		int note_tabs_height = note_win_y_len - 30;
+		int note_tabs_width = notepad_win_x_len - 10;
+		int note_tabs_height = notepad_win_y_len - 30;
 		
 		note_button_scroll_height = note_tabs_height - 55 - 20; // -20 for the tab tags
 		note_button_width = (note_tabs_width - note_button_scroll_width - note_button_x_space - 15) / 2;
 
-		notepad_win = create_window (win_notepad, game_root_win, 0, note_win_x, note_win_y, note_win_x_len, note_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
+		notepad_win = create_window (win_notepad, windows_on_top ? -1 : game_root_win, 0, notepad_win_x, notepad_win_y, notepad_win_x_len, notepad_win_y_len, ELW_WIN_DEFAULT|ELW_TITLE_NAME);
 		
 		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 25, note_tabs_width, note_tabs_height, 20);
 		widget_set_size (notepad_win, note_tabcollection_id, 0.7);
@@ -628,8 +640,8 @@ void display_notepad()
 		// align the buttons
 		wnew = widget_find(main_note_tab_id, buttons[0]);
 		wsave = widget_find(main_note_tab_id, buttons[1]);
-		widget_move(main_note_tab_id, buttons[0], (note_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
-		widget_move(main_note_tab_id, buttons[1], wnew->len_x + 2*(note_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
+		widget_move(main_note_tab_id, buttons[0], (notepad_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
+		widget_move(main_note_tab_id, buttons[1], wnew->len_x + 2*(notepad_win_x_len - 10 - wnew->len_x - wsave->len_x)/3, 10);
 		
 		notepad_load_file ();
 
@@ -646,6 +658,17 @@ void display_notepad()
 		show_window(notepad_win);
 		select_window(notepad_win);
 	}
+}
+
+void notepad_win_update_zoom ()
+{
+	int i;
+
+	if (notepad_win < 0)
+		return;
+
+	for (i = 0; i < nr_notes; i++)
+		widget_set_size (notepad_win, note_list[i].input, note_zoom);
 }
 
 #endif

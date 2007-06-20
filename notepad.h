@@ -11,8 +11,11 @@ extern "C" {
 #endif
 
 #ifdef NOTEPAD
-extern int notepad_win; /*!< ID of the notepad window */
+extern int notepad_win;    /*!< ID of the notepad window */
 extern int notepad_loaded; /*!< boolean flag, indicating whether the notepad was loaded before. */
+extern int notepad_win_x;  /*!< x-coordinate of the notepad position */
+extern int notepad_win_y;  /*!< y-coordinate of the notepad position */
+extern float note_zoom;    /*!< Size of the text in the note pad */
 
 /*!
  * \ingroup notepad_window
@@ -48,7 +51,15 @@ void display_notepad();
  * \retval int  always 1
  */
 int notepad_save_file();
-#endif
+
+/*!
+ * \ingroup notepad_window
+ * \brief   Update the size of the text in the notepad text fields
+ *
+ * Update the size of the text in the notepad text fields
+ */
+void notepad_win_update_zoom ();
+#endif // NOTEPAD
 
 #ifdef __cplusplus
 } // extern "C"

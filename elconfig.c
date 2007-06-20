@@ -674,6 +674,17 @@ void change_chat_zoom(float *dest, float *value)
 	}
 }
 
+#ifdef NOTEPAD
+void change_note_zoom (float *dest, float *value)
+{
+	if (*value < 0.0f)
+		return;
+	*dest = *value;
+	if (notepad_win >= 0)
+		notepad_win_update_zoom ();
+}
+#endif
+
 #endif
 #endif // def ELC
 
@@ -759,6 +770,9 @@ void change_windows_on_top(int *var)
 #ifdef MINIMAP
 		move_window(minimap_win, -1, 0, minimap_win_x, minimap_win_y);
 #endif //MINIMAP
+#ifdef NOTEPAD
+		move_window (notepad_win, -1, 0, notepad_win_x, notepad_win_y);
+#endif
 		// Display any open windows (checking they exist first)
 		if (storage_win > 0) {
 			if (windows_list.window[storage_win].displayed != 0 || windows_list.window[storage_win].reinstate != 0) {
@@ -812,6 +826,13 @@ void change_windows_on_top(int *var)
 			}
 		}
 #endif //MINIMAP
+#ifdef NOTEPAD
+		if (notepad_win > 0) {
+			if (windows_list.window[notepad_win].displayed != 0 || windows_list.window[notepad_win].reinstate != 0) {
+				show_window(notepad_win);
+			}
+		}
+#endif
 	} else {
 		// Change the root windows
 		move_window(storage_win, game_root_win, 0, storage_win_x, storage_win_y);
@@ -826,6 +847,9 @@ void change_windows_on_top(int *var)
 #ifdef MINIMAP
 		move_window(minimap_win, game_root_win, 0, minimap_win_x, minimap_win_y);
 #endif //MINIMAP
+#ifdef NOTEPAD
+		move_window (notepad_win, game_root_win, 0, notepad_win_x, notepad_win_y);
+#endif
 		// Hide all the windows if needed
 		if (windows_list.window[game_root_win].displayed == 0) {
 			hide_window(game_root_win);
@@ -1287,6 +1311,9 @@ void init_vars()
  #ifndef MAP_EDITOR2
 	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
  #endif	//MAP_EDITOR2
+ #ifdef NOTEPAD
+	add_var (FLOAT, "note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
+ #endif
  #ifndef FONTS_FIX
 	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
 	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,"Type 1", "Type 2", NULL);
