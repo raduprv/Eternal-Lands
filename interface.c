@@ -45,20 +45,36 @@ int action_mode=ACTION_WALK;
 Uint32 click_time=0;
 int click_speed=300;
 
+GLdouble model_mat[16];
+GLdouble projection_mat[16];
+GLint viewport[4];
+
+// Grum: attempt to work around bug in Ati linux drivers.
+int ati_click_workaround = 0;
+
+void save_scene_matrix ()
+{
+	glGetDoublev (GL_MODELVIEW_MATRIX, model_mat);
+	glGetDoublev (GL_PROJECTION_MATRIX, projection_mat);
+	glGetIntegerv (GL_VIEWPORT, viewport);
+}
+
 void get_world_x_y()
 {
-	double projection[16];
-	double model[16];
-	GLint view[4];
-	double x, y, z;
+	double sx, sy, sz;
+	float mouse_z;
+
+	glReadPixels (mouse_x, window_height-mouse_y, 1, 1, GL_DEPTH_COMPONENT, GL_FLOAT, &mouse_z);
+
+	// XXX FIXME (Grum): hack to work around a bug in the Ati drivers or
+	// a giant misconception on the part of all EL developers so far.
+	if (ati_click_workaround && bpp == 32)
+		mouse_z = ldexp (mouse_z, 8);
 	
-	glGetDoublev (GL_PROJECTION_MATRIX, projection);
-	glGetDoublev (GL_MODELVIEW_MATRIX, model);
-	glGetIntegerv (GL_VIEWPORT, view);
-	gluUnProject (mouse_x, window_height-mouse_y, 0, model, projection, view, &x, &y, &z);
+	gluUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, &sx, &sy, &sz);
 	
-	scene_mouse_x = x;
-	scene_mouse_y = y;
+	scene_mouse_x = sx;
+	scene_mouse_y = sy;
 }
 
 void get_old_world_x_y()

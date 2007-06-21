@@ -609,6 +609,7 @@ int display_game_handler (window_info *win)
 	}
 	
 	move_camera ();
+	save_scene_matrix ();
 
 	CalculateFrustum ();
 	set_click_line();

@@ -1405,6 +1405,8 @@ void init_vars()
 #endif //ELC
 #endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
+	// Grum: attempt to work around bug in Ati linux drivers.
+	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", VIDEO);
 #ifndef MAP_EDITOR2
 	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If clicking to walk doesn't move you, toggle this option", VIDEO);
  #ifdef ELC

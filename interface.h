@@ -113,6 +113,16 @@ extern int show_continent_map_boundaries;
  */
 void read_mapinfo ();
 
+
+/*!
+ * \brief   Store the current OpenGL viewport and modelview and projection matrices
+ *
+ *      Store the current OpenGL viewport and modelview and projection matrices.
+ *
+ * \callgraph
+ */
+void save_scene_matrix ();
+
 /*!
  * \ingroup interfaces
  * \brief   Reads the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates.
