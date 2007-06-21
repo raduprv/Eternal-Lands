@@ -771,17 +771,17 @@ extern "C" int ec_change_target(ec_reference reference, int index, float x, floa
   return true;
 }
 
-#ifdef	NOT_FOR_RELEASE
 extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, float y, float z, int LOD)
 {
   unsigned char raw_code[54];
+  const unsigned char*const code2 = (const unsigned char*const) code;
   int i = 0;
 
   while (i < 18)
   {
-    raw_code[i * 3]     = ((code[i * 4 + 0] - ' ') >> 0) | ((code[i * 4 + 1] - ' ') << 6);
-    raw_code[i * 3 + 1] = ((code[i * 4 + 1] - ' ') >> 2) | ((code[i * 4 + 2] - ' ') << 4);
-    raw_code[i * 3 + 2] = ((code[i * 4 + 2] - ' ') >> 4) | ((code[i * 4 + 3] - ' ') << 2);
+    raw_code[i * 3]     = ((code2[i * 4 + 0] - ' ') >> 0) | ((code2[i * 4 + 1] - ' ') << 6);
+    raw_code[i * 3 + 1] = ((code2[i * 4 + 1] - ' ') >> 2) | ((code2[i * 4 + 2] - ' ') << 4);
+    raw_code[i * 3 + 2] = ((code2[i * 4 + 2] - ' ') >> 4) | ((code2[i * 4 + 3] - ' ') << 2);
     i++;
   }
   
@@ -807,7 +807,8 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     {
 //      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
-      const float density = raw_code[43] / 16.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+//      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
       ref = ec_create_cloud(x, y, z, density, bounds, LOD);
       break;
     }
@@ -815,7 +816,9 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     {
 //      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
-      const float density = raw_code[43] / 16.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+//      const float scale = raw_code[45] + raw_code[46] / 256.0;
+//      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       ref = ec_create_fireflies(x, y, z, density, bounds);
       break;
     }
@@ -825,7 +828,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
 //      const float saturation = raw_code[42] / 256.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
-      const int backlit = raw_code[46];
+      const int backlit = raw_code[47];
       ref = ec_create_fountain(x, y, z, base_height, backlit, scale, LOD);
       break;
     }
@@ -873,26 +876,35 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     {
 //      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
-      const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_smoke(x, y, z, scale, LOD);
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      ref = ec_create_smoke(x, y, z, density, LOD);
       break;
     }
     case 0x0A:	// Teleporter
     {
 //      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
+//      const float scale = raw_code[43] + raw_code[44] / 256.0;
       ref = ec_create_teleporter(x, y, z, LOD);
       break;
     }
     case 0x0B:	// Leaves
     {
-      const float density = raw_code[41] / 16.0;
+//      const float hue = raw_code[41] / 256.0;
+//      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+//      const float scale = raw_code[45] + raw_code[46] / 256.0;
+//      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       ref = ec_create_wind_leaves(x, y, z, density, bounds, 1.0, 0.0, 0.0);
       break;
     }
     case 0x0C:	// Petals
     {
-      const float density = raw_code[41] / 16.0;
+//      const float hue = raw_code[41] / 256.0;
+//      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+//      const float scale = raw_code[45] + raw_code[46] / 256.0;
+//      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       ref = ec_create_wind_petals(x, y, z, density, bounds, 1.0, 0.0, 0.0);
       break;
     }
@@ -900,7 +912,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     {
 //      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
-//      const float scale = raw_code[43] + raw_code[44] / 256.0;
+//      const float density = raw_code[43] + raw_code[44] / 256.0;
 //      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
 //      const float angle = raw_code[47] * ec::PI / 128.0;
       // Effect does not yet exist.
@@ -910,13 +922,14 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     {
 //      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
-//      const float scale = raw_code[43] + raw_code[44] / 256.0;
+//      const float density = raw_code[43] + raw_code[44] / 256.0;
+//      const float scale = raw_code[45] + raw_code[46] / 256.0;
       // Effect does not yet exist.
       break;
     }
     case 0x0F:	// Portal
     {
-//      const float hue_shift = raw_code[41] / 256.0;
+//      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
 //      const float scale = raw_code[43] + raw_code[44] / 256.0;
 //      const float angle = raw_code[45] * ec::PI / 128.0;
@@ -925,7 +938,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     }
     case 0x10:	// Candle
     {
-//      const float hue_shift = raw_code[41] / 256.0;
+//      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       ref = ec_create_candle(x, y, z, scale, LOD);
@@ -935,7 +948,6 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
   ec_free_bounds_list(bounds);
   return ref;
 }
-#endif	//NOT_FOR_RELEASE
 
 extern "C" ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD)
 {
