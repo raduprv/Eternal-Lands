@@ -1406,7 +1406,7 @@ void init_vars()
 #endif
 	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
 #ifndef MAP_EDITOR2
-	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If the above option doesn't move you when you click, try this one", VIDEO);
+	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If clicking to walk doesn't move you, toggle this option", VIDEO);
  #ifdef ELC
 	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
