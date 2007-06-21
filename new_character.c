@@ -421,6 +421,8 @@ void create_newchar_root_window ()
 		our_actor.race = our_actor.def->type;
 		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
 		
+		game_minute = 120;	//Midday. So that it's bright and sunny.
+
 		change_map ("./maps/newcharactermap.elm");
 
 		newchar_root_win = create_window (win_newchar, -1, -1, 0, 0, window_width, window_height, ELW_TITLE_NONE|ELW_SHOW_LAST);
