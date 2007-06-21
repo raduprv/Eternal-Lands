@@ -125,27 +125,28 @@ void save_scene_matrix ();
 
 /*!
  * \ingroup interfaces
- * \brief   Reads the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates.
+ * \brief   Gets the world \c x and \c y coordinates from window (mouse click) coordinates.
  *
- *      Gets the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates. This function will be used when a player is walking.
+ *	Gets the world \c x and \c y coordinates from window (mouse click) coordinates. This function will be used when a player is walking.
+ *
+ * \param scene_x Pointer to the \c x coordinate to be retrieved.
+ * \param scene_y Pointer to the \c y coordinate to be retrieved.
  *
  * \callgraph
- *
- * \bug Contains a workaround for ATI drivers to fix.
  */
-void get_world_x_y();
+void get_world_x_y (short *scene_x, short *scene_y);
 
 /*!
  * \ingroup interfaces
- * \brief   Reads the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates.
+ * \brief   Gets the world \c x and \c y coordinates from window (mouse click) coordinates.
  *
- *      Gets the \ref scene_mouse_x and \ref scene_mouse_y mouse coordinates. In contrast to \ref get_world_x_y this functions gets only called when walking is forced, i.e. the CTRL key is pressed when clicking.
+ *	Gets the world \c x and \c y coordinates from window (mouse click) coordinates. In contrast to \ref get_world_x_y this functions gets only called when walking is forced, i.e. the CTRL key is pressed when clicking, or when the "Mouse Bug" option in the configuration is set.
  *
  * \callgraph
  *
  * \pre If there is no active actor, this function returns immediately.
  */
-void get_old_world_x_y();
+void get_old_world_x_y (short *scene_x, short *scene_y);
 
 //void check_menus_out_of_screen();
 

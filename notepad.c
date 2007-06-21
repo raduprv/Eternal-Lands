@@ -64,9 +64,9 @@ void accept_popup_window ()
 		// empty string
 		return;
 		
-	// stop at first character that's not a letter, digit, or space
+	// stop at first non-printable character
 	iend = istart;
-	while ( iend < len && (isalnum (data[iend]) || data[iend] == ' ') )
+	while ( iend < len && isprint (data[iend]) )
 		iend++;
 	if (iend == istart)
 		// empty string
@@ -578,8 +578,8 @@ void notepad_add_continued (const char *name)
 	}
 
 	init_note(i, name);
-	note_list[nr_notes-1].text.size = MIN_NOTE_SIZE;
-	note_list[nr_notes-1].text.data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
+	note_list[i].text.size = MIN_NOTE_SIZE;
+	note_list[i].text.data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
 	note_button_add (i);
 	
 	open_note_tab_continued (i);
@@ -645,12 +645,14 @@ void display_notepad()
 		
 		notepad_load_file ();
 
-		// Add the note selection buttons and their scroll bar
-		for(i = 0; i < nr_notes; i++)
-			note_button_add (i);
 		note_button_scroll_id = vscrollbar_add (main_note_tab_id, NULL, note_tabs_width - note_button_scroll_width - 5, 50, note_button_scroll_width, note_button_scroll_height);
 		widget_set_OnClick (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
 		widget_set_OnDrag (main_note_tab_id, note_button_scroll_id, note_button_scroll_handler);
+
+		// Add the note selection buttons and their scroll bar
+		for(i = 0; i < nr_notes; i++)
+			note_button_add (i);
+
 		update_note_button_scrollbar (0);
 	}
 	else

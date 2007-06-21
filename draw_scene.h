@@ -31,8 +31,6 @@ extern int camera_zoom_dir; /*!< direction of where the zoomed camera points to 
 extern int camera_zoom_frames;
 extern float camera_distance; /*!< The camera is camera_distance*zoom_level (world coordinates) away from your actor. */
 extern float new_zoom_level;
-extern float scene_mouse_x; /*!< x coordinate of the mouse position */
-extern float scene_mouse_y; /*!< y coordinate of the mouse position */
 
 extern int last_texture; /*!< id of the last used texture */
 

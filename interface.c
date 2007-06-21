@@ -59,7 +59,7 @@ void save_scene_matrix ()
 	glGetIntegerv (GL_VIEWPORT, viewport);
 }
 
-void get_world_x_y()
+void get_world_x_y (short *scene_x, short *scene_y)
 {
 	double sx, sy, sz;
 	float mouse_z;
@@ -73,11 +73,11 @@ void get_world_x_y()
 	
 	gluUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, &sx, &sy, &sz);
 	
-	scene_mouse_x = sx;
-	scene_mouse_y = sy;
+	*scene_x = (sx / 0.5);
+	*scene_y = (sy / 0.5);
 }
 
-void get_old_world_x_y()
+void get_old_world_x_y (short *scene_x, short *scene_y)
 {
 	AABBOX box;
 	float t, x, y, z, t1, t2, tx, ty, dx, dy, h, len;
@@ -214,8 +214,8 @@ void get_old_world_x_y()
 		y += dy*t;
 	}
 	t = (h-click_line.center[Z])/click_line.direction[Z];
-	scene_mouse_x = click_line.center[X]+click_line.direction[X]*t;
-	scene_mouse_y = click_line.center[Y]+click_line.direction[Y]*t;
+	*scene_x = (click_line.center[X]+click_line.direction[X]*t) / 0.5;
+	*scene_y = (click_line.center[Y]+click_line.direction[Y]*t) / 0.5;
 }
 
 void Enter2DModeExtended(int width, int height)

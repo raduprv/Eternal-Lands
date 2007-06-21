@@ -280,9 +280,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	{
 		short x,y;
 		
-		get_old_world_x_y ();
-		x = scene_mouse_x / 0.5f;
-		y = scene_mouse_y / 0.5f;
+		get_old_world_x_y (&x, &y);
 		// check to see if the coordinates are OUTSIDE the map
 		if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 			return 1;
@@ -339,12 +337,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				short x, y;
 		
 				if(use_old_clicker)
-					get_old_world_x_y();
+					get_old_world_x_y (&x, &y);
 				else
-					get_world_x_y ();
+					get_world_x_y (&x, &y);
 
-				x = scene_mouse_x / 0.5f;
-				y = scene_mouse_y / 0.5f;
 				// check to see if the coordinates are OUTSIDE the map
 				if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 					return 1;
@@ -508,12 +504,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			}
 
 			if(use_old_clicker)
-				get_old_world_x_y();
+				get_old_world_x_y (&x, &y);
 			else
-				get_world_x_y ();
+				get_world_x_y (&x, &y);
 
-			x = scene_mouse_x / 0.5f;
-			y = scene_mouse_y / 0.5f;
 			// check to see if the coordinates are OUTSIDE the map
 			if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 				return 1;
