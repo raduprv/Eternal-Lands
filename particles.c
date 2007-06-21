@@ -796,6 +796,7 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	particle *p;
 #ifndef	MAP_EDITOR
 	AABBOX bbox;
+	memset(&bbox, '\0', sizeof(bbox));
 #endif
 	
 	if(!def)return -1;

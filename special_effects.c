@@ -532,10 +532,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	Uint8 str[100];
 #endif
 	int offset = 0;
-	Uint16 var_a, var_b =0;
-	actor* caster;
-	actor* target;
-	float x, y;
+	Uint16 var_a = 0, var_b = 0;
+	actor* caster = NULL;
+	actor* target = NULL;
+	float x = 0.0f, y = 0.0f;
 	//float x1, y1, z1, x2, y2, z2;
 	
 	switch(sfx){

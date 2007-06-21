@@ -444,7 +444,7 @@ int weather_use_fog(){
 void render_fog()
 {
 	float current_severity = weather_severity * get_fadeinout_bias();
-	float density;
+	float density = 0.0f;
 	int i;
 	float particle_alpha, diffuse_bias, tmpf;
 	char have_particles;
