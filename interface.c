@@ -45,9 +45,6 @@ int action_mode=ACTION_WALK;
 Uint32 click_time=0;
 int click_speed=300;
 
-// Grum: attempt to work around bug in Ati linux drivers.
-int ati_click_workaround = 0;
-
 void get_world_x_y()
 {
 	double projection[16];
