@@ -86,8 +86,6 @@ void get_3d_object_under_mouse()
 	GLuint *buffer, z_coordinate;
 	double matrix[16];
 	
-	printf("Picking.\n");
-
 	selected_3d_object = -1;
 	x = (int)-camera_x;
 	y = (int)-camera_y;

@@ -1,5 +1,9 @@
 #include "global.h"
 
+#ifdef EYE_CANDY
+ #include "eye_candy_window.h"
+#endif
+
 void destroy_map()
 {
 	int i;
@@ -49,6 +53,7 @@ void destroy_map()
 		}
 
 	destroy_all_particles();
+	destroy_all_eye_candy();
 	
 	selected_3d_object=selected_2d_object=selected_light=selected_particles_object=-1;
 }
@@ -123,7 +128,12 @@ int save_map(char * file_name)
 	cur_map_header.ambient_g=ambient_g;
 	cur_map_header.ambient_b=ambient_b;
 	cur_map_header.particles_struct_len=particles_io_size;
+#ifdef EYE_CANDY
+        eye_candy_done_adding_effect();
+	cur_map_header.particles_no=particles_no + get_eye_candy_count();
+#else
 	cur_map_header.particles_no=particles_no;
+#endif
 	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
 
 	//ok, now let's open/create the file, and start writting the header...
@@ -291,6 +301,21 @@ int save_map(char * file_name)
 					}
 			}
 
+#ifdef EYE_CANDY
+		// Write the eye candy effects
+		for(i=0;i<get_eye_candy_count();i++)
+			{
+				char *cur_particles_pointer=(char *)&cur_particles_io;
+				serialize_eye_candy_effect(i, &cur_particles_io);
+
+#ifdef	ZLIBW
+				gzwrite(f, cur_particles_pointer,sizeof(particles_io));
+#else	//ZLIBW
+				fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+#endif	//ZLIBW
+			}
+#endif
+
 #ifdef	ZLIBW
 		gzclose(f);
 #else	//ZLIBW
@@ -446,8 +471,15 @@ int load_map(char * file_name)
 			fread(cur_particles_pointer,1,particles_io_size,f);
 #endif	//ZLIB
 
-			add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
-			if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things fuck up...
+			if (strncmp(cur_particles_io.file_name, "ec://", 6))
+			{
+				deserialize_eye_candy_effect(&cur_particles_io);
+			}
+			else
+			{
+				add_particle_sys(cur_particles_io.file_name,cur_particles_io.x_pos,cur_particles_io.y_pos,cur_particles_io.z_pos);
+				if(particles_list[i]) particles_list[i]->ttl=-1;//Fail-safe if things fuck up...
+			}
 		}
 
 #ifdef	ZLIB

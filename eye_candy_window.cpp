@@ -1,6 +1,5 @@
 /*
 TODO: 
- * Save effects.
  * Test loading.
  * Get Roja working.
  * New effect options.
@@ -143,7 +142,7 @@ extern "C" void change_eye_candy_effect()
     case 9:    // Smoke
       gtk_widget_show(gtk_effect_hue_box);
       gtk_widget_show(gtk_effect_saturation_box);
-      gtk_widget_show(gtk_effect_scale_box);
+      gtk_widget_hide(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
       current_effect.reference = ec_create_smoke(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.scale, 10);
@@ -367,10 +366,6 @@ extern "C" void eye_candy_add_effect()
   {
     effects.push_back(current_effect);
     current_effect.reference = NULL;
-    change_eye_candy_effect();
-    
-    current_effect.bounds = ec::SmoothPolygonBoundingRange();
-
     switch (current_effect.effect)
     {
       case 1:    // Cloud/Fog
@@ -378,9 +373,14 @@ extern "C" void eye_candy_add_effect()
       case 11:   // Leaves
       case 12:   // Flower Petals
       {
-        current_effect.effect = 1;
+        current_effect.effect = 0;
         cur_mode = mode_tile;
         return;
+      }
+      default:
+      {
+        change_eye_candy_effect();
+        current_effect.bounds = ec::SmoothPolygonBoundingRange();
       }
     }
   }
@@ -393,7 +393,21 @@ extern "C" void eye_candy_done_adding_effect()
     eye_candy_ready_to_add = 0;
     if (current_effect.reference)
     {
-      ec_recall_effect(current_effect.reference);
+      switch (current_effect.effect)
+      {
+        case 1:    // Cloud/Fog
+        case 2:    // Fireflies
+        case 11:   // Leaves
+        case 12:   // Flower Petals
+        {
+          effects.push_back(current_effect);
+          break;
+        }
+        default:
+        {
+          remove_current_eye_candy_effect();
+        }
+      }
       current_effect.reference = NULL;
       current_effect.bounds = ec::SmoothPolygonBoundingRange();
       current_effect.position = ec::Vec3(-1.0, -1.0, 0.0);
@@ -418,7 +432,8 @@ extern "C" void draw_bounds_on_minimap()
   glEnable(GL_BLEND);
   for (std::vector<EffectDefinition>::iterator iter = effects.begin(); iter != effects.end(); iter++)
     draw_bound(*iter, false);
-  draw_bound(current_effect, true);
+  if (eye_candy_ready_to_add)
+    draw_bound(current_effect, true);
   glDisable(GL_BLEND);
   glEnable(GL_TEXTURE_2D);
 }
@@ -698,6 +713,463 @@ void select_eye_candy_effect(int i)
   current_effect = *iter;
   effects.erase(iter);
   eye_candy_ready_to_add = 1;
+}
+
+int get_eye_candy_count()
+{
+  return effects.size();
+}
+
+void deserialize_eye_candy_effect(particles_io* data)
+{
+  std::cout << "Deserialization:" << std::endl;
+
+  const unsigned char*const code = (const unsigned char*const)data->file_name + 5;
+  
+//  for (int i = 0; i < 18; i++)
+//    std::cout << "  " << i << ": " << (int)code[i * 4 + 0] << ", " << (int)code[i * 4 + 1] << ", " << (int)code[i * 4 + 2] << ", " << (int)code[i * 4 + 3] << std::endl;
+//  std::cout << std::endl;
+  
+  EffectDefinition dest;
+  
+  unsigned char raw_code[54];
+  int i = 0;
+
+  while (i < 18)
+  {
+    raw_code[i * 3]     = ((code[i * 4 + 0] - ' ') >> 0) | ((code[i * 4 + 1] - ' ') << 6);
+    raw_code[i * 3 + 1] = ((code[i * 4 + 1] - ' ') >> 2) | ((code[i * 4 + 2] - ' ') << 4);
+    raw_code[i * 3 + 2] = ((code[i * 4 + 2] - ' ') >> 4) | ((code[i * 4 + 3] - ' ') << 2);
+//    std::cout << "  " << i << ": " << (int)raw_code[i * 3] << ", " << (int)raw_code[i * 3 + 1] << ", " << (int)raw_code[i * 3 + 2] << std::endl;
+    i++;
+  }
+//  std::cout << std::endl;
+  
+  int bounds_count = raw_code[1];
+  if (bounds_count > 19)
+    bounds_count = 19;
+  for (i = 0; i < bounds_count; i++)
+    dest.bounds.elements.push_back(ec::SmoothPolygonElement(raw_code[i * 2 + 2] * (2 * ec::PI) / 256.0f, raw_code[i * 2 + 3]));
+
+  dest.position.x = data->x_pos;
+  dest.position.y = data->y_pos;
+  dest.position.z = data->z_pos;
+  
+  switch (raw_code[0])
+  {
+    case 0x00:	// Campfire
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x00;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_campfire(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      break;
+    }
+    case 0x01:	// Cloud
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
+      dest.effect = 0x01;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.density = density;
+      dest.base_height = base_height;
+      dest.reference = ec_create_cloud(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 10);
+      break;
+    }
+    case 0x02:	// Fireflies
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      const float scale = raw_code[45] + raw_code[46] / 256.0;
+      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
+      dest.effect = 0x02;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.density = density;
+      dest.base_height = base_height;
+      dest.reference = ec_create_fireflies(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds));
+      break;
+    }
+    case 0x03:	// Fountain
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
+      const int backlit = raw_code[47];
+      dest.effect = 0x03;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.base_height = base_height;
+      dest.reference = ec_create_fountain(dest.position.x, dest.position.y, dest.position.z, base_height, backlit, scale, 10);
+      break;
+    }
+    case 0x04:	// Lamp
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x04;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_lamp(dest.position.x, dest.position.y, dest.position.z, scale, 10);
+      break;
+    }
+    case 0x05:	// Magic protection
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x05;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_ongoing_magic_protection(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      break;
+    }
+    case 0x06:	// Shield
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x06;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_ongoing_shield(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      break;
+    }
+    case 0x07:	// Magic immunity
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x07;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_ongoing_magic_immunity(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      break;
+    }
+    case 0x08:	// Poison
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x08;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_ongoing_poison(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      break;
+    }
+    case 0x09:	// Smoke
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x09;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.density = density;
+      dest.reference = ec_create_smoke(dest.position.x, dest.position.y, dest.position.z, density, 10);
+      break;
+    }
+    case 0x0A:	// Teleporter
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x0A;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_teleporter(dest.position.x, dest.position.y, dest.position.z, 10);
+      break;
+    }
+    case 0x0B:	// Leaves
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      const float scale = raw_code[45] + raw_code[46] / 256.0;
+      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
+      dest.effect = 0x0B;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.density = density;
+      dest.base_height = base_height;
+      dest.reference = ec_create_wind_leaves(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
+      break;
+    }
+    case 0x0C:	// Petals
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      const float scale = raw_code[45] + raw_code[46] / 256.0;
+      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
+      dest.effect = 0x0C;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.density = density;
+      dest.base_height = base_height;
+      dest.reference = ec_create_wind_petals(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
+      break;
+    }
+    case 0x0D:	// Waterfall
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
+      const float angle = raw_code[47] * ec::PI / 128.0;
+      dest.effect = 0x0D;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.density = density;
+      dest.base_height = base_height;
+      dest.angle = angle;
+      // Effect does not yet exist.
+      break;
+    }
+    case 0x0E:	// Bees
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float density = raw_code[43] + raw_code[44] / 256.0;
+      const float scale = raw_code[45] + raw_code[46] / 256.0;
+      dest.effect = 0x0E;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.density = density;
+      // Effect does not yet exist.
+      break;
+    }
+    case 0x0F:	// Portal
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      const float angle = raw_code[45] * ec::PI / 128.0;
+      dest.effect = 0x0F;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.angle = angle;
+      // Effect does not yet exist.
+      break;
+    }
+    case 0x10:	// Candle
+    {
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 256.0;
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      dest.effect = 0x10;
+      dest.hue = hue;
+      dest.saturation = saturation;
+      dest.scale = scale;
+      dest.reference = ec_create_candle(dest.position.x, dest.position.y, dest.position.z, scale, 10);
+      break;
+    }
+  }
+  effects.push_back(dest);
+}
+
+void serialize_eye_candy_effect(int index, particles_io* data)
+{
+  std::cout << "Serializing (" << index << "):" << std::endl;
+
+  memset((char*)data, 0, sizeof(particles_io));
+
+  std::string unformatted_data(80, '\0');
+  unformatted_data[0] = effects[index].effect;
+  unformatted_data[1] = effects[index].bounds.elements.size();
+  if (unformatted_data[1] > 19)
+    unformatted_data[1] = 19;
+  for (int i = 0; i < unformatted_data[1]; i++)
+  {
+    unformatted_data[i * 2 + 2] = (char)((unsigned char)effects[index].bounds.elements[i].angle / (2 * ec::PI) * 256.0f);
+    unformatted_data[i * 2 + 3] = (char)((unsigned char)effects[index].bounds.elements[i].radius);
+    
+  }
+  switch (effects[index].effect)
+  {
+    case 0:    // Fire
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 1:    // Cloud/Fog
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].density));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].base_height / 8.0));
+      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
+      break;
+    case 2:    // Fireflies
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].density));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      unformatted_data[47] = (char)((unsigned char)(effects[index].base_height / 8.0));
+      unformatted_data[48] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
+      break;
+    case 3:    // Fountain
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].base_height / 8.0));
+      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
+      unformatted_data[47] = 0; 	// Backlit
+      break;
+    case 4:    // Lamp/Torch
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 5:    // Magic Protection
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 6:    // Shield
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 7:    // Magic Immunity
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 8:    // Poison
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 9:    // Smoke
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].density));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
+      break;
+    case 10:  // Teleporter
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 11:  // Leaves
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].density));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      unformatted_data[47] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
+      unformatted_data[48] = (char)((unsigned char)(effects[index].angle * 256.0));
+      break;
+    case 12:  // Flower Petals
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].density));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      unformatted_data[47] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
+      unformatted_data[48] = (char)((unsigned char)(effects[index].angle * 256.0));
+      break;
+    case 13:  // Waterfall
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].density));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].base_height / 8.0));
+      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
+      unformatted_data[47] = (char)((unsigned char)(effects[index].angle * 256.0));
+      break;
+    case 14:  // Bees
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].density));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+    case 15:  // Portal
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      unformatted_data[45] = (char)((unsigned char)(effects[index].angle * 256.0));
+      break;
+    case 16:    // Candle
+      unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
+      unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
+      break;
+  }
+
+//  for (int i = 0; i < 18; i++)
+//    std::cout << "  " << i << ": " << (int)(unsigned char)unformatted_data[i * 3] << ", " << (int)(unsigned char)unformatted_data[i * 3 + 1] << ", " << (int)(unsigned char)unformatted_data[i * 3 + 2] << std::endl;
+//  std::cout << std::endl;
+
+  std::string data_str = "ec://";
+  for (int i = 0; i < 18; i++)
+  {
+    data_str += ' ' + (char)((((unsigned char)unformatted_data[i * 3 + 0] & 0x3F)));
+    data_str += ' ' + (char)((((unsigned char)unformatted_data[i * 3 + 0] & 0xC0) >> 6) | (((unsigned char)unformatted_data[i * 3 + 1] & 0x0F) << 2));
+    data_str += ' ' + (char)((((unsigned char)unformatted_data[i * 3 + 1] & 0xF0) >> 4) | (((unsigned char)unformatted_data[i * 3 + 2] & 0x03) << 4));
+    data_str += ' ' + (char)((((unsigned char)unformatted_data[i * 3 + 2] & 0xFC) >> 2));
+  }
+
+//  for (int i = 0; i < 18; i++)
+//    std::cout << "  " << i << ": " << (int)data_str[5 + i * 4 + 0] << ", " << (int)data_str[5 +i * 4 + 1] << ", " << (int)data_str[5 + i * 4 + 2] << ", " << (int)data_str[5 + i * 4 + 3] << std::endl;
+//  std::cout << std::endl;
+  
+  sprintf(data->file_name, data_str.c_str());
+  data->x_pos = effects[index].position.x;
+  data->y_pos = effects[index].position.y;
+  data->z_pos = effects[index].position.z;
+}
+
+void destroy_all_eye_candy()
+{
+  for (std::vector<EffectDefinition>::iterator iter = effects.begin(); iter != effects.end(); iter++)
+  {
+    if (iter->reference)
+    {
+      ec_recall_effect(iter->reference);
+      iter->reference = NULL;
+    }
+  }
+  effects.clear();
 }
 
 #endif // EYE_CANDY
