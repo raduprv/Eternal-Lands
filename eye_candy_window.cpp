@@ -271,7 +271,6 @@ extern "C" void update_eye_candy_position(float x, float y)
 
 extern "C" void add_eye_candy_point()
 {
-  std::cout << "Add eye candy point: " << current_effect.bounds.elements.size() << std::endl;
   int minimap_x_start=window_width/2-128;
   int minimap_y_start;
   float x_map_pos;
@@ -290,16 +289,16 @@ extern "C" void add_eye_candy_point()
   x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
   y_map_pos=tile_map_size_y-((mouse_y-minimap_y_start)/(float)scale)*tile_map_size_y/256;
   const float z = tile_map[(int)(y_map_pos)*tile_map_size_x+(int)x_map_pos];
-
+  
   if (left_click <= 1)
   {
-    const bool ret = find_bounds_index(x_map_pos * 3, y_map_pos * 3);
+    const bool ret = find_bounds_index(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y));
     if (!ret)  // Didn't click on anything; create new.
     {
       if ((current_effect.bounds.elements.size() == 0) && (current_effect.position == ec::Vec3(-1.0, -1.0, 0.0)))
-        current_effect.position = ec::Vec3(x_map_pos * 3, y_map_pos * 3, z);
+        current_effect.position = ec::Vec3(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y), z);
       else if (current_effect.bounds.elements.size() < 13)
-        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3, y_map_pos * 3));
+        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y)));
       else
         ; // Can't add any more; too many already.
     }
@@ -307,10 +306,10 @@ extern "C" void add_eye_candy_point()
   else
   {
     if (last_ec_index == -1)  // Clicked on the center; drag it.
-      current_effect.position = ec::Vec3(x_map_pos * 3, y_map_pos * 3, z);
+      current_effect.position = ec::Vec3(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y), z);
     else if (last_ec_index >= 0)      // Clicked on another point; drag it.
     {
-      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3, y_map_pos * 3);
+      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y));
       current_effect.bounds.elements.erase(current_effect.bounds.elements.begin() + last_ec_index);
       int i;
       for (i = 0; i < (int)current_effect.bounds.elements.size(); i++)
@@ -344,7 +343,7 @@ extern "C" void delete_eye_candy_point()
   x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
   y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
 
-  if (find_bounds_index(x_map_pos * 3, y_map_pos * 3))
+  if (find_bounds_index(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_x)))
   {
     if (last_ec_index >= 0)  // Clicked on a bounds point; delete it
     {
@@ -722,8 +721,6 @@ int get_eye_candy_count()
 
 void deserialize_eye_candy_effect(particles_io* data)
 {
-  std::cout << "Deserialization:" << std::endl;
-
   const unsigned char*const code = (const unsigned char*const)data->file_name + 5;
   
 //  for (int i = 0; i < 18; i++)
@@ -992,8 +989,6 @@ void deserialize_eye_candy_effect(particles_io* data)
 
 void serialize_eye_candy_effect(int index, particles_io* data)
 {
-  std::cout << "Serializing (" << index << "):" << std::endl;
-
   memset((char*)data, 0, sizeof(particles_io));
 
   std::string unformatted_data(80, '\0');

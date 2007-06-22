@@ -471,7 +471,7 @@ int load_map(char * file_name)
 			fread(cur_particles_pointer,1,particles_io_size,f);
 #endif	//ZLIB
 
-			if (strncmp(cur_particles_io.file_name, "ec://", 6))
+			if (!strncmp(cur_particles_io.file_name, "ec://", 5))
 			{
 				deserialize_eye_candy_effect(&cur_particles_io);
 			}
