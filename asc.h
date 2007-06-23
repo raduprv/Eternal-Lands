@@ -312,6 +312,26 @@ int get_int_property (xmlNode *node, const char *prop);
 char *get_string_property (xmlNode *node, const char *prop);
 int get_property (xmlNode *node, const char *prop, const char *desc, const dict_elem dict[]);
 
+/*!
+ * \brief Append char to the string given by s.
+ *
+ * \param[in,out] s pointer to the string, changes if reallocation was needed.
+ * \param[in] c character to append to the string.
+ * \paran[in,out] len actual length of the string s.
+ * \param[in,out] max_len size of memory allocated for string s.
+ *
+ * \note In danger of poiting out the obvious, the character buffer \a s must 
+ *       be dynamically allocated and not a fixed size buffer, otherwise any 
+ *       necessary reallocations will fail.
+ */
+void append_char(char** s, char c, int* len, int* max_len);
+
+/*!
+ * \brief used in append_char(), buffer for string grows by this size when
+ * reallocation is needed.
+ */
+#define APPEND_CHAR_BLOCK 256
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

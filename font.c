@@ -47,6 +47,22 @@ int get_font_width(int cur_char);
 int get_nstring_width(const unsigned char *str, int len);
 int set_font_parameters (int num);
 
+// CHECK
+int pos_selected(int msg, int ichar, select_info* select)
+{
+	int d = 0;
+	if (select == NULL) return 0;
+	if (TEXT_FIELD_SELECTION_EMPTY(select)) return 0;
+	if (select->em > select->sm) d = 1;
+	else if ((select->em == select->sm) && (select->ec >= select->sc)) d = 1;
+	else d = -1;
+	if (d * (msg - select->sm) > d * (select->em - select->sm)) return 0;
+	if ((msg == select->em) && (d * ichar > d * select->ec)) return 0;
+	if (d * msg < d * select->sm) return 0;
+	if ((msg == select->sm) && (d * ichar < d * select->sc)) return 0;
+	return 1;
+}
+
 int get_font_char(unsigned char cur_char)
 {
 	if(cur_char<FONT_START_CHAR)	//null or invalid character
@@ -150,7 +166,7 @@ int get_font_char(unsigned char cur_char)
 // converts a character into which entry in font.bmp to use, negative on error or no output
 int find_font_char(unsigned char cur_char)
 {
-	if(cur_char >= 127+c_lbound && cur_char<=127+c_ubound)
+	if (IS_COLOR(cur_char))
 		{
 			float r,g,b;
 			//must be a color
@@ -230,7 +246,7 @@ void recolour_messages(text_message *msgs){
 	}
 }
 
-void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom)
+void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int msg_start, int offset_start, int cursor, int width, int height, float text_zoom, select_info* select)
 {
 	float displayed_font_x_size = DEFAULT_FONT_X_LEN * text_zoom;
 	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
@@ -241,6 +257,10 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	int cur_x, cur_y;
 	int cursor_x = x-1, cursor_y = y-1;
 	unsigned char ch;
+	int cur_line = 0;
+	int cur_col = 0;
+	unsigned char last_color_char = 127 + c_grey1;
+	int in_select = 0;
 
 	imsg = msg_start;
 	ichar = offset_start;
@@ -256,28 +276,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		// skip all messages of the wrong channel
 		while (1)
 		{
-			char skip = 0;
-			int channel = msgs[imsg].chan_idx;
-			if (channel != filter)
-			{
-				switch (channel)
-				{
-					case CHAT_LOCAL:    skip = local_chat_separate;    break;
-					case CHAT_PERSONAL: skip = personal_chat_separate; break;
-					case CHAT_GM:       skip = guild_chat_separate;    break;
-					case CHAT_SERVER:   skip = server_chat_separate;   break;
-					case CHAT_MOD:      skip = mod_chat_separate;      break;
-					case CHAT_MODPM:    skip = 0;                      break;
-					default:            skip = 1;
-				}
-			}
-			switch (channel) {
-				case CHAT_CHANNEL1:
-				case CHAT_CHANNEL2:
-				case CHAT_CHANNEL3:
-					skip = (msgs[imsg].channel != active_channels[filter - CHAT_CHANNEL1]);
-			}
-			if (skip)
+			if (skip_message(&msgs[imsg], filter))
 			{
 				ichar = 0;
 				if (++imsg >= msgs_size) imsg = 0;
@@ -305,6 +304,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				if (IS_COLOR (ch))
 				{
 					float r, g, b;
+					last_color_char = ch;
 					ch -= 127+c_lbound;
 					r = colors_list[ch].r1 / 255.0f;
 					g = colors_list[ch].g1 / 255.0f;
@@ -352,28 +352,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				// skip all messages of the wrong channel
 				while (1)
 				{
-					char skip = 0;
-					int channel = msgs[imsg].chan_idx;
-					if (channel != filter)
-					{
-						switch (channel)
-						{
-							case CHAT_LOCAL:    skip = local_chat_separate;    break;
-							case CHAT_PERSONAL: skip = personal_chat_separate; break;
-							case CHAT_GM:       skip = guild_chat_separate;    break;
-							case CHAT_SERVER:   skip = server_chat_separate;   break;
-							case CHAT_MOD:      skip = mod_chat_separate;      break;
-							case CHAT_MODPM:    skip = 0;                      break;
-							default:            skip = 1;
-						}
-					}
-					switch (channel) {
-						case CHAT_CHANNEL1:
-						case CHAT_CHANNEL2:
-						case CHAT_CHANNEL3:
-							skip = (msgs[imsg].channel != active_channels[filter - CHAT_CHANNEL1]);
-					}
-					if (skip)
+					if (skip_message(&msgs[imsg], filter))
 					{
 						if (++imsg >= msgs_size) imsg = 0;
 						if (msgs[imsg].data == NULL || imsg == msg_start) break;
@@ -389,7 +368,13 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
 			ichar = 0;
 		}
-		
+	
+		if ((select != NULL) && (select->lines[cur_line].msg == -1))
+		{
+			select->lines[cur_line].msg = imsg;
+			select->lines[cur_line].chr = ichar;
+		}
+	
 		if (cur_char == '\n' || cur_char == '\r' || cur_char == '\0')
 		{
 			// newline
@@ -398,11 +383,36 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			cur_x = x;
 			if (cur_char != '\0') ichar++;
 			i++;
+			cur_line++;
+			cur_col = 0;
 			continue;
 		}
 
+		if (pos_selected(imsg, ichar, select))
+		{
+			if (!in_select)
+			{
+				find_font_char(SELECTION_COLOR);
+				in_select = 1;
+			}
+		}
+		else
+		{
+			if (in_select)
+			{
+				find_font_char(last_color_char);
+				in_select = 0;
+			}
+		}
+		
+		if (IS_COLOR(cur_char))
+		{
+			last_color_char = cur_char;
+			if (in_select) cur_char = SELECTION_COLOR;
+		}
 		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
-
+		cur_col++;
+	
 		ichar++;
 		i++;
 		if (cur_x - x > width - displayed_font_x_size)

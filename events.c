@@ -1,9 +1,9 @@
-#include	<stdlib.h>
-#include	<string.h>
-#include	"global.h"
-#include	"elwindows.h"
-#include	"keys.h"
-#include    "update.h"
+#include <stdlib.h>
+#include <string.h>
+#include "global.h"
+#include "elwindows.h"
+#include "keys.h"
+#include "update.h"
 
 #ifndef WINDOWS
 #include <SDL_syswm.h>
@@ -69,9 +69,11 @@ int HandleEvent (SDL_Event *event)
 
 #if !defined(WINDOWS) && !defined(OSX)
 		case SDL_SYSWMEVENT:
-		
+	
 			if(event->syswm.msg->event.xevent.type == SelectionNotify)
 				finishpaste(event->syswm.msg->event.xevent.xselection);
+			else if (event->syswm.msg->event.xevent.type == SelectionRequest)
+				process_copy(&event->syswm.msg->event.xevent.xselectionrequest);
 			break;
 #endif
 

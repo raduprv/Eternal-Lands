@@ -1634,7 +1634,7 @@ void _text_field_set_nr_visible_lines (widget_list *w)
 {
 	text_field* tf = w->widget_info;
 
-	if (tf != NULL && (w->Flags & TEXT_FIELD_EDITABLE))
+	if (tf != NULL/* && (w->Flags & TEXT_FIELD_EDITABLE)*/)
 	{
 		float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * tf->buffer[tf->msg].wrap_zoom);
 		tf->nr_visible_lines = (int) ((w->len_y - 2*tf->y_space) / displayed_font_y_size);
@@ -1651,8 +1651,163 @@ void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 		{
 			int bar_len = nr_lines >= tf->nr_visible_lines ? nr_lines - tf->nr_visible_lines : 0;
 			vscrollbar_set_bar_len (w->window_id, tf->scroll_id, bar_len);
+			tf->update_bar = 0;
 		}
 	}
+}
+
+int skip_message(text_message* msg, Uint8 filter)
+{
+	int skip = 0;
+	int channel = msg->chan_idx;
+	if (filter == FILTER_ALL) return 0;
+	if (channel != filter)
+	{
+		switch (channel)
+		{
+			case CHAT_LOCAL:    skip = local_chat_separate;    break;
+			case CHAT_PERSONAL: skip = personal_chat_separate; break;
+			case CHAT_GM:       skip = guild_chat_separate;    break;
+			case CHAT_SERVER:   skip = server_chat_separate;   break;
+			case CHAT_MOD:      skip = mod_chat_separate;      break;
+			case CHAT_MODPM:    skip = 0;                      break;
+			default:            skip = 1;
+		}
+	}
+	switch (channel) {
+		case CHAT_CHANNEL1:
+		case CHAT_CHANNEL2:
+		case CHAT_CHANNEL3:
+			skip = (msg->channel != active_channels[filter - CHAT_CHANNEL1]);
+	}
+	return skip;
+}
+
+void text_field_find_cursor_line(text_field* tf)
+{
+	int i, line = 0;
+	text_message* msg = &tf->buffer[tf->msg];
+	for (i = 0; i < msg->len; i++)
+	{
+		if (i == tf->cursor) tf->cursor_line = line;
+		if ((msg->data[i] == '\n') || (msg->data[i] == '\r')) line++;
+	}
+	tf->nr_lines = line + 1; // we'll call _text_field_set_nr_lines later;
+	if (tf->cursor >= msg->len) tf->cursor_line = line;
+	tf->update_bar = 1;
+}
+
+char* text_field_get_selected_text (const text_field* tf)
+{
+	int sm, sc, em, ec;
+	const select_info* select;
+	int len, max_len;
+	char* text = NULL;
+	
+	max_len = 0;
+	len = 0;
+	select = &tf->select;
+	if (TEXT_FIELD_SELECTION_EMPTY(select)) return NULL;
+	
+	if ((select->em > select->sm) || ((select->em == select->sm) && (select->ec >= select->sc)))
+	{
+		sm = select->sm;
+		sc = select->sc;
+		em = select->em;
+		ec = select->ec;
+	}
+	else
+	{
+		sm = select->em;
+		sc = select->ec;
+		em = select->sm;
+		ec = select->sc;
+	}
+	for (; (sm <= em) && (sm < tf->buf_size); sm++)
+	{
+		if (skip_message(&tf->buffer[sm], tf->chan_nr)) continue;
+		while (sc < tf->buffer[sm].len)
+		{
+			char ch;
+			if ((sm == em) && (sc > ec))
+			{
+				append_char(&text, '\0', &len, &max_len);
+				return text;
+			}
+			ch = tf->buffer[sm].data[sc];
+			if (ch == '\0')
+			{
+				break;
+			}
+			else if (ch == '\n')
+			{
+				append_char(&text, '\n', &len, &max_len);
+			}
+			else if (get_font_char(ch) >= 0) 
+			{
+				append_char(&text, ch, &len, &max_len);
+			}
+			sc++;
+		}
+		append_char (&text, '\n', &len, &max_len);
+		sc = 0;
+	}
+	append_char(&text, '\0', &len, &max_len);
+	return text;
+}
+
+void text_field_remove_selection(text_field* tf)
+{
+	int sm, sc, em, ec;
+	text_message* msg;
+	select_info* select;
+	
+	select = &tf->select;
+	if (TEXT_FIELD_SELECTION_EMPTY(select)) return;
+	
+	if ((select->em > select->sm) || ((select->em == select->sm) && (select->ec >= select->sc)))
+	{
+		sm = select->sm;
+		sc = select->sc;
+		em = select->em;
+		ec = select->ec;
+	}
+	else
+	{
+		sm = select->em;
+		sc = select->ec;
+		em = select->sm;
+		ec = select->sc;
+	}
+
+	// XXX Grum: should we remove messages we delete entirely?
+	for (; (sm <= em) && (sm < tf->buf_size); sm++)
+	{
+		if (skip_message(&tf->buffer[sm], tf->chan_nr)) continue;
+		msg = &tf->buffer[sm];
+		if (em > sm)
+		{
+			if (sc == 0)
+			{
+				msg->data[0] = '\0';
+				msg->len = 0;
+			}
+			else
+			{
+				memmove (msg->data, &(msg->data[sc]), msg->len-sc+1);
+				msg->len -= sc;
+			}
+		}
+		else
+		{
+			if (ec >= msg->len) ec = msg->len - 1;
+			memmove(&msg->data[sc], &msg->data[ec + 1], msg->len - ec);
+			msg->len -= ec - sc + 1;
+			if (tf->cursor > sc) tf->cursor = sc;
+		}
+		sc = 0;
+	}
+	text_field_find_cursor_line(tf);
 }
 
 void _text_field_scroll_to_cursor (widget_list *w)
@@ -1918,6 +2073,8 @@ void _text_field_insert_char (widget_list *w, char ch)
 		_text_field_scroll_to_cursor (w);
 }			
 
+void update_cursor_selection(widget_list* w, int flag);
+
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
@@ -1925,12 +2082,26 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	text_field *tf;
 	text_message *msg;
 	int alt_on = key & ELW_ALT, ctrl_on = key & ELW_CTRL;
+	int shift_on = key & ELW_SHIFT;
 
 	if (w == NULL) return 0;
+	tf = w->widget_info;
+#if !defined(WINDOWS) && !defined(OSX)
+	if (keysym == SDLK_INSERT && ctrl_on)
+	{
+		char* text;
+		text = text_field_get_selected_text(tf);
+		if (text != NULL)
+		{
+			copy_to_clipboard(text);
+			free(text);
+		}
+		return 1;
+	}
+#endif
 	if ( !(w->Flags & TEXT_FIELD_EDITABLE) ) return 0;
 	if (w->Flags & TEXT_FIELD_NO_KEYPRESS) return 0;
 
-	tf = w->widget_info;
 	msg = &(tf->buffer[tf->msg]);
 
 	if(IS_PRINT(ch) || keysym == SDLK_UP || keysym == SDLK_DOWN ||
@@ -1940,24 +2111,38 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		tf->next_blink = cur_time + TF_BLINK_DELAY;
 	}
 
+	if ((keysym == SDLK_LEFT) || (keysym == SDLK_RIGHT) || (keysym == SDLK_UP) || (keysym == SDLK_DOWN) ||
+		(keysym == SDLK_HOME) || (keysym == SDLK_END))
+	{
+		if (shift_on)
+		{
+		    if (TEXT_FIELD_SELECTION_EMPTY(&tf->select)) update_cursor_selection(w, 0);
+		}
+		else TEXT_FIELD_CLEAR_SELECTION(&tf->select);
+	}
+	
 	if (keysym == SDLK_LEFT)
 	{
 		_text_field_cursor_left (w, ctrl_on);
+		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
 	else if (keysym == SDLK_RIGHT)
 	{
 		_text_field_cursor_right (w, ctrl_on);
+		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
 	else if (keysym == SDLK_UP && !ctrl_on && !alt_on && tf->cursor >= 0)
 	{
 		_text_field_cursor_up (w);
+		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
 	else if (keysym == SDLK_DOWN && !ctrl_on && !alt_on && tf->cursor >= 0)
 	{
 		_text_field_cursor_down (w);
+		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
 	else if (keysym == SDLK_HOME)
@@ -1966,6 +2151,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		tf->cursor_line = 0;
 		if (tf->scroll_id != -1)
 			_text_field_scroll_to_cursor (w);
+		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
 	else if (keysym == SDLK_END)
@@ -1974,6 +2160,14 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		tf->cursor_line = tf->nr_lines - 1;
 		if (tf->scroll_id != -1)
 			_text_field_scroll_to_cursor (w);
+		if (shift_on) update_cursor_selection(w, 1);
+		return 1;
+	}
+	else if (((ch == SDLK_BACKSPACE) || (ch == SDLK_DELETE)) && !TEXT_FIELD_SELECTION_EMPTY(&tf->select))
+	{
+		text_field_remove_selection(tf);
+		tf->cursor = tf->select.ec > tf->select.sc ? tf->select.sc : tf->select.ec;
+		TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		return 1;
 	}
 	else if (ch == SDLK_BACKSPACE)
@@ -1988,13 +2182,29 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			_text_field_delete_forward (w);
 		return 1;
 	}
+	else if (keysym == SDLK_INSERT && shift_on)
+	{
+		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
+		{
+			text_field_remove_selection(tf);
+			tf->cursor = tf->select.ec > tf->select.sc ? tf->select.sc : tf->select.ec;
+			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
+		}
+		start_paste_to_text_field(tf);
+		return 1;
+	}
 	else if (!alt_on && !ctrl_on && ( IS_PRINT(ch)
 			|| (ch == SDLK_RETURN && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
 	{
+		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
+		{
+			text_field_remove_selection(tf);
+			tf->cursor = tf->select.ec > tf->select.sc ? tf->select.sc : tf->select.ec;
+			TEXT_FIELD_CLEAR_SELECTION(&tf->select);		
+		}
 		_text_field_insert_char (w, ch);
 		return 1;
 	}
-	
 	return 0;
 }
 
@@ -2044,6 +2254,70 @@ void _set_edit_pos (text_field* tf, int x, int y)
 	tf->cursor = msg->len;
 }
 
+void update_selection(int x, int y, widget_list* w, int flag)
+{
+	int line, col;
+	int cx = 0;
+	float displayed_font_y_size = floorf(DEFAULT_FONT_Y_LEN * w->size);
+	text_field* tf;
+	text_message* msg;
+	
+	tf = w->widget_info;
+	if (tf == NULL) return;
+	
+	line = y / displayed_font_y_size;
+	if (line >= tf->nr_visible_lines) return;
+	if (tf->select.lines[line].msg == -1) return;
+
+	msg = &tf->buffer[tf->select.lines[line].msg];
+	for (col = tf->select.lines[line].chr; col < msg->len; col++)
+	{
+		if ((msg->data[col] == '\r') || (msg->data[col] == '\n') || (msg->data[col] == '\0')) break;
+		cx += (0.5 + get_char_width(msg->data[col]) * w->size * DEFAULT_FONT_X_LEN / 12.0);
+		if (cx >= x) break;
+	}
+	if (!flag)
+	{
+		tf->select.sm = tf->select.lines[line].msg;
+		tf->select.sc = col;
+		tf->select.em = -1;
+		tf->select.ec = -1;
+	}
+	else
+	{
+		tf->select.em = tf->select.lines[line].msg;
+		tf->select.ec = col;
+	}
+}
+
+void update_cursor_selection(widget_list* w, int flag)
+{
+	text_field* tf;
+	int line;
+	
+	tf = w->widget_info;
+	if (tf == NULL) return;
+	
+	line = tf->cursor_line - tf->line_offset;
+	if (line < 0)
+		line = 0;
+	else if (line >= tf->nr_visible_lines)
+		line = tf->nr_visible_lines - 1;
+
+	if (!flag)
+	{
+		tf->select.sm = tf->select.lines[line].msg;
+		tf->select.sc = tf->cursor;
+		tf->select.em = -1;
+		tf->select.ec = -1;
+	}
+	else
+	{
+		tf->select.em = tf->select.lines[line].msg;
+		tf->select.ec = tf->cursor;
+	}
+}
+
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 {
 	text_field *tf;
@@ -2063,11 +2337,20 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	// not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0;
+
+	update_selection(mx, my, w, 0);
+
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;
 
 	_set_edit_pos (tf, mx, my);
 
+	return 1;
+}
+
+int text_field_drag(widget_list *w, int mx, int my, Uint32 flags, int dx, int dy)
+{
+	update_selection(mx, my, w, 1);
 	return 1;
 }
 
@@ -2078,13 +2361,23 @@ int text_field_destroy (widget_list *w)
 	{
 		if (tf->scroll_id != -1)
 			widget_destroy (w->window_id, tf->scroll_id);
+		if (tf->select.lines != NULL) free(tf->select.lines);
 		free (tf);
 	}
 
 	return 1;
 }
 
-const struct WIDGET_TYPE text_field_type = { NULL, text_field_draw, text_field_click, NULL, NULL, NULL, text_field_keypress, text_field_destroy };
+const struct WIDGET_TYPE text_field_type = { 
+	NULL, 
+	text_field_draw, 
+	text_field_click, 
+	text_field_drag, 
+	NULL, 
+	NULL, 
+	text_field_keypress, 
+	text_field_destroy
+};
 
 int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
 {
@@ -2129,6 +2422,8 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 			int nr_lines = rewrap_message (buf, w->size, lx - 2*x_space - T->scrollbar_width, &T->cursor);
 			_text_field_set_nr_visible_lines (w);
 			_text_field_set_nr_lines (w, nr_lines);
+			T->select.lines = (text_field_line*) calloc(T->nr_visible_lines, sizeof(text_field_line));
+			T->select.sm = T->select.em = T->select.sc = T->select.ec = -1;
 		}
 	}
 	
@@ -2145,6 +2440,7 @@ int text_field_draw (widget_list *w)
 	text_field *tf;
 	int cursor;
 	int mx, my;
+	int i;
 
 	if (w == NULL || w->window_id < 0 || w->widget_info == NULL) {
 		return 0;
@@ -2153,13 +2449,25 @@ int text_field_draw (widget_list *w)
 	mx = mouse_x - windows_list.window[w->window_id].pos_x - w->pos_x;
 	my = mouse_y - windows_list.window[w->window_id].pos_y - w->pos_y;
 
-	tf = w->widget_info;	
+	tf = w->widget_info;
 	if (tf->scroll_id != -1)
 	{
 		/* We have a scrollbar, so check its position and update
 		 * the text offset if necessary.
 		 */
-		int pos = vscrollbar_get_pos (w->window_id, tf->scroll_id);
+		int pos;
+		
+		if (tf->update_bar)
+		{
+			int nr_lines;
+			int old_cursor = tf->cursor;
+			tf->buffer[tf->msg].wrap_width = 0;
+			nr_lines = rewrap_message (&tf->buffer[tf->msg], w->size, w->len_x - 2*tf->x_space - tf->scrollbar_width, &tf->cursor);
+			tf->cursor_line += tf->cursor - old_cursor;
+			_text_field_set_nr_lines (w, nr_lines);
+			_text_field_scroll_to_cursor(w);
+		}
+		pos = vscrollbar_get_pos (w->window_id, tf->scroll_id);
 		if (pos > tf->line_offset)
 		{
 			int delta = pos - tf->line_offset, i;
@@ -2174,7 +2482,10 @@ int text_field_draw (widget_list *w)
 		else if (pos < tf->line_offset)
 		{
 			int delta = tf->line_offset - pos + 1, i;
-			for (i = tf->offset; i > 0; i--)
+			i = tf->offset;
+			if (i >= tf->buffer[tf->msg].len)
+				i = tf->buffer[tf->msg].len - 1;
+			for (; i > 0; i--)
 			{
 				if (tf->buffer->data[i-1] == '\n' || tf->buffer->data[i-1] == '\r')
 					if (--delta == 0) break;
@@ -2224,7 +2535,23 @@ int text_field_draw (widget_list *w)
 
 	glEnable(GL_TEXTURE_2D);
 	set_font(chat_font);	// switch to the chat font
-	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space, w->size);
+
+	for (i = 0; i < tf->nr_visible_lines; i++)
+		tf->select.lines[i].msg = -1;
+	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space, w->size, &tf->select);
+	if (tf->select.lines[0].msg == -1)
+	{
+		tf->select.lines[0].msg = tf->msg;
+		tf->select.lines[0].chr = tf->buffer[tf->msg].len;
+	}
+	for (i = 1; i < tf->nr_visible_lines; i++)
+	{
+		if (tf->select.lines[i].msg == -1)
+		{
+			tf->select.lines[i].msg = tf->select.lines[i - 1].msg;
+			tf->select.lines[i].chr = tf->buffer[tf->select.lines[i].msg].len;
+		}
+	}
 	set_font (0);	// switch to fixed
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

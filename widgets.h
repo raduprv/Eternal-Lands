@@ -124,6 +124,33 @@ typedef struct wl{
 #define TF_BLINK_DELAY 500
 
 /*!
+ * Contains auxilary information for selection.
+ */
+typedef struct
+{
+	int msg, chr;
+} text_field_line;
+
+/*!
+ * Contains selection information for text_field.
+ */
+typedef struct
+{
+	text_field_line* lines;
+	int sm, sc, em, ec;
+} select_info;
+
+/*!
+ * Checks if selection is empty.
+ */
+#define TEXT_FIELD_SELECTION_EMPTY(select) (((select)->em == -1) && ((select)->ec == -1))
+
+/*!
+ * Makes given selection empty.
+ */
+#define TEXT_FIELD_CLEAR_SELECTION(select) {(select)->em = (select)->ec = -1;}
+
+/*!
  * Text field structure
  */
 typedef struct
@@ -133,6 +160,7 @@ typedef struct
 	float text_r, text_g, text_b;
 	int buf_size, buf_fill;
 	int nr_lines, nr_visible_lines;
+	int update_bar;
 	int scroll_id;
 	int scrollbar_width;
 	int line_offset;
@@ -140,6 +168,7 @@ typedef struct
 	Uint8 chan_nr;
 	Uint16 x_space, y_space;
 	Uint32 next_blink;
+	select_info select;
 } text_field;
 
 typedef struct {
@@ -1321,6 +1350,13 @@ int text_field_set_text_color (int window_id, Uint32 widget_id, float r, float g
  */
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey);
 
+/*!
+ * \brief set cursor_line according to cursor position in current message.
+ *
+ * \param[in] tf text_field where we set cursor_line.
+ */
+void text_field_find_cursor_line(text_field* tf);
+
 
 //FIXME: Write documentation for these...
 #define P_NORMAL    0
@@ -1419,6 +1455,16 @@ int widget_handle_keypress (widget_list *widget, int mx, int my, Uint32 key, Uin
  * \callgraph
  */
 int AddXMLWindow(char *fn);
+
+/*!
+ * \brief checks if message fits the filter.
+ *
+ * \param[in] msg message to test.
+ * \param[in] filter filter.
+ *
+ * \return 1 if message doesnt fit filter (should be skipped), 0 otherwise.
+ */
+int skip_message(text_message* msg, Uint8 filter);
 
 #ifdef __cplusplus
 } // extern "C"

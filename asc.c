@@ -617,3 +617,14 @@ char *get_string_property (xmlNode *node, const char *prop) {
 #endif	//DEBUG
 	return "";
 }
+
+void append_char(char** s, char c, int* len, int* max_len)
+{
+	if (*len >= *max_len)
+	{
+		*s = (char*) realloc(*s, *max_len + APPEND_CHAR_BLOCK);
+		*max_len += APPEND_CHAR_BLOCK;
+	}
+	(*s)[(*len)++] = c;
+}
+

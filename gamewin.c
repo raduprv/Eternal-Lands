@@ -851,7 +851,7 @@ CHECK_GL_ERRORS();
 		if (find_last_lines_time (&msg, &offset, filter, console_text_width))
 		{
 			set_font(chat_font);	// switch to the chat font
-			draw_messages (10, use_windowed_chat == 1 ? 25 : 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, console_text_width, (int) (1 + lines_to_show * 18 * chat_zoom), chat_zoom);
+			draw_messages (10, use_windowed_chat == 1 ? 25 : 20, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, filter, msg, offset, -1, console_text_width, (int) (1 + lines_to_show * 18 * chat_zoom), chat_zoom, NULL);
 			set_font (0);	// switch to fixed
 		}
 	}

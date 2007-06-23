@@ -47,6 +47,27 @@ void startpaste(void);
  */
 void finishpaste(XSelectionEvent event);
 
+/*!
+ * \brief this function is used to start paste to certain text_field.
+ *
+ * \param[in] tf text_field to paste text to.
+ */
+void start_paste_to_text_field(text_field* tf);
+
+/*!
+ * \brief this function is called when we copy selected text to clipboard.
+ *
+ * For X system it only copies selected text into buffer, which will be used by process_copy().
+ */
+void copy_to_clipboard(const char* text);
+
+/*!
+ * \brief called when SelectionRequest received, it sends selected text to requester.
+ *
+ * \param[in] e contains information about SelectionRequest event.
+ */
+void process_copy(XSelectionRequestEvent* e);
+
 #else
 
 /*!

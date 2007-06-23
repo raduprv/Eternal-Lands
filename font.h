@@ -53,10 +53,11 @@ void recolour_messages(text_message *msgs);
  * \param width		the width of the draw area
  * \param height	the height of the draw area
  * \param text_zoom	the size of the text
+ * \param[in,out]       select information about current selection. draw_messages fills select->lines array.
  *
  * \callgraph
  */
-void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom);
+void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filter, int nr_start, int offset_start, int cursor, int width, int height, float text_zoom, select_info* select);
 
 /*!
  * \ingroup text_font
@@ -257,6 +258,11 @@ void reload_fonts();
 void cleanup_fonts(void);
 
 int get_font_char(unsigned char cur_char);
+
+/*!
+ * \brief default color for selection.
+ */
+#define SELECTION_COLOR (127 + c_orange4)
 
 #ifdef __cplusplus
 } // extern "C"
