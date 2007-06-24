@@ -173,7 +173,7 @@ void process_copy(XSelectionRequestEvent* e)
 	}
 	else
 	{
-		XChangeProperty(e->display, e->requestor, e->property, XA_STRING, 8, PropModeReplace, cur_text, strlen(cur_text) + 1);
+		XChangeProperty(e->display, e->requestor, e->property, XA_STRING, 8, PropModeReplace, (unsigned char *)cur_text, strlen(cur_text) + 1);
 		r.xselection.property = e->property;
 	}
 	r.xselection.type = SelectionNotify;

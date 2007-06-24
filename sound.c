@@ -535,7 +535,7 @@ int ensure_sample_loaded(int index)
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error in ensure_sample_loaded\n");
+		printf("Error in ensure_sample_loaded: %s, Index: %d\n", alGetString(error), index);
 #endif //_EXTRA_SOUND_DEBUG
 	}
 	return 0;

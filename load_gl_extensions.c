@@ -1,3 +1,6 @@
+#ifdef WINDOWS
+#include <windows.h>
+#endif // WINDOWS
 #include <SDL.h>
 #include "load_gl_extensions.h"
 
@@ -752,4 +755,3 @@ float get_max_anisotropic_filter()
 {
 	return max_anisotropic_filter;
 }
-

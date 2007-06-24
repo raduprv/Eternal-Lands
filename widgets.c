@@ -2190,7 +2190,9 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			tf->cursor = tf->select.ec > tf->select.sc ? tf->select.sc : tf->select.ec;
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
+#if !defined(WINDOWS) && !defined(OSX)
 		start_paste_to_text_field(tf);
+#endif // !defined(WINDOWS) && !defined(OSX)
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( IS_PRINT(ch)
