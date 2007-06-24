@@ -9,7 +9,6 @@
 #include "global.h"
 #include "misc.h"
 #endif
-#include "md5.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -66,6 +65,16 @@ extern "C" {
 
 #define	EXTRA_FIRST_SUB_NODE	0x0001
 
+typedef enum
+{
+	ide_changed = 0
+} intersection_data_enum;
+
+typedef enum
+{
+	bie_no_reflect = 0
+} bbox_item_extra;
+
 typedef struct
 {
 	VECTOR3 bbmin;
@@ -90,61 +99,59 @@ typedef PLANE FRUSTUM[16];
 typedef struct
 {
 	float			scale;
-	unsigned int		mask;
-	unsigned int		zero;
+	uint32_t		mask;
+	uint32_t		zero;
 } PLANE_DATA;
 
 typedef PLANE_DATA FRUSTUM_DATA[16];
 
 typedef struct
 {
-	MD5_DIGEST		md5;
 	AABBOX			bbox;
-	unsigned int		texture_id;
-	unsigned int		ID;
-	unsigned short		options;
-	unsigned char		type;
-	unsigned char		extra;
+	uint32_t		texture_id;
+	uint32_t		ID;
+	uint16_t		options;
+	uint8_t			type;
+	uint8_t			extra;
 } BBOX_ITEM;
 
 typedef struct
 {
-	unsigned int		size;
-	unsigned int		index;
+	uint32_t		size;
+	uint32_t		index;
 	BBOX_ITEM*		items;
 } BBOX_ITEMS;	
 
-typedef struct BBox_Tree_Node_Struct BBOX_TREE_NODE;
-
-struct BBox_Tree_Node_Struct
+typedef struct
 {
 	AABBOX			bbox;
 	AABBOX			orig_bbox;
-	unsigned int		nodes[2];
+	uint32_t		nodes[2];
 	BBOX_ITEMS		dynamic_objects;
-	unsigned int		items_index;
-	unsigned int		items_count;
-};
+	uint32_t		items_index;
+	uint32_t		items_count;
+} BBOX_TREE_NODE;
 
 typedef struct
 {
-	unsigned int		intersect_update_needed;
-	unsigned int		size;
-	unsigned int		count;
-	unsigned int		start[TYPES_COUNT];
-	unsigned int		stop[TYPES_COUNT];
+	uint32_t		intersect_update_needed;
+	uint32_t		size;
+	uint32_t		count;
+	uint32_t		start[TYPES_COUNT];
+	uint32_t		stop[TYPES_COUNT];
+	uint32_t		flags[TYPES_COUNT];
 	BBOX_ITEM*		items;
-	unsigned int		frustum_mask;
+	uint32_t		frustum_mask;
 	FRUSTUM			frustum;
 } BBOX_INTERSECTION_DATA;
 
 typedef	struct
 {
-	unsigned int		items_count;
+	uint32_t		items_count;
 	BBOX_ITEM*		items;
-	unsigned int		nodes_count;
+	uint32_t		nodes_count;
 	BBOX_TREE_NODE*		nodes;
-	unsigned int		cur_intersect_type;
+	uint32_t		cur_intersect_type;
 	BBOX_INTERSECTION_DATA	intersect[MAX_INTERSECTION_TYPES];
 } BBOX_TREE;
 
@@ -155,6 +162,21 @@ enum
 	C = 2,
 	D = 3
 };
+
+static __inline__ int get_bbox_intersect_flag(BBOX_TREE* bbox_tree, uint32_t type, intersection_data_enum ide)
+{
+	return (bbox_tree->intersect[bbox_tree->cur_intersect_type].flags[type] & (1 << ide)) != 0;
+}
+
+static __inline__ void set_bbox_intersect_flag(BBOX_TREE* bbox_tree, uint32_t type, intersection_data_enum ide)
+{
+	bbox_tree->intersect[bbox_tree->cur_intersect_type].flags[type] |= (1 << ide);
+}
+
+static __inline__ void clear_bbox_intersect_flag(BBOX_TREE* bbox_tree, uint32_t type, intersection_data_enum ide)
+{
+	bbox_tree->intersect[bbox_tree->cur_intersect_type].flags[type] &= ~(1 << ide);
+}
 
 static __inline__ void calc_light_aabb(AABBOX* bbox, float pos_x, float pos_y, float pos_z, float diff_r, float diff_g, float diff_b, 
 		float att, float exp, float clamp)
@@ -304,72 +326,80 @@ static __inline__ void matrix_mul_aabb(AABBOX* bbox, MATRIX4x4 matrix)
 	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
 }
 
-static __inline__ void get_intersect_start_stop(BBOX_TREE* bbox_tree, unsigned int type, unsigned int* start, unsigned int* stop)
+static __inline__ void get_intersect_start_stop(BBOX_TREE* bbox_tree, uint32_t type, uint32_t* start, uint32_t* stop)
 {
-	unsigned int idx;
+	uint32_t idx;
 
 	idx = bbox_tree->cur_intersect_type;
 	*start = bbox_tree->intersect[idx].start[type];
 	*stop = bbox_tree->intersect[idx].stop[type];
 }
 
-static __inline__ unsigned int get_intersect_item_ID(BBOX_TREE* bbox_tree, unsigned int index)
+static __inline__ uint32_t get_intersect_item_ID(BBOX_TREE* bbox_tree, uint32_t index)
 {
-	unsigned int idx;
+	uint32_t idx;
 
 	idx = bbox_tree->cur_intersect_type;
 	return bbox_tree->intersect[idx].items[index].ID;
 }
 
-static __inline__ AABBOX get_intersect_item_bbox(BBOX_TREE* bbox_tree, unsigned int index)
+static __inline__ AABBOX get_intersect_item_bbox(BBOX_TREE* bbox_tree, uint32_t index)
 {
-	unsigned int idx;
+	uint32_t idx;
 
 	idx = bbox_tree->cur_intersect_type;
 	return bbox_tree->intersect[idx].items[index].bbox;
 }
 
-static __inline__ unsigned int get_cur_intersect_type(BBOX_TREE* bbox_tree)
+static __inline__ uint32_t get_intersect_item_options(BBOX_TREE* bbox_tree, uint32_t index)
+{
+	uint32_t idx;
+
+	idx = bbox_tree->cur_intersect_type;
+	return bbox_tree->intersect[idx].items[index].options;
+}
+
+static __inline__ uint32_t get_cur_intersect_type(BBOX_TREE* bbox_tree)
 {
 	return bbox_tree->cur_intersect_type;
 }
 
-static __inline__ void set_cur_intersect_type(BBOX_TREE* bbox_tree, unsigned int intersec_type)
+static __inline__ void set_cur_intersect_type(BBOX_TREE* bbox_tree, uint32_t intersec_type)
 {
 	bbox_tree->cur_intersect_type = intersec_type;
 }
 
-static __inline__ unsigned int get_3dobject_id(unsigned int index, unsigned int material)
+static __inline__ uint32_t get_3dobject_id(uint32_t index, uint32_t material)
 {
 	return (index << 12) + material;
 }
 
-static __inline__ unsigned int get_3dobject_material(unsigned int ID)
+static __inline__ uint32_t get_3dobject_material(uint32_t ID)
 {
 	return ID & 0x0FFF;
 }
 
-static __inline__ unsigned int get_3dobject_index(unsigned int ID)
+static __inline__ uint32_t get_3dobject_index(uint32_t ID)
 {
 	return ID >> 12;
 }
 
-static __inline__ unsigned int get_terrain_id(unsigned int x, unsigned int y)
+static __inline__ uint32_t get_terrain_id(uint32_t x, uint32_t y)
 {
 	return (y << 12) + x;
 }
 
-static __inline__ unsigned int get_terrain_x(unsigned int ID)
+static __inline__ uint32_t get_terrain_x(uint32_t ID)
 {
 	return ID & 0xFFF;
 }
 
-static __inline__ unsigned int get_terrain_y(unsigned int ID)
+static __inline__ uint32_t get_terrain_y(uint32_t ID)
 {
 	return ID >> 12;
 }
 
-static __inline__ unsigned int is_blend_3d_object(unsigned int type)
+static __inline__ uint32_t is_blend_3d_object(uint32_t type)
 {
 	switch (type)
 	{
@@ -397,7 +427,7 @@ static __inline__ unsigned int is_blend_3d_object(unsigned int type)
 	}
 }
 
-static __inline__ unsigned int is_ground_3d_object(unsigned int type)
+static __inline__ uint32_t is_ground_3d_object(uint32_t type)
 {
 	switch (type)
 	{
@@ -425,7 +455,7 @@ static __inline__ unsigned int is_ground_3d_object(unsigned int type)
 	}
 }
 
-static __inline__ unsigned int is_alpha_3d_object(unsigned int type)
+static __inline__ uint32_t is_alpha_3d_object(uint32_t type)
 {
 	switch (type)
 	{
@@ -453,7 +483,7 @@ static __inline__ unsigned int is_alpha_3d_object(unsigned int type)
 	}
 }
 
-static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
+static __inline__ uint32_t is_self_lit_3d_object(uint32_t type)
 {
 	switch (type)
 	{
@@ -481,7 +511,7 @@ static __inline__ unsigned int is_self_lit_3d_object(unsigned int type)
 	}
 }
 
-static __inline__ unsigned int get_type_mask_from_type(unsigned int type)
+static __inline__ uint32_t get_type_mask_from_type(uint32_t type)
 {
 	switch (type)
 	{
@@ -539,372 +569,372 @@ static __inline__ unsigned int get_type_mask_from_type(unsigned int type)
 	}
 }
 
-/*!
- * \ingroup misc
- * \brief Checks which objects of the bounding-box-tree are in the frustum.
+/**
+ * @ingroup misc
+ * @brief Checks which objects of the bounding-box-tree are in the frustum.
  *
  * Checks which objects of the axis-aligned-bounding-box-tree are in the frustum.
  *
- * \param bbox_tree	The bounding-box-tree holding the objects.
- * \param frustum	The frustum, mostly the view-frustum.
- * \param mask		The mask used with the frustum.
+ * @param bbox_tree	The bounding-box-tree holding the objects.
+ * @param frustum	The frustum, mostly the view-frustum.
+ * @param mask		The mask used with the frustum.
  *
- * \callgraph
+ * @callgraph
  */
 void check_bbox_tree(BBOX_TREE* bbox_tree);
 
-/*!
- * \ingroup misc
- * \brief Frees the given bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Frees the given bounding-box-tree.
  *
  * Frees the given bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
+ * @param bbox_tree	The bounding-box-tree.
  *
- * \callgraph
+ * @callgraph
  */
 void free_bbox_tree(BBOX_TREE* bbox_tree);
 
-/*!
- * \ingroup misc
- * \brief Clears the given bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Clears the given bounding-box-tree.
  *
  * Clears the data of the given bounding-box-tree without 
  * freeing the bounding boxtree.
  *
- * \param bbox_tree	The bounding-box-tree.
+ * @param bbox_tree	The bounding-box-tree.
  *
- * \callgraph
+ * @callgraph
  */
 void clear_bbox_tree(BBOX_TREE* bbox_tree);
 
-/*!
- * \ingroup misc
- * \brief Creates a bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Creates a bounding-box-tree.
  *
  * Creates an empty bounding-box-tree.
  *
- * \retval BBOX_TREE	The bounding-box-tree.
- * \callgraph
+ * @retval BBOX_TREE	The bounding-box-tree.
+ * @callgraph
  */
 BBOX_TREE* build_bbox_tree();
 
-/*!
- * \ingroup misc
- * \brief Inits a bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Inits a bounding-box-tree.
  *
  * Inits a bounding-box-tree from a list of static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \param bbox_tree	The bounding-box-tree.
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @param bbox_tree	The bounding-box-tree.
+ * @callgraph
  */
 void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items);
 
-/*!
- * \ingroup misc
- * \brief Adds a static light to a list of static objects.
+/**
+ * @ingroup misc
+ * @brief Adds a static light to a list of static objects.
  *
  * Adds a static light to a list of static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \param ID		The ID of the static light.
- * \param bbox		The bounding box of the static light.
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @param ID		The ID of the static light.
+ * @param bbox		The bounding box of the static light.
+ * @callgraph
  */
-void add_light_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox);
+void add_light_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox);
 
-/*!
- * \ingroup misc
- * \brief Adds a static 3d object to a list of static objects.
+/**
+ * @ingroup misc
+ * @brief Adds a static 3d object to a list of static objects.
  *
  * Adds a static 3d object to a list of static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \param ID		The ID of the static 3d object.
- * \param bbox		The bounding box of the static 3d object.
- * \param blend		Is this a blend object?
- * \param ground	Is this a ground object?
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @param ID		The ID of the static 3d object.
+ * @param bbox		The bounding box of the static 3d object.
+ * @param blend		Is this a blend object?
+ * @param ground	Is this a ground object?
+ * @callgraph
  */
-void add_3dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5);
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t blend, uint32_t ground, uint32_t alpha, uint32_t self_lit, uint32_t texture_id);
 
-/*!
- * \ingroup misc
- * \brief Adds a static 2d object to a list of static objects.
+/**
+ * @ingroup misc
+ * @brief Adds a static 2d object to a list of static objects.
  *
  * Adds a static 2d object to a list of static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \param ID		The ID of the static 2d object.
- * \param bbox		The bounding box of the static 2d object.
- * \param alpha		Is this an alpha object?
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @param ID		The ID of the static 2d object.
+ * @param bbox		The bounding box of the static 2d object.
+ * @param alpha		Is this an alpha object?
+ * @callgraph
  */
-void add_2dobject_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int alpha, unsigned int texture_id);
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t alpha, uint32_t texture_id);
 
-/*!
- * \ingroup misc
- * \brief Adds a static particle system to a list of static objects.
+/**
+ * @ingroup misc
+ * @brief Adds a static particle system to a list of static objects.
  *
  * Adds a static particle system to a list of static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \param ID		The ID of the static particle system.
- * \param bbox		The bounding box of the static particle system.
- * \param sblend	The sblend value of the static particle system.
- * \param dblend	The dblend value of the static particle system.
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @param ID		The ID of the static particle system.
+ * @param bbox		The bounding box of the static particle system.
+ * @param sblend	The sblend value of the static particle system.
+ * @param dblend	The dblend value of the static particle system.
+ * @callgraph
  */
-void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int sblend, unsigned int dblend);
+void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t sblend, uint32_t dblend);
 
-/*!
- * \ingroup misc
- * \brief Adds a static terrain tile to a list of static objects.
+/**
+ * @ingroup misc
+ * @brief Adds a static terrain tile to a list of static objects.
  *
  * Adds a static terrain tile to a list of static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \param ID		The ID of the static terrain tile.
- * \param bbox		The bounding box of the static terrain tile.
- * \param texture_id	The ID of the texture_id.
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @param ID		The ID of the static terrain tile.
+ * @param bbox		The bounding box of the static terrain tile.
+ * @param texture_id	The ID of the texture_id.
+ * @callgraph
  */
-void add_terrain_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int texture_id);
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t texture_id);
 
-/*!
- * \ingroup misc
- * \brief Adds a static water tile to a list of static objects.
+/**
+ * @ingroup misc
+ * @brief Adds a static water tile to a list of static objects.
  *
  * Adds a static water tile to a list of static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \param ID		The ID of the static water tile.
- * \param bbox		The bounding box of the static water tile.
- * \param reflectiv	Is the tile reflectiv.
- * \param texture_id	The ID of the texture_id.
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @param ID		The ID of the static water tile.
+ * @param bbox		The bounding box of the static water tile.
+ * @param reflectiv	Is the tile reflectiv.
+ * @param texture_id	The ID of the texture_id.
+ * @callgraph
  */
-void add_water_to_list(BBOX_ITEMS *bbox_items, unsigned int ID, const AABBOX bbox, unsigned int reflectiv, unsigned int texture_id);
+void add_water_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t reflectiv, uint32_t texture_id);
 
-/*!
- * \ingroup misc
- * \brief Adds a 3d object to the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Adds a 3d object to the bounding-box-tree.
  *
  * Adds a 3d object to the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the 3d object.
- * \param bbox		The bounding box of the dynamic 3d object.
- * \param blend		Is this a blend object?
- * \param ground	Is this a ground object?
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the 3d object.
+ * @param bbox		The bounding box of the dynamic 3d object.
+ * @param blend		Is this a blend object?
+ * @param ground	Is this a ground object?
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void add_3dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int blend, unsigned int ground, unsigned int alpha, unsigned int self_lit, unsigned int texture_id, const MD5_DIGEST md5, unsigned int dynamic);
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t blend, uint32_t ground, uint32_t alpha, uint32_t self_lit, uint32_t texture_id, uint32_t dynamic);
 
-/*!
- * \ingroup misc
- * \brief Adds a 2d object to the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Adds a 2d object to the bounding-box-tree.
  *
  * Adds a 2d object to the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the 3d object.
- * \param bbox		The bounding box of the dynamic 2d object.
- * \param alpha		Is this an alpha object?
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the 3d object.
+ * @param bbox		The bounding box of the dynamic 2d object.
+ * @param alpha		Is this an alpha object?
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void add_2dobject_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int alpha, unsigned int texture_id, unsigned int dynamic);
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t alpha, uint32_t texture_id, uint32_t dynamic);
 
-/*!
- * \ingroup misc
- * \brief Adds a particle system to the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Adds a particle system to the bounding-box-tree.
  *
  * Adds a particle system to the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the particle system.
- * \param bbox		The bounding box of the dynamic particle system.
- * \param sblend	The sblend value of the dynamic particle system.
- * \param dblend	The dblend value of the dynamic particle system.
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the particle system.
+ * @param bbox		The bounding box of the dynamic particle system.
+ * @param sblend	The sblend value of the dynamic particle system.
+ * @param dblend	The dblend value of the dynamic particle system.
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void add_particle_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int sblend, unsigned int dblend, unsigned int dynamic);
+void add_particle_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t sblend, uint32_t dblend, uint32_t dynamic);
 
-/*!
- * \ingroup misc
- * \brief Adds a light to the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Adds a light to the bounding-box-tree.
  *
  * Adds a light to the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the light.
- * \param bbox		The bounding box of the light.
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the light.
+ * @param bbox		The bounding box of the light.
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void add_light_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int dynamic);
+void add_light_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t dynamic);
 
-/*!
- * \ingroup misc
- * \brief Adds a terrain tile to the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Adds a terrain tile to the bounding-box-tree.
  *
  * Adds a terrain tile to the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the terrain tile.
- * \param bbox		The bounding box of the terrain tile.
- * \param texture_id	The ID of the texture_id.
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the terrain tile.
+ * @param bbox		The bounding box of the terrain tile.
+ * @param texture_id	The ID of the texture_id.
+ * @callgraph
  */
-void add_terrain_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int texture_id, unsigned int dynamic);
+void add_terrain_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t texture_id, uint32_t dynamic);
 
-/*!
- * \ingroup misc
- * \brief Adds a water tile to the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Adds a water tile to the bounding-box-tree.
  *
  * Adds a water tile to the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the water tile.
- * \param bbox		The bounding box of the water tile.
- * \param reflectiv	Is the tile reflectiv.
- * \param texture_id	The ID of the texture_id.
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the water tile.
+ * @param bbox		The bounding box of the water tile.
+ * @param reflectiv	Is the tile reflectiv.
+ * @param texture_id	The ID of the texture_id.
+ * @callgraph
  */
-void add_water_to_abt(BBOX_TREE *bbox_tree, unsigned int ID, const AABBOX bbox, unsigned int reflectiv, unsigned int texture_id, unsigned int dynamic);
+void add_water_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t reflectiv, uint32_t texture_id, uint32_t dynamic);
 
-/*!
- * \ingroup misc
- * \brief Deletes a 3d object from the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Deletes a 3d object from the bounding-box-tree.
  *
  * Deletes a 3d object from the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the 3d object.
- * \param blend		Is this a blend object?
- * \param ground	Is this a ground object?
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the 3d object.
+ * @param blend		Is this a blend object?
+ * @param ground	Is this a ground object?
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int blend, unsigned int self_lit);
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t blend, uint32_t self_lit);
 
-/*!
- * \ingroup misc
- * \brief Deletes a 2d object from the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Deletes a 2d object from the bounding-box-tree.
  *
  * Deletes a 2d object from the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the 2d object.
- * \param alpha		Is this an alpha object?
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the 2d object.
+ * @param alpha		Is this an alpha object?
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int alpha);
+void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t alpha);
 
-/*!
- * \ingroup misc
- * \brief Deletes a particle system from the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Deletes a particle system from the bounding-box-tree.
  *
  * Deletes a particle system from the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the particle system.
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the particle system.
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void delete_particle_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+void delete_particle_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
 
-/*!
- * \ingroup misc
- * \brief Deletes a light from the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Deletes a light from the bounding-box-tree.
  *
  * Deletes a light from the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the light.
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the light.
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void delete_light_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+void delete_light_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
 
-/*!
- * \ingroup misc
- * \brief Deletes a terrain tile from the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Deletes a terrain tile from the bounding-box-tree.
  *
  * Deletes a terrain tile from the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the terrain tile.
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the terrain tile.
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void delete_terrain_from_abt(BBOX_TREE *bbox_tree, unsigned int ID);
+void delete_terrain_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
 
-/*!
- * \ingroup misc
- * \brief Deletes a water tile from the bounding-box-tree.
+/**
+ * @ingroup misc
+ * @brief Deletes a water tile from the bounding-box-tree.
  *
  * Deletes a water tile from the bounding-box-tree.
  *
- * \param bbox_tree	The bounding-box-tree.
- * \param ID		The ID of the water tile.
- * \param reflectiv	Is the tile reflectiv.
- * \param dynamic	Is this a dynamic object?
- * \callgraph
+ * @param bbox_tree	The bounding-box-tree.
+ * @param ID		The ID of the water tile.
+ * @param reflectiv	Is the tile reflectiv.
+ * @param dynamic	Is this a dynamic object?
+ * @callgraph
  */
-void delete_water_from_abt(BBOX_TREE *bbox_tree, unsigned int ID, unsigned int reflectiv);
+void delete_water_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t reflectiv);
 
-/*!
- * \ingroup misc
- * \brief Creates a list for static objects.
+/**
+ * @ingroup misc
+ * @brief Creates a list for static objects.
  *
  * Creates a list for static objects.
  *
- * \param size		The minimum size of the list for the static objects.
- * \retval BBOX_ITEMS	The list for the static objects.
- * \callgraph
+ * @param size		The minimum size of the list for the static objects.
+ * @retval BBOX_ITEMS	The list for the static objects.
+ * @callgraph
  */
-BBOX_ITEMS* create_bbox_items(unsigned int size);
+BBOX_ITEMS* create_bbox_items(uint32_t size);
 
-/*!
- * \ingroup misc
- * \brief Frees the list for static objects.
+/**
+ * @ingroup misc
+ * @brief Frees the list for static objects.
  *
  * Frees the list for static objects.
  *
- * \param bbox_items	The list of the static objects.
- * \callgraph
+ * @param bbox_items	The list of the static objects.
+ * @callgraph
  */
 void free_bbox_items(BBOX_ITEMS* bbox_items);
 
-/*!
- * \ingroup misc
- * \brief Sets all intersection lists to update needed.
+/**
+ * @ingroup misc
+ * @brief Sets all intersection lists to update needed.
  *
  * Sets all intersection lists to update needed.
  *
- * \param bbox_tree	The bounding box tree of the intersection list.
- * \callgraph
+ * @param bbox_tree	The bounding box tree of the intersection list.
+ * @callgraph
  */
 void set_all_intersect_update_needed(BBOX_TREE* bbox_tree);
 
-/*!
- * \ingroup misc
- * \brief Calculates the scene bounding box.
+/**
+ * @ingroup misc
+ * @brief Calculates the scene bounding box.
  *
  * Calculates the bounding box that enclose the hole scene.
  *
- * \param bbox_tree	The bounding-box-tree holding the objects.
- * \param frustum	The frustum.
- * \param frustum	The frustum mask.
- * \param bbox		The bbox of the objects in the frustum.
+ * @param bbox_tree	The bounding-box-tree holding the objects.
+ * @param frustum	The frustum.
+ * @param frustum	The frustum mask.
+ * @param bbox		The bbox of the objects in the frustum.
  *
- * \callgraph
+ * @callgraph
  */
 void calc_scene_bbox(BBOX_TREE* bbox_tree, AABBOX* bbox);
 
@@ -914,31 +944,33 @@ extern BBOX_ITEMS* main_bbox_tree_items;
 int aabb_in_frustum(const AABBOX bbox);
 void calculate_light_frustum(double* modl, double* proj);
 
-/*!
- * \ingroup misc
- * \brief   Checks if the box intersect with the click line.
+/**
+ * @ingroup misc
+ * @brief   Checks if the box intersect with the click line.
  *
  *      Checks if the bounding box intersect with the click line.
  *
- * \param bbox      bounding box
- * \retval int      1 (true), if intersect, else 0 (false).
- * \callgraph
+ * @param bbox      bounding box
+ * @retval int      1 (true), if intersect, else 0 (false).
+ * @callgraph
  */
 int click_line_bbox_intersection(const AABBOX bbox);
 
-/*!
- * \ingroup misc
- * \brief   Set the click line.
+/**
+ * @ingroup misc
+ * @brief   Set the click line.
  *
  *      Set click line.
  *
- * \callgraph
+ * @callgraph
  */
 void set_click_line();
 
-void set_frustum(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask);
-void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, unsigned int mask, const FRUSTUM view_frustum,
-	unsigned int view_mask, const VECTOR3 light_dir);
+void set_frustum(BBOX_TREE* bbox_tree, const FRUSTUM frustum, uint32_t mask);
+void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, uint32_t mask, const FRUSTUM view_frustum,
+	uint32_t view_mask, const VECTOR3 light_dir);
+
+void reflection_portal_check(BBOX_TREE* bbox_tree, const PLANE* portals, uint32_t count);
 
 extern LINE click_line;
 

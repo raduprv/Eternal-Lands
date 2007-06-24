@@ -95,9 +95,34 @@ int render_mesh= 1;
 
 static __inline__ void check_option_var(char* name);
 
-static __inline__ void update_fbo_and_shadow_mapping()
+static __inline__ void update_fbo()
 {
 	check_option_var("shadow_map_size");
+	if (gl_extensions_loaded && have_extension(ext_framebuffer_object))
+	{
+#ifdef	USE_SHADER
+		if ((water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
+		if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
+		{
+			change_reflection_framebuffer_size(window_width, window_height);
+		}
+		else
+		{
+			free_reflection_framebuffer();
+		}
+#ifdef MINIMAP
+		if (use_frame_buffer)
+		{
+			minimap_make_framebuffer();
+		}
+		else
+		{
+			minimap_free_framebuffer();
+		}
+#endif //MINIMAP
+	}
 }
 
 void change_var(int * var)
@@ -210,7 +235,7 @@ void change_poor_man(int *poor_man)
 #ifndef MAP_EDITOR
 		use_frame_buffer= 0;
 #endif
-		update_fbo_and_shadow_mapping();
+		update_fbo();
 	}
 }
 
@@ -446,7 +471,7 @@ void switch_vidmode(int *pointer, int mode)
 		}
 #endif
 	}
-	update_fbo_and_shadow_mapping();
+	update_fbo();
 }
 
 void toggle_full_screen_mode(int * fs)
@@ -534,21 +559,6 @@ void change_shadow_map_size(int *pointer, int value)
 		{
 			free_shadow_framebuffer();
 		}
-		if (use_frame_buffer && show_reflection)
-		{
-			change_reflection_framebuffer_size(window_width, window_height);
-		}
-		else
-		{
-			free_reflection_framebuffer();
-		}
-#ifdef MINIMAP
-		if (use_frame_buffer){
-			minimap_make_framebuffer();
-		} else {
-			minimap_free_framebuffer();
-		}
-#endif //MINIMAP
 	}
 
 	if (pointer != NULL) {
@@ -888,7 +898,7 @@ void change_shadow_mapping (int *sm)
 			LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
 		}
 	}
-	update_fbo_and_shadow_mapping();
+	update_fbo();
 }
 
 #ifndef MAP_EDITOR2
@@ -908,7 +918,7 @@ void change_global_filters (int *use)
 void change_reflection(int *rf)
 {
 	*rf= !*rf;
-	update_fbo_and_shadow_mapping();
+	update_fbo();
 }
 
 #ifndef MAP_EDITOR
@@ -929,15 +939,37 @@ void change_frame_buffer(int *fb)
 			LOG_TO_CONSOLE (c_red1, disabled_framebuffer);
 		}
 	}
-	update_fbo_and_shadow_mapping();
+	update_fbo();
 }
 #endif
 
 void change_shadows(int *sh)
 {
 	*sh= !*sh;
-	update_fbo_and_shadow_mapping();
+	update_fbo();
 }
+
+#ifdef	USE_SHADER
+void change_water_shader_quality(int *wsq, int value)
+{
+	if (value == 0)
+	{
+		*wsq = 0;
+	}
+	else
+	{
+		if (!gl_extensions_loaded)
+		{
+			*wsq = value;
+		}
+		else
+		{
+			*wsq = min2i(value, get_max_supported_water_shader_quality());
+		}
+	}
+	update_fbo();
+}
+#endif	// USE_SHADER
 
 #ifdef MAP_EDITOR
 
@@ -1049,6 +1081,9 @@ void check_options()
 	check_option_var("use_frame_buffer");
 	check_option_var("use_shadow_mapping");
 	check_option_var("shadow_map_size");
+#ifdef	USE_SHADER
+	check_option_var("water_shader_quality");
+#endif	// USE_SHADER
 }
 
 int check_var (char *str, var_name_type type)
@@ -1273,7 +1308,6 @@ void init_vars()
 	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
 	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
 	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,1,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
-	add_var(FLOAT,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",ADVVID, 1.0f, 16.0f, 0.5f);
 	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
 #ifndef MAP_EDITOR
 	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
@@ -1462,6 +1496,10 @@ void init_vars()
 #ifdef CLICKABLE_CONTINENT_MAP
 	add_var(BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 #endif
+	add_var(FLOAT,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, 1.0f, 16.0f, 1.0f);
+#ifdef	USE_SHADER
+	add_var(INT,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better.",VIDEO, 0, 2);
+#endif	// USE_SHADER
 #endif //ELC
 #ifdef MAP_EDITOR
 	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);

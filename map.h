@@ -73,12 +73,35 @@ int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len);
  * @ingroup maps
  * @brief Removes an object from the current map
  *
- *	Removes the object with ID \a id from the map
+ *	Removes the object with ID an id from the map
  *
  * @param id The ID of the object to be removed
  * @callgraph
  */
 void remove_3d_object_from_server (int id);
+
+/**
+ * @ingroup maps
+ * @brief Inits the buffer used for terrain.
+ *
+ * Inits the buffer used for terrain. Must be called every time map
+ * size increase, but also should be called every time time map size decrease.
+ *
+ * @param terrain_buffer_size The new size of the buffer in number of elements.
+ * @callgraph
+ */
+void init_terrain_buffers(int terrain_buffer_size);
+
+/**
+ * @ingroup maps
+ * @brief Inits the buffer and the portals.
+ *
+ * Inits the buffer used for terrain and water, also the portals. Must be called every time map
+ * size increase, but also should be called every time time map size decrease.
+ *
+ * @callgraph
+ */
+void init_buffers();
 
 #ifdef __cplusplus
 } // extern "C"

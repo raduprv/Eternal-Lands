@@ -551,8 +551,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		matrix_mul_aabb(&bbox, our_object->matrix);
 		texture_id = returned_e3d->materials[i].texture_id;
 		is_transparent = material_is_transparent(returned_e3d->materials[i].options);
-		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, returned_e3d->md5);
-		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, returned_e3d->md5, dynamic);
+		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id);
+		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, dynamic);
 	}
 
 #ifdef EYE_CANDY

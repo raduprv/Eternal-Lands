@@ -63,12 +63,6 @@ Uint32 my_timer(Uint32 interval, void * data)
 		next_command();
 
 		move_to_next_frame();
-		if(lake_waves_timer>2)
-		{
-			lake_waves_timer=0;
-			make_lake_water_noise();
-		}
-		lake_waves_timer++;
 		water_movement_u+=0.0004f;
 		water_movement_v+=0.0002f;
 		if(!dungeon && 0)//we do not want clouds movement in dungeons, but we want clouds detail

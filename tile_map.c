@@ -20,155 +20,256 @@ float ambient_r=0;
 float ambient_g=0;
 float ambient_b=0;
 char map_file_name[256];
+GLfloat* terrain_tile_buffer = 0;
+GLuint terrain_tile_buffer_object = 0;
+int terrain_buffer_usage = 0;
+
+void init_terrain_buffers(int terrain_buffer_size)
+{
+	terrain_tile_buffer = realloc(terrain_tile_buffer, terrain_buffer_size * 4 * 2 * sizeof(GLfloat));
+
+	if (have_extension(arb_vertex_buffer_object))
+	{
+		if (terrain_tile_buffer_object == 0)
+		{
+			ELglGenBuffersARB(1, &terrain_tile_buffer_object);
+		}
+		else
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, terrain_tile_buffer_object);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, 0, 0, GL_DYNAMIC_DRAW_ARB);
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		}
+	}
+
+}
+
+static __inline__ void build_terrain_buffer()
+{
+	unsigned int i, j, l, start, stop;
+	float x_scaled,y_scaled;
+
+	if (get_bbox_intersect_flag(main_bbox_tree, TYPE_TERRAIN, ide_changed))
+	{
+		clear_bbox_intersect_flag(main_bbox_tree, TYPE_TERRAIN, ide_changed);
+	}
+	else
+	{
+		return;
+	}
+
+	j = 0;
+
+	get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
+
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x_scaled = get_terrain_x(l) * 3.0f;
+		y_scaled = get_terrain_y(l) * 3.0f;
+
+		terrain_tile_buffer[j * 8 + 0] = x_scaled;
+		terrain_tile_buffer[j * 8 + 1] = y_scaled + 3.0f;
+		terrain_tile_buffer[j * 8 + 2] = x_scaled;
+		terrain_tile_buffer[j * 8 + 3] = y_scaled;
+		terrain_tile_buffer[j * 8 + 4] = x_scaled + 3.0f;
+		terrain_tile_buffer[j * 8 + 5] = y_scaled;
+		terrain_tile_buffer[j * 8 + 6] = x_scaled + 3.0f;
+		terrain_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
+		j++;
+	}
+
+	terrain_buffer_usage = j;
+
+	if (have_extension(arb_vertex_buffer_object))
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, terrain_tile_buffer_object);
+		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, terrain_buffer_usage * 4 * 2 * sizeof(GLfloat),
+			terrain_tile_buffer, GL_DYNAMIC_DRAW_ARB);
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+}
+
+void draw_terrain_quad_tiles(unsigned int start, unsigned int stop)
+{
+	unsigned int i, l, size, idx;
+	int x, y, cur_texture;
+
+	idx = 0;
+	size = 0;
+
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x = get_terrain_x(l);
+		y = get_terrain_y(l);
+
+		cur_texture = get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
+		if (cur_texture != last_texture)
+		{
+			glDrawArrays(GL_QUADS, idx * 4, size * 4);
+			bind_texture_id(cur_texture);
+			cur_texture = last_texture;
+			idx += size;
+			size = 0;
+		}
+		size++;
+	}
+	glDrawArrays(GL_QUADS, idx * 4, size * 4);
+}
+
+static __inline__ void setup_terrain_clous_texgen()
+{
+	GLfloat plane[4];
+
+	ELglActiveTextureARB(detail_unit);
+
+	glEnable(GL_TEXTURE_GEN_S);
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 1.0f / texture_scale;
+	plane[1] = 0.0f;
+	plane[2] = 0.0f;
+	plane[3] = clouds_movement_u;
+	glTexGenfv(GL_S, GL_OBJECT_PLANE, plane);
+
+	glEnable(GL_TEXTURE_GEN_T);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 0.0f;
+	plane[1] = 1.0f / texture_scale;
+	plane[2] = 0.0f;
+	plane[3] = clouds_movement_v;
+	glTexGenfv(GL_T, GL_OBJECT_PLANE, plane);
+
+	ELglActiveTextureARB(base_unit);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void setup_terrain_texgen()
+{
+	GLfloat plane[4];
+
+	glEnable(GL_TEXTURE_GEN_S);
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 1.0f / 3.0f;
+	plane[1] = 0.0f;
+	plane[2] = 0.0f;
+	plane[3] = 0.0f;
+	glTexGenfv(GL_S, GL_OBJECT_PLANE, plane);
+
+	glEnable(GL_TEXTURE_GEN_T);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 0.0f;
+	plane[1] = 1.0f / 3.0f;
+	plane[2] = 0.0f;
+	plane[3] = 0.0f;
+	glTexGenfv(GL_T, GL_OBJECT_PLANE, plane);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void disable_terrain_clous_texgen()
+{
+	ELglActiveTextureARB(detail_unit);
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+
+	ELglActiveTextureARB(base_unit);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void disable_terrain_texgen()
+{
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
 
 void draw_tile_map()
 {
-	unsigned int i, l, start, stop;
-	int x,y;
-	float x_scaled,y_scaled;
-	int cur_texture;
-
-#if 0
-	{
-		int num = -1;
-		float fv[4];
-			
-#ifdef EYE_CANDY
-		for (i = 0; i < 4; i++)
-#else
-		for (i = 0; i < 7; i++)
-#endif
-			if (glIsEnabled(GL_LIGHT0+i)) num++;
-
-		printf("\nNum:\t%d\n", num);
-		printf("\nshow_lights:\t%d\n", show_lights);
-		printf("\nnum_lights:\t%d\n", num_lights);
-
-		for (i = 0; i < 8; i++)
-		{
-			if (glIsEnabled(GL_LIGHT0+i))
-			{
-				printf("\nLight%d:\n", i);
-				glGetLightfv(GL_LIGHT0+i, GL_POSITION, fv);
-				printf("\tPosition:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
-				glGetLightfv(GL_LIGHT0+i, GL_DIFFUSE, fv);
-				printf("\tDiffuse:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
-				glGetLightfv(GL_LIGHT0+i, GL_SPECULAR, fv);
-				printf("\tSpecular:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
-				glGetLightfv(GL_LIGHT0+i, GL_SPOT_DIRECTION, fv);
-				printf("\tSpot direction:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
-				glGetLightfv(GL_LIGHT0+i, GL_AMBIENT, fv);
-				printf("\tAmbient:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
-				glGetLightfv(GL_LIGHT0+i, GL_SPECULAR, fv);
-				printf("\tSpecular:\t<%f,\t%f,\t%f,\t%f>\n", fv[0], fv[1], fv[2], fv[3]);
-				glGetLightfv(GL_LIGHT0+i, GL_SPOT_CUTOFF, fv);
-				printf("\tSpot cutoff:\t%f\n", fv[0]);
-				glGetLightfv(GL_LIGHT0+i, GL_CONSTANT_ATTENUATION, fv);
-				printf("\tConstant attentuation:\t%f\n", fv[0]);
-				glGetLightfv(GL_LIGHT0+i, GL_LINEAR_ATTENUATION, fv);
-				printf("\tLinear attentuation:\t%f\n", fv[0]);
-				glGetLightfv(GL_LIGHT0+i, GL_QUADRATIC_ATTENUATION, fv);
-				printf("\tQuadratic attentuation:\t%f\n", fv[0]);
-			}
-		}
-	}
-#endif // Disabled debugging info
-
-	if (!dungeon && clouds_shadows)
-		{
-			//bind the detail texture
-			ELglActiveTextureARB(detail_unit);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
-			ELglActiveTextureARB(base_unit);
-			glEnable(GL_TEXTURE_2D);
-		}
+	unsigned int start, stop;
 
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
 		reset_material();
 #endif
 
-	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
-		{
-			glBegin(GL_QUADS);
-			get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
-			for (i = start; i < stop; i++)
-			{
-				l = get_intersect_item_ID(main_bbox_tree, i);
-				x = get_terrain_x(l);
-				y = get_terrain_y(l);
-				y_scaled = y*3.0f;
-				x_scaled = x*3.0f;
-							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-							if(last_texture!=cur_texture)
-								{
-									glEnd();
-									bind_texture_id(cur_texture);
-									glBegin(GL_QUADS);
-								}
+	glEnable(GL_CULL_FACE);
 
- 							glTexCoord2f(0, 1.0f);
-			 				glVertex3f(x_scaled,y_scaled+3, -0.001f);
-							glTexCoord2f(0, 0);
-							glVertex3f(x_scaled,y_scaled, -0.001f);
-							glTexCoord2f(1.0f, 0);
-							glVertex3f(x_scaled+3, y_scaled,-0.001f);
-							glTexCoord2f(1.0f, 1.0f);
-							glVertex3f(x_scaled+3, y_scaled+3,-0.001f);
-				}
-			glEnd();
-		}
-	else//we draw the ground details
-		{
-
-			glBegin(GL_QUADS);
-			get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
-			for (i = start; i < stop; i++)
-			{
-				l = get_intersect_item_ID(main_bbox_tree, i);
-				x = get_terrain_x(l);
-				y = get_terrain_y(l);
-				y_scaled = y*3.0f;
-				x_scaled = x*3.0f;
-							cur_texture=get_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-							if(last_texture!=cur_texture)
-								{
-									glEnd();
-									bind_texture_id(cur_texture);
-									glBegin(GL_QUADS);
-								}
-							//draw our normal tile
- 							ELglMultiTexCoord2fARB(base_unit,0, 1.0f);
- 							ELglMultiTexCoord2fARB(detail_unit,x_scaled/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
-			 				glVertex3f(x_scaled,y_scaled+3, -0.001f);
-
-							ELglMultiTexCoord2fARB(base_unit,0, 0);
-							ELglMultiTexCoord2fARB(detail_unit,x_scaled/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
-							glVertex3f(x_scaled,y_scaled, -0.001f);
-
-							ELglMultiTexCoord2fARB(base_unit,1.0f, 0);
-							ELglMultiTexCoord2fARB(detail_unit,(x_scaled+3.0f)/texture_scale+clouds_movement_u, y_scaled/texture_scale+clouds_movement_v);
-							glVertex3f(x_scaled+3, y_scaled,-0.001f);
-
-							ELglMultiTexCoord2fARB(base_unit,1.0f, 1.0f);
-							ELglMultiTexCoord2fARB(detail_unit,(x_scaled+3.0)/texture_scale+clouds_movement_u, (y_scaled+3.0)/texture_scale+clouds_movement_v);
-							glVertex3f(x_scaled+3, y_scaled+3,-0.001f);
-				}
-			glEnd();
-
-		}
-	if (!dungeon && clouds_shadows)
-		{
-			//disable the second texture unit
-			ELglActiveTextureARB(detail_unit);
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(base_unit);
-		}
+	build_terrain_buffer();
 
 	glEnable(GL_TEXTURE_2D);
+	if (!dungeon && clouds_shadows)
+	{
+		//bind the detail texture
+		ELglActiveTextureARB(detail_unit);
+		glEnable(GL_TEXTURE_2D);
+		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		ELglActiveTextureARB(base_unit);
+		glEnable(GL_TEXTURE_2D);
+	}
+
+	if (!dungeon && (clouds_shadows || use_shadow_mapping))
+	{
+		setup_terrain_clous_texgen();
+	}
+	setup_terrain_texgen();
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, -0.001f);
+
+	if (use_vertex_buffers)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, terrain_tile_buffer_object);
+		glInterleavedArrays(GL_V2F, 0, 0);
+	}
+	else
+	{
+		glInterleavedArrays(GL_V2F, 0, terrain_tile_buffer);
+	}
+
+	get_intersect_start_stop(main_bbox_tree, TYPE_TERRAIN, &start, &stop);
+	draw_terrain_quad_tiles(start, stop);
+
+	glDisable(GL_CULL_FACE);
+
+	if (use_vertex_buffers)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glPopMatrix();
+
+	if (!dungeon && (clouds_shadows || use_shadow_mapping))
+	{
+		disable_terrain_clous_texgen();
+	}
+	disable_terrain_texgen();
+
+	if (!dungeon && clouds_shadows)
+	{
+		//disable the second texture unit
+		ELglActiveTextureARB(detail_unit);
+		glDisable(GL_TEXTURE_2D);
+		ELglActiveTextureARB(base_unit);
+	}
+	glEnable(GL_TEXTURE_2D);
+
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 

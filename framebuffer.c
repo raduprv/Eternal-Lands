@@ -4,6 +4,225 @@
 #include "global.h"
 #endif
 
+static const GLenum stencil_formats[] =
+{
+	GL_NONE,
+	GL_STENCIL_INDEX1_EXT,
+	GL_STENCIL_INDEX4_EXT,
+	GL_STENCIL_INDEX8_EXT,
+	GL_STENCIL_INDEX16_EXT
+};
+
+static const size_t stencil_bits[] =
+{
+	0, 1, 4, 8, 16
+};
+
+#define STENCIL_FORMAT_COUNT (sizeof(stencil_formats) / sizeof(GLenum))
+
+static const GLenum depth_formats[] =
+{
+	GL_NONE,
+	GL_DEPTH_COMPONENT16,
+	GL_DEPTH_COMPONENT24,
+	GL_DEPTH_COMPONENT32,
+	GL_DEPTH24_STENCIL8_EXT
+};
+
+static const size_t depth_bits[] =
+{
+	0, 16, 24, 32, 24
+};
+
+#define DEPTH_FORMAT_COUNT (sizeof(depth_formats) / sizeof(GLenum))
+
+static const GLenum color_formats[] =
+{
+	GL_NONE,
+	GL_RGBA4,
+	GL_RGB8,
+	GL_RGB5,
+	GL_RGBA8,
+	GL_RGB5_A1,
+	GL_LUMINANCE8,
+	GL_LUMINANCE8_ALPHA8,
+	GL_LUMINANCE16,
+	GL_LUMINANCE16_ALPHA16,
+	GL_RGB32F_ARB,
+	GL_RGBA32F_ARB,
+	GL_LUMINANCE32F_ARB,
+	GL_LUMINANCE_ALPHA32F_ARB,
+	GL_RGB16F_ARB,
+	GL_RGBA16F_ARB,
+	GL_LUMINANCE16F_ARB,
+	GL_LUMINANCE_ALPHA16F_ARB
+};
+
+#define COLOR_FORMAT_COUNT (sizeof(color_formats) / sizeof(GLenum))
+
+static const char* color_format_strs[] =
+{
+	"NONE",
+	"RGBA4",
+	"RGB8",
+	"RGB5",
+	"RGBA8",
+	"RGB5_A1",
+	"LUMINANCE8",
+	"LUMINANCE8_ALPHA8",
+	"LUMINANCE16",
+	"LUMINANCE16_ALPHA16",
+	"RGB32F",
+	"RGBA32F",
+	"LUMINANCE32F",
+	"LUMINANCE_ALPHA32F",
+	"RGB16F",
+	"RGBA16F",
+	"LUMINANCE16F",
+	"LUMINANCE_ALPHA16F"
+};
+
+#define PROBE_SIZE 16
+
+int try_format(GLenum depth_format, GLenum stencil_format)
+{
+	GLuint status, depth_rb, stencil_rb;
+	int failed; // flag on GL errors
+
+	depth_rb = 0;
+	stencil_rb = 0;
+	failed = 0; // flag on GL errors
+
+	if (depth_format != GL_NONE)
+	{
+		/// Generate depth renderbuffer
+		ELglGenRenderbuffersEXT(1, &depth_rb);
+		/// Bind it to FBO
+		ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, depth_rb);
+		
+		/// Allocate storage for depth buffer
+		ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, depth_format, PROBE_SIZE,
+			PROBE_SIZE);
+		
+		/// Attach depth
+		ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+			GL_RENDERBUFFER_EXT, depth_rb);
+	}
+
+	if (stencil_format != GL_NONE)
+	{
+		/// Generate stencil renderbuffer
+		ELglGenRenderbuffersEXT(1, &stencil_rb);
+		/// Bind it to FBO
+		ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, stencil_rb);
+		glGetError(); // NV hack
+		/// Allocate storage for stencil buffer
+		ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, stencil_format, PROBE_SIZE,
+			PROBE_SIZE); 
+
+		if (glGetError() != GL_NO_ERROR) // NV hack
+		{
+			failed = 1;
+		}
+		/// Attach stencil
+		ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+			GL_RENDERBUFFER_EXT, stencil_rb);
+		if (glGetError() != GL_NO_ERROR) // NV hack
+		{
+			failed = 1;
+		}
+	}
+
+	status = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+	/// If status is negative, clean up
+	// Detach and destroy
+	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+		GL_RENDERBUFFER_EXT, 0);
+	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+		GL_RENDERBUFFER_EXT, 0);
+	if (depth_rb != 0)
+	{
+		ELglDeleteRenderbuffersEXT(1, &depth_rb);
+	}
+	if (stencil_rb != 0)
+	{
+		ELglDeleteRenderbuffersEXT(1, &stencil_rb);
+	}
+	
+	return (status == GL_FRAMEBUFFER_COMPLETE_EXT) && (failed == 0);
+}
+
+void check_fbo_formats()
+{
+	// Try all formats, and report which ones work as target
+	int i, j, k;
+	GLuint fb, tid;
+       	GLint old_drawbuffer, old_readbuffer;
+	GLenum target, fmt;
+
+	target = GL_TEXTURE_2D;
+
+	glGetIntegerv (GL_DRAW_BUFFER, &old_drawbuffer);
+	glGetIntegerv (GL_READ_BUFFER, &old_readbuffer);
+
+	for (i = 0; i < COLOR_FORMAT_COUNT; i++)
+	{
+		fmt = color_formats[i];
+		ELglGenFramebuffersEXT(1, &fb);
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
+		if (fmt != GL_NONE)
+		{
+			// Create and attach texture
+			glGenTextures(1, &tid);
+			glBindTexture(target, tid);
+				
+			// Set some default parameters so it won't fail on NVidia cards
+			glTexParameteri(target, GL_TEXTURE_MAX_LEVEL, 0);
+			glTexParameteri(target, GL_TEXTURE_MIN_FILTER, GL_NEAREST);
+			glTexParameteri(target, GL_TEXTURE_MAG_FILTER, GL_NEAREST);
+			glTexParameteri(target, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+			glTexParameteri(target, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+				    
+			glTexImage2D(target, 0, fmt, PROBE_SIZE, PROBE_SIZE, 0, GL_RGBA, GL_UNSIGNED_BYTE, 0);
+			ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, target, tid, 0);
+		}
+		else
+		{
+			// Draw to nowhere -- stencil/depth only
+			glDrawBuffer(GL_NONE);
+			glReadBuffer(GL_NONE);
+		}
+
+		// Check status
+		GLuint status = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+
+		// Ignore status in case of fmt == GL_NONE, because no implementation will accept
+		// a buffer without *any* attachment. Buffers with only stencil and depth attachment
+		// might still be supported, so we must continue probing.
+		if (fmt == GL_NONE || status == GL_FRAMEBUFFER_COMPLETE_EXT)
+		{
+			for (j = 0; j < DEPTH_FORMAT_COUNT; j++)
+			{
+				for (k = 0; k < STENCIL_FORMAT_COUNT; k++)
+				{
+					if (try_format(depth_formats[j], stencil_formats[k]))
+					{
+						log_error(fbo_supported_format, color_format_strs[i], depth_bits[j], stencil_bits[k]);
+					}
+				}
+			}
+		}
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		ELglDeleteFramebuffersEXT(1, &fb);
+		if (fmt != GL_NONE)
+		{
+			glDeleteTextures(1, &tid);
+		}
+	}
+	glDrawBuffer(old_drawbuffer);
+	glReadBuffer(old_readbuffer);
+}
+
 void print_fbo_errors(const char *file, const char *func, int line)
 {
 	GLuint error_no = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
@@ -30,98 +249,162 @@ void print_fbo_errors(const char *file, const char *func, int line)
 		case GL_FRAMEBUFFER_INCOMPLETE_READ_BUFFER_EXT:
 			log_error_detailed(fbo_read_buffer_error, file, func, line);
 			break;
+		case GL_FRAMEBUFFER_UNSUPPORTED_EXT:
+			log_error_detailed(fbo_unsupported_fromat_error, file, func, line);
+			break;
 		default:
 			log_error_detailed(fbo_unknow_error, file, func, line);
 			break;
 	}	
 }
 
-void free_color_framebuffer(GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
+void free_color_framebuffer(GLuint *fbo, GLuint *fbo_depth_buffer, GLuint * fbo_stencil_buffer,
+	GLuint *fbo_texture)
 {
-	if (FBO[0] > 0)
+	if (fbo != NULL)
 	{
-		ELglDeleteFramebuffersEXT(1, FBO);
-		FBO[0] = 0;
+		if (*fbo != 0)
+		{
+			ELglDeleteFramebuffersEXT(1, fbo);
+		}
+		*fbo = 0;
 	}
-	if (FBORenderBuffer[0] > 0)
+	if (fbo_depth_buffer != NULL)
 	{
-		ELglDeleteRenderbuffersEXT(1, FBORenderBuffer);
-		FBORenderBuffer[0] = 0;
+		if (*fbo_depth_buffer != 0)
+		{
+			ELglDeleteRenderbuffersEXT(1, fbo_depth_buffer);
+		}
+		*fbo_depth_buffer = 0;
 	}
-	if (FBOTexture[0] > 0)
+	if (fbo_stencil_buffer != NULL)
 	{
-		glDeleteTextures(1, FBOTexture);
-		FBOTexture[0] = 0;
+		if (*fbo_stencil_buffer != 0)
+		{
+			ELglDeleteRenderbuffersEXT(1, fbo_stencil_buffer);
+		}
+		*fbo_stencil_buffer = 0;
+	}
+	if (fbo_texture != NULL)
+	{
+		if (*fbo_texture != 0)
+		{
+			glDeleteTextures(1, fbo_texture);
+		}
+		*fbo_texture = 0;
 	}
 }
 
-void make_color_framebuffer(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
+void make_color_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_depth_buffer,
+	GLuint * fbo_stencil_buffer, GLuint *fbo_texture)
 {
 	if ((width <= 0) || (height <= 0)) return;
 
-	glGenTextures(1, FBOTexture);
-	ELglGenFramebuffersEXT(1, FBO);
-	ELglGenRenderbuffersEXT(1, FBORenderBuffer);
+	check_formats();
 
-	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, *FBO);
+	glGenTextures(1, fbo_texture);
+	ELglGenFramebuffersEXT(1, fbo);
+
+	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, *fbo);
 
 	// initialize color texture
-	glBindTexture(GL_TEXTURE_2D, *FBOTexture);
+	glBindTexture(GL_TEXTURE_2D, *fbo_texture);
+
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_CLAMP_TO_EDGE);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
+
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB8, width, height, 0, GL_RGBA, GL_UNSIGNED_BYTE, NULL);
 	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_COLOR_ATTACHMENT0_EXT, GL_TEXTURE_2D,
-		*FBOTexture, 0);
+		*fbo_texture, 0);
 
 	// initialize depth renderbuffer
-	ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, *FBORenderBuffer);
-	ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT, width, height);
-	ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
-		GL_RENDERBUFFER_EXT, *FBORenderBuffer);
+	if (fbo_depth_buffer != NULL)
+	{
+		ELglGenRenderbuffersEXT(1, fbo_depth_buffer);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, *fbo_depth_buffer);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_DEPTH_COMPONENT24, width, height);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT,
+			GL_RENDERBUFFER_EXT, *fbo_depth_buffer);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+	}
+
+	// initialize stencil renderbuffer
+	if (fbo_stencil_buffer != NULL)
+	{
+		ELglGenRenderbuffersEXT(1, fbo_stencil_buffer);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		ELglBindRenderbufferEXT(GL_RENDERBUFFER_EXT, *fbo_stencil_buffer);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		ELglRenderbufferStorageEXT(GL_RENDERBUFFER_EXT, GL_STENCIL_INDEX8_EXT, width, height);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		ELglFramebufferRenderbufferEXT(GL_FRAMEBUFFER_EXT, GL_STENCIL_ATTACHMENT_EXT,
+			GL_RENDERBUFFER_EXT, *fbo_stencil_buffer);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+	}
 
 	//Turn off our frame buffer object
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	CHECK_GL_ERRORS();
 	CHECK_FBO_ERRORS();
 }
 
-void change_color_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBORenderBuffer, GLuint *FBOTexture)
+void change_color_framebuffer_size(int width, int height, GLuint *fbo, GLuint *fbo_depth_buffer,
+	GLuint *fbo_stencil_buffer, GLuint *fbo_texture)
 {
-	free_color_framebuffer(FBO, FBORenderBuffer, FBOTexture);
-	make_color_framebuffer(width, height, FBO, FBORenderBuffer, FBOTexture);
+	free_color_framebuffer(fbo, fbo_depth_buffer, fbo_stencil_buffer, fbo_texture);
+	make_color_framebuffer(width, height, fbo, fbo_depth_buffer, fbo_stencil_buffer, fbo_texture);
 }
 
-void free_depth_framebuffer(GLuint *FBO, GLuint *FBOTexture)
+void free_depth_framebuffer(GLuint *fbo, GLuint *fbo_texture)
 {
-	if (FBO[0] > 0)
+	if (fbo != NULL)
 	{
-		ELglDeleteFramebuffersEXT(1, FBO);
-		FBO[0] = 0;
+		if (*fbo != 0)
+		{
+			ELglDeleteFramebuffersEXT(1, fbo);
+		}
+		*fbo = 0;
 	}
-	if (FBOTexture[0] > 0)
+	if (fbo_texture != NULL)
 	{
-		glDeleteTextures(1, FBOTexture);
-		FBOTexture[0] = 0;
+		if (*fbo_texture != 0)
+		{
+			glDeleteTextures(1, fbo_texture);
+		}
+		*fbo_texture = 0;
 	}
 }
 
-void make_depth_framebuffer(int width, int height, GLuint *FBO, GLuint *FBOTexture)
+void make_depth_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_texture)
 {
 	GLint depth_bits, depth_format;
 
 	if ((width <= 0) || (height <= 0)) return;
 
 	// create objects
-	ELglGenFramebuffersEXT(1, FBO);// frame buffer
-	glGenTextures(1, FBOTexture);// texture
+	ELglGenFramebuffersEXT(1, fbo);// frame buffer
+	glGenTextures(1, fbo_texture);// texture
 	
 	glGetIntegerv(GL_DEPTH_BITS, &depth_bits);
 
 	if (depth_bits == 16) depth_format = GL_DEPTH_COMPONENT16_ARB;
 	else depth_format = GL_DEPTH_COMPONENT24_ARB;
 
-	glBindTexture(GL_TEXTURE_2D, FBOTexture[0]);
+	glBindTexture(GL_TEXTURE_2D, *fbo_texture);
 	glTexImage2D(GL_TEXTURE_2D, 0, GL_DEPTH_COMPONENT, width, height, 0, GL_DEPTH_COMPONENT, GL_FLOAT, NULL);
 	// initialize texture
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
@@ -130,10 +413,10 @@ void make_depth_framebuffer(int width, int height, GLuint *FBO, GLuint *FBOTextu
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_CLAMP_TO_EDGE);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_MODE_ARB, GL_COMPARE_R_TO_TEXTURE_ARB);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_COMPARE_FUNC_ARB, GL_LEQUAL);
-	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, FBO[0]);
+	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, *fbo);
 
 	// attach texture to frame-buffer depth-buffer
-	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, FBOTexture[0], 0);
+	ELglFramebufferTexture2DEXT(GL_FRAMEBUFFER_EXT, GL_DEPTH_ATTACHMENT_EXT, GL_TEXTURE_2D, *fbo_texture, 0);
 
 	glDrawBuffer(GL_NONE);
 	glReadBuffer(GL_NONE);
@@ -143,13 +426,13 @@ void make_depth_framebuffer(int width, int height, GLuint *FBO, GLuint *FBOTextu
 
 	//Turn off our frame buffer object
 	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-    	glBindTexture(GL_TEXTURE_2D, 0);
+	glBindTexture(GL_TEXTURE_2D, 0);
 	CHECK_GL_ERRORS();
 	CHECK_FBO_ERRORS();
 }
 
-void change_depth_framebuffer_size(int width, int height, GLuint *FBO, GLuint *FBOTexture)
+void change_depth_framebuffer_size(int width, int height, GLuint *fbo, GLuint *fbo_texture)
 {
-	free_depth_framebuffer(FBO, FBOTexture);
-	make_depth_framebuffer(width, height, FBO, FBOTexture);
+	free_depth_framebuffer(fbo, fbo_texture);
+	make_depth_framebuffer(width, height, fbo, fbo_texture);
 }

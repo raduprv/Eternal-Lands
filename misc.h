@@ -361,6 +361,8 @@ static __inline__ float clampf(float x, float l, float u)
 
 /*! @} */
 
+void init_reflection_portals(int size);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

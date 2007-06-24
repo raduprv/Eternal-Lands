@@ -127,6 +127,7 @@ int load_map(const char *file_name, update_func *update_function)
 
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
+	init_buffers();
 	for(i = 0; i < tile_map_size_y; i++)
 	{
 		bbox.bbmin[Y] = i*3.0f;
@@ -134,7 +135,7 @@ int load_map(const char *file_name, update_func *update_function)
 		for(j = 0; j < tile_map_size_x; j++)
 		{
 			cur_tile = tile_map[i*tile_map_size_x+j];
-			if(cur_tile != 255)
+			if (cur_tile != 255)
 			{
 				bbox.bbmin[X] = j*3.0f;
 				bbox.bbmax[X] = (j+1)*3.0f;

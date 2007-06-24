@@ -15,6 +15,13 @@ typedef unsigned int uint_fast32_t;
 #include <GL/glext.h>
 #endif
 
+#ifndef GL_ATI_texture_compression_3dc
+#define GL_ATI_texture_compression_3dc 1
+
+#define GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI     0x8837
+
+#endif /* GL_ATI_texture_compression_3dc */
+
 typedef enum {
 	arb_multitexture = 0,
 	arb_texture_compression = 1,
@@ -42,7 +49,8 @@ typedef enum {
 	sgis_generate_mipmap = 23,
 	arb_texture_mirrored_repeat = 24,
 	arb_texture_rectangle = 25,
-	ext_fog_coord = 26
+	ext_fog_coord = 26,
+	ati_texture_compression_3dc = 27
 } extension_enum;
 
 /*	GL_ARB_multitexture	*/

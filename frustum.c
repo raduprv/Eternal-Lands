@@ -41,6 +41,8 @@ FRUSTUM shadow_frustum;
 FRUSTUM* current_frustum;
 unsigned int current_frustum_size;
 double reflection_clip_planes[5][4];
+PLANE* reflection_portals;
+
 ///////////////////////////////// NORMALIZE PLANE \\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\\*
 /////
 /////	This normalizes a plane (A side) from a given frustum.
@@ -220,9 +222,9 @@ static __inline__ void calculate_frustum_from_clip_matrix(FRUSTUM frustum, MATRI
 static __inline__ void calc_plane(VECTOR4 plane, const VECTOR3 p1, const VECTOR3 p2, const VECTOR3 p3)
 {
 	VECTOR3 t0, t1, t2, t3;
-	
+
 	VSub(t2, p1, p2);
-	VSub(t3, p2, p3);
+	VSub(t3, p1, p3);
 	VCross(t1, t2, t3);
 	Normalize(t0, t1);
 
@@ -287,15 +289,24 @@ int aabb_in_frustum(const AABBOX bbox)
 	return 1;
 }
 
+void init_reflection_portals(int size)
+{
+	reflection_portals = realloc(reflection_portals, size * 4 * sizeof(PLANE));
+}
+
 void calculate_reflection_frustum(float water_height)
 {
 	MATRIX4x4 proj;
 	MATRIX4x4 modl;
 	MATRIX4x4 clip;
-	VECTOR3 p1, p2, p3;
+	MATRIX4x4 inv;
+	float x_min, x_max, y_min, y_max, x_scaled, y_scaled;
+	unsigned int i, j, l, start, stop;
+	unsigned int cur_intersect_type;
+	VECTOR3 p1, p2, p3, p4, pos;
 
 	if (main_bbox_tree->intersect[INTERSECTION_TYPE_REFLECTION].intersect_update_needed == 0) return;
-		
+
 	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
 	glGetFloatv(GL_PROJECTION_MATRIX, proj);
 	
@@ -319,11 +330,13 @@ void calculate_reflection_frustum(float water_height)
 	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
 	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
 
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_frustum_from_clip_matrix(reflection_frustum, clip);
-	
-	VMake(p1, -1.0f, -1.0f, water_height);
-	VMake(p2, -1.0f, 1.0f, water_height);
-	VMake(p3, 1.0f, -1.0f, water_height);
+	VMake(p1, -1.0f, -1.0f, water_height * 1.1f);
+	VMake(p2, -1.0f, 1.0f, water_height * 1.1f);
+	VMake(p3, 1.0f, -1.0f, water_height * 1.1f);
 	calc_plane(reflection_frustum[6].plane, p2, p1, p3);
 	calc_plane_mask(&reflection_frustum[6]);
 	reflection_clip_planes[0][A] = reflection_frustum[6].plane[A];
@@ -333,6 +346,50 @@ void calculate_reflection_frustum(float water_height)
 
 	set_frustum(main_bbox_tree, reflection_frustum, 127);
 	check_bbox_tree(main_bbox_tree);
+
+	VMInvert(inv, modl);
+	VMake(pos, inv[3] / inv[15], inv[7] / inv[15], inv[11] / inv[15]);
+
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
+	j = 0;	
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x_scaled = get_terrain_x(l) * 3.0f;
+		y_scaled = get_terrain_y(l) * 3.0f;
+
+		float x = x_scaled + 1.5f - pos[X];
+		float y = y_scaled + 1.5f - pos[Y];
+		float z = water_height - pos[Z];
+
+		if (sqrt(x * x + y * y + z * z) > 30) continue;
+
+		x_min = x_scaled;
+		x_max = x_scaled + 3.0f;
+		y_min = y_scaled;
+		y_max = y_scaled + 3.0f;
+
+		VMake(p1, x_min, y_max, water_height);
+		VMake(p2, x_max, y_max, water_height);
+		VMake(p3, x_max, y_min, water_height);
+		VMake(p4, x_min, y_min, water_height);
+
+		calc_plane(reflection_portals[j * 4 + 0].plane, pos, p2, p1);
+		calc_plane(reflection_portals[j * 4 + 1].plane, pos, p3, p2);
+		calc_plane(reflection_portals[j * 4 + 2].plane, pos, p4, p3);
+		calc_plane(reflection_portals[j * 4 + 3].plane, pos, p1, p4);
+		calc_plane_mask(&reflection_portals[j * 4 + 0]);
+		calc_plane_mask(&reflection_portals[j * 4 + 1]);
+		calc_plane_mask(&reflection_portals[j * 4 + 2]);
+		calc_plane_mask(&reflection_portals[j * 4 + 3]);
+		j++;
+	}
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
+
+	reflection_portal_check(main_bbox_tree, reflection_portals, j);
+
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 }
 
 void calculate_shadow_frustum()

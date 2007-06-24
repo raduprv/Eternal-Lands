@@ -10,7 +10,7 @@ GLuint minimap_texture = 0;
 GLuint circle_texture = 0;
 GLuint exploration_texture = 0;
 GLuint minimap_fbo = 0;
-GLuint minimap_fbo_renderbuffer = 0;
+GLuint minimap_fbo_depth_buffer = 0;
 GLuint minimap_fbo_texture = 0;
 int redraw_fbo = 0;
 int minimap_win = -1;
@@ -74,22 +74,28 @@ static __inline__ void decrease_zoom(void){
 	minimap_touch();
 }
 
-static __inline__ void no_zoom(void){
+static __inline__ void no_zoom(void)
+{
 	if(minimap_zoom < max_zoom)minimap_zoom = max_zoom;
 	minimap_touch();
 }
 
-void minimap_touch(void){
+void minimap_touch(void)
+{
 	redraw_fbo = 1;
 }
 
-void minimap_free_framebuffer(){
-	free_color_framebuffer(&minimap_fbo, &minimap_fbo_renderbuffer, &minimap_fbo_texture);
+void minimap_free_framebuffer()
+{
+	free_color_framebuffer(&minimap_fbo, &minimap_fbo_depth_buffer, NULL,
+		&minimap_fbo_texture);
 }
 
-void minimap_make_framebuffer(){
+void minimap_make_framebuffer()
+{
 	minimap_free_framebuffer();
-	make_color_framebuffer(256, 256, &minimap_fbo, &minimap_fbo_renderbuffer, &minimap_fbo_texture);
+	make_color_framebuffer(256, 256, &minimap_fbo, &minimap_fbo_depth_buffer, NULL,
+		&minimap_fbo_texture);
 	minimap_touch();
 }
 

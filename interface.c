@@ -231,17 +231,17 @@ CHECK_GL_ERRORS();
 	glViewport(0, 0, width, height);
 
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
 	glLoadIdentity();
-	glOrtho(0.0, (GLdouble)width, (GLdouble)height, 0.0, -250.0, 250.0);
+	glOrtho(0.0, (GLdouble)width, (GLdouble)height, 0.0, -1.0, 1.0);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	glLoadIdentity();
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 

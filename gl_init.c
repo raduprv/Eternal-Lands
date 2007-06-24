@@ -759,7 +759,7 @@ void init_gl_extensions()
 	/*	GL_ARB_fragment_program			*/
 	if (have_extension(arb_fragment_program))
 	{
-		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_fragment_program");
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_fragment_program");
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 	else
@@ -772,7 +772,7 @@ void init_gl_extensions()
 	/*	GL_ARB_vertex_program			*/
 	if (have_extension(arb_vertex_program))
 	{
-		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_vertex_program");
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_program");
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 	else
@@ -785,7 +785,7 @@ void init_gl_extensions()
 	/*	GL_ARB_fragment_shader			*/
 	if (have_extension(arb_fragment_shader))
 	{
-		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_fragment_shader");
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_fragment_shader");
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 	else
@@ -798,7 +798,7 @@ void init_gl_extensions()
 	/*	GL_ARB_vertex_shader			*/
 	if (have_extension(arb_vertex_shader))
 	{
-		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_vertex_shader");
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_vertex_shader");
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 	else
@@ -811,7 +811,7 @@ void init_gl_extensions()
 	/*	GL_ARB_shader_objects			*/
 	if (have_extension(arb_shader_objects))
 	{
-		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_shader_objects");
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_shader_objects");
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 	else
@@ -824,7 +824,7 @@ void init_gl_extensions()
 	/*	GL_ARB_shading_language_100		*/
 	if (have_extension(arb_shading_language_100))
 	{
-		safe_snprintf(str, sizeof(str), gl_ext_found_not_used, "GL_ARB_shading_language_100");
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ARB_shading_language_100");
 		LOG_TO_CONSOLE(c_green2, str);
 	}
 	else
@@ -873,6 +873,25 @@ void init_gl_extensions()
 	}
 	/*	GL_EXT_fog_coord			*/
 
+	/*	GL_ATI_texture_compression_3dc		*/
+	if (have_extension(ati_texture_compression_3dc))
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_ATI_texture_compression_3dc");
+		LOG_TO_CONSOLE(c_green2, str);
+	}
+	else
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_ATI_texture_compression_3dc");
+		LOG_TO_CONSOLE(c_red1, str);
+	}
+	/*	GL_ATI_texture_compression_3dc		*/
+
+	check_fbo_formats();
+
+#ifdef	USE_SHADER
+	init_shaders();
+#endif	// USE_SHADER
+
 #ifdef	GL_EXTENSION_CHECK
 	evaluate_extension();
 #endif	//GL_EXTENSION_CHECK
@@ -903,19 +922,23 @@ void resize_root_window()
 	//hud_x_adjust=(2.0/window_width)*hud_x;
 
 	//new zoom
-	if (isometric) {
+	if (isometric)
+	{
 		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
-	} else {
+	}
+	else
+	{
+		gluPerspective(60, window_ratio, 0.1, 256.0);
 		// What we call first, OpenGL will apply last!
 		// Finally, apply the projection
-		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0*near_plane);
+//		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0*near_plane);
 		// third, scale the scene so that the near plane gets the distance zoom_level*near_plane
-		glScalef(perspective*near_plane, perspective*near_plane, perspective*near_plane);
+//		glScalef(perspective*near_plane, perspective*near_plane, perspective*near_plane);
 		// second, move to the distance that reflects the zoom level
-		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
+//		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
 	}
 	// first, move back to the actor
-	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
+//	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix

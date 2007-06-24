@@ -739,6 +739,12 @@ void init_opengl_extensions()
 		}
 	}
 /*	GL_EXT_fog_coord			*/
+/*	GL_ATI_texture_compression_3dc		*/
+	if (strstr(extensions_string, "GL_ATI_texture_compression_3dc") != NULL)
+	{
+		extensions |= 1 << ati_texture_compression_3dc;
+	}
+/*	GL_ATI_texture_compression_3dc		*/
 }
 
 uint_fast32_t have_extension(extension_enum extension)

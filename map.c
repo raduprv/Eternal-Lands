@@ -119,20 +119,20 @@ static void init_map_loading(const char *file_name)
 	show_window(loading_win);
 }
 
-static void build_path_map()
+static __inline__ void build_path_map()
 {
+	int i, x, y;
+
 	//create the tile map that will be used for pathfinding
 	pf_tile_map = (PF_TILE *)calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE));
+	for (x = 0; x < tile_map_size_x*6; x++)
 	{
-		int i, x, y;
-		
-		for (x = 0; x < tile_map_size_x*6; x++) {
-			for (y = 0; y < tile_map_size_y*6; y++) {
-				i = y*tile_map_size_x*6+x;
-				pf_tile_map[i].x = x;
-				pf_tile_map[i].y = y;
-				pf_tile_map[i].z = height_map[i];
-			}
+		for (y = 0; y < tile_map_size_y*6; y++)
+		{
+			i = y*tile_map_size_x*6+x;
+			pf_tile_map[i].x = x;
+			pf_tile_map[i].y = y;
+			pf_tile_map[i].z = height_map[i];
 		}
 	}
 }
@@ -149,6 +149,7 @@ static int el_load_map(const char * file_name)
 	init_map_loading(file_name);
 	ret = load_map(file_name, &updat_func);
 	build_path_map();
+	init_buffers();
 	destroy_loading_win();
 	return ret;
 }
@@ -315,6 +316,38 @@ void load_map_marks()
 	}
 	
 	fclose(fp);
+}
+
+void init_buffers()
+{
+	int_fast32_t terrain_buffer_size;
+	int_fast32_t water_buffer_size;
+	int_fast32_t i, j, cur_tile;
+
+	terrain_buffer_size = 0;
+	water_buffer_size = 0;
+
+	for(i = 0; i < tile_map_size_y; i++)
+	{
+		for(j = 0; j < tile_map_size_x; j++)
+		{
+			cur_tile = tile_map[i*tile_map_size_x+j];
+			if (cur_tile != 255)
+			{
+				if (IS_WATER_TILE(cur_tile)) 
+				{
+					water_buffer_size++;
+				}
+				else 
+				{
+					terrain_buffer_size++;
+				}
+			}
+		}
+	}
+	init_water_buffers(water_buffer_size);
+	init_terrain_buffers(terrain_buffer_size);
+	init_reflection_portals(water_buffer_size);
 }
 
 int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)

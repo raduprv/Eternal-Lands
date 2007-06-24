@@ -36,6 +36,27 @@ typedef enum
 	TF_ANISOTROPIC_AND_MIPMAPS
 } texture_filter;
 
+typedef enum
+{
+	TF_RGBA4,
+	TF_RGB8,
+	TF_R5G6B5,
+	TF_RGBA8,
+	TF_RGB5_A1,
+	TF_L8,
+	TF_LA8,
+	TF_L16,
+	TF_LA16,
+	TF_RGB32F,
+	TF_RGBA32F,
+	TF_L32F,
+	TF_LA32F,
+	TF_RGB16F,
+	TF_RGBA16F,
+	TF_L16F,
+	TF_LA16F
+} texture_format;
+
 /*!
  * \ingroup 	load_bmp
  * \brief 	Loads a color-key from a bmp-file.

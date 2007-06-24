@@ -8,6 +8,9 @@
 #include "tiles.h"
 #include "textures.h"
 #endif
+#ifdef	USE_SHADER
+#include "shader/shader.h"
+#endif	// USE_SHADER
 
 typedef struct
 {
@@ -17,24 +20,197 @@ typedef struct
 
 }water_vertex;
 
-water_vertex noise_array[16*16];
 int sky_text_1;
 float water_deepth_offset=-0.25f;
-int lake_waves_timer=0;
 float water_movement_u=0;
 float water_movement_v=0;
 int show_reflection=1;
 GLuint water_reflection_fbo = 0;
-GLuint water_reflection_fbo_renderbuffer = 0;
+GLuint water_reflection_fbo_depth_buffer = 0;
 GLuint water_reflection_fbo_texture = 0;
 int reflection_texture_width = 0;
 int reflection_texture_height = 0;
-double projectionlMatrixd[16];
-double modelMatrixd[16];
+float reflect_view_mat[16];
+float reflect_proj_mat[16];
+float reflect_texgen_mat[16];
+double reflect_view_mat_d[16];
+double reflect_proj_mat_d[16];
+GLfloat* water_tile_buffer = 0;
+GLuint water_tile_buffer_object = 0;
+int water_buffer_usage = 0;
+int water_buffer_reflectiv_index = 0;
+#ifdef	USE_SHADER
+int water_shader_quality = 0;
 
-float mrandom(float max)
+int get_max_supported_water_shader_quality()
 {
-	return ((float) max * (rand () % 8 ));
+	if (!use_frame_buffer)
+	{
+		return 0;
+	}
+
+	if (get_shader(st_water, sst_shadow_receiver, 0) == 0)
+	{
+		return 0;
+	}
+	if (get_shader(st_water, sst_no_shadow_receiver, 0) == 0)
+	{
+		return 0;
+	}
+	if (get_shader(st_reflectiv_water, sst_shadow_receiver, 0) == 0)
+	{
+		return 0;
+	}
+	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, 0) == 0)
+	{
+		return 0;
+	}
+
+	if (get_shader(st_water, sst_shadow_receiver, 1) == 0)
+	{
+		return 1;
+	}
+	if (get_shader(st_water, sst_no_shadow_receiver, 1) == 0)
+	{
+		return 1;
+	}
+	if (get_shader(st_reflectiv_water, sst_shadow_receiver, 1) == 0)
+	{
+		return 1;
+	}
+	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, 1) == 0)
+	{
+		return 1;
+	}
+
+	return 2;
+}
+#endif	// USE_SHADER
+
+void init_water_buffers(int water_buffer_size)
+{
+	water_tile_buffer = realloc(water_tile_buffer, water_buffer_size * 4 * 2 * sizeof(GLfloat));
+
+	if (have_extension(arb_vertex_buffer_object))
+	{
+		if (water_tile_buffer_object == 0)
+		{
+			ELglGenBuffersARB(1, &water_tile_buffer_object);
+		}
+		else
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+			ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, 0, 0, GL_DYNAMIC_DRAW_ARB);
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		}
+	}
+}
+
+static __inline__ void build_water_buffer()
+{
+	unsigned int i, j, l, start, stop;
+	float x_scaled,y_scaled;
+
+	if (get_bbox_intersect_flag(main_bbox_tree, TYPE_REFLECTIV_WATER, ide_changed) ||
+		get_bbox_intersect_flag(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, ide_changed))
+	{
+		clear_bbox_intersect_flag(main_bbox_tree, TYPE_REFLECTIV_WATER, ide_changed);
+		clear_bbox_intersect_flag(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, ide_changed);
+	}
+	else
+	{
+		return;
+	}
+
+	j = 0;
+
+	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x_scaled = get_terrain_x(l) * 3.0f;
+		y_scaled = get_terrain_y(l) * 3.0f;
+
+		water_tile_buffer[j * 8 + 0] = x_scaled;
+		water_tile_buffer[j * 8 + 1] = y_scaled;
+		water_tile_buffer[j * 8 + 2] = x_scaled + 3.0f;
+		water_tile_buffer[j * 8 + 3] = y_scaled;
+		water_tile_buffer[j * 8 + 4] = x_scaled + 3.0f;
+		water_tile_buffer[j * 8 + 5] = y_scaled + 3.0f;
+		water_tile_buffer[j * 8 + 6] = x_scaled;
+		water_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
+		j++;
+	}
+
+	water_buffer_reflectiv_index = j;
+
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+
+	for (i = start; i < stop; i++)
+	{
+		l = get_intersect_item_ID(main_bbox_tree, i);
+		x_scaled = get_terrain_x(l) * 3.0f;
+		y_scaled = get_terrain_y(l) * 3.0f;
+
+		water_tile_buffer[j * 8 + 0] = x_scaled;
+		water_tile_buffer[j * 8 + 1] = y_scaled;
+		water_tile_buffer[j * 8 + 2] = x_scaled + 3.0f;
+		water_tile_buffer[j * 8 + 3] = y_scaled;
+		water_tile_buffer[j * 8 + 4] = x_scaled + 3.0f;
+		water_tile_buffer[j * 8 + 5] = y_scaled + 3.0f;
+		water_tile_buffer[j * 8 + 6] = x_scaled;
+		water_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
+		j++;
+	}
+	water_buffer_usage = j;
+
+	if (have_extension(arb_vertex_buffer_object))
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, water_buffer_usage * 4 * 2 * sizeof(GLfloat),
+			water_tile_buffer, GL_DYNAMIC_DRAW_ARB);
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+}
+
+static __inline__ void init_depth()
+{
+	unsigned int start, stop;
+
+	glClearDepth(0.0f);
+	glClear(GL_DEPTH_BUFFER_BIT);
+	glClearDepth(1.0f);
+	glDisable(GL_CULL_FACE);
+	glDepthFunc(GL_ALWAYS);
+	glDepthRange(1.0f, 1.0f);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+
+	/* Now drawing the water */
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	
+	if (use_vertex_buffers)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+		glInterleavedArrays(GL_V2F, 0, 0);
+	}
+	else
+	{
+		glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
+	}
+	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
+	
+	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	/* Re-enable update of color and depth. */
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthRange(0.0f, 1.0f);
+	glDepthFunc(GL_LESS);
+	glEnable(GL_CULL_FACE);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 #ifndef MAP_EDITOR2
@@ -153,14 +329,14 @@ static __inline__ int adapt_size(int size)
 	{
 		j = 1;
 		while (j < size) j += j;
-		return min2i(j, i);
+		return min2i(j / 2, i);
 	}
 }
 
 void free_reflection_framebuffer()
 {
-	free_color_framebuffer(&water_reflection_fbo, &water_reflection_fbo_renderbuffer, 
-			&water_reflection_fbo_texture);
+	free_color_framebuffer(&water_reflection_fbo, &water_reflection_fbo_depth_buffer, 
+		NULL, &water_reflection_fbo_texture);
 }
 
 void make_reflection_framebuffer(int width, int height)
@@ -168,72 +344,178 @@ void make_reflection_framebuffer(int width, int height)
 	reflection_texture_width = adapt_size(width);
 	reflection_texture_height = adapt_size(height);
 	free_reflection_framebuffer();
-	make_color_framebuffer(reflection_texture_width, reflection_texture_height, &water_reflection_fbo, 
-			&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
+	make_color_framebuffer(reflection_texture_width, reflection_texture_height,
+		&water_reflection_fbo, &water_reflection_fbo_depth_buffer, 
+		NULL, &water_reflection_fbo_texture);
 }
 
 void change_reflection_framebuffer_size(int width, int height)
 {
 	reflection_texture_width = adapt_size(width);
 	reflection_texture_height = adapt_size(height);
-	change_color_framebuffer_size(reflection_texture_width, reflection_texture_height, &water_reflection_fbo, 
-			&water_reflection_fbo_renderbuffer, &water_reflection_fbo_texture);
+	change_color_framebuffer_size(reflection_texture_width, reflection_texture_height,
+		&water_reflection_fbo, &water_reflection_fbo_depth_buffer, 
+		NULL, &water_reflection_fbo_texture);
 }
 
 static __inline__ void init_texturing()
 {
-	glGetDoublev(GL_MODELVIEW_MATRIX, modelMatrixd);
-	glGetDoublev(GL_PROJECTION_MATRIX, projectionlMatrixd);
-}
+	glGetFloatv(GL_MODELVIEW_MATRIX, reflect_view_mat);
+	glGetFloatv(GL_PROJECTION_MATRIX, reflect_proj_mat);
+	glGetDoublev(GL_MODELVIEW_MATRIX, reflect_view_mat_d);
+	glGetDoublev(GL_PROJECTION_MATRIX, reflect_proj_mat_d);
 
-/* Calculate the texture coordinates for a vertex and send them to OpenGL */
-static __inline__ void RenderVertex(GLdouble vX,GLdouble vY, GLdouble vZ)
-{
-	GLdouble tX, tY, tZ;
-	/* Dummy viewport */
-	GLint vp[4] = {0, 0, 1, 1};
-	
-	/* Calculate the window coordinates of the vertex */
-	gluProject(vX, vY, vZ, modelMatrixd, projectionlMatrixd, vp, &tX, &tY, &tZ);
-
-	/* Use the window coords as texture coords */
-	ELglMultiTexCoord2fARB(detail_unit, tX, tY);
+	glPushMatrix();
+	glLoadIdentity();
+	glTranslatef(0.5f, 0.5f, 0.5f);
+	glScalef(0.5f, 0.5f, 0.5f);
+	glMultMatrixf(reflect_proj_mat);
+	glMultMatrixf(reflect_view_mat);
+	glTranslatef(0.0f, 0.0f, water_deepth_offset);
+	glGetFloatv(GL_MODELVIEW_MATRIX, reflect_texgen_mat);
+	glPopMatrix();
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static __inline__ void draw_lake_water_tile_framebuffer(float x_pos, float y_pos)
+static __inline__ void setup_water_fbo_texgen()
 {
-	int x,y;
-	float fx,fy;
-	float x_step,y_step;
-	float u_step,v_step;
-	float uv_tile=1.0f/50.0f;
+	GLfloat plane[4];
 
-	x_step=3.0f/16.0f;
-	y_step=3.0f/16.0f;
+	ELglActiveTextureARB(detail_unit);
 
-	u_step=3.0f*uv_tile;
-	v_step=3.0f*uv_tile;
+	glEnable(GL_TEXTURE_GEN_S);
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	plane[0] = reflect_texgen_mat[0];
+	plane[1] = reflect_texgen_mat[4];
+	plane[2] = reflect_texgen_mat[8];
+	plane[3] = reflect_texgen_mat[12];
+	glTexGenfv(GL_S, GL_EYE_PLANE, plane);
 
-	glBegin(GL_TRIANGLE_STRIP);
-	for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
-	{
-		for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
-		{
-			ELglMultiTexCoord2fARB(base_unit,fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, 
-				(fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
-			RenderVertex(fx, fy+y_step, water_deepth_offset);
-			glVertex3f(fx, fy+y_step, water_deepth_offset);
+	glEnable(GL_TEXTURE_GEN_T);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	plane[0] = reflect_texgen_mat[1];
+	plane[1] = reflect_texgen_mat[5];
+	plane[2] = reflect_texgen_mat[9];
+	plane[3] = reflect_texgen_mat[13];
+	glTexGenfv(GL_T, GL_EYE_PLANE, plane);
 
-			ELglMultiTexCoord2fARB(base_unit,fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, 
-				fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
-			RenderVertex(fx, fy, water_deepth_offset);
-			glVertex3f(fx, fy, water_deepth_offset);
-		}
-	}
-	glEnd();
+	glEnable(GL_TEXTURE_GEN_R);
+	glTexGeni(GL_R, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	plane[0] = reflect_texgen_mat[2];
+	plane[1] = reflect_texgen_mat[6];
+	plane[2] = reflect_texgen_mat[10];
+	plane[3] = reflect_texgen_mat[14];
+	glTexGenfv(GL_R, GL_EYE_PLANE, plane);
+
+	glEnable(GL_TEXTURE_GEN_Q);
+	glTexGeni(GL_Q, GL_TEXTURE_GEN_MODE, GL_EYE_LINEAR);
+	plane[0] = reflect_texgen_mat[3];
+	plane[1] = reflect_texgen_mat[7];
+	plane[2] = reflect_texgen_mat[11];
+	plane[3] = reflect_texgen_mat[15];
+	glTexGenfv(GL_Q, GL_EYE_PLANE, plane);
+
+	ELglActiveTextureARB(base_unit);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void setup_water_texgen()
+{
+	GLfloat plane[4];
+
+	glEnable(GL_TEXTURE_GEN_S);
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 3.0f / 50.0f;
+	plane[1] = 0.0f;
+	plane[2] = 0.0f;
+	plane[3] = water_movement_u;
+	glTexGenfv(GL_S, GL_OBJECT_PLANE, plane);
+
+	glEnable(GL_TEXTURE_GEN_T);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 0.0f;
+	plane[1] = 3.0f / 50.0f;
+	plane[2] = 0.0f;
+	plane[3] = water_movement_v;
+	glTexGenfv(GL_T, GL_OBJECT_PLANE, plane);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void setup_noise_texgen()
+{
+	GLfloat plane[4];
+
+	ELglActiveTextureARB(GL_TEXTURE3);
+
+	glEnable(GL_TEXTURE_GEN_S);
+	glTexGeni(GL_S, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 1.0f / 3.0f;
+	plane[1] = 0.0f;
+	plane[2] = 0.0f;
+	plane[3] = 0.0f;
+	glTexGenfv(GL_S, GL_OBJECT_PLANE, plane);
+
+	glEnable(GL_TEXTURE_GEN_T);
+	glTexGeni(GL_T, GL_TEXTURE_GEN_MODE, GL_OBJECT_LINEAR);
+	plane[0] = 0.0f;
+	plane[1] = 1.0f / 3.0f;
+	plane[2] = 0.0f;
+	plane[3] = 0.0f;
+	glTexGenfv(GL_T, GL_OBJECT_PLANE, plane);
+
+	ELglActiveTextureARB(base_unit);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void disable_water_fbo_texgen()
+{
+	ELglActiveTextureARB(detail_unit);
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+	glDisable(GL_TEXTURE_GEN_R);
+	glDisable(GL_TEXTURE_GEN_Q);
+
+	ELglActiveTextureARB(base_unit);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void disable_water_texgen()
+{
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static __inline__ void disable_noise_texgen()
+{
+	ELglActiveTextureARB(GL_TEXTURE3);
+
+	glDisable(GL_TEXTURE_GEN_S);
+	glDisable(GL_TEXTURE_GEN_T);
+
+	ELglActiveTextureARB(base_unit);
+
+#ifdef OPENGL_TRACE
+	CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
 }
 
 void display_3d_reflection()
@@ -241,7 +523,9 @@ void display_3d_reflection()
 	GLint view_port[4];
 	unsigned int cur_intersect_type;
 
-	if (use_frame_buffer)
+	CalculateFrustum();
+
+	if (water_shader_quality > 0)
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -252,7 +536,12 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
-	
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
+	build_water_buffer();
+	init_depth();
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+
 	glCullFace(GL_FRONT);
 	glPushMatrix();	
 
@@ -260,9 +549,11 @@ void display_3d_reflection()
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
+
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_reflection_frustum(water_deepth_offset);
+
 	enable_reflection_clip_planes();
 
 //	draw_tile_map();
@@ -285,7 +576,7 @@ CHECK_GL_ERRORS();
 	CHECK_GL_ERRORS();
 	reset_material();
 
-	if (use_frame_buffer)
+	if (water_shader_quality > 0)
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -299,94 +590,23 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void make_lake_water_noise()
-{
-	int x,y;
-	float noise_u,noise_v,noise_z;
-
-	for(x=0;x<16;x++)
-		for(y=0;y<16;y++)
-			{
-
-				noise_u=mrandom(0.001f);
-				noise_v=mrandom(0.001f);
-				noise_z=mrandom(0.005f);
-				if(noise_z<=0)noise_z=-noise_z;
-
-				noise_array[y*16+x].u=noise_u;
-				noise_array[y*16+x].v=noise_v;
-				noise_array[y*16+x].z=noise_z;
-
-			}
-
-}
-
-void draw_lake_water_tile(float x_pos, float y_pos)
-{
-	int x,y;
-	float fx,fy;
-	float x_step,y_step;
-	float u_step,v_step;
-	float uv_tile=1.0f/50.0f;
-
-	x_step=3.0f/16.0f;
-	y_step=3.0f/16.0f;
-
-	u_step=3.0f*uv_tile;
-	v_step=3.0f*uv_tile;
-
-	glBegin(GL_TRIANGLE_STRIP);
-	if (use_shadow_mapping)
-	{
-		for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
-			{
-				for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
-					{
-						ELglMultiTexCoord2fARB(base_unit,fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u, 
-							(fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
-						glVertex3f(fx, fy+y_step, water_deepth_offset);
-
-						ELglMultiTexCoord2fARB(base_unit,fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u, 
-							fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
-						glVertex3f(fx, fy, water_deepth_offset);
-
-					}
-			}
-	}
-	else
-	{
-		for(y=0,fy=y_pos;y<16;fy+=y_step,y++)
-			{
-				for(x=0,fx=x_pos;x<17;fx+=x_step,x++)
-					{
-						glTexCoord2f(fx*u_step+noise_array[((y+1)&15)*16+(x&15)].u+water_movement_u,
-							(fy+y_step)*v_step+noise_array[((y+1)&15)*16+(x&15)].v+water_movement_v);
-						glVertex3f(fx,fy+y_step, water_deepth_offset);
-
-						glTexCoord2f(fx*u_step+noise_array[y*16+(x&15)].u+water_movement_u,
-							fy*v_step+noise_array[y*16+(x&15)].v+water_movement_v);
-						glVertex3f(fx,fy, water_deepth_offset);
-					}
-			}
-	}
-	glEnd();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
-
 #ifndef MAP_EDITOR2
 void blend_reflection_fog()
 {
-	unsigned int i, l, x, y, start, stop;
-	float x_scaled,y_scaled;
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 #ifdef NEW_WEATHER
 	GLfloat fogColor[4];
 	
 	glGetFloatv(GL_FOG_COLOR, fogColor);
 #endif
+	if (water_shader_quality > 0)
+	{
+		return;
+	}
+	build_water_buffer();
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, water_deepth_offset);
 
 	// we write to the depth buffer later, for now keep it as it is to avoid flickering
 	glDepthMask(GL_FALSE);
@@ -399,78 +619,30 @@ void blend_reflection_fog()
 	
 	glFogfv(GL_FOG_COLOR, blendColor);
 	glBlendFunc(GL_ZERO, GL_ONE_MINUS_SRC_COLOR);
-	
-	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
-	
-	for (i = start; i < stop; i++)
+
+	if (use_vertex_buffers)
 	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = get_terrain_x(l);
-		y = get_terrain_y(l);
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		glBegin(GL_QUADS);
-			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
-			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
-		glEnd();
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+		glInterleavedArrays(GL_V2F, 0, 0);
 	}
-	
-	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-	
-	for (i = start; i < stop; i++)
+	else
 	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = get_terrain_x(l);
-		y = get_terrain_y(l);
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		glBegin(GL_QUADS);
-			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
-			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
-		glEnd();
+		glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
 	}
-	
+	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
+
 	// now add the fog by additive blending
 	glFogfv(GL_FOG_COLOR, fogColor);
 	glBlendFunc(GL_ONE, GL_ONE);
 	
-	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
 
-	for (i = start; i < stop; i++)
+	if (use_vertex_buffers)
 	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = get_terrain_x(l);
-		y = get_terrain_y(l);
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		glBegin(GL_QUADS);
-			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
-			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
-		glEnd();
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	}
-	
-	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-	
-	for (i = start; i < stop; i++)
-	{
-		l = get_intersect_item_ID(main_bbox_tree, i);
-		x = get_terrain_x(l);
-		y = get_terrain_y(l);
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		glBegin(GL_QUADS);
-			glVertex3f(x_scaled       , y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled       , water_deepth_offset);
-			glVertex3f(x_scaled + 3.0f, y_scaled + 3.0f, water_deepth_offset);
-			glVertex3f(x_scaled       , y_scaled + 3.0f, water_deepth_offset);
-		glEnd();
-	}
+	glDisableClientState(GL_VERTEX_ARRAY);
+
 	glEnable(GL_LIGHTING);
 	glEnable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
@@ -478,41 +650,185 @@ void blend_reflection_fog()
 
 	// ok, now we can write depth values
 	glDepthMask(GL_TRUE);
+
+	glPopMatrix();
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 #endif
 
-void draw_lake_tiles()
+void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int idx, int water_id)
 {
-	unsigned int i, l, start, stop;
-	int x,y;
-	float x_scaled,y_scaled;
-	int water_id;
-	float blend_float = 0.75f;
-	float blend_vec[4] = {blend_float, blend_float, blend_float, blend_float};
-	glEnable(GL_CULL_FACE);
-	
-	if(dungeon) water_id = tile_list[231];
-	else water_id = tile_list[0];
+	unsigned int i, l, size;
+	int x, y, cur_texture;
 
-	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+	size = 0;
+	cur_texture = last_texture;
+
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
 		x = get_terrain_x(l);
 		y = get_terrain_y(l);
-		y_scaled = y*3.0f;
-		x_scaled = x*3.0f;
-		if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
-		else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-		draw_lake_water_tile(x_scaled,y_scaled);
+
+		if (!tile_map[y * tile_map_size_x + x])
+		{
+			cur_texture = get_texture_id(water_id);
+		}
+		else
+		{
+			cur_texture = get_texture_id(tile_list[tile_map[y * tile_map_size_x + x]]);
+		}
+		if (cur_texture != last_texture)
+		{
+			glDrawArrays(GL_QUADS, idx * 4, size * 4);
+			bind_texture_id(cur_texture);
+			cur_texture = last_texture;
+			idx += size;
+			size = 0;
+		}
+		size++;
 	}
+	glDrawArrays(GL_QUADS, idx * 4, size * 4);
+}
+
+void draw_lake_tiles()
+{
+	unsigned int start, stop;
+	int water_id;
+	float noise_scale[8] = {0.125f, 0.125f, 0.0625f, 0.0625f, 0.0078125f, 0.0078125f, 0.0f, 0.0f};
+
+	GLhandleARB cur_shader;
+
+	glEnable(GL_CULL_FACE);
+	
+	if (dungeon) water_id = tile_list[231];
+	else water_id = tile_list[0];
+
+#ifdef	USE_SHADER
+	if (water_shader_quality > 0)
+	{
+		if (!dungeon && shadows_on && is_day)
+		{
+			cur_shader = get_shader(st_water, sst_shadow_receiver, water_shader_quality - 1);
+		}
+		else
+		{
+			cur_shader = get_shader(st_water, sst_no_shadow_receiver, water_shader_quality - 1);
+		}
+		ELglUseProgramObjectARB(cur_shader);
+		CHECK_GL_ERRORS();
+
+		if (water_shader_quality > 1)
+		{
+			ELglClientActiveTextureARB(GL_TEXTURE3);
+			ELglActiveTextureARB(GL_TEXTURE3);
+			glEnable(GL_TEXTURE_3D);
+			glBindTexture(GL_TEXTURE_3D, noise_tex);
+			ELglActiveTextureARB(base_unit);
+			setup_noise_texgen();
+			CHECK_GL_ERRORS();
+
+			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "noise_texture"), 3);
+			ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 2, noise_scale);
+			ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
+			CHECK_GL_ERRORS();
+		}
+		if (!dungeon && shadows_on && is_day)
+		{
+			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
+		}
+		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
+		CHECK_GL_ERRORS();
+	}
+	CHECK_GL_ERRORS();
+#endif	// USE_SHADER
+
+	build_water_buffer();
+	CHECK_GL_ERRORS();
+
+	setup_water_texgen();
+
+	glPushMatrix();
+	glTranslatef(0.0f, 0.0f, water_deepth_offset);
+
+	if (use_vertex_buffers)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+		glInterleavedArrays(GL_V2F, 0, 0);
+	}
+	else
+	{
+		glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
+	}
+
+	get_intersect_start_stop(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, &start, &stop);
+	draw_water_quad_tiles(start, stop, 0, water_id);
+
+#ifdef	USE_SHADER
+	if (water_shader_quality > 0)
+	{
+		if (show_reflection)
+		{
+			setup_water_fbo_texgen();
+			CHECK_GL_ERRORS();
+
+			ELglActiveTextureARB(base_unit);
+			glEnable(GL_TEXTURE_2D);
+		
+			ELglActiveTextureARB(detail_unit);
+			glEnable(GL_TEXTURE_2D);
+			glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
+			ELglActiveTextureARB(base_unit);
+			CHECK_GL_ERRORS();
+
+			if (!dungeon && shadows_on && is_day)
+			{
+				cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, water_shader_quality - 1);
+			}
+			else
+			{
+				cur_shader = get_shader(st_reflectiv_water, sst_no_shadow_receiver, water_shader_quality - 1);
+			}
+
+			ELglUseProgramObjectARB(cur_shader);
+			CHECK_GL_ERRORS();
+
+			if (water_shader_quality > 1)
+			{
+				ELglClientActiveTextureARB(GL_TEXTURE3);
+				ELglActiveTextureARB(GL_TEXTURE3);
+				glEnable(GL_TEXTURE_3D);
+				glBindTexture(GL_TEXTURE_3D, noise_tex);
+				ELglActiveTextureARB(base_unit);
+				CHECK_GL_ERRORS();
+				setup_noise_texgen();
+
+				CHECK_GL_ERRORS();
+				ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "noise_texture"), 3);
+				ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 2, noise_scale);
+				ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
+				CHECK_GL_ERRORS();
+
+			}
+			if (!dungeon && shadows_on && is_day)
+			{
+				ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
+			}
+			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "reflection_texture"), detail_unit - GL_TEXTURE0);
+			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
+			ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "blend"), 0.75f);
+			CHECK_GL_ERRORS();
+		}
+	}
+#else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
 	{
+		setup_water_fbo_texgen();
+
 		CHECK_GL_ERRORS();
-		CHECK_FBO_ERRORS();
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 		
@@ -529,66 +845,93 @@ void draw_lake_tiles()
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
 		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
 		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
-
+ 
 		ELglActiveTextureARB(base_unit);
+
 		CHECK_GL_ERRORS();
-		CHECK_FBO_ERRORS();
-		
-		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-		for (i = start; i < stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			x = get_terrain_x(l);
-			y = get_terrain_y(l);
-			y_scaled = y*3.0f;
-			x_scaled = x*3.0f;
-			if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
-			else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-			draw_lake_water_tile_framebuffer(x_scaled,y_scaled);
-		}
 	}
+#endif	// USE_SHADER
 	else
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-		for (i = start; i < stop; i++)
-		{
-			l = get_intersect_item_ID(main_bbox_tree, i);
-			x = get_terrain_x(l);
-			y = get_terrain_y(l);
-			y_scaled = y*3.0f;
-			x_scaled = x*3.0f;
-			if(!tile_map[y*tile_map_size_x+x]) get_and_set_texture_id(water_id);
-			else get_and_set_texture_id(tile_list[tile_map[y*tile_map_size_x+x]]);
-			draw_lake_water_tile(x_scaled,y_scaled);
-		}
 	}
 
-	if (use_frame_buffer && show_reflection)
+	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
+
+#ifdef	USE_SHADER
+	if (water_shader_quality > 0)
 	{
 		CHECK_GL_ERRORS();
-		CHECK_FBO_ERRORS();
+		if (show_reflection)
+		{
+			disable_water_fbo_texgen();
+		}
+
 		ELglActiveTextureARB(detail_unit);
 		glDisable(GL_TEXTURE_2D);
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glBindTexture(GL_TEXTURE_2D,0);
+		glBindTexture(GL_TEXTURE_2D, 0);
 
 		ELglClientActiveTextureARB(base_unit);
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
-		last_texture=-1;
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		last_texture = -1;
 		CHECK_GL_ERRORS();
-		CHECK_FBO_ERRORS();
+
+		ELglUseProgramObjectARB(0);
+
+		if (water_shader_quality > 1)
+		{
+			ELglActiveTextureARB(GL_TEXTURE3);
+			glDisable(GL_TEXTURE_3D);
+			glBindTexture(GL_TEXTURE_3D, 0);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
+			ELglActiveTextureARB(base_unit);
+
+		}
+		CHECK_GL_ERRORS();
 	}
+#else	// USE_SHADER
+	if (use_frame_buffer && show_reflection)
+	{
+		CHECK_GL_ERRORS();
+		if (show_reflection)
+		{
+			disable_water_fbo_texgen();
+		}
+
+ 		ELglActiveTextureARB(detail_unit);
+ 		glDisable(GL_TEXTURE_2D);
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		glBindTexture(GL_TEXTURE_2D, 0);
+ 
+ 		ELglClientActiveTextureARB(base_unit);
+ 		ELglActiveTextureARB(base_unit);
+ 		glEnable(GL_TEXTURE_2D);
+		last_texture = -1;
+		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+ 		CHECK_GL_ERRORS();
+#endif	// USE_SHADER
 	else
 	{
 		glDisable(GL_BLEND);
 	}
+
 	glDisable(GL_CULL_FACE);
+
+	if (use_vertex_buffers)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	}
+	glDisableClientState(GL_VERTEX_ARRAY);
+
+	glPopMatrix();
+
+	disable_water_texgen();
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
@@ -607,7 +950,11 @@ void draw_sky_background()
 	GLint view_port[4];
 
 	glDisable(GL_TEXTURE_2D);
+#ifdef	USE_SHADER
+	if ((water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -664,7 +1011,11 @@ void draw_sky_background()
 
 	glBegin(GL_QUADS);
 
+#ifdef	USE_SHADER
+	if ((water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
 	{
 		glColor3fv(lights_c[0]);
 		glVertex3i(0, 0, 0);
@@ -690,7 +1041,11 @@ void draw_sky_background()
 	glEnd();
 
 	Leave2DMode();
+#ifdef	USE_SHADER
+	if ((water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -717,7 +1072,11 @@ void draw_dungeon_sky_background()
 	GLint view_port[4];
 
 	glDisable(GL_TEXTURE_2D);
+#ifdef	USE_SHADER
+	if ((water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -759,7 +1118,11 @@ void draw_dungeon_sky_background()
 	glBegin(GL_QUADS);
 	//draw the sky background
 
+#ifdef	USE_SHADER
+	if ((water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
 	{
 		glVertex3i(0, 0, 0);
 		glVertex3i(0, reflection_texture_height, 0);
@@ -777,7 +1140,11 @@ void draw_dungeon_sky_background()
 	glEnd();
 
 	Leave2DMode();
+#ifdef	USE_SHADER
+	if ((water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
