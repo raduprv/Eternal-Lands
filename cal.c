@@ -66,18 +66,32 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 	cal_actor_set_anim_delay(id, anim, 0.05f);
 }
 
+#ifdef NEW_SOUND
+void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound)
+{
+	if(sound)
+	{
+		safe_strncpy(my_cal_anim->sound, sound, sizeof(my_cal_anim->sound));
+	}
+	else
+	{
+		my_cal_anim->sound[0]='\0';
+	}
+}
+#endif // NEW_SOUND
+
 #ifdef	NEW_ACTOR_ANIMATION
-	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration)
-	#else
+//	#ifdef NEW_SOUND
+//struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration)
+//	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
-	#endif	//NEW_SOUND
+//	#endif	//NEW_SOUND
 #else
-	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound)
-	#else
+//	#ifdef NEW_SOUND
+//struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound)
+//	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str)
-	#endif	//NEW_SOUND
+//	#endif	//NEW_SOUND
 #endif
 {
 	char fname[255]={0};
@@ -98,11 +112,11 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	}
 
 #ifdef NEW_SOUND
-	if(sound)
-	{
-		safe_strncpy(res.sound,sound, sizeof(res.sound));
-	}
-	else
+//	if(sound)
+//	{
+//		safe_strncpy(res.sound,sound, sizeof(res.sound));
+//	}
+//	else
 		res.sound[0]='\0';
 #endif	//NEW_SOUND
 

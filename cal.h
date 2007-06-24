@@ -13,20 +13,23 @@ void CalCoreSkeleton_Scale(struct CalCoreSkeleton *self,float factor);
 void CalMixer_RemoveAction(struct CalMixer *self,int id);
 void CalCoreAnimation_Scale(struct CalCoreAnimation *self, float factor);
 void CalCoreMesh_Scale(struct CalCoreMesh *self,float factor);
+#ifdef NEW_SOUND
+void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound);
+#endif // NEW_SOUND
 
 void cal_render_actor(actor *act);
 #ifdef	NEW_ACTOR_ANIMATION
-	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration);
-	#else
+//	#ifdef NEW_SOUND
+//struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration);
+//	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration);
-	#endif	//NEW_SOUND
+//	#endif	//NEW_SOUND
 #else
-	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound);
-	#else
+//	#ifdef NEW_SOUND
+//struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound);
+//	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str);
-	#endif	//NEW_SOUND
+//	#endif	//NEW_SOUND
 #endif
 
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay);

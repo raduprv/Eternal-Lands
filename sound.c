@@ -52,7 +52,11 @@ typedef struct
 	char file_path[MAX_FILENAME_LENGTH];	//where to load the file from
 	ALenum format;
 	ALsizei size;							//size of the sound data in bytes
+#ifdef ALUT_WAV
 	ALsizei freq;							//frequency
+#else // ALUT_WAV
+	ALfloat freq;							//frequency
+#endif // ALUT_WAV
 	ALint channels;							//number fo sound channels
 	ALint bits;								//bits per channel per sample
 	int length;								//duration in milliseconds
@@ -127,7 +131,6 @@ void load_sound_config_data(char *path);
 int ensure_sample_loaded(int index);
 source_data *insert_sound_source_at_index(unsigned int index);
 int store_sample_name(char *name);
-int store_sample_name(char *name);
 int stop_sound_source_at_index(int index);
 #else
 int realloc_sources();
@@ -157,8 +160,23 @@ int stop_sound_source_at_index(int index)
 		return 0;
 	pSource = &sound_source_data[index];
 	//this unqueues any samples
-	alSourcei(pSource->source,AL_BUFFER,0);
-	alSourceStop(pSource->source);
+	if (alIsSource(pSource->source))
+	{
+		alSourceStop(pSource->source);
+		alSourcei(pSource->source,AL_BUFFER,0);
+	}
+	else
+	{
+   		LOG_ERROR("Attempting to stop invalid sound source %d with index %d", (int)pSource->source, index);
+	}
+	// Clear any errors so as to not confuse other error handlers
+	ALuint error;
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error '%s' stopping sound source with index: %d/%d.  Source: %d.\n", alGetString(error), index, used_sources, (int)pSource->source);
+#endif //_EXTRA_SOUND_DEBUG
+	}
 
 	//we can't lose a source handle - copy this...
 	sourceTemp = *pSource;
@@ -182,7 +200,12 @@ void stop_sound(unsigned long int cookie)
 	//find which of our playing sources matches the handle passed
 	n = find_sound_source_from_cookie(cookie);
 	if(n >= 0)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Stopping cookie %d with sound source index %d\n", (int)cookie, n);
+#endif //_EXTRA_SOUND_DEBUG
 		stop_sound_source_at_index(n);
+	}
 }
 #else
 void stop_sound(int i)
@@ -332,7 +355,7 @@ ALuint get_loaded_buffer(int i)
 #ifdef  ALUT_WAV
 	ALsizei size,freq;
 	ALboolean loop;
-#else
+#else  //ALUT_WAV
     ALsizei	size;
 	ALfloat freq;
 #endif  //ALUT_WAV
@@ -386,7 +409,7 @@ ALuint get_loaded_buffer(int i)
 		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
 		// OpenAL 1.0 on Macs do not properly support alutLoadWAVMemory
 		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
-#else
+#else  //OSX
  #ifdef	NEW_FILE_IO
 		alutLoadWAVMemory(el_get_pointer(file), &format, &data, &size, &freq, &loop);
  #else	//NEW_FILE_IO
@@ -395,7 +418,7 @@ ALuint get_loaded_buffer(int i)
 #endif  //OSX
 		alBufferData(sound_buffer[i],format,data,size,freq);
 		alutUnloadWAV(format,data,size,freq);
-#else
+#else  // ALUT_WAV
 #ifdef	NEW_FILE_IO
 		data = alutLoadMemoryFromFileImage(el_get_pointer(file), el_get_size(file), &format, &size, &freq);
 #else	//NEW_FILE_IO
@@ -420,14 +443,16 @@ ALuint get_loaded_buffer(int i)
 	}
 	return sound_buffer[i];
 }
-#else
+#else  // NEW_SOUND
 //if the sample given by the index is not currently loaded, create a
 //buffer and load it from the path stored against this index.
 //returns 0 for success.
 int ensure_sample_loaded(int index)
 {
 	ALvoid *data;
+#ifdef ALUT_WAV
 	ALboolean loop;
+#endif // ALUT_WAV
 
 	int error;
 	sound_sample *pSample = &sound_sample_data[index];
@@ -499,6 +524,12 @@ int ensure_sample_loaded(int index)
 	}
 
 	pSample->loaded_status = 1;
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error in ensure_sample_loaded\n");
+#endif //_EXTRA_SOUND_DEBUG
+	}
 	return 0;
 }
 #endif	//NEW_SOUND
@@ -561,7 +592,7 @@ unsigned int add_sound_object(int type,int x, int y)
 	if(type >= MAX_BUFFERS || type < 0)
 	{
 	#ifdef ELC
-		LOG_ERROR(snd_invalid_number);
+		LOG_ERROR("%s: %i", snd_invalid_number, type);
 	#endif
 		return 0;
 	}
@@ -579,9 +610,9 @@ unsigned int add_sound_object(int type,int x, int y)
 		if(pNewType->priority <= pType->priority || pSource->sound_type < 0)
 		{
 			source=i;
-	#ifdef _EXTRA_SOUND_DEBUG
+#ifdef _EXTRA_SOUND_DEBUG
 			printf("add_sound_object(%s) - inserting at index %d/%d\n",pNewType->name,i,used_sources);
-	#endif //_EXTRA_SOUND_DEBUG
+#endif //_EXTRA_SOUND_DEBUG
 			if(!(pSource->sound_type < 0))
 				insert_sound_source_at_index(i);
 			break;
@@ -627,6 +658,12 @@ unsigned int add_sound_object(int type,int x, int y)
 	alSourcef(pSource->source, AL_GAIN, sound_gain);
 	alSourcefv(pSource->source, AL_VELOCITY, sourceVel);
 	alSourcefv(pSource->source, AL_POSITION, sourcePos);
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error with alSourcef calls: %s. Name: %s. Source: %d: %s\n", snd_source_error, pNewType->name, source, alGetString(error));
+#endif //_EXTRA_SOUND_DEBUG
+	}
 
 	for(;stage<num_STAGES;++stage)
 	{
@@ -640,7 +677,9 @@ unsigned int add_sound_object(int type,int x, int y)
 			if(pNewType->loops > 0)
 			{
 				for(loops = 0;loops < pNewType->loops;++loops)
+				{
 					alSourceQueueBuffers(pSource->source,1,&buffer);
+				}
 			}
 			else
 			{
@@ -657,7 +696,11 @@ unsigned int add_sound_object(int type,int x, int y)
 	if((error=alGetError()) != AL_NO_ERROR) 
 	{
 	#ifdef ELC
-		LOG_ERROR("%s %d: %s", snd_source_error, source, alGetString(error));
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error with alSourceQueueBuffers: %s. Name: %s. Source: %d: %s", snd_source_error, pNewType->name, source, alGetString(error));
+#else //_EXTRA_SOUND_DEBUG
+		LOG_ERROR("Error with alSourceQueueBuffers: %s. Name: %s. Source: %d: %s", snd_source_error, pNewType->name, source, alGetString(error));
+#endif //_EXTRA_SOUND_DEBUG
 	#else	
 		printf("add_sound_object (%s): alSourceQueueBuffers = %s\n", pNewType->name,alGetString(error));
 	#endif
@@ -844,6 +887,13 @@ void sound_source_set_gain(unsigned long int cookie, float gain)
 		if(pSource->cookie == cookie)
 		{
 			alSourcef(pSource->source,AL_GAIN, sound_gain * gain);
+			ALuint error;
+			if((error=alGetError()) != AL_NO_ERROR)
+			{
+#ifdef _EXTRA_SOUND_DEBUG
+				printf("Error setting sound gain: %d\n", (int)cookie);
+#endif //_EXTRA_SOUND_DEBUG
+			}
 			return;
 		}
 	}
@@ -872,8 +922,8 @@ void update_sound(int ms)
 	source_data *pSource = sound_source_data;
 	sound_sample *pSample;
 	sound_type *pSoundType;
-	ALuint buffer,deadBuffer,state;
-	ALint numProcessed;
+	ALuint deadBuffer;
+	ALint numProcessed, buffer, state;
 
 	int source;
 	int x,y,distanceSq,maxDistSq;
@@ -1019,6 +1069,12 @@ void update_sound(int ms)
 	}
 
 	UNLOCK_SOUND_LIST();
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error updating sound using source: %d\n", source);
+#endif //_EXTRA_SOUND_DEBUG
+	}
 }
 #else
 void update_position()
@@ -1165,6 +1221,12 @@ int update_music(void *dummy)
 				}
 			if(exit_now) break;
 		}
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Music bug (update_music)\n");
+#endif //_EXTRA_SOUND_DEBUG
+	}
 #endif	//NO_MUSIC
 	return 1;
 }
@@ -1236,6 +1298,9 @@ void stop_all_sounds()
 #ifndef	NO_MUSIC
 	if(!have_music)return;
 	playing_music = 0;
+#ifdef _EXTRA_SOUND_DEBUG
+			printf("stopping music source: %d\n", music_source);
+#endif //_EXTRA_SOUND_DEBUG
 	alSourceStop(music_source);
 	alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &musProcessed);
 	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &musQueued);
@@ -1245,6 +1310,13 @@ void stop_all_sounds()
 	}
 #endif	//NO_MUSIC
 	UNLOCK_SOUND_LIST();
+	ALuint error;
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error killing all sounds\n");
+#endif //_EXTRA_SOUND_DEBUG
+	}
 }
 #else
 //kill all the sounds that loop infinitely
@@ -1325,6 +1397,9 @@ void turn_sound_off()
 		else
 		{
 #ifdef NEW_SOUND
+#ifdef _EXTRA_SOUND_DEBUG
+			printf("Turning off sound. Removing source with index %d\n", i);
+#endif //_EXTRA_SOUND_DEBUG
 			stop_sound_source_at_index(i);
 			continue;
 #else
@@ -1334,6 +1409,13 @@ void turn_sound_off()
 		++i;
 	}
 	UNLOCK_SOUND_LIST();
+	ALuint error;
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error turning sound off\n");
+#endif //_EXTRA_SOUND_DEBUG
+	}
 }
 
 void turn_sound_on()
@@ -1364,6 +1446,13 @@ void turn_sound_on()
 			alSourcePlay(source);
 	}
 	UNLOCK_SOUND_LIST();
+	ALuint error;
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error turning sound on\n");
+#endif //_EXTRA_SOUND_DEBUG
+	}
 }
 
 void toggle_sounds(int *var){
@@ -1560,7 +1649,7 @@ void init_sound(char *sound_config_path)
 		{
 			//this error code is designed for a single source, -1 indicates multiple sources
 		#ifdef ELC
-			LOG_ERROR("%s : %s", snd_source_error, -1, alGetString(error));
+			LOG_ERROR("Error in init_sound: %s : %s", snd_source_error, alGetString(error));
 		#endif
 			have_sound=0;
 			have_music=0;
@@ -1942,9 +2031,6 @@ void load_sound_config_data(char *file)
 	xmlNode *attributeNode=NULL;
 
 	xmlChar *content=NULL;
-	xmlChar *introFile=NULL;
-	xmlChar *mainFile=NULL;
-	xmlChar *outroFile=NULL;
 
 	int iVal=0;
 	float fVal=0.0f;
@@ -1994,7 +2080,7 @@ void load_sound_config_data(char *file)
 			{
 				pData = &sound_type_data[num_types++];
 
-				sVal = xmlGetProp(soundNode,(xmlChar*)"name");
+				sVal = (char *)xmlGetProp(soundNode,(xmlChar*)"name");
 				if(sVal)
 					safe_strncpy(pData->name, sVal, sizeof(pData->name));
 				else
@@ -2014,7 +2100,7 @@ void load_sound_config_data(char *file)
 					{
 						if(pData->sample_indices[STAGE_INTRO] < 0)
 						{
-							pData->sample_indices[STAGE_INTRO] = store_sample_name(content);
+							pData->sample_indices[STAGE_INTRO] = store_sample_name((char *)content);
 						}
 						else
 						{
@@ -2029,7 +2115,7 @@ void load_sound_config_data(char *file)
 					{
 						if(pData->sample_indices[STAGE_MAIN] < 0)
 						{
-							pData->sample_indices[STAGE_MAIN] = store_sample_name(content);
+							pData->sample_indices[STAGE_MAIN] = store_sample_name((char *)content);
 						}
 						else
 						{
@@ -2044,7 +2130,7 @@ void load_sound_config_data(char *file)
 					{
 						if(pData->sample_indices[STAGE_OUTRO] < 0)
 						{
-							pData->sample_indices[STAGE_OUTRO] = store_sample_name(content);
+							pData->sample_indices[STAGE_OUTRO] = store_sample_name((char *)content);
 						}
 						else
 						{
@@ -2057,7 +2143,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"stereo"))
 					{
-						iVal = atoi(content);
+						iVal = atoi((char *)content);
 						if(iVal==0 || iVal ==1)
 							pData->stereo = iVal;
 						else
@@ -2071,7 +2157,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"distance"))
 					{
-						fVal = (float)atof(content);
+						fVal = (float)atof((char *)content);
 						if(fVal>0.0f)
 							pData->distance = fVal;
 						else
@@ -2085,7 +2171,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"positional"))
 					{
-						iVal = atoi(content);
+						iVal = atoi((char *)content);
 						if(iVal==0 || iVal ==1)
 							pData->positional = iVal;
 						else
@@ -2099,7 +2185,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"loops"))
 					{
-						iVal = atoi(content);
+						iVal = atoi((char *)content);
 						if(iVal>=0)
 							pData->loops = iVal;
 						else
@@ -2113,7 +2199,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"fadeout_time"))
 					{
-						iVal = atoi(content);
+						iVal = atoi((char *)content);
 						if(iVal>=0)
 							pData->fadeout_time = iVal;
 						else
@@ -2127,7 +2213,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_delay"))
 					{
-						iVal = atoi(content);
+						iVal = atoi((char *)content);
 						if(iVal>=0)
 							pData->echo_delay = iVal;
 						else
@@ -2141,7 +2227,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_volume"))
 					{
-						iVal = atoi(content);
+						iVal = atoi((char *)content);
 						if(iVal>=0)
 							pData->echo_volume = iVal;
 						else
@@ -2155,7 +2241,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"time_of_day_flags"))
 					{
-						sscanf(content,"%x",&iVal);
+						sscanf((char *)content,"%x",&iVal);
 						if(iVal>=0 && iVal<=0xffff)
 							pData->time_of_the_day_flags = iVal;
 						else
@@ -2169,7 +2255,7 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"priority"))
 					{
-						iVal = atoi(content);
+						iVal = atoi((char *)content);
 						if(iVal>=0)
 							pData->priority = iVal;
 						else
@@ -2183,11 +2269,11 @@ void load_sound_config_data(char *file)
 					}
 					else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"type"))
 					{
-						if(!strcasecmp(content, "environmental")) {
+						if(!strcasecmp((char *)content, "environmental")) {
 							iVal = SOUNDS_ENVIRO;
-						} else if(!strcasecmp(content, "actor")) {
+						} else if(!strcasecmp((char *)content, "actor")) {
 							iVal = SOUNDS_ACTOR;
-						} else if(!strcasecmp(content, "walking")) {
+						} else if(!strcasecmp((char *)content, "walking")) {
 							iVal = SOUNDS_WALKING;
 						}
 						if(iVal>=0)
@@ -2281,8 +2367,8 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	//take a copy of the source about to be overwritten
 	tempSource=sound_source_data[min2i(used_sources,MAX_SOURCES-1)];
 	//ensure it is stopped and ready
-	alSourcei(tempSource.source,AL_BUFFER,0);
 	alSourceStop(tempSource.source);
+	alSourcei(tempSource.source,AL_BUFFER,0);
 	tempSource.play_duration=0;
 	tempSource.current_stage=STAGE_UNUSED;
 	tempSource.sound_type=-1;

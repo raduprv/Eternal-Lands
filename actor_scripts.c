@@ -329,6 +329,9 @@ const dict_elem head_number_dict[] =
 //Forward declarations
 int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind);
 int cal_load_mesh (actor_types *act, const char *fn, const char *kind);
+#ifdef NEW_SOUND
+int parse_actor_sounds (actor_types *act, xmlNode *cfg);
+#endif	//NEW_SOUND
 
 void cal_actor_set_random_idle(int id)
 {
@@ -1597,9 +1600,9 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_up_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1607,9 +1610,9 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_up_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1617,9 +1620,9 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1627,9 +1630,9 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1638,6 +1641,20 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
 				weapon->glow = mode;
+#ifdef NEW_SOUND
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_1_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_2_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down1") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_1_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down2") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_2_frame, str);
+#endif	//NEW_SOUND
 			} else {
 				LOG_ERROR("unknown weapon property \"%s\"", item->name);
 				ok = 0;
@@ -1774,6 +1791,54 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	helmet= &(act->helmet[type_idx]);
 	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
 }
+
+#ifdef NEW_SOUND
+int parse_actor_sounds (actor_types *act, xmlNode *cfg)
+{
+	xmlNode *item;
+	char str[255];
+	int ok;
+
+	if (cfg == NULL) return 0;
+
+	ok = 1;
+	for (item = cfg; item; item = item->next) {
+		if (item->type == XML_ELEMENT_NODE) {
+			get_string_value (str,sizeof(str),item);
+			if (xmlStrcasecmp (item->name, (xmlChar*)"walk") == 0) {
+				cal_set_anim_sound(&act->cal_walk_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die1") == 0) {
+				cal_set_anim_sound(&act->cal_die1_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die2") == 0) {
+				cal_set_anim_sound(&act->cal_die2_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain1") == 0) {
+				cal_set_anim_sound(&act->cal_pain1_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain2") == 0) {
+				cal_set_anim_sound(&act->cal_pain2_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pick") == 0) {
+				cal_set_anim_sound(&act->cal_pick_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"drop") == 0) {
+				cal_set_anim_sound(&act->cal_drop_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"harvest") == 0) {
+				cal_set_anim_sound(&act->cal_harvest_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_cast") == 0) {
+				cal_set_anim_sound(&act->cal_attack_cast_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_ranged") == 0) {
+				cal_set_anim_sound(&act->cal_attack_ranged_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"sit_down") == 0) {
+				cal_set_anim_sound(&act->cal_sit_down_frame, str);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"stand_up") == 0) {
+				cal_set_anim_sound(&act->cal_stand_up_frame, str);
+			} else {
+				LOG_ERROR("unknown sound \"%s\"", item->name);
+				ok = 0;
+			}
+		}
+	}
+
+	return ok;
+}
+#endif	//NEW_SOUND
 
 int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 {
@@ -1959,9 +2024,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_walk") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_walk_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1969,9 +2034,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_run") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_run_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1979,9 +2044,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_die1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1989,9 +2054,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_die2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_die2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1999,9 +2064,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pain1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_pain1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2009,9 +2074,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pain2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_pain2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2019,9 +2084,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_pick") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_pick_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2029,9 +2094,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_drop") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_drop_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2039,9 +2104,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_idle1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2049,9 +2114,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_idle2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2059,9 +2124,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle_sit") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_idle_sit_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2069,9 +2134,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
  			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_harvest") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_harvest_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2079,9 +2144,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_cast") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_cast_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2089,9 +2154,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_sit_down") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_sit_down_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2099,9 +2164,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_stand_up") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_stand_up_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2109,9 +2174,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_in_combat") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_in_combat_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2119,9 +2184,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_out_combat") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_out_combat_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2129,9 +2194,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_combat_idle") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_combat_idle_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2139,9 +2204,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2149,9 +2214,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2159,9 +2224,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_3") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_3_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2169,9 +2234,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_4") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_up_4_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2179,9 +2244,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_1_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2189,9 +2254,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_2_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-#endif	//NEW_SOUND
+//#ifdef NEW_SOUND
+//					, get_string_property(item, "sound")
+//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -2445,6 +2510,10 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				ok &= parse_actor_weapon(act, item, defaults);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"helmet") == 0) {
 				ok &= parse_actor_helmet(act, item, defaults);
+#ifdef NEW_SOUND
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"sounds") == 0) {
+				ok &= parse_actor_sounds(act, item->children);
+#endif	//NEW_SOUND
 			} else {
 				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
 				ok= 0;
