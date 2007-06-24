@@ -238,7 +238,11 @@ void get_map_playlist()
 		tmp = map_file_name;
 	else
 		tmp++;
+#ifndef NEW_FILE_IO
 	safe_snprintf (map_list_file_name, sizeof (map_list_file_name), "./music/%s", tmp);
+#else /* NEW_FILE_IO */
+	safe_snprintf (map_list_file_name, sizeof (map_list_file_name), "music/%s", tmp);
+#endif /* NEW_FILE_IO */
 	len = strlen (map_list_file_name);
 	tmp = strrchr (map_list_file_name, '.');
 	if (tmp == NULL)
@@ -248,8 +252,12 @@ void get_map_playlist()
 	len -= strlen (tmp);
 	safe_snprintf (tmp, sizeof (map_list_file_name) - len, "pll");
 
+#ifndef NEW_FILE_IO
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(map_list_file_name,"r");
+#else /* NEW_FILE_IO */
+	fp=open_file_data(datadir, map_list_file_name,"r");
+#endif /* NEW_FILE_IO */
 	if (fp == NULL) return;
 
 	while(1)
@@ -543,9 +551,14 @@ void play_music(int list) {
 
 	if(!have_music)return;
 
+#ifndef NEW_FILE_IO
 	safe_snprintf(list_file_name, sizeof(list_file_name), "./music/%d.pll", list);
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(list_file_name,"r");
+#else /* NEW_FILE_IO */
+	safe_snprintf(list_file_name, sizeof(list_file_name), "music/%d.pll", list);
+	fp=open_file_data(datadir, list_file_name, "r");
+#endif /* NEW_FILE_IO */
 	if(!fp)return;
 
 	memset(playlist,0,sizeof(playlist));

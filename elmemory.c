@@ -36,11 +36,20 @@ void elm_cleanup()
 {
 	unsigned int i;
 	unsigned int malloc_calls_remaining = 0;
+#ifndef NEW_FILE_IO
 	char path[256];
+#endif /* not NEW_FILE_IO */
 	FILE *fp;
 
+#ifndef NEW_FILE_IO
 	safe_snprintf(path, sizeof(path), "%s/elmemory.log", configdir);
 	fp = fopen(path, "w");
+#else /* NEW_FILE_IO */
+	fp = open_config_file("elmemory.log", "w");
+#endif /* NEW_FILE_IO */
+	if(fp ==NULL){
+		return;
+	}
 	fprintf(fp, "-------Pointers not free'd-------\n");
 	for(i = 0; i < ELM_INITIAL_SIZE*elm_allocs; i++) {
 		if(elm_memory[i].pointer != NULL && elm_memory[i].size != 0) {

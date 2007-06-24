@@ -74,11 +74,14 @@ void update_text_windows (text_message * pmsg)
 }
 
 void open_chat_log(){
+#ifndef NEW_FILE_IO
 	char chat_log_file[100];
 	char srv_log_file[100];
+#endif /* not NEW_FILE_IO */
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 
+#ifndef NEW_FILE_IO
 #ifndef WINDOWS
 	safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
 	safe_snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
@@ -88,6 +91,10 @@ void open_chat_log(){
 #endif
 	chat_log = my_fopen (chat_log_file, "a");
 	srv_log = my_fopen (srv_log_file, "a");
+#else /* NEW_FILE_IO */
+	chat_log = open_file_config ("chat_log.txt", "a");
+	srv_log = open_file_config ("srv_log.txt", "a");
+#endif /* NEW_FILE_IO */
 
 	if (chat_log == NULL || srv_log == NULL)
 	{

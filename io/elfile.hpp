@@ -9,6 +9,7 @@
 
 #include <sys/stat.h>
 #include "zipfilesystem.hpp"
+#include "elpathwrapper.h"
 
 const int_fast32_t max_mem_block_buffer_size = 0x40000; // 256kb
 
@@ -170,6 +171,15 @@ class el_file
 		 */
 		static bool file_exists(const std::string& file_name, const zip_file_system&
 			zfile_system);
+
+		/**
+		 * @brief Tries to find the file
+		 *
+		 * Tries to find the file, in configdir/updates or working directory, with or without an appended.gz
+		 * @param file_name The name of the file to search for.
+		 */
+		static std::string el_find_file(const std::string& file_name);
+
 };
 
 #endif	// _ELFILE_HPP_

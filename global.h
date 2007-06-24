@@ -174,8 +174,8 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #ifdef NOTEPAD
 	#include "notepad.h"
 #endif //NOTEPAD
-#ifdef  MINIMAP
-    #include "minimap.h"
+#ifdef MINIMAP
+	#include "minimap.h"
 #endif  //MINIMAP
 #include "alphamap.h"
 #include "highlight.h"
@@ -184,6 +184,11 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 
 #include "framebuffer.h"
 #include "bbox_tree.h"
+
+#ifdef NEW_FILE_IO
+#include "io/elpathwrapper.h"
+#endif //NEW_FILE_IO
+
 #ifdef	OLC
 	#include "olc.h"
 #endif	//OLC

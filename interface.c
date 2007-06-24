@@ -489,11 +489,18 @@ void read_mapinfo ()
 	
 	maps_size = DEFAULT_CONTMAPS_SIZE;
 	continent_maps = calloc (maps_size, sizeof (struct draw_map));
-	
-	fin = my_fopen ("mapinfo.lst", "r");
 	imap = 0;
+	
+#ifndef NEW_FILE_IO
+	fin = my_fopen ("mapinfo.lst", "r");
 	if (fin != NULL)
 	{
+#else /* NEW_FILE_IO */
+	fin = open_file_data (datadir, "mapinfo.lst", "r");
+	if (fin == NULL){
+		LOG_ERROR("%s: %s \"mapinfo.lst\"\n", reg_error_str, cant_open_file);
+	} else {
+#endif /* NEW_FILE_IO */
 		while (fgets (line, sizeof (line), fin) != NULL)
 		{
 			// strip comments
@@ -1142,15 +1149,16 @@ void save_markings()
       char marks_file[256];
       int i;
 
+#ifndef NEW_FILE_IO
 #ifndef WINDOWS
 #ifdef OSX  //this might be applicable for linux too, but have not tested to be sure
       safe_snprintf (marks_file, sizeof(marks_file), "%s/%s.txt", configdir, strrchr (map_file_name,'/') + 1);	
-#else
+#else //!OSX
       safe_snprintf (marks_file, sizeof(marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
 #endif //OSX
-#else
+#else //WINDOWS
       safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
-#endif
+#endif //!WINDOWS
       fp = my_fopen(marks_file,"w");
       if ( fp ) {
 	  for ( i = 0 ; i < max_mark ; i ++)
@@ -1158,6 +1166,21 @@ void save_markings()
                 fprintf(fp,"%d %d %s\n",marks[i].x,marks[i].y,marks[i].text);
           fclose(fp);
         };
+#else /* NEW_FILE_IO */
+	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", strrchr (map_file_name,'/') + 1);
+
+	fp = open_file_config(marks_file,"w");
+	if ( fp == NULL ){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, marks_file);
+	} else {
+		for ( i = 0 ; i < max_mark ; i ++){
+			if ( marks[i].x > 0 ){
+				fprintf(fp,"%d %d %s\n",marks[i].x,marks[i].y,marks[i].text);
+			}
+		}
+		fclose(fp);
+	}
+#endif /* NEW_FILE_IO */
 }
 
 void hide_all_root_windows ()

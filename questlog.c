@@ -29,6 +29,7 @@ void load_questlog()
 	FILE *f = NULL;
 	char temp[1000];
 
+#ifndef NEW_FILE_IO
 #ifndef WINDOWS
 	char questlog_ini[256];
 	safe_snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
@@ -37,13 +38,20 @@ void load_questlog()
 	if(!f)	//use global settings
 		f= my_fopen("quest.log","rb");
 
-#else
+#else // !WINDOWS
 	f= my_fopen("quest.log","rb");
-#endif
+#endif // WINDOWS
+	if(!f) return;
+
+#else /* NEW_FILE_IO */
+	f = open_file_config("quest.log","rb");
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"quest.log\"\n", reg_error_str, cant_open_file);
+		return;
+	}
+#endif /* NEW_FILE_IO */
 	logdata.msg= NULL;
 	current= last= &logdata;
-
-	if(!f)	return;
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
 		temp[0]= 0;
@@ -105,6 +113,7 @@ void add_questlog (char *t, int len)
 
 	//write on file
 	if(qlf == NULL){
+#ifndef NEW_FILE_IO
 		#ifndef WINDOWS
 			char questlog_ini[256];
 			safe_snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
@@ -121,6 +130,14 @@ void add_questlog (char *t, int len)
 			qlf= my_fopen("quest.log","ab");
 		#endif
 			if (qlf == NULL) return;
+#else /* NEW_FILE_IO */
+		qlf = open_file_config("quest.log", "ab");
+		if(qlf == NULL){
+			LOG_ERROR("%s: %s \"quest.log\"\n", reg_error_str, cant_open_file);
+			return;
+		}
+		fseek(qlf,SEEK_END,0);
+#endif /* NEW_FILE_IO */
 	}
 	//convert multiline msg in single line
 	for (idx = 0; idx < len && t[idx] != '\0'; idx++)

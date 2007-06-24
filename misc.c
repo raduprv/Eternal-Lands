@@ -708,7 +708,8 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-int	mkdir_tree(const char *file)
+#ifndef NEW_FILE_IO
+int mkdir_tree(const char *file)
 {
 	// First, check directory exists
 	char dir[1024];
@@ -758,6 +759,7 @@ int	mkdir_tree(const char *file)
 	}
 	return 1;
 }
+#endif //!NEW_FILE_IO
 
 int substrtest(const char * haystack, int hlen, int pos, const char * needle, int nlen)
 {

@@ -60,7 +60,11 @@ int item_window_on_drop=1;
 int compass_direction=1;
 int buddy_log_notice=1;
 char configdir[256]="./";
+#ifdef DATA_DIR
 char datadir[256]=DATA_DIR;
+#else
+char datadir[256]="./";
+#endif //DATA_DIR
 
 char lang[10]={"en"};
 
@@ -91,8 +95,13 @@ void load_e3d_list()
 	FILE *fp;
 	int i=0;
 
+#ifndef NEW_FILE_IO
 	fp=my_fopen("e3dlist.txt","r");
 	if(!fp){
+#else /* NEW_FILE_IO */
+	fp=open_file_data(datadir, "e3dlist.txt","r");
+	if(fp == NULL){
+#endif /* NEW_FILE_IO */
 		LOG_ERROR("Failure trying to read e3dlist.txt");
 		SDL_Quit();
 		exit(1);
@@ -121,8 +130,14 @@ void load_harvestable_list()
 	char strLine[255];
 
 	memset(harvestable_objects, 0, sizeof(harvestable_objects));
+#ifndef NEW_FILE_IO
 	f = my_fopen("harvestable.lst", "rb");
 	if(!f) {
+#else /* NEW_FILE_IO */
+	f = open_file_data(datadir, "harvestable.lst", "rb");
+	if(f == NULL) {
+		LOG_ERROR("%s: %s \"harvestable.lst\"\n", reg_error_str, cant_open_file);
+#endif /* NEW_FILE_IO */
 		return;
 	}
 	while(1)
@@ -147,8 +162,16 @@ void load_entrable_list()
 
 	memset(entrable_objects, 0, sizeof(entrable_objects));
 	i=0;
+#ifndef NEW_FILE_IO
 	f=my_fopen("entrable.lst", "rb");
-	if(!f)return;
+	if(f == NULL){
+#else /* NEW_FILE_IO */
+	f=open_file_data(datadir, "entrable.lst", "rb");
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"entrable.lst\"\n", reg_error_str, cant_open_file);
+#endif /* NEW_FILE_IO */
+		return;
+	}
 	while(1)
 		{
 			if (fscanf (f, "%254s", strLine) != 1)
@@ -167,19 +190,29 @@ void load_knowledge_list()
 	int i=0;
 	char strLine[255];
 	char *out;
+#ifndef NEW_FILE_IO
 	char filename[200];
+#endif /* NEW_FILE_IO */
 	
 	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i= 0;
 	knowledge_count= 0;
 	// try the language specific knowledge list
+#ifndef NEW_FILE_IO
 	safe_snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
 	if((f=my_fopen(filename,"rb"))==NULL)
 		{
 			// Failed, try the default/english knowledge list
 			f=my_fopen("languages/en/knowledge.lst","rb");
 		}
-	if(!f)return;
+	if(f == NULL){
+#else /* NEW_FILE_IO */
+	f=open_file_lang(datadir, "knowledge.lst", "rb", lang);
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"knowledge.lst\"\n", reg_error_str, cant_open_file);
+#endif /* NEW_FILE_IO */
+		return;
+	}
 	while(1)
 		{
 			if(!fgets(strLine, sizeof(strLine), f)) {
@@ -198,28 +231,38 @@ void load_knowledge_list()
 
 void read_config()
 {
-#ifndef WINDOWS
+#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
 	DIR *d = NULL;
-	struct stat statbuff;
+#endif // !WINDOWS && !NEW_FILE_IO
 
+#ifdef NEW_FILE_IO
+	char * tcfg = get_path_config();
+#endif /* NEW_FILE_IO */
+
+#ifndef NEW_FILE_IO
 	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
 #ifndef OSX
 	safe_strcat (configdir, "/.elc/", sizeof(configdir));
 #else
 	safe_strcat (configdir, "/Library/Application\ Support/Eternal\ Lands/", sizeof(configdir));
 #endif // OSX
+#else /* NEW_FILE_IO */
+	my_strncp ( configdir, tcfg , sizeof(configdir));
+	free(tcfg);
+#endif /* NEW_FILE_IO */
+#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
 	d = opendir (configdir);
-	if (!d)
-	{
+	if (d == NULL){
 		mkdir (configdir, 0700);
 	} else {
+		struct stat statbuff;
 		int fd = dirfd (d);
 		fstat (fd, &statbuff);
 		/* Set perms to 700 on configdir if they anything else */
 		if (statbuff.st_mode != S_IRWXU)
 			fchmod (fd, S_IRWXU);
 	}
-#endif // WINDOWS
+#endif // !WINDOWS && !NEW_FILE_IO
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up
@@ -230,8 +273,8 @@ void read_config()
 
 #ifndef WINDOWS
 	chdir(datadir);
-#endif
-	
+#endif //!WINDOWS
+
 	if(password_str[0])//We have a password
 	{
 		size_t k;
@@ -245,22 +288,29 @@ void read_config()
 		username_box_selected = 0;
 		password_box_selected = 1;
 	}
-#ifndef WINDOWS
+#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
 	closedir(d);
-#endif
+#endif /* not NEW_FILE_IO or WINDOWS */
 }
 
 void read_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
+#ifndef NEW_FILE_IO
 	char el_cfg[256];
+#endif /* not NEW_FILE_IO */
 	int i;
 
+#ifndef NEW_FILE_IO
 	safe_snprintf(el_cfg,  sizeof(el_cfg), "%sel.cfg", configdir);
 	// don't use my_fopen, absence of binary config is not an error
 	f=fopen(el_cfg,"rb");
 	if(!f)return;//no config file, use defaults
+#else /* NEW_FILE_IO */
+	f=open_file_config("el.cfg","rb");
+	if(f == NULL)return;//no config file, use defaults
+#endif /* NEW_FILE_IO */
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
 	fread(&cfg_mem,1,sizeof(cfg_mem),f);
@@ -350,12 +400,22 @@ void save_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
+#ifndef NEW_FILE_IO
 	char el_cfg[256];
+#endif /* not NEW_FILE_IO */
 	int i;
 
+#ifndef NEW_FILE_IO
 	safe_snprintf(el_cfg, sizeof(el_cfg), "%sel.cfg", configdir);
 	f=my_fopen(el_cfg,"wb");
 	if(!f)return;//blah, whatever
+#else /* NEW_FILE_IO */
+	f=open_file_config("el.cfg","wb");
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"el.cfg\"\n", reg_error_str, cant_open_file);
+		return;//blah, whatever
+	}
+#endif /* NEW_FILE_IO */
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
 	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
@@ -556,6 +616,9 @@ void init_stuff()
 	int seed;
 	char file_name[250];
 	int i;
+#ifdef NEW_FILE_IO
+	char config_location[300];
+#endif //NEW_FILE_IO	
 
 	//TODO: process command line options
 	chdir(DATA_DIR);
@@ -800,9 +863,11 @@ void init_stuff()
 
 	draw_scene_timer= SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer= SDL_AddTimer (500, check_misc, NULL);
-	
-	//we might want to do this later.
-//	connect_to_server();
+
+#ifdef NEW_FILE_IO
+	safe_snprintf(config_location, sizeof(config_location), config_location_str, get_path_config());
+	LOG_TO_CONSOLE(c_green4, config_location);
+#endif //NEW_FILE_IO	
 
 	update_loading_win(prep_op_win_str, 7);
 	create_opening_root_window (window_width, window_height);

@@ -226,9 +226,9 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 	fclose (f);
 #else	//NEW_FILE_IO
 	file = el_open(file_name);
-	if (!file)
-	{
-		free (cur_object);
+	if(file == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, file_name);
+		free(cur_object);
 		return NULL;
 	}
 

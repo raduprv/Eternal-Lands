@@ -239,6 +239,9 @@ extern char
 		channel_help_str[200],
 		/*console.c*/
 		logconn_str[50],
+#ifdef NEW_FILE_IO
+		config_location_str[75],
+#endif //NEW_FILE_IO
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],

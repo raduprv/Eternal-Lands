@@ -1514,6 +1514,7 @@ void write_var (FILE *fout, int ivar)
 	our_vars.var[ivar]->saved= 1;	// keep only one copy of this setting
 }
 
+#ifndef NEW_FILE_IO
 FILE* open_el_ini (const char *mode)
 {
 #ifdef WINDOWS
@@ -1581,13 +1582,24 @@ FILE* open_el_ini (const char *mode)
 	return f;
 #endif //WINDOWS
 }
+#endif /* not NEW_FILE_IO */
 
 int read_el_ini ()
 {
 	input_line line;
+#ifndef NEW_FILE_IO
 	FILE *fin= open_el_ini ("r");
 
+	if (fin == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return 0;
+	}
+#else /* NEW_FILE_IO */
+	FILE *fin= open_file_config("el.ini", "r");
+
 	if (fin == NULL) return 0;
+#endif /* NEW_FILE_IO */
+
 
 	while ( fgets (line, sizeof (input_line), fin) )
 	{
@@ -1601,6 +1613,10 @@ int read_el_ini ()
 
 int write_el_ini ()
 {
+#if defined(NEW_FILE_IO) && !defined(WINDOWS)
+	int fd;
+	struct stat statbuff;
+#endif // NEW_FILE_IO && !WINDOWS
 	int nlines= 0, maxlines= 0, iline, ivar;
 	input_line *cont= NULL;
 	FILE *file;
@@ -1620,9 +1636,16 @@ int write_el_ini ()
 		return 1; // nothing changed, no need to write
 
 	// read the ini file
+#ifndef NEW_FILE_IO
 	file= open_el_ini ("r");
-	if (file != NULL)
-	{
+
+	if (file != NULL){
+#else /* NEW_FILE_IO */
+	file = open_file_config("el.ini", "r");
+	if(file == NULL){
+		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
+	} else {
+#endif /* NEW_FILE_IO */
 		maxlines= 300;
 	 	cont= malloc (maxlines * sizeof (input_line));
 		while (fgets (cont[nlines], sizeof (input_line), file) != NULL)
@@ -1637,9 +1660,14 @@ int write_el_ini ()
 	}
 
 	// Now write the contents of the file, updating those variables that have been changed
+#ifndef NEW_FILE_IO
 	file= open_el_ini ("w");
-	if (file == NULL)
-	{
+	if (file == NULL){
+#else /* NEW_FILE_IO */
+	file = open_file_config("el.ini", "w");
+	if(file == NULL){
+		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
+#endif /* NEW_FILE_IO */
 		return 0;
 	}
 
@@ -1668,6 +1696,14 @@ int write_el_ini ()
 			write_var (file, ivar);
 		}
 	}
+#if defined(NEW_FILE_IO) && !defined(WINDOWS)
+	fd = fileno (file);
+	fstat (fd, &statbuff);
+	/* Set perms to 600 on el_ini if they are anything else */
+	if (statbuff.st_mode != (S_IRUSR|S_IWUSR)){
+		fchmod (fd, S_IRUSR|S_IWUSR);
+	}
+#endif // NEW_FILE_IO && !WINDOWS
 
 	fclose (file);
 	free (cont);

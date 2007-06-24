@@ -33,12 +33,12 @@ extern "C" el_file* el_open(const char* file_name)
 	catch (extended_exception &e)
 	{
 		e.log_error();
-		return 0;
+		return NULL;
 	}
 	catch (std::exception &e)
 	{
 		LOG_ERROR(e.what());
-		return 0;
+		return NULL;
 	}
 }
 
@@ -55,12 +55,12 @@ extern "C" el_file* el_open_no_decompress(const char* file_name)
 	catch (extended_exception &e)
 	{
 		e.log_error();
-		return 0;
+		return NULL;
 	}
 	catch (std::exception &e)
 	{
 		LOG_ERROR(e.what());
-		return 0;
+		return NULL;
 	}
 }
 

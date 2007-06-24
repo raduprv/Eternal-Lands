@@ -137,7 +137,10 @@ void open_web_link(char * url);
 FILE *my_fopen (const char *fname, const char *mode);
 int file_exists(const char *fname);
 int gzfile_exists(const char *fname);
-int	mkdir_tree(const char *file);
+#ifndef NEW_FILE_IO
+//TODO: expand the #ifdef to the above 3 functions
+int mkdir_tree(const char *file);
+#endif // !NEW_FILE_IO
 
 #ifdef PNG_SCREENSHOT
 /*!

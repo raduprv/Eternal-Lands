@@ -29,6 +29,7 @@ NOTEPAD_COBJ = notepad.o
 SFX_COBJ = special_effects.o
 MINIMAP_COBJ = minimap.o
 NEW_FILE_IO_CXXOBJ = io/elfilewrapper.o io/elfile.o io/zipfilesystem.o exceptions/extendedexception.o
+NEW_FILE_IO_COBJ = io/elpathwrapper.o
 COBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o alphamap.o asc.o \
 	bbox_tree.o books.o buddy.o bags.o \

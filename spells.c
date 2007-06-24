@@ -678,9 +678,9 @@ void load_quickspells ()
 	char data[MAX_DATA_FILE_SIZE];
 	FILE *fp;
 	Uint8 i;
-#ifndef WINDOWS
+#if !defined(NEW_FILE_IO) && !defined(WINDOWS)
 	char username[20];
-#endif
+#endif /* not NEW_FILE_IO or WINDOWS */
 
 	// Grum: move this over here instead of at the end of the function,
 	// so that quickspells are always saved when the player logs in. 
@@ -688,13 +688,14 @@ void load_quickspells ()
 	// succeeds)
 	quickspells_loaded = 1;
 	
+#ifndef NEW_FILE_IO
 #ifndef WINDOWS
 	safe_snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	safe_snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "rb"); // try local file first
 	if (!fp)
-#endif
+#endif // !WINDOWS
 	{
 		//write to the data file, to ensure data integrity, we will write all the information
 		safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
@@ -703,6 +704,16 @@ void load_quickspells ()
 		if(!fp)
 			return;
 	}
+#else /* NEW_FILE_IO */
+	//write to the data file, to ensure data integrity, we will write all the information
+	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
+	my_tolower(fname);
+	fp = open_file_config(fname,"rb");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+#endif /* NEW_FILE_IO */
 
 	fread (data, sizeof(*data), sizeof(data), fp);
 	fclose (fp);
@@ -722,20 +733,21 @@ void save_quickspells()
 	Uint8 i;
 	char data[MAX_DATA_FILE_SIZE];
 	//extern char username_str[16];
-#ifndef WINDOWS
+#if !defined(NEW_FILE_IO) && !defined(WINDOWS)
 	char username[20];
-#endif
+#endif /* not NEW_FILE_IO or WINDOWS */
 	
 	if (!quickspells_loaded)
 		return;
 	
+#ifndef NEW_FILE_IO
 #ifndef WINDOWS	
 	safe_snprintf(username, sizeof(username), "%s", username_str);
 	my_tolower(username);
 	safe_snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
 	fp = my_fopen (fname, "wb"); // try local file first
 	if (!fp)
-#endif
+#endif // !WINDOWS
 	{
 		//write to the data file, to ensure data integrity, we will write all the information
 		safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
@@ -744,6 +756,16 @@ void save_quickspells()
 		if(!fp)
 			return;
 	}
+#else /* NEW_FILE_IO */
+	//write to the data file, to ensure data integrity, we will write all the information
+	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
+	my_tolower(fname);
+	fp=open_file_config(fname,"wb");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		return;
+	}
+#endif /* NEW_FILE_IO */
 
 	for (i = 1; i < 7; i++)
 	{

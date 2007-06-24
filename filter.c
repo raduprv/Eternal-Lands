@@ -70,12 +70,19 @@ int add_to_filter_list (const char *name, char local, char save_name)
 			// add to the local filter file, if the case
 			if (save_name)
 			{
+#ifndef NEW_FILE_IO
 				FILE *f = NULL;
 				char local_filters[256];
 				safe_snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
 				f = my_fopen (local_filters, "a");
 				if (f != NULL)
 				{
+#else /* NEW_FILE_IO */
+				FILE *f = open_file_config("local_filters.txt", "a");
+				if (f == NULL){
+					LOG_ERROR("%s: %s \"local_filters.txt\"\n", reg_error_str, cant_open_file);
+				} else {
+#endif /* NEW_FILE_IO */
 					fprintf (f, "%s = %s\n", left, right);
 					fclose(f);
 				}
@@ -125,11 +132,18 @@ int remove_from_filter_list (const char *name)
 	
 	if (local)
 	{
+#ifndef NEW_FILE_IO
 		char local_filters[256];
 		safe_snprintf (local_filters, sizeof (local_filters), "%s/local_filters.txt", configdir);
 		f = my_fopen (local_filters, "w");
 		if (f != NULL)
 		{
+#else /* NEW_FILE_IO */
+		f = open_file_config ("local_filters.txt", "w");
+		if (f == NULL){
+			LOG_ERROR("%s: %s \"local_filters.txt\"\n", reg_error_str, cant_open_file);
+		} else {
+#endif /* NEW_FILE_IO */
 			for (i = 0; i < MAX_FILTERS; i++)
 			{
 				if (filter_list[i].len > 0 && filter_list[i].local)
@@ -392,8 +406,12 @@ void load_filters_list (const char *file_name, char local)
 	char name[64];
 	char ch;
 
+#ifndef NEW_FILE_IO
 	// don't use my_fopen, absence of filters is not an error
 	f = fopen (file_name, "rb");
+#else /* NEW_FILE_IO */
+	f = open_file_config (file_name, "rb");
+#endif /* NEW_FILE_IO */
 	if (f == NULL) return;
 	fseek (f, 0, SEEK_END);
 	f_size = ftell (f);

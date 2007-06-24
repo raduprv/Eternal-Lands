@@ -115,13 +115,17 @@ FILE *open_counters_file(char *mode)
 		username[i] = tolower(username[i]);
 	}
 
-#ifndef WINDOWS
+#if !defined(NEW_FILE_IO) && !defined(WINDOWS)
 	safe_snprintf(filename, sizeof(filename), "%s/counters_%s.dat", configdir, username);
 #else
 	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", username);
 #endif
 
+#ifndef NEW_FILE_IO
 	return my_fopen(filename, mode);
+#else /* NEW_FILE_IO */
+	return open_file_config(filename, mode);
+#endif /* NEW_FILE_IO */
 }
 
 void load_counters()

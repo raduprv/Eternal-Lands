@@ -283,6 +283,7 @@ void load_map_marks()
 		//Oops
 		return;
 	}
+#ifndef NEW_FILE_IO
 #ifndef WINDOWS
 	safe_snprintf (marks_file, sizeof (marks_file), "%s%s.txt", configdir, mapname + 1);
 #else
@@ -290,9 +291,18 @@ void load_map_marks()
 #endif
 	// don't use my_fopen here, not everyone uses map markers
 	fp = fopen(marks_file, "r");
+#else /* NEW_FILE_IO */
+	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", mapname + 1);
+	fp = open_file_config(marks_file, "r");
+	if(fp == NULL){
+		//TODO: remove this after the next update. Until then, people may still have files in the old location.
+		safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
+		fp = open_file_config(marks_file, "r");
+	}
+#endif /* NEW_FILE_IO */
 	max_mark = 0;
 	
-	if (!fp ) return;
+	if (fp == NULL) return;
 	
 	while ( fgets(text, 600,fp) ) {
 		if (strlen (text) > 1) {

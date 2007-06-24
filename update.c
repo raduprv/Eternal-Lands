@@ -56,6 +56,7 @@ void    init_update()
 
 	// create the mutex & init the download que
 	if(!download_mutex){
+		file_update_clear_old();
 		download_mutex= SDL_CreateMutex();
 		download_queue_size= 0;
 		memset(download_queue, 0, sizeof(download_queue));
@@ -66,8 +67,15 @@ void    init_update()
 	// load the server list
 	num_update_servers= 0;
 	update_server[0]= '\0';
+#ifndef NEW_FILE_IO
 	fp= my_fopen("mirrors.lst", "r");
-	if(fp){
+	if(fp != NULL){
+#else /* NEW_FILE_IO */
+	fp = open_file_data(datadir, "mirrors.lst", "r");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"mirrors.lst\"\n", reg_error_str, cant_open_file);
+	} else {
+#endif /* NEW_FILE_IO */
 		char    buffer[1024];
 		char	*ptr;
 		
@@ -115,7 +123,11 @@ void    handle_update_download(struct http_get_struct *get)
 	
 	// try to make sure the directory is there
 	if(mkdir_res < 0){
-		mkdir_res= mkdir_tree("./tmp/");
+#ifdef NEW_FILE_IO
+		mkdir_res= mkdir_config("tmp");
+#else // !NEW_FILE_IO
+		mkdir_res= mkdir_tree("tmp/");
+#endif //NEW_FILE_IO
 	}
 	if(get != NULL){
 		// did we finish properly?
@@ -128,7 +140,11 @@ void    handle_update_download(struct http_get_struct *get)
 
 			// yes, lets start using the new file
 			remove(files_lst);
+#ifdef NEW_FILE_IO
+			sts = move_file_to_data(datadir, "tmp/temp000.dat", files_lst);
+#else // !NEW_FILE_IO
 			sts= rename("./tmp/temp000.dat", files_lst);
+#endif //NEW_FILE_IO
 
 			// trigger processing this file
 			if(!sts){
@@ -176,10 +192,17 @@ void    handle_update_download(struct http_get_struct *get)
 		} else {
 			safe_strncpy(update_server, update_servers[0], sizeof(update_server));
 		}
-		safe_snprintf(filename, sizeof(filename), "./tmp/temp000.dat");
 		++temp_counter;
+#ifndef NEW_FILE_IO
+		safe_snprintf(filename, sizeof(filename), "./tmp/temp000.dat");
 		fp= my_fopen(filename, "wb+");
 		if(fp){
+#else /* NEW_FILE_IO */
+		fp = open_file_config("tmp/temp000.dat", "wb+");
+		if(fp == NULL){
+			LOG_ERROR("%s: %s \"tmp/temp000.dat\"\n", reg_error_str, cant_open_file);
+		} else {
+#endif /* NEW_FILE_IO */
 			if(is_this_files_lst)	//files.lst
 			{
 			     safe_snprintf(filename, sizeof(filename), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, files_lst);
@@ -242,7 +265,9 @@ int    do_threaded_update(void *ptr)
 		char	filename[1024];
 		char    asc_md5[256];
 		Uint8	md5[16];
+#ifndef NEW_FILE_IO
 		Uint8	digest[16];
+#endif // !NEW_FILE_IO
 		
 		// parse the line
 		filename[0]= '\0';
@@ -254,7 +279,11 @@ int    do_threaded_update(void *ptr)
 			// check for one special case
 			if(!strcasecmp(asc_md5, "none")){
 				// this file is to be removed
+#ifdef NEW_FILE_IO
+				remove_file_data(datadir, filename);
+#else // !NEW_FILE_IO
 				remove(filename);
+#endif //NEW_FILE_IO
 			} else {
 				int i;
 
@@ -268,10 +297,14 @@ int    do_threaded_update(void *ptr)
 					md5[i]= val;
 				}
 
+#ifndef NEW_FILE_IO
 				// get the MD5 for the file
 				get_file_digest(filename, digest);
   				// if MD5's don't match, start a download
   				if(memcmp(md5, digest, 16) != 0){
+#else /* NEW_FILE_IO */
+				if(file_update_check(datadir, filename, md5) != 0){
+#endif /* not NEW_FILE_IO */
 					add_to_download(filename, md5);
 					num_files++;
 				}
@@ -323,21 +356,30 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 			char	buffer[1024];
 			FILE    *fp;
 
+#ifndef NEW_FILE_IO
 			safe_snprintf(download_temp_file, sizeof(download_temp_file), "./tmp/temp%03d.dat", ++temp_counter);
 			buffer[sizeof(buffer)-1]= '\0';
 			fp= my_fopen(download_temp_file, "wb+");
 			if(fp){
-				// build the prope URL to download
+#else /* NEW_FILE_IO */
+			safe_snprintf(download_temp_file, sizeof(download_temp_file), "tmp/temp%03d.dat", ++temp_counter);
+			buffer[sizeof(buffer)-1]= '\0';
+			fp = open_file_config(download_temp_file, "wb+");
+			if(fp == NULL){
+				LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, download_temp_file);
+			} else {
+#endif /* NEW_FILE_IO */
+				// build the proper URL to download
 				download_cur_file= download_queue[--download_queue_size];
 				download_cur_md5= download_MD5s[download_queue_size];
 				safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 				if(is_this_files_lst){
-                    safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
-                } else {
-                    safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
-                }
-                buffer[sizeof(buffer)-1]= '\0';
-                log_error("@@ %s %s",update_server,buffer);
+					safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+				} else {
+					safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+				}
+				buffer[sizeof(buffer)-1]= '\0';
+				log_error("@@ %s %s",update_server,buffer);
 				http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
 			}
 		}
@@ -366,7 +408,11 @@ void    handle_file_download(struct http_get_struct *get)
 			// replace the current file
 			// TODO: check for remove/rename errors
 			remove(download_cur_file);
+#ifdef NEW_FILE_IO
+			sts = move_file_to_data(datadir, download_temp_file, download_cur_file);
+#else // !NEW_FILE_IO
 			sts= rename(download_temp_file, download_cur_file);
+#endif //NEW_FILE_IO
 		}
 
 		// check for errors
@@ -404,16 +450,24 @@ void    handle_file_download(struct http_get_struct *get)
 		char	buffer[512];
 		FILE    *fp;
 
+#ifndef NEW_FILE_IO
 		safe_snprintf(download_temp_file, sizeof(download_temp_file), "./tmp/temp%03d.dat", ++temp_counter);
 		fp= my_fopen(download_temp_file, "wb+");
 		if(fp){
+#else /* NEW_FILE_IO */
+		safe_snprintf(download_temp_file, sizeof(download_temp_file), "tmp/temp%03d.dat", ++temp_counter);
+		fp = open_file_config(download_temp_file, "wb+");
+		if(fp == NULL){
+			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, download_temp_file);
+		} else {
+#endif /* NEW_FILE_IO */
 			// build the prope URL to download
 			download_cur_file= download_queue[--download_queue_size];
 			download_cur_md5= download_MD5s[download_queue_size];
 			if(is_this_files_lst) {
-                safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
+				safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 			} else {
-                safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
+				safe_snprintf(buffer, sizeof(buffer), "http://%s/updates/%s", update_server, download_cur_file);
 			}
 			buffer[sizeof(buffer)-1]= '\0';
 			http_threaded_get_file(update_server, buffer, fp, download_cur_md5, EVENT_DOWNLOAD_COMPLETE);
@@ -596,7 +650,7 @@ void    init_custom_update()
 	update_attempt_count= 0;	// no downloads have been attempted
 	temp_counter= 0;			//start with download name with 0
 
-	// create the mutex & init the download que
+	// create the mutex & init the download queue
 	if(!download_mutex){
 		download_mutex= SDL_CreateMutex();
 		download_queue_size= 0;
@@ -608,8 +662,15 @@ void    init_custom_update()
 	// load the server list
 	num_update_servers= 0;
 	update_server[0]= '\0';
+#ifndef NEW_FILE_IO
 	fp= my_fopen("custom_mirrors.lst", "r");
 	if(fp){
+#else /* NEW_FILE_IO */
+	fp= open_file_data(datadir, "custom_mirrors.lst", "r");
+	if(fp == NULL){
+		LOG_ERROR("%s: %s \"custom_mirrors.lst\"\n", reg_error_str, cant_open_file);
+	} else {
+#endif /* NEW_FILE_IO */
 		char    buffer[1024];
 		char	*ptr;
 

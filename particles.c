@@ -93,13 +93,18 @@ particle_sys_def *load_particle_def(const char *filename)
 			}
 	if(!def)return NULL;
 
+#ifndef NEW_FILE_IO
 	f=my_fopen(cleanpath,"r");
-	if(!f)
-		{
-			free(def);
-			defs_list[i]=NULL;
-			return NULL;
-		}
+	if(f == NULL){
+#else /* NEW_FILE_IO */
+	f=open_file_data(datadir, cleanpath,"r");
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
+#endif /* NEW_FILE_IO */
+		free(def);
+		defs_list[i]=NULL;
+		return NULL;
+	}
 
 	// initialize defaults
 	def->sound_nr = -1;
@@ -415,8 +420,16 @@ int save_particle_def(particle_sys_def *def)
 
 	clean_file_name ( cleanpath, def->file_name, sizeof (cleanpath) );
 
+#ifndef NEW_FILE_IO
 	f=my_fopen(cleanpath,"w");
 	if(!f) return 0;
+#else /* NEW_FILE_IO */
+	f=open_data_file(cleanpath,"w");
+	if(f == NULL){
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
+		return 0;
+	}
+#endif /* NEW_FILE_IO */
 
 	fprintf(f,"%i\n",PARTICLE_DEF_VERSION);
 

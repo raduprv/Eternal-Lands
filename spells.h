@@ -44,6 +44,9 @@ extern int sigil_win; /*!< handle for the sigil (spell) window */
 extern int quickspell_win; /*!< quickbar windows handler */
 /*! @} */
 
+extern int quickspell_x;
+extern int quickspell_y;
+
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 

@@ -284,6 +284,9 @@ char	name_too_long[75],
 	bc_cmd_str[5],
 	msg_accept_buddy_str[55],
 	logconn_str[50],
+#ifdef NEW_FILE_IO
+	config_location_str[75],
+#endif //NEW_FILE_IO
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -792,6 +795,9 @@ void init_console()
 	add_xml_identifier(loading_msg,"load_particles",load_particles_str,"Loading particles",sizeof(load_particles_str));
 	add_xml_identifier(loading_msg,"bld_sectors",bld_sectors_str,"Building sectors",sizeof(bld_sectors_str));
 	add_xml_identifier(loading_msg,"init_done",init_done_str,"Done",sizeof(init_done_str));
+#ifdef NEW_FILE_IO
+	add_xml_identifier(loading_msg,"config_location",config_location_str,"Your personal settings and logs will be saved in %s",sizeof(config_location_str));
+#endif //NEW_FILE_IO
 
 	add_xml_identifier(cmd_grp,"help_rq",help_request_str,"#help request",sizeof(help_request_str));
 	add_xml_identifier(cmd_grp,"help_cmd",help_cmd_str,"help",sizeof(help_cmd_str));

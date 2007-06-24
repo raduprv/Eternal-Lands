@@ -1052,9 +1052,16 @@ int save_local_data(char * text, int len){
 
 void init_commands(const char *filename)
 {
+#ifndef NEW_FILE_IO
 	FILE *fp = my_fopen(filename, "r");
+	if(fp != NULL) {
+#else /* NEW_FILE_IO */
+	FILE *fp = open_file_data(datadir, filename, "r");
+	if(fp == NULL) {
+		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
+	} else {
+#endif /* NEW_FILE_IO */
 	/* Read keywords from commands.lst */
-	if(fp) {
 		char buffer[255];
 		size_t buffer_len;
 		char *ptr;
