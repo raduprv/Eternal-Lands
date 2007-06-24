@@ -300,7 +300,7 @@ void make_color_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_dept
 {
 	if ((width <= 0) || (height <= 0)) return;
 
-	check_formats();
+	check_fbo_formats();
 
 	glGenTextures(1, fbo_texture);
 	ELglGenFramebuffersEXT(1, fbo);

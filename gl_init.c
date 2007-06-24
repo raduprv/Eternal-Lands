@@ -6,6 +6,7 @@
 #include "global.h"
 #endif
 #include "io/e3d_io.h"
+#include "shader/shader.h"
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
