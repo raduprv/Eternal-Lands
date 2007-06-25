@@ -155,6 +155,7 @@ struct sound_object sound_objects[MAX_SOURCES];
 //known for certain.
 int stop_sound_source_at_index(int index)
 {
+	ALuint error;
 	source_data *pSource,sourceTemp;
 	if(index < 0 || index >= used_sources)
 		return 0;
@@ -170,7 +171,6 @@ int stop_sound_source_at_index(int index)
    		LOG_ERROR("Attempting to stop invalid sound source %d with index %d", (int)pSource->source, index);
 	}
 	// Clear any errors so as to not confuse other error handlers
-	ALuint error;
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -889,6 +889,7 @@ void remove_sound_object (int sound)
 void sound_source_set_gain(unsigned long int cookie, float gain)
 {
 	int n;
+	ALuint error;
 	source_data *pSource;
 
 	//source handle of 0 is a null source
@@ -900,7 +901,6 @@ void sound_source_set_gain(unsigned long int cookie, float gain)
 		if(pSource->cookie == cookie)
 		{
 			alSourcef(pSource->source,AL_GAIN, sound_gain * gain);
-			ALuint error;
 			if((error=alGetError()) != AL_NO_ERROR)
 			{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -1299,6 +1299,7 @@ void stream_music(ALuint buffer)
 void stop_all_sounds()
 {
 	int i;
+	ALuint error;
 #ifndef	NO_MUSIC
 	int musQueued,musProcessed;
 #endif //NO_MUSIC
@@ -1323,7 +1324,6 @@ void stop_all_sounds()
 	}
 #endif	//NO_MUSIC
 	UNLOCK_SOUND_LIST();
-	ALuint error;
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -1385,7 +1385,7 @@ void kill_local_sounds()
 void turn_sound_off()
 {
 	int i=0,loop;
-	ALuint source;
+	ALuint source, error;
 	if(!inited)
 		return;
 #ifndef NO_MUSIC
@@ -1422,7 +1422,6 @@ void turn_sound_off()
 		++i;
 	}
 	UNLOCK_SOUND_LIST();
-	ALuint error;
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -1434,7 +1433,7 @@ void turn_sound_off()
 void turn_sound_on()
 {
 	int i,state=0;
-	ALuint source;
+	ALuint source, error;
 	if(!inited)
 	{
 #ifdef NEW_SOUND
@@ -1459,7 +1458,6 @@ void turn_sound_on()
 			alSourcePlay(source);
 	}
 	UNLOCK_SOUND_LIST();
-	ALuint error;
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
