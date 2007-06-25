@@ -1628,14 +1628,14 @@ int read_el_ini ()
 #ifndef NEW_FILE_IO
 	FILE *fin= open_el_ini ("r");
 
+	if (fin == NULL) return 0;
+#else /* NEW_FILE_IO */
+	FILE *fin= open_file_config("el.ini", "r");
+
 	if (fin == NULL){
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
 		return 0;
 	}
-#else /* NEW_FILE_IO */
-	FILE *fin= open_file_config("el.ini", "r");
-
-	if (fin == NULL) return 0;
 #endif /* NEW_FILE_IO */
 
 

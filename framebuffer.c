@@ -25,8 +25,8 @@ static const GLenum depth_formats[] =
 	GL_NONE,
 	GL_DEPTH_COMPONENT16,
 	GL_DEPTH_COMPONENT24,
-	GL_DEPTH_COMPONENT32,
-	GL_DEPTH24_STENCIL8_EXT
+	GL_DEPTH_COMPONENT32/*,	//FIXME: unknown option, most likely only in latest glext.h, not the version most people have
+	GL_DEPTH24_STENCIL8_EXT*/
 };
 
 static const size_t depth_bits[] =
@@ -167,6 +167,7 @@ void check_fbo_formats()
 
 	for (i = 0; i < COLOR_FORMAT_COUNT; i++)
 	{
+		GLuint status;
 		fmt = color_formats[i];
 		ELglGenFramebuffersEXT(1, &fb);
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, fb);
@@ -194,7 +195,7 @@ void check_fbo_formats()
 		}
 
 		// Check status
-		GLuint status = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
+		status = ELglCheckFramebufferStatusEXT(GL_FRAMEBUFFER_EXT);
 
 		// Ignore status in case of fmt == GL_NONE, because no implementation will accept
 		// a buffer without *any* attachment. Buffers with only stencil and depth attachment

@@ -525,7 +525,9 @@ void display_3d_reflection()
 
 	CalculateFrustum();
 
+#ifdef USE_SHADER
 	if (water_shader_quality > 0)
+#endif //USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -576,7 +578,9 @@ CHECK_GL_ERRORS();
 	CHECK_GL_ERRORS();
 	reset_material();
 
+#ifdef USE_SHADER
 	if (water_shader_quality > 0)
+#endif //USE_SHADER
 	{
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
@@ -599,10 +603,12 @@ void blend_reflection_fog()
 	
 	glGetFloatv(GL_FOG_COLOR, fogColor);
 #endif
+#ifdef USE_SHADER
 	if (water_shader_quality > 0)
 	{
 		return;
 	}
+#endif //USE_SHADER
 	build_water_buffer();
 
 	glPushMatrix();
@@ -698,9 +704,11 @@ void draw_lake_tiles()
 {
 	unsigned int start, stop;
 	int water_id;
+#ifdef	USE_SHADER
 	float noise_scale[8] = {0.125f, 0.125f, 0.0625f, 0.0625f, 0.0078125f, 0.0078125f, 0.0f, 0.0f};
 
 	GLhandleARB cur_shader;
+#endif //USE_SHADER
 
 	glEnable(GL_CULL_FACE);
 	
@@ -843,7 +851,7 @@ void draw_lake_tiles()
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND1_RGB, GL_SRC_COLOR);
 		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE2_RGB, GL_CONSTANT);
 		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND2_RGB, GL_SRC_COLOR);
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);
+		//glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, blend_vec);	//FIXME: blend_vec unknown
 		glTexEnvi(GL_TEXTURE_ENV, GL_RGB_SCALE, 1);
  
 		ELglActiveTextureARB(base_unit);
@@ -891,8 +899,6 @@ void draw_lake_tiles()
 			ELglActiveTextureARB(base_unit);
 
 		}
-		CHECK_GL_ERRORS();
-	}
 #else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
 	{
@@ -912,8 +918,9 @@ void draw_lake_tiles()
  		glEnable(GL_TEXTURE_2D);
 		last_texture = -1;
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
- 		CHECK_GL_ERRORS();
 #endif	// USE_SHADER
+ 		CHECK_GL_ERRORS();
+	}
 	else
 	{
 		glDisable(GL_BLEND);

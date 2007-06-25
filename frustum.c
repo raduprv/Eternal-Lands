@@ -355,13 +355,14 @@ void calculate_reflection_frustum(float water_height)
 	get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
 	for (i = start; i < stop; i++)
 	{
+		float x, y, z;
 		l = get_intersect_item_ID(main_bbox_tree, i);
 		x_scaled = get_terrain_x(l) * 3.0f;
 		y_scaled = get_terrain_y(l) * 3.0f;
 
-		float x = x_scaled + 1.5f - pos[X];
-		float y = y_scaled + 1.5f - pos[Y];
-		float z = water_height - pos[Z];
+		x = x_scaled + 1.5f - pos[X];
+		y = y_scaled + 1.5f - pos[Y];
+		z = water_height - pos[Z];
 
 		if (sqrt(x * x + y * y + z * z) > 30) continue;
 

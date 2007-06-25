@@ -56,7 +56,9 @@ void    init_update()
 
 	// create the mutex & init the download que
 	if(!download_mutex){
+#ifdef NEW_FILE_IO
 		file_update_clear_old();
+#endif /* NEW_FILE_IO */
 		download_mutex= SDL_CreateMutex();
 		download_queue_size= 0;
 		memset(download_queue, 0, sizeof(download_queue));
