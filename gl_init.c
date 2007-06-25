@@ -887,7 +887,9 @@ void init_gl_extensions()
 	}
 	/*	GL_ATI_texture_compression_3dc		*/
 
-	check_fbo_formats();
+	if(have_extension(ext_framebuffer_object)){
+		check_fbo_formats();
+	}
 
 #ifdef	USE_SHADER
 	init_shaders();
