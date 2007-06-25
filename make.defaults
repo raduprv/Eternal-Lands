@@ -63,7 +63,7 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 #FEATURES += USE_SHADER                       # Needs NEW_FILE_IO
 #FEATURES += USE_TR1                          # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 
-PLATFORM=-march=nocona
+PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 CWARN=-Wall -Wdeclaration-after-statement
 # -Wno-pointer-sign -Wno-sign-compare -Werror
