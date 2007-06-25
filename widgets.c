@@ -1989,6 +1989,73 @@ void _text_field_cursor_end (widget_list *w)
 	// tf->cursor_line doesn't change
 }
 
+void _text_field_cursor_page_up (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+
+	if (tf == NULL)
+		return;
+
+	msg = &(tf->buffer[tf->msg]);
+	if (tf->nr_visible_lines > tf->cursor_line)
+	{
+		tf->cursor = 0;
+		tf->cursor_line = 0;
+	}
+	else
+	{
+		int i, nr_lines;
+		text_message *msg = &(tf->buffer[tf->msg]);
+		
+		for (i = tf->cursor, nr_lines = tf->nr_visible_lines; i > 0; i--)
+		{
+			if (msg->data[i-1] == '\n' || msg->data[i-1] == '\r')
+				if (--nr_lines == 0) break;
+		}
+		tf->cursor = i;
+		tf->cursor_line -= tf->nr_visible_lines - 1;
+	}
+
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
+}
+
+void _text_field_cursor_page_down (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+
+	if (tf == NULL)
+		return;
+	
+	msg = &(tf->buffer[tf->msg]);
+	if (tf->cursor == msg->len || tf->nr_visible_lines <= 1)
+	{
+		return;
+	}
+	if (tf->nr_visible_lines >= tf->nr_lines - tf->cursor_line)
+	{
+		tf->cursor = msg->len;
+		tf->cursor_line = tf->nr_lines - 1;
+	}
+	else
+	{
+		int i, nr_lines;
+		
+		for (i = tf->cursor+1, nr_lines = tf->nr_visible_lines-1; i < msg->len; i++)
+		{
+			if (msg->data[i-1] == '\n' || msg->data[i-1] == '\r')
+				if (--nr_lines == 0) break;
+		}
+		tf->cursor = i;
+		tf->cursor_line += tf->nr_visible_lines - 1;
+	}
+
+	if (tf->scroll_id != -1)
+		_text_field_scroll_to_cursor (w);
+}
+
 void _text_field_delete_backward (widget_list * w)
 {
 	text_field *tf = w->widget_info;
@@ -2213,6 +2280,18 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		{
 			_text_field_cursor_end (w);
 		}
+		if (shift_on) update_cursor_selection(w, 1);
+		return 1;
+	}
+	else if (keysym == SDLK_PAGEUP)
+	{
+		_text_field_cursor_page_up (w);
+		if (shift_on) update_cursor_selection(w, 1);
+		return 1;
+	}
+	else if (keysym == SDLK_PAGEDOWN)
+	{
+		_text_field_cursor_page_down (w);
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
