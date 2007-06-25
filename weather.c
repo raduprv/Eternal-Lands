@@ -681,13 +681,13 @@ void weather_sound_control()
 	{
 		// 0 means initialization
 		float severity = weather_severity * get_fadeinout_bias();
-		int source_state;
 		int i;
 
 		if(weather_ratios[WEATHER_RAIN] > 0.0f){
 #ifdef NEW_SOUND
 			sound_source_set_gain(rain_sound,severity*weather_ratios[WEATHER_RAIN]);
 #else
+			int source_state;
 			alSourcef(rain_sound, AL_GAIN, severity*weather_ratios[WEATHER_RAIN]);
 			alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
 			if (source_state != AL_PLAYING) alSourcePlay(rain_sound);

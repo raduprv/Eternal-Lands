@@ -791,7 +791,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
   ec_bounds bounds = ec_create_bounds_list();
   for (i = 0; i < bounds_count; i++)
     ec_add_smooth_polygon_bound(bounds, raw_code[i * 2 + 2] * (2 * ec::PI) / 256.0f, raw_code[i * 2 + 3]);
-  ec_reference ref;
+  ec_reference ref = NULL;
   
   switch (raw_code[0])
   {

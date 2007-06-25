@@ -590,7 +590,7 @@ void play_music(int list) {
 #ifdef NEW_SOUND
 unsigned int add_sound_object(int type,int x, int y)
 {
-	int i,loops,error,tx,ty,distanceSq,source;
+	int i, loops, error, tx, ty, distanceSq, source = -1;
 	source_data *pSource;
 	sound_type *pType,*pNewType;
 	float maxDistanceSq=0.0f;
@@ -2452,7 +2452,7 @@ void print_sound_samples()
 		{
 			printf("\tBuffer ID = %d\n"				, pData->buffer);
 			printf("\tSize = %d\n"					, pData->size);
-			printf("\tFrequency = %d\n"				, pData->freq);
+			printf("\tFrequency = %f\n"				, pData->freq);
 			printf("\tChannels = %d\n"				, pData->channels);
 			printf("\tBits = %d\n"					, pData->bits);
 			printf("\tLength = %dms\n"				, pData->length);
