@@ -78,9 +78,7 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 	const char* vertex_shader_defines, const char* fragment_shader_file_name,
 	const char* fragment_shader_defines)
 {
-	GLint ret, error;
-
-	error = 0;
+	GLint ret, error = 0;
 
 	GLhandleARB shader_object, vertex_shader_object, fragment_shader_object;
 
