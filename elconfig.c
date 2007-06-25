@@ -1633,7 +1633,7 @@ int read_el_ini ()
 	FILE *fin= open_file_config("el.ini", "r");
 
 	if (fin == NULL){
-		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
+		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
 		return 0;
 	}
 #endif /* NEW_FILE_IO */
