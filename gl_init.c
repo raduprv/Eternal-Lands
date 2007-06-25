@@ -929,14 +929,14 @@ void resize_root_window()
 	}
 	else
 	{
-		gluPerspective(60, window_ratio, 0.1, 256.0);
+		//gluPerspective(60, window_ratio, 0.1, 256.0);
 		// What we call first, OpenGL will apply last!
 		// Finally, apply the projection
-//		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0*near_plane);
+		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0*near_plane);
 		// third, scale the scene so that the near plane gets the distance zoom_level*near_plane
-//		glScalef(perspective*near_plane, perspective*near_plane, perspective*near_plane);
+		glScalef(perspective*near_plane, perspective*near_plane, perspective*near_plane);
 		// second, move to the distance that reflects the zoom level
-//		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
+		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
 	}
 	// first, move back to the actor
 //	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
