@@ -25,13 +25,12 @@ static const GLenum depth_formats[] =
 	GL_NONE,
 	GL_DEPTH_COMPONENT16,
 	GL_DEPTH_COMPONENT24,
-	GL_DEPTH_COMPONENT32/*,	//FIXME: unknown option, most likely only in latest glext.h, not the version most people have
-	GL_DEPTH24_STENCIL8_EXT*/
+	GL_DEPTH_COMPONENT32
 };
 
 static const size_t depth_bits[] =
 {
-	0, 16, 24, 32, 24
+	0, 16, 24, 32
 };
 
 #define DEPTH_FORMAT_COUNT (sizeof(depth_formats) / sizeof(GLenum))
@@ -300,8 +299,6 @@ void make_color_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_dept
 	GLuint * fbo_stencil_buffer, GLuint *fbo_texture)
 {
 	if ((width <= 0) || (height <= 0)) return;
-
-	check_fbo_formats();
 
 	glGenTextures(1, fbo_texture);
 	ELglGenFramebuffersEXT(1, fbo);
