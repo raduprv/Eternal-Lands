@@ -61,6 +61,10 @@
 #undef CUSTOM_UPDATE
 #endif
 
+#if defined(EYE_CANDY) && !defined(SFX)
+#define SFX
+#endif
+
 #ifdef EL_BIG_ENDIAN
 	#define SwapLEFloat(X) SwapFloat(X)
 #else
