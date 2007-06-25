@@ -1,3 +1,5 @@
+#ifdef NEW_FILE_IO
+
 #include "elfile.hpp"
 
 std::string el_file::el_find_file(const std::string& file_name) {
@@ -135,3 +137,4 @@ bool el_file::file_exists(const std::string& file_name, const zip_file_system& z
 	return false;
 }
 
+#endif //NEW_FILE_IO

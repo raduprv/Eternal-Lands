@@ -1,6 +1,8 @@
 #ifndef	_MEMORYBUFFER_HPP_
 #define	_MEMORYBUFFER_HPP_
 
+#ifdef NEW_FILE_IO
+
 #ifdef _MSC_VER
 typedef unsigned int uint_fast32_t;
 typedef signed int int_fast32_t;
@@ -158,5 +160,7 @@ class memory_buffer
 			*size = new_size;
 		}
 };
+
+#endif //NEW_FILE_IO
 
 #endif	// _MEMORYBUFFER_HPP_

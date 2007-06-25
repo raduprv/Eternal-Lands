@@ -1,3 +1,5 @@
+#ifdef NEW_FILE_IO
+
 #include "zipfilesystem.hpp"
 #include "elfilewrapper.h"
 #include "elfile.hpp"
@@ -178,3 +180,4 @@ extern "C" int_fast32_t el_file_exists(const char* file_name)
 	}
 }
 
+#endif //NEW_FILE_IO

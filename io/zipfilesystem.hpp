@@ -6,6 +6,8 @@
 #ifndef	_ZIPFILESYSTEM_HPP_
 #define	_ZIPFILESYSTEM_HPP_
 
+#ifdef NEW_FILE_IO
+
 #ifdef	USE_TR1
 #include <tr1/unordered_map>
 #else
@@ -163,5 +165,7 @@ class zip_file_system
 			return found != file_entrys.end();
 		}
 };
+
+#endif //NEW_FILE_IO
 
 #endif	//_ZIPFILESYSTEM_HPP_

@@ -6,6 +6,8 @@
 #ifndef _ELFILEWRAPPER_H_
 #define _ELFILEWRAPPER_H_
 
+#ifdef NEW_FILE_IO
+
 #ifdef _MSC_VER
 typedef unsigned int uint_fast32_t;
 typedef signed int int_fast32_t;
@@ -128,6 +130,8 @@ extern int_fast32_t el_file_exists(const char* file_name);
 #ifdef __cplusplus
 }
 #endif
+
+#endif //NEW_FILE_IO
 
 #endif	// _ELFILEWRAPPER_H_
 

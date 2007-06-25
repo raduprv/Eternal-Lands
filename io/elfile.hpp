@@ -7,6 +7,8 @@
 #ifndef	_ELFILE_HPP_
 #define	_ELFILE_HPP_
 
+#ifdef NEW_FILE_IO
+
 #include <sys/stat.h>
 #include "zipfilesystem.hpp"
 #include "elpathwrapper.h"
@@ -181,5 +183,7 @@ class el_file
 		static std::string el_find_file(const std::string& file_name);
 
 };
+
+#endif //NEW_FILE_IO
 
 #endif	// _ELFILE_HPP_
