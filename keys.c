@@ -63,6 +63,9 @@ Uint32 K_SPELL6=ALT|'6';
 Uint32 K_TABCOMPLETE=CTRL|' ';
 Uint32 K_WINDOWS_ON_TOP=ALT|'w';
 Uint32 K_MARKFILTER=CTRL|'f';
+Uint32 K_CUT=CTRL|'x';
+Uint32 K_COPY=CTRL|'c';
+Uint32 K_PASTE=CTRL|'v';
 
 Uint32 CRC32 (const char *data, int len);
 unsigned short get_key_code (const char *key);

@@ -1953,6 +1953,42 @@ void _text_field_cursor_down (widget_list *w)
 		_text_field_scroll_to_cursor (w);
 }
 
+void _text_field_cursor_home (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+	int i;
+
+	if (tf == NULL)
+		return;
+		
+	msg = &(tf->buffer[tf->msg]);
+	for (i = tf->cursor; i > 0; i--)
+		if (msg->data[i-1] == '\r' || msg->data[i-1] == '\n')
+			break;
+
+	tf->cursor = i;
+	// tf->cursor_line doesn't change
+}
+
+void _text_field_cursor_end (widget_list *w)
+{
+	text_field *tf = w->widget_info;
+	text_message *msg;
+	int i;
+
+	if (tf == NULL)
+		return;
+
+	msg = &(tf->buffer[tf->msg]);
+	for (i = tf->cursor; i <= msg->len; i++)
+		if (msg->data[i] == '\r' || msg->data[i] == '\n' || msg->data[i] == '\0')
+			break;
+
+	tf->cursor = i;
+	// tf->cursor_line doesn't change
+}
+
 void _text_field_delete_backward (widget_list * w)
 {
 	text_field *tf = w->widget_info;
@@ -2071,7 +2107,7 @@ void _text_field_insert_char (widget_list *w, char ch)
 	
 	if (tf->scroll_id != -1)
 		_text_field_scroll_to_cursor (w);
-}			
+}
 
 void update_cursor_selection(widget_list* w, int flag);
 
@@ -2087,10 +2123,9 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	if (w == NULL) return 0;
 	tf = w->widget_info;
 #if !defined(WINDOWS) && !defined(OSX)
-	if (keysym == SDLK_INSERT && ctrl_on)
+	if (key == K_COPY)
 	{
-		char* text;
-		text = text_field_get_selected_text(tf);
+		char* text = text_field_get_selected_text(tf);
 		if (text != NULL)
 		{
 			copy_to_clipboard(text);
@@ -2116,9 +2151,13 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	{
 		if (shift_on)
 		{
-		    if (TEXT_FIELD_SELECTION_EMPTY(&tf->select)) update_cursor_selection(w, 0);
+			if (TEXT_FIELD_SELECTION_EMPTY(&tf->select))
+				update_cursor_selection(w, 0);
 		}
-		else TEXT_FIELD_CLEAR_SELECTION(&tf->select);
+		else
+		{
+			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
+		}
 	}
 	
 	if (keysym == SDLK_LEFT)
@@ -2147,19 +2186,33 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	}
 	else if (keysym == SDLK_HOME)
 	{
-		tf->cursor = 0;
-		tf->cursor_line = 0;
-		if (tf->scroll_id != -1)
-			_text_field_scroll_to_cursor (w);
+		if (ctrl_on)
+		{
+			tf->cursor = 0;
+			tf->cursor_line = 0;
+			if (tf->scroll_id != -1)
+				_text_field_scroll_to_cursor (w);
+		}
+		else
+		{
+			_text_field_cursor_home (w);
+		}
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
 	else if (keysym == SDLK_END)
 	{
-		tf->cursor = msg->len;
-		tf->cursor_line = tf->nr_lines - 1;
-		if (tf->scroll_id != -1)
-			_text_field_scroll_to_cursor (w);
+		if (ctrl_on)
+		{
+			tf->cursor = msg->len;
+			tf->cursor_line = tf->nr_lines - 1;
+			if (tf->scroll_id != -1)
+				_text_field_scroll_to_cursor (w);
+		}
+		else
+		{
+			_text_field_cursor_end (w);
+		}
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
@@ -2182,7 +2235,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			_text_field_delete_forward (w);
 		return 1;
 	}
-	else if (keysym == SDLK_INSERT && shift_on)
+	else if (key == K_PASTE)
 	{
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{

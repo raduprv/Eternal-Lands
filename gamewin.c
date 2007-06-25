@@ -939,7 +939,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	static Uint32 last_turn_around = 0;
 	int alt_on = key & ELW_ALT;
 	int ctrl_on = key & ELW_CTRL;
-	int shift_on = key & ELW_SHIFT;
 	Uint16 keysym = key & 0xffff;
 #ifdef DEBUG
 	int i;
@@ -971,7 +970,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		connect_to_server();
 	}
-	else if((keysym == SDLK_v && ctrl_on) || (keysym == SDLK_INSERT && shift_on))
+	else if (key == K_PASTE)
 	{
 #ifndef WINDOWS
 		startpaste ();
