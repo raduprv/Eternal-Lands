@@ -57,6 +57,10 @@
 	#include <OpenGL/glext.h>
 #endif //WINDOWS
 
+#if defined(CUSTOM_UPDATE) && !defined(AUTO_UPDATE)
+#undef CUSTOM_UPDATE
+#endif
+
 #ifdef EL_BIG_ENDIAN
 	#define SwapLEFloat(X) SwapFloat(X)
 #else
