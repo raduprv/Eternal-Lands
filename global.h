@@ -65,6 +65,10 @@
 #define SFX
 #endif
 
+#if defined(USE_SHADER) && !defined(NEW_FILE_IO)
+#undef USE_SHADER
+#endif
+
 #ifdef EL_BIG_ENDIAN
 	#define SwapLEFloat(X) SwapFloat(X)
 #else
