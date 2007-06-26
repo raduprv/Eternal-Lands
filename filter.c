@@ -402,9 +402,8 @@ void load_filters_list (const char *file_name, char local)
 	int f_size;
 	FILE *f = NULL;
 	char *filter_list_mem;
-	int i,j;
-	char name[64];
-	char ch;
+	int istart, iend;
+	char name[128];
 
 #ifndef NEW_FILE_IO
 	// don't use my_fopen, absence of filters is not an error
@@ -422,29 +421,26 @@ void load_filters_list (const char *file_name, char local)
 	fread (filter_list_mem, 1, f_size, f);
 	fclose (f);
 
-	j = 0;
-	i = 0;
-	while (i < f_size)
+	istart = 0;
+	while (istart < f_size)
 	{
-		ch = filter_list_mem[i];
-		if (ch == '\n' || ch == '\r')
+		// find end of the line
+		for (iend = istart; iend < f_size; iend++)
 		{
-			if (j != 0)
-			{
-				if (add_to_filter_list (name, local, 0) == -1)
-					return; // filter list full
-			}
-			j = 0;
-			i++;
-			continue;
+			if (filter_list_mem[iend] == '\n' || filter_list_mem[iend] == '\r')
+				break;
 		}
-		else
+
+		// copy the line and process it
+		if (iend > istart)
 		{
-			name[j] = ch;
+			safe_strncpy2 (name, filter_list_mem+istart, sizeof (name), iend-istart);
+			if (add_to_filter_list (name, local, 0) == -1)
+				return; // filter list full
 		}
-		name[j+1] = '\0';
-		j++;
-		i++;
+
+		// move to next line
+		istart = iend+1;
 	}
 
 	free (filter_list_mem);
