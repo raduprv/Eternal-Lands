@@ -37,7 +37,7 @@ void load_cursors()
 	Uint8 *handle_cursors_mem_bmp;
 	Uint8 cur_color;
 #ifdef NEW_FILE_IO
-	if((f = open_file_data (datadir, "textures/cursors.bmp", "rb")) == NULL){
+	if((f = open_file_data ("textures/cursors.bmp", "rb")) == NULL){
 		LOG_ERROR("%s: %s \"textures/cursors.bmp\"\n", reg_error_str, cant_open_file);
 #else // !NEW_FILE_IO
 	if((f = my_fopen ("./textures/cursors.bmp", "rb")) == NULL){

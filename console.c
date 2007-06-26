@@ -1056,7 +1056,7 @@ void init_commands(const char *filename)
 	FILE *fp = my_fopen(filename, "r");
 	if(fp != NULL) {
 #else /* NEW_FILE_IO */
-	FILE *fp = open_file_data(datadir, filename, "r");
+	FILE *fp = open_file_data(filename, "r");
 	if(fp == NULL) {
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
 	} else {

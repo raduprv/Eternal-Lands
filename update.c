@@ -73,7 +73,7 @@ void    init_update()
 	fp= my_fopen("mirrors.lst", "r");
 	if(fp != NULL){
 #else /* NEW_FILE_IO */
-	fp = open_file_data(datadir, "mirrors.lst", "r");
+	fp = open_file_data("mirrors.lst", "r");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"mirrors.lst\"\n", reg_error_str, cant_open_file);
 	} else {
@@ -143,7 +143,7 @@ void    handle_update_download(struct http_get_struct *get)
 			// yes, lets start using the new file
 			remove(files_lst);
 #ifdef NEW_FILE_IO
-			sts = move_file_to_data(datadir, "tmp/temp000.dat", files_lst);
+			sts = move_file_to_data("tmp/temp000.dat", files_lst);
 #else // !NEW_FILE_IO
 			sts= rename("./tmp/temp000.dat", files_lst);
 #endif //NEW_FILE_IO
@@ -282,7 +282,7 @@ int    do_threaded_update(void *ptr)
 			if(!strcasecmp(asc_md5, "none")){
 				// this file is to be removed
 #ifdef NEW_FILE_IO
-				remove_file_data(datadir, filename);
+				remove_file_data(filename);
 #else // !NEW_FILE_IO
 				remove(filename);
 #endif //NEW_FILE_IO
@@ -305,7 +305,7 @@ int    do_threaded_update(void *ptr)
   				// if MD5's don't match, start a download
   				if(memcmp(md5, digest, 16) != 0){
 #else /* NEW_FILE_IO */
-				if(file_update_check(datadir, filename, md5) != 0){
+				if(file_update_check(filename, md5) != 0){
 #endif /* not NEW_FILE_IO */
 					add_to_download(filename, md5);
 					num_files++;
@@ -411,7 +411,7 @@ void    handle_file_download(struct http_get_struct *get)
 			// TODO: check for remove/rename errors
 			remove(download_cur_file);
 #ifdef NEW_FILE_IO
-			sts = move_file_to_data(datadir, download_temp_file, download_cur_file);
+			sts = move_file_to_data(download_temp_file, download_cur_file);
 #else // !NEW_FILE_IO
 			sts= rename(download_temp_file, download_cur_file);
 #endif //NEW_FILE_IO
@@ -668,7 +668,7 @@ void    init_custom_update()
 	fp= my_fopen("custom_mirrors.lst", "r");
 	if(fp){
 #else /* NEW_FILE_IO */
-	fp= open_file_data(datadir, "custom_mirrors.lst", "r");
+	fp= open_file_data("custom_mirrors.lst", "r");
 	if(fp == NULL){
 		LOG_ERROR("%s: %s \"custom_mirrors.lst\"\n", reg_error_str, cant_open_file);
 	} else {

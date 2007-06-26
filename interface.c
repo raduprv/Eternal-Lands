@@ -496,7 +496,7 @@ void read_mapinfo ()
 	if (fin != NULL)
 	{
 #else /* NEW_FILE_IO */
-	fin = open_file_data (datadir, "mapinfo.lst", "r");
+	fin = open_file_data ("mapinfo.lst", "r");
 	if (fin == NULL){
 		LOG_ERROR("%s: %s \"mapinfo.lst\"\n", reg_error_str, cant_open_file);
 	} else {

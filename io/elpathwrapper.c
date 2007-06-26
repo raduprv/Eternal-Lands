@@ -1,7 +1,9 @@
 #ifdef NEW_FILE_IO
 #include "elpathwrapper.h"
+#include "../global.h"
 #include "../elc_private.h"
 #include "../md5.h"
+#include "../errors.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -10,6 +12,7 @@
 #include <errno.h>
 #ifdef WINDOWS
 #include <windows.h>
+#include <direct.h>
 #include <shlobj.h>
 #define MKDIR(file) mkdir(file)
 #else // !WINDOWS
@@ -45,8 +48,6 @@ const static char* cfgdirname = ".elc/";
 #endif // platform check
 
 
-extern void log_error(const char *message, ...);
-
 char * get_path_config(void){
 	/*Note: Unless you get a NULL (which you won't unless there's a far more serious problems than finding configdir),
 	 * it's your job to free() the pointer once you're finished with it. In most cases, you shouldn't need to call
@@ -73,13 +74,27 @@ char * get_path_config(void){
 	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, locbuffer)) && 
 			(strlen(locbuffer) < MAX_PATH + 5)){
 			if(pwd[0] != '\0'){
-				if(chdir(locbuffer) == -1){strcpy(locbuffer, cfgdirname); return locbuffer;}
-				if(mkdir(cfgdirname) == -1 && errno != EEXIST){chdir(pwd); strcpy(locbuffer, cfgdirname); return locbuffer;}
-				if(chdir(pwd) == -1){strcpy(locbuffer, cfgdirname); return locbuffer;}
+				if(chdir(locbuffer) == -1){
+					log_error("chdir(1) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+					strcpy(locbuffer, cfgdirname);
+					return locbuffer;
+				}
+				if(mkdir(cfgdirname) == -1 && errno != EEXIST){
+					log_error("mkdir() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+					chdir(pwd);
+					strcpy(locbuffer, cfgdirname);
+					return locbuffer;
+				}
+				if(chdir(pwd) == -1){
+					log_error("chdir(2) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+					strcpy(locbuffer, cfgdirname);
+					return locbuffer;
+				}
 			}
 		strcat(locbuffer, "/");
 		strcat(locbuffer, cfgdirname);
 	} else {
+		log_error("getpath() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
 		//No luck. fall through to using the folder in PWD
 		strcpy(locbuffer, cfgdirname);
 	}
@@ -108,7 +123,6 @@ FILE * open_file_config(const char* filename, const char* mode){
 	}
 	strcpy(locbuffer, cfgdir);
 	strcat(locbuffer, filename);
-	mkdir_tree(locbuffer);
 	fp = fopen(locbuffer, mode);
 	free(cfgdir);
 	if(fp != NULL){
@@ -138,13 +152,13 @@ FILE * open_file_data_updates(const char* filename, const char* mode){
 #endif // UPDATE
 
 
-FILE * open_file_data_datadir(const char* base_path, const char* filename, const char* mode){
+FILE * open_file_data_datadir(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
-	if(strlen(base_path) + strlen(filename) + 2 < MAX_PATH){
-		strcpy(locbuffer, base_path);
+	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
+		strcpy(locbuffer, datadir);
 		strcat(locbuffer, "/");	//Shouldn't be needed, but won't hurt
 		strcat(locbuffer, filename);
-		if(mkdir_tree(locbuffer)){
+		if(mkdir_tree(filename)){
 			return fopen(locbuffer, mode);
 		}
 	}
@@ -152,7 +166,7 @@ FILE * open_file_data_datadir(const char* base_path, const char* filename, const
 }
 
 
-FILE * open_file_data(const char* base_path, const char* filename, const char* mode){
+FILE * open_file_data(const char* filename, const char* mode){
 	FILE* fp = NULL;
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	if(strchr(mode, 'w') == NULL){
@@ -164,7 +178,7 @@ FILE * open_file_data(const char* base_path, const char* filename, const char* m
 	}
 #endif //UPDATE
 
-	fp = open_file_data_datadir(base_path, filename, mode);
+	fp = open_file_data_datadir(filename, mode);
 	if(fp != NULL){
 		return fp;
 	}
@@ -180,7 +194,7 @@ FILE * open_file_data(const char* base_path, const char* filename, const char* m
 
 }
 
-FILE * open_file_lang(const char* base_path, const char* filename, const char* mode, const char* lang){
+FILE * open_file_lang(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
 	if(strlen("languages/") + strlen(lang) + strlen(filename) + 2 < MAX_PATH){
 		FILE *fp;
@@ -188,7 +202,7 @@ FILE * open_file_lang(const char* base_path, const char* filename, const char* m
 		strcat(locbuffer, lang);
 		strcat(locbuffer, "/");
 		strcat(locbuffer, filename);
-		fp = open_file_data(base_path, locbuffer, mode);
+		fp = open_file_data(locbuffer, mode);
 		if(fp != NULL){
 			return fp;
 		}
@@ -196,7 +210,7 @@ FILE * open_file_lang(const char* base_path, const char* filename, const char* m
 	if(strlen("languages/") + strlen("en") + strlen(filename) + 2 < MAX_PATH){
 		strcpy(locbuffer, "languages/en/");
 		strcat(locbuffer, filename);
-		return open_file_data(base_path, locbuffer, mode);
+		return open_file_data(locbuffer, mode);
 	}
 	return NULL;
 }
@@ -271,12 +285,12 @@ int mkdir_config(const char *path){
 }
 
 
-int move_file_to_data(const char* base_path, const char* from_file, const char* to_file){
+int move_file_to_data(const char* from_file, const char* to_file){
 	char locbufcfg[MAX_PATH];
 	char locbufdat[MAX_PATH];
 	char * cfgdir = get_path_config();
 	if((strlen(cfgdir) + strlen(from_file) + 1 > MAX_PATH) ||
-			(strlen(base_path) + strlen(to_file) +2 > MAX_PATH)){
+			(strlen(datadir) + strlen(to_file) +2 > MAX_PATH)){
 		free(cfgdir);
 		errno = ENAMETOOLONG;
 		return -1;
@@ -284,7 +298,7 @@ int move_file_to_data(const char* base_path, const char* from_file, const char* 
 	strcpy(locbufcfg, cfgdir);
 	strcat(locbufcfg, from_file);
 
-	strcpy(locbufdat, base_path);
+	strcpy(locbufdat, datadir);
 	strcat(locbufdat, "/");
 	strcat(locbufdat, to_file);
 
@@ -313,26 +327,26 @@ void remove_file_data_updates(const char* filename){
 }
 #endif //UPDATES
 
-void remove_file_data_datadir(const char* base_path, const char* filename){
+void remove_file_data_datadir(const char* filename){
 	char locbuffer[MAX_PATH];
-	if(strlen(base_path) + strlen(filename) + 2 < MAX_PATH){
-		strcpy(locbuffer, base_path);
+	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
+		strcpy(locbuffer, datadir);
 		strcat(locbuffer, "/");	//Shouldn't be needed, but won't hurt
 		strcat(locbuffer, filename);
 		remove(locbuffer);
 	}
 }
 
-void remove_file_data(const char* base_dir, const char * filename){
+void remove_file_data(const char * filename){
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	remove_file_data_updates(filename);
 #endif //UPDATES
 
-	remove_file_data_datadir(base_dir, filename);
+	remove_file_data_datadir(filename);
 }
 
 
-int file_update_check(const char * base_path, const char * filename, const unsigned char * md5){
+int file_update_check(const char * filename, const unsigned char * md5){
 	FILE* fp = NULL;
 	MD5 local;
 	unsigned char digest_d[16];
@@ -363,7 +377,7 @@ int file_update_check(const char * base_path, const char * filename, const unsig
 #endif //UPDATE
 
 	memset (digest_d, 0, sizeof (digest_d));
-	fp = open_file_data_datadir(base_path, filename, "r");
+	fp = open_file_data_datadir(filename, "r");
 	if(fp != NULL){
 		MD5Open(&local);
 		while ((length= fread(buffer, 1, sizeof(buffer), fp)) > 0){
@@ -392,6 +406,14 @@ int file_update_check(const char * base_path, const char * filename, const unsig
 		return 0;
 	}
 	return 1;
+}
+
+void file_check_datadir(void){
+	struct stat fstat;
+	if(stat(datadir, &fstat) != 0){
+		log_error("Warning: Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\"\n", datadir);
+		strcpy(datadir, "./");
+	}
 }
 
 #endif //NEW_FILE_IO

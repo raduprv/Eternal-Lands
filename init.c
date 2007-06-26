@@ -99,7 +99,7 @@ void load_e3d_list()
 	fp=my_fopen("e3dlist.txt","r");
 	if(!fp){
 #else /* NEW_FILE_IO */
-	fp=open_file_data(datadir, "e3dlist.txt","r");
+	fp=open_file_data("e3dlist.txt","r");
 	if(fp == NULL){
 #endif /* NEW_FILE_IO */
 		LOG_ERROR("Failure trying to read e3dlist.txt");
@@ -134,7 +134,7 @@ void load_harvestable_list()
 	f = my_fopen("harvestable.lst", "rb");
 	if(!f) {
 #else /* NEW_FILE_IO */
-	f = open_file_data(datadir, "harvestable.lst", "rb");
+	f = open_file_data("harvestable.lst", "rb");
 	if(f == NULL) {
 		LOG_ERROR("%s: %s \"harvestable.lst\"\n", reg_error_str, cant_open_file);
 #endif /* NEW_FILE_IO */
@@ -166,7 +166,7 @@ void load_entrable_list()
 	f=my_fopen("entrable.lst", "rb");
 	if(f == NULL){
 #else /* NEW_FILE_IO */
-	f=open_file_data(datadir, "entrable.lst", "rb");
+	f=open_file_data("entrable.lst", "rb");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"entrable.lst\"\n", reg_error_str, cant_open_file);
 #endif /* NEW_FILE_IO */
@@ -207,7 +207,7 @@ void load_knowledge_list()
 		}
 	if(f == NULL){
 #else /* NEW_FILE_IO */
-	f=open_file_lang(datadir, "knowledge.lst", "rb", lang);
+	f=open_file_lang("knowledge.lst", "rb");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"knowledge.lst\"\n", reg_error_str, cant_open_file);
 #endif /* NEW_FILE_IO */
@@ -867,6 +867,7 @@ void init_stuff()
 #ifdef NEW_FILE_IO
 	safe_snprintf(config_location, sizeof(config_location), config_location_str, get_path_config());
 	LOG_TO_CONSOLE(c_green4, config_location);
+	file_check_datadir();
 #endif //NEW_FILE_IO	
 
 	update_loading_win(prep_op_win_str, 7);

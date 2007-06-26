@@ -256,7 +256,7 @@ void get_map_playlist()
 	// don't consider absence of playlist an error, so don't use my_fopen
 	fp=fopen(map_list_file_name,"r");
 #else /* NEW_FILE_IO */
-	fp=open_file_data(datadir, map_list_file_name,"r");
+	fp=open_file_data(map_list_file_name,"r");
 #endif /* NEW_FILE_IO */
 	if (fp == NULL) return;
 
@@ -557,7 +557,7 @@ void play_music(int list) {
 	fp=fopen(list_file_name,"r");
 #else /* NEW_FILE_IO */
 	safe_snprintf(list_file_name, sizeof(list_file_name), "music/%d.pll", list);
-	fp=open_file_data(datadir, list_file_name, "r");
+	fp=open_file_data(list_file_name, "r");
 #endif /* NEW_FILE_IO */
 	if(!fp)return;
 

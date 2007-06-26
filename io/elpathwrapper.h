@@ -34,27 +34,25 @@ char * get_path_config(void);
 FILE * open_file_config(const char* filename, const char* mode);
 
 /**
- * @brief fopen()s a file in the directory base_path
+ * @brief fopen()s a file in the directory datadir
  *
- * Attempts to open the given filename in base_path
- * @param base_path The name of the directory to attempt to open the file in
+ * Attempts to open the given filename in datadir
  * @param filename The name of the file to open
  * @param mode The file mode to use to open the file (read/write, binary/text, etc)
  * @return Returns a FILE* to the opened file on success, or a NULL on failure
  */
-FILE * open_file_data(const char* base_path, const char* filename, const char* mode);
+FILE * open_file_data(const char* filename, const char* mode);
 
 /**
- * @brief fopen()s a file in the directory: base_path/languages/lang
+ * @brief fopen()s a file in the directory: datadir/languages/lang
  *
- * Attempts to open the given filename in base_path/languages/lang
+ * Attempts to open the given filename in datadir/languages/lang
  * @param base_path The name of the directory to attempt to open the file in
  * @param filename The name of the file to open
  * @param mode The file mode to use to open the file (read/write, binary/text, etc)
- * @param lang The language directory to attempt to use
  * @return Returns a FILE* to the opened file on success, either in 'lang' or in 'en' (as a failover), or a NULL on failure
  */
-FILE * open_file_lang(const char* base_path, const char* filename, const char* mode, const char* lang);
+FILE * open_file_lang(const char* filename, const char* mode);
 
 /**
  * @brief Creates the given path
@@ -78,12 +76,11 @@ int mkdir_config(const char *path);
  * @brief rename()s a file from configdir to datadir
  *
  * Attempts to move a file in configdir into datadir
- * @param base_path The name of the directory to attempt to move the file from
  * @param from_file The name of the file to move
  * @param to_file The name of the file to create
  * @return Returns the result of the internal rename() call
  */
-int move_file_to_data(const char* base_path, const char* from_file, const char* to_file);
+int move_file_to_data(const char* from_file, const char* to_file);
 
 /**
  * @brief Check if file update is needed
@@ -97,7 +94,14 @@ int move_file_to_data(const char* base_path, const char* from_file, const char* 
  * @param md5 The checksum given in the updates list to indicate the newest version
  * @return Returns 1 if an update is needed, 0 if not
  */
-int file_update_check(const char * base_path, const char * filename, const unsigned char * md5);
+int file_update_check(const char * filename, const unsigned char * md5);
+
+/**
+ * @brief Check for valid datadir
+ *
+ * Checks if we can stat() datadir. If not, failover to current directory.
+ */
+void file_check_datadir(void);
 
 /**
  * @brief Removes old auto-update files
@@ -111,11 +115,10 @@ void file_update_clear_old(void);
  *
  * Removes a given file from datadir and configdir/updates
  *
- * @param base_path The datadir in use
  * @param filename The name of the file to remove
  * @return As per remove()
  */
-void remove_file_data(const char* base_dir, const char * filename);
+void remove_file_data(const char * filename);
 
 #ifdef __cplusplus
 }

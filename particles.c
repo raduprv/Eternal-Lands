@@ -97,7 +97,7 @@ particle_sys_def *load_particle_def(const char *filename)
 	f=my_fopen(cleanpath,"r");
 	if(f == NULL){
 #else /* NEW_FILE_IO */
-	f=open_file_data(datadir, cleanpath,"r");
+	f=open_file_data(cleanpath,"r");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
 #endif /* NEW_FILE_IO */
