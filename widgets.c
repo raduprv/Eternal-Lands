@@ -2176,6 +2176,16 @@ void _text_field_insert_char (widget_list *w, char ch)
 		_text_field_scroll_to_cursor (w);
 }
 
+void _text_field_copy_to_clipboard (text_field *tf)
+{
+	char* text = text_field_get_selected_text(tf);
+	if (text != NULL)
+	{
+		copy_to_clipboard(text);
+		free(text);
+	}
+}
+
 void update_cursor_selection(widget_list* w, int flag);
 
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
@@ -2192,12 +2202,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 #if !defined(WINDOWS) && !defined(OSX)
 	if (key == K_COPY)
 	{
-		char* text = text_field_get_selected_text(tf);
-		if (text != NULL)
-		{
-			copy_to_clipboard(text);
-			free(text);
-		}
+		_text_field_copy_to_clipboard (tf);
 		return 1;
 	}
 #endif
@@ -2298,7 +2303,6 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	else if (((ch == SDLK_BACKSPACE) || (ch == SDLK_DELETE)) && !TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 	{
 		text_field_remove_selection(tf);
-		tf->cursor = tf->select.ec > tf->select.sc ? tf->select.sc : tf->select.ec;
 		TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		return 1;
 	}
@@ -2314,12 +2318,20 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			_text_field_delete_forward (w);
 		return 1;
 	}
+	else if (key == K_CUT)
+	{
+		_text_field_copy_to_clipboard (tf);
+		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
+		{
+			text_field_remove_selection(tf);
+			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
+		}
+	}
 	else if (key == K_PASTE)
 	{
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
 			text_field_remove_selection(tf);
-			tf->cursor = tf->select.ec > tf->select.sc ? tf->select.sc : tf->select.ec;
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
 #if !defined(WINDOWS) && !defined(OSX)
@@ -2333,7 +2345,6 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
 			text_field_remove_selection(tf);
-			tf->cursor = tf->select.ec > tf->select.sc ? tf->select.sc : tf->select.ec;
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);		
 		}
 		_text_field_insert_char (w, ch);
