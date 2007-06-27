@@ -2176,6 +2176,7 @@ void _text_field_insert_char (widget_list *w, char ch)
 		_text_field_scroll_to_cursor (w);
 }
 
+#if !defined(WINDOWS) && !defined(OSX)
 void _text_field_copy_to_clipboard (text_field *tf)
 {
 	char* text = text_field_get_selected_text(tf);
@@ -2185,6 +2186,7 @@ void _text_field_copy_to_clipboard (text_field *tf)
 		free(text);
 	}
 }
+#endif
 
 void update_cursor_selection(widget_list* w, int flag);
 
@@ -2320,7 +2322,9 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	}
 	else if (key == K_CUT)
 	{
+if !defined(WINDOWS) && !defined(OSX)
 		_text_field_copy_to_clipboard (tf);
+#endif
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
 			text_field_remove_selection(tf);
