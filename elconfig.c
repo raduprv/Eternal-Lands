@@ -16,6 +16,8 @@
 	#include "../map_editor/global.h"
 	#include "../map_editor/browser.h"
 	#include "../map_editor/interface.h"
+	#include "../elc/load_gl_extensions.h"
+	
 #elif defined(MAP_EDITOR2)
 	#include "../map_editor2/global.h"
 #else
@@ -100,11 +102,12 @@ static __inline__ void update_fbo()
 	check_option_var("shadow_map_size");
 	if (gl_extensions_loaded && have_extension(ext_framebuffer_object))
 	{
-#ifdef	USE_SHADER
+#ifndef MAP_EDITOR
+ #ifdef	USE_SHADER
 		if ((water_shader_quality > 0) && show_reflection)
-#else	// USE_SHADER
+ #else	// USE_SHADER
 		if (use_frame_buffer && show_reflection)
-#endif	// USE_SHADER
+ #endif	// USE_SHADER
 		{
 			change_reflection_framebuffer_size(window_width, window_height);
 		}
@@ -112,7 +115,7 @@ static __inline__ void update_fbo()
 		{
 			free_reflection_framebuffer();
 		}
-#ifdef MINIMAP
+ #ifdef MINIMAP
 		if (use_frame_buffer)
 		{
 			minimap_make_framebuffer();
@@ -121,7 +124,8 @@ static __inline__ void update_fbo()
 		{
 			minimap_free_framebuffer();
 		}
-#endif //MINIMAP
+ #endif //MINIMAP
+#endif // MAP_EDITOR
 	}
 }
 

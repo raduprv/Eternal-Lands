@@ -105,6 +105,8 @@ bool FireflyEffect::idle(const Uint64 usec)
   
   if (recall)
     return true;
+  
+  center = *pos;
 
   for (int i = firefly_count - (int)particles.size(); i >= 0; i--)
   {

@@ -35,7 +35,6 @@ extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
 /*! @} */
 extern float anisotropic_filter;
 extern int gl_extensions_loaded; /*< specifies if the OpenGL extensions were loaded or not */
-
 /*!
  * \ingroup video
  * \brief   initializes the selected video mode

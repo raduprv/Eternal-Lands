@@ -253,7 +253,7 @@ extern "C" void ec_idle()
       {
 #ifndef MAP_EDITOR
         (*iter)->position.y = ec_get_z2(-(int)camera_x, -(int)camera_y);   // Keep the effect level with the ground.
-        std::cout << (-(int)camera_x) << ", " << (-(int)camera_y) << ": " << (*iter)->position.y << std::endl;
+//        std::cout << (-(int)camera_x) << ", " << (-(int)camera_y) << ": " << (*iter)->position.y << std::endl;
 #else
         (*iter)->position.y = 0.0;
 #endif
@@ -818,7 +818,6 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
 //      const float hue = raw_code[41] / 256.0;
 //      const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
-//      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
       ref = ec_create_cloud(x, y, z, density, bounds, LOD);
       break;
     }
@@ -828,7 +827,6 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
 //      const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
 //      const float scale = raw_code[45] + raw_code[46] / 256.0;
-//      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       ref = ec_create_fireflies(x, y, z, density, bounds);
       break;
     }
@@ -904,7 +902,6 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
 //      const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
 //      const float scale = raw_code[45] + raw_code[46] / 256.0;
-//      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       ref = ec_create_wind_leaves(x, y, z, density, bounds, 1.0, 0.0, 0.0);
       break;
     }
@@ -914,7 +911,6 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
 //      const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
 //      const float scale = raw_code[45] + raw_code[46] / 256.0;
-//      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       ref = ec_create_wind_petals(x, y, z, density, bounds, 1.0, 0.0, 0.0);
       break;
     }
