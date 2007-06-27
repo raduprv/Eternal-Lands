@@ -4,6 +4,10 @@
 #endif	//NEW_FILE_IO
 #include "../global.h"
 
+#ifdef EYE_CANDY
+ #include "../eye_candy_wrapper.h"
+#endif
+
 #ifndef SHOW_FLICKERING
 const float offset_2d_increment = (1.0f / 32768.0f);	// (1.0f / 8388608.0f) is the minimum for 32-bit floating point.
 float offset_2d = (1.0f / 32768.0f);
@@ -300,9 +304,7 @@ int load_map(const char *file_name, update_func *update_function)
 #ifdef EYE_CANDY
 		if (!strncmp(cur_particles_io.file_name, "ec://", 5))
 		{
-#ifdef	NOT_FOR_RELEASE
 			ec_create_effect_from_map_code(cur_particles_io.file_name + 5, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, (poor_man ? 6 : 10));
-#endif	//NOT_FOR_RELEASE
 		}
 		else
 		{

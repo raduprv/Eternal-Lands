@@ -248,6 +248,16 @@ extern "C" void ec_idle()
           force_idle = true;
         }
       }
+      
+      if (((*iter)->effect->get_type() == ec::EC_CLOUD) || ((*iter)->effect->get_type() == ec::EC_FIREFLY) || ((*iter)->effect->get_type() == ec::EC_WIND))
+      {
+#ifndef MAP_EDITOR
+        (*iter)->position.y = ec_get_z2(-(int)camera_x, -(int)camera_y);   // Keep the effect level with the ground.
+        std::cout << (-(int)camera_x) << ", " << (-(int)camera_y) << ": " << (*iter)->position.y << std::endl;
+#else
+        (*iter)->position.y = 0.0;
+#endif
+      }
     }
     i++;
   }

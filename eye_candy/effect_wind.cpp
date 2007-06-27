@@ -129,6 +129,9 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
       break;
     }
   }
+  
+//  std::cout << this << ", " << pos << ": " << "Leaf created." << std::endl;
+  
 /*
   // Normalize axis weights
   percent_t sum = 0;
@@ -144,7 +147,7 @@ bool WindParticle::idle(const Uint64 delta_t)
 {
   if (effect->recall)
     return false;
-  
+    
   WindEffect* wind_effect = (WindEffect*)effect;
   const Uint64 age = get_time() - born;
   const interval_t usec = delta_t / 1000000.0;
@@ -188,7 +191,7 @@ bool WindParticle::idle(const Uint64 delta_t)
   }
   else
   {
-    pos.y -= 0.2 * usec;
+    pos.y -= 0.4 * usec;
     if (pos.y < min_height)
       pos.y = min_height;
   }
@@ -196,11 +199,20 @@ bool WindParticle::idle(const Uint64 delta_t)
 //  std::cout << "Pos: " << pos << std::endl;
 //  std::cout << "Velocity: " << velocity.magnitude() << ", " << velocity << std::endl;
 
-  if (age > 50000000)
-    state = 1;
+  if (!state)
+  {
+    if (age > 50000000)
+    {
+      std::cout << this << ": Too old." << std::endl;
+      state = 1;
+    }
   
-  if ((pos - base->center).magnitude_squared() > MAX_DRAW_DISTANCE_SQUARED)
-    state = 1;
+    if ((pos - base->center).planar_magnitude_squared() > MAX_DRAW_DISTANCE_SQUARED * 2)
+    {
+//      std::cout << this << ": " << pos << " too far from " << base->center << std::endl;
+      state = 1;
+    }
+  }
 
   if (state == 0)
   {
@@ -300,7 +312,7 @@ GLuint WindParticle::get_texture(const Uint16 res_index)	// Shouldn't be needed.
 
 void WindParticle::draw(const Uint64 usec)
 {
-  coord_t distance_squared = (base->camera - pos).magnitude_squared();
+  coord_t distance_squared = (base->camera - pos).planar_magnitude_squared();
   if (distance_squared > MAX_DRAW_DISTANCE_SQUARED)
     return;
 
@@ -420,7 +432,7 @@ Vec3 WindParticle::get_wind_vec() const
   const float offset = randfloat() * 0.5;
 
   const coord_t x = 1.0 * sin(offset + pos.x * 0.5283 + pos.z * 0.7111 + time_offset * 0.6817) * sin(offset + pos.x * 1.2019 + pos.z * 0.5985 + time_offset * 1.5927) * e->max_adjust / (fabs(pos.y - e->center.y) + 1);
-  const coord_t y = 1.0 * sin(offset + pos.x * 0.4177 + pos.z * 1.3127 + time_offset * 1.1817) * sin(offset + pos.x * 0.5828 + pos.z * 0.6888 + time_offset * 2.1927) * e->max_adjust * 1.5;
+  const coord_t y = 1.0 * sin(offset + pos.x * 0.4177 + pos.z * 1.3127 + time_offset * 1.1817) * sin(offset + pos.x * 0.5828 + pos.z * 0.6888 + time_offset * 2.1927) * e->max_adjust * 2.5;
   const coord_t z = 1.0 * sin(offset + pos.x * 1.1944 + pos.z * 0.9960 + time_offset * 1.6817) * sin(offset + pos.x * 0.6015 + pos.z * 1.4809 + time_offset * 1.4927) * e->max_adjust / (fabs(pos.y - e->center.y) + 1);
 
 //  Vec3 random_component;
@@ -450,7 +462,7 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec:
   mover = new GradientMover(this);
   spawner = new FilledBoundingSpawner(_bounding_range, pos, &(base->center), range_scalar);
 //  max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;
-  max_LOD1_count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * _density * range_scalar * 2.0) / 10;
+  max_LOD1_count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * _density * range_scalar * 2.0) / 25;
   LOD = base->last_forced_LOD;
   count = LOD * max_LOD1_count;
   switch (type)
@@ -580,7 +592,7 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
     Vec3 coords = spawner->get_new_coords();
     if (coords.x == -32768.0)
       continue;
-    coords += base->center + Vec3(0.0, 4.0 + randcoord(2.0), 0.0);
+    coords += base->center + Vec3(0.0, 0.05, 0.0);
     Vec3 velocity;
     velocity.randomize(max_adjust / 4);
     velocity.y /= 2;
@@ -597,6 +609,8 @@ bool WindEffect::idle(const Uint64 usec)
     
   if (recall)
     return true;
+  
+  center = *pos;
     
   Vec3 velocity_shift;
   velocity_shift.randomize();
@@ -642,7 +656,7 @@ bool WindEffect::idle(const Uint64 usec)
     if (coords.x == -32768.0)
       continue;
 //    std::cout << coords << ", ";
-    coords += base->center + Vec3(0.0, 4.0 + randcoord(2.0), 0.0);
+    coords += base->center + Vec3(0.0, 0.05, 0.0);
 //    std::cout << coords << std::endl;
     Vec3 velocity;
     velocity.randomize(max_adjust / 2);

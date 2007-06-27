@@ -1628,9 +1628,9 @@ void EyeCandy::idle()
       e->recall = true;
     }
 
-    const Vec3 shifted_pos = *(e->pos) - center;
-    coord_t distance_squared = shifted_pos.magnitude_squared();
-//    std::cout << center << ", " << *e->pos << ": " << (center - *(e->pos)).magnitude_squared() << " <? " << MAX_DRAW_DISTANCE_SQUARED << std::endl;
+    Vec3 shifted_pos = *(e->pos) - center;
+    coord_t distance_squared = shifted_pos.planar_magnitude_squared();
+//    std::cout << e << ": " << center << ", " << *e->pos << ": " << (center - *(e->pos)).magnitude_squared() << " <? " << MAX_DRAW_DISTANCE_SQUARED << std::endl;
     if (!e->active)
     {
       if (e->bounds)
@@ -1671,7 +1671,7 @@ void EyeCandy::idle()
         if (fastsqrt(distance_squared) > e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE)
         {
           if (EC_DEBUG)
-            std::cout << "Deactivating effect(2) " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+            std::cout << "Deactivating effect(2) " << e << "(" << fastsqrt(distance_squared) << " < " << MAX_DRAW_DISTANCE_SQUARED << ": " << *(e->pos) << ", " << center << ", " << e->bounds->get_radius(angle) << ")" << std::endl;
           e->active = false;
         }
       }
@@ -1680,7 +1680,7 @@ void EyeCandy::idle()
         if (distance_squared > MAX_DRAW_DISTANCE_SQUARED)
         {
           if (EC_DEBUG)
-            std::cout << "Deactivating effect " << e << "(" << distance_squared << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+            std::cout << "Deactivating effect " << e << "(" << fastsqrt(distance_squared) << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
           e->active = false;
         }
       }

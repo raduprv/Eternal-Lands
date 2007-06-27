@@ -351,6 +351,16 @@ public:
     return square(x) + square(y) + square(z);
   };
 
+  coord_t planar_magnitude() const
+  {
+    return fastsqrt(square(x) + square(z));
+  };
+
+  coord_t planar_magnitude_squared() const
+  {
+    return square(x) + square(z);
+  };
+
   Vec3 normalize()
   {
     (*this) *= invsqrt(magnitude_squared());
