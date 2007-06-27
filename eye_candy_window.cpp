@@ -1,6 +1,10 @@
 /*
 TODO: 
- * Test loading.
+ * Figure out why leaves aren't visible
+ * Fix the buffer overflow(s?)
+ * Make base height equal the set Z, but have it be irrelevant for everything but clouds.
+ * Verify that the EL deserialization code is the same as the mapeditor
+ * Test loading in EL.
  * Get Roja working.
  * New effect options.
  * New effects.
@@ -286,19 +290,21 @@ extern "C" void add_eye_candy_point()
   if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
   || mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale) return;
 
-  x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
-  y_map_pos=tile_map_size_y-((mouse_y-minimap_y_start)/(float)scale)*tile_map_size_y/256;
-  const float z = tile_map[(int)(y_map_pos)*tile_map_size_x+(int)x_map_pos];
+  x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale);
+  y_map_pos=256-((mouse_y-minimap_y_start)/(float)scale);
+  const float z = -2.2f + tile_map[(int)(y_map_pos)*tile_map_size_x+(int)x_map_pos] * 0.2f;
+  x_map_pos = x_map_pos * 3 / (256 / tile_map_size_x);
+  y_map_pos = y_map_pos * 3 / (256 / tile_map_size_y);
   
   if (left_click <= 1)
   {
-    const bool ret = find_bounds_index(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y));
+    const bool ret = find_bounds_index(x_map_pos, y_map_pos);
     if (!ret)  // Didn't click on anything; create new.
     {
       if ((current_effect.bounds.elements.size() == 0) && (current_effect.position == ec::Vec3(-1.0, -1.0, 0.0)))
-        current_effect.position = ec::Vec3(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y), z);
+        current_effect.position = ec::Vec3(x_map_pos, y_map_pos, z);
       else if (current_effect.bounds.elements.size() < 13)
-        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y)));
+        current_effect.bounds.elements.insert(current_effect.bounds.elements.begin() + last_ec_index, angle_to(current_effect.position.x, current_effect.position.y, x_map_pos, y_map_pos));
       else
         ; // Can't add any more; too many already.
     }
@@ -306,10 +312,10 @@ extern "C" void add_eye_candy_point()
   else
   {
     if (last_ec_index == -1)  // Clicked on the center; drag it.
-      current_effect.position = ec::Vec3(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y), z);
+      current_effect.position = ec::Vec3(x_map_pos, y_map_pos, z);
     else if (last_ec_index >= 0)      // Clicked on another point; drag it.
     {
-      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_y));
+      const ec::SmoothPolygonElement new_angle = angle_to(current_effect.position.x, current_effect.position.y, x_map_pos, y_map_pos);
       current_effect.bounds.elements.erase(current_effect.bounds.elements.begin() + last_ec_index);
       int i;
       for (i = 0; i < (int)current_effect.bounds.elements.size(); i++)
@@ -321,6 +327,7 @@ extern "C" void add_eye_candy_point()
       last_ec_index = i;
     }
   }
+  change_eye_candy_effect();
 }
 
 extern "C" void delete_eye_candy_point()
@@ -340,10 +347,12 @@ extern "C" void delete_eye_candy_point()
   if(mouse_x<minimap_x_start || mouse_y<minimap_y_start
   || mouse_x>minimap_x_start+256*scale || mouse_y>minimap_y_start+256*scale) return;
 
-  x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale)*tile_map_size_x/256;
-  y_map_pos=tile_map_size_y-(((mouse_y-minimap_y_start))/(float)scale)*tile_map_size_y/256;
+  x_map_pos=((float)(mouse_x-minimap_x_start)/(float)scale);
+  y_map_pos=256-(((mouse_y-minimap_y_start))/(float)scale);
+  x_map_pos = x_map_pos * 3 / (256 / tile_map_size_x);
+  y_map_pos = y_map_pos * 3 / (256 / tile_map_size_y);
 
-  if (find_bounds_index(x_map_pos * 3 * (256 / tile_map_size_x), y_map_pos * 3 * (256 / tile_map_size_x)))
+  if (find_bounds_index(x_map_pos, y_map_pos))
   {
     if (last_ec_index >= 0)  // Clicked on a bounds point; delete it
     {
@@ -482,8 +491,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
       else
         percent = (f + 2 * ec::PI - prev_iter->angle) / (next_iter->angle + (2 * ec::PI) - prev_iter->angle);
       const float dist = prev_iter->radius * (1.0 - percent) + next_iter->radius * percent;
-      const float temp_x = minimap_x_start + ((eff.position.x + dist * sin(f)) * scale) / 3;
-      const float temp_y = minimap_y_end - ((eff.position.y + dist * cos(f)) * scale) / 3;
+      const float temp_x = minimap_x_start + ((eff.position.x - dist * sin(f)) * scale) / 3 * (256 / tile_map_size_x);
+      const float temp_y = minimap_y_end - ((eff.position.y + dist * cos(f)) * scale) / 3 * (256 / tile_map_size_y);
       glVertex2f(temp_x, temp_y);
     }
   }
@@ -495,8 +504,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
     glBegin(GL_QUADS);
     for (std::vector<ec::SmoothPolygonElement>::const_iterator iter = eff.bounds.elements.begin(); iter != eff.bounds.elements.end(); iter++)
     {
-      const float temp_x = minimap_x_start + ((eff.position.x + iter->radius * sin(iter->angle)) * scale) / 3;
-      const float temp_y = minimap_y_end - ((eff.position.y + iter->radius * cos(iter->angle)) * scale) / 3;
+      const float temp_x = minimap_x_start + ((eff.position.x - iter->radius * sin(iter->angle)) * scale) / 3 * (256 / tile_map_size_x);
+      const float temp_y = minimap_y_end - ((eff.position.y + iter->radius * cos(iter->angle)) * scale) / 3 * (256 / tile_map_size_y);
       glVertex2f(temp_x - 2.0 * scale, temp_y - 2.0 * scale);
       glVertex2f(temp_x - 2.0 * scale, temp_y + 2.0 * scale);
       glVertex2f(temp_x + 2.0 * scale, temp_y + 2.0 * scale);
@@ -504,8 +513,8 @@ void draw_bound(EffectDefinition& eff, bool selected)
     }
     
     glColor4f(1.0, 0.8, 0.6, 1.0);
-    const float temp_x = minimap_x_start + (eff.position.x * scale) / 3;
-    const float temp_y = minimap_y_end - (eff.position.y * scale) / 3;
+    const float temp_x = minimap_x_start + (eff.position.x * scale) / 3 * (256 / tile_map_size_x);
+    const float temp_y = minimap_y_end - (eff.position.y * scale) / 3 * (256 / tile_map_size_y);
     glVertex2f(temp_x - 2.0 * scale, temp_y - 2.0 * scale);
     glVertex2f(temp_x - 2.0 * scale, temp_y + 2.0 * scale);
     glVertex2f(temp_x + 2.0 * scale, temp_y + 2.0 * scale);
@@ -531,7 +540,7 @@ bool find_bounds_index(float x, float y)
   for (int i = 0; i < (int)current_effect.bounds.elements.size(); i++)
   {
     std::vector<ec::SmoothPolygonElement>::const_iterator iter = current_effect.bounds.elements.begin() + i;
-    const float temp_x = current_effect.position.x + iter->radius * sin(iter->angle);
+    const float temp_x = current_effect.position.x - iter->radius * sin(iter->angle);
     const float temp_y = current_effect.position.y + iter->radius * cos(iter->angle);
     if ((fabs(x - temp_x) < 9.0) && (fabs(y - temp_y) < 9.0))
     {
@@ -557,7 +566,7 @@ bool find_bounds_index(float x, float y)
 
 ec::SmoothPolygonElement angle_to(float start_x, float start_y, float end_x, float end_y)
 {
-  const float diff_x = end_x - start_x;
+  const float diff_x = -(end_x - start_x);
   const float diff_y = end_y - start_y;
   float angle = atan2(diff_x, diff_y);
   if (angle < 0)
@@ -722,11 +731,9 @@ int get_eye_candy_count()
 void deserialize_eye_candy_effect(particles_io* data)
 {
   const unsigned char*const code = (const unsigned char*const)data->file_name + 5;
-  
-//  for (int i = 0; i < 18; i++)
-//    std::cout << "  " << i << ": " << (int)code[i * 4 + 0] << ", " << (int)code[i * 4 + 1] << ", " << (int)code[i * 4 + 2] << ", " << (int)code[i * 4 + 3] << std::endl;
-//  std::cout << std::endl;
-  
+
+  std::cout << "Deserialize" << std::endl;  
+
   EffectDefinition dest;
   
   unsigned char raw_code[54];
@@ -737,16 +744,18 @@ void deserialize_eye_candy_effect(particles_io* data)
     raw_code[i * 3]     = ((code[i * 4 + 0] - ' ') >> 0) | ((code[i * 4 + 1] - ' ') << 6);
     raw_code[i * 3 + 1] = ((code[i * 4 + 1] - ' ') >> 2) | ((code[i * 4 + 2] - ' ') << 4);
     raw_code[i * 3 + 2] = ((code[i * 4 + 2] - ' ') >> 4) | ((code[i * 4 + 3] - ' ') << 2);
-//    std::cout << "  " << i << ": " << (int)raw_code[i * 3] << ", " << (int)raw_code[i * 3 + 1] << ", " << (int)raw_code[i * 3 + 2] << std::endl;
     i++;
   }
-//  std::cout << std::endl;
   
   int bounds_count = raw_code[1];
   if (bounds_count > 19)
     bounds_count = 19;
   for (i = 0; i < bounds_count; i++)
-    dest.bounds.elements.push_back(ec::SmoothPolygonElement(raw_code[i * 2 + 2] * (2 * ec::PI) / 256.0f, raw_code[i * 2 + 3]));
+  {
+    const float angle = raw_code[i * 2 + 2] * (2 * ec::PI) / 256.0f;
+    const float dist = raw_code[i * 2 + 3];
+    dest.bounds.elements.push_back(ec::SmoothPolygonElement(angle, dist));
+  }
 
   dest.position.x = data->x_pos;
   dest.position.y = data->y_pos;
@@ -989,6 +998,8 @@ void deserialize_eye_candy_effect(particles_io* data)
 
 void serialize_eye_candy_effect(int index, particles_io* data)
 {
+  std::cout << "Serialize" << std::endl;  
+
   memset((char*)data, 0, sizeof(particles_io));
 
   std::string unformatted_data(80, '\0');
@@ -998,9 +1009,8 @@ void serialize_eye_candy_effect(int index, particles_io* data)
     unformatted_data[1] = 19;
   for (int i = 0; i < unformatted_data[1]; i++)
   {
-    unformatted_data[i * 2 + 2] = (char)((unsigned char)effects[index].bounds.elements[i].angle / (2 * ec::PI) * 256.0f);
-    unformatted_data[i * 2 + 3] = (char)((unsigned char)effects[index].bounds.elements[i].radius);
-    
+    unformatted_data[i * 2 + 2] = (char)((unsigned char)(effects[index].bounds.elements[i].angle / (2 * ec::PI) * 256.0f));
+    unformatted_data[i * 2 + 3] = (char)((unsigned char)(effects[index].bounds.elements[i].radius));
   }
   switch (effects[index].effect)
   {
@@ -1131,10 +1141,6 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       break;
   }
 
-//  for (int i = 0; i < 18; i++)
-//    std::cout << "  " << i << ": " << (int)(unsigned char)unformatted_data[i * 3] << ", " << (int)(unsigned char)unformatted_data[i * 3 + 1] << ", " << (int)(unsigned char)unformatted_data[i * 3 + 2] << std::endl;
-//  std::cout << std::endl;
-
   std::string data_str = "ec://";
   for (int i = 0; i < 18; i++)
   {
@@ -1144,10 +1150,6 @@ void serialize_eye_candy_effect(int index, particles_io* data)
     data_str += ' ' + (char)((((unsigned char)unformatted_data[i * 3 + 2] & 0xFC) >> 2));
   }
 
-//  for (int i = 0; i < 18; i++)
-//    std::cout << "  " << i << ": " << (int)data_str[5 + i * 4 + 0] << ", " << (int)data_str[5 +i * 4 + 1] << ", " << (int)data_str[5 + i * 4 + 2] << ", " << (int)data_str[5 + i * 4 + 3] << std::endl;
-//  std::cout << std::endl;
-  
   sprintf(data->file_name, data_str.c_str());
   data->x_pos = effects[index].position.x;
   data->y_pos = effects[index].position.y;

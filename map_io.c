@@ -86,7 +86,6 @@ int save_map(char * file_name)
 	FILE *f = NULL;
 #endif	//ZLIBW
 
-
 	//get the sizes of structures (they might change in the future)
 	obj_3d_io_size=sizeof(object3d_io);
 	obj_2d_io_size=sizeof(obj_2d_io);
@@ -473,6 +472,7 @@ int load_map(char * file_name)
 
 			if (!strncmp(cur_particles_io.file_name, "ec://", 5))
 			{
+				printf("Deserializing eye candy.\n");
 				deserialize_eye_candy_effect(&cur_particles_io);
 			}
 			else
