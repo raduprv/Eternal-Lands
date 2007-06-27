@@ -239,6 +239,7 @@ void read_config()
 	char * tcfg = get_path_config();
 #endif /* NEW_FILE_IO */
 
+#ifndef WINDOWS
 #ifndef NEW_FILE_IO
 	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
 #ifndef OSX
@@ -250,7 +251,7 @@ void read_config()
 	my_strncp ( configdir, tcfg , sizeof(configdir));
 	free(tcfg);
 #endif /* NEW_FILE_IO */
-#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
+#ifndef NEW_FILE_IO
 	d = opendir (configdir);
 	if (d == NULL){
 		mkdir (configdir, 0700);
@@ -262,7 +263,8 @@ void read_config()
 		if (statbuff.st_mode != S_IRWXU)
 			fchmod (fd, S_IRWXU);
 	}
-#endif // !WINDOWS && !NEW_FILE_IO
+#endif // !NEW_FILE_IO
+#endif // !WINDOWS
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up
