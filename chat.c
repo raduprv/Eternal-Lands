@@ -218,6 +218,7 @@ void clear_input_line (void)
 	if(input_widget != NULL) {
 		text_field *field = input_widget->widget_info;
 		field->cursor = 0;
+		field->cursor_line = 0;
 		field->nr_lines = 1;
 		if(use_windowed_chat != 2) {
 			widget_resize(input_widget->window_id, input_widget->id, input_widget->len_x, field->y_space*2+DEFAULT_FONT_Y_LEN*input_widget->size);
@@ -741,7 +742,7 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	if(input_widget == NULL || (input_widget->Flags & TEXT_FIELD_EDITABLE) == 0) {
 		return 0;
 	}
-	
+
 	tf = input_widget->widget_info;
 	msg = &(tf->buffer[tf->msg]);
 	tmp_chan = msg->chan_idx;
@@ -772,69 +773,39 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 		add_line_to_history((char*)msg->data, msg->len);
 		clear_input_line();
 	}
-#ifndef OSX
-	else if (ch == SDLK_BACKSPACE && tf->cursor > 0)
-#else
-	else if (((ch == SDLK_BACKSPACE) || (ch == 127)) && tf->cursor > 0)
-#endif
+	else if (tf->cursor == 1 && (ch == '/' || ch == char_slash_str[0])
+	             && (msg->data[0] == '/' || msg->data[0]==char_slash_str[0])
+	             && last_pm_from[0])
 	{
-		int i = tf->cursor, n = 1;
-		
-		while (n < i && msg->data[i-n] == '\r') n++;
-		
-		for ( ; i <= msg->len; i++)
-			msg->data[i-n] = msg->data[i];
-
-		tf->cursor -= n;
-		msg->len -= n;
-		// set invalid width to force rewrap
-		msg->wrap_width = 0;
-		// set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines
-		msg->chan_idx = CHAT_NONE;
-		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
-		msg->chan_idx = tmp_chan;
-	}
-	else if (ch == SDLK_DELETE && tf->cursor < msg->len)
-	{
-		int i = tf->cursor, n = 1;
-		
-		while (i+n <= msg->len && msg->data[i+n] == '\r') n++;
-		
-		for (i += n; i <= msg->len; i++)
-			msg->data[i-n] = msg->data[i];
-
-		msg->len -= n;
-		// set invalid width to force rewrap
-		msg->wrap_width = 0;
-		// set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines
-		msg->chan_idx = CHAT_NONE;
-		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
-		msg->chan_idx = tmp_chan;
-	}
-	else if ( !alt_on && !ctrl_on && IS_PRINT (ch) && ch != '`' )
-	{
-		if(!get_show_window(map_root_win)) {
-			//Make sure the widget is visible.
-			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
-		}
 		// watch for the '//' shortcut
-		if (tf->cursor == 1 && (ch == '/' || ch == char_slash_str[0])
-			&& (msg->data[0] == '/' || msg->data[0]== char_slash_str[0])
-			&& last_pm_from[0])
-		{
-			tf->cursor += put_string_in_buffer (msg, (unsigned char*)last_pm_from, 1);
-			tf->cursor += put_char_in_buffer (msg, ' ', tf->cursor);
-		}
-		else if (msg->len < msg->size - 1)
-		{
-			tf->cursor += put_char_in_buffer (msg, ch, tf->cursor);
-		}
+		tf->cursor += put_string_in_buffer (msg, (unsigned char*)last_pm_from, 1);
+		tf->cursor += put_char_in_buffer (msg, ' ', tf->cursor);
+
 		// set invalid width to force rewrap
 		msg->wrap_width = 0;
 		// set to CHAT_NONE so rewrap_message doesn't mess with total_nr_lines
 		msg->chan_idx = CHAT_NONE;
 		tf->nr_lines = rewrap_message (msg, input_widget->size, input_widget->len_x - 2 * tf->x_space, &tf->cursor);
-		msg->chan_idx = tmp_chan;
+		msg->chan_idx = tmp_chan;		
+	}
+	else if (ch == SDLK_BACKSPACE || ch == SDLK_DELETE
+#ifdef OSX
+	             || ch == 127
+#endif
+	             || (!alt_on && !ctrl_on && IS_PRINT (ch) && ch != '`')
+	        )
+	{
+		if (IS_PRINT (ch) && !get_show_window(map_root_win))
+			//Make sure the widget is visible.
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);	
+		// XXX FIXME: we've set the input widget with the
+		// TEXT_FIELD_NO_KEYPRESS flag so that the default key
+		// handler for a text field isn't called, but now
+		// we do want to call it directly. So we clear the flag,
+		// and reset it afterwards.
+		input_widget->Flags ^= TEXT_FIELD_NO_KEYPRESS;
+		text_field_keypress (input_widget, 0, 0, key, unikey);
+		input_widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
 	}
 	else if (key == K_TABCOMPLETE && input_text_line.len > 0)
 	{

@@ -2108,7 +2108,7 @@ void _text_field_delete_forward (widget_list *w)
 		n++;
 
 	for (i += n; i <= msg->len; i++)
-	msg->data[i-n] = msg->data[i];
+		msg->data[i-n] = msg->data[i];
 
 	msg->len -= n;
 	// set invalid width to force rewrap
@@ -2190,6 +2190,40 @@ void _text_field_copy_to_clipboard (text_field *tf)
 
 void update_cursor_selection(widget_list* w, int flag);
 
+int text_field_resize (widget_list *w, int width, int height)
+{
+	text_field *tf = w->widget_info;
+
+	if (tf != NULL)
+	{
+		if (tf->scroll_id != -1)
+		{
+			widget_move (w->window_id, tf->scroll_id, w->pos_x + width - tf->scrollbar_width, w->pos_y);
+			widget_resize (w->window_id, tf->scroll_id, tf->scrollbar_width, height);
+		}
+		if (tf->buffer != NULL)
+		{
+			int i, nr_lines = 0, nr_vis = tf->nr_visible_lines;
+
+			_text_field_set_nr_visible_lines (w);
+			if (tf->nr_visible_lines != nr_vis)
+				tf->select.lines = realloc (tf->select.lines, tf->nr_visible_lines * sizeof (text_field_line));
+			tf->select.sm = tf->select.em = tf->select.sc = tf->select.ec = -1;
+
+			for (i = 0; i < tf->buf_size; i++)
+			{
+				int *cursor = i == tf->msg ? &(tf->cursor) : NULL;
+				nr_lines += rewrap_message (tf->buffer+i, w->size, width - tf->scrollbar_width, cursor);
+			}
+			_text_field_set_nr_lines (w, nr_lines);
+			
+			text_field_find_cursor_line (tf);
+		}
+	}
+
+	return 1;
+}
+
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
@@ -2215,7 +2249,12 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 	if(IS_PRINT(ch) || keysym == SDLK_UP || keysym == SDLK_DOWN ||
 		keysym == SDLK_LEFT || keysym == SDLK_RIGHT || keysym == SDLK_HOME ||
-		keysym == SDLK_END || ch == SDLK_BACKSPACE || ch == SDLK_DELETE) {
+		keysym == SDLK_END || ch == SDLK_BACKSPACE || ch == SDLK_DELETE
+#ifdef OSX
+		|| keysym == 127
+#endif
+		)
+		{
 		/* Stop blinking on input */
 		tf->next_blink = cur_time + TF_BLINK_DELAY;
 	}
@@ -2302,13 +2341,21 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		if (shift_on) update_cursor_selection(w, 1);
 		return 1;
 	}
-	else if (((ch == SDLK_BACKSPACE) || (ch == SDLK_DELETE)) && !TEXT_FIELD_SELECTION_EMPTY(&tf->select))
+	else if ((ch == SDLK_BACKSPACE || ch == SDLK_DELETE
+#ifdef OSX
+	          || ch == 127
+#endif
+	         ) && !TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 	{
 		text_field_remove_selection(tf);
 		TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		return 1;
 	}
-	else if (ch == SDLK_BACKSPACE)
+#ifdef OSX
+        else if (ch == SDLK_BACKSPACE || ch == 127)
+#else
+        else if (ch == SDLK_BACKSPACE)
+#endif
 	{
 		if (tf->cursor > 0)
 			_text_field_delete_backward (w);
@@ -2523,7 +2570,7 @@ const struct WIDGET_TYPE text_field_type = {
 	text_field_click, 
 	text_field_drag, 
 	NULL, 
-	NULL, 
+	text_field_resize, 
 	text_field_keypress, 
 	text_field_destroy
 };
