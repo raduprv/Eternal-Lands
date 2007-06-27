@@ -1,10 +1,5 @@
 /*
 TODO: 
- * Figure out why leaves aren't visible
- * Fix the buffer overflow(s?)
- * Make base height equal the set Z, but have it be irrelevant for everything but clouds.
- * Verify that the EL deserialization code is the same as the mapeditor
- * Test loading in EL.
  * Get Roja working.
  * New effect options.
  * New effects.
@@ -84,7 +79,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_saturation_box);
       gtk_widget_hide(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
-      gtk_widget_show(gtk_effect_base_height_box);
+      gtk_widget_hide(gtk_effect_base_height_box);
       current_effect.reference = ec_create_cloud(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 10);
       break;
     case 2:    // Fireflies
@@ -92,7 +87,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_saturation_box);
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
-      gtk_widget_show(gtk_effect_base_height_box);
+      gtk_widget_hide(gtk_effect_base_height_box);
       current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds));
       break;
     case 3:    // Fountain
@@ -732,7 +727,7 @@ void deserialize_eye_candy_effect(particles_io* data)
 {
   const unsigned char*const code = (const unsigned char*const)data->file_name + 5;
 
-  std::cout << "Deserialize" << std::endl;  
+//  std::cout << "Deserialize" << std::endl;  
 
   EffectDefinition dest;
   
@@ -780,12 +775,10 @@ void deserialize_eye_candy_effect(particles_io* data)
       const float hue = raw_code[41] / 256.0;
       const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
-      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
       dest.effect = 0x01;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.density = density;
-      dest.base_height = base_height;
       dest.reference = ec_create_cloud(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 10);
       break;
     }
@@ -795,13 +788,11 @@ void deserialize_eye_candy_effect(particles_io* data)
       const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float scale = raw_code[45] + raw_code[46] / 256.0;
-      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       dest.effect = 0x02;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      dest.base_height = base_height;
       dest.reference = ec_create_fireflies(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds));
       break;
     }
@@ -910,13 +901,11 @@ void deserialize_eye_candy_effect(particles_io* data)
       const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float scale = raw_code[45] + raw_code[46] / 256.0;
-      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       dest.effect = 0x0B;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      dest.base_height = base_height;
       dest.reference = ec_create_wind_leaves(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
       break;
     }
@@ -926,13 +915,11 @@ void deserialize_eye_candy_effect(particles_io* data)
       const float saturation = raw_code[42] / 256.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float scale = raw_code[45] + raw_code[46] / 256.0;
-      const float base_height = raw_code[47] * 8.0 + raw_code[48] / 32.0;
       dest.effect = 0x0C;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      dest.base_height = base_height;
       dest.reference = ec_create_wind_petals(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
       break;
     }
@@ -998,7 +985,7 @@ void deserialize_eye_candy_effect(particles_io* data)
 
 void serialize_eye_candy_effect(int index, particles_io* data)
 {
-  std::cout << "Serialize" << std::endl;  
+//  std::cout << "Serialize" << std::endl;  
 
   memset((char*)data, 0, sizeof(particles_io));
 
@@ -1025,8 +1012,6 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
-      unformatted_data[45] = (char)((unsigned char)(effects[index].base_height / 8.0));
-      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
       break;
     case 2:    // Fireflies
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
@@ -1035,16 +1020,12 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[46] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
-      unformatted_data[47] = (char)((unsigned char)(effects[index].base_height / 8.0));
-      unformatted_data[48] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
       break;
     case 3:    // Fountain
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
       unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
-      unformatted_data[45] = (char)((unsigned char)(effects[index].base_height / 8.0));
-      unformatted_data[46] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
       unformatted_data[47] = 0; 	// Backlit
       break;
     case 4:    // Lamp/Torch
@@ -1096,8 +1077,6 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[46] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
-      unformatted_data[47] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
-      unformatted_data[48] = (char)((unsigned char)(effects[index].angle * 256.0));
       break;
     case 12:  // Flower Petals
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
@@ -1106,8 +1085,6 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[46] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
-      unformatted_data[47] = (char)((unsigned char)((int)(effects[index].base_height * 32.0) % 256));
-      unformatted_data[48] = (char)((unsigned char)(effects[index].angle * 256.0));
       break;
     case 13:  // Waterfall
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));

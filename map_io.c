@@ -53,7 +53,9 @@ void destroy_map()
 		}
 
 	destroy_all_particles();
+#ifdef EYE_CANDY
 	destroy_all_eye_candy();
+#endif
 	
 	selected_3d_object=selected_2d_object=selected_light=selected_particles_object=-1;
 }
