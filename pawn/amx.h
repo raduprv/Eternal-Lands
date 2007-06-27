@@ -18,7 +18,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.h,v 1.1 2007/06/27 18:26:45 grum Exp $
+ *  Version: $Id: amx.h,v 1.2 2007/06/27 19:28:08 grum Exp $
  */
 
 #ifndef AMX_H_INCLUDED
@@ -26,10 +26,10 @@
 
 // Map EL defines to AMX defines
 #ifndef HAVE_STDINT_H
-  #ifdef LINUX
+  #ifndef _MSC_VER
     #define HAVE_STDINT_H
-  #endif
-#endif
+  #endif // !_MSC_VER
+#endif //!HAVE_STDINT_H
 
 #ifdef X86_64
 #define PAWN_CELL_SIZE 64
