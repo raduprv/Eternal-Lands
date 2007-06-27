@@ -9,6 +9,9 @@
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
 #endif // SFX
+#ifdef PAWN
+#include "pawn/elpawn.h"
+#endif
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -1536,17 +1539,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		else if (shift_on)
 			read_local_book ("books/sediculos.xml\0", 22);
 	}
-	else if (keysym == SDLK_F9)
-	{
-		actor *me = get_actor_ptr_from_id (yourself);
- #ifdef EYE_CANDY
-		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.3f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, (poor_man ? 6 : 10), 0.7);
- #else // EYE_CANDY
-  #ifdef SFX
-		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
-  #endif // SFX
- #endif // EYE_CANDY
-	}
 	else if (keysym == SDLK_F6)
 	{
 		if(!hud_x)
@@ -1560,6 +1552,23 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			hud_y=0;
 		}
 		resize_root_window ();
+	}
+#ifdef PAWN
+	else if (keysym == SDLK_F8)
+	{
+		run_pawn_function ("pawn_test");
+	}
+#endif
+	else if (keysym == SDLK_F9)
+	{
+		actor *me = get_actor_ptr_from_id (yourself);
+ #ifdef EYE_CANDY
+		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.3f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, (poor_man ? 6 : 10), 0.7);
+ #else // EYE_CANDY
+  #ifdef SFX
+		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
+  #endif // SFX
+ #endif // EYE_CANDY
 	}
 #ifdef DEBUG
 	else if (keysym == SDLK_F10)

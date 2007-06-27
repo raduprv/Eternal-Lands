@@ -409,6 +409,9 @@ char	reg_error_str[15],
 	init_audio_str[35],
 	load_icons_str[35],
 	load_textures_str[35],
+#ifdef PAWN
+	init_pawn_str[35],
+#endif // PAWN
 	init_network_str[35],
 	init_timers_str[35],
 	load_encyc_str[35],
@@ -785,6 +788,9 @@ void init_console()
 	add_xml_identifier(loading_msg,"init_audio",init_audio_str,"Initializing audio",sizeof(init_audio_str));
 	add_xml_identifier(loading_msg,"load_icons",load_icons_str,"Loading icons",sizeof(load_icons_str));
 	add_xml_identifier(loading_msg,"load_textures",load_textures_str,"Loading textures",sizeof(load_textures_str));
+#ifdef PAWN
+	add_xml_identifier (loading_msg, "init_pawn", init_pawn_str, "Initializing Pawn", sizeof(init_pawn_str));
+#endif // PAWN
 	add_xml_identifier(loading_msg,"init_network",init_network_str,"Initializing network",sizeof(init_network_str));
 	add_xml_identifier(loading_msg,"init_timers",init_timers_str,"Initializing timers",sizeof(init_timers_str));
 	add_xml_identifier(loading_msg,"load_encyc",load_encyc_str,"Loading Encyclopedia files",sizeof(load_encyc_str));

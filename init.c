@@ -17,6 +17,9 @@
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#ifdef PAWN
+#include "pawn/elpawn.h"
+#endif // PAWN
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -809,8 +812,13 @@ void init_stuff()
 	create_char_error_str[0]= 0;
 	init_opening_interface();
 	make_sigils_list();
-	update_loading_win(init_network_str, 5);
-	
+
+#ifdef PAWN
+	update_loading_win (init_pawn_str, 0);
+	initialize_pawn ("pawn_scripts/pawn_test.amx");
+#endif
+
+	update_loading_win(init_network_str, 5);	
 	if(SDLNet_Init()<0)
  		{
 			log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());

@@ -58,10 +58,11 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 #FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += X86_64                          # Compile for a computer with 64-bit memory addresses
-FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
+FEATURES += ZLIB                             # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += USE_SHADER                       # Needs NEW_FILE_IO
-#FEATURES += USE_TR1                          # Needs tr1 version of c++ stl, used for NEW_FILE_IO
+#FEATURES += USE_SHADER                      # Needs NEW_FILE_IO
+#FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
+#FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

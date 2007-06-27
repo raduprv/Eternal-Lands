@@ -513,6 +513,9 @@ extern char	reg_error_str[15],
 		init_audio_str[35],
 		load_icons_str[35],
 		load_textures_str[35],
+#ifdef PAWN
+		init_pawn_str[35],
+#endif // PAWN
 		init_network_str[35],
 		init_timers_str[35],
 		load_encyc_str[35],

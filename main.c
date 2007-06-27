@@ -21,6 +21,9 @@
 #include "global.h"
 #include "init.h"
 #include "translate.h"
+#ifdef PAWN
+#include "pawn/elpawn.h"
+#endif
 
 Uint32 cur_time=0, last_time=0;//for FPS
 
@@ -155,6 +158,10 @@ int start_rendering()
 
 	//save all local data
 	save_local_data(NULL, 0);
+
+#ifdef PAWN
+	cleanup_pawn ();
+#endif
 
 	turn_music_off();	//cleans up and waits for the thread
 	unload_questlog();
