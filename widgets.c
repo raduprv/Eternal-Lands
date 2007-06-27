@@ -2322,7 +2322,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	}
 	else if (key == K_CUT)
 	{
-if !defined(WINDOWS) && !defined(OSX)
+#if !defined(WINDOWS) && !defined(OSX)
 		_text_field_copy_to_clipboard (tf);
 #endif
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
