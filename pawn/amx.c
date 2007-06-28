@@ -18,7 +18,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.c,v 1.1 2007/06/27 18:26:45 grum Exp $
+ *  Version: $Id: amx.c,v 1.2 2007/06/28 11:07:01 grum Exp $
  */
 
 #if BUILD_PLATFORM == WINDOWS && BUILD_TYPE == RELEASE && BUILD_COMPILER == MSVC && PAWN_CELL_SIZE == 64
@@ -833,7 +833,11 @@ static int amx_BrowseRelocate(AMX *amx)
       /* only either type of system request opcode should be found (otherwise,
        * we probably have a non-conforming compiler
        */
-      #if (defined __GNUC__ || defined __ICC || defined ASM32 || defined JIT) && !defined __64BIT__
+      // Grum: the below is wrong. Apart from the fact that I think it should
+      // work fine on 64bit systems, it now always takes the #else branch
+      // for 64bit, which is certainly wrong when using e.g. gcc.
+      //#if (defined __GNUC__ || defined __ICC || defined ASM32 || defined JIT) && !defined __64BIT__
+      #if defined __GNUC__ || defined __ICC || defined ASM32 || defined JIT
         /* to use direct system requests, a function pointer must fit in a cell;
          * because the native function's address will be stored as the parameter
          * of SYSREQ.D
@@ -2007,7 +2011,7 @@ static const void * const amx_opcodelist[] = {
 
   /* start running */
   NEXT(cip);
-
+  
   op_none:
     ABORT(amx,AMX_ERR_INVINSTR);
   op_load_pri:

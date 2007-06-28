@@ -50,10 +50,13 @@ int initialize_pawn (const char* fname)
 
 void cleanup_pawn ()
 {
-	el_amx_initialized = 0;
+	if (el_amx_initialized)
+	{
+		amx_ConsoleCleanup (&el_amx);
+		amx_Cleanup (&el_amx);
+		el_amx_initialized = 0;
+	}
 	
-	amx_ConsoleCleanup (&el_amx);
-	amx_Cleanup (&el_amx);
 	if (el_amx_memory)
 	{
 		free (el_amx_memory);
