@@ -5,6 +5,7 @@
 
 // includes for our native functions
 #include "amxcons.h"
+#include "amxel.h"
 
 // the machine itself
 static AMX el_amx;
@@ -37,7 +38,11 @@ int initialize_pawn (const char* fname)
 		return 0;
 	}
 
-	err = amx_ConsoleInit (&el_amx);
+	// The amx_*Init functions return an error when not all natives
+	// used in the amx script are defined, so we only need to check
+	// the last Init (when we have defined our entire library).
+	amx_ConsoleInit (&el_amx);
+	err = amx_ElInit (&el_amx);
 	if (err != AMX_ERR_NONE)
 	{
 		log_error ("Unable to initialize all native functions for Pawn file %s", fname);
@@ -52,6 +57,7 @@ void cleanup_pawn ()
 {
 	if (el_amx_initialized)
 	{
+		amx_ElCleanup (&el_amx);
 		amx_ConsoleCleanup (&el_amx);
 		amx_Cleanup (&el_amx);
 		el_amx_initialized = 0;
