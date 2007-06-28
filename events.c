@@ -553,6 +553,18 @@ int HandleEvent(SDL_Event *event)
 			if(right_click==1 && cur_tool==tool_select && selected_height!=-1 && cur_mode==mode_height)selected_height=-1;
 			if(right_click==1 && cur_tool==tool_select && selected_2d_object!=-1 && cur_mode==mode_2d)kill_2d_object(selected_2d_object);
 			if(right_click==1 && cur_tool==tool_select && selected_3d_object!=-1 && cur_mode==mode_3d)kill_3d_object(selected_3d_object);
+#ifdef EYE_CANDY
+			if(right_click==1 && cur_tool==tool_select && cur_mode==mode_eye_candy)
+			{
+				get_3d_object_under_mouse();
+				if (selected_3d_object >= max_obj_3d)
+				{
+					select_eye_candy_effect(selected_3d_object);
+					kill_eye_candy_effect();
+					selected_3d_object = -1;
+				}
+			}
+#endif
 			if(right_click==1 && cur_tool==tool_select && cur_mode==mode_particles && selected_particles_object!=-1)kill_particles_object(selected_particles_object);
 			if(right_click==1 && cur_mode==mode_tile && view_tiles_list)
 				{

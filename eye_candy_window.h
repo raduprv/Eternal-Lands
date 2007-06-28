@@ -68,6 +68,7 @@ int eye_candy_get_effect();
 void draw_bounds_on_minimap();
 void draw_eye_candy_selectors();
 void select_eye_candy_effect(int i);
+void kill_eye_candy_effect();
 int get_eye_candy_count();
 void deserialize_eye_candy_effect(particles_io* data);
 void serialize_eye_candy_effect(int index, particles_io* data);

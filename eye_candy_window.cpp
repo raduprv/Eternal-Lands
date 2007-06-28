@@ -663,40 +663,40 @@ void draw_eye_candy_selector(const EffectDefinition*const effect, const int i)
   {
     // Front Face
     glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(-0.07f, -0.07f,  0.07f);
-    glVertex3f( 0.07f, -0.07f,  0.07f);
-    glVertex3f( 0.07f,  0.07f,  0.07f);
-    glVertex3f(-0.07f,  0.07f,  0.07f);
+    glVertex3f(-0.1f, -0.1f,  0.1f);
+    glVertex3f( 0.1f, -0.1f,  0.1f);
+    glVertex3f( 0.1f,  0.1f,  0.1f);
+    glVertex3f(-0.1f,  0.1f,  0.1f);
     // Back Face
     glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(-0.07f, -0.07f, -0.07f);
-    glVertex3f(-0.07f,  0.07f, -0.07f);
-    glVertex3f( 0.07f,  0.07f, -0.07f);
-    glVertex3f( 0.07f, -0.07f, -0.07f);
+    glVertex3f(-0.1f, -0.1f, -0.1f);
+    glVertex3f(-0.1f,  0.1f, -0.1f);
+    glVertex3f( 0.1f,  0.1f, -0.1f);
+    glVertex3f( 0.1f, -0.1f, -0.1f);
     // Top Face
     glNormal3f(0.0, 1.0, 0.0);
-    glVertex3f(-0.07f,  0.07f, -0.07f);
-    glVertex3f(-0.07f,  0.07f,  0.07f);
-    glVertex3f( 0.07f,  0.07f,  0.07f);
-    glVertex3f( 0.07f,  0.07f, -0.07f);
+    glVertex3f(-0.1f,  0.1f, -0.1f);
+    glVertex3f(-0.1f,  0.1f,  0.1f);
+    glVertex3f( 0.1f,  0.1f,  0.1f);
+    glVertex3f( 0.1f,  0.1f, -0.1f);
     // Bottom Face
     glNormal3f(0.0, -1.0, 0.0);
-    glVertex3f(-0.07f, -0.07f, -0.07f);
-    glVertex3f( 0.07f, -0.07f, -0.07f);
-    glVertex3f( 0.07f, -0.07f,  0.07f);
-    glVertex3f(-0.07f, -0.07f,  0.07f);
+    glVertex3f(-0.1f, -0.1f, -0.1f);
+    glVertex3f( 0.1f, -0.1f, -0.1f);
+    glVertex3f( 0.1f, -0.1f,  0.1f);
+    glVertex3f(-0.1f, -0.1f,  0.1f);
     // Right face
     glNormal3f(1.0, 0.0, 0.0);
-    glVertex3f( 0.07f, -0.07f, -0.07f);
-    glVertex3f( 0.07f,  0.07f, -0.07f);
-    glVertex3f( 0.07f,  0.07f,  0.07f);
-    glVertex3f( 0.07f, -0.07f,  0.07f);
+    glVertex3f( 0.1f, -0.1f, -0.1f);
+    glVertex3f( 0.1f,  0.1f, -0.1f);
+    glVertex3f( 0.1f,  0.1f,  0.1f);
+    glVertex3f( 0.1f, -0.1f,  0.1f);
     // Left Face
     glNormal3f(-1.0, 0.0, 0.0);
-    glVertex3f(-0.07f, -0.07f, -0.07f);
-    glVertex3f(-0.07f, -0.07f,  0.07f);
-    glVertex3f(-0.07f,  0.07f,  0.07f);
-    glVertex3f(-0.07f,  0.07f, -0.07f);
+    glVertex3f(-0.1f, -0.1f, -0.1f);
+    glVertex3f(-0.1f, -0.1f,  0.1f);
+    glVertex3f(-0.1f,  0.1f,  0.1f);
+    glVertex3f(-0.1f,  0.1f, -0.1f);
   }
   glEnd();
   glPopMatrix();
@@ -716,6 +716,16 @@ void select_eye_candy_effect(int i)
   current_effect = *iter;
   effects.erase(iter);
   eye_candy_ready_to_add = 1;
+}
+
+void kill_eye_candy_effect()
+{
+  if (current_effect.reference)
+  {
+    ec_recall_effect(current_effect.reference);
+    current_effect.reference = NULL;
+  }
+  eye_candy_ready_to_add = 0;
 }
 
 int get_eye_candy_count()
