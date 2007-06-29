@@ -58,19 +58,72 @@ static __inline__ int load_shader(GLhandleARB object, const char* file_name,
 	}
 }
 
-static __inline__ void log_shader_log(GLhandleARB object)
+static __inline__ void log_shader_compile_log(GLhandleARB object, const char* shader_file_name,
+	GLint error)
 {
 	GLint blen, slen;
 	GLcharARB* info_log;
-	
+
 	ELglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
 	
 	if (blen > 1)
 	{
 		info_log = (GLcharARB*)malloc(blen * sizeof(GLcharARB));
 		ELglGetInfoLogARB(object, blen, &slen, info_log);
-		LOG_ERROR(info_log);
+		if (error == 1)
+		{
+			LOG_ERROR("Compiling shader '%s' successful: %s", shader_file_name, info_log);
+		}
+		else
+		{
+			LOG_ERROR("Compiling shader '%s' failed: %s", shader_file_name, info_log);
+		}
 		free(info_log);
+	}
+	else
+	{
+		if (error == 1)
+		{
+			LOG_ERROR("Compiling shader '%s' successful", shader_file_name);
+		}
+		else
+		{
+			LOG_ERROR("Compiling shader '%s' failed", shader_file_name);
+		}
+	}
+}
+
+static __inline__ void log_shader_linking_log(GLhandleARB object, GLint error)
+{
+	GLint blen, slen;
+	GLcharARB* info_log;
+
+	ELglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
+	
+	if (blen > 1)
+	{
+		info_log = (GLcharARB*)malloc(blen * sizeof(GLcharARB));
+		ELglGetInfoLogARB(object, blen, &slen, info_log);
+		if (error == 1)
+		{
+			LOG_ERROR("Linking shaders successful: %s", info_log);
+		}
+		else
+		{
+			LOG_ERROR("Linking shaders failed: %s", info_log);
+		}
+		free(info_log);
+	}
+	else
+	{
+		if (error == 1)
+		{
+			LOG_ERROR("Linking shaders successful");
+		}
+		else
+		{
+			LOG_ERROR("Linking shaders failed");
+		}
 	}
 }
 
@@ -95,8 +148,8 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 		if (load_shader(vertex_shader_object, vertex_shader_file_name, vertex_shader_defines) == 1)
 		{
 			ELglCompileShaderARB(vertex_shader_object);
-			log_shader_log(vertex_shader_object);
 			ELglGetObjectParameterivARB(vertex_shader_object, GL_OBJECT_COMPILE_STATUS_ARB, &ret);
+			log_shader_compile_log(vertex_shader_object, vertex_shader_file_name, ret);
 
 			if (ret == 1)
 			{
@@ -120,9 +173,8 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 		if (load_shader(fragment_shader_object, fragment_shader_file_name, fragment_shader_defines) == 1)
 		{
 			ELglCompileShaderARB(fragment_shader_object);
-			log_shader_log(fragment_shader_object);
-
 			ELglGetObjectParameterivARB(fragment_shader_object, GL_OBJECT_COMPILE_STATUS_ARB, &ret);
+			log_shader_compile_log(fragment_shader_object, fragment_shader_file_name, ret);
 
 			if (ret == 1)
 			{
@@ -148,9 +200,8 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 	}
 
 	ELglLinkProgramARB(shader_object);
-	log_shader_log(shader_object);
-
 	ELglGetObjectParameterivARB(shader_object, GL_OBJECT_LINK_STATUS_ARB, &ret);
+	log_shader_linking_log(shader_object, ret);
 
 	if (ret == 1)
 	{
