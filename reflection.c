@@ -714,7 +714,7 @@ void draw_lake_tiles()
 #ifndef	USE_SHADER
 	float blend_vec[4] = {0.75f, 0.75f, 0.75f, 0.75f};
 #else	// USE_SHADER
-	float noise_scale[8] = {0.125f, 0.125f, 0.0625f, 0.0625f, 0.0078125f, 0.0078125f, 0.0f, 0.0f};
+	float noise_scale[4] = {0.125f, 0.125f, 0.0625f, 0.0625f};
 
 	GLhandleARB cur_shader;
 #endif //USE_SHADER
@@ -749,7 +749,7 @@ void draw_lake_tiles()
 			CHECK_GL_ERRORS();
 
 			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "noise_texture"), 3);
-			ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 2, noise_scale);
+			ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 1, noise_scale);
 			ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
 			CHECK_GL_ERRORS();
 		}
@@ -825,7 +825,7 @@ void draw_lake_tiles()
 
 				CHECK_GL_ERRORS();
 				ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "noise_texture"), 3);
-				ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 2, noise_scale);
+				ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 1, noise_scale);
 				ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
 				CHECK_GL_ERRORS();
 

@@ -1,7 +1,7 @@
 uniform sampler2D tile_texture;
 uniform sampler2D reflection_texture;
 uniform sampler3D noise_texture;
-uniform vec4 noise_scale[2];
+uniform vec4 noise_scale;
 uniform float time;
 uniform sampler2DShadow shadow_texture;
 uniform float blend;
@@ -33,11 +33,8 @@ void main (void)
 
 	noise_diplacment = texture3D(noise_texture, noise_tex_coord).ga * 2.0 - 1.0;
 
-	reflection_tex_coord += vec4(noise_diplacment * noise_scale[0].xy, 0.0, 0.0);
-#ifdef	USE_SHADOW
-	shadow_tex_coord += vec4(noise_diplacment * noise_scale[1].xy, 0.0, 0.0);
-#endif	// USE_SHADOW
-	tile_tex_coord += noise_diplacment * noise_scale[0].zw;
+	reflection_tex_coord += vec4(noise_diplacment * noise_scale.xy, 0.0, 0.0);
+	tile_tex_coord += noise_diplacment * noise_scale.zw;
 #endif	// USE_NOISE
 
 	color = texture2DProj(reflection_texture, reflection_tex_coord);
