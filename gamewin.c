@@ -1556,7 +1556,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifdef PAWN
 	else if (keysym == SDLK_F8)
 	{
-		run_pawn_function ("pawn_test");
+		run_pawn_server_function ("pawn_test");
 	}
 #endif
 	else if (keysym == SDLK_F9)

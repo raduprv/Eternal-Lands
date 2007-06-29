@@ -815,7 +815,7 @@ void init_stuff()
 
 #ifdef PAWN
 	update_loading_win (init_pawn_str, 0);
-	initialize_pawn ("pawn_scripts/pawn_test.amx");
+	initialize_pawn ();
 #endif
 
 	update_loading_win(init_network_str, 5);	
