@@ -79,19 +79,19 @@ int initialize_pawn ()
 
 void cleanup_pawn_machine (pawn_machine *machine)
 {
-	if (machine->buffer)
-	{
-		free (machine->buffer);
-		machine->buffer = NULL;
-		machine->buf_size = 0;
-	}
-
 	if (machine->initialized)
 	{
 		amx_ElCleanup (&(machine->amx));
 		amx_ConsoleCleanup (&(machine->amx));
 		amx_Cleanup (&(machine->amx));
 		machine->initialized = 0;
+	}
+
+	if (machine->buffer)
+	{
+		free (machine->buffer);
+		machine->buffer = NULL;
+		machine->buf_size = 0;
 	}
 }
 
