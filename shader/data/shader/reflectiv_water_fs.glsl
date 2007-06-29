@@ -33,7 +33,7 @@ void main (void)
 
 	noise_diplacment = texture3D(noise_texture, noise_tex_coord).ga * 2.0 - 1.0;
 
-	reflection_tex_coord += vec4(noise_diplacment * noise_scale.xy, 0.0, 0.0);
+	reflection_tex_coord += vec4(noise_diplacment * noise_scale.xy, 0.0, 0.0) * reflection_tex_coord.w;
 	tile_tex_coord += noise_diplacment * noise_scale.zw;
 #endif	// USE_NOISE
 
