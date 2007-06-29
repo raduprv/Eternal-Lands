@@ -30,6 +30,8 @@ list_node_t *command_buffer_offset = NULL;
 /* The input line before we started moving around in the buffer. */
 char first_input[256] = {0};
 
+int time_warn_h, time_warn_s, time_warn_d;
+
 void add_line_to_history(const char *line, int len)
 {
 	char *copy;
@@ -1142,6 +1144,28 @@ void print_version_string (char *buf, size_t len)
 		safe_snprintf (extra, sizeof(extra), " Beta %s", DEF_INFO);
 	}
 	safe_snprintf (buf, len, game_version_str, client_version_major, client_version_minor, client_version_release, extra);
+}
+
+
+void new_minute_console(void){
+	if(!(game_minute%60)){
+		timestamp_chat_log();
+	}
+	if(time_warn_h >= 0 && (time_warn_h+game_minute)%60 == 0){
+		char str[75];
+		safe_snprintf(str, sizeof(str), time_warn_hour_str, time_warn_h);
+		LOG_TO_CONSOLE(c_green1, str);
+	}
+	if(time_warn_s >= 0 && (time_warn_s+game_minute)%180 == 30){
+		char str[100];
+		safe_snprintf(str, sizeof(str), time_warn_sun_str, time_warn_s);
+		LOG_TO_CONSOLE(c_green1, str);
+	}
+	if(time_warn_d >= 0 && (time_warn_d+game_minute)%360 == 0){
+		char str[75];
+		safe_snprintf(str, sizeof(str), time_warn_day_str, time_warn_d);
+		LOG_TO_CONSOLE(c_green1, str);
+	}
 }
 
 /* Currently UNUSED

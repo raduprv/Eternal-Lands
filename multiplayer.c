@@ -526,17 +526,13 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				if (data_length <= 4)
 				{
-				  log_error("CAUTION: Possibly forged NEW_MINUTE packet received.\n");
-				  break;
+					log_error("CAUTION: Possibly forged NEW_MINUTE packet received.\n");
+					break;
 				}
 				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
-#ifdef NEW_LIGHTING
 				game_minute %= 360;
-#endif
 				new_minute();
-				if(!(game_minute%60)){
-					timestamp_chat_log();
-				}
+				new_minute_console();
 			}
 			break;
 

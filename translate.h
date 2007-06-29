@@ -239,6 +239,9 @@ extern char
 		channel_help_str[200],
 		/*console.c*/
 		logconn_str[50],
+		time_warn_hour_str[75],
+		time_warn_sun_str[100],
+		time_warn_day_str[75],
 #ifdef NEW_FILE_IO
 		config_location_str[75],
 #endif //NEW_FILE_IO
