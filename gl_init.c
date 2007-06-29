@@ -941,7 +941,7 @@ void resize_root_window()
 		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
 	}
 	// first, move back to the actor
-//	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
+	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix

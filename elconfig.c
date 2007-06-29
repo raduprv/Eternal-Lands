@@ -42,6 +42,11 @@
 #define INT			4	// Change int									func(int*,int)
 #define MULTI		5   // INT with multiselect widget
 #define PASSWORD	6
+#define FLOAT_F		7 	// Change float with functions that returns max and min values 		func(float*,float*), max/min float func()
+#define INT_F		8	// Change int with functions that returns max and min values 		func(int*,int), max/min int func()
+
+typedef	float (*float_min_max_func)();
+typedef	int (*int_min_max_func)();
 
 // Defines for config variables
 #define VIDEO		0
@@ -94,6 +99,26 @@ int sit_lock= 0;
 int show_fps= 1;
 int render_skeleton= 0;
 int render_mesh= 1;
+
+int int_zero_func()
+{
+	return 0;
+}
+
+float float_zero_func()
+{
+	return 0.0f;
+}
+
+int int_one_func()
+{
+	return 1;
+}
+
+float float_one_func()
+{
+	return 1.0f;
+}
 
 static __inline__ void check_option_var(char* name);
 
@@ -332,16 +357,16 @@ void change_particles_percentage(int *pointer, int value)
 	}
 }
 
-void change_anisotropic_filter(float *pointer, float *value)
+void change_anisotropic_filter(float *af, float *value)
 {
-	if (gl_extensions_loaded && (*value > get_max_anisotropic_filter()))
+	if (gl_extensions_loaded)
 	{
-		*pointer = get_max_anisotropic_filter();
+		*af = min2f(max2f(*value, 0.0f), get_max_anisotropic_filter());
 	}
 	else
 	{
-		*pointer = *value;
-	}
+		*af = *value;
+ 	}
 }
 
 void switch_vidmode(int *pointer, int mode)
@@ -954,22 +979,27 @@ void change_shadows(int *sh)
 }
 
 #ifdef	USE_SHADER
-void change_water_shader_quality(int *wsq, int value)
+int int_max_water_shader_quality()
 {
-	if (value == 0)
+	if (gl_extensions_loaded)
 	{
-		*wsq = 0;
+		return get_max_supported_water_shader_quality();
 	}
 	else
 	{
-		if (!gl_extensions_loaded)
-		{
-			*wsq = value;
-		}
-		else
-		{
-			*wsq = min2i(value, get_max_supported_water_shader_quality());
-		}
+		return 2;
+	}
+}
+
+void change_water_shader_quality(int *wsq, int value)
+{
+	if (gl_extensions_loaded)
+	{
+		*wsq = min2i(max2i(value, 0), get_max_supported_water_shader_quality());
+	}
+	else
+	{
+		*wsq = value;
 	}
 	update_fbo();
 }
@@ -1054,6 +1084,7 @@ static __inline__ void check_option_var(char* name)
 	{
 		case INT:
 		case MULTI:
+		case INT_F:
 			value_i= *((int*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_i);
 			break;
@@ -1069,6 +1100,7 @@ static __inline__ void check_option_var(char* name)
 			our_vars.var[i]->func (our_vars.var[i]->var, value_s, our_vars.var[i]->len);
 			break;
 		case FLOAT:
+		case FLOAT_F:
 			value_f= *((float*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_f);
 			break;
@@ -1154,6 +1186,7 @@ int check_var (char *str, var_name_type type)
 	{
 		case INT:
 		case MULTI:
+		case INT_F:
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
 			return 1;
 		case BOOL:
@@ -1166,6 +1199,7 @@ int check_var (char *str, var_name_type type)
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
 			return 1;
 		case FLOAT:
+		case FLOAT_F:
 			foo= atof (ptr);
 			our_vars.var[i]->func (our_vars.var[i]->var, &foo);
 			return 1;
@@ -1181,6 +1215,8 @@ void free_vars()
 		switch(our_vars.var[i]->type) {
 			case INT:
 			case FLOAT:
+			case FLOAT_F:
+			case INT_F:
 				queue_destroy(our_vars.var[i]->queue);
 			break;
 			case MULTI:
@@ -1210,6 +1246,8 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 	char *pointer;
 	float *tmp_f;
 	point *tmp_i;
+	int_min_max_func i_func;
+	float_min_max_func f_func;
 	va_list ap;
 
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
@@ -1262,6 +1300,34 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
 			va_end(ap);
 			*f=def;
+			break;
+		case FLOAT_F:
+			queue_initialise(&our_vars.var[no]->queue);
+			va_start(ap, tab_id);
+			//Min
+			f_func = va_arg(ap, float_min_max_func);
+			queue_push(our_vars.var[no]->queue, f_func);
+			//Max
+			f_func = va_arg(ap, float_min_max_func);
+			queue_push(our_vars.var[no]->queue, f_func);
+			//Interval
+			tmp_f = calloc(1,sizeof(*tmp_f));
+			*tmp_f = va_arg(ap, double);
+			queue_push(our_vars.var[no]->queue, (void *)tmp_f);
+			va_end(ap);
+			*f = def;
+			break;
+		case INT_F:
+			queue_initialise(&our_vars.var[no]->queue);
+			va_start(ap, tab_id);
+			//Min
+			i_func = va_arg(ap, int_min_max_func);
+			queue_push(our_vars.var[no]->queue, i_func);
+			//Max
+			i_func = va_arg(ap, int_min_max_func);
+			queue_push(our_vars.var[no]->queue, i_func);
+			va_end(ap);
+			*integer = (int)def;
 			break;
 	}
 	our_vars.var[no]->var=var;
@@ -1500,9 +1566,9 @@ void init_vars()
 #ifdef CLICKABLE_CONTINENT_MAP
 	add_var(BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 #endif
-	add_var(FLOAT,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, 1.0f, 16.0f, 1.0f);
+	add_var(FLOAT_F,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, float_one_func, get_max_anisotropic_filter, 1.0f);
 #ifdef	USE_SHADER
-	add_var(INT,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better.",VIDEO, 0, 2);
+	add_var(INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better.",VIDEO, int_zero_func, int_max_water_shader_quality);
 #endif	// USE_SHADER
 #endif //ELC
 #ifdef MAP_EDITOR
@@ -1528,6 +1594,7 @@ void write_var (FILE *fout, int ivar)
 		case INT:
 		case MULTI:
 		case BOOL:
+		case INT_F:
 		{
 			int *p= our_vars.var[ivar]->var;
 			fprintf (fout, "#%s= %d\n", our_vars.var[ivar]->name, *p);
@@ -1547,6 +1614,7 @@ void write_var (FILE *fout, int ivar)
 			fprintf (fout, "#%s= \"\"\n", our_vars.var[ivar]->name);
 			break;
 		case FLOAT:
+		case FLOAT_F:
 		{
 			float *g= our_vars.var[ivar]->var;
 			fprintf (fout, "#%s= %g\n", our_vars.var[ivar]->name, *g);
@@ -1951,6 +2019,10 @@ void elconfig_populate_tabs(void)
 	int y; //Used for the position of multiselect buttons
 	void *min, *max; //For the spinbuttons
 	float *interval;
+	int_min_max_func i_min_func;
+	int_min_max_func i_max_func;
+	float_min_max_func f_min_func;
+	float_min_max_func f_max_func;
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -2052,6 +2124,40 @@ void elconfig_populate_tabs(void)
 					}
 				}
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, multiselect_click_handler);
+				queue_destroy(our_vars.var[i]->queue);
+				our_vars.var[i]->queue= NULL;
+			break;
+			case FLOAT_F:
+				f_min_func = queue_pop(our_vars.var[i]->queue);
+				f_max_func = queue_pop(our_vars.var[i]->queue);
+				interval= (float *)queue_pop(our_vars.var[i]->queue);
+
+#ifdef OPTIONS_I18N
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+#else
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+#endif
+
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, f_min_func(), f_max_func(), *interval);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				free(interval);
+				queue_destroy(our_vars.var[i]->queue);
+				our_vars.var[i]->queue= NULL;
+			break;
+			case INT_F:
+				i_min_func = queue_pop(our_vars.var[i]->queue);
+				i_max_func = queue_pop(our_vars.var[i]->queue);
+				/* interval is always 1 */
+
+#ifdef OPTIONS_I18N
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
+#else
+				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
+#endif
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, i_min_func(), i_max_func(), 1.0);
+				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
+				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
 			break;

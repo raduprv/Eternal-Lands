@@ -6,7 +6,7 @@
 
 uint_fast32_t extensions = 0;
 GLint texture_units = 0;
-float max_anisotropic_filter = 1.0f;
+float max_anisotropic_filter = 16.0f;
 
 /*	GL_ARB_multitexture	*/
 PFNGLACTIVETEXTUREARBPROC ELglActiveTextureARB;
