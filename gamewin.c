@@ -935,6 +935,136 @@ Uint8 key_to_char (Uint32 unikey)
 	return unikey & 0xff;
 }
 
+void hide_all_windows(){
+	static unsigned int were_open = 0;	//Currently up to 13 windows are managed by this function.
+	//If you add more windows, you must ensure that the int is at least 'windows' bits long.
+	if (get_show_window(ground_items_win) > 0 || get_show_window(items_win) > 0 || get_show_window(buddy_win) > 0 ||
+		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
+		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
+		get_show_window(dialogue_win) > 0 || get_show_window(server_popup_win) > 0 
+#ifdef MINIMAP
+		|| (get_show_window(minimap_win) > 0 && !minimap_get_pin())
+#endif /* MINIMAP */
+#ifdef NOTEPAD
+		|| get_show_window(notepad_win) > 0
+#endif /* NOTEPAD */
+	){	//Okay, hide the open ones.
+		if (get_show_window(ground_items_win) > 0){
+			unsigned char protocol_name;
+
+			hide_window (ground_items_win);
+			protocol_name= S_CLOSE_BAG;
+			my_tcp_send(my_socket,&protocol_name,1);
+		}
+		if (get_show_window(items_win) > 0){
+			hide_window (items_win);
+			were_open |= 1<<0;
+		} else {
+			were_open &= ~(1<<0);
+		}
+		if (get_show_window(buddy_win) > 0){
+			hide_window (buddy_win);
+			were_open |= 1<<1;
+		} else {
+			were_open &= ~(1<<1);
+		}
+		if (get_show_window(manufacture_win) > 0){
+			hide_window (manufacture_win);
+			were_open |= 1<<2;
+		} else {
+			were_open &= ~(1<<2);
+		}
+		if (get_show_window(elconfig_win) > 0){
+			hide_window (elconfig_win);
+			were_open |= 1<<3;
+		} else {
+			were_open &= ~(1<<3);
+		}
+		if (get_show_window(sigil_win) > 0){
+			hide_window (sigil_win);
+			were_open |= 1<<4;
+		} else {
+			were_open &= ~(1<<4);
+		}
+		if (get_show_window(tab_stats_win) > 0){
+			hide_window (tab_stats_win);
+			were_open |= 1<<5;
+		} else {
+			were_open &= ~(1<<5);
+		}
+		if (get_show_window(tab_help_win) > 0){
+			hide_window (tab_help_win);
+			were_open |= 1<<6;
+		} else {
+			were_open &= ~(1<<6);
+		}
+		if (get_show_window(storage_win) > 0){
+			hide_window (storage_win);
+		}
+		if (get_show_window(dialogue_win) > 0){
+			hide_window (dialogue_win);
+		}
+		if (get_show_window(server_popup_win) > 0){
+			hide_window (server_popup_win);
+			were_open |= 1<<7;
+		} else {
+			were_open &= ~(1<<7);
+		}
+#ifdef MINIMAP
+		if (get_show_window(minimap_win) > 0 && !minimap_get_pin()){
+			hide_window (minimap_win);
+			were_open |= 1<<8;
+		} else {
+			were_open &= ~(1<<8);
+		}
+#endif /* MINIMAP */
+#ifdef NOTEPAD
+		if (get_show_window(notepad_win) > 0){
+			hide_window (notepad_win);
+			were_open |= 1<<9;
+		} else {
+			were_open &= ~(1<<9);
+		}
+#endif /* NOTEPAD */
+	} else {	//None were open, restore the ones that were open
+		if (were_open & 1<<0){
+			show_window (items_win);
+		}
+		if (were_open & 1<<1){
+			show_window (buddy_win);
+		}
+		if (were_open & 1<<2){
+			show_window (manufacture_win);
+		}
+		if (were_open & 1<<3){
+			show_window (elconfig_win);
+		}
+		if (were_open & 1<<4){
+			show_window (sigil_win);
+		}
+		if (were_open & 1<<5){
+			show_window (tab_stats_win);
+		}
+		if (were_open & 1<<6){
+			show_window (tab_help_win);
+		}
+		if (were_open & 1<<7){
+			show_window (server_popup_win );
+		}
+#ifdef MINIMAP
+		if (were_open & 1<<8){
+			show_window (minimap_win );
+		}
+#endif /* MINIMAP */
+#ifdef NOTEPAD
+		if (were_open & 1<<9){
+			show_window (notepad_win);
+		}
+#endif /* NOTEPAD */
+	}
+}
+
+
 // keypress handler common to all in-game root windows (game_root_win, 
 // console_root_win, and map_root_win)
 int keypress_root_common (Uint32 key, Uint32 unikey)
@@ -1153,41 +1283,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// hide all windows
 	else if(key==K_HIDEWINS)
 	{
-		if (ground_items_win >= 0){
-			unsigned char protocol_name;
-
-			hide_window (ground_items_win);
-			protocol_name= S_CLOSE_BAG;
-			my_tcp_send(my_socket,&protocol_name,1);
-		}
-		if (items_win >= 0)
-			hide_window (items_win);
-		if (buddy_win >= 0)
-			hide_window (buddy_win);
-		if (manufacture_win >= 0)
-			hide_window (manufacture_win);
-		if (elconfig_win >= 0)
-			hide_window (elconfig_win);
-		if (sigil_win >= 0)
-			hide_window (sigil_win);
-		if (tab_stats_win >= 0)
-			hide_window (tab_stats_win);
-		if (tab_help_win >= 0)
-			hide_window (tab_help_win);
-		if (storage_win >= 0)
-			hide_window (storage_win);
-		if (dialogue_win >= 0)
-			hide_window (dialogue_win);
-		if (server_popup_win >= 0)
-			hide_window (server_popup_win );
-#ifdef MINIMAP
-		if (minimap_win >= 0 && !minimap_get_pin())
-			hide_window (minimap_win );
-#endif //MINIMAP
-#ifdef NOTEPAD
-		if (notepad_win >= 0)
-			hide_window (notepad_win);
-#endif
+		hide_all_windows();
 	}
 	// toggle options
 	else if (key == K_HEALTHBAR)
