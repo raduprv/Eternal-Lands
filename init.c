@@ -23,10 +23,6 @@
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
-#ifndef DATA_DIR
- #define DATA_DIR "./"
-#endif
-
 int ini_file_size=0;
 
 int disconnected= 1;
