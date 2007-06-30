@@ -61,7 +61,7 @@ void zip_file_system::add_zip_archive(const std::string &file_name)
 	zip_file zfile;
 	zip_file_entry_list files;
 	std::string path;
-	int_fast32_t pos;
+	int pos;
 
 	zfile.name = file_name;
 	zfile.file = new std::ifstream();
@@ -183,7 +183,7 @@ int zip_file_system::open_file(const std::string &file_name, memory_buffer &buff
 	uLongf buffer_size;
 	int size, offset, index;
 	int crc;
-	int_fast32_t error;
+	int error;
 
 	found = file_entrys.find(file_name);
 	if (found != file_entrys.end())
