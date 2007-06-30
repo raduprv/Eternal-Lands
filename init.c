@@ -622,7 +622,7 @@ void init_stuff()
 #endif //NEW_FILE_IO	
 
 	//TODO: process command line options
-	chdir(DATA_DIR);
+	chdir(datadir);
 
 #ifdef WRITE_XML
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
