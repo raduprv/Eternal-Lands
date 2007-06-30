@@ -18,7 +18,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.h,v 1.2 2007/06/27 19:28:08 grum Exp $
+ *  Version: $Id: amx.h,v 1.3 2007/06/30 14:39:47 grum Exp $
  */
 
 #ifndef AMX_H_INCLUDED
@@ -34,6 +34,9 @@
 #ifdef X86_64
 #define PAWN_CELL_SIZE 64
 #endif
+
+// We want floating point support
+#define FLOATPOINT
 
 #include <stdlib.h>   /* for size_t */
 #include <limits.h>

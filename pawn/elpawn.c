@@ -5,6 +5,7 @@
 
 // includes for our native functions
 #include "amxcons.h"
+#include "amxfloat.h"
 #include "amxel.h"
 
 // Set up our own struct with the information we need. We might be able 
@@ -55,6 +56,7 @@ int initialize_pawn_machine (pawn_machine *machine, const char* fname)
 	// used in the amx script are defined, so we only need to check
 	// the last Init (when we have defined our entire library).
 	amx_ConsoleInit (&(machine->amx));
+	amx_FloatInit (&(machine->amx));
 	err = amx_ElInit (&(machine->amx));
 	if (err != AMX_ERR_NONE)
 	{
@@ -82,6 +84,7 @@ void cleanup_pawn_machine (pawn_machine *machine)
 	if (machine->initialized)
 	{
 		amx_ElCleanup (&(machine->amx));
+		amx_FloatCleanup (&(machine->amx));
 		amx_ConsoleCleanup (&(machine->amx));
 		amx_Cleanup (&(machine->amx));
 		machine->initialized = 0;

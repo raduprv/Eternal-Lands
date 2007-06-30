@@ -22,7 +22,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amxcons.c,v 1.1 2007/06/27 18:26:45 grum Exp $
+ *  Version: $Id: amxcons.c,v 1.2 2007/06/30 14:39:47 grum Exp $
  */
 /* Grum: Edited to provide only the routines used in EL
  */
@@ -317,7 +317,13 @@ static int dochar(AMX *amx,TCHAR ch,cell param,TCHAR sign,TCHAR decpoint,int wid
     _stprintf(formatstring+_tcslen(formatstring),__T(".%df"),digits);
     /* ??? decimal comma? */
     amx_GetAddr(amx,param,&cptr);
+#if PAWN_CELL_SIZE==32
     _stprintf(buffer,formatstring,*(float*)cptr);
+#elif PAWN_CELL_SIZE==64
+    _stprintf(buffer,formatstring,*(double*)cptr);
+#else
+#error Invalid cell size for floating point numbers
+#endif
     f_putstr(user,buffer);
     return 1;
 #endif

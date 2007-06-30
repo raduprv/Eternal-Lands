@@ -4,5 +4,5 @@ public pawn_test ()
 
 	printf "Hello Eternal Lands!\n"
 	for (i = 0; i < 3; i++)
-		log_to_console "Hello EL, from Pawn %d!", i
+		log_to_console "Hello EL, from Pawn %f!", floatsqroot (float (i))
 }

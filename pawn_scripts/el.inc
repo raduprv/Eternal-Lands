@@ -1,1 +1,1 @@
-native log_to_console (const format[], ...);
+native log_to_console (const format[], {Float,Fixed,_}:...);
