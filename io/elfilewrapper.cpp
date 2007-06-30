@@ -66,7 +66,7 @@ extern "C" el_file* el_open_no_decompress(const char* file_name)
 	}
 }
 
-extern "C" int_fast32_t el_read(el_file* file, int_fast32_t size, void* buffer)
+extern "C" int el_read(el_file* file, int size, void* buffer)
 {
 	try
 	{
@@ -84,7 +84,7 @@ extern "C" int_fast32_t el_read(el_file* file, int_fast32_t size, void* buffer)
 	}
 }
 
-extern "C" int_fast32_t el_seek(el_file* file, int_fast32_t offset, int_fast32_t seek_type)
+extern "C" int el_seek(el_file* file, int offset, int seek_type)
 {
 	try
 	{
@@ -102,7 +102,7 @@ extern "C" int_fast32_t el_seek(el_file* file, int_fast32_t offset, int_fast32_t
 	}
 }
 
-extern "C" int_fast32_t el_tell(el_file* file)
+extern "C" int el_tell(el_file* file)
 {
 	try
 	{
@@ -120,7 +120,7 @@ extern "C" int_fast32_t el_tell(el_file* file)
 	}
 }
 
-extern "C" int_fast32_t el_get_size(el_file* file)
+extern "C" int el_get_size(el_file* file)
 {
 	try
 	{
@@ -162,7 +162,7 @@ extern "C" void* el_get_pointer(el_file* file)
 	}
 }
 
-extern "C" int_fast32_t el_file_exists(const char* file_name)
+extern "C" int el_file_exists(const char* file_name)
 {
 	try
 	{

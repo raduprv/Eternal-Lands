@@ -8,13 +8,6 @@
 
 #ifdef NEW_FILE_IO
 
-#ifdef _MSC_VER
-typedef unsigned int uint_fast32_t;
-typedef signed int int_fast32_t;
-#else
-#include <stdint.h>
-#endif //MSVC
-
 #ifdef __cplusplus
 extern "C"
 {
@@ -62,7 +55,7 @@ extern el_file_ptr el_open_no_decompress(const char* file_name);
  * @return Returns the number of read bytes.
  * @see el_open
  */
-extern int_fast32_t el_read(el_file_ptr file, int_fast32_t size, void* buffer);
+extern int el_read(el_file_ptr file, int size, void* buffer);
 
 /**
  * @brief Sets the position in the file.
@@ -76,7 +69,7 @@ extern int_fast32_t el_read(el_file_ptr file, int_fast32_t size, void* buffer);
  * @return Returns the new position in the file.
  * @see el_open
  */
-extern int_fast32_t el_seek(el_file_ptr file, int_fast32_t offset, int_fast32_t seek_type);
+extern int el_seek(el_file_ptr file, int offset, int seek_type);
 
 /**
  * @brief Gets the position in the file.
@@ -86,7 +79,7 @@ extern int_fast32_t el_seek(el_file_ptr file, int_fast32_t offset, int_fast32_t 
  * @return Returns the position in the file.
  * @see el_open
  */
-extern int_fast32_t el_tell(el_file_ptr file);
+extern int el_tell(el_file_ptr file);
 
 /**
  * @brief Gets the size of the file.
@@ -96,7 +89,7 @@ extern int_fast32_t el_tell(el_file_ptr file);
  * @return Returns the size of the file.
  * @see el_open
  */
-extern int_fast32_t el_get_size(el_file_ptr file);
+extern int el_get_size(el_file_ptr file);
 
 /**
  * @brief Closes a file.
@@ -125,7 +118,7 @@ extern void* el_get_pointer(el_file_ptr file);
  * @param file_name The name of the file.
  * @return Returns true if the file exists, else false.
  */
-extern int_fast32_t el_file_exists(const char* file_name);
+extern int el_file_exists(const char* file_name);
 
 #ifdef __cplusplus
 }

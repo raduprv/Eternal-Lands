@@ -1,12 +1,11 @@
-#include <SDL_net.h>
 #include "zipfilesystem.hpp"
 
-void zip_file_system::add(uint_fast32_t idx, const std::string& path, zip_file_entry_list &files)
+void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list &files)
 {
-	uint8_t* pos;
-	uint_fast32_t index, L, number_disk, number_disk_with_CD;
-	uint_fast32_t number_entry, number_entry_CD, size_central_dir, offset_central_dir;
-	uint_fast32_t size_comment, central_pos, bytes_before_zipfile;
+	Uint8* pos;
+	int index, L, number_disk, number_disk_with_CD;
+	int number_entry, number_entry_CD, size_central_dir, offset_central_dir;
+	int size_comment, central_pos, bytes_before_zipfile;
 	long int size;
 
 	zip_files[idx].file->open(zip_files[idx].name.c_str(), std::ios::binary);
@@ -93,9 +92,9 @@ void zip_file_system::add_zip_archive(const std::string &file_name)
 	}
 }
 
-uint_fast32_t zip_file_system::read_files_entry(uint8_t* pos, uint_fast32_t size) const
+int zip_file_system::read_files_entry(Uint8* pos, int size) const
 {
-	uint_fast32_t i;
+	int i;
 
 	for (i = size - 4; i >= 0; i--)
 	{
@@ -108,7 +107,7 @@ uint_fast32_t zip_file_system::read_files_entry(uint8_t* pos, uint_fast32_t size
 	EXTENDED_EXCEPTION("No valid zip file.");
 }
 
-uint_fast32_t zip_file_system::get_uint32_from_pos(uint8_t* &pos) const
+int zip_file_system::get_uint32_from_pos(Uint8* &pos) const
 {
 	uint32_t value;
 
@@ -118,7 +117,7 @@ uint_fast32_t zip_file_system::get_uint32_from_pos(uint8_t* &pos) const
 	return SDL_SwapLE32(value);
 }
 
-uint_fast32_t zip_file_system::get_uint16_from_pos(uint8_t* &pos) const
+int zip_file_system::get_uint16_from_pos(Uint8* &pos) const
 {
 	uint16_t value;
 
@@ -128,12 +127,12 @@ uint_fast32_t zip_file_system::get_uint16_from_pos(uint8_t* &pos) const
 	return SDL_SwapLE16(value);
 }
 
-void zip_file_system::read_files_infos(uint8_t* pos, uint_fast32_t count, uint_fast32_t index,
+void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 	const std::string& path, zip_file_entry_list &files)
 {
-	uint_fast32_t magic, version, version_needed, flag, compression_method, dosDate;
-	uint_fast32_t size_filename, size_file_extra, size_file_comment;
-	uint_fast32_t disk_num_start, internal_fa, external_fa, i;
+	int magic, version, version_needed, flag, compression_method, dosDate;
+	int size_filename, size_file_extra, size_file_comment;
+	int disk_num_start, internal_fa, external_fa, i;
 	zip_file_entry zfile;
 	std::string str;
 
@@ -176,14 +175,14 @@ void zip_file_system::read_files_infos(uint8_t* pos, uint_fast32_t count, uint_f
 	}
 }
 
-uint_fast32_t zip_file_system::open_file(const std::string &file_name, memory_buffer &buffer,
+int zip_file_system::open_file(const std::string &file_name, memory_buffer &buffer,
 	bool uncompr)
 {
 	z_stream strm;
 	zip_file_entry_list::const_iterator found;
 	uLongf buffer_size;
-	uint_fast32_t size, offset, index;
-	uint_fast32_t crc;
+	int size, offset, index;
+	int crc;
 	int_fast32_t error;
 
 	found = file_entrys.find(file_name);
@@ -254,13 +253,13 @@ uint_fast32_t zip_file_system::open_file(const std::string &file_name, memory_bu
 	return 0;
 }
 
-void zip_file_system::read_file_header(zip_file_entry &zfile, uint_fast32_t index)
+void zip_file_system::read_file_header(zip_file_entry &zfile, int index)
 {
 	/* Size must be 30! */
-	uint8_t buffer[30];
-	uint8_t* pos;
-	uint_fast32_t offset, magic, version, flag, compression_method, dosDate;
-	uint_fast32_t crc, compressed_size, uncompressed_size, size_filename, size_file_extra;
+	Uint8 buffer[30];
+	Uint8* pos;
+	int offset, magic, version, flag, compression_method, dosDate;
+	int crc, compressed_size, uncompressed_size, size_filename, size_file_extra;
 
 	offset = zfile.offset_curfile + zip_files[index].bytes_before_zipfile;
 

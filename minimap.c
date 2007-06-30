@@ -138,7 +138,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 	float size_x = 255.0f / (tile_map_size_x * 6);
 	float size_y = 255.0f / (tile_map_size_y * 6);
 	actor *a;
-	uint_fast32_t i;
+	int i;
 	float x, y;
 
 	glDisable(GL_TEXTURE_2D);

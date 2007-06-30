@@ -1,19 +1,7 @@
 #ifndef	_LOAD_GL_EXTENSIONS_H_
 #define	_LOAD_GL_EXTENSIONS_H_
 
-#ifdef _MSC_VER
-#include <windows.h>
-typedef unsigned int uint_fast32_t;
-#else
-#include <stdint.h>
-#endif //MSVC
-#ifdef OSX
-#include <OpenGL/gl.h>
-#include <OpenGL/glext.h>
-#else
-#include <GL/gl.h>
-#include <GL/glext.h>
-#endif
+#include "global.h"
 
 #ifndef GL_ATI_texture_compression_3dc
 #define GL_ATI_texture_compression_3dc 1
@@ -281,8 +269,8 @@ extern PFNGLFOGCOORDFVEXTPROC ELglFogCoordfvEXT;
 /*	GL_EXT_fog_coord			*/
 
 extern void init_opengl_extensions();
-extern uint_fast32_t have_extension(extension_enum extension);
-extern uint_fast32_t get_texture_units();
+extern Uint32 have_extension(extension_enum extension);
+extern Uint32 get_texture_units();
 extern float get_max_anisotropic_filter();
 
 #endif	//_LOAD_GL_EXTENSIONS_H_

@@ -3,24 +3,14 @@
 
 #ifdef NEW_FILE_IO
 
-#ifdef _MSC_VER
-typedef unsigned int uint_fast32_t;
-typedef signed int int_fast32_t;
-typedef Uint8 uint8_t;
-typedef Uint16 uint16_t;
-typedef Uint32 uint32_t;
-#else
-#include <stdint.h>
-#endif //MSVC
-
-#include "../exceptions/extendedexception.hpp"
+#include "allio.hpp"
 
 class memory_buffer
 {
 	private:
-		uint8_t* memory;
-		uint_fast32_t* reference_count;
-		uint_fast32_t* size;
+		Uint8* memory;
+		int* reference_count;
+		int* size;
 
 		inline void reduce_count()
 		{
@@ -44,11 +34,11 @@ class memory_buffer
 
 	public:
 
-		inline memory_buffer(uint_fast32_t _size = 0)
+		inline memory_buffer(int _size = 0)
 		{
-			memory = reinterpret_cast<uint8_t*>(malloc(_size));
-			reference_count = new uint_fast32_t;
-			size = new uint_fast32_t;
+			memory = reinterpret_cast<Uint8*>(malloc(_size));
+			reference_count = new int;
+			size = new int;
 			*reference_count = 1;
 			*size = _size;
 		}
@@ -109,7 +99,7 @@ class memory_buffer
 		 * Gets the pointer of the memory buffer.
 		 * @return Returns the pointer of the memory buffer.
 		 */
-		inline uint8_t* get_memory() const
+		inline Uint8* get_memory() const
 		{
 			return memory;
 		}
@@ -121,7 +111,7 @@ class memory_buffer
 		 * @param index The index to use.
 		 * @return Returns the pointer of the memory buffer.
 		 */
-		inline uint8_t* get_memory(uint_fast32_t index) const
+		inline Uint8* get_memory(int index) const
 		{
 			return &memory[index];
 		}
@@ -132,7 +122,7 @@ class memory_buffer
 		 * Gets the size of the memory buffer.
 		 * @return Returns the size of the memory buffer.
 		 */
-		inline uint_fast32_t get_size() const
+		inline int get_size() const
 		{
 			return *size;
 		}
@@ -143,19 +133,19 @@ class memory_buffer
 		 * Gets the reference count of the memory buffer.
 		 * @return Returns the reference count of the memory buffer.
 		 */
-		inline uint_fast32_t get_reference_count() const
+		inline int get_reference_count() const
 		{
 			return *reference_count;
 		}
 
-		inline void resize(uint_fast32_t new_size)
+		inline void resize(int new_size)
 		{
 			if (get_reference_count() > 1)
 			{
 				EXTENDED_EXCEPTION("Can't resize, because reference count is greater than one!");
 			}
 
-			memory = static_cast<uint8_t*>(realloc(memory, new_size));
+			memory = static_cast<Uint8*>(realloc(memory, new_size));
 
 			*size = new_size;
 		}

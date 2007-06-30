@@ -4,7 +4,7 @@
 #include <SDL.h>
 #include "load_gl_extensions.h"
 
-uint_fast32_t extensions = 0;
+Uint32 extensions = 0;
 GLint texture_units = 0;
 float max_anisotropic_filter = 16.0f;
 
@@ -747,12 +747,12 @@ void init_opengl_extensions()
 /*	GL_ATI_texture_compression_3dc		*/
 }
 
-uint_fast32_t have_extension(extension_enum extension)
+Uint32 have_extension(extension_enum extension)
 {
 	return (extensions & (1 << extension)) != 0;
 }
 
-uint_fast32_t get_texture_units()
+Uint32 get_texture_units()
 {
 	return texture_units;
 }

@@ -34,7 +34,7 @@ void el_file::open_gzip(const std::string& file_name)
 {
 	std::string str;
 	gzFile file;
-	int_fast32_t read, size;
+	int read, size;
 	char * cfgpath = get_path_config();
 	str = std::string(cfgpath) + "updates/" + file_name + ".gz";
 	free(cfgpath);
@@ -85,7 +85,7 @@ void el_file::open(const std::string& file_name)
 {
 	std::string str;
 	std::ifstream file;
-	int_fast32_t read, size;
+	int read, size;
 	char * cfgpath = get_path_config();
 	str = std::string(cfgpath) + "updates/" + file_name;
 	free(cfgpath);

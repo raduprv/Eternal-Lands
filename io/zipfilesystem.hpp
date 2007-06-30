@@ -8,17 +8,7 @@
 
 #ifdef NEW_FILE_IO
 
-#ifdef	USE_TR1
-#include <tr1/unordered_map>
-#else
-#include <map>
-#endif
-#include <vector>
-#include <string>
-#include <fstream>
-#include <zlib.h>
-#include <SDL.h>
-#include "../exceptions/extendedexception.hpp"
+#include "allio.hpp"
 #include "memorybuffer.hpp"
 
 #define ZLIB_EXCEPTION(strm) EXTENDED_EXCEPTION(strm.msg)
@@ -32,11 +22,11 @@ class zip_file_system
 
 		typedef struct
 		{
-			uint_fast32_t compressed_size; /**< Compressed file size. */
-			uint_fast32_t uncompressed_size; /**< Uncompressed file size. */
-			uint_fast32_t offset_curfile; /**< Offset to the file data. */
-			uint_fast32_t zip_file_index; /**< Index of the zip. */
-			uint_fast32_t crc32; /**< Crc32. */
+			int compressed_size; /**< Compressed file size. */
+			int uncompressed_size; /**< Uncompressed file size. */
+			int offset_curfile; /**< Offset to the file data. */
+			int zip_file_index; /**< Index of the zip. */
+			int crc32; /**< Crc32. */
 			bool is_compressed; /**< Flag that indicates if the file is compressed. */
 		} zip_file_entry;
 
@@ -44,7 +34,7 @@ class zip_file_system
 		{
 			std::string name; /**< Name of the zip file. */
 			std::ifstream* file; /**< File stream of the zip file. */
-			uint_fast32_t bytes_before_zipfile; /**< Bytes before the zip file. */
+			int bytes_before_zipfile; /**< Bytes before the zip file. */
 		} zip_file;
 #ifdef	USE_TR1
 		/**
@@ -90,7 +80,7 @@ class zip_file_system
 		 * @param size The size of the memory block to that pos points.
 		 * @return Returns the position of the files entry block relativ to the pointer.
 		 */
-		uint_fast32_t read_files_entry(uint8_t* pos, uint_fast32_t size) const;
+		int read_files_entry(Uint8* pos, int size) const;
 
 		/**
 		 * @brief Gets an uint32_t from pos and increase pos.
@@ -100,7 +90,7 @@ class zip_file_system
 		 * @param pos The pointer from where to get the uint32_t.
 		 * @return Returns the uint32_t.
 		 */
-		uint_fast32_t get_uint32_from_pos(uint8_t* &pos) const;
+		int get_uint32_from_pos(Uint8* &pos) const;
 
 		/**
 		 * @brief Gets an uint16_t from pos and increase pos.
@@ -110,7 +100,7 @@ class zip_file_system
 		 * @param pos The pointer from where to get the uint16_t.
 		 * @return Returns the uint16_t.
 		 */
-		uint_fast32_t get_uint16_from_pos(uint8_t* &pos) const;
+		int get_uint16_from_pos(Uint8* &pos) const;
 
 		/**
 		 * @brief Reads the files informations.
@@ -123,12 +113,12 @@ class zip_file_system
 		 * @param path The path of the zip file where the files are in.
 		 * @see file_entrys
 		 */
-		void read_files_infos(uint8_t* pos, uint_fast32_t count, uint_fast32_t index,
+		void read_files_infos(Uint8* pos, int count, int index,
 			const std::string& path, zip_file_entry_list& files);
 
-		void read_file_header(zip_file_entry &zfile, uint_fast32_t index);
+		void read_file_header(zip_file_entry &zfile, int index);
 
-		void add(uint_fast32_t idx, const std::string& path, zip_file_entry_list &files);
+		void add(int idx, const std::string& path, zip_file_entry_list &files);
 	public:
 		/**
 		 * @brief Adds a zip file to the search list.
@@ -153,7 +143,7 @@ class zip_file_system
 		 * file is not found.
 		 * @see add_zip_archive
 		 */
-		uint_fast32_t open_file(const std::string &file_name, memory_buffer &buffer,
+		int open_file(const std::string &file_name, memory_buffer &buffer,
 			bool uncompr);
 
 		inline bool file_exists(const std::string &file_name) const

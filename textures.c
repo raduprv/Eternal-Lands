@@ -89,9 +89,9 @@ __inline__ static void set_texture_filter_parameter()
 
 #ifndef	OLD_TEXTURE_LOADER
 #ifdef NEW_LIGHTING
-void do_night_shift_texture(const char * filename, GLubyte * texture_mem, uint_fast32_t x_size, uint_fast32_t y_size)
+void do_night_shift_texture(const char * filename, GLubyte * texture_mem, int x_size, int y_size)
 {
-	uint_fast32_t i;
+	int i;
 	float percent_grey, average;
 
 	if (night_shift_textures)
@@ -142,9 +142,9 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 {
 	SDL_Surface *texture_surface;
 	GLubyte* data;
-	uint_fast32_t texture_width, texture_height, idx;
-	uint_fast32_t pixel, temp, r, g, b, a;
-	uint_fast32_t bpp, i, j, index, x_padding;
+	int texture_width, texture_height, idx;
+	int pixel, temp, r, g, b, a;
+	int bpp, i, j, index, x_padding;
 
 #ifndef	NEW_FILE_IO
 	texture_surface = IMG_Load(file_name);

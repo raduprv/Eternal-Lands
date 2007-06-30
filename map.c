@@ -320,9 +320,9 @@ void load_map_marks()
 
 void init_buffers()
 {
-	int_fast32_t terrain_buffer_size;
-	int_fast32_t water_buffer_size;
-	int_fast32_t i, j, cur_tile;
+	int terrain_buffer_size;
+	int water_buffer_size;
+	int i, j, cur_tile;
 
 	terrain_buffer_size = 0;
 	water_buffer_size = 0;

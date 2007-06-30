@@ -9,11 +9,11 @@
 
 #ifdef NEW_FILE_IO
 
-#include <sys/stat.h>
+#include "allio.hpp"
 #include "zipfilesystem.hpp"
 #include "elpathwrapper.h"
 
-const int_fast32_t max_mem_block_buffer_size = 0x40000; // 256kb
+const int max_mem_block_buffer_size = 0x40000; // 256kb
 
 class el_file
 {
@@ -24,7 +24,7 @@ class el_file
 		 *
 		 * The position in the file.
 		 */
-		int_fast32_t position;
+		int position;
 
 		/**
 		 * @brief Memory buffer.
@@ -82,7 +82,7 @@ class el_file
 		 * @param buffer The buffer for the read data.
 		 * @return Returns the number of read bytes.
 		 */
-		inline int_fast32_t read(int_fast32_t count, void* buffer)
+		inline int read(int count, void* buffer)
 		{
 			count = std::max((long)(std::min(count, get_size() - position)), 0L);
 			memcpy(buffer, memory.get_memory(position), count);
@@ -101,9 +101,9 @@ class el_file
 		 * @param seek_type The type of seek. Can only be SEEK_SET, SEEK_END or SEEK_CUR.
 		 * @return Returns the new position in the file.
 		 */
-		inline int_fast32_t seek(int_fast32_t offset, int_fast32_t seek_type)
+		inline int seek(int offset, int seek_type)
 		{
-			int_fast32_t pos;
+			int pos;
 
 			switch (seek_type)
 			{
@@ -136,7 +136,7 @@ class el_file
 		 * Gets the position in the file.
 		 * @return Returns the position in the file.
 		 */
-		inline int_fast32_t tell() const
+		inline int tell() const
 		{
 			return position;
 		}
@@ -147,7 +147,7 @@ class el_file
 		 * Gets the size of the file.
 		 * @return Returns the size of the file.
 		 */
-		inline int_fast32_t get_size() const
+		inline int get_size() const
 		{
 			return memory.get_size();
 		}
