@@ -50,7 +50,7 @@ void el_file::open_gzip(const std::string& file_name)
 		if (file == 0)
 		{
 			str = file_name + ".gz";
-			file = gzopen(file_name.c_str(), "rb");
+			file = gzopen(str.c_str(), "rb");
 		}
 		if (file == 0)
 		{
