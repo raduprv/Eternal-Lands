@@ -13,9 +13,9 @@ typedef struct
 } shader_data;
 
 shader_data shader_data_list[] = {
-	{ NULL, NULL, "./shader/water_fs.glsl", "" }, 
+	{ NULL, NULL, "./shader/water_fs.glsl", " " }, 
 	{ NULL, NULL, "./shader/water_fs.glsl", "#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", "" },
+	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", " " },
 	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", "#define\tUSE_SHADOW\n" },
 	{ NULL, NULL, "./shader/water_fs.glsl", "#define\tUSE_NOISE\n" },
 	{ NULL, NULL, "./shader/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" },
@@ -51,6 +51,7 @@ static __inline__ int load_shader(GLhandleARB object, const char* file_name,
 		buffer[1] = (char*)el_get_pointer(file);
 	
 		ELglShaderSourceARB(object, 2, buffer, size);
+		CHECK_GL_ERRORS();
 
 		el_close(file);
 
@@ -65,11 +66,13 @@ static __inline__ void log_shader_compile_log(GLhandleARB object, const char* sh
 	GLcharARB* info_log;
 
 	ELglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
+	CHECK_GL_ERRORS();
 	
 	if (blen > 1)
 	{
 		info_log = (GLcharARB*)malloc(blen * sizeof(GLcharARB));
 		ELglGetInfoLogARB(object, blen, &slen, info_log);
+		CHECK_GL_ERRORS();
 		if (error == 1)
 		{
 			LOG_ERROR("Compiling shader '%s' successful: %s", shader_file_name, info_log);
@@ -99,11 +102,13 @@ static __inline__ void log_shader_linking_log(GLhandleARB object, GLint error)
 	GLcharARB* info_log;
 
 	ELglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
+	CHECK_GL_ERRORS();
 	
 	if (blen > 1)
 	{
 		info_log = (GLcharARB*)malloc(blen * sizeof(GLcharARB));
 		ELglGetInfoLogARB(object, blen, &slen, info_log);
+		CHECK_GL_ERRORS();
 		if (error == 1)
 		{
 			LOG_ERROR("Linking shaders successful: %s", info_log);
@@ -140,26 +145,33 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 		return 0;
 	}
 
+	CHECK_GL_ERRORS();
 	shader_object = ELglCreateProgramObjectARB();
+	CHECK_GL_ERRORS();
 
 	if (vertex_shader_file_name != NULL)
 	{
 		vertex_shader_object = ELglCreateShaderObjectARB(GL_VERTEX_SHADER_ARB);
+		CHECK_GL_ERRORS();
 		if (load_shader(vertex_shader_object, vertex_shader_file_name, vertex_shader_defines) == 1)
 		{
 			ELglCompileShaderARB(vertex_shader_object);
+			CHECK_GL_ERRORS();
 			ELglGetObjectParameterivARB(vertex_shader_object, GL_OBJECT_COMPILE_STATUS_ARB, &ret);
+			CHECK_GL_ERRORS();
 			log_shader_compile_log(vertex_shader_object, vertex_shader_file_name, ret);
 
 			if (ret == 1)
 			{
 				ELglAttachObjectARB(shader_object, vertex_shader_object);
+				CHECK_GL_ERRORS();
 			}
 			else
 			{
 				error = 1;
 			}
 			ELglDeleteObjectARB(vertex_shader_object);
+			CHECK_GL_ERRORS();
 		}
 		else
 		{
@@ -170,21 +182,26 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 	if ((fragment_shader_file_name != NULL) && (error == 0))
 	{
 		fragment_shader_object = ELglCreateShaderObjectARB(GL_FRAGMENT_SHADER_ARB);
+		CHECK_GL_ERRORS();
 		if (load_shader(fragment_shader_object, fragment_shader_file_name, fragment_shader_defines) == 1)
 		{
 			ELglCompileShaderARB(fragment_shader_object);
+			CHECK_GL_ERRORS();
 			ELglGetObjectParameterivARB(fragment_shader_object, GL_OBJECT_COMPILE_STATUS_ARB, &ret);
+			CHECK_GL_ERRORS();
 			log_shader_compile_log(fragment_shader_object, fragment_shader_file_name, ret);
 
 			if (ret == 1)
 			{
 				ELglAttachObjectARB(shader_object, fragment_shader_object);
+				CHECK_GL_ERRORS();
 			}
 			else
 			{
 				error = 1;
 			}
 			ELglDeleteObjectARB(fragment_shader_object);
+			CHECK_GL_ERRORS();
 		}
 		else
 		{
@@ -195,12 +212,15 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 	if (error == 1)
 	{
 		ELglDeleteProgramsARB(1, &shader_object);
+		CHECK_GL_ERRORS();
 
 		return 0;
 	}
 
 	ELglLinkProgramARB(shader_object);
+	CHECK_GL_ERRORS();
 	ELglGetObjectParameterivARB(shader_object, GL_OBJECT_LINK_STATUS_ARB, &ret);
+	CHECK_GL_ERRORS();
 	log_shader_linking_log(shader_object, ret);
 
 	if (ret == 1)
@@ -210,6 +230,7 @@ static __inline__ GLhandleARB build_shader(const char* vertex_shader_file_name,
 	else
 	{
 		ELglDeleteProgramsARB(1, &shader_object);
+		CHECK_GL_ERRORS();
 
 		return 0;
 	}
@@ -231,10 +252,13 @@ int is_shader_supported()
 
 void free_shaders()
 {
+	CHECK_GL_ERRORS();
 	glDeleteTextures(1, &noise_tex);
+	CHECK_GL_ERRORS();
 	if (is_shader_supported())
 	{
 		ELglDeleteProgramsARB(MAX_SHADER_COUNT, shader);
+		CHECK_GL_ERRORS();
 	}
 }
 
@@ -274,8 +298,6 @@ GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, Uint32 
 	int index;
 
 	index = get_shader_index(type, shadow_type, quality);
-
-//	printf("Index: %d\n", index);
 
 	return shader[index];
 }
