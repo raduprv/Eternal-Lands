@@ -1246,8 +1246,8 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 	char *pointer;
 	float *tmp_f;
 	point *tmp_i;
-	int_min_max_func i_func;
-	float_min_max_func f_func;
+	int_min_max_func *i_func;
+	float_min_max_func *f_func;
 	va_list ap;
 
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
@@ -1305,10 +1305,12 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			//Min
-			f_func = va_arg(ap, float_min_max_func);
+			f_func = calloc(1, sizeof(*f_func));
+			*f_func = va_arg(ap, float_min_max_func);
 			queue_push(our_vars.var[no]->queue, f_func);
 			//Max
-			f_func = va_arg(ap, float_min_max_func);
+			f_func = calloc(1, sizeof(*f_func));
+			*f_func = va_arg(ap, float_min_max_func);
 			queue_push(our_vars.var[no]->queue, f_func);
 			//Interval
 			tmp_f = calloc(1,sizeof(*tmp_f));
@@ -1321,10 +1323,12 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			//Min
-			i_func = va_arg(ap, int_min_max_func);
+			i_func = calloc(1, sizeof(*i_func));
+			*i_func = va_arg(ap, int_min_max_func);
 			queue_push(our_vars.var[no]->queue, i_func);
 			//Max
-			i_func = va_arg(ap, int_min_max_func);
+			i_func = calloc(1, sizeof(*i_func));
+			*i_func = va_arg(ap, int_min_max_func);
 			queue_push(our_vars.var[no]->queue, i_func);
 			va_end(ap);
 			*integer = (int)def;
@@ -2022,10 +2026,10 @@ void elconfig_populate_tabs(void)
 	int y; //Used for the position of multiselect buttons
 	void *min, *max; //For the spinbuttons
 	float *interval;
-	int_min_max_func i_min_func;
-	int_min_max_func i_max_func;
-	float_min_max_func f_min_func;
-	float_min_max_func f_max_func;
+	int_min_max_func *i_min_func;
+	int_min_max_func *i_max_func;
+	float_min_max_func *f_min_func;
+	float_min_max_func *f_max_func;
 
 	for(i= 0; i < MAX_TABS; i++) {
 		//Set default values
@@ -2141,9 +2145,11 @@ void elconfig_populate_tabs(void)
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
 
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, f_min_func(), f_max_func(), *interval);
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				free(f_min_func);
+				free(f_max_func);
 				free(interval);
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
@@ -2158,9 +2164,11 @@ void elconfig_populate_tabs(void)
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, i_min_func(), i_max_func(), 1.0);
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
+				free(i_min_func);
+				free(i_max_func);
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
 			break;
