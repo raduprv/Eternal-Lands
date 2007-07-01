@@ -128,8 +128,8 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 			//return atof (&haystack[istart]);
 			//char temp[max_len-istart+1];	//Wasteful, if the float doesn't go to the end of the line, but it will reserve enough space
 			char temp[200];	//It'd be better not to use an arbitrary constant, but we can't use run-time size on compilers like MSVC
-			memcpy(temp, &haystack[istart], min2i(max_len-istart));
-			temp[min2i(max_len-istart)] = '\0';
+			memcpy(temp, &haystack[istart], min2i(max_len-istart, sizeof(temp)));
+			temp[min2i(max_len-istart, sizeof(temp))] = '\0';
 			return atof (temp);
 		}
 		istart++;
