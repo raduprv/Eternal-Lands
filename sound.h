@@ -6,7 +6,6 @@
  */
 #ifndef __SOUND_H__
 #define __SOUND_H__
-#include "global.h"
 
 #ifdef WINDOWS //lib location platform checking
 	#include <al.h>

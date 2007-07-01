@@ -6,6 +6,8 @@
 #ifndef __NEW_ACTORS_H__
 #define __NEW_ACTORS_H__
 
+#include "actors.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
