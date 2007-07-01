@@ -104,7 +104,7 @@ void cleanup_pawn ()
 	cleanup_pawn_machine (&map_amx);
 }
 
-int run_pawn_function (pawn_machine *machine, const char* fun)
+int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, va_list ap)
 {
 	int err = AMX_ERR_NONE, index=-1;
 	if (!machine->initialized)
@@ -120,6 +120,30 @@ int run_pawn_function (pawn_machine *machine, const char* fun)
 		return 0;
 	}
 
+	if (fmt != NULL)
+	{
+		char c;
+		int i;
+		REAL f;
+		
+		while ( (c = *fmt++) )
+		{
+			switch (c)
+			{
+				case 'i':
+					i = va_arg (ap, int);
+					amx_Push (&(machine->amx), (cell) i);
+					break;
+				case 'f':
+					f = va_arg (ap, REAL);
+					amx_Push (&(machine->amx), *((cell*) &f));
+					break;
+				default:
+					log_error ("unknown format specifier '%c' in Pawn call", c);
+					return 1;
+			}
+		}
+	}
 	err = amx_Exec (&(machine->amx), NULL, index);
 	if (err != AMX_ERR_NONE)
 	{
@@ -130,12 +154,26 @@ int run_pawn_function (pawn_machine *machine, const char* fun)
 	return 1;
 }
 
-int run_pawn_server_function (const char* fun)
+int run_pawn_server_function (const char *fun, const char* fmt, ...)
 {
-	return run_pawn_function (&srv_amx, fun);
+	int res;
+	va_list ap;
+	
+	va_start (ap, fmt);
+	res = run_pawn_function (&srv_amx, fun, fmt, ap);
+	va_end (ap);
+	
+	return res;
 }
 
-int run_pawn_map_function (const char* fun)
+int run_pawn_map_function (const char* fun, const char* fmt, ...)
 {
-	return run_pawn_function (&map_amx, fun);
+	int res;
+	va_list ap;
+	
+	va_start (ap, fmt);
+	res = run_pawn_function (&map_amx, fun, fmt, ap);
+	va_end (ap);
+	
+	return res;
 }

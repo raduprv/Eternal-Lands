@@ -6,7 +6,8 @@
 #ifndef __MISC_H__
 #define __MISC_H__
 
-#include "global.h"
+#include <SDL_endian.h>
+#include <GL/gl.h>
 #ifdef ZLIB
 #include <zlib.h>
 #endif // ZLIB

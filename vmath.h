@@ -5,6 +5,7 @@
  */
 #ifndef	VMATH_H
 #define	VMATH_H
+#include <math.h>
 #include <string.h>
 #ifdef MAP_EDITOR2
 #include "../map_editor2/misc.h"

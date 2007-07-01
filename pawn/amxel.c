@@ -1,10 +1,155 @@
 #include <string.h>
-#include "../text.h"
+#include "../bbox_tree.h"
 #include "../client_serv.h"
+#include "../e3d.h"
+#include "../eye_candy_wrapper.h"
+#include "../text.h"
 #include "amxel.h"
 #include "amxcons.h"
 
 #define MAX_LOG_MSG_SIZE 256
+
+void update_object_pos_and_rot (object3d* obj)
+{
+	e3d_object* e3d = obj->e3d_data;
+	AABBOX bbox;
+	unsigned int ground;
+	int i;
+	unsigned int dynamic = 1;
+	
+	calc_rotation_and_translation_matrix (obj->matrix, obj->x_pos, obj->y_pos, obj->z_pos, obj->x_rot, obj->y_rot, obj->z_rot);
+	
+	ground = !has_normal (e3d->vertex_options);
+	
+	for (i = 0; i < e3d->material_no; i++)
+	{
+		unsigned int texture_id;
+		unsigned int is_transparent;
+		
+		bbox.bbmin[X] = e3d->materials[i].min_x;
+		bbox.bbmax[X] = e3d->materials[i].max_x;
+		bbox.bbmin[Y] = e3d->materials[i].min_y;
+		bbox.bbmax[Y] = e3d->materials[i].max_y;
+		bbox.bbmin[Z] = e3d->materials[i].min_z;
+		bbox.bbmax[Z] = e3d->materials[i].max_z;
+
+		matrix_mul_aabb (&bbox, obj->matrix);
+		texture_id = e3d->materials[i].texture_id;
+		is_transparent = material_is_transparent (e3d->materials[i].options);
+		
+		if (main_bbox_tree_items != NULL && dynamic == 0) 
+		{
+			// XXX FIXME: first of all, we don't even check for
+			// static items here, but if we would, what to do then?
+			// Do something like remove from the static list and
+			// insert into dynamic list?
+		}
+		else
+		{
+			// XXX FIXME: there's no guarantee the object is even 
+			// in main_bbox_tree yet...
+			delete_3dobject_from_abt (main_bbox_tree, get_3dobject_id (obj->id, i), obj->blended, obj->self_lit);
+			add_3dobject_to_abt (main_bbox_tree, get_3dobject_id (obj->id, i), bbox, obj->blended, ground, is_transparent, obj->self_lit, texture_id, dynamic);
+		}
+	}
+
+#ifdef EYE_CANDY
+	ec_remove_obstruction_by_object3d (obj);
+	ec_add_object_obstruction (obj, e3d, 2.0);
+#endif
+}
+
+static cell AMX_NATIVE_CALL n_rotate_object (AMX *amx, const cell *params)
+{
+	int id = (int) params[1];
+	object3d *obj;
+	
+	if (id < 0 || id >= MAX_OBJ_3D || objects_list[id] == NULL)
+		// invalid object ID
+		return 1;
+	
+	obj = objects_list[id];
+	
+	obj->x_rot = *((REAL*)(params+2));
+	obj->y_rot = *((REAL*)(params+3));
+	obj->z_rot = *((REAL*)(params+4));
+
+	update_object_pos_and_rot (obj);
+
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL n_rotate_object_relative (AMX *amx, const cell *params)
+{
+	int id = (int) params[1];
+	object3d *obj;
+
+	if (id < 0 || id >= MAX_OBJ_3D || objects_list[id] == NULL)
+		// invalid object ID
+		return 1;
+	
+	obj = objects_list[id];
+	
+	obj->x_rot += *((REAL*)(params+2));
+	if (obj->x_rot < -180.0)
+		obj->x_rot += 360.0;
+	else if (obj->x_rot > 180.0)
+		obj->x_rot -= 360.0;
+	obj->y_rot += *((REAL*)(params+3));
+	if (obj->y_rot < -180.0)
+		obj->y_rot += 360.0;
+	else if (obj->y_rot > 180.0)
+		obj->y_rot -= 360.0;
+	obj->z_rot += *((REAL*)(params+4));
+	if (obj->z_rot < -180.0)
+		obj->z_rot += 360.0;
+	else if (obj->z_rot > 180.0)
+		obj->z_rot -= 360.0;
+
+	update_object_pos_and_rot (obj);
+
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL n_translate_object (AMX *amx, const cell *params)
+{
+	int id = (int) params[1];
+	object3d *obj;
+	
+	if (id < 0 || id >= MAX_OBJ_3D || objects_list[id] == NULL)
+		// invalid object ID
+		return 1;
+	
+	obj = objects_list[id];
+	
+	obj->x_pos = *((REAL*)(params+2));
+	obj->y_pos = *((REAL*)(params+3));
+	obj->z_pos = *((REAL*)(params+4));
+
+	update_object_pos_and_rot (obj);
+
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL n_translate_object_relative (AMX *amx, const cell *params)
+{
+	int id = (int) params[1];
+	object3d *obj;
+	
+	if (id < 0 || id >= MAX_OBJ_3D || objects_list[id] == NULL)
+		// invalid object ID
+		return 1;
+	
+	obj = objects_list[id];
+	
+	obj->x_pos += *((REAL*)(params+2));
+	obj->y_pos += *((REAL*)(params+3));
+	obj->z_pos += *((REAL*)(params+4));
+
+	update_object_pos_and_rot (obj);
+
+	return 0;
+}
 
 static int append_char (void *dest, char ch)
 {
@@ -73,8 +218,14 @@ extern "C"
 #endif
 
 const AMX_NATIVE_INFO el_Natives[] = {
-	{ "log_to_console", n_log_to_console },
- 	{ NULL,             NULL             }  /* terminator */
+	{ "log_to_console",            n_log_to_console            },
+	/* object position manipulation */
+	{ "rotate_object",             n_rotate_object             },
+	{ "rotate_object_relative",    n_rotate_object_relative    },
+	{ "translate_object", 	       n_translate_object	   },
+	{ "translate_object_relative", n_translate_object_relative },
+	/* terminator */
+ 	{ NULL,                        NULL                        }
 };
 
 int AMXEXPORT amx_ElInit (AMX *amx)

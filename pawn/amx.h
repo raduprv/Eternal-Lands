@@ -18,7 +18,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.h,v 1.3 2007/06/30 14:39:47 grum Exp $
+ *  Version: $Id: amx.h,v 1.4 2007/07/01 11:21:26 grum Exp $
  */
 
 #ifndef AMX_H_INCLUDED
@@ -37,6 +37,13 @@
 
 // We want floating point support
 #define FLOATPOINT
+#if PAWN_CELL_SIZE == 32
+#define REAL float
+#elif PAWN_CELL_SIZE == 64
+#define REAL double
+#else
+#error Invalid cell size for floating point support
+#endif
 
 #include <stdlib.h>   /* for size_t */
 #include <limits.h>

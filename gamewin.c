@@ -1652,7 +1652,15 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifdef PAWN
 	else if (keysym == SDLK_F8)
 	{
-		run_pawn_server_function ("pawn_test");
+		if (object_under_mouse != -1)
+		{
+			if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
+				run_pawn_map_function ("play_with_object_pos", "i", object_under_mouse);
+		}
+		else
+		{
+			run_pawn_server_function ("pawn_test", NULL);
+		}
 	}
 #endif
 	else if (keysym == SDLK_F9)

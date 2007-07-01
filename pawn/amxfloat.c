@@ -29,14 +29,6 @@
   #endif
 */
 
-#if PAWN_CELL_SIZE==32
-  #define REAL          float
-#elif PAWN_CELL_SIZE==64
-  #define REAL          double
-#else
-  #error Unsupported cell size
-#endif
-
 #define PI  3.1415926535897932384626433832795
 
 /******************************************************************/

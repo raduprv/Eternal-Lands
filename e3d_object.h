@@ -6,6 +6,8 @@
 #ifndef	__E3D_OBJECT_H__
 #define	__E3D_OBJECT_H__
 
+#include "cache.h"
+
 #define	VERTEX_FLOAT_COUNT		3
 #define	NORMAL_FLOAT_COUNT		3
 #define	TEXTURE_FLOAT_COUNT		2

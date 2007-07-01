@@ -6,7 +6,7 @@
 #include "../map_editor2/global.h"
 #include "../map_editor2/misc.h"
 #else
-#include "global.h"
+#include "vmath.h"
 #include "misc.h"
 #endif
 

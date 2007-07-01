@@ -6,6 +6,8 @@
 #ifndef __FILE_CACHE_H__
 #define __FILE_CACHE_H__
 
+extern Uint32 cur_time;
+
 #ifdef __cplusplus
 extern "C" {
 #endif

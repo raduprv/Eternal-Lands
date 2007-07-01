@@ -14,7 +14,7 @@
 #ifndef EYE_CANDY_WRAPPER_H
 #define EYE_CANDY_WRAPPER_H
 
-#include "global.h"
+#include <GL/gl.h>
 #include "actors.h"
 #include "e3d.h"
 
