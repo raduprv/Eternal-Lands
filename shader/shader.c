@@ -1,3 +1,5 @@
+#ifdef USE_SHADER
+
 #include "shader.h"
 #include "noise.h"
 #include "../io/elfilewrapper.h"
@@ -302,3 +304,4 @@ GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, Uint32 
 	return shader[index];
 }
 
+#endif /* USE_SHADER */
