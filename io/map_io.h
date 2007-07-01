@@ -68,8 +68,11 @@ typedef struct
     /** @} */
 
 	char self_lit; /**< indicator if this object3d is self lit or not */
-	char blended; /**< indicates whether this object3d is blended with some other objects or not */
-	float r,g,b; /**< red, green and blue color values of the object */
+	char blended;  /**< indicates whether this object3d is blended with some other objects or not */
+	
+	char pad[2];   /**< Padding bytes are inserted here by gcc and so ended up in the map format, make them explicit */
+	
+	float r,g,b;   /**< red, green and blue color values of the object */
 	char reserved[24]; /**< reserved for future expansions. */
 
 }object3d_io;
@@ -117,7 +120,7 @@ typedef struct
 	float b;
     /** @} */
     
-	char reserved[15]; /**< reserved for future expansions */
+	char reserved[16]; /**< reserved for future expansions */
 }light_io;
 
 /**
@@ -134,7 +137,7 @@ typedef struct
 	float z_pos;
     /** @} */
     
-	char reserved[10]; /**< reserved for future expansions */
+	char reserved[12]; /**< reserved for future expansions */
 }particles_io;
 
 /**
