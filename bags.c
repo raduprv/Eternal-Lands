@@ -239,7 +239,7 @@ int display_ground_items_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<ITEMS_PER_BAG;i++) {
+	for(i=ITEMS_PER_BAG; i>=0; --i) {
 		if(ground_item_list[i].quantity > 0) {
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
@@ -269,7 +269,7 @@ int display_ground_items_handler(window_info *win)
 			glEnd();
 					
 			safe_snprintf(str,sizeof(str),"%i",ground_item_list[i].quantity);
-			draw_string_small(x_start,y_end-15,(unsigned char*)str,1);
+			draw_string_small(x_start,y_end-(i&1?22:12),(unsigned char*)str,1);
 		}
 	}
 	
