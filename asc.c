@@ -126,9 +126,10 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-' || haystack[istart] == '.'){
 			// we've probably found a number
 			//return atof (&haystack[istart]);
-			char temp[max_len-istart+1];	//Wasteful, if the float doesn't go to the end of the line, but it will reserve enough space
-			memcpy(temp, &haystack[istart], max_len-istart);
-			temp[max_len-istart] = '\0';
+			//char temp[max_len-istart+1];	//Wasteful, if the float doesn't go to the end of the line, but it will reserve enough space
+			char temp[200];	//It'd be better not to use an arbitrary constant, but we can't use run-time size on compilers like MSVC
+			memcpy(temp, &haystack[istart], min2i(max_len-istart));
+			temp[min2i(max_len-istart)] = '\0';
 			return atof (temp);
 		}
 		istart++;
