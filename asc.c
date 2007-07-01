@@ -87,9 +87,15 @@ Sint32 get_integer_after_string (const char *needle, const char *haystack, Uint3
 		if (haystack[istart] == '\n')
 			// no integer on this line
 			return -1;
-		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-')
+		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-'){
 			// we've probably found a number
-			return atoi (&haystack[istart]);
+			//return atoi (&haystack[istart]);
+			char temp[1<<sizeof(int)];	//Wasteful, but it will reserve enough space for MAX_INT as a string. If we change to atol or similar, use sizeof(long) instead
+			int len = min2i(max_len-istart, (1<<sizeof(int))-1);
+			memcpy(temp, &haystack[istart], len-1);
+			temp[len] = '\0';
+			return atoi (temp);
+		}
 		istart++;
 	}
 	
@@ -117,9 +123,14 @@ float get_float_after_string (const char *needle, const char *haystack, Uint32 m
 		if (haystack[istart] == '\n')
 			// no number on this line
 			return -1.0f;
-		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-' || haystack[istart] == '.')
+		if (isdigit (haystack[istart]) || haystack[istart] == '+' || haystack[istart] == '-' || haystack[istart] == '.'){
 			// we've probably found a number
-			return atof (&haystack[istart]);
+			//return atof (&haystack[istart]);
+			char temp[max_len-istart+1];	//Wasteful, if the float doesn't go to the end of the line, but it will reserve enough space
+			memcpy(temp, &haystack[istart], max_len-istart);
+			temp[max_len-istart] = '\0';
+			return atof (temp);
+		}
 		istart++;
 	}
 	
