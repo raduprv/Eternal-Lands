@@ -331,18 +331,22 @@ int display_items_handler(window_info *win)
 				float cooldown = ((float)(item_list[i].cooldown_time - _cur_time)) / ((float)item_list[i].cooldown_rate);
 				float x_center = (x_start + x_end)*0.5f;
 				float y_center = (y_start + y_end)*0.5f;
+				float flash_effect_offset = 0.0f;
+				const float flash_delay = 600.0f; // larger values --> larger delay
 
 				if (cooldown < 0.0f)
 					cooldown = 0.0f;
 				else if (cooldown > 1.0f)
 					cooldown = 1.0f;
-				
+
 				glDisable(GL_TEXTURE_2D);
 				glEnable(GL_BLEND);
-				
+
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_TRIANGLE_FAN);
-					glColor4f(0.14f, 0.35f, 0.82f, 0.50f); 
+					//glColor4f(0.14f, 0.35f, 0.82f, 0.50f); 
+					flash_effect_offset = sin((float)SDL_GetTicks()/flash_delay * ( 1.0f + powf(1.0f - min2f(0.25f, cooldown), 4)));
+					glColor4f(0.14f - flash_effect_offset / 20.0f, 0.35f - flash_effect_offset / 20.0f, 0.82f + flash_effect_offset / 8.0f, 0.48f + flash_effect_offset / 15.0f);
 
 					glVertex2f(x_center, y_center);
 
