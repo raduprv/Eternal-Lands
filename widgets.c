@@ -1056,7 +1056,7 @@ int vscrollbar_add_extended(int window_id, Uint32 wid,  int (*OnInit)(), Uint16 
 	vscrollbar *T = calloc (1, sizeof(vscrollbar));
 	T->pos_inc = pos_inc;
 	T->pos = pos;
-	T->bar_len = bar_len;
+	T->bar_len = bar_len > 0 ? bar_len : 0;
 
 	return widget_add (window_id, wid, OnInit, x, y, lx, ly, Flags, size, r, g, b, &vscrollbar_type, T, NULL);
 }

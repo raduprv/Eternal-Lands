@@ -19,7 +19,7 @@ enum {
 	POTIONS,
 	SPELLS,
 	SUMMONS,
-    ENGINEERING
+	ENGINEERING
 };
 
 /* Columns IDs */
@@ -294,6 +294,8 @@ void decrement_counter(int counter_id, char *name, int quantity, int extra)
 
 void fill_counters_win()
 {
+	int idx = selected_counter_id > 0 ? selected_counter_id-1 : 0;
+	
 	set_window_handler(counters_win, ELW_HANDLER_DISPLAY, &display_counters_handler);
 	set_window_handler(counters_win, ELW_HANDLER_CLICK, &click_counters_handler);
 	set_window_handler(counters_win, ELW_HANDLER_MOUSEOVER, &mouseover_counters_handler);
@@ -315,7 +317,7 @@ void fill_counters_win()
 			STATS_TAB_WIDTH - 20, 25, 20,
 			STATS_TAB_HEIGHT - 50, 0,
 			1.0f, 0.77f, 0.57f, 0.39f,
-			0, 1, MAX(0, entries[selected_counter_id] - NUM_LINES));
+			0, 1, MAX(0, entries[idx] - NUM_LINES));
 }
 
 int display_counters_handler(window_info *win)
