@@ -940,7 +940,7 @@ void draw_game_map (int map, int mouse_mini)
 		glColor3f (0.0f, 0.0f, 1.0f);
 		glDisable (GL_TEXTURE_2D);
 		glBegin (GL_LINES);
-			
+
 		glVertex2i (screen_x-3, screen_y-3);
 		glVertex2i (screen_x+2, screen_y+2);
 
@@ -974,7 +974,9 @@ void draw_game_map (int map, int mouse_mini)
 				&& m_py > continent_maps[i].y_start && m_py < continent_maps[i].y_end)
 				{
 					/* Mouse over this map */
-					glColor3f (0.4f, 0.4f, 0.4f);
+					//glColor3f (0.4f, 0.4f, 0.4f);
+					float flash_effect_offset = sin((float)SDL_GetTicks()/100.0f);
+					glColor3f(0.4f - flash_effect_offset / 20.0f, 0.4f - flash_effect_offset / 20.0f, 0.4f + flash_effect_offset / 20.0f);
 					mouseover = 1;
 				}
 				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_start / 512);
