@@ -18,7 +18,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.h,v 1.4 2007/07/01 11:21:26 grum Exp $
+ *  Version: $Id: amx.h,v 1.5 2007/07/01 11:51:09 grum Exp $
  */
 
 #ifndef AMX_H_INCLUDED
@@ -33,6 +33,8 @@
 
 #ifdef X86_64
 #define PAWN_CELL_SIZE 64
+#else
+#define PAWN_CELL_SIZE 32 // use default
 #endif
 
 // We want floating point support
@@ -183,9 +185,6 @@ extern  "C" {
 #define MAX_FILE_VER_JIT  8     /* file version supported by the JIT */
 #define MIN_AMX_VER_JIT   8     /* AMX version supported by the JIT */
 
-#if !defined PAWN_CELL_SIZE
-  #define PAWN_CELL_SIZE 32     /* by default, use 32-bit cells */
-#endif
 #if PAWN_CELL_SIZE==16
   typedef uint16_t  ucell;
   typedef int16_t   cell;

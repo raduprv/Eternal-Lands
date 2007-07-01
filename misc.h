@@ -7,7 +7,11 @@
 #define __MISC_H__
 
 #include <SDL_endian.h>
+#ifdef OSX
+#include <OpenGL/gl.h>
+#else
 #include <GL/gl.h>
+#endif
 #ifdef ZLIB
 #include <zlib.h>
 #endif // ZLIB
