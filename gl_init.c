@@ -361,9 +361,12 @@ void init_video()
 		rgb_size[2] = 8;
 		break;
 	}
+	//    Mac OS X will always use 8-8-8-8 ARGB for 32-bit screens and 5-5-5 RGB for 16-bit screens
+#ifndef OSX
 	SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
 	SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
 	SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
+#endif
 	SDL_GL_SetAttribute( SDL_GL_ALPHA_SIZE, 0);
 	SDL_GL_SetAttribute( SDL_GL_DEPTH_SIZE, 24 );
 	SDL_GL_SetAttribute( SDL_GL_STENCIL_SIZE, 8 );
