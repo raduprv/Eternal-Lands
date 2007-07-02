@@ -142,7 +142,7 @@ FILE * open_file_data_updates(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
 	char updatepath[MAX_PATH];
 	char * cfgdir = get_path_config();
-	snprintf(updatepath, sizeof(updatepath), "updates_%d_%d_%d_%d", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
+	snprintf(updatepath, sizeof(updatepath), "updates_%d_%d_%d_%d/", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
 	updatepath[sizeof(updatepath)-1] = '\0';
 	if(strlen(cfgdir) + strlen(updatepath) + strlen(filename) + 1 < MAX_PATH){
 		strcpy(locbuffer, cfgdir);
