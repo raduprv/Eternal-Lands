@@ -2,6 +2,8 @@
 
 #include "elfile.hpp"
 
+zip_file_system el_file::default_zip_file_system;
+
 std::string el_file::el_find_file(const std::string& file_name) {
 	char * cfgpath = get_path_config();
 	std::string str = cfgpath + file_name;
@@ -106,10 +108,9 @@ void el_file::open(const std::string& file_name)
 	memory->resize(size);
 }
 
-el_file::el_file(const std::string& file_name, bool uncompress, zip_file_system& zfile_system):
-	memory(new memory_buffer())
+el_file::el_file(const std::string& file_name, bool uncompress): memory(new memory_buffer())
 {
-	if (!open_zip(file_name, uncompress, zfile_system))
+	if (!open_zip(file_name, uncompress, default_zip_file_system))
 	{
 		if (uncompress)
 		{
@@ -123,14 +124,16 @@ el_file::el_file(const std::string& file_name, bool uncompress, zip_file_system&
 	position = 0;
 }
 
-bool el_file::file_exists(const std::string& file_name, const zip_file_system& zfile_system)
+bool el_file::file_exists(const std::string& file_name)
 {
 	std::string str;
 
-	if (zfile_system.file_exists(file_name)){
+	if (default_zip_file_system.file_exists(file_name))
+	{
 		return true;
 	}
-	if(!el_find_file(file_name).empty()){
+	if (!el_find_file(file_name).empty())
+	{
 		return true;
 	}
 	return false;

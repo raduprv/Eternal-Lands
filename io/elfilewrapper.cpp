@@ -1,16 +1,13 @@
 #ifdef NEW_FILE_IO
 
-#include "zipfilesystem.hpp"
 #include "elfilewrapper.h"
 #include "elfile.hpp"
-
-zip_file_system zfile_system;
 
 extern "C" void add_zip_archive(const char* file_name)
 {
 	try
 	{
-		zfile_system.add_zip_archive(file_name);
+		el_file::add_zip_archive(file_name);
 	}
 	catch (extended_exception &e)
 	{
@@ -28,7 +25,7 @@ extern "C" el_file* el_open(const char* file_name)
 
 	try
 	{
-		file = new el_file(file_name, true, zfile_system);
+		file = new el_file(file_name, true);
 
 		return file;
 	}
@@ -50,7 +47,7 @@ extern "C" el_file* el_open_no_decompress(const char* file_name)
 
 	try
 	{
-		file = new el_file(file_name, false, zfile_system);
+		file = new el_file(file_name, false);
 
 		return file;
 	}
@@ -166,7 +163,7 @@ extern "C" int el_file_exists(const char* file_name)
 {
 	try
 	{
-		return el_file::file_exists(file_name, zfile_system);
+		return el_file::file_exists(file_name);
 	}
 	catch (extended_exception &e)
 	{

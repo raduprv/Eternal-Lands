@@ -61,6 +61,12 @@ class el_file
 		 */
 		void open(const std::string& file_name);
 
+		/**
+		 * @brief The zip file system to use.
+		 *
+		 * The zip file system to use for opening a file.
+		 */
+		static zip_file_system default_zip_file_system;
 	public:
 
 		/**
@@ -71,8 +77,7 @@ class el_file
 		 * @param uncompress Flag indicating if the file should get uncompressed.
 		 * @param zfile_system The zip file system where to search for the file.
 		 */
-		el_file(const std::string& file_name, bool uncompress,
-			zip_file_system& zfile_system);
+		el_file(const std::string& file_name, bool uncompress);
 
 		/**
 		 * @brief Reads data from the file.
@@ -171,8 +176,7 @@ class el_file
 		 * @param zfile_system The zip file system to use.
 		 * @return Returns true if the file exists, else false.
 		 */
-		static bool file_exists(const std::string& file_name, const zip_file_system&
-			zfile_system);
+		static bool file_exists(const std::string& file_name);
 
 		/**
 		 * @brief Tries to find the file
@@ -182,6 +186,17 @@ class el_file
 		 */
 		static std::string el_find_file(const std::string& file_name);
 
+		/**
+		 * @brief Adds a zip file to the search list.
+		 *
+		 * Adds a zip file to the list where to search for a file that is opend with
+		 * open_file.
+		 * @param file_name The file name of the zip file.
+		 */		
+		static void add_zip_archive(const std::string &file_name)
+		{
+			default_zip_file_system.add_zip_archive(file_name);
+		}
 };
 
 #endif //NEW_FILE_IO
