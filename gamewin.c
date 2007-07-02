@@ -1659,7 +1659,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 		else
 		{
-			run_pawn_server_function ("pawn_test", NULL);
+			run_pawn_server_function ("pawn_test", "s", "meep!");
 		}
 	}
 #endif

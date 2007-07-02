@@ -107,6 +107,9 @@ void cleanup_pawn ()
 int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, va_list ap)
 {
 	int err = AMX_ERR_NONE, index=-1;
+	int nr_ref_args = 0, ref_args_size = 0;
+	cell *ref_args = NULL;
+
 	if (!machine->initialized)
 	{
 		log_error ("Unable to execute Pawn function: machine not initialized");
@@ -123,8 +126,10 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 	if (fmt != NULL)
 	{
 		char c;
+		const char *s;
 		int i;
 		REAL f;
+		cell *phys;
 		
 		while ( (c = *fmt++) )
 		{
@@ -138,17 +143,36 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 					f = va_arg (ap, REAL);
 					amx_Push (&(machine->amx), *((cell*) &f));
 					break;
+				case 's':
+					if (nr_ref_args >= ref_args_size)
+					{
+						ref_args_size += 8;
+						ref_args = realloc (ref_args, ref_args_size * sizeof (cell));
+					}
+					s = va_arg (ap, const char*);
+					amx_PushString (&(machine->amx), ref_args+nr_ref_args, &phys, s, 0, 0);
+					nr_ref_args++;
+					break;
 				default:
 					log_error ("unknown format specifier '%c' in Pawn call", c);
 					return 1;
 			}
 		}
 	}
+
 	err = amx_Exec (&(machine->amx), NULL, index);
 	if (err != AMX_ERR_NONE)
 	{
 		log_error ("Error %d executing Pawn function %s", err, fun);
 		return 0;
+	}
+
+	if (ref_args)
+	{
+		int i;
+		for (i = 0; i < nr_ref_args; i++)
+			amx_Release (&(machine->amx), ref_args[i]);
+		free (ref_args);
 	}
 
 	return 1;
