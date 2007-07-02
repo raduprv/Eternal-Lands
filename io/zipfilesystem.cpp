@@ -21,14 +21,14 @@ void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list 
 	size = std::min(size, 0x10020L);
 	central_pos -= size;
 
-	memory_buffer memory(size);
+	memory_ptr memory(new memory_buffer(size));
 
 	zip_files[idx].file->seekg(-size, std::ios::end);
-	zip_files[idx].file->read(reinterpret_cast<char*>(memory.get_memory()), size);
+	zip_files[idx].file->read(reinterpret_cast<char*>(memory->get_memory()), size);
 
-	index = read_files_entry(memory.get_memory(), size);
+	index = read_files_entry(memory->get_memory(), size);
 	central_pos += index;
-	pos = memory.get_memory(index);
+	pos = memory->get_memory(index);
 
 	L = get_uint32_from_pos(pos);
 	number_disk = get_uint16_from_pos(pos);
@@ -49,11 +49,11 @@ void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list 
 
 	zip_files[idx].bytes_before_zipfile = bytes_before_zipfile;
 
-	memory_buffer extra_memory(size_central_dir);
+	memory_ptr extra_memory(new memory_buffer(size_central_dir));;
 
 	zip_files[idx].file->seekg(central_pos - size_central_dir, std::ios::beg);
-	zip_files[idx].file->read(reinterpret_cast<char*>(extra_memory.get_memory()), size_central_dir);
-	read_files_infos(extra_memory.get_memory(), number_entry, idx, path, files);
+	zip_files[idx].file->read(reinterpret_cast<char*>(extra_memory->get_memory()), size_central_dir);
+	read_files_infos(extra_memory->get_memory(), number_entry, idx, path, files);
 }
 
 void zip_file_system::add_zip_archive(const std::string &file_name)
@@ -167,7 +167,8 @@ void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 
 		read_file_header(zfile, index);
 		str = path;
-		str.append((char*)pos, size_filename);
+		str.append(reinterpret_cast<char*>(pos), size_filename);
+		files.erase(str);
 		files[str] = zfile;
 		pos = &pos[size_filename];
 		pos = &pos[size_file_extra];
@@ -175,7 +176,7 @@ void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 	}
 }
 
-int zip_file_system::open_file(const std::string &file_name, memory_buffer &buffer,
+int zip_file_system::open_file(const std::string &file_name, memory_ptr &buffer,
 	bool uncompr)
 {
 	z_stream strm;
@@ -194,18 +195,18 @@ int zip_file_system::open_file(const std::string &file_name, memory_buffer &buff
 		offset = found->second.offset_curfile + zip_files[index].bytes_before_zipfile;
 		if (uncompr && found->second.is_compressed)
 		{
-			memory_buffer memory(size);
+			memory_ptr memory(new memory_buffer(size));
 
-			buffer = memory_buffer(buffer_size);
+			buffer->resize(buffer_size);
 
 			zip_files[index].file->seekg(offset, std::ios::beg);
-			zip_files[index].file->read(reinterpret_cast<char*>(memory.get_memory()),
+			zip_files[index].file->read(reinterpret_cast<char*>(memory->get_memory()),
 				size);
 
-			strm.next_in = reinterpret_cast<Bytef*>(memory.get_memory());
+			strm.next_in = reinterpret_cast<Bytef*>(memory->get_memory());
 			strm.avail_in = size;
 			strm.total_in = 0;
-			strm.next_out = static_cast<Bytef*>(buffer.get_memory());
+			strm.next_out = static_cast<Bytef*>(buffer->get_memory());
 			strm.avail_out = buffer_size;
 			strm.total_out = 0;
 			strm.zalloc = Z_NULL;
@@ -231,7 +232,7 @@ int zip_file_system::open_file(const std::string &file_name, memory_buffer &buff
 			}
 
 			crc = crc32(0L, Z_NULL, 0);
-			crc = crc32(crc, static_cast<Bytef*>(buffer.get_memory()), buffer_size);
+			crc = crc32(crc, static_cast<Bytef*>(buffer->get_memory()), buffer_size);
 			if (crc != found->second.crc32)
 			{
 				EXTENDED_EXCEPTION("CRC error!");
@@ -241,10 +242,10 @@ int zip_file_system::open_file(const std::string &file_name, memory_buffer &buff
 		}
 		else
 		{
-			buffer = memory_buffer(size);
+			buffer->resize(size);
 
 			zip_files[index].file->seekg(offset, std::ios::beg);
-			zip_files[index].file->read(reinterpret_cast<char*>(buffer.get_memory()),
+			zip_files[index].file->read(reinterpret_cast<char*>(buffer->get_memory()),
 				size);
 
 			return size;

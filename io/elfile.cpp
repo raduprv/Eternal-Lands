@@ -23,8 +23,6 @@ std::string el_file::el_find_file(const std::string& file_name) {
 	return str;
 }
 
-
-
 bool el_file::open_zip(const std::string& file_name, bool uncompress, zip_file_system& zfile_system)
 {
 	return zfile_system.open_file(file_name, memory, uncompress) > 0;
@@ -64,13 +62,13 @@ void el_file::open_gzip(const std::string& file_name)
 		size = 0;
 		do
 		{
-			memory.resize(size + max_mem_block_buffer_size);
-			read = gzread(file, memory.get_memory(size), max_mem_block_buffer_size);
+			memory->resize(size + max_mem_block_buffer_size);
+			read = gzread(file, memory->get_memory(size), max_mem_block_buffer_size);
 			size += read;
 		}
 		while (read == max_mem_block_buffer_size);
 	
-		memory.resize(size);
+		memory->resize(size);
 
 		gzclose(file);
 	}
@@ -99,16 +97,17 @@ void el_file::open(const std::string& file_name)
 	size = 0;
 	do
 	{
-		memory.resize(size + max_mem_block_buffer_size);
-		read = gzread(file, memory.get_memory(), max_mem_block_buffer_size);
+		memory->resize(size + max_mem_block_buffer_size);
+		read = gzread(file, memory->get_memory(), max_mem_block_buffer_size);
 		size += read;
 	}
 	while (read == max_mem_block_buffer_size);
 	
-	memory.resize(size);
+	memory->resize(size);
 }
 
-el_file::el_file(const std::string& file_name, bool uncompress, zip_file_system& zfile_system)
+el_file::el_file(const std::string& file_name, bool uncompress, zip_file_system& zfile_system):
+	memory(new memory_buffer())
 {
 	if (!open_zip(file_name, uncompress, zfile_system))
 	{

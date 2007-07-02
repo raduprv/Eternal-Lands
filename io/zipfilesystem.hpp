@@ -143,7 +143,7 @@ class zip_file_system
 		 * file is not found.
 		 * @see add_zip_archive
 		 */
-		int open_file(const std::string &file_name, memory_buffer &buffer,
+		int open_file(const std::string &file_name, memory_ptr &buffer,
 			bool uncompr);
 
 		inline bool file_exists(const std::string &file_name) const

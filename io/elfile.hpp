@@ -31,7 +31,7 @@ class el_file
 		 *
 		 * Memory buffer of the file data.
 		 */
-		memory_buffer memory;
+		memory_ptr memory;
 
 		/**
 		 * @brief Tries to open the file in a zip file.
@@ -85,7 +85,7 @@ class el_file
 		inline int read(int count, void* buffer)
 		{
 			count = std::max((long)(std::min(count, get_size() - position)), 0L);
-			memcpy(buffer, memory.get_memory(position), count);
+			memcpy(buffer, memory->get_memory(position), count);
 			position += count;
 
 			return count;
@@ -149,7 +149,7 @@ class el_file
 		 */
 		inline int get_size() const
 		{
-			return memory.get_size();
+			return memory->get_size();
 		}
 
 		/**
@@ -160,7 +160,7 @@ class el_file
 		 */
 		inline void* get_pointer() const
 		{
-			return memory.get_memory();
+			return memory->get_memory();
 		}
 
 		/**
