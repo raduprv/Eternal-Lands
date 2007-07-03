@@ -319,9 +319,11 @@ void freemakeargv(char **argv)
 int APIENTRY WinMain (HINSTANCE hInst, HINSTANCE hPrev, LPSTR lpCmd, int nShow)
 {
 	char **argv= NULL;
-	int argc= makeargv(win_command_line, " \t\n", &argv);
+	int argc;
 
-	win_command_line= GetCommandLine();
+	win_command_line = GetCommandLine();
+	argc = makeargv(win_command_line, " \t\n", &argv);
+
 	Main(argc, (char **) argv);
 	freemakeargv(argv);
 

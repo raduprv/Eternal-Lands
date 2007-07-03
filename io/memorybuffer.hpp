@@ -5,7 +5,7 @@
 
 #include "allio.hpp"
 #ifndef	USE_TR1
-#include "../temlates/el_shared_ptr.hpp"
+#include "../templates/el_shared_ptr.hpp"
 #else
 #include <tr1/memory>
 #endif
