@@ -77,15 +77,15 @@ typedef enum
 
 typedef struct
 {
-	VECTOR3 bbmin;
-	VECTOR3 bbmax;
+	VECTOR3			bbmin;
+	VECTOR3			bbmax;
 } AABBOX;
 
 typedef struct
 {
-	VECTOR3 center;
-	VECTOR3 direction;
-	float length;
+	VECTOR3			center;
+	VECTOR3 		direction;
+	float			length;
 } LINE;
 
 typedef	struct
@@ -99,8 +99,8 @@ typedef PLANE FRUSTUM[16];
 typedef struct
 {
 	float			scale;
-	uint32_t		mask;
-	uint32_t		zero;
+	Uint32			mask;
+	Uint32			zero;
 } PLANE_DATA;
 
 typedef PLANE_DATA FRUSTUM_DATA[16];
@@ -108,17 +108,17 @@ typedef PLANE_DATA FRUSTUM_DATA[16];
 typedef struct
 {
 	AABBOX			bbox;
-	uint32_t		texture_id;
-	uint32_t		ID;
-	uint16_t		options;
-	uint8_t			type;
-	uint8_t			extra;
+	Uint32			texture_id;
+	Uint32			ID;
+	Uint16			options;
+	Uint8			type;
+	Uint8			extra;
 } BBOX_ITEM;
 
 typedef struct
 {
-	uint32_t		size;
-	uint32_t		index;
+	Uint32			size;
+	Uint32			index;
 	BBOX_ITEM*		items;
 } BBOX_ITEMS;	
 
@@ -126,32 +126,32 @@ typedef struct
 {
 	AABBOX			bbox;
 	AABBOX			orig_bbox;
-	uint32_t		nodes[2];
+	Uint32			nodes[2];
 	BBOX_ITEMS		dynamic_objects;
-	uint32_t		items_index;
-	uint32_t		items_count;
+	Uint32			items_index;
+	Uint32			items_count;
 } BBOX_TREE_NODE;
 
 typedef struct
 {
-	uint32_t		intersect_update_needed;
-	uint32_t		size;
-	uint32_t		count;
-	uint32_t		start[TYPES_COUNT];
-	uint32_t		stop[TYPES_COUNT];
-	uint32_t		flags[TYPES_COUNT];
+	Uint32			intersect_update_needed;
+	Uint32			size;
+	Uint32			count;
+	Uint32			start[TYPES_COUNT];
+	Uint32			stop[TYPES_COUNT];
+	Uint32			flags[TYPES_COUNT];
 	BBOX_ITEM*		items;
-	uint32_t		frustum_mask;
+	Uint32			frustum_mask;
 	FRUSTUM			frustum;
 } BBOX_INTERSECTION_DATA;
 
 typedef	struct
 {
-	uint32_t		items_count;
+	Uint32			items_count;
 	BBOX_ITEM*		items;
-	uint32_t		nodes_count;
+	Uint32			nodes_count;
 	BBOX_TREE_NODE*		nodes;
-	uint32_t		cur_intersect_type;
+	Uint32			cur_intersect_type;
 	BBOX_INTERSECTION_DATA	intersect[MAX_INTERSECTION_TYPES];
 } BBOX_TREE;
 
@@ -163,17 +163,17 @@ enum
 	D = 3
 };
 
-static __inline__ int get_bbox_intersect_flag(BBOX_TREE* bbox_tree, uint32_t type, intersection_data_enum ide)
+static __inline__ int get_bbox_intersect_flag(BBOX_TREE* bbox_tree, Uint32 type, intersection_data_enum ide)
 {
 	return (bbox_tree->intersect[bbox_tree->cur_intersect_type].flags[type] & (1 << ide)) != 0;
 }
 
-static __inline__ void set_bbox_intersect_flag(BBOX_TREE* bbox_tree, uint32_t type, intersection_data_enum ide)
+static __inline__ void set_bbox_intersect_flag(BBOX_TREE* bbox_tree, Uint32 type, intersection_data_enum ide)
 {
 	bbox_tree->intersect[bbox_tree->cur_intersect_type].flags[type] |= (1 << ide);
 }
 
-static __inline__ void clear_bbox_intersect_flag(BBOX_TREE* bbox_tree, uint32_t type, intersection_data_enum ide)
+static __inline__ void clear_bbox_intersect_flag(BBOX_TREE* bbox_tree, Uint32 type, intersection_data_enum ide)
 {
 	bbox_tree->intersect[bbox_tree->cur_intersect_type].flags[type] &= ~(1 << ide);
 }
@@ -326,80 +326,80 @@ static __inline__ void matrix_mul_aabb(AABBOX* bbox, MATRIX4x4 matrix)
 	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
 }
 
-static __inline__ void get_intersect_start_stop(BBOX_TREE* bbox_tree, uint32_t type, uint32_t* start, uint32_t* stop)
+static __inline__ void get_intersect_start_stop(BBOX_TREE* bbox_tree, Uint32 type, Uint32* start, Uint32* stop)
 {
-	uint32_t idx;
+	Uint32 idx;
 
 	idx = bbox_tree->cur_intersect_type;
 	*start = bbox_tree->intersect[idx].start[type];
 	*stop = bbox_tree->intersect[idx].stop[type];
 }
 
-static __inline__ uint32_t get_intersect_item_ID(BBOX_TREE* bbox_tree, uint32_t index)
+static __inline__ Uint32 get_intersect_item_ID(BBOX_TREE* bbox_tree, Uint32 index)
 {
-	uint32_t idx;
+	Uint32 idx;
 
 	idx = bbox_tree->cur_intersect_type;
 	return bbox_tree->intersect[idx].items[index].ID;
 }
 
-static __inline__ AABBOX get_intersect_item_bbox(BBOX_TREE* bbox_tree, uint32_t index)
+static __inline__ AABBOX get_intersect_item_bbox(BBOX_TREE* bbox_tree, Uint32 index)
 {
-	uint32_t idx;
+	Uint32 idx;
 
 	idx = bbox_tree->cur_intersect_type;
 	return bbox_tree->intersect[idx].items[index].bbox;
 }
 
-static __inline__ uint32_t get_intersect_item_options(BBOX_TREE* bbox_tree, uint32_t index)
+static __inline__ Uint32 get_intersect_item_options(BBOX_TREE* bbox_tree, Uint32 index)
 {
-	uint32_t idx;
+	Uint32 idx;
 
 	idx = bbox_tree->cur_intersect_type;
 	return bbox_tree->intersect[idx].items[index].options;
 }
 
-static __inline__ uint32_t get_cur_intersect_type(BBOX_TREE* bbox_tree)
+static __inline__ Uint32 get_cur_intersect_type(BBOX_TREE* bbox_tree)
 {
 	return bbox_tree->cur_intersect_type;
 }
 
-static __inline__ void set_cur_intersect_type(BBOX_TREE* bbox_tree, uint32_t intersec_type)
+static __inline__ void set_cur_intersect_type(BBOX_TREE* bbox_tree, Uint32 intersec_type)
 {
 	bbox_tree->cur_intersect_type = intersec_type;
 }
 
-static __inline__ uint32_t get_3dobject_id(uint32_t index, uint32_t material)
+static __inline__ Uint32 get_3dobject_id(Uint32 index, Uint32 material)
 {
 	return (index << 12) + material;
 }
 
-static __inline__ uint32_t get_3dobject_material(uint32_t ID)
+static __inline__ Uint32 get_3dobject_material(Uint32 ID)
 {
 	return ID & 0x0FFF;
 }
 
-static __inline__ uint32_t get_3dobject_index(uint32_t ID)
+static __inline__ Uint32 get_3dobject_index(Uint32 ID)
 {
 	return ID >> 12;
 }
 
-static __inline__ uint32_t get_terrain_id(uint32_t x, uint32_t y)
+static __inline__ Uint32 get_terrain_id(Uint32 x, Uint32 y)
 {
 	return (y << 12) + x;
 }
 
-static __inline__ uint32_t get_terrain_x(uint32_t ID)
+static __inline__ Uint32 get_terrain_x(Uint32 ID)
 {
 	return ID & 0xFFF;
 }
 
-static __inline__ uint32_t get_terrain_y(uint32_t ID)
+static __inline__ Uint32 get_terrain_y(Uint32 ID)
 {
 	return ID >> 12;
 }
 
-static __inline__ uint32_t is_blend_3d_object(uint32_t type)
+static __inline__ Uint32 is_blend_3d_object(Uint32 type)
 {
 	switch (type)
 	{
@@ -427,7 +427,7 @@ static __inline__ uint32_t is_blend_3d_object(uint32_t type)
 	}
 }
 
-static __inline__ uint32_t is_ground_3d_object(uint32_t type)
+static __inline__ Uint32 is_ground_3d_object(Uint32 type)
 {
 	switch (type)
 	{
@@ -455,7 +455,7 @@ static __inline__ uint32_t is_ground_3d_object(uint32_t type)
 	}
 }
 
-static __inline__ uint32_t is_alpha_3d_object(uint32_t type)
+static __inline__ Uint32 is_alpha_3d_object(Uint32 type)
 {
 	switch (type)
 	{
@@ -483,7 +483,7 @@ static __inline__ uint32_t is_alpha_3d_object(uint32_t type)
 	}
 }
 
-static __inline__ uint32_t is_self_lit_3d_object(uint32_t type)
+static __inline__ Uint32 is_self_lit_3d_object(Uint32 type)
 {
 	switch (type)
 	{
@@ -511,7 +511,7 @@ static __inline__ uint32_t is_self_lit_3d_object(uint32_t type)
 	}
 }
 
-static __inline__ uint32_t get_type_mask_from_type(uint32_t type)
+static __inline__ Uint32 get_type_mask_from_type(Uint32 type)
 {
 	switch (type)
 	{
@@ -642,7 +642,7 @@ void init_bbox_tree(BBOX_TREE* bbox_tree, BBOX_ITEMS *bbox_items);
  * @param bbox		The bounding box of the static light.
  * @callgraph
  */
-void add_light_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox);
+void add_light_to_list(BBOX_ITEMS *bbox_items, Uint32 ID, const AABBOX bbox);
 
 /**
  * @ingroup misc
@@ -657,7 +657,7 @@ void add_light_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox);
  * @param ground	Is this a ground object?
  * @callgraph
  */
-void add_3dobject_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t blend, uint32_t ground, uint32_t alpha, uint32_t self_lit, uint32_t texture_id);
+void add_3dobject_to_list(BBOX_ITEMS *bbox_items, Uint32 ID, const AABBOX bbox, Uint32 blend, Uint32 ground, Uint32 alpha, Uint32 self_lit, Uint32 texture_id);
 
 /**
  * @ingroup misc
@@ -671,7 +671,7 @@ void add_3dobject_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox
  * @param alpha		Is this an alpha object?
  * @callgraph
  */
-void add_2dobject_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t alpha, uint32_t texture_id);
+void add_2dobject_to_list(BBOX_ITEMS *bbox_items, Uint32 ID, const AABBOX bbox, Uint32 alpha, Uint32 texture_id);
 
 /**
  * @ingroup misc
@@ -686,7 +686,7 @@ void add_2dobject_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox
  * @param dblend	The dblend value of the static particle system.
  * @callgraph
  */
-void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t sblend, uint32_t dblend);
+void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, Uint32 ID, const AABBOX bbox, Uint32 sblend, Uint32 dblend);
 
 /**
  * @ingroup misc
@@ -700,7 +700,7 @@ void add_particle_sys_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX 
  * @param texture_id	The ID of the texture_id.
  * @callgraph
  */
-void add_terrain_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t texture_id);
+void add_terrain_to_list(BBOX_ITEMS *bbox_items, Uint32 ID, const AABBOX bbox, Uint32 texture_id);
 
 /**
  * @ingroup misc
@@ -715,7 +715,7 @@ void add_terrain_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox,
  * @param texture_id	The ID of the texture_id.
  * @callgraph
  */
-void add_water_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, uint32_t reflectiv, uint32_t texture_id);
+void add_water_to_list(BBOX_ITEMS *bbox_items, Uint32 ID, const AABBOX bbox, Uint32 reflectiv, Uint32 texture_id);
 
 /**
  * @ingroup misc
@@ -731,7 +731,7 @@ void add_water_to_list(BBOX_ITEMS *bbox_items, uint32_t ID, const AABBOX bbox, u
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void add_3dobject_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t blend, uint32_t ground, uint32_t alpha, uint32_t self_lit, uint32_t texture_id, uint32_t dynamic);
+void add_3dobject_to_abt(BBOX_TREE *bbox_tree, Uint32 ID, const AABBOX bbox, Uint32 blend, Uint32 ground, Uint32 alpha, Uint32 self_lit, Uint32 texture_id, Uint32 dynamic);
 
 /**
  * @ingroup misc
@@ -746,7 +746,7 @@ void add_3dobject_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, u
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void add_2dobject_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t alpha, uint32_t texture_id, uint32_t dynamic);
+void add_2dobject_to_abt(BBOX_TREE *bbox_tree, Uint32 ID, const AABBOX bbox, Uint32 alpha, Uint32 texture_id, Uint32 dynamic);
 
 /**
  * @ingroup misc
@@ -762,7 +762,7 @@ void add_2dobject_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, u
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void add_particle_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t sblend, uint32_t dblend, uint32_t dynamic);
+void add_particle_to_abt(BBOX_TREE *bbox_tree, Uint32 ID, const AABBOX bbox, Uint32 sblend, Uint32 dblend, Uint32 dynamic);
 
 /**
  * @ingroup misc
@@ -776,7 +776,7 @@ void add_particle_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, u
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void add_light_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t dynamic);
+void add_light_to_abt(BBOX_TREE *bbox_tree, Uint32 ID, const AABBOX bbox, Uint32 dynamic);
 
 /**
  * @ingroup misc
@@ -790,7 +790,7 @@ void add_light_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint
  * @param texture_id	The ID of the texture_id.
  * @callgraph
  */
-void add_terrain_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t texture_id, uint32_t dynamic);
+void add_terrain_to_abt(BBOX_TREE *bbox_tree, Uint32 ID, const AABBOX bbox, Uint32 texture_id, Uint32 dynamic);
 
 /**
  * @ingroup misc
@@ -805,7 +805,7 @@ void add_terrain_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, ui
  * @param texture_id	The ID of the texture_id.
  * @callgraph
  */
-void add_water_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint32_t reflectiv, uint32_t texture_id, uint32_t dynamic);
+void add_water_to_abt(BBOX_TREE *bbox_tree, Uint32 ID, const AABBOX bbox, Uint32 reflectiv, Uint32 texture_id, Uint32 dynamic);
 
 /**
  * @ingroup misc
@@ -820,7 +820,7 @@ void add_water_to_abt(BBOX_TREE *bbox_tree, uint32_t ID, const AABBOX bbox, uint
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t blend, uint32_t self_lit);
+void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, Uint32 ID, Uint32 blend, Uint32 self_lit);
 
 /**
  * @ingroup misc
@@ -834,7 +834,7 @@ void delete_3dobject_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t blend,
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t alpha);
+void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, Uint32 ID, Uint32 alpha);
 
 /**
  * @ingroup misc
@@ -847,7 +847,7 @@ void delete_2dobject_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t alpha)
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void delete_particle_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
+void delete_particle_from_abt(BBOX_TREE *bbox_tree, Uint32 ID);
 
 /**
  * @ingroup misc
@@ -860,7 +860,7 @@ void delete_particle_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void delete_light_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
+void delete_light_from_abt(BBOX_TREE *bbox_tree, Uint32 ID);
 
 /**
  * @ingroup misc
@@ -873,7 +873,7 @@ void delete_light_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void delete_terrain_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
+void delete_terrain_from_abt(BBOX_TREE *bbox_tree, Uint32 ID);
 
 /**
  * @ingroup misc
@@ -887,7 +887,7 @@ void delete_terrain_from_abt(BBOX_TREE *bbox_tree, uint32_t ID);
  * @param dynamic	Is this a dynamic object?
  * @callgraph
  */
-void delete_water_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t reflectiv);
+void delete_water_from_abt(BBOX_TREE *bbox_tree, Uint32 ID, Uint32 reflectiv);
 
 /**
  * @ingroup misc
@@ -899,7 +899,7 @@ void delete_water_from_abt(BBOX_TREE *bbox_tree, uint32_t ID, uint32_t reflectiv
  * @retval BBOX_ITEMS	The list for the static objects.
  * @callgraph
  */
-BBOX_ITEMS* create_bbox_items(uint32_t size);
+BBOX_ITEMS* create_bbox_items(Uint32 size);
 
 /**
  * @ingroup misc
@@ -966,11 +966,11 @@ int click_line_bbox_intersection(const AABBOX bbox);
  */
 void set_click_line();
 
-void set_frustum(BBOX_TREE* bbox_tree, const FRUSTUM frustum, uint32_t mask);
-void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, uint32_t mask, const FRUSTUM view_frustum,
-	uint32_t view_mask, const VECTOR3 light_dir);
+void set_frustum(BBOX_TREE* bbox_tree, const FRUSTUM frustum, Uint32 mask);
+void check_bbox_tree_shadow(BBOX_TREE* bbox_tree, const FRUSTUM frustum, Uint32 mask, const FRUSTUM view_frustum,
+	Uint32 view_mask, const VECTOR3 light_dir);
 
-void reflection_portal_check(BBOX_TREE* bbox_tree, const PLANE* portals, uint32_t count);
+void reflection_portal_check(BBOX_TREE* bbox_tree, const PLANE* portals, Uint32 count);
 
 extern LINE click_line;
 
