@@ -65,6 +65,9 @@ extern "C" el_file* el_open_no_decompress(const char* file_name)
 
 extern "C" int el_read(el_file* file, int size, void* buffer)
 {
+	if(file == NULL){
+		return -1;
+	}
 	try
 	{
 		return file->read(size, buffer);
@@ -83,6 +86,9 @@ extern "C" int el_read(el_file* file, int size, void* buffer)
 
 extern "C" int el_seek(el_file* file, int offset, int seek_type)
 {
+	if(file == NULL){
+		return -1;
+	}
 	try
 	{
 		return file->seek(offset, seek_type);
@@ -101,6 +107,9 @@ extern "C" int el_seek(el_file* file, int offset, int seek_type)
 
 extern "C" int el_tell(el_file* file)
 {
+	if(file == NULL){
+		return -1;
+	}
 	try
 	{
 		return file->tell();
@@ -119,6 +128,9 @@ extern "C" int el_tell(el_file* file)
 
 extern "C" int el_get_size(el_file* file)
 {
+	if(file == NULL){
+		return -1;
+	}
 	try
 	{
 		return file->get_size();
@@ -137,12 +149,18 @@ extern "C" int el_get_size(el_file* file)
 
 extern "C" void el_close(el_file* file)
 {
+	if(file == NULL){
+		return;
+	}
 	delete file;
 	file = 0;
 }
 
 extern "C" void* el_get_pointer(el_file* file)
 {
+	if(file == NULL){
+		return NULL;
+	}
 	try
 	{
 		return file->get_pointer();

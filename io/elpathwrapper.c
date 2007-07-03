@@ -33,9 +33,9 @@ Theoretically safe, unless someone has a HOME that has a really long path. Such 
 /*
  * Note: If you wish to use this functionality, be very careful.
  * For the typical linux usage, you'd add the following to make.conf:
- * FEATURES += CONFIGDIR=\"elc/\"
+ * FEATURES += CONFIGDIR=\"elc\"
  *
- * Note that you should not have a leading slash, but you should have a trailing one.
+ * Note that you should not have a leading or trailing slash.
  * If ELC is able to get your home directory; it, including a trailing slash, is put in front of CONFIGDIR.
  * If not, there is no slash in front, so the failover is to use a dir in datadir (the current working directory).
  *
@@ -45,27 +45,25 @@ Theoretically safe, unless someone has a HOME that has a really long path. Such 
 #ifdef CONFIGDIR
 const static char* cfgdirname = CONFIGDIR;
 #elif defined(OSX)
-const static char* cfgdirname = "Library/Application\ Support/Eternal\ Lands/";
+const static char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
 #elif defined(WINDOWS)
-const static char* cfgdirname = "elc/";
+const static char* cfgdirname = "elc";
 #else /* *nix */
-const static char* cfgdirname = ".elc/";
+const static char* cfgdirname = ".elc";
 #endif // platform check
 
 
-char * get_path_config(void){
-	/*Note: Unless you get a NULL (which you won't unless there's a far more serious problems than finding configdir),
-	 * it's your job to free() the pointer once you're finished with it. In most cases, you shouldn't need to call
-	 * this function at all anyway; the other functions below (which are expected to be used) take care of it for you.
+const char * get_path_config(void){
+	/* Note: In most cases, you shouldn't need to call this function at all anyway;
+	 * the other functions below (which are expected to be used) take care of it for you.
 	 *
 	 * TODO: Clean up the strcpy()/return pairings for when there's an error detected.
 	 * It works, but isn't as pretty as it should be.
 	 */
-	char* locbuffer = (char*)malloc(MAX_PATH);
+	static char locbuffer[MAX_PATH] = {0};
 	char pwd[MAX_PATH];
-	if(locbuffer == NULL){
-		//This is NOT good. What, are we out of memory?
-		return NULL;
+	if(locbuffer[0] != '\0'){
+		return locbuffer;
 	}
 	if(getcwd(pwd, MAX_PATH) == NULL){
 		pwd[0] = '\0';
@@ -103,15 +101,15 @@ char * get_path_config(void){
 		//No luck. fall through to using the folder in PWD
 		strcpy(locbuffer, cfgdirname);
 	}
+	strcat(locbuffer, "/");
 #else /* !WINDOWS */
 	strcpy(locbuffer, getenv("HOME"));	//Warning! Enormous home paths could overflow our variable (so don't do that).
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s/", getenv("HOME"), cfgdirname);
 	if(pwd[0] != '\0'){
 		if(chdir(locbuffer) == -1){strcpy(locbuffer, cfgdirname); return locbuffer;}
 		if(mkdir_tree(cfgdirname) == -1 && errno != EEXIST){chdir(pwd); strcpy(locbuffer, cfgdirname); return locbuffer;}
 		if(chdir(pwd) == -1){strcpy(locbuffer, cfgdirname); return locbuffer;}
 	}
-	strcat(locbuffer, "/");
-	strcat(locbuffer, cfgdirname);
 #endif // platform check
 
 	return locbuffer;
@@ -120,17 +118,15 @@ char * get_path_config(void){
 
 FILE * open_file_config(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
-	char * cfgdir = get_path_config();
+	const char * cfgdir = get_path_config();
 	FILE * fp;
 	if(strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH){
-		free(cfgdir);
 		return NULL;
 	}
+	
 	strcpy(locbuffer, cfgdir);
 	strcat(locbuffer, filename);
-	fp = fopen(locbuffer, mode);
-	free(cfgdir);
-	if(fp != NULL){
+	if((fp = fopen(locbuffer, mode)) != NULL){
 		return fp;
 	}
 	//Not there? okay, try the current directory
@@ -141,17 +137,13 @@ FILE * open_file_config(const char* filename, const char* mode){
 FILE * open_file_data_updates(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
 	char updatepath[MAX_PATH];
-	char * cfgdir = get_path_config();
-	snprintf(updatepath, sizeof(updatepath), "updates_%d_%d_%d_%d/", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
+	const char * cfgdir = get_path_config();
+	safe_snprintf(updatepath, sizeof(updatepath), "updates_%d_%d_%d_%d/", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
 	updatepath[sizeof(updatepath)-1] = '\0';
 	if(strlen(cfgdir) + strlen(updatepath) + strlen(filename) + 1 < MAX_PATH){
-		strcpy(locbuffer, cfgdir);
-		strcat(locbuffer, updatepath);
-		strcat(locbuffer, filename);
-		free(cfgdir);
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s%s", cfgdir, updatepath, filename);	//We could roll the preceding creation of updatepath into this sprintf(), but then we wouldn't have the length check
 		return fopen(locbuffer, mode);
 	}
-	free(cfgdir);
 	return NULL;
 }
 #endif // UPDATE
@@ -160,9 +152,7 @@ FILE * open_file_data_updates(const char* filename, const char* mode){
 FILE * open_file_data_datadir(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
 	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
-		strcpy(locbuffer, datadir);
-		strcat(locbuffer, "/");	//Shouldn't be needed, but won't hurt
-		strcat(locbuffer, filename);
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
 		if(mkdir_tree(filename)){
 			return fopen(locbuffer, mode);
 		}
@@ -176,21 +166,21 @@ FILE * open_file_data(const char* filename, const char* mode){
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	if(strchr(mode, 'w') == NULL){
 		//Reading? okay, we check updates first
-		fp = open_file_data_updates(filename, mode);
-		if(fp != NULL){
+		if((fp = open_file_data_updates(filename, mode)) != NULL){
+			//If there, return it. Otherwise we keep looking.
 			return fp;
 		}
 	}
 #endif //UPDATE
 
-	fp = open_file_data_datadir(filename, mode);
-	if(fp != NULL){
+	if((fp = open_file_data_datadir(filename, mode)) != NULL){
+		//If there, return it. Otherwise we keep looking.
 		return fp;
 	}
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	//Writing, and we didn't get the data_dir, likely a permissions problem, so use updates
-	fp = open_file_data_updates(filename, mode);
-	if(fp != NULL){
+	if((fp = open_file_data_updates(filename, mode)) != NULL){
+		//If there, return it. Otherwise we keep looking.
 		return fp;
 	}
 #endif //UPDATE
@@ -203,20 +193,18 @@ FILE * open_file_lang(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
 	if(strlen("languages/") + strlen(lang) + strlen(filename) + 2 < MAX_PATH){
 		FILE *fp;
-		strcpy(locbuffer, "languages/");
-		strcat(locbuffer, lang);
-		strcat(locbuffer, "/");
-		strcat(locbuffer, filename);
-		fp = open_file_data(locbuffer, mode);
-		if(fp != NULL){
+		safe_snprintf(locbuffer, sizeof(locbuffer), "languages/%s/%s", lang, filename);
+		if((fp = open_file_data(locbuffer, mode)) != NULL){
+			//Found in the set language dir? Goodie!
 			return fp;
 		}
 	}
 	if(strlen("languages/") + strlen("en") + strlen(filename) + 2 < MAX_PATH){
-		strcpy(locbuffer, "languages/en/");
-		strcat(locbuffer, filename);
+		safe_snprintf(locbuffer, sizeof(locbuffer), "languages/en/%s", filename);
+		//Okay, we check the 'en' dir as a fallback
 		return open_file_data(locbuffer, mode);
 	}
+	//We got here? Then _someone_ used a huge filename...
 	return NULL;
 }
 
@@ -246,7 +234,7 @@ int mkdir_tree(const char *file)
 	while(slash){
 		// watch for hidden ..
 		if(*slash == '.' && slash[1] == '.'){
-			log_error("cannot create directory %s", dir);
+			log_error("Cannot create directory (Invalid character): %s", dir);
 			return 0;
 		}
 		// find the next slash
@@ -259,7 +247,7 @@ int mkdir_tree(const char *file)
 		*slash= '\0';
 		if(!(stat(dir, &stats) == 0 && S_ISDIR(stats.st_mode) ) )
 		if(MKDIR(dir)!= 0) {
-			log_error("cannot create directory %s", dir);
+			log_error("Cannot create directory (mkdir() failed): %s", dir);
 			return 0;
 		}
 		// put the / back in, then advance past it
@@ -278,9 +266,9 @@ int mkdir_tree(const char *file)
 int mkdir_config(const char *path){
 	//AKA mkdir(configdir+path);
 	char locbuffer[MAX_PATH];
-	char * cfgdir = get_path_config();
+	const char * cfgdir = get_path_config();
 	if(strlen(cfgdir) + strlen(path) + 1 > MAX_PATH){
-		free(cfgdir);
+		//Path is too large, so do the same thing as system libraries do
 		errno = ENAMETOOLONG;
 		return -1;
 	}
@@ -293,19 +281,16 @@ int mkdir_config(const char *path){
 int move_file_to_data(const char* from_file, const char* to_file){
 	char locbufcfg[MAX_PATH];
 	char locbufdat[MAX_PATH];
-	char * cfgdir = get_path_config();
+	const char * cfgdir = get_path_config();
 	if((strlen(cfgdir) + strlen(from_file) + 1 > MAX_PATH) ||
 			(strlen(datadir) + strlen(to_file) +2 > MAX_PATH)){
-		free(cfgdir);
 		errno = ENAMETOOLONG;
 		return -1;
 	}
 	strcpy(locbufcfg, cfgdir);
 	strcat(locbufcfg, from_file);
 
-	strcpy(locbufdat, datadir);
-	strcat(locbufdat, "/");
-	strcat(locbufdat, to_file);
+	safe_snprintf(locbufdat, sizeof(locbufdat), "%s/%s", datadir, to_file);
 
 	return rename(locbufcfg, locbufdat);
 }
@@ -320,9 +305,8 @@ void file_update_clear_old(void){	//TODO.
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 void remove_file_data_updates(const char* filename){
 	char locbuffer[MAX_PATH];
-	char * cfgdir = get_path_config();
+	const char * cfgdir = get_path_config();
 	if(strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH){
-		free(cfgdir);
 		errno = ENAMETOOLONG;
 		return;
 	}
@@ -335,9 +319,7 @@ void remove_file_data_updates(const char* filename){
 void remove_file_data_datadir(const char* filename){
 	char locbuffer[MAX_PATH];
 	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
-		strcpy(locbuffer, datadir);
-		strcat(locbuffer, "/");	//Shouldn't be needed, but won't hurt
-		strcat(locbuffer, filename);
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
 		remove(locbuffer);
 	}
 }

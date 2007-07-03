@@ -18,10 +18,9 @@ extern "C" {
  * @brief Gets the directory for config files
  *
  * Get the directory where we should be storing config files
- * Remember to free() the returned data when finished (Ideally, you should use open_file_* functions instead)
  * @return Returns a string with the path on success, or an empty string (indicating the use of the current directory, usually data_dir) on failure
  */
-char * get_path_config(void);
+const char * get_path_config(void);
 
 /**
  * @brief fopen()s a config file

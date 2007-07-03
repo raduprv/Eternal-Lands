@@ -5,9 +5,8 @@
 zip_file_system el_file::default_zip_file_system;
 
 std::string el_file::el_find_file(const std::string& file_name) {
-	char * cfgpath = get_path_config();
+	const char * cfgpath = get_path_config();
 	std::string str = cfgpath + file_name;
-	free(cfgpath);
 	struct stat fstat;
 
 	if (stat(str.c_str(), &fstat) != 0){
@@ -35,9 +34,8 @@ void el_file::open_gzip(const std::string& file_name)
 	std::string str;
 	gzFile file;
 	int read, size;
-	char * cfgpath = get_path_config();
+	const char * cfgpath = get_path_config();
 	str = std::string(cfgpath) + "updates/" + file_name + ".gz";
-	free(cfgpath);
 
 	file = gzopen(str.c_str(), "rb");
 	try
@@ -86,14 +84,15 @@ void el_file::open(const std::string& file_name)
 	std::string str;
 	std::ifstream file;
 	int read, size;
-	char * cfgpath = get_path_config();
+	const char * cfgpath = get_path_config();
 	str = std::string(cfgpath) + "updates/" + file_name;
-	free(cfgpath);
-
 	file.open(str.c_str(), std::ios::binary);
 
 	if(!file.is_open()){
 		file.open(file_name.c_str(), std::ios::binary);
+	}
+	if(!file.is_open()){
+		return;
 	}
 
 	size = 0;

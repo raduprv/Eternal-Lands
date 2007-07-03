@@ -235,7 +235,7 @@ void read_config()
 #endif // !WINDOWS && !NEW_FILE_IO
 
 #ifdef NEW_FILE_IO
-	char * tcfg = get_path_config();
+	const char * tcfg = get_path_config();
 #endif /* NEW_FILE_IO */
 
 #ifndef WINDOWS
@@ -248,7 +248,6 @@ void read_config()
 #endif // OSX
 #else /* NEW_FILE_IO */
 	my_strncp ( configdir, tcfg , sizeof(configdir));
-	free(tcfg);
 #endif /* NEW_FILE_IO */
 #ifndef NEW_FILE_IO
 	d = opendir (configdir);
@@ -619,7 +618,7 @@ void init_stuff()
 	int i;
 #ifdef NEW_FILE_IO
 	char config_location[300];
-	char * cfgdir;
+	const char * cfgdir;
 #endif //NEW_FILE_IO	
 
 	//TODO: process command line options
@@ -876,7 +875,6 @@ void init_stuff()
 	if(cfgdir != NULL){
 		//Realistically, if this failed, then there's not much point in continuing, but oh well...
 		safe_snprintf(config_location, sizeof(config_location), config_location_str, cfgdir);
-		free(cfgdir);
 	}
 	LOG_TO_CONSOLE(c_green4, config_location);
 	file_check_datadir();
