@@ -4,6 +4,7 @@
 #include "global.h"
 
 int session_win = -1;
+int reconnecting = 0;
 
 player_attribs session_stats;
 Uint32 session_start_time;
@@ -116,12 +117,21 @@ CHECK_GL_ERRORS();
 
 void init_session(void)
 {
-	session_stats = your_info;
-	session_start_time = cur_time;
+	if (!reconnecting){
+		session_stats = your_info;
+		session_start_time = cur_time;
+		reconnecting = 1;
+	} else if ( disconnect_time != 0 ) {
+		session_start_time += (cur_time-disconnect_time);
+		disconnect_time = 0;
+	}
 }
 
 int session_reset_handler(void)
 {
 	init_session();
+	session_stats = your_info;
+	session_start_time = cur_time;
+	reset_session_counters();
 	return 0;
 }

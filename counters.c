@@ -56,6 +56,7 @@ static char *spell_names[128] = { NULL };
 static int requested_spell_id = -1;
 
 int harvesting = 0;
+Uint32 disconnect_time;
 char harvest_name[32];
 
 int counters_win = -1;
@@ -144,6 +145,7 @@ void load_counters()
 		 * this will take place when relogging after disconnection
 		 */
 		flush_counters();
+		return;
 	}
 	
 	for (i = 0; i < NUM_COUNTERS; i++) {
@@ -683,6 +685,17 @@ void increment_summon_counter(char *string)
 	string += 12;
 
 	increment_counter(SUMMONS, string, 1, 0);
+}
+
+
+void reset_session_counters()
+{
+	int i, j;
+
+	for (i = 0; i < NUM_COUNTERS; i++)
+		if (counters[i])
+			for (j = 0; j < entries[i]; ++j)
+				counters[i][j].n_session=0;
 }
 
 #endif /* COUNTERS */

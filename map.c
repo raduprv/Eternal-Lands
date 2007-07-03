@@ -253,6 +253,7 @@ int load_empty_map()
 		LOG_ERROR(cant_change_map, "./maps/nomap.elm");
 		SDLNet_TCP_Close(my_socket);
 		disconnected = 1;
+		disconnect_time = SDL_GetTicks();
 		SDLNet_Quit();
 		LOG_TO_CONSOLE(c_red3, disconnected_from_server);
 		//Fake a map to make sure we don't get any crashes.

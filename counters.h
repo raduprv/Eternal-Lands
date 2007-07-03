@@ -10,11 +10,13 @@ extern "C" {
 extern int harvesting;
 extern char harvest_name[32];
 extern int counters_win;
+extern Uint32 disconnect_time;
 
 void load_counters();
 void flush_counters();
 void cleanup_counters();
 void fill_counters_win();
+void reset_session_counters();
 
 void increment_death_counter(actor *a);
 void increment_harvest_counter(int quantity);

@@ -1756,6 +1756,7 @@ static void process_data_from_server(queue_t *queue)
 				LOG_ERROR ("Packet overrun, protocol = %d, size = %u\n", pData[0], size);
 				in_data_used = 0;
 				disconnected = 1;
+				disconnect_time = SDL_GetTicks();
 			}
 		} while (3 <= in_data_used);
 
@@ -1795,6 +1796,7 @@ int get_message_from_server(void *thread_args)
 			LOG_TO_CONSOLE(c_red2, alt_x_quit);
 			in_data_used = 0;
 			disconnected = 1;
+			disconnect_time = SDL_GetTicks();
 		}
 	}
 	return 1;
