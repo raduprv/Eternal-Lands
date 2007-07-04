@@ -587,6 +587,22 @@ void resize_window (int win_id, int new_width, int new_height);
  * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns false (0), without performing any actions.
  */
 int		get_show_window(int win_id);
+
+/*!
+ * \ingroup elwindows
+ * \brief   Checks whether a window is currently displayable and returns a proper boolean value.
+ *
+ *      Checks if a window is either displayed or would be if its parent were visible
+ *
+ * \param win_id    the id of the window to check
+ * \retval int      0 (false) if the window is hidden, else 1 (true).
+ *
+ * \pre If \a win_id < 0, this function returns false (0), without performing any actions.
+ * \pre If \a win_id is greater than \ref windows_info::num_windows, this function returns false (0), without performing any actions.
+ * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns false (0), without performing any actions.
+ */
+int		get_window_showable(int win_id);
+
 //void	collapse_window(int win_id);	// future expansion
 //void	expand_window(int win_id);		// future expansion
 

@@ -1212,6 +1212,15 @@ int	get_show_window(int win_id)
 	return windows_list.window[win_id].displayed;
 }
 
+int	get_window_showable(int win_id)
+{
+	// unititialized windows always fail as if not shown, not an error
+	if(win_id < 0 || win_id >= windows_list.num_windows)	return 0;
+	if(windows_list.window[win_id].window_id != win_id)	return 0;
+
+	return (windows_list.window[win_id].displayed || windows_list.window[win_id].reinstate);
+}
+
 int	display_window(int win_id)
 {
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;

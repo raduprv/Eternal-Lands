@@ -936,6 +936,10 @@ Uint8 key_to_char (Uint32 unikey)
 }
 
 void hide_all_windows(){
+	/* Note: We don't watch for if a window is otherwise closed; alt+d to reopen only cares about the last
+	 * time it hid windows itself. If you alt+d to reopen windows, manually close them all, and alt+d
+	 * again, it'll reopen the same ones.
+	 */
 	static unsigned int were_open = 0;	//Currently up to 13 windows are managed by this function.
 	//If you add more windows, you must ensure that the int is at least 'windows' bits long.
 	if (get_show_window(ground_items_win) > 0 || get_show_window(items_win) > 0 || get_show_window(buddy_win) > 0 ||
@@ -949,69 +953,69 @@ void hide_all_windows(){
 		|| get_show_window(notepad_win) > 0
 #endif /* NOTEPAD */
 	){	//Okay, hide the open ones.
-		if (get_show_window(ground_items_win) > 0){
+		if (get_window_showable(ground_items_win) > 0){
 			unsigned char protocol_name;
 
 			hide_window (ground_items_win);
 			protocol_name= S_CLOSE_BAG;
 			my_tcp_send(my_socket,&protocol_name,1);
 		}
-		if (get_show_window(items_win) > 0){
+		if (get_window_showable(items_win) > 0){
 			hide_window (items_win);
 			were_open |= 1<<0;
 		} else {
 			were_open &= ~(1<<0);
 		}
-		if (get_show_window(buddy_win) > 0){
+		if (get_window_showable(buddy_win) > 0){
 			hide_window (buddy_win);
 			were_open |= 1<<1;
 		} else {
 			were_open &= ~(1<<1);
 		}
-		if (get_show_window(manufacture_win) > 0){
+		if (get_window_showable(manufacture_win) > 0){
 			hide_window (manufacture_win);
 			were_open |= 1<<2;
 		} else {
 			were_open &= ~(1<<2);
 		}
-		if (get_show_window(elconfig_win) > 0){
+		if (get_window_showable(elconfig_win) > 0){
 			hide_window (elconfig_win);
 			were_open |= 1<<3;
 		} else {
 			were_open &= ~(1<<3);
 		}
-		if (get_show_window(sigil_win) > 0){
+		if (get_window_showable(sigil_win) > 0){
 			hide_window (sigil_win);
 			were_open |= 1<<4;
 		} else {
 			were_open &= ~(1<<4);
 		}
-		if (get_show_window(tab_stats_win) > 0){
+		if (get_window_showable(tab_stats_win) > 0){
 			hide_window (tab_stats_win);
 			were_open |= 1<<5;
 		} else {
 			were_open &= ~(1<<5);
 		}
-		if (get_show_window(tab_help_win) > 0){
+		if (get_window_showable(tab_help_win) > 0){
 			hide_window (tab_help_win);
 			were_open |= 1<<6;
 		} else {
 			were_open &= ~(1<<6);
 		}
-		if (get_show_window(storage_win) > 0){
+		if (get_window_showable(storage_win) > 0){
 			hide_window (storage_win);
 		}
-		if (get_show_window(dialogue_win) > 0){
+		if (get_window_showable(dialogue_win) > 0){
 			hide_window (dialogue_win);
 		}
-		if (get_show_window(server_popup_win) > 0){
+		if (get_window_showable(server_popup_win) > 0){
 			hide_window (server_popup_win);
 			were_open |= 1<<7;
 		} else {
 			were_open &= ~(1<<7);
 		}
 #ifdef MINIMAP
-		if (get_show_window(minimap_win) > 0 && !minimap_get_pin()){
+		if (get_window_showable(minimap_win) > 0 && !minimap_get_pin()){
 			hide_window (minimap_win);
 			were_open |= 1<<8;
 		} else {
@@ -1019,14 +1023,14 @@ void hide_all_windows(){
 		}
 #endif /* MINIMAP */
 #ifdef NOTEPAD
-		if (get_show_window(notepad_win) > 0){
+		if (get_window_showable(notepad_win) > 0){
 			hide_window (notepad_win);
 			were_open |= 1<<9;
 		} else {
 			were_open &= ~(1<<9);
 		}
 #endif /* NOTEPAD */
-	} else {	//None were open, restore the ones that were open
+	} else {	//None were open, restore the ones that were open last time the key was pressed
 		if (were_open & 1<<0){
 			show_window (items_win);
 		}
