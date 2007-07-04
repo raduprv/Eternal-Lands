@@ -771,6 +771,11 @@ CHECK_GL_ERRORS();
 
 void draw_sun_shadowed_scene(int any_reflection)
 {
+	if(sun_ambient_light[0] <= 0.2f || sun_ambient_light[1] <= 0.2f || sun_ambient_light[2] <= 0.2f){
+		//If it's so dark that shadows would actually be lighter, then we shouldn't draw them
+		//The numbers may need a slight tuning, but seem accurate
+		return;
+	}
 	if(use_shadow_mapping)
 		{
 			shadow_unit=GL_TEXTURE0_ARB;
