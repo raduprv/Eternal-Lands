@@ -113,7 +113,7 @@ void draw_3d_object_shadow(object3d * object_id)
 			else glAlphaFunc(GL_GREATER, 0.06f);
 			glDisable(GL_CULL_FACE);
 			glEnable(GL_TEXTURE_2D);
-			texture_id = get_texture_id(object_id->e3d_data->materials[i].texture_id);
+			texture_id = get_texture_id(object_id->e3d_data->materials[i].diffuse_map);
 			if (last_texture != texture_id)
 			{
 				glBindTexture(GL_TEXTURE_2D, texture_id);

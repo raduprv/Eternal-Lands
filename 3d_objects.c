@@ -157,7 +157,7 @@ void draw_3d_object(object3d * object_id)
 			glEnable(GL_CULL_FACE);
 		}
 
-		texture_id = get_texture_id(object_id->e3d_data->materials[i].texture_id);
+		texture_id = get_texture_id(object_id->e3d_data->materials[i].diffuse_map);
 		if (last_texture != texture_id)
 		{
 			glBindTexture(GL_TEXTURE_2D, texture_id);
