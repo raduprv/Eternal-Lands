@@ -46,11 +46,11 @@ static __inline__ void build_clouds_planes(object3d* obj)
 	obj->clouds_planes[0][0] = cos_w / texture_scale;
 	obj->clouds_planes[0][1] = sin_w / texture_scale;
 	obj->clouds_planes[0][2] = 1.0f / texture_scale;
-	obj->clouds_planes[0][3] = obj->x_pos / texture_scale + clouds_movement_u;
+	obj->clouds_planes[0][3] = obj->x_pos / texture_scale;
 	obj->clouds_planes[1][0] = -sin_w / texture_scale;
 	obj->clouds_planes[1][1] = cos_w / texture_scale;
 	obj->clouds_planes[1][2] = 1.0f / texture_scale;
-	obj->clouds_planes[1][3] = obj->y_pos / texture_scale + clouds_movement_v;
+	obj->clouds_planes[1][3] = obj->y_pos / texture_scale;
 }
 
 void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
@@ -88,9 +88,15 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 
 	if (!dungeon && (clouds_shadows || use_shadow_mapping))
 	{
+		VECTOR4 plane;
+
 		ELglActiveTextureARB(detail_unit);
-		glTexGenfv(GL_S, GL_EYE_PLANE, object_id->clouds_planes[0]);
-		glTexGenfv(GL_T, GL_EYE_PLANE, object_id->clouds_planes[1]);
+		memcpy(plane, object_id->clouds_planes[0], sizeof(VECTOR4));
+		plane[3] += clouds_movement_u;
+		glTexGenfv(GL_S, GL_EYE_PLANE, plane);
+		memcpy(plane, object_id->clouds_planes[1], sizeof(VECTOR4));
+		plane[3] += clouds_movement_v;
+		glTexGenfv(GL_T, GL_EYE_PLANE, plane);
 		ELglActiveTextureARB(base_unit);
 	}
 
