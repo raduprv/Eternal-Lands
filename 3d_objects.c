@@ -35,27 +35,26 @@ void inc_objects_list_placeholders()
 	objects_list_placeholders++;
 }
 
-static __inline__ void get_texture_object_linear_plane(float obj_z_rot, float obj_x_pos, float obj_y_pos, float* s_plane, float* t_plane)
+static __inline__ void build_clouds_planes(object3d* obj)
 {
 	float w, cos_w, sin_w;
 
-	w = -obj_z_rot * M_PI / 180.0f;
+	w = -obj->z_rot * M_PI / 180.0f;
 	cos_w = cos(w);
 	sin_w = sin(w);
 	
-	s_plane[0] = cos_w / texture_scale;
-	s_plane[1] = sin_w / texture_scale;
-	s_plane[2] = 1.0f / texture_scale;
-	s_plane[3] = obj_x_pos / texture_scale + clouds_movement_u;
-	t_plane[0] = -sin_w / texture_scale;
-	t_plane[1] = cos_w / texture_scale;
-	t_plane[2] = 1.0f / texture_scale;
-	t_plane[3] = obj_y_pos / texture_scale + clouds_movement_v;
+	obj->clouds_planes[0][0] = cos_w / texture_scale;
+	obj->clouds_planes[0][1] = sin_w / texture_scale;
+	obj->clouds_planes[0][2] = 1.0f / texture_scale;
+	obj->clouds_planes[0][3] = obj->x_pos / texture_scale + clouds_movement_u;
+	obj->clouds_planes[1][0] = -sin_w / texture_scale;
+	obj->clouds_planes[1][1] = cos_w / texture_scale;
+	obj->clouds_planes[1][2] = 1.0f / texture_scale;
+	obj->clouds_planes[1][3] = obj->y_pos / texture_scale + clouds_movement_v;
 }
 
 void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 {
-	float s_plane[4], t_plane[4];
 	Uint8 * data_ptr;
 	int vertex_size;
 
@@ -90,9 +89,8 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 	if (!dungeon && (clouds_shadows || use_shadow_mapping))
 	{
 		ELglActiveTextureARB(detail_unit);
-		get_texture_object_linear_plane(object_id->z_rot, object_id->x_pos, object_id->y_pos, s_plane, t_plane);
-		glTexGenfv(GL_S, GL_EYE_PLANE, s_plane);
-		glTexGenfv(GL_T, GL_EYE_PLANE, t_plane);
+		glTexGenfv(GL_S, GL_EYE_PLANE, object_id->clouds_planes[0]);
+		glTexGenfv(GL_T, GL_EYE_PLANE, object_id->clouds_planes[1]);
 		ELglActiveTextureARB(base_unit);
 	}
 
@@ -190,7 +188,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 #ifdef  DEBUG
 	cur_e3d_count++;
 #endif  //DEBUG
-	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
+	get_and_set_texture_id(object_id->e3d_data->materials[material_index].diffuse_map);
 
 	ELglDrawRangeElementsEXT(GL_TRIANGLES,
 		object_id->e3d_data->materials[material_index].triangles_indicies_min,
@@ -500,6 +498,8 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	our_object->display = 1;
 	our_object->state = 0;
 
+	build_clouds_planes(our_object);
+
 	our_object->e3d_data = returned_e3d;
 	
 	our_object->id = id;
@@ -549,7 +549,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		bbox.bbmax[Z] = returned_e3d->materials[i].max_z;
 
 		matrix_mul_aabb(&bbox, our_object->matrix);
-		texture_id = returned_e3d->materials[i].texture_id;
+		texture_id = returned_e3d->materials[i].diffuse_map;
 		is_transparent = material_is_transparent(returned_e3d->materials[i].options);
 		if ((main_bbox_tree_items != NULL) && (dynamic == 0))  add_3dobject_to_list(main_bbox_tree_items, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id);
 		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, dynamic);

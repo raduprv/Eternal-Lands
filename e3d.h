@@ -38,38 +38,39 @@ extern Uint32 highest_obj_3d;  /*!< pointer to the highest 3D object in map */
  */
 typedef struct
 {
-   char file_name[80]; /*!< filename where the 3d object is stored in */
+	char file_name[80]; /*!< filename where the 3d object is stored in */
    
-   int id; /*!< The object ID */
-   /*!
-    * \name position vector
-    */
-   /*! @{ */
-   float x_pos; /*!< x coordinate of the position */
-   float y_pos; /*!< y coordinate of the position */
-   float z_pos; /*!< z coordinate of the position */
-   /*! @} */
+	int id; /*!< The object ID */
+	/*!
+	 * \name position vector
+	 */
+	/*! @{ */
+	float x_pos; /*!< x coordinate of the position */
+	float y_pos; /*!< y coordinate of the position */
+	float z_pos; /*!< z coordinate of the position */
+	/*! @} */
 
-    /*!
-     * \name rotation vector
-     */
-   /*! @{ */
-   float x_rot; /*!< x coordinate of the rotation */
-   float y_rot; /*!< y coordinate of the rotation */
-   float z_rot; /*!< z coordinate of the rotation */
-   MATRIX4x4 matrix; /*!< translation and rotaion matrix */
+	/*!
+	 * \name rotation vector
+	 */
+	/*! @{ */
+	float x_rot; /*!< x coordinate of the rotation */
+	float y_rot; /*!< y coordinate of the rotation */
+	float z_rot; /*!< z coordinate of the rotation */
+	MATRIX4x4 matrix; /*!< translation and rotaion matrix */
    
-   char self_lit; /*!< flag determining whether this object is self lit or not. Self lit objects contains their own lighs. */
-   char blended; /*!< flag determining whether the object is blended with some other objects. */
-   char display; /*!< flag determining whether the object is to be shown on screen. */
-   char state; /*!< state flag for future expansion & data alignment. */
+	char self_lit; /*!< flag determining whether this object is self lit or not. Self lit objects contains their own lighs. */
+	char blended; /*!< flag determining whether the object is blended with some other objects. */
+	char display; /*!< flag determining whether the object is to be shown on screen. */
+	char state; /*!< state flag for future expansion & data alignment. */
    
-   float r,g,b; /*!< color values (red, green, blue) for this object */
+	float r,g,b; /*!< color values (red, green, blue) for this object */
 
-   e3d_object *e3d_data; /*!< e3d model data */
-   unsigned int last_acessed_time; /*!< timestamp when this object was last accessed. */
-   unsigned int flags; /*!< Flag determining whether this object is entrable/harvestable/bag */
-}object3d;
+	e3d_object *e3d_data; /*!< e3d model data */
+	unsigned int last_acessed_time; /*!< timestamp when this object was last accessed. */
+	unsigned int flags; /*!< Flag determining whether this object is entrable/harvestable/bag */
+	VECTOR4 clouds_planes[2]; /**< Clouds s and t planes. */
+} object3d;
 
 
 extern object3d *objects_list[MAX_OBJ_3D]; /*!< global variable containing up to \see max_obj_3d \see object3d objects. */

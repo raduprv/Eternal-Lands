@@ -327,21 +327,21 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
 #ifdef	MAP_EDITOR
-		cur_object->materials[i].texture_id = load_texture_cache(text_file_name,0);
+		cur_object->materials[i].diffuse_map = load_texture_cache(text_file_name,0);
 #else	//MAP_EDITOR
 #ifdef	NEW_ALPHA
 		// prepare to load the textures depending on if it is transparent or not (diff alpha handling)
 		if (material_is_transparent(cur_object->materials[i].options))
 		{	// is this object transparent?
-			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, -1);
+			cur_object->materials[i].diffuse_map= load_texture_cache_deferred(text_file_name, -1);
 		}
 		else
 		{
-			cur_object->materials[i].texture_id= load_texture_cache_deferred(text_file_name, -1);	//255);
+			cur_object->materials[i].diffuse_map= load_texture_cache_deferred(text_file_name, -1);	//255);
 		}
 #else	//NEW_ALPHA
-//		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 255);
-		cur_object->materials[i].texture_id = load_texture_cache_deferred(text_file_name, 0);
+//		cur_object->materials[i].diffuse_map = load_texture_cache_deferred(text_file_name, 255);
+		cur_object->materials[i].diffuse_map = load_texture_cache_deferred(text_file_name, 0);
 #endif	//NEW_ALPHA
 #endif	//MAP_EDITOR
 
@@ -377,12 +377,12 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #endif	//NEW_FILE_IO
 			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, extra_texture.material_name);
 #ifdef	MAP_EDITOR
-			cur_object->materials[i].extra_texture_id = load_texture_cache(text_file_name,0);
+			cur_object->materials[i].extra_diffuse_map = load_texture_cache(text_file_name,0);
 #else	//MAP_EDITOR
 #ifdef	NEW_ALPHA
-			cur_object->materials[i].extra_texture_id = load_texture_cache_deferred(text_file_name, -1);
+			cur_object->materials[i].extra_diffuse_map = load_texture_cache_deferred(text_file_name, -1);
 #else	//NEW_ALPHA
-			cur_object->materials[i].extra_texture_id = load_texture_cache_deferred(text_file_name, 0);
+			cur_object->materials[i].extra_diffuse_map = load_texture_cache_deferred(text_file_name, 0);
 #endif	//NEW_ALPHA
 #endif	//MAP_EDITOR
 

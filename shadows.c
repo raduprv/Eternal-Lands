@@ -264,7 +264,7 @@ void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_in
 #ifdef  DEBUG
 	cur_e3d_count++;
 #endif  //DEBUG
-	get_and_set_texture_id(object_id->e3d_data->materials[material_index].texture_id);
+	get_and_set_texture_id(object_id->e3d_data->materials[material_index].diffuse_map);
 
 	ELglDrawRangeElementsEXT(GL_TRIANGLES,
 		object_id->e3d_data->materials[material_index].triangles_indicies_min,
