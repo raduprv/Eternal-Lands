@@ -1,4 +1,5 @@
 #include <string.h>
+#include <math.h>
 #include "../bbox_tree.h"
 #include "../client_serv.h"
 #include "../e3d.h"
@@ -34,7 +35,7 @@ void update_object_pos_and_rot (object3d* obj)
 		bbox.bbmax[Z] = e3d->materials[i].max_z;
 
 		matrix_mul_aabb (&bbox, obj->matrix);
-		texture_id = e3d->materials[i].texture_id;
+		texture_id = e3d->materials[i].diffuse_map;
 		is_transparent = material_is_transparent (e3d->materials[i].options);
 		
 		if (main_bbox_tree_items != NULL && dynamic == 0) 
@@ -59,7 +60,7 @@ void update_object_pos_and_rot (object3d* obj)
 #endif
 }
 
-static cell AMX_NATIVE_CALL n_rotate_object (AMX *amx, const cell *params)
+static cell AMX_NATIVE_CALL n_set_object_rotation (AMX *amx, const cell *params)
 {
 	int id = (int) params[1];
 	object3d *obj;
@@ -79,7 +80,43 @@ static cell AMX_NATIVE_CALL n_rotate_object (AMX *amx, const cell *params)
 	return 0;
 }
 
-static cell AMX_NATIVE_CALL n_rotate_object_relative (AMX *amx, const cell *params)
+static cell AMX_NATIVE_CALL n_rotate_object (AMX *amx, const cell *params)
+{
+	int id = (int) params[1];
+	object3d *obj;
+	MATRIX4x4D matrix;
+
+	if (id < 0 || id >= MAX_OBJ_3D || objects_list[id] == NULL)
+		// invalid object ID
+		return 1;
+	
+	obj = objects_list[id];
+	
+	// Trying to compute the new angles directly seems pretty horrible,
+	// so we'll do this the lazy way, and compute the angles from the
+	// rotation matrix
+	glPushMatrix ();
+	glLoadIdentity ();
+	glRotatef (*((REAL*)params+4), 0.0f, 0.0f, 1.0f);
+	glRotatef (*((REAL*)params+2), 1.0f, 0.0f, 0.0f);
+	glRotatef (*((REAL*)params+3), 0.0f, 1.0f, 0.0f);
+	glRotatef (obj->z_rot, 0.0f, 0.0f, 1.0f);
+	glRotatef (obj->x_rot, 1.0f, 0.0f, 0.0f);
+	glRotatef (obj->y_rot, 0.0f, 1.0f, 0.0f);
+	glGetDoublev (GL_MODELVIEW_MATRIX, matrix);
+	glPopMatrix ();
+	
+	obj->x_rot = 180 * asin (matrix[6]) / M_PI;
+	obj->y_rot = 180 * atan2 (-matrix[2], matrix[10]) / M_PI;
+	obj->z_rot = 180 * atan2 (-matrix[4], matrix[5]) / M_PI;
+
+	update_object_pos_and_rot (obj);
+
+	return 0;
+}
+
+
+static cell AMX_NATIVE_CALL n_rotate_object_add (AMX *amx, const cell *params)
 {
 	int id = (int) params[1];
 	object3d *obj;
@@ -111,7 +148,7 @@ static cell AMX_NATIVE_CALL n_rotate_object_relative (AMX *amx, const cell *para
 	return 0;
 }
 
-static cell AMX_NATIVE_CALL n_translate_object (AMX *amx, const cell *params)
+static cell AMX_NATIVE_CALL n_set_object_position (AMX *amx, const cell *params)
 {
 	int id = (int) params[1];
 	object3d *obj;
@@ -131,7 +168,7 @@ static cell AMX_NATIVE_CALL n_translate_object (AMX *amx, const cell *params)
 	return 0;
 }
 
-static cell AMX_NATIVE_CALL n_translate_object_relative (AMX *amx, const cell *params)
+static cell AMX_NATIVE_CALL n_translate_object (AMX *amx, const cell *params)
 {
 	int id = (int) params[1];
 	object3d *obj;
@@ -218,14 +255,15 @@ extern "C"
 #endif
 
 const AMX_NATIVE_INFO el_Natives[] = {
-	{ "log_to_console",            n_log_to_console            },
+	{ "log_to_console",         n_log_to_console         },
 	/* object position manipulation */
-	{ "rotate_object",             n_rotate_object             },
-	{ "rotate_object_relative",    n_rotate_object_relative    },
-	{ "translate_object", 	       n_translate_object	   },
-	{ "translate_object_relative", n_translate_object_relative },
+	{ "set_object_rotation",    n_set_object_rotation    },
+	{ "rotate_object",          n_rotate_object          },
+	{ "rotate_object_add",      n_rotate_object_add      },
+	{ "set_object_position",    n_set_object_position    },
+	{ "translate_object",       n_translate_object       },
 	/* terminator */
- 	{ NULL,                        NULL                        }
+ 	{ NULL,                        NULL                  }
 };
 
 int AMXEXPORT amx_ElInit (AMX *amx)

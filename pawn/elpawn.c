@@ -109,6 +109,7 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 	int err = AMX_ERR_NONE, index=-1;
 	int nr_ref_args = 0, ref_args_size = 0;
 	cell *ref_args = NULL;
+	int nr_args;
 
 	if (!machine->initialized)
 	{
@@ -123,41 +124,61 @@ int run_pawn_function (pawn_machine *machine, const char* fun, const char* fmt, 
 		return 0;
 	}
 
-	if (fmt != NULL)
+	if (fmt != NULL && (nr_args = strlen (fmt)) > 0)
 	{
 		char c;
 		const char *s;
 		int i;
 		REAL f;
 		cell *phys;
+		int iarg;
+		cell *args = calloc (nr_args, sizeof (cell));
 		
-		while ( (c = *fmt++) )
+		// first store the arguments in the array
+		for (iarg = 0; iarg < nr_args; iarg++)
 		{
-			switch (c)
+			switch (fmt[iarg])
 			{
 				case 'i':
 					i = va_arg (ap, int);
-					amx_Push (&(machine->amx), (cell) i);
+					args[iarg] = (cell) i;
 					break;
 				case 'f':
 					f = va_arg (ap, REAL);
-					amx_Push (&(machine->amx), *((cell*) &f));
+					args[iarg] = *((cell*) &f);
 					break;
 				case 's':
-					if (nr_ref_args >= ref_args_size)
-					{
-						ref_args_size += 8;
-						ref_args = realloc (ref_args, ref_args_size * sizeof (cell));
-					}
 					s = va_arg (ap, const char*);
-					amx_PushString (&(machine->amx), ref_args+nr_ref_args, &phys, s, 0, 0);
-					nr_ref_args++;
+					args[iarg] = (cell) s;
 					break;
 				default:
 					log_error ("unknown format specifier '%c' in Pawn call", c);
+					free (args);
 					return 1;
 			}
 		}
+		
+		// now push the arguments to Pawn, in reverse order
+		for (iarg = nr_args-1; iarg >= 0; iarg--)
+		{
+			if (fmt[iarg] == 'i' || fmt[iarg] == 'f')
+			{			
+				amx_Push (&(machine->amx), args[iarg]);
+			}
+			else if (fmt[iarg] == 's')
+			{
+				if (nr_ref_args >= ref_args_size)
+				{
+					ref_args_size += 8;
+					ref_args = realloc (ref_args, ref_args_size * sizeof (cell));
+				}
+				amx_PushString (&(machine->amx), ref_args+nr_ref_args, &phys, (const char *)args[iarg], 0, 0);
+				nr_ref_args++;
+			}
+		}
+		
+		// we're done with these
+		free (args);
 	}
 
 	err = amx_Exec (&(machine->amx), NULL, index);
