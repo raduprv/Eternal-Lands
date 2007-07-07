@@ -30,11 +30,7 @@ GLuint water_reflection_fbo_depth_buffer = 0;
 GLuint water_reflection_fbo_texture = 0;
 int reflection_texture_width = 0;
 int reflection_texture_height = 0;
-float reflect_view_mat[16];
-float reflect_proj_mat[16];
-float reflect_texgen_mat[16];
-double reflect_view_mat_d[16];
-double reflect_proj_mat_d[16];
+MATRIX4x4 reflect_texgen_mat;
 GLfloat* water_tile_buffer = 0;
 GLuint water_tile_buffer_object = 0;
 int water_buffer_usage = 0;
@@ -360,10 +356,11 @@ void change_reflection_framebuffer_size(int width, int height)
 
 static __inline__ void init_texturing()
 {
+	MATRIX4x4 reflect_view_mat;
+	MATRIX4x4 reflect_proj_mat;
+
 	glGetFloatv(GL_MODELVIEW_MATRIX, reflect_view_mat);
 	glGetFloatv(GL_PROJECTION_MATRIX, reflect_proj_mat);
-	glGetDoublev(GL_MODELVIEW_MATRIX, reflect_view_mat_d);
-	glGetDoublev(GL_PROJECTION_MATRIX, reflect_proj_mat_d);
 
 	glPushMatrix();
 	glLoadIdentity();
