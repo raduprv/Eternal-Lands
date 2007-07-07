@@ -424,7 +424,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (object_under_mouse == -1)
 				return 1;
 #ifdef MINES
-			if (objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
+			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
 			{
 				prime_mine (object_under_mouse);
 				return 1;
@@ -467,7 +467,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if (object_under_mouse == -1)
 				return 1;
 #ifdef MINES
-			if (objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
+			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
 			{
 				click_mine (object_under_mouse);
 				return 1;
