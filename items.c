@@ -345,7 +345,7 @@ int display_items_handler(window_info *win)
 				glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 				glBegin(GL_TRIANGLE_FAN);
 					//glColor4f(0.14f, 0.35f, 0.82f, 0.50f); 
-					flash_effect_offset = sin((float)SDL_GetTicks()/(flash_delay * min2f(0.75f, 0.5f+cooldown)));
+					flash_effect_offset = sin((float)SDL_GetTicks()/(flash_delay * min2f(0.75f, 0.625f+cooldown/2)));
 					glColor4f(0.14f - flash_effect_offset / 20.0f, 0.35f - flash_effect_offset / 20.0f, 0.82f + flash_effect_offset / 8.0f, 0.48f + flash_effect_offset / 15.0f);
 
 					glVertex2f(x_center, y_center);
