@@ -203,7 +203,7 @@ bool WindParticle::idle(const Uint64 delta_t)
   {
     if (age > 50000000)
     {
-      std::cout << this << ": Too old." << std::endl;
+//      std::cout << this << ": Too old." << std::endl;
       state = 1;
     }
   
@@ -432,7 +432,7 @@ Vec3 WindParticle::get_wind_vec() const
   const float offset = randfloat() * 0.5;
 
   const coord_t x = 1.0 * sin(offset + pos.x * 0.5283 + pos.z * 0.7111 + time_offset * 0.6817) * sin(offset + pos.x * 1.2019 + pos.z * 0.5985 + time_offset * 1.5927) * e->max_adjust / (fabs(pos.y - e->center.y) + 1);
-  const coord_t y = 1.0 * sin(offset + pos.x * 0.4177 + pos.z * 1.3127 + time_offset * 1.1817) * sin(offset + pos.x * 0.5828 + pos.z * 0.6888 + time_offset * 2.1927) * e->max_adjust * 2.5;
+  const coord_t y = 1.0 * sin(offset + pos.x * 0.4177 + pos.z * 1.3127 + time_offset * 1.1817) * sin(offset + pos.x * 0.5828 + pos.z * 0.6888 + time_offset * 2.1927) * e->max_adjust * 2.0;
   const coord_t z = 1.0 * sin(offset + pos.x * 1.1944 + pos.z * 0.9960 + time_offset * 1.6817) * sin(offset + pos.x * 0.6015 + pos.z * 1.4809 + time_offset * 1.4927) * e->max_adjust / (fabs(pos.y - e->center.y) + 1);
 
 //  Vec3 random_component;

@@ -74,7 +74,7 @@ extern "C" void ec_init()
   ec_set_draw_method();
   //TODO: Free this when the program quits.  Not a big deal if it doesn't
   //happen, but it'd be proper to do so.
-  self_actor.obstruction = new ec::SimpleCylinderObstruction(&(self_actor.center), 0.6, 3.0);
+  self_actor.obstruction = new ec::CappedSimpleCylinderObstruction(&(self_actor.center), 0.45, 3.0, self_actor.center.y, self_actor.center.y + 0.9);
 
 #ifdef MAP_EDITOR
   ec::SmoothPolygonElement e(0.0, 25.0);
@@ -228,7 +228,7 @@ extern "C" void ec_idle()
         else if ((*iter)->effect->get_type() == ec::EC_TARGETMAGIC)
           set_vec3_actor_bone((*iter)->position, (*iter)->caster, 25, ec::Vec3(0.0, 0.0, 0.0));
         else
-          (*iter)->position = ec::Vec3((*iter)->caster->x_pos + X_OFFSET, ec_get_z((*iter)->caster), -((*iter)->caster->y_pos + Y_OFFSET));
+          (*iter)->position = ec::Vec3((*iter)->caster->x_pos + X_OFFSET, ec_get_z((*iter)->caster) - 0.25, -((*iter)->caster->y_pos + Y_OFFSET));
       }
       if ((*iter)->target)
           (*iter)->position2 = ec::Vec3((*iter)->target->x_pos, ec_get_z((*iter)->target) + 0.4, -(*iter)->target->y_pos);
@@ -322,9 +322,11 @@ extern "C" void ec_heartbeat()
     const float dist_squared = ((*iter)->center - ec::Vec3(-camera_x, -camera_z, camera_y)).magnitude_squared();
     if (dist_squared > MAX_OBSTRUCT_DISTANCE_SQUARED)
       continue;
+/*
     (*iter)->center.x += X_OFFSET;
-    (*iter)->center.y += Y_OFFSET;
-    (*iter)->center.z -= 0.25;
+    (*iter)->center.y += 0;
+    (*iter)->center.z -= Y_OFFSET;
+*/
     (*iter)->sin_rot_x = sin((*iter)->obj3d->x_rot * (ec::PI / 180));
     (*iter)->cos_rot_x = cos((*iter)->obj3d->x_rot * (ec::PI / 180));
     (*iter)->sin_rot_y = sin((*iter)->obj3d->z_rot * (ec::PI / 180));
@@ -365,7 +367,7 @@ extern "C" void ec_draw()
 {
   if (ec::get_error_status())
     return;
-  
+
   if (use_eye_candy)
   {
     // Update firefly activity.
@@ -579,7 +581,7 @@ extern "C" void ec_add_object_obstruction(object3d* obj3d, e3d_object *e3dobj, f
   ec_object_obstruction* obstruction = new ec_object_obstruction;
   obstruction->obj3d = obj3d;
   obstruction->e3dobj = e3dobj;
-  obstruction->center = ec::Vec3(obj3d->x_pos + X_OFFSET, obj3d->z_pos, -(obj3d->y_pos + Y_OFFSET));
+  obstruction->center = ec::Vec3(obj3d->x_pos, obj3d->z_pos - 0.5, -(obj3d->y_pos));
   obstruction->sin_rot_x = sin(obj3d->x_rot * (ec::PI / 180));
   obstruction->cos_rot_x = cos(obj3d->x_rot * (ec::PI / 180));
   obstruction->sin_rot_y = sin(obj3d->z_rot * (ec::PI / 180));
@@ -617,7 +619,7 @@ extern "C" void ec_add_actor_obstruction(actor* _actor, float force)
   ec_actor_obstruction* obstruction = new ec_actor_obstruction;
   obstruction->obstructing_actor = _actor;
   obstruction->center = ec::Vec3(_actor->x_pos + X_OFFSET, ec_get_z(_actor), -(_actor->y_pos + Y_OFFSET));
-  obstruction->obstruction = new ec::SimpleCylinderObstruction(&(obstruction->center), 0.85, force);
+  obstruction->obstruction = new ec::CappedSimpleCylinderObstruction(&(obstruction->center), 0.55, force, obstruction->center.y, obstruction->center.y + 0.9);
   actor_obstructions.push_back(obstruction);
 }
 

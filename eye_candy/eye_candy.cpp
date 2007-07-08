@@ -456,6 +456,23 @@ Vec3 SimpleCylinderObstruction::get_force_gradient(Particle& p)
     return Vec3(0.0, 0.0, 0.0);
 }
 
+Vec3 CappedSimpleCylinderObstruction::get_force_gradient(Particle& p)
+{	//Vertical cylinder, infinite height.
+  const Vec3 translated_pos = p.pos - *(pos);
+  
+  if ((p.pos.y < bottom) || (p.pos.y > top))
+    return Vec3(0.0, 0.0, 0.0);
+
+  const coord_t distsquared = square(translated_pos.x) + square(translated_pos.z);
+  if (distsquared < max_distance_squared)
+  {
+    p.pos -= p.velocity * (p.base->time_diff / 1000000.0) * 0.5;
+    return translated_pos * (force / (distsquared + 0.0001));
+  }
+  else
+    return Vec3(0.0, 0.0, 0.0);
+}
+
 CylinderObstruction::CylinderObstruction(Vec3* _start, Vec3* _end, const coord_t _max_distance, const coord_t _force) : Obstruction(_max_distance, _force)
 {
   start = _start;
@@ -508,7 +525,7 @@ Vec3 BoxObstruction::get_force_gradient(Particle& p)
   const Vec3 translated_pos = p.pos - *center;
 
   // Is it anywhere close?
-  const coord_t distsquared = square(translated_pos.x) + square(translated_pos.z);
+  const coord_t distsquared = translated_pos.planar_magnitude_squared();
   if (distsquared >= max_distance_squared)
     return Vec3(0.0, 0.0, 0.0);	// Nope.
 
@@ -545,6 +562,45 @@ Vec3 BoxObstruction::get_force_gradient(Particle& p)
 //    if ((center->x > 41.74) && (center->x < 41.75))
 //        std::cout << "B1: " << p.pos << ", " << translated_pos << ", " << rotz_position << ": " << start << ", " << end << ": " << Vec3(0.0, 0.0, 0.0) << std::endl;
 //    }
+/*
+    glColor4f(0.0, 1.0, 0.0, 1.0);
+    glBegin(GL_TRIANGLES);
+      glVertex3f(center->x, center->y, center->z);
+      glVertex3f(center->x, 0, center->z);
+      glVertex3f(p.pos.x, p.pos.y, p.pos.z);
+    glEnd();
+
+    glColor4f(0.0, 0.0, 1.0, 0.2);
+    glBegin(GL_QUADS);
+      glVertex3f(start.x, start.y, start.z);
+      glVertex3f(end.x, start.y, start.z);
+      glVertex3f(end.x, end.y, start.z);
+      glVertex3f(start.x, end.y, start.z);
+      glVertex3f(start.x, start.y, start.z);
+      glVertex3f(end.x, start.y, start.z);
+      glVertex3f(end.x, start.y, end.z);
+      glVertex3f(start.x, start.y, end.z);
+      glVertex3f(start.x, start.y, end.z);
+      glVertex3f(start.x, end.y, end.z);
+      glVertex3f(start.x, end.y, start.z);
+      glVertex3f(start.x, start.y, start.z);
+      glVertex3f(start.x, start.y, end.z);
+      glVertex3f(end.x, start.y, end.z);
+      glVertex3f(end.x, end.y, end.z);
+      glVertex3f(start.x, end.y, end.z);
+      glVertex3f(start.x, end.y, start.z);
+      glVertex3f(end.x, end.y, start.z);
+      glVertex3f(end.x, end.y, end.z);
+      glVertex3f(start.x, end.y, end.z);
+      glVertex3f(end.x, start.y, end.z);
+      glVertex3f(end.x, end.y, end.z);
+      glVertex3f(end.x, end.y, start.z);
+      glVertex3f(end.x, start.y, start.z);
+    glEnd();
+    
+    if (distsquared < 0.1)
+      std::cout << p.pos << ", " << translated_pos << ", " << rotz_position << " : " << *center << " / " << start << ", " << end << std::endl;
+*/
     return Vec3(0.0, 0.0, 0.0);
   }
   else
@@ -580,7 +636,14 @@ Vec3 BoxObstruction::get_force_gradient(Particle& p)
   
 //    if ((center->x > 41.74) && (center->x < 41.75))
 //      std::cout << "B2: " << p.pos << ", " << translated_pos << ", " << rotz_position << ": " << (*center) << ": " << start << ", " << end << ": " << ret << ", " << roty_ret << std::endl;
-
+/*
+    glColor4f(1.0, 0.0, 0.0, 1.0);
+    glBegin(GL_TRIANGLES);
+      glVertex3f(center->x, center->y, center->z);
+      glVertex3f(center->x, 0.2, center->z);
+      glVertex3f(center->x + roty_ret.x, center->y + roty_ret.y, center->z + roty_ret.z);
+    glEnd();
+*/
     return roty_ret;
   }
 }

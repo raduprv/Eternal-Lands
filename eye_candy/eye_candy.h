@@ -1317,6 +1317,22 @@ public:
 };
 
 /*!
+\brief Like above, but with top and bottom caps
+*/
+class CappedSimpleCylinderObstruction : public Obstruction
+{
+public:
+  CappedSimpleCylinderObstruction(Vec3* _pos, const coord_t _max_distance, const coord_t _force, const coord_t _bottom, const coord_t _top) : Obstruction(_max_distance, _force) { pos = _pos; bottom = _bottom; top = _top; };
+  virtual ~CappedSimpleCylinderObstruction() {};
+  
+  virtual Vec3 get_force_gradient(Particle& p);
+
+  Vec3* pos;
+  coord_t bottom;
+  coord_t top;
+};
+
+/*!
 \brief An obstruction shaped like a cylinder of finite length at any angle (slow)
 */
 class CylinderObstruction : public Obstruction	// Note: assumes that (*end - *start) doesn't change.
@@ -1434,7 +1450,16 @@ public:
   
   virtual EffectEnum get_type() = 0;
   virtual bool idle(const Uint64 usec) = 0;
-  virtual void draw(const Uint64 usec) { };
+  virtual void draw(const Uint64 usec)
+  {
+    for (std::map<Particle*, bool>::iterator iter2 = particles.begin(); iter2 != particles.end(); iter2++)
+    {
+      for (std::vector<Obstruction*>::iterator iter = obstructions->begin(); iter != obstructions->end(); iter++)
+      {
+        (*iter)->get_force_gradient(*(iter2->first));
+      }
+    }
+  };
   virtual void request_LOD(const float _LOD)
   {
     if (fabs(_LOD - (float)LOD) < 1.0)

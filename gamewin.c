@@ -655,7 +655,6 @@ int display_game_handler (window_info *win)
 			render_light_view();
 			CHECK_GL_ERRORS ();
 		}
-		if (weather_use_fog()) render_fog();
 
 		if (any_reflection > 1)
 		{
@@ -745,6 +744,7 @@ CHECK_GL_ERRORS();
 	ec_draw();
 #endif	//EYE_CANDY
 
+	if (weather_use_fog()) render_fog();
 
 	last_texture = -1;
 

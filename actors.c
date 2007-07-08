@@ -120,7 +120,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	//It's unlocked later
 
 #ifdef EYE_CANDY
-	ec_add_actor_obstruction(our_actor, 2.0);
+	ec_add_actor_obstruction(our_actor, 3.0);
 #endif
 #ifdef MINIMAP
 	minimap_touch();
