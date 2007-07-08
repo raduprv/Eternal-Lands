@@ -9,6 +9,9 @@
 #if defined SFX && defined EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
+#ifdef PAWN
+#include "pawn/elpawn.h"
+#endif
 
 int map_type=1;
 Uint32 map_flags=0;
@@ -237,8 +240,12 @@ void change_map (const char *mapname)
 	have_a_map=1;
 #endif  //MAP_EDITOR2
 #ifdef  MINIMAP
-    change_minimap();
+	change_minimap();
 #endif  //MINIMAP
+
+#ifdef PAWN
+	run_pawn_map_function ("change_map", "s", mapname);
+#endif
 }
 
 int load_empty_map()

@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include "global.h"
 #include "timers.h"
+#ifdef PAWN
+#include "pawn/elpawn.h"
+#endif
 
 #define	TIMER_RATE 20
 int	my_timer_adjust=0;
@@ -72,6 +75,10 @@ Uint32 my_timer(Uint32 interval, void * data)
 		}
 	}
 	normal_animation_timer++;
+
+#ifdef PAWN
+	check_pawn_timers ();
+#endif
 
 	// find the new interval
 	new_time= TIMER_RATE-(SDL_GetTicks()-my_timer_clock);

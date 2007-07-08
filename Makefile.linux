@@ -28,7 +28,7 @@ NEW_FILE_IO_CXXOBJ = io/elfilewrapper.o io/elfile.o io/zipfilesystem.o exception
 NEW_FILE_IO_COBJ = io/elpathwrapper.o
 USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
-	pawn/amxfloat.o pawn/elpawn.o
+	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 COBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o alphamap.o asc.o \
 	bbox_tree.o books.o buddy.o bags.o \

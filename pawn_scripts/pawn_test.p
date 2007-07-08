@@ -1,3 +1,5 @@
+#include "maps.p"
+
 public pawn_test (const msg[]) 
 {
 	new i

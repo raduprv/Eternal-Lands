@@ -7,6 +7,7 @@
 #include "../text.h"
 #include "amxel.h"
 #include "amxcons.h"
+#include "elpawn.h"
 
 #define MAX_LOG_MSG_SIZE 256
 
@@ -188,6 +189,25 @@ static cell AMX_NATIVE_CALL n_translate_object (AMX *amx, const cell *params)
 	return 0;
 }
 
+static cell AMX_NATIVE_CALL n_add_timer (AMX *amx, const cell *params)
+{
+	char name[256];
+	cell *pstr;
+	
+	amx_GetAddr (amx, params[2], &pstr);
+	amx_GetString (name, pstr, 0, sizeof (name));
+
+	add_pawn_timer (params[1], name, params[3]);
+	
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL n_clear_timers (AMX *amx, const cell *params)
+{
+	clear_pawn_timers ();
+	return 0;
+}
+
 static int append_char (void *dest, char ch)
 {
 	char* str = dest;
@@ -262,6 +282,9 @@ const AMX_NATIVE_INFO el_Natives[] = {
 	{ "rotate_object_add",      n_rotate_object_add      },
 	{ "set_object_position",    n_set_object_position    },
 	{ "translate_object",       n_translate_object       },
+	/* scheduling of functions calls */
+	{ "add_timer",              n_add_timer              },
+	{ "clear_timers",           n_clear_timers           },
 	/* terminator */
  	{ NULL,                        NULL                  }
 };

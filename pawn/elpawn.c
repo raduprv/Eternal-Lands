@@ -6,6 +6,7 @@
 // includes for our native functions
 #include "amxcons.h"
 #include "amxfloat.h"
+#include "amxstring.h"
 #include "amxel.h"
 
 // Set up our own struct with the information we need. We might be able 
@@ -18,9 +19,79 @@ typedef struct
 	AMX amx;         // representation of the actual machine
 } pawn_machine;
 
+typedef struct _pawn_timer_queue
+{
+	Uint32 ticks;
+	char* function;
+	Uint32 interval;
+	struct _pawn_timer_queue *next;
+} pawn_timer_queue;
+
 // the machines themselves
 static pawn_machine srv_amx = {0, 0, NULL};
 static pawn_machine map_amx = {0, 0, NULL};
+
+static pawn_timer_queue *timer_queue = NULL;
+
+static __inline__ int ticks_greater_equal (Uint32 ticks, Uint32 limit)
+{
+	// try to adjust for timer wrap around. We'll assume that no events are
+	// planned more than 2*31 ms (a bit more than 24 days) in advance.
+	return ticks >= limit || (((Sint32) limit) < 0 && ((Sint32) ticks) > 0);
+}
+
+void pop_timer_queue ()
+{
+	if (timer_queue)
+	{
+		pawn_timer_queue *head = timer_queue;
+		timer_queue = head->next;
+		free (head->function);
+		free (head);
+	}
+}
+
+void insert_timer_queue_node (pawn_timer_queue *new_node)
+{
+	
+	if (timer_queue == NULL || ticks_greater_equal (timer_queue->ticks, new_node->ticks))
+	{
+		new_node->next = timer_queue;
+		timer_queue = new_node;
+	}
+	else
+	{
+		pawn_timer_queue* node = timer_queue;
+		while (node->next && ticks_greater_equal (new_node->ticks, node->next->ticks))
+			node = node->next;
+		new_node->next = node->next;
+		node->next = new_node;
+	}
+}
+
+void reschedule_timer_queue_head (Uint32 ticks)
+{
+	pawn_timer_queue *head = timer_queue;
+	
+	if (head)
+	{
+		head->ticks = ticks;
+		if (head->next && ticks_greater_equal (ticks, head->next->ticks))
+		{
+			timer_queue = head->next;
+			insert_timer_queue_node (head);
+		}
+	}
+}
+
+void push_timer_queue (Uint32 ticks, const char* function, Uint32 interval)
+{
+	pawn_timer_queue* new_node = calloc (1, sizeof (pawn_timer_queue));
+	new_node->ticks = ticks;
+	new_node->function = strdup (function);
+	new_node->interval = interval;
+	insert_timer_queue_node (new_node);
+}
 
 int initialize_pawn_machine (pawn_machine *machine, const char* fname)
 {
@@ -57,6 +128,7 @@ int initialize_pawn_machine (pawn_machine *machine, const char* fname)
 	// the last Init (when we have defined our entire library).
 	amx_ConsoleInit (&(machine->amx));
 	amx_FloatInit (&(machine->amx));
+	amx_StringInit (&(machine->amx));
 	err = amx_ElInit (&(machine->amx));
 	if (err != AMX_ERR_NONE)
 	{
@@ -84,6 +156,7 @@ void cleanup_pawn_machine (pawn_machine *machine)
 	if (machine->initialized)
 	{
 		amx_ElCleanup (&(machine->amx));
+		amx_StringCleanup (&(machine->amx));
 		amx_FloatCleanup (&(machine->amx));
 		amx_ConsoleCleanup (&(machine->amx));
 		amx_Cleanup (&(machine->amx));
@@ -221,4 +294,38 @@ int run_pawn_map_function (const char* fun, const char* fmt, ...)
 	va_end (ap);
 	
 	return res;
+}
+
+void check_pawn_timers ()
+{
+	if (timer_queue && ticks_greater_equal (SDL_GetTicks (), timer_queue->ticks))
+	{
+		SDL_Event event;
+		event.type = SDL_USEREVENT;
+		event.user.code = EVENT_PAWN_TIMER;
+		SDL_PushEvent (&event);
+	}
+}
+
+void handle_pawn_timers ()
+{
+	Uint32 now = SDL_GetTicks ();
+	while (timer_queue && ticks_greater_equal (now, timer_queue->ticks))
+	{
+		int ok = run_pawn_map_function (timer_queue->function, NULL);
+		if (ok && timer_queue->interval)
+			push_timer_queue (now + timer_queue->interval, timer_queue->function, timer_queue->interval);
+		pop_timer_queue ();
+	}
+}
+
+void add_pawn_timer (Uint32 offset, const char* name, Uint32 interval)
+{
+	push_timer_queue (SDL_GetTicks () + offset, name, interval);
+}
+
+void clear_pawn_timers ()
+{
+	while (timer_queue)
+		pop_timer_queue ();
 }

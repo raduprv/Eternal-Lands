@@ -4,6 +4,9 @@
 #include "elwindows.h"
 #include "keys.h"
 #include "update.h"
+#ifdef PAWN
+#include "pawn/elpawn.h"
+#endif
 
 #ifndef WINDOWS
 #include <SDL_syswm.h>
@@ -221,8 +224,8 @@ int HandleEvent (SDL_Event *event)
 				break;
 				
 			case	EVENT_UPDATE_PARTICLES:
-                update_particles();
-            	break;
+				update_particles();
+				break;
                 
 			case    EVENT_UPDATES_DOWNLOADED:
 				handle_update_download((struct http_get_struct *)event->user.data1);
@@ -231,6 +234,12 @@ int HandleEvent (SDL_Event *event)
 			case    EVENT_DOWNLOAD_COMPLETE:
 				handle_file_download((struct http_get_struct *)event->user.data1);
 				break;
+
+#ifdef PAWN			
+			case 	EVENT_PAWN_TIMER:
+				handle_pawn_timers ();
+				break;
+#endif
 			    
 			}
 	}

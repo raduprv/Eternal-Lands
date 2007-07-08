@@ -1,6 +1,8 @@
 #ifndef ELPAWNRUN_H
 #define ELPAWNRUN_H
 
+#include <SDL_types.h>
+
 /*!
  * \brief Initialize the Pawn Abstract Machines
  *
@@ -55,5 +57,42 @@ int run_pawn_server_function (const char* fun, const char* fmt, ...);
  * \sa initialize_pawn(), run_pawn_server_function()
  */
 int run_pawn_map_function (const char* fun, const char* fmt, ...);
+
+/*!
+ * \brief Checks the Pawn timer queue to see if a callback needs to be executed
+ *
+ * Check the timer queue to see if the current time is greater than the 
+ * scheduled time for the first event. If so, generate an SDL event to
+ * execute all callbacks that need to be finished.
+ */
+void check_pawn_timers ();
+
+/*!
+ * \brief Execute all necessary timer callbacks.
+ *
+ * Execute all timer call backs on the queue for which the scheduled time has
+ * passed.
+ */
+void handle_pawn_timers ();
+
+/*!
+ * \brief Schedule a function for execution
+ *
+ * Schedule a Pawn function to be executed at a certain point in the future.
+ * If \a interval is non zero, it will be executed every \a interval 
+ * milliseconds after the first execution.
+ * \param offset   The number of milliseconds between now and the first call
+ * \param name     The name of the function to run
+ * \param interval If > 0, the number of milliseconds between succesive calls to
+ *                 the function
+ */
+void add_pawn_timer (Uint32 offset, const char* name, Uint32 interval);
+
+/*!
+ * \brief Clear the timer queue
+ *
+ * Remove all current callbacks from the Pawn timer queue;
+ */
+void clear_pawn_timers ();
 
 #endif
