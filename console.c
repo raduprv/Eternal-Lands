@@ -1154,17 +1154,17 @@ void new_minute_console(void){
 	if(time_warn_h >= 0 && (time_warn_h+game_minute)%60 == 0){
 		char str[75];
 		safe_snprintf(str, sizeof(str), time_warn_hour_str, time_warn_h);
-		LOG_TO_CONSOLE(c_green1, str);
+		LOG_TO_CONSOLE(c_purple1, str);
 	}
 	if(time_warn_s >= 0 && (time_warn_s+game_minute)%180 == 30){
 		char str[100];
 		safe_snprintf(str, sizeof(str), time_warn_sun_str, time_warn_s);
-		LOG_TO_CONSOLE(c_green1, str);
+		LOG_TO_CONSOLE(c_purple1, str);
 	}
 	if(time_warn_d >= 0 && (time_warn_d+game_minute)%360 == 0){
 		char str[75];
 		safe_snprintf(str, sizeof(str), time_warn_day_str, time_warn_d);
-		LOG_TO_CONSOLE(c_green1, str);
+		LOG_TO_CONSOLE(c_purple1, str);
 	}
 }
 
