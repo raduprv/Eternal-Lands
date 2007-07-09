@@ -211,7 +211,8 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 		//When the camera faces a non walking direction the shadow looks
 		//funny.  I prefer it being enabled cause it prevents you from seeing
 		//your helmet or hair when you look behind you.
-		//if(first_person) z_rot = -rz+180.0f;
+		if(first_person)
+			z_rot = 180.0f - rz;
 	} else {
 		glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	}
