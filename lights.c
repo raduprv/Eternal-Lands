@@ -80,11 +80,11 @@ GLfloat light_6_dist;
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
-#ifdef NEW_LIGHTING
+#ifdef SKY_FPV_CURSOR
 sun sun_pos[360];
-#elif defined(SKY_FPV_CURSOR)
-sun sun_pos[60*6];
 sun sun_show[60*6];
+#elif defined(NEW_LIGHTING)
+sun sun_pos[60*6];
 #else 
 sun sun_pos[60*3];
 #endif
