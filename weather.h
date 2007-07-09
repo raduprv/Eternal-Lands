@@ -23,9 +23,14 @@ extern int wind_direction;	//wind direction, based on server's setting and local
 
 #ifdef NEW_WEATHER
 int weather_use_fog();
+extern __inline__ int weather_active(void);
 void weather_sound_control();
 float weather_bias_light(float value);
 void weather_color_bias(const float * src, float * dst);
+float weather_get_fadein_bias();
+float weather_get_fadeout_bias();
+float weather_get_fadeinout_bias();
+extern float rain_color[];
 
 #else // def NEW_WEATHER
 

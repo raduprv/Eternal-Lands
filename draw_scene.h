@@ -18,11 +18,32 @@ extern char have_display; /*!< Flag indicating whether any window is showing the
 extern float camera_x,camera_y,camera_z;
 extern float old_camera_x,old_camera_y,old_camera_z,c_delta;
 extern float rx,ry,rz;
+#ifdef SKY_FPV_CURSOR
+extern int cam_turn;
+#endif /* SKY_FPV_CURSOR */
 extern float camera_rotation_speed; /*!< current speed for rotations of the camera */
 extern int camera_rotation_frames;
 extern float camera_tilt_speed;
 extern int camera_tilt_frames;
 extern int normal_animation_timer;
+#ifdef SKY_FPV_CURSOR
+
+//New camera features. See draw_scene.c for details
+//Move comments here if desired.
+extern float camera_kludge; /*!< Holds character's y rotation to allow camera to follow character  */
+extern float last_kludge;
+extern int fol_cam;
+extern float fol_con;
+extern float fol_lin;
+extern float fol_quad;
+extern float fol_strn;
+extern int ext_cam;
+extern double project[16], modl[16];
+extern int view[4];
+extern float hold_camera;
+extern int first_person;
+extern int adjust_view;
+#endif /* SKY_FPV_CURSOR */
 
 extern float fine_camera_rotation_speed; /*!< configurable fine grained speed for rotating the camera */
 extern float normal_camera_rotation_speed; /*!< configurable normal speed for rotating the camera */

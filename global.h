@@ -175,8 +175,17 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "cal.h"
 #include "session.h"
 #include "serverpopup.h"
+
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
+#endif /* SKY_FPV_CURSOR */
+
 #ifdef MINES
+#ifndef SKY_FPV_CURSOR
  #include "mines.h"
+#else /* SKY_FPV_CURSOR */
+#include "mines.h"
+#endif /* SKY_FPV_CURSOR */
 #endif // MINES
 
 #ifdef COUNTERS
@@ -205,4 +214,8 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 	#include "olc.h"
 #endif	//OLC
 
-#endif
+#ifdef SKY_FPV_CURSOR
+#define font_scale 10.0f
+#endif /* SKY_FPV_CURSOR */
+
+#endif /* __GLOBAL_H__ */

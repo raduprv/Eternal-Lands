@@ -51,6 +51,7 @@ int yourself= -1;
 actor *your_actor= NULL;
 
 int last_sit= 0;
+int last_turn_around = 0;
 
 void move_to (short int x, short int y)
 {
@@ -99,6 +100,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
 	// movement.
+	if ((str[0] == TURN_LEFT||str[0] == TURN_RIGHT)&&on_the_move (your_actor))return 0;
 	if (str[0] == DROP_ITEM  && on_the_move (your_actor))
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
@@ -126,7 +128,7 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	//check to see if we have too many packets being sent of the same to reduce server flood
 	if(len < sizeof (tcp_cache))	// only if it fits
 	{
-		if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT)
+		if(str[0]==MOVE_TO || str[0]==RUN_TO || str[0]==SIT_DOWN || str[0]==HARVEST || str[0]==MANUFACTURE_THIS || str[0]==CAST_SPELL || str[0]==RESPOND_TO_NPC || str[0]==ATTACK_SOMEONE || str[0]==SEND_PM || str[0]==RAW_TEXT || str[0]==TURN_LEFT || str[0]==TURN_RIGHT)
 		{
 			Uint32	time_limit= 600;
 
@@ -135,16 +137,24 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 				if(last_sit+1500>cur_time) return 0;
 				last_sit= cur_time;
 			}
+			if( str[0]==TURN_RIGHT || str[0]==TURN_LEFT )
+			{
+				if(last_turn_around + 600 > cur_time) return 0;
+				last_turn_around = cur_time;
+			}
+
 			//if too close together
-			if(len == (int)tcp_cache_len && *str == *tcp_cache && cur_time < tcp_cache_time+time_limit)
-				{
-					//and the same packet
-					if(!memcmp(str, tcp_cache, len))
-						{
-							//ignore this packet
-							return 0;
-						}
+			if(len == (int)tcp_cache_len && *str == *tcp_cache && cur_time < tcp_cache_time+time_limit){
+				//and the same packet
+				if(!memcmp(str, tcp_cache, len)){
+					//ignore this packet
+					return 0;
 				}
+			}
+
+			//turns do not interrupt queued moves
+			if(tcp_cache[0] == MOVE_TO && (str[0]==TURN_LEFT || str[0]==TURN_RIGHT)) return 0;
+
 			//memorize the data we are sending for next time
 			memcpy(tcp_cache, str, len);
 			tcp_cache_len= len;
@@ -210,7 +220,8 @@ int my_tcp_flush (TCPsocket my_socket)
 
 	// empty the buffer
 	tcp_out_loc= 0;
-	
+
+	tcp_cache[0]=0;
 	return(ret);
 }
 
@@ -556,8 +567,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif
 				
 				previously_logged_in=1;
-
 			}
+#ifdef SKY_FPV_CURSOR
+			//Get in game date to set moons for signs, wonders, times and seasons
+			command_date("", 0);
+#endif /* SKY_FPV_CURSOR */
 			break;
 
 		case HERE_YOUR_STATS:

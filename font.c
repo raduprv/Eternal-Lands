@@ -466,7 +466,7 @@ int draw_string_zoomed_width (int x, int y, const unsigned char * our_string, in
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-   	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
 
@@ -530,7 +530,7 @@ void draw_string_zoomed_clipped (int x, int y, const unsigned char* our_string, 
 		// no point in trying
 		return;
 
-   	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
+	glEnable (GL_ALPHA_TEST);	// enable alpha filtering, so we have some alpha key
 	glAlphaFunc (GL_GREATER, 0.1f);
 	get_and_set_texture_id (font_text);
 
@@ -626,7 +626,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	   may fine it useful for setting the winow size, so pass back
 	   to the caller if they provide somewhere to store it. */
 	float local_max_line_width = 0;
-  
+
 	if (str == NULL) {
 		return 0;
 	}
@@ -692,10 +692,10 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				   top of the loop */
 				while (nchar > 0)
 				{
-					isrc--;      
+					isrc--;
 					if (str[isrc] != '\r')
 						nchar--;
-				}  
+				}
 
 				buf[ibuf] = '\r';
 				nlines++; ibuf++;
@@ -719,15 +719,15 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 		// copy the character into the buffer
 		buf[ibuf] = str[isrc];
 		isrc++; ibuf++;
-    
+
 		if (ibuf >= size - 1) {
 			break;
 		}
 	}
-  
+
 	safe_strncpy(str, buf, size * sizeof(char));
 	str[size-1] = '\0';
-  
+
 	if (cursor) {
 		*cursor += dcursor;
 		if(*cursor > size-1) {
@@ -756,8 +756,8 @@ void draw_string_small(int x, int y,const unsigned char * our_string,int max_lin
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-   	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    glAlphaFunc(GL_GREATER,0.1f);
+	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
 
 	i=0;
@@ -787,7 +787,7 @@ CHECK_GL_ERRORS();
 		}
 
 
-    glEnd();
+	glEnd();
 	glDisable(GL_ALPHA_TEST);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -796,6 +796,7 @@ CHECK_GL_ERRORS();
 
 #ifdef	ELC
 #ifndef MAP_EDITOR2
+
 void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * our_string,
 						int max_lines, float font_x_scale, float font_y_scale)
 {
@@ -805,8 +806,10 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 	float displayed_font_y_size;
 
 	float displayed_font_x_width;
+#ifndef SKY_FPV_CURSOR
 	int font_x_size=FONT_X_SPACING;
 	int font_y_size=FONT_Y_SPACING;
+#endif /* not SKY_FPV_CURSOR */
 	int	font_bit_width, ignored_bits;
 
 	unsigned char cur_char;
@@ -815,6 +818,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 	float cur_x,cur_y;
 	int current_lines=0;
 
+#ifndef SKY_FPV_CURSOR
 	/*
 	if(big)
 		{
@@ -827,17 +831,19 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level*name_zoom/3.0;
 		}
 	*/
+#endif /* not SKY_FPV_CURSOR */
 	displayed_font_x_size=font_x_scale*name_zoom*12.0;
 	displayed_font_y_size=font_y_scale*name_zoom*12.0;
 
-   	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    glAlphaFunc(GL_GREATER,0.1f);
+	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
 
 	i=0;
 	cur_x=x;
 	cur_y=y;
 	glBegin(GL_QUADS);
+#ifndef SKY_FPV_CURSOR
 	while(1)
 		{
 			cur_char=our_string[i];
@@ -898,10 +904,64 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
 
+#else /* SKY_FPV_CURSOR */
+	while(1){
+		cur_char=our_string[i];
+		if(!cur_char){
+			break;
+		} else if(cur_char=='\n'){
+			cur_y+=displayed_font_y_size;
+			cur_x=x;
+#endif /* SKY_FPV_CURSOR */
 			i++;
+#ifdef SKY_FPV_CURSOR
+			current_lines++;
+			if(current_lines>=max_lines)break;
+			continue;
+		} else if(IS_COLOR(cur_char)){
+			glEnd();	//Ooops - NV bug fix!!
+			glBegin(GL_QUADS);
 		}
+		chr=find_font_char(cur_char);
+		if(chr >= 0){
+			col=chr/FONT_CHARS_PER_LINE;
+			row=chr%FONT_CHARS_PER_LINE;
 
-    glEnd();
+			font_bit_width=get_font_width(chr);
+			displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
+			ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
+			if(ignored_bits < 0)ignored_bits=0;
+
+			//now get the texture coordinates
+			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
+			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+
+			glTexCoord2f(u_start,v_start);
+			glVertex3f(cur_x,cur_y+displayed_font_y_size,z);
+
+			glTexCoord2f(u_start,v_end);
+			glVertex3f(cur_x,cur_y,z);
+
+			glTexCoord2f(u_end,v_end);
+			glVertex3f(cur_x+displayed_font_x_width,cur_y,z);
+
+			glTexCoord2f(u_end,v_start);
+			glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
+
+			cur_x+=displayed_font_x_width;
+		} else if(IS_COLOR(c_ubound)){
+			glEnd();	//Ooops - NV bug fix!!
+			glBegin(GL_QUADS);
+#endif /* SKY_FPV_CURSOR */
+		}
+#ifdef SKY_FPV_CURSOR
+	i++;
+	}
+#endif /* SKY_FPV_CURSOR */
+
+	glEnd();
 	glDisable(GL_ALPHA_TEST);
 }
 void draw_ingame_string(float x, float y,const unsigned char * our_string,
@@ -913,8 +973,10 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	float displayed_font_y_size;
 
 	float displayed_font_x_width;
+#ifndef SKY_FPV_CURSOR
 	//int font_x_size=FONT_X_SPACING;
 	//int font_y_size=FONT_Y_SPACING;
+#endif /* not SKY_FPV_CURSOR */
 	int	font_bit_width, ignored_bits;
 
 	unsigned char cur_char;
@@ -922,18 +984,44 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	int i;
 	float cur_x,cur_y;
 	int current_lines=0;
+#ifdef SKY_FPV_CURSOR
+	double model[16], proj[16],hx,hy,hz;
+	int view[4];
 
+	displayed_font_x_size=font_x_scale*name_zoom*12.0*font_scale;
+	displayed_font_y_size=font_y_scale*name_zoom*12.0*font_scale;
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	glGetDoublev(GL_PROJECTION_MATRIX, proj);
+	glGetIntegerv(GL_VIEWPORT, view);
+	gluProject((double)x,0.0f,(double)y,model, proj, view, &hx,&hy,&hz);
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
+#endif /* SKY_FPV_CURSOR */
+
+#ifndef SKY_FPV_CURSOR
 	displayed_font_x_size=font_x_scale*zoom_level*name_zoom/3.0;
 	displayed_font_y_size=font_y_scale*zoom_level*name_zoom/3.0;
+#endif /* not SKY_FPV_CURSOR */
 
-   	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
-    glAlphaFunc(GL_GREATER,0.1f);
+	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
+	glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
 
 	i=0;
+#ifndef SKY_FPV_CURSOR
 	cur_x=x;
 	cur_y=y;
+#else /* SKY_FPV_CURSOR */
+	cur_x=hx;
+	cur_y=hy;
+#endif /* SKY_FPV_CURSOR */
 	glBegin(GL_QUADS);
+#ifndef SKY_FPV_CURSOR
 	while(1)
 		{
 			cur_char=our_string[i];
@@ -990,16 +1078,74 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
 
+#else /* SKY_FPV_CURSOR */
+	while(1){
+		cur_char=our_string[i];
+		if(!cur_char){
+			break;
+		}else if(cur_char=='\n'){
+			cur_y+=displayed_font_y_size;
+			cur_x=hx;
+#endif /* SKY_FPV_CURSOR */
 			i++;
+#ifdef SKY_FPV_CURSOR
+			current_lines++;
+			if(current_lines>=max_lines)break;
+			continue;
+		}else if(IS_COLOR(cur_char)){
+			glEnd();	//Ooops - NV bug fix!!
+			glBegin(GL_QUADS);
 		}
+		chr=find_font_char(cur_char);
+		if(chr >= 0){
+			col=chr/FONT_CHARS_PER_LINE;
+			row=chr%FONT_CHARS_PER_LINE;
 
-    glEnd();
+			font_bit_width=get_font_width(chr);
+			displayed_font_x_width=((float)font_bit_width)*displayed_font_x_size/12.0;
+			ignored_bits=(12-font_bit_width)/2;	// how many bits on each side of the char are ignored?
+			if(ignored_bits < 0)ignored_bits=0;
+
+			//now get the texture coordinates
+			u_start=(float)(row*FONT_X_SPACING+ignored_bits)/256.0f;
+			u_end=(float)(row*FONT_X_SPACING+FONT_X_SPACING-7-ignored_bits)/256.0f;
+			v_start=(float)1.0f-(1+col*FONT_Y_SPACING)/256.0f;
+			v_end=(float)1.0f-(col*FONT_Y_SPACING+FONT_Y_SPACING-1)/256.0f;
+
+			glTexCoord2f(u_start,v_start);
+			glVertex3f(cur_x,cur_y+displayed_font_y_size,0);
+
+			glTexCoord2f(u_start,v_end);
+			glVertex3f(cur_x,cur_y,0);
+
+			glTexCoord2f(u_end,v_end);
+			glVertex3f(cur_x+displayed_font_x_width,cur_y,0);
+
+			glTexCoord2f(u_end,v_start);
+			glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,0);
+
+			cur_x+=displayed_font_x_width;
+		} else if(IS_COLOR(cur_char)){
+			glEnd();	//Ooops - NV bug fix!!
+			glBegin(GL_QUADS);
+#endif /* SKY_FPV_CURSOR */
+		}
+#ifdef SKY_FPV_CURSOR
+		i++;
+	}
+#endif /* SKY_FPV_CURSOR */
+
+	glEnd();
 	glDisable(GL_ALPHA_TEST);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
+#ifdef SKY_FPV_CURSOR
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+#endif /* SKY_FPV_CURSOR */
 }
-#endif
+#endif //!MAP_EDITOR_2
 #endif	//ELC
 
 

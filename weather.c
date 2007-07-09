@@ -121,14 +121,17 @@ Uint32 lightning_stop = 0;
 float rain_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 float fog_alpha;
 
-float get_fadein_bias();
-float get_fadeout_bias();
-float get_fadeinout_bias();
+float weather_get_fadein_bias();
+float weather_get_fadeout_bias();
+float weather_get_fadeinout_bias();
 float interpolate(float affinity, float first, float second);
 void update_rain(int ticks, int num_rain_drops);
 void render_rain(int num_rain_drops);
 void set_weather_ratio(Uint8 type, Uint8 value);
 
+__inline__ int weather_active(void){
+	return (weather_flags & WEATHER_ACTIVE);
+}
 
 /*
  * |<-----seconds_till_start----->|<--WEATHER_FADEIN-->|                   
@@ -155,7 +158,7 @@ void set_weather_ratio(Uint8 type, Uint8 value);
  *                         |_     |.......:::::::::::::|::::|:::::::::::::::......|      |.......:::::::::::::|::
  *                                                      
  */
-float get_fadein_bias()
+float weather_get_fadein_bias()
 {
 	// has fading in started yet?
 	if (weather_time >= weather_start_time) {
@@ -170,7 +173,7 @@ float get_fadein_bias()
 	}
 }
 
-float get_fadeout_bias()
+float weather_get_fadeout_bias()
 {
 	// has fading out started yet?
 	if (weather_time >= weather_stop_time - WEATHER_FADEOUT) {
@@ -185,9 +188,9 @@ float get_fadeout_bias()
 	}
 }
 
-float get_fadeinout_bias()
+float weather_get_fadeinout_bias()
 {
-	if (weather_flags & WEATHER_ACTIVE) {
+	if (weather_active()) {
 		switch (weather_flags & (WEATHER_STARTING|WEATHER_STOPPING)) {
 			case 0:
 				// neither fading in nor out
@@ -195,21 +198,21 @@ float get_fadeinout_bias()
 
 			case WEATHER_STARTING:
 				// fading in
-				return get_fadein_bias();
+				return weather_get_fadein_bias();
 
 			case WEATHER_STOPPING:
 				// fading out
-				return get_fadeout_bias();
+				return weather_get_fadeout_bias();
 
 			case WEATHER_STARTING|WEATHER_STOPPING:
 				// possible overlap. If there is no overlap, one of both is 0 (1)
 				// Lachesis: please avoid equality.
 				if (weather_start_time + WEATHER_FADEIN <= weather_stop_time) {
 					// early stop
-					return get_fadein_bias() + get_fadeout_bias() - 1.0f;
+					return weather_get_fadein_bias() + weather_get_fadeout_bias() - 1.0f;
 				} else {
 					// early start
-					return get_fadein_bias() + get_fadeout_bias();
+					return weather_get_fadein_bias() + weather_get_fadeout_bias();
 				}
 
 			default: return 1.0f;
@@ -261,12 +264,12 @@ void get_weather_from_server(const Uint8* data){
 		LOG_TO_CONSOLE(c_red1, "Server sent an unknown weather type");
 		return;
 		//from now on, deal with the set of precipitations
-	}else if(data[2] == 0 && !(weather_flags & WEATHER_ACTIVE)){
+	}else if(data[2] == 0 && !weather_active()){
 		return;	//stop? but we're already stopped...
-	} else if(data[2] != 0 && (weather_flags & WEATHER_ACTIVE)){
+	} else if(data[2] != 0 && weather_active()){
 		set_weather_ratio(data[0], data[2]);
 		return;
-	} else if(data[2] != 0 && !(weather_flags & WEATHER_ACTIVE)){
+	} else if(data[2] != 0 && !weather_active()){
 		set_weather_ratio(data[0], data[2]);
 		start_weather(data[1], ((float)(data[2]))/100.0f);
 		return;
@@ -409,7 +412,7 @@ void start_weather(int seconds_till_start, float severity)
 
 void stop_weather(int seconds_till_stop, float severity)
 {
-	if (! (weather_flags & WEATHER_ACTIVE)) {
+	if (! weather_active()) {
 		// We missed the start. So let's set up the data
 		// severity of effect
 		weather_severity = severity;
@@ -437,19 +440,19 @@ void clear_weather(){
 
 int weather_use_fog(){
 	if (!use_fog) return 0;
-	return weather_flags&WEATHER_ACTIVE;
+	return weather_active();
 }
 
 
 void render_fog()
 {
-	float current_severity = weather_severity * get_fadeinout_bias();
+	float current_severity = weather_severity * weather_get_fadeinout_bias();
 	float density = 0.0f;
 	int i;
 	float particle_alpha, diffuse_bias, tmpf;
 	char have_particles;
 
-	if(weather_flags & WEATHER_ACTIVE){
+	if(weather_active()){
 		density = interpolate(current_severity, min_fog, precip_avg(fog_level));
 		have_particles = 1;
 	} else {
@@ -480,6 +483,18 @@ void render_fog()
 	// set clear color to fog color
 	glClearColor(rain_color[0], rain_color[1], rain_color[2], 0.0f);
 
+#ifdef SKY_FPV_CURSOR
+	if(weather_active()){
+		cloud_layer1(CLOUDS_THICK);
+		cloud_layer2(CLOUDS_THICK);
+		sky_color(FOG_COLOR);
+	} else {
+		cloud_layer1(CLOUDS_THICK);
+		cloud_layer2(CLOUDS_NONE);
+		sky_color(SKY_COLOR);
+	}
+
+#endif /* SKY_FPV_CURSOR */
 	// set fog parameters
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_EXP2);
@@ -508,10 +523,10 @@ void render_weather()
 
 	update_wind();
 
-	if (weather_flags & WEATHER_ACTIVE) {
+	if(weather_active()){
 		// 0 means initialization
 		Uint32 ticks = last_frame? weather_time - last_frame : 0;
-		float severity = weather_severity * get_fadeinout_bias();
+		float severity = weather_severity * weather_get_fadeinout_bias();
 		int num_rain_drops;
 
 		// update and render view
@@ -573,7 +588,7 @@ float get_weather_clearoff_bias()
 
 float get_weather_light_bias()
 {
-	if (weather_flags & WEATHER_ACTIVE) {
+	if(weather_active()){
 		switch (weather_flags & (WEATHER_STARTING|WEATHER_STOPPING)) {
 			case 0:
 				// neither fading in nor out
@@ -677,10 +692,9 @@ void weather_sound_control()
 #endif	//NEW_SOUND
 	}
 	
-	if (weather_flags & WEATHER_ACTIVE)
-	{
+	if(weather_active()){
 		// 0 means initialization
-		float severity = weather_severity * get_fadeinout_bias();
+		float severity = weather_severity * weather_get_fadeinout_bias();
 		int i;
 
 		if(weather_ratios[WEATHER_RAIN] > 0.0f){
@@ -1219,7 +1233,20 @@ void render_fog() {
 	fogDensity = (is_raining)?  (rainStrength*maxDensity + (1.0f - rainStrength)*minDensity) : minDensity;
 	tmpf = exp(-10.0f*fogDensity);
 	fogAlpha = 1.0f - tmpf*tmpf;
-	
+
+#ifdef SKY_FPV_CURSOR
+	if (is_raining)
+	{
+		cloud_layer1(CLOUDS_THICK);
+		cloud_layer2(CLOUDS_THICK);
+		sky_color(FOG_COLOR);
+	} else {
+		cloud_layer1(CLOUDS_THICK);
+		cloud_layer2(CLOUDS_NONE);
+		sky_color(SKY_COLOR);
+	}
+
+#endif /* SKY_FPV_CURSOR */
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_EXP2);
 	glFogf(GL_FOG_DENSITY, fogDensity);

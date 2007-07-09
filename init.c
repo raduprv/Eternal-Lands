@@ -795,10 +795,22 @@ void init_stuff()
 	update_loading_win(NULL, 5);
 
 	sigils_text= load_texture_cache("./textures/sigils.bmp",0);
+#ifdef SKY_FPV_CURSOR
+
+	disable_compression();
+	cursors_tex = load_texture_cache("./textures/cursors2.bmp",0);
+	enable_compression();
+
+
+//Emajekral's hi-color & big cursor code
+	if (!sdl_cursors) SDL_ShowCursor(0);
+
+
+#endif /* SKY_FPV_CURSOR */
 	//Load the map legend and continent map
 	legend_text= load_texture_cache("./maps/legend.bmp",0);
 	cont_text= load_texture_cache_deferred(cont_map_file_names[0], 128);
-	
+
 	//Paper & book
 	paper1_text= load_texture_cache_deferred("./textures/paper1.bmp",0);
 	book1_text= load_texture_cache_deferred("./textures/book1.bmp",0);
@@ -815,21 +827,19 @@ void init_stuff()
 #endif
 
 	update_loading_win(init_network_str, 5);	
-	if(SDLNet_Init()<0)
- 		{
-			log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
-			SDLNet_Quit();
-			SDL_Quit();
-			exit(2);
-		}
+	if(SDLNet_Init()<0){
+		log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
+		SDLNet_Quit();
+		SDL_Quit();
+		exit(2);
+	}
 	update_loading_win(init_timers_str, 5);
-	
-	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0)
-		{
-			log_error("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
-			SDL_Quit();
-		 	exit(1);
-		}
+
+	if(SDL_InitSubSystem(SDL_INIT_TIMER)<0){
+		log_error("%s: %s\n", failed_sdl_timer_init, SDL_GetError());
+		SDL_Quit();
+	 	exit(1);
+	}
 	update_loading_win(load_encyc_str, 5);
 	safe_snprintf(file_name, sizeof(file_name), "languages/%s/Encyclopedia/index.xml", lang);
 	ReadXML(file_name);
@@ -904,6 +914,9 @@ void init_stuff()
 
 	if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
 
+#ifdef SKY_FPV_CURSOR
+	init_sky();
+#endif /* SKY_FPV_CURSOR */
 }
 
 void add_key(Uint32 *key,Uint32 n)

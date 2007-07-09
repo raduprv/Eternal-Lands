@@ -392,17 +392,30 @@ void draw_enhanced_actor_shadow(actor * actor_id)
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
+#ifndef SKY_FPV_CURSOR
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+#else /* SKY_FPV_CURSOR */
+	if (ext_cam&&actor_id->actor_id==yourself) glTranslatef(-camera_x, -camera_y, z_pos);
+	else glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+#endif /* SKY_FPV_CURSOR */
 
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
+#ifndef SKY_FPV_CURSOR
 	z_rot=actor_id->tmp.z_rot;
+#else /* SKY_FPV_CURSOR */
+	if (first_person) z_rot = rz;
+	else z_rot=actor_id->tmp.z_rot;
+#endif /* SKY_FPV_CURSOR */
 
 	z_rot+=180;//test
 	z_rot=-z_rot;
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+#ifdef SKY_FPV_CURSOR
+	if(first_person&&actor_id->actor_id==yourself) glTranslatef(0,.15,0);
+#endif /* SKY_FPV_CURSOR */
 	cal_render_actor(actor_id);
 
 	glPopMatrix();//restore the scene
@@ -437,6 +450,9 @@ void draw_actor_shadow(actor * actor_id)
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+#ifdef SKY_FPV_CURSOR
+	if(first_person&&actor_id->actor_id==yourself) glTranslatef(0,-0.15f,0);
+#endif /* SKY_FPV_CURSOR */
 
 	if (actor_id->calmodel!=NULL) cal_render_actor(actor_id);
 
@@ -729,10 +745,24 @@ void setup_shadow_mapping()
 {
 	glPushMatrix();
 	glLoadIdentity();
+#ifndef SKY_FPV_CURSOR
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
+#else /* SKY_FPV_CURSOR */
+
+	if (!first_person) glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
+#endif /* SKY_FPV_CURSOR */
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
+#ifdef SKY_FPV_CURSOR
+	if (first_person) 
+	{
+		float hx, hy, hz;
+		cal_get_head(pf_get_our_actor(), &hx, &hy, &hz);
+		glTranslatef(hx,hy,0);
+	}
+#endif /* SKY_FPV_CURSOR */
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(camera_x-(int)camera_x,camera_y-(int)camera_y,camera_z-(int)camera_z);
+
 	glBindTexture(depth_texture_target,depth_map_id);
 	setup_2d_texgen();
 

@@ -32,6 +32,10 @@ float anisotropic_filter = 1.0f;
 float gamma_var = 1.00f;
 float perspective = 0.15f;
 float near_plane = 40.0f; // don't cut off anything
+#ifdef SKY_FPV_CURSOR
+float far_plane = 1.7f;   // LOD helper. Cull distant objects. Lower value == higher framerates.
+float window_ratio; //why not share it?
+#endif /* SKY_FPV_CURSOR */
 int gl_extensions_loaded = 0;
 
 struct list {
@@ -926,15 +930,27 @@ void resize_root_window()
 
 	//hud_y_adjust=(2.0/window_height)*hud_y;
 	//hud_x_adjust=(2.0/window_width)*hud_x;
+#ifdef SKY_FPV_CURSOR
+	//Setup matrix for the sky. If we don't do this the sky looks unhinged when perspective changes.
+	glLoadIdentity();
+
+	glFrustum( -perspective*window_ratio*0.1f, perspective*window_ratio*0.1f, -perspective*0.1f, perspective*0.1f, 0.1f, 1000.0);
+	glGetDoublev(GL_PROJECTION_MATRIX, LongView);
+	glLoadIdentity();							// Reset The Projection Matrix
+#endif /* SKY_FPV_CURSOR */
 
 	//new zoom
 	if (isometric)
 	{
 		glOrtho( -1.0*zoom_level*window_ratio, 1.0*zoom_level*window_ratio, -1.0*zoom_level, 1.0*zoom_level, -near_plane*zoom_level, 60.0 );
+#ifndef SKY_FPV_CURSOR
 	}
 	else
 	{
 		//gluPerspective(60, window_ratio, 0.1, 256.0);
+#else /* SKY_FPV_CURSOR */
+	} else if (!first_person) {
+#endif /* SKY_FPV_CURSOR */
 		// What we call first, OpenGL will apply last!
 		// Finally, apply the projection
 		glFrustum( -perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 60.0*near_plane);
@@ -942,9 +958,18 @@ void resize_root_window()
 		glScalef(perspective*near_plane, perspective*near_plane, perspective*near_plane);
 		// second, move to the distance that reflects the zoom level
 		glTranslatef(0.0f, 0.0f, -zoom_level/perspective);
+#ifdef SKY_FPV_CURSOR
+		// first, move back to the actor
+		glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
+	} else { 
+		//First person camera. No need to fudge stuff to work like old client.
+		glFrustum( -perspective*window_ratio*0.1f, perspective*window_ratio*0.1f, -perspective*0.1f, perspective*0.1f, 0.1f, 60.0*far_plane);
+#endif /* SKY_FPV_CURSOR */
 	}
+#ifndef SKY_FPV_CURSOR
 	// first, move back to the actor
 	glTranslatef(0.0f, 0.0f, zoom_level*camera_distance);
+#endif /* not SKY_FPV_CURSOR */
 
 	glMatrixMode(GL_MODELVIEW);					// Select The Modelview Matrix
 	glLoadIdentity();							// Reset The Modelview Matrix
@@ -1063,11 +1088,21 @@ void set_new_video_mode(int fs,int mode)
 	new_minute();
 
 	set_all_intersect_update_needed(main_bbox_tree);
+#ifdef SKY_FPV_CURSOR
+	init_sky();
+#endif /* SKY_FPV_CURSOR */
 
 	// resize the EL root windows
 	resize_all_root_windows (window_width, window_height);
 	check_options();
 	reload_tab_map = 1;
+#ifdef SKY_FPV_CURSOR
+	if (!sdl_cursors)
+	{
+		SDL_ShowCursor(0);
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+	}
+#endif /* SKY_FPV_CURSOR */
 }
 
 void toggle_full_screen()

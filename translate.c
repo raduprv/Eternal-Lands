@@ -553,6 +553,9 @@ char	win_notepad[20],
 	ttab_video[10],
 	ttab_lod[10],
 	ttab_advvideo[15],
+#ifdef SKY_FPV_CURSOR
+	ttab_emajekral[10],
+#endif /* SKY_FPV_CURSOR */
 	ttab_ec[15],
 	ttab_font[10],
 	tab_help[10],
@@ -1304,6 +1307,9 @@ void init_titles ()
 	add_xml_identifier (titles_str, "tab_lod", ttab_lod, "Details", sizeof(ttab_lod));
 	add_xml_identifier (titles_str, "tab_adv_video", ttab_advvideo, "Adv Video", sizeof(ttab_advvideo));
 	add_xml_identifier (titles_str, "tab_ec", ttab_ec, "Eye Candy", sizeof(ttab_ec));
+#ifdef SKY_FPV_CURSOR
+	add_xml_identifier (titles_str, "tab_emajekral", ttab_emajekral, "Sky&Cam", sizeof(ttab_emajekral));
+#endif /* SKY_FPV_CURSOR */
 	add_xml_identifier (titles_str, "tab_font", ttab_font, "Font", sizeof(ttab_font));
 	add_xml_identifier (titles_str, "t_help", tab_help, "Help", sizeof(tab_help));
 	add_xml_identifier (titles_str, "t_ency", tab_encyclopedia, "Encyclopedia", sizeof(tab_encyclopedia));

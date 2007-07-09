@@ -630,42 +630,114 @@ void fill_stats_win ()
 }
 
 void draw_floatingmessage(floating_message *message, float healthbar_z) {
+#ifndef SKY_FPV_CURSOR
 	float f, width, y, x;
+#else /* SKY_FPV_CURSOR */
+	double f, width, y, x,z;
+#endif /* SKY_FPV_CURSOR */
 	float cut;
+#ifdef SKY_FPV_CURSOR
+	double model[16],proj[16];
+	int view[4];
+#endif /* SKY_FPV_CURSOR */
 
 	if(!message)return;
 	
 	cut=message->active_time/4000.0f;
 	f = ((float)(message->active_time-(cur_time-message->first_time)))/message->active_time;
 	glColor4f(message->color[0], message->color[1], message->color[2], f > cut ? 1.0f : (f / cut));
+#ifndef SKY_FPV_CURSOR
 	f /= message->active_time/1000.0f;
 	
 	width = ((float)get_string_width((unsigned char*)message->message) * (INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
+#else /* SKY_FPV_CURSOR */
+	f *= window_height;
+#endif /* SKY_FPV_CURSOR */
 	
+#ifdef SKY_FPV_CURSOR
+	width = ((float)get_string_width((unsigned char*)message->message) * (INGAME_FONT_X_LEN*name_zoom*font_scale));
+	//Figure out where the point just above the actor's head is in the viewport
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	glGetDoublev(GL_PROJECTION_MATRIX, proj);
+	glGetIntegerv(GL_VIEWPORT, view);
+	if (first_person)
+	{
+		x=window_width/2.0;
+		y=window_height/2.0-40.0;
+	}
+	else
+	{
+		gluProject(0,0,(double)healthbar_z,model, proj, view, &x,&y,&z);
+	}
+
+
+#endif /* SKY_FPV_CURSOR */
 	switch(message->direction){
 		case FLOATINGMESSAGE_EAST:
+#ifndef SKY_FPV_CURSOR
 			x=-width/2.0f-(f*0.5f);
 			y=healthbar_z+zoom_level*0.2f;
+#else /* SKY_FPV_CURSOR */
+			x+=-width/2.0f-(f*0.1f);
+			y+=window_height/10.0f;
+#endif /* SKY_FPV_CURSOR */
 			break;
 		case FLOATINGMESSAGE_SOUTH:
+#ifndef SKY_FPV_CURSOR
 			x=-width/2.0f;
 			y=healthbar_z+(f*0.5f);
+#else /* SKY_FPV_CURSOR */
+			x+=-width/2.0f;
+			y+=(f*0.1f);
+#endif /* SKY_FPV_CURSOR */
 			break;
 		case FLOATINGMESSAGE_WEST:
+#ifndef SKY_FPV_CURSOR
 			x=-width/2.0f+(f*0.5f);
 			y=healthbar_z+zoom_level*0.2f;
+#else /* SKY_FPV_CURSOR */
+			x+=-width/2.0f+(f*0.1f);
+			y+=window_height/10.0f;
+#endif /* SKY_FPV_CURSOR */
 			break;
 		case FLOATINGMESSAGE_MIDDLE:
+#ifndef SKY_FPV_CURSOR
 			x=-width/2.0f;
 			y=healthbar_z*0.66-f*0.33f;
+#else /* SKY_FPV_CURSOR */
+			x+=-width/2.0f;
+			y+=f*0.05f;
+#endif /* SKY_FPV_CURSOR */
 			break;
 		case FLOATINGMESSAGE_NORTH:
 		default:
+#ifndef SKY_FPV_CURSOR
 			x=-width/2.0f;
 			y=healthbar_z+zoom_level*0.2f-(f*0.5f);
+#else /* SKY_FPV_CURSOR */
+			x+=-width/2.0f;
+			y+=window_height/10.0f-(f*0.1f);
+#endif /* SKY_FPV_CURSOR */
 			break;
 	}
+#ifndef SKY_FPV_CURSOR
 	draw_ingame_string(x, y, (unsigned char*)message->message, 1, 0.14, 0.21);
+#else /* SKY_FPV_CURSOR */
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
+
+	draw_ortho_ingame_string(x, y, 0, (unsigned char*)message->message, 1, INGAME_FONT_X_LEN*font_scale, INGAME_FONT_X_LEN*font_scale);
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
+#endif /* SKY_FPV_CURSOR */
 }
 
 void drawactor_floatingmessages(int actor_id, float healthbar_z) {

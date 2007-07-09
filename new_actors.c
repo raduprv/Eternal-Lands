@@ -95,22 +95,68 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 
 	//find a free spot, in the actors_list
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
-	for(i=0; i<max_actors; i++)
-		{
-			if(!actors_list[i])	break;
-		}
+	for(i=0; i<max_actors; i++){
+		if(!actors_list[i])	break;
+	}
 
 	if (actor_id == yourself) your_actor = our_actor;
 	actors_list[i]=our_actor;
 	
-	if(i>=max_actors)max_actors=i+1;
+	if(i >= max_actors) max_actors = i+1;
 	
 	no_bounding_box=0;
-	//Will be unlocked later
+	//Actors list will be unlocked later
 	
 	return i;
 }
 
+#ifdef SKY_FPV_CURSOR
+
+//Returns location of theoretical head point
+int cal_get_head(actor *act, float *x, float *y, float *z)
+{
+	float points[1024][3];  // caution, 1k point limit
+	int nrPoints;
+	struct CalSkeleton *skel;
+
+	if(act->calmodel == NULL){
+		//Uhoh...
+		return 1;
+	}
+	skel= CalModel_GetSkeleton(act->calmodel);
+	if(skel == NULL){
+		*x = *y = *z = -1.0f;
+		return 1;
+	}
+	nrPoints= CalSkeleton_GetBonePoints(skel,&points[0][0]);
+	*x = points[nrPoints-1][0];
+	*y = points[nrPoints-1][1];
+	*z = points[nrPoints-1][2];
+	return 0;
+}
+
+
+float cal_get_maxz(actor *act)
+{
+	float points[1024][3];  // caution, 1k point limit
+	int nrPoints;
+	struct CalSkeleton *skel;
+	float maxz;
+	//int i;
+
+	skel= CalModel_GetSkeleton(act->calmodel);
+	nrPoints= CalSkeleton_GetBonePoints(skel,&points[0][0]);
+	//For FPV max point is a bad system. It makes banners and camera bounce when sword bone is raised over head.
+	//maxz= points[0][2];
+	//for(i=1; i<nrPoints; ++i) if(maxz<points[i][2]) maxz= points[i][2];
+	//The following kludge seems to select the point at the top of the neck which is usually the max point.
+	//This is easily broken by odd model design. An identifiable eye point would be better.
+	maxz = points[nrPoints-1][2];
+	return maxz;
+}
+
+
+#endif /* SKY_FPV_CURSOR */
 void draw_enhanced_actor(actor * actor_id, int banner)
 {
 	double x_pos,y_pos,z_pos;
@@ -118,11 +164,25 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	float healthbar_z=0;
 	bind_texture_id(actor_id->texture_id);
 
+#ifdef SKY_FPV_CURSOR
+	if(first_person && actor_id->actor_id == yourself){
+		//Don't look at me, I'm ugly :(
+		return;
+	}
+
+#endif /* SKY_FPV_CURSOR */
 	if (actor_id->calmodel!=NULL){
+#ifndef SKY_FPV_CURSOR
 		healthbar_z= actor_id->max_z+0.2;
+#else /* SKY_FPV_CURSOR */
+		//healthbar_z= actor_id->max_z+0.2;
+		healthbar_z= cal_get_maxz(actor_id)+0.2;
+#endif /* SKY_FPV_CURSOR */
 	}
 	
+#ifndef SKY_FPV_CURSOR
 	if(actor_id->actor_id==yourself)sitting=healthbar_z/2.0f;
+#endif /* not SKY_FPV_CURSOR */
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	x_pos=actor_id->tmp.x_pos;
@@ -132,16 +192,47 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
 
+#ifndef SKY_FPV_CURSOR
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+#else /* SKY_FPV_CURSOR */
+		x_rot=actor_id->tmp.x_rot;
+		y_rot=actor_id->tmp.y_rot;
+		z_rot=-actor_id->tmp.z_rot;
+		z_rot+=180;	//test
 
+
+	if(actor_id->actor_id==yourself){
+		sitting=healthbar_z/2.0f;
+		camera_kludge = z_rot;
+
+		glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+		//Emajekral:
+		//This makes the actor face the same way as the camera in FPV
+		//When the camera faces a non walking direction the shadow looks
+		//funny.  I prefer it being enabled cause it prevents you from seeing
+		//your helmet or hair when you look behind you.
+		//if(first_person) z_rot = -rz+180.0f;
+	} else {
+		glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+	}
+#endif /* SKY_FPV_CURSOR */
+
+#ifndef SKY_FPV_CURSOR
 	x_rot=actor_id->tmp.x_rot;
 	y_rot=actor_id->tmp.y_rot;
 	z_rot=-actor_id->tmp.z_rot;
 	z_rot+=180;	//test
+#endif /* not SKY_FPV_CURSOR */
 	glPushMatrix();
+#ifdef SKY_FPV_CURSOR
+
+#endif /* SKY_FPV_CURSOR */
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+#ifdef SKY_FPV_CURSOR
+	if(first_person&&actor_id->actor_id==yourself) glTranslatef(0,.15,0);
+#endif /* SKY_FPV_CURSOR */
 
 	if (actor_id->calmodel!=NULL) {
 		cal_render_actor(actor_id);
@@ -149,7 +240,9 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 
 	//now, draw their damage & nametag
 	glPopMatrix();  // restore the matrix
+#ifndef SKY_FPV_CURSOR
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
+#endif /* not SKY_FPV_CURSOR */
 
 	if (banner) draw_actor_banner(actor_id, healthbar_z);
 

@@ -18,6 +18,12 @@ extern "C" {
 extern int elconfig_win;
 extern int elconfig_menu_x;
 extern int elconfig_menu_y;
+#ifdef SKY_FPV_CURSOR
+extern float z_cull_sq, cut_size;
+extern int big_cursors;
+extern int sdl_cursors;
+extern float pointer_size;
+#endif /* SKY_FPV_CURSOR */
 
 /*!
  * var_struct stores the data for a single configuration entry.
@@ -54,7 +60,7 @@ typedef struct
 struct variables
 {
 	int no; /*!< current number of allocated \see var_struct in \a var */
-	var_struct * var[100]; /*!< fixed array of \a no \see var_struct structures */
+	var_struct * var[200]; /*!< fixed array of \a no \see var_struct structures */
 };
 
 /*!

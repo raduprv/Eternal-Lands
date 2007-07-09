@@ -17,10 +17,250 @@ int game_root_win = -1;
 int gamewin_in_id = 4442;
 int use_old_clicker=0;
 float fps_average = 100.0;
+#ifdef SKY_FPV_CURSOR
+int have_mouse = 0;
+int just_released_mouse = 0;
+int keep_grabbing_mouse = 0;
+int show_sky = 1;
+int cursors_tex;
+unsigned char x_means[51] = "Click and Guess";
+#endif /* SKY_FPV_CURSOR */
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
 
+#ifdef SKY_FPV_CURSOR
+void draw_cursor()
+{
+	const float RET_WID = 4.0f;
+	const float RET_LEN = 10.0f;
+
+	float ret_spin,ret_zoom, ret_alpha=0.5f;
+	float ret_x = 0.0, ret_y = 0.0;
+	float ret_color[4];
+	float ret_out = 7.0;
+	if(sdl_cursors || !(SDL_GetAppState() & SDL_APPMOUSEFOCUS)){
+		return;
+	}
+	glDisable(GL_DEPTH_TEST);
+
+	get_and_set_texture_id(cursors_tex);
+	switch (current_cursor){
+		case (CURSOR_ATTACK):
+			ret_zoom = 2.0f;
+			ret_spin = (cur_time%2000)*360.0f/2000.0f;
+			ret_color[0]=1.0f;
+			ret_color[1]=0.0f;
+			ret_color[2]=0.0f;
+			ret_color[3]=ret_alpha;
+			break;
+		case (CURSOR_WAND):
+			ret_spin = 0.0f;
+			ret_zoom = (sin((cur_time%1000)*3.1415/1000.0)+1.0)*6.0;
+			ret_color[0]=0.0f;
+			ret_color[1]=0.0f;
+			ret_color[2]=1.0f;
+			ret_color[3]=ret_alpha;
+			ret_out=15.0f;
+			break;
+		default:
+			ret_spin = 45.0f;
+			ret_zoom = 3.0f;
+			ret_color[0]=0.0f;
+			ret_color[1]=1.0f;
+			ret_color[2]=0.0f;
+			ret_color[3]=ret_alpha;
+	}
+
+	glPushMatrix();
+	glTranslatef(mouse_x,mouse_y,0.0);
+	glEnable(GL_BLEND);
+	glDisable(GL_LIGHTING);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	glScalef(pointer_size,pointer_size,1.0);
+	if(!have_mouse){
+		if (current_cursor != CURSOR_ARROW){
+			glColor4fv(ret_color);
+			glRotatef(-135.0,0,0,1);
+			glDisable (GL_TEXTURE_2D);
+			glBegin(GL_TRIANGLES);
+				glVertex2f(ret_x,ret_y);
+				glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+				glVertex2f(ret_x-ret_out,ret_y);
+
+				glVertex2f(ret_x,ret_y);
+				glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+				glVertex2f(ret_x-ret_out,ret_y);
+			glEnd();
+
+			glColor4f(0.0,0.0,0.0,ret_alpha);
+
+			glBegin(GL_LINE_LOOP);
+				glVertex2f(ret_x,ret_y);
+				glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+				glVertex2f(ret_x-ret_out,ret_y);
+				glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+			glEnd();
+			glRotatef(135.0,0,0,1);
+			glEnable (GL_TEXTURE_2D);
+
+			glColor4f(1,1,1,1);
+		}
+		if(big_cursors){
+			float x = (current_cursor%8)/8.0;
+			float y = (1-current_cursor/8 + 5)/8.0;
+			glBegin(GL_QUADS);
+				glTexCoord2f(x,y);			glVertex2f(0,32);
+				glTexCoord2f(x+0.125f,y);		glVertex2f(32,32);
+				glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
+				glTexCoord2f(x,y+0.125f);		glVertex2f(0,0);
+			glEnd();
+		} else {
+			glBegin(GL_QUADS);
+				glTexCoord2f(current_cursor/16.0,14.0/16.0);		glVertex2f(0,16);
+				glTexCoord2f((current_cursor+1.0)/16.0,14.0/16.0);	glVertex2f(16,16);
+				glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(16,0);
+				glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(0,0);
+			glEnd();
+		}
+	} else {	//have_mouse
+		glColor4f(1,1,1,1);
+		if(big_cursors){
+			float x = (current_cursor%8)/8.0;
+			float y = (1-current_cursor/8 + 5)/8.0;
+			glBegin(GL_QUADS);
+				glTexCoord2f(x,y);			glVertex2f(0,32);
+				glTexCoord2f(x+0.125f,y);		glVertex2f(32,32);
+				glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
+				glTexCoord2f(x,y+0.125f);		glVertex2f(0,0);
+			glEnd();
+		} else {
+			glBegin(GL_QUADS);
+				glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(10,26);
+				glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(26,26);
+				glTexCoord2f((current_cursor+1.0)/16.0,16.0/16.0);	glVertex2f(26,10);
+				glTexCoord2f(current_cursor/16.0,16.0/16.0);		glVertex2f(10,10);
+			glEnd();
+		}
+		glRotatef(ret_spin,0.0,0.0,1.0);
+		glColor4fv(ret_color);
+		glDisable (GL_TEXTURE_2D);
+
+		ret_x += ret_zoom;
+		glBegin(GL_TRIANGLES);
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
+			glVertex2f(ret_x+ret_out,ret_y);
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
+			glVertex2f(ret_x+ret_out,ret_y);
+
+			ret_x -= ret_zoom*2;
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+			glVertex2f(ret_x-ret_out,ret_y);
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+			glVertex2f(ret_x-ret_out,ret_y);
+
+			ret_x += ret_zoom;
+			ret_y -= ret_zoom;
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
+			glVertex2f(ret_x,ret_y-ret_out);
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
+			glVertex2f(ret_x,ret_y-ret_out);
+
+			ret_y += ret_zoom*2;
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
+			glVertex2f(ret_x,ret_y+ret_out);
+
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
+			glVertex2f(ret_x,ret_y+ret_out);
+
+		glEnd();
+		ret_y -= ret_zoom;
+
+		glColor4f(0.0,0.0,0.0,ret_alpha);
+
+		ret_x += ret_zoom;
+		glBegin(GL_LINE_LOOP);       
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
+			glVertex2f(ret_x+ret_out,ret_y);
+			glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
+		glEnd();
+		ret_x -= ret_zoom*2;
+		glBegin(GL_LINE_LOOP);
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+			glVertex2f(ret_x-ret_out,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+		glEnd();
+
+		ret_x += ret_zoom;
+		ret_y -= ret_zoom;
+		glBegin(GL_LINE_LOOP);
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
+			glVertex2f(ret_x,ret_y-ret_out);
+			glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
+		glEnd();
+
+		ret_y += ret_zoom*2;
+		glBegin(GL_LINE_LOOP);       
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
+			glVertex2f(ret_x,ret_y+7);
+			glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
+		glEnd();
+		ret_y -= ret_zoom;
+	}
+
+	glDisable(GL_BLEND);
+
+	glColor4f(1.0,1.0,1.0,1.0);
+	glEnable(GL_TEXTURE_2D);
+
+	glPopMatrix();
+	glEnable(GL_DEPTH_TEST);
+}
+
+void toggle_have_mouse()
+{
+	have_mouse = !have_mouse;
+	if(have_mouse){
+		SDL_WM_GrabInput(SDL_GRAB_ON);
+	} else {
+		SDL_WM_GrabInput(SDL_GRAB_OFF);
+	}
+}
+
+void toggle_first_person()
+{
+	if (first_person == 0){
+		first_person = 1;
+		fol_cam = 0;
+	} else {
+		first_person = 0;    
+		if (rx < -90) {rx = -90;}
+	}
+	++adjust_view;
+	resize_root_window();
+	//set_all_intersect_update_needed(main_bbox_tree);
+}
+
+#endif /* SKY_FPV_CURSOR */
 // This is the main part of the old check_cursor_change ()
 int mouseover_game_handler (window_info *win, int mx, int my)
 {
@@ -604,7 +844,12 @@ int display_game_handler (window_info *win)
 		zoom_level = new_zoom_level;
 		resize_root_window ();
 	}
-	
+
+#ifdef SKY_FPV_CURSOR
+	glPushMatrix();
+	if(show_sky && *display_sky != NULL)(*display_sky)();
+	glPopMatrix();
+#endif /* SKY_FPV_CURSOR */
 	move_camera ();
 	save_scene_matrix ();
 
@@ -658,10 +903,12 @@ int display_game_handler (window_info *win)
 
 		if (any_reflection > 1)
 		{
+#ifndef SKY_FPV_CURSOR
 		  	if (!dungeon)
 				draw_sky_background ();
 		  	else 
 				draw_dungeon_sky_background ();
+#endif /* not SKY_FPV_CURSOR */
 			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}
@@ -1073,7 +1320,6 @@ void hide_all_windows(){
 // console_root_win, and map_root_win)
 int keypress_root_common (Uint32 key, Uint32 unikey)
 {
-	static Uint32 last_turn_around = 0;
 	int alt_on = key & ELW_ALT;
 	int ctrl_on = key & ELW_CTRL;
 	Uint16 keysym = key & 0xffff;
@@ -1149,12 +1395,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		add_thunder(rand()%5,1+rand()%5);
 	}
-	else if((keysym == SDLK_w) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_w) && shift_on && ctrl_on && alt_on)
 	{
 		if(game_minute >= 355) game_minute -=355; else game_minute +=  5;
 		new_minute();
 	}
-	else if((keysym == SDLK_q) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_q) && shift_on && ctrl_on && alt_on)
 	{
 		if(game_minute <  5) game_minute +=355; else game_minute -=  5;
 		new_minute();
@@ -1262,23 +1508,16 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// Okay, let's move, even when in console or map mode
 	else if (key == K_TURNLEFT)
 	{
-		if (!last_turn_around || last_turn_around + 500 < cur_time)
-		{
-			Uint8 str[2];
-			last_turn_around = cur_time;
-			str[0] = TURN_LEFT;
-			my_tcp_send (my_socket, str, 1);
-		}
+		//Moved delay to my_tcp_send
+		Uint8 str[2];
+		str[0] = TURN_LEFT;
+		my_tcp_send (my_socket, str, 1);
 	}
 	else if (key == K_TURNRIGHT)
 	{
-		if (!last_turn_around || last_turn_around + 500 < cur_time)
-		{
-			Uint8 str[2];
-			last_turn_around = cur_time;
-			str[0] = TURN_RIGHT;
-			my_tcp_send (my_socket, str, 1);
-		}
+		Uint8 str[2];
+		str[0] = TURN_RIGHT;
+		my_tcp_send (my_socket, str, 1);
 	}
 	else if (key==K_ADVANCE)
 	{
@@ -1379,22 +1618,38 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	// Roja likes to rotate the camera while in console mode :)
 	else if (key == K_ROTATELEFT)
 	{
+#ifndef SKY_FPV_CURSOR
 		camera_rotation_speed = normal_camera_rotation_speed / 40;
+#else /* SKY_FPV_CURSOR */
+		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 40;
+#endif /* SKY_FPV_CURSOR */
 		camera_rotation_frames = 40;
 	}
 	else if (key == K_FROTATELEFT)
 	{
+#ifndef SKY_FPV_CURSOR
 		camera_rotation_speed = fine_camera_rotation_speed / 10;
+#else /* SKY_FPV_CURSOR */
+		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 10;
+#endif /* SKY_FPV_CURSOR */
 		camera_rotation_frames = 10;
 	}
 	else if (key == K_ROTATERIGHT)
 	{
+#ifndef SKY_FPV_CURSOR
 		camera_rotation_speed = -normal_camera_rotation_speed / 40;
+#else /* SKY_FPV_CURSOR */
+		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 40;
+#endif /* SKY_FPV_CURSOR */
 		camera_rotation_frames = 40;
 	}
 	else if (key == K_FROTATERIGHT)
 	{
+#ifndef SKY_FPV_CURSOR
 		camera_rotation_speed = -fine_camera_rotation_speed / 10;
+#else /* SKY_FPV_CURSOR */
+		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 10;
+#endif /* SKY_FPV_CURSOR */
 		camera_rotation_frames = 10;
 	}
 	else if (key == K_AFK)
@@ -1597,11 +1852,39 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (key == K_CAMERAUP)
 	{
+#ifndef SKY_FPV_CURSOR
 		if (rx > -60) rx -= 1.0f;
+#else /* SKY_FPV_CURSOR */
+		if(first_person){
+			if (rx > -105){
+				rx -= 1.0f;
+				++adjust_view;
+			}
+		} else {
+			if (rx > -60){
+				rx -= 1.0f;
+				++adjust_view;
+			}
+		}
+#endif /* SKY_FPV_CURSOR */
 	}
 	else if (key == K_CAMERADOWN)
 	{
+#ifndef SKY_FPV_CURSOR
 		if (rx < -45) rx += 1.0f;
+#else /* SKY_FPV_CURSOR */
+		if(first_person){
+			if (rx < -15){
+				rx += 1.0f;
+				++adjust_view;
+			}
+		} else {
+			if (rx < -45){
+				rx += 1.0f;
+				++adjust_view;
+			}
+		}
+#endif /* SKY_FPV_CURSOR */
 	}
 	else if (key == K_ZOOMIN)
 	{
@@ -1621,12 +1904,15 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 	}
 	else if ((key == K_MAP) || (key == K_MARKFILTER))
- 	{
+	{
 		// if K_MARKFILTER pressed, open the map window with the filter active
 		if (key == K_MARKFILTER)
 			mark_filter_active = 1;
 		if ( switch_to_game_map () )
 		{
+#ifdef SKY_FPV_CURSOR
+			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
+#endif /* SKY_FPV_CURSOR */
 			hide_window (game_root_win);
 			show_window (map_root_win);
 		}
@@ -1653,6 +1939,16 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 		resize_root_window ();
 	}
+#ifdef SKY_FPV_CURSOR
+	else if (key == K_FIRST_PERSON)
+	{
+		toggle_first_person();
+	}
+	else if (key == K_GRAB_MOUSE)
+	{
+		toggle_have_mouse();
+	}
+#endif /* SKY_FPV_CURSOR */
 #ifdef PAWN
 	else if (keysym == SDLK_F8)
 	{
@@ -1712,6 +2008,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		reset_tab_completer();
 		if (ch == '`' || key == K_CONSOLE)
 		{
+#ifdef SKY_FPV_CURSOR
+			if (have_mouse) {toggle_have_mouse(); keep_grabbing_mouse=1;}
+#endif /* SKY_FPV_CURSOR */
 			hide_window (game_root_win);
 			show_window (console_root_win);
 		}

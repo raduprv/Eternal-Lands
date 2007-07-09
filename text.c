@@ -316,6 +316,16 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}else{
 			safe_snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
 			LOG_TO_CONSOLE(c_green1, new_str);
+#ifdef SKY_FPV_CURSOR
+
+			//Calculate fraction Big Lunar month (2 conjunction months) less game clock time
+			//Represented in Degrees.
+			time_d = (SDL_GetTicks()%( 1296000 * 1000 ));
+			time_d *= 360.0/( 1296000.0 * 1000.0);
+			time_d = -time_d;
+			time_d += 360.0 * (((month%2)*30 + day-1)*360 + game_minute)/21600.0;
+
+#endif /* SKY_FPV_CURSOR */
 			return 0;
 		}
 	}

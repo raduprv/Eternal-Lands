@@ -21,6 +21,15 @@ extern int use_old_clicker;
 extern Uint32 next_fps_time;
 extern int last_count;
 extern float fps_average;
+#ifdef SKY_FPV_CURSOR
+extern int have_mouse;
+extern int keep_grabbing_mouse;
+extern int just_released_mouse;
+extern int show_sky;
+void toggle_have_mouse();
+extern int cursors_tex;
+void draw_cursor();
+#endif /* SKY_FPV_CURSOR */
 
 /*!
  * \ingroup events

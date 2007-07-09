@@ -201,6 +201,9 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 	}
 	else if (key == K_MAP)
 	{
+#ifdef SKY_FPV_CURSOR
+		if (keep_grabbing_mouse) {toggle_have_mouse();keep_grabbing_mouse=0;}
+#endif /* SKY_FPV_CURSOR */
 		switch_from_game_map ();
 		hide_window (map_root_win);
 		show_window (game_root_win);

@@ -151,6 +151,15 @@ static int el_load_map(const char * file_name)
 
 	init_map_loading(file_name);
 	ret = load_map(file_name, &updat_func);
+#ifdef SKY_FPV_CURSOR
+	if (strstr("underworld",file_name) != NULL){
+		sky_type(UNDERWORLD_SKY);
+	} else if (dungeon) {
+		sky_type(INTERIORS_SKY);
+	} else {
+		sky_type(CLOUDY_SKY);
+	}
+#endif /* SKY_FPV_CURSOR */
 	build_path_map();
 	init_buffers();
 	destroy_loading_win();

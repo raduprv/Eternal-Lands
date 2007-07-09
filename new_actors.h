@@ -108,6 +108,12 @@ void build_glow_color_table();
 actor * add_actor_interface(float x, float y, float z_rot, float scale, int actor_type, short skin, short hair,
 							short shirt, short pants, short boots, short head);
 
+#ifdef SKY_FPV_CURSOR
+//Returns location of theoretical head point
+int cal_get_head(actor *act, float *x, float *y, float *z);
+#endif /* SKY_FPV_CURSOR */
+
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

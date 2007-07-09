@@ -125,7 +125,19 @@ int HandleEvent (SDL_Event *event)
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
+#ifndef SKY_FPV_CURSOR
 			if(event->type==SDL_MOUSEMOTION)
+#else /* SKY_FPV_CURSOR */
+			if (have_mouse)
+			{
+				mouse_x = window_width/2;
+				mouse_y = window_height/2;
+
+				mouse_delta_x= event->motion.xrel;
+				mouse_delta_y= event->motion.yrel;
+			}
+			else if(event->type==SDL_MOUSEMOTION)
+#endif /* SKY_FPV_CURSOR */
 			{
 				mouse_x= event->motion.x;
 				mouse_y= event->motion.y;
@@ -135,8 +147,16 @@ int HandleEvent (SDL_Event *event)
 			}
 			else
 			{
+#ifndef SKY_FPV_CURSOR
 				mouse_x= event->button.x;
 				mouse_y= event->button.y;
+#else /* SKY_FPV_CURSOR */
+				if (sdl_cursors)
+				{
+					mouse_x= event->button.x;
+					mouse_y= event->button.y;
+				}
+#endif /* SKY_FPV_CURSOR */
 				mouse_delta_x= mouse_delta_y= 0;
 			}
 
@@ -166,14 +186,26 @@ int HandleEvent (SDL_Event *event)
 			if (event->type == SDL_MOUSEBUTTONDOWN) 
 			{
 				if (event->button.button == SDL_BUTTON_MIDDLE)
+#ifdef SKY_FPV_CURSOR
+				{
+#endif /* SKY_FPV_CURSOR */
 					middle_click++;
+#ifdef SKY_FPV_CURSOR
+					if (ext_cam&&!sdl_cursors) toggle_have_mouse();
+
+				}
+#endif /* SKY_FPV_CURSOR */
 			}
-                        else if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
+			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
 				middle_click++;
 			else
 				middle_click= 0;
 
+#ifndef SKY_FPV_CURSOR
 			if ( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )
+#else /* SKY_FPV_CURSOR */
+			if (( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )||(have_mouse))
+#endif /* SKY_FPV_CURSOR */
 			{
 				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;
 				camera_rotation_frames = 40;
@@ -226,7 +258,7 @@ int HandleEvent (SDL_Event *event)
 			case	EVENT_UPDATE_PARTICLES:
 				update_particles();
 				break;
-                
+
 			case    EVENT_UPDATES_DOWNLOADED:
 				handle_update_download((struct http_get_struct *)event->user.data1);
 				break;
