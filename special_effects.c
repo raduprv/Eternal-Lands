@@ -664,17 +664,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 // 	x = caster->x_pos;
 // 	y = caster->y_pos;
 	
-	// FIXME: Is this check ness. It's invalid anyway, due to var_b being an int. I am leaving it in for now.
-	if (var_b != NULL)
-	{
-		target = get_actor_ptr_from_id(var_b);
-		if (target == NULL)
-			return;
-	}
-	else
-	{
+	target = get_actor_ptr_from_id(var_b);
+	if (target == NULL)
 		return;
-	}
 	
 #ifdef	EYE_CANDY
 	if (use_eye_candy) {
