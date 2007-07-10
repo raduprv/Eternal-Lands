@@ -2236,7 +2236,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	if (w == NULL) return 0;
 	tf = w->widget_info;
 #if !defined(WINDOWS) && !defined(OSX)
-	if (key == K_COPY)
+	if (key == K_COPY || key == K_COPY_ALT)
 	{
 		_text_field_copy_to_clipboard (tf);
 		return 1;
@@ -2378,7 +2378,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
 	}
-	else if (key == K_PASTE)
+	else if (key == K_PASTE || key == K_PASTE_ALT)
 	{
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{

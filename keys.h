@@ -77,6 +77,8 @@ extern Uint32 K_FIRST_PERSON;       /*!< key used to toggle first person/third p
 extern Uint32 K_CUT;                /*!< key used to cut text and copy it into a clipboard */ 
 extern Uint32 K_COPY;               /*!< key used to copy text into a clipboard */ 
 extern Uint32 K_PASTE;              /*!< key used to copy text from a clipboard into EL */
+extern Uint32 K_COPY_ALT;           /*!< alternative key used to copy text into a clipboard */ 
+extern Uint32 K_PASTE_ALT;          /*!< alternative key used to copy text from a clipboard into EL */
 /*! @} */
 
 /*! \name Quickbar access keys */

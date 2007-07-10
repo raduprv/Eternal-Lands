@@ -70,6 +70,8 @@ Uint32 K_FIRST_PERSON=ALT|'f';
 Uint32 K_CUT=CTRL|'x';
 Uint32 K_COPY=CTRL|'c';
 Uint32 K_PASTE=CTRL|'v';
+Uint32 K_COPY_ALT=CTRL|277;      //INSERT
+Uint32 K_PASTE_ALT=SHIFT|277;    //INSERT
 
 Uint32 CRC32 (const char *data, int len);
 unsigned short get_key_code (const char *key);
@@ -152,7 +154,7 @@ void read_key_config()
 		K_ITEMS = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_MAP",file_mem,key_file_size,0))!=-1)
 		K_MAP = parse_key_string(&file_mem[t]);
-    if((t=get_string_occurance("#K_MINIMAP",file_mem,key_file_size,0))!=-1)
+	if((t=get_string_occurance("#K_MINIMAP",file_mem,key_file_size,0))!=-1)
 		K_MINIMAP = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ROTATELEFT",file_mem,key_file_size,0))!=-1)
 		K_ROTATELEFT = parse_key_string(&file_mem[t]);
