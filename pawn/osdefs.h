@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /* __MSDOS__    set when compiling for DOS (not Windows)
  * _Windows     set when compiling for any version of Microsoft Windows
  * __WIN32__    set when compiling for Windows95 or WindowsNT (32 bit mode)
@@ -96,3 +98,5 @@
 #endif
 
 #endif  /* _OSDEFS_H */
+
+#endif // PAWN

@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 #ifndef AMXEL_H
 #define AMXEL_H
 
@@ -7,3 +9,5 @@ int AMXEXPORT amx_ElInit (AMX *amx);
 int AMXEXPORT amx_ElCleanup (AMX *amx);
 
 #endif // AMXEL_H
+
+#endif // PAWN

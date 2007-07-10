@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 #ifndef ELPAWNRUN_H
 #define ELPAWNRUN_H
 
@@ -96,3 +98,5 @@ void add_pawn_timer (Uint32 offset, const char* name, Uint32 interval);
 void clear_pawn_timers ();
 
 #endif
+
+#endif // PAWN

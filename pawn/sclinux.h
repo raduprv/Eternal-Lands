@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /*
  * Things needed to compile under linux.
  *
@@ -48,3 +50,5 @@
 #endif
 
 #endif /* SCLINUX_H */
+
+#endif // PAWN

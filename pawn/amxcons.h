@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 #ifndef AMXCONS_H_INCLUDED
 #define AMXCONS_H_INCLUDED
 
@@ -27,3 +29,5 @@ int AMXEXPORT amx_ConsoleInit(AMX *amx);
 int AMXEXPORT amx_ConsoleCleanup(AMX *amx);
 
 #endif /* AMXCONS_H_INCLUDED */
+
+#endif // PAWN

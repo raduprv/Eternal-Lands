@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 #include "elpawn.h"
 #include "../global.h"
 #include "amx.h"
@@ -329,3 +331,5 @@ void clear_pawn_timers ()
 	while (timer_queue)
 		pop_timer_queue ();
 }
+
+#endif // PAWN

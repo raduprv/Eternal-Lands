@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 #include <string.h>
 #include <math.h>
 #include "../bbox_tree.h"
@@ -9,6 +11,9 @@
 #include "amxcons.h"
 #include "elpawn.h"
 
+#ifndef M_PI
+#define M_PI 3.14159265358979323846
+#endif // !M_PI
 #define MAX_LOG_MSG_SIZE 256
 
 void update_object_pos_and_rot (object3d* obj)
@@ -300,3 +305,4 @@ int AMXEXPORT amx_ElCleanup (AMX *amx)
 	return AMX_ERR_NONE;
 }
 
+#endif // PAWN

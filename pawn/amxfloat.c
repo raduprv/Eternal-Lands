@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /*  Float arithmetic for the Pawn Abstract Machine
  *
  *  Copyright (c) Artran, Inc. 1999
@@ -352,3 +354,5 @@ int AMXEXPORT amx_FloatCleanup(AMX *amx)
   (void)amx;
   return AMX_ERR_NONE;
 }
+
+#endif // PAWN

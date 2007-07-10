@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /*  String functions for the Pawn Abstract Machine
  *
  *  Copyright (c) ITB CompuPhase, 2005-2006
@@ -18,7 +20,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amxstring.c,v 1.1 2007/07/08 19:43:47 grum Exp $
+ *  Version: $Id: amxstring.c,v 1.2 2007/07/10 14:54:51 grum Exp $
  */
 #include <limits.h>
 #include <string.h>
@@ -878,3 +880,5 @@ int AMXEXPORT amx_StringCleanup(AMX *amx)
   (void)amx;
   return AMX_ERR_NONE;
 }
+
+#endif // PAWN

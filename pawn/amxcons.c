@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /* Console output module (terminal I/O) for the Pawn AMX
  *
  *  Since some of these routines go further than those of standard C, they
@@ -22,7 +24,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amxcons.c,v 1.3 2007/07/01 11:21:26 grum Exp $
+ *  Version: $Id: amxcons.c,v 1.4 2007/07/10 14:54:51 grum Exp $
  */
 /* Grum: Edited to provide only the routines used in EL
  */
@@ -670,3 +672,5 @@ int AMXEXPORT amx_ConsoleCleanup(AMX *amx)
 }
 
 #endif /* AMX_STRING_LIB */
+
+#endif // PAWN

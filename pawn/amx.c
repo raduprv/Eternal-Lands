@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /*  Pawn Abstract Machine (for the Pawn language)
  *
  *  Copyright (c) ITB CompuPhase, 1997-2006
@@ -18,7 +20,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.c,v 1.2 2007/06/28 11:07:01 grum Exp $
+ *  Version: $Id: amx.c,v 1.3 2007/07/10 14:54:51 grum Exp $
  */
 
 #if BUILD_PLATFORM == WINDOWS && BUILD_TYPE == RELEASE && BUILD_COMPILER == MSVC && PAWN_CELL_SIZE == 64
@@ -4637,3 +4639,5 @@ int AMXAPI amx_UTF8Len(const cell *cstr, int *length)
   return err;
 }
 #endif /* AMX_UTF8XXX */
+
+#endif // PAWN

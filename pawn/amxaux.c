@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /*  Support routines for the Pawn Abstract Machine
  *
  *  Copyright (c) ITB CompuPhase, 2003-2006
@@ -18,7 +20,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amxaux.c,v 1.1 2007/06/27 18:26:45 grum Exp $
+ *  Version: $Id: amxaux.c,v 1.2 2007/07/10 14:54:51 grum Exp $
  */
 #include <stdio.h>
 #include <stdlib.h>
@@ -165,3 +167,5 @@ int AMXAPI aux_GetSection(AMX *amx, int section, cell **start, size_t *size)
   } /* switch */
   return AMX_ERR_NONE;
 }
+
+#endif // PAWN

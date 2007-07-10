@@ -1,3 +1,5 @@
+#ifdef PAWN
+
 /*  Pawn Abstract Machine (for the Pawn language)
  *
  *  Copyright (c) ITB CompuPhase, 1997-2006
@@ -18,7 +20,7 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.h,v 1.5 2007/07/01 11:51:09 grum Exp $
+ *  Version: $Id: amx.h,v 1.6 2007/07/10 14:54:51 grum Exp $
  */
 
 #ifndef AMX_H_INCLUDED
@@ -486,3 +488,5 @@ int AMXAPI amx_UTF8Put(char *string, char **endptr, int maxchars, cell value);
 #endif
 
 #endif /* AMX_H_INCLUDED */
+
+#endif // PAWN
