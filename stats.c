@@ -630,13 +630,11 @@ void fill_stats_win ()
 }
 
 void draw_floatingmessage(floating_message *message, float healthbar_z) {
+	float cut;
 #ifndef SKY_FPV_CURSOR
 	float f, width, y, x;
 #else /* SKY_FPV_CURSOR */
 	double f, width, y, x,z;
-#endif /* SKY_FPV_CURSOR */
-	float cut;
-#ifdef SKY_FPV_CURSOR
 	double model[16],proj[16];
 	int view[4];
 #endif /* SKY_FPV_CURSOR */
@@ -652,9 +650,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	width = ((float)get_string_width((unsigned char*)message->message) * (INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
 #else /* SKY_FPV_CURSOR */
 	f *= window_height;
-#endif /* SKY_FPV_CURSOR */
-	
-#ifdef SKY_FPV_CURSOR
+
 	width = ((float)get_string_width((unsigned char*)message->message) * (INGAME_FONT_X_LEN*name_zoom*font_scale));
 	//Figure out where the point just above the actor's head is in the viewport
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
@@ -667,7 +663,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
 	}
 	else
 	{
-		gluProject(0,0,(double)healthbar_z,model, proj, view, &x,&y,&z);
+		gluProject(0, 0, (double)healthbar_z + 0.1f - zoom_level/250.0f, model, proj, view, &x, &y, &z);
 	}
 
 

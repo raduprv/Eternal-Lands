@@ -216,30 +216,20 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 				
 			//Make damage numbers bounce on the actor's head. Owie!
-#define SQ(A) ((A)*(A))
 			a*=2000;
 			a_bounce=0;
 			if (a < 500){
-				a_bounce = 50.0 - 0.0002*SQ(a);
+				a_bounce = 50.0 - 0.0002 * powf(a,2);
 			} else if ( a < 950.0){
-				a_bounce = .09*(a-500.0) - .0002*SQ(a-500.0);
+				a_bounce = 0.09*(a-500.0) - .0002 * powf((a-500.0), 2);
 			} else if ( a < 1355.0 ){
-				a_bounce = .081*(a-950.0) - .0002*SQ(a-950.0);
+				a_bounce = 0.081*(a-950.0) - .0002 * powf((a-950.0), 2);
 			} else if ( a < 1720 ){
-				a_bounce = .0730*(a-1355.0) - .0002*SQ(a-1355.0);
+				a_bounce = 0.0730*(a-1355.0) - .0002 * powf((a-1355.0), 2);
 			} else {
-				a_bounce = .0640*(a-1720.0) - .0002*SQ(a-1720.0);
+				a_bounce = 0.0640*(a-1720.0) - .0002 * powf((a-1720.0), 2);
 			}
-			//glColor3f(1.0f,0.0f,0.0f);
-
-			/*if ((first_person)&&(actor_id->actor_id==yourself)){
-				float x,y;
-				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
-				y = a_bounce + window_height/2.0-40.0;
-				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.21);
-			} else {*/
-				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a_bounce+hy,0, str, 1, font_scale*.14, font_scale*.21);
-			//}
+			draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale*.14, font_scale*.21);
 			glDisable(GL_BLEND);
 		} else {	//No floating messages
 			sprintf((char*)str,"%i",actor_id->damage);
