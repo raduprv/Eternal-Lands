@@ -217,6 +217,7 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	// check to see if we clicked on the ACTIVE Log In button
 	if (log_in_button_selected)
 	{
+		strcpy(log_in_error_str, "");
 		send_login_info ();
 	}
 	//check to see if we clicked on the ACTIVE New Char button
@@ -251,6 +252,7 @@ int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 	}	
 	else if (ch == SDLK_RETURN && username_str[0] && password_str[0])
 	{
+		strcpy(log_in_error_str, "");
 		send_login_info();
 	}
 	else if (ch == SDLK_TAB)
