@@ -230,7 +230,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			} else {
 				a_bounce = .0640*(a-1720.0) - .0002*SQ(a-1720.0);
 			}
-			glColor3f(1.0f,0.0f,0.0f);
+			//glColor3f(1.0f,0.0f,0.0f);
 
 			/*if ((first_person)&&(actor_id->actor_id==yourself)){
 				float x,y;
