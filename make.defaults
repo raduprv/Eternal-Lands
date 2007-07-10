@@ -31,7 +31,7 @@ FEATURES += MASKING                         # Allow for item masking on Actors, 
 #FEATURES += MINIMAP                         # Enable the minimap window support (alt+m) (unfinished, but usable)
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
-FEATURES += NEW_ALPHA                       # (undocumented)
+#FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += NEW_FILE_IO                      # Enables being able to read gzip compressed files and hole zip archives. The zip archives need to be added using add_zip_archive in elfilewrapper.h and only absolut paths are supported for files in zip files. Requires -lzlib/-lz
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)
@@ -40,13 +40,13 @@ FEATURES += NEW_TEX                         # use new texture coordinates for en
 #FEATURES += NEW_WEATHER                     # new weather effects
 #FEATURES += NO_MUSIC                        # (undocumented)
 #FEATURES += NO_PF_MACRO                     # (undocumented)
-FEATURES += NOTEPAD                         # enable in-game notepad
+#FEATURES += NOTEPAD                         # enable in-game notepad
 #FEATURES += OLD_TEXTURE_LOADER              # Enables old texture loader (only the new texture loader has support for png, tiff, jpeg, bmp etc.)
 #FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 FEATURES += OPTIONS_I18N                    # make option labels & descriptions translatable
-#FEATURES += OSX			# for Mac OS X client FIXME: Should be removed and set in the Makefile only.
 #FEATURES += PARANOID_CAMERA                 # (undocumented)
-#FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
+#FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
+FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
 FEATURES += SFX                             # experimental visual spell effects
 FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
 #FEATURES += SKY_FPV_CURSOR                  # Use skybox with clouds/stars/etc, enable first person view, coloured cursors, and other misc changes from Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
@@ -54,16 +54,15 @@ FEATURES += SIMPLE_LOD                      # enable a simplistic distance culli
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += UNROLL4                         # (undocumented)
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
+#FEATURES += USE_SHADER                      # Needs NEW_FILE_IO
 #FEATURES += USE_TANGENT                     # Use tangent space normal mapping. Needs NEW_E3D_FORMAT. (INCOMPLETE)
+#FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += USE_EXTRA_TEXTURE               # Use extra texture and texture coordinates for multitexturin objects. Needs NEW_E3D_FORMAT. (INCOMPLETE)
 #FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += X86_64                          # Compile for a computer with 64-bit memory addresses
 FEATURES += ZLIB                             # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += USE_SHADER                      # Needs NEW_FILE_IO
-#FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
-#FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
@@ -73,6 +72,12 @@ CXXWARN=-Wall
 # -Wno-sign-compare -Werror
 
 ## These needed to be adjusted on a per system basis based on compile options & library versions
+
+## These 2 lines should be uncommented if you used Emajekral's Windows compilation how-to (adjust them if required)
+#EXTRA_LIBS=-lstdc++
+#EXTRA_INCLUDES=-IC:\\Dev-Cpp\\Include\\AL -IC:\\Dev-Cpp\\Include\\SDL
+
+## These are the originally listed settings, uncomment them if you need them
 #EXTRA_INCLUDES=-IC:\\Programme\\Dev-Cpp\\Include
 #EXTRA_LIBS=-lalut -lz
 #EXTRA_STATICLIBS=libs/libalut.a libs/zlib.a
