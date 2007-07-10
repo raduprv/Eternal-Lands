@@ -629,7 +629,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				if (use_eye_candy)
 				{
 #endif // EYE_CANDY
-					add_sfx(sfx,var_a,1);	//caster 	 
+					add_sfx(sfx,var_a,1);	//caster
 					add_sfx(sfx,var_b,0);	//target
 #ifdef EYE_CANDY
 				}
@@ -663,11 +663,17 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //	printf("%f,%f,%f | %f,%f | %d,%d\n", x / 2.0, y / 2.0, ec_get_z2((int)x, (int)y), caster->x_pos, caster->y_pos, caster->tmp.x_tile_pos, caster->tmp.y_tile_pos);
 // 	x = caster->x_pos;
 // 	y = caster->y_pos;
-	if (var_b)
+	
+	// FIXME: Is this check ness. It's invalid anyway, due to var_b being an int. I am leaving it in for now.
+	if (var_b != NULL)
 	{
 		target = get_actor_ptr_from_id(var_b);
 		if (target == NULL)
 			return;
+	}
+	else
+	{
+		return;
 	}
 	
 #ifdef	EYE_CANDY
