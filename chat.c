@@ -235,14 +235,19 @@ int close_channel (window_info *win)
 {
 	int id = win->window_id;
 	int ichan;
-	char str[256];
-	
+
 	for (ichan = 0; ichan < MAX_CHAT_TABS; ichan++)
 	{
 		if (channels[ichan].tab_id == id)
 		{
-			safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, channels[ichan].chan_nr);
-			my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+			int idx = channels[ichan].chan_nr - CHAT_CHANNEL1;
+			
+			if (idx >= 0 && idx < MAX_ACTIVE_CHANNELS)
+			{
+				char str[256];
+				safe_snprintf(str, sizeof(str), "%c#lc %d", RAW_TEXT, active_channels[idx]);
+				my_tcp_send(my_socket, (Uint8*)str, strlen(str+1)+1);
+			}
 
 			// Safe to remove?
 			if (tab_bar_win != -1) remove_tab_button(channels[ichan].chan_nr);
