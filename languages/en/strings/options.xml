@@ -201,6 +201,10 @@
       <name>Alpha Border</name>
       <desc>Toggle the use of alpha borders</desc>
     </use_alpha_border>
+    <use_alpha_banner>
+      <name>Alpha Behind Name/Health Text</name>
+      <desc>Toggle the use of an alpha background to name/health banners</desc>
+    </use_alpha_banner>
     <use_floating_messages>
       <name>Floating Messages</name>
       <desc>Toggles the use of floating experience messages and other graphical enhancements</desc>

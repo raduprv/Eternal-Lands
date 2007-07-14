@@ -22,6 +22,7 @@ extern int yourself; 	/*!< This variable holds the actor_id (as the server sees 
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
 extern int sit_lock; 	/*!< The sit_lock variable holds you in a sitting position.*/
 extern float name_zoom; /*!< The name_zoom defines how large the text used for drawing the names should be*/
+extern int use_alpha_banner;	/*!< Use_alpha_banner defines if an alpha background is drawn behind the name/health banner.*/
 
 /*!
  * \name	Actor types

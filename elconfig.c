@@ -110,6 +110,7 @@ int shadow_map_size_multi= 0;
 
 int you_sit= 0;
 int sit_lock= 0;
+int use_alpha_banner = 0;
 int show_fps= 1;
 int render_skeleton= 0;
 int render_mesh= 1;
@@ -1539,6 +1540,7 @@ void init_vars()
 #endif
 	add_var(BOOL,"compass_north","comp",&compass_direction_checkbox,change_compass_direction,1,"Compass Direction","Set the compass direction for a static compass",HUD);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
+	add_var (BOOL, "use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
 
 #ifndef MAP_EDITOR2
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);

@@ -162,6 +162,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	double healthbar_x_len_loss=0;
 	double healthbar_x_loss_fade=1.0f;
 	double healthbar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
+	float banner_width;
 	// are we actively drawing?
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
 		return;
@@ -265,7 +266,8 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					glColor3f(1.0f,1.0f,0.0f);
 				}
 				snprintf((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
-				draw_ortho_ingame_string(hx-((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0, hy+healthbar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
+				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
+				draw_ortho_ingame_string(hx-banner_width, hy+healthbar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
 			}
 
 			if(view_hp && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
@@ -281,6 +283,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 					off=5.0+disp;
 				}
 				draw_ortho_ingame_string(hx-disp+off, hy-healthbar_y_len/3.0f, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
+				if (disp+off > banner_width) {
+					banner_width = disp + off;
+				}
 			}
 			set_font(0);	// back to fixed pitch
 		}
@@ -318,6 +323,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			actor_id->last_health_loss=0;
 		}
 
+		if (healthbar_x_len > banner_width) {
+			banner_width = healthbar_x_len / 2.0f;
+		}
+		
 		hx-=off;
 
 		//choose tint color
@@ -363,6 +372,21 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		glEnd();
 
 		hx+=off;
+	}
+
+	// draw the alpha background (if ness)
+	if (use_alpha_banner && banner_width > 0) {
+		banner_width += 3;
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+		glColor4f(0.0f, 0.0f, 0.0f, 0.4f);
+		glBegin(GL_QUADS);
+			glVertex3f (hx-banner_width, hy-4.0, hz + 0.0001);
+			glVertex3f (hx+banner_width, hy-4.0, hz + 0.0001);
+			glVertex3f (hx+banner_width, hy+healthbar_y_len*2-4.0, hz + 0.0001);
+			glVertex3f (hx-banner_width, hy+healthbar_y_len*2-4.0, hz + 0.0001);
+		glEnd();
+		glDisable(GL_BLEND);
 	}
 
 	glEnable(GL_TEXTURE_2D);
