@@ -379,7 +379,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		banner_width += 3;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
-		glColor4f(0.0f, 0.0f, 0.0f, 0.4f);
+		glColor4f(0.0f, 0.0f, 0.0f, 0.6f);
 		glBegin(GL_QUADS);
 			glVertex3f (hx-banner_width, hy-4.0, hz + 0.0001);
 			glVertex3f (hx+banner_width, hy-4.0, hz + 0.0001);
