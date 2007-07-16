@@ -431,6 +431,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	Uint8 str[100];
 	int right_click = flags & ELW_RIGHT_MOUSE;
+	int ctrl_on = flags & ELW_CTRL;
+	int alt_on = flags & ELW_CTRL;
 	
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
@@ -563,7 +565,8 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					str[1]=item_list[use_item].pos;
 					str[2]=item_list[pos].pos;
 					my_tcp_send(my_socket,str,3);
-					use_item=-1;
+					if (!alt_on)
+						use_item=-1;
 				} else {
 					use_item=pos;
 				}
