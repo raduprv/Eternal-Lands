@@ -7,7 +7,7 @@ int show_position_on_minimap=0;
 int check_interface_buttons()
 {
 #ifdef EYE_CANDY
-	if (minimap_on)
+	if ((minimap_on) && (cur_mode==mode_eye_candy) && (eye_candy_confirmed))
 	{
 		if (left_click)
 		  add_eye_candy_point();

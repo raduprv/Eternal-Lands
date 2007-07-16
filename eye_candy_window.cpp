@@ -72,7 +72,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_campfire(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
+      current_effect.reference = ec_create_campfire(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, 10, current_effect.scale);
       break;
     case 1:    // Cloud/Fog
       gtk_widget_show(gtk_effect_hue_box);
@@ -80,7 +80,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_cloud(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 10);
+      current_effect.reference = ec_create_cloud(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 10);
       break;
     case 2:    // Fireflies
       gtk_widget_show(gtk_effect_hue_box);
@@ -88,7 +88,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds));
+      current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds));
       break;
     case 3:    // Fountain
       gtk_widget_show(gtk_effect_hue_box);
@@ -96,7 +96,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_show(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_fountain(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.base_height, false, current_effect.scale, 10);
+      current_effect.reference = ec_create_fountain(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.base_height, false, current_effect.scale, 10);
       break;
     case 4:    // Lamp/Torch
       gtk_widget_show(gtk_effect_hue_box);
@@ -104,7 +104,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_lamp(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.scale, 10);
+      current_effect.reference = ec_create_lamp(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.scale, 10);
       break;
     case 5:    // Magic Protection
       gtk_widget_show(gtk_effect_hue_box);
@@ -112,7 +112,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_ongoing_magic_protection(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
+      current_effect.reference = ec_create_ongoing_magic_protection(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, 10, current_effect.scale);
       break;
     case 6:    // Shield
       gtk_widget_show(gtk_effect_hue_box);
@@ -120,7 +120,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_ongoing_shield(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
+      current_effect.reference = ec_create_ongoing_shield(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, 10, current_effect.scale);
       break;
     case 7:    // Magic Immunity
       gtk_widget_show(gtk_effect_hue_box);
@@ -128,7 +128,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_ongoing_magic_immunity(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
+      current_effect.reference = ec_create_ongoing_magic_immunity(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, 10, current_effect.scale);
       break;
     case 8:    // Poison
       gtk_widget_show(gtk_effect_hue_box);
@@ -136,7 +136,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_ongoing_poison(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10, current_effect.scale);
+      current_effect.reference = ec_create_ongoing_poison(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, 10, current_effect.scale);
       break;
     case 9:    // Smoke
       gtk_widget_show(gtk_effect_hue_box);
@@ -144,7 +144,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_smoke(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.scale, 10);
+      current_effect.reference = ec_create_smoke(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.scale, 10);
       break;
     case 10:  // Teleporter
       gtk_widget_show(gtk_effect_hue_box);
@@ -152,7 +152,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_teleporter(current_effect.position.x, current_effect.position.y, current_effect.position.z, 10);
+      current_effect.reference = ec_create_teleporter(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, 10);
       break;
     case 11:  // Leaves
       gtk_widget_show(gtk_effect_hue_box);
@@ -160,7 +160,8 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_wind_leaves(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
+//      std::cout << "1: " << current_effect.hue << " / " << current_effect.saturation << " / " << current_effect.scale << " / " << current_effect.density << std::endl;
+      current_effect.reference = ec_create_wind_leaves(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.scale, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
       break;
     case 12:  // Flower Petals
       gtk_widget_show(gtk_effect_hue_box);
@@ -168,7 +169,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_wind_petals(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
+      current_effect.reference = ec_create_wind_petals(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.scale, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds), 1.0, 0.0, 0.0);
       break;
     case 13:  // Waterfall
       gtk_widget_show(gtk_effect_hue_box);
@@ -176,7 +177,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_show(gtk_effect_base_height_box);
-//      current_effect.reference = ec_create_waterfall(current_effect.position.x, current_effect.position.y, current_effect.position.z);
+//      current_effect.reference = ec_create_waterfall(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation);
       break;
     case 14:  // Bees
       gtk_widget_show(gtk_effect_hue_box);
@@ -185,7 +186,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
       current_effect.reference = NULL;
-//      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z);
+//      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation);
       break;
     case 15:  // Portal
       gtk_widget_show(gtk_effect_hue_box);
@@ -194,7 +195,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
       current_effect.reference = NULL;
-//      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z);
+//      current_effect.reference = ec_create_bees(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation);
       break;
     case 16:    // Candle
       gtk_widget_show(gtk_effect_hue_box);
@@ -202,7 +203,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_candle(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.scale, 10);
+      current_effect.reference = ec_create_candle(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.scale, 10);
       break;
   }
 }
@@ -663,40 +664,40 @@ void draw_eye_candy_selector(const EffectDefinition*const effect, const int i)
   {
     // Front Face
     glNormal3f(0.0, 0.0, 1.0);
-    glVertex3f(-0.1f, -0.1f,  0.1f);
-    glVertex3f( 0.1f, -0.1f,  0.1f);
-    glVertex3f( 0.1f,  0.1f,  0.1f);
-    glVertex3f(-0.1f,  0.1f,  0.1f);
+    glVertex3f(-0.15f, -0.15f,  0.15f);
+    glVertex3f( 0.15f, -0.15f,  0.15f);
+    glVertex3f( 0.15f,  0.15f,  0.15f);
+    glVertex3f(-0.15f,  0.15f,  0.15f);
     // Back Face
     glNormal3f(0.0, 0.0, -1.0);
-    glVertex3f(-0.1f, -0.1f, -0.1f);
-    glVertex3f(-0.1f,  0.1f, -0.1f);
-    glVertex3f( 0.1f,  0.1f, -0.1f);
-    glVertex3f( 0.1f, -0.1f, -0.1f);
+    glVertex3f(-0.15f, -0.15f, -0.15f);
+    glVertex3f(-0.15f,  0.15f, -0.15f);
+    glVertex3f( 0.15f,  0.15f, -0.15f);
+    glVertex3f( 0.15f, -0.15f, -0.15f);
     // Top Face
     glNormal3f(0.0, 1.0, 0.0);
-    glVertex3f(-0.1f,  0.1f, -0.1f);
-    glVertex3f(-0.1f,  0.1f,  0.1f);
-    glVertex3f( 0.1f,  0.1f,  0.1f);
-    glVertex3f( 0.1f,  0.1f, -0.1f);
+    glVertex3f(-0.15f,  0.15f, -0.15f);
+    glVertex3f(-0.15f,  0.15f,  0.15f);
+    glVertex3f( 0.15f,  0.15f,  0.15f);
+    glVertex3f( 0.15f,  0.15f, -0.15f);
     // Bottom Face
     glNormal3f(0.0, -1.0, 0.0);
-    glVertex3f(-0.1f, -0.1f, -0.1f);
-    glVertex3f( 0.1f, -0.1f, -0.1f);
-    glVertex3f( 0.1f, -0.1f,  0.1f);
-    glVertex3f(-0.1f, -0.1f,  0.1f);
+    glVertex3f(-0.15f, -0.15f, -0.15f);
+    glVertex3f( 0.15f, -0.15f, -0.15f);
+    glVertex3f( 0.15f, -0.15f,  0.15f);
+    glVertex3f(-0.15f, -0.15f,  0.15f);
     // Right face
     glNormal3f(1.0, 0.0, 0.0);
-    glVertex3f( 0.1f, -0.1f, -0.1f);
-    glVertex3f( 0.1f,  0.1f, -0.1f);
-    glVertex3f( 0.1f,  0.1f,  0.1f);
-    glVertex3f( 0.1f, -0.1f,  0.1f);
+    glVertex3f( 0.15f, -0.15f, -0.15f);
+    glVertex3f( 0.15f,  0.15f, -0.15f);
+    glVertex3f( 0.15f,  0.15f,  0.15f);
+    glVertex3f( 0.15f, -0.15f,  0.15f);
     // Left Face
     glNormal3f(-1.0, 0.0, 0.0);
-    glVertex3f(-0.1f, -0.1f, -0.1f);
-    glVertex3f(-0.1f, -0.1f,  0.1f);
-    glVertex3f(-0.1f,  0.1f,  0.1f);
-    glVertex3f(-0.1f,  0.1f, -0.1f);
+    glVertex3f(-0.15f, -0.15f, -0.15f);
+    glVertex3f(-0.15f, -0.15f,  0.15f);
+    glVertex3f(-0.15f,  0.15f,  0.15f);
+    glVertex3f(-0.15f,  0.15f, -0.15f);
   }
   glEnd();
   glPopMatrix();
@@ -771,31 +772,31 @@ void deserialize_eye_candy_effect(particles_io* data)
     case 0x00:	// Campfire
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x00;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_campfire(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      dest.reference = ec_create_campfire(dest.position.x, dest.position.y, dest.position.z, hue, saturation, 10, scale);
       break;
     }
     case 0x01:	// Cloud
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x01;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.density = density;
-      dest.reference = ec_create_cloud(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 10);
+      dest.reference = ec_create_cloud(dest.position.x, dest.position.y, dest.position.z, hue, saturation, density, (ec_bounds)(&dest.bounds), 10);
       break;
     }
     case 0x02:	// Fireflies
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float scale = raw_code[45] + raw_code[46] / 256.0;
       dest.effect = 0x02;
@@ -803,13 +804,13 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      dest.reference = ec_create_fireflies(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds));
+      dest.reference = ec_create_fireflies(dest.position.x, dest.position.y, dest.position.z, hue, saturation, density, (ec_bounds)(&dest.bounds));
       break;
     }
     case 0x03:	// Fountain
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
       const int backlit = raw_code[47];
@@ -818,97 +819,97 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.saturation = saturation;
       dest.scale = scale;
       dest.base_height = base_height;
-      dest.reference = ec_create_fountain(dest.position.x, dest.position.y, dest.position.z, base_height, backlit, scale, 10);
+      dest.reference = ec_create_fountain(dest.position.x, dest.position.y, dest.position.z, hue, saturation, base_height, backlit, scale, 10);
       break;
     }
     case 0x04:	// Lamp
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x04;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_lamp(dest.position.x, dest.position.y, dest.position.z, scale, 10);
+      dest.reference = ec_create_lamp(dest.position.x, dest.position.y, dest.position.z, hue, saturation, scale, 10);
       break;
     }
     case 0x05:	// Magic protection
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x05;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_ongoing_magic_protection(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      dest.reference = ec_create_ongoing_magic_protection(dest.position.x, dest.position.y, dest.position.z, hue, saturation, 10, scale);
       break;
     }
     case 0x06:	// Shield
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x06;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_ongoing_shield(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      dest.reference = ec_create_ongoing_shield(dest.position.x, dest.position.y, dest.position.z, hue, saturation, 10, scale);
       break;
     }
     case 0x07:	// Magic immunity
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x07;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_ongoing_magic_immunity(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      dest.reference = ec_create_ongoing_magic_immunity(dest.position.x, dest.position.y, dest.position.z, hue, saturation, 10, scale);
       break;
     }
     case 0x08:	// Poison
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x08;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_ongoing_poison(dest.position.x, dest.position.y, dest.position.z, 10, scale);
+      dest.reference = ec_create_ongoing_poison(dest.position.x, dest.position.y, dest.position.z, hue, saturation, 10, scale);
       break;
     }
     case 0x09:	// Smoke
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x09;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.density = density;
-      dest.reference = ec_create_smoke(dest.position.x, dest.position.y, dest.position.z, density, 10);
+      dest.reference = ec_create_smoke(dest.position.x, dest.position.y, dest.position.z, hue, saturation, density, 10);
       break;
     }
     case 0x0A:	// Teleporter
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x0A;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_teleporter(dest.position.x, dest.position.y, dest.position.z, 10);
+      dest.reference = ec_create_teleporter(dest.position.x, dest.position.y, dest.position.z, hue, saturation, 10);
       break;
     }
     case 0x0B:	// Leaves
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float scale = raw_code[45] + raw_code[46] / 256.0;
       dest.effect = 0x0B;
@@ -916,13 +917,13 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      dest.reference = ec_create_wind_leaves(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
+      dest.reference = ec_create_wind_leaves(dest.position.x, dest.position.y, dest.position.z, hue, saturation, scale, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
       break;
     }
     case 0x0C:	// Petals
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float scale = raw_code[45] + raw_code[46] / 256.0;
       dest.effect = 0x0C;
@@ -930,13 +931,13 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      dest.reference = ec_create_wind_petals(dest.position.x, dest.position.y, dest.position.z, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
+      dest.reference = ec_create_wind_petals(dest.position.x, dest.position.y, dest.position.z, hue, saturation, scale, density, (ec_bounds)(&dest.bounds), 1.0, 0.0, 0.0);
       break;
     }
     case 0x0D:	// Waterfall
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
       const float angle = raw_code[47] * ec::PI / 128.0;
@@ -946,13 +947,13 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.density = density;
       dest.base_height = base_height;
       dest.angle = angle;
-      // Effect does not yet exist.
+//      dest.reference = ec_create_waterfall(dest.position.x, dest.position.y, dest.position.z, hue, saturation);
       break;
     }
     case 0x0E:	// Bees
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
       const float scale = raw_code[45] + raw_code[46] / 256.0;
       dest.effect = 0x0E;
@@ -960,13 +961,13 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      // Effect does not yet exist.
+//      dest.reference = ec_create_bees(dest.position.x, dest.position.y, dest.position.z, hue, saturation);
       break;
     }
     case 0x0F:	// Portal
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       const float angle = raw_code[45] * ec::PI / 128.0;
       dest.effect = 0x0F;
@@ -974,19 +975,19 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.saturation = saturation;
       dest.scale = scale;
       dest.angle = angle;
-      // Effect does not yet exist.
+//      dest.reference = ec_create_portal(dest.position.x, dest.position.y, dest.position.z, hue, saturation);
       break;
     }
     case 0x10:	// Candle
     {
       const float hue = raw_code[41] / 256.0;
-      const float saturation = raw_code[42] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       dest.effect = 0x10;
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_candle(dest.position.x, dest.position.y, dest.position.z, scale, 10);
+      dest.reference = ec_create_candle(dest.position.x, dest.position.y, dest.position.z, hue, saturation, scale, 10);
       break;
     }
   }
@@ -1013,19 +1014,19 @@ void serialize_eye_candy_effect(int index, particles_io* data)
   {
     case 0:    // Fire
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;
     case 1:    // Cloud/Fog
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       break;
     case 2:    // Fireflies
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
@@ -1033,56 +1034,56 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       break;
     case 3:    // Fountain
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       unformatted_data[47] = 0; 	// Backlit
       break;
     case 4:    // Lamp/Torch
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;
     case 5:    // Magic Protection
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;
     case 6:    // Shield
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;
     case 7:    // Magic Immunity
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;
     case 8:    // Poison
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;
     case 9:    // Smoke
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       break;
     case 10:  // Teleporter
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;
     case 11:  // Leaves
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
@@ -1090,7 +1091,7 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       break;
     case 12:  // Flower Petals
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
@@ -1098,7 +1099,7 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       break;
     case 13:  // Waterfall
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].base_height / 8.0));
@@ -1107,7 +1108,7 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       break;
     case 14:  // Bees
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].density));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].density * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].scale));
@@ -1115,14 +1116,14 @@ void serialize_eye_candy_effect(int index, particles_io* data)
       break;
     case 15:  // Portal
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       unformatted_data[45] = (char)((unsigned char)(effects[index].angle * 256.0));
       break;
     case 16:    // Candle
       unformatted_data[41] = (char)((unsigned char)(effects[index].hue * 256.0));
-      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 256.0));
+      unformatted_data[42] = (char)((unsigned char)(effects[index].saturation * 16.0));
       unformatted_data[43] = (char)((unsigned char)(effects[index].scale));
       unformatted_data[44] = (char)((unsigned char)((int)(effects[index].scale * 256.0) % 256));
       break;

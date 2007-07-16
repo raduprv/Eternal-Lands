@@ -486,7 +486,7 @@ int HandleEvent(SDL_Event *event)
 			if(minimap_on && left_click==1)
 				{
 #ifdef	EYE_CANDY
-					if ((cur_mode != mode_eye_candy) && eye_candy_ready_to_add)
+					if ((cur_mode != mode_eye_candy) || (!eye_candy_ready_to_add))
 					{
 						check_mouse_minimap();
 						return(done);

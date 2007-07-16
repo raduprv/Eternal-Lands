@@ -255,7 +255,7 @@ void show_eye_candy_window()
 		gtk_widget_show(gtk_effect_list_box);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_list_box, TRUE, TRUE, 0);
 
-		gtk_effect_hue = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_hue_obj = gtk_adjustment_new(0.0, 0.0, 1.01, 0.01, 0.1, 0.01)));
+		gtk_effect_hue = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_hue_obj = gtk_adjustment_new(0.0, 0.0, 1.01, 0.01, 0.01, 0.01)));
 		g_signal_connect_swapped (gtk_effect_hue,
 				"value_changed", 
 				G_CALLBACK (change_eye_candy_effect),
@@ -273,7 +273,7 @@ void show_eye_candy_window()
 		gtk_widget_hide(gtk_effect_hue_box);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_hue_box, TRUE, TRUE, 0);
 		
-		gtk_effect_saturation = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_saturation_obj = gtk_adjustment_new(0.0, 0.0, 1.01, 0.01, 0.1, 0.01)));
+		gtk_effect_saturation = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_saturation_obj = gtk_adjustment_new(1.0, 0.0, 16.01, 0.01, 0.01, 0.01)));
 		g_signal_connect_swapped (gtk_effect_saturation,
 				"value_changed", 
 				G_CALLBACK (change_eye_candy_effect),
@@ -291,7 +291,7 @@ void show_eye_candy_window()
 		gtk_widget_hide(gtk_effect_saturation_box);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_saturation_box, TRUE, TRUE, 0);
 		
-		gtk_effect_scale = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_scale_obj = gtk_adjustment_new(1.0, 0.01, 20.1, 0.02, 1.0, 0.1)));
+		gtk_effect_scale = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_scale_obj = gtk_adjustment_new(1.0, 0.01, 20.01, 0.02, 1.0, 0.01)));
 		g_signal_connect_swapped (gtk_effect_scale,
 				"value_changed", 
 				G_CALLBACK (change_eye_candy_effect),
@@ -309,7 +309,7 @@ void show_eye_candy_window()
 		gtk_widget_hide(gtk_effect_scale_box);
 		gtk_box_pack_start(GTK_BOX(GTK_DIALOG(gtk_effect_win)->vbox), gtk_effect_scale_box, TRUE, TRUE, 0);
 		
-		gtk_effect_density = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_density_obj = gtk_adjustment_new(1.0, 0.1, 20.1, 0.02, 1.0, 0.1)));
+		gtk_effect_density = gtk_hscale_new(GTK_ADJUSTMENT(gtk_effect_density_obj = gtk_adjustment_new(1.0, 0.01, 20.01, 0.02, 1.0, 0.01)));
 		g_signal_connect_swapped (gtk_effect_density,
 				"value_changed", 
 				G_CALLBACK (change_eye_candy_effect),
