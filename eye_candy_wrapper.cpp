@@ -828,8 +828,8 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
       const float hue = raw_code[41] / 256.0;
       const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
-//      const float scale = raw_code[45] + raw_code[46] / 256.0;
-      ref = ec_create_fireflies(x, y, z, hue, saturation, density, bounds);
+      const float scale = raw_code[45] + raw_code[46] / 256.0;
+      ref = ec_create_fireflies(x, y, z, hue, saturation, density, scale, bounds);
       break;
     }
     case 0x03:	// Fountain
@@ -894,8 +894,8 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     {
       const float hue = raw_code[41] / 256.0;
       const float saturation = raw_code[42] / 16.0;
-//      const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_teleporter(x, y, z, hue, saturation, LOD);
+      const float scale = raw_code[43] + raw_code[44] / 256.0;
+      ref = ec_create_teleporter(x, y, z, hue, saturation, scale, LOD);
       break;
     }
     case 0x0B:	// Leaves
@@ -1071,12 +1071,12 @@ extern "C" ec_reference ec_create_cloud(float x, float y, float z, float hue_adj
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_fireflies(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, ec_bounds bounds)
+extern "C" ec_reference ec_create_fireflies(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, float scale, ec_bounds bounds)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, hue_adjust, saturation_adjust, density, &ret->bounds);
+  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, hue_adjust, saturation_adjust, density, scale, &ret->bounds);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -2152,11 +2152,11 @@ extern "C" ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* 
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_teleporter(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD)
+extern "C" ec_reference ec_create_teleporter(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::TeleporterEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, LOD);
+  ret->effect = new ec::TeleporterEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }

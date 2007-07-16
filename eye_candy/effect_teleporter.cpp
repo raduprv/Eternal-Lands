@@ -54,7 +54,7 @@ GLuint TeleporterParticle::get_texture(const Uint16 res_index)
   return base->TexShimmer.get_texture(res_index);
 }
 
-TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const Uint16 _LOD)
+TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "TeleporterEffect (" << this << ") created." << std::endl;
@@ -67,6 +67,7 @@ TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   desired_LOD = _LOD;
   sqrt_LOD = fastsqrt(LOD);
   size_scalar = 15 / (LOD + 5);
+  scale = _scale;
   bounds = NULL;
   mover = new ParticleMover(this);
   spawner = new FilledDiscSpawner(0.2);
@@ -84,11 +85,23 @@ TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
 */
   
 //  const float radius = 0.5 * pow(2, 0.18) / 1.5;
-  const float radius = 0.377628;
+  radius = 0.377628 * scale;
+  color_t hue, saturation, value;
+  hue = 0.67;
+  saturation = 0.05;
+  value = 1.0;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, teleporter_color.x, teleporter_color.y, teleporter_color.z);
+
   for (int i = 0; i < LOD * 4; i++)
   {
     const percent_t percent = ((coord_t)i + 1) / (LOD * 4);
-    capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
+    capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
   }
 }
 
@@ -168,12 +181,10 @@ void TeleporterEffect::request_LOD(const float _LOD)
     delete capless_cylinders[i];
   capless_cylinders.clear();
 
-//  const float radius = 0.5 * pow(2, 0.18) / 1.5;
-  const float radius = 0.377628;
   for (int i = 0; i < LOD * 4; i++)
   {
     const percent_t percent = ((coord_t)i + 1) / (LOD * 4);
-    capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), Vec3(1.0, 1.0, 1.0), (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
+    capless_cylinders.push_back(new CaplessCylinder(base, *pos, *pos + Vec3(0.0, 10.0 / percent, 0.0), teleporter_color, (0.1 + (1.0 - percent) * 0.05) / (LOD + 2), radius * percent, (int)(25 * (percent + 0.2))));
   }
 }
 

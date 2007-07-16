@@ -646,7 +646,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
         ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
   		}
       else
-        ec_create_teleporter(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10));
+        ec_create_teleporter(x_pos, y_pos, z_pos, 0.0, 1.0, 1.0, (poor_man ? 6 : 10));
     }
     else if (!strncmp("fir", file_name + 12, 3))
     {

@@ -32,7 +32,7 @@ public:
 class TeleporterEffect : public Effect
 {
 public: 
-  TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const Uint16 _LOD);
+  TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD);
   ~TeleporterEffect(); 
   
   virtual EffectEnum get_type() { return EC_TELEPORTER; };
@@ -48,6 +48,9 @@ public:
   color_t saturation_adjust;
   float sqrt_LOD;
   coord_t size_scalar;
+  coord_t radius;
+  coord_t scale;
+  Vec3 teleporter_color;
   std::vector< std::pair<float*, Uint64> > targets;
 };
 
