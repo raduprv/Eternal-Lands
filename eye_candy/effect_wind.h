@@ -34,7 +34,7 @@ public:
     angle_t end_angle;
   };
 
-  WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* _bounding_range, const WindType _type, const Vec3 _prevailing_wind);
+  WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust, const color_t _saturation_adjust, const coord_t _scalar, const float _density, BoundingRange* _bounding_range, const WindType _type, const Vec3 _prevailing_wind);
   ~WindEffect(); 
   
   void set_pass_off(std::vector<WindEffect*> pass_off_to); // Required!
@@ -58,6 +58,9 @@ public:
   FilledBoundingSpawner* spawner;
   WindType type;
   Vec3 center;
+  color_t hue_adjust;
+  color_t saturation_adjust;
+  float scalar;
   Vec3 prevailing_wind;
   coord_t max_adjust;
   Vec3 overall_wind_adjust;
@@ -71,7 +74,7 @@ public:
 class WindParticle : public Particle
 {
 public:
-  WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _min_height, const coord_t _max_height, const WindEffect::WindType _type);
+  WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t scalar, const coord_t _min_height, const coord_t _max_height, const WindEffect::WindType _type);
   ~WindParticle() {}
   
   virtual bool idle(const Uint64 delta_t);

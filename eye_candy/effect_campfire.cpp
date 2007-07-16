@@ -17,21 +17,29 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
+CampfireParticle::CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   state = _state;
+  color_t hue, saturation, value;
   if (state != 2)
   {
-    color[0] = 1.0;
-    color[1] = 0.35 + randfloat(0.35);
-    color[2] = 0.2;
+    hue = 0.03 + randcolor(0.1);
+    saturation = 0.8;
+    value = 1.0;
   }
   else
   {
-    color[0] = randfloat(0.1);
-    color[1] = randfloat(0.08);
-    color[2] = randfloat(0.08);
+    hue = 0.9 + randfloat(0.2);
+    saturation = randfloat(0.2);
+    value = randfloat(0.2);
   }
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   LOD = _LOD;
   size = _sqrt_scale * 9.5 * (1.0 + 4 * randfloat()) / (_LOD + 5.0);
   size_max = 270 * _scale / (_LOD + 10);
@@ -125,12 +133,23 @@ void CampfireParticle::draw(const Uint64 usec)
   }
 }
 
-CampfireBigParticle::CampfireBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _sqrt_scale, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
+CampfireBigParticle::CampfireBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _sqrt_scale, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   const float LOD = _LOD / 10.0;
   color[0] = 1.0;
   color[1] = 0.5 + randfloat() / 2;
   color[2] = 0.3;
+  color_t hue, saturation, value;
+  hue = 0.03 + randcolor(0.1);
+  saturation = 0.8;
+  value = 1.0;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   size = 7.5 * (2.0 + randfloat()) / 2.5;
   alpha = 7.0 / size / (LOD + 5);
   size *= _sqrt_scale;
@@ -155,7 +174,7 @@ GLuint CampfireBigParticle::get_texture(const Uint16 res_index)
   return base->TexFlare.get_texture(res_index);
 }
 
-CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _scale, const Uint16 _LOD)
+CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "CampfireEffect (" << this << ") created." << std::endl;
@@ -163,6 +182,8 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
   dead = _dead;
   pos = _pos;
   obstructions = _obstructions;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   scale = _scale * 0.7;
   sqrt_scale = fastsqrt(scale);
   LOD = base->last_forced_LOD;
@@ -183,13 +204,13 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
     Vec3 velocity;
     velocity.randomize(0.15 * sqrt_scale);
     velocity += Vec3(0.0, 0.15 * scale, 0.0);
-    Particle* p = new CampfireParticle(this, mover, coords, velocity, scale, sqrt_scale, 0, LOD);
+    Particle* p = new CampfireParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, scale, sqrt_scale, 0, LOD);
     if (!base->push_back_particle(p))
       break;
   }
 */
 #ifdef DEBUG_POINT_PARTICLES
-  Particle* p = new CampfireParticle(this, mover, *pos + Vec3(0.0, 0.2, 0.0), Vec3(0.0, 0.0, 0.0), 10.0, sqrt(10.0), 0, 10);
+  Particle* p = new CampfireParticle(this, mover, *pos + Vec3(0.0, 0.2, 0.0), Vec3(0.0, 0.0, 0.0), hue_adjust, saturation_adjust, 10.0, sqrt(10.0), 0, 10);
   base->push_back_particle(p);
 #else
  #ifndef MAP_EDITOR
@@ -197,7 +218,7 @@ CampfireEffect::CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::ve
   for (int i = 0; i < 20; i++)
   {
     const Vec3 coords = spawner->get_new_coords() * 1.3 + *pos + Vec3(0.0, 0.15, 0.0);
-    Particle* p = new CampfireBigParticle(this, stationary, coords, Vec3(0.0, 0.0, 0.0), sqrt_scale, LOD);
+    Particle* p = new CampfireBigParticle(this, stationary, coords, Vec3(0.0, 0.0, 0.0), hue_adjust, saturation_adjust, sqrt_scale, LOD);
     if (!base->push_back_particle(p))
       break;
     big_particles++;
@@ -251,7 +272,7 @@ bool CampfireEffect::idle(const Uint64 usec)
       velocity.y *= 1.5;
       velocity.z *= 1.5;
     }
-    Particle* p = new CampfireParticle(this, mover, coords, velocity, scale, sqrt_scale, state, LOD);
+    Particle* p = new CampfireParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, scale, sqrt_scale, state, LOD);
     if (!base->push_back_particle(p))
       break;
   }

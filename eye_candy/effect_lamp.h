@@ -20,7 +20,7 @@ namespace ec
 class LampEffect : public Effect
 {
 public: 
-  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float scale, const bool halo, const Uint16 _LOD);
+  LampEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float scale, const bool halo, const Uint16 _LOD);
   ~LampEffect(); 
   
   virtual EffectEnum get_type() { return EC_LAMP; };
@@ -30,6 +30,8 @@ public:
   GradientMover* mover2;
   ParticleMover* mover3;
   ParticleSpawner* spawner;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   int big_particles;
   float scale;
   float new_scale;
@@ -40,7 +42,7 @@ public:
 class LampParticle : public Particle
 {
 public:
-  LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const Uint16 _LOD);
+  LampParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _scale, const Uint16 _LOD);
   ~LampParticle() {}
   
   virtual bool idle(const Uint64 delta_t);
@@ -54,7 +56,7 @@ public:
 class LampBigParticle : public Particle
 {
 public:
-  LampBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const Uint16 _LOD);
+  LampBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _scale, const Uint16 _LOD);
   ~LampBigParticle() { ((LampEffect*)effect)->big_particles--; };
   
   virtual bool idle(const Uint64 delta_t);

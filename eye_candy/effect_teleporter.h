@@ -20,7 +20,7 @@ namespace ec
 class TeleporterParticle : public Particle
 {
 public:
-  TeleporterParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t size_scalar);
+  TeleporterParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t size_scalar);
   ~TeleporterParticle() {}
   
   virtual bool idle(const Uint64 delta_t);
@@ -32,7 +32,7 @@ public:
 class TeleporterEffect : public Effect
 {
 public: 
-  TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Uint16 _LOD);
+  TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const Uint16 _LOD);
   ~TeleporterEffect(); 
   
   virtual EffectEnum get_type() { return EC_TELEPORTER; };
@@ -44,6 +44,8 @@ public:
   ParticleMover* mover;
   ParticleSpawner* spawner;
   std::vector<Shape*> capless_cylinders;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   float sqrt_LOD;
   coord_t size_scalar;
   std::vector< std::pair<float*, Uint64> > targets;

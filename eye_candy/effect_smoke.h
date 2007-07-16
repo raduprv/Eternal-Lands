@@ -19,7 +19,7 @@ namespace ec
 class SmokeParticle : public Particle
 {
 public:
-  SmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _sqrt_scale, const coord_t _max_size, const coord_t size_scalar, const alpha_t alpha_scale);
+  SmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _sqrt_scale, const coord_t _max_size, const coord_t size_scalar, const alpha_t alpha_scale);
   ~SmokeParticle() {}
   
   virtual bool idle(const Uint64 delta_t);
@@ -35,7 +35,7 @@ public:
 class SmokeEffect : public Effect
 {
 public: 
-  SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _scale, const Uint16 _LOD);
+  SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD);
   ~SmokeEffect(); 
   
   virtual EffectEnum get_type() { return EC_SMOKE; };
@@ -57,6 +57,8 @@ public:
 
   ParticleMover* mover;
   ParticleSpawner* spawner;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   interval_t count;
   float scale;
   coord_t sqrt_scale;

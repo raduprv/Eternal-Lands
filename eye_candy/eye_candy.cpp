@@ -2018,6 +2018,68 @@ Uint64 get_time()
 #endif
 }
 
+void hsv_to_rgb(const color_t h, const color_t s, const color_t v, color_t& r, color_t& g, color_t& b)
+{
+  if(!s)	// Greyscale
+  {
+    r = g = b = v;
+    return;
+  }
+
+  const color_t float_sector = h * 6;
+  const int sector = (int)floor(float_sector);
+  const float sector_percent = float_sector - sector;
+  const float inv_sector_percent = 1.0 - sector_percent;
+  const float p = v * (1 - s);
+  const float q = v * (1 - s * sector_percent);
+  const float t = v * (1 - s * inv_sector_percent);
+  switch (sector)
+  {
+    case 0:
+    {
+      r = v;
+      g = t;
+      b = p;
+      break;
+    }
+    case 1:
+    {
+      r = q;
+      g = v;
+      b = p;
+      break;
+    }
+    case 2:
+    {
+      r = p;
+      g = v;
+      b = t;
+      break;
+    }
+    case 3:
+    {
+      r = p;
+      g = q;
+      b = v;
+      break;
+    }
+    case 4:
+    {
+      r = t;
+      g = p;
+      b = v;
+      break;
+    }
+    default:
+    {
+      r = v;
+      g = p;
+      b = q;
+      break;
+    }
+  }
+}
+
 ///////////////////////////////////////////////////////////////////////////////
 
 };

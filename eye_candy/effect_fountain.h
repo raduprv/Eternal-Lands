@@ -19,7 +19,7 @@ namespace ec
 class FountainParticle : public Particle
 {
 public:
-  FountainParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _base_height, const bool _backlight, const float _sqrt_scale, const coord_t _max_size, const coord_t size_scalar);
+  FountainParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _base_height, const bool _backlight, const float _sqrt_scale, const coord_t _max_size, const coord_t size_scalar);
   ~FountainParticle() {}
   
   virtual bool idle(const Uint64 delta_t);
@@ -37,7 +37,7 @@ public:
 class FountainEffect : public Effect
 {
 public: 
-  FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _backlight, const coord_t _base_height, const float _scale, const Uint16 _LOD);
+  FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const bool _backlight, const coord_t _base_height, const float _scale, const Uint16 _LOD);
   ~FountainEffect(); 
   
   virtual EffectEnum get_type() { return EC_FOUNTAIN; };
@@ -59,6 +59,8 @@ public:
   GradientMover* mover;
   ParticleMover* basic_mover;
   ParticleSpawner* spawner;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   int big_particles;
   interval_t count;
   coord_t base_height;

@@ -19,7 +19,7 @@ namespace ec
 class FireflyParticle : public Particle
 {
 public:
-  FireflyParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _min_height, const coord_t _max_height);
+  FireflyParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _min_height, const coord_t _max_height);
   ~FireflyParticle() {}
   
   virtual bool idle(const Uint64 delta_t);
@@ -35,7 +35,7 @@ public:
 class FireflyEffect : public Effect
 {
 public: 
-  FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* bounding_range);
+  FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust, const color_t _saturation_adjust, const float _density, BoundingRange* bounding_range);
   ~FireflyEffect(); 
   
   virtual EffectEnum get_type() { return EC_FIREFLY; };
@@ -43,6 +43,8 @@ public:
 
   BoundingMover* mover;
   NoncheckingFilledBoundingSpawner* spawner;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   Vec3 center;
   int firefly_count;
 };

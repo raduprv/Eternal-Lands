@@ -222,10 +222,10 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
   ec_reference ec_create_breath_lightning(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
   ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
-  ec_reference ec_create_campfire(float x, float y, float z, int LOD, float scale);
-  ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD);
-  ec_reference ec_create_fireflies(float x, float y, float z, float density, ec_bounds bounds);
-  ec_reference ec_create_fountain(float x, float y, float z, float base_height, int backlit, float scale, int LOD);
+  ec_reference ec_create_campfire(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_cloud(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, ec_bounds bounds, int LOD);
+  ec_reference ec_create_fireflies(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, ec_bounds bounds);
+  ec_reference ec_create_fountain(float x, float y, float z, float hue_adjust, float saturation_adjust, float base_height, int backlit, float scale, int LOD);
   ec_reference ec_create_harvesting_radon_pouch(float x, float y, float z, int LOD);
   ec_reference ec_create_harvesting_cavern_wall(float x, float y, float z, int LOD);
   ec_reference ec_create_harvesting_mother_nature(float x, float y, float z, int LOD);
@@ -238,12 +238,12 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_impact_magic_immunity(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_impact_poison(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_impact_blood(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
-  ec_reference ec_create_lamp(float x, float y, float z, float scale, int LOD);
-  ec_reference ec_create_candle(float x, float y, float z, float scale, int LOD);
-  ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, int LOD, float scale);
-  ec_reference ec_create_ongoing_shield(float x, float y, float z, int LOD, float scale);
-  ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, int LOD, float scale);
-  ec_reference ec_create_ongoing_poison(float x, float y, float z, int LOD, float scale);
+  ec_reference ec_create_lamp(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD);
+  ec_reference ec_create_candle(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD);
+  ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_shield(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_poison(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
   ec_reference ec_create_selfmagic_heal(float x, float y, float z, int LOD);
   ec_reference ec_create_selfmagic_heal2(actor* caster, int LOD);
   ec_reference ec_create_selfmagic_magic_protection(float x, float y, float z, int LOD);
@@ -260,7 +260,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_selfmagic_magic_immunity2(actor* caster, int LOD);
   ec_reference ec_create_alert(float x, float y, float z, int LOD);
   ec_reference ec_create_alert2(actor* caster, int LOD);
-  ec_reference ec_create_smoke(float x, float y, float z, float scale, int LOD);
+  ec_reference ec_create_smoke(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD);
   ec_reference ec_create_summon_rabbit(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_rat(float x, float y, float z, int LOD);
   ec_reference ec_create_summon_beaver(float x, float y, float z, int LOD);
@@ -321,9 +321,9 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   void ec_launch_targetmagic_smite_summoned(ec_reference reference, float start_x, float start_y, float start_z, int LOD);
   ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD);
   ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* target, int LOD);
-  ec_reference ec_create_teleporter(float x, float y, float z, int LOD);
-  ec_reference ec_create_wind_leaves(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
-  ec_reference ec_create_wind_petals(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
+  ec_reference ec_create_teleporter(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD);
+  ec_reference ec_create_wind_leaves(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
+  ec_reference ec_create_wind_petals(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
   void ec_add_wind_effect_list(ec_reference reference, ec_effects effects);
 #ifdef MINES
   ec_reference ec_create_mine_drop(float x, float y, float z, int LOD);

@@ -188,6 +188,7 @@ namespace ec
 #endif
 
 Uint64 get_time();
+void hsv_to_rgb(const color_t h, const color_t s, const color_t v, color_t& r, color_t& g, color_t& b);
 
 // M E M B E R S //////////////////////////////////////////////////////////////
 

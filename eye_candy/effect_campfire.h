@@ -19,7 +19,7 @@ namespace ec
 class CampfireParticle : public Particle
 {
 public:
-  CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD);
+  CampfireParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _scale, const float _sqrt_scale, const int _state, const Uint16 _LOD);
   ~CampfireParticle() {}
   
   virtual bool idle(const Uint64 delta_t);
@@ -34,7 +34,7 @@ public:
 class CampfireBigParticle : public Particle
 {
 public:
-  CampfireBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _sqrt_scale, const Uint16 _LOD);
+  CampfireBigParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _sqrt_scale, const Uint16 _LOD);
   ~CampfireBigParticle() {}
   
   virtual bool idle(const Uint64 delta_t);
@@ -46,7 +46,7 @@ public:
 class CampfireEffect : public Effect
 {
 public: 
-  CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _scale, const Uint16 _LOD);
+  CampfireEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD);
   ~CampfireEffect(); 
   
   virtual EffectEnum get_type() { return EC_CAMPFIRE; };
@@ -55,6 +55,8 @@ public:
   ParticleMover* mover;
   ParticleMover* stationary;
   ParticleSpawner* spawner;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   int big_particles;
   float scale;
   float sqrt_scale;

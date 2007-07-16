@@ -12,11 +12,19 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-TeleporterParticle::TeleporterParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t size_scalar) : Particle(_effect, _mover, _pos, _velocity)
+TeleporterParticle::TeleporterParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t size_scalar) : Particle(_effect, _mover, _pos, _velocity)
 {
-  color[0] = 0.8 + randcolor(0.2);
-  color[1] = 0.8 + randcolor(0.2);
-  color[2] = 0.8 + randcolor(0.2);
+  color_t hue, saturation, value;
+  hue = randcolor(1.0);
+  saturation = randfloat(0.2);
+  value = 0.9;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   size = size_scalar * (0.5 + 1.5 * randcoord());
   alpha = 5.0 / size;
   if (alpha > 1.0)
@@ -46,13 +54,15 @@ GLuint TeleporterParticle::get_texture(const Uint16 res_index)
   return base->TexShimmer.get_texture(res_index);
 }
 
-TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Uint16 _LOD)
+TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "TeleporterEffect (" << this << ") created." << std::endl;
   base = _base;
   dead = _dead;
   pos = _pos;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   sqrt_LOD = fastsqrt(LOD);
@@ -67,7 +77,7 @@ TeleporterEffect::TeleporterEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     const Vec3 coords = spawner->get_new_coords() + *pos + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
     Vec3 velocity(0.0, randcoord(0.1), 0.0);
     velocity.randomize(0.2);
-    Particle* p = new TeleporterParticle(this, mover, coords, velocity, size_scalar);
+    Particle* p = new TeleporterParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size_scalar);
    if (!base->push_back_particle(p))
       break;
   }
@@ -106,7 +116,7 @@ bool TeleporterEffect::idle(const Uint64 usec)
     const Vec3 coords = spawner->get_new_coords() + *pos + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
     Vec3 velocity;
     velocity.randomize(0.2);
-    Particle* p = new TeleporterParticle(this, mover, coords, velocity, size_scalar);
+    Particle* p = new TeleporterParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size_scalar);
     if (!base->push_back_particle(p))
       break;
   }

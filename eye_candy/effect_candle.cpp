@@ -12,12 +12,20 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-CandleParticle::CandleParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
+CandleParticle::CandleParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _scale, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
   LOD = _LOD;
-  color[0] = 0.9;
-  color[1] = 0.3 + randfloat(0.25);
-  color[2] = 0.2;
+  color_t hue, saturation, value;
+  hue = 0.03 + randcolor(0.08);
+  saturation = 0.78;
+  value = 0.9;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   size = 6.0 * (2.0 + randcoord()) / (LOD + 2);
   alpha = 0.4 * 5 / size / (LOD + 2);
   if (alpha > 1.0)
@@ -62,13 +70,15 @@ void CandleParticle::draw(const Uint64 usec)
   }
 }
 
-CandleEffect::CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _scale, const Uint16 _LOD)
+CandleEffect::CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "CandleEffect (" << this << ") created." << std::endl;
   base = _base;
   dead = _dead,
   pos = _pos;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   scale = _scale;
   sqrt_scale = fastsqrt(scale);
   LOD = base->last_forced_LOD;
@@ -103,7 +113,7 @@ bool CandleEffect::idle(const Uint64 usec)
     velocity.randomize(0.02 * sqrt_scale);
     velocity.y *= 5.0;
     velocity.y += 0.04 * sqrt_scale;
-    Particle* p = new CandleParticle(this, mover, coords, velocity, scale, LOD);
+    Particle* p = new CandleParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, scale, LOD);
     if (!base->push_back_particle(p))
       break;
   }

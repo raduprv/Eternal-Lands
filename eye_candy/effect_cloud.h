@@ -20,7 +20,7 @@ namespace ec
 class CloudParticle : public Particle
 {
 public:
-  CloudParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _min_height, const coord_t _max_height, const coord_t _size, const alpha_t _alpha);
+  CloudParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _min_height, const coord_t _max_height, const coord_t _size, const alpha_t _alpha);
   ~CloudParticle() { };
 
   virtual bool idle(const Uint64 delta_t);
@@ -44,7 +44,7 @@ public:
 class CloudEffect : public Effect
 {
 public: 
-  CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, BoundingRange* bounding_range, const Uint16 _LOD);
+  CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _density, BoundingRange* bounding_range, const Uint16 _LOD);
   ~CloudEffect();
   
   virtual EffectEnum get_type() { return EC_CLOUD; };
@@ -52,6 +52,8 @@ public:
 
   BoundingMover* mover;
   NoncheckingFilledBoundingSpawner* spawner;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   Vec3 center;
   alpha_t alpha;
   coord_t size_scalar;

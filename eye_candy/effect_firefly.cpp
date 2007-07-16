@@ -12,11 +12,19 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-FireflyParticle::FireflyParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _min_height, const coord_t _max_height) : Particle(_effect, _mover, _pos, _velocity)
+FireflyParticle::FireflyParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _min_height, const coord_t _max_height) : Particle(_effect, _mover, _pos, _velocity)
 {
-  color[0] = 1.0;
-  color[1] = 1.0;
-  color[2] = 0.7;
+  color_t hue, saturation, value;
+  hue = 0.17;
+  saturation = 0.3;
+  value = 1.0;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   size = 0.35;
   alpha = 1.0;
   flare_max = 8.0;
@@ -60,7 +68,7 @@ GLuint FireflyParticle::get_texture(const Uint16 res_index)
   return base->TexVoid.get_texture(res_index);
 }
 
-FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* bounding_range)
+FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust, const color_t _saturation_adjust, const float _density, BoundingRange* bounding_range)
 {
   if (EC_DEBUG)
     std::cout << "FireflyEffect (" << this << ") created." << std::endl;
@@ -69,6 +77,8 @@ FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vect
   pos = _pos;
   center = *pos;
   obstructions = _obstructions;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   bounds = bounding_range;
   mover = new BoundingMover(this, center, bounding_range, 1.0);
   spawner = new NoncheckingFilledBoundingSpawner(bounding_range);
@@ -84,7 +94,7 @@ FireflyEffect::FireflyEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vect
     Vec3 velocity;
     velocity.randomize(0.2);
     velocity.y /= 3;
-    Particle* p = new FireflyParticle(this, mover, coords, velocity, center.y + 0.1, center.y + 1.0);
+    Particle* p = new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, center.y + 0.1, center.y + 1.0);
     if (!base->push_back_particle(p))
       break;
   }
@@ -117,7 +127,7 @@ bool FireflyEffect::idle(const Uint64 usec)
     Vec3 velocity;
     velocity.randomize(0.2);
     velocity.y /= 3;
-    Particle* p = new FireflyParticle(this, mover, coords, velocity, center.y + 0.1, center.y + 1.0);
+    Particle* p = new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, center.y + 0.1, center.y + 1.0);
     if (!base->push_back_particle(p))
       break;
   }

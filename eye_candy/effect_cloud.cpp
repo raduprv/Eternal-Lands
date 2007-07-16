@@ -12,11 +12,19 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-CloudParticle::CloudParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _min_height, const coord_t _max_height, const coord_t _size, const alpha_t _alpha) : Particle(_effect, _mover, _pos, _velocity)
+CloudParticle::CloudParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _min_height, const coord_t _max_height, const coord_t _size, const alpha_t _alpha) : Particle(_effect, _mover, _pos, _velocity)
 {
-  color[0] = 1.0;
-  color[1] = 1.0;
-  color[2] = 1.0;
+  color_t hue, saturation, value;
+  hue = 0.67;
+  saturation = 0.05;
+  value = 1.0;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   size = _size;
   alpha = _alpha;
   flare_max = 2.0;
@@ -241,7 +249,7 @@ void CloudParticle::remove_incoming_neighbor(const CloudParticle*const p)
   }
 }
 
-CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _density, BoundingRange* bounding_range, const Uint16 _LOD)
+CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _density, BoundingRange* bounding_range, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "CloudEffect (" << this << ") created (" << *_pos << ", " << bounding_range->get_radius(0.0) << ")." << std::endl;
@@ -249,6 +257,8 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   dead = _dead;
   pos = _pos;
   center = *pos;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
   bounds = bounding_range;
@@ -272,7 +282,7 @@ CloudEffect::CloudEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
     velocity.randomize(0.15);
     velocity.y /= 3;
     const coord_t size = size_scalar + randcoord(size_scalar);
-    Particle* p = new CloudParticle(this, mover, coords, velocity, center.y, center.y + 20.0, size, alpha);
+    Particle* p = new CloudParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, center.y, center.y + 20.0, size, alpha);
     if (!base->push_back_particle(p))
       break;
   }
@@ -326,7 +336,7 @@ bool CloudEffect::idle(const Uint64 usec)
       velocity.randomize(0.15);
       velocity.y /= 3;
       const coord_t size = size_scalar + randcoord(size_scalar);
-      CloudParticle* p = new CloudParticle(this, mover, coords, velocity, center.y, center.y + 20.0, size, alpha);
+      CloudParticle* p = new CloudParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, center.y, center.y + 20.0, size, alpha);
       if (!base->push_back_particle(p))
         break;
       p->neighbors.push_back(last);
@@ -345,7 +355,7 @@ bool CloudEffect::idle(const Uint64 usec)
       velocity.randomize(0.15);
       velocity.y /= 3;
       const coord_t size = size_scalar + randcoord(size_scalar);
-      Particle* p = new CloudParticle(this, mover, coords, velocity, center.y, center.y + 20.0, size, alpha);
+      Particle* p = new CloudParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, center.y, center.y + 20.0, size, alpha);
       if (!base->push_back_particle(p))
         break;
     }

@@ -243,7 +243,7 @@ extern "C" void ec_idle()
         ec::LampEffect* eff = (ec::LampEffect*)((*iter)->effect);
         if (eff->halo != use_lamp_halo)
         {
-          ec_create_lamp((*iter)->position.x, -(*iter)->position.z, (*iter)->position.y, eff->scale, eff->LOD);
+          ec_create_lamp((*iter)->position.x, -(*iter)->position.z, (*iter)->position.y, 0.0, 1.0, eff->scale, eff->LOD);
           eff->recall = true;
           force_idle = true;
         }
@@ -809,117 +809,117 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
   {
     case 0x00:	// Campfire
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_campfire(x, y, z, LOD, scale);
+      ref = ec_create_campfire(x, y, z, hue, saturation, LOD, scale);
       break;
     }
     case 0x01:	// Cloud
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_cloud(x, y, z, density, bounds, LOD);
+      ref = ec_create_cloud(x, y, z, hue, saturation, density, bounds, LOD);
       break;
     }
     case 0x02:	// Fireflies
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
 //      const float scale = raw_code[45] + raw_code[46] / 256.0;
-      ref = ec_create_fireflies(x, y, z, density, bounds);
+      ref = ec_create_fireflies(x, y, z, hue, saturation, density, bounds);
       break;
     }
     case 0x03:	// Fountain
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
       const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
       const int backlit = raw_code[47];
-      ref = ec_create_fountain(x, y, z, base_height, backlit, scale, LOD);
+      ref = ec_create_fountain(x, y, z, hue, saturation, base_height, backlit, scale, LOD);
       break;
     }
     case 0x04:	// Lamp
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_lamp(x, y, z, scale, LOD);
+      ref = ec_create_lamp(x, y, z, hue, saturation, scale, LOD);
       break;
     }
     case 0x05:	// Magic protection
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_ongoing_magic_protection(x, y, z, LOD, scale);
+      ref = ec_create_ongoing_magic_protection(x, y, z, hue, saturation, LOD, scale);
       break;
     }
     case 0x06:	// Shield
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_ongoing_shield(x, y, z, LOD, scale);
+      ref = ec_create_ongoing_shield(x, y, z, hue, saturation, LOD, scale);
       break;
     }
     case 0x07:	// Magic immunity
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_ongoing_magic_immunity(x, y, z, LOD, scale);
+      ref = ec_create_ongoing_magic_immunity(x, y, z, hue, saturation, LOD, scale);
       break;
     }
     case 0x08:	// Poison
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_ongoing_poison(x, y, z, LOD, scale);
+      ref = ec_create_ongoing_poison(x, y, z, hue, saturation, LOD, scale);
       break;
     }
     case 0x09:	// Smoke
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_smoke(x, y, z, density, LOD);
+      ref = ec_create_smoke(x, y, z, hue, saturation, density, LOD);
       break;
     }
     case 0x0A:	// Teleporter
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
 //      const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_teleporter(x, y, z, LOD);
+      ref = ec_create_teleporter(x, y, z, hue, saturation, LOD);
       break;
     }
     case 0x0B:	// Leaves
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
-//      const float scale = raw_code[45] + raw_code[46] / 256.0;
-      ref = ec_create_wind_leaves(x, y, z, density, bounds, 1.0, 0.0, 0.0);
+      const float scale = raw_code[45] + raw_code[46] / 256.0;
+      ref = ec_create_wind_leaves(x, y, z, hue, saturation, scale, density, bounds, 1.0, 0.0, 0.0);
       break;
     }
     case 0x0C:	// Petals
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float density = raw_code[43] + raw_code[44] / 256.0;
-//      const float scale = raw_code[45] + raw_code[46] / 256.0;
-      ref = ec_create_wind_petals(x, y, z, density, bounds, 1.0, 0.0, 0.0);
+      const float scale = raw_code[45] + raw_code[46] / 256.0;
+      ref = ec_create_wind_petals(x, y, z, hue, saturation, scale, density, bounds, 1.0, 0.0, 0.0);
       break;
     }
     case 0x0D:	// Waterfall
     {
 //      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+//      const float saturation = raw_code[42] / 16.0;
 //      const float density = raw_code[43] + raw_code[44] / 256.0;
 //      const float base_height = raw_code[45] * 8.0 + raw_code[46] / 32.0;
 //      const float angle = raw_code[47] * ec::PI / 128.0;
@@ -929,7 +929,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     case 0x0E:	// Bees
     {
 //      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+//      const float saturation = raw_code[42] / 16.0;
 //      const float density = raw_code[43] + raw_code[44] / 256.0;
 //      const float scale = raw_code[45] + raw_code[46] / 256.0;
       // Effect does not yet exist.
@@ -938,7 +938,7 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     case 0x0F:	// Portal
     {
 //      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+//      const float saturation = raw_code[42] / 16.0;
 //      const float scale = raw_code[43] + raw_code[44] / 256.0;
 //      const float angle = raw_code[45] * ec::PI / 128.0;
       // Effect does not yet exist.
@@ -946,10 +946,10 @@ extern "C" ec_reference ec_create_effect_from_map_code(char* code, float x, floa
     }
     case 0x10:	// Candle
     {
-//      const float hue = raw_code[41] / 256.0;
-//      const float saturation = raw_code[42] / 256.0;
+      const float hue = raw_code[41] / 256.0;
+      const float saturation = raw_code[42] / 16.0;
       const float scale = raw_code[43] + raw_code[44] / 256.0;
-      ref = ec_create_candle(x, y, z, scale, LOD);
+      ref = ec_create_candle(x, y, z, hue, saturation, scale, LOD);
       break;
     }
   }
@@ -1051,40 +1051,41 @@ extern "C" ec_reference ec_create_breath_wind(float sx, float sy, float sz, floa
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_campfire(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_campfire(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::CampfireEffect(&eye_candy, &ret->dead, &ret->position, &fire_obstructions_list, scale, LOD);
+  std::cout << "B: " << scale << std::endl;
+  ret->effect = new ec::CampfireEffect(&eye_candy, &ret->dead, &ret->position, &fire_obstructions_list, hue_adjust, saturation_adjust, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_cloud(float x, float y, float z, float density, ec_bounds bounds, int LOD)
+extern "C" ec_reference ec_create_cloud(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, ec_bounds bounds, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::CloudEffect(&eye_candy, &ret->dead, &ret->position, density, &ret->bounds, LOD);
+  ret->effect = new ec::CloudEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, density, &ret->bounds, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_fireflies(float x, float y, float z, float density, ec_bounds bounds)
+extern "C" ec_reference ec_create_fireflies(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, ec_bounds bounds)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, &ret->bounds);
+  ret->effect = new ec::FireflyEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, hue_adjust, saturation_adjust, density, &ret->bounds);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_fountain(float x, float y, float z, float base_height, int backlit, float scale, int LOD)
+extern "C" ec_reference ec_create_fountain(float x, float y, float z, float hue_adjust, float saturation_adjust, float base_height, int backlit, float scale, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::FountainEffect(&eye_candy, &ret->dead, &ret->position, (bool)backlit, base_height, scale, LOD);
+  ret->effect = new ec::FountainEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, (bool)backlit, base_height, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1236,56 +1237,56 @@ extern "C" ec_reference ec_create_impact_blood(float x, float y, float z, float 
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_lamp(float x, float y, float z, float scale, int LOD)
+extern "C" ec_reference ec_create_lamp(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::LampEffect(&eye_candy, &ret->dead, &ret->position, scale, use_lamp_halo, LOD);
+  ret->effect = new ec::LampEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, scale, use_lamp_halo, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_candle(float x, float y, float z, float scale, int LOD)
+extern "C" ec_reference ec_create_candle(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::CandleEffect(&eye_candy, &ret->dead, &ret->position, scale, LOD);
+  ret->effect = new ec::CandleEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_magic_protection(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, ec::OngoingEffect::MAGIC_PROTECTION, LOD, scale);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::MAGIC_PROTECTION, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_ongoing_shield(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_shield(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, ec::OngoingEffect::SHIELD, LOD, scale);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::SHIELD, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, ec::OngoingEffect::MAGIC_IMMUNITY, LOD, scale);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::MAGIC_IMMUNITY, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_ongoing_poison(float x, float y, float z, int LOD, float scale)
+extern "C" ec_reference ec_create_ongoing_poison(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, ec::OngoingEffect::POISON, LOD, scale);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::POISON, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1474,11 +1475,11 @@ extern "C" ec_reference ec_create_alert2(actor* caster, int LOD)
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_smoke(float x, float y, float z, float scale, int LOD)
+extern "C" ec_reference ec_create_smoke(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::SmokeEffect(&eye_candy, &ret->dead, &ret->position, scale, LOD);
+  ret->effect = new ec::SmokeEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -2151,33 +2152,33 @@ extern "C" ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* 
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_teleporter(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_teleporter(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::TeleporterEffect(&eye_candy, &ret->dead, &ret->position, LOD);
+  ret->effect = new ec::TeleporterEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
+extern "C" ec_reference ec_create_wind_leaves(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, &ret->bounds, ec::WindEffect::LEAVES, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, hue_adjust, saturation_adjust, scale, density, &ret->bounds, ec::WindEffect::LEAVES, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_wind_petals(float x, float y, float z, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
+extern "C" ec_reference ec_create_wind_petals(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z)
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->bounds = *(ec::SmoothPolygonBoundingRange*)bounds;
   ret->position = ec::Vec3(x, z, -y);
   ret->position2 = ec::Vec3(prevailing_wind_x, prevailing_wind_z, -(prevailing_wind_y + 0.25));
-  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, density, &ret->bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
+  ret->effect = new ec::WindEffect(&eye_candy, &ret->dead, &ret->position, &general_obstructions_list, hue_adjust, saturation_adjust, scale, density, &ret->bounds, ec::WindEffect::FLOWER_PETALS, ret->position2);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }

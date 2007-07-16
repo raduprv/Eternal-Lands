@@ -19,7 +19,7 @@ namespace ec
 class CandleEffect : public Effect
 {
 public: 
-  CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float scale, const Uint16 _LOD);
+  CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float scale, const Uint16 _LOD);
   ~CandleEffect(); 
   
   virtual EffectEnum get_type() { return EC_CANDLE; };
@@ -27,6 +27,8 @@ public:
 
   GradientMover* mover;
   ParticleSpawner* spawner;
+  color_t hue_adjust;
+  color_t saturation_adjust;
   float scale;
   float sqrt_scale;
 };
@@ -34,7 +36,7 @@ public:
 class CandleParticle : public Particle
 {
 public:
-  CandleParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const float _scale, const Uint16 _LOD);
+  CandleParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _scale, const Uint16 _LOD);
   ~CandleParticle() { };
   
   virtual bool idle(const Uint64 delta_t);

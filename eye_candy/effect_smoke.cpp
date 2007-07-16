@@ -12,14 +12,26 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-SmokeParticle::SmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _sqrt_scale, const coord_t _max_size, const coord_t size_scalar, const alpha_t alpha_scale) : Particle(_effect, _mover, _pos, _velocity)
+SmokeParticle::SmokeParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _sqrt_scale, const coord_t _max_size, const coord_t size_scalar, const alpha_t alpha_scale) : Particle(_effect, _mover, _pos, _velocity)
 {
   sqrt_scale = _sqrt_scale;
   max_size = _max_size;
   const color_t color_scale = square(randcolor(0.6));
-  color[0] = square(randcolor(0.15)) + color_scale + 0.15;
-  color[1] = square(randcolor(0.15)) + color_scale + 0.15;
-  color[2] = square(randcolor(0.15)) + color_scale + 0.15;
+  color_t hue, saturation, value;
+  hue = randcolor(1.0);
+//  saturation = 1.0 - (color_scale + 0.15) / (0.15 + color_scale + square(randcolor(0.15)));
+  saturation = color_scale;
+  value = square(randcolor(0.15)) + color_scale + 0.15;
+//  color[0] = square(randcolor(0.15)) + color_scale + 0.15;
+//  color[1] = square(randcolor(0.15)) + color_scale + 0.15;
+//  color[2] = square(randcolor(0.15)) + color_scale + 0.15;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   size = size_scalar * (0.5 + randcoord());
   alpha = (0.05 + randcoord(0.1)) * alpha_scale;
   if (alpha > 1.0)
@@ -69,13 +81,15 @@ GLuint SmokeParticle::get_texture(const Uint16 res_index)
   return base->TexSimple.get_texture(res_index);
 }
 
-SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _scale, const Uint16 _LOD)
+SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "SmokeEffect (" << this << ") created (" << *_pos << ", " << _scale << ")" << std::endl;
   base = _base;
   dead = _dead;
   pos = _pos;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   count = 0;
   scale = _scale;
   sqrt_scale = fastsqrt(scale);
@@ -90,7 +104,7 @@ SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
   spawner = new FilledDiscSpawner(0.2 * sqrt_scale);
 
 //  Test code:
-//  Particle* p = new SmokeParticle(this, mover, *pos, Vec3(0.0, 0.0, 0.0), sqrt_scale, max_size, size_scalar, alpha_scalar);
+//  Particle* p = new SmokeParticle(this, mover, *pos, Vec3(0.0, 0.0, 0.0), hue_adjust, saturation_adjust, sqrt_scale, max_size, size_scalar, alpha_scalar);
 //  base->push_back_particle(p);
 /*  
   for (int i = 0; i < LOD * 4; i++)
@@ -99,7 +113,7 @@ SmokeEffect::SmokeEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const float _
     Vec3 velocity;
     velocity.randomize(0.015);
     velocity.y += 0.25 + randcoord(0.15);
-    Particle* p = new SmokeParticle(this, mover, coords, velocity, sqrt_scale, max_size, size_scalar, alpha_scalar);
+    Particle* p = new SmokeParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, sqrt_scale, max_size, size_scalar, alpha_scalar);
     if (!base->push_back_particle(p))
       break;
   }
@@ -130,7 +144,7 @@ bool SmokeEffect::idle(const Uint64 usec)
     Vec3 velocity;
     velocity.randomize(0.015);
     velocity.y += 0.3;
-    Particle* p = new SmokeParticle(this, mover, coords, velocity, sqrt_scale, max_size, size_scalar, alpha_scalar);
+    Particle* p = new SmokeParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, sqrt_scale, max_size, size_scalar, alpha_scalar);
     if (!base->push_back_particle(p))
     {
       count = 0;

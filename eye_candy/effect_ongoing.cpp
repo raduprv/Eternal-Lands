@@ -12,12 +12,16 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const OngoingEffect::OngoingType _type) : Particle(_effect, _mover, _pos, _velocity)
+OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _size, const alpha_t _alpha, color_t hue, color_t saturation, color_t value, Texture* _texture, const Uint16 _LOD, const OngoingEffect::OngoingType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   type = _type;
-  color[0] = red;
-  color[1] = green;
-  color[2] = blue;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
   texture = _texture;
   size = _size * (0.3 + randcoord()) * 15 / _LOD;
   alpha = _alpha;
@@ -96,13 +100,15 @@ GLuint OngoingParticle::get_texture(const Uint16 res_index)
   return texture->get_texture(res_index);
 }
 
-OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const OngoingType _type, const Uint16 _LOD, const float _strength)
+OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const OngoingType _type, const Uint16 _LOD, const float _strength)
 {
   if (EC_DEBUG)
     std::cout << "OngoingEffect (" << this << ") created." << std::endl;
   base = _base;
   dead = _dead;
   pos = _pos;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   effect_center = *pos;
   effect_center.y += 0.5;
   type = _type;
@@ -173,7 +179,7 @@ bool OngoingEffect::idle(const Uint64 usec)
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity = coords / 12.0;
         coords += effect_center;
-        Particle * p = new OngoingParticle(this, mover, coords, velocity, 0.5, 1.0, 0.7, 0.2, 0.4, &(base->TexShimmer), LOD, type);
+        Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.5, 1.0, 0.93, 0.72, 0.7, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -187,7 +193,7 @@ bool OngoingEffect::idle(const Uint64 usec)
         Vec3 velocity(0.0, 0.0, 0.0);
         coords += effect_center;
         coords.y = -0.2 + randcoord(1.5);
-        Particle * p = new OngoingParticle(this, mover, coords, velocity, 0.5, 1.0, 0.9, 0.9, 0.9, &(base->TexShimmer), LOD, type);
+        Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.5, 1.0, 0.55, 0.05, 0.9, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -200,7 +206,7 @@ bool OngoingEffect::idle(const Uint64 usec)
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity = coords / 18.0;
         coords += effect_center;
-        Particle * p = new OngoingParticle(this, mover, coords, velocity, 0.6, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexVoid), LOD, type);
+        Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.6, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexVoid), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -219,12 +225,12 @@ bool OngoingEffect::idle(const Uint64 usec)
         Particle* p;
         if (randfloat() < 0.4)
         {
-          p = new OngoingParticle(this, mover, coords, velocity, 1.15, 0.5, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, &(base->TexVoid), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 1.15, 0.5, 0.27 + randcolor(0.06), 0.6 + randcolor(0.15), 0.5 + randcolor(0.3), &(base->TexVoid), LOD, type);
           p->state = 1;
         }
         else
         {
-          p = new OngoingParticle(this, mover, coords, velocity, 0.65, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, &(base->TexWater), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.65, 1.0, randcolor(0.5), 0.33 + randcolor(0.67), 0.2 + randcolor(0.1), &(base->TexWater), LOD, type);
           p->state = 0;
         }
         if (!base->push_back_particle(p))

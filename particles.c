@@ -538,7 +538,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	{
 		case 2:
 #ifdef EYE_CANDY
-			ec_create_campfire(x, y, z, (poor_man ? 6 : 10), 3.1);
+			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 3.1);
 #else // EYE_CANDY
  #ifdef SFX
   #ifndef MAP_EDITOR
@@ -552,7 +552,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 		case 1:
 		default:
 #ifdef EYE_CANDY
-			ec_create_campfire(x, y, z, (poor_man ? 6 : 10), 2.4);
+			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 2.4);
 #else // EYE_CANDY
  #ifdef SFX
   #ifndef MAP_EDITOR
@@ -621,19 +621,19 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
   if (use_eye_candy)
   {
     if (!strncmp("fou", file_name + 12, 3))
-      ec_create_fountain(x_pos, y_pos, z_pos + 0.15, (z_pos >= 0.8 ? z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
+      ec_create_fountain(x_pos, y_pos, z_pos + 0.15, 0.0, 1.0, (z_pos >= 0.8 ? z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
     else if ((use_fancy_smoke) && (!strncmp("smo", file_name + 12, 3)))
     {
       if (file_name[17] == '1')
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.3, (poor_man ? 6 : 10));
+        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.3, (poor_man ? 6 : 10));
       else if (file_name[17] == '2')
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.45, (poor_man ? 6 : 10));
+        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.45, (poor_man ? 6 : 10));
       else if (file_name[17] == '3')
-        ec_create_smoke(x_pos, y_pos, z_pos, 1.6, (poor_man ? 6 : 10));
+        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 1.6, (poor_man ? 6 : 10));
       else if (file_name[17] == '_')
-        ec_create_smoke(x_pos, y_pos, z_pos, 1.1, (poor_man ? 6 : 10));
+        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 1.1, (poor_man ? 6 : 10));
       else
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.5, (poor_man ? 6 : 10));
+        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.5, (poor_man ? 6 : 10));
     }
     else if (!strncmp("tel", file_name + 12, 3))
     {
@@ -646,20 +646,20 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
         ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
   		}
       else
-        ec_create_teleporter(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
+        ec_create_teleporter(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10));
     }
     else if (!strncmp("fir", file_name + 12, 3))
     {
       if (!strncmp("big", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 1.5);
+        ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 1.5);
       else if (!strncmp("for", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos - 0.2, z_pos, (poor_man ? 6 : 10), 2.0);
+        ec_create_campfire(x_pos, y_pos - 0.2, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 2.0);
       else if (!strncmp("min", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 0.4);
+        ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 0.4);
       else if (!strncmp("sma", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos, z_pos, (poor_man ? 6 : 10), 0.6);
+        ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 0.6);
       else if (!strncmp("tor", file_name + 17, 3))
-        ec_create_lamp(x_pos, y_pos, z_pos, 1.6, (poor_man ? 6 : 10));
+        ec_create_lamp(x_pos, y_pos, z_pos, 0.0, 1.0, 1.6, (poor_man ? 6 : 10));
       else
       {
  #ifdef SFX
@@ -675,7 +675,7 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
       }
     }
     else if (!strncmp("can", file_name + 12, 3))
-      ec_create_candle(x_pos, y_pos, z_pos, 0.7, (poor_man ? 6 : 10));
+      ec_create_candle(x_pos, y_pos, z_pos, 0.0, 1.0, 0.7, (poor_man ? 6 : 10));
     else
     {
 #endif /* EYE_CANDY */

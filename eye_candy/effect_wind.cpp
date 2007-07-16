@@ -14,7 +14,7 @@ const float range_scalar = 1.0;
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _min_height, const coord_t _max_height, const WindEffect::WindType _type) : Particle(_effect, _mover, _pos, _velocity)
+WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t scalar, const coord_t _min_height, const coord_t _max_height, const WindEffect::WindType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   state = 0;
   flare_max = 1.0;
@@ -24,14 +24,15 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
   max_height = _max_height;
   type = _type;
   angle_t angle, rise;
+  color_t hue, saturation, value;
   switch (type)
   {
     case WindEffect::LEAVES:
     {
-      color[0] = 0.35 + randcolor(0.3);
-      color[1] = 0.2 + randcolor(0.2);
-      color[2] = 0.0 + randcolor(0.25);
-      size = 0.08;
+      hue = 0.0 + randcolor(0.08);
+      saturation = 0.5 + randcolor(0.4);
+      value = 0.35 + randcolor(0.20);
+      size = 0.08 * scalar;
       alpha = 1.0;
       subtype = rand() % 3;	// Store it in case we need it later -- say, for a texture.
       switch (subtype)
@@ -89,10 +90,10 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
     }
     case WindEffect::FLOWER_PETALS:
     {
-      color[0] = 0.6;
-      color[1] = 0.2 + randcolor(0.15);
-      color[2] = 0.2 + randcolor(0.15);
-      size = 0.035 + randangle(0.025);
+      hue = 0.0;
+      saturation = 0.41 + randcolor(0.26);
+      value = 0.6;
+      size = (0.035 + randangle(0.025)) * scalar;
       alpha = 0.9;
 
       angle = randangle(60 * (PI / 180)) + (210 * (PI / 180));
@@ -111,10 +112,10 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
     }
     case WindEffect::SNOW:
     {
-      color[0] = 0.8 + randcolor(0.2);
-      color[1] = 0.8 + randcolor(0.2);
-      color[2] = 0.9 + randcolor(0.1);
-      size = 0.006 + randcolor(0.004);
+      hue = 0.67;
+      saturation = 0.05;
+      value = 0.85 + randcolor(0.15);
+      size = (0.006 + randcolor(0.004)) * scalar;
       alpha = 0.7;
 
       angle = 240 * (PI / 180);
@@ -130,7 +131,8 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
     }
   }
   
-//  std::cout << this << ", " << pos << ": " << "Leaf created." << std::endl;
+//  std::cout << this << ", " << pos << ": " << "Leaf created." <<
+//  std::endl;
   
 /*
   // Normalize axis weights
@@ -141,6 +143,13 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
   for (int i = 0; i < 3; i++)
     axis_weights[i] /= sum;
 */
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
 }
 
 bool WindParticle::idle(const Uint64 delta_t)
@@ -253,6 +262,7 @@ bool WindParticle::idle(const Uint64 delta_t)
     pos.y += delta_t / 800000.0;
     if (pos.y > max_height * 2)
     {
+//      std::cout << this << ": " << pos << " too high." << std::endl;
       return false;
     }
   }
@@ -443,7 +453,7 @@ Vec3 WindParticle::get_wind_vec() const
   return e->overall_wind + Vec3(x, y, z);// + random_component;
 }
 
-WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const float _density, BoundingRange* _bounding_range, const WindType _type, const Vec3 _prevailing_wind)
+WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec::Obstruction*>* _obstructions, const color_t _hue_adjust, const color_t _saturation_adjust, const coord_t _scalar, const float _density, BoundingRange* _bounding_range, const WindType _type, const Vec3 _prevailing_wind)
 {
   if (EC_DEBUG)
     std::cout << "WindEffect (" << this << ") created." << std::endl;
@@ -453,6 +463,9 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec:
   center = *pos;
   obstructions = _obstructions;
   type = _type;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
+  scalar = _scalar;
   prevailing_wind = _prevailing_wind;
   overall_wind = prevailing_wind;
   max_adjust = 0.2 + prevailing_wind.magnitude() * 0.5;
@@ -462,6 +475,7 @@ WindEffect::WindEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, std::vector<ec:
   mover = new GradientMover(this);
   spawner = new FilledBoundingSpawner(_bounding_range, pos, &(base->center), range_scalar);
 //  max_LOD1_count = (int)(spawner->get_area() * _density * 1.0) / 10;
+//  std::cout << "2: " <<  hue_adjust << " / " << saturation_adjust << " / " << scalar << " / " << _density << std::endl;
   max_LOD1_count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * _density * range_scalar * 2.0) / 25;
   LOD = base->last_forced_LOD;
   count = LOD * max_LOD1_count;
@@ -596,7 +610,7 @@ void WindEffect::set_pass_off(std::vector<WindEffect*> pass_off_to)
     Vec3 velocity;
     velocity.randomize(max_adjust / 4);
     velocity.y /= 2;
-    Particle* p = new WindParticle(this, mover, coords, velocity, center.y + 0.05, center.y + 1.0, type);
+    Particle* p = new WindParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, scalar, center.y + 0.05, center.y + 1.0, type);
     if (!base->push_back_particle(p))
       break;
   }
@@ -661,7 +675,7 @@ bool WindEffect::idle(const Uint64 usec)
     Vec3 velocity;
     velocity.randomize(max_adjust / 2);
     velocity.y /= 2;
-    Particle* p = new WindParticle(this, mover, coords, velocity, center.y + 0.05, center.y + 4.0, type);
+    Particle* p = new WindParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, scalar, center.y + 0.05, center.y + 4.0, type);
     if (!base->push_back_particle(p))
     {
       break;

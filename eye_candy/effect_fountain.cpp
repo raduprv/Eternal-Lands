@@ -12,15 +12,26 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-FountainParticle::FountainParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _base_height, const bool _backlight, const float _sqrt_scale, const coord_t _max_size, const coord_t size_scalar) : Particle(_effect, _mover, _pos, _velocity)
+FountainParticle::FountainParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _base_height, const bool _backlight, const float _sqrt_scale, const coord_t _max_size, const coord_t size_scalar) : Particle(_effect, _mover, _pos, _velocity)
 {
   base_height = _base_height;
   backlight = _backlight;
   sqrt_scale = _sqrt_scale;
   max_size = _max_size;
-  color[0] = 1.2;
-  color[1] = 1.4;
-  color[2] = 1.7;
+  color_t hue, saturation, value;
+  hue = 0.6;
+  saturation = 0.3;
+  value = 0.85;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
+  color[0] *= 2.0;
+  color[1] *= 2.0;
+  color[2] *= 2.0;
   size = size_scalar * (0.5 + 5 * randcoord());
   alpha = sqrt_scale * 3.5 / size;
   if (backlight)
@@ -111,7 +122,7 @@ GLuint FountainParticle::get_texture(const Uint16 res_index)
     return base->TexFlare.get_texture(res_index);
 }
 
-FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _backlight, const coord_t _base_height, const float _scale, const Uint16 _LOD)
+FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const bool _backlight, const coord_t _base_height, const float _scale, const Uint16 _LOD)
 {
   if (EC_DEBUG)
     std::cout << "FountainEffect (" << this << ") created." << std::endl;
@@ -119,6 +130,8 @@ FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const b
   dead = _dead;
   pos = _pos;
   count = 0;
+  hue_adjust = _hue_adjust;
+  saturation_adjust = _saturation_adjust;
   backlight = _backlight;
   scale = _scale;
   sqrt_scale = fastsqrt(scale);
@@ -140,7 +153,7 @@ FountainEffect::FountainEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const b
     Vec3 velocity;
     velocity.randomize(0.1 * sqrt_scale);
     velocity += Vec3(0.0, 0.8 * scale, 0.0);
-    Particle* p = new FountainParticle(this, mover, coords, velocity, pos->y, backlight, sqrt_scale, max_size, size_scalar);
+    Particle* p = new FountainParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, pos->y, backlight, sqrt_scale, max_size, size_scalar);
     if (!base->push_back_particle(p))
       break;
   }
@@ -174,7 +187,7 @@ bool FountainEffect::idle(const Uint64 usec)
     velocity.y = 0.0;
     velocity.normalize((0.15 + randfloat(0.1)) * sqrt_scale);
     velocity += Vec3(0.0, 1.2 * scale, 0.0);
-    Particle* p = new FountainParticle(this, mover, coords, velocity, base_height, backlight, sqrt_scale, max_size, size_scalar);
+    Particle* p = new FountainParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, base_height, backlight, sqrt_scale, max_size, size_scalar);
     if (!base->push_back_particle(p))
     {
       count = 0;
