@@ -88,7 +88,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_show(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.density, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds));
+      current_effect.reference = ec_create_fireflies(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.density, current_effect.scale, (current_effect.bounds.elements.size() > 1 ? &current_effect.bounds : &initial_bounds));
       break;
     case 3:    // Fountain
       gtk_widget_show(gtk_effect_hue_box);
@@ -152,7 +152,7 @@ extern "C" void change_eye_candy_effect()
       gtk_widget_show(gtk_effect_scale_box);
       gtk_widget_hide(gtk_effect_density_box);
       gtk_widget_hide(gtk_effect_base_height_box);
-      current_effect.reference = ec_create_teleporter(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, 10);
+      current_effect.reference = ec_create_teleporter(current_effect.position.x, current_effect.position.y, current_effect.position.z, current_effect.hue, current_effect.saturation, current_effect.scale, 10);
       break;
     case 11:  // Leaves
       gtk_widget_show(gtk_effect_hue_box);
@@ -804,7 +804,7 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.saturation = saturation;
       dest.scale = scale;
       dest.density = density;
-      dest.reference = ec_create_fireflies(dest.position.x, dest.position.y, dest.position.z, hue, saturation, density, (ec_bounds)(&dest.bounds));
+      dest.reference = ec_create_fireflies(dest.position.x, dest.position.y, dest.position.z, hue, saturation, density, scale, (ec_bounds)(&dest.bounds));
       break;
     }
     case 0x03:	// Fountain
@@ -903,7 +903,7 @@ void deserialize_eye_candy_effect(particles_io* data)
       dest.hue = hue;
       dest.saturation = saturation;
       dest.scale = scale;
-      dest.reference = ec_create_teleporter(dest.position.x, dest.position.y, dest.position.z, hue, saturation, 10);
+      dest.reference = ec_create_teleporter(dest.position.x, dest.position.y, dest.position.z, hue, saturation, scale, 10);
       break;
     }
     case 0x0B:	// Leaves
