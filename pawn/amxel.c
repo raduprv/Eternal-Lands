@@ -6,6 +6,8 @@
 #include "../client_serv.h"
 #include "../e3d.h"
 #include "../eye_candy_wrapper.h"
+#include "../pathfinder.h"
+#include "../sound.h"
 #include "../text.h"
 #include "amxel.h"
 #include "amxcons.h"
@@ -194,6 +196,17 @@ static cell AMX_NATIVE_CALL n_translate_object (AMX *amx, const cell *params)
 	return 0;
 }
 
+static cell AMX_NATIVE_CALL n_add_sound_object (AMX *amx, const cell *params)
+{
+#ifdef NEW_SOUND
+	add_sound_object (params[1], params[2], params[3]);
+#else
+	add_sound_object (params[1], params[2], params[3], params[4], params[5]);
+#endif
+	
+	return 0;
+}
+
 static cell AMX_NATIVE_CALL n_add_timer (AMX *amx, const cell *params)
 {
 	char name[256];
@@ -202,14 +215,32 @@ static cell AMX_NATIVE_CALL n_add_timer (AMX *amx, const cell *params)
 	amx_GetAddr (amx, params[2], &pstr);
 	amx_GetString (name, pstr, 0, sizeof (name));
 
-	add_pawn_timer (params[1], name, params[3]);
+	add_map_timer (params[1], name, params[3]);
 	
 	return 0;
 }
 
 static cell AMX_NATIVE_CALL n_clear_timers (AMX *amx, const cell *params)
 {
-	clear_pawn_timers ();
+	clear_map_timers ();
+	return 0;
+}
+
+static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
+{
+	cell *x_addr, *y_addr;
+	actor *me = pf_get_our_actor ();
+	
+	if (!me)
+		// Uh oh, we don't exist!
+		return 1;
+	
+	amx_GetAddr (amx, params[1], &x_addr);
+	amx_GetAddr (amx, params[2], &y_addr);
+	
+	*x_addr = (cell) me->tmp.x_tile_pos;
+	*y_addr = (cell) me->tmp.y_tile_pos;
+	
 	return 0;
 }
 
@@ -287,9 +318,13 @@ const AMX_NATIVE_INFO el_Natives[] = {
 	{ "rotate_object_add",      n_rotate_object_add      },
 	{ "set_object_position",    n_set_object_position    },
 	{ "translate_object",       n_translate_object       },
+	/* playing sounds */
+	{ "add_sound_object",       n_add_sound_object       },
 	/* scheduling of functions calls */
 	{ "add_timer",              n_add_timer              },
 	{ "clear_timers",           n_clear_timers           },
+	/* game information */
+	{ "get_position",           n_get_position           },
 	/* terminator */
  	{ NULL,                        NULL                  }
 };

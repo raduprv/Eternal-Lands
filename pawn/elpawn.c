@@ -33,66 +33,76 @@ typedef struct _pawn_timer_queue
 static pawn_machine srv_amx = {0, 0, NULL};
 static pawn_machine map_amx = {0, 0, NULL};
 
-static pawn_timer_queue *timer_queue = NULL;
+static pawn_timer_queue *map_timer_queue = NULL;
 
-static __inline__ int ticks_greater_equal (Uint32 ticks, Uint32 limit)
+static __inline__ int ticks_less (Uint32 ticks, Uint32 limit)
 {
 	// try to adjust for timer wrap around. We'll assume that no events are
 	// planned more than 2*31 ms (a bit more than 24 days) in advance.
-	return ticks >= limit || (((Sint32) limit) < 0 && ((Sint32) ticks) > 0);
+	return ticks < limit || (((Sint32) limit) >= 0 && ((Sint32) ticks) < 0);
 }
 
-void pop_timer_queue ()
+static __inline__ int ticks_less_equal (Uint32 ticks, Uint32 limit)
 {
-	if (timer_queue)
+	return !ticks_less (limit, ticks);
+}
+
+static __inline__ int ticks_greater_equal (Uint32 ticks, Uint32 limit)
+{
+	return !ticks_less (ticks, limit);
+}
+
+void pop_timer_queue (pawn_timer_queue **queue)
+{
+	if (*queue)
 	{
-		pawn_timer_queue *head = timer_queue;
-		timer_queue = head->next;
+		pawn_timer_queue *head = *queue;
+		*queue = head->next;
 		free (head->function);
 		free (head);
 	}
 }
 
-void insert_timer_queue_node (pawn_timer_queue *new_node)
+void insert_timer_queue_node (pawn_timer_queue **queue, pawn_timer_queue *new_node)
 {
 	
-	if (timer_queue == NULL || ticks_greater_equal (timer_queue->ticks, new_node->ticks))
+	if (*queue == NULL || ticks_less_equal (new_node->ticks, (*queue)->ticks))
 	{
-		new_node->next = timer_queue;
-		timer_queue = new_node;
+		new_node->next = *queue;
+		*queue = new_node;
 	}
 	else
 	{
-		pawn_timer_queue* node = timer_queue;
-		while (node->next && ticks_greater_equal (new_node->ticks, node->next->ticks))
+		pawn_timer_queue* node = *queue;
+		while (node->next && ticks_less (node->next->ticks, new_node->ticks))
 			node = node->next;
 		new_node->next = node->next;
 		node->next = new_node;
 	}
 }
 
-void reschedule_timer_queue_head (Uint32 ticks)
+void reschedule_timer_queue_head (pawn_timer_queue **queue, Uint32 diff)
 {
-	pawn_timer_queue *head = timer_queue;
+	pawn_timer_queue *head = *queue;
 	
 	if (head)
 	{
-		head->ticks = ticks;
-		if (head->next && ticks_greater_equal (ticks, head->next->ticks))
+		head->ticks += diff;
+		if (head->next && ticks_less (head->next->ticks, head->ticks))
 		{
-			timer_queue = head->next;
-			insert_timer_queue_node (head);
+			*queue = head->next;
+			insert_timer_queue_node (queue, head);
 		}
 	}
 }
 
-void push_timer_queue (Uint32 ticks, const char* function, Uint32 interval)
+void push_timer_queue (pawn_timer_queue **queue, Uint32 ticks, const char* function, Uint32 interval)
 {
 	pawn_timer_queue* new_node = calloc (1, sizeof (pawn_timer_queue));
 	new_node->ticks = ticks;
 	new_node->function = strdup (function);
 	new_node->interval = interval;
-	insert_timer_queue_node (new_node);
+	insert_timer_queue_node (queue, new_node);
 }
 
 int initialize_pawn_machine (pawn_machine *machine, const char* fname)
@@ -300,7 +310,7 @@ int run_pawn_map_function (const char* fun, const char* fmt, ...)
 
 void check_pawn_timers ()
 {
-	if (timer_queue && ticks_greater_equal (SDL_GetTicks (), timer_queue->ticks))
+	if (map_timer_queue && ticks_less_equal (map_timer_queue->ticks, SDL_GetTicks ()))
 	{
 		SDL_Event event;
 		event.type = SDL_USEREVENT;
@@ -312,24 +322,25 @@ void check_pawn_timers ()
 void handle_pawn_timers ()
 {
 	Uint32 now = SDL_GetTicks ();
-	while (timer_queue && ticks_greater_equal (now, timer_queue->ticks))
+	while (map_timer_queue && ticks_less_equal (map_timer_queue->ticks, now))
 	{
-		int ok = run_pawn_map_function (timer_queue->function, NULL);
-		if (ok && timer_queue->interval)
-			push_timer_queue (now + timer_queue->interval, timer_queue->function, timer_queue->interval);
-		pop_timer_queue ();
+		int ok = run_pawn_map_function (map_timer_queue->function, NULL);
+		if (ok && map_timer_queue->interval)
+			reschedule_timer_queue_head (&map_timer_queue, map_timer_queue->interval);
+		else
+			pop_timer_queue (&map_timer_queue);
 	}
 }
 
-void add_pawn_timer (Uint32 offset, const char* name, Uint32 interval)
+void add_map_timer (Uint32 offset, const char* name, Uint32 interval)
 {
-	push_timer_queue (SDL_GetTicks () + offset, name, interval);
+	push_timer_queue (&map_timer_queue, SDL_GetTicks () + offset, name, interval);
 }
 
-void clear_pawn_timers ()
+void clear_map_timers ()
 {
-	while (timer_queue)
-		pop_timer_queue ();
+	while (map_timer_queue)
+		pop_timer_queue (&map_timer_queue);
 }
 
 #endif // PAWN

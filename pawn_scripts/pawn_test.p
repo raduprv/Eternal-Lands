@@ -2,11 +2,15 @@
 
 public pawn_test (const msg[]) 
 {
-	new i
+	new x, y, i
 
-	printf "Hello Eternal Lands %s!\n", msg
+	get_position (x, y)
+	printf "Hello Eternal Lands @ %d, %d!\n", x, y
 	for (i = 0; i < 3; i++)
-		log_to_console "Hello EL, from Pawn %f!", floatsqroot (float (i))
+		log_to_console "%s %f!", msg, floatsqroot (float (i))
+
+	add_sound_object (1, x+3, y+3);
+	add_sound_object (2, x-3, y-3);
 }
 
 public play_with_object_pos (id, add)

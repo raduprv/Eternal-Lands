@@ -80,22 +80,23 @@ void handle_pawn_timers ();
 /*!
  * \brief Schedule a function for execution
  *
- * Schedule a Pawn function to be executed at a certain point in the future.
- * If \a interval is non zero, it will be executed every \a interval 
- * milliseconds after the first execution.
+ * Schedule a Pawn function to be executed on the Pawn machine for map events  
+ * at a certain point in the future. If \a interval is non zero, it will be 
+ * executed every \a interval milliseconds after the first execution.
  * \param offset   The number of milliseconds between now and the first call
  * \param name     The name of the function to run
  * \param interval If > 0, the number of milliseconds between succesive calls to
  *                 the function
  */
-void add_pawn_timer (Uint32 offset, const char* name, Uint32 interval);
+void add_map_timer (Uint32 offset, const char* name, Uint32 interval);
 
 /*!
  * \brief Clear the timer queue
  *
- * Remove all current callbacks from the Pawn timer queue;
+ * Remove all current callbacks from the Pawn timer queue on the map Pawn 
+ * machine
  */
-void clear_pawn_timers ();
+void clear_map_timers ();
 
 #endif
 
