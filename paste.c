@@ -8,7 +8,6 @@
 
 char* cur_text = NULL;
 text_field* cur_text_field = NULL;
-Atom targets_atom = None;
 
 void do_paste(const Uint8 * buffer)
 {
@@ -29,6 +28,7 @@ void finishpaste (void* event)
  #ifndef WINDOWS
 
 int use_clipboard = 1;
+Atom targets_atom = None;
 
 void processpaste(Display *dpy, Window window, Atom atom)
 {
