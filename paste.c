@@ -8,6 +8,7 @@
 
 char* cur_text = NULL;
 text_field* cur_text_field = NULL;
+Atom targets_atom = None;
 
 void do_paste(const Uint8 * buffer)
 {
@@ -39,10 +40,12 @@ void processpaste(Display *dpy, Window window, Atom atom)
 
 	XGetWindowProperty(dpy, window, atom, 0, 0, 0, XA_STRING, &type, &actualformat, &items, &bytes, &value);
 	XFree(value);
-	// XXX Grum: according to my man page, parameter long_length is
-	// the length in 32-bit multiples of the data to be retrieved. So can
-	// bytes be divided by 4 in the call below?
-	XGetWindowProperty(dpy, window, atom, 0, bytes, 1, XA_STRING, &type, &actualformat, &items, &tmp, &value);
+	// From the XGetWindowProperty man page:
+	// *) The length parameter is in 32 bit units, so we can divide
+	//    bytes by four (rounding up
+	// *) It always allocates one extra byte and sets it to zero, so
+	//    using value as a zero-terminated string should be safe
+	XGetWindowProperty(dpy, window, atom, 0, (bytes+3)/4, 1, XA_STRING, &type, &actualformat, &items, &tmp, &value);
 	if(type == XA_STRING)
 	{
 		int p;
@@ -147,6 +150,9 @@ void copy_to_clipboard(const char* text)
 		dpy = wminfo.info.x11.display;
 		window = wminfo.info.x11.window;
 
+		if (targets_atom == None)
+			targets_atom = XInternAtom (dpy, "TARGETS", False);
+
 		if(use_clipboard)
 		{
 			selection=XInternAtom(dpy,"CLIPBOARD",0);
@@ -155,26 +161,36 @@ void copy_to_clipboard(const char* text)
 		{
 			selection=XA_PRIMARY;
 		}
-		
 		//property = XInternAtom(dpy, "PASTE", 0);
 		XSetSelectionOwner(dpy, selection, window, CurrentTime);
 		wminfo.info.x11.unlock_func();
 	}
-
 }
 
 void process_copy(XSelectionRequestEvent* e)
 {
 	XEvent r;
-
-	if (e->target != XA_STRING)
+	Atom targets[] = {
+		targets_atom,
+		XA_STRING
+	};
+	
+	if (e->target == XA_STRING)
 	{
-		r.xselection.property = None;
+		// Copy the string
+		XChangeProperty(e->display, e->requestor, e->property, XA_STRING, 8, PropModeReplace, (unsigned char *)cur_text, strlen(cur_text));
+		r.xselection.property = e->property;
+	}
+	else if (targets_atom != None && e->target == targets_atom)
+	{
+		// Tell X we have a string available
+		XChangeProperty (e->display, e->requestor, e->property, XA_ATOM, 32, PropModeReplace, (unsigned char*) targets, sizeof(targets) / sizeof (targets[0]));
+		r.xselection.property = e->property;
 	}
 	else
 	{
-		XChangeProperty(e->display, e->requestor, e->property, XA_STRING, 8, PropModeReplace, (unsigned char *)cur_text, strlen(cur_text) + 1);
-		r.xselection.property = e->property;
+		// No idea what X is requesting
+		r.xselection.property = None;
 	}
 	r.xselection.type = SelectionNotify;
 	r.xselection.display = e->display;
