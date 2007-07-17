@@ -1034,6 +1034,11 @@ void set_new_video_mode(int fs,int mode)
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
 
 	init_video();
+#ifndef WINDOWS
+	// Re-enable window manager events, since the killing of the video 
+	// subsystem turns them off.
+	SDL_EventState (SDL_SYSWMEVENT, SDL_ENABLE);
+#endif	
 	resize_root_window();
 	init_lights();
 	disable_local_lights();

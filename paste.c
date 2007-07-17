@@ -139,7 +139,7 @@ void copy_to_clipboard(const char* text)
 	Window window;
 	SDL_SysWMinfo wminfo;
 	Atom selection;
-
+	
 	if (cur_text != NULL) free(cur_text);
 	cur_text = strdup(text);
 	SDL_VERSION(&wminfo.version);
