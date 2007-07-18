@@ -1994,6 +1994,33 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			}
 		}
 	}
+	else if (keysym == SDLK_F11)
+	{
+		int i;
+
+		for (i = 0; i < 1000; i++)
+		{
+			if(texture_cache[i].file_name[0])
+			{
+				glDeleteTextures(1,(GLuint*)&texture_cache[i].texture_id);
+				texture_cache[i].texture_id = 0;
+				CHECK_GL_ERRORS();
+			}
+		}
+		
+		//now, reload the textures
+		for(i=0;i < 1000;i++)
+		{
+			if(texture_cache[i].file_name[0])
+			{
+				int alpha = texture_cache[i].alpha;
+				if(alpha <= 0)
+					texture_cache[i].texture_id = load_bmp8_color_key (texture_cache[i].file_name, alpha);
+				else 
+					texture_cache[i].texture_id = load_bmp8_fixed_alpha (texture_cache[i].file_name, alpha);
+			}
+		}
+	}
 #endif //DEBUG
 	// END OF TEST!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	else

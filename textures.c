@@ -88,11 +88,11 @@ __inline__ static void set_texture_filter_parameter()
 		{
 			if (anisotropic_filter > 1.0f)
 			{
-				set_texture_filter(TF_ANISOTROPIC_AND_MIPMAPS, anisotropic_filter);
+				set_texture_filter(TF_ANISOTROPIC, anisotropic_filter);
 			}
 			else
 			{
-				set_texture_filter(TF_TRILINEAR, 0.0f);
+				set_texture_filter(TF_BILINEAR, 0.0f);
 			}
 		}
 	}
