@@ -22,18 +22,32 @@ extern "C" {
  */
 void do_paste(const Uint8 * buffer);
 
-#ifndef OSX
-#ifndef WINDOWS
+/*!
+ * \brief this function is used to start paste to certain text_field.
+ *
+ * \param[in] tf text_field to paste text to.
+ */
+void start_paste_to_text_field(text_field* tf);
 
-#include <X11/Xlib.h>
 /*!
  * \ingroup hotkey
  * \brief Callback used when pasting is started
  *
- *      A callback function used when pasting is started. This function is specific to the X Window system.
+ *      A callback function used when pasting is started. 
  *
  */
 void startpaste(void);
+
+/*!
+ * \brief this function is called when we copy selected text to clipboard.
+ *
+ * For X system it only copies selected text into buffer, which will be used by process_copy().
+ */
+void copy_to_clipboard(const char* text);
+
+#if !defined OSX && !defined WINDOWS
+
+#include <X11/Xlib.h>
 
 /*!
  * \ingroup hotkey
@@ -48,40 +62,13 @@ void startpaste(void);
 void finishpaste(XSelectionEvent event);
 
 /*!
- * \brief this function is used to start paste to certain text_field.
- *
- * \param[in] tf text_field to paste text to.
- */
-void start_paste_to_text_field(text_field* tf);
-
-/*!
- * \brief this function is called when we copy selected text to clipboard.
- *
- * For X system it only copies selected text into buffer, which will be used by process_copy().
- */
-void copy_to_clipboard(const char* text);
-
-/*!
  * \brief called when SelectionRequest received, it sends selected text to requester.
  *
  * \param[in] e contains information about SelectionRequest event.
  */
 void process_copy(XSelectionRequestEvent* e);
 
-#else
-
-/*!
- * \ingroup hotkey
- * \brief The callback used for pasting.
- *
- *      A callback function used for pasting. This function is specific to Windows.
- *
- * \callgraph
- */
-void windows_paste(void);
-
-#endif // not def WINDOWS
-#endif // not def OSX
+#endif // !def OSX && !def WINDOWS
 
 #ifdef __cplusplus
 } // extern "C"

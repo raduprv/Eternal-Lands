@@ -1355,11 +1355,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_PASTE)
 	{
-#ifndef WINDOWS
 		startpaste ();
-#else
-		windows_paste ();
-#endif
 	}
 #ifdef DEBUG
 	else if((keysym == SDLK_LEFT) && shift_on && ctrl_on && !alt_on)

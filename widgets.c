@@ -2176,7 +2176,6 @@ void _text_field_insert_char (widget_list *w, char ch)
 		_text_field_scroll_to_cursor (w);
 }
 
-#if !defined(WINDOWS) && !defined(OSX)
 void _text_field_copy_to_clipboard (text_field *tf)
 {
 	char* text = text_field_get_selected_text(tf);
@@ -2186,7 +2185,6 @@ void _text_field_copy_to_clipboard (text_field *tf)
 		free(text);
 	}
 }
-#endif
 
 void update_cursor_selection(widget_list* w, int flag);
 
@@ -2235,13 +2233,13 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 	if (w == NULL) return 0;
 	tf = w->widget_info;
-#if !defined(WINDOWS) && !defined(OSX)
+
 	if (key == K_COPY || key == K_COPY_ALT)
 	{
 		_text_field_copy_to_clipboard (tf);
 		return 1;
 	}
-#endif
+
 	if ( !(w->Flags & TEXT_FIELD_EDITABLE) ) return 0;
 	if (w->Flags & TEXT_FIELD_NO_KEYPRESS) return 0;
 
@@ -2369,9 +2367,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 	}
 	else if (key == K_CUT)
 	{
-#if !defined(WINDOWS) && !defined(OSX)
 		_text_field_copy_to_clipboard (tf);
-#endif
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
 		{
 			text_field_remove_selection(tf);
@@ -2385,9 +2381,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			text_field_remove_selection(tf);
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
-#if !defined(WINDOWS) && !defined(OSX)
 		start_paste_to_text_field(tf);
-#endif // !defined(WINDOWS) && !defined(OSX)
 		return 1;
 	}
 	else if (!alt_on && !ctrl_on && ( IS_PRINT(ch)
@@ -2450,7 +2444,7 @@ void _set_edit_pos (text_field* tf, int x, int y)
 	tf->cursor = msg->len;
 }
 
-void update_selection(int x, int y, widget_list* w, int flag)
+void update_selection(int x, int y, widget_list* w, int drag)
 {
 	int line, col;
 	int cx = 0;
@@ -2462,8 +2456,14 @@ void update_selection(int x, int y, widget_list* w, int flag)
 	if (tf == NULL) return;
 	
 	line = y / displayed_font_y_size;
-	if (line >= tf->nr_visible_lines) return;
-	if (tf->select.lines[line].msg == -1) return;
+	if (line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
+	{
+		// Invalid position, if we were dragging keep the selection 
+		// intact, but if this was a click, clear it
+		if (!drag)
+			tf->select.sm = tf->select.sc = tf->select.em = tf->select.ec = -1;
+		return;
+	}
 
 	msg = &tf->buffer[tf->select.lines[line].msg];
 	for (col = tf->select.lines[line].chr; col < msg->len; col++)
@@ -2472,8 +2472,9 @@ void update_selection(int x, int y, widget_list* w, int flag)
 		cx += (0.5 + get_char_width(msg->data[col]) * w->size * DEFAULT_FONT_X_LEN / 12.0);
 		if (cx >= x) break;
 	}
-	if (!flag)
+	if (!drag || tf->select.sm == -1 || tf->select.sc == -1)
 	{
+		// click (or selection still empty), set the start position
 		tf->select.sm = tf->select.lines[line].msg;
 		tf->select.sc = col;
 		tf->select.em = -1;
@@ -2481,6 +2482,7 @@ void update_selection(int x, int y, widget_list* w, int flag)
 	}
 	else
 	{
+		// drag, set the end position
 		tf->select.em = tf->select.lines[line].msg;
 		tf->select.ec = col;
 	}

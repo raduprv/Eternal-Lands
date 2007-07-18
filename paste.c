@@ -9,23 +9,103 @@
 char* cur_text = NULL;
 text_field* cur_text_field = NULL;
 
-void do_paste(const Uint8 * buffer)
+void do_paste (const Uint8* buffer)
 {
 	paste_in_input_field (buffer);
 }
 
-#ifdef OSX
+void do_paste_to_text_field (text_field *tf, const char* text)
+{
+	// XXX FIXME: We should probably check if the text field
+	// is editable, and the data buffer reallocatable.
+	int bytes = strlen (text);
+	text_message* msg = &tf->buffer[tf->msg];
+	int min_size, p;
+
+	while (bytes > 0 && !text[bytes - 1])
+		bytes--;
+	min_size = msg->len + bytes + 1;
+	if (msg->size < min_size)
+	{
+		int new_size = msg->size;
+		while (new_size < min_size)
+			new_size *= 2;
+		msg->data = realloc (msg->data, new_size);
+		msg->size = new_size;
+	}
+	p = tf->cursor;
+	memmove (&msg->data[p + bytes], &msg->data[p], msg->len - p + 1);
+	memcpy (&msg->data[p], text, bytes);
+	msg->len += bytes;
+	tf->cursor += bytes;
+	text_field_find_cursor_line (tf);
+}
+
+void start_paste_to_text_field (text_field *tf)
+{
+	cur_text_field = tf;
+	startpaste ();
+}
+
+#if defined OSX
+
 void startpaste () 
 {
 	// Todo, actually fill these!
 }
 
-void finishpaste (void* event) 
+void copy_to_clipboard (const char* text)
 {
-	// Todo. This :-)
+	// Todo
 }
+
+#elif defined WINDOWS
+
+void startpaste ()
+{
+	if (OpenClipboard (NULL))
+	{
+		HANDLE hText = GetClipboardData (CF_TEXT);
+		char* text = GlobalLock (hText);
+		if (cur_text_field == NULL)
+		{
+			do_paste (text);
+		}
+		else
+		{
+			do_paste_to_text_field (cur_text_field, text);
+			cur_text_field = NULL;
+		}
+		GlobalUnlock (hText);
+		CloseClipboard ();
+	}
+}
+
+void copy_to_clipboard (const char* text)
+{
+	SDL_SysWMInfo info;
+
+	if (text == NULL)
+		return;
+
+	SDL_VERSION (&info.version);
+	if (SDL_GetWMInfo (&info))
+	{
+		if (OpenClipboard (info.window))
+		{
+			HGLOBAL hCopy = GlobalAlloc (GMEM_MOVEABLE, 1+strlen (text));
+			char* copy = GlobalLock (hCopy);
+			strcpy (copy, text);
+			GlobalUnlock (hCopy);
+
+			EmptyClipboard ();
+			SetClipboardData (CF_TEXT, hCopy);
+			CloseClipboard ();
+		}
+	}	
+}
+
 #else
- #ifndef WINDOWS
 
 int use_clipboard = 1;
 Atom targets_atom = None;
@@ -48,33 +128,13 @@ void processpaste(Display *dpy, Window window, Atom atom)
 	XGetWindowProperty(dpy, window, atom, 0, (bytes+3)/4, 1, XA_STRING, &type, &actualformat, &items, &tmp, &value);
 	if(type == XA_STRING)
 	{
-		int p;
 		if (cur_text_field == NULL)
 		{
 			do_paste(value); // copy to input line
 		}
 		else
 		{
-			// XXX FIXME: We should probably check if the text field
-			// is editable, and the data buffer reallocatable.
-			text_message* msg = &cur_text_field->buffer[cur_text_field->msg];
-			int min_size = msg->len + bytes + 1;
-
-			while (!value[bytes - 1]) bytes--;
-			if (msg->size < min_size)
-			{
-				int new_size = msg->size;
-				while (new_size < min_size)
-					new_size *= 2;
-				msg->data = (char*) realloc(msg->data, new_size);
-				msg->size = new_size;
-			}
-			p = cur_text_field->cursor;
-			memmove(&msg->data[p + bytes], &msg->data[p], msg->len - p + 1);
-			memcpy(&msg->data[p], value, bytes);
-			msg->len += bytes;
-			cur_text_field->cursor += bytes;
-			text_field_find_cursor_line(cur_text_field);
+			do_paste_to_text_field (cur_text_field, (const char*) value);
 			cur_text_field = NULL;
 		}
 	}
@@ -83,12 +143,6 @@ void processpaste(Display *dpy, Window window, Atom atom)
 	{
 		XFree(value);
 	}
-}
-
-void start_paste_to_text_field(text_field* tf)
-{
-	cur_text_field = tf;
-	startpaste();
 }
 
 void startpaste(void)
@@ -223,16 +277,4 @@ void finishpaste(XSelectionEvent event)
 	}
 }
 
- #else
-
-void windows_paste(void)
-{
-	OpenClipboard(NULL);
-
-	do_paste(GetClipboardData(CF_TEXT));
-
-	CloseClipboard();
-}
-
- #endif //ndef WINDOWS
-#endif //OSX
+#endif // def OSX / def WINDOWS / other
