@@ -27,6 +27,7 @@ void increment_engineering_counter();
 void increment_potions_counter();
 void increment_manufacturing_counter();
 void increment_spell_counter(int spell_id);
+void increment_summon_manu_counter();
 void increment_summon_counter(char *string);
 
 void counters_set_product_info(char *name, int count);

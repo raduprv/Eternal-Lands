@@ -307,6 +307,9 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			your_info.potion_exp_next_lev=value;break;
 		case SUM_EXP:
 			floatingmessages_compare_stat(yourself, your_info.summoning_exp, value, attributes.summoning_skill.shortname);
+#ifdef COUNTERS
+			increment_summon_manu_counter();
+#endif
 			your_info.summoning_exp=value;
 			break;
 		case SUM_EXP_NEXT:

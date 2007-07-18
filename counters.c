@@ -244,6 +244,7 @@ void cleanup_counters()
 void increment_counter(int counter_id, char *name, int quantity, int extra)
 {
 	int i, j;
+	int new_entry = 1;
 
 	if(name == 0 || strlen(name)<1 || strlen(name)>100){
 		//doesn't seem to have a real name, so no point saving it
@@ -260,20 +261,24 @@ void increment_counter(int counter_id, char *name, int quantity, int extra)
 
 		counters[i][j].n_session += quantity;
 		counters[i][j].n_total += quantity;
-
-		sort_counter(counter_id);
-		return;
+		new_entry = 0;
+		break;
 	}
 
-	/* Create a new entry. */
-	j = entries[i]++;
-	counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
-	counters[i][j].name = strdup(name);
-	counters[i][j].n_session = quantity;
-	counters[i][j].n_total = quantity;
-	counters[i][j].extra = extra;
+	if (new_entry) {
+		/* Create a new entry. */
+		j = entries[i]++;
+		counters[i] = realloc(counters[i], entries[i] * sizeof(struct Counter));
+		counters[i][j].name = strdup(name);
+		counters[i][j].n_session = quantity;
+		counters[i][j].n_total = quantity;
+		counters[i][j].extra = extra;
+	}
 
 	sort_counter(counter_id);
+	
+	/* make sure any produce name/quanity is not used again */
+	counters_set_product_info("",0);
 }
 
 void decrement_counter(int counter_id, char *name, int quantity, int extra)
@@ -668,6 +673,11 @@ void increment_spell_counter(int spell_id)
 	// delay the increment until we have the name
 	else
 		increment_counter(SPELLS, spell_names[spell_id+1], 1, spell_id);
+}
+
+void increment_summon_manu_counter()
+{
+	increment_counter(SUMMONS, product_name, product_count, 0);
 }
 
 void increment_summon_counter(char *string)
