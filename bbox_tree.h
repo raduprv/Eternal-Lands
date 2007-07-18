@@ -9,6 +9,9 @@
 #include "vmath.h"
 #include "misc.h"
 #endif
+#ifdef DEBUG
+#include "errors.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -421,7 +424,7 @@ static __inline__ Uint32 is_blend_3d_object(Uint32 type)
 		case TYPE_3D_NO_BLEND_NO_GROUND_NO_ALPHA_NO_SELF_LIT_OBJECT: return 0;
 		default:
 #ifdef	DEBUG
-		LOG_ERROR("Wrong type (%d) for is_blend_3d_object!", type);
+			LOG_ERROR("Wrong type (%d) for is_blend_3d_object!", type);
 #endif
 			return 0;
 	}
