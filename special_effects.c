@@ -532,6 +532,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	Uint8 str[100];
 #endif
 	int offset = 0;
+	int need_target = 0;
 	Uint16 var_a = 0, var_b = 0;
 	actor* caster = NULL;
 	actor* target = NULL;
@@ -625,6 +626,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			{
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
+				need_target = 1;
 #ifdef EYE_CANDY
 				if (use_eye_candy)
 				{
@@ -642,6 +644,7 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			{
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
+				need_target = 1;
 #ifdef DEBUG
 				safe_snprintf ((char*)str, sizeof (str), "effect %d,  x pos=%d, y pos=%d",sfx,var_a,var_b);	
 				LOG_TO_CONSOLE (c_purple2, str);
@@ -657,17 +660,18 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	}
 
 	caster = get_actor_ptr_from_id(var_a);
-
 	if (caster == NULL)
 		return;
 //	printf("%f,%f,%f | %f,%f | %d,%d\n", x / 2.0, y / 2.0, ec_get_z2((int)x, (int)y), caster->x_pos, caster->y_pos, caster->tmp.x_tile_pos, caster->tmp.y_tile_pos);
 // 	x = caster->x_pos;
 // 	y = caster->y_pos;
-	
-	target = get_actor_ptr_from_id(var_b);
-	if (target == NULL)
-		return;
-	
+
+	if (need_target) {	
+		target = get_actor_ptr_from_id(var_b);
+		if (target == NULL)
+			return;
+	}
+
 #ifdef	EYE_CANDY
 	if (use_eye_candy) {
 		switch (sfx)
