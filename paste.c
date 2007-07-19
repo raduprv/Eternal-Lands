@@ -2,9 +2,7 @@
 #include <string.h>
 #include "global.h"
 
-#ifndef WINDOWS
- #include <SDL_syswm.h>
-#endif
+#include <SDL_syswm.h>
 
 char* cur_text = NULL;
 text_field* cur_text_field = NULL;
