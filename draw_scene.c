@@ -192,7 +192,7 @@ void move_camera ()
 #ifndef SKY_FPV_CURSOR
 	z=-2.2f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+sitting;
 #else /* SKY_FPV_CURSOR */
-	if(!cal_get_head(me, &hx, &hy, &hz) || hz < 0.1f){
+	if(cal_get_head(me, &hx, &hy, &hz) || hz < 0.1f){
 		//There was an error. We can try approximately correct numbers here.
 		hz = 1.0f;
 	}
