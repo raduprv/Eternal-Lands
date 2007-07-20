@@ -16,11 +16,12 @@ void init_colors();
 void init_texture_cache()
 {
 	int i;
-	for(i=0;i<1000;i++)
-		{
-			texture_cache[i].file_name[0]=0;
-			texture_cache[i].texture_id=0;
-		}
+	for (i = 0; i < TEXTURE_CACHE_MAX; i++)
+	{
+		texture_cache[i].file_name[0] = 0;
+		texture_cache[i].texture_id = 0;
+		texture_cache[i].load_err = 0;
+	}
 }
 
 void init_e3d_cache()

@@ -148,15 +148,15 @@ void init_gl()
 
 void handle_window_resize()
 {
-    int i,alpha;
-    for(i=0;i<1000;i++)
-    	{
-	   		if(texture_cache[i].file_name[0])
-	       		{
-					glDeleteTextures(1,&texture_cache[i].texture_id);
-					texture_cache[i].texture_id=0;//force a reload
-				}
-        }
+	int i,alpha;
+	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
+	{
+		if(texture_cache[i].file_name[0])
+		{
+			glDeleteTextures (1, &texture_cache[i].texture_id);
+			texture_cache[i].texture_id = 0; //force a reload
+		}
+	}
 	if(minimap_tex) {glDeleteTextures(1,&minimap_tex);minimap_tex=0;}
 	
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
@@ -165,10 +165,10 @@ void handle_window_resize()
 
 	window_resize();
 	
-    glEnable(GL_DEPTH_TEST);
+	glEnable(GL_DEPTH_TEST);
 	glDepthFunc(GL_LESS);
 //	glDepthFunc(GL_LEQUAL);
-    glEnable(GL_TEXTURE_2D);
+	glEnable(GL_TEXTURE_2D);
 	glShadeModel(GL_SMOOTH);
 	glFrontFace(GL_CCW);
 	glCullFace(GL_BACK);
@@ -178,17 +178,19 @@ void handle_window_resize()
 	SDL_EnableKeyRepeat (200, 100);
 	SDL_EnableUNICODE(1);
 	
-	for(i=0;i<1000;i++)
+	for (i = 0; i < TEXTURE_CACHE_MAX; i++)
+	{
+		if (texture_cache[i].file_name[0] && !texture_cache[i].load_err)
 		{
-			if(texture_cache[i].file_name[0])
-				{
-	            	alpha=texture_cache[i].alpha;
-	            	//our texture was freed, we have to reload it
-	        		if(alpha<=0)texture_cache[i].texture_id=load_bmp8_color_key(texture_cache[i].file_name,alpha);
-	            	else
-						texture_cache[i].texture_id=load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
-				}
+			alpha = texture_cache[i].alpha;
+			//our texture was freed, we have to reload it
+			if(alpha <= 0)
+				texture_cache[i].texture_id = load_bmp8_color_key (texture_cache[i].file_name, alpha);
+			else
+				texture_cache[i].texture_id = load_bmp8_fixed_alpha (texture_cache[i].file_name, alpha);
 		}
+	}
+
 	map_has_changed=1;
 	reset_material();
 	init_lights();
