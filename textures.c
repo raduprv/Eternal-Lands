@@ -77,7 +77,7 @@ __inline__ static void set_texture_filter_parameter()
 			glHint(GL_GENERATE_MIPMAP_HINT_SGIS, GL_NICEST);
 			if (anisotropic_filter > 1.0f)
 			{
-				set_texture_filter(TF_ANISOTROPIC, anisotropic_filter);
+				set_texture_filter (TF_ANISOTROPIC_AND_MIPMAPS, anisotropic_filter);
 			}
 			else
 			{
@@ -708,15 +708,16 @@ void	texture_mask3(texture_struct *texR, texture_struct *texG, texture_struct *t
 }
 
 
-//get a texture id out of the texture cache
-//if null, then reload it (means it was previously freed)
+// get a texture id out of the texture cache
+// if null and we haven't failed to load it before, then reload it 
+// (means it was previously freed)
 
 int get_texture_id(int i)
 {
 	int new_texture_id;
 	int alpha;
 	
-	if(!texture_cache[i].texture_id)
+	if(!texture_cache[i].texture_id && !texture_cache[i].load_err)
 	{
 		// we need the alpha to know how to load it
 		alpha= texture_cache[i].alpha;
@@ -727,6 +728,8 @@ int get_texture_id(int i)
 			new_texture_id= load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
 		}
 		texture_cache[i].texture_id= new_texture_id;
+		if (!new_texture_id)
+			texture_cache[i].load_err = 1;
 	}
 	return texture_cache[i].texture_id;
 }
@@ -753,7 +756,7 @@ int get_and_set_texture_id(int i)
 #endif	//DEBUG
 
 	// do we need to make a hard load or do we already have it?
-	if(!texture_cache[i].texture_id)
+	if(!texture_cache[i].texture_id && !texture_cache[i].load_err)
 	{
 		texture_id= get_texture_id(i);
 	} else {

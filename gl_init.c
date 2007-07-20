@@ -986,15 +986,15 @@ void set_new_video_mode(int fs,int mode)
 	video_mode=mode;
 
 	//now, clear all the textures...
-	for(i=0;i<1000;i++)
+	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
+	{
+		if(texture_cache[i].file_name[0])
 		{
-			if(texture_cache[i].file_name[0])
-				{
-					glDeleteTextures(1,(GLuint*)&texture_cache[i].texture_id);
-					texture_cache[i].texture_id=0;//force a reload
-					CHECK_GL_ERRORS();
-				}
+			glDeleteTextures(1,(GLuint*)&texture_cache[i].texture_id);
+			texture_cache[i].texture_id=0;//force a reload
+			CHECK_GL_ERRORS();
 		}
+	}
 
 #ifndef MAP_EDITOR2
 	//do the same for the actors textures...
@@ -1054,16 +1054,18 @@ void set_new_video_mode(int fs,int mode)
 #endif //EYE_CANDY
 
 	//now, reload the textures
-	for(i=0;i<1000;i++)
+	for(i = 0; i < TEXTURE_CACHE_MAX; i++)
+	{
+		if (texture_cache[i].file_name[0] && !texture_cache[i].load_err)
 		{
-			if(texture_cache[i].file_name[0])
-				{
-	            	alpha=texture_cache[i].alpha;
-	            	//our texture was freed, we have to reload it
-	        		if(alpha<=0) texture_cache[i].texture_id= load_bmp8_color_key(texture_cache[i].file_name, alpha);
-	            	else texture_cache[i].texture_id= load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
-				}
+			alpha=texture_cache[i].alpha;
+			//our texture was freed, we have to reload it
+			if(alpha<=0)
+				texture_cache[i].texture_id = load_bmp8_color_key (texture_cache[i].file_name, alpha);
+	            	else
+				texture_cache[i].texture_id = load_bmp8_fixed_alpha (texture_cache[i].file_name, alpha);
 		}
+	}
 
 	reload_fonts();
 

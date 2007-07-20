@@ -900,7 +900,7 @@ void light_idle()
 		int i;
 		for (i = last_texture_start; i < TEXTURE_CACHE_MAX; i++)
 		{
-			if (texture_cache[i].file_name[0])
+			if (texture_cache[i].file_name[0] && !texture_cache[i].load_err)
 			{
 				int alpha= texture_cache[i].alpha;
 				if(alpha <= 0)
@@ -915,7 +915,7 @@ void light_idle()
 		{
 			for (i = 0; i < last_texture_start; i++)
 			{
-				if (texture_cache[i].file_name[0])
+				if (texture_cache[i].file_name[0] && !texture_cache[i].load_err)
 				{
 					int alpha= texture_cache[i].alpha;
 					if(alpha <= 0)

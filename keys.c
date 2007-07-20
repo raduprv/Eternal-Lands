@@ -98,10 +98,10 @@ void read_key_config()
 			f=my_fopen(key_ini,"rb");
 		}
 
-	stat(key_ini,&key_file);
+	fstat (fileno (f), &key_file);
 #else
 	f=my_fopen("key.ini","rb");
-	stat("key.ini",&key_file);
+	fstat (fileno (f), &key_file);
 #endif
 
 	if(!f)

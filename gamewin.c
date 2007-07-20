@@ -1998,7 +1998,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		int i;
 
-		for (i = 0; i < 1000; i++)
+		for (i = 0; i < TEXTURE_CACHE_MAX; i++)
 		{
 			if(texture_cache[i].file_name[0])
 			{
@@ -2009,9 +2009,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		}
 		
 		//now, reload the textures
-		for(i=0;i < 1000;i++)
+		for (i=0; i < TEXTURE_CACHE_MAX; i++)
 		{
-			if(texture_cache[i].file_name[0])
+			if(texture_cache[i].file_name[0] && !texture_cache[i].load_err)
 			{
 				int alpha = texture_cache[i].alpha;
 				if(alpha <= 0)

@@ -48,10 +48,11 @@ typedef struct
  */
 typedef struct
 {
-	int texture_id;			/*!< the id of the texture */
-    char file_name[128];	/*!< the filename of the texture */
-	cache_item_struct *cache_ptr;	/*!< a pointer to the cached item */
-	int alpha;				/*!< used for alpha blending the texture */
+	int texture_id;               /*!< the id of the texture */
+	char file_name[128];          /*!< the filename of the texture */
+	cache_item_struct *cache_ptr; /*!< a pointer to the cached item */
+	int alpha;                    /*!< used for alpha blending the texture */
+	char load_err;                /*!< if true, we tried to load this texture before and failed */
 }texture_cache_struct;
 
 /*!
