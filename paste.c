@@ -81,7 +81,7 @@ void startpaste ()
 
 void copy_to_clipboard (const char* text)
 {
-	SDL_SysWMInfo info;
+	SDL_SysWMinfo info;
 
 	if (text == NULL)
 		return;
