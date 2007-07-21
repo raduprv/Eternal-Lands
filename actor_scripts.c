@@ -2469,6 +2469,8 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				get_string_value(act->skin_name, sizeof (act->skin_name), item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
 				get_string_value(act->file_name, sizeof (act->file_name), item);
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"actor_scale")==0) {
+				act->actor_scale= get_float_value(item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"scale")==0) {
 				act->scale= get_float_value(item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh_scale")==0) {
@@ -2568,6 +2570,7 @@ int parse_actor_script (xmlNode *cfg)
 
 	//Initialize Cal3D settings
 	act->coremodel= NULL;
+	act->actor_scale= 1.0;
 	act->scale= 1.0;
 	act->mesh_scale= 1.0;
 	act->skel_scale= 1.0;

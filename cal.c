@@ -254,6 +254,12 @@ void cal_render_actor(actor *act)
 	skel=CalModel_GetSkeleton(act->calmodel);
 
 	glPushMatrix();
+#ifdef	NEW_ACTOR_SCALE
+	// actor model rescaling
+	if(actors_defs[act->actor_type].actor_scale != 1.0){
+		glScalef(actors_defs[act->actor_type].actor_scale, actors_defs[act->actor_type].actor_scale, actors_defs[act->actor_type].actor_scale);
+	}
+#endif	//NEW_ACTOR_SCALE
 	// the dynamic scaling
 	if(act->scale != 1.0f){
 		glScalef(act->scale,act->scale,act->scale);

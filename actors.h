@@ -241,7 +241,7 @@ typedef struct
 	char file_name[256];
 	/*! \} */
 
-
+	float actor_scale;
 	float scale;
 	float mesh_scale;
 	float skel_scale;
