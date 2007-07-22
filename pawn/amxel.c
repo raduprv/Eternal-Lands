@@ -21,46 +21,14 @@
 void update_object_pos_and_rot (object3d* obj)
 {
 	e3d_object* e3d = obj->e3d_data;
-	AABBOX bbox;
 	unsigned int ground;
-	int i;
-	unsigned int dynamic = 1;
 	
 	calc_rotation_and_translation_matrix (obj->matrix, obj->x_pos, obj->y_pos, obj->z_pos, obj->x_rot, obj->y_rot, obj->z_rot);
 	
 	ground = !has_normal (e3d->vertex_options);
-	
-	for (i = 0; i < e3d->material_no; i++)
-	{
-		unsigned int texture_id;
-		unsigned int is_transparent;
-		
-		bbox.bbmin[X] = e3d->materials[i].min_x;
-		bbox.bbmax[X] = e3d->materials[i].max_x;
-		bbox.bbmin[Y] = e3d->materials[i].min_y;
-		bbox.bbmax[Y] = e3d->materials[i].max_y;
-		bbox.bbmin[Z] = e3d->materials[i].min_z;
-		bbox.bbmax[Z] = e3d->materials[i].max_z;
 
-		matrix_mul_aabb (&bbox, obj->matrix);
-		texture_id = e3d->materials[i].diffuse_map;
-		is_transparent = material_is_transparent (e3d->materials[i].options);
-		
-		if (main_bbox_tree_items != NULL && dynamic == 0) 
-		{
-			// XXX FIXME: first of all, we don't even check for
-			// static items here, but if we would, what to do then?
-			// Do something like remove from the static list and
-			// insert into dynamic list?
-		}
-		else
-		{
-			// XXX FIXME: there's no guarantee the object is even 
-			// in main_bbox_tree yet...
-			delete_3dobject_from_abt (main_bbox_tree, get_3dobject_id (obj->id, i), obj->blended, obj->self_lit);
-			add_3dobject_to_abt (main_bbox_tree, get_3dobject_id (obj->id, i), bbox, obj->blended, ground, is_transparent, obj->self_lit, texture_id, dynamic);
-		}
-	}
+	// FIXME: TODO: update the bounding boxes for this object. Will probably
+	// require a new type of bbox storage.
 
 #ifdef EYE_CANDY
 	ec_remove_obstruction_by_object3d (obj);
