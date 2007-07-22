@@ -611,12 +611,12 @@ void draw_circle_ext(int x, int y, int radius, int interval, int angle_from, int
 	} else if(interval>0){
 		for(angle=angle_from;angle<angle_to;angle+=interval){
 			float rad=-mul*angle;
-			glVertex2f(x+cos(rad)*radius+radius, y+radius+sin(rad)*radius);
+			glVertex2f((float)x+cos(rad)*radius+radius, (float)y+radius+sin(rad)*radius);
 		}
 	} else { 
 		for(angle=angle_from;angle>angle_to;angle+=interval){
 			float rad=-mul*angle;
-			glVertex2f(x+cos(rad)*radius+radius, y+radius+sin(rad)*radius);
+			glVertex2f((float)x+cos(rad)*radius+radius, (float)y+radius+sin(rad)*radius);
 		}
 	}
 }
