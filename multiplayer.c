@@ -788,14 +788,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged PLAY_SOUND packet received.\n");
 				  break;
 				}
-				if(!sound_on)add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),SDL_SwapLE16(*((short *)(in_data+7))));
+				if(sound_on)add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),SDL_SwapLE16(*((short *)(in_data+7))));
 #else
 				if (data_length <= 12)
 				{
 				  log_error("CAUTION: Possibly forged PLAY_SOUND packet received.\n");
 				  break;
 				}
-				if(!sound_on)add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),SDL_SwapLE16(*((short *)(in_data+7))),SDL_SwapLE16(*((short *)(in_data+9))),SDL_SwapLE16(*((short *)(in_data+11))));
+				if(sound_on)add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))),SDL_SwapLE16(*((short *)(in_data+7))),SDL_SwapLE16(*((short *)(in_data+9))),SDL_SwapLE16(*((short *)(in_data+11))));
 #endif
 			}
 			break;
@@ -811,7 +811,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged TELEPORT_OUT packet received.\n");
 				  break;
 				}
-				add_particle_sys_at_tile("./particles/teleport_in.part", SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE16 (*((short *)(in_data+5))), 1);
+				add_particle_sys_at_tile("./particles/teleport_out.part", SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE16 (*((short *)(in_data+5))), 1);
 			}
 			break;
 
@@ -1436,7 +1436,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case DISPLAY_CLIENT_WINDOW:
 			{
-				if (data_length <= 6)
+				if (data_length <= 4)
 				{
 				  log_error("CAUTION: Possibly forged DISPLAY_CLIENT_WINDOW packet received.\n");
 				  break;
