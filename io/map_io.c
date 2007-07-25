@@ -608,8 +608,8 @@ int load_map(const char *file_name, update_func *update_function)
 	{
 		if (obj_2d_list[i])
 		{
-			int x = (int) (objects_list[i]->x_pos / 0.5f);
-			int y = (int) (objects_list[i]->y_pos / 0.5f);
+			int x = (int) (obj_2d_list[i]->x_pos / 0.5f);
+			int y = (int) (obj_2d_list[i]->y_pos / 0.5f);
 			obj_2d_list[i]->cluster = get_cluster (x, y);
 		}
 	}

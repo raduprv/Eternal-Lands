@@ -582,7 +582,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 #if defined(CUSTOM_LOOK) || defined(MINIMAP)
 	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
-    Uint32 guild_id;
+	Uint32 guild_id;
 #endif  //CUSTOM_LOOK || MINIMAP
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 	float   scale=1.0f;
@@ -770,17 +770,22 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		//perfect hashing of guildtag
  		switch(strlen(guild))
  		{
+		case 0:
+			guild_id = 0;
+			break;
+		case 1:
+			guild_id = guild[0];
+			break;
  		case 2:
- 		    guild_id = guild[0] + (guild[1] << 8);
- 		    break;
+ 			guild_id = guild[0] + (guild[1] << 8);
+ 			break;
  		case 3:
- 		    guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16);
- 		    break;
+ 			guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16);
+ 			break;
  		default:
- 		    guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16) + (guild[3] << 24);
- 		    break;
+ 			guild_id = guild[0] + (guild[1] << 8) + (guild[2] << 16) + (guild[3] << 24);
+ 			break;
 		}
-		this_actor->guild_id = guild_id;
 	}
 
 #ifdef  CUSTOM_LOOK
