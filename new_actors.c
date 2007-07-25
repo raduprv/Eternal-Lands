@@ -42,6 +42,10 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	int i;
 	int k;
 	actor *our_actor;
+#ifdef CLUSTER_INSIDES
+	int x, y;
+#endif
+
 	no_bounding_box=1;
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -92,6 +96,12 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
 	our_actor->body_parts=this_actor;
+
+#ifdef CLUSTER_INSIDES
+	x = (int) (our_actor->x_pos / 0.5f);
+	y = (int) (our_actor->y_pos / 0.5f);
+	our_actor->cluster = get_cluster (x, y);
+#endif
 
 	//find a free spot, in the actors_list
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues

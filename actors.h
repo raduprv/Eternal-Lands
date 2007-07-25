@@ -459,6 +459,10 @@ typedef struct
 	int async_y_tile_pos;
 	int async_z_rot;
 #endif
+
+#ifdef CLUSTER_INSIDES
+	short cluster;
+#endif
 }actor;
 
 #define MAX_ACTOR_DEFS  256

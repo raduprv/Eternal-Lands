@@ -10,6 +10,7 @@ FEATURES += ALPHA_ACTORS                    # Enable Alpha Blending of actor mod
 FEATURES += ATI_9200_FIX                    # flickering fix for ATI 92xx
 FEATURES += AUTO_UPDATE                     # enable minor automatic file updating
 #FEATURES += CLICKABLE_CONTINENT_MAP         # Enables you to click on the continent map to view maps
+#FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
 FEATURES += COUNTERS                        # enables kill/production/etc counters in the client
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information

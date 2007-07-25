@@ -270,7 +270,7 @@ static __inline__ void rotate_aabb(AABBOX* bbox, float r_x, float r_y, float r_z
 	bbox->bbmax[Z] = max2f(bbox->bbmax[Z], max2f(max2f(matrix_2[2], matrix_2[6]), max2f(matrix_2[10], matrix_2[14])));
 }
 
-static __inline__ void matrix_mul_aabb(AABBOX* bbox, MATRIX4x4 matrix)
+static __inline__ void matrix_mul_aabb(AABBOX* bbox, const MATRIX4x4 matrix)
 {
 	MATRIX4x4 matrix_1, matrix_2;
 	matrix_1[0] = bbox->bbmax[X];

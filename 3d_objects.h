@@ -39,7 +39,7 @@ void draw_3d_objects();
  * \param	r Red (0<=r<=1)
  * \param	g Green (0<=g<=1)
  * \param	b Blue (0<=b<=1)
- * \retval int	Returns 0 on error or the position in the objects_list on succes.
+ * \retval int	Returns -1 on error or the position in the objects_list on succes.
  * \callgraph
  */
 int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot, char self_lit, char blended, float r, float g, float b, unsigned int dynamic);
@@ -62,7 +62,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
  * \param	r Red (0<=r<=1)
  * \param	g Green (0<=g<=1)
  * \param	b Blue (0<=b<=1)
- * \retval int	Returns 0 on error or the position in the objects_list on succes.
+ * \retval int	Returns -1 on error or the position in the objects_list on succes.
  * 
  * \sa add_e3d_at_id
  *

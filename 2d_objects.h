@@ -7,6 +7,7 @@
 #define __OBJ_2D_H__
 
 #include "vmath.h"
+#include "bbox_tree.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -70,6 +71,10 @@ typedef struct
 	char display;/*!< flag determining whether the object is to be shown on screen. */
 	char state; /*!< state flag for future expansion & data alignment. */
 	obj_2d_def *obj_pointer; /**< Points to the 2d object type in the obj_2d_def list */
+
+#ifdef CLUSTER_INSIDES
+	short cluster;
+#endif
 }obj_2d;
 
 /*! 
@@ -107,6 +112,20 @@ void draw_2d_object(obj_2d * object_id);
  */
 void display_2d_objects();
 
+#ifdef CLUSTER_INSIDES
+/*!
+ * \ingroup	load_2d
+ * \brief	Get the bounding box of a 2D object
+ *
+ * 		Compute the bounding box for the 2D object with ID \a id.
+ *
+ * \param	id  The position on obj_2d_list of the object
+ * \param	box Pointer to the resulting bounding box
+ * \retval int	0 on failure, 1 on success
+ */
+int get_2d_bbox (int id, AABBOX* box);
+#endif // CLUSTER_INSIDES
+
 /*!
  * \ingroup	load_2d
  * \brief	Adds a 2d object at the given location. 
@@ -121,7 +140,7 @@ void display_2d_objects();
  * \param	x_rot The x rotation
  * \param	y_rot The y rotation
  * \param	z_rot The z rotation
- * \retval int 	Returns 0 on failure and the location in the obj_2d_list if it succeeds
+ * \retval int 	Returns -1 on failure and the location in the obj_2d_list if it succeeds
  * \callgraph
  */
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,

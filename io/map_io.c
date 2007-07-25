@@ -14,6 +14,213 @@ float offset_2d = (1.0f / 32768.0f);
 const float offset_2d_max = 0.01f;
 #endif
 
+#ifdef CLUSTER_INSIDES
+
+static short* clusters = NULL;
+
+static __inline__ void update_occupied_with_height_map (char* occupied, const unsigned char* height_map)
+{
+	int i;
+
+	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++)
+		if (height_map[i]) occupied[i] = 1;
+}
+
+static __inline__ void update_occupied_with_tile_map (char* occupied, const unsigned char* tile_map)
+{
+	int nx = tile_map_size_x * 6;
+	int ny = tile_map_size_y * 6;
+	int x, y, idx;
+
+	idx = 0;
+	for (y = 0; y < ny; y += 6)
+	{
+		for (x = 0; x < nx; x += 6, idx++)
+		{
+			if (tile_map[idx] != 255)
+			{
+				int offset = y*nx + x;
+				int i, j;
+
+				for (j = 0; j < 6; j++)
+					for (i = 0; i < 6; i++)
+						occupied[offset+j*nx+i] = 1;
+			}
+		}
+	}
+}
+
+static __inline__ void update_occupied_with_bbox (char* occupied, const AABBOX* box )
+{
+	int xs = (int) (box->bbmin[X] / 0.5f);
+	int ys = (int) (box->bbmin[Y] / 0.5f);
+	int xe = (int) (box->bbmax[X] / 0.5f) + 1;
+	int ye = (int) (box->bbmax[Y] / 0.5f) + 1;
+	int x, y;
+
+	if (xs < 0) xs = 0;
+	if (ys < 0) ys = 0;
+	if (xe > tile_map_size_x*6) xe = tile_map_size_x*6;
+	if (ye > tile_map_size_y*6) ye = tile_map_size_y*6;
+
+	for (y = ys; y < ye; y++)
+	{
+		for (x = xs; x < xe; x++)
+			occupied[y*tile_map_size_x*6+x] = 1;
+	}
+}
+
+static __inline__ void update_occupied_with_3d (char* occupied, int id)
+{
+	const e3d_object* obj;
+	int i;
+	AABBOX box;
+
+	if (id < 0 || id >= MAX_OBJ_3D || !objects_list[id])
+		return;
+
+	obj = objects_list[id]->e3d_data;
+	if (!obj)
+		return;
+
+	for (i = 0; i < obj->material_no; i++)
+	{
+		box.bbmin[X] = obj->materials[i].min_x;
+		box.bbmin[Y] = obj->materials[i].min_y;
+		box.bbmin[Z] = obj->materials[i].min_z;
+		box.bbmax[X] = obj->materials[i].max_x;
+		box.bbmax[Y] = obj->materials[i].max_y;
+		box.bbmax[Z] = obj->materials[i].max_z;
+		matrix_mul_aabb (&box, objects_list[id]->matrix);
+
+		update_occupied_with_bbox (occupied, &box);
+	}
+}
+
+static __inline__ void update_occupied_with_2d (char* occupied, int id)
+{
+	AABBOX box;
+
+	if (get_2d_bbox (id, &box))
+		update_occupied_with_bbox (occupied, &box);
+}
+
+static __inline__  void update_occupied_with_light (char* occupied, int id)
+{
+	int x, y;
+
+	if (id < 0 || id >= MAX_LIGHTS)
+		return;
+
+	x = (int) (lights_list[id]->pos_x / 0.5f);
+	y = (int) (lights_list[id]->pos_y / 0.5f);
+
+	if (x >= 0 && x < tile_map_size_x*6 && y >= 0 && y < tile_map_size_y*6)
+		occupied[y*tile_map_size_x*6+x] = 1;
+}
+
+static void compute_clusters (const char* occupied) 
+{
+	int nr_clusters;
+	short cluster_idx[1024];
+	short nb_idx[4];
+	int ic, cnr;
+
+	int nx = tile_map_size_x * 6;
+	int ny = tile_map_size_y * 6;
+	int x, y, idx;
+
+	clusters = calloc (nx * ny, sizeof (short));
+	
+	nr_clusters = 0;
+	cluster_idx[0] = 0;
+	idx = 0;
+	if (occupied[idx])
+	{
+		nr_clusters++;
+		clusters[idx] = cluster_idx[nr_clusters] = nr_clusters;
+	}
+
+	for (++idx; idx < nx; idx++)
+	{
+		if (occupied[idx])
+		{
+			if (occupied[idx-1])
+			{
+				clusters[idx] = clusters[idx-1];
+			}
+			else
+			{
+				nr_clusters++;
+				clusters[idx] = cluster_idx[nr_clusters] = nr_clusters;
+			}
+		}
+	}
+
+	for (y = 1; y < ny; y++)
+	{
+		for (x = 0; x < nx; x++, idx++)
+		{
+			if (occupied[idx])
+			{
+				int cidx, i;
+
+				nb_idx[0] = x > 0 ? cluster_idx[clusters[idx-nx-1]] : 0;
+				nb_idx[1] = cluster_idx[clusters[idx-nx]];
+				nb_idx[2] = x < nx-1 ? cluster_idx[clusters[idx-nx+1]] : 0;
+				nb_idx[3] = x > 0 ? cluster_idx[clusters[idx-1]] : 0;
+
+				cidx = 0;
+				for (i = 0; i < 4; i++)
+					if (nb_idx[i] && (!cidx || nb_idx[i] < cidx))
+						cidx = nb_idx[i];
+
+				if (!cidx)
+				{
+					nr_clusters++;
+					clusters[idx] = cluster_idx[nr_clusters] = nr_clusters;
+				}
+				else
+				{
+					clusters[idx] = cidx;
+					for (i = 0; i < 4; i++)
+						if (nb_idx[i])
+							cluster_idx[nb_idx[i]] = cidx;
+				}
+			}
+		}
+	}
+
+	cnr = 0;
+	for (ic = 1; ic < nr_clusters; ic++)
+	{
+		if (cluster_idx[ic] == ic)
+			cluster_idx[ic] = ++cnr;
+		else
+			cluster_idx[ic] = cluster_idx[cluster_idx[ic]];
+	}
+
+	for (idx = 0; idx < nx*ny; idx++)
+		clusters[idx] = cluster_idx[clusters[idx]];
+}
+
+short get_cluster (int x, int y)
+{
+	if (clusters == NULL)
+		return 0;
+	if (x < 0 || x >= tile_map_size_x*6 || y < 0 || y >= tile_map_size_y*6)
+		return 0;
+	return clusters[y*tile_map_size_x*6+x];
+}
+
+short get_actor_cluster ()
+{
+	actor *me = pf_get_our_actor ();
+	return me ? me->cluster : 0;
+}
+
+#endif // CLUSTER_INSIDES
+
 int load_map(const char *file_name, update_func *update_function)
 {
 	int i;
@@ -21,6 +228,9 @@ int load_map(const char *file_name, update_func *update_function)
 	AABBOX bbox;
 	map_header cur_map_header;
 	char * mem_map_header=(char *)&cur_map_header;
+#ifdef CLUSTER_INSIDES
+	char* occupied;
+#endif
 
 	object3d_io cur_3d_obj_io;
 	int obj_3d_no=0;
@@ -53,6 +263,14 @@ int load_map(const char *file_name, update_func *update_function)
 	ERR();
 #endif
 	my_strcp(map_file_name,file_name);
+
+#ifdef CLUSTER_INSIDES
+	// set the clusters array to zero to ensure that all objects are
+	// initially added with cluster ID zero.
+	if (clusters)
+		free (clusters);
+	clusters = NULL;
+#endif
 
 	main_bbox_tree_items = create_bbox_items(1024);
 	// XXX (Grum): non-portable
@@ -103,6 +321,10 @@ int load_map(const char *file_name, update_func *update_function)
 	tile_map=(unsigned char *)calloc(tile_map_size_x*tile_map_size_y, 1);
 	//allocates the memory for the heights now
 	height_map=(unsigned char *)calloc(tile_map_size_x*tile_map_size_y*6*6, 1);
+#ifdef CLUSTER_INSIDES
+	// allocate memory for occupation array
+	occupied = calloc (tile_map_size_x*tile_map_size_y*6*6, 1);
+#endif
 
 	//get the sizes of structures (they might change in the future)
 	obj_3d_io_size=cur_map_header.obj_3d_struct_len;
@@ -128,6 +350,9 @@ int load_map(const char *file_name, update_func *update_function)
 #else	//NEW_FILE_IO
 	fread(tile_map, 1, tile_map_size_x*tile_map_size_y, f);
 #endif	//NEW_FILE_IO
+#ifdef CLUSTER_INSIDES
+	update_occupied_with_tile_map (occupied, tile_map);
+#endif
 
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
@@ -166,6 +391,9 @@ int load_map(const char *file_name, update_func *update_function)
 #else	//NEW_FILE_IO
 	fread(height_map, 1, tile_map_size_x*tile_map_size_y*6*6, f);
 #endif	//NEW_FILE_IO
+#ifdef CLUSTER_INSIDES
+	update_occupied_with_height_map (occupied, height_map);
+#endif
 
 	update_function(load_3d_object_str, 0);
 	//see which objects in our cache are not used in this map
@@ -192,11 +420,24 @@ int load_map(const char *file_name, update_func *update_function)
 
 		if (cur_3d_obj_io.blended != 20)
 		{
-			if (cur_3d_obj_io.blended != 1) cur_3d_obj_io.blended = 0;
-			add_e3d(cur_3d_obj_io.file_name, cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos,
+#ifdef CLUSTER_INSIDES
+			int id;
+
+			if (cur_3d_obj_io.blended != 1)
+				cur_3d_obj_io.blended = 0;
+			id = add_e3d (cur_3d_obj_io.file_name, cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos,
 				cur_3d_obj_io.z_pos, cur_3d_obj_io.x_rot, cur_3d_obj_io.y_rot,
 				cur_3d_obj_io.z_rot, cur_3d_obj_io.self_lit, cur_3d_obj_io.blended,
 				cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b, 0);
+
+			update_occupied_with_3d (occupied, id);
+#else
+			if (cur_3d_obj_io.blended != 1) cur_3d_obj_io.blended = 0;
+			add_e3d (cur_3d_obj_io.file_name, cur_3d_obj_io.x_pos, cur_3d_obj_io.y_pos,
+				cur_3d_obj_io.z_pos, cur_3d_obj_io.x_rot, cur_3d_obj_io.y_rot,
+				cur_3d_obj_io.z_rot, cur_3d_obj_io.self_lit, cur_3d_obj_io.blended,
+				cur_3d_obj_io.r, cur_3d_obj_io.g, cur_3d_obj_io.b, 0);			
+#endif
 		}
 		else inc_objects_list_placeholders();
 
@@ -212,7 +453,11 @@ int load_map(const char *file_name, update_func *update_function)
 	//read the 2d objects
 	for (i = 0; i < obj_2d_no; i++)
 	{
+#ifdef CLUSTER_INSIDES
+		int id;
+#endif
 		char * cur_2do_pointer=(char *)&cur_2d_obj_io;
+
 #ifdef	NEW_FILE_IO
 		el_read(f, obj_2d_io_size, cur_2do_pointer);
 #else	//NEW_FILE_IO
@@ -234,9 +479,16 @@ int load_map(const char *file_name, update_func *update_function)
 			offset_2d = offset_2d_increment;
 #endif
 			
+#ifdef CLUSTER_INSIDES
+		id = add_2d_obj (cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
+			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
+			cur_2d_obj_io.z_rot, 0);
+		update_occupied_with_2d (occupied, id);
+#else
 		add_2d_obj(cur_2d_obj_io.file_name, cur_2d_obj_io.x_pos, cur_2d_obj_io.y_pos,
 			cur_2d_obj_io.z_pos, cur_2d_obj_io.x_rot, cur_2d_obj_io.y_rot,
 			cur_2d_obj_io.z_rot, 0);
+#endif
 
 		if (i % 100 == 0)
 		{
@@ -248,6 +500,9 @@ int load_map(const char *file_name, update_func *update_function)
 	//read the lights
 	for (i = 0; i < lights_no; i++)
 	{
+#ifdef CLUSTER_INSIDES
+		int id;
+#endif
 		char * cur_light_pointer=(char *)&cur_light_io;
 #ifdef	NEW_FILE_IO
 		el_read(f, lights_io_size, cur_light_pointer);
@@ -278,8 +533,16 @@ int load_map(const char *file_name, update_func *update_function)
 			cur_light_io.r = cur_light_io.g = cur_light_io.b = 1.0f;
 			continue;
 		}
+
+#ifdef CLUSTER_INSIDES
+		id = add_light (cur_light_io.pos_x, cur_light_io.pos_y, cur_light_io.pos_z,
+			cur_light_io.r, cur_light_io.g, cur_light_io.b, 1.0f, 0);
+		update_occupied_with_light (occupied, id);
+#else
 		add_light(cur_light_io.pos_x, cur_light_io.pos_y, cur_light_io.pos_z,
 			cur_light_io.r, cur_light_io.g, cur_light_io.b, 1.0f, 0);
+#endif
+
 		if (i % 100 == 0)
 		{
 			update_function(NULL, 0);
@@ -324,6 +587,44 @@ int load_map(const char *file_name, update_func *update_function)
 #else	//NEW_FILE_IO
 	fclose(f);
 #endif	//NEW_FILE_IO
+
+#ifdef CLUSTER_INSIDES
+	compute_clusters (occupied);
+	free (occupied);
+
+	// Ok, we have the clusters, now assign new IDs to each object 
+	// that we added.
+	for (i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if (objects_list[i])
+		{
+			int x = (int) (objects_list[i]->x_pos / 0.5f);
+			int y = (int) (objects_list[i]->y_pos / 0.5f);
+			objects_list[i]->cluster = get_cluster (x, y);
+		}
+	}
+
+	for (i = 0; i < MAX_OBJ_2D; i++)
+	{
+		if (obj_2d_list[i])
+		{
+			int x = (int) (objects_list[i]->x_pos / 0.5f);
+			int y = (int) (objects_list[i]->y_pos / 0.5f);
+			obj_2d_list[i]->cluster = get_cluster (x, y);
+		}
+	}
+
+	for (i = 0; i < MAX_LIGHTS; i++)
+	{
+		if (lights_list[i])
+		{
+			int x = (int) (lights_list[i]->pos_x / 0.5f);
+			int y = (int) (lights_list[i]->pos_y / 0.5f);
+			lights_list[i]->cluster = get_cluster (x, y);
+		}
+	}
+#endif
+
 	update_function(bld_sectors_str, 20);
 	init_bbox_tree(main_bbox_tree, main_bbox_tree_items);
 	free_bbox_items(main_bbox_tree_items);

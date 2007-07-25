@@ -383,6 +383,60 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 	return obj_2d_def_id;
 }
 
+#ifdef CLUSTER_INSIDES
+int get_2d_bbox (int id, AABBOX* box)
+{
+	const obj_2d* obj;
+	const obj_2d_def* def;
+	float len_x;
+	float len_y;
+
+	if (id < 0 || id >= MAX_OBJ_2D || obj_2d_list[id] == NULL)
+		return 0;
+
+	obj = obj_2d_list[id];
+	def = obj->obj_pointer;
+	if (def == NULL)
+		return 0;
+
+	len_x = def->x_size;
+	len_y = def->y_size;
+	
+	box->bbmin[X] = -len_x*0.5f;
+	box->bbmax[X] =  len_x*0.5f;
+	if (def->object_type == GROUND)
+	{
+		box->bbmin[Y] = -len_y*0.5f;
+		box->bbmax[Y] =  len_y*0.5f;
+	}
+	else
+	{
+		box->bbmin[Y] = 0.0f;
+		box->bbmax[Y] = len_y;
+		if (def->object_type == PLANT)
+		{
+#ifdef	M_SQRT2
+			box->bbmin[X] *= M_SQRT2;
+			box->bbmax[X] *= M_SQRT2;
+			box->bbmin[Y] *= M_SQRT2;
+			box->bbmax[Y] *= M_SQRT2;
+#else	//M_SQRT2
+			box->bbmin[X] *= sqrt(2);
+			box->bbmax[X] *= sqrt(2);
+			box->bbmin[Y] *= sqrt(2);
+			box->bbmax[Y] *= sqrt(2);
+#endif	//M_SQRT2
+		}
+	}
+	box->bbmin[Z] = obj->z_pos;
+	box->bbmax[Z] = obj->z_pos;
+
+	matrix_mul_aabb (box, obj->matrix);
+
+	return 1;
+}
+#endif // CLUSTER_INSIDES
+
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 			   float x_rot, float y_rot, float z_rot, unsigned int dynamic)
 {
@@ -390,7 +444,9 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	char	fname[128];
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;
+#ifndef CLUSTER_INSIDES
 	float len_x, len_y;
+#endif
 	unsigned int alpha_test, texture_id;
 	AABBOX bbox;
 
@@ -408,7 +464,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	if(!returned_obj_2d_def)
 	{
 		LOG_ERROR ("%s: %s: %s", reg_error_str, cant_load_2d_object, fname);
-		return 0;
+		return -1;
 	}
 
 	our_object = calloc(1, sizeof(obj_2d));
@@ -426,6 +482,20 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 
 	obj_2d_list[i]=our_object;
 
+#ifdef CLUSTER_INSIDES
+	if (returned_obj_2d_def->object_type == PLANT)
+	{
+		x_rot += 90.0f;
+		z_rot = 0.0f;
+	}
+	else if (returned_obj_2d_def->object_type == FENCE)
+	{
+		x_rot += 90.0f;
+	}
+	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, 0.0f, x_rot, y_rot, z_rot);
+
+	our_object->cluster = get_cluster ((int)(x_pos/0.5f), (int)(y_pos/0.5f));
+#else
 	len_x = (returned_obj_2d_def->x_size);
 	len_y = (returned_obj_2d_def->y_size);
 	bbox.bbmin[X] = -len_x*0.5f;
@@ -462,13 +532,25 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, 0.0f, x_rot, y_rot, z_rot);
 	matrix_mul_aabb(&bbox, our_object->matrix);
+#endif // CLUSTER_INSIDES
+
 	if (returned_obj_2d_def->alpha_test) alpha_test = 1;
 	else alpha_test = 0;
 
 	texture_id = returned_obj_2d_def->texture_id;
 	
+#ifdef CLUSTER_INSIDES
+	if (get_2d_bbox (i, &bbox))
+	{
+		if (main_bbox_tree_items != NULL && dynamic == 0)
+			add_2dobject_to_list (main_bbox_tree_items, i, bbox, alpha_test, texture_id);
+		else
+			add_2dobject_to_abt (main_bbox_tree, i, bbox, alpha_test, texture_id, dynamic);
+	}
+#else
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_2dobject_to_list(main_bbox_tree_items, i, bbox, alpha_test, texture_id);
 	else add_2dobject_to_abt(main_bbox_tree, i, bbox, alpha_test, texture_id, dynamic);
+#endif // CLUSTER_INSIDES
 	
 	return i;
 }
@@ -532,6 +614,9 @@ void display_2d_objects()
 #ifdef  SIMPLE_LOD
 	int dist;
 #endif //SIMPLE_LOD
+#ifdef CLUSTER_INSIDES
+	short cluster = get_actor_cluster ();
+#endif
 
 	x= -camera_x;
 	y= -camera_y;
@@ -558,6 +643,11 @@ void display_2d_objects()
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
+#ifdef CLUSTER_INSIDES
+		if (obj_2d_list[l]->cluster && obj_2d_list[l]->cluster != cluster)
+			// Object is on a different cluster as our actor, don't show it
+			continue;
+#endif
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-obj_2d_list[l]->x_pos)*(x-obj_2d_list[l]->x_pos) + (y-obj_2d_list[l]->y_pos)*(y-obj_2d_list[l]->y_pos);

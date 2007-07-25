@@ -141,6 +141,9 @@ typedef struct
 
 	particle particles[MAX_PARTICLES]; /*!< an array of particles for this particle system */
 
+#ifdef CLUSTER_INSIDES
+	short cluster;
+#endif
 }particle_sys;
 
 #define MAX_PARTICLE_TEXTURES   16

@@ -43,6 +43,9 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	int i;
 	int k;
 	actor *our_actor;
+#ifdef CLUSTER_INSIDES
+	int x, y;
+#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -104,6 +107,12 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->shirt=shirt_color;
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
+
+#ifdef CLUSTER_INSIDES
+	x = (int) (our_actor->x_pos / 0.5f);
+	y = (int) (our_actor->y_pos / 0.5f);
+	our_actor->cluster = get_cluster (x, y);
+#endif
 
 	//find a free spot, in the actors_list
 	LOCK_ACTORS_LISTS();
@@ -584,7 +593,11 @@ void get_actors_in_range()
 
 	for (i = 0; i < max_actors; i++)
 	{
-		if(actors_list[i])
+		if(actors_list[i]
+#ifdef CLUSTER_INSIDES
+		   && (actors_list[i]->cluster == me->cluster || actors_list[i]->cluster == 0)
+#endif
+		)
 		{
 			if (!actors_list[i]->tmp.have_tmp) continue;
 			x_pos = actors_list[i]->tmp.x_pos;
@@ -629,6 +642,7 @@ void display_actors(int banner, int reflections)
 	int i;
 	int x,y;
 	int	has_ghosts=0;
+
 	x=-camera_x;
 	y=-camera_y;
 

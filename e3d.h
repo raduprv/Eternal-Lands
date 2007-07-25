@@ -70,6 +70,10 @@ typedef struct
 	unsigned int last_acessed_time; /*!< timestamp when this object was last accessed. */
 	unsigned int flags; /*!< Flag determining whether this object is entrable/harvestable/bag */
 	VECTOR4 clouds_planes[2]; /**< Clouds s and t planes. */
+
+#ifdef CLUSTER_INSIDES
+	short cluster;
+#endif
 } object3d;
 
 

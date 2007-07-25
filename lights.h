@@ -42,6 +42,9 @@ typedef struct
 #ifdef MAP_EDITOR2
 	int locked;
 #endif
+#ifdef CLUSTER_INSIDES
+	short cluster;
+#endif
 }light;
 
 /*! \name Lights limits */

@@ -220,7 +220,12 @@ void draw_3d_objects(unsigned int object_type)
 	int is_selflit, is_transparent, is_ground;
 #ifdef  SIMPLE_LOD
 	int x, y, dist;
-	
+#endif
+#ifdef CLUSTER_INSIDES	
+	short cluster = get_actor_cluster ();
+#endif
+
+#ifdef SIMPLE_LOD
 	x= -camera_x;
 	y= -camera_y;
 #endif
@@ -255,7 +260,7 @@ void draw_3d_objects(unsigned int object_type)
 	}
 	
 	// find the modes we need
-    is_selflit= is_self_lit_3d_object(object_type);
+	is_selflit= is_self_lit_3d_object(object_type);
 	is_transparent= is_alpha_3d_object(object_type);
 	is_ground= is_ground_3d_object(object_type);
 	// set the modes we need
@@ -315,6 +320,11 @@ void draw_3d_objects(unsigned int object_type)
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
+#ifdef CLUSTER_INSIDES
+		if (objects_list[l]->cluster && objects_list[l]->cluster != cluster)
+			// Object is in another cluster as actor, don't show it
+			continue;
+#endif // CLUSTER_INSIDES
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
@@ -459,13 +469,13 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	if(id < 0 || id >= MAX_OBJ_3D)
 	{
 		LOG_ERROR ("Invalid object id %d", id);
-		return 0;
+		return -1;
 	}
 
 	if(objects_list[id] != NULL)
 	{
 		LOG_ERROR("There's already an object with ID %d", id);
-		return 0;
+		return -1;
 	}
 
 	//convert any '\' in '/'
@@ -531,6 +541,11 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		our_object->flags |= OBJ_3D_MINE;
 	}
 #endif // MINES
+
+#ifdef CLUSTER_INSIDES
+	our_object->cluster = get_cluster ((int)(x_pos/0.5f), (int)(y_pos/0.5f));
+#endif
+
 	objects_list[id] = our_object;
 	// watch the top end
 	if((Uint32)id >= highest_obj_3d)

@@ -155,6 +155,9 @@ void draw_lights()
 {
 	unsigned int i, j, l, start, stop;
 	VECTOR4 vec4;
+#ifdef CLUSTER_INSIDES
+	short cluster = get_actor_cluster ();
+#endif
 	
 	if(show_lights <0){
 		if(max_enabled >= 0){
@@ -173,7 +176,11 @@ void draw_lights()
 	{
 		l= get_intersect_item_ID(main_bbox_tree, i);
 		// and make sure it's a valid light
-		if(l<0 || l>MAX_LIGHTS || !lights_list[l])
+		if (l < 0 || l >= MAX_LIGHTS || !lights_list[l]
+#ifdef CLUSTER_INSIDES
+		   || (lights_list[l]->cluster && lights_list[l]->cluster != cluster)
+#endif
+		)
 		{
 #ifdef EXTRA_DEBUG
 			ERR();
@@ -246,7 +253,11 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 #ifdef MAP_EDITOR2
 	new_light->locked=locked;
 #endif
-	
+
+#ifdef CLUSTER_INSIDES
+	new_light->cluster = get_cluster ((int)(x/0.5f), (int)(y/0.5f));
+#endif
+
 	lights_list[i] = new_light;
 	if (i >= num_lights) num_lights = i+1;	
 	calc_light_aabb(&bbox, x, y, z, r*intensity, g*intensity, b*intensity, 1.41f, 1.0f, 0.004f); // 0.004 ~ 1/256
