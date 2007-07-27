@@ -119,6 +119,17 @@ static __inline__  void update_occupied_with_light (char* occupied, int id)
 		occupied[y*tile_map_size_x*6+x] = 1;
 }
 
+static __inline__ void update_occupied_with_particle_system (char* occupied, int id)
+{
+	AABBOX box;
+
+	if (id < 0 || id >= MAX_PARTICLE_SYSTEMS || !particles_list[id])
+		return;
+
+	calc_bounding_box_for_particle_sys (&box, particles_list[id]);
+	update_occupied_with_bbox (occupied, &box);
+}
+
 static void compute_clusters (const char* occupied) 
 {
 	int nr_clusters;
@@ -572,7 +583,18 @@ int load_map(const char *file_name, update_func *update_function)
 		else
 		{
 #endif
+#ifdef CLUSTER_INSIDES
+			int id = add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
+			/* It seems highly unlikely to me that a particle
+			 * system will be placed on an otherwise empty
+			 * tile, so updating the occupied array with them
+			 * is disabled for now
+			 */
+			(void) id; // shut up compiler warnings
+			//update_occupied_with_particle_system (occupied, id);
+#else
 			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
+#endif // CLUSTER_INSIDES
 #ifdef EYE_CANDY
 		}
 #endif
@@ -621,6 +643,16 @@ int load_map(const char *file_name, update_func *update_function)
 			int x = (int) (lights_list[i]->pos_x / 0.5f);
 			int y = (int) (lights_list[i]->pos_y / 0.5f);
 			lights_list[i]->cluster = get_cluster (x, y);
+		}
+	}
+
+	for (i = 0;  i< MAX_PARTICLE_SYSTEMS; i++)
+	{
+		if (particles_list[i])
+		{
+			int x = (int) (particles_list[i]->x_pos / 0.5f);
+			int y = (int) (particles_list[i]->y_pos / 0.5f);
+			particles_list[i]->cluster = get_cluster (x, y);
 		}
 	}
 #endif

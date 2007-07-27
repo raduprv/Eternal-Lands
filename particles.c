@@ -231,7 +231,7 @@ static __inline__ void calc_particle_random2_min_max(float f1, float f2, float* 
 	*v_max = (f1+f2)*0.5f+abs(f2-f1);
 }
 
-static __inline__ void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id)
+void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id)
 {
 	unsigned int count;
 	float p_max, p_min, p_step, sq;
@@ -612,9 +612,9 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
 #ifndef	MAP_EDITOR
-int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
+int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #else
-int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
+int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos)
 #endif
 {
 #if defined EYE_CANDY && ! defined MAP_EDITOR
@@ -707,19 +707,17 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos)
   }
 #endif
 
-	// Lachesis: Quick hack in order to remove compile warning.
-	//
-	// This is not the proper way to hook-in eye candy, because
-	// this function expects to return a particle system id. Additionally,
-	// eye candy is already hooked-in at some of the proper spots -- e.g.
-	// add_fire_at_tile(). Will contact Rei about this.
-	return 0;
+	// If we got here, the eye candy system handled this particle
+	// system. Return an invalid particle ID to signal that nothing
+	// was added to particles_list, but not -1 since this is not an 
+	// error.
+	return -2;
 }
 
 #ifndef	MAP_EDITOR
-int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, unsigned int dynamic)
+int add_particle_sys_at_tile (const char *file_name, int x_tile, int y_tile, unsigned int dynamic)
 #else
-int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile)
+int add_particle_sys_at_tile (const char *file_name, int x_tile, int y_tile)
 #endif
 {
 	int	height;
@@ -868,6 +866,11 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_particle_sys_to_list(main_bbox_tree_items, psys, bbox, def->sblend, def->dblend);
 	else add_particle_to_abt(main_bbox_tree, psys, bbox, def->sblend, def->dblend, dynamic);
 #endif
+
+#ifdef CLUSTER_INSIDES
+	system_id->cluster = get_cluster ((int)(x/0.5f), (int)(y/0.5f));
+#endif
+
 	UNLOCK_PARTICLES_LIST();
 
 	return psys;
@@ -989,6 +992,9 @@ void display_particles()
 #ifndef	MAP_EDITOR
 	unsigned int i, l, start, stop;
 #endif
+#ifdef CLUSTER_INSIDES
+	short cluster = get_actor_cluster ();
+#endif
 
 	if(!particles_percentage)
 	  return;
@@ -1019,6 +1025,10 @@ void display_particles()
 #endif
 			continue;
 		}
+#ifdef CLUSTER_INSIDES
+		if (particles_list[l]->cluster && particles_list[l]->cluster != cluster)
+			continue;
+#endif
 #ifdef  SIMPLE_LOD
 		// last final check for a distance limit
 		if(((x-particles_list[l]->x_pos)*(x-particles_list[l]->x_pos) + (y-particles_list[l]->y_pos)*(y-particles_list[l]->y_pos)) >= PART_SYS_VISIBLE_DIST_SQ){

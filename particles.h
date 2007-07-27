@@ -235,21 +235,33 @@ extern void	end_particles_list();
 
 /*!
  * \ingroup particles
+ * \brief Compute the bounding box for a particle system
+ *
+ *	Compute an axis aligned bounding box for particles sytem \a system_id and store it in \a bbox.
+ *
+ * \param bbox      Pointer to an AABBOX in which the result is stored
+ * \param system_id Pointer to the particle system
+ */
+void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id);
+
+/*!
+ * \ingroup particles
  * \brief Adds a new particle system from the file given in file_name at the given position.
  *
- *      Adds a new particle system from the file givein in file_name at the position (x_pos,y_pos,z_pos).
+ *      Adds a new particle system from the file given in file_name at the position (x_pos,y_pos,z_pos).
  *
  * \param file_name filename of the file that contains the particle systems description.
  * \param x_pos	x coordinate where the particle system should appear
  * \param y_pos	y coordinate where the particle system should appear
  * \param z_pos	z coordinate where the particle system should appear
- * \retval int
+ * \retval int -1 on error, -2 if the eye candy system handled, or the 
+ *             index in particles_list otherwise
  * \callgraph
  */
 #ifndef	MAP_EDITOR
-int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
+int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
 #else
-int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
+int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos);
 #endif
 
 /*!
@@ -261,13 +273,14 @@ int add_particle_sys (char *file_name, float x_pos, float y_pos, float z_pos);
  * \param file_name	filename of the file that contains the particly systems definition.
  * \param x_tile	x coordinate of the tile where the particle system should be added
  * \param y_tile	y coordinate of the tile where the particle system should be added
- * \retval int
+ * \retval int -1 on error, -2 if the eye candy system handled, or the 
+ *             index in particles_list otherwise
  * \callgraph
  */
 #ifndef	MAP_EDITOR
-int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile, unsigned int dynamic);
+int add_particle_sys_at_tile (const char *file_name, int x_tile, int y_tile, unsigned int dynamic);
 #else
-int add_particle_sys_at_tile (char *file_name, int x_tile, int y_tile);
+int add_particle_sys_at_tile (const char *file_name, int x_tile, int y_tile);
 #endif
 
 // Grum: included here for the map editor
