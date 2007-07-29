@@ -184,6 +184,8 @@ int display_storage_handler(window_info * win)
 	int n=0;
 	int pos;
 
+	have_storage_list = 0;	//We visited storage, so we may have changed something
+
 	glColor3f(0.77f, 0.57f, 0.39f);
 	glEnable(GL_TEXTURE_2D);
 	
