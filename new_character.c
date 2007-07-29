@@ -573,7 +573,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		{
 			add_text_to_buffer (c_red1, error_max_digits, 6000);
 		}
-		else if (t->pos >= 15)
+		else if (t->pos > MAX_USERNAME_LENGTH)
 		{
 			add_text_to_buffer (c_red2, error_length, 6000);
 		}

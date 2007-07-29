@@ -137,7 +137,7 @@ int name_is_valid(const char *name)
 int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 {
 	int i, offset;
-	char name[16] = {0};
+	char name[MAX_USERNAME_LENGTH + 1] = {0};
 	Uint8 ch;
 
 	switch(channel)
@@ -145,7 +145,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 		case CHAT_PERSONAL:
 		case CHAT_MODPM:
 			offset = (channel == CHAT_MODPM ? strlen(mod_pm_from_str) : strlen(pm_from_str))+2;
-			for (i = 0; i < 15 && ((i+offset) < len); i++)
+			for (i = 0; i <= MAX_USERNAME_LENGTH && ((i+offset) < len); i++)
 			{
 				ch = input_text[i+offset];	//skip over the prefix
 				if (ch == ':' || ch == ' ')
@@ -176,7 +176,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			{
 				offset++;
 			}
-			for (i = 0; i < 15 && i+offset < len; i++)
+			for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
 			{
 				ch = input_text[i+offset];
 				if (ch == ':' || ch == ' ' || IS_COLOR(ch))
@@ -197,7 +197,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 							while(offset < len && isspace(input_text[offset])) {
 								offset++;
 							}
-							for (i = 0; i < 15 && i+offset < len; i++)
+							for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
 							{
 								ch = input_text[i+offset];
 								if (isspace(ch))
@@ -220,7 +220,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			{
 				offset++;
 			}
-			for (i = 0; i < 15 && i+offset < len; i++)
+			for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
 			{
 				ch = input_text[i+offset];
 				if (ch == ':' || ch == ' ' || ch == ']')
@@ -236,7 +236,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			if(strncasecmp(input_text+offset, gm_from_str, strlen(gm_from_str)) == 0)
 			{
 				offset = strlen(gm_from_str)+2;
-				for (i = 0; i < 15 && i+offset < len; i++)
+				for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
 				{
 					ch = input_text[i+offset];	//skip the prefix
 					if (ch == ':' || ch == ' ')
@@ -250,7 +250,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			else if(strncasecmp(input_text+offset, ig_from_str, strlen(ig_from_str)) == 0)
 			{
 				offset = strlen(ig_from_str)+2;
-				for (i = 0; i < 15 && i+offset < len; i++)
+				for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
 				{
 					ch = input_text[i+offset];	//skip the prefix
 					if (ch == ':' || ch == '-' || ch == ' ')
@@ -267,7 +267,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 		add_name_to_tablist(name);
 	} else {
 		for(offset = 0; IS_COLOR((unsigned char)input_text[offset]); offset++);
-		for (i = 0; i < 15 && i+offset < len; i++) {
+		for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++) {
 			ch = input_text[i+offset];
 			if (ch == ' ' || ch == ':' || IS_COLOR(ch)) {
 				break;

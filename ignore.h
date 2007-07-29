@@ -20,7 +20,7 @@ extern "C" {
  */
 typedef struct
 {
-	char name[16]; /*!< name of the player to ignore */
+	char name[MAX_USERNAME_LENGTH +1]; /*!< name of the player to ignore */
 	char used; /*! flag, indicating whether this ignore_slot is in use or not */
 }ignore_slot;
 

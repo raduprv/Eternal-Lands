@@ -1559,8 +1559,8 @@ void init_vars()
 
 	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
 	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
-	add_var(STRING,"username","u",username_str,change_string,16,"Username","Your user name here",SERVER);
-	add_var(PASSWORD,"password","p",password_str,change_string,16,"Password","Put your password here",SERVER);
+	add_var(STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
+	add_var(PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
 
 #endif
 #ifndef MAP_EDITOR2
