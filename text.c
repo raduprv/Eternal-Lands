@@ -406,6 +406,16 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				}
 			}
 		}
+	} else {	//We sent this PM or MODPM. Can we expect a reply?
+		int len = 0;
+		char name[MAX_USERNAME_LENGTH + 1];
+		for(;text_to_add[len+8] != ':' && len < MAX_USERNAME_LENGTH; ++len);
+		safe_strncpy(name, text_to_add+8, len+1);
+		if(check_if_ignored(name)){
+			char msg[65];
+			safe_snprintf(msg, sizeof(msg), warn_currently_ignoring, name);
+			LOG_TO_CONSOLE(c_red2, msg);
+		}
 	}
 
 	// parse for URLs

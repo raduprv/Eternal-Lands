@@ -517,8 +517,10 @@ char	reg_error_str[15],
 	wrong_note_node[100],
 	cant_save_notes[100],
 	exceed_note_buffer[100],
-    user_no_more_notes[100],
-    user_no_more_note_tabs[100];
+	user_no_more_notes[100],
+	user_no_more_note_tabs[100],
+	/* text.c */
+	warn_currently_ignoring[50];
 #else
 	;
 #endif  // ELC
@@ -932,6 +934,7 @@ void init_errors()
 	add_xml_identifier (misc, "book_open", book_open_err_str, "Couldn't open the book: %s!", sizeof(book_open_err_str));
 	add_xml_identifier (misc, "noanimation", no_animation_err_str, "No animation: %s!\n", sizeof(no_animation_err_str));
 	add_xml_identifier (misc, "invalid_location", invalid_location_str, "Invalid location %d,%d", sizeof(invalid_location_str));
+	add_xml_identifier (misc, "warn_currently_ignoring", warn_currently_ignoring, "Warning: %s is on your #ignore list", sizeof(warn_currently_ignoring));
 
 	//XML errors. should these have their own group?
 	add_xml_identifier (misc, "badnode", xml_bad_node, "There is something wrong with one of a node's fields.", sizeof(xml_bad_node));

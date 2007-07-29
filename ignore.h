@@ -54,16 +54,29 @@ int add_to_ignore_list(char *name, char save_name);
  */
 int remove_from_ignore_list(char *name);
 
+
 /*!
  * \ingroup actors_utils
- * \brief   Does a preliminary check if the sender of \a input_text is already ignored.
+ * \brief   Checks if \a name is ignored.
  *
- *      Does a preliminary check if the sender of \a input_text is already ignored. If \a type is true, then \a input_text refers to a PM, else it refers to a channel message.
+ *      Checks if \a name is ignored.
+ *
+ * \param name          The name to check the ignore list for
+ * \retval int          true (1) if \a name is ignored, else false (0).
+ */
+int check_if_ignored (const char *name);
+
+
+/*!
+ * \ingroup actors_utils
+ * \brief   Checks if the sender of \a input_text is already ignored.
+ *
+ *      Checks if the sender of \a input_text is already ignored.
  *
  * \param input_text    the message to check for ignored users
  * \param len		the length of \a input_text
  * \param channel        the channel the message comes from
- * \retval int          true (1) if the sender of \a input_text is already ignored, else false (0).
+ * \retval int          true (1) if the sender of \a input_text is ignored, else false (0).
  */
 int pre_check_if_ignored (const char *input_text, int len, Uint8 channel);
 
