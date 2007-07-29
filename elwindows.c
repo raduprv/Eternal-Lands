@@ -775,8 +775,13 @@ int	move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y)
 	win->pos_id = pos_id;
 	win->pos_loc= pos_loc;	//NOT SUPPORTED YET
 	//TODO: calc win->cur_[xy] based on pos_id & pos_loc
-	win->pos_x = win->cur_x = clampi(pos_x, 50 - win->len_x, window_width - 50);
-	win->pos_y = win->cur_y = clampi(pos_y, win->flags&ELW_TITLE_BAR?ELW_TITLE_HEIGHT:0, window_height - 50);
+	if(win->flags&ELW_TITLE_BAR){
+		win->pos_x = win->cur_x = clampi(pos_x, 50 - win->len_x, window_width - 50);
+		win->pos_y = win->cur_y = clampi(pos_y, ELW_TITLE_HEIGHT, window_height - 50);
+	} else {
+		win->pos_x = win->cur_x = pos_x;
+		win->pos_y = win->cur_y = pos_y;
+	}
 
 	// don't check child windows for visibility
 	if (pos_id < 0 || windows_list.window[pos_id].order < 0) {
