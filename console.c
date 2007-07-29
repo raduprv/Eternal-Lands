@@ -1008,6 +1008,23 @@ int command_storage(char *text, int len)
 		my_strncp (storage_filter, text+i+1, nb+1);
 	}
 
+	if(have_storage_list){
+		int size = strlen((char*)cached_storage_list)+1;
+		unsigned char cached_storage_copy[sizeof(cached_storage_list)];
+		unsigned char * endl;
+		memcpy(cached_storage_copy, cached_storage_list, size);
+		endl = (unsigned char*)strchr((char*)cached_storage_copy, '\n');
+		if(endl == NULL){
+			//No newline? Our cached list isn't correct.
+		return 0;
+		}
+		if(storage_filter[0] != '\0'){
+			size = filter_storage_text((char*)endl+1, size, size);  //Note: filter from the first newline, which is where the item list starts
+			size += (endl - cached_storage_copy +1);
+		}
+		put_text_in_buffer(CHAT_SERVER, cached_storage_copy, size);
+		return 1;
+	}
 	return 0;
 }
 

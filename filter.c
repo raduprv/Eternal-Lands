@@ -16,10 +16,13 @@ typedef struct
 }filter_slot;
 
 filter_slot filter_list[MAX_FILTERS];
+int have_storage_list = 0;
 int filtered_so_far=0;
 int use_global_filters=1;
 int caps_filter=1;
 char storage_filter[128];
+
+unsigned char cached_storage_list[8192] = {0};
 
 //returns -1 if the name is already filtered, 1 on sucess, -2 if no more filter slots
 int add_to_filter_list (const char *name, char local, char save_name)
@@ -282,10 +285,18 @@ int filter_text (char *buff, int len, int size)
 {
 	int i, t, bad_len, rep_len, new_len, idx;
 
-	// See if a search term has been added to the #storage command, and if so, 
-        // only list those items with that term
-	if (storage_filter[0] != '\0' && len > 31 && my_strncompare (buff+1, "Items you have in your storage:", 31))
-		len = 33 + filter_storage_text (buff+33, len-33, size-33);
+	if (len > 31 && my_strncompare (buff+1, "Items you have in your storage:", 31)){
+		//First up, attempt to save the storage list for re-reading later
+		if(size <= sizeof(cached_storage_list)){
+			memcpy(cached_storage_list, buff, size);
+			have_storage_list = 1;
+		}
+		// See if a search term has been added to the #storage command, and if so, 
+		//only list those items with that term
+		if (storage_filter[0] != '\0'){
+			len = 33 + filter_storage_text (buff+33, len-33, size-33);
+		}
+	}
 
 	//do we need to do CAPS filtering?
 	if (caps_filter)
