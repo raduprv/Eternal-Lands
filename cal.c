@@ -1,62 +1,100 @@
 #include <stdlib.h>
 #include "global.h"
-
 #include "cal.h"
 
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 {
+	actor *pActor = actors_list[id];
 	struct CalMixer *mixer;
 	int i;
 
-	if (actors_list[id]->calmodel==NULL) return;
+	//char str[255];
+	//sprintf(str, "actor:%d anim:%d type:%d delay:%f\0",id,anim.anim_index,anim.kind,delay);
+	//LOG_TO_CONSOLE(c_green2,str);
+	
+	if (pActor==NULL)
+		return;
 
-	if (actors_list[id]->cur_anim.anim_index==anim.anim_index) return;
+	if (pActor->calmodel==NULL)
+		return;
 
-	mixer=CalModel_GetMixer(actors_list[id]->calmodel);
+	if (pActor->cur_anim.anim_index==anim.anim_index)
+		return;
+	
+	//this shouldnt happend but its happends if actor doesnt have
+	//animation so we add this workaround to prevent "freezing"
+	if(anim.anim_index==-1){
+		if(	pActor->sitting==1 ){
+			//we dont have sittng anim so cancel it
+			pActor->sitting=0;
+		}
+		pActor->stop_animation=0;
+		anim.anim_index = actors_defs[pActor->actor_type].cal_idle1_frame.anim_index;
+		anim.kind = cycle;
+		anim.duration = actors_defs[pActor->actor_type].cal_idle1_frame.duration;
+		anim.duration_scale = actors_defs[pActor->actor_type].cal_idle1_frame.duration_scale;
+	}
+
+	mixer=CalModel_GetMixer(pActor->calmodel);
 
 	//Stop previous animation if needed
-	if (actors_list[id]->IsOnIdle!=1) {
-		if ((actors_list[id]->cur_anim.anim_index!=-1)&&(actors_list[id]->cur_anim.kind==0)) {
-			CalMixer_ClearCycle(mixer,actors_list[id]->cur_anim.anim_index, delay);
+	if (pActor->IsOnIdle!=1 && (pActor->cur_anim.anim_index!=-1)) {
+		if (pActor->cur_anim.kind==cycle) {
+			//little more smooth
+			delay+=cal_cycle_blending_delay;
+			CalMixer_ClearCycle(mixer,pActor->cur_anim.anim_index, delay);
 		}
-
-		if ((actors_list[id]->cur_anim.anim_index!=-1)&&(actors_list[id]->cur_anim.kind==1)) {
-			CalMixer_RemoveAction(mixer,actors_list[id]->cur_anim.anim_index);
+		if (pActor->cur_anim.kind==action) {
+			CalMixer_RemoveAction(mixer,pActor->cur_anim.anim_index);
+			//change from action to new action or cycle should be smooth
+			if(anim.duration>0.0f)
+				delay=anim.duration;
+			else
+				delay+=cal_action_blending_delay;
 		}
+	}else{
+		//we starting from unkown state (prev anim == -1)
+		//so we add some delay to blend into new state
+		if(anim.duration>0.0f)
+			delay=anim.duration;
+		else
+			delay+=cal_action_blending_delay;
 	}
 
-	if (actors_list[id]->IsOnIdle==1) {
-		for (i=0;i<actors_defs[actors_list[id]->actor_type].group_count;++i) {
-			CalMixer_ClearCycle(mixer,actors_list[id]->cur_idle_anims[i].anim_index, delay);
+	//seems to be unusable - groups are always empty???
+	if (pActor->IsOnIdle==1) {
+		for (i=0;i<actors_defs[pActor->actor_type].group_count;++i) {
+			CalMixer_ClearCycle(mixer,pActor->cur_idle_anims[i].anim_index, delay);
 		}
 	}
-
-	if (anim.kind==0){
-		CalMixer_BlendCycle(mixer,anim.anim_index,1.0, delay);
+	
+	if (anim.kind==cycle){
+		CalMixer_BlendCycle(mixer,anim.anim_index,1.0f, delay);
 		CalMixer_SetAnimationTime(mixer, 0.0f);	//always start at the beginning of a cycling animation
 	} else {
-		CalMixer_ExecuteAction_Stop(mixer,anim.anim_index,0.0,0.0);
+		CalMixer_ExecuteAction_Stop(mixer,anim.anim_index,delay,0.0);
 	}
 
-	actors_list[id]->cur_anim=anim;
-	actors_list[id]->anim_time=0.0;
-	actors_list[id]->last_anim_update= cur_time;
+	pActor->cur_anim=anim;
+	pActor->anim_time=0.0;
+	pActor->last_anim_update= cur_time;
+	pActor->stop_animation = anim.kind;
+	
+	CalModel_Update(pActor->calmodel,0.0001);//Make changes take effect now
 
-	CalModel_Update(actors_list[id]->calmodel,0.0001);//Make changes take effect now
-
-	if (actors_list[id]->cur_anim.anim_index==-1)
-		actors_list[id]->busy=0;
-	actors_list[id]->IsOnIdle=0;
+	if (pActor->cur_anim.anim_index==-1)
+		pActor->busy=0;
+	pActor->IsOnIdle=0;
 
 #ifdef NEW_SOUND
 	//make sure any previous sound is stopped...
-	stop_sound(actors_list[id]->cur_anim_sound_cookie);
+	stop_sound(pActor->cur_anim_sound_cookie);
 	if(anim.sound[0] != '\0')
 	{
 		//...and add a new sound if one exists
-		actors_list[id]->cur_anim_sound_cookie = add_sound_object(	get_index_for_sound_type_name(anim.sound),
-																	2*actors_list[id]->x_pos,
-																	2*actors_list[id]->y_pos);
+		pActor->cur_anim_sound_cookie = add_sound_object(	get_index_for_sound_type_name(anim.sound),
+															2*pActor->x_pos,
+															2*pActor->y_pos);
 	}
 #endif
 }
@@ -95,7 +133,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 #endif
 {
 	char fname[255]={0};
-	struct cal_anim res={-1,0,0
+	struct cal_anim res={-1,cycle,0
 #ifdef  NEW_ACTOR_ANIMATION
 	,0.0f
 #endif
@@ -105,7 +143,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	};
 	struct CalCoreAnimation *coreanim;
 
-	if (sscanf (str, "%254s %d", fname, &res.kind) != 2)
+	if (sscanf (str, "%254s %d", fname, (int*)(&res.kind)) != 2)
 	{
 		log_error("Bad animation formation: %s", str);
 		return res;

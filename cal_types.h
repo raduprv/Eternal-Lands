@@ -9,10 +9,15 @@ extern "C" {
 #include "sound.h"
 #endif	//NEW_SOUND
 
+typedef enum{
+	cycle=0,
+ 	action=1
+}  cal_animation_type;
+
 struct cal_anim
 {
 	int anim_index;
-	int kind;
+	cal_animation_type kind;
 	float duration;
 #ifdef	NEW_ACTOR_ANIMATION
 	float duration_scale;
