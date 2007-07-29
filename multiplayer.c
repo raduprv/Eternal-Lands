@@ -63,13 +63,6 @@ void move_to (short int x, short int y)
 	my_tcp_send(my_socket, str, 5);
 }
 
-int on_the_move (const actor *act)
-{
-	if (act == NULL) return 0;
-	return act->moving || (act->que[0] >= move_n && act->que[0] <= move_nw);
-}
-
-
 void send_heart_beat()
 {
 	Uint8 command[64];

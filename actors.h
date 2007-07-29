@@ -590,6 +590,9 @@ float cal_get_maxz2(actor *act);
 
 void end_actors_lists(void);
 
+int on_the_move (const actor *act);
+		
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

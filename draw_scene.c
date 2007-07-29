@@ -194,15 +194,15 @@ void move_camera ()
 #else /* SKY_FPV_CURSOR */
 	if(cal_get_head(me, &hx, &hy, &hz) || hz < 0.1f){
 		//There was an error. We can try approximately correct numbers here.
-		hz = 1.0f;
+		hz = sitting?0.5f:1.5f;
 	}
 
-	if (!ext_cam){
-		z=-2.2f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+sitting;
-	} else if (first_person){
-		z=-2.1f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+hz;
+	if (first_person){
+		z = (ext_cam?-1.7f:-2.1f) + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + hz;
+	} else if (ext_cam){
+		z = -1.6f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + hz;
 	} else {
-		z=-1.6f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+hz;
+		z = -2.2f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + sitting;
 	}
 
 	if(first_person||ext_cam){
@@ -262,6 +262,59 @@ void move_camera ()
 #endif	//NEW_SOUND
 }
 
+
+
+void clamp_camera(void)
+{
+#ifdef SKY_FPV_CURSOR
+	if(first_person){
+		if(rx < -140){
+			rx = -140;
+			camera_tilt_frames=0;
+		} else if(rx > 15){
+			rx = 15;
+			camera_tilt_frames=0;
+		}
+	} else if(ext_cam){
+		if(rx < -90){
+			rx = -90;
+			camera_tilt_frames=0;
+		} else if(rx > -15){
+			rx = -15;
+			camera_tilt_frames=0;
+		}
+	} else {
+#endif /* SKY_FPV_CURSOR */
+		if(rx < -60){
+			rx = -60;
+			camera_tilt_frames=0;
+		} else if(rx > -45){
+			rx = -44;
+			camera_tilt_frames=0;
+		}
+#ifdef SKY_FPV_CURSOR
+	}
+	if (have_mouse){
+		camera_rotation_frames = 0;
+		camera_tilt_frames=0;
+	}
+#endif /* SKY_FPV_CURSOR */
+	if(rz > 360) {
+		rz -= 360;
+	} else if (rz < 0) {
+		rz += 360;
+	}
+	if(new_zoom_level > 4.0f){
+		new_zoom_level = 4.0f;
+		camera_zoom_frames = 0;
+	} else if(new_zoom_level < 1.0f) {
+		new_zoom_level = 1.0f;
+		camera_zoom_frames = 0;
+	}
+}
+
+
+
 #ifdef SKY_FPV_CURSOR
 int adjust_view;
 #endif /* SKY_FPV_CURSOR */
@@ -278,14 +331,6 @@ void update_camera()
 
 	if(camera_rotation_frames){
 		rz+=camera_rotation_speed;
-		if(rz > 360) {
-			rz -= 360;
-		} else if (rz < 0) {
-			rz += 360;
-		}
-#ifdef SKY_FPV_CURSOR
-		if (have_mouse) camera_rotation_frames = 1;
-#endif /* SKY_FPV_CURSOR */
 		camera_rotation_frames--;
 		adjust_view++;
 	}
@@ -318,82 +363,22 @@ void update_camera()
 	}
 
 	if(camera_tilt_frames) {
-#ifndef SKY_FPV_CURSOR
-		if(camera_tilt_speed<0) {
-			if(rx>-60)rx+=camera_tilt_speed;
-			if(rx<-60) {
-				rx=-60;
-				camera_tilt_frames=0;
-			} else
-				camera_tilt_frames--;
-#else /* SKY_FPV_CURSOR */
-		int rx_min = ext_cam?(first_person?-180:-100):-60;
-		if(rx>rx_min){
-			rx+=camera_tilt_speed;
-		}
-		if(rx<rx_min) {
-			rx=rx_min;
-			camera_tilt_frames=0;
-#endif /* SKY_FPV_CURSOR */
-		} else {
-#ifndef SKY_FPV_CURSOR
-			if(rx<-45)rx+=camera_tilt_speed;
-			if(rx>-45) {
-				rx=-45;
-				camera_tilt_frames=0;
-			} else
-				camera_tilt_frames--;
-#else /* SKY_FPV_CURSOR */
-			if (have_mouse) camera_tilt_frames=1;
-			camera_tilt_frames--;
-#endif /* SKY_FPV_CURSOR */
-		}
+		rx+=camera_tilt_speed;
+		camera_tilt_frames--;
 	}
 	if(camera_zoom_frames) {
-		if(camera_zoom_dir == 1) {
-			if(new_zoom_level<3.75f){
-				new_zoom_level+=0.05f;
-				camera_zoom_frames--;
-				adjust_view++;
-			} else {
-				camera_zoom_frames = 0;
-			}
-		} else {
-			if(new_zoom_level>1.00f){
-				new_zoom_level-=0.05f;
-				camera_zoom_frames--;
-				adjust_view++;
-			} else {
-				camera_zoom_frames = 0;
-			}
-		}
+		new_zoom_level += (camera_zoom_dir==1?0.05f:-0.05f);
+		camera_zoom_frames--;
+		adjust_view++;
 	}
-#ifdef SKY_FPV_CURSOR
-	if(first_person){
-		if(rx <= -105){
-			rx = -104;
-		} else if(rx >= -15){
-			rx = -16;
-		}
-	} else {
-		if(rx <= -60){
-			rx = -59;
-		} else if(rx >= -45){
-			rx = -46;
-		}
-	}
-
-#endif /* SKY_FPV_CURSOR */
+	clamp_camera();
 	if(adjust_view){
 		set_all_intersect_update_needed(main_bbox_tree);
 		old_camera_x= camera_x;
 		old_camera_y= camera_y;
 		old_camera_z= camera_z;
 	}
-	if(zoom_level<1.00f) {
-		new_zoom_level=zoom_level=1.00f;
-		resize_root_window();
-	}
+
 #ifdef SKY_FPV_CURSOR
 	hold_camera=rz;
 	if (fol_cam){
@@ -419,8 +404,7 @@ void update_camera()
 	}
 
 	//Make Character Turn with Camera
-	if (have_mouse)
-	{
+	if (have_mouse && !on_the_move(your_actor)){
 		adjust = (rz+180);
 		//without this the character will turn the wrong way when camera_kludge
 		//and character are in certain positions

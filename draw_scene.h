@@ -91,6 +91,16 @@ void move_camera ();
 
 /*!
  * \ingroup display
+ * \brief   Adjusts the camera rotation/angle/zoom if outside set limits
+ *
+ *      Adjusts the camera rotation/angle/zoom if outside set limits
+ *
+ * \callgraph
+ */
+void clamp_camera(void);
+
+/*!
+ * \ingroup display
  * \brief   updates the camera and redraws the scene
  *
  *      Updates the camera and redraws the scene
