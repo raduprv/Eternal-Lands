@@ -171,7 +171,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	double healthbar_x_len_loss=0;
 	double healthbar_x_loss_fade=1.0f;
 	double healthbar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
-	float banner_width;
+	float banner_width = 0.0f;
 	// are we actively drawing?
 	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
 		return;
