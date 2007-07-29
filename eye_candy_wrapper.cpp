@@ -203,12 +203,18 @@ extern "C" void ec_idle()
   float new_camera_z = -zoom_level*camera_distance * c_rx + camera_z;
   eye_candy.set_camera(ec::Vec3(-new_camera_x, -new_camera_z, new_camera_y));
   eye_candy.set_center(ec::Vec3(-camera_x, -camera_z, camera_y));
+
   if ((average_framerate >= light_columns_threshold * 1.15 + 2.5) && (!eye_candy.draw_shapes))
     eye_candy.draw_shapes = true;
   else if ((average_framerate < light_columns_threshold / 1.15 - 2.5) && (eye_candy.draw_shapes))
     eye_candy.draw_shapes = false;  
+
   eye_candy.set_dimensions(window_width, window_height, powf(zoom_level, 0.1));
+
   Uint64 new_time = ec::get_time();
+#ifdef CLUSTER_INSIDES
+  short cluster = get_actor_cluster ();
+#endif
   for (int i = 0; i < (int)references.size(); )
   {
     std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
@@ -221,6 +227,15 @@ extern "C" void ec_idle()
     
     if (use_eye_candy)
     {
+#ifdef CLUSTER_INSIDES
+      if ((*iter)->effect && !(*iter)->effect->belongsToCluster (cluster))
+      {
+	  (*iter)->effect->active = false;
+          i++;
+          continue;
+      }
+#endif
+
       if ((*iter)->caster)
       {
         if ((*iter)->effect->get_type() == ec::EC_SWORD)
@@ -261,7 +276,6 @@ extern "C" void ec_idle()
     }
     i++;
   }
-  
   if (is_day)
     eye_candy.use_lights = false;
   else
@@ -370,6 +384,10 @@ extern "C" void ec_draw()
 
   if (use_eye_candy)
   {
+#ifdef CLUSTER_INSIDES
+    short cluster = get_actor_cluster ();
+#endif
+
     // Update firefly activity.
     for (int i = 0; i < (int)references.size(); )
     {
@@ -385,7 +403,11 @@ extern "C" void ec_draw()
 //      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
 //        (*iter)->effect->active = (!day_shadows_on);
 #else
-      if ((*iter)->effect->get_type() == ec::EC_FIREFLY)
+      if ((*iter)->effect->get_type() == ec::EC_FIREFLY
+#ifdef CLUSTER_INSIDES
+          && (*iter)->effect->belongsToCluster (cluster)
+#endif
+      )
         (*iter)->effect->active = (!is_day);
 #endif
       i++;

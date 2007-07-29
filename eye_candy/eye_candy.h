@@ -129,6 +129,10 @@ and project-independent.
 #include "types.h"
 #include "math_cache.h"
 
+#ifdef CLUSTER_INSIDES
+#include "../io/map_io.h"
+#endif
+
 namespace ec
 {
 
@@ -1477,6 +1481,21 @@ public:
   };
   static Uint64 get_max_end_time() { return 0x8000000000000000ull; };
   virtual Uint64 get_expire_time() { return 0x8000000000000000ull; };
+
+#ifdef CLUSTER_INSIDES  
+  short getCluster () const 
+  {
+    if (!pos)
+      return 0;
+    return get_cluster (int (pos->x / 0.5f), int (-pos->z / 0.5f));
+  }
+
+  bool belongsToCluster (short cluster) const
+  {
+    short my_cluster = getCluster ();
+    return my_cluster == cluster || my_cluster == 0;
+  }
+#endif
   
   EyeCandy* base;
   int motion_blur_points;

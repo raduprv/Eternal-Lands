@@ -1679,7 +1679,10 @@ void EyeCandy::idle()
   const Uint64 cur_time = get_time();
   if (time_diff < 10)
     time_diff = 10;
-    
+
+#ifdef CLUSTER_INSIDES
+  short cluster = get_actor_cluster ();
+#endif
   for (int i = 0; i < (int)effects.size(); )
   {
     std::vector<Effect*>::iterator iter = effects.begin() + i;
@@ -1694,12 +1697,19 @@ void EyeCandy::idle()
     Vec3 shifted_pos = *(e->pos) - center;
     coord_t distance_squared = shifted_pos.planar_magnitude_squared();
 //    std::cout << e << ": " << center << ", " << *e->pos << ": " << (center - *(e->pos)).magnitude_squared() << " <? " << MAX_DRAW_DISTANCE_SQUARED << std::endl;
+#ifdef CLUSTER_INSIDES
+    bool same_cluster = e->belongsToCluster (cluster);
+#endif
     if (!e->active)
     {
       if (e->bounds)
       {
         const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
-        if (fastsqrt(distance_squared) < MAX_DRAW_DISTANCE + e->bounds->get_radius(angle))
+        if (fastsqrt(distance_squared) < MAX_DRAW_DISTANCE + e->bounds->get_radius(angle)
+#ifdef CLUSTER_INSIDES
+            && same_cluster
+#endif
+	)
         {
           if (EC_DEBUG)
             std::cout << "Activating effect(2) " << e << "(" << fastsqrt(distance_squared) << " < " << (MAX_DRAW_DISTANCE_SQUARED + e->bounds->get_radius(angle)) << ")" << std::endl;
@@ -1713,7 +1723,11 @@ void EyeCandy::idle()
       }
       else
       {
-        if (distance_squared < MAX_DRAW_DISTANCE_SQUARED)
+        if (distance_squared < MAX_DRAW_DISTANCE_SQUARED
+#ifdef CLUSTER_INSIDES
+            && same_cluster
+#endif
+	)
         {
           if (EC_DEBUG)
             std::cout << "Activating effect " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
@@ -1731,7 +1745,11 @@ void EyeCandy::idle()
       if (e->bounds)
       {
         const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
-        if (fastsqrt(distance_squared) > e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE)
+        if (fastsqrt(distance_squared) > e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE
+#ifdef CLUSTER_INSIDES
+            || !same_cluster
+#endif
+        )
         {
           if (EC_DEBUG)
             std::cout << "Deactivating effect(2) " << e << "(" << fastsqrt(distance_squared) << " < " << MAX_DRAW_DISTANCE_SQUARED << ": " << *(e->pos) << ", " << center << ", " << e->bounds->get_radius(angle) << ")" << std::endl;
@@ -1740,7 +1758,11 @@ void EyeCandy::idle()
       }
       else
       {
-        if (distance_squared > MAX_DRAW_DISTANCE_SQUARED)
+        if (distance_squared > MAX_DRAW_DISTANCE_SQUARED
+#ifdef CLUSTER_INSIDES
+            || !same_cluster
+#endif
+        )
         {
           if (EC_DEBUG)
             std::cout << "Deactivating effect " << e << "(" << fastsqrt(distance_squared) << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
