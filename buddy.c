@@ -79,7 +79,7 @@ int display_buddy_handler(window_info *win)
 				case 0:glColor3f(1.0,1.0,1.0);break;
 				case 1:glColor3f(1.0,0,0);break;
 				case 2:glColor3f(0,1.0,0);break;
-				case 3:glColor3f(0,0,1.0);break;
+				case 3:glColor3f(0.25,0.5,1.0);break;
 				case 4:glColor3f(1.0,1.0,0);break;
 				case 0xFE:glColor3f(0.5,0.55,0.60);break;
 				default:glColor3f(1.0,1.0,1.0);//invalid number? make it white
