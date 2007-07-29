@@ -6,6 +6,8 @@
 #ifndef __ASC_H__
 #define __ASC_H__
 
+#include <libxml/tree.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

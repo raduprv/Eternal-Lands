@@ -6,6 +6,9 @@
 #ifndef __FONT_H__
 #define __FONT_H__
 
+#include "text.h"
+#include "widgets.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

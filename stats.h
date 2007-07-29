@@ -6,8 +6,6 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
-//#include "global.h"
-
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -9,6 +9,12 @@
 #include <SDL.h>
 #include <SDL_net.h>
 #include <SDL_thread.h>
+#ifdef OSX
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
+
 #include "cal_types.h"
 #include "client_serv.h"
 
@@ -17,6 +23,8 @@ extern "C" {
 #endif
 
 #define	MAX_FILE_PATH	128	// the max chars allowed int a path/filename for actor textures/masks
+#define MAX_ACTOR_DEFS  256
+#define MAX_ACTORS      1000    /*!< The maximum number of actors the client can hold */
 
 extern int yourself; 	/*!< This variable holds the actor_id (as the server sees it, not the position in the actors_list) of your character.*/
 extern int you_sit; 	/*!< Specifies if you are currently sitting down.*/
@@ -72,7 +80,7 @@ struct near_actor {
 };
 
 extern int no_near_actors;
-extern struct near_actor near_actors[1000];
+extern struct near_actor near_actors[MAX_ACTORS];
 
 /*!
  * The enhanced actor structure holds information about the actors extensions such as if the actor is wearing any armour, weapons etc.
@@ -465,9 +473,8 @@ typedef struct
 #endif
 }actor;
 
-#define MAX_ACTOR_DEFS  256
 extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
-extern actor *actors_list[1000];	/*!< A list holding all of the actors*/
+extern actor *actors_list[MAX_ACTORS];	/*!< A list holding all of the actors*/
 extern actor *your_actor; /*!< A pointer to your own character, if available. Shares a mutex with \see actors_list */
 extern int	max_actors;		/*!< The current number of actors in the actors_list + 1*/
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/

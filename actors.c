@@ -14,7 +14,7 @@
 #define DRAW_INGAME_ALT(x, y, our_string, max_lines)	draw_ingame_string(x, y, (const Uint8*)our_string, max_lines, ALT_INGAME_FONT_X_LEN, ALT_INGAME_FONT_Y_LEN)
 #endif
 
-actor *actors_list[1000];
+actor *actors_list[MAX_ACTORS];
 int max_actors=0;
 SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
 
@@ -23,7 +23,7 @@ actor_types actors_defs[MAX_ACTOR_DEFS];
 void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 
 int no_near_actors=0;
-struct near_actor near_actors[1000];
+struct near_actor near_actors[MAX_ACTORS];
 
 //Threading support for actors_lists
 void init_actors_lists()
@@ -32,7 +32,8 @@ void init_actors_lists()
 
 	actors_lists_mutex=SDL_CreateMutex();
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
-	for(i=0;i<1000;i++)actors_list[i]=NULL;
+	for (i=0; i < MAX_ACTORS; i++)
+		actors_list[i] = NULL;
 	UNLOCK_ACTORS_LISTS();	// release now that we are done
 }
 

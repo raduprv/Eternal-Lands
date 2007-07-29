@@ -2,10 +2,14 @@
 
 #include <string.h>
 #include <math.h>
+#include "../actors.h"
+#include "../actor_scripts.h"
+#include "../asc.h"
 #include "../bbox_tree.h"
 #include "../client_serv.h"
 #include "../e3d.h"
 #include "../eye_candy_wrapper.h"
+#include "../font.h"
 #include "../pathfinder.h"
 #include "../sound.h"
 #include "../text.h"
@@ -212,7 +216,49 @@ static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 	return 0;
 }
 
-static int append_char (void *dest, char ch)
+static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
+{
+	char name[256];
+	cell *pstr;
+	int i, size, max_size;
+
+	amx_GetAddr (amx, params[1], &pstr);
+	amx_GetString (name, pstr, 0, sizeof (name));
+
+	max_size = sizeof (((actor *)NULL)->actor_name);
+	size = strlen (name);
+	if (size > max_size)
+		size = max_size;
+
+	LOCK_ACTORS_LISTS ();
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i] 
+		    && strncasecmp (actors_list[i]->actor_name, name, size) == 0 
+		    && (size == max_size || !IS_PRINT (actors_list[i]->actor_name[size]))
+		   )
+			break;
+	}
+	if (i >= max_actors)
+		i = -1;
+	UNLOCK_ACTORS_LISTS ();
+
+	return (cell) i;
+}
+
+static cell AMX_NATIVE_CALL n_add_local_actor_command (AMX *amx, const cell* params)
+{
+	int idx = params[1];
+	unsigned char cmd = params[2];
+
+	if (idx < 0 || idx >= max_actors || !actors_list[idx])
+		return -1;
+
+	add_command_to_actor (actors_list[idx]->actor_id, cmd);
+	return 0;
+}
+
+static int format_append_char (void *dest, char ch)
 {
 	char* str = dest;
 	size_t len = strlen (dest);
@@ -224,7 +270,7 @@ static int append_char (void *dest, char ch)
 	return 0;
 }
 
-static int append_string (void *dest, const char* src)
+static int format_append_string (void *dest, const char* src)
 {
 	char* str = dest;
 	size_t len = strlen (dest);
@@ -254,8 +300,8 @@ const char* format_log_message (AMX *amx, const cell fmt, const cell* params, in
 	info.numparams = nr_params;
 	info.skip = 0;
 	info.length = MAX_LOG_MSG_SIZE; 
-	info.f_putstr = append_string;
-	info.f_putchar = append_char;
+	info.f_putstr = format_append_string;
+	info.f_putchar = format_append_char;
 	info.user = msg;
 
 	amx_GetAddr (amx, fmt, &cstr);
@@ -279,22 +325,24 @@ extern "C"
 #endif
 
 const AMX_NATIVE_INFO el_Natives[] = {
-	{ "log_to_console",         n_log_to_console         },
+	{ "log_to_console",          n_log_to_console          },
 	/* object position manipulation */
-	{ "set_object_rotation",    n_set_object_rotation    },
-	{ "rotate_object",          n_rotate_object          },
-	{ "rotate_object_add",      n_rotate_object_add      },
-	{ "set_object_position",    n_set_object_position    },
-	{ "translate_object",       n_translate_object       },
+	{ "set_object_rotation",     n_set_object_rotation     },
+	{ "rotate_object",           n_rotate_object           },
+	{ "rotate_object_add",       n_rotate_object_add       },
+	{ "set_object_position",     n_set_object_position     },
+	{ "translate_object",        n_translate_object        },
 	/* playing sounds */
-	{ "add_sound_object",       n_add_sound_object       },
+	{ "add_sound_object",        n_add_sound_object        },
 	/* scheduling of functions calls */
-	{ "add_timer",              n_add_timer              },
-	{ "clear_timers",           n_clear_timers           },
-	/* game information */
-	{ "get_position",           n_get_position           },
+	{ "add_timer",               n_add_timer               },
+	{ "clear_timers",            n_clear_timers            },
+	/* actor information */
+	{ "get_position",            n_get_position            },
+	{ "get_actor_from_name",     n_get_actor_from_name     },
+	{ "add_local_actor_command", n_add_local_actor_command },
 	/* terminator */
- 	{ NULL,                        NULL                  }
+ 	{ NULL,                      NULL                      }
 };
 
 int AMXEXPORT amx_ElInit (AMX *amx)

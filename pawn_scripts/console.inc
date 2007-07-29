@@ -5,7 +5,7 @@
  */
 /* Grum: Edited to only include the functions used in EL
  */
-#if defined _core_included
+#if defined _console_included
   #endinput
 #endif
 #define _console_included
