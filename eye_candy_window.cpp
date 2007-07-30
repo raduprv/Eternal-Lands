@@ -42,7 +42,7 @@ extern "C" void create_eye_candy_window ()
 {
   if (eye_candy_window < 0)
   {
-    eye_candy_window = create_window ((const Uint8*)"eye_candy", 0, 0, eye_candy_window_x, eye_candy_window_y, eye_candy_window_x_len, eye_candy_window_y_len, ELW_WIN_DEFAULT & ~ELW_SHOW);
+    eye_candy_window = create_window ("eye_candy", 0, 0, eye_candy_window_x, eye_candy_window_y, eye_candy_window_x_len, eye_candy_window_y_len, ELW_WIN_DEFAULT & ~ELW_SHOW);
 
     set_window_handler (eye_candy_window, ELW_HANDLER_DISPLAY, &display_eye_candy_window_handler);
     set_window_handler (eye_candy_window, ELW_HANDLER_CLICK, &check_eye_candy_window_interface);

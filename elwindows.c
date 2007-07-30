@@ -308,7 +308,7 @@ int	select_window(int win_id)
 
 
 // specific windows functions
-int	create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags)
+int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags)
 {
 	int	win_id=-1;
 	int	i;
@@ -500,12 +500,13 @@ int	draw_window_title(window_info *win)
 	if(win->flags&ELW_TITLE_NAME)
 		{
 			int	len;
+			const unsigned char* name = (const unsigned char*) win->window_name;
 
 			glEnable(GL_TEXTURE_2D);
 			glColor3f(win->border_color[0],win->border_color[1],win->border_color[2]);
 			// center text
-			len=(get_string_width(win->window_name)*8)/12;
-			draw_string_small((win->len_x-len)/2, -ELW_TITLE_HEIGHT, win->window_name, 1);
+			len = (get_string_width (name) * 8) / 12;
+			draw_string_small((win->len_x-len)/2, -ELW_TITLE_HEIGHT, name, 1);
 		}
 
 	return 1;
@@ -557,7 +558,7 @@ int	draw_window_border(window_info *win)
 			glEnd();
 
 			glEnable(GL_TEXTURE_2D);
-			draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, "X", 1);
+			draw_string(win->len_x-(ELW_BOX_SIZE-4), 2, (const unsigned char*) "X", 1);
 		}
 
 	return 1;

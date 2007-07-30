@@ -155,7 +155,7 @@ void display_plus_minus(int x,int y)
 	glEnd();
 
 	glEnable(GL_TEXTURE_2D);
-	draw_string(x+2,y,"+ -",1);
+	draw_string(x+2,y,(const unsigned char*) "+ -",1);
 	glPopAttrib();
 }
 
@@ -420,53 +420,53 @@ int display_particles_window_handler(window_info *win)
 	display_particles_window_preview(win);
 
 	snprintf(temp,99,"System type: %i",def.part_sys_type);
-	draw_string(systypex+2,systypey+2,temp,1);
+	draw_string(systypex+2,systypey+2,(const unsigned char*) temp,1);
 	display_plus_minus(systypex2,systypey);
 
-	draw_string(blendx+2,blendy-18,"Blend modes",1);
+	draw_string(blendx+2,blendy-18,(const unsigned char*) "Blend modes",1);
 	snprintf(temp,99,"S: %s",get_blend_func_string(def.sblend));
-	draw_string(blendx+2,blendy+2,temp,1);
+	draw_string(blendx+2,blendy+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"D: %s",get_blend_func_string(def.dblend));
-	draw_string(blendx+2,blendy2+2,temp,1);
+	draw_string(blendx+2,blendy2+2,(const unsigned char*) temp,1);
 
 	snprintf(temp,99,"#particles: %i",def.total_particle_no);
-	draw_string(particlenox+2,particlenoy+2,temp,1);
+	draw_string(particlenox+2,particlenoy+2,(const unsigned char*) temp,1);
 	display_plus_minus(particlenox2,particlenoy);
 
 	snprintf(temp,99,"TTL: %i",def.ttl);
-	draw_string(ttlx+2,ttly+2,temp,1);
+	draw_string(ttlx+2,ttly+2,(const unsigned char*) temp,1);
 	display_plus_minus(ttlx2,ttly);
 
 	snprintf(temp,99,"RND: %i",def.random_func);
-	draw_string(randx+2,randy+2,temp,1);
+	draw_string(randx+2,randy+2,(const unsigned char*) temp,1);
 	display_plus_minus(randx2,randy);
 
 	snprintf(temp,99,"Particle size: %.1f",def.part_size);
-	draw_string(sizex+2,sizey+2,temp,1);
+	draw_string(sizex+2,sizey+2,(const unsigned char*) temp,1);
 	display_plus_minus(sizex2,sizey);
 
-	draw_string(colorx2+2,colory+2,"min",1);
-	draw_string(colorx3+2,colory+2,"max",1);
-	draw_string(colorx+2,colorry+2,"R",1);
-	draw_string(colorx+2,colorgy+2,"G",1);
-	draw_string(colorx+2,colorby+2,"B",1);
-	draw_string(colorx+2,coloray+2,"A",1);
+	draw_string(colorx2+2,colory+2,(const unsigned char*) "min",1);
+	draw_string(colorx3+2,colory+2,(const unsigned char*) "max",1);
+	draw_string(colorx+2,colorry+2,(const unsigned char*) "R",1);
+	draw_string(colorx+2,colorgy+2,(const unsigned char*) "G",1);
+	draw_string(colorx+2,colorby+2,(const unsigned char*) "B",1);
+	draw_string(colorx+2,coloray+2,(const unsigned char*) "A",1);
 	snprintf(temp,99,"%.2f",def.minr);
-	draw_string(colorx2+12,colorry+2,temp,1);
+	draw_string(colorx2+12,colorry+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.ming);
-	draw_string(colorx2+12,colorgy+2,temp,1);
+	draw_string(colorx2+12,colorgy+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.minb);
-	draw_string(colorx2+12,colorby+2,temp,1);
+	draw_string(colorx2+12,colorby+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.mina);
-	draw_string(colorx2+12,coloray+2,temp,1);
+	draw_string(colorx2+12,coloray+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxr);
-	draw_string(colorx3+12,colorry+2,temp,1);
+	draw_string(colorx3+12,colorry+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxg);
-	draw_string(colorx3+12,colorgy+2,temp,1);
+	draw_string(colorx3+12,colorgy+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxb);
-	draw_string(colorx3+12,colorby+2,temp,1);
+	draw_string(colorx3+12,colorby+2,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxa);
-	draw_string(colorx3+12,coloray+2,temp,1);
+	draw_string(colorx3+12,coloray+2,(const unsigned char*) temp,1);
 	display_plus_minus(colorx3-pm_width,colorry);
 	display_plus_minus(colorx3-pm_width,colorgy);
 	display_plus_minus(colorx3-pm_width,colorby);
@@ -476,26 +476,26 @@ int display_particles_window_handler(window_info *win)
 	display_plus_minus(colorx4-pm_width,colorby);
 	display_plus_minus(colorx4-pm_width,coloray);
 
-	draw_string(colorx+2,colorry+112,"dR",1);
-	draw_string(colorx+2,colorgy+112,"dG",1);
-	draw_string(colorx+2,colorby+112,"dB",1);
-	draw_string(colorx+2,coloray+112,"dA",1);
+	draw_string(colorx+2,colorry+112,(const unsigned char*) "dR",1);
+	draw_string(colorx+2,colorgy+112,(const unsigned char*) "dG",1);
+	draw_string(colorx+2,colorby+112,(const unsigned char*) "dB",1);
+	draw_string(colorx+2,coloray+112,(const unsigned char*) "dA",1);
 	snprintf(temp,99,"%.2f",def.mindr);
-	draw_string(colorx2+12,colorry+112,temp,1);
+	draw_string(colorx2+12,colorry+112,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.mindg);
-	draw_string(colorx2+12,colorgy+112,temp,1);
+	draw_string(colorx2+12,colorgy+112,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.mindb);
-	draw_string(colorx2+12,colorby+112,temp,1);
+	draw_string(colorx2+12,colorby+112,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.minda);
-	draw_string(colorx2+12,coloray+112,temp,1);
+	draw_string(colorx2+12,coloray+112,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxdr);
-	draw_string(colorx3+12,colorry+112,temp,1);
+	draw_string(colorx3+12,colorry+112,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxdg);
-	draw_string(colorx3+12,colorgy+112,temp,1);
+	draw_string(colorx3+12,colorgy+112,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxdb);
-	draw_string(colorx3+12,colorby+112,temp,1);
+	draw_string(colorx3+12,colorby+112,(const unsigned char*) temp,1);
 	snprintf(temp,99,"%.2f",def.maxda);
-	draw_string(colorx3+12,coloray+112,temp,1);
+	draw_string(colorx3+12,coloray+112,(const unsigned char*) temp,1);
 	display_plus_minus(colorx3-pm_width,colorry+110);
 	display_plus_minus(colorx3-pm_width,colorgy+110);
 	display_plus_minus(colorx3-pm_width,colorby+110);
@@ -506,68 +506,68 @@ int display_particles_window_handler(window_info *win)
 	display_plus_minus(colorx4-pm_width,coloray+110);
 
 	snprintf(temp,99,"Display: %s",preview_display_handle_strings[preview_display_particle_handles]);
-	draw_string(previewx+2,previewy2+2,temp,1);
+	draw_string(previewx+2,previewy2+2,(const unsigned char*) temp,1);
 
 	switch(preview_display_particle_handles)
 		{
 		case(PREVIEW_PARTICLE_STARTPOS):
-			draw_string(previewx+2,sel_handle_bottom+2,"Min",1);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,"Max",1);
+			draw_string(previewx+2,sel_handle_bottom+2,(const unsigned char*) "Min",1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,(const unsigned char*) "Max",1);
 			snprintf(temp,99,"x: %.2f",def.minx);
-			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"y: %.2f",def.miny);
-			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"z: %.2f",def.minz);
-			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			snprintf(temp,99,"x: %.2f",def.maxx);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"y: %.2f",def.maxy);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"z: %.2f",def.maxz);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			break;
 		case(PREVIEW_PARTICLE_CONSTRAINT):
 			if(def.constrain_rad_sq<0.0)
-				draw_string(previewx+2,sel_handle_bottom+32,"No radius constraint",1);
+				draw_string(previewx+2,sel_handle_bottom+32,(const unsigned char*) "No radius constraint",1);
 			else
 				{
 					snprintf(temp,99,"Actual radius: %.3f",sqrt(def.constrain_rad_sq));
-					draw_string(previewx+2,sel_handle_bottom+2,temp,1);
+					draw_string(previewx+2,sel_handle_bottom+2,(const unsigned char*) temp,1);
 					snprintf(temp,99,"Squared radius: %.3f",def.constrain_rad_sq);
-					draw_string(previewx+2,sel_handle_bottom+32,temp,1);
+					draw_string(previewx+2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 				}
 			break;
 		case(PREVIEW_PARTICLE_STARTVEL):
-			draw_string(previewx+2,sel_handle_bottom+2,"Min",1);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,"Max",1);
+			draw_string(previewx+2,sel_handle_bottom+2,(const unsigned char*) "Min",1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,(const unsigned char*) "Max",1);
 			snprintf(temp,99,"x: %.2f",def.vel_minx);
-			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"y: %.2f",def.vel_miny);
-			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"z: %.2f",def.vel_minz);
-			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			snprintf(temp,99,"x: %.2f",def.vel_maxx);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"y: %.2f",def.vel_maxy);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"z: %.2f",def.vel_maxz);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			break;
 		case(PREVIEW_PARTICLE_ACC):
-			draw_string(previewx+2,sel_handle_bottom+2,"Min",1);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,"Max",1);
+			draw_string(previewx+2,sel_handle_bottom+2,(const unsigned char*) "Min",1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+2,(const unsigned char*) "Max",1);
 			snprintf(temp,99,"x: %.2f",def.acc_minx);
-			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"y: %.2f",def.acc_miny);
-			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"z: %.2f",def.acc_minz);
-			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			snprintf(temp,99,"x: %.2f",def.acc_maxx);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"y: %.2f",def.acc_maxy);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"z: %.2f",def.acc_maxz);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			break;
 		case(PREVIEW_PARTICLE_TEXTURE):
 			get_and_set_texture_id(particle_textures[def.part_texture]);
@@ -587,25 +587,25 @@ int display_particles_window_handler(window_info *win)
 			glDisable(GL_BLEND);
 			break;
 		case(PREVIEW_PARTICLE_LIGHT):
-			draw_string(previewx+2,sel_handle_bottom+4,"Use lights: ",1);
+			draw_string(previewx+2,sel_handle_bottom+4,(const unsigned char*) "Use lights: ",1);
 			snprintf(temp,99,"x: %.2f",def.lightx);
-			draw_string(previewx+2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"y: %.2f",def.lighty);
-			draw_string(previewx+2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"z: %.2f",def.lightz);
-			draw_string(previewx+2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			snprintf(temp,99,"r: %.2f",def.lightr);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+32,(const unsigned char*) temp,1);
 			snprintf(temp,99,"g: %.2f",def.lightg);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+52,(const unsigned char*) temp,1);
 			snprintf(temp,99,"b: %.2f",def.lightb);
-			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,temp,1);
+			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			break;
 		case PREVIEW_PARTICLE_SOUND:
 			snprintf (temp, sizeof (temp), "Sound number: %d", def.sound_nr);
-			draw_string (previewx + 2, sel_handle_bottom + 32, temp, 1);
-			draw_string (previewx + 2, sel_handle_bottom + 57, "Positional: ", 1);
-			draw_string (previewx + 2, sel_handle_bottom + 77, "Loops: ", 1);
+			draw_string (previewx + 2, sel_handle_bottom + 32,(const unsigned char*)  temp, 1);
+			draw_string (previewx + 2, sel_handle_bottom + 57,(const unsigned char*)  "Positional: ", 1);
+			draw_string (previewx + 2, sel_handle_bottom + 77,(const unsigned char*)  "Loops: ", 1);
 			break;
 		}
 	switch(preview_display_particle_handles)
@@ -631,7 +631,7 @@ int display_particles_window_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	snprintf(temp,99,"System info: TTL==%i, #particles==%i",particles_list[part_sys]->ttl,particles_list[part_sys]->particle_count);
-	draw_string(10,450,temp,1);
+	draw_string(10,450,(const unsigned char*) temp,1);
 	UNLOCK_PARTICLES_LIST();
 
 	get_and_set_texture_id(buttons_text);

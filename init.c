@@ -5,6 +5,9 @@
 #include <locale.h>
 #endif
 #include "global.h"
+#ifdef EYE_CANDY
+#include "../elc/eye_candy_wrapper.h"
+#endif
 
 char lang[10]={"en"};
 
@@ -93,7 +96,6 @@ void init_stuff()
 {
 	int i;
 	int seed;
-	Uint32 (*my_timer_pointer) (unsigned int) = my_timer;
 
 	chdir(DATA_DIR);
 	
@@ -218,7 +220,7 @@ void init_stuff()
 	    exit(1);
     }
 
-	SDL_SetTimer (1000/(18*4), my_timer_pointer);
+	SDL_SetTimer (1000/(18*4), my_timer);
 
 	SDL_EnableUNICODE(1);
 

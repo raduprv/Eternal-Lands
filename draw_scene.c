@@ -4,6 +4,7 @@
 #include <string.h>
 
 #ifdef EYE_CANDY
+ #include "../elc/eye_candy_wrapper.h"
  #include "eye_candy_window.h" 
 #endif
 
@@ -192,7 +193,7 @@ void draw_scene()
     glColor3f(1.0f,1.0f,1.0f); //default color is white
     snprintf(str,sizeof(str), "Sx: %03.1f,Sy: %03.1f, Sz: %03.1f, camera_x: %03.2f, camera_y: %03.2f,rx: %03.2f, rz: %03.2f\nFPS: %i, Minute: %i",fLightPos[0],fLightPos[1],fLightPos[2],-camera_x,-camera_y,rx,rz,fps,game_minute);
 
-    draw_string(10,40,str,2);
+    draw_string (10, 40, (const unsigned char*) str, 2);
     draw_toolbar();
 
     display_windows(1);
@@ -219,15 +220,14 @@ void Move()
     glTranslatef(camera_x, camera_y, camera_z);
 }
 
-#define TIMER_RATE 20;
+#define TIMER_RATE 20
 int my_timer_clock=0;
 int normal_animation_timer=0;
 
-Uint32 my_timer(unsigned int some_int)
+Uint32 my_timer (Uint32 interval)
 {
     int new_time;
     SDL_Event e;
-
 
     if(my_timer_clock==0)
         my_timer_clock=SDL_GetTicks();
@@ -253,7 +253,7 @@ Uint32 my_timer(unsigned int some_int)
     SDL_PushEvent(&e);
 
 
-    new_time=TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
+    new_time = TIMER_RATE-(SDL_GetTicks()-my_timer_clock);
 
     if(new_time<10) 
         new_time=10;
@@ -265,7 +265,6 @@ Uint32 my_timer(unsigned int some_int)
 void move_camera ()
 {
     float x, y, z;
-    static int lagged=1;
 
     x=mx;
     y=my;

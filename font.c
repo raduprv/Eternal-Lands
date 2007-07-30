@@ -378,7 +378,7 @@ int get_char_width(unsigned char cur_char)
 
 int get_string_width(const unsigned char *str)
 {
-	return get_nstring_width(str, strlen(str));
+	return get_nstring_width(str, strlen((const char*) str));
 }
 
 

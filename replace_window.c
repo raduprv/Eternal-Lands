@@ -156,29 +156,29 @@ int display_replace_window_handler(window_info *win)
 
 	// The X
 
-	draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
+	draw_string(0+win->len_x-16,0+2,(const unsigned char *) "X",1);
 
 	sprintf(temp,"Original: %d",(int)oid);
 
-	draw_string(10,10,temp,1);
+	draw_string(10,10,(const unsigned char *)temp,1);
 
-	draw_string(250,10,"Select",1);
+	draw_string(250,10,(const unsigned char *)"Select",1);
 
 	sprintf(temp,"New: %d",(int)nid);
 
-	draw_string(10,30,temp,1);
+	draw_string(10,30,(const unsigned char *)temp,1);
 
-	draw_string(250,30,"Select",1);
+	draw_string(250,30,(const unsigned char *)"Select",1);
 
-	draw_string(10,50,"Replace!",1);
+	draw_string(10,50,(const unsigned char *)"Replace!",1);
 
 	
 
 	sprintf(temp,"Mode: %d",(int)mode);
 
-	draw_string(130,50,temp,1);
+	draw_string(130,50,(const unsigned char *)temp,1);
 
-	draw_string(250,50,"Change",1);
+	draw_string(250,50,(const unsigned char *)"Change",1);
 
 
 

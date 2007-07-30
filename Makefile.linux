@@ -5,7 +5,8 @@ CC=gcc
 CXX=g++
 LINK=g++
 
-WARN = -Wall -W #-Werror
+WARN = -Wall -Wdeclaration-after-statement # -W -Werror
+CXXWARN = -Wall # -W -Werror
 OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DROTATE_PARTICLES -DEYE_CANDY -DSFX -DNEW_E3D_FORMAT
 #-DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
@@ -14,7 +15,7 @@ GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
 
 CFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(WARN)
 _CFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) $(shell sdl-config --cflags)  $(shell xml2-config --cflags)
-CXXFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(WARN)
+CXXFLAGS=$(OPTIONS) $(GTK2_CFLAGS) $(shell sdl-config --cflags)  $(shell xml2-config --cflags) -g $(CXXWARN)
 _CXXFLAGS=$(OPTIONS) -mcpu=i686 -O3 -fomit-frame-pointer -ffast-math -pipe $(GTK_CFLAGS) $(shell sdl-config --cflags) $(shell sdl-config --cflags)  $(shell xml2-config --cflags)
 
 GTK_LIBS =  $(shell gtk-config --libs) 
@@ -22,32 +23,37 @@ GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
 
 LIBS=$(shell sdl-config --libs) -lGL -lGLU $(shell xml2-config --libs) -lcal3d -lSDL_image
 
-OBJS=2d_objects.o 3d_objects.o	\
-	e3d_io.o elc_io.o md5.o \
-	asc.o colors.o browser.o draw_scene.o	\
-	elconfig.o elwindows.o errors.o events.o \
+COBJS=2d_objects.o 3d_objects.o	\
+	colors.o browser.o draw_scene.o	\
+	elwindows.o errors.o events.o \
 	font.o frustum.o	\
 	gl_init.o global.o gui.o gui_callbacks.o	\
-	init.o interface.o lights.o load_gl_extensions.o	\
-	main.o map_io.o misc.o o3dow.o queue.o reflection.o	\
-	shadows.o\
-	textures.o tile_map.o translate.o \
-	replace_window.o edit_window.o particles.o particles_window.o
+	init.o interface.o lights.o \
+	main.o map_io.o misc.o o3dow.o reflection.o	\
+	shadows.o tile_map.o \
+	replace_window.o edit_window.o particles_window.o
 
-CXXOBJS=eye_candy_window.o eye_candy_wrapper.o \
-	eye_candy.o math_cache.o effect_lamp.o \
-	effect_candle.o \
-	effect_campfire.o effect_fountain.o \
-	effect_teleporter.o effect_firefly.o \
-	effect_sword.o effect_summon.o \
-	effect_selfmagic.o effect_targetmagic.o \
-	effect_ongoing.o effect_impact.o \
-	effect_smoke.o effect_bag.o effect_cloud.o \
-	effect_harvesting.o effect_wind.o \
-	effect_breath.o cal3d_wrapper.o
+ELC_COBJS = asc.o elconfig.o load_gl_extensions.o md5.o particles.o \
+	queue.o textures.o translate.o
 
-mapedit.x86.linux.bin: $(OBJS) $(CXXOBJS)
-	$(LINK) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o mapedit.x86.linux.bin $(OBJS) $(CXXOBJS)
+ELC_IO_COBJS = e3d_io.o elc_io.o
+
+CXXOBJS=eye_candy_window.o 
+
+ELC_CXXOBJS = cal3d_wrapper.o eye_candy_wrapper.o
+
+ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
+	effect_cloud.o effect_candle.o effect_firefly.o effect_fountain.o \
+	effect_harvesting.o effect_impact.o effect_lamp.o effect_ongoing.o \
+	effect_selfmagic.o effect_smoke.o effect_summon.o effect_sword.o \
+	effect_targetmagic.o effect_teleporter.o effect_wind.o eye_candy.o \
+	math_cache.o
+
+OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(CXXOBJS) $(ELC_CXXOBJS) \
+	$(ELC_EC_CXXOBJS)
+
+mapedit.x86.linux.bin: $(OBJS)
+	$(LINK) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o $@ $^
 
 release:
 	make -f Makefile.linux 'CFLAGS=$(_CFLAGS)'
@@ -55,104 +61,20 @@ release:
 gtk: 
 	make -f Makefile.linux 'GTK2_CFLAGS=$(GTK_CFLAGS)' 'GTK2_LIBS=$(GTK_LIBS)'
 
-e3d_io.o: ../elc/io/e3d_io.c ../elc/io/e3d_io.h
-	$(CC) $(CFLAGS) -c ../elc/io/e3d_io.c
+$(COBJS): %.o: %.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-asc.o: ../elc/asc.c ../elc/asc.h
-	$(CC) $(CFLAGS) -c ../elc/asc.c
+$(ELC_COBJS): %.o : ../elc/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-elc_io.o: ../elc/io/elc_io.c ../elc/io/elc_io.h
-	$(CC) $(CFLAGS) -c ../elc/io/elc_io.c
+$(ELC_IO_COBJS): %.o : ../elc/io/%.c
+	$(CC) $(CFLAGS) -c -o $@ $<
 
-md5.o: ../elc/md5.c ../elc/md5.h
-	$(CC) $(CFLAGS) -c ../elc/md5.c
+$(ELC_CXXOBJS): %.o : ../elc/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
-elconfig.o: ../elc/elconfig.c ../elc/elconfig.h
-	$(CC) $(CFLAGS) -c ../elc/elconfig.c
-
-load_gl_extensions.o: ../elc/load_gl_extensions.c ../elc/load_gl_extensions.h
-	$(CC) $(CFLAGS) -c ../elc/load_gl_extensions.c
-
-particles.o: ../elc/particles.c ../elc/particles.h
-	$(CC) $(CFLAGS) -c ../elc/particles.c
-
-translate.o: ../elc/translate.c ../elc/translate.h
-	$(CC) $(CFLAGS) -c ../elc/translate.c
-
-queue.o: ../elc/queue.c ../elc/queue.h
-	$(CC) $(CFLAGS) -c ../elc/queue.c
-
-eye_candy_wrapper.o: ../elc/eye_candy_wrapper.cpp ../elc/eye_candy_wrapper.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy_wrapper.cpp
-
-eye_candy.o: ../elc/eye_candy/eye_candy.cpp ../elc/eye_candy/eye_candy.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/eye_candy.cpp
-
-math_cache.o: ../elc/eye_candy/math_cache.cpp ../elc/eye_candy/math_cache.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/math_cache.cpp
-
-effect_lamp.o: ../elc/eye_candy/effect_lamp.cpp ../elc/eye_candy/effect_lamp.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_lamp.cpp
-
-effect_candle.o: ../elc/eye_candy/effect_candle.cpp ../elc/eye_candy/effect_candle.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_candle.cpp
-
-effect_campfire.o: ../elc/eye_candy/effect_campfire.cpp ../elc/eye_candy/effect_campfire.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_campfire.cpp
-
-effect_fountain.o: ../elc/eye_candy/effect_fountain.cpp ../elc/eye_candy/effect_fountain.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_fountain.cpp
-
-effect_teleporter.o: ../elc/eye_candy/effect_teleporter.cpp ../elc/eye_candy/effect_teleporter.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_teleporter.cpp
-
-effect_firefly.o: ../elc/eye_candy/effect_firefly.cpp ../elc/eye_candy/effect_firefly.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_firefly.cpp
-
-effect_sword.o: ../elc/eye_candy/effect_sword.cpp ../elc/eye_candy/effect_sword.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_sword.cpp
-
-effect_summon.o: ../elc/eye_candy/effect_summon.cpp ../elc/eye_candy/effect_summon.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_summon.cpp
-
-effect_selfmagic.o: ../elc/eye_candy/effect_selfmagic.cpp ../elc/eye_candy/effect_selfmagic.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_selfmagic.cpp
-
-effect_targetmagic.o: ../elc/eye_candy/effect_targetmagic.cpp ../elc/eye_candy/effect_targetmagic.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_targetmagic.cpp
-
-effect_ongoing.o: ../elc/eye_candy/effect_ongoing.cpp ../elc/eye_candy/effect_ongoing.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_ongoing.cpp
-
-effect_impact.o: ../elc/eye_candy/effect_impact.cpp ../elc/eye_candy/effect_impact.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_impact.cpp
-
-effect_smoke.o: ../elc/eye_candy/effect_smoke.cpp ../elc/eye_candy/effect_smoke.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_smoke.cpp
-
-effect_bag.o: ../elc/eye_candy/effect_bag.cpp ../elc/eye_candy/effect_bag.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_bag.cpp
-
-effect_cloud.o: ../elc/eye_candy/effect_cloud.cpp ../elc/eye_candy/effect_cloud.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_cloud.cpp
-
-effect_harvesting.o: ../elc/eye_candy/effect_harvesting.cpp ../elc/eye_candy/effect_harvesting.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_harvesting.cpp
-
-effect_wind.o: ../elc/eye_candy/effect_wind.cpp ../elc/eye_candy/effect_wind.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_wind.cpp
-
-effect_breath.o: ../elc/eye_candy/effect_breath.cpp ../elc/eye_candy/effect_breath.h
-	$(CXX) $(CXXFLAGS) -c ../elc/eye_candy/effect_breath.cpp
-
-cal3d_wrapper.o: ../elc/cal3d_wrapper.cpp ../elc/cal3d_wrapper.h
-	$(CXX) $(CXXFLAGS) -c ../elc/cal3d_wrapper.cpp
-
-textures.o: ../elc/textures.c ../elc/textures.h
-	$(CC) $(CFLAGS) -c ../elc/textures.c
-
-%.o:	%.c %.h
-	$(CC) $(CFLAGS) -c $*.c
+$(ELC_EC_CXXOBJS): %.o : ../elc/eye_candy/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 clean:
 	-rm -f $(OBJS) $(CXXOBJS) mapedit.x86.linux.bin

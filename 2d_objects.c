@@ -1,7 +1,5 @@
 #include "global.h"
 
-
-
 void draw_2d_object(obj_2d * object_id)
 {
 	float render_x_start,render_y_start,u_start,v_start,u_end,v_end;

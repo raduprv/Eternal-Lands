@@ -945,40 +945,40 @@ int map_size=0;
 int new_map_display_handler ()
 {
 	glColor3f (1.0f,1.0f,0.0f);
-	draw_string (2, 2, "    Map Size", 1);
+	draw_string (2, 2, (const unsigned char*) "    Map Size", 1);
 		
 	if (map_size == 0)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else 
 		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 2*17+2, "Very Small [16x16]", 1);
+	draw_string (2, 2*17+2, (const unsigned char*) "Very Small [16x16]", 1);
 
 	if (map_size == 1)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else
 		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 3*17+2, "Small      [32x32]", 1);
+	draw_string (2, 3*17+2, (const unsigned char*) "Small      [32x32]", 1);
 		
 	if (map_size == 2)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else 
 		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 4*17+2, "Medium     [64x64]", 1);
+	draw_string (2, 4*17+2, (const unsigned char*) "Medium     [64x64]", 1);
 
 	if (map_size == 3)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else 
 		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 5*17+2, "Large      [128x128]", 1);
+	draw_string (2, 5*17+2, (const unsigned char*) "Large      [128x128]", 1);
 
 	if (map_size == 4)
 		glColor3f (0.0f, 0.5f, 1.0f);
 	else 
 		glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 6*17+2, "Huge       [256x256]", 1);
+	draw_string (2, 6*17+2, (const unsigned char*) "Huge       [256x256]", 1);
 
 	glColor3f (1.0f, 1.0f, 1.0f);
-	draw_string (2, 8*17+2, "   [Ok]    [Cancel]", 1);
+	draw_string (2, 8*17+2, (const unsigned char*) "   [Ok]    [Cancel]", 1);
 	
 	return 1;
 }

@@ -144,7 +144,7 @@ int		select_window(int win_id);
 //TODO: check windows on screen
 
 // individual functions
-int		create_window(const Uint8 *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
+int		create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags);
 void	destroy_window(int win_id);
 int		init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y);
 int		move_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y);

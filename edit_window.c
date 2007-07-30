@@ -205,46 +205,46 @@ int display_edit_window_handler(window_info *win)
 
 		// Drawing object info
 		snprintf(temp,99,"X Pos: %03.2f",ew_object_type?obj_2d_list[ew_selected_object]->x_pos:objects_list[ew_selected_object]->x_pos);
-		draw_string(10,10,temp,1);
-		draw_string(160,10,"+ -",1);
+		draw_string(10,10,(const unsigned char*) temp,1);
+		draw_string(160,10,(const unsigned char*) "+ -",1);
 		snprintf(temp,99,"Y Pos: %03.2f",ew_object_type?obj_2d_list[ew_selected_object]->y_pos:objects_list[ew_selected_object]->y_pos);
-		draw_string(10,30,temp,1);
-		draw_string(160,30,"+ -",1);
+		draw_string(10,30,(const unsigned char*) temp,1);
+		draw_string(160,30,(const unsigned char*) "+ -",1);
 		snprintf(temp,99,"Z Pos: %03.2f",ew_object_type?obj_2d_list[ew_selected_object]->z_pos:objects_list[ew_selected_object]->z_pos);
-		draw_string(10,50,temp,1);
-		draw_string(160,50,"+ -",1);
+		draw_string(10,50,(const unsigned char*) temp,1);
+		draw_string(160,50,(const unsigned char*) "+ -",1);
 		snprintf(temp,99,"X Rot: %03.2f",ew_object_type?obj_2d_list[ew_selected_object]->x_rot:objects_list[ew_selected_object]->x_rot);
-		draw_string(10,80,temp,1);
-		draw_string(160,80,"+ -",1);
+		draw_string(10,80,(const unsigned char*) temp,1);
+		draw_string(160,80,(const unsigned char*) "+ -",1);
 		snprintf(temp,99,"Z Rot: %03.2f",ew_object_type?obj_2d_list[ew_selected_object]->z_rot:objects_list[ew_selected_object]->z_rot);
-		draw_string(10,120,temp,1);
-		draw_string(160,120,"+ -",1);
+		draw_string(10,120,(const unsigned char*) temp,1);
+		draw_string(160,120,(const unsigned char*) "+ -",1);
 		snprintf(temp,99,"File Name: %s",ew_object_type?obj_2d_list[ew_selected_object]->file_name:objects_list[ew_selected_object]->file_name);
-		draw_string(10,150,temp,1);
+		draw_string(10,150,(const unsigned char*) temp,1);
 		snprintf(temp,99,"ObjectID: %d",ew_selected_object);
-		draw_string(220,120,temp,1);
+		draw_string(220,120,(const unsigned char*) temp,1);
 
-		draw_string(450,65,"Restore",1);
+		draw_string(450,65,(const unsigned char*) "Restore",1);
 
 		if(ew_object_type==0){
 			snprintf(temp,99,"Y Rot: %03.2f",objects_list[ew_selected_object]->y_rot);
-			draw_string(10,100,temp,1);
-			draw_string(160,100,"+ -",1);
+			draw_string(10,100,(const unsigned char*) temp,1);
+			draw_string(160,100,(const unsigned char*) "+ -",1);
 			snprintf(temp,99,"Red: %01.3f",objects_list[ew_selected_object]->r);
-			draw_string(220,10,temp,1);
-			draw_string(380,10,"+ -",1);
+			draw_string(220,10,(const unsigned char*) temp,1);
+			draw_string(380,10,(const unsigned char*) "+ -",1);
 			snprintf(temp,99,"Green: %01.3f",objects_list[ew_selected_object]->g);
-			draw_string(220,30,temp,1);
-			draw_string(380,30,"+ -",1);
+			draw_string(220,30,(const unsigned char*) temp,1);
+			draw_string(380,30,(const unsigned char*) "+ -",1);
 			snprintf(temp,99,"Blue: %01.3f",objects_list[ew_selected_object]->b);
-			draw_string(220,50,temp,1);
-			draw_string(380,50,"+ -",1);
+			draw_string(220,50,(const unsigned char*) temp,1);
+			draw_string(380,50,(const unsigned char*) "+ -",1);
 			snprintf(temp,99,"Blended: %s",objects_list[ew_selected_object]->blended?"Yes":"No");
-			draw_string(220,80,temp,1);
-			draw_string(380,80,"+",1);
+			draw_string(220,80,(const unsigned char*) temp,1);
+			draw_string(380,80,(const unsigned char*) "+",1);
 			snprintf(temp,99,"SelfLit: %s",objects_list[ew_selected_object]->self_lit?"Yes":"No");
-			draw_string(220,100,temp,1);
-			draw_string(380,100,"+",1);
+			draw_string(220,100,(const unsigned char*) temp,1);
+			draw_string(380,100,(const unsigned char*) "+",1);
 		
 		}
 

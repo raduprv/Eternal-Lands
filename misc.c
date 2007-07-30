@@ -11,6 +11,9 @@
 //#ifdef OSX
 //#include <ApplicationServices/ApplicationServices.h>
 //#endif
+#ifdef EYE_CANDY
+#include "eye_candy_window.h"
+#endif
 
 extern char* selected_file;
 
@@ -654,6 +657,8 @@ void clone_particles_object(int object_id) {
 
 ////////////////////////////////////////////////////////////////////////////
 ////////////tile things/////////////////////////////////////////////////////
+texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 alpha);
+
 void load_all_tiles()
 {
 	int i;

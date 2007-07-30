@@ -35,9 +35,9 @@ void Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GLsizei cou
 
 void init_gl_extensions()
 {
-	Uint8 * extensions;
+	const char* extensions;
 	int ext_str_len;
-	char str[150];
+
 	//now load the multitexturing extension
 	ELglBindBufferARB = SDL_GL_GetProcAddress("glBindBufferARB");
 	ELglGenBuffersARB = SDL_GL_GetProcAddress("glGenBuffersARB");
@@ -46,7 +46,7 @@ void init_gl_extensions()
 	ELglMultiDrawElementsEXT=SDL_GL_GetProcAddress("glMultiDrawElementsEXT");
 	ELglDrawRangeElementsEXT=SDL_GL_GetProcAddress("glDrawRangeElementsEXT");
 
-	extensions=(GLubyte *)glGetString(GL_EXTENSIONS);
+	extensions= (const char*) glGetString(GL_EXTENSIONS);
 	ext_str_len=strlen(extensions);
 
 	ELglActiveTextureARB = SDL_GL_GetProcAddress("glActiveTextureARB");
@@ -153,7 +153,7 @@ void handle_window_resize()
 	{
 		if(texture_cache[i].file_name[0])
 		{
-			glDeleteTextures (1, &texture_cache[i].texture_id);
+			glDeleteTextures (1, (GLuint*)&texture_cache[i].texture_id);
 			texture_cache[i].texture_id = 0; //force a reload
 		}
 	}

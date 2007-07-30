@@ -5,7 +5,7 @@ void draw_scene();
 void Move();
 void update_camera();
 
-Uint32 my_timer(unsigned int some_int);
+Uint32 my_timer (Uint32 interval);
 
 extern float camera_x,camera_y,camera_z;
 extern float rx,ry,rz;

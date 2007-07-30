@@ -226,42 +226,42 @@ int display_o3dow_handler(window_info *win)
 	// The X
 	draw_string(0+win->len_x-16,0+2,(unsigned char *)"X",1);
 
-	draw_string(10,30,"Random Rotation: ",1);
-	draw_string(250,10,"X axis: ",1);
-	draw_string(250,30,"Y axis: ",1);
-	draw_string(250,50,"Z axis: ",1);
+	draw_string(10,30,(const unsigned char*) "Random Rotation: ",1);
+	draw_string(250,10,(const unsigned char*) "X axis: ",1);
+	draw_string(250,30,(const unsigned char*) "Y axis: ",1);
+	draw_string(250,50,(const unsigned char*) "Z axis: ",1);
 
-	draw_string(10,100,"Random height: ",1);
-	sprintf(temp,"Min height: %d",minh);
-	draw_string(250,90,temp,1);
-	draw_string(440,90,"+ -",1);
+	draw_string(10,100,(const unsigned char*) "Random height: ",1);
+	sprintf(temp, "Min height: %d",minh);
+	draw_string(250,90,(const unsigned char*) temp,1);
+	draw_string(440,90,(const unsigned char*) "+ -",1);
 	sprintf(temp,"Max height: %d",maxh);
-	draw_string(250,110,temp,1);
-	draw_string(440,110,"+ -",1);
+	draw_string(250,110,(const unsigned char*) temp,1);
+	draw_string(440,110,(const unsigned char*) "+ -",1);
 	
-	draw_string(10,170,"Random angle X: ",1);
+	draw_string(10,170,(const unsigned char*) "Random angle X: ",1);
 	sprintf(temp,"Min angle X: %d",minax);
-	draw_string(250,160,temp,1);
-	draw_string(440,160,"+ -",1);
+	draw_string(250,160,(const unsigned char*) temp,1);
+	draw_string(440,160,(const unsigned char*) "+ -",1);
 	sprintf(temp,"Max angle X: %d",maxax);
-	draw_string(250,180,temp,1);
-	draw_string(440,180,"+ -",1);
+	draw_string(250,180,(const unsigned char*) temp,1);
+	draw_string(440,180,(const unsigned char*) "+ -",1);
 
-	draw_string(10,230,"Random angle Y: ",1);
+	draw_string(10,230,(const unsigned char*) "Random angle Y: ",1);
 	sprintf(temp,"Min angle Y: %d",minay);
-	draw_string(250,220,temp,1);
-	draw_string(440,220,"+ -",1);
+	draw_string(250,220,(const unsigned char*) temp,1);
+	draw_string(440,220,(const unsigned char*) "+ -",1);
 	sprintf(temp,"Max angle Y: %d",maxay);
-	draw_string(250,240,temp,1);
-	draw_string(440,240,"+ -",1);
+	draw_string(250,240,(const unsigned char*) temp,1);
+	draw_string(440,240,(const unsigned char*) "+ -",1);
 	
-	draw_string(10,280,"Random angle Z: ",1);
+	draw_string(10,280,(const unsigned char*) "Random angle Z: ",1);
 	sprintf(temp,"Min angle Z: %d",minaz);
-	draw_string(250,270,temp,1);
-	draw_string(440,270,"+ -",1);
+	draw_string(250,270,(const unsigned char*) temp,1);
+	draw_string(440,270,(const unsigned char*) "+ -",1);
 	sprintf(temp,"Max angle Z: %d",maxaz);
-	draw_string(250,290,temp,1);
-	draw_string(440,290,"+ -",1);
+	draw_string(250,290,(const unsigned char*) temp,1);
+	draw_string(440,290,(const unsigned char*) "+ -",1);
 	return 1;
 }
 
