@@ -7,6 +7,9 @@
 #include "global.h"
 #endif
 #include "io/e3d_io.h"
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 
 int use_3d_alpha_blend= 1;
 Uint32 highest_obj_3d= 0;

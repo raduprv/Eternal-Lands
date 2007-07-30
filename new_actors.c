@@ -6,6 +6,9 @@
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 
 float sitting=1.0f;
 glow_color glow_colors[10];

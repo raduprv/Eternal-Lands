@@ -218,24 +218,6 @@ typedef struct
 
 typedef void (update_func) (char *str, float percent);
 
-#ifdef CLUSTER_INSIDES
-/**
- * @ingroup maps
- * @brief Get the cluster number of a position
- *
- *	Get the number of the visibility cluster to which point 
- *	(\a x, \a y) belongs.
- * 
- * @param x the x coordinate of the point to check
- * @param y the y coordinate of the point to check
- * @retval short The number of the visibility cluster, or 0 if the point 
- *               is not inside any cluster.
- */
-short get_cluster (int x, int y);
-
-short get_actor_cluster ();
-#endif // CLUSTER_INSIDES
-
 /**
  * @ingroup maps
  * @brief Loads the map given by \a file_name

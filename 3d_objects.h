@@ -6,6 +6,8 @@
 #ifndef __OBJ_3D_H__
 #define __OBJ_3D_H__
 
+#include "e3d_object.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

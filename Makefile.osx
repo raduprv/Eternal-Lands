@@ -47,8 +47,8 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libvorbisfile.a libs/libvorbis.a
 COBJS=2d_objects.o 3d_objects.o	\
 	actor_scripts.o actors.o alphamap.o asc.o \
 	books.o buddy.o bags.o bbox_tree.o \
-	cache.o cal.o chat.o colors.o console.o consolewin.o counters.o cursors.o	\
-	dialogues.o draw_scene.o	\
+	cache.o cal.o chat.o cluster.o colors.o console.o consolewin.o \
+	counters.o cursors.o dialogues.o draw_scene.o	\
 	elconfig.o elmemory.o elwindows.o encyclopedia.o errors.o events.o	\
 	framebuffer.o filter.o font.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\

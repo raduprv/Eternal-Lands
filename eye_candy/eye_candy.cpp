@@ -7,6 +7,9 @@
 #include <errno.h>
 
 #include "eye_candy.h"
+#ifdef CLUSTER_INSIDES
+#include "../cluster.h"
+#endif
 
 namespace ec
 {

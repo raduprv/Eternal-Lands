@@ -6,6 +6,7 @@
 #ifndef __ASC_H__
 #define __ASC_H__
 
+#include <SDL_types.h>
 #include <libxml/tree.h>
 
 #ifdef __cplusplus

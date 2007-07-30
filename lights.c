@@ -8,6 +8,9 @@
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 
 #ifdef NEW_LIGHTING
 int last_texture_start = 0;

@@ -12,6 +12,9 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 
 int map_type=1;
 Uint32 map_flags=0;
@@ -88,6 +91,9 @@ void destroy_map()
 		}
 	num_lights= 0;
 
+#ifdef CLUSTER_INSIDES
+	destroy_clusters_array ();
+#endif
 }
 
 #ifndef MAP_EDITOR2

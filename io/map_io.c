@@ -1,11 +1,14 @@
 #include "map_io.h"
+#include "../global.h"
 #ifdef	NEW_FILE_IO
 #include "elfilewrapper.h"
 #endif	//NEW_FILE_IO
-#include "../global.h"
 
 #ifdef EYE_CANDY
  #include "../eye_candy_wrapper.h"
+#endif
+#ifdef CLUSTER_INSIDES
+#include "../cluster.h"
 #endif
 
 #ifndef SHOW_FLICKERING
@@ -13,224 +16,6 @@ const float offset_2d_increment = (1.0f / 32768.0f);	// (1.0f / 8388608.0f) is t
 float offset_2d = (1.0f / 32768.0f);
 const float offset_2d_max = 0.01f;
 #endif
-
-#ifdef CLUSTER_INSIDES
-
-static short* clusters = NULL;
-
-static __inline__ void update_occupied_with_height_map (char* occupied, const unsigned char* height_map)
-{
-	int i;
-
-	for (i = 0; i < tile_map_size_x*tile_map_size_y*6*6; i++)
-		if (height_map[i]) occupied[i] = 1;
-}
-
-static __inline__ void update_occupied_with_tile_map (char* occupied, const unsigned char* tile_map)
-{
-	int nx = tile_map_size_x * 6;
-	int ny = tile_map_size_y * 6;
-	int x, y, idx;
-
-	idx = 0;
-	for (y = 0; y < ny; y += 6)
-	{
-		for (x = 0; x < nx; x += 6, idx++)
-		{
-			if (tile_map[idx] != 255)
-			{
-				int offset = y*nx + x;
-				int i, j;
-
-				for (j = 0; j < 6; j++)
-					for (i = 0; i < 6; i++)
-						occupied[offset+j*nx+i] = 1;
-			}
-		}
-	}
-}
-
-static __inline__ void update_occupied_with_bbox (char* occupied, const AABBOX* box )
-{
-	int xs = (int) (box->bbmin[X] / 0.5f);
-	int ys = (int) (box->bbmin[Y] / 0.5f);
-	int xe = (int) (box->bbmax[X] / 0.5f) + 1;
-	int ye = (int) (box->bbmax[Y] / 0.5f) + 1;
-	int x, y;
-
-	if (xs < 0) xs = 0;
-	if (ys < 0) ys = 0;
-	if (xe > tile_map_size_x*6) xe = tile_map_size_x*6;
-	if (ye > tile_map_size_y*6) ye = tile_map_size_y*6;
-
-	for (y = ys; y < ye; y++)
-	{
-		for (x = xs; x < xe; x++)
-			occupied[y*tile_map_size_x*6+x] = 1;
-	}
-}
-
-static __inline__ void update_occupied_with_3d (char* occupied, int id)
-{
-	const e3d_object* obj;
-	int i;
-	AABBOX box;
-
-	if (id < 0 || id >= MAX_OBJ_3D || !objects_list[id])
-		return;
-
-	obj = objects_list[id]->e3d_data;
-	if (!obj)
-		return;
-
-	for (i = 0; i < obj->material_no; i++)
-	{
-		box.bbmin[X] = obj->materials[i].min_x;
-		box.bbmin[Y] = obj->materials[i].min_y;
-		box.bbmin[Z] = obj->materials[i].min_z;
-		box.bbmax[X] = obj->materials[i].max_x;
-		box.bbmax[Y] = obj->materials[i].max_y;
-		box.bbmax[Z] = obj->materials[i].max_z;
-		matrix_mul_aabb (&box, objects_list[id]->matrix);
-
-		update_occupied_with_bbox (occupied, &box);
-	}
-}
-
-static __inline__ void update_occupied_with_2d (char* occupied, int id)
-{
-	AABBOX box;
-
-	if (get_2d_bbox (id, &box))
-		update_occupied_with_bbox (occupied, &box);
-}
-
-static __inline__  void update_occupied_with_light (char* occupied, int id)
-{
-	int x, y;
-
-	if (id < 0 || id >= MAX_LIGHTS)
-		return;
-
-	x = (int) (lights_list[id]->pos_x / 0.5f);
-	y = (int) (lights_list[id]->pos_y / 0.5f);
-
-	if (x >= 0 && x < tile_map_size_x*6 && y >= 0 && y < tile_map_size_y*6)
-		occupied[y*tile_map_size_x*6+x] = 1;
-}
-
-static __inline__ void update_occupied_with_particle_system (char* occupied, int id)
-{
-	AABBOX box;
-
-	if (id < 0 || id >= MAX_PARTICLE_SYSTEMS || !particles_list[id])
-		return;
-
-	calc_bounding_box_for_particle_sys (&box, particles_list[id]);
-	update_occupied_with_bbox (occupied, &box);
-}
-
-static void compute_clusters (const char* occupied) 
-{
-	int nr_clusters;
-	short cluster_idx[1024];
-	short nb_idx[4];
-	int ic, cnr;
-
-	int nx = tile_map_size_x * 6;
-	int ny = tile_map_size_y * 6;
-	int x, y, idx;
-
-	clusters = calloc (nx * ny, sizeof (short));
-	
-	nr_clusters = 0;
-	cluster_idx[0] = 0;
-	idx = 0;
-	if (occupied[idx])
-	{
-		nr_clusters++;
-		clusters[idx] = cluster_idx[nr_clusters] = nr_clusters;
-	}
-
-	for (++idx; idx < nx; idx++)
-	{
-		if (occupied[idx])
-		{
-			if (occupied[idx-1])
-			{
-				clusters[idx] = clusters[idx-1];
-			}
-			else
-			{
-				nr_clusters++;
-				clusters[idx] = cluster_idx[nr_clusters] = nr_clusters;
-			}
-		}
-	}
-
-	for (y = 1; y < ny; y++)
-	{
-		for (x = 0; x < nx; x++, idx++)
-		{
-			if (occupied[idx])
-			{
-				int cidx, i;
-
-				nb_idx[0] = x > 0 ? cluster_idx[clusters[idx-nx-1]] : 0;
-				nb_idx[1] = cluster_idx[clusters[idx-nx]];
-				nb_idx[2] = x < nx-1 ? cluster_idx[clusters[idx-nx+1]] : 0;
-				nb_idx[3] = x > 0 ? cluster_idx[clusters[idx-1]] : 0;
-
-				cidx = 0;
-				for (i = 0; i < 4; i++)
-					if (nb_idx[i] && (!cidx || nb_idx[i] < cidx))
-						cidx = nb_idx[i];
-
-				if (!cidx)
-				{
-					nr_clusters++;
-					clusters[idx] = cluster_idx[nr_clusters] = nr_clusters;
-				}
-				else
-				{
-					clusters[idx] = cidx;
-					for (i = 0; i < 4; i++)
-						if (nb_idx[i])
-							cluster_idx[nb_idx[i]] = cidx;
-				}
-			}
-		}
-	}
-
-	cnr = 0;
-	for (ic = 1; ic < nr_clusters; ic++)
-	{
-		if (cluster_idx[ic] == ic)
-			cluster_idx[ic] = ++cnr;
-		else
-			cluster_idx[ic] = cluster_idx[cluster_idx[ic]];
-	}
-
-	for (idx = 0; idx < nx*ny; idx++)
-		clusters[idx] = cluster_idx[clusters[idx]];
-}
-
-short get_cluster (int x, int y)
-{
-	if (clusters == NULL)
-		return 0;
-	if (x < 0 || x >= tile_map_size_x*6 || y < 0 || y >= tile_map_size_y*6)
-		return 0;
-	return clusters[y*tile_map_size_x*6+x];
-}
-
-short get_actor_cluster ()
-{
-	actor *me = pf_get_our_actor ();
-	return me ? me->cluster : 0;
-}
-
-#endif // CLUSTER_INSIDES
 
 int load_map(const char *file_name, update_func *update_function)
 {
@@ -274,14 +59,6 @@ int load_map(const char *file_name, update_func *update_function)
 	ERR();
 #endif
 	my_strcp(map_file_name,file_name);
-
-#ifdef CLUSTER_INSIDES
-	// set the clusters array to zero to ensure that all objects are
-	// initially added with cluster ID zero.
-	if (clusters)
-		free (clusters);
-	clusters = NULL;
-#endif
 
 	main_bbox_tree_items = create_bbox_items(1024);
 	// XXX (Grum): non-portable

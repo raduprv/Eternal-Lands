@@ -9,6 +9,9 @@
 #ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 
 #define INVALID -1
 #define GROUND 0

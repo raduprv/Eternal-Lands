@@ -130,7 +130,7 @@ and project-independent.
 #include "math_cache.h"
 
 #ifdef CLUSTER_INSIDES
-#include "../io/map_io.h"
+#include "../cluster.h"
 #endif
 
 namespace ec

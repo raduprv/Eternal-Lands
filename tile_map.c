@@ -5,6 +5,9 @@
 #else
 #include "global.h"
 #endif
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 
 #ifdef MAP_EDITOR2
 img_struct map_tiles[256];

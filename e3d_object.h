@@ -7,6 +7,7 @@
 #define	__E3D_OBJECT_H__
 
 #include "cache.h"
+#include "md5.h"
 
 #define	VERTEX_FLOAT_COUNT		3
 #define	NORMAL_FLOAT_COUNT		3

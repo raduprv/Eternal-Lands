@@ -6,6 +6,8 @@
 #ifndef __PARTICLES_H__
 #define __PARTICLES_H__
 
+#include <SDL_mutex.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
