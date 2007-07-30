@@ -235,6 +235,7 @@ extern void	end_particles_list();
 
 //CREATION OF NEW PARTICLES AND SYSTEMS 
 
+#ifndef MAP_EDITOR
 /*!
  * \ingroup particles
  * \brief Compute the bounding box for a particle system
@@ -245,6 +246,7 @@ extern void	end_particles_list();
  * \param system_id Pointer to the particle system
  */
 void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id);
+#endif
 
 /*!
  * \ingroup particles
