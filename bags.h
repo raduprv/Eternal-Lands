@@ -1,6 +1,8 @@
 #ifndef __BAGS_H__
 #define __BAGS_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

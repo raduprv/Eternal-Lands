@@ -1,8 +1,6 @@
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "bbox_tree.h"
+#include "draw_scene.h"
+#include "lights.h"
 
 #ifdef OSX
 #include <sys/malloc.h>

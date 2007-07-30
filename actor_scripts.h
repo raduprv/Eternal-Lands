@@ -6,6 +6,8 @@
 #ifndef __ACTOR_SCRIPTS_H__
 #define __ACTOR_SCRIPTS_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

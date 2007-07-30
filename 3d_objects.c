@@ -1,11 +1,6 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
 #include "io/e3d_io.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"

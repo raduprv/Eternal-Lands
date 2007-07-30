@@ -7,6 +7,9 @@
 #define __PARTICLES_H__
 
 #include <SDL_mutex.h>
+#ifndef MAP_EDITOR
+#include "bbox_tree.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {

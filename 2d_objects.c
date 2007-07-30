@@ -1,11 +1,8 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "draw_scene.h"
+#include "textures.h"
 #ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO

@@ -3,6 +3,8 @@
 
 #ifdef MINIMAP
 
+#include "elwindows.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

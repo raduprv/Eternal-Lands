@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "global.h"
+#include "textures.h"
 #include "translate.h"
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"

@@ -1,12 +1,29 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "global.h"
 #include <time.h>
+#include "actor_scripts.h"
 #include "actors.h"
+#include "asc.h"
+#include "cal.h"
+#include "cal3d_wrapper.h"
+#include "counters.h"
+#include "draw_scene.h"
+#include "errors.h"
+#include "init.h"
+#include "interface.h"
+#include "multiplayer.h"
+#include "new_character.h"
+#include "particles.h"
+#include "pathfinder.h"
+#include "tiles.h"
+#include "timers.h"
 #include "translate.h"
 #ifdef EYE_CANDY
  #include "eye_candy_wrapper.h"
+#endif
+#ifdef MINIMAP
+#include "minimap.h"
 #endif
 
 // mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now

@@ -5,12 +5,10 @@
 #include <ctype.h>
 #include <iconv.h>
 #include <errno.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "asc.h"
+#include "errors.h"
 #include "md5.h"
+#include "misc.h"
 #ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO

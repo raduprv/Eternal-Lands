@@ -6,6 +6,8 @@
 #ifndef __STATS_H__
 #define __STATS_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

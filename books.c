@@ -2,8 +2,10 @@
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 #include <string.h>
-#include "global.h"
+#include "books.h"
+#include "asc.h"
 #include "init.h"
+#include "textures.h"
 
 #ifdef BSD
 #include <stdlib.h>

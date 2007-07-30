@@ -1,8 +1,19 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "bags.h"
+#include "3d_objects.h"
 #include "elwindows.h"
+#include "errors.h"
+#include "font.h"
+#include "init.h"
+#include "items.h"
+#include "multiplayer.h"
+#include "textures.h"
+#include "tiles.h"
+#include "translate.h"
+#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
+#endif
 
 ground_item ground_item_list[ITEMS_PER_BAG];
 bag bag_list[NUM_BAGS];

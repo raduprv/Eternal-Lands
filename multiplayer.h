@@ -6,6 +6,8 @@
 #ifndef __MULTIPLAYER_H__
 #define __MULTIPLAYER_H__
 
+#include <SDL_net.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

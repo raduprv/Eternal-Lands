@@ -6,6 +6,11 @@
 #ifndef	__E3D_OBJECT_H__
 #define	__E3D_OBJECT_H__
 
+#ifdef OSX
+#include <OpenGL/gl.h>
+#else
+#include <GL/gl.h>
+#endif
 #include "cache.h"
 #include "md5.h"
 

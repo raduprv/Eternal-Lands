@@ -6,6 +6,9 @@
 #ifndef __CHAT_H__
 #define __CHAT_H__
 
+#include "elwindows.h"
+#include "widgets.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
