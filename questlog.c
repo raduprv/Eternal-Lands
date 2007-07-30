@@ -14,7 +14,7 @@ int questlog_menu_x=150;
 int questlog_menu_y=70;
 int questlog_menu_x_len=STATS_TAB_WIDTH;
 int questlog_menu_y_len=STATS_TAB_HEIGHT;
-_logdata logdata,*last,*current;
+_logdata logdata,*last = NULL, *current = NULL;
 int	logdata_length=0;
 int quest_scroll_id = 14;
 int nr_screen_lines = 0;
@@ -162,7 +162,8 @@ void add_questlog_line(char *t, int len)
 	l->msg= (char*)malloc(len+1);
 	string_fix(t, len);
 	safe_snprintf(l->msg, len+1, "%s", t);
-	last->Next= l;
+	if (last)
+		last->Next= l;
 	last= l;
 	if(current==NULL)	current= l;
 	// keep track of the counter
