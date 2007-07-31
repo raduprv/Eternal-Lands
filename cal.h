@@ -1,5 +1,7 @@
 #ifndef __CAL_H__
 #define __CAL_H__
+
+#include "actors.h"
 #include "cal3d_wrapper.h"
 #include "cal_types.h"
 

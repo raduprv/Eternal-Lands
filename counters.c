@@ -1,8 +1,19 @@
 #ifdef COUNTERS
 
 #include <ctype.h>
-#include "global.h"
+#include "counters.h"
+#include "asc.h"
 #include "elwindows.h"
+#include "font.h"
+#include "init.h"
+#include "interface.h"
+#include "multiplayer.h"
+#include "tabs.h"
+#ifdef NEW_FILE_IO
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
+#endif
 
 #define NUM_COUNTERS 10
 #define NUM_LINES 18

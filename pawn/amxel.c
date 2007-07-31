@@ -11,15 +11,13 @@
 #include "../eye_candy_wrapper.h"
 #include "../font.h"
 #include "../pathfinder.h"
+#include "../platform.h"
 #include "../sound.h"
 #include "../text.h"
 #include "amxel.h"
 #include "amxcons.h"
 #include "elpawn.h"
 
-#ifndef M_PI
-#define M_PI 3.14159265358979323846
-#endif // !M_PI
 #define MAX_LOG_MSG_SIZE 256
 
 void update_object_pos_and_rot (object3d* obj)

@@ -7,6 +7,7 @@
 #define __CHAT_H__
 
 #include "elwindows.h"
+#include "queue.h"
 #include "widgets.h"
 
 #ifdef __cplusplus

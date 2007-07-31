@@ -6,6 +6,8 @@
 #ifndef __COLORS_H__
 #define __COLORS_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

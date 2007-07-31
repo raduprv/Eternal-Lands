@@ -6,6 +6,8 @@
 #ifndef __FILE_CACHE_H__
 #define __FILE_CACHE_H__
 
+#include <SDL_types.h>
+
 extern Uint32 cur_time;
 
 #ifdef __cplusplus

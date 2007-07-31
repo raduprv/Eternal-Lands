@@ -6,6 +6,8 @@
 #ifndef __IGNORE_H__
 #define __IGNORE_H__
 
+#include "interface.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

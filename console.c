@@ -2,9 +2,41 @@
 #include <time.h>
 #include <string.h>
 #include <ctype.h>
-#include "global.h"
+#include "console.h"
+#include "asc.h"
+#include "buddy.h"
+#include "cache.h"
+#include "chat.h"
+#include "client_serv.h"
+#include "consolewin.h"
+#include "elconfig.h"
+#include "filter.h"
+#include "hud.h"
+#include "ignore.h"
+#include "init.h"
+#include "interface.h"
+#include "knowledge.h"
+#include "lights.h"
 #include "list.h"
-#include "queue.h"
+#include "mapwin.h"
+#include "misc.h"
+#include "multiplayer.h"
+#include "notepad.h"
+#include "pm_log.h"
+#include "sound.h"
+#include "spells.h"
+#include "tabs.h"
+#include "translate.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
+#ifdef MINIMAP
+#include "minimap.h"
+#endif
+#ifdef NEW_FILE_IO
+#include "errors.h"
+#include "io/elpathwrapper.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.

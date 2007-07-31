@@ -3,6 +3,8 @@
 #ifndef __COUNTERS_H__
 #define __COUNTERS_H___
 
+#include "actors.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

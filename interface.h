@@ -10,6 +10,8 @@
 extern "C" {
 #endif
 
+#include "platform.h"
+
 //How long a username is allowed to be. In many cases, it will be +1 to allow for the trailing NULL
 #define MAX_USERNAME_LENGTH 14
 

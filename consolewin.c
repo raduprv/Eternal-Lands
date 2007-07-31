@@ -1,7 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "global.h"
 #ifdef SFX
 #include "special_effects.h"
 #endif
