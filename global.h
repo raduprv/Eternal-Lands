@@ -6,11 +6,6 @@
 #ifndef __GLOBAL_H__
 #define __GLOBAL_H__
 
-#include <math.h>
-#ifndef M_PI
- #define M_PI 3.14159265358979323846
-#endif //M_PI
-
 //only ever use WINDOWS anywhere else, in case we need to add another 'catch' to enable WINDOWS
 #if defined(_WIN32) || defined(_WIN64)
 	#ifndef	WINDOWS
@@ -52,28 +47,7 @@
 	#ifdef __BIG_ENDIAN__
 		#define EL_BIG_ENDIAN
 	#endif
-	#include <OpenGL/gl.h>
-	#include <OpenGL/glu.h>
-	#include <OpenGL/glext.h>
 #endif //WINDOWS
-
-#if defined(CUSTOM_UPDATE) && !defined(AUTO_UPDATE)
-#undef CUSTOM_UPDATE
-#endif
-
-#if defined(EYE_CANDY) && !defined(SFX)
-#define SFX
-#endif
-
-#if defined(USE_SHADER) && !defined(NEW_FILE_IO)
-#undef USE_SHADER
-#endif
-
-#ifndef OSX
-#include <GL/gl.h>
-#include <GL/glu.h>
-#include <GL/glext.h>
-#endif
 
 //SDL has to be before ogg
 #include <SDL.h>

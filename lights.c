@@ -1,15 +1,18 @@
 #include <stdlib.h>
 #include <math.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
+#include "lights.h"
+#include "bbox_tree.h"
+#include "map.h"
+#include "shadows.h"
+#include "weather.h"
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
 #endif
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
-#ifdef CLUSTER_INSIDES
-#include "cluster.h"
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
 #endif
 
 #ifdef NEW_LIGHTING

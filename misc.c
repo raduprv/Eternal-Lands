@@ -14,13 +14,22 @@
 #ifdef PNG_SCREENSHOT
  #include <png.h>
 #endif //PNG_SCREENSHOT
-#include "global.h"
 #ifdef OSX
 #include <ApplicationServices/ApplicationServices.h>
 #endif
 #ifdef ZLIB
 #include <zlib.h>
 #endif // ZLIB
+#include "misc.h"
+#include "asc.h"
+#include "bbox_tree.h"
+#include "cursors.h"
+#include "draw_scene.h"
+#include "font.h"
+#include "gl_init.h"
+#include "init.h"
+#include "interface.h"
+#include "translate.h"
 
 #define IMG_SetError(a) SDL_SetError(a)
 #ifndef S_ISDIR

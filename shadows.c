@@ -1,11 +1,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "shadows.h"
+#include "2d_objects.h"
+#include "3d_objects.h"
+#include "bbox_tree.h"
+#include "cal.h"
+#include "cursors.h"
+#include "e3d.h"
+#include "framebuffer.h"
+#include "init.h"
+#include "lights.h"
+#include "map.h"
+#include "new_actors.h"
+#include "pathfinder.h"
+#include "reflection.h"
+#include "textures.h"
+#include "tiles.h"
+#include "weather.h"
 #include "io/e3d_io.h"
 
 #ifdef OSX

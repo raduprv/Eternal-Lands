@@ -3,21 +3,35 @@
 #ifndef WINDOWS
  #include <locale.h>
 #endif
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else	//MAP_EDITOR2
-#ifdef MAP_EDITOR
-#include "../map_editor/global.h"
-#else //MAP_EDITOR
- #include "global.h"
-#endif	//MAP_EDITOR
-#endif	//MAP_EDITOR2
+#include "particles.h"
+#include "3d_objects.h"
+#include "asc.h"
+#include "draw_scene.h"
+#include "errors.h"
+#include "gl_init.h"
+#include "init.h"
+#include "pathfinder.h"
 #include "string.h"
-#ifdef	EYE_CANDY
-#include "eye_candy_wrapper.h"
-#endif	//EYE_CANDY
+#include "sound.h"
+#include "textures.h"
+#include "tiles.h"
+#include "translate.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
+#endif
+#ifdef EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif	//EYE_CANDY
+#ifdef NEW_FILE_IO
+#include "translate.h"
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
+#endif
+#ifdef MAP_EDITOR
+#include "../map_editor/lights.h"
+#else
+#include "lights.h"
 #endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:

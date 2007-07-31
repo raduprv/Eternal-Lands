@@ -9,6 +9,7 @@
 #include "e3d.h"
 #include "init.h"
 #include "map.h"
+#include "platform.h"
 #include "shadows.h"
 #include "textures.h"
 #include "tiles.h"

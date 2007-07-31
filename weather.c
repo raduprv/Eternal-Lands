@@ -1,7 +1,10 @@
 #include <math.h>
 #include <string.h>
-#include "global.h"
+#include "weather.h"
+#include "actors.h"
+#include "client_serv.h"
 #include "lights.h"
+#include "global.h" // XXX keep for cur_time
 
 #ifdef NEW_WEATHER
 #define MAX_RAIN_DROPS 100000

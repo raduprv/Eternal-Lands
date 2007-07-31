@@ -1,7 +1,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "actors.h"
 #include "font.h"
+#include "platform.h"
 #include "textures.h"
 #include "translate.h"
 #ifdef CLUSTER_INSIDES

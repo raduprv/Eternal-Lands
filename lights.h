@@ -8,6 +8,8 @@
 #ifndef __LIGHTS_H__
 #define __LIGHTS_H__
 
+#include "platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

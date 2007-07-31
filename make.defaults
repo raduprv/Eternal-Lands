@@ -66,6 +66,26 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 FEATURES += ZLIB                             # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 
+# Handle feature dependencies:
+# if CUSTOM_UPDATE is set, but AUTO_UPDATE isn't, remove CUSTOM_UPDATE
+ifneq ($(filter CUSTOM_UPDATE, $(FEATURES)),)
+	ifeq ($(filter AUTO_UPDATE, $(FEATURES)),)
+		FEATURES := $(filter-out CUSTOM_UPDATE, $(FEATURES))
+	endif
+endif
+# if EYE_CANDY is set, but SFX isn't, add SFX
+ifneq ($(filter EYE_CANDY, $(FEATURES)),)
+	ifeq ($(filter SFX, $(FEATURES)),)
+		FEATURES += SFX
+	endif
+endif
+# if USE_SHADER is set, but NEW_FILE_IO isn't, remove USE_SHADER
+ifneq ($(filter USE_SHADER, $(FEATURES)),)
+	ifeq ($(filter NEW_FILE_IO, $(FEATURES)),)
+		FEATURES := $(filter-out USE_SHADER, $(FEATURES))
+	endif
+endif
+
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
 CWARN=-Wall -Wdeclaration-after-statement

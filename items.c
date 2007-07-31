@@ -3,6 +3,7 @@
 #include <math.h>
 #include "global.h"
 #include "elwindows.h"
+#include "platform.h"
 
 item item_list[ITEM_NUM_ITEMS];
 

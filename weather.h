@@ -6,6 +6,9 @@
 #ifndef __WEATHER_H__
 #define __WEATHER_H__
 
+#include <SDL_types.h>
+#include "platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

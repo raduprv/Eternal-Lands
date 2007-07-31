@@ -6,6 +6,8 @@
 #ifndef __PATHFINDER_H__
 #define __PATHFINDER_H__
 
+#include "actors.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

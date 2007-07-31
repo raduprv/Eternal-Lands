@@ -2,7 +2,6 @@
 #include <string.h>
 #include <time.h>
 #include "actor_scripts.h"
-#include "platform.h"
 #include "actors.h"
 #include "asc.h"
 #include "cal.h"
@@ -16,6 +15,7 @@
 #include "new_character.h"
 #include "particles.h"
 #include "pathfinder.h"
+#include "platform.h"
 #include "tiles.h"
 #include "timers.h"
 #include "translate.h"

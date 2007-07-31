@@ -7,6 +7,7 @@
 #include "init.h"
 #include "load_gl_extensions.h"
 #include "map.h"
+#include "platform.h"
 #include "shadows.h"
 #include "textures.h"
 #include "tiles.h"

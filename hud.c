@@ -4,6 +4,7 @@
 #include "global.h"
 #include "elwindows.h"
 #include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
+#include "platform.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
