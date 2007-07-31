@@ -6,6 +6,8 @@
 #ifndef __STORAGE_H__
 #define __STORAGE_H__
 
+#include "bags.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

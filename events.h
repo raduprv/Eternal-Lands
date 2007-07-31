@@ -9,6 +9,8 @@
 #ifndef __EVENTS_H__
 #define __EVENTS_H__
 
+#include <SDL_events.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

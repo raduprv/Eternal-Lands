@@ -1,7 +1,15 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "encyclopedia.h"
+#include "asc.h"
 #include "elwindows.h"
+#include "errors.h"
+#include "font.h"
+#include "init.h"
+#include "interface.h"
+#include "misc.h"
+#include "platform.h"
+#include "textures.h"
 
 int encyclopedia_win=-1;
 int encyclopedia_menu_x=100;

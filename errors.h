@@ -6,6 +6,8 @@
 #ifndef __ERRORS_H__
 #define __ERRORS_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

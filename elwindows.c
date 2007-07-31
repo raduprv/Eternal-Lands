@@ -1,8 +1,17 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
-#include "keys.h"
 #include "elwindows.h"
+#include "alphamap.h"
+#include "asc.h"
+#include "cursors.h"
+#include "font.h"
+#include "gl_init.h"
+#include "interface.h"
+#include "keys.h"
+#include "multiplayer.h"
+#include "storage.h"
+#include "textures.h"
+#include "trade.h"
 #include "widgets.h"
 #if defined SFX && defined EYE_CANDY
 #include "eye_candy_wrapper.h"

@@ -6,6 +6,8 @@
 #ifndef __ITEMS_H__
 #define __ITEMS_H__
 
+#include "platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -6,6 +6,7 @@
 #ifndef __ENCYCLOPEDIA_H__
 #define __ENCYCLOPEDIA_H__
 
+#include <SDL_types.h>
 #include <libxml/parser.h>
 #include <libxml/tree.h>
 
