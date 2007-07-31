@@ -1,8 +1,8 @@
 #include <stdlib.h>
-#include <math.h>
 #include <string.h>
 #include <time.h>
 #include "actor_scripts.h"
+#include "platform.h"
 #include "actors.h"
 #include "asc.h"
 #include "cal.h"
