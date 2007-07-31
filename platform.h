@@ -7,10 +7,53 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
-#include <math.h>
-#ifndef M_PI
- #define M_PI 3.14159265358979323846
-#endif //M_PI
+// only ever use WINDOWS anywhere else, in case we need to add another 'catch' to 
+// enable WINDOWS
+#if defined (_WIN32) || defined (_WIN64)
+ #ifndef WINDOWS
+  #define WINDOWS
+ #endif  // !WINDOWS
+#endif  // _WIN32 || _WIN64
+
+#ifdef WINDOWS
+ #include <windows.h>
+ #ifdef _MSC_VER        // now we do test for VC
+  // Lachesis: Make sure snprintf is declared before we #define it to be something else,
+  // else we'll eventually break C++ headers that use it
+  #include <stdio.h>
+
+  #define stat _stat
+  #define snprintf safe_snprintf
+  #define strncasecmp _strnicmp
+  #define strcasecmp _stricmp
+                
+  #if _MSC_VER < 1400 // VC 2003 needs these defines, VC 2005 will error with them included
+   #define atan2f atan2
+   #define acosf acos
+   #define ceilf ceil
+   #define floorf floor
+   #define fabsf fabs
+  #endif  // _MSC_VER < 1400
+                
+  #define rint(X) floor(X+0.5f)
+ #endif // _MSC_VER
+        
+ #ifdef __MINGW32__
+  // Lachesis: Make sure snprintf is declared before we #define it to be something else,
+  // else we'll eventually break C++ headers that use it
+  #include <stdio.h>
+
+  #define snprintf sane_snprintf
+ #endif // __MINGW32__
+#elif defined (OSX)
+ #ifndef NO_MUSIC
+  #define __MACOSX__  //necessary for Ogg on Macs
+ #endif
+
+ #ifdef __BIG_ENDIAN__
+  #define EL_BIG_ENDIAN
+ #endif
+#endif //WINDOWS
 
 #ifdef OSX
  #include <OpenGL/gl.h>
@@ -21,6 +64,11 @@
  #include <GL/glu.h>
  #include <GL/glext.h>
 #endif
+
+#include <math.h>
+#ifndef M_PI
+ #define M_PI 3.14159265358979323846
+#endif //M_PI
 
 #ifdef EL_BIG_ENDIAN
  #define SwapLEFloat(X) SwapFloat(X)

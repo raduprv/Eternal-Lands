@@ -65,7 +65,6 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 
 #include "client_serv.h"
 #ifdef MEMORY_DEBUG
- #include <stdlib.h> // make sure this is loaded before elmemory bc it defines malloc/calloc
  #include "elmemory.h"
 #endif //MEMORY_DEBUG
 #include "cal_types.h"

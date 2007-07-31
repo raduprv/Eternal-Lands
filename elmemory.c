@@ -8,6 +8,7 @@
 #ifdef MAP_EDITOR2
  #include "../map_editor2/init.h"
 #else
+ #include "asc.h"
  #include "init.h"
 #endif
 
