@@ -6,6 +6,8 @@
 #ifndef __CURSORS_H__
 #define __CURSORS_H__
 
+#include "actors.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -3,7 +3,8 @@
 
 #ifdef USE_SHADER
 
-#include "../global.h"
+#include <SDL_types.h>
+#include "../platform.h"
 
 typedef enum
 {

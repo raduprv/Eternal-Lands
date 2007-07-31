@@ -2,13 +2,8 @@
 #define BBOX_TREE_H
 
 #include <stdlib.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#include "../map_editor2/misc.h"
-#else
 #include "vmath.h"
 #include "misc.h"
-#endif
 #ifdef DEBUG
 #include "errors.h"
 #endif

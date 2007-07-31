@@ -5,11 +5,13 @@
 #include "eye_candy_wrapper.h"
 #include "cal3d_wrapper.h"
 #include "draw_scene.h"
+#include "errors.h"
 #include "gl_init.h"
 #include "particles.h"
 #include "init.h"
 #include "gamewin.h"
 #include "shadows.h"
+#include "tiles.h"
 
 // G L O B A L S //////////////////////////////////////////////////////////////
 

@@ -7,11 +7,7 @@
 #define __MISC_H__
 
 #include <SDL_endian.h>
-#ifdef OSX
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include "platform.h"
 #ifdef ZLIB
 #include <zlib.h>
 #endif // ZLIB
@@ -21,31 +17,6 @@ extern "C" {
 #endif
 
 #define BUTTONRADIUS 15
-
-/*!
- * \ingroup misc
- * \brief Swaps a float properly
- *
- *      Swaps the given float \a t
- *
- * \param t         the float to swap
- * \retval float    the swapped float
- */
-static __inline__ float SwapFloat(float t)
-{
-	union {
-		float f;
-		int i;
-	} intOrFloat;
-	intOrFloat.f = t;
-	intOrFloat.i = SDL_Swap32(intOrFloat.i);
-	return intOrFloat.f;
-	/*
-	int ftemp = SDL_Swap32(*((int*)(&t)));
-	return *((float*)(&ftemp));
-	*/
-}
-
 
 /*!
  * \ingroup misc

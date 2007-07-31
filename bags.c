@@ -2,10 +2,14 @@
 #include <string.h>
 #include "bags.h"
 #include "3d_objects.h"
+#include "asc.h"
+#include "cursors.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "font.h"
+#include "gamewin.h"
 #include "init.h"
+#include "interface.h"
 #include "items.h"
 #include "multiplayer.h"
 #include "textures.h"
@@ -314,6 +318,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	int pos;
 	Uint8 str[10];
 	int right_click = flags & ELW_RIGHT_MOUSE;
+	int ctrl_on = flags & ELW_CTRL;
 	
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) {

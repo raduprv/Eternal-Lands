@@ -1,13 +1,20 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "font.h"
 #include "textures.h"
 #include "translate.h"
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
-#ifdef CLUSTER_INSIDES
-#include "cluster.h"
+#ifdef MINIMAP
+#include "minimap.h"
+#endif
+#ifdef SKY_FPV_CURSOR
+#include "global.h" // XXX For the definition of font_scale
 #endif
 
 #ifdef ELC

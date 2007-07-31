@@ -1,8 +1,16 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "2d_objects.h"
+#include "asc.h"
 #include "draw_scene.h"
+#include "init.h"
+#include "load_gl_extensions.h"
+#include "map.h"
+#include "shadows.h"
 #include "textures.h"
+#include "tiles.h"
+#include "translate.h"
 #ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO

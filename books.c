@@ -4,8 +4,14 @@
 #include <string.h>
 #include "books.h"
 #include "asc.h"
+#include "errors.h"
+#include "font.h"
 #include "init.h"
+#include "knowledge.h"
+#include "multiplayer.h"
+#include "new_character.h"
 #include "textures.h"
+#include "translate.h"
 
 #ifdef BSD
 #include <stdlib.h>

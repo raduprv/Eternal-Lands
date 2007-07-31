@@ -6,10 +6,13 @@
 #ifndef __TEXTURES_H__
 #define __TEXTURES_H__
 
-#ifdef MAP_EDITOR
- #include "../map_editor/global.h"
-#else
- #include "global.h"
+#ifndef MAP_EDITOR
+ #include "actors.h"
+ #include "cache.h"
+ #include "platform.h"
+ #ifdef USE_INLINE
+  #include "draw_scene.h"
+ #endif
 #endif
 
 #ifdef __cplusplus

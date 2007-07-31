@@ -6,6 +6,8 @@
 #ifndef __SHADOWS_H__
 #define __SHADOWS_H__
 
+#include "platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

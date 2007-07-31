@@ -1,7 +1,17 @@
-#include "e3d_io.h"
 #include <float.h>
+#include <SDL_endian.h>
+#include "e3d_io.h"
+#include "../platform.h"
+#include "../textures.h"
+#ifdef MAP_EDITOR
+ #include "../../map_editor/errors.h"
+ #include "../../map_editor/misc.h"
+#else
+ #include "../errors.h"
+ #include "../misc.h"
+#endif
 #ifdef	NEW_FILE_IO
-#include "elfilewrapper.h"
+ #include "elfilewrapper.h"
 #endif	//NEW_FILE_IO
 
 static void free_e3d_pointer(e3d_object* cur_object)

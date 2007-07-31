@@ -69,12 +69,6 @@
 #undef USE_SHADER
 #endif
 
-#ifdef EL_BIG_ENDIAN
-	#define SwapLEFloat(X) SwapFloat(X)
-#else
-	#define SwapLEFloat(X) (X)
-#endif
-
 #ifndef OSX
 #include <GL/gl.h>
 #include <GL/glu.h>
@@ -88,11 +82,6 @@
 
 #ifdef __cplusplus
 extern "C" {
-#endif
-#ifdef X86_64
-typedef long int point;
-#else
-typedef int point;
 #endif
 
 extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to resync */
@@ -125,7 +114,6 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #include "lights.h"
 #include "multiplayer.h"
 #include "text.h"
-#include "interface.h"
 #include "hud.h"
 #include "map.h"
 #include "reflection.h"

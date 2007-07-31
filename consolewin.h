@@ -6,6 +6,10 @@
 #ifndef __CONSOLE_WIN__
 #define __CONSOLE_WIN__
 
+#ifndef MAP_EDITOR
+#include "widgets.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif

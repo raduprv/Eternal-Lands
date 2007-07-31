@@ -1,7 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
 #include "cache.h"
+#include "2d_objects.h"
+#include "asc.h"
+#include "gamewin.h"
 #include "textures.h"
+#include "translate.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.

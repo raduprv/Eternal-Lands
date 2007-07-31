@@ -1,7 +1,8 @@
 #ifndef	_LOAD_GL_EXTENSIONS_H_
 #define	_LOAD_GL_EXTENSIONS_H_
 
-#include "global.h"
+#include <SDL_types.h>
+#include "platform.h"
 
 #ifndef GL_ATI_texture_compression_3dc
 #define GL_ATI_texture_compression_3dc 1

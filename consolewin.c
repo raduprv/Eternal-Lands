@@ -1,6 +1,22 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include "consolewin.h"
+#include "asc.h"
+#include "books.h"
+#include "chat.h"
+#include "console.h"
+#include "draw_scene.h"
+#include "elwindows.h"
+#include "font.h"
+#include "gamewin.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "mapwin.h"
+#include "new_character.h"
+#include "spells.h"
+#include "text.h"
 #ifdef SFX
 #include "special_effects.h"
 #endif

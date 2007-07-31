@@ -1,10 +1,12 @@
 #include <stdlib.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#include "../map_editor2/elwindows.h"
-#else
-#include "global.h"
+#include "cursors.h"
 #include "elwindows.h"
+#ifdef NEW_FILE_IO
+#include "errors.h"
+#include "translate.h"
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
 #endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:

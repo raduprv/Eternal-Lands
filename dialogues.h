@@ -6,6 +6,8 @@
 #ifndef __DIALOGUES_H__
 #define __DIALOGUES_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

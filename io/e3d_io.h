@@ -7,9 +7,9 @@
 #define __E3D_IO_H__
 
 #ifdef	MAP_EDITOR
-#include "../../map_editor/global.h"
+ #include "../../map_editor/gl_init.h"
 #else
-#include "../global.h"
+ #include "../gl_init.h"
 #endif
 #include "elc_io.h"
 #include "../e3d_object.h"
@@ -111,4 +111,4 @@ static __inline void load_e3d_detail_if_needed(e3d_object* e3d_data)
 		}
 	}
 }
-#endif
+#endif // __E3D_IO_H__

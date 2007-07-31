@@ -2,6 +2,10 @@
 
 #include "shader.h"
 #include "noise.h"
+#include "../errors.h"
+#include "../gl_init.h"
+#include "../load_gl_extensions.h"
+#include "../misc.h"
 #include "../io/elfilewrapper.h"
 
 GLuint noise_tex;

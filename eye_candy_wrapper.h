@@ -14,11 +14,7 @@
 #ifndef EYE_CANDY_WRAPPER_H
 #define EYE_CANDY_WRAPPER_H
 
-#ifdef OSX
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
+#include "platform.h"
 #include "actors.h"
 #include "e3d.h"
 

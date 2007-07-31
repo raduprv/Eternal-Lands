@@ -1,7 +1,6 @@
 #ifndef _SPECIAL_EFFECTS_H_
 #define _SPECIAL_EFFECTS_H_
 
-#include "global.h"
 #include "client_serv.h"
 
 #ifdef __cplusplus

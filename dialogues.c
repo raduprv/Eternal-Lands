@@ -1,7 +1,15 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include <SDL_endian.h>
+#include "dialogues.h"
+#include "asc.h"
 #include "elwindows.h"
+#include "font.h"
+#include "gamewin.h"
+#include "interface.h"
+#include "multiplayer.h"
+#include "textures.h"
+#include "translate.h"
 
 unsigned char dialogue_string[2048];
 unsigned char npc_name[20];
