@@ -309,6 +309,7 @@ void connect_to_server()
 			exit(2);
 		}
 	disconnected= 0;
+	have_storage_list = 0;  //With a reconnect, our cached copy of what's in storage may no longer be accurate
 
 	//send the current version to the server
 	send_version_to_server(&ip);
