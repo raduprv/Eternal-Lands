@@ -1,7 +1,14 @@
 #include <stdlib.h>
 #include <stddef.h>
 #include <ctype.h>
-#include "global.h"
+#include "session.h"
+#include "asc.h"
+#include "elwindows.h"
+#include "font.h"
+#include "global.h" // XXX for cur_time
+#include "platform.h"
+#include "stats.h"
+#include "translate.h"
 
 int session_win = -1;
 int reconnecting = 0;
@@ -121,10 +128,13 @@ void init_session(void)
 		session_stats = your_info;
 		session_start_time = cur_time;
 		reconnecting = 1;
-	} else if ( disconnect_time != 0 ) {
+	}
+#ifdef COUNTERS
+	else if ( disconnect_time != 0 ) {
 		session_start_time += (cur_time-disconnect_time);
 		disconnect_time = 0;
 	}
+#endif
 }
 
 int session_reset_handler(void)
@@ -132,6 +142,8 @@ int session_reset_handler(void)
 	init_session();
 	session_stats = your_info;
 	session_start_time = cur_time;
+#ifdef COUNTERS
 	reset_session_counters();
+#endif
 	return 0;
 }

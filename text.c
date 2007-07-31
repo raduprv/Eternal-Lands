@@ -2,8 +2,35 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include "global.h"
+#include "text.h"
+#include "actors.h"
+#include "asc.h"
+#include "buddy.h"
 #include "chat.h"
+#include "client_serv.h"
+#include "console.h"
+#include "consolewin.h"
+#include "errors.h"
+#include "filter.h"
+#include "font.h"
+#include "gl_init.h"
+#include "global.h" // XXX for cur_time
+#include "hud.h"
+#include "lights.h"
+#include "misc.h"
+#include "multiplayer.h"
+#include "pm_log.h"
+#include "translate.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
+#ifdef NEW_FILE_IO
+#include "io/elpathwrapper.h"
+#endif
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
+#endif
+
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;

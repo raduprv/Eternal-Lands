@@ -1,10 +1,13 @@
 #include <math.h>
 #include <stdlib.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "asc.h"
+#include "draw_scene.h"
+#include "gl_init.h"
+#include "init.h"
+#include "load_gl_extensions.h"
+#include "reflection.h"
+#include "shadows.h"
+#include "textures.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif

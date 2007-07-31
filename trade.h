@@ -6,6 +6,8 @@
 #ifndef __TRADE_H__
 #define __TRADE_H__
 
+#include "platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

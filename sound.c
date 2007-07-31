@@ -1,10 +1,19 @@
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
-#include    <ctype.h>
+#include <ctype.h>
+#include <string.h>
+#include <SDL.h>
+#include "sound.h"
+#include "asc.h"
+#include "client_serv.h"
+#include "draw_scene.h"
+#include "errors.h"
+#include "init.h"
+#include "lights.h"
+#include "misc.h"
+#include "translate.h"
+#include "weather.h"
+#include "io/map_io.h"
 #ifdef	NEW_FILE_IO
+#include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
 

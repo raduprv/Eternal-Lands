@@ -1,14 +1,19 @@
 #include <stdlib.h>
 #include <math.h>
-#include <ctype.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
-#include "widgets.h"
-#include "elwindows.h"
 #include <string.h>
+#include <ctype.h>
+#include "widgets.h"
+#include "asc.h"
+#include "chat.h"
+#include "cursors.h"
+#include "elwindows.h"
+#include "font.h"
+#include "gamewin.h"
+#include "interface.h"
+#include "misc.h"
+#include "paste.h"
+#include "tabs.h"
+#include "textures.h"
 
 typedef struct {
 	char text[256];

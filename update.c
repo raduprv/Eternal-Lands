@@ -1,23 +1,28 @@
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include	"global.h"
-#endif
-
-#include	"update.h"
-#include    "asc.h"
-#include    <stdio.h>
-#include    <ctype.h>
-#include	<errno.h>
+#include <stdio.h>
+#include <ctype.h>
+#include <errno.h>
 #ifdef	WINDOWS
-#define	strdup	_strdup
-#include    <direct.h>
+ #define strdup	_strdup
+ #include <direct.h>
 #else   //WINDOWS
-#include	<sys/types.h>
-#include	<sys/stat.h>
+ #include <sys/types.h>
+ #include <sys/stat.h>
 #endif	//WINDOWS
 #ifdef	ZLIB
-#include	<zlib.h>
+ #include <zlib.h>
+#endif
+#include <time.h>
+#include <SDL_net.h>
+#include "update.h"
+#include "asc.h"
+#include "elc_private.h"
+#include "errors.h"
+#include "events.h"
+#include "init.h"
+#include "misc.h"
+#ifdef NEW_FILE_IO
+#include "translate.h"
+#include "io/elpathwrapper.h"
 #endif
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)

@@ -6,19 +6,21 @@
 #ifndef __UPDATE_H__
 #define __UPDATE_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif
 
 // structure for requesting a file via http+thread
 struct http_get_struct {
-	char	server[128];
-	char	path[256];
-    Uint8	*md5;
-	FILE	*fp;
-	int		event;
-	int     status;
-	int     allow_restart;
+	char   server[128];
+	char   path[256];
+	Uint8  *md5;
+	FILE   *fp;
+	int    event;
+	int    status;
+	int    allow_restart;
 };
 
 /*!

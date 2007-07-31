@@ -23,6 +23,9 @@
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
+#ifdef NEW_LIGHTING
+#include "lights.h"
+#endif
 
 int console_root_win = -1;
 

@@ -1,11 +1,30 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
-#ifdef SFX
-#include "special_effects.h"
+#include "mapwin.h"
+#include "asc.h"
+#include "books.h"
+#include "console.h"
+#include "consolewin.h"
+#include "chat.h"
+#include "draw_scene.h"
+#include "elwindows.h"
+#include "font.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "lights.h"
+#include "new_character.h"
+#include "pathfinder.h"
+#ifdef CLICKABLE_CONTINENT_MAP
+#include "textures.h"
 #endif
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
+#endif
+#ifdef SFX
+#include "special_effects.h"
 #endif
 
 int map_root_win = -1;

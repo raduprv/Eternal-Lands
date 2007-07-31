@@ -1,19 +1,25 @@
 #include <stdlib.h>
 #include <string.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
-#ifdef	ZLIB
-#include	<zlib.h>
+#ifdef ZLIB
+#include <zlib.h>
 #endif
 #ifndef	OLD_TEXTURE_LOADER
 #include <SDL_image.h>
-#endif	//OLD_TEXTURE_LOADER
+#endif //OLD_TEXTURE_LOADER
+#include "textures.h"
+#include "asc.h"
+#include "errors.h"
+#include "gl_init.h"
+#include "init.h"
+#include "lights.h"
+#include "load_gl_extensions.h"
+#include "map.h"
 #ifdef NEW_FILE_IO
 #include "io/elfilewrapper.h"
+#else
+#include "misc.h"
 #endif //NEW_FILE_IO
+
 #ifdef SKY_FPV_CURSOR
 
 //Some textures just can't be compressed (written for custom cursors)

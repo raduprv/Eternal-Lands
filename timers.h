@@ -6,6 +6,8 @@
 #ifndef __TIMERS_H__
 #define __TIMERS_H__
 
+#include <SDL_timer.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

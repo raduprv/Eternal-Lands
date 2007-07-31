@@ -6,6 +6,9 @@
 #include "errors.h"
 #include "asc.h"
 #include "init.h"
+#ifdef NEW_FILE_IO
+#include "io/elpathwrapper.h"
+#endif
 
 FILE* open_log (const char *fname, const char *mode)
 {

@@ -1,7 +1,21 @@
 #include <stdlib.h>
-#include "global.h"
+#include "trade.h"
+#include "asc.h"
+#include "client_serv.h"
 #include "elwindows.h"
+#include "font.h"
+#include "gamewin.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "items.h"
+#include "manufacture.h"
+#include "multiplayer.h"
+#include "spells.h"
+#include "storage.h"
 #include "string.h"
+#include "textures.h"
+#include "translate.h"
 
 #define ITEM_INVENTORY 1
 #define ITEM_BANK 2

@@ -1,6 +1,7 @@
 #ifndef _SPECIAL_EFFECTS_H_
 #define _SPECIAL_EFFECTS_H_
 
+#include <SDL_types.h>
 #include "client_serv.h"
 
 #ifdef __cplusplus
