@@ -4,6 +4,7 @@
 #include "2d_objects.h"
 #include "asc.h"
 #include "draw_scene.h"
+#include "errors.h"
 #include "init.h"
 #include "load_gl_extensions.h"
 #include "map.h"

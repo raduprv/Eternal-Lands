@@ -787,7 +787,7 @@ int command_glinfo(char *text, int len)
 	LOG_TO_CONSOLE(c_yellow3,this_string);
 
 	my_string = (GLubyte *)glGetString(GL_VERSION);
-	snprintf(this_string, sizeof(this_string),"%s: %s",opengl_version_str,my_string);
+	safe_snprintf(this_string, sizeof(this_string),"%s: %s",opengl_version_str,my_string);
 	LOG_TO_CONSOLE(c_yellow2,this_string);
 
 	my_string = (GLubyte *)glGetString(GL_EXTENSIONS);
@@ -836,7 +836,7 @@ int knowledge_command(char *text, int len)
 			++num_total;
 		}
 	}
-	snprintf(count_str, sizeof(count_str), book_count_str, num_read, num_total);
+	safe_snprintf(count_str, sizeof(count_str), book_count_str, num_read, num_total);
 	LOG_TO_CONSOLE(c_grey1, count_str);
 	return 1;
 }

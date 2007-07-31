@@ -7,6 +7,7 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "e3d.h"
+#include "errors.h"
 #include "init.h"
 #include "map.h"
 #include "platform.h"

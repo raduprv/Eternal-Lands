@@ -21,7 +21,7 @@
 		#include <stdio.h>
 
 		#define stat _stat
-		#define	snprintf sane_snprintf
+		#define	snprintf safe_snprintf
 		#define strncasecmp _strnicmp
 		#define strcasecmp _stricmp
 		#if _MSC_VER < 1400 // VC 2003 needs these defines, VC 2005 will error with them included

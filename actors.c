@@ -2,8 +2,15 @@
 #include <math.h>
 #include <string.h>
 #include "actors.h"
+#include "asc.h"
+#include "errors.h"
 #include "font.h"
+#include "global.h" // XXX For font_scale and cur_time
+#include "interface.h"
+#include "load_gl_extensions.h"
+#include "map.h"
 #include "platform.h"
+#include "shadows.h"
 #include "textures.h"
 #include "translate.h"
 #ifdef CLUSTER_INSIDES
@@ -14,9 +21,6 @@
 #endif
 #ifdef MINIMAP
 #include "minimap.h"
-#endif
-#ifdef SKY_FPV_CURSOR
-#include "global.h" // XXX For the definition of font_scale
 #endif
 
 #ifdef ELC
@@ -296,7 +300,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				} else {
 					glColor3f(1.0f,1.0f,0.0f);
 				}
-				snprintf((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
+				safe_snprintf ((char*)temp, sizeof (temp), "%s", actor_id->actor_name);
 				banner_width = ((float)get_string_width((unsigned char*)actor_id->actor_name)*(font_size_x*name_zoom))/2.0;
 				draw_ortho_ingame_string(hx-banner_width, hy+healthbar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
 			}

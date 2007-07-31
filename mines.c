@@ -155,7 +155,7 @@ void add_mines_from_list (const Uint8 *data)
 			char	buf[256];
 
 			// oops, slot already taken!
-			snprintf(buf, sizeof(buf), "Oops, trying to add an existing mine! id=%d\n", mine_id);
+			safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing mine! id=%d\n", mine_id);
 			LOG_ERROR(buf);
 			return;
 		}

@@ -99,7 +99,7 @@ void print_return_message()
 		}
 	if (have_url_count > url_before_afk)
 		{
-			snprintf(str, sizeof(str), "%s %d", urlcmd_afk_str, have_url_count - url_before_afk);
+			safe_snprintf(str, sizeof(str), "%s %d", urlcmd_afk_str, have_url_count - url_before_afk);
 			LOG_TO_CONSOLE(c_green2, str);
 		}
 }

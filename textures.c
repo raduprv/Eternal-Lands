@@ -779,7 +779,7 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 	char * name;
 
 	/* copy (maybe truncating) FileName into a buffer */
-	snprintf(filename, sizeof(filename), "%s", FileName);
+	safe_snprintf(filename, sizeof(filename), "%s", FileName);
 	/* find last dot */
 	name = strrchr(filename, '.');
 	if (name == NULL)

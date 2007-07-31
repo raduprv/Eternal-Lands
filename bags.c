@@ -120,7 +120,7 @@ void add_bags_from_list (const Uint8 *data)
 			char	buf[256];
 
 			// oops, slot already taken!
-			snprintf(buf, sizeof(buf), "Oops, trying to add an existing bag! id=%d\n", bag_id);
+			safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing bag! id=%d\n", bag_id);
 			LOG_ERROR(buf);
 			return;
 		}

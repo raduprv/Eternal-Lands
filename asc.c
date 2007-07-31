@@ -507,34 +507,6 @@ void get_string_digest(const Uint8 * string, Uint8 digest[16])
 }
 */
 
-#if defined(WINDOWS) && (defined(__MINGW32__) || defined(_MSC_VER))
-// the moronic _snprintf in MSVC doesn't necessarily terminate the string with
-// a NULL byte. This function should at least terminate the string, but does
-// not return the number of bytes that would have been written if the buffer
-// was large enough, like gcc does. Instead, it returns size. 
-int sane_snprintf (char *str, size_t size, const char *format, ...)
-{
-	va_list ap;
-	int ret;
-	
-	va_start (ap, format);
-#ifdef __MINGW32__
-	ret = vsnprintf (str, size, format, ap);
-#else
-	ret = _vsnprintf (str, size, format, ap);
-#endif
-	va_end (ap);
-	if ( size > 0 ){
-		str[size-1] = '\0';
-	}
-	if (ret < 0 || ret >= size)
-	{
-		return size;
-	}
-	return ret;
-}
-#endif 
-
 int find_description_index (const dict_elem dict[], const char *elem, const char *desc) {
 	int idx = 0;
 	char *key;

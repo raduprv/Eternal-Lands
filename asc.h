@@ -274,29 +274,6 @@ int xmlGetInt(xmlNode *n, xmlChar *p);
  */
 int my_xmlStrncopy(char ** dest, const char * src, int len);
 
-#ifdef WINDOWS
-#if defined(_MSC_VER) || defined(__MINGW32__)
-/*!
- * \ingroup	misc_utils
- * \brief	An snprintf replacement for MSVC
- *
- *	 The moronic _snprintf in MSVC doesn't necessarily terminate the
- *	string with a NULL byte. This function should at least terminate the 
- *	string, but does not return the number of bytes that would have been 
- *	written if the buffer was large enough, like gcc does. Instead, it 
- *	returns a negative value, indicating error. This probably won't be a
- *	problem, as the return value is mostly ignored.
- *
- * \param	buffer A pointer to the destination character array pointer
- * \param	size The size of \a buffer
- * \param	format The format string
- * \retval int	Returns the number of characters that have been written, or 
- *		a negative value on failure or overflow.
- */
-int sane_snprintf (char *buffer, size_t size, const char *format, ...);
-#endif 
-#endif
-
 void get_file_digest(const char*, Uint8[16]);
 void get_string_digest(const char*, Uint8[16]);
 
