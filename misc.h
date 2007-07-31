@@ -1,6 +1,8 @@
 #ifndef	__MISC_H
 #define	__MISC_H
 
+#include "lights.h"
+
 extern float grid_height;
 
 void draw_checkbox (int startx, int starty, int checked);

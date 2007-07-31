@@ -1,6 +1,8 @@
 #ifndef __GL_INIT_H__
 #define __GL_INIT_H__
 
+#include "../elc/platform.h"
+
 void init_gl(void);
 void handle_window_resize(void);
 

@@ -1,8 +1,6 @@
 #ifndef __INIT_H__
 #define __INIT_H__
 
-#include "global.h"
-
 #ifndef DATA_DIR
 #define DATA_DIR "./"
 #endif

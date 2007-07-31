@@ -82,12 +82,6 @@
 #define sector_size_x 15
 #define sector_size_y 15
 
-#ifdef X86_64
-typedef long int point;
-#else
-typedef int point;
-#endif
-
 extern int font_text;
 
 extern int map_meters_size_x;
@@ -158,12 +152,6 @@ extern color_rgb colors_list[25];
 #define c_gold 19
 #define c_steel 20
 #define c_bronze 21
-
-#ifdef EL_BIG_ENDIAN
-	#define SwapLEFloat(X) SwapFloat(X)
-#else
-	#define SwapLEFloat(X) (X)
-#endif
 
 extern int have_multitexture;
 extern int have_arb_compression;
