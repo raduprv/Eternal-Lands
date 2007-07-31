@@ -1,6 +1,8 @@
 #include <math.h>
 #include <stdlib.h>
+#include "2d_objects.h"
 #include "asc.h"
+#include "bbox_tree.h"
 #include "draw_scene.h"
 #include "gl_init.h"
 #include "init.h"
@@ -8,6 +10,7 @@
 #include "reflection.h"
 #include "shadows.h"
 #include "textures.h"
+#include "tiles.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
