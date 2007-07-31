@@ -8,9 +8,12 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
-#ifdef	EYE_CANDY
+#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#ifdef NEW_LIGHTING
+#include "textures.h"
+#endif
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
