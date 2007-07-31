@@ -6,10 +6,10 @@
 #ifndef __TEXTURES_H__
 #define __TEXTURES_H__
 
+#include "cache.h"
+#include "platform.h"
 #ifndef MAP_EDITOR
  #include "actors.h"
- #include "cache.h"
- #include "platform.h"
  #ifdef USE_INLINE
   #include "draw_scene.h"
  #endif

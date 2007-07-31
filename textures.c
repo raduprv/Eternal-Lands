@@ -8,6 +8,7 @@
 #endif //OLD_TEXTURE_LOADER
 #include "textures.h"
 #include "asc.h"
+#include "draw_scene.h"
 #include "errors.h"
 #include "gl_init.h"
 #include "init.h"

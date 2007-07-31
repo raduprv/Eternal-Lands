@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "alphamap.h"
 #include "textures.h"
 
 int use_alpha_border = 1;

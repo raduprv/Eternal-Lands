@@ -7,6 +7,7 @@
 #include "bbox_tree.h"
 #include "cal.h"
 #include "cursors.h"
+#include "draw_scene.h"
 #include "e3d.h"
 #include "framebuffer.h"
 #include "init.h"

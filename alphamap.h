@@ -1,6 +1,8 @@
 #ifndef __EL_ALPHAMAP_H
 #define __EL_ALPHAMAP_H
 
+#include "elwindows.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

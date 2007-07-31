@@ -4,7 +4,9 @@
 #include <string.h>
 #include "books.h"
 #include "asc.h"
+#include "draw_scene.h"
 #include "errors.h"
+#include "elwindows.h"
 #include "font.h"
 #include "init.h"
 #include "knowledge.h"
