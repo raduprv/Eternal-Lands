@@ -47,7 +47,9 @@
  #endif // __MINGW32__
 #elif defined (OSX)
  #ifndef NO_MUSIC
-  #define __MACOSX__  //necessary for Ogg on Macs
+  #ifndef __MACOSX__
+   #define __MACOSX__  //necessary for Ogg on Macs
+  #endif
  #endif
 
  #ifdef __BIG_ENDIAN__
