@@ -6,13 +6,9 @@
 #ifndef	__E3D_OBJECT_H__
 #define	__E3D_OBJECT_H__
 
-#ifdef OSX
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 #include "cache.h"
 #include "md5.h"
+#include "platform.h"
 
 #define	VERTEX_FLOAT_COUNT		3
 #define	NORMAL_FLOAT_COUNT		3
@@ -30,6 +26,10 @@
 #define UNUSED(VAR) (VAR) __attribute__((unused))
 #else
 #define UNUSED(VAR) (VAR)
+#endif
+
+#ifdef __cplusplus
+extern "C" {
 #endif
 
 typedef enum
@@ -224,5 +224,9 @@ typedef struct
 	MD5_DIGEST md5; /*!< the MD5 digest of the file */
 	char file_name[128]; /*!< filename where this object is stored. */
 } e3d_object;
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
 
 #endif	//__E3D_OBJECT_H__

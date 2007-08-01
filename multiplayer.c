@@ -1047,20 +1047,20 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_BAGS_LIST:
 			{
+				Uint16 bags_no;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				Uint16 bags_no;
 				if (data_length <= 3)
 				{
-				  log_error("CAUTION: Possibly forged GET_BAGS_LIST packet received.\n");
-				  break;
+					log_error("CAUTION: Possibly forged GET_BAGS_LIST packet received.\n");
+					break;
 				}
 				bags_no = in_data[3];
 				if (data_length <= bags_no * 5 + 3)
 				{
-				  log_error("CAUTION(2): Possibly forged GET_BAGS_LIST packet received.\n");
-				  break;
+					log_error("CAUTION(2): Possibly forged GET_BAGS_LIST packet received.\n");
+					break;
 				}
 				add_bags_from_list(&in_data[3]);
 			}
@@ -1127,20 +1127,20 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case HERE_YOUR_GROUND_ITEMS:
 			{
+				int bags_no;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				int bags_no;
 				if (data_length <= 3)
 				{
-				  log_error("CAUTION: Possibly forged HERE_YOUR_GROUND_ITEMS packet received.\n");
-				  break;
+					log_error("CAUTION: Possibly forged HERE_YOUR_GROUND_ITEMS packet received.\n");
+					break;
 				}
 				bags_no = in_data[3];
 				if (data_length <= bags_no * 7 + 3)
 				{
-				  log_error("CAUTION(2): Possibly forged HERE_YOUR_GROUND_ITEMS packet received.\n");
-				  break;
+					log_error("CAUTION(2): Possibly forged HERE_YOUR_GROUND_ITEMS packet received.\n");
+					break;
 				}
 				get_bags_items_list(&in_data[3]);
 			}

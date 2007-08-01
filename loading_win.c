@@ -2,6 +2,7 @@
 #include <stddef.h>
 #include <stdio.h>
 #include <string.h>
+#include <SDL_video.h>
 #include "loading_win.h"
 #include "console.h"
 #include "elwindows.h"

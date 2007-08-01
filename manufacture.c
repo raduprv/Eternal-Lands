@@ -9,6 +9,9 @@
 #include "multiplayer.h"
 #include "textures.h"
 #include "translate.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 item manu_recipe[6];
 item manufacture_list[ITEM_NUM_ITEMS];

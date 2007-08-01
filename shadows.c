@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <SDL_active.h>
 #include "shadows.h"
 #include "2d_objects.h"
 #include "3d_objects.h"

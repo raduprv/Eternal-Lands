@@ -20,6 +20,7 @@
 #ifdef ZLIB
 #include <zlib.h>
 #endif // ZLIB
+#include <SDL_video.h>
 #include "misc.h"
 #include "asc.h"
 #include "bbox_tree.h"

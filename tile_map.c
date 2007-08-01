@@ -14,6 +14,9 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
+#ifdef NEW_LIGHTING
+#include "lights.h"
+#endif
 
 #ifdef MAP_EDITOR2
 img_struct map_tiles[256];

@@ -59,6 +59,9 @@
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#ifdef MINIMAP
+#include "minimap.h"
+#endif
 #ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #else

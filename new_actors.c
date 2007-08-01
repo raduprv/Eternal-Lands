@@ -15,11 +15,14 @@
 #include "textures.h"
 #include "tiles.h"
 #include "translate.h"
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
-#ifdef CLUSTER_INSIDES
-#include "cluster.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
 #endif
 
 float sitting=1.0f;

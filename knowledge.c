@@ -10,6 +10,9 @@
 #include "textures.h"
 #include "translate.h"
 #include "widgets.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 int knowledge_win= -1;
 int knowledge_menu_x= 100;

@@ -1,6 +1,9 @@
 #include "bbox_tree.h"
 #include "draw_scene.h"
 #include "lights.h"
+#ifdef EXTRA_DEBUG
+#include "errors.h"
+#endif
 
 #ifdef OSX
 #include <sys/malloc.h>

@@ -26,6 +26,9 @@
 #include "textures.h"
 #include "trade.h"
 #include "translate.h"
+#ifdef MINIMAP
+#include "minimap.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.

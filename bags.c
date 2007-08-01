@@ -17,6 +17,9 @@
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 ground_item ground_item_list[ITEMS_PER_BAG];
 bag bag_list[NUM_BAGS];

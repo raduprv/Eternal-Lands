@@ -6,17 +6,10 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
-#include <SDL.h>
-#include <SDL_net.h>
-#include <SDL_thread.h>
-#ifdef OSX
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-
+#include <SDL_mutex.h>
 #include "cal_types.h"
 #include "client_serv.h"
+#include "platform.h"
 
 #ifdef __cplusplus
 extern "C" {

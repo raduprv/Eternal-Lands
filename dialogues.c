@@ -9,6 +9,9 @@
 #include "multiplayer.h"
 #include "textures.h"
 #include "translate.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 unsigned char dialogue_string[2048];
 unsigned char npc_name[20];

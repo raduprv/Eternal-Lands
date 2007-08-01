@@ -13,6 +13,9 @@
 #else
 #include "misc.h"
 #endif
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 #define NUM_COUNTERS 10
 #define NUM_LINES 18

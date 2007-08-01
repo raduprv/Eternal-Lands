@@ -3,8 +3,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include "minimap.h"
+#include "asc.h"
+#include "buddy.h"
+#include "colors.h"
 #include "elwindows.h"
+#include "framebuffer.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "init.h"
 #include "interface.h"
+#include "misc.h"
+#include "textures.h"
+#include "tiles.h"
+#include "io/map_io.h"
 
 GLuint minimap_texture = 0;
 GLuint circle_texture = 0;

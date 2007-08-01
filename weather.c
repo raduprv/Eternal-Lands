@@ -9,6 +9,9 @@
 #include "misc.h"
 #include "shadows.h"
 #include "sound.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif

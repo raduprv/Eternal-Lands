@@ -18,4 +18,8 @@ extern Uint32 cur_time, last_time; /*!< timestamps to check whether we need to r
 #define font_scale 10.0f
 #endif /* SKY_FPV_CURSOR */
 
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
 #endif /* __GLOBAL_H__ */

@@ -3,6 +3,9 @@
 #include "global.h"
 #include "platform.h"
 #include "tiles.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 #define HIGHLIGHT_MARKER_LIFESPAN	(500)
 #define NUMBER_OF_HIGHLIGHT_MARKERS	(10)

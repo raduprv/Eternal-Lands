@@ -9,6 +9,9 @@
 #include "misc.h"
 #include "platform.h"
 #include "textures.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 int encyclopedia_win=-1;
 int encyclopedia_menu_x=100;

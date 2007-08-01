@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include "alphamap.h"
 #include "textures.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 int use_alpha_border = 1;
 int alpha_border_tex = 0;

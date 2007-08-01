@@ -35,6 +35,9 @@
 #if defined SFX && defined EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
+#ifdef MINIMAP
+#include "minimap.h"
+#endif
 #ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #endif

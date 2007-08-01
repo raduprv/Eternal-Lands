@@ -5,6 +5,9 @@
 #include "highlight.h"
 #include "init.h"
 #include "text.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 

@@ -8,11 +8,17 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
+#ifdef EXTRA_DEBUG
+#include "errors.h"
+#endif
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
 #ifdef NEW_LIGHTING
 #include "textures.h"
+#endif
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
 #endif
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"

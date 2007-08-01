@@ -5,11 +5,6 @@
 #include <strings.h>
 #endif
 #include <time.h>
-#ifdef OSX
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
 #include "buddy.h"
 #include "asc.h"
 #include "chat.h"
@@ -21,6 +16,9 @@
 #include "multiplayer.h"
 #include "queue.h"
 #include "translate.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 #define MAX_ACCEPT_BUDDY_WINDOWS MAX_BUDDY
 

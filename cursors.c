@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include "cursors.h"
 #include "elwindows.h"
+#include <SDL_mouse.h>
 #ifdef NEW_FILE_IO
 #include "errors.h"
 #include "translate.h"

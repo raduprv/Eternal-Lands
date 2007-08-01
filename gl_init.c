@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <SDL.h>
 #include "gl_init.h"
 #include "asc.h"
 #include "bbox_tree.h"
@@ -18,11 +19,14 @@
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
-#ifdef USE_SHADER
-#include "shader/shader.h"
+#ifdef MINIMAP
+#include "minimap.h"
 #endif
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
+#endif
+#ifdef USE_SHADER
+#include "shader/shader.h"
 #endif
 
 Uint32 flags;

@@ -6,7 +6,7 @@
 #ifndef __E3D_H__
 #define __E3D_H__
 
-#include "md5.h"
+#include "e3d_object.h"
 #include "vmath.h"
 
 #ifdef __cplusplus
@@ -30,8 +30,6 @@ extern "C" {
 /*! @} */
 
 extern Uint32 highest_obj_3d;  /*!< pointer to the highest 3D object in map */
-
-#include "e3d_object.h"
 
 /*!
  * object3d structure

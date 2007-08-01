@@ -6,6 +6,12 @@
 #include "load_gl_extensions.h"
 #include "shadows.h"
 #include "translate.h"
+#ifdef NEW_SOUND
+#include "asc.h"
+#endif
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 {

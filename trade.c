@@ -14,6 +14,9 @@
 #include "string.h"
 #include "textures.h"
 #include "translate.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 #define ITEM_INVENTORY 1
 #define ITEM_BANK 2

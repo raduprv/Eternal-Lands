@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
+#include <SDL.h>
 #include "consolewin.h"
 #include "asc.h"
 #include "books.h"

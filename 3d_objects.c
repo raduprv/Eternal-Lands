@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <SDL_active.h>
 #include "3d_objects.h"
 #include "2d_objects.h"
 #include "asc.h"
@@ -18,6 +19,9 @@
 #include "io/e3d_io.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
+#endif
+#ifdef NEW_LIGHTING
+#include "lights.h"
 #endif
 
 int use_3d_alpha_blend= 1;

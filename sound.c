@@ -15,6 +15,9 @@
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
+#ifdef NEW_SOUND
+#include "actors.h"
+#endif
 
 #define MAX_FILENAME_LENGTH 80
 #define MAX_BUFFERS 60 //remember, music uses 4 buffers too

@@ -11,6 +11,9 @@
 #ifdef COUNTERS
 #include "counters.h"
 #endif
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 int session_win = -1;
 int reconnecting = 0;

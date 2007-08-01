@@ -48,8 +48,14 @@
  #include "storage.h"
  #include "tabs.h"
  #include "weather.h"
+ #ifdef MINIMAP
+  #include "minimap.h"
+ #endif
  #ifdef NEW_FILE_IO
   #include "io/elpathwrapper.h"
+ #endif
+ #ifdef NEW_LIGHTING
+  #include "lights.h"
  #endif
  #ifdef SKY_FPV_CURSOR
   #include "sky.h"

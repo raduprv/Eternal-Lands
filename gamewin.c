@@ -48,6 +48,9 @@
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
 #endif // SFX
+#ifdef MINIMAP
+#include "minimap.h"
+#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif

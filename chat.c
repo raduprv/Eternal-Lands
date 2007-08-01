@@ -19,6 +19,9 @@
 #include "queue.h"
 #include "text.h"
 #include "translate.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 int chat_win = -1;
 

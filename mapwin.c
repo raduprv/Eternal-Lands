@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include <SDL.h>
 #include "mapwin.h"
 #include "asc.h"
 #include "books.h"

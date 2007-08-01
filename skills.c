@@ -7,6 +7,9 @@
 #include "interface.h"
 #include "tabs.h"
 #include "textures.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 int skills_win=-1;
 int skills_menu_x=150;

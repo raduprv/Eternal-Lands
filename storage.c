@@ -13,6 +13,9 @@
 #include "textures.h"
 #include "translate.h"
 #include "widgets.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 #define STORAGE_CATEGORIES_SIZE 50
 #define STORAGE_CATEGORIES_DISPLAY 13

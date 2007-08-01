@@ -1,6 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include <SDL_active.h>
 #include "actors.h"
 #include "actor_scripts.h"
 #include "asc.h"

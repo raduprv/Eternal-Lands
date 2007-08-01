@@ -13,6 +13,9 @@
 #include "reflection.h"
 #include "rules.h"
 #include "weather.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif

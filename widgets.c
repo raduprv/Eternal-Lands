@@ -2,6 +2,7 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
+#include <SDL_keysym.h>
 #include "widgets.h"
 #include "asc.h"
 #include "chat.h"
@@ -13,6 +14,9 @@
 #include "paste.h"
 #include "tabs.h"
 #include "textures.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 typedef struct {
 	char text[256];

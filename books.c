@@ -13,19 +13,21 @@
 #include "new_character.h"
 #include "textures.h"
 #include "translate.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 #ifdef BSD
-#include <stdlib.h>
+ #include <stdlib.h>
 #else
-#ifdef OSX
-#include <sys/malloc.h>
-#else
-#ifndef alloca         // newer versions of SDL have their own alloca!
-#include <malloc.h>
-#endif   //alloca
-#endif   //OSX
+ #ifdef OSX
+  #include <sys/malloc.h>
+ #else
+  #ifndef alloca         // newer versions of SDL have their own alloca!
+   #include <malloc.h>
+  #endif   //alloca
+ #endif   //OSX
 #endif   //BSD
-#include "books.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.

@@ -8,8 +8,6 @@
 
 #include <SDL_types.h>
 
-extern Uint32 cur_time;
-
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -204,6 +202,8 @@ void cache_adj_size(cache_struct *cache, Uint32 size, void *item);
 #ifndef	USE_INLINE
 void cache_use(cache_struct *cache, cache_item_struct *item);
 #else	//USE_INLINE
+#include "global.h"
+
 static __inline__ void	cache_use(cache_struct *cache, cache_item_struct *item_ptr)
 {
 	if(item_ptr)

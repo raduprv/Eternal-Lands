@@ -53,6 +53,9 @@
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
 #endif
+#ifdef MINIMAP
+#include "minimap.h"
+#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
