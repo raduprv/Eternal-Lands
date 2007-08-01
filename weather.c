@@ -9,6 +9,10 @@
 #include "misc.h"
 #include "shadows.h"
 #include "sound.h"
+#ifdef NEW_WEATHER
+#include <SDL_timer.h>
+#include "text.h"
+#endif
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
