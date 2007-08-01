@@ -4,7 +4,6 @@
 #include "counters.h"
 #include "asc.h"
 #include "elwindows.h"
-#include "font.h"
 #include "init.h"
 #include "interface.h"
 #include "multiplayer.h"

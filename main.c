@@ -2,8 +2,6 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
-#include "global.h"
-#include "queue.h"
 
 #ifdef	__GNUC__
  #include <unistd.h>
@@ -18,9 +16,43 @@
  char   *win_command_line;
 #endif //WINDOWS
 
-#include "global.h"
+#include "2d_objects.h"
+#include "3d_objects.h"
+#include "actor_scripts.h"
+#include "asc.h"
+#include "bbox_tree.h"
+#include "buddy.h"
+#include "console.h"
+#include "cursors.h"
+#include "draw_scene.h"
+#include "e3d.h"
+#include "elc_private.h"
+#include "elconfig.h"
+#include "encyclopedia.h"
+#include "errors.h"
+#include "events.h"
+#include "gl_init.h"
+#include "hud.h"
 #include "init.h"
+#include "interface.h"
+#include "lights.h"
+#include "multiplayer.h"
+#include "particles.h"
+#include "pm_log.h"
+#include "questlog.h"
+#include "queue.h"
+#include "reflection.h"
+#include "rules.h"
+#include "sound.h"
+#include "text.h"
+#include "timers.h"
 #include "translate.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
+#ifdef MEMORY_DEBUG
+#include "elmemory.h"
+#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif

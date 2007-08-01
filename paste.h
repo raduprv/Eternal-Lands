@@ -6,6 +6,9 @@
 #ifndef __PASTE_H__
 #define __PASTE_H__
 
+#include <SDL_types.h>
+#include "widgets.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

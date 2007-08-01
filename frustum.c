@@ -13,14 +13,9 @@
 //***********************************************************************//
 #include <stdlib.h>
 #include <math.h>
-//#include "SDL_opengl.h"
-#ifdef MAP_EDITOR2
- #include "../map_editor2/global.h"
-#else
- #include "global.h"
-#endif
 #include <string.h>
 #include "bbox_tree.h"
+#include "shadows.h"
 
 // We create an enum of the sides so we don't have to call each side 0 or 1.
 // This way it makes it more understandable and readable when dealing with frustum sides.

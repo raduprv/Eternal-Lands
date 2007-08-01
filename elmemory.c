@@ -5,11 +5,10 @@
 #include <string.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-#ifdef MAP_EDITOR2
- #include "../map_editor2/init.h"
-#else
- #include "asc.h"
- #include "init.h"
+#include "asc.h"
+#include "init.h"
+#ifdef NEW_FILE_IO
+#include "io/elpathwrapper.h"
 #endif
 
 /* The size of the array */
@@ -46,7 +45,7 @@ void elm_cleanup()
 	safe_snprintf(path, sizeof(path), "%s/elmemory.log", configdir);
 	fp = fopen(path, "w");
 #else /* NEW_FILE_IO */
-	fp = open_config_file("elmemory.log", "w");
+	fp = open_file_config ("elmemory.log", "w");
 #endif /* NEW_FILE_IO */
 	if(fp ==NULL){
 		return;

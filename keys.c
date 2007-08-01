@@ -1,9 +1,12 @@
-#include	<stdlib.h>
-#include	<string.h>
-#include	<sys/stat.h>
-#include	<ctype.h>
-#include	"global.h"
-#include	"keys.h"
+#include <stdlib.h>
+#include <string.h>
+#include <sys/stat.h>
+#include <ctype.h>
+#include <SDL_keysym.h>
+#include "keys.h"
+#include "asc.h"
+#include "init.h"
+#include "misc.h"
 
 // default definitions for keys
 Uint32 K_CAMERAUP=273;

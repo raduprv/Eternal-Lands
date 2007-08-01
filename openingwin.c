@@ -1,9 +1,19 @@
 #include <stdlib.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include <SDL_active.h>
+#include "openingwin.h"
+#include "books.h"
+#include "draw_scene.h"
+#include "elconfig.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "init.h"
+#include "interface.h"
+#include "loginwin.h"
+#include "multiplayer.h"
+#include "new_character.h"
+#include "tabs.h"
+#include "text.h"
+#include "widgets.h"
 
 int opening_root_win = -1;
 

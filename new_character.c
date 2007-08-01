@@ -2,9 +2,39 @@
 #include <string.h>
 #include <math.h>
 #include <ctype.h>
-#include "global.h"
+#include "new_character.h"
+#include "2d_objects.h"
+#include "3d_objects.h"
 #include "actors.h"
+#include "actor_scripts.h"
+#include "asc.h"
+#include "bbox_tree.h"
+#include "books.h"
+#include "cal3d_wrapper.h"
+#include "chat.h"
+#include "consolewin.h"
+#include "cursors.h"
 #include "draw_scene.h"
+#include "elconfig.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "lights.h"
+#include "loginwin.h"
+#include "map.h"
+#include "misc.h"
+#include "multiplayer.h"
+#include "new_actors.h"
+#include "particles.h"
+#include "reflection.h"
+#include "shadows.h"
+#include "tabs.h"
+#include "textures.h"
+#include "tiles.h"
+#include "translate.h"
+#include "weather.h"
 
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
@@ -351,6 +381,8 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	static int last_time=0;
+	int alt_on = key & ELW_ALT;
+	int ctrl_on = key & ELW_CTRL;
 
 	if ( check_quit_or_fullscreen (key) ) {
 		return 1;

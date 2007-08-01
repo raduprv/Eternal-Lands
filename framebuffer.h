@@ -6,6 +6,8 @@
 #ifndef	FRAMEBUFFER_H
 #define	FRAMEBUFFER_H
 
+#include "platform.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

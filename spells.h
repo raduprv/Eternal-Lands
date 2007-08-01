@@ -6,6 +6,8 @@
 #ifndef __SPELLS_H__
 #define __SPELLS_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

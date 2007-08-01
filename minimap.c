@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "minimap.h"
 #include "elwindows.h"
 #include "interface.h"
 

@@ -1,5 +1,16 @@
 #include "map_io.h"
-#include "../global.h"
+#include "../2d_objects.h"
+#include "../3d_objects.h"
+#include "../asc.h"
+#include "../bbox_tree.h"
+#include "../errors.h"
+#include "../init.h"
+#include "../lights.h"
+#include "../map.h"
+#include "../particles.h"
+#include "../reflection.h"
+#include "../tiles.h"
+#include "../translate.h"
 #ifdef	NEW_FILE_IO
 #include "elfilewrapper.h"
 #endif	//NEW_FILE_IO

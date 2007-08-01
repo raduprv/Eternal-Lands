@@ -1,9 +1,28 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "spells.h"
+#include "asc.h"
+#include "cursors.h"
 #include "elwindows.h"
-#include "interface.h"
 #include "eye_candy_wrapper.h"
+#include "gamewin.h"	
+#include "gl_init.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "items.h"
+#include "manufacture.h"
+#include "multiplayer.h"
+#include "pathfinder.h"
+#include "textures.h"
+#include "translate.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
+#ifdef NEW_FILE_IO
+#include "errors.h"
+#include "io/elpathwrapper.h"
+#endif
 
 #define SIGILS_NO 64
 #define	NUM_SIGILS_LINE	12	// how many sigils per line displayed

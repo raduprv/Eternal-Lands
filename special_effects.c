@@ -1,8 +1,10 @@
 #include <stdlib.h>
 #include <math.h>
-#include "global.h"
+#include "special_effects.h"
+#include "asc.h"
 #include "highlight.h"
-#include "client_serv.h"
+#include "init.h"
+#include "text.h"
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 

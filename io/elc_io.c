@@ -1,9 +1,7 @@
-#ifdef	MAP_EDITOR
-#include "../../map_editor/global.h"
-#else
-#include "../global.h"
-#endif
+#include <string.h>
+#include <SDL_endian.h>
 #include "elc_io.h"
+#include "../errors.h"
 
 /*
  * -2	File to old, download newer file.

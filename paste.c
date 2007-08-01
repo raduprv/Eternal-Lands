@@ -1,8 +1,9 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
-
 #include <SDL_syswm.h>
+#include "paste.h"
+#include "chat.h"
+#include "translate.h"
 
 char* cur_text = NULL;
 text_field* cur_text_field = NULL;

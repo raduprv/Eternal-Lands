@@ -2,7 +2,7 @@
 
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "mines.h"
 #include "elwindows.h"
 #include "eye_candy_wrapper.h"
 

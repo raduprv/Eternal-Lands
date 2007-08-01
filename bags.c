@@ -6,7 +6,6 @@
 #include "cursors.h"
 #include "elwindows.h"
 #include "errors.h"
-#include "font.h"
 #include "gamewin.h"
 #include "init.h"
 #include "interface.h"

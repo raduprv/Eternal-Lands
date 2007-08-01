@@ -6,6 +6,7 @@
 #ifndef	_MAP_H_
 #define	_MAP_H_
 
+#include <SDL_types.h>
 #include "io/map_io.h"
 
 #ifdef __cplusplus

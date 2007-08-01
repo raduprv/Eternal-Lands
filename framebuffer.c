@@ -1,8 +1,8 @@
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "framebuffer.h"
+#include "errors.h"
+#include "gl_init.h"
+#include "load_gl_extensions.h"
+#include "translate.h"
 
 static const GLenum stencil_formats[] =
 {

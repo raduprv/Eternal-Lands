@@ -1,8 +1,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "global.h"
+#include "interface.h"
+#include "asc.h"
+#include "bbox_tree.h"
+#include "chat.h"
+#include "consolewin.h"
+#include "cursors.h"
 #include "elwindows.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "loginwin.h"
+#include "map.h"
+#include "mapwin.h"
+#include "new_character.h"
+#include "openingwin.h"
+#include "pathfinder.h"
+#include "rules.h"
+#include "spells.h"
+#include "textures.h"
+#include "tiles.h"
+#include "translate.h"
+#include "weather.h"
+#include "io/map_io.h"
+#ifdef NEW_FILE_IO
+#include "errors.h"
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
+#endif
 
 #define DEFAULT_CONTMAPS_SIZE 20
 

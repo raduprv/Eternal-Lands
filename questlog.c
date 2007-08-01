@@ -1,7 +1,18 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "questlog.h"
+#include "asc.h"
 #include "elwindows.h"
+#include "gamewin.h"
+#include "init.h"
+#include "tabs.h"
+#ifdef NEW_FILE_IO
+#include "errors.h"
+#include "translate.h"
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
+#endif
 
 typedef struct ld
 {

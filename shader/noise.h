@@ -3,6 +3,8 @@
 
 #ifdef USE_SHADER
 
+#include "../platform.h"
+
 /**
  * @brief Builds a 3d noise textures.
  *

@@ -4,11 +4,15 @@
 #include <math.h>
 #include <string.h>
 #include <limits.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "sky.h"
+#include "draw_scene.h"
+#include "gl_init.h"
+#include "lights.h"
+#include "map.h"
+#include "shadows.h"
+#include "textures.h"
+#include "vmath.h"
+#include "weather.h"
 
 #define SLICES 21
 float foo[4],foo1[4],foo2[4],foo3[4];

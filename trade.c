@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include "trade.h"
 #include "asc.h"
-#include "client_serv.h"
 #include "elwindows.h"
-#include "font.h"
 #include "gamewin.h"
 #include "hud.h"
 #include "init.h"

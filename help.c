@@ -1,7 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "help.h"
+#include "asc.h"
 #include "elwindows.h"
+#include "encyclopedia.h"
+#include "interface.h"
+#include "tabs.h"
+#include "textures.h"
 
 int help_win=-1;
 int help_menu_x=150;

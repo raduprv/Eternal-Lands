@@ -7,7 +7,6 @@
 #include "buddy.h"
 #include "cache.h"
 #include "chat.h"
-#include "client_serv.h"
 #include "consolewin.h"
 #include "elconfig.h"
 #include "filter.h"

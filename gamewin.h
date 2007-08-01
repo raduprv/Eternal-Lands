@@ -6,6 +6,8 @@
 #ifndef __GAMEWIN_H__
 #define __GAMEWIN_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

@@ -1,10 +1,25 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include "global.h"
 #include "draw_scene.h"
-#include "weather.h"
+#include "bbox_tree.h"
+#include "cursors.h"
 #include "elwindows.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "interface.h"
+#include "items.h"
+#include "map.h"
+#include "multiplayer.h"
+#include "new_actors.h"
+#include "new_character.h"
+#include "pathfinder.h"
+#include "shadows.h"
+#include "sound.h"
+#include "storage.h"
+#include "tiles.h"
+#include "weather.h"
 
 GLuint paper1_text;
 

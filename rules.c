@@ -12,7 +12,24 @@
 	#endif
 #endif
 
-#include "global.h"
+#include "rules.h"
+#include "asc.h"
+#include "consolewin.h"
+#include "draw_scene.h"
+#include "elwindows.h"
+#include "errors.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "loginwin.h"
+#include "mapwin.h"
+#include "multiplayer.h"
+#include "new_character.h"
+#include "openingwin.h"
+#include "tabs.h"
+#include "translate.h"
 
 #define TITLE 	0
 #define RULE	1

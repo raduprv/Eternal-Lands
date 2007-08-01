@@ -26,7 +26,6 @@
 #include "cursors.h"
 #include "draw_scene.h"
 #include "errors.h"
-#include "font.h"
 #include "gl_init.h"
 #include "init.h"
 #include "interface.h"

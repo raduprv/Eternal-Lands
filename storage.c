@@ -1,8 +1,18 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "global.h"
 #include "storage.h"
+#include "asc.h"
+#include "elwindows.h"
+#include "filter.h"
+#include "gamewin.h"
+#include "hud.h"
+#include "items.h"
+#include "misc.h"
+#include "multiplayer.h"
+#include "textures.h"
+#include "translate.h"
+#include "widgets.h"
 
 #define STORAGE_CATEGORIES_SIZE 50
 #define STORAGE_CATEGORIES_DISPLAY 13

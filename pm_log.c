@@ -2,8 +2,14 @@
 #include <stdio.h>
 #include <string.h>
 #include <ctype.h>
-#include "global.h"
 #include "pm_log.h"
+#include "actors.h"
+#include "asc.h"
+#include "init.h"
+#include "interface.h"
+#include "lights.h"
+#include "multiplayer.h"
+#include "translate.h"
 
 int afk=0;
 int last_action_time=0;

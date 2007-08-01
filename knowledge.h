@@ -6,6 +6,8 @@
 #ifndef __KNOWLEDGE_H__
 #define __KNOWLEDGE_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

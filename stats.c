@@ -1,7 +1,18 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "stats.h"
+#include "asc.h"
+#include "draw_scene.h"
 #include "elwindows.h"
+#include "errors.h"
+#include "gl_init.h"
+#include "global.h"
+#include "init.h"
+#include "session.h"
+#include "tabs.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
 
 int	stats_win= -1;
 player_attribs your_info;

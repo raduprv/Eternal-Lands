@@ -3,8 +3,15 @@
 #include "weather.h"
 #include "actors.h"
 #include "client_serv.h"
+#include "global.h"
 #include "lights.h"
-#include "global.h" // XXX keep for cur_time
+#include "map.h"
+#include "misc.h"
+#include "shadows.h"
+#include "sound.h"
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
+#endif
 
 #ifdef NEW_WEATHER
 #define MAX_RAIN_DROPS 100000

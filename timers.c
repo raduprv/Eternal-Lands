@@ -1,14 +1,17 @@
 #include <stdlib.h>
+#include <time.h>
 #include "timers.h"
 #include "actor_scripts.h"
 #include "draw_scene.h"
 #include "events.h"
-#include "global.h" // XXX for cur_time
+#include "global.h"
+#include "init.h"
 #include "interface.h"
 #include "map.h"
 #include "multiplayer.h"
 #include "pm_log.h"
 #include "reflection.h"
+#include "rules.h"
 #include "weather.h"
 #ifdef PAWN
 #include "pawn/elpawn.h"

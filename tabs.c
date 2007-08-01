@@ -1,6 +1,18 @@
 #include <stdlib.h>
-#include "global.h"
+#include "tabs.h"
 #include "elwindows.h"
+#include "encyclopedia.h"
+#include "gamewin.h"
+#include "help.h"
+#include "knowledge.h"
+#include "questlog.h"
+#include "rules.h"
+#include "session.h"
+#include "skills.h"
+#include "translate.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
 
 int tab_stats_win = -1;
 int tab_stats_collection_id = 16;

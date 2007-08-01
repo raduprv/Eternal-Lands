@@ -2,16 +2,23 @@
 #include <math.h>
 #include <string.h>
 #include "actors.h"
+#include "actor_scripts.h"
 #include "asc.h"
+#include "bbox_tree.h"
+#include "cal.h"
+#include "cursors.h"
 #include "errors.h"
-#include "font.h"
-#include "global.h" // XXX For font_scale and cur_time
+#include "gl_init.h"
+#include "global.h"
 #include "interface.h"
 #include "load_gl_extensions.h"
 #include "map.h"
+#include "new_actors.h"
+#include "pathfinder.h"
 #include "platform.h"
 #include "shadows.h"
 #include "textures.h"
+#include "tiles.h"
 #include "translate.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"

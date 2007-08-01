@@ -1,9 +1,8 @@
 #include <stdlib.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
+#include "highlight.h"
 #include "global.h"
-#endif
+#include "platform.h"
+#include "tiles.h"
 
 #define HIGHLIGHT_MARKER_LIFESPAN	(500)
 #define NUMBER_OF_HIGHLIGHT_MARKERS	(10)

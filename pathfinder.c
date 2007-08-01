@@ -1,6 +1,12 @@
 #include <stdlib.h>
-#include "global.h"
+#include "pathfinder.h"
 #include "actors.h"
+#include "events.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "interface.h"
+#include "multiplayer.h"
+#include "tiles.h"
 
 PF_OPEN_LIST pf_open;
 PF_TILE *pf_tile_map=NULL;

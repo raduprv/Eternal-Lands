@@ -1,6 +1,14 @@
 #include <stdlib.h>
-#include "global.h"
+#include "manufacture.h"
+#include "asc.h"
 #include "elwindows.h"
+#include "gamewin.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "multiplayer.h"
+#include "textures.h"
+#include "translate.h"
 
 item manu_recipe[6];
 item manufacture_list[ITEM_NUM_ITEMS];

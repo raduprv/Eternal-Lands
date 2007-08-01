@@ -1,10 +1,31 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "global.h"
+#include "hud.h"
+#include "asc.h"
+#include "buddy.h"
+#include "consolewin.h"
+#include "cursors.h"
+#include "elconfig.h"
 #include "elwindows.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "init.h"
+#include "interface.h"
+#include "items.h"
 #include "keys.h" //Avoid problems with SHIFT, ALT, CTRL
+#include "lights.h"
+#include "manufacture.h"
+#include "mapwin.h"
+#include "multiplayer.h"
+#include "new_character.h"
 #include "platform.h"
+#include "spells.h"
+#include "storage.h"
+#include "tabs.h"
+#include "textures.h"
+#include "trade.h"
+#include "translate.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1527,6 +1548,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[100];
 	int trigger=ELW_LEFT_MOUSE|ELW_CTRL|ELW_SHIFT;//flags we'll use for the quickbar relocation handling
 	int right_click = flags & ELW_RIGHT_MOUSE;
+	int ctrl_on = flags & ELW_CTRL;
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;

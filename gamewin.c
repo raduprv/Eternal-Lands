@@ -1,8 +1,47 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
-#include "weather.h"
+#include "gamewin.h"
+#include "2d_objects.h"
+#include "3d_objects.h"
+#include "actor_scripts.h"
+#include "asc.h"
+#include "bags.h"
+#include "books.h"
+#include "buddy.h"
+#include "chat.h"
+#include "console.h"
+#include "consolewin.h"
+#include "cursors.h"
+#include "dialogues.h"
 #include "draw_scene.h"
+#include "elconfig.h"
+#include "events.h"
+#include "gl_init.h"
+#include "highlight.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "items.h"
+#include "lights.h"
+#include "manufacture.h"
+#include "map.h"
+#include "mapwin.h"
+#include "multiplayer.h"
+#include "particles.h"
+#include "paste.h"
+#include "pathfinder.h"
+#include "pm_log.h"
+#include "reflection.h"
+#include "serverpopup.h"
+#include "shadows.h"
+#include "spells.h"
+#include "storage.h"
+#include "tabs.h"
+#include "textures.h"
+#include "tiles.h"
+#include "trade.h"
+#include "translate.h"
+#include "weather.h"
 #ifdef SFX
 #include "special_effects.h"
 #ifdef	EYE_CANDY
@@ -11,6 +50,9 @@
 #endif // SFX
 #ifdef PAWN
 #include "pawn/elpawn.h"
+#endif
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
 #endif
 
 int game_root_win = -1;
@@ -1836,6 +1878,8 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
+	int shift_on = key & ELW_SHIFT;
+	int ctrl_on = key & ELW_CTRL;
 
 	// first try the keypress handler for all root windows
 	if ( keypress_root_common (key, unikey) )

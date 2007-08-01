@@ -13,16 +13,47 @@
 #endif //_MSC_VER
 
 #ifdef MAP_EDITOR
-	#include "../map_editor/global.h"
-	#include "../map_editor/browser.h"
-	#include "../map_editor/interface.h"
-	#include "../elc/load_gl_extensions.h"
-	
-#elif defined(MAP_EDITOR2)
-	#include "../map_editor2/global.h"
+ #include "../map_editor/global.h"
+ #include "../map_editor/browser.h"
+ #include "../map_editor/interface.h"
+ #include "load_gl_extensions.h"
 #else
-	#include "global.h"
-	#include "chat.h"
+ #include "alphamap.h"
+ #include "asc.h"
+ #include "bags.h"
+ #include "buddy.h"
+ #include "chat.h"
+ #include "console.h"
+ #include "draw_scene.h"
+ #include "errors.h"
+ #include "filter.h"
+ #include "gamewin.h"
+ #include "gl_init.h"
+ #include "hud.h"
+ #include "init.h"
+ #include "interface.h"
+ #include "items.h"
+ #include "manufacture.h"
+ #include "mapwin.h"
+ #include "multiplayer.h"
+ #include "new_character.h"
+ #include "openingwin.h"
+ #include "particles.h"
+ #include "pm_log.h"
+ #include "reflection.h"
+ #include "serverpopup.h"
+ #include "shadows.h"
+ #include "sound.h"
+ #include "spells.h"
+ #include "storage.h"
+ #include "tabs.h"
+ #include "weather.h"
+ #ifdef NEW_FILE_IO
+  #include "io/elpathwrapper.h"
+ #endif
+ #ifdef SKY_FPV_CURSOR
+  #include "sky.h"
+ #endif
 #endif
 
 #include "elconfig.h"

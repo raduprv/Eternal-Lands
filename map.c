@@ -1,19 +1,48 @@
 #include <stdlib.h>
 #include <string.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "map.h"
+#include "2d_objects.h"
+#include "3d_objects.h"
+#include "asc.h"
+#include "bbox_tree.h"
+#include "consolewin.h"
+#include "cursors.h"
+#include "dialogues.h"
+#include "elwindows.h"
+#include "errors.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "init.h"
+#include "interface.h"
+#include "lights.h"
 #include "loading_win.h"
+#include "mapwin.h"
+#include "multiplayer.h"
+#include "particles.h"
+#include "pathfinder.h"
+#include "reflection.h"
+#include "sound.h"
+#include "storage.h"
+#include "tiles.h"
+#include "translate.h"
+#include "weather.h"
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
+#ifdef COUNTERS
+#include "counters.h"
+#endif
 #if defined SFX && defined EYE_CANDY
 #include "eye_candy_wrapper.h"
+#endif
+#ifdef NEW_FILE_IO
+#include "io/elpathwrapper.h"
 #endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
-#ifdef CLUSTER_INSIDES
-#include "cluster.h"
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
 #endif
 
 int map_type=1;

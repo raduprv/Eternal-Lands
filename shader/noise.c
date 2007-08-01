@@ -5,8 +5,9 @@
 
 #ifdef USE_SHADER
 
-#include "../global.h"
 #include "noise.h"
+#include "../errors.h"
+#include "../load_gl_extensions.h"
 
 #define MAXB 0x100
 #define N 0x1000

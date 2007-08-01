@@ -4,11 +4,13 @@
 #include "session.h"
 #include "asc.h"
 #include "elwindows.h"
-#include "font.h"
-#include "global.h" // XXX for cur_time
+#include "global.h"
 #include "platform.h"
 #include "stats.h"
 #include "translate.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
 
 int session_win = -1;
 int reconnecting = 0;

@@ -8,18 +8,68 @@
 #include <string.h>
 #include <ctype.h>
 #include <time.h>
-#include "global.h"
+#include "init.h"
+#include "2d_objects.h"
+#include "actor_scripts.h"
+#include "asc.h"
+#include "books.h"
+#include "buddy.h"
+#include "chat.h"
+#include "colors.h"
+#include "console.h"
+#include "consolewin.h"
+#include "cursors.h"
+#include "dialogues.h"
+#include "draw_scene.h"
+#include "elconfig.h"
 #include "elwindows.h"
+#include "encyclopedia.h"
+#include "errors.h"
+#include "filter.h"
+#include "framebuffer.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "interface.h"
+#include "items.h"
 #include "keys.h"
+#include "knowledge.h"
+#include "lights.h"
 #include "loading_win.h"
+#include "loginwin.h"
+#include "multiplayer.h"
+#include "manufacture.h"
+#include "mapwin.h"
+#include "new_actors.h"
+#include "openingwin.h"
+#include "particles.h"
+#include "questlog.h"
+#include "reflection.h"
+#include "rules.h"
+#include "spells.h"
+#include "storage.h"
+#include "tabs.h"
+#include "textures.h"
+#include "tiles.h"
+#include "timers.h"
+#include "trade.h"
+#include "translate.h"
 #include "update.h"
-#include "misc.h"
+#include "weather.h"
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#ifdef NEW_FILE_IO
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
+#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif // PAWN
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
+#endif
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 

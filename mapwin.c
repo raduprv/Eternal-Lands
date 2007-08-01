@@ -8,7 +8,6 @@
 #include "chat.h"
 #include "draw_scene.h"
 #include "elwindows.h"
-#include "font.h"
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"

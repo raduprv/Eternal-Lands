@@ -31,8 +31,13 @@ may be do:
 #include <string.h>
 #include <stdlib.h>
 
-#include "global.h"
-
+#include "serverpopup.h"
+#include "asc.h"
+#include "elwindows.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "text.h"
+#include "widgets.h"
 
 /* these are visible externally and exported in the header file */
 int server_popup_win = -1;

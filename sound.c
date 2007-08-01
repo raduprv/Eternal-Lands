@@ -3,7 +3,6 @@
 #include <SDL.h>
 #include "sound.h"
 #include "asc.h"
-#include "client_serv.h"
 #include "draw_scene.h"
 #include "errors.h"
 #include "init.h"

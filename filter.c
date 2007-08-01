@@ -1,7 +1,16 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
 #include <ctype.h>
+#include "filter.h"
+#include "asc.h"
+#include "init.h"
+#include "translate.h"
+#ifdef NEW_FILE_IO
+#include "errors.h"
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
+#endif
 
 #define MAX_FILTERS 1000
 

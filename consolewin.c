@@ -8,7 +8,6 @@
 #include "console.h"
 #include "draw_scene.h"
 #include "elwindows.h"
-#include "font.h"
 #include "gamewin.h"
 #include "hud.h"
 #include "init.h"

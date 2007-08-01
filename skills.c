@@ -1,7 +1,12 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "skills.h"
+#include "asc.h"
 #include "elwindows.h"
+#include "encyclopedia.h"
+#include "interface.h"
+#include "tabs.h"
+#include "textures.h"
 
 int skills_win=-1;
 int skills_menu_x=150;

@@ -6,6 +6,8 @@
 #ifndef __MANUFACTURE_H__
 #define __MANUFACTURE_H__
 
+#include "items.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif

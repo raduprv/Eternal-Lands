@@ -1,13 +1,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include "events.h"
+#include "actor_scripts.h"
 #include "client_serv.h"
+#include "draw_scene.h"
+#include "elconfig.h"
 #include "elwindows.h"
-#include "global.h" // XXX For cur_time
+#include "gamewin.h"
+#include "gl_init.h"
+#include "global.h"
+#include "interface.h"
 #include "items.h"
 #include "keys.h"
 #include "mapwin.h"
 #include "multiplayer.h"
+#include "particles.h"
+#include "pathfinder.h"
 #include "paste.h"
 #include "pm_log.h"
 #include "update.h"

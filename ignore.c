@@ -1,7 +1,18 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "global.h"
+#include "ignore.h"
+#include "asc.h"
+#include "console.h"
+#include "init.h"
+#include "text.h"
+#include "translate.h"
+#ifdef NEW_FILE_IO
+#include "errors.h"
+#include "io/elpathwrapper.h"
+#else
+#include "misc.h"
+#endif
 
 ignore_slot ignore_list[MAX_IGNORES];
 int ignored_so_far=0;

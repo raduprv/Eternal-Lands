@@ -3,9 +3,22 @@
 #include <stdio.h>
 #include <ctype.h>
 #include <libxml/parser.h>
+#include "chat.h"
+#include "asc.h"
+#include "console.h"
+#include "consolewin.h"
+#include "elconfig.h"
+#include "errors.h"
+#include "gamewin.h"
 #include "global.h"
-#include "text.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "mapwin.h"
+#include "multiplayer.h"
 #include "queue.h"
+#include "text.h"
+#include "translate.h"
 
 int chat_win = -1;
 

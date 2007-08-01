@@ -2,7 +2,19 @@
 #include <math.h>
 #include <string.h>
 #include <ctype.h>
-#include "global.h"
+#include "new_actors.h"
+#include "actor_scripts.h"
+#include "asc.h"
+#include "cal.h"
+#include "console.h"
+#include "dialogues.h"
+#include "errors.h"
+#include "filter.h"
+#include "init.h"
+#include "sound.h"
+#include "textures.h"
+#include "tiles.h"
+#include "translate.h"
 #ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif

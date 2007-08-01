@@ -1,7 +1,20 @@
 #include <stdlib.h>
 #include <string.h>
 #include <ctype.h>
-#include "global.h"
+#include "loginwin.h"
+#include "asc.h"
+#include "books.h"
+#include "elconfig.h"
+#include "elwindows.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "interface.h"
+#include "multiplayer.h"
+#include "new_character.h"
+#include "rules.h"
+#include "tabs.h"
+#include "textures.h"
+#include "translate.h"
 
 int login_root_win = -1;
 

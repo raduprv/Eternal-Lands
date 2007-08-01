@@ -1,9 +1,26 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#include "global.h"
+#include "items.h"
+#include "asc.h"
+#include "cursors.h"
 #include "elwindows.h"
+#include "errors.h"
+#include "gamewin.h"
+#include "gl_init.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "manufacture.h"
+#include "misc.h"
+#include "multiplayer.h"
 #include "platform.h"
+#include "storage.h"
+#include "textures.h"
+#include "translate.h"
+#ifdef COUNTERS
+#include "counters.h"
+#endif
 
 item item_list[ITEM_NUM_ITEMS];
 

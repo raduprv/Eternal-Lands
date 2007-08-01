@@ -9,11 +9,7 @@
 #include <stdlib.h>
 #include <libxml/parser.h>
 #include <ctype.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "notepad.h"
 
 #ifdef NOTEPAD
 

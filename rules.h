@@ -6,6 +6,8 @@
 #ifndef __RULES_H__
 #define __RULES_H__
 
+#include <SDL_types.h>
+
 #ifdef __cplusplus
 extern "C" {
 #endif

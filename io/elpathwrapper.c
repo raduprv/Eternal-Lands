@@ -1,9 +1,10 @@
 #ifdef NEW_FILE_IO
 #include "elpathwrapper.h"
-#include "../global.h"
+#include "../asc.h"
 #include "../elc_private.h"
-#include "../md5.h"
 #include "../errors.h"
+#include "../init.h"
+#include "../md5.h"
 
 #include <stdlib.h>
 #include <string.h>

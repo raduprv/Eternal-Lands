@@ -1,16 +1,28 @@
 #include <stdlib.h>
 #include <string.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#endif
+#include "gl_init.h"
+#include "asc.h"
+#include "bbox_tree.h"
+#include "cursors.h"
+#include "elconfig.h"
+#include "errors.h"
+#include "framebuffer.h"
+#include "hud.h"
+#include "init.h"
+#include "interface.h"
+#include "lights.h"
+#include "mapwin.h"
+#include "textures.h"
+#include "translate.h"
 #include "io/e3d_io.h"
+#ifdef EYE_CANDY
+#include "eye_candy_wrapper.h"
+#endif
 #ifdef USE_SHADER
 #include "shader/shader.h"
 #endif
-#ifdef EYE_CANDY
-#include "eye_candy_wrapper.h"
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
 #endif
 
 Uint32 flags;

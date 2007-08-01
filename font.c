@@ -8,11 +8,19 @@
     #include <unistd.h>
   #endif //_MSC_VER
 #endif //FONTS_FIX
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
+#include "font.h"
+#include "asc.h"
+#include "chat.h"
+#include "client_serv.h"
+#include "colors.h"
+#include "elconfig.h"
+#include "errors.h"
+#include "init.h"
+#include "gl_init.h"
 #include "global.h"
-#endif
+#include "interface.h"
+#include "misc.h"
+#include "textures.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.

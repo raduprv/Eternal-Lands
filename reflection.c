@@ -1,14 +1,21 @@
 #include <stdlib.h>
 #include <string.h>
 #include <math.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/global.h"
-#else
-#include "global.h"
-#include "tiles.h"
+#include "reflection.h"
+#include "3d_objects.h"
+#include "bbox_tree.h"
+#include "cal.h"
+#include "framebuffer.h"
+#include "gl_init.h"
+#include "interface.h"
+#include "lights.h"
+#include "load_gl_extensions.h"
+#include "map.h"
 #include "textures.h"
-#endif
+#include "tiles.h"
+#include "weather.h"
 #ifdef	USE_SHADER
+#include "shadows.h"
 #include "shader/shader.h"
 #endif	// USE_SHADER
 

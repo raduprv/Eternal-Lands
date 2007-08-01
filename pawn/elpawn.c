@@ -1,9 +1,13 @@
 #ifdef PAWN
 
+#include <SDL_timer.h>
+
 #include "elpawn.h"
-#include "../global.h"
 #include "amx.h"
 #include "amxaux.h"
+
+#include "../errors.h"
+#include "../events.h"
 
 // includes for our native functions
 #include "amxcons.h"

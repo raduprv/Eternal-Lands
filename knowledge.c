@@ -1,6 +1,15 @@
 #include <stdlib.h>
 #include <string.h>
-#include "global.h"
+#include "knowledge.h"
+#include "asc.h"
+#include "books.h"
+#include "gamewin.h"
+#include "multiplayer.h"
+#include "stats.h"
+#include "tabs.h"
+#include "textures.h"
+#include "translate.h"
+#include "widgets.h"
 
 int knowledge_win= -1;
 int knowledge_menu_x= 100;

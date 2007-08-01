@@ -8,6 +8,8 @@
 
 #include <SDL_types.h>
 #include <libxml/tree.h>
+#include "client_serv.h"
+#include "font.h"
 
 #ifdef __cplusplus
 extern "C" {

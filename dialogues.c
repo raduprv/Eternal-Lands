@@ -4,7 +4,6 @@
 #include "dialogues.h"
 #include "asc.h"
 #include "elwindows.h"
-#include "font.h"
 #include "gamewin.h"
 #include "interface.h"
 #include "multiplayer.h"

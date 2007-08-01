@@ -1,6 +1,11 @@
 #include <stdlib.h>
-#include "global.h"
 #include "cal.h"
+#include "draw_scene.h"
+#include "errors.h"
+#include "global.h"
+#include "load_gl_extensions.h"
+#include "shadows.h"
+#include "translate.h"
 
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 {

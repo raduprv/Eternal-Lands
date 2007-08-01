@@ -1,7 +1,6 @@
 #include <string.h>
-#include "global.h"
-#include "misc.h"
 #include "sort.h"
+#include "misc.h"
 
 void gen_mkeysort_recursive(void * pdata, gen_mkey_retrieve_func get, gen_mkey_swap_func 
 		swap, int l, int r, int h) {
