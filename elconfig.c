@@ -51,6 +51,9 @@
  #ifdef MINIMAP
   #include "minimap.h"
  #endif
+ #ifdef NEW_ALPHA
+  #include "3d_objects.h"
+ #endif
  #ifdef NEW_FILE_IO
   #include "io/elpathwrapper.h"
  #endif

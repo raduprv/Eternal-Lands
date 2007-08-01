@@ -19,6 +19,11 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
+#ifdef TIMER_CHECK
+#include "asc.h"
+#include "errors.h"
+#include "translate.h"
+#endif
 
 #define	TIMER_RATE 20
 int	my_timer_adjust=0;
