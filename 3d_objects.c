@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
-#include <SDL_active.h>
+#include <SDL.h>
 #include "3d_objects.h"
 #include "2d_objects.h"
 #include "asc.h"
