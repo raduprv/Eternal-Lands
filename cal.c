@@ -8,10 +8,13 @@
 #include "translate.h"
 #ifdef NEW_SOUND
 #include "asc.h"
-#endif
+#endif /* NEW_SOUND */
+#ifdef DEBUG
+#include "init.h"
+#endif /* DEBUG */
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
-#endif
+#endif /* OPENGL_TRADE */
 
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 {
