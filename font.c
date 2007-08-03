@@ -1,6 +1,12 @@
-#include "global.h"
 #include <stdlib.h>
 #include <string.h>
+#include "font.h"
+#include "errors.h"
+#include "../elc/client_serv.h"
+#include "../elc/colors.h"
+#include "../elc/textures.h"
+
+static int font_text = 0;
 
 int	cur_font_num=0;
 int	max_fonts=0;

@@ -23,7 +23,6 @@ float camera_x_end_point;
 float camera_z_end_point;
 
 int last_texture=-2;
-int font_text;
 
 float gcr=0.8f,gcg=0.8f,gcb=0.8f;
 

@@ -24,7 +24,7 @@ GTK2_LIBS = $(shell pkg-config gtk+-2.0 --libs)
 LIBS=$(shell sdl-config --libs) -lGL -lGLU $(shell xml2-config --libs) -lcal3d -lSDL_image
 
 COBJS=2d_objects.o 3d_objects.o	\
-	colors.o browser.o draw_scene.o	\
+	browser.o draw_scene.o	\
 	elwindows.o errors.o events.o \
 	font.o frustum.o	\
 	gl_init.o global.o gui.o gui_callbacks.o	\
@@ -33,8 +33,8 @@ COBJS=2d_objects.o 3d_objects.o	\
 	shadows.o tile_map.o \
 	replace_window.o edit_window.o particles_window.o
 
-ELC_COBJS = asc.o elconfig.o load_gl_extensions.o md5.o particles.o \
-	queue.o textures.o translate.o
+ELC_COBJS = asc.o colors.o elconfig.o load_gl_extensions.o md5.o \
+	particles.o queue.o textures.o translate.o
 
 ELC_IO_COBJS = e3d_io.o elc_io.o
 

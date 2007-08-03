@@ -50,7 +50,7 @@
 #include "../elc/cache.h"
 #include "../elc/translate.h"
 #include "../elc/elconfig.h"
-#include "colors.h"
+#include "../elc/colors.h"
 #include "errors.h"
 #include "init.h"
 #include "../elc/asc.h"
@@ -82,8 +82,6 @@
 #define sector_size_x 15
 #define sector_size_y 15
 
-extern int font_text;
-
 extern int map_meters_size_x;
 extern int map_meters_size_y;
 
@@ -108,50 +106,6 @@ extern int texture3;
 
 extern  Uint8 *e3d_file_mem;
 extern  Uint8 *handle_e3d_file_mem;
-
-typedef struct
-{
-	float r1;
-	float g1;
-	float b1;
-	float r2;
-	float g2;
-	float b2;
-	float r3;
-	float g3;
-	float b3;
-	float r4;
-	float g4;
-	float b4;
-
-} color_rgb;
-
-extern color_rgb colors_list[25];
-
-
-//colors
-#define c_red 0
-#define c_blue 1
-#define c_green 2
-#define c_yellow 3
-#define c_orange 4
-#define c_violet 5
-#define c_light_red 6
-#define c_light_blue 7
-#define c_light_green 8
-#define c_dark_red 9
-#define c_dark_blue 10
-#define c_dark_green 11
-#define c_white 12
-#define c_dark 13
-#define c_gray 14
-#define c_purple 15
-#define c_brown 16
-#define c_green_yellow 17
-#define c_silver 18
-#define c_gold 19
-#define c_steel 20
-#define c_bronze 21
 
 extern int have_multitexture;
 extern int have_arb_compression;
