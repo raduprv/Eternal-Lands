@@ -152,9 +152,7 @@ typedef struct
 #endif
 }particle_sys;
 
-#define MAX_PARTICLE_TEXTURES   16
 extern SDL_mutex *particles_list_mutex;	/*!< used for locking between the timer and main threads */
-extern int particle_textures[MAX_PARTICLE_TEXTURES];
 extern particle_sys *particles_list[MAX_PARTICLE_SYSTEMS]; /*!< array of particle systems */
 extern int particles_percentage;
 
@@ -218,13 +216,13 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile);
 
 /*!
  * \ingroup other
- * \brief Initializes the list of particle systems
+ * \brief Initializes the particle systems
  *
- *      Initializes the list of particle systems.
+ *      Initializes the list of particle systems, particle system definitions and textures used.
  *
  * \sa init_stuff
  */
-extern void	init_particles_list();
+void init_particles ();
 
 /*!
  * \ingroup other
@@ -234,7 +232,7 @@ extern void	init_particles_list();
  *
  * \callgraph
  */
-extern void	end_particles_list();
+void end_particles ();
 
 
 //CREATION OF NEW PARTICLES AND SYSTEMS 

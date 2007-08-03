@@ -118,7 +118,7 @@ page * add_page(book * b)
 	return p;
 }
 
-book * create_book(char * title, int type, int id)
+book *create_book (const char* title, int type, int id)
 {
 	book *b=(book*)calloc(1,sizeof(book));
 	
@@ -144,7 +144,7 @@ book * create_book(char * title, int type, int id)
 	return b;
 }
 
-_image *create_image(char * file, int x, int y, int w, int h, float u_start, float v_start, float u_end, float v_end)
+_image *create_image (const char* file, int x, int y, int w, int h, float u_start, float v_start, float u_end, float v_end)
 {
 	_image *img=(_image *)calloc(1,sizeof(_image));
 	

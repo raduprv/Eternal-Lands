@@ -35,8 +35,6 @@ extern int action_mode; /*!< contains the current action type */
  * @{ */
 extern int mouse_x; /*!< current x coordinate of the mouse */
 extern int mouse_y; /*!< current y coordinate of the mouse */
-extern int mouse_delta_x; /*!< current difference between the last saved mouse_x and the current mouse positions x coordinate */
-extern int mouse_delta_y; /*!< current difference between the last saved mouse_y and the current mouse positions y coordinate */
 
 /*! \name Mouse buttons 
  * @{ */

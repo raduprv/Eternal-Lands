@@ -538,7 +538,6 @@ void get_sigils_we_have(Uint32 sigils_we_have, Uint32 sigils2)
 }
 
 //Quickspell I/O start
-char * invalid_spell_str={"Invalid spell"};
 
 int have_spell_name(int spell_id)
 {

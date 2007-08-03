@@ -52,6 +52,8 @@
 
 #define PART_SYS_VISIBLE_DIST_SQ 20*20
 
+#define MAX_PARTICLE_TEXTURES 16 // The maximum number of textures used for particle systems
+
 #ifdef ELC
 int use_point_particles = 1;
 #else
@@ -60,7 +62,7 @@ int use_point_particles = 0;
 int particles_percentage=100;
 int enable_blood = 0;
 SDL_mutex *particles_list_mutex;	//used for locking between the timer and main threads
-int particle_textures[MAX_PARTICLE_TEXTURES];
+static int particle_textures[MAX_PARTICLE_TEXTURES];
 particle_sys *particles_list[MAX_PARTICLE_SYSTEMS];
 
 /******************************************************
@@ -489,18 +491,31 @@ int save_particle_def(particle_sys_def *def)
  *            INITIALIZATION AND CLEANUP FUNCTIONS                 *
  *******************************************************************/
 //Threading support for particles_list
-void init_particles_list()
+void init_particles ()
 {
-	int	i;
+	int i;
 
-	particles_list_mutex=SDL_CreateMutex();
-	LOCK_PARTICLES_LIST();	//lock it to avoid timing issues
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)particles_list[i]=0;
-	for(i=0;i<MAX_PARTICLE_DEFS;i++)defs_list[i]=0;
-	UNLOCK_PARTICLES_LIST();	// release now that we are done
+	for (i = 0; i < MAX_PARTICLE_TEXTURES; i++)
+	{
+		char buffer[256];
+
+		safe_snprintf (buffer, sizeof(buffer), "./textures/particle%d.bmp", i);
+		if (gzfile_exists (buffer))
+			particle_textures[i] = load_texture_cache_deferred (buffer, 0);
+		else
+			particle_textures[i] = -1;
+        }
+
+	particles_list_mutex = SDL_CreateMutex();
+	LOCK_PARTICLES_LIST ();   // lock it to avoid timing issues
+	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+		particles_list[i] = NULL;
+	for (i = 0; i < MAX_PARTICLE_DEFS; i++)
+		defs_list[i] = NULL;
+	UNLOCK_PARTICLES_LIST (); // release now that we are done
 }
 
-void end_particles_list()
+void end_particles ()
 {
 	LOCK_PARTICLES_LIST();
 	destroy_all_particles();

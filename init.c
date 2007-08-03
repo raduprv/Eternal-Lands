@@ -779,7 +779,7 @@ void init_stuff()
 	memset(tile_list, 0, sizeof(tile_list));
 	memset(lights_list, 0, sizeof(lights_list));
 	main_bbox_tree = build_bbox_tree();
-	init_particles_list();
+	init_particles ();
 	update_loading_win(init_actor_defs_str, 4);
 	memset(actors_defs, 0, sizeof(actors_defs));
 	init_actor_defs();
@@ -822,14 +822,6 @@ void init_stuff()
 	update_loading_win(load_textures_str, 4);
 	cons_text= load_texture_cache("./textures/console.bmp",255);
 
-	for(i=0; i<MAX_PARTICLE_TEXTURES; i++){
-		char	buffer[256];
-		
-		safe_snprintf(buffer, sizeof(buffer), "./textures/particle%d.bmp", i);
-		if(gzfile_exists(buffer)){
-			particle_textures[i]= load_texture_cache_deferred(buffer, 0);
-		}
-	}
 	update_loading_win(NULL, 5);
 
 	for(i=0; i<MAX_ITEMS_TEXTURES; i++){

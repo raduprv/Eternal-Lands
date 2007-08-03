@@ -214,7 +214,7 @@ int start_rendering()
 	unload_e3d_list();	// do we really want to overwrite this file??
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);
-	end_particles_list();
+	end_particles ();
 	free_bbox_tree(main_bbox_tree);
 	main_bbox_tree = NULL;
 	/* Destroy our GL context, etc. */

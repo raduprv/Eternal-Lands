@@ -512,6 +512,7 @@ char	reg_error_str[15],
 	timer_lagging_behind[100],
 	/*spells.c*/
 	cast_str[20],
+	invalid_spell_str[20],
 	/* notepad.c */
 	cant_parse_notes[100],
 	notes_wrong[100],
@@ -1064,6 +1065,7 @@ void init_help()
 	add_xml_identifier(misc,"manu_add",manu_add_str,"Left-click or scrollwheel to add 1; or 10 with CTRL",sizeof(manu_add_str));
 	add_xml_identifier(misc,"manu_remove",manu_remove_str,"Left-click or scrollwheel to remove 1; or 10 with CTRL",sizeof(manu_remove_str));
 	add_xml_identifier(misc,"cast",cast_str,"Cast",sizeof(cast_str));
+	add_xml_identifier (misc, "invalid_spell", invalid_spell_str, "Invalid spell", sizeof (invalid_spell_str));
 	add_xml_identifier(misc,"connect",connect_to_server_str,"Connecting to Server...",sizeof(connect_to_server_str));
 	add_xml_identifier(misc,"reconnect",reconnect_str,"Press any key to try again.",sizeof(reconnect_str));
 	add_xml_identifier (misc, "x_quit", alt_x_quit, "Press Alt-x to close the game", sizeof (alt_x_quit));

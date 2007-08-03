@@ -42,8 +42,6 @@
 
 int mouse_x;
 int mouse_y;
-int mouse_delta_x;
-int mouse_delta_y;
 int right_click;
 int middle_click;
 int left_click;

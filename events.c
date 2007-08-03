@@ -40,6 +40,9 @@ int alt_on;
 int ctrl_on;
 int meta_on;
 
+static int mouse_delta_x; // current difference between the last saved mouse_x and the current mouse positions x coordinate
+static int mouse_delta_y; // current difference between the last saved mouse_y and the current mouse positions y coordinate
+
 void	quick_use(int use_id)
 {
 	Uint8 quick_use_str[3];
