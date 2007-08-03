@@ -20,6 +20,9 @@
 #include "text.h"
 #include "translate.h"
 #include "url.h"
+#ifdef OPENGL_TRACE
+#include "gl_init.h"
+#endif
 
 char browser_name[120];
 int url_win_x = 100;

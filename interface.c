@@ -488,7 +488,8 @@ CHECK_GL_ERRORS();
 }
 
 GLuint map_text;
-GLuint cont_text;
+static int cont_text = -1; // index in texture cache for continent map
+
 #ifdef CLICKABLE_CONTINENT_MAP
 GLuint inspect_map_text = 0;
 int show_continent_map_boundaries = 1;
@@ -579,7 +580,7 @@ int switch_to_game_map()
 	int len;
 	char map_map_file_name[256];
 	short int cur_cont;
-	static short int old_cont = 0;
+	static short int old_cont = -1;
 	
 	my_strcp(map_map_file_name,map_file_name);
 	len=strlen(map_map_file_name);

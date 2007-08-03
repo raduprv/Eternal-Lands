@@ -77,193 +77,48 @@ Uint32 K_PASTE=CTRL|'v';
 Uint32 K_COPY_ALT=CTRL|SDLK_INSERT;
 Uint32 K_PASTE_ALT=SHIFT|SDLK_INSERT;
 
-Uint32 CRC32 (const char *data, int len);
-unsigned short get_key_code (const char *key);
-unsigned int parse_key_string (const char *s);
-void add_key(unsigned int *key,unsigned int n);
-
-// load the dynamic definitions for keys
-void read_key_config()
+void add_key (Uint32 *key, Uint32 n)
 {
-	FILE *f = NULL;
-	char * file_mem;
-	char * file_mem_start;
-	struct stat key_file;
-	int key_file_size,t;
-
-#ifndef WINDOWS
-	char key_ini[256];
-	safe_snprintf (key_ini, sizeof (key_ini), "%s/key.ini", configdir);
-	// don't use my_fopen, not everyone keeps local settings
-	f=fopen(key_ini,"rb"); //try to load local settings
-	if(!f) //use global settings
-		{
-			safe_snprintf (key_ini, sizeof (key_ini), "%s/key.ini", datadir);
-			f=my_fopen(key_ini,"rb");
-		}
-
-	fstat (fileno (f), &key_file);
-#else
-	f=my_fopen("key.ini","rb");
-	fstat (fileno (f), &key_file);
-#endif
-
-	if(!f)
+	switch (n)
 	{
-		return; //take the defaults
-	}
-
-	key_file_size = key_file.st_size;
-	file_mem = (char *) calloc(key_file_size+2, sizeof(Uint8));
-	file_mem_start=file_mem;
-	fread (file_mem, 1, key_file_size+1, f);
-
-	if((t=get_string_occurance("#K_CAMERAUP",file_mem,key_file_size,0))!=-1)
-		K_CAMERAUP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_CAMERADOWN",file_mem,key_file_size,0))!=-1)
-		K_CAMERADOWN = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ZOOMOUT",file_mem,key_file_size,0))!=-1)
-		K_ZOOMOUT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ZOOMIN",file_mem,key_file_size,0))!=-1)
-		K_ZOOMIN = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_TURNLEFT",file_mem,key_file_size,0))!=-1)
-		K_TURNLEFT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_TURNRIGHT",file_mem,key_file_size,0))!=-1)
-		K_TURNRIGHT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ADVANCE",file_mem,key_file_size,0))!=-1)
-		K_ADVANCE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_HEALTHBAR",file_mem,key_file_size,0))!=-1)
-		K_HEALTHBAR = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_VIEWNAMES",file_mem,key_file_size,0))!=-1)
-		K_VIEWNAMES = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_VIEWHP",file_mem,key_file_size,0))!=-1)
-		K_VIEWHP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_STATS",file_mem,key_file_size,0))!=-1)
-		K_STATS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_WALK",file_mem,key_file_size,0))!=-1)
-		K_WALK = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_LOOK",file_mem,key_file_size,0))!=-1)
-		K_LOOK = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_USE",file_mem,key_file_size,0))!=-1)
-		K_USE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_OPTIONS",file_mem,key_file_size,0))!=-1)
-		K_OPTIONS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_REPEATSPELL",file_mem,key_file_size,0))!=-1)
-		K_REPEATSPELL = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SIGILS",file_mem,key_file_size,0))!=-1)
-		K_SIGILS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_MANUFACTURE",file_mem,key_file_size,0))!=-1)
-		K_MANUFACTURE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEMS",file_mem,key_file_size,0))!=-1)
-		K_ITEMS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_MAP",file_mem,key_file_size,0))!=-1)
-		K_MAP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_MINIMAP",file_mem,key_file_size,0))!=-1)
-		K_MINIMAP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ROTATELEFT",file_mem,key_file_size,0))!=-1)
-		K_ROTATELEFT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ROTATERIGHT",file_mem,key_file_size,0))!=-1)
-		K_ROTATERIGHT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_FROTATELEFT",file_mem,key_file_size,0))!=-1)
-		K_FROTATELEFT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_FROTATERIGHT",file_mem,key_file_size,0))!=-1)
-		K_FROTATERIGHT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_BROWSER",file_mem,key_file_size,0))!=-1)
-		K_BROWSER = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_BROWSERWIN",file_mem,key_file_size,0))!=-1)
-		K_BROWSERWIN = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ESCAPE",file_mem,key_file_size,0))!=-1)
-		K_ESCAPE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_CONSOLE",file_mem,key_file_size,0))!=-1)
-		K_CONSOLE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SHADOWS",file_mem,key_file_size,0))!=-1)
-		K_SHADOWS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_KNOWLEDGE",file_mem,key_file_size,0))!=-1)
-		K_KNOWLEDGE = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ENCYCLOPEDIA",file_mem,key_file_size,0))!=-1)
-		K_ENCYCLOPEDIA = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_HELP",file_mem,key_file_size,0))!=-1)
-		K_HELP = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_NOTEPAD",file_mem,key_file_size,0))!=-1)
-		K_NOTEPAD = parse_key_string(&file_mem[t]);	
-	if((t=get_string_occurance("#K_HIDEWINS",file_mem,key_file_size,0))!=-1)
-		K_HIDEWINS = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM1",file_mem,key_file_size,0))!=-1)
-		K_ITEM1 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM2",file_mem,key_file_size,0))!=-1)
-		K_ITEM2 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM3",file_mem,key_file_size,0))!=-1)
-		K_ITEM3 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM4",file_mem,key_file_size,0))!=-1)
-		K_ITEM4 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM5",file_mem,key_file_size,0))!=-1)
-		K_ITEM5 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_ITEM6",file_mem,key_file_size,0))!=-1)
-		K_ITEM6 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SCREENSHOT",file_mem,key_file_size,0))!=-1)
-		K_SCREENSHOT = parse_key_string (&file_mem[t]);
-	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
-		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_AFK",file_mem,key_file_size,0))!=-1)
-		K_AFK = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SIT",file_mem,key_file_size,0))!=-1)
-		K_SIT = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_BUDDY",file_mem,key_file_size,0))!=-1)
-		K_BUDDY = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_NEXT_CHAT_TAB",file_mem,key_file_size,0))!=-1)
-		K_NEXT_CHAT_TAB = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_PREV_CHAT_TAB",file_mem,key_file_size,0))!=-1)
-		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_RULES",file_mem,key_file_size,0))!=-1)
-		K_RULES = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL1",file_mem,key_file_size,0))!=-1)
-		K_SPELL1 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL2",file_mem,key_file_size,0))!=-1)
-		K_SPELL2 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL3",file_mem,key_file_size,0))!=-1)
-		K_SPELL3 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL4",file_mem,key_file_size,0))!=-1)
-		K_SPELL4 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL5",file_mem,key_file_size,0))!=-1)
-		K_SPELL5 = parse_key_string(&file_mem[t]);
-	if((t=get_string_occurance("#K_SPELL6",file_mem,key_file_size,0))!=-1)
-		K_SPELL6 = parse_key_string(&file_mem[t]);
-	if((t = get_string_occurance("#K_TABCOMPLETE",file_mem,key_file_size,0)) != -1)
-		K_TABCOMPLETE = parse_key_string(&file_mem[t]);
-	if((t = get_string_occurance("#K_WINDOWS_ON_TOP",file_mem,key_file_size,0)) != -1)
-		K_WINDOWS_ON_TOP = parse_key_string(&file_mem[t]);
-	if((t = get_string_occurance("#K_MARKFILTER",file_mem,key_file_size,0)) != -1)
-		K_MARKFILTER = parse_key_string(&file_mem[t]);
-
-	free(file_mem);
+		case 303:
+		case 304:
+			*key |= SHIFT;
+			break;
+		case 305:
+		case 306:
+			*key |= CTRL;
+			break;
+		case 307:
+		case 308:
+			*key |= ALT;
+			break;
+		default:
+			*key = (n & 0xFFFF) | (*key &0xFFFF0000);
+        }
 }
 
-Uint32 parse_key_string (const char *s)
+Uint32 CRC32 (const char *data, int len)
 {
-	char t1[100],t2[100],t3[100],t4[100];
-	Uint32 key=0;
-	int nkey = sscanf (s, "%99s %99s %99s %99s", t1, t2, t3, t4);
+	unsigned int result = 0;
+	int i, j;
+	unsigned char octet;
 
-	if (nkey > 0)
+	for (i = 0; i < len; i++)
 	{
-		add_key (&key, get_key_code (t1));
-		if (nkey > 1 && t2[0] != '#')
+		octet = *(data++);
+		for (j = 0; j < 8; j++)
 		{
-			add_key (&key, get_key_code (t2));
-			if (nkey > 2 && t3[0] != '#')
-			{
-				add_key (&key, get_key_code (t3));
-				if (nkey > 3 && t4[0] != '#')
-				{
-					add_key (&key, get_key_code (t4));
-				}
-			}
+			if ((octet >> 7) ^ (result >> 31))
+				result = (result << 1) ^ 0x04c11db7;
+			else
+				result = (result << 1);
+			octet <<= 1;
 		}
 	}
 
-	return key;
+	return ~result;
 }
-
 
 Uint16 get_key_code (const char *key)
 {
@@ -425,22 +280,186 @@ Uint16 get_key_code (const char *key)
 	}
 }
 
-
-Uint32 CRC32 (const char *data, int len)
+Uint32 parse_key_string (const char *s)
 {
-    unsigned int result=0;
-    int i,j;
-    unsigned char octet;
+	char t1[100],t2[100],t3[100],t4[100];
+	Uint32 key=0;
+	int nkey = sscanf (s, "%99s %99s %99s %99s", t1, t2, t3, t4);
 
-    for (i=0; i<len; i++){
-        octet = *(data++);
-        for (j=0; j<8; j++){
-            if ((octet >> 7) ^ (result >> 31))
-                result = (result << 1) ^ 0x04c11db7;
-            else
-                result = (result << 1);
-            octet <<= 1;
-        }
-    }
-    return ~result;
+	if (nkey > 0)
+	{
+		add_key (&key, get_key_code (t1));
+		if (nkey > 1 && t2[0] != '#')
+		{
+			add_key (&key, get_key_code (t2));
+			if (nkey > 2 && t3[0] != '#')
+			{
+				add_key (&key, get_key_code (t3));
+				if (nkey > 3 && t4[0] != '#')
+				{
+					add_key (&key, get_key_code (t4));
+				}
+			}
+		}
+	}
+
+	return key;
 }
+
+// load the dynamic definitions for keys
+void read_key_config()
+{
+	FILE *f = NULL;
+	char * file_mem;
+	char * file_mem_start;
+	struct stat key_file;
+	int key_file_size,t;
+
+#ifndef WINDOWS
+	char key_ini[256];
+	safe_snprintf (key_ini, sizeof (key_ini), "%s/key.ini", configdir);
+	// don't use my_fopen, not everyone keeps local settings
+	f=fopen(key_ini,"rb"); //try to load local settings
+	if(!f) //use global settings
+		{
+			safe_snprintf (key_ini, sizeof (key_ini), "%s/key.ini", datadir);
+			f=my_fopen(key_ini,"rb");
+		}
+
+	fstat (fileno (f), &key_file);
+#else
+	f=my_fopen("key.ini","rb");
+	fstat (fileno (f), &key_file);
+#endif
+
+	if(!f)
+	{
+		return; //take the defaults
+	}
+
+	key_file_size = key_file.st_size;
+	file_mem = (char *) calloc(key_file_size+2, sizeof(Uint8));
+	file_mem_start=file_mem;
+	fread (file_mem, 1, key_file_size+1, f);
+
+	if((t=get_string_occurance("#K_CAMERAUP",file_mem,key_file_size,0))!=-1)
+		K_CAMERAUP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_CAMERADOWN",file_mem,key_file_size,0))!=-1)
+		K_CAMERADOWN = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ZOOMOUT",file_mem,key_file_size,0))!=-1)
+		K_ZOOMOUT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ZOOMIN",file_mem,key_file_size,0))!=-1)
+		K_ZOOMIN = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_TURNLEFT",file_mem,key_file_size,0))!=-1)
+		K_TURNLEFT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_TURNRIGHT",file_mem,key_file_size,0))!=-1)
+		K_TURNRIGHT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ADVANCE",file_mem,key_file_size,0))!=-1)
+		K_ADVANCE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_HEALTHBAR",file_mem,key_file_size,0))!=-1)
+		K_HEALTHBAR = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_VIEWNAMES",file_mem,key_file_size,0))!=-1)
+		K_VIEWNAMES = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_VIEWHP",file_mem,key_file_size,0))!=-1)
+		K_VIEWHP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_STATS",file_mem,key_file_size,0))!=-1)
+		K_STATS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_WALK",file_mem,key_file_size,0))!=-1)
+		K_WALK = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_LOOK",file_mem,key_file_size,0))!=-1)
+		K_LOOK = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_USE",file_mem,key_file_size,0))!=-1)
+		K_USE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_OPTIONS",file_mem,key_file_size,0))!=-1)
+		K_OPTIONS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_REPEATSPELL",file_mem,key_file_size,0))!=-1)
+		K_REPEATSPELL = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SIGILS",file_mem,key_file_size,0))!=-1)
+		K_SIGILS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_MANUFACTURE",file_mem,key_file_size,0))!=-1)
+		K_MANUFACTURE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEMS",file_mem,key_file_size,0))!=-1)
+		K_ITEMS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_MAP",file_mem,key_file_size,0))!=-1)
+		K_MAP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_MINIMAP",file_mem,key_file_size,0))!=-1)
+		K_MINIMAP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ROTATELEFT",file_mem,key_file_size,0))!=-1)
+		K_ROTATELEFT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ROTATERIGHT",file_mem,key_file_size,0))!=-1)
+		K_ROTATERIGHT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_FROTATELEFT",file_mem,key_file_size,0))!=-1)
+		K_FROTATELEFT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_FROTATERIGHT",file_mem,key_file_size,0))!=-1)
+		K_FROTATERIGHT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_BROWSER",file_mem,key_file_size,0))!=-1)
+		K_BROWSER = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_BROWSERWIN",file_mem,key_file_size,0))!=-1)
+		K_BROWSERWIN = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ESCAPE",file_mem,key_file_size,0))!=-1)
+		K_ESCAPE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_CONSOLE",file_mem,key_file_size,0))!=-1)
+		K_CONSOLE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SHADOWS",file_mem,key_file_size,0))!=-1)
+		K_SHADOWS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_KNOWLEDGE",file_mem,key_file_size,0))!=-1)
+		K_KNOWLEDGE = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ENCYCLOPEDIA",file_mem,key_file_size,0))!=-1)
+		K_ENCYCLOPEDIA = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_HELP",file_mem,key_file_size,0))!=-1)
+		K_HELP = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_NOTEPAD",file_mem,key_file_size,0))!=-1)
+		K_NOTEPAD = parse_key_string(&file_mem[t]);	
+	if((t=get_string_occurance("#K_HIDEWINS",file_mem,key_file_size,0))!=-1)
+		K_HIDEWINS = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM1",file_mem,key_file_size,0))!=-1)
+		K_ITEM1 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM2",file_mem,key_file_size,0))!=-1)
+		K_ITEM2 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM3",file_mem,key_file_size,0))!=-1)
+		K_ITEM3 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM4",file_mem,key_file_size,0))!=-1)
+		K_ITEM4 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM5",file_mem,key_file_size,0))!=-1)
+		K_ITEM5 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_ITEM6",file_mem,key_file_size,0))!=-1)
+		K_ITEM6 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SCREENSHOT",file_mem,key_file_size,0))!=-1)
+		K_SCREENSHOT = parse_key_string (&file_mem[t]);
+	if((t=get_string_occurance("#K_VIEWTEXTASOVERTEXT",file_mem,key_file_size,0))!=-1)
+		K_VIEWTEXTASOVERTEXT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_AFK",file_mem,key_file_size,0))!=-1)
+		K_AFK = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SIT",file_mem,key_file_size,0))!=-1)
+		K_SIT = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_BUDDY",file_mem,key_file_size,0))!=-1)
+		K_BUDDY = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_NEXT_CHAT_TAB",file_mem,key_file_size,0))!=-1)
+		K_NEXT_CHAT_TAB = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_PREV_CHAT_TAB",file_mem,key_file_size,0))!=-1)
+		K_PREV_CHAT_TAB = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_RULES",file_mem,key_file_size,0))!=-1)
+		K_RULES = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL1",file_mem,key_file_size,0))!=-1)
+		K_SPELL1 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL2",file_mem,key_file_size,0))!=-1)
+		K_SPELL2 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL3",file_mem,key_file_size,0))!=-1)
+		K_SPELL3 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL4",file_mem,key_file_size,0))!=-1)
+		K_SPELL4 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL5",file_mem,key_file_size,0))!=-1)
+		K_SPELL5 = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_SPELL6",file_mem,key_file_size,0))!=-1)
+		K_SPELL6 = parse_key_string(&file_mem[t]);
+	if((t = get_string_occurance("#K_TABCOMPLETE",file_mem,key_file_size,0)) != -1)
+		K_TABCOMPLETE = parse_key_string(&file_mem[t]);
+	if((t = get_string_occurance("#K_WINDOWS_ON_TOP",file_mem,key_file_size,0)) != -1)
+		K_WINDOWS_ON_TOP = parse_key_string(&file_mem[t]);
+	if((t = get_string_occurance("#K_MARKFILTER",file_mem,key_file_size,0)) != -1)
+		K_MARKFILTER = parse_key_string(&file_mem[t]);
+
+	free(file_mem);
+}
+
+

@@ -132,7 +132,7 @@ void destroy_map()
 int get_cur_map (const char * file_name)
 {
 	int i;
-	
+
 	for (i=0; continent_maps[i].name != NULL; i++)
 	{
 		if (strcmp (continent_maps[i].name, file_name) == 0)
@@ -149,10 +149,21 @@ static void init_map_loading(const char *file_name)
 {
 	destroy_map();
 
+	/*
+	 * Grum: the below is wrong: it never sets cur_map for the new map
+	 * when you're leaving an inside map. Perhaps it would be useful not
+	 * to set cur_map if you're *entering* an indide map, but we don't
+	 * know that at this point. 
+	 *
+	 * I wonder why we souldn't want to set it anyway...
+	 */
+	/*
 	//Otherwise we pretend that we don't know where we are - if anyone wants to do the work and input all coordinates it's fine by me however :o)
 	if (!dungeon) cur_map = get_cur_map (file_name);
 	else cur_map=-1;
-
+	*/
+	cur_map = get_cur_map (file_name);
+	
 	//this is useful if we go in/out a dungeon
 	new_minute();
 

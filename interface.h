@@ -92,7 +92,6 @@ struct draw_map
 };
 
 extern int cur_map; /*!< id of the map we are currently on */
-extern GLuint cont_text;
 extern GLuint legend_text;
 
 extern const char* cont_map_file_names[];

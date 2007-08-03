@@ -857,7 +857,6 @@ void init_stuff()
 #endif /* SKY_FPV_CURSOR */
 	//Load the map legend and continent map
 	legend_text= load_texture_cache("./maps/legend.bmp",0);
-	cont_text= load_texture_cache_deferred(cont_map_file_names[0], 128);
 
 	ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	CHECK_GL_ERRORS();
@@ -963,18 +962,3 @@ void init_stuff()
 #endif /* SKY_FPV_CURSOR */
 }
 
-void add_key(Uint32 *key,Uint32 n)
-{
-	if(n==303 || n==304)//shift
-		*key|=(1<<31);
-	else{
-		if(n==305 || n==306)//control
-			*key|=(1<<30);
-		else{
-			if(n==307 || n==308)//alt
-				*key|=(1<<29);
-			else
-				*key = (n & 0xFFFF) | (*key & 0xFFFF0000);
-		}
-	}
-}
