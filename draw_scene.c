@@ -267,7 +267,7 @@ void move_camera ()
 		glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	}
 
-	glRotatef(rx-(first_person?35:0), 1.0f, 0.0f, 0.0f);
+	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(camera_x, camera_y, camera_z);
 #endif /* SKY_FPV_CURSORS */
