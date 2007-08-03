@@ -60,6 +60,9 @@
  #ifdef NEW_LIGHTING
   #include "lights.h"
  #endif
+ #ifdef NOTEPAD
+  #include "notepad.h"
+ #endif
  #ifdef SKY_FPV_CURSOR
   #include "sky.h"
  #endif

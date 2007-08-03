@@ -9,7 +9,16 @@
 #include <stdlib.h>
 #include <libxml/parser.h>
 #include <ctype.h>
+#include <SDL.h>
+#include "asc.h"
+#include "elwindows.h"
+#include "errors.h"
+#include "gamewin.h"
+#include "init.h"
 #include "notepad.h"
+#include "text.h"
+#include "translate.h"
+#include "widgets.h"
 
 #ifdef NOTEPAD
 

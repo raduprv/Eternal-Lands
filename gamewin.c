@@ -16,6 +16,7 @@
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "events.h"
+#include "filter.h"
 #include "gl_init.h"
 #include "highlight.h"
 #include "hud.h"
@@ -50,6 +51,9 @@
 #endif // SFX
 #ifdef MINIMAP
 #include "minimap.h"
+#endif
+#ifdef NOTEPAD
+#include "notepad.h"
 #endif
 #ifdef PAWN
 #include "pawn/elpawn.h"

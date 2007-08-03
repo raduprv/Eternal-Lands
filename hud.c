@@ -29,6 +29,9 @@
 #ifdef MINIMAP
 #include "minimap.h"
 #endif
+#ifdef NOTEPAD
+#include "notepad.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
