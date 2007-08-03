@@ -87,7 +87,6 @@ float hold_camera=180;
 
 #endif /* SKY_FPV_CURSOR */
 int last_texture=-2;
-int font_text;
 int cons_text;
 int icons_text;
 

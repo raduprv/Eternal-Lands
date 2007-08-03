@@ -59,7 +59,6 @@ extern char username_str[20]; /*!< the username of the actor */
 extern char password_str[20]; /*!< the password of the actor */
 extern char display_password_str[20]; /*!< a string that will be displayed when entering a password */
 
-extern int font_text;
 extern int cons_text;
 extern int icons_text;
 extern int hud_text;

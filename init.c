@@ -30,7 +30,6 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
-#include "interface.h"
 #include "items.h"
 #include "keys.h"
 #include "knowledge.h"
@@ -813,7 +812,6 @@ void init_stuff()
 
 	update_loading_win(load_icons_str, 4);
 	//load the necesary textures
-	//font_text= load_texture_cache("./textures/font.bmp",0);
 #ifdef	NEW_ALPHA
 	icons_text= load_texture_cache("./textures/gamebuttons.bmp", -1);
 	hud_text= load_texture_cache("./textures/gamebuttons2.bmp", -1);

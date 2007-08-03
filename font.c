@@ -41,6 +41,8 @@ typedef struct	{
 	char name[32];
 } font_info;
 
+static int font_text = 0;
+
 int	cur_font_num=0;
 int	max_fonts=0;
 font_info	*fonts[FONTS_ARRAY_SIZE];
