@@ -1,4 +1,9 @@
-#include <malloc.h>
+#ifdef OSX
+	#include <sys/malloc.h>
+	#include <CoreFoundation/CoreFoundation.h>
+#else
+	#include <malloc.h>
+#endif /* OSX */
 #include <sys/types.h>
 #include <string.h>
 #include <unistd.h>
