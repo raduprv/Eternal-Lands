@@ -750,7 +750,7 @@ void save_quickspells()
 	FILE *fp;
 	Uint8 i;
 	char data[MAX_DATA_FILE_SIZE];
-	//extern char username_str[16];
+
 #if !defined(NEW_FILE_IO) && !defined(WINDOWS)
 	char username[20];
 #endif /* not NEW_FILE_IO or WINDOWS */

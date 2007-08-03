@@ -239,9 +239,6 @@ int start_rendering()
 	return(0);
 }
 
-extern char *optarg;
-extern int optind, opterr, optopt;
-
 void	read_command_line()
 {
 	int i=1;

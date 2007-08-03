@@ -117,8 +117,6 @@ char lang[10]={"en"};
 
 int video_mode_set=0;
 
-extern windows_info	windows_list;
-
 typedef struct{
 	int id;
 	char *fn;
