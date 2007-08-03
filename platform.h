@@ -43,7 +43,7 @@
   // else we'll eventually break C++ headers that use it
   #include <stdio.h>
 
-  #define snprintf sane_snprintf
+  #define snprintf safe_snprintf
  #endif // __MINGW32__
 #elif defined (OSX)
  #ifndef NO_MUSIC

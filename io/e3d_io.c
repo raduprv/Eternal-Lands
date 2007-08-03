@@ -1,6 +1,7 @@
 #include <float.h>
 #include <SDL_endian.h>
 #include "e3d_io.h"
+#include "../asc.h"
 #include "../platform.h"
 #include "../textures.h"
 #ifdef MAP_EDITOR
@@ -333,7 +334,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 		file_pos = ftell(file);
 		fread(&material, 1, sizeof(e3d_material), file);
 #endif	//NEW_FILE_IO
-		snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material.material_name);
+		safe_snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, material.material_name);
 
 		cur_object->materials[i].options = SDL_SwapLE32(material.options);
 #ifdef	MAP_EDITOR
@@ -385,7 +386,7 @@ e3d_object* load_e3d_detail(e3d_object* cur_object)
 #else	//NEW_FILE_IO
 			fread(&extra_texture, 1, sizeof(e3d_extra_texture), file);
 #endif	//NEW_FILE_IO
-			snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, extra_texture.material_name);
+			safe_snprintf(text_file_name, sizeof(text_file_name), "%s%s", cur_dir, extra_texture.material_name);
 #ifdef	MAP_EDITOR
 			cur_object->materials[i].extra_diffuse_map = load_texture_cache(text_file_name,0);
 #else	//MAP_EDITOR
