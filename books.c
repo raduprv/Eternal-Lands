@@ -50,6 +50,9 @@
 
 int book_opened=-1;//The ID of the book opened
 
+static int paper1_text = -1; // Index in the texture cache of the paper texture
+static int book1_text = -1;  // Index in the texture cache of the book texture
+
 typedef struct {
 	char file[200];
 	
@@ -571,6 +574,9 @@ void read_knowledge_book_index()
 
 void init_books()
 {
+	paper1_text = load_texture_cache_deferred ("./textures/paper1.bmp", 0);
+	book1_text = load_texture_cache_deferred ("./textures/book1.bmp", 0);
+
 	read_book("books/races/human.xml", 2, book_human);
 	read_book("books/races/dwarf.xml", 2, book_dwarf);
 	read_book("books/races/elf.xml", 2, book_elf);
@@ -821,7 +827,6 @@ int book_win_x=100;
 int book_win_y=100;
 int book_win_x_len=400;
 int book_win_y_len=300;
-int book1_text;
 
 int book_mouse_x=0;
 int book_mouse_y=0;

@@ -21,8 +21,6 @@
 #include "tiles.h"
 #include "weather.h"
 
-GLuint paper1_text;
-
 char have_display = 0;
 float camera_x=0;
 float camera_y=0;

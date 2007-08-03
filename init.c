@@ -869,10 +869,6 @@ void init_stuff()
 	legend_text= load_texture_cache("./maps/legend.bmp",0);
 	cont_text= load_texture_cache_deferred(cont_map_file_names[0], 128);
 
-	//Paper & book
-	paper1_text= load_texture_cache_deferred("./textures/paper1.bmp",0);
-	book1_text= load_texture_cache_deferred("./textures/book1.bmp",0);
-
 	ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	CHECK_GL_ERRORS();
 	create_char_error_str[0]= 0;

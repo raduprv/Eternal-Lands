@@ -10,9 +10,6 @@
 extern "C" {
 #endif
 
-/*! The book texture*/
-extern int book1_text;
-
 /*! The book window*/
 extern int book_win;
 

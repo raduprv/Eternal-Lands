@@ -18,8 +18,6 @@
 extern "C" {
 #endif
 
-extern GLuint paper1_text;
-
 extern char have_display; /*!< Flag indicating whether any window is showing the scene */
 extern float camera_x,camera_y,camera_z;
 extern float old_camera_x,old_camera_y,old_camera_z,c_delta;
