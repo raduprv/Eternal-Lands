@@ -145,6 +145,8 @@ char
 	urlcmd_invalid_str[30],
 	urlcmd_afk_str[30],
 	urlcmd_clear_str[30],
+	urlwin_open_str[50],
+	urlwin_clear_str[30],
 	/*draw_scene.c*/
 	low_framerate_str[100],
 	/*gl_init.c*/
@@ -1087,6 +1089,8 @@ void init_help()
 	add_xml_identifier(misc,"invalid_url",urlcmd_invalid_str,"Invalid URL number",sizeof(urlcmd_invalid_str));
 	add_xml_identifier(misc,"afk_url",urlcmd_afk_str,"URL seen while AFK:",sizeof(urlcmd_afk_str));
 	add_xml_identifier(misc,"clear_url",urlcmd_clear_str,"clear",sizeof(urlcmd_clear_str));
+	add_xml_identifier(misc,"open_urlwin",urlwin_open_str,"Click to open; CTRL+click to delete",sizeof(urlwin_open_str));
+	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
 

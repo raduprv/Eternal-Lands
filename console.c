@@ -26,6 +26,7 @@
 #include "spells.h"
 #include "tabs.h"
 #include "translate.h"
+#include "url.h"
 #ifdef COUNTERS
 #include "counters.h"
 #endif
@@ -837,114 +838,6 @@ int knowledge_command(char *text, int len)
 	}
 	safe_snprintf(count_str, sizeof(count_str), book_count_str, num_read, num_total);
 	LOG_TO_CONSOLE(c_grey1, count_str);
-	return 1;
-}
-
-
-/* free all url list memory */
-void destroy_url_list(void)
-{
-	if (have_url_count)
-	{
-		list_destroy(newest_url);
-		have_url_count = 0;
-		newest_url = NULL;
-		active_url = NULL;
-	}
-}
-
-
-
-/* #url command - List, clear list or open a specific URL */
-int url_command(char *text, int len)
-{
-	/* no URLs so far so display a message then exit */
-	if (!have_url_count)
-	{
-		LOG_TO_CONSOLE(c_red2, urlcmd_none_str);
-		return 1;
-	}
-
-	/* get any parameter text */
-	while(*text && !isspace(*text))
-		text++;
-	while(*text && isspace(*text))
-		text++;
-        
-	/* no parameter specified - list the URL(s) we have, oldest first */
-	if (!strlen(text))
-	{
-		char *out_str = NULL;
-		size_t out_len = 0;
-		int irl_num = 0;
-		int line_colour = c_grey1;
-		list_node_t *local_head = newest_url;
-
-		LOG_TO_CONSOLE(c_green2, urlcmd_list_str);
-
-		/* go to the oldest in the list */
-		while (local_head->next != NULL)
-			local_head = local_head->next;
-            
-		/* display the list ending with the newest, alternating colours */
-		while (local_head != NULL)
-		{
-			size_t new_len = sizeof(char) * (strlen((char *)local_head->data) + 30);
-			char *active = ">";
-			char *inactive = " ";
-			if (new_len > out_len)
-			{
-				if (out_str != NULL)
-					free(out_str);
-				out_str = (char *)malloc(new_len);
-				out_len = new_len;
-			}
-			sprintf(out_str, "%s %d) %s", ((local_head==active_url) ?active :inactive),
-				 ++irl_num, (char *)local_head->data );
-			LOG_TO_CONSOLE(line_colour, out_str);
-			local_head = local_head->prev;
-			line_colour = (line_colour==c_grey1) ?c_grey2 :c_grey1;
-		}
-
-		if (out_str != NULL)
-			free(out_str);
-	}
-    
-	/* if parameter is "clear" delete all entries */
-	else if (strcmp(text, urlcmd_clear_str) == 0)
-	{
-		destroy_url_list();
-	}
-    
-	/* else assume parameter is an index, if its a valid index, open the URL */
-	else
-	{
-		int open_index = atoi(text) - 1;
-		int valid_node = 0;
-		if (open_index >= 0)
-		{
-			list_node_t *local_head = newest_url;
-			int url_num = 0;
-			/* go to the oldest int the list */
-			while (local_head->next != NULL)
-				local_head = local_head->next;
-			/* go to the specified entry */
-			while ((local_head->prev != NULL) && (url_num < open_index))
-			{
-				local_head = local_head->prev;
-				url_num++;
-			}
-			/* if we end up at a valid node, go for it */
-			if ((local_head != NULL) && (url_num == open_index) && strlen((char *)local_head->data))
-			{
-				open_web_link((char *)local_head->data);
-				valid_node = 1;
-			}
-		}
-		if (!valid_node)
-			LOG_TO_CONSOLE(c_red2, urlcmd_invalid_str);
-	}
-            
 	return 1;
 }
 

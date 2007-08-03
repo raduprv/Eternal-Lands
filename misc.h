@@ -58,20 +58,6 @@ void reset_under_the_mouse();
  */
 int anything_under_the_mouse(int object_id, int object_type);
 
-/*!
- * \ingroup misc
- * \brief   Stores any URL found in \a source_string.
- *
- *		Scans the given \a source_string up to a length of \a len and stores all the URL it finds.  If any are found \ref have_url_count is incremented.
- *
- * \param source_string the string that contains the URL
- * \param len           the length of \a source_string.
- * \callgraph
- *
- * \pre If \a source_string does not contain a valid URL, this function will return without incrementing \ref have_url_count.
- */
-void find_all_url(const char *source_string, const int len);
-
 //some prototypes, that won't fit somewhere else
 
 void calculate_reflection_frustum(float water_height);
@@ -79,26 +65,6 @@ void calculate_shadow_frustum();
 void enable_reflection_clip_planes();
 void disable_reflection_clip_planes();
 void set_current_frustum(unsigned int intersect_type);
-
-/*!
- * \ingroup misc
- * \brief Opens a url in the configured browser
- *
- *      Opens the configured browser to the current URL
- *
- * \param url         the url to open in the browser
- * \retval int  always returns 0
- */
-int go_to_url(void * url);
-
-/*!
- * \ingroup misc
- * \brief Opens a url in the configured browser
- *
- *      Opens the configured browser to the current URL
- *
- */
-void open_web_link(char * url);
 
 /*!
  * \ingroup misc

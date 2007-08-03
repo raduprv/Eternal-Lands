@@ -51,7 +51,7 @@ COBJS=2d_objects.o 3d_objects.o	\
 	skills.o serverpopup.o session.o shadows.o sound.o	\
 	spells.o stats.o storage.o	\
 	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
-	update.o weather.o widgets.o \
+	update.o url.o weather.o widgets.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
 EYE_CANDY_CXXOBJ = eye_candy_wrapper.o \

@@ -9,6 +9,7 @@
 #include "misc.h"
 #include "platform.h"
 #include "textures.h"
+#include "url.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif

@@ -20,6 +20,7 @@
 #include "multiplayer.h"
 #include "pm_log.h"
 #include "translate.h"
+#include "url.h"
 #ifdef COUNTERS
 #include "counters.h"
 #endif

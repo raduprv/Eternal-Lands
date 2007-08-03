@@ -72,6 +72,7 @@
 #include "text.h"
 #include "consolewin.h"
 #include "queue.h"
+#include "url.h"
 
 #ifdef EYE_CANDY
 	#include "eye_candy_wrapper.h"
@@ -904,6 +905,7 @@ void change_windows_on_top(int *var)
 		move_window(elconfig_win, -1, 0, elconfig_menu_x, elconfig_menu_y);
 		move_window(tab_stats_win, -1, 0, tab_stats_x, tab_stats_y);
 		move_window(server_popup_win, -1, 0, server_popup_win_x, server_popup_win_y);
+		move_window(url_win, -1, 0, url_win_x, url_win_y);
 #ifdef MINIMAP
 		move_window(minimap_win, -1, 0, minimap_win_x, minimap_win_y);
 #endif //MINIMAP
@@ -956,6 +958,11 @@ void change_windows_on_top(int *var)
 				show_window(server_popup_win);
 			}
 		}
+		if (url_win > 0) {
+			if (windows_list.window[url_win].displayed != 0 || windows_list.window[url_win].reinstate != 0) {
+				show_window(url_win);
+			}
+		}
 #ifdef MINIMAP
 		if (minimap_win > 0) {
 			if (windows_list.window[minimap_win].displayed != 0 || windows_list.window[minimap_win].reinstate != 0) {
@@ -981,6 +988,7 @@ void change_windows_on_top(int *var)
 		move_window(elconfig_win, game_root_win, 0, elconfig_menu_x, elconfig_menu_y);
 		move_window(tab_stats_win, game_root_win, 0, tab_stats_x, tab_stats_y);
 		move_window(server_popup_win, game_root_win, 0, server_popup_win_x, server_popup_win_y);
+		move_window(url_win, game_root_win, 0, url_win_x, url_win_y);
 #ifdef MINIMAP
 		move_window(minimap_win, game_root_win, 0, minimap_win_x, minimap_win_y);
 #endif //MINIMAP

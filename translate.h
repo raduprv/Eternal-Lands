@@ -273,6 +273,8 @@ extern char
 		urlcmd_invalid_str[30],
 		urlcmd_afk_str[30],
 		urlcmd_clear_str[30],
+		urlwin_open_str[50],
+		urlwin_clear_str[30],
 		/*draw_scene.c*/
 		low_framerate_str[100],
 		/*filter.c*/

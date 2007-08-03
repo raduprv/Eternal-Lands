@@ -35,6 +35,7 @@ Uint32 K_ROTATERIGHT=SDLK_RIGHT;
 Uint32 K_FROTATELEFT=SHIFT|SDLK_LEFT;
 Uint32 K_FROTATERIGHT=SHIFT|SDLK_RIGHT;
 Uint32 K_BROWSER=SDLK_F2;
+Uint32 K_BROWSERWIN=CTRL|SDLK_F2;
 Uint32 K_ESCAPE=SDLK_ESCAPE;
 Uint32 K_CONSOLE=SDLK_F1;
 Uint32 K_SHADOWS=SDLK_F3;
@@ -169,6 +170,8 @@ void read_key_config()
 		K_FROTATERIGHT = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_BROWSER",file_mem,key_file_size,0))!=-1)
 		K_BROWSER = parse_key_string(&file_mem[t]);
+	if((t=get_string_occurance("#K_BROWSERWIN",file_mem,key_file_size,0))!=-1)
+		K_BROWSERWIN = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_ESCAPE",file_mem,key_file_size,0))!=-1)
 		K_ESCAPE = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_CONSOLE",file_mem,key_file_size,0))!=-1)

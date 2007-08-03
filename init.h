@@ -118,6 +118,14 @@ typedef struct
 	int view_names;
 	int view_hp;
 
+    /*!
+     * \name url window position
+     */
+    /*! @{ */
+	int url_win_x;
+	int url_win_y;
+    /*! @} */
+
 #ifdef MINIMAP
     /*!
      * \name minimap window position and settings
@@ -130,11 +138,12 @@ typedef struct
     /*! @} */
 
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[2];
+	// all used up for now
+	// int reserved[0];
 
 #else //!MINIMAP
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[6];
+	int reserved[4];
 #endif //MINIMAP
 
     /*!
@@ -191,11 +200,6 @@ extern int disconnected; /*!< indicates whether we are currently connected or no
 extern int exit_now;	/*!< a flag that indicates we should exit the programm immediately */
 extern int restart_required;    /*!< a flag that the exit should attempt to restart, not just exit */
 extern int allow_restart;   /*!< a flag that indicates if restarting after download is permitted */
-extern int have_url_count; /*!< the number of URL seen so far */
-extern int max_url_count; /*!< the maximum number of URL we will store, 0 is unlimited */
-extern list_node_t *newest_url; /*!< The url list head pointer */
-extern list_node_t *active_url; /*!< The url list pointer for the currently active (f2) url */
-extern char browser_name[120]; /*!< a buffer that contains the name of the browser we should use */
 
 extern char lang[10]; /*!< contains the identifier for the current language. \todo Shouldn't this go into translate.h? */
 

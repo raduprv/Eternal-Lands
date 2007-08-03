@@ -47,6 +47,7 @@
 #include "text.h"
 #include "timers.h"
 #include "translate.h"
+#include "url.h"
 #ifdef COUNTERS
 #include "counters.h"
 #endif

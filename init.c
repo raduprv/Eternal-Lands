@@ -56,6 +56,7 @@
 #include "translate.h"
 #include "update.h"
 #include "weather.h"
+#include "url.h"
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
@@ -89,11 +90,6 @@ int custom_update= 0;
 int exit_now=0;
 int restart_required=0;
 int allow_restart=1;
-int have_url_count=0;
-int max_url_count=100;
-list_node_t *newest_url = NULL;
-list_node_t *active_url = NULL;
-char browser_name[120];
 int poor_man=0;
 
 #ifdef ANTI_ALIAS
@@ -406,6 +402,9 @@ void read_bin_cfg()
 
 	buddy_menu_x=cfg_mem.buddy_menu_x;
 	buddy_menu_y=cfg_mem.buddy_menu_y;
+	
+	url_win_x=cfg_mem.url_win_x;
+	url_win_y=cfg_mem.url_win_y;
 
 #ifdef MINIMAP
 	minimap_win_x=cfg_mem.minimap_win_x;
@@ -595,6 +594,14 @@ void save_bin_cfg()
 	} else {
 		cfg_mem.buddy_menu_x=buddy_menu_x;
 		cfg_mem.buddy_menu_y=buddy_menu_y;
+	}
+	
+	if(url_win >= 0) {
+		cfg_mem.url_win_x=windows_list.window[url_win].cur_x;
+		cfg_mem.url_win_y=windows_list.window[url_win].cur_y;
+	} else {
+		cfg_mem.url_win_x=url_win_x;
+		cfg_mem.url_win_y=url_win_y;
 	}
 
 #ifdef MINIMAP

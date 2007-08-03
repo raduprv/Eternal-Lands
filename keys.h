@@ -51,6 +51,7 @@ extern Uint32 K_ROTATERIGHT;    /*!< key used to rotate right (clockwise) */
 extern Uint32 K_FROTATELEFT;    /*!< key used to fine rotate left (counter clockwise) */
 extern Uint32 K_FROTATERIGHT;   /*!< key used to fine rotate right (clockwise) */
 extern Uint32 K_BROWSER;        /*!< key used to open the browser using the last displayed URL */
+extern Uint32 K_BROWSERWIN;     /*!< key used to open the URL list window */
 extern Uint32 K_ESCAPE;         /*!< key used to try fleeing in combat */
 extern Uint32 K_CONSOLE;        /*!< key used to toggle \ref interface_console mode */
 extern Uint32 K_SHADOWS;        /*!< key used to toggle rendering of shadows */

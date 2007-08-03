@@ -42,6 +42,7 @@
 #include "tiles.h"
 #include "trade.h"
 #include "translate.h"
+#include "url.h"
 #include "weather.h"
 #ifdef SFX
 #include "special_effects.h"
@@ -1236,7 +1237,7 @@ void hide_all_windows(){
 	 * time it hid windows itself. If you alt+d to reopen windows, manually close them all, and alt+d
 	 * again, it'll reopen the same ones.
 	 */
-	static unsigned int were_open = 0;	//Currently up to 13 windows are managed by this function.
+	static unsigned int were_open = 0;	//Currently up to 14 windows are managed by this function.
 	//If you add more windows, you must ensure that the int is at least 'windows' bits long.
 	if (get_show_window(ground_items_win) > 0 || get_show_window(items_win) > 0 || get_show_window(buddy_win) > 0 ||
 		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
@@ -1248,6 +1249,7 @@ void hide_all_windows(){
 #ifdef NOTEPAD
 		|| get_show_window(notepad_win) > 0
 #endif /* NOTEPAD */
+		|| get_show_window(url_win) > 0
 	){	//Okay, hide the open ones.
 		if (get_window_showable(ground_items_win) > 0){
 			unsigned char protocol_name;
@@ -1326,6 +1328,12 @@ void hide_all_windows(){
 			were_open &= ~(1<<9);
 		}
 #endif /* NOTEPAD */
+		if (get_show_window(url_win) > 0){
+			hide_window (url_win);
+			were_open |= 1<<10;
+		} else {
+			were_open &= ~(1<<10);
+		}
 	} else {	//None were open, restore the ones that were open last time the key was pressed
 		if (were_open & 1<<0){
 			show_window (items_win);
@@ -1361,6 +1369,9 @@ void hide_all_windows(){
 			show_window (notepad_win);
 		}
 #endif /* NOTEPAD */
+		if (were_open & 1<<10){
+			show_window (url_win );
+		}
 	}
 }
 
@@ -1715,10 +1726,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	}
 	else if (key == K_BROWSER)
 	{
-		if (have_url_count)
-		{
-			open_web_link((char *)(active_url->data));
-		}
+		open_last_seen_url();
+	}
+	else if (key == K_BROWSERWIN)
+	{
+		display_url_win();
 	}
 	else if (keysym == SDLK_ESCAPE)
 	{
