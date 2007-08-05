@@ -7,7 +7,9 @@
 #include <sys/types.h>
 #include <string.h>
 #include <unistd.h>
+#include <ctype.h>
 #include <SDL.h>
+#include <SDL_thread.h>
 #include "asc.h"
 #include "client_serv.h"
 #include "elwindows.h"

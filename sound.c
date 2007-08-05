@@ -1,6 +1,7 @@
 #include <ctype.h>
 #include <string.h>
 #include <SDL.h>
+#include <SDL_thread.h>
 #include "sound.h"
 #include "asc.h"
 #include "draw_scene.h"

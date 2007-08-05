@@ -1,5 +1,5 @@
 #include <stdlib.h>
-#include <SDL_active.h>
+#include <SDL.h>
 #include "openingwin.h"
 #include "books.h"
 #include "draw_scene.h"

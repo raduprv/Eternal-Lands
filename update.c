@@ -13,6 +13,7 @@
 #endif
 #include <time.h>
 #include <SDL_net.h>
+#include <SDL_thread.h>
 #include "update.h"
 #include "asc.h"
 #include "elc_private.h"
