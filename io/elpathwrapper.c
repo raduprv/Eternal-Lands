@@ -1,4 +1,5 @@
 #ifdef NEW_FILE_IO
+#include "../platform.h"
 #include "elpathwrapper.h"
 #include "../asc.h"
 #include "../elc_private.h"

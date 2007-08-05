@@ -6,7 +6,9 @@
 #endif /* OSX */
 #include <sys/types.h>
 #include <string.h>
+#ifndef _MSC_VER
 #include <unistd.h>
+#endif //MSVC
 #include <ctype.h>
 #include <SDL.h>
 #include <SDL_thread.h>

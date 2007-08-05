@@ -8,6 +8,7 @@
 
 #include <SDL_types.h>
 #include "widgets.h"
+#include "platform.h"
 
 #ifdef __cplusplus
 extern "C" {
