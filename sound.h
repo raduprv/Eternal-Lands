@@ -20,12 +20,12 @@
 	#include <AL/alut.h>
 #endif //lib location platform checking
 
-#ifndef	NO_MUSIC
+#ifdef	OGG_VORBIS
 #include <ogg/ogg.h>
 #include <vorbis/codec.h>
 #include <vorbis/vorbisenc.h>
 #include <vorbis/vorbisfile.h>
-#endif	//NO_MUSIC
+#endif	//OGG_VORBIS
 
 #ifdef __cplusplus
 extern "C" {
@@ -50,7 +50,7 @@ extern ALCdevice *mSoundDevice;			// These lines may need to be removed again in
 extern ALCcontext *mSoundContext;			// Please check.
 
 #ifdef NEW_SOUND
-	#define MAX_SOUND_NAME_LENGTH 15
+	#define MAX_SOUND_NAME_LENGTH 40
 	typedef unsigned long int SOUND_COOKIE;
 	#define SOUND_CONFIG_PATH "sound/sound_config.xml"
 
@@ -76,9 +76,9 @@ extern ALCcontext *mSoundContext;			// Please check.
  * \callgraph
  */
 #ifdef NEW_SOUND
-	void init_sound(char *sound_config_path);
+void init_sound(char *sound_config_path);
 #else
-	void init_sound();
+void init_sound();
 #endif	//NEW_SOUND
 /*!
  * \ingroup other
@@ -101,11 +101,25 @@ void destroy_sound();
  * \callgraph
  */
 #ifdef NEW_SOUND
-	unsigned int add_sound_object(int sound_type,int x, int y);
+unsigned int add_sound_object(int sound_type,int x, int y);
 #else
-	int add_sound_object(int sound_file,int x, int y,int positional,int loops);
+int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 #endif	//NEW_SOUND
 
+
+#ifdef NEW_SOUND
+/*!
+ * \ingroup sound_effects
+ * \brief Maps a server sound type to a local sound type.
+ *
+ *      Maps a sound type defined in client_serv.h to a sound type from our sound def.
+ *
+ * \param sound_type    The number of the server sound type
+ * \param x             the x coordinate of the position where the sound should be audible.
+ * \param y             the y coordinate of the position where the sound should be audible.
+ * \callgraph
+ */
+unsigned int add_server_sound(int type,int x, int y);
 
 /*!
  * \ingroup sound_effects
@@ -116,11 +130,12 @@ void destroy_sound();
  * \param name		    The sound type to find
  * \callgraph
  */
-#ifdef NEW_SOUND
-	int get_index_for_sound_type_name(char *name);
-	int find_sound_source_from_cookie(unsigned int cookie);
-#endif	//NEW_SOUND
+int get_index_for_sound_type_name(char *name);
 
+int find_sound_source_from_cookie(unsigned int cookie);
+int get_sound_index_for_particle_file_name(char *name);
+int get_sound_index_for_sfx(int sfx);
+#endif	//NEW_SOUND
 
 /*!
  * \ingroup sound_effects
@@ -133,9 +148,9 @@ void destroy_sound();
  * \callgraph
  */
 #ifdef NEW_SOUND
-	void sound_source_set_gain(unsigned long int cookie, float gain);
+void sound_source_set_gain(unsigned long int cookie, float gain);
 #else
-	void sound_source_set_gain(int sound, float gain);
+void sound_source_set_gain(int sound, float gain);
 #endif	//NEW_SOUND
 
 
@@ -149,9 +164,9 @@ void destroy_sound();
  * \callgraph
  */
 #ifdef NEW_SOUND
-	void update_sound(int ms);
+void update_sound(int ms);
 #else
-	void update_position();
+void update_position();
 #endif	//NEW_SOUND
 
 
@@ -165,10 +180,20 @@ void destroy_sound();
  * \callgraph
  */
 #ifdef NEW_SOUND
-	void stop_sound(unsigned long int cookie);
+void stop_sound(unsigned long int cookie);
 #else
-	void stop_sound(int i);
-	void remove_sound_object(int sound);
+void stop_sound(int i);
+
+/*!
+ * \ingroup sound_effects
+ * \brief Deletes the specified source.
+ *
+ *      Searches for a source_data object for source \a source and deletes it.
+ *
+ * \param cookie	   The cookie for the sound source to stop
+ * \callgraph
+ */
+void remove_sound_object(int sound);
 #endif	//NEW_SOUND
 
 
@@ -176,13 +201,13 @@ void destroy_sound();
  * \ingroup sound_effects
  * \brief Stop all sound & music playback
  *
- *      Stop all sound & music playback; usefull when we change maps, etc.
+ *      Stop all sound & music playback; useful when we change maps, etc.
  *
  * \callgraph
  */
 void stop_all_sounds();
 #ifndef NEW_SOUND
-	void kill_local_sounds();
+void kill_local_sounds();
 #endif	//NEW_SOUND
 /*!
  * \ingroup sound_effects
@@ -202,14 +227,35 @@ void turn_sound_off();
  */
 void turn_sound_on();
 
+/*!
+ * \ingroup sound_effects
+ * \brief Toggles the sound
+ *
+ *      Toggles the status of the sound option in the options dialog and starts or stops the sound.
+ *
+ */
 void toggle_sounds(int *var);
 
+/*!
+ * \ingroup sound_effects
+ * \brief Changes sound types played
+ *
+ *      Changes the types of sound effects being played (environmental only, env + character, etc).
+ *
+ */
+void change_sounds(int * var, int value);
+
+void setup_map_sounds (int map_num);
 
 
 
 
 /////// MUSIC FUNCTIONALITY ///////////
 ///////////////////////////////////////
+
+#ifndef NEW_SOUND
+ALuint get_loaded_buffer(int i);
+#endif	//NEW_SOUND
 
 /*!
  * \ingroup music
@@ -242,7 +288,11 @@ void play_music(int list);
  * \retval int  always returns 0.
  * \callgraph
  */
+#ifdef NEW_SOUND
+int update_streams(void *dummy);
+#else // NEW_SOUND
 int update_music(void *dummy);
+#endif //NEW_SOUND
 
 /*!
  * \ingroup music
@@ -260,14 +310,22 @@ void turn_music_off();
  */
 void turn_music_on();
 
-#ifndef NEW_SOUND
-	ALuint get_loaded_buffer(int i);
-#endif	//NEW_SOUND
-
+/*!
+ * \ingroup music
+ * \brief Displays song title
+ *
+ *      Prints the details of the currently playing song in the console.
+ *
+ */
 int display_song_name();
 
-void change_sounds(int * var, int value);
-
+/*!
+ * \ingroup music
+ * \brief Toggles the music
+ *
+ *      Toggles the status of the music option in the options dialog and starts or stops the music.
+ *
+ */
 void toggle_music(int * var);
 
 #ifdef __cplusplus

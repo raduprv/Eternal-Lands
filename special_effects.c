@@ -538,6 +538,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 #endif
 	int offset = 0;
 	int need_target = 0;
+#ifdef NEW_SOUND
+	int sfx_sound = -1;
+#endif // NEW_SOUND
 	Uint16 var_a = 0, var_b = 0;
 	actor* caster = NULL;
 	actor* target = NULL;
@@ -667,6 +670,17 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	caster = get_actor_ptr_from_id(var_a);
 	if (caster == NULL)
 		return;
+	
+#ifdef NEW_SOUND
+	// Link in the sfx sounds here. It might not be the best place, and baseing the sound around the first actor
+	// (caster) isn't ness the correct location, but it will do for now.
+	sfx_sound = get_sound_index_for_sfx(sfx);
+	if (sfx_sound >= 0)
+	{
+		add_sound_object(sfx_sound, (caster->x_pos - X_OFFSET) * 2, (caster->y_pos - Y_OFFSET) * 2);
+	}
+#endif //NEW_SOUND
+	
 //	printf("%f,%f,%f | %f,%f | %d,%d\n", x / 2.0, y / 2.0, ec_get_z2((int)x, (int)y), caster->x_pos, caster->y_pos, caster->tmp.x_tile_pos, caster->tmp.y_tile_pos);
 // 	x = caster->x_pos;
 // 	y = caster->y_pos;

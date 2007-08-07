@@ -696,7 +696,7 @@ void weather_sound_control()
 
 	if (rain_sound == -1) {
 #ifdef NEW_SOUND
-		rain_sound = add_sound_object(snd_rain,0,0);
+		rain_sound = add_server_sound(snd_rain,0,0);
 		sound_source_set_gain(rain_sound,0.0f);
 #else
 		int buffer;
@@ -752,7 +752,7 @@ void weather_sound_control()
 					if (snd_thunder)
 					{
 #ifdef NEW_SOUND
-						add_sound_object(snd_thunder, 0, 0);
+						add_server_sound(snd_thunder, 0, 0);
 #else
 						add_sound_object(snd_thunder, 0, 0, 0, 0);
 #endif	//NEW_SOUND
@@ -1001,7 +1001,7 @@ void rain_control()
 			num_rain_drops = rainParam*MAX_RAIN_DROPS;
 #ifdef NEW_SOUND
 			if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
-				rain_sound=add_sound_object(snd_rain,0,0);
+				rain_sound = add_server_sound(snd_rain,0,0);
 #else
 			if(!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
@@ -1046,7 +1046,7 @@ void rain_control()
 				is_raining=1;
 #ifdef NEW_SOUND
 				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
-					rain_sound=add_sound_object(snd_rain,0,0);
+					rain_sound = add_server_sound(snd_rain,0,0);
 #else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
@@ -1060,7 +1060,7 @@ void rain_control()
 				is_raining=1;
 #ifdef NEW_SOUND
 				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
-					rain_sound=add_sound_object(snd_rain,0,0);
+					rain_sound = add_server_sound(snd_rain,0,0);
 #else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
@@ -1089,7 +1089,7 @@ void rain_control()
 				sound_source_set_gain(rain_sound, rain_strength_bias);
 			} else {
 #ifdef NEW_SOUND
-				rain_sound=add_sound_object(snd_rain,0,0);
+				rain_sound = add_server_sound(snd_rain,0,0);
 #else
 				rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
@@ -1133,7 +1133,7 @@ void thunder_control()
 							if(thunders[i].thunder_type >=0 && thunders[i].thunder_type <5)
 							{
 #ifdef NEW_SOUND
-								add_sound_object(sounds[thunders[i].thunder_type],0,0);
+								add_server_sound(sounds[thunders[i].thunder_type],0,0);
 #else
 								add_sound_object(sounds[thunders[i].thunder_type],0,0,0,0);
 #endif	//NEW_SOUND
@@ -1329,4 +1329,3 @@ void render_rain(int num_rain_drops)
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
-

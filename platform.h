@@ -46,7 +46,7 @@
   #define snprintf safe_snprintf
  #endif // __MINGW32__
 #elif defined (OSX)
- #ifndef NO_MUSIC
+ #ifdef OGG_VORBIS
   #ifndef __MACOSX__
    #define __MACOSX__  //necessary for Ogg on Macs
   #endif

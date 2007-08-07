@@ -413,6 +413,8 @@ static __inline__ void destroy_partice_sys_without_lock(int i)
 	if (particles_list[i] == NULL) return;
 	if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light])
 		destroy_light(particles_list[i]->light);
+	if (particles_list[i]->sound)
+		stop_sound(particles_list[i]->sound);
 	delete_particle_from_abt(main_bbox_tree, i);
 	free(particles_list[i]);
 	particles_list[i] = NULL;
@@ -650,84 +652,88 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 #endif
 {
 #if defined EYE_CANDY && ! defined MAP_EDITOR
-  if (use_eye_candy)
-  {
-    if (!strncmp("fou", file_name + 12, 3))
-      ec_create_fountain(x_pos, y_pos, z_pos + 0.15, 0.0, 1.0, (z_pos >= 0.8 ? z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
-    else if ((use_fancy_smoke) && (!strncmp("smo", file_name + 12, 3)))
-    {
-      if (file_name[17] == '1')
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.3, (poor_man ? 6 : 10));
-      else if (file_name[17] == '2')
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.45, (poor_man ? 6 : 10));
-      else if (file_name[17] == '3')
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 1.6, (poor_man ? 6 : 10));
-      else if (file_name[17] == '_')
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 1.1, (poor_man ? 6 : 10));
-      else
-        ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.5, (poor_man ? 6 : 10));
-    }
-    else if (!strncmp("tel", file_name + 12, 3))
-    {
-      if (file_name[21] == 'i')
-  		{
-        ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
-  		}
-      else if (file_name[21] == 'o')
-  		{
-        ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
-  		}
-      else
-        ec_create_teleporter(x_pos, y_pos, z_pos, 0.0, 1.0, 1.0, (poor_man ? 6 : 10));
-    }
-    else if (!strncmp("fir", file_name + 12, 3))
-    {
-      if (!strncmp("big", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 1.5);
-      else if (!strncmp("for", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos - 0.2, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 2.0);
-      else if (!strncmp("min", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 0.4);
-      else if (!strncmp("sma", file_name + 17, 3))
-        ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 0.6);
-      else if (!strncmp("tor", file_name + 17, 3))
-        ec_create_lamp(x_pos, y_pos, z_pos, 0.0, 1.0, 1.6, (poor_man ? 6 : 10));
-      else
-      {
+#ifdef NEW_SOUND
+	int snd;
+#endif // NEW_SOUND
+	
+	if (use_eye_candy)
+	{
+		if (!strncmp("fou", file_name + 12, 3))
+			ec_create_fountain(x_pos, y_pos, z_pos + 0.15, 0.0, 1.0, (z_pos >= 0.8 ? z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
+		else if ((use_fancy_smoke) && (!strncmp("smo", file_name + 12, 3)))
+		{
+			if (file_name[17] == '1')
+				ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.3, (poor_man ? 6 : 10));
+			else if (file_name[17] == '2')
+				ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.45, (poor_man ? 6 : 10));
+			else if (file_name[17] == '3')
+				ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 1.6, (poor_man ? 6 : 10));
+			else if (file_name[17] == '_')
+				ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 1.1, (poor_man ? 6 : 10));
+			else
+				ec_create_smoke(x_pos, y_pos, z_pos, 0.0, 1.0, 0.5, (poor_man ? 6 : 10));
+		}
+		else if (!strncmp("tel", file_name + 12, 3))
+		{
+			if (file_name[21] == 'i')
+			{
+				ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
+			}
+			else if (file_name[21] == 'o')
+			{
+				ec_create_selfmagic_teleport_to_the_portals_room(x_pos, y_pos, z_pos, (poor_man ? 6 : 10));
+			}
+			else
+				ec_create_teleporter(x_pos, y_pos, z_pos, 0.0, 1.0, 1.0, (poor_man ? 6 : 10));
+		}
+		else if (!strncmp("fir", file_name + 12, 3))
+		{
+			if (!strncmp("big", file_name + 17, 3))
+				ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 1.5);
+			else if (!strncmp("for", file_name + 17, 3))
+				ec_create_campfire(x_pos, y_pos - 0.2, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 2.0);
+			else if (!strncmp("min", file_name + 17, 3))
+				ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 0.4);
+			else if (!strncmp("sma", file_name + 17, 3))
+				ec_create_campfire(x_pos, y_pos, z_pos, 0.0, 1.0, (poor_man ? 6 : 10), 0.6);
+			else if (!strncmp("tor", file_name + 17, 3))
+				ec_create_lamp(x_pos, y_pos, z_pos, 0.0, 1.0, 1.6, (poor_man ? 6 : 10));
+			else
+			{
  #ifdef SFX
+				particle_sys_def *def = load_particle_def(file_name);
+				if (!def) return -1;
+
+  #ifndef	MAP_EDITOR
+				return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
+  #else
+				return create_particle_sys (def, x_pos, y_pos, z_pos);
+  #endif
+ #endif /* SFX */
+			}
+		}
+		else if (!strncmp("can", file_name + 12, 3))
+			ec_create_candle(x_pos, y_pos, z_pos, 0.0, 1.0, 0.7, (poor_man ? 6 : 10));
+		else
+		{
+#endif /* EYE_CANDY */
+#ifdef SFX
 			particle_sys_def *def = load_particle_def(file_name);
 			if (!def) return -1;
 
-  #ifndef	MAP_EDITOR
-			return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
-  #else
-			return create_particle_sys (def, x_pos, y_pos, z_pos);
-  #endif
- #endif /* SFX */
-      }
-    }
-    else if (!strncmp("can", file_name + 12, 3))
-      ec_create_candle(x_pos, y_pos, z_pos, 0.0, 1.0, 0.7, (poor_man ? 6 : 10));
-    else
-    {
-#endif /* EYE_CANDY */
-#ifdef SFX
-  		particle_sys_def *def = load_particle_def(file_name);
-		if (!def) return -1;
-
  #ifndef	MAP_EDITOR
-		return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
+			return create_particle_sys (def, x_pos, y_pos, z_pos, dynamic);
  #else
-		return create_particle_sys (def, x_pos, y_pos, z_pos);
+			return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
 #endif
 #if defined EYE_CANDY && ! defined MAP_EDITOR
-    }
-  }
-  else
-  {
+		}
+	}
+	else
+	{
 #ifdef SFX
-  		particle_sys_def *def = load_particle_def(file_name);
+		particle_sys_def *def = load_particle_def(file_name);
 		if (!def) return -1;
 
  #ifndef	MAP_EDITOR
@@ -736,7 +742,20 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 		return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
 #endif
-  }
+	}
+#endif
+
+#ifdef NEW_SOUND
+	// If we make it here, we have eye_candy and hence sound effects won't have been added
+	// I'm not going to attempt to add functionality for non-NEW_SOUND at this stage.
+	if (sound_on)
+	{
+		snd = get_sound_index_for_particle_file_name(file_name);
+		if (snd >= 0)
+		{
+			add_sound_object (snd, (x_pos - 0.25f) * 2, (y_pos - 0.25f) * 2);
+		}
+	}
 #endif
 
 	// If we got here, the eye candy system handled this particle
@@ -882,14 +901,12 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
 	
 #ifndef MAP_EDITOR
+ #ifndef NEW_SOUND
 	if (def->sound_nr < 0 || !sound_on)
 		system_id->sound = 0;
 	else
-	#ifdef NEW_SOUND
-		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5));
-	#else
 		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5), def->positional, def->loop);
-	#endif
+ #endif // !NEW_SOUND
 #endif
 
 #ifndef	MAP_EDITOR

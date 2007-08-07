@@ -256,10 +256,13 @@ void change_map (const char *mapname)
 #else
 	kill_local_sounds();
 #endif	//NEW_SOUND
-#ifndef	NO_MUSIC
+#ifdef	OGG_VORBIS
 	playing_music=0;
-#endif	//NO_MUSIC
+#endif	//OGG_VORBIS
 	get_map_playlist();
+#ifdef NEW_SOUND
+	setup_map_sounds(get_cur_map(mapname));
+#endif // NEW_SOUND
 	have_a_map=1;
 	//also, stop the rain
 	clear_weather();
@@ -291,10 +294,13 @@ void change_map (const char *mapname)
 #else
 	kill_local_sounds();
 #endif	//NEW_SOUND
-#ifndef	NO_MUSIC
+#ifdef	OGG_VORBIS
 	playing_music=0;
-#endif	//NO_MUSIC
+#endif	//OGG_VORBIS
 	get_map_playlist();
+#ifdef NEW_SOUND
+	setup_map_sounds(get_cur_map(mapname));
+#endif // NEW_SOUND
 	have_a_map=1;
 #endif  //MAP_EDITOR2
 #ifdef  MINIMAP
@@ -508,4 +514,3 @@ void remove_3d_object_from_server (int id)
 
 	destroy_3d_object (id);
 }
-

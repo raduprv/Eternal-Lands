@@ -1565,13 +1565,13 @@ void init_vars()
 #else
 	add_var(BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 #endif	//NEW_SOUND
-#ifndef NO_MUSIC
+#ifdef OGG_VORBIS
 	add_var(BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
-#endif //NO_MUSIC
+#endif //OGG_VORBIS
 	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
-#ifndef NO_MUSIC
+#ifdef OGG_VORBIS
 	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
-#endif //NO_MUSIC
+#endif //OGG_VORBIS
 
 #ifndef MAP_EDITOR2
 	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
