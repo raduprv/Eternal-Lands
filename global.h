@@ -8,6 +8,10 @@
 
 #include <SDL_types.h>
 
+#ifdef _MSC_VER
+#define __inline__ __inline
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
