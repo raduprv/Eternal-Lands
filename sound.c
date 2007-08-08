@@ -2309,15 +2309,19 @@ int ensure_sample_loaded(int index)
 			if (!data)
 			{
 				// Couldn't load the file
-	#ifdef ELC
+#ifdef ELC
+	#if defined alutGetErrorString && alutGetError
 				LOG_ERROR("%s: %s", snd_buff_error, alutGetErrorString(alutGetError()));
 	#else
-	#ifdef  ALUT_WAV
+				LOG_ERROR("%s: %s", snd_buff_error, "Error opening WAV file");
+	#endif
+#else
+#ifdef  ALUT_WAV
 				printf("ensure_sample_loaded : alutLoadWAVFile(%s) = %s\n",	szPath, "NO SOUND DATA");
-	#else
+#else
 				printf("ensure_sample_loaded : alutLoadMemoryFromFile(%s) = %s\n",	szPath, "NO SOUND DATA");
-	#endif  //ALUT_WAV
-	#endif  //ELC
+#endif  //ALUT_WAV
+#endif  //ELC
 				return 1;
 			}
 		}
@@ -3196,7 +3200,7 @@ void parse_server_sounds()
 				server_sound[snd_thndr_5] = get_index_for_sound_type_name("Thunder5");
 				break;
 			case snd_fire:
-				server_sound[snd_fire] = get_index_for_sound_type_name("BigFire");
+				server_sound[snd_fire] = get_index_for_sound_type_name("FireBig");
 				break;
 		}
 	}
