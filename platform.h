@@ -27,6 +27,8 @@
   #define strncasecmp _strnicmp
   #define strcasecmp _stricmp
                 
+  #define __inline__ __inline
+
   #if _MSC_VER < 1400 // VC 2003 needs these defines, VC 2005 will error with them included
    #define atan2f atan2
    #define acosf acos
