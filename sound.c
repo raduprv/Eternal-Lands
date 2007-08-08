@@ -691,6 +691,7 @@ void play_ogg_file(char *file_name) {
 int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 {
 	FILE *file;
+	int result = 0;
 
 	file = my_fopen(file_name, "rb");
 
@@ -699,9 +700,14 @@ int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 		return 0;
 	}
 
-	if (ov_open(file, oggFile, NULL, 0) < 0)
+#ifndef WINDOWS
+	result = ov_open(file, oggFile, NULL, 0);
+#else // !WINDOWS
+	result = ov_open_callbacks(file, oggFile, NULL, 0, OV_CALLBACKS_DEFAULT);
+#endif // !WINDOWS
+	if (result < 0)
 	{
-		LOG_ERROR("Error opening ogg file: %s\n", file_name);
+		LOG_ERROR("Error opening ogg file: %s. Ogg error %d\n", file_name, result);
 		return 0;
 	}
 

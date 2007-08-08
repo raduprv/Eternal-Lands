@@ -20,11 +20,11 @@
 	#include <AL/alut.h>
 #endif //lib location platform checking
 
-#ifdef	OGG_VORBIS
-#include <ogg/ogg.h>
-#include <vorbis/codec.h>
-#include <vorbis/vorbisenc.h>
-#include <vorbis/vorbisfile.h>
+#ifdef OGG_VORBIS
+	#include <ogg/ogg.h>
+	#include <vorbis/codec.h>
+	#include <vorbis/vorbisenc.h>
+	#include <vorbis/vorbisfile.h>
 #endif	//OGG_VORBIS
 
 #ifdef __cplusplus
