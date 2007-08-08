@@ -11,6 +11,7 @@
 #include <fstream>
 #include <zlib.h>
 #include <SDL.h>
+#include <SDL_endian.h>
 #include <sys/stat.h>
 #include "../exceptions/extendedexception.hpp"
 
