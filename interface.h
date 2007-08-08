@@ -13,7 +13,7 @@ extern "C" {
 #endif
 
 //How long a username is allowed to be. In many cases, it will be +1 to allow for the trailing NULL
-#define MAX_USERNAME_LENGTH 14
+#define MAX_USERNAME_LENGTH 16
 
 extern int have_a_map;  /*!< flag indicating whether a map is available or not */
 extern int auto_camera; /*!< if this is true, we are using the auto camera */
