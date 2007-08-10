@@ -42,12 +42,12 @@ extern int sound_opts; /*!< flag indicating what sounds are enabled */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
 extern int playing_music; /*!< flag indicating if music is currently playing */
+#ifdef NEW_SOUND
+extern int playing_sounds; /*!< flag indicating if streamed sound effects are currently playing */
+#endif // NEW_SOUND
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
-
-extern ALCdevice *mSoundDevice;			// These lines may need to be removed again in the patch.
-extern ALCcontext *mSoundContext;			// Please check.
 
 #ifdef NEW_SOUND
 	#define MAX_SOUND_NAME_LENGTH 40

@@ -63,17 +63,18 @@ typedef enum{STAGE_UNUSED=-1,STAGE_INTRO,STAGE_MAIN,STAGE_OUTRO,num_STAGES}SOUND
 typedef struct
 {
 	char name[MAX_SOUND_NAME_LENGTH];
-	int sample_indices[num_STAGES];	//the indices of the samples used
-	int stereo;						//1 is stereo, 0 is mono (default mono)
-	float distance;					//distance it can be heard, in meters
-	int positional;					//1=positional, 0=omni (default positional)
-	int loops;						//0=infinite, otherwise the number of loops (default 1)
-	int fadeout_time;				//in milliseconds, only for omni sounds that loop. (default 0)
-	int echo_delay;					//the value is the echo in MS. If 0, no echo (default 0)
-	int echo_volume;				//in percent, 0 means no sound, 100 means as loud as the original sound (default 50)
-	int time_of_the_day_flags;		//bits 0-11 set each 1/2 hour of the 6-hour day (default 0xffff)
-	unsigned int priority;			//if there are too many sounds to be played, highest value priority get culled (default 5)
-	int type;						// the type of sound (environmental, actor, walking etc) for sound_opts (default Enviro)
+	int sample_indices[num_STAGES];	// The indices of the samples used
+	float gain;						// The gain of this sound. The same sample may be defined under 2 sounds, with different gains. (default 1.0)
+	int stereo;						// 1 is stereo, 0 is mono (default mono)
+	float distance;					// Distance it can be heard, in meters
+	int positional;					// 1=positional, 0=omni (default positional)
+	int loops;						// 0=infinite, otherwise the number of loops (default 1)
+	int fadeout_time;				// In milliseconds, only for omni sounds that loop. (default 0)
+	int echo_delay;					// The value is the echo in MS. If 0, no echo (default 0)
+	int echo_volume;				// In percent, 0 means no sound, 100 means as loud as the original sound (default 50)
+	int time_of_the_day_flags;		// Bits 0-11 set each 1/2 hour of the 6-hour day (default 0xffff)
+	unsigned int priority;			// If there are too many sounds to be played, highest value priority get culled (default 5)
+	int type;						// The type of sound (environmental, actor, walking etc) for sound_opts (default Enviro)
 }sound_type;
 
 typedef struct
@@ -107,15 +108,6 @@ typedef struct
 typedef struct
 {
 	int sound;
-	int min_x;
-	int max_x;
-	int min_y;
-	int max_y;
-}map_sound_boundary_def_old;
-
-typedef struct
-{
-	int sound;
 	int x1;
 	int y1;
 	int x2;
@@ -136,7 +128,7 @@ typedef struct
 
 typedef struct
 {
-	int id;		// ID's in the config should match those of special_effect_enum
+	int id;					// ID's in the config should match those of special_effect_enum
 	int sound;
 }effect_sound_data;
 
@@ -167,8 +159,8 @@ struct sound_object sound_objects[MAX_SOURCES];
 
 #endif	//NEW_SOUND
 
-ALCdevice *mSoundDevice;			// These lines may need to be removed again in the patch.
-ALCcontext *mSoundContext;			// Please check.
+ALCdevice *mSoundDevice;
+ALCcontext *mSoundContext;
 
 int have_sound=0;
 int have_music=0;
@@ -1857,25 +1849,26 @@ void clear_sound_data()
 {
 	int i, j;
 	
-	for (i = 0; i > MAX_BUFFERS; i++)
+	for (i = 0; i < MAX_BUFFERS; i++)
 	{
 		sound_type_data[i].name[0] = '\0';
+		for (j = 0; j < num_STAGES; j++)
+		{
+			sound_type_data[i].sample_indices[j] = -1;
+		}
+		sound_type_data[i].gain = 1.0f;
 		sound_type_data[i].stereo = 0;
-		sound_type_data[i].distance = 0.0f;
-		sound_type_data[i].positional = 0;
-		sound_type_data[i].loops = 0;
+		sound_type_data[i].distance = 100.0f;
+		sound_type_data[i].positional = 1;
+		sound_type_data[i].loops = 1;
 		sound_type_data[i].fadeout_time = 0;
 		sound_type_data[i].echo_delay = 0;
-		sound_type_data[i].echo_volume = 0;
-		sound_type_data[i].time_of_the_day_flags = 0;
-		sound_type_data[i].priority = 0;
-		sound_type_data[i].type = 0;
-		for (j = 0; j > num_STAGES; j++)
-		{
-			sound_type_data[i].sample_indices[j] = 0;
-		}
+		sound_type_data[i].echo_volume = 50;
+		sound_type_data[i].time_of_the_day_flags = 0xffff;
+		sound_type_data[i].priority = 5;
+		sound_type_data[i].type = SOUNDS_ENVIRO;
 	}
-	for (i = 0; i > MAX_BUFFERS; i++)
+	for (i = 0; i < MAX_BUFFERS; i++)
 	{
 		sound_sample_data[i].buffer = 0;
 		sound_sample_data[i].file_path[0] = '\0';
@@ -1887,12 +1880,12 @@ void clear_sound_data()
 		sound_sample_data[i].length = 0;
 		sound_sample_data[i].loaded_status = 0;
 	}
-	for (i = 0; i > MAX_SOUND_MAPS; i++)
+	for (i = 0; i < MAX_SOUND_MAPS; i++)
 	{
 		sound_map_data[i].id = 0;
 		sound_map_data[i].name[0] = '\0';
 		sound_map_data[i].num_boundaries = 0;
-		for (j = 0; j > MAX_SOUND_MAP_BOUNDARIES; j++)
+		for (j = 0; j < MAX_SOUND_MAP_BOUNDARIES; j++)
 		{
 			sound_map_data[i].boundaries[j].sound = -1;
 			sound_map_data[i].boundaries[j].x1 = 0;
@@ -1919,6 +1912,7 @@ void clear_sound_data()
 	{
 		server_sound[i] = -1;
 	}
+
 	num_types=0;
 	num_samples=0;
 	sound_num_maps=0;
@@ -2122,6 +2116,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 int update_streams(void *dummy)
 {
     int error, sleep, music_fade = 0, sound_fade = 0;
+	int cur_sound;
 	int day_time;
 	int tx, ty;
    	sleep = SLEEP_TIME;
@@ -2176,7 +2171,7 @@ int update_streams(void *dummy)
 			// Process the sound effects stream
 			if (playing_sounds)
 			{
-				process_stream(&sound_fx_stream, sound_gain, &sleep, &sound_fade, tx, ty);
+				process_stream(&sound_fx_stream, sound_gain * sound_type_data[cur_sound].gain, &sleep, &sound_fade, tx, ty);
 			}
 			else
 			{
@@ -2188,12 +2183,11 @@ int update_streams(void *dummy)
 					if (sound_map_data[snd_cur_map].boundaries[cur_boundary].sound > -1 &&
 						sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[cur_boundary]))
 					{
-						int snd_num;
-						alSourcef (sound_stream_source, AL_GAIN, sound_gain);
-						snd_num = sound_map_data[snd_cur_map].boundaries[cur_boundary].sound;
-						if (snd_num > -1)
+						cur_sound = sound_map_data[snd_cur_map].boundaries[cur_boundary].sound;
+						alSourcef (sound_stream_source, AL_GAIN, sound_gain * sound_type_data[cur_sound].gain);
+						if (cur_sound > -1)
 						{
-							play_sound_stream(snd_num);
+							play_sound_stream(cur_sound);
 						}
 					}
 				}
@@ -2557,13 +2551,13 @@ unsigned int add_sound_object(int type,int x, int y)
 	pSource->current_stage = stage;
 
 	alSourcef(pSource->source, AL_PITCH, 1.0f);
-	alSourcef(pSource->source, AL_GAIN, sound_gain);
+	alSourcef(pSource->source, AL_GAIN, sound_gain * pNewType->gain);
 	alSourcefv(pSource->source, AL_VELOCITY, sourceVel);
 	alSourcefv(pSource->source, AL_POSITION, sourcePos);
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error with alSourcef calls: %s. Name: %s. Source: %d: %s\n", snd_source_error, pNewType->name, source, alGetString(error));
+		printf("Error with alSourcef calls: %s. Name: %s. Source: %d: %s\n", snd_source_error, pNewType->name, pSource->source, alGetString(error));
 #endif //_EXTRA_SOUND_DEBUG
 	}
 
@@ -2675,7 +2669,7 @@ void sound_source_set_gain(unsigned long int cookie, float gain)
 	{
 		if(pSource->cookie == cookie)
 		{
-			alSourcef(pSource->source,AL_GAIN, sound_gain * gain);
+			alSourcef(pSource->source,AL_GAIN, sound_gain * sound_type_data[pSource->sound_type].gain * gain);
 			if((error=alGetError()) != AL_NO_ERROR)
 			{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3039,7 +3033,7 @@ void init_sound_stream(ALuint * source, ALuint * buffers, int gain)
 
 void init_sound(char *sound_config_path)
 {
-	source_data *pSource,*sourceArrays[1]={sound_source_data};//,temp_source_data};
+	source_data *pSource, *sourceArrays[1] = {sound_source_data};
 	int error;
 	int i,j;
 	
@@ -3050,14 +3044,14 @@ void init_sound(char *sound_config_path)
 	alutInitWithoutContext(0, 0);
 #endif // OSX
 
-	//begin by setting all data to a known state
+	// Begin by setting all data to a known state
 	if(have_sound)
 		destroy_sound();
 
-	//poison data
-	for(i=0;i<MAX_SOURCES;i++)
+	// Init sources
+	for(i = 0; i < MAX_SOURCES; i++)
 	{
-		for(j=0;j<sizeof(sourceArrays)/sizeof(sourceArrays[0]);++j)
+		for(j = 0; j < sizeof(sourceArrays) / sizeof(sourceArrays[0]); ++j)
 		{
 			pSource = sourceArrays[j]+i;
 			pSource->source = 0;
@@ -3067,31 +3061,9 @@ void init_sound(char *sound_config_path)
 			pSource->cookie = 0;
 		}
 	}
-	for(i=0;i<MAX_BUFFERS;i++)
-	{
-		sound_sample_data[i].buffer = 0;
-		sound_sample_data[i].file_path[0] = '\0';
-		sound_sample_data[i].loaded_status = 0;
-	}
-
-	//initialise blank/default soundtype data
-	for(i=0;i<MAX_BUFFERS;i++)
-	{
-		sound_type_data[i].name[0] = '\0';
-		sound_type_data[i].sample_indices[STAGE_INTRO]=-1;
-		sound_type_data[i].sample_indices[STAGE_MAIN]=-1;
-		sound_type_data[i].sample_indices[STAGE_OUTRO]=-1;
-		sound_type_data[i].stereo=0;
-		sound_type_data[i].distance=100.0f;
-		sound_type_data[i].positional=1;
-		sound_type_data[i].loops=1;
-		sound_type_data[i].fadeout_time=0;
-		sound_type_data[i].echo_delay=0;
-		sound_type_data[i].echo_volume=50;
-		sound_type_data[i].time_of_the_day_flags=0xffff;
-		sound_type_data[i].priority=5;
-		sound_type_data[i].type=SOUNDS_ENVIRO;
-	}
+	
+	// Poison data
+	clear_sound_data();
 	
 	//initialise OpenAL
 	//NULL makes it use the default device.
@@ -3300,6 +3272,20 @@ void parse_sound_object(xmlNode *inNode)
 						LOG_ERROR("Sound config parse error: outro_index already set!");
 				#else
 						printf("Sound config parse error: outro_index already set!\n");
+				#endif
+					}
+				}
+				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"gain"))
+				{
+					fVal = (float)atof((char *)content);
+					if(fVal>0.0f)
+						pData->gain = fVal;
+					else
+					{
+				#ifdef ELC
+						LOG_ERROR("Sound config parse error: gain = %f in '%s'",fVal,pData->name);
+				#else
+						printf("Sound config parse error: gain = %f in '%s'\n",fVal,pData->name);
 				#endif
 					}
 				}
@@ -3808,6 +3794,7 @@ void print_sound_types()
 		printf("\tMain sample = '%s'(#%d)\n",(sample < 0) ? NULL : sound_sample_data[sample].file_path,sample);
 		sample=pData->sample_indices[STAGE_OUTRO];
 		printf("\tOutro sample = '%s'(#%d)\n",(sample < 0) ? NULL : sound_sample_data[sample].file_path,sample);
+		printf("\tGain = %f\n"					, pData->gain);
 		printf("\tStereo = %d\n"				, pData->stereo);
 		printf("\tDistance = %f\n"				, pData->distance);
 		printf("\tPositional = %d\n"			, pData->positional);
