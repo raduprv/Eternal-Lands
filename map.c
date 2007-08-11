@@ -251,9 +251,7 @@ void change_map (const char *mapname)
 #ifndef NEW_WEATHER
 	rain_sound=0;//kill local sounds also kills the rain sound
 #endif
-#ifdef NEW_SOUND
-	stop_all_sounds();
-#else
+#ifndef NEW_SOUND
 	kill_local_sounds();
 #endif	//NEW_SOUND
 #ifdef	OGG_VORBIS
@@ -274,7 +272,7 @@ void change_map (const char *mapname)
 		show_window(game_root_win);
 	}
 	load_map_marks();//Load the map marks
-#else
+#else // !MAP_EDITOR2
 	destroy_all_particles();
 #ifdef NEW_SOUND
 	stop_all_sounds();
@@ -289,9 +287,7 @@ void change_map (const char *mapname)
 		LOG_ERROR(cant_change_map, mapname);
 		load_empty_map();
 	}
-#ifdef NEW_SOUND
-	stop_all_sounds();
-#else
+#ifndef NEW_SOUND
 	kill_local_sounds();
 #endif	//NEW_SOUND
 #ifdef	OGG_VORBIS
