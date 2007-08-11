@@ -37,7 +37,7 @@ FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
 #FEATURES += NEW_FILE_IO                     # Enables being able to read gzip compressed files and hole zip archives. The zip archives need to be added using add_zip_archive in elfilewrapper.h and only absolut paths are supported for files in zip files. Requires -lzlib/-lz
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)
-#FEATURES += NEW_SOUND                       # Experimental - Enables extended sound effects system - almost pointless without OGG_VORBIS
+FEATURES += NEW_SOUND                       # Experimental - Enables extended sound effects system - almost pointless without OGG_VORBIS
 FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
 #FEATURES += NEW_WEATHER                     # new weather effects
 #FEATURES += NO_PF_MACRO                     # (undocumented)
@@ -65,6 +65,7 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 #FEATURES += X86_64                          # Compile for a computer with 64-bit memory addresses
 FEATURES += ZLIB                             # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
+FEATURES += _EXTRA_SOUND_DEBUG
 
 # Handle feature dependencies:
 # if CUSTOM_UPDATE is set, but AUTO_UPDATE isn't, remove CUSTOM_UPDATE

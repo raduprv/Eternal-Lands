@@ -155,12 +155,13 @@ struct sound_object
 	int file, x, y, positional, loops;
 };
 struct sound_object sound_objects[MAX_SOURCES];
-#endif	//DEBUG
+#endif	// DEBUG
 
-#endif	//NEW_SOUND
 
+#else // NEW_SOUND
 ALCdevice *mSoundDevice;
 ALCcontext *mSoundContext;
+#endif	// NEW_SOUND
 
 int have_sound=0;
 int have_music=0;
@@ -299,7 +300,7 @@ void turn_sound_on()
 	if(!have_sound)
 		return;
 	LOCK_SOUND_LIST();
-	sound_on=1;
+	sound_on = 1;
 	for(i=0;i<used_sources;i++)
 	{
 #ifdef NEW_SOUND
@@ -356,7 +357,7 @@ void turn_sound_off()
 		{
 #ifdef NEW_SOUND
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Turning off sound. Removing source with index %d\n", i);
+			printf("Removing source with index %d\n", i);
 #endif //_EXTRA_SOUND_DEBUG
 			stop_sound_source_at_index(i);
 			continue;
@@ -382,7 +383,6 @@ void turn_sound_off()
 		sound_streams_thread = NULL;
 	}
 	ov_clear(&sound_ogg_stream);
-	clear_sound_data();
 #endif // NEW_SOUND
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
@@ -392,6 +392,19 @@ void turn_sound_off()
 	}
 }
 
+#ifdef NEW_SOUND
+void change_sounds(int * var, int value)
+{
+	int old_val = sound_opts;
+	
+	if (value >= 0) *var = value; // We need to set this here so the sound stream doesn't quit if there is no music
+	if (value == SOUNDS_NONE && old_val != SOUNDS_NONE)	{
+		turn_sound_off();
+	} else if (value != SOUNDS_NONE && (!have_sound || old_val == SOUNDS_NONE)) {
+		turn_sound_on();
+	}
+}
+#else
 void toggle_sounds(int *var){
 	*var=!*var;
 	if(!sound_on){
@@ -400,22 +413,7 @@ void toggle_sounds(int *var){
 		turn_sound_on();
 	}
 }
-
-void change_sounds(int * var, int value){
-	if(!have_sound && value != SOUNDS_NONE) {
-#ifdef NEW_SOUND
-		init_sound(SOUND_CONFIG_PATH);
-#else
-		init_sound();
 #endif	//NEW_SOUND
-	}
-	if(value == SOUNDS_NONE && sound_opts != SOUNDS_NONE) {
-		turn_sound_off();
-	} else if(value != SOUNDS_NONE && sound_opts == SOUNDS_NONE) {
-		turn_sound_on();
-	}
-	if(value>=0) *var=value;
-}
 
 void turn_music_on()
 {
@@ -551,8 +549,6 @@ void destroy_sound()
 	}
 #endif	// OGG_VORBIS
 #ifdef NEW_SOUND
-#ifdef OGG_VORBIS
-#endif // OGG_VORBIS
 	for(i=0;i<MAX_SOURCES;i++)
 	{
 		if(alIsSource(sound_source_data[i].source) == AL_TRUE)
@@ -578,11 +574,11 @@ void destroy_sound()
 			alDeleteBuffers(1, sound_buffer+i);
 		}
 	}
-#endif	//NEW_SOUND
 	alcDestroyContext( mSoundContext );
 	if(mSoundDevice) {
 		alcCloseDevice( mSoundDevice );
 	}
+#endif	//NEW_SOUND
 	/*
 	 * alutExit() contains a problem with hanging on exit on some
 	 * Linux systems.  The problem is with the call to
@@ -2203,7 +2199,7 @@ int update_streams(void *dummy)
 		if (exit_now) break;
 	}
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Exiting streams thread\n");
+	printf("Exiting streams thread. have_music: %d, music_on: %d, have_sound: %d, sound_opts: %d, exit_now: %d\n", have_music, music_on, have_sound, sound_opts, exit_now);
 #endif //_EXTRA_SOUND_DEBUG
 	return 1;
 }
@@ -3055,6 +3051,8 @@ void init_sound_stream(ALuint * source, ALuint * buffers, int gain)
 void init_sound(char *sound_config_path)
 {
 	source_data *pSource, *sourceArrays[1] = {sound_source_data};
+	ALCcontext *context;
+	ALCdevice *device;
 	int error;
 	int i,j;
 	
@@ -3098,24 +3096,24 @@ void init_sound(char *sound_config_path)
 
 	//if you want to use a different device, use, for example:
 	//mSoundDevice = alcOpenDevice((ALubyte*) "DirectSound3D")
-	mSoundDevice = alcOpenDevice( NULL );
-	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundDevice){
+	device = alcOpenDevice( NULL );
+	if((error=alcGetError(device)) != AL_NO_ERROR || !device){
 		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
 		return;
 	}
 
-	mSoundContext = alcCreateContext( mSoundDevice, NULL );
-	alcMakeContextCurrent( mSoundContext );
+	context = alcCreateContext( device, NULL );
+	alcMakeContextCurrent( context );
 
 	sound_list_mutex=SDL_CreateMutex();
 
-	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
+	if((error=alcGetError(device)) != AL_NO_ERROR || !context || !sound_list_mutex){
 		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound=have_music=0;
