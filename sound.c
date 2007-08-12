@@ -814,10 +814,17 @@ ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, 
 	int result;
 	vorbis_info *pInfo;
 	OggVorbis_File oggFile;
-	static ALenum format;
-	static ALsizei size;
-	static ALfloat freq;
+	ALenum format;
+	ALsizei size;
+	ALfloat freq;
 	char * data;
+	
+	// Reset the variables
+	bitStream = 0;
+	result = 0;
+	format = 0;
+	size = 0;
+	freq = 0.0f;
 	
 	// Load the file
 	result = load_ogg_file(szPath, &oggFile);
