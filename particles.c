@@ -1678,4 +1678,11 @@ void dump_part_sys_info()
 	LOG_TO_CONSOLE(c_grey1,str);
 }
 */
-#endif
+#endif // ELC
+
+#ifdef MAP_EDITOR
+void get_and_set_particle_texture_id (int i)
+{
+	get_and_set_texture_id (particle_textures[i]);
+}
+#endif // MAP_EDITOR

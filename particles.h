@@ -345,6 +345,16 @@ void add_teleporters_from_list (const Uint8 *teleport_list);
  * \callgraph
  */
 #ifdef MAP_EDITOR
+/*!
+ * \brief Set the particle texture as the current texture
+ *
+ *	Set the particle texture \a i as the next texture to be drawn.
+ * 
+ * \param i The number of the texture file, \c part_texture field of the 
+ *          particle system definition.
+ */
+void get_and_set_particle_texture_id (int i);
+
 int save_particle_def(particle_sys_def *def);
 #elif defined(MAP_EDITOR2)
 int save_particle_def(particle_sys_def *def);
