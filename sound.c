@@ -24,8 +24,8 @@
 #endif //NEW_SOUND
 
 #define MAX_FILENAME_LENGTH 80
-#define MAX_BUFFERS 64			// Remember, music and bg sounds use 4 buffers each too
-#define MAX_SOURCES 16			// Remember, music and bg sounds use a source each too
+#define MAX_BUFFERS 56			// Remember, music and bg sounds use 4 buffers each too
+#define MAX_SOURCES 14			// Remember, music and bg sounds use a source each too
 
 #ifdef NEW_SOUND
 #define OGG_BUFFER_SIZE (1048576)
