@@ -28,6 +28,10 @@
 #define MAX_SOURCES 14			// Remember, music and bg sounds use a source each too
 
 #ifdef NEW_SOUND
+#if defined _EXTRA_SOUND_DEBUG && OSX
+ #define printf LOG_ERROR
+#endif
+
 #define OGG_BUFFER_SIZE (1048576)
 #define STREAM_BUFFER_SIZE (4096 * 16)
 #else // NEW_SOUND
