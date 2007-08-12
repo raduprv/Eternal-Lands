@@ -43,7 +43,7 @@ int start_rendering()
 	/* Destroy our GL context, etc. */ 
 	destroy_map_tiles();
 	SDL_SetTimer(0,NULL);
-	end_particles_list();
+	end_particles ();
 	SDL_Quit( );
 	return(0);
 }

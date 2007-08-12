@@ -570,7 +570,7 @@ int display_particles_window_handler(window_info *win)
 			draw_string(previewx+2+(previewx2-previewx)/2,sel_handle_bottom+72,(const unsigned char*) temp,1);
 			break;
 		case(PREVIEW_PARTICLE_TEXTURE):
-			get_and_set_texture_id(particle_textures[def.part_texture]);
+			get_and_set_particle_texture_id (def.part_texture);
 			glEnable(GL_BLEND);
 			glBlendFunc(GL_SRC_ALPHA,GL_ZERO);
 			glBegin(GL_TRIANGLE_STRIP);

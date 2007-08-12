@@ -137,11 +137,11 @@ void init_stuff()
 
 	SDL_EnableKeyRepeat (200, 100);
 
-    seed = time (NULL);
+	seed = time (NULL);
   	srand (seed);
 
-	init_particles_list();
 	init_texture_cache();
+	init_particles ();
 	init_e3d_cache();
 	init_2d_obj_cache();
 
@@ -186,20 +186,12 @@ void init_stuff()
 #endif
 
 	if(have_multitexture)
-        ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
+		ground_detail_text = load_texture_cache ("./textures/ground_detail.bmp",255);
 
 	//load the fonts texture
 	init_fonts();
 	icons_text=load_texture_cache("./textures/gamebuttons.bmp",0);
 	buttons_text=load_texture_cache("./textures/buttons.bmp",0);
-	particle_textures[0]=load_texture_cache("./textures/particle0.bmp",0);
-	particle_textures[1]=load_texture_cache("./textures/particle1.bmp",0);
-	particle_textures[2]=load_texture_cache("./textures/particle2.bmp",0);
-	particle_textures[3]=load_texture_cache("./textures/particle3.bmp",0);
-	particle_textures[4]=load_texture_cache("./textures/particle4.bmp",0);
-	particle_textures[5]=load_texture_cache("./textures/particle5.bmp",0);
-	particle_textures[6]=load_texture_cache("./textures/particle6.bmp",0);
-	particle_textures[7]=load_texture_cache("./textures/particle7.bmp",0);
 	//get the application home dir
 
 	have_multitexture=0;//debug only
