@@ -2684,9 +2684,6 @@ void update_sound(int ms)
 					pSample = &sound_sample_data[pSoundType->sample_indices[pSource->current_stage]];
 					//found the currently-playing buffer
 
-					// FIXME: This sometimes seg faults. I need to go through the code and monitor the status of
-					// the sample data. There are a bunch of bugs in there with old data. Empty buffer variables
-					// (causing these random seg faults) are a big one!
 					if(pSample->buffer == buffer)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -2716,13 +2713,15 @@ void update_sound(int ms)
 							}
 						}
 						break;
-					}	
+					}
 				}
 			}
 		}
 
-		if(pSource->current_stage == num_STAGES)
-		{//if the state is num_STAGES then the sound has ended (or gone wrong)
+		// Check if we need to remove this sound (its finished, or not playing that type anymore)
+		// If the state is num_STAGES then the sound has ended (or gone wrong)
+		if(pSource->current_stage == num_STAGES || pSoundType->type	> sound_opts)
+		{
 #ifdef _EXTRA_SOUND_DEBUG
 //			printf("removing finished sound %d (%s) at source index %d\n", pSource->sound_type, pSoundType->name, i);
 #endif //_EXTRA_SOUND_DEBUG
@@ -2952,7 +2951,7 @@ void sound_source_set_gain(unsigned long int cookie, float gain)
 }
 
 
-int get_index_for_sound_type_name(char *name)
+int get_index_for_sound_type_name(const char *name)
 {
 	int i;
 	for(i = 0; i < num_types; ++i)
@@ -2964,7 +2963,7 @@ int get_index_for_sound_type_name(char *name)
 }
 
 // Look for a particle sound def matching the input filename (minus the directory ./particles/ and extension .part)
-int get_sound_index_for_particle_file_name(char *name)
+int get_sound_index_for_particle_file_name(const char *name)
 {
 	char my_name[MAX_FILENAME_LENGTH];
 	int i;

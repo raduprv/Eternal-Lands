@@ -125,16 +125,46 @@ unsigned int add_server_sound(int type,int x, int y);
  * \ingroup sound_effects
  * \brief Gets the index of the named sound type.
  *
- *      Searches for a sound type which matches \a name. The search is not case-sensitive. A return of < 0 indicates no match.
+ *      Searches for a sound type which matches \a name. The search is not case-sensitive. A return of -1 indicates no match.
  *
  * \param name		    The sound type to find
  * \callgraph
  */
-int get_index_for_sound_type_name(char *name);
+int get_index_for_sound_type_name(const char *name);
 
-int find_sound_source_from_cookie(unsigned int cookie);
-int get_sound_index_for_particle_file_name(char *name);
+/*!
+ * \ingroup sound_effects
+ * \brief Gets the index of the sound for the named particle sound.
+ *
+ *      Searches for a particle sound which matches \a name, stripping the directory ./particles/ and extension .part. The search is not case-sensitive. A return of -1 indicates no match.
+ *
+ * \param name		    The particle sound to find
+ * \callgraph
+ */
+int get_sound_index_for_particle_file_name(const char *name);
+
+/*!
+ * \ingroup sound_effects
+ * \brief Gets the index of the sound for the given special effect num.
+ *
+ *      Searches for a special effect sound which matches \a sfx. A return of -1 indicates no match.
+ *
+ * \param sfx		    The special effect to find the sound for
+ * \callgraph
+ */
 int get_sound_index_for_sfx(int sfx);
+
+/*!
+ * \ingroup sound_effects
+ * \brief Gets the index of the sound source for the given cookie.
+ *
+ *      Searches for a sound source which matches the cookie \a cookie. A return of -1 indicates no match.
+ *		Note: This result must not be stored, but used immediately!
+ *
+ * \param name		    The cookie to find the sound source for
+ * \callgraph
+ */
+int find_sound_source_from_cookie(unsigned int cookie);
 #endif	//NEW_SOUND
 
 /*!
