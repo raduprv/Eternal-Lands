@@ -1,3 +1,5 @@
+#ifdef ENCYCLOPEDIA
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
@@ -1117,3 +1119,4 @@ bp_Alignment bp_parseAlignment(bp_Context * context, xmlNodePtr data) {
 	}
 }
 
+#endif /* ENCYCLOPEDIA */

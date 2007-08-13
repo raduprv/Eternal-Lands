@@ -6,6 +6,8 @@
 #ifndef __BOOKS_SYMBOLS_H__
 #define __BOOKS_SYMBOLS_H__
 
+#ifdef ENCYCLOPEDIA
+
 #include "../symbol_table.h"
 #include "types.h"
 
@@ -57,5 +59,6 @@ extern const bp_Color bp_white;
  */
 void bp_init_symbols();
 
-#endif // ndef __BOOKS_SYMBOLS_H__
+#endif /* ENCYCLOPEDIA */
 
+#endif // ndef __BOOKS_SYMBOLS_H__

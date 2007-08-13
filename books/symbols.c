@@ -1,3 +1,5 @@
+#ifdef ENCYCLOPEDIA
+
 #include <stdlib.h>
 #include "../symbol_table.h"
 #include "../textures.h"
@@ -163,3 +165,4 @@ void bp_init_symbols() {
 	st_commit(bp_mirrorings);
 }
 
+#endif /* ENCYCLOPEDIA */

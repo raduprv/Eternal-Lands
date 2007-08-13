@@ -1,3 +1,5 @@
+#ifdef ENCYCLOPEDIA
+
 #include <stdlib.h>
 #include <SDL_types.h>
 
@@ -292,3 +294,4 @@ void ts_setBlock(ts_Context * context, bp_Block * block) {
 	ts_addBorders(context, &block->blockBorder);
 }
 
+#endif /* ENCYCLOPEDIA */

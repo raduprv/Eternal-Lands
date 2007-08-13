@@ -6,8 +6,12 @@
 #ifndef __BOOKS_PARSER_H__
 #define __BOOKS_PARSER_H__
 
+#ifdef ENCYCLOPEDIA
+
 #include "../symbol_table.h"
 #include "types.h"
+#include <libxml/parser.h>
+#include <libxml/tree.h>
 
 typedef struct _bp_Context {
 	bp_Document * doc;
@@ -39,5 +43,7 @@ bp_Document * bp_parseFile(bp_Context * context, const char * name);
  * \retval        a pointer to the parsed document in a \see bp_Document structure
  */
 bp_Document * bp_parseDoc(bp_Context * context, xmlDocPtr doc);
+
+#endif /* ENCYCLOPEDIA */
 
 #endif // ndef __BOOKS_PARSER_H__

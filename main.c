@@ -2,6 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include "platform.h"
 
 #ifdef	__GNUC__
  #include <unistd.h>

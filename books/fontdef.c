@@ -1,3 +1,5 @@
+#ifdef ENCYCLOPEDIA
+
 #include <string.h>
 #include <ctype.h>
 #include <libxml/xmlmemory.h>
@@ -5,6 +7,7 @@
 #include <libxml/parser.h>
 #include <SDL_types.h>
 
+#include "../init.h"
 #include "../textures.h"
 #include "../symbol_table.h"
 #include "symbols.h"
@@ -293,3 +296,4 @@ const Uint8 * fd_utf8_next_char(const Uint8 * src) {
 	return src;
 }
 
+#endif /* ENCYCLOPEDIA */

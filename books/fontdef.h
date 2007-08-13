@@ -5,6 +5,8 @@
 #ifndef __BOOKS_FONTDEF_H__
 #define __BOOKS_FONTDEF_H__
 
+#ifdef ENCYCLOPEDIA
+
 /*! \name */
 typedef struct _fd_Char {
 	int tex;
@@ -35,5 +37,7 @@ void fd_free();
  * \brief
  */
 fd_Font * fd_getFont(int id);
+
+#endif /* ENCYCLOPEDIA */
 
 #endif // not defined __BOOKS_FONTDEF_H__

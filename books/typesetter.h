@@ -5,6 +5,8 @@
 #ifndef __BOOKS_TYPESETTER_H__
 #define __BOOKS_TYPESETTER_H__
 
+#ifdef ENCYCLOPEDIA
+
 #include "types.h"
 #include "fontdef.h"
 
@@ -51,5 +53,7 @@ typedef struct _ts_Context {
  * \brief
  */
 ts_Topic * ts_setTopic(ts_Context * context, bp_Book * book, bp_Page * topic);
+
+#endif /* ENCYCLOPEDIA */
 
 #endif // not defined __BOOKS_TYPESETTER_H__

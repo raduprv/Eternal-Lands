@@ -184,4 +184,6 @@ typedef struct _bp_Text {
 	char * content;
 } bp_Text;
 
+#endif /* ENCYCLOPEDIA */
+
 #endif // ndef __BOOKS_TYPES_H__
