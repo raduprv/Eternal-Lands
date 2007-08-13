@@ -73,6 +73,7 @@ struct near_actor {
 };
 
 extern int no_near_actors;
+extern int no_near_enhanced_actors;
 extern struct near_actor near_actors[MAX_ACTORS];
 
 /*!

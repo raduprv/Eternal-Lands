@@ -413,8 +413,12 @@ static __inline__ void destroy_partice_sys_without_lock(int i)
 	if (particles_list[i] == NULL) return;
 	if(particles_list[i]->def && particles_list[i]->def->use_light && lights_list[particles_list[i]->light])
 		destroy_light(particles_list[i]->light);
+#ifdef NEW_SOUND
+	stop_sound_at_location(particles_list[i]->x_pos, particles_list[i]->y_pos);
+#else // NEW_SOUND
 	if (particles_list[i]->sound)
 		stop_sound(particles_list[i]->sound);
+#endif // NEW_SOUND
 	delete_particle_from_abt(main_bbox_tree, i);
 	free(particles_list[i]);
 	particles_list[i] = NULL;
@@ -567,12 +571,18 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	float x = 0.5f * x_tile + 0.25f;
 	float y = 0.5f * y_tile + 0.25f;
 	float z = 0.0;
+#ifdef NEW_SOUND
+	int snd;
+#endif // NEW_SOUND
 
 	switch (kind)
 	{
 		case 2:
 #ifdef EYE_CANDY
 			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 3.1);
+#ifdef NEW_SOUND
+			snd = get_sound_index_for_particle_file_name("./particles/fire_big.part");
+#endif // NEW_SOUND
 #else // EYE_CANDY
  #ifdef SFX
   #ifndef MAP_EDITOR
@@ -587,6 +597,9 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 		default:
 #ifdef EYE_CANDY
 			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 2.4);
+#ifdef NEW_SOUND
+			snd = get_sound_index_for_particle_file_name("./particles/fire_small.part");
+#endif // NEW_SOUND
 #else // EYE_CANDY
  #ifdef SFX
   #ifndef MAP_EDITOR
@@ -598,6 +611,12 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 #endif // EYE_CANDY
 			break;
 	}
+#ifdef NEW_SOUND
+	if (sound_on && snd >= 0)
+	{
+		add_sound_object (snd, x_tile, y_tile);
+	}
+#endif // NEW_SOUND
 }
 
 void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
@@ -611,6 +630,9 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	
 #ifdef EYE_CANDY
 	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
+#ifdef NEW_SOUND
+	stop_sound_at_location(x_tile, y_tile);
+#endif // NEW_SOUND
 #else // EYE_CANDY
  #ifdef SFX
 	LOCK_PARTICLES_LIST();
@@ -627,10 +649,10 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 				free (lights_list[sys->light]);
 				lights_list[sys->light] = NULL;
 			}
-	#ifndef MAP_EDITOR
+	#if ! defined MAP_EDITOR && ! defined NEW_SOUND
 			if (sys->sound != 0)
 				stop_sound (sys->sound);
-	#endif // MAP_EDITOR
+	#endif // !MAP_EDITOR && !NEW_SOUND
 			free (sys);
 			particles_list[i] = NULL;
 	#endif // MAP_EDITOR
@@ -654,6 +676,16 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 #if defined EYE_CANDY && ! defined MAP_EDITOR
 #ifdef NEW_SOUND
 	int snd;
+
+	if (sound_on)
+	{
+		printf("Looking for particle sound for: %s\n", file_name);
+		snd = get_sound_index_for_particle_file_name(file_name);
+		if (snd >= 0)
+		{
+			add_sound_object (snd, (x_pos - 0.25f) * 2, (y_pos - 0.25f) * 2);
+		}
+	}
 #endif // NEW_SOUND
 	
 	if (use_eye_candy)
@@ -742,19 +774,6 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 		return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
 #endif
-	}
-#endif
-
-#ifdef NEW_SOUND
-	// If we make it here, we have eye_candy and hence sound effects won't have been added
-	// I'm not going to attempt to add functionality for non-NEW_SOUND at this stage.
-	if (sound_on)
-	{
-		snd = get_sound_index_for_particle_file_name(file_name);
-		if (snd >= 0)
-		{
-			add_sound_object (snd, (x_pos - 0.25f) * 2, (y_pos - 0.25f) * 2);
-		}
 	}
 #endif
 

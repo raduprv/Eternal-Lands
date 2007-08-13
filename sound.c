@@ -11,6 +11,7 @@
 #include "errors.h"
 #include "init.h"
 #include "lights.h"
+#include "map.h"
 #include "misc.h"
 #include "translate.h"
 #include "weather.h"
@@ -55,7 +56,9 @@ typedef struct {
 #ifdef NEW_SOUND
 #define STREAM_TYPE_MUSIC 1
 #define STREAM_TYPE_SOUNDS 0
+#define STREAM_TYPE_CROWD 2
 
+#define MAX_BACKGROUND_DEFAULTS 4
 #define MAX_SOUND_MAP_NAME_LENGTH 60
 #define MAX_SOUND_MAP_BOUNDARIES 20
 #define MAX_SOUND_MAPS 150			// This value is the maximum number of maps sounds can be defined for
@@ -108,6 +111,13 @@ typedef struct
 
 	unsigned int cookie;
 }source_data;
+
+typedef struct
+{
+	int sound;
+	int time_of_day_flags;		// As for sound time_of_day_flags
+	int map_type;				// At the moment, only 0 (outside) and 1 (dungeon). Checked against the dungeon flag.
+}background_default;
 
 typedef struct
 {
@@ -188,10 +198,10 @@ int used_sources=0;		// the number of sources currently playing
 int num_types=0;		// number of distinct sound types
 int num_samples=0;		// number of actual sound files -
 						// a sound type can have > 1 sample
-
-int sound_num_maps=0;		// Number of maps we have sounds for
-int sound_num_effects=0;	// Number of effects we have sounds for
-int sound_num_particles=0;	// Number of particles we have sounds for
+int sound_num_background_defaults=0;	// Number of default background sounds
+int sound_num_maps=0;					// Number of maps we have sounds for
+int sound_num_effects=0;				// Number of effects we have sounds for
+int sound_num_particles=0;				// Number of particles we have sounds for
 
 int snd_cur_map = -1;
 int cur_boundary = 0;
@@ -201,6 +211,9 @@ unsigned int next_cookie = 1;
 source_data sound_source_data[MAX_SOURCES];						// the active (playing) sources
 sound_type sound_type_data[MAX_BUFFERS];						// configuration of the sound types
 sound_sample sound_sample_data[MAX_BUFFERS];					// path & buffer data for each sample
+background_default sound_background_defaults[MAX_BACKGROUND_DEFAULTS];	// default background sounds
+																		// (must have non-overlapping time of day flags)
+int crowd_default;												// default sound for crowd effects
 map_sound_data sound_map_data[MAX_SOUND_MAPS];					// data for map sfx
 effect_sound_data sound_effect_data[MAX_SOUND_EFFECTS];			// data for effect sfx
 particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// data for particle sfx
@@ -220,10 +233,18 @@ SDL_mutex *sound_list_mutex;
 stream_data sound_fx_stream;
 OggVorbis_File sound_ogg_stream;
 vorbis_info * sound_ogg_info;
-
 ALuint sound_stream_buffers[4];
 ALuint sound_stream_source;
-int playing_sounds=0;
+int playing_bg_sounds = 0;
+int playing_default_bg = 0;
+int cur_background_sound = 0;
+
+stream_data crowd_stream;
+OggVorbis_File crowd_ogg_stream;
+vorbis_info * crowd_ogg_info;
+ALuint crowd_stream_buffers[4];
+ALuint crowd_stream_source;
+int playing_crowd = 0;
 
 stream_data music_stream;
 OggVorbis_File music_ogg_stream;
@@ -321,7 +342,12 @@ void turn_sound_on()
 	alGetSourcei(sound_stream_source, AL_SOURCE_STATE, &state);
 	if(state == AL_PAUSED) {
 		alSourcePlay(sound_stream_source);
-		playing_sounds = 1;
+		playing_bg_sounds = 1;
+	}
+	alGetSourcei(crowd_stream_source, AL_SOURCE_STATE, &state);
+	if(state == AL_PAUSED) {
+		alSourcePlay(crowd_stream_source);
+		playing_crowd = 1;
 	}
 #endif	// NEW_SOUND && OGG_VORBIS
 	if((error=alGetError()) != AL_NO_ERROR)
@@ -363,7 +389,7 @@ void turn_sound_off()
 #ifdef _EXTRA_SOUND_DEBUG
 			printf("Removing source with index %d\n", i);
 #endif //_EXTRA_SOUND_DEBUG
-			stop_sound_source_at_index(i);
+			stop_sound_source_at_index(0);
 			continue;
 #else
 			alSourceStop(source);
@@ -373,15 +399,22 @@ void turn_sound_off()
 	}
 	UNLOCK_SOUND_LIST();
 #ifdef NEW_SOUND
-	playing_sounds = 0;
+	playing_bg_sounds = 0;
+	playing_crowd = 0;
 	if(sound_streams_thread != NULL && !have_music)
 	{
+		ALuint buffer;
 		int queued = 0;
 		alSourceStop(sound_stream_source);
 		alGetSourcei(sound_stream_source, AL_BUFFERS_QUEUED, &queued);
 		while(queued-- > 0){
-			ALuint buffer;		
 			alSourceUnqueueBuffers(sound_stream_source, 1, &buffer);
+		}
+		queued = 0;
+		alSourceStop(crowd_stream_source);
+		alGetSourcei(crowd_stream_source, AL_BUFFERS_QUEUED, &queued);
+		while(queued-- > 0){
+			alSourceUnqueueBuffers(crowd_stream_source, 1, &buffer);
 		}
 		SDL_WaitThread(sound_streams_thread,NULL);
 		sound_streams_thread = NULL;
@@ -401,6 +434,9 @@ void change_sounds(int * var, int value)
 {
 	int old_val = sound_opts;
 	
+	if (value == 0) sound_on = 0;
+	else sound_on = 1;
+
 	if (value >= 0) *var = value; // We need to set this here so the sound stream doesn't quit if there is no music
 	if (value == SOUNDS_NONE && old_val != SOUNDS_NONE)	{
 		turn_sound_off();
@@ -522,18 +558,18 @@ void destroy_sound()
 			while(queued-- > 0){
 				alSourceUnqueueBuffers(music_source, 1, &buffer);
 			}
-			alDeleteSources(1, &music_source);
-			alDeleteBuffers(4, music_buffers);
-#ifdef NEW_SOUND
-			ov_clear(&music_ogg_stream);
-#else // NEW_SOUND
-			ov_clear(&ogg_stream);
-#endif // NEW_SOUND
 		}
+		alDeleteSources(1, &music_source);
+		alDeleteBuffers(4, music_buffers);
 #ifdef NEW_SOUND
-		if (playing_sounds)
+		ov_clear(&music_ogg_stream);
+#else // NEW_SOUND
+		ov_clear(&ogg_stream);
+#endif // NEW_SOUND
+#ifdef NEW_SOUND
+		if (playing_bg_sounds)
 		{
-			playing_sounds = 0;
+			playing_bg_sounds = 0;
 			queued = 0;
 			ov_clear(&sound_ogg_stream);
 			alSourceStop(sound_stream_source);
@@ -541,9 +577,22 @@ void destroy_sound()
 			while(queued-- > 0){
 				alSourceUnqueueBuffers(sound_stream_source, 1, &buffer);
 			}
-			alDeleteSources(1, &sound_stream_source);
-			alDeleteBuffers(4, sound_stream_buffers);
 		}
+		alDeleteSources(1, &sound_stream_source);
+		alDeleteBuffers(4, sound_stream_buffers);
+		if (playing_crowd)
+		{
+			playing_crowd = 0;
+			queued = 0;
+			ov_clear(&crowd_ogg_stream);
+			alSourceStop(crowd_stream_source);
+			alGetSourcei(crowd_stream_source, AL_BUFFERS_QUEUED, &queued);
+			while(queued-- > 0){
+				alSourceUnqueueBuffers(crowd_stream_source, 1, &buffer);
+			}
+		}
+		alDeleteSources(1, &crowd_stream_source);
+		alDeleteBuffers(4, crowd_stream_buffers);
 		SDL_WaitThread(sound_streams_thread, NULL);
 		sound_streams_thread = NULL;
 #else // NEW_SOUND
@@ -996,26 +1045,40 @@ void play_music_file(char *file_name)
 void play_sound_stream(int sound)
 {
 	int result;
-	char tmp_file_name[80];
 	char * file;
 
 	file = sound_sample_data[sound_type_data[sound].sample_indices[STAGE_MAIN]].file_path;
 	if(!have_sound || sound == -1 || !strcmp(file, ""))return;
 		
-	if(file[0]!='.' && file[0]!='/')
-		safe_snprintf (tmp_file_name, sizeof (tmp_file_name), "./sound/%s", file);
-	else
-		safe_snprintf(tmp_file_name, sizeof (tmp_file_name), "%s", file);
-
-	result = stream_ogg_file(tmp_file_name, sound_stream_source, &sound_ogg_stream, sound_stream_buffers, 4);
+	result = stream_ogg_file(file, sound_stream_source, &sound_ogg_stream, sound_stream_buffers, 4);
 	if (result == 0 || result == -1)
 	{
-		playing_sounds = 0;
+		playing_bg_sounds = 0;
 	}
 	else if (result > 0)
 	{
 		sound_ogg_info = ov_info(&sound_ogg_stream, -1);
-		playing_sounds = 1;
+		playing_bg_sounds = 1;
+	}
+}
+
+void play_crowd_stream()
+{
+	int result;
+	char * file;
+
+	file = sound_sample_data[sound_type_data[crowd_default].sample_indices[STAGE_MAIN]].file_path;
+	if(!have_sound || !strcmp(file, ""))return;
+		
+	result = stream_ogg_file(file, crowd_stream_source, &crowd_ogg_stream, crowd_stream_buffers, 4);
+	if (result == 0 || result == -1)
+	{
+		playing_crowd = 0;
+	}
+	else if (result > 0)
+	{
+		crowd_ogg_info = ov_info(&crowd_ogg_stream, -1);
+		playing_crowd = 1;
 	}
 }
 #endif // OGG_VORBIS
@@ -1887,6 +1950,12 @@ void clear_sound_data()
 		sound_sample_data[i].length = 0;
 		sound_sample_data[i].loaded_status = 0;
 	}
+	for (i = 0; i < MAX_BACKGROUND_DEFAULTS; i++)
+	{
+		sound_background_defaults[i].time_of_day_flags = 0x0;
+		sound_background_defaults[i].sound = -1;
+	}
+	crowd_default = -1;
 	for (i = 0; i < MAX_SOUND_MAPS; i++)
 	{
 		sound_map_data[i].id = 0;
@@ -1920,11 +1989,12 @@ void clear_sound_data()
 		server_sound[i] = -1;
 	}
 
-	num_types=0;
-	num_samples=0;
-	sound_num_maps=0;
-	sound_num_effects=0;
-	sound_num_particles=0;
+	num_types = 0;
+	num_samples = 0;
+	sound_num_background_defaults = 0;
+	sound_num_maps = 0;
+	sound_num_effects = 0;
+	sound_num_particles = 0;
 }
 
 #ifdef	OGG_VORBIS
@@ -2012,6 +2082,39 @@ int sound_bounds_check(int x, int y, map_sound_boundary_def bounds)
 	return 1;
 }
 
+void check_for_valid_background_sound(int tx, int ty)
+{
+	if (snd_cur_map > -1 && sound_map_data[snd_cur_map].id > -1)
+	{
+		cur_boundary++;
+		if (cur_boundary == sound_map_data[snd_cur_map].num_boundaries)
+			cur_boundary = 0;
+		if (sound_map_data[snd_cur_map].boundaries[cur_boundary].sound > -1 &&
+			sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[cur_boundary]))
+		{
+			cur_background_sound = sound_map_data[snd_cur_map].boundaries[cur_boundary].sound;
+			alSourcef (sound_stream_source, AL_GAIN, sound_gain * sound_type_data[cur_background_sound].gain);
+			if (cur_background_sound > -1)
+			{
+				if (playing_default_bg)
+				{
+					int queued = 0;
+					alSourceStop(*sound_fx_stream.source);
+					alGetSourcei(*sound_fx_stream.source, AL_BUFFERS_PROCESSED, &sound_fx_stream.processed);
+					alGetSourcei(*sound_fx_stream.source, AL_BUFFERS_QUEUED, &queued);
+					while (queued-- > 0)
+					{
+						ALuint buffer;
+						alSourceUnqueueBuffers(*sound_fx_stream.source, 1, &buffer);
+					}
+					playing_default_bg = 0;
+				}
+				play_sound_stream(cur_background_sound);
+			}
+		}
+	}
+}
+
 int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, int tx, int ty)
 {
     int error, state, state2;
@@ -2023,13 +2126,18 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 		{
 			int queued;
 			*fade = 0;
-			if (stream->type == STREAM_TYPE_MUSIC)
+			switch (stream->type)
 			{
-				playing_music = 0;
-			}
-			else
-			{
-				playing_sounds = 0;
+				case STREAM_TYPE_MUSIC:
+					playing_music = 0;
+					break;
+				case STREAM_TYPE_SOUNDS:
+					playing_bg_sounds = 0;
+					playing_default_bg = 0;
+					break;
+				case STREAM_TYPE_CROWD:
+					playing_crowd = 0;
+					break;
 			}
 			alSourceStop(*stream->source);
 			alGetSourcei(*stream->source, AL_BUFFERS_PROCESSED, &stream->processed);
@@ -2045,26 +2153,41 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 	}
 	else
 	{
-		if (stream->type == STREAM_TYPE_MUSIC)
+		switch (stream->type)
 		{
-			if (tx < playlist[list_pos].min_x ||
-			   tx > playlist[list_pos].max_x ||
-			   ty < playlist[list_pos].min_y ||
-			   ty > playlist[list_pos].max_y ||
-			   (playlist[list_pos].time != 2 &&
-				playlist[list_pos].time != day_time))
-			{
-				*fade = 1;
-				return 0;
-			}
-		}
-		else
-		{
-			if (!sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[cur_boundary]))
-			{
-				*fade = 1;
-				return 0;
-			}
+			case STREAM_TYPE_MUSIC:
+				if (tx < playlist[list_pos].min_x ||
+				   tx > playlist[list_pos].max_x ||
+				   ty < playlist[list_pos].min_y ||
+				   ty > playlist[list_pos].max_y ||
+				   (playlist[list_pos].time != 2 &&
+					playlist[list_pos].time != day_time))
+				{
+					*fade = 1;
+					return 0;
+				}
+				break;
+			case STREAM_TYPE_SOUNDS:
+				if (playing_default_bg)
+				{
+					check_for_valid_background_sound(tx, ty);
+				}
+				else
+				{
+					if (!sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[cur_boundary]))
+					{
+						*fade = 1;
+						return 0;
+					}
+				}
+				break;
+			case STREAM_TYPE_CROWD:
+				if (no_near_enhanced_actors < 5)
+				{
+					*fade = 1;
+					return 0;
+				}
+				break;
 		}
 		alSourcef(*stream->source, AL_GAIN, gain);
 	}
@@ -2081,10 +2204,18 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 		ALuint buffer;
 
 		alSourceUnqueueBuffers(*stream->source, 1, &buffer);
-		if (stream->type == STREAM_TYPE_MUSIC)
-			playing_music = stream_ogg(buffer, stream->stream, music_ogg_info->rate);
-		else
-			playing_sounds = stream_ogg(buffer, stream->stream, sound_ogg_info->rate);
+		switch (stream->type)
+		{
+			case STREAM_TYPE_MUSIC:
+				playing_music = stream_ogg(buffer, stream->stream, music_ogg_info->rate);
+				break;
+			case STREAM_TYPE_SOUNDS:
+				playing_bg_sounds = stream_ogg(buffer, stream->stream, sound_ogg_info->rate);
+				break;
+			case STREAM_TYPE_CROWD:
+				playing_crowd = stream_ogg(buffer, stream->stream, crowd_ogg_info->rate);
+				break;
+		}
 		alSourceQueueBuffers(*stream->source, 1, &buffer);
 	}
 	if (state2 != AL_PLAYING)
@@ -2111,10 +2242,18 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 		LOG_ERROR("update_streams (music: %d) %s: %s", stream->type, my_tolower(reg_error_str), alGetString(error));
-		if (stream->type == STREAM_TYPE_MUSIC)
-			have_music = 0;
-		else
-			playing_sounds = 0;
+		switch (stream->type)
+		{
+			case STREAM_TYPE_MUSIC:
+				have_music = 0;
+				break;
+			case STREAM_TYPE_SOUNDS:
+				playing_bg_sounds = 0;
+				playing_default_bg = 0;
+				break;
+			case STREAM_TYPE_CROWD:
+				playing_crowd = 0;
+		}
 	}
 	
 	return 1;
@@ -2122,8 +2261,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 
 int update_streams(void *dummy)
 {
-    int error, sleep, music_fade = 0, sound_fade = 0;
-	int cur_sound;
+    int error, sleep, music_fade = 0, sound_fade = 0, crowd_fade = 0, i;
 	int day_time;
 	int tx, ty;
    	sleep = SLEEP_TIME;
@@ -2135,6 +2273,10 @@ int update_streams(void *dummy)
 	sound_fx_stream.source = &sound_stream_source;
 	sound_fx_stream.stream = &sound_ogg_stream;
 	sound_fx_stream.info = sound_ogg_info;
+	crowd_stream.type = STREAM_TYPE_CROWD;
+	crowd_stream.source = &crowd_stream_source;
+	crowd_stream.stream = &crowd_ogg_stream;
+	crowd_stream.info = crowd_ogg_info;
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Starting streams thread\n");
 #endif //_EXTRA_SOUND_DEBUG
@@ -2175,28 +2317,46 @@ int update_streams(void *dummy)
 		}
 		if (have_sound && sound_opts >= SOUNDS_ENVIRO)
 		{
-			// Process the sound effects stream
-			if (playing_sounds)
+			// Process the bg sound effects stream
+			if (playing_bg_sounds)
 			{
-				process_stream(&sound_fx_stream, sound_gain * sound_type_data[cur_sound].gain, &sleep, &sound_fade, tx, ty);
+				process_stream(&sound_fx_stream, sound_gain * sound_type_data[cur_background_sound].gain, &sleep, &sound_fade, tx, ty);
 			}
 			else
 			{
-				if (snd_cur_map > -1 && sound_map_data[snd_cur_map].id > -1)
+				check_for_valid_background_sound(tx, ty);
+			}
+			// Check if we need a default background sound, and if so, if we can find one
+			if (!playing_bg_sounds)
+			{
+				if (sound_num_background_defaults > 0)
 				{
-					cur_boundary++;
-					if (cur_boundary == sound_map_data[snd_cur_map].num_boundaries)
-						cur_boundary = 0;
-					if (sound_map_data[snd_cur_map].boundaries[cur_boundary].sound > -1 &&
-						sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[cur_boundary]))
+					for (i = 0; i < sound_num_background_defaults; i++)
 					{
-						cur_sound = sound_map_data[snd_cur_map].boundaries[cur_boundary].sound;
-						alSourcef (sound_stream_source, AL_GAIN, sound_gain * sound_type_data[cur_sound].gain);
-						if (cur_sound > -1)
+						if ((sound_background_defaults[i].time_of_day_flags & (game_minute / 30)) &&
+							(sound_background_defaults[i].map_type == dungeon))
 						{
-							play_sound_stream(cur_sound);
+							cur_background_sound = sound_background_defaults[i].sound;
+							play_sound_stream(cur_background_sound);
+							playing_default_bg = 1;
+							break;
 						}
 					}
+				}
+			}
+		}
+		if (have_sound && sound_opts >= SOUNDS_ENVIRO)
+		{
+			// Process the crowd effects stream
+			if (playing_crowd)
+			{
+				process_stream(&crowd_stream, sound_gain * (no_near_enhanced_actors / 5), &sleep, &crowd_fade, tx, ty);
+			}
+			else
+			{
+				if (no_near_enhanced_actors >= 5)
+				{
+					play_crowd_stream();
 				}
 			}
 		}
@@ -2779,7 +2939,7 @@ void update_sound(int ms)
 	if((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error updating sound using source: %d, error: %s\n", source, alGetString(error));
+		printf("Error updating sound: %s\n", alGetString(error));
 #endif //_EXTRA_SOUND_DEBUG
 	}
 }
@@ -2878,6 +3038,31 @@ void stop_sound(unsigned long int cookie)
 	}
 }
 
+void stop_sound_at_location(int x, int y)
+{
+	ALuint error;
+	ALfloat sourcePos[3]={0.0f,0.0f,0.0f};
+	int i;
+
+	// Search for a sound source at the given location
+	for (i = 0; i < used_sources; i++)
+	{
+		alGetSourcefv(sound_source_data[i].source, AL_POSITION, sourcePos);
+		if (sourcePos[0] == x && sourcePos[1] == y)
+		{
+			stop_sound_source_at_index(i);
+			return;			// FIXME: We should probably loop through and find other sources, but the source
+							// list is now different and our index loop is invalid. I'll deal with it later.
+		}
+	}
+	// Clear any errors so as to not confuse other error handlers
+	if((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error '%s' stopping sound source at location: %d, %d.\n", alGetString(error), x, y);
+#endif //_EXTRA_SOUND_DEBUG
+	}
+}
 
 //kill all the sounds.
 //usefull when we change maps, etc.
@@ -2897,7 +3082,7 @@ void stop_all_sounds()
 #endif //_EXTRA_SOUND_DEBUG
 	for(i=0;i<used_sources;++i)
 	{
-		stop_sound_source_at_index(i);
+		stop_sound_source_at_index(0);
 	}
 #ifdef	OGG_VORBIS
 	if (have_music)
@@ -2913,7 +3098,7 @@ void stop_all_sounds()
 			alSourceUnqueueBuffers(music_source, 1, &buffer);
 		}
 	}
-	playing_sounds = 0;
+	playing_bg_sounds = 0;
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Stopping sound stream source: %d\n", sound_stream_source);
 #endif //_EXTRA_SOUND_DEBUG
@@ -3168,6 +3353,7 @@ void init_sound(char *sound_config_path)
 #ifdef	OGG_VORBIS
 	init_sound_stream(&music_source, music_buffers, music_gain);
 	init_sound_stream(&sound_stream_source, sound_stream_buffers, sound_gain);
+	init_sound_stream(&crowd_stream_source, crowd_stream_buffers, sound_gain);
 
 	if(sound_streams_thread == NULL){
 		sound_streams_thread = SDL_CreateThread(update_streams, 0);
@@ -3687,6 +3873,103 @@ void parse_particle_sound(xmlNode *inNode)
 	}
 }
 
+void parse_background_defaults(xmlNode *inNode)
+{
+	xmlNode *attributeNode = NULL;
+	background_default *pBackgroundDefault = NULL;
+	char content[MAX_SOUND_NAME_LENGTH] = "";
+
+	int iVal = 0;
+	int i, err;
+	
+	if (inNode->type == XML_ELEMENT_NODE)
+	{
+		pBackgroundDefault = &sound_background_defaults[sound_num_background_defaults++];
+	
+		for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)
+		{
+			get_string_value(content, sizeof(content), attributeNode);
+			if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"time_of_day_flags"))
+			{
+				sscanf((char *)content, "%x", &iVal);
+				if (iVal >= 0 && iVal <= 0xffff)
+					// Check this time_of_day_flag doesn't conflict with an existing default background
+					err = 0;
+					for (i = 0; i < sound_num_background_defaults - 1; i++)
+					{
+						if ((sound_background_defaults[i].time_of_day_flags & iVal) > 0)
+						{
+							// Conflict
+							err = 1;
+							LOG_ERROR("Sound config parse error: conflicting time_of_the_day_flags in background defaults found! Second value ignored: %x", iVal);
+							break;
+						}
+					}
+					if (err == 0)
+					{
+						pBackgroundDefault->time_of_day_flags = iVal;
+					}
+				else
+				{
+					LOG_ERROR("Sound config parse error: time_of_the_day_flags = 0x%x in background default", iVal);
+				}
+			}
+			else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"map_type"))
+			{
+				iVal = atoi((char *)content);
+				if(iVal >= 0)
+					pBackgroundDefault->map_type = iVal;
+				else
+				{
+					LOG_ERROR("Sound config parse error: Unknown map_type %s in background default", content);
+				}
+			}
+			else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"sound"))
+			{
+				pBackgroundDefault->sound = get_index_for_sound_type_name(content);
+				if (pBackgroundDefault->sound == -1)
+				{
+					LOG_ERROR("Sound config parse error: Unknown sound %s in background default", content);
+				}
+			}
+		}
+	}
+	else if (inNode->type == XML_ENTITY_REF_NODE)
+	{
+		LOG_ERROR("Sound config parse error: Include not allowed in defaults sound def");
+	}
+}
+
+void parse_sound_defaults(xmlNode *inNode)
+{
+	xmlNode *attributeNode = NULL;
+	char sound[MAX_SOUND_NAME_LENGTH] = "";
+
+	if (inNode->type == XML_ELEMENT_NODE)
+	{
+		for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)
+		{
+			if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"background"))
+			{
+				parse_background_defaults(attributeNode);
+			}
+			else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"crowd"))
+			{
+				get_string_value(sound, sizeof(sound), attributeNode);
+				crowd_default = get_index_for_sound_type_name(sound);
+				if (crowd_default == -1)
+				{
+					LOG_ERROR("Sound config parse error: Unknown sound %s for crowd default", sound);
+				}
+			}
+		}
+	}
+	else if (inNode->type == XML_ENTITY_REF_NODE)
+	{
+		LOG_ERROR("Sound config parse error: Include not allowed in defaults sound def");
+	}
+}
+
 int parse_sound_defs(xmlNode *node)
 {
 	xmlNode *def;
@@ -3699,6 +3982,10 @@ int parse_sound_defs(xmlNode *node)
 			if (xmlStrcasecmp (def->name, (xmlChar*)"sound") == 0)
 			{
 				parse_sound_object(def);
+			}
+			else if (xmlStrcasecmp (def->name, (xmlChar*)"defaults") == 0)
+			{
+				parse_sound_defaults(def);
 			}
 			else if (xmlStrcasecmp (def->name, (xmlChar*)"map") == 0)
 			{

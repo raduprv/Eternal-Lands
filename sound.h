@@ -43,7 +43,8 @@ extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
 extern int playing_music; /*!< flag indicating if music is currently playing */
 #ifdef NEW_SOUND
-extern int playing_sounds; /*!< flag indicating if streamed sound effects are currently playing */
+extern int playing_bg_sounds; /*!< flag indicating if streamed sound effects are currently playing */
+extern int playing_crowd; /*!< flag indicating if streamed crowd sounds are currently playing */
 #endif // NEW_SOUND
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
@@ -80,6 +81,7 @@ void init_sound(char *sound_config_path);
 #else
 void init_sound();
 #endif	//NEW_SOUND
+
 /*!
  * \ingroup other
  * \brief Closes the sound system of EL
@@ -88,6 +90,48 @@ void init_sound();
  *
 */
 void destroy_sound();
+
+/*!
+ * \ingroup sound_effects
+ * \brief Turns off playback of sound.
+ *
+ *      Turns off the playback of sound (effects).
+ *
+ */
+void turn_sound_off();
+
+/*!
+ * \ingroup sound_effects
+ * \brief Turns on playback of sound
+ *
+ *      Turns on the playback of sound (effects).
+ *
+ */
+void turn_sound_on();
+
+#ifdef NEW_SOUND
+/*!
+ * \ingroup sound_effects
+ * \brief Changes sound types played
+ *
+ *      Changes the types of sound effects being played (environmental only, env + character, etc).
+ *
+ */
+void change_sounds(int * var, int value);
+#else // NEW_SOUND
+/*!
+ * \ingroup sound_effects
+ * \brief Toggles the sound
+ *
+ *      Toggles the status of the sound option in the options dialog and starts or stops the sound.
+ *
+ */
+void toggle_sounds(int *var);
+#endif // NEW_SOUND
+
+#ifdef NEW_SOUND
+void setup_map_sounds (int map_num);
+#endif // NEW_SOUND
 
 /*!
  * \ingroup sound_effects
@@ -106,7 +150,6 @@ unsigned int add_sound_object(int sound_type,int x, int y);
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 #endif	//NEW_SOUND
 
-
 #ifdef NEW_SOUND
 /*!
  * \ingroup sound_effects
@@ -120,7 +163,79 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops);
  * \callgraph
  */
 unsigned int add_server_sound(int type,int x, int y);
+#endif // NEW_SOUND
 
+/*!
+ * \ingroup sound_effects
+ * \brief Informs the sound subsystem that \a ms milliseconds have passed since the previous update.
+ *
+ *      Informs the sound subsystem that \a ms milliseconds have passed since the previous update.
+ *
+ * \param ms		    The time, in ms, since the last update
+ * \callgraph
+ */
+#ifdef NEW_SOUND
+void update_sound(int ms);
+#else
+void update_position();
+#endif	//NEW_SOUND
+
+
+/*!
+ * \ingroup sound_effects
+ * \brief Stops the specified source.
+ *
+ *      Searches for a source_data object for source \a source and stops it playing.
+ *
+ * \param cookie	   The cookie for the sound source to stop
+ * \callgraph
+ */
+#ifdef NEW_SOUND
+void stop_sound(unsigned long int cookie);
+#else
+void stop_sound(int i);
+
+/*!
+ * \ingroup sound_effects
+ * \brief Deletes the specified source.
+ *
+ *      Searches for a source_data object for source \a source and deletes it.
+ *
+ * \param cookie	   The cookie for the sound source to stop
+ * \callgraph
+ */
+void remove_sound_object(int sound);
+#endif	//NEW_SOUND
+
+#ifdef NEW_SOUND
+/*!
+ * \ingroup sound_effects
+ * \brief Deletes a source at the given location
+ *
+ *      Searches for a source_data object with the location ( \a x \a y ) and deletes it.
+ *
+ * \param x			The x coordinate of the location
+ * \param y			The y coordinate of the location
+ * \callgraph
+ */
+void stop_sound_at_location(int x, int y);
+#endif // NEW_SOUND
+
+/*!
+ * \ingroup sound_effects
+ * \brief Stop all sound & music playback
+ *
+ *      Stop all sound & music playback; useful when we change maps, etc.
+ *
+ * \callgraph
+ */
+#ifdef NEW_SOUND
+void stop_all_sounds();
+#else // NEW_SOUND
+void kill_local_sounds();
+#endif	//NEW_SOUND
+
+#ifdef NEW_SOUND
 /*!
  * \ingroup sound_effects
  * \brief Gets the index of the named sound type.
@@ -184,98 +299,6 @@ void sound_source_set_gain(int sound, float gain);
 #endif	//NEW_SOUND
 
 
-/*!
- * \ingroup sound_effects
- * \brief Informs the sound subsystem that \a ms milliseconds have passed since the previous update.
- *
- *      Informs the sound subsystem that \a ms milliseconds have passed since the previous update.
- *
- * \param ms		    The time, in ms, since the last update
- * \callgraph
- */
-#ifdef NEW_SOUND
-void update_sound(int ms);
-#else
-void update_position();
-#endif	//NEW_SOUND
-
-
-/*!
- * \ingroup sound_effects
- * \brief Stops the specified source.
- *
- *      Searches for a source_data object for source \a source and stops it playing.
- *
- * \param cookie	   The cookie for the sound source to stop
- * \callgraph
- */
-#ifdef NEW_SOUND
-void stop_sound(unsigned long int cookie);
-#else
-void stop_sound(int i);
-
-/*!
- * \ingroup sound_effects
- * \brief Deletes the specified source.
- *
- *      Searches for a source_data object for source \a source and deletes it.
- *
- * \param cookie	   The cookie for the sound source to stop
- * \callgraph
- */
-void remove_sound_object(int sound);
-#endif	//NEW_SOUND
-
-
-/*!
- * \ingroup sound_effects
- * \brief Stop all sound & music playback
- *
- *      Stop all sound & music playback; useful when we change maps, etc.
- *
- * \callgraph
- */
-void stop_all_sounds();
-#ifndef NEW_SOUND
-void kill_local_sounds();
-#endif	//NEW_SOUND
-/*!
- * \ingroup sound_effects
- * \brief Turns off playback of sound.
- *
- *      Turns off the playback of sound (effects).
- *
- */
-void turn_sound_off();
-
-/*!
- * \ingroup sound_effects
- * \brief Turns on playback of sound
- *
- *      Turns on the playback of sound (effects).
- *
- */
-void turn_sound_on();
-
-/*!
- * \ingroup sound_effects
- * \brief Toggles the sound
- *
- *      Toggles the status of the sound option in the options dialog and starts or stops the sound.
- *
- */
-void toggle_sounds(int *var);
-
-/*!
- * \ingroup sound_effects
- * \brief Changes sound types played
- *
- *      Changes the types of sound effects being played (environmental only, env + character, etc).
- *
- */
-void change_sounds(int * var, int value);
-
-void setup_map_sounds (int map_num);
 
 
 

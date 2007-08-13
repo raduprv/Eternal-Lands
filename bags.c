@@ -49,6 +49,9 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 {
 	float x,y,z;
 	int obj_3d_id;
+#ifdef NEW_SOUND
+	int snd;
+#endif // NEW_SOUND
 
 	//now, get the Z position
 	if(bag_y*tile_map_size_x*6+bag_x>tile_map_size_x*tile_map_size_y*6*6) {
@@ -69,6 +72,16 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 #ifdef	EYE_CANDY
 	if (use_eye_candy) ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
 #endif	//EYE_CANDY
+#ifdef NEW_SOUND
+	if (sound_on)
+	{
+		snd = get_sound_index_for_particle_file_name("./particles/bag_in.part");
+		if (snd >= 0)
+		{
+			add_sound_object (snd, bag_x, bag_y);
+		}
+	}
+#endif // NEW_SOUND
 
 	obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
 	
@@ -143,6 +156,9 @@ void remove_bag(int which_bag)
 #ifdef EYE_CANDY
 	float x, y, z;
 #endif
+#ifdef NEW_SOUND
+	int snd;
+#endif // NEW_SOUND
 	
 	if (which_bag >= NUM_BAGS) return;
 
@@ -163,6 +179,16 @@ void remove_bag(int which_bag)
 	x = x + 0.25f;
 	y = y + 0.25f;
 	if (use_eye_candy) ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
+#ifdef NEW_SOUND
+	if (sound_on)
+	{
+		snd = get_sound_index_for_particle_file_name("./particles/bag_out.part");
+		if (snd >= 0)
+		{
+			add_sound_object (snd, bag_list[which_bag].x, bag_list[which_bag].y);
+		}
+	}
+#endif // NEW_SOUND
  #else // EYE_CANDY
   #ifdef SFX
 	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
