@@ -47,7 +47,9 @@ actor_types actors_defs[MAX_ACTOR_DEFS];
 void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 
 int no_near_actors=0;
+#ifdef NEW_SOUND
 int no_near_enhanced_actors = 0;
+#endif // NEW_SOUND
 struct near_actor near_actors[MAX_ACTORS];
 
 //Threading support for actors_lists
@@ -622,7 +624,9 @@ void get_actors_in_range()
 	if (!me) return;
 
 	no_near_actors = 0;
+#ifdef NEW_SOUND
 	no_near_enhanced_actors = 0;
+#endif // NEW_SOUND
 
 	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
 
@@ -667,8 +671,10 @@ void get_actors_in_range()
 						near_actors[no_near_actors].select = 1;
 				}
 				no_near_actors++;
+#ifdef NEW_SOUND
 				if (actors_list[i]->is_enhanced_model)
 					no_near_enhanced_actors++;
+#endif // NEW_SOUND
 			}
 		}
 	}
