@@ -12,6 +12,9 @@
 #include "multiplayer.h"
 #include "new_character.h"
 #include "rules.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 #include "tabs.h"
 #include "textures.h"
 #include "translate.h"
@@ -49,22 +52,29 @@ char new_char_button_selected = 0;
 
 void set_login_error (const char *msg, int len)
 {
-        if (len <= 0)
-        {
-                // server didn't send a message, use the default
-                safe_snprintf (log_in_error_str, sizeof(log_in_error_str), "%s: %s", reg_error_str, invalid_pass);
-        }
-        else
-        {
-                int prelen = strlen (reg_error_str) + 2;
-                int maxlen = sizeof (log_in_error_str) - prelen - 1;
+#ifdef NEW_SOUND
+	int snd;
+#endif // NEW_SOUND
+	if (len <= 0)
+	{
+			// server didn't send a message, use the default
+			safe_snprintf (log_in_error_str, sizeof(log_in_error_str), "%s: %s", reg_error_str, invalid_pass);
+	}
+	else
+	{
+			int prelen = strlen (reg_error_str) + 2;
+			int maxlen = sizeof (log_in_error_str) - prelen - 1;
 
-                if (len > maxlen) len = maxlen;
-                safe_snprintf (log_in_error_str, sizeof(log_in_error_str), "%s: ", reg_error_str);
-                strncat (log_in_error_str, msg, len);
-                log_in_error_str[len+prelen] = '\0';
-                reset_soft_breaks (log_in_error_str, len+prelen, sizeof (log_in_error_str), 1.0, window_width, NULL, NULL);
-        }
+			if (len > maxlen) len = maxlen;
+			safe_snprintf (log_in_error_str, sizeof(log_in_error_str), "%s: ", reg_error_str);
+			strncat (log_in_error_str, msg, len);
+			log_in_error_str[len+prelen] = '\0';
+			reset_soft_breaks (log_in_error_str, len+prelen, sizeof (log_in_error_str), 1.0, window_width, NULL, NULL);
+	}
+#ifdef NEW_SOUND
+	if ((snd = get_index_for_sound_type_name("Login Error")) > -1)
+		add_sound_object(snd, 0, 0);
+#endif // NEW_SOUND
 }
 
 int resize_login_handler (window_info *win, Uint32 w, Uint32 h)

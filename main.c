@@ -200,7 +200,9 @@ int start_rendering()
 	cleanup_pawn ();
 #endif
 
+#ifdef OGG_VORBIS
 	turn_music_off();	//cleans up and waits for the thread
+#endif // OGG_VORBIS
 	unload_questlog();
 	free_icons();
 	free_vars();

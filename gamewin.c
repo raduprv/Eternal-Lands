@@ -2039,6 +2039,8 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 		{
 #ifndef NEW_SOUND
 			print_sound_objects ();
+#else
+			print_sound_types();
 #endif //!NEW_SOUND
 		}
 		else if (key & ELW_ALT)

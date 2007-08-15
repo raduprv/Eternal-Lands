@@ -253,10 +253,10 @@ void change_map (const char *mapname)
 #endif
 #ifndef NEW_SOUND
 	kill_local_sounds();
-#endif	//NEW_SOUND
 #ifdef	OGG_VORBIS
 	playing_music=0;
-#endif	//OGG_VORBIS
+#endif // OGG_VORBIS
+#endif // !NEW_SOUND
 	get_map_playlist();
 #ifdef NEW_SOUND
 	setup_map_sounds(get_cur_map(mapname));
@@ -289,10 +289,10 @@ void change_map (const char *mapname)
 	}
 #ifndef NEW_SOUND
 	kill_local_sounds();
-#endif	//NEW_SOUND
 #ifdef	OGG_VORBIS
 	playing_music=0;
-#endif	//OGG_VORBIS
+#endif // OGG_VORBIS
+#endif // !NEW_SOUND
 	get_map_playlist();
 #ifdef NEW_SOUND
 	setup_map_sounds(get_cur_map(mapname));

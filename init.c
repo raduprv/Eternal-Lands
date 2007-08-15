@@ -778,6 +778,10 @@ void init_stuff()
 	memset(lights_list, 0, sizeof(lights_list));
 	main_bbox_tree = build_bbox_tree();
 	init_particles ();
+#ifdef NEW_SOUND
+	update_loading_win(init_audio_str, 1);
+	load_sound_config_data(SOUND_CONFIG_PATH);
+#endif // NEW_SOUND
 	update_loading_win(init_actor_defs_str, 4);
 	memset(actors_defs, 0, sizeof(actors_defs));
 	init_actor_defs();
@@ -791,7 +795,7 @@ void init_stuff()
 	reset_material();
 	init_lights();
 	disable_local_lights();
-	update_loading_win(init_logs_str, 5);
+	update_loading_win(init_logs_str, 4);
 	clear_error_log();
 	clear_conn_log();
 	update_loading_win(read_config_str, 2);
@@ -801,12 +805,6 @@ void init_stuff()
  	init_weather();	// initialize the weather system
 #endif //NEW_WEATHER
 	build_levels_table();//for some HUD stuff
-
-	// Sound initialisation is done when loading the config and setting the no_sound/no_music variables
-//	if(!no_sound || !no_music) {
-//		update_loading_win(init_audio_str, 0);
-//		init_sound(SOUND_CONFIG_PATH);
-//	}
 
 	update_loading_win(load_icons_str, 4);
 	//load the necesary textures
@@ -942,6 +940,11 @@ void init_stuff()
 
 	init_commands("commands.lst");
 
+#ifdef NEW_SOUND
+	// Try to turn the sound on now so we have it for the login window
+	turn_sound_on();		
+#endif // NEW_SOUND
+	
 	// display something
 	destroy_loading_win();
 	if (has_accepted)
@@ -961,4 +964,3 @@ void init_stuff()
 	init_sky();
 #endif /* SKY_FPV_CURSOR */
 }
-

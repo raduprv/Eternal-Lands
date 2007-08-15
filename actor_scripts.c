@@ -1617,9 +1617,6 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_up_1_frame=cal_load_anim(act, str
-//#ifdef NEW_SOUND
-//					, get_string_property(item, "sound")
-//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1627,9 +1624,6 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_up_2_frame=cal_load_anim(act, str
-//#ifdef NEW_SOUND
-//					, get_string_property(item, "sound")
-//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1637,9 +1631,6 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_1_frame=cal_load_anim(act, str
-//#ifdef NEW_SOUND
-//					, get_string_property(item, "sound")
-//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
@@ -1647,9 +1638,6 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_2_frame=cal_load_anim(act, str
-//#ifdef NEW_SOUND
-//					, get_string_property(item, "sound")
-//#endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION

@@ -41,11 +41,9 @@ extern int have_music; /*!< flag indicating whether music is available */
 extern int sound_opts; /*!< flag indicating what sounds are enabled */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
+#ifndef NEW_SOUND
 extern int playing_music; /*!< flag indicating if music is currently playing */
-#ifdef NEW_SOUND
-extern int playing_bg_sounds; /*!< flag indicating if streamed sound effects are currently playing */
-extern int playing_crowd; /*!< flag indicating if streamed crowd sounds are currently playing */
-#endif // NEW_SOUND
+#endif // !NEW_SOUND
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
@@ -72,15 +70,9 @@ extern ALfloat music_gain; /*!< gain for playing music */
  *
  *      Initializes the sound system of EL
  *
- * \param sound_config_path  the path of the sound-type configuration XML file.
- *
  * \callgraph
  */
-#ifdef NEW_SOUND
-void init_sound(char *sound_config_path);
-#else
 void init_sound();
-#endif	//NEW_SOUND
 
 /*!
  * \ingroup other
@@ -299,6 +291,18 @@ void sound_source_set_gain(int sound, float gain);
 #endif	//NEW_SOUND
 
 
+#ifdef NEW_SOUND
+/*!
+ * \ingroup other
+ * \brief Loads the configuration of the sound system for EL
+ *
+ *	Loads the configuration of the sound system for EL.
+ *
+ * \param path		The path of the sounds configuration XML file.
+ * \callgraph
+ */
+void load_sound_config_data(char *path);
+#endif	//NEW_SOUND
 
 
 

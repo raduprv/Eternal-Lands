@@ -590,6 +590,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				newchar_root_win = -1;
 				show_window (game_root_win);
 
+#ifdef NEW_SOUND				
+				// Try to turn on the music as it isn't need up until now
+				turn_music_on();
+#endif // NEW_SOUND
+
 				load_quickspells();
 				
 #ifdef COUNTERS
