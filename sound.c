@@ -2,9 +2,9 @@
 #include <string.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-#ifdef NEW_SOUND
+#if defined NEW_SOUND && OGG_VORBIS
 #include <math.h>
-#endif // NEW_SOUND
+#endif // NEW_SOUND && OGG_VORBIS
 #include "sound.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -20,9 +20,10 @@
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
-#ifdef NEW_SOUND
+#if defined NEW_SOUND && OGG_VORBIS
 #include "actors.h"
-#endif //NEW_SOUND
+#include "interface.h"
+#endif // NEW_SOUND && OGG_VORBIS
 
 #define MAX_FILENAME_LENGTH 80
 #define MAX_BUFFERS 56			// Remember, music and bg sounds use 4 buffers each too
@@ -54,9 +55,12 @@ typedef struct {
 
 
 #ifdef NEW_SOUND
+#ifdef OGG_VORBIS
 #define STREAM_TYPE_SOUNDS 0
 #define STREAM_TYPE_MUSIC 1
 #define STREAM_TYPE_CROWD 2
+#define NUM_STREAM_BUFFERS 4
+#endif // OGG_VORBIS
 
 #define MAX_BACKGROUND_DEFAULTS 8
 #define MAX_SOUND_MAP_NAME_LENGTH 60
@@ -241,13 +245,13 @@ stream_data music_stream;
 
 // ------- These globals will be removed soon!!
 OggVorbis_File sound_ogg_stream;
-ALuint sound_stream_buffers[4];
+ALuint sound_stream_buffers[NUM_STREAM_BUFFERS];
 ALuint sound_stream_source;
 OggVorbis_File crowd_ogg_stream;
-ALuint crowd_stream_buffers[4];
+ALuint crowd_stream_buffers[NUM_STREAM_BUFFERS];
 ALuint crowd_stream_source;
 OggVorbis_File music_ogg_stream;
-ALuint music_buffers[4];
+ALuint music_buffers[NUM_STREAM_BUFFERS];
 ALuint music_source;
 // -------
 
@@ -288,8 +292,8 @@ int realloc_sources();
 
 #ifdef OGG_VORBIS
 int load_ogg_file(char *file_name, OggVorbis_File *oggFile);
-int stream_ogg_file(char *file_name, ALuint inSource, OggVorbis_File * inStream, ALuint * inBuffers, int numBuffers);
-int stream_ogg(ALuint buffer, OggVorbis_File * inStream, ALuint rate);
+int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers);
+int stream_ogg(ALuint buffer, OggVorbis_File * inStream, vorbis_info * info);
 #ifdef ALUT_WAV
 ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, ALsizei *inFreq);
 #else // ALUT_WAV
@@ -1727,11 +1731,12 @@ int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 		return 0;
 	}
 
-#ifndef WINDOWS
+#if !defined WINDOWS || !defined OV_CALLBACKS_DEFAULT		// FIXME: If under Windows you have an older version
+															// of the Ogg libs, we'll just take a chance
 	result = ov_open(file, oggFile, NULL, 0);
-#else // !WINDOWS
+#else // !WINDOWS || !OV_CALLBACKS_DEFAULT (Ogg Vorbis > 1.2)
 	result = ov_open_callbacks(file, oggFile, NULL, 0, OV_CALLBACKS_DEFAULT);
-#endif // !WINDOWS
+#endif
 	if (result < 0)
 	{
 		LOG_ERROR("Error opening ogg file: %s. Ogg error: %d\n", file_name, result);
@@ -1742,35 +1747,34 @@ int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 	return 1;
 }
 
-int stream_ogg_file(char *file_name, ALuint inSource, OggVorbis_File * inStream, ALuint * inBuffers, int numBuffers)
+int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers)
 {
 	int error, queued;
 	int result, more_stream, i;
-	vorbis_info * ogg_info;
 	
-	alSourceStop(inSource);
-	alGetSourcei(inSource, AL_BUFFERS_QUEUED, &queued);
+	alSourceStop(*stream->source);
+	alGetSourcei(*stream->source, AL_BUFFERS_QUEUED, &queued);
 	while (queued-- > 0)
 	{
 		ALuint buffer;
-		alSourceUnqueueBuffers(inSource, 1, &buffer);
+		alSourceUnqueueBuffers(*stream->source, 1, &buffer);
 	}
 
-	ov_clear(inStream);
-	result = load_ogg_file(file_name, inStream);
+	ov_clear(stream->stream);
+	result = load_ogg_file(file_name, stream->stream);
 	if (!result) {
 		LOG_ERROR("Error loading ogg file: %s\n", file_name);
 		return -1;
 	}
 
-	ogg_info = ov_info(inStream, -1);
+	stream->info = ov_info(stream->stream, -1);
 	for (i = 0; i < numBuffers; i++)
 	{
-		more_stream = stream_ogg(inBuffers[i], inStream, ogg_info->rate);
+		more_stream = stream_ogg(stream->buffers[i], stream->stream, stream->info);
 	}
     
-	alSourceQueueBuffers(inSource, numBuffers, inBuffers);
-	alSourcePlay(inSource);
+	alSourceQueueBuffers(*stream->source, numBuffers, stream->buffers);
+	alSourcePlay(*stream->source);
 
 	if((error=alGetError()) != AL_NO_ERROR) 
 	{
@@ -1778,17 +1782,19 @@ int stream_ogg_file(char *file_name, ALuint inSource, OggVorbis_File * inStream,
 		return -1;
 	}
 	
+	stream->playing = 1;
 	return more_stream;
 }
 
-int stream_ogg(ALuint buffer, OggVorbis_File * inStream, ALuint rate)
+int stream_ogg(ALuint buffer, OggVorbis_File * inStream, vorbis_info * info)
 {
     char data[STREAM_BUFFER_SIZE];
-    int  size = 0;
-    int  section = 0;
-    int  result = 0;
+    int size = 0;
+    int section = 0;
+    int result = 0;
 	int error = 0;
 	char str[256];
+	ALenum format;
 
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
@@ -1822,7 +1828,13 @@ int stream_ogg(ALuint buffer, OggVorbis_File * inStream, ALuint rate)
 		return 0;	//file's done, quit trying to play
 	}
 	
-	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, rate);
+	// Check the number of channels... always use 16-bit samples
+	if (info->channels == 1)
+		format = AL_FORMAT_MONO16;
+	else
+		format = AL_FORMAT_STEREO16;
+	
+	alBufferData(buffer, format, data, size, info->rate);
 
 	if ((error=alGetError()) != AL_NO_ERROR) 
 	{
@@ -1932,7 +1944,7 @@ void play_stream(int sound, stream_data * stream)
 	else
 		alSourcef (*stream->source, AL_GAIN, sound_gain);
 	
-	result = stream_ogg_file(file, *stream->source, stream->stream, stream->buffers, 4);
+	result = stream_ogg_file(file, stream, NUM_STREAM_BUFFERS);
 	if (result == -1)
 	{
 		if (stream->type == STREAM_TYPE_MUSIC)
@@ -1943,11 +1955,6 @@ void play_stream(int sound, stream_data * stream)
 	else if (result == 0)
 	{
 		stream->playing = 0;
-	}
-	else if (result > 0)
-	{
-		stream->info = ov_info(stream->stream, -1);
-		stream->playing = 1;
 	}
 }
 
@@ -1987,7 +1994,7 @@ void destroy_stream(stream_data * stream)
 	}
 	stream->playing = 0;
 	alDeleteSources(1, stream->source);
-	alDeleteBuffers(4, stream->buffers);
+	alDeleteBuffers(NUM_STREAM_BUFFERS, stream->buffers);
 	ov_clear(stream->stream);
 }
 
@@ -2076,38 +2083,42 @@ int sound_bounds_check(int x, int y, map_sound_boundary_def bounds)
 
 void check_for_valid_stream_sound(int tx, int ty, stream_data * stream)
 {
-	int snd;
+	int i, snd;
 
 	snd = -1;
 	
 	if (snd_cur_map > -1 && sound_map_data[snd_cur_map].id > -1)
 	{
-		cur_boundary++;
-		if (cur_boundary == sound_map_data[snd_cur_map].num_boundaries)
-			cur_boundary = 0;
-		if (stream->type == STREAM_TYPE_SOUNDS)
-			snd = sound_map_data[snd_cur_map].boundaries[cur_boundary].bg_sound;
-		else if (stream->type == STREAM_TYPE_CROWD)
-			snd = sound_map_data[snd_cur_map].boundaries[cur_boundary].crowd_sound;
-		if (snd > -1 &&
-			sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[cur_boundary]))
+		for (i = 0; i < sound_map_data[snd_cur_map].num_boundaries; i++)
 		{
-			stream->sound = snd;
-			alSourcef (*stream->source, AL_GAIN, sound_gain * sound_type_data[snd].gain);
-			if (stream->sound > -1)
+			if (i == sound_map_data[snd_cur_map].num_boundaries)
+				i = 0;
+			if (stream->type == STREAM_TYPE_SOUNDS)
+				snd = sound_map_data[snd_cur_map].boundaries[i].bg_sound;
+			else if (stream->type == STREAM_TYPE_CROWD)
+				snd = sound_map_data[snd_cur_map].boundaries[i].crowd_sound;
+			if (snd > -1 &&
+				sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[i]))
 			{
-				if (stream->is_default)
+				cur_boundary = i;
+				stream->sound = snd;
+				alSourcef (*stream->source, AL_GAIN, sound_gain * sound_type_data[snd].gain);
+				if (stream->sound > -1)
 				{
+					if (stream->is_default)
+					{
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("Stopping default stream (%d) sound\n", stream->type);
+						printf("Stopping default stream (%d) sound\n", stream->type);
 #endif //_EXTRA_SOUND_DEBUG
-					stop_stream(stream);
-					stream->is_default = 0;
+						stop_stream(stream);
+						stream->is_default = 0;
+					}
+#ifdef _EXTRA_SOUND_DEBUG
+					printf("Playing stream (%d) sound: %d\n", stream->type, snd);
+#endif //_EXTRA_SOUND_DEBUG
+					play_stream(snd, stream);
+					return;
 				}
-#ifdef _EXTRA_SOUND_DEBUG
-				printf("Playing stream (%d) sound: %d\n", stream->type, snd);
-#endif //_EXTRA_SOUND_DEBUG
-				play_stream(snd, stream);
 			}
 		}
 	}
@@ -2156,6 +2167,9 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 				}
 				if (stream->is_default)
 				{
+#ifdef _EXTRA_SOUND_DEBUG
+					printf("process_stream - Checking for valid %s sound. Pos: %d, %d\n", stream->type == STREAM_TYPE_SOUNDS ? "background" : "crowd", tx, ty);
+#endif //_EXTRA_SOUND_DEBUG
 					check_for_valid_stream_sound(tx, ty, stream);
 				}
 				else
@@ -2181,10 +2195,9 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 	while (stream->processed-- > 0)
 	{
 		ALuint buffer;
-		vorbis_info * info = stream->info;
 
 		alSourceUnqueueBuffers(*stream->source, 1, &buffer);
-		stream->playing = stream_ogg(buffer, stream->stream, info->rate);
+		stream->playing = stream_ogg(buffer, stream->stream, stream->info);
 		alSourceQueueBuffers(*stream->source, 1, &buffer);
 	}
 	if (state2 != AL_PLAYING)
@@ -2236,90 +2249,105 @@ int update_streams(void *dummy)
 		day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
 		tx = -camera_x * 2;
 		ty = -camera_y * 2;
-		if (have_music && music_on)
+		if (have_a_map && (tx > 0 || ty > 0))
 		{
-			// Process the music stream
-			if (music_stream.playing)
+			if (have_music && music_on)
 			{
-				process_stream(&music_stream, music_gain, &sleep, &music_fade, tx, ty);
-			}
-			else
-			{
-				if (playlist[list_pos+1].file_name[0])
+				// Process the music stream
+				if (music_stream.playing)
 				{
-					list_pos++;
-					if (tx > playlist[list_pos].min_x &&
-					   tx < playlist[list_pos].max_x &&
-					   ty > playlist[list_pos].min_y &&
-					   ty < playlist[list_pos].max_y &&
-					   (playlist[list_pos].time == 2 ||
-						playlist[list_pos].time == day_time))
-					{
-						play_stream(list_pos, &music_stream);
-					}
+					process_stream(&music_stream, music_gain, &sleep, &music_fade, tx, ty);
 				}
-				else if (loop_list)
-					list_pos=-1;
 				else
-					get_map_playlist();
-			}
-		}
-		if (have_sound && sound_opts >= SOUNDS_ENVIRO)
-		{
-			// Process the bg sound effects stream
-			if (sound_fx_stream.playing)
-			{
-				process_stream(&sound_fx_stream, sound_gain * sound_type_data[sound_fx_stream.sound].gain, &sleep, &sound_fade, tx, ty);
-			}
-			else
-			{
-				check_for_valid_stream_sound(tx, ty, &sound_fx_stream);
-				// Check if we need a default background sound, and if so, if we can find one
-				if (!sound_fx_stream.playing)
 				{
-					if (sound_num_background_defaults > 0)
+					if (playlist[list_pos+1].file_name[0])
 					{
-						for (i = 0; i < sound_num_background_defaults; i++)
+						list_pos++;
+						if (tx > playlist[list_pos].min_x &&
+						   tx < playlist[list_pos].max_x &&
+						   ty > playlist[list_pos].min_y &&
+						   ty < playlist[list_pos].max_y &&
+						   (playlist[list_pos].time == 2 ||
+							playlist[list_pos].time == day_time))
 						{
-							if ((sound_background_defaults[i].time_of_day_flags & (game_minute / 30)) &&
-								(sound_background_defaults[i].map_type == dungeon))
-							{
-								sound_fx_stream.sound = sound_background_defaults[i].sound;
-								if (sound_fx_stream.sound > -1)
-								{
+							play_stream(list_pos, &music_stream);
+						}
+					}
+					else if (loop_list)
+						list_pos=-1;
+					else
+						get_map_playlist();
+				}
+			}
+			if (have_sound && sound_opts >= SOUNDS_ENVIRO)
+			{
+				// Process the bg sound effects stream
+				if (sound_fx_stream.playing)
+				{
 #ifdef _EXTRA_SOUND_DEBUG
-						printf("Playing default background sound: %d\n", sound_fx_stream.sound);
+					printf("update_stream - Playing background sound: %d\n", sound_fx_stream.sound);
 #endif //_EXTRA_SOUND_DEBUG
-									play_stream(sound_fx_stream.sound, &sound_fx_stream);
-									sound_fx_stream.is_default = 1;
-									break;
+					process_stream(&sound_fx_stream, sound_gain * sound_type_data[sound_fx_stream.sound].gain, &sleep, &sound_fade, tx, ty);
+				}
+				else
+				{
+#ifdef _EXTRA_SOUND_DEBUG
+					printf("update_stream - Not playing stream. Checking for background sound. Pos: %d, %d\n", tx, ty);
+#endif //_EXTRA_SOUND_DEBUG
+					check_for_valid_stream_sound(tx, ty, &sound_fx_stream);
+					// Check if we need a default background sound, and if so, if we can find one
+					if (!sound_fx_stream.playing)
+					{
+						if (sound_num_background_defaults > 0)
+						{
+							for (i = 0; i < sound_num_background_defaults; i++)
+							{
+								if ((sound_background_defaults[i].time_of_day_flags & (game_minute / 30)) &&
+									(sound_background_defaults[i].map_type == dungeon))
+								{
+									sound_fx_stream.sound = sound_background_defaults[i].sound;
+									if (sound_fx_stream.sound > -1)
+									{
+#ifdef _EXTRA_SOUND_DEBUG
+										printf("update_stream - Playing default background sound: %d\n", sound_fx_stream.sound);
+#endif //_EXTRA_SOUND_DEBUG
+										play_stream(sound_fx_stream.sound, &sound_fx_stream);
+										sound_fx_stream.is_default = 1;
+										break;
+									}
 								}
 							}
 						}
 					}
 				}
 			}
-		}
-		if (have_sound && sound_opts >= SOUNDS_ENVIRO)
-		{
-			// Process the crowd effects stream
-			if (crowd_stream.playing)
+			if (have_sound && sound_opts >= SOUNDS_ENVIRO)
 			{
-				process_stream(&crowd_stream, sound_gain * (no_near_enhanced_actors / 5), &sleep, &crowd_fade, tx, ty);
-			}
-			else
-			{
-				if (no_near_enhanced_actors >= 5)
+				// Process the crowd effects stream
+				if (crowd_stream.playing)
 				{
-					check_for_valid_stream_sound(tx, ty, &crowd_stream);
-					// Check if we need a default crowd sound
-					if (!crowd_stream.playing && crowd_default > -1)
+#ifdef _EXTRA_SOUND_DEBUG
+					printf("update_stream - Playing crowd sound\n");
+#endif //_EXTRA_SOUND_DEBUG
+					process_stream(&crowd_stream, sound_gain * (no_near_enhanced_actors / 5), &sleep, &crowd_fade, tx, ty);
+				}
+				else
+				{
+					if (no_near_enhanced_actors >= 5)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
-						printf("Playing default crowd sound: %d\n", crowd_default);
+					printf("update_stream - Not playing stream. Checking for crowd sound\n");
 #endif //_EXTRA_SOUND_DEBUG
-						play_stream(crowd_default, &crowd_stream);
-						crowd_stream.is_default = 1;
+						check_for_valid_stream_sound(tx, ty, &crowd_stream);
+						// Check if we need a default crowd sound
+						if (!crowd_stream.playing && crowd_default > -1)
+						{
+#ifdef _EXTRA_SOUND_DEBUG
+							printf("update_stream - Playing default crowd sound: %d\n", crowd_default);
+#endif //_EXTRA_SOUND_DEBUG
+							play_stream(crowd_default, &crowd_stream);
+							crowd_stream.is_default = 1;
+						}
 					}
 				}
 			}
@@ -3339,7 +3367,7 @@ void clear_sound_data()
 #ifdef OGG_VORBIS
 void init_sound_stream(stream_data * stream, int gain)
 {
-	alGenBuffers(4, stream->buffers);
+	alGenBuffers(NUM_STREAM_BUFFERS, stream->buffers);
 	alGenSources(1, stream->source);
 	alSource3f(*stream->source, AL_POSITION,        0.0, 0.0, 0.0);
 	alSource3f(*stream->source, AL_VELOCITY,        0.0, 0.0, 0.0);
