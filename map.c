@@ -58,6 +58,8 @@ void destroy_map()
 	ERR();
 #endif
 
+	have_a_map = 0;
+
 	clear_bbox_tree(main_bbox_tree);
 	//kill the tile and height map
 	if(tile_map)
