@@ -4304,7 +4304,9 @@ void print_sound_types()
 		printf("Boundaries:\n");
 		for(j=0;j<pMap->num_boundaries;++j)
 		{
-			printf("\tBoundary num: %d. Type: %d\n", j, pMap->boundaries[j].sound);
+			printf("\tBoundary num: %d\n", j);
+			printf("\tBackground sound: %d\n", pMap->boundaries[j].bg_sound);
+			printf("\tCrowd sound: %d\n", pMap->boundaries[j].crowd_sound);
 			printf("\tX1: %d, Y1: %d, X2: %d, Y2: %d, X3: %d, Y3: %d, X4: %d, Y4: %d\n",
 				pMap->boundaries[j].x1, pMap->boundaries[j].y1,
 				pMap->boundaries[j].x2, pMap->boundaries[j].y2,
