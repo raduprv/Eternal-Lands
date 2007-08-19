@@ -27,6 +27,9 @@
 
 windows_info	windows_list;	// the master list of windows
 
+static window_info *cur_drag_window = NULL;
+static widget_list *cur_drag_widget = NULL;
+
 int display_window(int win_id);
 int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
 int	mouseover_window(int win_id, int x, int y);	// do mouseover processing for a window
@@ -216,6 +219,27 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 
 	// ignore a drag of 0, but say we processed
 	if(dx == 0 && dy == 0)	return -1;
+	
+	if (cur_drag_window)
+	{
+		// a drag was started from cur_drag_window, let that window 
+		// handle it, regardless of where the cursor is
+		
+		done = drag_in_window (cur_drag_window->window_id, mx, my, flags, dx, dy);
+		if (done > 0)
+		{
+			if (cur_drag_window->displayed)
+				// select this window to the front
+				select_window (cur_drag_window->window_id); 
+			return cur_drag_window->window_id;
+		}
+		else
+		{
+			// The original window didn't handle the drag, reset it
+			// and continue
+			cur_drag_window = NULL;
+		}
+	}
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -238,6 +262,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 						{
 							if (win->displayed)
 								select_window(i);	// select this window to the front
+							cur_drag_window = win;
 							return i;
 						}
 						else if (mouse_in_window (i, mx, my))
@@ -245,9 +270,11 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 							// drag started in this window
 							return -1;
 						}
-					} else if(windows_list.window[i].order < id && windows_list.window[i].order > next_id){
+					} 
+					else if (win->order < id && win->order > next_id)
+					{
 						// try to find the next level
-						next_id= windows_list.window[i].order;
+						next_id= win->order;
 					}
 				}
 			}
@@ -276,6 +303,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
+						cur_drag_window = win;
 						return i;
 					}
 					else if (mouse_in_window (i, mx, my))
@@ -287,7 +315,7 @@ int	drag_in_windows(int mx, int my, Uint32 flags, int dx, int dy)
 				else if (win->order > id && win->order < next_id)
 				{
 					// try to find the next level
-					next_id= windows_list.window[i].order;
+					next_id = win->order;
 				}
 			}
 		}
@@ -309,6 +337,13 @@ int drag_windows (int mx, int my, int dx, int dy)
 	int dragable, resizeable;
 	int x, y;
 	window_info *win;
+	
+	if (cur_drag_window)
+	{
+		// We are currently dragging inside another window, don't
+		// interrupt that by moving another window around
+		return -1;
+	}
 
 	// check each window in the proper order for which one might be getting dragged
 	if(windows_list.display_level > 0)
@@ -529,6 +564,10 @@ void	end_drag_windows()
 		windows_list.window[i].resized= 0;
 		windows_list.window[i].drag_in= 0;
 	}
+	
+	// also reset the window we were dragging in, and the dragged widget
+	cur_drag_window = NULL;
+	cur_drag_widget = NULL;
 }
 
 
@@ -1351,20 +1390,46 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 {
 	window_info *win;
 	int	mx, my;
-	widget_list *W; 
+	widget_list *W;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows)
 		return -1;
 	if(windows_list.window[win_id].window_id != win_id)
 		return -1;
+
 	win= &windows_list.window[win_id];
 	W = win->widgetlist;
+
+	mx = x - win->cur_x;
+	my = y - win->cur_y;
+
+	if (cur_drag_widget)
+	{
+		// Check if cur_drag_widget is indeed one of our widgets
+		while (W && W != cur_drag_widget)
+			W = W->next;
+
+		if (W && !(W->Flags & WIDGET_DISABLED))
+		{
+			int ret_val;
+			
+			glPushMatrix ();
+			glTranslatef ((float)win->cur_x, (float)win->cur_y, 0.0f);
+			ret_val = widget_handle_drag (W, mx - W->pos_x, my - W->pos_y, flags, dx, dy);
+			glPopMatrix ();
+			if (ret_val)
+				// widget handled it
+				return 1;
+		}
+
+		// If we got here, cur_drag_widget isn't in this window, or
+		// is unable to handle the drag request. Reset it and continue.
+		cur_drag_widget = NULL;
+	}
+
 	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
 	{
 		int	ret_val;
-
-		mx = x - win->cur_x;
-		my = y - win->cur_y;
 							    
 		// widgets
 		glPushMatrix();
@@ -1378,6 +1443,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 					{
 						// widget handled it
 						glPopMatrix ();
+						cur_drag_widget = W;
 						return 1;
 					}
 				}

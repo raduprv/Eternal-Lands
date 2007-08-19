@@ -40,9 +40,6 @@ int alt_on;
 int ctrl_on;
 int meta_on;
 
-static int mouse_delta_x; // current difference between the last saved mouse_x and the current mouse positions x coordinate
-static int mouse_delta_y; // current difference between the last saved mouse_y and the current mouse positions y coordinate
-
 void	quick_use(int use_id)
 {
 	Uint8 quick_use_str[3];
@@ -64,6 +61,8 @@ void	quick_use(int use_id)
 int HandleEvent (SDL_Event *event)
 {
 	int done = 0;
+	int mouse_delta_x;
+	int mouse_delta_y;
 	Uint32 key = 0;
 	Uint32 flags = 0;
 
