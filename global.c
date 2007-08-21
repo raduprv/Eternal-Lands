@@ -73,7 +73,7 @@ GLfloat light_6_position[4];
 GLfloat light_6_diffuse[4];
 GLfloat light_6_dist;
 
-light *lights_list[max_lights];
+light *lights_list[MAX_LIGHTS];
 sun sun_pos[60*3];
 char lights_on=1;
 unsigned char light_level=0;

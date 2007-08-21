@@ -89,14 +89,14 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 	new_light->locked=locked;
 
 	//find a free spot, in the lights list
-	for(i=0;i<max_lights;i++)
+	for (i = 0; i < MAX_LIGHTS; i++)
+	{
+		if (!lights_list[i])
 		{
-			if(!lights_list[i])
-				{
-					lights_list[i]=new_light;
-					break;
-				}
+			lights_list[i] = new_light;
+			break;
 		}
+	}
 
 	return i;
 }
@@ -133,7 +133,7 @@ void update_scene_lights()
 
 	light_6_diffuse[0]=0;light_6_diffuse[1]=0;light_6_diffuse[2]=0;light_6_diffuse[3]=1.0;
 
-	for(i=0;i<max_lights;i++)
+	for (i = 0; i < MAX_LIGHTS; i++)
 		{
 			if(lights_list[i])
 				{

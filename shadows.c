@@ -306,7 +306,7 @@ void display_night_shadows(int phase)
 						{
 							//now, find the closest, or next closest light source, according to
 							//the phase value
-							for(j=0;j<max_lights;j++)
+							for (j = 0; j < MAX_LIGHTS; j++)
 							 {
 							  if(lights_list[j])
 							   {

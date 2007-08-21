@@ -788,22 +788,20 @@ void visualise_lights()
 
 	glPushMatrix();
 	glLoadIdentity();					// Reset The Matrix
-    Move();
+	Move();
 
-	for(i=0;i<max_lights;i++)
+	for (i = 0; i < MAX_LIGHTS; i++)
+	{
+		if (lights_list[i])
 		{
-			if(lights_list[i])
-			     {
-			         int dist1;
-			         int dist2;
+			int dist1 = x - (int) lights_list[i]->pos_x;
+			int dist2 = y - (int) lights_list[i]->pos_y;
 
-			         dist1=x-(int)lights_list[i]->pos_x;
-			         dist2=y-(int)lights_list[i]->pos_y;
-			         if(dist1*dist1+dist2*dist2<=((40*40)*(zoom_level/15.75f)))
-                     	draw_light_source(lights_list[i]);
-
-                 }
+			if (dist1*dist1+dist2*dist2 <= ((40*40)*(zoom_level/15.75f)))
+				draw_light_source(lights_list[i]);
 		}
+	}
+
 	glPopMatrix();
 }
 
@@ -820,7 +818,7 @@ void get_light_under_mouse()
 	y = (int)-camera_y;
 
 	count = 0;
-	for (i = 0; i < max_lights; i++)
+	for (i = 0; i < MAX_LIGHTS; i++)
 	{
 		if (lights_list[i])
 		{
@@ -861,7 +859,7 @@ void get_light_under_mouse()
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 
-	for (i = 0; i < max_lights; i++)
+	for (i = 0; i < MAX_LIGHTS; i++)
 	{
 		if (lights_list[i])
 		{

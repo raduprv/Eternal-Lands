@@ -43,14 +43,14 @@ void destroy_map()
 		}
 
 	//kill the lights links
-	for(i=0;i<max_lights;i++)
+	for (i = 0; i < MAX_LIGHTS; i++)
+	{
+		if (lights_list[i])
 		{
-			if(lights_list[i])
-				{
-					free(lights_list[i]);
-					lights_list[i]=0;//kill any refference to it
-				}
+			free (lights_list[i]);
+			lights_list[i] = NULL; //kill any refference to it
 		}
+	}
 
 	destroy_all_particles();
 #ifdef EYE_CANDY
@@ -98,7 +98,8 @@ int save_map(char * file_name)
 	for (i = 0; i < MAX_OBJ_3D; i++)
 		if(objects_list[i]) obj_3d_no++;
 	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
-	for(i=0;i<max_lights;i++)if(lights_list[i] && !lights_list[i]->locked) lights_no++;
+	for (i = 0; i < MAX_LIGHTS; i++)
+		if (lights_list[i] && !lights_list[i]->locked) lights_no++;
 	// We ignore temporary particle systems (i.e. ones with a ttl)
 	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)particles_no++;
 
@@ -251,7 +252,7 @@ int save_map(char * file_name)
 
 		//write the lights
 		j=0;
-		for(i=0;i<max_lights;i++)
+		for (i = 0; i < MAX_LIGHTS; i++)
 			{
 				if(j>lights_no)break;
 				if(lights_list[i] && !lights_list[i]->locked)

@@ -60,8 +60,8 @@ extern GLfloat sky_lights_c4[global_lights_no*2][4];
 extern sun sun_pos[60*3];
 
 
-#define max_lights 1000
-extern light *lights_list[max_lights];
+#define MAX_LIGHTS 1000
+extern light *lights_list[MAX_LIGHTS];
 
 extern char lights_on;
 extern unsigned char light_level;

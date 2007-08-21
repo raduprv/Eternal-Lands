@@ -148,8 +148,8 @@ void init_stuff()
 	for(i=0; i<256; i++)
         tile_list[i]=0;
 
-	for(i=0; i<max_lights; i++)
-        lights_list[i]=0;
+	for (i = 0; i < MAX_LIGHTS; i++)
+		lights_list[i] = NULL;
 
 	new_map(256,256);
 	load_all_tiles();
