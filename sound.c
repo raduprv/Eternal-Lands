@@ -2931,7 +2931,9 @@ void stop_sound_at_location(int x, int y)
 //usefull when we change maps, etc.
 void stop_all_sounds()
 {
+#ifdef _EXTRA_SOUND_DEBUG
 	int i;
+#endif
 	ALuint error;
 	if (!have_sound) return;
 	LOCK_SOUND_LIST();
@@ -4185,7 +4187,7 @@ int parse_sound_defs(xmlNode *node)
 	return ok;
 }
 
-void load_sound_config_data(char *file)
+void load_sound_config_data (const char *file)
 {
 	xmlDoc *doc;
 	xmlNode *root=NULL;

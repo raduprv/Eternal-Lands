@@ -868,18 +868,24 @@ void change_projection_bool_init(int *pointer) {
 #endif //OSX
 void change_projection_float(float * var, float * value) {
 	change_float(var, value);
+	if (video_mode_set)
+	{
 #ifdef SKY_FPV_CURSOR
-	set_all_intersect_update_needed(main_bbox_tree);
+		set_all_intersect_update_needed (main_bbox_tree);
 #endif /* SKY_FPV_CURSOR */
-	resize_root_window();
+		resize_root_window ();
+	}
 }
 
 void change_projection_bool(int *pointer) {
 	change_var(pointer);
+	if (video_mode_set)
+	{
 #ifdef SKY_FPV_CURSOR
-	set_all_intersect_update_needed(main_bbox_tree);
+		set_all_intersect_update_needed (main_bbox_tree);
 #endif /* SKY_FPV_CURSOR */
-	resize_root_window();
+		resize_root_window ();
+	}
 }
 
 void change_gamma(float *pointer, float *value)

@@ -301,7 +301,7 @@ void sound_source_set_gain(int sound, float gain);
  * \param path		The path of the sounds configuration XML file.
  * \callgraph
  */
-void load_sound_config_data(char *path);
+void load_sound_config_data (const char *path);
 #endif	//NEW_SOUND
 
 
