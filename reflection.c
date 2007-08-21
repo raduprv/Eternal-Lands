@@ -339,7 +339,7 @@ void display_3d_reflection()
 	set_material(0.1f,0.2f,0.3f);
 	glPushMatrix();
 	glScalef(1.0f, 1.0f, -1.0f);
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 			     {

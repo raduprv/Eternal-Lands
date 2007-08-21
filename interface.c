@@ -835,7 +835,7 @@ GLuint generate_minimap()
 
 	//OK, now check the 3d objects... we want them all to show up as red dots...
 	scale=(float)3/scale;//Change the scale for 3d objects...
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				{

@@ -459,7 +459,7 @@ e3d_object * load_e3d_cache(char * file_name)
 	int file_name_lenght;
 	file_name_lenght=strlen(file_name);
 
-	for(i=0;i<max_e3d_cache;i++)
+	for (i = 0; i < MAX_E3D_CACHE; i++)
 		{
 			j=0;
 			while(j<file_name_lenght)
@@ -506,7 +506,7 @@ e3d_object * load_e3d_cache(char * file_name)
 
 	//find a place to store it
 	i=0;
-	while(i<max_e3d_cache)
+	while (i < MAX_E3D_CACHE)
 		{
 			if(!e3d_cache[i].file_name[0])//we found a place to store it
 				{
@@ -527,7 +527,7 @@ int add_e3d_at_id (int id, char * file_name, float x_pos, float y_pos, float z_p
 	e3d_object *returned_e3d;
 	object3d *our_object;
 	
-	if (id < 0 || id >= max_obj_3d)
+	if (id < 0 || id >= MAX_OBJ_3D)
 		return 0;
 
 	//but first convert any '\' in '/'
@@ -583,14 +583,14 @@ int add_e3d (char * file_name, float x_pos, float y_pos, float z_pos, float x_ro
 
 	//find a free spot, in the e3d_list
 	id = 0;
-	while (id < max_obj_3d)
+	while (id < MAX_OBJ_3D)
 	{
 		if (objects_list[id] == NULL || objects_list[id]->blended==20) 
 			break;
 		id++;
 	}
 	
-	if (id >= max_obj_3d) return 0;
+	if (id >= MAX_OBJ_3D) return 0;
 	return add_e3d_at_id (id, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
 }
 
@@ -600,14 +600,14 @@ int add_e3d_keep_deleted (char * file_name, float x_pos, float y_pos, float z_po
 
 	//find a free spot, in the e3d_list
 	id = 0;
-	while (id < max_obj_3d)
+	while (id < MAX_OBJ_3D)
 	{
 		if (objects_list[id] == NULL) 
 			break;
 		id++;
 	}
 	
-	if (id >= max_obj_3d) return 0;
+	if (id >= MAX_OBJ_3D) return 0;
 	return add_e3d_at_id (id, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b);
 }
 
@@ -633,7 +633,7 @@ void display_objects()
 		}
 
 	CHECK_GL_ERRORS();
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				{
@@ -988,7 +988,7 @@ void clear_clouds_cache()
 	int i;
 
 	last_clear_clouds=cur_time;
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i])
 				{
@@ -1075,25 +1075,24 @@ void flag_for_destruction()
 {
 	int i;
 
-	for(i=0;i<max_e3d_cache;i++)
-	if(e3d_cache[i].file_name[0])
-	e3d_cache[i].flag_for_destruction=1;
+	for (i = 0; i < MAX_E3D_CACHE; i++)
+		if (e3d_cache[i].file_name[0])
+			e3d_cache[i].flag_for_destruction = 1;
 }
 
 void destroy_the_flagged()
 {
 	int i;
 	
-	for(i=0;i<max_e3d_cache;i++)
+	for (i = 0; i < MAX_E3D_CACHE; i++)
+	{
+		if (e3d_cache[i].file_name[0] && e3d_cache[i].flag_for_destruction)
 		{
-			if(e3d_cache[i].file_name[0])
-			if(e3d_cache[i].flag_for_destruction)
-				{
-					destroy_e3d(e3d_cache[i].e3d_id);
-					e3d_cache[i].file_name[0]=0;
-					e3d_cache[i].flag_for_destruction=0;
-				}
+			destroy_e3d (e3d_cache[i].e3d_id);
+			e3d_cache[i].file_name[0] = 0;
+			e3d_cache[i].flag_for_destruction = 0;
 		}
+	}
 }
 
 

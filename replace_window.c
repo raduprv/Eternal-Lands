@@ -354,7 +354,7 @@ int check_replace_window_interface(window_info *win, int _x, int _y)
 
 		{
 
-			for ( ; i < max_obj_3d; i++)
+			for ( ; i < MAX_OBJ_3D; i++)
 
 			{
 

@@ -242,7 +242,7 @@ void display_shadows()
 	x=(int)-camera_x;
 	y=(int)-camera_y;
 	glEnable(GL_CULL_FACE);
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
@@ -278,7 +278,7 @@ void display_night_shadows(int phase)
 	x=(int)-camera_x;
 	y=(int)-camera_y;
 	glEnable(GL_CULL_FACE);
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			closest_light=-1;
 			next_closest_light=-1;
@@ -383,7 +383,7 @@ void display_3d_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {
@@ -454,7 +454,7 @@ void display_3d_non_ground_objects()
 			glEnable(GL_TEXTURE_2D);
 
 		}
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i] && objects_list[i]->blended!=20)
 				 {

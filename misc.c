@@ -94,7 +94,7 @@ void get_3d_object_under_mouse()
 	y = (int)-camera_y;
 
 	count = 0;
-	for (i = 0; i < max_obj_3d; i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 	{
 		if (objects_list[i] && objects_list[i]->blended != 20)
 		{
@@ -139,7 +139,7 @@ void get_3d_object_under_mouse()
 	glLoadIdentity();					// Reset The Matrix
 	Move();
 
-	for (i = 0; i < max_obj_3d; i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 	{
 		if (objects_list[i] && objects_list[i]->blended != 20)
 		{

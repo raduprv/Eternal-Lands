@@ -557,7 +557,7 @@ int HandleEvent(SDL_Event *event)
 			if(right_click==1 && cur_tool==tool_select && cur_mode==mode_eye_candy)
 			{
 				get_3d_object_under_mouse();
-				if (selected_3d_object >= max_obj_3d)
+				if (selected_3d_object >= MAX_OBJ_3D)
 				{
 					select_eye_candy_effect(selected_3d_object);
 					kill_eye_candy_effect();
@@ -632,7 +632,7 @@ int HandleEvent(SDL_Event *event)
 									{
 										get_3d_object_under_mouse();
 										if(selected_3d_object!=-1){
-											if (selected_3d_object < max_obj_3d)
+											if (selected_3d_object < MAX_OBJ_3D)
 											{
 												if(calhm)
 													clear_e3d_heightmap(selected_3d_object);
@@ -820,7 +820,7 @@ int HandleEvent(SDL_Event *event)
 							if (cur_mode == mode_eye_candy)
 							{
 								get_3d_object_under_mouse();
-								if (selected_3d_object >= max_obj_3d)
+								if (selected_3d_object >= MAX_OBJ_3D)
 								{
 									select_eye_candy_effect(selected_3d_object);
 									selected_3d_object = -1;

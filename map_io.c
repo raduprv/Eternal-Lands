@@ -23,7 +23,7 @@ void destroy_map()
 
 
 	//kill the 3d objects links
-	for(i=0;i<max_obj_3d;i++)
+	for (i = 0; i < MAX_OBJ_3D; i++)
 		{
 			if(objects_list[i])
 				{
@@ -95,7 +95,8 @@ int save_map(char * file_name)
 	particles_io_size=sizeof(particles_io);
 
 	//get the number of objects and lights
-	for(i=0;i<max_obj_3d;i++)if(objects_list[i])obj_3d_no++;
+	for (i = 0; i < MAX_OBJ_3D; i++)
+		if(objects_list[i]) obj_3d_no++;
 	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
 	for(i=0;i<max_lights;i++)if(lights_list[i] && !lights_list[i]->locked) lights_no++;
 	// We ignore temporary particle systems (i.e. ones with a ttl)
@@ -177,7 +178,7 @@ int save_map(char * file_name)
 
 		//write the 3d objects
 		j=0;
-		for(i=0;i<max_obj_3d;i++)
+		for (i = 0; i < MAX_OBJ_3D; i++)
 			{
 
 				if(j>obj_3d_no)break;

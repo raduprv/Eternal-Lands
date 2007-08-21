@@ -659,7 +659,7 @@ void draw_eye_candy_selector(const EffectDefinition*const effect, const int i)
 {
   glPushMatrix();
   glTranslatef(effect->position.x, effect->position.y, effect->position.z);
-  glLoadName(max_obj_3d + i);
+  glLoadName (MAX_OBJ_3D + i);
   glBegin(GL_QUADS);
   {
     // Front Face
@@ -705,10 +705,10 @@ void draw_eye_candy_selector(const EffectDefinition*const effect, const int i)
 
 void select_eye_candy_effect(int i)
 {
-  if (i == max_obj_3d)	// The current selection
+  if (i == MAX_OBJ_3D)	// The current selection
     return;
   
-  std::vector<EffectDefinition>::iterator iter = effects.begin() + (i - max_obj_3d - 1);
+  std::vector<EffectDefinition>::iterator iter = effects.begin() + (i - MAX_OBJ_3D - 1);
   if (current_effect.reference)
   {
     ec_recall_effect(current_effect.reference);

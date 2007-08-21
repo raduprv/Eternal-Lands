@@ -30,7 +30,7 @@ texture_cache_struct texture_cache[TEXTURE_CACHE_MAX];
 e3d_cache_struct e3d_cache[1000];
 obj_2d_cache_struct obj_2d_def_cache[MAX_OBJ_2D_DEF];
 
-object3d *objects_list[max_obj_3d];
+object3d *objects_list[MAX_OBJ_3D];
 obj_2d *obj_2d_list[MAX_OBJ_2D];
 
   Uint8 *e3d_file_mem;

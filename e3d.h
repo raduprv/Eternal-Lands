@@ -1,8 +1,8 @@
 #ifndef __E3D_H__
 #define __E3D_H__
 
-#define max_obj_3d 15000
-#define max_e3d_cache 1000
+#define MAX_OBJ_3D 15000
+#define MAX_E3D_CACHE 1000
 
 #ifdef	NEW_E3D_FORMAT
 
@@ -163,7 +163,7 @@ typedef struct
 extern e3d_cache_struct e3d_cache[1000];
 
 
-extern object3d *objects_list[max_obj_3d];
+extern object3d *objects_list[MAX_OBJ_3D];
 
 
 //proto
