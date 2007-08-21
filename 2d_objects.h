@@ -4,11 +4,6 @@
 #define MAX_OBJ_2D 15000
 #define MAX_OBJ_2D_DEF 1000
 
-#define invalid -1
-#define ground 0
-#define plant 1
-#define fence 2
-
 typedef struct
 {
 	float u_start;

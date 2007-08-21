@@ -1,5 +1,10 @@
 #include "global.h"
 
+#define INVALID -1
+#define GROUND 0
+#define PLANT 1
+#define FENCE 2
+
 void draw_2d_object(obj_2d * object_id)
 {
 	float render_x_start,render_y_start,u_start,v_start,u_end,v_end;
@@ -32,16 +37,21 @@ void draw_2d_object(obj_2d * object_id)
 	texture_id=get_texture_id(obj_def_pointer->texture_id);
 	render_x_start=-x_size/2.0f;
 	object_type=obj_def_pointer->object_type;
-	if(object_type==ground)render_y_start=-y_size/2;
-	else	render_y_start= 0;
+	if (object_type == GROUND)
+		render_y_start = -y_size/2;
+	else
+		render_y_start = 0;
 
 	//find out what kind of object we have
-	if(object_type==fence)x_rot+=90;
-	if(object_type==plant)
+	if(object_type == FENCE)
 	{
-  	x_rot+=90;
-    z_rot=-rz;
-  }
+		x_rot += 90;
+	}
+	else if(object_type == PLANT)
+	{
+		x_rot+=90;
+		z_rot=-rz;
+	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 	glTranslatef (x_pos, y_pos, 0);
@@ -273,26 +283,26 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 			   {
 			      if(obj_file_mem[k]==0x0a)
                {
-                cur_object->object_type=invalid;
+                cur_object->object_type = INVALID;
                 break;
                }
 			      if(obj_file_mem[k]==' ')continue;
 
 			      if(obj_file_mem[k]=='g' || obj_file_mem[k]=='G')
                {
-                cur_object->object_type=ground;
+                cur_object->object_type = GROUND;
                 break;
                }
 
 			      if(obj_file_mem[k]=='p' || obj_file_mem[k]=='P')
                {
-                cur_object->object_type=plant;
+                cur_object->object_type = PLANT;
                 break;
                }
 
 			      if(obj_file_mem[k]=='f' || obj_file_mem[k]=='F')
                {
-                cur_object->object_type=fence;
+                cur_object->object_type = FENCE;
                 break;
                }
 			   }
