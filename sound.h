@@ -7,18 +7,7 @@
 #ifndef __SOUND_H__
 #define __SOUND_H__
 
-#ifdef WINDOWS //lib location platform checking
-	#include <al.h>
-	#include <alc.h>
-	#include <alut.h>
-#elif defined(OSX)
-	#include <alut.h>		//oddity as of Xcode 2.4
-	#include <OpenAL/alc.h>
-#else
-	#include <AL/al.h>
-	#include <AL/alc.h>
-	#include <AL/alut.h>
-#endif //lib location platform checking
+#include "platform.h"
 
 #ifdef OGG_VORBIS
 	#include <ogg/ogg.h>

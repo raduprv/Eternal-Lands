@@ -21,17 +21,17 @@ void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound);
 
 void cal_render_actor(actor *act);
 #ifdef	NEW_ACTOR_ANIMATION
-//	#ifdef NEW_SOUND
-//struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration);
-//	#else
+	#ifdef NEW_SOUND
+struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration);
+	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration);
-//	#endif	//NEW_SOUND
+	#endif	//NEW_SOUND
 #else
-//	#ifdef NEW_SOUND
-//struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound);
-//	#else
+	#ifdef NEW_SOUND
+struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound);
+	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str);
-//	#endif	//NEW_SOUND
+	#endif	//NEW_SOUND
 #endif
 
 #define cal_cycle_blending_delay  0.1f	/*!< time in seconds for blending from cycle to action or cycle. */

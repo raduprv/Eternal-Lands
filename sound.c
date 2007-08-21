@@ -63,6 +63,7 @@ typedef struct {
 #endif // OGG_VORBIS
 
 #define MAX_BACKGROUND_DEFAULTS 8
+#define MAX_MAP_BACKGROUND_DEFAULTS 4
 #define MAX_SOUND_MAP_NAME_LENGTH 60
 #define MAX_SOUND_MAP_BOUNDARIES 20
 #define MAX_SOUND_MAPS 150			// This value is the maximum number of maps sounds can be defined for
@@ -112,7 +113,6 @@ typedef struct
 	int play_duration;
 	int sound_type;
 	SOUND_STAGE current_stage;
-
 	unsigned int cookie;
 }source_data;
 
@@ -127,6 +127,9 @@ typedef struct
 {
 	int bg_sound;
 	int crowd_sound;
+	int time_of_day_flags;		// As for sound time_of_day_flags
+	int is_default;				// There can be up to 4 defaults for any one map, with unique times of day
+								// Coords are ignored if is_default set.
 	int x1;
 	int y1;
 	int x2;
@@ -143,6 +146,8 @@ typedef struct
 	char name[MAX_SOUND_MAP_NAME_LENGTH];		// This isn't used, it is simply helpful when editing the config
 	map_sound_boundary_def boundaries[MAX_SOUND_MAP_BOUNDARIES];
 	int num_boundaries;
+	int defaults[MAX_MAP_BACKGROUND_DEFAULTS];	// ID of the default boundaries
+	int num_defaults;
 }map_sound_data;
 
 typedef struct
@@ -285,7 +290,7 @@ ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, 
 #else // ALUT_WAV
 ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, ALfloat *inFreq);
 #endif // ALUT_WAV
-void play_stream(int sound, stream_data * stream);
+void play_stream(int sound, stream_data * stream, ALfloat gain);
 void start_stream(stream_data * stream);
 void stop_stream(stream_data * stream);
 void destroy_stream(stream_data * stream);
@@ -473,7 +478,7 @@ void play_music(int list)
 	loop_list=0;
 	list_pos=0;
 #ifdef NEW_SOUND
-	play_stream(list_pos, &music_stream);
+	play_stream(list_pos, &music_stream, music_gain);
 #else // NEW_SOUND
 	alSourcef (music_source, AL_GAIN, music_gain);
 	play_ogg_file(playlist[list_pos].file_name);
@@ -1714,9 +1719,9 @@ int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 		return 0;
 	}
 
-#ifndef WINDOWS
+#ifndef _MSC_VER		// MS's compiler breaks things with files opened from different DLL's
 	result = ov_open(file, oggFile, NULL, 0);
-#else // !WINDOWS
+#else // !_MSC_VER
 	result = ov_open_callbacks(file, oggFile, NULL, 0, OV_CALLBACKS_DEFAULT);
 #endif
 	if (result < 0)
@@ -1780,6 +1785,7 @@ int stream_ogg(ALuint buffer, OggVorbis_File * inStream, vorbis_info * info)
 		LOG_ERROR("stream_ogg %s: %s", my_tolower(reg_error_str), alGetString(error));
 	}
 
+	size = 0;
     while (size < STREAM_BUFFER_SIZE)
     {
 #ifndef EL_BIG_ENDIAN
@@ -1890,7 +1896,7 @@ ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, 
  * SOUND STREAM FUNCTIONS *
  **************************/
 
-void play_stream(int sound, stream_data * stream)
+void play_stream(int sound, stream_data * stream, ALfloat gain)
 {
 	int result;
 	char * file;
@@ -1901,7 +1907,7 @@ void play_stream(int sound, stream_data * stream)
 	{
 		if (!have_music) return;
 		
-		if( playlist[sound].file_name[0]!='.' && playlist[sound].file_name[0]!='/')
+		if (playlist[sound].file_name[0]!='.' && playlist[sound].file_name[0]!='/')
 			safe_snprintf (tmp_file_name, sizeof (tmp_file_name), "./music/%s", playlist[sound].file_name);
 		else
 			safe_snprintf(tmp_file_name, sizeof (tmp_file_name), "%s", playlist[sound].file_name);
@@ -1914,10 +1920,7 @@ void play_stream(int sound, stream_data * stream)
 	}
 	
 	// Set the gain for this stream
-	if (stream->type == STREAM_TYPE_MUSIC)
-		alSourcef (stream->source, AL_GAIN, music_gain);
-	else
-		alSourcef (stream->source, AL_GAIN, sound_gain);
+	alSourcef (stream->source, AL_GAIN, gain);
 	
 	// Load the Ogg file and start the stream
 	result = stream_ogg_file(file, stream, NUM_STREAM_BUFFERS);
@@ -1929,7 +1932,7 @@ void start_stream(stream_data * stream)
 {
 	int state = 0;
 	alGetSourcei(stream->source, AL_SOURCE_STATE, &state);
-	if(state == AL_PAUSED) {
+	if (state == AL_PAUSED) {
 		alSourcePlay(stream->source);
 		stream->playing = 1;
 	}
@@ -1939,9 +1942,12 @@ void stop_stream(stream_data * stream)
 {
 	ALuint buffer;
 	int queued;
+	int state = 0;
 	
 	stream->playing = 0;
-	alSourceStop(stream->source);
+	alGetSourcei(stream->source, AL_SOURCE_STATE, &state);
+	if (state != AL_PAUSED)
+		alSourceStop(stream->source);
 	alGetSourcei(stream->source, AL_BUFFERS_PROCESSED, &stream->processed);
 	alGetSourcei(stream->source, AL_BUFFERS_QUEUED, &queued);
 	while (queued-- > 0)
@@ -2075,14 +2081,12 @@ void check_for_valid_stream_sound(int tx, int ty, stream_data * stream)
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("Stopping default stream (%d) sound\n", stream->type);
 #endif //_EXTRA_SOUND_DEBUG
-						stop_stream(stream);
 						stream->is_default = 0;
 					}
 #ifdef _EXTRA_SOUND_DEBUG
 					printf("Playing stream (%d) sound: %d\n", stream->type, snd);
 #endif //_EXTRA_SOUND_DEBUG
-					alSourcef (stream->source, AL_GAIN, sound_gain * sound_type_data[snd].gain);
-					play_stream(snd, stream);
+					play_stream(snd, stream, sound_gain * sound_type_data[snd].gain);
 					return;
 				}
 			}
@@ -2214,7 +2218,8 @@ int update_streams(void *dummy)
     int error, sleep, music_fade = 0, sound_fade = 0, crowd_fade = 0, i;
 	int day_time;
 	int tx, ty, old_tx, old_ty;
-	float gain;
+	ALfloat gain;
+	map_sound_data * cur_map;
    	sleep = SLEEP_TIME;
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Starting streams thread\n");
@@ -2246,7 +2251,7 @@ int update_streams(void *dummy)
 						   (playlist[list_pos].time == 2 ||
 							playlist[list_pos].time == day_time))
 						{
-							play_stream(list_pos, &music_stream);
+							play_stream(list_pos, &music_stream, music_gain);
 						}
 					}
 					else if (loop_list)
@@ -2263,7 +2268,7 @@ int update_streams(void *dummy)
 					gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain;
 					process_stream(&sound_fx_stream, gain, &sleep, &sound_fade, tx, ty, old_tx, old_ty);
 				}
-				else
+				else if (tx != old_tx || ty != old_ty)
 				{
 #ifdef _EXTRA_SOUND_DEBUG
 					printf("update_streams - Not playing stream. Checking for background sound. Pos: %d, %d\n", tx, ty);
@@ -2273,25 +2278,45 @@ int update_streams(void *dummy)
 					if (!sound_fx_stream.playing)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
-						printf("update_streams - No background found, checking for defaults\n");
+						printf("update_streams - No background found, checking for defaults for this map\n");
 #endif //_EXTRA_SOUND_DEBUG
-						if (sound_num_background_defaults > 0)
+						cur_map = &sound_map_data[snd_cur_map];
+						if (cur_map->num_defaults > 0)
 						{
+							for (i = 0; i < cur_map->num_defaults; i++)
+							{
+								if ((cur_map->boundaries[cur_map->defaults[i]].time_of_day_flags & ((game_minute / 30) + 1)) &&
+									cur_map->boundaries[cur_map->defaults[i]].bg_sound > -1)
+								{
+									sound_fx_stream.sound = cur_map->boundaries[cur_map->defaults[i]].bg_sound;
+#ifdef _EXTRA_SOUND_DEBUG
+									printf("update_streams - Playing map default background sound: %d\n", sound_fx_stream.sound);
+#endif //_EXTRA_SOUND_DEBUG
+									gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain;
+									play_stream(sound_fx_stream.sound, &sound_fx_stream, gain);
+									sound_fx_stream.is_default = 1;
+									break;
+								}
+							}
+						}
+						else if (sound_num_background_defaults > 0)
+						{
+#ifdef _EXTRA_SOUND_DEBUG
+						printf("update_streams - No map defaults found, checking for global defaults\n");
+#endif //_EXTRA_SOUND_DEBUG
 							for (i = 0; i < sound_num_background_defaults; i++)
 							{
 								if ((sound_background_defaults[i].time_of_day_flags & ((game_minute / 30) + 1)) &&
-									(sound_background_defaults[i].map_type == dungeon))
+									(sound_background_defaults[i].map_type == dungeon && sound_background_defaults[i].sound > -1))
 								{
 									sound_fx_stream.sound = sound_background_defaults[i].sound;
-									if (sound_fx_stream.sound > -1)
-									{
 #ifdef _EXTRA_SOUND_DEBUG
-										printf("update_streams - Playing default background sound: %d\n", sound_fx_stream.sound);
+									printf("update_streams - Playing default background sound: %d\n", sound_fx_stream.sound);
 #endif //_EXTRA_SOUND_DEBUG
-										play_stream(sound_fx_stream.sound, &sound_fx_stream);
-										sound_fx_stream.is_default = 1;
-										break;
-									}
+									gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain;
+									play_stream(sound_fx_stream.sound, &sound_fx_stream, gain);
+									sound_fx_stream.is_default = 1;
+									break;
 								}
 							}
 						}
@@ -2303,7 +2328,7 @@ int update_streams(void *dummy)
 				// Process the crowd effects stream
 				if (crowd_stream.playing)
 				{
-					gain = sound_gain * (no_near_enhanced_actors / 5);
+					gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain * (no_near_enhanced_actors / 5);
 					process_stream(&crowd_stream, gain, &sleep, &crowd_fade, tx, ty, old_tx, old_ty);
 				}
 				else
@@ -2315,13 +2340,35 @@ int update_streams(void *dummy)
 #endif //_EXTRA_SOUND_DEBUG
 						check_for_valid_stream_sound(tx, ty, &crowd_stream);
 						// Check if we need a default crowd sound
-						if (!crowd_stream.playing && crowd_default > -1)
+						if (!crowd_stream.playing)
 						{
+							cur_map = &sound_map_data[snd_cur_map];
+							if (cur_map->num_defaults > 0)
+							{
+								for (i = 0; i < cur_map->num_defaults; i++)
+								{
+									if ((cur_map->boundaries[cur_map->defaults[i]].time_of_day_flags & ((game_minute / 30) + 1)) &&
+										cur_map->boundaries[cur_map->defaults[i]].crowd_sound > -1)
+									{
+										crowd_stream.sound = cur_map->boundaries[cur_map->defaults[i]].crowd_sound;
 #ifdef _EXTRA_SOUND_DEBUG
-							printf("update_stream - Playing default crowd sound: %d\n", crowd_default);
+										printf("update_stream - Playing map default crowd sound: %d\n", crowd_stream.sound);
 #endif //_EXTRA_SOUND_DEBUG
-							play_stream(crowd_default, &crowd_stream);
-							crowd_stream.is_default = 1;
+										gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain * (no_near_enhanced_actors / 5);
+										play_stream(crowd_stream.sound, &crowd_stream, gain);
+										crowd_stream.is_default = 1;
+									}
+								}
+							}
+							else if (crowd_default > -1)
+							{
+#ifdef _EXTRA_SOUND_DEBUG
+								printf("update_stream - Playing default crowd sound: %d\n", crowd_default);
+#endif //_EXTRA_SOUND_DEBUG
+								gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain * (no_near_enhanced_actors / 5);
+								play_stream(crowd_default, &crowd_stream, gain);
+								crowd_stream.is_default = 1;
+							}
 						}
 					}
 				}
@@ -3161,6 +3208,11 @@ void update_sound(int ms)
 void setup_map_sounds (int map_num)
 {
 	int i;
+#ifdef _EXTRA_SOUND_DEBUG
+	char str[50];
+	safe_snprintf(str, sizeof(str), "Map number: %d", map_num);
+	LOG_TO_CONSOLE(c_red1, str);
+#endif // _EXTRA_SOUND_DEBUG
 	// Find the index for this map in our data
 	snd_cur_map = -1;
 	for (i = 0; i < sound_num_maps; i++)
@@ -3336,6 +3388,8 @@ void clear_sound_data()
 		{
 			sound_map_data[i].boundaries[j].bg_sound = -1;
 			sound_map_data[i].boundaries[j].crowd_sound = -1;
+			sound_map_data[i].boundaries[j].time_of_day_flags = 0xffff;
+			sound_map_data[i].boundaries[j].is_default = 0;
 			sound_map_data[i].boundaries[j].x1 = 0;
 			sound_map_data[i].boundaries[j].y1 = 0;
 			sound_map_data[i].boundaries[j].x2 = 0;
@@ -3344,6 +3398,11 @@ void clear_sound_data()
 			sound_map_data[i].boundaries[j].y3 = 0;
 			sound_map_data[i].boundaries[j].x4 = 0;
 			sound_map_data[i].boundaries[j].y4 = 0;
+		}
+		sound_map_data[i].num_defaults = 0;
+		for (j = 0; j < MAX_MAP_BACKGROUND_DEFAULTS; j++)
+		{
+			sound_map_data[i].defaults[j] = 0;
 		}
 	}
 	for (i = 0; i > MAX_SOUND_EFFECTS; i++)
@@ -3452,11 +3511,11 @@ void init_sound()
 		return;
 	}
 
-#ifdef DEBUG
+#if defined DEBUG && !defined ALUT_WAV
 	// Dump the capabilities of this version of Alut
 	printf("Alut supported Buffer MIME types: %s\n", alutGetMIMETypes(ALUT_LOADER_BUFFER));
 	printf("Alut supported Memory MIME types: %s\n", alutGetMIMETypes(ALUT_LOADER_MEMORY));
-#endif // DEBUG
+#endif // DEBUG && !ALUT_WAV
 	
 	have_sound=1;
 #ifdef	OGG_VORBIS
@@ -3571,10 +3630,20 @@ void parse_sound_object(xmlNode *inNode)
 
 	sound_type *pData = NULL;
 
+	if (num_types >= MAX_BUFFERS)
+	{
+#ifdef ELC
+		LOG_ERROR("Sound config parse error: Maximum number of sounds reached!");
+#else
+		printf("Sound config parse error: Maximum number of sounds reached!");
+#endif
+		return;
+	}
+	
 	pData = &sound_type_data[num_types++];
 
 	sVal = (char *)xmlGetProp(inNode,(xmlChar*)"name");
-	if(!sVal)
+	if (!sVal)
 	{
 	#ifdef ELC
 		LOG_ERROR("Sound config parse error: sound has no name");
@@ -3587,14 +3656,14 @@ void parse_sound_object(xmlNode *inNode)
 		safe_strncpy(pData->name, sVal, sizeof(pData->name));
 		
 		attributeNode = inNode->xmlChildrenNode;
-		while(attributeNode != NULL)
+		while (attributeNode != NULL)
 		{
 			if (attributeNode->type == XML_ELEMENT_NODE)
 			{
 				get_string_value(content, sizeof(content), attributeNode);
-				if(!xmlStrcmp (attributeNode->name, (xmlChar*)"intro_sound"))
+				if (!xmlStrcmp (attributeNode->name, (xmlChar*)"intro_sound"))
 				{
-					if(pData->sample_indices[STAGE_INTRO] < 0)
+					if (pData->sample_indices[STAGE_INTRO] < 0)
 					{
 						pData->sample_indices[STAGE_INTRO] = store_sample_name((char *)content);
 					}
@@ -3607,9 +3676,9 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"main_sound"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"main_sound"))
 				{
-					if(pData->sample_indices[STAGE_MAIN] < 0)
+					if (pData->sample_indices[STAGE_MAIN] < 0)
 					{
 						pData->sample_indices[STAGE_MAIN] = store_sample_name((char *)content);
 					}
@@ -3622,9 +3691,9 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"outro_sound"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"outro_sound"))
 				{
-					if(pData->sample_indices[STAGE_OUTRO] < 0)
+					if (pData->sample_indices[STAGE_OUTRO] < 0)
 					{
 						pData->sample_indices[STAGE_OUTRO] = store_sample_name((char *)content);
 					}
@@ -3637,10 +3706,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"gain"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"gain"))
 				{
 					fVal = (float)atof((char *)content);
-					if(fVal>0.0f)
+					if (fVal > 0.0f)
 						pData->gain = fVal;
 					else
 					{
@@ -3651,10 +3720,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"stereo"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"stereo"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal==0 || iVal ==1)
+					if (iVal == 0 || iVal == 1)
 						pData->stereo = iVal;
 					else
 					{
@@ -3665,10 +3734,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"distance"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"distance"))
 				{
 					fVal = (float)atof((char *)content);
-					if(fVal>0.0f)
+					if (fVal > 0.0f)
 						pData->distance = fVal;
 					else
 					{
@@ -3679,10 +3748,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"positional"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"positional"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal==0 || iVal ==1)
+					if (iVal == 0 || iVal == 1)
 						pData->positional = iVal;
 					else
 					{
@@ -3693,10 +3762,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"loops"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"loops"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal>=0)
+					if (iVal >= 0)
 						pData->loops = iVal;
 					else
 					{
@@ -3707,10 +3776,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"fadeout_time"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"fadeout_time"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal>=0)
+					if (iVal >= 0)
 						pData->fadeout_time = iVal;
 					else
 					{
@@ -3721,10 +3790,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_delay"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_delay"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal>=0)
+					if (iVal >= 0)
 						pData->echo_delay = iVal;
 					else
 					{
@@ -3735,10 +3804,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_volume"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_volume"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal>=0)
+					if (iVal >= 0)
 						pData->echo_volume = iVal;
 					else
 					{
@@ -3749,10 +3818,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"time_of_day_flags"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"time_of_day_flags"))
 				{
-					sscanf((char *)content,"%x",&iVal);
-					if(iVal>=0 && iVal<=0xffff)
+					sscanf((char *)content, "%x", &iVal);
+					if (iVal >= 0 && iVal <= 0xffff)
 						pData->time_of_the_day_flags = iVal;
 					else
 					{
@@ -3763,10 +3832,10 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"priority"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"priority"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal>=0)
+					if(iVal >= 0)
 						pData->priority = iVal;
 					else
 					{
@@ -3777,16 +3846,16 @@ void parse_sound_object(xmlNode *inNode)
 				#endif
 					}
 				}
-				else if(!xmlStrcmp (attributeNode->name, (xmlChar*)"type"))
+				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"type"))
 				{
-					if(!strcasecmp((char *)content, "environmental")) {
+					if (!strcasecmp((char *)content, "environmental")) {
 						iVal = SOUNDS_ENVIRO;
-					} else if(!strcasecmp((char *)content, "actor")) {
+					} else if (!strcasecmp((char *)content, "actor")) {
 						iVal = SOUNDS_ACTOR;
-					} else if(!strcasecmp((char *)content, "walking")) {
+					} else if (!strcasecmp((char *)content, "walking")) {
 						iVal = SOUNDS_WALKING;
 					}
-					if(iVal>=0)
+					if (iVal >= 0)
 						pData->type = iVal;
 					else
 					{
@@ -3856,10 +3925,21 @@ void parse_map_sound(xmlNode *inNode)
 
 	char *sVal = NULL;
 	char content[50];
+	
+	int iVal;
 
 	map_sound_data *pMap = NULL;
 	map_sound_boundary_def *pMapBoundary = NULL;
 
+	if (sound_num_maps >= MAX_SOUND_MAPS)
+	{
+#ifdef ELC
+		LOG_ERROR("Sound config parse error: Maximum number of maps reached!");
+#else
+		printf("Sound config parse error: Maximum number of maps reached!");
+#endif
+		return;
+	}
 	pMap = &sound_map_data[sound_num_maps++];
 
 	sVal = (char *)xmlGetProp(inNode,(xmlChar*)"id");
@@ -3897,7 +3977,7 @@ void parse_map_sound(xmlNode *inNode)
 						for (attributeNode = boundaryNode->children; attributeNode; attributeNode = attributeNode->next)
 						{
 							get_string_value(content, sizeof(content), attributeNode);
-							if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"background"))
+							if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"background"))
 							{
 								// Find the type of background sound for this set of boundaries
 								pMapBoundary->bg_sound = get_index_for_sound_type_name(content);
@@ -3910,35 +3990,80 @@ void parse_map_sound(xmlNode *inNode)
 								#endif
 								}
 							}
-							if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"crowd"))
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"crowd"))
 							{
 								// Find the type of crowd sound for this set of boundaries
 								pMapBoundary->crowd_sound = get_index_for_sound_type_name(content);
 								if (pMapBoundary->crowd_sound == -1)
 								{
 								#ifdef ELC
-									LOG_ERROR("Sound config parse error: sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
+									LOG_ERROR("Sound config parse error: crowd sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
 								#else
-									printf("Sound config parse error: sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
+									printf("Sound config parse error: crowd sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
 								#endif
 								}
 							}
-							if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point1"))
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"time_of_day_flags"))
+							{
+								// Find the type of crowd sound for this set of boundaries
+								sscanf((char *)content, "%x", &iVal);
+								if (iVal >= 0 && iVal <= 0xffff)
+									pMapBoundary->time_of_day_flags = iVal;
+								else
+								{
+								#ifdef ELC
+									LOG_ERROR("Sound config parse error: time_of_day flags (%s) invalid for map boundary in map '%s'",content, pMap->name);
+								#else
+									printf("Sound config parse error: time_of_day flags (%s) invalid for map boundary in map '%s'",content, pMap->name);
+								#endif
+								}
+							}
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"is_default"))
+							{
+								// Find the type of crowd sound for this set of boundaries
+								iVal = atoi(content);
+								if (iVal == 0 || iVal == 1)
+								{
+									pMapBoundary->is_default = iVal;
+									if (pMap->num_defaults < MAX_MAP_BACKGROUND_DEFAULTS)
+									{
+										pMap->num_defaults++;
+										pMap->defaults[pMap->num_defaults] = pMap->num_boundaries;
+									}
+									else
+									{
+									#ifdef ELC
+										LOG_ERROR("Sound config parse error: Maximum defaults reached for map '%s'", pMap->name);
+									#else
+										printf("Sound config parse error: Maximum defaults reached for map '%s'", pMap->name);
+									#endif
+									}
+								}
+								else
+								{
+								#ifdef ELC
+									LOG_ERROR("Sound config parse error: is_default setting (%s) invalid for map boundary in map '%s'", content, pMap->name);
+								#else
+									printf("Sound config parse error: is_default setting (%s) invalid for map boundary in map '%s'", content, pMap->name);
+								#endif
+								}
+							}
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point1"))
 							{
 								// Parse the coordinates
 								store_boundary_coords(content, &pMapBoundary->x1, &pMapBoundary->y1);
 							}
-							if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point2"))
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point2"))
 							{
 								// Parse the coordinates
 								store_boundary_coords(content, &pMapBoundary->x2, &pMapBoundary->y2);
 							}
-							if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point3"))
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point3"))
 							{
 								// Parse the coordinates
 								store_boundary_coords(content, &pMapBoundary->x3, &pMapBoundary->y3);
 							}
-							if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point4"))
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point4"))
 							{
 								// Parse the coordinates
 								store_boundary_coords(content, &pMapBoundary->x4, &pMapBoundary->y4);
@@ -3948,9 +4073,9 @@ void parse_map_sound(xmlNode *inNode)
 					else
 					{
 					#ifdef ELC
-						LOG_ERROR("Sound config parse error: reached max boundaries for map '%s'",pMap->name);
+						LOG_ERROR("Sound config parse error: reached max boundaries for map '%s'", pMap->name);
 					#else
-						printf("Sound config parse error: reached max boundaries for map '%s'",pMap->name);
+						printf("Sound config parse error: reached max boundaries for map '%s'", pMap->name);
 					#endif
 					}
 				}
@@ -3975,6 +4100,15 @@ void parse_effect_sound(xmlNode *inNode)
 
 	if (inNode->type == XML_ELEMENT_NODE)
 	{
+		if (sound_num_effects >= MAX_SOUND_EFFECTS)
+		{
+#ifdef ELC
+			LOG_ERROR("Sound config parse error: Maximum number of effects reached!");
+#else
+			printf("Sound config parse error: Maximum number of effects reached!");
+#endif
+			return;
+		}
 		pEffect = &sound_effect_data[sound_num_effects++];
 	
 		for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)
@@ -4008,6 +4142,15 @@ void parse_particle_sound(xmlNode *inNode)
 
 	if (inNode->type == XML_ELEMENT_NODE)
 	{
+		if (sound_num_particles >= MAX_SOUND_PARTICLES)
+		{
+#ifdef ELC
+			LOG_ERROR("Sound config parse error: Maximum number of particles reached!");
+#else
+			printf("Sound config parse error: Maximum number of particles reached!");
+#endif
+			return;
+		}
 		pParticle = &sound_particle_data[sound_num_particles++];
 	
 		for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)
@@ -4063,6 +4206,15 @@ void parse_background_defaults(xmlNode *inNode)
 	
 	if (inNode->type == XML_ELEMENT_NODE)
 	{
+		if (sound_num_background_defaults >= MAX_BACKGROUND_DEFAULTS)
+		{
+#ifdef ELC
+			LOG_ERROR("Sound config parse error: Maximum number of sounds reached!");
+#else
+			printf("Sound config parse error: Maximum number of sounds reached!");
+#endif
+			return;
+		}
 		pBackgroundDefault = &sound_background_defaults[sound_num_background_defaults++];
 	
 		for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)

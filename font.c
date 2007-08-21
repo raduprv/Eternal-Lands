@@ -637,7 +637,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	   to the caller if they provide somewhere to store it. */
 	float local_max_line_width = 0;
 
-	if (str == NULL) {
+	if (str == NULL || width <= 0) {
 		return 0;
 	}
 
@@ -653,7 +653,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	   size large enough for no character will be lost.  Twice
 	   the actual string length is probably enough */
 	buf = (char *)calloc(size, sizeof(char));
-	
+
 	nlines = 1;
 	isrc = ibuf = idst = 0;
 	line_width = 0;
@@ -703,7 +703,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 				while (nchar > 0)
 				{
 					isrc--;
-					if (str[isrc] != '\r')
+					if (isrc >= 0 && str[isrc] != '\r')
 						nchar--;
 				}
 

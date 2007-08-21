@@ -69,6 +69,20 @@
  #include <GL/glext.h>
 #endif
 
+// Inlucde the plaform specific location sound libs
+#ifdef WINDOWS //lib location platform checking
+	#include <al.h>
+	#include <alc.h>
+	#include <alut.h>
+#elif defined(OSX)
+	#include <alut.h>		//oddity as of Xcode 2.4
+	#include <OpenAL/alc.h>
+#else
+	#include <AL/al.h>
+	#include <AL/alc.h>
+	#include <AL/alut.h>
+#endif //lib location platform checking
+
 #include <math.h>
 #ifndef M_PI
  #define M_PI 3.14159265358979323846
