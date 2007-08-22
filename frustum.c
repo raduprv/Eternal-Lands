@@ -12,8 +12,9 @@
 //																		 //
 //***********************************************************************//
 #include <math.h>
-//#include "SDL_opengl.h"
-#include "global.h"
+#include "frustum.h"
+#include "../elc/bbox_tree.h"
+#include "../elc/platform.h"
 
 struct Sphere
 {
@@ -32,16 +33,6 @@ enum FrustumSide
 	TOP		= 3,		// The TOP side of the frustum
 	BACK	= 4,		// The BACK	side of the frustum
 	FRONT	= 5			// The FRONT side of the frustum
-};
-
-// Like above, instead of saying a number for the ABC and D of the plane, we
-// want to be more descriptive.
-enum PlaneData
-{
-	A = 0,				// The X value of the plane's normal
-	B = 1,				// The Y value of the plane's normal
-	C = 2,				// The Z value of the plane's normal
-	D = 3				// The distance the plane is from the origin
 };
 
 float m_Frustum[8][4];	// only use 6, but mult by 8 is faster

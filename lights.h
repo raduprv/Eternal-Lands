@@ -1,6 +1,8 @@
 #ifndef __LIGHTS_H__
 #define __LIGHTS_H__
 
+#include "../elc/platform.h"
+
 typedef struct
 {
   float pos_x;
