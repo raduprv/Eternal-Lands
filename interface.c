@@ -46,7 +46,6 @@ int right_click;
 int middle_click;
 int left_click;
 
-int login_screen_menus;
 char username_box_selected=1;
 char password_box_selected=0;
 char username_str[20]={0};
@@ -403,16 +402,6 @@ void draw_2d_thing_r(float u_start,float v_start,float u_end,float v_end,int x_s
 
 	glTexCoord2f(u_start,v_end);
 	glVertex3i(x_end,y_end,0);
-}
-
-
-void init_opening_interface()
-{
-	CHECK_GL_ERRORS();
-	login_screen_menus=load_texture_cache("./textures/login_menu.bmp",0);
-	CHECK_GL_ERRORS();
-	login_text=load_texture_cache("./textures/login_back.bmp",255);
-	CHECK_GL_ERRORS();
 }
 
 void add_char_to_username(unsigned char ch)

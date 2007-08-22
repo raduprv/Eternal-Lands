@@ -21,6 +21,9 @@
 
 int login_root_win = -1;
 
+static int login_screen_menus;
+static int login_text;
+
 int username_text_x;
 int username_text_y;
 
@@ -49,6 +52,15 @@ int new_char_y_len = 35;
 
 char log_in_button_selected = 0;
 char new_char_button_selected = 0;
+
+void init_login_screen ()
+{
+	CHECK_GL_ERRORS();
+	login_screen_menus = load_texture_cache ("./textures/login_menu.bmp",0);
+	CHECK_GL_ERRORS();
+	login_text = load_texture_cache ("./textures/login_back.bmp",255);
+	CHECK_GL_ERRORS();
+}
 
 void set_login_error (const char *msg, int len)
 {

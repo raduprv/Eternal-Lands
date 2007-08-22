@@ -88,7 +88,6 @@ int last_texture=-2;
 int cons_text;
 int icons_text;
 
-int login_text;
 int ground_detail_text;
 
 float clouds_movement_u=-8;

@@ -48,8 +48,6 @@ extern int view_names; /*!< indicates whether the names of actors should be disp
 extern int view_hp; /*!< indicates whether the current/max material points of an actor should be displayed or not */
 extern int view_chat_text_as_overtext; /*!< if this is true, then any text an actor is saying will be additionally displayed in a bubble over its head */
 
-extern int login_screen_menus;
-
 extern char username_box_selected; /*!< true, if the cursor is currently in the username input field */
 extern char password_box_selected; /*!< true, if the cursor is currently in the password input field */
 
@@ -60,7 +58,6 @@ extern char display_password_str[20]; /*!< a string that will be displayed when 
 extern int cons_text;
 extern int icons_text;
 extern int hud_text;
-extern int login_text;
 
 /*!
  * A flag for a mode, that show whether a mode is supported and/or selected.
@@ -191,16 +188,6 @@ void build_video_mode_array();
  * \callgraph
  */
 void draw_console_pic(int which_texture);
-
-/*!
- * \ingroup interface_opening
- * \brief   Loads the screen menus and text for the opening interface.
- *
- *      Loads the screen menus and text for the opening interface by calling \ref load_texture_cache with the appropriate bitmaps.
- *
- * \callgraph
- */
-void init_opening_interface();
 
 /*!
  * \ingroup interfaces

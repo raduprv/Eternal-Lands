@@ -859,7 +859,7 @@ void init_stuff()
 	ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	CHECK_GL_ERRORS();
 	create_char_error_str[0]= 0;
-	init_opening_interface();
+	init_login_screen ();
 	make_sigils_list();
 
 #ifdef PAWN

@@ -14,6 +14,16 @@ extern int login_root_win; /*!< ID for the login root window */
 
 /*!
  * \ingroup interface_login
+ * \brief   Loads the textures for the opening interface.
+ *
+ *      Loads the textures for the opening interface by calling \ref load_texture_cache with the appropriate bitmaps.
+ *
+ * \callgraph
+ */
+void init_login_screen ();
+
+/*!
+ * \ingroup interface_login
  * \brief   Sets the error string used when a login error occurs.
  *
  *      Sets the error string used when a login error occurs to be \a msg.
