@@ -21,14 +21,11 @@
 #include "tiles.h"
 #include "weather.h"
 
-char have_display = 0;
+static char have_display = 0;
+
 float camera_x=0;
 float camera_y=0;
 float camera_z=0;
-float old_camera_x=0;
-float old_camera_y=0;
-float old_camera_z=0;
-float c_delta= 0.1f;
 float rx=-60;
 float ry=0;
 float rz=45;
@@ -36,15 +33,6 @@ float terrain_scale=2.0f;
 float zoom_level=3.0f;
 float name_zoom=1.0f;
 #ifdef SKY_FPV_CURSOR
-int cam_turn=0;
-
-//Assists for doing gluProject()
-//Store view and project matrix changes here
-//modl ensures that there's a place to store current model state. 
-//Maybe modl should be removed.
-double project[16], modl[16];
-int view[4];
-
 //First Person Camera mode state
 int first_person = 0;
 #endif /* SKY_FPV_CURSOR */
@@ -97,6 +85,7 @@ Uint32 last_clear_clouds=0;
 GLenum base_unit=GL_TEXTURE0_ARB,detail_unit=GL_TEXTURE1_ARB,shadow_unit=GL_TEXTURE2_ARB,extra_unit=GL_TEXTURE3_ARB,normal_map_unit=GL_TEXTURE4_ARB;
 
 Uint32 draw_delay = 0;
+
 
 void draw_scene()
 {
@@ -330,8 +319,13 @@ void clamp_camera(void)
 int adjust_view;
 #endif /* SKY_FPV_CURSOR */
 
-void update_camera()
+void update_camera ()
 {
+	const float c_delta = 0.1f;
+
+	static float old_camera_x = 0;
+	static float old_camera_y = 0;
+	static float old_camera_z = 0;
 #ifndef SKY_FPV_CURSOR
 	int adjust_view= 0;
 #else /* SKY_FPV_CURSOR */
@@ -438,7 +432,8 @@ void update_camera()
 #endif /* SKY_FPV_CURSOR */
 }
 
-int update_have_display(window_info * win) {
+int update_have_display(window_info * win)
+{
 	// if the calling window is shown, we have a display, else check all 3d windows
 	have_display = (win->displayed || get_show_window(game_root_win) || get_show_window(newchar_root_win));
 	return 0;

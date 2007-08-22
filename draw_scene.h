@@ -18,13 +18,8 @@
 extern "C" {
 #endif
 
-extern char have_display; /*!< Flag indicating whether any window is showing the scene */
-extern float camera_x,camera_y,camera_z;
-extern float old_camera_x,old_camera_y,old_camera_z,c_delta;
+extern float camera_x, camera_y, camera_z;
 extern float rx,ry,rz;
-#ifdef SKY_FPV_CURSOR
-extern int cam_turn;
-#endif /* SKY_FPV_CURSOR */
 extern float camera_rotation_speed; /*!< current speed for rotations of the camera */
 extern int camera_rotation_frames;
 extern float camera_tilt_speed;
@@ -42,8 +37,6 @@ extern float fol_lin;
 extern float fol_quad;
 extern float fol_strn;
 extern int ext_cam;
-extern double project[16], modl[16];
-extern int view[4];
 extern float hold_camera;
 extern int first_person;
 extern int adjust_view;
