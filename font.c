@@ -622,8 +622,8 @@ void print_string_escaped (const char *str)
 int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int *cursor, float *max_line_width)
 {
 	char *buf;
-	unsigned int	ibuf;
-	unsigned int nchar;
+	int ibuf;
+	int nchar;
 	int font_bit_width;
 	int nlines;
 	float line_width;
