@@ -677,7 +677,10 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	sfx_sound = get_sound_index_for_sfx(sfx);
 	if (sfx_sound >= 0)
 	{
-		add_sound_object(sfx_sound, (caster->x_pos - X_OFFSET) * 2, (caster->y_pos - Y_OFFSET) * 2);
+		add_sound_object(sfx_sound,
+						(caster->x_pos - X_OFFSET) * 2,
+						(caster->y_pos - Y_OFFSET) * 2,
+						caster->actor_id == yourself ? 1 : 0);
 	}
 #endif //NEW_SOUND
 	

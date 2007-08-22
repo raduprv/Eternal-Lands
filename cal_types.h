@@ -23,7 +23,7 @@ struct cal_anim
 	float duration_scale;
 #endif
 #ifdef NEW_SOUND
-	char sound[MAX_SOUND_NAME_LENGTH];
+	int sound;
 #endif	//NEW_SOUND
 };
 

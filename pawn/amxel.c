@@ -169,7 +169,7 @@ static cell AMX_NATIVE_CALL n_translate_object (AMX *amx, const cell *params)
 static cell AMX_NATIVE_CALL n_add_sound_object (AMX *amx, const cell *params)
 {
 #ifdef NEW_SOUND
-	add_sound_object (params[1], params[2], params[3]);
+	add_sound_object (params[1], params[2], params[3], 0);
 #else
 	add_sound_object (params[1], params[2], params[3], params[4], params[5]);
 #endif

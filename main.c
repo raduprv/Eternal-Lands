@@ -201,7 +201,8 @@ int start_rendering()
 #endif
 
 #ifdef OGG_VORBIS
-	turn_music_off();	//cleans up and waits for the thread
+//	turn_music_off();	//cleans up and waits for the thread
+	destroy_sound();	//cleans up and waits for the thread
 #endif // OGG_VORBIS
 	unload_questlog();
 	free_icons();

@@ -75,6 +75,7 @@ struct near_actor {
 extern int no_near_actors;
 #ifdef NEW_SOUND
 extern int no_near_enhanced_actors;
+extern float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
 extern struct near_actor near_actors[MAX_ACTORS];
 

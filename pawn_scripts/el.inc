@@ -16,7 +16,7 @@ native add_timer (offset, name[], interval=0);
 native clear_timers ();
 
 #if defined NEW_SOUND
-native add_sound_object (sound_type, x, y);
+native add_sound_object (sound_type, x, y, me=0);
 #else
 native add_sound_object (sound_type, x, y, positional=true, loops=false);
 #endif

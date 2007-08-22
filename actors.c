@@ -49,6 +49,7 @@ void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 int no_near_actors=0;
 #ifdef NEW_SOUND
 int no_near_enhanced_actors = 0;
+float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
 struct near_actor near_actors[MAX_ACTORS];
 
@@ -615,6 +616,10 @@ void get_actors_in_range()
 {
 	float x_pos, y_pos, z_pos;
 	unsigned int i;
+#ifdef NEW_SOUND
+	unsigned int tmp_nr_enh_act;		// Use temp variables to stop crowd sound interference during count
+	float tmp_dist_to_nr_enh_act;
+#endif // NEW_SOUND
 	actor *me;
 	AABBOX bbox;
 	struct CalSkeleton *skel;
@@ -625,7 +630,8 @@ void get_actors_in_range()
 
 	no_near_actors = 0;
 #ifdef NEW_SOUND
-	no_near_enhanced_actors = 0;
+	tmp_nr_enh_act = 0;
+	tmp_dist_to_nr_enh_act = 0;
 #endif // NEW_SOUND
 
 	set_current_frustum(get_cur_intersect_type(main_bbox_tree));
@@ -672,12 +678,24 @@ void get_actors_in_range()
 				}
 				no_near_actors++;
 #ifdef NEW_SOUND
-				if (actors_list[i]->is_enhanced_model)
-					no_near_enhanced_actors++;
+				if (actors_list[i]->is_enhanced_model && actors_list[i]->actor_id != me->actor_id)
+				{
+					tmp_nr_enh_act++;
+					tmp_dist_to_nr_enh_act += ((me->x_pos - actors_list[i]->x_pos) *
+														(me->x_pos - actors_list[i]->x_pos)) +
+														((me->y_pos - actors_list[i]->y_pos) *
+														(me->y_pos - actors_list[i]->y_pos));
+				}
 #endif // NEW_SOUND
 			}
 		}
 	}
+#ifdef NEW_SOUND
+	if (tmp_nr_enh_act > 0)
+		tmp_dist_to_nr_enh_act = tmp_dist_to_nr_enh_act / tmp_nr_enh_act;
+	no_near_enhanced_actors = tmp_nr_enh_act;
+	distanceSq_to_near_enhanced_actors = tmp_dist_to_nr_enh_act;
+#endif // NEW_SOUND
 }
 
 void display_actors(int banner, int reflections)

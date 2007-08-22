@@ -123,10 +123,11 @@ void setup_map_sounds (int map_num);
  * \param sound_type    A handle for the sound type to play
  * \param x             the x coordinate of the position where the sound should be audible.
  * \param y             the y coordinate of the position where the sound should be audible.
+ * \param me			Is this sound from my actor? (bool - 0 or 1)
  * \callgraph
  */
 #ifdef NEW_SOUND
-unsigned int add_sound_object(int sound_type,int x, int y);
+unsigned int add_sound_object(int sound_type,int x, int y, int me);
 #else
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 #endif	//NEW_SOUND

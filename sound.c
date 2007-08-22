@@ -2268,7 +2268,7 @@ int update_streams(void *dummy)
 					gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain;
 					process_stream(&sound_fx_stream, gain, &sleep, &sound_fade, tx, ty, old_tx, old_ty);
 				}
-				else if (tx != old_tx || ty != old_ty)
+				else
 				{
 #ifdef _EXTRA_SOUND_DEBUG
 					printf("update_streams - Not playing stream. Checking for background sound. Pos: %d, %d\n", tx, ty);
@@ -2280,6 +2280,7 @@ int update_streams(void *dummy)
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("update_streams - No background found, checking for defaults for this map\n");
 #endif //_EXTRA_SOUND_DEBUG
+						// Check for a map based default background sound
 						cur_map = &sound_map_data[snd_cur_map];
 						if (cur_map->num_defaults > 0)
 						{
@@ -2299,7 +2300,8 @@ int update_streams(void *dummy)
 								}
 							}
 						}
-						else if (sound_num_background_defaults > 0)
+						// We still aren't playing a sound, so check for a global default
+						if (!sound_fx_stream.playing && sound_num_background_defaults > 0)
 						{
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("update_streams - No map defaults found, checking for global defaults\n");
@@ -2325,10 +2327,17 @@ int update_streams(void *dummy)
 			}
 			if (have_sound && sound_opts > SOUNDS_NONE)
 			{
+				float temp;
+				if (distanceSq_to_near_enhanced_actors == 0)
+					distanceSq_to_near_enhanced_actors = 100.0f;	// Due to no actors when calc'ing
+				temp = sqrt(sqrt(no_near_enhanced_actors)) / sqrt(distanceSq_to_near_enhanced_actors) * 2;
+				gain = sound_gain * temp * sound_type_data[sound_fx_stream.sound].gain;
 				// Process the crowd effects stream
 				if (crowd_stream.playing)
 				{
-					gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain * (no_near_enhanced_actors / 5);
+#ifdef _EXTRA_SOUND_DEBUG
+//					printf("update_streams - Playing crowd stream. Gain: %f, Actors: %d, Distance: %f, Test: %f\n", gain, no_near_enhanced_actors, sqrt(distanceSq_to_near_enhanced_actors), temp);
+#endif //_EXTRA_SOUND_DEBUG
 					process_stream(&crowd_stream, gain, &sleep, &crowd_fade, tx, ty, old_tx, old_ty);
 				}
 				else
@@ -2342,6 +2351,7 @@ int update_streams(void *dummy)
 						// Check if we need a default crowd sound
 						if (!crowd_stream.playing)
 						{
+							// Check for a map based default crowd sound
 							cur_map = &sound_map_data[snd_cur_map];
 							if (cur_map->num_defaults > 0)
 							{
@@ -2360,12 +2370,13 @@ int update_streams(void *dummy)
 									}
 								}
 							}
-							else if (crowd_default > -1)
+							// If we still aren't playing a crowd sound, check for a global default
+							if (!crowd_stream.playing && crowd_default > -1)
 							{
 #ifdef _EXTRA_SOUND_DEBUG
 								printf("update_stream - Playing default crowd sound: %d\n", crowd_default);
 #endif //_EXTRA_SOUND_DEBUG
-								gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain * (no_near_enhanced_actors / 5);
+//								gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain * (no_near_enhanced_actors / 5);
 								play_stream(crowd_default, &crowd_stream, gain);
 								crowd_stream.is_default = 1;
 							}
@@ -2600,7 +2611,7 @@ unsigned int add_server_sound(int type, int x, int y)
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Adding server sound: %d\n", type);
 #endif //_EXTRA_SOUND_DEBUG
-		return add_sound_object(snd, x, y);
+		return add_sound_object(snd, x, y, 0);
 	}
 	else
 	{
@@ -2609,7 +2620,7 @@ unsigned int add_server_sound(int type, int x, int y)
 	}
 }
 
-unsigned int add_sound_object(int type, int x, int y)
+unsigned int add_sound_object(int type, int x, int y, int me)
 {
 	int i, loops, error, tx, ty, distanceSq, source = -1;
 	source_data *pSource;

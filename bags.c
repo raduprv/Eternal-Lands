@@ -78,7 +78,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 		snd = get_sound_index_for_particle_file_name("./particles/bag_in.part");
 		if (snd >= 0)
 		{
-			add_sound_object (snd, bag_x, bag_y);
+			add_sound_object (snd, bag_x, bag_y, 0);
 		}
 	}
 #endif // NEW_SOUND
@@ -185,7 +185,7 @@ void remove_bag(int which_bag)
 		snd = get_sound_index_for_particle_file_name("./particles/bag_out.part");
 		if (snd >= 0)
 		{
-			add_sound_object (snd, bag_list[which_bag].x, bag_list[which_bag].y);
+			add_sound_object (snd, bag_list[which_bag].x, bag_list[which_bag].y, 0);
 		}
 	}
 #endif // NEW_SOUND

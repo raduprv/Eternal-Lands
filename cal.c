@@ -103,12 +103,13 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 #ifdef NEW_SOUND
 	//make sure any previous sound is stopped...
 	stop_sound(pActor->cur_anim_sound_cookie);
-	if(anim.sound[0] != '\0')
+	if(anim.sound > -1)
 	{
 		//...and add a new sound if one exists
-		pActor->cur_anim_sound_cookie = add_sound_object(	get_index_for_sound_type_name(anim.sound),
+		pActor->cur_anim_sound_cookie = add_sound_object(	anim.sound,
 															2*pActor->x_pos,
-															2*pActor->y_pos);
+															2*pActor->y_pos,
+															pActor->actor_id == yourself ? 1 : 0);
 	}
 #endif
 }
@@ -123,11 +124,11 @@ void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound)
 {
 	if(sound)
 	{
-		safe_strncpy(my_cal_anim->sound, sound, sizeof(my_cal_anim->sound));
+		my_cal_anim->sound = get_index_for_sound_type_name(sound);
 	}
 	else
 	{
-		my_cal_anim->sound[0]='\0';
+		my_cal_anim->sound = -1;
 	}
 }
 #endif // NEW_SOUND
@@ -152,7 +153,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	,0.0f
 #endif
 #ifdef NEW_SOUND
-	,{0}
+	,{-1}
 #endif  //NEW_SOUND
 	};
 	struct CalCoreAnimation *coreanim;
@@ -166,10 +167,12 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 #ifdef NEW_SOUND
 	if(sound)
 	{
-		safe_strncpy(res.sound,sound, sizeof(res.sound));
+		res.sound = get_index_for_sound_type_name(sound);
 	}
 	else
-		res.sound[0]='\0';
+	{
+		res.sound = -1;
+	}
 #endif	//NEW_SOUND
 
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,fname);
