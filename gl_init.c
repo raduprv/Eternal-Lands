@@ -1109,7 +1109,7 @@ void set_new_video_mode(int fs,int mode)
 #endif
 	
 	//it is dependent on the window height...
-	init_hud_interface(2);//Last interface
+	init_hud_interface (HUD_INTERFACE_LAST);
 	new_minute();
 
 	set_all_intersect_update_needed(main_bbox_tree);

@@ -432,7 +432,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 
 
 int show_newchar_handler (window_info *win) {
-	init_hud_interface(0);
+	init_hud_interface (HUD_INTERFACE_NEW_CHAR);
 	show_hud_windows();
 	
 	return 1;

@@ -27,26 +27,33 @@ typedef struct
 {
 	int state; /*!< the state of the icon, some icons are toggable */
 	/*!
-     * \name icon image position
-     */
-    /*! @{ */
+	 * \name icon image position
+	 */
+	/*! @{ */
 	float u[2];
 	float v[2];
-    /*! @} */
-    
+	/*! @} */
+
 	char * help_message; /*!< icon help message */
     
-    /*!
-     * \name Function pointer and data
-     */
-    /*! @{ */
+	/*!
+	 * \name Function pointer and data
+	 */
+	/*! @{ */
 	int (*func)(void*, int);
 	void * data;
-    /*! @} */
-    
+	/*! @} */
+
 	char data_type; /*!< data type indicator for \a data */
 	char free_data; /*!< inidicator whether to free the data after use or not */
 } icon_struct;
+
+typedef enum
+{
+	HUD_INTERFACE_NEW_CHAR, /*!< the interface for the character creation screen */
+	HUD_INTERFACE_GAME,     /*!< the interface for the game */
+	HUD_INTERFACE_LAST      /*!< the last interface used */
+} hud_interface;
 
 extern int qb_action_mode; /*!< flag indicating whether we are in quickbar action mode or not */
 
@@ -92,7 +99,7 @@ extern int quickbar_draggable;
  * \param	type Whether it's for the game window or the new character window
  * \callgraph
  */
-void init_hud_interface(int type);
+void init_hud_interface (hud_interface type);
 
 /*!
  * \ingroup other

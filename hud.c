@@ -107,23 +107,31 @@ int show_stats_in_hud=0;
 int show_statbars_in_hud=0;
 
 // initialize anything related to the hud
-void init_hud_interface(int type)
+void init_hud_interface (hud_interface type)
 {
-	static int last_interface=0;
-	if(type==2)type=last_interface;
-	init_hud_frame();
-	init_misc_display();
-	if(type==0){
-		free_icons();
-		init_newchar_icons();
-	} else {
-		free_icons();
-		init_peace_icons();
-		init_stats_display();
-		init_quickbar();
-		init_quickspell();
+	static hud_interface last_interface = HUD_INTERFACE_NEW_CHAR;
+
+	if (type == HUD_INTERFACE_LAST)
+		type = last_interface;
+
+	init_hud_frame ();
+	init_misc_display ();
+
+	if (type == HUD_INTERFACE_NEW_CHAR)
+	{
+		free_icons ();
+		init_newchar_icons ();
 	}
-	last_interface=type;
+	else
+	{
+		free_icons ();
+		init_peace_icons ();
+		init_stats_display ();
+		init_quickbar ();
+		init_quickspell ();
+	}
+
+	last_interface = type;
 }
 
 void show_hud_windows ()

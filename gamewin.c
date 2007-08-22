@@ -2115,7 +2115,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 
 int show_game_handler (window_info *win) {
 	text_field *tf = input_widget->widget_info;
-	init_hud_interface(1);
+	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
 
 	if (use_windowed_chat == 2) {
