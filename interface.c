@@ -486,11 +486,11 @@ int show_continent_map_boundaries = 1;
 GLuint legend_text=0;
 int cur_map;  //Is there a better way to do this?
 
-const char* cont_map_file_names[] = {
+static const char* cont_map_file_names[] = {
 	"./maps/seridia.bmp",
 	"./maps/irilion.bmp"
 };
-const int nr_continents = sizeof (cont_map_file_names) / sizeof (const char *);
+static const int nr_continents = sizeof (cont_map_file_names) / sizeof (const char *);
 struct draw_map *continent_maps = NULL;
 
 void read_mapinfo ()

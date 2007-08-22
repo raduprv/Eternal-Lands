@@ -91,8 +91,6 @@ struct draw_map
 extern int cur_map; /*!< id of the map we are currently on */
 extern GLuint legend_text;
 
-extern const char* cont_map_file_names[];
-extern const int nr_continents;
 extern struct draw_map *continent_maps; /*!< global array of maps for the continents */
 
 #ifdef CLICKABLE_CONTINENT_MAP
