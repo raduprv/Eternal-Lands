@@ -153,7 +153,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	,0.0f
 #endif
 #ifdef NEW_SOUND
-	,{-1}
+	,-1
 #endif  //NEW_SOUND
 	};
 	struct CalCoreAnimation *coreanim;

@@ -24,6 +24,9 @@ typedef struct
 	int is_resource; /*!< does it appear on the manufacturing menu? */
 	int use_with_inventory;
 	int is_stackable;
+#ifdef NEW_SOUND
+	int action;			/*!< action being done on this item, for playing sounds on server result */
+#endif // NEW_SOUND
 	Uint32 cooldown_time; /*!< time when cooldown shall reach zero */
 	Uint32 cooldown_rate; /*!< time that the item would need to cool down from full heat */
 } item;
@@ -63,6 +66,9 @@ struct quantities {
 #define	ITEM_WEAR_START	36
 #define	ITEM_NUM_WEAR	8
 #define	ITEM_NUM_ITEMS	(ITEM_WEAR_START+ITEM_NUM_WEAR)
+#ifdef NEW_SOUND
+#define ITEM_NO_ACTION -1
+#endif // NEW_SOUND
 /*! @} */
 
 extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */

@@ -253,6 +253,17 @@ int get_sound_index_for_sfx(int sfx);
 
 /*!
  * \ingroup sound_effects
+ * \brief Gets the index of the sound for the string
+ *
+ *      Searches for a sound which matches the item image_id's passed in the input string. A return of -1 indicates no match.
+ *
+ * \param name		    The string to parse for item image_id's
+ * \callgraph
+ */
+int get_index_for_inv_item_sound_name(const char *name);
+
+/*!
+ * \ingroup sound_effects
  * \brief Gets the index of the sound source for the given cookie.
  *
  *      Searches for a sound source which matches the cookie \a cookie. A return of -1 indicates no match.

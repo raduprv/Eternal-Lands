@@ -10,6 +10,9 @@
 #include "items.h"
 #include "misc.h"
 #include "multiplayer.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 #include "textures.h"
 #include "translate.h"
 #include "widgets.h"
@@ -330,6 +333,10 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 
 					my_tcp_send(my_socket, str, 6);
 	
+#ifdef NEW_SOUND
+					add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
+					
 					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
 				} else if(right_click){
 					storage_item_dragged=-1;
@@ -348,6 +355,9 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 				} else if(cur_item_over!=-1){
 					storage_item_dragged=cur_item_over;
 					active_storage_item=storage_items[cur_item_over].pos;
+#ifdef NEW_SOUND
+					add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 				}
 			}
 		}

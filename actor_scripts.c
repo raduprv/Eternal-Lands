@@ -1969,7 +1969,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	,0.0f
 #endif
 #ifdef NEW_SOUND
-	,{0}
+	,-1
 #endif  //NEW_SOUND
 	};
 	struct CalCoreAnimation *coreanim;
@@ -2598,30 +2598,55 @@ int parse_actor_script (xmlNode *cfg)
 	}
 
 	act->cal_walk_frame.anim_index= -1;
+	act->cal_walk_frame.sound= -1;
 	act->cal_run_frame.anim_index= -1;
+	act->cal_run_frame.sound= -1;
 	act->cal_die1_frame.anim_index= -1;
+	act->cal_die1_frame.sound= -1;
 	act->cal_die2_frame.anim_index= -1;
+	act->cal_die2_frame.sound= -1;
 	act->cal_pain1_frame.anim_index= -1;
+	act->cal_pain1_frame.sound= -1;
 	act->cal_pain2_frame.anim_index= -1;
+	act->cal_pain2_frame.sound= -1;
 	act->cal_pick_frame.anim_index= -1;
+	act->cal_pick_frame.sound= -1;
 	act->cal_drop_frame.anim_index= -1;
+	act->cal_drop_frame.sound= -1;
 	act->cal_idle1_frame.anim_index= -1;
+	act->cal_idle1_frame.sound= -1;
 	act->cal_idle2_frame.anim_index= -1;
+	act->cal_idle2_frame.sound= -1;
 	act->cal_idle_sit_frame.anim_index= -1;
+	act->cal_idle_sit_frame.sound= -1;
 	act->cal_harvest_frame.anim_index= -1;
+	act->cal_harvest_frame.sound= -1;
 	act->cal_attack_cast_frame.anim_index= -1;
+	act->cal_attack_cast_frame.sound= -1;
 	act->cal_attack_ranged_frame.anim_index= -1;
+	act->cal_attack_ranged_frame.sound= -1;
 	act->cal_sit_down_frame.anim_index= -1;
+	act->cal_sit_down_frame.sound= -1;
 	act->cal_stand_up_frame.anim_index= -1;
+	act->cal_stand_up_frame.sound= -1;
 	act->cal_in_combat_frame.anim_index= -1;
+	act->cal_in_combat_frame.sound= -1;
 	act->cal_out_combat_frame.anim_index= -1;
+	act->cal_out_combat_frame.sound= -1;
 	act->cal_combat_idle_frame.anim_index= -1;
+	act->cal_combat_idle_frame.sound= -1;
 	act->cal_attack_up_1_frame.anim_index= -1;
+	act->cal_attack_up_1_frame.sound= -1;
 	act->cal_attack_up_2_frame.anim_index= -1;
+	act->cal_attack_up_2_frame.sound= -1;
 	act->cal_attack_up_3_frame.anim_index= -1;
+	act->cal_attack_up_3_frame.sound= -1;
 	act->cal_attack_up_4_frame.anim_index= -1;
+	act->cal_attack_up_4_frame.sound= -1;
 	act->cal_attack_down_1_frame.anim_index= -1;
+	act->cal_attack_down_1_frame.sound= -1;
 	act->cal_attack_down_2_frame.anim_index= -1;
+	act->cal_attack_down_2_frame.sound= -1;
 
 	for (i=0; i<80; ++i){
 		act->weapon[i].cal_attack_up_1_frame.anim_index=-1;

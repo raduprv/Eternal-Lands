@@ -3300,6 +3300,20 @@ int get_sound_index_for_sfx(int sfx)
 	return -1;
 }
 
+int get_index_for_inv_item_sound_name(const char *name)
+{
+	int i;
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Searching for the sound for: %s\n", name);
+#endif //_EXTRA_SOUND_DEBUG
+	for(i = 0; i < num_types; ++i)
+	{
+		if (strcasecmp(sound_type_data[i].name,name) == 0)
+			return i;
+	}
+	return -1;
+}
+
 //find the index of the source associated with this cookie.
 //note that this result must not be stored, but used immediately;
 int find_sound_source_from_cookie(unsigned int cookie)
