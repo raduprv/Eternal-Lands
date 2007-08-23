@@ -567,14 +567,21 @@ void add_spell_to_quickbar()
 		}
 	}
 	
-	if(mqb_data[6]) {
-		free(mqb_data[6]);
+	for (i = 1; i < 7; i++)
+	{
+		if (mqb_data[i] == NULL)
+		{
+			// Free slot
+			mqb_data[i] = calloc(1, sizeof (mqbdata));
+			break;
+		}
 	}
-			
-	for(i=1; i<7 && mqb_data[i] != NULL; ++i);
+
+	if (i >= 7)
+		// No free slot, overwrite the last entry
+		i = 6;
 	
-	mqb_data[i]=(mqbdata*)calloc(1,sizeof(mqbdata));
-	memcpy(mqb_data[i], mqb_data[0], sizeof(mqbdata));
+	memcpy (mqb_data[i], mqb_data[0], sizeof (mqbdata));
 	save_quickspells();
 }
 
