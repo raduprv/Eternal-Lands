@@ -117,56 +117,7 @@ char lang[10]={"en"};
 
 int video_mode_set=0;
 
-typedef struct{
-	int id;
-	char *fn;
-}e3d_list;
-
-e3d_list *e3dlist=NULL;
-int e3dlistsize=0;
-
 void read_command_line(); //from main.c
-
-void unload_e3d_list()
-{
-	int i;
-	for(i=0;i<e3dlistsize;i++)
-		free(e3dlist[i].fn);
-	free(e3dlist);
-}
-
-void load_e3d_list()
-{
-	FILE *fp;
-	int i=0;
-
-#ifndef NEW_FILE_IO
-	fp=my_fopen("e3dlist.txt","r");
-	if(!fp){
-#else /* NEW_FILE_IO */
-	fp=open_file_data("e3dlist.txt","r");
-	if(fp == NULL){
-#endif /* NEW_FILE_IO */
-		LOG_ERROR("Failure trying to read e3dlist.txt");
-		SDL_Quit();
-		exit(1);
-	}
-
-	fscanf(fp,"%d",&e3dlistsize);
-	e3dlist=(e3d_list*)malloc(sizeof(e3d_list)*e3dlistsize);
-
-	for(i=0;i<e3dlistsize;i++){
-		char temp[256];
-		int id, len;
-		fscanf(fp,"%255s %d",temp,&id);
-		len = strlen(temp) + 1;
-		e3dlist[i].fn=(char*)malloc(len);
-		safe_snprintf(e3dlist[i].fn, len, "%s", temp);
-		e3dlist[i].id=id;
-	}
-	fclose(fp);
-	return;
-}
 
 void load_harvestable_list()
 {
@@ -761,7 +712,6 @@ void init_stuff()
 	load_filters();
 	update_loading_win(load_lists_str, 2);
 	load_harvestable_list();
-	load_e3d_list();
 	load_entrable_list();
 	load_knowledge_list();
 	update_loading_win(load_cursors_str, 5);

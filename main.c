@@ -215,7 +215,6 @@ int start_rendering()
 	cleanup_counters();
 #endif //COUNTERS
 	cleanup_chan_names();
-	unload_e3d_list();	// do we really want to overwrite this file??
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);
 	end_particles ();

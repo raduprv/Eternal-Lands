@@ -229,15 +229,6 @@ void save_bin_cfg();
  */
 void init_stuff();
 
-/*!
- * \ingroup load
- * \brief   Frees the memory used by \ref e3dlist.
- *
- *      Frees the memory used by \ref e3dlist
- *
- */
-void unload_e3d_list();
-
 #ifdef __cplusplus
 } // extern "C"
 #endif
