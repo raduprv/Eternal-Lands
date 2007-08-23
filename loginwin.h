@@ -28,11 +28,12 @@ void init_login_screen ();
  *
  *      Sets the error string used when a login error occurs to be \a msg.
  *
- * \param msg   the message for the login error
- * \param len   the length of \a msg
+ * \param msg       the message for the login error
+ * \param len       the length of \a msg
+ * \param print_err if non-zero, prefix the message with an error string
  * \callgraph
  */
-void set_login_error (const char *msg, int len);
+void set_login_error (const char *msg, int len, int print_err);
 
 /*!
  * \ingroup interface_login

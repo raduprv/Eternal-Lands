@@ -133,6 +133,7 @@ int dec(my_enum * def, int val, int no_steps)
 
 //New char interface
 
+static char create_char_error_str[520] = {0};
 int display_time=0;
 	
 struct input_text {
@@ -157,13 +158,8 @@ void set_create_char_error (const char *msg, int len)
 	}
 	else
 	{
-		int prelen = strlen (reg_error_str) + 2;
-		int maxlen = sizeof (create_char_error_str) - prelen - 1;
-
-		if (len > maxlen) len = maxlen;
-		safe_snprintf (create_char_error_str, sizeof(create_char_error_str), "%s: %.*s", reg_error_str, len, msg);
-		create_char_error_str[len+prelen] = '\0';
-		reset_soft_breaks (create_char_error_str, len+prelen, sizeof (create_char_error_str), 1.0, window_width - 20, NULL, NULL);
+		safe_snprintf (create_char_error_str, sizeof (create_char_error_str), "%s: %.*s", reg_error_str, len, msg);
+		reset_soft_breaks (create_char_error_str, strlen (create_char_error_str), sizeof (create_char_error_str), 1.0, window_width - 20, NULL, NULL);
 	}
 
 	LOG_TO_CONSOLE(c_red1, create_char_error_str);
@@ -543,6 +539,8 @@ void create_character()
 
 	if(are_you_sure){
 		creating_char=0;
+		// Clear the error message, if necessary
+		create_char_error_str[0] = '\0';
 		send_new_char(inputs[0].str, inputs[1].str, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head, our_actor.race);
 	} else {
 		are_you_sure=1;

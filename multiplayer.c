@@ -387,11 +387,11 @@ void send_login_info()
 
 	len= strlen(username_str);
 	//check for the username length
-	if(len<3)
-		{
-			safe_snprintf(log_in_error_str, sizeof(log_in_error_str), "%s: %s",reg_error_str,error_username_length);
-			return;
-		}
+	if (len < 3)
+	{
+		set_login_error (error_username_length, strlen (error_username_length), 1);
+		return;
+	}
 
 	//join the username and password, and send them to the server
 	str[0]= LOG_IN;
@@ -440,7 +440,6 @@ void send_new_char(char * user_str, char * pass_str, char skin, char hair, char 
 	if(my_tcp_send(my_socket,str,len)<len) {
 		//we got a nasty error, log it
 	}
-	create_char_error_str[0]= 0;//no error
 	my_tcp_flush(my_socket);    // make sure tcp output buffer is empty
 }
 
@@ -872,19 +871,19 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged LOG_IN_NOT_OK packet received.\n");
 				  break;
 				}
-				set_login_error ((char*)&in_data[3], data_length - 3);
+				set_login_error ((char*)&in_data[3], data_length - 3, 1);
 			}
 			break;
 
 		case REDEFINE_YOUR_COLORS:
 			{
-				safe_strncpy(log_in_error_str, redefine_your_colours, sizeof(log_in_error_str));
+				set_login_error (redefine_your_colours, strlen (redefine_your_colours), 0);
 			}
 			break;
 
 		case YOU_DONT_EXIST:
 			{
-				safe_snprintf(log_in_error_str, sizeof(log_in_error_str), "%s: %s",reg_error_str,char_dont_exist);
+				set_login_error (char_dont_exist, strlen (char_dont_exist), 1);
 			}
 			break;
 

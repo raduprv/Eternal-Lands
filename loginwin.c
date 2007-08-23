@@ -24,6 +24,8 @@ int login_root_win = -1;
 static int login_screen_menus;
 static int login_text;
 
+static char log_in_error_str[520] = {0};
+
 int username_text_x;
 int username_text_y;
 
@@ -62,27 +64,26 @@ void init_login_screen ()
 	CHECK_GL_ERRORS();
 }
 
-void set_login_error (const char *msg, int len)
+void set_login_error (const char *msg, int len, int print_err)
 {
 #ifdef NEW_SOUND
 	int snd;
 #endif // NEW_SOUND
 	if (len <= 0)
 	{
-			// server didn't send a message, use the default
-			safe_snprintf (log_in_error_str, sizeof(log_in_error_str), "%s: %s", reg_error_str, invalid_pass);
+		// server didn't send a message, use the default
+		safe_snprintf (log_in_error_str, sizeof(log_in_error_str), "%s: %s", reg_error_str, invalid_pass);
+	}
+	else if (print_err)
+	{
+		safe_snprintf (log_in_error_str, sizeof (log_in_error_str), "%s: %.*s", reg_error_str, len, msg);
 	}
 	else
 	{
-			int prelen = strlen (reg_error_str) + 2;
-			int maxlen = sizeof (log_in_error_str) - prelen - 1;
-
-			if (len > maxlen) len = maxlen;
-			safe_snprintf (log_in_error_str, sizeof(log_in_error_str), "%s: ", reg_error_str);
-			strncat (log_in_error_str, msg, len);
-			log_in_error_str[len+prelen] = '\0';
-			reset_soft_breaks (log_in_error_str, len+prelen, sizeof (log_in_error_str), 1.0, window_width, NULL, NULL);
+		safe_strncpy2 (log_in_error_str, msg, sizeof (log_in_error_str), len);
 	}
+	reset_soft_breaks (log_in_error_str, strlen (log_in_error_str), sizeof (log_in_error_str), 1.0, window_width, NULL, NULL);
+
 #ifdef NEW_SOUND
 	if ((snd = get_index_for_sound_type_name("Login Error")) > -1)
 		add_sound_object(snd, 0, 0, 0);
@@ -252,7 +253,7 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 	// check to see if we clicked on the ACTIVE Log In button
 	if (log_in_button_selected)
 	{
-		strcpy(log_in_error_str, "");
+		log_in_error_str[0] = '\0';
 		send_login_info ();
 	}
 	//check to see if we clicked on the ACTIVE New Char button
@@ -287,7 +288,7 @@ int keypress_login_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 	}	
 	else if (ch == SDLK_RETURN && username_str[0] && password_str[0])
 	{
-		strcpy(log_in_error_str, "");
+		log_in_error_str[0] = '\0';
 		send_login_info();
 	}
 	else if (ch == SDLK_TAB)

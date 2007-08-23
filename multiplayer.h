@@ -13,9 +13,6 @@ extern "C" {
 #endif
 
 
-extern char create_char_error_str[520]; /*!< buffer for messages that came from errors during the creation of a new character */
-extern char log_in_error_str[520]; /*!< buffer for messagees that came from errors during login */
-
 extern int port; /*!< the server port we use */
 extern unsigned char server_address[60]; /*!< the server address we use */
 
