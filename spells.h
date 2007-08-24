@@ -52,7 +52,6 @@ extern int quickspell_y;
 extern int sigil_menu_x;
 extern int sigil_menu_y;
 
-extern int sigils_text; /*!< an index for the sigils text */
 extern Uint8 spell_text[256]; /*!< buffer for the spell text */
 
 extern int have_error_message; /*!< flag that indicates whether we got an error message */
@@ -70,12 +69,12 @@ void repeat_spell();
 
 /*!
  * \ingroup other
- * \brief Initializes the sigil_list global variable.
+ * \brief Initializes variables used in magic.
  *
- *      Initializes and sets up the global variable sigil_list to its initial state.
+ *      Initializes and sets up the sigils list and other variables used in spell casting.
  *
  */
-void make_sigils_list();
+void init_spells ();
 
 /*!
  * \ingroup spells_window

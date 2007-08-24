@@ -613,7 +613,7 @@ group_id * titles_str;
 
 void init_console(void);
 void init_help(void);
-void init_spells(void);
+void init_spell_translatables ();
 void init_stats(void);
 void init_titles(void);
 void init_errors(void);
@@ -729,7 +729,7 @@ void init_translatables()
 #ifdef ELC
 	init_console();
 	init_help();
-	init_spells();
+	init_spell_translatables ();
 	init_stats();
 	init_titles();
 #endif
@@ -1195,7 +1195,7 @@ void init_help()
 #endif
 
 #ifdef ELC
-void init_spells()
+void init_spell_translatables ()
 {
 	//Sigils
 	add_xml_distringid(sigils_str,"change",&sig_change,"Change","");

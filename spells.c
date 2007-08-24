@@ -44,7 +44,7 @@ int sigil_menu_y=20;
 int sigil_menu_x_len=NUM_SIGILS_LINE*33+20;
 int sigil_menu_y_len=(3+NUM_SIGILS_ROW)*33;
 
-int sigils_text;
+static int sigils_text;
 Uint8 spell_text[256];
 int sigils_we_have;
 int have_error_message=0;
@@ -77,11 +77,14 @@ void repeat_spell()
 	}
 }
 
-void make_sigils_list()
+void init_spells ()
 {
 	int i;
 
-	for(i=0;i<SIGILS_NO;i++)sigils_list[i].have_sigil=0;
+	sigils_text = load_texture_cache ("./textures/sigils.bmp", 0);
+
+	for (i = 0; i < SIGILS_NO; i++)
+		sigils_list[i].have_sigil = 0;
 
 	spell_text[0]=0;
 	i=0;

@@ -693,7 +693,7 @@ extern char	win_notepad[20],
  *
  * \sa	init_console
  * \sa	init_help
- * \sa	init_spells
+ * \sa	init_spell_translatables
  * \sa	init_stats
  * \sa	init_errors
  * \callgraph

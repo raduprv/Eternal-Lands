@@ -790,7 +790,6 @@ void init_stuff()
 	}
 	update_loading_win(NULL, 5);
 
-	sigils_text= load_texture_cache("./textures/sigils.bmp",0);
 #ifdef SKY_FPV_CURSOR
 
 	disable_compression();
@@ -809,7 +808,7 @@ void init_stuff()
 	ground_detail_text=load_texture_cache("./textures/ground_detail.bmp",255);
 	CHECK_GL_ERRORS();
 	init_login_screen ();
-	make_sigils_list();
+	init_spells ();
 
 #ifdef PAWN
 	update_loading_win (init_pawn_str, 0);
