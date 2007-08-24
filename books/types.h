@@ -7,6 +7,8 @@
 #ifndef __BOOKS_TYPES_H__
 #define __BOOKS_TYPES_H__
 
+#ifdef ENCYCLOPEDIA
+
 /*! \name the xml elements */
 typedef enum { BPE_NONE, BPE_BOOK, BPE_PAGE, BPE_REF, BPE_BLOCK, BPE_IMAGE, 
 		BPE_TABLE, BPE_CAPTION, BPE_TR, BPE_TC, BPE_LABEL, BPE_TD, BPE_INLINE, 
