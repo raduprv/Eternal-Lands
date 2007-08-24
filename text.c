@@ -47,7 +47,6 @@ char last_pm_from[32];
 
 Uint32 last_server_message_time;
 int lines_to_show=0;
-int max_lines_no=10;
 
 char not_from_the_end_console=0;
 
