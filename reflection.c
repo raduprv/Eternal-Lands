@@ -14,6 +14,9 @@
 #include "textures.h"
 #include "tiles.h"
 #include "weather.h"
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif
 #ifdef	USE_SHADER
 #include "shadows.h"
 #include "shader/shader.h"
@@ -110,8 +113,12 @@ void init_water_buffers(int water_buffer_size)
 
 static __inline__ void build_water_buffer()
 {
-	unsigned int i, j, l, start, stop;
+	unsigned int i, j, l, x, y, start, stop;
 	float x_scaled,y_scaled;
+#ifdef CLUSTER_INSIDES
+	short cluster = get_actor_cluster ();
+	short tile_cluster;
+#endif
 
 	if (get_bbox_intersect_flag(main_bbox_tree, TYPE_REFLECTIV_WATER, ide_changed) ||
 		get_bbox_intersect_flag(main_bbox_tree, TYPE_NO_REFLECTIV_WATER, ide_changed))
@@ -131,8 +138,17 @@ static __inline__ void build_water_buffer()
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-		x_scaled = get_terrain_x(l) * 3.0f;
-		y_scaled = get_terrain_y(l) * 3.0f;
+		x = get_terrain_x (l);
+		y = get_terrain_y (l);
+
+#ifdef CLUSTER_INSIDES
+		tile_cluster = get_cluster (6*x, 6*y);
+		if (tile_cluster && tile_cluster != cluster)
+			continue;
+#endif
+
+		x_scaled = x * 3.0f;
+		y_scaled = y * 3.0f;
 
 		water_tile_buffer[j * 8 + 0] = x_scaled;
 		water_tile_buffer[j * 8 + 1] = y_scaled;
@@ -152,8 +168,17 @@ static __inline__ void build_water_buffer()
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-		x_scaled = get_terrain_x(l) * 3.0f;
-		y_scaled = get_terrain_y(l) * 3.0f;
+		x = get_terrain_x (l);
+		y = get_terrain_y (l);
+
+#ifdef CLUSTER_INSIDES
+		tile_cluster = get_cluster (6*x, 6*y);
+		if (tile_cluster && tile_cluster != cluster)
+			continue;
+#endif
+
+		x_scaled = x * 3.0f;
+		y_scaled = y * 3.0f;
 
 		water_tile_buffer[j * 8 + 0] = x_scaled;
 		water_tile_buffer[j * 8 + 1] = y_scaled;
@@ -679,6 +704,10 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 {
 	unsigned int i, l, size;
 	int x, y, cur_texture;
+#ifdef CLUSTER_INSIDES
+	short cluster = get_actor_cluster ();
+	short tile_cluster;
+#endif
 
 	size = 0;
 	cur_texture = last_texture;
@@ -688,6 +717,12 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 		l = get_intersect_item_ID(main_bbox_tree, i);
 		x = get_terrain_x(l);
 		y = get_terrain_y(l);
+
+#ifdef CLUSTER_INSIDES
+		tile_cluster = get_cluster (6*x, 6*y);
+		if (tile_cluster && tile_cluster != cluster)
+			continue;
+#endif
 
 		if (!tile_map[y * tile_map_size_x + x])
 		{
