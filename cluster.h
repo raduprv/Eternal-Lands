@@ -5,11 +5,16 @@
 
 #include "tiles.h"
 #include "bbox_tree.h"
-#include "2d_objects.h"
-#include "3d_objects.h"
 #include "e3d.h"
 #include "lights.h"
 #include "particles.h"
+#ifdef MAP_EDITOR
+#include "../map_editor/2d_objects.h"
+#include "../map_editor/3d_objects.h"
+#else
+#include "2d_objects.h"
+#include "3d_objects.h"
+#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -112,6 +117,9 @@ static __inline__ void update_occupied_with_3d (char* occupied, int id)
 	const e3d_object* obj;
 	int i;
 	AABBOX box;
+#ifdef MAP_EDITOR
+	MATRIX4x4 matrix;
+#endif
 
 	if (id < 0 || id >= MAX_OBJ_3D || !objects_list[id])
 		return;
@@ -128,7 +136,15 @@ static __inline__ void update_occupied_with_3d (char* occupied, int id)
 		box.bbmax[X] = obj->materials[i].max_x;
 		box.bbmax[Y] = obj->materials[i].max_y;
 		box.bbmax[Z] = obj->materials[i].max_z;
+#ifdef MAP_EDITOR
+		// the map editor doesn't store the object transformation matrices
+		calc_rotation_and_translation_matrix (matrix, 
+		                                      objects_list[id]->x_pos, objects_list[id]->y_pos, objects_list[id]->z_pos, 
+		                                      objects_list[id]->x_rot, objects_list[id]->y_rot, objects_list[id]->z_rot);
+		matrix_mul_aabb (&box, matrix); 
+#else
 		matrix_mul_aabb (&box, objects_list[id]->matrix);
+#endif
 
 		update_occupied_with_bbox (occupied, &box);
 	}
@@ -198,11 +214,28 @@ static __inline__ void update_occupied_with_particle_system (char* occupied, int
 
 /*!
  * \ingroup maps
+ * \brief Set the cluster map from file data
+ *
+ *	Allocate and read the cluster map from file data.
+ *
+ * \param data The cluster data from the map file
+ * \note Either this function should be used, or when no cluster data is 
+ *       present in the file, compute_clusters() should be used. Doing 
+ *       both will lead to memory leaks and unnecesary CPU usage.
+ */
+void set_clusters (const char* data);
+
+/*!
+ * \ingroup maps
  * \brief Group occupied areas into clusters
  *
  *	Detect and number contiguous occupied areas in the occupation array.
  *
  * \param occupied The occupation array
+ * \note When reading maps, this function should only be used when the 
+ *       cluster map is not present in the file, otherwise 
+ *       set_clusters() should be used. Doing both will lead to memory 
+ *       leaks and unnecesary CPU usage.
  */
 void compute_clusters (const char* occupied);
 
@@ -222,6 +255,16 @@ short get_cluster (int x, int y);
 
 /*!
  * \ingroup maps
+ * \brief Destroy the clusters array
+ *
+ *	Free the memory associated with the clusters array, and clear 
+ *	the pointer associated with it.
+ */
+void destroy_clusters_array ();
+
+#ifndef MAP_EDITOR
+/*!
+ * \ingroup maps
  * \brief Get the cluster where the actor is currently on
  *
  *	Check the cluster map at the actor's current position, and 
@@ -230,15 +273,7 @@ short get_cluster (int x, int y);
  * \retval short The number of the actor's current visibility cluster
  */
 short get_actor_cluster ();
-
-/*!
- * \ingroup maps
- * \brief Destroy the clusters array
- *
- *	Free the memory associated with the clusters array, and clear 
- *	the pointer associated with it.
- */
-void destroy_clusters_array ();
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

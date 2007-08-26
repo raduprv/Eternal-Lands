@@ -86,7 +86,7 @@ typedef struct
 {
 	int uniq_id;
 	int guild_id;
-    int guild_tag_color;
+	int guild_tag_color;
 
 	int legs_meshindex;
 	int head_meshindex;
@@ -570,7 +570,7 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text);
  *
  * \param	actor_id The server-side actor_id - NOT the position in the actors_list
  * \retval actor*	A pointer to the actor with the given ID. If the actor is not found it returns NULL
- * \sa		pf_get_our_actor
+ * \sa		get_our_actor
  */
 actor *	get_actor_ptr_from_id( int actor_id );
 
@@ -588,10 +588,36 @@ float cal_get_maxz2(actor *act);
 void end_actors_lists(void);
 
 int on_the_move (const actor *act);
-		
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Return a pointer to your own character, if available
+ *
+ *	Return a pointer to your own character, if available. This inline
+ *	function simply returns \ref your_actor.
+ *
+ * \return A pointer to your character, or NULL if that is not available.
+ */
+static __inline__ actor *get_our_actor ()
+{	
+	return your_actor;
+}
+
+/*!
+ * \ingroup	display_actors
+ * \brief	Set the pointer to your own character
+ * 
+ *	Set the pointer to your own character to \a act.
+ *
+ * \param act New pointer to your character.
+ */
+static __inline__ void set_our_actor (actor *act)
+{
+	your_actor = act;
+}
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-#endif
+#endif // __ACTORS_H__

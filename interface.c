@@ -620,6 +620,7 @@ void draw_game_map (int map, int mouse_mini)
 	int i;
 	float x_size=0,y_size=0;
 	GLuint map_small, map_large;
+	actor *me;
 	
 	if(map){
 		map_small=get_texture_id(cont_text);
@@ -919,13 +920,16 @@ void draw_game_map (int map, int mouse_mini)
 	
 	//ok, now let's draw our possition...
 #ifndef CLICKABLE_CONTINENT_MAP
-	if(your_actor != NULL) {
+	if ( (me = get_our_actor ()) != NULL)
 #else
-	if(your_actor != NULL && inspect_map_text == 0) {
+	if ( (me = get_our_actor ()) != NULL && inspect_map_text == 0)
 #endif
-		x = your_actor->x_tile_pos;
-		y = your_actor->y_tile_pos;
-	} else {
+	{
+		x = me->x_tile_pos;
+		y = me->y_tile_pos;
+	}
+	else
+	{
 		//We don't exist (usually happens when teleporting)
 		x = -1;
 		y = -1;
@@ -1085,7 +1089,7 @@ void put_mark_on_map_on_mouse_position()
 }
 void put_mark_on_current_position(char *name)
 {
-	actor *me = pf_get_our_actor();
+	actor *me = get_our_actor ();
 
 	if (me != NULL)
 	{	

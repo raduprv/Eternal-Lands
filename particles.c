@@ -4,7 +4,6 @@
  #include <locale.h>
 #endif
 #include "particles.h"
-#include "3d_objects.h"
 #include "asc.h"
 #include "draw_scene.h"
 #include "errors.h"
@@ -26,11 +25,17 @@
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #else
+#ifdef MAP_EDITOR
+#include "../map_editor/misc.h"
+#else
 #include "misc.h"
 #endif
+#endif // NEW_FILE_IO
 #ifdef MAP_EDITOR
+#include "../map_editor/3d_objects.h"
 #include "../map_editor/lights.h"
 #else
+#include "3d_objects.h"
 #include "lights.h"
 #endif
 
@@ -229,7 +234,6 @@ particle_sys_def *load_particle_def(const char *filename)
 	return def;
 }
 
-#ifndef	MAP_EDITOR
 static __inline__ void calc_particle_random_min_max(float f1, float f2, float* v_min, float* v_max)
 {
 	if (f1 < f2)
@@ -407,6 +411,7 @@ void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id)
 	bbox->bbmax[Z] += system_id->z_pos;
 }
 
+#ifndef MAP_EDITOR
 static __inline__ void destroy_partice_sys_without_lock(int i)
 {
 	if ((i < 0) || (i >= MAX_PARTICLE_SYSTEMS)) return;
@@ -431,7 +436,7 @@ static __inline__ void destroy_partice_sys_without_lock(int i)
 //	UNLOCK_PARTICLES_LIST();
 //}
 
-#endif
+#endif // !MAP_EDITOR
 
 #ifdef MAP_EDITOR2
 #define MAP_EDITOR
@@ -1059,10 +1064,10 @@ void display_particles()
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
 #ifndef	MAP_EDITOR
 	unsigned int i, l, start, stop;
-#endif
 #ifdef CLUSTER_INSIDES
 	short cluster = get_actor_cluster ();
 #endif
+#endif // !MAP_EDITOR
 
 	if(!particles_percentage)
 	  return;

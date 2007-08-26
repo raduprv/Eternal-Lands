@@ -14,7 +14,6 @@
 #include "multiplayer.h"
 #include "new_actors.h"
 #include "new_character.h"
-#include "pathfinder.h"
 #include "shadows.h"
 #include "sound.h"
 #include "storage.h"
@@ -179,7 +178,7 @@ void move_camera ()
 	float hx, hy, hz, follow_speed;
 #endif /* SKY_FPV_CURSOR */
 	static int lagged=1;
-	actor * me=pf_get_our_actor();
+	actor *me = get_our_actor ();
 	
 	if(!me || !me->tmp.have_tmp){
 		lagged=1;
@@ -409,7 +408,8 @@ void update_camera ()
 	}
 
 	//Make Character Turn with Camera
-	if (have_mouse && !on_the_move(your_actor)){
+	if (have_mouse && !on_the_move (get_our_actor ()))
+	{
 		adjust = (rz+180);
 		//without this the character will turn the wrong way when camera_kludge
 		//and character are in certain positions

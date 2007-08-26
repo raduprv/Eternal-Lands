@@ -7,8 +7,8 @@
 #define	VMATH_H
 #include <math.h>
 #include <string.h>
-#ifdef MAP_EDITOR2
-#include "../map_editor2/misc.h"
+#ifdef MAP_EDITOR
+#include "../map_editor/misc.h"
 #else
 #include "misc.h"
 #endif

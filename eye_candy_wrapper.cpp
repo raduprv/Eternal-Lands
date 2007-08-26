@@ -214,7 +214,7 @@ extern "C" void ec_idle()
   eye_candy.set_dimensions(window_width, window_height, powf(zoom_level, 0.1));
 
   Uint64 new_time = ec::get_time();
-#ifdef CLUSTER_INSIDES
+#if defined CLUSTER_INSIDES && !defined MAP_EDITOR
   short cluster = get_actor_cluster ();
 #endif
   for (int i = 0; i < (int)references.size(); )
@@ -229,7 +229,7 @@ extern "C" void ec_idle()
     
     if (use_eye_candy)
     {
-#ifdef CLUSTER_INSIDES
+#if defined CLUSTER_INSIDES && !defined MAP_EDITOR
       if ((*iter)->effect && !(*iter)->effect->belongsToCluster (cluster))
       {
 	  (*iter)->effect->active = false;
@@ -386,7 +386,7 @@ extern "C" void ec_draw()
 
   if (use_eye_candy)
   {
-#ifdef CLUSTER_INSIDES
+#if defined CLUSTER_INSIDES && !defined MAP_EDITOR
     short cluster = get_actor_cluster ();
 #endif
 

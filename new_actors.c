@@ -127,7 +127,9 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 		if(!actors_list[i])	break;
 	}
 
-	if (actor_id == yourself) your_actor = our_actor;
+	if (actor_id == yourself)
+		set_our_actor (our_actor);
+
 	actors_list[i]=our_actor;
 	
 	if(i >= max_actors) max_actors = i+1;

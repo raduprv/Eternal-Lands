@@ -10,7 +10,6 @@
 #include "../e3d.h"
 #include "../eye_candy_wrapper.h"
 #include "../font.h"
-#include "../pathfinder.h"
 #include "../platform.h"
 #include "../sound.h"
 #include "../text.h"
@@ -199,7 +198,7 @@ static cell AMX_NATIVE_CALL n_clear_timers (AMX *amx, const cell *params)
 static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 {
 	cell *x_addr, *y_addr;
-	actor *me = pf_get_our_actor ();
+	actor *me = get_our_actor ();
 	
 	if (!me)
 		// Uh oh, we don't exist!
@@ -208,8 +207,8 @@ static cell AMX_NATIVE_CALL n_get_position (AMX *amx, const cell *params)
 	amx_GetAddr (amx, params[1], &x_addr);
 	amx_GetAddr (amx, params[2], &y_addr);
 	
-	*x_addr = (cell) me->tmp.x_tile_pos;
-	*y_addr = (cell) me->tmp.y_tile_pos;
+	*x_addr = (cell) me->x_tile_pos;
+	*y_addr = (cell) me->y_tile_pos;
 	
 	return 0;
 }

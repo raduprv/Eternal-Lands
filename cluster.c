@@ -2,9 +2,20 @@
 
 #include "cluster.h"
 #include "actors.h"
-#include "pathfinder.h"
 
 static short* clusters = NULL;
+
+void set_clusters (const char* data)
+{
+	const short* cdata = (const short*) data;
+	int nx = tile_map_size_x * 6;
+	int ny = tile_map_size_y * 6;
+	int idx;
+
+	clusters = calloc (nx * ny, sizeof (short));
+	for (idx = 0; idx < nx*ny; idx++)
+		clusters[idx] = SDL_SwapLE16 (cdata[idx]);	
+}
 
 void compute_clusters (const char* occupied) 
 {
@@ -79,7 +90,7 @@ void compute_clusters (const char* occupied)
 	}
 
 	cnr = 0;
-	for (ic = 1; ic < nr_clusters; ic++)
+	for (ic = 1; ic <= nr_clusters; ic++)
 	{
 		if (cluster_idx[ic] == ic)
 			cluster_idx[ic] = ++cnr;
@@ -100,18 +111,20 @@ short get_cluster (int x, int y)
 	return clusters[y*tile_map_size_x*6+x];
 }
 
-short get_actor_cluster ()
-{
-	actor *me = pf_get_our_actor ();
-	return me ? me->cluster : 0;
-}
-
 void destroy_clusters_array ()
 {
 	if (clusters)
 		free (clusters);
 	clusters = NULL;
 }
+
+#ifndef MAP_EDITOR
+short get_actor_cluster ()
+{
+	actor *me = get_our_actor ();
+	return me ? me->cluster : 0;
+}
+#endif
 
 #endif // CLUSTER_INSIDES
 

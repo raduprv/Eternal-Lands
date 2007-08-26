@@ -407,6 +407,7 @@ int display_minimap_handler(window_info *win)
 	float size_x = 255.0f/(tile_map_size_x * 6);
 	float size_y = 255.0f/(tile_map_size_y * 6);
 	float view_distance, px = 0.0f, py = 0.0f;
+	actor *me;
 
 	zoom_multip = minimap_get_zoom();
 
@@ -431,13 +432,13 @@ int display_minimap_handler(window_info *win)
 	//draw minimap
 
 	//get player position in window coordinates
-	if(your_actor == NULL)
+	if( (me = get_our_actor ()) == NULL)
 	{
 		//Don't know who we are? can't draw then
 		return 0;
 	}
-	px = your_actor->x_tile_pos * size_x;
-	py = 255.0f - (your_actor->y_tile_pos * size_y);
+	px = me->x_tile_pos * size_x;
+	py = 255.0f - (me->y_tile_pos * size_y);
 	//Do we already have a valid framebuffer texture? If so, we'll use that
 
 	if (draw_framebuffer())
@@ -748,17 +749,18 @@ void update_exploration_map()
 	int px = 0, py = 0, i = 0, j = 0, view_distance = 0, d = 0, vd_square = 0;
 	int explored = 0;
 	GLubyte c;
+	actor *me;
 	
 	if(!minimap_texture || minimap_win < 0)
 		return;
 	
 	//get player position in window coordinates
-	if (your_actor == NULL)
+	if ( (me = get_our_actor ()) == NULL)
 	{
 		return;
 	}
-	px = (your_actor->x_tile_pos / size_x) * 255.0f;
-	py = ((your_actor->y_tile_pos / size_y) * 255.0f);
+	px = (me->x_tile_pos / size_x) * 255.0f;
+	py = (me->y_tile_pos / size_y) * 255.0f;
 	
 	//how far can you see? 30 tiles? at least this looks right.
 	view_distance = (255.0f / size_x) * 26.0f;

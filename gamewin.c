@@ -1107,7 +1107,7 @@ CHECK_GL_ERRORS();
 	if (show_fps)
 	{
 #ifdef	DEBUG
-		actor * me = pf_get_our_actor();
+		actor *me = get_our_actor ();
 
 		glColor3f (1.0f, 1.0f, 1.0f);
 		if(me){

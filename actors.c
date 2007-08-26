@@ -15,7 +15,6 @@
 #include "load_gl_extensions.h"
 #include "map.h"
 #include "new_actors.h"
-#include "pathfinder.h"
 #include "platform.h"
 #include "shadows.h"
 #include "textures.h"
@@ -41,6 +40,7 @@
 actor *actors_list[MAX_ACTORS];
 int max_actors=0;
 SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and main threads
+actor *your_actor = NULL;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
 
@@ -151,7 +151,9 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 			if(!actors_list[i])break;
 		}
 
-	if(actor_id == yourself) your_actor = our_actor;
+	if(actor_id == yourself)
+		set_our_actor (our_actor);
+
 	actors_list[i]=our_actor;
 	if(i>=max_actors)max_actors=i+1;
 
@@ -624,7 +626,7 @@ void get_actors_in_range()
 	AABBOX bbox;
 	struct CalSkeleton *skel;
 
-	me = pf_get_our_actor();
+	me = get_our_actor ();
 
 	if (!me) return;
 

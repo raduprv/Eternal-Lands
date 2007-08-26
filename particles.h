@@ -8,9 +8,7 @@
 
 #include <SDL_mutex.h>
 #include "platform.h"
-#ifndef MAP_EDITOR
 #include "bbox_tree.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -237,7 +235,6 @@ void end_particles ();
 
 //CREATION OF NEW PARTICLES AND SYSTEMS 
 
-#ifndef MAP_EDITOR
 /*!
  * \ingroup particles
  * \brief Compute the bounding box for a particle system
@@ -247,8 +244,7 @@ void end_particles ();
  * \param bbox      Pointer to an AABBOX in which the result is stored
  * \param system_id Pointer to the particle system
  */
-void calc_bounding_box_for_particle_sys(AABBOX* bbox, particle_sys *system_id);
-#endif
+void calc_bounding_box_for_particle_sys (AABBOX* bbox, particle_sys *system_id);
 
 /*!
  * \ingroup particles

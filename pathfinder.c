@@ -133,7 +133,7 @@ int pf_find_path(int x, int y)
 
 	pf_destroy_path();
 
-	if (!(me = pf_get_our_actor())) {
+	if (!(me = get_our_actor())) {
 		return -1;
 	}
 
@@ -187,17 +187,12 @@ void pf_destroy_path()
 	pf_follow_path = 0;
 }
 
-actor *pf_get_our_actor()
-{
-	return your_actor;
-}
-
 void pf_move()
 {
 	int x, y;
 	actor *me;
 
-	if (!pf_follow_path || !(me = pf_get_our_actor())) {
+	if (!pf_follow_path || !(me = get_our_actor())) {
 		return;
 	}
 

@@ -16,7 +16,6 @@
 #include "lights.h"
 #include "map.h"
 #include "new_actors.h"
-#include "pathfinder.h"
 #include "reflection.h"
 #include "textures.h"
 #include "tiles.h"
@@ -771,7 +770,7 @@ void setup_shadow_mapping()
 	if (first_person) 
 	{
 		float hx, hy, hz;
-		cal_get_head(pf_get_our_actor(), &hx, &hy, &hz);
+		cal_get_head (get_our_actor(), &hx, &hy, &hz);
 		glTranslatef(hx,hy,0);
 	}
 #endif /* SKY_FPV_CURSOR */

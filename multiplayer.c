@@ -84,7 +84,6 @@ int client_time_stamp= 0;
 int client_server_delta_time= 0;
 
 int yourself= -1;
-actor *your_actor= NULL;
 
 int last_sit= 0;
 int last_turn_around = 0;
@@ -129,8 +128,9 @@ int my_tcp_send (TCPsocket my_socket, const Uint8 *str, int len)
 	// Grum: Adapted. Converting every movement to a path caused too much
 	// trouble. Instead we now check the current actor animation for
 	// movement.
-	if ((str[0] == TURN_LEFT||str[0] == TURN_RIGHT)&&on_the_move (your_actor))return 0;
-	if (str[0] == DROP_ITEM  && on_the_move (your_actor))
+	if ((str[0] == TURN_LEFT || str[0] == TURN_RIGHT) && on_the_move (get_our_actor ()))
+		return 0;
+	if (str[0] == DROP_ITEM  && on_the_move (get_our_actor ()))
 	{
 		// I thought about having a bit of code here that counts attempts, and after say 5,
 		// announces on #abuse something like "#abuse I attempted to bagspam, but was thwarted,
@@ -919,7 +919,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 				LOCK_ACTORS_LISTS();
 				yourself= SDL_SwapLE16(*((short *)(in_data+3)));
-				your_actor= get_actor_ptr_from_id(yourself);
+				set_our_actor (get_actor_ptr_from_id (yourself));
 				UNLOCK_ACTORS_LISTS();
 			}
 			break;

@@ -359,17 +359,19 @@ void update_rain(int ticks, int num_rain_drops)
 {
 	int i; float x, y, z, wind_effect, x_move, y_move, max_part;
 	double z_delta;
+	actor *me;
 
 	if (num_rain_drops > MAX_RAIN_DROPS) num_rain_drops = MAX_RAIN_DROPS;
 
 	LOCK_ACTORS_LISTS();
-	if (!your_actor) {
+	me = get_our_actor ();
+	if (!me) {
 		UNLOCK_ACTORS_LISTS();
 		return;
 	}
-	x = your_actor->x_pos; 
-	y = your_actor->y_pos; 
-	z = your_actor->z_pos; 
+	x = me->x_pos; 
+	y = me->y_pos; 
+	z = me->z_pos; 
 	UNLOCK_ACTORS_LISTS();
 
 	z_delta = precip_avg(precip_z_delta)*ticks/100.0f;
@@ -904,16 +906,19 @@ void render_weather()
 
 void build_rain_table()
 {
-	int i; float x, y, z;
+	int i; 
+	float x, y, z;
+	actor *me;
 
 	LOCK_ACTORS_LISTS();
-	if (!your_actor) {
+	me = get_our_actor ();
+	if (!me) {
 		UNLOCK_ACTORS_LISTS();
 		return;
 	}
-	x = your_actor->x_pos; 
-	y = your_actor->y_pos; 
-	z = your_actor->z_pos; 
+	x = me->x_pos; 
+	y = me->y_pos; 
+	z = me->z_pos; 
 	UNLOCK_ACTORS_LISTS();
 
 	for(i=0;i<MAX_RAIN_DROPS;i++)
@@ -929,16 +934,19 @@ void build_rain_table()
 
 void update_rain()
 {
-	int i; float x, y, z;
+	int i;
+	float x, y, z;
+	actor *me;
 
 	LOCK_ACTORS_LISTS();
-	if (!your_actor) {
+	me = get_our_actor ();
+	if (!me) {
 		UNLOCK_ACTORS_LISTS();
 		return;
 	}
-	x = your_actor->x_pos; 
-	y = your_actor->y_pos; 
-	z = your_actor->z_pos; 
+	x = me->x_pos; 
+	y = me->y_pos; 
+	z = me->z_pos; 
 	UNLOCK_ACTORS_LISTS();
 
 	for(i=0;i<num_rain_drops;i++)

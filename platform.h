@@ -119,7 +119,7 @@ static __inline__ float SwapFloat (float t)
 	union
 	{
 		float f;
-		int i;
+		Uint32 i;
 	} intOrFloat;
 
 	intOrFloat.f = t;

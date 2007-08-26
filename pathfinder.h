@@ -6,7 +6,7 @@
 #ifndef __PATHFINDER_H__
 #define __PATHFINDER_H__
 
-#include "actors.h"
+#include <SDL_types.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -96,16 +96,6 @@ int pf_find_path(int x, int y);
  *
  */
 void pf_destroy_path();
-
-/*!
- * \ingroup move_actors
- * \brief Returns the current actor
- *
- *      Returns a pointer to the current actor.
- *
- * \retval actor*   a pointer to the actor
- */
-actor *pf_get_our_actor();
 
 /*!
  * \ingroup move_actors

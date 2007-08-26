@@ -27,7 +27,6 @@ typedef struct
 
 }water_vertex;
 
-int sky_text_1;
 float water_deepth_offset=-0.25f;
 float water_movement_u=0;
 float water_movement_v=0;
