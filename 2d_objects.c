@@ -1,4 +1,7 @@
+#include "2d_objects.h"
+#include "draw_scene.h"
 #include "global.h"
+#include "../elc/textures.h"
 
 #define INVALID -1
 #define GROUND 0
@@ -353,6 +356,77 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name)
 
 	return obj_2d_def_id;
 }
+
+#ifdef CLUSTER_INSIDES
+int get_2d_bbox (int id, AABBOX* box)
+{
+	const obj_2d* obj;
+	const obj_2d_def* def;
+	float len_x;
+	float len_y;
+	float x_rot, z_rot;
+	MATRIX4x4 matrix;
+
+	if (id < 0 || id >= MAX_OBJ_2D || obj_2d_list[id] == NULL)
+		return 0;
+
+	obj = obj_2d_list[id];
+	def = obj->obj_pointer;
+	if (def == NULL)
+		return 0;
+
+	len_x = def->x_size;
+	len_y = def->y_size;
+
+	box->bbmin[X] = -len_x*0.5f;
+	box->bbmax[X] =  len_x*0.5f;
+	if (def->object_type == GROUND)
+	{
+		box->bbmin[Y] = -len_y*0.5f;
+		box->bbmax[Y] =  len_y*0.5f;
+	}
+	else
+	{
+		box->bbmin[Y] = 0.0f;
+		box->bbmax[Y] = len_y;
+		if (def->object_type == PLANT)
+		{
+#ifdef  M_SQRT2
+			box->bbmin[X] *= M_SQRT2;
+			box->bbmax[X] *= M_SQRT2;
+			box->bbmin[Y] *= M_SQRT2;
+			box->bbmax[Y] *= M_SQRT2;
+#else   //M_SQRT2
+			box->bbmin[X] *= sqrt(2);
+			box->bbmax[X] *= sqrt(2);
+			box->bbmin[Y] *= sqrt(2);
+			box->bbmax[Y] *= sqrt(2);
+#endif  //M_SQRT2
+		}
+	}
+	box->bbmin[Z] = obj->z_pos;
+	box->bbmax[Z] = obj->z_pos;
+
+	x_rot = obj->x_rot;
+	z_rot = obj->z_rot;
+	if (def->object_type == PLANT)
+	{
+		x_rot += 90.0f;
+		z_rot = 0.0f;
+	}
+	else if (def->object_type == FENCE)
+	{
+		x_rot += 90.0f;
+	}
+
+	calc_rotation_and_translation_matrix (matrix, 
+	                                      obj->x_pos, obj->y_pos, 0.0f, 
+	                                      x_rot, obj->y_rot, z_rot);
+	matrix_mul_aabb (box, matrix);
+
+	return 1;
+}
+#endif // CLUSTER_INSIDES
 
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot)
 {

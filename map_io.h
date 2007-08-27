@@ -77,7 +77,11 @@ typedef struct
 	int particles_struct_len;
 	int particles_no;
 	int particles_offset;
+#ifdef CLUSTER_INSIDES
+	int clusters_offset;
+#else
 	int reserved_8;
+#endif
 	int reserved_9;
 	int reserved_10;
 	int reserved_11;
@@ -87,9 +91,7 @@ typedef struct
 	int reserved_15;
 	int reserved_16;
 	int reserved_17;
-
-
-}map_header;
+} map_header;
 
 extern char dungeon;//no sun
 extern float ambient_r;
@@ -97,8 +99,8 @@ extern float ambient_g;
 extern float ambient_b;
 
 void destroy_map();
-int save_map(char * file_name);
-int load_map(char * file_name);
+int save_map (const char * file_name);
+int load_map (const char * file_name);
 void new_map(int m_x_size,int m_y_size);
 
 #endif

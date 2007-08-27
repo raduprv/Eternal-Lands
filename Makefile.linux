@@ -5,9 +5,15 @@ CC=gcc
 CXX=g++
 LINK=g++
 
+FEATURES  = EYE_CANDY
+FEATURES += SFX
+FEATURES += NEW_E3D_FORMAT
+FEATURES += CLUSTER_INSIDES
+#FEATURES += X86_64
+
 WARN = -Wall -Wdeclaration-after-statement # -W -Werror
 CXXWARN = -Wall # -W -Werror
-OPTIONS=-DLINUX -DMAP_EDITOR -DPARTICLE_SYS_SOUND -DNEW_CLIENT -DROTATE_PARTICLES -DEYE_CANDY -DSFX -DNEW_E3D_FORMAT
+OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
 #-DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
 GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
@@ -33,21 +39,27 @@ COBJS=2d_objects.o 3d_objects.o	\
 	shadows.o tile_map.o \
 	replace_window.o edit_window.o particles_window.o
 
+CLUSTER_INSIDES_ELC_COBJS = cluster.o
 ELC_COBJS = asc.o colors.o elconfig.o load_gl_extensions.o md5.o \
-	particles.o queue.o textures.o translate.o
+	particles.o queue.o textures.o translate.o	\
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_COBJS))
 
 ELC_IO_COBJS = e3d_io.o elc_io.o
 
-CXXOBJS=eye_candy_window.o 
+EYE_CANDY_CXXOBJS = eye_candy_window.o 
+CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJS))
 
-ELC_CXXOBJS = cal3d_wrapper.o eye_candy_wrapper.o
+EYE_CANDY_ELC_CXXOBJS = eye_candy_wrapper.o
+ELC_CXXOBJS = cal3d_wrapper.o \
+	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_CXXOBJS))
 
-ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
+EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
 	effect_cloud.o effect_candle.o effect_firefly.o effect_fountain.o \
 	effect_harvesting.o effect_impact.o effect_lamp.o effect_ongoing.o \
 	effect_selfmagic.o effect_smoke.o effect_summon.o effect_sword.o \
 	effect_targetmagic.o effect_teleporter.o effect_wind.o eye_candy.o \
 	math_cache.o
+ELC_EC_CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_EC_CXXOBJS))
 
 OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(CXXOBJS) $(ELC_CXXOBJS) \
 	$(ELC_EC_CXXOBJS)

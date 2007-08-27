@@ -1,6 +1,8 @@
 #ifndef __obj_2d_H__
 #define __obj_2d_H__
 
+#include "../elc/bbox_tree.h"
+
 #define MAX_OBJ_2D 15000
 #define MAX_OBJ_2D_DEF 1000
 
@@ -43,6 +45,9 @@ extern obj_2d *obj_2d_list[MAX_OBJ_2D];
 void draw_2d_object(obj_2d * object_id);
 obj_2d_def * load_obj_2d_def(char *file_name);
 obj_2d_def * load_obj_2d_def_cache(char * file_name);
+#ifdef CLUSTER_INSIDES
+int get_2d_bbox (int id, AABBOX* box);
+#endif
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot);
 void display_2d_objects();
 

@@ -3,44 +3,47 @@
 #ifdef EYE_CANDY
  #include "eye_candy_window.h"
 #endif
+#ifdef CLUSTER_INSIDES
+#include "../elc/cluster.h"
+#endif
 
 void destroy_map()
 {
 	int i;
 
 	//kill the tile and height map
-	if(tile_map)
-		{
-			free(tile_map);
-			tile_map=0;
-		}
+	if (tile_map)
+	{
+		free (tile_map);
+		tile_map = NULL;
+	}
 
-	if(height_map)
-		{
-			free(height_map);
-			height_map=0;
-		}
+	if (height_map)
+	{
+		free (height_map);
+		height_map = NULL;
+	}
 
 
 	//kill the 3d objects links
 	for (i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if (objects_list[i])
 		{
-			if(objects_list[i])
-				{
-					free(objects_list[i]);
-					objects_list[i]=0;//kill any refference to it
-				}
+			free (objects_list[i]);
+			objects_list[i] = NULL; // kill any reference to it
 		}
+	}
 
 	//kill the 2d objects links
-	for(i=0;i<MAX_OBJ_2D;i++)
+	for (i = 0; i < MAX_OBJ_2D; i++)
+	{
+		if (obj_2d_list[i])
 		{
-			if(obj_2d_list[i])
-				{
-					free(obj_2d_list[i]);
-					obj_2d_list[i]=0;//kill any refference to it
-				}
+			free (obj_2d_list[i]);
+			obj_2d_list[i] = NULL; // kill any reference to it
 		}
+	}
 
 	//kill the lights links
 	for (i = 0; i < MAX_LIGHTS; i++)
@@ -48,7 +51,7 @@ void destroy_map()
 		if (lights_list[i])
 		{
 			free (lights_list[i]);
-			lights_list[i] = NULL; //kill any refference to it
+			lights_list[i] = NULL; // kill any reference to it
 		}
 	}
 
@@ -60,7 +63,7 @@ void destroy_map()
 	selected_3d_object=selected_2d_object=selected_light=selected_particles_object=-1;
 }
 
-int save_map(char * file_name)
+int save_map (const char* file_name)
 {
 	int i,j;
 	map_header cur_map_header;
@@ -88,6 +91,12 @@ int save_map(char * file_name)
 	FILE *f = NULL;
 #endif	//ZLIBW
 
+#ifdef CLUSTER_INSIDES
+	char* occupied = NULL;
+	char* cluster_data = NULL;
+	int cluster_data_len = 0;
+#endif
+
 	//get the sizes of structures (they might change in the future)
 	obj_3d_io_size=sizeof(object3d_io);
 	obj_2d_io_size=sizeof(obj_2d_io);
@@ -96,16 +105,18 @@ int save_map(char * file_name)
 
 	//get the number of objects and lights
 	for (i = 0; i < MAX_OBJ_3D; i++)
-		if(objects_list[i]) obj_3d_no++;
-	for(i=0;i<MAX_OBJ_2D;i++)if(obj_2d_list[i])obj_2d_no++;
+		if (objects_list[i]) obj_3d_no++;
+	for (i = 0; i < MAX_OBJ_2D; i++)
+		if (obj_2d_list[i]) obj_2d_no++;
 	for (i = 0; i < MAX_LIGHTS; i++)
 		if (lights_list[i] && !lights_list[i]->locked) lights_no++;
 	// We ignore temporary particle systems (i.e. ones with a ttl)
-	for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)particles_no++;
+	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+		if (particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def) particles_no++;
 
 	//ok, now build the header...
 	//clear the header
-	for(i=0;i<(int)sizeof(map_header);i++)mem_map_header[i]=0;
+	memset (mem_map_header, 0, sizeof (map_header));
 
 	//build the file signature
 	cur_map_header.file_sig[0]='e';
@@ -138,8 +149,11 @@ int save_map(char * file_name)
 	cur_map_header.particles_no=particles_no;
 #endif
 	cur_map_header.particles_offset=cur_map_header.lights_offset+lights_no*lights_io_size;
+#ifdef CLUSTER_INSIDES
+	cur_map_header.clusters_offset = cur_map_header.particles_offset + cur_map_header.particles_no * particles_io_size;
+#endif
 
-	//ok, now let's open/create the file, and start writting the header...
+	// ok, now let's open/create the file, and start writing the header...
 #ifdef	ZLIBW
 	{
 		char	gzfile_name[1024];
@@ -177,147 +191,175 @@ int save_map(char * file_name)
 		fwrite(height_map, tile_map_size_x*tile_map_size_y*6*6, 1, f);
 #endif	//ZLIBW
 
+#ifdef CLUSTER_INSIDES
+		// Allocate memory for the occupation map, and initialize
+		// it with the tiles and height maps
+		occupied = calloc (tile_map_size_x*tile_map_size_y*6*6, 1);
+		update_occupied_with_tile_map (occupied, tile_map);
+		update_occupied_with_height_map (occupied, height_map);
+#endif		
+
 		//write the 3d objects
 		j=0;
 		for (i = 0; i < MAX_OBJ_3D; i++)
+		{
+			if (j > obj_3d_no)
+				break;
+
+			if (objects_list[i])
 			{
+				char* cur_3do_pointer = (char *) &cur_3d_obj_io;
 
-				if(j>obj_3d_no)break;
-				if(objects_list[i])
-					{
-						char * cur_3do_pointer=(char *)&cur_3d_obj_io;
-						int k=0;
+				// clear the object
+				memset (cur_3do_pointer, 0, sizeof (object3d_io));
 
-						//clear the object
-						for(k=0;k<(int)sizeof(object3d_io);k++)cur_3do_pointer[k]=0;
+				snprintf (cur_3d_obj_io.file_name, sizeof (cur_3d_obj_io.file_name), "%s", objects_list[i]->file_name);
+				cur_3d_obj_io.x_pos = objects_list[i]->x_pos;
+				cur_3d_obj_io.y_pos = objects_list[i]->y_pos;
+				cur_3d_obj_io.z_pos = objects_list[i]->z_pos;
 
-						sprintf(cur_3d_obj_io.file_name,"%s",objects_list[i]->file_name);
-						cur_3d_obj_io.x_pos=objects_list[i]->x_pos;
-						cur_3d_obj_io.y_pos=objects_list[i]->y_pos;
-						cur_3d_obj_io.z_pos=objects_list[i]->z_pos;
+				cur_3d_obj_io.x_rot = objects_list[i]->x_rot;
+				cur_3d_obj_io.y_rot = objects_list[i]->y_rot;
+				cur_3d_obj_io.z_rot = objects_list[i]->z_rot;
 
-						cur_3d_obj_io.x_rot=objects_list[i]->x_rot;
-						cur_3d_obj_io.y_rot=objects_list[i]->y_rot;
-						cur_3d_obj_io.z_rot=objects_list[i]->z_rot;
+				cur_3d_obj_io.self_lit = objects_list[i]->self_lit;
+				cur_3d_obj_io.blended  = objects_list[i]->blended;
 
-						cur_3d_obj_io.self_lit=objects_list[i]->self_lit;
-						cur_3d_obj_io.blended=objects_list[i]->blended;
-
-						cur_3d_obj_io.r=objects_list[i]->r;
-						cur_3d_obj_io.g=objects_list[i]->g;
-						cur_3d_obj_io.b=objects_list[i]->b;
+				cur_3d_obj_io.r = objects_list[i]->r;
+				cur_3d_obj_io.g = objects_list[i]->g;
+				cur_3d_obj_io.b = objects_list[i]->b;
 
 #ifdef	ZLIBW
-						gzwrite(f, cur_3do_pointer, sizeof(object3d_io));
+				gzwrite (f, cur_3do_pointer, sizeof(object3d_io));
 #else	//ZLIBW
-						fwrite(cur_3do_pointer, sizeof(object3d_io), 1, f);
+				fwrite (cur_3do_pointer, sizeof(object3d_io), 1, f);
 #endif	//ZLIBW
 
-						j++;
-					}
+#ifdef CLUSTER_INSIDES
+				update_occupied_with_3d (occupied, i);
+#endif
+
+				j++;
 			}
+		}
 
 		//write the 2d objects
-		j=0;
-		for(i=0;i<MAX_OBJ_2D;i++)
+		j = 0;
+		for (i = 0; i < MAX_OBJ_2D; i++)
+		{
+			if (j > obj_2d_no) break;
+			if (obj_2d_list[i])
 			{
+				char* cur_2do_pointer = (char *) &cur_2d_obj_io;
 
-				if(j>obj_2d_no)break;
-				if(obj_2d_list[i])
-					{
-						char * cur_2do_pointer=(char *)&cur_2d_obj_io;
-						int k=0;
+				// clear the object
+				memset (cur_2do_pointer, 0, sizeof (obj_2d_io));
 
-						//clear the object
-						for(k=0;k<(int)sizeof(obj_2d_io);k++)cur_2do_pointer[k]=0;
+				snprintf (cur_2d_obj_io.file_name, sizeof (cur_2d_obj_io.file_name), "%s", obj_2d_list[i]->file_name);
+				cur_2d_obj_io.x_pos = obj_2d_list[i]->x_pos;
+				cur_2d_obj_io.y_pos = obj_2d_list[i]->y_pos;
+				cur_2d_obj_io.z_pos = obj_2d_list[i]->z_pos;
 
-						sprintf(cur_2d_obj_io.file_name,"%s",obj_2d_list[i]->file_name);
-						cur_2d_obj_io.x_pos=obj_2d_list[i]->x_pos;
-						cur_2d_obj_io.y_pos=obj_2d_list[i]->y_pos;
-						cur_2d_obj_io.z_pos=obj_2d_list[i]->z_pos;
-
-						cur_2d_obj_io.x_rot=obj_2d_list[i]->x_rot;
-						cur_2d_obj_io.y_rot=obj_2d_list[i]->y_rot;
-						cur_2d_obj_io.z_rot=obj_2d_list[i]->z_rot;
+				cur_2d_obj_io.x_rot = obj_2d_list[i]->x_rot;
+				cur_2d_obj_io.y_rot = obj_2d_list[i]->y_rot;
+				cur_2d_obj_io.z_rot = obj_2d_list[i]->z_rot;
 
 #ifdef	ZLIBW
-						gzwrite(f, cur_2do_pointer, sizeof(obj_2d_io));
+				gzwrite (f, cur_2do_pointer, sizeof (obj_2d_io));
 #else	//ZLIBW
-						fwrite(cur_2do_pointer, sizeof(obj_2d_io), 1, f);
+				fwrite (cur_2do_pointer, sizeof (obj_2d_io), 1, f);
 #endif	//ZLIBW
 
-						j++;
-					}
+#ifdef CLUSTER_INSIDES
+				update_occupied_with_2d (occupied, i);
+#endif
+
+				j++;
 			}
+		}
 
 		//write the lights
 		j=0;
 		for (i = 0; i < MAX_LIGHTS; i++)
+		{
+			if (j > lights_no) break;
+			if (lights_list[i] && !lights_list[i]->locked)
 			{
-				if(j>lights_no)break;
-				if(lights_list[i] && !lights_list[i]->locked)
-					{
-						char * cur_light_pointer=(char *)&cur_light_io;
-						int k=0;
+				char* cur_light_pointer = (char *) &cur_light_io;
 
-						//clear the object
-						for(k=0;k<(int)sizeof(light_io);k++)cur_light_pointer[k]=0;
+				// clear the object
+				memset (cur_light_pointer, 0, sizeof (light_io));
 
-						cur_light_io.pos_x=lights_list[i]->pos_x;
-						cur_light_io.pos_y=lights_list[i]->pos_y;
-						cur_light_io.pos_z=lights_list[i]->pos_z;
+				cur_light_io.pos_x = lights_list[i]->pos_x;
+				cur_light_io.pos_y = lights_list[i]->pos_y;
+				cur_light_io.pos_z = lights_list[i]->pos_z;
 
-						cur_light_io.r=lights_list[i]->r;
-						cur_light_io.g=lights_list[i]->g;
-						cur_light_io.b=lights_list[i]->b;
+				cur_light_io.r = lights_list[i]->r;
+				cur_light_io.g = lights_list[i]->g;
+				cur_light_io.b = lights_list[i]->b;
 
 #ifdef	ZLIBW
-						gzwrite(f, cur_light_pointer, sizeof(light_io));
+				gzwrite (f, cur_light_pointer, sizeof (light_io));
 #else	//ZLIBW
-						fwrite(cur_light_pointer, sizeof(light_io), 1, f);
+				fwrite (cur_light_pointer, sizeof (light_io), 1, f);
 #endif	//ZLIBW
 
-						j++;
-					}
+				j++;
 			}
+		}
 
 		// Write the particle systems
-		j=0;
-		for(i=0;i<MAX_PARTICLE_SYSTEMS;i++)
+		j = 0;
+		for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
+		{
+			if (j > particles_no) break;
+			if (particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)
 			{
-				if(j>particles_no)break;
-				if(particles_list[i] && particles_list[i]->def && particles_list[i]->def != &def)
-					{
-						char *cur_particles_pointer=(char *)&cur_particles_io;
-						Uint32 k=0;
-						for(k=0;k<sizeof(particles_io);k++)cur_particles_pointer[k]=0;
-						sprintf(cur_particles_io.file_name,"%s",particles_list[i]->def->file_name);
-						cur_particles_io.x_pos=particles_list[i]->x_pos;
-						cur_particles_io.y_pos=particles_list[i]->y_pos;
-						cur_particles_io.z_pos=particles_list[i]->z_pos;
+				char *cur_particles_pointer = (char *) &cur_particles_io;
+
+				memset (cur_particles_pointer, 0, sizeof (particles_io));
+
+				snprintf (cur_particles_io.file_name, sizeof (cur_particles_io.file_name), "%s", particles_list[i]->def->file_name);
+				cur_particles_io.x_pos = particles_list[i]->x_pos;
+				cur_particles_io.y_pos = particles_list[i]->y_pos;
+				cur_particles_io.z_pos = particles_list[i]->z_pos;
 #ifdef	ZLIBW
-						gzwrite(f, cur_particles_pointer,sizeof(particles_io));
+				gzwrite (f, cur_particles_pointer, sizeof (particles_io));
 #else	//ZLIBW
-						fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+				fwrite (cur_particles_pointer, sizeof (particles_io), 1, f);
 #endif	//ZLIBW
-						j++;
-					}
+				j++;
 			}
+		}
 
 #ifdef EYE_CANDY
 		// Write the eye candy effects
-		for(i=0;i<get_eye_candy_count();i++)
-			{
-				char *cur_particles_pointer=(char *)&cur_particles_io;
-				serialize_eye_candy_effect(i, &cur_particles_io);
+		for (i = 0; i < get_eye_candy_count (); i++)
+		{
+			char *cur_particles_pointer = (char *) &cur_particles_io;
+			serialize_eye_candy_effect (i, &cur_particles_io);
 
 #ifdef	ZLIBW
-				gzwrite(f, cur_particles_pointer,sizeof(particles_io));
+			gzwrite (f, cur_particles_pointer, sizeof (particles_io));
 #else	//ZLIBW
-				fwrite(cur_particles_pointer,sizeof(particles_io),1,f);
+			fwrite (cur_particles_pointer, sizeof (particles_io), 1, f);
 #endif	//ZLIBW
-			}
+		}
 #endif
+
+#ifdef CLUSTER_INSIDES
+		// Compute the clusters and save them
+		compute_clusters (occupied);
+		free (occupied);
+
+		get_clusters (&cluster_data, &cluster_data_len);
+#ifdef ZLIBW
+		gzwrite (f, cluster_data, cluster_data_len);
+#else
+		fwrite (cluster_data, cluster_data_len, 1, f);
+#endif // ZLIBW
+		free (cluster_data);
+#endif // CLUSTER_INSIDES
 
 #ifdef	ZLIBW
 		gzclose(f);
@@ -330,7 +372,7 @@ int save_map(char * file_name)
 
 }
 
-int load_map(char * file_name)
+int load_map (const char* file_name)
 {
 	int i;
 	map_header cur_map_header;
