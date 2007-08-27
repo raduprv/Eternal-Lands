@@ -225,6 +225,22 @@ static __inline__ void update_occupied_with_particle_system (char* occupied, int
  */
 void set_clusters (const char* data);
 
+#ifdef MAP_EDITOR
+/*!
+ * \ingroup maps
+ * \brief Get file data for the cluster map
+ *
+ *	Serialize the cluster map data, and return it through 
+ *	character array \a data of length \a len.
+ *
+ * \param data Address where to store the pointer to the data
+ * \param len  The length of the data in bytes
+ * \note The array in \a *data will be dynamically allocated, and should 
+ *       be \c free'd by the caller.
+ */
+void get_clusters (char** data, int *len);
+#endif
+
 /*!
  * \ingroup maps
  * \brief Group occupied areas into clusters

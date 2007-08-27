@@ -17,6 +17,30 @@ void set_clusters (const char* data)
 		clusters[idx] = SDL_SwapLE16 (cdata[idx]);	
 }
 
+#ifdef MAP_EDITOR
+void get_clusters (char** data, int *len)
+{
+	if (!clusters)
+	{
+		*data = NULL;
+		*len = 0;
+	}
+	else
+	{
+		int nx = tile_map_size_x * 6;
+		int ny = tile_map_size_y * 6;
+		int idx;
+		short* cdata = calloc (nx*ny, sizeof (short));
+
+		for (idx = 0; idx < nx*ny; idx++)
+			cdata[idx] = SDL_SwapLE16 (clusters[idx]);
+
+		*len = nx * ny * sizeof (short);
+		*data = (char *) cdata;
+	}
+}
+#endif
+
 void compute_clusters (const char* occupied) 
 {
 	int nr_clusters;
