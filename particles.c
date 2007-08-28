@@ -684,7 +684,9 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 
 	if (sound_on)
 	{
+#ifdef _EXTRA_SOUND_DEBUG
 		printf("Looking for particle sound for: %s\n", file_name);
+#endif // _EXTRA_SOUND_DEBUG
 		snd = get_sound_index_for_particle_file_name(file_name);
 		if (snd >= 0)
 		{

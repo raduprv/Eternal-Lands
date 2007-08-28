@@ -228,6 +228,9 @@ void get_your_items (const Uint8 *data)
 		item_list[pos].image_id=SDL_SwapLE16(*((Uint16 *)(data+i*8+1)));
 		item_list[pos].quantity=SDL_SwapLE32(*((Uint32 *)(data+i*8+1+2)));
 		item_list[pos].pos=pos;
+#ifdef NEW_SOUND
+		item_list[pos].action = ITEM_NO_ACTION;
+#endif // NEW_SOUND
 		flags=data[i*8+1+7];
 
 		item_list[pos].is_resource=((flags&ITEM_RESOURCE)>0);
@@ -240,21 +243,21 @@ void get_your_items (const Uint8 *data)
 	build_manufacture_list();
 }
 
-void remove_item_from_inventory(int pos)
-{
-	item_list[pos].quantity=0;
-	
 #ifdef NEW_SOUND
+void check_for_item_sound(int pos)
+{
+	int i, snd = -1;
+	
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Used item: %d, Image ID: %d, Action: %d\n", pos, item_list[pos].image_id, item_list[pos].action);
+#endif // _EXTRA_SOUND_DEBUG
 	if (item_list[pos].action != ITEM_NO_ACTION)
 	{
-		int i;
-		char snd_name[10];
 		// Play the sound that goes with this action
 		switch (item_list[pos].action)
 		{
 			case USE_INVENTORY_ITEM:
-				snprintf(snd_name, sizeof(snd_name), "Use %d", item_list[pos].image_id);
-				add_sound_object(get_index_for_inv_item_sound_name(snd_name), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+				snd = get_index_for_inv_use_item_sound(item_list[pos].image_id);
 				break;
 			case ITEM_ON_ITEM:
 				// Find the second item (being used with)
@@ -262,17 +265,28 @@ void remove_item_from_inventory(int pos)
 				{
 					if (i != pos && item_list[i].action == ITEM_ON_ITEM)
 					{
-						snprintf(snd_name, sizeof(snd_name), "Use %d on %d", item_list[pos].image_id, item_list[i].action);
-						add_sound_object(get_index_for_inv_item_sound_name(snd_name), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+						snd = get_index_for_inv_usewith_item_sound(item_list[pos].image_id, item_list[i].action);
 						break;
 					}
 				}
 				break;
 		}
+		if (snd > -1)
+			add_sound_object(snd, your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
 		// Reset the action
 		item_list[pos].action = ITEM_NO_ACTION;
 	}
+}
 #endif // NEW_SOUND
+
+void remove_item_from_inventory(int pos)
+{
+	item_list[pos].quantity=0;
+	
+#ifdef NEW_SOUND
+	check_for_item_sound(pos);
+#endif // NEW_SOUND
+	
 	build_manufacture_list();
 }
 
@@ -307,6 +321,10 @@ void get_new_inventory_item (const Uint8 *data)
 	item_list[pos].is_reagent=((flags&ITEM_REAGENT)>0);
 	item_list[pos].use_with_inventory=((flags&ITEM_INVENTORY_USABLE)>0);
 	item_list[pos].is_stackable=((flags&ITEM_STACKABLE)>0);
+	
+#ifdef NEW_SOUND
+	check_for_item_sound(pos);
+#endif // NEW_SOUND
 	
 	build_manufacture_list();
 }
@@ -622,6 +640,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					my_tcp_send(my_socket,str,2);
 #ifdef NEW_SOUND
 					item_list[pos].action = USE_INVENTORY_ITEM;
+#ifdef _EXTRA_SOUND_DEBUG
+					printf("Using item: %d, inv pos: %d, Image ID: %d\n", item_list[pos].pos, pos, item_list[pos].image_id);
+#endif // _EXTRA_SOUND_DEBUG
 #endif // NEW_SOUND
 				}
 			} else if(item_action_mode==ACTION_USE_WITEM) {
@@ -635,6 +656,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #ifdef NEW_SOUND
 					item_list[use_item].action = ITEM_ON_ITEM;
 					item_list[pos].action = ITEM_ON_ITEM;
+#ifdef _EXTRA_SOUND_DEBUG
+					printf("Using item: %d on item: %d, Image ID: %d\n", pos, use_item, item_list[pos].image_id);
+#endif // _EXTRA_SOUND_DEBUG
 #endif // NEW_SOUND
 				} else {
 					use_item=pos;
@@ -659,7 +683,12 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[0]=LOOK_AT_INVENTORY_ITEM;
 				str[1]=item_list[pos].pos;
 				my_tcp_send(my_socket, str, 2);
-			} else if(item_dragged==-1 && left_click) item_dragged=pos;
+			} else if(item_dragged==-1 && left_click) {
+				item_dragged=pos;
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
+			}
 		} else if(item_dragged!=-1){
 			Uint8 str[20];
 			
@@ -669,7 +698,10 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			str[2]=pos;
 			my_tcp_send(my_socket,str,3);
 			item_dragged=-1;
-		} 
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
+		}
 	}
 	
 	return 1;

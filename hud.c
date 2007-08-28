@@ -20,6 +20,9 @@
 #include "multiplayer.h"
 #include "new_character.h"
 #include "platform.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 #include "spells.h"
 #include "storage.h"
 #include "tabs.h"
@@ -1621,6 +1624,9 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 											any_item=1;
 											if(item_dragged==i)//drop the item only over itself
 												item_dragged=-1;
+#ifdef NEW_SOUND
+											add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 											return 1;
 										}
 								}
@@ -1632,6 +1638,9 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 									str[2]=y;
 									my_tcp_send(my_socket,str,3);
 									item_dragged=-1;
+#ifdef NEW_SOUND
+									add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 									return 1;
 								}
 						}
@@ -1682,6 +1691,9 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 										str[1]=item_list[i].pos;
 										*((Uint32 *)(str+2))=item_list[i].quantity;
 										my_tcp_send(my_socket, str, 4);
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 										return 1;
 									} else if(qb_action_mode==ACTION_LOOK)
 										{
@@ -1697,6 +1709,9 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 													str[0]=USE_INVENTORY_ITEM;
 													str[1]=item_list[i].pos;
 													my_tcp_send(my_socket,str,2);
+#ifdef NEW_SOUND
+													item_list[i].action = USE_INVENTORY_ITEM;
+#endif // NEW_SOUND
 													return 1;
 												}
 											return 1;
@@ -1708,6 +1723,10 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 											str[2]=item_list[i].pos;
 											my_tcp_send(my_socket,str,3);
 											use_item=-1;
+#ifdef NEW_SOUND
+											item_list[use_item].action = ITEM_ON_ITEM;
+											item_list[i].action = ITEM_ON_ITEM;
+#endif // NEW_SOUND
 										}
 										else
 											use_item=i;
@@ -1718,6 +1737,9 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 											if(item_dragged==-1)//we have to drag this item
 												{
 													item_dragged=i;
+#ifdef NEW_SOUND
+													add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 												}
 										}
 

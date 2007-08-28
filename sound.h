@@ -253,14 +253,26 @@ int get_sound_index_for_sfx(int sfx);
 
 /*!
  * \ingroup sound_effects
- * \brief Gets the index of the sound for the string
+ * \brief Gets the index of the sound for the image id
  *
- *      Searches for a sound which matches the item image_id's passed in the input string. A return of -1 indicates no match.
+ *      Searches for a sound which matches the given \a image_id. A return of -1 indicates no match.
  *
- * \param name		    The string to parse for item image_id's
+ * \param image_id	    The image_id to search for
  * \callgraph
  */
-int get_index_for_inv_item_sound_name(const char *name);
+int get_index_for_inv_use_item_sound(int image_id);
+
+/*!
+ * \ingroup sound_effects
+ * \brief Gets the index of the sound for the image id's
+ *
+ *      Searches for a sound which matches the given image_id's. A return of -1 indicates no match.
+ *
+ * \param use_image_id	    	The first image_id (used with)
+ * \param with_image_id	    	The second image_id
+ * \callgraph
+ */
+int get_index_for_inv_usewith_item_sound(int use_image_id, int with_image_id);
 
 /*!
  * \ingroup sound_effects

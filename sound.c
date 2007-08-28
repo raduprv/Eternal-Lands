@@ -66,10 +66,13 @@ typedef struct {
 #define MAX_MAP_BACKGROUND_DEFAULTS 4
 #define MAX_SOUND_MAP_NAME_LENGTH 60
 #define MAX_SOUND_MAP_BOUNDARIES 20
+#define MAX_ITEM_SOUND_IMAGE_IDS 30
+
 #define MAX_SOUND_MAPS 150			// This value is the maximum number of maps sounds can be defined for
 									// (Roja has suggested 150 is safe for now)
 #define MAX_SOUND_EFFECTS 60		// This value should equal the max special_effect_enum
 #define MAX_SOUND_PARTICLES 20		// This value should equal the number of particle effects
+#define MAX_SOUND_ITEMS 5			// This is the number of sounds defined for "Use item" sfx
 
 typedef enum{STAGE_UNUSED=-1,STAGE_INTRO,STAGE_MAIN,STAGE_OUTRO,num_STAGES}SOUND_STAGE;
 typedef struct
@@ -162,6 +165,13 @@ typedef struct
 	int sound;
 }particle_sound_data;
 
+typedef struct
+{
+	int image_id[MAX_ITEM_SOUND_IMAGE_IDS];
+	int num_imageids;
+	int sound;
+}item_sound_data;
+
 #ifdef OGG_VORBIS
 typedef struct
 {
@@ -215,6 +225,7 @@ int sound_num_background_defaults = 0;		// Number of default background sounds
 int sound_num_maps = 0;						// Number of maps we have sounds for
 int sound_num_effects = 0;					// Number of effects we have sounds for
 int sound_num_particles = 0;				// Number of particles we have sounds for
+int sound_num_items = 0;					// Number of "Use item" actions we have sounds for
 
 int snd_cur_map = -1;
 int cur_boundary = 0;
@@ -230,6 +241,7 @@ int crowd_default;												// default sound for crowd effects
 map_sound_data sound_map_data[MAX_SOUND_MAPS];					// data for map sfx
 effect_sound_data sound_effect_data[MAX_SOUND_EFFECTS];			// data for effect sfx
 particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// data for particle sfx
+item_sound_data sound_item_data[MAX_SOUND_ITEMS];				// data for item sfx
 int server_sound[9];											// map of server sounds to sound def ids
 #else
 char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
@@ -1736,7 +1748,7 @@ int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 
 int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers)
 {
-	int error, result, more_stream, i;
+	int error, result, more_stream = 0, i;
 	
 	stop_stream(stream);
 	ov_clear(&stream->stream);
@@ -2217,7 +2229,7 @@ int update_streams(void *dummy)
 {
     int error, sleep, music_fade = 0, sound_fade = 0, crowd_fade = 0, i;
 	int day_time;
-	int tx, ty, old_tx, old_ty;
+	int tx, ty, old_tx = 0, old_ty = 0;
 	ALfloat gain;
 	map_sound_data * cur_map;
    	sleep = SLEEP_TIME;
@@ -2486,9 +2498,9 @@ int display_song_name()
 int ensure_sample_loaded(int index)
 {
 	ALvoid *data;
-#ifdef ALUT_WAV
+#if defined ALUT_WAV && !defined OSX
 	ALboolean loop;
-#endif // ALUT_WAV
+#endif // ALUT_WAV && !OSX
 
 	int error;
 	sound_sample *pSample = &sound_sample_data[index];
@@ -2636,6 +2648,8 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 	ty = camera_y*(-2);
 	printf("Trying to add sound: %d (%s) at %d, %d. Camera: %d, %d\n", type, sound_type_data[type].name, x, y, tx, ty);
 #endif //_EXTRA_SOUND_DEBUG
+	if (type == -1)		// Invalid sound, ignore
+		return 0;
 	
 	if (!have_sound)
 	{
@@ -3300,16 +3314,36 @@ int get_sound_index_for_sfx(int sfx)
 	return -1;
 }
 
-int get_index_for_inv_item_sound_name(const char *name)
+int get_index_for_inv_usewith_item_sound(int use_image_id, int with_image_id)
 {
 	int i;
+	char name[MAX_SOUND_NAME_LENGTH];
+	
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Searching for the sound for: %s\n", name);
+	printf("Searching for the sound for: %d on %d\n", use_image_id, with_image_id);
 #endif //_EXTRA_SOUND_DEBUG
-	for(i = 0; i < num_types; ++i)
+	snprintf(name, sizeof(name), "%d on %d", use_image_id, with_image_id);
+	for (i = 0; i < num_types; ++i)
 	{
-		if (strcasecmp(sound_type_data[i].name,name) == 0)
+		if (strcasecmp(sound_type_data[i].name, name) == 0)
 			return i;
+	}
+	return -1;
+}
+
+int get_index_for_inv_use_item_sound(int image_id)
+{
+	int i, j;
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Searching for the sound for image ID: %d\n", image_id);
+#endif //_EXTRA_SOUND_DEBUG
+	for (i = 0; i < sound_num_items; ++i)
+	{
+		for (j = 0; j < sound_item_data[i].num_imageids; j++)
+		{
+			if (sound_item_data[i].image_id[j] == image_id)
+				return sound_item_data[i].sound;
+		}
 	}
 	return -1;
 }
@@ -3430,17 +3464,26 @@ void clear_sound_data()
 			sound_map_data[i].defaults[j] = 0;
 		}
 	}
-	for (i = 0; i > MAX_SOUND_EFFECTS; i++)
+	for (i = 0; i < MAX_SOUND_EFFECTS; i++)
 	{
 		sound_effect_data[i].id = 0;
 		sound_effect_data[i].sound = -1;
 	}
-	for (i = 0; i > MAX_SOUND_PARTICLES; i++)
+	for (i = 0; i < MAX_SOUND_PARTICLES; i++)
 	{
 		sound_particle_data[i].file[0] = '\0';
 		sound_particle_data[i].sound = -1;
 	}
-	for (i = 0; i > 9; i++)
+	for (i = 0; i < MAX_SOUND_ITEMS; i++)
+	{
+		for (j = 0; j < MAX_ITEM_SOUND_IMAGE_IDS; j++)
+		{
+			sound_item_data[i].image_id[j] = -1;
+		}
+		sound_item_data[i].num_imageids = 0;
+		sound_item_data[i].sound = -1;
+	}
+	for (i = 0; i < 9; i++)
 	{
 		server_sound[i] = -1;
 	}
@@ -3451,6 +3494,7 @@ void clear_sound_data()
 	sound_num_maps = 0;
 	sound_num_effects = 0;
 	sound_num_particles = 0;
+	sound_num_items = 0;
 }
 
 #ifdef OGG_VORBIS
@@ -4320,6 +4364,83 @@ void parse_sound_defaults(xmlNode *inNode)
 	}
 }
 
+void parse_item_image_ids(char * content, item_sound_data * pItem)
+{
+	int i, j;
+	char temp[5];
+	
+	i = 0;
+	j = -1;
+	while (i < strlen(content))
+	{
+		if (content[i] == ',')
+		{
+			if (pItem->num_imageids < MAX_ITEM_SOUND_IMAGE_IDS)
+			{
+				pItem->image_id[pItem->num_imageids++] = atoi(temp);
+				j = -1;
+			}
+			else
+			{
+				LOG_ERROR("Sound config parse error: Too many image ids defined for item sound: %s", content);
+				return;		// Avoid any more errors
+			}
+		}
+		else
+		{
+			j++;
+			if (j < 5)
+				temp[j] = content[i];
+			else
+			{
+				LOG_ERROR("Sound config parse error: Invalid image id defined for item sound: %s...", temp);
+				j = -1;
+			}
+		}
+		i++;
+	}
+}
+
+void parse_item_sound(xmlNode *inNode)
+{
+	xmlNode *attributeNode = NULL;
+	char content[100] = "";
+	item_sound_data * pItem;
+
+	if (inNode->type == XML_ELEMENT_NODE)
+	{
+		if (sound_num_items < MAX_SOUND_ITEMS)
+		{
+			pItem = &sound_item_data[sound_num_items++];
+		
+			for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)
+			{
+				get_string_value(content, sizeof(content), attributeNode);
+				if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"image_ids"))
+				{
+					parse_item_image_ids(content, pItem);
+				}
+				else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"sound"))
+				{
+					pItem->sound = get_index_for_sound_type_name(content);
+					if (pItem->sound == -1)
+					{
+						LOG_ERROR("Sound config parse error: Unknown sound %s for item sound", content);
+					}
+				}
+			}
+		}
+		else
+		{
+			LOG_ERROR("Sound config parse error: Too many Item sounds defined.");
+		}
+	}
+	else if (inNode->type == XML_ENTITY_REF_NODE)
+	{
+		LOG_ERROR("Sound config parse error: Include not allowed in item sound def");
+	}
+}
+
 int parse_sound_defs(xmlNode *node)
 {
 	xmlNode *def;
@@ -4349,9 +4470,13 @@ int parse_sound_defs(xmlNode *node)
 			{
 				parse_particle_sound(def);
 			}
+			else if (xmlStrcasecmp (def->name, (xmlChar*)"item") == 0)
+			{
+				parse_item_sound(def);
+			}
 			else
 			{
-				LOG_ERROR("Sound config parse error: sound or include expected. Found: %s", def->name);
+				LOG_ERROR("Sound config parse error: Unknown element found: %s", def->name);
 				ok = 0;
 			}
 		}
