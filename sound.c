@@ -2639,8 +2639,8 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 	sound_type *pType,*pNewType;
 	float maxDistanceSq=0.0f;
 	SOUND_STAGE stage;
-	ALfloat sourcePos[]={ x, y, 0.0};
-	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
+	ALfloat sourcePos[] = {x, y, 0.0};
+	ALfloat sourceVel[] = {0.0, 0.0, 0.0};
 	ALuint buffer=0;
 	
 #ifdef _EXTRA_SOUND_DEBUG
@@ -2657,6 +2657,14 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 		printf("Sound isn't enabled yet. Have_sound: %d\n", have_sound);
 #endif //_EXTRA_SOUND_DEBUG
 		return 0;
+	}
+
+	if (me)
+	{
+		// Override the sourcePos values to use the camera (listener) position because its me
+		sourcePos[0] = tx;
+		sourcePos[0] = ty;
+		sourcePos[0] = 0.0f;
 	}
 
 	//check it's a valid type, get pType as a pointer to the type data
@@ -3049,7 +3057,7 @@ void stop_all_sounds()
 
 void update_sound(int ms)
 {
-	int i=0,error;
+	int i = 0, error;
 	//we rebuild the list of active sources, as some may have become
 	//inactive due to the sound ending.
 	source_data *pSource = sound_source_data;
@@ -3059,29 +3067,38 @@ void update_sound(int ms)
 	ALint numProcessed, buffer, state;
 
 	int source;
-	int x,y,distanceSq,maxDistSq;
+	int x, y, distanceSq, maxDistSq;
 	int relative;
-	int tx=-camera_x*2;
-	int ty=-camera_y*2;
-	ALfloat sourcePos[3]={0.0f,0.0f,0.0f};
-	ALfloat listenerPos[]={tx,ty,0.0f};
+	int tx=-camera_x * 2;
+	int ty=-camera_y * 2;
+	ALfloat sourcePos[3] = {0.0f,0.0f,0.0f};
+	ALfloat listenerPos[] = {tx,ty,0.0f};
 
-	if(!have_sound || !used_sources)return;
+	if (!have_sound || !used_sources) return;
 	LOCK_SOUND_LIST();
 
 #ifdef ELC
 	//first, update the position of actor (animation) sounds
-	for(i=0;i<max_actors;i++)
+	for(i = 0; i < max_actors; i++)
 	{
-		if(!actors_list[i] || !actors_list[i]->cur_anim_sound_cookie)
+		if (!actors_list[i] || !actors_list[i]->cur_anim_sound_cookie)
 			continue;
 		
 		source = find_sound_source_from_cookie(actors_list[i]->cur_anim_sound_cookie);
-		if(source < 0)
+		if (source < 0)
 			continue;
 		
-		sourcePos[0] = actors_list[i]->x_pos*2;
-		sourcePos[1] = actors_list[i]->y_pos*2;
+		if (actors_list[i]->actor_id == yourself)
+		{
+			// If this is you, use the camera position rather than your actual position (same as listener)
+			sourcePos[0] = tx;
+			sourcePos[1] = ty;
+		}
+		else
+		{
+			sourcePos[0] = actors_list[i]->x_pos * 2;
+			sourcePos[1] = actors_list[i]->y_pos * 2;
+		}
 		sourcePos[2] = 0.0f;
 		alSourcefv(sound_source_data[source].source, AL_POSITION, sourcePos);
 	}
