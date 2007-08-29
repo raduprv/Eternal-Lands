@@ -106,7 +106,7 @@ void compute_clusters (const char* occupied)
 				{
 					clusters[idx] = cidx;
 					for (i = 0; i < 4; i++)
-						if (nb_idx[i])
+						if (nb_idx[i] && cluster_idx[nb_idx[i]] > cidx)
 							cluster_idx[nb_idx[i]] = cidx;
 				}
 			}
