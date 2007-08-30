@@ -1,4 +1,3 @@
-#include <sys/stat.h>
 #include "map_io.h"
 #include "../2d_objects.h"
 #include "../3d_objects.h"
@@ -14,8 +13,9 @@
 #include "../translate.h"
 #ifdef	NEW_FILE_IO
 #include "elfilewrapper.h"
+#else
+#include <sys/stat.h>
 #endif	//NEW_FILE_IO
-
 #ifdef EYE_CANDY
  #include "../eye_candy_wrapper.h"
 #endif

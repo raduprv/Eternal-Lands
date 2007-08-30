@@ -20,13 +20,15 @@
  *      misrepresented as being the original software.
  *  3.  This notice may not be removed or altered from any source distribution.
  *
- *  Version: $Id: amx.h,v 1.6 2007/07/10 14:54:51 grum Exp $
+ *  Version: $Id: amx.h,v 1.7 2007/08/30 16:45:20 grum Exp $
  */
 
 #ifndef AMX_H_INCLUDED
 #define AMX_H_INCLUDED
 
 // Map EL defines to AMX defines
+#include "../platform.h"
+
 #ifndef HAVE_STDINT_H
   #ifndef _MSC_VER
     #define HAVE_STDINT_H

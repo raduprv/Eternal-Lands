@@ -7,6 +7,14 @@
 #ifndef PLATFORM_H
 #define PLATFORM_H
 
+// Try to use compiler macros to detect 64-bitness. According to 
+// http://predef.sourceforge.net/prearch.html , these ought to work on
+// gcc, Sun Studio and Visual Studio.
+// Throw in ia64 as well, though I doubt anyone will play EL on that.
+#if defined (__x86_64__) || defined (_M_X64) || defined (__ia64__) || defined (_M_IA64)
+ #define X86_64
+#endif
+
 // only ever use WINDOWS anywhere else, in case we need to add another 'catch' to 
 // enable WINDOWS
 #if defined (_WIN32) || defined (_WIN64)

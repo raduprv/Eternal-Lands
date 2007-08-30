@@ -241,11 +241,20 @@ CHECK_GL_ERRORS();
 }
 
 #ifndef MAP_EDITOR2
+// XXX FIXME
+// Grum: This function doesn't seem to be used at all, can it be removed?
 void draw_actor_reflection(actor * actor_id)
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int texture_id;
+
+#ifdef CLUSTER_INSIDES
+	if (actor_id->cluster && actor_id->cluster != get_actor_cluster ())
+		// Actor is not on our cluster, don't draw his 
+		// reflection either
+		return;
+#endif
 
 	CHECK_GL_ERRORS();
 	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
@@ -290,6 +299,13 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 	int texture_id;
+
+#ifdef CLUSTER_INSIDES
+	if (actor_id->cluster && actor_id->cluster != get_actor_cluster ())
+		// Actor is not on our cluster, don't draw his 
+		// reflection either
+		return;
+#endif
 
 	CHECK_GL_ERRORS();
 	
