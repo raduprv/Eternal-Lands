@@ -12,6 +12,7 @@
 #include "sound.h"
 #ifdef NEW_WEATHER
 #include <SDL_timer.h>
+#include "errors.h"
 #include "text.h"
 #endif
 #ifdef OPENGL_TRACE
