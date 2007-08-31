@@ -1664,7 +1664,7 @@ void _text_field_set_nr_lines (widget_list *w, int nr_lines)
 	}
 }
 
-int skip_message(text_message* msg, Uint8 filter)
+int skip_message (const text_message *msg, Uint8 filter)
 {
 	int skip = 0;
 	int channel = msg->chan_idx;
@@ -1694,11 +1694,11 @@ int skip_message(text_message* msg, Uint8 filter)
 void text_field_find_cursor_line(text_field* tf)
 {
 	int i, line = 0;
-	text_message* msg = &tf->buffer[tf->msg];
+	const text_message* msg = &tf->buffer[tf->msg];
 	for (i = 0; i < msg->len; i++)
 	{
 		if (i == tf->cursor) tf->cursor_line = line;
-		if ((msg->data[i] == '\n') || (msg->data[i] == '\r')) line++;
+		if (msg->data[i] == '\n' || msg->data[i] == '\r') line++;
 	}
 	tf->nr_lines = line + 1; // we'll call _text_field_set_nr_lines later;
 	if (tf->cursor >= msg->len) tf->cursor_line = line;
@@ -2585,7 +2585,7 @@ const struct WIDGET_TYPE text_field_type = {
 	text_field_destroy
 };
 
-int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b)
+int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space)
 {
 	int res;
 
@@ -2601,9 +2601,6 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	T->cursor = (Flags & TEXT_FIELD_EDITABLE) ? 0 : -1;
 	T->cursor_line = T->cursor;
 	T->next_blink = TF_BLINK_DELAY;
-	T->text_r = text_r;
-	T->text_g = text_g;
-	T->text_b = text_b;
 	if (Flags & TEXT_FIELD_SCROLLBAR)
 	{
 		T->scrollbar_width = 20;
@@ -2638,7 +2635,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 
 int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, text_message *buf, int buf_size, int x_space, int y_space)
 {
-	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, FILTER_ALL, x_space, y_space, -1.0, -1.0, -1.0);
+	return text_field_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, TEXT_FIELD_BORDER, 1.0, -1.0, -1.0, -1.0, buf, buf_size, FILTER_ALL, x_space, y_space);
 }
 
 int text_field_draw (widget_list *w)
@@ -2717,11 +2714,6 @@ int text_field_draw (widget_list *w)
 		glEnd ();
 		
 		glEnable (GL_TEXTURE_2D);
-	}
-
-	if (tf->text_r >= 0.0f)
-	{
-		glColor3f (tf->text_r, tf->text_g, tf->text_b);
 	}
 
 	if(mx > 0 && mx < w->len_x - tf->scrollbar_width && my > 0 && my < w->len_y && !(w->Flags&WIDGET_CLICK_TRANSPARENT) && w->Flags&TEXT_FIELD_EDITABLE){
@@ -2814,8 +2806,7 @@ int text_field_clear (int window_id, Uint32 widget_id)
 		return 0;
 	
 	msg = &(tf->buffer[tf->msg]);
-	memset (msg->data, 0, msg->size);
-	msg->len = 0;
+	clear_text_message_data (msg);
 	
 	tf->cursor = 0;
 	tf->cursor_line = 0;

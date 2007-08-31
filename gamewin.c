@@ -2158,12 +2158,15 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
 
-		if(input_widget == NULL) {
+		if(input_widget == NULL)
+		{
 			Uint32 id;
-			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN, 1.0, 1.0, 1.0);
+			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(game_root_win, id);
 			input_widget->OnResize = input_field_resize;
-		} else {
+		}
+		else
+		{
 			widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
 			widget_resize (input_widget->window_id, input_widget->id, width-HUD_MARGIN_X, input_widget->len_y);
 			input_widget->OnResize = input_field_resize;

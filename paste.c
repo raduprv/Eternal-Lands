@@ -19,19 +19,12 @@ void do_paste_to_text_field (text_field *tf, const char* text)
 	// is editable, and the data buffer reallocatable.
 	int bytes = strlen (text);
 	text_message* msg = &tf->buffer[tf->msg];
-	int min_size, p;
+	int p;
 
 	while (bytes > 0 && !text[bytes - 1])
 		bytes--;
-	min_size = msg->len + bytes + 1;
-	if (msg->size < min_size)
-	{
-		int new_size = msg->size;
-		while (new_size < min_size)
-			new_size *= 2;
-		msg->data = realloc (msg->data, new_size);
-		msg->size = new_size;
-	}
+	resize_text_message_data (msg, msg->len + bytes);
+
 	p = tf->cursor;
 	memmove (&msg->data[p + bytes], &msg->data[p], msg->len - p + 1);
 	memcpy (&msg->data[p], text, bytes);

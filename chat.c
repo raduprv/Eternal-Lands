@@ -325,7 +325,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
 				
 			set_window_min_size (channels[ichan].tab_id, 0, 0);
-			channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id, channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+			channels[ichan].out_id = text_field_add_extended (channels[ichan].tab_id, channels[ichan].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, channel, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 
 			set_window_handler (channels[ichan].tab_id, ELW_HANDLER_DESTROY, close_channel);
 				
@@ -384,7 +384,7 @@ Uint8 get_tab_channel (Uint8 channel)
 	return channel;
 }
 
-void update_chat_window (text_message * msg, char highlight)
+void update_chat_window (text_message *msg, char highlight)
 {
 	int ichan, len, nlines, width, channel;
 	char found;
@@ -942,19 +942,23 @@ void create_chat_window(void)
 	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0);
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
-	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, -1.0, -1.0, -1.0);
+	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 	channels[0].chan_nr = CHAT_ALL;
 	channels[0].nr_lines = 0;
 	channels[0].open = 1;
 	channels[0].newchan = 0;
 	active_tab = 0;		
 
-	if(input_widget == NULL) {
+	if(input_widget == NULL)
+	{
 		Uint32 id;
-		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, 1.0, 1.0, 1.0);
+		set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
+		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 		widget_set_OnKey (chat_win, id, chat_input_key);
 		input_widget = widget_find(chat_win, id);
-	} else {
+	}
+	else
+	{
 		window_info *win;
 		widget_move_win(input_widget->window_id, input_widget->id, chat_win);
 		win = &windows_list.window[chat_win];

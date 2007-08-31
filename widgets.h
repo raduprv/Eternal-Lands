@@ -157,7 +157,6 @@ typedef struct
 {
 	int msg, offset;
 	int cursor, cursor_line;
-	float text_r, text_g, text_b;
 	int buf_size, buf_fill;
 	int nr_lines, nr_visible_lines;
 	int update_bar;
@@ -1269,14 +1268,11 @@ int text_field_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 l
  * \param	chan_filt the channel of which messages are drawn
  * \param	x_space the number of pixels in the x-direction between the border and the text
  * \param	y_space the number of pixels in the y-direction between the border and the text
- * \param	text_r red component of the text color, or -1.0 for default
- * \param	text_g green component of the text color, or -1.0 for default
- * \param	text_b blue component of the text color, or -1.0 for default
  * \retval int  	Returns the new widgets unique ID 
  *
  * \sa text_field_add
  */
-int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space, float text_r, float text_g, float text_b);
+int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 x, Uint16 y, Uint16 lx, Uint16 ly, Uint32 Flags, float size, float r, float g, float b, text_message *buf, int buf_size, Uint8 chan_filt, int x_space, int y_space);
 
 /*!
  * \ingroup	textfields
@@ -1464,7 +1460,7 @@ int AddXMLWindow(char *fn);
  *
  * \return 1 if message doesnt fit filter (should be skipped), 0 otherwise.
  */
-int skip_message(text_message* msg, Uint8 filter);
+int skip_message (const text_message *msg, Uint8 filter);
 
 #ifdef __cplusplus
 } // extern "C"

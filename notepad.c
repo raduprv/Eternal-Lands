@@ -143,23 +143,20 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 	widget_list *wok;
 	widget_list *wno;
 
-	popup_text.len = 0;
-	popup_text.size = maxlen;
-	popup_text.chan_idx = CHAT_NONE;
-
 	if(popup_win < 0)
 	{		  
 		popup_win = create_window (win_prompt, parent, 0, x, y, popup_x_len, popup_y_len, ELW_WIN_DEFAULT);
 
 		// clear the buffer
-		popup_text.data = calloc ( popup_text.size, sizeof (char) );
+		init_text_message (&popup_text, maxlen);
+		set_text_message_color (&popup_text, 0.77f, 0.57f, 0.39f);
 
 		// Label
 		popup_label = label_add (popup_win, NULL, label, 5, 5);
 		widget_set_color (popup_win, popup_label, 0.77f, 0.57f, 0.39f);
 		
 		// Input
-		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 28, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+		popup_field = text_field_add_extended (popup_win, note_widget_id++, NULL, 5, 28, popup_x_len - 20, 28, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, 1.0f, 0.77f, 0.57f, 0.39f, &popup_text, 1, FILTER_ALL, 5, 5);
 		widget_set_color (popup_win, popup_field, 0.77f, 0.57f, 0.39f);
 
 		// Accept
@@ -182,6 +179,7 @@ void display_popup_win (int parent, int x, int y, char* label, int maxlen)
 	}
 	else
 	{
+		clear_text_message_data (&popup_text);
 		label_set_text (popup_win, popup_label, label);
 		show_window (popup_win);
 		select_window (popup_win);
@@ -305,20 +303,23 @@ void update_note_button_scrollbar (int nr)
 	}
 }
 	
-static void init_note(int id, const char* name)
+static void init_note (int id, const char* name, const char* content)
 {
-	note_list[id].text.chan_idx = CHAT_NONE;
-	note_list[id].text.data = NULL;
-	note_list[id].text.size = 0;
-	note_list[id].text.len = 0;
-	note_list[id].text.wrap_width = 0;
-	note_list[id].text.wrap_zoom = 0;
-	note_list[id].text.wrap_lines = 0;
-	note_list[id].text.max_line_width = 0;
-	note_list[id].text.deleted = 0;
+	int nsize = MIN_NOTE_SIZE;
+	if (content)
+	{
+		int len = strlen (content);
+		while (nsize <= len)
+			nsize += nsize;
+	}
+
+	init_text_message (&(note_list[id].text), nsize);
+	set_text_message_data (&(note_list[id].text), content);
+	set_text_message_color (&(note_list[id].text), 0.77f, 0.57f, 0.39f);
+
 	note_list[id].button_id = -1;
 	note_list[id].window = -1;
-	my_strncp (note_list[id].name, name, NOTE_NAME_LEN);
+	safe_strncpy (note_list[id].name, name, sizeof (note_list[id].name));
 }
 
 int notepad_load_file ()
@@ -378,8 +379,8 @@ int notepad_load_file ()
 	{
 		if ((!xmlStrcasecmp (cur->name, (const xmlChar *)"NOTE")))
 		{
-			int nsize = MIN_NOTE_SIZE, len = 0;
-		
+			const char* data = cur->children ? cur->children->content : NULL;
+			
 			if (nr_notes >= note_list_size)
 			{
 				int new_size = note_list_size * 2;
@@ -388,22 +389,10 @@ int notepad_load_file ()
 			}
 
 			name = xmlGetProp (cur, (xmlChar *)"NAME");
-			init_note(nr_notes, (char *)name);
+			init_note (nr_notes, (char *)name, data);
 			xmlFree(name);
 
-			if (cur->children == NULL)
-				len = 0;
-			else
-				len = strlen ((char*)cur->children->content);
-			while (nsize <= len)
-				nsize += nsize;
-			note_list[nr_notes].text.data = calloc ( nsize, sizeof (char) );
-			note_list[nr_notes].text.size = nsize;
-			if (len > 0)
-				my_strcp (note_list[nr_notes].text.data, (char*)cur->children->content);
-			note_list[nr_notes].text.len = len;
-				    
-			rewrap_message(&note_list[nr_notes].text, 1.0f, notepad_win_x_len - 70, NULL);
+			rewrap_message (&note_list[nr_notes].text, 1.0f, notepad_win_x_len - 70, NULL);
 			
 			nr_notes++;
 		}
@@ -480,7 +469,7 @@ int notepad_remove_category (widget_list *w, int mx, int my, Uint32 flags)
 	
 	tab_collection_close_tab (notepad_win, note_tabcollection_id, cur_tab);
 	widget_destroy (main_note_tab_id, note_list[id].button_id);
-	free (note_list[id].text.data);
+	free_text_message_data (&(note_list[id].text));
 
 	// shift all notes after the deleted note one up
 	if (id < nr_notes-1)
@@ -522,7 +511,7 @@ void open_note_tab_continued (int id)
 	widget_set_color (notepad_win, note_list[id].window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
-	note_list[id].input = text_field_add_extended (note_list[id].window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, note_zoom, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, 5, 5, 0.77f, 0.57f, 0.39f);
+	note_list[id].input = text_field_add_extended (note_list[id].window, note_widget_id++, NULL, tf_x, tf_y, tf_width, tf_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_CAN_GROW|TEXT_FIELD_SCROLLBAR, note_zoom, 0.77f, 0.57f, 0.39f, &note_list[id].text, 1, FILTER_ALL, 5, 5);
 	
 	// remove button
 	note_list[id].button = button_add (note_list[id].window, NULL, button_remove_category, 20, 8);
@@ -582,9 +571,7 @@ void notepad_add_continued (const char *name)
 		note_list_size = new_size;
 	}
 
-	init_note(i, name);
-	note_list[i].text.size = MIN_NOTE_SIZE;
-	note_list[i].text.data = calloc ( MIN_NOTE_SIZE, sizeof (char) );
+	init_note (i, name, NULL);
 	note_button_add (i);
 	
 	open_note_tab_continued (i);

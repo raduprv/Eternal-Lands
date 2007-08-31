@@ -279,13 +279,16 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_CLICK, &click_console_handler);
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 
-		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 25, width - hud_x - 20, height - INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0, -1.0f, -1.0f, -1.0f);
-		if(input_widget == NULL) {
+		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 25, width - hud_x - 20, height - INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
+		if(input_widget == NULL)
+		{
 			Uint32 id;
-			id = text_field_add_extended(console_root_win, 0, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, (INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN, 1.0, 1.0, 1.0);
+			id = text_field_add_extended(console_root_win, 0, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, (INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(console_root_win, id);
 			input_widget->OnResize = input_field_resize;
-		} else {
+		}
+		else
+		{
 			widget_move_win(input_widget->window_id, input_widget->id, console_root_win);
 			widget_resize (input_widget->window_id, input_widget->id, width-HUD_MARGIN_X, input_widget->len_y);
 			widget_move (input_widget->window_id, input_widget->id, 0, height-input_widget->len_y-HUD_MARGIN_Y);

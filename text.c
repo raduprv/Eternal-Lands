@@ -59,26 +59,57 @@ FILE	*srv_log=NULL;
 /* forward declaration */
 void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
 
+void alloc_text_message_data (text_message *msg, int size)
+{
+	msg->data = size > 0 ? calloc (size, 1) : NULL;
+	msg->size = size;
+	msg->len = 0;
+}
+
+void resize_text_message_data (text_message *msg, int len)
+{
+	if (msg->size <= len)
+	{
+		int nsize = msg->size ? 2 * msg->size : len+1;
+		while (nsize < len)
+			nsize += nsize;
+		msg->data = realloc (msg->data, nsize);
+		msg->size = nsize;
+        }
+}
+
+void set_text_message_data (text_message *msg, const char* data)
+{
+	if (data == NULL || data[0] == '\0')
+	{
+		clear_text_message_data (msg);
+	}
+	else if (msg->size > 0)
+	{
+		safe_strncpy (msg->data, data, msg->size);
+		msg->len = strlen (msg->data);
+        }
+}
+
 void init_text_buffers ()
 {
-	memset ( display_text_buffer, 0, sizeof (display_text_buffer) );
+	int i;
+
+	for (i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; i++)
+		init_text_message (display_text_buffer + i, 0);
+
+	init_text_message (&input_text_line, MAX_TEXT_MESSAGE_LENGTH + 1);
 	input_text_line.chan_idx = CHAT_ALL;
-	input_text_line.len = 0;
-	input_text_line.size = MAX_TEXT_MESSAGE_LENGTH + 1;
-	input_text_line.data = malloc (input_text_line.size);
-	input_text_line.data[0] = '\0';
+	set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
 }
 
 void cleanup_text_buffers(void)
 {
 	int i;
 
-	free(input_text_line.data);
-	for(i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; i++) {
-		if(!display_text_buffer[i].deleted && display_text_buffer[i].data != NULL && display_text_buffer[i].data[0] != '\0'){
-			free(display_text_buffer[i].data);
-		}
-	}
+	free_text_message_data (&input_text_line);
+	for(i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; i++) 
+		free_text_message_data (display_text_buffer + i);
 }
 
 void update_text_windows (text_message * pmsg)
@@ -655,11 +686,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		total_nr_lines -= msg->wrap_lines;
 		msg->deleted = 1;
 		update_text_windows(msg);
-		msg->data[0]= '\0';
-		msg->len= 0;
-		msg->size= 0;
-		free(msg->data);
-		msg->data= NULL;
+		free_text_message_data (msg);
 	}
 
 	// Allow for a null byte and up to 8 extra newlines and colour codes.
@@ -668,12 +695,10 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	if (cnr != 0)
 		// allow some space for the channel number
 		minlen += 20;
-	if (msg->data == NULL || msg->size < minlen)
-	{
-		if (msg->data != NULL) free (msg->data);
-		msg->data = malloc (minlen);
-		msg->size = minlen;
-	}
+	if (msg->data == NULL)
+		alloc_text_message_data (msg, minlen);
+	else
+		resize_text_message_data (msg, minlen);
 
 	if (cnr != 0)
 	{
@@ -689,12 +714,12 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		if(!IS_COLOR(text_to_add[0]))
 		{
 			// force the color
-			safe_snprintf(msg->data, minlen, "%c%.*s", color + 127, len, text_to_add);
+			safe_snprintf (msg->data, msg->size, "%c%.*s", color + 127 + c_red1, len, text_to_add);
 		}
 		else
 		{
 			// color set by server
-			safe_snprintf(msg->data, minlen, "%.*s", len, text_to_add);
+			safe_snprintf (msg->data, msg->size, "%.*s", len, text_to_add);
 		}
 	}
 	else
@@ -708,12 +733,12 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		if(!IS_COLOR(text_to_add[0]))
 		{
 			// force the color
-			safe_snprintf(msg->data, minlen, "%c%.*s @ %s%.*s", color + 127, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s", color + 127 + c_red1, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
 		}
 		else
 		{
 			// color set by server
-			safe_snprintf(msg->data, minlen, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			safe_snprintf (msg->data, msg->size, "%.*s @ %s%.*s", ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
 		}
 	}
 
@@ -938,7 +963,7 @@ void console_move_up ()
 		nl_found = 0;
 		while (1)
 		{
-			char *data = display_text_buffer[console_msg_nr].data;
+			const char *data = display_text_buffer[console_msg_nr].data;
 			for (ichar = console_msg_offset; ichar >= 0; ichar--)
 			{
 				if (data[ichar] == '\n' || data[ichar] == '\r')
@@ -964,7 +989,7 @@ void console_move_down ()
 {
 	int ichar;
 	int max_lines;
-	char *data = display_text_buffer[console_msg_nr].data;
+	const char *data = display_text_buffer[console_msg_nr].data;
 
 	if (!not_from_the_end_console)
 		// we can't scroll down anymore
@@ -1026,56 +1051,23 @@ void console_move_page_up()
 		}
 }
 
-// XXX FIXME (Grum): obsolete
-/*
-void display_console_text ()
-{
-	int max_lines;
-	int command_line_y;
-	int nr_command_lines = 1;
-	int i;
-
-	for (i = 0; input_text_line.data[i] != '\0'; i++)
-		if (input_text_line.data[i] == '\n' || input_text_line.data[i] == '\r')
-			nr_command_lines++;
-
-	//get the number of lines we have - the last one, which is the command line
-	max_lines = ( window_height - 17 * (2 + nr_command_lines) ) / 18 - 2;
-	if (not_from_the_end_console) max_lines--;
-	command_line_y = window_height - 17 * (4 + nr_command_lines);
-
-	if(!not_from_the_end_console)
-		find_last_console_lines (max_lines);
-
-	draw_messages (0, 0, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, console_msg_nr, console_msg_offset, -1, window_width, 17*max_lines, 1.0);
-
-	glColor3f (1.0f, 1.0f, 1.0f);
-	if (not_from_the_end_console)
-		draw_string (0, command_line_y - 18, "^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^ ^^", 2);
-	draw_string (0, command_line_y, input_text_line.data, nr_command_lines);
-}
-*/
-
 void clear_display_text_buffer ()
 {
 	int i;
-	for (i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; ++i){
-		if(!display_text_buffer[i].deleted && display_text_buffer[i].data != NULL && display_text_buffer[i].data[0] != '\0'){
-			display_text_buffer[i].data[0]= '\0';
-			free(display_text_buffer[i].data);
+	for (i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; ++i)
+	{
+		if (!display_text_buffer[i].deleted && display_text_buffer[i].data != NULL && display_text_buffer[i].data[0] != '\0'){
+			free_text_message_data (display_text_buffer + i);
 		}
 		display_text_buffer[i].deleted= 1;
-		display_text_buffer[i].len= 0;
-		display_text_buffer[i].size= 0;
-		display_text_buffer[i].data= NULL;
 	}
 
-	buffer_full= 0;
-	console_msg_nr= 0;
-	console_msg_offset= 0;
-	last_message= -1;
-	last_server_message_time= cur_time;
-	total_nr_lines= 0;
+	buffer_full = 0;
+	console_msg_nr = 0;
+	console_msg_offset = 0;
+	last_message = -1;
+	last_server_message_time = cur_time;
+	total_nr_lines = 0;
 	not_from_the_end_console = 1;
 
 	clear_console();

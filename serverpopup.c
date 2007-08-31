@@ -73,7 +73,7 @@ static int scroll_line;
 static int get_line_number_offset(int *line, const text_message * const wt)
 {
 	int i, curr_line, last_start, is_start;
-	for (i=0, curr_line=0, last_start=0, is_start=1; i<strlen(wt->data); ++i)
+	for (i=0, curr_line=0, last_start=0, is_start=1; i<wt->len; ++i)
 	{
 		/* if a line start */
 		if (is_start){
@@ -217,7 +217,7 @@ static int resize_handler(window_info *win, int width, int height)
 		height - sep - button_widget->len_y);
 
 	/* if there is no text widget, we're done */
-	if (!strlen(widget_text.data)){
+	if (text_message_is_empty (&widget_text)) {
 		return 1;
 	}
 	
@@ -238,7 +238,7 @@ static int resize_handler(window_info *win, int width, int height)
 	
 	/* resize the text widget and rewrap the text as the size will have changed */
 	widget_resize(server_popup_win, textId, text_widget_width, text_widget_height);
-	if (strlen(widget_text.data)){
+	if (!text_message_is_empty (&widget_text)) {
 		num_text_lines = rewrap_message(&widget_text, chat_zoom, text_widget_width - 2*sep, NULL);
 	}
 
@@ -250,7 +250,7 @@ static int resize_handler(window_info *win, int width, int height)
 		text_widget_width = width - (2*sep + actual_scroll_width);
 		widget_resize(server_popup_win, textId, text_widget_width, text_widget_height);
 		/* rewrap the text again as the available width is now less */
-		if (strlen(widget_text.data))
+		if (!text_message_is_empty (&widget_text))
 			num_text_lines = rewrap_message(&widget_text, chat_zoom, text_widget_width - 2*sep, NULL);
 	}
 	
@@ -342,25 +342,17 @@ void display_server_popup_win(const char * const message)
 	/* make a copy of the message body so we can modify it and so the caller can free the memory
 		 make the copy bigger than we need so it can be text rewrapped */
 	message_body_size = 2*strlen(message);
-	message_body = (char *)calloc(message_body_size, sizeof(Uint8));
-	safe_strncpy(message_body, &message[body_index], message_body_size * sizeof(Uint8));
 		
 	/* initialise the window text widget text buffer */
-	widget_text.chan_idx = CHAT_NONE;
-	widget_text.data = message_body;
-	widget_text.len = strlen(message_body);
-	widget_text.size = message_body_size;
-	widget_text.wrap_width = 0;
-	widget_text.wrap_zoom = 0;
-	widget_text.wrap_lines = 0;
-	widget_text.max_line_width = 0;
-	
+	init_text_message (&widget_text, message_body_size);
+	set_text_message_data (&widget_text, &message[body_index]);
+
 	/* make sure the text font is set so width calculations work properly */
-		set_font(chat_font);
+	set_font(chat_font);
 	
 	/* do a pre-wrap of the text to the maximum screen width we can use
 		 this will avoid the later wrap (after the resize) changing the number of lines */
-	if (strlen(widget_text.data)){
+	if (!text_message_is_empty (&widget_text)) {
 		num_text_lines = rewrap_message(&widget_text, chat_zoom, (window_width - unusable_width) - 4*sep, NULL);
 	}
 	
@@ -388,7 +380,7 @@ void display_server_popup_win(const char * const message)
 		
 	/* create the window with initial size and location */
 	win_property_flags = ELW_TITLE_BAR|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER;
-	if (strlen(widget_text.data)){
+	if (!text_message_is_empty (&widget_text)) {
 		win_property_flags |= ELW_RESIZEABLE;
 	}
 	server_popup_win = create_window( win_title, our_root_win, 0,
@@ -404,14 +396,14 @@ void display_server_popup_win(const char * const message)
  
 	/* calc the text widget height from the number of lines */
 	winHeight = 2*sep + button_widget->len_y;
-	if (strlen(widget_text.data))
+	if (!text_message_is_empty (&widget_text))
 	{
 		text_widget_height = 1 + 2*sep + num_text_lines * DEFAULT_FONT_Y_LEN * chat_zoom;
 		winHeight = text_widget_height + 3*sep + button_widget->len_y;
 	}
 	
 	/* make sure we can always display at least one line (if any) and the OK button */
-	if (!strlen(widget_text.data)){
+	if (text_message_is_empty (&widget_text)) {
 		min_height = get_height(0);
 	} else if (min_height < get_height(1)){
 		min_height = get_height(1);
@@ -429,13 +421,13 @@ void display_server_popup_win(const char * const message)
 	}
 	
 	/* if we'll need a scroll bar allow for it in the width calulation */
-	if (strlen(widget_text.data) && (text_widget_height < (2*sep + num_text_lines * DEFAULT_FONT_Y_LEN * chat_zoom))){
+	if (!text_message_is_empty (&widget_text) && (text_widget_height < (2*sep + num_text_lines * DEFAULT_FONT_Y_LEN * chat_zoom))){
 		actual_scroll_width = scroll_width;
 	}
 
 	/* calc the require window width for the text size */
 	/* the fudge is that the width cal doe snot work 100% exactly for some fonts :( */
-	if (strlen(widget_text.data)){
+	if (!text_message_is_empty (&widget_text)) {
 		text_widget_width = sep/*fudge*/ + 2*sep + widget_text.max_line_width;
 	} else {
 		text_widget_width = 0;
@@ -464,10 +456,10 @@ void display_server_popup_win(const char * const message)
 	}
 	
 	/* create the text widget */
-	if (strlen(widget_text.data)){
+	if (!text_message_is_empty (&widget_text)) {
 		textId = text_field_add_extended( server_popup_win, textId, NULL, sep, sep,
 			text_widget_width, text_widget_height, TEXT_FIELD_BORDER|TEXT_FIELD_NO_KEYPRESS,
-			chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE, sep, sep, -1.0, -1.0, -1.0);
+			chat_zoom, 0.77f, 0.57f, 0.39f, &widget_text, 1, FILTER_NONE, sep, sep);
 	}
 
 	/* resize the window now we have the required size */

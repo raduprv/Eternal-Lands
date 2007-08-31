@@ -6,6 +6,7 @@
 #ifndef __TEXT_H__
 #define __TEXT_H__
 
+#include <stdlib.h>
 #include <SDL_types.h>
 
 #ifdef __cplusplus
@@ -41,6 +42,7 @@ typedef struct
 	Uint8 wrap_lines;
 	Uint8 deleted;
 	float max_line_width;
+	float r, g, b;
 } text_message;
 
 extern text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
@@ -63,6 +65,128 @@ extern char not_from_the_end_console;
 extern int log_chat; /*!< flag stating whether to log server messages or not */
 
 extern int current_text_width; /*!< Current wrapping width for text buffers */
+
+
+/*!
+ * \brief Allocate the character buffer for a text_message
+ *
+ *	Allocates memory for the character buffer of text_message \a msg, 
+ *	and initializes its size and used length.
+ *
+ * \param msg  The text_message for which to allocate a buffer
+ * \param size The desired size of the buffer
+ */
+void alloc_text_message_data (text_message *msg, int size);
+
+/*!
+ * \brief Resize the character buffer of a text_message
+ *
+ *	If necessary, resize the character buffer of text_message \a msg, 
+ *	so that it can hold at least a (zero-terminated) string of \a len 
+ *	characters. If \a len is less than the current allocated size,
+ *	nothing is done, otherwise the array is doubled in size until
+ *	it is large enough. The existing data in the text_message's 
+ *	buffer is preserved.
+ *
+ * \param msg The text_message that should be resized
+ * \param len The new minimum size of the character string
+ */
+void resize_text_message_data (text_message *msg, int len);
+
+/*!
+ * \brief Clear the text string of a text_message
+ *
+ *	Set the text of text_message \a msg to an empty string.
+ *
+ * \param msg The text message to be cleared
+ */
+static __inline__ void clear_text_message_data (text_message *msg)
+{
+	msg->len = 0;
+	if (msg->size > 0)
+		msg->data[0] = '\0';
+}
+
+/*!
+ * \brief Copy a string into a text_message
+ *
+ *	Copy string \a data into the character buffer of text_message 
+ *	\a msg. Note that if the current character buffer is too small 
+ *	to hold all of \a data, only the first part is copied.
+ *
+ * \param msg  The text_message to be updated
+ * \patam data The string to be copied
+ * \sa resize_text_message_data()
+ */
+void set_text_message_data (text_message *msg, const char* data);
+
+/*!
+ * \brief Free a text_message's character buffer
+ *
+ *	Free the memory allocated for the character buffer in 
+ *	text_message \a msg.
+ *
+ * \param msg The text_message whose character buffer will be freed
+ */
+static __inline__ void free_text_message_data (text_message *msg)
+{
+	if (msg->size > 0)
+	{
+		free (msg->data);
+		msg->data = NULL;
+		msg->len = msg->size = 0;
+	}
+}
+
+/*!
+ * \brief Set the color of a text_message
+ *
+ *	Set the color in which the text of text_message \a msg should 
+ *	be drawn. Note that this color is inly used until the first
+ *	color character in the text is encountered.
+ *
+ * \param msg The text message for which to set the color
+ * \param r   The red component of the new text color 
+ * \param g   The green component of the new text color 
+ * \param b   The blue component of the new text color 
+ */
+static __inline__ void set_text_message_color (text_message *msg, float r, float g, float b)
+{
+	msg->r = r;
+	msg->g = g;
+	msg->b = b;
+}
+
+/*!
+ * \brief Initialize a text_message
+ *
+ *	Initialize text_message \a msg by allocating a character buffer
+ *	of \a size bytes, and setting the other fields to default 
+ *	values.
+ *
+ * \param msg  The text_message to be initialized
+ * \param size The initial size of the \a msg's characetr buffer
+ */
+static __inline__ void init_text_message (text_message *msg, Uint16 size)
+{
+	msg->chan_idx = CHAT_NONE;
+	msg->channel = 0;
+	alloc_text_message_data (msg, size);		
+	msg->wrap_width = 0;
+	msg->wrap_zoom = 1.0f;
+	msg->wrap_lines = 0;
+	msg->deleted = 0;
+	msg->max_line_width = 0.0f;
+	set_text_message_color (msg, -1.0f, -1.0f, -1.0f);
+}
+
+/*!
+ * \brief Whether text message \a msg is empty
+ */
+static __inline__ int text_message_is_empty (const text_message *msg)
+{
+	return msg->len == 0;
+}
 
 /*!
  * \ingroup text_font

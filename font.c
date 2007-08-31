@@ -269,7 +269,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	unsigned char ch;
 	int cur_line = 0;
 	int cur_col = 0;
-	unsigned char last_color_char = 127 + c_grey1;
+	unsigned char last_color_char = 0;
 	int in_select = 0;
 
 	imsg = msg_start;
@@ -303,26 +303,26 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 	}
 #endif //! MAP_EDITOR2
 
-	if (ichar > 0) {
-		ch = msgs[imsg].data[ichar];
-		if (!IS_COLOR (ch))
+	ch = msgs[imsg].data[ichar];
+	if (!IS_COLOR (ch))
+	{
+		// search backwards for the last color
+		for (i = ichar-1; i >= 0; i--)
 		{
-			// search backwards for the last color
-			for (i = ichar-1; i >= 0; i--)
+			ch = msgs[imsg].data[i];
+			if (IS_COLOR (ch))
 			{
-				ch = msgs[imsg].data[i];
-				if (IS_COLOR (ch))
-				{
-					float r, g, b;
-					last_color_char = ch;
-					ch -= 127+c_lbound;
-					r = colors_list[ch].r1 / 255.0f;
-					g = colors_list[ch].g1 / 255.0f;
-					b = colors_list[ch].b1 / 255.0f;
-					glColor3f (r, g, b);
-					break;
-				}
+				find_font_char (ch);
+				last_color_char = ch;
+				break;
 			}
+		}
+
+		if (i < 0)
+		{
+			// no color character found, try the message color
+			if (msgs[imsg].r >= 0)
+				glColor3f (msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
 		}
 	}
 
@@ -360,26 +360,20 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			if (filter != FILTER_ALL)
 			{
 				// skip all messages of the wrong channel
-				while (1)
+				while (skip_message (&msgs[imsg], filter))
 				{
-					if (skip_message(&msgs[imsg], filter))
-					{
-						if (++imsg >= msgs_size) imsg = 0;
-						if (msgs[imsg].data == NULL || imsg == msg_start) break;
-					}
-					else
-					{
-						break;
-					}
+					if (++imsg >= msgs_size) imsg = 0;
+					if (msgs[imsg].data == NULL || imsg == msg_start) break;
 				}
 			}
 #endif
 			if (msgs[imsg].data == NULL || imsg == msg_start || msgs[imsg].deleted) break;
-			rewrap_message(&msgs[imsg], text_zoom, width, NULL);
+			rewrap_message (&msgs[imsg], text_zoom, width, NULL);
 			ichar = 0;
+			last_color_char = 0;
 		}
 	
-		if ((select != NULL) && (select->lines[cur_line].msg == -1))
+		if (select != NULL && select->lines[cur_line].msg == -1)
 		{
 			select->lines[cur_line].msg = imsg;
 			select->lines[cur_line].chr = ichar;
@@ -410,7 +404,13 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		{
 			if (in_select)
 			{
-				find_font_char(last_color_char);
+				if (last_color_char)
+					find_font_char (last_color_char);
+				else if (msgs[imsg].r < 0)
+					find_font_char (127 + c_grey1);
+				else
+					glColor3f (msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
+
 				in_select = 0;
 			}
 		}
@@ -427,9 +427,15 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		i++;
 		if (cur_x - x > width - displayed_font_x_size)
 		{
-			// ignore rest of this line
-			while (msgs[imsg].data[ichar] != '\0' && msgs[imsg].data[ichar] != '\n' && msgs[imsg].data[ichar] != '\r')
+			// ignore rest of this line, but keep track of
+			// color characters
+			while (1)
 			{
+				ch = msgs[imsg].data[ichar];
+				if (ch == '0' || ch == '\n' || ch == '\r')
+					break;
+				if (IS_COLOR (ch))
+					last_color_char = ch;
 				ichar++;
 				i++;
 			}
