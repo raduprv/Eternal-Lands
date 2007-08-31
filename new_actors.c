@@ -149,7 +149,7 @@ int cal_get_head(actor *act, float *x, float *y, float *z)
 	int nrPoints;
 	struct CalSkeleton *skel;
 
-	if(act->calmodel == NULL){
+	if(act == NULL || act->calmodel == NULL){
 		//Uhoh...
 		return 1;
 	}
