@@ -863,6 +863,8 @@ void next_command()
 						if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw) {
 							float rotation_angle;
 
+							actors_list[i]->moving=1;
+							actors_list[i]->fighting=0;
 							if(last_command<move_n || last_command>move_nw){//update the frame name too
 								cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
 								actors_list[i]->stop_animation=0;
@@ -886,7 +888,6 @@ void next_command()
 							actors_list[i]->move_y_speed=(actors_defs[actor_type].walk_speed/3.0f)*cos(targeted_z_rot*M_PI/180.0);
 							actors_list[i]->movement_frames_left=54/4;
 							actors_list[i]->after_move_frames_left=0;
-							actors_list[i]->moving=1;
 							//test to see if we have a diagonal movement, and if we do, adjust the speeds
 							if((actors_list[i]->move_x_speed>0.01f || actors_list[i]->move_x_speed<-0.01f)
 							   && (actors_list[i]->move_y_speed>0.01f || actors_list[i]->move_y_speed<-0.01f)) {
@@ -894,7 +895,6 @@ void next_command()
 								actors_list[i]->move_y_speed*=1.4142315;
 							}
 
-							actors_list[i]->fighting=0;
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
 

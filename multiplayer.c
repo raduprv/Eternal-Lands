@@ -590,7 +590,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				show_window (game_root_win);
 
 #if defined NEW_SOUND && OGG_VORBIS
-				// Try to turn on the music as it isn't need up until now
+				// Try to turn on the music as it isn't needed up until now
 				if (music_on)
 					turn_music_on();
 #endif // NEW_SOUND && OGG_VORBIS
@@ -1805,6 +1805,9 @@ static void process_data_from_server(queue_t *queue)
 				LOG_ERROR ("Packet overrun, protocol = %d, size = %u\n", pData[0], size);
 				in_data_used = 0;
 				disconnected = 1;
+#ifdef NEW_SOUND
+			stop_all_sounds();
+#endif // NEW_SOUND
 #ifdef COUNTERS
 				disconnect_time = SDL_GetTicks();
 #endif
@@ -1847,6 +1850,9 @@ int get_message_from_server(void *thread_args)
 			LOG_TO_CONSOLE(c_red2, alt_x_quit);
 			in_data_used = 0;
 			disconnected = 1;
+#ifdef NEW_SOUND
+			stop_all_sounds();
+#endif // NEW_SOUND
 #ifdef COUNTERS
 			disconnect_time = SDL_GetTicks();
 #endif

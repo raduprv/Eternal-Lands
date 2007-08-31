@@ -48,6 +48,20 @@ void draw_tile_map();
  */
 void load_map_tiles();
 
+#ifdef NEW_SOUND
+/*!
+ * \ingroup 	tile
+ * \brief 	Returns the tile for input coordinates
+ *
+ *      	Return the type of tile for \a x and \a y.
+ *
+ * \param x						X coordinate
+ * \param y						Y coordinate
+ * \callgraph
+ */
+int get_tile_type(int x, int y);
+#endif // NEW_SOUND
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

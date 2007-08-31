@@ -21,6 +21,9 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	actor *pActor = actors_list[id];
 	struct CalMixer *mixer;
 	int i;
+#ifdef NEW_SOUND
+	int snd;
+#endif // NEW_SOUND
 
 	//char str[255];
 	//sprintf(str, "actor:%d anim:%d type:%d delay:%f\0",id,anim.anim_index,anim.kind,delay);
@@ -101,12 +104,28 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	pActor->IsOnIdle=0;
 
 #ifdef NEW_SOUND
-	//make sure any previous sound is stopped...
+	// Make sure any previous sound is stopped
 	stop_sound(pActor->cur_anim_sound_cookie);
-	if(anim.sound > -1)
+	// Check if we need a walking sound
+	if (pActor->is_enhanced_model && pActor->moving && !pActor->fighting)
 	{
-		//...and add a new sound if one exists
-		pActor->cur_anim_sound_cookie = add_sound_object(	anim.sound,
+		// We are walking, so look for a walking sound for this tile
+		snd = get_tile_sound(get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2));
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Actor: %s, Pos: %d, %d, Current tile type: %d, Sound: %d\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2), snd);
+#endif // _EXTRA_SOUND_DEBUG
+		// No sound for this tile, fall back on the default (set in the animation)
+		if (snd == -1)
+			snd = anim.sound;
+	}
+	else
+	{
+			snd = anim.sound;
+	}
+	if(snd > -1)
+	{
+		// Found a sound, so add it
+		pActor->cur_anim_sound_cookie = add_sound_object(	snd,
 															2*pActor->x_pos,
 															2*pActor->y_pos,
 															pActor->actor_id == yourself ? 1 : 0);

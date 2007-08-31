@@ -322,6 +322,9 @@ int load_empty_map()
 		LOG_ERROR(cant_change_map, "./maps/nomap.elm");
 		SDLNet_TCP_Close(my_socket);
 		disconnected = 1;
+#ifdef NEW_SOUND
+		stop_all_sounds();
+#endif // NEW_SOUND
 #ifdef COUNTERS
 		disconnect_time = SDL_GetTicks();
 #endif

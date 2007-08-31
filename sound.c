@@ -67,6 +67,8 @@ typedef struct {
 #define MAX_SOUND_MAP_NAME_LENGTH 60
 #define MAX_SOUND_MAP_BOUNDARIES 20
 #define MAX_ITEM_SOUND_IMAGE_IDS 30
+#define MAX_SOUND_TILE_TYPES 20
+#define MAX_SOUND_TILES 20
 
 #define MAX_SOUND_MAPS 150			// This value is the maximum number of maps sounds can be defined for
 									// (Roja has suggested 150 is safe for now)
@@ -172,6 +174,13 @@ typedef struct
 	int sound;
 }item_sound_data;
 
+typedef struct
+{
+	int tile_type[MAX_SOUND_TILES];
+	int num_tile_types;
+	int sound;
+}tile_sound_data;
+
 #ifdef OGG_VORBIS
 typedef struct
 {
@@ -226,6 +235,7 @@ int sound_num_maps = 0;						// Number of maps we have sounds for
 int sound_num_effects = 0;					// Number of effects we have sounds for
 int sound_num_particles = 0;				// Number of particles we have sounds for
 int sound_num_items = 0;					// Number of "Use item" actions we have sounds for
+int sound_num_tile_types = 0;				// Number of tile type groups we have sounds for
 
 int snd_cur_map = -1;
 int cur_boundary = 0;
@@ -242,6 +252,7 @@ map_sound_data sound_map_data[MAX_SOUND_MAPS];					// data for map sfx
 effect_sound_data sound_effect_data[MAX_SOUND_EFFECTS];			// data for effect sfx
 particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// data for particle sfx
 item_sound_data sound_item_data[MAX_SOUND_ITEMS];				// data for item sfx
+tile_sound_data sound_tile_data[MAX_SOUND_TILE_TYPES];				// data for tile (walking) sfx
 int server_sound[9];											// map of server sounds to sound def ids
 #else
 char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
@@ -3365,6 +3376,29 @@ int get_index_for_inv_use_item_sound(int image_id)
 	return -1;
 }
 
+int get_tile_sound(int tile_type)
+{
+	int i, j;
+	
+	// Check for unknown/invalid tile type
+	if (tile_type == -1)
+		return -1;
+	
+	for (i = 0; i < MAX_SOUND_TILE_TYPES; i++)
+	{
+		for (j = 0; j < sound_tile_data[i].num_tile_types; j++)
+		{
+			if (sound_tile_data[i].tile_type[j] == tile_type)
+			{
+				// Found a matching tile type so return the sound
+				return sound_tile_data[i].sound;
+			}
+		}
+	}
+	// If we got here, we don't have a sound for this tile type
+	return -1;
+}
+
 //find the index of the source associated with this cookie.
 //note that this result must not be stored, but used immediately;
 int find_sound_source_from_cookie(unsigned int cookie)
@@ -3500,6 +3534,15 @@ void clear_sound_data()
 		sound_item_data[i].num_imageids = 0;
 		sound_item_data[i].sound = -1;
 	}
+	for (i = 0; i < MAX_SOUND_TILE_TYPES; i++)
+	{
+		for (j = 0; j < MAX_SOUND_TILES; j++)
+		{
+			sound_tile_data[i].tile_type[j] = -1;
+		}
+		sound_tile_data[i].num_tile_types = 0;
+		sound_tile_data[i].sound = -1;
+	}
 	for (i = 0; i < 9; i++)
 	{
 		server_sound[i] = -1;
@@ -3512,6 +3555,7 @@ void clear_sound_data()
 	sound_num_effects = 0;
 	sound_num_particles = 0;
 	sound_num_items = 0;
+	sound_num_tile_types = 0;
 }
 
 #ifdef OGG_VORBIS
@@ -4449,12 +4493,89 @@ void parse_item_sound(xmlNode *inNode)
 		}
 		else
 		{
-			LOG_ERROR("Sound config parse error: Too many Item sounds defined.");
+			LOG_ERROR("Sound config parse error: Too many item sounds defined.");
 		}
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
 		LOG_ERROR("Sound config parse error: Include not allowed in item sound def");
+	}
+}
+
+void parse_tile_types(char * content, tile_sound_data * pTileType)
+{
+	int i, j;
+	char temp[5];
+	
+	i = 0;
+	j = -1;
+	while (i < strlen(content))
+	{
+		if (content[i] == ',')
+		{
+			if (pTileType->num_tile_types < MAX_SOUND_TILE_TYPES)
+			{
+				pTileType->tile_type[pTileType->num_tile_types++] = atoi(temp);
+				j = -1;
+			}
+			else
+			{
+				LOG_ERROR("Sound config parse error: Too many tile types defined for tile type sound: %s", content);
+				return;		// Avoid any more errors
+			}
+		}
+		else
+		{
+			j++;
+			if (j < 5)
+				temp[j] = content[i];
+			else
+			{
+				LOG_ERROR("Sound config parse error: Invalid tile type defined for tile type sound: %s...", temp);
+				j = -1;
+			}
+		}
+		i++;
+	}
+}
+
+void parse_tile_type_sound(xmlNode *inNode)
+{
+	xmlNode *attributeNode = NULL;
+	char content[100] = "";
+	tile_sound_data * pTileType;
+
+	if (inNode->type == XML_ELEMENT_NODE)
+	{
+		if (sound_num_items < MAX_SOUND_ITEMS)
+		{
+			pTileType = &sound_tile_data[sound_num_tile_types++];
+		
+			for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)
+			{
+				get_string_value(content, sizeof(content), attributeNode);
+				if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"tiles"))
+				{
+					parse_tile_types(content, pTileType);
+				}
+				else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"sound"))
+				{
+					pTileType->sound = get_index_for_sound_type_name(content);
+					if (pTileType->sound == -1)
+					{
+						LOG_ERROR("Sound config parse error: Unknown sound %s for tile type sound", content);
+					}
+				}
+			}
+		}
+		else
+		{
+			LOG_ERROR("Sound config parse error: Too many tile type sounds defined.");
+		}
+	}
+	else if (inNode->type == XML_ENTITY_REF_NODE)
+	{
+		LOG_ERROR("Sound config parse error: Include not allowed in tile type sound def");
 	}
 }
 
@@ -4490,6 +4611,10 @@ int parse_sound_defs(xmlNode *node)
 			else if (xmlStrcasecmp (def->name, (xmlChar*)"item") == 0)
 			{
 				parse_item_sound(def);
+			}
+			else if (xmlStrcasecmp (def->name, (xmlChar*)"tile_type") == 0)
+			{
+				parse_tile_type_sound(def);
 			}
 			else
 			{
