@@ -86,22 +86,22 @@ float weather_severity = 1.0f;
 
 const float precip_colour[][4] = { 
 	{ 0.0f, 0.0f, 0.0f, 0.00f },	//WEATHER_NONE
-	{ 0.5f, 0.5f, 0.5f, 0.60f },	//WEATHER_RAIN
+	{ 0.6f, 0.6f, 0.7f, 0.40f },	//WEATHER_RAIN
 	{ 0.8f, 0.9f, 1.0f, 0.70f },	//WEATHER_SNOW
 	{ 0.6f, 0.8f, 1.0f, 1.00f },	//WEATHER_HAIL
 	{ 1.0f, 0.85f, 0.0f, 0.9f },	//WEATHER_SAND
 	{ 0.5f, 0.3f, 0.1f, 0.75f },	//WEATHER_DUST
 	{ 0.75f, 0.0f, 0.0f, 1.0f } };	//WEATHER_LAVA
 
-const float min_fog = 0.01f;
+const float min_fog = 0.025f;	//How much fog when there is no weather active
 const float fog_level[WEATHER_TYPES] = {
 	0.00f,	//WEATHER_NONE
-	0.15f,	//WEATHER_RAIN
-	0.10f,	//WEATHER_SNOW
-	0.10f,	//WEATHER_HAIL
-	0.15f,	//WEATHER_SAND
+	0.06f,	//WEATHER_RAIN
+	0.07f,	//WEATHER_SNOW
+	0.03f,	//WEATHER_HAIL
+	0.08f,	//WEATHER_SAND
 	0.10f,	//WEATHER_DUST
-	0.05f	//WEATHER_LAVA
+	0.03f	//WEATHER_LAVA
 };
 const float precip_z_delta[WEATHER_TYPES] = {
 	0.00f,	//WEATHER_NONE
@@ -317,7 +317,7 @@ void set_rain_color(void){
 		}
 	}
 	for(i = 0; i < 3; ++i){
-		rain_color[i] = interpolate(weather_severity/2.0f, rain_color[i], 0.5f*sun_ambient_light[i] + ((dungeon || !is_day)? 0.2f : 0.5f)*difuse_light[i]);
+		rain_color[i] = interpolate((weather_severity * weather_get_fadeinout_bias()), 0.5f*sun_ambient_light[i] + ((dungeon || !is_day)? 0.2f : 0.5f)*difuse_light[i], rain_color[i]);
 	}
 }
 
@@ -459,32 +459,25 @@ void clear_weather(){
 }
 
 int weather_use_fog(){
-	if (!use_fog) return 0;
-	return weather_active();
+	/*if (!use_fog) return 0;
+	return weather_active();*/
+	return use_fog;
 }
 
 
 void render_fog()
 {
 	float current_severity = weather_severity * weather_get_fadeinout_bias();
-	float density = 0.0f;
+	float density = interpolate(current_severity, min_fog, precip_avg(fog_level));
 	int i;
 	float particle_alpha, diffuse_bias, tmpf;
-	char have_particles;
-
-	if(weather_active()){
-		density = interpolate(current_severity, min_fog, precip_avg(fog_level));
-		have_particles = 1;
-	} else {
-		have_particles = 0;
-	}
 
 	// estimate portion of scene colours that the fog covers
 	tmpf = exp(-10.0f*density);
 	fog_alpha = 1.0f - tmpf*tmpf;
 
 	// estimate portion of scene colours that the particles cover
-	particle_alpha = (have_particles)? 0.2f*rain_color[3]*current_severity : 0.0f;
+	particle_alpha = weather_active() ? (0.2f*rain_color[3]*current_severity) : 0.0f;
 	// in dungeons and at night we use smaller light sources ==> less diffuse light
 	diffuse_bias = (dungeon || !is_day)? 0.2f : 0.5f;
 
@@ -492,7 +485,7 @@ void render_fog()
 	for (i = 0; i < 3; i++) {
 		// blend ambient and diffuse light to build a base fog color
 		float tmp = 0.5f*sun_ambient_light[i] + diffuse_bias*difuse_light[i];
-		if (have_particles) {
+		if (weather_active()) {
 			// blend base color with weather particle color
 			rain_color[i] = interpolate(particle_alpha, tmp, rain_color[i]);
 		} else {
