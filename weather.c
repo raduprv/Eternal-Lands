@@ -84,7 +84,7 @@ Uint32 weather_stop_time;
 Uint32 weather_time;
 float weather_severity = 1.0f;
 
-const float precip_colour[][4] = { 
+const float precip_colour[][4] = { //in RGBA
 	{ 0.0f, 0.0f, 0.0f, 0.00f },	//WEATHER_NONE
 	{ 0.6f, 0.6f, 0.7f, 0.40f },	//WEATHER_RAIN
 	{ 0.8f, 0.9f, 1.0f, 0.70f },	//WEATHER_SNOW
@@ -94,7 +94,7 @@ const float precip_colour[][4] = {
 	{ 0.75f, 0.0f, 0.0f, 1.0f } };	//WEATHER_LAVA
 
 const float min_fog = 0.025f;	//How much fog when there is no weather active
-const float fog_level[WEATHER_TYPES] = {
+const float fog_level[WEATHER_TYPES] = {	//Maximum levels of fog
 	0.00f,	//WEATHER_NONE
 	0.06f,	//WEATHER_RAIN
 	0.07f,	//WEATHER_SNOW
@@ -103,7 +103,8 @@ const float fog_level[WEATHER_TYPES] = {
 	0.10f,	//WEATHER_DUST
 	0.03f	//WEATHER_LAVA
 };
-const float precip_z_delta[WEATHER_TYPES] = {
+
+const float precip_z_delta[WEATHER_TYPES] = {	//How fast do the particles fall?
 	0.00f,	//WEATHER_NONE
 	0.25f,	//WEATHER_RAIN
 	0.005f,	//WEATHER_SNOW
@@ -112,7 +113,8 @@ const float precip_z_delta[WEATHER_TYPES] = {
 	0.005f,	//WEATHER_DUST
 	0.05f	//WEATHER_LAVA
 };
-const float precip_wind_effect[WEATHER_TYPES] = {
+
+const float precip_wind_effect[WEATHER_TYPES] = {	//How much does the wind affect the particles? Note: after the fall speed is taken into account, hence why snow is affected less than rain
 	0.00f,	//WEATHER_NONE
 	2.50f,	//WEATHER_RAIN
 	0.10f,	//WEATHER_SNOW
@@ -121,7 +123,8 @@ const float precip_wind_effect[WEATHER_TYPES] = {
 	0.50f,	//WEATHER_DUST
 	1.00f	//WEATHER_LAVA
 };
-const float precip_part_per[WEATHER_TYPES] = {
+
+const float precip_part_per[WEATHER_TYPES] = {	//How thick is the precipitation? lavamaps only have a few embers per level of fog, so they're really low
 	0.00f,	//WEATHER_NONE
 	0.75f,	//WEATHER_RAIN
 	1.00f,	//WEATHER_SNOW
@@ -279,10 +282,13 @@ void get_weather_from_server(const Uint8* data){
 		//EC_TAG
 		return;
 	} else if(data[0] > WEATHER_TYPES){
+#ifdef DEBUG
 		LOG_TO_CONSOLE(c_red1, "Server sent an unknown weather type");
+#endif /* DEBUG */
+		LOG_ERROR("Server sent unknown weather type %d", data[0]);
 		return;
 		//from now on, deal with the set of precipitations
-	}else if(data[2] == 0 && !weather_active()){
+	} else if(data[2] == 0 && !weather_active()){
 		return;	//stop? but we're already stopped...
 	} else if(data[2] != 0 && weather_active()){
 		set_weather_ratio(data[0], data[2]);
