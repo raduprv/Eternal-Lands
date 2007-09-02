@@ -2742,6 +2742,7 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 		printf("Sound overflow: %s, %d\n", pNewType->name, i);
 #endif //_EXTRA_SOUND_DEBUG
 
+		UNLOCK_SOUND_LIST();
 		return 0;
 	}
 	//this is the lowest-priority sound but there is a spare slot at the end of the list
@@ -2767,6 +2768,7 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Sound missing main part!!\n");
 #endif //_EXTRA_SOUND_DEBUG
+		UNLOCK_SOUND_LIST();
 		return 0;
 	}
 
@@ -2778,6 +2780,7 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 #ifdef _EXTRA_SOUND_DEBUG
 			printf("Error: problem loading sample: %d\n", pNewType->sample_indices[i]);
 #endif //_EXTRA_SOUND_DEBUG
+			UNLOCK_SOUND_LIST();
 			return 0;
 		}
 	}
