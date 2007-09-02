@@ -92,7 +92,7 @@ void zip_file_system::add_zip_archive(const std::string &file_name)
 	}
 }
 
-int zip_file_system::read_files_entry(Uint8* pos, int size) const
+int zip_file_system::read_files_entry(const Uint8* pos, int size) const
 {
 	int i;
 
@@ -109,20 +109,20 @@ int zip_file_system::read_files_entry(Uint8* pos, int size) const
 
 int zip_file_system::get_uint32_from_pos(Uint8* &pos) const
 {
-	uint32_t value;
+	Uint32 value;
 
-	memcpy(&value, pos, sizeof(uint32_t));
-	pos = &pos[sizeof(uint32_t)];
+	memcpy(&value, pos, sizeof(Uint32));
+	pos = &pos[sizeof(Uint32)];
 
 	return SDL_SwapLE32(value);
 }
 
 int zip_file_system::get_uint16_from_pos(Uint8* &pos) const
 {
-	uint16_t value;
+	Uint16 value;
 
-	memcpy(&value, pos, sizeof(uint16_t));
-	pos = &pos[sizeof(uint16_t)];
+	memcpy(&value, pos, sizeof(Uint16));
+	pos = &pos[sizeof(Uint16)];
 
 	return SDL_SwapLE16(value);
 }

@@ -80,7 +80,7 @@ class zip_file_system
 		 * @param size The size of the memory block to that pos points.
 		 * @return Returns the position of the files entry block relativ to the pointer.
 		 */
-		int read_files_entry(Uint8* pos, int size) const;
+		int read_files_entry(const Uint8* pos, int size) const;
 
 		/**
 		 * @brief Gets an uint32_t from pos and increase pos.
