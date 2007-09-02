@@ -7,6 +7,7 @@
 #include <errno.h>
 
 #include "eye_candy.h"
+#include "../platform.h"
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
 #endif
