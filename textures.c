@@ -24,13 +24,18 @@
 #ifdef SKY_FPV_CURSOR
 
 //Some textures just can't be compressed (written for custom cursors)
-int compression_enabled = 1;
-__inline__ void enable_compression(){
+static int compression_enabled = 1;
+
+void enable_compression ()
+{
 	compression_enabled = 1;
 }
-__inline__ void disable_compression(){
+
+void disable_compression ()
+{
 	compression_enabled = 0;
 }
+
 #endif /* SKY_FPV_CURSOR */
 
 __inline__ static void set_texture_filter(texture_filter filter, float anisotropic_filter)
