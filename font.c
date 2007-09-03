@@ -432,7 +432,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			while (1)
 			{
 				ch = msgs[imsg].data[ichar];
-				if (ch == '0' || ch == '\n' || ch == '\r')
+				if (ch == '\0' || ch == '\n' || ch == '\r')
 					break;
 				if (IS_COLOR (ch))
 					last_color_char = ch;
