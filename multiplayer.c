@@ -317,6 +317,9 @@ void connect_to_server()
 	if(!set)
         {
             log_error("SDLNet_AllocSocketSet: %s\n", SDLNet_GetError());
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Error"), 0, 0, 1);
+#endif // NEW_SOUND
 			SDLNet_Quit();
 			SDL_Quit();
 			exit(4); //most of the time this is a major error, but do what you want.
@@ -325,6 +328,9 @@ void connect_to_server()
 	if(SDLNet_ResolveHost(&ip,(char*)server_address,port)==-1)
 		{
 			LOG_TO_CONSOLE(c_red2,failed_resolve);
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
+#endif // NEW_SOUND
 			return;
 		}
 
@@ -334,6 +340,9 @@ void connect_to_server()
 			LOG_TO_CONSOLE(c_red1,failed_connect);
 			LOG_TO_CONSOLE(c_red1,reconnect_str);
 			LOG_TO_CONSOLE(c_red1,alt_x_quit);
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
+#endif // NEW_SOUND
 			return;
 		}
 
@@ -370,7 +379,10 @@ void connect_to_server()
 	last_heart_beat= time(NULL);
 	send_heart_beat();	// prime the hearbeat to prevent some stray issues when there is lots of lag
 	hide_window(trade_win);
-	
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Connected"), 0, 0, 1);
+#endif // NEW_SOUND
+		
 	//BUDDY-FIXME: once server-side offline buddies are supported, the next 4 lines can go
 	//For the buddy notifications
 	if(time(NULL) > c_time) {
@@ -1807,6 +1819,7 @@ static void process_data_from_server(queue_t *queue)
 				disconnected = 1;
 #ifdef NEW_SOUND
 			stop_all_sounds();
+			add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
 #endif // NEW_SOUND
 #ifdef COUNTERS
 				disconnect_time = SDL_GetTicks();
@@ -1852,6 +1865,7 @@ int get_message_from_server(void *thread_args)
 			disconnected = 1;
 #ifdef NEW_SOUND
 			stop_all_sounds();
+			add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
 #endif // NEW_SOUND
 #ifdef COUNTERS
 			disconnect_time = SDL_GetTicks();

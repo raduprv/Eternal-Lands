@@ -86,7 +86,7 @@ void set_login_error (const char *msg, int len, int print_err)
 
 #ifdef NEW_SOUND
 	if ((snd = get_index_for_sound_type_name("Login Error")) > -1)
-		add_sound_object(snd, 0, 0, 0);
+		add_sound_object(snd, 0, 0, 1);
 #endif // NEW_SOUND
 }
 
