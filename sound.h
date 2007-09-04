@@ -22,8 +22,9 @@ extern "C" {
 
 #define SOUNDS_NONE 0
 #define SOUNDS_ENVIRO 1
-#define SOUNDS_ACTOR 2
-#define SOUNDS_WALKING 3
+#define SOUNDS_MAP 2
+#define SOUNDS_ACTOR 3
+#define SOUNDS_WALKING 4
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */

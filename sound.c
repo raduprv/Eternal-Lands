@@ -2705,7 +2705,7 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 	}
 
 	// Check if we have a main part. Refuse to play a sound which doesn't have one.
-	if(pNewType->sample_indices[STAGE_MAIN]<0)
+	if (pNewType->sample_indices[STAGE_MAIN] < 0)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Sound missing main part!!\n");
@@ -2714,7 +2714,7 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 	}
 
 	// Check we can load all buffers used by this type
-	for(i = 0; i < 3; ++i)
+	for (i = 0; i < 3; ++i)
 	{
 		if (pNewType->sample_indices[i] >= 0 && ensure_sample_loaded(pNewType->sample_indices[i]) != 0)
 		{
@@ -2726,7 +2726,17 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 	}
 	
 	// Load the sound into the loaded sounds array
-	loaded_sound_num = num_loaded_sounds++;
+	loaded_sound_num = get_loaded_sound_num();
+	if (loaded_sound_num == -1)
+	{
+#ifdef ELC
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error: Too many sounds loaded!! n00b! Not playing this sound: %d (%s)\n", type, pNewType->name);
+#endif //_EXTRA_SOUND_DEBUG
+		LOG_ERROR("Error: Too many sounds loaded. Not playing this sound: %d (%s)\n", type, pNewType->name);
+#endif
+		return 0;
+	}
 	loaded_sounds[loaded_sound_num].sound = type;
 	loaded_sounds[loaded_sound_num].x = x;
 	loaded_sounds[loaded_sound_num].y = y;
@@ -2973,7 +2983,6 @@ source_data *insert_sound_source_at_index(unsigned int index)
 int stop_sound_source_at_index(int index)
 {
 	ALuint error;
-	int relative, looping;
 	source_data *pSource, sourceTemp;
 	if (index < 0 || index >= used_sources)
 		return 0;
@@ -2996,10 +3005,8 @@ int stop_sound_source_at_index(int index)
 #endif //_EXTRA_SOUND_DEBUG
 	}
 
-	// Check if we should unload this sound (is positional and looping)
-	alGetSourcei(pSource->source, AL_SOURCE_RELATIVE, &relative);
-	alGetSourcei(pSource->source, AL_LOOPING, &looping);
-	if (relative == AL_TRUE || looping != AL_TRUE)
+	// Check if we should unload this sound (is not a map sound)
+	if (sound_type_data[loaded_sounds[pSource->loaded_sound].sound].type != SOUNDS_MAP)
 		unload_sound(pSource->loaded_sound);
 
 	// We can't lose a source handle - copy this...
@@ -3082,6 +3089,13 @@ void stop_all_sounds()
 #endif //_EXTRA_SOUND_DEBUG
 		stop_sound_source_at_index(0);
 	}
+	i = 0;
+	// Force all the sounds to be unloaded (probably changing maps)
+	while (i < MAX_BUFFERS * 2)
+	{
+		unload_sound(i);
+		i++;
+	}
 #ifdef	OGG_VORBIS
 	if (have_music)
 	{
@@ -3109,6 +3123,20 @@ void stop_all_sounds()
 	}
 }
 
+int get_loaded_sound_num()
+{
+	int i;
+	// Loop through the array looking for an unused spot (sound = -1)
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
+	{
+		if (loaded_sounds[i].sound == -1)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 void unload_sound(int index)
 {
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3118,12 +3146,17 @@ void unload_sound(int index)
 	// FIXME: Should we unload the buffer as well??
 	
 	// Shift all the next loaded_sounds up a place, overwriting the stopped sound
-	memcpy(loaded_sounds, loaded_sounds+1, sizeof(sound_loaded) * (num_loaded_sounds - (index + 1)));
+/*	memcpy(loaded_sounds, loaded_sounds+1, sizeof(sound_loaded) * (num_loaded_sounds - (index + 1)));
 	// Blank the last element
 	loaded_sounds[num_loaded_sounds - 1].sound = -1;
 	loaded_sounds[num_loaded_sounds - 1].x = -1;
 	loaded_sounds[num_loaded_sounds - 1].y = -1;
 	loaded_sounds[num_loaded_sounds - 1].playing = 0;
+*/
+	loaded_sounds[index].sound = -1;
+	loaded_sounds[index].x = -1;
+	loaded_sounds[index].y = -1;
+	loaded_sounds[index].playing = 0;
 	num_loaded_sounds--;
 }
 
@@ -3152,7 +3185,7 @@ void update_sound(int ms)
 	if (!have_sound) return;
 
 	// Check for any loaded sounds that have come back into range
-	for (i = 0; i < num_loaded_sounds; i++)
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
 		if (!loaded_sounds[i].playing)
 		{
@@ -3348,7 +3381,6 @@ void update_sound(int ms)
 				// Free up this source
 				stop_sound_source_at_index(i);
 				loaded_sounds[pSource->loaded_sound].playing = 0;
-//				alSourcePause(pSource->source);
 			}
 			else if (sound_opts != SOUNDS_NONE && (state == AL_PAUSED) && (distanceSq < maxDistSq))
 			{
@@ -4118,6 +4150,8 @@ void parse_sound_object(xmlNode *inNode)
 						iVal = SOUNDS_ACTOR;
 					} else if (!strcasecmp((char *)content, "walking")) {
 						iVal = SOUNDS_WALKING;
+					} else if (!strcasecmp((char *)content, "map")) {
+						iVal = SOUNDS_MAP;
 					}
 					if (iVal >= 0)
 						pData->type = iVal;
