@@ -8,6 +8,7 @@
 #include "translate.h"
 #ifdef NEW_SOUND
 #include "asc.h"
+#include "tiles.h"
 #endif /* NEW_SOUND */
 #ifdef DEBUG
 #include "init.h"
@@ -22,7 +23,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	struct CalMixer *mixer;
 	int i;
 #ifdef NEW_SOUND
-	int snd;
+	int snd, tile_type;
 #endif // NEW_SOUND
 
 	//char str[255];
@@ -109,10 +110,11 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	// Check if we need a walking sound
 	if (pActor->is_enhanced_model && pActor->moving && !pActor->fighting)
 	{
-		// We are walking, so look for a walking sound for this tile
-		snd = get_tile_sound(get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2));
+		// Actor is walking, so look for a walking sound for this tile
+		tile_type = get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2);
+		snd = get_tile_sound(tile_type);
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Actor: %s, Pos: %d, %d, Current tile type: %d, Sound: %d\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2), snd);
+		printf("Actor: %s, Pos: %f, %f, Current tile type: %d, Sound: %d\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, tile_type, snd);
 #endif // _EXTRA_SOUND_DEBUG
 		// No sound for this tile, fall back on the default (set in the animation)
 		if (snd == -1)

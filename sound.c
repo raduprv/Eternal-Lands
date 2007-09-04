@@ -26,8 +26,8 @@
 #endif // NEW_SOUND && OGG_VORBIS
 
 #define MAX_FILENAME_LENGTH 80
-#define MAX_BUFFERS 56			// Remember, music and bg sounds use 4 buffers each too
-#define MAX_SOURCES 14			// Remember, music and bg sounds use a source each too
+#define MAX_BUFFERS 52			// Remember, music, bg sounds and crowds use 4 buffers each too
+#define MAX_SOURCES 13			// Remember, music, bg sounds and crowds use a source each too
 
 #ifdef NEW_SOUND
 #if defined _EXTRA_SOUND_DEBUG && OSX
@@ -96,27 +96,34 @@ typedef struct
 
 typedef struct
 {
-	ALuint buffer;							//if the sample is loaded, a buffer ID to play it.
-	char file_path[MAX_FILENAME_LENGTH];	//where to load the file from
+	ALuint buffer;							// If the sample is loaded, a buffer ID to play it.
+	char file_path[MAX_FILENAME_LENGTH];	// Where to load the file from
 	ALenum format;
-	ALsizei size;							//size of the sound data in bytes
+	ALsizei size;							// Size of the sound data in bytes
 #ifdef ALUT_WAV
-	ALsizei freq;							//frequency
+	ALsizei freq;							// Frequency
 #else // ALUT_WAV
-	ALfloat freq;							//frequency
+	ALfloat freq;							// Frequency
 #endif // ALUT_WAV
-	ALint channels;							//number fo sound channels
-	ALint bits;								//bits per channel per sample
-	int length;								//duration in milliseconds
-	
-	int loaded_status;						//0 - not loaded, 1 - loaded
+	ALint channels;							// Number of sound channels
+	ALint bits;								// Bits per channel per sample
+	int length;								// Duration in milliseconds
+	int loaded_status;						// 0 - not loaded, 1 - loaded
 }sound_sample;
+
+typedef struct
+{
+	int sound;
+	int x;
+	int y;
+	int playing;
+}sound_loaded;
 
 typedef struct
 {
 	ALuint source;
 	int play_duration;
-	int sound_type;
+	int loaded_sound;
 	SOUND_STAGE current_stage;
 	unsigned int cookie;
 }source_data;
@@ -228,8 +235,9 @@ ALfloat music_gain = 1.0f;
 int used_sources = 0;						// the number of sources currently playing
 
 #ifdef NEW_SOUND
-int num_types = 0;							// number of distinct sound types
-int num_samples = 0;						// number of actual sound files - a sound type can have > 1 sample
+int num_types = 0;							// Number of distinct sound types
+int num_samples = 0;						// Number of actual sound files - a sound type can have > 1 sample
+int num_loaded_sounds = 0;					// Number of sound types loaded into buffers (not the number of buffers)
 int sound_num_background_defaults = 0;		// Number of default background sounds
 int sound_num_maps = 0;						// Number of maps we have sounds for
 int sound_num_effects = 0;					// Number of effects we have sounds for
@@ -242,18 +250,19 @@ int cur_boundary = 0;
 
 //each playing source is identified by a unique cookie.
 unsigned int next_cookie = 1;
-source_data sound_source_data[MAX_SOURCES];						// the active (playing) sources
-sound_type sound_type_data[MAX_BUFFERS];						// configuration of the sound types
-sound_sample sound_sample_data[MAX_BUFFERS];					// path & buffer data for each sample
-background_default sound_background_defaults[MAX_BACKGROUND_DEFAULTS];	// default background sounds
+sound_loaded loaded_sounds[MAX_BUFFERS * 2];					// The loaded sounds
+source_data sound_source_data[MAX_SOURCES];						// The active (playing) sources
+sound_type sound_type_data[MAX_BUFFERS];						// Configuration of the sound types
+sound_sample sound_sample_data[MAX_BUFFERS];					// Path & buffer data for each sample
+background_default sound_background_defaults[MAX_BACKGROUND_DEFAULTS];	// Default background sounds
 																		// (must have non-overlapping time of day flags)
-int crowd_default;												// default sound for crowd effects
-map_sound_data sound_map_data[MAX_SOUND_MAPS];					// data for map sfx
-effect_sound_data sound_effect_data[MAX_SOUND_EFFECTS];			// data for effect sfx
-particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// data for particle sfx
-item_sound_data sound_item_data[MAX_SOUND_ITEMS];				// data for item sfx
-tile_sound_data sound_tile_data[MAX_SOUND_TILE_TYPES];				// data for tile (walking) sfx
-int server_sound[9];											// map of server sounds to sound def ids
+int crowd_default;												// Default sound for crowd effects
+map_sound_data sound_map_data[MAX_SOUND_MAPS];					// Data for map sfx
+effect_sound_data sound_effect_data[MAX_SOUND_EFFECTS];			// Data for effect sfx
+particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// Data for particle sfx
+item_sound_data sound_item_data[MAX_SOUND_ITEMS];				// Data for item sfx
+tile_sound_data sound_tile_data[MAX_SOUND_TILE_TYPES];			// Data for tile (walking) sfx
+int server_sound[9];											// Map of server sounds to sound def ids
 #else
 char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
 ALuint sound_source[MAX_SOURCES];
@@ -322,9 +331,12 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 
 void clear_sound_data();
 int ensure_sample_loaded(int index);
+int play_sound(int loaded_sound_num, int x, int y);
+source_data * get_available_source(sound_type * pNewType);
 source_data *insert_sound_source_at_index(unsigned int index);
 int store_sample_name(char *name);
 int stop_sound_source_at_index(int index);
+void unload_sound(int index);
 #ifdef OGG_VORBIS
 void init_sound_stream(stream_data * stream, int gain);
 #endif // OGG_VORBIS
@@ -2164,7 +2176,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 				if (stream->is_default && (tx != old_tx || ty != old_ty))
 				{
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("process_stream - Checking for valid %s sound. Pos: %d, %d\n", stream->type == STREAM_TYPE_SOUNDS ? "background" : "crowd", tx, ty);
+//					printf("process_stream - Checking for valid %s sound. Pos: %d, %d\n", stream->type == STREAM_TYPE_SOUNDS ? "background" : "crowd", tx, ty);
 #endif //_EXTRA_SOUND_DEBUG
 					check_for_valid_stream_sound(tx, ty, stream);
 				}
@@ -2294,14 +2306,14 @@ int update_streams(void *dummy)
 				else
 				{
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("update_streams - Not playing stream. Checking for background sound. Pos: %d, %d\n", tx, ty);
+//					printf("update_streams - Not playing stream. Checking for background sound. Pos: %d, %d\n", tx, ty);
 #endif //_EXTRA_SOUND_DEBUG
 					check_for_valid_stream_sound(tx, ty, &sound_fx_stream);
 					// Check if we need a default background sound, and if so, if we can find one
 					if (!sound_fx_stream.playing)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
-						printf("update_streams - No background found, checking for defaults for this map\n");
+//						printf("update_streams - No background found, checking for defaults for this map\n");
 #endif //_EXTRA_SOUND_DEBUG
 						// Check for a map based default background sound
 						cur_map = &sound_map_data[snd_cur_map];
@@ -2314,7 +2326,7 @@ int update_streams(void *dummy)
 								{
 									sound_fx_stream.sound = cur_map->boundaries[cur_map->defaults[i]].bg_sound;
 #ifdef _EXTRA_SOUND_DEBUG
-									printf("update_streams - Playing map default background sound: %d\n", sound_fx_stream.sound);
+//									printf("update_streams - Playing map default background sound: %d\n", sound_fx_stream.sound);
 #endif //_EXTRA_SOUND_DEBUG
 									gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain;
 									play_stream(sound_fx_stream.sound, &sound_fx_stream, gain);
@@ -2327,7 +2339,7 @@ int update_streams(void *dummy)
 						if (!sound_fx_stream.playing && sound_num_background_defaults > 0)
 						{
 #ifdef _EXTRA_SOUND_DEBUG
-						printf("update_streams - No map defaults found, checking for global defaults\n");
+//						printf("update_streams - No map defaults found, checking for global defaults\n");
 #endif //_EXTRA_SOUND_DEBUG
 							for (i = 0; i < sound_num_background_defaults; i++)
 							{
@@ -2336,7 +2348,7 @@ int update_streams(void *dummy)
 								{
 									sound_fx_stream.sound = sound_background_defaults[i].sound;
 #ifdef _EXTRA_SOUND_DEBUG
-									printf("update_streams - Playing default background sound: %d\n", sound_fx_stream.sound);
+//									printf("update_streams - Playing default background sound: %d\n", sound_fx_stream.sound);
 #endif //_EXTRA_SOUND_DEBUG
 									gain = sound_gain * sound_type_data[sound_fx_stream.sound].gain;
 									play_stream(sound_fx_stream.sound, &sound_fx_stream, gain);
@@ -2645,45 +2657,39 @@ unsigned int add_server_sound(int type, int x, int y)
 
 unsigned int add_sound_object(int type, int x, int y, int me)
 {
-	int i, loops, error, tx, ty, distanceSq, source = -1;
-	source_data *pSource;
-	sound_type *pType,*pNewType;
-	float maxDistanceSq=0.0f;
-	SOUND_STAGE stage;
-	ALfloat sourcePos[] = {x, y, 0.0};
-	ALfloat sourceVel[] = {0.0, 0.0, 0.0};
-	ALuint buffer=0;
-	
+	int i, tx, ty, distanceSq, loaded_sound_num, cookie;
+	sound_type *pNewType;
+	float maxDistanceSq = 0.0f;
+
+	tx = camera_x * (-2);
+	ty = camera_y * (-2);
 #ifdef _EXTRA_SOUND_DEBUG
-	tx = camera_x*(-2);
-	ty = camera_y*(-2);
-	printf("Trying to add sound: %d (%s) at %d, %d. Camera: %d, %d\n", type, sound_type_data[type].name, x, y, tx, ty);
+	printf("Trying to add sound: %d (%s) at %d, %d. Camera: %d, %d\n", type, type > 0 ? sound_type_data[type].name : "not defined", x, y, tx, ty);
 #endif //_EXTRA_SOUND_DEBUG
-	if (type == -1)		// Invalid sound, ignore
+	if (type == -1)			// Invalid sound, ignore
 		return 0;
 	
-	if (!have_sound)
+	if (!have_sound || sound_opts == SOUNDS_NONE)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Sound isn't enabled yet. Have_sound: %d\n", have_sound);
+		printf("Sound isn't enabled yet. Have_sound: %d, sound_opts: %d\n", have_sound, sound_opts);
 #endif //_EXTRA_SOUND_DEBUG
 		return 0;
 	}
 
 	if (me)
 	{
-		// Override the sourcePos values to use the camera (listener) position because its me
-		sourcePos[0] = tx;
-		sourcePos[0] = ty;
-		sourcePos[0] = 0.0f;
+		// Override the x & y values to use the camera (listener) position because its me
+		x = tx;
+		y = ty;
 	}
 
-	//check it's a valid type, get pType as a pointer to the type data
-	if(type >= MAX_BUFFERS || type < 0)
+	// Check it's a valid type, get pType as a pointer to the type data
+	if (type >= MAX_BUFFERS || type < 0)
 	{
-	#ifdef ELC
+#ifdef ELC
 		LOG_ERROR("%s: %i", snd_invalid_number, type);
-	#endif
+#endif
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Apparently an invalid type: %d\n", type);
 #endif //_EXTRA_SOUND_DEBUG
@@ -2698,169 +2704,148 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 		return 0;
 	}
 
-	LOCK_SOUND_LIST();
-	//the sources are ordered by decreasing play priority
-	for(pSource=sound_source_data,i=0;i<used_sources;++i,++pSource)
-	{
-		pType = &sound_type_data[pSource->sound_type];
-		if(pNewType->priority <= pType->priority || pSource->sound_type < 0)
-		{
-			source=i;
-#ifdef _EXTRA_SOUND_DEBUG
-			printf("Inserting new source at index %d/%d\n", i, used_sources);
-#endif //_EXTRA_SOUND_DEBUG
-			if(!(pSource->sound_type < 0))
-			{
-				insert_sound_source_at_index(i);
-#ifdef _EXTRA_SOUND_DEBUG
-//				printf("Got here (tried to add sound)\n");
-#endif //_EXTRA_SOUND_DEBUG
-			}
-			else
-			{
-#ifdef _EXTRA_SOUND_DEBUG
-//				printf("pSource->sound_type < 0 was true: %d\n", pSource->sound_type);
-#endif //_EXTRA_SOUND_DEBUG
-			}
-			break;
-		}
-	}
-
-#ifdef _EXTRA_SOUND_DEBUG
-//	printf("Got here (after initial part of add sound)\n");
-#endif //_EXTRA_SOUND_DEBUG
-
-	//all sources are used by higher-priority sounds
-	if(i==MAX_SOURCES)
-	{
-	#ifdef ELC
-		LOG_ERROR(snd_sound_overflow);
-	#else
-		printf("add_sound_object ['%s',#%d] - sounds overflow!\n",pNewType->name,i);
-	#endif
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Sound overflow: %s, %d\n", pNewType->name, i);
-#endif //_EXTRA_SOUND_DEBUG
-
-		UNLOCK_SOUND_LIST();
-		return 0;
-	}
-	//this is the lowest-priority sound but there is a spare slot at the end of the list
-	else if(i==used_sources)
-	{
-		source=i;
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Creating a new source: %d/%d\n", used_sources, used_sources);
-#endif //_EXTRA_SOUND_DEBUG
-
-		pSource = insert_sound_source_at_index(used_sources);
-#ifdef _EXTRA_SOUND_DEBUG
-//		printf("Got here (tried to add sound)\n");
-#endif //_EXTRA_SOUND_DEBUG
-	}
-
-#ifdef _EXTRA_SOUND_DEBUG
-//	printf("Check for a main part\n");
-#endif //_EXTRA_SOUND_DEBUG
-	//refuse to play a sound which doesn't have a main part
+	// Check if we have a main part. Refuse to play a sound which doesn't have one.
 	if(pNewType->sample_indices[STAGE_MAIN]<0)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Sound missing main part!!\n");
 #endif //_EXTRA_SOUND_DEBUG
-		UNLOCK_SOUND_LIST();
 		return 0;
 	}
 
-	//check we can load all buffers used by this type
-	for(i=0;i<3;++i)
+	// Check we can load all buffers used by this type
+	for(i = 0; i < 3; ++i)
 	{
-		if(pNewType->sample_indices[i] >= 0 && ensure_sample_loaded(pNewType->sample_indices[i])!=0)
+		if (pNewType->sample_indices[i] >= 0 && ensure_sample_loaded(pNewType->sample_indices[i]) != 0)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
 			printf("Error: problem loading sample: %d\n", pNewType->sample_indices[i]);
 #endif //_EXTRA_SOUND_DEBUG
-			UNLOCK_SOUND_LIST();
 			return 0;
 		}
 	}
+	
+	// Load the sound into the loaded sounds array
+	loaded_sound_num = num_loaded_sounds++;
+	loaded_sounds[loaded_sound_num].sound = type;
+	loaded_sounds[loaded_sound_num].x = x;
+	loaded_sounds[loaded_sound_num].y = y;
+	loaded_sounds[loaded_sound_num].playing = 0;
 
+	// Check if we are playing this sound now (and need to load it into a source)
+	distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+	maxDistanceSq = pNewType->distance * pNewType->distance;
+
+	if (pNewType->positional && (distanceSq > maxDistanceSq))
+	{
 #ifdef _EXTRA_SOUND_DEBUG
-//	printf("Got here. Initialising sound\n");
+		printf("Not playing this sound as we are out of range! maxDistanceSq: %d, distanceSq: %d. Loaded as: %d\n", (int)maxDistanceSq, distanceSq, loaded_sound_num);
 #endif //_EXTRA_SOUND_DEBUG
 
-	//we already quit if the sound has only an outro
-	stage = pNewType->sample_indices[STAGE_INTRO] < 0 ? STAGE_MAIN : STAGE_INTRO;
+		UNLOCK_SOUND_LIST();
+		return 0;
+	}
+
+	cookie = play_sound(loaded_sound_num, x, y);
+
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Cookie %d. Playing this sound.\n", cookie);
+#endif //_EXTRA_SOUND_DEBUG
+	return cookie;
+}
+
+int play_sound(int loaded_sound_num, int x, int y)
+{
+	int loops, error;
+	ALuint buffer = 0;
+	SOUND_STAGE stage;
+	ALfloat sourcePos[] = {x, y, 0.0};
+	ALfloat sourceVel[] = {0.0, 0.0, 0.0};
+	source_data * pSource;
+	sound_type * pNewType = &sound_type_data[loaded_sounds[loaded_sound_num].sound];
 	
-	//initialise the source data to the first sample to be played for this sound
+	LOCK_SOUND_LIST();
+	
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Playing this sound: %d, Loaded sound num: %d\n", loaded_sounds[loaded_sound_num].sound, loaded_sound_num);
+#endif //_EXTRA_SOUND_DEBUG
+
+	pSource = get_available_source(pNewType);
+	if (!pSource)
+	{
+		// We have already handled the error so just bail
+		UNLOCK_SOUND_LIST();
+		return 0;
+	}
+
+	// Check if we have an intro. We already quit if the sound doesn't have a main.
+	stage = pNewType->sample_indices[STAGE_INTRO] < 0 ? STAGE_MAIN : STAGE_INTRO;
+
+	// Initialise the source data to the first sample to be played for this sound
 	pSource->play_duration = 0;
-	pSource->sound_type = type;
+	pSource->loaded_sound = loaded_sound_num;
 	pSource->current_stage = stage;
 
 	alSourcef(pSource->source, AL_PITCH, 1.0f);
 	alSourcef(pSource->source, AL_GAIN, sound_gain * pNewType->gain);
 	alSourcefv(pSource->source, AL_VELOCITY, sourceVel);
 	alSourcefv(pSource->source, AL_POSITION, sourcePos);
-	if((error=alGetError()) != AL_NO_ERROR)
+	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Error with alSourcef calls: %s. Name: %s. Source: %d: %s\n", snd_source_error, pNewType->name, pSource->source, alGetString(error));
 #endif //_EXTRA_SOUND_DEBUG
 	}
 
-	for(;stage<num_STAGES;++stage)
+	for (; stage < num_STAGES; ++stage)
 	{
-		//get the buffer to be queued.
-		if(pNewType->sample_indices[stage] < 0)
+		// Get the buffer to be queued.
+		if (pNewType->sample_indices[stage] < 0)
 			break;
 		buffer = sound_sample_data[pNewType->sample_indices[stage]].buffer;
 
-		//if there are a finite number of loops for main sample, queue them all here
-		if(stage == STAGE_MAIN)
+		// If there are a finite number of loops for main sample, queue them all here
+		if (stage == STAGE_MAIN)
 		{	
-			if(pNewType->loops > 0)
+			if (pNewType->loops > 0)
 			{
-				for(loops = 0;loops < pNewType->loops;++loops)
+				for (loops = 0; loops < pNewType->loops; ++loops)
 				{
-					alSourceQueueBuffers(pSource->source,1,&buffer);
+					alSourceQueueBuffers(pSource->source, 1, &buffer);
 				}
 			}
 			else
 			{
-				alSourceQueueBuffers(pSource->source,1,&buffer);
-				//dont queue an outro that will never get played!
+				alSourceQueueBuffers(pSource->source, 1, &buffer);
+				// Dont queue an outro that will never get played!
 				break;
 			}
 		}
 		else 
 		{
-			alSourceQueueBuffers(pSource->source,1,&buffer);
+			alSourceQueueBuffers(pSource->source, 1, &buffer);
 		}
 	}
-	if((error=alGetError()) != AL_NO_ERROR) 
+	if ((error=alGetError()) != AL_NO_ERROR) 
 	{
 #ifdef ELC
  #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error with alSourceQueueBuffers: %s. Name: %s. Source: %d: %s", snd_source_error, pNewType->name, source, alGetString(error));
- #else //_EXTRA_SOUND_DEBUG
-		LOG_ERROR("Error with alSourceQueueBuffers: %s. Name: %s. Source: %d: %s", snd_source_error, pNewType->name, source, alGetString(error));
+		printf("Error with alSourceQueueBuffers: %s. Name: %s. Source: (unknown now): %s", snd_source_error, pNewType->name, alGetString(error));
  #endif //_EXTRA_SOUND_DEBUG
+		LOG_ERROR("Error with alSourceQueueBuffers: %s. Name: %s. Source: (unknown now): %s", snd_source_error, pNewType->name, alGetString(error));
 #else	
-		printf("add_sound_object (%s): alSourceQueueBuffers = %s\n", pNewType->name,alGetString(error));
+		printf("add_sound_object (%s): alSourceQueueBuffers = %s\n", pNewType->name, alGetString(error));
 #endif
-		alSourcei(pSource->source,AL_BUFFER,0);
+		alSourcei(pSource->source, AL_BUFFER, 0);
 		UNLOCK_SOUND_LIST();
-		pSource->sound_type = -1;
+		pSource->loaded_sound = -1;
 		pSource->current_stage = STAGE_UNUSED;
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error queuing buffers: (%s): alSourceQueueBuffers = %s\n", pNewType->name,alGetString(error));
+		printf("Error queuing buffers: (%s): alSourceQueueBuffers = %s\n", pNewType->name, alGetString(error));
 #endif //_EXTRA_SOUND_DEBUG
 		return 0;
 	}
 
-#ifdef _EXTRA_SOUND_DEBUG
-//	printf("Setting more properties\n");
-#endif //_EXTRA_SOUND_DEBUG
 	if (!pNewType->positional)
 	{
 		alSourcei(pSource->source, AL_SOURCE_RELATIVE, AL_TRUE);
@@ -2871,122 +2856,174 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 		alSourcef(pSource->source, AL_REFERENCE_DISTANCE , 10.0f);
 		alSourcef(pSource->source, AL_ROLLOFF_FACTOR , 4.0f);
 	}
-	//0 is infinite looping
-	if(pNewType->sample_indices[STAGE_INTRO] < 0 && pNewType->loops==0)
+	if (pNewType->sample_indices[STAGE_INTRO] < 0 && pNewType->loops == 0)
+		// 0 is infinite looping
 		alSourcei(pSource->source,AL_LOOPING,AL_TRUE);
 	else
 		alSourcei(pSource->source,AL_LOOPING,AL_FALSE);
 
-	tx = camera_x*(-2);
-	ty = camera_y*(-2);
-	distanceSq=(tx-x)*(tx-x)+(ty-y)*(ty-y);
-	maxDistanceSq = pNewType->distance*pNewType->distance;
-
 	alSourcePlay(pSource->source);
-	if(sound_opts == SOUNDS_NONE || (pNewType->positional && (distanceSq > maxDistanceSq)))
-	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Not playing this sound as we are out of range! maxDistanceSq: %d, distanceSq: %d\n", (int)maxDistanceSq, distanceSq);
-#endif //_EXTRA_SOUND_DEBUG
-		alSourcePause(pSource->source);
-	}
+	loaded_sounds[loaded_sound_num].playing = 1;
 
 	UNLOCK_SOUND_LIST();
-	
+
 	pSource->cookie = next_cookie;
-	//if next_cookie wraps around back to 0 (unlikely!) then address this.
-	if(++next_cookie == 0)++next_cookie;
-#ifdef _EXTRA_SOUND_DEBUG
-	printf("Cookie %d. Playing this sound unless out of range.\n", pSource->cookie);
-#endif //_EXTRA_SOUND_DEBUG
+	// If next_cookie wraps around back to 0 (unlikely!) then address this.
+	if (++next_cookie == 0) ++next_cookie;
+	
 	return pSource->cookie;
 }
 
-//this takes a copy the first unused source object (or last one in the list if all used),
-//moves all objects after #index along one place, and inserts the copied object at #index;
-//it is ensured the source at #index is stopped with no buffers queued
+source_data * get_available_source(sound_type * pNewType)
+{
+	sound_type * pType;
+	source_data * pSource;
+	int i;
+	
+	// Search for an available source. The sources are ordered by decreasing play priority
+	for (pSource = sound_source_data, i = 0; i < used_sources; ++i, ++pSource)
+	{
+		pType = &sound_type_data[loaded_sounds[pSource->loaded_sound].sound];
+		if (pNewType->priority <= pType->priority || pSource->loaded_sound < 0)
+		{
+			if (pSource->loaded_sound >= 0)
+			{
+#ifdef _EXTRA_SOUND_DEBUG
+				printf("Inserting new source at index %d/%d\n", i, used_sources);
+#endif //_EXTRA_SOUND_DEBUG
+				insert_sound_source_at_index(i);
+#ifdef _EXTRA_SOUND_DEBUG
+			}
+			else
+			{
+				printf("Found available source at index %d/%d\n", i, used_sources);
+#endif //_EXTRA_SOUND_DEBUG
+			}
+			return pSource;
+		}
+	}
+
+	if (i == MAX_SOURCES)
+	{
+		// All sources are used by higher-priority sounds
+#ifdef ELC
+		LOG_ERROR(snd_sound_overflow);
+#else
+		printf("add_sound_object ['%s',#%d] - sounds overflow!\n",pNewType->name, i);
+#endif
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Sound overflow: %s, %d\n", pNewType->name, i);
+#endif //_EXTRA_SOUND_DEBUG
+		return NULL;
+	}
+	else if (i == used_sources)
+	{
+		// This is the lowest-priority sound but there is a spare slot at the end of the list
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Creating a new source: %d/%d\n", used_sources, used_sources);
+#endif //_EXTRA_SOUND_DEBUG
+
+		pSource = insert_sound_source_at_index(used_sources);
+#ifdef _EXTRA_SOUND_DEBUG
+//		printf("Got here (tried to add sound)\n");
+#endif //_EXTRA_SOUND_DEBUG
+	}
+	
+	return pSource;
+}
+
+// This takes a copy the first unused source object (or last one in the list if all used),
+// moves all objects after #index along one place, and inserts the copied object at #index;
+// It is ensured the source at #index is stopped with no buffers queued
 source_data *insert_sound_source_at_index(unsigned int index)
 {
 	int i;
 	source_data tempSource;
-	//take a copy of the source about to be overwritten
-	tempSource=sound_source_data[min2i(used_sources,MAX_SOURCES-1)];
-	//ensure it is stopped and ready
+	// Take a copy of the source about to be overwritten
+	tempSource = sound_source_data[min2i(used_sources, MAX_SOURCES - 1)];
+	// Ensure it is stopped and ready
 	alSourceStop(tempSource.source);
-	alSourcei(tempSource.source,AL_BUFFER,0);
-	tempSource.play_duration=0;
-	tempSource.current_stage=STAGE_UNUSED;
-	tempSource.sound_type=-1;
-	tempSource.cookie=0;
+	alSourcei(tempSource.source, AL_BUFFER, 0);
+	tempSource.play_duration = 0;
+	tempSource.current_stage = STAGE_UNUSED;
+	tempSource.loaded_sound = -1;
+	tempSource.cookie = 0;
 
-	//shunt source objects down a place
-	for(i=min2i(used_sources,MAX_SOURCES-1);i>index;--i)
+	// Shunt source objects down a place
+	for(i = min2i(used_sources, MAX_SOURCES - 1); i > index; --i)
 	{
-		sound_source_data[i] = sound_source_data[i-1];
+		sound_source_data[i] = sound_source_data[i - 1];
 	}
 
-	//now insert our stored object at #index
+	// Now insert our stored object at #index
 	sound_source_data[index] = tempSource;
 
-	//although it's not doing anything, we have added a new source to the playing set
-	if(used_sources < MAX_SOURCES)
+	// Although it's not doing anything, we have added a new source to the playing set
+	if (used_sources < MAX_SOURCES)
 		++used_sources;	
 
-	//return a pointer to this new source
+	// Return a pointer to this new source
 	return &sound_source_data[index];
 }
 
 
-//this stops the source for sound_source_data[index]. Because this array will change, the index
-//associated with a source will change, so this function should only be called if the index is
-//known for certain.
+// This stops the source for sound_source_data[index]. Because this array will change, the index
+// associated with a source will change, so this function should only be called if the index is
+// known for certain.
 int stop_sound_source_at_index(int index)
 {
 	ALuint error;
-	source_data *pSource,sourceTemp;
+	int relative, looping;
+	source_data *pSource, sourceTemp;
 	if (index < 0 || index >= used_sources)
 		return 0;
 	pSource = &sound_source_data[index];
-	//this unqueues any samples
+	// This unqueues any samples
 	if (alIsSource(pSource->source))
 	{
 		alSourceStop(pSource->source);
-		alSourcei(pSource->source,AL_BUFFER,0);
+		alSourcei(pSource->source, AL_BUFFER, 0);
 	}
 	else
 	{
    		LOG_ERROR("Attempting to stop invalid sound source %d with index %d", (int)pSource->source, index);
 	}
 	// Clear any errors so as to not confuse other error handlers
-	if((error=alGetError()) != AL_NO_ERROR)
+	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Error '%s' stopping sound source with index: %d/%d.  Source: %d.\n", alGetString(error), index, used_sources, (int)pSource->source);
 #endif //_EXTRA_SOUND_DEBUG
 	}
 
-	//we can't lose a source handle - copy this...
+	// Check if we should unload this sound (is positional and looping)
+	alGetSourcei(pSource->source, AL_SOURCE_RELATIVE, &relative);
+	alGetSourcei(pSource->source, AL_LOOPING, &looping);
+	if (relative == AL_TRUE || looping != AL_TRUE)
+		unload_sound(pSource->loaded_sound);
+
+	// We can't lose a source handle - copy this...
 	sourceTemp = *pSource;
 	//...shift all the next sources up a place, overwriting the stopped source...
-	memcpy(pSource,pSource+1,sizeof(source_data)*(used_sources-(index+1)));
+	memcpy(pSource, pSource+1, sizeof(source_data) * (used_sources - (index + 1)));
 	//...and put the saved object back in after them
-	sound_source_data[used_sources-1] = sourceTemp;
+	sound_source_data[used_sources - 1] = sourceTemp;
 	
-	//note that one less source is playing!
+	// Note that one less source is playing!
 	--used_sources;
 	return 1;
 }
 
-//this is passed a cookie, and searches for a source with this cookie
+// This is passed a cookie, and searches for a source with this cookie
 void stop_sound(unsigned long int cookie)
 {
 	int n;
-	//source handle of 0 is a null source
-	if(!have_sound || !cookie)
+	// Source handle of 0 is a null source
+	if (!have_sound || !cookie)
 		return;
-	//find which of our playing sources matches the handle passed
+	// Find which of our playing sources matches the handle passed
 	n = find_sound_source_from_cookie(cookie);
-	if(n >= 0)
+	if (n >= 0)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Stopping cookie %d with sound source index %d\n", (int)cookie, n);
@@ -2999,21 +3036,23 @@ void stop_sound_at_location(int x, int y)
 {
 	ALuint error;
 	ALfloat sourcePos[3]={0.0f,0.0f,0.0f};
-	int i;
+	int i = 0;
 
 	// Search for a sound source at the given location
-	for (i = 0; i < used_sources; i++)
+	while (i < used_sources)
 	{
 		alGetSourcefv(sound_source_data[i].source, AL_POSITION, sourcePos);
 		if (sourcePos[0] == x && sourcePos[1] == y)
 		{
 			stop_sound_source_at_index(i);
-			return;			// FIXME: We should probably loop through and find other sources, but the source
-							// list is now different and our index loop is invalid. I'll deal with it later.
+		}
+		else
+		{
+			i++;
 		}
 	}
 	// Clear any errors so as to not confuse other error handlers
-	if((error=alGetError()) != AL_NO_ERROR)
+	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Error '%s' stopping sound source at location: %d, %d.\n", alGetString(error), x, y);
@@ -3021,15 +3060,16 @@ void stop_sound_at_location(int x, int y)
 	}
 }
 
-//kill all the sounds.
-//usefull when we change maps, etc.
+// Kill all the sounds. Useful when we change maps, etc.
 void stop_all_sounds()
 {
 #ifdef _EXTRA_SOUND_DEBUG
 	int i;
 #endif
 	ALuint error;
-	if (!have_sound) return;
+	if (!have_sound)
+		return;
+
 	LOCK_SOUND_LIST();
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Stopping all (%d) individual sounds\n", used_sources);
@@ -3038,7 +3078,7 @@ void stop_all_sounds()
 	while (used_sources)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Stopping index %d: %s, used_sources: %d\n", i++, sound_type_data[sound_source_data[0].sound_type].name, used_sources);
+		printf("Stopping index %d: %s, used_sources: %d\n", i++, sound_type_data[loaded_sounds[sound_source_data[0].loaded_sound].sound].name, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
 		stop_sound_source_at_index(0);
 	}
@@ -3061,7 +3101,7 @@ void stop_all_sounds()
 #endif	// OGG_VORBIS
 
 	UNLOCK_SOUND_LIST();
-	if((error=alGetError()) != AL_NO_ERROR)
+	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Error killing all sounds\n");
@@ -3069,12 +3109,30 @@ void stop_all_sounds()
 	}
 }
 
+void unload_sound(int index)
+{
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Removing loaded sound: %d\n", index);
+#endif //_EXTRA_SOUND_DEBUG
+	
+	// FIXME: Should we unload the buffer as well??
+	
+	// Shift all the next loaded_sounds up a place, overwriting the stopped sound
+	memcpy(loaded_sounds, loaded_sounds+1, sizeof(sound_loaded) * (num_loaded_sounds - (index + 1)));
+	// Blank the last element
+	loaded_sounds[num_loaded_sounds - 1].sound = -1;
+	loaded_sounds[num_loaded_sounds - 1].x = -1;
+	loaded_sounds[num_loaded_sounds - 1].y = -1;
+	loaded_sounds[num_loaded_sounds - 1].playing = 0;
+	num_loaded_sounds--;
+}
+
 void update_sound(int ms)
 {
 	int i = 0, error;
-	//we rebuild the list of active sources, as some may have become
-	//inactive due to the sound ending.
-	source_data *pSource = sound_source_data;
+	// We rebuild the list of active sources, as some may have become
+	// inactive due to the sound ending.
+	source_data *pSource;
 	sound_sample *pSample;
 	sound_type *pSoundType;
 	ALuint deadBuffer;
@@ -3087,14 +3145,56 @@ void update_sound(int ms)
 	int ty=-camera_y * 2;
 	ALfloat sourcePos[3] = {0.0f,0.0f,0.0f};
 	ALfloat listenerPos[] = {tx,ty,0.0f};
+#ifdef _EXTRA_SOUND_DEBUG
+	int j;
+#endif // _EXTRA_SOUND_DEBUG
 
-	if (!have_sound || !used_sources) return;
+	if (!have_sound) return;
+
+	// Check for any loaded sounds that have come back into range
+	for (i = 0; i < num_loaded_sounds; i++)
+	{
+		if (!loaded_sounds[i].playing)
+		{
+			pSoundType = &sound_type_data[loaded_sounds[i].sound];
+			x = loaded_sounds[i].x; y = loaded_sounds[i].y;
+			distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+			maxDistSq = pSoundType->distance * pSoundType->distance;
+			if (sound_opts != SOUNDS_NONE && (distanceSq < maxDistSq))
+			{
+				// This sound is back in range so load it into a source and play it
+#ifdef _EXTRA_SOUND_DEBUG
+				int cookie;
+				printf("Sound now in-range: %d (%s), Distance squared: %d, Max: %d\n", loaded_sounds[i].sound, pSoundType->name, distanceSq, maxDistSq);
+#endif //_EXTRA_SOUND_DEBUG
+				cookie = play_sound(i, x, y);
+#ifdef _EXTRA_SOUND_DEBUG
+				printf("Cookie: %d\n", cookie);
+#endif //_EXTRA_SOUND_DEBUG
+			}
+		}
+	}
+
+	if (!used_sources) return;
+
 	LOCK_SOUND_LIST();
 
 #ifdef ELC
-	//first, update the position of actor (animation) sounds
-	for(i = 0; i < max_actors; i++)
+#ifdef _EXTRA_SOUND_DEBUG
+	j = 0;
+#endif // _EXTRA_SOUND_DEBUG
+	// Now, update the position of actor (animation) sounds
+	for (i = 0; i < max_actors; i++)
 	{
+#ifdef _EXTRA_SOUND_DEBUG
+		j++;
+		if (j >= 30000)
+		{
+			LOG_ERROR("update_sound race condition!! i = %d, max_actors = %d\n", i, max_actors);
+			printf("update_sound race condition!! i = %d, max_actors = %d\n", i, max_actors);
+			break;
+		}
+#endif // _EXTRA_SOUND_DEBUG
 		if (!actors_list[i] || !actors_list[i]->cur_anim_sound_cookie)
 			continue;
 		
@@ -3118,27 +3218,41 @@ void update_sound(int ms)
 	}
 #endif //ELC
 	
-	//now update the position of the listener
-	alListenerfv(AL_POSITION,listenerPos);
+	// Update the position of the listener
+	alListenerfv(AL_POSITION, listenerPos);
 
+	// Finally, update all the sources
 	i = 0;
-	while(i<used_sources)
+#ifdef _EXTRA_SOUND_DEBUG
+	j = 0;
+#endif // _EXTRA_SOUND_DEBUG
+	pSource = sound_source_data;
+	while (i < used_sources)
 	{
-		//this test should be redundant
-		if(pSource->sound_type < 0 || pSource->current_stage==STAGE_UNUSED)
+#ifdef _EXTRA_SOUND_DEBUG
+		j++;
+		if (j >= 30000)
+		{
+			LOG_ERROR("update_sound race condition!! i = %d, used_sources = %d\n", i, used_sources);
+			printf("update_sound race condition!! i = %d, used_sources = %d\n", i, used_sources);
+			break;
+		}
+#endif // _EXTRA_SOUND_DEBUG
+		// This test should be redundant
+		if (pSource->loaded_sound < 0 || loaded_sounds[pSource->loaded_sound].sound < 0 || pSource->current_stage == STAGE_UNUSED)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Removing dud sound #%d. Sound type: %d. Current stage: %d\n",i, pSource->sound_type, pSource->current_stage);
+			printf("Removing dud sound #%d. Loaded sound num: %d. Current stage: %d\n",i, pSource->loaded_sound, pSource->current_stage);
 #endif //_EXTRA_SOUND_DEBUG
 			stop_sound_source_at_index(i);
 			continue;
 		}
-		pSoundType = &sound_type_data[pSource->sound_type];
+		pSoundType = &sound_type_data[loaded_sounds[pSource->loaded_sound].sound];
 		pSample = &sound_sample_data[pSoundType->sample_indices[pSource->current_stage]];
 
-		//is this source still playing?
-		alGetSourcei(pSource->source,AL_SOURCE_STATE,&state);
-		if(state==AL_STOPPED)
+		// Is this source still playing?
+		alGetSourcei(pSource->source, AL_SOURCE_STATE, &state);
+		if (state == AL_STOPPED)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
 //			printf("'%s' has stopped after sample '%s'\n", pSoundType->name, pSample->file_path);
@@ -3146,17 +3260,20 @@ void update_sound(int ms)
 			pSource->current_stage = num_STAGES;
 		}
 		else
-		{//find which buffer is playing
-			alGetSourcei(pSource->source,AL_BUFFER,&buffer);
-			if(buffer != pSample->buffer)
-			{//has the source moved on to the next queued sample
+		{
+			// Find which buffer is playing
+			alGetSourcei(pSource->source, AL_BUFFER, &buffer);
+			if (buffer != pSample->buffer)
+			{
+				// The source has moved on to the next queued sample
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("'%s' - sample '%s' has ended...", pSoundType->name, pSample->file_path);
+				printf("Cookie: %d, Loaded sound: %d, sound: %d, '%s' - sample '%s' has ended...", pSource->cookie, pSource->loaded_sound, loaded_sounds[pSource->loaded_sound].sound, pSoundType->name, pSample->file_path);
 #endif //_EXTRA_SOUND_DEBUG
-				while(++pSource->current_stage != num_STAGES)
+				while (++pSource->current_stage != num_STAGES)
 				{
-					if(pSoundType->sample_indices[pSource->current_stage] < 0)
-					{//no more samples to play
+					if (pSoundType->sample_indices[pSource->current_stage] < 0)
+					{
+						// No more samples to play
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("no more samples for this type!\n");
 #endif //_EXTRA_SOUND_DEBUG
@@ -3164,30 +3281,32 @@ void update_sound(int ms)
 						break;
 					}
 					pSample = &sound_sample_data[pSoundType->sample_indices[pSource->current_stage]];
-					//found the currently-playing buffer
+					// Found the currently-playing buffer
 
-					if(pSample->buffer == buffer)
+					if (pSample->buffer == buffer)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("next sample is '%s'\n",pSample->file_path);
 #endif //_EXTRA_SOUND_DEBUG
-						if(pSource->current_stage == STAGE_MAIN && pSoundType->loops == 0)
-						{//we've progressed to the main sample which loops infinitely.
+						if (pSource->current_stage == STAGE_MAIN && pSoundType->loops == 0)
+						{
+							// We've progressed to the main sample which loops infinitely.
 							do
-							{	//we only unqueue buffers explicitly here so that there's only the
-								//MAIN sample queued for the looping. Normally we just set a zero
-								//buffer to the source which automatically unqueues any buffers
-								alGetSourcei(pSource->source,AL_BUFFERS_PROCESSED,&numProcessed);
-								if(numProcessed-->0)
-									alSourceUnqueueBuffers(pSource->source,1,&deadBuffer);
+							{
+								// We only unqueue buffers explicitly here so that there's only the
+								// MAIN sample queued for the looping. Normally we just set a zero
+								// buffer to the source which automatically unqueues any buffers
+								alGetSourcei(pSource->source, AL_BUFFERS_PROCESSED, &numProcessed);
+								if (numProcessed-- > 0)
+									alSourceUnqueueBuffers(pSource->source, 1, &deadBuffer);
 							}
-							while(numProcessed>0);
+							while (numProcessed > 0);
 
-							alSourcei(pSource->source,AL_LOOPING,AL_TRUE);
-							if((error=alGetError()) != AL_NO_ERROR)
+							alSourcei(pSource->source, AL_LOOPING, AL_TRUE);
+							if ((error=alGetError()) != AL_NO_ERROR)
 							{
 							#ifdef ELC
-								LOG_ERROR("%s: %s",snd_buff_error, alGetString(error));
+								LOG_ERROR("%s: %s", snd_buff_error, alGetString(error));
 							#else
 								printf("update_sound : alSourcei(pSource->source,AL_LOOPING,AL_TRUE) = %s\n",
 									alGetString(error));
@@ -3205,36 +3324,41 @@ void update_sound(int ms)
 		if(pSource->current_stage == num_STAGES || pSoundType->type	> sound_opts)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-//			printf("removing finished sound %d (%s) at source index %d\n", pSource->sound_type, pSoundType->name, i);
+			printf("removing finished sound %d (%s) at source index %d, loaded_sound: %d\n", loaded_sounds[pSource->loaded_sound].sound, pSoundType->name, i, pSource->loaded_sound);
 #endif //_EXTRA_SOUND_DEBUG
 			stop_sound_source_at_index(i);
 			continue;
 		}
 
+		// Check if this source is out of range, or back in range (an error!)
 		alGetSourcei(pSource->source, AL_SOURCE_RELATIVE, &relative);
-		if(relative != AL_TRUE)
+		if (relative != AL_TRUE)
 		{
 			alGetSourcei(pSource->source, AL_SOURCE_STATE, &state);
 			alGetSourcefv(pSource->source, AL_POSITION, sourcePos);
-			x=sourcePos[0];y=sourcePos[1];
-			distanceSq=(tx-x)*(tx-x)+(ty-y)*(ty-y);
-			maxDistSq = pSoundType->distance*pSoundType->distance;
+			x = sourcePos[0]; y = sourcePos[1];
+			distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+			maxDistSq = pSoundType->distance * pSoundType->distance;
 
-			if((state == AL_PLAYING) && (distanceSq > maxDistSq))
+			if ((state == AL_PLAYING) && (distanceSq > maxDistSq))
 			{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Pausing sound: %d (%s), Distance squared: %d, Max: %d\n", i, pSoundType->name, distanceSq, maxDistSq);
+				printf("Pausing sound: %d (%s), Distance squared: %d, Max: %d\n", i, pSoundType->name, distanceSq, maxDistSq);
 #endif //_EXTRA_SOUND_DEBUG
-				alSourcePause(pSource->source);
+				// Free up this source
+				stop_sound_source_at_index(i);
+				loaded_sounds[pSource->loaded_sound].playing = 0;
+//				alSourcePause(pSource->source);
 			}
 			else if (sound_opts != SOUNDS_NONE && (state == AL_PAUSED) && (distanceSq < maxDistSq))
 			{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Playing sound: %d (%s), Distance squared: %d, Max: %d\n", i, pSoundType->name, distanceSq, maxDistSq);
+				printf("Eek! We found a wasted source error. Sound %d (%s) was loaded into a source and paused!!\n", i, pSoundType->name);
 #endif //_EXTRA_SOUND_DEBUG
 				alSourcePlay(pSource->source);
+				loaded_sounds[pSource->loaded_sound].playing = 1;
 			}
-			if((error=alGetError()) != AL_NO_ERROR) 
+			if ((error=alGetError()) != AL_NO_ERROR) 
 		    {
 			#ifdef ELC
 				LOG_ERROR("update_sound %s: %s", my_tolower(reg_error_str), alGetString(error));
@@ -3247,14 +3371,13 @@ void update_sound(int ms)
 	}
 
 	UNLOCK_SOUND_LIST();
-	if((error=alGetError()) != AL_NO_ERROR)
+	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Error updating sound: %s\n", alGetString(error));
 #endif //_EXTRA_SOUND_DEBUG
 	}
 }
-
 
 /*********************
  * GENERAL FUNCTIONS *
@@ -3295,7 +3418,7 @@ void sound_source_set_gain(unsigned long int cookie, float gain)
 	{
 		if(pSource->cookie == cookie)
 		{
-			alSourcef(pSource->source,AL_GAIN, sound_gain * sound_type_data[pSource->sound_type].gain * gain);
+			alSourcef(pSource->source,AL_GAIN, sound_gain * sound_type_data[loaded_sounds[pSource->loaded_sound].sound].gain * gain);
 			if((error=alGetError()) != AL_NO_ERROR)
 			{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3591,21 +3714,29 @@ void init_sound()
 #endif // OSX
 
 	// Begin by setting all data to a known state
-	if(have_sound)
+	if (have_sound)
 		destroy_sound();
 
 	// Init sources
-	for(i = 0; i < MAX_SOURCES; i++)
+	for (i = 0; i < MAX_SOURCES; i++)
 	{
-		for(j = 0; j < sizeof(sourceArrays) / sizeof(sourceArrays[0]); ++j)
+		for (j = 0; j < sizeof(sourceArrays) / sizeof(sourceArrays[0]); ++j)
 		{
 			pSource = sourceArrays[j]+i;
 			pSource->source = 0;
-			pSource->sound_type = -1;
+			pSource->loaded_sound = -1;
 			pSource->play_duration = 0;
 			pSource->current_stage = STAGE_UNUSED;
 			pSource->cookie = 0;
 		}
+	}
+	// Init loaded_sounds
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
+	{
+		loaded_sounds[i].sound = -1;
+		loaded_sounds[i].x = -1;
+		loaded_sounds[i].y = -1;
+		loaded_sounds[i].playing = 0;
 	}
 	
 	//initialise OpenAL

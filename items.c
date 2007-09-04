@@ -797,7 +797,10 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 int drop_all_handler (widget_list *w, int mx, int my, Uint32 flags)
 {
 	Uint8 str[6] = {0};
-	int i;
+	int i
+#ifdef NEW_SOUND
+	int dropped_something = 0;
+#endif // NEW_SOUND
 
 	//only drop items if it was a left click.
 	//There were complaints about mouse-scrolling setting this off
@@ -811,8 +814,15 @@ int drop_all_handler (widget_list *w, int mx, int my, Uint32 flags)
 				str[1] = item_list[i].pos;
 				*((Uint32 *)(str+2)) = item_list[i].quantity;
 				my_tcp_send (my_socket, str, 6);
+#ifdef NEW_SOUND
+				dropped_something = 1;
+#endif // NEW_SOUND
 			}
 		}
+#ifdef NEW_SOUND
+		if (dropped_something)
+			add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 		return 1;
 	} else {
 		return 0;
