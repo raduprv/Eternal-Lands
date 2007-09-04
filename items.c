@@ -797,7 +797,7 @@ int keypress_items_handler(window_info * win, int x, int y, Uint32 key, Uint32 k
 int drop_all_handler (widget_list *w, int mx, int my, Uint32 flags)
 {
 	Uint8 str[6] = {0};
-	int i
+	int i;
 #ifdef NEW_SOUND
 	int dropped_something = 0;
 #endif // NEW_SOUND
