@@ -25,6 +25,9 @@
 #ifdef MINIMAP
 #include "minimap.h"
 #endif
+#ifdef	NEW_FILE_IO
+#include "io/elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 // mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now
 // NOTE: with the new XML standards being used, these are being phased out in preference to the numeric's in the XML
@@ -1975,7 +1978,11 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	};
 	struct CalCoreAnimation *coreanim;
 
+#ifdef	NEW_FILE_IO
+	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str);
+#else	// NEW_FILE_IO
 	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
+#endif	// NEW_FILE_IO
 	if(res.anim_index == -1) {
 		log_error("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
 		return res;
@@ -2428,7 +2435,11 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 
 	//Load coremesh
+#ifdef	NEW_FILE_IO
+	res=CalCoreModel_ELLoadCoreMesh(act->coremodel,fn);
+#else	// NEW_FILE_IO
 	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
+#endif	// NEW_FILE_IO
 
 	//Scale coremesh
 	if (res >= 0) {
@@ -2461,7 +2472,11 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 
 	//Load coremesh
+#ifdef	NEW_FILE_IO
+	res=CalCoreModel_ELLoadCoreMesh(act->coremodel,fn);
+#else	//NEW_FILE_IO
 	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
+#endif	//NEW_FILE_IO
 
 	//Scale coremesh
 	if (res>=0) {
@@ -2498,7 +2513,11 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skeleton")==0) {
 				get_string_value(act->skeleton_name, sizeof (act->skeleton_name), item);
 				act->coremodel= CalCoreModel_New("Model");
+#ifdef	NEW_FILE_IO
+				if(!CalCoreModel_ELLoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
+#else	//NEW_FILE_IO
 				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
+#endif	//NEW_FILE_IO
 					log_error("Cal3d error: %s: %s\n", act->skeleton_name, CalError_GetLastErrorDescription());
 				}
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"walk_speed") == 0) {

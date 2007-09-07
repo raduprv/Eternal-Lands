@@ -2,12 +2,27 @@
 
 #include "elfilewrapper.h"
 #include "elfile.hpp"
+#include "eldatasource.hpp"
 
-extern "C" void add_zip_archive(const char* file_name, int replace)
+extern "C" void add_zip_archive(const char* file_name, const char* path, int replace)
 {
 	try
 	{
-		el_file::add_zip_archive(file_name, replace == 1);
+		el_file::add_zip_archive(file_name, path, replace == 1);
+	}
+	CATCH_AND_LOG_EXCEPTIONS
+}
+
+extern "C" void add_paths()
+{
+	try
+	{
+		el_file::add_path(std::string(get_path_config()) + std::string("custom_updates/"));
+		el_file::add_path(std::string(get_path_config()) + std::string("updates/"));
+		el_file::add_path(std::string(datadir) + std::string("custom_updates/"));
+		el_file::add_path(std::string(datadir) + std::string("updates/"));
+		el_file::add_path(datadir);
+		el_file::add_path("./");
 	}
 	CATCH_AND_LOG_EXCEPTIONS
 }
@@ -120,6 +135,136 @@ extern "C" int el_file_exists(const char* file_name)
 		return el_file::file_exists(file_name);
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
+//****************************************************************************//
+// CalLoader wrapper functions definition                                     //
+//****************************************************************************//
+
+extern "C" CalCoreAnimation *CalLoader_ELLoadCoreAnimation(CalLoader *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		return explicitIncRef(self->loadCoreAnimation(file).get());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
+extern "C" CalCoreMaterial *CalLoader_ELLoadCoreMaterial(CalLoader *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		return explicitIncRef(self->loadCoreMaterial(file).get());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
+extern "C" CalCoreMesh *CalLoader_ELLoadCoreMesh(CalLoader *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		return explicitIncRef(self->loadCoreMesh(file).get());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
+extern "C" CalCoreSkeleton *CalLoader_ELLoadCoreSkeleton(CalLoader *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		return explicitIncRef(self->loadCoreSkeleton(file).get());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
+extern "C" int CalCoreModel_ELLoadCoreAnimation(CalCoreModel *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		CalCoreAnimationPtr pCoreAnimation = CalLoader::loadCoreAnimation(file, self->getCoreSkeleton());
+
+		if(!pCoreAnimation)
+		{
+			return -1;
+		}
+
+		return self->addCoreAnimation(pCoreAnimation.get());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
+}
+
+extern "C" int CalCoreModel_ELLoadCoreMaterial(CalCoreModel *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		CalCoreMaterialPtr pCoreMaterial = CalLoader::loadCoreMaterial(file);
+
+		if (!pCoreMaterial)
+		{
+			return -1;
+		}
+
+		return self->addCoreMaterial(pCoreMaterial.get());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
+}
+
+extern "C" int CalCoreModel_ELLoadCoreMesh(CalCoreModel *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		CalCoreMeshPtr pCoreMesh = CalLoader::loadCoreMesh(file);
+
+		if (!pCoreMesh)
+		{
+			return -1;
+		}
+
+		return self->addCoreMesh(pCoreMesh.get());
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
+}
+
+extern "C" CalBoolean CalCoreModel_ELLoadCoreSkeleton(CalCoreModel *self, const char *strFilename)
+{
+	assert(self);
+	try
+	{
+		el_data_soucre file(strFilename);
+
+		CalCoreSkeletonPtr pCoreSkeleton = CalLoader::loadCoreSkeleton(file);
+
+		if (!pCoreSkeleton)
+		{
+			return False;
+		}
+
+		self->setCoreSkeleton(pCoreSkeleton.get());
+
+		return True;
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(False);
 }
 
 #endif //NEW_FILE_IO

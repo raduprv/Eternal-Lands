@@ -14,7 +14,7 @@
 #include "elpathwrapper.h"
 #include "../init.h"
 
-const int max_mem_block_buffer_size = 0x40000; // 256kb
+const int max_mem_block_buffer_size = 0x80000; // 512kb
 
 class el_file
 {
@@ -27,12 +27,7 @@ class el_file
 			ft_uncompressed		/**< All other files */
 		};
 
-		enum file_dir
-		{
-			fd_updates,	/**< Dir for updates (config dir + "updates/") */
-			fd_datadir,	/**< Data dir */
-			fd_current	/**< Current dir */
-		};
+		static std::vector<std::string> path_list;
 
 		/**
 		 * @brief File position.
@@ -95,12 +90,10 @@ class el_file
 		 *
 		 * Check if the given file exists in the given dir, tying all possible file types.
 		 * @param file_name The name of the file.
-		 * @param dir The dir tu use.
 		 * @return Returns true if the file exists, else false.
 		 * @see file_type
-		 * @see file_dir
 		 */
-		static bool file_exist_in_dir(const std::string& file_name, file_dir dir);
+		static bool file_exist_in_dir(const std::string& file_name);
 
 		/**
 		 * @brief Opens a file.
@@ -145,13 +138,19 @@ class el_file
 		/**
 		 * @brief Returns the file name with the given dir.
 		 *
-		 * Returns the file name with the given dir. Used for iteratin over all possible
+		 * Returns the file name with the given path. Used for iteratin over all possible
 		 * directories and doing that in the correct order.
 		 * @param file_name The file name to use.
-		 * @param dir The file dir to use.
-		 * @return Returns the file name with the given dir.
+		 * @param path_index The index into path_list of the path to use.
+		 * @return Returns the file name with the given path.
 		 */
-		static std::string get_file_name_with_dir(const std::string &file_name, file_dir dir);
+		static inline std::string get_file_name_with_path(const std::string &file_name,
+			unsigned int path_index)
+		{
+			assert(path_index < path_list.size());
+
+			return path_list[path_index] + file_name;
+		}
 
 		/**
 		 * @brief The zip file system to use.
@@ -159,7 +158,44 @@ class el_file
 		 */
 		static zip_file_system default_zip_file_system;
 
+		/**
+		 * @brief Removes the leading "./" from the file name.
+		 *
+		 * Removes the leading "./" from the file name.
+		 * @param file_name The file name to use.
+		 * @returns The file name without "./".
+		 */
+		static inline std::string remove_path(const std::string &file_name)
+		{
+			std::string::size_type pos;
+
+			pos = file_name.rfind("./");
+
+			if (pos != std::string::npos)
+			{
+				return file_name.substr(pos + 2, file_name.size());
+			}
+			else
+			{
+				return file_name;
+			}
+		}
+
 	public:
+
+		/**
+		 * @brief Adds a path where to search for files.
+		 *
+		 * Adds a path where to search for files.
+		 * @param path The path to add.
+		 */
+		static inline void add_path(const std::string &path)
+		{
+#ifdef	EXTRA_DEBUG
+			LOG_EXTRA_INFO("Added path '%s'", path.c_str());
+#endif	// EXTRA_DEBUG
+			path_list.push_back(path);
+		}
 
 		/**
 		 * @brief Opens a file.
@@ -168,7 +204,7 @@ class el_file
 		 * @param file_name The name of the file to open.
 		 * @param uncompress Flag indicating if the file should get uncompressed.
 		 */
-		el_file(const std::string& file_name, bool uncompress);
+		el_file(const std::string &file_name, bool uncompress);
 
 		/**
 		 * @brief Reads data from the file.
@@ -180,7 +216,7 @@ class el_file
 		 */
 		inline int read(int count, void* buffer)
 		{
-			count = std::max((long)(std::min(count, get_size() - position)), 0L);
+			count = std::max(std::min(count, get_size() - position), 0);
 			memcpy(buffer, memory->get_memory(position), count);
 			position += count;
 
@@ -260,6 +296,17 @@ class el_file
 		}
 
 		/**
+		 * @brief Gets a pointer to the file data at the current position.
+		 *
+		 * Gets the memory pointer of the file data at the current position.
+		 * @return Returns a memory pointer to the file data at the current position.
+		 */
+		inline void* get_current_pointer() const
+		{
+			return memory->get_memory(position);
+		}
+
+		/**
 		 * @brief Check if a file exists.
 		 *
 		 * Check if the given file exists.
@@ -286,9 +333,24 @@ class el_file
 		 * @param file_name The file name of the zip file.
 		 * @param replace True if we should replace files.
 		 */
-		static void add_zip_archive(const std::string &file_name, bool replace)
+		static inline void add_zip_archive(const std::string &file_name, bool replace)
 		{
 			default_zip_file_system.add_zip_archive(file_name, replace);
+		}
+
+		/**
+		 * @brief Adds a zip file to the search list.
+		 *
+		 * Adds a zip file to the list where to search for a file that is opend with
+		 * open_file.
+		 * @param file_name The file name of the zip file.
+		 * @param path The path of the files @b in the zip file.
+		 * @param replace True if we should replace files.
+		 */
+		static inline void add_zip_archive(const std::string &file_name,
+			const std::string &path, bool replace)
+		{
+			default_zip_file_system.add_zip_archive(file_name, path, replace);
 		}
 };
 

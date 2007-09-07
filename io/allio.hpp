@@ -9,6 +9,7 @@
 #include <vector>
 #include <string>
 #include <fstream>
+#include <cassert>
 #include <zlib.h>
 #include <SDL.h>
 #include <SDL_endian.h>

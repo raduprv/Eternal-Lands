@@ -113,12 +113,6 @@ void log_info(const char* message, ...);
 
 #ifdef	EXTRA_DEBUG
 #define LOG_EXTRA_INFO log_info
-#else	// EXTRA_DEBUG
-#define LOG_EXTRA_INFO(message, ...)	\
-do	\
-{	\
-}	\
-while (0)
 #endif	// EXTRA_DEBUG
 
 #ifdef __cplusplus

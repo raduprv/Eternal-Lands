@@ -8,6 +8,8 @@
 
 #ifdef NEW_FILE_IO
 
+#include "../cal3d_wrapper.h"
+
 #ifdef __cplusplus
 extern "C"
 {
@@ -23,10 +25,19 @@ typedef struct el_file* el_file_ptr;
  * Adds a zip file to the list where to search for a file that is opend with
  * el_open.
  * @param file_name The file name of the zip file.
+ * @param path The file path used for the files @b in the zip file.
  * @param replace Flag that indicates if files get replaced.
  * @see el_open
  */
-extern void add_zip_archive(const char* file_name, int replace);
+extern void add_zip_archive(const char* file_name, const char* path, int replace);
+
+/**
+ * @brief Adds the main search paths to the file system.
+ *
+ * Adds the main search paths (config path + "custon_updates/", config path + "updates/",
+ * data dir + "custon_updates/", data dir + "updates/", data dir and "./") to the file system.
+ */
+extern void add_paths();
 
 /**
  * @brief Opens a file.
@@ -120,6 +131,15 @@ extern void* el_get_pointer(el_file_ptr file);
  * @return Returns true if the file exists, else false.
  */
 extern int el_file_exists(const char* file_name);
+
+extern struct CalCoreAnimation *CalLoader_ELLoadCoreAnimation(struct CalLoader *self, const char *strFilename);
+extern struct CalCoreMaterial *CalLoader_ELLoadCoreMaterial(struct CalLoader *self, const char *strFilename);
+extern struct CalCoreMesh *CalLoader_ELLoadCoreMesh(struct CalLoader *self, const char *strFilename);
+extern struct CalCoreSkeleton *CalLoader_ELLoadCoreSkeleton(struct CalLoader *self, const char *strFilename);
+extern int CalCoreModel_ELLoadCoreAnimation(struct CalCoreModel *self, const char *strFilename);
+extern int CalCoreModel_ELLoadCoreMaterial(struct CalCoreModel *self, const char *strFilename);
+extern int CalCoreModel_ELLoadCoreMesh(struct CalCoreModel *self, const char *strFilename);
+extern enum CalBoolean CalCoreModel_ELLoadCoreSkeleton(struct CalCoreModel *self, const char *strFilename);
 
 #ifdef __cplusplus
 }

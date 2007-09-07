@@ -61,8 +61,6 @@ void zip_file_system::add_zip_archive(const std::string &file_name, bool replace
 {
 	zip_file zfile;
 	zip_file_entry_list files;
-	std::string path;
-	int pos;
 
 	zfile.name = file_name;
 	zfile.file = new std::ifstream();
@@ -71,12 +69,35 @@ void zip_file_system::add_zip_archive(const std::string &file_name, bool replace
 		zip_files.push_back(zfile);
 		try
 		{
-			pos = file_name.rfind("/");
-			if (pos < 0)
-			{
-				pos = file_name.rfind("\\");
-			}
-			path = file_name.substr(0, pos);
+			add(zip_files.size() - 1, get_path(file_name), files, replace);
+			file_entrys.insert(files.begin(), files.end());
+		}
+		catch (...)
+		{
+			zip_files.pop_back();
+			throw;
+		}
+	}
+	catch (...)
+	{
+		delete zfile.file;
+		throw;
+	}
+}
+
+void zip_file_system::add_zip_archive(const std::string &file_name, const std::string &path,
+	bool replace)
+{
+	zip_file zfile;
+	zip_file_entry_list files;
+
+	zfile.name = file_name;
+	zfile.file = new std::ifstream();
+	try
+	{
+		zip_files.push_back(zfile);
+		try
+		{
 			add(zip_files.size() - 1, path, files, replace);
 			file_entrys.insert(files.begin(), files.end());
 		}
@@ -160,17 +181,26 @@ void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 			{
 				files.erase(found);
 				files[str] = zfile;
-				LOG_EXTRA_INFO("Replaced file '%s'.", str.c_str());
+#ifdef	EXTRA_DEBUG
+				LOG_EXTRA_INFO("Replaced file '%s' in zip file '%s' with file '%s' from zip file '%s'.",
+					str.c_str(), get_zip_file_name(found->second).c_str(),
+					str.c_str(), get_zip_file_name(zfile).c_str());
+#endif	// EXTRA_DEBUG
 			}
 			else
 			{
-				log_error("Duplicate file '%s', not added again.", str.c_str());
+				log_error("Duplicate file '%s' from zip file '%s', not added again. File '%' was first added from zip file '%s'.",
+					str.c_str(), get_zip_file_name(zfile).c_str(),
+					str.c_str(), get_zip_file_name(found->second).c_str());
 			}
 		}
 		else
 		{
 			files[str] = zfile;
-			LOG_EXTRA_INFO("Added file '%s'.", str.c_str());
+#ifdef	EXTRA_DEBUG
+			LOG_EXTRA_INFO("Added file '%s' from zip file '%s'.",
+				str.c_str(), get_zip_file_name(zfile).c_str());
+#endif	// EXTRA_DEBUG
 		}
 		pos = &pos[size_filename];
 		pos = &pos[size_file_extra];
@@ -179,12 +209,13 @@ void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 }
 
 Uint32 zip_file_system::open_file(const std::string &file_name, memory_ptr &buffer,
-	bool uncompr)
+	bool uncompress)
 {
 	z_stream strm;
 	zip_file_entry_list::const_iterator found;
 	uLongf buffer_size;
-	int size, offset, index;
+	zip_files_vector::size_type index;
+	int size, offset;
 	int crc;
 	int error;
 
@@ -194,8 +225,15 @@ Uint32 zip_file_system::open_file(const std::string &file_name, memory_ptr &buff
 		size = found->second.compressed_size;
 		buffer_size = found->second.uncompressed_size;
 		index = found->second.zip_file_index;
+		assert(index < zip_files.size());
 		offset = found->second.offset_curfile + zip_files[index].bytes_before_zipfile;
-		if (uncompr && found->second.is_compressed)
+
+#ifdef	EXTRA_DEBUG
+		LOG_EXTRA_INFO("File '%s' opend in zip file '%s'.", file_name.c_str(),
+			zip_files[index].name.c_str());
+#endif	// EXTRA_DEBUG
+
+		if (uncompress && found->second.is_compressed)
 		{
 			memory_ptr memory(new memory_buffer(size));
 
@@ -237,7 +275,8 @@ Uint32 zip_file_system::open_file(const std::string &file_name, memory_ptr &buff
 			crc = crc32(crc, static_cast<Bytef*>(buffer->get_memory()), buffer_size);
 			if (crc != found->second.crc32)
 			{
-				EXCEPTION("CRC error! Found: 0x%X, expected: 0x%X.");
+				EXCEPTION("CRC error in zip file '%s'! Found: 0x%X, expected: 0x%X.",
+					zip_files[index].name.c_str(), crc, found->second.crc32);
 			}
 
 			return buffer_size;
@@ -273,15 +312,16 @@ void zip_file_system::read_file_header(zip_file_entry &zfile, int index)
 	magic = get_uint32_from_pos(pos);
 	if (magic != 0x04034b50)
 	{
-		EXCEPTION("Wrong magic number for file header! Found: 0x%X, expected: 0x%X.",
-			magic, 0x04034b50);
+		EXCEPTION("Wrong magic number for file header of zip file '%s'! Found: 0x%X, expected: 0x%X.",
+			get_zip_file_name(zfile).c_str(), magic, 0x04034b50);
 	}
 	version = get_uint16_from_pos(pos);
 	flag = get_uint16_from_pos(pos);
 	compression_method = get_uint16_from_pos(pos);
 	if ((compression_method != Z_DEFLATED) && (compression_method != 0))
 	{
-		EXCEPTION("Unsupported compression method (%d)!", compression_method);
+		EXCEPTION("Unsupported compression method (%d) in zip file '%s'!",
+			compression_method, get_zip_file_name(zfile).c_str());
 	}
 	dosDate = get_uint32_from_pos(pos);
 	crc = get_uint32_from_pos(pos);
