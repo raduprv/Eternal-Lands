@@ -193,3 +193,33 @@ void log_conn(const Uint8 *in_data, Uint16 data_length)
   	fwrite (in_data, data_length, 1, conn_file);
   	fflush (conn_file);
 }
+
+FILE *infos_file = NULL;
+void log_info(const char* message, ...)
+{
+	va_list ap;
+	char logmsg[1024];
+
+	va_start(ap, message);
+        vsnprintf(logmsg, sizeof(logmsg), message, ap);
+        logmsg[sizeof(logmsg) - 1] = '\0';
+	va_end(ap);
+
+	if (infos_file == NULL)
+	{
+#ifndef NEW_FILE_IO
+		char info_log[256];
+		safe_snprintf(info_log, sizeof(info_log), "%sinfos.log", configdir);
+		infos_file = open_log(info_log, "a");
+#else /* NEW_FILE_IO */
+		infos_file = open_log("infos.log", "a");
+#endif /* NEW_FILE_IO */
+	}
+	if (message[strlen(message)-1] != '\n')
+	{
+		strcat(logmsg, "\n");
+	}
+	fprintf(infos_file, logmsg);
+  	fflush(infos_file);
+}
+

@@ -3,8 +3,8 @@
  * \ingroup load_3d
  * \brief the E3D i/o data format and supporting functions.
  */
-#ifndef	__E3D_IO_H__
-#define __E3D_IO_H__
+#ifndef	_E3D_IO_H_
+#define _E3D_IO_H_
 
 #ifdef	MAP_EDITOR
  #include "../../map_editor/gl_init.h"
@@ -13,6 +13,10 @@
 #endif
 #include "elc_io.h"
 #include "../e3d_object.h"
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 /*!
  * the magic number for an e3d file.
@@ -111,4 +115,9 @@ static __inline void load_e3d_detail_if_needed(e3d_object* e3d_data)
 		}
 	}
 }
-#endif // __E3D_IO_H__
+
+#ifdef __cplusplus
+} // extern "C"
+#endif
+
+#endif	// _E3D_IO_H_

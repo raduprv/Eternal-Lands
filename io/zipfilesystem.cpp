@@ -1,6 +1,7 @@
 #include "zipfilesystem.hpp"
 
-void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list &files)
+void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list &files,
+	bool replace)
 {
 	Uint8* pos;
 	int index, L, number_disk, number_disk_with_CD;
@@ -11,7 +12,7 @@ void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list 
 	zip_files[idx].file->open(zip_files[idx].name.c_str(), std::ios::binary);
 	if (!zip_files[idx].file->is_open())
 	{
-		EXTENDED_FILE_NOT_FOUND_EXCEPTION(zip_files[idx].name);
+		FILE_NOT_FOUND_EXCEPTION(zip_files[idx].name.c_str());
 	}
 
 	zip_files[idx].file->seekg(0, std::ios::end);
@@ -42,7 +43,7 @@ void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list 
 	if ((number_entry_CD != number_entry) || (number_disk_with_CD != 0) ||
 		(number_disk != 0))
 	{
-		EXTENDED_EXCEPTION("Invalid zip file!");
+		EXCEPTION("Invalid zip file!");
 	}
 
 	bytes_before_zipfile = central_pos - (offset_central_dir + size_central_dir);
@@ -53,10 +54,10 @@ void zip_file_system::add(int idx, const std::string& path, zip_file_entry_list 
 
 	zip_files[idx].file->seekg(central_pos - size_central_dir, std::ios::beg);
 	zip_files[idx].file->read(reinterpret_cast<char*>(extra_memory->get_memory()), size_central_dir);
-	read_files_infos(extra_memory->get_memory(), number_entry, idx, path, files);
+	read_files_infos(extra_memory->get_memory(), number_entry, idx, path, files, replace);
 }
 
-void zip_file_system::add_zip_archive(const std::string &file_name)
+void zip_file_system::add_zip_archive(const std::string &file_name, bool replace)
 {
 	zip_file zfile;
 	zip_file_entry_list files;
@@ -76,7 +77,7 @@ void zip_file_system::add_zip_archive(const std::string &file_name)
 				pos = file_name.rfind("\\");
 			}
 			path = file_name.substr(0, pos);
-			add(zip_files.size() - 1, path, files);
+			add(zip_files.size() - 1, path, files, replace);
 			file_entrys.insert(files.begin(), files.end());
 		}
 		catch (...)
@@ -104,31 +105,11 @@ int zip_file_system::read_files_entry(const Uint8* pos, int size) const
 			return i;
 		}
 	}
-	EXTENDED_EXCEPTION("No valid zip file.");
-}
-
-int zip_file_system::get_uint32_from_pos(Uint8* &pos) const
-{
-	Uint32 value;
-
-	memcpy(&value, pos, sizeof(Uint32));
-	pos = &pos[sizeof(Uint32)];
-
-	return SDL_SwapLE32(value);
-}
-
-int zip_file_system::get_uint16_from_pos(Uint8* &pos) const
-{
-	Uint16 value;
-
-	memcpy(&value, pos, sizeof(Uint16));
-	pos = &pos[sizeof(Uint16)];
-
-	return SDL_SwapLE16(value);
+	EXCEPTION("Can't find magic number (0x50 0x4B 0x05 0x06) of files entry.");
 }
 
 void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
-	const std::string& path, zip_file_entry_list &files)
+	const std::string& path, zip_file_entry_list &files, bool replace)
 {
 	int magic, version, version_needed, flag, compression_method, dosDate;
 	int size_filename, size_file_extra, size_file_comment;
@@ -143,7 +124,8 @@ void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 		magic = get_uint32_from_pos(pos);
 		if (magic != 0x02014b50)
 		{
-			EXTENDED_EXCEPTION("Wrong magic number!");
+			EXCEPTION("Wrong magic number! Found: 0x%X, expected: 0x%X.",
+				magic, 0x02014b50);
 		}
 		version = get_uint16_from_pos(pos);
 		version_needed = get_uint16_from_pos(pos);
@@ -151,7 +133,7 @@ void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 		compression_method = get_uint16_from_pos(pos);
 		if ((compression_method != Z_DEFLATED) && (compression_method != 0))
 		{
-			EXTENDED_EXCEPTION("Unsupported compression method!");
+			EXCEPTION("Unsupported compression method (%d)!", compression_method);
 		}
 		dosDate = get_uint32_from_pos(pos);
 		zfile.crc32 = get_uint32_from_pos(pos);
@@ -168,15 +150,35 @@ void zip_file_system::read_files_infos(Uint8* pos, int count, int index,
 		read_file_header(zfile, index);
 		str = path;
 		str.append(reinterpret_cast<char*>(pos), size_filename);
-		files.erase(str);
-		files[str] = zfile;
+
+		zip_file_entry_list::iterator found;
+
+		found = files.find(str);
+		if (found != files.end())
+		{
+			if (replace)
+			{
+				files.erase(found);
+				files[str] = zfile;
+				LOG_EXTRA_INFO("Replaced file '%s'.", str.c_str());
+			}
+			else
+			{
+				log_error("Duplicate file '%s', not added again.", str.c_str());
+			}
+		}
+		else
+		{
+			files[str] = zfile;
+			LOG_EXTRA_INFO("Added file '%s'.", str.c_str());
+		}
 		pos = &pos[size_filename];
 		pos = &pos[size_file_extra];
 		pos = &pos[size_file_comment];
 	}
 }
 
-int zip_file_system::open_file(const std::string &file_name, memory_ptr &buffer,
+Uint32 zip_file_system::open_file(const std::string &file_name, memory_ptr &buffer,
 	bool uncompr)
 {
 	z_stream strm;
@@ -235,7 +237,7 @@ int zip_file_system::open_file(const std::string &file_name, memory_ptr &buffer,
 			crc = crc32(crc, static_cast<Bytef*>(buffer->get_memory()), buffer_size);
 			if (crc != found->second.crc32)
 			{
-				EXTENDED_EXCEPTION("CRC error!");
+				EXCEPTION("CRC error! Found: 0x%X, expected: 0x%X.");
 			}
 
 			return buffer_size;
@@ -251,7 +253,7 @@ int zip_file_system::open_file(const std::string &file_name, memory_ptr &buffer,
 			return size;
 		}
 	}
-	return 0;
+	EXCEPTION("File '%s' not found in zip files!", file_name.c_str());
 }
 
 void zip_file_system::read_file_header(zip_file_entry &zfile, int index)
@@ -271,14 +273,15 @@ void zip_file_system::read_file_header(zip_file_entry &zfile, int index)
 	magic = get_uint32_from_pos(pos);
 	if (magic != 0x04034b50)
 	{
-		EXTENDED_EXCEPTION("Wrong magic number!");
+		EXCEPTION("Wrong magic number for file header! Found: 0x%X, expected: 0x%X.",
+			magic, 0x04034b50);
 	}
 	version = get_uint16_from_pos(pos);
 	flag = get_uint16_from_pos(pos);
 	compression_method = get_uint16_from_pos(pos);
 	if ((compression_method != Z_DEFLATED) && (compression_method != 0))
 	{
-		EXTENDED_EXCEPTION("Unsupported compression method!");
+		EXCEPTION("Unsupported compression method (%d)!", compression_method);
 	}
 	dosDate = get_uint32_from_pos(pos);
 	crc = get_uint32_from_pos(pos);

@@ -1,3 +1,7 @@
+/*
+ * extended exception
+ * Copyright (C) Daniel Jungmann 2007 <dsj@gmx.net>
+ */
 /**
  * @file
  * @ingroup error
@@ -15,7 +19,9 @@
 
 class extended_exception: public std::exception 
 {
-	private:
+	protected:
+
+#if defined DEBUG && !defined _MSC_VER
 		/**
 		 * @brief The source file name.
 		 *
@@ -28,7 +34,7 @@ class extended_exception: public std::exception
 		 *
 		 * The name of the function in the source file where the error occured.
 		 */
-		const char *func;
+		const char *function;
 
 		/**
 		 * @brief The line number.
@@ -36,27 +42,39 @@ class extended_exception: public std::exception
 		 * The line number in the source file where the error occured.
 		 */
 		const unsigned int line;
+#endif	// DEBUG && !__MSC_VER
 
 		/**
 		 * @brief The error.
 		 *
 		 * The error string.
 		 */
-		const std::string error;
+		std::string error_str;
 
 	public:
 
+#if defined DEBUG && !defined _MSC_VER
 		/**
 		 * @brief Constructor.
 		 *
-		 * Construtor with error, file, line and function.
+		 * Construtor with error, file, line, function and format.
 		 * @param file The name of the source file where the error occured.
-		 * @param line The line of the source file where the error occured.
 		 * @param function The name of the function in the source file where the error
+		 * @param line The line of the source file where the error occured.
 		 * occured.
+		 * @param error The error string.
 		 */
-		extended_exception(const char *file, const char *func, unsigned int line,
-			const std::string &error) throw();
+		extended_exception(const char *file, const char *function, unsigned int line,
+			const char *error, ...) throw();
+#else	// DEBUG && !__MSC_VER
+		/**
+		 * @brief Constructor.
+		 *
+		 * Construtor with error and format.
+		 * @param error The error string.
+		 */
+		extended_exception(const char *error, ...) throw();
+#endif	// DEBUG && !__MSC_VER
 
 		/**
 		 * @brief Destructor.
@@ -72,54 +90,70 @@ class extended_exception: public std::exception
 		/**
 		 * @brief Logs the error.
 		 *
-		 * Log the error using the log_error_detailed funtion.
+		 * Logs the error.
 		 */
-		void log_error() const;
+		void log() const;
 };
 
-#define EXTENDED_EXCEPTION(error)	\
+#if defined DEBUG && !defined _MSC_VER
+#define EXCEPTION(error)	\
 	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error)
+#else	// DEBUG && !__MSC_VER
+#define EXCEPTION	\
+	throw extended_exception
+#endif	// DEBUG && !__MSC_VER
 
-#define EXTENDED_INVALID_STRING_VALUE_EXCEPTION(type, value)	\
+#define INVALID_STRING_VALUE_EXCEPTION(type, value) EXCEPTION("String '%s' is not a valid value for '%s'", value, type)
+#define INT_OUT_OF_RANGE_EXCEPTION(min, max, value) EXCEPTION("Value '%s' is out of range [%d, %d] for value '%s'", value, min, max, #value)
+#define UINT_OUT_OF_RANGE_EXCEPTION(min, max, value) EXCEPTION("Value '%s' is out of range [%u, %u] for value '%s'", value, min, max, #value)
+#define FLOAT_OUT_OF_RANGE_EXCEPTION(min, max, value) EXCEPTION("Value '%s' is out of range [%f, %f] for value '%s'", value, min, max, #value)
+
+#define INT_RANGE_CHECK(min, max, value)	\
 {	\
-	std::ostringstream error_str;	\
-	\
-	error_str << "String '" << value;	\
-	error_str << "' is not a valid value for '" << type << "'";	\
-	\
-	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error_str.str());	\
+	if ((value < min) || (value > max))	\
+	{	\
+		INT_OUT_OF_RANGE_EXCEPTION(min, max, value);	\
+	}	\
 } while (0)
 
-#define EXTENDED_OUT_OF_RANGE_EXCEPTION(min, max, value)	\
+#define UINT_RANGE_CHECK(min, max, value)	\
 {	\
-	std::ostringstream error_str;	\
-	\
-	error_str << "Value '" << value << "' is out of range [";	\
-	error_str << min << ", " << max << "] for value '" << #value << "'";	\
-	\
-	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error_str.str());	\
+	if ((value < min) || (value > max))	\
+	{	\
+		UINT_OUT_OF_RANGE_EXCEPTION(min, max, value);	\
+	}	\
 } while (0)
 
-#define RANGE_CHECK(min, max, value)	\
-if ((value < min) || (value > max))	\
+#define FLOAT_RANGE_CHECK(min, max, value)	\
 {	\
-	std::ostringstream error_str;	\
-	\
-	error_str << "Value '" << value << "' is out of range [";	\
-	error_str << min << ", " << max << "] for value '" << #value << "'";	\
-	\
-	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error_str.str());	\
+	if ((value < min) || (value > max))	\
+	{	\
+		FLOAT_OUT_OF_RANGE_EXCEPTION(min, max, value);	\
+	}	\
+} while (0)
+
+#define FILE_NOT_FOUND_EXCEPTION(file_name) EXCEPTION("File '%s' not found", file_name)
+
+#define	CATCH_AND_LOG_EXCEPTIONS	\
+catch (extended_exception &e)	\
+{	\
+	e.log();	\
+}	\
+catch (std::exception &e)	\
+{	\
+	log_error(e.what());	\
 }
 
-#define EXTENDED_FILE_NOT_FOUND_EXCEPTION(file_name)	\
+#define	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(return_value)	\
+catch (extended_exception &e)	\
 {	\
-	std::ostringstream error_str;	\
-	\
-	error_str << "File '" << file_name;	\
-	error_str << "' not found.";	\
-	\
-	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error_str.str());	\
-} while (0)
-
+	e.log();	\
+	return return_value;	\
+}	\
+catch (std::exception &e)	\
+{	\
+	log_error(e.what());	\
+	return return_value;	\
+}
 
 #endif	// _EXTENDEDEXCEPTION_HPP_

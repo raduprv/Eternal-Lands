@@ -4,12 +4,110 @@
 
 zip_file_system el_file::default_zip_file_system;
 
-std::string el_file::el_find_file(const std::string& file_name) {
+bool el_file::file_exist(const std::string& file_name, file_type type)
+{
+	struct stat fstat;
+
+	switch (type)
+	{
+		case ft_gzip:
+			return stat((file_name + std::string(".gz")).c_str(), &fstat) == 0;
+		case ft_zip:
+			return default_zip_file_system.file_exist(file_name);
+		case ft_uncompressed:
+			return stat(file_name.c_str(), &fstat) == 0;
+	}
+	/**
+	 * We should be never here. If so, it's a programming error, because we forgot to add all types to the switch!
+	 */
+	EXCEPTION("Internal error. This could only happen if we forgot to add all types to the switch!");
+}
+
+bool el_file::file_exist_in_dir(const std::string& file_name, file_dir dir)
+{
+	std::string file;
+	int i;
+	file_type type;
+
+	file = get_file_name_with_dir(file_name, dir);
+
+	for (i = ft_gzip; i <= ft_uncompressed; i++)
+	{
+		type = static_cast<file_type>(i);
+
+		if (file_exist(file, type))
+		{
+			return true;
+		}
+	}
+	return false;
+}
+
+void el_file::open(const std::string& file_name, bool uncompress, file_type type)
+{
+	switch (type)
+	{
+		case ft_gzip:
+			open(file_name + std::string(".gz"), uncompress);
+			return;
+		case ft_zip:
+			open_zip(file_name, uncompress, default_zip_file_system);
+			return;
+		case ft_uncompressed:
+			open(file_name, uncompress);
+			return;
+	}
+	/**
+	 * We should be never here. If so, it's a programming error, because we forgot to add all types to the switch!
+	 */
+	EXCEPTION("Internal error. This could only happen if we forgot to add all types to the switch!");
+}
+
+bool el_file::open_if_exist(const std::string& file_name, bool uncompress)
+{
+	int i;
+	file_type type;
+
+	for (i = ft_gzip; i <= ft_uncompressed; i++)
+	{
+		type = static_cast<file_type>(i);
+
+		if (file_exist(file_name, type))
+		{
+			open(file_name, uncompress, type);
+			return true;
+		}
+	}
+	return false;
+}
+
+std::string el_file::get_file_name_with_dir(const std::string &file_name, file_dir dir)
+{
+	switch (dir)
+	{
+		case fd_updates:
+			return std::string(get_path_config()) + std::string("updates/") + file_name;
+		case fd_datadir:
+			return std::string(datadir) + file_name;
+		case fd_current:
+			return file_name;
+	}
+	/**
+	 * We should be never here. If so, it's a programming error, because we forgot to add all types to the switch!
+	 */
+	EXCEPTION("Internal error. This could only happen if we forgot to add all types to the switch!");
+}
+
+#if	0
+/* No longer used */
+std::string el_file::el_find_file(const std::string& file_name)
+{
 	const char * cfgpath = get_path_config();
 	std::string str = cfgpath + file_name;
 	struct stat fstat;
 
-	if (stat(str.c_str(), &fstat) != 0){
+	if (stat(str.c_str(), &fstat) != 0)
+	{
 		str.append(".gz");
 		if(stat(str.c_str(), &fstat) != 0){
 			str = file_name;
@@ -23,40 +121,19 @@ std::string el_file::el_find_file(const std::string& file_name) {
 	}
 	return str;
 }
-
-bool el_file::open_zip(const std::string& file_name, bool uncompress, zip_file_system& zfile_system)
-{
-	return zfile_system.open_file(file_name, memory, uncompress) > 0;
-}
+#endif
 
 void el_file::open_gzip(const std::string& file_name)
 {
-	std::string str;
 	gzFile file;
 	int read, size;
-	const char * cfgpath = get_path_config();
-	str = std::string(cfgpath) + "updates/" + file_name + ".gz";
 
-	file = gzopen(str.c_str(), "rb");
+	file = gzopen(file_name.c_str(), "rb");
 	try
 	{
 		if (file == 0)
 		{
-			str = str.substr(0, str.size() - 3);	//trim the extension we added earlier
-			file = gzopen(str.c_str(), "rb");
-		}
-		if (file == 0)
-		{
-			str = file_name + ".gz";
-			file = gzopen(str.c_str(), "rb");
-		}
-		if (file == 0)
-		{
-			file = gzopen(file_name.c_str(), "rb");
-		}
-		if (file == 0)
-		{
-			EXTENDED_FILE_NOT_FOUND_EXCEPTION(file_name);
+			EXCEPTION("Can't open file '%s'.", file_name.c_str());
 		}
 
 		size = 0;
@@ -81,60 +158,54 @@ void el_file::open_gzip(const std::string& file_name)
 
 void el_file::open(const std::string& file_name)
 {
-	std::string str;
 	std::ifstream file;
-	int read, size;
-	const char * cfgpath = get_path_config();
-	str = std::string(cfgpath) + "updates/" + file_name;
-	file.open(str.c_str(), std::ios::binary);
+	int size;
 
-	if(!file.is_open()){
-		file.open(file_name.c_str(), std::ios::binary);
-	}
-	if(!file.is_open()){
-		return;
-	}
+	file.open(file_name.c_str(), std::ios::binary);
 
-	size = 0;
-	do
+	if (!file.is_open())
 	{
-		memory->resize(size + max_mem_block_buffer_size);
-		read = gzread(file, memory->get_memory(), max_mem_block_buffer_size);
-		size += read;
+		EXCEPTION("Can't open file '%s'.", file_name.c_str());
 	}
-	while (read == max_mem_block_buffer_size);
-	
+
+	size = file.tellg();
 	memory->resize(size);
+	file.read(reinterpret_cast<char*>(memory->get_memory(0)), size);
 }
 
 el_file::el_file(const std::string& file_name, bool uncompress): memory(new memory_buffer())
 {
-	if (!open_zip(file_name, uncompress, default_zip_file_system))
+	int i;
+	file_dir dir;
+
+	position = 0;
+
+	for (i = fd_updates; i <= fd_current; i++)
 	{
-		if (uncompress)
+		dir = static_cast<file_dir>(i);
+		if (open_if_exist(get_file_name_with_dir(file_name, dir), uncompress))
 		{
-			open_gzip(file_name);
-		}
-		else
-		{
-			open(file_name);
+			return;
 		}
 	}
-	position = 0;
+
+	FILE_NOT_FOUND_EXCEPTION(file_name.c_str());
 }
 
 bool el_file::file_exists(const std::string& file_name)
 {
-	std::string str;
+	int i;
+	file_dir dir;
 
-	if (default_zip_file_system.file_exists(file_name))
+	for (i = fd_updates; i <= fd_current; i++)
 	{
-		return true;
+		dir = static_cast<file_dir>(i);
+		if (file_exist_in_dir(file_name, dir))
+		{
+			return true;
+		}
 	}
-	if (!el_find_file(file_name).empty())
-	{
-		return true;
-	}
+
 	return false;
 }
 

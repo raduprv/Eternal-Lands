@@ -3,13 +3,17 @@
  * \ingroup misc
  * \brief the elc file header data format and supporting functions.
  */
-#ifndef	__ELC_IO_H__
-#define __ELC_IO_H__
+#ifndef	_ELC_IO_H_
+#define _ELC_IO_H_
 
 #include "../md5.h"
 #ifdef	NEW_FILE_IO
 #include "elfilewrapper.h"
 #endif	//NEW_FILE_IO
+
+#ifdef __cplusplus
+extern "C" {
+#endif
 
 typedef char MAGIC_NUMBER[4];
 typedef unsigned char VERSION_NUMBER[4];
@@ -27,8 +31,12 @@ typedef struct
 
 #ifdef	NEW_FILE_IO
 int read_and_check_elc_header(el_file_ptr file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename);
-#else	//NEW_FILE_IO
+#else	// NEW_FILE_IO
 int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename);
-#endif	//NEW_FILE_IO
+#endif	// NEW_FILE_IO
 
+#ifdef __cplusplus
+} // extern "C"
 #endif
+
+#endif	// _ELC_IO_H_

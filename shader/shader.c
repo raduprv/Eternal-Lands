@@ -81,7 +81,7 @@ static __inline__ void log_shader_compile_log(GLhandleARB object, const char* sh
 		CHECK_GL_ERRORS();
 		if (error == 1)
 		{
-			LOG_ERROR("Compiling shader '%s' successful: %s", shader_file_name, info_log);
+			log_info("Compiling shader '%s' successful: %s", shader_file_name, info_log);
 		}
 		else
 		{
@@ -93,7 +93,7 @@ static __inline__ void log_shader_compile_log(GLhandleARB object, const char* sh
 	{
 		if (error == 1)
 		{
-			LOG_ERROR("Compiling shader '%s' successful", shader_file_name);
+			log_info("Compiling shader '%s' successful", shader_file_name);
 		}
 		else
 		{
@@ -117,7 +117,7 @@ static __inline__ void log_shader_linking_log(GLhandleARB object, GLint error)
 		CHECK_GL_ERRORS();
 		if (error == 1)
 		{
-			LOG_ERROR("Linking shaders successful: %s", info_log);
+			log_info("Linking shaders successful: %s", info_log);
 		}
 		else
 		{
@@ -129,7 +129,7 @@ static __inline__ void log_shader_linking_log(GLhandleARB object, GLint error)
 	{
 		if (error == 1)
 		{
-			LOG_ERROR("Linking shaders successful");
+			log_info("Linking shaders successful");
 		}
 		else
 		{

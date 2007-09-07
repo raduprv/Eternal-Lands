@@ -11,11 +11,8 @@
 #include "allio.hpp"
 #include "memorybuffer.hpp"
 
-#define ZLIB_EXCEPTION(strm) EXTENDED_EXCEPTION(strm.msg)
+#define ZLIB_EXCEPTION(strm) EXCEPTION(strm.msg)
 
-/*
-	We always use the file that is *first* added. I will change it later :)
-*/
 class zip_file_system
 {
 	private:
@@ -83,24 +80,40 @@ class zip_file_system
 		int read_files_entry(const Uint8* pos, int size) const;
 
 		/**
-		 * @brief Gets an uint32_t from pos and increase pos.
+		 * @brief Gets an Uint32 from pos and increase pos.
 		 *
-		 * Gets an uint32_t from pointer pos and increase the pointer pos at
-		 * sizeof(uint32_t).
-		 * @param pos The pointer from where to get the uint32_t.
-		 * @return Returns the uint32_t.
+		 * Gets an Uint32 from pointer pos and increase the pointer pos at
+		 * sizeof(Uint32).
+		 * @param pos The pointer from where to get the Uint32.
+		 * @return Returns the Uint32.
 		 */
-		int get_uint32_from_pos(Uint8* &pos) const;
+		Uint32 get_uint32_from_pos(Uint8* &pos) const
+		{
+			Uint32 value;
+
+			memcpy(&value, pos, sizeof(Uint32));
+			pos = &pos[sizeof(Uint32)];
+
+			return SDL_SwapLE32(value);
+		}
 
 		/**
-		 * @brief Gets an uint16_t from pos and increase pos.
+		 * @brief Gets an Uint16 from pos and increase pos.
 		 *
-		 * Gets an uint16_t from pointer pos and increase the pointer pos at
-		 * sizeof(uint16_t).
-		 * @param pos The pointer from where to get the uint16_t.
-		 * @return Returns the uint16_t.
+		 * Gets an Uint16 from pointer pos and increase the pointer pos at
+		 * sizeof(Uint16).
+		 * @param pos The pointer from where to get the Uint16.
+		 * @return Returns the Uint16.
 		 */
-		int get_uint16_from_pos(Uint8* &pos) const;
+		Uint16 get_uint16_from_pos(Uint8* &pos) const
+		{
+			Uint16 value;
+
+			memcpy(&value, pos, sizeof(Uint16));
+			pos = &pos[sizeof(Uint16)];
+
+			return SDL_SwapLE16(value);
+		}
 
 		/**
 		 * @brief Reads the files informations.
@@ -111,14 +124,33 @@ class zip_file_system
 		 * @param count The number of files that are in the zip file.
 		 * @param index The index of the zip file where the files are in.
 		 * @param path The path of the zip file where the files are in.
+		 * @param files The map where to add the files.
+		 * @param replace True if we should replace files.
 		 * @see file_entrys
 		 */
 		void read_files_infos(Uint8* pos, int count, int index,
-			const std::string& path, zip_file_entry_list& files);
+			const std::string& path, zip_file_entry_list& files, bool replace);
 
+		/**
+		 * @brief Reads the file header.
+		 *
+		 * Reads the informations from the file header into @see zfile.
+		 * @param zfile The zip file entry.
+		 * @param index The index of the zip file in the zip_files list.
+		 * @see zip_files
+		 * @see zip_file_entry
+		 */
 		void read_file_header(zip_file_entry &zfile, int index);
 
-		void add(int idx, const std::string& path, zip_file_entry_list &files);
+		/**
+		 * @brief
+		 *
+		 * @param path The path of the zip file where the files are in.
+		 * @param files The map where to add the files.
+		 * @param replace True if we should replace files.
+		 */
+		void add(int idx, const std::string& path, zip_file_entry_list &files,
+			bool replace);
 	public:
 		/**
 		 * @brief Adds a zip file to the search list.
@@ -126,9 +158,10 @@ class zip_file_system
 		 * Adds a zip file to the list where to search for a file that is opend with
 		 * open_file.
 		 * @param file_name The file name of the zip file.
+		 * @param replace True if we should replace files.
 		 * @see open_file
 		 */		
-		void add_zip_archive(const std::string &file_name);
+		void add_zip_archive(const std::string &file_name, bool replace);
 
 		/**
 		 * @brief Opens a file from a zip archive.
@@ -139,14 +172,19 @@ class zip_file_system
 		 * @param buffer A pointer that the function sets to the uncompressed data. Should
 		 * not be a valid pointer, because the address gets overwritten.
 		 * @param uncompr Flag that indicates if the file data gets uncompressed.
-		 * @return Returns the size of the file (compressed or uncompressed) or zero if the
-		 * file is not found.
+		 * @return Returns the size of the file (compressed or uncompressed).
 		 * @see add_zip_archive
 		 */
-		int open_file(const std::string &file_name, memory_ptr &buffer,
-			bool uncompr);
+		Uint32 open_file(const std::string &file_name, memory_ptr &buffer, bool uncompr);
 
-		inline bool file_exists(const std::string &file_name) const
+		/**
+		 * @brief Checks if the file exist in any of the zip files.
+		 *
+		 * Checks if the file exist in any of the zip files.
+		 * @param file_name The name of the file to be checked.
+		 * @return Returns true if the file is in the zip files or false else.
+		 */
+		inline bool file_exist(const std::string &file_name) const
 		{
 			zip_file_entry_list::const_iterator found;
 

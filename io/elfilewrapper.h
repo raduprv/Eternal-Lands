@@ -23,9 +23,10 @@ typedef struct el_file* el_file_ptr;
  * Adds a zip file to the list where to search for a file that is opend with
  * el_open.
  * @param file_name The file name of the zip file.
+ * @param replace Flag that indicates if files get replaced.
  * @see el_open
  */
-extern void add_zip_archive(const char* file_name);
+extern void add_zip_archive(const char* file_name, int replace);
 
 /**
  * @brief Opens a file.

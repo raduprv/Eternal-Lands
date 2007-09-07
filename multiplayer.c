@@ -48,6 +48,9 @@
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
 #endif // SFX
+#ifdef	USE_SEND_VIDEO_INFO
+#include "sendvideoinfo.h"
+#endif	// USE_SEND_VIDEO_INFO
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -612,7 +615,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef COUNTERS
 				load_counters();
 #endif
-				
+#ifdef	USE_SEND_VIDEO_INFO
+				send_video_info();
+#endif	// USE_SEND_VIDEO_INFO				
 				previously_logged_in=1;
 			}
 #ifdef SKY_FPV_CURSOR

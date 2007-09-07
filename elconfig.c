@@ -77,6 +77,9 @@
 #ifdef EYE_CANDY
 	#include "eye_candy_wrapper.h"
 #endif
+#ifdef	USE_SEND_VIDEO_INFO
+#include "sendvideoinfo.h"
+#endif	// USE_SEND_VIDEO_INFO
 
 
 #define SPECINT		INT //Multiple ints, non-default func				func(int*,int)
@@ -88,6 +91,7 @@
 #define PASSWORD	6
 #define FLOAT_F		7 	// Change float with functions that returns max and min values 		func(float*,float*), max/min float func()
 #define INT_F		8	// Change int with functions that returns max and min values 		func(int*,int), max/min int func()
+#define BOOL_INI	9	// Boolean value that is only read from and writen to the ini file
 
 typedef	float (*float_min_max_func)();
 typedef	int (*int_min_max_func)();
@@ -1201,6 +1205,7 @@ static __inline__ void check_option_var(char* name)
 			our_vars.var[i]->func (our_vars.var[i]->var, value_i);
 			break;
 		case BOOL:
+		case BOOL_INI:
 			value_i= *((int*)our_vars.var[i]->var);
 			if (value_i == 0) *((int*)our_vars.var[i]->var)= 1;
 			else *((int*)our_vars.var[i]->var)= 0;
@@ -1301,6 +1306,9 @@ int check_var (char *str, var_name_type type)
 		case INT_F:
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
 			return 1;
+		case BOOL_INI:
+			// Needed, because var is never changed through widget
+			our_vars.var[i]->saved= 0;
 		case BOOL:
 			p= our_vars.var[i]->var;
 			if ((atoi (ptr) > 0) != *p)
@@ -1389,6 +1397,7 @@ void add_var(int type, char * name, char * shortname, void * var, void * func, f
 			*integer= (int)def;
 		break;
 		case BOOL:
+		case BOOL_INI:
 			*integer=(int)def;
 			break;
 		case STRING:
@@ -1733,6 +1742,10 @@ void init_vars()
 	add_var(BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",MISC);
 #endif
 #endif
+
+#ifdef	USE_SEND_VIDEO_INFO
+	add_var(BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
+#endif	// USE_SEND_VIDEO_INFO
 }
 
 void write_var (FILE *fout, int ivar)
@@ -1745,6 +1758,7 @@ void write_var (FILE *fout, int ivar)
 		case MULTI:
 		case BOOL:
 		case INT_F:
+		case BOOL_INI:
 		{
 			int *p= our_vars.var[ivar]->var;
 			fprintf (fout, "#%s= %d\n", our_vars.var[ivar]->name, *p);

@@ -12,12 +12,27 @@
 #include "allio.hpp"
 #include "zipfilesystem.hpp"
 #include "elpathwrapper.h"
+#include "../init.h"
 
 const int max_mem_block_buffer_size = 0x40000; // 256kb
 
 class el_file
 {
 	private:
+
+		enum file_type
+		{
+			ft_gzip,		/**< File name ends with .gzip */
+			ft_zip,			/**< File is in a zip archive */
+			ft_uncompressed		/**< All other files */
+		};
+
+		enum file_dir
+		{
+			fd_updates,	/**< Dir for updates (config dir + "updates/") */
+			fd_datadir,	/**< Data dir */
+			fd_current	/**< Current dir */
+		};
 
 		/**
 		 * @brief File position.
@@ -34,21 +49,23 @@ class el_file
 		memory_ptr memory;
 
 		/**
-		 * @brief Tries to open the file in a zip file.
+		 * @brief Opens the file in a zip file.
 		 *
-		 * Tries to open the file in a zip file. Returns true if successful or false if file is
-		 * not found in the zip file system.
+		 * Opens the file in a zip file.
 		 * @param file_name The name of the file to open.
 		 * @param uncompress Flag indicating if the file should get uncompressed.
 		 * @param zfile_system The zip file system where to search for the file.
 		 */
-		bool open_zip(const std::string& file_name, bool compressed,
-			zip_file_system& zfile_system);
+		inline void open_zip(const std::string& file_name, bool uncompress,
+			zip_file_system& zfile_system)
+		{
+			zfile_system.open_file(file_name, memory, uncompress);
+		}
 
 		/**
-		 * @brief Tries to open the file and uncompress it.
+		 * @brief Opens the file and uncompress it.
 		 *
-		 * Tries to open the file and uncompress it.
+		 * Opens the file and uncompress it ignoring all files in the zip files.
 		 * @param file_name The name of the file to open.
 		 */
 		void open_gzip(const std::string& file_name);
@@ -56,17 +73,92 @@ class el_file
 		/**
 		 * @brief Tries to open the file and don't uncompress it.
 		 *
-		 * Tries to open the file and don't uncompress it.
+		 * Tries to open the file and don't uncompress it ignoring all files in the zip
+		 * files.
 		 * @param file_name The name of the file to open.
 		 */
 		void open(const std::string& file_name);
 
 		/**
-		 * @brief The zip file system to use.
+		 * @brief Check if a file exists.
 		 *
+		 * Check if the given file exists using the given file type.
+		 * @param file_name The name of the file.
+		 * @param type The type of the file.
+		 * @return Returns true if the file exists, else false.
+		 * @see file_type
+		 */
+		static bool file_exist(const std::string& file_name, file_type type);
+
+		/**
+		 * @brief Check if a file exists.
+		 *
+		 * Check if the given file exists in the given dir, tying all possible file types.
+		 * @param file_name The name of the file.
+		 * @param dir The dir tu use.
+		 * @return Returns true if the file exists, else false.
+		 * @see file_type
+		 * @see file_dir
+		 */
+		static bool file_exist_in_dir(const std::string& file_name, file_dir dir);
+
+		/**
+		 * @brief Opens a file.
+		 *
+		 * Opens a file ignoing all files in the zip files.
+		 * @param file_name The name of the file to open.
+		 * @param uncompress Flag indicating if the file should get uncompressed.
+		 */
+		inline void open(const std::string& file_name, bool uncompress)
+		{
+			if (uncompress)
+			{
+				open_gzip(file_name);
+			}
+			else
+			{
+				open(file_name);
+			}
+		}
+
+		/**
+		 * @brief Opens a file.
+		 *
+		 * Opens a file using the given file type.
+		 * @param file_name The name of the file to open.
+		 * @param uncompress Flag indicating if the file should get uncompressed.
+		 * @param type The type of the file.
+		 */
+		void open(const std::string& file_name, bool uncompress, file_type type);
+
+		/**
+		 * @bief Opens a file if it exist.
+		 *
+		 * Opens a file if it exist and returns true or returns false if the file don't
+		 * exist.
+		 * @param file_name The name of the file to open.
+		 * @param uncompress Flag indicating if the file should get uncompressed.
+		 * @return Returns true if the files exist or false else.
+		 */
+		bool open_if_exist(const std::string& file_name, bool uncompress);
+
+		/**
+		 * @brief Returns the file name with the given dir.
+		 *
+		 * Returns the file name with the given dir. Used for iteratin over all possible
+		 * directories and doing that in the correct order.
+		 * @param file_name The file name to use.
+		 * @param dir The file dir to use.
+		 * @return Returns the file name with the given dir.
+		 */
+		static std::string get_file_name_with_dir(const std::string &file_name, file_dir dir);
+
+		/**
+		 * @brief The zip file system to use.
 		 * The zip file system to use for opening a file.
 		 */
 		static zip_file_system default_zip_file_system;
+
 	public:
 
 		/**
@@ -75,7 +167,6 @@ class el_file
 		 * Opens a file read only in binary mode.
 		 * @param file_name The name of the file to open.
 		 * @param uncompress Flag indicating if the file should get uncompressed.
-		 * @param zfile_system The zip file system where to search for the file.
 		 */
 		el_file(const std::string& file_name, bool uncompress);
 
@@ -173,11 +264,12 @@ class el_file
 		 *
 		 * Check if the given file exists.
 		 * @param file_name The name of the file.
-		 * @param zfile_system The zip file system to use.
 		 * @return Returns true if the file exists, else false.
 		 */
 		static bool file_exists(const std::string& file_name);
 
+#if	0
+/* No longer used */
 		/**
 		 * @brief Tries to find the file
 		 *
@@ -185,17 +277,18 @@ class el_file
 		 * @param file_name The name of the file to search for.
 		 */
 		static std::string el_find_file(const std::string& file_name);
-
+#endif
 		/**
 		 * @brief Adds a zip file to the search list.
 		 *
 		 * Adds a zip file to the list where to search for a file that is opend with
 		 * open_file.
 		 * @param file_name The file name of the zip file.
-		 */		
-		static void add_zip_archive(const std::string &file_name)
+		 * @param replace True if we should replace files.
+		 */
+		static void add_zip_archive(const std::string &file_name, bool replace)
 		{
-			default_zip_file_system.add_zip_archive(file_name);
+			default_zip_file_system.add_zip_archive(file_name, replace);
 		}
 };
 

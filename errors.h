@@ -101,6 +101,26 @@ void log_conn(const Uint8 *in_data, Uint16 data_length);
 void log_func_err(const char * file, const char * func, unsigned line);
 #endif
 
+/*!
+ * \ingroup misc_utils
+ * \brief   logs the given \a message to the infos.log file.
+ *
+ *      Logs the given \a message to the infos.log file.
+ *
+ * \param message   the message to log
+ */
+void log_info(const char* message, ...);
+
+#ifdef	EXTRA_DEBUG
+#define LOG_EXTRA_INFO log_info
+#else	// EXTRA_DEBUG
+#define LOG_EXTRA_INFO(message, ...)	\
+do	\
+{	\
+}	\
+while (0)
+#endif	// EXTRA_DEBUG
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -175,7 +175,7 @@ static __inline__ GLubyte* make_3d_noise_texture(int size, int frequency, int di
 
 	for (f = 0; f < numOctaves; f++, frequency *= 2, amp *= 0.5)
 	{
-		LOG_ERROR("Generating 3D noise: octave %d/%d...\n", f + 1, numOctaves);
+		log_info("Generating 3D noise: octave %d/%d...\n", f + 1, numOctaves);
 		set_noise_frequency(frequency);
 		ni[0] = ni[1] = ni[2] = 0;
 

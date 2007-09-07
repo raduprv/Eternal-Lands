@@ -31,7 +31,7 @@
 float proj_on_ground[16];
 float ground_plane[4]={0,0,1,0};
 float sun_position[4]={400.0, 400.0, 500.0, 0.0};
-double light_view_mat[16],light_proj_mat[16],texgen_mat[16],texgen_mat_1d[16];
+double light_view_mat[16],light_proj_mat[16],shadow_texgen_mat[16];
 int shadows_on=0;
 int is_day=1;
 int use_shadow_mapping=1;
@@ -108,11 +108,6 @@ void calc_shadow_matrix()
 		{
 			float xrot,zrot;
 
-			double scale1d[]={0.0,0.0,0.0,0.0,
-					  0.0,0.0,0.0,0.0,
-					  0.5,0.0,0.0,0.0,
-					  0.5,0.0,0.0,1.0};
-
 			float div_length=1.0f/sqrt(sun_position[0]*sun_position[0]+sun_position[1]*sun_position[1]+sun_position[2]*sun_position[2]);
 			sun_position[0]*=div_length;
 			sun_position[1]*=div_length;
@@ -147,11 +142,7 @@ void calc_shadow_matrix()
 			glScalef(0.5,0.5,0.5);       // ...and this == S
 			glMultMatrixd(light_proj_mat);     // Plight
 			glMultMatrixd(light_view_mat);     // L^-1
-			glGetDoublev(GL_MODELVIEW_MATRIX,texgen_mat);
-			glLoadMatrixd(scale1d);      // S
-			glMultMatrixd(light_proj_mat);     // Plight
-			glMultMatrixd(light_view_mat);     // L^-1
-			glGetDoublev(GL_MODELVIEW_MATRIX,texgen_mat_1d);
+			glGetDoublev(GL_MODELVIEW_MATRIX,shadow_texgen_mat);
 			glPopMatrix();
 		}
 	else
@@ -722,22 +713,22 @@ void setup_2d_texgen()
 
 	glEnable(GL_TEXTURE_GEN_S);
 	glTexGeni(GL_S,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-	plane[0]=texgen_mat[0];plane[1]=texgen_mat[4];plane[2]=texgen_mat[8];plane[3]=texgen_mat[12];
+	plane[0]=shadow_texgen_mat[0];plane[1]=shadow_texgen_mat[4];plane[2]=shadow_texgen_mat[8];plane[3]=shadow_texgen_mat[12];
 	glTexGenfv(GL_S,GL_EYE_PLANE,plane);
 
 	glEnable(GL_TEXTURE_GEN_T);
 	glTexGeni(GL_T,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-	plane[0]=texgen_mat[1];plane[1]=texgen_mat[5];plane[2]=texgen_mat[9];plane[3]=texgen_mat[13];
+	plane[0]=shadow_texgen_mat[1];plane[1]=shadow_texgen_mat[5];plane[2]=shadow_texgen_mat[9];plane[3]=shadow_texgen_mat[13];
 	glTexGenfv(GL_T,GL_EYE_PLANE,plane);
 
 	glEnable(GL_TEXTURE_GEN_R);
 	glTexGeni(GL_R,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-	plane[0]=texgen_mat[2];plane[1]=texgen_mat[6];plane[2]=texgen_mat[10];plane[3]=texgen_mat[14];
+	plane[0]=shadow_texgen_mat[2];plane[1]=shadow_texgen_mat[6];plane[2]=shadow_texgen_mat[10];plane[3]=shadow_texgen_mat[14];
 	glTexGenfv(GL_R,GL_EYE_PLANE,plane);
 
 	glEnable(GL_TEXTURE_GEN_Q);
 	glTexGeni(GL_Q,GL_TEXTURE_GEN_MODE,GL_EYE_LINEAR);
-	plane[0]=texgen_mat[3];plane[1]=texgen_mat[7];plane[2]=texgen_mat[11];plane[3]=texgen_mat[15];
+	plane[0]=shadow_texgen_mat[3];plane[1]=shadow_texgen_mat[7];plane[2]=shadow_texgen_mat[11];plane[3]=shadow_texgen_mat[15];
 	glTexGenfv(GL_Q,GL_EYE_PLANE,plane);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
