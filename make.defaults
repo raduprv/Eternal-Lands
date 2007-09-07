@@ -65,7 +65,7 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 FEATURES += ZLIB                             # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 FEATURES += CXX_MISC			# Extended exception, xml c++ helper etc. NEW_FILE_IO and USE_SEND_VIDEO_INFO needs this. The new shader system will also need them
-FEATURES += USE_SEND_VIDEO_INFO		# Sends video information to the server (OpenGL version, supported OpenGL extentions etc.). Needs CXX_MISC
+FEATURES += USE_SEND_VIDEO_INFO		# Sends video information to the server (OpenGL version, supported OpenGL extentions etc.). This is done only once, so if you don't want it, set video_info_sent to one in el.ini. Needs CXX_MISC and the file extentions.xml in datadir
 
 # Handle feature dependencies:
 # if CUSTOM_UPDATE is set, but AUTO_UPDATE isn't, remove CUSTOM_UPDATE

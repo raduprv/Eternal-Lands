@@ -140,7 +140,7 @@ extern "C" void send_video_info()
 	bit_set_96 caps;
 	xmlNode *root_element;
 	xmlDoc *document;
-	int i;
+	GLint i;
 
 	if (video_info_sent == 0)
 	{
