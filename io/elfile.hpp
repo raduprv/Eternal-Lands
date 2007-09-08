@@ -1,7 +1,7 @@
 /**
  * @file
  * @ingroup io
- * @brief file i/o opject with support for zip and gzip files
+ * @brief file i/o object with support for zip and gzip files
  */
 
 #ifndef	_ELFILE_HPP_
@@ -168,17 +168,25 @@ class el_file
 		static inline std::string remove_path(const std::string &file_name)
 		{
 			std::string::size_type pos;
+			std::string str;
 
-			pos = file_name.rfind("./");
+			str = file_name;
 
-			if (pos != std::string::npos)
+			pos = str.find("./");
+			while (pos != std::string::npos)
 			{
-				return file_name.substr(pos + 2, file_name.size());
+				str = str.erase(pos, 2);
+				pos = str.find("./");
 			}
-			else
+
+			pos = str.find("//");
+			while (pos != std::string::npos)
 			{
-				return file_name;
+				str = str.erase(pos, 1);
+				pos = str.find("//");
 			}
+
+			return str;
 		}
 
 	public:
@@ -315,16 +323,6 @@ class el_file
 		 */
 		static bool file_exists(const std::string& file_name);
 
-#if	0
-/* No longer used */
-		/**
-		 * @brief Tries to find the file
-		 *
-		 * Tries to find the file, in configdir/updates or working directory, with or without an appended.gz
-		 * @param file_name The name of the file to search for.
-		 */
-		static std::string el_find_file(const std::string& file_name);
-#endif
 		/**
 		 * @brief Adds a zip file to the search list.
 		 *

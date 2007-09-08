@@ -4803,6 +4803,9 @@ void load_sound_config_data (const char *file)
 	xmlDoc *doc;
 	xmlNode *root=NULL;
 
+#ifdef	NEW_FILE_IO
+	if((doc = xmlReadFile(file, NULL, 0)) == NULL)
+#else	// NEW_FILE_IO
 	char path[1024];
 
 #ifndef WINDOWS
@@ -4813,6 +4816,7 @@ void load_sound_config_data (const char *file)
 
 	// Can we open the file as xml?
 	if((doc = xmlReadFile(path, NULL, 0)) == NULL)
+#endif	// NEW_FILE_IO
 	{
 	#ifdef ELC
 		char str[200];

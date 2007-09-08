@@ -141,6 +141,8 @@ extern int CalCoreModel_ELLoadCoreMaterial(struct CalCoreModel *self, const char
 extern int CalCoreModel_ELLoadCoreMesh(struct CalCoreModel *self, const char *strFilename);
 extern enum CalBoolean CalCoreModel_ELLoadCoreSkeleton(struct CalCoreModel *self, const char *strFilename);
 
+extern void register_xml_wrapper();
+
 #ifdef __cplusplus
 }
 #endif

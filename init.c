@@ -65,6 +65,7 @@
 #ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
+#include "io/xmlcallbacks.h"
 #else
 #include "misc.h"
 #endif
@@ -633,6 +634,16 @@ void init_stuff()
 	//TODO: process command line options
 	chdir(datadir);
 
+#ifdef	NEW_FILE_IO
+	//read the config file
+	read_config();
+
+	add_paths();
+	// Here you can add zip files, like
+	// add_zip_archive("./data.zip", datadir, 0);
+	xml_register_el_input_callbacks();
+#endif	// NEW_FILE_IO
+
 #ifdef WRITE_XML
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
 #endif
@@ -649,13 +660,9 @@ void init_stuff()
 	// because the messages need the font widths.
 	init_fonts();
 	
+#ifndef	NEW_FILE_IO
 	//read the config file
 	read_config();
-
-#ifdef	NEW_FILE_IO
-	add_paths();
-	// Here you can add zip files, like
-	// add_zip_archive("./data.zip", datadir, 0);
 #endif	// NEW_FILE_IO
 
 	//Parse command line options

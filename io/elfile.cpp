@@ -79,31 +79,6 @@ bool el_file::open_if_exist(const std::string& file_name, bool uncompress)
 	return false;
 }
 
-#if	0
-/* No longer used */
-std::string el_file::el_find_file(const std::string& file_name)
-{
-	const char * cfgpath = get_path_config();
-	std::string str = cfgpath + file_name;
-	struct stat fstat;
-
-	if (stat(str.c_str(), &fstat) != 0)
-	{
-		str.append(".gz");
-		if(stat(str.c_str(), &fstat) != 0){
-			str = file_name;
-			if(stat(str.c_str(), &fstat) != 0){
-				str.append(".gz");
-				if(stat(str.c_str(), &fstat) != 0){
-					return "";	//No luck anywhere!
-				}
-			}
-		}
-	}
-	return str;
-}
-#endif
-
 void el_file::open_gzip(const std::string& file_name)
 {
 	gzFile file;
@@ -158,7 +133,7 @@ void el_file::open(const std::string& file_name)
 
 	size = file.tellg();
 	memory->resize(size);
-	file.read(reinterpret_cast<char*>(memory->get_memory(0)), size);
+	file.read(reinterpret_cast<char*>(memory->get_memory()), size);
 }
 
 el_file::el_file(const std::string& file_name, bool uncompress): memory(new memory_buffer())

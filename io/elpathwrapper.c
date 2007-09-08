@@ -105,7 +105,6 @@ const char * get_path_config(void){
 	}
 	strcat(locbuffer, "/");
 #else /* !WINDOWS */
-	strcpy(locbuffer, getenv("HOME"));	//Warning! Enormous home paths could overflow our variable (so don't do that).
 	safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s/", getenv("HOME"), cfgdirname);
 	if(pwd[0] != '\0'){
 		if(chdir(locbuffer) == -1){strcpy(locbuffer, cfgdirname); return locbuffer;}

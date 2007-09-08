@@ -27,7 +27,7 @@ SFX_COBJ = special_effects.o
 MINIMAP_COBJ = minimap.o
 SKY_FPV_CURSOR_COBJ = sky.o
 NEW_FILE_IO_CXXOBJ = io/elfilewrapper.o io/elfile.o io/zipfilesystem.o
-NEW_FILE_IO_COBJ = io/elpathwrapper.o
+NEW_FILE_IO_COBJ = io/elpathwrapper.o io/xmlcallbacks.o
 USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o

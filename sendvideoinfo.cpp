@@ -5,6 +5,9 @@
 #include "client_serv.h"
 #include "init.h"
 #include "errors.h"
+#ifdef	NEW_FILE_IO
+#include "io/elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 int video_info_sent = 0;
 
@@ -135,7 +138,9 @@ static inline int get_vendor_idx()
 
 extern "C" void send_video_info()
 {
+#ifndef	NEW_FILE_IO
 	char file_name[4096];
+#endif	// NEW_FILE_IO
 	Uint8 data[33];
 	bit_set_96 caps;
 	xmlNode *root_element;
@@ -146,6 +151,9 @@ extern "C" void send_video_info()
 	{
 		memset(caps, 0, sizeof(caps));
 
+#ifdef	NEW_FILE_IO
+		document = xmlReadFile("extentions.xml", 0, 0);
+#else	// NEW_FILE_IO
 #ifndef WINDOWS
 		snprintf(file_name, sizeof(file_name), "%s/%s", datadir, "extentions.xml");
 #else
@@ -153,6 +161,7 @@ extern "C" void send_video_info()
 #endif // !WINDOWS
 
 		document = xmlReadFile(file_name, 0, 0);
+#endif	// NEW_FILE_IO
 		if (document != 0)
 		{
 			/*Get the root element node */

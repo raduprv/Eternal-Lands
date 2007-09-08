@@ -16,6 +16,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#ifdef	NEW_FILE_IO
+#include "io/elfilewrapper.h"
+#endif	//NEW_FILE_IO
 
 #ifdef BSD
  #include <stdlib.h>
@@ -460,14 +463,14 @@ book * read_book(char * file, int type, int id)
 	book *b=NULL;
 	char path[1024];
 
-#ifndef WINDOWS
+#if !defined WINDOWS && !defined NEW_FILE_IO
 	safe_snprintf(path, sizeof(path), "%s/languages/%s/%s", datadir, lang, file);
 #else
 	safe_snprintf(path, sizeof(path), "languages/%s/%s", lang, file);
 #endif // !WINDOWS
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
-#ifndef WINDOWS
+#if !defined WINDOWS && !defined NEW_FILE_IO
 		safe_snprintf(path, sizeof(path), "%s/languages/en/%s", datadir, file);
 #else
 		safe_snprintf(path, sizeof(path), "languages/en/%s", file);
@@ -540,6 +543,10 @@ void read_knowledge_book_index()
 	xmlNode * root=NULL;
 	char path[1024];
 	
+#ifdef	NEW_FILE_IO
+	if ((doc = xmlReadFile("knowledge.xml", NULL, 0)) == NULL) {
+			LOG_TO_CONSOLE(c_red1, "Can't open knowledge book index");
+#else	// NEW_FILE_IO
 #ifndef _WIN32
 	safe_snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
 #else
@@ -559,6 +566,7 @@ void read_knowledge_book_index()
 			log_error(str);
 			LOG_TO_CONSOLE(c_red1,str);
 		}
+#endif	// NEW_FILE_IO
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
 		log_error("Error while parsing: %s", path);
 	} else if(xmlStrcasecmp(root->name,(xmlChar*)"Knowledge_Books")){

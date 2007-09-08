@@ -2771,13 +2771,18 @@ int read_actor_defs (const char *dir, const char *index)
 
 void init_actor_defs()
 {
+#ifndef	NEW_FILE_IO
 	const char *dirname = "actor_defs", *idxname = "actor_defs.xml";
 	char defdir[256];
 	int ok;
+#endif	// NEW_FILE_IO
 
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
 
+#ifdef	NEW_FILE_IO
+	read_actor_defs ("actor_defs", "actor_defs.xml");
+#else	// NEW_FILE_IO
 #ifndef WINDOWS
 	safe_snprintf (defdir, sizeof (defdir), "%s/%s", datadir, dirname);
 #else
@@ -2785,4 +2790,5 @@ void init_actor_defs()
 #endif
 
 	ok = read_actor_defs (defdir, idxname);
+#endif	// NEW_FILE_IO
 }
