@@ -2655,6 +2655,20 @@ unsigned int add_server_sound(int type, int x, int y)
 	}
 }
 
+int get_loaded_sound_num()
+{
+	int i;
+	// Loop through the array looking for an unused spot (sound = -1)
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
+	{
+		if (loaded_sounds[i].sound == -1)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 unsigned int add_sound_object(int type, int x, int y, int me)
 {
 	int i, tx, ty, distanceSq, loaded_sound_num, cookie;
@@ -3070,10 +3084,9 @@ void stop_sound_at_location(int x, int y)
 // Kill all the sounds. Useful when we change maps, etc.
 void stop_all_sounds()
 {
-#ifdef _EXTRA_SOUND_DEBUG
 	int i;
-#endif
 	ALuint error;
+
 	if (!have_sound)
 		return;
 
@@ -3121,20 +3134,6 @@ void stop_all_sounds()
 		printf("Error killing all sounds\n");
 #endif //_EXTRA_SOUND_DEBUG
 	}
-}
-
-int get_loaded_sound_num()
-{
-	int i;
-	// Loop through the array looking for an unused spot (sound = -1)
-	for (i = 0; i < MAX_BUFFERS * 2; i++)
-	{
-		if (loaded_sounds[i].sound == -1)
-		{
-			return i;
-		}
-	}
-	return -1;
 }
 
 void unload_sound(int index)
@@ -3196,8 +3195,8 @@ void update_sound(int ms)
 			if (sound_opts != SOUNDS_NONE && (distanceSq < maxDistSq))
 			{
 				// This sound is back in range so load it into a source and play it
-#ifdef _EXTRA_SOUND_DEBUG
 				int cookie;
+#ifdef _EXTRA_SOUND_DEBUG
 				printf("Sound now in-range: %d (%s), Distance squared: %d, Max: %d\n", loaded_sounds[i].sound, pSoundType->name, distanceSq, maxDistSq);
 #endif //_EXTRA_SOUND_DEBUG
 				cookie = play_sound(i, x, y);
