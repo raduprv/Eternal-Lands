@@ -5,7 +5,7 @@
 #ifdef NEW_FILE_IO
 #include "errors.h"
 #include "translate.h"
-#include "io/elpathwrapper.h"
+#include "io/elfilewrapper.h"
 #else
 #include "misc.h"
 #endif
@@ -32,19 +32,27 @@ int cursors_x_length;
 int cursors_y_length;
 
 void load_cursors()
-{
-	int f_size,cursors_colors_no,x,y,i;
-	
-	FILE *f = NULL;
+{	
+	int cursors_colors_no, x, y, i;
 	Uint8 * cursors_mem_bmp;
-	Uint8 *handle_cursors_mem_bmp;
 	Uint8 cur_color;
 #ifdef NEW_FILE_IO
-	if((f = open_file_data ("textures/cursors.bmp", "rb")) == NULL){
-		LOG_ERROR("%s: %s \"textures/cursors.bmp\"\n", reg_error_str, cant_open_file);
-#else // !NEW_FILE_IO
+	el_file_ptr file;
+
+	file = el_open("textures/cursors.bmp");
+
+	if (file == NULL)
+	{
+		return;
+	}
+
+	cursors_mem_bmp = el_get_pointer(file);
+#else // NEW_FILE_IO
+	int f_size;
+	FILE *f = NULL;
+	Uint8 *handle_cursors_mem_bmp;
+
 	if((f = my_fopen ("./textures/cursors.bmp", "rb")) == NULL){
-#endif //NEW_FILE_IO
 		return;
 	}
 
@@ -56,6 +64,7 @@ void load_cursors()
 	fseek (f, 0, SEEK_SET);
 	fread (cursors_mem_bmp, 1, f_size, f);
 	fclose (f);
+#endif //NEW_FILE_IO
 
 	cursors_mem_bmp += 18;		//x length is at offset+18
 	cursors_x_length = SDL_SwapLE32(*((int *) cursors_mem_bmp));
@@ -96,7 +105,11 @@ void load_cursors()
 				}
 
 		}
+#ifdef NEW_FILE_IO
+	el_close(file);
+#else // NEW_FILE_IO
 	free(handle_cursors_mem_bmp);
+#endif //NEW_FILE_IO
 }
 
 void cursors_cleanup(void)
