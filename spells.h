@@ -152,6 +152,7 @@ void load_quickspells();
 void save_quickspells();
 void init_quickspell();
 void add_spell_to_quickbar();
+int we_are_poisoned();
 
 #ifdef __cplusplus
 } // extern "C"

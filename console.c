@@ -1061,6 +1061,9 @@ void init_commands(const char *filename)
 	add_command("find", &history_grep);
 	add_command("save", &save_local_data);
 	add_command("url", &url_command);
+#ifdef COUNTERS	
+	add_command("chat_to_counters", &chat_to_counters_command);
+#endif
 	command_buffer_offset = NULL;
 }
 

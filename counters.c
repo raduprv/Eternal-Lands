@@ -1,5 +1,6 @@
 #ifdef COUNTERS
 
+#include <stdlib.h>
 #include <ctype.h>
 #include "counters.h"
 #include "asc.h"
@@ -7,6 +8,7 @@
 #include "init.h"
 #include "interface.h"
 #include "multiplayer.h"
+#include "spells.h"
 #include "tabs.h"
 #ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
@@ -17,7 +19,7 @@
 #include "gl_init.h"
 #endif
 
-#define NUM_COUNTERS 10
+#define NUM_COUNTERS 12
 #define NUM_LINES 18
 #define MAX(a,b) (a > b ? a : b)
 
@@ -32,7 +34,9 @@ enum {
 	POTIONS,
 	SPELLS,
 	SUMMONS,
-	ENGINEERING
+	ENGINEERING,
+	BREAKS,
+	MISC_EVENTS
 };
 
 /* Columns IDs */
@@ -65,8 +69,34 @@ static int mouseover_total = 0;
 
 static int product_count = 0;
 static char product_name[128];
+static char to_count_name[128];
 static char *spell_names[128] = { NULL };
 static int requested_spell_id = -1;
+
+static const char *temp_event_string[] =
+	{	"%s found a", /* keep this one first in the list as its different from the rest*/
+		"%s was blessed by the Queen of Nature with ", /* referenced laters as second in the list */
+		"A cavern wall collapsed on %s",
+		"Mother Nature got pissed off at %s",
+		"%s was stung by a bee, losing ",
+		"%s just hit a teleport nexus, ",
+		"While harvesting, %s upset a radon pouch, ",
+		"%s found Joker and got ",
+		"%s found Joker and failed to get" };
+static const char *count_str[] =
+	{	"dummy",
+		"Blessed by the Queen of Nature",
+		"A cavern wall collapsed",
+		"Mother Nature got pissed off",
+		"Stung by a bee",
+		"Hit a teleport nexus",
+		"Upset a radon pouch",
+		"Gift from Joker",
+		"Gift from Joker (lost)" };
+static const int num_search_str = sizeof(count_str)/sizeof(char *);
+static char **search_str = NULL;
+static size_t *search_len = NULL;
+static Uint32 misc_event_time = 0;
 
 int harvesting = 0;
 Uint32 disconnect_time;
@@ -75,7 +105,7 @@ char harvest_name[32];
 int counters_win = -1;
 int counters_scroll_id = 16;
 
-void increment_counter(int counter_id, char *name, int quantity, int extra);
+void increment_counter(int counter_id, const char *name, int quantity, int extra);
 
 int display_counters_handler(window_info *win);
 int click_counters_handler(window_info *win, int mx, int my, Uint32 extra);
@@ -199,7 +229,18 @@ void load_counters()
 	}
 
 	fclose(f);
-
+	
+	/* allocate and set misc event matching strings */
+	search_str = (char **)malloc(sizeof(char *) * num_search_str);
+	search_len = (size_t *)malloc(sizeof(size_t) * num_search_str);
+	for (i=0; i<num_search_str; i++)
+	{
+		size_t max_len = strlen(username_str) + strlen(temp_event_string[i]) + 1;
+		search_str[i] = (char *)malloc(sizeof(char) * max_len);
+		safe_snprintf(search_str[i], max_len, temp_event_string[i], username_str );
+		search_len[i] = strlen(search_str[i]);
+	}
+	
 	counters_initialized = 1;
 }
 
@@ -250,11 +291,22 @@ void cleanup_counters()
 		}
 	}
 
+	/* free memory used by misc event matching strings */
+	if (search_str != NULL)
+	{
+		for (i=0; i<num_search_str; i++)
+			free(search_str[i]);
+		free(search_str);
+		free(search_len);
+		search_str = NULL;
+		search_len = NULL;
+	}
+	
 	harvesting = 0;
 	counters_initialized = 0;
 }
 
-void increment_counter(int counter_id, char *name, int quantity, int extra)
+void increment_counter(int counter_id, const char *name, int quantity, int extra)
 {
 	int i, j;
 	int new_entry = 1;
@@ -323,14 +375,16 @@ void fill_counters_win()
 	multiselect_id = multiselect_add(counters_win, NULL, 8, 8, 104);
 	multiselect_button_add(counters_win, multiselect_id, 0, 0, "Kills", 1);
 	multiselect_button_add(counters_win, multiselect_id, 0, 25, "Deaths", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 50, "Harvests", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 75, "Alchemy", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 100, "Crafting", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 124, "Manufac.", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 150, "Potions", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 175, "Spells", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 200, "Summons", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 225, "Engineering", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 100, "Harvests", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 125, "Alchemy", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 150, "Crafting", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 175, "Manufac.", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 200, "Potions", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 225, "Spells", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 250, "Summons", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 275, "Engineering", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 50, "Breaks", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 75, "Events", 0);
 
 	counters_scroll_id = vscrollbar_add_extended(counters_win,
 			counters_scroll_id, NULL,
@@ -562,14 +616,45 @@ void increment_kill_counter(actor *me, actor *them)
  */
 void increment_death_counter(actor *a)
 {
+	int found_death_reason = 0;
 	actor *me = get_actor_ptr_from_id(yourself);
+
+	if (!me) {
+		return;
+	}
 	
-	if (!me || !me->async_fighting) {
+	/* count deaths that happend while harvesting, may not have been due to harvest event though */
+	if ((a == me) && !me->async_fighting && harvesting) {
+		/* a crude check to see if death was just after (1 second should be enough) a harvest event */
+		if (abs(SDL_GetTicks() - misc_event_time) < 1000) {
+			increment_counter(DEATHS, "Harvesting event", 1, 0);
+			found_death_reason = 1;
+		}
+	}	
+	
+	/* count deaths while we were poisoned - possibily in adition to another possible reason */
+	if ((a == me) && we_are_poisoned()) {
+		increment_counter(DEATHS, "While poisoned", 1, 0);
+		found_death_reason = 1;
+	}
+	
+	/* if you are kill while harvesting, there is no "you stopped harvesting" message */
+	/* resetting now prevents next items added to inventry getting added to harvest counter */
+	if (harvesting && (a == me)) {
+		harvesting = 0;
+	}
+	
+	if (!me->async_fighting) {
+		if (!found_death_reason && (a == me)) {
+			/* if we died while not harvesting, fighting or poisoned, the cause is unknow */
+			increment_counter(DEATHS, "Unknown cause", 1, 0);
+		}
 		return;
 	}
 	
 	if (a != me) {
 		increment_kill_counter(me, a);
+		found_death_reason = 1;
 	} else {
 		int x1, y1, x2, y2;
 		int i;
@@ -599,7 +684,13 @@ void increment_death_counter(actor *a)
 			}
 
 			increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, (them->is_enhanced_model && (them->kind_of_actor == HUMAN || them->kind_of_actor == PKABLE_HUMAN)));
+			found_death_reason = 1;
 		}
+	}
+	
+	/* if we died while not harvesting or poisoned, but fighting and the opponent is unknown */
+	if (!found_death_reason && (a == me)) {
+		increment_counter(DEATHS, "While fighting unknown opponent", 1, 0);
 	}
 }
 
@@ -720,5 +811,199 @@ void reset_session_counters()
 			for (j = 0; j < entries[i]; ++j)
 				counters[i][j].n_session=0;
 }
+
+/* checks text for breaks and harvest events */
+void catch_counters_text(const char* text)
+{
+	size_t text_len = strlen(text);
+	
+	if (!counters_initialized)
+		return;
+	
+	/* Your xxx ... */
+	if (my_strncompare(text, "Your ", 5))
+	{
+		int i;
+		char *mess_ends[] = {" has been destroyed", " broke, sorry!"};
+		size_t to_count_name_len = 0;
+		const char *item_string = &text[5];
+
+		/* look for one of the endings, if found use it to locate the item name */
+		for (i=0; i<sizeof(mess_ends)/sizeof(char *); i++)
+		{
+			char *located = strstr(item_string, mess_ends[i]);
+			if (located)
+			{
+				to_count_name_len = (size_t)((located - item_string)/sizeof(char));
+				break;
+			}
+		}
+
+		/* if there was no match then its not a break string */
+		if (!to_count_name_len)
+			return;
+
+		safe_strncpy2(to_count_name, item_string, sizeof(to_count_name), to_count_name_len);
+		increment_counter(BREAKS, to_count_name, 1, 0);
+	}
+	
+	/* "<user name> found a/an " */
+	else if (my_strncompare(text, search_str[0], search_len[0]))
+	{
+		size_t start_from = search_len[0];
+		size_t could_not_carry_index = get_string_occurance(". What a pity ", text, text_len, 1);
+		if ((text_len > start_from) && (text[start_from] != ' '))
+			start_from++; /* move past the n of an */
+		start_from++; /* move past the space */
+		
+		/* some death messages match so crudely exclude them but catch bags of gold */
+		if (strchr(&text[start_from], ',') != NULL)
+		{
+			char *gold_str = "bag of gold, getting ";
+			size_t gold_len = strlen(gold_str);
+			if (my_strncompare(&text[start_from], gold_str, gold_len))
+			{
+				int quanity = atoi(&text[start_from+gold_len]);
+				increment_counter(MISC_EVENTS, "Total gold coin from bags", quanity, 0);
+				increment_counter(MISC_EVENTS, "Bag of gold", 1, 0);
+			}
+		}
+
+		/* check if we were not able to carry the found thing */
+		else if (could_not_carry_index != -1)
+		{
+			size_t thing_len = could_not_carry_index - start_from;
+			safe_strncpy2(to_count_name, &text[start_from], sizeof(to_count_name), thing_len);
+			safe_strcat (to_count_name, " (lost)", sizeof(to_count_name));
+			increment_counter(MISC_EVENTS, to_count_name, 1, 0);
+		}
+		
+		/* otherwise, count the found thing */
+		else
+		{
+			int to_count_len = text_len - start_from;
+			safe_strncpy2(to_count_name, &text[start_from], sizeof(to_count_name), to_count_len);
+			increment_counter(MISC_EVENTS, to_count_name, 1, 0);
+		}
+	}
+	
+	/* misc events, just translate the event text to a counted text string */
+	else
+	{
+		int i;
+		for (i=1; i<num_search_str; i++)
+			if (my_strncompare(text, search_str[i], search_len[i]))
+			{
+				increment_counter(MISC_EVENTS, count_str[i], 1, 0);
+				if (i==1)
+				{
+					int quanity = atoi(&text[search_len[i]]);
+					increment_counter(MISC_EVENTS, "Exp from Queen of Nature blessing", quanity, 0);
+				}
+				/* record the event time so can check associate with a subsequent cause of death */
+				misc_event_time = SDL_GetTicks();
+			}
+	}
+}
+
+
+/*
+** Temporary command to scan chat_log.txt for break/misc event messages to
+** populate the counters.  Should probably be removed the release after the
+** these additional counters are included - assuming they will be:)
+*/
+int chat_to_counters_command(const char *text, int len)
+{
+#ifndef NEW_FILE_IO
+	char chat_log_file[100];
+#endif /* not NEW_FILE_IO */
+	char line[1024];
+	FILE *fp;
+	struct Counter *old_counters[] = {NULL, NULL};
+	int old_entries[] = {0, 0};
+	size_t types[] = {BREAKS-1, MISC_EVENTS-1 };
+	size_t type;
+	
+	/* get any parameter text */
+	while(*text && !isspace(*text))
+		text++;
+	while(*text && isspace(*text))
+		text++;
+
+	/* if YES not specified, warn of consequences */
+	if (strncmp(text, "YES", 3) != 0)
+	{
+		LOG_TO_CONSOLE(c_red2, "Scan chat_log.txt for break and miscellaneous event messages.");
+		LOG_TO_CONSOLE(c_red2, "This may take some time and may cause lag.");
+		LOG_TO_CONSOLE(c_red2, "Current break/event values will be reset.");
+		LOG_TO_CONSOLE(c_red2, "Retype command and append YES to continue.");
+		return 1;
+	}
+
+	/* save then reset any existing values */
+	for (type=0; type<2; type++)
+		if (counters[types[type]])
+		{
+			old_counters[type] = counters[types[type]];
+			old_entries[type] = entries[types[type]];
+			counters[types[type]] = NULL;
+			entries[types[type]] = 0;
+		}
+
+#ifndef NEW_FILE_IO
+#ifndef WINDOWS
+	safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
+#else
+	strcpy (chat_log_file, "chat_log.txt");
+#endif
+	fp = my_fopen (chat_log_file, "r");
+#else /* NEW_FILE_IO */
+	fp = open_file_config ("chat_log.txt", "r");
+#endif /* NEW_FILE_IO */
+
+	/* consume the chat_log file, adding counter entries as they're found */
+	while (!feof(fp))
+	{
+		if ((fgets(line, 1024, fp)) && (strlen(line) > 10))
+		{
+			if (line[strlen(line)-1] == '\n')
+				line[strlen(line)-1] = '\0';
+			if ((line[0] == '[') && (line[3] == ':') &&
+					 (line[6] == ':') && (line[9] == ']'))
+				catch_counters_text(line+11);
+			else
+				catch_counters_text(line);
+		}
+	}
+	fclose(fp);
+
+	/* restore the session totals and free the old memory */	
+	for (type=0; type<2; type++)
+	{
+		int i,j;
+
+		/* set the session totals to zero, then check if previously existed and restore if so */
+		for (i = 0; i<entries[types[type]]; i++)
+		{
+			counters[types[type]][i].n_session = 0;
+			if(old_counters[type])
+				for (j = 0; j<old_entries[type]; j++)
+					if ((old_counters[type][j].n_session > 0) &&
+						(strcmp(old_counters[type][j].name, counters[types[type]][i].name) == 0))
+						counters[types[type]][i].n_session = old_counters[type][j].n_session;
+		}
+		
+		/* free any old memory */
+		if(old_counters[type])
+		{
+			for (i = 0; i<old_entries[type]; i++)
+				free(old_counters[type][i].name);
+			free(old_counters[type]);
+		}
+	}
+	
+	return 1;
+}
+
 
 #endif /* COUNTERS */

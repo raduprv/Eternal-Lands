@@ -266,6 +266,15 @@ void get_active_spell_list(const Uint8 *my_spell_list)
 		active_spells[i] = my_spell_list[i];
 }
 
+int we_are_poisoned()
+{
+	int i;
+	for (i = 0; i < 10; i++)
+		if (active_spells[i] == 2)
+			return 1;
+	return 0;
+}
+
 void display_spells_we_have()
 {
 	int i;

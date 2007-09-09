@@ -394,6 +394,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			harvest_name[len-1-23-1] = '\0';
 			harvesting = 1;
 		} else if ((my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) ||
+				(my_strncompare(text_to_add+1, "You can't harvest while fighting (duh)!", 39)) ||
 				((my_strncompare(text_to_add+1, "You need to have a ", 20) && strstr(text_to_add, "order to harvest") != NULL))){
 			harvesting = 0;
 		}
@@ -412,6 +413,8 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			increment_summon_counter(text_to_add+1+4);
 		}
 	}
+	/* check for misc counter strings */
+	catch_counters_text(text_to_add+1);
 #endif
 
 	//Make sure we don't check our own messages.
