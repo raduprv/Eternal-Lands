@@ -204,6 +204,7 @@ extern char 	tt_walk[30],
 #ifdef NOTEPAD
 extern char	tt_notepad[30];
 #endif // NOTEPAD
+extern char	tt_urlwin[30];
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
 

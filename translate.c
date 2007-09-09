@@ -44,6 +44,7 @@ char	tt_walk[30],
 #ifdef NOTEPAD
 char	tt_notepad[30];
 #endif // NOTEPAD
+char	tt_urlwin[30];
 #endif // ELC
 
 /*! \} */
@@ -1167,6 +1168,7 @@ void init_help()
 #ifdef NOTEPAD
 	add_xml_identifier (tooltips, "notepad", tt_notepad, "Open your notepad", sizeof (tt_notepad));
 #endif // NOTEPAD
+	add_xml_identifier (tooltips, "urlwin", tt_urlwin, "View URL window", sizeof (tt_urlwin));
 	
 	//Buddy list
 	add_xml_identifier(buddy, "name", buddy_name_str, "Name:", sizeof(buddy_name_str));

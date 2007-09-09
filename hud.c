@@ -35,6 +35,7 @@
 #ifdef NOTEPAD
 #include "notepad.h"
 #endif
+#include "url.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -339,6 +340,12 @@ float colored_notepad_icon_u_start=(float)192/256;
 float colored_notepad_icon_v_start=1.0f-(float)0/256;
 #endif // NOTEPAD
 
+float urlwin_icon_u_start=(float)96/256;
+float urlwin_icon_v_start=1.0f-(float)64/256;
+
+float colored_urlwin_icon_u_start=(float)160/256;
+float colored_urlwin_icon_v_start=1.0f-(float)64/256;
+
 // to help highlight the proper icon
 int	icon_cursor_x;
 
@@ -454,6 +461,8 @@ void init_peace_icons()
 #ifdef NOTEPAD
 	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_notepad, view_window, &notepad_win, DATA_WINDOW);
 #endif // NOTEPAD
+
+	add_icon(urlwin_icon_u_start, urlwin_icon_v_start, colored_urlwin_icon_u_start, colored_urlwin_icon_v_start, tt_urlwin, view_window, &url_win, DATA_WINDOW);
 }
 
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
@@ -689,6 +698,7 @@ void view_window(int * window, int id)
 			else if(window==&tab_help_win) display_tab_help();
 			else if(window==&namepass_win) show_account_win();
 			else if(window==&color_race_win) show_color_race_win();
+			else if(window==&url_win) display_url_win();
 		}
 	else toggle_window(*window);
 }
