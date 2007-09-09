@@ -174,10 +174,13 @@ int keypress_console_handler (window_info *win, int mx, int my, Uint32 key, Uint
 			scroll_up_lines = 0;
 		console_text_changed = 1;
 	}
-	else if (key == K_MAP)
+	else if ((key == K_MAP) || (key == K_MARKFILTER))
 	{
 		if (!locked_to_console && switch_to_game_map())
 		{
+			// if K_MARKFILTER pressed, open the map window with the filter active
+			if (key == K_MARKFILTER)
+				mark_filter_active = 1;
 			hide_window (console_root_win);
 			show_window (map_root_win);
 		}
