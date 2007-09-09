@@ -4838,7 +4838,7 @@ void load_sound_config_data (const char *file)
 	else if ( xmlStrcmp( root->name, (xmlChar*)"sound_config" ) )
 	{
 	#ifdef ELC
-		LOG_ERROR("Error in '%s' - root = '%s'", path, root->name);
+		LOG_ERROR("Error in '%s' - root = '%s'", file, root->name);
 	#endif
 	}
 	// We've found our expected root, now parse the children
