@@ -1006,7 +1006,9 @@ ALuint get_loaded_buffer(int i)
 	int error;
 #ifdef  ALUT_WAV
 	ALsizei size,freq;
+#ifndef OSX
 	ALboolean loop;
+#endif // OSX
 #else  //ALUT_WAV
     ALsizei	size;
 	ALfloat freq;
@@ -1293,7 +1295,7 @@ void kill_local_sounds()
 			ALuint buffer;
 			alSourceUnqueueBuffers(music_source, 1, &buffer);
 		}
-	}http://www.google.com.au/advanced_search
+	}
 #endif // OSX
 #endif // OGG_VORBIS
 	if(!have_sound || !used_sources)return;
@@ -3175,8 +3177,8 @@ void update_sound(int ms)
 	int relative;
 	int tx=-camera_x * 2;
 	int ty=-camera_y * 2;
-	ALfloat sourcePos[3] = {0.0f,0.0f,0.0f};
-	ALfloat listenerPos[] = {tx,ty,0.0f};
+	ALfloat sourcePos[3] = {0.0f, 0.0f, 0.0f};
+	ALfloat listenerPos[] = {tx, ty, 0.0f};
 #ifdef _EXTRA_SOUND_DEBUG
 	int j;
 #endif // _EXTRA_SOUND_DEBUG
@@ -4820,7 +4822,7 @@ void load_sound_config_data (const char *file)
 	{
 	#ifdef ELC
 		char str[200];
-		safe_snprintf(str, sizeof(str), book_open_err_str, path);
+		safe_snprintf(str, sizeof(str), book_open_err_str, file);
 		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	#endif
@@ -4829,7 +4831,7 @@ void load_sound_config_data (const char *file)
 	else if ((root = xmlDocGetRootElement(doc))==NULL)
 	{
 	#ifdef ELC
-		LOG_ERROR("Error while parsing: %s", path);
+		LOG_ERROR("Error while parsing: %s", file);
 	#endif
 	}
 	// Is the root the right type?
