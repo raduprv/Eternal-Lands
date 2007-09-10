@@ -379,7 +379,7 @@ int notepad_load_file ()
 	{
 		if ((!xmlStrcasecmp (cur->name, (const xmlChar *)"NOTE")))
 		{
-			const char* data = cur->children ? cur->children->content : NULL;
+			const char* data = (const char*) (cur->children ? cur->children->content : NULL);
 			
 			if (nr_notes >= note_list_size)
 			{

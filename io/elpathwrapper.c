@@ -55,6 +55,12 @@ const static char* cfgdirname = ".elc";
 #endif // platform check
 
 
+static __inline__ int dir_exists (const char* path)
+{
+	struct stat d_stat;
+	return stat (path, &d_stat) == 0 && S_ISDIR (d_stat.st_mode);
+}
+
 const char * get_path_config(void){
 	/* Note: In most cases, you shouldn't need to call this function at all anyway;
 	 * the other functions below (which are expected to be used) take care of it for you.
@@ -105,11 +111,13 @@ const char * get_path_config(void){
 	}
 	strcat(locbuffer, "/");
 #else /* !WINDOWS */
-	safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s/", getenv("HOME"), cfgdirname);
-	if(pwd[0] != '\0'){
-		if(chdir(locbuffer) == -1){strcpy(locbuffer, cfgdirname); return locbuffer;}
-		if(mkdir_tree(cfgdirname) == -1 && errno != EEXIST){chdir(pwd); strcpy(locbuffer, cfgdirname); return locbuffer;}
-		if(chdir(pwd) == -1){strcpy(locbuffer, cfgdirname); return locbuffer;}
+	safe_snprintf (locbuffer, sizeof(locbuffer), "%s/%s/", getenv("HOME"), cfgdirname);
+	if (!mkdir_tree (locbuffer, 0))
+	{
+		// Failed to create a configuration direction in the home directory, 
+		// try in the current directory and hope that succeeds.
+		safe_snprintf (locbuffer, sizeof (locbuffer), "%s/", cfgdirname);
+		mkdir_tree (locbuffer, 1);
 	}
 #endif // platform check
 
@@ -117,19 +125,35 @@ const char * get_path_config(void){
 }
 
 
-FILE * open_file_config(const char* filename, const char* mode){
+FILE *open_file_config (const char* filename, const char* mode)
+{
 	char locbuffer[MAX_PATH];
-	const char * cfgdir = get_path_config();
+	const char* cfgdir = get_path_config();
 	FILE * fp;
-	if(strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH){
+
+	if (strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH)
 		return NULL;
-	}
 	
 	strcpy(locbuffer, cfgdir);
 	strcat(locbuffer, filename);
+	if (strchr (mode, 'w'))
+	{
+		// Requested file for writing, try to create a directory structure 
+		// if necessary
+		if (!mkdir_tree (locbuffer, 0))
+		{
+			// Failed to create the directory tree in the config dir,
+			// try the current directory.
+			if (!mkdir_tree (filename, 1))
+				// That too failed, give up
+				return NULL;
+		}
+	}
+
 	if((fp = fopen(locbuffer, mode)) != NULL){
 		return fp;
 	}
+
 	//Not there? okay, try the current directory
 	return fopen(filename, mode);
 }
@@ -154,7 +178,7 @@ FILE * open_file_data_datadir(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
 	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
 		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
-		if(mkdir_tree(filename)){
+		if (mkdir_tree (filename, 1)){
 			return fopen(locbuffer, mode);
 		}
 	}
@@ -209,57 +233,139 @@ FILE * open_file_lang(const char* filename, const char* mode){
 	return NULL;
 }
 
-int mkdir_tree(const char *file)
+int normalize_path (const char* path, char* norm_path, int size, int relative_only)
 {
-	// First, check directory exists
-	char dir[1024];
-	char *slash;
-	struct stat stats;
+	int idx, n_idx;
+	int len = strlen (path);
 
-	if(strlen(file) >= sizeof(dir)-2){
+	if (len >= size)
+	{
+		// Probably not enough space, don't bother
 		return 0;
 	}
-	strcpy(dir, file);
-	slash= dir;
 
-	// Skip over leading periods. this also prevents ../ accesses on purpose
-	while(*slash == '.'){
-		slash++;
+	idx = n_idx = 0;
+	norm_path[n_idx] = '\0';
+
+	if ((path[idx] == '/' || path[idx] == '\\') && !relative_only)
+	{
+		// absolute path
+		norm_path[n_idx++] = path[idx++];
 	}
 
-	// Skip over leading slashes.
-	while(*slash == '/'){
-		slash++;
+	while (idx < len)
+	{
+		int sep;
+
+		for (sep = idx; sep < len; sep++)
+		{
+			if (path[sep] == '/' || path[sep] == '\\')
+				// separator found
+				break;
+		}
+
+		// skip consecutive slashes and "./"
+		if (sep - idx > 1 || (sep - idx == 1 && path[idx] != '.'))
+		{
+			if (sep - idx == 2 && path[idx] == '.' && path[idx+1] == '.')
+			{
+				// Drats, we need to go one directory up. Strictly speaking
+				// this is only valid if the current path actually exists, but 
+				// we'll simply remove the last directory (if any) from our 
+				// normalized path.
+				if (n_idx > 1 || (n_idx == 1 && norm_path[0] != '/'))
+				{
+					for (--n_idx ; n_idx > 0; n_idx--)
+					{
+						if (norm_path[n_idx-1] == '/')
+							break;
+					}
+					norm_path[n_idx] = '\0';
+				}
+				else if (n_idx == 0 && !relative_only)
+				{
+					// copy the ".." into the normalized path
+					norm_path[n_idx++] = '.';
+					norm_path[n_idx++] = '.';
+					norm_path[n_idx++] = '/';
+					norm_path[n_idx] = '\0';
+				}
+				// else: only relative paths allowed, or parent of root
+				// requested. In both cases, ignore the '..'
+			}
+			else
+			{
+				// Copy the directory name into the path
+				for ( ; idx < sep; idx++, n_idx++)
+					norm_path[n_idx] = path[idx];
+				norm_path[n_idx++] = '/';
+				norm_path[n_idx] = '\0';
+			}
+		}
+
+		idx = sep+1;
 	}
 
-	while(slash){
+	if (n_idx == 0)
+		// path was empy or invalid
+		return 0;
+
+	// remove trailing slash if the path was not a directory
+	if (path[len-1] != '/' && path[len-1] != '\\')
+		norm_path[n_idx-1] = '\0';
+
+	return 1;
+}
+
+int mkdir_tree (const char *path, int relative_only)
+{
+	// First, check directory exists
+	char dir[MAX_PATH];
+	char *slash;
+
+	// Get rid of possible cruft in path
+	if (!normalize_path (path, dir, sizeof (dir), relative_only))
+		// failed to parse the path
+		return 0;
+
+	if (dir_exists (dir))
+		// directory is there, don't bother
+		return 1;
+
+	slash = dir;
+	if (*slash == '/')
+		// let's assume the root directory exists...
+		slash++;
+	
+	while (slash)
+	{
 		// watch for hidden ..
-		if(*slash == '.' && slash[1] == '.'){
-			log_error("Cannot create directory (Invalid character): %s", dir);
+		if (*slash == '.' && slash[1] == '.')
+		{
+			log_error ("Cannot create directory (Invalid character): %s", dir);
 			return 0;
 		}
+
 		// find the next slash
-		slash= strchr(slash, '/');
-		if(slash == NULL){
+		slash = strchr (slash, '/');
+		if (slash == NULL)
 			break;
-		}
 
 		// place a NULL there to break the string up
-		*slash= '\0';
-		if(!(stat(dir, &stats) == 0 && S_ISDIR(stats.st_mode) ) )
-		if(MKDIR(dir)!= 0) {
-			log_error("Cannot create directory (mkdir() failed): %s", dir);
-			return 0;
+		*slash = '\0';
+		if (!dir_exists (dir))
+		{
+			if (MKDIR (dir) != 0)
+			{
+				log_error("Cannot create directory (mkdir() failed): %s", dir);
+				return 0;
+			}
 		}
+
 		// put the / back in, then advance past it
 		*slash++ = '/';
-
-		// Avoid unnecessary calls to mkdir when given
-		// file names containing multiple adjacent slashes.
-		while (*slash == '/'){
-			slash++;
-		}
 	}
+
 	return 1;
 }
 

@@ -58,9 +58,11 @@ FILE * open_file_lang(const char* filename, const char* mode);
  *
  * Attempts to create the given path, stepping through the given directory names
  * @param path The path to attempt to create
+ * @param relative_only If non-zero, create only paths relative to the 
+ *                      current directory
  * @return Returns 1 on success, 0 on failure
  */
-int mkdir_tree(const char *path);
+int mkdir_tree(const char *path, int relative_only);
 
 /**
  * @brief Creates the given folder in configdir
