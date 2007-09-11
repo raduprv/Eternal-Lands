@@ -1,6 +1,9 @@
 #ifndef __INTERFACE_H__
 #define __INTERFACE_H__
 
+#include <SDL_keysym.h>
+#include "../elc/platform.h"
+
 //modes
 #define mode_tile 0
 #define mode_2d 1

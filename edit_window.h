@@ -1,6 +1,9 @@
 #ifndef __EDIT_WINDOW_H__
 #define __EDIT_WINDOW_H__
 
+#include "2d_objects.h"
+#include "e3d.h"
+
 extern int edit_window_x;
 extern int edit_window_y;
 extern int edit_window_x_len;

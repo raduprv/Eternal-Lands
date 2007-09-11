@@ -1,6 +1,8 @@
 #ifndef	__EL_WINDOWS_H
 #define	__EL_WINDOWS_H
 
+#include <SDL_types.h>
+
 /*
  * A simple window handler setup to reduce the code needed to do windows
  *

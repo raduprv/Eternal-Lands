@@ -1,37 +1,28 @@
-#include "global.h"
-
-
+#include "replace_window.h"
+#include "2d_objects.h"
+#include "e3d.h"
+#include "elwindows.h"
+#include "font.h"
+#include "interface.h"
+#include "tiles.h"
+#include "../elc/particles.h"
+#include "../elc/platform.h"
 
 int view_replace_window=0;
-
 int replace_window_x=20;
-
 int replace_window_y=100;
-
 int replace_window_x_len=360;
-
 int replace_window_y_len=90;
-
 int replace_window_win=0;
 
-
-
 #ifdef X86_64
-
 typedef long int INT;
-
 #else
-
 typedef int INT;
-
 #endif
 
-
-
 INT oid=-1,nid=-1, mode=1;
-
 char cOid[100],cNid[100];
-
 float new_object_red = 0.0f, new_object_green = 0.0f, new_object_blue = 0.0f;
 
 

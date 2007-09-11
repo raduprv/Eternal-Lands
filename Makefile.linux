@@ -9,7 +9,6 @@ FEATURES  = EYE_CANDY
 FEATURES += SFX
 FEATURES += NEW_E3D_FORMAT
 FEATURES += CLUSTER_INSIDES
-#FEATURES += X86_64
 
 WARN = -Wall -Wdeclaration-after-statement # -W -Werror
 CXXWARN = -Wall # -W -Werror
