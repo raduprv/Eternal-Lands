@@ -132,9 +132,9 @@ void    handle_update_download(struct http_get_struct *get)
 	// try to make sure the directory is there
 	if(mkdir_res < 0){
 #ifdef NEW_FILE_IO
-		mkdir_res= mkdir_config("tmp");
+		mkdir_res= mkdir_config ("tmp");
 #else // !NEW_FILE_IO
-		mkdir_res= mkdir_tree("tmp/", 1);
+		mkdir_res= mkdir_tree("tmp/");
 #endif //NEW_FILE_IO
 	}
 	if(get != NULL){
@@ -411,7 +411,11 @@ void    handle_file_download(struct http_get_struct *get)
 	if(get->status == 0){
 		// the download was successful
 		// check to see if the directory tree needs to be created
-		sts= mkdir_tree(download_cur_file, 1)? 0:1;
+#ifdef NEW_FILE_IO
+		sts = mkdir_tree (download_cur_file, 1) ? 0 : 1;
+#else
+		sts= mkdir_tree(download_cur_file)? 0:1;
+#endif
 		if(!sts){
 			// replace the current file
 			// TODO: check for remove/rename errors
