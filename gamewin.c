@@ -44,6 +44,9 @@
 #include "translate.h"
 #include "url.h"
 #include "weather.h"
+#ifdef DEBUG
+#include "sound.h"
+#endif
 #ifdef SFX
 #include "special_effects.h"
 #ifdef	EYE_CANDY

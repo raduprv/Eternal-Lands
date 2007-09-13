@@ -203,6 +203,8 @@ typedef struct
 }stream_data;
 #endif // OGG_VORBIS
 
+#else // NEW_SOUND
+
 #ifdef DEBUG
 struct sound_object
 {
@@ -211,8 +213,6 @@ struct sound_object
 struct sound_object sound_objects[MAX_SOURCES];
 #endif	// DEBUG
 
-
-#else // NEW_SOUND
 ALCdevice *mSoundDevice;
 ALCcontext *mSoundContext;
 #endif	// NEW_SOUND

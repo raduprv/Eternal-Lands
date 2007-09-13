@@ -1,3 +1,4 @@
+#include <algorithm>
 #include <cassert>
 #include "xml/xmlhelper.hpp"
 #include "platform.h"

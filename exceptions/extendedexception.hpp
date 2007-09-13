@@ -96,8 +96,8 @@ class extended_exception: public std::exception
 };
 
 #if defined DEBUG && !defined _MSC_VER
-#define EXCEPTION(error)	\
-	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error)
+#define EXCEPTION(error, args ...)	\
+	throw extended_exception(__FILE__, __FUNCTION__, __LINE__, error, ## args)
 #else	// DEBUG && !__MSC_VER
 #define EXCEPTION	\
 	throw extended_exception
