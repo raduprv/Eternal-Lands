@@ -3,6 +3,7 @@
  * Copyright (C) Daniel Jungmann 2007 <dsj@gmx.net>
  */
 
+#include <cstdarg>
 #include "extendedexception.hpp"
 
 #if defined DEBUG && !defined _MSC_VER
@@ -36,7 +37,7 @@ const char* extended_exception::what() const throw()
 void extended_exception::log() const
 {
 #if defined DEBUG && !defined _MSC_VER
-	log_error_detailed(error_str.c_str(), file, func, line);
+	log_error_detailed(error_str.c_str(), file, function, line);
 #else	// DEBUG && !__MSC_VER
 	log_error(error_str.c_str());
 #endif	// DEBUG && !__MSC_VER
