@@ -26,11 +26,14 @@
 #include "weather.h"
 #include "io/map_io.h"
 #ifdef NEW_FILE_IO
-#include "errors.h"
-#include "io/elpathwrapper.h"
+ #include "errors.h"
+ #include "io/elpathwrapper.h"
 #else
-#include "misc.h"
-#endif
+ #include "misc.h"
+ #ifdef OSX
+  #include "init.h"
+ #endif
+#endif  // NEW_FILE_IO
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
