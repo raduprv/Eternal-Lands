@@ -124,6 +124,25 @@ int safe_snprintf(char *dest, const size_t len, const char* format, ...);
  */
 char* safe_strcat (char *dest, const char *src, size_t len);
 
+/*!
+ * \ingroup	misc_utils
+ * \brief	Locate a substring in a case-insensitive matter
+ *
+ *		Find the first occurence of string \a needle of length in 
+ *		\a haystack, checking at most the first \a needle_len bytes
+ *		of \a needle and the first \a haystack_len bytes of 
+ *		\a haystack, and disregarding case. This function differs 
+ *		from (GNU's) memmem in that it is case-insensitive and
+ *		does not compare bytes beyond a null-terminator.
+ *
+ * \param	haystack     The string to be searched
+ * \param	haystack_len The length of \a haystack
+ * \param	needle       The string to search for
+ * \param	needle_len   The length of \a needle
+ * \retval char* Pointer to the first occurence of the search string, or 
+ *		NULL when \a haystack does not contain \a needle.
+ */
+char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* needle, size_t needle_len);
 
 /*!
  * \ingroup	misc_utils

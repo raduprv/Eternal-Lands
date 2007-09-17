@@ -56,7 +56,7 @@ void create_console_root_window (int width, int height);
 int input_field_resize(widget_list *w, Uint32 x, Uint32 y);
 #endif	//MAP_EDITOR
 
-int history_grep(char * text, int len);
+int history_grep (const char* text, int len);
 
 #ifdef __cplusplus
 } // extern "C"

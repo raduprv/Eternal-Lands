@@ -198,6 +198,24 @@ char* safe_strcat (char* dest, const char* src, size_t len)
 	return dest;
 }
 
+char* safe_strcasestr (const char* haystack, size_t haystack_len, const char* needle, size_t needle_len)
+{
+	if (haystack_len >= needle_len)
+	{
+		const char* res;
+		size_t istart;
+		size_t imax = haystack_len - needle_len;
+
+		for (istart = 0, res = haystack; istart <= imax && *res; istart++, res++)
+		{
+			if (strncasecmp (res, needle, needle_len) == 0)
+				return (char*) res;
+		}
+	}
+
+	return NULL;	
+}
+
 void my_strcp(char *dest,const char * source)
 {
 	while(*source)

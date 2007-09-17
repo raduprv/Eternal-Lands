@@ -328,39 +328,50 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	return 1;
 }
 
-int history_grep(char * text, int len)
+int history_grep (const char* text, int len)
 {
 	unsigned int i = 0, wraps = 1;
 	int idx = last_message;
-	while(*text == ' '){
-		text++;
-	}
-	if(strlen(text)<2){return 1;}
+	int skip;
 
-	for (i = 0; i <= total_nr_lines; ++i){
-		if (++wraps >= display_text_buffer[idx].wrap_lines){
+	for (skip = 0; skip < len; skip++)
+		if (text[skip] != ' ') break;
+	if (skip >= len) return 1;
+
+	text += skip;
+	len -= skip;
+
+	for (i = 0; i <= total_nr_lines; ++i)
+	{
+		if (++wraps >= display_text_buffer[idx].wrap_lines)
+		{
 			wraps = 1;
-			--idx;
-			if(idx < 0){
-				if(buffer_full){
-					idx %= DISPLAY_TEXT_BUFFER_SIZE;
-				} else {
+			if (--idx < 0)
+			{
+				if (buffer_full)
+					// wrap around
+					idx = DISPLAY_TEXT_BUFFER_SIZE - 1;
+				else
+					// we've searched all messages
 					break;
-				}
 			}
 		}
-		if (i <= scroll_up_lines){
+		
+		if (i <= scroll_up_lines || display_text_buffer[idx].len < len)
+			// line is already visible, or the message is too 
+			// short to contain the search term
 			continue;
-		}
-		if(get_string_occurance(text, display_text_buffer[idx].data, strlen(display_text_buffer[idx].data)-1, 1)>=0){
-			if(i > total_nr_lines - nr_console_lines){
+		
+		if (safe_strcasestr (display_text_buffer[idx].data, display_text_buffer[idx].len, text, len))
+		{
+			if(i > total_nr_lines - nr_console_lines)
 				scroll_up_lines = total_nr_lines - nr_console_lines;
-			} else {
+			else
 				scroll_up_lines = i+1;
-			}
 			console_text_changed = 1;
 			break;
 		}
 	}
+
 	return 1;
 }
