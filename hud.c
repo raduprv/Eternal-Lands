@@ -1089,6 +1089,9 @@ CHECK_GL_ERRORS();
 			//ENGINEERING
 			draw_side_stats_bar(x_bar,y_bar,your_info.engineering_skill.base,your_info.engineering_exp, your_info.engineering_exp_next_lev);
 			y_bar+=15;
+			//TAILORING
+			draw_side_stats_bar(x_bar,y_bar,your_info.tailoring_skill.base,your_info.tailoring_exp, your_info.tailoring_exp_next_lev);
+			y_bar+=15;
 			//OVERALL
 			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp, your_info.overall_exp_next_lev);
 			y_bar+=15;
@@ -1259,6 +1262,23 @@ CHECK_GL_ERRORS();
 		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.engineering_skill.shortname,your_info.engineering_skill.base);
 		draw_string_small(x, y, (unsigned char*)str, 1);
 		if(floatingmessages_enabled && (skill_modifier = your_info.engineering_skill.cur-your_info.engineering_skill.base) != 0){
+			if(skill_modifier > 0){
+				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+			} else {
+				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+			}
+			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+			draw_string_small(x-33, y, (unsigned char*)str, 1);
+		}
+		y+=15;
+
+		if (++stat == watch_this_stat)
+			glColor3f(0.77f, 0.57f, 0.39f);
+		else
+			glColor3f(1.0f,1.0f,1.0f);
+		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.tailoring_skill.shortname,your_info.tailoring_skill.base);
+		draw_string_small(x, y, (unsigned char*)str, 1);
+		if(floatingmessages_enabled && (skill_modifier = your_info.tailoring_skill.cur-your_info.tailoring_skill.base) != 0){
 			if(skill_modifier > 0){
 				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
 			} else {
@@ -1887,7 +1907,13 @@ void draw_exp_display()
 		baselev = your_info.engineering_skill.base;
 		name = attributes.engineering_skill.name;
 		break;
-	case 11: // overall
+	case 11: // tailoring
+		cur_exp = your_info.tailoring_exp;
+		nl_exp = your_info.tailoring_exp_next_lev;
+		baselev = your_info.tailoring_skill.base;
+		name = attributes.tailoring_skill.name;
+		break;
+	case 12: // overall
 	default:
 		cur_exp = your_info.overall_exp;
 		nl_exp = your_info.overall_exp_next_lev;

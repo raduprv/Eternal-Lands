@@ -26,6 +26,7 @@ void decrement_harvest_counter(int quantity);
 void increment_alchemy_counter();
 void increment_crafting_counter();
 void increment_engineering_counter();
+void increment_tailoring_counter();
 void increment_potions_counter();
 void increment_manufacturing_counter();
 void increment_spell_counter(int spell_id);

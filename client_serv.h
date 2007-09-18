@@ -834,6 +834,10 @@ typedef enum
 #define ENG_EXP_NEXT 76
 #define ENG_S_CUR 77
 #define ENG_S_BASE 78
+#define TAIL_EXP 83
+#define TAIL_EXP_NEXT 84
+#define TAIL_S_CUR 85
+#define TAIL_S_BASE 86
 /*! @} */
 
 /*!

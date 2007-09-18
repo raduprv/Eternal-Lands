@@ -24,7 +24,7 @@ int attrib_menu_x_len=STATS_TAB_WIDTH;
 int attrib_menu_y_len=STATS_TAB_HEIGHT;
 //int attrib_menu_dragged=0;
 
-int watch_this_stat=10;  // default to watching overall
+int watch_this_stat=NUM_WATCH_STAT -1;  // default to watching overall
 int check_grid_y_top=0;
 int check_grid_x_left=0;
 
@@ -140,6 +140,11 @@ void get_the_stats(Sint16 *stats)
 	your_info.engineering_skill.base=SDL_SwapLE16(stats[96]);
 	your_info.engineering_exp=SDL_SwapLE32(*((Uint32 *)(stats+97)));
 	your_info.engineering_exp_next_lev=SDL_SwapLE32(*((Uint32 *)(stats+99)));
+	// initialise tailoring with dummy values until the server sends some real ones
+	your_info.tailoring_skill.cur=0;			// SDL_SwapLE16(stats[101]);
+	your_info.tailoring_skill.base=0;			// SDL_SwapLE16(stats[102]);
+	your_info.tailoring_exp=42;					// SDL_SwapLE32(*((Uint32 *)(stats+103)));
+	your_info.tailoring_exp_next_lev=1066;		// SDL_SwapLE32(*((Uint32 *)(stats+105)));
     
 	your_info.research_completed=SDL_SwapLE16(stats[47]);
 	your_info.researching=SDL_SwapLE16(stats[81]);
@@ -358,6 +363,20 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case ENG_S_BASE:
 			floatingmessages_add_level(yourself, value, attributes.engineering_skill.name);
 			your_info.engineering_skill.base=value;break;
+		case TAIL_EXP:
+			floatingmessages_compare_stat(yourself, your_info.tailoring_exp, value, attributes.tailoring_skill.shortname);
+#ifdef COUNTERS
+			increment_tailoring_counter();
+#endif
+			your_info.tailoring_exp=value;
+			break;
+		case TAIL_EXP_NEXT:
+			your_info.tailoring_exp_next_lev=value;break;
+		case TAIL_S_CUR:
+			your_info.tailoring_skill.cur=value;break;
+		case TAIL_S_BASE:
+			floatingmessages_add_level(yourself, value, attributes.tailoring_skill.name);
+			your_info.tailoring_skill.base=value;break;
 		case RESEARCHING:
 			your_info.researching=value;break;
 		case RESEARCH_COMPLETED:
@@ -531,7 +550,6 @@ int display_stats_handler(window_info *win)
 	draw_stat(24,x,y,&(cur_stats.ethereal_points),&(attributes.ethereal_points));
 
 	//other info
-	y-=28;
 	safe_snprintf(str, sizeof(str), "%i",cur_stats.overall_skill.base-cur_stats.overall_skill.cur);
 	draw_stat_final(24,205,y,attributes.pickpoints,str);
 
@@ -611,6 +629,10 @@ int display_stats_handler(window_info *win)
 
 	y+=14;
 	watch_this_stat==11?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+	draw_skill(46,x,y,&(cur_stats.tailoring_skill),&(attributes.tailoring_skill),cur_stats.tailoring_exp,cur_stats.tailoring_exp_next_lev);
+
+	y+=14;
+	watch_this_stat==12?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	draw_skill(46,x,y,&(cur_stats.overall_skill),&(attributes.overall_skill),cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 
 	return 1;

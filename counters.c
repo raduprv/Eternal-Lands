@@ -19,7 +19,7 @@
 #include "gl_init.h"
 #endif
 
-#define NUM_COUNTERS 12
+#define NUM_COUNTERS 13
 #define NUM_LINES 18
 #define MAX(a,b) (a > b ? a : b)
 
@@ -36,7 +36,8 @@ enum {
 	SUMMONS,
 	ENGINEERING,
 	BREAKS,
-	MISC_EVENTS
+	MISC_EVENTS,
+	TAILORING
 };
 
 /* Columns IDs */
@@ -385,6 +386,7 @@ void fill_counters_win()
 	multiselect_button_add(counters_win, multiselect_id, 0, 275, "Engineering", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 50, "Breaks", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 75, "Events", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 300, "Tailoring", 0);
 
 	counters_scroll_id = vscrollbar_add_extended(counters_win,
 			counters_scroll_id, NULL,
@@ -716,6 +718,11 @@ void increment_crafting_counter()
 void increment_engineering_counter()
 {
 	increment_counter(ENGINEERING, product_name, product_count, 0);
+}
+
+void increment_tailoring_counter()
+{
+	increment_counter(TAILORING, product_name, product_count, 0);
 }
 
 void increment_potions_counter()

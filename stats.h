@@ -105,6 +105,7 @@ struct attributes_struct
 	names summoning_skill; /*!< name and short name of summoning skill */
 	names crafting_skill; /*!< name and short name of crafting skill */
 	names engineering_skill; /*!< name and short name of engineering skill */
+	names tailoring_skill; /*!< name and short name of tailoring skill */
 	
 	names food; /*!< name and short name of food level */
 	unsigned char pickpoints[30]; /*!< available pickpoints */
@@ -163,6 +164,7 @@ typedef struct
 	attrib_16 summoning_skill; /*!< base and current value of the summoning skill */
 	attrib_16 crafting_skill; /*!< base and current value of the crafting skill */
 	attrib_16 engineering_skill; /*!< base and current value of the engineering skill */
+	attrib_16 tailoring_skill; /*!< base and current value of the tailoring skill */
 
 	attrib_16 carry_capacity; /*!< base and current value of the carry capacity */
 	
@@ -190,13 +192,15 @@ typedef struct
 	Uint32 crafting_exp_next_lev; /*!< experience level to reach next crafting level */
 	Uint32 engineering_exp; /*!< current engineering experience */
 	Uint32 engineering_exp_next_lev; /*!< experience level to reach next engineering level */
+	Uint32 tailoring_exp; /*!< current tailoring experience */
+	Uint32 tailoring_exp_next_lev; /*!< experience level to reach next tailoring level */
 
 	Uint16 researching; /*!< flag to indicate whether a player is currently researching anything or not */
 	Uint16 research_completed; /*!< if a player is currently researching anything, this value will show how much pages are already read */
 	Uint16 research_total; /*!< if a player is currently researching anything, this value show the total amount of pages to read, until the book is completely read. */
 } player_attribs;
 
-#define	NUM_WATCH_STAT	12	/*!< allow watching stats 0-11 */
+#define	NUM_WATCH_STAT	13	/*!< allow watching stats 0-12 */
 
 extern int attrib_menu_x;
 extern int attrib_menu_y;

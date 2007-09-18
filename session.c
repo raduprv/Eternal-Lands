@@ -110,6 +110,11 @@ int display_session_handler(window_info *win)
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
 	y += 16;
 
+	draw_string_small(x, y, attributes.tailoring_skill.name , 1);
+	safe_snprintf(buffer, sizeof(buffer), "%d", cur_stats.tailoring_exp - session_stats.tailoring_exp);
+	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
+	y += 16;
+
 	draw_string_small(x, y, attributes.overall_skill.name , 1);
 	safe_snprintf(buffer, sizeof(buffer), "%d", cur_stats.overall_exp - session_stats.overall_exp);
 	draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
