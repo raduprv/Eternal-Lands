@@ -43,8 +43,8 @@ _LDFLAGS=$(XDIR) -lGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a
 
 # the objects we need
-COBJS=2d_objects.o 3d_objects.o	\
-	actor_scripts.o actors.o alphamap.o asc.o \
+COBJS=2d_objects.o 3d_objects.o \
+	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	books.o buddy.o bags.o bbox_tree.o \
 	cache.o cal.o chat.o cluster.o colors.o console.o consolewin.o \
 	counters.o cursors.o dialogues.o draw_scene.o	\

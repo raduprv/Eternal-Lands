@@ -38,6 +38,7 @@
 #include "loginwin.h"
 #include "multiplayer.h"
 #include "manufacture.h"
+#include "astrology.h"
 #include "mapwin.h"
 #include "new_actors.h"
 #include "openingwin.h"
@@ -338,6 +339,9 @@ void read_bin_cfg()
 	manufacture_menu_x=cfg_mem.manufacture_menu_x;
 	manufacture_menu_y=cfg_mem.manufacture_menu_y;
 
+	astrology_win_x = cfg_mem.astrology_win_x;
+ 	astrology_win_y = cfg_mem.astrology_win_y;
+
 	tab_stats_x=cfg_mem.tab_stats_x;
 	tab_stats_y=cfg_mem.tab_stats_y;
 
@@ -513,6 +517,14 @@ void save_bin_cfg()
 		cfg_mem.manufacture_menu_x=manufacture_menu_x;
 		cfg_mem.manufacture_menu_y=manufacture_menu_y;
 	}
+
+	if(astrology_win >= 0) {
+ 		cfg_mem.astrology_win_x=windows_list.window[astrology_win].cur_x;
+ 		cfg_mem.astrology_win_y=windows_list.window[astrology_win].cur_y;
+ 	} else {
+ 		cfg_mem.astrology_win_x=astrology_win_x;
+ 		cfg_mem.astrology_win_y=astrology_win_y;
+ 	}
 
 	if(elconfig_win >= 0) {
 		cfg_mem.elconfig_menu_x=windows_list.window[elconfig_win].cur_x;

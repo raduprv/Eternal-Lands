@@ -43,6 +43,15 @@ typedef struct
 	int manufacture_menu_y;
     /*! @} */
     
+	
+ 	/*!
+      * \name Astrology window position
+      */
+     /*! @{ */
+ 	int astrology_win_x;
+ 	int astrology_win_y;
+     /*! @} */
+
     /*!
      * \name Trade window position
      */
