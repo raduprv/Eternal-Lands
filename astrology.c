@@ -7,6 +7,31 @@
 #include "asc.h"
 #include "translate.h"
 
+typedef enum
+{
+	atAttDefIndicator = 0,
+	atCriticalsIndicator,
+	atAccMagicIndicator,
+	atHarvDegrIndicator,
+	atRareFailIndicator,
+	atAttPredictor,
+	atDefPredictor,
+	atHitPredictor,
+	atDamagePredictor,
+	atAccPredictor,
+	atMagicPredictor,
+	atHarvPredictor,
+	atDegradePredictor,
+	atRarePredictor,
+	atFailPredictor
+} ASTROLOGY_TYPES;
+
+typedef enum
+{
+	adtTwoProgressBars = 0,
+	adtThreeProgressBars
+}ASTROLOGY_DISPLAY_TYPES;
+
 #define progress_bar_width 135
 #define progress_bar_height 10
 
@@ -23,6 +48,9 @@ int value1,value2,value3;
 char text_item1[50],text_item2[50],text_item3[50];
 ASTROLOGY_DISPLAY_TYPES astrology_display_type;
 ASTROLOGY_TYPES astrology_type;
+
+// forward declaration
+int display_astrology_handler (window_info *win);
 
 int is_astrology_message (const char * RawText)
 {
