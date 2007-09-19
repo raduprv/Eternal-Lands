@@ -446,6 +446,7 @@ int display_astrology_handler(window_info *win)
 //	glColor3f(0.77f,0.57f,0.39f);
 
 	//draw progress borders
+	glLineWidth (2.0f);
 	glBegin(GL_LINES);
 	//negative progress 1
 		glVertex3i(30, 50,0);
