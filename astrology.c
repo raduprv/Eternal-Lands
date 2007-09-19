@@ -32,6 +32,24 @@ typedef enum
 	adtThreeProgressBars
 }ASTROLOGY_DISPLAY_TYPES;
 
+const float positive_bar_colors[12] = 
+{
+	//red    green   blue
+	0.086f, 0.988f, 0.659f, // topleft
+	0.086f, 0.988f, 0.659f, // topright
+	0.294f, 0.690f, 0.173f, // bottomright
+	0.294f, 0.690f, 0.173f  // bottomleft
+};
+
+const float negative_bar_colors[12] = 
+{
+	//red    green   blue
+	0.988f, 0.659f, 0.086f, // topleft
+	0.988f, 0.659f, 0.086f, // topright
+	0.690f, 0.173f, 0.294f, // bottomright
+	0.690f, 0.173f, 0.294f  // bottomleft
+};
+
 #define progress_bar_width 135
 #define progress_bar_height 10
 
@@ -301,8 +319,8 @@ int display_astrology_handler(window_info *win)
 				}break;
 				case atCriticalsIndicator:
 				{
-					coefficient1 = calculate_width_coefficient(5,value1,0);
-					coefficient2 = calculate_width_coefficient(5,value2,0);
+					coefficient1 = calculate_width_coefficient(8,value1,0);
+					coefficient2 = calculate_width_coefficient(8,value2,0);
 
 				}break;
 				case atAccMagicIndicator:
@@ -312,7 +330,7 @@ int display_astrology_handler(window_info *win)
 				}break;
 				case atHarvDegrIndicator:
 				{
-					coefficient1 = calculate_width_coefficient(180,value1,0);
+					coefficient1 = calculate_width_coefficient(90,value1,0);
 					coefficient2 = calculate_width_coefficient(900,value2,0);
 				}break;
 				case atRareFailIndicator:
@@ -359,15 +377,15 @@ int display_astrology_handler(window_info *win)
 				}break;
 				case atHitPredictor:
 				{
-					coefficient1 = calculate_width_coefficient(5,value1,0);
-					coefficient2 = calculate_width_coefficient(5,value2,0);
-					coefficient3 = calculate_width_coefficient(5,value3,0);
+					coefficient1 = calculate_width_coefficient(8,value1,0);
+					coefficient2 = calculate_width_coefficient(8,value2,0);
+					coefficient3 = calculate_width_coefficient(8,value3,0);
 				}break;
 				case atDamagePredictor:
 				{
-					coefficient1 = calculate_width_coefficient(5,value1,0);
-					coefficient2 = calculate_width_coefficient(5,value2,0);
-					coefficient3 = calculate_width_coefficient(5,value3,0);
+					coefficient1 = calculate_width_coefficient(8,value1,0);
+					coefficient2 = calculate_width_coefficient(8,value2,0);
+					coefficient3 = calculate_width_coefficient(8,value3,0);
 				}break;
 				case atMagicPredictor:
 				{
@@ -377,9 +395,9 @@ int display_astrology_handler(window_info *win)
 				}break;
 				case atHarvPredictor:
 				{
-					coefficient1 = calculate_width_coefficient(180,value1,0);
-					coefficient2 = calculate_width_coefficient(180,value2,0);
-					coefficient3 = calculate_width_coefficient(180,value3,0);
+					coefficient1 = calculate_width_coefficient(90,value1,0);
+					coefficient2 = calculate_width_coefficient(90,value2,0);
+					coefficient3 = calculate_width_coefficient(90,value3,0);
 				}break;
 				case atDegradePredictor:
 				{
@@ -422,12 +440,6 @@ int display_astrology_handler(window_info *win)
 			draw_string_small (305, 87, (const unsigned char*)"+", 1);
 			draw_string_small (305, 127, (const unsigned char*)"+", 1);
 		}break;
-	}
-
-	for (i=0; i<3; i++) 
-	{
-		right_colors[i+0] = load_bar_colors[i+3];
-		right_colors[i+3] = load_bar_colors[i+6];
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -504,47 +516,67 @@ int display_astrology_handler(window_info *win)
 	//progress 1
 		if(coefficient1 < 0)
 		{
-			glColor3fv(&load_bar_colors[0]);
+			for (i=0; i<3; i++) 
+			{
+				right_colors[i+0] = negative_bar_colors[i+3];
+				right_colors[i+3] = negative_bar_colors[i+6];
+			}
+			glColor3fv(&negative_bar_colors[0]);
 			glVertex3i(31 + (int)(progress_bar_width * (1.0f + coefficient1)), 50, 0);
 			glColor3fv(&right_colors[0]);
 			glVertex3i(29 + progress_bar_width,50,0);
 			glColor3fv(&right_colors[3]);
 			glVertex3i(29 + progress_bar_width, 50 + progress_bar_height, 0);
-			glColor3fv(&load_bar_colors[9]);
+			glColor3fv(&negative_bar_colors[9]);
 			glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient1)), 50 + progress_bar_height, 0);
 		}
 		else if(coefficient1 > 0)
 		{
-			glColor3fv(&load_bar_colors[0]);
+			for (i=0; i<3; i++) 
+			{
+				right_colors[i+0] = positive_bar_colors[i+3];
+				right_colors[i+3] = positive_bar_colors[i+6];
+			}
+			glColor3fv(&positive_bar_colors[0]);
 			glVertex3i(31 + progress_bar_width, 50, 0);
 			glColor3fv(&right_colors[0]);
 			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient1), 50,0);
 			glColor3fv(&right_colors[3]);
 			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient1), 50 + progress_bar_height, 0);
-			glColor3fv(&load_bar_colors[9]);
+			glColor3fv(&positive_bar_colors[9]);
 			glVertex3i(31 + progress_bar_width, 50 + progress_bar_height, 0);
 		}
 	//progress 2
 		if(coefficient2 < 0)
 		{
-			glColor3fv(&load_bar_colors[0]);
+			for (i=0; i<3; i++) 
+			{
+				right_colors[i+0] = negative_bar_colors[i+3];
+				right_colors[i+3] = negative_bar_colors[i+6];
+			}
+			glColor3fv(&negative_bar_colors[0]);
 			glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient2)), 90, 0);
 			glColor3fv(&right_colors[0]);
 			glVertex3i(29 + progress_bar_width,90,0);
 			glColor3fv(&right_colors[3]);
 			glVertex3i(29 + progress_bar_width, 90 + progress_bar_height, 0);
-			glColor3fv(&load_bar_colors[9]);
+			glColor3fv(&negative_bar_colors[9]);
 			glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient2)), 90 + progress_bar_height, 0);
 		}
 		else if(coefficient2 > 0)
 		{
-			glColor3fv(&load_bar_colors[0]);
+			for (i=0; i<3; i++) 
+			{
+				right_colors[i+0] = positive_bar_colors[i+3];
+				right_colors[i+3] = positive_bar_colors[i+6];
+			}
+			glColor3fv(&positive_bar_colors[0]);
 			glVertex3i(31 + progress_bar_width, 90, 0);
 			glColor3fv(&right_colors[0]);
 			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient2), 90,0);
 			glColor3fv(&right_colors[3]);
 			glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient2), 90 + progress_bar_height, 0);
-			glColor3fv(&load_bar_colors[9]);
+			glColor3fv(&positive_bar_colors[9]);
 			glVertex3i(31 + progress_bar_width, 90 + progress_bar_height, 0);
 		}
 		if(astrology_display_type == adtThreeProgressBars)
@@ -552,24 +584,34 @@ int display_astrology_handler(window_info *win)
 	//progress 3
 			if(coefficient3 < 0)
 			{
-				glColor3fv(&load_bar_colors[0]);
+				for (i=0; i<3; i++) 
+				{
+					right_colors[i+0] = negative_bar_colors[i+3];
+					right_colors[i+3] = negative_bar_colors[i+6];
+				}
+				glColor3fv(&negative_bar_colors[0]);
 				glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient3)), 130, 0);
 				glColor3fv(&right_colors[0]);
 				glVertex3i(29 + progress_bar_width,130,0);
 				glColor3fv(&right_colors[3]);
 				glVertex3i(29 + progress_bar_width, 130 + progress_bar_height, 0);
-				glColor3fv(&load_bar_colors[9]);
+				glColor3fv(&negative_bar_colors[9]);
 				glVertex3i(31 + (int)(progress_bar_width * (1 + coefficient3)), 130 + progress_bar_height, 0);
 			}
 			else if(coefficient3 > 0)
 			{
-				glColor3fv(&load_bar_colors[0]);
+				for (i=0; i<3; i++) 
+				{
+					right_colors[i+0] = positive_bar_colors[i+3];
+					right_colors[i+3] = positive_bar_colors[i+6];
+				}
+				glColor3fv(&positive_bar_colors[0]);
 				glVertex3i(31 + progress_bar_width, 130, 0);
 				glColor3fv(&right_colors[0]);
 				glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient3), 130,0);
 				glColor3fv(&right_colors[3]);
 				glVertex3i(29 + progress_bar_width + (int)(progress_bar_width * coefficient3), 130 + progress_bar_height, 0);
-				glColor3fv(&load_bar_colors[9]);
+				glColor3fv(&positive_bar_colors[9]);
 				glVertex3i(31 + progress_bar_width, 130 + progress_bar_height, 0);
 			}
 		}

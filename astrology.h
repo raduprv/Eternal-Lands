@@ -15,10 +15,26 @@ extern int astrology_win_y_len;
 
 extern int astrology_win;
 
+/*!
+ * \ingroup astrology_window
+ * \brief   Displays the astrology window.
+ *
+ *      Displays the astrology window. The window will be created if it was not used before.
+ *
+ * \callgraph
+ */
 void display_astrology_window();
-int is_astrology_message (const char * RawText);
 
-extern float load_bar_colors[12];
+/*!
+ * \brief Check for astrology messages
+ *
+ *	Check if a text message from the server is an astrology message,
+ *	and if so, update and show the astrology window.
+ *
+ * \param RawText The text to check.
+ * \return 1 if the message is an astrology message, 0 otherwise.
+ */
+int is_astrology_message (const char* RawText);
 
 #ifdef __cplusplus
 } // extern "C"

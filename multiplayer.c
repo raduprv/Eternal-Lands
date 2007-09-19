@@ -4,7 +4,6 @@
 #include "2d_objects.h"
 #include "3d_objects.h"
 #include "asc.h"
-#include "astrology.h"
 #include "actors.h"
 #include "actor_scripts.h"
 #include "books.h"
@@ -500,10 +499,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 							display_server_popup_win((char*)text_buf);
 						/* else write to the chat window/console */
 						else
-						{
-							if (!is_astrology_message ((const char*)text_buf))
-								put_text_in_buffer (in_data[3], text_buf, len);
-						}
+							put_text_in_buffer (in_data[3], text_buf, len);
 					}
 				}
 			}
