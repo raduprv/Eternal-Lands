@@ -816,10 +816,10 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 #ifdef OSX
 	             || ch == 127
 #endif
-	             || (!alt_on && !ctrl_on && IS_PRINT (ch) && ch != '`')
+	             || (!alt_on && !ctrl_on && is_printable (ch) && ch != '`')
 	        )
 	{
-		if (IS_PRINT (ch) && !get_show_window(map_root_win))
+		if (is_printable (ch) && !get_show_window(map_root_win))
 			//Make sure the widget is visible.
 			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);	
 		// XXX FIXME: we've set the input widget with the

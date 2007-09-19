@@ -198,7 +198,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			{
 				glColor3f(0.0f,0.9f,1.0f); //aqua buddy
 			}
-			else if(IS_COLOR((unsigned char)a->actor_name[0]))
+			else if (is_color ((unsigned char)a->actor_name[0]))
 			{
 				if(a->is_enhanced_model && is_in_buddylist(a->actor_name))
 				{
@@ -206,9 +206,10 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 				}
 				else
 				{	//Use the colour of their name. This gives purple bots, green demigods, etc.
-					glColor3ub(colors_list[((unsigned char)a->actor_name[0])-127].r1,
-						colors_list[((unsigned char)a->actor_name[0])-127].g1,
-						colors_list[((unsigned char)a->actor_name[0])-127].b1);
+					int color = from_color_char (a->actor_name[0]);
+					glColor3ub (colors_list[color].r1,
+						colors_list[color].g1,
+						colors_list[color].b1);
 				}
 			}
 			else if(!a->is_enhanced_model)

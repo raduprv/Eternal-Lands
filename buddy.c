@@ -655,7 +655,7 @@ int is_in_buddylist(const char *name)
 	if(!name || !*name) {
 		return 0;
 	}
-	while(name[0] != '\0' && IS_COLOR((unsigned char)name[0])){
+	while(name[0] != '\0' && is_color ((unsigned char)name[0])){
 		++name;
 	}
 	for(i = 0; i < MAX_BUDDY; i++) {

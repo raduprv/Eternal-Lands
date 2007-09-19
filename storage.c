@@ -55,7 +55,7 @@ void get_storage_categories (const char *in_data, int len)
 	for (i = 0; i < in_data[0] && i < STORAGE_CATEGORIES_SIZE && idx < len; i++)
 	{
 		storage_categories[i].id = (Uint8)in_data[idx++];
-		storage_categories[i].name[0] = 127 + c_orange1;
+		storage_categories[i].name[0] = to_color_char (c_orange1);
 		idxp = 1;
 		while (idx < len && idxp < sizeof (storage_categories[i].name) - 1 && in_data[idx] != '\0')
 		{
@@ -104,8 +104,9 @@ void move_to_category(int cat)
 	Uint8 str[4];
 	
 	if(cat<0||cat>=no_storage_categories) return;
-	storage_categories[cat].name[0]=127+c_red3;
-	if(selected_category!=-1 && cat!=selected_category) storage_categories[selected_category].name[0]=127+c_orange1;
+	storage_categories[cat].name[0] = to_color_char (c_red3);
+	if (selected_category!=-1 && cat!=selected_category) 
+		storage_categories[selected_category].name[0] = to_color_char (c_orange1);
 	safe_snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), "%s - %s", win_storage, storage_categories[cat].name+1);
 
 	str[0]=GET_STORAGE_CATEGORY;
@@ -156,9 +157,9 @@ void get_storage_items (const Uint8 *in_data, int len)
 	cat=find_category(in_data[1]);
 	if (cat >= 0)
 	{
-		storage_categories[cat].name[0] = 127+c_red3;
+		storage_categories[cat].name[0] = to_color_char (c_red3);
 		if (selected_category != -1 && cat != selected_category)
-			storage_categories[selected_category].name[0] = 127+c_orange1;
+			storage_categories[selected_category].name[0] = to_color_char (c_orange1);
 		sprintf (windows_list.window[storage_win].window_name, "%s - %s", win_storage, storage_categories[cat].name+1);
 		selected_category = cat;
 	}
@@ -381,8 +382,8 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 			for(i=p=vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES);i<no_storage_categories;i++){
 				if(i==selected_category) {
 				} else if(i!=p+pos) {
-					storage_categories[i].name[0]=127+c_orange1;
-				} else storage_categories[i].name[0]=127+c_green2;
+					storage_categories[i].name[0]  = to_color_char (c_orange1);
+				} else storage_categories[i].name[0] = to_color_char (c_green2);
 			}
 			
 			return 0;
@@ -393,7 +394,7 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 	}
 	
 	if(last_pos>=0 && last_pos<13){
-		storage_categories[last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES)].name[0]=127+c_orange1;
+		storage_categories[last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES)].name[0] = to_color_char (c_orange1);
 		last_pos=-1;
 	}
 	
@@ -421,7 +422,8 @@ void display_storage_menu()
 		safe_snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), win_storage);
 		no_storage=0;
 		
-		for(i=0;i<no_storage_categories;i++)storage_categories[i].name[0]=127+c_orange1;
+		for(i = 0; i < no_storage_categories; i++)
+			storage_categories[i].name[0] = to_color_char (c_orange1);
 
 		show_window(storage_win);
 		select_window(storage_win);

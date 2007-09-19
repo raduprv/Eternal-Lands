@@ -18,13 +18,48 @@ extern "C" {
 /*!
  * Check if a character is a color character
  */
-#define IS_COLOR(c) ((c) >= 127 + c_lbound && (c) <= 127 + c_ubound)
+static __inline__ int is_color (Uint8 c)
+{
+	return c >= 127 + c_lbound && c <= 127 + c_ubound;
+}
+
+/*!
+ * \brief Get the color number from a color character
+ *
+ * Get the color number from a character sent by the server. Only valid
+ * color characters should give a valid color number between \c c_lbound
+ * and \c c_ubound, but no checks are performed.
+ * \param c The character to get the color number from
+ * \retval int the color number
+ * \sa is_color(), to_color_char()
+ */
+static __inline__ int from_color_char (Uint8 c)
+{
+	return c-127;
+}
+
+/*!
+ * \brief Convert a color number into a color character
+ *
+ * Compute the color character for the color with index \a color.
+ *
+ * \param color A valid color number between \c c_lbound and \c c_ubound
+ * \retval Uint8 The color character
+ * \sa from_color_char()
+ */
+static __inline__ Uint8 to_color_char (int color)
+{
+	return (Uint8) (color+127);
+}
 
 /*!
  * Check if a character is printable. In this context, that means
  * printable ascii, or non-ascii if we know what symbol to use
  */
-#define IS_PRINT(c) (get_font_char(c) >= 0)
+static __inline__ int is_printable (Uint8 c)
+{
+	return get_font_char(c) >= 0;
+}
 
 /*!
  * A macro for the my_xmlstrncopy function that copies and converts an xml-string. Sets the length to 0, hence it will copy untill \\0 is reached.

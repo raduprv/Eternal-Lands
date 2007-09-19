@@ -177,20 +177,20 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 		case CHAT_LOCAL:
 			offset = 0;
 			/*
-			if(input_text[offset] != 127+c_grey1)
+			if (from_color_char (input_text[offset]) != c_grey1)
 			{
 				//it's not a chat message, so show it
 				return 0;
 			}
 			*/
-			while (IS_COLOR ((unsigned char)input_text[offset]))
+			while (is_color (input_text[offset]))
 			{
 				offset++;
 			}
 			for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++)
 			{
 				ch = input_text[i+offset];
-				if (ch == ':' || ch == ' ' || IS_COLOR(ch))
+				if (ch == ':' || ch == ' ' || is_color (ch))
 				{
 					break;
 				}
@@ -199,8 +199,9 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			name[i] = '\0';
 			if(!name_is_valid(name)) {
 				//This can be a lot. Let's separate them based on the color for now.
-				switch((unsigned char)*input_text) {
-					case 127+c_grey1:
+				switch (from_color_char (*input_text))
+				{
+					case c_grey1:
 						//Check for summoning messages
 						//(*) NAME summoned a %s
 						if(strcmp(name, "(*)") == 0) {
@@ -226,7 +227,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 		case CHAT_CHANNEL1:
 		case CHAT_CHANNEL2:
 		case CHAT_CHANNEL3:
-			for(offset = 0; IS_COLOR ((unsigned char)input_text[offset]); offset++);
+			for(offset = 0; is_color (input_text[offset]); offset++) /* nothing */ ;
 			if (input_text[offset] == '[')
 			{
 				offset++;
@@ -243,7 +244,7 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 			name[i] = '\0';
 		break;
 		case CHAT_GM:
-			for(offset = 0; IS_COLOR((unsigned char)input_text[offset]); offset++);
+			for(offset = 0; is_color (input_text[offset]); offset++) /* nothing */ ;
 			if(strncasecmp(input_text+offset, gm_from_str, strlen(gm_from_str)) == 0)
 			{
 				offset = strlen(gm_from_str)+2;
@@ -277,10 +278,10 @@ int pre_check_if_ignored (const char *input_text, int len, Uint8 channel)
 	if(*name && name_is_valid(name)) {
 		add_name_to_tablist(name);
 	} else {
-		for(offset = 0; IS_COLOR((unsigned char)input_text[offset]); offset++);
+		for(offset = 0; is_color (input_text[offset]); offset++) /* nothing */;
 		for (i = 0; i <= MAX_USERNAME_LENGTH && i+offset < len; i++) {
 			ch = input_text[i+offset];
-			if (ch == ' ' || ch == ':' || IS_COLOR(ch)) {
+			if (ch == ' ' || ch == ':' || is_color (ch)) {
 				break;
 			}
 			name[i] = ch;

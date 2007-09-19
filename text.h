@@ -208,14 +208,15 @@ void timestamp_chat_log();
 
 /*!
  * \ingroup text_font
- * \brief   Writes the given data up to a length of len to the logfile.
+ * \brief   Writes the given data up to a length of \a len to a logfile.
  *
- *      Writes the given data up to a length of len to the logfile.
+ *      Writes the given data up to a length of \a len to a logfile. 
  *
- * \param data  The data to write to the logfile
- * \param len   The length of data.
+ * \param channel The channel index of the message
+ * \param data    The data to write to the logfile
+ * \param len     The length of data.
  */
-void write_to_log(const Uint8 * const data,int len);
+void write_to_log (Uint8 channel, const Uint8* const data, int len);
 
 /*!
  * \ingroup text_font

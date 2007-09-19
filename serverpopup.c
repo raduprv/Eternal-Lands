@@ -316,7 +316,7 @@ void display_server_popup_win(const char * const message)
 	}
 	
 	/* write the message to the log file */
-	write_to_log((unsigned char*)message, strlen(message));
+	write_to_log (CHAT_SERVER, (unsigned char*)message, strlen(message));
 		
 	/* copy the first line of text into the title buffer */
 	for (i=0, j=0; (i<strlen(message)) && (j<ELW_TITLE_SIZE-1); ++i)
@@ -325,7 +325,7 @@ void display_server_popup_win(const char * const message)
 			break;
 		}
 		/* could remove colour codes
-			if ((message[i] > 31) && (message[i] < 127)) */
+			if (is_printable (message[i])) */
 		win_title[j++] = message[i];
 	}
 	win_title[j] = '\0';

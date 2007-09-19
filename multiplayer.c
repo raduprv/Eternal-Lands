@@ -1208,8 +1208,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 				put_small_text_in_box(&in_data[3], data_length-3, dialogue_menu_x_len-70, (char*)dialogue_string);
 				display_dialogue();
-				if (in_data[3] >= 127 && in_data[4] >= 127)
+				if (is_color (in_data[3]) && is_color (in_data[4]))
 				{
+					// double color code, this text
+					// should be added to the quest log
 					int len = data_length - 4;
 					if (len > sizeof (text_buf) - 1)
 						len = sizeof (text_buf) - 1;

@@ -2253,7 +2253,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 
 	msg = &(tf->buffer[tf->msg]);
 
-	if(IS_PRINT(ch) || keysym == SDLK_UP || keysym == SDLK_DOWN ||
+	if (is_printable (ch) || keysym == SDLK_UP || keysym == SDLK_DOWN ||
 		keysym == SDLK_LEFT || keysym == SDLK_RIGHT || keysym == SDLK_HOME ||
 		keysym == SDLK_END || ch == SDLK_BACKSPACE || ch == SDLK_DELETE
 #ifdef OSX
@@ -2392,7 +2392,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 		start_paste_to_text_field(tf);
 		return 1;
 	}
-	else if (!alt_on && !ctrl_on && ( IS_PRINT(ch)
+	else if (!alt_on && !ctrl_on && ( is_printable (ch)
 			|| (ch == SDLK_RETURN && !(w->Flags&TEXT_FIELD_IGNORE_RETURN)) ) && ch != '`' )
 	{
 		if (!TEXT_FIELD_SELECTION_EMPTY(&tf->select))
@@ -2843,7 +2843,7 @@ int pword_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 		}
 
 		return 1;
-	} else if (!alt_on && !ctrl_on && IS_PRINT(ch) && ch != '`' ) {
+	} else if (!alt_on && !ctrl_on && is_printable (ch) && ch != '`' ) {
 		int i;
 		
 		for(i = 0; pword->password[i] != '\0' && i < pword->max_chars-1; i++);

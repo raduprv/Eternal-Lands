@@ -232,7 +232,7 @@ static cell AMX_NATIVE_CALL n_get_actor_from_name (AMX *amx, const cell* params)
 	{
 		if (actors_list[i] 
 		    && strncasecmp (actors_list[i]->actor_name, name, size) == 0 
-		    && (size == max_size || !IS_PRINT (actors_list[i]->actor_name[size]))
+		    && (size == max_size || !is_printable (actors_list[i]->actor_name[size]))
 		   )
 			break;
 	}

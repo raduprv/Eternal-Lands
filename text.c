@@ -188,15 +188,13 @@ void timestamp_chat_log(){
 }
 
 
-void write_to_log (const Uint8 * const data, int len)
+void write_to_log (Uint8 channel, const Uint8* const data, int len)
 {
 	int i, j;
 	Uint8 ch;
 	char str[4096];
 	struct tm *l_time; time_t c_time;
 	char logmsg[4096];
-
-	int server_message = 0;
 
 	if(log_chat == 0) {
 		return; //we're not logging anything
@@ -213,16 +211,12 @@ void write_to_log (const Uint8 * const data, int len)
 	for (i = 0; i < len && j < sizeof (str) - 1; i++)
 	{
 		ch = data[i];
-		// remove colorization when writting to the chat log
-		// Grum: don't log '\r'
-		if ( (ch < 127 || ch > 127 + c_grey4) && ch != '\r')
+
+		// remove colorization and soft wrapping characters when 
+		// writing to the chat log
+		if (!is_color (ch) && ch != '\r')
 		{
-			str[j]=ch;
-			j++;
-		}
-		else if (ch != 133 && ch != 129 && ch != 128)
-		{
-			server_message = 1;
+			str[j++] = ch;
 		}
 	}
 	str[j++]='\n';
@@ -233,18 +227,18 @@ void write_to_log (const Uint8 * const data, int len)
 	strftime(logmsg, sizeof(logmsg), "[%H:%M:%S] ", l_time);
 	strcat(logmsg, str);
 
-	if (server_message && log_chat>=3)
+	if (channel == CHAT_SERVER && log_chat >= 3)
 	{
-		fwrite(logmsg, strlen(logmsg), 1, srv_log);
+		// write server emssages to srv_log
+		fwrite (logmsg, strlen(logmsg), 1, srv_log);
+		fflush (srv_log);
 	}
-	else if (!server_message || log_chat==2
-		|| (log_chat == 1 && ((!server_message)||(!strncmp(str, "#GM ", 4))||(!strncmp(str, "#Mod ", 5))))
-		)
+	else if (channel != CHAT_SERVER || log_chat==2)
 	{
-		fwrite(logmsg, strlen(logmsg), 1, chat_log);
+		// not a server message, or log everything to chat_log
+		fwrite (logmsg, strlen(logmsg), 1, chat_log);
+		fflush (chat_log);
 	}
-	fflush(chat_log);
-  	fflush(srv_log);
 }
 
 void send_input_text_line (char *line, int line_len)
@@ -312,7 +306,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	//check for auto receiving #help
 	for (idx = 0; idx < len; idx++)
 	{
-		if (!IS_COLOR ((unsigned char)text_to_add[idx])) break;
+		if (!is_color (text_to_add[idx])) break;
 	}
 	l = len - idx;
 	if (l >= strlen(help_request_str) && text_to_add[idx] == '#' && (strncasecmp (&text_to_add[idx], help_request_str, strlen(help_request_str)) == 0 || strncasecmp (&text_to_add[idx], "#mod chat", 9) == 0))
@@ -345,7 +339,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	ed (ttlanhil): made it check if it's a server colour. still not perfect
 	(this should have been done server-side instead of parsing the date), but safer
 	*/
-	if((unsigned char)text_to_add[0] == 127+c_green1 && my_strncompare(text_to_add+1,"Game Date", 9))
+	if (from_color_char (text_to_add[0]) == c_green1 && my_strncompare(text_to_add+1,"Game Date", 9))
 	{
 		//we assume that the server will still send little-endian dd/mm/yyyy... we could make it safer by parsing the format too, but it's simpler to assume
 		const char * const month_names[] = { "Aluwia", "Seedar", "Akbar", "Zartia", "Elandra", "Viasia", "Fruitfall", "Mortia", "Carnelar", "Nimlos", "Chimar", "Vespia" };
@@ -440,7 +434,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				add_message_to_pm_log (text_to_add, len, channel);
 #endif //AFK_FIX
 			}
-			else if (channel == CHAT_LOCAL && (unsigned char)text_to_add[0] == 127 + c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
+			else if (channel == CHAT_LOCAL && from_color_char (text_to_add[0]) == c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
 			{
 				// player mentions our name in local chat
 #ifndef AFK_FIX
@@ -458,7 +452,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 				// check if this was a trade attempt
 				int i;
 				for (i = 1; i < len; i++) {
-					if (text_to_add[i] == ' ' || text_to_add[i] == ':' || IS_COLOR ((unsigned char)text_to_add[i])) {
+					if (text_to_add[i] == ' ' || text_to_add[i] == ':' || is_color (text_to_add[i])) {
 						break;
 					}
 				}
@@ -483,7 +477,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	find_all_url (text_to_add, len);
 
 	// look for buddy-wants-to-add-you messages
-	if(channel == CHAT_SERVER && (unsigned char)text_to_add[0] == c_green1+127)
+	if(channel == CHAT_SERVER && from_color_char (text_to_add[0]) == c_green1)
 	{
 		for (l = 1; l < len; l++)
 		{
@@ -539,7 +533,7 @@ void check_chat_text_to_overtext (const Uint8 *text_to_add, int len, Uint8 chann
 	if (!view_chat_text_as_overtext || channel != CHAT_LOCAL)
 		return;		// disabled
 
-	if (text_to_add[0] == 127 + c_grey1)
+	if (from_color_char (text_to_add[0]) == c_grey1)
 	{
 		char playerName[128];
 		char textbuffer[1024];
@@ -634,7 +628,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	for (ib = 0; str[ib] && nr_paste < nr_free; ib++)
 	{
 		ch = str[ib];
-		if (IS_PRINT (ch))
+		if (is_printable (ch))
 			nr_paste++;
 	}
 
@@ -659,7 +653,7 @@ int put_string_in_buffer (text_message *buf, const Uint8 *str, int pos)
 	for (ib = 0; str[ib]; ib++)
 	{
 		ch = str[ib];
-		if (IS_PRINT (ch))
+		if (is_printable (ch))
 		{
 			buf->data[pos+jb] = ch;
 			if (++jb >= nr_paste) break;
@@ -721,10 +715,10 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	if (ibreak < 0 || ibreak >= len)
 	{
 		// not a channel, or something's messed up
-		if(!IS_COLOR(text_to_add[0]))
+		if(!is_color (text_to_add[0]))
 		{
 			// force the color
-			safe_snprintf (msg->data, msg->size, "%c%.*s", color + 127 + c_red1, len, text_to_add);
+			safe_snprintf (msg->data, msg->size, "%c%.*s", to_color_char (color), len, text_to_add);
 		}
 		else
 		{
@@ -740,10 +734,10 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		else
 			safe_snprintf (nr_str, sizeof (nr_str), "%u", cnr);
 
-		if(!IS_COLOR(text_to_add[0]))
+		if(!is_color (text_to_add[0]))
 		{
 			// force the color
-			safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s", color + 127 + c_red1, ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
+			safe_snprintf (msg->data, msg->size, "%c%.*s @ %s%.*s", to_color_char (color), ibreak, text_to_add, nr_str, len-ibreak, &text_to_add[ibreak]);
 		}
 		else
 		{
@@ -766,7 +760,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	update_text_windows(msg);
 	
 	// log the message
-	write_to_log ((unsigned char*)msg->data, msg->len);
+	write_to_log (channel, (unsigned char*)msg->data, msg->len);
 
 	return;
 }
@@ -784,8 +778,8 @@ void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int l
 	int x_chars_limit;
 
 	// force the color
-	if (!IS_COLOR (text_to_add[0]))
-		buffer[last_text++] = 127 + color;
+	if (!is_color (text_to_add[0]))
+		buffer[last_text++] = to_color_char (color);
 	
 	//see if the text fits on the screen
 	x_chars_limit = pixels_limit / 8;
@@ -809,7 +803,7 @@ void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int l
 		int k;
 		int new_line_pos = 0;
 		char semaphore = 0;
-		Uint8 current_color = 127 + color;
+		Uint8 current_color = to_color_char (color);
 
 		// go trought all the text
 		for (i = 0; i < len; i++)
@@ -840,10 +834,10 @@ void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int l
 			cur_char = text_to_add[i];
 			if (cur_char == '\0') break;
 
-			if (IS_COLOR (cur_char)) // we have a color, save it
+			if (is_color (cur_char)) // we have a color, save it
 			{
 				current_color = cur_char;
-				if (last_text > 0 && IS_COLOR ((Uint8)buffer[last_text-1]))
+				if (last_text > 0 && is_color (buffer[last_text-1]))
 					last_text--;
 			}
 			else if (cur_char == '\n')

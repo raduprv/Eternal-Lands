@@ -168,7 +168,7 @@ void add_message_to_pm_log (char *message, int len, Uint8 channel)
 		safe_strncpy(last_msg_from, mymsg, sizeof(last_msg_from));
 		safe_strncpy(mymsg, msg_pointer+2, sizeof(mymsg));
 	} else {
-		//*mymsg = message;
+		// *mymsg = message;
 		safe_strncpy(last_msg_from, last_pm_from, sizeof(last_msg_from));
 	}
 	last_msg_len = strlen(last_msg_from);
@@ -228,12 +228,12 @@ int is_talking_about_me (const char *server_msg, int len, char everywhere)
 	safe_snprintf (msg, sizeof(msg), "%.*s", len, server_msg);
 	my_tolower (msg);
 
-	while (msg[a] && msg[a] != ':' && IS_PRINT((unsigned char)msg[a]))
+	while (msg[a] && msg[a] != ':' && is_printable (msg[a]))
 		a++;
 	//We do need the name of ourselves...
 	while (a < 199 && msg[a] != '\0')
 	{
-		if((msg[a]==' '||(IS_COLOR((unsigned char)msg[a]))) && !my_namecmp(msg+1+a))
+		if((msg[a]==' '|| (is_color (msg[a]))) && !my_namecmp(msg+1+a))
 			return 1;
 		else
 			a++;
@@ -260,7 +260,7 @@ void send_afk_message (const char *server_msg, int len, Uint8 channel)
 		// Copy the name. This ought to work for both local chat and
 		// trade attempts
 		i = j = 0;
-		while (j < len && IS_PRINT((unsigned char)server_msg[j]) )
+		while (j < len && is_printable (server_msg[j]) )
 		{
 			name[i++] = server_msg[j];
 			if (server_msg[j] == ':' || server_msg[j] == ' ') break;

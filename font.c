@@ -33,6 +33,7 @@
 #define	FONT_X_SPACING	18
 #define	FONT_Y_SPACING	21
 #define FONTS_ARRAY_SIZE	10
+#define SELECTION_COLOR  (to_color_char (c_orange4))
 
 typedef struct	{
 	int	spacing;
@@ -86,7 +87,7 @@ int get_font_char(unsigned char cur_char)
 					//color, won't show
 					return -1;
 				}
-			else if(cur_char>127+c_ubound)
+			else
 				{
 					switch(cur_char) {
 					case 193:
@@ -174,21 +175,21 @@ int get_font_char(unsigned char cur_char)
 }
 
 // converts a character into which entry in font.bmp to use, negative on error or no output
-int find_font_char(unsigned char cur_char)
+int find_font_char (unsigned char cur_char)
 {
-	if (IS_COLOR(cur_char))
-		{
-			float r,g,b;
-			//must be a color
-			cur_char -= 127+c_lbound;
-			r=(float)colors_list[cur_char].r1/255.0f;
-			g=(float)colors_list[cur_char].g1/255.0f;
-			b=(float)colors_list[cur_char].b1/255.0f;
-			//This fixes missing letters in the font on some clients
-			//No idea why going from 3f to 4f helps, but it does
-			glColor4f(r,g,b,1.0);
-			return(-1);	// nothing to do
-		}
+	if (is_color (cur_char))
+	{
+		float r,g,b;
+		//must be a color
+		int color = from_color_char (cur_char);
+		r = (float) colors_list[color].r1 / 255.0f;
+		g = (float) colors_list[color].g1 / 255.0f;
+		b = (float) colors_list[color].b1 / 255.0f;
+		//This fixes missing letters in the font on some clients
+		//No idea why going from 3f to 4f helps, but it does
+		glColor4f(r,g,b,1.0);
+		return(-1);	// nothing to do
+	}
 	return(get_font_char(cur_char));
 }
 
@@ -241,9 +242,9 @@ int	draw_char_scaled(unsigned char cur_char, int cur_x, int cur_y, float display
 void recolour_message(text_message *msg){
 	if (msg->chan_idx >= CHAT_CHANNEL1 && msg->chan_idx <= CHAT_CHANNEL3 && msg->len > 0 && msg->data[0] && !msg->deleted){
 		if (active_channels[current_channel] != msg->channel){
-			msg->data[0] = (Uint8)(127+c_grey2);
+			msg->data[0] = to_color_char (c_grey2);
 		} else {
-			msg->data[0] = (Uint8)(127+c_grey1);
+			msg->data[0] = to_color_char (c_grey1);
 		}
 	}
 }
@@ -304,13 +305,13 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 #endif //! MAP_EDITOR2
 
 	ch = msgs[imsg].data[ichar];
-	if (!IS_COLOR (ch))
+	if (!is_color (ch))
 	{
 		// search backwards for the last color
 		for (i = ichar-1; i >= 0; i--)
 		{
 			ch = msgs[imsg].data[i];
-			if (IS_COLOR (ch))
+			if (is_color (ch))
 			{
 				find_font_char (ch);
 				last_color_char = ch;
@@ -407,7 +408,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				if (last_color_char)
 					find_font_char (last_color_char);
 				else if (msgs[imsg].r < 0)
-					find_font_char (127 + c_grey1);
+					find_font_char (to_color_char (c_grey1));
 				else
 					glColor3f (msgs[imsg].r, msgs[imsg].g, msgs[imsg].b);
 
@@ -415,7 +416,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			}
 		}
 		
-		if (IS_COLOR(cur_char))
+		if (is_color (cur_char))
 		{
 			last_color_char = cur_char;
 			if (in_select) cur_char = SELECTION_COLOR;
@@ -434,7 +435,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 				ch = msgs[imsg].data[ichar];
 				if (ch == '\0' || ch == '\n' || ch == '\r')
 					break;
-				if (IS_COLOR (ch))
+				if (is_color (ch))
 					last_color_char = ch;
 				ichar++;
 				i++;
@@ -614,13 +615,15 @@ void print_string_escaped (const char *str)
 	int i;
 	
 	for (i=0; str[i]; i++)
+	{
 		if (str[i]=='\r')
 			printf ("\\r");
 		else if (str[i] == '\n')
 			printf ("\\n\n");
-		else if ((unsigned char)str[i] < 127+c_red1 || (unsigned char)str[i] > 127+c_ubound)
+		else if (!is_color (str[i]))
 			printf ("%c", str[i]);
-	
+	}
+
 	printf ("\nlen = %d\n", i);
 }
 #endif
@@ -876,7 +879,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					if(current_lines>=max_lines)break;
 					continue;
 				}
-			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
+			else if (is_color (cur_char))
 				{
 					glEnd();	//Ooops - NV bug fix!!
 				}
@@ -915,7 +918,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					//cur_x+=displayed_font_x_size;
 					cur_x+=displayed_font_x_width;
 				}
-			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
+			else if (is_color (cur_char))
 				{
 					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
@@ -934,7 +937,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 			current_lines++;
 			if(current_lines>=max_lines)break;
 			continue;
-		} else if(IS_COLOR(cur_char)){
+		} else if (is_color (cur_char)){
 			glEnd();	//Ooops - NV bug fix!!
 			glBegin(GL_QUADS);
 		}
@@ -967,7 +970,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 			glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,z);
 
 			cur_x+=displayed_font_x_width;
-		} else if(IS_COLOR(c_ubound)){
+		} else if(is_color (cur_char)){
 			glEnd();	//Ooops - NV bug fix!!
 			glBegin(GL_QUADS);
 #endif /* SKY_FPV_CURSOR */
@@ -1054,7 +1057,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 					if(current_lines>=max_lines)break;
 					continue;
 				}
-			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
+			else if(is_color (cur_char))
 				{
 					glEnd();	//Ooops - NV bug fix!!
 				}
@@ -1089,11 +1092,10 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 
 					cur_x+=displayed_font_x_width;
 				}
-			else if(cur_char >127 && cur_char<=127+c_ubound) //Can IS_COLOR() be used here?
+			else if (is_color (cur_char))
 				{
 					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
-
 #else /* SKY_FPV_CURSOR */
 	while(1){
 		cur_char=our_string[i];
@@ -1108,7 +1110,9 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 			current_lines++;
 			if(current_lines>=max_lines)break;
 			continue;
-		}else if(IS_COLOR(cur_char)){
+		}
+		else if (is_color (cur_char))
+		{
 			glEnd();	//Ooops - NV bug fix!!
 			glBegin(GL_QUADS);
 		}
@@ -1141,7 +1145,9 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 			glVertex3f(cur_x+displayed_font_x_width,cur_y+displayed_font_y_size,0);
 
 			cur_x+=displayed_font_x_width;
-		} else if(IS_COLOR(cur_char)){
+		}
+		else if (is_color (cur_char))
+		{
 			glEnd();	//Ooops - NV bug fix!!
 			glBegin(GL_QUADS);
 #endif /* SKY_FPV_CURSOR */

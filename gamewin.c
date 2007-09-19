@@ -1839,7 +1839,7 @@ int text_input_handler (Uint32 key, Uint32 unikey)
 	}
 	// The following should only be reached when we hit an invalid key 
 	// combo or for any reason we don't have a valid input_widget.
-	else if (IS_PRINT(ch) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
+	else if (is_printable (ch) && input_text_line.len < MAX_TEXT_MESSAGE_LENGTH)
 	{
 		if(put_char_in_buffer (&input_text_line, ch, input_text_line.len)) {
 			if(input_widget) {

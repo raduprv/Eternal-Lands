@@ -240,10 +240,10 @@ page * add_str_to_page(char * str, int type, book *b, page *p)
 	for(;newlines && *newlines;i++) {
 		if(type==_AUTHOR){
 			memmove(*newlines+1,*newlines,strlen(*newlines)+1);
-			**newlines=127+c_orange3;
+			**newlines = to_color_char (c_orange3);
 		} else if(type==_TITLE){
 			memmove(*newlines+1,*newlines,strlen(*newlines)+1);
-			**newlines=127+c_orange4;
+			**newlines = to_color_char (c_orange4);
 		}
 		if(i>=b->max_lines){
 			*lines=NULL;

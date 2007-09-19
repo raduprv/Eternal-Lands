@@ -314,7 +314,7 @@ int filter_text (char *buff, int len, int size)
 
 		// skip any coloring
 		idx = 0;
-		while (IS_COLOR ((unsigned char)buff[idx]) && clen > 0)
+		while (is_color ((unsigned char)buff[idx]) && clen > 0)
 		{
 			idx++;
 			clen--;
@@ -339,7 +339,7 @@ int filter_text (char *buff, int len, int size)
 			}
 		}
 		
-		while (buff[idx] != '\0' && (buff[idx] == ' ' || buff[idx] == ':' || IS_COLOR ((unsigned char)buff[idx])) && clen > 0)
+		while (buff[idx] != '\0' && (buff[idx] == ' ' || buff[idx] == ':' || is_color ((unsigned char)buff[idx])) && clen > 0)
 		{
 			idx++;
 			clen--;

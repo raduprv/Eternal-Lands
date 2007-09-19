@@ -262,11 +262,6 @@ void cleanup_fonts(void);
 
 int get_font_char(unsigned char cur_char);
 
-/*!
- * \brief default color for selection.
- */
-#define SELECTION_COLOR (127 + c_orange4)
-
 #ifdef __cplusplus
 } // extern "C"
 #endif

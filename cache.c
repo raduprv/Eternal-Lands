@@ -50,30 +50,30 @@ void cache_dump_sizes(cache_struct *cache)
 	char str[256];
 
 	for(i=0; i<cache->max_item; i++)
+	{
+		if(cache->cached_items[i])
 		{
-			if(cache->cached_items[i])
-				{
-					Uint8 scale=' ';
-					Uint32 size=cache->cached_items[i]->size;
-					if(size > 100000000)
-						{
-							size/=1024*1024;
-							scale='M';
-						}
-					else if(size > 100000)
-						{
-							size/=1024;
-							scale='K';
-						}
-					safe_snprintf(str,sizeof(str), "%s %6d%c - %d: %s", cache_size_str, size, scale, i, cache->cached_items[i]->name);
-					put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, (unsigned char*)str, -1);
+			Uint8 scale=' ';
+			Uint32 size=cache->cached_items[i]->size;
+			if(size > 100000000)
+			{
+				size/=1024*1024;
+				scale='M';
+			}
+			else if(size > 100000)
+			{
+				size/=1024;
+				scale='K';
+			}
+			safe_snprintf(str,sizeof(str), "%s %6d%c - %d: %s", cache_size_str, size, scale, i, cache->cached_items[i]->name);
+			put_colored_text_in_buffer(c_yellow1, CHAT_SERVER, (unsigned char*)str, -1);
 #ifdef MAP_EDITOR2
-					log_error(str);
+			log_error(str);
 #else
-					write_to_log((unsigned char*)str, strlen(str));
+			write_to_log (CHAT_SERVER, (unsigned char*)str, strlen(str));
 #endif
-				}
 		}
+	}
 }
 
 void	cache_system_maint()

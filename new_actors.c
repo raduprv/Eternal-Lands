@@ -764,7 +764,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 #ifdef CUSTOM_LOOK
 		/* skip leading color codes */
-		for(name=buffer; *name && IS_COLOR((unsigned char)*name); name++);
+		for (name=buffer; *name && is_color (*name); name++) /* nothing */ ;
 		/* trim off any guild tag, leaving solely the name (onlyname)*/
 		for(j=0; name[j] && name[j]>32;j++){
 			onlyname[j]=name[j];
@@ -773,10 +773,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		
 		/* search for string end or color mark */
 		this_actor->guild_tag_color = 0;
-		for (guild = name; *guild && IS_PRINT((unsigned char)*guild); guild++);
+		for (guild = name; *guild && is_printable (*guild); guild++);
 		if (*guild) {
 			/* separate the two strings */
-			this_actor->guild_tag_color = (unsigned char)*guild - 127;
+			this_actor->guild_tag_color = from_color_char (*guild);
 			*guild = 0;
 			guild++;
 		}
@@ -978,7 +978,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 		if(kind_of_actor != NPC) {
 			/* Skip leading color codes */
-			for (; *name && IS_COLOR(*name); name++);
+			for (; *name && is_color (*name); name++) /* nothing */;
 			safe_snprintf(buffer, sizeof(buffer), "%.30s", name);
 			/* Remove guild tag, etc. */
 			for(ptr = buffer; *ptr && *ptr > 0 && !isspace(*ptr); ptr++);

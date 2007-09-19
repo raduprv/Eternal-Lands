@@ -241,7 +241,7 @@ int keypress_map_handler (window_info *win, int mx, int my, Uint32 key, Uint32 u
 		{
 			mark_filter_text[filt_len-1] = '\0';
 		}
-		else if (IS_PRINT(ch) && (filt_len < (size_t)(MARK_FILTER_MAX_LEN-1)))
+		else if (is_printable (ch) && (filt_len < (size_t)(MARK_FILTER_MAX_LEN-1)))
 		{
 			mark_filter_text[filt_len] = ch;
 			mark_filter_text[filt_len+1] = '\0';

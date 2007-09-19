@@ -561,22 +561,20 @@ int mouseover_counters_handler(window_info *win, int mx, int my)
 /*
  * Remove colors and guild tag from an actor's name.
  */
-char *strip_actor_name(char *actor_name)
+const char *strip_actor_name (const char *actor_name)
 {
 	static char buf[32];
 	int i;
 
 	/* strip a leading color code */
-	if ((unsigned char)actor_name[0] >= 127) {
+	if (is_color (actor_name[0])) {
 		actor_name++;
 	}
 	
 	/* copy the name minus the guild tag */
 	for (i = 0; actor_name[i] && i < sizeof(buf); i++) {
-		if ((unsigned char)actor_name[i] >= 127) {
-			i--;
+		if (is_color (actor_name[i]))
 			break;
-		}
 		buf[i] = actor_name[i];
 	}
 
