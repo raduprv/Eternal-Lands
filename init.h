@@ -42,15 +42,6 @@ typedef struct
 	int manufacture_menu_x;
 	int manufacture_menu_y;
     /*! @} */
-    
-	
- 	/*!
-      * \name Astrology window position
-      */
-     /*! @{ */
- 	int astrology_win_x;
- 	int astrology_win_y;
-     /*! @} */
 
     /*!
      * \name Trade window position
@@ -164,10 +155,17 @@ typedef struct
 	float camera_z;
 	float zoom_level;
     /*! @} */
+
+    /*!
+     * \name Astrology window position
+     */
+    /*! @{ */
+	int astrology_win_x;
+	int astrology_win_y;
+    /*! @} */
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-	float freserved[21];
-
+	float freserved[19];
 }bin_cfg;
 
 #ifdef AUTO_UPDATE
