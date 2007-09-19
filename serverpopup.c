@@ -342,7 +342,9 @@ void display_server_popup_win(const char * const message)
 	/* make a copy of the message body so we can modify it and so the caller can free the memory
 		 make the copy bigger than we need so it can be text rewrapped */
 	message_body_size = 2*strlen(message);
-		
+	message_body = calloc (message_body_size, 1);
+	safe_strncpy (message_body, &message[body_index], message_body_size);	
+	
 	/* initialise the window text widget text buffer */
 	init_text_message (&widget_text, message_body_size);
 	set_text_message_data (&widget_text, &message[body_index]);
