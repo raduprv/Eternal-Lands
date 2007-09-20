@@ -829,17 +829,17 @@ void change_dir_name (char *var, const char *str, int len)
 void change_aa(int *pointer) {
 	change_var(pointer);
 	if (anti_alias) {
-		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);
-		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);
-		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
-		glEnable(GL_POINT_SMOOTH);
+		glHint(GL_POOPT_INT_SMOOTH_HOPT_INT,   GL_NICEST);
+		glHint(GL_LINE_SMOOTH_HOPT_INT,    GL_NICEST);
+		glHint(GL_POLYGON_SMOOTH_HOPT_INT, GL_NICEST);
+		glEnable(GL_POOPT_INT_SMOOTH);
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_POLYGON_SMOOTH);
 	} else {
-		glHint(GL_POINT_SMOOTH_HINT,   GL_FASTEST);
-		glHint(GL_LINE_SMOOTH_HINT,    GL_FASTEST);
-		glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
-		glDisable(GL_POINT_SMOOTH);
+		glHint(GL_POOPT_INT_SMOOTH_HOPT_INT,   GL_FASTEST);
+		glHint(GL_LINE_SMOOTH_HOPT_INT,    GL_FASTEST);
+		glHint(GL_POLYGON_SMOOTH_HOPT_INT, GL_FASTEST);
+		glDisable(GL_POOPT_INT_SMOOTH);
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
 	}
@@ -1186,26 +1186,26 @@ static __inline__ void check_option_var(char* name)
 
 	switch (our_vars.var[i]->type)
 	{
-		case INT:
-		case MULTI:
-		case INT_F:
+		case OPT_INT:
+		case OPT_MULTI:
+		case OPT_INT_F:
 			value_i= *((int*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_i);
 			break;
-		case BOOL:
-		case BOOL_INI:
+		case OPT_BOOL:
+		case OPT_BOOL_INI:
 			value_i= *((int*)our_vars.var[i]->var);
 			if (value_i == 0) *((int*)our_vars.var[i]->var)= 1;
 			else *((int*)our_vars.var[i]->var)= 0;
 			our_vars.var[i]->func (our_vars.var[i]->var);
 			break;
-		case STRING:
-		case PASSWORD:
+		case OPT_STRING:
+		case OPT_PASSWORD:
 			value_s= (char*)our_vars.var[i]->var;
 			our_vars.var[i]->func (our_vars.var[i]->var, value_s, our_vars.var[i]->len);
 			break;
-		case FLOAT:
-		case FLOAT_F:
+		case OPT_FLOAT:
+		case OPT_FLOAT_F:
 			value_f= *((float*)our_vars.var[i]->var);
 			our_vars.var[i]->func (our_vars.var[i]->var, value_f);
 			break;
@@ -1289,25 +1289,25 @@ int check_var (char *str, var_name_type type)
 
 	switch (our_vars.var[i]->type)
 	{
-		case INT:
-		case MULTI:
-		case INT_F:
+		case OPT_INT:
+		case OPT_MULTI:
+		case OPT_INT_F:
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
 			return 1;
-		case BOOL_INI:
+		case OPT_BOOL_INI:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
-		case BOOL:
+		case OPT_BOOL:
 			p= our_vars.var[i]->var;
 			if ((atoi (ptr) > 0) != *p)
 				our_vars.var[i]->func (our_vars.var[i]->var); //only call if value has changed
 			return 1;
-		case STRING:
-		case PASSWORD:
+		case OPT_STRING:
+		case OPT_PASSWORD:
 			our_vars.var[i]->func (our_vars.var[i]->var, ptr, our_vars.var[i]->len);
 			return 1;
-		case FLOAT:
-		case FLOAT_F:
+		case OPT_FLOAT:
+		case OPT_FLOAT_F:
 			foo= atof (ptr);
 			our_vars.var[i]->func (our_vars.var[i]->var, &foo);
 			return 1;
@@ -1321,13 +1321,13 @@ void free_vars()
 	for(i= 0; i < our_vars.no; i++)
 	{
 		switch(our_vars.var[i]->type) {
-			case INT:
-			case FLOAT:
-			case FLOAT_F:
-			case INT_F:
+			case OPT_INT:
+			case OPT_FLOAT:
+			case OPT_FLOAT_F:
+			case OPT_INT_F:
 				queue_destroy(our_vars.var[i]->queue);
 				break;
-			case MULTI:
+			case OPT_MULTI:
 				if(our_vars.var[i]->queue != NULL) {
 					while(!queue_isempty(our_vars.var[i]->queue)) {
 						//We don't free() because it's not allocated.
@@ -1363,7 +1363,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 	our_vars.var[no]=(var_struct*)calloc(1,sizeof(var_struct));
 	switch(our_vars.var[no]->type=type)
 	{
-		case MULTI:
+		case OPT_MULTI:
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			while((pointer= va_arg(ap, char *)) != NULL) {
@@ -1372,7 +1372,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 			va_end(ap);
 			*integer= (int)def;
 		break;
-		case INT:
+		case OPT_INT:
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			//Min
@@ -1386,15 +1386,15 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 			va_end(ap);
 			*integer= (int)def;
 		break;
-		case BOOL:
-		case BOOL_INI:
+		case OPT_BOOL:
+		case OPT_BOOL_INI:
 			*integer=(int)def;
 			break;
-		case STRING:
-		case PASSWORD:
+		case OPT_STRING:
+		case OPT_PASSWORD:
 			our_vars.var[no]->len=(int)def;
 			break;
-		case FLOAT:
+		case OPT_FLOAT:
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			//Min
@@ -1412,7 +1412,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 			va_end(ap);
 			*f=def;
 			break;
-		case FLOAT_F:
+		case OPT_FLOAT_F:
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			//Min
@@ -1430,7 +1430,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 			va_end(ap);
 			*f = def;
 			break;
-		case INT_F:
+		case OPT_INT_F:
 			queue_initialise(&our_vars.var[no]->queue);
 			va_start(ap, tab_id);
 			//Min
@@ -1464,7 +1464,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 }
 
 void add_multi_option(char * name, char * str) {
-	queue_push(our_vars.var[find_var (name, MULTI)]->queue, str);
+	queue_push(our_vars.var[find_var (name, OPT_MULTI)]->queue, str);
 }
 
 void init_vars()
@@ -1472,267 +1472,267 @@ void init_vars()
 	//ELC specific variables
 #ifdef ELC
 #ifdef SKY_FPV_CURSOR
-	add_var(BOOL,"reflect_sky","reflect_sky", &reflect_sky, change_var,1,"reflect_sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(BOOL,"clouds1","clouds1", &clouds1, change_var,1,"clouds1", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(BOOL,"horizon_fog","horizon_fog", &horizon_fog, change_var,1,"horizon_fog", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(BOOL,"show_stars","show_stars", &show_stars, change_var,1,"show_stars", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(BOOL,"show_moons","show_moons", &show_moons, change_var,1,"Show Moons", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(BOOL,"show_sun","show_sun", &show_sun, change_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(BOOL,"show_sky","show_sky", &show_sky, change_var,1,"Show sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
-	add_var(BOOL,"extended_cam","extcam", &ext_cam, change_var,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
-	add_var(FLOAT,"follow_strength","f_strn",&fol_strn,change_float,0.1,"Follow Camera Snapiness","Adjust how responsive the follow camera is. 0 is stopped, 1 is fastest. Use the three numbers below to tweak the feel. Try them one at a time, then mix them to find a ratio you like.",EMAJEKRAL,0.0,1.00,0.01);
-	add_var(FLOAT,"const_speed","f_con",&fol_con,change_float,7,"Constant Speed","The basic rate that the camera rotates at to keep up with you.",EMAJEKRAL,0.0,10.00,1.0);
-	add_var(FLOAT,"lin_speed","f_lin",&fol_lin,change_float,1,"Linear Decel.","A hit of speed that drops off as the camera gets near its set point.",EMAJEKRAL,0.0,10.00,1.0);
-	add_var(FLOAT,"quad_speed","f_quad",&fol_quad,change_float,1,"Quadratic Decel.","A hit of speed that drops off faster as it nears the set point.",EMAJEKRAL,0.0,10.00,1.0);
-	add_var(FLOAT,"zcull","zcull",&z_cull,change_zcull,150.0,"Cull distance","Sets the distance that objects should stop being displayed at.",EMAJEKRAL,0.0,1000.00,0.1);
-	add_var(FLOAT,"cut_size","cut_size",&cut_size,change_float,150.0,"Cut Size","Size that objects should be cut at past the full detail radius.",EMAJEKRAL,0.0,1000.00,0.1);
-	add_var(BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Old Style Pointers", "Use default SDL cursor.", CONTROLS);
-	add_var(BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Big Pointers", "Use 32x32 graphics for pointer. Only works with SDL cursor turned off.", CONTROLS);
-	add_var(FLOAT,"pointer_size","pointer_size", &pointer_size, change_float,1.0,"Pointer Size", "Scale the pointer. 1.0 is 1:1 scale with pointer graphic. Only works with SDL cursor turned off.", CONTROLS,0.25,4.0,0.05);
+	add_var(OPT_BOOL,"reflect_sky","reflect_sky", &reflect_sky, change_var,1,"reflect_sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"clouds1","clouds1", &clouds1, change_var,1,"clouds1", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"horizon_fog","horizon_fog", &horizon_fog, change_var,1,"horizon_fog", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"show_stars","show_stars", &show_stars, change_var,1,"show_stars", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"show_moons","show_moons", &show_moons, change_var,1,"Show Moons", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"show_sun","show_sun", &show_sun, change_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"show_sky","show_sky", &show_sky, change_var,1,"Show sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
+	add_var(OPT_BOOL,"extended_cam","extcam", &ext_cam, change_var,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
+	add_var(OPT_FLOAT,"follow_strength","f_strn",&fol_strn,change_float,0.1,"Follow Camera Snapiness","Adjust how responsive the follow camera is. 0 is stopped, 1 is fastest. Use the three numbers below to tweak the feel. Try them one at a time, then mix them to find a ratio you like.",EMAJEKRAL,0.0,1.00,0.01);
+	add_var(OPT_FLOAT,"const_speed","f_con",&fol_con,change_float,7,"Constant Speed","The basic rate that the camera rotates at to keep up with you.",EMAJEKRAL,0.0,10.00,1.0);
+	add_var(OPT_FLOAT,"lin_speed","f_lin",&fol_lin,change_float,1,"Linear Decel.","A hit of speed that drops off as the camera gets near its set point.",EMAJEKRAL,0.0,10.00,1.0);
+	add_var(OPT_FLOAT,"quad_speed","f_quad",&fol_quad,change_float,1,"Quadratic Decel.","A hit of speed that drops off faster as it nears the set point.",EMAJEKRAL,0.0,10.00,1.0);
+	add_var(OPT_FLOAT,"zcull","zcull",&z_cull,change_zcull,150.0,"Cull distance","Sets the distance that objects should stop being displayed at.",EMAJEKRAL,0.0,1000.00,0.1);
+	add_var(OPT_FLOAT,"cut_size","cut_size",&cut_size,change_float,150.0,"Cut Size","Size that objects should be cut at past the full detail radius.",EMAJEKRAL,0.0,1000.00,0.1);
+	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Old Style Pointers", "Use default SDL cursor.", CONTROLS);
+	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Big Pointers", "Use 32x32 graphics for pointer. Only works with SDL cursor turned off.", CONTROLS);
+	add_var(OPT_FLOAT,"pointer_size","pointer_size", &pointer_size, change_float,1.0,"Pointer Size", "Scale the pointer. 1.0 is 1:1 scale with pointer graphic. Only works with SDL cursor turned off.", CONTROLS,0.25,4.0,0.05);
 #endif /* SKY_FPV_CURSOR */
-	add_var(BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
+	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 #ifndef MAP_EDITOR2
  #ifdef DEBUG
-	add_var(BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID);
-	add_var(BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID);
+	add_var(OPT_BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID);
+	add_var(OPT_BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID);
  #endif//DEBUG
 #endif //MAP_EDITOR2
-	add_var(BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", LODTAB);
-	add_var (BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", ADVVID);
-	add_var(MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",ADVVID,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
+	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", LODTAB);
+	add_var (OPT_BOOL, "use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", ADVVID);
+	add_var(OPT_MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",ADVVID,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
 #ifndef MAP_EDITOR2
-	add_var(BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",LODTAB);
+	add_var(OPT_BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",LODTAB);
 #endif	//MAP_EDITOR2
-	add_var(BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",LODTAB);
+	add_var(OPT_BOOL,"poor_man","poor",&poor_man,change_poor_man,0,"Poor Man","Toggles the poor man option for slower systems",LODTAB);
 #ifdef	NEW_ALPHA
-	add_var(BOOL,"use_3d_alpha_blend","3dalpha",&use_3d_alpha_blend,change_var,1,"3D Alpha Blending","Toggle the use of the alpha blending on 3D objects",ADVVID);
+	add_var(OPT_BOOL,"use_3d_alpha_blend","3dalpha",&use_3d_alpha_blend,change_var,1,"3D Alpha Blending","Toggle the use of the alpha blending on 3D objects",ADVVID);
 #endif	//NEW_ALPHA
-	add_var(BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",LODTAB);
-	add_var(BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",LODTAB);
-	add_var(BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
-	add_var(BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
-	add_var(BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
-	add_var(BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
+	add_var(OPT_BOOL,"show_reflection","refl",&show_reflection,change_reflection,1,"Show Reflections","Toggle the reflections",LODTAB);
+	add_var(OPT_BOOL,"no_adjust_shadows","noadj",&no_adjust_shadows,change_var,0,"Don't Adjust Shadows","If enabled, tell the engine not to disable the shadows if the frame rate is too low.",LODTAB);
+	add_var(OPT_BOOL,"clouds_shadows","cshad",&clouds_shadows,change_clouds_shadows,1,"Cloud Shadows","The clouds shadows are projected on the ground, and the game looks nicer with them on.",LODTAB);
+	add_var(OPT_BOOL,"show_fps","fps",&show_fps,change_var,1,"Show FPS","Show the current frames per second in the corner of the window",HUD);
+	add_var(OPT_BOOL,"use_mipmaps","mm",&use_mipmaps,change_mipmaps,0,"Mipmaps","Mipmaps is a texture effect that blurs the texture a bit - it may look smoother and better, or it may look worse depending on your graphics driver settings and the like.",ADVVID);
+	add_var(OPT_BOOL,"use_compiled_vertex_array","cva",&use_compiled_vertex_array,change_compiled_vertex_array,1,"Compiled Vertex Array","Some systems will not support the new compiled vertex array in EL. Disable this if some 3D objects do not display correctly.",ADVVID);
 #ifndef MAP_EDITOR
-	add_var(BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
+	add_var(OPT_BOOL,"use_vertex_buffers","vbo",&use_vertex_buffers,change_vertex_buffers,0,"Vertex Buffer Objects","Toggle the use of the vertex buffer objects, restart required to activate it",ADVVID);
 
-	add_var(INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
-	add_var(BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
-	add_var(INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",LODTAB,0,100);
+	add_var(OPT_INT,"mouse_limit","lmouse",&mouse_limit,change_int,15,"Mouse Limit","You can increase the mouse sensitivity and cursor changing by adjusting this number to lower numbers, but usually the FPS will drop as well!",CONTROLS,1,INT_MAX);
+	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
+	add_var(OPT_INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",LODTAB,0,100);
  #ifdef NEW_LIGHTING
-	add_var(BOOL,"use_new_lighting","unl",&use_new_lighting,change_var,0,"Use New Lighting","Utilize a more physicality-based lighting model to reduce \"flatness\".",LODTAB);
-	add_var(BOOL,"night_shift_textures","nst",&night_shift_textures,change_var,0,"Night Textures","Make the scene at night less colorful, as in the real world.  Will impose a small delay when changing to/from dungeon maps.",LODTAB);
+	add_var(OPT_BOOL,"use_new_lighting","unl",&use_new_lighting,change_var,0,"Use New Lighting","Utilize a more physicality-based lighting model to reduce \"flatness\".",LODTAB);
+	add_var(OPT_BOOL,"night_shift_textures","nst",&night_shift_textures,change_var,0,"Night Textures","Make the scene at night less colorful, as in the real world.  Will impose a small delay when changing to/from dungeon maps.",LODTAB);
  #endif
  #ifdef EYE_CANDY
-	add_var(BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
-	add_var(BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
-	add_var(BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);
-	add_var(BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_var,0,"Transparency Resolution Fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",ECTAB);
-	add_var(FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,45,"Max Eye Candy Framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,2.0,FLT_MAX,1.0);
-	add_var(FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,15,"Min Eye Candy Framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,1.0,FLT_MAX,1.0);
-	add_var(INT,"light_columns_threshold","lct",&light_columns_threshold,change_int,5,"Light columns threshold","If your framerate is below this amount, you will not get columns of light around teleportation effects (useful for slow systems).",ECTAB, 0, INT_MAX);
-	add_var(BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_var,0,"Use Fancy Smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
-	add_var(INT,"max_idle_cycles_per_second","micps",&max_idle_cycles_per_second,change_int,40,"Max Idle Cycles Per Second","The eye candy 'idle' function, which moves particles around, will run no more than this often.  If your CPU is your limiting factor, lowering this can give you a higher framerate.  Raising it gives smoother particle motion (up to the limit of your framerate).",ECTAB, 1, INT_MAX);
+	add_var(OPT_BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
+	add_var(OPT_BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
+	add_var(OPT_BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);
+	add_var(OPT_BOOL,"transparency_resolution_fix","trf",&transparency_resolution_fix,change_var,0,"Transparency Resolution Fix","Use this if your video card or driver has problems with rendering highly blended effects, like teleportation.",ECTAB);
+	add_var(OPT_FLOAT,"max_ec_framerate","ecmaxf",&max_ec_framerate,change_max_ec_framerate,45,"Max Eye Candy Framerate","If your framerate is above this amount, eye candy will use maximum detail.",ECTAB,2.0,FLT_MAX,1.0);
+	add_var(OPT_FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,15,"Min Eye Candy Framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,1.0,FLT_MAX,1.0);
+	add_var(OPT_INT,"light_columns_threshold","lct",&light_columns_threshold,change_int,5,"Light columns threshold","If your framerate is below this amount, you will not get columns of light around teleportation effects (useful for slow systems).",ECTAB, 0, INT_MAX);
+	add_var(OPT_BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_var,0,"Use Fancy Smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
+	add_var(OPT_INT,"max_idle_cycles_per_second","micps",&max_idle_cycles_per_second,change_int,40,"Max Idle Cycles Per Second","The eye candy 'idle' function, which moves particles around, will run no more than this often.  If your CPU is your limiting factor, lowering this can give you a higher framerate.  Raising it gives smoother particle motion (up to the limit of your framerate).",ECTAB, 1, INT_MAX);
  #endif
 #endif // ELC
 
-	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
-	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
+	add_var(OPT_FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
+	add_var(OPT_FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
 
 #ifndef MAP_EDITOR2
-	add_var(FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
+	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
 #endif
 #ifdef ELC
  #ifndef MAP_EDITOR2
-	add_var(FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
+	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
  #endif	//MAP_EDITOR2
  #ifdef NOTEPAD
-	add_var (FLOAT, "note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
+	add_var (OPT_FLOAT, "note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
  #endif
  #ifndef FONTS_FIX
-	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
-	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,"Type 1", "Type 2", NULL);
+	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
+	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,"Type 1", "Type 2", NULL);
  #else	//FONTS_FIX
-	add_var(MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
-	add_var(MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
+	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
+	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
  #endif	//FONTS_FIX
 #else	//ELC
-	add_var(INT,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,1,3);
-	add_var(INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);
+	add_var(OPT_INT,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,1,3);
+	add_var(OPT_INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);
 #endif	//ELC
 
 #ifdef NEW_SOUND
-	add_var(MULTI,"sounds","sounds",&sound_opts,change_sounds,3,"Sounds","Turn sound effects on/off",AUDIO, "No sound", "Environmental Only", "+General Character", "+Walking", NULL);
+	add_var(OPT_MULTI,"sounds","sounds",&sound_opts,change_sounds,3,"Sounds","Turn sound effects on/off",AUDIO, "No sound", "Environmental Only", "+General Character", "+Walking", NULL);
 #else
-	add_var(BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
+	add_var(OPT_BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 #endif	//NEW_SOUND
 #ifdef OGG_VORBIS
-	add_var(BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
+	add_var(OPT_BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
 #endif //OGG_VORBIS
-	add_var(FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
+	add_var(OPT_FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
 #ifdef OGG_VORBIS
-	add_var(FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
+	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 #endif //OGG_VORBIS
 
 #ifndef MAP_EDITOR2
-	add_var(BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
+	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
 
-	add_var(BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",CONTROLS);
-	add_var (BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
+	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",CONTROLS);
+	add_var (OPT_BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
 #endif
-	add_var(BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
-	add_var(BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
+	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
+	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
 #ifndef MAP_EDITOR2
-	add_var(BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
-	add_var(BOOL,"show_statbars_in_hud","sstatbars",&show_statbars_in_hud,change_var,0,"StatBars In HUD","Toggle showing statbars in the HUD. Needs Stats in HUD",HUD);
+	add_var(OPT_BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
+	add_var(OPT_BOOL,"show_statbars_in_hud","sstatbars",&show_statbars_in_hud,change_var,0,"StatBars In HUD","Toggle showing statbars in the HUD. Needs Stats in HUD",HUD);
 #endif
-	add_var(BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
+	add_var(OPT_BOOL,"show_help_text","shelp",&show_help_text,change_var,1,"Help Text","Enable tooltips.",HUD);
 #ifndef MAP_EDITOR2
-	add_var(BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
+	add_var(OPT_BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
 #endif
-	add_var (BOOL, "compass_north", "comp", &compass_direction_checkbox, change_compass_direction, 1, "Compass Direction","Set the compass direction for a static compass", HUD);
-	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
-	add_var (BOOL, "use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
-	add_var (BOOL, "opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
+	add_var (OPT_BOOL, "compass_north", "comp", &compass_direction_checkbox, change_compass_direction, 1, "Compass Direction","Set the compass direction for a static compass", HUD);
+	add_var (OPT_BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
+	add_var (OPT_BOOL, "use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
+	add_var (OPT_BOOL, "opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
 
 #ifndef MAP_EDITOR2
-	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
-	add_var(STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
+	add_var(OPT_SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
+	add_var(OPT_STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
 #ifdef AFK_FIX
-	add_var(BOOL, "afk_local", "afkl", &afk_local,change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", MISC);
+	add_var(OPT_BOOL, "afk_local", "afkl", &afk_local,change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", MISC);
 #endif //AFK_FIX
 #endif
 
 #ifndef MAP_EDITOR2
-	add_var(BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1,"Global Ignores","Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.",MISC);
-	add_var(BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the local ignores list on exit.",MISC);
-	add_var (BOOL, "use_global_filters", "gfil", &use_global_filters, change_global_filters, 1, "Global Filter", "Toggle the use of global text filters.", MISC);
-	/* add_var(STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
-	add_var(BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps Filter","Toggle the caps filter",MISC);
+	add_var(OPT_BOOL,"use_global_ignores","gign",&use_global_ignores,change_var,1,"Global Ignores","Global ignores is a list with people that are well known for being nasty, so we put them into a list (global_ignores.txt). Enable this to load that list on startup.",MISC);
+	add_var(OPT_BOOL,"save_ignores","sign",&save_ignores,change_var,1,"Save Ignores","Toggle saving of the local ignores list on exit.",MISC);
+	add_var (OPT_BOOL, "use_global_filters", "gfil", &use_global_filters, change_global_filters, 1, "Global Filter", "Toggle the use of global text filters.", MISC);
+	/* add_var(OPT_STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
+	add_var(OPT_BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps Filter","Toggle the caps filter",MISC);
 
-	add_var(STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
-	add_var(INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
-	add_var(STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
-	add_var(PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
+	add_var(OPT_STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
+	add_var(OPT_INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
+	add_var(OPT_STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
+	add_var(OPT_PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
 
 #endif
 #ifndef MAP_EDITOR2
  #ifdef ELC
- 	add_var(MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
+ 	add_var(OPT_MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
  #else
-	add_var(INT,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
+	add_var(OPT_INT,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
  #endif //ELC
-	add_var(BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
+	add_var(OPT_BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
   #ifdef AUTO_UPDATE
      /* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
-	add_var(BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
+	add_var(OPT_BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
   #ifdef CUSTOM_UPDATE
-	add_var(BOOL,"customupdate","cup",&custom_update,change_var,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
+	add_var(OPT_BOOL,"customupdate","cup",&custom_update,change_var,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
   #endif    //CUSTOM_UPDATE
   #endif    //AUTO_UPDATE
- 	add_var(STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
- 	add_var(STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",MISC);
+ 	add_var(OPT_STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
+ 	add_var(OPT_STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",MISC);
 #endif // MAP_EDITOR2
 
 #ifndef MAP_EDITOR2
 #ifdef ELC
-	add_var (MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use Windowed Chat", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
+	add_var (OPT_MULTI,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use Windowed Chat", "How do you want your chat to be displayed?", CHAT, "Old behavior", "Tabbed chat", "Chat window", NULL);
  #else
-	add_var (INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use Windowed Chat", "0= Old behavior, 1= new behavior, 2=chat window", CHAT);
+	add_var (OPT_INT,"windowed_chat", "winchat", &use_windowed_chat, change_windowed_chat, 1, "Use Windowed Chat", "0= Old behavior, 1= new behavior, 2=chat window", CHAT);
 #endif //ELC
 #endif
-	add_var (BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
+	add_var (OPT_BOOL, "write_ini_on_exit", "wini", &write_ini_on_exit, change_var, 1,"Save INI","Save options when you quit",MISC);
 	// Grum: attempt to work around bug in Ati linux drivers.
-	add_var (BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", VIDEO);
+	add_var (OPT_BOOL, "ati_click_workaround", "atibug", &ati_click_workaround, change_var, 0, "ATI Bug", "If you are using an ATI card and don't move when you click, try this option to work around a bug in their drivers", VIDEO);
 #ifndef MAP_EDITOR2
-	add_var (BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If clicking to walk doesn't move you, toggle this option", VIDEO);
+	add_var (OPT_BOOL, "use_old_clicker", "oldmclick", &use_old_clicker, change_var, 0, "Mouse Bug", "If clicking to walk doesn't move you, toggle this option", VIDEO);
  #ifdef ELC
-	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
+	add_var (OPT_BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_separate_flag, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
 	// The forces that be want PMs always global, so that they're less likely to be ignored
-	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Separate Personal Chat", "Should personal chat be separate?", CHAT);
-	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Separate Guild Chat", "Should guild chat be separate?", CHAT);
-	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Separate Server Messages", "Should the messages from the server be separate?", CHAT);
-	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
+	//add_var (OPT_BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_separate_flag, 0, "Separate Personal Chat", "Should personal chat be separate?", CHAT);
+	add_var (OPT_BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_separate_flag, 1, "Separate Guild Chat", "Should guild chat be separate?", CHAT);
+	add_var (OPT_BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_separate_flag, 0, "Separate Server Messages", "Should the messages from the server be separate?", CHAT);
+	add_var (OPT_BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_separate_flag, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
   #else
-	add_var (BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
-	//add_var (BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Separate personal chat", "Should personal chat be separate?", CHAT);
-	add_var (BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Separate Guild Chat", "Should guild chat be separate?", CHAT);
-	add_var (BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Separate Server Messages", "Should the messages from the server be separate?", CHAT);
-	add_var (BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
+	add_var (OPT_BOOL, "local_chat_separate", "locsep", &local_chat_separate, change_var, 0, "Separate Local Chat", "Should local chat be separate?", CHAT);
+	//add_var (OPT_BOOL, "personal_chat_separate", "pmsep", &personal_chat_separate, change_var, 0, "Separate personal chat", "Should personal chat be separate?", CHAT);
+	add_var (OPT_BOOL, "guild_chat_separate", "gmsep", &guild_chat_separate, change_var, 1, "Separate Guild Chat", "Should guild chat be separate?", CHAT);
+	add_var (OPT_BOOL, "server_chat_separate", "scsep", &server_chat_separate, change_var, 0, "Separate Server Messages", "Should the messages from the server be separate?", CHAT);
+	add_var (OPT_BOOL, "mod_chat_separate", "modsep", &mod_chat_separate, change_var, 0, "Separate Moderator Chat", "Should moderator chat be separated from the rest?", CHAT);
  #endif
-	add_var (BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
+	add_var (OPT_BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 #endif
 #ifndef OSX
-	add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", VIDEO);
-	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
+	add_var (OPT_BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", VIDEO);
+	add_var (OPT_FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
 #ifndef SKY_FPV_CURSOR
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else /* SKY_FPV_CURSOR */
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor (FPV: not used)", ADVVID, 1.0, 60.0, 0.5);
-	add_var (FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float, 1.7, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 1.0, 15.0, 0.1);
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor (FPV: not used)", ADVVID, 1.0, 60.0, 0.5);
+	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float, 1.7, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 1.0, 15.0, 0.1);
 #endif /* SKY_FPV_CURSOR */
 #else
-        add_var (BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
-	add_var (FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
+        add_var (OPT_BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
+	add_var (OPT_FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
 #ifndef SKY_FPV_CURSOR
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else /* SKY_FPV_CURSOR */
-	add_var (FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor (FPV: not used)", ADVVID, 1.0, 60.0, 0.5);
-//	add_var (FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float_init, 1.7, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 1.0, 15.0, 0.1);
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor (FPV: not used)", ADVVID, 1.0, 60.0, 0.5);
+//	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float_init, 1.7, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 1.0, 15.0, 0.1);
 #endif /* SKY_FPV_CURSOR */
 #endif
  #ifdef ANTI_ALIAS
-	add_var (BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
+	add_var (OPT_BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
  #endif //ANTI_ALIAS
 #ifdef SFX
-	add_var (BOOL, "special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", LODTAB);
+	add_var (OPT_BOOL, "special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", LODTAB);
 #endif //SFX
 #ifndef MAP_EDITOR2
-	add_var (BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
+	add_var (OPT_BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
 #endif // def ELC
 #ifndef MAP_EDITOR
-	add_var (BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", ADVVID);
+	add_var (OPT_BOOL, "use_frame_buffer", "fb", &use_frame_buffer, change_frame_buffer, 0, "Toggle Frame Buffer Support", "Toggle frame buffer support. Used for reflection and shadow mapping.", ADVVID);
 #endif
 	//Global vars...
 	// Only possible to do at startup - this could of course be changed by using a special function for this purpose. I just don't see why you'd want to change the directory whilst running the game...
-	add_var(STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
+	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
 #ifdef ELC
-	add_var(BOOL, "windows_on_top", "wot", &windows_on_top, change_windows_on_top, 0, "Windows On Top","Allows the Manufacture, Storage and Inventory windows to appear above the map and console.", MISC);
-	add_var(MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", "1280x800x16", "1280x800x32", "1440x900x16", "1440x900x32", "1680x1050x16", "1680x1050x32", NULL);
+	add_var(OPT_BOOL, "windows_on_top", "wot", &windows_on_top, change_windows_on_top, 0, "Windows On Top","Allows the Manufacture, Storage and Inventory windows to appear above the map and console.", MISC);
+	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", "1280x800x16", "1280x800x32", "1440x900x16", "1440x900x32", "1680x1050x16", "1680x1050x32", NULL);
 #else
-	add_var(SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
+	add_var(OPT_SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
-	add_var(INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
+	add_var(OPT_INT,"limit_fps","lfps",&limit_fps,change_int,0,"Limit FPS","Limit the frame rate to reduce load on the system",VIDEO,0,INT_MAX);
 #ifdef ELC
-	add_var(INT,"time_warning_hour","warn_h",&time_warn_h,change_int,-1,"Time warning for new hour","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new hour",CHAT, -1, 30);
-	add_var(INT,"time_warning_sun","warn_s",&time_warn_s,change_int,-1,"Time warning for dawn/dusk","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before sunrise/sunset",CHAT, -1, 30);
-	add_var(INT,"time_warning_day","warn_d",&time_warn_d,change_int,-1,"Time warning for new #day","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new day",CHAT, -1, 30);
-	add_var(FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
+	add_var(OPT_INT,"time_warning_hour","warn_h",&time_warn_h,change_int,-1,"Time warning for new hour","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new hour",CHAT, -1, 30);
+	add_var(OPT_INT,"time_warning_sun","warn_s",&time_warn_s,change_int,-1,"Time warning for dawn/dusk","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before sunrise/sunset",CHAT, -1, 30);
+	add_var(OPT_INT,"time_warning_day","warn_d",&time_warn_d,change_int,-1,"Time warning for new #day","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new day",CHAT, -1, 30);
+	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
 #ifdef CLICKABLE_CONTINENT_MAP
-	add_var(BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
+	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
 #endif
-	add_var(FLOAT_F,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, float_one_func, get_max_anisotropic_filter, 1.0f);
+	add_var(OPT_FLOAT_F,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, float_one_func, get_max_anisotropic_filter, 1.0f);
 #ifdef	USE_SHADER
-	add_var(INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better.",VIDEO, int_zero_func, int_max_water_shader_quality);
+	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better.",VIDEO, int_zero_func, int_max_water_shader_quality);
 #endif	// USE_SHADER
 #endif //ELC
 #ifdef MAP_EDITOR
-	add_var(BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
-	add_var(BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show Pos","Show position on the minimap",HUD);
-	add_var(SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
-	add_var(BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
+	add_var(OPT_BOOL,"close_browser_on_select","cbos",&close_browser_on_select, change_var, 0,"Close Browser","Close the browser on select",MISC);
+	add_var(OPT_BOOL,"show_position_on_minimap","spos",&show_position_on_minimap, change_var, 0,"Show Pos","Show position on the minimap",HUD);
+	add_var(OPT_SPECINT,"auto_save","asv",&auto_save_time, set_auto_save_interval, 0,"Auto Save","Auto Save",MISC,0,INT_MAX);
+	add_var(OPT_BOOL,"show_grid","sgrid",&view_grid, change_var, 0, "Show Grid", "Show grid",HUD);
 #endif
 
 #if defined ELC && ! defined MAP_EDITOR2
 #if !defined(WINDOWS) && !defined(OSX)
-	add_var(BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",MISC);
+	add_var(OPT_BOOL,"use_clipboard","uclb",&use_clipboard, change_var, 1, "Use Clipboard For Pasting", "Use CLIPBOARD for pasting (as e.g. GNOME does) or use PRIMARY cutbuffer (as xterm does)",MISC);
 #endif
 #endif
 
 #ifdef	USE_SEND_VIDEO_INFO
-	add_var(BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
+	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
 #endif	// USE_SEND_VIDEO_INFO
 }
 
@@ -1742,17 +1742,17 @@ void write_var (FILE *fout, int ivar)
 
 	switch (our_vars.var[ivar]->type)
 	{
-		case INT:
-		case MULTI:
-		case BOOL:
-		case INT_F:
-		case BOOL_INI:
+		case OPT_INT:
+		case OPT_MULTI:
+		case OPT_BOOL:
+		case OPT_INT_F:
+		case OPT_BOOL_INI:
 		{
 			int *p= our_vars.var[ivar]->var;
 			fprintf (fout, "#%s= %d\n", our_vars.var[ivar]->name, *p);
 			break;
 		}
-		case STRING:
+		case OPT_STRING:
 			if (strcmp (our_vars.var[ivar]->name, "password") == 0)
 				// Do not write the password to the file. If the user really wants it
 				// s/he should edit the file.
@@ -1760,13 +1760,13 @@ void write_var (FILE *fout, int ivar)
 			else
 				fprintf (fout, "#%s= \"%s\"\n", our_vars.var[ivar]->name, (char *)our_vars.var[ivar]->var);
 			break;
-		case PASSWORD:
+		case OPT_PASSWORD:
 			// Do not write the password to the file. If the user really wants it
 			// s/he should edit the file.
 			fprintf (fout, "#%s= \"\"\n", our_vars.var[ivar]->name);
 			break;
-		case FLOAT:
-		case FLOAT_F:
+		case OPT_FLOAT:
+		case OPT_FLOAT_F:
 		{
 			float *g= our_vars.var[ivar]->var;
 			fprintf (fout, "#%s= %g\n", our_vars.var[ivar]->name, *g);
@@ -1981,9 +1981,9 @@ int display_elconfig_handler(window_info *win)
 	for(i= 0; i < our_vars.no; i++)
 	{
 		// Update the widgets in case an option changed
-		// Actually that's ony the MULTI type widgets, the others are 
+		// Actually that's ony the OPT_MULTI type widgets, the others are 
 		// taken care of by their widget handlers
-		if (our_vars.var[i]->type == MULTI)
+		if (our_vars.var[i]->type == OPT_MULTI)
 			multiselect_set_selected (elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
 	}
 	
@@ -2101,7 +2101,7 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 		return 0;
 	}
 
-	if (option->type == BOOL)
+	if (option->type == OPT_BOOL)
 	{
 		option->func(option->var);
 		option->saved= 0;
@@ -2122,7 +2122,7 @@ int onclick_checkbox_handler(widget_list *widget, int mx, int my, Uint32 flags)
 		}
 	}
 
-	if (option->type == BOOL)
+	if (option->type == OPT_BOOL)
 	{
 		int *var= option->var;
 		*var= !*var;
@@ -2177,13 +2177,13 @@ void elconfig_populate_tabs(void)
 	for(i= 0; i < our_vars.no; i++) {
 		tab_id= our_vars.var[i]->widgets.tab_id;
 		switch(our_vars.var[i]->type) {
-			case BOOL_INI:
+			case OPT_BOOL_INI:
 				// This variable should not be settable
 				// through the window, so don't try to add it,
 				// and more importantly, don't try to compute
 				// its height
 				continue;
-			case BOOL:
+			case OPT_BOOL:
 				//Add checkbox
 				widget_id= checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 											elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
@@ -2197,7 +2197,7 @@ void elconfig_populate_tabs(void)
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_checkbox_handler);
 			break;
-			case INT:
+			case OPT_INT:
 				min= queue_pop(our_vars.var[i]->queue);
 				max= queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
@@ -2215,7 +2215,7 @@ void elconfig_populate_tabs(void)
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
 			break;
-			case FLOAT:
+			case OPT_FLOAT:
 				min= queue_pop(our_vars.var[i]->queue);
 				max= queue_pop(our_vars.var[i]->queue);
 				interval= (float *)queue_pop(our_vars.var[i]->queue);
@@ -2235,7 +2235,7 @@ void elconfig_populate_tabs(void)
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
 			break;
-			case STRING:
+			case OPT_STRING:
 
 #ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
@@ -2245,7 +2245,7 @@ void elconfig_populate_tabs(void)
 				widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/3, elconfig_tabs[tab_id].y, 332, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
 			break;
-			case PASSWORD:
+			case OPT_PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
 #ifdef OPTIONS_I18N
 				//label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
@@ -2255,7 +2255,7 @@ void elconfig_populate_tabs(void)
 				//widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				//widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
 			break;
-			case MULTI:
+			case OPT_MULTI:
 
 #ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
@@ -2277,7 +2277,7 @@ void elconfig_populate_tabs(void)
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
 			break;
-			case FLOAT_F:
+			case OPT_FLOAT_F:
 				f_min_func = queue_pop(our_vars.var[i]->queue);
 				f_max_func = queue_pop(our_vars.var[i]->queue);
 				interval= (float *)queue_pop(our_vars.var[i]->queue);
@@ -2297,7 +2297,7 @@ void elconfig_populate_tabs(void)
 				queue_destroy(our_vars.var[i]->queue);
 				our_vars.var[i]->queue= NULL;
 			break;
-			case INT_F:
+			case OPT_INT_F:
 				i_min_func = queue_pop(our_vars.var[i]->queue);
 				i_max_func = queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */

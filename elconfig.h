@@ -30,16 +30,16 @@ extern float pointer_size;
  */
 typedef enum
 {
-	BOOL = 1,      // Change variable                   func(int*)
-	STRING,	       // Change string                     func(char*,char*)
-	FLOAT,         // Change float                      func(float*,float*)
-	INT,           // Change int                        func(int*,int)
-	SPECINT = INT, // Multiple ints, non-default func   func(int*,int)
-	MULTI,         // INT with multiselect widget
-	PASSWORD,
-	FLOAT_F,       // Change float with functions that returns max and min values  func(float*,float*), max/min float func()
-	INT_F,         // Change int with functions that returns max and min values    func(int*,int), max/min int func()
-	BOOL_INI       // Boolean value that is only read from and written to the ini file
+	OPT_BOOL = 1,      // Change variable                   func(int*)
+	OPT_STRING,	       // Change string                     func(char*,char*)
+	OPT_FLOAT,         // Change float                      func(float*,float*)
+	OPT_INT,           // Change int                        func(int*,int)
+	OPT_SPECINT = OPT_INT, // Multiple ints, non-default func   func(int*,int)
+	OPT_MULTI,         // INT with multiselect widget
+	OPT_PASSWORD,
+	OPT_FLOAT_F,       // Change float with functions that returns max and min values  func(float*,float*), max/min float func()
+	OPT_INT_F,         // Change int with functions that returns max and min values    func(int*,int), max/min int func()
+	OPT_BOOL_INI       // Boolean value that is only read from and written to the ini file
 } option_type;
 
 /*!
