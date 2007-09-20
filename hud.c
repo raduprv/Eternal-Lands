@@ -455,14 +455,14 @@ void init_peace_icons()
 	add_icon(console_icon_u_start, console_icon_v_start, colored_console_icon_u_start, colored_console_icon_v_start, tt_console, view_console_win, &console_root_win, DATA_MODE);
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
-	
-	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
 
 #ifdef NOTEPAD
 	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_notepad, view_window, &notepad_win, DATA_WINDOW);
 #endif // NOTEPAD
 
 	add_icon(urlwin_icon_u_start, urlwin_icon_v_start, colored_urlwin_icon_u_start, colored_urlwin_icon_v_start, tt_urlwin, view_window, &url_win, DATA_WINDOW);
+	
+	add_icon(options_icon_u_start, options_icon_v_start, colored_options_icon_u_start, colored_options_icon_v_start, tt_options, view_window, &elconfig_win, DATA_WINDOW);
 }
 
 void	add_icon(float u_start, float v_start, float colored_u_start, float colored_v_start, char * help_message, void * func, void * data, char data_type)
