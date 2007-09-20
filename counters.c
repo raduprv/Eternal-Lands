@@ -197,6 +197,17 @@ void load_counters()
 		entries[i] = 0;
 		sort_by[i] = 0;
 	}
+	
+	/* allocate and set misc event matching strings */
+	search_str = malloc (sizeof (char *) * num_search_str);
+	search_len = malloc (sizeof (size_t) * num_search_str);
+	for (i=0; i<num_search_str; i++)
+	{
+		size_t max_len = strlen (username_str) + strlen (temp_event_string[i]) + 1;
+		search_str[i] = malloc (max_len);
+		safe_snprintf (search_str[i], max_len, temp_event_string[i], username_str);
+		search_len[i] = strlen (search_str[i]);
+	}
 
 	if (!spell_names[0]) {
 		memset(&spell_names, 0, sizeof(spell_names));
@@ -230,17 +241,6 @@ void load_counters()
 	}
 
 	fclose(f);
-	
-	/* allocate and set misc event matching strings */
-	search_str = (char **)malloc(sizeof(char *) * num_search_str);
-	search_len = (size_t *)malloc(sizeof(size_t) * num_search_str);
-	for (i=0; i<num_search_str; i++)
-	{
-		size_t max_len = strlen(username_str) + strlen(temp_event_string[i]) + 1;
-		search_str[i] = (char *)malloc(sizeof(char) * max_len);
-		safe_snprintf(search_str[i], max_len, temp_event_string[i], username_str );
-		search_len[i] = strlen(search_str[i]);
-	}
 	
 	counters_initialized = 1;
 }
