@@ -1604,6 +1604,7 @@ void init_vars()
 	add_var (BOOL, "compass_north", "comp", &compass_direction_checkbox, change_compass_direction, 1, "Compass Direction","Set the compass direction for a static compass", HUD);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
 	add_var (BOOL, "use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
+	add_var (BOOL, "opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);
 
 #ifndef MAP_EDITOR2
 	add_var(SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
@@ -1628,9 +1629,9 @@ void init_vars()
 #endif
 #ifndef MAP_EDITOR2
  #ifdef ELC
- 	add_var(MULTI,"log_chat","log",&log_chat,change_int,2,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
+ 	add_var(MULTI,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (chat, harvesting events, GMs, etc)",SERVER,"Do not log chat", "Log chat only", "Log server messages", "Log server to srv_log.txt", NULL);
  #else
-	add_var(INT,"log_chat","log",&log_chat,change_int,2,"Log Messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
+	add_var(INT,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
  #endif //ELC
 	add_var(BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
   #ifdef AUTO_UPDATE

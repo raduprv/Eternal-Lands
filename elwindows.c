@@ -29,6 +29,9 @@ windows_info	windows_list;	// the master list of windows
 
 static window_info *cur_drag_window = NULL;
 static widget_list *cur_drag_widget = NULL;
+int top_SWITCHABLE_OPAQUE_window_drawn = -1;
+int opaque_window_backgrounds = 0;
+static int last_opaque_window_backgrounds = 0;
 
 int display_window(int win_id);
 int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy);
@@ -84,6 +87,7 @@ void	display_windows(int level)
 		}
 	}
 	
+	top_SWITCHABLE_OPAQUE_window_drawn = -1;
 	if(level > 0)
 	{
 		// now display each window in the proper order
@@ -93,6 +97,12 @@ void	display_windows(int level)
 			next_id = 9999;
 			for (i = 0; i < windows_list.num_windows; i++)
 			{
+				// change the opaque option for all ELW_SWITCHABLE_OPAQUE if config has changed
+				if ((windows_list.window[i].flags&ELW_SWITCHABLE_OPAQUE) &&
+				    (last_opaque_window_backgrounds != opaque_window_backgrounds))
+				{
+					windows_list.window[i].opaque = opaque_window_backgrounds;
+				}
 				// only look at displayed windows
 				if (windows_list.window[i].displayed > 0)
 				{
@@ -100,6 +110,9 @@ void	display_windows(int level)
 					if (windows_list.window[i].order == id)
 					{
 						display_window(i);
+						// remember the top window that has ELW_SWITCHABLE_OPAQUE
+						if (windows_list.window[i].flags&ELW_SWITCHABLE_OPAQUE)
+							top_SWITCHABLE_OPAQUE_window_drawn = i;
 					} 
 					else if (windows_list.window[i].order > id && windows_list.window[i].order < next_id)
 					{
@@ -118,6 +131,7 @@ void	display_windows(int level)
 			}
 		}
 	}
+	last_opaque_window_backgrounds = opaque_window_backgrounds;
 }
 
 
@@ -665,6 +679,7 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->dragged = 0;
 		win->resized = 0;
 		win->drag_in = 0;
+		win->opaque = opaque_window_backgrounds;
 		my_strncp(win->window_name, name, sizeof (win->window_name));
 		
 		if (pos_id >= 0 && !windows_list.window[pos_id].displayed)
@@ -985,8 +1000,11 @@ int	draw_window_border(window_info *win)
 	glDisable(GL_TEXTURE_2D);
 	if(win->flags&ELW_USE_BACKGROUND)
 	{
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+		if (!(win->opaque && win->flags&ELW_SWITCHABLE_OPAQUE))
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_ONE, GL_SRC_ALPHA);
+		}
 		glColor4f(win->back_color[0],win->back_color[1],win->back_color[2],win->back_color[3]);
 		glBegin(GL_QUADS);
 			glVertex3i(0, win->len_y, 0);
@@ -994,7 +1012,8 @@ int	draw_window_border(window_info *win)
 			glVertex3i(win->len_x, 0, 0);
 			glVertex3i(win->len_x, win->len_y, 0);
 		glEnd();
-		glDisable(GL_BLEND);
+		if (!(win->opaque && win->flags&ELW_SWITCHABLE_OPAQUE))
+			glDisable(GL_BLEND);
 	}
 
 	if(win->flags&ELW_USE_BORDER)

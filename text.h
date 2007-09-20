@@ -32,6 +32,11 @@ extern "C" {
 #define FILTER_ALL	CHAT_ALL
 #define FILTER_NONE	CHAT_NONE
 
+#define LOG_NONE				0
+#define LOG_CHAT				1
+#define LOG_SERVER				2
+#define LOG_SERVER_SEPERATE		3
+
 typedef struct
 {
 	Uint8 chan_idx;

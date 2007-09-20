@@ -28,13 +28,16 @@ ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesett
 MEMORY_DEBUG_COBJ = elmemory.o
 NOTEPAD_COBJ = notepad.o
 SFX_COBJ = special_effects.o
-SKY_FPV_CURSOR_COBJ = sky.o
 MINIMAP_COBJ = minimap.o
+SKY_FPV_CURSOR_COBJ = sky.o
 NEW_FILE_IO_CXXOBJ = io/elfilewrapper.o io/elfile.o io/zipfilesystem.o
-NEW_FILE_IO_COBJ = io/elpathwrapper.o
+NEW_FILE_IO_COBJ = io/elpathwrapper.o io/xmlcallbacks.o
+USE_SHADER_COBJ = shader/noise.o shader/shader.o
+PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
+	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 USE_SEND_VIDEO_INFO_CXXOBJ = sendvideoinfo.o
 CXX_MISC_CXXOBJ = exceptions/extendedexception.o xml/xmlhelper.o
-COBJS=2d_objects.o 3d_objects.o	\
+COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o bags.o \
 	cache.o cal.o chat.o cluster.o colors.o console.o consolewin.o \
@@ -43,9 +46,9 @@ COBJS=2d_objects.o 3d_objects.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
-	io/e3d_io.o io/elc_io.o	\
+	io/e3d_io.o io/elc_io.o	io/map_io.o \
 	keys.o knowledge.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
-	main.o manufacture.o map.o io/map_io.o mapwin.o	\
+	main.o manufacture.o map.o mapwin.o	\
 	md5.o mines.o misc.o multiplayer.o	\
 	new_actors.o new_character.o 	\
 	openingwin.o	\
@@ -73,7 +76,7 @@ CXXOBJS=cal3d_wrapper.o \
 
 OBJS=$(COBJS) $(CXXOBJS)
 
-HEADER_DIRS = . books eye_candy io
+HEADER_DIRS = . books eye_candy io pawn
 
 EXE=el.exe
 
@@ -164,5 +167,14 @@ make.conf: make.defaults
 	else \
 		cp $< $@; \
 	fi
+
+pawn_scripts/features.inc: make.conf
+	echo "#if defined _features_included" > $@; \
+	echo "\t#endinput" >> $@; \
+	echo "#endif" >> $@; \
+	echo "#define _features_included" >> $@; \
+	for feature in $(FEATURES); do \
+		echo "#define $$feature" >> $@; \
+	done
 
 -include .depend

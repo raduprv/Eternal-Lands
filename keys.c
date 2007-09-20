@@ -67,6 +67,7 @@ Uint32 K_SPELL6=ALT|'6';
 Uint32 K_TABCOMPLETE=CTRL|' ';
 Uint32 K_WINDOWS_ON_TOP=ALT|'w';
 Uint32 K_MARKFILTER=CTRL|'f';
+Uint32 K_OPAQUEWIN=CTRL|'d';
 #ifdef SKY_FPV_CURSOR
 Uint32 K_GRAB_MOUSE=ALT|'g';
 Uint32 K_FIRST_PERSON=ALT|'f';
@@ -458,6 +459,8 @@ void read_key_config()
 		K_WINDOWS_ON_TOP = parse_key_string(&file_mem[t]);
 	if((t = get_string_occurance("#K_MARKFILTER",file_mem,key_file_size,0)) != -1)
 		K_MARKFILTER = parse_key_string(&file_mem[t]);
+	if((t = get_string_occurance("#K_OPAQUEWIN",file_mem,key_file_size,0)) != -1)
+		K_OPAQUEWIN = parse_key_string(&file_mem[t]);
 
 	free(file_mem);
 }

@@ -369,7 +369,7 @@ void open_web_link(const char * url)
 		SDL_Thread *go_to_url_thread;
 
 		// windows needs to spawn it in its own thread
-		go_to_url_thread= SDL_CreateThread(go_to_url, url);
+		go_to_url_thread= SDL_CreateThread(go_to_url, (char *)url);
 	} else {
 		ShellExecute(NULL, "open", url, NULL, NULL, SW_SHOWNOACTIVATE); //this returns an int we could check for errors, but that's mainly when you use shellexecute for local files
 #endif  //_WIN32
@@ -712,4 +712,3 @@ int display_url_win()
 	return 1;
 	
 } /* end display_url_win() */
-

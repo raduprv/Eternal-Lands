@@ -14,6 +14,7 @@ FEATURES += AUTO_UPDATE                     # enable minor automatic file updati
 FEATURES += COUNTERS                        # enables kill/production/etc counters in the client
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
+FEATURES += CXX_MISC                        # Extended exception, xml c++ helper etc. NEW_FILE_IO and USE_SEND_VIDEO_INFO needs this. The new shader system will also need them
 #FEATURES += DEBUG                           # (undocumented)
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
 #FEATURES += DEBUG_TIME	                     # Fakes the acceleration of time for use in debugging shadows and the like.
@@ -25,7 +26,7 @@ FEATURES += EYE_CANDY                       # (undocumented)
 FEATURES += FONTS_FIX                       # dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
 FEATURES += IDLE_FIX                        # Fix for idle animations being stuck in one sequence
-#FEATURES += LITTLE_ENDIAN                   # indicate that ELC is running on a little-endian computer
+#FEATURES += LITTLE_ENDIAN                   # indicate that ELC is running on a little-endian computer (FIXME: Shouldn't this also be removed and set in code as for EL_BIG_ENDIAN?)
 FEATURES += MASKING                         # Allow for item masking on Actors, example, can allow for short sleeves
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
 #FEATURES += MINES                           # Enables support for mines (INCOMPLETE)
@@ -56,16 +57,15 @@ FEATURES += SIMPLE_LOD                      # enable a simplistic distance culli
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += UNROLL4                         # (undocumented)
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
+FEATURES += USE_SEND_VIDEO_INFO             # Sends video information to the server (OpenGL version, supported OpenGL extentions etc.). This is done only once, so if you don't want it, set video_info_sent to one in el.ini. Needs CXX_MISC and the file extentions.xml in datadir
 #FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
 #FEATURES += USE_TANGENT                     # Use tangent space normal mapping. Needs NEW_E3D_FORMAT. (INCOMPLETE)
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += USE_EXTRA_TEXTURE               # Use extra texture and texture coordinates for multitexturin objects. Needs NEW_E3D_FORMAT. (INCOMPLETE)
 #FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
-FEATURES += ZLIB                             # Enables being able to read gzip compressed files, requires -lzlib/-lz
+FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-FEATURES += CXX_MISC			# Extended exception, xml c++ helper etc. NEW_FILE_IO and USE_SEND_VIDEO_INFO needs this. The new shader system will also need them
-FEATURES += USE_SEND_VIDEO_INFO		# Sends video information to the server (OpenGL version, supported OpenGL extentions etc.). This is done only once, so if you don't want it, set video_info_sent to one in el.ini. Needs CXX_MISC and the file extentions.xml in datadir
 
 # Handle feature dependencies:
 # if CUSTOM_UPDATE is set, but AUTO_UPDATE isn't, remove CUSTOM_UPDATE

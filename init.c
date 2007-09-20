@@ -234,9 +234,9 @@ void read_config()
 	DIR *d = NULL;
 #endif // !WINDOWS && !NEW_FILE_IO
 
-#ifdef NEW_FILE_IO
+#if defined(NEW_FILE_IO) && !defined(WINDOWS)
 	const char * tcfg = get_path_config();
-#endif /* NEW_FILE_IO */
+#endif /* NEW_FILE_IO  && !WINDOWS */
 
 #ifndef WINDOWS
 #ifndef NEW_FILE_IO

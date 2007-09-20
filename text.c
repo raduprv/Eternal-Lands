@@ -51,7 +51,7 @@ int lines_to_show=0;
 
 char not_from_the_end_console=0;
 
-int log_chat = 2;
+int log_chat = LOG_SERVER;
 
 float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
@@ -142,22 +142,32 @@ void open_chat_log(){
 #ifndef NEW_FILE_IO
 #ifndef WINDOWS
 	safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
-	safe_snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
+	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
+		safe_snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
 #else
 	strcpy (chat_log_file, "chat_log.txt");
-	strcpy (srv_log_file, "srv_log.txt");
+	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
+		strcpy (srv_log_file, "srv_log.txt");
 #endif
 	chat_log = my_fopen (chat_log_file, "a");
-	srv_log = my_fopen (srv_log_file, "a");
+	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
+		srv_log = my_fopen (srv_log_file, "a");
 #else /* NEW_FILE_IO */
 	chat_log = open_file_config ("chat_log.txt", "a");
-	srv_log = open_file_config ("srv_log.txt", "a");
+	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
+		srv_log = open_file_config ("srv_log.txt", "a");
 #endif /* NEW_FILE_IO */
 
-	if (chat_log == NULL || srv_log == NULL)
+	if (chat_log == NULL)
 	{
 		LOG_TO_CONSOLE(c_red3, "Unable to open log file to write. We will NOT be recording anything.");
-		log_chat=0;
+		log_chat = LOG_NONE;
+		return;
+	}
+	else if ((log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE) && srv_log == NULL)
+	{
+		LOG_TO_CONSOLE(c_red3, "Unable to open server log file to write. We will fall back to recording everything in chat_log.txt.");
+		log_chat = LOG_CHAT;
 		return;
 	}
 	time(&c_time);
@@ -172,7 +182,7 @@ void timestamp_chat_log(){
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 
-	if(log_chat == 0) {
+	if(log_chat == LOG_NONE) {
 		return; //we're not logging anything
 	}
 
@@ -196,7 +206,7 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	struct tm *l_time; time_t c_time;
 	FILE *fout;
 
-	if(log_chat == 0 || (channel == CHAT_SERVER && log_chat == 1))
+	if(log_chat == LOG_NONE || (channel == CHAT_SERVER && log_chat == LOG_CHAT))
 		// We're not logging at all, or this is a server message and 
 		// we're not logging those
 		return;

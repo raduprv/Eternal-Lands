@@ -71,6 +71,7 @@ extern Uint32 K_PREV_CHAT_TAB;      /*!< key used to switch to previous tab */
 extern Uint32 K_TABCOMPLETE;        /*!< key used to autocomplete commands/buddy names */
 extern Uint32 K_WINDOWS_ON_TOP;     /*!< key used to toggle the windows_on_top option */
 extern Uint32 K_MARKFILTER;         /*!< key used to toggle the TAB map mark filtering function */
+extern Uint32 K_OPAQUEWIN;          /*!< key used to toggle window opacity */
 #ifdef SKY_FPV_CURSOR
 extern Uint32 K_GRAB_MOUSE;         /*!< key used to toggle whether mouse is in HUD or camera control mode */
 extern Uint32 K_FIRST_PERSON;       /*!< key used to toggle first person/third person view mode*/

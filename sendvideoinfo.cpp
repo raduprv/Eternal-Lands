@@ -1,11 +1,13 @@
 #include <algorithm>
 #include <cassert>
+#include "asc.h"
 #include "xml/xmlhelper.hpp"
 #include "platform.h"
 #include "multiplayer.h"
 #include "client_serv.h"
 #include "init.h"
 #include "errors.h"
+#include "sendvideoinfo.h"
 #ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
@@ -153,7 +155,7 @@ extern "C" void send_video_info()
 		memset(caps, 0, sizeof(caps));
 
 #ifdef	NEW_FILE_IO
-		document = xmlReadFile("extentions.xml", 0, 0);
+		if ((document = xmlReadFile("extentions.xml", 0, 0)) != NULL)
 #else	// NEW_FILE_IO
 #ifndef WINDOWS
 		snprintf(file_name, sizeof(file_name), "%s/%s", datadir, "extentions.xml");
@@ -161,9 +163,8 @@ extern "C" void send_video_info()
 		snprintf(file_name, sizeof(file_name), "%s", "extentions.xml");
 #endif // !WINDOWS
 
-		document = xmlReadFile(file_name, 0, 0);
+		if ((document = xmlReadFile(file_name, 0, 0)) != NULL)
 #endif	// NEW_FILE_IO
-		if (document != 0)
 		{
 			/*Get the root element node */
 			root_element = xmlDocGetRootElement(document);

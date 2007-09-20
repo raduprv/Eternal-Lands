@@ -1821,6 +1821,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		makeScreenShot();
 	}
 #endif
+	else if (key == K_OPAQUEWIN)
+	{
+		if (top_SWITCHABLE_OPAQUE_window_drawn != -1)
+			windows_list.window[top_SWITCHABLE_OPAQUE_window_drawn].opaque ^= 1;
+	}
 	else
 	{
 		return 0; // nothing we can handle

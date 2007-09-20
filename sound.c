@@ -41,8 +41,18 @@
 #endif // NEW_SOUND
 #define SLEEP_TIME 500
 
+#ifdef _EXTRA_SOUND_DEBUG
+ #ifdef DEBUG
+#define LOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUNDLIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_LockMutex(sound_list_mutex); }
+#define UNLOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUNDLIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
+ #else // DEBUG
+#define LOCK_SOUND_LIST() { static int i; printf("LOCK_SOUNDLIST %d - %s %s:%d\n", i++, __FILE__, __FUNCTION__, __LINE__); SDL_LockMutex(sound_list_mutex); }
+#define UNLOCK_SOUND_LIST() { static int i; printf("UNLOCK_SOUND_LIST %d - %s %s:%d\n", i++, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
+ #endif // DEBUG
+#else // _EXTRA_SOUND_DEBUG
 #define	LOCK_SOUND_LIST() SDL_LockMutex(sound_list_mutex);
 #define	UNLOCK_SOUND_LIST() SDL_UnlockMutex(sound_list_mutex);
+#endif // _EXTRA_SOUND_DEBUG
 
 typedef struct {
 	char file_name[64];
@@ -2767,8 +2777,6 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Not playing this sound as we are out of range! maxDistanceSq: %d, distanceSq: %d. Loaded as: %d\n", (int)maxDistanceSq, distanceSq, loaded_sound_num);
 #endif //_EXTRA_SOUND_DEBUG
-
-		UNLOCK_SOUND_LIST();
 		return 0;
 	}
 
@@ -3165,7 +3173,7 @@ void update_sound(int ms)
 {
 	int i = 0, error;
 	// We rebuild the list of active sources, as some may have become
-	// inactive due to the sound ending.
+	// inactive due to the sound ending or being out of range.
 	source_data *pSource;
 	sound_sample *pSample;
 	sound_type *pSoundType;
@@ -3175,14 +3183,25 @@ void update_sound(int ms)
 	int source;
 	int x, y, distanceSq, maxDistSq;
 	int relative;
-	int tx=-camera_x * 2;
-	int ty=-camera_y * 2;
+//	int tx=-camera_x * 2;
+//	int ty=-camera_y * 2;
+	int tx, ty;
 	ALfloat sourcePos[3] = {0.0f, 0.0f, 0.0f};
-	ALfloat listenerPos[] = {tx, ty, 0.0f};
+	ALfloat listenerPos[3] = {0.0f, 0.0f, 0.0f};
 #ifdef _EXTRA_SOUND_DEBUG
 	int j;
 #endif // _EXTRA_SOUND_DEBUG
 
+	// Check if we have our actor
+	if (your_actor)
+	{
+		// Set our position and the listener variables
+		tx = your_actor->x_pos * 2;
+		ty = your_actor->y_pos * 2;
+		listenerPos[0] = tx;
+		listenerPos[1] = ty;
+	}
+	
 	if (!have_sound) return;
 
 	// Check for any loaded sounds that have come back into range
@@ -3385,9 +3404,7 @@ void update_sound(int ms)
 			}
 			else if (sound_opts != SOUNDS_NONE && (state == AL_PAUSED) && (distanceSq < maxDistSq))
 			{
-#ifdef _EXTRA_SOUND_DEBUG
-				printf("Eek! We found a wasted source error. Sound %d (%s) was loaded into a source and paused!!\n", i, pSoundType->name);
-#endif //_EXTRA_SOUND_DEBUG
+				LOG_ERROR("Sound error: We found a wasted source. Sound %d (%s) was loaded into a source and paused!!\n", i, pSoundType->name);
 				alSourcePlay(pSource->source);
 				loaded_sounds[pSource->loaded_sound].playing = 1;
 			}
@@ -3785,26 +3802,26 @@ void init_sound()
 	//if you want to use a different device, use, for example:
 	//mSoundDevice = alcOpenDevice((ALubyte*) "DirectSound3D")
 	device = alcOpenDevice( NULL );
-	if((error=alcGetError(device)) != AL_NO_ERROR || !device){
+	if ((error=alcGetError(device)) != AL_NO_ERROR || !device){
 		char str[256];
 		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
-		have_sound=have_music=0;
+		have_sound = have_music = 0;
 		return;
 	}
 
 	context = alcCreateContext( device, NULL );
 	alcMakeContextCurrent( context );
 
-	sound_list_mutex=SDL_CreateMutex();
+	sound_list_mutex = SDL_CreateMutex();
 
-	if((error=alcGetError(device)) != AL_NO_ERROR || !context || !sound_list_mutex){
+	if ((error=alcGetError(device)) != AL_NO_ERROR || !context || !sound_list_mutex){
 		char str[256];
 		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device,error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
-		have_sound=have_music=0;
+		have_sound = have_music = 0;
 		return;
 	}
 
@@ -3814,19 +3831,19 @@ void init_sound()
 	printf("Alut supported Memory MIME types: %s\n", alutGetMIMETypes(ALUT_LOADER_MEMORY));
 #endif // DEBUG && !ALUT_WAV
 	
-	have_sound=1;
+	have_sound = 1;
 #ifdef	OGG_VORBIS
-	have_music=1;
+	have_music = 1;
 #else	// OGG_VORBIS
-	have_music=0;
+	have_music = 0;
 #endif	// OGG_VORBIS
 
 	LOCK_SOUND_LIST();
-	for(i=0;i<MAX_SOURCES;i++)
+	for (i = 0; i < MAX_SOURCES; i++)
 	{
 		alGenSources(1, &sound_source_data[i].source);
 		//temp_source_data[i].source = sound_source_data[i].source;
-		if((error=alGetError()) != AL_NO_ERROR) 
+		if ((error=alGetError()) != AL_NO_ERROR) 
 		{
 			//this error code is designed for a single source, -1 indicates multiple sources
 		#ifdef ELC
@@ -4806,7 +4823,7 @@ void load_sound_config_data (const char *file)
 	xmlNode *root=NULL;
 
 #ifdef	NEW_FILE_IO
-	if((doc = xmlReadFile(file, NULL, 0)) == NULL)
+	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
 #else	// NEW_FILE_IO
 	char path[1024];
 
@@ -4817,7 +4834,7 @@ void load_sound_config_data (const char *file)
 #endif // !WINDOWS
 
 	// Can we open the file as xml?
-	if((doc = xmlReadFile(path, NULL, 0)) == NULL)
+	if ((doc = xmlReadFile(path, NULL, 0)) == NULL)
 #endif	// NEW_FILE_IO
 	{
 	#ifdef ELC
@@ -4997,7 +5014,7 @@ void print_sound_sources()
 	{
 		pData = &sound_source_data[i];
 		printf("Source #%d:\n",i);
-		printf("\tSound type %d : '%s'\n"		, pData->sound_type, sound_type_data[pData->sound_type].name);
+		printf("\tSound type %d : '%s'\n"		, pData->loaded_sound, sound_type_data[pData->loaded_sound].name);
 		printf("\tPlay duration = %dms\n"		, pData->play_duration);
 		printf("\tSource ID = %d\n"				, pData->source);
 	}

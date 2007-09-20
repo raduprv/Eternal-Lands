@@ -1,5 +1,6 @@
 #include <string.h>
 #include <SDL_endian.h>
+#include <malloc.h>
 #include "elc_io.h"
 #include "../errors.h"
 

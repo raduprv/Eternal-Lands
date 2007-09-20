@@ -50,6 +50,7 @@ typedef	struct	{
 	char	resized;	/*!< are we resizing the window? */
 	char	drag_in;	/*!< are we dragging inside the window? */
 	char	reinstate;	/*!< reinstate this window if the parent is shown again */
+	char	opaque;		/*!< if non-zero, window is drawn opaque */
 
     /*!
 	 * \name the handlers
@@ -103,13 +104,14 @@ typedef	struct	{
 #define ELW_CLICK_TRANSPARENT	0x1000
 
 #define ELW_ALPHA_BORDER 0x2000
+#define ELW_SWITCHABLE_OPAQUE 0x4000
 /*! @} */
 
 /*!
  * \name predefined window flags
  */
 /*! @{ */
-#define	ELW_WIN_DEFAULT	(ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER)
+#define	ELW_WIN_DEFAULT (ELW_TITLE_BAR|ELW_CLOSE_BOX|ELW_DRAGGABLE|ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE)
 #define	ELW_WIN_INVISIBLE	(ELW_TITLE_NONE|ELW_SHOW)
 /*! @} */
 
@@ -221,6 +223,8 @@ typedef	struct	{
 
 extern	windows_info	windows_list; /*!< global variable defining the list of windows */
 extern int windows_on_top; /*!< global variable for whether windows appear on top of the console */
+extern int top_SWITCHABLE_OPAQUE_window_drawn; /*!< the id of the top opaque switchable window */
+extern int opaque_window_backgrounds;
 
 // windows manager function
 
