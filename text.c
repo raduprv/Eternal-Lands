@@ -192,13 +192,14 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 {
 	int i, j;
 	Uint8 ch;
-	char str[4096];
+	char str[1024];
 	struct tm *l_time; time_t c_time;
-	char logmsg[4096];
+	FILE *fout;
 
-	if(log_chat == 0) {
-		return; //we're not logging anything
-	}
+	if(log_chat == 0 || (channel == CHAT_SERVER && log_chat == 1))
+		// We're not logging at all, or this is a server message and 
+		// we're not logging those
+		return;
 
 	if (chat_log == NULL){
 		open_chat_log();
@@ -207,38 +208,36 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 		}
 	}
 
-	j=0;
-	for (i = 0; i < len && j < sizeof (str) - 1; i++)
-	{
-		ch = data[i];
+	// The file we'll write to
+	fout = (channel == CHAT_SERVER && log_chat >= 3) ? srv_log : chat_log;
 
-		// remove colorization and soft wrapping characters when 
-		// writing to the chat log
-		if (!is_color (ch) && ch != '\r')
+	// Start filling the buffer with the time stamp
+	time (&c_time);
+	l_time = localtime (&c_time);
+	j = strftime (str, sizeof(str), "[%H:%M:%S] ", l_time);
+
+	i = 0;
+	while (i < len)
+	{
+		for ( ; i < len && j < sizeof (str) - 1; i++)
 		{
-			str[j++] = ch;
+			ch = data[i];
+
+			// remove colorization and soft wrapping characters when 
+			// writing to the chat log
+			if (!is_color (ch) && ch != '\r')
+				str[j++] = ch;
 		}
-	}
-	str[j++]='\n';
-	str[j++]='\0';
+		if (i >= len) str[j++]='\n';
 
-	time(&c_time);
-	l_time = localtime(&c_time);
-	strftime(logmsg, sizeof(logmsg), "[%H:%M:%S] ", l_time);
-	strcat(logmsg, str);
+		fwrite (str, j, 1, fout);
 
-	if (channel == CHAT_SERVER && log_chat >= 3)
-	{
-		// write server emssages to srv_log
-		fwrite (logmsg, strlen(logmsg), 1, srv_log);
-		fflush (srv_log);
+		// start again at the beginning of the buffer
+		j = 0;
 	}
-	else if (channel != CHAT_SERVER || log_chat==2)
-	{
-		// not a server message, or log everything to chat_log
-		fwrite (logmsg, strlen(logmsg), 1, chat_log);
-		fflush (chat_log);
-	}
+	
+	// Flush the file, so the content is written even when EL crashes.
+	fflush (fout);
 }
 
 void send_input_text_line (char *line, int line_len)
