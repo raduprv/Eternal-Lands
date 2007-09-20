@@ -81,18 +81,6 @@
 #include "sendvideoinfo.h"
 #endif	// USE_SEND_VIDEO_INFO
 
-
-#define SPECINT		INT //Multiple ints, non-default func				func(int*,int)
-#define BOOL		1	// Change variable 								func(int*)
-#define STRING		2	// Change string 								func(char*,char*)
-#define FLOAT		3 	// Change float									func(float*,float*)
-#define INT			4	// Change int									func(int*,int)
-#define MULTI		5   // INT with multiselect widget
-#define PASSWORD	6
-#define FLOAT_F		7 	// Change float with functions that returns max and min values 		func(float*,float*), max/min float func()
-#define INT_F		8	// Change int with functions that returns max and min values 		func(int*,int), max/min int func()
-#define BOOL_INI	9	// Boolean value that is only read from and writen to the ini file
-
 typedef	float (*float_min_max_func)();
 typedef	int (*int_min_max_func)();
 
@@ -1338,7 +1326,7 @@ void free_vars()
 			case FLOAT_F:
 			case INT_F:
 				queue_destroy(our_vars.var[i]->queue);
-			break;
+				break;
 			case MULTI:
 				if(our_vars.var[i]->queue != NULL) {
 					while(!queue_isempty(our_vars.var[i]->queue)) {
@@ -1347,7 +1335,9 @@ void free_vars()
 					}
 					queue_destroy(our_vars.var[i]->queue);
 				}
-			break;
+				break;
+			default:
+				/* do nothing */ ;
 		}
 #ifndef OPTIONS_I18N
 		free(our_vars.var[i]->short_desc);
@@ -1358,7 +1348,7 @@ void free_vars()
 	our_vars.no=0;
 }
 
-void add_var(int type, char * name, char * shortname, void * var, void * func, float def, char * short_desc, char * long_desc, int tab_id, ...)
+void add_var(option_type type, char * name, char * shortname, void * var, void * func, float def, char * short_desc, char * long_desc, int tab_id, ...)
 {
 	int *integer=var;
 	float *f=var;
@@ -1990,21 +1980,14 @@ int display_elconfig_handler(window_info *win)
 
 	for(i= 0; i < our_vars.no; i++)
 	{
-		//Update the widgets in case an option changed
-		switch(our_vars.var[i]->type)
-		{
-			case BOOL:
-				//Nothing to do for BOOL. The checkbox widget takes care of that.
-			break;
-			case MULTI:
-				multiselect_set_selected(elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
-			break;
-			case INT:
-				//Nothing to do here either.
-			break;
-		}
+		// Update the widgets in case an option changed
+		// Actually that's ony the MULTI type widgets, the others are 
+		// taken care of by their widget handlers
+		if (our_vars.var[i]->type == MULTI)
+			multiselect_set_selected (elconfig_tabs[our_vars.var[i]->widgets.tab_id].tab, our_vars.var[i]->widgets.widget_id, *(int *)our_vars.var[i]->var);
 	}
-	//Draw the long description of an option
+	
+	// Draw the long description of an option
 	draw_string_small(TAB_MARGIN, elconfig_menu_y_len-LONG_DESC_SPACE, elconf_description_buffer, MAX_LONG_DESC_LINES);
 	return 1;
 }
@@ -2118,12 +2101,12 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 		return 0;
 	}
 
-	switch(option->type) {
-		case BOOL:
-			option->func(option->var);
-			option->saved= 0;
-		break;
+	if (option->type == BOOL)
+	{
+		option->func(option->var);
+		option->saved= 0;
 	}
+
 	return 1;
 }
 
@@ -2138,16 +2121,15 @@ int onclick_checkbox_handler(widget_list *widget, int mx, int my, Uint32 flags)
 			break;
 		}
 	}
-	switch(option->type) {
-		case BOOL:
-			{
-				int *var= option->var;
-				*var= !*var;
-				option->func(var);
-				option->saved= 0;
-			}
-		break;
+
+	if (option->type == BOOL)
+	{
+		int *var= option->var;
+		*var= !*var;
+		option->func(var);
+		option->saved= 0;
 	}
+
 	return 1;
 }
 
@@ -2195,6 +2177,12 @@ void elconfig_populate_tabs(void)
 	for(i= 0; i < our_vars.no; i++) {
 		tab_id= our_vars.var[i]->widgets.tab_id;
 		switch(our_vars.var[i]->type) {
+			case BOOL_INI:
+				// This variable should not be settable
+				// through the window, so don't try to add it,
+				// and more importantly, don't try to compute
+				// its height
+				continue;
 			case BOOL:
 				//Add checkbox
 				widget_id= checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
@@ -2328,6 +2316,7 @@ void elconfig_populate_tabs(void)
 				our_vars.var[i]->queue= NULL;
 			break;
 		}
+
 		//Calculate y position of the next option.
 		label_height= widget_find(elconfig_tabs[tab_id].tab, label_id)->len_y;
 		widget_height= widget_find(elconfig_tabs[tab_id].tab, widget_id)->len_y;

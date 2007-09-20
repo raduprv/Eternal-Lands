@@ -26,11 +26,28 @@ extern float pointer_size;
 #endif /* SKY_FPV_CURSOR */
 
 /*!
+ * The different kinds of options
+ */
+typedef enum
+{
+	BOOL = 1,      // Change variable                   func(int*)
+	STRING,	       // Change string                     func(char*,char*)
+	FLOAT,         // Change float                      func(float*,float*)
+	INT,           // Change int                        func(int*,int)
+	SPECINT = INT, // Multiple ints, non-default func   func(int*,int)
+	MULTI,         // INT with multiselect widget
+	PASSWORD,
+	FLOAT_F,       // Change float with functions that returns max and min values  func(float*,float*), max/min float func()
+	INT_F,         // Change int with functions that returns max and min values    func(int*,int), max/min int func()
+	BOOL_INI       // Boolean value that is only read from and written to the ini file
+} option_type;
+
+/*!
  * var_struct stores the data for a single configuration entry.
  */
 typedef struct
 {
-	int 	type; /*!< type of the variable */
+	option_type type; /*!< type of the variable */
 	char	*name; /*!< name of the variable */
 	int 	nlen; /*!< length of the \a name */
 	char 	*shortname; /*!< shortname of the variable */
