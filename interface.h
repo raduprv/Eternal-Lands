@@ -71,7 +71,6 @@ typedef struct
 extern mode_flag video_modes[12]; /*!< global array of available video modes */
 
 extern Uint32 click_time;
-extern int click_speed;
 
 extern int ati_click_workaround; /*!< if non-zero, arbitrarily multiply the read depth value by 256 to hopefully get a more reasonable value */
 

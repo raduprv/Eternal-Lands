@@ -69,7 +69,6 @@ int limit_fps=0;
 int action_mode=ACTION_WALK;
 
 Uint32 click_time=0;
-int click_speed=300;
 
 GLdouble model_mat[16];
 GLdouble projection_mat[16];

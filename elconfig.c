@@ -153,7 +153,7 @@ int elconfig_menu_y_len= 463;
 
 int windows_on_top= 0;
 int options_set= 0;
-int compass_direction_checkbox= 1;
+static int compass_direction_checkbox = 1;
 int shadow_map_size_multi= 0;
 
 int you_sit= 0;
@@ -693,10 +693,10 @@ void change_shadow_map_size(int *pointer, int value)
 	shadow_map_size= size;
 }
 
-void change_compass_direction(int *dir)
+void change_compass_direction (int *north)
 {
-	compass_direction= 1-2 * (*dir>0);
-	*dir= !*dir;
+	compass_direction = *north ? -1 : 1;
+	*north = !*north;
 }
 
 #ifndef MAP_EDITOR2
@@ -1547,9 +1547,6 @@ void init_vars()
  #endif
 #endif // ELC
 
-	// Lachesis: this var is not used in the code.
-	// add_var(INT,"click_speed","cspeed",&click_speed,change_int,300,"Click Speed","Set the mouse click speed",CONTROLS,0,INT_MAX);
-
 	add_var(FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
 
@@ -1604,7 +1601,7 @@ void init_vars()
 #ifndef MAP_EDITOR2
 	add_var(BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
 #endif
-	add_var(BOOL,"compass_north","comp",&compass_direction_checkbox,change_compass_direction,1,"Compass Direction","Set the compass direction for a static compass",HUD);
+	add_var (BOOL, "compass_north", "comp", &compass_direction_checkbox, change_compass_direction, 1, "Compass Direction","Set the compass direction for a static compass", HUD);
 	add_var (BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
 	add_var (BOOL, "use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
 
