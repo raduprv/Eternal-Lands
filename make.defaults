@@ -26,7 +26,6 @@ FEATURES += EYE_CANDY                       # (undocumented)
 FEATURES += FONTS_FIX                       # dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
 FEATURES += IDLE_FIX                        # Fix for idle animations being stuck in one sequence
-#FEATURES += LITTLE_ENDIAN                   # indicate that ELC is running on a little-endian computer (FIXME: Shouldn't this also be removed and set in code as for EL_BIG_ENDIAN?)
 FEATURES += MASKING                         # Allow for item masking on Actors, example, can allow for short sleeves
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
 #FEATURES += MINES                           # Enables support for mines (INCOMPLETE)

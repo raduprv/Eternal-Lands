@@ -27,6 +27,7 @@ documentation and/or software.
 
 #include <memory.h>
 #include "md5.h"
+#include "platform.h"
 
 void MD5Open(MD5 *md5)
 {
@@ -100,9 +101,7 @@ static void MD5Transform(UINT4 state[4], const unsigned char block[64])
 {
   UINT4 a = state[0], b = state[1], c = state[2], d = state[3], x[16];
   /* Move contents of block to x, putting bytes in little-endian order. */
-  #ifdef LITTLE_ENDIAN
-    memcpy(x, block, 64);
-  #else
+#ifdef EL_BIG_ENDIAN
   {
     unsigned int i, j;
     for (i = j = 0; i < 16; i++, j+= 4)
@@ -111,7 +110,9 @@ static void MD5Transform(UINT4 state[4], const unsigned char block[64])
         (UINT4) block[j+2] << 16 | (UINT4) block[j+3] << 24;
     }
   }
-  #endif
+#else
+    memcpy(x, block, 64);
+#endif // EL_BIG_ENDIAN
   /* Round 1 */
   FF(a, b, c, d, x[ 0], S11, 0xd76aa478); /* 1 */
   FF(d, a, b, c, x[ 1], S12, 0xe8c7b756); /* 2 */
@@ -217,10 +218,10 @@ void MD5Digest(MD5 *md5, const void *input, unsigned int inputLen)
    order.
 */
 
-#ifdef LITTLE_ENDIAN
-#define ENCODE(p,n) *(UINT4 *)(p) = n
-#else
+#ifdef EL_BIG_ENDIAN
 #define ENCODE(p,n) (p)[0]=n,(p)[1]=n>>8,(p)[2]=n>>16,(p)[3]=n>>24
+#else
+#define ENCODE(p,n) *(UINT4 *)(p) = n
 #endif
 
 void MD5Close(MD5 *md5, MD5_DIGEST digest)
