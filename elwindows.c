@@ -5,6 +5,7 @@
 #include "asc.h"
 #include "cursors.h"
 #include "gl_init.h"
+#include "global.h"
 #include "interface.h"
 #include "keys.h"
 #include "multiplayer.h"

@@ -4,6 +4,7 @@
 #include "loginwin.h"
 #include "asc.h"
 #include "books.h"
+#include "draw_scene.h"
 #include "elconfig.h"
 #include "elwindows.h"
 #include "gamewin.h"

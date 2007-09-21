@@ -8,6 +8,7 @@
 #include "bbox_tree.h"
 #include "cal.h"
 #include "cursors.h"
+#include "draw_scene.h"
 #include "errors.h"
 #include "gl_init.h"
 #include "global.h"

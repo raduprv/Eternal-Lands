@@ -2,6 +2,7 @@
 #include <math.h>
 #include "special_effects.h"
 #include "asc.h"
+#include "global.h"
 #include "highlight.h"
 #include "init.h"
 #include "text.h"

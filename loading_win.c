@@ -5,6 +5,7 @@
 #include <SDL_video.h>
 #include "loading_win.h"
 #include "console.h"
+#include "draw_scene.h"
 #include "elwindows.h"
 #include "font.h"
 #include "gl_init.h"

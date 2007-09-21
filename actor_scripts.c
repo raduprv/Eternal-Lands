@@ -9,6 +9,7 @@
 #include "counters.h"
 #include "draw_scene.h"
 #include "errors.h"
+#include "global.h"
 #include "init.h"
 #include "interface.h"
 #include "multiplayer.h"

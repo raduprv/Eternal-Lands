@@ -10,6 +10,7 @@
 #include "consolewin.h"
 #include "elconfig.h"
 #include "filter.h"
+#include "global.h"
 #include "hud.h"
 #include "ignore.h"
 #include "init.h"

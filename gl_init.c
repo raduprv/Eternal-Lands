@@ -5,6 +5,7 @@
 #include "asc.h"
 #include "bbox_tree.h"
 #include "cursors.h"
+#include "draw_scene.h"
 #include "elconfig.h"
 #include "errors.h"
 #include "framebuffer.h"

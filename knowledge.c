@@ -3,6 +3,7 @@
 #include "knowledge.h"
 #include "asc.h"
 #include "books.h"
+#include "elwindows.h"
 #include "gamewin.h"
 #include "multiplayer.h"
 #include "stats.h"

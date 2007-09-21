@@ -12,6 +12,7 @@
 #include "draw_scene.h"
 #include "e3d.h"
 #include "framebuffer.h"
+#include "global.h"
 #include "init.h"
 #include "lights.h"
 #include "map.h"

@@ -5,6 +5,7 @@
 #include "3d_objects.h"
 #include "bbox_tree.h"
 #include "cal.h"
+#include "draw_scene.h"
 #include "framebuffer.h"
 #include "gl_init.h"
 #include "interface.h"

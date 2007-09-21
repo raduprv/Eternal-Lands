@@ -16,6 +16,7 @@
 #include "errors.h"
 #include "filter.h"
 #include "gamewin.h"
+#include "global.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"

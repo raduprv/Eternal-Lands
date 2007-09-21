@@ -11,6 +11,7 @@
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "global.h"
 #include "hud.h"
 #include "init.h"
 #include "interface.h"

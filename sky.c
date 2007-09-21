@@ -9,6 +9,7 @@
 #include "sky.h"
 #include "draw_scene.h"
 #include "gl_init.h"
+#include "global.h"
 #include "lights.h"
 #include "map.h"
 #include "shadows.h"

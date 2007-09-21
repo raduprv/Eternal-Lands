@@ -18,6 +18,7 @@
 #include "events.h"
 #include "filter.h"
 #include "gl_init.h"
+#include "global.h"
 #include "highlight.h"
 #include "hud.h"
 #include "init.h"
