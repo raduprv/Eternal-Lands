@@ -829,17 +829,17 @@ void change_dir_name (char *var, const char *str, int len)
 void change_aa(int *pointer) {
 	change_var(pointer);
 	if (anti_alias) {
-		glHint(GL_POOPT_INT_SMOOTH_HOPT_INT,   GL_NICEST);
-		glHint(GL_LINE_SMOOTH_HOPT_INT,    GL_NICEST);
-		glHint(GL_POLYGON_SMOOTH_HOPT_INT, GL_NICEST);
-		glEnable(GL_POOPT_INT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT,   GL_NICEST);
+		glHint(GL_LINE_SMOOTH_HINT,    GL_NICEST);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_NICEST);
+		glEnable(GL_POINT_SMOOTH);
 		glEnable(GL_LINE_SMOOTH);
 		glEnable(GL_POLYGON_SMOOTH);
 	} else {
-		glHint(GL_POOPT_INT_SMOOTH_HOPT_INT,   GL_FASTEST);
-		glHint(GL_LINE_SMOOTH_HOPT_INT,    GL_FASTEST);
-		glHint(GL_POLYGON_SMOOTH_HOPT_INT, GL_FASTEST);
-		glDisable(GL_POOPT_INT_SMOOTH);
+		glHint(GL_POINT_SMOOTH_HINT,   GL_FASTEST);
+		glHint(GL_LINE_SMOOTH_HINT,    GL_FASTEST);
+		glHint(GL_POLYGON_SMOOTH_HINT, GL_FASTEST);
+		glDisable(GL_POINT_SMOOTH);
 		glDisable(GL_LINE_SMOOTH);
 		glDisable(GL_POLYGON_SMOOTH);
 	}

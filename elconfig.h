@@ -31,7 +31,7 @@ extern float pointer_size;
 typedef enum
 {
 	OPT_BOOL = 1,      // Change variable                   func(int*)
-	OPT_STRING,	       // Change string                     func(char*,char*)
+	OPT_STRING,        // Change string                     func(char*,char*)
 	OPT_FLOAT,         // Change float                      func(float*,float*)
 	OPT_INT,           // Change int                        func(int*,int)
 	OPT_SPECINT = OPT_INT, // Multiple ints, non-default func   func(int*,int)
