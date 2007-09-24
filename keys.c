@@ -9,6 +9,14 @@
 #include "misc.h"
 
 // default definitions for keys
+Uint32 K_QUIT=ALT|'x';
+#ifdef WINDOWS
+// Windows SDL reports [Alt Gr] as [Ctrl], which hinders German users typing '@',
+// so don't use Ctrl-q as a symbol to exit
+Uint32 K_QUIT_ALT=K_QUIT;
+#else
+Uint32 K_QUIT_ALT=CTRL|'q';
+#endif
 Uint32 K_CAMERAUP=SDLK_UP;
 Uint32 K_CAMERADOWN=SDLK_DOWN;
 Uint32 K_ZOOMOUT=SDLK_PAGEDOWN;
@@ -343,6 +351,10 @@ void read_key_config()
 	file_mem_start=file_mem;
 	fread (file_mem, 1, key_file_size+1, f);
 
+	if ( (t = get_string_occurance ("#K_QUIT", file_mem, key_file_size, 0)) != -1)
+		K_QUIT = parse_key_string (&file_mem[t]);
+	if ( (t = get_string_occurance ("#K_QUIT_ALT", file_mem, key_file_size, 0)) != -1)
+		K_QUIT_ALT = parse_key_string (&file_mem[t]);
 	if((t=get_string_occurance("#K_CAMERAUP",file_mem,key_file_size,0))!=-1)
 		K_CAMERAUP = parse_key_string(&file_mem[t]);
 	if((t=get_string_occurance("#K_CAMERADOWN",file_mem,key_file_size,0))!=-1)

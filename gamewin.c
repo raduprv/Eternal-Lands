@@ -1192,15 +1192,9 @@ int check_quit_or_fullscreen (Uint32 key)
 {
 	int alt_on = key & ELW_ALT;
 	Uint16 keysym = key & 0xffff;
-#ifndef WINDOWS
-	int ctrl_on = key & ELW_CTRL;
 
 	// first, try to see if we pressed Alt+x or Ctrl+q, to quit.
-	if ( (keysym == SDLK_x && alt_on) || (keysym == SDLK_q && ctrl_on && !alt_on) )
-#else
-	// Windows SDL reports [Alt Gr] as [Ctrl], which hinders German users typing '@'
-	if ( (keysym == SDLK_x && alt_on) )
-#endif
+	if (key == K_QUIT || key == K_QUIT_ALT) 
 	{
 		exit_now = 1;
 	}

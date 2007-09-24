@@ -25,6 +25,8 @@ extern "C" {
  * \name Predefined keys
  */
 /*! @{ */
+extern Uint32 K_QUIT;           /*!< key for closing the game */
+extern Uint32 K_QUIT_ALT;       /*!< alternative key for closing the game */
 extern Uint32 K_CAMERAUP;       /*!< key for changing the view angle of the camera up */
 extern Uint32 K_CAMERADOWN;     /*!< key for changing the view angle of the camera down */
 extern Uint32 K_ZOOMOUT;        /*!< key used for zooming out */
