@@ -128,10 +128,11 @@ int load_map(const char *file_name, update_func *update_function)
 	// Check the sizes of structures. If they don't match, we have a
 	// major problem, since these structures are supposed to be 
 	// written flat out to disk.
-	if (cur_map_header.obj_3d_struct_len < sizeof (object3d_io)
+	if (cur_map_header.obj_3d_struct_len != sizeof (object3d_io)
 	    || cur_map_header.obj_2d_struct_len != sizeof (obj_2d_io)
 	    || cur_map_header.lights_struct_len != sizeof (light_io)
-	    || cur_map_header.particles_struct_len != sizeof (particles_io))
+	    || (cur_map_header.particles_struct_len != sizeof (particles_io) && cur_map_header.particles_no > 0)
+	   )
 	{
 		LOG_ERROR ("Invalid object size on map %s", map_file_name);
 		exit_now = 1; // We might as well quit...
