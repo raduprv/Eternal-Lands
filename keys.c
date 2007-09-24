@@ -13,7 +13,7 @@ Uint32 K_QUIT=ALT|'x';
 #ifdef WINDOWS
 // Windows SDL reports [Alt Gr] as [Ctrl], which hinders German users typing '@',
 // so don't use Ctrl-q as a symbol to exit
-Uint32 K_QUIT_ALT=K_QUIT;
+Uint32 K_QUIT_ALT=ALT|'x';;
 #else
 Uint32 K_QUIT_ALT=CTRL|'q';
 #endif
