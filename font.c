@@ -33,7 +33,6 @@
 #define	FONT_X_SPACING	18
 #define	FONT_Y_SPACING	21
 #define FONTS_ARRAY_SIZE	10
-#define SELECTION_COLOR  (to_color_char (c_orange4))
 
 typedef struct	{
 	int	spacing;
@@ -261,6 +260,10 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 {
 	float displayed_font_x_size = DEFAULT_FONT_X_LEN * text_zoom;
 	float displayed_font_y_size = DEFAULT_FONT_Y_LEN * text_zoom;
+	
+	float selection_red = 255 / 255.0f;
+	float selection_green = 162 / 255.0f;
+	float selection_blue = 0;
 
 	unsigned char cur_char;
 	int i;
@@ -397,7 +400,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		{
 			if (!in_select)
 			{
-				find_font_char(SELECTION_COLOR);
+				glColor3f (selection_red, selection_green, selection_blue);
 				in_select = 1;
 			}
 		}
@@ -419,8 +422,15 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 		if (is_color (cur_char))
 		{
 			last_color_char = cur_char;
-			if (in_select) cur_char = SELECTION_COLOR;
+			if (in_select)
+			{
+				// don't draw color characters in a selection
+				i++;
+				ichar++;
+				continue;
+			}
 		}
+		
 		cur_x += draw_char_scaled (cur_char, cur_x, cur_y, displayed_font_x_size, displayed_font_y_size);
 		cur_col++;
 	
