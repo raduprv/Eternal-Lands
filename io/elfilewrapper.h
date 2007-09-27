@@ -49,6 +49,16 @@ extern void add_paths();
 extern el_file_ptr el_open(const char* file_name);
 
 /**
+ * @brief Opens a file.
+ *
+ * Opens a file read only in binary mode, searching also the 
+ * configuration dir when trying to locate the file.
+ * @param file_name The name of the file to open.
+ * @return Returns a valid el file pointer or zero on failur.
+ */
+extern el_file_ptr el_open_anywhere (const char* file_name);
+
+/**
  * @brief Opens a file without decompressing it.
  *
  * Opens a file read only in binary mode without decompressing the data.
@@ -126,11 +136,22 @@ extern void* el_get_pointer(el_file_ptr file);
 /**
  * @brief Check if a file exists.
  *
- * Check if the given file exists.
+ * Check if the given file exists somewhere in the data or update directories.
  * @param file_name The name of the file.
  * @return Returns true if the file exists, else false.
+ * @sa el_file_exists_anywhere()
  */
-extern int el_file_exists(const char* file_name);
+extern int el_file_exists (const char* file_name);
+
+/**
+ * @brief Check if a file exists.
+ *
+ * Check if the given file exists anywhere in the game directories.
+ * @param file_name The name of the file.
+ * @return Returns true if the file exists, else false.
+ * @sa el_file_exists()
+ */
+extern int el_file_exists_anywhere (const char* file_name);
 
 extern struct CalCoreAnimation *CalLoader_ELLoadCoreAnimation(struct CalLoader *self, const char *strFilename);
 extern struct CalCoreMaterial *CalLoader_ELLoadCoreMaterial(struct CalLoader *self, const char *strFilename);
@@ -140,8 +161,6 @@ extern int CalCoreModel_ELLoadCoreAnimation(struct CalCoreModel *self, const cha
 extern int CalCoreModel_ELLoadCoreMaterial(struct CalCoreModel *self, const char *strFilename);
 extern int CalCoreModel_ELLoadCoreMesh(struct CalCoreModel *self, const char *strFilename);
 extern enum CalBoolean CalCoreModel_ELLoadCoreSkeleton(struct CalCoreModel *self, const char *strFilename);
-
-extern void register_xml_wrapper();
 
 #ifdef __cplusplus
 }

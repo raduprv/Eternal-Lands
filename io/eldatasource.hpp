@@ -15,10 +15,10 @@
 #include <cal3d/cal3d.h>
 #include "elfile.hpp"
 
-class el_data_soucre: public el_file, public CalDataSource
+class el_data_source: public el_file, public CalDataSource
 {
 	public:
-		el_data_soucre(const std::string &file_name): el_file(file_name, true)
+		el_data_source(const std::string &file_name): el_file(file_name, true)
 		{
 		}
 
@@ -86,7 +86,7 @@ class el_data_soucre: public el_file, public CalDataSource
 			}
 		}
 
-		virtual ~el_data_soucre()
+		virtual ~el_data_source()
 		{
 		}
 };

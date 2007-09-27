@@ -324,7 +324,9 @@ static void init_note (int id, const char* name, const char* content)
 
 int notepad_load_file ()
 {
+#ifndef NEW_FILE_IO
 	char file[256];
+#endif
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 	xmlChar *name;
@@ -337,6 +339,14 @@ int notepad_load_file ()
 
 	notepad_loaded = 1;
 
+#ifdef NEW_FILE_IO
+	doc = xmlParseFile ("notes.xml");
+	if (doc == NULL)
+	{
+		LOG_ERROR (cant_parse_notes);
+		return 0;
+	}
+#else
 	safe_snprintf (file, sizeof (file), "%snotes.xml", configdir);
 	doc = xmlParseFile (file);
 	if (doc == NULL )
@@ -353,8 +363,9 @@ int notepad_load_file ()
 #else
 		LOG_ERROR (cant_parse_notes);
 		return 0;
-#endif
+#endif // !WINDOWS
 	}
+#endif // NEW_FILE_IO
 	
 	cur = xmlDocGetRootElement (doc);
 	if (cur == NULL)

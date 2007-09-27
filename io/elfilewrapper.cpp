@@ -40,6 +40,19 @@ extern "C" el_file* el_open(const char* file_name)
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }
 
+extern "C" el_file* el_open_anywhere (const char* file_name)
+{
+	el_file* file;
+
+	try
+	{
+		file = new el_file (file_name, true, true);
+
+		return file;
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
 extern "C" el_file* el_open_no_decompress(const char* file_name)
 {
 	el_file* file;
@@ -128,11 +141,20 @@ extern "C" void* el_get_pointer(el_file* file)
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }
 
-extern "C" int el_file_exists(const char* file_name)
+extern "C" int el_file_exists (const char* file_name)
 {
 	try
 	{
-		return el_file::file_exists(file_name);
+		return el_file::file_exists (file_name);
+	}
+	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+}
+
+extern "C" int el_file_exists_anywhere (const char* file_name)
+{
+	try
+	{
+		return el_file::file_exists (file_name, true);
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 }
@@ -146,7 +168,7 @@ extern "C" CalCoreAnimation *CalLoader_ELLoadCoreAnimation(CalLoader *self, cons
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		return explicitIncRef(self->loadCoreAnimation(file).get());
 	}
@@ -158,7 +180,7 @@ extern "C" CalCoreMaterial *CalLoader_ELLoadCoreMaterial(CalLoader *self, const 
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		return explicitIncRef(self->loadCoreMaterial(file).get());
 	}
@@ -170,7 +192,7 @@ extern "C" CalCoreMesh *CalLoader_ELLoadCoreMesh(CalLoader *self, const char *st
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		return explicitIncRef(self->loadCoreMesh(file).get());
 	}
@@ -182,7 +204,7 @@ extern "C" CalCoreSkeleton *CalLoader_ELLoadCoreSkeleton(CalLoader *self, const 
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		return explicitIncRef(self->loadCoreSkeleton(file).get());
 	}
@@ -194,7 +216,7 @@ extern "C" int CalCoreModel_ELLoadCoreAnimation(CalCoreModel *self, const char *
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		CalCoreAnimationPtr pCoreAnimation = CalLoader::loadCoreAnimation(file, self->getCoreSkeleton());
 
@@ -213,7 +235,7 @@ extern "C" int CalCoreModel_ELLoadCoreMaterial(CalCoreModel *self, const char *s
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		CalCoreMaterialPtr pCoreMaterial = CalLoader::loadCoreMaterial(file);
 
@@ -232,7 +254,7 @@ extern "C" int CalCoreModel_ELLoadCoreMesh(CalCoreModel *self, const char *strFi
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		CalCoreMeshPtr pCoreMesh = CalLoader::loadCoreMesh(file);
 
@@ -251,7 +273,7 @@ extern "C" CalBoolean CalCoreModel_ELLoadCoreSkeleton(CalCoreModel *self, const 
 	assert(self);
 	try
 	{
-		el_data_soucre file(strFilename);
+		el_data_source file(strFilename);
 
 		CalCoreSkeletonPtr pCoreSkeleton = CalLoader::loadCoreSkeleton(file);
 

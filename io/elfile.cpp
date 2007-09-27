@@ -136,7 +136,7 @@ void el_file::open(const std::string& file_name)
 	file.read(reinterpret_cast<char*>(memory->get_memory()), size);
 }
 
-el_file::el_file(const std::string& file_name, bool uncompress): memory(new memory_buffer())
+el_file::el_file(const std::string& file_name, bool uncompress, bool check_config): memory(new memory_buffer())
 {
 	std::string file;
 	unsigned int i;
@@ -144,6 +144,12 @@ el_file::el_file(const std::string& file_name, bool uncompress): memory(new memo
 	position = 0;
 
 	file = remove_path(file_name);
+
+	if (check_config)
+	{
+		if (open_if_exist (get_path_config () + file, uncompress))
+			return;
+	}
 
 	for (i = 0; i < path_list.size(); i++)
 	{
@@ -156,12 +162,18 @@ el_file::el_file(const std::string& file_name, bool uncompress): memory(new memo
 	FILE_NOT_FOUND_EXCEPTION(file_name.c_str());
 }
 
-bool el_file::file_exists(const std::string& file_name)
+bool el_file::file_exists(const std::string& file_name, bool check_config)
 {
 	std::string file;
 	unsigned int i;
 
 	file = remove_path(file_name);
+
+	if (check_config)
+	{
+		if (file_exist_in_dir (get_path_config () + file))
+			return true;
+	}
 
 	for (i = 0; i < path_list.size(); i++)
 	{

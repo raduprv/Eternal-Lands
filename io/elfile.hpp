@@ -212,7 +212,7 @@ class el_file
 		 * @param file_name The name of the file to open.
 		 * @param uncompress Flag indicating if the file should get uncompressed.
 		 */
-		el_file(const std::string &file_name, bool uncompress);
+		el_file(const std::string &file_name, bool uncompress, bool check_config=false);
 
 		/**
 		 * @brief Reads data from the file.
@@ -321,7 +321,7 @@ class el_file
 		 * @param file_name The name of the file.
 		 * @return Returns true if the file exists, else false.
 		 */
-		static bool file_exists(const std::string& file_name);
+		static bool file_exists(const std::string& file_name, bool check_config=false);
 
 		/**
 		 * @brief Adds a zip file to the search list.
