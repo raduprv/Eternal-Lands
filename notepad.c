@@ -71,7 +71,7 @@ void accept_popup_window ()
 		
 	// stop at first non-printable character
 	iend = istart;
-	while ( iend < len && isprint (data[iend]) )
+	while ( iend < len && is_printable (data[iend]) )
 		iend++;
 	if (iend == istart)
 		// empty string
