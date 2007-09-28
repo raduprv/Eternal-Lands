@@ -629,3 +629,53 @@ void append_char(char** s, char c, int* len, int* max_len)
 	(*s)[(*len)++] = c;
 }
 
+xmlChar* toUTF8 (const char* str, int len)
+{
+	int out_size = 2*len;
+	int out_len;
+	xmlChar* out = calloc (out_size, sizeof (xmlChar));
+
+	while (1)
+	{
+		int in_len = len;
+		out_len = out_size;
+
+		if (isolat1ToUTF8 (out, &out_len, BAD_CAST str, &in_len) < 0)
+		{
+			// Conversion error
+			free (out);
+			return NULL;
+		}
+		if (in_len >= len)
+			break;
+
+		out_size *= 2;
+		out = realloc (out, out_size * sizeof (xmlChar));
+	}
+
+	if (out_len >= out_size)
+		// drats, no space to store a terminator
+		out = realloc (out, (out_size + 1) * sizeof (xmlChar));
+	out[out_len] = '\0';
+
+	return out;
+}
+
+char* fromUTF8 (const xmlChar* str, int len)
+{
+	int out_size = len+1;
+	int out_len = out_size;
+	int in_len = len;
+	char* out = calloc (out_size, 1);
+
+	if (UTF8Toisolat1 (BAD_CAST out, &out_len, str, &in_len) < 0)
+	{
+		// Conversion error
+		free (out);
+		return NULL;
+	}
+
+	out[out_len] = '\0';
+
+	return out;
+}

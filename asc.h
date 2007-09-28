@@ -368,6 +368,36 @@ void append_char(char** s, char c, int* len, int* max_len);
  */
 #define APPEND_CHAR_BLOCK 256
 
+/*!
+ * \brief Convert a string to UTF-8
+ *
+ *	Convert string \a str of length \a len bytes from the ISO Latin 1
+ *	encoding used in EL to UTF-8. Memory for the output string is
+ *	dynamically allocated, and should be freed by the caller.
+ *
+ * \param str The string to be converted.
+ * \param len The length of \a str in bytes.
+ * \return pointer to the UTF-8 encoded string if the conversion is 
+ *         successfull, NULL otherwise.
+ */
+xmlChar* toUTF8 (const char* str, int len);
+
+/*!
+ * \brief Convert a string from UTF-8
+ *
+ *	Convert string \a str of length \a len bytes from UTF-8 encoding to 
+ *	the ISO Latin 1 encoding used in EL. Memory for the output string is
+ *	dynamically allocated, and should be freed by the caller. Note that
+ *	the parameter \a len is the length in \em bytes, not in 
+ *	characters.
+ *
+ * \param str The string to be converted.
+ * \param len The length of \a str in bytes.
+ * \return pointer to the ISO Latin 1 encoded string if the conversion 
+ *         is successfull, NULL otherwise.
+ */
+char* fromUTF8 (const xmlChar* str, int len);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

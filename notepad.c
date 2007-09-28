@@ -302,10 +302,11 @@ void update_note_button_scrollbar (int nr)
 		scroll_to_note_button (nr);
 	}
 }
-	
+
 static void init_note (int id, const char* name, const char* content)
 {
 	int nsize = MIN_NOTE_SIZE;
+
 	if (content)
 	{
 		int len = strlen (content);
@@ -329,7 +330,6 @@ int notepad_load_file ()
 #endif
 	xmlDocPtr doc;
 	xmlNodePtr cur;
-	xmlChar *name;
 	
 	if (note_list == 0)
 	{
@@ -390,7 +390,11 @@ int notepad_load_file ()
 	{
 		if ((!xmlStrcasecmp (cur->name, (const xmlChar *)"NOTE")))
 		{
-			const char* data = (const char*) (cur->children ? cur->children->content : NULL);
+			xmlChar* xmlName = xmlGetProp (cur, BAD_CAST "NAME");
+			char* name = fromUTF8 (xmlName, strlen ((const char*) xmlName));
+			char* data = NULL;
+			if (cur->children)
+				 data = fromUTF8 (cur->children->content, strlen ((const char*)cur->children->content));
 			
 			if (nr_notes >= note_list_size)
 			{
@@ -399,10 +403,12 @@ int notepad_load_file ()
 				note_list_size = new_size;
 			}
 
-			name = xmlGetProp (cur, (xmlChar *)"NAME");
-			init_note (nr_notes, (char *)name, data);
-			xmlFree(name);
+			init_note (nr_notes, name, data);
 
+			if (data) free (data);
+			free (name);
+			xmlFree (xmlName);
+			
 			rewrap_message (&note_list[nr_notes].text, 1.0f, notepad_win_x_len - 70, NULL);
 			
 			nr_notes++;
@@ -435,15 +441,23 @@ int notepad_save_file (widget_list *w, int mx, int my, Uint32 flags)
 	xmlDocSetRootElement (doc, root_node);
 	for (i = 0; i < nr_notes; i++)
 	{
-		node = xmlNewChild (root_node, NULL, BAD_CAST "NOTE", BAD_CAST note_list[i].text.data);
-		xmlNewProp (node, BAD_CAST "NAME", BAD_CAST note_list[i].name);
+		// libxml2 expects all data in UTF-8 encoding.
+		xmlChar* name = toUTF8 (note_list[i].name, strlen (note_list[i].name));
+		xmlChar* data = toUTF8 (note_list[i].text.data, note_list[i].text.len);
+
+		node = xmlNewChild (root_node, NULL, BAD_CAST "NOTE", data);
+		xmlNewProp (node, BAD_CAST "NAME", name);
+
+		free (data);
+		free (name);
 	}
-	if (xmlSaveFormatFileEnc (file, doc, "ISO-8859-1", 1) < 0)
+
+	if (xmlSaveFormatFileEnc (file, doc, "UTF-8", 1) < 0)
 	{
 #ifndef WINDOWS
 		// error writing. try the data directory
 		safe_snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
-		if (xmlSaveFormatFileEnc(file, doc, "ISO-8859-1", 1) < 0)
+		if (xmlSaveFormatFileEnc(file, doc, "UTF-8", 1) < 0)
 		{
 			LOG_ERROR(cant_save_notes, file);
 		}
