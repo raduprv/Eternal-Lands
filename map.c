@@ -166,9 +166,6 @@ static void init_map_loading(const char *file_name)
 	*/
 	cur_map = get_cur_map (file_name);
 	
-	//this is useful if we go in/out a dungeon
-	new_minute();
-
 	create_loading_win(window_width, window_height, 1);
 	show_window(loading_win);
 }
@@ -213,6 +210,10 @@ static int el_load_map(const char * file_name)
 #endif /* SKY_FPV_CURSOR */
 	build_path_map();
 	init_buffers();
+	
+	// reset light levels in case we enter or leave an inside map
+	new_minute();
+
 	destroy_loading_win();
 	return ret;
 }
