@@ -25,6 +25,8 @@ extern "C" {
 #define SOUNDS_MAP 2
 #define SOUNDS_ACTOR 3
 #define SOUNDS_WALKING 4
+#define SOUNDS_CROWD 5
+#define SOUNDS_CLIENT 6
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
@@ -37,8 +39,13 @@ extern int playing_music; /*!< flag indicating if music is currently playing */
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
-
 #ifdef NEW_SOUND
+extern ALfloat crowd_gain; /*!< gain for crowd sound effects */
+extern ALfloat enviro_gain; /*!< gain for environmental and map sound effects */
+extern ALfloat actor_gain; /*!< gain for actor sound effects */
+extern ALfloat walking_gain; /*!< gain for walking sound effects */
+extern ALfloat client_gain; /*!< gain for client sound effects */
+
 	#define MAX_SOUND_NAME_LENGTH 40
 	typedef unsigned long int SOUND_COOKIE;
 	#define SOUND_CONFIG_PATH "sound/sound_config.xml"
@@ -100,7 +107,7 @@ void turn_sound_on();
  *
  */
 void change_sounds(int * var, int value);
-#else // NEW_SOUND
+#endif // NEW_SOUND
 /*!
  * \ingroup sound_effects
  * \brief Toggles the sound
@@ -109,7 +116,6 @@ void change_sounds(int * var, int value);
  *
  */
 void toggle_sounds(int *var);
-#endif // NEW_SOUND
 
 #ifdef NEW_SOUND
 void setup_map_sounds (int map_num);
@@ -128,7 +134,7 @@ void setup_map_sounds (int map_num);
  * \callgraph
  */
 #ifdef NEW_SOUND
-unsigned int add_sound_object(int sound_type,int x, int y, int me);
+unsigned int add_sound_object(int type, int x, int y, int me);
 #else
 int add_sound_object(int sound_file,int x, int y,int positional,int loops);
 #endif	//NEW_SOUND
@@ -143,9 +149,10 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops);
  * \param sound_type    The number of the server sound type
  * \param x             the x coordinate of the position where the sound should be audible.
  * \param y             the y coordinate of the position where the sound should be audible.
+ * \param initial_gain	The gain the sound should be played at (used for rain)
  * \callgraph
  */
-unsigned int add_server_sound(int type,int x, int y);
+unsigned int add_server_sound(int type, int x, int y);
 #endif // NEW_SOUND
 
 /*!
