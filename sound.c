@@ -3380,11 +3380,11 @@ void update_sound(int ms)
 	// Check for any loaded sounds that have come back into range
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
-		if (!loaded_sounds[i].playing)
+		x = loaded_sounds[i].x;
+		y = loaded_sounds[i].y;
+		if (!loaded_sounds[i].playing && x > -1 && y > -1 && loaded_sounds[i].sound > -1)
 		{
 			pSoundType = &sound_type_data[loaded_sounds[i].sound];
-			x = loaded_sounds[i].x;
-			y = loaded_sounds[i].y;
 			distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
 			maxDistSq = pSoundType->distance * pSoundType->distance;
 			if (sound_opts != SOUNDS_NONE && (distanceSq < maxDistSq))
