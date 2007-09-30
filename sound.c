@@ -5094,9 +5094,9 @@ void load_sound_config_data (const char *file)
 	}
 
 	xmlFree(doc);
-//#ifdef DEBUG
+#ifdef DEBUG
 	print_sound_types();
-//#endif // DEBUG
+#endif // DEBUG
 }
 #endif	//!NEW_SOUND
 
@@ -5105,7 +5105,7 @@ void load_sound_config_data (const char *file)
  * DEBUGGING FUNCTIONS *
  ***********************/
 
-//#ifdef DEBUG
+#ifdef DEBUG
 #ifndef NEW_SOUND
 void print_sound_objects ()
 {
@@ -5238,4 +5238,4 @@ void print_sound_sources()
 	}
 }
 #endif // !NEW_SOUND
-//#endif //_DEBUG
+#endif //_DEBUG
