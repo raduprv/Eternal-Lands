@@ -5,10 +5,6 @@
 extern "C" {
 #endif
 
-#ifdef NEW_SOUND
-#include "sound.h"
-#endif	//NEW_SOUND
-
 typedef enum{
 	cycle=0,
  	action=1

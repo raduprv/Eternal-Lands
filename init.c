@@ -46,6 +46,7 @@
 #include "questlog.h"
 #include "reflection.h"
 #include "rules.h"
+#include "sound.h"
 #include "spells.h"
 #include "storage.h"
 #include "tabs.h"

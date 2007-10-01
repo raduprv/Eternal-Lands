@@ -284,6 +284,10 @@ typedef struct
 	struct cal_anim cal_attack_down_1_frame;
 	struct cal_anim cal_attack_down_2_frame;
 	
+#ifdef NEW_SOUND
+	float walk_snd_scale;
+#endif // NEW_SOUND
+	
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
 	/*! \{ */
 	body_part head[ACTOR_HEAD_SIZE];

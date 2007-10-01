@@ -8,6 +8,7 @@
 #define __SOUND_H__
 
 #include "platform.h"
+#include "actors.h"
 
 #ifdef OGG_VORBIS
 	#include <ogg/ogg.h>
@@ -36,6 +37,10 @@ extern int music_on; /*!< flag indicating whether music is enabled */
 #ifndef NEW_SOUND
 extern int playing_music; /*!< flag indicating if music is currently playing */
 #endif // !NEW_SOUND
+
+#ifdef NEW_SOUND
+extern int dim_sounds_on_rain;	/*!< flag indicating if sounds should be dimmed when its raining (currently experimental) */
+#endif // NEW_SOUND
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
@@ -136,10 +141,13 @@ void setup_map_sounds (int map_num);
 #ifdef NEW_SOUND
 unsigned int add_sound_object(int type, int x, int y, int me);
 #else
-int add_sound_object(int sound_file,int x, int y,int positional,int loops);
+int add_sound_object(int sound_file, int x, int y, int positional, int loops);
 #endif	//NEW_SOUND
 
 #ifdef NEW_SOUND
+unsigned int add_walking_sound(int type, int x, int y, int me, float scale);
+unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial_gain);
+
 /*!
  * \ingroup sound_effects
  * \brief Maps a server sound type to a local sound type.
@@ -149,10 +157,10 @@ int add_sound_object(int sound_file,int x, int y,int positional,int loops);
  * \param sound_type    The number of the server sound type
  * \param x             the x coordinate of the position where the sound should be audible.
  * \param y             the y coordinate of the position where the sound should be audible.
- * \param initial_gain	The gain the sound should be played at (used for rain)
+ * \param gain			The gain the sound should be played at (used for rain)
  * \callgraph
  */
-unsigned int add_server_sound(int type, int x, int y);
+unsigned int add_server_sound(int type, int x, int y, int gain);
 #endif // NEW_SOUND
 
 /*!
@@ -286,12 +294,13 @@ int get_index_for_inv_usewith_item_sound(int use_image_id, int with_image_id);
  * \ingroup sound_effects
  * \brief Gets the index of the sound for the tile type
  *
- *      Searches for a sound which matches the given \a tile_type. A return of -1 indicates no match.
+ *      Searches for a sound which matches the given \a tile_type and \a actor_type. A return of -1 indicates no match.
  *
  * \param tile_type				The tile type
+ * \param actor_type			The string of the actor type
  * \callgraph
  */
-int get_tile_sound(int tile_type);
+int get_tile_sound(int tile_type, char * actor_type);
 
 /*!
  * \ingroup sound_effects
@@ -334,6 +343,9 @@ void sound_source_set_gain(int sound, float gain);
  * \callgraph
  */
 void load_sound_config_data (const char *path);
+
+
+void handle_walking_sound(actor *pActor, int def_snd);
 #endif	//NEW_SOUND
 
 

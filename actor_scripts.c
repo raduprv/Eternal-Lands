@@ -17,6 +17,9 @@
 #include "particles.h"
 #include "pathfinder.h"
 #include "platform.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 #include "tiles.h"
 #include "timers.h"
 #include "translate.h"
@@ -1820,6 +1823,7 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 	xmlNode *item;
 	char str[255];
 	int ok;
+	float myf = 0.0f;
 
 	if (cfg == NULL) return 0;
 
@@ -1829,6 +1833,11 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 			get_string_value (str,sizeof(str),item);
 			if (xmlStrcasecmp (item->name, (xmlChar*)"walk") == 0) {
 				cal_set_anim_sound(&act->cal_walk_frame, str);
+				// Check for a scale or default to 0.2
+				myf = atof(get_string_property(item, "scale"));
+				if (myf == 0.0f)
+					myf = 0.2f;
+				act->walk_snd_scale = myf;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die1") == 0) {
 				cal_set_anim_sound(&act->cal_die1_frame, str);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die2") == 0) {
@@ -2034,6 +2043,9 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	//char fname[255];
 	//char temp[255];
 	//int i;
+#ifdef NEW_SOUND
+	float myf = 0.0f;
+#endif // NEW_SOUND
 
 	int ok = 1;
 	if (cfg == NULL) return 0;
@@ -2057,6 +2069,13 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
+#ifdef NEW_SOUND
+				// Check for a scale or default to 0.2
+				myf = atof(get_string_property(item, "sound_scale"));
+				if (myf == 0.0f)
+					myf = 0.2f;
+				act->walk_snd_scale = myf;
+#endif	//NEW_SOUND
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_run") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_run_frame=cal_load_anim(act, str

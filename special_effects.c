@@ -5,6 +5,9 @@
 #include "global.h"
 #include "highlight.h"
 #include "init.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 #include "text.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"

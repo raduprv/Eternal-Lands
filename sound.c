@@ -13,6 +13,9 @@
 #include "lights.h"
 #include "map.h"
 #include "misc.h"
+#ifdef NEW_SOUND
+#include "tiles.h"
+#endif // NEW_SOUND
 #include "translate.h"
 #include "weather.h"
 #include "io/map_io.h"
@@ -81,6 +84,7 @@ typedef struct {
 #define MAX_ITEM_SOUND_IMAGE_IDS 30
 #define MAX_SOUND_TILE_TYPES 20
 #define MAX_SOUND_TILES 20
+#define MAX_SOUND_TILES_SOUNDS 5
 
 #define MAX_SOUND_MAPS 150			// This value is the maximum number of maps sounds can be defined for
 									// (Roja has suggested 150 is safe for now)
@@ -206,9 +210,17 @@ typedef struct
 
 typedef struct
 {
+	char actor_types[256];
+	int sound;
+} tile_sounds;
+
+typedef struct
+{
 	int tile_type[MAX_SOUND_TILES];
 	int num_tile_types;
-	int sound;
+	tile_sounds sounds[MAX_SOUND_TILES_SOUNDS];
+	int num_sounds;
+	int default_sound;
 } tile_sound_data;
 
 #ifdef OGG_VORBIS
@@ -275,6 +287,7 @@ int sound_num_tile_types = 0;				// Number of tile type groups we have sounds fo
 
 int snd_cur_map = -1;
 int cur_boundary = 0;
+int dim_sounds_on_rain = 0;
 
 //each playing source is identified by a unique cookie.
 unsigned int next_cookie = 1;
@@ -285,6 +298,7 @@ sound_sample sound_sample_data[MAX_BUFFERS];					// Path & buffer data for each 
 background_default sound_background_defaults[MAX_BACKGROUND_DEFAULTS];	// Default background sounds
 																		// (must have non-overlapping time of day flags)
 int crowd_default;												// Default sound for crowd effects
+int walking_default;											// Default sound for walking
 map_sound_data sound_map_data[MAX_SOUND_MAPS];					// Data for map sfx
 effect_sound_data sound_effect_data[MAX_SOUND_EFFECTS];			// Data for effect sfx
 particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// Data for particle sfx
@@ -363,6 +377,7 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float initial_g
 int play_sound(int loaded_sound_num, int x, int y, float initial_gain);
 source_data * get_available_source(sound_type * pNewType);
 source_data *insert_sound_source_at_index(unsigned int index);
+int get_loaded_sound_num();
 void reset_buffer_details(int sample_num);
 int store_sample_name(char *name);
 int stop_sound_source_at_index(int index);
@@ -1683,7 +1698,6 @@ void turn_music_off()
 }
 
 void toggle_sounds(int *var){
-//	*var=!*var;
 	if(!sound_on){
 		*var = SOUNDS_NONE;
 		turn_sound_off();
@@ -1715,14 +1729,14 @@ void destroy_sound()
 	int i, error;
 	ALCcontext *context;
 	ALCdevice *device;
-	if(!inited){
+	if (!inited){
 		return;
 	}
 	SDL_DestroyMutex(sound_list_mutex);
 	sound_list_mutex = NULL;
 	inited = have_sound = sound_on = 0;
 
-#ifdef	OGG_VORBIS
+#ifdef OGG_VORBIS
 	if(sound_streams_thread != NULL){
 		destroy_stream(&music_stream);
 		destroy_stream(&sound_fx_stream);
@@ -1730,7 +1744,7 @@ void destroy_sound()
 		SDL_WaitThread(sound_streams_thread, NULL);
 		sound_streams_thread = NULL;
 	}
-#endif	// OGG_VORBIS
+#endif // OGG_VORBIS
 	for (i = 0; i < MAX_SOURCES; i++)
 	{
 		if(alIsSource(sound_source_data[i].source) == AL_TRUE)
@@ -1758,16 +1772,17 @@ void destroy_sound()
 	 * being destroyed right afterwards.
 	 */
 	context = alcGetCurrentContext();
-	if(context != NULL) {
+	if (context != NULL)
+	{
 		device = alcGetContextsDevice(context);
 		alcDestroyContext(context);
-		if(device != NULL)
+		if (device != NULL)
 		{
 			alcCloseDevice(device);
 		}
 	}
 
-	if((error=alGetError()) != AL_NO_ERROR) 
+	if ((error=alGetError()) != AL_NO_ERROR) 
 	{
 		char str[256];
 		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
@@ -2777,7 +2792,7 @@ int ensure_sample_loaded(char * filename)
 	return sample_num;
 }
 
-unsigned int add_server_sound(int type, int x, int y)
+unsigned int add_server_sound(int type, int x, int y, int gain)
 {
 	int snd = -1;
 	// Find the sound for this server sound type
@@ -2787,40 +2802,47 @@ unsigned int add_server_sound(int type, int x, int y)
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Adding server sound: %d\n", type);
 #endif //_EXTRA_SOUND_DEBUG
-		return add_sound_object(snd, x, y, 0);
+		return add_sound_object_gain(snd, x, y, 0, gain);
 	}
 	else
 	{
 		LOG_ERROR("Unable to find server sound: %i", type);
-		return -1;
+		return 0;
 	}
 }
 
-int get_loaded_sound_num()
+unsigned int add_walking_sound(int type, int x, int y, int me, float scale)
 {
-	int i;
-	// Loop through the array looking for an unused spot (sound = -1)
-	for (i = 0; i < MAX_BUFFERS * 2; i++)
-	{
-		if (loaded_sounds[i].sound == -1)
-		{
-			return i;
-		}
-	}
-	return -1;
+//	float gain = 0.0f;
+	// Calculate the gain for this scale
+//	gain = (scale / 2.0f) + 0.5f;
+	return add_sound_object_gain(type, x, y, me, scale);
 }
 
 unsigned int add_sound_object(int type, int x, int y, int me)
 {
-	float initial_gain = 1.0f;
+	return add_sound_object_gain(type, x, y, me, 1.0f);
+}
+
+unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial_gain)
+{
 	int i, tx, ty, distanceSq, loaded_sound_num, cookie;
 	sound_type *pNewType;
 	float maxDistanceSq = 0.0f;
 
-	tx = camera_x * (-2);
-	ty = camera_y * (-2);
+	// Get our position
+	if (your_actor)
+	{
+		tx = your_actor->x_pos * 2;
+		ty = your_actor->y_pos * 2;
+	}
+	else
+	{
+		tx = 0;
+		ty = 0;
+	}
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Trying to add sound: %d (%s) at %d, %d. Camera: %d, %d\n", type, type > 0 ? sound_type_data[type].name : "not defined", x, y, tx, ty);
+	printf("Trying to add sound: %d (%s) at %d, %d. Position: %d, %d, Gain: %f\n", type, type > 0 ? sound_type_data[type].name : "not defined", x, y, tx, ty, initial_gain);
 #endif //_EXTRA_SOUND_DEBUG
 	if (type == -1)			// Invalid sound, ignore
 		return 0;
@@ -2841,7 +2863,7 @@ unsigned int add_sound_object(int type, int x, int y, int me)
 	}
 
 	// Check it's a valid type, get pType as a pointer to the type data
-	if (type >= MAX_BUFFERS || type < 0)
+	if (type >= MAX_SOUNDS || type >= num_types || type < 0)
 	{
 #ifdef ELC
 		LOG_ERROR("%s: %i", snd_invalid_number, type);
@@ -3137,6 +3159,20 @@ source_data *insert_sound_source_at_index(unsigned int index)
 }
 
 
+int get_loaded_sound_num()
+{
+	int i;
+	// Loop through the array looking for an unused spot (sound = -1)
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
+	{
+		if (loaded_sounds[i].sound == -1)
+		{
+			return i;
+		}
+	}
+	return -1;
+}
+
 void reset_buffer_details(int sample_num)
 {
 	int i, j;
@@ -3215,6 +3251,7 @@ void stop_sound(unsigned long int cookie)
 	if (!have_sound || !cookie)
 		return;
 	// Find which of our playing sources matches the handle passed
+	LOCK_SOUND_LIST();
 	n = find_sound_source_from_cookie(cookie);
 	if (n >= 0)
 	{
@@ -3223,6 +3260,7 @@ void stop_sound(unsigned long int cookie)
 #endif //_EXTRA_SOUND_DEBUG
 		stop_sound_source_at_index(n);
 	}
+	UNLOCK_SOUND_LIST();
 }
 
 void stop_sound_at_location(int x, int y)
@@ -3231,6 +3269,7 @@ void stop_sound_at_location(int x, int y)
 	ALfloat sourcePos[3]={0.0f,0.0f,0.0f};
 	int i = 0;
 
+	LOCK_SOUND_LIST();
 	// Search for a sound source at the given location
 	while (i < used_sources)
 	{
@@ -3244,6 +3283,7 @@ void stop_sound_at_location(int x, int y)
 			i++;
 		}
 	}
+	UNLOCK_SOUND_LIST();
 	// Clear any errors so as to not confuse other error handlers
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
@@ -3324,7 +3364,7 @@ void unload_sound(int index)
 // We update our listener position and any sounds being played, as well as
 // rebuilding the list of active sources, as some may have become inactive
 // due to the sound ending or being out of range, or some may be back in
-// range and need to be added.
+// range and need to be played. We also adjust volumes if ness.
 void update_sound(int ms)
 {
 	int i = 0, error = AL_NO_ERROR;
@@ -3337,7 +3377,7 @@ void update_sound(int ms)
 	int source;
 	int x, y, distanceSq, maxDistSq;
 	int relative;
-	int tx, ty;
+	int tx = 0, ty = 0;
 	ALfloat sourcePos[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerPos[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerVel[3] = {0.0f, 0.0f, 0.0f};
@@ -3429,6 +3469,11 @@ void update_sound(int ms)
 		if (source < 0)
 			continue;
 		
+		// Check if this is the correct tile type, or if we need to play another sound
+		if (actors_list[i]->moving && !actors_list[i]->fighting)
+		{
+			handle_walking_sound(actors_list[i], actors_list[i]->cur_anim.sound);
+		}
 		if (actors_list[i]->actor_id == yourself)
 		{
 			// If this is you, use the camera position rather than your actual position (same as listener)
@@ -3610,6 +3655,37 @@ void update_sound(int ms)
  *********************/
 
 
+void handle_walking_sound(actor * pActor, int def_snd)
+{
+	int snd, tile_type, cur_source;
+	
+	// Actor is walking, so look for a walking sound for this tile
+	tile_type = get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2);
+	snd = get_tile_sound(tile_type, actors_defs[pActor->actor_type].actor_name);
+#ifdef _EXTRA_SOUND_DEBUG
+//	printf("Actor: %s, Pos: %f, %f, Current tile type: %d, Sound: %d\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, tile_type, snd);
+#endif // _EXTRA_SOUND_DEBUG
+	// No sound for this tile, fall back on the default (set in the animation)
+	if (snd == -1)
+		snd = def_snd;
+	
+	// Check if we have a sound and it is different to the current one
+	cur_source = find_sound_source_from_cookie(pActor->cur_anim_sound_cookie);
+	if(snd > -1 && loaded_sounds[sound_source_data[cur_source].loaded_sound].sound != snd)
+	{
+		// Remove the current sound (if the source is valid)
+		if (cur_source > -1)
+			stop_sound_source_at_index(cur_source);
+		// Found a sound, so add it
+		pActor->cur_anim_sound_cookie = add_walking_sound(	snd,
+															2*pActor->x_pos,
+															2*pActor->y_pos,
+															pActor->actor_id == yourself ? 1 : 0,
+															actors_defs[pActor->actor_type].walk_snd_scale
+														);
+	}
+}
+
 void setup_map_sounds (int map_num)
 {
 	int i;
@@ -3662,6 +3738,16 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 	{
 		loaded_sounds[loaded_sound_num].base_gain = new_gain;
 	}
+	// Check if we need to dim down the sounds due to rain
+	if (dim_sounds_on_rain && is_raining && loaded_sounds[pSource->loaded_sound].sound != rain_sound)
+	{
+		// Dim down all the sounds, except the rain (TODO: and thunder??)
+		new_gain *= (1.0f - rain_strength_bias) * 2;
+#ifdef _EXTRA_SOUND_DEBUG
+//		printf("Adjusting volume by: %f\n", (1.0f - rain_strength_bias) * 2);
+#endif // _EXTRA_SOUND_DEBUG
+	}
+	
 	// Check if we need to update the overall gain for this source
 	if (sound_gain * type_gain * this_snd.gain * new_gain != loaded_sounds[loaded_sound_num].cur_gain)
 	{
@@ -3787,9 +3873,9 @@ int get_index_for_inv_use_item_sound(int image_id)
 	return -1;
 }
 
-int get_tile_sound(int tile_type)
+int get_tile_sound(int tile_type, char * actor_type)
 {
-	int i, j;
+	int i, j, k;
 	
 	// Check for unknown/invalid tile type
 	if (tile_type == -1)
@@ -3801,8 +3887,17 @@ int get_tile_sound(int tile_type)
 		{
 			if (sound_tile_data[i].tile_type[j] == tile_type)
 			{
-				// Found a matching tile type so return the sound
-				return sound_tile_data[i].sound;
+				// Found a matching tile type so find the actor type
+				for (k = 0; k < sound_tile_data[i].num_sounds; k++)
+				{
+					if (get_string_occurance(actor_type, sound_tile_data[i].sounds[k].actor_types, strlen(actor_type), 0) > -1)
+					{
+						// Return the sound
+						return sound_tile_data[i].sounds[k].sound;
+					}
+				}
+				// Didn't find a sound, so return a default if it exists
+				return sound_tile_data[i].default_sound;
 			}
 		}
 	}
@@ -3859,6 +3954,7 @@ void clear_sound_data()
 		sound_background_defaults[i].sound = -1;
 	}
 	crowd_default = -1;
+	walking_default = -1;
 	for (i = 0; i < MAX_SOUND_MAPS; i++)
 	{
 		sound_map_data[i].id = 0;
@@ -3911,7 +4007,13 @@ void clear_sound_data()
 			sound_tile_data[i].tile_type[j] = -1;
 		}
 		sound_tile_data[i].num_tile_types = 0;
-		sound_tile_data[i].sound = -1;
+		for (j = 0; j < MAX_SOUND_TILES_SOUNDS; j++)
+		{
+			sound_tile_data[i].sounds[j].actor_types[0] = '\0';
+			sound_tile_data[i].sounds[j].sound = -1;
+		}
+		sound_tile_data[i].num_sounds = 0;
+		sound_tile_data[i].default_sound = -1;
 	}
 	for (i = 0; i < 9; i++)
 	{
@@ -3953,7 +4055,7 @@ void init_sound()
 	int error;
 	int i,j;
 	
-	if(inited)
+	if(inited || sound_opts == SOUNDS_NONE)
 		return;
 		
 #ifndef OSX
@@ -3984,6 +4086,8 @@ void init_sound()
 		loaded_sounds[i].x = -1;
 		loaded_sounds[i].y = -1;
 		loaded_sounds[i].playing = 0;
+		loaded_sounds[i].base_gain = 0.0f;
+		loaded_sounds[i].cur_gain = 0.0f;
 	}
 	
 	//initialise OpenAL
@@ -4830,6 +4934,15 @@ void parse_sound_defaults(xmlNode *inNode)
 					LOG_ERROR("Sound config parse error: Unknown sound %s for crowd default", sound);
 				}
 			}
+			else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"walking"))
+			{
+				get_string_value(sound, sizeof(sound), attributeNode);
+				walking_default = get_index_for_sound_type_name(sound);
+				if (walking_default == -1)
+				{
+					LOG_ERROR("Sound config parse error: Unknown sound %s for crowd default", sound);
+				}
+			}
 		}
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
@@ -4971,13 +5084,27 @@ void parse_tile_type_sound(xmlNode *inNode)
 				{
 					parse_tile_types(content, pTileType);
 				}
-				else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"sound"))
+				else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"actor_types"))
 				{
-					pTileType->sound = get_index_for_sound_type_name(content);
-					if (pTileType->sound == -1)
+					safe_strncpy(pTileType->sounds[pTileType->num_sounds].actor_types, content, sizeof(pTileType->sounds[pTileType->num_sounds].actor_types));
+					safe_strncpy(content, get_string_property(attributeNode, "sound"), sizeof(content));
+					pTileType->sounds[pTileType->num_sounds].sound = get_index_for_sound_type_name(content);
+					if (pTileType->sounds[pTileType->num_sounds].sound == -1)
 					{
 						LOG_ERROR("Sound config parse error: Unknown sound %s for tile type sound", content);
 					}
+					// Increment the actor_types count
+					pTileType->num_sounds++;
+				}
+				else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"default"))
+				{
+					pTileType->default_sound = get_index_for_sound_type_name(content);
+					if (pTileType->default_sound == -1)
+					{
+						LOG_ERROR("Sound config parse error: Unknown default sound %s for tile type sound", content);
+					}
+					// Increment the actor_types count
+					pTileType->num_sounds++;
 				}
 			}
 		}

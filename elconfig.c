@@ -1583,6 +1583,9 @@ void init_vars()
 #ifdef OGG_VORBIS
 	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 #endif //OGG_VORBIS
+#ifdef NEW_SOUND
+	add_var(OPT_BOOL,"dim_sounds_on_rain","dim4rain",&dim_sounds_on_rain,change_int,0,"Dim sounds when raining (Experimental!)","Soften the volume of other sounds when it is raining",AUDIO);
+#endif	//NEW_SOUND
 
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);

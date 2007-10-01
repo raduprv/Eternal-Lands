@@ -699,8 +699,8 @@ void weather_sound_control()
 
 	if (rain_sound == -1) {
 #ifdef NEW_SOUND
-		rain_sound = add_server_sound(snd_rain,0,0);
-		sound_source_set_gain(rain_sound,0.0f);
+		rain_sound = add_server_sound(snd_rain, 0, 0, 0.0f);
+//		sound_source_set_gain(rain_sound,0.0f);
 #else
 		int buffer;
 		alGenSources(1, &rain_sound);
@@ -755,7 +755,7 @@ void weather_sound_control()
 					if (snd_thunder)
 					{
 #ifdef NEW_SOUND
-						add_server_sound(snd_thunder, 0, 0);
+						add_server_sound(snd_thunder, 0, 0, 1.0f);
 #else
 						add_sound_object(snd_thunder, 0, 0, 0, 0);
 #endif	//NEW_SOUND
@@ -1010,11 +1010,11 @@ void rain_control()
 			num_rain_drops = rainParam*MAX_RAIN_DROPS;
 #ifdef NEW_SOUND
 			if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
-				rain_sound = add_server_sound(snd_rain,0,0);
+				rain_sound = add_server_sound(snd_rain, 0, 0, rainParam);
 #else
 			if(!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-#endif	//NEW_SOUND
 			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
+#endif	//NEW_SOUND
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 			if (is_raining) is_raining = 0;
@@ -1051,16 +1051,16 @@ void rain_control()
 			if (rain_sound) sound_source_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
+			rainParam = rain_strength_bias*(30-seconds_till_rain_starts)/30.0f;
 			if(!is_raining) {
 				is_raining=1;
 #ifdef NEW_SOUND
 				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
-					rain_sound = add_server_sound(snd_rain,0,0);
+					rain_sound = add_server_sound(snd_rain,0,0, rainParam);
 #else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
 			}
-			rainParam = rain_strength_bias*(30-seconds_till_rain_starts)/30.0f;
 			num_rain_drops = rainParam*MAX_RAIN_DROPS;
 			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
 			seconds_till_rain_starts--;
@@ -1069,7 +1069,7 @@ void rain_control()
 				is_raining=1;
 #ifdef NEW_SOUND
 				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
-					rain_sound = add_server_sound(snd_rain,0,0);
+					rain_sound = add_server_sound(snd_rain, 0, 0, rain_strength_bias);
 #else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
@@ -1098,7 +1098,7 @@ void rain_control()
 				sound_source_set_gain(rain_sound, rain_strength_bias);
 			} else {
 #ifdef NEW_SOUND
-				rain_sound = add_server_sound(snd_rain,0,0);
+				rain_sound = add_server_sound(snd_rain, 0, 0, rain_strength_bias);
 #else
 				rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
@@ -1142,7 +1142,7 @@ void thunder_control()
 							if(thunders[i].thunder_type >=0 && thunders[i].thunder_type <5)
 							{
 #ifdef NEW_SOUND
-								add_server_sound(sounds[thunders[i].thunder_type],0,0);
+								add_server_sound(sounds[thunders[i].thunder_type], 0, 0, 1.0f);
 #else
 								add_sound_object(sounds[thunders[i].thunder_type],0,0,0,0);
 #endif	//NEW_SOUND

@@ -11,6 +11,9 @@
 #include "interface.h"
 #include "items.h"
 #include "multiplayer.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 #include "textures.h"
 #include "tiles.h"
 #include "translate.h"
