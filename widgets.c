@@ -2465,7 +2465,7 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	if (tf == NULL) return;
 	
 	line = y / displayed_font_y_size;
-	if (line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
+	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
 	{
 		// Invalid position, if we were dragging keep the selection 
 		// intact, but if this was a click, clear it
