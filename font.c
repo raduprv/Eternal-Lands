@@ -21,6 +21,9 @@
 #include "interface.h"
 #include "misc.h"
 #include "textures.h"
+#ifndef SKY_FPV_CURSOR
+#include "draw_scene.h"
+#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.

@@ -19,6 +19,7 @@
 #include "cluster.h"
 #endif
 #ifdef	USE_SHADER
+#include "global.h"
 #include "shadows.h"
 #include "shader/shader.h"
 #endif	// USE_SHADER
