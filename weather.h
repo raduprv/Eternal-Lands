@@ -33,6 +33,9 @@ void weather_color_bias(const float * src, float * dst);
 float weather_get_fadein_bias();
 float weather_get_fadeout_bias();
 float weather_get_fadeinout_bias();
+#ifdef NEW_SOUND
+float weather_adjust_gain(float in_gain, int in_sound);
+#endif // NEW_SOUND
 extern float rain_color[];
 
 #else // def NEW_WEATHER

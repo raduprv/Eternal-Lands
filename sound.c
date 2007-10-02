@@ -2257,6 +2257,19 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 				}
 				break;
 		}
+		// Check if we need to dim down the sounds due to rain
+#ifndef NEW_WEATHER
+		if (dim_sounds_on_rain && is_raining)
+		{
+			// Dim down all the sounds, except the rain (TODO: and thunder??)
+			gain *= (1.0f - rain_strength_bias) * 2;
+#ifdef _EXTRA_SOUND_DEBUG
+//			printf("Adjusting volume by: %f\n", (1.0f - rain_strength_bias) * 2);
+#endif // _EXTRA_SOUND_DEBUG
+		}
+#else // NEW_WEATHER
+		gain = weather_adjust_gain(gain, stream->sound);
+#endif // NEW_WEATHER
 		alSourcef(stream->source, AL_GAIN, gain);
 	}
 	
@@ -3739,6 +3752,7 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 		loaded_sounds[loaded_sound_num].base_gain = new_gain;
 	}
 	// Check if we need to dim down the sounds due to rain
+#ifndef NEW_WEATHER
 	if (dim_sounds_on_rain && is_raining && loaded_sounds[pSource->loaded_sound].sound != rain_sound)
 	{
 		// Dim down all the sounds, except the rain (TODO: and thunder??)
@@ -3747,7 +3761,10 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 //		printf("Adjusting volume by: %f\n", (1.0f - rain_strength_bias) * 2);
 #endif // _EXTRA_SOUND_DEBUG
 	}
-	
+#else // NEW_WEATHER
+	new_gain = weather_adjust_gain(new_gain, loaded_sounds[pSource->loaded_sound].sound);
+#endif // NEW_WEATHER
+
 	// Check if we need to update the overall gain for this source
 	if (sound_gain * type_gain * this_snd.gain * new_gain != loaded_sounds[loaded_sound_num].cur_gain)
 	{

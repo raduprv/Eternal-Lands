@@ -140,6 +140,8 @@ thunder thunders[MAX_THUNDERS];
 int num_thunders = 0;
 Uint32 lightning_stop = 0;
 
+int rain_sound = -1;
+
 float rain_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 float fog_alpha;
 
@@ -692,45 +694,52 @@ float weather_bias_light(float value)
 
 void weather_sound_control()
 {
-	static ALuint rain_sound = -1;
 	if (!sound_on) {
 		return;
 	}
 
-	if (rain_sound == -1) {
-#ifdef NEW_SOUND
-		rain_sound = add_server_sound(snd_rain, 0, 0, 0.0f);
-//		sound_source_set_gain(rain_sound,0.0f);
-#else
-		int buffer;
-		alGenSources(1, &rain_sound);
-		buffer = get_loaded_buffer(snd_rain);
-		if (buffer) alSourcei(rain_sound, AL_BUFFER, buffer);
-		alSourcei(rain_sound, AL_LOOPING, AL_TRUE);
-		alSourcei(rain_sound, AL_SOURCE_RELATIVE, AL_TRUE);
-		alSourcef(rain_sound, AL_GAIN, 0.0f);
-#endif	//NEW_SOUND
-	}
-	
-	if(weather_active()){
+	if (weather_active())
+	{
 		// 0 means initialization
 		float severity = weather_severity * weather_get_fadeinout_bias();
 		int i;
 
-		if(weather_ratios[WEATHER_RAIN] > 0.0f){
+		// Torg: Only load sounds when we need them so we aren't wasting sources.
+		// This is really only for NEW_SOUND.
+		if (rain_sound == -1)
+		{
 #ifdef NEW_SOUND
-			sound_source_set_gain(rain_sound,severity*weather_ratios[WEATHER_RAIN]);
+			rain_sound = add_server_sound(snd_rain, 0, 0, 0.0f);
+//			sound_source_set_gain(rain_sound, 0.0f);
+#else
+			int buffer;
+			alGenSources(1, &rain_sound);
+			buffer = get_loaded_buffer(snd_rain);
+			if (buffer) alSourcei(rain_sound, AL_BUFFER, buffer);
+			alSourcei(rain_sound, AL_LOOPING, AL_TRUE);
+			alSourcei(rain_sound, AL_SOURCE_RELATIVE, AL_TRUE);
+			alSourcef(rain_sound, AL_GAIN, 0.0f);
+#endif	//NEW_SOUND
+		}
+
+		if (weather_ratios[WEATHER_RAIN] > 0.0f)
+		{
+#ifdef NEW_SOUND
+			sound_source_set_gain(rain_sound, severity * weather_ratios[WEATHER_RAIN]);
 #else
 			int source_state;
-			alSourcef(rain_sound, AL_GAIN, severity*weather_ratios[WEATHER_RAIN]);
+			alSourcef(rain_sound, AL_GAIN, severity * weather_ratios[WEATHER_RAIN]);
 			alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
 			if (source_state != AL_PLAYING) alSourcePlay(rain_sound);
 #endif	//NEW_SOUND
-		} else {
+		}
+		else
+		{
 #ifdef NEW_SOUND
-				sound_source_set_gain(rain_sound,0.0f);
+			stop_sound(rain_sound);
+			rain_sound = -1;
 #else
-				alSourcePause(rain_sound);
+			alSourcePause(rain_sound);
 #endif	//NEW_SOUND
 		}
 
@@ -767,11 +776,15 @@ void weather_sound_control()
 	}
 	else
 	{
+		if (rain_sound != -1)
+		{
 #ifdef NEW_SOUND
-		sound_source_set_gain(rain_sound,0.0f);
+			stop_sound(rain_sound);
+			rain_sound = -1;
 #else
-		alSourcePause(rain_sound);
+			alSourcePause(rain_sound);
 #endif	//NEW_SOUND
+		}
 	}
 }
 
@@ -805,6 +818,21 @@ void add_thunder(int type, int sound_delay)
 	// start a lightning
 	lightning_stop = weather_time + 100 + (Uint32)(300.0f * RAND_ONE);
 }
+
+#ifdef NEW_SOUND
+float weather_adjust_gain(float in_gain, int in_sound)
+{
+	float severity;
+	
+	if (dim_sounds_on_rain && weather_active() && in_sound != rain_sound)
+	{
+		severity = weather_severity * weather_get_fadeinout_bias();
+		// Dim down all the sounds, except the rain (TODO: and thunder??)
+		return in_gain * (1.0f - severity) * 2;
+	}
+	return in_gain;
+}
+#endif // NEW_SOUND
 
 #else // !def NEW_WEATHER
 
