@@ -44,6 +44,7 @@
 #endif // NEW_SOUND
 #define SLEEP_TIME 500
 
+/*
 #ifdef _EXTRA_SOUND_DEBUG
  #ifdef DEBUG
 #define LOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUNDLIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_LockMutex(sound_list_mutex); }
@@ -53,6 +54,7 @@
 #define UNLOCK_SOUND_LIST() { static int i; printf("UNLOCK_SOUND_LIST %d - %s %s:%d\n", i++, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
  #endif // DEBUG
 #else // _EXTRA_SOUND_DEBUG
+*/
 #define	LOCK_SOUND_LIST() SDL_LockMutex(sound_list_mutex);
 #define	UNLOCK_SOUND_LIST() SDL_UnlockMutex(sound_list_mutex);
 #endif // _EXTRA_SOUND_DEBUG
@@ -3672,30 +3674,37 @@ void handle_walking_sound(actor * pActor, int def_snd)
 {
 	int snd, tile_type, cur_source;
 	
-	// Actor is walking, so look for a walking sound for this tile
-	tile_type = get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2);
-	snd = get_tile_sound(tile_type, actors_defs[pActor->actor_type].actor_name);
-#ifdef _EXTRA_SOUND_DEBUG
-//	printf("Actor: %s, Pos: %f, %f, Current tile type: %d, Sound: %d\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, tile_type, snd);
-#endif // _EXTRA_SOUND_DEBUG
-	// No sound for this tile, fall back on the default (set in the animation)
-	if (snd == -1)
-		snd = def_snd;
-	
-	// Check if we have a sound and it is different to the current one
-	cur_source = find_sound_source_from_cookie(pActor->cur_anim_sound_cookie);
-	if(snd > -1 && loaded_sounds[sound_source_data[cur_source].loaded_sound].sound != snd)
+	if (actors_defs[pActor->actor_type].walk_snd_scale > 0.0f)
 	{
-		// Remove the current sound (if the source is valid)
-		if (cur_source > -1)
-			stop_sound_source_at_index(cur_source);
-		// Found a sound, so add it
-		pActor->cur_anim_sound_cookie = add_walking_sound(	snd,
-															2*pActor->x_pos,
-															2*pActor->y_pos,
-															pActor->actor_id == yourself ? 1 : 0,
-															actors_defs[pActor->actor_type].walk_snd_scale
-														);
+		// This creature is large enough for walking sound do look for one for this tile
+		tile_type = get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2);
+		snd = get_tile_sound(tile_type, actors_defs[pActor->actor_type].actor_name);
+#ifdef _EXTRA_SOUND_DEBUG
+//		printf("Actor: %s, Pos: %f, %f, Current tile type: %d, Sound: %d\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, tile_type, snd);
+#endif // _EXTRA_SOUND_DEBUG
+
+		if (snd == -1)
+			// No sound for this tile, fall back on the passed default (from the animation)
+			snd = def_snd;
+		if (snd == -1)
+			// Still no sound, so fall back on the global default
+			snd = walking_default;
+		
+		// Check if we have a sound and it is different to the current one
+		cur_source = find_sound_source_from_cookie(pActor->cur_anim_sound_cookie);
+		if(snd > -1 && loaded_sounds[sound_source_data[cur_source].loaded_sound].sound != snd)
+		{
+			// Remove the current sound (if the source is valid)
+			if (cur_source > -1)
+				stop_sound_source_at_index(cur_source);
+			// Found a sound, so add it
+			pActor->cur_anim_sound_cookie = add_walking_sound(	snd,
+																2*pActor->x_pos,
+																2*pActor->y_pos,
+																pActor->actor_id == yourself ? 1 : 0,
+																actors_defs[pActor->actor_type].walk_snd_scale
+															);
+		}
 	}
 }
 
