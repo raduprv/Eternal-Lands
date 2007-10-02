@@ -619,7 +619,7 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 #ifdef NEW_SOUND
 	if (sound_on && snd >= 0)
 	{
-		add_sound_object (snd, x_tile, y_tile, 0);
+		add_particle_sound(snd, x_tile, y_tile);
 	}
 #endif // NEW_SOUND
 }
@@ -690,7 +690,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 		snd = get_sound_index_for_particle_file_name(file_name);
 		if (snd >= 0)
 		{
-			add_sound_object (snd, (x_pos - 0.25f) * 2, (y_pos - 0.25f) * 2, 0);
+			add_particle_sound(snd, (x_pos - 0.25f) * 2, (y_pos - 0.25f) * 2);
 		}
 	}
 #endif // NEW_SOUND
