@@ -44,7 +44,6 @@
 #endif // NEW_SOUND
 #define SLEEP_TIME 500
 
-/*
 #ifdef _EXTRA_SOUND_DEBUG
  #ifdef DEBUG
 #define LOCK_SOUND_LIST() { static int i; static char str[50]; snprintf(str, sizeof(str), "LOCK_SOUNDLIST %d\n", i++); log_error_detailed(str, __FILE__, __FUNCTION__, __LINE__); SDL_LockMutex(sound_list_mutex); }
@@ -54,7 +53,6 @@
 #define UNLOCK_SOUND_LIST() { static int i; printf("UNLOCK_SOUND_LIST %d - %s %s:%d\n", i++, __FILE__, __FUNCTION__, __LINE__); SDL_UnlockMutex(sound_list_mutex); }
  #endif // DEBUG
 #else // _EXTRA_SOUND_DEBUG
-*/
 #define	LOCK_SOUND_LIST() SDL_LockMutex(sound_list_mutex);
 #define	UNLOCK_SOUND_LIST() SDL_UnlockMutex(sound_list_mutex);
 #endif // _EXTRA_SOUND_DEBUG
