@@ -63,29 +63,29 @@ void destroy_map()
 	clear_bbox_tree(main_bbox_tree);
 	//kill the tile and height map
 	if(tile_map)
-		{
-			free(tile_map);
-			tile_map=0;
-		}
+	{
+		free (tile_map);
+		tile_map = NULL;
+	}
 	memset(tile_list,0,sizeof(tile_list));
+	tile_map_size_x = tile_map_size_y = 0;
 
 	if(height_map)
-		{
-			free(height_map);
-			height_map=0;
-		}
+	{
+		free (height_map);
+		height_map = NULL;
+	}
 
 #ifndef MAP_EDITOR2
 	///kill the pathfinding tile map
 	if(pf_tile_map)
-		{
-			free(pf_tile_map);
-			pf_tile_map=0;
-			
-			if (pf_follow_path) {
-				pf_destroy_path();
-			}
-		}
+	{
+		free(pf_tile_map);
+		pf_tile_map = NULL;
+
+		if (pf_follow_path)
+			pf_destroy_path();
+	}
 #endif
 
 	//kill the 3d objects links
@@ -176,11 +176,12 @@ static __inline__ void build_path_map()
 
 	//create the tile map that will be used for pathfinding
 	pf_tile_map = (PF_TILE *)calloc(tile_map_size_x*tile_map_size_y*6*6, sizeof(PF_TILE));
-	for (x = 0; x < tile_map_size_x*6; x++)
+
+	i = 0;
+	for (y = 0; y < tile_map_size_y*6; y++)
 	{
-		for (y = 0; y < tile_map_size_y*6; y++)
+		for (x = 0; x < tile_map_size_x*6; x++, i++)
 		{
-			i = y*tile_map_size_x*6+x;
 			pf_tile_map[i].x = x;
 			pf_tile_map[i].y = y;
 			pf_tile_map[i].z = height_map[i];
@@ -199,6 +200,11 @@ static int el_load_map(const char * file_name)
 
 	init_map_loading(file_name);
 	ret = load_map(file_name, &updat_func);
+	if (!ret)
+		// don't try to build pathfinder maps etc. when loading 
+		// the map failed...
+		return ret;
+
 #ifdef SKY_FPV_CURSOR
 	if (strstr("underworld",file_name) != NULL){
 		sky_type(UNDERWORLD_SKY);
