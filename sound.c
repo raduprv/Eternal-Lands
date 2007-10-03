@@ -5478,3 +5478,161 @@ void print_sound_sources()
 }
 #endif // !NEW_SOUND
 #endif //_DEBUG
+
+#ifdef OSX
+//	Below code originally from alAux.c of Pong3D
+//
+//	Contains:	Mac specific OpenAL auxzilary routines
+//	
+//	Copyright:  Copyright (c) 2007 Apple Inc., All Rights Reserved
+// ----------------------------------------------------
+//
+//	alutLoadMemoryFromFile ( inFilename, ioFormat, ioSize, ioFrequency )
+//
+//	Purpose:	load memory from contents of a file
+//
+//	Inputs:		inFilename - address of complete file name ( path )
+//				ioFormat - if not null, address where to store the format of the data
+//				ioSize - if not null, address where to store the size of the data
+//				ioFrequency - if not null, address where to store the frequency of the data
+//
+// Returns:	On success, a pointer to memory containing the loaded sound.
+//				It returns AL_NONE on failure.
+//
+ALvoid* alutLoadMemoryFromFile (const char * inFilename,
+                                ALenum *ioFormat,
+                                ALsizei *ioSize,
+                                ALfloat *ioFrequency)
+{
+	ALvoid* result = nil;
+
+	ExtAudioFileRef tExtAudioFileRef = NULL;
+	
+	do {
+		FSRef tFSRef;	// convert the path into an FSRef
+		OSStatus status = FSPathMakeRef( ( const UInt8 * ) inFilename, &tFSRef, FALSE );
+		if ( noErr != status ) break;
+		
+		FSCatalogInfo tFSCatalogInfo;	// determine the size of the file
+		status = FSGetCatalogInfo( &tFSRef, kFSCatInfoDataSizes, &tFSCatalogInfo, NULL, NULL, NULL );
+		if ( noErr != status ) break;
+		
+		// Open the input file
+		status = ExtAudioFileOpen( &tFSRef, &tExtAudioFileRef );
+		if ( noErr != status ) break;
+		
+		AudioStreamBasicDescription tASBD;	// get the description ( ASDB ) of the audio file on disk
+		UInt32 asbd_size = sizeof( AudioStreamBasicDescription );
+		status = ExtAudioFileGetProperty( tExtAudioFileRef, kExtAudioFileProperty_FileDataFormat, &asbd_size, &tASBD );
+		if ( noErr != status ) break;
+		
+		// configure the ioput ASBD for 8-bit mono
+		//tASBD.mSampleRate = tASBD.mSampleRate;	// don't change the sample rate
+		tASBD.mFormatID = kAudioFormatLinearPCM;
+		tASBD.mFormatFlags = kAudioFormatFlagIsPacked;
+		tASBD.mBytesPerPacket = 1;
+		tASBD.mFramesPerPacket = 1;
+		tASBD.mBytesPerFrame = 1;
+		tASBD.mChannelsPerFrame = 1;
+		tASBD.mBitsPerChannel = 8;
+		tASBD.mReserved = 0;
+		
+		// now set the ioput ASDB
+		status = ExtAudioFileSetProperty( tExtAudioFileRef, kExtAudioFileProperty_ClientDataFormat, asbd_size, &tASBD );
+		if ( noErr != status ) break;
+		
+		AudioBufferList tABL;
+		
+		tABL.mNumberBuffers = 1;
+		tABL.mBuffers[0].mNumberChannels = 0;
+		tABL.mBuffers[0].mDataByteSize = 0;
+		tABL.mBuffers[0].mData = nil;
+		tABL.mBuffers[0].mNumberChannels = tASBD.mChannelsPerFrame;
+		tABL.mBuffers[0].mDataByteSize = tFSCatalogInfo.dataLogicalSize;
+		
+		SInt64 totalAudioFrames;	// determine the number of frames in the file
+		UInt32 ioPropertyDataSize = sizeof( totalAudioFrames );
+		status = ExtAudioFileGetProperty( tExtAudioFileRef, kExtAudioFileProperty_FileLengthFrames, &ioPropertyDataSize, &totalAudioFrames );
+		if ( noErr != status ) break;
+		
+		UInt32 numberOfFrames = totalAudioFrames;
+		
+		// allocate a buffer to read it into
+		tABL.mBuffers[0].mData = calloc( totalAudioFrames, sizeof( char ) );
+		if ( !tABL.mBuffers[0].mData ) {
+			status = memFullErr;
+			break;
+		}
+		
+		// read all the frames into the buffer
+		status = ExtAudioFileRead( tExtAudioFileRef, &numberOfFrames, &tABL );
+		if ( noErr != status ) {
+			free( tABL.mBuffers[0].mData );
+			break;
+		}
+
+		result = tABL.mBuffers[0].mData;
+
+		if ( ioFormat ) {
+			*ioFormat = AL_FORMAT_MONO8;
+		}
+
+		if ( ioSize ) {
+			*ioSize = totalAudioFrames * sizeof( char );
+		}
+
+		if ( ioFrequency ) {
+			*ioFrequency = tASBD.mSampleRate;
+		}
+		
+	} while ( FALSE );
+	
+	if ( tExtAudioFileRef ) {	// close the audio file
+		ExtAudioFileDispose( tExtAudioFileRef );
+	}
+	
+	return result;
+}	// alutLoadMemoryFromFile
+
+// ----------------------------------------------------
+//
+//	alutCreateBufferFromFile ( inFilename )
+//
+//	Purpose:	Create OpenAL buffer from contents of a file
+//
+//	Inputs:		inFilename - address of complete file name ( path )
+//
+// Returns:	On success, a handle to an OpenAL buffer containing the loaded sound.
+//				It returns AL_NONE on failure.
+//
+ALuint alutCreateBufferFromFile ( const char * inFilename )
+{
+	ALuint result = AL_NONE;	// assume failure
+	ALvoid* tData = nil;
+
+	do {
+		ALenum tFormat;
+		ALsizei tSize;
+		ALfloat tFrequency;
+		
+		tData = alutLoadMemoryFromFile( inFilename, &tFormat, &tSize, &tFrequency );
+		if ( !tData ) break;
+
+		// generate a new OpenAL buffer
+		alGenBuffers( 1, &result );
+		ALenum status = alGetError( );
+		if ( AL_NO_ERROR != status ) break;
+		
+		// load the file's data into our OpenAL buffer
+		alBufferData( result, tFormat, tData, tSize, tFrequency );
+		status = alGetError( );
+		if ( AL_NO_ERROR != status ) break;
+	} while ( FALSE );
+
+	if ( tData ) {	// dispose of the data buffer
+		free( tData );
+	}
+	
+	return result;
+}
+#endif

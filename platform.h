@@ -83,8 +83,19 @@
 	#include <alc.h>
 	#include <alut.h>
 #elif defined(OSX)
-	#include <alut.h>		//oddity as of Xcode 2.4
+ #ifndef ALUT_WAV
+	#include <Carbon/Carbon.h>
+	#include <AudioToolbox/AudioToolbox.h>
+	#include <AudioUnit/AudioUnit.h>
+
+	#include <OpenAL/al.h>
 	#include <OpenAL/alc.h>
+	#include <OpenAL/MacOSX_OALExtensions.h>
+ #else
+	#include <OpenAL/al.h>
+	#include <OpenAL/alc.h>
+	#include <OpenAL/alut.h>		//oddity as of Xcode 2.4
+ #endif
 #else
 	#include <AL/al.h>
 	#include <AL/alc.h>

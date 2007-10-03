@@ -431,6 +431,15 @@ int display_song_name();
  */
 void toggle_music(int * var);
 
+#ifdef OSX
+extern ALvoid *alutLoadMemoryFromFile( const char *infilename,
+                                ALenum *ioFormat,
+                                ALsizei *ioSize,
+                                ALfloat *ioFrequency);
+
+extern ALuint alutCreateBufferFromFile (const char *inFilename);
+#endif
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
