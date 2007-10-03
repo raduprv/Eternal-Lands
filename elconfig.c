@@ -1563,7 +1563,6 @@ void init_vars()
 #endif	//ELC
 
 #ifdef NEW_SOUND
-//	add_var(OPT_MULTI,"sounds","sounds",&sound_opts,change_sounds,3,"Sounds","Turn sound effects on/off",AUDIO, "No sound", "Environmental Only", "+General Character", "+Walking", NULL);
 	add_var(OPT_BOOL,"enable_sound","sound",&sound_opts,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 	add_var(OPT_FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Overall Sound Gain","Adjust the overall sound effects volume",AUDIO,0.0,1.0,0.1);
 	add_var(OPT_FLOAT,"crowd_gain","crgain",&crowd_gain,change_sound_level,1,"Crowd Sounds Gain","Adjust the crowd sound effects volume",AUDIO,0.0,1.0,0.1);
@@ -1584,7 +1583,7 @@ void init_vars()
 	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 #endif //OGG_VORBIS
 #ifdef NEW_SOUND
-	add_var(OPT_BOOL,"dim_sounds_on_rain","dim4rain",&dim_sounds_on_rain,change_int,0,"Dim sounds when raining (Experimental!)","Soften the volume of other sounds when it is raining",AUDIO);
+	add_var(OPT_BOOL,"dim_sounds_on_rain","dim4rain",&dim_sounds_on_rain,change_var,0,"Dim sounds when raining (Experimental!)","Soften the volume of other sounds when it is raining",AUDIO);
 #endif	//NEW_SOUND
 
 #ifndef MAP_EDITOR2

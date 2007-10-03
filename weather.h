@@ -21,6 +21,10 @@ void render_weather();
 
 void get_weather_from_server(const Uint8* data);
 
+#ifdef NEW_SOUND
+float weather_adjust_gain(float in_gain, int in_cookie);
+#endif // NEW_SOUND
+
 extern int wind_speed;	//strength of wind, based on server's setting and local randomization. range of 1..100
 extern int wind_direction;	//wind direction, based on server's setting and local randomization. 0 and 360 are north
 
@@ -33,9 +37,6 @@ void weather_color_bias(const float * src, float * dst);
 float weather_get_fadein_bias();
 float weather_get_fadeout_bias();
 float weather_get_fadeinout_bias();
-#ifdef NEW_SOUND
-float weather_adjust_gain(float in_gain, int in_sound);
-#endif // NEW_SOUND
 extern float rain_color[];
 
 #else // def NEW_WEATHER

@@ -704,29 +704,25 @@ void weather_sound_control()
 		float severity = weather_severity * weather_get_fadeinout_bias();
 		int i;
 
-		// Torg: Only load sounds when we need them so we aren't wasting sources.
-		// This is really only for NEW_SOUND.
-		if (rain_sound == -1)
-		{
-#ifdef NEW_SOUND
-			rain_sound = add_server_sound(snd_rain, 0, 0, 0.0f);
-//			sound_source_set_gain(rain_sound, 0.0f);
-#else
-			int buffer;
-			alGenSources(1, &rain_sound);
-			buffer = get_loaded_buffer(snd_rain);
-			if (buffer) alSourcei(rain_sound, AL_BUFFER, buffer);
-			alSourcei(rain_sound, AL_LOOPING, AL_TRUE);
-			alSourcei(rain_sound, AL_SOURCE_RELATIVE, AL_TRUE);
-			alSourcef(rain_sound, AL_GAIN, 0.0f);
-#endif	//NEW_SOUND
-		}
-
 		if (weather_ratios[WEATHER_RAIN] > 0.0f)
 		{
+			// Torg: Only load sounds when we need them so we aren't wasting sources.
+			// This is really only for NEW_SOUND.
+			if (rain_sound == -1)
 #ifdef NEW_SOUND
-			sound_source_set_gain(rain_sound, severity * weather_ratios[WEATHER_RAIN]);
+				rain_sound = add_server_sound(snd_rain, 0, 0, severity * weather_ratios[WEATHER_RAIN]);
+			else
+				sound_source_set_gain(rain_sound, severity * weather_ratios[WEATHER_RAIN]);
 #else
+			{
+				int buffer;
+				alGenSources(1, &rain_sound);
+				buffer = get_loaded_buffer(snd_rain);
+				if (buffer) alSourcei(rain_sound, AL_BUFFER, buffer);
+				alSourcei(rain_sound, AL_LOOPING, AL_TRUE);
+				alSourcei(rain_sound, AL_SOURCE_RELATIVE, AL_TRUE);
+				alSourcef(rain_sound, AL_GAIN, 0.0f);
+			}
 			int source_state;
 			alSourcef(rain_sound, AL_GAIN, severity * weather_ratios[WEATHER_RAIN]);
 			alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
@@ -735,12 +731,15 @@ void weather_sound_control()
 		}
 		else
 		{
+			if (rain_sound > -1)
+			{
 #ifdef NEW_SOUND
-			stop_sound(rain_sound);
-			rain_sound = -1;
+				stop_sound(rain_sound);
+				rain_sound = -1;
 #else
-			alSourcePause(rain_sound);
+				alSourcePause(rain_sound);
 #endif	//NEW_SOUND
+			}
 		}
 
 		for (i = 0; i < num_thunders; i++)
@@ -776,7 +775,7 @@ void weather_sound_control()
 	}
 	else
 	{
-		if (rain_sound != -1)
+		if (rain_sound > -1)
 		{
 #ifdef NEW_SOUND
 			stop_sound(rain_sound);
@@ -820,15 +819,15 @@ void add_thunder(int type, int sound_delay)
 }
 
 #ifdef NEW_SOUND
-float weather_adjust_gain(float in_gain, int in_sound)
+float weather_adjust_gain(float in_gain, int in_cookie)
 {
 	float severity;
 	
-	if (dim_sounds_on_rain && weather_active() && in_sound != rain_sound)
+	if (dim_sounds_on_rain && weather_active() && in_cookie != rain_sound)
 	{
-		severity = weather_severity * weather_get_fadeinout_bias();
-		// Dim down all the sounds, except the rain (TODO: and thunder??)
-		return in_gain * (1.0f - severity) * 2;
+		severity = weather_severity * weather_get_fadeinout_bias() * weather_ratios[WEATHER_RAIN];
+		// Dim down all the sounds, except the rain
+		return in_gain * (1.0f - severity);
 	}
 	return in_gain;
 }
@@ -1141,6 +1140,17 @@ void rain_control()
 	}
 }
 
+#ifdef NEW_SOUND
+float weather_adjust_gain(float in_gain, int in_cookie)
+{
+	if (dim_sounds_on_rain && is_raining && in_cookie != rain_sound)
+	{
+		// Dim down all the sounds, except the rain
+		in_gain *= 1.0f - (rain_strength_bias * 2);
+	}
+	return in_gain;
+}
+#endif // NEW_SOUND
 
 void thunder_control()
 {
@@ -1311,7 +1321,6 @@ CHECK_GL_ERRORS();
 }
 
 #endif	//NEW_WEATHER
-
 
 void render_rain(int num_rain_drops)
 {

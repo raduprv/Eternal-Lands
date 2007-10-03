@@ -58,12 +58,12 @@ extern ALfloat client_gain; /*!< gain for client sound effects */
 	#ifdef DEBUG
 		void print_sound_types();
 		void print_sound_samples();
-		void print_loaded_sounds();
+		void print_sounds_list();
 		void print_sound_sources();
 	#endif
 #else
 	#ifdef DEBUG
-		void print_sound_objects ();
+		void print_sound_objects();
 	#endif
 #endif	//NEW_SOUND
 						   
