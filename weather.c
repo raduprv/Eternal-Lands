@@ -712,7 +712,7 @@ void weather_sound_control()
 #ifdef NEW_SOUND
 				rain_sound = add_server_sound(snd_rain, 0, 0, severity * weather_ratios[WEATHER_RAIN]);
 			else
-				sound_source_set_gain(rain_sound, severity * weather_ratios[WEATHER_RAIN]);
+				sound_source_set_gain(find_sound_source_from_cookie(rain_sound), severity * weather_ratios[WEATHER_RAIN]);
 #else
 			{
 				int buffer;
@@ -1116,17 +1116,14 @@ void rain_control()
 		if (is_raining) {
 			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
 #ifdef NEW_SOUND
-			if (rain_sound && find_sound_source_from_cookie(rain_sound)>=0)
-#else
-			if (rain_sound)
-#endif	//NEW_SOUND
-			{
-
-				sound_source_set_gain(rain_sound, rain_strength_bias);
+			if (rain_sound && find_sound_source_from_cookie(rain_sound) >= 0) {
+				sound_source_set_gain(find_sound_source_from_cookie(rain_sound), rain_strength_bias);
 			} else {
-#ifdef NEW_SOUND
 				rain_sound = add_server_sound(snd_rain, 0, 0, rain_strength_bias);
 #else
+			if (rain_sound) {
+				sound_source_set_gain(rain_sound, rain_strength_bias);
+			} else {
 				rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
 			}

@@ -250,7 +250,7 @@ void check_for_item_sound(int pos)
 	int i, snd = -1;
 	
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Used item: %d, Image ID: %d, Action: %d\n", pos, item_list[pos].image_id, item_list[pos].action);
+//	printf("Used item: %d, Image ID: %d, Action: %d\n", pos, item_list[pos].image_id, item_list[pos].action);
 #endif // _EXTRA_SOUND_DEBUG
 	if (item_list[pos].action != ITEM_NO_ACTION)
 	{
@@ -642,7 +642,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #ifdef NEW_SOUND
 					item_list[pos].action = USE_INVENTORY_ITEM;
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("Using item: %d, inv pos: %d, Image ID: %d\n", item_list[pos].pos, pos, item_list[pos].image_id);
+//					printf("Using item: %d, inv pos: %d, Image ID: %d\n", item_list[pos].pos, pos, item_list[pos].image_id);
 #endif // _EXTRA_SOUND_DEBUG
 #endif // NEW_SOUND
 				}
@@ -658,7 +658,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					item_list[use_item].action = ITEM_ON_ITEM;
 					item_list[pos].action = ITEM_ON_ITEM;
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("Using item: %d on item: %d, Image ID: %d\n", pos, use_item, item_list[pos].image_id);
+//					printf("Using item: %d on item: %d, Image ID: %d\n", pos, use_item, item_list[pos].image_id);
 #endif // _EXTRA_SOUND_DEBUG
 #endif // NEW_SOUND
 				} else {

@@ -2071,9 +2071,11 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 					);
 #ifdef NEW_SOUND
 				// Check for a scale or default to 0.2
-				myf = atof(get_string_property(item, "sound_scale"));
-				if (myf == 0.0f)
+				safe_strncpy(str, get_string_property(item, "sound_scale"), sizeof(str));
+				if (!strcasecmp(str, ""))
 					myf = 0.2f;
+				else
+					myf = atof(str);
 				act->walk_snd_scale = myf;
 #endif	//NEW_SOUND
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_run") == 0) {

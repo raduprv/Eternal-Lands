@@ -2272,10 +2272,11 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 	{
 		new_gain = weather_adjust_gain(gain, -1);
 #ifdef _EXTRA_SOUND_DEBUG
-		if (new_gain != gain)
+/*		if (new_gain != gain)
 		{
 			printf("Volume adjusted by fade/weather for stream %d - Original gain: %f, New gain: %f\n", stream->type, gain, new_gain);
 		}
+*/
 #endif // _EXTRA_SOUND_DEBUG
 	}
 
@@ -3770,7 +3771,7 @@ void handle_walking_sound(actor * pActor, int def_snd)
 		tile_type = get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2);
 		snd = get_tile_sound(tile_type, actors_defs[pActor->actor_type].actor_name);
 #ifdef _EXTRA_SOUND_DEBUG
-//		printf("Actor: %s, Pos: %f, %f, Current tile type: %d, Sound: %d\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, tile_type, snd);
+//		printf("Actor: %s, Pos: %f, %f, Current tile type: %d, Sound: %d, Scale: %f\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, tile_type, snd, actors_defs[pActor->actor_type].walk_snd_scale);
 #endif // _EXTRA_SOUND_DEBUG
 
 		if (snd == -1)
@@ -4021,7 +4022,7 @@ int get_tile_sound(int tile_type, char * actor_type)
 int time_of_day_valid(int flags)
 {
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Checking time of the day: Flags: 0x%x, Time: %d, Calc: %d, 0x%x\n", flags, game_minute, (game_minute / 30) + 1, 1 << (game_minute / 30));
+//	printf("Checking time of the day: Flags: 0x%x, Time: %d, Calc: %d, 0x%x\n", flags, game_minute, (game_minute / 30) + 1, 1 << (game_minute / 30));
 #endif //_EXTRA_SOUND_DEBUG
 	return flags & (1 << (game_minute / 30));
 }
