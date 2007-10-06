@@ -702,8 +702,10 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 		free_text_message_data (msg);
 	}
 
-	// Allow for a null byte and up to 8 extra newlines and colour codes.
-	minlen = len + 18;
+	// Try to make a guess at the number of wrapping newlines required,
+	// but allow al least for a null byte and up to 8 extra newlines and 
+	// colour codes
+	minlen = len + 18 + (len/60);
 	cnr = get_active_channel (channel);
 	if (cnr != 0)
 		// allow some space for the channel number
@@ -767,7 +769,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	msg->deleted = 0;
 	recolour_message(msg);
 	update_text_windows(msg);
-	
+
 	// log the message
 	write_to_log (channel, (unsigned char*)msg->data, msg->len);
 
