@@ -767,27 +767,54 @@ int command_unfilter(char *text, int len)
 	return 1;
 }
 
-int command_glinfo(char *text, int len)
+int command_glinfo (const char *text, int len)
 {
-	GLubyte *my_string;
-	char this_string[8192];
+	const char *my_string;
+	size_t size = 8192, minlen;
+	char* this_string = calloc (size, 1);
 
-	my_string = (GLubyte *)glGetString(GL_RENDERER);
-	safe_snprintf(this_string, sizeof(this_string),"%s: %s",video_card_str,my_string);
-	LOG_TO_CONSOLE(c_red2,this_string);
+	my_string = (const char*) glGetString (GL_RENDERER);
+	minlen = strlen (video_card_str) + strlen (my_string) + 3;
+	if (size < minlen)
+	{
+		while (size < minlen) size += size;
+		this_string = realloc (this_string, size);
+	}
+	safe_snprintf (this_string, size,"%s: %s",video_card_str, my_string);
+	LOG_TO_CONSOLE (c_red2, this_string);
 
-	my_string = (GLubyte *)glGetString(GL_VENDOR);
-	safe_snprintf(this_string, sizeof(this_string),"%s: %s",video_vendor_str,my_string);
-	LOG_TO_CONSOLE(c_yellow3,this_string);
+	my_string = (const char*) glGetString (GL_VENDOR);
+	minlen = strlen (video_vendor_str) + strlen (my_string) + 3;
+	if (size < minlen)
+	{
+		while (size < minlen) size += size;
+		this_string = realloc (this_string, size);
+	}
+	safe_snprintf (this_string, size,"%s: %s", video_vendor_str, my_string);
+	LOG_TO_CONSOLE (c_yellow3, this_string);
 
-	my_string = (GLubyte *)glGetString(GL_VERSION);
-	safe_snprintf(this_string, sizeof(this_string),"%s: %s",opengl_version_str,my_string);
-	LOG_TO_CONSOLE(c_yellow2,this_string);
+	my_string = (const char*) glGetString (GL_VERSION);
+	minlen = strlen (opengl_version_str) + strlen (my_string) + 3;
+	if (size < minlen)
+	{
+		while (size < minlen) size += size;
+		this_string = realloc (this_string, size);
+	}
+	safe_snprintf (this_string, size, "%s: %s", opengl_version_str, my_string);
+	LOG_TO_CONSOLE (c_yellow2, this_string);
 
-	my_string = (GLubyte *)glGetString(GL_EXTENSIONS);
-	safe_snprintf(this_string,sizeof(this_string),"%s: %s",supported_extensions_str,my_string);
-	LOG_TO_CONSOLE(c_grey1,this_string);
+	my_string = (const char*) glGetString (GL_EXTENSIONS);
+	minlen = strlen (supported_extensions_str) + strlen (my_string) + 3;
+	if (size < minlen)
+	{
+		while (size < minlen) size += size;
+		this_string = realloc (this_string, size);
+	}
+	safe_snprintf (this_string, size, "%s: %s", supported_extensions_str, my_string);
+	LOG_TO_CONSOLE (c_grey1, this_string);
 
+	free (this_string);
+	
 	return 1;
 }
 
