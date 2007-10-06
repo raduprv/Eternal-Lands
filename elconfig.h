@@ -101,6 +101,8 @@ extern int options_set;
 
 void display_elconfig_win(void);
 
+void change_language(const char *new_lang);
+
 /*!
  * \ingroup config
  * \brief   checks whether we have a variable with the given \a str as name and the given \a type.

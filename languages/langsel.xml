@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<LANGUAGE_LIST>
+<LANG CODE="de" SAVE="Speichern" TEXT="Deutsche Sprache auswählen">Anmerkung: Servernachrichten und Bedienelemente sind auf englisch, in machen Chats ist englisch Pflicht, siehe Spielregeln (F5).</LANG>
+<LANG CODE="en" SAVE="Save" DEFAULT="true" TEXT="Select English Language">Note English is used for server messages and most player chat. See Rules for details (F5).</LANG>
+<LANG CODE="es" SAVE="Excepto" TEXT="Seleccionar la idioma española">El inglés de la nota se utiliza para los mensajes del servidor y la mayoría de la charla del jugador. Ver las reglas para los detalles (F5).</LANG>
+<LANG CODE="fr" SAVE="Économiser" TEXT="Choisir la langue française">L'anglais de note est employé pour des messages de serveur et la plupart de causerie de joueur. Voir les règles pour des détails (F5).</LANG>
+<LANG CODE="hu" TEXT="Select Hungarian Language"></LANG>
+<LANG CODE="nl" TEXT="Nederlandse taal selecteren"></LANG>
+<LANG CODE="po" TEXT="Select Polish Language"></LANG>
+<LANG CODE="pt" TEXT="Selecionar a língua Portuguese">O inglês da nota é usado para mensagens do usuário e a maioria de bate-papo do jogador. Ver réguas para detalhes (F5).</LANG>
+<LANG CODE="si" TEXT="Select Sinhala Language"></LANG>
+<LANG CODE="tr" TEXT="Select Turkish Language"></LANG>
+<SETTINGS TEXT="1.0 0.3 1.0" HIGHLIGHT="1.2 0.5 1.2" CHOSEN="0.2 1.0 1.2" BUTTONS="0.77 0.57 0.39" NOTELINES="4"/>
+</LANGUAGE_LIST>

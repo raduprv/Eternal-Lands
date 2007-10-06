@@ -33,6 +33,7 @@
 #include "items.h"
 #include "keys.h"
 #include "knowledge.h"
+#include "langselwin.h"
 #include "lights.h"
 #include "loading_win.h"
 #include "loginwin.h"
@@ -118,6 +119,7 @@ char datadir[256]="./";
 #endif //DATA_DIR
 
 char lang[10]={"en"};
+static int no_lang_in_config = 0;
 
 int video_mode_set=0;
 
@@ -272,6 +274,14 @@ void read_config()
 		exit (1);
 	}
 
+	/* if language is not set, default to "en" but use the language selection window */
+	if (strlen(lang) == 0)
+	{
+		no_lang_in_config = 1;
+		safe_strncpy(lang, "en", sizeof(lang));
+		log_error("No language set so defaulting to [%s] and using language selection window", lang );
+	}
+	
 #ifndef WINDOWS
 	chdir(datadir);
 #endif //!WINDOWS
@@ -922,7 +932,11 @@ void init_stuff()
 	
 	// display something
 	destroy_loading_win();
-	if (has_accepted)
+	if (no_lang_in_config)
+	{
+		display_langsel_win();
+	}
+	else if (has_accepted)
 	{
 		show_window (opening_root_win);
 		connect_to_server();

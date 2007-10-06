@@ -1088,14 +1088,13 @@ CHECK_GL_ERRORS();
 int	draw_window(window_info *win)
 {
 	int	ret_val=0;
-	widget_list *W;
+	widget_list *W = NULL;
 	
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	if(win == NULL || win->window_id < 0)
 		return -1;
-	W = win->widgetlist;
 
 	if(!win->displayed)
 		return 0;
@@ -1142,7 +1141,10 @@ CHECK_GL_ERRORS();
 	{
 		ret_val=1;
 	}
-
+	
+	// assign here in case display_handler changed the widgets - like deletes the widgets
+	W = win->widgetlist;
+	
 	// widget drawing
 	while(W != NULL)
 	{

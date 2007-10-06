@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 extern int login_root_win; /*!< ID for the login root window */
+extern int login_text; /*!< ID for the background texture */
 
 /*!
  * \ingroup interface_login

@@ -1171,6 +1171,15 @@ int find_var (char *str, var_name_type type)
 	return -1;
 }
 
+void change_language(const char *new_lang)
+{
+	log_error("Language changed, was [%s] now [%s]\n",  lang, new_lang);
+	/* guard against being the same string */
+	if (strcmp(lang, new_lang) != 0)
+		safe_strncpy(lang, new_lang, sizeof(lang));
+	our_vars.var[find_var ("language", OPT_STRING)]->saved= 0;
+}
+
 static __inline__ void check_option_var(char* name)
 {
 	int i;

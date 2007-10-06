@@ -21,9 +21,9 @@
 #include "translate.h"
 
 int login_root_win = -1;
+int login_text = -1;
 
 static int login_screen_menus;
-static int login_text;
 
 static char log_in_error_str[520] = {0};
 
