@@ -30,7 +30,7 @@
 
 #define MAX_FILENAME_LENGTH 80
 #define MAX_BUFFERS 52			// Remember, music, bg sounds and crowds use 4 buffers each too
-#define MAX_SOURCES 13			// Remember, music, bg sounds and crowds use a source each too
+#define MAX_SOURCES 13			// Remember, music, bg sounds and crowds use a source (2?) each too
 
 #ifdef NEW_SOUND
 #if defined _EXTRA_SOUND_DEBUG && OSX
@@ -76,6 +76,8 @@ typedef struct {
 #define STREAM_TYPE_CROWD 2
 #define NUM_STREAM_BUFFERS 4
 #endif // OGG_VORBIS
+
+#define ABS_MAX_SOURCES 64				// Define an absolute maximum for the sources (the size of the array)
 
 #define MAX_SOUNDS	100
 
@@ -147,6 +149,7 @@ typedef struct
 	float base_gain;
 	float cur_gain;
 	int loaded;
+	unsigned int cookie;
 } sound_loaded;
 
 typedef struct
@@ -255,6 +258,9 @@ ALCdevice *mSoundDevice;
 ALCcontext *mSoundContext;
 #endif	// NEW_SOUND
 
+char sound_devices[1000] = "";			// Set up a string to store the names of the available sound devices
+int max_sources = MAX_SOURCES;			// Initialise our local maximum number of sources to the default
+
 int have_sound = 0;
 int have_music = 0;
 int sound_opts = 3;
@@ -295,7 +301,7 @@ int dim_sounds_on_rain = 0;
 //each playing source is identified by a unique cookie.
 unsigned int next_cookie = 1;
 sound_loaded sounds_list[MAX_BUFFERS * 2];						// The loaded sounds
-source_data sound_source_data[MAX_SOURCES];						// The active (playing) sources
+source_data sound_source_data[ABS_MAX_SOURCES];					// The active (playing) sources
 sound_type sound_type_data[MAX_SOUNDS];							// Configuration of the sound types
 sound_sample sound_sample_data[MAX_BUFFERS];					// Path & buffer data for each sample
 background_default sound_background_defaults[MAX_BACKGROUND_DEFAULTS];	// Default background sounds
@@ -385,6 +391,7 @@ void reset_buffer_details(int sample_num);
 int store_sample_name(char *name);
 int stop_sound_source_at_index(int index);
 void unload_sound(int index);
+int find_sound_from_cookie(unsigned int cookie);
 int time_of_day_valid(int flags);
 #ifdef OGG_VORBIS
 void init_sound_stream(stream_data * stream, int gain);
@@ -1733,74 +1740,6 @@ void change_sounds(int * var, int value)
 }
 */
 
-void destroy_sound()
-{
-	int i, error;
-	ALCcontext *context;
-	ALCdevice *device;
-	if (!inited){
-		return;
-	}
-	inited = have_sound = have_music = sound_on = music_on = 0;
-	sound_opts = SOUNDS_NONE;
-	SDL_DestroyMutex(sound_list_mutex);
-	sound_list_mutex = NULL;
-
-#ifdef OGG_VORBIS
-	if(sound_streams_thread != NULL){
-		destroy_stream(&music_stream);
-		destroy_stream(&sound_fx_stream);
-		destroy_stream(&crowd_stream);
-		SDL_WaitThread(sound_streams_thread, NULL);
-		sound_streams_thread = NULL;
-	}
-#endif // OGG_VORBIS
-	LOCK_SOUND_LIST();
-	for (i = 0; i < MAX_SOURCES; i++)
-	{
-		if(alIsSource(sound_source_data[i].source) == AL_TRUE)
-		{
-			alSourceStopv(1, &sound_source_data[i].source);
-			alDeleteSources(1, &sound_source_data[i].source);
-			sound_source_data[i].source = 0;
-		}
-	}
-	for (i = 0; i < MAX_BUFFERS; i++)
-	{
-		sounds_list[i].playing = 0;
-		reset_buffer_details(i);
-	}
-	UNLOCK_SOUND_LIST();
-	/*
-	 * alutExit() contains a problem with hanging on exit on some
-	 * Linux systems.  The problem is with the call to
-	 * alcMakeContextCurrent( NULL );  The folowing code is exactly
-	 * what is in alutExit() minus that function call.  It causes
-	 * no problems if the call is not there since the context is
-	 * being destroyed right afterwards.
-	 */
-	context = alcGetCurrentContext();
-	if (context != NULL)
-	{
-		device = alcGetContextsDevice(context);
-		alcDestroyContext(context);
-		if (device != NULL)
-		{
-			alcCloseDevice(device);
-		}
-	}
-
-	if ((error=alGetError()) != AL_NO_ERROR) 
-	{
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
-		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
-	}
-
-//	clear_sound_data();
-	used_sources = 0;
-}
 
 
 
@@ -2060,20 +1999,6 @@ void stop_stream(stream_data * stream)
 	}
 }
 
-void destroy_stream(stream_data * stream)
-{
-	if (stream->playing)
-	{
-		if (stream->type == STREAM_TYPE_MUSIC)
-			music_on = have_music = 0;
-		stop_stream(stream);
-	}
-	stream->playing = 0;
-	alDeleteSources(1, &stream->source);
-	alDeleteBuffers(NUM_STREAM_BUFFERS, stream->buffers);
-	ov_clear(&stream->stream);
-}
-
 /* sound_bounds_check
  *
  * Check if input point (x, y) is within the input boundary
@@ -2157,7 +2082,7 @@ int sound_bounds_check(int x, int y, map_sound_boundary_def bounds)
 	return 1;
 }
 
-void check_for_valid_stream_sound(int tx, int ty, stream_data * stream)
+int check_for_valid_stream_sound(int tx, int ty, stream_data * stream, int start_stream)
 {
 	int i, snd, gain;
 
@@ -2186,6 +2111,10 @@ void check_for_valid_stream_sound(int tx, int ty, stream_data * stream)
 				stream->sound = snd;
 				if (stream->sound > -1)
 				{
+					// Check if we are starting the stream now, or triggering a fade out
+					if (start_stream == 0)
+						return -1;
+					
 					if (stream->is_default)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -2196,12 +2125,13 @@ void check_for_valid_stream_sound(int tx, int ty, stream_data * stream)
 #ifdef _EXTRA_SOUND_DEBUG
 					printf("Playing stream (%d) sound: %d\n", stream->type, snd);
 #endif //_EXTRA_SOUND_DEBUG
-					play_stream(snd, stream, gain);
-					return;
+					play_stream(snd, stream, 0.0f);
+					return 1;
 				}
 			}
 		}
 	}
+	return 0;
 }
 
 int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, int tx, int ty, int old_tx, int old_ty)
@@ -2210,20 +2140,43 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 	int day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
 	ALfloat new_gain = gain;
 	
-	// Check if we are stopping this stream and continue the fade out
-	if (*fade > 0)
+	// Check if we are starting/stopping this stream and continue the fade
+	if (*fade < 0)
 	{
-		*fade = *fade+1;
-		if (*fade > 6)
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Doing stream fade - stream: %s, current fade: %d\n", stream->type == STREAM_TYPE_MUSIC ? "Music" : (stream->type == STREAM_TYPE_CROWD ? "Crowd" : "Background"), *fade);
+#endif // _EXTRA_SOUND_DEBUG
+		*fade -= 1;
+		// Check if we have reached the end of the fade down
+		if (*fade < -6)
 		{
-			*fade = 0;
 			stream->playing = 0;
 			stream->is_default = 0;
 			alGetSourcei(stream->source, AL_BUFFERS_PROCESSED, &stream->processed);
 			stop_stream(stream);
+			// Check if we stopped this stream to start another (if not a music stream)
+			if (stream->type != STREAM_TYPE_MUSIC)
+			{
+				*fade = check_for_valid_stream_sound(tx, ty, stream, 1);
+				// If we don't have a sound (not fading in, fade = 1), reset to the previous fade value
+				if (*fade == 0)
+					*fade = -6;
+			}
 			return 0;
 		}
-		new_gain = gain - ((float)*fade * (gain / 6));
+		new_gain = gain - ((float)(-*fade) * (gain / 6));
+	}
+	else if (*fade > 0)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Doing stream fade - stream: %s, current fade: %d\n", stream->type == STREAM_TYPE_MUSIC ? "Music" : (stream->type == STREAM_TYPE_CROWD ? "Crowd" : "Background"), *fade);
+#endif // _EXTRA_SOUND_DEBUG
+		*fade += 1;
+		// Check if we have reached the end of the fade up
+		if (*fade > 6)
+			*fade = 0;
+		else
+			new_gain = gain - ((float)(6 - *fade) * (gain / 6));
 	}
 	// Check if we need to stop this stream
 	else
@@ -2238,7 +2191,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 				   (playlist[list_pos].time != 2 &&
 					playlist[list_pos].time != day_time))
 				{
-					*fade = 1;
+					*fade = -1;
 					return 0;
 				}
 				break;
@@ -2246,7 +2199,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 			case STREAM_TYPE_CROWD:
 				if (stream->type == STREAM_TYPE_CROWD && no_near_enhanced_actors < 5)
 				{
-					*fade = 1;
+					*fade = -1;
 					return 0;
 				}
 				if (stream->is_default && (tx != old_tx || ty != old_ty))
@@ -2254,13 +2207,17 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 #ifdef _EXTRA_SOUND_DEBUG
 //					printf("process_stream - Checking for valid %s sound. Pos: %d, %d\n", stream->type == STREAM_TYPE_SOUNDS ? "background" : "crowd", tx, ty);
 #endif //_EXTRA_SOUND_DEBUG
-					check_for_valid_stream_sound(tx, ty, stream);
+					if (*fade >= 0)
+					{
+						// Check if we need to start a fade
+						*fade = check_for_valid_stream_sound(tx, ty, stream, 0);
+					}
 				}
 				else
 				{
 					if ((tx != old_tx || ty != old_ty) && !sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[cur_boundary]))
 					{
-						*fade = 1;
+						*fade = -1;
 						return 0;
 					}
 				}
@@ -2270,7 +2227,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 	// Check if we need to dim down the sounds due to rain
 	if (stream->type != STREAM_TYPE_MUSIC)
 	{
-		new_gain = weather_adjust_gain(gain, -1);
+		new_gain = weather_adjust_gain(new_gain, -1);
 #ifdef _EXTRA_SOUND_DEBUG
 /*		if (new_gain != gain)
 		{
@@ -2339,8 +2296,8 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep, int * fade, 
 
 int update_streams(void *dummy)
 {
-    int error, sleep, music_fade = 0, sound_fade = 0, crowd_fade = 0, i;
-	int day_time;
+    int error, sleep, music_fade = 0, sound_fade = -1, crowd_fade = -1, i;
+	int day_time, old_sound_fade = -1;
 	int tx, ty, old_tx = 0, old_ty = 0;
 	ALfloat gain;
 	map_sound_data * cur_map;
@@ -2352,8 +2309,18 @@ int update_streams(void *dummy)
 	{
 		SDL_Delay(sleep);
 		day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
-		tx = -camera_x * 2;
-		ty = -camera_y * 2;
+		// Get our position
+		if (your_actor)
+		{
+			tx = your_actor->x_pos * 2;
+			ty = your_actor->y_pos * 2;
+		}
+		else
+		{
+			tx = 0;
+			ty = 0;
+		}
+		// Handle the streams
 		if (have_a_map && (tx > 0 || ty > 0))
 		{
 			if (have_music && music_on)
@@ -2375,7 +2342,8 @@ int update_streams(void *dummy)
 						   (playlist[list_pos].time == 2 ||
 							playlist[list_pos].time == day_time))
 						{
-							play_stream(list_pos, &music_stream, music_gain);
+							play_stream(list_pos, &music_stream, 0.0f);
+							music_fade = 1;
 						}
 					}
 					else if (loop_list)
@@ -2395,16 +2363,22 @@ int update_streams(void *dummy)
 				else
 				{
 #ifdef _EXTRA_SOUND_DEBUG
-//					printf("update_streams - Not playing stream. Checking for background sound. Pos: %d, %d\n", tx, ty);
+					printf("update_streams - Not playing stream. Checking for background sound. Pos: %d, %d, fade: %d\n", tx, ty, sound_fade);
 #endif //_EXTRA_SOUND_DEBUG
-					check_for_valid_stream_sound(tx, ty, &sound_fx_stream);
+					old_sound_fade = sound_fade;
+					sound_fade = check_for_valid_stream_sound(tx, ty, &sound_fx_stream, 1);
+					// Check if we just faded out so do need to fade back in
+					if (old_sound_fade == 0)
+						sound_fade = 0;
 					// Check if we need a default background sound, and if so, if we can find one
 					if (!sound_fx_stream.playing)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
 //						printf("update_streams - No background found, checking for defaults for this map\n");
 #endif //_EXTRA_SOUND_DEBUG
-						// Check for a map based default background sound
+						// We still aren't playing a sound, so reset to the old sound fade value
+						sound_fade = old_sound_fade;
+						// and check for a map based default background sound
 						cur_map = &sound_map_data[snd_cur_map];
 						if (cur_map->num_defaults > 0)
 						{
@@ -2417,8 +2391,11 @@ int update_streams(void *dummy)
 #ifdef _EXTRA_SOUND_DEBUG
 //									printf("update_streams - Playing map default background sound: %d\n", sound_fx_stream.sound);
 #endif //_EXTRA_SOUND_DEBUG
+									// Check if we just faded out a sound (and therefore fade this one up)
+									if (sound_fade < 0)
+										sound_fade = 1;
 									gain = sound_gain * enviro_gain * sound_type_data[sound_fx_stream.sound].gain;
-									play_stream(sound_fx_stream.sound, &sound_fx_stream, gain);
+									play_stream(sound_fx_stream.sound, &sound_fx_stream, sound_fade == 1 ? 0.0f : gain);
 									sound_fx_stream.is_default = 1;
 									break;
 								}
@@ -2439,8 +2416,11 @@ int update_streams(void *dummy)
 #ifdef _EXTRA_SOUND_DEBUG
 //									printf("update_streams - Playing default background sound: %d\n", sound_fx_stream.sound);
 #endif //_EXTRA_SOUND_DEBUG
+									// Check if we just faded out a sound (and therefore fade this one up)
+									if (sound_fade < 0)
+										sound_fade = 1;
 									gain = sound_gain * enviro_gain * sound_type_data[sound_fx_stream.sound].gain;
-									play_stream(sound_fx_stream.sound, &sound_fx_stream, gain);
+									play_stream(sound_fx_stream.sound, &sound_fx_stream, sound_fade == 1 ? 0.0f : gain);
 									sound_fx_stream.is_default = 1;
 									break;
 								}
@@ -2471,7 +2451,7 @@ int update_streams(void *dummy)
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("update_streams - Not playing stream. Checking for crowd sound\n");
 #endif //_EXTRA_SOUND_DEBUG
-						check_for_valid_stream_sound(tx, ty, &crowd_stream);
+						check_for_valid_stream_sound(tx, ty, &crowd_stream, 1);
 						// Check if we need a default crowd sound
 						if (!crowd_stream.playing)
 						{
@@ -2963,7 +2943,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		return 0;
 	}
 	
-	// Load the sound into the sounds list
+	// Find a spot in the sounds list for this sound
 	sound_num = get_loaded_sound_num();
 	if (sound_num == -1)
 	{
@@ -2979,50 +2959,67 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		}
 		return 0;
 	}
+	
+	// We got this far so add this sound to the list and assign it a cookie
+	LOCK_SOUND_LIST();
+	
 	sounds_list[sound_num].sound = type;
 	sounds_list[sound_num].x = x;
 	sounds_list[sound_num].y = y;
+	sounds_list[sound_num].loaded = 0;
 	sounds_list[sound_num].playing = 0;
 	sounds_list[sound_num].base_gain = initial_gain;
 	sounds_list[sound_num].cur_gain = 0.0f;
-	sounds_list[sound_num].loaded = 0;
+	cookie = next_cookie;
+	sounds_list[sound_num].cookie = cookie;
+	
+	// If next_cookie wraps around back to 0 (unlikely!) then address this.
+	if (++next_cookie == 0) ++next_cookie;
 
 	// Check if we should try to load the samples (sound is enabled)
-	if (!have_sound || sound_opts == SOUNDS_NONE)
+	if (have_sound && sound_opts != SOUNDS_NONE)
+	{
+		// Load all samples used by this type
+		if (!load_samples(pNewType))
+		{
+			// Unable to load all the samples. We have already errored so mark it as not loaded and bail.
+			sounds_list[sound_num].loaded = 0;
+			UNLOCK_SOUND_LIST();
+			return cookie;
+		}
+		sounds_list[sound_num].loaded = 1;
+	
+		// Check if we are playing this sound now (and need to load it into a source)
+		distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+		maxDistanceSq = pNewType->distance * pNewType->distance;
+
+		if (!pNewType->positional || (distanceSq <= maxDistanceSq))
+		{
+			if (!play_sound(sound_num, x, y, initial_gain))
+			{
+#ifdef _EXTRA_SOUND_DEBUG
+				printf("There was an error so not playing this sound: %d, Cookie: %d\n", type, cookie);
+#endif //_EXTRA_SOUND_DEBUG
+			}
+		}
+#ifdef _EXTRA_SOUND_DEBUG
+		else
+		{
+			printf("Not playing this sound as we are out of range! maxDistanceSq: %d, distanceSq: %d. Loaded as: %d, Cookie: %d\n", (int)maxDistanceSq, distanceSq, sound_num, cookie);
+		}
+#endif //_EXTRA_SOUND_DEBUG
+	}
+#ifdef _EXTRA_SOUND_DEBUG
+	else
 	{
 		// Sound isn't enabled so bail now. When sound is enabled, these sounds (if applicable) will be
 		// loaded and played then
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Not playing this sound as sound isn't enabled yet. Have sound: %d, Sound opts: %d\n", have_sound, sound_opts);
-#endif //_EXTRA_SOUND_DEBUG
-		return 0;
+		printf("Not playing this sound as sound isn't enabled yet. Have sound: %d, Sound opts: %d, Cookie: %d\n", have_sound, sound_opts, cookie);
 	}
+#endif //_EXTRA_SOUND_DEBUG
 	
-	// Load all samples used by this type
-	if (!load_samples(pNewType))
-	{
-		sounds_list[sound_num].loaded = 0;
-		return 0;
-	}
-	sounds_list[sound_num].loaded = 1;
-
-	// Check if we are playing this sound now (and need to load it into a source)
-	distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
-	maxDistanceSq = pNewType->distance * pNewType->distance;
-
-	if (pNewType->positional && (distanceSq > maxDistanceSq))
-	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Not playing this sound as we are out of range! maxDistanceSq: %d, distanceSq: %d. Loaded as: %d\n", (int)maxDistanceSq, distanceSq, sound_num);
-#endif //_EXTRA_SOUND_DEBUG
-		return 0;
-	}
-
-	cookie = play_sound(sound_num, x, y, initial_gain);
-
-#ifdef _EXTRA_SOUND_DEBUG
-	printf("Cookie %d. Playing this sound.\n", cookie);
-#endif //_EXTRA_SOUND_DEBUG
+	// We have added the sound to the list so return the cookie
+	UNLOCK_SOUND_LIST();
 	return cookie;
 }
 
@@ -3036,10 +3033,10 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	source_data * pSource;
 	sound_type * pNewType = &sound_type_data[sounds_list[sound_num].sound];
 	
-	LOCK_SOUND_LIST();
+//	LOCK_SOUND_LIST();
 	
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Playing this sound: %d, Loaded sound num: %d\n", sounds_list[sound_num].sound, sound_num);
+	printf("Playing this sound: %d, Sound num: %d, Cookie: %d\n", sounds_list[sound_num].sound, sound_num, sounds_list[sound_num].cookie);
 #endif //_EXTRA_SOUND_DEBUG
 
 	// Check if we need to load the samples into buffers
@@ -3056,7 +3053,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	if (!pSource)
 	{
 		// We have already handled the error so just bail
-		UNLOCK_SOUND_LIST();
+//		UNLOCK_SOUND_LIST();
 		return 0;
 	}
 
@@ -3124,7 +3121,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Error queuing buffers: (%s): alSourceQueueBuffers = %s\n", pNewType->name, alGetString(error));
 #endif //_EXTRA_SOUND_DEBUG
-		UNLOCK_SOUND_LIST();
+//		UNLOCK_SOUND_LIST();
 		return 0;
 	}
 
@@ -3147,13 +3144,11 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	alSourcePlay(pSource->source);
 	sounds_list[sound_num].playing = 1;
 
-	UNLOCK_SOUND_LIST();
+//	UNLOCK_SOUND_LIST();
 
-	pSource->cookie = next_cookie;
-	// If next_cookie wraps around back to 0 (unlikely!) then address this.
-	if (++next_cookie == 0) ++next_cookie;
+	pSource->cookie = sounds_list[sound_num].cookie;
 	
-	return pSource->cookie;
+	return 1;	// Return success
 }
 
 source_data * get_available_source(sound_type * pNewType)
@@ -3185,17 +3180,13 @@ source_data * get_available_source(sound_type * pNewType)
 		}
 	}
 
-	if (i == MAX_SOURCES)
+	if (i == max_sources)
 	{
 		// All sources are used by higher-priority sounds
-#ifdef ELC
-		LOG_ERROR(snd_sound_overflow);
-#else
-		printf("add_sound_object ['%s',#%d] - sounds overflow!\n",pNewType->name, i);
-#endif
 #ifdef _EXTRA_SOUND_DEBUG
 		printf("Sound overflow: %s, %d\n", pNewType->name, i);
 #endif //_EXTRA_SOUND_DEBUG
+		LOG_ERROR("%s: %d sources allocated", snd_sound_overflow, i);
 		return NULL;
 	}
 	else if (i == used_sources)
@@ -3206,9 +3197,6 @@ source_data * get_available_source(sound_type * pNewType)
 #endif //_EXTRA_SOUND_DEBUG
 
 		pSource = insert_sound_source_at_index(used_sources);
-#ifdef _EXTRA_SOUND_DEBUG
-//		printf("Got here (tried to add sound)\n");
-#endif //_EXTRA_SOUND_DEBUG
 	}
 	
 	return pSource;
@@ -3222,7 +3210,7 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	int i;
 	source_data tempSource;
 	// Take a copy of the source about to be overwritten
-	tempSource = sound_source_data[min2i(used_sources, MAX_SOURCES - 1)];
+	tempSource = sound_source_data[min2i(used_sources, max_sources - 1)];
 	// Ensure it is stopped and ready
 	alSourceStop(tempSource.source);
 	alSourcei(tempSource.source, AL_BUFFER, 0);
@@ -3232,7 +3220,7 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	tempSource.cookie = 0;
 
 	// Shunt source objects down a place
-	for(i = min2i(used_sources, MAX_SOURCES - 1); i > index; --i)
+	for (i = min2i(used_sources, max_sources - 1); i > index; --i)
 	{
 		sound_source_data[i] = sound_source_data[i - 1];
 	}
@@ -3241,7 +3229,7 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	sound_source_data[index] = tempSource;
 
 	// Although it's not doing anything, we have added a new source to the playing set
-	if (used_sources < MAX_SOURCES)
+	if (used_sources < max_sources)
 		++used_sources;	
 
 	// Return a pointer to this new source
@@ -3252,10 +3240,10 @@ source_data *insert_sound_source_at_index(unsigned int index)
 int get_loaded_sound_num()
 {
 	int i;
-	// Loop through the array looking for an unused spot (sound = -1)
+	// Loop through the array looking for an unused spot (sound = -1 && cookie = 0)
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
-		if (sounds_list[i].sound == -1)
+		if (sounds_list[i].sound == -1 && sounds_list[i].cookie == 0)
 		{
 			return i;
 		}
@@ -3287,7 +3275,6 @@ void reset_buffer_details(int sample_num)
 int stop_sound_source_at_index(int index)
 {
 	ALuint error = AL_NO_ERROR;
-//	ALint state;
 	source_data *pSource, sourceTemp;
 	
 	if (index < 0 || index >= used_sources)
@@ -3297,9 +3284,7 @@ int stop_sound_source_at_index(int index)
 	// This unqueues any samples
 	if (alIsSource(pSource->source))
 	{
-//		alGetSourcei(pSource->source, AL_SOURCE_STATE, &state);
-//		if (state != AL_STOPPED)
-			alSourceStop(pSource->source);
+		alSourceStop(pSource->source);
 		alSourcei(pSource->source, AL_BUFFER, 0);
 	}
 	else
@@ -3313,10 +3298,6 @@ int stop_sound_source_at_index(int index)
 		printf("Error '%s' stopping sound source with index: %d/%d.  Source: %d.\n", alGetString(error), index, used_sources, (int)pSource->source);
 #endif //_EXTRA_SOUND_DEBUG
 	}
-
-	// Check if we should unload this sound (is not a map sound)
-	if (sound_type_data[sounds_list[pSource->loaded_sound].sound].type != SOUNDS_MAP)
-		unload_sound(pSource->loaded_sound);
 
 	// We can't lose a source handle - copy this...
 	sourceTemp = *pSource;
@@ -3337,58 +3318,58 @@ int stop_sound_source_at_index(int index)
 	return 1;
 }
 
-// This is passed a cookie, and searches for a source with this cookie
+// This is passed a cookie, and searches for a sound and source (if ness) with this cookie
 void stop_sound(unsigned long int cookie)
 {
-	int n;
-	// Source handle of 0 is a null source
+	int n, m;
+
+	// Cookie of 0 is an invalid sound handle
 	if (!have_sound || !cookie)
 		return;
 
-	// Find which of our playing sources matches the handle passed
-	LOCK_SOUND_LIST();
-	n = find_sound_source_from_cookie(cookie);
+	// Find which sound matches this cookie
+	n = find_sound_from_cookie(cookie);
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Removing cookie: %d, Sound number: %d\n", (int)cookie, n);
+#endif //_EXTRA_SOUND_DEBUG
 	if (n >= 0)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Stopping cookie %d with sound source index %d\n", (int)cookie, n);
+		printf("Stopping cookie %d with sound index %d. It is currently %splaying.\n", (int)cookie, n, sounds_list[n].playing ? "" : "not ");
 #endif //_EXTRA_SOUND_DEBUG
-		stop_sound_source_at_index(n);
+		if (sounds_list[n].playing)
+		{
+			// Find which of our playing sources matches the handle passed
+			LOCK_SOUND_LIST();
+			m = find_sound_source_from_cookie(cookie);
+			if (m >= 0)
+			{
+				stop_sound_source_at_index(m);
+			}
+			UNLOCK_SOUND_LIST();
+		}
+		sounds_list[n].playing = 0;
+		// Check if we should unload this sound (is not a map sound)
+		if (sound_type_data[sounds_list[n].sound].type != SOUNDS_MAP)
+			unload_sound(n);
 	}
-	UNLOCK_SOUND_LIST();
 }
 
 void stop_sound_at_location(int x, int y)
 {
-	ALuint error;
-	ALfloat sourcePos[3]={0.0f,0.0f,0.0f};
 	int i = 0;
 
 	// If sound isn't enabled there isn't anything to do
 	if (!have_sound || sound_opts == SOUNDS_NONE)
 		return;
 
-	LOCK_SOUND_LIST();
-	// Search for a sound source at the given location
-	while (i < used_sources)
+	// Search for a sound at the given location
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
-		alGetSourcefv(sound_source_data[i].source, AL_POSITION, sourcePos);
-		if (sourcePos[0] == x && sourcePos[1] == y)
+		if (sounds_list[i].x == x && sounds_list[i].y == y)
 		{
-			stop_sound_source_at_index(i);
+			stop_sound(i);
 		}
-		else
-		{
-			i++;
-		}
-	}
-	UNLOCK_SOUND_LIST();
-	// Clear any errors so as to not confuse other error handlers
-	if ((error=alGetError()) != AL_NO_ERROR)
-	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Error '%s' stopping sound source at location: %d, %d.\n", alGetString(error), x, y);
-#endif //_EXTRA_SOUND_DEBUG
 	}
 }
 
@@ -3401,26 +3382,21 @@ void stop_all_sounds()
 	if (!have_sound)
 		return;
 
-	LOCK_SOUND_LIST();
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Stopping all (%d) individual sounds\n", used_sources);
-	i = 0;
+	printf("Stopping all individual sounds\n");
 #endif //_EXTRA_SOUND_DEBUG
-	while (used_sources)
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
+		if (sounds_list[i].cookie != 0)
+		{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Stopping index %d: %s, used_sources: %d\n", i++, sound_type_data[sounds_list[sound_source_data[0].loaded_sound].sound].name, used_sources);
+			printf("Stopping sound %d (%s), cookie: %d, used_sources: %d\n", i, sound_type_data[sounds_list[sound_source_data[0].loaded_sound].sound].name, sounds_list[i].cookie, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
-		stop_sound_source_at_index(0);
+			stop_sound(sounds_list[i].cookie);
+			// Force the unloading of all sounds (assume changing maps)
+			unload_sound(i);
+		}
 	}
-	i = 0;
-	// Force all the sounds to be unloaded (probably changing maps)
-	while (i < MAX_BUFFERS * 2)
-	{
-		unload_sound(i);
-		i++;
-	}
-	UNLOCK_SOUND_LIST();
 
 #ifdef	OGG_VORBIS
 	if (have_music)
@@ -3455,6 +3431,8 @@ void unload_sound(int index)
 	sounds_list[index].x = -1;
 	sounds_list[index].y = -1;
 	sounds_list[index].playing = 0;
+	sounds_list[index].loaded = 0;
+	sounds_list[index].cookie = 0;
 	num_sounds--;
 
 	// FIXME: Should we unload the buffer as well??
@@ -3486,8 +3464,8 @@ void update_sound(int ms)
 	int j;
 #endif // _EXTRA_SOUND_DEBUG
 
-	// Check if we have a sound config and therefore is worth doing anything
-	if (!have_sound)
+	// Check if we have a sound config, and thus if its worth doing anything
+	if (!inited || num_types < 1)
 		return;
 
 	// Check if we have our actor
@@ -3519,13 +3497,14 @@ void update_sound(int ms)
 	alListenerfv(AL_VELOCITY, listenerVel);
 	alListenerfv(AL_ORIENTATION, listenerOri);
 
+	// Start to process the sounds
+	LOCK_SOUND_LIST();
+
 	// Check the sounds_list for anything to be loaded/played
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
-		// Check for any sounds to be loaded
-//		if (!sounds_list[i].loaded)
-//		{
-		// Check for any loaded sounds that have come back into range
+		// Check for any sounds in the sounds_list that aren't being played and check if they need to be played because
+		// sound has now been enabled or they have come back into range
 		x = sounds_list[i].x;
 		y = sounds_list[i].y;
 		if (!sounds_list[i].playing && x > -1 && y > -1 && sounds_list[i].sound > -1)
@@ -3536,21 +3515,24 @@ void update_sound(int ms)
 			if (sound_opts != SOUNDS_NONE && (distanceSq < maxDistSq))
 			{
 				// This sound is back in range so load it into a source and play it
-				int cookie;	// (This is only here for testing)
 #ifdef _EXTRA_SOUND_DEBUG
 				printf("Sound now in-range: %d (%s), Distance squared: %d, Max: %d\n", sounds_list[i].sound, pSoundType->name, distanceSq, maxDistSq);
 #endif //_EXTRA_SOUND_DEBUG
-				cookie = play_sound(i, x, y, 1.0f);
+				if (!play_sound(i, x, y, 1.0f))
+				{
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Cookie: %d\n", cookie);
+					printf("Error restarting sound!!\n");
 #endif //_EXTRA_SOUND_DEBUG
+				}
 			}
 		}
 	}
 
-	if (!used_sources) return;
-
-	LOCK_SOUND_LIST();
+	if (!used_sources)
+	{
+		UNLOCK_SOUND_LIST();
+		return;
+	}
 
 #ifdef ELC
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3582,7 +3564,7 @@ void update_sound(int ms)
 		}
 		if (actors_list[i]->actor_id == yourself)
 		{
-			// If this is you, use the camera position rather than your actual position (same as listener)
+			// If this is you, use the same position as the listener
 			sourcePos[0] = tx;
 			sourcePos[1] = ty;
 		}
@@ -3609,7 +3591,7 @@ void update_sound(int ms)
 		
 #ifdef _EXTRA_SOUND_DEBUG
 		j++;
-		if (j > MAX_SOURCES)
+		if (j > max_sources)
 		{
 			LOG_ERROR("update_sound race condition!! i = %d, used_sources = %d\n", i, used_sources);
 			printf("update_sound race condition!! i = %d, used_sources = %d\n", i, used_sources);
@@ -3620,8 +3602,9 @@ void update_sound(int ms)
 		if (pSource->loaded_sound < 0 || sounds_list[pSource->loaded_sound].sound < 0 || pSource->current_stage == STAGE_UNUSED)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Removing dud sound #%d. Loaded sound num: %d. Current stage: %d\n",i, pSource->loaded_sound, pSource->current_stage);
+			printf("Removing dud sound %d. Cookie: %d, Source: %d. Current stage: %d\n", pSource->loaded_sound, sounds_list[pSource->loaded_sound].cookie, i, pSource->current_stage);
 #endif //_EXTRA_SOUND_DEBUG
+			unload_sound(pSource->loaded_sound);
 			stop_sound_source_at_index(i);
 			continue;
 		}
@@ -3702,8 +3685,9 @@ void update_sound(int ms)
 		if(pSource->current_stage == num_STAGES || pSoundType->type	> sound_opts)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("removing finished sound %d (%s) at cookie %d, source index %d, loaded_sound: %d\n", sounds_list[pSource->loaded_sound].sound, pSoundType->name, pSource->cookie, i, pSource->loaded_sound);
+			printf("Removing finished sound %d (%s) at cookie %d, source index %d, loaded_sound: %d\n", sounds_list[pSource->loaded_sound].sound, pSoundType->name, pSource->cookie, i, pSource->loaded_sound);
 #endif //_EXTRA_SOUND_DEBUG
+			unload_sound(pSource->loaded_sound);
 			stop_sound_source_at_index(i);
 			continue;
 		}
@@ -3763,11 +3747,11 @@ void update_sound(int ms)
 
 void handle_walking_sound(actor * pActor, int def_snd)
 {
-	int snd, tile_type, cur_source, adding = 0;
+	int snd, tile_type, cur_sound;
 	
 	if (actors_defs[pActor->actor_type].walk_snd_scale > 0.0f)
 	{
-		// This creature is large enough for walking sound do look for one for this tile
+		// This creature is large enough for a walking sound so look for one for this tile
 		tile_type = get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2);
 		snd = get_tile_sound(tile_type, actors_defs[pActor->actor_type].actor_name);
 #ifdef _EXTRA_SOUND_DEBUG
@@ -3780,28 +3764,27 @@ void handle_walking_sound(actor * pActor, int def_snd)
 		if (snd == -1)
 			// Still no sound, so fall back on the global default
 			snd = walking_default;
-		
-		// Check if we have a sound and it is different to the current one
-		LOCK_SOUND_LIST();
-		cur_source = find_sound_source_from_cookie(pActor->cur_anim_sound_cookie);
-		if(snd > -1 && sounds_list[sound_source_data[cur_source].loaded_sound].sound != snd)
-		{
-			// Remove the current sound (if the source is valid)
-			if (cur_source > -1)
-				stop_sound_source_at_index(cur_source);
-			adding = 1;
-		}
-		UNLOCK_SOUND_LIST();
-		// We need to add the sound outside of the LOCK as the process of adding a sound also LOCK's the list.
-		if (adding)
-		{
-			// Found a sound, so add it
-			pActor->cur_anim_sound_cookie = add_walking_sound(	snd,
-																2*pActor->x_pos,
-																2*pActor->y_pos,
-																pActor->actor_id == yourself ? 1 : 0,
-																actors_defs[pActor->actor_type].walk_snd_scale
-															);
+
+		// Check for something to do
+		if (snd > -1)
+		{			
+			// Check if we have a sound and it is different to the current one
+			cur_sound = find_sound_from_cookie(pActor->cur_anim_sound_cookie);
+			if (cur_sound > 0 && sounds_list[cur_sound].sound != snd)
+			{
+				// It is valid and different so remove the current sound before we add the new one
+				stop_sound(pActor->cur_anim_sound_cookie);
+			}
+			if (cur_sound < 0 || sounds_list[cur_sound].sound != snd)
+			{
+				// Add the new sound
+				pActor->cur_anim_sound_cookie = add_walking_sound(	snd,
+																	2*pActor->x_pos,
+																	2*pActor->y_pos,
+																	pActor->actor_id == yourself ? 1 : 0,
+																	actors_defs[pActor->actor_type].walk_snd_scale
+																);
+			}
 		}
 	}
 }
@@ -3894,6 +3877,23 @@ void sound_source_set_gain(unsigned long int cookie, float gain)
 	return;
 }
 
+// Find the index of the sound associated with this cookie.
+int find_sound_from_cookie(unsigned int cookie)
+{
+	int n;
+
+	if (!cookie || cookie == 0)
+		return -1;
+
+	for (n = 0; n < MAX_BUFFERS * 2; n++)
+	{
+		if (sounds_list[n].cookie == cookie)
+			return n;
+	}
+
+	return -1;
+}
+
 // Find the index of the source associated with this cookie.
 // Note that this result must not be stored, but used immediately;
 int find_sound_source_from_cookie(unsigned int cookie)
@@ -3918,7 +3918,7 @@ int get_index_for_sound_type_name(const char *name)
 	int i;
 	for(i = 0; i < num_types; ++i)
 	{
-		if (strcasecmp(sound_type_data[i].name,name) == 0)
+		if (strcasecmp(sound_type_data[i].name, name) == 0)
 			return i;
 	}
 	return -1;
@@ -4037,6 +4037,17 @@ void clear_sound_data()
 {
 	int i, j;
 	
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
+	{
+		sounds_list[i].sound = -1;
+		sounds_list[i].x = -1;
+		sounds_list[i].y = -1;
+		sounds_list[i].cookie = 0;
+		sounds_list[i].loaded = 0;
+		sounds_list[i].playing = 0;
+		sounds_list[i].base_gain = 0.0f;
+		sounds_list[i].cur_gain = 0.0f;
+	}
 	for (i = 0; i < MAX_SOUNDS; i++)
 	{
 		sound_type_data[i].name[0] = '\0';
@@ -4164,19 +4175,36 @@ void init_sound_stream(stream_data * stream, int gain)
 	alSourcef (stream->source, AL_ROLLOFF_FACTOR,  0.0          );
 	alSourcei (stream->source, AL_SOURCE_RELATIVE, AL_TRUE      );
 	alSourcef (stream->source, AL_GAIN,            gain);
+	max_sources -= 2;		// We just allocated a stereo stream (2 sources)
+}
+
+void destroy_stream(stream_data * stream)
+{
+	if (stream->playing)
+	{
+		if (stream->type == STREAM_TYPE_MUSIC)
+			music_on = have_music = 0;
+		stop_stream(stream);
+	}
+	stream->playing = 0;
+	alDeleteSources(1, &stream->source);
+	alDeleteBuffers(NUM_STREAM_BUFFERS, stream->buffers);
+	ov_clear(&stream->stream);
+	max_sources += 2;
 }
 #endif // OGG_VORBIS
 
 void init_sound()
 {
-	source_data *pSource, *sourceArrays[1] = {sound_source_data};
 	ALCcontext *context;
 	ALCdevice *device;
+	ALCint attr_size;
+	ALCint * attributes;
 	ALfloat listenerPos[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerVel[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerOri[6] = {0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 	int error;
-	int i,j;
+	int i;
 	
 	// If we don't have sound/music then bail so we don't grab the soundcard.
 	if (inited || (sound_opts == SOUNDS_NONE && music_on == 0))
@@ -4190,69 +4218,71 @@ void init_sound()
 	if (have_sound)
 		destroy_sound();
 
-	LOCK_SOUND_LIST();
-	
-	// Init source data
-	for (i = 0; i < MAX_SOURCES; i++)
-	{
-		for (j = 0; j < sizeof(sourceArrays) / sizeof(sourceArrays[0]); ++j)
-		{
-			pSource = sourceArrays[j]+i;
-			pSource->source = 0;
-			pSource->loaded_sound = -1;
-			pSource->play_duration = 0;
-			pSource->current_stage = STAGE_UNUSED;
-			pSource->cookie = 0;
-		}
-	}
-	
-	// Init sounds_list
-	for (i = 0; i < MAX_BUFFERS * 2; i++)
-	{
-		sounds_list[i].sound = -1;
-		sounds_list[i].x = -1;
-		sounds_list[i].y = -1;
-		sounds_list[i].playing = 0;
-		sounds_list[i].base_gain = 0.0f;
-		sounds_list[i].cur_gain = 0.0f;
-		sounds_list[i].loaded = 0;
-	}
-	
-	//initialise OpenAL
-	//NULL makes it use the default device.
-	//to get a list of available devices, uncomment the following code, and read your error_log.txt
-	//for windows users, it'll most likely only list DirectSound3D
-	/*if ( alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) == AL_TRUE ){
-		LOG_ERROR("Available sound devices: %s", alcGetString( NULL, ALC_DEVICE_SPECIFIER));
-	}else{
-		LOG_ERROR("ALC_ENUMERATION_EXT not found");
-	}*/
+	// Initialise OpenAL
 
-	//if you want to use a different device, use, for example:
-	//mSoundDevice = alcOpenDevice((ALubyte*) "DirectSound3D")
+	// Get a list of the available devices (not used yet)
+	if ( alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) == AL_TRUE )
+	{
+		safe_strncpy(sound_devices, alcGetString( NULL, ALC_DEVICE_SPECIFIER), sizeof(sound_devices));
+	}
+	else
+	{
+		LOG_ERROR("Warning: ALC_ENUMERATION_EXT not found. Unable to retrieve list of sound devices.");
+	}
+
+	// If you want to use a specific device, use, for example:
+	// device = alcOpenDevice((ALubyte*) "DirectSound3D")
+	// NULL makes it use the default device
 	device = alcOpenDevice( NULL );
-	if ((error=alcGetError(device)) != AL_NO_ERROR || !device){
+	if ((error = alcGetError(device)) != AL_NO_ERROR || !device)
+	{
 		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound = have_music = 0;
-		UNLOCK_SOUND_LIST();
 		return;
 	}
 
 	context = alcCreateContext( device, NULL );
 	alcMakeContextCurrent( context );
-
-	sound_list_mutex = SDL_CreateMutex();
-
-	if ((error=alcGetError(device)) != AL_NO_ERROR || !context || !sound_list_mutex){
+	if ((error = alcGetError(device)) != AL_NO_ERROR || !context)
+	{
 		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device,error));
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound = have_music = 0;
-		UNLOCK_SOUND_LIST();
+		return;
+	}
+	
+	// Get the number of sources for our device
+	alcGetIntegerv(device, ALC_ATTRIBUTES_SIZE, sizeof(attr_size), &attr_size);
+	attributes = (ALCint *)malloc(attr_size * sizeof(ALCint));
+	alcGetIntegerv(device, ALC_ALL_ATTRIBUTES, attr_size, attributes);
+	max_sources = attributes[3];
+	if (max_sources <= 0 || max_sources > 200)
+	{
+		// We didn't get a valid number of sources so log a warning and attempt to continue with the default
+		max_sources = MAX_SOURCES;
+		LOG_ERROR("Warning: Unable to determine available number of sound sources.\n");
+	}
+	// FIXME: If we have more than ABS_MAX_SOURCES (64) sources, then limit the number to that until we have a dynamic array
+	if (max_sources > ABS_MAX_SOURCES)
+		max_sources = ABS_MAX_SOURCES;
+	
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Number of sources - mono: %d, stereo (probably undef): %d\n", attributes[3], attributes[1]);
+#endif // _EXTRA_SOUND_DEBUG
+
+	sound_list_mutex = SDL_CreateMutex();
+	if (!sound_list_mutex)
+	{
+		char str[256];
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, "Unable to create sound list mutex");
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR(str);
+		have_sound = have_music = 0;
 		return;
 	}
 
@@ -4274,19 +4304,49 @@ void init_sound()
 	alListenerfv(AL_VELOCITY, listenerVel);
 	alListenerfv(AL_ORIENTATION, listenerOri);
 
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		char str[256];
+		safe_snprintf(str, sizeof(str), "%s: Error setting up listener - %s\n", snd_init_error, alGetString(error));
+		LOG_ERROR(str);
+	}
+
+	// Initialise streams - we need to do this before initalising our main sources as the streams take some sources
+#ifdef	OGG_VORBIS
+	music_stream.type = STREAM_TYPE_MUSIC;
+	sound_fx_stream.type = STREAM_TYPE_SOUNDS;
+	crowd_stream.type = STREAM_TYPE_CROWD;
+	init_sound_stream(&music_stream, music_gain);
+	init_sound_stream(&sound_fx_stream, sound_gain);
+	init_sound_stream(&crowd_stream, sound_gain);
+
+	if (sound_streams_thread == NULL) {
+		sound_streams_thread = SDL_CreateThread(update_streams, 0);
+	}
+#endif	// OGG_VORBIS
+	
+	// Initialise sources
+	LOCK_SOUND_LIST();
+	
+	// Init source data
+	for (i = 0; i < max_sources; i++)
+	{
+		sound_source_data[i].source = 0;
+		sound_source_data[i].loaded_sound = -1;
+		sound_source_data[i].play_duration = 0;
+		sound_source_data[i].current_stage = STAGE_UNUSED;
+		sound_source_data[i].cookie = 0;
+	}
+	
 	// Generate our sources
-	for (i = 0; i < MAX_SOURCES; i++)
+	for (i = 0; i < max_sources; i++)
 	{
 		alGenSources(1, &sound_source_data[i].source);
-		//temp_source_data[i].source = sound_source_data[i].source;
-		if ((error=alGetError()) != AL_NO_ERROR) 
+		if ((error = alGetError()) != AL_NO_ERROR) 
 		{
-			//this error code is designed for a single source, -1 indicates multiple sources
-		#ifdef ELC
-			LOG_ERROR("Error in init_sound: %s : %s", snd_source_error, alGetString(error));
-		#endif // ELC
-			have_sound=0;
-			have_music=0;
+			// This error code is designed for a single source, -1 indicates multiple sources
+			LOG_ERROR("%s: %s - %s", snd_init_error, snd_source_error, alGetString(error));
+			have_sound = have_music = 0;
 			UNLOCK_SOUND_LIST();
 			return;
 		}
@@ -4300,25 +4360,87 @@ void init_sound()
 		load_sound_config_data(SOUND_CONFIG_PATH);
 	}
 
-	// Initialize streams
-#ifdef	OGG_VORBIS
-	music_stream.type = STREAM_TYPE_MUSIC;
-	sound_fx_stream.type = STREAM_TYPE_SOUNDS;
-	crowd_stream.type = STREAM_TYPE_CROWD;
-	init_sound_stream(&music_stream, music_gain);
-	init_sound_stream(&sound_fx_stream, sound_gain);
-	init_sound_stream(&crowd_stream, sound_gain);
-
-	if (sound_streams_thread == NULL) {
-		sound_streams_thread = SDL_CreateThread(update_streams, 0);
-	}
-#endif	// OGG_VORBIS
 #ifndef NEW_WEATHER
-	///force the rain sound to be recreated
+	// Force the rain sound to be recreated
 	rain_sound = 0;
 #endif //NEW_WEATHER
 	inited = 1;
 }
+
+void destroy_sound()
+{
+	int i, error;
+	ALCcontext *context;
+	ALCdevice *device;
+	if (!inited){
+		return;
+	}
+	inited = have_sound = have_music = sound_on = music_on = 0;
+	sound_opts = SOUNDS_NONE;
+	SDL_DestroyMutex(sound_list_mutex);
+	sound_list_mutex = NULL;
+
+#ifdef OGG_VORBIS
+	if(sound_streams_thread != NULL){
+		destroy_stream(&music_stream);
+		destroy_stream(&sound_fx_stream);
+		destroy_stream(&crowd_stream);
+		SDL_WaitThread(sound_streams_thread, NULL);
+		sound_streams_thread = NULL;
+	}
+#endif // OGG_VORBIS
+	// Remove physical elements (sources and buffers)
+	LOCK_SOUND_LIST();
+	for (i = 0; i < max_sources; i++)
+	{
+		if(alIsSource(sound_source_data[i].source) == AL_TRUE)
+		{
+			alSourceStopv(1, &sound_source_data[i].source);
+			alDeleteSources(1, &sound_source_data[i].source);
+			sound_source_data[i].source = 0;
+		}
+	}
+	used_sources = 0;
+	for (i = 0; i < MAX_BUFFERS; i++)
+	{
+		reset_buffer_details(i);
+	}
+	// Flag all sounds as unloaded, but don't remove them
+	for (i = 0; i < MAX_BUFFERS * 2; i++)
+	{
+		sounds_list[i].playing = 0;
+		sounds_list[i].loaded = 0;
+	}
+	UNLOCK_SOUND_LIST();
+
+	/*
+	 * alutExit() contains a problem with hanging on exit on some
+	 * Linux systems.  The problem is with the call to
+	 * alcMakeContextCurrent( NULL );  The folowing code is exactly
+	 * what is in alutExit() minus that function call.  It causes
+	 * no problems if the call is not there since the context is
+	 * being destroyed right afterwards.
+	 */
+	context = alcGetCurrentContext();
+	if (context != NULL)
+	{
+		device = alcGetContextsDevice(context);
+		alcDestroyContext(context);
+		if (device != NULL)
+		{
+			alcCloseDevice(device);
+		}
+	}
+
+	if ((error = alcGetError(device)) != AL_NO_ERROR) 
+	{
+		char str[256];
+		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
+		LOG_TO_CONSOLE(c_red1, str);
+		LOG_ERROR(str);
+	}
+}
+
 
 
 /********************
@@ -4369,30 +4491,6 @@ void parse_server_sounds()
 	}
 }
 
-// If the named sample is already used by any sound type, return
-// the index of the sample. Otherwise save it and return the index,
-// unless there are too many samples
-/*int store_sample_name(char *name)
-{
-	int i;
-	for (i = 0; i < num_samples; ++i)
-	{	//return the index if found
-		if (!strcmp(name, sound_sample_data[i].file_path))
-			return i;
-	}
-
-	if (num_samples < MAX_BUFFERS)
-	{
-		// This file is not yet stored, store it
-		safe_strncpy(sound_sample_data[num_samples].file_path, name, sizeof(sound_sample_data[num_samples].file_path));
-		return num_samples++;
-	}
-
-	//all the 'slots' are full
-	return -1;
-}
-*/
-
 void parse_sound_object(xmlNode *inNode)
 {
 	xmlNode *attributeNode=NULL;
@@ -4406,11 +4504,7 @@ void parse_sound_object(xmlNode *inNode)
 
 	if (num_types >= MAX_SOUNDS)
 	{
-#ifdef ELC
-		LOG_ERROR("Sound config parse error: Maximum number of sounds (%d) reached!", MAX_SOUNDS);
-#else
-		printf("Sound config parse error: Maximum number of sounds (%d) reached!", MAX_SOUNDS);
-#endif
+		LOG_ERROR("%s: Maximum number of sounds (%d) reached!", snd_config_error, MAX_SOUNDS);
 		return;
 	}
 	
@@ -4419,11 +4513,7 @@ void parse_sound_object(xmlNode *inNode)
 	sVal = (char *)xmlGetProp(inNode,(xmlChar*)"name");
 	if (!sVal)
 	{
-	#ifdef ELC
-		LOG_ERROR("Sound config parse error: sound has no name");
-	#else
-		printf("Sound config parse error: sound has no name");
-	#endif
+		LOG_ERROR("%s: sound has no name", snd_config_error);
 	}
 	else
 	{
@@ -4443,11 +4533,7 @@ void parse_sound_object(xmlNode *inNode)
 					}
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: intro_index already set!");
-				#else
-						printf("Sound config parse error: intro_index already set!\n");
-				#endif
+						LOG_ERROR("%s: intro_index already set!", snd_config_error);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"main_sound"))
@@ -4458,11 +4544,7 @@ void parse_sound_object(xmlNode *inNode)
 					}
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: main_index already set!");
-				#else
-						printf("Sound config parse error: main_index already set!\n");
-				#endif
+						LOG_ERROR("%s: main_index already set!", snd_config_error);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"outro_sound"))
@@ -4473,11 +4555,7 @@ void parse_sound_object(xmlNode *inNode)
 					}
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: outro_index already set!");
-				#else
-						printf("Sound config parse error: outro_index already set!\n");
-				#endif
+						LOG_ERROR("%s: outro_index already set!", snd_config_error);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"gain"))
@@ -4487,11 +4565,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->gain = fVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: gain = %f in '%s'",fVal,pData->name);
-				#else
-						printf("Sound config parse error: gain = %f in '%s'\n",fVal,pData->name);
-				#endif
+						LOG_ERROR("%s: gain = %f in '%s'", snd_config_error, fVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"stereo"))
@@ -4501,11 +4575,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->stereo = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: stereo = %d in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: stereo = %d in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: stereo = %d in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"distance"))
@@ -4515,11 +4585,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->distance = fVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: distance = %f in '%s'",fVal,pData->name);
-				#else
-						printf("Sound config parse error: distance = %f in '%s'\n",fVal,pData->name);
-				#endif
+						LOG_ERROR("%s: distance = %f in '%s'", snd_config_error, fVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"positional"))
@@ -4529,11 +4595,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->positional = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: positional = %d in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: positional = %d in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: positional = %d in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"loops"))
@@ -4543,11 +4605,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->loops = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: loops = %d in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: loops = %d in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: loops = %d in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"fadeout_time"))
@@ -4557,11 +4615,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->fadeout_time = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: fadeout_time = %d in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: fadeout_time = %d in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: fadeout_time = %d in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_delay"))
@@ -4571,11 +4625,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->echo_delay = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: echo_delay = %d in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: echo_delay = %d in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: echo_delay = %d in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"echo_volume"))
@@ -4585,11 +4635,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->echo_volume = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: echo_volume = %d in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: echo_volume = %d in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: echo_volume = %d in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"time_of_day_flags"))
@@ -4599,11 +4645,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->time_of_the_day_flags = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: time_of_the_day_flags = 0x%x in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: time_of_the_day_flags = 0x%x in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: time_of_the_day_flags = 0x%x in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"priority"))
@@ -4613,11 +4655,7 @@ void parse_sound_object(xmlNode *inNode)
 						pData->priority = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: priority = %d in '%s'",iVal,pData->name);
-				#else
-						printf("Sound config parse error: priority = %d in '%s'\n",iVal,pData->name);
-				#endif
+						LOG_ERROR("%s: priority = %d in '%s'", snd_config_error, iVal, pData->name);
 					}
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"type"))
@@ -4635,17 +4673,13 @@ void parse_sound_object(xmlNode *inNode)
 						pData->type = iVal;
 					else
 					{
-				#ifdef ELC
-						LOG_ERROR("Sound config parse error: type = %s in '%s'",content,pData->name);
-				#else
-						printf("Sound config parse error: type = %s in '%s'\n",content,pData->name);
-				#endif
+						LOG_ERROR("%s: type = %s in '%s'", snd_config_error, content, pData->name);
 					}
 				}
 			}
 			else if (attributeNode->type == XML_ENTITY_REF_NODE)
 			{
-				LOG_ERROR("Sound config parse error: Include not allowed in sound def");
+				LOG_ERROR("%s: Include not allowed in sound def", snd_config_error);
 			}
 			attributeNode = attributeNode->next;
 		}
@@ -4689,7 +4723,7 @@ void store_boundary_coords(char *coordinates, int * x, int * y)
 	}
 	else
 	{
-		LOG_ERROR("Sound config parse error: Error parsing coordinates");
+		LOG_ERROR("%s: Error parsing coordinates", snd_config_error);
 	}
 	return;
 }
@@ -4709,11 +4743,7 @@ void parse_map_sound(xmlNode *inNode)
 
 	if (sound_num_maps >= MAX_SOUND_MAPS)
 	{
-#ifdef ELC
-		LOG_ERROR("Sound config parse error: Maximum number of maps reached!");
-#else
-		printf("Sound config parse error: Maximum number of maps reached!");
-#endif
+		LOG_ERROR("%s: Maximum number of maps reached!", snd_config_error);
 		return;
 	}
 	pMap = &sound_map_data[sound_num_maps++];
@@ -4722,11 +4752,7 @@ void parse_map_sound(xmlNode *inNode)
 	if(!sVal)
 	{
 		pMap->id = -1;
-	#ifdef ELC
-		LOG_ERROR("Sound config parse error: map has no id");
-	#else
-		printf("Sound config parse error: map has no id");
-	#endif
+		LOG_ERROR("%s: map has no id", snd_config_error);
 	}
 	else
 	{
@@ -4759,11 +4785,7 @@ void parse_map_sound(xmlNode *inNode)
 								pMapBoundary->bg_sound = get_index_for_sound_type_name(content);
 								if (pMapBoundary->bg_sound == -1)
 								{
-								#ifdef ELC
-									LOG_ERROR("Sound config parse error: sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
-								#else
-									printf("Sound config parse error: sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
-								#endif
+									LOG_ERROR("%s: sound not found for map boundary type '%s' in map '%s'", snd_config_error,content, pMap->name);
 								}
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"crowd"))
@@ -4772,11 +4794,7 @@ void parse_map_sound(xmlNode *inNode)
 								pMapBoundary->crowd_sound = get_index_for_sound_type_name(content);
 								if (pMapBoundary->crowd_sound == -1)
 								{
-								#ifdef ELC
-									LOG_ERROR("Sound config parse error: crowd sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
-								#else
-									printf("Sound config parse error: crowd sound not found for map boundary type '%s' in map '%s'",content, pMap->name);
-								#endif
+									LOG_ERROR("%s: crowd sound not found for map boundary type '%s' in map '%s'", snd_config_error,content, pMap->name);
 								}
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"time_of_day_flags"))
@@ -4787,11 +4805,7 @@ void parse_map_sound(xmlNode *inNode)
 									pMapBoundary->time_of_day_flags = iVal;
 								else
 								{
-								#ifdef ELC
-									LOG_ERROR("Sound config parse error: time_of_day flags (%s) invalid for map boundary in map '%s'",content, pMap->name);
-								#else
-									printf("Sound config parse error: time_of_day flags (%s) invalid for map boundary in map '%s'",content, pMap->name);
-								#endif
+									LOG_ERROR("%s: time_of_day flags (%s) invalid for map boundary in map '%s'", snd_config_error,content, pMap->name);
 								}
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"is_default"))
@@ -4808,20 +4822,12 @@ void parse_map_sound(xmlNode *inNode)
 									}
 									else
 									{
-									#ifdef ELC
-										LOG_ERROR("Sound config parse error: Maximum defaults reached for map '%s'", pMap->name);
-									#else
-										printf("Sound config parse error: Maximum defaults reached for map '%s'", pMap->name);
-									#endif
+										LOG_ERROR("%s: Maximum defaults reached for map '%s'", snd_config_error, pMap->name);
 									}
 								}
 								else
 								{
-								#ifdef ELC
-									LOG_ERROR("Sound config parse error: is_default setting (%s) invalid for map boundary in map '%s'", content, pMap->name);
-								#else
-									printf("Sound config parse error: is_default setting (%s) invalid for map boundary in map '%s'", content, pMap->name);
-								#endif
+									LOG_ERROR("%s: is_default setting (%s) invalid for map boundary in map '%s'", snd_config_error, content, pMap->name);
 								}
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point1"))
@@ -4848,21 +4854,17 @@ void parse_map_sound(xmlNode *inNode)
 					}
 					else
 					{
-					#ifdef ELC
-						LOG_ERROR("Sound config parse error: reached max boundaries for map '%s'", pMap->name);
-					#else
-						printf("Sound config parse error: reached max boundaries for map '%s'", pMap->name);
-					#endif
+						LOG_ERROR("%s: reached max boundaries for map '%s'", snd_config_error, pMap->name);
 					}
 				}
 				else
 				{
-					LOG_ERROR("Sound config parse error: Boundary definition expected. Found: %s", attributeNode->name);
+					LOG_ERROR("%s: Boundary definition expected. Found: %s", snd_config_error, attributeNode->name);
 				}
 			}
 			else if (boundaryNode->type == XML_ENTITY_REF_NODE)
 			{
-				LOG_ERROR("Sound config parse error: Include not allowed in map sound def");
+				LOG_ERROR("%s: Include not allowed in map sound def", snd_config_error);
 			}
 		}
 	}
@@ -4878,11 +4880,7 @@ void parse_effect_sound(xmlNode *inNode)
 	{
 		if (sound_num_effects >= MAX_SOUND_EFFECTS)
 		{
-#ifdef ELC
-			LOG_ERROR("Sound config parse error: Maximum number of effects reached!");
-#else
-			printf("Sound config parse error: Maximum number of effects reached!");
-#endif
+			LOG_ERROR("%s: Maximum number of effects reached!", snd_config_error);
 			return;
 		}
 		pEffect = &sound_effect_data[sound_num_effects++];
@@ -4899,14 +4897,14 @@ void parse_effect_sound(xmlNode *inNode)
 				pEffect->sound = get_index_for_sound_type_name(sound);
 				if (pEffect->sound == -1)
 				{
-					LOG_ERROR("Sound config parse error: Unknown sound %s for effect %d", sound, pEffect->id);
+					LOG_ERROR("%s: Unknown sound %s for effect %d", snd_config_error, sound, pEffect->id);
 				}
 			}
 		}
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
-		LOG_ERROR("Sound config parse error: Include not allowed in effect sound def");
+		LOG_ERROR("%s: Include not allowed in effect sound def", snd_config_error);
 	}
 }
 
@@ -4921,9 +4919,9 @@ void parse_particle_sound(xmlNode *inNode)
 		if (sound_num_particles >= MAX_SOUND_PARTICLES)
 		{
 #ifdef ELC
-			LOG_ERROR("Sound config parse error: Maximum number of particles reached!");
+			LOG_ERROR("%s: Maximum number of particles reached!", snd_config_error);
 #else
-			printf("Sound config parse error: Maximum number of particles reached!");
+			printf("%s: Maximum number of particles reached!", snd_config_error);
 #endif
 			return;
 		}
@@ -4941,14 +4939,14 @@ void parse_particle_sound(xmlNode *inNode)
 				pParticle->sound = get_index_for_sound_type_name(sound);
 				if (pParticle->sound == -1)
 				{
-					LOG_ERROR("Sound config parse error: Unknown sound %s for particle %s", sound, pParticle->file);
+					LOG_ERROR("%s: Unknown sound %s for particle %s", snd_config_error, sound, pParticle->file);
 				}
 			}
 		}
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
-		LOG_ERROR("Sound config parse error: Include not allowed in particle sound def");
+		LOG_ERROR("%s: Include not allowed in particle sound def", snd_config_error);
 	}
 }
 
@@ -4985,9 +4983,9 @@ void parse_background_defaults(xmlNode *inNode)
 		if (sound_num_background_defaults >= MAX_BACKGROUND_DEFAULTS)
 		{
 #ifdef ELC
-			LOG_ERROR("Sound config parse error: Maximum number of sounds reached!");
+			LOG_ERROR("%s: Maximum number of sounds reached!", snd_config_error);
 #else
-			printf("Sound config parse error: Maximum number of sounds reached!");
+			printf("%s: Maximum number of sounds reached!", snd_config_error);
 #endif
 			return;
 		}
@@ -5003,7 +5001,7 @@ void parse_background_defaults(xmlNode *inNode)
 					pBackgroundDefault->time_of_day_flags = iVal;
 				else
 				{
-					LOG_ERROR("Sound config parse error: time_of_the_day_flags = 0x%x in background default", iVal);
+					LOG_ERROR("%s: time_of_the_day_flags = 0x%x in background default", snd_config_error, iVal);
 				}
 			}
 			else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"map_type"))
@@ -5013,7 +5011,7 @@ void parse_background_defaults(xmlNode *inNode)
 					pBackgroundDefault->map_type = iVal;
 				else
 				{
-					LOG_ERROR("Sound config parse error: Unknown map_type %s in background default", content);
+					LOG_ERROR("%s: Unknown map_type %s in background default", snd_config_error, content);
 				}
 			}
 			else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"sound"))
@@ -5021,13 +5019,13 @@ void parse_background_defaults(xmlNode *inNode)
 				pBackgroundDefault->sound = get_index_for_sound_type_name(content);
 				if (pBackgroundDefault->sound == -1)
 				{
-					LOG_ERROR("Sound config parse error: Unknown sound %s in background default", content);
+					LOG_ERROR("%s: Unknown sound %s in background default", snd_config_error, content);
 				}
 			}
 		}
 		if (check_for_valid_background_details(pBackgroundDefault))
 		{
-			LOG_ERROR("Sound config parse error: invalid/conflicting background defaults found!");
+			LOG_ERROR("%s: invalid/conflicting background defaults found!", snd_config_error);
 			// This background is invalid so reset it to the defaults (and reuse it if there are any others)
 			pBackgroundDefault->time_of_day_flags = 0xffff;
 			pBackgroundDefault->map_type = 0;
@@ -5037,7 +5035,7 @@ void parse_background_defaults(xmlNode *inNode)
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
-		LOG_ERROR("Sound config parse error: Include not allowed in defaults sound def");
+		LOG_ERROR("%s: Include not allowed in defaults sound def", snd_config_error);
 	}
 }
 
@@ -5060,7 +5058,7 @@ void parse_sound_defaults(xmlNode *inNode)
 				crowd_default = get_index_for_sound_type_name(sound);
 				if (crowd_default == -1)
 				{
-					LOG_ERROR("Sound config parse error: Unknown sound %s for crowd default", sound);
+					LOG_ERROR("%s: Unknown sound %s for crowd default", snd_config_error, sound);
 				}
 			}
 			else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"walking"))
@@ -5069,14 +5067,14 @@ void parse_sound_defaults(xmlNode *inNode)
 				walking_default = get_index_for_sound_type_name(sound);
 				if (walking_default == -1)
 				{
-					LOG_ERROR("Sound config parse error: Unknown sound %s for crowd default", sound);
+					LOG_ERROR("%s: Unknown sound %s for crowd default", snd_config_error, sound);
 				}
 			}
 		}
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
-		LOG_ERROR("Sound config parse error: Include not allowed in defaults sound def");
+		LOG_ERROR("%s: Include not allowed in defaults sound def", snd_config_error);
 	}
 }
 
@@ -5098,7 +5096,7 @@ void parse_item_image_ids(char * content, item_sound_data * pItem)
 			}
 			else
 			{
-				LOG_ERROR("Sound config parse error: Too many image ids defined for item sound: %s", content);
+				LOG_ERROR("%s: Too many image ids defined for item sound: %s", snd_config_error, content);
 				return;		// Avoid any more errors
 			}
 		}
@@ -5109,7 +5107,7 @@ void parse_item_image_ids(char * content, item_sound_data * pItem)
 				temp[j] = content[i];
 			else
 			{
-				LOG_ERROR("Sound config parse error: Invalid image id defined for item sound: %s...", temp);
+				LOG_ERROR("%s: Invalid image id defined for item sound: %s...", snd_config_error, temp);
 				j = -1;
 			}
 		}
@@ -5141,19 +5139,19 @@ void parse_item_sound(xmlNode *inNode)
 					pItem->sound = get_index_for_sound_type_name(content);
 					if (pItem->sound == -1)
 					{
-						LOG_ERROR("Sound config parse error: Unknown sound %s for item sound", content);
+						LOG_ERROR("%s: Unknown sound %s for item sound", snd_config_error, content);
 					}
 				}
 			}
 		}
 		else
 		{
-			LOG_ERROR("Sound config parse error: Too many item sounds defined.");
+			LOG_ERROR("%s: Too many item sounds defined.", snd_config_error);
 		}
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
-		LOG_ERROR("Sound config parse error: Include not allowed in item sound def");
+		LOG_ERROR("%s: Include not allowed in item sound def", snd_config_error);
 	}
 }
 
@@ -5175,7 +5173,7 @@ void parse_tile_types(char * content, tile_sound_data * pTileType)
 			}
 			else
 			{
-				LOG_ERROR("Sound config parse error: Too many tile types defined for tile type sound: %s", content);
+				LOG_ERROR("%s: Too many tile types defined for tile type sound: %s", snd_config_error, content);
 				return;		// Avoid any more errors
 			}
 		}
@@ -5186,7 +5184,7 @@ void parse_tile_types(char * content, tile_sound_data * pTileType)
 				temp[j] = content[i];
 			else
 			{
-				LOG_ERROR("Sound config parse error: Invalid tile type defined for tile type sound: %s...", temp);
+				LOG_ERROR("%s: Invalid tile type defined for tile type sound: %s...", snd_config_error, temp);
 				j = -1;
 			}
 		}
@@ -5220,7 +5218,7 @@ void parse_tile_type_sound(xmlNode *inNode)
 					pTileType->sounds[pTileType->num_sounds].sound = get_index_for_sound_type_name(content);
 					if (pTileType->sounds[pTileType->num_sounds].sound == -1)
 					{
-						LOG_ERROR("Sound config parse error: Unknown sound %s for tile type sound", content);
+						LOG_ERROR("%s: Unknown sound %s for tile type sound", snd_config_error, content);
 					}
 					// Increment the actor_types count
 					pTileType->num_sounds++;
@@ -5230,19 +5228,19 @@ void parse_tile_type_sound(xmlNode *inNode)
 					pTileType->default_sound = get_index_for_sound_type_name(content);
 					if (pTileType->default_sound == -1)
 					{
-						LOG_ERROR("Sound config parse error: Unknown default sound %s for tile type sound", content);
+						LOG_ERROR("%s: Unknown default sound %s for tile type sound", snd_config_error, content);
 					}
 				}
 			}
 		}
 		else
 		{
-			LOG_ERROR("Sound config parse error: Too many tile type sounds defined.");
+			LOG_ERROR("%s: Too many tile type sounds defined.", snd_config_error);
 		}
 	}
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
-		LOG_ERROR("Sound config parse error: Include not allowed in tile type sound def");
+		LOG_ERROR("%s: Include not allowed in tile type sound def", snd_config_error);
 	}
 }
 
@@ -5285,7 +5283,7 @@ int parse_sound_defs(xmlNode *node)
 			}
 			else
 			{
-				LOG_ERROR("Sound config parse error: Unknown element found: %s", def->name);
+				LOG_ERROR("%s: Unknown element found: %s", snd_config_error, def->name);
 				ok = 0;
 			}
 		}
@@ -5300,6 +5298,7 @@ int parse_sound_defs(xmlNode *node)
 
 void load_sound_config_data (const char *file)
 {
+#ifdef ELC
 	xmlDoc *doc;
 	xmlNode *root=NULL;
 
@@ -5318,26 +5317,20 @@ void load_sound_config_data (const char *file)
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL)
 #endif	// NEW_FILE_IO
 	{
-	#ifdef ELC
 		char str[200];
 		safe_snprintf(str, sizeof(str), book_open_err_str, file);
 		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red1,str);
-	#endif
 	}
 	// Can we find a root element
 	else if ((root = xmlDocGetRootElement(doc))==NULL)
 	{
-	#ifdef ELC
-		LOG_ERROR("Sound config parse error: No XML root element found in '%s'", file);
-	#endif
+		LOG_ERROR("%s: No XML root element found in '%s'", snd_config_error, file);
 	}
 	// Is the root the right type?
 	else if ( xmlStrcmp( root->name, (xmlChar*)"sound_config" ) )
 	{
-	#ifdef ELC
-		LOG_ERROR("Sound config parse error: Invalid root element '%s' in '%s'", root->name, file);
-	#endif
+		LOG_ERROR("%s: Invalid root element '%s' in '%s'", snd_config_error, root->name, file);
 	}
 	// We've found our expected root, now parse the children
 	else
@@ -5351,6 +5344,7 @@ void load_sound_config_data (const char *file)
 #ifdef DEBUG
 	print_sound_types();
 #endif // DEBUG
+#endif // ELC
 }
 #endif //!NEW_SOUND
 
@@ -5500,7 +5494,7 @@ void print_sound_sources()
 	int i;
 	source_data *pData = NULL;
 	printf("\nSOUND SOURCE DATA\n===============\n");
-	printf("There are %d sound sources (max %d):\n", used_sources, MAX_SOURCES);
+	printf("There are %d sound sources (max %d):\n", used_sources, max_sources);
 
 	for(i = 0; i < used_sources; ++i)
 	{

@@ -106,8 +106,6 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	pActor->IsOnIdle=0;
 
 #ifdef NEW_SOUND
-	// Make sure any previous sound is stopped
-	stop_sound(pActor->cur_anim_sound_cookie);
 	// Check if we need a walking sound
 	if (pActor->moving && !pActor->fighting)
 	{
@@ -115,6 +113,8 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	}
 	else
 	{
+		// Make sure any previous sound is stopped
+		stop_sound(pActor->cur_anim_sound_cookie);
 		if(anim.sound > -1)
 		{
 			// Found a sound, so add it

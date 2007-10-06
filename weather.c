@@ -4,6 +4,9 @@
 #include "weather.h"
 #include "actors.h"
 #include "client_serv.h"
+#ifdef NEW_WEATHER
+#include "draw_scene.h"
+#endif // NEW_WEATHER
 #include "global.h"
 #include "lights.h"
 #include "map.h"
@@ -1334,7 +1337,8 @@ void render_rain(int num_rain_drops)
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 #ifdef NEW_WEATHER
 	set_rain_color();
-	glPointSize(1.0);
+	// Scale the size of the raindrops according to our zoom (1 @ max zoom, 1.2 @ min zoom)
+	glPointSize(1 + (((4.0f / zoom_level) - 1) / 2.5f));
 #endif //NEW_WEATHER
 	glColor4fv(rain_color);
 	glEnableClientState(GL_VERTEX_ARRAY);

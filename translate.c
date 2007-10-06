@@ -490,6 +490,7 @@ char	reg_error_str[15],
 	snd_too_slow[50],
 	snd_stop_fail[50],
 	snd_init_error[50],
+	snd_config_error[50],
 	snd_sound_overflow[50],
 	snd_media_read[50],
 	snd_media_notvorbis[50],
@@ -973,6 +974,7 @@ void init_errors()
 	add_xml_identifier(snd,"tooslow",snd_too_slow,"Sorry, too slow to play music...",sizeof(snd_too_slow));
 	add_xml_identifier(snd,"fail",snd_stop_fail,"Failed to stop all sounds.",sizeof(snd_stop_fail));
 	add_xml_identifier(snd,"init",snd_init_error,"Error initializing sound",sizeof(snd_init_error));
+	add_xml_identifier(snd,"init",snd_config_error,"Error loading sound configuration",sizeof(snd_config_error));
 	add_xml_identifier(snd,"toomany",snd_sound_overflow,"Too many sounds.",sizeof(snd_sound_overflow));
 	add_xml_identifier(snd,"read",snd_media_read,"Read from media.",sizeof(snd_media_read));
 	add_xml_identifier(snd,"notvorbis",snd_media_notvorbis,"Not Vorbis data.",sizeof(snd_media_notvorbis));
