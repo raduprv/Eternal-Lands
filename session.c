@@ -5,6 +5,7 @@
 #include "asc.h"
 #include "elwindows.h"
 #include "global.h"
+#include "multiplayer.h"
 #include "platform.h"
 #include "stats.h"
 #include "translate.h"
@@ -16,7 +17,10 @@
 #endif
 
 int session_win = -1;
-int reconnecting = 0;
+static int reconnecting = 0;
+static int last_port = -1;
+static unsigned char last_server_address[60];
+
 
 player_attribs session_stats;
 Uint32 session_start_time;
@@ -134,6 +138,29 @@ CHECK_GL_ERRORS();
 
 void init_session(void)
 {
+	int save_server = 1;
+
+	/* if we have server info saved, compare with current */
+	if (last_port > 0)
+	{
+		/* if changed, we need to reset the session stats */
+		if ((last_port != port) || (strcmp((char *)last_server_address, (char *)server_address)))
+		{
+			LOG_TO_CONSOLE(c_red2,"Server changed so resetting session stats");
+			reconnecting = 0;
+		}
+		/* else if the same, no need */
+		else
+			save_server = 0;
+	}
+	
+	/* save the server info if first time or changed */
+	if (save_server)
+	{
+		last_port = port;
+		safe_strncpy((char *)last_server_address, (char *)server_address, sizeof(last_server_address));
+	}
+
 	if (!reconnecting){
 		session_stats = your_info;
 		session_start_time = cur_time;
