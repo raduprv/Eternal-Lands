@@ -47,6 +47,9 @@
 #ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif	//EYE_CANDY
+#ifdef MINES
+#include "mines.h"
+#endif // MINES
 #endif // SFX
 #ifdef	USE_SEND_VIDEO_INFO
 #include "sendvideoinfo.h"

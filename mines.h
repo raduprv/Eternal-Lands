@@ -1,30 +1,20 @@
 #ifdef MINES
+/*!
+ * \file
+ * \ingroup item
+ * \brief Mine handling
+ */
 
 #ifndef __MINES_H__
 #define __MINES_H__
+
+#include <SDL_types.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif // __cplusplus
 
 #define NUM_MINES 200
-
-/*!
- * \name e3d objects for mine types
- */
-/*! @{ */
-#define MINE_SMALL_MINE_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_MEDIUM_MINE_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_HIGH_EXPLOSIVE_MINE_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_TRAP_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_CALTROP_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_POISONED_CALTROP_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_BARRICADE_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_MANA_DRAINER_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_MANA_BURNER_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_UNINVIZIBILIZER_E3D "./3dobjects/trees/branch1.e3d"
-#define MINE_MAGIC_IMMUNITY_REMOVAL_E3D "./3dobjects/trees/branch1.e3d"
-/*! @} */
 
 typedef struct
 {
@@ -62,19 +52,7 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id);
  * \note No sanity checks on \a data are performed. This may be a possible bug.
  * \bug No sanity checks on \a data are performed.
  */
-void add_mines_from_list (const Uint8 *data);
-
-/*!
- * \ingroup item
- * \brief   Removes the mine with the given \a object_id.
- *
- *      Searches for \a which_mine for the given \a object_id and passes this \a which_mine to remove_mine.
- *
- * \param object_id the object_id for the mine to remove
- *
- * \callgraph
- */
-void click_mine(int object_id);
+void add_mines_from_list (const Uint8 * data);
 
 /*!
  * \ingroup item
@@ -97,30 +75,6 @@ void remove_mine(int object_id);
  * \callgraph
  */
 void remove_all_mines();
-
-/*!
- * \ingroup item
- * \brief   "Primes" the mine at the given index \a which_mine from the \ref mine_list.
- *
- *      Shows the mine prime effect for the mine with the given index \a which_mine from the \ref mine_list.
- *
- * \param which_mine the index into \ref mine_list for the mine to "prime"
- *
- * \callgraph
- */
-void prime_mine(int object_id);
-
-/*!
- * \ingroup item
- * \brief   "Detonates" the mine with the given index \a which_mine from the \ref mine_list.
- *
- *      Removes the mine at the given index \a which_mine from the \ref mine_list with the "detonate" removal effect according to the mine type. The list of mines will be adjusted accordingly.
- *
- * \param which_mine the index into \ref mine_list for the mine to "detonate"
- *
- * \callgraph
- */
-void detonate_mine(int object_id);
 
 #ifdef __cplusplus
 } // extern "C"

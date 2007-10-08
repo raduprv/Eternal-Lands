@@ -1,9 +1,9 @@
 #ifdef EYE_CANDY
 
 ////////////////////////////////////////////////////////////////////////////////
-// eye_candy_wrapper.h                                                            //
-// Copyright (C) 2006 Karen Pease
-// Based on the cal3d wrapper by Bruno 'Beosil' Heidelberger                             //
+// eye_candy_wrapper.h                                                        //
+// Copyright (C) 2006 Karen Pease                                             //
+// Based on the cal3d wrapper by Bruno 'Beosil' Heidelberger                  //
 ////////////////////////////////////////////////////////////////////////////////
 // This library is free software; you can redistribute it and/or modify it    //
 // under the terms of the GNU Lesser General Public License as published by   //
@@ -322,9 +322,9 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_wind_petals(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
   void ec_add_wind_effect_list(ec_reference reference, ec_effects effects);
 #ifdef MINES
-  ec_reference ec_create_mine_drop(float x, float y, float z, int LOD);
-  ec_reference ec_create_mine_prime(float x, float y, float z, int LOD);
-  ec_reference ec_create_mine_remove(float x, float y, float z, int LOD);
+  ec_reference ec_create_mine_drop(float x, float y, float z, int mine_type, int LOD);
+  ec_reference ec_create_mine_prime(float x, float y, float z, int mine_type, int LOD);
+  ec_reference ec_create_mine_remove(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD);
 #endif // MINES
 

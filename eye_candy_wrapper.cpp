@@ -11,6 +11,7 @@
 #include "init.h"
 #include "gamewin.h"
 #include "shadows.h"
+#include "client_serv.h"	// For mine_type defines
 #include "tiles.h"
 
 // G L O B A L S //////////////////////////////////////////////////////////////
@@ -2152,6 +2153,7 @@ extern "C" void ec_launch_targetmagic_smite_summoned(ec_reference reference, flo
 
 extern "C" ec_reference ec_create_targetmagic_drain_mana(float start_x, float start_y, float start_z, float end_x, float end_y, float end_z, int LOD)
 {
+  std::cout << "Start X: " << start_x << "Start Y: " << start_y << "Start Z: " << start_z << "End X: " << end_x << "End Y: " << end_y << "End Z: " << end_z << std::endl; 
   if (!ec_in_range(start_x, start_y, start_z, ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
@@ -2164,6 +2166,8 @@ extern "C" ec_reference ec_create_targetmagic_drain_mana(float start_x, float st
 
 extern "C" ec_reference ec_create_targetmagic_drain_mana2(actor* caster, actor* target, int LOD)
 {
+  std::cout << "Caster: ID: " << caster->actor_id << " Name: " << caster->actor_name << " X: " << caster->x_pos << " Y: " << caster->y_pos << std::endl; 
+  std::cout << "Target: ID: " << target->actor_id << " Name: " << target->actor_name << " X: " << target->x_pos << " Y: " << target->y_pos << std::endl; 
   if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::TargetMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
@@ -2215,7 +2219,7 @@ extern "C" void ec_add_wind_effect_list(ec_reference reference, ec_effects effec
 }
 
 #ifdef MINES
-extern "C" ec_reference ec_create_mine_drop(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_mine_drop(float x, float y, float z, int mine_type, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
     return NULL;
@@ -2226,7 +2230,7 @@ extern "C" ec_reference ec_create_mine_drop(float x, float y, float z, int LOD)
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_mine_prime(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_mine_prime(float x, float y, float z, int mine_type, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
     return NULL;
@@ -2237,7 +2241,7 @@ extern "C" ec_reference ec_create_mine_prime(float x, float y, float z, int LOD)
   return (ec_reference)ret;
 }
 
-extern "C" ec_reference ec_create_mine_remove(float x, float y, float z, int LOD)
+extern "C" ec_reference ec_create_mine_remove(float x, float y, float z, int mine_type, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
     return NULL;
@@ -2254,9 +2258,9 @@ extern "C" ec_reference ec_create_mine_detonate(float x, float y, float z, int m
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  if (mine_type == 0) {
+  if (mine_type == MINE_TYPE_SMALL_MINE) {
     ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE1, LOD);
-  } else if (mine_type == 1) {
+  } else if (mine_type == MINE_TYPE_MEDIUM_MINE) {
     ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE2, LOD);
   }
   eye_candy.push_back_effect(ret->effect);

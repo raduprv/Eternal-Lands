@@ -333,11 +333,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_EYE;
 		}
-#ifdef MINES
-		else if(objects_list[object_under_mouse]->flags&OBJ_3D_BAG || objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
-#else // MINES
 		else if(objects_list[object_under_mouse]->flags&OBJ_3D_BAG)
-#endif // MINES
 		{
 			elwin_mouse = CURSOR_PICK;
 		}
@@ -717,13 +713,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 			if (object_under_mouse == -1)
 				return 1;
-#ifdef MINES
-			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
-			{
-				prime_mine (object_under_mouse);
-				return 1;
-			}
-#endif // MINES
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 			{
 				int i;
@@ -760,21 +749,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			if (object_under_mouse == -1)
 				return 1;
-#ifdef MINES
-			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse]->flags&OBJ_3D_MINE)
+			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
-				click_mine (object_under_mouse);
-				return 1;
-			}
-			else
-			{
-#endif // MINES
 				open_bag (object_under_mouse);
 				return 1;
-#ifdef MINES
-				}
+			}
 			break;
-#endif // MINES
 		}
 
 		case CURSOR_HARVEST:
