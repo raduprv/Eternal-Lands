@@ -143,7 +143,11 @@ thunder thunders[MAX_THUNDERS];
 int num_thunders = 0;
 Uint32 lightning_stop = 0;
 
+#ifdef NEW_SOUND
+unsigned int rain_sound = 0;
+#else // NEW_SOUND
 int rain_sound = -1;
+#endif //NEW_SOUND
 
 float rain_color[4] = { 0.0f, 0.0f, 0.0f, 1.0f };
 float fog_alpha;
@@ -697,9 +701,11 @@ float weather_bias_light(float value)
 
 void weather_sound_control()
 {
+#ifndef NEW_SOUND			// Under NEW_SOUND we still want sounds added/updated so when sound is enabled they will be correct
 	if (!sound_on) {
 		return;
 	}
+#endif // NEW_SOUND
 
 	if (weather_active())
 	{
@@ -711,37 +717,25 @@ void weather_sound_control()
 		{
 			// Torg: Only load sounds when we need them so we aren't wasting sources.
 			// This is really only for NEW_SOUND.
-			if (rain_sound == -1)
+			if (rain_sound == 0)
 #ifdef NEW_SOUND
-				rain_sound = add_server_sound(snd_rain, 0, 0, severity * weather_ratios[WEATHER_RAIN]);
+				rain_sound = add_server_sound(snd_rain, 0, 0, 0.0f);
 			else
 				sound_source_set_gain(find_sound_source_from_cookie(rain_sound), severity * weather_ratios[WEATHER_RAIN]);
 #else
 			{
-				int buffer;
-				alGenSources(1, &rain_sound);
-				buffer = get_loaded_buffer(snd_rain);
-				if (buffer) alSourcei(rain_sound, AL_BUFFER, buffer);
-				alSourcei(rain_sound, AL_LOOPING, AL_TRUE);
-				alSourcei(rain_sound, AL_SOURCE_RELATIVE, AL_TRUE);
-				alSourcef(rain_sound, AL_GAIN, 0.0f);
+				rain_sound = add_sound_object(snd_rain, 0, 0, 0, 1);
 			}
-			int source_state;
-			alSourcef(rain_sound, AL_GAIN, severity * weather_ratios[WEATHER_RAIN]);
-			alGetSourcei(rain_sound, AL_SOURCE_STATE, &source_state);
-			if (source_state != AL_PLAYING) alSourcePlay(rain_sound);
+			if (rain_sound > 0)
+				sound_source_set_gain(rain_sound, severity * weather_ratios[WEATHER_RAIN]);
 #endif	//NEW_SOUND
 		}
 		else
 		{
-			if (rain_sound > -1)
+			if (rain_sound > 0)
 			{
-#ifdef NEW_SOUND
 				stop_sound(rain_sound);
-				rain_sound = -1;
-#else
-				alSourcePause(rain_sound);
-#endif	//NEW_SOUND
+				rain_sound = 0;
 			}
 		}
 
@@ -778,14 +772,10 @@ void weather_sound_control()
 	}
 	else
 	{
-		if (rain_sound > -1)
+		if (rain_sound > 0)
 		{
-#ifdef NEW_SOUND
 			stop_sound(rain_sound);
-			rain_sound = -1;
-#else
-			alSourcePause(rain_sound);
-#endif	//NEW_SOUND
+			rain_sound = 0;
 		}
 	}
 }
@@ -1085,8 +1075,8 @@ void rain_control()
 			if(!is_raining) {
 				is_raining=1;
 #ifdef NEW_SOUND
-				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
-					rain_sound = add_server_sound(snd_rain,0,0, rainParam);
+				if (!rain_sound || find_sound_source_from_cookie(rain_sound) < 0)
+					rain_sound = add_server_sound(snd_rain, 0, 0, rainParam);
 #else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
@@ -1098,7 +1088,7 @@ void rain_control()
 			if(!is_raining) {
 				is_raining=1;
 #ifdef NEW_SOUND
-				if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
+				if (!rain_sound || find_sound_source_from_cookie(rain_sound) < 0)
 					rain_sound = add_server_sound(snd_rain, 0, 0, rain_strength_bias);
 #else
 				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);

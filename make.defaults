@@ -97,6 +97,12 @@ ifneq ($(filter NEW_FILE_IO, $(FEATURES)),)
 		FEATURES += CXX_MISC
 	endif
 endif
+# if NEW_SOUND is set, but OGG_VORBIS isn't, add OGG_VORBIS
+ifneq ($(filter NEW_SOUND, $(FEATURES)),)
+	ifeq ($(filter OGG_VORBIS, $(FEATURES)),)
+		FEATURES += OGG_VORBIS
+	endif
+endif
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

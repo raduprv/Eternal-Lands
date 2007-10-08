@@ -969,7 +969,7 @@ void init_errors()
 	add_xml_identifier(snd,"loadstream",snd_ogg_stream_error,"Failed to load ogg stream",sizeof(snd_ogg_stream_error));
 	add_xml_identifier(snd,"buffer",snd_buff_error,"Error creating buffer",sizeof(snd_buff_error));
 	add_xml_identifier(snd,"number",snd_invalid_number,"Got invalid sound number",sizeof(snd_invalid_number));
-	add_xml_identifier(snd,"source",snd_source_error,"Error creating a source",sizeof(snd_source_error));
+	add_xml_identifier(snd,"source",snd_source_error,"Error creating sources. Sound is disabled",sizeof(snd_source_error));
 	add_xml_identifier(snd,"skip",snd_skip_speedup,"Skip! Speeding up...",sizeof(snd_skip_speedup));
 	add_xml_identifier(snd,"tooslow",snd_too_slow,"Sorry, too slow to play music...",sizeof(snd_too_slow));
 	add_xml_identifier(snd,"fail",snd_stop_fail,"Failed to stop all sounds.",sizeof(snd_stop_fail));

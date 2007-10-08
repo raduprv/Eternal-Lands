@@ -182,6 +182,11 @@ void remove_bag(int which_bag)
 	x = x + 0.25f;
 	y = y + 0.25f;
 	if (use_eye_candy) ec_create_bag_pickup(x, y, z, (poor_man ? 6 : 10));
+ #else // EYE_CANDY
+  #ifdef SFX
+	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
+  #endif
+ #endif // EYE_CANDY
 #ifdef NEW_SOUND
 	if (sound_on)
 	{
@@ -192,11 +197,6 @@ void remove_bag(int which_bag)
 		}
 	}
 #endif // NEW_SOUND
- #else // EYE_CANDY
-  #ifdef SFX
-	add_particle_sys_at_tile ("./particles/bag_out.part", bag_list[which_bag].x, bag_list[which_bag].y, 1);
-  #endif
- #endif // EYE_CANDY
 
 	destroy_3d_object(bag_list[which_bag].obj_3d_id);
 	bag_list[which_bag].obj_3d_id=-1;
