@@ -14,6 +14,7 @@
 #include "map.h"
 #include "misc.h"
 #ifdef NEW_SOUND
+#include "spells.h"
 #include "tiles.h"
 #endif // NEW_SOUND
 #include "translate.h"
@@ -330,6 +331,7 @@ particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// Data for partic
 item_sound_data sound_item_data[MAX_SOUND_ITEMS];				// Data for item sfx
 tile_sound_data sound_tile_data[MAX_SOUND_TILE_TYPES];			// Data for tile (walking) sfx
 int server_sound[9];											// Map of server sounds to sound def ids
+int sound_spell_data[10];										// Map of id's for spells-that-affect-you to sounds
 #else
 char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
 ALuint sound_source[MAX_SOURCES];
@@ -3049,6 +3051,17 @@ unsigned int add_particle_sound(int type, int x, int y)
 	return add_sound_object_gain(type, x, y, 0, 1.0f);
 }
 
+// Add a wrapper for under-the-influence-of-spell sounds
+unsigned int add_spell_sound(int spell)
+{
+	if (sound_spell_data[spell] > -1)
+	{
+		// Add the sound
+		return add_sound_object_gain(sound_spell_data[spell], 0, 0, 1, 1.0f);
+	}
+	return 0;
+}
+
 unsigned int add_sound_object(int type, int x, int y, int me)
 {
 	return add_sound_object_gain(type, x, y, me, 1.0f);
@@ -5462,18 +5475,18 @@ void parse_tile_type_sound(xmlNode *inNode)
 
 	if (inNode->type == XML_ELEMENT_NODE)
 	{
-		if (sound_num_items < MAX_SOUND_ITEMS)
+		if (sound_num_tile_types < MAX_SOUND_TILE_TYPES)
 		{
 			pTileType = &sound_tile_data[sound_num_tile_types++];
 		
 			for (attributeNode = inNode->children; attributeNode; attributeNode = attributeNode->next)
 			{
 				get_string_value(content, sizeof(content), attributeNode);
-				if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"tiles"))
+				if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"tiles"))
 				{
 					parse_tile_types(content, pTileType);
 				}
-				else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"actor_types"))
+				else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"actor_types"))
 				{
 					safe_strncpy(pTileType->sounds[pTileType->num_sounds].actor_types, content, sizeof(pTileType->sounds[pTileType->num_sounds].actor_types));
 					safe_strncpy(content, get_string_property(attributeNode, "sound"), sizeof(content));
@@ -5485,7 +5498,7 @@ void parse_tile_type_sound(xmlNode *inNode)
 					// Increment the actor_types count
 					pTileType->num_sounds++;
 				}
-				else if(!xmlStrcasecmp(attributeNode->name, (xmlChar*)"default"))
+				else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"default"))
 				{
 					pTileType->default_sound = get_index_for_sound_type_name(content);
 					if (pTileType->default_sound == -1)
@@ -5503,6 +5516,37 @@ void parse_tile_type_sound(xmlNode *inNode)
 	else if (inNode->type == XML_ENTITY_REF_NODE)
 	{
 		LOG_ERROR("%s: Include not allowed in tile type sound def", snd_config_error);
+	}
+}
+
+void parse_spell_sound(xmlNode *inNode)
+{
+	char content[100] = "";
+	int i = -1;
+
+	if (inNode->type == XML_ELEMENT_NODE)
+	{
+		get_string_value(content, sizeof(content), inNode);
+		if (!xmlStrcasecmp(inNode->name, (xmlChar*)"spell_effect"))
+		{
+			i = get_int_property(inNode, "id");
+			if (i >= 0 && i < NUM_ACTIVE_SPELLS)
+			{
+				sound_spell_data[i] = get_index_for_sound_type_name(content);
+				if (sound_spell_data[i] == -1)
+				{
+					LOG_ERROR("%s: Unknown sound %s for spell effect sound", snd_config_error, content);
+				}
+			}
+			else
+			{
+				LOG_ERROR("%s: Unknown spell effect ID %d for spell effect sound", snd_config_error, i);
+			}
+		}
+	}
+	else if (inNode->type == XML_ENTITY_REF_NODE)
+	{
+		LOG_ERROR("%s: Include not allowed in spell effect sound def", snd_config_error);
 	}
 }
 
@@ -5542,6 +5586,10 @@ int parse_sound_defs(xmlNode *node)
 			else if (xmlStrcasecmp (def->name, (xmlChar*)"tile_type") == 0)
 			{
 				parse_tile_type_sound(def);
+			}
+			else if (xmlStrcasecmp (def->name, (xmlChar*)"spell_effect") == 0)
+			{
+				parse_spell_sound(def);
 			}
 			else
 			{

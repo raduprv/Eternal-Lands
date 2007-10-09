@@ -23,6 +23,9 @@
 #include "errors.h"
 #include "io/elpathwrapper.h"
 #endif
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 
 #define SIGILS_NO 64
 #define	NUM_SIGILS_LINE	12	// how many sigils per line displayed
@@ -48,7 +51,16 @@ static int sigils_text;
 Uint8 spell_text[256];
 int sigils_we_have;
 int have_error_message=0;
-Sint8 active_spells[10];
+#ifdef NEW_SOUND
+typedef struct
+{
+	Sint8 spell;
+	unsigned int sound;
+} spell_def;
+spell_def active_spells[NUM_ACTIVE_SPELLS];
+#else
+Sint8 active_spells[NUM_ACTIVE_SPELLS];
+#endif
 
 Sint8 on_cast[6];
 int clear_mouseover=0;
@@ -245,32 +257,63 @@ void init_spells ()
 	my_strcp(sigils_list[i].description,(char*)sig_death.desc);
 	sigils_list[i].have_sigil=1;
 
-	for(i=0;i<6;i++)on_cast[i]=-1;
-	for(i=0;i<10;i++)active_spells[i]=-1;
+	for (i = 0; i < 6; i++) on_cast[i] = -1;
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+	{
+#ifdef NEW_SOUND
+		active_spells[i].spell = -1;
+		if (active_spells[i].sound > 0)
+			stop_sound(active_spells[i].sound);
+#else
+		active_spells[i] = -1;
+#endif // NEW_SOUND
+	}
 }
 
 void get_active_spell(int pos, int spell)
 {
-	active_spells[pos]=spell;
+#ifdef NEW_SOUND
+	active_spells[pos].spell = spell;
+	active_spells[pos].sound = add_spell_sound(spell);
+#else
+	active_spells[pos] = spell;
+#endif // NEW_SOUND
 }
 
 void remove_active_spell(int pos)
 {
-	active_spells[pos]=-1;
+#ifdef NEW_SOUND
+	active_spells[pos].spell = -1;
+	if (active_spells[pos].sound > 0)
+		stop_sound(active_spells[pos].sound);
+#else
+	active_spells[pos] = -1;
+#endif // NEW_SOUND
 }
 
 void get_active_spell_list(const Uint8 *my_spell_list)
 {
 	int i;
-	for (i = 0; i < 10; i++)
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+	{
+#ifdef NEW_SOUND
+		active_spells[i].spell = my_spell_list[i];
+		active_spells[i].sound = add_spell_sound(active_spells[i].spell);
+#else
 		active_spells[i] = my_spell_list[i];
+#endif // NEW_SOUND
+	}
 }
 
 int we_are_poisoned()
 {
 	int i;
-	for (i = 0; i < 10; i++)
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+#ifdef NEW_SOUND
+		if (active_spells[i].spell == 2)
+#else
 		if (active_spells[i] == 2)
+#endif // NEW_SOUND
 			return 1;
 	return 0;
 }
@@ -287,16 +330,24 @@ CHECK_GL_ERRORS();
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<10;i++)
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
 	{
-		if(active_spells[i]!=-1)
+#ifdef NEW_SOUND
+		if (active_spells[i].spell != -1)
+#else
+		if (active_spells[i] != -1)
+#endif // NEW_SOUND
 		{
 			float u_start,v_start,u_end,v_end;
 			int cur_spell,cur_pos;
 			int x_start,x_end,y_start,y_end;
 
 			//get the UV coordinates.
-			cur_spell=active_spells[i]+32;//the first 32 icons are the sigils
+#ifdef NEW_SOUND
+			cur_spell = active_spells[i].spell + 32;	//the first 32 icons are the sigils
+#else
+			cur_spell = active_spells[i] + 32;	//the first 32 icons are the sigils
+#endif // NEW_SOUND
 			u_start=0.125f*(cur_spell%8);
 			u_end=u_start+0.125f;
 			v_start=1.0f-(0.125f*(cur_spell/8));

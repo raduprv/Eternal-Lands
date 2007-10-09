@@ -148,6 +148,7 @@ int add_sound_object(int sound_file, int x, int y, int positional, int loops);
 #ifdef NEW_SOUND
 unsigned int add_walking_sound(int type, int x, int y, int me, float scale);
 unsigned int add_particle_sound(int type, int x, int y);
+unsigned int add_spell_sound(int spell);
 unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial_gain);
 
 /*!

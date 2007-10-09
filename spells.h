@@ -12,6 +12,8 @@
 extern "C" {
 #endif
 
+#define NUM_ACTIVE_SPELLS 10
+
 /*!
  * \name Server spell messages
  */

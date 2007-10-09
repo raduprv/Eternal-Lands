@@ -16,6 +16,9 @@
 #if defined SFX && defined EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1364,6 +1367,9 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				}
 				if (win->close_handler != NULL)
 					win->close_handler (win);
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
+#endif // NEW_SOUND
 				return 1;
 			}				
 		}

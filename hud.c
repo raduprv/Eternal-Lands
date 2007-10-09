@@ -753,6 +753,9 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 					}
 				}
 		}
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Icon Click"), 0, 0, 1);
+#endif // NEW_SOUND
 	return 1;
 }
 

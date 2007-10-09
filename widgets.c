@@ -18,6 +18,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 
 typedef struct {
 	char text[256];
@@ -521,6 +524,12 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 			res |= widget->OnClick (widget, mx, my, flags);
 		}
 	}
+
+#ifdef NEW_SOUND
+	if (widget->type == &round_button_type && res > -1)
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+
 	return res > -1 ? res : 0;
 }
 
