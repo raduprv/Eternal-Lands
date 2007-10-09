@@ -118,7 +118,7 @@ char datadir[256]=DATA_DIR;
 char datadir[256]="./";
 #endif //DATA_DIR
 
-char lang[10]={"en"};
+char lang[10]= "";
 static int no_lang_in_config = 0;
 
 int video_mode_set=0;
