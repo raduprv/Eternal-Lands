@@ -1572,13 +1572,14 @@ void init_vars()
 #endif	//ELC
 
 #ifdef NEW_SOUND
-	add_var(OPT_BOOL,"enable_sound","sound",&sound_opts,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
-	add_var(OPT_FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Overall Sound Gain","Adjust the overall sound effects volume",AUDIO,0.0,1.0,0.1);
-	add_var(OPT_FLOAT,"crowd_gain","crgain",&crowd_gain,change_sound_level,1,"Crowd Sounds Gain","Adjust the crowd sound effects volume",AUDIO,0.0,1.0,0.1);
-	add_var(OPT_FLOAT,"enviro_gain","envgain",&enviro_gain,change_sound_level,1,"Environmental Sounds Gain","Adjust the environmental sound effects volume",AUDIO,0.0,1.0,0.1);
-	add_var(OPT_FLOAT,"actor_gain","again",&actor_gain,change_sound_level,1,"Character Sounds Gain","Adjust the sound effects volume for fighting, magic and other character sounds",AUDIO,0.0,1.0,0.1);
-	add_var(OPT_FLOAT,"walking_gain","wgain",&walking_gain,change_sound_level,1,"Walking Sounds Gain","Adjust the walking sound effects volume",AUDIO,0.0,1.0,0.1);
-	add_var(OPT_FLOAT,"client_gain","clgain",&client_gain,change_sound_level,1,"Misc Client Sounds Gain","Adjust the client sound effects volume (including inventory window etc)",AUDIO,0.0,1.0,0.1);
+	add_var(OPT_BOOL, "enable_sound", "sound", &sound_opts, toggle_sounds, 0, "Enable Sound Effects", "Turn sound effects on/off", AUDIO);
+	add_var(OPT_FLOAT, "sound_gain", "sgain", &sound_gain, change_sound_level, 1, "Overall Sound Effects Volume", "Adjust the overall sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT, "crowd_gain", "crgain", &crowd_gain, change_sound_level, 1, "Crowd Sounds Volume", "Adjust the crowd sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT, "enviro_gain", "envgain", &enviro_gain, change_sound_level, 1, "Environmental Sounds Volume", "Adjust the environmental sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT, "actor_gain", "again", &actor_gain, change_sound_level, 1, "Character Sounds Volume", "Adjust the sound effects volume for fighting, magic and other character sounds", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT, "walking_gain", "wgain", &walking_gain, change_sound_level, 1, "Walking Sounds Volume", "Adjust the walking sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT, "gamewin_gain", "gwgain", &gamewin_gain, change_sound_level, 1, "Item and Inventory Sounds Volume", "Adjust the item and inventory sound effects volume", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT, "client_gain", "clgain", &client_gain, change_sound_level, 1, "Misc Client Sounds Volume", "Adjust the client sound effects volume (warnings, hud/button clicks)", AUDIO, 0.0, 1.0, 0.1);
 #else
 	add_var(OPT_BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 #endif	//NEW_SOUND
@@ -1586,10 +1587,10 @@ void init_vars()
 	add_var(OPT_BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
 #endif //OGG_VORBIS
 #ifndef NEW_SOUND
-	add_var(OPT_FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Gain","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
+	add_var(OPT_FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Volume","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
 #endif	//NEW_SOUND
 #ifdef OGG_VORBIS
-	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Gain","Adjust the music volume",AUDIO,0.0,1.0,0.1);
+	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Volume","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 #endif //OGG_VORBIS
 #ifdef NEW_SOUND
 	add_var(OPT_BOOL,"dim_sounds_on_rain","dim4rain",&dim_sounds_on_rain,change_var,0,"Dim sounds when raining (Experimental!)","Soften the volume of other sounds when it is raining",AUDIO);
@@ -2127,6 +2128,9 @@ int onclick_label_handler(widget_list *widget, int mx, int my, Uint32 flags)
 		option->saved= 0;
 	}
 
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 	return 1;
 }
 
@@ -2227,7 +2231,7 @@ void elconfig_populate_tabs(void)
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0);
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
@@ -2246,7 +2250,7 @@ void elconfig_populate_tabs(void)
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
 
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval);
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(min);
@@ -2262,7 +2266,7 @@ void elconfig_populate_tabs(void)
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
-				widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/3, elconfig_tabs[tab_id].y, 332, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
+				widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/5*2, elconfig_tabs[tab_id].y, 332, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
 			break;
 			case OPT_PASSWORD:
@@ -2308,7 +2312,7 @@ void elconfig_populate_tabs(void)
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
 
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval);
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(f_min_func);
@@ -2327,7 +2331,7 @@ void elconfig_populate_tabs(void)
 #else
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
 #endif
-				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0);
+				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
 				free(i_min_func);

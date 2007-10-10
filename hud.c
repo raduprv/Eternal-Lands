@@ -752,10 +752,10 @@ int	click_icons_handler(window_info *win, int mx, int my, Uint32 flags)
 						break;
 					}
 				}
-		}
 #ifdef NEW_SOUND
-	add_sound_object(get_index_for_sound_type_name("Icon Click"), 0, 0, 1);
+			add_sound_object(get_index_for_sound_type_name("Icon Click"), 0, 0, 1);
 #endif // NEW_SOUND
+		}
 	return 1;
 }
 
@@ -1340,6 +1340,10 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	{
 		unsigned char protocol_name;
 
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+
 		protocol_name= GET_TIME;
 		my_tcp_send(my_socket,&protocol_name,1);
 		return 1;
@@ -1349,6 +1353,10 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	{
 		unsigned char protocol_name;
 
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+		
 		protocol_name= LOCATE_ME;
 		my_tcp_send(my_socket,&protocol_name,1);
 		return 1;
@@ -1357,6 +1365,9 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	if (show_stats_in_hud && video_mode > ((view_digital_clock>0&&view_analog_clock>0)?4:2) && my - ((view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)) >= 0 && my - ((view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)) < (NUM_WATCH_STAT-1)*15)
 	{
 		watch_this_stat = ((my - ((view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)) ) / 15) + 1;
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 		return 1;
 	}
 

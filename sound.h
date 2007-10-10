@@ -27,7 +27,8 @@ extern "C" {
 #define SOUNDS_ACTOR 3
 #define SOUNDS_WALKING 4
 #define SOUNDS_CROWD 5
-#define SOUNDS_CLIENT 6
+#define SOUNDS_GAMEWIN 6
+#define SOUNDS_CLIENT 7		// Should always be last as limits are linked to this define
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
@@ -49,6 +50,7 @@ extern ALfloat crowd_gain; /*!< gain for crowd sound effects */
 extern ALfloat enviro_gain; /*!< gain for environmental and map sound effects */
 extern ALfloat actor_gain; /*!< gain for actor sound effects */
 extern ALfloat walking_gain; /*!< gain for walking sound effects */
+extern ALfloat gamewin_gain; /*!< gain for game window (items/inv etc) sound effects */
 extern ALfloat client_gain; /*!< gain for client sound effects */
 
 	#define MAX_SOUND_NAME_LENGTH 40

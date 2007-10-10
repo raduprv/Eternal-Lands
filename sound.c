@@ -90,14 +90,14 @@ typedef struct {
 #define NUM_STREAM_BUFFERS 4
 #endif // OGG_VORBIS
 
-#define MAX_BACKGROUND_DEFAULTS 8
-#define MAX_MAP_BACKGROUND_DEFAULTS 4
-#define MAX_SOUND_MAP_NAME_LENGTH 60
-#define MAX_SOUND_MAP_BOUNDARIES 20
-#define MAX_ITEM_SOUND_IMAGE_IDS 30
-#define MAX_SOUND_TILE_TYPES 20
-#define MAX_SOUND_TILES 20
-#define MAX_SOUND_TILES_SOUNDS 5
+#define MAX_BACKGROUND_DEFAULTS 8			// Maximum number of global default backgrounds
+#define MAX_MAP_BACKGROUND_DEFAULTS 4		// Maximum number of default backgrounds per map
+#define MAX_SOUND_MAP_NAME_LENGTH 60		// Maximum length of the name of the map
+#define MAX_SOUND_MAP_BOUNDARIES 20			// Maximum number of boundary sets per map
+#define MAX_ITEM_SOUND_IMAGE_IDS 30			// Maximum number of image id's linked to an item sound def
+#define MAX_SOUND_TILE_TYPES 20				// Maximum number of different tile types
+#define MAX_SOUND_TILES 30					// Maximum number of different tiles for a tile type
+#define MAX_SOUND_TILES_SOUNDS 5			// Maximum number of different sound types for a tile type
 
 #define MAX_SOUND_MAPS 150			// This value is the maximum number of maps sounds can be defined for
 									// (Roja has suggested 150 is safe for now)
@@ -291,6 +291,7 @@ ALfloat crowd_gain = 1.0f;
 ALfloat enviro_gain = 1.0f;
 ALfloat actor_gain = 1.0f;
 ALfloat walking_gain = 1.0f;
+ALfloat gamewin_gain = 1.0f;
 ALfloat client_gain = 1.0f;
 #endif // NEW_SOUND
 
@@ -2248,38 +2249,6 @@ int add_stream(int sound, int type, int boundary)
 	return 1;		// Return success
 }
 
-/*
-					// Check if we just faded out a sound (and therefore fade this one up)
-					if (sound_fade < 0)
-						sound_fade = 1;
-					gain = sound_gain * enviro_gain * sound_type_data[sound_fx_stream.sound].gain;
-					play_stream(sound_fx_stream.sound, &sound_fx_stream, sound_fade == 1 ? 0.0f : gain);
-					sound_fx_stream.is_default = 1;
-*/
-/*
-									// Check if we just faded out a sound (and therefore fade this one up)
-									if (sound_fade < 0)
-										sound_fade = 1;
-									gain = sound_gain * enviro_gain * sound_type_data[sound_fx_stream.sound].gain;
-									play_stream(sound_fx_stream.sound, &sound_fx_stream, sound_fade == 1 ? 0.0f : gain);
-									sound_fx_stream.is_default = 1;
-*/
-/*
-					crowd_stream.sound = cur_map->boundaries[cur_map->defaults[i]].crowd_sound;
-#ifdef _EXTRA_SOUND_DEBUG
-					printf("update_stream - Playing map default crowd sound: %d\n", crowd_stream.sound);
-#endif //_EXTRA_SOUND_DEBUG
-					gain = sound_gain * crowd_gain * sound_type_data[crowd_stream.sound].gain * (no_near_enhanced_actors / 5);
-					play_stream(crowd_stream.sound, &crowd_stream, gain);
-					crowd_stream.is_default = 1;
-*/
-/*
-//			gain = sound_gain * crowd_gain * sound_type_data[crowd_stream.sound].gain * (no_near_enhanced_actors / 5);
-			play_stream(crowd_default, &crowd_stream, gain);
-			crowd_stream.is_default = 1;
-*/
-
-
 int check_for_valid_stream_sound(int tx, int ty, int type)
 {
 	int i, j, snd = -1, playing, found = 0;
@@ -2818,17 +2787,22 @@ int ensure_sample_loaded(char * filename)
 	if (num_samples >= MAX_BUFFERS)
 	{
 		// We need to make room for this sample so find an inactive one (not loaded into a source atm)
+		
+		// FIXME!! There has to be a better way to do this! I'll review this when I get the chance.
 		for (i = 0; i < num_samples; i++)
 		{
 			for (j = 0; j < used_sources; j++)
 			{
-				// Check if this sample is loaded into a source atm
-				if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].part[k].sample_num == i)
+				for (k = STAGE_INTRO; k <= STAGE_OUTRO; k++)
 				{
+					// Check if this sample is loaded into a source atm
+					if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].part[k].sample_num == i)
+					{
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("Found sample is loaded: sound %d, part %d\n", j, k);
+						printf("Found sample is loaded: sound %d, part %d\n", j, k);
 #endif //_EXTRA_SOUND_DEBUG
-					break;
+						break;
+					}
 				}
 			}
 			if (j >= used_sources)
@@ -2880,7 +2854,9 @@ int ensure_sample_loaded(char * filename)
 		data = load_ogg_into_memory(filename, &pSample->format, &pSample->size, &pSample->freq);
 		if (!data)
 		{
-			// Couldn't load the file, but we have already dumped an error message so just return
+			// Couldn't load the file, so release this sample num
+			num_samples--;
+			// We have already dumped an error message so just return
 			return -1;
 		}
 	}
@@ -2915,6 +2891,8 @@ int ensure_sample_loaded(char * filename)
 			printf("ensure_sample_loaded : alutLoadMemoryFromFile(%s) = %s\n",	filename, "NO SOUND DATA");
 #endif  //ALUT_WAV
 #endif  //ELC
+			// Release this sample num
+			num_samples--;
 			return -1;
 		}
 	}
@@ -3137,6 +3115,13 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		return 0;
 	}
 	
+	// Check this sound doesn't already exist in the sounds list and just isn't loaded
+/*	for (i = 0; i < MAX_BUFFERS * 2; i++)
+	{
+		if (sounds_list[i].sound == type && sounds_list[i].x == x && sounds_list[i].y == y && sounds_list)
+			return 0;		// This sound already exists so let update_sound handle it
+	}
+*/	
 	// Find a spot in the sounds list for this sound
 	sound_num = get_loaded_sound_num();
 	if (sound_num == -1)
@@ -3163,7 +3148,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	sounds_list[sound_num].loaded = 0;
 	sounds_list[sound_num].playing = 0;
 	sounds_list[sound_num].base_gain = initial_gain;
-	sounds_list[sound_num].cur_gain = 0.0f;
+	sounds_list[sound_num].cur_gain = -1.0f;		// Make sure we set the gain when we first play the sound
 	cookie = get_next_cookie();
 	sounds_list[sound_num].cookie = cookie;
 	
@@ -4071,9 +4056,9 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 {
 	float type_gain = 1.0f;
 	int error;
-	sound_type this_snd = sound_type_data[sounds_list[loaded_sound_num].sound];
+	sound_type * this_snd = &sound_type_data[sounds_list[loaded_sound_num].sound];
 	// Check what type this sound is and match it to the "type gain"
-	switch (this_snd.type)
+	switch (this_snd->type)
 	{
 		case SOUNDS_CROWD:
 			type_gain = crowd_gain;
@@ -4093,6 +4078,9 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 		case SOUNDS_ENVIRO:
 			type_gain = enviro_gain;
 			break;
+		case SOUNDS_GAMEWIN:
+			type_gain = gamewin_gain;
+			break;
 	}
 	// Check if we need to update the base gain for this sound
 	if (new_gain != sounds_list[loaded_sound_num].base_gain)
@@ -4103,9 +4091,9 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 	new_gain = weather_adjust_gain(new_gain, pSource->cookie);
 
 	// Check if we need to update the overall gain for this source
-	if (sound_gain * type_gain * this_snd.gain * new_gain != sounds_list[loaded_sound_num].cur_gain)
+	if (sound_gain * type_gain * this_snd->gain * new_gain != sounds_list[loaded_sound_num].cur_gain)
 	{
-		sounds_list[loaded_sound_num].cur_gain = sound_gain * type_gain * this_snd.gain * new_gain;
+		sounds_list[loaded_sound_num].cur_gain = sound_gain * type_gain * this_snd->gain * new_gain;
 		alSourcef(pSource->source, AL_GAIN, sounds_list[loaded_sound_num].cur_gain);
 	}
 	if ((error=alGetError()) != AL_NO_ERROR)
@@ -4926,7 +4914,7 @@ void parse_sound_object(xmlNode *inNode)
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"priority"))
 				{
 					iVal = atoi((char *)content);
-					if(iVal >= 0)
+					if (iVal >= 0)
 						pData->priority = iVal;
 					else
 					{
@@ -4943,13 +4931,21 @@ void parse_sound_object(xmlNode *inNode)
 						iVal = SOUNDS_WALKING;
 					} else if (!strcasecmp((char *)content, "map")) {
 						iVal = SOUNDS_MAP;
+					} else if (!strcasecmp((char *)content, "crowd")) {
+						iVal = SOUNDS_CROWD;
+					} else if (!strcasecmp((char *)content, "client")) {
+						iVal = SOUNDS_CLIENT;
+					} else if (!strcasecmp((char *)content, "gamewin")) {
+						iVal = SOUNDS_GAMEWIN;
+					} else {
+						LOG_ERROR("%s: Unknown type '%s' for sound '%s'", snd_config_error, content, pData->name);
 					}
-					if (iVal >= 0)
+					if (iVal > SOUNDS_NONE && iVal <= SOUNDS_CLIENT)
 						pData->type = iVal;
-					else
-					{
-						LOG_ERROR("%s: type = %s in '%s'", snd_config_error, content, pData->name);
-					}
+				}
+				else
+				{
+					LOG_ERROR("%s: Unknown attribute '%s' for sound '%s'", snd_config_error, attributeNode->name, pData->name);
 				}
 			}
 			else if (attributeNode->type == XML_ENTITY_REF_NODE)
@@ -5706,7 +5702,8 @@ void print_sound_types()
 		printf("\tEcho delay = %dms\n"			, pData->echo_delay);
 		printf("\tEcho volume = %d%%\n"			, pData->echo_volume);
 		printf("\tTime of day flags = 0x%x\n"	, pData->time_of_the_day_flags);
-		printf("\tPriority = %d\n\n"			, pData->priority);
+		printf("\tPriority = %d\n"				, pData->priority);
+		printf("\tType = %d\n\n"				, pData->type);
 	}
 	
 	printf("\nMAP SOUND DATA\n===============\n");

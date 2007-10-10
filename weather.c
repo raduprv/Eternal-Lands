@@ -719,9 +719,9 @@ void weather_sound_control()
 			// This is really only for NEW_SOUND.
 			if (rain_sound == 0)
 #ifdef NEW_SOUND
-				rain_sound = add_server_sound(snd_rain, 0, 0, 0.0f);
+				rain_sound = add_server_sound(snd_rain, 0, 0, severity * weather_ratios[WEATHER_RAIN]);
 			else
-				sound_source_set_gain(find_sound_source_from_cookie(rain_sound), severity * weather_ratios[WEATHER_RAIN]);
+				sound_source_set_gain(rain_sound, severity * weather_ratios[WEATHER_RAIN]);
 #else
 			{
 				rain_sound = add_sound_object(snd_rain, 0, 0, 0, 1);

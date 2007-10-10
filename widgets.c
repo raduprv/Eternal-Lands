@@ -713,6 +713,11 @@ int checkbox_click (widget_list *W, int mx, int my, Uint32 flags)
 		return 0;
 
 	*c->checked = !*c->checked;
+	
+#ifdef NEW_SOUND
+	add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+	
 	return 1;
 }
 
@@ -1465,6 +1470,9 @@ int tab_collection_click (widget_list *W, int x, int y, Uint32 flags)
 			// check if close box was clicked
 			if (col->tabs[itag].closable && x > x_start + 3 && x < x_start + col->tag_height - 3 && y > 3 && y < col->tag_height - 3)
 			{
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 				_tab_collection_close_tab_real (col, itag);
 			}
 			// check if a new tab is selected
@@ -1474,6 +1482,9 @@ int tab_collection_click (widget_list *W, int x, int y, Uint32 flags)
 				hide_window (col->tabs[ctag].content_id);
 				show_window (col->tabs[itag].content_id);
 				//select_window (col->tabs[itag].content_id);
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 			}
 			return 1;
 		}
@@ -3040,6 +3051,9 @@ int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags)
 		if((flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) && 
 			my > button_y && my < button_y+22 && mx > M->buttons[i].x && mx < M->buttons[i].x+M->buttons[i].width) {
 				M->selected_button = i;
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 			return 1;
 		}
 	}
@@ -3272,6 +3286,9 @@ int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags)
 			} else {
 				action = 'd'; //d for decrease
 			}
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 		} else {
 			action = 0;
 		}
