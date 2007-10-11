@@ -473,8 +473,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 	if (data_length <= 2)
 	{
-	  log_error("CAUTION: Possibly forged packet received.\n");
-	  return;
+		log_error("CAUTION: Possibly forged packet received.\n");
+		return;
 	}
 	
 	//see what kind of data we got
@@ -1240,12 +1240,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case NPC_OPTIONS_LIST:
 			{
-				if (data_length <= 3)
-				{
-				  log_error("CAUTION: Possibly forged NPC_OPTIONS_LIST packet received.\n");
-				  break;
-				}
-				build_response_entries(&in_data[3],SDL_SwapLE16(*((Uint16 *)(in_data+1))));
+				// NOTE: an empty response list (data_length == 3) is valid,
+				// and simply means that the response list should be cleared. 
+				// Just take care not to try to use the data argument in 
+				// build_response_entries ().
+				build_response_entries (in_data+3, SDL_SwapLE16 (*((Uint16 *)(in_data+1))));
 			}
 			break;
 
