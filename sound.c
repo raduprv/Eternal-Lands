@@ -2382,7 +2382,7 @@ void check_for_new_streams(int tx, int ty)
 
 int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 {
-	int error, state;	// , state2;
+	int error, state = AL_STOPPED;	// , state2;
 	ALfloat new_gain = gain;
 	
 	// Check if we are starting/stopping this stream and continue the fade
@@ -2418,9 +2418,21 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 	}
 
 	alSourcef(stream->source, AL_GAIN, new_gain);
-	
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("process_stream - Error setting gain: %s, Stream type: %s, Source: %d\n", alGetString(error), get_stream_type(stream->type), stream->source);
+#endif // _EXTRA_SOUND_DEBUG
+	}
+
 	// Process the next portion of the stream
 	alGetSourcei(stream->source, AL_BUFFERS_PROCESSED, &stream->processed);
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("process_stream - Error retrieving buffers processed value: %s, Stream type: %s, Source: %d\n", alGetString(error), get_stream_type(stream->type), stream->source);
+#endif // _EXTRA_SOUND_DEBUG
+	}
 	if (!stream->processed)
 	{
 		if(*sleep < SLEEP_TIME) *sleep += (SLEEP_TIME / 100);
@@ -2432,17 +2444,23 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 
 		alSourceUnqueueBuffers(stream->source, 1, &buffer);
 		if ((error = alGetError()) != AL_NO_ERROR)
-			LOG_ERROR("process_stream: Type: %s, %s", get_stream_type(stream->type), alGetString(error));
+			LOG_ERROR("process_stream - Error unqueuing buffers: %s, Stream type: %s, Source: %d", alGetString(error), get_stream_type(stream->type), stream->source);
 		
 		stream->playing = stream_ogg(buffer, &stream->stream, stream->info);
 		
 		alSourceQueueBuffers(stream->source, 1, &buffer);
 		if ((error = alGetError()) != AL_NO_ERROR)
-			LOG_ERROR("process_stream: Type: %s, %s", get_stream_type(stream->type), alGetString(error));
+			LOG_ERROR("process_stream - Error requeuing buffers: %s, Stream type: %s, Source: %d, Playing: %s", alGetString(error), get_stream_type(stream->type), stream->source, stream->playing == 0 ? "No" : "Yes");
 	}
 	
 	// Check if the stream is still playing, and handle if not
 	alGetSourcei(stream->source, AL_SOURCE_STATE, &state);
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("process_stream - Error retrieving state: %s, Stream type: %s, Source: %d\n", alGetString(error), get_stream_type(stream->type), stream->source);
+#endif // _EXTRA_SOUND_DEBUG
+	}
 //	state2 = state;		// Fake out the Dev-C++ optimizer!		<-- FIXME: Is this still nessessary?
 	if (state != AL_PLAYING)
 	{
@@ -2478,7 +2496,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("process_stream: Type: %s, %s", get_stream_type(stream->type), alGetString(error));
+		printf("process_stream - OpenAL error: %s, Stream type: %s, Source: %d\n", alGetString(error), get_stream_type(stream->type), stream->source);
 #endif // _EXTRA_SOUND_DEBUG
 	}
 	
@@ -3213,6 +3231,10 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	printf("Playing this sound: %d, Sound num: %d, Cookie: %d\n", sounds_list[sound_num].sound, sound_num, sounds_list[sound_num].cookie);
 #endif //_EXTRA_SOUND_DEBUG
 
+	// Check if we have a sound device and its worth continuing
+	if (!inited)
+		return 0;
+	
 	// Check if we need to load the samples into buffers
 	if (!sounds_list[sound_num].loaded)
 	{
@@ -3639,7 +3661,7 @@ void update_sound(int ms)
 #endif // _EXTRA_SOUND_DEBUG
 
 	// Check if we have a sound config, and thus if its worth doing anything
-	if (!inited || num_types < 1)
+	if (num_types < 1)
 		return;
 
 	// Check if we have our actor
@@ -3666,11 +3688,6 @@ void update_sound(int ms)
 		}
 	}
 	
-	// Update the position of the listener
-	alListenerfv(AL_POSITION, listenerPos);
-	alListenerfv(AL_VELOCITY, listenerVel);
-	alListenerfv(AL_ORIENTATION, listenerOri);
-
 	// Start to process the sounds
 	LOCK_SOUND_LIST();
 
@@ -3704,7 +3721,20 @@ void update_sound(int ms)
 			}
 		}
 	}
+	
+	// Check if we have a sound device and its worth continuing
+	if (!inited)
+	{
+		UNLOCK_SOUND_LIST();
+		return;
+	}
 
+	// Update the position of the listener
+	alListenerfv(AL_POSITION, listenerPos);
+	alListenerfv(AL_VELOCITY, listenerVel);
+	alListenerfv(AL_ORIENTATION, listenerOri);
+
+	// Check if we have any sounds playing currently (this includes streams so is sometimes a little redundant)
 	if (!used_sources)
 	{
 		UNLOCK_SOUND_LIST();
@@ -4546,8 +4576,26 @@ void init_sound()
 
 	// Setup the listener
 	alListenerfv(AL_POSITION, listenerPos);
+#ifdef _EXTRA_SOUND_DEBUG							// Debugging for Florian
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		printf("%s: Error setting up listener position - %s\n", snd_init_error, alGetString(error));
+	}
+#endif // _EXTRA_SOUND_DEBUG
 	alListenerfv(AL_VELOCITY, listenerVel);
+#ifdef _EXTRA_SOUND_DEBUG
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		printf("%s: Error setting up listener velocity - %s\n", snd_init_error, alGetString(error));
+	}
+#endif // _EXTRA_SOUND_DEBUG
 	alListenerfv(AL_ORIENTATION, listenerOri);
+#ifdef _EXTRA_SOUND_DEBUG
+	if ((error = alGetError()) != AL_NO_ERROR)
+	{
+		printf("%s: Error setting up listener orientation - %s\n", snd_init_error, alGetString(error));
+	}
+#endif // _EXTRA_SOUND_DEBUG
 
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
@@ -4638,8 +4686,6 @@ void destroy_sound()
 		return;
 	}
 	inited = have_sound = have_music = sound_on = music_on = 0;
-	SDL_DestroyMutex(sound_list_mutex);
-	sound_list_mutex = NULL;
 
 #ifdef OGG_VORBIS
 	if (sound_streams_thread != NULL)
@@ -4654,14 +4700,14 @@ void destroy_sound()
 #endif // OGG_VORBIS
 	// Remove physical elements (sources and buffers)
 	LOCK_SOUND_LIST();
-	for (i = 0; i < max_sources; i++)
+	for (i = 0; i < MAX_SOURCES; i++)
 	{
-		if(alIsSource(sound_source_data[i].source) == AL_TRUE)
+		if (alIsSource(sound_source_data[i].source) == AL_TRUE)
 		{
 			alSourceStopv(1, &sound_source_data[i].source);
 			alDeleteSources(1, &sound_source_data[i].source);
-			sound_source_data[i].source = 0;
 		}
+		sound_source_data[i].source = 0;
 	}
 	used_sources = 0;
 	for (i = 0; i < MAX_BUFFERS; i++)
@@ -4675,6 +4721,8 @@ void destroy_sound()
 		sounds_list[i].loaded = 0;
 	}
 	UNLOCK_SOUND_LIST();
+	SDL_DestroyMutex(sound_list_mutex);
+	sound_list_mutex = NULL;
 
 	/*
 	 * alutExit() contains a problem with hanging on exit on some
@@ -5437,14 +5485,14 @@ void parse_tile_types(char * content, tile_sound_data * pTileType)
 	{
 		if (content[i] == ',')
 		{
-			if (pTileType->num_tile_types < MAX_SOUND_TILE_TYPES)
+			if (pTileType->num_tile_types < MAX_SOUND_TILES)
 			{
 				pTileType->tile_type[pTileType->num_tile_types++] = atoi(temp);
 				j = -1;
 			}
 			else
 			{
-				LOG_ERROR("%s: Too many tile types defined for tile type sound: %s", snd_config_error, content);
+				LOG_ERROR("%s: Too many tile types defined for tile type sound: %s, max: %d", snd_config_error, content, MAX_SOUND_TILES);
 				return;		// Avoid any more errors
 			}
 		}

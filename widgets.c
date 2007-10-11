@@ -3313,14 +3313,18 @@ int spinbutton_click(widget_list *widget, int mx, int my, Uint32 flags)
 					switch (action) {
 						case 'i':
 							//if(*(float *)button->data + button->interval <= button->max+0.000001) { //+0.000001 to avoid issues with floating point values
-							if(*(float *)button->data + button->interval <= button->max) { // NOTE: Can't do that, values > max may cause crashes. Change the max value intead.
+							if (*(float *)button->data + button->interval <= button->max) { // NOTE: Can't do that, values > max may cause crashes. Change the max value intead.
 								*(float *)button->data += button->interval;
+							} else {
+								*(float *)button->data = button->max;
 							}
 						break;
 						case 'd':
 							if(*(float *)button->data - button->interval >= button->min) {
 								*(float *)button->data -= button->interval;
-							}
+							} else {
+								*(float *)button->data = button->min;
+							}								
 						break;
 					}
 					safe_snprintf(button->input_buffer, sizeof(button->input_buffer), "%.2f", *(float *)button->data);

@@ -971,7 +971,7 @@ void init_errors()
 	add_xml_identifier(snd,"number",snd_invalid_number,"Got invalid sound number",sizeof(snd_invalid_number));
 	add_xml_identifier(snd,"source",snd_source_error,"Error creating sources. Sound is disabled",sizeof(snd_source_error));
 	add_xml_identifier(snd,"skip",snd_skip_speedup,"Skip! Speeding up...",sizeof(snd_skip_speedup));
-	add_xml_identifier(snd,"tooslow",snd_too_slow,"Sorry, too slow to play music...",sizeof(snd_too_slow));
+	add_xml_identifier(snd,"tooslow",snd_too_slow,"Sorry, too slow to play music or backgrounds...",sizeof(snd_too_slow));
 	add_xml_identifier(snd,"fail",snd_stop_fail,"Failed to stop all sounds.",sizeof(snd_stop_fail));
 	add_xml_identifier(snd,"init",snd_init_error,"Error initializing sound",sizeof(snd_init_error));
 	add_xml_identifier(snd,"init",snd_config_error,"Error loading sound configuration",sizeof(snd_config_error));
