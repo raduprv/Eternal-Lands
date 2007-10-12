@@ -393,7 +393,7 @@ ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, 
 #endif // ALUT_WAV
 static char * get_stream_type(int type);
 void play_stream(int sound, stream_data * stream, ALfloat gain);
-void start_stream(stream_data * stream);
+int start_stream(stream_data * stream);
 void stop_stream(stream_data * stream);
 void reset_stream(stream_data * stream);
 int init_sound_stream(stream_data * stream, int type, int priority);
@@ -1595,11 +1595,87 @@ void init_sound()
 
 /***********************
  * NEW SOUND FUNCTIONS *
- ***********************/
-
-
-
-
+ ***********************
+ *
+ * Welcome to EL's new sound system. There are basically 5 parts to the code.
+ * 1. Init/destroy, 2. Config, 3. Sources, 4. Streams, 5. Individual sounds
+ *
+ * This description of the code is currently in its first phase and therefore very
+ * general. I intend on expanding on it over time.
+ *
+ * The base of this code was written by d000hg and has been extended by Torg
+ * (torg@grug.redirectme.net).
+ *
+ *
+ *
+ * -- Part 1 - Init/destroy --
+ * This part deals with initialisation and destruction of the physical aspects of
+ * the sound system itself. These include setting up the sound device and sources,
+ * and has been seperated from configuration so as to allow sounds to be added and
+ * removed from the system without being played. This is so if sound is enabled
+ * during the life of any sounds they can be started immediately providing a more
+ * complete experience.
+ *
+ * This code can be considered complete, although could do with a bit more tidying.
+ *
+ *
+ * -- Part 2 - Configuration --
+ * This part is responsible for reading and parsing the configuration info.
+ * Configuration is by default found in sound/sound_config.xml. Some base XML
+ * blocks may be stored in additional files. Documentation on the configuration
+ * format can be found in the example sound_config.xml file. This code is
+ * straight-foward and very simple to adjust/expand where necessary.
+ *
+ * This code can also be considered complete.
+ *
+ *
+ * -- Part 3 - Sources --
+ * This part handles allocating places to play sounds to the sounds that want to
+ * be played. These "places" are OpenAL sources and are initialised in the code
+ * in Part 1. They are shared between streams and individual sounds and this code
+ * locates and available source and provides the calling function with a pointer
+ * to the structure containing the details of this source. There is a mutex lock
+ * used over this code to protect the sources array which is shuffled to keep the
+ * sources sorted by priority.
+ *
+ * This part is the most recent code. It seems to be working ok, but is most
+ * likely to contain bugs and is the hardest/most complex part to debug due to the
+ * varied states of sources, and the sharing.
+ *
+ *
+ * -- Part 4 - Configuration --
+ * This part handles the streamed sounds. The configuration for it is stable and
+ * very flexible. The logic should be straight-forward and it is seperated into
+ * many functions.
+ *
+ * It can be considered complete, but requires a lot of config info generated.
+ *
+ *
+ * -- Part 5s - Playing individual sounds --
+ * This part is the code to handle and play individual sounds. This code is broken
+ * into several functions. Sounds triggered in the code in Part 5b are added to
+ * the list of sounds to be played. They are then loaded into buffers and linked
+ * to a source to be played. There is an update function which is called on a
+ * timer to parse this list of active and inactive sounds to update them. The
+ * update function works directly on the source list and hence care needs to be
+ * taken with mutex locks.
+ *
+ * This is now pretty stable, but if there are going to be complex bugs (other
+ * than with sources - part 3) then it will most likely be here.
+ *
+ *
+ * -- Part 5b - Triggering individual sounds --
+ * This final part handles actually triggering the sounds. This code is primarily
+ * scattered throughout the client code calling the add/remove sound functions
+ * where necessary. Specifying places in the code to start and stop sounds is
+ * quite trivial in most cases and any bugs are generally very simple to trace
+ * and find.
+ *
+ * For now this section of code is considered stable, but unlikely to ever be
+ * complete.
+ *
+ *
+ */
 
 
 
@@ -1675,14 +1751,11 @@ void turn_sound_off()
 	}
 	UNLOCK_SOUND_LIST();
 #ifdef OGG_VORBIS
-	if (sound_streams_thread != NULL)
+	for (i = 0; i < max_streams; i++)
 	{
-		for (i = 0; i < max_streams; i++)
+		if (streams[i].type != STREAM_TYPE_MUSIC)
 		{
-			if (streams[i].type != STREAM_TYPE_MUSIC)
-			{
-				destroy_stream(&streams[i]);
-			}
+			destroy_stream(&streams[i]);
 		}
 	}
 #endif // OGG_VORBIS
@@ -1798,7 +1871,7 @@ int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 
 int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers)
 {
-	int error, result, more_stream = 0, i;
+	int result, more_stream = 0, i;
 	
 	stop_stream(stream);
 	ov_clear(&stream->stream);
@@ -1820,24 +1893,17 @@ int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers)
 	}
     
 	alSourceQueueBuffers(stream->source, numBuffers, stream->buffers);
-	alSourcePlay(stream->source);
-
-	if((error=alGetError()) != AL_NO_ERROR) 
-	{
-		LOG_ERROR("stream_ogg_file %s: %s", my_tolower(reg_error_str), alGetString(error));
-		return -1;
-	}
+	result = start_stream(stream);
 	
-	stream->playing = 1;
-	return more_stream;
+	return result;
 }
 
 int stream_ogg(ALuint buffer, OggVorbis_File * inStream, vorbis_info * info)
 {
-    char data[STREAM_BUFFER_SIZE];
-    int size = 0;
-    int section = 0;
-    int result = 0;
+	char data[STREAM_BUFFER_SIZE];
+	int size = 0;
+	int section = 0;
+	int result = 0;
 	int error = 0;
 	char str[256];
 	ALenum format;
@@ -1848,24 +1914,24 @@ int stream_ogg(ALuint buffer, OggVorbis_File * inStream, vorbis_info * info)
 	}
 
 	size = 0;
-    while (size < STREAM_BUFFER_SIZE)
-    {
+	while (size < STREAM_BUFFER_SIZE)
+	{
 #ifndef EL_BIG_ENDIAN
         result = ov_read(inStream, data + size, STREAM_BUFFER_SIZE - size, 0, 2, 1, &section);
 #else
         result = ov_read(inStream, data + size, STREAM_BUFFER_SIZE - size, 1, 2, 1, &section);
 #endif
 		safe_snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
-        if (result > 0)
-            size += result;
+		if (result > 0)
+			size += result;
 		else if (result == OV_HOLE)
 			// OV_HOLE is informational so ignore it
 			size = size;
-        else if(result < 0)
+		else if(result < 0)
 			ogg_error(result);
 		else
 			break;
-    }
+	}
 
 	if (!size)
 		return 0;	// The file is finished, quit trying to play
@@ -1935,11 +2001,11 @@ ALvoid * load_ogg_into_memory(char * szPath, ALenum *inFormat, ALsizei *inSize, 
 #else
 		result = ov_read(&oggFile, data + size, OGG_BUFFER_SIZE - size, 1, 2, 1, &bitStream);
 #endif
-        if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
+		if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
 		{
-            if (result != OV_HOLE) size += result;
+			if (result != OV_HOLE) size += result;
 		}
-        else if(result < 0)
+		else if(result < 0)
 			ogg_error(result);
 		else
 			break;
@@ -1967,7 +2033,6 @@ static char * get_stream_type(int type)
 
 void play_stream(int sound, stream_data * stream, ALfloat gain)
 {
-	int result;
 	char * file;
 	char tmp_file_name[80];
 	
@@ -1992,30 +2057,31 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 	alSourcef (stream->source, AL_GAIN, gain);
 	
 	// Load the Ogg file and start the stream
-	result = stream_ogg_file(file, stream, NUM_STREAM_BUFFERS);
-	if (result == -1 || result == 0)
-	{
-		stream->playing = 0;
-		return;
-	}
+	stream_ogg_file(file, stream, NUM_STREAM_BUFFERS);
 	stream->sound = sound;
 }
 
-void start_stream(stream_data * stream)
+int start_stream(stream_data * stream)
 {
-	int state = 0;
+	int state = 0, error;
 	alGetSourcei(stream->source, AL_SOURCE_STATE, &state);
-	if (state == AL_PAUSED) {
+	if (state != AL_PLAYING) {
 		alSourcePlay(stream->source);
-		stream->playing = 1;
 	}
+	stream->playing = 1;
+	if ((error = alGetError()) != AL_NO_ERROR) 
+	{
+		LOG_ERROR("start_stream - Error starting stream - %s: %s", my_tolower(reg_error_str), alGetString(error));
+		stream->playing = 0;
+		return 0;
+	}
+	return 1;
 }
 
 void stop_stream(stream_data * stream)
 {
 	ALuint buffer;
-	int queued;
-	int state = 0;
+	int queued, state = 0, error;
 	
 	stream->playing = 0;
 	alGetSourcei(stream->source, AL_SOURCE_STATE, &state);
@@ -2027,12 +2093,16 @@ void stop_stream(stream_data * stream)
 	{
 		alSourceUnqueueBuffers(stream->source, 1, &buffer);
 	}
+	if ((error = alGetError()) != AL_NO_ERROR) 
+	{
+		LOG_ERROR("stop_stream - Error stopping stream - %s: %s", my_tolower(reg_error_str), alGetString(error));
+	}
 }
 
 void reset_stream(stream_data * stream)
 {
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Resetting stream: Type: %s, sound: %d, cookie: %d, source: %d\n", get_stream_type(stream->type), stream->sound, stream->cookie, stream->source);
+//	printf("Resetting stream: Type: %s, sound: %d, cookie: %d, source: %d\n", get_stream_type(stream->type), stream->sound, stream->cookie, stream->source);
 #endif // _EXTRA_SOUND_DEBUG
 	// Reset the data (not sources or buffers)
 	stream->playing = 0;
@@ -2051,32 +2121,38 @@ int init_sound_stream(stream_data * stream, int type, int priority)
 	int error;
 	
 	alGenBuffers(NUM_STREAM_BUFFERS, stream->buffers);
-	
+
 	LOCK_SOUND_LIST();
 	source = get_available_source(priority);
-	if (!source)
+	if (!source || !alIsSource(source->source))
 		return 0;
 	// Set some details so non-streamed functions see this source as used
 	source->cookie = get_next_cookie();
 	source->current_stage = STAGE_STREAM;
 	source->loaded_sound = 0;
-	reset_stream(stream);		// Make sure the data for this stream is clean
+	// Make sure the data for this stream is clean
+	reset_stream(stream);
 	stream->type = type;
 	stream->source = source->source;
 	stream->cookie = source->cookie;
+	UNLOCK_SOUND_LIST();
+	
+	// Reset the source details
 	alSource3f(stream->source, AL_POSITION,        0.0, 0.0, 0.0);
 	alSource3f(stream->source, AL_VELOCITY,        0.0, 0.0, 0.0);
 	alSource3f(stream->source, AL_DIRECTION,       0.0, 0.0, 0.0);
 	alSourcef (stream->source, AL_ROLLOFF_FACTOR,  0.0          );
 	alSourcei (stream->source, AL_SOURCE_RELATIVE, AL_TRUE      );
 	alSourcef (stream->source, AL_GAIN,            0.0);
-	UNLOCK_SOUND_LIST();
+	alSourcei (stream->source, AL_LOOPING,         AL_FALSE);
+	alSourceStop(stream->source);
+	alSourcei (stream->source, AL_BUFFER,          0);		// Make sure there are no buffers attached
 
 	// Reset the error buffer
 	if ((error = alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error initalising stream: Type: %s, %s", get_stream_type(type), alGetString(error));
+		printf("Error initalising stream: Type: %s, %s\n", get_stream_type(type), alGetString(error));
 #endif // _EXTRA_SOUND_DEBUG
 	}
 	
@@ -2085,10 +2161,13 @@ int init_sound_stream(stream_data * stream, int type, int priority)
 
 void destroy_stream(stream_data * stream)
 {
-	int error, m;
+	int error, i;
+
+	if (!inited)
+	   return;
 
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Destroying stream: Type: %s, sound: %d, cookie: %d, source: %d\n", get_stream_type(stream->type), stream->sound, stream->cookie, stream->source);
+//	printf("Destroying stream: Type: %s, sound: %d, cookie: %d, source: %d\n", get_stream_type(stream->type), stream->sound, stream->cookie, stream->source);
 #endif // _EXTRA_SOUND_DEBUG
 	if (stream->type == STREAM_TYPE_NONE)
 		return;			// In theory this stream isn't initialised
@@ -2103,23 +2182,25 @@ void destroy_stream(stream_data * stream)
 	}
 	
 	stream->type = STREAM_TYPE_NONE;
-	if (stream->cookie == 0)
+	if (stream->cookie != 0)
 	{
-		reset_stream(stream);
-		return;			// We don't have a source so bail
+		// Find which of our playing sources matches the handle for this stream
+		LOCK_SOUND_LIST();
+		i = find_sound_source_from_cookie(stream->cookie);
+		if (i >= 0)
+		{
+			stop_sound_source_at_index(i);
+		}
+		UNLOCK_SOUND_LIST();
 	}
-	
-	// Find which of our playing sources matches the handle for this stream
-	LOCK_SOUND_LIST();
-	m = find_sound_source_from_cookie(stream->cookie);
-	if (m >= 0)
-	{
-		stop_sound_source_at_index(m);
-	}
-	UNLOCK_SOUND_LIST();
-	reset_stream(stream);
+	stream->source = 0;
 	stream->cookie = 0;
-	alDeleteBuffers(NUM_STREAM_BUFFERS, stream->buffers);
+	reset_stream(stream);
+	for (i = 0; i < NUM_STREAM_BUFFERS; i++)
+	{
+		if (alIsBuffer(stream->buffers[i]))
+			alDeleteBuffers(1, stream->buffers+i);
+	}
 	ov_clear(&stream->stream);
 
 	// Reset the error buffer
@@ -2211,7 +2292,6 @@ int add_stream(int sound, int type, int boundary)
 	printf("add_stream: Done initialising stream.\n");
 #endif // _EXTRA_SOUND_DEBUG
 	// Play the stream
-	start_stream(stream);
 	play_stream(sound, stream, 0.0f);		// Fade the stream up
 	if (!stream->playing)
 	{
@@ -2388,23 +2468,19 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 	// Check if we are starting/stopping this stream and continue the fade
 	if (stream->fade < 0)
 	{
+		new_gain = gain - ((float)(-stream->fade) * (gain / stream->fade_length));
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Doing stream fade - stream: %s, sound: %d, current fade: %d\n", get_stream_type(stream->type), stream->sound, stream->fade);
+		printf("Doing stream fade - stream: %s, sound: %d, fade: %d, gain: %f\n", get_stream_type(stream->type), stream->sound, stream->fade, new_gain);
 #endif // _EXTRA_SOUND_DEBUG
 		stream->fade -= 1;
-		new_gain = gain - ((float)(-stream->fade) * (gain / stream->fade_length));
 	}
 	else if (stream->fade > 0)
 	{
+		new_gain = gain - ((float)(stream->fade_length - stream->fade) * (gain / stream->fade_length));
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Doing stream fade - stream: %s, sound: %d, current fade: %d\n", get_stream_type(stream->type), stream->sound, stream->fade);
+		printf("Doing stream fade - stream: %s, sound: %d, fade: %d, gain: %f\n", get_stream_type(stream->type), stream->sound, stream->fade, new_gain);
 #endif // _EXTRA_SOUND_DEBUG
 		stream->fade += 1;
-		// Check if we have reached the end of the fade up
-		if (stream->fade > stream->fade_length)
-			stream->fade = 0;
-		else
-			new_gain = gain - ((float)(stream->fade_length - stream->fade) * (gain / stream->fade_length));
 	}
 	
 	// Check if we need to dim down the sounds due to rain
@@ -2435,8 +2511,9 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 	}
 	if (!stream->processed)
 	{
-		if(*sleep < SLEEP_TIME) *sleep += (SLEEP_TIME / 100);
-		return 0; // Skip error checking et al
+		if (*sleep < SLEEP_TIME)
+			*sleep += (SLEEP_TIME / 100);
+		return 1; // Skip error checking et al
 	}
 	while (stream->processed-- > 0)
 	{
@@ -2445,7 +2522,7 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 		alSourceUnqueueBuffers(stream->source, 1, &buffer);
 		if ((error = alGetError()) != AL_NO_ERROR)
 			LOG_ERROR("process_stream - Error unqueuing buffers: %s, Stream type: %s, Source: %d", alGetString(error), get_stream_type(stream->type), stream->source);
-		
+
 		stream->playing = stream_ogg(buffer, &stream->stream, stream->info);
 		
 		alSourceQueueBuffers(stream->source, 1, &buffer);
@@ -2516,6 +2593,11 @@ int check_stream(stream_data * stream, int day_time, int tx, int ty)
 		}
 		return 0;		// Stream is not continuing
 	}
+	// Check if we have finished fading this stream up and can stop the fade
+	else if (stream->fade > stream->fade_length)
+	{
+		stream->fade = 0;
+	}
 	
 	// Check if we need to trigger a stop in this stream
 	if (stream->fade >= 0)
@@ -2560,7 +2642,7 @@ int check_stream(stream_data * stream, int day_time, int tx, int ty)
 				break;
 		}
 	}
-	
+
 	return 1;		// Stream is continuing (but may be fading down)
 }
 
@@ -2747,6 +2829,143 @@ void find_next_song(int tx, int ty, int day_time)
 	else
 		get_map_playlist();
 }
+
+
+
+
+/************************************
+ * COMMON SOURCE HANDLING FUNCTIONS *
+ ************************************/
+source_data * get_available_source(int priority)
+{
+	source_data * pSource;
+	int i;
+	
+	// Search for an available source. The sources are ordered by decreasing play priority
+	for (pSource = sound_source_data, i = 0; i < used_sources; ++i, ++pSource)
+	{
+		if (priority <= pSource->priority || (pSource->loaded_sound < 0 && pSource->current_stage != STAGE_STREAM))
+		{
+			if (pSource->loaded_sound >= 0)
+			{
+#ifdef _EXTRA_SOUND_DEBUG
+				printf("Inserting new source at index %d/%d\n", i, used_sources);
+#endif //_EXTRA_SOUND_DEBUG
+				insert_sound_source_at_index(i);
+#ifdef _EXTRA_SOUND_DEBUG
+			}
+			else
+			{
+				printf("Found available source at index %d/%d\n", i, used_sources);
+#endif //_EXTRA_SOUND_DEBUG
+			}
+			return pSource;
+		}
+	}
+
+	if (i == max_sources)
+	{
+		// All sources are used by higher-priority sounds
+		return NULL;
+	}
+	else if (i == used_sources)
+	{
+		// This is the lowest-priority sound but there is a spare slot at the end of the list
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Creating a new source: %d/%d\n", used_sources, used_sources);
+#endif //_EXTRA_SOUND_DEBUG
+
+		pSource = insert_sound_source_at_index(used_sources);
+	}
+	
+	pSource->priority = priority;
+	
+	return pSource;
+}
+
+// This takes a copy the first unused source object (or last one in the list if all used),
+// moves all objects after #index along one place, and inserts the copied object at #index;
+// It is ensured the source at #index is stopped with no buffers queued
+source_data *insert_sound_source_at_index(unsigned int index)
+{
+	int i;
+	source_data tempSource;
+	// Take a copy of the source about to be overwritten
+	tempSource = sound_source_data[min2i(used_sources, max_sources - 1)];
+	// Ensure it is stopped and ready
+	alSourceStop(tempSource.source);
+	alSourcei(tempSource.source, AL_BUFFER, 0);
+	tempSource.play_duration = 0;
+	tempSource.current_stage = STAGE_UNUSED;
+	tempSource.loaded_sound = -1;
+	tempSource.cookie = 0;
+
+	// Shunt source objects down a place
+	for (i = min2i(used_sources, max_sources - 1); i > index; --i)
+	{
+		sound_source_data[i] = sound_source_data[i - 1];
+	}
+
+	// Now insert our stored object at #index
+	sound_source_data[index] = tempSource;
+
+	// Although it's not doing anything, we have added a new source to the playing set
+	if (used_sources < max_sources)
+		++used_sources;	
+
+	// Return a pointer to this new source
+	return &sound_source_data[index];
+}
+
+// This stops the source for sound_source_data[index]. Because this array will change, the index
+// associated with a source will change, so this function should only be called if the index is
+// known for certain.
+int stop_sound_source_at_index(int index)
+{
+	ALuint error = AL_NO_ERROR;
+	source_data *pSource, sourceTemp;
+	
+	if (index < 0 || index >= used_sources)
+		return 0;
+	
+	pSource = &sound_source_data[index];
+	// This unqueues any samples
+	if (alIsSource(pSource->source))
+	{
+		alSourceStop(pSource->source);
+		alSourcei(pSource->source, AL_BUFFER, 0);
+	}
+	else
+	{
+   		LOG_ERROR("Attempting to stop invalid sound source %d with index %d", (int)pSource->source, index);
+	}
+	// Clear any errors so as to not confuse other error handlers
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error '%s' stopping sound source with index: %d/%d.  Source: %d.\n", alGetString(error), index, used_sources, (int)pSource->source);
+#endif //_EXTRA_SOUND_DEBUG
+	}
+
+	// We can't lose a source handle - copy this...
+	sourceTemp = *pSource;
+	//...shift all the next sources up a place, overwriting the stopped source...
+	memcpy(pSource, pSource+1, sizeof(source_data) * (used_sources - (index + 1)));
+	//...and put the saved object back in after them
+	sound_source_data[used_sources - 1] = sourceTemp;
+
+	// Reset the data for that now blank source
+	sourceTemp.play_duration = 0;
+	sourceTemp.current_stage = STAGE_UNUSED;
+	sourceTemp.loaded_sound = -1;
+	sourceTemp.cookie = 0;
+	
+	// Note that one less source is playing!
+	--used_sources;
+	
+	return 1;
+}
+
 
 
 /*****************************************
@@ -3050,7 +3269,7 @@ unsigned int add_particle_sound(int type, int x, int y)
 // Add a wrapper for under-the-influence-of-spell sounds
 unsigned int add_spell_sound(int spell)
 {
-	if (sound_spell_data[spell] > -1)
+	if (spell >= 0 && spell < NUM_ACTIVE_SPELLS && sound_spell_data[spell] > -1)
 	{
 		// Add the sound
 		return add_sound_object_gain(sound_spell_data[spell], 0, 0, 1, 1.0f);
@@ -3090,7 +3309,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 		ty = 0;
 	}
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Trying to add sound: %d (%s) at %d, %d. Position: %d, %d, Gain: %f\n", type, type > 0 ? sound_type_data[type].name : "not defined", x, y, tx, ty, initial_gain);
+	printf("Trying to add sound: %d (%s) at %d, %d. Position: %d, %d, Gain: %f\n", type, type > -1 ? sound_type_data[type].name : "not defined", x, y, tx, ty, initial_gain);
 #endif //_EXTRA_SOUND_DEBUG
 	if (type == -1)			// Invalid sound, ignore
 		return 0;
@@ -3342,89 +3561,8 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	sounds_list[sound_num].playing = 1;
 
 	pSource->cookie = sounds_list[sound_num].cookie;
-	
+
 	return 1;	// Return success
-}
-
-source_data * get_available_source(int priority)
-{
-	source_data * pSource;
-	int i;
-	
-	// Search for an available source. The sources are ordered by decreasing play priority
-	for (pSource = sound_source_data, i = 0; i < used_sources; ++i, ++pSource)
-	{
-		if (priority <= pSource->priority || (pSource->loaded_sound < 0 && pSource->current_stage != STAGE_STREAM))
-		{
-			if (pSource->loaded_sound >= 0)
-			{
-#ifdef _EXTRA_SOUND_DEBUG
-				printf("Inserting new source at index %d/%d\n", i, used_sources);
-#endif //_EXTRA_SOUND_DEBUG
-				insert_sound_source_at_index(i);
-#ifdef _EXTRA_SOUND_DEBUG
-			}
-			else
-			{
-				printf("Found available source at index %d/%d\n", i, used_sources);
-#endif //_EXTRA_SOUND_DEBUG
-			}
-			return pSource;
-		}
-	}
-
-	if (i == max_sources)
-	{
-		// All sources are used by higher-priority sounds
-		return NULL;
-	}
-	else if (i == used_sources)
-	{
-		// This is the lowest-priority sound but there is a spare slot at the end of the list
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Creating a new source: %d/%d\n", used_sources, used_sources);
-#endif //_EXTRA_SOUND_DEBUG
-
-		pSource = insert_sound_source_at_index(used_sources);
-	}
-	
-	pSource->priority = priority;
-	
-	return pSource;
-}
-
-// This takes a copy the first unused source object (or last one in the list if all used),
-// moves all objects after #index along one place, and inserts the copied object at #index;
-// It is ensured the source at #index is stopped with no buffers queued
-source_data *insert_sound_source_at_index(unsigned int index)
-{
-	int i;
-	source_data tempSource;
-	// Take a copy of the source about to be overwritten
-	tempSource = sound_source_data[min2i(used_sources, max_sources - 1)];
-	// Ensure it is stopped and ready
-	alSourceStop(tempSource.source);
-	alSourcei(tempSource.source, AL_BUFFER, 0);
-	tempSource.play_duration = 0;
-	tempSource.current_stage = STAGE_UNUSED;
-	tempSource.loaded_sound = -1;
-	tempSource.cookie = 0;
-
-	// Shunt source objects down a place
-	for (i = min2i(used_sources, max_sources - 1); i > index; --i)
-	{
-		sound_source_data[i] = sound_source_data[i - 1];
-	}
-
-	// Now insert our stored object at #index
-	sound_source_data[index] = tempSource;
-
-	// Although it's not doing anything, we have added a new source to the playing set
-	if (used_sources < max_sources)
-		++used_sources;	
-
-	// Return a pointer to this new source
-	return &sound_source_data[index];
 }
 
 unsigned int get_next_cookie()
@@ -3467,55 +3605,6 @@ void reset_buffer_details(int sample_num)
 	// Remove the buffer
 	if (alIsBuffer(sound_sample_data[sample_num].buffer))
 		alDeleteBuffers(1, &sound_sample_data[sample_num].buffer);
-}
-
-// This stops the source for sound_source_data[index]. Because this array will change, the index
-// associated with a source will change, so this function should only be called if the index is
-// known for certain.
-int stop_sound_source_at_index(int index)
-{
-	ALuint error = AL_NO_ERROR;
-	source_data *pSource, sourceTemp;
-	
-	if (index < 0 || index >= used_sources)
-		return 0;
-	
-	pSource = &sound_source_data[index];
-	// This unqueues any samples
-	if (alIsSource(pSource->source))
-	{
-		alSourceStop(pSource->source);
-		alSourcei(pSource->source, AL_BUFFER, 0);
-	}
-	else
-	{
-   		LOG_ERROR("Attempting to stop invalid sound source %d with index %d", (int)pSource->source, index);
-	}
-	// Clear any errors so as to not confuse other error handlers
-	if ((error=alGetError()) != AL_NO_ERROR)
-	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Error '%s' stopping sound source with index: %d/%d.  Source: %d.\n", alGetString(error), index, used_sources, (int)pSource->source);
-#endif //_EXTRA_SOUND_DEBUG
-	}
-
-	// We can't lose a source handle - copy this...
-	sourceTemp = *pSource;
-	//...shift all the next sources up a place, overwriting the stopped source...
-	memcpy(pSource, pSource+1, sizeof(source_data) * (used_sources - (index + 1)));
-	//...and put the saved object back in after them
-	sound_source_data[used_sources - 1] = sourceTemp;
-
-	// Reset the data for that now blank source
-	sourceTemp.play_duration = 0;
-	sourceTemp.current_stage = STAGE_UNUSED;
-	sourceTemp.loaded_sound = -1;
-	sourceTemp.cookie = 0;
-	
-	// Note that one less source is playing!
-	--used_sources;
-	
-	return 1;
 }
 
 // This is passed a cookie, and searches for a sound and source (if ness) with this cookie
@@ -4114,11 +4203,11 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 	}
 	// Check if we need to update the base gain for this sound
 	if (new_gain != sounds_list[loaded_sound_num].base_gain)
-	{
 		sounds_list[loaded_sound_num].base_gain = new_gain;
-	}
+
 	// Check if we need to dim down the sounds due to rain
-	new_gain = weather_adjust_gain(new_gain, pSource->cookie);
+	if (this_snd->type != SOUNDS_CLIENT && this_snd->type != SOUNDS_GAMEWIN)
+		new_gain = weather_adjust_gain(new_gain, pSource->cookie);
 
 	// Check if we need to update the overall gain for this source
 	if (sound_gain * type_gain * this_snd->gain * new_gain != sounds_list[loaded_sound_num].cur_gain)
@@ -4479,6 +4568,10 @@ void clear_sound_data()
 	{
 		server_sound[i] = -1;
 	}
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+	{
+		sound_spell_data[i] = -1;
+	}
 
 	num_types = 0;
 	num_samples = 0;
@@ -4688,12 +4781,12 @@ void destroy_sound()
 	inited = have_sound = have_music = sound_on = music_on = 0;
 
 #ifdef OGG_VORBIS
+	for (i = 0; i < MAX_STREAMS; i++)
+	{
+		destroy_stream(&streams[i]);
+	}
 	if (sound_streams_thread != NULL)
 	{
-		for (i = 0; i < MAX_STREAMS; i++)
-		{
-			destroy_stream(&streams[i]);
-		}
 		SDL_WaitThread(sound_streams_thread, NULL);
 		sound_streams_thread = NULL;
 	}
@@ -4736,14 +4829,18 @@ void destroy_sound()
 	if (context != NULL)
 	{
 		device = alcGetContextsDevice(context);
+#ifndef LINUX
+		alcMakeContextCurrent(NULL);
+#endif // LINUX
 		alcDestroyContext(context);
 		if (device != NULL)
 		{
 			alcCloseDevice(device);
+			device = NULL;
 		}
 	}
 
-	if ((error = alcGetError(device)) != AL_NO_ERROR) 
+	if (device != NULL && (error = alcGetError(device)) != AL_NO_ERROR) 
 	{
 		char str[256];
 		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
