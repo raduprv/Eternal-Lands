@@ -1749,7 +1749,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					log_error("CAUTION: Possibly forged GET_NEW_MINE packet received.\n");
 					break;
 				}
-				put_mine_on_ground(SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))), in_data[8]), in_data[7]);
+				put_mine_on_ground(SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))), in_data[8], in_data[7]);
 			}
 			break;
 
