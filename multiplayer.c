@@ -623,10 +623,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #endif	// USE_SEND_VIDEO_INFO				
 				previously_logged_in=1;
 			}
-#ifdef SKY_FPV_CURSOR
-			//Get in game date to set moons for signs, wonders, times and seasons
+
+			// Print the game date cos its pretty (its also needed for SKY_FPV_CURSOR to set moons for signs, wonders, times and seasons)
 			command_date("", 0);
-#endif /* SKY_FPV_CURSOR */
 			break;
 
 		case HERE_YOUR_STATS:

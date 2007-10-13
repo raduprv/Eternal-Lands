@@ -1214,11 +1214,14 @@ void get_actor_damage(int actor_id, int damage)
 		act->damage_ms=2000;
 		act->cur_health-=damage;
 
-#ifdef COUNTERS
 		if (act->cur_health <= 0) {
+#ifdef NEW_SOUND
+			add_death_sound(act);
+#endif // NEW_SOUND
+#ifdef COUNTERS
 			increment_death_counter(act);
-		}
 #endif
+		}
 #ifdef EYE_CANDY
 		if (use_eye_candy && enable_blood)
 		{

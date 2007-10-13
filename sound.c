@@ -3363,6 +3363,19 @@ unsigned int add_spell_sound(int spell)
 	return 0;
 }
 
+unsigned int add_death_sound(actor * act)
+{
+	int snd;
+	// Check the type of this actor has a death sound (only used for enhanced actors as simple
+	// actors are triggered though the cal animation)
+	snd = actors_defs[act->actor_type].cal_die1_frame.sound;
+	if (snd > -1)
+	{
+		return add_sound_object_gain(snd, act->x_pos, act->y_pos, act == your_actor ? 1 : 0, 1.0f);
+	}
+	return 0;
+}
+
 unsigned int add_sound_object(int type, int x, int y, int me)
 {
 	return add_sound_object_gain(type, x, y, me, 1.0f);
