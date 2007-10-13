@@ -1029,7 +1029,7 @@ void rain_control()
 			rainParam = rain_strength_bias*(min2i(60,seconds_till_rain_stops) - 60)/30.0f;
 			num_rain_drops = rainParam*MAX_RAIN_DROPS;
 #ifdef NEW_SOUND
-			if (!rain_sound || find_sound_source_from_cookie(rain_sound)<0)
+			if (!rain_sound || find_sound_source_from_cookie(rain_sound) < 0)
 				rain_sound = add_server_sound(snd_rain, 0, 0, rainParam);
 #else
 			if(!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
@@ -1108,13 +1108,12 @@ void rain_control()
 		rain_table_valid = 0;
 		if (is_raining) {
 			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
+			if (rain_sound) {
 #ifdef NEW_SOUND
-			if (rain_sound && find_sound_source_from_cookie(rain_sound) >= 0) {
-				sound_source_set_gain(find_sound_source_from_cookie(rain_sound), rain_strength_bias);
+				sound_source_set_gain(rain_sound, rain_strength_bias);
 			} else {
 				rain_sound = add_server_sound(snd_rain, 0, 0, rain_strength_bias);
 #else
-			if (rain_sound) {
 				sound_source_set_gain(rain_sound, rain_strength_bias);
 			} else {
 				rain_sound=add_sound_object(snd_rain,0,0,0,1);
@@ -1136,8 +1135,9 @@ float weather_adjust_gain(float in_gain, int in_cookie)
 	if (dim_sounds_on_rain && is_raining && in_cookie != rain_sound)
 	{
 		// Dim down all the sounds, except the rain
-		in_gain *= 1.0f - (rain_strength_bias * 2);
+		in_gain *= 1.0f - (rain_strength_bias * 0.75f);
 	}
+
 	return in_gain;
 }
 #endif // NEW_SOUND

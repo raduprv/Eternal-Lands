@@ -104,9 +104,6 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id)
 {
 	float x, y, z;
 	int obj_3d_id;
-#ifdef NEW_SOUND
-	int snd;
-#endif // NEW_SOUND
 	
 	printf("Adding mine: X: %i, Y: %i, Type: %i, ID: %i\n", mine_x, mine_y, mine_type, mine_id);
 

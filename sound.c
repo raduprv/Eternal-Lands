@@ -1735,19 +1735,11 @@ void turn_sound_off()
 			i++;			// This source is being used by a stream and handled lower down so ignore
 			continue;
 		}
-		source = sound_source_data[i].source;
-		alGetSourcei(source, AL_LOOPING, &loop);
-		if (loop == AL_TRUE)
-			alSourcePause(source);
-		else
-		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Removing source with index %d\n", i);
+		printf("Removing source with index %d\n", i);
 #endif //_EXTRA_SOUND_DEBUG
-			stop_sound_source_at_index(0);
-			continue;
-		}
-		++i;
+		stop_sound_source_at_index(0);
+		continue;
 	}
 	UNLOCK_SOUND_LIST();
 #ifdef OGG_VORBIS
@@ -2833,9 +2825,9 @@ void find_next_song(int tx, int ty, int day_time)
 
 
 
-/************************************
- * COMMON SOURCE HANDLING FUNCTIONS *
- ************************************/
+/*****************************
+ * SOURCE HANDLING FUNCTIONS *
+ *****************************/
 source_data * get_available_source(int priority)
 {
 	source_data * pSource;
@@ -2872,7 +2864,7 @@ source_data * get_available_source(int priority)
 	{
 		// This is the lowest-priority sound but there is a spare slot at the end of the list
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Creating a new source: %d/%d\n", used_sources, used_sources);
+		printf("Getting a new source: %d/%d\n", used_sources, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
 
 		pSource = insert_sound_source_at_index(used_sources);
@@ -2965,6 +2957,100 @@ int stop_sound_source_at_index(int index)
 	
 	return 1;
 }
+
+// Find the index of the source associated with this cookie.
+// Note that this result must not be stored, but used immediately;
+int find_sound_source_from_cookie(unsigned int cookie)
+{
+	int n;
+	source_data *pSource = sound_source_data;
+
+	if (!cookie)
+		return -1;
+
+	for (n = 0, pSource = sound_source_data; n < used_sources; ++n, ++pSource)
+	{
+		if (pSource->cookie == cookie)
+			return n;
+	}
+
+	return -1;
+}
+
+void sound_source_set_gain(unsigned long int cookie, float gain)
+{
+	int n;
+	source_data *pSource;
+
+	// Source handle of 0 is a null source
+	if (!have_sound || !cookie)
+		return;
+	
+	// Find which of our playing sources matches the handle passed
+	LOCK_SOUND_LIST();
+	n = find_sound_source_from_cookie(cookie);
+	if (n > 0)
+	{
+		pSource = &sound_source_data[n];
+		set_sound_gain(pSource, pSource->loaded_sound, gain);
+	}
+	UNLOCK_SOUND_LIST();
+	return;
+}
+
+void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
+{
+	float type_gain = 1.0f;
+	int error;
+	sound_type * this_snd = &sound_type_data[sounds_list[loaded_sound_num].sound];
+	// Check what type this sound is and match it to the "type gain"
+	switch (this_snd->type)
+	{
+		case SOUNDS_CROWD:
+			type_gain = crowd_gain;
+			break;
+		case SOUNDS_CLIENT:
+			type_gain = client_gain;
+			break;
+		case SOUNDS_WALKING:
+			type_gain = walking_gain;
+			break;
+		case SOUNDS_ACTOR:
+			type_gain = actor_gain;
+			break;
+		case SOUNDS_MAP:
+			type_gain = enviro_gain;
+			break;
+		case SOUNDS_ENVIRO:
+			type_gain = enviro_gain;
+			break;
+		case SOUNDS_GAMEWIN:
+			type_gain = gamewin_gain;
+			break;
+	}
+	// Check if we need to update the base gain for this sound
+	if (new_gain != sounds_list[loaded_sound_num].base_gain)
+		sounds_list[loaded_sound_num].base_gain = new_gain;
+
+	// Check if we need to dim down the sounds due to rain
+	if (this_snd->type != SOUNDS_CLIENT && this_snd->type != SOUNDS_GAMEWIN)
+		new_gain = weather_adjust_gain(new_gain, pSource->cookie);
+
+	// Check if we need to update the overall gain for this source
+	if (sound_gain * type_gain * this_snd->gain * new_gain != sounds_list[loaded_sound_num].cur_gain)
+	{
+		sounds_list[loaded_sound_num].cur_gain = sound_gain * type_gain * this_snd->gain * new_gain;
+		alSourcef(pSource->source, AL_GAIN, sounds_list[loaded_sound_num].cur_gain);
+	}
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error setting sound gain: %f, sound: %d, error: %s\n", new_gain, loaded_sound_num, alGetString(error));
+#endif //_EXTRA_SOUND_DEBUG
+	}
+	return;
+}
+
 
 
 
@@ -3876,7 +3962,7 @@ void update_sound(int ms)
 	}
 #endif //ELC
 	
-	// Finally, update all the sources
+	// Finally, update all the sources  -- FIXME: This should probably be changed to iterate over the new sounds_list instead
 	i = 0;
 #ifdef _EXTRA_SOUND_DEBUG
 	j = 0;
@@ -3903,19 +3989,20 @@ void update_sound(int ms)
 			continue;
 		}
 		
-		// Update the gain for this source if nessessary
-		set_sound_gain(pSource, pSource->loaded_sound, sounds_list[pSource->loaded_sound].base_gain);
-		
-		// This test should be redundant
-		if (pSource->loaded_sound < 0 || sounds_list[pSource->loaded_sound].sound < 0 || pSource->current_stage == STAGE_UNUSED)
+		// Check for invalid sources -- This test should be redundant!
+		if (pSource->cookie == 0 || pSource->loaded_sound < 0 || sounds_list[pSource->loaded_sound].sound < 0 || pSource->current_stage == STAGE_UNUSED)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Removing dud sound %d. Cookie: %d, Source: %d. Current stage: %d\n", pSource->loaded_sound, sounds_list[pSource->loaded_sound].cookie, i, pSource->current_stage);
+			printf("Removing dud sound %d. Cookie: %d, Source: %d. Current stage: %d\n", pSource->loaded_sound, pSource->cookie, i, pSource->current_stage);
 #endif //_EXTRA_SOUND_DEBUG
 			unload_sound(pSource->loaded_sound);
 			stop_sound_source_at_index(i);
 			continue;
 		}
+
+		// Update the gain for this source if nessessary
+		set_sound_gain(pSource, pSource->loaded_sound, sounds_list[pSource->loaded_sound].base_gain);
+		
 		pSoundType = &sound_type_data[sounds_list[pSource->loaded_sound].sound];
 		pSample = &sound_sample_data[pSoundType->part[pSource->current_stage].sample_num];
 
@@ -4038,8 +4125,9 @@ void update_sound(int ms)
 				printf("Pausing sound: %d (%s), Distance squared: %d, Max: %d\n", i, pSoundType->name, distanceSq, maxDistSq);
 #endif //_EXTRA_SOUND_DEBUG
 				// Free up this source
-				stop_sound_source_at_index(i);
 				sounds_list[pSource->loaded_sound].playing = 0;
+				stop_sound_source_at_index(i);
+				continue;
 			}
 			else if (sound_opts != SOUNDS_NONE && (state == AL_PAUSED) && (distanceSq < maxDistSq))
 			{
@@ -4171,77 +4259,6 @@ void setup_map_sounds (int map_num)
 	}
 }
 
-void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
-{
-	float type_gain = 1.0f;
-	int error;
-	sound_type * this_snd = &sound_type_data[sounds_list[loaded_sound_num].sound];
-	// Check what type this sound is and match it to the "type gain"
-	switch (this_snd->type)
-	{
-		case SOUNDS_CROWD:
-			type_gain = crowd_gain;
-			break;
-		case SOUNDS_CLIENT:
-			type_gain = client_gain;
-			break;
-		case SOUNDS_WALKING:
-			type_gain = walking_gain;
-			break;
-		case SOUNDS_ACTOR:
-			type_gain = actor_gain;
-			break;
-		case SOUNDS_MAP:
-			type_gain = enviro_gain;
-			break;
-		case SOUNDS_ENVIRO:
-			type_gain = enviro_gain;
-			break;
-		case SOUNDS_GAMEWIN:
-			type_gain = gamewin_gain;
-			break;
-	}
-	// Check if we need to update the base gain for this sound
-	if (new_gain != sounds_list[loaded_sound_num].base_gain)
-		sounds_list[loaded_sound_num].base_gain = new_gain;
-
-	// Check if we need to dim down the sounds due to rain
-	if (this_snd->type != SOUNDS_CLIENT && this_snd->type != SOUNDS_GAMEWIN)
-		new_gain = weather_adjust_gain(new_gain, pSource->cookie);
-
-	// Check if we need to update the overall gain for this source
-	if (sound_gain * type_gain * this_snd->gain * new_gain != sounds_list[loaded_sound_num].cur_gain)
-	{
-		sounds_list[loaded_sound_num].cur_gain = sound_gain * type_gain * this_snd->gain * new_gain;
-		alSourcef(pSource->source, AL_GAIN, sounds_list[loaded_sound_num].cur_gain);
-	}
-	if ((error=alGetError()) != AL_NO_ERROR)
-	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Error setting sound gain: %f, sound: %d, error: %s\n", new_gain, loaded_sound_num, alGetString(error));
-#endif //_EXTRA_SOUND_DEBUG
-	}
-	return;
-}
-
-void sound_source_set_gain(unsigned long int cookie, float gain)
-{
-	int n;
-	source_data *pSource;
-
-	// Source handle of 0 is a null source
-	if (!have_sound || !cookie)
-		return;
-	// Find which of our playing sources matches the handle passed
-	n = find_sound_source_from_cookie(cookie);
-	if (n > 0)
-	{
-		pSource = &sound_source_data[n];
-		set_sound_gain(pSource, pSource->loaded_sound, gain);
-	}
-	return;
-}
-
 // Find the index of the sound associated with this cookie.
 int find_sound_from_cookie(unsigned int cookie)
 {
@@ -4253,25 +4270,6 @@ int find_sound_from_cookie(unsigned int cookie)
 	for (n = 0; n < MAX_BUFFERS * 2; n++)
 	{
 		if (sounds_list[n].cookie == cookie)
-			return n;
-	}
-
-	return -1;
-}
-
-// Find the index of the source associated with this cookie.
-// Note that this result must not be stored, but used immediately;
-int find_sound_source_from_cookie(unsigned int cookie)
-{
-	int n;
-	source_data *pSource = sound_source_data;
-
-	if (!cookie)
-		return -1;
-
-	for (n = 0, pSource = sound_source_data; n < used_sources; ++n, ++pSource)
-	{
-		if (pSource->cookie == cookie)
 			return n;
 	}
 
@@ -4728,7 +4726,10 @@ void init_sound()
 			if (max_sources == 0)
 			{
 				// We don't have any sources so error and disable sound
-				LOG_ERROR("%s: %s - %s", snd_init_error, snd_source_error, alGetString(error));
+				char str[256];
+				safe_snprintf(str, sizeof(str), "%s: %s - %s\n", snd_init_error, snd_source_error, alGetString(error));
+				LOG_TO_CONSOLE(c_red1, str);
+				LOG_ERROR(str);
 				have_sound = have_music = 0;
 				UNLOCK_SOUND_LIST();
 				return;
