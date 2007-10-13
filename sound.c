@@ -1714,8 +1714,8 @@ void turn_sound_on()
 
 void turn_sound_off()
 {
-	int i = 0, loop;
-	ALuint source, error;
+	int i = 0;
+	ALuint error;
 	if (!inited)
 		return;
 #ifdef OGG_VORBIS

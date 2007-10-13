@@ -17,7 +17,6 @@
 #include "lights.h"
 #include "loading_win.h"
 #include "mapwin.h"
-#include "mines.h"
 #include "multiplayer.h"
 #include "particles.h"
 #include "pathfinder.h"
@@ -48,6 +47,9 @@
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
+#ifdef MINES
+#include "mines.h"
+#endif // MINES
 
 int map_type=1;
 Uint32 map_flags=0;
@@ -229,7 +231,9 @@ void change_map (const char *mapname)
 {
 #ifndef	MAP_EDITOR
 	remove_all_bags();
+#ifdef MINES
 	remove_all_mines();
+#endif // MINES
 #endif	//MAP_EDITOR
 
 	set_all_intersect_update_needed(main_bbox_tree);
