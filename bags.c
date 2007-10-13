@@ -131,9 +131,7 @@ void add_bags_from_list (const Uint8 *data)
 		x=x+0.25f;
 		y=y+0.25f;
 	
-		obj_3d_id=add_e3d("./3dobjects/misc_objects/bag1.e3d",x,y,z,0,0,0,1,0,1.0f,1.0f,1.0f, 1);
-		//now, find a place into the bags list, so we can destroy the bag properly
-	
+		// Now, find a place into the bags list, so we can destroy the bag properly
 		if (bag_list[bag_id].obj_3d_id != -1) {
 			char	buf[256];
 
@@ -143,6 +141,7 @@ void add_bags_from_list (const Uint8 *data)
 			return;
 		}
 
+		obj_3d_id = add_e3d("./3dobjects/misc_objects/bag1.e3d", x, y, z, 0, 0, 0, 1, 0, 1.0f, 1.0f, 1.0f, 1);
 		bag_list[bag_id].x=bag_x;
 		bag_list[bag_id].y=bag_y;
 		bag_list[bag_id].obj_3d_id=obj_3d_id;

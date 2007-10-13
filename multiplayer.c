@@ -1765,7 +1765,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				mines_no = in_data[3];
-				if (data_length <= mines_no * 5 + 3)
+				if (data_length <= mines_no * 6 + 3)
 				{
 				  log_error("CAUTION(2): Possibly forged GET_MINES_LIST packet received.\n");
 				  break;

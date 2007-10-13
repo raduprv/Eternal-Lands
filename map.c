@@ -17,6 +17,7 @@
 #include "lights.h"
 #include "loading_win.h"
 #include "mapwin.h"
+#include "mines.h"
 #include "multiplayer.h"
 #include "particles.h"
 #include "pathfinder.h"
@@ -228,6 +229,7 @@ void change_map (const char *mapname)
 {
 #ifndef	MAP_EDITOR
 	remove_all_bags();
+	remove_all_mines();
 #endif	//MAP_EDITOR
 
 	set_all_intersect_update_needed(main_bbox_tree);

@@ -126,21 +126,6 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id)
 	x = x + 0.25f;
 	y = y + 0.25f;
 
-	// Launch the animation
-#ifdef	EYE_CANDY
-	if (use_eye_candy) ec_create_mine_drop(x, y, z, mine_type, (poor_man ? 6 : 10));
-#endif	//EYE_CANDY
-#ifdef NEW_SOUND
-	if (sound_on)
-	{
-		snd = get_sound_index_for_particle_file_name("./particles/mine_in.part");
-		if (snd >= 0)
-		{
-			add_sound_object (snd, mine_x, mine_y, 0);
-		}
-	}
-#endif // NEW_SOUND
-
 	obj_3d_id = add_e3d(get_mine_e3d(mine_type), x, y, z, 0, 0, 0, 1, 0, 1.0f, 1.0f, 1.0f, 1);
 	
 	// Now, find a place into the mines list, so we can destroy the mine properly
@@ -159,6 +144,7 @@ void add_mines_from_list (const Uint8 *data)
 	int obj_3d_id, mine_id;
 	
 	mines_no = data[0];
+	printf("Adding %d mines.\n", mines_no);
 
 	if (mines_no > NUM_MINES)
 	{
@@ -167,7 +153,7 @@ void add_mines_from_list (const Uint8 *data)
 	
 	for (i = 0; i < mines_no; i++)
 	{
-		my_offset = i * 5 + 1;
+		my_offset = i * 6 + 1;
 		mine_x = SDL_SwapLE16(*((Uint16 *)(data + my_offset)));
 		mine_y = SDL_SwapLE16(*((Uint16 *)(data + my_offset + 2)));
 		mine_id = *((Uint8 *)(data + my_offset + 4));
@@ -193,9 +179,7 @@ void add_mines_from_list (const Uint8 *data)
 		x = x + 0.25f;
 		y = y + 0.25f;
 	
-		obj_3d_id = add_e3d(get_mine_e3d(mine_type), x, y, z, 0, 0, 0, 1, 0, 1.0f, 1.0f, 1.0f, 1);
-
-		// Now, find a place into the mines list, so we can destroy the mine properly
+		// Now, find the place into the mines list, so we can destroy the mine properly
 		if (mine_list[mine_id].obj_3d_id != -1)
 		{
 			char buf[256];
@@ -206,6 +190,7 @@ void add_mines_from_list (const Uint8 *data)
 			return;
 		}
 
+		obj_3d_id = add_e3d(get_mine_e3d(mine_type), x, y, z, 0, 0, 0, 1, 0, 1.0f, 1.0f, 1.0f, 1);
 		mine_list[mine_id].x = mine_x;
 		mine_list[mine_id].y = mine_y;
 		mine_list[mine_id].type = mine_type;
