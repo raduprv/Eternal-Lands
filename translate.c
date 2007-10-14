@@ -433,6 +433,11 @@ char	reg_error_str[15],
 	load_particles_str[35],
 	bld_sectors_str[35],
 	init_done_str[35],
+#ifdef MINES
+	/* mines.c */
+	mines_config_open_err_str[50],
+	mines_config_error[50],
+#endif // MINES
 	/*multiplayer.c*/
 	failed_resolve[150],
 	failed_connect[100], 
@@ -490,6 +495,7 @@ char	reg_error_str[15],
 	snd_too_slow[50],
 	snd_stop_fail[50],
 	snd_init_error[50],
+	snd_config_open_err_str[50],
 	snd_config_error[50],
 	snd_sound_overflow[50],
 	snd_media_read[50],
@@ -948,6 +954,13 @@ void init_errors()
 	add_xml_identifier (misc, "undefnode", xml_undefined_node, "Found an unexpected node type while parsing %s (%s).", sizeof(xml_undefined_node));
 	add_xml_identifier (misc, "use_builtin_chans", using_builtin_chanlist, "Could not load a channel list from file. Using a limited built-in set instead.", sizeof(using_builtin_chanlist));
 	add_xml_identifier (misc, "use_eng_chans", using_eng_chanlist, "Could not load a channel list for language code %s. Using the english set instead.", sizeof(using_eng_chanlist));
+
+#ifdef MINES
+	// Mines errors
+	add_xml_identifier (misc, "mines_config_open", mines_config_open_err_str, "Error opening mines configuration file", sizeof(mines_config_open_err_str));
+	add_xml_identifier (misc, "mines_config", mines_config_error, "Error loading mines configuration", sizeof(mines_config_error));
+#endif // MINES
+
 #endif
 
 	//Particle errors
@@ -973,8 +986,9 @@ void init_errors()
 	add_xml_identifier(snd,"skip",snd_skip_speedup,"Skip! Speeding up...",sizeof(snd_skip_speedup));
 	add_xml_identifier(snd,"tooslow",snd_too_slow,"Sorry, too slow to play music or backgrounds...",sizeof(snd_too_slow));
 	add_xml_identifier(snd,"fail",snd_stop_fail,"Failed to stop all sounds.",sizeof(snd_stop_fail));
-	add_xml_identifier(snd,"init",snd_init_error,"Error initializing sound",sizeof(snd_init_error));
-	add_xml_identifier(snd,"init",snd_config_error,"Error loading sound configuration",sizeof(snd_config_error));
+	add_xml_identifier(snd,"snd_init",snd_init_error,"Error initializing sound",sizeof(snd_init_error));
+	add_xml_identifier(snd,"sndconfigopen",snd_config_open_err_str,"Error opening sound configuration file",sizeof(snd_config_open_err_str));
+	add_xml_identifier(snd,"sndconfig",snd_config_error,"Error loading sound configuration",sizeof(snd_config_error));
 	add_xml_identifier(snd,"toomany",snd_sound_overflow,"Too many sounds.",sizeof(snd_sound_overflow));
 	add_xml_identifier(snd,"read",snd_media_read,"Read from media.",sizeof(snd_media_read));
 	add_xml_identifier(snd,"notvorbis",snd_media_notvorbis,"Not Vorbis data.",sizeof(snd_media_notvorbis));

@@ -76,6 +76,16 @@ void remove_mine(int object_id);
  */
 void remove_all_mines();
 
+/*!
+ * \ingroup item
+ * \brief   Loads the mines configuration data.
+ *
+ *      Loads the mines configuration data.
+ *
+ * \callgraph
+ */
+void load_mines_config();
+
 #ifdef __cplusplus
 } // extern "C"
 #endif // __cplusplus

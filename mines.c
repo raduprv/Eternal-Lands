@@ -8,6 +8,7 @@
 #include "elwindows.h"
 #include "errors.h"
 #include "init.h"
+#include "translate.h"
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -16,87 +17,28 @@
 #include "eye_candy_wrapper.h"
 #endif
 
-mine mine_list[NUM_MINES];
+#define MAX_MINE_DEFS 30
 
-/*!
- * \name e3d objects for mine types
- */
-/*! @{ */
-#define MINE_SMALL_MINE_E3D "./3dobjects/misc_objects/mine1.e3d"
-#define MINE_MEDIUM_MINE_E3D "./3dobjects/misc_objects/mine2.e3d"
-#define MINE_HIGH_EXPLOSIVE_MINE_E3D "./3dobjects/misc_objects/mine3.e3d"
-#define MINE_REMOTE_MINE_E3D "./3dobjects/misc_objects/mine4.e3d"
-#define MINE_TRAP_E3D "./3dobjects/misc_objects/snare1.e3d"
-#define MINE_CALTROP_E3D "./3dobjects/misc_objects/caltrop1.e3d"
-#define MINE_POISONED_CALTROP_E3D "./3dobjects/misc_objects/caltrop2.e3d"
-#define MINE_BARRICADE_E3D "./3dobjects/misc_objects/barricade1.e3d"
-#define MINE_MANA_DRAINER_E3D "./3dobjects/misc_objects/ward1.e3d"
-#define MINE_MANA_BURNER_E3D "./3dobjects/misc_objects/ward2.e3d"
-#define MINE_UNINVIZIBILIZER_E3D "./3dobjects/misc_objects/ward3.e3d"
-#define MINE_MAGIC_IMMUNITY_REMOVAL_E3D "./3dobjects/misc_objects/ward4.e3d"
-/*! @} */
+typedef struct
+{
+	int id;
+	char file[50];
+} mine_types;
+
+mine_types mine_defs[MAX_MINE_DEFS];
+mine mine_list[NUM_MINES];
+int num_mine_defs = 0;
 
 char * get_mine_e3d(mine_type)
 {
-	switch (mine_type)
-		{
-		case MINE_TYPE_SMALL_MINE:
-			{
-				return MINE_SMALL_MINE_E3D;
-			}
-			break;
-		case MINE_TYPE_MEDIUM_MINE:
-			{
-				return MINE_MEDIUM_MINE_E3D;
-			}
-			break;
-		case MINE_TYPE_HIGH_EXPLOSIVE_MINE:
-			{
-				return MINE_HIGH_EXPLOSIVE_MINE_E3D;
-			}
-			break;
-		case MINE_TYPE_TRAP:
-			{
-				return MINE_TRAP_E3D;
-			}
-			break;
-		case MINE_TYPE_CALTROP:
-			{
-				return MINE_CALTROP_E3D;
-			}
-			break;
-		case MINE_TYPE_POISONED_CALTROP:
-			{
-				return MINE_POISONED_CALTROP_E3D;
-			}
-			break;
-		case MINE_TYPE_BARRICADE:
-			{
-				return MINE_BARRICADE_E3D;
-			}
-			break;
-		case MINE_TYPE_MANA_DRAINER:
-			{
-				return MINE_MANA_DRAINER_E3D;
-			}
-			break;
-		case MINE_TYPE_MANA_BURNER:
-			{
-				return MINE_MANA_BURNER_E3D;
-			}
-			break;
-		case MINE_TYPE_UNINVIZIBILIZER:
-			{
-				return MINE_UNINVIZIBILIZER_E3D;
-			}
-			break;
-		case MINE_TYPE_MAGIC_IMMUNITY_REMOVAL:
-			{
-				return MINE_MAGIC_IMMUNITY_REMOVAL_E3D;
-			}
-			break;
-		}
-	log_error("An invalid mine type was requested!\n");
+	int i;
+	// Search the array for the required mine type
+	for (i = 0; i < num_mine_defs; i++)
+	{
+		if (mine_defs[i].id == mine_type)
+			return mine_defs[i].file;
+	}
+	LOG_ERROR("Invalid mine type was requested!\n");
 	return "";
 }
 
@@ -259,6 +201,89 @@ void remove_all_mines()
 	for (i = 0; i < NUM_MINES; i++){    // Clear the mines list!
 		mine_list[i].obj_3d_id = -1;
 	}
+}
+
+int parse_mine_defs(xmlNode *node)
+{
+	xmlNode *def;
+	mine_types * mine_def = NULL;
+	char content[100] = "";
+	int ok = 1;
+
+	for (def = node->children; def; def = def->next)
+	{
+		if (def->type == XML_ELEMENT_NODE)
+		{
+			if (xmlStrcasecmp (def->name, (xmlChar*)"mine") == 0)
+			{
+				if (num_mine_defs >= MAX_MINE_DEFS)
+				{
+					LOG_ERROR("%s: Maximum mine types reached: %d", mines_config_error, MAX_MINE_DEFS);
+					ok = 0;
+				}
+				mine_def = &mine_defs[num_mine_defs++];
+				mine_def->id = get_int_property(def, "id");
+				get_string_value(content, sizeof(content), def);				
+				safe_strncpy(mine_def->file, content, sizeof(mine_def->file));
+			}
+			else
+			{
+				LOG_ERROR("%s: Unknown element found: %s", mines_config_error, def->name);
+				ok = 0;
+			}
+		}
+		else if (def->type == XML_ENTITY_REF_NODE)
+		{
+			ok &= parse_mine_defs (def->children);
+		}
+	}
+
+	return ok;
+}
+
+void load_mines_config()
+{
+	xmlDoc *doc;
+	xmlNode *root = NULL;
+	char *file = "mines.xml";
+
+#ifdef	NEW_FILE_IO
+	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
+#else	// NEW_FILE_IO
+	char path[1024];
+
+#ifndef WINDOWS
+	safe_snprintf(path, sizeof(path), "%s/%s", datadir, file);
+#else
+	safe_snprintf(path, sizeof(path), "%s", file);
+#endif // !WINDOWS
+
+	// Can we open the file as xml?
+	if ((doc = xmlReadFile(path, NULL, 0)) == NULL)
+#endif	// NEW_FILE_IO
+	{
+		char str[200];
+		safe_snprintf(str, sizeof(str), mines_config_open_err_str, file);
+		LOG_ERROR(str);
+		LOG_TO_CONSOLE(c_red1,str);
+	}
+	// Can we find a root element
+	else if ((root = xmlDocGetRootElement(doc)) == NULL)
+	{
+		LOG_ERROR("%s: No XML root element found in '%s'", mines_config_error, file);
+	}
+	// Is the root the right type?
+	else if (xmlStrcmp(root->name, (xmlChar*)"mines"))
+	{
+		LOG_ERROR("%s: Invalid root element '%s' in '%s'", mines_config_error, root->name, file);
+	}
+	// We've found our expected root, now parse the children
+	else
+	{
+		parse_mine_defs(root);
+	}
+
+	xmlFree(doc);
 }
 
 #endif // MINES

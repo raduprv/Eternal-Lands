@@ -537,6 +537,11 @@ extern char	reg_error_str[15],
 		load_particles_str[35],
 		bld_sectors_str[35],
 		init_done_str[35],
+#ifdef MINES
+		/* mines.c */
+		mines_config_open_err_str[50],
+		mines_config_error[50],
+#endif // MINES
 		/*multiplayer.c*/
 		failed_resolve[150], 
 		failed_connect[100], 
@@ -585,6 +590,7 @@ extern char	reg_error_str[15],
 		snd_too_slow[50],
 		snd_stop_fail[50],
 		snd_init_error[50],
+		snd_config_open_err_str[50],
 		snd_config_error[50],
 		snd_sound_overflow[50],
 		snd_media_read[50],

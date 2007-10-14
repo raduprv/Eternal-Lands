@@ -115,6 +115,8 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	{
 		// Make sure any previous sound is stopped
 		stop_sound(pActor->cur_anim_sound_cookie);
+		pActor->cur_anim_sound_cookie = 0;
+		
 		if(anim.sound > -1)
 		{
 			// Found a sound, so add it

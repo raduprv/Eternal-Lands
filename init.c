@@ -78,6 +78,9 @@
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
+#ifdef MINES
+#include "mines.h"
+#endif // MINES
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -751,6 +754,9 @@ void init_stuff()
 	load_harvestable_list();
 	load_entrable_list();
 	load_knowledge_list();
+#ifdef MINES
+	load_mines_config();
+#endif // MINES
 	update_loading_win(load_cursors_str, 5);
 	load_cursors();
 	build_cursors();
