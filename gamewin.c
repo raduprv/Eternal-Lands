@@ -47,6 +47,9 @@
 #include "weather.h"
 #ifdef DEBUG
 #include "sound.h"
+#ifdef MINES
+#include "special_effects.h"
+#endif // MINES
 #endif
 #ifdef SFX
 #include "special_effects.h"
@@ -1477,6 +1480,20 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		}
 #endif
 	}
+#ifdef MINES
+	else if((keysym == SDLK_b) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_n) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_m) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+	}
+#endif // MINES
 #endif
 	// use quickbar items
 	else if (key == K_ITEM1)

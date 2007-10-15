@@ -2219,39 +2219,6 @@ extern "C" void ec_add_wind_effect_list(ec_reference reference, ec_effects effec
 }
 
 #ifdef MINES
-extern "C" ec_reference ec_create_mine_drop(float x, float y, float z, int mine_type, int LOD)
-{
-  if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
-    return NULL;
-  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::CREATE, LOD);
-  eye_candy.push_back_effect(ret->effect);
-  return (ec_reference)ret;
-}
-
-extern "C" ec_reference ec_create_mine_prime(float x, float y, float z, int mine_type, int LOD)
-{
-  if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
-    return NULL;
-  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::PRIME, LOD);
-  eye_candy.push_back_effect(ret->effect);
-  return (ec_reference)ret;
-}
-
-extern "C" ec_reference ec_create_mine_remove(float x, float y, float z, int mine_type, int LOD)
-{
-  if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
-    return NULL;
-  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->position = ec::Vec3(x, z, -y);
-  ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DEACTIVATE, LOD);
-  eye_candy.push_back_effect(ret->effect);
-  return (ec_reference)ret;
-}
-
 extern "C" ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
@@ -2259,9 +2226,27 @@ extern "C" ec_reference ec_create_mine_detonate(float x, float y, float z, int m
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
   if (mine_type == MINE_TYPE_SMALL_MINE) {
-    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE1, LOD);
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE1_SMALL, LOD);
   } else if (mine_type == MINE_TYPE_MEDIUM_MINE) {
-    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE2, LOD);
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE1_MEDIUM, LOD);
+  } else if (mine_type == MINE_TYPE_HIGH_EXPLOSIVE_MINE) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE1_LARGE, LOD);
+  } else if (mine_type == MINE_TYPE_TRAP) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TRAP, LOD);
+  } else if (mine_type == MINE_TYPE_CALTROP) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_CALTROP, LOD);
+  } else if (mine_type == MINE_TYPE_POISONED_CALTROP) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_CALTROP_POISON, LOD);
+  } else if (mine_type == MINE_TYPE_BARRICADE) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_BARRICADE, LOD);
+  } else if (mine_type == MINE_TYPE_MANA_DRAINER) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_MANA_DRAINER, LOD);
+  } else if (mine_type == MINE_TYPE_MANA_BURNER) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_MANA_BURNER, LOD);
+  } else if (mine_type == MINE_TYPE_UNINVIZIBILIZER) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_UNINVIZIBILIZER, LOD);
+  } else if (mine_type == MINE_TYPE_MAGIC_IMMUNITY_REMOVAL) {
+    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_MAGIC_IMMUNITY_REMOVAL, LOD);
   }
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;

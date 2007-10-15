@@ -23,11 +23,17 @@ class MineEffect : public Effect
 public: 
   enum MineType
   {
-    CREATE,
-	PRIME,
-	DEACTIVATE,
-    DETONATE_TYPE1,
-    DETONATE_TYPE2
+    DETONATE_TYPE1_SMALL,
+    DETONATE_TYPE1_MEDIUM,
+    DETONATE_TYPE1_LARGE,
+	DETONATE_TRAP,
+	DETONATE_CALTROP,
+	DETONATE_CALTROP_POISON,
+    DETONATE_BARRICADE,
+    DETONATE_MANA_DRAINER,
+    DETONATE_MANA_BURNER,
+    DETONATE_UNINVIZIBILIZER,
+    DETONATE_MAGIC_IMMUNITY_REMOVAL	  
   };
 
   MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType _type, const Uint16 _LOD);

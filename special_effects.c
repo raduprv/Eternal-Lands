@@ -584,6 +584,18 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS:
 		case	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM:
 		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
+#ifdef MINES
+		case	SPECIAL_EFFECT_SMALL_MINE_GOES_BOOM:
+		case	SPECIAL_EFFECT_MEDIUM_MINE_GOES_BOOM:
+		case	SPECIAL_EFFECT_HIGH_EXPLOSIVE_MINE_GOES_BOOM:
+		case	SPECIAL_EFFECT_SNARE_GOES_BOOM:
+		case	SPECIAL_EFFECT_CALTROP_GOES_BOOM:
+		case	SPECIAL_EFFECT_POISONED_CALTROP_GOES_BOOM:
+		case	SPECIAL_EFFECT_MANA_DRAINER_GOES_BOOM:
+		case	SPECIAL_EFFECT_MANA_BURNER_GOES_BOOM:
+		case	SPECIAL_EFFECT_UNINVIZIBILIZER_GOES_BOOM:
+		case	SPECIAL_EFFECT_MAGIC_IMMUNITY_REMOVAL_GOES_BOOM:
+#endif // MINES
 			{
 			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 			}
@@ -870,6 +882,43 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			case	SPECIAL_EFFECT_SUMMON_TIGER:
 				ec_create_summon_tiger(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
+#ifdef MINES
+			case	SPECIAL_EFFECT_SMALL_MINE_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_MEDIUM_MINE_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_HIGH_EXPLOSIVE_MINE_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_SNARE_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_CALTROP_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_POISONED_CALTROP_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_BARRICADE_GOES_BOOM:
+				// It would be really cool for this to trigger the e3d object to rise out of the ground
+				// instead of using EC (if it actually is an object)... probably with pawn?
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_BARRICADE, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_MANA_DRAINER_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_MANA_BURNER_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_UNINVIZIBILIZER_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+				break;
+			case	SPECIAL_EFFECT_MAGIC_IMMUNITY_REMOVAL_GOES_BOOM:
+				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+				break;
+#endif // MINES
 			default:
 	 #ifdef DEBUG
 				safe_snprintf ((char*)str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);

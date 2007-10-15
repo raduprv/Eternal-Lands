@@ -35,7 +35,7 @@ char * get_mine_e3d(mine_type)
 	// Search the array for the required mine type
 	for (i = 0; i < num_mine_defs; i++)
 	{
-		if (mine_defs[i].id == mine_type)
+		if (mine_defs[i].id == mine_type && strcasecmp(mine_defs[i].file, ""))
 			return mine_defs[i].file;
 	}
 	LOG_ERROR("Invalid mine type was requested!\n");
@@ -139,15 +139,6 @@ void add_mines_from_list (const Uint8 *data)
 
 void remove_mine(int which_mine)
 {
-/*
-#ifdef EYE_CANDY
-	float x, y, z;
-#endif
-#ifdef NEW_SOUND
-	int snd;
-#endif // NEW_SOUND
-*/
-	
 	printf("Removing mine: %i\n", which_mine);
 
 	if (which_mine == -1 || which_mine >= NUM_MINES) return;
@@ -157,38 +148,6 @@ void remove_mine(int which_mine)
 		LOG_ERROR("Oops, double-removal of mine!\n");
 		return;
 	}
-
-/* Mine removal effects will happen with the SEND_SPECIAL_EFFECT command if the server deems them nessessary
- * This code can stay here just in-case that needs to be changed.
-
- #ifdef EYE_CANDY
-	x = mine_list[which_mine].x;
-	y = mine_list[which_mine].y;
-	z = -2.2f + height_map[mine_list[which_mine].y * tile_map_size_x * 6 + mine_list[which_mine].x] * 0.2f;
-	printf("X: %f, Y: %f, Type: %i\n", x, y, mine_list[which_mine].type);
-	//convert from height values to meters
-	x /= 2;
-	y /= 2;
-	//center the object
-	x = x + 0.25f;
-	y = y + 0.25f;
-	if (use_eye_candy) ec_create_mine_remove(x, y, z, mine_list[which_mine].type, (poor_man ? 6 : 10));
- #else // EYE_CANDY
-  #ifdef SFX
-	add_particle_sys_at_tile ("./particles/bag_out.part", mine_list[which_mine].x, mine_list[which_mine].y, 1);
-  #endif
- #endif // EYE_CANDY
-#ifdef NEW_SOUND
-	if (sound_on)
-	{
-		snd = get_sound_index_for_particle_file_name("./particles/mine_out.part");
-		if (snd >= 0)
-		{
-			add_sound_object (snd, mine_list[which_mine].x, mine_list[which_mine].y, 0);
-		}
-	}
-#endif // NEW_SOUND
-*/
 
 	destroy_3d_object(mine_list[which_mine].obj_3d_id);
 	mine_list[which_mine].obj_3d_id = -1;
