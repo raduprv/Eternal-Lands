@@ -2237,8 +2237,6 @@ extern "C" ec_reference ec_create_mine_detonate(float x, float y, float z, int m
     ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_CALTROP, LOD);
   } else if (mine_type == MINE_TYPE_POISONED_CALTROP) {
     ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_CALTROP_POISON, LOD);
-  } else if (mine_type == MINE_TYPE_BARRICADE) {
-    ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_BARRICADE, LOD);
   } else if (mine_type == MINE_TYPE_MANA_DRAINER) {
     ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_MANA_DRAINER, LOD);
   } else if (mine_type == MINE_TYPE_MANA_BURNER) {

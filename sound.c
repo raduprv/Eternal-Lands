@@ -4333,7 +4333,7 @@ int time_of_day_valid(int flags)
  * and use 90 degrees rather than calculate it
  *
  *
- * FIEME: Currently, the checks don't include one for that of a point of the boundary inside the outer bounds of
+ * FIXME: Currently, the checks don't include one for that of a point of the boundary inside the outer bounds of
  * the polygon
  */
 int sound_bounds_check(int x, int y, map_sound_boundary_def bounds)

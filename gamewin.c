@@ -1481,17 +1481,45 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #endif
 	}
 #ifdef MINES
-	else if((keysym == SDLK_b) && shift_on && ctrl_on && !alt_on)
+	else if((keysym == SDLK_z) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_x) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_c) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
 	}
+	else if((keysym == SDLK_v) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_b) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+	}
 	else if((keysym == SDLK_n) && shift_on && ctrl_on && !alt_on)
 	{
-		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
 	}
 	else if((keysym == SDLK_m) && shift_on && ctrl_on && !alt_on)
 	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_j) && shift_on && ctrl_on && !alt_on)
+	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_k) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+	}
+	else if((keysym == SDLK_l) && shift_on && ctrl_on && !alt_on)
+	{
+		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 	}
 #endif // MINES
 #endif

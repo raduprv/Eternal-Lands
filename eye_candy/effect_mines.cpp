@@ -39,6 +39,38 @@ bool MineParticle::idle(const Uint64 delta_t)
   const Uint64 age = get_time() - born;
   switch(type)
   {
+    case MineEffect::DETONATE_MAGIC_IMMUNITY_REMOVAL:
+    {
+		if (pos.y > 20)
+			return false;
+		
+		velocity.y *= 1.15;
+		velocity.x *= 0.82;
+		velocity.z *= 0.82;
+		
+		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1);
+		alpha *= scalar;
+		
+		break;
+    }
+    case MineEffect::DETONATE_UNINVIZIBILIZER:
+    {
+		if (alpha < 0.01)
+			return false;
+		
+		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1);
+		alpha *= scalar;
+		size *= 0.95;
+		
+		break;
+    }
+    case MineEffect::DETONATE_MANA_DRAINER:
+    {
+		if (pos.y < -2.0)
+			return false;
+		
+		break;
+    }
     case MineEffect::DETONATE_MANA_BURNER:
     {
       const Uint64 age = get_time() - born;
@@ -77,18 +109,18 @@ bool MineParticle::idle(const Uint64 delta_t)
       color[1] = 0.7 + 0.3 * sin(age / 970000.0 + 1.3);
       color[2] = 0.7 + 0.3 * sin(age / 780000.0 + 1.9);
     
-      if (age < 700000)
+      if (age < 100000)
       {
         if (state == 0)
-          size = age / 45000.0;
+          size = age / 7000.0;
       }
       else
       {
-        const percent_t scalar = math_cache.powf_05_close(float_time * 1);
+        const percent_t scalar = math_cache.powf_05_close(float_time * 3);
         size *= scalar;
         alpha *= scalar;
     
-        if (alpha < 0.02)
+        if (size < 1)
           return false;
       }
       break;
@@ -108,13 +140,6 @@ bool MineParticle::idle(const Uint64 delta_t)
 		int i = (type == MineEffect::DETONATE_TYPE1_SMALL ? 3 : type == MineEffect::DETONATE_TYPE1_MEDIUM ? 2 : 1);
 		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * i);
 		alpha *= scalar;
-		
-		break;
-    }
-    case MineEffect::DETONATE_MANA_DRAINER:
-    {
-		if (pos.y < -2.0)
-			return false;
 		
 		break;
     }
@@ -150,11 +175,10 @@ GLuint MineParticle::get_texture(const Uint16 res_index)
 
 light_t MineParticle::get_light_level()
 {
-  if ((type == MineEffect::DETONATE_CALTROP) || (type == MineEffect::DETONATE_CALTROP_POISON) || (type == MineEffect::DETONATE_TRAP) || 
-	  ((type == MineEffect::DETONATE_TYPE1_SMALL || type == MineEffect::DETONATE_TYPE1_MEDIUM || 
-  		type == MineEffect::DETONATE_TYPE1_LARGE) && (state == 0))
-     )
+  if ((type == MineEffect::DETONATE_CALTROP) || (type == MineEffect::DETONATE_CALTROP_POISON) || (type == MineEffect::DETONATE_TRAP))
     return alpha * size / 1500;
+  else if (type == MineEffect::DETONATE_UNINVIZIBILIZER)
+    return alpha * size / 1000;
   else
     return 0.0;
 };
@@ -178,6 +202,60 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
   
   switch(type)
   {
+    case DETONATE_MAGIC_IMMUNITY_REMOVAL:
+    {
+      spawner = new FilledSphereSpawner(0.1);
+      mover = new ParticleMover(this);
+      while ((int)particles.size() < LOD * 150)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(0.5);
+        velocity.y = 0.2;
+        coords += effect_center;
+        Particle * p = new MineParticle(this, mover, coords, velocity, 0.2, 1.0, 3.0, 3.0, 3.0, &(base->TexSimple), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+	  break;
+    }
+    case DETONATE_UNINVIZIBILIZER:
+    {
+      effect_center.y += 1.8;
+      spawner = new HollowDiscSpawner(0.3);
+      mover = new ParticleMover(this);
+      while ((int)particles.size() < LOD * 200)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize();
+        velocity.normalize(0.2);
+        coords += effect_center;
+        coords.y = randfloat(1.8);
+        Particle * p = new MineParticle(this, mover, coords, velocity, 1.2, 1.0, 3.0, 3.0, 3.0, &(base->TexSimple), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+	  break;
+    }
+    case DETONATE_MANA_DRAINER:
+    {
+      effect_center.y += 1.6;
+      spawner = new HollowDiscSpawner(0.3);
+      mover = new SimpleGravityMover(this);
+      while ((int)particles.size() < LOD * 50)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize();
+        velocity.normalize(0.2);
+        coords += effect_center;
+        Particle * p = new MineParticle(this, mover, coords, velocity, 0.3, 1.0, 0.8, 0.35, 0.7, &(base->TexSimple), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+	  break;
+    }
     case DETONATE_MANA_BURNER:
     {
       effect_center.y += 1.0;
@@ -190,7 +268,7 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
         velocity.randomize();
         velocity.normalize(0.9);
         coords += effect_center;
-        Particle * p = new MineParticle(this, mover, coords, velocity, 0.75, 0.5, 0.8, 0.3, 0.7, &(base->TexTwinflare), LOD, type);
+        Particle * p = new MineParticle(this, mover, coords, velocity, 0.5, 0.5, 0.8, 0.35, 0.7, &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -206,8 +284,7 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
       for (int i = 0; i < LOD * 10; i++)
       {
         Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity;
-		velocity.y = 5;
+        Vec3 velocity(0.0, 5.0, 0.0);
         coords += effect_center;
         Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.05, 0.4, (type == DETONATE_CALTROP ? 0.3 : 0.5), 0.3, &(base->TexWater), LOD, type);
         p->state = 1;
@@ -215,12 +292,6 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
           break;
       }
       
-/*      Particle* p = new MineParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
-      if (!base->push_back_particle(p))
-        break;
-      p = new MineParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
-      base->push_back_particle(p);
-*/
       break;
     }
     case DETONATE_TRAP:
@@ -261,44 +332,8 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
         Vec3 velocity = coords * (type == DETONATE_TYPE1_SMALL ? 10 : type == DETONATE_TYPE1_MEDIUM ? 7 : 5);
         velocity.y *= 2;
         coords += effect_center;
-        Particle * p = new MineParticle(this, mover, coords, velocity, 6, 1, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
+        Particle * p = new MineParticle(this, mover, coords, velocity, 6, 1, 0.7, 0.5, 0.3, &(base->TexWater), LOD, type);
         p->state = 1;
-        if (!base->push_back_particle(p))
-          break;
-      }
-      break;
-    }
-    case DETONATE_MANA_DRAINER:
-    {
-      effect_center.y += 15.0;
-      spawner = new FilledSphereSpawner(1.0);
-      mover = new ParticleMover(this);
-      while ((int)particles.size() < LOD * 50)
-      {
-        Vec3 coords = spawner->get_new_coords();
-        coords.y *= 8.0;
-        Vec3 velocity;
-        velocity.randomize();
-        velocity.normalize(0.2);
-        velocity.y *= 3.0;
-        velocity.y -= 9.0;
-        coords += effect_center;
-        const color_t scalar = randcolor(0.4);
-        Particle * p = new MineParticle(this, mover, coords, velocity, 8.0 + randcoord(12.0), 1.0, scalar + randcolor(0.1), scalar + randcolor(0.1), scalar + randcolor(0.1), &(base->TexSimple), LOD, type);
-        if (!base->push_back_particle(p))
-          break;
-      }
-      while ((int)particles.size() < LOD * 100)
-      {
-        Vec3 coords = spawner->get_new_coords();
-        coords.y *= 8.0;
-        Vec3 velocity;
-        velocity.randomize();
-        velocity.normalize(0.2);
-        velocity.y *= 3.0;
-        velocity.y -= 9.0;
-        coords += effect_center;
-        Particle * p = new MineParticle(this, mover, coords, velocity, 3.0 + randcoord(6.0), 0.4 + randalpha(0.4), 0.2 + randcolor(0.2), 0.2 + randcolor(0.2), 0.2 + randcolor(0.2), &(base->TexWater), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
