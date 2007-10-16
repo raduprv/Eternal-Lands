@@ -10,88 +10,83 @@
 #include <tr1/memory>
 #endif
 
-class memory_buffer
+namespace eternal_lands
 {
-	private:
-		Uint8* memory;
-		int size;
 
-	public:
+	class memory_buffer
+	{
+		private:
+			Uint8* memory;
+			int size;
 
-		inline memory_buffer(int _size = 0)
-		{
-			if (_size > 0)
+		public:
+
+			inline memory_buffer(int _size = 0)
 			{
-				memory = reinterpret_cast<Uint8*>(malloc(_size));
+				if (_size > 0)
+				{
+					memory = reinterpret_cast<Uint8*>(malloc(_size));
+				}
+				else
+				{
+					memory = 0;
+				}
+				size = _size;
 			}
-			else
+
+			/**
+			 * @brief Destructor.
+			 *
+			 * Destructor, calls reduce_count.
+			 * @see reduce_count
+			 */
+			inline ~memory_buffer()
 			{
-				memory = 0;
+				if (memory != 0)
+				{
+					free(memory);
+				}
 			}
-			size = _size;
-		}
 
-		/**
-		 * @brief Destructor.
-		 *
-		 * Destructor, calls reduce_count.
-		 * @see reduce_count
-		 */
-		inline ~memory_buffer()
-		{
-			if (memory != 0)
+			/**
+			 * @brief Gets the pointer of the memory buffer.
+			 *
+			 * Gets the pointer of the memory buffer.
+			 * @param index The index to use.
+			 * @return Returns the pointer of the memory buffer.
+			 */
+			template <typename T>
+				inline T get_memory(unsigned int index = 0) const
 			{
-				free(memory);
+				return reinterpret_cast<T>(&memory[index]);
 			}
-		}
 
-		/**
-		 * @brief Gets the pointer of the memory buffer.
-		 *
-		 * Gets the pointer of the memory buffer.
-		 * @return Returns the pointer of the memory buffer.
-		 */
-		inline Uint8* get_memory() const
-		{
-			return memory;
-		}
+			/**
+			 * @brief Gets the size of the memory buffer.
+			 *
+			 * Gets the size of the memory buffer.
+			 * @return Returns the size of the memory buffer.
+			 */
+			inline int get_size() const
+			{
+				return size;
+			}
 
-		/**
-		 * @brief Gets the pointer of the memory buffer.
-		 *
-		 * Gets the pointer of the memory buffer at the given index.
-		 * @param index The index to use.
-		 * @return Returns the pointer of the memory buffer.
-		 */
-		inline Uint8* get_memory(int index) const
-		{
-			return &memory[index];
-		}
+			inline void resize(int new_size)
+			{
+				memory = static_cast<Uint8*>(realloc(memory, new_size));
 
-		/**
-		 * @brief Gets the size of the memory buffer.
-		 *
-		 * Gets the size of the memory buffer.
-		 * @return Returns the size of the memory buffer.
-		 */
-		inline int get_size() const
-		{
-			return size;
-		}
-
-		inline void resize(int new_size)
-		{
-			memory = static_cast<Uint8*>(realloc(memory, new_size));
-
-			size = new_size;
-		}
-};
+				size = new_size;
+			}
+	};
 
 #ifdef	USE_TR1
-typedef std::tr1::shared_ptr<memory_buffer> memory_ptr;
+	typedef std::tr1::shared_ptr<memory_buffer> memory_ptr;
 #else
-typedef shared_ptr<memory_buffer> memory_ptr;
+	typedef shared_ptr<memory_buffer> memory_ptr;
 #endif
+
+}
 
 #endif //NEW_FILE_IO
 

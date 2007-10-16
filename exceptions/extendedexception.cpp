@@ -3,43 +3,54 @@
  * Copyright (C) Daniel Jungmann 2007 <dsj@gmx.net>
  */
 
-#include <cstdarg>
 #include "extendedexception.hpp"
+#include <sstream>
 
-#if defined DEBUG && !defined _MSC_VER
-extended_exception::extended_exception(const char *file, const char *function, unsigned int line,
-	const char *error, ...) throw(): file(file), function(function), line(line)
-#else	// DEBUG && !__MSC_VER
-extended_exception::extended_exception(const char *error, ...) throw()
-#endif	// DEBUG && !__MSC_VER
+namespace eternal_lands
 {
-	char buffer[4096];
-	int len;
 
-	va_list format;
+	extended_exception::extended_exception(const extended_exception &ee): number(ee.number),
+		description(ee.description), type(ee.type), file(ee.file), function(ee.function),
+		line(ee.line)
+	{
+	}
 
-	va_start(format, error);
-	len = vsnprintf(buffer, sizeof(buffer), error, format);
-	va_end(format);
+	extended_exception::extended_exception(unsigned int number, const std::string &description,
+		const char* type, const char* file, const char* function, unsigned int line):
+		number(number), description(description), type(type), file(file),
+		function(function), line(line)
+	{
+	}
 
-	error_str = std::string(buffer, std::min(len, static_cast<int>(sizeof(buffer))));
-}
+	void extended_exception::operator = (const extended_exception &ee)
+	{
+		number = ee.number;
+		description = ee.description;
+		type = ee.type;
+		file = ee.file;
+		function = ee.function;
+		line = ee.line;
+	}
 
-extended_exception::~extended_exception() throw()
-{
-}
+	const std::string &extended_exception::get_full_description() const
+	{
+		if (full_description.empty())
+		{
+			std::stringstream desc;
 
-const char* extended_exception::what() const throw()
-{
-	return error_str.c_str();
-}
+			desc <<  "EXTENDED EXCEPTION(" << number << ":" << type << "): "
+				<< description;
 
-void extended_exception::log() const
-{
-#if defined DEBUG && !defined _MSC_VER
-	log_error_detailed(error_str.c_str(), file, function, line);
-#else	// DEBUG && !__MSC_VER
-	log_error(error_str.c_str());
-#endif	// DEBUG && !__MSC_VER
+			if (line > 0)
+			{
+				desc << " in " << function << " at " << file << " (line "
+					<< line << ")";
+			}
+
+			full_description = desc.str();
+		}
+
+		return full_description;
+	}
 }
 

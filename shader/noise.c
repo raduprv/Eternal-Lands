@@ -222,13 +222,20 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 			input_format = GL_LUMINANCE;
 			break;
 		case 2:
-			if (have_extension(ati_texture_compression_3dc))
+			if (have_extension(ext_texture_compression_latc))
 			{
-				texture_format = GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI;
+				texture_format = GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT;
 			}
 			else
 			{
-				texture_format = GL_LUMINANCE_ALPHA;
+				if (have_extension(ati_texture_compression_3dc))
+				{
+					texture_format = GL_COMPRESSED_LUMINANCE_ALPHA_3DC_ATI;
+				}
+				else
+				{
+					texture_format = GL_LUMINANCE_ALPHA;
+				}
 			}
 			input_format = GL_LUMINANCE_ALPHA;
 			break;

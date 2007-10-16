@@ -156,6 +156,10 @@ int sdl_cursors = 0;
 float pointer_size = 1.0;
 #endif /* SKY_FPV_CURSOR */
 
+#ifdef	USE_SEND_VIDEO_INFO
+int video_info_sent = 0;
+#endif	// USE_SEND_VIDEO_INFO
+
 int int_zero_func()
 {
 	return 0;

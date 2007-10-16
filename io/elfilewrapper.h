@@ -56,7 +56,7 @@ extern el_file_ptr el_open(const char* file_name);
  * @param file_name The name of the file to open.
  * @return Returns a valid el file pointer or zero on failur.
  */
-extern el_file_ptr el_open_anywhere (const char* file_name);
+extern el_file_ptr el_open_anywhere(const char* file_name);
 
 /**
  * @brief Opens a file without decompressing it.
@@ -141,7 +141,7 @@ extern void* el_get_pointer(el_file_ptr file);
  * @return Returns true if the file exists, else false.
  * @sa el_file_exists_anywhere()
  */
-extern int el_file_exists (const char* file_name);
+extern int el_file_exists(const char* file_name);
 
 /**
  * @brief Check if a file exists.
@@ -151,7 +151,7 @@ extern int el_file_exists (const char* file_name);
  * @return Returns true if the file exists, else false.
  * @sa el_file_exists()
  */
-extern int el_file_exists_anywhere (const char* file_name);
+extern int el_file_exists_anywhere(const char* file_name);
 
 extern struct CalCoreAnimation *CalLoader_ELLoadCoreAnimation(struct CalLoader *self, const char *strFilename);
 extern struct CalCoreMaterial *CalLoader_ELLoadCoreMaterial(struct CalLoader *self, const char *strFilename);

@@ -4,6 +4,11 @@
 #include <SDL_types.h>
 #include "platform.h"
 
+#ifdef __cplusplus
+extern "C"
+{
+#endif
+
 #ifndef GL_ATI_texture_compression_3dc
 #define GL_ATI_texture_compression_3dc 1
 
@@ -39,7 +44,9 @@ typedef enum {
 	arb_texture_mirrored_repeat = 24,
 	arb_texture_rectangle = 25,
 	ext_fog_coord = 26,
-	ati_texture_compression_3dc = 27
+	ati_texture_compression_3dc = 27,
+	ext_texture_compression_latc = 28,
+	ext_texture_compression_rgtc = 29
 } extension_enum;
 
 /*	GL_ARB_multitexture	*/
@@ -273,5 +280,9 @@ extern void init_opengl_extensions();
 extern Uint32 have_extension(extension_enum extension);
 extern Uint32 get_texture_units();
 extern float get_max_anisotropic_filter();
+
+#ifdef __cplusplus
+}
+#endif
 
 #endif	//_LOAD_GL_EXTENSIONS_H_

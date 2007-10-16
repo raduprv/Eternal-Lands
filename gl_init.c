@@ -913,7 +913,21 @@ void init_gl_extensions()
 	}
 	/*	GL_ATI_texture_compression_3dc		*/
 
-	if(have_extension(ext_framebuffer_object)){
+	/*	GL_EXT_texture_compression_latc		*/
+	if (have_extension(ext_texture_compression_latc))
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_found, "GL_EXT_texture_compression_latc");
+		LOG_TO_CONSOLE(c_green2, str);
+	}
+	else
+	{
+		safe_snprintf(str, sizeof(str), gl_ext_not_found, "GL_EXT_texture_compression_latc");
+		LOG_TO_CONSOLE(c_red1, str);
+	}
+	/*	GL_EXT_texture_compression_latc		*/
+
+	if (have_extension(ext_framebuffer_object))
+	{
 		check_fbo_formats();
 	}
 

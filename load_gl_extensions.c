@@ -745,6 +745,18 @@ void init_opengl_extensions()
 		extensions |= 1 << ati_texture_compression_3dc;
 	}
 /*	GL_ATI_texture_compression_3dc		*/
+/*	GL_EXT_texture_compression_latc		*/
+	if (strstr(extensions_string, "GL_EXT_texture_compression_latc") != NULL)
+	{
+		extensions |= 1 << ext_texture_compression_latc;
+	}
+/*	GL_EXT_texture_compression_latc		*/
+/*	GL_EXT_texture_compression_rgtc		*/
+	if (strstr(extensions_string, "GL_EXT_texture_compression_rgtc") != NULL)
+	{
+		extensions |= 1 << ext_texture_compression_rgtc;
+	}
+/*	GL_EXT_texture_compression_rgtc		*/
 }
 
 Uint32 have_extension(extension_enum extension)

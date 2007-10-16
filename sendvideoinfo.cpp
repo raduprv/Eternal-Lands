@@ -12,200 +12,202 @@
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
 
-int video_info_sent = 0;
-
-const int vendor_names_count = 5;
-
-const char* vendor_names[vendor_names_count] =
+namespace eternal_lands
 {
-	"ATI",
-	"NVIDIA",
-	"INTEL",
-	"SIS",
-	"TRIDENT"
-};
 
-const int opengl_versions_count = 8;
+	const int vendor_names_count = 5;
 
-const char* opengl_versions[opengl_versions_count] =
-{
-	"1.0",
-	"1.1",
-	"1.2",
-	"1.3",
-	"1.4",
-	"1.5",
-	"2.0",
-	"2.1"
-};
-
-typedef	char bit_set_96[12];
-
-static inline void set_bit(bit_set_96 bits, int bit)
-{
-	int n, i;
-
-	assert((bit >= 0) && (bit < 96));
-
-	i = bit % 8;
-	n = bit / 8;
-	bits[n] |= 1 << i;
-}
-
-static inline int get_first_set_bit(int value)
-{
-	int i;
-
-	i = 0;
-
-	while ((1 << i) < value) i++;
-
-	return i;
-}
-
-static inline void parse_extention(const xmlNode *extension_element, std::string extensions, bit_set_96 bits)
-{
-	xmlNode *cur_node;
-	std::string name;
-	int value;
-
-	NODE_NAME_CHECK(extension_element, "extention");
-
-	cur_node = get_node_element_children(extension_element);
-
-	NODE_NAME_CHECK(cur_node, "name");
-
-	name = get_string_value_from_node(cur_node);
-
-	cur_node = get_next_element_node(cur_node);
-
-	NODE_NAME_CHECK(cur_node, "value");
-
-	value = get_int_value_from_node(cur_node);
-
-	if (extensions.find(name) != extensions.npos)
+	const char* vendor_names[vendor_names_count] =
 	{
-		set_bit(bits, value);
+		"ATI", "NVIDIA", "INTEL", "SIS", "TRIDENT"
+	};
+
+	const int opengl_versions_count = 8;
+
+	const char* opengl_versions[opengl_versions_count] =
+	{
+		"1.0", "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1"
+	};
+
+	typedef	char bit_set_96[12];
+
+	static inline void set_bit(bit_set_96 bits, int bit)
+	{
+		int n, i;
+
+		assert((bit >= 0) && (bit < 96));
+
+		i = bit % 8;
+		n = bit / 8;
+		bits[n] |= 1 << i;
 	}
-}
 
-static inline void parse_extentions(const xmlNode *extensions_element, const char* extensions, bit_set_96 bits)
-{
-	xmlNode *cur_node;
-
-	NODE_NAME_CHECK(extensions_element, "extentions");
-
-	for (cur_node = get_node_element_children(extensions_element); cur_node; cur_node = get_next_element_node(cur_node))
+	static inline int get_first_set_bit(int value)
 	{
-		parse_extention(cur_node, extensions, bits);
-	}
-}
+		int i;
 
-static inline int get_version_idx()
-{
-	std::string str;
-	int i;
+		i = 0;
 
-	str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
-
-	for (i = 0; i < opengl_versions_count; i++)
-	{
-		if (str.find(opengl_versions[i]) == 0)
+		while ((1 << i) < value)
 		{
-			return i;
+			i++;
+		}
+
+		return i;
+	}
+
+	static inline void parse_extention(const xmlNodePtr extension_element, std::string extensions, bit_set_96 bits)
+	{
+		xmlNodePtr cur_node;
+		std::string name;
+		int value;
+
+		NODE_NAME_CHECK(extension_element, "extention");
+
+		cur_node = get_node_element_children(extension_element);
+
+		NODE_NAME_CHECK(cur_node, "name");
+
+		name = get_value_from_node<std::string>(cur_node);
+
+		cur_node = get_next_element_node(cur_node);
+
+		NODE_NAME_CHECK(cur_node, "value");
+
+		value = get_value_from_node<unsigned int>(cur_node);
+
+		if (extensions.find(name) != extensions.npos)
+		{
+			set_bit(bits, value);
 		}
 	}
 
-	return 0xFF;
-}
-
-static inline int get_vendor_idx()
-{
-	std::string str;
-	int i;
-
-	str = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
-
-	std::transform(str.begin(), str.end(), str.begin(), toupper);
-
-	for (i = 0; i < vendor_names_count; i++)
+	static inline void parse_extentions(const xmlNodePtr extensions_element,
+		const char* extensions, bit_set_96 bits)
 	{
-		if (str.find(vendor_names[i]) == 0)
+		xmlNodePtr cur_node;
+
+		NODE_NAME_CHECK(extensions_element, "extentions");
+
+		for (cur_node = get_node_element_children(extensions_element); cur_node != 0;
+			cur_node = get_next_element_node(cur_node))
 		{
-			return i;
+			parse_extention(cur_node, extensions, bits);
 		}
 	}
 
-	return 0xFF;
-}
-
-extern "C" void send_video_info()
-{
-#ifndef	NEW_FILE_IO
-	char file_name[4096];
-#endif	// NEW_FILE_IO
-	Uint8 data[33];
-	bit_set_96 caps;
-	xmlNode *root_element;
-	xmlDoc *document;
-	GLint i;
-
-	if (video_info_sent == 0)
+	static inline int get_version_idx()
 	{
-		memset(caps, 0, sizeof(caps));
+		std::string str;
+		int i;
 
-#ifdef	NEW_FILE_IO
-		if ((document = xmlReadFile("extentions.xml", 0, 0)) != NULL)
-#else	// NEW_FILE_IO
-#ifndef WINDOWS
-		snprintf(file_name, sizeof(file_name), "%s/%s", datadir, "extentions.xml");
-#else
-		snprintf(file_name, sizeof(file_name), "%s", "extentions.xml");
-#endif // !WINDOWS
+		str = reinterpret_cast<const char *>(glGetString(GL_VERSION));
 
-		if ((document = xmlReadFile(file_name, 0, 0)) != NULL)
-#endif	// NEW_FILE_IO
+		for (i = 0; i < opengl_versions_count; i++)
 		{
-			/*Get the root element node */
-			root_element = xmlDocGetRootElement(document);
-
-			if (root_element != 0)
+			if (str.find(opengl_versions[i]) == 0)
 			{
-				try
-				{
-					parse_extentions(root_element, reinterpret_cast<const char *>(glGetString(GL_EXTENSIONS)), caps);
-				}
-				CATCH_AND_LOG_EXCEPTIONS
-
-				data[0] = SEND_VIDEO_INFO;
-				data[1] = get_vendor_idx();
-				data[2] = get_version_idx();
-				glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i);
-				i = get_first_set_bit(i);
-				data[3] = i;
-				glGetIntegerv(GL_MAX_TEXTURE_UNITS, &i);
-				data[4] = i;
-
-				glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &i);
-				data[5] = i % 256;
-				data[6] = i / 256;
-			
-				glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &i);
-				data[7] = i % 256;
-				data[8] = i / 256;
-
-				memcpy(&data[9], caps, sizeof(caps));
-				if (my_tcp_send(my_socket, data, sizeof(data)) < static_cast<int>(sizeof(data)))
-				{
-					LOG_ERROR("Error sending video info");
-				}
-				else
-				{
-					video_info_sent = 1;
-				}
-				my_tcp_flush(my_socket);
+				return i;
 			}
 		}
-		xmlFree(document);
+
+		return 0xFF;
 	}
+
+	static inline int get_vendor_idx()
+	{
+		std::string str;
+		int i;
+
+		str = reinterpret_cast<const char *>(glGetString(GL_VENDOR));
+
+		std::transform(str.begin(), str.end(), str.begin(), toupper);
+
+		for (i = 0; i < vendor_names_count; i++)
+		{
+			if (str.find(vendor_names[i]) == 0)
+			{
+				return i;
+			}
+		}
+
+		return 0xFF;
+	}
+
+	extern "C" void send_video_info()
+	{
+#ifndef	NEW_FILE_IO
+		char file_name[4096];
+#endif	// NEW_FILE_IO
+		Uint8 data[33];
+		bit_set_96 caps;
+		xmlNodePtr root_element;
+		xmlDoc *document;
+		GLint i;
+
+		if (video_info_sent == 0)
+		{
+			memset(caps, 0, sizeof(caps));
+
+#ifdef	NEW_FILE_IO
+			if ((document = xmlReadFile("extentions.xml", 0, 0)) != NULL)
+#else	// NEW_FILE_IO
+#ifndef WINDOWS
+			snprintf(file_name, sizeof(file_name), "%s/%s", datadir, "extentions.xml");
+#else
+			snprintf(file_name, sizeof(file_name), "%s", "extentions.xml");
+#endif // !WINDOWS
+
+			if ((document = xmlReadFile(file_name, 0, 0)) != NULL)
+#endif	// NEW_FILE_IO
+			{
+				/*Get the root element node */
+				root_element = xmlDocGetRootElement(document);
+
+				if (root_element != 0)
+				{
+					try
+					{
+						parse_extentions(root_element,
+							reinterpret_cast<const char *>
+							(glGetString(GL_EXTENSIONS)), caps);
+					}
+					CATCH_AND_LOG_EXCEPTIONS
+
+					data[0] = SEND_VIDEO_INFO;
+					data[1] = get_vendor_idx();
+					data[2] = get_version_idx();
+
+					glGetIntegerv(GL_MAX_TEXTURE_SIZE, &i);
+					data[3] = get_first_set_bit(i);
+
+					glGetIntegerv(GL_MAX_TEXTURE_UNITS, &i);
+					data[4] = i;
+
+					glGetIntegerv(GL_MAX_VERTEX_UNIFORM_COMPONENTS, &i);
+					data[5] = i % 256;
+					data[6] = i / 256;
+			
+					glGetIntegerv(GL_MAX_FRAGMENT_UNIFORM_COMPONENTS, &i);
+					data[7] = i % 256;
+					data[8] = i / 256;
+
+					memcpy(&data[9], caps, sizeof(caps));
+					if (my_tcp_send(my_socket, data, sizeof(data)) <
+						static_cast<int>(sizeof(data)))
+					{
+						LOG_ERROR("Error sending video info");
+					}
+					else
+					{
+						video_info_sent = 1;
+					}
+					my_tcp_flush(my_socket);
+				}
+			}
+			xmlFree(document);
+		}
+	}
+
 }
+
