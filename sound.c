@@ -177,19 +177,21 @@ typedef struct
 
 typedef struct
 {
+	int x;
+	int y;
+	double a;					// Angle of the line between this point and the next (not used for outer bounding rect)
+} bound_point;
+
+typedef struct
+{
 	int bg_sound;
 	int crowd_sound;
 	int time_of_day_flags;		// As for sound time_of_day_flags
 	int is_default;				// There can be up to 4 defaults for any one map, with unique times of day
 								// Coords are ignored if is_default set.
-	int x1;
-	int y1;
-	int x2;
-	int y2;
-	int x3;
-	int y3;
-	int x4;
-	int y4;
+	bound_point p[4];			// Details of this point and its corresponding angle
+	int int_point;				// Index of the internal point or -1 for no internal point
+	bound_point o[2];			// Outer bounding rectangle (0 = lower left, 1 = upper right)
 } map_sound_boundary_def;
 
 typedef struct
@@ -420,7 +422,7 @@ void unload_sound(int index);
 /* General functions */
 int find_sound_from_cookie(unsigned int cookie);
 int time_of_day_valid(int flags);
-int sound_bounds_check(int x, int y, map_sound_boundary_def bounds);
+int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds);
 /* Init functions */
 void clear_sound_data();
 #endif	// !NEW_SOUND
@@ -2336,7 +2338,7 @@ int check_for_valid_stream_sound(int tx, int ty, int type)
 			{
 				snd = sound_map_data[snd_cur_map].boundaries[i].crowd_sound;
 			}
-			if (snd > -1 && sound_bounds_check(tx, ty, sound_map_data[snd_cur_map].boundaries[i]))
+			if (snd > -1 && sound_bounds_check(tx, ty, &sound_map_data[snd_cur_map].boundaries[i]))
 			{
 				playing = 0;
 				for (j = 0; j < max_streams; j++)
@@ -2624,7 +2626,7 @@ int check_stream(stream_data * stream, int day_time, int tx, int ty)
 				}
 				else
 				{
-					if (!sound_bounds_check(tx, ty, *stream->boundary))
+					if (!sound_bounds_check(tx, ty, stream->boundary))
 					{
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("process_stream - %s sound failed bounds check. Pos: %d, %d\n", get_stream_type(stream->type), tx, ty);
@@ -4336,70 +4338,51 @@ int time_of_day_valid(int flags)
  * FIXME: Currently, the checks don't include one for that of a point of the boundary inside the outer bounds of
  * the polygon
  */
-int sound_bounds_check(int x, int y, map_sound_boundary_def bounds)
+int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds)
 {
-	double a1, a2, b1, b2, c1, c2, d1, d2;
+	double a1, a2, a3, a4;
 	double pi = 3.1415;
 	double ra = pi / 2;		// ra = Right angle... meh
 
-	// Check the angle of the line from the bottom left corner to the top left (point1 -> point2)
-	if (bounds.x1 == bounds.x2) a1 = ra;
-	else a1 = atan((bounds.y2 - bounds.y1) / (bounds.x2 - bounds.x1));
-	if (bounds.x2 < bounds.x1) a1 += pi;
-	// Check the angle of the line from the bottom left corner to our test point (point1 -> pointT)
-	if (bounds.x1 == x) a2 = ra;
-	else a2 = atan((y - bounds.y1) / (x - bounds.x1));
-	if (x < bounds.x1) a2 += pi;
-	// If our angle for the test point is less than the angle of the boundary line, then the point is outside
-	if (a1 <= a2)
-	{
-		return 0;
-	}
-
+	// Initially check if we are inside the outermost box
+	if (x < bounds->o[0].x || y < bounds->o[0].y || x > bounds->o[1].x || y > bounds->o[1].y)
+		return 0;	// We are outside the outer rectangle so can't be inside the polygon
 	
-	// Check the angle of the line from the top left corner to the top right (point2 -> point3)
-	if (bounds.y2 == bounds.y3) b1 = ra;
-	else b1 = atan((bounds.x3 - bounds.x2) / (bounds.y2 - bounds.y3));
-	if (bounds.y3 > bounds.y2) b1 += pi;
-	// Check the angle of the line from the top left corner to our test point (point2 ->pointT)
-	if (bounds.y2 == y) b2 = ra;
-	else b2 = atan((x - bounds.x2) / (bounds.y2 - y));
-	if (y > bounds.y2) b2 += pi;
-	// If our angle for the test point is less than the angle of the boundary line, then the point is outside
-	if (b1 <= b2)
-	{
+	// Check the angle of the line from the top left corner to the top right (point1 -> pointT)
+	if (bounds->p[0].y == y && bounds->p[0].x < x) a1 = ra;
+	else if (bounds->p[0].y == y && bounds->p[0].x > x) a1 = -ra;
+	else a1 = atan2((x - bounds->p[0].x), (bounds->p[0].y - y));
+	if (x < bounds->p[0].x) a1 += pi * 2;
+	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
+	if (a1 > bounds->p[0].a)
 		return 0;
-	}
 
-
-	// Check the angle of the line from the top right corner to the bottom right (point3 -> point4)
-	if (bounds.x3 == bounds.x4) c1 = ra;
-	else c1 = atan((bounds.y3 - bounds.y4) / (bounds.x3 - bounds.x4));
-	if (bounds.x4 > bounds.x3) c1 += pi;
-	// Check the angle of the line from the top right corner to our test point (point3 -> pointT)
-	if (bounds.x3 == x) c2 = ra;
-	else c2 = atan((bounds.y3 - y) / (bounds.x3 - x));
-	if (x > bounds.x3) c2 += pi;
-	// If our angle for the test point is less than the angle of the boundary line, then the point is outside
-	if (c1 <= c2)
-	{
+	// Check the angle of the line from the top right corner to the bottom right (point2 -> pointT)
+	if (bounds->p[1].x == x && bounds->p[1].y > y) a2 = ra;
+	else if (bounds->p[1].x == x && bounds->p[1].y < y) a2 = -ra;
+	else a2 = atan2((bounds->p[1].y - y), (bounds->p[1].x - x));
+	if (y > bounds->p[1].y) a2 += pi * 2;
+	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
+	if (a2 > bounds->p[1].a)
 		return 0;
-	}
 
-
-	// Check the angle of the line from the bottom right corner to the bottom left (point4 -> point1)
-	if (bounds.y4 == bounds.y1) d1 = ra;
-	else d1 = atan((bounds.x4 - bounds.x1) / (bounds.y1 - bounds.y4));
-	if (bounds.y1 < bounds.y4) d1 += pi;
-	// Check the angle of the line from the bottom right corner to our test point (point4 -> pointT)
-	if (bounds.y4 == y) d2 = ra;
-	else d2 = atan((bounds.x4 - x) / (y - bounds.y4));
-	if (y < bounds.y4) d2 += pi;
-	// If our angle for the test point is less than the angle of the boundary line, then the point is outside
-	if (d1 <= d2)
-	{
+	// Check the angle of the line from the bottom right corner to the bottom left (point3 -> pointT)
+	if (bounds->p[2].y == y && bounds->p[2].x > x) a3 = ra;
+	else if (bounds->p[2].y == y && bounds->p[2].x < x) a3 = -ra;
+	else a3 = atan2((bounds->p[2].x - x), (y - bounds->p[2].y));
+	if (x > bounds->p[2].x) a3 += pi * 2;
+	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
+	if (a3 > bounds->p[2].a)
 		return 0;
-	}
+	
+	// Check the angle of the line from the bottom left corner to the top left (point4 -> pointT)
+	if (bounds->p[3].x == x && bounds->p[3].y < y) a4 = ra;
+	else if (bounds->p[3].x == x && bounds->p[3].y > y) a4 = -ra;
+	else a4 = atan2((y - bounds->p[3].y), (x - bounds->p[3].x));
+	if (y < bounds->p[3].y) a4 += pi * 2;
+	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
+	if (a4 > bounds->p[3].a)
+		return 0;
 
 	// This point is inside the 4 lines
 	return 1;
@@ -4437,6 +4420,27 @@ void clear_sound_type(int type)
 	sound->time_of_the_day_flags = 0xffff;
 	sound->priority = 5;
 	sound->type = SOUNDS_ENVIRO;
+}
+
+void clear_boundary_data(map_sound_boundary_def * pBoundary)
+{
+	int i;
+	
+	pBoundary->bg_sound = -1;
+	pBoundary->crowd_sound = -1;
+	pBoundary->time_of_day_flags = 0xffff;
+	pBoundary->is_default = 0;
+	for (i = 0; i < 4; i++)
+	{
+		pBoundary->p[i].x = -1;
+		pBoundary->p[i].y = -1;
+		pBoundary->p[i].a = -1;
+	}
+	pBoundary->o[0].x = -1;
+	pBoundary->o[0].y = -1;
+	pBoundary->o[1].x = -1;
+	pBoundary->o[1].y = -1;
+	pBoundary->int_point = -1;
 }
 
 void clear_sound_data()
@@ -4481,18 +4485,7 @@ void clear_sound_data()
 		sound_map_data[i].num_boundaries = 0;
 		for (j = 0; j < MAX_SOUND_MAP_BOUNDARIES; j++)
 		{
-			sound_map_data[i].boundaries[j].bg_sound = -1;
-			sound_map_data[i].boundaries[j].crowd_sound = -1;
-			sound_map_data[i].boundaries[j].time_of_day_flags = 0xffff;
-			sound_map_data[i].boundaries[j].is_default = 0;
-			sound_map_data[i].boundaries[j].x1 = 0;
-			sound_map_data[i].boundaries[j].y1 = 0;
-			sound_map_data[i].boundaries[j].x2 = 0;
-			sound_map_data[i].boundaries[j].y2 = 0;
-			sound_map_data[i].boundaries[j].x3 = 0;
-			sound_map_data[i].boundaries[j].y3 = 0;
-			sound_map_data[i].boundaries[j].x4 = 0;
-			sound_map_data[i].boundaries[j].y4 = 0;
+			clear_boundary_data(&sound_map_data[i].boundaries[j]);
 		}
 		sound_map_data[i].num_defaults = 0;
 		for (j = 0; j < MAX_MAP_BACKGROUND_DEFAULTS; j++)
@@ -5145,6 +5138,118 @@ void store_boundary_coords(char *coordinates, int * x, int * y)
 	return;
 }
 
+int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
+{
+	int i;
+	double a;
+	double pi = 3.141592;
+	double ra = pi / 2;		// ra = Right angle... meh
+
+	// Check if this is a default
+	if (bounds->is_default)
+	{
+		return 1;		// Points are ignored for defaults
+	}
+	
+	// Check we have details for all points
+	if (bounds->p[0].x == -1 || bounds->p[0].y == -1 || bounds->p[1].x == -1 || bounds->p[1].y == -1 ||
+		bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
+	{
+		LOG_ERROR("%s: Point missing for boundary in map '%s'", snd_config_error, map_name);
+		return 0;
+	}
+	
+	// Calculate the outer box
+	bounds->o[0].x = bounds->p[0].x;
+	bounds->o[0].y = bounds->p[0].y;
+	bounds->o[1].x = bounds->p[0].x;
+	bounds->o[1].y = bounds->p[0].y;
+	for (i = 0; i < 4; i++)
+	{
+		// Check if this point's x or y is greater than the current max or less than the current min and update
+		if (bounds->p[i].x < bounds->o[0].x)
+			bounds->o[0].x = bounds->p[i].x;
+		if (bounds->p[i].y < bounds->o[0].y)
+			bounds->o[0].y = bounds->p[i].y;
+		if (bounds->p[i].x > bounds->o[1].x)
+			bounds->o[1].x = bounds->p[i].x;
+		if (bounds->p[i].y > bounds->o[1].y)
+			bounds->o[1].y = bounds->p[i].y;
+	}
+	
+
+	// Find the angle of the line from the top left corner to the top right (point1 -> point2)
+	if (bounds->p[0].y == bounds->p[1].y && bounds->p[0].x < bounds->p[1].x)
+		bounds->p[0].a = ra;
+	else if (bounds->p[0].y == bounds->p[1].y && bounds->p[0].x > bounds->p[1].x)
+		bounds->p[0].a = -ra;
+	else bounds->p[0].a = atan2((bounds->p[1].x - bounds->p[0].x), (bounds->p[0].y - bounds->p[1].y));
+	if (bounds->p[1].x < bounds->p[0].x) bounds->p[0].a += pi * 2;
+
+	// Find the angle of the line from the top right corner to the bottom right (point2 -> point3)
+	if (bounds->p[1].x == bounds->p[2].x && bounds->p[1].y > bounds->p[2].y)
+		bounds->p[1].a = ra;
+	else if (bounds->p[1].x == bounds->p[2].x && bounds->p[1].y < bounds->p[2].y)
+		bounds->p[1].a = -ra;
+	else bounds->p[1].a = atan2((bounds->p[1].y - bounds->p[2].y), (bounds->p[1].x - bounds->p[2].x));
+	if (bounds->p[2].y > bounds->p[1].y) bounds->p[1].a += pi * 2;
+
+	// Find the angle of the line from the bottom right corner to the bottom left (point3 -> point4)
+	if (bounds->p[2].y == bounds->p[3].y && bounds->p[2].x > bounds->p[3].x)
+		bounds->p[2].a = ra;
+	else if (bounds->p[2].y == bounds->p[3].y && bounds->p[2].x < bounds->p[3].x)
+		bounds->p[2].a = -ra;
+	else bounds->p[2].a = atan2((bounds->p[2].x - bounds->p[3].x), (bounds->p[3].y - bounds->p[2].y));
+	if (bounds->p[3].x > bounds->p[2].x) bounds->p[2].a += pi * 2;
+	
+	// Find the angle of the line from the bottom left corner to the top left (point4 -> point1)
+	if (bounds->p[3].x == bounds->p[0].x && bounds->p[3].y < bounds->p[0].y)
+		bounds->p[3].a = ra;
+	else if (bounds->p[3].x == bounds->p[0].x && bounds->p[3].y > bounds->p[0].y)
+		bounds->p[3].a = -ra;
+	else bounds->p[3].a = atan2((bounds->p[0].y - bounds->p[3].y), (bounds->p[0].x - bounds->p[3].x));
+	if (bounds->p[0].y < bounds->p[3].y) bounds->p[3].a += pi * 2;
+
+	
+	// Check the angle of the line from the bottom left corner to the top right (point4 -> point2)
+	if (bounds->p[3].x == bounds->p[1].x && bounds->p[3].y < bounds->p[1].y)
+		a = ra;
+	else if (bounds->p[3].x == bounds->p[1].x && bounds->p[3].y > bounds->p[1].y)
+		a = -ra;
+	else a = atan2((bounds->p[1].y - bounds->p[3].y), (bounds->p[1].x - bounds->p[3].x));
+	if (bounds->p[1].y < bounds->p[3].y) a += pi * 2;
+	if (bounds->p[3].a < a) bounds->int_point = 0;
+
+	// Check the angle of the line from the top left corner to the bottom right (point1 -> point3)
+	if (bounds->p[0].y == bounds->p[2].y && bounds->p[0].x < bounds->p[2].x)
+		a = ra;
+	else if (bounds->p[0].y == bounds->p[2].y && bounds->p[0].x > bounds->p[2].x)
+		a = -ra;
+	else a = atan2((bounds->p[2].x - bounds->p[0].x), (bounds->p[0].y - bounds->p[2].y));
+	if (bounds->p[2].x < bounds->p[1].x) a += pi * 2;
+	if (bounds->p[0].a < a) bounds->int_point = 1;
+
+	// Check the angle of the line from the top right corner to the bottom left (point2 -> point4)
+	if (bounds->p[1].x == bounds->p[3].x && bounds->p[1].y > bounds->p[3].y)
+		a = ra;
+	else if (bounds->p[1].x == bounds->p[3].x && bounds->p[1].y < bounds->p[3].y)
+		a = -ra;
+	else a = atan2((bounds->p[1].y - bounds->p[3].y), (bounds->p[1].x - bounds->p[3].x));
+	if (bounds->p[3].y > bounds->p[1].y) a += pi * 2;
+	if (bounds->p[1].a < a) bounds->int_point = 2;
+
+	// Check the angle of the line from the bottom right corner to the top left (point3 -> point1)
+	if (bounds->p[2].y == bounds->p[0].y && bounds->p[2].x > bounds->p[0].x)
+		a = ra;
+	else if (bounds->p[2].y == bounds->p[0].y && bounds->p[2].x < bounds->p[0].x)
+		a = -ra;
+	else a = atan2((bounds->p[2].x - bounds->p[0].x), (bounds->p[0].y - bounds->p[2].y));
+	if (bounds->p[0].x > bounds->p[2].x) a += pi * 2;
+	if (bounds->p[2].a < a) bounds->int_point = 3;
+	
+	return 1;
+}
+
 void parse_map_sound(xmlNode *inNode)
 {
 	xmlNode *boundaryNode = NULL;
@@ -5188,10 +5293,9 @@ void parse_map_sound(xmlNode *inNode)
 				if(!xmlStrcasecmp(boundaryNode->name, (xmlChar*)"boundary_def"))
 				{
 					// Process this set of boundaries
-					if (pMap->num_boundaries < MAX_SOUND_MAP_BOUNDARIES)
+					if (pMap->num_boundaries++ < MAX_SOUND_MAP_BOUNDARIES)
 					{
-						pMap->num_boundaries++;
-						pMapBoundary = &pMap->boundaries[pMap->num_boundaries - 1];
+						pMapBoundary = &pMap->boundaries[pMap->num_boundaries];
 
 						for (attributeNode = boundaryNode->children; attributeNode; attributeNode = attributeNode->next)
 						{
@@ -5250,24 +5354,50 @@ void parse_map_sound(xmlNode *inNode)
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point1"))
 							{
 								// Parse the coordinates
-								store_boundary_coords(content, &pMapBoundary->x1, &pMapBoundary->y1);
+								store_boundary_coords(content, &pMapBoundary->p[0].x, &pMapBoundary->p[0].y);
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point2"))
 							{
 								// Parse the coordinates
-								store_boundary_coords(content, &pMapBoundary->x2, &pMapBoundary->y2);
+								store_boundary_coords(content, &pMapBoundary->p[1].x, &pMapBoundary->p[1].y);
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point3"))
 							{
 								// Parse the coordinates
-								store_boundary_coords(content, &pMapBoundary->x3, &pMapBoundary->y3);
+								store_boundary_coords(content, &pMapBoundary->p[2].x, &pMapBoundary->p[2].y);
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point4"))
 							{
 								// Parse the coordinates
-								store_boundary_coords(content, &pMapBoundary->x4, &pMapBoundary->y4);
+								store_boundary_coords(content, &pMapBoundary->p[3].x, &pMapBoundary->p[3].y);
 							}
 						}
+						// Validate the boundary
+						if (!validate_boundary(pMapBoundary, pMap->name))
+						{
+							// This one is invalid so remove it (we have already errored)
+							clear_boundary_data(pMapBoundary);
+							pMap->num_boundaries--;
+							printf("ERROR!!!!!!!!!\n");
+						}
+						else
+						{
+							printf("Boundary num: %d\n"			, pMap->num_boundaries);
+							printf("\tBackground sound: %d\n"	, pMapBoundary->bg_sound);
+							printf("\tCrowd sound: %d\n"		, pMapBoundary->crowd_sound);
+							printf("\tTime of day flags: 0x%x\n", pMapBoundary->time_of_day_flags);
+							printf("\tDefault: %s\n"			, pMapBoundary->is_default == 0 ? "No" : "Yes");
+							printf("\tX1, Y1, A1: (%d, %d, %f), X2, Y2, A2: (%d, %d, %f), X3, Y3, A3: (%d, %d, %f), X4, Y4, A4: (%d, %d, %f)\n",
+								pMapBoundary->p[0].x, pMapBoundary->p[0].y, pMapBoundary->p[0].a * 180 / 3.141592,
+								pMapBoundary->p[1].x, pMapBoundary->p[1].y, pMapBoundary->p[1].a * 180 / 3.141592,
+								pMapBoundary->p[2].x, pMapBoundary->p[2].y, pMapBoundary->p[2].a * 180 / 3.141592,
+								pMapBoundary->p[3].x, pMapBoundary->p[3].y, pMapBoundary->p[3].a * 180 / 3.141592);
+							printf("\tOuter box - X1, Y1, A1: (%d, %d, %f); X2, Y2, A1: (%d, %d, %f)\n",
+								pMapBoundary->o[0].x, pMapBoundary->o[0].y, pMapBoundary->o[0].a,
+								pMapBoundary->o[1].x, pMapBoundary->o[1].y, pMapBoundary->o[1].a);
+							printf("\tInternal point: %d\n"		, pMapBoundary->int_point);
+						}
+						printf("-------------------------------------------------------------------------------------\n\n");
 					}
 					else
 					{
@@ -5786,7 +5916,7 @@ void load_sound_config_data (const char *file)
 
 	xmlFree(doc);
 #ifdef DEBUG
-	print_sound_types();
+//	print_sound_types();
 #endif // DEBUG
 #endif // ELC
 }
@@ -5819,12 +5949,13 @@ void print_sound_types()
 	int i, j;
 	sound_type *pData = NULL;
 	map_sound_data *pMap = NULL;
+	map_sound_boundary_def *pMapBoundary = NULL;
 	effect_sound_data *pEffect = NULL;
 	particle_sound_data *pParticle = NULL;
 	
 	printf("\nSOUND TYPE DATA\n===============\n");
 	printf("There are %d sound types (max %d):\n", num_types, MAX_SOUNDS);
-	for(i = 0; i < num_types; ++i)
+	for (i = 0; i < num_types; ++i)
 	{
 		pData = &sound_type_data[i];
 		printf("Sound type '%s' #%d:\n"			, pData->name, i);
@@ -5846,30 +5977,36 @@ void print_sound_types()
 	
 	printf("\nMAP SOUND DATA\n===============\n");
 	printf("There are %d map sounds:\n"		, sound_num_maps);
-	for(i = 0; i < sound_num_maps; ++i)
+	for (i = 0; i < sound_num_maps; ++i)
 	{
 		pMap = &sound_map_data[i];
 		printf("Map id: %d\n"				, pMap->id);
 		printf("Map name: %s\n"				, pMap->name);
 		printf("Num boundaries: %d\n"		, pMap->num_boundaries);
-		printf("Boundaries:\n");
-		for(j = 0; j < pMap->num_boundaries; ++j)
+		for (j = 0; j < pMap->num_boundaries; ++j)
 		{
-			printf("\tBoundary num: %d\n"		, j);
-			printf("\tBackground sound: %d\n"	, pMap->boundaries[j].bg_sound);
-			printf("\tCrowd sound: %d\n"		, pMap->boundaries[j].crowd_sound);
-			printf("\tX1: %d, Y1: %d, X2: %d, Y2: %d, X3: %d, Y3: %d, X4: %d, Y4: %d\n",
-				pMap->boundaries[j].x1, pMap->boundaries[j].y1,
-				pMap->boundaries[j].x2, pMap->boundaries[j].y2,
-				pMap->boundaries[j].x3, pMap->boundaries[j].y3,
-				pMap->boundaries[j].x4, pMap->boundaries[j].y4);
+			pMapBoundary = &pMap->boundaries[j];
+			printf("Boundary num: %d\n"			, j);
+			printf("\tBackground sound: %d\n"	, pMapBoundary->bg_sound);
+			printf("\tCrowd sound: %d\n"		, pMapBoundary->crowd_sound);
+			printf("\tTime of day flags: 0x%x\n", pMapBoundary->time_of_day_flags);
+			printf("\tDefault: %s\n"			, pMapBoundary->is_default == 0 ? "No" : "Yes");
+			printf("\tX1, Y1, A1: (%d, %d, %f), X2, Y2, A2: (%d, %d, %f), X3, Y3, A3: (%d, %d, %f), X4, Y4, A4: (%d, %d, %f)\n",
+				pMapBoundary->p[0].x, pMapBoundary->p[0].y, pMapBoundary->p[0].a,
+				pMapBoundary->p[1].x, pMapBoundary->p[1].y, pMapBoundary->p[1].a,
+				pMapBoundary->p[2].x, pMapBoundary->p[2].y, pMapBoundary->p[2].a,
+				pMapBoundary->p[3].x, pMapBoundary->p[3].y, pMapBoundary->p[3].a);
+			printf("\tOuter box - X1, Y1, A1: (%d, %d, %f); X2, Y2, A1: (%d, %d, %f)\n",
+				pMapBoundary->o[0].x, pMapBoundary->o[0].y, pMapBoundary->o[0].a,
+				pMapBoundary->o[1].x, pMapBoundary->o[1].y, pMapBoundary->o[1].a);
+			printf("\tInternal point: %d\n"		, pMapBoundary->int_point);
 		}
 		printf("\n");
 	}
 	
 	printf("\nEFFECT SOUND DATA\n===============\n");
 	printf("There are %d effect sounds:\n", sound_num_effects);
-	for(i = 0; i < sound_num_effects; ++i)
+	for (i = 0; i < sound_num_effects; ++i)
 	{
 		pEffect = &sound_effect_data[i];
 		printf("Effect ID: %d\n"		, pEffect->id);
@@ -5878,7 +6015,7 @@ void print_sound_types()
 	
 	printf("\nPARTICLE SOUND DATA\n===============\n");
 	printf("There are %d particle sounds:\n", sound_num_particles);
-	for(i = 0; i < sound_num_particles; ++i)
+	for (i = 0; i < sound_num_particles; ++i)
 	{
 		pParticle = &sound_particle_data[i];
 		printf("Particle file: %s\n"	, pParticle->file);
@@ -5887,7 +6024,7 @@ void print_sound_types()
 	
 	printf("\nSERVER SOUNDS\n===============\n");
 	printf("There are 10 server sounds:\n");
-	for(i = 0; i <= 9; ++i)
+	for (i = 0; i <= 9; ++i)
 	{
 		printf("Server Sound: %d = %d\n", i, server_sound[i]);
 	}
@@ -5901,7 +6038,7 @@ void print_sound_samples()
 	printf("There are %d sound samples loaded (max %d):\n", num_samples, MAX_BUFFERS);
 	printf("(skipped sample numbers are buffers that have been used and released)\n");
 
-	for(i = 0; i < MAX_BUFFERS; ++i)
+	for (i = 0; i < MAX_BUFFERS; ++i)
 	{
 		pData = &sound_sample_data[i];
 		if (alIsBuffer(pData->buffer))
@@ -5924,7 +6061,7 @@ void print_sounds_list()
 	printf("\nLOADED SOUND DATA\n===============\n");
 	printf("There are %d loaded sounds (max %d):\n", num_sounds, MAX_BUFFERS * 2);
 
-	for(i = 0; i < num_sounds; ++i)
+	for (i = 0; i < num_sounds; ++i)
 	{
 		pData = &sounds_list[i];
 		printf("Loaded sound #%d:\n"			, i);

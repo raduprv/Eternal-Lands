@@ -11,9 +11,6 @@
 #include "interface.h"
 #include "items.h"
 #include "multiplayer.h"
-#ifdef NEW_SOUND
-#include "sound.h"
-#endif // NEW_SOUND
 #include "textures.h"
 #include "tiles.h"
 #include "translate.h"
@@ -23,6 +20,10 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#ifdef NEW_SOUND
+#include "actors.h"
+#include "sound.h"
+#endif // NEW_SOUND
 
 ground_item ground_item_list[ITEMS_PER_BAG];
 bag bag_list[NUM_BAGS];
@@ -76,7 +77,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	if (use_eye_candy) ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
 #endif	//EYE_CANDY
 #ifdef NEW_SOUND
-	if (sound_on)
+	if (sound_on && bag_x == your_actor->x_pos && bag_y == your_actor->y_pos)
 	{
 		snd = get_sound_index_for_particle_file_name("./particles/bag_in.part");
 		if (snd >= 0)
