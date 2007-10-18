@@ -154,6 +154,7 @@ char
 	window_size_adjusted_str[50],
 	/*hud.c*/
 	no_open_on_trade[100],
+	stats_scroll_help_str[100],
 	/*loginwin.c*/
 	login_username_str[20],
 	login_password_str[20],
@@ -1113,6 +1114,7 @@ void init_help()
 	add_xml_identifier(misc,"clear_urlwin",urlwin_clear_str,"Clear the URL list",sizeof(urlwin_clear_str));
 	add_xml_identifier(misc,"reset",reset_str,"Reset",sizeof(reset_str));
 	add_xml_identifier(misc,"channel_help",channel_help_str,"Click a Channel to join. You can be in up to 3 channels at a time.\n\nTo talk in a channel, type @ before your message. You do not have to type @ to talk in Local.",sizeof(channel_help_str));
+	add_xml_identifier(misc,"stats_scroll_help",stats_scroll_help_str,"Scroll Up/Down using CTRL+left/CTRL+right click or scrollwheel.",sizeof(stats_scroll_help_str));
 
 	//New characters
 	add_xml_identifier(new,"skin",skin_str,"Skin",sizeof(skin_str));

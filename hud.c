@@ -76,6 +76,7 @@ int	mouseover_icons_handler(window_info *win, int mx, int my);
 int	display_stats_bar_handler(window_info *win);
 int	display_misc_handler(window_info *win);
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags);
+int	mouseover_misc_handler(window_info *win, int mx, int my);
 int	display_quickbar_handler(window_info *win);
 int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags);
 int	mouseover_quickbar_handler(window_info *win, int mx, int my);
@@ -94,6 +95,7 @@ void flip_quickbar();
 void reset_quickbar();
 void change_flags(int win_id, Uint32 flags);
 Uint32 get_flags(int win_id);
+int get_quickbar_y_base();
 
 int hud_x= 64;
 int hud_y= 48;
@@ -111,6 +113,23 @@ int qb_action_mode=ACTION_USE;
 
 int show_stats_in_hud=0;
 int show_statbars_in_hud=0;
+
+/*	Array for skills info required by stats bar.  Stored in an array
+	to allow processing in a loop and avoiding duplicating the code.
+	Possible TBD: Really, the skills should be stored in an array
+	at source so more duplicate code can be removed and new skills
+	added more simply. */
+static struct stats_struct
+{
+	Uint32 *exp;
+	Uint32 *next_lev;
+	attrib_16 *skillattr;
+	names *skillnames;
+} statsinfo[NUM_WATCH_STAT-1];
+
+static int first_disp_stat = 0;					/* first skill that will be display */
+static int num_disp_stat = NUM_WATCH_STAT-1;	/* number of skills to be displayed */
+static int statbar_start_y = 0;					/* y coord in window of top if stats bar */
 
 // initialize anything related to the hud
 void init_hud_interface (hud_interface type)
@@ -983,16 +1002,122 @@ void init_misc_display()
 			misc_win= create_window("Misc", -1, 0, window_width-64, window_height-y_len, 64, y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
+			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
 		}
 	else
 		{
 			move_window(misc_win, -1, 0, window_width-64, window_height-y_len);
 		}
+		
+	/* store references to the skills info in an easy to use array */
+	statsinfo[0].exp = &your_info.attack_exp;
+	statsinfo[0].next_lev = &your_info.attack_exp_next_lev;
+	statsinfo[0].skillattr = &your_info.attack_skill;
+	statsinfo[0].skillnames = &attributes.attack_skill;
+
+	statsinfo[1].exp = &your_info.defense_exp;
+	statsinfo[1].next_lev = &your_info.defense_exp_next_lev;
+	statsinfo[1].skillattr = &your_info.defense_skill;
+	statsinfo[1].skillnames = &attributes.defense_skill;
+
+	statsinfo[2].exp = &your_info.harvesting_exp;
+	statsinfo[2].next_lev = &your_info.harvesting_exp_next_lev;
+	statsinfo[2].skillattr = &your_info.harvesting_skill;
+	statsinfo[2].skillnames = &attributes.harvesting_skill;
+
+	statsinfo[3].exp = &your_info.alchemy_exp;
+	statsinfo[3].next_lev = &your_info.alchemy_exp_next_lev;
+	statsinfo[3].skillattr = &your_info.alchemy_skill;
+	statsinfo[3].skillnames = &attributes.alchemy_skill;
+
+	statsinfo[4].exp = &your_info.magic_exp;
+	statsinfo[4].next_lev = &your_info.magic_exp_next_lev;
+	statsinfo[4].skillattr = &your_info.magic_skill;
+	statsinfo[4].skillnames = &attributes.magic_skill;
+
+	statsinfo[5].exp = &your_info.potion_exp;
+	statsinfo[5].next_lev = &your_info.potion_exp_next_lev;
+	statsinfo[5].skillattr = &your_info.potion_skill;
+	statsinfo[5].skillnames = &attributes.potion_skill;
+
+	statsinfo[6].exp = &your_info.summoning_exp;
+	statsinfo[6].next_lev = &your_info.summoning_exp_next_lev;
+	statsinfo[6].skillattr = &your_info.summoning_skill;
+	statsinfo[6].skillnames = &attributes.summoning_skill;
+
+	statsinfo[7].exp = &your_info.manufacturing_exp;
+	statsinfo[7].next_lev = &your_info.manufacturing_exp_next_lev;
+	statsinfo[7].skillattr = &your_info.manufacturing_skill;
+	statsinfo[7].skillnames = &attributes.manufacturing_skill;
+
+	statsinfo[8].exp = &your_info.crafting_exp;
+	statsinfo[8].next_lev = &your_info.crafting_exp_next_lev;
+	statsinfo[8].skillattr = &your_info.crafting_skill;
+	statsinfo[8].skillnames = &attributes.crafting_skill;
+
+	statsinfo[9].exp = &your_info.engineering_exp;
+	statsinfo[9].next_lev = &your_info.engineering_exp_next_lev;
+	statsinfo[9].skillattr = &your_info.engineering_skill;
+	statsinfo[9].skillnames = &attributes.engineering_skill;
+
+	statsinfo[10].exp = &your_info.tailoring_exp;
+	statsinfo[10].next_lev = &your_info.tailoring_exp_next_lev;
+	statsinfo[10].skillattr = &your_info.tailoring_skill;
+	statsinfo[10].skillnames = &attributes.tailoring_skill;
+
+	/* always make last as special case for skills modifiers - and best displayed last anyway */
+	statsinfo[11].exp = &your_info.overall_exp;
+	statsinfo[11].next_lev = &your_info.overall_exp_next_lev;
+	statsinfo[11].skillattr = &your_info.overall_skill;
+	statsinfo[11].skillnames = &attributes.overall_skill;
+	
 }
+
+/*	Calculate the start y coord for the statsbar.
+	Also calculates statbar_start_y, num_disp_stat and first_disp_stat
+*/
+int calc_statbar_start_y(int base_y_start, int win_y_len)
+{
+	int winoverlap = 0;
+	int quickspell_base = get_quickspell_y_base();
+	int quickbar_base = get_quickbar_y_base();
+	int max_quick_y = window_height;
+
+	/* get the longest of the active quickspells and the quickbar (if its in default place) */
+	if (quickspell_base > quickbar_base)
+		max_quick_y -= quickspell_base;
+	else
+		max_quick_y -= quickbar_base;
+
+	statbar_start_y = base_y_start - 15*(NUM_WATCH_STAT-1);
+	
+	/* calculate the overlap between the longest of the quickspell/bar and the statsbar */
+	winoverlap = (win_y_len - statbar_start_y) - max_quick_y;
+
+	/* if they overlap, only display some skills and allow to scroll */
+	if (winoverlap > 0)
+	{
+		num_disp_stat = (NUM_WATCH_STAT-1) - (winoverlap + 14)/15;
+		statbar_start_y = base_y_start - 15*num_disp_stat;
+		if ((first_disp_stat + num_disp_stat) > (NUM_WATCH_STAT-1))
+			first_disp_stat = (NUM_WATCH_STAT-1) - num_disp_stat;
+	}
+	/* else display them all */
+	else
+	{
+		first_disp_stat = 0;
+		num_disp_stat = (NUM_WATCH_STAT-1);
+	}
+	
+	/* return start y position in window */
+	return statbar_start_y;
+}
+
+
 
 int display_misc_handler(window_info *win)
 {
-	int skill_modifier;
+	int base_y_start = win->len_y - (view_analog_clock?128:64) - (view_digital_clock?DEFAULT_FONT_Y_LEN:0);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1047,273 +1172,60 @@ CHECK_GL_ERRORS();
 		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
 		x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string(x, (view_analog_clock?7:67)+(NUM_WATCH_STAT-1)*15, (unsigned char*)str, 1);
+		draw_string(x, 2 + base_y_start, (unsigned char*)str, 1);
 	}
-	if(show_stats_in_hud && video_mode > ((view_digital_clock>0&&view_analog_clock>0)?4:2) && have_stats)
+	
+	/*	Optionally display the stats bar.  If the current window size does not
+		provide enough room, display only some skills and allow scrolling to view
+		the rest */
+	if(show_stats_in_hud && have_stats)
 	{
 		char str[20];
-		//int y=0;
-		int y=(view_digital_clock>0?2:20)+(view_analog_clock>0?0:60);
-		int x=6;
-		int stat = 0;
-
-		glColor3f(1.0f,1.0f,1.0f);
-
-		if (show_statbars_in_hud)		//AWNAGE
-		{
-			int y_bar=y+1;
-			int x_bar=x-2;
-		
-			//ATTACK
-			draw_side_stats_bar(x_bar,y_bar,your_info.attack_skill.base,your_info.attack_exp, your_info.attack_exp_next_lev);
-			y_bar+=15;
-			//DEFENSE
-			draw_side_stats_bar(x_bar,y_bar,your_info.defense_skill.base,your_info.defense_exp, your_info.defense_exp_next_lev);
-			y_bar+=15;
-			//HARVEST
-			draw_side_stats_bar(x_bar,y_bar,your_info.harvesting_skill.base,your_info.harvesting_exp, your_info.harvesting_exp_next_lev);
-			y_bar+=15;
-			//ALCH
-			draw_side_stats_bar(x_bar,y_bar,your_info.alchemy_skill.base,your_info.alchemy_exp, your_info.alchemy_exp_next_lev);
-			y_bar+=15;
-			//MAGIC
-			draw_side_stats_bar(x_bar,y_bar,your_info.magic_skill.base,your_info.magic_exp, your_info.magic_exp_next_lev);
-			y_bar+=15;
-			//POTS
-			draw_side_stats_bar(x_bar,y_bar,your_info.potion_skill.base,your_info.potion_exp, your_info.potion_exp_next_lev);
-			y_bar+=15;
-			//SUMMONING
-			draw_side_stats_bar(x_bar,y_bar,your_info.summoning_skill.base,your_info.summoning_exp, your_info.summoning_exp_next_lev);
-			y_bar+=15;
-			//MANU
-			draw_side_stats_bar(x_bar,y_bar,your_info.manufacturing_skill.base,your_info.manufacturing_exp, your_info.manufacturing_exp_next_lev);
-			y_bar+=15;
-			//CRAFT
-			draw_side_stats_bar(x_bar,y_bar,your_info.crafting_skill.base,your_info.crafting_exp, your_info.crafting_exp_next_lev);
-			y_bar+=15;
-			//ENGINEERING
-			draw_side_stats_bar(x_bar,y_bar,your_info.engineering_skill.base,your_info.engineering_exp, your_info.engineering_exp_next_lev);
-			y_bar+=15;
-			//TAILORING
-			draw_side_stats_bar(x_bar,y_bar,your_info.tailoring_skill.base,your_info.tailoring_exp, your_info.tailoring_exp_next_lev);
-			y_bar+=15;
-			//OVERALL
-			draw_side_stats_bar(x_bar,y_bar,your_info.overall_skill.base,your_info.overall_exp, your_info.overall_exp_next_lev);
-			y_bar+=15;
-
-			stat=0;	//reset the stat counter
-		}
+		int x = 6;
+		int thestat;
+		int y = calc_statbar_start_y(base_y_start, win->len_y);
+		int skill_modifier;
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.attack_skill.shortname,your_info.attack_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.attack_skill.cur-your_info.attack_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
 		
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.defense_skill.shortname,your_info.defense_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.defense_skill.cur-your_info.defense_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+		for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
+		{
+			/* skill skills until we have the skill displayed first */
+			if (thestat < first_disp_stat)
+				continue;
+				
+			/* end now if we have display all we can */
+			if (thestat > (first_disp_stat+num_disp_stat-1))
+				break;
+		
+			if (show_statbars_in_hud)		//AWNAGE
+				draw_side_stats_bar( x-2, y+1, statsinfo[thestat].skillattr->base,
+					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev);
+		
+			if (thestat == watch_this_stat-1)
+				glColor3f(0.77f, 0.57f, 0.39f);
+			else
+				glColor3f(1.0f,1.0f,1.0f);
+			safe_snprintf(str,sizeof(str),"%-3s %3i",
+				statsinfo[thestat].skillnames->shortname,
+				statsinfo[thestat].skillattr->base );
+			draw_string_small(x, y, (unsigned char*)str, 1);
+			
+			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
+				(skill_modifier = statsinfo[thestat].skillattr->cur -
+				 	statsinfo[thestat].skillattr->base) != 0){
+				if(skill_modifier > 0){
+					glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
+				} else {
+					glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
+				}
+				safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
+				draw_string_small(x-33, y, (unsigned char*)str, 1);
 			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.harvesting_skill.shortname,your_info.harvesting_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.harvesting_skill.cur-your_info.harvesting_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.alchemy_skill.shortname,your_info.alchemy_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.alchemy_skill.cur-your_info.alchemy_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.magic_skill.shortname,your_info.magic_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.magic_skill.cur-your_info.magic_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.potion_skill.shortname,your_info.potion_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.potion_skill.cur-your_info.potion_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.summoning_skill.shortname,your_info.summoning_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.summoning_skill.cur-your_info.summoning_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.manufacturing_skill.shortname,your_info.manufacturing_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.manufacturing_skill.cur-your_info.manufacturing_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.crafting_skill.shortname,your_info.crafting_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.crafting_skill.cur-your_info.crafting_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.engineering_skill.shortname,your_info.engineering_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.engineering_skill.cur-your_info.engineering_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.tailoring_skill.shortname,your_info.tailoring_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-		if(floatingmessages_enabled && (skill_modifier = your_info.tailoring_skill.cur-your_info.tailoring_skill.base) != 0){
-			if(skill_modifier > 0){
-				glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-			} else {
-				glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-			}
-			safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-			draw_string_small(x-33, y, (unsigned char*)str, 1);
-		}
-		y+=15;
-
-		if (++stat == watch_this_stat)
-			glColor3f(0.77f, 0.57f, 0.39f);
-		else
-			glColor3f(1.0f,1.0f,1.0f);
-		safe_snprintf(str,sizeof(str),"%-3s %3i",attributes.overall_skill.shortname,your_info.overall_skill.base);
-		draw_string_small(x, y, (unsigned char*)str, 1);
-	} else if(show_stats_in_hud && have_stats){
-		int y=(view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)+(video_mode>2?30:64);
-		glColor3f(1.0f, 0.9f, 0.9f);
-		draw_string_small(6, y+=15, (unsigned char*)"Stats", 1);
-		draw_string_small(6, y+=15, (unsigned char*)"not", 1);
-		draw_string_small(6, y+=15, (unsigned char*)"shown.", 1);
-		draw_string_small(6, y+=15, (unsigned char*)"Change", 1);
-		draw_string_small(6, y+=15, (unsigned char*)"screen", 1);
-		if(video_mode<=2){
-			draw_string_small(6, y+=15, (unsigned char*)"size.", 1);
-		} else {
-			draw_string_small(6, y+=15, (unsigned char*)"size or", 1);
-			draw_string_small(6, y+=15, (unsigned char*)"disable", 1);
-			draw_string_small(6, y+=15, (unsigned char*)"a clock.", 1);
+			
+			y+=15;
 		}
 	}
 #ifdef OPENGL_TRACE
@@ -1325,9 +1237,32 @@ CHECK_GL_ERRORS();
 int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 {
 	int clockheight = 0;
+	int in_stats_bar = 0;
+
+	// handle scrolling the stats bars if not all displayed
+	if (show_stats_in_hud && (my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
+	{
+		in_stats_bar = 1;
+
+		if ((first_disp_stat > 0) && ((flags & ELW_WHEEL_UP) ||
+			((flags & ELW_LEFT_MOUSE) && (flags & ELW_CTRL))))
+		{
+			first_disp_stat--;
+			return 1;
+		}
+		else if ((first_disp_stat + num_disp_stat < NUM_WATCH_STAT-1) &&
+				 ((flags & ELW_WHEEL_DOWN) || ((flags & ELW_RIGHT_MOUSE) && (flags & ELW_CTRL))))
+		{
+			first_disp_stat++;
+			return 1;
+		}
+	}
 
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
+	
+	// reserve CTRL clicks for scrolling
+	if (flags & ELW_CTRL) return 0;
 
 	//check to see if we clicked on the clock
 	if(view_digital_clock>0){
@@ -1362,9 +1297,9 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	}
 	//check to see if we clicked on the stats
-	if (show_stats_in_hud && video_mode > ((view_digital_clock>0&&view_analog_clock>0)?4:2) && my - ((view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)) >= 0 && my - ((view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)) < (NUM_WATCH_STAT-1)*15)
+	if (in_stats_bar)
 	{
-		watch_this_stat = ((my - ((view_digital_clock>0?2:20)+(view_analog_clock>0?0:60)) ) / 15) + 1;
+		watch_this_stat = first_disp_stat + ((my - statbar_start_y ) / 15) + 1;
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
@@ -1374,22 +1309,48 @@ int	click_misc_handler(window_info *win, int mx, int my, Uint32 flags)
 	return 0;
 }
 
-int quickbar_x_len= 30;
-int quickbar_y_len= 6*30;
-int quickbar_x=32;
-int quickbar_y=64;
+int mouseover_misc_handler(window_info *win, int mx, int my)
+{
+	/* Optionally display scrolling help if statsbar is active and restricted in size */
+	if (show_help_text && show_stats_in_hud && (num_disp_stat < NUM_WATCH_STAT-1) &&
+		(my - statbar_start_y >= 0) && (my - statbar_start_y < num_disp_stat*15))
+		show_help(stats_scroll_help_str, -10-strlen(stats_scroll_help_str)*SMALL_FONT_X_LEN, win->len_y-70);
+	return 0;
+}
+
+/* #define as these numbers are used many times */
+#define DEF_QUICKBAR_X_LEN 30
+#define DEF_QUICKBAR_Y_LEN (6*30+1)
+#define DEF_QUICKBAR_X (DEF_QUICKBAR_X_LEN+4)
+#define DEF_QUICKBAR_Y 64
+
+int quickbar_x_len = DEF_QUICKBAR_X_LEN;
+int quickbar_y_len = DEF_QUICKBAR_Y_LEN;
+int quickbar_x = DEF_QUICKBAR_X;
+int quickbar_y = DEF_QUICKBAR_Y;
 int quickbar_draggable=0;
 int quickbar_dir=VERTICAL;
 int quickbar_relocatable=0;
 
+/* get the base y coord of the quick bar if its in 
+   it's default place, otherwise return where the top would be */
+int get_quickbar_y_base()
+{
+	if ((quickbar_draggable) || (quickbar_dir!=VERTICAL) ||
+		(quickbar_x_len != DEF_QUICKBAR_X_LEN) || (quickbar_y_len != DEF_QUICKBAR_Y_LEN) ||
+		(quickbar_x != DEF_QUICKBAR_X) || (quickbar_y != DEF_QUICKBAR_Y))
+		return DEF_QUICKBAR_Y;
+	else
+		return DEF_QUICKBAR_Y + DEF_QUICKBAR_Y_LEN;
+}
 
 //quickbar section
 void init_quickbar ()
 {
 	Uint32 flags = ELW_USE_BACKGROUND | ELW_USE_BORDER;
 	
-	quickbar_x_len = 30;
-	quickbar_y_len = 6 * 30 + 1;
+	quickbar_x_len = DEF_QUICKBAR_X_LEN;
+	quickbar_y_len = DEF_QUICKBAR_Y_LEN;
 	
 	if (!quickbar_relocatable)
 	{
@@ -1812,14 +1773,15 @@ void flip_quickbar()
 		}
 }
 
+
 /*Return the quickbar to it's Built-in position*/
 void reset_quickbar() 
 {
 	//Necessary Variables
-	quickbar_x_len= 30;
-	quickbar_y_len= 6*30+1;
-	quickbar_x= quickbar_x_len+4;
-	quickbar_y= 64;
+	quickbar_x_len= DEF_QUICKBAR_X_LEN;
+	quickbar_y_len= DEF_QUICKBAR_Y_LEN;
+	quickbar_x= DEF_QUICKBAR_X;
+	quickbar_y= DEF_QUICKBAR_Y;
 	//Re-set to default orientation
 	quickbar_dir=VERTICAL;
 	quickbar_draggable=0;
@@ -1861,81 +1823,16 @@ void draw_exp_display()
 	int delta_exp;
 	unsigned char * name;
 	float prev_exp;
-
-	switch(watch_this_stat){
-	case 1: // attack
-		cur_exp = your_info.attack_exp;
-		nl_exp = your_info.attack_exp_next_lev;
-		baselev = your_info.attack_skill.base;
-		name = attributes.attack_skill.name;
-		break;
-	case 2: // defense
-		cur_exp = your_info.defense_exp;
-		nl_exp = your_info.defense_exp_next_lev;
-		baselev = your_info.defense_skill.base;
-		name = attributes.defense_skill.name;
-		break;
-	case 3: // harvest
-		cur_exp = your_info.harvesting_exp;
-		nl_exp = your_info.harvesting_exp_next_lev;
-		baselev = your_info.harvesting_skill.base;
-		name = attributes.harvesting_skill.name;
-		break;
-	case 4: // alchemy
-		cur_exp = your_info.alchemy_exp;
-		nl_exp = your_info.alchemy_exp_next_lev;
-		baselev = your_info.alchemy_skill.base;
-		name = attributes.alchemy_skill.name;
-		break;
-	case 5: // magic
-		cur_exp = your_info.magic_exp;
-		nl_exp = your_info.magic_exp_next_lev;
-		baselev = your_info.magic_skill.base;
-		name = attributes.magic_skill.name;
-		break;
-	case 6: // potion
-		cur_exp = your_info.potion_exp;
-		nl_exp = your_info.potion_exp_next_lev;
-		baselev = your_info.potion_skill.base;
-		name = attributes.potion_skill.name;
-		break;
-	case 7: // summoning
-		cur_exp = your_info.summoning_exp;
-		nl_exp = your_info.summoning_exp_next_lev;
-		baselev = your_info.summoning_skill.base;
-		name = attributes.summoning_skill.name;
-		break;
-	case 8: // manufacture
-		cur_exp = your_info.manufacturing_exp;
-		nl_exp = your_info.manufacturing_exp_next_lev;
-		baselev = your_info.manufacturing_skill.base;
-		name = attributes.manufacturing_skill.name;
-		break;
-	case 9: // crafting
-		cur_exp = your_info.crafting_exp;
-		nl_exp = your_info.crafting_exp_next_lev;
-		baselev = your_info.crafting_skill.base;
-		name = attributes.crafting_skill.name;
-		break;
-	case 10: // engineering
-		cur_exp = your_info.engineering_exp;
-		nl_exp = your_info.engineering_exp_next_lev;
-		baselev = your_info.engineering_skill.base;
-		name = attributes.engineering_skill.name;
-		break;
-	case 11: // tailoring
-		cur_exp = your_info.tailoring_exp;
-		nl_exp = your_info.tailoring_exp_next_lev;
-		baselev = your_info.tailoring_skill.base;
-		name = attributes.tailoring_skill.name;
-		break;
-	case 12: // overall
-	default:
-		cur_exp = your_info.overall_exp;
-		nl_exp = your_info.overall_exp_next_lev;
-		baselev = your_info.overall_skill.base;
-		name = attributes.overall_skill.name;
-	}
+	int towatch = watch_this_stat-1;
+	
+	/* default to overall if not a valid skill */
+	if ((towatch < 0) || (towatch > (NUM_WATCH_STAT-2)))
+		towatch = NUM_WATCH_STAT-2;
+	
+	cur_exp = *statsinfo[towatch].exp;
+	nl_exp = *statsinfo[towatch].next_lev;
+	baselev = statsinfo[towatch].skillattr->base;
+	name = statsinfo[towatch].skillnames->name;
 
 	if(!baselev)
 		prev_exp= 0;

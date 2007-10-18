@@ -855,6 +855,9 @@ void save_quickspells()
 	}
 #endif /* NEW_FILE_IO */
 
+	/* initialise buffer so we don't write uninitalised data to buffer */
+	memset(data, 0, sizeof(data));
+
 	for (i = 1; i < 7; i++)
 	{
 		if (mqb_data[i] == NULL)
@@ -871,6 +874,29 @@ void save_quickspells()
 // Quickspell window start
 
 int quickspell_over=-1;
+
+
+/*	returns the y coord position of the active base 
+	of the quickspell window.  If spell slots are unused
+	the base is higher */
+int get_quickspell_y_base()
+{
+	int active_len = quickspell_y + quickspell_y_len;
+	int i;
+	
+	if (!quickspells_loaded)
+		return quickspell_y;
+		
+	for (i = 6; i > 0; i--)
+	{
+		if (mqb_data[i] == NULL)
+			active_len -= 30;
+		else
+			break;
+	}
+	return active_len;
+}
+
 
 int display_quickspell_handler(window_info *win)
 {
@@ -977,7 +1003,7 @@ int click_quickspell_handler(window_info *win, int mx, int my, Uint32 flags)
 void init_quickspell()
 {
 	if (quickspell_win < 0){
-		quickspell_win = create_window ("Quickspell", -1, 0, window_width - quickspell_x, quickspell_y, quickspell_x_len, quickspell_y_len, ELW_TITLE_NONE|ELW_SHOW_LAST);
+		quickspell_win = create_window ("Quickspell", -1, 0, window_width - quickspell_x, quickspell_y, quickspell_x_len, quickspell_y_len, ELW_CLICK_TRANSPARENT|ELW_TITLE_NONE|ELW_SHOW_LAST);
 		set_window_handler(quickspell_win, ELW_HANDLER_DISPLAY, &display_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_CLICK, &click_quickspell_handler);
 		set_window_handler(quickspell_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickspell_handler );

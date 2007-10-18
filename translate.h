@@ -285,6 +285,7 @@ extern char
 		window_size_adjusted_str[50],
 		/*hud.c*/
 		no_open_on_trade[100], 
+		stats_scroll_help_str[100],
 		/*ignore.c*/
 		no_ignores_str[50],
 		ignores_str[50],
