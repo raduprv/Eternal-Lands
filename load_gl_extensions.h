@@ -16,6 +16,10 @@ extern "C"
 
 #endif /* GL_ATI_texture_compression_3dc */
 
+#ifndef GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT
+#define GL_COMPRESSED_LUMINANCE_ALPHA_LATC2_EXT 0x8C72
+#endif
+
 typedef enum {
 	arb_multitexture = 0,
 	arb_texture_compression = 1,
