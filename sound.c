@@ -411,7 +411,7 @@ source_data *insert_sound_source_at_index(unsigned int index);
 int stop_sound_source_at_index(int index);
 void set_sound_gain(source_data * pSource, int loaded_sound_num, float initial_gain);
 /* Sample functions */
-int ensure_sample_loaded(char * filename);
+int ensure_sample_loaded(char * in_filename);
 int load_samples(sound_type * pType);
 void unload_sample(int sample_num);
 /* Individual sound functions */
@@ -1837,7 +1837,7 @@ void change_sounds(int * var, int value)
  ************************/
 
 #ifdef	OGG_VORBIS
-int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
+int load_ogg_file(char * file_name, OggVorbis_File *oggFile)
 {
 	FILE *file;
 	int result = 0;
@@ -1864,15 +1864,28 @@ int load_ogg_file(char *file_name, OggVorbis_File *oggFile)
 	return 1;
 }
 
-int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers)
+#ifdef NEW_FILE_IO
+int stream_ogg_file(char * in_filename, stream_data * stream, int numBuffers)
+#else // NEW_FILE_IO
+int stream_ogg_file(char * filename, stream_data * stream, int numBuffers)
+#endif // NEW_FILE_IO
 {
 	int result, more_stream = 0, i;
+#ifdef NEW_FILE_IO
+	char filename[200];
+#endif // NEW_FILE_IO
 	
 	stop_stream(stream);
 	ov_clear(&stream->stream);
-	result = load_ogg_file(file_name, &stream->stream);
+	
+#ifdef NEW_FILE_IO
+	// Add the datadir to the input filename and try to open it
+	strcpy(filename, datadir);
+	strcat(filename, in_filename);
+#endif // NEW_FILE_IO
+	result = load_ogg_file(filename, &stream->stream);
 	if (!result) {
-		LOG_ERROR("Error loading ogg file: %s\n", file_name);
+		LOG_ERROR("Error loading ogg file: %s\n", filename);
 		return -1;
 	}
 
@@ -1882,7 +1895,7 @@ int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers)
 		more_stream = stream_ogg(stream->buffers[i], &stream->stream, stream->info);
 		if (!more_stream)
 		{
-			LOG_ERROR("Error playing ogg file: %s\n", file_name);
+			LOG_ERROR("Error playing ogg file: %s\n", filename);
 			return more_stream;		// There was an error, probably too little data to fill the buffers
 		}
 	}
@@ -3070,23 +3083,24 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
  * if it still hasn't found a spot, traverses the buffer and source arrays looking for a
  * buffer that isn't currently being played by a source!
  */
-int ensure_sample_loaded(char * filename)
+int ensure_sample_loaded(char * in_filename)
 {
 	int i, j, k, sample_num, error;
 	ALvoid *data;
 	ALuint *pBuffer;
 	sound_sample *pSample;
+	char filename[200];				// This is for the full path to the file
 
 	// Check if this sample is already loaded and if so, return the sample ID
 	for (i = 0; i < num_types; i++)
 	{
 		for (j = 0; j < num_STAGES; j++)
 		{
-			if (!strcasecmp(sound_type_data[i].part[j].file_path, filename)
+			if (!strcasecmp(sound_type_data[i].part[j].file_path, in_filename)
 				&& sound_type_data[i].part[j].sample_num > -1)
 			{
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Found this sample already loaded: %s, sound %d, part %d\n", filename, i, j);
+				printf("Found this sample already loaded: %s, sound %d, part %d\n", in_filename, i, j);
 #endif //_EXTRA_SOUND_DEBUG
 				return sound_type_data[i].part[j].sample_num;
 			}
@@ -3142,19 +3156,22 @@ int ensure_sample_loaded(char * filename)
 		{
 			// We didn't find an available sample slot so error and bail
 #ifdef _EXTRA_SOUND_DEBUG
-			LOG_ERROR("Error: Too many samples loaded. Unable to load sample: %s, num samples: %d\n", filename, num_samples);
+			LOG_ERROR("Error: Too many samples loaded. Unable to load sample: %s, num samples: %d\n", in_filename, num_samples);
 #endif //_EXTRA_SOUND_DEBUG
 			return -1;
 		}
 	}
 	
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Got sample num: %d, Attemping to load sound: File: %s\n", sample_num, filename);
+	LOG_ERROR("Got sample num: %d, Attemping to load sound: File: %s\n", sample_num, in_filename);
 #endif //_EXTRA_SOUND_DEBUG
 
 	num_samples++;
 	pSample = &sound_sample_data[sample_num];
 
+	// Add the data dir to the front of the input filename
+	strcpy(filename, datadir);
+	strcat(filename, in_filename);
 #ifdef OGG_VORBIS
 	// Do a crude check of the extension to choose which loader
 	if (!strcasecmp(filename+(strlen(filename) - 4), ".ogg"))
@@ -3178,10 +3195,10 @@ int ensure_sample_loaded(char * filename)
 		if (!data)
 		{
 			// Couldn't load the file
-#if defined alutGetErrorString && alutGetError	// (Sometimes not on Mac?)
-			LOG_ERROR("%s - %s: %s", snd_buff_error, alutGetErrorString(alutGetError()), filename);
+#if defined alutGetErrorString && defined alutGetError	// (Sometimes not on Mac/Windows?)
+			LOG_ERROR("%s - %s: %s", "Ensure sample loaded", alutGetErrorString(alutGetError()), filename);
 #else
-			LOG_ERROR("%s - %s: %s", snd_buff_error, "Error opening WAV file", filename);
+			LOG_ERROR("%s - %s: %s", "Ensure sample loaded", "Error opening WAV file", filename);
 #endif
 			// Release this sample num
 			num_samples--;
@@ -4870,6 +4887,7 @@ void parse_sound_object(xmlNode *inNode)
 	xmlNode *attributeNode=NULL;
 
 	char content[50];
+	char filename[200];
 	int iVal=0;
 	float fVal=0.0f;
 	char *sVal = NULL;
@@ -4903,7 +4921,9 @@ void parse_sound_object(xmlNode *inNode)
 				{
 					if (!strcasecmp(pData->part[STAGE_INTRO].file_path, ""))
 					{
-						if (file_exists(content))
+						strcpy(filename, datadir);
+						strcat(filename, content);
+						if (file_exists(filename))
 						{
 							safe_strncpy(pData->part[STAGE_INTRO].file_path, (char *)content, sizeof(pData->part[STAGE_INTRO].file_path));
 						}
@@ -4921,7 +4941,9 @@ void parse_sound_object(xmlNode *inNode)
 				{
 					if (!strcasecmp(pData->part[STAGE_MAIN].file_path, ""))
 					{
-						if (file_exists(content))
+						strcpy(filename, datadir);
+						strcat(filename, content);
+						if (file_exists(filename))
 						{
 							safe_strncpy(pData->part[STAGE_MAIN].file_path, (char *)content, sizeof(pData->part[STAGE_MAIN].file_path));
 						}
@@ -4942,7 +4964,9 @@ void parse_sound_object(xmlNode *inNode)
 				{
 					if (!strcasecmp(pData->part[STAGE_OUTRO].file_path, ""))
 					{
-						if (file_exists(content))
+						strcpy(filename, datadir);
+						strcat(filename, content);
+						if (file_exists(filename))
 						{
 							safe_strncpy(pData->part[STAGE_OUTRO].file_path, (char *)content, sizeof(pData->part[STAGE_OUTRO].file_path));
 						}
@@ -5378,26 +5402,7 @@ void parse_map_sound(xmlNode *inNode)
 							// This one is invalid so remove it (we have already errored)
 							clear_boundary_data(pMapBoundary);
 							pMap->num_boundaries--;
-							printf("ERROR!!!!!!!!!\n");
 						}
-						else
-						{
-							printf("Boundary num: %d\n"			, pMap->num_boundaries);
-							printf("\tBackground sound: %d\n"	, pMapBoundary->bg_sound);
-							printf("\tCrowd sound: %d\n"		, pMapBoundary->crowd_sound);
-							printf("\tTime of day flags: 0x%x\n", pMapBoundary->time_of_day_flags);
-							printf("\tDefault: %s\n"			, pMapBoundary->is_default == 0 ? "No" : "Yes");
-							printf("\tX1, Y1, A1: (%d, %d, %f), X2, Y2, A2: (%d, %d, %f), X3, Y3, A3: (%d, %d, %f), X4, Y4, A4: (%d, %d, %f)\n",
-								pMapBoundary->p[0].x, pMapBoundary->p[0].y, pMapBoundary->p[0].a * 180 / 3.141592,
-								pMapBoundary->p[1].x, pMapBoundary->p[1].y, pMapBoundary->p[1].a * 180 / 3.141592,
-								pMapBoundary->p[2].x, pMapBoundary->p[2].y, pMapBoundary->p[2].a * 180 / 3.141592,
-								pMapBoundary->p[3].x, pMapBoundary->p[3].y, pMapBoundary->p[3].a * 180 / 3.141592);
-							printf("\tOuter box - X1, Y1, A1: (%d, %d, %f); X2, Y2, A1: (%d, %d, %f)\n",
-								pMapBoundary->o[0].x, pMapBoundary->o[0].y, pMapBoundary->o[0].a,
-								pMapBoundary->o[1].x, pMapBoundary->o[1].y, pMapBoundary->o[1].a);
-							printf("\tInternal point: %d\n"		, pMapBoundary->int_point);
-						}
-						printf("-------------------------------------------------------------------------------------\n\n");
 					}
 					else
 					{
