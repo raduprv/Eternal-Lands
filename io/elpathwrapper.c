@@ -6,6 +6,7 @@
 #include "../errors.h"
 #include "../init.h"
 #include "../md5.h"
+#include "../misc.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -21,6 +22,7 @@
 #include <windows.h>
 #include <direct.h>
 #include <shlobj.h>
+#include <ctype.h>
 #define MKDIR(file) mkdir(file)
 #else // !WINDOWS
 #include <unistd.h>
@@ -328,21 +330,32 @@ int mkdir_tree (const char *path, int relative_only)
 		// failed to parse the path
 		return 0;
 
-	if (dir_exists (dir))
+	if (dir_exists (dir) || file_exists(dir))
+	{
 		// directory is there, don't bother
 		return 1;
+	}
 
 	slash = dir;
+#ifdef WINDOWS
+	if (isalpha(*slash) && slash[1] == ':' && (slash[2] == '\\' || slash[2] == '/'))
+	{
+		// let's assume the drive exists...
+		// FIXME: This could include a check for the drive if someone wanted to add it
+		slash += 3;
+	}
+#else // !WINDOWS
 	if (*slash == '/')
 		// let's assume the root directory exists...
 		slash++;
+#endif // WINDOWS
 	
 	while (slash)
 	{
 		// watch for hidden ..
 		if (*slash == '.' && slash[1] == '.')
 		{
-			log_error ("Cannot create directory (Invalid character): %s", dir);
+			log_error ("Cannot create directory (Invalid character): %s, %s", dir, path);
 			return 0;
 		}
 
@@ -357,7 +370,7 @@ int mkdir_tree (const char *path, int relative_only)
 		{
 			if (MKDIR (dir) != 0)
 			{
-				log_error("Cannot create directory (mkdir() failed): %s", dir);
+				log_error("Cannot create directory (mkdir() failed): %s, %s", dir, path);
 				return 0;
 			}
 		}
@@ -504,10 +517,20 @@ int file_update_check(const char * filename, const unsigned char * md5){
 
 void file_check_datadir(void){
 	struct stat fstat;
-	if(stat(datadir, &fstat) != 0){
+#ifdef WINDOWS
+	if (datadir[strlen(datadir)-1] == '/')		// stat() fails with a trailing slash under Windows. :-S
+		datadir[strlen(datadir)-1] = '\0';
+#endif // WINDOWS
+	if (stat(datadir, &fstat) != 0){
 		log_error("Warning: Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\"\n", datadir);
 		strcpy(datadir, "./");
 	}
+#ifdef WINDOWS
+	else
+	{
+		datadir[strlen(datadir)] = '/';			// Replace the trailing slash
+	}
+#endif // WINDOWS
 }
 
 #endif //NEW_FILE_IO
