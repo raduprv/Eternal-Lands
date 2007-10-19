@@ -901,11 +901,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			case	SPECIAL_EFFECT_POISONED_CALTROP_GOES_BOOM:
 				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
 				break;
-			case	SPECIAL_EFFECT_BARRICADE_GOES_BOOM:
-				// It would be really cool for this to trigger the e3d object to rise out of the ground
-				// instead of using EC (if it actually is an object)... probably with pawn?
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_BARRICADE, (poor_man ? 6 : 10));
-				break;
 			case	SPECIAL_EFFECT_MANA_DRAINER_GOES_BOOM:
 				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
 				break;
