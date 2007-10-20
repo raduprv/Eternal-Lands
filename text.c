@@ -360,21 +360,25 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 
 		while(!isdigit(ptr[offset]))
 		{
-		  offset++;
-		  if (offset >= sizeof(new_str))
-		  {
-			LOG_ERROR("error (1) parsing date string: %s",text_to_add);
-			//something evil this way comes...
-			return 0;
-		  }
+			offset++;
+			if (offset >= sizeof(new_str))
+			{
+				LOG_ERROR("error (1) parsing date string: %s",text_to_add);
+				//something evil this way comes...
+				return 0;
+			}
 		}
 		ptr += offset;
 
-		if( ( sscanf(ptr,"%hu%*[-/]%hu%*[-/]%hu",&day,&month,&year) < 3 )
-				|| ( day > 30 || month > 12 || year > 9999 ) ){
+		if (sscanf (ptr,"%hu%*[-/]%hu%*[-/]%hu",&day,&month,&year) < 3
+		    || day <= 0 || month <= 0 
+		    || day > 30 || month > 12 || year > 9999)
+		{
 			LOG_ERROR("error (2) parsing date string: %s",text_to_add);
 			//something evil this way comes...
-		}else{
+		}
+		else
+		{
 			safe_snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
 			LOG_TO_CONSOLE(c_green1, new_str);
 #ifdef SKY_FPV_CURSOR
