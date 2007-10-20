@@ -79,7 +79,7 @@ typedef struct {
 #ifdef NEW_SOUND
 #define ABS_MAX_SOURCES 64				// Define an absolute maximum for the sources (the size of the array)
 
-#define MAX_SOUNDS 100
+#define MAX_SOUNDS 200
 
 #ifdef OGG_VORBIS
 #define MAX_STREAMS 7					// 1 music stream and up to 3 each for bg and crowds
@@ -148,14 +148,15 @@ typedef struct
 
 typedef struct
 {
-	int sound;
+	int sound;							// The ID of the sound type
 	int x;
 	int y;
-	int playing;
-	float base_gain;
-	float cur_gain;
-	int loaded;
+	int loaded;							// Has this sound been loaded into a buffer
+	int playing;						// Is this sound loaded into a source and currently playing
+	float base_gain;					// The initial gain (before adjustments for weather and sound type volume etc)
+	float cur_gain;						// The last actual gain. If the calculated new gain is different then do an alSourcef command
 	unsigned int cookie;
+	int lifetime;						// The length of time in ms the sound has existed
 } sound_loaded;
 
 typedef struct
@@ -423,6 +424,8 @@ void unload_sound(int index);
 int find_sound_from_cookie(unsigned int cookie);
 int time_of_day_valid(int flags);
 int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds);
+int test_bounds_angles(int x, int y, int point, map_sound_boundary_def * bounds);
+double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * bounds);
 /* Init functions */
 void clear_sound_data();
 #endif	// !NEW_SOUND
@@ -2167,9 +2170,6 @@ void destroy_stream(stream_data * stream)
 {
 	int error, i;
 
-	if (!inited)
-	   return;
-
 #ifdef _EXTRA_SOUND_DEBUG
 //	printf("Destroying stream: Type: %s, sound: %d, cookie: %d, source: %d\n", get_stream_type(stream->type), stream->sound, stream->cookie, stream->source);
 #endif // _EXTRA_SOUND_DEBUG
@@ -2185,7 +2185,6 @@ void destroy_stream(stream_data * stream)
 		music_stream = NULL;
 	}
 	
-	stream->type = STREAM_TYPE_NONE;
 	if (stream->cookie != 0)
 	{
 		// Find which of our playing sources matches the handle for this stream
@@ -2206,6 +2205,7 @@ void destroy_stream(stream_data * stream)
 			alDeleteBuffers(1, stream->buffers+i);
 	}
 	ov_clear(&stream->stream);
+	stream->type = STREAM_TYPE_NONE;
 
 	// Reset the error buffer
 	if ((error = alGetError()) != AL_NO_ERROR)
@@ -2664,7 +2664,7 @@ int update_streams(void * dummy)
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Starting streams thread\n");
 #endif //_EXTRA_SOUND_DEBUG
-	while (!exit_now && ((have_music && music_on) || (have_sound && sound_opts >= SOUNDS_ENVIRO)))
+	while (!exit_now && ((have_music && music_on) || (have_sound && sound_opts > SOUNDS_NONE)))
 	{
 		SDL_Delay(sleep);
 		
@@ -2718,13 +2718,23 @@ int update_streams(void * dummy)
 									* sqrt(sqrt(no_near_enhanced_actors)) / sqrt(distanceSq_to_near_enhanced_actors) * 2;
 							break;
 					}
+#ifdef _EXTRA_SOUND_DEBUG
+					printf("Playing %s stream: %d, Sound: %d\n", get_stream_type(streams[i].type), i, streams[i].sound);
+#endif //_EXTRA_SOUND_DEBUG
 					if (check_stream(&streams[i], day_time, tx, ty))
 						process_stream(&streams[i], gain, &sleep);
 				}
 			}
 		}
 	}
-	
+	// We are bailing to destroy any remaining streams
+	for (i = 0; i < max_streams; i++)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Stopping %s stream: %d\n", get_stream_type(streams[i].type), i);
+#endif //_EXTRA_SOUND_DEBUG
+		destroy_stream(&streams[i]);
+	}
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Exiting streams thread. have_music: %d, music_on: %d, have_sound: %d, sound_opts: %d, exit_now: %d\n", have_music, music_on, have_sound, sound_opts, exit_now);
 #endif //_EXTRA_SOUND_DEBUG
@@ -3495,7 +3505,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	sounds_list[sound_num].cookie = cookie;
 	
 	// Check if we should try to load the samples (sound is enabled)
-	if (have_sound && sound_opts != SOUNDS_NONE)
+	if (inited && have_sound && sound_opts != SOUNDS_NONE)
 	{
 		// Load all samples used by this type
 		if (!load_samples(pNewType))
@@ -3532,7 +3542,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	{
 		// Sound isn't enabled so bail now. When sound is enabled, these sounds (if applicable) will be
 		// loaded and played then
-		printf("Not playing this sound as sound isn't enabled yet. Have sound: %d, Sound opts: %d, Cookie: %d\n", have_sound, sound_opts, cookie);
+		printf("Not playing this sound as sound isn't enabled yet. Inited: %d, Have sound: %d, Sound opts: %d, Cookie: %d\n", inited, have_sound, sound_opts, cookie);
 	}
 #endif //_EXTRA_SOUND_DEBUG
 	
@@ -3551,14 +3561,14 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	source_data * pSource;
 	sound_type * pNewType = &sound_type_data[sounds_list[sound_num].sound];
 	
-#ifdef _EXTRA_SOUND_DEBUG
-	printf("Playing this sound: %d, Sound num: %d, Cookie: %d\n", sounds_list[sound_num].sound, sound_num, sounds_list[sound_num].cookie);
-#endif //_EXTRA_SOUND_DEBUG
-
 	// Check if we have a sound device and its worth continuing
 	if (!inited)
 		return 0;
 	
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Playing this sound: %d, Sound num: %d, Cookie: %d\n", sounds_list[sound_num].sound, sound_num, sounds_list[sound_num].cookie);
+#endif //_EXTRA_SOUND_DEBUG
+
 	// Check if we need to load the samples into buffers
 	if (!sounds_list[sound_num].loaded)
 	{
@@ -3696,7 +3706,7 @@ void stop_sound(unsigned long int cookie)
 	int n, m;
 
 	// Cookie of 0 is an invalid sound handle
-	if (!have_sound || !cookie)
+	if (!cookie)
 		return;
 
 	// Find which sound matches this cookie
@@ -3731,10 +3741,6 @@ void stop_sound_at_location(int x, int y)
 {
 	int i = 0;
 
-	// If sound isn't enabled there isn't anything to do
-	if (!have_sound || sound_opts == SOUNDS_NONE)
-		return;
-
 	// Search for a sound at the given location
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
@@ -3750,9 +3756,6 @@ void stop_all_sounds()
 {
 	int i;
 	ALuint error;
-
-	if (!have_sound)
-		return;
 
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Stopping all individual sounds\n");
@@ -3801,6 +3804,7 @@ void unload_sound(int index)
 	sounds_list[index].playing = 0;
 	sounds_list[index].loaded = 0;
 	sounds_list[index].cookie = 0;
+	sounds_list[index].lifetime = 0;
 	num_sounds--;
 }
 
@@ -3864,29 +3868,41 @@ void update_sound(int ms)
 	// Check the sounds_list for anything to be loaded/played
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
-		// Check for any non-looping sounds in the sounds_list that aren't being played that have passed their time
-		// FIXME!!! (this needs to be coded)
-		
-		// Check for any sounds that aren't being played and check if they need to be because
-		// sound has now been enabled or they have come back into range
-		x = sounds_list[i].x;
-		y = sounds_list[i].y;
-		if (!sounds_list[i].playing && x > -1 && y > -1 && sounds_list[i].sound > -1)
+		// If this sound is "live"
+		if (sounds_list[i].sound > -1)
 		{
 			pSoundType = &sound_type_data[sounds_list[i].sound];
-			distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
-			maxDistSq = pSoundType->distance * pSoundType->distance;
-			if (sound_opts != SOUNDS_NONE && (distanceSq < maxDistSq))
+			// Update the length of time this sound has been alive
+			sounds_list[i].lifetime += ms;
+			// Check for any non-looping sounds in the sounds_list that aren't being played that have passed their time
+			if (sounds_list[i].lifetime >= 1000 && !sounds_list[i].playing && pSoundType->loops != 0)
 			{
-				// This sound is back in range so load it into a source and play it
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Sound now in-range: %d (%s), Distance squared: %d, Max: %d\n", sounds_list[i].sound, pSoundType->name, distanceSq, maxDistSq);
+				printf("Sound (%d) timed out: %d (%s), Cookie: %d, Lifetime: %d\n", i, sounds_list[i].sound, pSoundType->name, sounds_list[i].cookie, sounds_list[i].lifetime);
 #endif //_EXTRA_SOUND_DEBUG
-				if (!play_sound(i, x, y, 1.0f))
+				stop_sound(sounds_list[i].cookie);
+				continue;
+			}			
+			// Check for any sounds that aren't being played and check if they need to be because
+			// sound has now been enabled or they have come back into range
+			x = sounds_list[i].x;
+			y = sounds_list[i].y;
+			if (inited && !sounds_list[i].playing && x > -1 && y > -1 && sounds_list[i].sound > -1)
+			{
+				distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
+				maxDistSq = pSoundType->distance * pSoundType->distance;
+				if (sound_opts != SOUNDS_NONE && (distanceSq < maxDistSq))
 				{
+					// This sound is back in range so load it into a source and play it
 #ifdef _EXTRA_SOUND_DEBUG
-					printf("Error restarting sound!!\n");
+					printf("Sound now in-range: %d (%s), Distance squared: %d, Max: %d\n", sounds_list[i].sound, pSoundType->name, distanceSq, maxDistSq);
 #endif //_EXTRA_SOUND_DEBUG
+					if (!play_sound(i, x, y, 1.0f))
+					{
+#ifdef _EXTRA_SOUND_DEBUG
+						printf("Error restarting sound!!\n");
+#endif //_EXTRA_SOUND_DEBUG
+					}
 				}
 			}
 		}
@@ -4345,65 +4361,150 @@ int time_of_day_valid(int flags)
  *
  * Check if input point (x, y) is within the input boundary
  * 
+ * Initially test to see if the point given is within the outer boundary given by the extreme of the coords. If
+ * it is, then continue with the more complex test of each boundary line.
+ *
  * We will do this by checking the angle of the line created between each of the 4 points of the boundaries and
  * comparing that angle to the line created by each point and our test point.
  *
- * With the equation we use, if the line aligns to an axis, arctan has no value, so we need to check for this
- * and use 90 degrees rather than calculate it
- *
- *
- * FIXME: Currently, the checks don't include one for that of a point of the boundary inside the outer bounds of
- * the polygon
  */
 int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds)
 {
-	double a1, a2, a3, a4;
-	double pi = 3.1415;
-	double ra = pi / 2;		// ra = Right angle... meh
-
+	int pX, pY, npX, npY;
+	int i, j, result;
+	
 	// Initially check if we are inside the outermost box
 	if (x < bounds->o[0].x || y < bounds->o[0].y || x > bounds->o[1].x || y > bounds->o[1].y)
 		return 0;	// We are outside the outer rectangle so can't be inside the polygon
 	
-	// Check the angle of the line from the top left corner to the top right (point1 -> pointT)
-	if (bounds->p[0].y == y && bounds->p[0].x < x) a1 = ra;
-	else if (bounds->p[0].y == y && bounds->p[0].x > x) a1 = -ra;
-	else a1 = atan2((x - bounds->p[0].x), (bounds->p[0].y - y));
-	if (x < bounds->p[0].x) a1 += pi * 2;
-	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
-	if (a1 > bounds->p[0].a)
-		return 0;
-
-	// Check the angle of the line from the top right corner to the bottom right (point2 -> pointT)
-	if (bounds->p[1].x == x && bounds->p[1].y > y) a2 = ra;
-	else if (bounds->p[1].x == x && bounds->p[1].y < y) a2 = -ra;
-	else a2 = atan2((bounds->p[1].y - y), (bounds->p[1].x - x));
-	if (y > bounds->p[1].y) a2 += pi * 2;
-	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
-	if (a2 > bounds->p[1].a)
-		return 0;
-
-	// Check the angle of the line from the bottom right corner to the bottom left (point3 -> pointT)
-	if (bounds->p[2].y == y && bounds->p[2].x > x) a3 = ra;
-	else if (bounds->p[2].y == y && bounds->p[2].x < x) a3 = -ra;
-	else a3 = atan2((bounds->p[2].x - x), (y - bounds->p[2].y));
-	if (x > bounds->p[2].x) a3 += pi * 2;
-	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
-	if (a3 > bounds->p[2].a)
-		return 0;
+	// Check if we are inside the 4 lines of the polygon
+	for (i = 0; i < 4; i++)
+	{
+		j = i + 1;
+		if (j == 4) j = 0;	// Wrap the next point var around to 0
+		pX = bounds->p[i].x;
+		pY = bounds->p[i].y;
+		npX = bounds->p[j].x;
+		npY = bounds->p[j].y;
 	
-	// Check the angle of the line from the bottom left corner to the top left (point4 -> pointT)
-	if (bounds->p[3].x == x && bounds->p[3].y < y) a4 = ra;
-	else if (bounds->p[3].x == x && bounds->p[3].y > y) a4 = -ra;
-	else a4 = atan2((y - bounds->p[3].y), (x - bounds->p[3].x));
-	if (y < bounds->p[3].y) a4 += pi * 2;
-	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
-	if (a4 > bounds->p[3].a)
-		return 0;
-
+		/* Psuedo-code to explain this block of nastiness
+		
+		If (this is not an internal point, OR
+			(if the x coord of our test point is within the x bounds of the line with p <= np AND
+				((the y coord is within the line with p <= np AND the point is within the y bounds of the line (bottom left quadrant)) OR
+				 (the y coord is within the line with p > np AND the point is within the y bounds of the line (top left quadrant))
+			) OR
+			(if the x coord is within the x bounds of the line with p > np AND
+				((the y coord is within the line with p <= np AND the point is within the y bounds of the line (bottom right quadrant)) OR
+				 (the y coord is within the line with p > np AND the the point is within the y bounds of the line (top right quadrant))
+			)
+		) ...then we need to test the angle otherwise we can ignore this point
+		*/
+		if (bounds->int_point != i ||
+			(pX <= npX && x >= pX && x <= pX &&
+				((pY <= npY && y >= pY && y <= pY) ||
+				 (pY >  npY && y <= pY && y >= pY))
+			) ||
+			(pX > npX && x <= pX && x >= pX &&
+				((pY <= npY && y >= pY && y <= pY) ||
+				 (pY >  npY && y <= pY && y >= pY))
+			)
+		)
+		{
+			result = test_bounds_angles(x, y, i, bounds);
+			if (result == 0) return 0;
+		}
+	}
+	
 	// This point is inside the 4 lines
 	return 1;
 }
+
+int test_bounds_angles(int x, int y, int point, map_sound_boundary_def * bounds)
+{
+	double a = calculate_bounds_angle(x, y, point, bounds);
+	
+	// If our angle for the test point is greater than the angle of the boundary line, then the point is outside
+	if (a > bounds->p[point].a)
+		return 0;
+	return 1;
+}
+
+/* This function is the complex one!
+ *
+ * If you notice the pattern for the subsitutions below, it is because we are rotating the 0 degree angle around
+ * the axis to keep it on the outside of the polygon. We need to do this because if our test line crosses from
+ * > 2pi to < 2pi it will give a false positive.
+ *
+ * For point 0 the "illegal zone" is straight down, for point 1 horizontally left, for point 2 straight up, and
+ * for point 3 horizontally right.
+ *
+ * This is why point 0 (or A in my diagrams) is the bottom left as nothing should cross it there, and so on for
+ * the other points around the polygon. Each "illegal zone" should be pointing outside almost all permutations of
+ * a polygon.
+ *
+ * If none of this makes sense then grab one of my drawings and if it still doesn't then ask. Grab me and ask.
+ *  - Torg -
+ *
+ * Inputs:
+ * 		x				The x coord of our test point
+ * 		y				The y coord of our test point
+ * 		point			The ID of the boundary point we are calculating from
+ *		bounds			The boundary we are calculating this point of
+ */
+double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * bounds)
+{
+	int A, B, C, D;
+	double pi = 3.1415;
+	double ra = pi / 2;		// ra = Right angle... meh
+	double a;
+
+	//  Set up the subsitutions for the actual equation. (This is such a waste of space. Grrr)
+	switch (point)
+	{
+		case 0:
+			// Check the angle of the line from the bottom left corner to our test point (point0 -> pointT)
+			A = bounds->p[0].y;
+			B = y;
+			C = bounds->p[0].x;
+			D = x;
+			break;
+		case 1:
+			// Check the angle of the line from the top left corner to our test point (point1 -> pointT)
+			A = bounds->p[1].x;
+			B = x;
+			C = y;
+			D = bounds->p[1].y;
+			break;
+		case 2:
+			// Check the angle of the line from the top right corner to our test point (point2 -> pointT)
+			A = y;
+			B = bounds->p[2].y;
+			C = x;
+			D = bounds->p[2].x;
+			break;
+		case 3:
+			// Check the angle of the line from the bottom right corner to our test point (point3 -> pointT)
+			A = x;
+			B = bounds->p[3].x;
+			C = bounds->p[3].y;
+			D = y;
+			break;
+	}
+	// If the line aligns to an axis, arctan has no value, so we need to check for this and use 90 degrees (pi / 2)
+	// Otherwise calculate the angle and adjust the negative
+	if (A == B && C < D) a = ra;			// If axis 1 is aligned and the coord on axis 2 of the first point is less
+	else if (A == B && C > D) a = -ra;		// If axis 1 is aligned and the coord on axis 2 of the first point is greater
+	else a = atan2((D - C), (A - B));		// If we aren't on the axis, find the angle
+	if (D < C) a += pi * 2;					// If the second point is below the axis (-pi) then boost the angle to the positive (2pi)
+											// This gives us a proper range from 0 to 2pi counter clockwise around the polygon
+
+	return a;
+}
+
+
+
+
 
 /******************
  * INIT FUNCTIONS *
@@ -4640,13 +4741,6 @@ void init_sound()
 	printf("Alut supported Memory MIME types: %s\n", alutGetMIMETypes(ALUT_LOADER_MEMORY));
 #endif // DEBUG && alutGetMIMETypes
 	
-	have_sound = 1;
-#ifdef	OGG_VORBIS
-	have_music = 1;
-#else	// OGG_VORBIS
-	have_music = 0;
-#endif	// OGG_VORBIS
-
 	// Setup the listener
 	alListenerfv(AL_POSITION, listenerPos);
 #ifdef _EXTRA_SOUND_DEBUG							// Debugging for Florian
@@ -4723,6 +4817,13 @@ void init_sound()
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Generated and using %d sources\n", max_sources);
 #endif // _EXTRA_SOUND_DEBUG
+
+	have_sound = 1;
+#ifdef	OGG_VORBIS
+	have_music = 1;
+#else	// OGG_VORBIS
+	have_music = 0;
+#endif	// OGG_VORBIS
 
 	// Initialise streams thread
 #ifdef	OGG_VORBIS
@@ -5166,8 +5267,8 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 {
 	int i;
 	double a;
-	double pi = 3.141592;
-	double ra = pi / 2;		// ra = Right angle... meh
+//	double pi = 3.141592;
+//	double ra = pi / 2;		// ra = Right angle... meh
 
 	// Check if this is a default
 	if (bounds->is_default)
@@ -5203,72 +5304,32 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 	
 
 	// Find the angle of the line from the top left corner to the top right (point1 -> point2)
-	if (bounds->p[0].y == bounds->p[1].y && bounds->p[0].x < bounds->p[1].x)
-		bounds->p[0].a = ra;
-	else if (bounds->p[0].y == bounds->p[1].y && bounds->p[0].x > bounds->p[1].x)
-		bounds->p[0].a = -ra;
-	else bounds->p[0].a = atan2((bounds->p[1].x - bounds->p[0].x), (bounds->p[0].y - bounds->p[1].y));
-	if (bounds->p[1].x < bounds->p[0].x) bounds->p[0].a += pi * 2;
+	bounds->p[0].a = calculate_bounds_angle(bounds->p[1].x, bounds->p[1].y, 0, bounds);
 
 	// Find the angle of the line from the top right corner to the bottom right (point2 -> point3)
-	if (bounds->p[1].x == bounds->p[2].x && bounds->p[1].y > bounds->p[2].y)
-		bounds->p[1].a = ra;
-	else if (bounds->p[1].x == bounds->p[2].x && bounds->p[1].y < bounds->p[2].y)
-		bounds->p[1].a = -ra;
-	else bounds->p[1].a = atan2((bounds->p[1].y - bounds->p[2].y), (bounds->p[1].x - bounds->p[2].x));
-	if (bounds->p[2].y > bounds->p[1].y) bounds->p[1].a += pi * 2;
+	bounds->p[1].a = calculate_bounds_angle(bounds->p[2].x, bounds->p[2].y, 1, bounds);
 
 	// Find the angle of the line from the bottom right corner to the bottom left (point3 -> point4)
-	if (bounds->p[2].y == bounds->p[3].y && bounds->p[2].x > bounds->p[3].x)
-		bounds->p[2].a = ra;
-	else if (bounds->p[2].y == bounds->p[3].y && bounds->p[2].x < bounds->p[3].x)
-		bounds->p[2].a = -ra;
-	else bounds->p[2].a = atan2((bounds->p[2].x - bounds->p[3].x), (bounds->p[3].y - bounds->p[2].y));
-	if (bounds->p[3].x > bounds->p[2].x) bounds->p[2].a += pi * 2;
+	bounds->p[2].a = calculate_bounds_angle(bounds->p[3].x, bounds->p[3].y, 2, bounds);
 	
 	// Find the angle of the line from the bottom left corner to the top left (point4 -> point1)
-	if (bounds->p[3].x == bounds->p[0].x && bounds->p[3].y < bounds->p[0].y)
-		bounds->p[3].a = ra;
-	else if (bounds->p[3].x == bounds->p[0].x && bounds->p[3].y > bounds->p[0].y)
-		bounds->p[3].a = -ra;
-	else bounds->p[3].a = atan2((bounds->p[0].y - bounds->p[3].y), (bounds->p[0].x - bounds->p[3].x));
-	if (bounds->p[0].y < bounds->p[3].y) bounds->p[3].a += pi * 2;
+	bounds->p[3].a = calculate_bounds_angle(bounds->p[0].x, bounds->p[0].y, 3, bounds);
 
 	
 	// Check the angle of the line from the bottom left corner to the top right (point4 -> point2)
-	if (bounds->p[3].x == bounds->p[1].x && bounds->p[3].y < bounds->p[1].y)
-		a = ra;
-	else if (bounds->p[3].x == bounds->p[1].x && bounds->p[3].y > bounds->p[1].y)
-		a = -ra;
-	else a = atan2((bounds->p[1].y - bounds->p[3].y), (bounds->p[1].x - bounds->p[3].x));
-	if (bounds->p[1].y < bounds->p[3].y) a += pi * 2;
+	a = calculate_bounds_angle(bounds->p[1].x, bounds->p[1].y, 3, bounds);
 	if (bounds->p[3].a < a) bounds->int_point = 0;
 
 	// Check the angle of the line from the top left corner to the bottom right (point1 -> point3)
-	if (bounds->p[0].y == bounds->p[2].y && bounds->p[0].x < bounds->p[2].x)
-		a = ra;
-	else if (bounds->p[0].y == bounds->p[2].y && bounds->p[0].x > bounds->p[2].x)
-		a = -ra;
-	else a = atan2((bounds->p[2].x - bounds->p[0].x), (bounds->p[0].y - bounds->p[2].y));
-	if (bounds->p[2].x < bounds->p[1].x) a += pi * 2;
+	a = calculate_bounds_angle(bounds->p[2].x, bounds->p[2].y, 0, bounds);
 	if (bounds->p[0].a < a) bounds->int_point = 1;
 
 	// Check the angle of the line from the top right corner to the bottom left (point2 -> point4)
-	if (bounds->p[1].x == bounds->p[3].x && bounds->p[1].y > bounds->p[3].y)
-		a = ra;
-	else if (bounds->p[1].x == bounds->p[3].x && bounds->p[1].y < bounds->p[3].y)
-		a = -ra;
-	else a = atan2((bounds->p[1].y - bounds->p[3].y), (bounds->p[1].x - bounds->p[3].x));
-	if (bounds->p[3].y > bounds->p[1].y) a += pi * 2;
+	a = calculate_bounds_angle(bounds->p[3].x, bounds->p[3].y, 1, bounds);
 	if (bounds->p[1].a < a) bounds->int_point = 2;
 
 	// Check the angle of the line from the bottom right corner to the top left (point3 -> point1)
-	if (bounds->p[2].y == bounds->p[0].y && bounds->p[2].x > bounds->p[0].x)
-		a = ra;
-	else if (bounds->p[2].y == bounds->p[0].y && bounds->p[2].x < bounds->p[0].x)
-		a = -ra;
-	else a = atan2((bounds->p[2].x - bounds->p[0].x), (bounds->p[0].y - bounds->p[2].y));
-	if (bounds->p[0].x > bounds->p[2].x) a += pi * 2;
+	a = calculate_bounds_angle(bounds->p[0].x, bounds->p[0].y, 2, bounds);
 	if (bounds->p[2].a < a) bounds->int_point = 3;
 	
 	return 1;

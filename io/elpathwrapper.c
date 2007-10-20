@@ -518,7 +518,7 @@ int file_update_check(const char * filename, const unsigned char * md5){
 void file_check_datadir(void){
 	struct stat fstat;
 #ifdef WINDOWS
-	if (datadir[strlen(datadir)-1] == '/')		// stat() fails with a trailing slash under Windows. :-S
+	if (datadir[strlen(datadir)-1] == '/' || datadir[strlen(datadir)-1] == '\\')		// stat() fails with a trailing slash under Windows. :-S
 		datadir[strlen(datadir)-1] = '\0';
 #endif // WINDOWS
 	if (stat(datadir, &fstat) != 0){

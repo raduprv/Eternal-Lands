@@ -222,7 +222,7 @@ void load_mines_config()
 #endif	// NEW_FILE_IO
 	{
 		char str[200];
-		safe_snprintf(str, sizeof(str), mines_config_open_err_str, file);
+		safe_snprintf(str, sizeof(str), "%s: %s", mines_config_open_err_str, file);
 		LOG_ERROR(str);
 		LOG_TO_CONSOLE(c_red1,str);
 	}
