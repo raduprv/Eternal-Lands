@@ -238,6 +238,11 @@ char
 	abort_str[10],
 	you_str[10],
 	accept_str[12],
+	/*update.c*/
+	update_complete_str[40],
+	client_restart_countdown_str[40],
+	client_restarting_str[20],
+	restart_now_label[20],
 	/* new_character.c */
 	use_appropriate_name[500];
 #endif
@@ -1212,6 +1217,11 @@ void init_help()
 	add_xml_identifier(buddy, "yellow", buddy_yellow_str, "Yellow", sizeof(buddy_yellow_str));
 	add_xml_identifier(buddy, "request", buddy_request_str, "Requests", sizeof(buddy_request_str));
 
+	// Update window
+	add_xml_identifier(misc, "update_complete", update_complete_str, "The client has been updated", sizeof(update_complete_str));
+	add_xml_identifier(misc, "restart_countdown", client_restart_countdown_str, "Client will restart in %d seconds", sizeof(client_restart_countdown_str));
+	add_xml_identifier(misc, "restarting", client_restarting_str, "Restarting...", sizeof(client_restarting_str));
+	add_xml_identifier(misc, "restart", restart_now_label, "Restart now", sizeof(restart_now_label));
 }
 #endif
 

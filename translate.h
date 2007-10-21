@@ -377,6 +377,11 @@ extern char
 		abort_str[10],
 		you_str[10],
 		accept_str[12],
+		/*update.c*/
+		update_complete_str[40],
+		client_restart_countdown_str[40],
+		client_restarting_str[20],
+		restart_now_label[20],
 		/* new_character.c */
 		use_appropriate_name[500];
 #endif  //DOXYGEN_SKIP_THIS

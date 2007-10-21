@@ -571,6 +571,25 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	return i;
 }
 
+#ifdef NEW_SOUND
+char * get_2dobject_at_location(float x_pos, float y_pos)
+{
+	int i;
+	float offset = 0.5f;
+	for (i = 0; i < MAX_OBJ_2D; i++)
+	{
+		if (obj_2d_list[i]
+			&& obj_2d_list[i]->x_pos > (x_pos - offset) && obj_2d_list[i]->x_pos < (x_pos + offset)
+			&& obj_2d_list[i]->y_pos > (y_pos - offset) && obj_2d_list[i]->y_pos < (y_pos + offset)
+			&& obj_2d_list[i]->display && obj_2d_list[i]->obj_pointer->object_type == GROUND)
+		{
+			return obj_2d_list[i]->file_name;
+		}
+	}
+	return "";
+}
+#endif // NEW_SOUND
+
 #ifdef MAP_EDITOR2
 void get_2d_object_under_mouse()
 {

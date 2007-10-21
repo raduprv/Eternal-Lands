@@ -12,6 +12,7 @@
 #include "pm_log.h"
 #include "reflection.h"
 #include "rules.h"
+#include "update.h"
 #include "weather.h"
 #ifdef NEW_SOUND
 #include "sound.h"
@@ -154,6 +155,10 @@ Uint32 check_misc(Uint32 interval, void * data)
 	if(countdown>0)
 	{
 		countdown --;
+	}
+	if (update_countdown > 0)
+	{
+		update_countdown--;
 	}
 	return 500;
 }

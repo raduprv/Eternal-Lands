@@ -2,9 +2,9 @@
 #include <string.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-#if defined NEW_SOUND && OGG_VORBIS
+#ifdef NEW_SOUND
 #include <math.h>
-#endif // NEW_SOUND && OGG_VORBIS
+#endif // NEW_SOUND
 #include "sound.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -13,21 +13,20 @@
 #include "lights.h"
 #include "map.h"
 #include "misc.h"
-#ifdef NEW_SOUND
-#include "spells.h"
-#include "tiles.h"
-#endif // NEW_SOUND
 #include "translate.h"
 #include "weather.h"
-#include "io/map_io.h"
+#ifdef NEW_SOUND
+#include "2d_objects.h"
+#include "3d_objects.h"
+#include "spells.h"
+#include "tiles.h"
+#include "actors.h"
+#include "interface.h"
+#endif // NEW_SOUND
 #ifdef	NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
-#if defined NEW_SOUND && OGG_VORBIS
-#include "actors.h"
-#include "interface.h"
-#endif // NEW_SOUND && OGG_VORBIS
 
 #define MAX_FILENAME_LENGTH 80
 #define MAX_BUFFERS 64
@@ -94,6 +93,7 @@ typedef struct {
 #define MAX_MAP_BACKGROUND_DEFAULTS 4		// Maximum number of default backgrounds per map
 #define MAX_SOUND_MAP_NAME_LENGTH 60		// Maximum length of the name of the map
 #define MAX_SOUND_MAP_BOUNDARIES 20			// Maximum number of boundary sets per map
+#define MAX_SOUND_WALK_BOUNDARIES 40		// Maximum number of walk boundary sets per map
 #define MAX_ITEM_SOUND_IMAGE_IDS 30			// Maximum number of image id's linked to an item sound def
 #define MAX_SOUND_TILE_TYPES 20				// Maximum number of different tile types
 #define MAX_SOUND_TILES 30					// Maximum number of different tiles for a tile type
@@ -199,8 +199,10 @@ typedef struct
 {
 	int id;
 	char name[MAX_SOUND_MAP_NAME_LENGTH];		// This isn't used, it is simply helpful when editing the config
-	map_sound_boundary_def boundaries[MAX_SOUND_MAP_BOUNDARIES];
+	map_sound_boundary_def boundaries[MAX_SOUND_MAP_BOUNDARIES];		// This is the boundaries for backgound and crowd sounds
+	map_sound_boundary_def walk_boundaries[MAX_SOUND_WALK_BOUNDARIES];	// This is the boundaries for walking sounds (to fake 3d objects)
 	int num_boundaries;
+	int num_walk_boundaries;
 	int defaults[MAX_MAP_BACKGROUND_DEFAULTS];	// ID of the default boundaries
 	int num_defaults;
 } map_sound_data;
@@ -421,6 +423,10 @@ unsigned int get_next_cookie();
 int get_loaded_sound_num();
 void unload_sound(int index);
 /* General functions */
+int get_3d_obj_walk_sound(char * filename);
+int get_2d_obj_walk_sound(char * filename);
+int get_boundary_walk_sound(int x_pos, int y_pos);
+int get_tile_sound(int tile_type, char * actor_type);
 int find_sound_from_cookie(unsigned int cookie);
 int time_of_day_valid(int flags);
 int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds);
@@ -2718,21 +2724,15 @@ int update_streams(void * dummy)
 									* sqrt(sqrt(no_near_enhanced_actors)) / sqrt(distanceSq_to_near_enhanced_actors) * 2;
 							break;
 					}
-#ifdef _EXTRA_SOUND_DEBUG
-					printf("Playing %s stream: %d, Sound: %d\n", get_stream_type(streams[i].type), i, streams[i].sound);
-#endif //_EXTRA_SOUND_DEBUG
 					if (check_stream(&streams[i], day_time, tx, ty))
 						process_stream(&streams[i], gain, &sleep);
 				}
 			}
 		}
 	}
-	// We are bailing to destroy any remaining streams
+	// We are bailing so destroy any remaining streams
 	for (i = 0; i < max_streams; i++)
 	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Stopping %s stream: %d\n", get_stream_type(streams[i].type), i);
-#endif //_EXTRA_SOUND_DEBUG
 		destroy_stream(&streams[i]);
 	}
 #ifdef _EXTRA_SOUND_DEBUG
@@ -4167,20 +4167,44 @@ void update_sound(int ms)
 
 void handle_walking_sound(actor * pActor, int def_snd)
 {
-	int snd, tile_type, cur_sound;
+	float x, y;
+	int snd, cur_sound;
 	
 	if (actors_defs[pActor->actor_type].walk_snd_scale > 0.0f)
 	{
-		// This creature is large enough for a walking sound so look for one for this tile
-		tile_type = get_tile_type((int)pActor->x_pos * 2, (int)pActor->y_pos * 2);
-		snd = get_tile_sound(tile_type, actors_defs[pActor->actor_type].actor_name);
+		// This creature is large enough for a walking sound so look for one
+		x = pActor->x_pos;
+		y = pActor->y_pos;
+
+		// Start with the sound from the animation
+		snd = def_snd;
+
+/*		Unfortunatly these functions aren't ready for release.
+		They need help to be accurate, possibly from the under_mouse or get_intersect type code.
+		Alternatively a check for objects around the actor and then checking the size and rotation
+		of each object to determine if the actor is standing on it might work.
+		
+		// Check for a 3d object we have a sound for
+		snd = get_3d_obj_walk_sound(get_3dobject_at_location(x, y));
+
+		// Check if we need to look for a 2d obj, and look if necessary
+		if (snd == -1)
+			snd = get_2d_obj_walk_sound(get_2dobject_at_location(x, y));
+*/
+		
+		// If we still don't have a sound, check for a defined area (the same as map boundary areas).
+		// NOTE: This code can and should be removed when the above functions are fixed.
+		if (snd == -1)
+			snd = get_boundary_walk_sound((int)x * 2, (int)y * 2);
+		
+		// Finally, check if we need to look for a tile, and look if necessary
+		if (snd == -1)
+			snd = get_tile_sound(get_tile_type((int)x * 2, (int)y * 2), actors_defs[pActor->actor_type].actor_name);
+
 #ifdef _EXTRA_SOUND_DEBUG
-//		printf("Actor: %s, Pos: %f, %f, Current tile type: %d, Sound: %d, Scale: %f\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, tile_type, snd, actors_defs[pActor->actor_type].walk_snd_scale);
+//		printf("Actor: %s, Pos: %f, %f, Found sound: %d, Scale: %f\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, snd, actors_defs[pActor->actor_type].walk_snd_scale);
 #endif // _EXTRA_SOUND_DEBUG
 
-		if (snd == -1)
-			// No sound for this tile, fall back on the passed default (from the animation)
-			snd = def_snd;
 		if (snd == -1)
 			// Still no sound, so fall back on the global default
 			snd = walking_default;
@@ -4207,6 +4231,46 @@ void handle_walking_sound(actor * pActor, int def_snd)
 			}
 		}
 	}
+}
+
+int get_boundary_walk_sound(int tx, int ty)
+{
+	int i, snd = -1;
+
+	if (snd_cur_map > -1 && sound_map_data[snd_cur_map].id > -1)
+	{
+		for (i = 0; i < sound_map_data[snd_cur_map].num_walk_boundaries; i++)
+		{
+			if (i == sound_map_data[snd_cur_map].num_walk_boundaries)
+				i = 0;
+			snd = sound_map_data[snd_cur_map].walk_boundaries[i].bg_sound;
+			if (snd > -1 && sound_bounds_check(tx, ty, &sound_map_data[snd_cur_map].walk_boundaries[i]))
+			{
+				return snd;
+			}
+		}
+	}
+	return -1;
+}
+
+int get_3d_obj_walk_sound(char * filename)
+{
+	if (!strcasecmp(filename, ""))
+		return -1;
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Searching for the sound for 3D object: %s\n", filename);
+#endif //_EXTRA_SOUND_DEBUG
+	return -1;
+}
+
+int get_2d_obj_walk_sound(char * filename)
+{
+	if (!strcasecmp(filename, ""))
+		return -1;
+#ifdef _EXTRA_SOUND_DEBUG
+	printf("Searching for the sound for 2D object: %s\n", filename);
+#endif //_EXTRA_SOUND_DEBUG
+	return -1;
 }
 
 int get_tile_sound(int tile_type, char * actor_type)
@@ -4349,6 +4413,14 @@ int get_index_for_inv_use_item_sound(int image_id)
 		}
 	}
 	return -1;
+}
+
+int check_sound_loops(unsigned int cookie)
+{
+	int snd = find_sound_from_cookie(cookie);
+	if (snd > -1 && sound_type_data[sounds_list[snd].sound].loops == 0)
+		return 1;
+	return 0;
 }
 
 // Compare the input flags to the current time and return true if they match
@@ -4604,6 +4676,11 @@ void clear_sound_data()
 		for (j = 0; j < MAX_SOUND_MAP_BOUNDARIES; j++)
 		{
 			clear_boundary_data(&sound_map_data[i].boundaries[j]);
+		}
+		sound_map_data[i].num_walk_boundaries = 0;
+		for (j = 0; j < MAX_SOUND_WALK_BOUNDARIES; j++)
+		{
+			clear_boundary_data(&sound_map_data[i].walk_boundaries[j]);
 		}
 		sound_map_data[i].num_defaults = 0;
 		for (j = 0; j < MAX_MAP_BACKGROUND_DEFAULTS; j++)
@@ -5380,7 +5457,7 @@ void parse_map_sound(xmlNode *inNode)
 					// Process this set of boundaries
 					if (pMap->num_boundaries++ < MAX_SOUND_MAP_BOUNDARIES)
 					{
-						pMapBoundary = &pMap->boundaries[pMap->num_boundaries];
+						pMapBoundary = &pMap->boundaries[pMap->num_boundaries - 1];
 
 						for (attributeNode = boundaryNode->children; attributeNode; attributeNode = attributeNode->next)
 						{
@@ -5391,7 +5468,7 @@ void parse_map_sound(xmlNode *inNode)
 								pMapBoundary->bg_sound = get_index_for_sound_type_name(content);
 								if (pMapBoundary->bg_sound == -1)
 								{
-									LOG_ERROR("%s: sound not found for map boundary type '%s' in map '%s'", snd_config_error,content, pMap->name);
+									LOG_ERROR("%s: background sound not found for map boundary type '%s' in map '%s'", snd_config_error,content, pMap->name);
 								}
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"crowd"))
@@ -5400,7 +5477,7 @@ void parse_map_sound(xmlNode *inNode)
 								pMapBoundary->crowd_sound = get_index_for_sound_type_name(content);
 								if (pMapBoundary->crowd_sound == -1)
 								{
-									LOG_ERROR("%s: crowd sound not found for map boundary type '%s' in map '%s'", snd_config_error,content, pMap->name);
+									LOG_ERROR("%s: crowd sound not found for map boundary type '%s' in map '%s'", snd_config_error, content, pMap->name);
 								}
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"time_of_day_flags"))
@@ -5411,7 +5488,7 @@ void parse_map_sound(xmlNode *inNode)
 									pMapBoundary->time_of_day_flags = iVal;
 								else
 								{
-									LOG_ERROR("%s: time_of_day flags (%s) invalid for map boundary in map '%s'", snd_config_error,content, pMap->name);
+									LOG_ERROR("%s: time_of_day flags (%s) invalid for map boundary in map '%s'", snd_config_error, content, pMap->name);
 								}
 							}
 							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"is_default"))
@@ -5470,6 +5547,72 @@ void parse_map_sound(xmlNode *inNode)
 						LOG_ERROR("%s: reached max boundaries for map '%s'", snd_config_error, pMap->name);
 					}
 				}
+// This block is a temporary fix for detecting 2d and 3d objects. It can be removed once the other functionality is coded.
+				else if(!xmlStrcasecmp(boundaryNode->name, (xmlChar*)"walk_boundary_def"))
+				{
+					// Process this set of boundaries
+					if (pMap->num_walk_boundaries++ < MAX_SOUND_WALK_BOUNDARIES)
+					{
+						pMapBoundary = &pMap->walk_boundaries[pMap->num_walk_boundaries - 1];
+
+						for (attributeNode = boundaryNode->children; attributeNode; attributeNode = attributeNode->next)
+						{
+							get_string_value(content, sizeof(content), attributeNode);
+							if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"sound"))
+							{
+								// Find the sound for this set of boundaries
+								pMapBoundary->bg_sound = get_index_for_sound_type_name(content);
+								if (pMapBoundary->bg_sound == -1)
+								{
+									LOG_ERROR("%s: sound not found for walk boundary type '%s' in map '%s'", snd_config_error, content, pMap->name);
+								}
+							}
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"time_of_day_flags"))
+							{
+								// Find the type of time of day flags for this set of boundaries
+								sscanf((char *)content, "%x", &iVal);
+								if (iVal >= 0 && iVal <= 0xffff)
+									pMapBoundary->time_of_day_flags = iVal;
+								else
+								{
+									LOG_ERROR("%s: time_of_day flags (%s) invalid for walk boundary in map '%s'", snd_config_error, content, pMap->name);
+								}
+							}
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point1"))
+							{
+								// Parse the coordinates
+								store_boundary_coords(content, &pMapBoundary->p[0].x, &pMapBoundary->p[0].y);
+							}
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point2"))
+							{
+								// Parse the coordinates
+								store_boundary_coords(content, &pMapBoundary->p[1].x, &pMapBoundary->p[1].y);
+							}
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point3"))
+							{
+								// Parse the coordinates
+								store_boundary_coords(content, &pMapBoundary->p[2].x, &pMapBoundary->p[2].y);
+							}
+							else if (!xmlStrcasecmp(attributeNode->name, (xmlChar*)"point4"))
+							{
+								// Parse the coordinates
+								store_boundary_coords(content, &pMapBoundary->p[3].x, &pMapBoundary->p[3].y);
+							}
+						}
+						// Validate the boundary
+						if (!validate_boundary(pMapBoundary, pMap->name))
+						{
+							// This one is invalid so remove it (we have already errored)
+							clear_boundary_data(pMapBoundary);
+							pMap->num_walk_boundaries--;
+						}
+					}
+					else
+					{
+						LOG_ERROR("%s: reached max walk boundaries for map '%s'", snd_config_error, pMap->name);
+					}
+				}
+// This block ^^ is a temporary fix for detecting 2d and 3d objects. It can be removed once the other functionality is coded.
 				else
 				{
 					LOG_ERROR("%s: Boundary definition expected. Found: %s", snd_config_error, attributeNode->name);
@@ -5982,7 +6125,7 @@ void load_sound_config_data (const char *file)
 
 	xmlFree(doc);
 #ifdef DEBUG
-//	print_sound_types();
+	print_sound_types();
 #endif // DEBUG
 #endif // ELC
 }
@@ -6057,6 +6200,24 @@ void print_sound_types()
 			printf("\tCrowd sound: %d\n"		, pMapBoundary->crowd_sound);
 			printf("\tTime of day flags: 0x%x\n", pMapBoundary->time_of_day_flags);
 			printf("\tDefault: %s\n"			, pMapBoundary->is_default == 0 ? "No" : "Yes");
+			printf("\tX1, Y1, A1: (%d, %d, %f), X2, Y2, A2: (%d, %d, %f), X3, Y3, A3: (%d, %d, %f), X4, Y4, A4: (%d, %d, %f)\n",
+				pMapBoundary->p[0].x, pMapBoundary->p[0].y, pMapBoundary->p[0].a,
+				pMapBoundary->p[1].x, pMapBoundary->p[1].y, pMapBoundary->p[1].a,
+				pMapBoundary->p[2].x, pMapBoundary->p[2].y, pMapBoundary->p[2].a,
+				pMapBoundary->p[3].x, pMapBoundary->p[3].y, pMapBoundary->p[3].a);
+			printf("\tOuter box - X1, Y1, A1: (%d, %d, %f); X2, Y2, A1: (%d, %d, %f)\n",
+				pMapBoundary->o[0].x, pMapBoundary->o[0].y, pMapBoundary->o[0].a,
+				pMapBoundary->o[1].x, pMapBoundary->o[1].y, pMapBoundary->o[1].a);
+			printf("\tInternal point: %d\n"		, pMapBoundary->int_point);
+		}
+		printf("\n");
+		printf("Num walk boundaries: %d\n"		, pMap->num_walk_boundaries);
+		for (j = 0; j < pMap->num_walk_boundaries; ++j)
+		{
+			pMapBoundary = &pMap->walk_boundaries[j];
+			printf("Walk boundary num: %d\n"	, j);
+			printf("\tWalk sound: %d\n"			, pMapBoundary->bg_sound);
+			printf("\tTime of day flags: 0x%x\n", pMapBoundary->time_of_day_flags);
 			printf("\tX1, Y1, A1: (%d, %d, %f), X2, Y2, A2: (%d, %d, %f), X3, Y3, A3: (%d, %d, %f), X4, Y4, A4: (%d, %d, %f)\n",
 				pMapBoundary->p[0].x, pMapBoundary->p[0].y, pMapBoundary->p[0].a,
 				pMapBoundary->p[1].x, pMapBoundary->p[1].y, pMapBoundary->p[1].a,

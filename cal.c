@@ -113,8 +113,9 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	}
 	else
 	{
-		// Make sure any previous sound is stopped
-		stop_sound(pActor->cur_anim_sound_cookie);
+		// We are going to try letting sounds continue until finished, except looping sounds of course
+		if (check_sound_loops(pActor->cur_anim_sound_cookie))
+			stop_sound(pActor->cur_anim_sound_cookie);
 		pActor->cur_anim_sound_cookie = 0;
 		
 		if(anim.sound > -1)

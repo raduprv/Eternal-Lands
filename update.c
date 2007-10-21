@@ -16,15 +16,22 @@
 #include <SDL_thread.h>
 #include "update.h"
 #include "asc.h"
+#include "draw_scene.h"
 #include "elc_private.h"
 #include "errors.h"
 #include "events.h"
+#include "elwindows.h"
+#include "gamewin.h"
+#include "gl_init.h"
 #include "init.h"
+#include "interface.h"
 #include "misc.h"
-#ifdef NEW_FILE_IO
 #include "translate.h"
+#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #endif
+
+void create_update_root_window (int width, int height, int time);		// Pre-declare this
 
 int update_attempt_count;   // count how many update attempts have been tried (hopefully diff servers)
 int temp_counter;           // collision prevention during downloads just incase more then one ever starts
@@ -490,8 +497,9 @@ void    handle_file_download(struct http_get_struct *get)
 	if(!update_busy && restart_required && allow_restart && download_queue_size <= 0 && !download_cur_file){
 		// yes, now trigger a restart
 		log_error("Restart required because of update");
-		//TODO: display something on the screen for a little bit before restarting
-		exit_now= 1;
+		// Display something on the screen for a little bit before restarting
+		create_update_root_window (window_width, window_height, 10);
+		show_window (update_root_win);
 	}
 
 	// unlock mutex
@@ -722,3 +730,124 @@ void    init_custom_update()
 }
 #endif  //CUSTOM_UPDATE
 
+
+
+/* Update window code */
+int update_root_win = -1;
+int update_root_restart_id = 0;
+int update_countdown = 0;
+
+void init_update_interface(float text_size, int count, int len_x, int len_y)
+{
+	update_countdown = count;
+}
+
+void draw_update_interface (int len_x, int len_y)
+{
+	char str[200];
+//	float diff = (float) (len_x - len_y) / 2;
+	float window_ratio = (float) len_x / 640.0f;
+
+	draw_string ((len_x - (strlen(update_complete_str) * 11)) / 2, 200 * window_ratio, (unsigned char*)update_complete_str, 0);
+
+/*	Possibly use this box to display the list of files updated?
+	
+	glDisable(GL_TEXTURE_2D);
+	glColor3f(0.77f,0.57f,0.39f);
+	glBegin(GL_LINES);
+	glVertex3i(diff + 30 * window_ratio, 50 * window_ratio, 0);
+	glVertex3i(len_x - (diff + 30 * window_ratio) - 20, 50 * window_ratio, 0);
+	glVertex3i(diff + 30 * window_ratio, 50 * window_ratio, 0);
+	glVertex3i(diff + 30 * window_ratio, 370 * window_ratio, 0);
+	glVertex3i(diff + 30 * window_ratio, 370 * window_ratio, 0);
+	glVertex3i(len_x - (diff + 30 * window_ratio) - 20, 370 * window_ratio, 0);
+	glEnd();
+	glEnable(GL_TEXTURE_2D);
+*/
+	
+	if (update_countdown != 0)
+	{
+		safe_snprintf (str, sizeof(str), client_restart_countdown_str, update_countdown);
+	}
+	else
+	{
+		safe_strncpy (str, client_restarting_str, sizeof(str));
+		exit_now = 1;
+	}
+		
+	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - (200 * window_ratio), (unsigned char*)str, 0);
+	
+	glDisable (GL_ALPHA_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+int display_update_root_handler (window_info *win)
+{
+	if (SDL_GetAppState () & SDL_APPACTIVE)
+	{	
+		draw_console_pic (cons_text);
+		draw_update_interface (win->len_x, win->len_y);
+		CHECK_GL_ERRORS();
+	}
+	
+	draw_delay = 20;
+	return 1;
+}
+
+int click_update_root_restart ()
+{
+	exit_now = 1;
+	return 1;
+}
+
+int click_update_root_handler (window_info *win, int mx, int my, Uint32 flags)
+{
+	return 0;
+}
+
+int keypress_update_root_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	Uint16 keysym = key & 0xffff;
+
+	// first, try to see if we pressed Alt+x, to quit.
+	if ( check_quit_or_fullscreen (key) )
+	{
+		return 1;
+	}
+	else if (keysym == SDLK_RETURN)
+	{
+		exit_now = 1;
+		return 1;
+	}
+	
+	return 1;
+}
+
+int show_update_handler (window_info *win) {
+	hide_all_root_windows();
+	return 1;
+}
+
+void create_update_root_window (int width, int height, int time)
+{
+	if (update_root_win < 0)
+	{
+		float window_ratio = (float) width / 640.0f;
+		int restart_width = (strlen(restart_now_label) * 11) + 40;
+		int restart_height = 32;
+		
+		update_root_win = create_window ("Update", -1, -1, 0, 0, width, height, ELW_TITLE_NONE|ELW_SHOW_LAST);
+
+		update_root_restart_id = button_add_extended (update_root_win, update_root_restart_id, NULL, (width - restart_width) /2, height - (160 * window_ratio), restart_width, restart_height, 0, 1.0f, 1.0f, 1.0f, 1.0f, restart_now_label);
+
+		set_window_handler (update_root_win, ELW_HANDLER_DISPLAY, &display_update_root_handler);
+		set_window_handler (update_root_win, ELW_HANDLER_CLICK, &click_update_root_handler);
+		set_window_handler (update_root_win, ELW_HANDLER_KEYPRESS, &keypress_update_root_handler);
+		set_window_handler (update_root_win, ELW_HANDLER_SHOW, &show_update_handler);
+		widget_set_OnClick(update_root_win, update_root_restart_id, &click_update_root_restart);
+	}
+	
+	init_update_interface (1.0, time, width, height);
+}

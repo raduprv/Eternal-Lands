@@ -23,6 +23,7 @@
 #include "textures.h"
 #include "tiles.h"
 #include "translate.h"
+#include "update.h"
 #include "weather.h"
 #include "io/map_io.h"
 #ifdef NEW_FILE_IO
@@ -1214,6 +1215,7 @@ void hide_all_root_windows ()
 	if (rules_root_win >= 0) hide_window (rules_root_win);
 	if (opening_root_win >= 0) hide_window (opening_root_win);
 	if (newchar_root_win >= 0) hide_window (newchar_root_win);
+	if (update_root_win >= 0) hide_window (update_root_win);
 }
 
 void resize_all_root_windows (Uint32 w, Uint32 h)
@@ -1225,6 +1227,7 @@ void resize_all_root_windows (Uint32 w, Uint32 h)
 	if (rules_root_win >= 0) resize_window (rules_root_win, w, h);
 	if (opening_root_win >= 0) resize_window (opening_root_win, w, h);
 	if (newchar_root_win >= 0) resize_window (newchar_root_win, w, h);
+	if (update_root_win >= 0) resize_window (update_root_win, w, h);
 	if (input_widget->window_id != chat_win) {
 		widget_resize (input_widget->window_id, input_widget->id, w-HUD_MARGIN_X, input_widget->len_y);
 		widget_move (input_widget->window_id, input_widget->id, 0, h-input_widget->len_y-HUD_MARGIN_Y);

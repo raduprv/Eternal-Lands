@@ -77,7 +77,7 @@ void put_bag_on_ground(int bag_x,int bag_y,int bag_id)
 	if (use_eye_candy) ec_create_bag_drop(x, y, z, (poor_man ? 6 : 10));
 #endif	//EYE_CANDY
 #ifdef NEW_SOUND
-	if (sound_on && your_actor && bag_x == your_actor->x_pos && bag_y == your_actor->y_pos)
+	if (your_actor && bag_x == your_actor->x_pos * 2 && bag_y == your_actor->y_pos * 2)
 	{
 		snd = get_sound_index_for_particle_file_name("./particles/bag_in.part");
 		if (snd >= 0)
@@ -188,7 +188,7 @@ void remove_bag(int which_bag)
   #endif
  #endif // EYE_CANDY
 #ifdef NEW_SOUND
-	if (sound_on)
+	if (your_actor && bag_list[which_bag].x == your_actor->x_pos * 2 && bag_list[which_bag].y == your_actor->y_pos * 2)
 	{
 		snd = get_sound_index_for_particle_file_name("./particles/bag_out.part");
 		if (snd >= 0)

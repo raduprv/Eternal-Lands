@@ -176,6 +176,24 @@ void clear_objects_list_placeholders();
  */
 void inc_objects_list_placeholders();
 
+#ifdef NEW_SOUND
+/*!
+ * \ingroup	load_3d
+ * \brief	Searches for a 3d object at a location
+ * 
+ * 		It searches for a 3d object at the specified location
+ * 		
+ * \param	x_pos		The x position to search for
+ * \param	y_pos		The y position to search for
+ * \retval char			Returns the object's filename if found, "" otherwise.
+ * 
+ * \sa add_e3d_at_id
+ *
+ * \callgraph
+ */
+char * get_3dobject_at_location(float x_pos, float y_pos);
+#endif // NEW_SOUND
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

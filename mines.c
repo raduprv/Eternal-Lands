@@ -65,9 +65,18 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id)
 	x = x + 0.25f;
 	y = y + 0.25f;
 
-	obj_3d_id = add_e3d(get_mine_e3d(mine_type), x, y, z, 0, 0, 0, 1, 0, 1.0f, 1.0f, 1.0f, 1);
-	
 	// Now, find a place into the mines list, so we can destroy the mine properly
+	if (mine_list[mine_id].obj_3d_id != -1)
+	{
+		char buf[256];
+
+		// Oops, slot already taken!
+		safe_snprintf(buf, sizeof(buf), "Oops, trying to add an existing mine! id=%d\n", mine_id);
+		LOG_ERROR(buf);
+		return;
+	}
+	
+	obj_3d_id = add_e3d(get_mine_e3d(mine_type), x, y, z, 0, 0, 0, 1, 0, 1.0f, 1.0f, 1.0f, 1);
 	mine_list[mine_id].x = mine_x;
 	mine_list[mine_id].y = mine_y;
 	mine_list[mine_id].type = mine_type;

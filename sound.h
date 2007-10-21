@@ -298,18 +298,6 @@ int get_index_for_inv_usewith_item_sound(int use_image_id, int with_image_id);
 
 /*!
  * \ingroup sound_effects
- * \brief Gets the index of the sound for the tile type
- *
- *      Searches for a sound which matches the given \a tile_type and \a actor_type. A return of -1 indicates no match.
- *
- * \param tile_type				The tile type
- * \param actor_type			The string of the actor type
- * \callgraph
- */
-int get_tile_sound(int tile_type, char * actor_type);
-
-/*!
- * \ingroup sound_effects
  * \brief Gets the index of the sound source for the given cookie.
  *
  *      Searches for a sound source which matches the cookie \a cookie. A return of -1 indicates no match.
@@ -352,6 +340,7 @@ void load_sound_config_data (const char *path);
 
 
 void handle_walking_sound(actor *pActor, int def_snd);
+int check_sound_loops(unsigned int cookie);
 #endif	//NEW_SOUND
 
 

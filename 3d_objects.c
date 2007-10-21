@@ -621,6 +621,25 @@ int add_e3d (const char * file_name, float x_pos, float y_pos, float z_pos, floa
 	return add_e3d_at_id (i, file_name, x_pos, y_pos, z_pos, x_rot, y_rot, z_rot, self_lit, blended, r, g, b, dynamic);
 }
 
+#ifdef NEW_SOUND
+char * get_3dobject_at_location(float x_pos, float y_pos)
+{
+	int i;
+	float offset = 0.5f;
+	for (i = 0; i < MAX_OBJ_3D; i++)
+	{
+		if (objects_list[i]
+			&& objects_list[i]->x_pos > (x_pos - offset) && objects_list[i]->x_pos < (x_pos + offset)
+			&& objects_list[i]->y_pos > (y_pos - offset) && objects_list[i]->y_pos < (y_pos + offset)
+			&& objects_list[i]->display)
+		{
+			return objects_list[i]->file_name;
+		}
+	}
+	return "";
+}
+#endif // NEW_SOUND
+
 void display_objects()
 {	
 	CHECK_GL_ERRORS();

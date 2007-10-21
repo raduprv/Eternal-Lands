@@ -197,6 +197,24 @@ obj_2d_def * load_obj_2d_def_cache(char * file_name);
  */
 void destroy_2d_object(int i);
 
+#ifdef NEW_SOUND
+/*!
+ * \ingroup	load_2d
+ * \brief	Searches for a 2d ground object at a location
+ * 
+ * 		It searches for a 2d ground object at the specified location
+ * 		
+ * \param	x_pos		The x position to search for
+ * \param	y_pos		The y position to search for
+ * \retval char			Returns the object's filename if found, "" otherwise.
+ * 
+ * \sa add_e3d_at_id
+ *
+ * \callgraph
+ */
+char * get_2dobject_at_location(float x_pos, float y_pos);
+#endif // NEW_SOUND
+
 #ifdef MAP_EDITOR2
 /*!
  * \ingroup	display_2d
