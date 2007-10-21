@@ -47,8 +47,6 @@ void put_mine_on_ground(int mine_x, int mine_y, int mine_type, int mine_id)
 	float x, y, z;
 	int obj_3d_id;
 	
-	printf("Adding mine: X: %i, Y: %i, Type: %i, ID: %i\n", mine_x, mine_y, mine_type, mine_id);
-
 	// Now, get the Z position
 	if (mine_y * tile_map_size_x * 6 + mine_x > tile_map_size_x * tile_map_size_y * 6 * 6)
 	{
@@ -90,9 +88,8 @@ void add_mines_from_list (const Uint8 *data)
 	int mine_x, mine_y, mine_type, my_offset;
 	float x, y, z;
 	int obj_3d_id, mine_id;
-	
+
 	mines_no = data[0];
-	printf("Adding %d mines.\n", mines_no);
 
 	if (mines_no > NUM_MINES)
 	{
@@ -106,7 +103,6 @@ void add_mines_from_list (const Uint8 *data)
 		mine_y = SDL_SwapLE16(*((Uint16 *)(data + my_offset + 2)));
 		mine_id = *((Uint8 *)(data + my_offset + 4));
 		mine_type = *((Uint8 *)(data + my_offset + 5));
-		printf("Adding mine: X: %i, Y: %i, Type: %i, ID: %i\n", mine_x, mine_y, mine_type, mine_id);
 		if (mine_id >= NUM_MINES)
 		{
 			continue;
@@ -148,8 +144,6 @@ void add_mines_from_list (const Uint8 *data)
 
 void remove_mine(int which_mine)
 {
-	printf("Removing mine: %i\n", which_mine);
-
 	if (which_mine == -1 || which_mine >= NUM_MINES) return;
 
 	if (mine_list[which_mine].obj_3d_id == -1) {

@@ -622,6 +622,7 @@ typedef enum
 #define LOOK_AT_STORAGE_ITEM 47
 #define SPELL_NAME 48
 #define SEND_VIDEO_INFO 49
+#define POPUP_REPLY 50
 
 #define PING_RESPONSE 60
 #define SET_ACTIVE_CHANNEL 61
@@ -720,6 +721,7 @@ typedef enum
 #define REMOVE_MINE 80
 #define GET_NEW_MINE 81
 #define GET_MINES_LIST 82
+#define DISPLAY_POPUP 83
 
 #define SEND_WEATHER 100
 

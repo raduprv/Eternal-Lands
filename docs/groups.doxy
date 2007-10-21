@@ -331,6 +331,11 @@
  *      Handles the new storage interface
  * \ingroup windows
  */
+/*!
+ * \defgroup    popup_window The new popup windows
+ *      Handles the popup windows sent by the server
+ * \ingroup windows
+ */
 
 ///////////////////////////////////////////////////////////////////////////////
 //		      Interfaces (root windows) in EL			     //

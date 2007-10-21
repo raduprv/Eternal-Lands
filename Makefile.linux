@@ -23,6 +23,7 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a 
 ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
 MEMORY_DEBUG_COBJ = elmemory.o
 NOTEPAD_COBJ = notepad.o
+POPUP_COBJ = popup.o
 SFX_COBJ = special_effects.o
 MINIMAP_COBJ = minimap.o
 SKY_FPV_CURSOR_COBJ = sky.o

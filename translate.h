@@ -696,7 +696,8 @@ extern char	win_notepad[20],
 		game_version_str[60],
 		label_note_name[20],
 		label_cursor_coords[17],
-		label_mark_filter[13];
+		label_mark_filter[13],
+		button_send[10];
 #endif  // DOXYGEN_SKIP_THIS
 #endif  // ELC
 

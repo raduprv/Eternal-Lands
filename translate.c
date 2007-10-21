@@ -589,6 +589,7 @@ char	win_notepad[20],
 	tab_session[20],
 	tab_main[20],
 	button_okay[10],
+	button_send[10],
 	button_cancel[10],
 	button_new_category[30],
 	button_remove_category[30],
@@ -1372,6 +1373,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "l_cursor_coords", label_cursor_coords, "Cursor position", sizeof(label_cursor_coords));
 	add_xml_identifier (titles_str, "l_mark_filter", label_mark_filter, "Mark filter", sizeof(label_mark_filter));
 	add_xml_identifier (titles_str, "game_version", game_version_str, "Eternal Lands Version %d.%d.%d%s", sizeof(game_version_str));
+	add_xml_identifier (titles_str, "b_send", button_send, "Send", sizeof(button_send));
 }
 #endif // ELC
 

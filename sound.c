@@ -105,6 +105,8 @@ typedef struct {
 #define MAX_SOUND_PARTICLES 20		// This value should equal the number of particle effects
 #define MAX_SOUND_ITEMS 5			// This is the number of sounds defined for "Use item" sfx
 
+#define MAX_SOUND_WARNINGS 50		// The number of user defined sound warnings
+
 typedef enum
 {
 	STAGE_UNUSED = -1, STAGE_INTRO, STAGE_MAIN, STAGE_OUTRO, num_STAGES, STAGE_STREAM
@@ -241,6 +243,12 @@ typedef struct
 	int default_sound;
 } tile_sound_data;
 
+typedef struct
+{
+	int sound;
+	char string[256];
+} sound_warnings;
+
 #ifdef OGG_VORBIS
 typedef struct
 {
@@ -295,6 +303,7 @@ ALfloat actor_gain = 1.0f;
 ALfloat walking_gain = 1.0f;
 ALfloat gamewin_gain = 1.0f;
 ALfloat client_gain = 1.0f;
+ALfloat warnings_gain = 1.0f;
 #endif // NEW_SOUND
 
 int used_sources = 0;						// the number of sources currently playing
@@ -313,10 +322,10 @@ int sound_num_effects = 0;					// Number of effects we have sounds for
 int sound_num_particles = 0;				// Number of particles we have sounds for
 int sound_num_items = 0;					// Number of "Use item" actions we have sounds for
 int sound_num_tile_types = 0;				// Number of tile type groups we have sounds for
+int num_sound_warnings = 0;					// Number of string warnings
 
 int snd_cur_map = -1;
 int cur_boundary = 0;
-int dim_sounds_on_rain = 0;
 
 // Each playing source is identified by a unique cookie.
 unsigned int next_cookie = 1;
@@ -335,6 +344,7 @@ item_sound_data sound_item_data[MAX_SOUND_ITEMS];				// Data for item sfx
 tile_sound_data sound_tile_data[MAX_SOUND_TILE_TYPES];			// Data for tile (walking) sfx
 int server_sound[9];											// Map of server sounds to sound def ids
 int sound_spell_data[10];										// Map of id's for spells-that-affect-you to sounds
+sound_warnings warnings_list[MAX_SOUND_WARNINGS];				// List of strings to monitor for warning sounds
 #else
 char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
 ALuint sound_source[MAX_SOURCES];
@@ -3053,13 +3063,16 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 		case SOUNDS_GAMEWIN:
 			type_gain = gamewin_gain;
 			break;
+		case SOUNDS_WARNINGS:
+			type_gain = warnings_gain;
+			break;
 	}
 	// Check if we need to update the base gain for this sound
 	if (new_gain != sounds_list[loaded_sound_num].base_gain)
 		sounds_list[loaded_sound_num].base_gain = new_gain;
 
 	// Check if we need to dim down the sounds due to rain
-	if (this_snd->type != SOUNDS_CLIENT && this_snd->type != SOUNDS_GAMEWIN)
+	if (this_snd->type != SOUNDS_CLIENT && this_snd->type != SOUNDS_GAMEWIN && this_snd->type != SOUNDS_WARNINGS)
 		new_gain = weather_adjust_gain(new_gain, pSource->cookie);
 
 	// Check if we need to update the overall gain for this source
@@ -3173,7 +3186,7 @@ int ensure_sample_loaded(char * in_filename)
 	}
 	
 #ifdef _EXTRA_SOUND_DEBUG
-	LOG_ERROR("Got sample num: %d, Attemping to load sound: File: %s\n", sample_num, in_filename);
+	printf("Got sample num: %d, Attemping to load sound: File: %s\n", sample_num, in_filename);
 #endif //_EXTRA_SOUND_DEBUG
 
 	num_samples++;
@@ -4423,6 +4436,20 @@ int check_sound_loops(unsigned int cookie)
 	return 0;
 }
 
+void check_sound_alerts(char * text, Uint8 channel)
+{
+	int i;
+	for (i = 0; i < num_sound_warnings; i++)
+	{
+		if (safe_strcasestr(text, strlen(text), warnings_list[i].string, strlen(warnings_list[i].string)))
+		{
+			add_sound_object_gain(warnings_list[i].sound, 0, 0, 1, 1.0f);
+			return;		// Only play one sound
+		}
+	}
+	return;
+}
+
 // Compare the input flags to the current time and return true if they match
 int time_of_day_valid(int flags)
 {
@@ -4730,6 +4757,11 @@ void clear_sound_data()
 	{
 		sound_spell_data[i] = -1;
 	}
+	for (i = 0; i < MAX_SOUND_WARNINGS; i++)
+	{
+		warnings_list[i].sound = -1;
+		warnings_list[i].string[0] = '\0';
+	}
 
 	num_types = 0;
 	num_samples = 0;
@@ -4739,6 +4771,7 @@ void clear_sound_data()
 	sound_num_particles = 0;
 	sound_num_items = 0;
 	sound_num_tile_types = 0;
+	num_sound_warnings = 0;
 }
 
 void init_sound()
@@ -5016,6 +5049,127 @@ void destroy_sound()
  * CONFIG FUNCTIONS *
  ********************/
 
+// Returns -1 if the string is already in the list, 0 on error, 1 on success or -2 if there are no more list slots
+int add_to_sound_warnings_list(const char * text)
+{
+	int i, snd;
+	char left[256];
+	char right[256];
+	int t, tp;
+	
+	if (text[0] == '\0' || text[0] == '#')
+		return 1;		// Nothing to do so return success
+
+	// Extract the sound name (left) and string (right) from the input text
+	safe_strncpy (left, text, sizeof(left));
+	for (t = 0; ; t++)
+	{
+		if (left[t] == '\0')
+		{
+			LOG_ERROR("Invalid sound warning declared: %s. Expected format 'sound = string'.", text);
+			return 0;
+		}
+		if (left[t] == '=')
+		{
+			left[t] = '\0';
+			for (tp = t - 1; tp >= 0 && isspace(left[tp]); tp--)
+			{
+				left[tp] = '\0';
+			}
+			for (tp = t + 1; left[tp] != '\0' && !(left[tp]&0x80) && isspace(left[tp]); tp++) ;
+			safe_strncpy (right, &left[tp], sizeof(right));
+			break;
+		}
+	}
+	
+	// See if this string is already in the list
+	for (i = 0; i < MAX_SOUND_WARNINGS; i++)
+	{
+		if (warnings_list[i].sound >= 0)
+		{
+			if (my_strcompare (warnings_list[i].string, right))
+				return -1; // Already in the list
+		}
+	}
+
+	snd = get_index_for_sound_type_name(left);
+	if (snd > -1)
+	{
+		// We have a valid sound so find a free spot
+		for (i = 0; i < MAX_SOUND_WARNINGS; i++)
+		{
+			if (warnings_list[i].sound < 0)
+			{
+				// Excellent, a free spot
+				warnings_list[i].sound = snd;
+				safe_strncpy(warnings_list[i].string, right, sizeof(warnings_list[i].string));
+				num_sound_warnings++;
+				return 1;
+			}
+		}
+		LOG_ERROR("Sound warning list is full. %d warnings loaded.", num_sound_warnings);
+		return -2;		// If we are here, it means the warnings list is full
+	}
+	
+	LOG_ERROR("Sound not found for sound warning: %s", text);
+	return 0;		// The sound wasn't found
+}
+
+// Blatently stolen from the text filter code (filter.c)
+void load_sound_warnings_list(const char *filename)
+{
+	int f_size;
+	FILE * f = NULL;
+	char * sound_warnings_list_mem;
+	int istart, iend;
+	char string[128];
+
+#ifndef NEW_FILE_IO
+	// Don't use my_fopen, absence of warnings is not an error
+	f = fopen (filename, "rb");
+#else // NEW_FILE_IO
+	f = open_file_config (filename, "rb");
+#endif // NEW_FILE_IO
+	if (f == NULL) return;
+
+	// Ok, allocate memory for it and read it in
+	fseek(f, 0, SEEK_END);
+	f_size = ftell(f);
+	sound_warnings_list_mem = (char *) calloc (f_size, 1);
+	fseek(f, 0, SEEK_SET);
+	fread(sound_warnings_list_mem, 1, f_size, f);
+	fclose(f);
+
+	istart = 0;
+	while (istart < f_size)
+	{
+		// Find end of the line
+		for (iend = istart; iend < f_size; iend++)
+		{
+			if (sound_warnings_list_mem[iend] == '\n' || sound_warnings_list_mem[iend] == '\r')
+				break;
+		}
+
+		// Copy the line and process it
+		if (iend > istart)
+		{
+			safe_strncpy2(string, sound_warnings_list_mem+istart, sizeof(string), iend - istart);
+			if (add_to_sound_warnings_list(string) == -2)		// -1 == already exists, -2 == list full
+			{
+				free(sound_warnings_list_mem);
+				return; // Sound warnings list full
+			}
+		}
+
+		// Move to next line
+		istart = iend + 1;
+	}
+
+	free(sound_warnings_list_mem);
+}
+
+
+
 void parse_server_sounds()
 {
 	int i;
@@ -5274,6 +5428,8 @@ void parse_sound_object(xmlNode *inNode)
 						iVal = SOUNDS_CLIENT;
 					} else if (!strcasecmp((char *)content, "gamewin")) {
 						iVal = SOUNDS_GAMEWIN;
+					} else if (!strcasecmp((char *)content, "warnings")) {
+						iVal = SOUNDS_WARNINGS;
 					} else {
 						LOG_ERROR("%s: Unknown type '%s' for sound '%s'", snd_config_error, content, pData->name);
 					}
@@ -6121,6 +6277,7 @@ void load_sound_config_data (const char *file)
 		clear_sound_data();
 		parse_sound_defs(root);
 		parse_server_sounds();
+		load_sound_warnings_list(SOUND_WARNINGS_PATH);
 	}
 
 	xmlFree(doc);
@@ -6254,6 +6411,15 @@ void print_sound_types()
 	for (i = 0; i <= 9; ++i)
 	{
 		printf("Server Sound: %d = %d\n", i, server_sound[i]);
+	}
+
+	printf("\nTEXT WARNING SOUNDS\n===============\n");
+	printf("There are %d/%d text warning sounds:\n", num_sound_warnings, MAX_SOUND_WARNINGS);
+	for (i = 0; i < num_sound_warnings; ++i)
+	{
+		printf("Text Warning: %d\n", i);
+		printf("\tText: %s\n", warnings_list[i].string);
+		printf("\tSound: %d\n", warnings_list[i].sound);
 	}
 }
 

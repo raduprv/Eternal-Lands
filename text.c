@@ -31,7 +31,9 @@
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
-
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
@@ -312,6 +314,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	
 	if (len <= 0) return 0;	// no point
 	
+#ifdef NEW_SOUND
+	// Check if this string matches text we play a sound for
+	check_sound_alerts(text_to_add, channel);
+#endif // NEW_SOUND
+
 	//check for auto receiving #help
 	for (idx = 0; idx < len; idx++)
 	{

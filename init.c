@@ -81,6 +81,9 @@
 #ifdef MINES
 #include "mines.h"
 #endif // MINES
+#ifdef POPUP
+#include "popup.h"
+#endif /* POPUP */
 
 #define	CFG_VERSION 7	// change this when critical changes to el.cfg are made that will break it
 
@@ -958,4 +961,7 @@ void init_stuff()
 #ifdef SKY_FPV_CURSOR
 	init_sky();
 #endif /* SKY_FPV_CURSOR */
+#ifdef POPUP
+	popup_init();
+#endif /* POPUP */
 }

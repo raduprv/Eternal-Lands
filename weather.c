@@ -816,7 +816,7 @@ float weather_adjust_gain(float in_gain, int in_cookie)
 {
 	float severity;
 	
-	if (dim_sounds_on_rain && weather_active() && in_cookie != rain_sound)
+	if (weather_active() && in_cookie != rain_sound)
 	{
 		severity = weather_severity * weather_get_fadeinout_bias() * weather_ratios[WEATHER_RAIN];
 		// Dim down all the sounds, except the rain
@@ -1033,8 +1033,8 @@ void rain_control()
 				rain_sound = add_server_sound(snd_rain, 0, 0, rainParam);
 #else
 			if(!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
 #endif	//NEW_SOUND
+			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 			if (is_raining) is_raining = 0;
@@ -1132,7 +1132,7 @@ void rain_control()
 #ifdef NEW_SOUND
 float weather_adjust_gain(float in_gain, int in_cookie)
 {
-	if (dim_sounds_on_rain && is_raining && in_cookie != rain_sound)
+	if (is_raining && in_cookie != rain_sound)
 	{
 		// Dim down all the sounds, except the rain
 		in_gain *= 1.0f - (rain_strength_bias * 0.75f);

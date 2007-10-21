@@ -1584,6 +1584,7 @@ void init_vars()
 	add_var(OPT_FLOAT, "walking_gain", "wgain", &walking_gain, change_sound_level, 1, "Walking Sounds Volume", "Adjust the walking sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT, "gamewin_gain", "gwgain", &gamewin_gain, change_sound_level, 1, "Item and Inventory Sounds Volume", "Adjust the item and inventory sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT, "client_gain", "clgain", &client_gain, change_sound_level, 1, "Misc Client Sounds Volume", "Adjust the client sound effects volume (warnings, hud/button clicks)", AUDIO, 0.0, 1.0, 0.1);
+	add_var(OPT_FLOAT, "warn_gain", "wrngain", &warnings_gain, change_sound_level, 1, "Text Warnings Sounds Volume", "Adjust the user configured text warning sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 #else
 	add_var(OPT_BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 #endif	//NEW_SOUND
@@ -1596,9 +1597,6 @@ void init_vars()
 #ifdef OGG_VORBIS
 	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Volume","Adjust the music volume",AUDIO,0.0,1.0,0.1);
 #endif //OGG_VORBIS
-#ifdef NEW_SOUND
-	add_var(OPT_BOOL,"dim_sounds_on_rain","dim4rain",&dim_sounds_on_rain,change_var,0,"Dim sounds when raining (Experimental!)","Soften the volume of other sounds when it is raining",AUDIO);
-#endif	//NEW_SOUND
 
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);

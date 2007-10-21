@@ -550,11 +550,11 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 			break;
 		}
 	}
-	if(strcasecmp(strrchr(file_name, '/')+1, "bag1.e3d") == 0) {
+	if (strcasecmp(file_name, "") && strcasecmp(strrchr(file_name, '/')+1, "bag1.e3d") == 0) {
 		our_object->flags |= OBJ_3D_BAG;
 	}
 #ifdef MINES
-	if(strcasecmp(strrchr(file_name, '/')+1, "branch1.e3d") == 0) {
+	if (strcasecmp(file_name, "") && strcasecmp(strrchr(file_name, '/')+1, "branch1.e3d") == 0) {
 		our_object->flags |= OBJ_3D_MINE;
 	}
 #endif // MINES

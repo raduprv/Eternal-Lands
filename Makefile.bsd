@@ -12,7 +12,7 @@ SRCS= 2d_objects.c 3d_objects.c \
     md2loader.c md5.c misc.c multiplayer.c  \
     new_actors.c new_character.c notepad.c   \
     openingwin.c \
-    particles.c paste.c pathfinder.c pm_log.c   \
+    particles.c paste.c pathfinder.c pm_log.c popup.o   \
     questlog.c reflection.c rules.c \
     sector.c session.c serverpopup.c shadows.c sound.c spells.c stats.c tabs.c  \
     text.c textures.c tile_map.c timers.c translate.c trade.c   \

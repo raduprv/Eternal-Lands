@@ -49,6 +49,7 @@ FEATURES += OPTIONS_I18N                    # make option labels & descriptions 
 #FEATURES += PARANOID_CAMERA                 # (undocumented)
 #FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
+FEATURES += POPUP                           # enable server popups
 FEATURES += SFX                             # experimental visual spell effects
 FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
 #FEATURES += SKY_FPV_CURSOR                  # Use skybox with clouds/stars/etc, enable first person view, coloured cursors, and other misc changes from Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/

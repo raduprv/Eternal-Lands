@@ -54,6 +54,9 @@
 #ifdef	USE_SEND_VIDEO_INFO
 #include "sendvideoinfo.h"
 #endif	// USE_SEND_VIDEO_INFO
+#ifdef POPUP
+#include "popup.h"
+#endif /* POPUP */
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1773,7 +1776,18 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			}
 			break;
 #endif // MINES
-
+#ifdef POPUP
+		case DISPLAY_POPUP:
+			{
+				if (data_length <= 8) /* At least one char title and one char text */
+				{
+					log_error("CAUTION: Possibly forged DISPLAY_POPUP packet received.\n");
+					break;
+				}
+				popup_create_from_network( in_data, data_length );
+			}
+			break;
+#endif /* POPUP */
 		default:
 			{
 				// Unknown packet type??

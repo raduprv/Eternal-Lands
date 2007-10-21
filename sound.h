@@ -28,7 +28,8 @@ extern "C" {
 #define SOUNDS_WALKING 4
 #define SOUNDS_CROWD 5
 #define SOUNDS_GAMEWIN 6
-#define SOUNDS_CLIENT 7		// Should always be last as limits are linked to this define
+#define SOUNDS_WARNINGS 7
+#define SOUNDS_CLIENT 8		// Should always be last as limits are linked to this define
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
@@ -39,10 +40,6 @@ extern int music_on; /*!< flag indicating whether music is enabled */
 extern int playing_music; /*!< flag indicating if music is currently playing */
 #endif // !NEW_SOUND
 
-#ifdef NEW_SOUND
-extern int dim_sounds_on_rain;	/*!< flag indicating if sounds should be dimmed when its raining (currently experimental) */
-#endif // NEW_SOUND
-
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
 #ifdef NEW_SOUND
@@ -52,21 +49,25 @@ extern ALfloat actor_gain; /*!< gain for actor sound effects */
 extern ALfloat walking_gain; /*!< gain for walking sound effects */
 extern ALfloat gamewin_gain; /*!< gain for game window (items/inv etc) sound effects */
 extern ALfloat client_gain; /*!< gain for client sound effects */
+extern ALfloat warnings_gain; /*!< gain for user configured text warning sound effects */
 
-	#define MAX_SOUND_NAME_LENGTH 40
-	typedef unsigned long int SOUND_COOKIE;
-	#define SOUND_CONFIG_PATH "sound/sound_config.xml"
+#define MAX_SOUND_NAME_LENGTH 40
 
-	#ifdef DEBUG
-		void print_sound_types();
-		void print_sound_samples();
-		void print_sounds_list();
-		void print_sound_sources();
-	#endif
-#else
-	#ifdef DEBUG
-		void print_sound_objects();
-	#endif
+typedef unsigned long int SOUND_COOKIE;
+
+#define SOUND_CONFIG_PATH "sound/sound_config.xml"
+#define SOUND_WARNINGS_PATH "sound_warnings.txt"
+
+#ifdef DEBUG
+void print_sound_types();
+void print_sound_samples();
+void print_sounds_list();
+void print_sound_sources();
+#endif
+#else // NEW_SOUND
+#ifdef DEBUG
+void print_sound_objects();
+#endif
 #endif	//NEW_SOUND
 						   
 /*!
@@ -341,6 +342,7 @@ void load_sound_config_data (const char *path);
 
 void handle_walking_sound(actor *pActor, int def_snd);
 int check_sound_loops(unsigned int cookie);
+void check_sound_alerts(char * text, Uint8 channel);
 #endif	//NEW_SOUND
 
 

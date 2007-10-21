@@ -36,21 +36,11 @@ unsigned char cached_storage_list[8192] = {0};
 //returns -1 if the name is already filtered, 1 on sucess, -2 if no more filter slots
 int add_to_filter_list (const char *name, char local, char save_name)
 {
-	int i;
+	int i, j;
 	char left[256];
 	char right[256];
 	int t, tp;
 	int l=0;
-
-	//see if this name is already on the list
-	for (i = 0; i < MAX_FILTERS; i++)
-	{
-		if (filter_list[i].len > 0)
-		{
-			if (my_strcompare (filter_list[i].name, name))
-				return -1; // already in the list
-		}
-	}
 
 	//ok, find a free spot
 	for (i = 0; i < MAX_FILTERS; i++)
@@ -77,6 +67,15 @@ int add_to_filter_list (const char *name, char local, char save_name)
 					for (tp = t + 1; left[tp] != '\0' && !(left[tp]&0x80) && isspace(left[tp]); tp++) ;
 					safe_strncpy (right, &left[tp], sizeof(right));
 					break;
+				}
+			}
+			// See if this name is already on the list
+			for (j = 0; j < MAX_FILTERS; j++)
+			{
+				if (filter_list[j].len > 0)
+				{
+					if (my_strcompare (filter_list[j].name, left))
+						return -1; // Already in the list
 				}
 			}
 			// add to the local filter file, if the case
@@ -455,8 +454,11 @@ void load_filters_list (const char *file_name, char local)
 		if (iend > istart)
 		{
 			safe_strncpy2 (name, filter_list_mem+istart, sizeof (name), iend-istart);
-			if (add_to_filter_list (name, local, 0) == -1)
+			if (add_to_filter_list (name, local, 0) == -2)		// -1 == already exists, -2 == list full
+			{
+				free (filter_list_mem);
 				return; // filter list full
+			}
 		}
 
 		// move to next line
