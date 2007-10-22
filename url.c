@@ -1,6 +1,8 @@
 #ifdef OSX
 	#include <sys/malloc.h>
 	#include <CoreFoundation/CoreFoundation.h>
+#elif BSD
+	#include <stdlib.h>
 #else
 	#include <malloc.h>
 #endif /* OSX */

@@ -2,6 +2,8 @@
 #include <SDL_endian.h>
 #ifdef OSX
  #include <sys/malloc.h>
+#elif BSD
+ #include <stdlib.h>
 #else // OSX
  #include <malloc.h>
 #endif // OSX
