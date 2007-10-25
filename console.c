@@ -945,19 +945,6 @@ int command_storage(char *text, int len)
 		}
 	}
 
-	// Check we have a category (required for the next server release with additional slots)
-	if (i >= len) {
-		LOG_TO_CONSOLE(c_red1, "Invalid format for storage command. Storage command should be in the format: #storage category [filter]");
-		return 1;	// Do not send the command to the server
-	}
-	
-	// Find the next space to see if we have a filter
-	for (i++; i < len; i++) {
-		if (text[i] == ' ') {
-			break;
-		}
-	}
-
 	if (i < len)
 	{
 		int nb = len - i - 1;
