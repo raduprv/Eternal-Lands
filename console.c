@@ -945,6 +945,20 @@ int command_storage(char *text, int len)
 		}
 	}
 
+	// Check we have a category (required for the next server release with additional slots)
+	if (i >= len) {
+		LOG_TO_CONSOLE(c_red1, "Invalid format for storage command. Storage command should be in the format: #storage category [filter]");
+		LOG_TO_CONSOLE(c_red1, "The category is required. It is ignored until the next server release.");	// FIXME: This can be removed after the release
+		return 1;	// Do not send the command to the server
+	}
+	
+	// Find the next space to see if we have a filter
+	for (i++; i < len; i++) {
+		if (text[i] == ' ') {
+			break;
+		}
+	}
+
 	if (i < len)
 	{
 		int nb = len - i - 1;
@@ -953,17 +967,20 @@ int command_storage(char *text, int len)
 		my_strncp (storage_filter, text+i+1, nb+1);
 	}
 
-	if(have_storage_list){
+	if (have_storage_list)
+	{
 		int size = strlen((char*)cached_storage_list)+1;
 		unsigned char cached_storage_copy[sizeof(cached_storage_list)];
 		unsigned char * endl;
 		memcpy(cached_storage_copy, cached_storage_list, size);
 		endl = (unsigned char*)strchr((char*)cached_storage_copy, '\n');
-		if(endl == NULL){
-			//No newline? Our cached list isn't correct.
-		return 0;
+		if (endl == NULL)
+		{
+			// No newline? Our cached list isn't correct.
+			return 0;
 		}
-		if(storage_filter[0] != '\0'){
+		if (storage_filter[0] != '\0')
+		{
 			size = filter_storage_text((char*)endl+1, size, size);  //Note: filter from the first newline, which is where the item list starts
 			size += (endl - cached_storage_copy +1);
 		}
