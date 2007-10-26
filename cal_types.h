@@ -20,6 +20,7 @@ struct cal_anim
 #endif
 #ifdef NEW_SOUND
 	int sound;
+	float sound_scale;
 #endif	//NEW_SOUND
 };
 

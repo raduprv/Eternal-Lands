@@ -1584,8 +1584,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				get_storage_text(in_data+3, data_length-3);
 			}
 			break;
-    		case SPELL_CAST:
-    			{
+		case SPELL_CAST:
+			{
 				if (data_length <= 3)
 				{
 				  log_error("CAUTION: Possibly forged SPELL_CAST packet received.\n");
@@ -1598,12 +1598,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 				process_network_spell((char*)in_data+3, data_length-3);
 #ifdef COUNTERS
-					if (in_data[3] == S_SUCCES) {
-						// increment the spell counter
-						increment_spell_counter(in_data[4]);
-					}
+				if (in_data[3] == S_SUCCES) {
+					// increment the spell counter
+					increment_spell_counter(in_data[4]);
+				}
 #endif
-        		}
+       		}
 			break;
 		case GET_ACTIVE_CHANNELS:
 			if (data_length <= 3)
@@ -1842,8 +1842,8 @@ static void process_data_from_server(queue_t *queue)
 				in_data_used = 0;
 				disconnected = 1;
 #ifdef NEW_SOUND
-			stop_all_sounds();
-			add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
+				stop_all_sounds();
+				add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
 #endif // NEW_SOUND
 #ifdef COUNTERS
 				disconnect_time = SDL_GetTicks();

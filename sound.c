@@ -92,6 +92,7 @@ typedef struct {
 #define MAX_BACKGROUND_DEFAULTS 8			// Maximum number of global default backgrounds
 #define MAX_MAP_BACKGROUND_DEFAULTS 4		// Maximum number of default backgrounds per map
 #define MAX_SOUND_MAP_NAME_LENGTH 60		// Maximum length of the name of the map
+#define MAX_SOUND_VARIANTS 4				// Maximum number of different sounds allowed for the one sound type
 #define MAX_SOUND_MAP_BOUNDARIES 20			// Maximum number of boundary sets per map
 #define MAX_SOUND_WALK_BOUNDARIES 40		// Maximum number of walk boundary sets per map
 #define MAX_ITEM_SOUND_IMAGE_IDS 30			// Maximum number of image id's linked to an item sound def
@@ -121,10 +122,16 @@ typedef struct
 
 typedef struct
 {
-	char name[MAX_SOUND_NAME_LENGTH];
 	sound_parts part[num_STAGES];	// The indices of the samples used
 	float gain;						// The gain of this sound (default 1.0)
 									// The same sample may be defined under 2 sound names, with different gains.
+} sound_variants;
+
+typedef struct
+{
+	char name[MAX_SOUND_NAME_LENGTH];
+	sound_variants variant[MAX_SOUND_VARIANTS];
+	int num_variants;
 	int stereo;						// 1 is stereo, 0 is mono (default mono)
 	float distance;					// Distance it can be heard, in meters
 	int positional;					// 1=positional, 0=omni (default positional)
@@ -151,6 +158,7 @@ typedef struct
 typedef struct
 {
 	int sound;							// The ID of the sound type
+	int variant;						// The variant of the sound type being played
 	int x;
 	int y;
 	int loaded;							// Has this sound been loaded into a buffer
@@ -263,6 +271,7 @@ typedef struct
 	int processed;							// Processed value (temporary storage)
 	int playing;							// Is this stream currently playing
 	int sound;								// The sound this stream is playing				(not used for music)
+	int variant;							// The variant of the sound playing				(not used for music)
 	int is_default;							// Is this sound a default sound for this type	(not used for music)
 	map_sound_boundary_def * boundary;		// This is a pointer to the boundary in use
 } stream_data;
@@ -2072,12 +2081,14 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 	}
 	else
 	{
-		file = sound_type_data[sound].part[STAGE_MAIN].file_path;
+		// Choose a variant
+		stream->variant = rand() % sound_type_data[sound].num_variants - 1;
+		file = sound_type_data[sound].variant[stream->variant].part[STAGE_MAIN].file_path;
 		if (!have_sound || sound == -1 || !strcmp(file, "")) return;
 	}
 	
 	// Set the gain for this stream
-	alSourcef (stream->source, AL_GAIN, gain);
+	alSourcef (stream->source, AL_GAIN, gain * sound_type_data[sound].variant[stream->variant].gain);
 	
 	// Load the Ogg file and start the stream
 	stream_ogg_file(file, stream, NUM_STREAM_BUFFERS);
@@ -2254,7 +2265,7 @@ int add_stream(int sound, int type, int boundary)
 	// Check we aren't creating another music stream if one exists
 	if (type == STREAM_TYPE_MUSIC && music_stream)
 	{
-		LOG_ERROR("Sound error: Tried to create additional music stream. This is a bug!\n");
+		LOG_ERROR("Sound stream error: Tried to create additional music stream. This is a bug!\n");
 		return 0;
 	}
 	
@@ -2263,9 +2274,6 @@ int add_stream(int sound, int type, int boundary)
 		// Check this sound isn't already being played in a stream
 		if (streams[i].sound == sound && streams[i].type == type)
 		{
-#ifdef _EXTRA_SOUND_DEBUG
-//			printf("add_stream error: This stream already exists! Stream ID: %d, sound: %d\n", i, sound);
-#endif // _EXTRA_SOUND_DEBUG
 			return 0;
 		}
 		if (streams[i].type == type)
@@ -2275,26 +2283,17 @@ int add_stream(int sound, int type, int boundary)
 			// Check if there is a default stream of this type that needs to be stopped
 			if (streams[i].is_default)
 			{
-#ifdef _EXTRA_SOUND_DEBUG
-				printf("add_stream: Found a default stream: Stream ID: %d, sound: %d\n", i, streams[i].sound);
-#endif // _EXTRA_SOUND_DEBUG
 				default_found = i;
 			}
 		}
 		// Find a spot in the array
 		if (!stream && streams[i].type == STREAM_TYPE_NONE)
 		{
-#ifdef _EXTRA_SOUND_DEBUG
-			our_stream = i;
-#endif // _EXTRA_SOUND_DEBUG
 			stream = &streams[i];
 		}
 	}
 	if (!stream)
 	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("add_stream error: Unable to create stream! All streams used.\n");
-#endif // _EXTRA_SOUND_DEBUG
 		return 0;
 	}
 	// Calculate the priority of this stream (give the first 2 streams of this type top priority and then according to sound)
@@ -2302,15 +2301,11 @@ int add_stream(int sound, int type, int boundary)
 		priority = sound_type_data[sound].priority;
 	else
 		priority = 1;
-#ifdef _EXTRA_SOUND_DEBUG
-	printf("add_stream: Initialising stream - Type: %s, Priority: %d, Boundary: %d\n", get_stream_type(type), priority, boundary);
-#endif // _EXTRA_SOUND_DEBUG
+
 	// Init the stream
 	if (!init_sound_stream(stream, type, priority))
-		return 0;
-#ifdef _EXTRA_SOUND_DEBUG
-	printf("add_stream: Done initialising stream.\n");
-#endif // _EXTRA_SOUND_DEBUG
+		return 0;			// We couldn't get a source. Sad but you get that.
+
 	// Play the stream
 	play_stream(sound, stream, 0.0f);		// Fade the stream up
 	if (!stream->playing)
@@ -2723,14 +2718,14 @@ int update_streams(void * dummy)
 						case STREAM_TYPE_SOUNDS:
 							if (!have_sound || sound_opts == SOUNDS_NONE)
 								continue;			// We aren't playing sounds so skip this stream
-							gain = sound_gain * enviro_gain * sound_type_data[streams[i].sound].gain;
+							gain = sound_gain * enviro_gain * sound_type_data[streams[i].sound].variant[streams[i].variant].gain;
 							break;
 						case STREAM_TYPE_CROWD:
 							if (!have_sound || sound_opts == SOUNDS_NONE)
 								continue;			// We aren't playing sounds so skip this stream
 							if (distanceSq_to_near_enhanced_actors == 0)
 								distanceSq_to_near_enhanced_actors = 100.0f;	// Due to no actors when calc'ing
-							gain = sound_gain * crowd_gain * sound_type_data[streams[i].sound].gain
+							gain = sound_gain * crowd_gain * sound_type_data[streams[i].sound].variant[streams[i].variant].gain
 									* sqrt(sqrt(no_near_enhanced_actors)) / sqrt(distanceSq_to_near_enhanced_actors) * 2;
 							break;
 					}
@@ -3039,6 +3034,7 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 	float type_gain = 1.0f;
 	int error;
 	sound_type * this_snd = &sound_type_data[sounds_list[loaded_sound_num].sound];
+	sound_variants * this_variant = &this_snd->variant[sounds_list[loaded_sound_num].variant];
 	// Check what type this sound is and match it to the "type gain"
 	switch (this_snd->type)
 	{
@@ -3076,9 +3072,9 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 		new_gain = weather_adjust_gain(new_gain, pSource->cookie);
 
 	// Check if we need to update the overall gain for this source
-	if (sound_gain * type_gain * this_snd->gain * new_gain != sounds_list[loaded_sound_num].cur_gain)
+	if (sound_gain * type_gain * this_variant->gain * new_gain != sounds_list[loaded_sound_num].cur_gain)
 	{
-		sounds_list[loaded_sound_num].cur_gain = sound_gain * type_gain * this_snd->gain * new_gain;
+		sounds_list[loaded_sound_num].cur_gain = sound_gain * type_gain * this_variant->gain * new_gain;
 		alSourcef(pSource->source, AL_GAIN, sounds_list[loaded_sound_num].cur_gain);
 	}
 	if ((error=alGetError()) != AL_NO_ERROR)
@@ -3108,7 +3104,7 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
  */
 int ensure_sample_loaded(char * in_filename)
 {
-	int i, j, k, sample_num, error;
+	int i, j, k, l, sample_num, error;
 	ALvoid *data;
 	ALuint *pBuffer;
 	sound_sample *pSample;
@@ -3117,15 +3113,18 @@ int ensure_sample_loaded(char * in_filename)
 	// Check if this sample is already loaded and if so, return the sample ID
 	for (i = 0; i < num_types; i++)
 	{
-		for (j = 0; j < num_STAGES; j++)
+		for (j = 0; j < sound_type_data[i].num_variants; j++)
 		{
-			if (!strcasecmp(sound_type_data[i].part[j].file_path, in_filename)
-				&& sound_type_data[i].part[j].sample_num > -1)
+			for (k = 0; k < num_STAGES; k++)
 			{
+				if (!strcasecmp(sound_type_data[i].variant[j].part[k].file_path, in_filename)
+					&& sound_type_data[i].variant[j].part[k].sample_num > -1)
+				{
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Found this sample already loaded: %s, sound %d, part %d\n", in_filename, i, j);
+					printf("Found this sample already loaded: %s, sound %d, variant: %d, part %d\n", in_filename, i, j, k);
 #endif //_EXTRA_SOUND_DEBUG
-				return sound_type_data[i].part[j].sample_num;
+					return sound_type_data[i].variant[j].part[k].sample_num;
+				}
 			}
 		}
 	}
@@ -3152,14 +3151,19 @@ int ensure_sample_loaded(char * in_filename)
 			found = 0;
 			for (j = 0; j < used_sources; j++)
 			{
-				for (k = STAGE_INTRO; k <= STAGE_OUTRO; k++)
+				for (k = 0; k <= sound_type_data[sounds_list[sound_source_data[j].loaded_sound].variant].num_variants; k++)
 				{
-					// Check if this sample is loaded into a source atm
-					if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].part[k].sample_num == i)
+					for (l = STAGE_INTRO; l <= STAGE_OUTRO; l++)
 					{
-						found = 1;
-						break;
+						// Check if this sample is loaded into a source atm
+						if (sound_type_data[sounds_list[sound_source_data[j].loaded_sound].sound].variant[k].part[l].sample_num == i)
+						{
+							found = 1;
+							break;
+						}
 					}
+					if (found)
+						break;	// No need to keep looking
 				}
 				if (found)
 					break;	// No need to keep looking
@@ -3271,28 +3275,30 @@ int ensure_sample_loaded(char * in_filename)
 
 int load_samples(sound_type * pType)
 {
-	int i;
+	int i, j;
+	// Choose a variant
+	j = rand() % pType->num_variants;
 	// Check we can load all samples used by this type
 	for (i = 0; i < num_STAGES; ++i)
 	{
-		if (pType->part[i].sample_num < 0 && strcasecmp(pType->part[i].file_path, ""))
+		if (pType->variant[j].part[i].sample_num < 0 && strcasecmp(pType->variant[j].part[i].file_path, ""))
 		{
-			pType->part[i].sample_num = ensure_sample_loaded(pType->part[i].file_path);
-			if (pType->part[i].sample_num < 0)
+			pType->variant[j].part[i].sample_num = ensure_sample_loaded(pType->variant[j].part[i].file_path);
+			if (pType->variant[j].part[i].sample_num < 0)
 			{
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Error: problem loading sample: %s\n", pType->part[i].file_path);
+				printf("Error: problem loading sample: %s\n", pType->variant[j].part[i].file_path);
 #endif //_EXTRA_SOUND_DEBUG
-				return 0;
+				return -1;
 			}
 		}
 	}
-	return 1;
+	return j;		// Return the variant we chose
 }
 
 void unload_sample(int sample_num)
 {
-	int i, j;
+	int i, j, k;
 	sound_sample * pSample;
 
 	// Check we have a valid sample_num
@@ -3304,11 +3310,14 @@ void unload_sample(int sample_num)
 	// Find the places this sample is listed and reset them
 	for (i = 0; i < num_types; i++)
 	{
-		for (j = 0; j < num_STAGES; j++)
+		for (j = 0; j < sound_type_data[i].num_variants; j++)
 		{
-			if (sound_type_data[i].part[j].sample_num == sample_num)
+			for (k = 0; k < num_STAGES; k++)
 			{
-				sound_type_data[i].part[j].sample_num = -1;
+				if (sound_type_data[i].variant[j].part[k].sample_num == sample_num)
+				{
+					sound_type_data[i].variant[j].part[k].sample_num = -1;
+				}
 			}
 		}
 	}
@@ -3464,15 +3473,6 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	}
 	pNewType = &sound_type_data[type];
 
-	// Check if we have a main part. Refuse to play a sound which doesn't have one.
-	if (!strcasecmp(pNewType->part[STAGE_MAIN].file_path, ""))
-	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Sound missing main part!!\n");
-#endif //_EXTRA_SOUND_DEBUG
-		return 0;
-	}
-
 	// Check if this sound is played at this time of day
 	if (!time_of_day_valid(pNewType->time_of_the_day_flags))
 	{
@@ -3508,6 +3508,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	LOCK_SOUND_LIST();
 	
 	sounds_list[sound_num].sound = type;
+	sounds_list[sound_num].variant = -1;		// Haven't chosen a variant yet - that's done by load_samples()
 	sounds_list[sound_num].x = x;
 	sounds_list[sound_num].y = y;
 	sounds_list[sound_num].loaded = 0;
@@ -3521,7 +3522,8 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	if (inited && have_sound && sound_opts != SOUNDS_NONE)
 	{
 		// Load all samples used by this type
-		if (!load_samples(pNewType))
+		sounds_list[sound_num].variant = load_samples(pNewType);
+		if (sounds_list[sound_num].variant < 0)
 		{
 			// Unable to load all the samples. We have already errored so mark it as not loaded and bail.
 			sounds_list[sound_num].loaded = 0;
@@ -3572,6 +3574,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	ALfloat sourcePos[] = {x, y, 0.0};
 	ALfloat sourceVel[] = {0.0, 0.0, 0.0};
 	source_data * pSource;
+	sound_variants * pVariant;
 	sound_type * pNewType = &sound_type_data[sounds_list[sound_num].sound];
 	
 	// Check if we have a sound device and its worth continuing
@@ -3585,12 +3588,14 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	// Check if we need to load the samples into buffers
 	if (!sounds_list[sound_num].loaded)
 	{
-		if (!load_samples(pNewType))
+		sounds_list[sound_num].variant = load_samples(pNewType);
+		if (sounds_list[sound_num].variant < 0)
 		{
 			return 0;
 		}
 		sounds_list[sound_num].loaded = 1;
 	}
+	pVariant = &pNewType->variant[sounds_list[sound_num].variant];
 	
 	pSource = get_available_source(pNewType->priority);
 	if (!pSource)
@@ -3603,7 +3608,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	}
 
 	// Check if we have an intro. We already quit if the sound doesn't have a main.
-	stage = pNewType->part[STAGE_INTRO].sample_num < 0 ? STAGE_MAIN : STAGE_INTRO;
+	stage = pVariant->part[STAGE_INTRO].sample_num < 0 ? STAGE_MAIN : STAGE_INTRO;
 
 	// Initialise the source data to the first sample to be played for this sound
 	pSource->play_duration = 0;
@@ -3624,9 +3629,9 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	for (; stage < num_STAGES; ++stage)
 	{
 		// Get the buffer to be queued.
-		if (pNewType->part[stage].sample_num < 0)
+		if (pVariant->part[stage].sample_num < 0)
 			break;
-		buffer = sound_sample_data[pNewType->part[stage].sample_num].buffer;
+		buffer = sound_sample_data[pVariant->part[stage].sample_num].buffer;
 
 		// If there are a finite number of loops for main sample, queue them all here
 		if (stage == STAGE_MAIN)
@@ -3675,7 +3680,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 		alSourcef(pSource->source, AL_REFERENCE_DISTANCE , 10.0f);
 		alSourcef(pSource->source, AL_ROLLOFF_FACTOR , 4.0f);
 	}
-	if (pNewType->part[STAGE_INTRO].sample_num < 0 && pNewType->loops == 0)
+	if (pVariant->part[STAGE_INTRO].sample_num < 0 && pNewType->loops == 0)
 		// 0 is infinite looping
 		alSourcei(pSource->source,AL_LOOPING,AL_TRUE);
 	else
@@ -3764,7 +3769,7 @@ void stop_sound_at_location(int x, int y)
 	}
 }
 
-// Kill all the sounds. Useful when we change maps, etc.
+// Kill all the not playing and looping sounds. Useful when we change maps, etc.
 void stop_all_sounds()
 {
 	int i;
@@ -3775,7 +3780,8 @@ void stop_all_sounds()
 #endif //_EXTRA_SOUND_DEBUG
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
-		if (sounds_list[i].cookie != 0)
+		// Check if this is a loaded sound that isn't going to finish by itself (not playing or loops)
+		if (sounds_list[i].cookie != 0 && (!sounds_list[i].playing || sound_type_data[sounds_list[i].sound].loops == 0))
 		{
 #ifdef _EXTRA_SOUND_DEBUG
 			printf("Stopping sound %d (%s), cookie: %d, used_sources: %d\n", i, sound_type_data[sounds_list[sound_source_data[0].loaded_sound].sound].name, sounds_list[i].cookie, used_sources);
@@ -3789,14 +3795,16 @@ void stop_all_sounds()
 #ifdef OGG_VORBIS
 	for (i = 0; i < max_streams; i++)
 	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Stopping %s stream source: %d\n", get_stream_type(streams[i].type), streams[i].source);
-#endif //_EXTRA_SOUND_DEBUG
-		// Stop the music stream (we can use it again after the map change) but destroy any other streams
+		// Fade the music stream down (we can use it again after the map change) but destroy any other streams
 		if (streams[i].type == STREAM_TYPE_MUSIC)
-			stop_stream(&streams[i]);
+			streams[i].fade = -1;
 		else
+		{
+#ifdef _EXTRA_SOUND_DEBUG
+			printf("Stopping %s stream source: %d\n", get_stream_type(streams[i].type), streams[i].source);
+#endif //_EXTRA_SOUND_DEBUG
 			destroy_stream(&streams[i]);
+		}
 	}
 #endif // OGG_VORBIS
 
@@ -3832,6 +3840,7 @@ void update_sound(int ms)
 	source_data *pSource;
 	sound_sample *pSample;
 	sound_type *pSoundType;
+	sound_variants *pVariant;
 	ALuint deadBuffer;
 	ALint numProcessed, buffer, state;
 
@@ -4026,7 +4035,8 @@ void update_sound(int ms)
 		set_sound_gain(pSource, pSource->loaded_sound, sounds_list[pSource->loaded_sound].base_gain);
 		
 		pSoundType = &sound_type_data[sounds_list[pSource->loaded_sound].sound];
-		pSample = &sound_sample_data[pSoundType->part[pSource->current_stage].sample_num];
+		pVariant = &pSoundType->variant[sounds_list[pSource->loaded_sound].variant];
+		pSample = &sound_sample_data[pVariant->part[pSource->current_stage].sample_num];
 
 		// Is this source still playing?
 		alGetSourcei(pSource->source, AL_SOURCE_STATE, &state);
@@ -4045,7 +4055,7 @@ void update_sound(int ms)
 			{
 				// The source has moved on to the next queued sample
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Cookie: %d, Loaded sound: %d, sound: %d, '%s' - sample '%s' has ended...", pSource->cookie, pSource->loaded_sound, sounds_list[pSource->loaded_sound].sound, pSoundType->name, pSoundType->part[pSource->current_stage].file_path);
+				printf("Cookie: %d, Loaded sound: %d, sound: %d, '%s' - sample '%s' has ended...", pSource->cookie, pSource->loaded_sound, sounds_list[pSource->loaded_sound].sound, pSoundType->name, pVariant->part[pSource->current_stage].file_path);
 				k = 0;
 #endif //_EXTRA_SOUND_DEBUG
 				while (++pSource->current_stage != num_STAGES)
@@ -4059,7 +4069,7 @@ void update_sound(int ms)
 						break;
 					}
 #endif // _EXTRA_SOUND_DEBUG
-					if (pSoundType->part[pSource->current_stage].sample_num < 0)
+					if (pVariant->part[pSource->current_stage].sample_num < 0)
 					{
 						// No more samples to play
 #ifdef _EXTRA_SOUND_DEBUG
@@ -4068,13 +4078,13 @@ void update_sound(int ms)
 						pSource->current_stage = num_STAGES;
 						break;
 					}
-					pSample = &sound_sample_data[pSoundType->part[pSource->current_stage].sample_num];
+					pSample = &sound_sample_data[pVariant->part[pSource->current_stage].sample_num];
 					// Found the currently-playing buffer
 
 					if (pSample->buffer == buffer)
 					{
 #ifdef _EXTRA_SOUND_DEBUG
-						printf("next sample is '%s'\n", pSoundType->part[pSource->current_stage].file_path);
+						printf("next sample is '%s'\n", pVariant->part[pSource->current_stage].file_path);
 #endif //_EXTRA_SOUND_DEBUG
 						if (pSource->current_stage == STAGE_MAIN && pSoundType->loops == 0)
 						{
@@ -4183,7 +4193,7 @@ void handle_walking_sound(actor * pActor, int def_snd)
 	float x, y;
 	int snd, cur_sound;
 	
-	if (actors_defs[pActor->actor_type].walk_snd_scale > 0.0f)
+	if (pActor->cur_anim.sound_scale > 0.0f)
 	{
 		// This creature is large enough for a walking sound so look for one
 		x = pActor->x_pos;
@@ -4239,7 +4249,7 @@ void handle_walking_sound(actor * pActor, int def_snd)
 																	2*pActor->x_pos,
 																	2*pActor->y_pos,
 																	pActor->actor_id == yourself ? 1 : 0,
-																	actors_defs[pActor->actor_type].walk_snd_scale
+																	pActor->cur_anim.sound_scale
 																);
 			}
 		}
@@ -4476,6 +4486,10 @@ int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds)
 	if (x < bounds->o[0].x || y < bounds->o[0].y || x > bounds->o[1].x || y > bounds->o[1].y)
 		return 0;	// We are outside the outer rectangle so can't be inside the polygon
 	
+	// Check if we have only 2 points (rectangle) and are therefore don't need to do anything more
+	if (bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
+		return 1;
+	
 	// Check if we are inside the 4 lines of the polygon
 	for (i = 0; i < 4; i++)
 	{
@@ -4609,6 +4623,18 @@ double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * 
  * INIT FUNCTIONS *
  ******************/
 
+void clear_variant(sound_variants *pVariant)
+{
+	int i;
+	for (i = 0; i < num_STAGES; i++)
+	{
+		pVariant->part[i].file_path[0] = '\0';
+		pVariant->part[i].loaded_status = 0;
+		pVariant->part[i].sample_num = -1;
+	}
+	pVariant->gain = 1.0f;
+}
+
 void clear_sound_type(int type)
 {
 	int i;
@@ -4620,13 +4646,11 @@ void clear_sound_type(int type)
 	sound = &sound_type_data[type];
 	
 	sound->name[0] = '\0';
-	for (i = 0; i < num_STAGES; i++)
+	for (i = 0; i < MAX_SOUND_VARIANTS; i++)
 	{
-		sound->part[i].file_path[0] = '\0';
-		sound->part[i].loaded_status = 0;
-		sound->part[i].sample_num = -1;
+		clear_variant(&sound->variant[i]);
 	}
-	sound->gain = 1.0f;
+	sound->num_variants = 0;
 	sound->stereo = 0;
 	sound->distance = 100.0f;
 	sound->positional = 1;
@@ -5214,14 +5238,124 @@ void parse_server_sounds()
 	}
 }
 
+void parse_sound_variant(xmlNode *inNode, sound_type *inType)
+{
+	char content[50];
+	char filename[200];
+	float fVal = 0.0f;
+	sound_variants * pData;
+	xmlNode * attributeNode;
+	
+	if (inType->num_variants >= MAX_SOUND_VARIANTS)
+	{
+		LOG_ERROR("%s: Too many sound variants defined for this sound type: %s", snd_config_error, inType->name);
+		return;
+	}
+	
+	pData = &inType->variant[inType->num_variants++];
+	attributeNode = inNode->xmlChildrenNode;
+	while (attributeNode != NULL)
+	{
+		if (attributeNode->type == XML_ELEMENT_NODE)
+		{
+			get_string_value(content, sizeof(content), attributeNode);
+			if (!xmlStrcmp (attributeNode->name, (xmlChar*)"intro_sound"))
+			{
+				if (!strcasecmp(pData->part[STAGE_INTRO].file_path, ""))
+				{
+					strcpy(filename, datadir);
+					strcat(filename, content);
+					if (file_exists(filename))
+					{
+						safe_strncpy(pData->part[STAGE_INTRO].file_path, (char *)content, sizeof(pData->part[STAGE_INTRO].file_path));
+					}
+					else
+					{
+						LOG_ERROR("%s: Intro stage file does not exist! %s", snd_config_error, content);
+					}
+				}
+				else
+				{
+					LOG_ERROR("%s: Intro stage file already set!", snd_config_error);
+				}
+			}
+			else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"main_sound"))
+			{
+				if (!strcasecmp(pData->part[STAGE_MAIN].file_path, ""))
+				{
+					strcpy(filename, datadir);
+					strcat(filename, content);
+					if (file_exists(filename))
+					{
+						safe_strncpy(pData->part[STAGE_MAIN].file_path, (char *)content, sizeof(pData->part[STAGE_MAIN].file_path));
+					}
+					else
+					{
+						LOG_ERROR("%s: Main stage file does not exist! %s. This variant for sound type '%s' is disabled", snd_config_error, content, inType->name);
+						clear_variant(pData);
+						inType->num_variants--;
+						return;
+					}
+				}
+				else
+				{
+					LOG_ERROR("%s: Main stage file already set!", snd_config_error);
+				}
+			}
+			else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"outro_sound"))
+			{
+				if (!strcasecmp(pData->part[STAGE_OUTRO].file_path, ""))
+				{
+					strcpy(filename, datadir);
+					strcat(filename, content);
+					if (file_exists(filename))
+					{
+						safe_strncpy(pData->part[STAGE_OUTRO].file_path, (char *)content, sizeof(pData->part[STAGE_OUTRO].file_path));
+					}
+					else
+					{
+						LOG_ERROR("%s: Outro stage file does not exist! %s", snd_config_error, content);
+					}
+				}
+				else
+				{
+					LOG_ERROR("%s: Outro stage file already set!", snd_config_error);
+				}
+			}
+			else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"gain"))
+			{
+				fVal = (float)atof((char *)content);
+				if (fVal > 0.0f)
+					pData->gain = fVal;
+				else
+				{
+					LOG_ERROR("%s: Invalid gain = %s in '%s'", snd_config_error, content, inType->name);
+				}
+			}
+		}
+		else if (attributeNode->type == XML_ENTITY_REF_NODE)
+		{
+			LOG_ERROR("%s: Include not allowed in variant sound def", snd_config_error);
+		}
+		attributeNode = attributeNode->next;
+	}
+	// Check this variant has the required Main stage
+	if (!strcasecmp(pData->part[STAGE_MAIN].file_path, ""))
+	{
+		LOG_ERROR("%s: Main stage not defined! A sound variant for this type is disabled: %s", snd_config_error, inType->name);
+		clear_variant(pData);
+		inType->num_variants--;
+	}
+	return;
+}
+
 void parse_sound_object(xmlNode *inNode)
 {
 	xmlNode *attributeNode=NULL;
 
 	char content[50];
-	char filename[200];
-	int iVal=0;
-	float fVal=0.0f;
+	int iVal = 0;
+	float fVal = 0.0f;
 	char *sVal = NULL;
 
 	sound_type *pData = NULL;
@@ -5249,78 +5383,9 @@ void parse_sound_object(xmlNode *inNode)
 			if (attributeNode->type == XML_ELEMENT_NODE)
 			{
 				get_string_value(content, sizeof(content), attributeNode);
-				if (!xmlStrcmp (attributeNode->name, (xmlChar*)"intro_sound"))
+				if (!xmlStrcmp (attributeNode->name, (xmlChar*)"variant"))
 				{
-					if (!strcasecmp(pData->part[STAGE_INTRO].file_path, ""))
-					{
-						strcpy(filename, datadir);
-						strcat(filename, content);
-						if (file_exists(filename))
-						{
-							safe_strncpy(pData->part[STAGE_INTRO].file_path, (char *)content, sizeof(pData->part[STAGE_INTRO].file_path));
-						}
-						else
-						{
-							LOG_ERROR("%s: Intro stage file does not exist! %s", snd_config_error, content);
-						}
-					}
-					else
-					{
-						LOG_ERROR("%s: Intro stage file already set!", snd_config_error);
-					}
-				}
-				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"main_sound"))
-				{
-					if (!strcasecmp(pData->part[STAGE_MAIN].file_path, ""))
-					{
-						strcpy(filename, datadir);
-						strcat(filename, content);
-						if (file_exists(filename))
-						{
-							safe_strncpy(pData->part[STAGE_MAIN].file_path, (char *)content, sizeof(pData->part[STAGE_MAIN].file_path));
-						}
-						else
-						{
-							LOG_ERROR("%s: Main stage file does not exist! %s. This sound type is disabled: %s", snd_config_error, content, pData->name);
-							clear_sound_type(num_types);
-							num_types--;
-							return;
-						}
-					}
-					else
-					{
-						LOG_ERROR("%s: Main stage file already set!", snd_config_error);
-					}
-				}
-				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"outro_sound"))
-				{
-					if (!strcasecmp(pData->part[STAGE_OUTRO].file_path, ""))
-					{
-						strcpy(filename, datadir);
-						strcat(filename, content);
-						if (file_exists(filename))
-						{
-							safe_strncpy(pData->part[STAGE_OUTRO].file_path, (char *)content, sizeof(pData->part[STAGE_OUTRO].file_path));
-						}
-						else
-						{
-							LOG_ERROR("%s: Outro stage file does not exist! %s", snd_config_error, content);
-						}
-					}
-					else
-					{
-						LOG_ERROR("%s: Outro stage file already set!", snd_config_error);
-					}
-				}
-				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"gain"))
-				{
-					fVal = (float)atof((char *)content);
-					if (fVal > 0.0f)
-						pData->gain = fVal;
-					else
-					{
-						LOG_ERROR("%s: gain = %f in '%s'", snd_config_error, fVal, pData->name);
-					}
+					parse_sound_variant(attributeNode, pData);
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"stereo"))
 				{
@@ -5448,10 +5513,10 @@ void parse_sound_object(xmlNode *inNode)
 			attributeNode = attributeNode->next;
 		}
 	}
-	// Check this type has the required Main stage
-	if (!strcasecmp(pData->part[STAGE_MAIN].file_path, ""))
+	// Check this type has at least one variant
+	if (pData->num_variants < 1)
 	{
-		LOG_ERROR("%s: Main stage not defined! This sound type is disabled: %s", snd_config_error, pData->name);
+		LOG_ERROR("%s: No sound variants defined! This sound type is disabled: %s", snd_config_error, pData->name);
 		clear_sound_type(num_types);
 		num_types--;
 	}
@@ -5500,8 +5565,6 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 {
 	int i;
 	double a;
-//	double pi = 3.141592;
-//	double ra = pi / 2;		// ra = Right angle... meh
 
 	// Check if this is a default
 	if (bounds->is_default)
@@ -5509,11 +5572,10 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 		return 1;		// Points are ignored for defaults
 	}
 	
-	// Check we have details for all points
-	if (bounds->p[0].x == -1 || bounds->p[0].y == -1 || bounds->p[1].x == -1 || bounds->p[1].y == -1 ||
-		bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
+	// Check we have details for at least 2 points
+	if (bounds->p[0].x == -1 || bounds->p[0].y == -1 || bounds->p[1].x == -1 || bounds->p[1].y == -1)
 	{
-		LOG_ERROR("%s: Point missing for boundary in map '%s'", snd_config_error, map_name);
+		LOG_ERROR("%s: Point missing for boundary in map '%s'. Non-default boundaries must contain 2 or 4 points.", snd_config_error, map_name);
 		return 0;
 	}
 	
@@ -5524,17 +5586,48 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 	bounds->o[1].y = bounds->p[0].y;
 	for (i = 0; i < 4; i++)
 	{
-		// Check if this point's x or y is greater than the current max or less than the current min and update
-		if (bounds->p[i].x < bounds->o[0].x)
-			bounds->o[0].x = bounds->p[i].x;
-		if (bounds->p[i].y < bounds->o[0].y)
-			bounds->o[0].y = bounds->p[i].y;
-		if (bounds->p[i].x > bounds->o[1].x)
-			bounds->o[1].x = bounds->p[i].x;
-		if (bounds->p[i].y > bounds->o[1].y)
-			bounds->o[1].y = bounds->p[i].y;
+		if (bounds->p[i].x > -1 && bounds->p[i].y > -1)
+		{
+			// Check if this point's x or y is greater than the current max or less than the current min and update
+			if (bounds->p[i].x < bounds->o[0].x)
+				bounds->o[0].x = bounds->p[i].x;
+			if (bounds->p[i].y < bounds->o[0].y)
+				bounds->o[0].y = bounds->p[i].y;
+			if (bounds->p[i].x > bounds->o[1].x)
+				bounds->o[1].x = bounds->p[i].x;
+			if (bounds->p[i].y > bounds->o[1].y)
+				bounds->o[1].y = bounds->p[i].y;
+		}
+	}
+
+	// We have the outer box now so if we have only 2 points then we can bail	
+	if (bounds->p[2].x == -1 && bounds->p[2].y == -1 && bounds->p[3].x == -1 && bounds->p[3].y == -1)
+	{
+		return 1;
+	}
+	else if (bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
+	{
+		LOG_ERROR("%s: Point missing for boundary in map '%s'. Non-default boundaries must contain 2 or 4 points.", snd_config_error, map_name);
+		return 0;
 	}
 	
+	// Check if our 4 points are actually equal to the bounding box rectangle
+	if (bounds->p[0].x == bounds->o[0].x && bounds->p[0].y == bounds->o[0].y &&
+		bounds->p[1].x == bounds->o[0].x && bounds->p[1].y == bounds->o[1].y &&
+		bounds->p[2].x == bounds->o[1].x && bounds->p[2].y == bounds->o[1].y &&
+		bounds->p[3].x == bounds->o[1].x && bounds->p[3].y == bounds->o[0].y)
+	{
+		// This is the bounding box so remove points 1 and 2 as the corners and blank the others
+		// to symbolise using the bounding box check only
+		bounds->p[1].x = bounds->p[2].x;
+		bounds->p[1].y = bounds->p[2].y;
+		bounds->p[2].x = -1;
+		bounds->p[2].y = -1;
+		bounds->p[3].x = -1;
+		bounds->p[3].y = -1;
+		// Nothing left to do
+		return 1;
+	}
 
 	// Find the angle of the line from the top left corner to the top right (point1 -> point2)
 	bounds->p[0].a = calculate_bounds_angle(bounds->p[1].x, bounds->p[1].y, 0, bounds);

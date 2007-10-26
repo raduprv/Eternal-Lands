@@ -118,14 +118,15 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 			stop_sound(pActor->cur_anim_sound_cookie);
 		pActor->cur_anim_sound_cookie = 0;
 		
-		if(anim.sound > -1)
+		if (anim.sound > -1)
 		{
 			// Found a sound, so add it
-			pActor->cur_anim_sound_cookie = add_sound_object(	anim.sound,
-																2*pActor->x_pos,
-																2*pActor->y_pos,
-																pActor->actor_id == yourself ? 1 : 0
-															);
+			pActor->cur_anim_sound_cookie = add_sound_object_gain(	anim.sound,
+																	2*pActor->x_pos,
+																	2*pActor->y_pos,
+																	pActor->actor_id == yourself ? 1 : 0,
+																	anim.sound_scale
+																);
 		}
 	}
 #endif
@@ -137,28 +138,29 @@ void cal_actor_set_anim(int id,struct cal_anim anim)
 }
 
 #ifdef NEW_SOUND
-void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound)
+void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const char *sound_scale)
 {
-	if(sound)
-	{
+	if (sound)
 		my_cal_anim->sound = get_index_for_sound_type_name(sound);
-	}
 	else
-	{
 		my_cal_anim->sound = -1;
-	}
+
+	if (sound_scale && strcasecmp(sound_scale, ""))
+		my_cal_anim->sound_scale = atof(sound_scale);
+	else
+		my_cal_anim->sound_scale = 1.0f;
 }
 #endif // NEW_SOUND
 
 #ifdef	NEW_ACTOR_ANIMATION
 	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, int duration)
+struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale, int duration)
 	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 	#endif	//NEW_SOUND
 #else
 	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound)
+struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale)
 	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	#endif	//NEW_SOUND
@@ -182,14 +184,15 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	}
 
 #ifdef NEW_SOUND
-	if(sound)
-	{
+	if (sound)
 		res.sound = get_index_for_sound_type_name(sound);
-	}
 	else
-	{
 		res.sound = -1;
-	}
+
+	if (sound_scale && strcasecmp(sound_scale, ""))
+		res.sound_scale = atof(sound_scale);
+	else
+		res.sound_scale = 1.0f;
 #endif	//NEW_SOUND
 
 #ifdef	NEW_FILE_IO

@@ -634,6 +634,9 @@ void move_to_next_frame()
 void next_command()
 {
 	int i;
+#ifdef NEW_SOUND
+	int j = 0;
+#endif // NEW_SOUND
 	int max_queue=0;
 
 	LOCK_ACTORS_LISTS();
@@ -761,6 +764,19 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 						//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Enter Combat");
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						if (rand() % 25 == 6)			// 1 chance in 25 to play
+						{
+							j = rand() % 4;		// This might not exist, which doesn't matter, just less change to hear
+							add_sound_object_gain(actors_defs[actor_type].battlecry[j].sound,
+													actors_list[i]->x_pos,
+													actors_list[i]->x_pos,
+													actors_list[i] == your_actor ? 1 : 0,
+													actors_defs[actor_type].battlecry[j].scale
+												);
+						}
+#endif // NEW_SOUND
 						break;
 					case leave_combat:
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_out_combat_frame);
@@ -1365,28 +1381,23 @@ void move_self_forward()
 }
 
 
-void    actor_check_string(actor_types *act, const char *section, const char *type, const char *value)
+void actor_check_string(actor_types *act, const char *section, const char *type, const char *value)
 {
-	char	str[256];
-	
-	if(value == NULL || *value=='\0'){
-		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Missing %s.%s",
-			act->actor_name, act->actor_type,
-			section, type
-		);
-		log_error(str);
+	if (value == NULL || *value=='\0')
+	{
+#ifdef DEBUG
+		LOG_ERROR("Data Error in %s(%d): Missing %s.%s", act->actor_name, act->actor_type, section, type);
+#endif // DEBUG
 	}
 }
 
-void    actor_check_int(actor_types *act, const char *section, const char *type, int value){
-	char    str[256];
-
-	if(value < 0){
-		safe_snprintf(str, sizeof(str), "Data Error in %s(%d): Missing %s.%s",
-		    act->actor_name, act->actor_type,
-		    section, type
-		);
-		log_error(str);
+void actor_check_int(actor_types *act, const char *section, const char *type, int value)
+{
+	if (value < 0)
+	{
+#ifdef DEBUG
+		LOG_ERROR("Data Error in %s(%d): Missing %s.%s", act->actor_name, act->actor_type, section, type);
+#endif // DEBUG
 	}
 }
 
@@ -1630,6 +1641,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
      			weapon->cal_attack_up_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -1640,6 +1652,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
      			weapon->cal_attack_up_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -1650,6 +1663,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
      			weapon->cal_attack_down_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -1660,6 +1674,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
      			weapon->cal_attack_down_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -1672,16 +1687,16 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 #ifdef NEW_SOUND
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up1") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_1_frame, str);
+     			cal_set_anim_sound(&weapon->cal_attack_up_1_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up2") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_up_2_frame, str);
+     			cal_set_anim_sound(&weapon->cal_attack_up_2_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_1_frame, str);
+     			cal_set_anim_sound(&weapon->cal_attack_down_1_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
-     			cal_set_anim_sound(&weapon->cal_attack_down_2_frame, str);
+     			cal_set_anim_sound(&weapon->cal_attack_down_2_frame, str, get_string_property(item, "sound_scale"));
 #endif	//NEW_SOUND
 			} else {
 				LOG_ERROR("unknown weapon property \"%s\"", item->name);
@@ -1826,7 +1841,6 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 	xmlNode *item;
 	char str[255];
 	int ok;
-	float myf = 0.0f;
 
 	if (cfg == NULL) return 0;
 
@@ -1835,34 +1849,42 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 		if (item->type == XML_ELEMENT_NODE) {
 			get_string_value (str,sizeof(str),item);
 			if (xmlStrcasecmp (item->name, (xmlChar*)"walk") == 0) {
-				cal_set_anim_sound(&act->cal_walk_frame, str);
-				// Check for a scale or default to 0.2
-				myf = atof(get_string_property(item, "scale"));
-				if (myf == 0.0f)
-					myf = 0.2f;
-				act->walk_snd_scale = myf;
+				cal_set_anim_sound(&act->cal_walk_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die1") == 0) {
-				cal_set_anim_sound(&act->cal_die1_frame, str);
+				cal_set_anim_sound(&act->cal_die1_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"die2") == 0) {
-				cal_set_anim_sound(&act->cal_die2_frame, str);
+				cal_set_anim_sound(&act->cal_die2_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain1") == 0) {
-				cal_set_anim_sound(&act->cal_pain1_frame, str);
+				cal_set_anim_sound(&act->cal_pain1_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pain2") == 0) {
-				cal_set_anim_sound(&act->cal_pain2_frame, str);
+				cal_set_anim_sound(&act->cal_pain2_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"pick") == 0) {
-				cal_set_anim_sound(&act->cal_pick_frame, str);
+				cal_set_anim_sound(&act->cal_pick_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"drop") == 0) {
-				cal_set_anim_sound(&act->cal_drop_frame, str);
+				cal_set_anim_sound(&act->cal_drop_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"harvest") == 0) {
-				cal_set_anim_sound(&act->cal_harvest_frame, str);
+				cal_set_anim_sound(&act->cal_harvest_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_cast") == 0) {
-				cal_set_anim_sound(&act->cal_attack_cast_frame, str);
+				cal_set_anim_sound(&act->cal_attack_cast_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"attack_ranged") == 0) {
-				cal_set_anim_sound(&act->cal_attack_ranged_frame, str);
+				cal_set_anim_sound(&act->cal_attack_ranged_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"sit_down") == 0) {
-				cal_set_anim_sound(&act->cal_sit_down_frame, str);
+				cal_set_anim_sound(&act->cal_sit_down_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"stand_up") == 0) {
-				cal_set_anim_sound(&act->cal_stand_up_frame, str);
+				cal_set_anim_sound(&act->cal_stand_up_frame, str, get_string_property(item, "sound_scale"));
+			// These sounds are only found in the <sounds> block as they aren't tied to an animation
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry1") == 0) {
+				act->battlecry[0].sound = get_index_for_sound_type_name(str);
+				act->battlecry[0].scale = atof(get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry2") == 0) {
+				act->battlecry[1].sound = get_index_for_sound_type_name(str);
+				act->battlecry[1].scale = atof(get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry3") == 0) {
+				act->battlecry[2].sound = get_index_for_sound_type_name(str);
+				act->battlecry[2].scale = atof(get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry4") == 0) {
+				act->battlecry[3].sound = get_index_for_sound_type_name(str);
+				act->battlecry[3].scale = atof(get_string_property(item, "sound_scale"));
 			} else {
 				LOG_ERROR("unknown sound \"%s\"", item->name);
 				ok = 0;
@@ -1987,6 +2009,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 #endif
 #ifdef NEW_SOUND
 	,-1
+	,0.0f
 #endif  //NEW_SOUND
 	};
 	struct CalCoreAnimation *coreanim;
@@ -2046,9 +2069,6 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	//char fname[255];
 	//char temp[255];
 	//int i;
-#ifdef NEW_SOUND
-	float myf = 0.0f;
-#endif // NEW_SOUND
 
 	int ok = 1;
 	if (cfg == NULL) return 0;
@@ -2067,25 +2087,18 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_walk_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-#ifdef NEW_SOUND
-				// Check for a scale or default to 0.2
-				safe_strncpy(str, get_string_property(item, "sound_scale"), sizeof(str));
-				if (!strcasecmp(str, ""))
-					myf = 0.2f;
-				else
-					myf = atof(str);
-				act->walk_snd_scale = myf;
-#endif	//NEW_SOUND
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_run") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_run_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2096,6 +2109,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_die1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2106,6 +2120,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_die2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2116,6 +2131,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_pain1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2126,6 +2142,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_pain2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2136,6 +2153,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_pick_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2146,6 +2164,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_drop_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2156,6 +2175,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_idle1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2166,6 +2186,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_idle2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2176,6 +2197,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_idle_sit_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2186,6 +2208,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_harvest_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2196,6 +2219,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_attack_cast_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2206,6 +2230,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_sit_down_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2216,6 +2241,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_stand_up_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2226,6 +2252,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_in_combat_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2236,6 +2263,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_out_combat_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2246,6 +2274,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_combat_idle_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2256,6 +2285,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_attack_up_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2266,6 +2296,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_attack_up_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2276,6 +2307,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_attack_up_3_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2286,6 +2318,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_attack_up_4_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2296,6 +2329,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_attack_down_1_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")
@@ -2306,6 +2340,7 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
      			act->cal_attack_down_2_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
 #endif	//NEW_SOUND
 #ifdef	NEW_ACTOR_ANIMATION
 					, get_int_property(item, "duration")

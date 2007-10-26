@@ -224,6 +224,14 @@ typedef struct cal_anim_group
 	struct cal_anim anim[16];
 } cal_animations;
 
+#ifdef NEW_SOUND
+typedef struct
+{
+	int sound;
+	float scale;
+} act_extra_sound;
+#endif // NEW_SOUND
+
 // TODO: would be nice to make these dynamic
 #define ACTOR_HEAD_SIZE   10
 #define ACTOR_SHIELD_SIZE (SHIELD_NONE+1)
@@ -285,7 +293,8 @@ typedef struct
 	struct cal_anim cal_attack_down_2_frame;
 	
 #ifdef NEW_SOUND
-	float walk_snd_scale;
+	// Extra sounds
+	act_extra_sound battlecry[4];
 #endif // NEW_SOUND
 	
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
