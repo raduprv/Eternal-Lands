@@ -123,16 +123,16 @@ void get_storage_items (const Uint8 *in_data, int len)
 
 	if (in_data[0] == 255)
 	{
-		//It's just an update - make sure we're in the right category
+		// It's just an update - make sure we're in the right category
 		idx = 2;
-		active_storage_item = (char)in_data[idx+6];
+		active_storage_item = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
 		
 		for (i = 0; i < STORAGE_ITEMS_SIZE; i++)
 		{
-			if ((storage_items[i].pos == in_data[idx+6]) && (storage_items[i].quantity > 0))
+			if ((storage_items[i].pos == SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])))) && (storage_items[i].quantity > 0))
 			{
-				storage_items[i].image_id = SDL_SwapLE16 (*((Uint16*)(&in_data[idx])));
-				storage_items[i].quantity = SDL_SwapLE32 (*((Uint32*)(&in_data[idx+2])));
+				storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
+				storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
 				return;
 			}
 		}
@@ -141,20 +141,19 @@ void get_storage_items (const Uint8 *in_data, int len)
 		{
 			if (storage_items[i].quantity == 0)
 			{
-				storage_items[i].pos = in_data[idx+6];
-				storage_items[i].image_id = SDL_SwapLE16 (*((Uint16*)(&in_data[idx])));
-				storage_items[i].quantity = SDL_SwapLE32 (*((Uint32*)(&in_data[idx+2])));
+				storage_items[i].pos = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
+				storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
+				storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
 				no_storage++;
 				return;
 			}
 		}
 	}
 	
-	no_storage=0;
-
-	no_storage=in_data[0];
+	no_storage = 0;
+	no_storage = (len - 4) / 8;
 	
-	cat=find_category(in_data[1]);
+	cat = find_category(in_data[1]);
 	if (cat >= 0)
 	{
 		storage_categories[cat].name[0] = to_color_char (c_red3);
@@ -165,11 +164,11 @@ void get_storage_items (const Uint8 *in_data, int len)
 	}
 
 	idx = 2;
-	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++, idx += 7)
+	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++, idx += 8)
 	{
-		storage_items[i].image_id = SDL_SwapLE16 (*((Uint16*)(&in_data[idx])));
-		storage_items[i].quantity = SDL_SwapLE32 (*((Uint32*)(&in_data[idx+2])));
-		storage_items[i].pos = in_data[idx+6];
+		storage_items[i].image_id = SDL_SwapLE16(*((Uint16*)(&in_data[idx])));
+		storage_items[i].quantity = SDL_SwapLE32(*((Uint32*)(&in_data[idx+2])));
+		storage_items[i].pos = SDL_SwapLE16(*((Uint16*)(&in_data[idx+6])));
 	}
 	
 	for ( ; i < STORAGE_ITEMS_SIZE; i++)
@@ -344,10 +343,10 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 					item_dragged=-1;
 
 					if(cur_item_over!=-1) {
-						Uint8 str[2];
+						Uint8 str[3];
 
 						str[0]=LOOK_AT_STORAGE_ITEM;
-						str[1]=storage_items[cur_item_over].pos;
+						*((Uint16*)(str+1))=storage_items[cur_item_over].pos;
 	
 						my_tcp_send(my_socket, str, 2);
 	

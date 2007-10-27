@@ -12,7 +12,7 @@
 extern "C" {
 #endif
 
-#define STORAGE_ITEMS_SIZE 200
+#define STORAGE_ITEMS_SIZE 300
 
 /*! \name window handler
  * @{ */
