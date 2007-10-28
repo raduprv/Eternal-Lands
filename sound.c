@@ -238,7 +238,7 @@ typedef struct
 
 typedef struct
 {
-	char actor_types[256];
+	char actor_types[1024];
 	int sound;
 } tile_sounds;
 
@@ -351,7 +351,7 @@ effect_sound_data sound_effect_data[MAX_SOUND_EFFECTS];			// Data for effect sfx
 particle_sound_data sound_particle_data[MAX_SOUND_PARTICLES];	// Data for particle sfx
 item_sound_data sound_item_data[MAX_SOUND_ITEMS];				// Data for item sfx
 tile_sound_data sound_tile_data[MAX_SOUND_TILE_TYPES];			// Data for tile (walking) sfx
-int server_sound[9];											// Map of server sounds to sound def ids
+int server_sound[10];											// Map of server sounds to sound def ids
 int sound_spell_data[10];										// Map of id's for spells-that-affect-you to sounds
 sound_warnings warnings_list[MAX_SOUND_WARNINGS];				// List of strings to monitor for warning sounds
 #else
@@ -2082,13 +2082,13 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 	else
 	{
 		// Choose a variant
-		stream->variant = rand() % sound_type_data[sound].num_variants - 1;
+		stream->variant = rand() % sound_type_data[sound].num_variants;
 		file = sound_type_data[sound].variant[stream->variant].part[STAGE_MAIN].file_path;
 		if (!have_sound || sound == -1 || !strcmp(file, "")) return;
 	}
 	
 	// Set the gain for this stream
-	alSourcef (stream->source, AL_GAIN, gain * sound_type_data[sound].variant[stream->variant].gain);
+	alSourcef(stream->source, AL_GAIN, gain * (stream->type == STREAM_TYPE_MUSIC ? 1.0f : sound_type_data[sound].variant[stream->variant].gain));
 	
 	// Load the Ogg file and start the stream
 	stream_ogg_file(file, stream, NUM_STREAM_BUFFERS);
@@ -6110,6 +6110,16 @@ void parse_item_image_ids(char * content, item_sound_data * pItem)
 		}
 		i++;
 	}
+	// Add anything remaining as a last image id
+	if (pItem->num_imageids < MAX_ITEM_SOUND_IMAGE_IDS)
+	{
+		pItem->image_id[pItem->num_imageids++] = atoi(temp);
+	}
+	else
+	{
+		LOG_ERROR("%s: Too many image ids defined for item sound: %s", snd_config_error, content);
+	}
+	return;
 }
 
 void parse_item_sound(xmlNode *inNode)
@@ -6187,12 +6197,22 @@ void parse_tile_types(char * content, tile_sound_data * pTileType)
 		}
 		i++;
 	}
+	// Add anything remaining as a last tile type
+	if (pTileType->num_tile_types < MAX_SOUND_TILES)
+	{
+		pTileType->tile_type[pTileType->num_tile_types++] = atoi(temp);
+	}
+	else
+	{
+		LOG_ERROR("%s: Too many tile types defined for tile type sound: %s, max: %d", snd_config_error, content, MAX_SOUND_TILES);
+	}
+	return;
 }
 
 void parse_tile_type_sound(xmlNode *inNode)
 {
 	xmlNode *attributeNode = NULL;
-	char content[100] = "";
+	char content[1024] = "";
 	tile_sound_data * pTileType;
 
 	if (inNode->type == XML_ELEMENT_NODE)
@@ -6411,6 +6431,8 @@ void print_sound_types()
 	map_sound_boundary_def *pMapBoundary = NULL;
 	effect_sound_data *pEffect = NULL;
 	particle_sound_data *pParticle = NULL;
+	item_sound_data *pItem = NULL;
+	tile_sound_data *pTileType = NULL;
 	
 	printf("\nSOUND TYPE DATA\n===============\n");
 	printf("There are %d sound types (max %d):\n", num_types, MAX_SOUNDS);
@@ -6418,10 +6440,14 @@ void print_sound_types()
 	{
 		pData = &sound_type_data[i];
 		printf("Sound type '%s' #%d:\n"			, pData->name, i);
-		printf("\tIntro sample = '%s'\n"		, pData->part[STAGE_INTRO].file_path);
-		printf("\tMain sample = '%s'\n"			, pData->part[STAGE_MAIN].file_path);
-		printf("\tOutro sample = '%s'\n"		, pData->part[STAGE_OUTRO].file_path);
-		printf("\tGain = %f\n"					, pData->gain);
+		for (j = 0; j < pData->num_variants; ++j)
+		{
+			printf("\tVariant %d/%d:\n"				, j, pData->num_variants);
+			printf("\t\tIntro sample = '%s'\n"		, pData->variant[j].part[STAGE_INTRO].file_path);
+			printf("\t\tMain sample = '%s'\n"		, pData->variant[j].part[STAGE_MAIN].file_path);
+			printf("\t\tOutro sample = '%s'\n"		, pData->variant[j].part[STAGE_OUTRO].file_path);
+			printf("\t\tGain = %f\n"				, pData->variant[j].gain);
+		}
 		printf("\tStereo = %d\n"				, pData->stereo);
 		printf("\tDistance = %f\n"				, pData->distance);
 		printf("\tPositional = %d\n"			, pData->positional);
@@ -6499,6 +6525,47 @@ void print_sound_types()
 		printf("Sound: %d\n"			, pParticle->sound);
 	}
 	
+	printf("\nITEM SOUND DATA\n===============\n");
+	printf("There are %d item sounds:\n", sound_num_items);
+	for (i = 0; i < sound_num_items; ++i)
+	{
+		pItem = &sound_item_data[i];
+		printf("Sound: %d\n"				, pItem->sound);
+		printf("Image ID's (%d total):\n"	, pItem->num_imageids);
+		for (j = 0; j < pItem->num_imageids; ++j)
+		{
+			printf("%d, "					, pItem->image_id[j]);
+		}
+		printf("\n");
+	}
+
+	printf("\nTILE (WALKING) SOUND DATA\n===============\n");
+	printf("There are %d tile type sounds:\n", sound_num_tile_types);
+	for (i = 0; i < sound_num_tile_types; ++i)
+	{
+		pTileType = &sound_tile_data[i];
+		printf("Tile: %d\n"							, i);
+		printf("\tDefault sound: %d\n"				, pTileType->default_sound);
+		printf("\tTile types (%d total):\n\t\t"		, pTileType->num_tile_types);
+		for (j = 0; j < pTileType->num_tile_types; ++j)
+		{
+			printf("%d, "							, pTileType->tile_type[j]);
+		}
+		printf("\n\tNum sounds: %d\n"				, pTileType->num_sounds);
+		for (j = 0; j < pTileType->num_sounds; ++j)
+		{
+			printf("\t\tSound: %d\n"				, pTileType->sounds[j].sound);
+			printf("\t\tActor types: %s\n"			, pTileType->sounds[j].actor_types);
+		}
+	}
+
+	printf("\nSPELL EFFECT SOUND DATA\n===============\n");
+	printf("There are 10 spell effects:\n");
+	for (i = 0; i <= 9; ++i)
+	{
+		printf("Spell Effect Sound: %d = %d\n", i, sound_spell_data[i]);
+	}
+
 	printf("\nSERVER SOUNDS\n===============\n");
 	printf("There are 10 server sounds:\n");
 	for (i = 0; i <= 9; ++i)

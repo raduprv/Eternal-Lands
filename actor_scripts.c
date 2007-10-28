@@ -634,9 +634,6 @@ void move_to_next_frame()
 void next_command()
 {
 	int i;
-#ifdef NEW_SOUND
-	int j = 0;
-#endif // NEW_SOUND
 	int max_queue=0;
 
 	LOCK_ACTORS_LISTS();
@@ -768,12 +765,11 @@ void next_command()
 						// Maybe play a battlecry sound
 						if (rand() % 25 == 6)			// 1 chance in 25 to play
 						{
-							j = rand() % 4;		// This might not exist, which doesn't matter, just less change to hear
-							add_sound_object_gain(actors_defs[actor_type].battlecry[j].sound,
+							add_sound_object_gain(actors_defs[actor_type].battlecry.sound,
 													actors_list[i]->x_pos,
 													actors_list[i]->x_pos,
 													actors_list[i] == your_actor ? 1 : 0,
-													actors_defs[actor_type].battlecry[j].scale
+													actors_defs[actor_type].battlecry.scale
 												);
 						}
 #endif // NEW_SOUND
@@ -1873,18 +1869,9 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"stand_up") == 0) {
 				cal_set_anim_sound(&act->cal_stand_up_frame, str, get_string_property(item, "sound_scale"));
 			// These sounds are only found in the <sounds> block as they aren't tied to an animation
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry1") == 0) {
-				act->battlecry[0].sound = get_index_for_sound_type_name(str);
-				act->battlecry[0].scale = atof(get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry2") == 0) {
-				act->battlecry[1].sound = get_index_for_sound_type_name(str);
-				act->battlecry[1].scale = atof(get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry3") == 0) {
-				act->battlecry[2].sound = get_index_for_sound_type_name(str);
-				act->battlecry[2].scale = atof(get_string_property(item, "sound_scale"));
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry4") == 0) {
-				act->battlecry[3].sound = get_index_for_sound_type_name(str);
-				act->battlecry[3].scale = atof(get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry") == 0) {
+				act->battlecry.sound = get_index_for_sound_type_name(str);
+				act->battlecry.scale = atof(get_string_property(item, "sound_scale"));
 			} else {
 				LOG_ERROR("unknown sound \"%s\"", item->name);
 				ok = 0;

@@ -294,7 +294,7 @@ typedef struct
 	
 #ifdef NEW_SOUND
 	// Extra sounds
-	act_extra_sound battlecry[4];
+	act_extra_sound battlecry;
 #endif // NEW_SOUND
 	
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
