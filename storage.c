@@ -151,7 +151,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 	}
 	
 	no_storage = 0;
-	no_storage = (len - 4) / 8;
+	no_storage = (len - 2) / 8;
 	
 	cat = find_category(in_data[1]);
 	if (cat >= 0)
