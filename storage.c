@@ -348,7 +348,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 						str[0]=LOOK_AT_STORAGE_ITEM;
 						*((Uint16*)(str+1))=storage_items[cur_item_over].pos;
 	
-						my_tcp_send(my_socket, str, 2);
+						my_tcp_send(my_socket, str, 3);
 	
 						active_storage_item=storage_items[cur_item_over].pos;
 					}
