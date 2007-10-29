@@ -230,7 +230,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetIntegerv(GL_VIEWPORT, view);
 	// Input adjusted healthbar_y value to scale hy according to actor scale
-	gluProject(healthbar_x,(healthbar_y + (actors_defs[actor_id->actor_type].actor_scale - 1)) * 2,healthbar_z,model, proj, view, &hx,&hy,&hz);
+	gluProject(healthbar_x, healthbar_y, healthbar_z * actors_defs[actor_id->actor_type].actor_scale, model, proj, view, &hx, &hy, &hz);
 	//Save World-view and Projection matrices to allow precise raster placement of quads
 	glPushMatrix();
 	glLoadIdentity();

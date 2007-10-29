@@ -92,7 +92,7 @@ typedef struct {
 #define MAX_BACKGROUND_DEFAULTS 8			// Maximum number of global default backgrounds
 #define MAX_MAP_BACKGROUND_DEFAULTS 4		// Maximum number of default backgrounds per map
 #define MAX_SOUND_MAP_NAME_LENGTH 60		// Maximum length of the name of the map
-#define MAX_SOUND_VARIANTS 4				// Maximum number of different sounds allowed for the one sound type
+#define MAX_SOUND_VARIANTS 10				// Maximum number of different sounds allowed for the one sound type
 #define MAX_SOUND_MAP_BOUNDARIES 20			// Maximum number of boundary sets per map
 #define MAX_SOUND_WALK_BOUNDARIES 40		// Maximum number of walk boundary sets per map
 #define MAX_ITEM_SOUND_IMAGE_IDS 30			// Maximum number of image id's linked to an item sound def
