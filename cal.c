@@ -176,6 +176,9 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 #endif  //NEW_SOUND
 	};
 	struct CalCoreAnimation *coreanim;
+#ifdef NEW_SOUND
+	int i;
+#endif  //NEW_SOUND
 
 	if (sscanf (str, "%254s %d", fname, (int*)(&res.kind)) != 2)
 	{
@@ -184,8 +187,14 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	}
 
 #ifdef NEW_SOUND
-	if (sound)
-		res.sound = get_index_for_sound_type_name(sound);
+	if (sound && strcasecmp(sound, ""))
+	{
+		i = get_index_for_sound_type_name(sound);
+		if (i == -1)
+			LOG_ERROR("Unknown sound (%s) in actor def: %s", sound, act->actor_name);
+		else
+			res.sound = i;
+	}
 	else
 		res.sound = -1;
 

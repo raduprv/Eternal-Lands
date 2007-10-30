@@ -1846,6 +1846,7 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 	xmlNode *item;
 	char str[255];
 	int ok;
+	int i;
 
 	if (cfg == NULL) return 0;
 
@@ -1879,8 +1880,18 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 				cal_set_anim_sound(&act->cal_stand_up_frame, str, get_string_property(item, "sound_scale"));
 			// These sounds are only found in the <sounds> block as they aren't tied to an animation
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"battlecry") == 0) {
-				act->battlecry.sound = get_index_for_sound_type_name(str);
-				act->battlecry.scale = atof(get_string_property(item, "sound_scale"));
+				i = get_index_for_sound_type_name(str);
+				if (i == -1)
+					LOG_ERROR("Unknown battlecry sound (%s) in actor def: %s", str, act->actor_name);
+				else
+				{
+					act->battlecry.sound = i;
+					safe_strncpy(str, get_string_property(item, "sound_scale"), sizeof(str));
+					if (strcasecmp(str, ""))
+						act->battlecry.scale = atof(str);
+					else
+						act->battlecry.scale = 1.0f;
+				}
 			} else {
 				LOG_ERROR("unknown sound \"%s\"", item->name);
 				ok = 0;
@@ -2725,6 +2736,8 @@ int parse_actor_script (xmlNode *cfg)
 	act->cal_attack_up_4_frame.sound= -1;
 	act->cal_attack_down_1_frame.sound= -1;
 	act->cal_attack_down_2_frame.sound= -1;
+	act->battlecry.sound = -1;
+	act->battlecry.scale = 1.0f;
 #endif // NEW_SOUND
 
 	for (i=0; i<80; ++i){
