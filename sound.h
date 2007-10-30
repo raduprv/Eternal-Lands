@@ -153,6 +153,7 @@ unsigned int add_walking_sound(int type, int x, int y, int me, float scale);
 unsigned int add_particle_sound(int type, int x, int y);
 unsigned int add_spell_sound(int spell);
 unsigned int add_death_sound(actor * act);
+unsigned int add_battlecry_sound(actor * act);
 unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial_gain);
 
 /*!

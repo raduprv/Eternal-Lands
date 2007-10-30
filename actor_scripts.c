@@ -405,9 +405,6 @@ void cal_actor_set_random_idle(int id)
 	actors_list[id]->anim_time= 0.0;
 	actors_list[id]->last_anim_update= cur_time;
 	actors_list[id]->cur_anim.anim_index= -1;
-#ifdef NEW_SOUND
-	stop_sound(actors_list[id]->cur_anim_sound_cookie);
-#endif	//NEW_SOUND
 	actors_list[id]->cur_anim_sound_cookie= 0;
 	//if (actors_list[id]->cur_anim.anim_index==-1) actors_list[id]->busy=0;
 }
@@ -761,18 +758,6 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 						//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Enter Combat");
-#ifdef NEW_SOUND
-						// Maybe play a battlecry sound
-						if (rand() % 25 == 6)			// 1 chance in 25 to play
-						{
-							add_sound_object_gain(actors_defs[actor_type].battlecry.sound,
-													actors_list[i]->x_pos,
-													actors_list[i]->x_pos,
-													actors_list[i] == your_actor ? 1 : 0,
-													actors_defs[actor_type].battlecry.scale
-												);
-						}
-#endif // NEW_SOUND
 						break;
 					case leave_combat:
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_out_combat_frame);
@@ -788,6 +773,10 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(&actors_list[i]);
+#endif // NEW_SOUND
 						break;
 					case attack_up_2:
 						if(actors_list[i]->is_enhanced_model){
@@ -798,6 +787,10 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(&actors_list[i]);
+#endif // NEW_SOUND
 						break;
 					case attack_up_3:
 						if(actors_list[i]->is_enhanced_model){
@@ -809,6 +802,10 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(&actors_list[i]);
+#endif // NEW_SOUND
 						break;
 					case attack_up_4:
 						if(actors_list[i]->is_enhanced_model) {
@@ -820,6 +817,10 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(&actors_list[i]);
+#endif // NEW_SOUND
 						break;
 					case attack_down_1:
 						if(actors_list[i]->is_enhanced_model) {
@@ -831,6 +832,10 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(&actors_list[i]);
+#endif // NEW_SOUND
 						break;
 					case attack_down_2:
 						if(actors_list[i]->is_enhanced_model) {
@@ -842,6 +847,10 @@ void next_command()
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(&actors_list[i]);
+#endif // NEW_SOUND
 						break;
 					case turn_left:
 						//LOG_TO_CONSOLE(c_green2,"turn left");

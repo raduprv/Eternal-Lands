@@ -3418,6 +3418,21 @@ unsigned int add_death_sound(actor * act)
 	return 0;
 }
 
+unsigned int add_battlecry_sound(actor * act)
+{
+	// Maybe play a battlecry sound
+	if (rand() % 25 == 6)			// 1 chance in 25 to play
+	{
+		return add_sound_object_gain(actors_defs[act->actor_type].battlecry.sound,
+										act->x_pos,
+										act->x_pos,
+										act == your_actor ? 1 : 0,
+										actors_defs[act->actor_type].battlecry.scale
+									);
+	}
+	return 0;
+}
+
 unsigned int add_sound_object(int type, int x, int y, int me)
 {
 	return add_sound_object_gain(type, x, y, me, 1.0f);
