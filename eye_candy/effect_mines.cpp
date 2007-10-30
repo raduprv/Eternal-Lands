@@ -8,6 +8,7 @@
 #include "math_cache.h"
 
 #include "effect_mines.h"
+#include "orbital_mover.h"
 
 namespace ec
 {
@@ -73,7 +74,6 @@ bool MineParticle::idle(const Uint64 delta_t)
     }
     case MineEffect::DETONATE_MANA_BURNER:
     {
-      const Uint64 age = get_time() - born;
       if (age < 650000)
         break;
     
@@ -109,20 +109,14 @@ bool MineParticle::idle(const Uint64 delta_t)
       color[1] = 0.7 + 0.3 * sin(age / 970000.0 + 1.3);
       color[2] = 0.7 + 0.3 * sin(age / 780000.0 + 1.9);
     
-      if (age < 100000)
-      {
-        if (state == 0)
-          size = age / 7000.0;
-      }
-      else
-      {
-        const percent_t scalar = math_cache.powf_05_close(float_time * 3);
-        size *= scalar;
-        alpha *= scalar;
-    
-        if (size < 1)
+	  pos.y += (0.4 - pos.y) * 0.2;
+	
+      if (age > 4700000)
+          alpha *= 0.5;
+
+      if (alpha < 0.01)
           return false;
-      }
+	  
       break;
     }
     case MineEffect::DETONATE_TYPE1_SMALL:
@@ -296,26 +290,26 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
     }
     case DETONATE_TRAP:
     {
-      effect_center.y += 0.05;
-      mover = new ParticleMover(this);
+      effect_center.y += 0.4;
+      mover = new OrbitalMover(this, effect_center);
       spawner = new HollowSphereSpawner(0.3);
+      Particle* p;
 
-      for (int i = 0; i < LOD * 60; i++)
+      for (int i = 0; i < LOD * 10; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity = coords / 10.0;
-        coords += effect_center;
-        Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.05, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
-        p->state = 1;
-        if (!base->push_back_particle(p))
-          break;
+          Vec3 c = effect_center;
+          c.y = -0.2 - (i * 0.2);
+          Vec3 vel;
+          vel.randomize();
+          vel.normalize(2.0);
+          vel *= randfloat() * 4.0;
+          p = new MineParticle(this, mover, c, vel, 0.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+          if (!base->push_back_particle(p))
+              break;
+
+          dynamic_cast<OrbitalMover*>(mover)->setParticleData( p, OrbitalParticleData( i, 10, 0.45, 7 ) );
       }
-      
-      Particle* p = new MineParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
-      if (!base->push_back_particle(p))
-        break;
-      p = new MineParticle(this, mover, effect_center, Vec3(0.0, 0.01, 0.0), 7.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
-      base->push_back_particle(p);
+
       break;
     }
     case DETONATE_TYPE1_SMALL:

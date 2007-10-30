@@ -681,11 +681,14 @@ Particle::Particle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, cons
   velocity = _velocity;
   energy = mover->calculate_energy(*this);
   born = get_time();
+  mover->attachParticle(this);
 }
 
 Particle::~Particle()
 {
   delete[] motion_blur;
+  if (mover)
+    mover->detachParticle(this);
 };
 
 void Particle::draw(const Uint64 usec)

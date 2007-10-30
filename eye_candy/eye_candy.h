@@ -830,6 +830,9 @@ public:
 
   Effect* effect;
   EyeCandy* base;
+
+  virtual void attachParticle( Particle * ) {};
+  virtual void detachParticle( Particle * ) {};
 };
 
 /*!
