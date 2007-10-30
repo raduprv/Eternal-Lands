@@ -6093,7 +6093,7 @@ void parse_sound_defaults(xmlNode *inNode)
 void parse_item_image_ids(char * content, item_sound_data * pItem)
 {
 	int i, j;
-	char temp[5];
+	char temp[5] = "";
 	
 	i = 0;
 	j = -1;
@@ -6180,7 +6180,7 @@ void parse_item_sound(xmlNode *inNode)
 void parse_tile_types(char * content, tile_sound_data * pTileType)
 {
 	int i, j;
-	char temp[5];
+	char temp[5] = "";
 	
 	i = 0;
 	j = -1;
