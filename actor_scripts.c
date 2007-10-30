@@ -405,6 +405,10 @@ void cal_actor_set_random_idle(int id)
 	actors_list[id]->anim_time= 0.0;
 	actors_list[id]->last_anim_update= cur_time;
 	actors_list[id]->cur_anim.anim_index= -1;
+#ifdef NEW_SOUND
+	if (check_sound_loops(actors_list[id]->cur_anim_sound_cookie))
+		stop_sound(actors_list[id]->cur_anim_sound_cookie);
+#endif // NEW_SOUND
 	actors_list[id]->cur_anim_sound_cookie= 0;
 	//if (actors_list[id]->cur_anim.anim_index==-1) actors_list[id]->busy=0;
 }
@@ -1893,7 +1897,7 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 						act->battlecry.scale = 1.0f;
 				}
 			} else {
-				LOG_ERROR("unknown sound \"%s\"", item->name);
+				LOG_ERROR("Unknown sound \"%s\"", item->name);
 				ok = 0;
 			}
 		}

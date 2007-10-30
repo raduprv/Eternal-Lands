@@ -160,7 +160,7 @@ namespace eternal_lands
 
 		if (!extra_path.empty())
 		{
-			if (file_exist_in_dir(extra_path + file))
+			if (open_if_exist(extra_path + file, uncompress))
 			{
 				return;
 			}

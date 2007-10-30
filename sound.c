@@ -3421,7 +3421,7 @@ unsigned int add_death_sound(actor * act)
 unsigned int add_battlecry_sound(actor * act)
 {
 	// Maybe play a battlecry sound
-	if (rand() % 25 == 6)			// 1 chance in 25 to play
+	if (rand() % 3 == 2)			// 1 chance in 3 to play
 	{
 		return add_sound_object_gain(actors_defs[act->actor_type].battlecry.sound,
 										act->x_pos,
@@ -4252,7 +4252,7 @@ void handle_walking_sound(actor * pActor, int def_snd)
 		{			
 			// Check if we have a sound and it is different to the current one
 			cur_sound = find_sound_from_cookie(pActor->cur_anim_sound_cookie);
-			if (cur_sound >= 0 && sounds_list[cur_sound].sound != snd)
+			if (cur_sound >= 0 && sounds_list[cur_sound].sound != snd && sound_type_data[sounds_list[cur_sound].sound].type == SOUNDS_WALKING)
 			{
 				// It is valid and different so remove the current sound before we add the new one
 				stop_sound(pActor->cur_anim_sound_cookie);
