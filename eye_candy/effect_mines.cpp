@@ -88,7 +88,6 @@ bool MineParticle::idle(const Uint64 delta_t)
     case MineEffect::DETONATE_CALTROP:
     case MineEffect::DETONATE_CALTROP_POISON:
     {
-	  size += 0.9;
       if (age < 700000)
       {
 		  velocity *= 0.85;
@@ -126,14 +125,11 @@ bool MineParticle::idle(const Uint64 delta_t)
 		if (alpha < 0.01)
 			return false;
 		
-		if (age > 1350000)
-		{
-			velocity *= 0.85;
-		}
+		velocity *= 0.5;
 		
-		int i = (type == MineEffect::DETONATE_TYPE1_SMALL ? 3 : type == MineEffect::DETONATE_TYPE1_MEDIUM ? 2 : 1);
-		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * i);
-		alpha *= scalar;
+//		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
+		if (age > 500000)
+			alpha *= 0.8;	// scalar
 		
 		break;
     }
@@ -280,7 +276,7 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity(0.0, 5.0, 0.0);
         coords += effect_center;
-        Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.05, 0.4, (type == DETONATE_CALTROP ? 0.3 : 0.5), 0.3, &(base->TexWater), LOD, type);
+        Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.6, 0.4, (type == DETONATE_CALTROP ? 0.3 : 0.5), 0.3, &(base->TexTwinflare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
           break;
@@ -303,7 +299,7 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
           vel.randomize();
           vel.normalize(2.0);
           vel *= randfloat() * 4.0;
-          p = new MineParticle(this, mover, c, vel, 0.5, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
+          p = new MineParticle(this, mover, c, vel, 0.2, 1.0, 1.0, 1.0, 1.0, &(base->TexVoid), LOD, type);
           if (!base->push_back_particle(p))
               break;
 
@@ -316,17 +312,18 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
     case DETONATE_TYPE1_MEDIUM:
     case DETONATE_TYPE1_LARGE:
     {
-      int i;
-      spawner = new HollowSphereSpawner(0.3);
+      float i;
+      spawner = new HollowSphereSpawner(0.1);
       mover = new ParticleMover(this);
-      i = (type == DETONATE_TYPE1_SMALL ? 5 : type == DETONATE_TYPE1_MEDIUM ? 10 : 50);
-      while ((int)particles.size() < LOD * i)
+      i = (type == DETONATE_TYPE1_SMALL ? 0.5 : type == DETONATE_TYPE1_MEDIUM ? 0.8 : 3.0);
+      while ((int)particles.size() < LOD * 100)
       {
         Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity = coords * (type == DETONATE_TYPE1_SMALL ? 10 : type == DETONATE_TYPE1_MEDIUM ? 7 : 5);
+        Vec3 velocity = coords * 150;
         velocity.y *= 2;
         coords += effect_center;
-        Particle * p = new MineParticle(this, mover, coords, velocity, 6, 1, 0.7, 0.5, 0.3, &(base->TexWater), LOD, type);
+		coords.y -= 0.1;
+        Particle * p = new MineParticle(this, mover, coords, velocity, i, 1, 0.9, 0.5, 0.3, &(base->TexFlare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
           break;
