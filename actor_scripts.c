@@ -775,7 +775,7 @@ void next_command()
 
 #ifdef NEW_SOUND
 						// Maybe play a battlecry sound
-						add_battlecry_sound(&actors_list[i]);
+						add_battlecry_sound(actors_list[i]);
 #endif // NEW_SOUND
 						break;
 					case attack_up_2:
@@ -789,7 +789,7 @@ void next_command()
 
 #ifdef NEW_SOUND
 						// Maybe play a battlecry sound
-						add_battlecry_sound(&actors_list[i]);
+						add_battlecry_sound(actors_list[i]);
 #endif // NEW_SOUND
 						break;
 					case attack_up_3:
@@ -804,7 +804,7 @@ void next_command()
 
 #ifdef NEW_SOUND
 						// Maybe play a battlecry sound
-						add_battlecry_sound(&actors_list[i]);
+						add_battlecry_sound(actors_list[i]);
 #endif // NEW_SOUND
 						break;
 					case attack_up_4:
@@ -819,7 +819,7 @@ void next_command()
 
 #ifdef NEW_SOUND
 						// Maybe play a battlecry sound
-						add_battlecry_sound(&actors_list[i]);
+						add_battlecry_sound(actors_list[i]);
 #endif // NEW_SOUND
 						break;
 					case attack_down_1:
@@ -834,7 +834,7 @@ void next_command()
 
 #ifdef NEW_SOUND
 						// Maybe play a battlecry sound
-						add_battlecry_sound(&actors_list[i]);
+						add_battlecry_sound(actors_list[i]);
 #endif // NEW_SOUND
 						break;
 					case attack_down_2:
@@ -849,7 +849,7 @@ void next_command()
 
 #ifdef NEW_SOUND
 						// Maybe play a battlecry sound
-						add_battlecry_sound(&actors_list[i]);
+						add_battlecry_sound(actors_list[i]);
 #endif // NEW_SOUND
 						break;
 					case turn_left:
