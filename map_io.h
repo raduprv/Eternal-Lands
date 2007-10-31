@@ -33,14 +33,32 @@ typedef struct
 
 typedef struct
 {
-  float pos_x;
-  float pos_y;
-  float pos_z;
-  float r;
-  float g;
-  float b;
-  char reserved[15];
-}light_io;
+	float pos_x;
+	float pos_y;
+	float pos_z;
+
+	float r;
+	float g;
+	float b;
+
+#ifdef NEW_LIGHT_FORMAT
+	unsigned char spec_r;
+	unsigned char spec_g;
+	unsigned char spec_b;
+
+	char light_dir_z_sign;
+
+	unsigned short quadric_attenuation;
+	unsigned short range;
+	short cutoff;
+	short exponent;
+
+	short light_dir_x;
+	short light_dir_y;
+#else
+	char reserved[16];
+#endif
+} light_io;
 
 typedef struct
 {
@@ -68,7 +86,11 @@ typedef struct
 	int lights_no;
 	int lights_offset;
 	char dungeon;//no sun
+#if defined CLUSTER_INSIDES || defined NEW_LIGHT_FORMAT
+	unsigned char version;
+#else
 	char res_2;
+#endif
 	char res_3;
 	char res_4;
 	float ambient_r;

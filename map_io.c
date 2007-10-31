@@ -7,6 +7,8 @@
 #include "../elc/cluster.h"
 #endif
 
+#define LATEST_MAP_VERSION 1
+
 void destroy_map()
 {
 	int i;
@@ -138,6 +140,9 @@ int save_map (const char* file_name)
 	cur_map_header.lights_no=lights_no;
 	cur_map_header.lights_offset=cur_map_header.obj_2d_offset+obj_2d_no*obj_2d_io_size;
 	cur_map_header.dungeon=dungeon;
+#if defined CLUSTER_INSIDES || defined NEW_LIGHT_FORMAT
+	cur_map_header.version = LATEST_MAP_VERSION;
+#endif
 	cur_map_header.ambient_r=ambient_r;
 	cur_map_header.ambient_g=ambient_g;
 	cur_map_header.ambient_b=ambient_b;
@@ -298,6 +303,23 @@ int save_map (const char* file_name)
 				cur_light_io.g = lights_list[i]->g;
 				cur_light_io.b = lights_list[i]->b;
 
+#ifdef NEW_LIGHT_FORMAT
+				// Insert default values for now
+				cur_light_io.spec_r = 255;
+				cur_light_io.spec_g = 255;
+				cur_light_io.spec_b = 255;
+
+				cur_light_io.light_dir_z_sign = 0;
+
+				cur_light_io.quadric_attenuation = 0;
+				cur_light_io.range = 0;
+				cur_light_io.cutoff = -32768;
+				cur_light_io.exponent = 0;
+
+				cur_light_io.light_dir_x = 0;
+				cur_light_io.light_dir_y = 0;
+#endif
+
 #ifdef	ZLIBW
 				gzwrite (f, cur_light_pointer, sizeof (light_io));
 #else	//ZLIBW
@@ -376,8 +398,10 @@ int load_map (const char* file_name)
 {
 	int i;
 	map_header cur_map_header;
-	char * mem_map_header=(char *)&cur_map_header;
-
+	char* mem_map_header=(char *)&cur_map_header;
+#if defined CLUSTER_INSIDES || defined NEW_LIGHT_FORMAT
+	unsigned char version;
+#endif
 
 	object3d_io cur_3d_obj_io;
 	int obj_3d_no=0;
@@ -441,6 +465,9 @@ int load_map (const char* file_name)
 
 	//get the type of map, and the ambient light
 	dungeon=cur_map_header.dungeon;
+#if defined CLUSTER_INSIDES || defined NEW_LIGHT_FORMAT
+	version = cur_map_header.version;
+#endif
 	ambient_r=cur_map_header.ambient_r;
 	ambient_g=cur_map_header.ambient_g;
 	ambient_b=cur_map_header.ambient_b;
@@ -495,16 +522,38 @@ int load_map (const char* file_name)
 
 
 	//read the lights
-	for(i=0;i<lights_no;i++)
-		{
-			char * cur_light_pointer=(char *)&cur_light_io;
+	for (i = 0; i < lights_no; i++)
+	{
+		char* cur_light_pointer = (char *)&cur_light_io;
 #ifdef	ZLIB
-			gzread(f, cur_light_pointer, lights_io_size);
+		gzread(f, cur_light_pointer, lights_io_size);
 #else	//ZLIB
-			fread(cur_light_pointer, 1, lights_io_size, f);
+		fread(cur_light_pointer, 1, lights_io_size, f);
 #endif	//ZLIB
-			add_light(cur_light_io.pos_x,cur_light_io.pos_y,cur_light_io.pos_z,cur_light_io.r,cur_light_io.g,cur_light_io.b,1.0f,0);
+
+#ifdef NEW_LIGHT_FORMAT
+		if (version == 0)
+		{
+			// Old map format, insert default values for 
+			// extended light parameters
+			cur_light_io.spec_r = 255;
+			cur_light_io.spec_g = 255;
+			cur_light_io.spec_b = 255;
+
+			cur_light_io.light_dir_z_sign = 0;
+
+			cur_light_io.quadric_attenuation = 0;
+			cur_light_io.range = 0;
+			cur_light_io.cutoff = -32768;
+			cur_light_io.exponent = 0;
+
+			cur_light_io.light_dir_x = 0;
+			cur_light_io.light_dir_y = 0;
 		}
+#endif // NEW_LIGHT_FORMAT
+
+		add_light (cur_light_io.pos_x, cur_light_io.pos_y, cur_light_io.pos_z, cur_light_io.r, cur_light_io.g, cur_light_io.b, 1.0f, 0);
+	}
 
 	//read particle systems
 	for(i=0;i<particles_no;i++)
