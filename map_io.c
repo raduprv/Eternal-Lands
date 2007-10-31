@@ -567,8 +567,12 @@ int load_map (const char* file_name)
 
 			if (!strncmp(cur_particles_io.file_name, "ec://", 5))
 			{
+#ifdef EYE_CANDY
 				printf("Deserializing eye candy.\n");
 				deserialize_eye_candy_effect(&cur_particles_io);
+#else
+				LOG_ERROR("Map contains eye candy effect, but map editor is compiled without eye candy support");
+#endif
 			}
 			else
 			{

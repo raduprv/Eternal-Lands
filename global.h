@@ -13,6 +13,8 @@
 #include <math.h>
 #include <time.h>
 
+#include "../elc/platform.h"
+
 #ifndef min
 	#define min(x, y) (x<y?x:y)
 #endif //min
@@ -20,21 +22,8 @@
 	#define max(x, y) (x>y?x:y)
 #endif //max
 
-#if defined (_MSC_VER) || defined (__MINGW32__)
-	#define snprintf sane_snprintf
-#else
-	// should probably not be used
-	#ifndef	__GNUC__	// or should we test for VC
-		#define	snprintf _snprintf
-	#endif
-#endif
-
 #include <SDL.h>
 #include <SDL_endian.h>
-//#include <SDL_opengl.h>
-#include	<GL/gl.h>
-#include	<GL/glu.h>
-#include	<GL/glext.h>
 
 #ifdef LINUX
 #include <gtk/gtk.h>
