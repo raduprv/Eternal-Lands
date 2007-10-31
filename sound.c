@@ -3745,12 +3745,12 @@ void stop_sound(unsigned long int cookie)
 	// Find which sound matches this cookie
 	n = find_sound_from_cookie(cookie);
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Removing cookie: %d, Sound number: %d\n", (int)cookie, n);
+	printf("Removing cookie: %ld, Sound number: %d\n", cookie, n);
 #endif //_EXTRA_SOUND_DEBUG
 	if (n >= 0)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Stopping cookie %d with sound index %d. It is currently %splaying.\n", (int)cookie, n, sounds_list[n].playing ? "" : "not ");
+		printf("Stopping cookie %ld with sound index %d. It is currently %splaying.\n", cookie, n, sounds_list[n].playing ? "" : "not ");
 #endif //_EXTRA_SOUND_DEBUG
 		if (sounds_list[n].playing)
 		{
@@ -3764,9 +3764,7 @@ void stop_sound(unsigned long int cookie)
 			UNLOCK_SOUND_LIST();
 		}
 		sounds_list[n].playing = 0;
-		// Check if we should unload this sound (is not a map sound)
-		if (sound_type_data[sounds_list[n].sound].type != SOUNDS_MAP)
-			unload_sound(n);
+		unload_sound(n);
 	}
 }
 
@@ -3779,7 +3777,7 @@ void stop_sound_at_location(int x, int y)
 	{
 		if (sounds_list[i].x == x && sounds_list[i].y == y)
 		{
-			stop_sound(i);
+			stop_sound(sounds_list[i].cookie);
 		}
 	}
 }
@@ -3802,8 +3800,6 @@ void stop_all_sounds()
 			printf("Stopping sound %d (%s), cookie: %d, used_sources: %d\n", i, sound_type_data[sounds_list[sound_source_data[0].loaded_sound].sound].name, sounds_list[i].cookie, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
 			stop_sound(sounds_list[i].cookie);
-			// Force the unloading of all sounds (assume changing maps)
-			unload_sound(i);
 		}
 	}
 
