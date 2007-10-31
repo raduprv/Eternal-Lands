@@ -140,11 +140,10 @@ void get_the_stats(Sint16 *stats)
 	your_info.engineering_skill.base=SDL_SwapLE16(stats[96]);
 	your_info.engineering_exp=SDL_SwapLE32(*((Uint32 *)(stats+97)));
 	your_info.engineering_exp_next_lev=SDL_SwapLE32(*((Uint32 *)(stats+99)));
-	// initialise tailoring with dummy values until the server sends some real ones
-	your_info.tailoring_skill.cur=0;			// SDL_SwapLE16(stats[101]);
-	your_info.tailoring_skill.base=0;			// SDL_SwapLE16(stats[102]);
-	your_info.tailoring_exp=42;					// SDL_SwapLE32(*((Uint32 *)(stats+103)));
-	your_info.tailoring_exp_next_lev=1066;		// SDL_SwapLE32(*((Uint32 *)(stats+105)));
+	your_info.tailoring_skill.cur=SDL_SwapLE16(stats[101]);
+	your_info.tailoring_skill.base=SDL_SwapLE16(stats[102]);
+	your_info.tailoring_exp=SDL_SwapLE32(*((Uint32 *)(stats+103)));
+	your_info.tailoring_exp_next_lev=SDL_SwapLE32(*((Uint32 *)(stats+105)));
     
 	your_info.research_completed=SDL_SwapLE16(stats[47]);
 	your_info.researching=SDL_SwapLE16(stats[81]);
@@ -891,4 +890,3 @@ void floatingmessages_compare_stat(int actor_id, int value, int new_value, const
 	else 
 		add_floating_message(actor_id, str, FLOATINGMESSAGE_NORTH, 0.3, 1.0, 0.3,1500);
 }
-

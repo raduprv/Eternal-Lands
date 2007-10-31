@@ -53,6 +53,9 @@ void	quick_use(int use_id)
 				quick_use_str[1]= use_id;
 				quick_use_str[2]= i;
 				my_tcp_send(my_socket,quick_use_str,2);
+#ifdef NEW_SOUND
+				item_list[i].action = USE_INVENTORY_ITEM;
+#endif // NEW_SOUND
 				break;
 		}
 	}
