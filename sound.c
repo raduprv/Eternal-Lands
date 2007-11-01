@@ -3387,10 +3387,16 @@ unsigned int add_particle_sound(int type, int x, int y)
 			&& y <= sounds_list[i].y + buffer
 			&& type == sounds_list[i].sound)
 		{
+#ifdef _EXTRA_SOUND_DEBUG
+			LOG_TO_CONSOLE(c_red1, "Got here 2");
+#endif // _EXTRA_SOUND_DEBUG
 			// There is a sound of this type already within this space so ignore this one
 			return 0;
 		}
 	}
+#ifdef _EXTRA_SOUND_DEBUG
+	LOG_TO_CONSOLE(c_red1, "Got here 3");
+#endif // _EXTRA_SOUND_DEBUG
 	return add_sound_object_gain(type, x, y, 0, 1.0f);
 }
 
@@ -3424,8 +3430,8 @@ unsigned int add_battlecry_sound(actor * act)
 	if (rand() % 3 == 2)			// 1 chance in 3 to play
 	{
 		return add_sound_object_gain(actors_defs[act->actor_type].battlecry.sound,
-										act->x_pos,
-										act->x_pos,
+										act->x_pos * 2,
+										act->x_pos * 2,
 										act == your_actor ? 1 : 0,
 										actors_defs[act->actor_type].battlecry.scale
 									);

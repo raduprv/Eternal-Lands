@@ -617,8 +617,14 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 			break;
 	}
 #ifdef NEW_SOUND
+#ifdef _EXTRA_SOUND_DEBUG
+	LOG_TO_CONSOLE(c_red1, "Trying to add fire sound");
+#endif // _EXTRA_SOUND_DEBUG
 	if (sound_on && snd >= 0)
 	{
+#ifdef _EXTRA_SOUND_DEBUG
+		LOG_TO_CONSOLE(c_red1, "Got here 1");
+#endif // _EXTRA_SOUND_DEBUG
 		add_particle_sound(snd, x_tile, y_tile);
 	}
 #endif // NEW_SOUND
