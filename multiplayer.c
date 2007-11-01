@@ -1784,7 +1784,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					log_error("CAUTION: Possibly forged DISPLAY_POPUP packet received.\n");
 					break;
 				}
-				popup_create_from_network( in_data, data_length );
+				popup_create_from_network(&in_data[3], data_length - 3);
 			}
 			break;
 #endif /* POPUP */

@@ -1183,7 +1183,6 @@ void popup_create_from_network( const unsigned char *payload, size_t size )
 	popup_option_group_t option_group;
 	popup_option_value_t value_id;
 
-
 	FETCH_U16( popup_id );
 	FETCH_U8( flags );
 	FETCH_SIZESTRING( title );
@@ -1199,7 +1198,7 @@ void popup_create_from_network( const unsigned char *payload, size_t size )
 
 	/* Handle options. We reuse the title char array here. */
 
-	while (size>0) {
+	while (size > 0) {
 		FETCH_U8( option_type );
 		FETCH_U8( option_group );
 

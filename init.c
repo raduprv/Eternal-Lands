@@ -660,12 +660,15 @@ void init_stuff()
 	const char * cfgdir;
 #endif //NEW_FILE_IO	
 
-	//TODO: process command line options
 	chdir(datadir);
 
 #ifdef	NEW_FILE_IO
 	//read the config file
 	read_config();
+
+	//Parse command line options
+	read_command_line();
+	options_set= 1;
 
 	add_paths();
 	// Here you can add zip files, like
@@ -692,11 +695,11 @@ void init_stuff()
 #ifndef	NEW_FILE_IO
 	//read the config file
 	read_config();
-#endif	// NEW_FILE_IO
 
 	//Parse command line options
 	read_command_line();
 	options_set= 1;
+#endif	// NEW_FILE_IO
 
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);

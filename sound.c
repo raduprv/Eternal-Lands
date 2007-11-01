@@ -293,7 +293,7 @@ ALCcontext *mSoundContext;
 
 int have_sound = 0;
 int have_music = 0;
-int sound_opts = 3;
+int sound_opts = SOUNDS_CLIENT;
 int sound_on = 1;
 int music_on = 1;
 Uint8 inited = 0;
@@ -3387,16 +3387,10 @@ unsigned int add_particle_sound(int type, int x, int y)
 			&& y <= sounds_list[i].y + buffer
 			&& type == sounds_list[i].sound)
 		{
-#ifdef _EXTRA_SOUND_DEBUG
-			LOG_TO_CONSOLE(c_red1, "Got here 2");
-#endif // _EXTRA_SOUND_DEBUG
 			// There is a sound of this type already within this space so ignore this one
 			return 0;
 		}
 	}
-#ifdef _EXTRA_SOUND_DEBUG
-	LOG_TO_CONSOLE(c_red1, "Got here 3");
-#endif // _EXTRA_SOUND_DEBUG
 	return add_sound_object_gain(type, x, y, 0, 1.0f);
 }
 
@@ -6367,7 +6361,6 @@ int parse_sound_defs(xmlNode *node)
 
 void load_sound_config_data (const char *file)
 {
-#ifdef ELC
 	xmlDoc *doc;
 	xmlNode *root=NULL;
 
@@ -6414,7 +6407,6 @@ void load_sound_config_data (const char *file)
 #ifdef DEBUG
 	print_sound_types();
 #endif // DEBUG
-#endif // ELC
 }
 #endif //!NEW_SOUND
 

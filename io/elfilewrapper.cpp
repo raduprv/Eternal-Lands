@@ -23,7 +23,6 @@ namespace eternal_lands
 		{
 			el_file::add_path(std::string(get_path_config()) + std::string("custom_updates/"));
 			el_file::add_path(std::string(get_path_config()) + std::string("updates/"));
-			el_file::add_path(std::string(get_path_config()));
 			el_file::add_path(std::string(datadir) + std::string("custom_updates/"));
 			el_file::add_path(std::string(datadir) + std::string("updates/"));
 			el_file::add_path(datadir);
