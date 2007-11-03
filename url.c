@@ -29,6 +29,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 
 char browser_name[120];
 int url_win_x = 100;
@@ -618,6 +621,9 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 			free(url_win_hover_url);
 			url_win_hover_url = NULL;
 			have_url_count--;
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Window Close"), 0, 0, 1);
+#endif // NEW_SOUND
 		}
 		else
 		{
@@ -627,6 +633,9 @@ static int click_url_handler(window_info *win, int mx, int my, Uint32 flags)
 				url_win_clicktime = 0; /* just in case we're running for 49 days :) */
 			if ((currentclicktime - url_win_clicktime > 1000) || (url_win_clicked_url != url_win_hover_url))
 			{
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
 				url_win_clicktime = SDL_GetTicks();
 				url_win_clicked_url = url_win_hover_url;
 				open_web_link(((URLDATA *)url_win_hover_url->data)->text);

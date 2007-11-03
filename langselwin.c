@@ -31,6 +31,9 @@
 #include "multiplayer.h"
 #include "openingwin.h"
 #include "rules.h"
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 
 typedef struct { char *code; char *text; char *save; char *note; } LANGSEL_LIST_NODE;
 
@@ -267,7 +270,12 @@ static int click_langsel_handler(window_info *win, int mx, int my, Uint32 flags)
 	else if ((langsel_scroll_id > 0) && flags & ELW_WHEEL_DOWN)
 		vscrollbar_scroll_down(langsel_win, langsel_scroll_id);
 	else if ((flags & ELW_MOUSE_BUTTON) && langsel_selected_node)
+	{
 		langsel_chosen_node = langsel_selected_node;
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
+#endif // NEW_SOUND
+	}
 	if (langsel_scroll_id > 0)
 		langsel_first_lang_line = vscrollbar_get_pos(langsel_win, langsel_scroll_id);
 	return 1;
