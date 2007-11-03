@@ -1137,6 +1137,8 @@ static void popup_send_to_server( popup_t *popup )
 
 			*bptr = option->group;
 			bptr++;
+			*bptr = 0;
+			bptr++;
 
 			*bptr = strlen( option->value.str );
 			memcpy( bptr+1, option->value.str, *bptr );
