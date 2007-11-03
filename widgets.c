@@ -510,6 +510,11 @@ int widget_handle_mouseover (widget_list *widget, int mx, int my)
 int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 {
 	int res = 0;
+#ifdef NEW_SOUND
+	/* widget might get destroyed by handler so check for sound type now */
+	int play_sound = (widget->type == &round_button_type) ?1 :0;
+#endif // NEW_SOUND
+	
 	if (widget->type != NULL) {
 		if (widget->type->click != NULL) {
 			res = widget->type->click (widget, mx, my, flags);
@@ -526,7 +531,7 @@ int widget_handle_click (widget_list *widget, int mx, int my, Uint32 flags)
 	}
 
 #ifdef NEW_SOUND
-	if (widget->type == &round_button_type && res > -1)
+	if (play_sound && res > -1)
 		add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
 #endif // NEW_SOUND
 
