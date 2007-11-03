@@ -13,6 +13,9 @@
 #include "zipfilesystem.hpp"
 #include "elpathwrapper.h"
 #include "../init.h"
+#ifdef	EXTRA_DEBUG
+#include "../errors.h"
+#endif	// EXTRA_DEBUG
 
 namespace eternal_lands
 {

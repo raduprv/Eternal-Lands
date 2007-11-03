@@ -1757,10 +1757,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case GET_MINES_LIST:
 			{
+				Uint16 mines_no;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-				Uint16 mines_no;
 				if (data_length <= 3)
 				{
 				  log_error("CAUTION: Possibly forged GET_MINES_LIST packet received.\n");

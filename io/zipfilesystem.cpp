@@ -1,4 +1,7 @@
 #include "zipfilesystem.hpp"
+#ifdef	EXTRA_DEBUG
+#include "../errors.h"
+#endif	// EXTRA_DEBUG
 
 namespace eternal_lands
 {
