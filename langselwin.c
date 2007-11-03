@@ -1,9 +1,9 @@
 /*
 	langselwin.c - Shows a language selection window if no language specified in el.ini
 
-	Each available language is display from languages/langsel.xml.  The user can click on
+	Each available language is displayed from languages/langsel.xml.  The user can click on
 	their preferred language and then press save which will save the value in el.ini.
-	Beside the save button a note can be display explaining a bit about languages in EL. 
+	Beside the save button a note can be displayed explaining a bit about languages in EL. 
 	If the language "en" is chosen the client will continue to open the login/new
 	character/rules screen.   Otherwise, the client will be restarted.  All the text and
 	colours are configurable in the langsel.xml file.
@@ -366,6 +366,7 @@ static int display_langsel_handler(window_info *win)
 		widget_list *save_widget = NULL;
 		char *longest_string = NULL;
 		int non_line_height = 0;
+		float sizefrac = 0.80;
 		
 		/* count the number of language lines and find the widest line and the first line
 		   - font_zoom unknow as yet */
@@ -384,8 +385,8 @@ static int display_langsel_handler(window_info *win)
 		max_str_width *= DEFAULT_FONT_X_LEN / 12.0;
 
 		/* if required, change the zoom based on a reasonable limit of using all the main window */
-		if ((font_zoom * max_str_width) > (0.75 * window_width))
-			font_zoom = 0.75 * window_width / max_str_width;
+		if ((font_zoom * max_str_width) > (sizefrac * window_width))
+			font_zoom = sizefrac * window_width / max_str_width;
 
 		/* number of pixels used per language line drawn */		
 		line_step = 3 + line_step * font_zoom;
@@ -412,10 +413,10 @@ static int display_langsel_handler(window_info *win)
 		winheight = non_line_height + line_step * max_lang_lines;
 		
 		/* if the height is too big, reduce it to something reasonable and add a scroll bar */
-		if (winheight > (0.75 * window_height))
+		if (winheight > (sizefrac * window_height))
 		{
 			add_scroll_bar = 1;
-			max_lang_lines = ((0.75 * window_height) - non_line_height) / line_step;
+			max_lang_lines = ((sizefrac * window_height) - non_line_height) / line_step;
 			winheight = non_line_height + line_step * max_lang_lines;
 			winwidth += scroll_width;
 		}
