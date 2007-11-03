@@ -135,6 +135,7 @@ int dec(my_enum * def, int val, int no_steps)
 //New char interface
 
 static char create_char_error_str[520] = {0};
+static int textboxy = 9*SMALL_FONT_Y_LEN; /* 8 lines of text + top/bottom space */
 int display_time=0;
 	
 struct input_text {
@@ -580,13 +581,13 @@ int display_namepass_handler (window_info * win)
 	
 	draw_smooth_button(hidden?show_password:hide_password, DEFAULT_SMALL_RATIO, 20, 120, 200, 1, 0.77f, 0.57f ,0.39f, hidden, 0.32f, 0.23f, 0.15f, 0.5f);
 
-	draw_box(NULL, 20, 160, 220, 60, 0);
+	draw_box(NULL, 20, 160, 220, textboxy, 0);
 	
-	draw_smooth_button(char_done, DEFAULT_SMALL_RATIO, 20, 230, 60, 1, 0.77f, 0.57f ,0.39f, are_you_sure, 0.32f, 0.23f, 0.15f, 0.5f);
-	draw_smooth_button(char_back, DEFAULT_SMALL_RATIO, 160, 230, 60, 1, 0.77f, 0.57f ,0.39f, 0, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(char_done, DEFAULT_SMALL_RATIO, 20, 170+textboxy, 60, 1, 0.77f, 0.57f ,0.39f, are_you_sure, 0.32f, 0.23f, 0.15f, 0.5f);
+	draw_smooth_button(char_back, DEFAULT_SMALL_RATIO, 160, 170+textboxy, 60, 1, 0.77f, 0.57f ,0.39f, 0, 0.32f, 0.23f, 0.15f, 0.5f);
 
 	if(display_time>cur_time){
-		draw_string_small(30, 168, (unsigned char*)create_char_error_str, 3);
+		draw_string_small(30, 168, (unsigned char*)create_char_error_str, 8);
 	}
 	
 	return 1;
@@ -678,7 +679,7 @@ int click_namepass_handler(window_info * win, int mx, int my, Uint32 flags)
 		hidden=!hidden;
 	}
 
-	if(my>230 && my<252){
+	if(my>170+textboxy && my<192+textboxy){
 		if(mx>20 && mx<100){
 			create_character();
 		} if(mx>160 && mx<240){
@@ -698,7 +699,7 @@ void show_account_win ()
 {
 	if (namepass_win < 0){
 	        // Create the window
-	        namepass_win = create_window (win_name_pass, newchar_root_win, 0, 10, 200, 270, 260, ELW_WIN_DEFAULT);
+	        namepass_win = create_window (win_name_pass, newchar_root_win, 0, 10, 50, 270, 200+textboxy, ELW_WIN_DEFAULT);
 	        set_window_handler (namepass_win, ELW_HANDLER_DISPLAY, &display_namepass_handler);
 	        set_window_handler (namepass_win, ELW_HANDLER_KEYPRESS, &keypress_namepass_handler);
 	        set_window_handler (namepass_win, ELW_HANDLER_CLICK, &click_namepass_handler);
@@ -1089,7 +1090,7 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 void show_color_race_win()
 {
 	if(color_race_win < 0){
-		color_race_win = create_window (win_design, newchar_root_win, 0, 300, 200, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
+		color_race_win = create_window (win_design, newchar_root_win, 0, 300, 50, 420, 170, ELW_WIN_DEFAULT|ELW_CLICK_TRANSPARENT);
 		set_window_handler (color_race_win, ELW_HANDLER_DISPLAY, &display_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_MOUSEOVER, &mouseover_color_race_handler);
 		set_window_handler (color_race_win, ELW_HANDLER_CLICK, &click_color_race_handler);
