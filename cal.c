@@ -118,7 +118,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 			stop_sound(pActor->cur_anim_sound_cookie);
 		pActor->cur_anim_sound_cookie = 0;
 		
-		if (anim.sound > -1)
+		if (anim.sound > -1 && !pActor->dead)
 		{
 			// Found a sound, so add it
 			pActor->cur_anim_sound_cookie = add_sound_object_gain(	anim.sound,

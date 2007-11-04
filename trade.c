@@ -17,6 +17,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#ifdef NEW_SOUND
+#include "sound.h"
+#endif // NEW_SOUND
 
 #define ITEM_INVENTORY 1
 #define ITEM_BANK 2
@@ -234,6 +237,9 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		str[2]=item_list[item_dragged].pos;
 		*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
 		my_tcp_send(my_socket,str,7);
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 		return 1;
 	} else if(storage_available && left_click && storage_item_dragged!=-1){
 		str[0]=PUT_OBJECT_ON_TRADE;
@@ -241,6 +247,9 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		str[2]=storage_items[storage_item_dragged].pos;
 		*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
 		my_tcp_send(my_socket,str,7);
+#ifdef NEW_SOUND
+		add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 		return 1;
 	} else if(mx>10 && mx<10+4*33 && my>30 && my<30+4*33){
 		int pos=get_mouse_pos_in_grid (mx, my, 4, 4, 10, 30, 33, 33);
@@ -257,6 +266,9 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				str[1]=pos;
 				*((Uint32 *)(str+2))=SDL_SwapLE32(item_quantity);
 				my_tcp_send(my_socket,str,6);
+#ifdef NEW_SOUND
+				add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 			}
 		}
 
@@ -285,6 +297,9 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		if(trade_you_accepted==2 || right_click){
 			str[0]= REJECT_TRADE;
 			my_tcp_send(my_socket, str, 1);
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 		} else {
 			str[0]= ACCEPT_TRADE;
 			if(trade_you_accepted==1){
@@ -295,6 +310,9 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 			}
 			my_tcp_send(my_socket, str, 17);
+#ifdef NEW_SOUND
+			add_sound_object(get_index_for_sound_type_name("Button Click"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+#endif // NEW_SOUND
 		}
 		
 		return 1;
