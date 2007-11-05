@@ -3,6 +3,7 @@
 #include "elfilewrapper.h"
 #include "elfile.hpp"
 #include "eldatasource.hpp"
+#include "../elc_private.h"
 #include "../errors.h"
 
 namespace eternal_lands
@@ -21,12 +22,9 @@ namespace eternal_lands
 	{
 		try
 		{
-			el_file::add_path(std::string(get_path_config()) + std::string("custom_updates/"));
-			el_file::add_path(std::string(get_path_config()) + std::string("updates/"));
-			el_file::add_path(std::string(datadir) + std::string("custom_updates/"));
-			el_file::add_path(std::string(datadir) + std::string("updates/"));
+//			el_file::add_path(std::string(get_path_config()) + std::string("custom/"));		// We don't want all searches looking in the custom dir
+			el_file::add_path(std::string(get_path_updates()));
 			el_file::add_path(datadir);
-			el_file::add_path("./");
 		}
 		CATCH_AND_LOG_EXCEPTIONS
 	}

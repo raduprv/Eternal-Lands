@@ -51,7 +51,7 @@ const static char* cfgdirname = CONFIGDIR;
 #elif defined(OSX)
 const static char* cfgdirname = "Library/Application\ Support/Eternal\ Lands";
 #elif defined(WINDOWS)
-const static char* cfgdirname = "elc";
+const static char* cfgdirname = "Eternal Lands";
 #else /* *nix */
 const static char* cfgdirname = ".elc";
 #endif // platform check
@@ -63,7 +63,8 @@ static __inline__ int dir_exists (const char* path)
 	return stat (path, &d_stat) == 0 && S_ISDIR (d_stat.st_mode);
 }
 
-const char * get_path_config(void){
+const char * get_path_config(void)
+{
 	/* Note: In most cases, you shouldn't need to call this function at all anyway;
 	 * the other functions below (which are expected to be used) take care of it for you.
 	 *
@@ -72,41 +73,52 @@ const char * get_path_config(void){
 	 */
 	static char locbuffer[MAX_PATH] = {0};
 	char pwd[MAX_PATH];
-	if(locbuffer[0] != '\0'){
+	if (locbuffer[0] != '\0')
+	{
 		return locbuffer;
 	}
-	if(getcwd(pwd, MAX_PATH) == NULL){
+	if (getcwd(pwd, MAX_PATH) == NULL)
+	{
 		pwd[0] = '\0';
 	}
 #ifdef WINDOWS
-	/* Ask Windows for HOME/appdata. Note that on Vista, this is deprecated and a wrapper for the new function.
+	/* Ask Windows NT for HOME/appdata. Note that on Vista, this is deprecated and a wrapper for the new function.
 	 * We use the MAX_PATH as defined by Windows. It's technically possible under some circumstances for programs
 	 * to work with paths longer than MAX_PATH, but it sounds like it's expected to fail.
 	 * As such, it should be fair enough for us to give up after just one try, and use a safe failover.
+	 *
+	 * FIXME: A handler should be coded for Windows 98 backwards compatability!!
 	 */
-	if(SUCCEEDED(SHGetFolderPath(NULL, CSIDL_APPDATA|CSIDL_FLAG_CREATE, NULL, 0, locbuffer)) && 
-			(strlen(locbuffer) < MAX_PATH + 5)){
-			if(pwd[0] != '\0'){
-				if(chdir(locbuffer) == -1){
-					log_error("chdir(1) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
-					strcpy(locbuffer, cfgdirname);
-					return locbuffer;
-				}
-				if(mkdir(cfgdirname) == -1 && errno != EEXIST){
-					log_error("mkdir() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
-					chdir(pwd);
-					strcpy(locbuffer, cfgdirname);
-					return locbuffer;
-				}
-				if(chdir(pwd) == -1){
-					log_error("chdir(2) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
-					strcpy(locbuffer, cfgdirname);
-					return locbuffer;
-				}
+	if (SUCCEEDED(SHGetFolderPath(NULL, CSIDL_PERSONAL|CSIDL_FLAG_CREATE, NULL, 0, locbuffer)) && 
+			(strlen(locbuffer) < MAX_PATH + 5))
+	{
+		if (pwd[0] != '\0')
+			{
+			if (chdir(locbuffer) == -1)
+			{
+				log_error("chdir(1) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+				strcpy(locbuffer, cfgdirname);
+				return locbuffer;
 			}
+			if (mkdir(cfgdirname) == -1 && errno != EEXIST)
+			{
+				log_error("mkdir() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+				chdir(pwd);
+				strcpy(locbuffer, cfgdirname);
+				return locbuffer;
+			}
+			if (chdir(pwd) == -1)
+			{
+				log_error("chdir(2) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
+				strcpy(locbuffer, cfgdirname);
+				return locbuffer;
+			}
+		}
 		strcat(locbuffer, "/");
 		strcat(locbuffer, cfgdirname);
-	} else {
+	}
+	else
+	{
 		log_error("getpath() failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
 		//No luck. fall through to using the folder in PWD
 		strcpy(locbuffer, cfgdirname);
@@ -126,6 +138,43 @@ const char * get_path_config(void){
 	return locbuffer;
 }
 
+const char * get_path_updates(void)
+{
+	static char locbuffer[MAX_PATH] = {0};
+	if (locbuffer[0] != '\0')
+	{
+		return locbuffer;
+	}
+
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config(), VER_MAJOR, VER_MINOR, VER_RELEASE);
+	
+	return locbuffer;
+}
+
+const char * get_path_custom(void)
+{
+	static char locbuffer[MAX_PATH] = {0};
+	if (locbuffer[0] != '\0')
+	{
+		return locbuffer;
+	}
+
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%scustom/", get_path_config());
+	
+	return locbuffer;
+}
+
+char * check_custom_dir(char * in_file)
+{
+	char dir[10] = "custom/";
+	
+	// Check if there is an extra "custom/" on the front of this filename
+	if (strncmp(in_file, dir, strlen(dir)) == 0)
+	{
+		return in_file+strlen(dir);
+	}
+	return in_file;
+}
 
 FILE *open_file_config (const char* filename, const char* mode)
 {
@@ -161,20 +210,32 @@ FILE *open_file_config (const char* filename, const char* mode)
 }
 
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
-FILE * open_file_data_updates(const char* filename, const char* mode){
+FILE * open_file_data_temp(const char* filename, const char* mode)
+{
 	char locbuffer[MAX_PATH];
-	char updatepath[MAX_PATH];
 	const char * cfgdir = get_path_config();
-	safe_snprintf(updatepath, sizeof(updatepath), "updates_%d_%d_%d_%d/", VER_MAJOR, VER_MINOR, VER_RELEASE, VER_BUILD);
-	updatepath[sizeof(updatepath)-1] = '\0';
-	if(strlen(cfgdir) + strlen(updatepath) + strlen(filename) + 1 < MAX_PATH){
-		safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s%s", cfgdir, updatepath, filename);	//We could roll the preceding creation of updatepath into this sprintf(), but then we wouldn't have the length check
+	
+	if (strlen(cfgdir) + strlen(filename) + 2 < MAX_PATH)
+	{
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", cfgdir, filename);
+		return fopen(locbuffer, mode);
+	}
+	return NULL;
+}
+
+FILE * open_file_data_updates(char* filename, const char* mode, int custom){
+	char locbuffer[MAX_PATH];
+	const char * updatepath = custom ? get_path_custom() : get_path_updates();
+	
+	if (custom) filename = check_custom_dir(filename);
+	if (strlen(updatepath) + strlen(filename) + 1 < MAX_PATH)
+	{
+		safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s", updatepath, filename);	//We could roll the preceding creation of updatepath into this sprintf(), but then we wouldn't have the length check
 		return fopen(locbuffer, mode);
 	}
 	return NULL;
 }
 #endif // UPDATE
-
 
 FILE * open_file_data_datadir(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
@@ -188,12 +249,15 @@ FILE * open_file_data_datadir(const char* filename, const char* mode){
 }
 
 
-FILE * open_file_data(const char* filename, const char* mode){
+FILE * open_file_data(const char* in_filename, const char* mode){
+	char filename[MAX_PATH];
 	FILE* fp = NULL;
+	
+	safe_strncpy(filename, in_filename, sizeof(filename));
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	if(strchr(mode, 'w') == NULL){
 		//Reading? okay, we check updates first
-		if((fp = open_file_data_updates(filename, mode)) != NULL){
+		if((fp = open_file_data_updates(filename, mode, 0)) != NULL){
 			//If there, return it. Otherwise we keep looking.
 			return fp;
 		}
@@ -206,7 +270,7 @@ FILE * open_file_data(const char* filename, const char* mode){
 	}
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	//Writing, and we didn't get the data_dir, likely a permissions problem, so use updates
-	if((fp = open_file_data_updates(filename, mode)) != NULL){
+	if((fp = open_file_data_updates(filename, mode, 0)) != NULL){
 		//If there, return it. Otherwise we keep looking.
 		return fp;
 	}
@@ -327,8 +391,10 @@ int mkdir_tree (const char *path, int relative_only)
 
 	// Get rid of possible cruft in path
 	if (!normalize_path (path, dir, sizeof (dir), relative_only))
+	{
 		// failed to parse the path
 		return 0;
+	}
 
 	if (dir_exists (dir) || file_exists(dir))
 	{
@@ -398,23 +464,32 @@ int mkdir_config(const char *path){
 }
 
 
-int move_file_to_data(const char* from_file, const char* to_file){
+int move_file_to_updates(const char* from_file, char* to_file, int custom)
+{
+	// We never overwrite files in the original client install!!
 	char locbufcfg[MAX_PATH];
 	char locbufdat[MAX_PATH];
 	const char * cfgdir = get_path_config();
-	if((strlen(cfgdir) + strlen(from_file) + 1 > MAX_PATH) ||
-			(strlen(datadir) + strlen(to_file) +2 > MAX_PATH)){
+	const char * updatesdir = custom ? get_path_custom() : get_path_updates();
+
+	if (custom) to_file = check_custom_dir(to_file);
+	if ((strlen(cfgdir) + strlen(from_file) + 1 > MAX_PATH) ||
+			(strlen(updatesdir) + strlen(to_file) +2 > MAX_PATH))
+	{
 		errno = ENAMETOOLONG;
 		return -1;
 	}
 	strcpy(locbufcfg, cfgdir);
 	strcat(locbufcfg, from_file);
+	
+	strcpy(locbufdat, updatesdir);
+	strcat(locbufdat, to_file);
 
-	safe_snprintf(locbufdat, sizeof(locbufdat), "%s/%s", datadir, to_file);
+	// Make sure the dir exists
+	mkdir_tree(locbufdat, 0);
 
 	return rename(locbufcfg, locbufdat);
 }
-
 
 void file_update_clear_old(void){	//TODO.
 	//Need a recursive rmdir() call that also deletes files as it goes (rmdir() on linux, at the least, will only remove enpty directories)
@@ -422,106 +497,110 @@ void file_update_clear_old(void){	//TODO.
 }
 
 
+void remove_file_updates(char* filename, int custom)
+{
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
-void remove_file_data_updates(const char* filename){
 	char locbuffer[MAX_PATH];
-	const char * cfgdir = get_path_config();
-	if(strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH){
+	const char * updatesdir = custom ? get_path_custom() : get_path_updates();
+
+	if (custom) filename = check_custom_dir(filename);
+	if (strlen(updatesdir) + strlen(filename) + 1 > MAX_PATH)
+	{
 		errno = ENAMETOOLONG;
 		return;
 	}
-	strcpy(locbuffer, cfgdir);
+	strcpy(locbuffer, updatesdir);
 	strcat(locbuffer, filename);
 	remove(locbuffer);
-}
 #endif //UPDATES
-
-void remove_file_data_datadir(const char* filename){
-	char locbuffer[MAX_PATH];
-	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
-		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
-		remove(locbuffer);
-	}
 }
 
-void remove_file_data(const char * filename){
-#if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
-	remove_file_data_updates(filename);
-#endif //UPDATES
-
-	remove_file_data_datadir(filename);
-}
-
-
-int file_update_check(const char * filename, const unsigned char * md5){
-	FILE* fp = NULL;
+int file_md5_check(FILE * fp, const unsigned char * md5)
+{
 	MD5 local;
-	unsigned char digest_d[16];
-	int res_d = 0;
+	unsigned char digest[16];
+	int res = 0;
 	int length;
 	unsigned char buffer[1024];
+	
+	memset (digest, 0, sizeof (digest));
+	if (fp != NULL)
+	{
+		MD5Open(&local);
+		while ((length= fread(buffer, 1, sizeof(buffer), fp)) > 0)
+		{
+			MD5Digest(&local, buffer, length);
+		}
+		MD5Close(&local, digest);
+		fclose(fp);
+		if (memcmp(md5, digest, 16) != 0)
+		{
+			res = 1;	//Old
+		}
+		else
+		{
+			res = 0;	//Current
+		}
+	}
+	else
+	{
+		res = -1;	//Not present
+	}
+	return res;
+}
+
+int file_temp_check(const char * filename, const unsigned char * md5)
+{
+	FILE* fp = NULL;
+
+	fp = open_file_data_temp(filename, "r");
+	return file_md5_check(fp, md5);
+}
+
+int file_update_check(char * filename, const unsigned char * md5, int custom)
+{
+	FILE* fp = NULL;
+	int res_d = 0;
+
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
-	unsigned char digest_u[16];
 	int res_u = 0;
 
-	memset (digest_u, 0, sizeof (digest_u));
-	fp = open_file_data_updates(filename, "r");
-	if(fp != NULL){
-		MD5Open(&local);
-		while ((length= fread(buffer, 1, sizeof(buffer), fp)) > 0){
-			MD5Digest(&local, buffer, length);
-		}
-		MD5Close(&local, digest_u);
-		fclose(fp);
-		if(memcmp(md5, digest_u, 16) != 0){
-			res_u = 1;	//Old
-		} else {
-			res_u = 0;	//Current
-		}
-	} else {
-		res_u = -1;	//Not present
-	}
+	if (custom) filename = check_custom_dir(filename);
+	fp = open_file_data_updates(filename, "r", custom);
+	res_u = file_md5_check(fp, md5);
 #endif //UPDATE
 
-	memset (digest_d, 0, sizeof (digest_d));
 	fp = open_file_data_datadir(filename, "r");
-	if(fp != NULL){
-		MD5Open(&local);
-		while ((length= fread(buffer, 1, sizeof(buffer), fp)) > 0){
-			MD5Digest(&local, buffer, length);
-		}
-		MD5Close(&local, digest_d);
-		fclose(fp);									
-		if(memcmp(md5, digest_d, 16) != 0){
-			res_d = 1;	//Old
-		} else {
-			res_d = 0;	//Current
-		}
-	} else {
-		res_d = -1;	//Not present
-	}
+	res_d = file_md5_check(fp, md5);
+
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
-	if(res_u == 0){
+	if (res_u == 0)
+	{
 		//Move
 		return 0;
-	} else if(res_u == 1){
-		remove_file_data_updates(filename);
+	}
+	else if (res_u == 1)
+	{
+		remove_file_updates(filename, custom);
 	}
 #endif //UPDATE
 
-	if(res_d == 0){
+	if (res_d == 0)
+	{
 		return 0;
 	}
 	return 1;
 }
 
-void file_check_datadir(void){
+void file_check_datadir(void)
+{
 	struct stat fstat;
 #ifdef WINDOWS
 	if (datadir[strlen(datadir)-1] == '/' || datadir[strlen(datadir)-1] == '\\')		// stat() fails with a trailing slash under Windows. :-S
 		datadir[strlen(datadir)-1] = '\0';
 #endif // WINDOWS
-	if (stat(datadir, &fstat) != 0){
+	if (stat(datadir, &fstat) != 0)
+	{
 		log_error("Warning: Didn't find your data_dir, using the current directory instead. Please correct this in your el.ini . Given data_dir was: \"%s\"\n", datadir);
 		strcpy(datadir, "./");
 	}

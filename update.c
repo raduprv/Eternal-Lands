@@ -51,6 +51,7 @@ char    *download_cur_file;
 char    download_temp_file[1024];
 Uint8	*download_MD5s[MAX_UPDATE_QUEUE_SIZE];
 Uint8	*download_cur_md5;
+int doing_custom = 0;
 
 // initialize the auto update system, start the downloading
 void    init_update()
@@ -70,7 +71,7 @@ void    init_update()
 	// create the mutex & init the download que
 	if(!download_mutex){
 #ifdef NEW_FILE_IO
-		file_update_clear_old();
+//		file_update_clear_old();	// There is no reason to delete all the previous files. We only remove the ones out of date.
 #endif /* NEW_FILE_IO */
 		download_mutex= SDL_CreateMutex();
 		download_queue_size= 0;
@@ -135,13 +136,13 @@ void    handle_update_download(struct http_get_struct *get)
 {
 	static int  mkdir_res= -1;  // flag as not tried
 	int sts;
-	
+
 	// try to make sure the directory is there
 	if(mkdir_res < 0){
 #ifdef NEW_FILE_IO
-		mkdir_res= mkdir_config ("tmp");
+		mkdir_res = mkdir_config("tmp");
 #else // !NEW_FILE_IO
-		mkdir_res= mkdir_tree("tmp/");
+		mkdir_res = mkdir_tree("tmp/");
 #endif //NEW_FILE_IO
 	}
 	if(get != NULL){
@@ -156,9 +157,9 @@ void    handle_update_download(struct http_get_struct *get)
 			// yes, lets start using the new file
 			remove(files_lst);
 #ifdef NEW_FILE_IO
-			sts = move_file_to_data("tmp/temp000.dat", files_lst);
+			sts = move_file_to_updates("tmp/temp000.dat", files_lst, doing_custom);
 #else // !NEW_FILE_IO
-			sts= rename("./tmp/temp000.dat", files_lst);
+			sts = rename("./tmp/temp000.dat", files_lst);
 #endif //NEW_FILE_IO
 
 			// trigger processing this file
@@ -254,13 +255,21 @@ int    do_threaded_update(void *ptr)
 	int	num_files= 0;
 #ifdef	ZLIB
 	gzFile *fp= NULL;
+ #ifdef NEW_FILE_IO
+	char filename[1024];
+ #endif // NEW_FILE_IO
 #else	//ZLIB
 	FILE *fp= NULL;
 #endif	//ZLIB
 
 	// open the update file
 #ifdef	ZLIB
-	fp= my_gzopen(files_lst, "rb");
+ #ifdef NEW_FILE_IO
+	safe_snprintf(filename, sizeof(filename), "%s%s", doing_custom ? get_path_custom() : get_path_updates(), files_lst);
+	fp = my_gzopen(filename, "rb");
+ #else // NEW_FILE_IO
+	fp = my_gzopen(files_lst, "rb");
+ #endif // NEW_FILE_IO
 #else	//ZLIB
 	fp= my_fopen(files_lst, "r");
 #endif	//ZLIB
@@ -295,7 +304,7 @@ int    do_threaded_update(void *ptr)
 			if(!strcasecmp(asc_md5, "none")){
 				// this file is to be removed
 #ifdef NEW_FILE_IO
-				remove_file_data(filename);
+				remove_file_updates(filename, doing_custom);
 #else // !NEW_FILE_IO
 				remove(filename);
 #endif //NEW_FILE_IO
@@ -318,7 +327,8 @@ int    do_threaded_update(void *ptr)
   				// if MD5's don't match, start a download
   				if(memcmp(md5, digest, 16) != 0){
 #else /* NEW_FILE_IO */
-				if(file_update_check(filename, md5) != 0){
+				if (file_update_check(filename, md5, doing_custom) != 0)
+				{
 #endif /* not NEW_FILE_IO */
 					add_to_download(filename, md5);
 					num_files++;
@@ -387,7 +397,6 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 				// build the proper URL to download
 				download_cur_file= download_queue[--download_queue_size];
 				download_cur_md5= download_MD5s[download_queue_size];
-				safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 				if(is_this_files_lst){
 					safe_snprintf(buffer, sizeof(buffer), "http://%s/updates%d%d%d/%s", update_server, VER_MAJOR, VER_MINOR, VER_RELEASE, download_cur_file);
 				} else {
@@ -428,7 +437,7 @@ void    handle_file_download(struct http_get_struct *get)
 			// TODO: check for remove/rename errors
 			remove(download_cur_file);
 #ifdef NEW_FILE_IO
-			sts = move_file_to_data(download_temp_file, download_cur_file);
+			sts = move_file_to_updates(download_temp_file, download_cur_file, doing_custom);
 #else // !NEW_FILE_IO
 			sts= rename(download_temp_file, download_cur_file);
 #endif //NEW_FILE_IO
@@ -480,7 +489,7 @@ void    handle_file_download(struct http_get_struct *get)
 			LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, download_temp_file);
 		} else {
 #endif /* NEW_FILE_IO */
-			// build the prope URL to download
+			// build the proper URL to download
 			download_cur_file= download_queue[--download_queue_size];
 			download_cur_md5= download_MD5s[download_queue_size];
 			if(is_this_files_lst) {
@@ -547,13 +556,21 @@ int http_get_file_thread_handler(void *specs){
 	spec->fp= NULL;
 	
 	// check to see if the file is correct
-	if(spec->md5 && *spec->md5){
+	if (spec->md5 && *spec->md5)
+	{
+		// get the MD5 for the file
+#ifndef NEW_FILE_IO
 		Uint8 digest[16];
 
 		// get the MD5 for the file
 		get_file_digest(download_temp_file, digest);
-		// if MD5's don't match, something odd is going on. maybe network problems
-		if(memcmp(spec->md5, digest, 16) != 0){
+  		// if MD5's don't match, start a download
+  		if (memcmp(spec->md5, digest, 16) != 0)
+		{
+#else /* NEW_FILE_IO */
+		if (file_temp_check(download_temp_file, spec->md5) != 0)
+		{
+#endif /* not NEW_FILE_IO */
 			log_error("Download of %s does not match the MD5 sum in the update file!", spec->path);
 			spec->status= 404;
 			// and make sure we can't restart
@@ -725,6 +742,7 @@ void    init_custom_update()
 	if(download_mutex){
 		strcpy(files_lst, "custom_files.lst");
 		is_this_files_lst= 0;
+		doing_custom = 1;
 		handle_update_download(NULL);
 	}
 }

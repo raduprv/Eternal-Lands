@@ -23,6 +23,22 @@ extern "C" {
 const char * get_path_config(void);
 
 /**
+ * @brief Gets the directory for auto-updated files
+ *
+ * Get the directory where we should be storing auto-updated files
+ * @return Returns a string with the path on success, or an empty string (indicating an error) on failure
+ */
+const char * get_path_updates(void);
+
+/**
+ * @brief Gets the directory for updated custom files
+ *
+ * Get the directory where we should be storing updated custom files
+ * @return Returns a string with the path on success, or an empty string (indicating an error) on failure
+ */
+const char * get_path_custom(void);
+
+/**
  * @brief fopen()s a config file
  *
  * Gets the config dir, based on platform, and attempts to open the given filename
@@ -81,21 +97,33 @@ int mkdir_config(const char *path);
  * @param to_file The name of the file to create
  * @return Returns the result of the internal rename() call
  */
-int move_file_to_data(const char* from_file, const char* to_file);
+int move_file_to_updates(const char* from_file, char* to_file, int custom);
+
+/**
+ * @brief Check if temp file is valid
+ *
+ * Checks the MD5 checksum of the downloaded temporary file configdir/tmp to assure the
+ * download was accurate.
+ *
+ * @param filename	The name of the file to the md5 of
+ * @param md5		The checksum given in the updates list to indicate the downloaded version
+ * @return Returns 1 if valid, 0 if not
+ */
+int file_temp_check(const char * filename, const unsigned char * md5);
 
 /**
  * @brief Check if file update is needed
  *
- * Checks the MD5 checksum of files in datadir and configdir/updates; if the newest version
- * of the file is in /updates, attempts to move to datadir; if the version in datadir is
- * correct, attempts to remove the file in configdir/updates. If neither is correct,
- * returns 1 to indicate an update is required.
+ * Checks the MD5 checksum of files in datadir and configdir/updates/(ver)/ or configdir/custom/
+ * depending on the flag custom. If the version in datadir is correct, attempts to remove the file
+ * in configdir. If neither is correct, returns 1 to indicate an update is required.
  *
- * @param filename The name of the file to check for updates
- * @param md5 The checksum given in the updates list to indicate the newest version
+ * @param filename	The name of the file to check for updates
+ * @param md5		The checksum given in the updates list to indicate the newest version
+ * @param custom	Flag specifying the configdir/custom/ directory instead of the default
  * @return Returns 1 if an update is needed, 0 if not
  */
-int file_update_check(const char * filename, const unsigned char * md5);
+int file_update_check(char * filename, const unsigned char * md5, int custom);
 
 /**
  * @brief Check for valid datadir
@@ -112,14 +140,16 @@ void file_check_datadir(void);
 void file_update_clear_old(void);
 
 /**
- * @brief Attempts to remove a file from datadir
+ * @brief Attempts to remove a file from configdir/updates/(ver)/ or configdir/custom/
  *
- * Removes a given file from datadir and configdir/updates
+ * Removes a given file from configdir/updates/(ver)/ or configdir/custom/ depending on input flag
+ * Note: We never remove a file from the original install!
  *
- * @param filename The name of the file to remove
+ * @param filename	The name of the file to remove
+ * @param custom	Flag specifying the configdir/custom/ directory instead of the default
  * @return As per remove()
  */
-void remove_file_data(const char * filename);
+void remove_file_updates(char * filename, int custom);
 
 #ifdef __cplusplus
 }

@@ -103,7 +103,7 @@ namespace eternal_lands
 			}
 
 	#ifdef	EXTRA_DEBUG
-			LOG_EXTRA_INFO("File '%s' opend.", file_name.c_str());
+			LOG_EXTRA_INFO("File '%s' opened.", file_name.c_str());
 	#endif	// EXTRA_DEBUG
 
 			size = 0;
@@ -140,7 +140,7 @@ namespace eternal_lands
 				<< file_name);
 		}
 #ifdef	EXTRA_DEBUG
-		LOG_EXTRA_INFO("File '%s' opend.", file_name.c_str());
+		LOG_EXTRA_INFO("File '%s' opened.", file_name.c_str());
 #endif	// EXTRA_DEBUG
 
 		size = file.tellg();

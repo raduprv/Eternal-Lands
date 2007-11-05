@@ -44,7 +44,7 @@ extern void add_paths();
  *
  * Opens a file read only in binary mode.
  * @param file_name The name of the file to open.
- * @return Returns a valid el file pointer or zero on failur.
+ * @return Returns a valid el file pointer or zero on failure.
  */
 extern el_file_ptr el_open(const char* file_name);
 
@@ -54,7 +54,7 @@ extern el_file_ptr el_open(const char* file_name);
  * Opens a file read only in binary mode, searching also the 
  * configuration dir when trying to locate the file.
  * @param file_name The name of the file to open.
- * @return Returns a valid el file pointer or zero on failur.
+ * @return Returns a valid el file pointer or zero on failure.
  */
 extern el_file_ptr el_open_anywhere(const char* file_name);
 
@@ -169,4 +169,3 @@ extern enum CalBoolean CalCoreModel_ELLoadCoreSkeleton(struct CalCoreModel *self
 #endif //NEW_FILE_IO
 
 #endif	// _ELFILEWRAPPER_H_
-

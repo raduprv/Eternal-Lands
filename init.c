@@ -663,13 +663,17 @@ void init_stuff()
 	chdir(datadir);
 
 #ifdef	NEW_FILE_IO
-	//read the config file
+	// Read the config file
 	read_config();
 
-	//Parse command line options
+	// Parse command line options
 	read_command_line();
 	options_set= 1;
 
+	// Check if our datadir is valid and if not failover to ./
+	file_check_datadir();
+	
+	// Load the paths to check
 	add_paths();
 	// Here you can add zip files, like
 	// add_zip_archive("./data.zip", datadir, 0);
@@ -693,10 +697,9 @@ void init_stuff()
 	init_fonts();
 	
 #ifndef	NEW_FILE_IO
-	//read the config file
+	// Read the config file
 	read_config();
-
-	//Parse command line options
+	// Parse command line options
 	read_command_line();
 	options_set= 1;
 #endif	// NEW_FILE_IO
@@ -925,7 +928,6 @@ void init_stuff()
 		safe_snprintf(config_location, sizeof(config_location), config_location_str, cfgdir);
 	}
 	LOG_TO_CONSOLE(c_green4, config_location);
-	file_check_datadir();
 #endif //NEW_FILE_IO	
 
 	update_loading_win(prep_op_win_str, 7);

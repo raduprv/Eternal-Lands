@@ -94,7 +94,7 @@ namespace eternal_lands
 			/**
 			 * @brief Check if a file exists.
 			 *
-			 * Check if the given file exists in the given dir, tying all possible file
+			 * Check if the given file exists in the given dir, trying all possible file
 			 * types.
 			 * @param file_name The name of the file.
 			 * @return Returns true if the file exists, else false.
