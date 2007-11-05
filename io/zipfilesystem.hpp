@@ -8,6 +8,7 @@
 
 #ifdef NEW_FILE_IO
 
+#include <string.h>
 #include "allio.hpp"
 #include "memorybuffer.hpp"
 
