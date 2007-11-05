@@ -16,6 +16,7 @@ FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
 FEATURES += CXX_MISC                        # Extended exception, xml c++ helper etc. NEW_FILE_IO and USE_SEND_VIDEO_INFO needs this. The new shader system will also need them
 #FEATURES += DEBUG                           # (undocumented)
+#FEATURES += DEBUG_XML                       # Enables missing (optional) XML string property messages
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
 #FEATURES += DEBUG_TIME                      # Fakes the acceleration of time for use in debugging shadows and the like.
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer

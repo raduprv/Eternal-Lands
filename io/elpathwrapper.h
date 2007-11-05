@@ -123,7 +123,7 @@ int file_temp_check(const char * filename, const unsigned char * md5);
  * @param custom	Flag specifying the configdir/custom/ directory instead of the default
  * @return Returns 1 if an update is needed, 0 if not
  */
-int file_update_check(char * filename, const unsigned char * md5, int custom);
+int file_update_check(const char * filename, const unsigned char * md5, int custom);
 
 /**
  * @brief Check for valid datadir

@@ -467,8 +467,8 @@ int mkdir_config(const char *path){
 int move_file_to_updates(const char* from_file, char* to_file, int custom)
 {
 	// We never overwrite files in the original client install!!
-	char locbufcfg[MAX_PATH];
-	char locbufdat[MAX_PATH];
+	char locbuftmp[MAX_PATH];
+	char locbufupd[MAX_PATH];
 	const char * cfgdir = get_path_config();
 	const char * updatesdir = custom ? get_path_custom() : get_path_updates();
 
@@ -479,16 +479,19 @@ int move_file_to_updates(const char* from_file, char* to_file, int custom)
 		errno = ENAMETOOLONG;
 		return -1;
 	}
-	strcpy(locbufcfg, cfgdir);
-	strcat(locbufcfg, from_file);
+	strcpy(locbuftmp, cfgdir);
+	strcat(locbuftmp, from_file);
 	
-	strcpy(locbufdat, updatesdir);
-	strcat(locbufdat, to_file);
+	strcpy(locbufupd, updatesdir);
+	strcat(locbufupd, to_file);
 
 	// Make sure the dir exists
-	mkdir_tree(locbufdat, 0);
+	mkdir_tree(locbufupd, 0);
 
-	return rename(locbufcfg, locbufdat);
+	// Remove the file if it exists first (important under Windows)
+	remove(locbufupd);
+	
+	return rename(locbuftmp, locbufupd);
 }
 
 void file_update_clear_old(void){	//TODO.
@@ -553,24 +556,26 @@ int file_temp_check(const char * filename, const unsigned char * md5)
 {
 	FILE* fp = NULL;
 
-	fp = open_file_data_temp(filename, "r");
+	fp = open_file_data_temp(filename, "rb");
 	return file_md5_check(fp, md5);
 }
 
-int file_update_check(char * filename, const unsigned char * md5, int custom)
+int file_update_check(const char * filename, const unsigned char * md5, int custom)
 {
 	FILE* fp = NULL;
 	int res_d = 0;
 
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
+	char cust_filename[MAX_PATH];
 	int res_u = 0;
 
-	if (custom) filename = check_custom_dir(filename);
-	fp = open_file_data_updates(filename, "r", custom);
+	safe_strncpy(cust_filename, filename, sizeof(cust_filename));
+	if (custom) strcpy(cust_filename, check_custom_dir(cust_filename));
+	fp = open_file_data_updates(cust_filename, "rb", custom);
 	res_u = file_md5_check(fp, md5);
 #endif //UPDATE
 
-	fp = open_file_data_datadir(filename, "r");
+	fp = open_file_data_datadir(filename, "rb");
 	res_d = file_md5_check(fp, md5);
 
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
@@ -581,7 +586,7 @@ int file_update_check(char * filename, const unsigned char * md5, int custom)
 	}
 	else if (res_u == 1)
 	{
-		remove_file_updates(filename, custom);
+		remove_file_updates((char *)filename, custom);
 	}
 #endif //UPDATE
 

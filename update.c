@@ -155,10 +155,10 @@ void    handle_update_download(struct http_get_struct *get)
 			free(get);
 
 			// yes, lets start using the new file
-			remove(files_lst);
 #ifdef NEW_FILE_IO
 			sts = move_file_to_updates("tmp/temp000.dat", files_lst, doing_custom);
 #else // !NEW_FILE_IO
+			remove(files_lst);
 			sts = rename("./tmp/temp000.dat", files_lst);
 #endif //NEW_FILE_IO
 
@@ -435,10 +435,10 @@ void    handle_file_download(struct http_get_struct *get)
 		if(!sts){
 			// replace the current file
 			// TODO: check for remove/rename errors
-			remove(download_cur_file);
 #ifdef NEW_FILE_IO
 			sts = move_file_to_updates(download_temp_file, download_cur_file, doing_custom);
 #else // !NEW_FILE_IO
+			remove(download_cur_file);
 			sts= rename(download_temp_file, download_cur_file);
 #endif //NEW_FILE_IO
 		}

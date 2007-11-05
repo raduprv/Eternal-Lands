@@ -612,10 +612,10 @@ char *get_string_property (xmlNode *node, const char *prop) {
 		}
 	}
 
-#ifdef	DEBUG
+#ifdef	DEBUG_XML
 	// don't normally report this, or optional properties will report errors
 	LOG_ERROR("Unable to find property %s in node %s\n", prop, node->name);
-#endif	//DEBUG
+#endif	//DEBUG_XML
 	return "";
 }
 
