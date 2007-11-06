@@ -232,7 +232,8 @@ void    handle_update_download(struct http_get_struct *get)
 		return;
 	}
 
-	// total failure, clear the busy flag
+	// total failure, error and clear the busy flag
+	log_error("Failed to download (%s) 3 times. Giving up.", files_lst);
 	update_busy= 0;
 }
 
@@ -545,7 +546,7 @@ void http_threaded_get_file(char *server, char *path, FILE *fp, Uint8 *md5, Uint
 }
 
 
-// the actualy background downloader
+// the actual background downloader
 int http_get_file_thread_handler(void *specs){
 	struct http_get_struct *spec= (struct http_get_struct *) specs;
 	SDL_Event event;
@@ -579,10 +580,13 @@ int http_get_file_thread_handler(void *specs){
 		}
 	}
 
+	log_error("Finished downloading %s\n", spec->path);
+
 	// signal we are done
 	event.type= SDL_USEREVENT;
 	event.user.code= spec->event;
 	event.user.data1= spec;
+	SDL_Delay(500);			// FIXME: This should _not_ be necessary, but appears to be so recently under Windows
 	SDL_PushEvent(&event);
 	// NOTE: it is up to the EVENT handler to close the handle & free the spec pointer in data1
 
@@ -672,7 +676,7 @@ int http_get_file(char *server, char *path, FILE *fp)
 	return(0);  // finished
 }
 
-#ifdef  CUSTOM_UPDATE   //TODO: for v 1.4.0?
+#ifdef  CUSTOM_UPDATE
 // initialize the custom looks auto update system, start the downloading
 void    init_custom_update()
 {
