@@ -137,10 +137,6 @@ typedef struct
 	int minimap_zoom;
     /*! @} */
 
-	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	// all used up for now
-	// int reserved[0];
-
 #else //!MINIMAP
 	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
 	int reserved[4];
@@ -163,9 +159,21 @@ typedef struct
 	int astrology_win_x;
 	int astrology_win_y;
     /*! @} */
+
+#ifdef NOTEPAD
+    /*!
+     * \name Notepad window position
+     */
+    /*! @{ */
+	int notepad_win_x;
+	int notepad_win_y;
+    /*! @} */
+#else
+	int ireserved[2];
+#endif // NOTEPAD
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-	float freserved[19];
+	float freserved[17];
 }bin_cfg;
 
 #ifdef AUTO_UPDATE

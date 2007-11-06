@@ -39,6 +39,7 @@
 #include "loginwin.h"
 #include "multiplayer.h"
 #include "manufacture.h"
+#include "notepad.h"
 #include "astrology.h"
 #include "mapwin.h"
 #include "new_actors.h"
@@ -384,6 +385,11 @@ void read_bin_cfg()
 	minimap_zoom=cfg_mem.minimap_zoom;
 #endif //MINIMAP
 
+#ifdef NOTEPAD
+	notepad_win_x=cfg_mem.notepad_win_x;
+	notepad_win_y=cfg_mem.notepad_win_y;
+#endif // NOTEPAD
+
 	if(quickbar_relocatable>0)
 		{
 			if((quickbar_x=cfg_mem.quickbar_x)>window_width||quickbar_x<=0)quickbar_x=34;
@@ -594,6 +600,17 @@ void save_bin_cfg()
 	cfg_mem.minimap_flags=minimap_flags;
 	cfg_mem.minimap_zoom=minimap_zoom;
 #endif //MINIMAP
+
+#ifdef NOTEPAD
+	if(notepad_win >= 0) {
+		cfg_mem.notepad_win_x=windows_list.window[notepad_win].cur_x;
+		cfg_mem.notepad_win_y=windows_list.window[notepad_win].cur_y;
+	} else {
+		cfg_mem.notepad_win_x=notepad_win_x;
+		cfg_mem.notepad_win_y=notepad_win_y;
+	}
+#endif // NOTEPAD
+
 	cfg_mem.view_health_bar=view_health_bar;
 	cfg_mem.view_names=view_names;
 	cfg_mem.view_hp=view_hp;
