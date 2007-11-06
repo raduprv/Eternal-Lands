@@ -136,7 +136,7 @@ int display_knowledge_handler(window_info *win)
 
 		draw_string_zoomed(x,y,(unsigned char*)knowledge_list[i].name,1,0.7);
 
-		x += 240;
+		x += (win->len_x-20)/2;
 		if (i % 2 == 1)
 		{
 			y += 10;
@@ -158,7 +158,7 @@ int mouseover_knowledge_handler(window_info *win, int mx, int my)
 		return 0;
 	if(my>192)
 		return 0;
-	mx/=240;
+	mx = (mx < (win->len_x-20)/2) ?0 :1;
 	my/=10;
 	knowledge_list[mx+2*(my+vscrollbar_get_pos (knowledge_win, knowledge_scroll_id))].mouse_over=1;
 	return 0;
@@ -185,7 +185,7 @@ int click_knowledge_handler(window_info *win, int mx, int my, Uint32 flags)
 		return 1;
 	} else {
 		
-		x/=240;
+		x = (x < (win->len_x-20)/2) ?0 :1;
 		y/=10;
 		idx = x + 2 *(y + vscrollbar_get_pos (knowledge_win, knowledge_scroll_id));
 		if(idx < knowledge_count)
