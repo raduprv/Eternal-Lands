@@ -895,108 +895,43 @@ void change_gamma(float *pointer, float *value)
 #ifndef MAP_EDITOR2
 void change_windows_on_top(int *var)
 {
+	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win, 
+						 sigil_win, elconfig_win, tab_stats_win, server_popup_win, url_win
+#ifdef MINIMAP
+						 , minimap_win
+#endif //MINIMAP
+#ifdef NOTEPAD
+						 , notepad_win
+#endif
+						};
+	int i;
+
 	*var=!*var;
-	if (*var) {
+	if (*var)
+	{
+		for (i=0; i<sizeof(winid_list)/sizeof(int); i++)
+		{
+			if (winid_list[i] >= 0)
+			{
+				window_info *win = &windows_list.window[winid_list[i]];
+				/* Change the root windows */
+				move_window(winid_list[i], -1, 0, win->pos_x, win->pos_y );
+				/* Display any open windows */
+				if (win->displayed != 0 || win->reinstate != 0)
+					show_window(winid_list[i]);
+			}
+		}
+	}
+	else
+	{
 		// Change the root windows
-		move_window(storage_win, -1, 0, storage_win_x, storage_win_y);
-		move_window(manufacture_win, -1, 0, manufacture_menu_x, manufacture_menu_y);
-		move_window(items_win, -1, 0, items_menu_x, items_menu_y);
-		move_window(buddy_win, -1, 0, buddy_menu_x, buddy_menu_y);
-		move_window(ground_items_win, -1, 0, ground_items_menu_x, ground_items_menu_y);
-		move_window(sigil_win, -1, 0, sigil_menu_x, sigil_menu_y);
-		move_window(elconfig_win, -1, 0, elconfig_menu_x, elconfig_menu_y);
-		move_window(tab_stats_win, -1, 0, tab_stats_x, tab_stats_y);
-		move_window(server_popup_win, -1, 0, server_popup_win_x, server_popup_win_y);
-		move_window(url_win, -1, 0, url_win_x, url_win_y);
-#ifdef MINIMAP
-		move_window(minimap_win, -1, 0, minimap_win_x, minimap_win_y);
-#endif //MINIMAP
-#ifdef NOTEPAD
-		move_window (notepad_win, -1, 0, notepad_win_x, notepad_win_y);
-#endif
-		// Display any open windows (checking they exist first)
-		if (storage_win > 0) {
-			if (windows_list.window[storage_win].displayed != 0 || windows_list.window[storage_win].reinstate != 0) {
-				show_window(storage_win);
+		for (i=0; i<sizeof(winid_list)/sizeof(int); i++)
+			if (winid_list[i] >= 0)
+			{
+				window_info *win = &windows_list.window[winid_list[i]];
+				move_window(winid_list[i], game_root_win, 0, win->pos_x, win->pos_y );
 			}
-		}
-		if (manufacture_win > 0) {
-			if (windows_list.window[manufacture_win].displayed != 0 || windows_list.window[manufacture_win].reinstate != 0) {
-				show_window(manufacture_win);
-			}
-		}
-		if (items_win > 0) {
-			if (windows_list.window[items_win].displayed != 0 || windows_list.window[items_win].reinstate != 0) {
-				show_window(items_win);
-			}
-		}
-		if (buddy_win > 0) {
-			if (windows_list.window[buddy_win].displayed != 0 || windows_list.window[buddy_win].reinstate != 0) {
-				show_window(buddy_win);
-			}
-		}
-		if (ground_items_win > 0) {
-			if (windows_list.window[ground_items_win].displayed != 0 || windows_list.window[ground_items_win].reinstate != 0) {
-				show_window(ground_items_win);
-			}
-		}
-		if (sigil_win > 0) {
-			if (windows_list.window[sigil_win].displayed != 0 || windows_list.window[sigil_win].reinstate != 0) {
-				show_window(sigil_win);
-			}
-		}
-		if (elconfig_win > 0) {
-			if (windows_list.window[elconfig_win].displayed != 0 || windows_list.window[elconfig_win].reinstate != 0) {
-				show_window(elconfig_win);
-			}
-		}
-		if (tab_stats_win > 0) {
-			if (windows_list.window[tab_stats_win].displayed != 0 || windows_list.window[tab_stats_win].reinstate != 0) {
-				show_window(tab_stats_win);
-			}
-		}
-		if (server_popup_win > 0) {
-			if (windows_list.window[server_popup_win].displayed != 0 || windows_list.window[server_popup_win].reinstate != 0) {
-				show_window(server_popup_win);
-			}
-		}
-		if (url_win > 0) {
-			if (windows_list.window[url_win].displayed != 0 || windows_list.window[url_win].reinstate != 0) {
-				show_window(url_win);
-			}
-		}
-#ifdef MINIMAP
-		if (minimap_win > 0) {
-			if (windows_list.window[minimap_win].displayed != 0 || windows_list.window[minimap_win].reinstate != 0) {
-				show_window(minimap_win);
-			}
-		}
-#endif //MINIMAP
-#ifdef NOTEPAD
-		if (notepad_win > 0) {
-			if (windows_list.window[notepad_win].displayed != 0 || windows_list.window[notepad_win].reinstate != 0) {
-				show_window(notepad_win);
-			}
-		}
-#endif
-	} else {
-		// Change the root windows
-		move_window(storage_win, game_root_win, 0, storage_win_x, storage_win_y);
-		move_window(manufacture_win, game_root_win, 0, manufacture_menu_x, manufacture_menu_y);
-		move_window(items_win, game_root_win, 0, items_menu_x, items_menu_y);
-		move_window(buddy_win, game_root_win, 0, buddy_menu_x, buddy_menu_y);
-		move_window(ground_items_win, game_root_win, 0, ground_items_menu_x, ground_items_menu_y);
-		move_window(sigil_win, game_root_win, 0, sigil_menu_x, sigil_menu_y);
-		move_window(elconfig_win, game_root_win, 0, elconfig_menu_x, elconfig_menu_y);
-		move_window(tab_stats_win, game_root_win, 0, tab_stats_x, tab_stats_y);
-		move_window(server_popup_win, game_root_win, 0, server_popup_win_x, server_popup_win_y);
-		move_window(url_win, game_root_win, 0, url_win_x, url_win_y);
-#ifdef MINIMAP
-		move_window(minimap_win, game_root_win, 0, minimap_win_x, minimap_win_y);
-#endif //MINIMAP
-#ifdef NOTEPAD
-		move_window (notepad_win, game_root_win, 0, notepad_win_x, notepad_win_y);
-#endif
+
 		// Hide all the windows if needed
 		if (windows_list.window[game_root_win].displayed == 0) {
 			hide_window(game_root_win);
@@ -2000,6 +1935,10 @@ int write_el_ini ()
 int display_elconfig_handler(window_info *win)
 {
 	int i;
+	
+	/* save current position so K_WINDOWS_ON_TOP restores to where its been moved */
+	elconfig_menu_x = win->cur_x;
+	elconfig_menu_y = win->cur_y;
 
 	for(i= 0; i < our_vars.no; i++)
 	{
