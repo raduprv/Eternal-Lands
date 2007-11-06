@@ -1936,10 +1936,6 @@ int display_elconfig_handler(window_info *win)
 {
 	int i;
 	
-	/* save current position so K_WINDOWS_ON_TOP restores to where its been moved */
-	elconfig_menu_x = win->cur_x;
-	elconfig_menu_y = win->cur_y;
-
 	for(i= 0; i < our_vars.no; i++)
 	{
 		// Update the widgets in case an option changed
