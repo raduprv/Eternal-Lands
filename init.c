@@ -243,22 +243,22 @@ void read_config()
 	DIR *d = NULL;
 #endif // !WINDOWS && !NEW_FILE_IO
 
-#if defined(NEW_FILE_IO) && !defined(WINDOWS)
+	// Set our configdir
+#ifdef NEW_FILE_IO
 	const char * tcfg = get_path_config();
-#endif /* NEW_FILE_IO  && !WINDOWS */
 
-#ifndef WINDOWS
-#ifndef NEW_FILE_IO
-	my_strncp ( configdir, getenv ("HOME") , sizeof(configdir));
+	my_strncp (configdir, tcfg , sizeof(configdir));
+#else // NEW_FILE_IO
+	my_strncp (configdir, getenv ("HOME") , sizeof(configdir));
 #ifndef OSX
 	safe_strcat (configdir, "/.elc/", sizeof(configdir));
 #else
 	safe_strcat (configdir, "/Library/Application\ Support/Eternal\ Lands/", sizeof(configdir));
 #endif // OSX
-#else /* NEW_FILE_IO */
-	my_strncp ( configdir, tcfg , sizeof(configdir));
 #endif /* NEW_FILE_IO */
-#ifndef NEW_FILE_IO
+
+#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
+	// Set the perms of our configdir
 	d = opendir (configdir);
 	if (d == NULL){
 		mkdir (configdir, 0700);
@@ -270,8 +270,8 @@ void read_config()
 		if (statbuff.st_mode != S_IRWXU)
 			fchmod (fd, S_IRWXU);
 	}
-#endif // !NEW_FILE_IO
-#endif // !WINDOWS
+#endif // !WINDOWS && !NEW_FILE_IO
+
 	if ( !read_el_ini () )
 	{
 		// oops, the file doesn't exist, give up
