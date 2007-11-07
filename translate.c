@@ -557,6 +557,7 @@ char	win_notepad[20],
 	win_astrology[20],
 	win_principal[20],
 	win_storage[10],
+	win_storage_vo[15],
 	win_trade[10],
 	win_rules[10],
 	win_bag[5],
@@ -1334,6 +1335,7 @@ void init_titles ()
 	add_xml_identifier (titles_str, "w_astro", win_astrology, "Astrology", sizeof(win_astrology));
 	add_xml_identifier (titles_str, "w_principal", win_principal, "Eternal Lands", sizeof(win_principal));
 	add_xml_identifier (titles_str, "w_storage", win_storage, "Storage", sizeof(win_storage));
+	add_xml_identifier (titles_str, "w_storage_vo", win_storage_vo, " (view only)", sizeof(win_storage_vo));
 	add_xml_identifier (titles_str, "w_trade", win_trade, "Trade", sizeof(win_trade));
 	add_xml_identifier (titles_str, "w_rules", win_rules, "Rules", sizeof(win_rules));
 	add_xml_identifier (titles_str, "w_bag", win_bag, "Bag", sizeof(win_bag));

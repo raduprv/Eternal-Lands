@@ -33,6 +33,8 @@ struct storage_category {
 
 int no_storage_categories=0;
 int selected_category=-1;
+static int view_only_storage=0;
+static Uint32 drop_fail_time = 0;
 
 int active_storage_item=-1;
 
@@ -85,7 +87,8 @@ void get_storage_categories (const char *in_data, int len)
 	active_storage_item=-1;
 
 	display_storage_menu();
-	display_items_menu();
+	if (!view_only_storage)
+		display_items_menu();
 }
 
 int find_category(int id)
@@ -99,6 +102,13 @@ int find_category(int id)
 	return -1;
 }
 
+void set_window_name(char *extra_sep, char *extra_name)
+{
+	safe_snprintf(windows_list.window[storage_win].window_name,
+		sizeof(windows_list.window[storage_win].window_name),
+		"%s%s%s%s", win_storage, extra_sep, extra_name, ((view_only_storage) ?win_storage_vo:""));
+}
+
 void move_to_category(int cat)
 {
 	Uint8 str[4];
@@ -107,7 +117,7 @@ void move_to_category(int cat)
 	storage_categories[cat].name[0] = to_color_char (c_red3);
 	if (selected_category!=-1 && cat!=selected_category) 
 		storage_categories[selected_category].name[0] = to_color_char (c_orange1);
-	safe_snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), "%s - %s", win_storage, storage_categories[cat].name+1);
+	set_window_name(" - ", storage_categories[cat].name+1);
 
 	str[0]=GET_STORAGE_CATEGORY;
 	*((Uint8 *)(str+1))=storage_categories[cat].id;
@@ -159,7 +169,7 @@ void get_storage_items (const Uint8 *in_data, int len)
 		storage_categories[cat].name[0] = to_color_char (c_red3);
 		if (selected_category != -1 && cat != selected_category)
 			storage_categories[selected_category].name[0] = to_color_char (c_orange1);
-		sprintf (windows_list.window[storage_win].window_name, "%s - %s", win_storage, storage_categories[cat].name+1);
+		set_window_name(" - ", storage_categories[cat].name+1);
 		selected_category = cat;
 	}
 
@@ -288,6 +298,17 @@ int display_storage_handler(window_info * win)
 		glVertex2i(392, 262);
 		glVertex2i(392, 212);
 	glEnd();
+	
+	if (view_only_storage)
+	{
+		Uint32 currentticktime = SDL_GetTicks();
+		if (currentticktime < drop_fail_time)
+			drop_fail_time = 0; 				/* trap wrap */
+		if ((currentticktime - drop_fail_time) < 250)
+			glColor3f(0.8f,0.2f,0.2f);			/* flash red if tried to drop into */
+		else
+			glColor3f(0.37f, 0.37f, 0.39f);		/* otherwise draw greyed out */
+	}
 
 	rendergrid(6, 6, 160, 10, 32, 32);
 	glEnable(GL_TEXTURE_2D);
@@ -324,7 +345,12 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 				cat=(my-20)/13 + vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES);
 				move_to_category(cat);
 			} else if(mx>150 && mx<352){
-				if(item_dragged!=-1 && left_click){
+				if(view_only_storage && item_dragged!=-1 && left_click){
+					drop_fail_time = SDL_GetTicks();
+	#ifdef NEW_SOUND
+					add_sound_object(get_index_for_sound_type_name("alert1"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+	#endif // NEW_SOUND
+				} else if(!view_only_storage && item_dragged!=-1 && left_click){
 					Uint8 str[6];
 
 					str[0]=DEPOSITE_ITEM;
@@ -338,7 +364,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 					
 					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
-				} else if(right_click){
+				} else if(right_click || (view_only_storage && left_click)){
 					storage_item_dragged=-1;
 					item_dragged=-1;
 
@@ -352,7 +378,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 	
 						active_storage_item=storage_items[cur_item_over].pos;
 					}
-				} else if(cur_item_over!=-1){
+				} else if(!view_only_storage && cur_item_over!=-1){
 					storage_item_dragged=cur_item_over;
 					active_storage_item=storage_items[cur_item_over].pos;
 #ifdef NEW_SOUND
@@ -402,6 +428,19 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 
 void display_storage_menu()
 {
+	int i;
+
+	/* Entropy suggested hack to determine if this is the view only "#sto" opened storage */
+	view_only_storage = 0;
+	for (i = 0; i < no_storage_categories; i++)
+	{
+		if ((storage_categories[i].id != -1) && (strcmp(&storage_categories[i].name[1], "Quest") == 0))
+		{
+			view_only_storage = 1;
+			break;
+		}
+	}
+
 	if(storage_win<=0){
 		int our_root_win = -1;
 		if (!windows_on_top) {
@@ -416,9 +455,6 @@ void display_storage_menu()
 				max2i(no_storage_categories - STORAGE_CATEGORIES_DISPLAY, 0));
 		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
 	} else {
-		int i;
-
-		safe_snprintf(windows_list.window[storage_win].window_name, sizeof(windows_list.window[storage_win].window_name), win_storage);
 		no_storage=0;
 		
 		for(i = 0; i < no_storage_categories; i++)
@@ -430,7 +466,10 @@ void display_storage_menu()
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_CATEGORIES, 0);
 		vscrollbar_set_pos(storage_win, STORAGE_SCROLLBAR_ITEMS, 0);
 	}
+
+	set_window_name("", "");
 }
+
 void close_storagewin()
 {
 	if(storage_win >= 0) {
