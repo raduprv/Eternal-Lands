@@ -24,6 +24,8 @@ typedef struct
 	int obj_3d_id;
 } mine;
 
+extern mine mine_list[NUM_MINES];
+
 /*!
  * \ingroup item
  * \brief   Puts the mine \a mine_id on the ground at coordinates (\a mine_x, \a mine_y).

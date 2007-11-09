@@ -14,6 +14,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#include "mines.h"
 #include "misc.h"
 #include "spells.h"
 #include "textures.h"
@@ -202,10 +203,10 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			{
 				if(a->is_enhanced_model && is_in_buddylist(a->actor_name))
 				{
-					glColor3f(0.0f,0.9f,1.0f); //aqua buddy
+					glColor3f(0.0f,0.9f,1.0f); // aqua buddy
 				}
 				else
-				{	//Use the colour of their name. This gives purple bots, green demigods, etc.
+				{	// Use the colour of their name. This gives purple bots, green demigods, etc.
 					int color = from_color_char (a->actor_name[0]);
 					glColor3ub (colors_list[color].r1,
 						colors_list[color].g1,
@@ -214,16 +215,43 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			}
 			else if(!a->is_enhanced_model)
 			{
-				glColor3f(1.0f, 1.0f, 0.0f); //yellow animal/monster
+				if (a->dead) 
+				{
+					glColor3f(0.8f, 0.8f, 0.0f); // dark yellow: dead animal/monster
+				}
+				else // alive
+				{
+					glColor3f(1.0f, 1.0f, 0.0f); // yellow animal/monster
+				}
 			}
 			else
 			{
-				glColor3f(1.0f, 1.0f, 1.0f); //white other player
+				glColor3f(1.0f, 1.0f, 1.0f); // white other player
 			}
-			//Draw it!
+			// Draw it!
 			glVertex2f(x, y);
 		}
 	}
+ 
+	// mines
+	for (i = 0; i < NUM_MINES; i++)
+	{
+		mine *m = &mine_list[i];
+		if (m->obj_3d_id != -1)
+		{
+			x = m->x * size_x;
+			y = float_minimap_size - (m->y * size_y);
+			if (minimap_zoom < max_zoom)
+			{
+				// adjustments to the other mine positions for zoom
+				x = minimap_translate(x, px, zoom_multip);
+				y = minimap_translate(y, py, zoom_multip);
+			}
+			glColor3f(0.15f, 0.65f, 0.45f); 
+			glVertex2f(x, y);
+		}
+	}
+
 	glEnd();//GL_POINTS
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glEnable(GL_TEXTURE_2D);
