@@ -462,8 +462,18 @@ int display_items_handler(window_info *win)
 	}
 	
 	//draw the load string
-	safe_snprintf(str,sizeof(str),"%s: %i/%i",attributes.carry_capacity.shortname,your_info.carry_capacity.cur,your_info.carry_capacity.base);
-	draw_string_small ((video_mode>4?win->len_x-8*strlen (str)-10:2), (video_mode>4?win->len_y-107:quantity_y_offset-19), (unsigned char*)str, 1);
+	if (video_mode>4)
+	{
+		safe_snprintf(str, sizeof(str),"%s:", attributes.carry_capacity.shortname);
+		draw_string_small(items_grid_size*6+6, items_grid_size*6-SMALL_FONT_Y_LEN*2, (unsigned char*)str, 1);
+		safe_snprintf(str, sizeof(str), "%i/%i", your_info.carry_capacity.cur, your_info.carry_capacity.base);
+		draw_string_small(items_grid_size*6+6, items_grid_size*6-SMALL_FONT_Y_LEN, (unsigned char*)str, 1);
+	}
+	else
+	{
+		safe_snprintf(str, sizeof(str), "%s: %i/%i", attributes.carry_capacity.shortname, your_info.carry_capacity.cur, your_info.carry_capacity.base);
+		draw_string_small(2, quantity_y_offset-19, (unsigned char*)str, 1);
+	}
 
 	glColor3f(0.57f,0.67f,0.49f);
 	safe_snprintf(str,sizeof(str),equip_str);
@@ -855,8 +865,8 @@ int show_items_handler(window_info * win)
 
 	w=widget_find(items_win, drop_button_id);
 	if(w){
-		w->pos_y=(int)((video_mode>4?5:6)*items_grid_size-w->len_y-5);
-		w->pos_x=win->len_x - (strlen(drop_all_str)*11+18);
+		w->pos_y = (video_mode > 4 ?4.5 :5.5) * items_grid_size - w->len_y/2;
+		w->pos_x = 6*items_grid_size + (win->len_x - 6*items_grid_size - w->len_x)/2;
 	}
 	
 	safe_strncpy(str,items_string,sizeof(str));
