@@ -156,9 +156,9 @@ void get_old_world_x_y (short *scene_x, short *scene_y)
 	j_max = max2f(y, y+dy*len)*2.0f;
 	
 	i_min = max2i(min2i(i_min, tile_map_size_x*6), 0);
-	i_max = max2i(min2i(i_max, tile_map_size_x*6), 0);
+	i_max = max2i(min2i(i_max, tile_map_size_x*6-1), 0);
 	j_min = max2i(min2i(j_min, tile_map_size_y*6), 0);
-	j_max = max2i(min2i(j_max, tile_map_size_y*6), 0);
+	j_max = max2i(min2i(j_max, tile_map_size_y*6-1), 0);
 
 	i = min2i(max2i(i, i_min), i_max-1);
 	j = min2i(max2i(j, j_min), j_max-1);
