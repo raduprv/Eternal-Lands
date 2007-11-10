@@ -11,7 +11,6 @@
 #include "init.h"
 #include "interface.h"
 #include "items.h"
-#include "manufacture.h"
 #include "multiplayer.h"
 #include "pathfinder.h"
 #include "textures.h"
@@ -1075,6 +1074,10 @@ void display_sigils_menu()
 	if(sigil_win < 0){
 		static int cast_button_id=100;
 		static int clear_button_id=101;
+		widget_list *w_cast = NULL;
+		widget_list *w_clear = NULL;
+		int but_space = 0;
+
 		int our_root_win = -1;
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
@@ -1085,11 +1088,18 @@ void display_sigils_menu()
 		set_window_handler(sigil_win, ELW_HANDLER_CLICK, &click_sigils_handler );
 		set_window_handler(sigil_win, ELW_HANDLER_MOUSEOVER, &mouseover_sigils_handler );
 		
-		cast_button_id=button_add_extended(sigil_win, cast_button_id, NULL, 33*6+15, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, cast_str);
+		cast_button_id=button_add_extended(sigil_win, cast_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, cast_str);
 		widget_set_OnClick(sigil_win, cast_button_id, cast_handler);
 		
-		clear_button_id=button_add_extended(sigil_win, clear_button_id, NULL, 33*9+8, manufacture_menu_y_len-36, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
+		clear_button_id=button_add_extended(sigil_win, clear_button_id, NULL, 0, 0, 0, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, clear_str);
 		widget_set_OnClick(sigil_win, clear_button_id, spell_clear_handler);
+
+		w_cast = widget_find(sigil_win, cast_button_id);
+		w_clear = widget_find(sigil_win, clear_button_id);
+		but_space = (sigil_menu_x_len - (33*6+5) - w_cast->len_x - w_clear->len_x)/3;
+		widget_move(sigil_win, cast_button_id, 33*6+5 + but_space, sigil_menu_y_len - w_cast->len_y - 4);
+		widget_move(sigil_win, clear_button_id, w_cast->pos_x + w_cast->len_x + but_space, sigil_menu_y_len - w_clear->len_y - 4);
+		
 	} else {
 		show_window(sigil_win);
 		select_window(sigil_win);
