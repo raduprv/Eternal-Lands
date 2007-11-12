@@ -14,7 +14,9 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
+#ifdef MINES
 #include "mines.h"
+#endif // MINES
 #include "misc.h"
 #include "spells.h"
 #include "textures.h"
@@ -233,6 +235,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		}
 	}
  
+#ifdef MINES
 	// mines
 	for (i = 0; i < NUM_MINES; i++)
 	{
@@ -251,6 +254,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			glVertex2f(x, y);
 		}
 	}
+#endif // MINES
 
 	glEnd();//GL_POINTS
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
