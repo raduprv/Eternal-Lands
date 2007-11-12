@@ -235,11 +235,6 @@ void draw_tile_map()
 {
 	unsigned int start, stop;
 
-#ifdef NEW_LIGHTING
-	if (use_new_lighting)
-		reset_material();
-#endif
-
 	glEnable(GL_CULL_FACE);
 
 	build_terrain_buffer();
@@ -250,7 +245,8 @@ void draw_tile_map()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		get_and_set_texture_id(ground_detail_text);
+//		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}

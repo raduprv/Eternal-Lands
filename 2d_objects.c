@@ -19,9 +19,6 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef NEW_LIGHTING
-#include "lights.h"
-#endif
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
@@ -86,10 +83,6 @@ void draw_2d_object(obj_2d * object_id)
 
 	get_and_set_texture_id(obj_def_pointer->texture_id);
 
-#ifdef NEW_LIGHTING
-	if (use_new_lighting)
-		reset_material();
-#endif
 	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
@@ -658,6 +651,7 @@ void display_2d_objects()
 
 	//First draw everyone with the same alpha test
 	glEnable(GL_ALPHA_TEST);
+	glEnable(GL_LIGHTING);
 	glAlphaFunc(GL_GREATER, 0.18f);
 
 	if (!dungeon && !(!clouds_shadows && !use_shadow_mapping))
@@ -668,7 +662,8 @@ void display_2d_objects()
 			ELglActiveTextureARB(detail_unit);
 			glEnable(GL_TEXTURE_2D);
 			//glBindTexture(GL_TEXTURE_2D, texture_cache[ground_detail_text].texture_id);
-			glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+			//glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+			get_and_set_texture_id(ground_detail_text);
 		}
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);

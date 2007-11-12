@@ -292,12 +292,6 @@ void draw_3d_objects(unsigned int object_type)
 	{
 		glDisable(GL_LIGHTING);
 	}
-#ifdef NEW_LIGHTING
-	else if (use_new_lighting)
-	{
-		reset_material();
-	}
-#endif
 
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
@@ -652,7 +646,8 @@ void display_objects()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+//		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		get_and_set_texture_id(ground_detail_text);
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -695,7 +690,8 @@ void display_ground_objects()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+//		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		get_and_set_texture_id(ground_detail_text);
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -733,7 +729,8 @@ void display_alpha_objects()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+//		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		get_and_set_texture_id(ground_detail_text);
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
@@ -775,7 +772,8 @@ void display_blended_objects()
 		//bind the detail texture
 		ELglActiveTextureARB(detail_unit);
 		glEnable(GL_TEXTURE_2D);
-		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+//		glBindTexture(GL_TEXTURE_2D, get_texture_id(ground_detail_text));
+		get_and_set_texture_id(ground_detail_text);
 		ELglActiveTextureARB(base_unit);
 		glEnable(GL_TEXTURE_2D);
 	}
