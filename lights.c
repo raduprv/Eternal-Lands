@@ -388,8 +388,23 @@ void reset_material()
 {
 	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
 	GLfloat mat_specular[]={ 1.0, 1.0, 1.0, 1.0 };
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+	{
+		GLfloat mat_ambient[]={ 0.4, 0.4, 0.4, 1.0 };
+		GLfloat mat_diffuse[]={ 3.6, 3.6, 3.6, 1.0 };
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	}
+	else
+	{
+		GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
+		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
+	}
+#else
 	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
 	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
+#endif //NEW_LIGHTING
 
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
 	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
@@ -495,12 +510,12 @@ void draw_global_light()
 	{
 //		glEnable(GL_LIGHT7);
 //		printf("Light: %f, %f, %f\n", difuse_light[0], difuse_light[1], difuse_light[2]);
-		difuse_light[0] *= 4.0f;
-		difuse_light[1] *= 4.0f;
-		difuse_light[2] *= 4.0f;
-		sun_ambient_light[0] /= 2.0f;
-		sun_ambient_light[1] /= 2.0f;
-		sun_ambient_light[2] /= 2.0f;
+		difuse_light[0] *= 1.5f;
+		difuse_light[1] *= 1.5f;
+		difuse_light[2] *= 1.5f;
+		sun_ambient_light[0] /= 3.0f;
+		sun_ambient_light[1] /= 3.0f;
+		sun_ambient_light[2] /= 3.0f;
 	}
 #endif	//NEW_LIGHTING
 
@@ -870,7 +885,6 @@ void new_minute()
 void light_idle()
 {
 	Uint64 new_time;
-	int j;
 #ifdef WINDOWS
 	FILETIME ft;
 	GetSystemTimeAsFileTime(&ft);
@@ -897,6 +911,7 @@ void light_idle()
 		int count = new_time / (Uint64)(250000 / debug_time_accel) - old_time / (Uint64)(250000 / debug_time_accel);
 		if (count > 10)
 			count = 10;
+		int j;
 		for (j = 0; j < count; j++){
 #else
 		if (new_time / 250000 - old_time / 250000){
