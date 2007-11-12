@@ -159,6 +159,65 @@ void do_night_shift_texture(const char * filename, GLubyte * texture_mem, int x_
 		}
 	}
 }
+
+texture_struct *load_texture_metadata(const char * file_name, texture_struct *tex)
+{
+	xmlNode* a_node, * cur_node;
+	xmlDocPtr doc;
+	int i;
+	FILE* file;
+	
+	for (i = 0; i < 3; i++)
+	{
+		tex->ambient[i] = 0.2;
+		tex->diffuse[i] = 1.0;
+		tex->specular[i] = 2.5;
+		tex->emission[i] = 0.0;
+	}
+	tex->ambient[3] = 1.0;
+	tex->diffuse[3] = 1.0;
+	tex->specular[3] = 1.0;
+	tex->emission[3] = 1.0;
+	tex->shininess = 0.5;
+	
+	file = fopen(file_name, "r");
+	if (file == NULL)
+		return tex;
+	fclose(file);
+
+	doc = xmlReadFile(file_name, NULL, 0);
+	if (doc == NULL)
+		return tex;
+
+	a_node = xmlDocGetRootElement(doc)->children;
+	for (cur_node = a_node; cur_node; cur_node = cur_node->next)
+	{
+		if (cur_node->type==XML_ELEMENT_NODE)
+		{
+			if (!xmlStrcasecmp(cur_node->name,(xmlChar*)"Ambient"))
+				sscanf((char*)cur_node->children->content, "%f,%f,%f,%f", &(tex->ambient[0]), &(tex->ambient[1]), &(tex->ambient[2]), &(tex->ambient[3]));
+			else if (!xmlStrcasecmp(cur_node->name,(xmlChar*)"Diffuse"))
+				sscanf((char*)cur_node->children->content, "%f,%f,%f,%f", &(tex->diffuse[0]), &(tex->diffuse[1]), &(tex->diffuse[2]), &(tex->diffuse[3]));
+			else if (!xmlStrcasecmp(cur_node->name,(xmlChar*)"Specular"))
+				sscanf((char*)cur_node->children->content, "%f,%f,%f,%f", &(tex->specular[0]), &(tex->specular[1]), &(tex->specular[2]), &(tex->specular[3]));
+			else if (!xmlStrcasecmp(cur_node->name,(xmlChar*)"Emission"))
+				sscanf((char*)cur_node->children->content, "%f,%f,%f,%f", &(tex->emission[0]), &(tex->emission[1]), &(tex->emission[2]), &(tex->emission[3]));
+			else if (!xmlStrcasecmp(cur_node->name,(xmlChar*)"Shininess"))
+				sscanf((char*)cur_node->children->content, "%f", &(tex->shininess));
+		}
+	}
+	xmlFreeDoc(doc);
+/*	
+	printf("Filename: %s\n", tex->file_name);
+	printf("Ambient:  %f, %f, %f\n", tex->ambient[0], tex->ambient[1], tex->ambient[2]);
+	printf("Diffuse:  %f, %f, %f\n", tex->diffuse[0], tex->diffuse[1], tex->diffuse[2]);
+	printf("Specular: %f, %f, %f\n", tex->specular[0], tex->specular[1], tex->specular[2]);
+	printf("Emission: %f, %f, %f\n", tex->emission[0], tex->emission[1], tex->emission[2]);
+	printf("Shininess: %f\n\n", tex->shininess);
+*/
+	return tex;
+}
+
 #endif	
 
 texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 alpha)
@@ -168,6 +227,10 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	int texture_width, texture_height, idx;
 	int pixel, temp, r, g, b, a;
 	int bpp, i, j, index, x_padding;
+#ifdef NEW_LIGHTING
+	char metadata_file_name[256];
+#endif
+
 
 #ifndef	NEW_FILE_IO
 	texture_surface = IMG_Load(file_name);
@@ -281,6 +344,12 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 #ifdef NEW_LIGHTING
 	do_night_shift_texture(file_name, data, tex->x_size, tex->y_size);
 #endif
+
+#ifdef NEW_LIGHTING
+	safe_snprintf(metadata_file_name, sizeof(metadata_file_name), "%s.xml", file_name);
+	load_texture_metadata(metadata_file_name, tex);
+#endif
+
 	return tex;
 }
 #else	//OLD_TEXTURE_LOADER
@@ -293,6 +362,7 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 	Uint8 read_buffer[4096];
 	Uint8 color_pallete[256*4];
 	short format;
+	char metadata_file_name[256];
 #ifdef	ZLIB
 	gzFile *f = NULL;
 
@@ -494,6 +564,11 @@ texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Ui
 #else	//ZLIB
 	fclose(f);
 #endif	//ZLIB
+
+#ifdef NEW_LIGHTING
+	safe_snprintf(metadata_file_name, sizeof(metadata_file_name), "%s.xml", file_name);
+	load_texture_metadata(metadata_file_name, tex);
+#endif
 
 	return tex;
 }
@@ -735,9 +810,9 @@ int get_texture_id(int i)
 		alpha= texture_cache[i].alpha;
 		// our texture was freed, we have to reload it
 		if(alpha <= 0) {
-			new_texture_id= load_bmp8_color_key(texture_cache[i].file_name, alpha);
+			new_texture_id= load_bmp8_color_key(&(texture_cache[i]), alpha);
 		} else {
-			new_texture_id= load_bmp8_fixed_alpha(texture_cache[i].file_name, alpha);
+			new_texture_id= load_bmp8_fixed_alpha(&(texture_cache[i]), alpha);
 		}
 		texture_cache[i].texture_id= new_texture_id;
 		if (!new_texture_id)
@@ -776,7 +851,19 @@ int get_and_set_texture_id(int i)
 	}
 	bind_texture_id(texture_id);
 
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+	{
+		glMaterialfv(GL_FRONT, GL_AMBIENT, texture_cache[i].ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, texture_cache[i].diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, texture_cache[i].specular);
+		glMaterialfv(GL_FRONT, GL_EMISSION, texture_cache[i].emission);
+		glMaterialf(GL_FRONT, GL_SHININESS, texture_cache[i].shininess);
+	}
+#endif
+
 	return(texture_id);
+}
 }
 #endif	//USE_INLINE
 
@@ -866,18 +953,18 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 }
 
 //load a bmp texture, in respect to the color key
-GLuint load_bmp8_color_key(char * filename, int alpha)
+GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha)
 {
-	int x_size, y_size;
+	int x_size, y_size, i;
 	Uint8 *texture_mem;
 	texture_struct	ttexture;
 	texture_struct	*tex;
 	GLuint texture;
 
 #ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(filename, &ttexture, 0);
+	tex= load_bmp8_texture(tex_cache_entry->file_name, &ttexture, 0);
 #else	//OLD_TEXTURE_LOADER
-	tex = load_texture(filename, &ttexture, 0);
+	tex = load_texture(tex_cache_entry->file_name, &ttexture, 0);
 #endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
@@ -886,7 +973,7 @@ GLuint load_bmp8_color_key(char * filename, int alpha)
 	y_size= tex->y_size;
 	texture_mem= tex->texture;
 
-	if(!load_alphamap(filename, texture_mem, x_size, y_size) && alpha < 0){
+	if(!load_alphamap(tex_cache_entry->file_name, texture_mem, x_size, y_size) && alpha < 0){
 #ifdef	NEW_ALPHA
 		// no texture alpha found, use the constant
 		if(alpha < -1){
@@ -932,22 +1019,40 @@ GLuint load_bmp8_color_key(char * filename, int alpha)
 	CHECK_GL_ERRORS();
 
 	free(tex->texture);
+#ifdef NEW_LIGHTING
+	for (i = 0; i < 4; i++)
+	{
+		tex_cache_entry->ambient[i] = tex->ambient[i];
+		tex_cache_entry->diffuse[i] = tex->diffuse[i];
+		tex_cache_entry->specular[i] = tex->specular[i];
+		tex_cache_entry->emission[i] = tex->emission[i];
+	}
+	tex_cache_entry->shininess = tex->shininess;
+/*
+	printf("x Filename: %s\n", tex_cache_entry->file_name);
+	printf("x Ambient:  %f, %f, %f, %f\n", tex_cache_entry->ambient[0], tex_cache_entry->ambient[1], tex_cache_entry->ambient[2], tex_cache_entry->ambient[3]);
+	printf("x Diffuse:  %f, %f, %f, %f\n", tex_cache_entry->diffuse[0], tex_cache_entry->diffuse[1], tex_cache_entry->diffuse[2], tex_cache_entry->diffuse[3]);
+	printf("x Specular: %f, %f, %f, %f\n", tex_cache_entry->specular[0], tex_cache_entry->specular[1], tex_cache_entry->specular[2], tex_cache_entry->specular[3]);
+	printf("x Emission: %f, %f, %f, %f\n", tex_cache_entry->emission[0], tex_cache_entry->emission[1], tex_cache_entry->emission[2], tex_cache_entry->emission[3]);
+	printf("x Shininess: %f\n\n", tex_cache_entry->shininess);
+*/
+#endif
 	return texture;
 }
 
 //load a bmp texture, with the specified global alpha
-GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
+GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a)
 {
-	int x_size, y_size;
+	int x_size, y_size, i;
 	Uint8 *texture_mem;
 	texture_struct	ttexture;
 	texture_struct	*tex;
 	GLuint texture;
 
 #ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(filename, &ttexture, a);
+	tex= load_bmp8_texture(tex_cache_entry->file_name, &ttexture, a);
 #else	//OLD_TEXTURE_LOADER
-	tex = load_texture(filename, &ttexture, a);
+	tex = load_texture(tex_cache_entry->file_name, &ttexture, a);
 #endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
@@ -987,6 +1092,16 @@ GLuint load_bmp8_fixed_alpha(char * filename, Uint8 a)
 	CHECK_GL_ERRORS();
 
 	free(tex->texture);
+#ifdef NEW_LIGHTING
+	for (i = 0; i < 4; i++)
+	{
+		tex_cache_entry->ambient[i] = tex->ambient[i];
+		tex_cache_entry->diffuse[i] = tex->diffuse[i];
+		tex_cache_entry->specular[i] = tex->specular[i];
+		tex_cache_entry->emission[i] = tex->emission[i];
+	}
+	tex_cache_entry->shininess = tex->shininess;
+#endif
 	return texture;
 }
 

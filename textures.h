@@ -15,6 +15,10 @@
  #endif
 #endif
 
+#ifdef NEW_LIGHTING
+ #include "lights.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,6 +32,13 @@ typedef struct
 	int	x_size;		/*!< the width of the texture in pixels */
 	int	y_size;		/*!< the height of the texture in pixels */
 	int	has_alpha;	/*!< was an alpha map applied to this texture? */
+#ifdef NEW_LIGHTING
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+#endif
 }texture_struct;
 
 typedef enum
@@ -77,7 +88,7 @@ typedef enum
  * \retval GLuint  	The texture ID given as a GLuint.
  * \callgraph
  */
-GLuint load_bmp8_color_key(char * FileName, int alpha);
+GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha);
 
 /*!
  * \ingroup 	load_bmp
@@ -90,7 +101,7 @@ GLuint load_bmp8_color_key(char * FileName, int alpha);
  * \retval GLuint  	The texture ID as a GLuint.
  * \callgraph
  */
-GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
+GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a);
 
 /*!
  * \ingroup 	reload_bmp
@@ -209,6 +220,35 @@ static __inline__ int get_and_set_texture_id(int i)
 		texture_id= texture_cache[i].texture_id;
 	}
 	bind_texture_id(texture_id);
+
+#ifdef NEW_LIGHTING
+        if (use_new_lighting)
+        {
+/*
+                int i;
+                for (i = 0; i < 3; i++)
+                {
+                  texture_cache[i].ambient[i] = 0;
+                  texture_cache[i].diffuse[i] = 0;
+                  texture_cache[i].specular[i] = 0;
+                  texture_cache[i].emission[i] = 0;
+                }
+*/
+/*        
+		printf("Filename: %s\n", texture_cache[i].file_name);
+		printf("Ambient:  %f, %f, %f, %f\n", texture_cache[i].ambient[0], texture_cache[i].ambient[1], texture_cache[i].ambient[2], texture_cache[i].ambient[3]);
+		printf("Diffuse:  %f, %f, %f, %f\n", texture_cache[i].diffuse[0], texture_cache[i].diffuse[1], texture_cache[i].diffuse[2], texture_cache[i].diffuse[3]);
+		printf("Specular: %f, %f, %f, %f\n", texture_cache[i].specular[0], texture_cache[i].specular[1], texture_cache[i].specular[2], texture_cache[i].specular[3]);
+		printf("Emission: %f, %f, %f, %f\n", texture_cache[i].emission[0], texture_cache[i].emission[1], texture_cache[i].emission[2], texture_cache[i].emission[3]);
+		printf("Shininess: %f\n\n", texture_cache[i].shininess);
+*/
+		glMaterialfv(GL_FRONT, GL_AMBIENT, texture_cache[i].ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, texture_cache[i].diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, texture_cache[i].specular);
+		glMaterialfv(GL_FRONT, GL_EMISSION, texture_cache[i].emission);
+		glMaterialf(GL_FRONT, GL_SHININESS, texture_cache[i].shininess);
+	}
+#endif
 
 	return(texture_id);
 }
