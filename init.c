@@ -48,6 +48,7 @@
 #include "questlog.h"
 #include "reflection.h"
 #include "rules.h"
+#include "servers.h"
 #include "sound.h"
 #include "spells.h"
 #include "storage.h"
@@ -679,6 +680,8 @@ void init_stuff()
 
 	chdir(datadir);
 
+	load_server_list("servers.lst");
+	set_server_details();
 #ifdef	NEW_FILE_IO
 	// Read the config file
 	read_config();

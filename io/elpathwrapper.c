@@ -7,6 +7,7 @@
 #include "../init.h"
 #include "../md5.h"
 #include "../misc.h"
+#include "../servers.h"
 
 #include <stdlib.h>
 #include <string.h>
@@ -63,7 +64,7 @@ static __inline__ int dir_exists (const char* path)
 	return stat (path, &d_stat) == 0 && S_ISDIR (d_stat.st_mode);
 }
 
-const char * get_path_config(void)
+const char * get_path_config_base(void)
 {
 	/* Note: In most cases, you shouldn't need to call this function at all anyway;
 	 * the other functions below (which are expected to be used) take care of it for you.
@@ -93,7 +94,7 @@ const char * get_path_config(void)
 			(strlen(locbuffer) < MAX_PATH + 5))
 	{
 		if (pwd[0] != '\0')
-			{
+		{
 			if (chdir(locbuffer) == -1)
 			{
 				log_error("chdir(1) failed.\tcfgdirname: \"%s\"\tlocbuffer: \"%s\"\tpwd: \"%s\"\n", cfgdirname, locbuffer, pwd);
@@ -138,6 +139,16 @@ const char * get_path_config(void)
 	return locbuffer;
 }
 
+const char * get_path_config(void)
+{
+	static char locbuffer[MAX_PATH] = {0};
+
+	// Check if we have selected a server yet, otherwise return the base config dir
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s/", get_path_config_base(), get_server_dir());
+	
+	return locbuffer;
+}
+
 const char * get_path_updates(void)
 {
 	static char locbuffer[MAX_PATH] = {0};
@@ -146,7 +157,7 @@ const char * get_path_updates(void)
 		return locbuffer;
 	}
 
-	safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config(), VER_MAJOR, VER_MINOR, VER_RELEASE);
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%supdates/%d_%d_%d/", get_path_config_base(), VER_MAJOR, VER_MINOR, VER_RELEASE);
 	
 	return locbuffer;
 }
@@ -159,7 +170,7 @@ const char * get_path_custom(void)
 		return locbuffer;
 	}
 
-	safe_snprintf(locbuffer, sizeof(locbuffer), "%scustom/", get_path_config());
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%scustom/", get_path_config_base());
 	
 	return locbuffer;
 }
@@ -615,6 +626,11 @@ void file_check_datadir(void)
 		datadir[strlen(datadir)] = '/';			// Replace the trailing slash
 	}
 #endif // WINDOWS
+}
+
+int check_configdir(void)
+{
+	return dir_exists(get_path_config());
 }
 
 #endif //NEW_FILE_IO

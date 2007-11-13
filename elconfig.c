@@ -1569,8 +1569,6 @@ void init_vars()
 	/* add_var(OPT_STRING,"text_filter_replace","trepl",text_filter_replace,change_string,127,"Text Filter","The word to replace bad text with",MISC); */
 	add_var(OPT_BOOL,"caps_filter","caps",&caps_filter,change_var,1,"Caps Filter","Toggle the caps filter",MISC);
 
-	add_var(OPT_STRING,"server_address","sa",server_address,change_string,70,"Server Address","The address of the EL server",SERVER);
-	add_var(OPT_INT,"server_port","sp",&port,change_int,2000,"Server Port","Where on the server to connect.",SERVER,1,65536);
 	add_var(OPT_STRING,"username","u",username_str,change_string,MAX_USERNAME_LENGTH,"Username","Your user name here",SERVER);
 	add_var(OPT_PASSWORD,"password","p",password_str,change_string,MAX_USERNAME_LENGTH,"Password","Put your password here",SERVER);
 

@@ -1731,7 +1731,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			break;
 
 #ifdef MINES
-/* Future mines support - May need to be adjusted!!!! */
 		case REMOVE_MINE:
 			{
 #ifdef EXTRA_DEBUG

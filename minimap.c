@@ -234,7 +234,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			glVertex2f(x, y);
 		}
 	}
- 
+	
 #ifdef MINES
 	// mines
 	for (i = 0; i < NUM_MINES; i++)

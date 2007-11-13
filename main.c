@@ -201,7 +201,6 @@ int start_rendering()
 #endif
 
 #ifdef OGG_VORBIS
-//	turn_music_off();	//cleans up and waits for the thread
 	destroy_sound();	//cleans up and waits for the thread
 #endif // OGG_VORBIS
 	unload_questlog();
@@ -265,6 +264,19 @@ void	read_command_line()
 						}
 				}
 		}
+}
+
+/* We need an additional function as the command line should be read after the config, but this
+ * variable is needed to load the correct config.
+ */
+char * check_server_id_on_command_line()
+{
+	if (gargc < 2)
+		return "";
+
+	// FIXME!! This should parse for -options rather than blindly returning the last option!
+	
+	return gargv[gargc - 1];
 }
 
 #ifdef WINDOWS

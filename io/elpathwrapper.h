@@ -151,6 +151,13 @@ void file_update_clear_old(void);
  */
 void remove_file_updates(char * filename, int custom);
 
+/**
+ * @brief Check for valid configdir
+ *
+ * Checks if we can stat() configdir.
+ */
+int check_configdir(void);
+
 #ifdef __cplusplus
 }
 #endif //C++
