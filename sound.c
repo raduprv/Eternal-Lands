@@ -4494,7 +4494,7 @@ int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds)
 	int i, j, result;
 	
 	// Initially check if we are inside the outermost box
-	if (x < bounds->o[0].x || y < bounds->o[0].y || x > bounds->o[1].x || y > bounds->o[1].y)
+	if (x <= bounds->o[0].x || y <= bounds->o[0].y || x >= bounds->o[1].x || y >= bounds->o[1].y)
 		return 0;	// We are outside the outer rectangle so can't be inside the polygon
 	
 	// Check if we have only 2 points (rectangle) and are therefore don't need to do anything more
@@ -5580,6 +5580,12 @@ int validate_boundary(map_sound_boundary_def * bounds, char * map_name)
 	// Check if this is a default
 	if (bounds->is_default)
 	{
+		// Check if we have any points
+		if (bounds->p[2].x != -1 || bounds->p[2].y != -1 || bounds->p[3].x != -1 || bounds->p[3].y != -1
+			|| bounds->p[2].x != -1 || bounds->p[2].y != -1 || bounds->p[3].x != -1 || bounds->p[3].y != -1)
+		{
+			LOG_ERROR("Warning: Points defined for default boundary. Points will be ignored.\n");
+		}
 		return 1;		// Points are ignored for defaults
 	}
 	
