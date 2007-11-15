@@ -760,11 +760,6 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 		}
 		size++;
 	}
-if (size && idx >= water_buffer_usage)
-{
-printf("idx=%d, size+%d, water_buffer_usage=%d\n", idx, size, water_buffer_usage);
-exit(1);
-}
 	glDrawArrays(GL_QUADS, idx * 4, size * 4);
 }
 
