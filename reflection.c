@@ -32,7 +32,7 @@ typedef struct
 
 }water_vertex;
 
-float water_deepth_offset=-0.25f;
+float water_depth_offset=-0.25f;
 float water_movement_u=0;
 float water_movement_v=0;
 int show_reflection=1;
@@ -323,7 +323,7 @@ void draw_enhanced_actor_reflection(actor * actor_id)
 
 	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
 		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-	z_pos+=-water_deepth_offset*2;
+	z_pos+=-water_depth_offset*2;
 
 	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
 	
@@ -417,7 +417,7 @@ static __inline__ void init_texturing()
 	glScalef(0.5f, 0.5f, 0.5f);
 	glMultMatrixf(reflect_proj_mat);
 	glMultMatrixf(reflect_view_mat);
-	glTranslatef(0.0f, 0.0f, water_deepth_offset);
+	glTranslatef(0.0f, 0.0f, water_depth_offset);
 	glGetFloatv(GL_MODELVIEW_MATRIX, reflect_texgen_mat);
 	glPopMatrix();
 #ifdef OPENGL_TRACE
@@ -595,14 +595,14 @@ void display_3d_reflection()
 	glCullFace(GL_FRONT);
 	glPushMatrix();	
 
-	glTranslatef(0.0f, 0.0f, water_deepth_offset);
+	glTranslatef(0.0f, 0.0f, water_depth_offset);
 	glScalef(1.0f, 1.0f, -1.0f);
-	glTranslatef(0.0f, 0.0f, -water_deepth_offset);
+	glTranslatef(0.0f, 0.0f, -water_depth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
-	calculate_reflection_frustum(water_deepth_offset);
+	calculate_reflection_frustum(water_depth_offset);
 
 	enable_reflection_clip_planes();
 
@@ -665,7 +665,7 @@ void blend_reflection_fog()
 	build_water_buffer();
 
 	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, water_deepth_offset);
+	glTranslatef(0.0f, 0.0f, water_depth_offset);
 
 	// we write to the depth buffer later, for now keep it as it is to avoid flickering
 	glDepthMask(GL_FALSE);
@@ -760,6 +760,11 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 		}
 		size++;
 	}
+if (size && idx >= water_buffer_usage)
+{
+printf("idx=%d, size+%d, water_buffer_usage=%d\n", idx, size, water_buffer_usage);
+exit(1);
+}
 	glDrawArrays(GL_QUADS, idx * 4, size * 4);
 }
 
@@ -825,7 +830,7 @@ void draw_lake_tiles()
 	setup_water_texgen();
 
 	glPushMatrix();
-	glTranslatef(0.0f, 0.0f, water_deepth_offset);
+	glTranslatef(0.0f, 0.0f, water_depth_offset);
 
 	if (use_vertex_buffers)
 	{

@@ -17,16 +17,16 @@ typedef struct
 } server_def;
 
 server_def servers[MAX_SERVERS];		// The details of all the servers we know about
-int num_servers = -1;
+int num_servers = 0;
 int cur_server = -1;
 
 char * check_server_id_on_command_line();	// From main.c
 
-int find_server_from_id(char * id)
+int find_server_from_id (const char* id)
 {
 	int i;
 
-	if (num_servers < 0) return -1;
+	if (num_servers <= 0) return -1;
 
 	for (i = 0; i < num_servers; i++)
 	{
@@ -70,7 +70,7 @@ void set_server_details()
 
 const char * get_server_dir()
 {
-	if (cur_server > -1)
+	if (cur_server >= 0)
 		return servers[cur_server].dir;
 	else
 		return "";
@@ -106,6 +106,7 @@ void load_server_list(const char *filename)
 	fclose(f);
 
 	istart = 0;
+	num_servers = 0;
 	while (istart < f_size)
 	{
 		// Find end of the line
@@ -132,7 +133,6 @@ void load_server_list(const char *filename)
 					switch(section)
 					{
 						case 0:		// Server ID
-							num_servers++;
 							safe_strncpy(servers[num_servers].id, string, sizeof(servers[num_servers].id));
 							break;
 						case 1:		// Config dir
@@ -174,6 +174,9 @@ void load_server_list(const char *filename)
 					LOG_ERROR("%s: Invalid server details specified in %s - (%d) %s", "Servers list error", filename, num_servers, servers[num_servers].id);
 					break;		// Bail, but do the free first
 				}
+				
+				// we added a valid line
+				num_servers++;
 			}
 		}
 

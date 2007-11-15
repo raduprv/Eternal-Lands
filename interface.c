@@ -98,6 +98,7 @@ void get_world_x_y (short *scene_x, short *scene_y)
 		mouse_z = ldexp (mouse_z, 8);
 	
 	gluUnProject (mouse_x, window_height-hud_y-mouse_y, mouse_z, model_mat, projection_mat, viewport, &sx, &sy, &sz);
+printf ("%d, %d, %f -> %f, %f, %f\n", mouse_x, window_height-hud_y-mouse_y, mouse_z, sx, sy, sz);
 	
 	*scene_x = (sx / 0.5);
 	*scene_y = (sy / 0.5);
