@@ -628,6 +628,59 @@ void file_check_datadir(void)
 #endif // WINDOWS
 }
 
+
+
+int copy_file(const char *source, const char *dest)
+{
+	FILE *f_in,*f_out;
+	char buffer[4096];
+	size_t bytes_read, bytes_written = 0;
+
+	if (file_exists(dest))
+		return -1; /* File exists */
+
+	f_in = fopen(source, "r");
+	if (NULL==f_in) {
+		return -2; /* Source file does not exist */
+	}
+
+	f_out = fopen(dest, "w");
+	if (NULL==f_out) {
+		fclose(f_in);
+		return -3; /* Destination file cannot be created */
+	}
+
+	do {
+		bytes_read = fread((void*)buffer, 1, 4096, f_in);
+
+		if (bytes_read > 0) {
+			bytes_written = fwrite((void*)buffer, bytes_read, 1, f_out);
+		}
+
+		if (
+			(bytes_read == 0 && ferror(f_in)) || /* Error in read */
+			(bytes_read > 0 && bytes_written == 0) /* Error in write */
+		   )
+		{
+			/* Aarg, read or write error. */
+			fclose(f_in);
+			fclose(f_out);
+			remove(dest);
+			return -4; /* IO error */
+		}
+	} while (bytes_read > 0);
+
+	fclose(f_in); /* Ignore errors here */
+
+	if ( fclose(f_out)!=0 ) {
+		remove(dest);
+		return -4; /* IO error */
+	}
+
+	return 0;
+}
+
+
 int check_configdir(void)
 {
 	return dir_exists(get_path_config());

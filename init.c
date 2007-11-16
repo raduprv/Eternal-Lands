@@ -680,9 +680,10 @@ void init_stuff()
 
 	chdir(datadir);
 
+#ifdef	NEW_FILE_IO
 	load_server_list("servers.lst");
 	set_server_details();
-#ifdef	NEW_FILE_IO
+
 	// Read the config file
 	read_config();
 

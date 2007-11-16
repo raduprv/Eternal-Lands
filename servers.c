@@ -63,8 +63,18 @@ void set_server_details()
 	// copy main's ini file into it
 	if (!check_configdir())
 	{
+		char src[1000];
+		char dest[1000];
+		
 		mkdir_tree(get_path_config(), 0);
-		// FIXME!! Copy a valid el.ini file to this new directory!
+		// First, try to copy the ini file out of $CONF/main
+		safe_snprintf(src, sizeof(src), "%smain/el.ini", get_path_config_base());
+		safe_snprintf(dest, sizeof(dest), "%sel.ini", get_path_config());
+		copy_file(src, dest);
+		// Secondly, try to copy the ini file out of $CONF (this will fail without harm if above succeeds)
+		safe_snprintf(src, sizeof(src), "%s/el.ini", get_path_config_base());
+		safe_snprintf(dest, sizeof(dest), "%sel.ini", get_path_config());
+		copy_file(src, dest);
 	}
 }
 

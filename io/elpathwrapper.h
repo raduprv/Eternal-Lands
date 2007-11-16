@@ -15,6 +15,14 @@ extern "C" {
 #include <stdio.h>
 
 /**
+ * @brief Gets the base directory for config files
+ *
+ * Get the base config directory. Most config and update files are stored in sub-directories of this one.
+ * @return Returns a string with the path on success, or an empty string (indicating the use of the current directory, usually data_dir) on failure
+ */
+const char * get_path_config_base(void);
+
+/**
  * @brief Gets the directory for config files
  *
  * Get the directory where we should be storing config files
@@ -157,6 +165,18 @@ void remove_file_updates(char * filename, int custom);
  * Checks if we can stat() configdir.
  */
 int check_configdir(void);
+
+/**
+ * @brief Copies a file
+ *
+ * Copies a file, given the source and destination filenames. Does not overwrite the target file (ie, only
+ * copies if target file does not exist).
+ *
+ * @param source	The source file name 
+ * @param custom	The destination file name
+ * @return 0 on success, -1 if target file exists, -2 if invalid source file, -3 if cannot create target file, -4 if IO error.
+ */
+int copy_file(const char *source, const char *dest);
 
 #ifdef __cplusplus
 }
