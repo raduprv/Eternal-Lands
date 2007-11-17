@@ -1262,6 +1262,7 @@ BBOX_TREE* build_bbox_tree()
 		bbox_tree->intersect[i].size = 8;
 		bbox_tree->intersect[i].count = 0;
 		bbox_tree->intersect[i].items = (BBOX_ITEM*)malloc(8*sizeof(BBOX_ITEM));
+		memset(&bbox_tree->intersect[i].flags, 0, sizeof(bbox_tree->intersect[i].flags));
 	}
 	bbox_tree->nodes_count = 0;
 	bbox_tree->nodes = NULL;
