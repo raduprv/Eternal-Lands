@@ -50,9 +50,16 @@ void set_server_details()
 	num = find_server_from_id(id);
 	if (num == -1)
 	{
-		// Error, this is a problem!
-		LOG_ERROR("Fatal error: Server profile not found in servers.lst for server: %s", id);
-		exit(1);
+		// Oops... what they they specify on the command line?
+		LOG_ERROR("Error: Server profile not found in servers.lst for server: %s. Failover to server: main.", id);
+		// Failover to the main server
+		num = find_server_from_id("main");
+		if (num == -1)
+		{
+			// Error, this is a problem!
+			LOG_ERROR("Fatal error: Server profile not found in servers.lst for server: main");
+			exit(1);
+		}
 	}
 	// We found a valid profile so set some vars
 	LOG_ERROR("Using the server profile: %s", servers[num].id);
