@@ -29,6 +29,7 @@
 #ifdef NEW_FILE_IO
  #include "errors.h"
  #include "io/elpathwrapper.h"
+ #include "io/elfilewrapper.h"
 #else
  #include "misc.h"
  #ifdef OSX
@@ -577,7 +578,13 @@ int switch_to_game_map()
 	map_map_file_name[len-3]='b';
 	map_map_file_name[len-2]='m';
 	map_map_file_name[len-1]='p';
-	map_text=load_bmp8_fixed_alpha(map_map_file_name,128);
+	
+#ifdef NEW_FILE_IO
+	if (!el_file_exists(map_map_file_name))
+		map_text = 0;
+	else
+#endif //NEW_FILE_IO
+		map_text=load_bmp8_fixed_alpha(map_map_file_name,128);
 	if(!map_text)
 	{
 		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
