@@ -107,6 +107,9 @@ void add_sfx(special_effect_enum effect, Uint16 playerid, int caster)
 			m->lifespan = SPECIAL_EFFECT_RESTORATION_LIFESPAN;
 			break;
 		case SPECIAL_EFFECT_SHIELD:
+		case SPECIAL_EFFECT_HEATSHIELD:
+		case SPECIAL_EFFECT_COLDSHIELD:
+		case SPECIAL_EFFECT_RADIATIONSHIELD:
 			m->timeleft = SPECIAL_EFFECT_SHIELD_LIFESPAN;
 			m->lifespan = SPECIAL_EFFECT_SHIELD_LIFESPAN;
 			break;
@@ -554,6 +557,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	switch(sfx){
 		//player only
 		case	SPECIAL_EFFECT_SHIELD:
+		case	SPECIAL_EFFECT_HEATSHIELD:
+		case	SPECIAL_EFFECT_COLDSHIELD:
+		case	SPECIAL_EFFECT_RADIATIONSHIELD:
 		case	SPECIAL_EFFECT_RESTORATION:
 		case	SPECIAL_EFFECT_SMITE_SUMMONINGS:
 		case	SPECIAL_EFFECT_CLOAK:
@@ -715,7 +721,16 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		switch (sfx)
 		{
 			case	SPECIAL_EFFECT_SHIELD:
-				ec_create_selfmagic_shield2(caster, (poor_man ? 6 : 10));
+				ec_create_selfmagic_shield_generic(caster, (poor_man ? 6 : 10), sfx);
+				break;
+			case	SPECIAL_EFFECT_HEATSHIELD:
+				ec_create_selfmagic_shield_generic(caster, (poor_man ? 6 : 10), sfx);
+				break;
+			case	SPECIAL_EFFECT_COLDSHIELD:
+				ec_create_selfmagic_shield_generic(caster, (poor_man ? 6 : 10), sfx);
+				break;
+			case	SPECIAL_EFFECT_RADIATIONSHIELD:
+				ec_create_selfmagic_shield_generic(caster, (poor_man ? 6 : 10), sfx);
 				break;
 			case	SPECIAL_EFFECT_RESTORATION:
 				ec_create_selfmagic_restoration2(caster, (poor_man ? 6 : 10));
@@ -941,5 +956,4 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
-
 #endif //SFX or EYE_CANDY

@@ -1385,6 +1385,33 @@ extern "C" ec_reference ec_create_selfmagic_shield2(actor* caster, int LOD)
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_selfmagic_shield_generic(actor* caster, int LOD, special_effect_enum type)
+{
+	if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+		return NULL;
+	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+	ret->caster = caster;
+	ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+	switch (type) {
+		case SPECIAL_EFFECT_SHIELD:
+			ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::SHIELD, LOD);
+			break;
+		case SPECIAL_EFFECT_HEATSHIELD:
+			ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::HEATSHIELD, LOD);
+			break;
+		case SPECIAL_EFFECT_COLDSHIELD:
+			ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::COLDSHIELD, LOD);
+			break;
+		case SPECIAL_EFFECT_RADIATIONSHIELD:
+			ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::RADIATIONSHIELD, LOD);
+			break;
+		default:
+			break;
+	}
+	eye_candy.push_back_effect(ret->effect);
+	return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_selfmagic_restoration(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))

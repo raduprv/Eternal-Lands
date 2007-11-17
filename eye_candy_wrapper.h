@@ -245,6 +245,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_selfmagic_magic_protection(float x, float y, float z, int LOD);
   ec_reference ec_create_selfmagic_magic_protection2(actor* caster, int LOD);
   ec_reference ec_create_selfmagic_shield(float x, float y, float z, int LOD);
+  ec_reference ec_create_selfmagic_shield_generic(actor* caster, int LOD,  special_effect_enum type);
   ec_reference ec_create_selfmagic_shield2(actor* caster, int LOD);
   ec_reference ec_create_selfmagic_restoration(float x, float y, float z, int LOD);
   ec_reference ec_create_selfmagic_restoration2(actor* caster, int LOD);

@@ -78,6 +78,9 @@ bool SelfMagicParticle::idle(const Uint64 delta_t)
       }
       break;
     }
+    case SelfMagicEffect::HEATSHIELD:
+    case SelfMagicEffect::COLDSHIELD:
+    case SelfMagicEffect::RADIATIONSHIELD:
     case SelfMagicEffect::SHIELD:
     {
       const interval_t float_time = delta_t / 1000000.0;
@@ -276,6 +279,63 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       }
       break;
     }
+    case HEATSHIELD:
+    {
+      effect_center.y += 0.2;
+      spawner = new HollowDiscSpawner(0.30);
+      mover = new SpiralMover(this, &effect_center, 10.0, 40.0);
+   
+      while ((int)particles.size() < LOD * 90)
+      {
+        Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(0.39);
+        velocity.y *= 1.5;
+        velocity.y += 0.7;
+        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 4.0, 1.0, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case COLDSHIELD:
+    {
+      effect_center.y += 0.2;
+      spawner = new HollowDiscSpawner(0.65);
+      mover = new SpiralMover(this, &effect_center, 5.0, 1.0);
+   
+      while ((int)particles.size() < LOD * 220)
+      {
+        Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(0.36);
+        velocity.y *= 2.5;
+        velocity.y -= 0.7;
+        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 6.0, 1.0, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case RADIATIONSHIELD:
+    {
+      effect_center.y += 0.2;
+      spawner = new HollowDiscSpawner(0.50);
+      mover = new SpiralMover(this, &effect_center, 12.0, 16.0);
+   
+      while ((int)particles.size() < LOD * 110)
+      {
+        Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(0.33);
+        velocity.y *= 4.25;
+        velocity.y += 0.3;
+        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.15, 1.0, 0.35, &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
     case RESTORATION:
     {
       effect_center.y += 0.2;
@@ -439,6 +499,9 @@ bool SelfMagicEffect::idle(const Uint64 usec)
       break;
     }
     case SHIELD:
+    case HEATSHIELD:
+    case COLDSHIELD:
+    case RADIATIONSHIELD:
     {
       break;
     }

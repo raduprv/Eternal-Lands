@@ -1022,7 +1022,14 @@ typedef enum {
 	SPECIAL_EFFECT_MAGIC_IMMUNITY_REMOVAL_GOES_BOOM = 70,
 
 	// Heal allies spell	
-	SPECIAL_EFFECT_HEAL_ALLIES = 71
+	SPECIAL_EFFECT_HEAL_ALLIES = 71,
+
+	// when one player casts heat shield on himself
+	SPECIAL_EFFECT_HEATSHIELD = 72, 
+	// when one player casts cold shield on himself
+	SPECIAL_EFFECT_COLDSHIELD = 73, 
+	// when one player casts radiation shield on himself
+	SPECIAL_EFFECT_RADIATIONSHIELD = 74    
 } special_effect_enum;
 	/*! @} */
 
