@@ -10,6 +10,7 @@
 #include "framebuffer.h"
 #include "gl_init.h"
 #include "interface.h"
+#include "io/map_io.h"
 #include "lights.h"
 #include "load_gl_extensions.h"
 #include "map.h"
@@ -763,7 +764,8 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 	}
 	// temporary trap to avert crash, see http://www.eternal-lands.com/forum/index.php?showtopic=38206
 	if (size && idx >= water_buffer_usage)
-		LOG_ERROR("%s(): possible crash averted idx=%d, size+%d, water_buffer_usage=%d\n", __FUNCTION__, idx, size, water_buffer_usage);
+		LOG_ERROR("%s(): possible crash averted map=[%s] idx=%d, size+%d, water_buffer_usage=%d\n",
+		__FUNCTION__, map_file_name, idx, size, water_buffer_usage);
 	else
 		glDrawArrays(GL_QUADS, idx * 4, size * 4);
 }
