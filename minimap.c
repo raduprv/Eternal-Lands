@@ -25,6 +25,7 @@
 #include "io/map_io.h"
 #ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
+#include "io/elfilewrapper.h"
 #endif /* NEW_FILE_IO */
 
 static const int minimap_size = 256;
@@ -944,7 +945,12 @@ void change_minimap(){
 	strcat(minimap_file_name, ".bmp");
 
 	//load textures
-	minimap_texture = load_bmp8_fixed_alpha(minimap_file_name,128);
+#ifdef NEW_FILE_IO
+	if (!el_file_exists(minimap_file_name))
+		minimap_texture = 0;
+	else
+#endif //NEW_FILE_IO
+		minimap_texture = load_bmp8_fixed_alpha(minimap_file_name,128);
 	circle_texture = load_bmp8_fixed_alpha("./textures/circle.bmp",0);
 	glGenTextures(1, &exploration_texture);
 	bind_texture_id(exploration_texture);
