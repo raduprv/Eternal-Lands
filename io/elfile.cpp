@@ -114,7 +114,7 @@ namespace eternal_lands
 					max_mem_block_buffer_size);
 				size += read;
 			}
-			while (read == max_mem_block_buffer_size);
+			while (read == Sint32 (max_mem_block_buffer_size));
 
 			memory->resize(size);
 

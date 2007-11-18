@@ -6,12 +6,7 @@
 #ifndef __DRAW_SCENE_H__
 #define __DRAW_SCENE_H__
 
-#ifdef OSX
-#include <OpenGL/gl.h>
-#else
-#include <GL/gl.h>
-#endif
-
+#include "platform.h"
 #include "elwindows.h"
 
 #ifdef __cplusplus
