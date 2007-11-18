@@ -413,9 +413,9 @@ int notepad_load_file ()
 			
 			nr_notes++;
 		}
-		else
+		else if(cur->type == XML_ELEMENT_NODE)
 		{
-			LOG_ERROR (wrong_note_node);
+			LOG_ERROR ("%s: [%s]", wrong_note_node, cur->name);
 		}
 		cur = cur->next;         // Advance to the next node.
 	}
