@@ -27,12 +27,12 @@ namespace eternal_lands
 		 * was used (with a type cast)!
 		 */
 		EXTENDED_EXCEPTION(extended_exception::ec_internal_error, "Can't find value " <<
-			static_cast<int>(type) << " in the switch");
+			static_cast<Sint32>(type) << " in the switch");
 	}
 
 	bool el_file::file_exist_in_dir(const std::string& file_name)
 	{
-		int i;
+		Sint32 i;
 		file_type type;
 
 		for (i = ft_gzip; i <= ft_uncompressed; i++)
@@ -67,12 +67,12 @@ namespace eternal_lands
 		 * was used (with a type cast)!
 		 */
 		EXTENDED_EXCEPTION(extended_exception::ec_internal_error, "Can't find value " <<
-			static_cast<int>(type) << " in the switch");
+			static_cast<Sint32>(type) << " in the switch");
 	}
 
 	bool el_file::open_if_exist(const std::string& file_name, bool uncompress)
 	{
-		int i;
+		Sint32 i;
 		file_type type;
 
 		for (i = ft_gzip; i <= ft_uncompressed; i++)
@@ -91,7 +91,7 @@ namespace eternal_lands
 	void el_file::open_gzip(const std::string& file_name)
 	{
 		gzFile file;
-		int read, size;
+		Sint32 read, size;
 
 		file = gzopen(file_name.c_str(), "rb");
 		try
@@ -130,7 +130,7 @@ namespace eternal_lands
 	void el_file::open(const std::string& file_name)
 	{
 		std::ifstream file;
-		int size;
+		Sint32 size;
 
 		file.open(file_name.c_str(), std::ios::binary);
 
@@ -152,7 +152,7 @@ namespace eternal_lands
 		const std::string &extra_path): memory(new memory_buffer())
 	{
 		std::string file;
-		unsigned int i;
+		Uint32 i;
 
 		position = 0;
 
@@ -162,6 +162,7 @@ namespace eternal_lands
 		{
 			if (open_if_exist(extra_path + file, uncompress))
 			{
+				file_name_str = extra_path + file;
 				return;
 			}
 		}
@@ -170,6 +171,7 @@ namespace eternal_lands
 		{
 			if (open_if_exist(get_file_name_with_path(file, i), uncompress))
 			{
+				file_name_str = get_file_name_with_path(file, i);
 				return;
 			}
 		}
@@ -180,7 +182,7 @@ namespace eternal_lands
 	bool el_file::file_exists(const std::string& file_name, const std::string &extra_path)
 	{
 		std::string file;
-		unsigned int i;
+		Uint32 i;
 
 		file = remove_path(file_name);
 

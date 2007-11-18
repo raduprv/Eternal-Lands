@@ -20,7 +20,7 @@
 namespace eternal_lands
 {
 
-	const int max_mem_block_buffer_size = 0x80000; // 512kb
+	const Uint32 max_mem_block_buffer_size = 0x80000; // 512kb
 
 	class el_file
 	{
@@ -40,7 +40,7 @@ namespace eternal_lands
 			 *
 			 * The position in the file.
 			 */
-			int position;
+			Sint32 position;
 
 			/**
 			 * @brief Memory buffer.
@@ -48,6 +48,13 @@ namespace eternal_lands
 			 * Memory buffer of the file data.
 			 */
 			memory_ptr memory;
+
+			/**
+			 * @brief File name.
+			 *
+			 * Name of the file.
+			 */
+			std::string file_name_str;
 
 			/**
 			 * @brief Opens the file in a zip file.
@@ -152,7 +159,7 @@ namespace eternal_lands
 			 * @return Returns the file name with the given path.
 			 */
 			static inline std::string get_file_name_with_path(const std::string
-				&file_name, unsigned int path_index)
+				&file_name, Uint32 path_index)
 			{
 				assert(path_index < path_list.size());
 
@@ -232,9 +239,13 @@ namespace eternal_lands
 			 * @param buffer The buffer for the read data.
 			 * @return Returns the number of read bytes.
 			 */
-			inline int read(int count, void* buffer)
+			inline Sint32 read(Sint32 count, void* buffer)
 			{
 				count = std::max(std::min(count, get_size() - position), 0);
+				if (count <= 0)
+				{
+					return 0;
+				}
 				memcpy(buffer, memory->get_memory<void*>(position), count);
 				position += count;
 
@@ -253,9 +264,9 @@ namespace eternal_lands
 			 * SEEK_CUR.
 			 * @return Returns the new position in the file.
 			 */
-			inline int seek(int offset, int seek_type)
+			inline Sint32 seek(Sint32 offset, Sint32 seek_type)
 			{
-				int pos;
+				Sint32 pos;
 
 				switch (seek_type)
 				{
@@ -288,7 +299,7 @@ namespace eternal_lands
 			 * Gets the position in the file.
 			 * @return Returns the position in the file.
 			 */
-			inline int tell() const
+			inline Sint32 tell() const
 			{
 				return position;
 			}
@@ -299,7 +310,7 @@ namespace eternal_lands
 			 * Gets the size of the file.
 			 * @return Returns the size of the file.
 			 */
-			inline int get_size() const
+			inline Sint32 get_size() const
 			{
 				return memory->get_size();
 			}
@@ -323,7 +334,14 @@ namespace eternal_lands
 			 */
 			inline void* get_current_pointer() const
 			{
-				return memory->get_memory<void*>(position);
+				if (position >= get_size())
+				{
+					return 0;
+				}
+				else
+				{
+					return memory->get_memory<void*>(position);
+				}
 			}
 
 			/**
@@ -358,7 +376,7 @@ namespace eternal_lands
 			 * Adds a zip file to the list where to search for a file that is opend with
 			 * open_file.
 			 * @param file_name The file name of the zip file.
-			 * @param path The path of the files @b in the zip file.
+			 * @param path The path of the files in the zip file.
 			 * @param replace True if we should replace files.
 			 */
 			static inline void add_zip_archive(const std::string &file_name,
@@ -366,8 +384,25 @@ namespace eternal_lands
 			{
 				default_zip_file_system.add_zip_archive(file_name, path, replace);
 			}
+
+			/**
+			 * @brief Returns the file name.
+			 *
+			 * Returns the file name of the file. The name is with full path.
+			 * @returns The file name.
+			 * @see file_name_str
+			 */
+			inline const std::string &get_file_name() const
+			{
+				return file_name_str;
+			}
 	};
 
+#ifdef	USE_TR1
+	typedef std::tr1::shared_ptr<el_file> el_file_ptr;
+#else
+	typedef shared_ptr<el_file> el_file_ptr;
+#endif
 }
 
 #endif //NEW_FILE_IO

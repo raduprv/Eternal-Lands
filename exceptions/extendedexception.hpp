@@ -165,8 +165,8 @@ namespace eternal_lands
 				const std::string &description, const char* file,
 				const char* function, unsigned int line)
 			{
-				return extended_exception(code.number, description, "duplicate_item",
-					file, function, line);
+				return extended_exception(code.number, description,
+					"duplicate_item", file, function, line);
 			}
 
 			static inline extended_exception create(
@@ -174,8 +174,8 @@ namespace eternal_lands
 				const std::string &description, const char* file,
 				const char* function, unsigned int line)
 			{
-				return extended_exception(code.number, description, "file_not_found",
-					file, function, line);
+				return extended_exception(code.number, description,
+					"file_not_found", file, function, line);
 			}
 
 			static inline extended_exception create(
@@ -183,8 +183,8 @@ namespace eternal_lands
 				const std::string &description, const char* file,
 				const char* function, unsigned int line)
 			{
-				return extended_exception(code.number, description, "item_not_found",
-					file, function, line);
+				return extended_exception(code.number, description,
+					"item_not_found", file, function, line);
 			}
 
 			static inline extended_exception create(
@@ -201,8 +201,8 @@ namespace eternal_lands
 				const std::string &description, const char* file,
 				const char* function, unsigned int line)
 			{
-				return extended_exception(code.number, description, "invalid_parameter",
-					file, function, line);
+				return extended_exception(code.number, description,
+					"invalid_parameter", file, function, line);
 			}
 
 			static inline extended_exception create(
@@ -228,8 +228,8 @@ namespace eternal_lands
 				const std::string &description, const char* file,
 				const char* function, unsigned int line)
 			{
-				return extended_exception(code.number, description, "internal_error",
-					file, function, line);
+				return extended_exception(code.number, description,
+					"internal_error", file, function, line);
 			}
 
 			static inline extended_exception create(
@@ -237,8 +237,8 @@ namespace eternal_lands
 				const std::string &description, const char* file,
 				const char* function, unsigned int line)
 			{
-				return extended_exception(code.number, description, "not_implemented",
-					file, function, line);
+				return extended_exception(code.number, description,
+					"not_implemented", file, function, line);
 			}
 	};
 
@@ -252,6 +252,26 @@ namespace eternal_lands
 		throw eternal_lands::exception_factory::create(	\
 			eternal_lands::exception_code_type<num>(), str.str(),	\
 			__FILE__, __FUNCTION__, __LINE__);	\
+	}	\
+	while (false)
+
+#define CHECK_GL_EXCEPTION()	\
+	do	\
+	{	\
+		GLint gl_error;	\
+	\
+		gl_error = glGetError();	\
+	\
+		if (gl_error != GL_NO_ERROR)	\
+		{	\
+			std::stringstream str;	\
+	\
+			str << gluErrorString(gl_error);	\
+	\
+			throw eternal_lands::exception_factory::create(	\
+				eternal_lands::exception_code_type<extended_exception::ec_opengl_error>(),	\
+				str.str(), __FILE__, __FUNCTION__, __LINE__);	\
+		}	\
 	}	\
 	while (false)
 

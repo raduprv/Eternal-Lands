@@ -17,21 +17,21 @@ namespace eternal_lands
 	{
 		private:
 			Uint8* memory;
-			int size;
+			Uint32 size;
 
 		public:
 
-			inline memory_buffer(int _size = 0)
+			inline memory_buffer(Uint32 new_size = 0)
 			{
-				if (_size > 0)
+				if (new_size > 0)
 				{
-					memory = reinterpret_cast<Uint8*>(malloc(_size));
+					memory = reinterpret_cast<Uint8*>(malloc(new_size));
 				}
 				else
 				{
 					memory = 0;
 				}
-				size = _size;
+				size = new_size;
 			}
 
 			/**
@@ -56,8 +56,9 @@ namespace eternal_lands
 			 * @return Returns the pointer of the memory buffer.
 			 */
 			template <typename T>
-				inline T get_memory(unsigned int index = 0) const
+			inline T get_memory(Uint32 index = 0) const
 			{
+				assert(index < size);
 				return reinterpret_cast<T>(&memory[index]);
 			}
 
@@ -67,12 +68,12 @@ namespace eternal_lands
 			 * Gets the size of the memory buffer.
 			 * @return Returns the size of the memory buffer.
 			 */
-			inline int get_size() const
+			inline Uint32 get_size() const
 			{
 				return size;
 			}
 
-			inline void resize(int new_size)
+			inline void resize(Uint32 new_size)
 			{
 				memory = static_cast<Uint8*>(realloc(memory, new_size));
 
