@@ -5,6 +5,8 @@ of eye candy elements.  Float works well enough in most situations.
 
 #ifdef EYE_CANDY
 
+#include "../platform.h"
+
 // T Y P E D E F S ////////////////////////////////////////////////////////////
 
 typedef float coord_t;
