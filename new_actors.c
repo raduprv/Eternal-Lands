@@ -26,6 +26,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
+#if defined(CUSTOM_LOOK) && defined(NEW_FILE_IO)
+#include "io/elfilewrapper.h"
+#endif
 
 float sitting=1.0f;
 glow_color glow_colors[10];
