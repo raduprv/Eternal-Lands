@@ -34,8 +34,8 @@ extern void add_zip_archive(const char* file_name, const char* path, int replace
 /**
  * @brief Adds the main search paths to the file system.
  *
- * Adds the main search paths (config path + "custon_updates/", config path + "updates/",
- * data dir + "custon_updates/", data dir + "updates/", data dir and "./") to the file system.
+ * Adds the main search paths (config path + "updates/" and data dir) to the file system.
+ * Other directories are not needed and ./ is already assigned when the data dir is not found.
  */
 extern void add_paths();
 
@@ -47,6 +47,16 @@ extern void add_paths();
  * @return Returns a valid el file pointer or zero on failure.
  */
 extern el_file_ptr el_open(const char* file_name);
+
+/**
+ * @brief Opens a file.
+ *
+ * Opens a file read only in binary mode. Also searches the
+ * custom dir when trying to locate the file.
+ * @param file_name The name of the file to open.
+ * @return Returns a valid el file pointer or zero on failure.
+ */
+extern el_file_ptr el_open_custom(const char* file_name);
 
 /**
  * @brief Opens a file.
@@ -142,6 +152,16 @@ extern void* el_get_pointer(el_file_ptr file);
  * @sa el_file_exists_anywhere()
  */
 extern int el_file_exists(const char* file_name);
+
+/**
+ * @brief Check if a file exists.
+ *
+ * Check if the given file exists somewhere in the data, update or custom directories.
+ * @param file_name The name of the file.
+ * @return Returns true if the file exists, else false.
+ * @sa el_file_exists_anywhere()
+ */
+extern int el_custom_file_exists(const char* file_name);
 
 /**
  * @brief Check if a file exists.

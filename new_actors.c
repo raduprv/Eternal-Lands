@@ -351,14 +351,22 @@ void custom_path(char * path, char * custom1, char * custom2) {
 
 	/* Check if custom1 has path readable */
 	safe_snprintf(buffer, sizeof(buffer), "%s%s", custom1, path);
+#ifdef NEW_FILE_IO
+	if (el_custom_file_exists(buffer)) {
+#else // NEW_FILE_IO
 	if(gzfile_exists(buffer)) {
+#endif // NEW_FILE_IO
 		my_strcp(path, buffer);
 		return;
 	}
 
 	/* Check if custom2 has path readable */
 	safe_snprintf(buffer, sizeof(buffer), "%s%s", custom2, path);
+#ifdef NEW_FILE_IO
+	if (el_custom_file_exists(buffer)) {
+#else // NEW_FILE_IO
 	if(gzfile_exists(buffer)) {
+#endif // NEW_FILE_IO
 		my_strcp(path, buffer);
 		return;
 	}

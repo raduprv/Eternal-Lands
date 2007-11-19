@@ -174,7 +174,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 #else	//NEW_FILE_IO
 	el_file_ptr file;
 
-	file = el_open(file_name);
+	file = el_open_custom(file_name);
 
 	if (file == NULL)
 	{
@@ -1532,4 +1532,3 @@ char * load_bmp8_color_key_no_texture_img(char * filename, img_struct * img)
 	return texture_mem;
 }
 #endif
-

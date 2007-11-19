@@ -42,6 +42,19 @@ namespace eternal_lands
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 	}
 
+	extern "C" el_file* el_open_custom(const char* file_name)
+	{
+		el_file* file;
+
+		try
+		{
+			file = new el_file(file_name, true, get_path_custom());
+
+			return file;
+		}
+		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+	}
+
 	extern "C" el_file* el_open_anywhere(const char* file_name)
 	{
 		el_file* file;
@@ -148,6 +161,15 @@ namespace eternal_lands
 		try
 		{
 			return el_file::file_exists (file_name);
+		}
+		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
+	}
+
+	extern "C" int el_custom_file_exists(const char* file_name)
+	{
+		try
+		{
+			return el_file::file_exists (file_name, get_path_config_base());		// The /custom/ is already on the front
 		}
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 	}
