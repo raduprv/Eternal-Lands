@@ -48,7 +48,7 @@ namespace eternal_lands
 
 		try
 		{
-			file = new el_file(file_name, true, get_path_custom());
+			file = new el_file(file_name, true, get_path_config_base());		// The /custom/ is already on the front
 
 			return file;
 		}
