@@ -778,7 +778,7 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_ARB,GL_PREVIOUS_ARB);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_ARB,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_ARB,GL_CONSTANT_ARB);
-	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,sun_ambient_light);
+	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,ambient_light);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_ARB,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_ARB,GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_ARB,GL_SRC_COLOR);
@@ -791,7 +791,7 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_PREVIOUS_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_CONSTANT_EXT);
-	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,sun_ambient_light);
+	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,ambient_light);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
@@ -807,11 +807,18 @@ CHECK_GL_ERRORS();
 
 void draw_sun_shadowed_scene(int any_reflection)
 {
-	if(sun_ambient_light[0] <= 0.2f || sun_ambient_light[1] <= 0.2f || sun_ambient_light[2] <= 0.2f){
-		//If it's so dark that shadows would actually be lighter, then we shouldn't draw them
-		//The numbers may need a slight tuning, but seem accurate
-		return;
+#ifdef NEW_LIGHTING
+	if (!use_new_lighting)
+	{
+#endif
+		if(ambient_light[0] <= 0.2f || ambient_light[1] <= 0.2f || ambient_light[2] <= 0.2f){
+			//If it's so dark that shadows would actually be lighter, then we shouldn't draw them
+			//The numbers may need a slight tuning, but seem accurate
+			return;
+		}
+#ifdef NEW_LIGHTING
 	}
+#endif
 	if(use_shadow_mapping)
 		{
 			shadow_unit=GL_TEXTURE0_ARB;

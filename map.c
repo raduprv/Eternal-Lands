@@ -50,6 +50,9 @@
 #ifdef MINES
 #include "mines.h"
 #endif // MINES
+#ifdef NEW_LIGHTING
+ #include "textures.h"
+#endif
 
 int map_type=1;
 Uint32 map_flags=0;
@@ -207,6 +210,10 @@ static int el_load_map(const char * file_name)
 		// don't try to build pathfinder maps etc. when loading 
 		// the map failed...
 		return ret;
+
+#if NEW_LIGHTING
+	set_scene_metadata(file_name);
+#endif
 
 #ifdef SKY_FPV_CURSOR
 	if (strstr("underworld",file_name) != NULL){

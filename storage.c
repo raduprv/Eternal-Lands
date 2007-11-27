@@ -221,7 +221,7 @@ int display_storage_handler(window_info * win)
 	if(storage_text[0]){
 		draw_string_small(18, 220, (unsigned char*)storage_text, 1);
 	}
-	
+
 	glColor3f(1.0f,1.0f,1.0f);
 	
 	for(i=pos=6*vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i<pos+36 && i<no_storage;i++){

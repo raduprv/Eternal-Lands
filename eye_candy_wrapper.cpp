@@ -1080,7 +1080,6 @@ extern "C" ec_reference ec_create_campfire(float x, float y, float z, float hue_
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
-  std::cout << "B: " << scale << std::endl;
   ret->effect = new ec::CampfireEffect(&eye_candy, &ret->dead, &ret->position, &fire_obstructions_list, hue_adjust, saturation_adjust, scale, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;

@@ -794,6 +794,11 @@ void init_stuff()
 	update_loading_win(bld_glow_str, 3);
 	build_glow_color_table();
 
+#ifdef NEW_LIGHTING	//This must be before init_actor_defs().
+	load_material_metadata("material_metadata.xml");
+        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+#endif
+
 	update_loading_win(init_lists_str, 2);
 	init_actors_lists();
 	update_loading_win(NULL, 4);
@@ -840,6 +845,7 @@ void init_stuff()
 #endif	//NEW_ALPHA
 	update_loading_win(load_textures_str, 4);
 	cons_text= load_texture_cache("./textures/console.bmp",255);
+
 
 	update_loading_win(NULL, 5);
 

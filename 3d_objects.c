@@ -100,7 +100,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 	glPushMatrix();//we don't want to affect the rest of the scene
 
 	glMultMatrixf(object_id->matrix);
-
+	
 	CHECK_GL_ERRORS();
 
 	if (!dungeon && (clouds_shadows || use_shadow_mapping))
@@ -211,7 +211,34 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 #ifdef  DEBUG
 	cur_e3d_count++;
 #endif  //DEBUG
+#ifdef NEW_LIGHTING
+	if (use_new_lighting && (!object_id->material_set))
+	{
+		glMaterialfv(GL_FRONT, GL_AMBIENT, object_id->ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, object_id->diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, object_id->specular);
+		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->emission);
+		glMaterialf(GL_FRONT, GL_SHININESS, object_id->shininess);
+	}
+	else if (use_new_lighting)
+	{
+		set_material_defaults();
+	}
+#endif
+
 	get_and_set_texture_id(object_id->e3d_data->materials[material_index].diffuse_map);
+
+#ifdef NEW_LIGHTING
+	if (use_new_lighting && object_id->material_set)
+	{
+		glMaterialfv(GL_FRONT, GL_AMBIENT, object_id->ambient);
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, object_id->diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, object_id->specular);
+		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->emission);
+		glMaterialf(GL_FRONT, GL_SHININESS, object_id->shininess);
+	}
+#endif
+
 
 	ELglDrawRangeElementsEXT(GL_TRIANGLES,
 		object_id->e3d_data->materials[material_index].triangles_indicies_min,
@@ -292,12 +319,6 @@ void draw_3d_objects(unsigned int object_type)
 	{
 		glDisable(GL_LIGHTING);
 	}
-#ifdef NEW_LIGHTING
-	else if (use_new_lighting)
-	{
-		reset_material();
-	}
-#endif
 
 	if(is_transparent) {
 #ifdef	NEW_ALPHA
@@ -538,6 +559,11 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	our_object->id = id;
 
 	our_object->flags = 0;
+
+#ifdef NEW_LIGHTING
+	set_model_metadata(our_object);
+#endif
+
 	for(i = 0; i < sizeof(harvestable_objects)/sizeof(harvestable_objects[0]); i++) {
 		if(*harvestable_objects[i] && strstr(file_name, harvestable_objects[i]) != NULL) {
 			our_object->flags |= OBJ_3D_HARVESTABLE;

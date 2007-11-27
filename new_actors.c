@@ -508,6 +508,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifdef NEW_LIGHTING
+								actors_list[i]->cape=which_id;
+#endif
 								return;
 							}
 
@@ -521,6 +524,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifdef NEW_LIGHTING
+								actors_list[i]->helmet=which_id;
+#endif
 								return;
 							}
 
@@ -541,6 +547,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->torso_meshindex);
 									CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index);
 									actors_list[i]->body_parts->torso_meshindex=actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index;
+#ifdef NEW_LIGHTING
+									actors_list[i]->shirt=which_id;
+#endif
 								}
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
@@ -559,6 +568,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->legs_meshindex);
 									CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index);
 									actors_list[i]->body_parts->legs_meshindex=actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index;
+#ifdef NEW_LIGHTING
+									actors_list[i]->legs=which_id;
+#endif
 								}
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id= load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
@@ -575,6 +587,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id= load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+#ifdef NEW_LIGHTING
+								actors_list[i]->boots=which_id;
+#endif
 								return;
 							}
 						return;
@@ -1003,6 +1018,13 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_tolower(actors_list[i]->actor_name);
 		}
 	}
+
+#ifdef NEW_LIGHTING
+	actors_list[i]->head = head;
+	actors_list[i]->helmet = helmet;
+	actors_list[i]->cape = cape;
+	actors_list[i]->legs = pants;
+#endif
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);

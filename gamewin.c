@@ -911,6 +911,7 @@ int display_game_handler (window_info *win)
 			draw_dungeon_light ();
 		}
 		// only draw scene lights if inside or it is night
+		
 #ifdef NEW_LIGHTING
 		if (
 		    ( (use_new_lighting) && (dungeon || !(game_minute >= 5 && game_minute < 235))) ||
@@ -955,6 +956,9 @@ int display_game_handler (window_info *win)
 #endif
 
 #ifdef NEW_LIGHTING
+		if (use_new_lighting)
+		 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
+
 		if (
 		    ( (use_new_lighting) && (!dungeon && shadows_on && (game_minute >= 5 && game_minute < 235))) ||
 		    ((!use_new_lighting) && (!dungeon && shadows_on && is_day))
@@ -992,8 +996,11 @@ int display_game_handler (window_info *win)
 	{
 		display_actors (1, 0);	// we need to 'touch' all the actors even if not drawing to avoid problems
 	}
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+	        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
+#endif
 	CHECK_GL_ERRORS ();
-
 #if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
 	light_idle();
 #endif // NEW_LIGHTING
@@ -1168,6 +1175,7 @@ CHECK_GL_ERRORS();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+
 	return 1;
 }
 
@@ -2111,9 +2119,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 			{
 				int alpha = texture_cache[i].alpha;
 				if(alpha <= 0)
-					texture_cache[i].texture_id = load_bmp8_color_key (texture_cache[i].file_name, alpha);
+					texture_cache[i].texture_id = load_bmp8_color_key (&(texture_cache[i]), alpha);
 				else 
-					texture_cache[i].texture_id = load_bmp8_fixed_alpha (texture_cache[i].file_name, alpha);
+					texture_cache[i].texture_id = load_bmp8_fixed_alpha (&(texture_cache[i]), alpha);
 			}
 		}
 	}

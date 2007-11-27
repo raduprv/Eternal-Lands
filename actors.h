@@ -138,6 +138,7 @@ typedef struct
 	int cape_glow;
 	int legs_glow;
 	/*! \} */
+
 }enhanced_actor;
 
 /*! Sets the main model type*/
@@ -148,6 +149,14 @@ typedef struct
 	char skin_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }body_part;
 
 /*! Sets the weapon type (including animation frame names)*/
@@ -163,6 +172,15 @@ typedef struct
 	struct cal_anim cal_attack_up_2_frame;
 	struct cal_anim cal_attack_down_1_frame;
     struct cal_anim cal_attack_down_2_frame;
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }weapon_part;
 
 /*! Defines the main models looks*/
@@ -174,6 +192,15 @@ typedef struct
 	char arms_mask[MAX_FILE_PATH];
 	char torso_mask[MAX_FILE_PATH];
 	int mesh_index;
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }shirt_part;
 
 /*! Sets the models hands and head*/
@@ -186,6 +213,15 @@ typedef struct
 	char legs_name[MAX_FILE_PATH];
 	char feet_name[MAX_FILE_PATH];
 	int mesh_index;
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }skin_part;
 
 /*! Sets the models hair name*/
@@ -193,6 +229,15 @@ typedef struct
 {
 	char hair_name[MAX_FILE_PATH];
 	int mesh_index;
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }hair_part;
 
 /*! Holds info about the boots */
@@ -202,6 +247,15 @@ typedef struct
 	char boots_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }boots_part;
 
 /*! Holds info about the legs type*/
@@ -212,6 +266,15 @@ typedef struct
 	char legs_mask[MAX_FILE_PATH];
 	int glow;
 	int mesh_index;
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }legs_part;
 
 /*! A structure used when loading the actor definitions
@@ -321,6 +384,7 @@ typedef struct
 	double run_speed;
 	char ghost;
 	/*! \} */
+
 } actor_types;
 
 /*!
@@ -401,6 +465,12 @@ typedef struct
 	int shirt;		/*!< Sets the shirt ID (loaded from the actor_defs array)*/
 	int cur_weapon;		/*!< Sets the current weapon of the actor*/
 	int cur_shield;		/*!< Sets the current shield of the actor*/
+#ifdef NEW_LIGHTING
+	int head;
+	int legs;
+	int helmet;
+	int cape;
+#endif
 	/*! \} */
 
 	/*! \{ */

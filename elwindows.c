@@ -1144,7 +1144,6 @@ CHECK_GL_ERRORS();
 	{
 		ret_val=1;
 	}
-	
 	// assign here in case display_handler changed the widgets - like deletes the widgets
 	W = win->widgetlist;
 	

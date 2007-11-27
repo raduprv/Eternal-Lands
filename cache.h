@@ -54,6 +54,16 @@ typedef struct
 	cache_item_struct *cache_ptr; /*!< a pointer to the cached item */
 	int alpha;                    /*!< used for alpha blending the texture */
 	char load_err;                /*!< if true, we tried to load this texture before and failed */
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
+
 }texture_cache_struct;
 
 /*!

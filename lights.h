@@ -16,6 +16,7 @@ extern "C" {
 
 #ifdef NEW_LIGHTING
 extern int use_new_lighting;
+extern float lighting_contrast;
 extern int night_shift_textures;
 #endif
 
@@ -63,8 +64,8 @@ extern GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 extern GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 /*! @} */
 
-extern GLfloat sun_ambient_light[]; /*!< An array for the ambient lights radiating from the sun */
-extern GLfloat difuse_light[]; /*!< An array for the diffuse light portion */
+extern GLfloat ambient_light[]; /*!< An array for the ambient lights radiating from the sun */
+extern GLfloat diffuse_light[]; /*!< An array for the diffuse light portion */
 
 extern int	show_lights;	/*! the highest numbered light in the current GL display (0-6) */
 extern int	num_lights; /*! the number of lights currently loaded */
@@ -222,6 +223,7 @@ void cleanup_lights(void);
 
 #ifdef NEW_LIGHTING
 void light_idle(void);
+void set_material_defaults();
 #endif
 
 #ifdef __cplusplus

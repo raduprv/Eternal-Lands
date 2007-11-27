@@ -100,11 +100,12 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 					{
 						/* Load this map's bmp */
 						if(cur_map != i) {
-							char *bmp_map = strdup(continent_maps[i].name);
-							size_t name_len = strlen(bmp_map);
-							sprintf(bmp_map+name_len-3, "bmp");
-							inspect_map_text = load_bmp8_fixed_alpha(bmp_map, 128);
-							free(bmp_map);
+							texture_cache_struct tex;
+							size_t name_len;
+							my_strcp(tex.file_name,continent_maps[i].name);
+							name_len = strlen(tex.file_name);
+							sprintf(tex.file_name+name_len-3, "bmp");
+							inspect_map_text = load_bmp8_fixed_alpha(&tex, 128);
 						}
 						showing_continent = !showing_continent;
 						break;

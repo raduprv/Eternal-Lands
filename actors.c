@@ -564,14 +564,14 @@ void draw_actor(actor * actor_id, int banner)
 	float x_rot,y_rot,z_rot;
 	int texture_id;
 	float healthbar_z=0;
-
+	
 	if(!actor_id->remapped_colors){
-		texture_id=get_texture_id(actor_id->texture_id);
+		texture_id=get_and_set_texture_id(actor_id->texture_id);
 	} else {
-		//we have remaped colors, we don't store such textures into the cache
+		//we have remapped colors, we don't store such textures into the cache
 		texture_id=actor_id->texture_id;
+		bind_texture_id(texture_id);
 	}
-	bind_texture_id(texture_id);
 
 	//now, go and find the current frame
 	//i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);

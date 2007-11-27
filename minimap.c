@@ -924,6 +924,7 @@ void change_minimap(){
 	char minimap_file_name[256];
 	int size;
 	int zoom_diff = max_zoom - minimap_zoom;
+	texture_cache_struct tex;
 
 	if(minimap_win < 0)
 		return;
@@ -945,13 +946,15 @@ void change_minimap(){
 	strcat(minimap_file_name, ".bmp");
 
 	//load textures
+	my_strcp(tex.file_name, minimap_file_name);
 #ifdef NEW_FILE_IO
 	if (!el_file_exists(minimap_file_name))
 		minimap_texture = 0;
 	else
 #endif //NEW_FILE_IO
-		minimap_texture = load_bmp8_fixed_alpha(minimap_file_name,128);
-	circle_texture = load_bmp8_fixed_alpha("./textures/circle.bmp",0);
+		minimap_texture = load_bmp8_fixed_alpha(&tex,128);
+	my_strcp(tex.file_name, "./textures/circle.bmp");
+	circle_texture = load_bmp8_fixed_alpha(&tex,0);
 	glGenTextures(1, &exploration_texture);
 	bind_texture_id(exploration_texture);
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);

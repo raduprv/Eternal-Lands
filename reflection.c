@@ -783,7 +783,7 @@ void draw_lake_tiles()
 #endif //USE_SHADER
 
 	glEnable(GL_CULL_FACE);
-	
+
 	if (dungeon) water_id = tile_list[231];
 	else water_id = tile_list[0];
 

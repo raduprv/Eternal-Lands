@@ -28,8 +28,18 @@
 int last_texture_start = 0;
 int last_dungeon;
 int use_new_lighting = 0;
+float lighting_contrast = 0.5;
 int night_shift_textures = 0;
 int old_night_shift_textures = 0;
+GLfloat day_ambient[4];
+GLfloat day_diffuse[4];
+GLfloat day_specular[4];
+GLfloat dawn_ambient[4];
+GLfloat dawn_diffuse[4];
+GLfloat dawn_specular[4];
+GLfloat night_ambient[4];
+GLfloat night_diffuse[4];
+GLfloat night_specular[4];
 #endif // NEW_LIGHTING
 
 #ifdef DEBUG_TIME
@@ -54,7 +64,11 @@ typedef struct
 	float w;
 }sun;
 
-GLfloat global_lights[GLOBAL_LIGHTS_NO][4];
+GLfloat global_diffuse_light[GLOBAL_LIGHTS_NO][4];
+#ifdef NEW_LIGHTING
+GLfloat global_ambient_light[GLOBAL_LIGHTS_NO][4];
+GLfloat global_specular_light[GLOBAL_LIGHTS_NO][4];
+#endif
 
 GLfloat sky_lights_c1[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c2[GLOBAL_LIGHTS_NO*2][4];
@@ -212,6 +226,10 @@ void draw_lights()
 		vec4[2] = lights_list[l]->b;
 		vec4[3] = 1.0f;
 		glLightfv(GL_LIGHT0+j, GL_DIFFUSE, vec4);
+#ifdef NEW_LIGHTING
+		if (use_new_lighting)
+			glLightfv(GL_LIGHT0+j, GL_SPECULAR, vec4);
+#endif
 #ifndef EYE_CANDY
 		if (j >= 6) break;
 #else
@@ -316,6 +334,10 @@ void init_lights()
 	glLightf(GL_LIGHT0, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT0,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT0,GL_DIFFUSE,light_diffuse);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT0,GL_AMBIENT,no_light);
 	glLightf(GL_LIGHT0,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT0);
@@ -323,6 +345,10 @@ void init_lights()
 	glLightf(GL_LIGHT1, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT1,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT1,GL_DIFFUSE,light_diffuse);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT1,GL_AMBIENT,no_light);
 	glLightf(GL_LIGHT1,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT1);
@@ -330,6 +356,10 @@ void init_lights()
 	glLightf(GL_LIGHT2, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT2,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT2,GL_DIFFUSE,light_diffuse);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT2,GL_AMBIENT,no_light);
 	glLightf(GL_LIGHT2,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT2);
@@ -337,6 +367,10 @@ void init_lights()
 	glLightf(GL_LIGHT3, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT3,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT3,GL_DIFFUSE,light_diffuse);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT3,GL_AMBIENT,no_light);
 	glLightf(GL_LIGHT3,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT3);
@@ -345,6 +379,10 @@ void init_lights()
 	glLightf(GL_LIGHT4, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT4,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT4,GL_DIFFUSE,light_diffuse);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT4,GL_AMBIENT,no_light);
 	glLightf(GL_LIGHT4,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT4);
@@ -352,6 +390,10 @@ void init_lights()
 	glLightf(GL_LIGHT5, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT5,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT5,GL_DIFFUSE,light_diffuse);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT5,GL_AMBIENT,no_light);
 	glLightf(GL_LIGHT5,GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT5);
@@ -359,12 +401,20 @@ void init_lights()
 	glLightf(GL_LIGHT6, GL_SPOT_CUTOFF, cut_off);
 	glLightfv(GL_LIGHT6,GL_SPECULAR,no_light);
 	glLightfv(GL_LIGHT6,GL_DIFFUSE,light_diffuse);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT6,GL_AMBIENT,no_light);
 	glLightf(GL_LIGHT6, GL_LINEAR_ATTENUATION,linear_att);
     glEnable(GL_LIGHT6);
 #endif
 	glLightfv(GL_LIGHT7,GL_AMBIENT,no_light);
 	glLightfv(GL_LIGHT7,GL_SPECULAR,no_light);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT0,GL_SPECULAR,light_diffuse);
+#endif
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,no_light);
 	glLightf(GL_LIGHT7,GL_CONSTANT_ATTENUATION,0);
 	glEnable(GL_LIGHT7);
@@ -413,6 +463,24 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+#ifdef NEW_LIGHTING
+void set_material_defaults()
+{
+	GLfloat mat_ambient[]={ 0.2, 0.2, 0.2, 1.0 };
+	GLfloat mat_diffuse[]={ 1.0, 1.0, 1.0, 1.0 };
+	GLfloat mat_specular[]={ 0.0, 0.0, 0.0, 1.0 };
+	GLfloat mat_emission[]={ 0.0, 0.0, 0.0, 1.0 };
+	glMaterialfv(GL_FRONT, GL_AMBIENT, mat_ambient);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, mat_diffuse);
+	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
+	glMaterialfv(GL_FRONT, GL_SPECULAR, mat_specular);
+	glMaterialf(GL_FRONT, GL_SHININESS, 30);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+#endif
+
 void set_material(float r, float g, float b)
 {
 	GLfloat mat_emission[]={ r, g, b, 1.0 };
@@ -426,8 +494,11 @@ CHECK_GL_ERRORS();
 }
 
 int sun_use_static_position=0;
-GLfloat sun_ambient_light[] = { 0.0, 0.0, 0.0, 1.0 };
-GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
+GLfloat ambient_light[] = { 0.0, 0.0, 0.0, 1.0 };
+GLfloat diffuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
+#ifdef NEW_LIGHTING
+GLfloat specular_light[] = {0.0, 0.0, 0.0, 1.0 };
+#endif
 void draw_global_light()
 {
 	int i;
@@ -444,22 +515,28 @@ void draw_global_light()
 	if(i<0)i=0;
 	if(i>59)i=59;
 #endif
-	//add the thunder light to the ambient/difuse light
+	//add the thunder light to the ambient/diffuse light
 
 #ifdef NEW_WEATHER
  #ifdef NEW_LIGHTING
  	if (use_new_lighting)
  	{
-		difuse_light[0] = weather_bias_light(global_lights[i][0]);
-		difuse_light[1] = weather_bias_light(global_lights[i][1]);
-		difuse_light[2] = weather_bias_light(global_lights[i][2]);
+		ambient_light[0] = weather_bias_light(global_ambient_light[i][0]);
+		ambient_light[1] = weather_bias_light(global_ambient_light[i][1]);
+		ambient_light[2] = weather_bias_light(global_ambient_light[i][2]);
+		diffuse_light[0] = weather_bias_light(global_diffuse_light[i][0]);
+		diffuse_light[1] = weather_bias_light(global_diffuse_light[i][1]);
+		diffuse_light[2] = weather_bias_light(global_diffuse_light[i][2]);
+		specular_light[0] = weather_bias_light(global_specular_light[i][0]);
+		specular_light[1] = weather_bias_light(global_specular_light[i][1]);
+		specular_light[2] = weather_bias_light(global_specular_light[i][2]);
 	}
 	else
 	{
  #endif // NEW_LIGHTING
-		difuse_light[0] = weather_bias_light(global_lights[i][0] - 0.15f);
-		difuse_light[1] = weather_bias_light(global_lights[i][1] - 0.15f);
-		difuse_light[2] = weather_bias_light(global_lights[i][2] - 0.15f);
+		diffuse_light[0] = weather_bias_light(global_diffuse_light[i][0] - 0.15f);
+		diffuse_light[1] = weather_bias_light(global_diffuse_light[i][1] - 0.15f);
+		diffuse_light[2] = weather_bias_light(global_diffuse_light[i][2] - 0.15f);
  #ifdef NEW_LIGHTING
 	}
  #endif
@@ -468,66 +545,101 @@ void draw_global_light()
  #ifdef NEW_LIGHTING
  	if (use_new_lighting)
  	{
-		difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90;
-		difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60;
-		difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15;
+		ambient_light[0]=global_ambient_light[i][0]+(float)thunder_light_offset/90/8;
+		ambient_light[1]=global_ambient_light[i][1]+(float)thunder_light_offset/60/8;
+		ambient_light[2]=global_ambient_light[i][2]+(float)thunder_light_offset/15/8;
+		diffuse_light[0]=global_diffuse_light[i][0]+(float)thunder_light_offset/90/4;
+		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60/4;
+		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15/4;
+		specular_light[0]=global_specular_light[i][0]+(float)thunder_light_offset/90/4;
+		specular_light[1]=global_specular_light[i][1]+(float)thunder_light_offset/60/4;
+		specular_light[2]=global_specular_light[i][2]+(float)thunder_light_offset/15/4;
 	}
 	else
 	{
  #endif // NEW_LIGHTING
-		difuse_light[0]=global_lights[i][0]+(float)thunder_light_offset/90-0.15f;
-		difuse_light[1]=global_lights[i][1]+(float)thunder_light_offset/60-0.15f;
-		difuse_light[2]=global_lights[i][2]+(float)thunder_light_offset/15-0.15f;
+		diffuse_light[0]=global_diffuse_light[i][0]+(float)thunder_light_offset/90-0.15f;
+		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
+		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
  #ifdef NEW_LIGHTING
  	}
  #endif // NEW_LIGHTING
 #else
-	difuse_light[0]=global_lights[i][0];
-	difuse_light[1]=global_lights[i][1];
-	difuse_light[2]=global_lights[i][2];
+	diffuse_light[0]=global_diffuse_light[i][0];
+	diffuse_light[1]=global_diffuse_light[i][1];
+	diffuse_light[2]=global_diffuse_light[i][2];
 #endif
 #endif
 
-//	printf("%f, %f, %f: %f, %f, %f\n", global_lights[i][0], global_lights[i][1], global_lights[i][2], weather_bias_light(global_lights[i][0]), weather_bias_light(global_lights[i][1]), weather_bias_light(global_lights[i][2]));
-
-	if(map_type==2)
+#ifdef NEW_LIGHTING
+	if (!use_new_lighting)
+	{
+#endif
+		if(map_type==2)
 		{
 			//the ambient light should be almost as the normal light, but a little bluer
-			sun_ambient_light[0]=difuse_light[0]+.01f;
-			sun_ambient_light[1]=difuse_light[1]+.01f;
-			sun_ambient_light[2]=difuse_light[2];
+			ambient_light[0]=diffuse_light[0]+.01f;
+			ambient_light[1]=diffuse_light[1]+.01f;
+			ambient_light[2]=diffuse_light[2];
 		}
 		else
 		{
-			//the ambient light should be half of the difuse light
-			sun_ambient_light[0]=difuse_light[0]/3.5f+0.15f;
-			sun_ambient_light[1]=difuse_light[1]/3.5f+0.15f;
-			sun_ambient_light[2]=difuse_light[2]/3.5f+0.15f;
+			//the ambient light should be half of the diffuse light
+			ambient_light[0]=diffuse_light[0]/3.5f+0.15f;
+			ambient_light[1]=diffuse_light[1]/3.5f+0.15f;
+			ambient_light[2]=diffuse_light[2]/3.5f+0.15f;
 		}
-
 #ifdef NEW_LIGHTING
+	}
+#endif
+
+
+	ambient_light[3]=1.0f;
+#ifdef NEW_LIGHTING
+/*
+	printf("Ambient: %f, %f, %f\n", ambient_light[0], ambient_light[1], ambient_light[2]);
+	printf("Diffuse: %f, %f, %f\n", diffuse_light[0], diffuse_light[1], diffuse_light[2]);
+	printf("Specular: %f, %f, %f\n", specular_light[0], specular_light[1], specular_light[2]);
+*/
+        diffuse_light[3] = 1.0f;
+        specular_light[3] = 1.0f;
 	if (use_new_lighting)
 	{
 //		glEnable(GL_LIGHT7);
-//		printf("Light: %f, %f, %f\n", difuse_light[0], difuse_light[1], difuse_light[2]);
-		difuse_light[0] *= 1.5f;
-		difuse_light[1] *= 1.5f;
-		difuse_light[2] *= 1.5f;
-		sun_ambient_light[0] /= 3.0f;
-		sun_ambient_light[1] /= 3.0f;
-		sun_ambient_light[2] /= 3.0f;
+//		printf("Light: %f, %f, %f\n", diffuse_light[0], diffuse_light[1], diffuse_light[2]);
+/*
+		diffuse_light[0] *= 3.0f;
+		diffuse_light[1] *= 3.0f;
+		diffuse_light[2] *= 3.0f;
+		specular_light[0] = diffuse_light[0] * 1.0f;
+		specular_light[1] = diffuse_light[1] * 1.0f;
+		specular_light[2] = diffuse_light[2] * 1.0f;
+		ambient_light[0] /= 2.0f;
+		ambient_light[1] /= 2.0f;
+		ambient_light[2] /= 2.0f;
+		glLightfv(GL_LIGHT7,GL_SPECULAR,specular_light);
+*/
+		glLightfv(GL_LIGHT7,GL_AMBIENT, ambient_light);
+		glLightfv(GL_LIGHT7,GL_DIFFUSE, diffuse_light);
+		glLightfv(GL_LIGHT7,GL_SPECULAR, specular_light);
 	}
+	else
+	{
 #endif	//NEW_LIGHTING
 
-	sun_ambient_light[3]=1.0f;
-	glLightfv(GL_LIGHT7,GL_AMBIENT,sun_ambient_light);
-	//We add (0.2,0.2,0.2) because that's the global ambient color, and we need it for shadows
-	sun_ambient_light[0]+=0.2f;
-	sun_ambient_light[1]+=0.2f;
-	sun_ambient_light[2]+=0.2f;
+		glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
+		//We add (0.2,0.2,0.2) because that's the global ambient color, and we need it for shadows
+
+		ambient_light[0]+=0.2f;
+		ambient_light[1]+=0.2f;
+		ambient_light[2]+=0.2f;
+
+		glLightfv(GL_LIGHT7,GL_DIFFUSE,&diffuse_light[0]);
+#ifdef NEW_LIGHTING
+	}
+#endif
 	if(sun_use_static_position)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
 	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
-	glLightfv(GL_LIGHT7,GL_DIFFUSE,&difuse_light[0]);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -536,26 +648,37 @@ CHECK_GL_ERRORS();
 void draw_dungeon_light()
 {
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
-	GLfloat difuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
+	GLfloat diffuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat ambient_light[4];
 
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
 	{
+/*
 		glEnable(GL_LIGHT7);
-		difuse_light[0] = ambient_r / 2.0f;
-		difuse_light[1] = ambient_g / 2.0f;
-		difuse_light[2] = ambient_b / 2.0f;
-		difuse_light[3] = 1.0;
+		diffuse_light[0] = ambient_r / 2.0f;
+		diffuse_light[1] = ambient_g / 2.0f;
+		diffuse_light[2] = ambient_b / 2.0f;
+		diffuse_light[3] = 1.0;
 		ambient_light[0] = ambient_r / 12.0f;
 		ambient_light[1] = ambient_g / 12.0f;
 		ambient_light[2] = ambient_b / 12.0f;
 		ambient_light[3] = 1.0;
+*/
+		ambient_light[0]=global_ambient_light[59][0];
+		ambient_light[1]=global_ambient_light[59][1];
+		ambient_light[2]=global_ambient_light[59][2];
+		diffuse_light[0]=global_diffuse_light[59][0];
+		diffuse_light[1]=global_diffuse_light[59][1];
+		diffuse_light[2]=global_diffuse_light[59][2];
+		specular_light[0]=global_specular_light[59][0];
+		specular_light[1]=global_specular_light[59][1];
+		specular_light[2]=global_specular_light[59][2];
 	}
 	else
 	{
 #endif // NEW_LIGHTING
-	//the ambient light should be half of the difuse light
+	//the ambient light should be half of the diffuse light
 		ambient_light[0]=ambient_r;
 		ambient_light[1]=ambient_g;
 		ambient_light[2]=ambient_b;
@@ -565,7 +688,11 @@ void draw_dungeon_light()
 #endif // NEW_LIGHTING
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
-	glLightfv(GL_LIGHT7,GL_DIFFUSE,difuse_light);
+	glLightfv(GL_LIGHT7,GL_DIFFUSE,diffuse_light);
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		glLightfv(GL_LIGHT7,GL_SPECULAR, specular_light);
+#endif
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -602,10 +729,18 @@ void build_global_light_table()
 	if (use_new_lighting)
 	{
 		//the sun/moon light
-  		make_gradient_light(0,15,(float *)global_lights,0.6f,0.6f,0.6f, 0.7f,0.45f,0.3f);
-  		make_gradient_light(14,16,(float *)global_lights,0.7f,0.45f,0.3f, 0.65f,0.4f,0.25f);
-  		make_gradient_light(29,16,(float *)global_lights,0.65f,0.4f,0.25f, 0.6f,0.35f,0.15f);
-		make_gradient_light(44,16,(float *)global_lights,0.6f,0.35f,0.15f, 0.12f,0.12f,0.15f);
+/*
+  		make_gradient_light(0,15,(float *)global_diffuse_light,0.6f,0.6f,0.6f, 0.7f,0.45f,0.3f);
+  		make_gradient_light(14,16,(float *)global_diffuse_light,0.7f,0.45f,0.3f, 0.65f,0.4f,0.25f);
+  		make_gradient_light(29,16,(float *)global_diffuse_light,0.65f,0.4f,0.25f, 0.6f,0.35f,0.15f);
+		make_gradient_light(44,16,(float *)global_diffuse_light,0.6f,0.35f,0.15f, 0.12f,0.12f,0.15f);
+*/
+		make_gradient_light(0,15,(float *)global_ambient_light, day_ambient[0], day_ambient[1], day_ambient[2], dawn_ambient[0], dawn_ambient[1], dawn_ambient[2]);
+		make_gradient_light(14,46,(float *)global_ambient_light, dawn_ambient[0], dawn_ambient[1], dawn_ambient[2], night_ambient[0], night_ambient[1], night_ambient[2]);
+		make_gradient_light(0,15,(float *)global_diffuse_light, day_diffuse[0], day_diffuse[1], day_diffuse[2], dawn_diffuse[0], dawn_diffuse[1], dawn_diffuse[2]);
+		make_gradient_light(14,46,(float *)global_diffuse_light, dawn_diffuse[0], dawn_diffuse[1], dawn_diffuse[2], night_diffuse[0], night_diffuse[1], night_diffuse[2]);
+		make_gradient_light(0,15,(float *)global_specular_light, day_specular[0], day_specular[1], day_specular[2], dawn_specular[0], dawn_specular[1], dawn_specular[2]);
+		make_gradient_light(14,46,(float *)global_specular_light, dawn_specular[0], dawn_specular[1], dawn_specular[2], night_specular[0], night_specular[1], night_specular[2]);
 	
 		//lake light
 		make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
@@ -633,8 +768,8 @@ void build_global_light_table()
 #endif // NEW_LIGHTING
 #ifndef SKY_FPV_CURSOR
 		//the sun light
-		make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
-		make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.06f,0.06f,0.08f);
+		make_gradient_light(0,30,(float *)global_diffuse_light,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
+		make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.06f,0.06f,0.08f);
 	
 		//lake light
 		make_gradient_light(0,30,(float *)sky_lights_c1,0.0f,0.3f,0.6f,0.6f,0.3f,0.0f);
@@ -658,8 +793,8 @@ void build_global_light_table()
 		make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
 #else /* SKY_FPV_CURSOR */
 	//the sun light
-  	make_gradient_light(0,30,(float *)global_lights,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
-	make_gradient_light(30,30,(float *)global_lights,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
+  	make_gradient_light(0,30,(float *)global_diffuse_light,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
+	make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
 	//lake light
 	make_gradient_light(0,30,(float *)sky_lights_c1,
 			0.0f,0.7f,0.9f,
@@ -908,10 +1043,10 @@ void light_idle()
 
 #ifdef DEBUG_TIME
 	if (old_time != 0){
+		int j;
 		int count = new_time / (Uint64)(250000 / debug_time_accel) - old_time / (Uint64)(250000 / debug_time_accel);
 		if (count > 10)
 			count = 10;
-		int j;
 		for (j = 0; j < count; j++){
 #else
 		if (new_time / 250000 - old_time / 250000){
@@ -930,9 +1065,9 @@ void light_idle()
 			{
 				int alpha= texture_cache[i].alpha;
 				if(alpha <= 0)
-					reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+					reload_bmp8_color_key(&(texture_cache[i]), alpha, texture_cache[i].texture_id);
 				else
-					reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+					reload_bmp8_fixed_alpha(&(texture_cache[i]), alpha, texture_cache[i].texture_id);
 				if ((dungeon == last_dungeon) && (night_shift_textures == old_night_shift_textures))
 					break;
 			}
@@ -945,9 +1080,9 @@ void light_idle()
 				{
 					int alpha= texture_cache[i].alpha;
 					if(alpha <= 0)
-						reload_bmp8_color_key(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+						reload_bmp8_color_key(&(texture_cache[i]), alpha, texture_cache[i].texture_id);
 					else
-						reload_bmp8_fixed_alpha(texture_cache[i].file_name, alpha, texture_cache[i].texture_id);
+						reload_bmp8_fixed_alpha(&(texture_cache[i]), alpha, texture_cache[i].texture_id);
 					if ((dungeon == last_dungeon) && (night_shift_textures == old_night_shift_textures))
 						break;
 				}

@@ -333,8 +333,16 @@ void set_rain_color(void){
 		}
 	}
 	for(i = 0; i < 3; ++i){
-		rain_color[i] = interpolate((weather_severity * weather_get_fadeinout_bias()), 0.5f*sun_ambient_light[i] + ((dungeon || !is_day)? 0.2f : 0.5f)*difuse_light[i], rain_color[i]);
+#ifdef NEW_LIGHTING
+		if (use_new_lighting)
+			rain_color[i] = interpolate((weather_severity * weather_get_fadeinout_bias()), 0.5f*ambient_light[i] + 0.2*diffuse_light[i], rain_color[i]);
+		else
+#endif
+			rain_color[i] = interpolate((weather_severity * weather_get_fadeinout_bias()), 0.5f*ambient_light[i] + ((dungeon || !is_day)? 0.2f : 0.5f)*diffuse_light[i], rain_color[i]);
 	}
+#ifdef NEW_LIGHTING
+	printf("Debug rain color: %f, %f, %f\n", rain_color[0], rain_color[1], rain_color[2]);
+#endif
 }
 
 float interpolate(float affinity, float first, float second)
@@ -495,12 +503,17 @@ void render_fog()
 	// estimate portion of scene colours that the particles cover
 	particle_alpha = weather_active() ? (0.2f*rain_color[3]*current_severity) : 0.0f;
 	// in dungeons and at night we use smaller light sources ==> less diffuse light
-	diffuse_bias = (dungeon || !is_day)? 0.2f : 0.5f;
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+		diffuse_bias = 0.2f;
+	else
+#endif
+		diffuse_bias = (dungeon || !is_day)? 0.2f : 0.5f;
 
 	// compute fog color
 	for (i = 0; i < 3; i++) {
 		// blend ambient and diffuse light to build a base fog color
-		float tmp = 0.5f*sun_ambient_light[i] + diffuse_bias*difuse_light[i];
+		float tmp = 0.5f*ambient_light[i] + diffuse_bias*diffuse_light[i];
 		if (weather_active()) {
 			// blend base color with weather particle color
 			rain_color[i] = interpolate(particle_alpha, tmp, rain_color[i]);
@@ -508,6 +521,9 @@ void render_fog()
 			rain_color[i] = tmp;
 		}
 	}
+#ifdef NEW_LIGHTING
+	printf("Debug fog color: %f, %f, %f / %f, %f, %f\n", rain_color[0], rain_color[1], rain_color[2], tmp[0], tmp[1], tmp[2]);
+#endif
 
 	// set clear color to fog color
 	glClearColor(rain_color[0], rain_color[1], rain_color[2], 0.0f);
@@ -996,6 +1012,7 @@ void rain_control()
 {
 	float rain_light_bias = 0.8 + 0.2*rain_strength_bias;
 	float rainParam;
+
 #ifdef DEBUG
 	last_rain_calls = rain_calls;
 	rain_calls -= last_rain_calls;
@@ -1247,10 +1264,15 @@ void render_fog() {
 		rainStrength = num_rain_drops/(float) MAX_RAIN_DROPS;
 		rainAlpha = 0.2f*rain_color[3]*rainStrength;
 			// in dungeons and at night we use smaller light sources ==> less diffuse light
-		diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
+#ifdef NEW_LIGHTING
+		if (use_new_lighting)
+			diffuseBias = 0.2f;
+		else
+#endif
+			diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
 		for (i=0; i<3; i++) {
 			// blend ambient and diffuse light to build a base fog color
-			GLfloat tmp = 0.5f*sun_ambient_light[i] + diffuseBias*difuse_light[i];
+			GLfloat tmp = 0.5f*ambient_light[i] + diffuseBias*diffuse_light[i];
 			if (is_raining) {
 				// blend base color with rain color
 				fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
@@ -1269,10 +1291,15 @@ void render_fog() {
 		rainStrength = rain_strength_bias;
 		rainAlpha = 0.2f*rain_color[3]*rainStrength;
 			// in dungeons and at night we use smaller light sources ==> less diffuse light
-		diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
+#ifdef NEW_LIGHTING
+		if (use_new_lighting)
+			diffuseBias = 0.2f;
+		else
+#endif
+			diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
 		for (i=0; i<3; i++) {
 			// blend ambient and diffuse light to build a base fog color
-			GLfloat tmp = 0.5f*sun_ambient_light[i] + diffuseBias*difuse_light[i];
+			GLfloat tmp = 0.5f*ambient_light[i] + diffuseBias*diffuse_light[i];
 			if (is_raining) {
 			// blend base color with rain color
 				fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];

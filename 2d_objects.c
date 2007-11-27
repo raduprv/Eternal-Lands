@@ -86,10 +86,6 @@ void draw_2d_object(obj_2d * object_id)
 
 	get_and_set_texture_id(obj_def_pointer->texture_id);
 
-#ifdef NEW_LIGHTING
-	if (use_new_lighting)
-		reset_material();
-#endif
 	if (dungeon || (!clouds_shadows && !use_shadow_mapping))
 		{
 			glBegin(GL_QUADS);
@@ -105,7 +101,8 @@ void draw_2d_object(obj_2d * object_id)
 
 			glTexCoord2f(u_end,v_start);
 			glVertex3f(render_x_start+x_size,render_y_start,z_pos);
-    		glEnd();
+			
+	    		glEnd();
 		}
 	else
 		{

@@ -15,6 +15,11 @@
  #endif
 #endif
 
+#ifdef NEW_LIGHTING
+ #include "lights.h"
+ #include "e3d.h"
+#endif
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -28,6 +33,15 @@ typedef struct
 	int	x_size;		/*!< the width of the texture in pixels */
 	int	y_size;		/*!< the height of the texture in pixels */
 	int	has_alpha;	/*!< was an alpha map applied to this texture? */
+
+#ifdef NEW_LIGHTING
+	GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
 }texture_struct;
 
 typedef enum
@@ -77,7 +91,7 @@ typedef enum
  * \retval GLuint  	The texture ID given as a GLuint.
  * \callgraph
  */
-GLuint load_bmp8_color_key(char * FileName, int alpha);
+GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha);
 
 /*!
  * \ingroup 	load_bmp
@@ -90,7 +104,7 @@ GLuint load_bmp8_color_key(char * FileName, int alpha);
  * \retval GLuint  	The texture ID as a GLuint.
  * \callgraph
  */
-GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
+GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a);
 
 /*!
  * \ingroup 	reload_bmp
@@ -104,7 +118,7 @@ GLuint load_bmp8_fixed_alpha(char * FileName, Uint8 a);
  * \retval GLuint  	The texture ID given as a GLuint.
  * \callgraph
  */
-GLuint reload_bmp8_color_key(char * FileName, int alpha, GLuint texture);
+GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, GLuint texture);
 
 /*!
  * \ingroup 	reload_bmp
@@ -118,7 +132,7 @@ GLuint reload_bmp8_color_key(char * FileName, int alpha, GLuint texture);
  * \retval GLuint  	The texture ID as a GLuint.
  * \callgraph
  */
-GLuint reload_bmp8_fixed_alpha(char * FileName, Uint8 a, GLuint texture);
+GLuint reload_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a, GLuint texture);
 
 /*!
  * \ingroup 	cache
@@ -210,6 +224,59 @@ static __inline__ int get_and_set_texture_id(int i)
 	}
 	bind_texture_id(texture_id);
 
+#ifdef NEW_LIGHTING
+	if (use_new_lighting)
+	{
+                GLfloat temp_ambient[4];
+                int j;
+/*
+                for (j = 0; j < 3; j++)
+                {
+                  texture_cache[i].ambient[j] = 0.2;
+                  texture_cache[i].diffuse[j] = 1.0;
+                  texture_cache[i].specular[j] = 0.0;
+                  texture_cache[i].emission[j] = 0.0;
+                }
+                texture_cache[i].ambient[3] = 1.0;
+                texture_cache[i].diffuse[3] = 1.0;
+                texture_cache[i].specular[3] = 1.0;
+                texture_cache[i].emission[3] = 1.0;
+                texture_cache[i].shininess = 20.0;
+*/
+/*
+		printf("Filename: %s\n", texture_cache[i].file_name);
+		printf("Ambient:  %f, %f, %f, %f\n", texture_cache[i].ambient[0], texture_cache[i].ambient[1], texture_cache[i].ambient[2], texture_cache[i].ambient[3]);
+		printf("Diffuse:  %f, %f, %f, %f\n", texture_cache[i].diffuse[0], texture_cache[i].diffuse[1], texture_cache[i].diffuse[2], texture_cache[i].diffuse[3]);
+		printf("Specular: %f, %f, %f, %f\n", texture_cache[i].specular[0], texture_cache[i].specular[1], texture_cache[i].specular[2], texture_cache[i].specular[3]);
+		printf("Emission: %f, %f, %f, %f\n", texture_cache[i].emission[0], texture_cache[i].emission[1], texture_cache[i].emission[2], texture_cache[i].emission[3]);
+		printf("Shininess: %f\n\n", texture_cache[i].shininess);
+*/
+		if (lighting_contrast == 0.5)
+		{
+			glMaterialfv(GL_FRONT, GL_AMBIENT, texture_cache[i].ambient);
+		}
+		else if (lighting_contrast < 0.5)
+		{
+			for (j = 0; j < 3; j++)
+				temp_ambient[j] = texture_cache[i].ambient[j] * 2 * lighting_contrast;
+			temp_ambient[3] = texture_cache[i].ambient[3];
+			glMaterialfv(GL_FRONT, GL_AMBIENT, temp_ambient);
+		}
+		else
+		{
+			for (j = 0; j < 3; j++)
+				temp_ambient[j] = texture_cache[i].ambient[j] + texture_cache[i].diffuse[j] * (lighting_contrast - 0.5) * 2;
+			temp_ambient[3] = texture_cache[i].ambient[3];
+			glMaterialfv(GL_FRONT, GL_AMBIENT, temp_ambient);
+		}
+
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, texture_cache[i].diffuse);
+		glMaterialfv(GL_FRONT, GL_SPECULAR, texture_cache[i].specular);
+		glMaterialfv(GL_FRONT, GL_EMISSION, texture_cache[i].emission);
+		glMaterialf(GL_FRONT, GL_SHININESS, texture_cache[i].shininess);
+	}
+#endif
+
 	return(texture_id);
 }
 #endif	//USE_INLINE
@@ -264,6 +331,32 @@ GLuint	load_bmp8_remapped_skin(char * FileName, Uint8 a, short skin, short hair,
  * \callgraph
  */
 int		load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a);
+
+#ifdef NEW_LIGHTING
+/*!
+ * \ingroup 	load_material_metadata
+ * \brief 	Loads material properties for the ingame textures and objects.
+ * \param   	file_name The filename of the texture you wish to open.
+ */
+void load_material_metadata(const char * file_name);
+
+/*!
+ * \ingroup 	set_model_metadata
+ * \brief 	Applies the loaded material file to a given object
+ * \param   	obj The 3d object of interest.
+ */
+object3d *set_model_metadata(object3d * obj);
+
+void set_scene_metadata(const char * file_name);
+void set_part_metadata(body_part * part);
+void set_weapon_metadata(weapon_part * part);
+void set_shirt_metadata(shirt_part * part);
+void set_skin_metadata(skin_part * part);
+void set_hair_metadata(hair_part * part);
+void set_boots_metadata(boots_part * part);
+void set_legs_metadata(legs_part * part);
+#endif	//NEW_LIGHTING
+
 #endif	//ELC
 #endif  //MAP_EDITOR2
 

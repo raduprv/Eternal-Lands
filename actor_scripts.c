@@ -32,6 +32,9 @@
 #ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
+#ifdef NEW_LIGHTING
+ #include "textures.h"
+#endif
 
 // mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now
 // NOTE: with the new XML standards being used, these are being phased out in preference to the numeric's in the XML
@@ -1504,6 +1507,9 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	actor_check_int(act, "shirt", "mesh", shirt->mesh_index);
 	actor_check_string(act, "shirt", "torso", shirt->torso_name);
 
+#if NEW_LIGHTING
+	set_shirt_metadata(shirt);
+#endif
 	return ok;
 }
 
@@ -1562,6 +1568,10 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	// check the critical information
 	actor_check_string(act, "skin", "hands", skin->hands_name);
 	actor_check_string(act, "skin", "head", skin->head_name);
+
+#if NEW_LIGHTING
+	set_skin_metadata(skin);
+#endif
 
 	return ok;
 }
@@ -1623,6 +1633,10 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	actor_check_string(act, "legs", "skin", legs->legs_name);
 	actor_check_string(act, "legs", "model", legs->model_name);
 	actor_check_int(act, "legs", "mesh", legs->mesh_index);
+
+#if NEW_LIGHTING
+	set_legs_metadata(legs);
+#endif
 
 	return ok;
 }
@@ -1716,6 +1730,7 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 		}
 	}
 
+
 	return ok;
 }
 
@@ -1764,6 +1779,10 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		}
 		// TODO: check combat animations
 	}
+
+#if NEW_LIGHTING
+	set_weapon_metadata(weapon);
+#endif
 
 	return ok;
 }
@@ -1820,6 +1839,10 @@ int parse_actor_body_part (actor_types *act, body_part *part, xmlNode *cfg, cons
 	actor_check_string(act, part_name, "model", part->model_name);
 	actor_check_int(act, part_name, "mesh", part->mesh_index);
 
+#if NEW_LIGHTING
+	set_part_metadata(part);
+#endif
+
 	return ok;
 }
 
@@ -1841,6 +1864,11 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	}
 
 	helmet= &(act->helmet[type_idx]);
+
+#if NEW_LIGHTING
+	set_part_metadata(helmet);
+#endif
+
 	return parse_actor_body_part(act,helmet, cfg->children, "helmet", default_node);
 }
 
@@ -1925,6 +1953,11 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	}
 
 	cape= &(act->cape[type_idx]);
+
+#if NEW_LIGHTING
+	set_part_metadata(cape);
+#endif
+
 	return parse_actor_body_part(act,cape, cfg->children, "cape", default_node);
 }
 
@@ -1946,6 +1979,12 @@ int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	}
 
 	head= &(act->head[type_idx]);
+
+
+#if NEW_LIGHTING
+	set_part_metadata(head);
+#endif
+
 	return parse_actor_body_part(act, head, cfg->children, "head", default_node);
 }
 
@@ -1967,6 +2006,11 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	}
 
 	shield= &(act->shield[type_idx]);
+
+#if NEW_LIGHTING
+	set_part_metadata(shield);
+#endif
+
 	return parse_actor_body_part(act,shield, cfg->children, "shield", default_node);
 }
 
@@ -1990,6 +2034,11 @@ int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	buf= act->hair[col_idx].hair_name;
 	len= sizeof (act->hair[col_idx].hair_name);
 	get_string_value(buf, len, cfg);
+
+#if NEW_LIGHTING
+	set_hair_metadata(act->hair);
+#endif
+
 	return 1;
 }
 
@@ -2519,7 +2568,7 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	} else {
 		log_error("Cal3d error: %s: %s\n", fn, CalError_GetLastErrorDescription());
 	}
-
+	
 	return res;
 }
 
@@ -2785,7 +2834,15 @@ int parse_actor_script (xmlNode *cfg)
 
 		// If this not an enhanced actor, load the single mesh and exit
 		if(strcmp (act->head[0].model_name, "") == 0)
+		{
+#ifdef NEW_LIGHTING
+			strncpy(act->shirt[0].model_name, act->file_name, sizeof(act->shirt[0].model_name));
+#endif
 			act->shirt[0].mesh_index= cal_load_mesh(act, act->file_name, NULL); //save the single meshindex as torso
+#ifdef NEW_LIGHTING
+			set_shirt_metadata(&act->shirt[0]);
+#endif
+		}
 	}
 
 	return ok;

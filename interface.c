@@ -569,22 +569,22 @@ void read_mapinfo ()
 int switch_to_game_map()
 {
 	int len;
-	char map_map_file_name[256];
+	texture_cache_struct tex;
 	short int cur_cont;
 	static short int old_cont = -1;
 	
-	my_strcp(map_map_file_name,map_file_name);
-	len=strlen(map_map_file_name);
-	map_map_file_name[len-3]='b';
-	map_map_file_name[len-2]='m';
-	map_map_file_name[len-1]='p';
-	
+	my_strcp(tex.file_name,map_file_name);
+	len=strlen(tex.file_name);
+	tex.file_name[len-3]='b';
+	tex.file_name[len-2]='m';
+	tex.file_name[len-1]='p';
+	tex.alpha = 128;
 #ifdef NEW_FILE_IO
-	if (!el_file_exists(map_map_file_name))
+	if (!el_file_exists(tex.file_name))
 		map_text = 0;
 	else
 #endif //NEW_FILE_IO
-		map_text=load_bmp8_fixed_alpha(map_map_file_name,128);
+		map_text=load_bmp8_fixed_alpha(&tex, tex.alpha);
 	if(!map_text)
 	{
 		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
