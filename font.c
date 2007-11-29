@@ -659,7 +659,8 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	   to the caller if they provide somewhere to store it. */
 	float local_max_line_width = 0;
 
-	if (str == NULL || width <= 0) {
+	// error checking
+	if (str == NULL || width <= 0 || size <= 0) {
 		return 0;
 	}
 
