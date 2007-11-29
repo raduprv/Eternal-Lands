@@ -27,7 +27,7 @@ namespace eternal_lands
 		 * because we forgot to add all types to the switch or an invalid int
 		 * was used (with a type cast)!
 		 */
-		EXTENDED_EXCEPTION(extended_exception::ec_internal_error, "Can't find value " <<
+		EXTENDED_EXCEPTION(ExtendedException::ec_internal_error, "Can't find value " <<
 			static_cast<Sint32>(type) << " in the switch");
 	}
 
@@ -67,7 +67,7 @@ namespace eternal_lands
 		 * because we forgot to add all types to the switch or an invalid int
 		 * was used (with a type cast)!
 		 */
-		EXTENDED_EXCEPTION(extended_exception::ec_internal_error, "Can't find value " <<
+		EXTENDED_EXCEPTION(ExtendedException::ec_internal_error, "Can't find value " <<
 			static_cast<Sint32>(type) << " in the switch");
 	}
 
@@ -99,7 +99,7 @@ namespace eternal_lands
 		{
 			if (file == 0)
 			{
-				EXTENDED_EXCEPTION(extended_exception::ec_io_error, "Can't open file "
+				EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "Can't open file "
 					<< file_name);
 			}
 
@@ -137,7 +137,7 @@ namespace eternal_lands
 
 		if (!file.is_open())
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_io_error, "Can't open file "
+			EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "Can't open file "
 				<< file_name);
 		}
 #ifdef	EXTRA_DEBUG
@@ -176,7 +176,7 @@ namespace eternal_lands
 				return;
 			}
 		}
-		EXTENDED_EXCEPTION(extended_exception::ec_file_not_found, "Can't find file "
+		EXTENDED_EXCEPTION(ExtendedException::ec_file_not_found, "Can't find file "
 			<< file_name);
 	}
 

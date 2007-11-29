@@ -13,7 +13,7 @@ namespace eternal_lands
 	{
 		if (cur_node == 0)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_item_not_found, "Node is zero");
+			EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found, "Node is zero");
 		}
 		else
 		{
@@ -40,7 +40,7 @@ namespace eternal_lands
 	{
 		if (cur_node == 0)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_item_not_found, "Node is zero");
+			EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found, "Node is zero");
 		}
 		else
 		{
@@ -91,7 +91,7 @@ namespace eternal_lands
 	{
 		if (cur_node == 0)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_item_not_found, "Node is zero");
+			EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found, "Node is zero");
 		}
 		else
 		{
@@ -103,19 +103,19 @@ namespace eternal_lands
 	{
 		if (reader == 0)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_internal_error, "Reader is zero");
+			EXTENDED_EXCEPTION(ExtendedException::ec_internal_error, "Reader is zero");
 		}
 		else
 		{
 			switch (xmlTextReaderRead(reader))
 			{
 				case 0:
-					EXTENDED_EXCEPTION(extended_exception::ec_item_not_found,
+					EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found,
 						"Nothing to parse any more");
 				case 1:
 					break;
 				default:
-					EXTENDED_EXCEPTION(extended_exception::ec_io_error,
+					EXTENDED_EXCEPTION(ExtendedException::ec_io_error,
 						"XML parser error");
 			}
 		}
@@ -143,7 +143,7 @@ namespace eternal_lands
 
 		if (ret < 0)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_io_error, "XML parser error");
+			EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "XML parser error");
 		}
 
 		return ret == 1;

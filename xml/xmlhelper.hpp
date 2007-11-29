@@ -92,7 +92,7 @@ namespace eternal_lands
 			}
 			else
 			{
-				EXTENDED_EXCEPTION(extended_exception::ec_item_not_found,
+				EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found,
 					"Expected boolean value 'true', '1', 'false' or '0', but"
 					<< " found value '" << s << "'");
 			}
@@ -118,7 +118,7 @@ namespace eternal_lands
 	{
 		if (cur_node == 0)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_item_not_found, "Node is zero");
+			EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found, "Node is zero");
 		}
 		else
 		{
@@ -136,7 +136,7 @@ namespace eternal_lands
 	{
 		if (cur_node == 0)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_item_not_found, "Node is zero");
+			EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found, "Node is zero");
 		}
 		else
 		{
@@ -165,14 +165,14 @@ namespace eternal_lands
 	{	\
 		if (node == 0)	\
 		{	\
-			EXTENDED_EXCEPTION(extended_exception::ec_item_not_found, "Expected node "	\
+			EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found, "Expected node "	\
 				<< name << ", but node is zero");	\
 		}	\
 		else	\
 		{	\
 			if (!is_node(node, name))	\
 			{	\
-				EXTENDED_EXCEPTION(extended_exception::ec_item_not_found,	\
+				EXTENDED_EXCEPTION(ExtendedException::ec_item_not_found,	\
 					"Expected node " << name << ", but node name is "	\
 					<< get_node_name(node));	\
 			}	\

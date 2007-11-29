@@ -18,7 +18,7 @@ namespace eternal_lands
 		zip_files.back().file->open(zip_files.back().name.c_str(), std::ios::binary);
 		if (!zip_files.back().file->is_open())
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_file_not_found, "Can't find file "
+			EXTENDED_EXCEPTION(ExtendedException::ec_file_not_found, "Can't find file "
 				<< zip_files.back().name);
 		}
 
@@ -50,7 +50,7 @@ namespace eternal_lands
 		if ((number_entry_CD != number_entry) || (number_disk_with_CD != 0) ||
 			(number_disk != 0))
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_zip_error, "Invalid zip file!");
+			EXTENDED_EXCEPTION(ExtendedException::ec_zip_error, "Invalid zip file!");
 		}
 
 		bytes_before_zipfile = central_pos - (offset_central_dir + size_central_dir);
@@ -133,7 +133,7 @@ namespace eternal_lands
 				return i;
 			}
 		}
-		EXTENDED_EXCEPTION(extended_exception::ec_zip_error, "Can't find magic number "
+		EXTENDED_EXCEPTION(ExtendedException::ec_zip_error, "Can't find magic number "
 			<< "(0x50 0x4B 0x05 0x06) of files entry in file "
 			<< zip_files.back().name);
 	}
@@ -154,7 +154,7 @@ namespace eternal_lands
 			magic = get_uint32_from_pos(pos);
 			if (magic != 0x02014b50)
 			{
-				EXTENDED_EXCEPTION(extended_exception::ec_zip_error, "Wrong magic"
+				EXTENDED_EXCEPTION(ExtendedException::ec_zip_error, "Wrong magic"
 					<< " number! Found: 0x" << std::hex << magic
 					<< ", expected: 0x" << std::hex << 0x02014b50);
 			}
@@ -164,7 +164,7 @@ namespace eternal_lands
 			compression_method = get_uint16_from_pos(pos);
 			if ((compression_method != Z_DEFLATED) && (compression_method != 0))
 			{
-				EXTENDED_EXCEPTION(extended_exception::ec_zip_error,
+				EXTENDED_EXCEPTION(ExtendedException::ec_zip_error,
 					"Unsupported compression method " << compression_method
 					<< " in zip file " << zip_files.back().name);
 			}
@@ -201,7 +201,7 @@ namespace eternal_lands
 				}
 				else
 				{
-					EXTENDED_EXCEPTION(extended_exception::ec_duplicate_item, 
+					EXTENDED_EXCEPTION(ExtendedException::ec_duplicate_item, 
 						"Duplicate file " << str << " from zip file "
 						<< get_zip_file_name(zfile) << ", not added again."
 						<< " The file was first added from zip file "
@@ -269,26 +269,26 @@ namespace eternal_lands
 				error = inflateInit2(&strm, -MAX_WBITS);
 				if (error != Z_OK)
 				{
-					EXTENDED_EXCEPTION(extended_exception::ec_zip_error, strm.msg);
+					EXTENDED_EXCEPTION(ExtendedException::ec_zip_error, strm.msg);
 				}
 
 				error = inflate(&strm, Z_FINISH);
 				if (error != Z_STREAM_END)
 				{
-					EXTENDED_EXCEPTION(extended_exception::ec_zip_error, strm.msg);
+					EXTENDED_EXCEPTION(ExtendedException::ec_zip_error, strm.msg);
 				}
 
 				error = inflateEnd(&strm);
 				if (error != Z_OK)
 				{
-					EXTENDED_EXCEPTION(extended_exception::ec_zip_error, strm.msg);
+					EXTENDED_EXCEPTION(ExtendedException::ec_zip_error, strm.msg);
 				}
 
 				crc = crc32(0L, Z_NULL, 0);
 				crc = crc32(crc, buffer->get_memory<Bytef*>(), buffer_size);
 				if (crc != found->second.crc32)
 				{
-					EXTENDED_EXCEPTION(extended_exception::ec_zip_error,
+					EXTENDED_EXCEPTION(ExtendedException::ec_zip_error,
 						"CRC error in zip file " << zip_files[index].name
 						<< "! Found: 0x" << std::hex << crc
 						<< ", expected: 0x" << std::hex
@@ -307,7 +307,7 @@ namespace eternal_lands
 				return size;
 			}
 		}
-		EXTENDED_EXCEPTION(extended_exception::ec_file_not_found, "Can't find file "
+		EXTENDED_EXCEPTION(ExtendedException::ec_file_not_found, "Can't find file "
 			<< file_name << " in zip files");
 	}
 
@@ -328,7 +328,7 @@ namespace eternal_lands
 		magic = get_uint32_from_pos(pos);
 		if (magic != 0x04034b50)
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_zip_error, "Wrong magic number "
+			EXTENDED_EXCEPTION(ExtendedException::ec_zip_error, "Wrong magic number "
 				<< "for file header of zip file " << zip_files.back().name
 				<< "! Found: 0x" << std::hex << magic << ", expected: 0x"
 				<< std::hex << 0x04034b50);
@@ -338,7 +338,7 @@ namespace eternal_lands
 		compression_method = get_uint16_from_pos(pos);
 		if ((compression_method != Z_DEFLATED) && (compression_method != 0))
 		{
-			EXTENDED_EXCEPTION(extended_exception::ec_zip_error,
+			EXTENDED_EXCEPTION(ExtendedException::ec_zip_error,
 				"Unsupported compression method " << compression_method
 				<< " in zip file " << zip_files.back().name);
 		}
