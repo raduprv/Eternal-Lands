@@ -133,7 +133,14 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	}
 
 	if (actor_id == yourself)
+	{
+		// We have just returned from limbo (after teleport,
+		// map change, disconnect, etc.) Since our position may
+		// have changed, tell the bbox tree to update so
+		// that our environment is recomputed.
+		set_all_intersect_update_needed (main_bbox_tree);
 		set_our_actor (our_actor);
+	}
 
 	actors_list[i]=our_actor;
 	
