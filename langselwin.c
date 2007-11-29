@@ -312,9 +312,10 @@ static int langsel_display_error_handler(window_info *win)
 	static int save_button = -1;
 	static int quit_button = -1;
 	static char *message = "The language selection file langsel.xml could\n"
-						   "could not be read. Either accept the default,\n"
-						   "English, or exit now and correct the error.\n"
-						   "Error message:";
+						   "not be read. Either click Save to accept the\n"
+						   "default language (English), or click Quit if\n"
+						   "you wish to manually correct this error.\n\n"
+						   "The error message was:";
 	
 	if (first_time)
 	{
@@ -333,8 +334,8 @@ static int langsel_display_error_handler(window_info *win)
 		return 1;
 	}
 
-	draw_string_small(10, 10, (unsigned char *)message, 4);
-	draw_string_small(10, 10 + SMALL_FONT_Y_LEN * 5,
+	draw_string_small(10, 10, (unsigned char *)message, 6);
+	draw_string_small(10, 10 + SMALL_FONT_Y_LEN * 6,
 		(unsigned char *)((langsel_list_error) ?langsel_list_error : "Unknown error"), 1);
 
 	return 1;
