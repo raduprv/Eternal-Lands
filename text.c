@@ -916,6 +916,11 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 	char *data;
 	
 	imsg = last_message;
+	if ( imsg<0 ) {
+		/* No data in buffer */
+		*msg = *offset = 0;
+		return 1;
+	}
 	do
 	{
 		int msgchan = display_text_buffer[imsg].chan_idx;
