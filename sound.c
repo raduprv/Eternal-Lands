@@ -2761,7 +2761,7 @@ int display_song_name()
 	LOG_TO_CONSOLE(c_red2, snd_no_music);
 #endif
 #else // !OGG_VORBIS
-	if (!music_stream->playing)
+	if (!music_stream || !music_stream->playing)
 	{
 		LOG_TO_CONSOLE(c_grey1, snd_media_music_stopped);
 	}
