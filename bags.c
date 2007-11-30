@@ -11,6 +11,7 @@
 #include "interface.h"
 #include "items.h"
 #include "multiplayer.h"
+#include "particles.h"
 #include "textures.h"
 #include "tiles.h"
 #include "translate.h"

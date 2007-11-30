@@ -21,6 +21,7 @@
 #include "cursors.h"
 #include "dialogues.h"
 #include "draw_scene.h"
+#include "e3d.h"
 #include "elconfig.h"
 #include "elwindows.h"
 #include "encyclopedia.h"

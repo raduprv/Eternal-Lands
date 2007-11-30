@@ -8,6 +8,7 @@
 #include "global.h"
 #include "interface.h"
 #include "keys.h"
+#include "misc.h"
 #include "multiplayer.h"
 #include "storage.h"
 #include "textures.h"

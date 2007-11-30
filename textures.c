@@ -1782,7 +1782,10 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 //load a bmp texture, in respect to the color key
 GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha)
 {
-	int x_size, y_size, i;
+	int x_size, y_size;
+#ifdef NEW_LIGHTING
+	int i;
+#endif
 	Uint8 *texture_mem;
 	texture_struct	ttexture;
 	texture_struct	*tex;
@@ -1872,7 +1875,10 @@ GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha)
 //load a bmp texture, with the specified global alpha
 GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a)
 {
-	int x_size, y_size, i;
+	int x_size, y_size;
+#ifdef NEW_LIGHTING
+	int i;
+#endif
 	Uint8 *texture_mem;
 	texture_struct	ttexture;
 	texture_struct	*tex;
@@ -1937,7 +1943,10 @@ GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a)
 // reload a bmp texture, in respect to the color key
 GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, GLuint texture)
 {
-	int x_size, y_size, i;
+	int x_size, y_size;
+#ifdef NEW_LIGHTING
+	int i;
+#endif
 	Uint8 *texture_mem;
 	texture_struct	ttexture;
 	texture_struct	*tex;
@@ -2015,7 +2024,10 @@ GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, 
 //reload a bmp texture, with the specified global alpha
 GLuint reload_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a, GLuint texture)
 {
-	int x_size, y_size, i;
+	int x_size, y_size;
+#ifdef NEW_LIGHTING
+	int i;
+#endif
 	Uint8 *texture_mem;
 	texture_struct	ttexture;
 	texture_struct	*tex;

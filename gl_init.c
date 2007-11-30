@@ -6,6 +6,7 @@
 #include "bbox_tree.h"
 #include "cursors.h"
 #include "draw_scene.h"
+#include "e3d.h"
 #include "elconfig.h"
 #include "errors.h"
 #include "framebuffer.h"
