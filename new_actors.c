@@ -5,6 +5,7 @@
 #include "new_actors.h"
 #include "actor_scripts.h"
 #include "asc.h"
+#include "bbox_tree.h"
 #include "cal.h"
 #include "console.h"
 #include "dialogues.h"
