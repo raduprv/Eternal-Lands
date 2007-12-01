@@ -380,7 +380,7 @@ void draw_messages (int x, int y, text_message *msgs, int msgs_size, Uint8 filte
 			last_color_char = 0;
 		}
 	
-		if (select != NULL && select->lines[cur_line].msg == -1)
+		if (select != NULL && select->lines && select->lines[cur_line].msg == -1)
 		{
 			select->lines[cur_line].msg = imsg;
 			select->lines[cur_line].chr = ichar;
