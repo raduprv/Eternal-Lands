@@ -1672,6 +1672,8 @@ void _text_field_set_nr_visible_lines (widget_list *w)
 	{
 		float displayed_font_y_size = floor (DEFAULT_FONT_Y_LEN * tf->buffer[tf->msg].wrap_zoom);
 		tf->nr_visible_lines = (int) ((w->len_y - 2*tf->y_space) / displayed_font_y_size);
+		if (tf->nr_visible_lines < 0)
+			tf->nr_visible_lines = 0;
 	}
 }
 
@@ -2488,7 +2490,6 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	
 	tf = w->widget_info;
 	if (tf == NULL) return;
-	if (!tf->select.lines) return;
 	
 	line = y / displayed_font_y_size;
 	if (line < 0 || line >= tf->nr_visible_lines || tf->select.lines[line].msg == -1)
@@ -2530,7 +2531,6 @@ void update_cursor_selection(widget_list* w, int flag)
 	
 	tf = w->widget_info;
 	if (tf == NULL) return;
-	if (!tf->select.lines) return;
 	
 	line = tf->cursor_line - tf->line_offset;
 	if (line < 0)
@@ -2762,24 +2762,20 @@ int text_field_draw (widget_list *w)
 	glEnable(GL_TEXTURE_2D);
 	set_font(chat_font);	// switch to the chat font
 
-	if (tf->select.lines)
-		for (i = 0; i < tf->nr_visible_lines; i++)
-			tf->select.lines[i].msg = -1;
+	for (i = 0; i < tf->nr_visible_lines; i++)
+		tf->select.lines[i].msg = -1;
 	draw_messages (w->pos_x + tf->x_space, w->pos_y + tf->y_space, tf->buffer, tf->buf_size, tf->chan_nr, tf->msg, tf->offset, cursor, w->len_x - 2*tf->x_space - tf->scrollbar_width, w->len_y - 2 * tf->y_space, w->size, &tf->select);
-	if (tf->select.lines)
+	if (tf->nr_visible_lines && tf->select.lines[0].msg == -1)
 	{
-		if (tf->select.lines[0].msg == -1)
+		tf->select.lines[0].msg = tf->msg;
+		tf->select.lines[0].chr = tf->buffer[tf->msg].len;
+	}
+	for (i = 1; i < tf->nr_visible_lines; i++)
+	{
+		if (tf->select.lines[i].msg == -1)
 		{
-			tf->select.lines[0].msg = tf->msg;
-			tf->select.lines[0].chr = tf->buffer[tf->msg].len;
-		}
-		for (i = 1; i < tf->nr_visible_lines; i++)
-		{
-			if (tf->select.lines[i].msg == -1)
-			{
-				tf->select.lines[i].msg = tf->select.lines[i - 1].msg;
-				tf->select.lines[i].chr = tf->buffer[tf->select.lines[i].msg].len;
-			}
+			tf->select.lines[i].msg = tf->select.lines[i - 1].msg;
+			tf->select.lines[i].chr = tf->buffer[tf->select.lines[i].msg].len;
 		}
 	}
 	set_font (0);	// switch to fixed
