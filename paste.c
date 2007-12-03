@@ -43,12 +43,64 @@ void start_paste_to_text_field (text_field *tf)
 
 void startpaste () 
 {
-	// Todo, actually fill these!
+	OSStatus err = noErr;
+	PasteboardRef gClipboard;
+	PasteboardItemID  itemID;
+	CFDataRef        flavorData;
+    char*          flavorText;
+    
+	err = PasteboardCreate( kPasteboardClipboard, &gClipboard );
+  	//require_noerr( err, CantCreateClipboard );
+  	
+  
+  	err = PasteboardGetItemIdentifier( gClipboard, 1, &itemID );
+    err = PasteboardCopyItemFlavorData( gClipboard, itemID, CFSTR("com.apple.traditional-mac-plain-text"), &flavorData );
+      
+    int flavorDataSize = CFDataGetLength(flavorData);
+    flavorText=(char*)malloc(flavorDataSize+1);
+    
+    short dataIndex;
+    for(dataIndex = 0; dataIndex <= flavorDataSize; dataIndex++ )
+      {
+        char byte = *(CFDataGetBytePtr( flavorData ) + dataIndex);
+        
+        flavorText[dataIndex] = (byte>40) ? byte : ' ';
+      }
+    flavorText[flavorDataSize] = '\0';  
+	CFRelease(flavorData);
+	if (cur_text_field == NULL)
+		{
+			do_paste (flavorText);
+		}
+	else
+		{
+			do_paste_to_text_field (cur_text_field, flavorText);
+			cur_text_field = NULL;
+		}
+	
+	free(flavorText);
+  CFRelease( gClipboard );
+	
 }
 
 void copy_to_clipboard (const char* text)
 {
-	// Todo
+	OSStatus err = noErr;
+	PasteboardRef gClipboard;
+	CFDataRef textData;
+	
+  
+  	err = PasteboardCreate( kPasteboardClipboard, &gClipboard );
+  	err = PasteboardClear( gClipboard );
+ 
+  // allocate data based on the size of the selection
+  textData = CFDataCreate( kCFAllocatorSystemDefault, (UInt8*)text, strlen(text));
+  
+  // add text data to the pasteboard
+  err = PasteboardPutItemFlavor( gClipboard, (PasteboardItemID)1,
+            CFSTR("com.apple.traditional-mac-plain-text"), textData, 0 );
+  CFRelease(textData);
+  CFRelease( gClipboard );
 }
 
 #elif defined WINDOWS
