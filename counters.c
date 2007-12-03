@@ -384,7 +384,7 @@ void fill_counters_win()
 	multiselect_button_add(counters_win, multiselect_id, 0, 225, "Spells", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 250, "Summons", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 275, "Engineering", 0);
-	multiselect_button_add(counters_win, multiselect_id, 0, 50, "Breaks", 0);
+	multiselect_button_add(counters_win, multiselect_id, 0, 50, "Breakages", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 75, "Events", 0);
 	multiselect_button_add(counters_win, multiselect_id, 0, 300, "Tailoring", 0);
 
