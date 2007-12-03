@@ -298,10 +298,10 @@ void cloudy_sky()
 
 				fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 				cloudCol1[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
-				cloudCol2[i] = t*(difuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
+				cloudCol2[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
 
 				cloudCol3[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
-				cloudCol4[i] = t*(difuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
+				cloudCol4[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
 
 			}
 			cloudCol1[3] = 1.0f;
@@ -336,9 +336,9 @@ void cloudy_sky()
 
 				fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 				cloudCol1[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
-				cloudCol2[i] = t*(difuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
+				cloudCol2[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
 				cloudCol3[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
-				cloudCol4[i] = t*(difuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
+				cloudCol4[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
 				
 			}
 			cloudCol1[3] = 1.0f;
@@ -371,7 +371,7 @@ void cloudy_sky()
 
 				fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 				cloudCol1[i] = fogColor[i]-0.1f;
-				cloudCol2[i] = difuse_light[i]+0.1f;
+				cloudCol2[i] = diffuse_light[i]+0.1f;
 				
 			}
 			cloudCol1[3] = 1.0f;

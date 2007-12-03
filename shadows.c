@@ -951,7 +951,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 #ifdef NEW_WEATHER
-			glColor4f(0.0f, 0.0f, 0.0f, 0.7f*((difuse_light[0] + difuse_light[1] + difuse_light[2])/3.0 - 0.0f));
+			glColor4f(0.0f, 0.0f, 0.0f, 0.7f*((diffuse_light[0] + diffuse_light[1] + diffuse_light[2])/3.0 - 0.0f));
 #else
 			abs_light=light_level;
 			if(light_level>59)abs_light=119-light_level;
