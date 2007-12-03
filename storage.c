@@ -372,7 +372,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 						Uint8 str[3];
 
 						str[0]=LOOK_AT_STORAGE_ITEM;
-						*((Uint16*)(str+1))=storage_items[cur_item_over].pos;
+						*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[cur_item_over].pos);
 	
 						my_tcp_send(my_socket, str, 3);
 	

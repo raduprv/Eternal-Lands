@@ -618,7 +618,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 		else if(storage_item_dragged!=-1){
 			str[0]=WITHDRAW_ITEM;
-			*((Uint16*)(str+1))=storage_items[storage_item_dragged].pos;
+			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[storage_item_dragged].pos);
 			*((Uint32*)(str+3))=SDL_SwapLE32(item_quantity);
 			my_tcp_send(my_socket, str, 6);
 			
