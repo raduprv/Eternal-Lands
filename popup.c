@@ -164,7 +164,7 @@ popup_node_t *popup_node_find_by_window( window_info *win )
 			return popup_list_entry;
 	}
 
-    return NULL;
+	return NULL;
 }
 
 /*!
@@ -183,8 +183,28 @@ static popup_node_t *popup_node_find_by_popup( popup_t *popup )
 			return popup_list_entry;
 	}
 
-    return NULL;
+	return NULL;
 }
+
+/*!
+ * \ingroup popup_window
+ * \brief Locate a popup node in the global list using the popup ID
+ * \returns The popup node on the global list, or NULL if not found
+ */
+
+static popup_node_t *popup_node_find_by_id( popup_id_t id )
+{
+	popup_node_t *popup_list_entry;
+
+	list_for_each_node( popup_list_entry, popup_list ) {
+
+		if ( POPUP_NODE(popup_list_entry)->id == id )
+			return popup_list_entry;
+	}
+
+	return NULL;
+}
+
 
 /*!
  * \ingroup popup_window
@@ -1190,6 +1210,11 @@ void popup_create_from_network( const unsigned char *payload, size_t size )
 	FETCH_SIZESTRING( title );
 	FETCH_U16( size_hint );
 	FETCH_SIZESTRING( text );
+
+	/* Ensure there is no popup with this ID */
+	if ( popup_node_find_by_id( popup_id ) != NULL ) {
+		return;
+	}
 
 	new_popup = popup_create( title, popup_id, 0 );
 
