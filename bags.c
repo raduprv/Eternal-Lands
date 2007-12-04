@@ -379,7 +379,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 		}
 #ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Get Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+		add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
 #endif // NEW_SOUND
 		return 1;
 	}
@@ -395,7 +395,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			*((Uint32 *) (str + 2)) = SDL_SwapLE32(item_quantity);
 			my_tcp_send(my_socket, str, 6);
 #ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 		}
 	} else if(item_action_mode==ACTION_LOOK) {
@@ -412,7 +412,7 @@ int click_ground_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		*((Uint32 *)(str+2))= SDL_SwapLE32(quantity);
 		my_tcp_send(my_socket,str,6);
 #ifdef NEW_SOUND
-		add_sound_object(get_index_for_sound_type_name("Get Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+		add_sound_object(get_index_for_sound_type_name("Get Item"), 0, 0, 1);
 #endif // NEW_SOUND
 	}
 		

@@ -348,7 +348,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 				if(view_only_storage && item_dragged!=-1 && left_click){
 					drop_fail_time = SDL_GetTicks();
 	#ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("alert1"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+					add_sound_object(get_index_for_sound_type_name("alert1"), 0, 0, 1);
 	#endif // NEW_SOUND
 				} else if(!view_only_storage && item_dragged!=-1 && left_click){
 					Uint8 str[6];
@@ -360,7 +360,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 					my_tcp_send(my_socket, str, 6);
 	
 #ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+					add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 					
 					if(item_list[item_dragged].quantity<=item_quantity) item_dragged=-1;//Stop dragging this item...
@@ -382,7 +382,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 					storage_item_dragged=cur_item_over;
 					active_storage_item=storage_items[cur_item_over].pos;
 #ifdef NEW_SOUND
-					add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+					add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
 #endif // NEW_SOUND
 				}
 			}

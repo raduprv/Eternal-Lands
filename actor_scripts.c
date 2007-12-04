@@ -7,6 +7,7 @@
 #include "cal.h"
 #include "cal3d_wrapper.h"
 #include "counters.h"
+#include "cursors.h"
 #include "draw_scene.h"
 #include "errors.h"
 #include "global.h"
@@ -998,6 +999,7 @@ void destroy_actor(int actor_id)
 					actors_list[max_actors]=NULL;
 				}
 
+				actor_under_mouse = NULL;
 				UNLOCK_ACTORS_LISTS();
 				break;
 			}
@@ -1033,6 +1035,7 @@ void destroy_all_actors()
 		}
 	}
 	max_actors= 0;
+	actor_under_mouse = NULL;
 	my_timer_adjust= 0;
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
 #ifdef MINIMAP

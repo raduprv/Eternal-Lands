@@ -273,7 +273,7 @@ void check_for_item_sound(int pos)
 				break;
 		}
 		if (snd > -1)
-			add_sound_object(snd, your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+			add_sound_object(snd, 0, 0, 1);
 		// Reset the action
 		item_list[pos].action = ITEM_NO_ACTION;
 	}
@@ -611,7 +611,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send(my_socket,str,3);
 			}
 #ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 			
 			item_dragged=-1;
@@ -623,7 +623,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			my_tcp_send(my_socket, str, 6);
 			
 #ifdef NEW_SOUND
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 			if(storage_items[storage_item_dragged].quantity<=item_quantity) storage_item_dragged=-1;
 		}
@@ -637,7 +637,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					*((Uint32 *)(str+2))=SDL_SwapLE32(36);//Drop all
 				my_tcp_send(my_socket, str, 6);
 #ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+				add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 			} else if(item_action_mode==ACTION_LOOK) {
 				click_time=cur_time;
@@ -677,7 +677,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			} else {
 				item_dragged=pos;
 #ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+				add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
 #endif // NEW_SOUND
 			}
 		}
@@ -697,7 +697,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			} else if(item_dragged==-1 && left_click) {
 				item_dragged=pos;
 #ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drag Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+				add_sound_object(get_index_for_sound_type_name("Drag Item"), 0, 0, 1);
 #endif // NEW_SOUND
 			}
 		} else if(item_dragged!=-1){
@@ -710,7 +710,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			my_tcp_send(my_socket,str,3);
 			item_dragged=-1;
 #ifdef NEW_SOUND
-				add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+				add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 		}
 	}
@@ -832,7 +832,7 @@ int drop_all_handler (widget_list *w, int mx, int my, Uint32 flags)
 		}
 #ifdef NEW_SOUND
 		if (dropped_something)
-			add_sound_object(get_index_for_sound_type_name("Drop Item"), your_actor->x_pos * 2, your_actor->y_pos * 2, 1);
+			add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
 		return 1;
 	} else {

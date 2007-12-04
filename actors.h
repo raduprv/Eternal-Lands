@@ -6,6 +6,11 @@
 #ifndef __ACTORS_H__
 #define __ACTORS_H__
 
+#ifdef MUTEX_DEBUG
+#include <assert.h>
+#include <stdlib.h>
+#include <SDL.h>
+#endif
 #include <SDL_mutex.h>
 #include "cal_types.h"
 #include "client_serv.h"
@@ -607,6 +612,7 @@ void add_actor_from_server (const char * in_data, int len);
 extern void	init_actors_lists();
 
 #ifdef MUTEX_DEBUG
+extern Uint32 have_actors_lock;
 /*!
  * \ingroup mutex
  * \name Actor list thread synchronization
@@ -615,12 +621,14 @@ extern void	init_actors_lists();
 #define	LOCK_ACTORS_LISTS() 	\
 	{\
 		fprintf(stderr,"Last locked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
-		if(SDL_LockMutex(actors_lists_mutex)==-1)fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not locked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__);\
+		if(SDL_LockMutex(actors_lists_mutex)==-1) {fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not locked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
+		assert(have_actors_lock==0); have_actors_lock=SDL_ThreadID(); \
 	}
 #define	UNLOCK_ACTORS_LISTS() 	\
 	{\
 		fprintf(stderr,"Last unlocked by: %s %s %d\n",__FILE__,__FUNCTION__,__LINE__);\
-		if(SDL_UnlockMutex(actors_lists_mutex)==-1)fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__);\
+		assert(have_actors_lock); assert(have_actors_lock==SDL_ThreadID()); have_actors_lock=0; \
+		if(SDL_UnlockMutex(actors_lists_mutex)==-1)  {fprintf(stderr,"We're fucked!! The mutex on %s %s %d was not unlocked even though we asked it to!\n",__FILE__,__FUNCTION__,__LINE__); abort(); }\
 	}
 /*! @} */
 #else

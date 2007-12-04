@@ -54,6 +54,10 @@ float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
 struct near_actor near_actors[MAX_ACTORS];
 
+#ifdef MUTEX_DEBUG
+Uint32 have_actors_lock = 0;
+#endif
+
 //Threading support for actors_lists
 void init_actors_lists()
 {

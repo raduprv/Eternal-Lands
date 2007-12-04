@@ -2680,6 +2680,8 @@ int update_streams(void * dummy)
 		SDL_Delay(sleep);
 		
 		day_time = (game_minute >= 30 && game_minute < 60 * 3 + 30);
+
+		LOCK_ACTORS_LISTS();
 		// Get our position
 		if (your_actor)
 		{
@@ -2734,6 +2736,7 @@ int update_streams(void * dummy)
 				}
 			}
 		}
+		UNLOCK_ACTORS_LISTS();
 	}
 	// We are bailing so destroy any remaining streams
 	for (i = 0; i < max_streams; i++)
@@ -3410,6 +3413,8 @@ unsigned int add_death_sound(actor * act)
 	int snd;
 	// Check the type of this actor has a death sound (only used for enhanced actors as simple
 	// actors are triggered though the cal animation)
+	if (!act)
+		return 0;
 	snd = actors_defs[act->actor_type].cal_die1_frame.sound;
 	if (snd > -1)
 	{
@@ -3421,7 +3426,7 @@ unsigned int add_death_sound(actor * act)
 unsigned int add_battlecry_sound(actor * act)
 {
 	// Maybe play a battlecry sound
-	if (rand() % 3 == 2)			// 1 chance in 3 to play
+	if (act && rand() % 3 == 2)			// 1 chance in 3 to play
 	{
 		return add_sound_object_gain(actors_defs[act->actor_type].battlecry.sound,
 										act->x_pos * 2,
@@ -3871,6 +3876,7 @@ void update_sound(int ms)
 	if (num_types < 1)
 		return;
 
+	LOCK_ACTORS_LISTS();
 	// Check if we have our actor
 	if (your_actor)
 	{
@@ -3945,6 +3951,7 @@ void update_sound(int ms)
 	if (!inited)
 	{
 		UNLOCK_SOUND_LIST();
+		UNLOCK_ACTORS_LISTS();
 		return;
 	}
 
@@ -3957,6 +3964,7 @@ void update_sound(int ms)
 	if (!used_sources)
 	{
 		UNLOCK_SOUND_LIST();
+		UNLOCK_ACTORS_LISTS();
 		return;
 	}
 
@@ -4003,6 +4011,8 @@ void update_sound(int ms)
 		sourcePos[2] = 0.0f;
 		alSourcefv(sound_source_data[source].source, AL_POSITION, sourcePos);
 	}
+
+	UNLOCK_ACTORS_LISTS();
 	
 	// Finally, update all the sources  -- FIXME: This should probably be changed to iterate over the new sounds_list instead
 	i = 0;

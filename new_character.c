@@ -235,7 +235,9 @@ int display_newchar_handler (window_info *win)
 		move_camera();//Make sure we lag a little...
 		our_actor.our_model = add_actor_interface (our_actor.def->x, our_actor.def->y, our_actor.def->z_rot, 1.0f, our_actor.race, our_actor.skin, our_actor.hair, our_actor.shirt, our_actor.pants, our_actor.boots, our_actor.head);
 		yourself = 0;
+		LOCK_ACTORS_LISTS();	
 		set_our_actor (our_actor.our_model);
+		UNLOCK_ACTORS_LISTS();	
 	}
 
 	if(disconnected)connect_to_server();

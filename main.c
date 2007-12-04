@@ -231,7 +231,9 @@ int start_rendering()
 	}
 #endif  //WINDOWS
 */
+printf("doing SDL_Quit\n"); fflush(stderr);
 	SDL_Quit( );
+printf("done SDL_Quit\n"); fflush(stderr);
 	cleanup_mem();
 	xmlCleanupParser();
 	FreeXML();
