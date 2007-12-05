@@ -33,7 +33,7 @@ struct storage_category {
 
 int no_storage_categories=0;
 int selected_category=-1;
-static int view_only_storage=0;
+int view_only_storage=0;
 static Uint32 drop_fail_time = 0;
 
 int active_storage_item=-1;
@@ -472,7 +472,7 @@ void display_storage_menu()
 
 void close_storagewin()
 {
-	if(storage_win >= 0) {
+	if(storage_win >= 0 && !view_only_storage) {
 		hide_window(storage_win);
 	}
 }

@@ -1290,9 +1290,6 @@ void hide_all_windows(){
 		} else {
 			were_open &= ~(1<<6);
 		}
-		if (get_window_showable(storage_win) > 0){
-			hide_window (storage_win);
-		}
 		if (get_window_showable(dialogue_win) > 0){
 			hide_window (dialogue_win);
 		}
@@ -1323,6 +1320,15 @@ void hide_all_windows(){
 			were_open |= 1<<10;
 		} else {
 			were_open &= ~(1<<10);
+		}
+		if (get_window_showable(storage_win) > 0){
+			hide_window (storage_win);
+			if (view_only_storage)
+				were_open |= 1<<11;
+			else
+				were_open &= ~(1<<11);
+		} else {
+			were_open &= ~(1<<11);
 		}
 	} else {	//None were open, restore the ones that were open last time the key was pressed
 		if (were_open & 1<<0){
@@ -1361,6 +1367,9 @@ void hide_all_windows(){
 #endif /* NOTEPAD */
 		if (were_open & 1<<10){
 			show_window (url_win );
+		}
+		if (view_only_storage && (were_open & 1<<11)){
+			show_window (storage_win );
 		}
 	}
 }
