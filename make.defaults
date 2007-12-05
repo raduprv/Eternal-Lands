@@ -23,7 +23,6 @@ FEATURES += CXX_MISC                        # Extended exception, xml c++ helper
 #FEATURES += EL_BIG_ENDIAN                   # (undocumented)	FIXME: Should be removed and set in the code (as is done for OSX. Is it needed on any other platform?)
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
 FEATURES += EYE_CANDY                       # (undocumented)
-#FEATURES += FIX_NORMALS                     # Repair object normals on load
 FEATURES += FONTS_FIX                       # dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
 FEATURES += IDLE_FIX                        # Fix for idle animations being stuck in one sequence
