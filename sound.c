@@ -332,6 +332,7 @@ int sound_num_particles = 0;				// Number of particles we have sounds for
 int sound_num_items = 0;					// Number of "Use item" actions we have sounds for
 int sound_num_tile_types = 0;				// Number of tile type groups we have sounds for
 int num_sound_warnings = 0;					// Number of string warnings
+int have_sound_config = 0;					// true if the sound config file was found
 
 int snd_cur_map = -1;
 int cur_boundary = 0;
@@ -6413,6 +6414,7 @@ void load_sound_config_data (const char *file)
 	// We've found our expected root, now parse the children
 	else
 	{
+		have_sound_config = 1;
 		clear_sound_data();
 		parse_sound_defs(root);
 		parse_server_sounds();

@@ -55,6 +55,7 @@ extern ALfloat warnings_gain; /*!< gain for user configured text warning sound e
 
 typedef unsigned long int SOUND_COOKIE;
 
+extern int have_sound_config; /*!< flag indicating whether the sound config was found */
 #define SOUND_CONFIG_PATH "sound/sound_config.xml"
 #define SOUND_WARNINGS_PATH "sound_warnings.txt"
 

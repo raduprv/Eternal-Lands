@@ -1884,6 +1884,7 @@ int parse_actor_sounds (actor_types *act, xmlNode *cfg)
 	int i;
 
 	if (cfg == NULL) return 0;
+	if (!have_sound_config) return 0;
 
 	ok = 1;
 	for (item = cfg; item; item = item->next) {

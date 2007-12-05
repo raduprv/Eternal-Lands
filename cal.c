@@ -190,7 +190,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 	}
 
 #ifdef NEW_SOUND
-	if (sound && strcasecmp(sound, ""))
+	if (have_sound_config && sound && strcasecmp(sound, ""))
 	{
 		i = get_index_for_sound_type_name(sound);
 		if (i == -1)
