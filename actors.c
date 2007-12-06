@@ -299,7 +299,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 #else /* not SKY_FPV_CURSOR */
 	{
 #endif /* SKY_FPV_CURSOR */
-		if(actor_id->actor_name[0] && (view_names || view_hp)){
+		if(actor_id->actor_name[0] && (view_names || view_health_bar || view_hp)){
 			set_font(name_font);	// to variable length
 
 			if(view_names){
@@ -324,21 +324,26 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				draw_ortho_ingame_string(hx-banner_width, hy+healthbar_y_len/2.0f, hz, temp, 1, font_size_x, font_size_y);
 			}
 
-			if(view_hp && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
+			if((view_hp || view_health_bar) && actor_id->cur_health > 0 && actor_id->max_health > 0 && (!actor_id->dead) && (actor_id->kind_of_actor != NPC)){
 				unsigned char hp[200];
-				float off=0,disp;
 
-				//choose color for the health
-				set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
+				// make the heath bar the same length as the the health text so they are balanced
+				// use the same length health bar, even if not displaying the health text
 				sprintf((char*)hp,"%d/%d", actor_id->cur_health, actor_id->max_health);
 				healthbar_x_len = (float)get_string_width(hp)*(ALT_INGAME_FONT_X_LEN*name_zoom*font_scale);
-				disp=(healthbar_x_len/2.0);
-				if(view_health_bar){
-					off=5.0+disp;
-				}
-				draw_ortho_ingame_string(hx-disp+off, hy-healthbar_y_len/3.0f, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
-				if (disp+off > banner_width) {
-					banner_width = disp + off;
+
+				if (view_hp) {
+					float off=0,disp;
+					//choose color for the health
+					set_health_color((float)actor_id->cur_health/(float)actor_id->max_health, 1.0f, 1.0f);
+					disp=(healthbar_x_len/2.0);
+					if(view_health_bar){
+						off=5.0+disp;
+					}
+					draw_ortho_ingame_string(hx-disp+off, hy-healthbar_y_len/3.0f, hz, hp, 1, ALT_INGAME_FONT_X_LEN*font_scale, ALT_INGAME_FONT_Y_LEN*font_scale);
+					if (disp+off > banner_width) {
+						banner_width = disp + off;
+					}
 				}
 			}
 			set_font(0);	// back to fixed pitch
