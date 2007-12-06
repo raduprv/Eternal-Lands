@@ -7,6 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F3D3A1E0D084BBB005F5F25 /* png.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F3D3A1D0D084BBB005F5F25 /* png.framework */; };
 		1F812B930D033551008792A7 /* 2d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DA0D033551008792A7 /* 2d_objects.c */; };
 		1F812B940D033551008792A7 /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DC0D033551008792A7 /* 3d_objects.c */; };
 		1F812BDE0D033551008792A7 /* actor_scripts.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129280D033551008792A7 /* actor_scripts.c */; };
@@ -220,6 +221,7 @@
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		1F3D3A1D0D084BBB005F5F25 /* png.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = png.framework; path = ../../../../Library/Frameworks/png.framework; sourceTree = SOURCE_ROOT; };
 		1F8128DA0D033551008792A7 /* 2d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 2d_objects.c; path = ../2d_objects.c; sourceTree = SOURCE_ROOT; };
 		1F8128DB0D033551008792A7 /* 2d_objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = 2d_objects.h; path = ../2d_objects.h; sourceTree = SOURCE_ROOT; };
 		1F8128DC0D033551008792A7 /* 3d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 3d_objects.c; path = ../3d_objects.c; sourceTree = SOURCE_ROOT; };
@@ -911,6 +913,7 @@
 				1F812DA40D03511A008792A7 /* OpenGL.framework in Frameworks */,
 				1F812DC70D03572D008792A7 /* OpenAL.framework in Frameworks */,
 				1F812DFA0D035D97008792A7 /* AudioToolbox.framework in Frameworks */,
+				1F3D3A1E0D084BBB005F5F25 /* png.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -1977,6 +1980,7 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1F3D3A1D0D084BBB005F5F25 /* png.framework */,
 				1F812D900D03372A008792A7 /* cal3d.framework */,
 				1F812D910D03372A008792A7 /* ogg.framework */,
 				1F812D930D03372A008792A7 /* SDL.framework */,
@@ -2212,9 +2216,11 @@
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -2238,13 +2244,15 @@
 					"$(inherited)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(HOME)/Library/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
+					"$(SDKROOT)/usr/include/libxml2",
 					"$(SDKROOT)/System/Library/Frameworks/OpenGL.framework/Headers",
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					"$(HOME)/Library/Frameworks/SDL_net.framework/Headers",
@@ -2252,6 +2260,7 @@
 					"$(SDKROOT)/System/Library/Frameworks/OpenAL.framework/Headers",
 					"$(HOME)/Library/Frameworks/Ogg.framework/Headers",
 					"$(HOME)/Library/Frameworks/Vorbis.framework/Headers",
+					"$(HOME)/Library/Frameworks/png.framework/Headers",
 				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
@@ -2382,6 +2391,7 @@
 					OGG_VORBIS,
 					OPTIONS_I18N,
 					OSX,
+					PNG_SCREENSHOT,
 					POPUP,
 					SFX,
 					SIMPLE_LOD,
@@ -2392,7 +2402,7 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					/usr/include/libxml2,
+					"$(SDKROOT)/usr/include/libxml2",
 					"$(SDKROOT)/System/Library/Frameworks/OpenGL.framework/Headers",
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					"$(HOME)/Library/Frameworks/SDL_net.framework/Headers",
@@ -2400,6 +2410,7 @@
 					"$(HOME)/Library/Frameworks/OpenAL.framework/Headers",
 					"$(HOME)/Library/Frameworks/Ogg.framework/Headers",
 					"$(HOME)/Library/Frameworks/Vorbis.framework/Headers",
+					"$(HOME)/Library/Frameworks/png.framework/Headers",
 				);
 				OTHER_LDFLAGS = (
 					"-lz",
