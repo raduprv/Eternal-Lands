@@ -297,14 +297,14 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-mode_flag video_modes[12];
+mode_flag video_modes[20];
 
 void build_video_mode_array()
 {
 	int i;
 	int flags;
 
-	for(i=0;i<12;i++)
+	for(i=0;i<20;i++)
 		{
 			video_modes[i].selected=0;
 			video_modes[i].supported=0;
@@ -329,6 +329,9 @@ void build_video_mode_array()
 		if(SDL_VideoModeOK(1280, 800, 16, flags))video_modes[12].supported=1;
 		if(SDL_VideoModeOK(1440, 900, 16, flags))video_modes[14].supported=1;
 		if(SDL_VideoModeOK(1680, 1050, 16, flags))video_modes[16].supported=1;
+
+/* don't forget to increase video_modes[] when needed */
+		
 	}
 #ifdef WINDOWS
 	if(bpp==32 || full_screen){
@@ -344,6 +347,9 @@ void build_video_mode_array()
 		if(SDL_VideoModeOK(1280, 800, 32, flags))video_modes[13].supported=1;
 		if(SDL_VideoModeOK(1440, 900, 32, flags))video_modes[15].supported=1;
 		if(SDL_VideoModeOK(1680, 1050, 32, flags))video_modes[17].supported=1;
+		
+/* don't forget to increase video_modes[] when needed */
+
 	}
 //TODO: Add wide screen resolutions
 //1400x1050
