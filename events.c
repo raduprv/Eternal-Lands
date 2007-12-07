@@ -112,7 +112,7 @@ int HandleEvent (SDL_Event *event)
 			//AltGR users still do not have AltGr working properly. Currently we have to accept only the left ALT key
 			//if (event->key.keysym.mod & KMOD_ALT && !(event->key.keysym.mod & KMOD_MODE)) key |= ELW_ALT;
 			if (event->key.keysym.mod & KMOD_LALT) key |= ELW_ALT;
-			//if (event->key.keysym.mod & KMOD_META) key |= ELW_something_if_needed_later;
+			if (event->key.keysym.mod & KMOD_META) key |= ELW_META;
 
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state

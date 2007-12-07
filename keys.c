@@ -14,6 +14,8 @@ Uint32 K_QUIT=ALT|'x';
 // Windows SDL reports [Alt Gr] as [Ctrl], which hinders German users typing '@',
 // so don't use Ctrl-q as a symbol to exit
 Uint32 K_QUIT_ALT=ALT|'x';
+#elif OSX
+Uint32 K_QUIT_ALT=KMOD_LMETA|'q';
 #else
 Uint32 K_QUIT_ALT=CTRL|'q';
 #endif
@@ -80,9 +82,15 @@ Uint32 K_OPAQUEWIN=CTRL|'d';
 Uint32 K_GRAB_MOUSE=ALT|'g';
 Uint32 K_FIRST_PERSON=ALT|'f';
 #endif /* SKY_FPV_CURSOR */
+#ifndef OSX
 Uint32 K_CUT=CTRL|'x';
 Uint32 K_COPY=CTRL|'c';
 Uint32 K_PASTE=CTRL|'v';
+#else
+Uint32 K_CUT=KMOD_LMETA|'x';
+Uint32 K_COPY=KMOD_LMETA|'c';
+Uint32 K_PASTE=KMOD_LMETA|'v';
+#endif
 Uint32 K_COPY_ALT=CTRL|SDLK_INSERT;
 Uint32 K_PASTE_ALT=SHIFT|SDLK_INSERT;
 

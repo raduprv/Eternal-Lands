@@ -201,6 +201,7 @@ typedef	struct	{
 #define	ELW_SHIFT		SHIFT
 #define	ELW_CTRL		CTRL
 #define	ELW_ALT			ALT
+#define ELW_META		KMOD_LMETA
 #define ELW_RIGHT_MOUSE		(1<<28)
 #define ELW_MID_MOUSE		(1<<27)	// future expansion
 #define ELW_LEFT_MOUSE		(1<<26)
