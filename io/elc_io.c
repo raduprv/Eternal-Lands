@@ -16,18 +16,17 @@
  *  0	Every thing is good.
  *  1	Old client, you should update the client to use the new features.
  *  2	Old file, you can update, but it's not nessecary.
- *  3	File bug fix.
  */
 static __inline__ int check_version(const elc_file_header header, const VERSION_NUMBER version)
 {
 	if (header.version[0] < version[0]) return -2;
 	if (header.version[0] > version[0]) return -1;
+	if (header.version[1] < version[1]) return -2;
 	if (header.version[1] > version[1]) return -1;
-	if (header.version[1] < version[1]) return 1;
-	if (header.version[2] > version[2]) return 2;
-	if (header.version[2] < version[2]) return 3;
-	if (header.version[3] > version[3]) return 2;
-	if (header.version[3] < version[3]) return 3;
+	if (header.version[2] > version[2]) return 1;
+	if (header.version[2] < version[2]) return 2;
+	if (header.version[3] > version[3]) return 0;
+	if (header.version[3] < version[3]) return 0;
 	return 0;
 }
 
@@ -84,14 +83,11 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		case 0:
 			break;
 		case 1:
-//			LOG_INFO("Old client, you should update the client to use the new features.", filename);
-//			break;
+			log_info("Old client, you should update the client to use the new features of file '%s'.", filename);
+			break;
 		case 2:
-//			LOG_INFO("Old file, you can update, but it's not nessecary.", filename);
-//			break;
-		case 3:
-//			LOG_DEBUG_INFO("File bug fix.", filename);
-//			break;
+			log_info("File '%s' is old, you shoud update the file.", filename);
+			break;
 		default:
 			LOG_ERROR("This is a client Error!", filename);
 			return -1;
