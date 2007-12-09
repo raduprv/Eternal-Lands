@@ -215,6 +215,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	Uint8 str[256];
 	int left_click = flags & ELW_LEFT_MOUSE;
 	int right_click = flags & ELW_RIGHT_MOUSE;
+	int trade_quantity_storage_offset = 3; /* Offset of trade quantity in packet. Can be 3 or 4 */
 	
 	if ( !(left_click || right_click) ) return 0;
 
@@ -244,9 +245,14 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 	} else if(storage_available && left_click && storage_item_dragged!=-1){
 		str[0]=PUT_OBJECT_ON_TRADE;
 		str[1]=ITEM_BANK;
-		str[2]=storage_items[storage_item_dragged].pos;
-		*((Uint32 *)(str+3))= SDL_SwapLE32(item_quantity);
-		my_tcp_send(my_socket,str,7);
+		if ( storage_items[storage_item_dragged].pos > 255 ) {
+			*((Uint16 *)(str+2))= SDL_SwapLE16(storage_items[storage_item_dragged].pos);
+			trade_quantity_storage_offset++; /* Offset is 1 byte ahead now */
+		} else {
+			str[2]=storage_items[storage_item_dragged].pos;
+		}
+		*((Uint32 *)(str+trade_quantity_storage_offset))= SDL_SwapLE32(item_quantity);
+		my_tcp_send(my_socket,str, 4 + trade_quantity_storage_offset );
 #ifdef NEW_SOUND
 		add_sound_object(get_index_for_sound_type_name("Drop Item"), 0, 0, 1);
 #endif // NEW_SOUND
