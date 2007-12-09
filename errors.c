@@ -78,6 +78,11 @@ void log_error (const char* message, ...)
 		safe_snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
 		err_file = open_log (error_log, "a");
 #else /* NEW_FILE_IO */
+		if ( file_exists_config("error_log.txt") == 1 ) {
+			/* Move it */
+			file_remove_config("error_log.old");
+			file_rename_config("error_log.txt","error_log.old");
+		}
 		err_file = open_log ("error_log.txt", "a");
 #endif /* NEW_FILE_IO */
 	}

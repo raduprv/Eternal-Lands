@@ -628,6 +628,47 @@ void file_check_datadir(void)
 #endif // WINDOWS
 }
 
+int file_exists_config( const char *filename )
+{
+	char locbuffer[MAX_PATH];
+	const char * cfgdir = get_path_config();
+	if(strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH){
+		return -1;
+	}
+	strcpy(locbuffer, cfgdir);
+	strcat(locbuffer, filename);
+	return file_exists(locbuffer);
+}
+
+int file_rename_config( const char *old_filename, const char *new_filename )
+{
+	char locbuffer_old[MAX_PATH];
+	char locbuffer_new[MAX_PATH];
+	const char * cfgdir = get_path_config();
+	if(strlen(cfgdir) + strlen(old_filename) + 1 > MAX_PATH){
+		return -1;
+	}
+	if(strlen(cfgdir) + strlen(new_filename) + 1 > MAX_PATH){
+		return -1;
+	}
+	strcpy(locbuffer_old, cfgdir);
+	strcat(locbuffer_old, old_filename);
+	strcpy(locbuffer_new, cfgdir);
+	strcat(locbuffer_new, new_filename);
+	return rename(locbuffer_old, locbuffer_new);
+}
+
+int file_remove_config( const char *filename )
+{
+	char locbuffer[MAX_PATH];
+	const char * cfgdir = get_path_config();
+	if(strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH){
+		return -1;
+	}
+	strcpy(locbuffer, cfgdir);
+	strcat(locbuffer, filename);
+	return remove(locbuffer);
+}
 
 
 int copy_file(const char *source, const char *dest)

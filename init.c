@@ -825,7 +825,6 @@ void init_stuff()
 	init_lights();
 	disable_local_lights();
 	update_loading_win(init_logs_str, 4);
-	clear_error_log();
 	clear_conn_log();
 	update_loading_win(read_config_str, 2);
 	read_bin_cfg();

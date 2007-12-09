@@ -49,7 +49,8 @@ const char * get_path_custom(void);
 /**
  * @brief fopen()s a config file
  *
- * Gets the config dir, based on platform, and attempts to open the given filename
+ * Gets the config dir, based on platform, and attempts to open the given filename.
+ * If file not found, fallback and try to open the filename in the current directory.
  * @param filename The name of the file in the config_dir to open
  * @param mode The file mode to use to open the file (read/write, binary/text, etc)
  * @return Returns a FILE* to the opened file on success, or a NULL on failure
@@ -177,6 +178,32 @@ int check_configdir(void);
  * @return 0 on success, -1 if target file exists, -2 if invalid source file, -3 if cannot create target file, -4 if IO error.
  */
 int copy_file(const char *source, const char *dest);
+
+/**
+ * @brief Check if a specified file exists in the config_dir
+ *
+ * @param filename The name of the file in the config_dir to check
+ * @return 1 if file exists in config_dir, 0 if it does not exist, -1 if some error occurred
+ */
+int file_exists_config( const char *filename );
+
+/**
+ * @brief Rename a specified file in the config_dir
+ *
+ * @param old_filename The original name of the file in the config_dir
+ * @param new_filename The new name for the file
+ * @return 0 if successful, -1 if some error occurred
+ */
+int file_rename_config( const char *old_filename, const char *new_filename );
+
+/**
+ * @brief Remove a specified file in the config_dir
+ *
+ * @param filename The name of the file in the config_dir we wish to remove
+ * @return 0 if successful, -1 if some error occurred
+ */
+int file_remove_config( const char *filename );
+
 
 #ifdef __cplusplus
 }
