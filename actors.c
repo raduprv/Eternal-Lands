@@ -382,7 +382,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			actor_id->last_health_loss=0;
 		}
 
-		if (healthbar_x_len > banner_width) {
+		if (healthbar_x_len / 2.0f > banner_width) {
 			banner_width = healthbar_x_len / 2.0f;
 		}
 		
@@ -435,15 +435,17 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 
 	// draw the alpha background (if ness)
 	if (use_alpha_banner && banner_width > 0) {
+		int num_lines = (view_names && (view_health_bar || view_hp) && actor_id->cur_health>0) ?2: 1;
+		float start_y = hy + ((num_lines==1 && view_names) ?healthbar_y_len-6.0 :-5.0);
 		banner_width += 3;
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE, GL_SRC_ALPHA);
 		glColor4f(0.0f, 0.0f, 0.0f, 0.6f);
 		glBegin(GL_QUADS);
-			glVertex3f (hx-banner_width, hy-4.0, hz + 0.0001);
-			glVertex3f (hx+banner_width, hy-4.0, hz + 0.0001);
-			glVertex3f (hx+banner_width, hy+healthbar_y_len*2-4.0, hz + 0.0001);
-			glVertex3f (hx-banner_width, hy+healthbar_y_len*2-4.0, hz + 0.0001);
+			glVertex3f (hx-banner_width, start_y, hz + 0.0001);
+			glVertex3f (hx+banner_width, start_y, hz + 0.0001);
+			glVertex3f (hx+banner_width, start_y+healthbar_y_len*num_lines+2, hz + 0.0001);
+			glVertex3f (hx-banner_width, start_y+healthbar_y_len*num_lines+2, hz + 0.0001);
 		glEnd();
 		glDisable(GL_BLEND);
 	}
