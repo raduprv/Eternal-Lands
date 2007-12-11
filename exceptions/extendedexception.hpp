@@ -50,6 +50,14 @@ namespace eternal_lands
 			/**
 			 * Default constructor.
 			 */
+			inline ExtendedException(): m_number(0), m_description(""), m_type(""),
+				m_file(""), m_function(""), m_line(0)
+			{
+			}
+
+			/**
+			 * Default constructor.
+			 */
 			inline ExtendedException(const Uint32 number, const std::string &description,
 				const char* type): m_number(number), m_description(description),
 				m_type(type), m_file(""), m_function(""), m_line(0)
