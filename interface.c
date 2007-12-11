@@ -996,39 +996,61 @@ void draw_game_map (int map, int mouse_mini)
 		int screen_map_height = max_mouse_y - min_mouse_y;
 		int m_px = ((mouse_x-min_mouse_x) * 512) / screen_map_width;
 		int m_py = 512 - ((mouse_y * 512) / screen_map_height);
+		int mouse_over = -1;
 
 		glColor3f (0.267f, 0.267f, 0.267f);
 		glDisable (GL_TEXTURE_2D);
 		glBegin(GL_LINES);
-		/* Draw borders for the maps */
+		/* Draw borders for the maps except the one with the mouse over it */
+		glColor3f (0.267f, 0.267f, 0.267f);
 		for(i = 0; continent_maps[i].name != NULL; i++) {
 			if(continent_maps[i].cont == continent_maps[cur_map].cont) {
-				int mouseover = 0;
-				if(!mouse_mini && m_px > continent_maps[i].x_start && m_px < continent_maps[i].x_end
+				if(!mouse_mini && mouse_over == -1
+				&& m_px > continent_maps[i].x_start && m_px < continent_maps[i].x_end
 				&& m_py > continent_maps[i].y_start && m_py < continent_maps[i].y_end)
 				{
 					/* Mouse over this map */
-					//glColor3f (0.4f, 0.4f, 0.4f);
-					float flash_effect_offset = sin((float)SDL_GetTicks()/100.0f);
-					glColor3f(0.4f - flash_effect_offset / 20.0f, 0.4f - flash_effect_offset / 20.0f, 0.4f + flash_effect_offset / 20.0f);
-					mouseover = 1;
-				}
-				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_start / 512);
-				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_end / 512);
-				
-				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_end / 512);
-				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_end / 512);
-				
-				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_end / 512);
-				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_start / 512);
-				
-				glVertex2i(300-(50+200*continent_maps[i].x_end/512), 200*continent_maps[i].y_start / 512);
-				glVertex2i(300-(50+200*continent_maps[i].x_start/512), 200*continent_maps[i].y_start / 512);
-				if(mouseover) {
-					/* Mouse was over the map, change the colour back */
-					glColor3f (0.267f, 0.267f, 0.267f);
+					mouse_over = i;
+				} else {
+					int x_start = 300-(50+200*continent_maps[i].x_start/512);
+					int x_end = 300-(50+200*continent_maps[i].x_end/512);
+					int y_start = 200*continent_maps[i].y_start / 512;
+					int y_end = 200*continent_maps[i].y_end / 512;
+					
+					glVertex2i(x_start, y_start);
+					glVertex2i(x_start, y_end);
+
+					glVertex2i(x_start, y_end);
+					glVertex2i(x_end, y_end);
+
+					glVertex2i(x_end, y_end);
+					glVertex2i(x_end, y_start);
+
+					glVertex2i(x_end, y_start);
+					glVertex2i(x_start, y_start);
 				}
 			}
+		}
+		/* Draw border for the map with the mouse over it */
+		if(mouse_over >= 0) {
+			float flash_effect_offset = sin((float)SDL_GetTicks()/100.0f);
+			int x_start = 300-(50+200*continent_maps[mouse_over].x_start/512);
+			int x_end = 300-(50+200*continent_maps[mouse_over].x_end/512);
+			int y_start = 200*continent_maps[mouse_over].y_start / 512;
+			int y_end = 200*continent_maps[mouse_over].y_end / 512;
+
+			glColor3f(0.90f - flash_effect_offset / 10.0f, 0.0f, 0.0f);
+			glVertex2i(x_start, y_start);
+			glVertex2i(x_start, y_end);
+
+			glVertex2i(x_start, y_end);
+			glVertex2i(x_end, y_end);
+
+			glVertex2i(x_end, y_end);
+			glVertex2i(x_end, y_start);
+
+			glVertex2i(x_end, y_start);
+			glVertex2i(x_start, y_start);
 		}
 		glEnd();
 	}
