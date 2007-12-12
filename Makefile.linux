@@ -26,6 +26,7 @@ NOTEPAD_COBJ = notepad.o
 POPUP_COBJ = popup.o
 SFX_COBJ = special_effects.o
 MINIMAP_COBJ = minimap.o
+MISSILES_COBJ = missiles.o
 SKY_FPV_CURSOR_COBJ = sky.o
 NEW_FILE_IO_CXXOBJ = io/elfilewrapper.o io/elfile.o io/zipfilesystem.o
 NEW_FILE_IO_COBJ = io/elpathwrapper.o io/xmlcallbacks.o

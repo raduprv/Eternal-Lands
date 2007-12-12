@@ -545,6 +545,16 @@ typedef enum actor_commands
   attack_up_4 = 49,
   attack_down_1 = 50,
   attack_down_2 = 51
+
+#ifdef MISSILES
+  , enter_range_mode = 52
+  , leave_range_mode = 53
+  , range_mode_idle = 54
+  , range_mode_aim = 55
+  , range_mode_fire_and_reload = 56
+  , range_mode_fire_and_leave = 57
+#endif // MISSILES
+
 } actor_commands;
 
 /*! @} */

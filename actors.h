@@ -439,6 +439,19 @@ typedef struct
 	float anim_time;
 	Uint32	last_anim_update;
 
+#ifdef MISSILES
+	struct CalQuaternion *cal_starting_rotation;
+	struct CalQuaternion *cal_ending_rotation;
+	float cal_rotation_blend;
+	float cal_rotation_blend_speed;
+	int rotating_bones;
+	int in_range_mode;
+
+	/*! Position of the target when aiming
+	 */
+	float range_target[3];
+#endif // MISSILES
+
 	/*! \name Actors positions
 	 *  \brief Updated in the timer thread
 	 */

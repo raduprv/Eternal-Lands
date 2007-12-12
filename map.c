@@ -17,6 +17,7 @@
 #include "lights.h"
 #include "loading_win.h"
 #include "mapwin.h"
+#include "missiles.h"
 #include "multiplayer.h"
 #include "particles.h"
 #include "pathfinder.h"
@@ -260,6 +261,9 @@ void change_map (const char *mapname)
 #else
 	kill_local_sounds();
 #endif	//NEW_SOUND
+#ifdef MISSILES
+	clear_missiles();
+#endif // MISSILES
 	if (!el_load_map(mapname)) {
 		char error[255];
 		safe_snprintf(error, sizeof(error), cant_change_map, mapname);

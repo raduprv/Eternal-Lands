@@ -70,6 +70,9 @@
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
+#ifdef MISSILES
+#include "missiles.h"
+#endif
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -795,7 +798,57 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			
 			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 		
+#ifdef MISSILES // FOR DEBUG ONLY!
+			if (flag_ctrl) {
+				float target[3];
+				int in_range_mode;
+				actor *cur_actor = get_actor_ptr_from_id(yourself);
+
+				target[0] = x * 0.5 + 0.25;
+				target[1] = y * 0.5 + 0.25;
+				target[2] = height_map[y*tile_map_size_x*6+x]*0.2f - 1.0f;
+
+				LOCK_ACTORS_LISTS();
+
+				in_range_mode = cur_actor->in_range_mode;
+				if (!cur_actor->cal_starting_rotation)
+					cur_actor->cal_starting_rotation = CalQuaternion_New();
+				if (!cur_actor->cal_ending_rotation)
+					cur_actor->cal_ending_rotation = CalQuaternion_New();
+
+				UNLOCK_ACTORS_LISTS();
+
+				if (!in_range_mode) {
+					memcpy(cur_actor->range_target, target, 3*sizeof(float));
+					add_command_to_actor(yourself, enter_range_mode);
+				}
+				else {
+					int need_aim;
+					LOCK_ACTORS_LISTS();
+					need_aim = (fabs(target[0] - cur_actor->range_target[0]) > 0.5 ||
+								fabs(target[1] - cur_actor->range_target[1]) > 0.5);
+					memcpy(cur_actor->range_target, target, 3*sizeof(float));
+					UNLOCK_ACTORS_LISTS();
+					if (need_aim)
+						add_command_to_actor(yourself, range_mode_aim);
+					else
+						add_command_to_actor(yourself, range_mode_fire_and_reload);
+				}
+			}
+			else {
+				int in_range_mode;
+				actor *cur_actor = get_actor_ptr_from_id(yourself);
+				LOCK_ACTORS_LISTS();
+				in_range_mode = cur_actor->in_range_mode;
+				UNLOCK_ACTORS_LISTS();
+				if (in_range_mode)
+					add_command_to_actor(yourself, leave_range_mode);
+				move_to(x, y);
+			}
+#else // MISSILES
 			move_to (x, y);
+#endif // MISSILES
+
 			return 1;
 		}
 	}
@@ -956,6 +1009,10 @@ int display_game_handler (window_info *win)
 		glClear(GL_DEPTH_BUFFER_BIT);
 #endif
 
+#ifdef MISSILES
+		update_missiles(cur_time-last_time);
+#endif
+	
 #ifdef NEW_LIGHTING
 		if (use_new_lighting)
 		 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
@@ -1009,6 +1066,7 @@ int display_game_handler (window_info *win)
 #ifdef	EYE_CANDY
 	ec_idle();
 #endif
+	
 CHECK_GL_ERRORS();
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
@@ -1035,6 +1093,10 @@ CHECK_GL_ERRORS();
 #ifdef	EYE_CANDY
 	ec_draw();
 #endif	//EYE_CANDY
+	
+#ifdef MISSILES
+	draw_missiles();
+#endif
 
 	if (weather_use_fog()) render_fog();
 

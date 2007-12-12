@@ -13,6 +13,9 @@
 #include "global.h"
 #include "init.h"
 #include "interface.h"
+#ifdef MISSILES
+#include "missiles.h"
+#endif // MISSILES
 #include "multiplayer.h"
 #include "new_character.h"
 #include "particles.h"
@@ -552,6 +555,9 @@ void animate_actors()
 #else
 				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 #endif
+#ifdef MISSILES
+				rotate_actor_bones(actors_list[i]);
+#endif
 			}
 #endif	//DYNAMIC_ANIMATIONS
 		}
@@ -652,7 +658,13 @@ void next_command()
 
 					if(actors_list[i]->fighting){
 						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
-					} else if(!actors_list[i]->sitting) {
+					}
+#ifdef MISSILES
+					else if(actors_list[i]->in_range_mode){
+						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
+					}
+#endif // MISSILES
+					else if(!actors_list[i]->sitting) {
 						// we are standing, see if we can activate a stand idle
 						if(!actors_list[i]->stand_idle){
 							if (actors_defs[actors_list[i]->actor_type].group_count == 0)
@@ -894,6 +906,78 @@ void next_command()
 						}
 						actors_list[i]->stop_animation=0;
 						break;
+
+#ifdef MISSILES
+				case enter_range_mode:
+					cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
+					actors_list[i]->stop_animation = 1;
+					actors_list[i]->in_range_mode = 1;
+
+					CalQuaternion_Set(actors_list[i]->cal_starting_rotation, 0.0, 0.0, 0.0, 1.0);
+					compute_actor_rotation(actors_list[i]->cal_ending_rotation, actors_list[i], actors_list[i]->range_target);
+					actors_list[i]->cal_rotation_blend = 0.0;
+					actors_list[i]->cal_rotation_blend_speed = 1.0/27.0;
+					actors_list[i]->rotating_bones = 1;
+					break;
+
+				case leave_range_mode:
+					cal_actor_set_anim(i,actors_defs[actor_type].cal_out_combat_frame);
+					actors_list[i]->stop_animation = 1;
+					actors_list[i]->in_range_mode = 0;
+					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
+										actors_list[i]->cal_rotation_blend,
+										actors_list[i]->cal_ending_rotation);
+					CalQuaternion_Set(actors_list[i]->cal_ending_rotation, 0.0, 0.0, 0.0, 1.0);
+					actors_list[i]->cal_rotation_blend = 0.0;
+					actors_list[i]->cal_rotation_blend_speed = 1.0/27.0;
+					actors_list[i]->rotating_bones = 1;
+					break;
+
+/* 				case range_mode_idle: */
+/* 					break; */
+
+				case range_mode_aim:
+					cal_actor_set_anim(i,actors_defs[actor_type].cal_combat_idle_frame);
+/* 					cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame); */
+					actors_list[i]->stop_animation = 1;
+					actors_list[i]->in_range_mode = 1;
+
+					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
+										actors_list[i]->cal_rotation_blend,
+										actors_list[i]->cal_ending_rotation);
+					compute_actor_rotation(actors_list[i]->cal_ending_rotation, actors_list[i], actors_list[i]->range_target);
+					actors_list[i]->cal_rotation_blend = 0.0;
+					actors_list[i]->cal_rotation_blend_speed = 1.0/27.0;
+					actors_list[i]->rotating_bones = 1;
+					break;
+
+				case range_mode_fire_and_reload:
+					if(actors_list[i]->is_enhanced_model) {
+						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
+					} else {
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_1_frame);
+					}
+					
+					actors_list[i]->stop_animation = 1;
+					actors_list[i]->in_range_mode = 1;
+
+					fire_arrow(actors_list[i], actors_list[i]->range_target);
+					break;
+
+				case range_mode_fire_and_leave:
+					if(actors_list[i]->is_enhanced_model) {
+						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_1_frame);
+					} else {
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_1_frame);
+					}
+					
+					actors_list[i]->stop_animation = 1;
+					actors_list[i]->in_range_mode = 0;
+
+					fire_arrow(actors_list[i], actors_list[i]->range_target);
+					break;
+#endif // MISSILES
+
 					//ok, now the movement, this is the tricky part
 					default:
 						if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw) {
@@ -989,6 +1073,12 @@ void destroy_actor(int actor_id)
 #ifdef	EYE_CANDY
 				ec_actor_delete(actors_list[i]);
 #endif	//EYE_CANDY
+#ifdef MISSILES
+				if (actors_list[i]->cal_starting_rotation)
+					CalQuaternion_Delete(actors_list[i]->cal_starting_rotation);
+				if (actors_list[i]->cal_ending_rotation)
+					CalQuaternion_Delete(actors_list[i]->cal_ending_rotation);
+#endif // MISSILES
 				free(actors_list[i]);
 				actors_list[i]=NULL;
 				if(i==max_actors-1)max_actors--;

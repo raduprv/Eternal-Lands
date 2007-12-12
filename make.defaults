@@ -30,6 +30,7 @@ FEATURES += MASKING                         # Allow for item masking on Actors, 
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
 FEATURES += MINES                           # Enables support for mines
 FEATURES += MINIMAP                         # Enable the minimap window support (alt+m) (unfinished, but usable)
+#FEATURES += MISSILES                        # Enables missiles support, use ctrl+click to enter range mode and fire (unfinished)
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
 FEATURES += NEW_ACTOR_SCALE                 # Scale setting for new actor models

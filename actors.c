@@ -104,6 +104,15 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->actor_id=actor_id;
 	our_actor->cur_anim_sound_cookie = 0;
 
+#ifdef MISSILES
+	our_actor->cal_starting_rotation = NULL;
+	our_actor->cal_ending_rotation = NULL;
+	our_actor->cal_rotation_blend = 1.0;
+	our_actor->cal_rotation_blend = 0.0;
+	our_actor->rotating_bones = 0;
+	our_actor->in_range_mode = 0;
+#endif // MISSILES
+
 	our_actor->x_pos=x_pos;
 	our_actor->y_pos=y_pos;
 	our_actor->z_pos=z_pos;
