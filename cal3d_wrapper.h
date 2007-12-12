@@ -229,9 +229,9 @@ extern "C"
 //****************************************************************************//
 
   CAL3D_WRAPPER_API void CalCoreKeyframe_Delete(struct CalCoreKeyframe *self);
-  CAL3D_WRAPPER_API struct CalQuaternion *CalCoreKeyframe_GetRotation(struct CalCoreKeyframe *self);
+  CAL3D_WRAPPER_API void CalCoreKeyframe_GetRotation(struct CalCoreKeyframe *self, struct CalQuaternion *outQ);
   CAL3D_WRAPPER_API float CalCoreKeyframe_GetTime(struct CalCoreKeyframe *self);
-  CAL3D_WRAPPER_API struct CalVector *CalCoreKeyframe_GetTranslation(struct CalCoreKeyframe *self);
+  CAL3D_WRAPPER_API void CalCoreKeyframe_GetTranslation(struct CalCoreKeyframe *self, struct CalVector *outV);
   CAL3D_WRAPPER_API struct CalCoreKeyframe *CalCoreKeyframe_New();
   CAL3D_WRAPPER_API void CalCoreKeyframe_SetRotation(struct CalCoreKeyframe *self, struct CalQuaternion *pRotation);
   CAL3D_WRAPPER_API void CalCoreKeyframe_SetTime(struct CalCoreKeyframe *self, float time);
@@ -359,6 +359,10 @@ CAL3D_WRAPPER_API enum CalBoolean  CalCoreSubmesh_EnableTangents(struct CalCoreS
   CAL3D_WRAPPER_API struct CalCoreTrack *CalCoreTrack_New();
   CAL3D_WRAPPER_API enum CalBoolean CalCoreTrack_SetCoreBoneId(struct CalCoreTrack *self, int coreBoneId);
 
+  // Added for missiles needs
+  CAL3D_WRAPPER_API int CalCoreTrack_GetCoreKeyframeCount(struct CalCoreTrack *self);
+  CAL3D_WRAPPER_API struct CalCoreKeyframe * CalCoreTrack_GetCoreKeyframe(struct CalCoreTrack *self, int i);
+
 //****************************************************************************//
 // CalError wrapper functions declaration                                     //
 //****************************************************************************//
@@ -483,6 +487,7 @@ CAL3D_WRAPPER_API enum CalBoolean  CalCoreSubmesh_EnableTangents(struct CalCoreS
   CAL3D_WRAPPER_API void CalQuaternion_Delete(struct CalQuaternion *self);
   CAL3D_WRAPPER_API void CalQuaternion_Equal(struct CalQuaternion *self, struct CalQuaternion *pQ);
   CAL3D_WRAPPER_API float *CalQuaternion_Get(struct CalQuaternion *self);
+  CAL3D_WRAPPER_API void CalQuaternion_Invert(struct CalQuaternion *self);
   CAL3D_WRAPPER_API void CalQuaternion_Multiply(struct CalQuaternion *self, struct CalQuaternion *pQ);
   CAL3D_WRAPPER_API void CalQuaternion_MultiplyVector(struct CalQuaternion *self, struct CalVector *pV);
   CAL3D_WRAPPER_API struct CalQuaternion *CalQuaternion_New();
