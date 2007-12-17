@@ -330,7 +330,6 @@ void init_video()
 {
 	int rgb_size[3];
 
-#ifndef	NO_SDL_REINIT
 	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{
@@ -338,7 +337,6 @@ void init_video()
 			SDL_Quit();
 			exit(1);
 		}
-#endif	//NO_SDL_REINIT
 
 #ifdef EYE_CANDY
 	ec_clear_textures();
@@ -432,10 +430,8 @@ void init_video()
 			//let the user know there is a problem
 			LOG_TO_CONSOLE(c_red1,stencil_falls_back_on_software_accel);
 			//first, shut down this mode we have now.
-#ifndef	NO_SDL_REINIT
 			SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
 			SDL_Init(SDL_INIT_VIDEO);//restart SDL
-#endif	//NO_SDL_REINIT
 			SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
 			SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
 			SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
@@ -454,10 +450,8 @@ void init_video()
 				//wtf, this really shouldn't happen....
 				//let's try a default mode, maybe Quake 2's mode, and pray it works
 				LOG_TO_CONSOLE(c_red1,last_chance_str);
-#ifndef	NO_SDL_REINIT
 				SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
 				SDL_Init(SDL_INIT_VIDEO);//restart SDL
-#endif	//NO_SDL_REINIT
 				SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
 				SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
 				SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
@@ -501,6 +495,9 @@ void init_video()
 	glCullFace(GL_BACK);
 	glEnable(GL_NORMALIZE);
 	glClearStencil(0);
+#ifdef NEW_LIGHTING
+	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
+#endif
 
 #ifdef ANTI_ALIAS
 	if (anti_alias) {
@@ -1071,9 +1068,7 @@ void set_new_video_mode(int fs,int mode)
 #endif //EYE_CANDY
 
 	//destroy the current context
-#ifndef	NO_SDL_REINIT
 	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-#endif	//NO_SDL_REINIT
 
 	init_video();
 #ifndef WINDOWS
