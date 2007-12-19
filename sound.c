@@ -2072,7 +2072,7 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 	// Find the filename to play
 	if (stream->type == STREAM_TYPE_MUSIC)
 	{
-		if (!have_music) return;
+		if (!have_music || sound<0 || sound>=MAX_PLAYLIST_ENTRIES) return;
 		
 		if (playlist[sound].file_name[0]!='.' && playlist[sound].file_name[0]!='/')
 			safe_snprintf (tmp_file_name, sizeof (tmp_file_name), "./music/%s", playlist[sound].file_name);
@@ -2082,6 +2082,8 @@ void play_stream(int sound, stream_data * stream, ALfloat gain)
 	}
 	else
 	{
+		if (sound<0 || sound>=MAX_SOUNDS || sound_type_data[sound].num_variants <= 0) return;
+
 		// Choose a variant
 		stream->variant = rand() % sound_type_data[sound].num_variants;
 		file = sound_type_data[sound].variant[stream->variant].part[STAGE_MAIN].file_path;
