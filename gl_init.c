@@ -501,9 +501,6 @@ void init_video()
 	glCullFace(GL_BACK);
 	glEnable(GL_NORMALIZE);
 	glClearStencil(0);
-#ifdef NEW_LIGHTING
-	glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
-#endif
 
 #ifdef ANTI_ALIAS
 	if (anti_alias) {

@@ -858,6 +858,10 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
 
+#ifdef NEW_LIGHTING
+			if (use_new_lighting)
+				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
+#endif
 			display_objects();
 			display_ground_objects();
 #ifndef MAP_EDITOR2
@@ -865,6 +869,10 @@ void draw_sun_shadowed_scene(int any_reflection)
 #endif
 			display_alpha_objects();
 			display_blended_objects();
+#ifdef NEW_LIGHTING
+			if (use_new_lighting)
+				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0);
+#endif
 
 #ifndef MAP_EDITOR2
 			if (weather_use_fog()) glDisable(GL_FOG);

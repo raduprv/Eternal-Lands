@@ -1042,11 +1042,19 @@ int display_game_handler (window_info *win)
 			display_2d_objects();
 			CHECK_GL_ERRORS();
 			anything_under_the_mouse(0, UNDER_MOUSE_NOTHING);
+#ifdef NEW_LIGHTING
+			if (use_new_lighting)
+				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 1);
+#endif
 			display_objects();
 			display_ground_objects();
 			display_actors(1, 0);
 			display_alpha_objects();
 			display_blended_objects();
+#ifdef NEW_LIGHTING
+			if (use_new_lighting)
+				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0);
+#endif
 		}
 		CHECK_GL_ERRORS ();
 	}	// end of active display check

@@ -1333,7 +1333,7 @@ meme@daughtersoftiresias.org
     <Texture>./3dobjects/structures/snowblocks.bmp</Texture>
     <Ambient>0.4, 0.4, 0.45, 1.0</Ambient>
     <Diffuse>0.8, 0.8, 0.8, 1.0</Diffuse>
-    <Specular>0.2, 0.2, 0.2, 1.0</Specular>
+    <Specular>0.14, 0.14, 0.14, 1.0</Specular>
     <Emission>0.0, 0.0, 0.0, 1.0</Emission>
     <Shininess>40.0</Shininess>
   </Material>
