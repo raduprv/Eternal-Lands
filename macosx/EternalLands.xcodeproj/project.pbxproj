@@ -9,6 +9,13 @@
 /* Begin PBXBuildFile section */
 		1F3D3A1E0D084BBB005F5F25 /* png.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F3D3A1D0D084BBB005F5F25 /* png.framework */; };
 		1F744D970D19894900F655E9 /* missiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F744D950D19894900F655E9 /* missiles.c */; };
+		1F7AD4D00D199B4000E2E196 /* png.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F3D3A1D0D084BBB005F5F25 /* png.framework */; };
+		1F7AD4D10D199B4000E2E196 /* cal3d.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D900D03372A008792A7 /* cal3d.framework */; };
+		1F7AD4D20D199B4000E2E196 /* ogg.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D910D03372A008792A7 /* ogg.framework */; };
+		1F7AD4D30D199B4000E2E196 /* SDL.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D930D03372A008792A7 /* SDL.framework */; };
+		1F7AD4D40D199B4000E2E196 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D940D03372A008792A7 /* SDL_image.framework */; };
+		1F7AD4D50D199B4000E2E196 /* SDL_net.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D950D03372A008792A7 /* SDL_net.framework */; };
+		1F7AD4D60D199B4000E2E196 /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D960D03372A008792A7 /* vorbis.framework */; };
 		1F812B930D033551008792A7 /* 2d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DA0D033551008792A7 /* 2d_objects.c */; };
 		1F812B940D033551008792A7 /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DC0D033551008792A7 /* 3d_objects.c */; };
 		1F812BDE0D033551008792A7 /* actor_scripts.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129280D033551008792A7 /* actor_scripts.c */; };
@@ -170,12 +177,6 @@
 		1F812DA40D03511A008792A7 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DA30D03511A008792A7 /* OpenGL.framework */; };
 		1F812DC70D03572D008792A7 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DC60D03572D008792A7 /* OpenAL.framework */; };
 		1F812DFA0D035D97008792A7 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DF90D035D97008792A7 /* AudioToolbox.framework */; };
-		1F812E5F0D035F71008792A7 /* cal3d.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812D900D03372A008792A7 /* cal3d.framework */; };
-		1F812E600D035F71008792A7 /* ogg.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812D910D03372A008792A7 /* ogg.framework */; };
-		1F812E610D035F71008792A7 /* SDL.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812D930D03372A008792A7 /* SDL.framework */; };
-		1F812E620D035F71008792A7 /* SDL_image.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812D940D03372A008792A7 /* SDL_image.framework */; };
-		1F812E630D035F71008792A7 /* SDL_net.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812D950D03372A008792A7 /* SDL_net.framework */; };
-		1F812E640D035F71008792A7 /* vorbis.framework in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812D960D03372A008792A7 /* vorbis.framework */; };
 		1F812E780D03A88E008792A7 /* servers.lst in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812B560D033551008792A7 /* servers.lst */; };
 		1F94C1AC0CFE5B4D00E88CB7 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
@@ -188,23 +189,15 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
+				1F7AD4D00D199B4000E2E196 /* png.framework in Copy Frameworks into .app bundle */,
+				1F7AD4D10D199B4000E2E196 /* cal3d.framework in Copy Frameworks into .app bundle */,
+				1F7AD4D20D199B4000E2E196 /* ogg.framework in Copy Frameworks into .app bundle */,
+				1F7AD4D30D199B4000E2E196 /* SDL.framework in Copy Frameworks into .app bundle */,
+				1F7AD4D40D199B4000E2E196 /* SDL_image.framework in Copy Frameworks into .app bundle */,
+				1F7AD4D50D199B4000E2E196 /* SDL_net.framework in Copy Frameworks into .app bundle */,
+				1F7AD4D60D199B4000E2E196 /* vorbis.framework in Copy Frameworks into .app bundle */,
 			);
 			name = "Copy Frameworks into .app bundle";
-			runOnlyForDeploymentPostprocessing = 0;
-		};
-		1F812E650D035F78008792A7 /* CopyFiles */ = {
-			isa = PBXCopyFilesBuildPhase;
-			buildActionMask = 2147483647;
-			dstPath = "";
-			dstSubfolderSpec = 10;
-			files = (
-				1F812E5F0D035F71008792A7 /* cal3d.framework in CopyFiles */,
-				1F812E600D035F71008792A7 /* ogg.framework in CopyFiles */,
-				1F812E610D035F71008792A7 /* SDL.framework in CopyFiles */,
-				1F812E620D035F71008792A7 /* SDL_image.framework in CopyFiles */,
-				1F812E630D035F71008792A7 /* SDL_net.framework in CopyFiles */,
-				1F812E640D035F71008792A7 /* vorbis.framework in CopyFiles */,
-			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 		1F812E7A0D03A896008792A7 /* CopyFiles */ = {
@@ -2008,7 +2001,6 @@
 				8D11072C0486CEB800E47090 /* Sources */,
 				8D11072E0486CEB800E47090 /* Frameworks */,
 				002F39FD09D0883400EBEB88 /* Copy Frameworks into .app bundle */,
-				1F812E650D035F78008792A7 /* CopyFiles */,
 				1F812E7A0D03A896008792A7 /* CopyFiles */,
 			);
 			buildRules = (
@@ -2257,6 +2249,45 @@
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					AFK_FIX,
+					ALPHA_ACTORS,
+					AUTO_UPDATE,
+					CLICKABLE_CONTINENT_MAP,
+					CLUSTER_INSIDES,
+					COUNTERS,
+					CUSTOM_LOOK,
+					CUSTOM_UPDATE,
+					CXX_MISC,
+					ELC,
+					EYE_CANDY,
+					FONTS_FIX,
+					FUZZY_PATHS,
+					GL_EXTENSION_CHECK,
+					IDLE_FIX,
+					MASKING,
+					MINES,
+					MINIMAP,
+					NEW_ACTOR_ANIMATION,
+					NEW_ACTOR_SCALE,
+					NEW_E3D_FORMAT,
+					NEW_FILE_IO,
+					NEW_FRUSTRUM,
+					NEW_SOUND,
+					NEW_TEX,
+					NOTEPAD,
+					OGG_VORBIS,
+					OPTIONS_I18N,
+					OSX,
+					PNG_SCREENSHOT,
+					POPUP,
+					SFX,
+					SIMPLE_LOD,
+					USE_INLINE,
+					USE_SEND_VIDEO_INFO,
+					USE_SHADER,
+					ZLIB,
+				);
 				HEADER_SEARCH_PATHS = (
 					"$(SDKROOT)/usr/include/libxml2",
 					"$(SDKROOT)/System/Library/Frameworks/OpenGL.framework/Headers",
@@ -2401,6 +2432,7 @@
 					POPUP,
 					SFX,
 					SIMPLE_LOD,
+					USE_INLINE,
 					USE_SEND_VIDEO_INFO,
 					USE_SHADER,
 					ZLIB,
