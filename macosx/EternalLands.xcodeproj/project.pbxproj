@@ -8,6 +8,7 @@
 
 /* Begin PBXBuildFile section */
 		1F3D3A1E0D084BBB005F5F25 /* png.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F3D3A1D0D084BBB005F5F25 /* png.framework */; };
+		1F744D970D19894900F655E9 /* missiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F744D950D19894900F655E9 /* missiles.c */; };
 		1F812B930D033551008792A7 /* 2d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DA0D033551008792A7 /* 2d_objects.c */; };
 		1F812B940D033551008792A7 /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DC0D033551008792A7 /* 3d_objects.c */; };
 		1F812BDE0D033551008792A7 /* actor_scripts.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129280D033551008792A7 /* actor_scripts.c */; };
@@ -222,6 +223,8 @@
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
 		1F3D3A1D0D084BBB005F5F25 /* png.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = png.framework; path = ../../../../Library/Frameworks/png.framework; sourceTree = SOURCE_ROOT; };
+		1F744D950D19894900F655E9 /* missiles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = missiles.c; path = ../missiles.c; sourceTree = SOURCE_ROOT; };
+		1F744D960D19894900F655E9 /* missiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = missiles.h; path = ../missiles.h; sourceTree = SOURCE_ROOT; };
 		1F8128DA0D033551008792A7 /* 2d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 2d_objects.c; path = ../2d_objects.c; sourceTree = SOURCE_ROOT; };
 		1F8128DB0D033551008792A7 /* 2d_objects.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = 2d_objects.h; path = ../2d_objects.h; sourceTree = SOURCE_ROOT; };
 		1F8128DC0D033551008792A7 /* 3d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 3d_objects.c; path = ../3d_objects.c; sourceTree = SOURCE_ROOT; };
@@ -960,6 +963,8 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				1F744D950D19894900F655E9 /* missiles.c */,
+				1F744D960D19894900F655E9 /* missiles.h */,
 				1F8128DA0D033551008792A7 /* 2d_objects.c */,
 				1F8128DB0D033551008792A7 /* 2d_objects.h */,
 				1F8128DC0D033551008792A7 /* 3d_objects.c */,
@@ -2191,6 +2196,7 @@
 				1F812D840D033551008792A7 /* weather.c in Sources */,
 				1F812D850D033551008792A7 /* widgets.c in Sources */,
 				1F812D860D033551008792A7 /* xmlhelper.cpp in Sources */,
+				1F744D970D19894900F655E9 /* missiles.c in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
