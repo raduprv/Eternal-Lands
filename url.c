@@ -6,6 +6,9 @@
 #else
 	#include <malloc.h>
 #endif /* OSX */
+#if !defined(OSX) && !defined(WINDOWS)
+#include <signal.h>
+#endif
 #include <sys/types.h>
 #include <string.h>
 #ifndef _MSC_VER
@@ -358,13 +361,20 @@ void open_web_link(const char * url)
 	// browser name can override the windows default, and if not defined in Linux, don't error
 	if(*browser_name){
 #ifndef WINDOWS
-		/* removed because unsafe (can be used to inject commands thru URLs)
-		char browser_command[400];
+		static int have_set_signal = 0;
 		
-		safe_snprintf(browser_command, sizeof (browser_command), "%s \"%s\"&", browser_name, url);
-		system(browser_command);
-		*/
-		/* Lachesis: this is not portable but should do here */
+		/* we're not interested in the exit status of the child so
+		   set SA_NOCLDWAIT to stop it becoming a zombie if we don't wait() */
+		if (!have_set_signal)
+		{
+			struct sigaction act;
+			memset(&act, 0, sizeof(act));
+			act.sa_handler = SIG_DFL;
+			act.sa_flags = SA_NOCLDWAIT;
+			sigaction(SIGCHLD, &act, NULL);
+			have_set_signal = 1;
+		}
+		
 		if (fork() == 0){
 			execlp(browser_name, browser_name, url, NULL);
 			// in case the exec errors
