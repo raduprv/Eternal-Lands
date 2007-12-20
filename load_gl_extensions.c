@@ -8,7 +8,7 @@ const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1
 const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201 };
 
 Uint32 gl_version = 0;
-Uint32 extensions = 0;
+Uint64 extensions = 0;
 GLint texture_units = 0;
 float max_anisotropic_filter = 16.0f;
 
@@ -1329,6 +1329,12 @@ void init_opengl_extensions()
 		extensions |= 1 << arb_texture_float;
 	}
 /*	GL_ARB_texture_float			*/
+/*	GL_EXT_abgr			*/
+	if (strstr(extensions_string, "GL_EXT_abgr") != NULL)
+	{
+		extensions |= ((Uint64)1) << ext_abgr;
+	}
+/*	GL_EXT_abgr			*/
 }
 
 Uint32 have_extension(extension_enum extension)

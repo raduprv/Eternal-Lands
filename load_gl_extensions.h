@@ -52,7 +52,8 @@ typedef enum {
 	ext_texture_compression_latc = 28,
 	ext_texture_compression_rgtc = 29,
 	arb_texture_cube_map = 30,
-	arb_texture_float = 31
+	arb_texture_float = 31,
+	ext_abgr = 32
 } extension_enum;
 
 /*	GL_VERSION_1_2		*/
