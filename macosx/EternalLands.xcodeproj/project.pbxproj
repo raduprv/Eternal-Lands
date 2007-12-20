@@ -7,15 +7,7 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		1F3D3A1E0D084BBB005F5F25 /* png.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F3D3A1D0D084BBB005F5F25 /* png.framework */; };
 		1F744D970D19894900F655E9 /* missiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F744D950D19894900F655E9 /* missiles.c */; };
-		1F7AD4D00D199B4000E2E196 /* png.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F3D3A1D0D084BBB005F5F25 /* png.framework */; };
-		1F7AD4D10D199B4000E2E196 /* cal3d.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D900D03372A008792A7 /* cal3d.framework */; };
-		1F7AD4D20D199B4000E2E196 /* ogg.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D910D03372A008792A7 /* ogg.framework */; };
-		1F7AD4D30D199B4000E2E196 /* SDL.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D930D03372A008792A7 /* SDL.framework */; };
-		1F7AD4D40D199B4000E2E196 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D940D03372A008792A7 /* SDL_image.framework */; };
-		1F7AD4D50D199B4000E2E196 /* SDL_net.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D950D03372A008792A7 /* SDL_net.framework */; };
-		1F7AD4D60D199B4000E2E196 /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1F812D960D03372A008792A7 /* vorbis.framework */; };
 		1F812B930D033551008792A7 /* 2d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DA0D033551008792A7 /* 2d_objects.c */; };
 		1F812B940D033551008792A7 /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DC0D033551008792A7 /* 3d_objects.c */; };
 		1F812BDE0D033551008792A7 /* actor_scripts.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8129280D033551008792A7 /* actor_scripts.c */; };
@@ -168,17 +160,18 @@
 		1F812D840D033551008792A7 /* weather.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812B8C0D033551008792A7 /* weather.c */; };
 		1F812D850D033551008792A7 /* widgets.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F812B8E0D033551008792A7 /* widgets.c */; };
 		1F812D860D033551008792A7 /* xmlhelper.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F812B910D033551008792A7 /* xmlhelper.cpp */; };
-		1F812D970D03372A008792A7 /* cal3d.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812D900D03372A008792A7 /* cal3d.framework */; };
-		1F812D980D03372A008792A7 /* ogg.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812D910D03372A008792A7 /* ogg.framework */; };
-		1F812D9A0D03372A008792A7 /* SDL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812D930D03372A008792A7 /* SDL.framework */; };
-		1F812D9B0D03372A008792A7 /* SDL_image.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812D940D03372A008792A7 /* SDL_image.framework */; };
-		1F812D9C0D03372A008792A7 /* SDL_net.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812D950D03372A008792A7 /* SDL_net.framework */; };
-		1F812D9D0D03372A008792A7 /* vorbis.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812D960D03372A008792A7 /* vorbis.framework */; };
 		1F812DA40D03511A008792A7 /* OpenGL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DA30D03511A008792A7 /* OpenGL.framework */; };
 		1F812DC70D03572D008792A7 /* OpenAL.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DC60D03572D008792A7 /* OpenAL.framework */; };
 		1F812DFA0D035D97008792A7 /* AudioToolbox.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1F812DF90D035D97008792A7 /* AudioToolbox.framework */; };
 		1F812E780D03A88E008792A7 /* servers.lst in CopyFiles */ = {isa = PBXBuildFile; fileRef = 1F812B560D033551008792A7 /* servers.lst */; };
 		1F94C1AC0CFE5B4D00E88CB7 /* SDLmain.m in Sources */ = {isa = PBXBuildFile; fileRef = 1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */; };
+		1FF1FA9C0D1AE4940002D512 /* cal3d.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA950D1AE4940002D512 /* cal3d.framework */; };
+		1FF1FA9D0D1AE4940002D512 /* ogg.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA960D1AE4940002D512 /* ogg.framework */; };
+		1FF1FA9E0D1AE4940002D512 /* png.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA970D1AE4940002D512 /* png.framework */; };
+		1FF1FA9F0D1AE4940002D512 /* SDL.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA980D1AE4940002D512 /* SDL.framework */; };
+		1FF1FAA00D1AE4940002D512 /* SDL_image.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA990D1AE4940002D512 /* SDL_image.framework */; };
+		1FF1FAA10D1AE4940002D512 /* SDL_net.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */; };
+		1FF1FAA20D1AE4940002D512 /* vorbis.framework in Copy Frameworks into .app bundle */ = {isa = PBXBuildFile; fileRef = 1FF1FA9B0D1AE4940002D512 /* vorbis.framework */; };
 		8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */; };
 /* End PBXBuildFile section */
 
@@ -189,13 +182,13 @@
 			dstPath = "";
 			dstSubfolderSpec = 10;
 			files = (
-				1F7AD4D00D199B4000E2E196 /* png.framework in Copy Frameworks into .app bundle */,
-				1F7AD4D10D199B4000E2E196 /* cal3d.framework in Copy Frameworks into .app bundle */,
-				1F7AD4D20D199B4000E2E196 /* ogg.framework in Copy Frameworks into .app bundle */,
-				1F7AD4D30D199B4000E2E196 /* SDL.framework in Copy Frameworks into .app bundle */,
-				1F7AD4D40D199B4000E2E196 /* SDL_image.framework in Copy Frameworks into .app bundle */,
-				1F7AD4D50D199B4000E2E196 /* SDL_net.framework in Copy Frameworks into .app bundle */,
-				1F7AD4D60D199B4000E2E196 /* vorbis.framework in Copy Frameworks into .app bundle */,
+				1FF1FA9C0D1AE4940002D512 /* cal3d.framework in Copy Frameworks into .app bundle */,
+				1FF1FA9D0D1AE4940002D512 /* ogg.framework in Copy Frameworks into .app bundle */,
+				1FF1FA9E0D1AE4940002D512 /* png.framework in Copy Frameworks into .app bundle */,
+				1FF1FA9F0D1AE4940002D512 /* SDL.framework in Copy Frameworks into .app bundle */,
+				1FF1FAA00D1AE4940002D512 /* SDL_image.framework in Copy Frameworks into .app bundle */,
+				1FF1FAA10D1AE4940002D512 /* SDL_net.framework in Copy Frameworks into .app bundle */,
+				1FF1FAA20D1AE4940002D512 /* vorbis.framework in Copy Frameworks into .app bundle */,
 			);
 			name = "Copy Frameworks into .app bundle";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -215,7 +208,6 @@
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
-		1F3D3A1D0D084BBB005F5F25 /* png.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = png.framework; path = ../../../../Library/Frameworks/png.framework; sourceTree = SOURCE_ROOT; };
 		1F744D950D19894900F655E9 /* missiles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = missiles.c; path = ../missiles.c; sourceTree = SOURCE_ROOT; };
 		1F744D960D19894900F655E9 /* missiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = missiles.h; path = ../missiles.h; sourceTree = SOURCE_ROOT; };
 		1F8128DA0D033551008792A7 /* 2d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 2d_objects.c; path = ../2d_objects.c; sourceTree = SOURCE_ROOT; };
@@ -876,17 +868,18 @@
 		1F812B8F0D033551008792A7 /* widgets.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = widgets.h; path = ../widgets.h; sourceTree = SOURCE_ROOT; };
 		1F812B910D033551008792A7 /* xmlhelper.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = xmlhelper.cpp; sourceTree = "<group>"; };
 		1F812B920D033551008792A7 /* xmlhelper.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = xmlhelper.hpp; sourceTree = "<group>"; };
-		1F812D900D03372A008792A7 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = cal3d.framework; path = ../../../../Library/Frameworks/cal3d.framework; sourceTree = SOURCE_ROOT; };
-		1F812D910D03372A008792A7 /* ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ogg.framework; path = ../../../../Library/Frameworks/ogg.framework; sourceTree = SOURCE_ROOT; };
-		1F812D930D03372A008792A7 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = ../../../../Library/Frameworks/SDL.framework; sourceTree = SOURCE_ROOT; };
-		1F812D940D03372A008792A7 /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = ../../../../Library/Frameworks/SDL_image.framework; sourceTree = SOURCE_ROOT; };
-		1F812D950D03372A008792A7 /* SDL_net.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_net.framework; path = ../../../../Library/Frameworks/SDL_net.framework; sourceTree = SOURCE_ROOT; };
-		1F812D960D03372A008792A7 /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = ../../../../Library/Frameworks/vorbis.framework; sourceTree = SOURCE_ROOT; };
 		1F812DA30D03511A008792A7 /* OpenGL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenGL.framework; path = SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/OpenGL.framework; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		1F812DC60D03572D008792A7 /* OpenAL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = OpenAL.framework; path = SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/OpenAL.framework; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		1F812DF90D035D97008792A7 /* AudioToolbox.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AudioToolbox.framework; path = SDKs/MacOSX10.4u.sdk/System/Library/Frameworks/AudioToolbox.framework; sourceTree = SYSTEM_DEVELOPER_DIR; };
 		1F94C1AA0CFE5B4D00E88CB7 /* SDLmain.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = SDLmain.h; sourceTree = SOURCE_ROOT; };
 		1F94C1AB0CFE5B4D00E88CB7 /* SDLmain.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = SDLmain.m; sourceTree = SOURCE_ROOT; };
+		1FF1FA950D1AE4940002D512 /* cal3d.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = cal3d.framework; path = ../../../../Library/Frameworks/cal3d.framework; sourceTree = SOURCE_ROOT; };
+		1FF1FA960D1AE4940002D512 /* ogg.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = ogg.framework; path = ../../../../Library/Frameworks/ogg.framework; sourceTree = SOURCE_ROOT; };
+		1FF1FA970D1AE4940002D512 /* png.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = png.framework; path = ../../../../Library/Frameworks/png.framework; sourceTree = SOURCE_ROOT; };
+		1FF1FA980D1AE4940002D512 /* SDL.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL.framework; path = ../../../../Library/Frameworks/SDL.framework; sourceTree = SOURCE_ROOT; };
+		1FF1FA990D1AE4940002D512 /* SDL_image.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_image.framework; path = ../../../../Library/Frameworks/SDL_image.framework; sourceTree = SOURCE_ROOT; };
+		1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SDL_net.framework; path = ../../../../Library/Frameworks/SDL_net.framework; sourceTree = SOURCE_ROOT; };
+		1FF1FA9B0D1AE4940002D512 /* vorbis.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = vorbis.framework; path = ../../../../Library/Frameworks/vorbis.framework; sourceTree = SOURCE_ROOT; };
 		29B97324FDCFA39411CA2CEA /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = /System/Library/Frameworks/AppKit.framework; sourceTree = "<absolute>"; };
 		29B97325FDCFA39411CA2CEA /* Foundation.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Foundation.framework; path = /System/Library/Frameworks/Foundation.framework; sourceTree = "<absolute>"; };
 		32CA4F630368D1EE00C91783 /* EternalLands_Prefix.pch */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = EternalLands_Prefix.pch; sourceTree = "<group>"; };
@@ -900,16 +893,9 @@
 			buildActionMask = 2147483647;
 			files = (
 				8D11072F0486CEB800E47090 /* Cocoa.framework in Frameworks */,
-				1F812D970D03372A008792A7 /* cal3d.framework in Frameworks */,
-				1F812D980D03372A008792A7 /* ogg.framework in Frameworks */,
-				1F812D9A0D03372A008792A7 /* SDL.framework in Frameworks */,
-				1F812D9B0D03372A008792A7 /* SDL_image.framework in Frameworks */,
-				1F812D9C0D03372A008792A7 /* SDL_net.framework in Frameworks */,
-				1F812D9D0D03372A008792A7 /* vorbis.framework in Frameworks */,
 				1F812DA40D03511A008792A7 /* OpenGL.framework in Frameworks */,
 				1F812DC70D03572D008792A7 /* OpenAL.framework in Frameworks */,
 				1F812DFA0D035D97008792A7 /* AudioToolbox.framework in Frameworks */,
-				1F3D3A1E0D084BBB005F5F25 /* png.framework in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -928,6 +914,13 @@
 		1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */ = {
 			isa = PBXGroup;
 			children = (
+				1FF1FA950D1AE4940002D512 /* cal3d.framework */,
+				1FF1FA960D1AE4940002D512 /* ogg.framework */,
+				1FF1FA970D1AE4940002D512 /* png.framework */,
+				1FF1FA980D1AE4940002D512 /* SDL.framework */,
+				1FF1FA990D1AE4940002D512 /* SDL_image.framework */,
+				1FF1FA9A0D1AE4940002D512 /* SDL_net.framework */,
+				1FF1FA9B0D1AE4940002D512 /* vorbis.framework */,
 				1F812DC60D03572D008792A7 /* OpenAL.framework */,
 				1F812DA30D03511A008792A7 /* OpenGL.framework */,
 				1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */,
@@ -1978,13 +1971,6 @@
 		29B97323FDCFA39411CA2CEA /* Frameworks */ = {
 			isa = PBXGroup;
 			children = (
-				1F3D3A1D0D084BBB005F5F25 /* png.framework */,
-				1F812D900D03372A008792A7 /* cal3d.framework */,
-				1F812D910D03372A008792A7 /* ogg.framework */,
-				1F812D930D03372A008792A7 /* SDL.framework */,
-				1F812D940D03372A008792A7 /* SDL_image.framework */,
-				1F812D950D03372A008792A7 /* SDL_net.framework */,
-				1F812D960D03372A008792A7 /* vorbis.framework */,
 				1058C7A0FEA54F0111CA2CBB /* Linked Frameworks */,
 				1058C7A2FEA54F0111CA2CBB /* Other Frameworks */,
 			);
@@ -2215,10 +2201,12 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				GCC_DYNAMIC_NO_PIC = NO;
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
@@ -2243,10 +2231,12 @@
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2)",
 					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3)",
+					"$(FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4)",
 				);
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_1 = "\"$(HOME)/Library/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_2 = "\"$(DEVELOPER_DIR)/SDKs/MacOSX10.4u.sdk/System/Library/Frameworks\"";
 				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_3 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
+				FRAMEWORK_SEARCH_PATHS_QUOTED_FOR_TARGET_4 = "\"$(SRCROOT)/../../../../Library/Frameworks\"";
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
@@ -2392,9 +2382,10 @@
 					ppc,
 				);
 				CURRENT_PROJECT_VERSION = 1.5.0;
+				DEPLOYMENT_LOCATION = NO;
 				FRAMEWORK_SEARCH_PATHS = (
 					"$(HOME)/Library/Frameworks",
-					"$(SDKROOT)/System/Library/Frameworks",
+					/System/Library/Frameworks,
 					/Library/Frameworks,
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
@@ -2440,8 +2431,8 @@
 				GCC_WARN_ABOUT_RETURN_TYPE = YES;
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				HEADER_SEARCH_PATHS = (
-					"$(SDKROOT)/usr/include/libxml2",
-					"$(SDKROOT)/System/Library/Frameworks/OpenGL.framework/Headers",
+					/usr/include/libxml2,
+					/System/Library/Frameworks/OpenGL.framework/Headers,
 					"$(HOME)/Library/Frameworks/SDL.framework/Headers",
 					"$(HOME)/Library/Frameworks/SDL_net.framework/Headers",
 					"$(HOME)/Library/Frameworks/SDL_image.framework/Headers",
