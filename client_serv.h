@@ -547,12 +547,10 @@ typedef enum actor_commands
   attack_down_2 = 51
 
 #ifdef MISSILES
-  , enter_range_mode = 52
-  , leave_range_mode = 53
-  , range_mode_idle = 54
-  , range_mode_aim = 55
-  , range_mode_fire_and_reload = 56
-  , range_mode_fire_and_leave = 57
+  , enter_aim_mode = 52
+  , leave_aim_mode = 53
+  , aim_mode_reload = 54
+  , aim_mode_fire = 55
 #endif // MISSILES
 
 } actor_commands;
@@ -732,6 +730,12 @@ typedef enum
 #define GET_NEW_MINE 81
 #define GET_MINES_LIST 82
 #define DISPLAY_POPUP 83
+#define MISSILE_AIM_A_AT_B 84
+#define MISSILE_AIM_A_AT_XYZ 85
+#define MISSILE_FIRE_A_TO_B 86
+#define MISSILE_FIRE_A_TO_XYZ 87
+#define MISSILE_FIRE_XYZ_TO_B 88
+
 
 #define SEND_WEATHER 100
 

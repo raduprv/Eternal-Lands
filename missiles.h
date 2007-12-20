@@ -31,8 +31,15 @@ void draw_missiles();
 
 unsigned int fire_arrow(actor *a, float target[3]);
 
-void compute_actor_rotation(struct CalQuaternion *q, actor *a, float target[3]);
+float compute_actor_rotation(struct CalQuaternion *q, actor *a, float target[3]);
 void rotate_actor_bones(actor *a);
+
+
+void actor_aim_at_b(int actor1_id, int actor2_id);
+void actor_aim_at_xyz(int actor_id, float *target);
+void missile_fire_a_to_b(int actor1_id, int actor2_id);
+void missile_fire_a_to_xyz(int actor_id, float *target);
+void missile_fire_xyz_to_b(float *origin, int actor_id);
 
 #endif // __MISSILES_H__
 

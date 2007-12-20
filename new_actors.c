@@ -87,6 +87,17 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->texture_id=texture_id;
 	our_actor->is_enhanced_model=1;
 	our_actor->actor_id=actor_id;
+
+#ifdef MISSILES
+	our_actor->cal_starting_rotation = NULL;
+	our_actor->cal_ending_rotation = NULL;
+	our_actor->cal_rotation_blend = -1.0;
+	our_actor->cal_rotation_speed = 0.0;
+	our_actor->are_bones_rotating = 0;
+	our_actor->in_aim_mode = 0;
+	our_actor->reload = 0;
+#endif // MISSILES
+
 	our_actor->x_pos=x_pos;
 	our_actor->y_pos=y_pos;
 	our_actor->z_pos=z_pos;

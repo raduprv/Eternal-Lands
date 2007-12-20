@@ -1,6 +1,7 @@
 #ifdef MISSILES
 
 #include "3d_objects.h"
+#include "actor_scripts.h"
 #include "cal3d_wrapper.h"
 #include "e3d.h"
 #include "gl_init.h"
@@ -15,8 +16,8 @@
 #define MAX_MISSILES 1024
 #define EPSILON 1E-4
 
-const float arrow_length = 3.0;
-const float arrow_color[3] = {0.5, 0.5, 0.5};
+const float arrow_length = 7.0;
+const float arrow_color[3] = {0.8, 0.8, 0.8};
 
 Missile missiles_list[MAX_MISSILES];
 
@@ -38,32 +39,35 @@ float get_actor_scale(actor *a)
 	return scale;
 }
 
-float get_actor_height(actor *a)
+float get_actor_z(actor *a)
 {
-	return -2.2f+height_map[a->y_tile_pos*tile_map_size_x*6+a->x_tile_pos]*0.2f;
+	return -2.2f + height_map[a->y_tile_pos*tile_map_size_x*6+a->x_tile_pos]*0.2f;
 }
 
-void get_actor_bone_position(actor *a, int bone, float pos[3])
+void get_actor_bone_position(actor *a, int bone_id, float *pos)
 {
-	float points[1024][3];
 	float rotx_pos[3], roty_pos[3], rotz_pos[3];
 	float s_rx, c_rx, s_ry, c_ry, s_rz, c_rz;
 	float scale = get_actor_scale(a);
 	
-	int num_bones = CalSkeleton_GetBonePoints(CalModel_GetSkeleton(a->calmodel),
-											  &points[0][0]);
-	assert(bone < num_bones);
+	struct CalSkeleton *skel;
+	struct CalBone *bone;
+	struct CalVector *point;
+
+	skel = CalModel_GetSkeleton(a->calmodel);
 	
-	pos[0] = points[bone][0];
-	pos[1] = points[bone][1];
-	pos[2] = points[bone][2];
-	
-	s_rx = sin(a->x_rot * (M_PI / 180));
-	c_rx = cos(a->x_rot * (M_PI / 180));
-	s_ry = sin(a->y_rot * (M_PI / 180));
-	c_ry = cos(a->y_rot * (M_PI / 180));
-	s_rz = sin((180 -a->z_rot) * (M_PI / 180));
-	c_rz = cos((180 -a->z_rot) * (M_PI / 180));
+	bone = CalSkeleton_GetBone(skel, bone_id);
+
+	point = CalBone_GetTranslationAbsolute(bone);
+
+	memcpy(pos, CalVector_Get(point), 3*sizeof(float));
+
+	s_rx = sinf(a->x_rot * (M_PI / 180));
+	c_rx = cosf(a->x_rot * (M_PI / 180));
+	s_ry = sinf(a->y_rot * (M_PI / 180));
+	c_ry = cosf(a->y_rot * (M_PI / 180));
+	s_rz = sinf((180 -a->z_rot) * (M_PI / 180));
+	c_rz = cosf((180 -a->z_rot) * (M_PI / 180));
 	
 	rotz_pos[0] = pos[0] * c_rz - pos[1] * s_rz;
 	rotz_pos[1] = pos[0] * s_rz + pos[1] * c_rz;
@@ -79,7 +83,7 @@ void get_actor_bone_position(actor *a, int bone, float pos[3])
 	
 	pos[0] = roty_pos[0] * scale + a->x_pos + 0.25;
 	pos[1] = roty_pos[1] * scale + a->y_pos + 0.25;
-	pos[2] = roty_pos[2] * scale + get_actor_height(a);
+	pos[2] = roty_pos[2] * scale + get_actor_z(a);
 }
 
 unsigned int add_missile(MissileType type,
@@ -146,19 +150,19 @@ void draw_current_actor_nodes()
 	glLineWidth(1.0);
 	glBegin(GL_LINES);
 
-	for (i = 0; i < num_bones; ++i)
-/*  	for (i = 0; i < 3; ++i) */
+/* 	for (i = 0; i < num_bones; ++i) */
+ 	for (i = 0; i < 3; ++i)
 	{
-/* 		switch(i) { */
-/* 		case 0: glColor3f(1.0, 0.0, 0.0); break; */
-/* 		case 1: glColor3f(0.0, 1.0, 0.0); break; */
-/* 		case 2: glColor3f(0.0, 0.0, 1.0); break; */
-/* 		} */
+		switch(i) {
+		case 0: glColor3f(1.0, 0.0, 0.0); break;
+		case 1: glColor3f(0.0, 1.0, 0.0); break;
+		case 2: glColor3f(0.0, 0.0, 1.0); break;
+		}
 /* 		if (i == 13) */
 /* 			glColor3f(1.0, 0.0, 0.0); */
 /* 		else */
 /* 			glColor3f(1.0, 1.0, 1.0); */
-		get_actor_bone_position(a, i, pos);
+		get_actor_bone_position(a, i+30, pos);
 		glVertex3f(pos[0]-0.2, pos[1], pos[2]);
 		glVertex3f(pos[0]+0.2, pos[1], pos[2]);
 		glVertex3f(pos[0], pos[1]-0.2, pos[2]);
@@ -255,21 +259,53 @@ void shortest_arc(struct CalQuaternion *q, float from[3], float to[3])
 	CalQuaternion_Set(q, cross[0], cross[1], cross[2], -dot/2); 
 }
 
-void compute_actor_rotation(struct CalQuaternion *q, actor *a, float target[3])
+float compute_actor_rotation(struct CalQuaternion *q, actor *a, float target[3])
 {
-	float cz = cos((a->z_rot) * M_PI/180.0);
-	float sz = sin((a->z_rot) * M_PI/180.0);
-	float from[3] = {0.0, 0.0, 1.0};
-	float tmp[3] = {target[1] - a->y_pos - 0.25,
-					target[2] - get_actor_height(a) - 1.2f,
-					target[0] - a->x_pos - 0.25};
-	float to[3] = {tmp[0] * sz - tmp[2] * cz,
-				   tmp[1],
-				   tmp[0] * cz + tmp[2] * sz};
+	float cz = cosf((a->z_rot) * M_PI/180.0);
+	float sz = sinf((a->z_rot) * M_PI/180.0);
+	float from[3], to[3], tmp[3];
+	float actor_rotation;
+
+	tmp[0] = target[0] - a->x_pos;
+	tmp[1] = target[1] - a->y_pos;
+	tmp[2] = 0.0;
+	Normalize(tmp, tmp);
+
+	actor_rotation = asinf(tmp[0] * cz - tmp[1] * sz) * 180.0/M_PI;
+	if (tmp[0] * sz + tmp[1] * cz < 0.0) {
+		if (actor_rotation < 0.0)
+			actor_rotation = ((int)(-180-actor_rotation-22.5) / 45) * 45.0;
+		else
+			actor_rotation = ((int)( 180-actor_rotation+22.5) / 45) * 45.0;
+	}
+	else {
+		if (actor_rotation < 0.0)
+			actor_rotation = ((int)(actor_rotation-22.5) / 45) * 45.0;
+		else
+			actor_rotation = ((int)(actor_rotation+22.5) / 45) * 45.0;
+	}
+
+/* 	printf("cz = %f ; sz = %f\n", cz, sz); */
+/* 	printf("tmp = %f %f\n", tmp[0], tmp[1]); */
+/* 	printf("actor_rotation = %f\n", actor_rotation); */
+
+	cz = cosf((a->z_rot + actor_rotation) * M_PI/180.0);
+	sz = sinf((a->z_rot + actor_rotation) * M_PI/180.0);
+	from[0] = 0.0;
+	from[1] = 0.0;
+	from[2] = 1.0;
+	tmp[0] = target[1] - a->y_pos - 0.25;
+	tmp[1] = target[2] - get_actor_z(a) - 1.2;
+	tmp[2] = target[0] - a->x_pos - 0.25; // <-- depend on the weapon!!! put to middle by default
+	to[0] = tmp[0] * sz - tmp[2] * cz;
+	to[1] = tmp[1];
+	to[2] = tmp[0] * cz + tmp[2] * sz;
 
 	Normalize(to, to);
 
 	shortest_arc(q, from, to);
+
+	return actor_rotation;
 }
 
 unsigned int fire_arrow(actor *a, float target[3])
@@ -277,9 +313,13 @@ unsigned int fire_arrow(actor *a, float target[3])
 	unsigned int mis_id;
 	float origin[3];
 
-	get_actor_bone_position(a, 28, origin);
+	/* the following position depends on the weapon!!!
+	 * the current parameters are for a bow (start from right hand)
+	 * for a cross bow, the bolt should start its fly close to the left hand */
+	get_actor_bone_position(a, 30, origin);
+	origin[2] += 0.01;
 	
-	mis_id = add_missile(MISSILE_ARROW, origin, target, 30.0, 0.0);
+	mis_id = add_missile(MISSILE_ARROW, origin, target, 50.0, 0.0);
 	
 	return mis_id;
 }
@@ -291,7 +331,7 @@ void rotate_actor_bones(actor *a)
 	struct CalQuaternion *rot[2];
 	struct CalQuaternion *tmp;
 
-	if (!a->rotating_bones)
+	if (a->cal_rotation_blend < 0.0)
 		return;
 
 	skel = CalModel_GetSkeleton(a->calmodel);
@@ -309,7 +349,7 @@ void rotate_actor_bones(actor *a)
 	if (a->cal_rotation_blend < 1.0) {
 		struct CalQuaternion *tmp2;
 
-		a->cal_rotation_blend += a->cal_rotation_blend_speed;
+		a->cal_rotation_blend += a->cal_rotation_speed;
 
 		tmp2 = CalQuaternion_New();
 
@@ -325,18 +365,26 @@ void rotate_actor_bones(actor *a)
 	else {
 		float *quat;
 
-		a->cal_rotation_blend = 1.0;
-
 		quat = CalQuaternion_Get(a->cal_ending_rotation);
 		if (fabs(quat[0]) < EPSILON &&
 			fabs(quat[1]) < EPSILON &&
 			fabs(quat[2]) < EPSILON &&
 			fabs(1.0 - quat[3]) < EPSILON) {
-			a->rotating_bones = 0;
-			printf("stopping bones rotation\n");
+			a->cal_rotation_blend = -1.0; // stop rotating bones every frames
+			CalQuaternion_Set(a->cal_starting_rotation, 0.0, 0.0, 0.0, 1.0);
+/* 			printf("stopping bones rotation\n"); */
 		}
+		else
+			a->cal_rotation_blend = 1.0;
 
 		CalQuaternion_Blend(tmp, 0.5, a->cal_ending_rotation);
+
+		if (a->are_bones_rotating) {
+			a->are_bones_rotating = 0;
+			if (a->cur_anim.anim_index >= 0 &&
+				a->anim_time >= a->cur_anim.duration)
+				a->busy = 0;
+		}
 	}
 
 	CalQuaternion_Multiply(rot[0], tmp);
@@ -348,6 +396,79 @@ void rotate_actor_bones(actor *a)
 	CalBone_CalculateState(bone[1]);
 
 	CalQuaternion_Delete(tmp);
+}
+
+void actor_aim_at_b(int actor1_id, int actor2_id)
+{
+	actor *act;
+
+	act = get_actor_ptr_from_id(actor2_id);
+	
+	LOCK_ACTORS_LISTS();
+	act->range_target[0] = (float)act->x_pos + 0.25;
+	act->range_target[1] = (float)act->y_pos + 0.25;
+	act->range_target[2] = get_actor_z(act) + 1.2;
+	UNLOCK_ACTORS_LISTS();
+
+	add_command_to_actor(actor1_id, enter_aim_mode);
+}
+
+void actor_aim_at_xyz(int actor_id, float *target)
+{
+	actor *act;
+
+	act = get_actor_ptr_from_id(actor_id);
+
+	LOCK_ACTORS_LISTS();
+	memcpy(act->range_target, target, sizeof(float) * 3);
+	UNLOCK_ACTORS_LISTS();
+
+	add_command_to_actor(actor_id, enter_aim_mode);
+}
+
+void missile_fire_a_to_b(int actor1_id, int actor2_id)
+{
+	actor *act;
+
+	act = get_actor_ptr_from_id(actor2_id);
+	
+	LOCK_ACTORS_LISTS();
+	act->range_target[0] = (float)act->x_pos + 0.25;
+	act->range_target[1] = (float)act->y_pos + 0.25;
+	act->range_target[2] = get_actor_z(act) + 1.2;
+	UNLOCK_ACTORS_LISTS();
+
+	add_command_to_actor(actor1_id, aim_mode_fire);
+}
+
+void missile_fire_a_to_xyz(int actor_id, float *target)
+{
+	actor *act;
+
+	act = get_actor_ptr_from_id(actor_id);
+
+	LOCK_ACTORS_LISTS();
+	memcpy(act->range_target, target, sizeof(float) * 3);
+	UNLOCK_ACTORS_LISTS();
+
+	add_command_to_actor(actor_id, aim_mode_fire);
+}
+
+void missile_fire_xyz_to_b(float *origin, int actor_id)
+{
+	actor * act;
+	unsigned int mis_id;
+	float target[3];
+
+	act = get_actor_ptr_from_id(actor_id);
+
+	LOCK_ACTORS_LISTS();
+	target[0] = (float)act->x_pos + 0.25;
+	target[1] = (float)act->y_pos + 0.25;
+	target[2] = get_actor_z(act) + 1.2;
+	UNLOCK_ACTORS_LISTS();
+
+	mis_id = add_missile(MISSILE_ARROW, origin, target, 50.0, 0.0);
 }
 
 #endif // MISSILES

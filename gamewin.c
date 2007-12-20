@@ -801,7 +801,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 #ifdef MISSILES // FOR DEBUG ONLY!
 			if (flag_ctrl) {
 				float target[3];
-				int in_range_mode;
+				char need_aim;
 				actor *cur_actor = get_actor_ptr_from_id(yourself);
 
 				target[0] = x * 0.5 + 0.25;
@@ -809,40 +809,28 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				target[2] = height_map[y*tile_map_size_x*6+x]*0.2f - 1.0f;
 
 				LOCK_ACTORS_LISTS();
-
-				in_range_mode = cur_actor->in_range_mode;
-				if (!cur_actor->cal_starting_rotation)
-					cur_actor->cal_starting_rotation = CalQuaternion_New();
-				if (!cur_actor->cal_ending_rotation)
-					cur_actor->cal_ending_rotation = CalQuaternion_New();
-
+				need_aim = (!cur_actor->in_aim_mode ||
+							fabs(target[0] - cur_actor->range_target[0]) > 0.0 ||
+							fabs(target[1] - cur_actor->range_target[1]) > 0.0);
 				UNLOCK_ACTORS_LISTS();
 
-				if (!in_range_mode) {
-					memcpy(cur_actor->range_target, target, 3*sizeof(float));
-					add_command_to_actor(yourself, enter_range_mode);
-				}
+				if (need_aim)
+					actor_aim_at_xyz(yourself, target);
 				else {
-					int need_aim;
 					LOCK_ACTORS_LISTS();
-					need_aim = (fabs(target[0] - cur_actor->range_target[0]) > 0.5 ||
-								fabs(target[1] - cur_actor->range_target[1]) > 0.5);
-					memcpy(cur_actor->range_target, target, 3*sizeof(float));
+					cur_actor->reload = 1;
 					UNLOCK_ACTORS_LISTS();
-					if (need_aim)
-						add_command_to_actor(yourself, range_mode_aim);
-					else
-						add_command_to_actor(yourself, range_mode_fire_and_reload);
+					missile_fire_a_to_xyz(yourself, target);
 				}
 			}
 			else {
-				int in_range_mode;
+				char in_aim_mode;
 				actor *cur_actor = get_actor_ptr_from_id(yourself);
 				LOCK_ACTORS_LISTS();
-				in_range_mode = cur_actor->in_range_mode;
+				in_aim_mode = cur_actor->in_aim_mode;
 				UNLOCK_ACTORS_LISTS();
-				if (in_range_mode)
-					add_command_to_actor(yourself, leave_range_mode);
+				if (in_aim_mode)
+					add_command_to_actor(yourself, leave_aim_mode);
 				move_to(x, y);
 			}
 #else // MISSILES

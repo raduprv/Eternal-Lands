@@ -107,10 +107,11 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 #ifdef MISSILES
 	our_actor->cal_starting_rotation = NULL;
 	our_actor->cal_ending_rotation = NULL;
-	our_actor->cal_rotation_blend = 1.0;
-	our_actor->cal_rotation_blend = 0.0;
-	our_actor->rotating_bones = 0;
-	our_actor->in_range_mode = 0;
+	our_actor->cal_rotation_blend = -1.0;
+	our_actor->cal_rotation_speed = 0.0;
+	our_actor->are_bones_rotating = 0;
+	our_actor->in_aim_mode = 0;
+	our_actor->reload = 0;
 #endif // MISSILES
 
 	our_actor->x_pos=x_pos;

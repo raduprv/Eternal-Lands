@@ -104,6 +104,10 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	
 	CalModel_Update(pActor->calmodel,0.0001);//Make changes take effect now
 
+#ifdef MISSILES
+	rotate_actor_bones(pActor);
+#endif // MISSILES
+
 	if (pActor->cur_anim.anim_index==-1)
 		pActor->busy=0;
 	pActor->IsOnIdle=0;
@@ -364,6 +368,9 @@ void cal_render_actor(actor *act)
 #else
 		CalModel_Update(act->calmodel,((cur_time-act->last_anim_update)/1000.0));
 #endif
+#ifdef MISSILES
+	rotate_actor_bones(pActor);
+#endif // MISSILES
 	act->last_anim_update= cur_time;
 #endif	//DYNAMIC_ANIMATIONS
 

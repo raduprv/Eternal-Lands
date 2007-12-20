@@ -440,16 +440,17 @@ typedef struct
 	Uint32	last_anim_update;
 
 #ifdef MISSILES
-	struct CalQuaternion *cal_starting_rotation;
-	struct CalQuaternion *cal_ending_rotation;
-	float cal_rotation_blend;
-	float cal_rotation_blend_speed;
-	int rotating_bones;
-	int in_range_mode;
-
-	/*! Position of the target when aiming
-	 */
-	float range_target[3];
+	/*! \name Range mode parameters */
+	/*! \{ */
+	struct CalQuaternion *cal_starting_rotation; /*!< The starting rotation matrix */
+	struct CalQuaternion *cal_ending_rotation;   /*!< The ending rotation matrix */
+	float cal_rotation_blend; /*!< The blend to applay between the starting and the ending rotations */
+	float cal_rotation_speed; /*!< The speed of the rotation */
+	int are_bones_rotating;   /*!< To tell if the char is rotating */
+	int in_aim_mode;          /*!< To tell if the char is already aiming something */
+	char reload;              /*!< To tell if the char must reload his bow after the next fire */
+	float range_target[3];    /*!< Position of the target to aim/fire at */
+	/*! \} */
 #endif // MISSILES
 
 	/*! \name Actors positions
