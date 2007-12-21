@@ -400,14 +400,15 @@ void rotate_actor_bones(actor *a)
 
 void actor_aim_at_b(int actor1_id, int actor2_id)
 {
-	actor *act;
+	actor *act1, *act2;
 
-	act = get_actor_ptr_from_id(actor2_id);
+	act1 = get_actor_ptr_from_id(actor1_id);
+	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	LOCK_ACTORS_LISTS();
-	act->range_target[0] = (float)act->x_pos + 0.25;
-	act->range_target[1] = (float)act->y_pos + 0.25;
-	act->range_target[2] = get_actor_z(act) + 1.2;
+	act1->range_target[0] = (float)act2->x_pos + 0.25;
+	act1->range_target[1] = (float)act2->y_pos + 0.25;
+	act1->range_target[2] = get_actor_z(act2) + 1.2;
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -428,14 +429,15 @@ void actor_aim_at_xyz(int actor_id, float *target)
 
 void missile_fire_a_to_b(int actor1_id, int actor2_id)
 {
-	actor *act;
+	actor *act1, *act2;
 
-	act = get_actor_ptr_from_id(actor2_id);
+	act1 = get_actor_ptr_from_id(actor1_id);
+	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	LOCK_ACTORS_LISTS();
-	act->range_target[0] = (float)act->x_pos + 0.25;
-	act->range_target[1] = (float)act->y_pos + 0.25;
-	act->range_target[2] = get_actor_z(act) + 1.2;
+	act1->range_target[0] = (float)act2->x_pos + 0.25;
+	act1->range_target[1] = (float)act2->y_pos + 0.25;
+	act1->range_target[2] = get_actor_z(act2) + 1.2;
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
