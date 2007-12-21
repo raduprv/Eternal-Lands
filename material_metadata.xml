@@ -1114,7 +1114,7 @@ meme@daughtersoftiresias.org
     <Texture>./meshes/wraith1.bmp</Texture>
     <Texture>./3dobjects/structures/tentbanner.bmp</Texture>
     <Texture>./3dobjects/structures/sign1.bmp</Texture>
-    <Ambient>0.2, 0.2, 0.2, 1.0</Ambient>
+    <Ambient>0.4, 0.4, 0.4, 1.0</Ambient>
     <Diffuse>1.0, 1.0, 1.0, 1.0</Diffuse>
     <Specular>0.01, 0.01, 0.01, 1.0</Specular>
     <Emission>0.0, 0.0, 0.0, 1.0</Emission>

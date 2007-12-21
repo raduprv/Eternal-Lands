@@ -219,6 +219,14 @@ void change_var(int * var)
 	*var= !*var;
 }
 
+#ifdef NEW_LIGHTING
+void change_new_lighting(int * var)
+{
+	*var= !*var;
+	build_global_light_table();
+}
+#endif
+
 #ifdef EYE_CANDY
 void change_min_ec_framerate(float * var, float * value)
 {
@@ -1469,7 +1477,7 @@ void init_vars()
 	add_var(OPT_BOOL,"use_point_particles","upp",&use_point_particles,change_point_particles,1,"Point Particles","Some systems will not support the new point based particles in EL. Disable this if your client complains about not having the point based particles extension.",ADVVID);
 	add_var(OPT_INT,"particles_percentage","pp",&particles_percentage,change_particles_percentage,100,"Particle Percentage","If you experience a significant slowdown when particles are nearby, you should consider lowering this number.",LODTAB,0,100);
  #ifdef NEW_LIGHTING
-	add_var(OPT_BOOL,"use_new_lighting","unl",&use_new_lighting,change_var,0,"Use New Lighting","Utilize a more physicality-based lighting model to reduce \"flatness\".",LODTAB);
+	add_var(OPT_BOOL,"use_new_lighting","unl",&use_new_lighting,change_new_lighting,0,"Use New Lighting","Utilize a more physicality-based lighting model to reduce \"flatness\".",LODTAB);
 	add_var(OPT_FLOAT,"lighting_contrast","lc",&lighting_contrast,change_float,0.5,"Lighting contrast","The higher the contrast, the more stark the difference between areas in light and those in the dark.",LODTAB,0.0,1.0,0.05);
 	add_var(OPT_BOOL,"night_shift_textures","nst",&night_shift_textures,change_var,0,"Night Textures","Make the scene at night less colorful, as in the real world.  Will impose a small delay when changing to/from dungeon maps.",LODTAB);
  #endif

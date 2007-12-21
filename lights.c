@@ -448,12 +448,11 @@ void reset_material()
 	}
 	else
 	{
+#endif // NEW_LIGHTING
 		GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
 		glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
+#ifdef NEW_LIGHTING
 	}
-#else
-	GLfloat mat_ambient[]={ 1.0, 1.0, 1.0, 1.0 };
-	glMaterialfv(GL_FRONT, GL_AMBIENT_AND_DIFFUSE, mat_ambient);
 #endif //NEW_LIGHTING
 
 	glMaterialfv(GL_FRONT, GL_EMISSION, mat_emission);
