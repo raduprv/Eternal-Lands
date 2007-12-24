@@ -1128,11 +1128,11 @@ void new_minute_console(void){
 	}
 	if(time_warn_s >= 0 && (time_warn_s+game_minute)%180 == 30){
 		char str[100];
-		if (game_minute <= 210) { // sunset
-			safe_snprintf(str, sizeof(str), time_warn_sunset_str, time_warn_s);
-		}
-		else { // sunrise
+		if (time_warn_s+game_minute == 30) { // sunrise
 			safe_snprintf(str, sizeof(str), time_warn_sunrise_str, time_warn_s);
+		}
+		else { // sunset
+			safe_snprintf(str, sizeof(str), time_warn_sunset_str, time_warn_s);
 		}
 		LOG_TO_CONSOLE(c_purple1, str);
 	}
