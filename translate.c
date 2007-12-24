@@ -294,7 +294,8 @@ char	name_too_long[75],
 	msg_accept_buddy_str[55],
 	logconn_str[50],
 	time_warn_hour_str[75],
-	time_warn_sun_str[100],
+	time_warn_sunrise_str[100],
+	time_warn_sunset_str[100],
 	time_warn_day_str[75],
 #ifdef NEW_FILE_IO
 	config_location_str[75],
@@ -797,7 +798,8 @@ void init_console()
 	add_xml_identifier(misc,"date_format",date_format,"Today is the %s day in the month of %s, the year %04d, Age of the Eternals",sizeof(date_format));
 	add_xml_identifier(misc,"book_count",book_count_str,"You have read %d of %d books shown",sizeof(book_count_str));
 	add_xml_identifier(misc,"time_warn_hour",time_warn_hour_str,"This is your %d minute warning for the coming hour.",sizeof(time_warn_hour_str));
-	add_xml_identifier(misc,"time_warn_sun",time_warn_sun_str,"This is your %d minute warning for the coming sunrise/sunset.",sizeof(time_warn_sun_str));
+	add_xml_identifier(misc,"time_warn_sunrise",time_warn_sunrise_str,"This is your %d minute warning for the coming sunrise.",sizeof(time_warn_sunrise_str));
+	add_xml_identifier(misc,"time_warn_sunset",time_warn_sunset_str,"This is your %d minute warning for the coming sunset.",sizeof(time_warn_sunset_str));
 	add_xml_identifier(misc,"time_warn_day",time_warn_day_str,"This is your %d minute warning for the coming day.",sizeof(time_warn_day_str));
 
 	add_xml_identifier(loading_msg,"init_opengl",init_opengl_str,"Initializing OpenGL extensions",sizeof(init_opengl_str));

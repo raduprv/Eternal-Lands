@@ -1118,6 +1118,7 @@ void print_version_string (char *buf, size_t len)
 
 
 void new_minute_console(void){
+	printf("game_minute=%d game_minute%%180=%d\n", game_minute, game_minute%180);
 	if(!(game_minute%60)){
 		timestamp_chat_log();
 	}
@@ -1128,7 +1129,12 @@ void new_minute_console(void){
 	}
 	if(time_warn_s >= 0 && (time_warn_s+game_minute)%180 == 30){
 		char str[100];
-		safe_snprintf(str, sizeof(str), time_warn_sun_str, time_warn_s);
+		if (game_minute <= 210) { // sunset
+			safe_snprintf(str, sizeof(str), time_warn_sunset_str, time_warn_s);
+		}
+		else { // sunrise
+			safe_snprintf(str, sizeof(str), time_warn_sunrise_str, time_warn_s);
+		}
 		LOG_TO_CONSOLE(c_purple1, str);
 	}
 	if(time_warn_d >= 0 && (time_warn_d+game_minute)%360 == 0){
