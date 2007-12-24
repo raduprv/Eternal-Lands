@@ -1118,7 +1118,6 @@ void print_version_string (char *buf, size_t len)
 
 
 void new_minute_console(void){
-	printf("game_minute=%d game_minute%%180=%d\n", game_minute, game_minute%180);
 	if(!(game_minute%60)){
 		timestamp_chat_log();
 	}
