@@ -21,6 +21,7 @@
 #include "spells.h"
 #include "textures.h"
 #include "tiles.h"
+#include "pathfinder.h"
 #include "translate.h"
 #include "io/map_io.h"
 #ifdef NEW_FILE_IO
@@ -258,6 +259,30 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 #endif // MINES
 
 	glEnd();//GL_POINTS
+
+	if (pf_follow_path)
+	{
+		x = pf_dst_tile->x * size_x;
+		y = float_minimap_size - (pf_dst_tile->y * size_y);
+
+		if (x != px || y != py)
+		{
+			if (minimap_zoom < max_zoom)
+			{
+				//adjustments to the other actor positions for zoom
+				x = minimap_translate(x, px, zoom_multip);
+				y = minimap_translate(y, py, zoom_multip);
+			}
+			glBegin(GL_LINES);
+			glColor3f(1.0f,0.0f,0.0f); //red
+			glVertex2i(x-5, y-5);
+			glVertex2i(x+5, y+5);
+			glVertex2i(x-5, y+5);
+			glVertex2i(x+5, y-5);
+			glEnd();//GL_LINES
+		}
+	}
+
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 	glEnable(GL_TEXTURE_2D);
 }
@@ -695,6 +720,53 @@ void minimap_display_sidebar(window_info *win){
 	glEnable(GL_TEXTURE_2D);
 }
 
+/*
+ * Handler for clicks into minimap. Coordinates are given as window pixels with origin at bottom-left corner
+ */   
+static int minimap_walkto(int mx, int my){
+	float size_x = tile_map_size_x * 6;
+	float size_y = tile_map_size_y * 6;
+	float fmx = mx, fmy = my;
+	int dx, dy;
+
+	/* Safety check. Avoid division by zero */
+	if (float_minimap_size == 0)
+		return 0;
+
+	/* Special handling of zoomed states. The map is centered around the actor */
+	if (minimap_zoom < max_zoom)
+	{
+		float px, py;
+		float zoom_multip;
+		actor *me;
+
+		/* Get zoom and actor position (tile coordinates) */
+		zoom_multip = minimap_get_zoom();
+		if ( (me = get_our_actor ()) == NULL)
+			return 0;
+
+		/* Convert tile coordinates to minimap pixels */
+		px = (me->x_tile_pos / size_x) * float_minimap_size;
+		py = (me->y_tile_pos / size_y) * float_minimap_size;
+
+		/* Convert window coordinates to minimap pixels and center around actor */
+		fmx = (fmx - 0.5 * float_minimap_size) * zoom_multip + px;
+		fmy = (fmy - 0.5 * float_minimap_size) * zoom_multip + py;
+	}
+
+	/* Convert minimap coordinates to tile coordinates */
+	dx = 0.5 + (fmx / float_minimap_size) * size_x;
+	dy = 0.5 + (fmy / float_minimap_size) * size_y;
+
+	/* Do path finding */
+	if (pf_find_path(dx, dy))
+	{
+		minimap_touch();
+		return 1;
+	}
+
+	return 0;
+}
 
 int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags){
 	for(;pow(2,4+max_zoom) <= tile_map_size_x;++max_zoom);
@@ -708,6 +780,8 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags){
 	}
 	if(!flags & ELW_LEFT_MOUSE){
 		return 0;
+	} else if (my < win->len_y && mx > 0 && mx < win->len_x-ELW_BOX_SIZE) {
+		return minimap_walkto(mx, win->len_y - my);
 	} else if(mx < win->len_x-ELW_BOX_SIZE || mx > win->len_x){
 		return 0;
 	} else if(my >= ELW_BOX_SIZE*2 && my < ELW_BOX_SIZE*3){
