@@ -1,8 +1,8 @@
 #include <stdlib.h>
 #include <stdio.h>
-#include <SDL_thread.h>
 #include "queue.h"
 #include "elmemory.h"
+#include "threads.h"
 
 int queue_initialise (queue_t **queue)
 {
@@ -31,11 +31,11 @@ int queue_push (queue_t *queue, void *item)
 		newnode->data = item;
 		newnode->next = NULL;
 		/* Add to the end of the queue */
-		SDL_LockMutex(queue->mutex);
+		CHECK_AND_LOCK_MUTEX(queue->mutex);
 		queue->rear->next = newnode;
 		queue->rear = newnode;
 		queue->nodes++;
-		SDL_UnlockMutex(queue->mutex);
+		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
 		return 1;
 	}
 }
@@ -48,7 +48,7 @@ void *queue_pop (queue_t *queue)
 	if (queue == NULL || queue_isempty(queue)) {
 		return NULL;
 	} else {
-		SDL_LockMutex(queue->mutex);
+		CHECK_AND_LOCK_MUTEX(queue->mutex);
 		oldnode = queue->front->next;
 		item = oldnode->data;
 		/* Check if removing the last node from the queue */
@@ -59,7 +59,7 @@ void *queue_pop (queue_t *queue)
 		}
 		free(oldnode);
 		queue->nodes--;
-		SDL_UnlockMutex(queue->mutex);
+		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
 		return item;
 	}
 }
@@ -72,7 +72,7 @@ void *queue_delete_node(queue_t *queue, node_t *node)
 		void *data = NULL;
 		node_t *search_node;
 
-		SDL_LockMutex(queue->mutex);
+		CHECK_AND_LOCK_MUTEX(queue->mutex);
 		search_node = queue->front;
 		/* Find the node in the queue */
 		/* Check if it's the first node. */
@@ -97,7 +97,7 @@ void *queue_delete_node(queue_t *queue, node_t *node)
 				search_node = search_node->next;
 			}
 		}
-		SDL_UnlockMutex(queue->mutex);
+		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
 		return data;
 	}
 }
@@ -109,9 +109,9 @@ int queue_isempty(const queue_t *queue)
 	if (queue == NULL) {
 		return_value = 1;
 	} else {
-		SDL_LockMutex(queue->mutex);
+		CHECK_AND_LOCK_MUTEX(queue->mutex);
 		return_value = (queue->front == queue->rear);
-		SDL_UnlockMutex(queue->mutex);
+		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
 	}
 	return return_value;
 }
@@ -140,7 +140,7 @@ void queue_destroy (queue_t *queue)
 	void *tmp;
 
 	if(queue != NULL) {
-		SDL_LockMutex(queue->mutex);
+		CHECK_AND_LOCK_MUTEX(queue->mutex);
 		while (!queue_isempty (queue)) {
 			if ((tmp = queue_pop(queue)) == NULL) {
 				break;
@@ -150,7 +150,7 @@ void queue_destroy (queue_t *queue)
 		}
 		/* Free the dummy node too */
 		free(queue->front);
-		SDL_UnlockMutex(queue->mutex);
+		CHECK_AND_UNLOCK_MUTEX(queue->mutex);
 		SDL_DestroyMutex(queue->mutex);
 		free (queue);
 	}

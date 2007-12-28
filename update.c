@@ -30,6 +30,7 @@
 #ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #endif
+#include "threads.h"
 
 void create_update_root_window (int width, int height, int time);		// Pre-declare this
 
@@ -369,7 +370,7 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 {
 	log_error("Download needed for %s", filename);
 	// lock the mutex
-	SDL_mutexP(download_mutex);
+	CHECK_AND_LOCK_MUTEX(download_mutex);
 	if(download_queue_size < MAX_UPDATE_QUEUE_SIZE){
 		// add the file to the list, and increase the count
 		download_queue[download_queue_size]= strdup(filename);
@@ -410,7 +411,7 @@ void   add_to_download(const char *filename, const Uint8 *md5)
 		}
 	}
 	// unlock the mutex
-	SDL_mutexV(download_mutex);
+	CHECK_AND_UNLOCK_MUTEX(download_mutex);
 }
 
 
@@ -424,7 +425,7 @@ void    handle_file_download(struct http_get_struct *get)
 	}
 	
 	// lock the mutex
-	SDL_mutexP(download_mutex);
+	CHECK_AND_LOCK_MUTEX(download_mutex);
 	if(get->status == 0){
 		// the download was successful
 		// check to see if the directory tree needs to be created
@@ -467,13 +468,13 @@ void    handle_file_download(struct http_get_struct *get)
 	download_cur_file= NULL;
 
 	// unlock mutex
-	SDL_mutexV(download_mutex);
+	CHECK_AND_UNLOCK_MUTEX(download_mutex);
 
 	// now, release everything
 	free(get);
 	
 	// lock the mutex
-	SDL_mutexP(download_mutex);
+	CHECK_AND_LOCK_MUTEX(download_mutex);
 	if(download_queue_size > 0 && !download_cur_file){
 		// start a thread if a file is waiting to download and no download active
 		char	buffer[512];
@@ -513,7 +514,7 @@ void    handle_file_download(struct http_get_struct *get)
 	}
 
 	// unlock mutex
-	SDL_mutexV(download_mutex);
+	CHECK_AND_UNLOCK_MUTEX(download_mutex);
 
 #ifdef	CUSTOM_UPDATE
 	// watch for being able to do custom updates now

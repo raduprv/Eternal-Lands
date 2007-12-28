@@ -27,6 +27,7 @@
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
+#include "threads.h"
 
 #define MAX_FILENAME_LENGTH 80
 #define MAX_BUFFERS 64
@@ -61,8 +62,8 @@ int last_line = 0;
 #define	LOCK_SOUND_LIST() { int i = 0; while (locked) {	i++; if (i == 32000) printf("lock loop in %s, %s:%d - last lock: %s, %s:%d\n", __FILE__, __FUNCTION__, __LINE__, last_file, last_func, last_line); } safe_strncpy(last_file, __FILE__, strlen(last_file)); safe_strncpy(last_func, __FUNCTION__, strlen(last_func)); last_line = __LINE__; locked = 1; }
 #define	UNLOCK_SOUND_LIST() { locked = 0; }
 #else // _EXTRA_SOUND_DEBUG
-#define	LOCK_SOUND_LIST() SDL_LockMutex(sound_list_mutex);
-#define	UNLOCK_SOUND_LIST() SDL_UnlockMutex(sound_list_mutex);
+#define	LOCK_SOUND_LIST() CHECK_AND_LOCK_MUTEX(sound_list_mutex);
+#define	UNLOCK_SOUND_LIST() CHECK_AND_UNLOCK_MUTEX(sound_list_mutex);
 #endif // _EXTRA_SOUND_DEBUG
 
 typedef struct {

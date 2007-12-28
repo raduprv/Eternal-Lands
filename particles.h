@@ -6,9 +6,9 @@
 #ifndef __PARTICLES_H__
 #define __PARTICLES_H__
 
-#include <SDL_mutex.h>
 #include "platform.h"
 #include "bbox_tree.h"
+#include "threads.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -159,8 +159,8 @@ extern int particles_percentage;
  * \name Particle rendering thread synchronization -> moved to particles.c
  */
 /*! @{ */
-#define	LOCK_PARTICLES_LIST()	SDL_LockMutex(particles_list_mutex)
-#define	UNLOCK_PARTICLES_LIST()	SDL_UnlockMutex(particles_list_mutex)
+#define	LOCK_PARTICLES_LIST()	CHECK_AND_LOCK_MUTEX(particles_list_mutex)
+#define	UNLOCK_PARTICLES_LIST()	CHECK_AND_UNLOCK_MUTEX(particles_list_mutex)
 /*! @} */
 
 
