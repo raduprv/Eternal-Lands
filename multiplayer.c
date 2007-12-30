@@ -1914,10 +1914,12 @@ int get_message_from_server(void *thread_args)
 		}
 		else { /* 0 >= received (EOF or some error) */
 			if (received) {
-				LOG_TO_CONSOLE(c_red2, SDLNet_GetError()); //XXX: SDL[Net]_GetError used by timer thread ? i bet its not reentrant...
+				char str[256];
+				safe_snprintf(str, sizeof(str), "%s: [%s]", disconnected_from_server, SDLNet_GetError());
+				LOG_TO_CONSOLE(c_red2, str);
 			}
-		 
-			LOG_TO_CONSOLE(c_red2, disconnected_from_server);
+		 	else
+				LOG_TO_CONSOLE(c_red2, disconnected_from_server);
 			LOG_TO_CONSOLE(c_red2, alt_x_quit);
 			in_data_used = 0;
 			disconnected = 1;
