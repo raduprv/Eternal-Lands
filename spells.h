@@ -156,6 +156,9 @@ void init_quickspell();
 void add_spell_to_quickbar();
 int get_quickspell_y_base();
 int we_are_poisoned();
+#ifdef NEW_SOUND
+void restart_active_spell_sounds(void);
+#endif
 
 #ifdef __cplusplus
 } // extern "C"

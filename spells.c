@@ -304,6 +304,20 @@ void get_active_spell_list(const Uint8 *my_spell_list)
 	}
 }
 
+#ifdef NEW_SOUND
+void restart_active_spell_sounds(void)
+{
+	int i;
+	for (i = 0; i < NUM_ACTIVE_SPELLS; i++)
+	{
+		if (active_spells[i].sound > 0)
+			stop_sound(active_spells[i].sound);
+		if (active_spells[i].spell != -1)
+			active_spells[i].sound = add_spell_sound(active_spells[i].spell);
+	}
+}
+#endif // NEW_SOUND
+
 int we_are_poisoned()
 {
 	int i;

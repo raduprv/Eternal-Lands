@@ -334,6 +334,7 @@ int sound_num_items = 0;					// Number of "Use item" actions we have sounds for
 int sound_num_tile_types = 0;				// Number of tile type groups we have sounds for
 int num_sound_warnings = 0;					// Number of string warnings
 int have_sound_config = 0;					// true if the sound config file was found
+static int must_restart_spell_sounds = 0;	// true if sounds have been stopped, triggeres an attempt to restart
 
 int snd_cur_map = -1;
 int cur_boundary = 0;
@@ -1743,6 +1744,7 @@ void turn_sound_on()
 		printf("Error turning sound on\n");
 #endif // _EXTRA_SOUND_DEBUG
 	}
+	must_restart_spell_sounds = 1;
 }
 
 void turn_sound_off()
@@ -3834,6 +3836,8 @@ void stop_all_sounds()
 		printf("Error killing all sounds\n");
 #endif //_EXTRA_SOUND_DEBUG
 	}
+	
+	must_restart_spell_sounds = 1;
 }
 
 void unload_sound(int index)
@@ -3902,6 +3906,13 @@ void update_sound(int ms)
 			listenerOri[1] = -1;
 		} else {
 			listenerOri[1] = 0;
+		}
+		// a map change or sound-off will have stopped spell sounds,
+		// now we have our actor, we can re-enable the spell sounds
+		if (must_restart_spell_sounds && !disconnected)
+		{
+			restart_active_spell_sounds();
+			must_restart_spell_sounds = 0;
 		}
 	}
 	
@@ -4836,7 +4847,7 @@ void initial_sound_init(void)
 	return;
 }
 
-/* done once at exit to delete the sount list mutex */
+/* done once at exit to delete the sound list mutex */
 void final_sound_exit(void)
 {
 	SDL_DestroyMutex(sound_list_mutex);
