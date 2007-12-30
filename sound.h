@@ -156,6 +156,8 @@ unsigned int add_spell_sound(int spell);
 unsigned int add_death_sound(actor * act);
 unsigned int add_battlecry_sound(actor * act);
 unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial_gain);
+void initial_sound_init(void);
+void final_sound_exit(void);
 
 /*!
  * \ingroup sound_effects

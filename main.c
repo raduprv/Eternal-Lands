@@ -231,6 +231,9 @@ int start_rendering()
 	}
 #endif  //WINDOWS
 */
+#ifdef NEW_SOUND
+	final_sound_exit();
+#endif
 printf("doing SDL_Quit\n"); fflush(stderr);
 	SDL_Quit( );
 printf("done SDL_Quit\n"); fflush(stderr);

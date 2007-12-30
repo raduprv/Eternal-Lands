@@ -361,7 +361,7 @@ char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
 ALuint sound_source[MAX_SOURCES];
 ALuint sound_buffer[MAX_BUFFERS];
 #endif	//NEW_SOUND
-SDL_mutex *sound_list_mutex;
+SDL_mutex *sound_list_mutex = NULL;
 
 
 #ifdef	OGG_VORBIS
@@ -4823,6 +4823,26 @@ void clear_sound_data()
 	num_sound_warnings = 0;
 }
 
+/* done once at start up to create the sound list mutex */
+void initial_sound_init(void)
+{
+	sound_list_mutex = SDL_CreateMutex();
+	if (!sound_list_mutex)
+	{
+		log_error("Fatal error, unable to create sound list mutex: %s\n", SDL_GetError());
+		SDL_Quit();
+		exit(1);
+	}
+	return;
+}
+
+/* done once at exit to delete the sount list mutex */
+void final_sound_exit(void)
+{
+	SDL_DestroyMutex(sound_list_mutex);
+	sound_list_mutex = NULL;
+}
+
 void init_sound()
 {
 	ALCcontext *context;
@@ -4877,17 +4897,6 @@ void init_sound()
 	{
 		char str[256];
 		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
-		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
-		have_sound = have_music = 0;
-		return;
-	}
-	
-	sound_list_mutex = SDL_CreateMutex();
-	if (!sound_list_mutex)
-	{
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, "Unable to create sound list mutex");
 		LOG_TO_CONSOLE(c_red1, str);
 		LOG_ERROR(str);
 		have_sound = have_music = 0;
@@ -5057,8 +5066,6 @@ void destroy_sound()
 		sounds_list[i].loaded = 0;
 	}
 	UNLOCK_SOUND_LIST();
-	SDL_DestroyMutex(sound_list_mutex);
-	sound_list_mutex = NULL;
 
 	/*
 	 * alutExit() contains a problem with hanging on exit on some
