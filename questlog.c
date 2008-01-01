@@ -25,7 +25,7 @@ int questlog_menu_x=150;
 int questlog_menu_y=70;
 int questlog_menu_x_len=STATS_TAB_WIDTH;
 int questlog_menu_y_len=STATS_TAB_HEIGHT;
-_logdata logdata,*last = NULL, *current = NULL;
+_logdata logdata= {NULL,NULL}, *last = &logdata, *current = NULL;
 int	logdata_length=0;
 int quest_scroll_id = 14;
 int nr_screen_lines = 0;
@@ -61,8 +61,6 @@ void load_questlog()
 		return;
 	}
 #endif /* NEW_FILE_IO */
-	logdata.msg= NULL;
-	current= last= &logdata;
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
 		temp[0]= 0;
@@ -158,6 +156,7 @@ void add_questlog (char *t, int len)
 
 	fwrite (t, sizeof (char), len, qlf);
 	fputc ('\n', qlf);
+	fflush(qlf);
 	// add to list
 	add_questlog_line (t, len);
 }
@@ -173,7 +172,7 @@ void add_questlog_line(char *t, int len)
 	l->msg= (char*)malloc(len+1);
 	string_fix(t, len);
 	safe_snprintf(l->msg, len+1, "%s", t);
-	if (last)
+	if (last!=NULL)
 		last->Next= l;
 	last= l;
 	if(current==NULL)	current= l;
@@ -182,7 +181,7 @@ void add_questlog_line(char *t, int len)
 
 	// update the scrollbar length in the questlog window
 	if (questlog_win >= 0)
-		vscrollbar_set_bar_len (questlog_win, quest_scroll_id, logdata_length);
+		vscrollbar_set_bar_len (questlog_win, quest_scroll_id, logdata_length-1);
 }
 
 
@@ -194,7 +193,7 @@ void goto_questlog_entry(int ln)
 	if(ln <= 0)
 	{
 		// at or before the start
-		current= &logdata;
+		current= logdata.Next;
 		current_line = 0;
 	}
 	else if (ln >= logdata_length)
@@ -213,7 +212,7 @@ void goto_questlog_entry(int ln)
 	else if (ln < current_line)
 	{
 		//reset to the start
-		current= &logdata;
+		current= logdata.Next;
 		cnt = ln;
 		// loop thru all of the entries
 		while(current->Next && cnt-- > 0)
@@ -303,7 +302,8 @@ void fill_questlog_win ()
 	set_window_handler(questlog_win, ELW_HANDLER_DISPLAY, &display_questlog_handler);
 	set_window_handler(questlog_win, ELW_HANDLER_CLICK, &questlog_click);
 
-	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20, boxlen, 20, questlog_menu_y_len - boxlen, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, logdata_length);
+	quest_scroll_id = vscrollbar_add_extended (questlog_win, quest_scroll_id, NULL, questlog_menu_x_len - 20, boxlen, 20, questlog_menu_y_len - boxlen, 0, 1.0, 0.77f, 0.57f, 0.39f, logdata_length-1, 1, logdata_length-1);
+	goto_questlog_entry(logdata_length-1);
 	
 	widget_set_OnClick (questlog_win, quest_scroll_id, questlog_scroll_click);
 	widget_set_OnDrag (questlog_win, quest_scroll_id, questlog_scroll_drag);
