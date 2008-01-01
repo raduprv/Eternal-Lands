@@ -284,4 +284,6 @@ Uint32 get_flags(int win_id);
 } // extern "C"
 #endif
 
+extern Uint32 exp_lev[200];
+
 #endif	//__HUD_H

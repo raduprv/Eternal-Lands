@@ -38,6 +38,9 @@
 #include "errors.h"
 #include "io/elpathwrapper.h"
 #endif
+#ifdef CALCULATOR
+#include "calc.h"
+#endif
 
 typedef char name_t[32];
 
@@ -429,6 +432,43 @@ int command_cls(char *text, int len)
 	clear_display_text_buffer ();
 	return 1;
 }
+
+#ifdef CALCULATOR
+int command_calc(char *text, int len)
+{
+	double res;
+	char str[100];
+	int calcerr;
+	
+	res = calc_exp(text);
+	calcerr = calc_geterror();
+	switch (calcerr){
+		case CALCERR_OK:
+			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "Result: %.0f",res);
+			else safe_snprintf (str,sizeof(str), "Result: %.2f",res);
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+		case CALCERR_SYNTAX:
+			safe_snprintf (str,sizeof(str), "Syntax error");
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+		case CALCERR_DIVIDE:
+			safe_snprintf (str, sizeof(str),"Divide by zero");
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+		case CALCERR_MEM:
+			safe_snprintf (str,sizeof(str), "Memory error");
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+		case CALCERR_XPSYNTAX:
+			safe_snprintf (str,sizeof(str), "Error after L");
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
+			
+	}
+	return 1;
+}
+#endif
 
 int command_markpos(char *text, int len)
 {
@@ -1055,6 +1095,9 @@ void init_commands(const char *filename)
 		}
 		fclose(fp);
 	}
+#ifdef CALCULATOR
+	add_command("calc", &command_calc);
+#endif
 	add_command("cls", &command_cls);
 	add_command(cmd_markpos, &command_markpos);
 	add_command(cmd_mark, &command_mark);
