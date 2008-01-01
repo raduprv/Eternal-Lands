@@ -64,7 +64,7 @@ void startpaste ()
       {
         char byte = *(CFDataGetBytePtr( flavorData ) + dataIndex);
         
-        flavorText[dataIndex] = (byte>40) ? byte : ' ';
+        flavorText[dataIndex] = (byte>32) ? byte : ' ';
       }
     flavorText[flavorDataSize] = '\0';  
 	CFRelease(flavorData);
