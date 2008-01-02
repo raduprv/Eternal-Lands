@@ -184,6 +184,11 @@ static __inline__ void check_option_var(char* name);
 
 static __inline__ void update_shadow_mapping()
 {
+	if (depth_map_id != 0)
+	{
+		glDeleteTextures(1, &depth_map_id);
+		depth_map_id = 0;
+	}
 	if (use_frame_buffer && use_shadow_mapping && shadows_on)
 	{
 		change_shadow_framebuffer_size();
@@ -191,11 +196,6 @@ static __inline__ void update_shadow_mapping()
 	else
 	{
 		free_shadow_framebuffer();
-	}
-	if (depth_map_id != 0)
-	{
-		glDeleteTextures(1, &depth_map_id);
-		depth_map_id = 0;
 	}
 }
 
