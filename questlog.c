@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include <string.h>
+#include "dialogues.h"
 #include "questlog.h"
 #include "asc.h"
 #include "elwindows.h"
@@ -33,7 +34,7 @@ FILE *qlf = NULL;
 
 int questlog_y;
 
-void add_questlog_line(char *t, int len);   /* forward declaration */
+void add_questlog_line(char *t, int len, const char *npcprefix);   /* forward declaration */
 
 void load_questlog()
 {
@@ -66,7 +67,7 @@ void load_questlog()
 		temp[0]= 0;
 		fgets(temp,999,f);
 		if(temp[0] == 0)break;
-		add_questlog_line(temp, strlen(temp));
+		add_questlog_line(temp, strlen(temp), "");
 	}
 	current=logdata.Next;
 	fclose(f);
@@ -119,6 +120,7 @@ void string_fix(char *t, int len)
 void add_questlog (char *t, int len)
 {
 	int idx;
+	char npcprefix[30];
 
 	//write on file
 	if(qlf == NULL){
@@ -154,24 +156,27 @@ void add_questlog (char *t, int len)
 		if (t[idx] == '\n') t[idx] = ' ';
 	}
 
+	safe_snprintf(npcprefix, sizeof(npcprefix), "%c%s: ", (char)to_color_char(c_blue2), (char *)npc_name);
+	fwrite (npcprefix, sizeof (char), strlen(npcprefix), qlf);
 	fwrite (t, sizeof (char), len, qlf);
 	fputc ('\n', qlf);
 	fflush(qlf);
 	// add to list
-	add_questlog_line (t, len);
+	add_questlog_line (t, len, npcprefix);
 }
 
 
-void add_questlog_line(char *t, int len)
+void add_questlog_line(char *t, int len, const char *npcprefix)
 {
 	_logdata *l;
+	int npclen = strlen(npcprefix);
 
 	if(len <= 0)	len=strlen(t);
 	l= (_logdata*)malloc(sizeof(_logdata));
 	l->Next= NULL;
-	l->msg= (char*)malloc(len+1);
-	string_fix(t, len);
-	safe_snprintf(l->msg, len+1, "%s", t);
+	l->msg= (char*)malloc(len + npclen + 1);
+	safe_snprintf(l->msg, len+npclen+1, "%s%s", npcprefix, t);
+	string_fix(l->msg, len + npclen);
 	if (last!=NULL)
 		last->Next= l;
 	last= l;
