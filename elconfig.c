@@ -182,6 +182,23 @@ float float_one_func()
 
 static __inline__ void check_option_var(char* name);
 
+static __inline__ void update_shadow_mapping()
+{
+	if (use_frame_buffer && use_shadow_mapping && shadows_on)
+	{
+		change_shadow_framebuffer_size();
+	}
+	else
+	{
+		free_shadow_framebuffer();
+	}
+	if (depth_map_id != 0)
+	{
+		glDeleteTextures(1, &depth_map_id);
+		depth_map_id = 0;
+	}
+}
+
 static __inline__ void update_fbo()
 {
 	check_option_var("shadow_map_size");
@@ -200,6 +217,7 @@ static __inline__ void update_fbo()
 		{
 			free_reflection_framebuffer();
 		}
+		update_shadow_mapping();
  #ifdef MINIMAP
 		if (use_frame_buffer)
 		{
@@ -209,6 +227,7 @@ static __inline__ void update_fbo()
 		{
 			minimap_free_framebuffer();
 		}
+
  #endif //MINIMAP
 #endif // MAP_EDITOR
 	}
@@ -615,82 +634,87 @@ void change_shadow_map_size(int *pointer, int value)
 	int index, size, i, max_size, error;
 	char error_str[1024];
 
-	if (value >= array[0]) {
-		index= 0;
-		for(i= 0; i < 10; i++) {
+	if (value >= array[0])
+	{
+		index = 0;
+		for (i = 0; i < 10; i++)
+		{
 			/* Check if we can set the multiselect widget to this */
-			if(array[i] == value) {
-				index= i;
+			if (array[i] == value)
+			{
+				index = i;
 				break;
 			}
 		}
-	} else {
-		index= min2i(max2i(0, value), 9);
+	}
+	else
+	{
+		index = min2i(max2i(0, value), 9);
 	}
 
-	size= array[index];
+	size = array[index];
 
 	if (gl_extensions_loaded && use_shadow_mapping)
 	{
 		error= 0;
 
-		if (use_frame_buffer) glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
-		else max_size= min2i(window_width, window_height);
+		if (use_frame_buffer)
+		{
+			glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &max_size);
+		}
+		else
+		{
+			max_size = min2i(window_width, window_height);
+		}
 
-		if (size > max_size) {
-			while ((size > max_size) && (index > 0)) {
+		if (size > max_size)
+		{
+			while ((size > max_size) && (index > 0))
+			{
 				index--;
-				size= array[index];
+				size = array[index];
 			}
 			error= 1;
 		}
 
-		if (!have_extension(arb_texture_non_power_of_two))
+		if (!(have_extension(arb_texture_non_power_of_two) || supports_gl_version(2, 0)))
 		{
 			switch (index)
 			{
 				case 2:
-					index= 1;
-					error= 1;
+					index = 1;
+					error = 1;
 					break;
 				case 4:
 				case 5:
 				case 6:
-					index= 3;
-					error= 1;
+					index = 3;
+					error = 1;
 					break;
 				case 8:
-					index= 7;
-					error= 1;
+					index = 7;
+					error = 1;
 					break;
 			}
-			size= array[index];
+			size = array[index];
 		}
-		if (error == 1) {
+		if (error == 1)
+		{
 			memset(error_str, 0, sizeof(error_str));
-			safe_snprintf(error_str, sizeof(error_str), shadow_map_size_not_supported_str, size);
+			safe_snprintf(error_str, sizeof(error_str),
+				shadow_map_size_not_supported_str, size);
 			LOG_TO_CONSOLE(c_yellow2, error_str);
 		}
 
-		shadow_map_size= size;
-		if (depth_map_id != 0) {
-			glDeleteTextures(1, &depth_map_id);
-			depth_map_id= 0;
-		}
-		if (use_frame_buffer && use_shadow_mapping && shadows_on)
-		{
-			change_shadow_framebuffer_size();
-		}
-		else
-		{
-			free_shadow_framebuffer();
-		}
+		shadow_map_size = size;
+		update_shadow_mapping();
 	}
 
-	if (pointer != NULL) {
+	if (pointer != NULL)
+	{
 		*pointer= index;
 	}
-	shadow_map_size= size;
+	shadow_map_size = size;
 }
 
 void change_compass_direction (int *north)
