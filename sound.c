@@ -2165,7 +2165,10 @@ int init_sound_stream(stream_data * stream, int type, int priority)
 	LOCK_SOUND_LIST();
 	source = get_available_source(priority);
 	if (!source || !alIsSource(source->source))
+	{
+		UNLOCK_SOUND_LIST();
 		return 0;
+	}
 	// Set some details so non-streamed functions see this source as used
 	source->cookie = get_next_cookie();
 	source->current_stage = STAGE_STREAM;
