@@ -44,7 +44,7 @@ float get_actor_z(actor *a)
 	return -2.2f + height_map[a->y_tile_pos*tile_map_size_x*6+a->x_tile_pos]*0.2f;
 }
 
-void get_actor_bone_position(actor *a, int bone_id, float *pos)
+void get_actor_bone_position(actor *a, int bone_id, float *pos, float *delta)
 {
 	float rotx_pos[3], roty_pos[3], rotz_pos[3];
 	float s_rx, c_rx, s_ry, c_ry, s_rz, c_rz;
@@ -61,6 +61,21 @@ void get_actor_bone_position(actor *a, int bone_id, float *pos)
 	point = CalBone_GetTranslationAbsolute(bone);
 
 	memcpy(pos, CalVector_Get(point), 3*sizeof(float));
+
+	if (delta) {
+		struct CalQuaternion *rot;
+		struct CalVector *vect;
+		float *tmp;
+		rot = CalBone_GetRotationAbsolute(bone);
+		vect = CalVector_New();
+		CalVector_Set(vect, delta[0], delta[1], delta[2]);
+		CalVector_Transform(vect, rot);
+		tmp = CalVector_Get(vect);
+		pos[0] += tmp[0];
+		pos[1] += tmp[1];
+		pos[2] += tmp[2];
+		CalVector_Delete(vect);
+	}
 
 	s_rx = sinf(a->x_rot * (M_PI / 180));
 	c_rx = cosf(a->x_rot * (M_PI / 180));
@@ -96,8 +111,10 @@ unsigned int add_missile(MissileType type,
 	
 	assert(missiles_count < MAX_MISSILES);
 
-	//printf("add_missile: origin=(%0.2f,%0.2f,%0.2f), target=(%0.2f,%0.2f,%0.2f)\n",
-	//	   origin[0], origin[1], origin[2], target[0], target[1], target[2]);
+#ifdef DEBUG
+	printf("add_missile: origin=(%0.2f,%0.2f,%0.2f), target=(%0.2f,%0.2f,%0.2f)\n",
+		   origin[0], origin[1], origin[2], target[0], target[1], target[2]);
+#endif // DEBUG
 	
 	mis = &missiles_list[missiles_count++];
 	memcpy(mis->position, origin, sizeof(float)*3);
@@ -133,46 +150,56 @@ void remove_missile(unsigned int missile_id)
 void draw_current_actor_nodes()
 {
 	actor *a = get_actor_ptr_from_id(yourself);
-	float points[1024][3];
-	float pos[3];
-	int i, num_bones;
+	float pos[3], delta[3], tmp[3];
+	int i;
 	
 	if (!a) return;
 	
-	num_bones = CalSkeleton_GetBonePoints(CalModel_GetSkeleton(a->calmodel), &points[0][0]);
-	
-/* 	glPushAttrib(GL_ALL_ATTRIB_BITS); */
-/* 	glEnable(GL_COLOR_MATERIAL); */
-/* 	glDisable(GL_LIGHTING); */
-/* 	glDisable(GL_TEXTURE_2D); */
-/* 	glPointSize(10.0); */
 	glColor3f(1.0, 1.0, 1.0);
-	glLineWidth(1.0);
+	glLineWidth(3.0);
 	glBegin(GL_LINES);
 
-/* 	for (i = 0; i < num_bones; ++i) */
- 	for (i = 0; i < 3; ++i)
+ 	for (i = 37; i <= 37; ++i)
 	{
-		switch(i) {
-		case 0: glColor3f(1.0, 0.0, 0.0); break;
-		case 1: glColor3f(0.0, 1.0, 0.0); break;
-		case 2: glColor3f(0.0, 0.0, 1.0); break;
-		}
+/* 		switch(i) { */
+/* 		case 0: glColor3f(1.0, 0.0, 0.0); break; */
+/* 		case 1: glColor3f(0.0, 1.0, 0.0); break; */
+/* 		case 2: glColor3f(0.0, 0.0, 1.0); break; */
+/* 		} */
 /* 		if (i == 13) */
 /* 			glColor3f(1.0, 0.0, 0.0); */
 /* 		else */
 /* 			glColor3f(1.0, 1.0, 1.0); */
-		get_actor_bone_position(a, i+30, pos);
-		glVertex3f(pos[0]-0.2, pos[1], pos[2]);
-		glVertex3f(pos[0]+0.2, pos[1], pos[2]);
-		glVertex3f(pos[0], pos[1]-0.2, pos[2]);
-		glVertex3f(pos[0], pos[1]+0.2, pos[2]);
-		glVertex3f(pos[0], pos[1], pos[2]-0.2);
-		glVertex3f(pos[0], pos[1], pos[2]+0.2);
+/* 		get_actor_bone_position(a, i+30, pos, NULL); */
+/* 		glVertex3f(pos[0]-0.2, pos[1], pos[2]); */
+/* 		glVertex3f(pos[0]+0.2, pos[1], pos[2]); */
+/* 		glVertex3f(pos[0], pos[1]-0.2, pos[2]); */
+/* 		glVertex3f(pos[0], pos[1]+0.2, pos[2]); */
+/* 		glVertex3f(pos[0], pos[1], pos[2]-0.2); */
+/* 		glVertex3f(pos[0], pos[1], pos[2]+0.2); */
+
+		get_actor_bone_position(a, i, pos, NULL);
+
+		delta[0] = 0.3; delta[1] = 0.0; delta[2] = 0.0;
+		get_actor_bone_position(a, i, tmp, delta);
+		glColor3f(1.0, 0.0, 0.0);
+		glVertex3fv(pos);
+		glVertex3fv(tmp);
+
+		delta[0] = 0.0; delta[1] = 0.3; delta[2] = 0.0;
+		get_actor_bone_position(a, i, tmp, delta);
+		glColor3f(0.0, 1.0, 0.0);
+		glVertex3fv(pos);
+		glVertex3fv(tmp);
+
+		delta[0] = 0.0; delta[1] = 0.0; delta[2] = 0.3;
+		get_actor_bone_position(a, i, tmp, delta);
+		glColor3f(0.0, 0.0, 1.0);
+		glVertex3fv(pos);
+		glVertex3fv(tmp);
 	}
 	
 	glEnd();
-/* 	glPopAttrib(); */
 }
 
 void update_missiles(Uint32 time_diff)
@@ -239,7 +266,9 @@ void draw_missiles()
 	}
 	glEnd();
 
-/* 	draw_current_actor_nodes(); */
+#ifdef DEBUG
+	draw_current_actor_nodes();
+#endif // DEBUG
 
 	glPopAttrib();
 }
@@ -285,9 +314,11 @@ float compute_actor_rotation(struct CalQuaternion *q, actor *a, float target[3])
 			actor_rotation = ((int)(actor_rotation+22.5) / 45) * 45.0;
 	}
 
-/* 	printf("cz = %f ; sz = %f\n", cz, sz); */
-/* 	printf("tmp = %f %f\n", tmp[0], tmp[1]); */
-/* 	printf("actor_rotation = %f\n", actor_rotation); */
+#ifdef DEBUG
+	printf("cos = %f ; sin = %f\n", cz, sz);
+	printf("direction = %f %f %f\n", tmp[0], tmp[1], tmp[2]);
+	printf("actor rotation = %f\n", actor_rotation);
+#endif // DEBUG
 
 	cz = cosf((a->z_rot + actor_rotation) * M_PI/180.0);
 	sz = sinf((a->z_rot + actor_rotation) * M_PI/180.0);
@@ -296,7 +327,7 @@ float compute_actor_rotation(struct CalQuaternion *q, actor *a, float target[3])
 	from[2] = 1.0;
 	tmp[0] = target[1] - a->y_pos - 0.25;
 	tmp[1] = target[2] - get_actor_z(a) - 1.2;
-	tmp[2] = target[0] - a->x_pos - 0.25; // <-- depend on the weapon!!! put to middle by default
+	tmp[2] = target[0] - a->x_pos - 0.25; // depends on the weapon
 	to[0] = tmp[0] * sz - tmp[2] * cz;
 	to[1] = tmp[1];
 	to[2] = tmp[0] * cz + tmp[2] * sz;
@@ -312,12 +343,9 @@ unsigned int fire_arrow(actor *a, float target[3])
 {
 	unsigned int mis_id;
 	float origin[3];
+	float delta[3] = {0.0, 0.4 * get_actor_scale(a), 0.0}; // depends on the weapon
 
-	/* the following position depends on the weapon!!!
-	 * the current parameters are for a bow (start from right hand)
-	 * for a cross bow, the bolt should start its fly close to the left hand */
-	get_actor_bone_position(a, 30, origin);
-	origin[2] += 0.01;
+	get_actor_bone_position(a, 37, origin, delta);
 	
 	mis_id = add_missile(MISSILE_ARROW, origin, target, 50.0, 0.0);
 	
@@ -372,7 +400,9 @@ void rotate_actor_bones(actor *a)
 			fabs(1.0 - quat[3]) < EPSILON) {
 			a->cal_rotation_blend = -1.0; // stop rotating bones every frames
 			CalQuaternion_Set(a->cal_starting_rotation, 0.0, 0.0, 0.0, 1.0);
-/* 			printf("stopping bones rotation\n"); */
+#ifdef DEBUG
+			printf("stopping bones rotation\n");
+#endif // DEBUG
 		}
 		else
 			a->cal_rotation_blend = 1.0;

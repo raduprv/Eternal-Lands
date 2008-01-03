@@ -661,7 +661,7 @@ void next_command()
 					}
 #ifdef MISSILES
 					else if(actors_list[i]->in_aim_mode){
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
+						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
 					}
 #endif // MISSILES
 					else if(!actors_list[i]->sitting) {
@@ -915,7 +915,7 @@ void next_command()
 #ifdef MISSILES
 				case enter_aim_mode:
 					if (!actors_list[i]->in_aim_mode) {
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
 						if (!actors_list[i]->cal_starting_rotation)
 							actors_list[i]->cal_starting_rotation = CalQuaternion_New();
 						if (!actors_list[i]->cal_ending_rotation)
@@ -924,7 +924,7 @@ void next_command()
 						actors_list[i]->in_aim_mode = 1;
 					}
 					else {
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_combat_idle_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
 						CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
 											actors_list[i]->cal_rotation_blend,
 											actors_list[i]->cal_ending_rotation);
@@ -946,7 +946,7 @@ void next_command()
 					break;
 
 				case leave_aim_mode:
-					cal_actor_set_anim(i,actors_defs[actor_type].cal_out_combat_frame);
+					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
 					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
 										actors_list[i]->cal_rotation_blend,
 										actors_list[i]->cal_ending_rotation);
@@ -967,7 +967,7 @@ void next_command()
 					if (actors_list[i]->reload) {
 						// launch fire and reload animation
 						if(actors_list[i]->is_enhanced_model)
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
 						else
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_1_frame);
 
@@ -976,21 +976,21 @@ void next_command()
 					else {
 						// launch fire and leave aim mode animation
 						if(actors_list[i]->is_enhanced_model)
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_1_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
 						else
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_1_frame);
 
 						actors_list[i]->in_aim_mode = 0;
 					}
 					
-					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
-										actors_list[i]->cal_rotation_blend,
-										actors_list[i]->cal_ending_rotation);
-					CalQuaternion_Set(actors_list[i]->cal_ending_rotation, 0.0, 0.0, 0.0, 1.0);
-					actors_list[i]->cal_rotation_blend = 0.0;
-					actors_list[i]->cal_rotation_speed = 1.0/18.0;
-					actors_list[i]->are_bones_rotating = 1;
-					actors_list[i]->busy = 1;
+/* 					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation, */
+/* 										actors_list[i]->cal_rotation_blend, */
+/* 										actors_list[i]->cal_ending_rotation); */
+/* 					CalQuaternion_Set(actors_list[i]->cal_ending_rotation, 0.0, 0.0, 0.0, 1.0); */
+/* 					actors_list[i]->cal_rotation_blend = 0.0; */
+/* 					actors_list[i]->cal_rotation_speed = 1.0/18.0; */
+/* 					actors_list[i]->are_bones_rotating = 1; */
+/* 					actors_list[i]->busy = 1; */
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
@@ -1819,7 +1819,70 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
+			}
+#ifdef MISSILES
+			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_range_fire_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			}
+			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire_out") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_range_fire_out_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			}
+			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_idle") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_range_idle_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			}
+			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_in") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_range_in_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			}
+			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_out") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_range_out_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			}
+#endif // MISSILES
+			else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
 				weapon->glow = mode;
@@ -2911,6 +2974,13 @@ int parse_actor_script (xmlNode *cfg)
 #endif // NEW_SOUND
 
 	for (i=0; i<80; ++i){
+#ifdef MISSILES
+		act->weapon[i].cal_range_in_frame.anim_index=-1;
+		act->weapon[i].cal_range_out_frame.anim_index=-1;
+		act->weapon[i].cal_range_idle_frame.anim_index=-1;
+		act->weapon[i].cal_range_fire_frame.anim_index=-1;
+		act->weapon[i].cal_range_fire_out_frame.anim_index=-1;
+#endif // MISSILES
 		act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
 		act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
 		act->weapon[i].cal_attack_down_1_frame.anim_index=-1;

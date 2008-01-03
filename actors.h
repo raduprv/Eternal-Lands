@@ -173,6 +173,14 @@ typedef struct
 	int glow;
 	int mesh_index;
 
+#ifdef MISSILES
+	struct cal_anim cal_range_in_frame;
+	struct cal_anim cal_range_out_frame;
+	struct cal_anim cal_range_idle_frame;
+	struct cal_anim cal_range_fire_frame;
+	struct cal_anim cal_range_fire_out_frame;
+#endif // MISSILES
+
 	struct cal_anim cal_attack_up_1_frame;
 	struct cal_anim cal_attack_up_2_frame;
 	struct cal_anim cal_attack_down_1_frame;
