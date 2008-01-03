@@ -270,6 +270,8 @@ void print_fbo_errors(const char *file, const char *func, int line)
 void free_color_framebuffer(GLuint *fbo, GLuint *fbo_depth_buffer, GLuint * fbo_stencil_buffer,
 	GLuint *fbo_texture)
 {
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 	if (fbo != NULL)
 	{
 		if (*fbo != 0)
@@ -278,6 +280,8 @@ void free_color_framebuffer(GLuint *fbo, GLuint *fbo_depth_buffer, GLuint * fbo_
 		}
 		*fbo = 0;
 	}
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 	if (fbo_depth_buffer != NULL)
 	{
 		if (*fbo_depth_buffer != 0)
@@ -286,6 +290,8 @@ void free_color_framebuffer(GLuint *fbo, GLuint *fbo_depth_buffer, GLuint * fbo_
 		}
 		*fbo_depth_buffer = 0;
 	}
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 	if (fbo_stencil_buffer != NULL)
 	{
 		if (*fbo_stencil_buffer != 0)
@@ -294,6 +300,8 @@ void free_color_framebuffer(GLuint *fbo, GLuint *fbo_depth_buffer, GLuint * fbo_
 		}
 		*fbo_stencil_buffer = 0;
 	}
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 	if (fbo_texture != NULL)
 	{
 		if (*fbo_texture != 0)
@@ -302,6 +310,8 @@ void free_color_framebuffer(GLuint *fbo, GLuint *fbo_depth_buffer, GLuint * fbo_
 		}
 		*fbo_texture = 0;
 	}
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 }
 
 void make_color_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_depth_buffer,
@@ -378,6 +388,8 @@ void change_color_framebuffer_size(int width, int height, GLuint *fbo, GLuint *f
 
 void free_depth_framebuffer(GLuint *fbo, GLuint *fbo_texture)
 {
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 	if (fbo != NULL)
 	{
 		if (*fbo != 0)
@@ -386,6 +398,8 @@ void free_depth_framebuffer(GLuint *fbo, GLuint *fbo_texture)
 		}
 		*fbo = 0;
 	}
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 	if (fbo_texture != NULL)
 	{
 		if (*fbo_texture != 0)
@@ -394,6 +408,8 @@ void free_depth_framebuffer(GLuint *fbo, GLuint *fbo_texture)
 		}
 		*fbo_texture = 0;
 	}
+	CHECK_GL_ERRORS();
+	CHECK_FBO_ERRORS();
 }
 
 void make_depth_framebuffer(int width, int height, GLuint *fbo, GLuint *fbo_texture)

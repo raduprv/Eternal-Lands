@@ -182,55 +182,70 @@ float float_one_func()
 
 static __inline__ void check_option_var(char* name);
 
-static __inline__ void update_shadow_mapping()
+static __inline__ void destroy_shadow_mapping()
 {
-	if (depth_map_id != 0)
+	if (gl_extensions_loaded)
 	{
-		glDeleteTextures(1, &depth_map_id);
-		depth_map_id = 0;
-	}
-	if (use_frame_buffer && use_shadow_mapping && shadows_on)
-	{
-		change_shadow_framebuffer_size();
-	}
-	else
-	{
-		free_shadow_framebuffer();
+		CHECK_GL_ERRORS();
+		if (have_extension(ext_framebuffer_object))
+		{
+			free_shadow_framebuffer();
+		}
+		else
+		{
+			if (depth_map_id != 0)
+			{
+				glDeleteTextures(1, &depth_map_id);
+				depth_map_id = 0;
+			}
+		}
+		CHECK_GL_ERRORS();
 	}
 }
 
-static __inline__ void update_fbo()
+static __inline__ void destroy_fbos()
 {
-	check_option_var("shadow_map_size");
-	if (gl_extensions_loaded && have_extension(ext_framebuffer_object))
+	if (gl_extensions_loaded)
 	{
-#ifndef MAP_EDITOR
- #ifdef	USE_SHADER
-		if ((water_shader_quality > 0) && show_reflection)
- #else	// USE_SHADER
-		if (use_frame_buffer && show_reflection)
- #endif	// USE_SHADER
+		CHECK_GL_ERRORS();
+		if (have_extension(ext_framebuffer_object))
 		{
-			change_reflection_framebuffer_size(window_width, window_height);
-		}
-		else
-		{
+			destroy_shadow_mapping();
 			free_reflection_framebuffer();
-		}
-		update_shadow_mapping();
- #ifdef MINIMAP
-		if (use_frame_buffer)
-		{
-			minimap_make_framebuffer();
-		}
-		else
-		{
 			minimap_free_framebuffer();
 		}
+		CHECK_GL_ERRORS();
+	}
+}
 
+static __inline__ void build_fbos()
+{
+	if (gl_extensions_loaded)
+	{
+		if (have_extension(ext_framebuffer_object) && use_frame_buffer)
+		{
+#ifndef MAP_EDITOR
+ #ifdef	USE_SHADER
+			if ((water_shader_quality > 0) && show_reflection)
+ #else	// USE_SHADER
+			if (show_reflection)
+ #endif	// USE_SHADER
+			{
+				make_reflection_framebuffer(window_width, window_height);
+			}
+ #ifdef MINIMAP
+			minimap_make_framebuffer();
  #endif //MINIMAP
 #endif // MAP_EDITOR
+		}
+		check_option_var("shadow_map_size");
 	}
+}
+
+static __inline__ void update_fbos()
+{
+	destroy_fbos();
+	build_fbos();
 }
 
 void change_var(int * var)
@@ -351,7 +366,7 @@ void change_poor_man(int *poor_man)
 #ifndef MAP_EDITOR
 		use_frame_buffer= 0;
 #endif
-		update_fbo();
+		update_fbos();
 	}
 }
 
@@ -571,7 +586,7 @@ void switch_vidmode(int *pointer, int mode)
 			win_bpp= 16;
 		break;
 	}
-
+	destroy_fbos();
 //#ifndef OSX
 //	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, SDL_OPENGL|SDL_FULLSCREEN)) {
 //#else
@@ -587,7 +602,7 @@ void switch_vidmode(int *pointer, int mode)
 		}
 #endif
 	}
-	update_fbo();
+	build_fbos();
 }
 
 void toggle_full_screen_mode(int * fs)
@@ -705,16 +720,20 @@ void change_shadow_map_size(int *pointer, int value)
 				shadow_map_size_not_supported_str, size);
 			LOG_TO_CONSOLE(c_yellow2, error_str);
 		}
-
 		shadow_map_size = size;
-		update_shadow_mapping();
+
+		destroy_shadow_mapping();
+		make_shadow_framebuffer();
+	}
+	else
+	{
+		shadow_map_size = size;
 	}
 
 	if (pointer != NULL)
 	{
 		*pointer= index;
 	}
-	shadow_map_size = size;
 }
 
 void change_compass_direction (int *north)
@@ -1002,7 +1021,7 @@ void change_shadow_mapping (int *sm)
 			LOG_TO_CONSOLE (c_red1, disabled_shadow_mapping);
 		}
 	}
-	update_fbo();
+	update_fbos();
 }
 
 #ifndef MAP_EDITOR2
@@ -1022,7 +1041,7 @@ void change_global_filters (int *use)
 void change_reflection(int *rf)
 {
 	*rf= !*rf;
-	update_fbo();
+	update_fbos();
 }
 
 #ifndef MAP_EDITOR
@@ -1043,14 +1062,14 @@ void change_frame_buffer(int *fb)
 			LOG_TO_CONSOLE (c_red1, disabled_framebuffer);
 		}
 	}
-	update_fbo();
+	update_fbos();
 }
 #endif
 
 void change_shadows(int *sh)
 {
 	*sh= !*sh;
-	update_fbo();
+	update_fbos();
 }
 
 #ifdef	USE_SHADER
@@ -1076,7 +1095,7 @@ void change_water_shader_quality(int *wsq, int value)
 	{
 		*wsq = value;
 	}
-	update_fbo();
+	update_fbos();
 }
 #endif	// USE_SHADER
 

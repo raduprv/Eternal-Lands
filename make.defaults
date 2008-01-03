@@ -68,7 +68,7 @@ FEATURES += USE_SEND_VIDEO_INFO             # Sends video information to the ser
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += NO_SDL_REINIT			# Disables SDL reinit of video after resolution change
+#FEATURES += SDL_REINIT			    # Enables SDL reinit of video after resolution change
 
 # Handle feature dependencies:
 # if CUSTOM_UPDATE is set, but AUTO_UPDATE isn't, remove CUSTOM_UPDATE

@@ -734,7 +734,7 @@ void init_stuff()
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
 
-#ifdef	NO_SDL_REINIT
+#ifndef	SDL_REINIT
 	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{
@@ -742,7 +742,7 @@ void init_stuff()
 			SDL_Quit();
 			exit(1);
 		}
-#endif	//NO_SDL_REINIT
+#endif	// SDL_REINIT
 	init_video();
 
 	//Init the caches here, as the loading window needs them
