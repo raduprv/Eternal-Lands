@@ -4,6 +4,9 @@
 #include "errors.h"
 #include "global.h"
 #include "load_gl_extensions.h"
+#ifdef MISSILES
+#include "missiles.h"
+#endif
 #include "shadows.h"
 #include "translate.h"
 #ifdef NEW_SOUND
