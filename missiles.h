@@ -25,6 +25,8 @@ typedef struct
 	float remaining_distance; /*!< The remaining distance to cover */
 } Missile;
 
+void missiles_log_message(const char *format, ...);
+
 /*!
  * \brief Removes all the missiles
  */

@@ -2,16 +2,20 @@
 
 #include "3d_objects.h"
 #include "actor_scripts.h"
+#include "asc.h"
 #include "cal3d_wrapper.h"
 #include "e3d.h"
 #include "gl_init.h"
+#include "init.h"
 #include "missiles.h"
 #include "tiles.h"
 #include "vmath.h"
 
 #include <assert.h>
 #include <math.h>
+#include <stdarg.h>
 #include <stdio.h>
+#include <time.h>
 
 #define MAX_MISSILES 1024
 #define EPSILON 1E-4
@@ -41,12 +45,67 @@
  MAT3_VECT3_MULT(&res[3],mat1,&mat2[3]),\
  MAT3_VECT3_MULT(&res[6],mat1,&mat2[6]))
 
-const float arrow_length = 7.0;
+const float arrow_length = 0.75;
+const float bolt_length = 0.4;
+
+const float arrow_speed = 50.0;
+const float arrow_trace_length = 7.0;
 const float arrow_color[3] = {0.8, 0.8, 0.8};
 
 Missile missiles_list[MAX_MISSILES];
 
 unsigned int missiles_count = 0;
+
+FILE *missiles_log = NULL;
+
+void open_missiles_log()
+{
+	char log_name[1024];
+	char starttime[200], sttime[200];
+	struct tm *l_time; time_t c_time;
+
+	safe_snprintf(log_name, 1024, "%smissiles_log.txt", configdir);
+
+	missiles_log = fopen(log_name, "a");
+
+	if (missiles_log == NULL)
+	{
+		fprintf (stderr, "Unable to open log file \"%s\"\n", log_name);
+		exit (1);
+	}
+
+	time (&c_time);
+	l_time = localtime (&c_time);
+	strftime(sttime, sizeof(sttime), "\n\nLog started at %Y-%m-%d %H:%M:%S localtime", l_time);
+	safe_snprintf(starttime, sizeof(starttime), "%s (%s)\n\n", sttime, tzname[l_time->tm_isdst>0]);
+	fwrite (starttime, strlen(starttime), 1, missiles_log);
+}
+
+void missiles_log_message(const char *format, ...)
+{
+	va_list ap;
+	struct tm *l_time; time_t c_time;
+	char logmsg[512];
+	char errmsg[512];
+
+	va_start(ap, format);
+	vsnprintf(errmsg, 512, format, ap);
+	va_end(ap);
+
+	if (missiles_log == NULL)
+		open_missiles_log();
+
+	time(&c_time);
+	l_time = localtime(&c_time);
+	strftime(logmsg, sizeof(logmsg), "[%H:%M:%S] ", l_time);
+	strcat(logmsg, errmsg);
+
+	if(format[strlen(format)-1] != '\n') {
+		strcat(logmsg, "\n");
+	}
+	fprintf(missiles_log, logmsg);
+  	fflush (missiles_log);
+}
 
 void clear_missiles()
 {
@@ -196,7 +255,7 @@ void draw_current_actor_nodes()
 	glLineWidth(5.0);
 	glBegin(GL_LINES);
 
- 	for (i = 29; i <= 29; ++i)
+ 	for (i = 37; i <= 37; ++i)
 	{
 /* 		switch(i) { */
 /* 		case 0: glColor3f(1.0, 0.0, 0.0); break; */
@@ -249,7 +308,7 @@ void update_missiles(Uint32 time_diff)
 		mis->position[2] += mis->direction[2] * dist;
 		mis->covered_distance += dist;
 		mis->remaining_distance -= dist;
-		if (mis->remaining_distance < -arrow_length)
+		if (mis->remaining_distance < -arrow_trace_length)
 			remove_missile(i);
 		else
 			++i;
@@ -271,22 +330,22 @@ void draw_missiles()
 		Missile *mis = &missiles_list[i];
 		switch (mis->type) {
 		case MISSILE_ARROW:
-			if (mis->covered_distance < arrow_length) {
+			if (mis->covered_distance < arrow_trace_length) {
 				glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
-						  (arrow_length - mis->covered_distance) / arrow_length);
+						  (arrow_trace_length - mis->covered_distance) / arrow_trace_length);
 				glVertex3f(mis->position[0] - mis->covered_distance * mis->direction[0],
 						   mis->position[1] - mis->covered_distance * mis->direction[1],
 						   mis->position[2] - mis->covered_distance * mis->direction[2]);
 			}
 			else {
 				glColor4f(arrow_color[0], arrow_color[1], arrow_color[2], 0.0);
-				glVertex3f(mis->position[0] - arrow_length * mis->direction[0],
-						   mis->position[1] - arrow_length * mis->direction[1],
-						   mis->position[2] - arrow_length * mis->direction[2]);
+				glVertex3f(mis->position[0] - arrow_trace_length * mis->direction[0],
+						   mis->position[1] - arrow_trace_length * mis->direction[1],
+						   mis->position[2] - arrow_trace_length * mis->direction[2]);
 			}
 			if (mis->remaining_distance < 0.0) {
 				glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
-						  (arrow_length + mis->remaining_distance) / arrow_length);
+						  (arrow_trace_length + mis->remaining_distance) / arrow_trace_length);
 				glVertex3f(mis->position[0] + mis->remaining_distance * mis->direction[0],
 						   mis->position[1] + mis->remaining_distance * mis->direction[1],
 						   mis->position[2] + mis->remaining_distance * mis->direction[2]);
@@ -324,11 +383,18 @@ void shortest_arc(struct CalQuaternion *out_q, float *in_from, float *in_to)
 
 float compute_actor_rotation(struct CalQuaternion *out_q, actor *in_act, float *in_target)
 {
-	float cz = cosf((in_act->z_rot) * M_PI/180.0);
-	float sz = sinf((in_act->z_rot) * M_PI/180.0);
+	float cz, sz;
 	float from[3], to[3], tmp[3];
-	float actor_rotation;
+	float actor_rotation = 0;
+	float act_z_rot = in_act->z_rot;
 
+	if (in_act->rotating) {
+		// the actor is already rotating so we get the final position first
+		act_z_rot += in_act->rotate_z_speed * in_act->rotate_frames_left;
+	}
+
+	cz = cosf((act_z_rot) * M_PI/180.0);
+	sz = sinf((act_z_rot) * M_PI/180.0);
 	tmp[0] = in_target[0] - in_act->x_pos;
 	tmp[1] = in_target[1] - in_act->y_pos;
 	tmp[2] = 0.0;
@@ -354,17 +420,34 @@ float compute_actor_rotation(struct CalQuaternion *out_q, actor *in_act, float *
 	printf("actor rotation = %f\n", actor_rotation);
 #endif // DEBUG
 
-	cz = cosf((in_act->z_rot + actor_rotation) * M_PI/180.0);
-	sz = sinf((in_act->z_rot + actor_rotation) * M_PI/180.0);
+	cz = cosf((act_z_rot + actor_rotation) * M_PI/180.0);
+	sz = sinf((act_z_rot + actor_rotation) * M_PI/180.0);
 	from[0] = 0.0;
 	from[1] = 0.0;
 	from[2] = 1.0;
 	tmp[0] = in_target[1] - in_act->y_pos - 0.25;
-	tmp[1] = in_target[2] - get_actor_z(in_act) - 1.2;
-	tmp[2] = in_target[0] - in_act->x_pos - 0.25; // depends on the weapon
+	tmp[1] = in_target[2] - get_actor_z(in_act) - 1.2 * get_actor_scale(in_act);
+	tmp[2] = in_target[0] - in_act->x_pos - 0.25;
 	to[0] = tmp[0] * sz - tmp[2] * cz;
 	to[1] = tmp[1];
 	to[2] = tmp[0] * cz + tmp[2] * sz;
+
+	/* adjusting the aiming direction according to the position of
+	 * the range weapon */
+	switch(in_act->cur_weapon)
+	{
+	case 64: // long bow
+	case 65: // short bow
+		to[0] -= 0.2 * get_actor_scale(in_act);
+		break;
+
+	case 68: // crossbow
+		break;
+
+	default:
+		missiles_log_message("compute_actor_rotation: weapon %d is an unknown range weapon, unable to estimate the position of the weapon", in_act->cur_weapon);
+		break;
+	}
 
 	Normalize(to, to);
 
@@ -377,11 +460,28 @@ unsigned int fire_arrow(actor *a, float target[3])
 {
 	unsigned int mis_id;
 	float origin[3];
-	float shift[3] = {0.0, 0.4 * get_actor_scale(a), 0.0}; // depends on the weapon
+	float shift[3] = {0.0, get_actor_scale(a), 0.0};
+
+	switch(a->cur_weapon)
+	{
+	case 64: // long bow
+	case 65: // short bow
+		shift[1] *= arrow_length;
+		break;
+
+	case 68: // crossbow
+		shift[1] *= bolt_length;
+		break;
+
+	default:
+		shift[1] = 0.0;
+		missiles_log_message("fire_arrow: weapon %d is an unknown range weapon, unable to determine precisely the position of the arrow", a->cur_weapon);
+		break;
+	}
 
 	get_actor_bone_absolute_position(a, 37, shift, origin);
 	
-	mis_id = add_missile(MISSILE_ARROW, origin, target, 50.0, 0.0);
+	mis_id = add_missile(MISSILE_ARROW, origin, target, arrow_speed, 0.0);
 	
 	return mis_id;
 }
@@ -466,13 +566,15 @@ void actor_aim_at_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
 
+	missiles_log_message("actor %d is aiming at actor %d", actor1_id, actor2_id);
+
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	LOCK_ACTORS_LISTS();
 	act1->range_target[0] = (float)act2->x_pos + 0.25;
 	act1->range_target[1] = (float)act2->y_pos + 0.25;
-	act1->range_target[2] = get_actor_z(act2) + 1.2;
+	act1->range_target[2] = get_actor_z(act2) + 1.2 * get_actor_scale(act2);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -481,6 +583,8 @@ void actor_aim_at_b(int actor1_id, int actor2_id)
 void actor_aim_at_xyz(int actor_id, float *target)
 {
 	actor *act;
+
+	missiles_log_message("actor %d is aiming at target %f,%f,%f", actor_id, target[0], target[1], target[2]);
 
 	act = get_actor_ptr_from_id(actor_id);
 
@@ -495,13 +599,15 @@ void missile_fire_a_to_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
 
+	missiles_log_message("actor %d is firing to actor %d", actor1_id, actor2_id);
+
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	LOCK_ACTORS_LISTS();
 	act1->range_target[0] = (float)act2->x_pos + 0.25;
 	act1->range_target[1] = (float)act2->y_pos + 0.25;
-	act1->range_target[2] = get_actor_z(act2) + 1.2;
+	act1->range_target[2] = get_actor_z(act2) + 1.2 * get_actor_scale(act2);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
@@ -510,6 +616,8 @@ void missile_fire_a_to_b(int actor1_id, int actor2_id)
 void missile_fire_a_to_xyz(int actor_id, float *target)
 {
 	actor *act;
+
+	missiles_log_message("actor %d is firing to target %f,%f,%f", actor_id, target[0], target[1], target[2]);
 
 	act = get_actor_ptr_from_id(actor_id);
 
@@ -526,15 +634,17 @@ void missile_fire_xyz_to_b(float *origin, int actor_id)
 	unsigned int mis_id;
 	float target[3];
 
+	missiles_log_message("missile was fired from %f,%f,%f to actor %d", origin[0], origin[1], origin[2], actor_id);
+
 	act = get_actor_ptr_from_id(actor_id);
 
 	LOCK_ACTORS_LISTS();
 	target[0] = (float)act->x_pos + 0.25;
 	target[1] = (float)act->y_pos + 0.25;
-	target[2] = get_actor_z(act) + 1.2;
+	target[2] = get_actor_z(act) + 1.2 * get_actor_scale(act);
 	UNLOCK_ACTORS_LISTS();
 
-	mis_id = add_missile(MISSILE_ARROW, origin, target, 50.0, 0.0);
+	mis_id = add_missile(MISSILE_ARROW, origin, target, arrow_speed, 0.0);
 }
 
 #endif // MISSILES

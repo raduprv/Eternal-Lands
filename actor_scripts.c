@@ -915,6 +915,7 @@ void next_command()
 #ifdef MISSILES
 				case enter_aim_mode:
 					if (!actors_list[i]->in_aim_mode) {
+						missiles_log_message("actor %d enters in aim mode", i);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
 						if (!actors_list[i]->cal_starting_rotation)
 							actors_list[i]->cal_starting_rotation = CalQuaternion_New();
@@ -924,6 +925,7 @@ void next_command()
 						actors_list[i]->in_aim_mode = 1;
 					}
 					else {
+						missiles_log_message("actor %d is aiming again", i);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
 						CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
 											actors_list[i]->cal_rotation_blend,
@@ -939,6 +941,10 @@ void next_command()
 					actors_list[i]->stop_animation = 1;
 
 					if (range_rotation != 0.0) {
+						missiles_log_message("the actor is not facing its target => client side rotation needed");
+						if (actors_list[i]->rotating) {
+							range_rotation += actors_list[i]->rotate_z_speed * actors_list[i]->rotate_frames_left;
+						}
 						actors_list[i]->rotate_z_speed = range_rotation/18.0;
 						actors_list[i]->rotate_frames_left=18;
 						actors_list[i]->rotating=1;
@@ -946,6 +952,7 @@ void next_command()
 					break;
 
 				case leave_aim_mode:
+					missiles_log_message("actor %d is leaving aim mode", i);
 					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
 					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
 										actors_list[i]->cal_rotation_blend,
@@ -960,11 +967,13 @@ void next_command()
 					break;
 
 				case aim_mode_reload:
+					missiles_log_message("actor %d will have to reload after next fire", i);
 					actors_list[i]->reload = 1;
 					break;
 
 				case aim_mode_fire:
 					if (actors_list[i]->reload) {
+						missiles_log_message("actor %d fires and reload", i);
 						// launch fire and reload animation
 						if(actors_list[i]->is_enhanced_model)
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
@@ -974,6 +983,7 @@ void next_command()
 						actors_list[i]->in_aim_mode = 1;
 					}
 					else {
+						missiles_log_message("actor %d fires and leave aim mode", i);
 						// launch fire and leave aim mode animation
 						if(actors_list[i]->is_enhanced_model)
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
@@ -1044,6 +1054,9 @@ void next_command()
 							actors_list[i]->rotate_frames_left=18;
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
+#ifdef MISSILES
+							missiles_log_message("rotation %d requested for actor %d", actors_list[i]->que[0] - turn_n, i);
+#endif // MISSILES
 						}
 					}
 
