@@ -756,6 +756,11 @@ PFNGLFOGCOORDFEXTPROC ELglFogCoordfEXT = NULL;
 PFNGLFOGCOORDFVEXTPROC ELglFogCoordfvEXT = NULL;
 /*	GL_EXT_fog_coord		*/
 
+/*	GL_EXT_gpu_program_parameters	*/
+PFNGLPROGRAMENVPARAMETERS4FVEXTPROC ELglProgramEnvParameters4fvEXT = NULL;
+PFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC ELglProgramLocalParameters4fvEXT = NULL;
+/*	GL_EXT_gpu_program_parameters	*/
+
 static GLboolean el_init_GL_ARB_multitexture()
 {
 	GLboolean r = GL_TRUE;
@@ -1039,6 +1044,16 @@ static GLboolean el_init_GL_EXT_fog_coord()
 	r = ((ELglFogCoorddvEXT = (PFNGLFOGCOORDDVEXTPROC)SDL_GL_GetProcAddress("glFogCoorddvEXT")) != NULL) && r;
 	r = ((ELglFogCoordfEXT = (PFNGLFOGCOORDFEXTPROC)SDL_GL_GetProcAddress("glFogCoordfEXT")) != NULL) && r;
 	r = ((ELglFogCoordfvEXT = (PFNGLFOGCOORDFVEXTPROC)SDL_GL_GetProcAddress("glFogCoordfvEXT")) != NULL) && r;
+
+	return r;
+}
+
+static GLboolean el_init_GL_EXT_gpu_program_parameters()
+{
+	GLboolean r = GL_TRUE;
+
+	r = ((ELglProgramEnvParameters4fvEXT = (PFNGLPROGRAMENVPARAMETERS4FVEXTPROC)SDL_GL_GetProcAddress("glProgramEnvParameters4fvEXT")) != NULL) && r;
+	r = ((ELglProgramLocalParameters4fvEXT = (PFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC)SDL_GL_GetProcAddress("glProgramLocalParameters4fvEXT")) != NULL) && r;
 
 	return r;
 }
@@ -1335,6 +1350,16 @@ void init_opengl_extensions()
 		extensions |= ((Uint64)1) << ext_abgr;
 	}
 /*	GL_EXT_abgr			*/
+/*	GL_EXT_gpu_program_parameters	*/
+	if (strstr(extensions_string, "GL_EXT_gpu_program_parameters") != NULL)
+	{
+		e = el_init_GL_EXT_gpu_program_parameters();
+		if (e == GL_TRUE)
+		{
+			extensions |= ((Uint64)1) << ext_gpu_program_parameters;
+		}
+	}
+/*	GL_EXT_gpu_program_parameters	*/
 }
 
 Uint32 have_extension(extension_enum extension)

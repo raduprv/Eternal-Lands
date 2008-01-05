@@ -723,7 +723,10 @@ void change_shadow_map_size(int *pointer, int value)
 		shadow_map_size = size;
 
 		destroy_shadow_mapping();
-		make_shadow_framebuffer();
+		if (have_extension(ext_framebuffer_object) && use_frame_buffer)
+		{
+			make_shadow_framebuffer();
+		}
 	}
 	else
 	{

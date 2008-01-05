@@ -53,7 +53,8 @@ typedef enum {
 	ext_texture_compression_rgtc = 29,
 	arb_texture_cube_map = 30,
 	arb_texture_float = 31,
-	ext_abgr = 32
+	ext_abgr = 32,
+	ext_gpu_program_parameters = 33
 } extension_enum;
 
 /*	GL_VERSION_1_2		*/
@@ -515,6 +516,11 @@ extern PFNGLFOGCOORDDVEXTPROC ELglFogCoorddvEXT;
 extern PFNGLFOGCOORDFEXTPROC ELglFogCoordfEXT;
 extern PFNGLFOGCOORDFVEXTPROC ELglFogCoordfvEXT;
 /*	GL_EXT_fog_coord		*/
+
+/*	GL_EXT_gpu_program_parameters	*/
+extern PFNGLPROGRAMENVPARAMETERS4FVEXTPROC ELglProgramEnvParameters4fvEXT;
+extern PFNGLPROGRAMLOCALPARAMETERS4FVEXTPROC ELglProgramLocalParameters4fvEXT;
+/*	GL_EXT_gpu_program_parameters	*/
 
 extern void init_opengl_extensions();
 extern Uint32 have_extension(extension_enum extension);
