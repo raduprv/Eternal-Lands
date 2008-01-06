@@ -65,3 +65,7 @@ extern "C" CAL3D_WRAPPER_API void CalQuaternion_Invert(CalQuaternion *self)
 	self->invert();
 }
 
+extern "C" CAL3D_WRAPPER_API int CalSkeleton_GetBonesNumber(struct CalSkeleton *self)
+{
+	return self->getVectorBone().size();
+}

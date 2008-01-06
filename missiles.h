@@ -99,13 +99,17 @@ void get_actor_bone_absolute_position(actor *in_act, int in_bone_id, float *in_s
 
 /*!
  * \brief Computes the rotations to apply to a char when aiming something
- * \param out_q the quaternion corresponding to a rotation between -22.5 and +22.5 degrees.
- *              This quaternion has to be applied to bones of the char in order to have a fine orientation.
+ * \param out_hq the returned quaternion for horizontal rotations.
+ * \param out_vq the returned quaternion for vertical rotations.
  * \param in_act the actor
  * \param in_target the target
  * \return the rotation to apply to the whole char to face the target
+ *
+ * The rotations stored in out_hq and out_vq have to be applied to bones of the
+ * char in order to have a fine orientation and should be between -22.5 and +22.5 degrees.
  */
-float compute_actor_rotation(struct CalQuaternion *out_q, actor *in_act, float *in_target);
+float compute_actor_rotation(struct CalQuaternion *out_hq, struct CalQuaternion *out_vq,
+							 actor *in_act, float *in_target);
 
 /*!
  * \brief Rotates bones of an actor according to what is defined in its structure

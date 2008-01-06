@@ -553,6 +553,7 @@ CAL3D_WRAPPER_API enum CalBoolean  CalCoreSubmesh_EnableTangents(struct CalCoreS
   CAL3D_WRAPPER_API int CalSkeleton_GetBonePointsStatic(struct CalSkeleton *self, float *pPoints);
   CAL3D_WRAPPER_API int CalSkeleton_GetBoneLines(struct CalSkeleton *self, float *pLines);
   CAL3D_WRAPPER_API int CalSkeleton_GetBoneLinesStatic(struct CalSkeleton *self, float *pLines);
+  CAL3D_WRAPPER_API int CalSkeleton_GetBonesNumber(struct CalSkeleton *self);
 
 //****************************************************************************//
 // CalSpringSystem wrapper functions declaration                              //

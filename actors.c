@@ -105,8 +105,10 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->cur_anim_sound_cookie = 0;
 
 #ifdef MISSILES
-	our_actor->cal_starting_rotation = NULL;
-	our_actor->cal_ending_rotation = NULL;
+	our_actor->cal_h_rot_start = NULL;
+	our_actor->cal_h_rot_end = NULL;
+	our_actor->cal_v_rot_start = NULL;
+	our_actor->cal_v_rot_end = NULL;
 	our_actor->cal_rotation_blend = -1.0;
 	our_actor->cal_rotation_speed = 0.0;
 	our_actor->are_bones_rotating = 0;

@@ -15,6 +15,7 @@
 #include "interface.h"
 #ifdef MISSILES
 #include "missiles.h"
+#include "new_actors.h"
 #endif // MISSILES
 #include "multiplayer.h"
 #include "new_character.h"
@@ -915,24 +916,33 @@ void next_command()
 #ifdef MISSILES
 				case enter_aim_mode:
 					if (!actors_list[i]->in_aim_mode) {
-						missiles_log_message("actor %d enters in aim mode", i);
+						missiles_log_message("actor %d enters in aim mode", actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
-						if (!actors_list[i]->cal_starting_rotation)
-							actors_list[i]->cal_starting_rotation = CalQuaternion_New();
-						if (!actors_list[i]->cal_ending_rotation)
-							actors_list[i]->cal_ending_rotation = CalQuaternion_New();
-						CalQuaternion_Set(actors_list[i]->cal_starting_rotation, 0.0, 0.0, 0.0, 1.0);
+						if (!actors_list[i]->cal_h_rot_start)
+							actors_list[i]->cal_h_rot_start = CalQuaternion_New();
+						if (!actors_list[i]->cal_h_rot_end)
+							actors_list[i]->cal_h_rot_end = CalQuaternion_New();
+						if (!actors_list[i]->cal_v_rot_start)
+							actors_list[i]->cal_v_rot_start = CalQuaternion_New();
+						if (!actors_list[i]->cal_v_rot_end)
+							actors_list[i]->cal_v_rot_end = CalQuaternion_New();
+						CalQuaternion_Set(actors_list[i]->cal_h_rot_start, 0.0, 0.0, 0.0, 1.0);
+						CalQuaternion_Set(actors_list[i]->cal_v_rot_start, 0.0, 0.0, 0.0, 1.0);
 						actors_list[i]->in_aim_mode = 1;
 					}
 					else {
-						missiles_log_message("actor %d is aiming again", i);
+						missiles_log_message("actor %d is aiming again", actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
-						CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
+						CalQuaternion_Blend(actors_list[i]->cal_h_rot_start,
 											actors_list[i]->cal_rotation_blend,
-											actors_list[i]->cal_ending_rotation);
+											actors_list[i]->cal_h_rot_end);
+						CalQuaternion_Blend(actors_list[i]->cal_v_rot_start,
+											actors_list[i]->cal_rotation_blend,
+											actors_list[i]->cal_v_rot_end);
 					}
 
-					range_rotation = compute_actor_rotation(actors_list[i]->cal_ending_rotation,
+					range_rotation = compute_actor_rotation(actors_list[i]->cal_h_rot_end,
+															actors_list[i]->cal_v_rot_end,
 															actors_list[i], actors_list[i]->range_target);
 					actors_list[i]->cal_rotation_blend = 0.0;
 					actors_list[i]->cal_rotation_speed = 1.0/18.0;
@@ -952,12 +962,16 @@ void next_command()
 					break;
 
 				case leave_aim_mode:
-					missiles_log_message("actor %d is leaving aim mode", i);
+					missiles_log_message("actor %d is leaving aim mode", actors_list[i]->actor_id);
 					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
-					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation,
+					CalQuaternion_Blend(actors_list[i]->cal_h_rot_start,
 										actors_list[i]->cal_rotation_blend,
-										actors_list[i]->cal_ending_rotation);
-					CalQuaternion_Set(actors_list[i]->cal_ending_rotation, 0.0, 0.0, 0.0, 1.0);
+										actors_list[i]->cal_h_rot_end);
+					CalQuaternion_Blend(actors_list[i]->cal_v_rot_start,
+										actors_list[i]->cal_rotation_blend,
+										actors_list[i]->cal_v_rot_end);
+					CalQuaternion_Set(actors_list[i]->cal_h_rot_end, 0.0, 0.0, 0.0, 1.0);
+					CalQuaternion_Set(actors_list[i]->cal_v_rot_end, 0.0, 0.0, 0.0, 1.0);
 					actors_list[i]->cal_rotation_blend = 0.0;
 					actors_list[i]->cal_rotation_speed = 1.0/18.0;
 					actors_list[i]->are_bones_rotating = 1;
@@ -973,7 +987,7 @@ void next_command()
 
 				case aim_mode_fire:
 					if (actors_list[i]->reload) {
-						missiles_log_message("actor %d fires and reload", i);
+						missiles_log_message("actor %d fires and reload", actors_list[i]->actor_id);
 						// launch fire and reload animation
 						if(actors_list[i]->is_enhanced_model)
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
@@ -1005,6 +1019,14 @@ void next_command()
 					actors_list[i]->stop_animation = 1;
 
 					fire_arrow(actors_list[i], actors_list[i]->range_target);
+					break;
+
+				case unwear_bow:
+					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_WEAPON);
+					break;
+
+				case unwear_quiver:
+					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_SHIELD);
 					break;
 #endif // MISSILES
 
@@ -1055,7 +1077,7 @@ void next_command()
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
 #ifdef MISSILES
-							missiles_log_message("rotation %d requested for actor %d", actors_list[i]->que[0] - turn_n, i);
+							missiles_log_message("rotation %d requested for actor %d", actors_list[i]->que[0] - turn_n, actors_list[i]->actor_id);
 #endif // MISSILES
 						}
 					}
@@ -1107,10 +1129,14 @@ void destroy_actor(int actor_id)
 				ec_actor_delete(actors_list[i]);
 #endif	//EYE_CANDY
 #ifdef MISSILES
-				if (actors_list[i]->cal_starting_rotation)
-					CalQuaternion_Delete(actors_list[i]->cal_starting_rotation);
-				if (actors_list[i]->cal_ending_rotation)
-					CalQuaternion_Delete(actors_list[i]->cal_ending_rotation);
+				if (actors_list[i]->cal_h_rot_start)
+					CalQuaternion_Delete(actors_list[i]->cal_h_rot_start);
+				if (actors_list[i]->cal_h_rot_end)
+					CalQuaternion_Delete(actors_list[i]->cal_h_rot_end);
+				if (actors_list[i]->cal_v_rot_start)
+					CalQuaternion_Delete(actors_list[i]->cal_v_rot_start);
+				if (actors_list[i]->cal_v_rot_end)
+					CalQuaternion_Delete(actors_list[i]->cal_v_rot_end);
 #endif // MISSILES
 				free(actors_list[i]);
 				actors_list[i]=NULL;

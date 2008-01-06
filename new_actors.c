@@ -14,6 +14,9 @@
 #include "filter.h"
 #include "global.h"
 #include "init.h"
+#ifdef MISSILES
+#include "missiles.h"
+#endif // MISSILES
 #include "sound.h"
 #include "textures.h"
 #include "tiles.h"
@@ -89,8 +92,10 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->actor_id=actor_id;
 
 #ifdef MISSILES
-	our_actor->cal_starting_rotation = NULL;
-	our_actor->cal_ending_rotation = NULL;
+	our_actor->cal_h_rot_start = NULL;
+	our_actor->cal_h_rot_end = NULL;
+	our_actor->cal_v_rot_start = NULL;
+	our_actor->cal_v_rot_end = NULL;
 	our_actor->cal_rotation_blend = -1.0;
 	our_actor->cal_rotation_speed = 0.0;
 	our_actor->are_bones_rotating = 0;
@@ -321,6 +326,12 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 #ifdef EYE_CANDY
 								ec_remove_weapon(actors_list[i]);
 #endif	// EYE_CANDY
+#ifdef MISSILES
+								if (actors_list[i]->in_aim_mode) {
+									add_command_to_actor(actor_id, unwear_bow);
+									return;
+								}
+#endif // MISSILES
 								if(actors_list[i]->cur_weapon == GLOVE_FUR || actors_list[i]->cur_weapon == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
 									glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -335,6 +346,12 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_SHIELD)
 							{
+#ifdef MISSILES
+								if (actors_list[i]->in_aim_mode) {
+									add_command_to_actor(actor_id, unwear_quiver);
+									return;
+								}
+#endif // MISSILES
 								CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->shield_meshindex);
 								actors_list[i]->body_parts->shield_tex[0]=0;
 								actors_list[i]->cur_shield = SHIELD_NONE;

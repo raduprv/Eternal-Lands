@@ -205,8 +205,8 @@ unsigned int add_missile(MissileType type,
 	assert(missiles_count < MAX_MISSILES);
 
 #ifdef DEBUG
-	printf("add_missile: origin=(%0.2f,%0.2f,%0.2f), target=(%0.2f,%0.2f,%0.2f)\n",
-		   origin[0], origin[1], origin[2], target[0], target[1], target[2]);
+	missiles_log_message("add_missile: origin=(%.2f,%.2f,%.2f), target=(%.2f,%.2f,%.2f)",
+						 origin[0], origin[1], origin[2], target[0], target[1], target[2]);
 #endif // DEBUG
 	
 	mis = &missiles_list[missiles_count++];
@@ -255,7 +255,7 @@ void draw_current_actor_nodes()
 	glLineWidth(5.0);
 	glBegin(GL_LINES);
 
- 	for (i = 37; i <= 37; ++i)
+ 	for (i = 11; i <= 11; ++i)
 	{
 /* 		switch(i) { */
 /* 		case 0: glColor3f(1.0, 0.0, 0.0); break; */
@@ -381,7 +381,8 @@ void shortest_arc(struct CalQuaternion *out_q, float *in_from, float *in_to)
 	CalQuaternion_Set(out_q, cross[0], cross[1], cross[2], -dot/2); 
 }
 
-float compute_actor_rotation(struct CalQuaternion *out_q, actor *in_act, float *in_target)
+float compute_actor_rotation(struct CalQuaternion *out_hq, struct CalQuaternion *out_vq,
+							 actor *in_act, float *in_target)
 {
 	float cz, sz;
 	float from[3], to[3], tmp[3];
@@ -393,6 +394,7 @@ float compute_actor_rotation(struct CalQuaternion *out_q, actor *in_act, float *
 		act_z_rot += in_act->rotate_z_speed * in_act->rotate_frames_left;
 	}
 
+	// we first compute the global rotation needed
 	cz = cosf((act_z_rot) * M_PI/180.0);
 	sz = sinf((act_z_rot) * M_PI/180.0);
 	tmp[0] = in_target[0] - in_act->x_pos;
@@ -415,43 +417,56 @@ float compute_actor_rotation(struct CalQuaternion *out_q, actor *in_act, float *
 	}
 
 #ifdef DEBUG
-	printf("cos = %f ; sin = %f\n", cz, sz);
-	printf("direction = %f %f %f\n", tmp[0], tmp[1], tmp[2]);
-	printf("actor rotation = %f\n", actor_rotation);
+	missiles_log_message("cos = %f ; sin = %f", cz, sz);
+	missiles_log_message("direction = %f %f %f", tmp[0], tmp[1], tmp[2]);
+	missiles_log_message("actor rotation = %f", actor_rotation);
 #endif // DEBUG
 
 	cz = cosf((act_z_rot + actor_rotation) * M_PI/180.0);
 	sz = sinf((act_z_rot + actor_rotation) * M_PI/180.0);
-	from[0] = 0.0;
-	from[1] = 0.0;
-	from[2] = 1.0;
-	tmp[0] = in_target[1] - in_act->y_pos - 0.25;
-	tmp[1] = in_target[2] - get_actor_z(in_act) - 1.2 * get_actor_scale(in_act);
-	tmp[2] = in_target[0] - in_act->x_pos - 0.25;
-	to[0] = tmp[0] * sz - tmp[2] * cz;
-	to[1] = tmp[1];
-	to[2] = tmp[0] * cz + tmp[2] * sz;
 
-	/* adjusting the aiming direction according to the position of
-	 * the range weapon */
+	// adjusting the arrow origin according to the the range weapon
 	switch(in_act->cur_weapon)
 	{
 	case 64: // long bow
 	case 65: // short bow
-		to[0] -= 0.2 * get_actor_scale(in_act);
+		tmp[0] = 0.4; tmp[1] = 0.65; tmp[2] = 0.0;
 		break;
 
 	case 68: // crossbow
+		tmp[0] = 0.0; tmp[1] = 0.65; tmp[2] = 0.0;
 		break;
 
 	default:
+		tmp[0] = 0.0; tmp[1] = 0.65; tmp[2] = 0.0;
 		missiles_log_message("compute_actor_rotation: weapon %d is an unknown range weapon, unable to estimate the position of the weapon", in_act->cur_weapon);
 		break;
 	}
+	
+	get_actor_bone_absolute_position(in_act, 0, tmp, from);
 
+	missiles_log_message("compute_actor_rotation: origin=(%.2f,%.2f,%.2f), target=(%.2f,%.2f,%.2f)",
+						 from[0], from[1], from[2], in_target[0], in_target[1], in_target[2]);
+
+	tmp[0] = in_target[1] - from[1];
+	tmp[1] = in_target[2] - from[2];
+	tmp[2] = in_target[0] - from[0];
+	from[0] = 0.0;
+	from[1] = 0.0;
+	from[2] = 1.0;
+
+	to[0] = tmp[0] * sz - tmp[2] * cz;
+	to[1] = 0.0;
+	to[2] = tmp[0] * cz + tmp[2] * sz;
+	Normalize(tmp, to);
+	shortest_arc(out_hq, from, tmp);
+
+	from[0] = tmp[0];
+	from[1] = tmp[1];
+	from[2] = tmp[2];
+	to[1] = in_target[2] - from[2];
 	Normalize(to, to);
-
-	shortest_arc(out_q, from, to);
+	shortest_arc(out_vq, from, to);
 
 	return actor_rotation;
 }
@@ -489,59 +504,66 @@ unsigned int fire_arrow(actor *a, float target[3])
 void rotate_actor_bones(actor *a)
 {
 	struct CalSkeleton *skel;
-	struct CalBone *bone[2];
-	struct CalQuaternion *rot[2];
-	struct CalQuaternion *tmp;
+	struct CalBone *bone;
+	struct CalQuaternion *bone_rot;
+	struct CalQuaternion *hrot, *vrot;
+	float *hquat, *vquat;
 
 	if (a->cal_rotation_blend < 0.0)
 		return;
 
 	skel = CalModel_GetSkeleton(a->calmodel);
 	
-	bone[0] = CalSkeleton_GetBone(skel, 11);
-	bone[1] = CalSkeleton_GetBone(skel, 12);
+	hrot = CalQuaternion_New();
+	vrot = CalQuaternion_New();
 
-	rot[0] = CalBone_GetRotation(bone[0]);
-	rot[1] = CalBone_GetRotation(bone[1]);
-
-	tmp = CalQuaternion_New();
-
-	CalQuaternion_Set(tmp, 0.0, 0.0, 0.0, 1.0);
+	CalQuaternion_Set(hrot, 0.0, 0.0, 0.0, 1.0);
+	CalQuaternion_Set(vrot, 0.0, 0.0, 0.0, 1.0);
 
 	if (a->cal_rotation_blend < 1.0) {
-		struct CalQuaternion *tmp2;
+		struct CalQuaternion *tmp;
 
 		a->cal_rotation_blend += a->cal_rotation_speed;
 
-		tmp2 = CalQuaternion_New();
+		tmp = CalQuaternion_New();
 
-		CalQuaternion_Set(tmp2, 0.0, 0.0, 0.0, 1.0);
+		CalQuaternion_Set(tmp, 0.0, 0.0, 0.0, 1.0);
+		CalQuaternion_Blend(tmp, a->cal_rotation_blend, a->cal_h_rot_end);
+		CalQuaternion_Blend(hrot, 1.0 - a->cal_rotation_blend, a->cal_h_rot_start);
+		CalQuaternion_Multiply(hrot, tmp);
 
-		CalQuaternion_Blend(tmp, (1.0 - a->cal_rotation_blend)/2.0, a->cal_starting_rotation);
-		CalQuaternion_Blend(tmp2, a->cal_rotation_blend/2.0, a->cal_ending_rotation);
+		CalQuaternion_Set(tmp, 0.0, 0.0, 0.0, 1.0);
+		CalQuaternion_Blend(tmp, a->cal_rotation_blend, a->cal_v_rot_end);
+		CalQuaternion_Blend(vrot, 1.0 - a->cal_rotation_blend, a->cal_v_rot_start);
+		CalQuaternion_Multiply(vrot, tmp);
 
-		CalQuaternion_Multiply(tmp, tmp2);
+/* 		hquat = CalQuaternion_Get(hrot); */
+/* 		vquat = CalQuaternion_Get(vrot); */
+		
+/* 		missiles_log_message("hrot=[%f,%f,%f,%f]", hquat[0], hquat[1], hquat[2], hquat[3]); */
+/* 		missiles_log_message("vrot=[%f,%f,%f,%f]", vquat[0], vquat[1], vquat[2], vquat[3]); */
 
-		CalQuaternion_Delete(tmp2);
+		CalQuaternion_Delete(tmp);
 	}
 	else {
-		float *quat;
-
-		quat = CalQuaternion_Get(a->cal_ending_rotation);
-		if (fabs(quat[0]) < EPSILON &&
-			fabs(quat[1]) < EPSILON &&
-			fabs(quat[2]) < EPSILON &&
-			fabs(1.0 - quat[3]) < EPSILON) {
+		hquat = CalQuaternion_Get(a->cal_h_rot_end);
+		vquat = CalQuaternion_Get(a->cal_v_rot_end);
+		if (fabs(hquat[0]) < EPSILON && fabs(hquat[1]) < EPSILON &&
+			fabs(hquat[2]) < EPSILON && fabs(1.0 - hquat[3]) < EPSILON &&
+			fabs(vquat[0]) < EPSILON && fabs(vquat[1]) < EPSILON &&
+			fabs(vquat[2]) < EPSILON && fabs(1.0 - vquat[3]) < EPSILON) {
 			a->cal_rotation_blend = -1.0; // stop rotating bones every frames
-			CalQuaternion_Set(a->cal_starting_rotation, 0.0, 0.0, 0.0, 1.0);
+			CalQuaternion_Set(a->cal_h_rot_start, 0.0, 0.0, 0.0, 1.0);
+			CalQuaternion_Set(a->cal_v_rot_start, 0.0, 0.0, 0.0, 1.0);
 #ifdef DEBUG
-			printf("stopping bones rotation\n");
+			missiles_log_message("stopping bones rotation");
 #endif // DEBUG
 		}
 		else
 			a->cal_rotation_blend = 1.0;
 
-		CalQuaternion_Blend(tmp, 0.5, a->cal_ending_rotation);
+		CalQuaternion_Equal(hrot, a->cal_h_rot_end);
+		CalQuaternion_Equal(vrot, a->cal_v_rot_end);
 
 		if (a->are_bones_rotating) {
 			a->are_bones_rotating = 0;
@@ -551,15 +573,44 @@ void rotate_actor_bones(actor *a)
 		}
 	}
 
-	CalQuaternion_Multiply(rot[0], tmp);
-	CalQuaternion_Multiply(rot[1], tmp);
+	bone = CalSkeleton_GetBone(skel, 11);
+	bone_rot = CalBone_GetRotation(bone);
+	CalQuaternion_Multiply(bone_rot, hrot);
+	CalQuaternion_Multiply(bone_rot, vrot);
+	CalBone_SetRotation(bone, bone_rot);
+	CalBone_CalculateState(bone);
 
-	CalBone_SetRotation(bone[0], rot[0]);
-	CalBone_SetRotation(bone[1], rot[1]);
-	CalBone_CalculateState(bone[0]);
-	CalBone_CalculateState(bone[1]);
+	CalQuaternion_Invert(hrot);
+	CalQuaternion_Invert(vrot);
 
-	CalQuaternion_Delete(tmp);
+	hquat = CalQuaternion_Get(hrot);
+	vquat = CalQuaternion_Get(vrot);
+
+	if (hquat[1]*hquat[3] > 0.0) {
+		bone = CalSkeleton_GetBone(skel, 14);
+		bone_rot = CalBone_GetRotation(bone);
+		CalQuaternion_Multiply(bone_rot, hrot);
+		CalBone_SetRotation(bone, bone_rot);
+		CalBone_CalculateState(bone);
+	}
+
+	if (vquat[0]*hquat[3] > 0.0) {
+		bone = CalSkeleton_GetBone(skel, 15);
+		bone_rot = CalBone_GetRotation(bone);
+		CalQuaternion_Multiply(bone_rot, vrot);
+		CalBone_SetRotation(bone, bone_rot);
+		CalBone_CalculateState(bone);
+	}
+	else {
+		bone = CalSkeleton_GetBone(skel, 14);
+		bone_rot = CalBone_GetRotation(bone);
+		CalQuaternion_Multiply(bone_rot, vrot);
+		CalBone_SetRotation(bone, bone_rot);
+		CalBone_CalculateState(bone);
+	}
+
+	CalQuaternion_Delete(hrot);
+	CalQuaternion_Delete(vrot);
 }
 
 void actor_aim_at_b(int actor1_id, int actor2_id)
@@ -572,9 +623,11 @@ void actor_aim_at_b(int actor1_id, int actor2_id)
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	LOCK_ACTORS_LISTS();
-	act1->range_target[0] = (float)act2->x_pos + 0.25;
-	act1->range_target[1] = (float)act2->y_pos + 0.25;
-	act1->range_target[2] = get_actor_z(act2) + 1.2 * get_actor_scale(act2);
+	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
+	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
+		get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+	else
+		get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -605,9 +658,11 @@ void missile_fire_a_to_b(int actor1_id, int actor2_id)
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	LOCK_ACTORS_LISTS();
-	act1->range_target[0] = (float)act2->x_pos + 0.25;
-	act1->range_target[1] = (float)act2->y_pos + 0.25;
-	act1->range_target[2] = get_actor_z(act2) + 1.2 * get_actor_scale(act2);
+	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
+	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
+		get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+	else
+		get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
@@ -639,9 +694,11 @@ void missile_fire_xyz_to_b(float *origin, int actor_id)
 	act = get_actor_ptr_from_id(actor_id);
 
 	LOCK_ACTORS_LISTS();
-	target[0] = (float)act->x_pos + 0.25;
-	target[1] = (float)act->y_pos + 0.25;
-	target[2] = get_actor_z(act) + 1.2 * get_actor_scale(act);
+	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)));
+	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)) > 30)
+		get_actor_bone_absolute_position(act, 13, NULL, target);
+	else
+		get_actor_bone_absolute_position(act, 0, NULL, target);
 	UNLOCK_ACTORS_LISTS();
 
 	mis_id = add_missile(MISSILE_ARROW, origin, target, arrow_speed, 0.0);
