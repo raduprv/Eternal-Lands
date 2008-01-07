@@ -450,10 +450,10 @@ typedef struct
 #ifdef MISSILES
 	/*! \name Range mode parameters */
 	/*! \{ */
-	struct CalQuaternion *cal_h_rot_start; /*!< The starting horizontal rotation matrix */
-	struct CalQuaternion *cal_h_rot_end;   /*!< The ending horizontal rotation matrix */
-	struct CalQuaternion *cal_v_rot_start; /*!< The starting vertical rotation matrix */
-	struct CalQuaternion *cal_v_rot_end;   /*!< The ending vertical rotation matrix */
+	float cal_h_rot_start; /*!< The starting horizontal rotation */
+	float cal_h_rot_end;   /*!< The ending horizontal rotation */
+	float cal_v_rot_start; /*!< The starting vertical rotation */
+	float cal_v_rot_end;   /*!< The ending vertical rotation */
 	float cal_rotation_blend; /*!< The blend to applay between the starting and the ending rotations */
 	float cal_rotation_speed; /*!< The speed of the rotation */
 	int are_bones_rotating;   /*!< To tell if the char is rotating */

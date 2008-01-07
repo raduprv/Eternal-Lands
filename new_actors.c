@@ -92,10 +92,10 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->actor_id=actor_id;
 
 #ifdef MISSILES
-	our_actor->cal_h_rot_start = NULL;
-	our_actor->cal_h_rot_end = NULL;
-	our_actor->cal_v_rot_start = NULL;
-	our_actor->cal_v_rot_end = NULL;
+	our_actor->cal_h_rot_start = 0.0;
+	our_actor->cal_h_rot_end = 0.0;
+	our_actor->cal_v_rot_start = 0.0;
+	our_actor->cal_v_rot_end = 0.0;
 	our_actor->cal_rotation_blend = -1.0;
 	our_actor->cal_rotation_speed = 0.0;
 	our_actor->are_bones_rotating = 0;

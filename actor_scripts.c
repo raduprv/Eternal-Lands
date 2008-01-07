@@ -918,31 +918,25 @@ void next_command()
 					if (!actors_list[i]->in_aim_mode) {
 						missiles_log_message("actor %d enters in aim mode", actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
-						if (!actors_list[i]->cal_h_rot_start)
-							actors_list[i]->cal_h_rot_start = CalQuaternion_New();
-						if (!actors_list[i]->cal_h_rot_end)
-							actors_list[i]->cal_h_rot_end = CalQuaternion_New();
-						if (!actors_list[i]->cal_v_rot_start)
-							actors_list[i]->cal_v_rot_start = CalQuaternion_New();
-						if (!actors_list[i]->cal_v_rot_end)
-							actors_list[i]->cal_v_rot_end = CalQuaternion_New();
-						CalQuaternion_Set(actors_list[i]->cal_h_rot_start, 0.0, 0.0, 0.0, 1.0);
-						CalQuaternion_Set(actors_list[i]->cal_v_rot_start, 0.0, 0.0, 0.0, 1.0);
+						actors_list[i]->cal_h_rot_start = 0.0;
+						actors_list[i]->cal_v_rot_start = 0.0;
 						actors_list[i]->in_aim_mode = 1;
 					}
 					else {
 						missiles_log_message("actor %d is aiming again", actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
-						CalQuaternion_Blend(actors_list[i]->cal_h_rot_start,
-											actors_list[i]->cal_rotation_blend,
-											actors_list[i]->cal_h_rot_end);
-						CalQuaternion_Blend(actors_list[i]->cal_v_rot_start,
-											actors_list[i]->cal_rotation_blend,
-											actors_list[i]->cal_v_rot_end);
+						actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
+														   (1.0 - actors_list[i]->cal_rotation_blend) +
+														   actors_list[i]->cal_h_rot_end *
+														   actors_list[i]->cal_rotation_blend);
+						actors_list[i]->cal_v_rot_start = (actors_list[i]->cal_v_rot_start *
+														   (1.0 - actors_list[i]->cal_rotation_blend) +
+														   actors_list[i]->cal_v_rot_end *
+														   actors_list[i]->cal_rotation_blend);
 					}
 
-					range_rotation = compute_actor_rotation(actors_list[i]->cal_h_rot_end,
-															actors_list[i]->cal_v_rot_end,
+					range_rotation = compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
+															&actors_list[i]->cal_v_rot_end,
 															actors_list[i], actors_list[i]->range_target);
 					actors_list[i]->cal_rotation_blend = 0.0;
 					actors_list[i]->cal_rotation_speed = 1.0/18.0;
@@ -964,14 +958,16 @@ void next_command()
 				case leave_aim_mode:
 					missiles_log_message("actor %d is leaving aim mode", actors_list[i]->actor_id);
 					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
-					CalQuaternion_Blend(actors_list[i]->cal_h_rot_start,
-										actors_list[i]->cal_rotation_blend,
-										actors_list[i]->cal_h_rot_end);
-					CalQuaternion_Blend(actors_list[i]->cal_v_rot_start,
-										actors_list[i]->cal_rotation_blend,
-										actors_list[i]->cal_v_rot_end);
-					CalQuaternion_Set(actors_list[i]->cal_h_rot_end, 0.0, 0.0, 0.0, 1.0);
-					CalQuaternion_Set(actors_list[i]->cal_v_rot_end, 0.0, 0.0, 0.0, 1.0);
+					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
+													   (1.0 - actors_list[i]->cal_rotation_blend) +
+													   actors_list[i]->cal_h_rot_end *
+													   actors_list[i]->cal_rotation_blend);
+					actors_list[i]->cal_v_rot_start = (actors_list[i]->cal_v_rot_start *
+													   (1.0 - actors_list[i]->cal_rotation_blend) +
+													   actors_list[i]->cal_v_rot_end *
+													   actors_list[i]->cal_rotation_blend);
+					actors_list[i]->cal_h_rot_end = 0.0;
+					actors_list[i]->cal_v_rot_end = 0.0;
 					actors_list[i]->cal_rotation_blend = 0.0;
 					actors_list[i]->cal_rotation_speed = 1.0/18.0;
 					actors_list[i]->are_bones_rotating = 1;
@@ -1007,10 +1003,16 @@ void next_command()
 						actors_list[i]->in_aim_mode = 0;
 					}
 					
-/* 					CalQuaternion_Blend(actors_list[i]->cal_starting_rotation, */
-/* 										actors_list[i]->cal_rotation_blend, */
-/* 										actors_list[i]->cal_ending_rotation); */
-/* 					CalQuaternion_Set(actors_list[i]->cal_ending_rotation, 0.0, 0.0, 0.0, 1.0); */
+/* 					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start * */
+/* 													   (1.0 - actors_list[i]->cal_rotation_blend) + */
+/* 													   actors_list[i]->cal_h_rot_end * */
+/* 													   actors_list[i]->cal_rotation_blend); */
+/* 					actors_list[i]->cal_v_rot_start = (actors_list[i]->cal_v_rot_start * */
+/* 													   (1.0 - actors_list[i]->cal_rotation_blend) + */
+/* 													   actors_list[i]->cal_v_rot_end * */
+/* 													   actors_list[i]->cal_rotation_blend); */
+/* 					actors_list[i]->cal_h_rot_end = 0.0; */
+/* 					actors_list[i]->cal_v_rot_end = 0.0; */
 /* 					actors_list[i]->cal_rotation_blend = 0.0; */
 /* 					actors_list[i]->cal_rotation_speed = 1.0/18.0; */
 /* 					actors_list[i]->are_bones_rotating = 1; */
@@ -1128,16 +1130,6 @@ void destroy_actor(int actor_id)
 #ifdef	EYE_CANDY
 				ec_actor_delete(actors_list[i]);
 #endif	//EYE_CANDY
-#ifdef MISSILES
-				if (actors_list[i]->cal_h_rot_start)
-					CalQuaternion_Delete(actors_list[i]->cal_h_rot_start);
-				if (actors_list[i]->cal_h_rot_end)
-					CalQuaternion_Delete(actors_list[i]->cal_h_rot_end);
-				if (actors_list[i]->cal_v_rot_start)
-					CalQuaternion_Delete(actors_list[i]->cal_v_rot_start);
-				if (actors_list[i]->cal_v_rot_end)
-					CalQuaternion_Delete(actors_list[i]->cal_v_rot_end);
-#endif // MISSILES
 				free(actors_list[i]);
 				actors_list[i]=NULL;
 				if(i==max_actors-1)max_actors--;
