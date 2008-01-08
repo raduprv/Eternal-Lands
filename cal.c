@@ -256,13 +256,16 @@ void cal_render_bones(actor *act)
 	unsigned char buf[16];
 	float font_size_x = SMALL_INGAME_FONT_X_LEN/ALT_INGAME_FONT_X_LEN;
 	float font_size_y = SMALL_INGAME_FONT_Y_LEN/ALT_INGAME_FONT_X_LEN;
+	float shift[3], pos[3];
 
 	skel=CalModel_GetSkeleton(act->calmodel);
 	nrLines = CalSkeleton_GetBoneLines(skel,&lines[0][0][0]);
 
-	glLineWidth(3.0f);
+	glLineWidth(2.0f);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
+	glLineStipple(1, 0x3030);
+	glEnable(GL_LINE_STIPPLE);
 	glBegin(GL_LINES);
 
 	for(currLine = 0; currLine < nrLines; currLine++) {
@@ -271,23 +274,46 @@ void cal_render_bones(actor *act)
 	}
 
 	glEnd();
-
-	glLineWidth(1.0f);
+	glDisable(GL_LINE_STIPPLE);
 
   	// draw the bone points
   	nrPoints = CalSkeleton_GetBonePoints(skel,&points[0][0]);
 
 	glPointSize(4.0f);
-
+	glColor3f(0.0f, 1.0f, 1.0f);
 	glBegin(GL_POINTS);
-
 	for(currPoint = 0; currPoint < nrPoints; currPoint++) {
-		glColor3f(0.0f, 0.0f, 1.0f);
 		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
 	}
-
 	glEnd();
 
+	// draw the bones orientation
+	glLineWidth(3.0f);
+	glBegin(GL_LINES);
+	for (currPoint = nrPoints; currPoint--;) {
+		shift[0] = 0.1; shift[1] = 0.0; shift[2] = 0.0;
+		cal_get_actor_bone_local_position(act, currPoint, shift, pos);
+		glColor3f(1.0, 0.0, 0.0);
+		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
+		glVertex3fv(pos);
+
+		shift[0] = 0.0; shift[1] = 0.1; shift[2] = 0.0;
+		cal_get_actor_bone_local_position(act, currPoint, shift, pos);
+		glColor3f(0.0, 1.0, 0.0);
+		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
+		glVertex3fv(pos);
+
+		shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.1;
+		cal_get_actor_bone_local_position(act, currPoint, shift, pos);
+		glColor3f(0.0, 0.0, 1.0);
+		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
+		glVertex3fv(pos);
+	}
+	glEnd();
+
+	glLineWidth(1.0f);
+
+	// draw bones id
 	glGetDoublev(GL_MODELVIEW_MATRIX, model);
 	glGetDoublev(GL_PROJECTION_MATRIX, proj);
 	glGetIntegerv(GL_VIEWPORT, view);
@@ -306,9 +332,9 @@ void cal_render_bones(actor *act)
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-	glColor4f(1.0, 0.0, 0.0, 1.0);
+	glColor4f(1.0, 0.0, 1.0, 1.0);
 
-	for (currPoint = 0; currPoint < nrPoints; currPoint++) {
+	for (currPoint = nrPoints; currPoint--;) {
 		struct CalBone *bone;
 		bone = CalSkeleton_GetBone(skel, currPoint);
 		

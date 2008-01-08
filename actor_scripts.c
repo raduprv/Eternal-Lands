@@ -1630,6 +1630,12 @@ int parse_actor_shirt (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		return 0;
 	}
 
+	if (act->shirt == NULL) {
+		int i;
+		act->shirt = (shirt_part*)calloc(ACTOR_SHIRT_SIZE, sizeof(shirt_part));
+		for (i = ACTOR_SHIRT_SIZE; i--;) act->shirt[i].mesh_index= -1;
+	}
+
 	shirt= &(act->shirt[col_idx]);
 	ok= 1;
 	for(item=cfg->children; item; item=item->next) {
@@ -1697,6 +1703,12 @@ int parse_actor_skin (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		return 0;
 	}
 
+	if (act->skin == NULL) {
+		int i;
+		act->skin = (skin_part*)calloc(ACTOR_SKIN_SIZE, sizeof(skin_part));
+		for (i = ACTOR_SKIN_SIZE; i--;) act->skin[i].mesh_index= -1;
+	}
+
 	skin = &(act->skin[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
@@ -1758,6 +1770,12 @@ int parse_actor_legs (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(col_idx < 0 || col_idx >= ACTOR_LEGS_SIZE){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
+	}
+
+	if (act->legs == NULL) {
+		int i;
+		act->legs = (legs_part*)calloc(ACTOR_LEGS_SIZE, sizeof(legs_part));
+		for (i = ACTOR_LEGS_SIZE; i--;) act->legs[i].mesh_index= -1;
 	}
 
 	legs = &(act->legs[col_idx]);
@@ -1980,6 +1998,25 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		return 0;
 	}
 
+	if (act->weapon == NULL) {
+		int i;
+		act->weapon = (weapon_part*)calloc(ACTOR_WEAPON_SIZE, sizeof(weapon_part));
+		for (i = ACTOR_WEAPON_SIZE; i--;) {
+#ifdef MISSILES
+			act->weapon[i].cal_range_in_frame.anim_index=-1;
+			act->weapon[i].cal_range_out_frame.anim_index=-1;
+			act->weapon[i].cal_range_idle_frame.anim_index=-1;
+			act->weapon[i].cal_range_fire_frame.anim_index=-1;
+			act->weapon[i].cal_range_fire_out_frame.anim_index=-1;
+#endif // MISSILES
+			act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
+			act->weapon[i].mesh_index = -1;
+		}
+	}
+
 	weapon = &(act->weapon[type_idx]);
 	ok= parse_actor_weapon_detail(act, weapon, cfg, defaults);
 
@@ -2093,6 +2130,12 @@ int parse_actor_helmet (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		return 0;
 	}
 
+	if (act->helmet == NULL) {
+		int i;
+		act->helmet = (body_part*)calloc(ACTOR_HELMET_SIZE, sizeof(body_part));
+		for (i = ACTOR_HELMET_SIZE; i--;) act->helmet[i].mesh_index= -1;
+	}
+
 	helmet= &(act->helmet[type_idx]);
 
 #if NEW_LIGHTING
@@ -2183,6 +2226,12 @@ int parse_actor_cape (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		return 0;
 	}
 
+	if (act->cape == NULL) {
+		int i;
+		act->cape = (body_part*)calloc(ACTOR_CAPE_SIZE, sizeof(body_part));
+		for (i = ACTOR_CAPE_SIZE; i--;) act->cape[i].mesh_index= -1;
+	}
+
 	cape= &(act->cape[type_idx]);
 
 #if NEW_LIGHTING
@@ -2207,6 +2256,12 @@ int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(type_idx < 0 || type_idx >= ACTOR_HEAD_SIZE){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
+	}
+
+	if (act->head == NULL) {
+		int i;
+		act->head = (body_part*)calloc(ACTOR_HEAD_SIZE, sizeof(body_part));
+		for (i = ACTOR_HEAD_SIZE; i--;) act->head[i].mesh_index= -1;
 	}
 
 	head= &(act->head[type_idx]);
@@ -2236,6 +2291,12 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		return 0;
 	}
 
+	if (act->shield == NULL) {
+		int i;
+		act->shield = (body_part*)calloc(ACTOR_SHIELD_SIZE, sizeof(body_part));
+		for (i = ACTOR_SHIELD_SIZE; i--;) act->shield[i].mesh_index= -1;
+	}
+
 	shield= &(act->shield[type_idx]);
 
 #if NEW_LIGHTING
@@ -2260,6 +2321,12 @@ int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	if(col_idx < 0 || col_idx >= ACTOR_HAIR_SIZE){
 		LOG_ERROR("Unable to find id/property node %s\n", cfg->name);
 		return 0;
+	}
+
+	if (act->hair == NULL) {
+		int i;
+		act->hair = (hair_part*)calloc(ACTOR_HAIR_SIZE, sizeof(hair_part));
+		for (i = ACTOR_HAIR_SIZE; i--;) act->hair[i].mesh_index= -1;
 	}
 
 	buf= act->hair[col_idx].hair_name;
@@ -2664,6 +2731,12 @@ int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		return 0;
 	}
 
+	if (act->boots == NULL) {
+		int i;
+		act->boots = (boots_part*)calloc(ACTOR_BOOTS_SIZE, sizeof(boots_part));
+		for (i = ACTOR_BOOTS_SIZE; i--;) act->boots[i].mesh_index= -1;
+	}
+
 	boots = &(act->boots[col_idx]);
 	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
@@ -2708,13 +2781,13 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	{
 		return -1;
 	}
-	else if (strcmp (kind, "head") == 0)
+	else if (act->head && strcmp (kind, "head") == 0)
 	{
 		for (i = 0; i < ACTOR_HEAD_SIZE; i++)
 			if (strcmp (fn, act->head[i].model_name) == 0 && act->head[i].mesh_index != -1)
 				return act->head[i].mesh_index;
 	}
-	else if (strcmp (kind, "shirt") == 0)
+	else if (act->shirt && strcmp (kind, "shirt") == 0)
 	{
 		for (i = 0; i < ACTOR_SHIRT_SIZE; i++)
 		{
@@ -2722,7 +2795,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 				return act->shirt[i].mesh_index;
 		}
 	}
-	else if (strcmp (kind, "legs") == 0)
+	else if (act->legs && strcmp (kind, "legs") == 0)
 	{
 		for (i = 0; i < ACTOR_LEGS_SIZE; i++)
 		{
@@ -2730,7 +2803,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 				return act->legs[i].mesh_index;
 		}
 	}
-	else if (strcmp (kind, "cape") == 0)
+	else if (act->cape && strcmp (kind, "cape") == 0)
 	{
 		for (i = 0; i < ACTOR_CAPE_SIZE; i++)
 		{
@@ -2738,7 +2811,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 				return act->cape[i].mesh_index;
 		}
 	}
-	else if (strcmp (kind, "helmet") == 0)
+	else if (act->helmet && strcmp (kind, "helmet") == 0)
 	{
 		for (i = 0; i < ACTOR_HELMET_SIZE; i++)
 		{
@@ -2746,7 +2819,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 				return act->helmet[i].mesh_index;
 		}
 	}
-	else if (strcmp (kind, "shield") == 0)
+	else if (act->shield && strcmp (kind, "shield") == 0)
 	{
 		for (i = 0; i < ACTOR_SHIELD_SIZE; i++)
 		{
@@ -2754,7 +2827,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 				return act->shield[i].mesh_index;
 		}
 	}
-	else if (strcmp (kind, "weapon") == 0)
+	else if (act->weapon && strcmp (kind, "weapon") == 0)
 	{
 		for (i = 0; i < ACTOR_WEAPON_SIZE; i++)
 		{
@@ -3024,40 +3097,6 @@ int parse_actor_script (xmlNode *cfg)
 	act->battlecry.scale = 1.0f;
 #endif // NEW_SOUND
 
-	for (i=0; i<80; ++i){
-#ifdef MISSILES
-		act->weapon[i].cal_range_in_frame.anim_index=-1;
-		act->weapon[i].cal_range_out_frame.anim_index=-1;
-		act->weapon[i].cal_range_idle_frame.anim_index=-1;
-		act->weapon[i].cal_range_fire_frame.anim_index=-1;
-		act->weapon[i].cal_range_fire_out_frame.anim_index=-1;
-#endif // MISSILES
-		act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
-		act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
-		act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
-		act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
-		act->weapon[i].mesh_index = -1;
-	}
-
-	//Init head meshes
-	for(i=0; i<ACTOR_HEAD_SIZE; i++)
-		act->head[i].mesh_index= -1;
-	//Init shield meshes
-	for(i=0; i<ACTOR_SHIELD_SIZE; i++)
-		act->shield[i].mesh_index= -1;
-	//Init cape meshes
-	for(i=0; i<ACTOR_CAPE_SIZE; i++)
-		act->cape[i].mesh_index= -1;
-	//Init helmet meshes
-	for(i=0; i<ACTOR_HELMET_SIZE; i++)
-		act->helmet[i].mesh_index= -1;
-	//Init torso meshes
-	for(i=0; i<ACTOR_SHIRT_SIZE; i++)
-		act->shirt[i].mesh_index= -1;
-	//Init legs meshes
-	for(i=0; i<ACTOR_LEGS_SIZE; i++)
-		act->legs[i].mesh_index= -1;
-
 	ok= parse_actor_nodes(act, cfg, NULL);
 		
 	// TODO: add error checking for missing actor information
@@ -3071,8 +3110,9 @@ int parse_actor_script (xmlNode *cfg)
 		}
 
 		// If this not an enhanced actor, load the single mesh and exit
-		if(strcmp (act->head[0].model_name, "") == 0)
+		if(!act->head || strcmp (act->head[0].model_name, "") == 0)
 		{
+			act->shirt = (shirt_part*)calloc(ACTOR_SHIRT_SIZE, sizeof(shirt_part));
 #ifdef NEW_LIGHTING
 			strncpy(act->shirt[0].model_name, act->file_name, sizeof(act->shirt[0].model_name));
 #endif

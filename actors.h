@@ -311,15 +311,15 @@ typedef struct
 
 // TODO: would be nice to make these dynamic
 #define ACTOR_HEAD_SIZE   10
-#define ACTOR_SHIELD_SIZE (SHIELD_NONE+1)
-#define ACTOR_CAPE_SIZE   (CAPE_NONE+1)
-#define ACTOR_HELMET_SIZE (HELMET_NONE+1)
-#define ACTOR_WEAPON_SIZE 80
+#define ACTOR_SHIELD_SIZE 40
+#define ACTOR_CAPE_SIZE   50
+#define ACTOR_HELMET_SIZE 100
+#define ACTOR_WEAPON_SIZE 100
 #define ACTOR_SHIRT_SIZE  100
 #define ACTOR_SKIN_SIZE   10
 #define ACTOR_HAIR_SIZE   20
 #define ACTOR_BOOTS_SIZE  40
-#define ACTOR_LEGS_SIZE   50
+#define ACTOR_LEGS_SIZE   60
 
 typedef struct
 {
@@ -376,20 +376,20 @@ typedef struct
 	
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
 	/*! \{ */
-	body_part head[ACTOR_HEAD_SIZE];
-	body_part shield[ACTOR_SHIELD_SIZE];
-	body_part cape[ACTOR_CAPE_SIZE];
-	body_part helmet[ACTOR_HELMET_SIZE];
-	weapon_part weapon[ACTOR_WEAPON_SIZE];
+	body_part *head;
+	body_part *shield;
+	body_part *cape;
+	body_part *helmet;
+	weapon_part *weapon;
 	/*! \} */
 
 	/*! \name Clothing*/
 	/*! \{ */
-	shirt_part shirt[ACTOR_SHIRT_SIZE];
-	skin_part  skin[ACTOR_SKIN_SIZE];
-	hair_part  hair[ACTOR_HAIR_SIZE];
-	boots_part boots[ACTOR_BOOTS_SIZE];
-	legs_part legs[ACTOR_LEGS_SIZE];
+	shirt_part *shirt;
+	skin_part  *skin;
+	hair_part  *hair;
+	boots_part *boots;
+	legs_part *legs;
 	/*! \} */
 
 	/*! \name The current actors walk/run speeds*/

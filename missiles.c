@@ -505,6 +505,15 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
+	if (!act1) {
+		missiles_log_message("missiles_aim_at_b: the actor %d does not exists!", actor1_id);
+		return;
+	}
+	if (!act2) {
+		missiles_log_message("missiles_aim_at_b: the actor %d does not exists!", actor2_id);
+		return;
+	}
+
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
 	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
@@ -524,6 +533,11 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 
 	act = get_actor_ptr_from_id(actor_id);
 
+	if (!act) {
+		missiles_log_message("missiles_aim_at_xyz: the actor %d does not exists!", actor_id);
+		return;
+	}
+
 	LOCK_ACTORS_LISTS();
 	memcpy(act->range_target, target, sizeof(float) * 3);
 	UNLOCK_ACTORS_LISTS();
@@ -540,6 +554,15 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
+	if (!act1) {
+		missiles_log_message("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
+		return;
+	}
+	if (!act2) {
+		missiles_log_message("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
+		return;
+	}
+
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
 	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
@@ -559,6 +582,11 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 
 	act = get_actor_ptr_from_id(actor_id);
 
+	if (!act) {
+		missiles_log_message("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
+		return;
+	}
+
 	LOCK_ACTORS_LISTS();
 	memcpy(act->range_target, target, sizeof(float) * 3);
 	UNLOCK_ACTORS_LISTS();
@@ -575,6 +603,11 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	missiles_log_message("missile was fired from %f,%f,%f to actor %d", origin[0], origin[1], origin[2], actor_id);
 
 	act = get_actor_ptr_from_id(actor_id);
+
+	if (!act) {
+		missiles_log_message("missiles_fire_xyz_to_b: the actor %d does not exists!", actor_id);
+		return;
+	}
 
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)));

@@ -1818,7 +1818,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case MISSILE_FIRE_XYZ_TO_B:
 			if (data_length >= 17)
 			{
-				missiles_fire_xyz_to_b((float*)(in_data+3),SDL_SwapLE16(*((short *)(in_data+15))));
+				missiles_fire_xyz_to_b((float*)(in_data+5),SDL_SwapLE16(*((short *)(in_data+3))));
 			}
 			break;
 #endif //MISSILES
