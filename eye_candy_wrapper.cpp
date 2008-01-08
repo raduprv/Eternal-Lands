@@ -3,6 +3,7 @@
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
 #include "eye_candy_wrapper.h"
+#include "cal.h"
 #include "cal3d_wrapper.h"
 #include "draw_scene.h"
 #include "errors.h"
@@ -150,17 +151,20 @@ void set_vec3_actor_bone(ec::Vec3& position, actor* _actor, int bone, const ec::
 
 extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip)
 {
-  ec::Vec3 sword_pos;
-  
-  set_vec3_actor_bone(sword_pos, _actor, 28, ec::Vec3(-0.05, 0.0, -0.25));
-  set_vec3_actor_bone(base, _actor, 27, ec::Vec3(0.0, 0.0, 0.0));
-  sword_pos.y = base.y - sword_pos.y + 0.2 + ec_get_z(_actor);
-  
-  ec::Vec3 sword_angle = (sword_pos - base).normalize();
-  
-//  const ec::Vec3 rot_sword_angle(sword_angle.x, sword_angle.y * c_rx - sword_angle.z * s_rx, sword_angle.y * s_rx + sword_angle.z * c_rx);
-  base += sword_angle * SWORD_HILT_LENGTH;
-  tip = base + sword_angle * SWORD_BLADE_LENGTH;
+  float act_rot[9];
+  float tmp_pos[3], pos[3];
+  float shift[3] = {0.0, SWORD_HILT_LENGTH, 0.0};
+
+  get_actor_rotation_matrix(_actor, act_rot);
+
+  cal_get_actor_bone_local_position(_actor, 29, shift, tmp_pos);
+  transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
+  base.x = pos[0]; base.y = pos[2]; base.z = -pos[1];
+
+  shift[1] += SWORD_BLADE_LENGTH;
+  cal_get_actor_bone_local_position(_actor, 29, shift, tmp_pos);
+  transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
+  tip.x = pos[0]; tip.y = pos[2]; tip.z = -pos[1];
 }
 
 extern "C" void ec_idle()

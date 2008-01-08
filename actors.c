@@ -19,7 +19,6 @@
 #include "platform.h"
 #include "shadows.h"
 #include "textures.h"
-#include "tiles.h"
 #include "translate.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
@@ -114,6 +113,8 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->are_bones_rotating = 0;
 	our_actor->in_aim_mode = 0;
 	our_actor->reload = 0;
+	our_actor->miss_range_target = 0;
+	our_actor->range_weapon_type = 0;
 #endif // MISSILES
 
 	our_actor->x_pos=x_pos;
@@ -1060,4 +1061,58 @@ void end_actors_lists()
 int on_the_move (const actor *act){
 	if (act == NULL) return 0;
 	return act->moving || (act->que[0] >= move_n && act->que[0] <= move_nw);
+}
+
+#define MAT3_ROT_X(mat,angle) \
+(mat[0]=1.0,mat[3]=0.0       ,mat[6]=0.0        ,\
+ mat[1]=0.0,mat[4]=cos(angle),mat[7]=-sin(angle),\
+ mat[2]=0.0,mat[5]=-mat[7]   ,mat[8]=mat[4]     )
+
+#define MAT3_ROT_Y(mat,angle) \
+(mat[0]=cos(angle),mat[3]=0.0,mat[6]=sin(angle),\
+ mat[1]=0.0       ,mat[4]=1.0,mat[7]=0.0       ,\
+ mat[2]=-mat[6]   ,mat[5]=0.0,mat[8]=mat[0]    )
+
+#define MAT3_ROT_Z(mat,angle) \
+(mat[0]=cos(angle),mat[3]=-sin(angle),mat[6]=0.0,\
+ mat[1]=-mat[3]   ,mat[4]=mat[0]     ,mat[7]=0.0,\
+ mat[2]=0.0       ,mat[5]=0.0        ,mat[8]=1.0)
+
+#define MAT3_VECT3_MULT(res,mat,vect) \
+((res)[0]=mat[0]*(vect)[0]+mat[3]*(vect)[1]+mat[6]*(vect)[2],\
+ (res)[1]=mat[1]*(vect)[0]+mat[4]*(vect)[1]+mat[7]*(vect)[2],\
+ (res)[2]=mat[2]*(vect)[0]+mat[5]*(vect)[1]+mat[8]*(vect)[2])
+
+#define MAT3_MULT(res,mat1,mat2) \
+(MAT3_VECT3_MULT(&res[0],mat1,&mat2[0]),\
+ MAT3_VECT3_MULT(&res[3],mat1,&mat2[3]),\
+ MAT3_VECT3_MULT(&res[6],mat1,&mat2[6]))
+
+void get_actor_rotation_matrix(actor *in_act, float *out_rot)
+{
+	float tmp_rot1[9], tmp_rot2[9];
+
+	MAT3_ROT_Z(out_rot, (180.0 - in_act->z_rot) * (M_PI / 180.0));
+	MAT3_ROT_X(tmp_rot1, in_act->x_rot * (M_PI / 180.0));
+	MAT3_MULT(tmp_rot2, out_rot, tmp_rot1);
+	MAT3_ROT_Y(tmp_rot1, in_act->y_rot * (M_PI / 180.0));
+	MAT3_MULT(out_rot, tmp_rot2, tmp_rot1);
+}
+
+void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos)
+{
+	float scale = get_actor_scale(in_act);
+
+	if (in_act_rot) {
+		MAT3_VECT3_MULT(out_pos, in_act_rot, in_local_pos);
+	}
+	else {
+		float rot[9];
+		get_actor_rotation_matrix(in_act, rot);
+		MAT3_VECT3_MULT(out_pos, rot, in_local_pos);
+	}
+
+	out_pos[0] = out_pos[0] * scale + in_act->x_pos + 0.25;
+	out_pos[1] = out_pos[1] * scale + in_act->y_pos + 0.25;
+	out_pos[2] = out_pos[2] * scale + get_actor_z(in_act);
 }

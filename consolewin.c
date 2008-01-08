@@ -15,6 +15,9 @@
 #include "init.h"
 #include "interface.h"
 #include "mapwin.h"
+#ifdef MISSILES
+#include "missiles.h"
+#endif // MISSILES
 #include "new_character.h"
 #include "spells.h"
 #include "text.h"
@@ -117,6 +120,10 @@ int display_console_handler (window_info *win)
 #ifdef NEW_LIGHTING
 	light_idle();
 #endif // NEW_LIGHTING
+
+#ifdef MISSILES
+	missiles_update(cur_time-last_time);
+#endif // MISSILES
 
 	draw_delay = 20;
 	return 1;

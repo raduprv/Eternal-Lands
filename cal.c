@@ -1,4 +1,5 @@
 #include <stdlib.h>
+#include "actors.h"
 #include "cal.h"
 #include "draw_scene.h"
 #include "errors.h"
@@ -24,7 +25,7 @@
 #include "io/elfilewrapper.h"
 #endif	//NEW_FILE_IO
 #ifdef NEW_LIGHTING
- #include "lights.h"
+#include "lights.h"
 #endif
 
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
@@ -108,7 +109,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	CalModel_Update(pActor->calmodel,0.0001);//Make changes take effect now
 
 #ifdef MISSILES
-	rotate_actor_bones(pActor);
+	missiles_rotate_actor_bones(pActor);
 #endif // MISSILES
 
 	if (pActor->cur_anim.anim_index==-1)
@@ -249,6 +250,12 @@ void cal_render_bones(actor *act)
 	int currLine;
 	int currPoint;
 	struct CalSkeleton *skel;
+	GLdouble model[16], proj[16];
+	GLint view[4];
+	GLdouble px,py,pz;
+	unsigned char buf[16];
+	float font_size_x = SMALL_INGAME_FONT_X_LEN/ALT_INGAME_FONT_X_LEN;
+	float font_size_y = SMALL_INGAME_FONT_Y_LEN/ALT_INGAME_FONT_X_LEN;
 
 	skel=CalModel_GetSkeleton(act->calmodel);
 	nrLines = CalSkeleton_GetBoneLines(skel,&lines[0][0][0]);
@@ -280,6 +287,43 @@ void cal_render_bones(actor *act)
 	}
 
 	glEnd();
+
+	glGetDoublev(GL_MODELVIEW_MATRIX, model);
+	glGetDoublev(GL_PROJECTION_MATRIX, proj);
+	glGetIntegerv(GL_VIEWPORT, view);
+
+	glPushMatrix();
+	glLoadIdentity();
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadIdentity();
+
+	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
+
+	glPushAttrib(GL_ENABLE_BIT);
+
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+
+	for (currPoint = 0; currPoint < nrPoints; currPoint++) {
+		struct CalBone *bone;
+		bone = CalSkeleton_GetBone(skel, currPoint);
+		
+		sprintf((char*)buf, "%d", currPoint);
+		gluProject(points[currPoint][0], points[currPoint][1], points[currPoint][2], model, proj, view, &px, &py, &pz);
+		draw_ortho_ingame_string(px, py, pz, buf, 1, font_size_x, font_size_y);
+	}
+
+	glPopAttrib();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopMatrix();
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -660,4 +704,41 @@ void cal_render_actor(actor *act)
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+}
+
+void cal_get_actor_bone_local_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos)
+{
+	struct CalSkeleton *skel;
+	struct CalBone *bone;
+	struct CalVector *point;
+
+	skel = CalModel_GetSkeleton(in_act->calmodel);
+	bone = CalSkeleton_GetBone(skel, in_bone_id);
+	point = CalBone_GetTranslationAbsolute(bone);
+
+	memcpy(out_pos, CalVector_Get(point), 3*sizeof(float));
+
+	if (in_shift) {
+		struct CalQuaternion *rot;
+		struct CalVector *vect;
+		float *tmp;
+		rot = CalBone_GetRotationAbsolute(bone);
+		vect = CalVector_New();
+		CalVector_Set(vect, in_shift[0], in_shift[1], in_shift[2]);
+		CalVector_Transform(vect, rot);
+		tmp = CalVector_Get(vect);
+		out_pos[0] += tmp[0];
+		out_pos[1] += tmp[1];
+		out_pos[2] += tmp[2];
+		CalVector_Delete(vect);
+	}
+}
+
+void cal_get_actor_bone_absolute_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos)
+{
+	float act_rot[9];
+	float pos[3];
+	get_actor_rotation_matrix(in_act, act_rot);
+	cal_get_actor_bone_local_position(in_act, in_bone_id, in_shift, pos);
+	transform_actor_local_position_to_absolute(in_act, pos, act_rot, out_pos);
 }

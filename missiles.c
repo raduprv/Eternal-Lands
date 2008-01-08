@@ -3,6 +3,7 @@
 #include "3d_objects.h"
 #include "actor_scripts.h"
 #include "asc.h"
+#include "cal.h"
 #include "cal3d_wrapper.h"
 #include "e3d.h"
 #include "gl_init.h"
@@ -20,31 +21,6 @@
 #define MAX_MISSILES 1024
 #define EPSILON 1E-4
 
-#define MAT3_ROT_X(mat,angle) \
-(mat[0]=1.0,mat[3]=0.0       ,mat[6]=0.0        ,\
- mat[1]=0.0,mat[4]=cos(angle),mat[7]=-sin(angle),\
- mat[2]=0.0,mat[5]=-mat[7]   ,mat[8]=mat[4]     )
-
-#define MAT3_ROT_Y(mat,angle) \
-(mat[0]=cos(angle),mat[3]=0.0,mat[6]=sin(angle),\
- mat[1]=0.0       ,mat[4]=1.0,mat[7]=0.0       ,\
- mat[2]=-mat[6]   ,mat[5]=0.0,mat[8]=mat[0]    )
-
-#define MAT3_ROT_Z(mat,angle) \
-(mat[0]=cos(angle),mat[3]=-sin(angle),mat[6]=0.0,\
- mat[1]=-mat[3]   ,mat[4]=mat[0]     ,mat[7]=0.0,\
- mat[2]=0.0       ,mat[5]=0.0        ,mat[8]=1.0)
-
-#define MAT3_VECT3_MULT(res,mat,vect) \
-((res)[0]=mat[0]*(vect)[0]+mat[3]*(vect)[1]+mat[6]*(vect)[2],\
- (res)[1]=mat[1]*(vect)[0]+mat[4]*(vect)[1]+mat[7]*(vect)[2],\
- (res)[2]=mat[2]*(vect)[0]+mat[5]*(vect)[1]+mat[8]*(vect)[2])
-
-#define MAT3_MULT(res,mat1,mat2) \
-(MAT3_VECT3_MULT(&res[0],mat1,&mat2[0]),\
- MAT3_VECT3_MULT(&res[3],mat1,&mat2[3]),\
- MAT3_VECT3_MULT(&res[6],mat1,&mat2[6]))
-
 const float arrow_length = 0.75;
 const float bolt_length = 0.4;
 
@@ -58,7 +34,7 @@ unsigned int missiles_count = 0;
 
 FILE *missiles_log = NULL;
 
-void open_missiles_log()
+void missiles_open_log()
 {
 	char log_name[1024];
 	char starttime[200], sttime[200];
@@ -93,7 +69,7 @@ void missiles_log_message(const char *format, ...)
 	va_end(ap);
 
 	if (missiles_log == NULL)
-		open_missiles_log();
+		missiles_open_log();
 
 	time(&c_time);
 	l_time = localtime(&c_time);
@@ -107,98 +83,17 @@ void missiles_log_message(const char *format, ...)
   	fflush (missiles_log);
 }
 
-void clear_missiles()
+void missiles_clear()
 {
 	missiles_count = 0;
 }
 
-float get_actor_scale(actor *a)
-{
-	float scale = a->scale;
-
-#ifdef NEW_ACTOR_SCALE
-	scale *= actors_defs[a->actor_type].actor_scale;
-#endif
-
-	return scale;
-}
-
-float get_actor_z(actor *a)
-{
-	return -2.2f + height_map[a->y_tile_pos*tile_map_size_x*6+a->x_tile_pos]*0.2f;
-}
-
-void get_actor_rotation_matrix(actor *in_act, float *out_rot)
-{
-	float tmp_rot1[9], tmp_rot2[9];
-
-	MAT3_ROT_Z(out_rot, (180.0 - in_act->z_rot) * (M_PI / 180.0));
-	MAT3_ROT_X(tmp_rot1, in_act->x_rot * (M_PI / 180.0));
-	MAT3_MULT(tmp_rot2, out_rot, tmp_rot1);
-	MAT3_ROT_Y(tmp_rot1, in_act->y_rot * (M_PI / 180.0));
-	MAT3_MULT(out_rot, tmp_rot2, tmp_rot1);
-}
-
-void get_actor_bone_local_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos)
-{
-	struct CalSkeleton *skel;
-	struct CalBone *bone;
-	struct CalVector *point;
-
-	skel = CalModel_GetSkeleton(in_act->calmodel);
-	bone = CalSkeleton_GetBone(skel, in_bone_id);
-	point = CalBone_GetTranslationAbsolute(bone);
-
-	memcpy(out_pos, CalVector_Get(point), 3*sizeof(float));
-
-	if (in_shift) {
-		struct CalQuaternion *rot;
-		struct CalVector *vect;
-		float *tmp;
-		rot = CalBone_GetRotationAbsolute(bone);
-		vect = CalVector_New();
-		CalVector_Set(vect, in_shift[0], in_shift[1], in_shift[2]);
-		CalVector_Transform(vect, rot);
-		tmp = CalVector_Get(vect);
-		out_pos[0] += tmp[0];
-		out_pos[1] += tmp[1];
-		out_pos[2] += tmp[2];
-		CalVector_Delete(vect);
-	}
-}
-
-void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos)
-{
-	float scale = get_actor_scale(in_act);
-
-	if (in_act_rot) {
-		MAT3_VECT3_MULT(out_pos, in_act_rot, in_local_pos);
-	}
-	else {
-		float rot[9];
-		get_actor_rotation_matrix(in_act, rot);
-		MAT3_VECT3_MULT(out_pos, rot, in_local_pos);
-	}
-
-	out_pos[0] = out_pos[0] * scale + in_act->x_pos + 0.25;
-	out_pos[1] = out_pos[1] * scale + in_act->y_pos + 0.25;
-	out_pos[2] = out_pos[2] * scale + get_actor_z(in_act);
-}
-
-void get_actor_bone_absolute_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos)
-{
-	float act_rot[9];
-	float pos[3];
-	get_actor_rotation_matrix(in_act, act_rot);
-	get_actor_bone_local_position(in_act, in_bone_id, in_shift, pos);
-	transform_actor_local_position_to_absolute(in_act, pos, act_rot, out_pos);
-}
-
-unsigned int add_missile(MissileType type,
-						 float origin[3],
-						 float target[3],
-						 float speed,
-						 float shift)
+unsigned int missiles_add(MissileType type,
+						  float origin[3],
+						  float target[3],
+						  float speed,
+						  float shift,
+						  int miss_target)
 {
 	Missile *mis;
 	
@@ -210,6 +105,9 @@ unsigned int add_missile(MissileType type,
 #endif // DEBUG
 	
 	mis = &missiles_list[missiles_count++];
+
+	mis->type = type;
+	mis->miss_target = miss_target;
 	memcpy(mis->position, origin, sizeof(float)*3);
 	mis->direction[0] = target[0] - origin[0];
 	mis->direction[1] = target[1] - origin[1];
@@ -228,7 +126,7 @@ unsigned int add_missile(MissileType type,
 	return missiles_count;
 }
 
-void remove_missile(unsigned int missile_id)
+void missiles_remove(unsigned int missile_id)
 {
 	assert(missile_id < missiles_count);
 
@@ -240,62 +138,52 @@ void remove_missile(unsigned int missile_id)
 	}
 }
 
-void draw_current_actor_nodes()
-{
-	actor *a = get_actor_ptr_from_id(yourself);
-	float act_rot[9];
-	float pos1[3], pos2[3], shift[3], tmp[3];
-	int i;
+/* void missiles_draw_current_actor_nodes() */
+/* { */
+/* 	actor *a = get_actor_ptr_from_id(yourself); */
+/* 	float act_rot[9]; */
+/* 	float pos1[3], pos2[3], shift[3], tmp[3]; */
+/* 	int i; */
 	
-	if (!a) return;
+/* 	if (!a) return; */
 	
-	get_actor_rotation_matrix(a, act_rot);
+/* 	get_actor_rotation_matrix(a, act_rot); */
 
-	glColor3f(1.0, 1.0, 1.0);
-	glLineWidth(5.0);
-	glBegin(GL_LINES);
+/* 	glColor3f(1.0, 1.0, 1.0); */
+/* 	glLineWidth(5.0); */
+/* 	glBegin(GL_LINES); */
 
- 	for (i = 14; i <= 14; ++i)
-	{
-/* 		switch(i) { */
-/* 		case 0: glColor3f(1.0, 0.0, 0.0); break; */
-/* 		case 1: glColor3f(0.0, 1.0, 0.0); break; */
-/* 		case 2: glColor3f(0.0, 0.0, 1.0); break; */
-/* 		} */
-/* 		if (i == 13) */
-/* 			glColor3f(1.0, 0.0, 0.0); */
-/* 		else */
-/* 			glColor3f(1.0, 1.0, 1.0); */
+/*  	for (i = 14; i <= 14; ++i) */
+/* 	{ */
+/* 		get_actor_bone_local_position(a, i, NULL, tmp); */
+/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos1); */
 
-		get_actor_bone_local_position(a, i, NULL, tmp);
-		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos1);
+/* 		shift[0] = 0.3; shift[1] = 0.0; shift[2] = 0.0; */
+/* 		get_actor_bone_local_position(a, i, shift, tmp); */
+/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
+/* 		glColor3f(1.0, 0.0, 0.0); */
+/* 		glVertex3fv(pos1); */
+/* 		glVertex3fv(pos2); */
 
-		shift[0] = 0.3; shift[1] = 0.0; shift[2] = 0.0;
-		get_actor_bone_local_position(a, i, shift, tmp);
-		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2);
-		glColor3f(1.0, 0.0, 0.0);
-		glVertex3fv(pos1);
-		glVertex3fv(pos2);
+/* 		shift[0] = 0.0; shift[1] = 0.3; shift[2] = 0.0; */
+/* 		get_actor_bone_local_position(a, i, shift, tmp); */
+/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
+/* 		glColor3f(0.0, 1.0, 0.0); */
+/* 		glVertex3fv(pos1); */
+/* 		glVertex3fv(pos2); */
 
-		shift[0] = 0.0; shift[1] = 0.3; shift[2] = 0.0;
-		get_actor_bone_local_position(a, i, shift, tmp);
-		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2);
-		glColor3f(0.0, 1.0, 0.0);
-		glVertex3fv(pos1);
-		glVertex3fv(pos2);
-
-		shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.3;
-		get_actor_bone_local_position(a, i, shift, tmp);
-		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2);
-		glColor3f(0.0, 0.0, 1.0);
-		glVertex3fv(pos1);
-		glVertex3fv(pos2);
-	}
+/* 		shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.3; */
+/* 		get_actor_bone_local_position(a, i, shift, tmp); */
+/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
+/* 		glColor3f(0.0, 0.0, 1.0); */
+/* 		glVertex3fv(pos1); */
+/* 		glVertex3fv(pos2); */
+/* 	} */
 	
-	glEnd();
-}
+/* 	glEnd(); */
+/* } */
 
-void update_missiles(Uint32 time_diff)
+void missiles_update(Uint32 time_diff)
 {
 	unsigned int i;
 	float shift_t = time_diff / 1000.0;
@@ -309,13 +197,45 @@ void update_missiles(Uint32 time_diff)
 		mis->covered_distance += dist;
 		mis->remaining_distance -= dist;
 		if (mis->remaining_distance < -arrow_trace_length)
-			remove_missile(i);
+			missiles_remove(i);
 		else
 			++i;
 	}
 }
 
-void draw_missiles()
+void missiles_draw_single(Missile *mis)
+{
+	switch (mis->type) {
+	case MISSILE_ARROW:
+		if (mis->covered_distance < arrow_trace_length) {
+			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
+					  (arrow_trace_length - mis->covered_distance) / arrow_trace_length);
+			glVertex3f(mis->position[0] - mis->covered_distance * mis->direction[0],
+					   mis->position[1] - mis->covered_distance * mis->direction[1],
+					   mis->position[2] - mis->covered_distance * mis->direction[2]);
+		}
+		else {
+			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2], 0.0);
+			glVertex3f(mis->position[0] - arrow_trace_length * mis->direction[0],
+					   mis->position[1] - arrow_trace_length * mis->direction[1],
+					   mis->position[2] - arrow_trace_length * mis->direction[2]);
+		}
+		if (mis->remaining_distance < 0.0) {
+			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
+					  (arrow_trace_length + mis->remaining_distance) / arrow_trace_length);
+			glVertex3f(mis->position[0] + mis->remaining_distance * mis->direction[0],
+					   mis->position[1] + mis->remaining_distance * mis->direction[1],
+					   mis->position[2] + mis->remaining_distance * mis->direction[2]);
+		}
+		else {
+			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2], 1.0);
+			glVertex3fv(mis->position);
+		}
+		break;
+	}
+}
+
+void missiles_draw()
 {
 	unsigned int i;
 
@@ -325,64 +245,30 @@ void draw_missiles()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 	glLineWidth(2.0);
+
 	glBegin(GL_LINES);
-	for (i = 0; i < missiles_count; ++i) {
-		Missile *mis = &missiles_list[i];
-		switch (mis->type) {
-		case MISSILE_ARROW:
-			if (mis->covered_distance < arrow_trace_length) {
-				glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
-						  (arrow_trace_length - mis->covered_distance) / arrow_trace_length);
-				glVertex3f(mis->position[0] - mis->covered_distance * mis->direction[0],
-						   mis->position[1] - mis->covered_distance * mis->direction[1],
-						   mis->position[2] - mis->covered_distance * mis->direction[2]);
-			}
-			else {
-				glColor4f(arrow_color[0], arrow_color[1], arrow_color[2], 0.0);
-				glVertex3f(mis->position[0] - arrow_trace_length * mis->direction[0],
-						   mis->position[1] - arrow_trace_length * mis->direction[1],
-						   mis->position[2] - arrow_trace_length * mis->direction[2]);
-			}
-			if (mis->remaining_distance < 0.0) {
-				glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
-						  (arrow_trace_length + mis->remaining_distance) / arrow_trace_length);
-				glVertex3f(mis->position[0] + mis->remaining_distance * mis->direction[0],
-						   mis->position[1] + mis->remaining_distance * mis->direction[1],
-						   mis->position[2] + mis->remaining_distance * mis->direction[2]);
-			}
-			else {
-				glColor4f(arrow_color[0], arrow_color[1], arrow_color[2], 1.0);
-				glVertex3fv(mis->position);
-			}
-			break;
-		}
-	}
+	for (i = 0; i < missiles_count; ++i)
+		if (!missiles_list[i].miss_target)
+			missiles_draw_single(&missiles_list[i]);
+	glEnd();
+
+	glLineStipple(1, 0x00FF);
+	glEnable(GL_LINE_STIPPLE);
+	glBegin(GL_LINES);
+	for (i = 0; i < missiles_count; ++i)
+		if (missiles_list[i].miss_target)
+			missiles_draw_single(&missiles_list[i]);
 	glEnd();
 
 #ifdef DEBUG
-	draw_current_actor_nodes();
+/* 	missiles_draw_current_actor_nodes(); */
 #endif // DEBUG
 
 	glPopAttrib();
 }
 
-void shortest_arc(struct CalQuaternion *out_q, float *in_from, float *in_to)
-{
-	float cross[3];
-	float dot;
-
-	VCross(cross, in_from, in_to);
-	dot = VDot(in_from, in_to);
-
-	dot = (float)sqrt(2*(dot+1));
-	
-	VScale(cross, cross, 1/dot);
-	
-	CalQuaternion_Set(out_q, cross[0], cross[1], cross[2], -dot/2); 
-}
-
-float compute_actor_rotation(float *out_h_rot, float *out_v_rot,
-							 actor *in_act, float *in_target)
+float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
+									  actor *in_act, float *in_target)
 {
 	float cz, sz;
 	float from[3], to[3], tmp[3], origin[3];
@@ -464,37 +350,36 @@ float compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	return actor_rotation;
 }
 
-unsigned int fire_arrow(actor *a, float target[3])
+unsigned int missiles_fire_arrow(actor *a, float target[3], char miss_target)
 {
 	unsigned int mis_id;
 	float origin[3];
 	float shift[3] = {0.0, get_actor_scale(a), 0.0};
 
-	switch(a->cur_weapon)
+	switch(a->range_weapon_type)
 	{
-	case 64: // long bow
-	case 65: // short bow
+	case RANGE_WEAPON_BOW:
 		shift[1] *= arrow_length;
 		break;
 
-	case 68: // crossbow
+	case RANGE_WEAPON_CROSSBOW:
 		shift[1] *= bolt_length;
 		break;
 
 	default:
 		shift[1] = 0.0;
-		missiles_log_message("fire_arrow: weapon %d is an unknown range weapon, unable to determine precisely the position of the arrow", a->cur_weapon);
+		missiles_log_message("fire_arrow: %d is an unknown range weapon type, unable to determine precisely the position of the arrow", a->range_weapon_type);
 		break;
 	}
 
-	get_actor_bone_absolute_position(a, 37, shift, origin);
+	cal_get_actor_bone_absolute_position(a, 37, shift, origin);
 	
-	mis_id = add_missile(MISSILE_ARROW, origin, target, arrow_speed, 0.0);
+	mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, 0.0, miss_target);
 	
 	return mis_id;
 }
 
-void rotate_actor_bones(actor *a)
+void missiles_rotate_actor_bones(actor *a)
 {
 	struct CalSkeleton *skel;
 	struct CalBone *bone;
@@ -611,11 +496,11 @@ void rotate_actor_bones(actor *a)
 	CalQuaternion_Delete(vrot_quat);
 }
 
-void actor_aim_at_b(int actor1_id, int actor2_id)
+void missiles_aim_at_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
 
-	missiles_log_message("actor %d is aiming at actor %d", actor1_id, actor2_id);
+	missiles_log_message("actor %d will aim at actor %d", actor1_id, actor2_id);
 
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
@@ -623,19 +508,19 @@ void actor_aim_at_b(int actor1_id, int actor2_id)
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
 	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
-		get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
 	else
-		get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
+		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
 }
 
-void actor_aim_at_xyz(int actor_id, float *target)
+void missiles_aim_at_xyz(int actor_id, float *target)
 {
 	actor *act;
 
-	missiles_log_message("actor %d is aiming at target %f,%f,%f", actor_id, target[0], target[1], target[2]);
+	missiles_log_message("actor %d will aim at target %f,%f,%f", actor_id, target[0], target[1], target[2]);
 
 	act = get_actor_ptr_from_id(actor_id);
 
@@ -646,11 +531,11 @@ void actor_aim_at_xyz(int actor_id, float *target)
 	add_command_to_actor(actor_id, enter_aim_mode);
 }
 
-void missile_fire_a_to_b(int actor1_id, int actor2_id)
+void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
 
-	missiles_log_message("actor %d is firing to actor %d", actor1_id, actor2_id);
+	missiles_log_message("actor %d will fire to actor %d", actor1_id, actor2_id);
 
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
@@ -658,19 +543,19 @@ void missile_fire_a_to_b(int actor1_id, int actor2_id)
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
 	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
-		get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
 	else
-		get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
+		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
 }
 
-void missile_fire_a_to_xyz(int actor_id, float *target)
+void missiles_fire_a_to_xyz(int actor_id, float *target)
 {
 	actor *act;
 
-	missiles_log_message("actor %d is firing to target %f,%f,%f", actor_id, target[0], target[1], target[2]);
+	missiles_log_message("actor %d will fire to target %f,%f,%f", actor_id, target[0], target[1], target[2]);
 
 	act = get_actor_ptr_from_id(actor_id);
 
@@ -681,7 +566,7 @@ void missile_fire_a_to_xyz(int actor_id, float *target)
 	add_command_to_actor(actor_id, aim_mode_fire);
 }
 
-void missile_fire_xyz_to_b(float *origin, int actor_id)
+void missiles_fire_xyz_to_b(float *origin, int actor_id)
 {
 	actor * act;
 	unsigned int mis_id;
@@ -694,12 +579,12 @@ void missile_fire_xyz_to_b(float *origin, int actor_id)
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)));
 	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)) > 30)
-		get_actor_bone_absolute_position(act, 13, NULL, target);
+		cal_get_actor_bone_absolute_position(act, 13, NULL, target);
 	else
-		get_actor_bone_absolute_position(act, 0, NULL, target);
+		cal_get_actor_bone_absolute_position(act, 0, NULL, target);
 	UNLOCK_ACTORS_LISTS();
 
-	mis_id = add_missile(MISSILE_ARROW, origin, target, arrow_speed, 0.0);
+	mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, 0.0, 0);
 }
 
 #endif // MISSILES

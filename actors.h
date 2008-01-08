@@ -15,6 +15,7 @@
 #include "cal_types.h"
 #include "client_serv.h"
 #include "platform.h"
+#include "tiles.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -456,10 +457,12 @@ typedef struct
 	float cal_v_rot_end;   /*!< The ending vertical rotation */
 	float cal_rotation_blend; /*!< The blend to applay between the starting and the ending rotations */
 	float cal_rotation_speed; /*!< The speed of the rotation */
-	int are_bones_rotating;   /*!< To tell if the char is rotating */
-	int in_aim_mode;          /*!< To tell if the char is already aiming something */
+	char are_bones_rotating;  /*!< To tell if the char is rotating */
+	char in_aim_mode;         /*!< To tell if the char is already aiming something */
 	char reload;              /*!< To tell if the char must reload his bow after the next fire */
+	char miss_range_target;   /*!< To tell if the char misses his target */
 	float range_target[3];    /*!< Position of the target to aim/fire at */
+	int range_weapon_type;    /*!< The type of the equipped range weapon */
 	/*! \} */
 #endif // MISSILES
 
@@ -730,6 +733,46 @@ static __inline__ void set_our_actor (actor *act)
 {
 	your_actor = act;
 }
+
+/*!
+ * \brief Get the Z position of an actor according to its position on the height map
+ * \param a the actor
+ * \return the Z position of the actor
+ */
+static __inline__ float get_actor_z(actor *a)
+{
+	return -2.2f + height_map[a->y_tile_pos*tile_map_size_x*6+a->x_tile_pos]*0.2f;
+}
+
+/*!
+ * \brief Get the scale factor of an actor
+ * \param a the actor
+ * \return the scale factor of the actor
+ */
+static __inline__ float get_actor_scale(actor *a)
+{
+	float scale = a->scale;
+#ifdef NEW_ACTOR_SCALE
+	scale *= actors_defs[a->actor_type].actor_scale;
+#endif
+	return scale;
+}
+
+/*!
+ * \brief Computes the rotation matrix of an actor
+ * \param in_act the actor
+ * \param out_rot the resulting matrix (3x3 matrix: 9 floats)
+ */
+void get_actor_rotation_matrix(actor *in_act, float *out_rot);
+
+/*!
+ * \brief Transforms a local position on a char to an absolute position
+ * \param in_act the actor
+ * \param in_local_pos the local position
+ * \param in_act_rot the rotation matrix of the actor (computed inside if NULL)
+ * \param out_pos the resulting position
+ */
+void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos);
 
 #ifdef __cplusplus
 } // extern "C"

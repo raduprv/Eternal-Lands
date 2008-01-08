@@ -557,7 +557,7 @@ void animate_actors()
 				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 #endif
 #ifdef MISSILES
-				rotate_actor_bones(actors_list[i]);
+				missiles_rotate_actor_bones(actors_list[i]);
 #endif
 			}
 #endif	//DYNAMIC_ANIMATIONS
@@ -916,8 +916,21 @@ void next_command()
 #ifdef MISSILES
 				case enter_aim_mode:
 					if (!actors_list[i]->in_aim_mode) {
+						int j;
+						char *weapon_name = actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].model_name;
 						missiles_log_message("actor %d enters in aim mode", actors_list[i]->actor_id);
+						missiles_log_message("model of the weapon equipped: %s", weapon_name);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
+
+						// detecting the range weapon type from the model name
+						for (j = 0; j < strlen(weapon_name)-8 && actors_list[i]->range_weapon_type < 0; ++j)
+							if (!strncmp(&weapon_name[j], "crossbow", 8))
+								actors_list[i]->range_weapon_type = RANGE_WEAPON_CROSSBOW;
+						for (j = 0; j < strlen(weapon_name)-3 && actors_list[i]->range_weapon_type < 0; ++j)
+							if (!strncmp(&weapon_name[j], "bow", 3))
+								actors_list[i]->range_weapon_type = RANGE_WEAPON_BOW;
+						missiles_log_message("range weapon type: %d", actors_list[i]->range_weapon_type);
+
 						actors_list[i]->cal_h_rot_start = 0.0;
 						actors_list[i]->cal_v_rot_start = 0.0;
 						actors_list[i]->in_aim_mode = 1;
@@ -935,13 +948,12 @@ void next_command()
 														   actors_list[i]->cal_rotation_blend);
 					}
 
-					range_rotation = compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
-															&actors_list[i]->cal_v_rot_end,
-															actors_list[i], actors_list[i]->range_target);
+					range_rotation = missiles_compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
+																	 &actors_list[i]->cal_v_rot_end,
+																	 actors_list[i], actors_list[i]->range_target);
 					actors_list[i]->cal_rotation_blend = 0.0;
 					actors_list[i]->cal_rotation_speed = 1.0/18.0;
 					actors_list[i]->are_bones_rotating = 1;
-					actors_list[i]->busy = 1;
 					actors_list[i]->stop_animation = 1;
 
 					if (range_rotation != 0.0) {
@@ -971,13 +983,12 @@ void next_command()
 					actors_list[i]->cal_rotation_blend = 0.0;
 					actors_list[i]->cal_rotation_speed = 1.0/18.0;
 					actors_list[i]->are_bones_rotating = 1;
-					actors_list[i]->busy = 1;
 					actors_list[i]->in_aim_mode = 0;
 					actors_list[i]->stop_animation = 1;
 					break;
 
 				case aim_mode_reload:
-					missiles_log_message("actor %d will have to reload after next fire", i);
+					missiles_log_message("actor %d will have to reload after next fire", actors_list[i]->actor_id);
 					actors_list[i]->reload = 1;
 					break;
 
@@ -1016,11 +1027,16 @@ void next_command()
 /* 					actors_list[i]->cal_rotation_blend = 0.0; */
 /* 					actors_list[i]->cal_rotation_speed = 1.0/18.0; */
 /* 					actors_list[i]->are_bones_rotating = 1; */
-/* 					actors_list[i]->busy = 1; */
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
-					fire_arrow(actors_list[i], actors_list[i]->range_target);
+					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target, actors_list[i]->miss_range_target);
+					actors_list[i]->miss_range_target = 0;
+					break;
+
+				case aim_mode_miss:
+					missiles_log_message("actor %d will miss his target", actors_list[i]->actor_id);
+					actors_list[i]->miss_range_target = 1;
 					break;
 
 				case unwear_bow:
@@ -1085,6 +1101,10 @@ void next_command()
 					}
 
 					//mark the actor as being busy
+#ifdef MISSILES
+				    if (actors_list[i]->que[0] != aim_mode_reload &&
+						actors_list[i]->que[0] != aim_mode_miss)
+#endif // MISSILES
 					actors_list[i]->busy=1;
 					//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Busy");
 					//save the last command. It is especially good for run and walk
@@ -1251,7 +1271,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				//We may be on idle, update the actor so we can reduce the rendering lag
 				CalModel_Update(act->calmodel, 5.0f);
 #ifdef MISSILES
-				rotate_actor_bones(get_actor_ptr_from_id(actor_id));
+				missiles_rotate_actor_bones(get_actor_ptr_from_id(actor_id));
 #endif // MISSILES
 			}
 		}

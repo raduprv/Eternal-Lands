@@ -1794,31 +1794,31 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case MISSILE_AIM_A_AT_B:
 			if (data_length >= 7)
 			{
-				actor_aim_at_b(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
+				missiles_aim_at_b(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
 			}
 			break;
 		case MISSILE_AIM_A_AT_XYZ:
 			if (data_length >= 17)
 			{
-				actor_aim_at_xyz(SDL_SwapLE16(*((short *)(in_data+3))),(float*)(in_data+5));
+				missiles_aim_at_xyz(SDL_SwapLE16(*((short *)(in_data+3))),(float*)(in_data+5));
 			}
 			break;
 		case MISSILE_FIRE_A_TO_B:
 			if (data_length >= 7)
 			{
-				missile_fire_a_to_b(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
+				missiles_fire_a_to_b(SDL_SwapLE16(*((short *)(in_data+3))),SDL_SwapLE16(*((short *)(in_data+5))));
 			}
 			break;
 		case MISSILE_FIRE_A_TO_XYZ:
 			if (data_length >= 17)
 			{
-				missile_fire_a_to_xyz(SDL_SwapLE16(*((short *)(in_data+3))),(float*)(in_data+5));
+				missiles_fire_a_to_xyz(SDL_SwapLE16(*((short *)(in_data+3))),(float*)(in_data+5));
 			}
 			break;
 		case MISSILE_FIRE_XYZ_TO_B:
 			if (data_length >= 17)
 			{
-				missile_fire_xyz_to_b((float*)(in_data+3),SDL_SwapLE16(*((short *)(in_data+15))));
+				missiles_fire_xyz_to_b((float*)(in_data+3),SDL_SwapLE16(*((short *)(in_data+15))));
 			}
 			break;
 #endif //MISSILES

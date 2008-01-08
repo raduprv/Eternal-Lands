@@ -998,7 +998,7 @@ int display_game_handler (window_info *win)
 #endif
 
 #ifdef MISSILES
-		update_missiles(cur_time-last_time);
+		missiles_update(cur_time-last_time);
 #endif
 	
 #ifdef NEW_LIGHTING
@@ -1091,7 +1091,7 @@ CHECK_GL_ERRORS();
 #endif	//EYE_CANDY
 	
 #ifdef MISSILES
-	draw_missiles();
+	missiles_draw();
 #endif
 
 	if (weather_use_fog()) render_fog();

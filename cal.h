@@ -40,6 +40,24 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str);
 void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay);
 void cal_actor_set_anim(int id, struct cal_anim anim);
 
+/*!
+ * \brief Gets the local position of char bone
+ * \param in_act the actor
+ * \param in_bone_id the bone
+ * \param in_shift a shift according to the orientation of the bone (can be NULL)
+ * \param out_pos the resulting position
+ */
+void cal_get_actor_bone_local_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos);
+
+/*!
+ * \brief Gets the absolute position of char bone
+ * \param in_act the actor
+ * \param in_bone_id the bone
+ * \param in_shift a shift according to the orientation of the bone (can be NULL)
+ * \param out_pos the resulting position
+ */
+void cal_get_actor_bone_absolute_position(actor *in_act, int in_bone_id, float *in_shift, float *out_pos);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

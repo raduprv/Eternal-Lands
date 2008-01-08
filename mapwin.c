@@ -16,6 +16,9 @@
 #include "init.h"
 #include "interface.h"
 #include "lights.h"
+#ifdef MISSILES
+#include "missiles.h"
+#endif // MISSILES
 #include "new_character.h"
 #include "pathfinder.h"
 #ifdef CLICKABLE_CONTINENT_MAP
@@ -154,6 +157,10 @@ int display_map_handler (window_info * win)
 #ifdef NEW_LIGHTING
 	light_idle();
 #endif // NEW_LIGHTING
+
+#ifdef MISSILES
+	missiles_update(cur_time-last_time);
+#endif // MISSILES
 
 	draw_delay = 20;
 	return 1;
