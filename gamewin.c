@@ -78,6 +78,7 @@ int game_root_win = -1;
 int gamewin_in_id = 4442;
 int use_old_clicker=0;
 float fps_average = 100.0;
+int include_use_cursor_on_animals = 0;
 #ifdef SKY_FPV_CURSOR
 int have_mouse = 0;
 int just_released_mouse = 0;
@@ -499,6 +500,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ){
 						action_mode = ACTION_USE;
 					}
+					else if ((thing_under_the_mouse == UNDER_MOUSE_ANIMAL) && include_use_cursor_on_animals)
+						action_mode = ACTION_USE;
 					else
 						action_mode = ACTION_WALK;
 					break;

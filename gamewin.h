@@ -23,6 +23,7 @@ extern int use_old_clicker;
 extern Uint32 next_fps_time;
 extern int last_count;
 extern float fps_average;
+extern int include_use_cursor_on_animals;
 #ifdef SKY_FPV_CURSOR
 extern int have_mouse;
 extern int keep_grabbing_mouse;
