@@ -23,6 +23,7 @@
 #include "multiplayer.h"
 #include "notepad.h"
 #include "pm_log.h"
+#include "platform.h"
 #include "sound.h"
 #include "spells.h"
 #include "tabs.h"

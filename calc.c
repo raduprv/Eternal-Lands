@@ -7,6 +7,7 @@
 #endif
 #include "calc.h"
 #include "hud.h"
+#include "platform.h"
 
 
 #define CALCSTACKMAX 256

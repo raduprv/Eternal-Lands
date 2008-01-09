@@ -146,6 +146,13 @@ static __inline__ float SwapFloat (float t)
 	return intOrFloat.f;
 }
 
+#ifdef _MSC_VER
+#include <math.h>
+static __inline__ double trunc(const double d)
+{
+    return (d < 0 ? ceil(d) : floor(d));  
+}
+#endif
 
 #ifdef __cplusplus
 } // extern "C"
