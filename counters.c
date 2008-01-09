@@ -5,6 +5,7 @@
 #include "counters.h"
 #include "asc.h"
 #include "elwindows.h"
+#include "hud.h"
 #include "init.h"
 #include "interface.h"
 #include "multiplayer.h"
@@ -67,6 +68,7 @@ static int multiselect_id;
 static int mouseover_name = 0;
 static int mouseover_session = 0;
 static int mouseover_total = 0;
+static int mouseover_entry_y = -1;
 
 static int product_count = 0;
 static char product_name[128];
@@ -462,13 +464,43 @@ int display_counters_handler(window_info *win)
 			glColor3f(1.0f, 1.0f, 1.0f);
 		}
 		
-		if (counters[i][j].name) {
-			draw_string_small(x, y, (unsigned char*)counters[i][j].name, 1);
-		}
+		/* draw first so left padding does not overwrite name */
 		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_session);
 		draw_string_small(x + 200, y, (unsigned char*)buffer, 1);
 		safe_snprintf(buffer, sizeof(buffer), "%12d", counters[i][j].n_total);
 		draw_string_small(x + 314, y, (unsigned char*)buffer, 1);
+
+		if (counters[i][j].name) {
+			float max_name_x;
+			float font_ratio = 8.0/12.0;
+			safe_snprintf(buffer, sizeof(buffer), "%d", counters[i][j].n_session);
+			max_name_x = 425.0 - (130.0 + get_string_width((unsigned char*)buffer) * font_ratio);
+			/* if the name would overlap the session total, truncate it */
+			if ((get_string_width((unsigned char*)counters[i][j].name) * font_ratio) > max_name_x) {
+				float len_dots = get_string_width((unsigned char*)"... ") * font_ratio;
+				char *np = counters[i][j].name;
+				float string_width = 0;
+				char *used_name = (char *)malloc(strlen(counters[i][j].name)+1);
+				char *unp = used_name;
+				/* make a truncated copy of the name */
+				while (*np != '\0') {
+					float char_width = get_char_width(*np) * font_ratio;
+					if ((string_width+char_width) > (max_name_x-len_dots))
+						break;
+					*unp++ = *np++;
+					string_width += char_width;
+				}
+				*unp = '\0';				
+				draw_string_small(x, y, (unsigned char*)used_name, 1);
+				draw_string_small(x+string_width, y, (unsigned char*)"...", 1);
+				/* if the mouse is over this line and its truncated, tooltip to full name */
+				if (mouseover_entry_y > y && mouseover_entry_y < y+16)
+					show_help(counters[i][j].name, 0, win->len_y+5);
+				free(used_name);
+			}
+			else
+				draw_string_small(x, y, (unsigned char*)counters[i][j].name, 1);
+		}
 		y += 16;
 	}
 
@@ -535,8 +567,12 @@ int click_counters_handler(window_info *win, int mx, int my, Uint32 extra)
 int mouseover_counters_handler(window_info *win, int mx, int my)
 {
 	mouseover_name = mouseover_session = mouseover_total = 0;
-
-	if (my > 25) {
+	mouseover_entry_y = -1;
+	
+	if (my > 25){
+		if (my > 30 && my < (30+NUM_LINES*16) && mx >= 130 && mx <= 425) {
+			mouseover_entry_y = my;
+		}
 		return 0;
 	}
 	
