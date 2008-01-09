@@ -24,6 +24,7 @@
 #ifdef NEW_FILE_IO
 #include "translate.h"
 #include "io/elpathwrapper.h"
+#include "io/elfilewrapper.h"
 #else
 #ifdef MAP_EDITOR
 #include "../map_editor/misc.h"
@@ -511,7 +512,11 @@ void init_particles ()
 		char buffer[256];
 
 		safe_snprintf (buffer, sizeof(buffer), "./textures/particle%d.bmp", i);
+#ifndef	NEW_FILE_IO
 		if (gzfile_exists (buffer))
+#else	//NEW_FILE_IO
+		if (el_file_exists (buffer))
+#endif
 			particle_textures[i] = load_texture_cache_deferred (buffer, 0);
 		else
 			particle_textures[i] = -1;

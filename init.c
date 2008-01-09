@@ -863,7 +863,11 @@ void init_stuff()
 		char	buffer[256];
 
 		safe_snprintf(buffer, sizeof(buffer), "./textures/items%d.bmp", i+1);
+#ifdef NEW_FILE_IO
+		if(el_custom_file_exists(buffer)){
+#else
 		if(gzfile_exists(buffer)){
+#endif
 			items_text[i]= load_texture_cache(buffer, 0);
 		}
 	}
@@ -873,7 +877,11 @@ void init_stuff()
 		char	buffer[256];
 
 		safe_snprintf(buffer, sizeof(buffer), "./textures/portraits%d.bmp", i+1);
+#ifdef NEW_FILE_IO
+		if(el_custom_file_exists(buffer)){
+#else
 		if(gzfile_exists(buffer)){
+#endif
 			portraits_tex[i]= load_texture_cache_deferred(buffer, 0);
 		}
 	}
