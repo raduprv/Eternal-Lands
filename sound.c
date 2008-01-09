@@ -2985,7 +2985,7 @@ int stop_sound_source_at_index(int index)
 	// We can't lose a source handle - copy this...
 	sourceTemp = *pSource;
 	//...shift all the next sources up a place, overwriting the stopped source...
-	memcpy(pSource, pSource+1, sizeof(source_data) * (used_sources - (index + 1)));
+	memmove(pSource, pSource+1, sizeof(source_data) * (used_sources - (index + 1)));
 	//...and put the saved object back in after them
 	sound_source_data[used_sources - 1] = sourceTemp;
 
