@@ -363,10 +363,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 		}
 	}
 
-	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
-		draw_actor_overtext( actor_id );
-	}
-
 	//draw the health bar
 	glDisable(GL_TEXTURE_2D);
 
@@ -469,6 +465,11 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+	
+	if ((actor_id->current_displayed_text_time_left>0)&&(actor_id->current_displayed_text[0] != 0)){
+		draw_actor_overtext( actor_id );
+	}
+	
 	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 
 	glColor3f(1,1,1);
