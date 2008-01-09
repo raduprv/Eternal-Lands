@@ -143,6 +143,7 @@ void missiles_remove(unsigned int missile_id)
 /* 	actor *a = get_actor_ptr_from_id(yourself); */
 /* 	float act_rot[9]; */
 /* 	float pos1[3], pos2[3], shift[3], tmp[3]; */
+/* 	int displayed_bones[] = {0, 11}; */
 /* 	int i; */
 	
 /* 	if (!a) return; */
@@ -153,33 +154,35 @@ void missiles_remove(unsigned int missile_id)
 /* 	glLineWidth(5.0); */
 /* 	glBegin(GL_LINES); */
 
-/*  	for (i = 14; i <= 14; ++i) */
+/*  	for (i = 0; i <= 1; ++i) */
 /* 	{ */
-/* 		get_actor_bone_local_position(a, i, NULL, tmp); */
+/* 		int bone_id = displayed_bones[i]; */
+
+/* 		cal_get_actor_bone_local_position(a, bone_id, NULL, tmp); */
 /* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos1); */
 
 /* 		shift[0] = 0.3; shift[1] = 0.0; shift[2] = 0.0; */
-/* 		get_actor_bone_local_position(a, i, shift, tmp); */
+/* 		cal_get_actor_bone_local_position(a, bone_id, shift, tmp); */
 /* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
 /* 		glColor3f(1.0, 0.0, 0.0); */
 /* 		glVertex3fv(pos1); */
 /* 		glVertex3fv(pos2); */
 
 /* 		shift[0] = 0.0; shift[1] = 0.3; shift[2] = 0.0; */
-/* 		get_actor_bone_local_position(a, i, shift, tmp); */
+/* 		cal_get_actor_bone_local_position(a, bone_id, shift, tmp); */
 /* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
 /* 		glColor3f(0.0, 1.0, 0.0); */
 /* 		glVertex3fv(pos1); */
 /* 		glVertex3fv(pos2); */
 
 /* 		shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.3; */
-/* 		get_actor_bone_local_position(a, i, shift, tmp); */
+/* 		cal_get_actor_bone_local_position(a, bone_id, shift, tmp); */
 /* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
 /* 		glColor3f(0.0, 0.0, 1.0); */
 /* 		glVertex3fv(pos1); */
 /* 		glVertex3fv(pos2); */
 /* 	} */
-	
+
 /* 	glEnd(); */
 /* } */
 
@@ -259,10 +262,11 @@ void missiles_draw()
 		if (missiles_list[i].miss_target)
 			missiles_draw_single(&missiles_list[i]);
 	glEnd();
+	glDisable(GL_LINE_STIPPLE);
 
-#ifdef DEBUG
+/* #ifdef DEBUG */
 /* 	missiles_draw_current_actor_nodes(); */
-#endif // DEBUG
+/* #endif // DEBUG */
 
 	glPopAttrib();
 }
@@ -386,7 +390,7 @@ void missiles_rotate_actor_bones(actor *a)
 	struct CalQuaternion *bone_rot, *bone_rot_abs, *hrot_quat, *vrot_quat;
 	struct CalVector *vect;
 	float *tmp_vect;
-	float hrot, vrot;
+	float hrot, vrot, tmp;
 
 	if (a->cal_rotation_blend < 0.0)
 		return;
@@ -430,65 +434,65 @@ void missiles_rotate_actor_bones(actor *a)
 	hrot_quat = CalQuaternion_New();
 	vrot_quat = CalQuaternion_New();
 
-	// getting the bottom chest bone
+	// get the rotation of the parent bone
+	bone = CalSkeleton_GetBone(skel, 0);
+	bone_rot_abs = CalBone_GetRotationAbsolute(bone);
+
+	// getting the chest bone to rotate
 	bone = CalSkeleton_GetBone(skel, 11);
 	bone_rot = CalBone_GetRotation(bone);
-	bone_rot_abs = CalBone_GetRotationAbsolute(bone);
 
 	// rotating the bone horizontally
 	CalQuaternion_Set(hrot_quat, 0.0, sinf(hrot/2.0), 0.0, cosf(hrot/2.0));
 	CalQuaternion_Multiply(bone_rot, hrot_quat);
-	CalQuaternion_Multiply(bone_rot_abs, hrot_quat);
 
 	// rotating the bone vertically
 	CalQuaternion_Invert(bone_rot_abs);
 	CalVector_Transform(vect, bone_rot_abs);
+	CalQuaternion_Invert(bone_rot_abs);
 	tmp_vect = CalVector_Get(vect);
-	CalQuaternion_Set(vrot_quat, tmp_vect[0]*sinf(vrot/2.0), tmp_vect[1]*sinf(vrot/2.0), tmp_vect[2]*sinf(vrot/2.0), cosf(vrot/2.0));
+	tmp = sinf(vrot/2.0);
+	CalQuaternion_Set(vrot_quat, tmp_vect[0]*tmp, tmp_vect[1]*tmp, tmp_vect[2]*tmp, cosf(vrot/2.0));
 	CalQuaternion_Multiply(bone_rot, vrot_quat);
 
 	// updating the bone state
-	CalBone_SetRotation(bone, bone_rot);
 	CalBone_CalculateState(bone);
 
 	// rotating the cape bones
 	CalQuaternion_Invert(hrot_quat);
+	CalQuaternion_Invert(vrot_quat);
 	vrot = -vrot;
 
+	// rotating the bone horizontally
 	if (hrot < 0.0) {
 		bone = CalSkeleton_GetBone(skel, 14);
 		bone_rot = CalBone_GetRotation(bone);
 		CalQuaternion_Multiply(bone_rot, hrot_quat);
-		CalBone_SetRotation(bone, bone_rot);
 		CalBone_CalculateState(bone);
 	}
 
 	// rotating the bone vertically
 	if (vrot < 0.0) {
+		bone = CalSkeleton_GetBone(skel, 13);
+		bone_rot_abs = CalBone_GetRotationAbsolute(bone);
 		bone = CalSkeleton_GetBone(skel, 14);
 		bone_rot = CalBone_GetRotation(bone);
-		bone_rot_abs = CalBone_GetRotationAbsolute(bone);
-		
-		CalQuaternion_Invert(bone_rot_abs);
-		CalVector_Set(vect, cosf(hrot), 0.0, sinf(hrot));
-		CalVector_Transform(vect, bone_rot_abs);
-		tmp_vect = CalVector_Get(vect);
-		CalQuaternion_Set(vrot_quat, tmp_vect[0]*sinf(vrot/2.0), tmp_vect[1]*sinf(vrot/2.0), -tmp_vect[2]*sinf(vrot/2.0), cosf(vrot/2.0));
 	}
 	else {
+		bone = CalSkeleton_GetBone(skel, 14);
+		bone_rot_abs = CalBone_GetRotationAbsolute(bone);
 		bone = CalSkeleton_GetBone(skel, 15);
 		bone_rot = CalBone_GetRotation(bone);
-		bone_rot_abs = CalBone_GetRotationAbsolute(bone);
-
-		CalQuaternion_Invert(bone_rot_abs);
-		CalVector_Set(vect, cosf(hrot), 0.0, sinf(hrot));
-		CalVector_Transform(vect, bone_rot_abs);
-		tmp_vect = CalVector_Get(vect);
-		CalQuaternion_Set(vrot_quat, tmp_vect[0]*sinf(vrot/2.0), tmp_vect[1]*sinf(vrot/2.0), tmp_vect[2]*sinf(vrot/2.0), cosf(vrot/2.0));
 	}
 
+	CalVector_Set(vect, cosf(hrot), 0.0, sinf(hrot));
+	CalQuaternion_Invert(bone_rot_abs);
+	CalVector_Transform(vect, bone_rot_abs);
+	CalQuaternion_Invert(bone_rot_abs);
+	tmp_vect = CalVector_Get(vect);
+	tmp = sinf(vrot/2.0);
+	CalQuaternion_Set(vrot_quat, tmp_vect[0]*tmp, tmp_vect[1]*tmp, tmp_vect[2]*tmp, cosf(vrot/2.0));
 	CalQuaternion_Multiply(bone_rot, vrot_quat);
-	CalBone_SetRotation(bone, bone_rot);
 	CalBone_CalculateState(bone);
 
 	CalVector_Delete(vect);

@@ -923,8 +923,9 @@ void next_command()
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
 
 						// detecting the range weapon type from the model name
+						actors_list[i]->range_weapon_type = -1;
 						for (j = 0; j < strlen(weapon_name)-8 && actors_list[i]->range_weapon_type < 0; ++j)
-							if (!strncmp(&weapon_name[j], "crossbow", 8))
+							if (!strncmp(&weapon_name[j], "bow_cross", 9))
 								actors_list[i]->range_weapon_type = RANGE_WEAPON_CROSSBOW;
 						for (j = 0; j < strlen(weapon_name)-3 && actors_list[i]->range_weapon_type < 0; ++j)
 							if (!strncmp(&weapon_name[j], "bow", 3))
@@ -1014,19 +1015,19 @@ void next_command()
 						actors_list[i]->in_aim_mode = 0;
 					}
 					
-/* 					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start * */
-/* 													   (1.0 - actors_list[i]->cal_rotation_blend) + */
-/* 													   actors_list[i]->cal_h_rot_end * */
-/* 													   actors_list[i]->cal_rotation_blend); */
-/* 					actors_list[i]->cal_v_rot_start = (actors_list[i]->cal_v_rot_start * */
-/* 													   (1.0 - actors_list[i]->cal_rotation_blend) + */
-/* 													   actors_list[i]->cal_v_rot_end * */
-/* 													   actors_list[i]->cal_rotation_blend); */
-/* 					actors_list[i]->cal_h_rot_end = 0.0; */
-/* 					actors_list[i]->cal_v_rot_end = 0.0; */
-/* 					actors_list[i]->cal_rotation_blend = 0.0; */
-/* 					actors_list[i]->cal_rotation_speed = 1.0/18.0; */
-/* 					actors_list[i]->are_bones_rotating = 1; */
+					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
+													   (1.0 - actors_list[i]->cal_rotation_blend) +
+													   actors_list[i]->cal_h_rot_end *
+													   actors_list[i]->cal_rotation_blend);
+					actors_list[i]->cal_v_rot_start = (actors_list[i]->cal_v_rot_start *
+													   (1.0 - actors_list[i]->cal_rotation_blend) +
+													   actors_list[i]->cal_v_rot_end *
+													   actors_list[i]->cal_rotation_blend);
+					actors_list[i]->cal_h_rot_end = 0.0;
+					actors_list[i]->cal_v_rot_end = 0.0;
+					actors_list[i]->cal_rotation_blend = 0.0;
+					actors_list[i]->cal_rotation_speed = 1.0/18.0;
+					actors_list[i]->are_bones_rotating = 1;
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
@@ -1103,7 +1104,9 @@ void next_command()
 					//mark the actor as being busy
 #ifdef MISSILES
 				    if (actors_list[i]->que[0] != aim_mode_reload &&
-						actors_list[i]->que[0] != aim_mode_miss)
+						actors_list[i]->que[0] != aim_mode_miss &&
+						actors_list[i]->que[0] != unwear_bow &&
+						actors_list[i]->que[0] != unwear_quiver)
 #endif // MISSILES
 					actors_list[i]->busy=1;
 					//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Busy");

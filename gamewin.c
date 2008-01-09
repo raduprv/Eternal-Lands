@@ -818,12 +818,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 /* 				UNLOCK_ACTORS_LISTS(); */
 
 /* 				if (need_aim) */
-/* 					actor_aim_at_xyz(yourself, target); */
+/* 					missiles_aim_at_xyz(yourself, target); */
 /* 				else { */
 /* 					LOCK_ACTORS_LISTS(); */
 /* 					cur_actor->reload = 1; */
 /* 					UNLOCK_ACTORS_LISTS(); */
-/* 					missile_fire_a_to_xyz(yourself, target); */
+/* 					missiles_fire_a_to_xyz(yourself, target); */
 /* 				} */
 /* 			} */
 /* 			else { */
