@@ -725,9 +725,9 @@ void increment_death_counter(actor *a)
 	}
 	
 	/* if we died while not harvesting or poisoned, but fighting and the opponent is unknown */
-	if (!found_death_reason && (a == me)) {
-		increment_counter(DEATHS, "While fighting unknown opponent", 1, 0);
-	}
+//	if (!found_death_reason && (a == me)) {
+//		increment_counter(DEATHS, "While fighting unknown opponent", 1, 0);
+//	}
 }
 
 /*
@@ -1044,6 +1044,36 @@ int chat_to_counters_command(const char *text, int len)
 	}
 	
 	return 1;
+}
+
+int is_death_message (const char * RawText)
+{
+	char *tmp;
+	actor * act1,*act2;
+	//check for kill message
+	tmp = strstr (RawText,"You killed ");
+	if(tmp)
+	{
+		tmp += strlen("You killed ");
+		act1 = get_actor_ptr_from_id(yourself);
+		act2 = get_actor_ptr_from_id(act1->last_target_id);
+		if(act2 != 0)
+		{
+			increment_counter(KILLS, tmp, 1, (act2->is_enhanced_model && (act2->kind_of_actor == HUMAN || act2->kind_of_actor == PKABLE_HUMAN)));
+		}
+		return 1;
+	}
+
+	//check for death message
+	tmp = strstr (RawText,"You got killed by ");
+	if(tmp)
+	{
+		tmp += strlen("You got killed by ");
+		increment_counter(DEATHS, tmp, 1, 1);
+		return 1;
+	}
+
+	return 0;
 }
 
 

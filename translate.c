@@ -1318,6 +1318,7 @@ void init_stats()
 	add_xml_statid(skills,"crafting",&(attributes.crafting_skill),"Crafting","cra");
 	add_xml_statid(skills,"engineering",&(attributes.engineering_skill),"Engineering","eng");
 	add_xml_statid(skills,"tailoring",&(attributes.tailoring_skill),"Tailoring","tai");
+	add_xml_statid(skills,"archery",&(attributes.archery_skill),"Archery","arc");
 	add_xml_statid(skills,"overall",&(attributes.overall_skill),"Overall","oa");
 }
 #endif

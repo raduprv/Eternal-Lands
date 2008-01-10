@@ -144,6 +144,10 @@ void get_the_stats(Sint16 *stats)
 	your_info.tailoring_skill.base=SDL_SwapLE16(stats[102]);
 	your_info.tailoring_exp=SDL_SwapLE32(*((Uint32 *)(stats+103)));
 	your_info.tailoring_exp_next_lev=SDL_SwapLE32(*((Uint32 *)(stats+105)));
+	your_info.archery_skill.cur=SDL_SwapLE16(stats[107]);
+	your_info.archery_skill.base=SDL_SwapLE16(stats[108]);
+	your_info.archery_exp=SDL_SwapLE32(*((Uint32 *)(stats+109)));
+	your_info.archery_exp_next_lev=SDL_SwapLE32(*((Uint32 *)(stats+111)));
     
 	your_info.research_completed=SDL_SwapLE16(stats[47]);
 	your_info.researching=SDL_SwapLE16(stats[81]);
@@ -376,6 +380,20 @@ void get_partial_stat(Uint8 name,Sint32 value)
 		case TAIL_S_BASE:
 			floatingmessages_add_level(yourself, value, attributes.tailoring_skill.name);
 			your_info.tailoring_skill.base=value;break;
+
+		case ARCH_EXP:
+			floatingmessages_compare_stat(yourself, your_info.archery_exp, value, attributes.archery_skill.shortname);
+			your_info.archery_exp=value;
+			break;
+		case ARCH_EXP_NEXT:
+			your_info.archery_exp_next_lev=value;break;
+		case ARCH_S_CUR:
+			your_info.archery_skill.cur=value;break;
+		case ARCH_S_BASE:
+			floatingmessages_add_level(yourself, value, attributes.archery_skill.name);
+			your_info.archery_skill.base=value;break;
+
+
 		case RESEARCHING:
 			your_info.researching=value;break;
 		case RESEARCH_COMPLETED:
@@ -629,6 +647,10 @@ int display_stats_handler(window_info *win)
 	y+=14;
 	watch_this_stat==11?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	draw_skill(46,x,y,&(cur_stats.tailoring_skill),&(attributes.tailoring_skill),cur_stats.tailoring_exp,cur_stats.tailoring_exp_next_lev);
+
+	y+=14;
+	watch_this_stat==11?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+	draw_skill(46,x,y,&(cur_stats.archery_skill),&(attributes.archery_skill),cur_stats.archery_exp,cur_stats.archery_exp_next_lev);
 
 	y+=14;
 	watch_this_stat==12?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);

@@ -37,6 +37,7 @@ void catch_counters_text(const char* text);
 
 void counters_set_product_info(char *name, int count);
 void counters_set_spell_name(int spell_id, char *name, int len);
+int is_death_message (const char * RawText);
 
 #ifdef __cplusplus
 } // extern "C"

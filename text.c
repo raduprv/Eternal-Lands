@@ -535,6 +535,11 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		return 0;
 	}
 
+	if((channel == CHAT_SERVER) && is_death_message(text_to_add))
+	{
+		return 0;
+	}
+
 	// filter any naughty words out
 	return filter_text (text_to_add, len, size);
 }

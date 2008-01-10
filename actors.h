@@ -578,6 +578,7 @@ typedef struct
 	int async_x_tile_pos;
 	int async_y_tile_pos;
 	int async_z_rot;
+	int last_target_id;
 #endif
 
 #ifdef CLUSTER_INSIDES

@@ -508,6 +508,8 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
+
+	act1->last_target_id = actor2_id;
 	
 	if (!act1) {
 		missiles_log_message("missiles_aim_at_b: the actor %d does not exists!", actor1_id);
