@@ -3,6 +3,7 @@
 #include "cal.h"
 #include "draw_scene.h"
 #include "errors.h"
+#include "font.h"
 #include "global.h"
 #include "load_gl_extensions.h"
 #ifdef MISSILES
