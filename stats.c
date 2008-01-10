@@ -649,11 +649,11 @@ int display_stats_handler(window_info *win)
 	draw_skill(46,x,y,&(cur_stats.tailoring_skill),&(attributes.tailoring_skill),cur_stats.tailoring_exp,cur_stats.tailoring_exp_next_lev);
 
 	y+=14;
-	watch_this_stat==11?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+	watch_this_stat==12?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	draw_skill(46,x,y,&(cur_stats.archery_skill),&(attributes.archery_skill),cur_stats.archery_exp,cur_stats.archery_exp_next_lev);
 
 	y+=14;
-	watch_this_stat==12?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
+	watch_this_stat==13?glColor3f(1.0f,0.5f,0.5f):glColor3f(1.0f,0.5f,0.2f);
 	draw_skill(46,x,y,&(cur_stats.overall_skill),&(attributes.overall_skill),cur_stats.overall_exp,cur_stats.overall_exp_next_lev);
 
 	return 1;
