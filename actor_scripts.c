@@ -2818,7 +2818,7 @@ int cal_search_mesh (actor_types *act, const char *fn, const char *kind)
 	{
 		for (i = 0; i < ACTOR_HELMET_SIZE; i++)
 		{
-			if (strcmp (fn, act->cape[i].model_name) == 0 && act->helmet[i].mesh_index != -1)
+			if (strcmp (fn, act->helmet[i].model_name) == 0 && act->helmet[i].mesh_index != -1)
 				return act->helmet[i].mesh_index;
 		}
 	}
