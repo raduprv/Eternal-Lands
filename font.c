@@ -140,12 +140,14 @@ int get_font_char(unsigned char cur_char)
 						cur_char=ECIRC;break;
 					case 235:
 						cur_char=EUML;break;
+					case 236:
 					case 237:
 						cur_char=iACCENT;break;
 					case 239:
 						cur_char=IUML;break;
 					case 241:
 						cur_char=EnyE;break;
+					case 242:
 					case 243:
 						cur_char=oACCENT;break;
 					case 244:
