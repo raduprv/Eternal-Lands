@@ -452,6 +452,7 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 // this is the main part of the old check_mouse_click ()
 int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 {
+	int flag_alt = flags & ELW_ALT;
 	int flag_ctrl = flags & ELW_CTRL;
 	int flag_right = flags & ELW_RIGHT_MOUSE;
 	int force_walk = (flag_ctrl && flag_right);
@@ -675,6 +676,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
+			if (flag_alt)
+				return 1;
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse != UNDER_MOUSE_PLAYER)
@@ -721,6 +724,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
+			if (flag_alt)
+				return 1;
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
@@ -757,6 +762,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 		case CURSOR_PICK:
 		{
+			if (flag_alt)
+				return 1;
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
@@ -771,6 +778,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
+			if (flag_alt)
+				return 1;
 			if (object_under_mouse == -1)
 				return 1;
 			str[0] = HARVEST;
@@ -785,6 +794,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			short x, y;
 		
+			if (flag_alt)
+				return 1;
 			if (you_sit && sit_lock && !flag_ctrl){
 				LOG_TO_CONSOLE(c_green1, no_walk_with_sitlock);
 				return 1;
@@ -813,8 +824,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 /* 				LOCK_ACTORS_LISTS(); */
 /* 				need_aim = (!cur_actor->in_aim_mode || */
-/* 							fabs(target[0] - cur_actor->range_target[0]) > 0.0 || */
-/* 							fabs(target[1] - cur_actor->range_target[1]) > 0.0); */
+/* 							fabs(target[0] - cur_actor->range_xyz_target[0]) > 0.0 || */
+/* 							fabs(target[1] - cur_actor->range_xyz_target[1]) > 0.0); */
 /* 				UNLOCK_ACTORS_LISTS(); */
 
 /* 				if (need_aim) */

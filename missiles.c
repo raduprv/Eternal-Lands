@@ -429,7 +429,6 @@ void missiles_rotate_actor_bones(actor *a)
 	}
 
 	vect = CalVector_New();
-	CalVector_Set(vect, cosf(hrot), 0.0, sinf(hrot));
 
 	hrot_quat = CalQuaternion_New();
 	vrot_quat = CalQuaternion_New();
@@ -443,10 +442,17 @@ void missiles_rotate_actor_bones(actor *a)
 	bone_rot = CalBone_GetRotation(bone);
 
 	// rotating the bone horizontally
-	CalQuaternion_Set(hrot_quat, 0.0, sinf(hrot/2.0), 0.0, cosf(hrot/2.0));
+	CalVector_Set(vect, 0.0, 0.0, 1.0);
+	CalQuaternion_Invert(bone_rot_abs);
+	CalVector_Transform(vect, bone_rot_abs);
+	CalQuaternion_Invert(bone_rot_abs);
+	tmp_vect = CalVector_Get(vect);
+	tmp = sinf(hrot/2.0);
+	CalQuaternion_Set(hrot_quat, tmp_vect[0]*tmp, tmp_vect[1]*tmp, tmp_vect[2]*tmp, cosf(hrot/2.0));
 	CalQuaternion_Multiply(bone_rot, hrot_quat);
 
 	// rotating the bone vertically
+	CalVector_Set(vect, cosf(hrot), -sinf(hrot), 0.0);
 	CalQuaternion_Invert(bone_rot_abs);
 	CalVector_Transform(vect, bone_rot_abs);
 	CalQuaternion_Invert(bone_rot_abs);
@@ -459,13 +465,13 @@ void missiles_rotate_actor_bones(actor *a)
 	CalBone_CalculateState(bone);
 
 	// rotating the cape bones
-	CalQuaternion_Invert(hrot_quat);
-	CalQuaternion_Invert(vrot_quat);
+	hrot = -hrot;
 	vrot = -vrot;
 
 	// rotating the bone horizontally
-	if (hrot < 0.0) {
+	if (hrot > 0.0) {
 		bone = CalSkeleton_GetBone(skel, 14);
+		CalQuaternion_Set(hrot_quat, 0.0, sinf(hrot/2.0), 0.0, cosf(hrot/2.0));
 		bone_rot = CalBone_GetRotation(bone);
 		CalQuaternion_Multiply(bone_rot, hrot_quat);
 		CalBone_CalculateState(bone);
@@ -485,7 +491,7 @@ void missiles_rotate_actor_bones(actor *a)
 		bone_rot = CalBone_GetRotation(bone);
 	}
 
-	CalVector_Set(vect, cosf(hrot), 0.0, sinf(hrot));
+	CalVector_Set(vect, cosf(hrot), sinf(hrot), 0.0);
 	CalQuaternion_Invert(bone_rot_abs);
 	CalVector_Transform(vect, bone_rot_abs);
 	CalQuaternion_Invert(bone_rot_abs);
@@ -507,7 +513,6 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	missiles_log_message("actor %d will aim at actor %d", actor1_id, actor2_id);
 
 	act1 = get_actor_ptr_from_id(actor1_id);
-	act2 = get_actor_ptr_from_id(actor2_id);
 
 	act1->last_target_id = actor2_id;
 	
@@ -521,11 +526,7 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	}
 
 	LOCK_ACTORS_LISTS();
-	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
-	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
-		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
-	else
-		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
+	act1->range_actor_target = actor2_id;
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -545,7 +546,8 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 	}
 
 	LOCK_ACTORS_LISTS();
-	memcpy(act->range_target, target, sizeof(float) * 3);
+	memcpy(act->range_xyz_target, target, sizeof(float) * 3);
+	act->range_actor_target = -1;
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, enter_aim_mode);
@@ -558,7 +560,6 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	missiles_log_message("actor %d will fire to actor %d", actor1_id, actor2_id);
 
 	act1 = get_actor_ptr_from_id(actor1_id);
-	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	if (!act1) {
 		missiles_log_message("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
@@ -570,11 +571,7 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	}
 
 	LOCK_ACTORS_LISTS();
-	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)));
-	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel)) > 30)
-		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
-	else
-		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
+	act1->range_actor_target = actor2_id;
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
@@ -594,7 +591,8 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 	}
 
 	LOCK_ACTORS_LISTS();
-	memcpy(act->range_target, target, sizeof(float) * 3);
+	memcpy(act->range_xyz_target, target, sizeof(float) * 3);
+	act->range_actor_target = -1;
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, aim_mode_fire);
@@ -623,6 +621,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 		cal_get_actor_bone_absolute_position(act, 0, NULL, target);
 	UNLOCK_ACTORS_LISTS();
 
+	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!
 	mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, 0.0, 0);
 }
 

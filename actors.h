@@ -451,17 +451,18 @@ typedef struct
 #ifdef MISSILES
 	/*! \name Range mode parameters */
 	/*! \{ */
-	float cal_h_rot_start; /*!< The starting horizontal rotation */
-	float cal_h_rot_end;   /*!< The ending horizontal rotation */
-	float cal_v_rot_start; /*!< The starting vertical rotation */
-	float cal_v_rot_end;   /*!< The ending vertical rotation */
+	float cal_h_rot_start;    /*!< The starting horizontal rotation */
+	float cal_h_rot_end;      /*!< The ending horizontal rotation */
+	float cal_v_rot_start;    /*!< The starting vertical rotation */
+	float cal_v_rot_end;      /*!< The ending vertical rotation */
 	float cal_rotation_blend; /*!< The blend to applay between the starting and the ending rotations */
 	float cal_rotation_speed; /*!< The speed of the rotation */
 	char are_bones_rotating;  /*!< To tell if the char is rotating */
 	char in_aim_mode;         /*!< To tell if the char is already aiming something */
 	char reload;              /*!< To tell if the char must reload his bow after the next fire */
 	char miss_range_target;   /*!< To tell if the char misses his target */
-	float range_target[3];    /*!< Position of the target to aim/fire at */
+	float range_xyz_target[3];/*!< Position of the target to aim/fire at */
+	int range_actor_target;   /*!< Position of the actor to aim/fire at */
 	int range_weapon_type;    /*!< The type of the equipped range weapon */
 	/*! \} */
 #endif // MISSILES
