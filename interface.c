@@ -9,6 +9,9 @@
 #include "consolewin.h"
 #include "cursors.h"
 #include "elwindows.h"
+#ifdef MEMORY_DEBUG
+#include "elmemory.h"
+#endif
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
