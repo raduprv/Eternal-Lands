@@ -579,6 +579,13 @@ int switch_to_game_map()
 	short int cur_cont;
 	static short int old_cont = -1;
 	
+	/* check we loaded the mapinfo data */
+	if (continent_maps == NULL || continent_maps[0].name == NULL)
+	{
+		LOG_TO_CONSOLE(c_yellow2,err_nomap_str);
+		return 0;
+	}
+	
 	my_strcp(tex.file_name,map_file_name);
 	len=strlen(tex.file_name);
 	tex.file_name[len-3]='b';
