@@ -252,7 +252,7 @@ FILE * open_file_data_datadir(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
 	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
 		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
-		if (mkdir_tree (locbuffer, 1)){
+		if (mkdir_tree (locbuffer, 0)){
 			return fopen(locbuffer, mode);
 		}
 	}
