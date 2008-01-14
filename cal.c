@@ -251,13 +251,6 @@ void cal_render_bones(actor *act)
 	int currLine;
 	int currPoint;
 	struct CalSkeleton *skel;
-	GLdouble model[16], proj[16];
-	GLint view[4];
-	GLdouble px,py,pz;
-	unsigned char buf[16];
-	float font_size_x = SMALL_INGAME_FONT_X_LEN/ALT_INGAME_FONT_X_LEN;
-	float font_size_y = SMALL_INGAME_FONT_Y_LEN/ALT_INGAME_FONT_X_LEN;
-	float shift[3], pos[3];
 
 	skel=CalModel_GetSkeleton(act->calmodel);
 	nrLines = CalSkeleton_GetBoneLines(skel,&lines[0][0][0]);
@@ -288,68 +281,83 @@ void cal_render_bones(actor *act)
 	}
 	glEnd();
 
+#ifdef DEBUG
 	// draw the bones orientation
-	glLineWidth(3.0f);
-	glBegin(GL_LINES);
-	for (currPoint = nrPoints; currPoint--;) {
-		shift[0] = 0.1; shift[1] = 0.0; shift[2] = 0.0;
-		cal_get_actor_bone_local_position(act, currPoint, shift, pos);
-		glColor3f(1.0, 0.0, 0.0);
-		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
-		glVertex3fv(pos);
-
-		shift[0] = 0.0; shift[1] = 0.1; shift[2] = 0.0;
-		cal_get_actor_bone_local_position(act, currPoint, shift, pos);
-		glColor3f(0.0, 1.0, 0.0);
-		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
-		glVertex3fv(pos);
-
-		shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.1;
-		cal_get_actor_bone_local_position(act, currPoint, shift, pos);
-		glColor3f(0.0, 0.0, 1.0);
-		glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
-		glVertex3fv(pos);
+	if (render_bones_orientation) {
+		float shift[3], pos[3];
+		
+		glLineWidth(3.0f);
+		glBegin(GL_LINES);
+		for (currPoint = nrPoints; currPoint--;) {
+			shift[0] = 0.1; shift[1] = 0.0; shift[2] = 0.0;
+			cal_get_actor_bone_local_position(act, currPoint, shift, pos);
+			glColor3f(1.0, 0.0, 0.0);
+			glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
+			glVertex3fv(pos);
+			
+			shift[0] = 0.0; shift[1] = 0.1; shift[2] = 0.0;
+			cal_get_actor_bone_local_position(act, currPoint, shift, pos);
+			glColor3f(0.0, 1.0, 0.0);
+			glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
+			glVertex3fv(pos);
+			
+			shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.1;
+			cal_get_actor_bone_local_position(act, currPoint, shift, pos);
+			glColor3f(0.0, 0.0, 1.0);
+			glVertex3f(points[currPoint][0], points[currPoint][1], points[currPoint][2]);
+			glVertex3fv(pos);
+		}
+		glEnd();
 	}
-	glEnd();
-
-	glLineWidth(1.0f);
 
 	// draw bones id
-	glGetDoublev(GL_MODELVIEW_MATRIX, model);
-	glGetDoublev(GL_PROJECTION_MATRIX, proj);
-	glGetIntegerv(GL_VIEWPORT, view);
+	if (render_bones_id) {
+		GLdouble model[16], proj[16];
+		GLint view[4];
+		GLdouble px,py,pz;
+		unsigned char buf[16];
+		float font_size_x = SMALL_INGAME_FONT_X_LEN/ALT_INGAME_FONT_X_LEN;
+		float font_size_y = SMALL_INGAME_FONT_Y_LEN/ALT_INGAME_FONT_X_LEN;
 
-	glPushMatrix();
-	glLoadIdentity();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-
-	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
-
-	glPushAttrib(GL_ENABLE_BIT);
-
-	glEnable(GL_TEXTURE_2D);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-
-	glColor4f(1.0, 0.0, 1.0, 1.0);
-
-	for (currPoint = nrPoints; currPoint--;) {
-		struct CalBone *bone;
-		bone = CalSkeleton_GetBone(skel, currPoint);
+		glGetDoublev(GL_MODELVIEW_MATRIX, model);
+		glGetDoublev(GL_PROJECTION_MATRIX, proj);
+		glGetIntegerv(GL_VIEWPORT, view);
 		
-		sprintf((char*)buf, "%d", currPoint);
-		gluProject(points[currPoint][0], points[currPoint][1], points[currPoint][2], model, proj, view, &px, &py, &pz);
-		draw_ortho_ingame_string(px, py, pz, buf, 1, font_size_x, font_size_y);
+		glPushMatrix();
+		glLoadIdentity();
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadIdentity();
+		
+		glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
+		
+		glPushAttrib(GL_ENABLE_BIT);
+		
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		
+		glColor4f(1.0, 0.0, 1.0, 1.0);
+		
+		for (currPoint = nrPoints; currPoint--;) {
+			struct CalBone *bone;
+			bone = CalSkeleton_GetBone(skel, currPoint);
+			
+			sprintf((char*)buf, "%d", currPoint);
+			gluProject(points[currPoint][0], points[currPoint][1], points[currPoint][2], model, proj, view, &px, &py, &pz);
+			draw_ortho_ingame_string(px, py, pz, buf, 1, font_size_x, font_size_y);
+		}
+		
+		glPopAttrib();
+		
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
 	}
+#endif // DEBUG
 
-	glPopAttrib();
-
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
+	glLineWidth(1.0f);
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();

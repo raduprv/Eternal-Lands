@@ -26,7 +26,10 @@ const float bolt_length = 0.4;
 
 const float arrow_speed = 50.0;
 const float arrow_trace_length = 7.0;
-const float arrow_color[3] = {0.8, 0.8, 0.8};
+const float arrow_color[4] = {0.8, 0.8, 0.8, 1.0};
+const float arrow_border_color[4] = {0.8, 0.8, 0.8, 0.5};
+const float miss_color[4] = {0.6, 0.6, 0.6, 1.0};
+const float critical_color[4] = {0.5, 0.0, 1.0, 0.5};
 
 Missile missiles_list[MAX_MISSILES];
 
@@ -92,8 +95,9 @@ unsigned int missiles_add(MissileType type,
 						  float origin[3],
 						  float target[3],
 						  float speed,
+						  float trace_length,
 						  float shift,
-						  int miss_target)
+						  MissileHitType hit_type)
 {
 	Missile *mis;
 	
@@ -107,7 +111,7 @@ unsigned int missiles_add(MissileType type,
 	mis = &missiles_list[missiles_count++];
 
 	mis->type = type;
-	mis->miss_target = miss_target;
+	mis->hit_type = hit_type;
 	memcpy(mis->position, origin, sizeof(float)*3);
 	mis->direction[0] = target[0] - origin[0];
 	mis->direction[1] = target[1] - origin[1];
@@ -120,6 +124,7 @@ unsigned int missiles_add(MissileType type,
 	mis->direction[1] /= mis->remaining_distance;
 	mis->direction[2] /= mis->remaining_distance;
 	mis->speed = speed;
+	mis->trace_length = trace_length;
 	mis->covered_distance = 0;
 	mis->remaining_distance += shift;
 	
@@ -199,40 +204,61 @@ void missiles_update(Uint32 time_diff)
 		mis->position[2] += mis->direction[2] * dist;
 		mis->covered_distance += dist;
 		mis->remaining_distance -= dist;
-		if (mis->remaining_distance < -arrow_trace_length)
+		if (mis->remaining_distance < -mis->trace_length) {
+			if (mis->hit_type == MISSED_HIT &&
+				mis->covered_distance < 30.0) {
+				float y_rot = -asinf(mis->direction[2]);
+				float z_rot = atan2f(mis->direction[1], mis->direction[0]);
+				dist = -mis->remaining_distance;
+				mis->position[0] -= mis->direction[0] * dist;
+				mis->position[1] -= mis->direction[1] * dist;
+				mis->position[2] -= mis->direction[2] * dist;
+				printf("adding an arrow at (%f,%f,%f)\n",
+					   mis->position[0], mis->position[1], mis->position[2]);
+				add_e3d("./3dobjects/misc_objects/arrow2.e3d",
+						mis->position[0], mis->position[1], mis->position[2],
+						0.0, y_rot*180.0/M_PI, z_rot*180.0/M_PI,
+						0, 0, 1.0, 1.0, 1.0, 1);
+			}
 			missiles_remove(i);
+		}
 		else
 			++i;
 	}
 }
 
-void missiles_draw_single(Missile *mis)
+void missiles_draw_single(Missile *mis, const float color[4])
 {
+	float z_shift = 0.0;
+
+	if (mis->hit_type == MISSED_HIT)
+		z_shift = cosf(mis->covered_distance*M_PI/2.0)/10.0;
+
 	switch (mis->type) {
 	case MISSILE_ARROW:
-		if (mis->covered_distance < arrow_trace_length) {
-			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
-					  (arrow_trace_length - mis->covered_distance) / arrow_trace_length);
+		if (mis->covered_distance < mis->trace_length) {
+			glColor4f(color[0], color[1], color[2],
+					  color[3] * (mis->trace_length - mis->covered_distance) / mis->trace_length);
 			glVertex3f(mis->position[0] - mis->covered_distance * mis->direction[0],
 					   mis->position[1] - mis->covered_distance * mis->direction[1],
 					   mis->position[2] - mis->covered_distance * mis->direction[2]);
 		}
 		else {
-			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2], 0.0);
-			glVertex3f(mis->position[0] - arrow_trace_length * mis->direction[0],
-					   mis->position[1] - arrow_trace_length * mis->direction[1],
-					   mis->position[2] - arrow_trace_length * mis->direction[2]);
+			glColor4f(color[0], color[1], color[2], 0.0);
+			glVertex3f(mis->position[0] - mis->trace_length * mis->direction[0],
+					   mis->position[1] - mis->trace_length * mis->direction[1],
+					   mis->position[2] - mis->trace_length * mis->direction[2]);
 		}
 		if (mis->remaining_distance < 0.0) {
-			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2],
-					  (arrow_trace_length + mis->remaining_distance) / arrow_trace_length);
+			glColor4f(color[0], color[1], color[2],
+					  color[3] * (mis->trace_length + mis->remaining_distance) / mis->trace_length);
 			glVertex3f(mis->position[0] + mis->remaining_distance * mis->direction[0],
 					   mis->position[1] + mis->remaining_distance * mis->direction[1],
-					   mis->position[2] + mis->remaining_distance * mis->direction[2]);
+					   mis->position[2] + mis->remaining_distance * mis->direction[2] + z_shift);
 		}
 		else {
-			glColor4f(arrow_color[0], arrow_color[1], arrow_color[2], 1.0);
-			glVertex3fv(mis->position);
+			glColor4f(color[0], color[1], color[2], color[3]);
+			glVertex3f(mis->position[0], mis->position[1], mis->position[2] + z_shift);
 		}
 		break;
 	}
@@ -247,22 +273,43 @@ void missiles_draw()
 	glEnable(GL_COLOR_MATERIAL);
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
-	glLineWidth(2.0);
 
+	glLineWidth(5.0);
 	glBegin(GL_LINES);
-	for (i = 0; i < missiles_count; ++i)
-		if (!missiles_list[i].miss_target)
-			missiles_draw_single(&missiles_list[i]);
+	for (i = 0; i < missiles_count; ++i) {
+		if (missiles_list[i].hit_type == CRITICAL_HIT)
+			missiles_draw_single(&missiles_list[i], critical_color);
+	}
 	glEnd();
 
-	glLineStipple(1, 0x00FF);
-	glEnable(GL_LINE_STIPPLE);
+
+	glLineWidth(3.0);
 	glBegin(GL_LINES);
-	for (i = 0; i < missiles_count; ++i)
-		if (missiles_list[i].miss_target)
-			missiles_draw_single(&missiles_list[i]);
+	for (i = 0; i < missiles_count; ++i) {
+/* 		if (missiles_list[i].hit_type == NORMAL_HIT || */
+/* 			missiles_list[i].hit_type == CRITICAL_HIT) */
+			missiles_draw_single(&missiles_list[i], arrow_border_color);
+	}
 	glEnd();
-	glDisable(GL_LINE_STIPPLE);
+
+	glLineWidth(1.0);
+	glBegin(GL_LINES);
+	for (i = 0; i < missiles_count; ++i) {
+		if (missiles_list[i].hit_type == NORMAL_HIT ||
+			missiles_list[i].hit_type == CRITICAL_HIT)
+			missiles_draw_single(&missiles_list[i], arrow_color);
+	}
+	glEnd();
+
+/* 	glLineWidth(2.0); */
+/* 	glLineStipple(1, 0x003F); */
+/* 	glEnable(GL_LINE_STIPPLE); */
+/* 	glBegin(GL_LINES); */
+/* 	for (i = 0; i < missiles_count; ++i) */
+/* 		if (missiles_list[i].hit_type == MISSED_HIT) */
+/* 			missiles_draw_single(&missiles_list[i], miss_color); */
+/* 	glEnd(); */
+/* 	glDisable(GL_LINE_STIPPLE); */
 
 /* #ifdef DEBUG */
 /* 	missiles_draw_current_actor_nodes(); */
@@ -354,7 +401,7 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	return actor_rotation;
 }
 
-unsigned int missiles_fire_arrow(actor *a, float target[3], char miss_target)
+unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_type)
 {
 	unsigned int mis_id;
 	float origin[3];
@@ -378,7 +425,10 @@ unsigned int missiles_fire_arrow(actor *a, float target[3], char miss_target)
 
 	cal_get_actor_bone_absolute_position(a, 37, shift, origin);
 	
-	mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, 0.0, miss_target);
+	if (hit_type != MISSED_HIT)
+		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, hit_type);
+	else
+		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, hit_type);
 	
 	return mis_id;
 }
@@ -593,6 +643,7 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 	LOCK_ACTORS_LISTS();
 	memcpy(act->range_xyz_target, target, sizeof(float) * 3);
 	act->range_actor_target = -1;
+	/* act->hit_type = MISSED_HIT; // FOR DEBUG */
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, aim_mode_fire);
@@ -622,7 +673,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	UNLOCK_ACTORS_LISTS();
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!
-	mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, 0.0, 0);
+	mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, 0);
 }
 
 #endif // MISSILES

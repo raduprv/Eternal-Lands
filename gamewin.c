@@ -812,44 +812,44 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			
 			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 		
-/* #ifdef MISSILES // FOR DEBUG ONLY! */
-/* 			if (flag_ctrl) { */
-/* 				float target[3]; */
-/* 				char need_aim; */
-/* 				actor *cur_actor = get_actor_ptr_from_id(yourself); */
+#if defined(MISSILES) && defined(DEBUG) // FOR DEBUG ONLY!
+			if (flag_ctrl) {
+				float target[3];
+				char need_aim;
+				actor *cur_actor = get_actor_ptr_from_id(yourself);
 
-/* 				target[0] = x * 0.5 + 0.25; */
-/* 				target[1] = y * 0.5 + 0.25; */
-/* 				target[2] = height_map[y*tile_map_size_x*6+x]*0.2f - 1.0f; */
+				target[0] = x * 0.5 + 0.25;
+				target[1] = y * 0.5 + 0.25;
+				target[2] = height_map[y*tile_map_size_x*6+x]*0.2f - 1.0f;
 
-/* 				LOCK_ACTORS_LISTS(); */
-/* 				need_aim = (!cur_actor->in_aim_mode || */
-/* 							fabs(target[0] - cur_actor->range_xyz_target[0]) > 0.0 || */
-/* 							fabs(target[1] - cur_actor->range_xyz_target[1]) > 0.0); */
-/* 				UNLOCK_ACTORS_LISTS(); */
+				LOCK_ACTORS_LISTS();
+				need_aim = (!cur_actor->in_aim_mode ||
+							fabs(target[0] - cur_actor->range_xyz_target[0]) > 0.0 ||
+							fabs(target[1] - cur_actor->range_xyz_target[1]) > 0.0);
+				UNLOCK_ACTORS_LISTS();
 
-/* 				if (need_aim) */
-/* 					missiles_aim_at_xyz(yourself, target); */
-/* 				else { */
-/* 					LOCK_ACTORS_LISTS(); */
-/* 					cur_actor->reload = 1; */
-/* 					UNLOCK_ACTORS_LISTS(); */
-/* 					missiles_fire_a_to_xyz(yourself, target); */
-/* 				} */
-/* 			} */
-/* 			else { */
-/* 				char in_aim_mode; */
-/* 				actor *cur_actor = get_actor_ptr_from_id(yourself); */
-/* 				LOCK_ACTORS_LISTS(); */
-/* 				in_aim_mode = cur_actor->in_aim_mode; */
-/* 				UNLOCK_ACTORS_LISTS(); */
-/* 				if (in_aim_mode) */
-/* 					add_command_to_actor(yourself, leave_aim_mode); */
-/* 				move_to(x, y); */
-/* 			} */
-/* #else // MISSILES */
+				if (need_aim)
+					missiles_aim_at_xyz(yourself, target);
+				else {
+					LOCK_ACTORS_LISTS();
+					cur_actor->reload = 1;
+					UNLOCK_ACTORS_LISTS();
+					missiles_fire_a_to_xyz(yourself, target);
+				}
+			}
+			else {
+				char in_aim_mode;
+				actor *cur_actor = get_actor_ptr_from_id(yourself);
+				LOCK_ACTORS_LISTS();
+				in_aim_mode = cur_actor->in_aim_mode;
+				UNLOCK_ACTORS_LISTS();
+				if (in_aim_mode)
+					add_command_to_actor(yourself, leave_aim_mode);
+				move_to(x, y);
+			}
+#else // MISSILES
 			move_to (x, y);
-/* #endif // MISSILES */
+#endif // MISSILES
 
 			return 1;
 		}

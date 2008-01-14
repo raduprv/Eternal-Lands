@@ -197,6 +197,8 @@ extern int show_fps; /*!< flag that indicates whether to display FPS or not */
 #ifdef DEBUG
 extern int render_skeleton;
 extern int render_mesh;
+extern int render_bones_id;
+extern int render_bones_orientation;
 #endif
 extern int limit_fps; /*!< contains the max FPS number we should use. If this is 0, the highest possible number will be used. */
 extern int item_window_on_drop;

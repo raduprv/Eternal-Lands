@@ -11,6 +11,7 @@ extern "C" {
 #endif
 
 typedef enum {MISSILE_ARROW} MissileType;
+typedef enum {MISSED_HIT, NORMAL_HIT, CRITICAL_HIT} MissileHitType;
 typedef enum {RANGE_WEAPON_BOW, RANGE_WEAPON_CROSSBOW} RangeWeaponType;
 
 /*!
@@ -18,11 +19,12 @@ typedef enum {RANGE_WEAPON_BOW, RANGE_WEAPON_CROSSBOW} RangeWeaponType;
  */
 typedef struct
 {
-	MissileType type;   /*!< The type of the missile */
-	int miss_target;    /*!< Tells if the missile will miss the target (will be drawn differently) */
-	float position[3];  /*!< The position of the missile */
-	float direction[3]; /*!< The direction of the missile */
-	float speed;        /*!< The speed of the missile */
+	MissileType type;         /*!< The type of the missile */
+	MissileHitType hit_type;  /*!< Specifies the type of the hit (normal, missed...) */
+	float position[3];        /*!< The position of the missile */
+	float direction[3];       /*!< The direction of the missile */
+	float speed;              /*!< The speed of the missile */
+	float trace_length;       /*!< The length of the trace let by the missile */
 	float covered_distance;   /*!< The distance covered by the missile */
 	float remaining_distance; /*!< The remaining distance to cover */
 } Missile;
@@ -47,8 +49,9 @@ unsigned int missiles_add(MissileType type,
 						  float origin[3],
 						  float target[3],
 						  float speed,
+						  float trace_length,
 						  float shift,
-						  int miss_target);
+						  MissileHitType hit_type);
 
 /*!
  * \brief Computes the next position for all missiles
@@ -66,7 +69,7 @@ void missiles_draw();
  * \param target the target
  * \param miss_target tells if the target is missed
  */
-unsigned int missiles_fire_arrow(actor *a, float target[3], char miss_target);
+unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_type);
 
 /*!
  * \brief Computes the rotations to apply to a char when aiming something

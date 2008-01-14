@@ -1033,36 +1033,53 @@ void next_command()
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
+					// Get the position of the target
 					if (actors_list[i]->range_actor_target >= 0) {
 						actor *target_actor = get_actor_ptr_from_id(actors_list[i]->range_actor_target);
 						int bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(target_actor->calmodel));
 						
 						missiles_log_message("the target has %d bones", bones_number);
-						if (actors_list[i]->miss_range_target) {
-							actors_list[i]->range_xyz_target[0] = target_actor->x_pos + 0.25;
-							actors_list[i]->range_xyz_target[1] = target_actor->y_pos + 0.25;
-							actors_list[i]->range_xyz_target[2] = get_actor_z(target_actor);
+						/* if (actors_list[i]->hit_type == MISSED_HIT) { */
+/* 							actors_list[i]->range_xyz_target[0] = target_actor->x_pos + 0.25; */
+/* 							actors_list[i]->range_xyz_target[1] = target_actor->y_pos + 0.25; */
+/* 							actors_list[i]->range_xyz_target[2] = get_actor_z(target_actor); */
+/* 						} */
+/* 						else */ if ((actors_list[i]->actor_type >= human_female &&
+								  actors_list[i]->actor_type <= dwarf_male) ||
+								 (actors_list[i]->actor_type >= gnome_female &&
+								  actors_list[i]->actor_type <= draegoni_male)) {
+							if (actors_list[i]->hit_type == CRITICAL_HIT)
+								cal_get_actor_bone_absolute_position(target_actor, 36, NULL, actors_list[i]->range_xyz_target);
+							else
+								cal_get_actor_bone_absolute_position(target_actor, 13, NULL, actors_list[i]->range_xyz_target);
 						}
-						else if (bones_number > 30)
+						else if (bones_number > 30) {
 							cal_get_actor_bone_absolute_position(target_actor, 13, NULL, actors_list[i]->range_xyz_target);
-						else
+						}
+						else {
 							cal_get_actor_bone_absolute_position(target_actor, 0, NULL, actors_list[i]->range_xyz_target);
+						}
 					}
-					else if (actors_list[i]->miss_range_target) {
-						int tile_x = (int)(actors_list[i]->range_xyz_target[0] / 0.5);
-						int tile_y = (int)(actors_list[i]->range_xyz_target[1] / 0.5);
-						actors_list[i]->range_xyz_target[0] = tile_x * 0.5 + 0.25; // optional => for debug
-						actors_list[i]->range_xyz_target[1] = tile_y * 0.5 + 0.25; // optional => for debug
-						actors_list[i]->range_xyz_target[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2 - 2.2;
-					}
+/* 					else if (actors_list[i]->hit_type == MISSED_HIT) { */
+/* 						int tile_x = (int)(actors_list[i]->range_xyz_target[0] / 0.5); */
+/* 						int tile_y = (int)(actors_list[i]->range_xyz_target[1] / 0.5); */
+/* 						actors_list[i]->range_xyz_target[0] = tile_x * 0.5 + 0.25; // optional => for debug */
+/* 						actors_list[i]->range_xyz_target[1] = tile_y * 0.5 + 0.25; // optional => for debug */
+/* 						actors_list[i]->range_xyz_target[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2 - 2.2; */
+/* 					} */
 
-					missiles_fire_arrow(actors_list[i], actors_list[i]->range_xyz_target, actors_list[i]->miss_range_target);
-					actors_list[i]->miss_range_target = 0;
+					missiles_fire_arrow(actors_list[i], actors_list[i]->range_xyz_target, actors_list[i]->hit_type);
+					actors_list[i]->hit_type = NORMAL_HIT;
 					break;
 
-				case aim_mode_miss:
+				case missile_miss:
 					missiles_log_message("actor %d will miss his target", actors_list[i]->actor_id);
-					actors_list[i]->miss_range_target = 1;
+					actors_list[i]->hit_type = MISSED_HIT;
+					break;
+
+				case missile_critical:
+					missiles_log_message("actor %d will do a critical hit", actors_list[i]->actor_id);
+					actors_list[i]->hit_type = CRITICAL_HIT;
 					break;
 
 				case unwear_bow:
@@ -1129,7 +1146,8 @@ void next_command()
 					//mark the actor as being busy
 #ifdef MISSILES
 				    if (actors_list[i]->que[0] != aim_mode_reload &&
-						actors_list[i]->que[0] != aim_mode_miss &&
+						actors_list[i]->que[0] != missile_miss &&
+						actors_list[i]->que[0] != missile_critical &&
 						actors_list[i]->que[0] != unwear_bow &&
 						actors_list[i]->que[0] != unwear_quiver)
 #endif // MISSILES

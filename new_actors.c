@@ -101,8 +101,8 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->are_bones_rotating = 0;
 	our_actor->in_aim_mode = 0;
 	our_actor->reload = 0;
-	our_actor->miss_range_target = 0;
 	our_actor->range_weapon_type = 0;
+	our_actor->hit_type = NORMAL_HIT;
 #endif // MISSILES
 
 	our_actor->x_pos=x_pos;

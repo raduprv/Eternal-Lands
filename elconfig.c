@@ -150,6 +150,8 @@ int use_alpha_banner = 0;
 int show_fps= 1;
 int render_skeleton= 0;
 int render_mesh= 1;
+int render_bones_id = 0;
+int render_bones_orientation = 0;
 #ifdef SKY_FPV_CURSOR
 int big_cursors = 0;
 int sdl_cursors = 0;
@@ -1498,6 +1500,8 @@ void init_vars()
  #ifdef DEBUG
 	add_var(OPT_BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID);
 	add_var(OPT_BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID);
+	add_var(OPT_BOOL,"render_bones_id","rbid",&render_bones_id,change_var,0,"Render bones ID", "Render the bones ID", ADVVID);
+	add_var(OPT_BOOL,"render_bones_orientation","rbor",&render_bones_orientation,change_var,0,"Render bones orientation", "Render the bones orientation", ADVVID);
  #endif//DEBUG
 #endif //MAP_EDITOR2
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", LODTAB);
