@@ -383,119 +383,6 @@ void draw_3d_object_shadows(unsigned int object_type)
 	cur_e3d= NULL;
 }
 
-#ifndef MAP_EDITOR2
-void draw_enhanced_actor_shadow(actor * actor_id)
-{
-	double x_pos,y_pos,z_pos;
-	float x_rot,y_rot,z_rot;
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
-
-	x_pos=actor_id->tmp.x_pos;
-	y_pos=actor_id->tmp.y_pos;
-	z_pos=actor_id->tmp.z_pos;
-
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-#ifndef SKY_FPV_CURSOR
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
-#else /* SKY_FPV_CURSOR */
-	if (ext_cam&&actor_id->actor_id==yourself) glTranslatef(-camera_x, -camera_y, z_pos);
-	else glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
-#endif /* SKY_FPV_CURSOR */
-
-	x_rot=actor_id->tmp.x_rot;
-	y_rot=actor_id->tmp.y_rot;
-#ifndef SKY_FPV_CURSOR
-	z_rot=actor_id->tmp.z_rot;
-#else /* SKY_FPV_CURSOR */
-	if (first_person) z_rot = rz;
-	else z_rot=actor_id->tmp.z_rot;
-#endif /* SKY_FPV_CURSOR */
-
-	z_rot+=180;//test
-	z_rot=-z_rot;
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-#ifdef SKY_FPV_CURSOR
-	if(first_person&&actor_id->actor_id==yourself) glTranslatef(0,.15,0);
-#endif /* SKY_FPV_CURSOR */
-	cal_render_actor(actor_id);
-
-	glPopMatrix();//restore the scene
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-
-void draw_actor_shadow(actor * actor_id)
-{
-	double x_pos,y_pos,z_pos;
-	float x_rot,y_rot,z_rot;
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	if(!use_shadow_mapping)glMultMatrixf(proj_on_ground);
-
-	x_pos=actor_id->tmp.x_pos;
-	y_pos=actor_id->tmp.y_pos;
-	z_pos=actor_id->tmp.z_pos;
-
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
-
-	x_rot=actor_id->tmp.x_rot;
-	y_rot=actor_id->tmp.y_rot;
-	z_rot=actor_id->tmp.z_rot;
-
-	z_rot=-z_rot;
-	z_rot+=180;//test
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-#ifdef SKY_FPV_CURSOR
-	if(first_person&&actor_id->actor_id==yourself) glTranslatef(0,-0.15f,0);
-#endif /* SKY_FPV_CURSOR */
-
-	if (actor_id->calmodel!=NULL) cal_render_actor(actor_id);
-
-	glPopMatrix();//restore the scene
-	CHECK_GL_ERRORS();
-}
-
-void display_actors_shadow()
-{
-	int i;
-	int x,y;
-	x=-camera_x;
-	y=-camera_y;
-
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
-	for(i=0;i<no_near_actors;i++){
-		if(!near_actors[i].ghost && !(near_actors[i].buffs & BUFF_INVISIBILITY)){
-			actor *act=actors_list[near_actors[i].actor];
-		
-			if(act){
-				if(act->is_enhanced_model)
-					draw_enhanced_actor_shadow(act);
-				else draw_actor_shadow(act);
-			}
-		}
-	}
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-}
-#endif
-
 void display_shadows()
 {	
 	glEnable(GL_POLYGON_OFFSET_FILL);
@@ -520,7 +407,7 @@ void display_shadows()
 	glDisable(GL_CULL_FACE);
 #ifndef MAP_EDITOR2
 	glDisable(GL_TEXTURE_2D);
-	display_actors_shadow();
+	display_actors(0, DEPTH_RENDER_PASS);
 	glEnable(GL_TEXTURE_2D);
 #endif
 	glDisable(GL_POLYGON_OFFSET_FILL);
@@ -865,7 +752,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			display_objects();
 			display_ground_objects();
 #ifndef MAP_EDITOR2
-			display_actors(1, 0);  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
+			display_actors(1, SHADOW_RENDER_PASS);  // Affects other textures ????????? (FPS etc., unless there's a particle system...)
 #endif
 			display_alpha_objects();
 			display_blended_objects();
@@ -992,7 +879,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			display_3d_non_ground_objects();
 #ifndef MAP_EDITOR2
-			display_actors(1, 0);
+			display_actors(1, DEFAULT_RENDER_PASS);
 #endif
 			display_blended_objects();
 

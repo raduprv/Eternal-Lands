@@ -32,6 +32,7 @@
 #ifdef MINIMAP
 #include "minimap.h"
 #endif
+#include "actor_init.h"
 
 #ifdef ELC
 #define DRAW_ORTHO_INGAME_NORMAL(x, y, z, our_string, max_lines)	draw_ortho_ingame_string(x, y, z, (const Uint8*)our_string, max_lines, INGAME_FONT_X_LEN*10.0, INGAME_FONT_Y_LEN*10.0)
@@ -627,7 +628,12 @@ void draw_actor(actor * actor_id, int banner)
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
-	if (actor_id->calmodel!=NULL) {
+	if (use_animation_program)
+	{
+		cal_render_actor_shader(actor_id);
+	}
+	else
+	{
 		cal_render_actor(actor_id);
 	}
 
@@ -653,7 +659,6 @@ void get_actors_in_range()
 #endif // NEW_SOUND
 	actor *me;
 	AABBOX bbox;
-	struct CalSkeleton *skel;
 
 	me = get_our_actor ();
 
@@ -683,16 +688,13 @@ void get_actors_in_range()
 				z_pos=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
 
 			if (actors_list[i]->calmodel == NULL) continue;
-			skel = CalModel_GetSkeleton(actors_list[i]->calmodel);
-			CalSkeleton_CalculateBoundingBoxes(skel);
-			CalSkeleton_GetBoneBoundingBox(skel, bbox.bbmin, bbox.bbmax);
-			rotate_aabb(&bbox, actors_list[i]->tmp.x_rot, actors_list[i]->tmp.y_rot, 180.0f-actors_list[i]->tmp.z_rot);
+			memcpy(&bbox, &actors_defs[actors_list[i]->actor_type].bbox, sizeof(AABBOX));
 			bbox.bbmin[0] += x_pos;
 			bbox.bbmin[1] += y_pos;
-			bbox.bbmin[2] += z_pos-0.25f;
-			bbox.bbmax[0] += x_pos+0.5f;
-			bbox.bbmax[1] += y_pos+0.5f;
-			bbox.bbmax[2] += z_pos+0.5f;
+			bbox.bbmin[2] += z_pos;
+			bbox.bbmax[0] += x_pos;
+			bbox.bbmax[1] += y_pos;
+			bbox.bbmax[2] += z_pos;
 
 			if (aabb_in_frustum(bbox))
 			{
@@ -701,7 +703,14 @@ void get_actors_in_range()
 				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
 				near_actors[no_near_actors].select = 0;
 
-				actors_list[i]->max_z = bbox.bbmax[2]-z_pos-0.5f;
+				if (actors_list[i]->is_enhanced_model)
+				{
+					actors_list[i]->max_z = cal_get_maxz(actors_list[i]);
+				}
+				else
+				{
+					actors_list[i]->max_z = bbox.bbmax[2] - z_pos - 0.5f;
+				}
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 				{
 					if (click_line_bbox_intersection(bbox))
@@ -729,26 +738,24 @@ void get_actors_in_range()
 #endif // NEW_SOUND
 }
 
-void display_actors(int banner, int reflections)
+void display_actors(int banner, int render_pass)
 {
 	int i;
-	int x,y;
-	int	has_ghosts=0;
-
-	x=-camera_x;
-	y=-camera_y;
+	int has_ghosts = 0;
 
 	get_actors_in_range();
 
-	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-	glEnableClientState(GL_VERTEX_ARRAY);
-	glEnableClientState(GL_NORMAL_ARRAY);
+	set_actor_animation_program(render_pass, 0);
 
 	for (i = 0; i < no_near_actors; i++)
 	{
 		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
 		{
-			if (!reflections) has_ghosts = 1;
+			if ((render_pass == DEFAULT_RENDER_PASS) ||
+				(render_pass == SHADOW_RENDER_PASS))
+			{
+				has_ghosts = 1;
+			}
 		}
 		else
 		{
@@ -790,11 +797,13 @@ void display_actors(int banner, int reflections)
 	}
 	if (has_ghosts)
 	{
-		//we don't need the light, for ghosts
-		glDisable(GL_LIGHTING);
-
-		//display only the ghosts
 		glEnable(GL_BLEND);
+		glDisable(GL_LIGHTING);
+		if (use_animation_program)
+		{
+			set_actor_animation_program(render_pass, 1);
+		}
+
 		for (i = 0; i < no_near_actors; i++)
 		{
 
@@ -806,8 +815,16 @@ void display_actors(int banner, int reflections)
 				{
 					//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-					if ((near_actors[i].buffs & BUFF_INVISIBILITY)) {
-						glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+					if ((near_actors[i].buffs & BUFF_INVISIBILITY))
+					{
+						if (use_animation_program)
+						{
+							ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 0.25f);
+						}
+						else
+						{
+							glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+						}
 					}
 
 					if (cur_actor->is_enhanced_model)
@@ -848,9 +865,6 @@ void display_actors(int banner, int reflections)
 		glEnable(GL_LIGHTING);
 	}
 
-	glDisableClientState(GL_VERTEX_ARRAY);
-	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-	glDisableClientState(GL_NORMAL_ARRAY);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1008,10 +1022,10 @@ void add_actor_from_server (const char *in_data, int len)
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		//Setup cal3d model
-		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+		actors_list[i]->calmodel = model_new(actors_defs[actor_type].coremodel);
 		//Attach meshes
 		if(actors_list[i]->calmodel){
-			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[0].mesh_index);
+			model_attach_mesh(actors_list[i], actors_defs[actor_type].shirt[0].mesh_index);
 			if(dead){
 				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
 				actors_list[i]->stop_animation=1;

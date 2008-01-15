@@ -16,6 +16,7 @@
 #include <cassert>
 #include <sstream>
 #include "../platform.h"
+#include "../errors.h"
 
 namespace eternal_lands
 {
@@ -279,7 +280,7 @@ namespace eternal_lands
 			str << gluErrorString(gl_error);	\
 	\
 			throw eternal_lands::ExceptionFactory::create(	\
-				eternal_lands::ExceptionCodeType<ExtendedException::ec_opengl_error>(),	\
+				eternal_lands::ExceptionCodeType<eternal_lands::ExtendedException::ec_opengl_error>(),	\
 				str.str(), __FILE__, __FUNCTION__, __LINE__);	\
 		}	\
 	}	\

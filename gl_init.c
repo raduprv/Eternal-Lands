@@ -932,12 +932,13 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_red1, str);
 	}
 	/*	GL_EXT_texture_compression_latc		*/
-
+#if	0
+	// Disabled because of bad drivers
 	if (have_extension(ext_framebuffer_object))
 	{
 		check_fbo_formats();
 	}
-
+#endif
 #ifdef	USE_SHADER
 	init_shaders();
 #endif	// USE_SHADER

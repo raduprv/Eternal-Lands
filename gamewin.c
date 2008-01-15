@@ -1050,7 +1050,7 @@ int display_game_handler (window_info *win)
 #endif
 			display_objects();
 			display_ground_objects();
-			display_actors(1, 0);
+			display_actors(1, DEFAULT_RENDER_PASS);
 			display_alpha_objects();
 			display_blended_objects();
 #ifdef NEW_LIGHTING
@@ -1062,7 +1062,7 @@ int display_game_handler (window_info *win)
 	}	// end of active display check
 	else 
 	{
-		display_actors (1, 0);	// we need to 'touch' all the actors even if not drawing to avoid problems
+		display_actors (1, DEFAULT_RENDER_PASS);	// we need to 'touch' all the actors even if not drawing to avoid problems
 	}
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)

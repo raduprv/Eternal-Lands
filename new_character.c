@@ -36,6 +36,7 @@
 #include "tiles.h"
 #include "translate.h"
 #include "weather.h"
+#include "actor_init.h"
 
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
@@ -178,14 +179,15 @@ void change_actor ()
 	// We only need to reload the core model, and attach all the correct mesh types.
 	if (our_actor.our_model){
 		if(our_actor.our_model->calmodel!=NULL)
-			CalModel_Delete(our_actor.our_model->calmodel);
+			model_delete(our_actor.our_model->calmodel);
 		
-		our_actor.our_model->calmodel = CalModel_New(actors_defs[our_actor.race].coremodel);
+		our_actor.our_model->calmodel = model_new(actors_defs[our_actor.race].coremodel);
+		our_actor.our_model->actor_type = our_actor.race;
 			
 		// Attach the Meshes.
-		CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].head[our_actor.head].mesh_index);
-		CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
-		CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
+		model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].head[our_actor.head].mesh_index);
+		model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
+		model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
 		
 		// Save which mesh is which.
 		our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
@@ -303,7 +305,7 @@ int display_newchar_handler (window_info *win)
 			anything_under_the_mouse (0, UNDER_MOUSE_NOTHING);
 			display_objects ();
 			display_ground_objects();
-			display_actors (1, 0);
+			display_actors (1, DEFAULT_RENDER_PASS);
 			display_alpha_objects();
 			display_blended_objects();
 		}
@@ -957,8 +959,8 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			our_actor.head=dec(our_actor.def->head, our_actor.head, 1);
 			
 			// Detach the old head, and reattach and save the new one.
-			CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->head_meshindex);
-			CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].head[our_actor.head].mesh_index);
+			model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->head_meshindex);
+			model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].head[our_actor.head].mesh_index);
 			our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
 		} else if(my>48 && my<59){
 			our_actor.skin=dec(our_actor.def->skin, our_actor.skin, 1);
@@ -986,8 +988,8 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			// If we need a new mesh, drop the old one and load it.
 			if(actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index != our_actor.our_model->body_parts->torso_meshindex)
 			{
-				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->torso_meshindex);
-				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
+				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->torso_meshindex);
+				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
 				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
 			}
 			
@@ -1002,8 +1004,8 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			// If we need a new mesh, drop the old one and load it.
 			if(actors_defs[our_actor.race].legs[our_actor.pants].mesh_index != our_actor.our_model->body_parts->legs_meshindex)
 			{
-				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->legs_meshindex);
-				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
+				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->legs_meshindex);
+				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
 				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 			}
 			
@@ -1023,8 +1025,8 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			our_actor.head=inc(our_actor.def->head, our_actor.head, 1);
 			
 			// Detach the old head, and reattach and save the new one.
-			CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->head_meshindex);
-			CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].head[our_actor.head].mesh_index);
+			model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->head_meshindex);
+			model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].head[our_actor.head].mesh_index);
 			our_actor.our_model->body_parts->head_meshindex=actors_defs[our_actor.race].head[our_actor.head].mesh_index;
 		} else if(my>48 && my<63){
 			our_actor.skin=inc(our_actor.def->skin, our_actor.skin, 1);
@@ -1053,8 +1055,8 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			// If we need a new mesh, drop the old one and load it.
 			if(actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index != our_actor.our_model->body_parts->torso_meshindex)
 			{
-				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->torso_meshindex);
-				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
+				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->torso_meshindex);
+				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index);
 				our_actor.our_model->body_parts->torso_meshindex=actors_defs[our_actor.race].shirt[our_actor.shirt].mesh_index;
 			}
 			
@@ -1069,8 +1071,8 @@ int click_color_race_handler (window_info *win, int mx, int my, Uint32 flags)
 			// If we need a new mesh, drop the old one and load it.
 			if(actors_defs[our_actor.race].legs[our_actor.pants].mesh_index != our_actor.our_model->body_parts->legs_meshindex)
 			{
-				CalModel_DetachMesh(our_actor.our_model->calmodel,our_actor.our_model->body_parts->legs_meshindex);
-				CalModel_AttachMesh(our_actor.our_model->calmodel,actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
+				model_detach_mesh(our_actor.our_model, our_actor.our_model->body_parts->legs_meshindex);
+				model_attach_mesh(our_actor.our_model, actors_defs[our_actor.race].legs[our_actor.pants].mesh_index);
 				our_actor.our_model->body_parts->legs_meshindex=actors_defs[our_actor.race].legs[our_actor.pants].mesh_index;
 			}
 			

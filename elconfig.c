@@ -80,6 +80,7 @@
 #ifdef	USE_SEND_VIDEO_INFO
 #include "sendvideoinfo.h"
 #endif	// USE_SEND_VIDEO_INFO
+#include "actor_init.h"
 
 typedef	float (*float_min_max_func)();
 typedef	int (*int_min_max_func)();
@@ -262,6 +263,22 @@ void change_new_lighting(int * var)
 	build_global_light_table();
 }
 #endif
+
+void change_use_animation_program(int * var)
+{
+	if (*var)
+	{
+		*var = 0;
+	}
+	else
+	{
+		if (!gl_extensions_loaded || (have_extension(arb_vertex_buffer_object) &&
+			have_extension(arb_vertex_program)))
+		{
+			*var = 1;
+		}
+	}
+}
 
 #ifdef EYE_CANDY
 void change_min_ec_framerate(float * var, float * value)
@@ -1198,6 +1215,7 @@ static __inline__ void check_option_var(char* name)
 			break;
 		case OPT_BOOL:
 		case OPT_BOOL_INI:
+		case OPT_BOOL_INI_RO:
 			value_i= *((int*)our_vars.var[i]->var);
 			if (value_i == 0) *((int*)our_vars.var[i]->var)= 1;
 			else *((int*)our_vars.var[i]->var)= 0;
@@ -1299,6 +1317,7 @@ int check_var (char *str, var_name_type type)
 			our_vars.var[i]->func ( our_vars.var[i]->var, atoi (ptr) );
 			return 1;
 		case OPT_BOOL_INI:
+		case OPT_BOOL_INI_RO:
 			// Needed, because var is never changed through widget
 			our_vars.var[i]->saved= 0;
 		case OPT_BOOL:
@@ -1392,6 +1411,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 		break;
 		case OPT_BOOL:
 		case OPT_BOOL_INI:
+		case OPT_BOOL_INI_RO:
 			*integer=(int)def;
 			break;
 		case OPT_STRING:
@@ -1750,6 +1770,7 @@ void init_vars()
 #ifdef	USE_SEND_VIDEO_INFO
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
 #endif	// USE_SEND_VIDEO_INFO
+	add_var(OPT_BOOL_INI_RO, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
 }
 
 void write_var (FILE *fout, int ivar)
@@ -2197,6 +2218,7 @@ void elconfig_populate_tabs(void)
 		tab_id= our_vars.var[i]->widgets.tab_id;
 		switch(our_vars.var[i]->type) {
 			case OPT_BOOL_INI:
+			case OPT_BOOL_INI_RO:
 				// This variable should not be settable
 				// through the window, so don't try to add it,
 				// and more importantly, don't try to compute

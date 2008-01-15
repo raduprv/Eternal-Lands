@@ -16,6 +16,7 @@
 #include "client_serv.h"
 #include "platform.h"
 #include "tiles.h"
+#include "bbox_tree.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -338,6 +339,12 @@ typedef struct
 	char skeleton_name[MAX_FILE_PATH];
 
 	struct CalCoreModel *coremodel;
+	struct CalHardwareModel* hardware_model;
+	GLuint vertex_buffer;
+	GLuint index_buffer;
+	GLenum index_type;
+	Uint32 index_size;
+	AABBOX bbox;
 	//Animation indexes
 	struct cal_anim_group idle_group[16];//16 animation groups
 	int group_count;
@@ -587,6 +594,11 @@ typedef struct
 #endif
 }actor;
 
+#define	DEFAULT_RENDER_PASS	0
+#define	REFLECTION_RENDER_PASS	1
+#define	DEPTH_RENDER_PASS	2
+#define	SHADOW_RENDER_PASS	3
+
 extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
 extern actor *actors_list[MAX_ACTORS];	/*!< A list holding all of the actors*/
 extern actor *your_actor; /*!< A pointer to your own character, if available. Shares a mutex with \see actors_list */
@@ -614,7 +626,7 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  *
  * \callgraph
  */
-void display_actors(int banner, int reflections);
+void display_actors(int banner, int render_pass);
 
 /*!
  * \ingroup	network_actors

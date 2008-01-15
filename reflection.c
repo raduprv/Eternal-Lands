@@ -244,108 +244,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifndef MAP_EDITOR2
-// XXX FIXME
-// Grum: This function doesn't seem to be used at all, can it be removed?
-void draw_actor_reflection(actor * actor_id)
-{
-	double x_pos,y_pos,z_pos;
-	float x_rot,y_rot,z_rot;
-	int texture_id;
-
-#ifdef CLUSTER_INSIDES
-	if (actor_id->cluster && actor_id->cluster != get_actor_cluster ())
-		// Actor is not on our cluster, don't draw his 
-		// reflection either
-		return;
-#endif
-
-	CHECK_GL_ERRORS();
-	if(!actor_id->remapped_colors)texture_id=get_texture_id(actor_id->texture_id);
-	else
-		{
-			//we have remaped colors, we don't store such textures into the cache
-			texture_id=actor_id->texture_id;
-		}
-	bind_texture_id(texture_id);
-
-	//now, go and find the current frame
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	
-	x_pos=actor_id->tmp.x_pos;
-	y_pos=actor_id->tmp.y_pos;
-	z_pos=actor_id->tmp.z_pos;
-
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
-
-	x_rot=actor_id->tmp.x_rot;
-	y_rot=actor_id->tmp.y_rot;
-	z_rot=actor_id->tmp.z_rot;
-	
-	z_rot=-z_rot;
-	z_rot+=180;
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
-	if (actor_id->calmodel!=NULL) cal_render_actor(actor_id);
-
-	glPopMatrix();
-	CHECK_GL_ERRORS();
-}
-
-void draw_enhanced_actor_reflection(actor * actor_id)
-{
-	double x_pos,y_pos,z_pos;
-	float x_rot,y_rot,z_rot;
-	int texture_id;
-
-#ifdef CLUSTER_INSIDES
-	if (actor_id->cluster && actor_id->cluster != get_actor_cluster ())
-		// Actor is not on our cluster, don't draw his 
-		// reflection either
-		return;
-#endif
-
-	CHECK_GL_ERRORS();
-	
-	texture_id=actor_id->texture_id;
-
-	bind_texture_id(texture_id);
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-	
-	x_pos=actor_id->tmp.x_pos;
-	y_pos=actor_id->tmp.y_pos;
-	z_pos=actor_id->tmp.z_pos;
-
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
-	z_pos+=-water_depth_offset*2;
-
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
-	
-	x_rot=actor_id->tmp.x_rot;
-	y_rot=actor_id->tmp.y_rot;
-	z_rot=-actor_id->tmp.z_rot;
-	z_rot+=180;	//test
-	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
-	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
-	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
-
-	if (actor_id->calmodel!=NULL) {
-		cal_render_actor(actor_id);
-	}
-
-	glPopMatrix();	//restore the scene
-	CHECK_GL_ERRORS();
-}
-#endif
-
 //if there is any reflecting tile, returns 1, otherwise 0
 int find_reflection()
 {
@@ -613,7 +511,7 @@ void display_3d_reflection()
 	display_objects();
 	display_ground_objects();
 #ifndef MAP_EDITOR2
-	display_actors(0, 1);
+	display_actors(0, REFLECTION_RENDER_PASS);
 #endif
 	display_alpha_objects();
 //	display_blended_objects();

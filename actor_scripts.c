@@ -40,6 +40,7 @@
 #ifdef NEW_LIGHTING
  #include "textures.h"
 #endif
+#include "actor_init.h"
 
 // mainy of these lists are being phased out by using the id's in XML instead, here as defaults for now
 // NOTE: with the new XML standards being used, these are being phased out in preference to the numeric's in the XML
@@ -1183,7 +1184,7 @@ void destroy_actor(int actor_id)
 				if (actor_id == yourself)
 					set_our_actor (NULL);
 				if(actors_list[i]->calmodel!=NULL)
-					CalModel_Delete(actors_list[i]->calmodel);
+					model_delete(actors_list[i]->calmodel);
 				if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 				if(actors_list[i]->is_enhanced_model){
 					glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -1224,7 +1225,7 @@ void destroy_all_actors()
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]){
 			if(actors_list[i]->calmodel!=NULL)
-				CalModel_Delete(actors_list[i]->calmodel);
+				model_delete(actors_list[i]->calmodel);
 			if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
 			if(actors_list[i]->is_enhanced_model){
 				glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -3167,6 +3168,11 @@ int parse_actor_script (xmlNode *cfg)
 			set_shirt_metadata(&act->shirt[0]);
 #endif
 		}
+		if (use_animation_program)
+		{
+			build_buffers(act, 27);
+		}
+		build_actor_bounding_box(act);
 	}
 
 	return ok;
@@ -3245,4 +3251,12 @@ void init_actor_defs()
 
 	ok = read_actor_defs (defdir, idxname);
 #endif	// NEW_FILE_IO
+	if (use_animation_program)
+	{
+		use_animation_program &= load_vertex_programs();
+	}
+	if (use_animation_program)
+	{
+		log_info("Using vertex programs for actor animation");
+	}
 }

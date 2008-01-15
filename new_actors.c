@@ -33,6 +33,7 @@
 #if defined(CUSTOM_LOOK) && defined(NEW_FILE_IO)
 #include "io/elfilewrapper.h"
 #endif
+#include "actor_init.h"
 
 float sitting=1.0f;
 glow_color glow_colors[10];
@@ -296,9 +297,14 @@ void draw_enhanced_actor(actor * actor_id, int banner)
 	if(first_person&&actor_id->actor_id==yourself) glTranslatef(0,.15,0);
 #endif /* SKY_FPV_CURSOR */
 
-	if (actor_id->calmodel!=NULL) {
+	if (use_animation_program)
+	{
+		cal_render_actor_shader(actor_id);
+	}
+	else
+	{
 		cal_render_actor(actor_id);
-	} 
+	}
 
 	//now, draw their damage & nametag
 	glPopMatrix();  // restore the matrix
@@ -340,37 +346,41 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 									actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 																	
 								}
-								CalModel_DetachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
+								model_detach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].mesh_index);
 								actors_list[i]->body_parts->weapon_tex[0]=0;
 								actors_list[i]->cur_weapon = WEAPON_NONE;
+								actors_list[i]->body_parts->weapon_meshindex = -1;
 								return;
 							}
 
 						if(which_part==KIND_OF_SHIELD)
 							{
+								model_detach_mesh(actors_list[i], actors_list[i]->body_parts->shield_meshindex);
 #ifdef MISSILES
 								if (actors_list[i]->in_aim_mode) {
 									add_command_to_actor(actor_id, unwear_quiver);
 									return;
 								}
 #endif // MISSILES
-								CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->shield_meshindex);
 								actors_list[i]->body_parts->shield_tex[0]=0;
 								actors_list[i]->cur_shield = SHIELD_NONE;
+								actors_list[i]->body_parts->shield_meshindex = -1;
 								return;
 							}
 
 						if(which_part==KIND_OF_CAPE)
 							{
-								CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->cape_meshindex);
+								model_detach_mesh(actors_list[i], actors_list[i]->body_parts->cape_meshindex);
 								actors_list[i]->body_parts->cape_tex[0]=0;
+								actors_list[i]->body_parts->cape_meshindex = -1;
 								return;
 							}
 
 						if(which_part==KIND_OF_HELMET)
 							{
-					     		CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->helmet_meshindex);
+					     		model_detach_mesh(actors_list[i], actors_list[i]->body_parts->helmet_meshindex);
 								actors_list[i]->body_parts->helmet_tex[0]=0;
+								actors_list[i]->body_parts->helmet_meshindex = -1;
 								return;
 							}
 							
@@ -461,11 +471,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
 #endif
-								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
+								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								actors_list[i]->cur_weapon=which_id;
-
+								actors_list[i]->body_parts->weapon_meshindex = actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index;
 								actors_list[i]->body_parts->weapon_glow=actors_defs[actors_list[i]->actor_type].weapon[which_id].glow;
 #ifdef EYE_CANDY
 								switch (which_id)
@@ -528,11 +538,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->shield_tex, playerpath, guildpath);
 #endif
-								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
+								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
                                 actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								actors_list[i]->cur_shield=which_id;
+								actors_list[i]->body_parts->shield_meshindex = actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
 								return;
 							}
 
@@ -542,7 +553,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->cape_tex, playerpath, guildpath);
 #endif
-								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
+								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
@@ -558,7 +569,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #ifdef CUSTOM_LOOK
 								custom_path(actors_list[i]->body_parts->helmet_tex, playerpath, guildpath);
 #endif
-								CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
+								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
 								glDeleteTextures(1,&actors_list[i]->texture_id);
 								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
@@ -582,8 +593,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								if(actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index != actors_list[i]->body_parts->torso_meshindex)
 								{
-									CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->torso_meshindex);
-									CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index);
+									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->torso_meshindex);
+									model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index);
 									actors_list[i]->body_parts->torso_meshindex=actors_defs[actors_list[i]->actor_type].shirt[which_id].mesh_index;
 #ifdef NEW_LIGHTING
 									actors_list[i]->shirt=which_id;
@@ -603,8 +614,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								if(actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index != actors_list[i]->body_parts->legs_meshindex)
 								{
-									CalModel_DetachMesh(actors_list[i]->calmodel,actors_list[i]->body_parts->legs_meshindex);
-									CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index);
+									model_detach_mesh(actors_list[i], actors_list[i]->body_parts->legs_meshindex);
+									model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index);
 									actors_list[i]->body_parts->legs_meshindex=actors_defs[actors_list[i]->actor_type].legs[which_id].mesh_index;
 #ifdef NEW_LIGHTING
 									actors_list[i]->legs=which_id;
@@ -1065,23 +1076,23 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
-		actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+		actors_list[i]->calmodel=model_new(actors_defs[actor_type].coremodel);
 
 		if (actors_list[i]->calmodel!=NULL) {
 			//Setup cal3d model
 			//actors_list[i]->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
 			//Attach meshes
-			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].head[head].mesh_index);
-			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
-			CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
+			model_attach_mesh(actors_list[i], actors_defs[actor_type].head[head].mesh_index);
+			model_attach_mesh(actors_list[i], actors_defs[actor_type].shirt[shirt].mesh_index);
+			model_attach_mesh(actors_list[i], actors_defs[actor_type].legs[pants].mesh_index);
 			actors_list[i]->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			actors_list[i]->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
 			actors_list[i]->body_parts->head_meshindex=actors_defs[actor_type].head[head].mesh_index;
 
-			if (cape!=CAPE_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].cape[cape].mesh_index);
-			if (helmet!=HELMET_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].helmet[helmet].mesh_index);
-			if (weapon!=WEAPON_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].weapon[weapon].mesh_index);
-			if (shield!=SHIELD_NONE) CalModel_AttachMesh(actors_list[i]->calmodel,actors_defs[actor_type].shield[shield].mesh_index);
+			if (cape!=CAPE_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].cape[cape].mesh_index);
+			if (helmet!=HELMET_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].helmet[helmet].mesh_index);
+			if (weapon!=WEAPON_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].weapon[weapon].mesh_index);
+			if (shield!=SHIELD_NONE) model_attach_mesh(actors_list[i], actors_defs[actor_type].shield[shield].mesh_index);
 
 			actors_list[i]->body_parts->helmet_meshindex=actors_defs[actor_type].helmet[helmet].mesh_index;
 			actors_list[i]->body_parts->cape_meshindex=actors_defs[actor_type].cape[cape].mesh_index;
@@ -1201,15 +1212,15 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 	safe_snprintf(a->actor_name, sizeof(a->actor_name), "Player");
 	
 	if (actors_defs[actor_type].coremodel!=NULL) {
-		a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
+		a->calmodel=model_new(actors_defs[actor_type].coremodel);
 
 		if (a->calmodel!=NULL) {
 			//Setup cal3d model
 			//a->calmodel=CalModel_New(actors_defs[actor_type].coremodel);
 			//Attach meshes
-			CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].head[head].mesh_index);
-			CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].shirt[shirt].mesh_index);
-			CalModel_AttachMesh(a->calmodel,actors_defs[actor_type].legs[pants].mesh_index);
+			model_attach_mesh(a, actors_defs[actor_type].head[head].mesh_index);
+			model_attach_mesh(a, actors_defs[actor_type].shirt[shirt].mesh_index);
+			model_attach_mesh(a, actors_defs[actor_type].legs[pants].mesh_index);
 			
 			a->body_parts->torso_meshindex=actors_defs[actor_type].shirt[shirt].mesh_index;
 			a->body_parts->legs_meshindex=actors_defs[actor_type].legs[pants].mesh_index;
