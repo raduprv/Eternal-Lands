@@ -1,7 +1,9 @@
 #include "actor_init.h"
 #include "load_gl_extensions.h"
 #include <cal3d/cal3d.h>
+#ifdef	USE_BOOST
 #include <boost/shared_array.hpp>
+#endif	/* USE_BOOST */
 #include <map>
 #include "bbox_tree.h"
 #include "io/elfile.hpp"
@@ -100,11 +102,13 @@ typedef struct ActorVertex
 	float m_texture[2];
 };
 
+#ifdef	USE_BOOST
 typedef boost::shared_array<Uint16> Uint16Array;
 typedef boost::shared_array<Uint32> Uint32Array;
 typedef boost::shared_array<float> FloatArray;
 typedef boost::shared_array<CalIndex> CalIndexArray;
 typedef boost::shared_array<ActorVertex> ActorVertexArray;
+#endif
 
 extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 {
@@ -152,6 +156,11 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 				index = 2;
 			}
 
+			break;
+		}
+		default:
+		{
+			index = 0;
 			break;
 		}
 	}
@@ -257,7 +266,11 @@ void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_coun
 }
 
 template <typename T>
+#ifdef	USE_BOOST
 void convert_indices(boost::shared_array<T> data, const CalIndexArray indices, const Uint32 count)
+#else	/* USE_BOOST */
+void convert_indices(T* data, const CalIndex* indices, const Uint32 count)
+#endif	/* USE_BOOST */
 {
 	Uint32 i;
 
@@ -269,6 +282,7 @@ void convert_indices(boost::shared_array<T> data, const CalIndexArray indices, c
 
 extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 {
+#ifdef	USE_BOOST
 	FloatArray vertex_buffer;
 	FloatArray normal_buffer;
 	FloatArray weight_buffer;
@@ -276,6 +290,15 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 	FloatArray texture_coordinate_buffer;
 	CalIndexArray indices;
 	ActorVertexArray buffer;
+#else	/* USE_BOOST */
+	float* vertex_buffer;
+	float* normal_buffer;
+	float* weight_buffer;
+	float* matrix_index_buffer;
+	float* texture_coordinate_buffer;
+	CalIndex* indices;
+	ActorVertex* buffer;
+#endif	/* USE_BOOST */
 	Uint32 face_count, vertex_count, max_index;
 	Sint32 i, j;
 	Uint32 idx, offset, count;
@@ -285,6 +308,9 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 
 	calculate_face_and_vertex_count(a->coremodel, face_count, vertex_count);
 
+	a->hardware_model = new CalHardwareModel(a->coremodel);
+
+#ifdef	USE_BOOST
 	vertex_buffer = FloatArray(new float[32768 * 3]);
 	normal_buffer = FloatArray(new float[32768 * 3]);
 	weight_buffer = FloatArray(new float[32768 * 4]);
@@ -292,7 +318,6 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 	texture_coordinate_buffer = FloatArray(new float[32768 * 2]);
 	indices = CalIndexArray(new CalIndex[65536 * 3]);
 
-	a->hardware_model = new CalHardwareModel(a->coremodel);
 	a->hardware_model->setVertexBuffer(reinterpret_cast<char*>(vertex_buffer.get()),
 		3 * sizeof(float));
 	a->hardware_model->setNormalBuffer(reinterpret_cast<char*>(normal_buffer.get()),
@@ -305,10 +330,35 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 	a->hardware_model->setTextureCoordBuffer(0,
 		reinterpret_cast<char*>(texture_coordinate_buffer.get()), 2 * sizeof(float));
 	a->hardware_model->setIndexBuffer(indices.get());
+#else	/* USE_BOOST */
+	vertex_buffer = new float[32768 * 3];
+	normal_buffer = new float[32768 * 3];
+	weight_buffer = new float[32768 * 4];
+	matrix_index_buffer = new float[32768 * 4];
+	texture_coordinate_buffer = new float[32768 * 2];
+	indices = new CalIndex[65536 * 3];
+
+	a->hardware_model->setVertexBuffer(reinterpret_cast<char*>(vertex_buffer),
+		3 * sizeof(float));
+	a->hardware_model->setNormalBuffer(reinterpret_cast<char*>(normal_buffer),
+		3 * sizeof(float));
+	a->hardware_model->setWeightBuffer(reinterpret_cast<char*>(weight_buffer),
+		4 * sizeof(float));
+	a->hardware_model->setMatrixIndexBuffer(reinterpret_cast<char*>(matrix_index_buffer),
+		4 * sizeof(float));
+	a->hardware_model->setTextureCoordNum(1);
+	a->hardware_model->setTextureCoordBuffer(0,
+		reinterpret_cast<char*>(texture_coordinate_buffer), 2 * sizeof(float));
+	a->hardware_model->setIndexBuffer(indices);
+#endif	/* USE_BOOST */
 
 	a->hardware_model->load(0, 0, max_bones_per_mesh);
 
+#ifdef	USE_BOOST
 	buffer = ActorVertexArray(new ActorVertex[a->hardware_model->getTotalVertexCount()]);
+#else	/* USE_BOOST */
+	buffer = new ActorVertex[a->hardware_model->getTotalVertexCount()];
+#endif	/* USE_BOOST */
 
 	idx = 0;
 
@@ -338,8 +388,13 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 
 	ELglGenBuffersARB(1, &a->vertex_buffer);
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, a->vertex_buffer);
+#ifdef	USE_BOOST
 	ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, a->hardware_model->getTotalVertexCount() *
 		sizeof(ActorVertex), buffer.get(), GL_STATIC_DRAW_ARB);
+#else	/* USE_BOOST */
+	ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, a->hardware_model->getTotalVertexCount() *
+		sizeof(ActorVertex), buffer, GL_STATIC_DRAW_ARB);
+#endif	/* USE_BOOST */
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	max_index = 0;
@@ -367,27 +422,51 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 
 	if (max_index <= std::numeric_limits<Uint16>::max())
 	{
+#ifdef	USE_BOOST
 		Uint16Array data16;
 
 		data16 = Uint16Array(new Uint16[a->hardware_model->getTotalFaceCount() * 3]);
+#else	/* USE_BOOST */
+		Uint16* data16;
+
+		data16 = new Uint16[a->hardware_model->getTotalFaceCount() * 3];
+#endif	/* USE_BOOST */
 		convert_indices<Uint16>(data16, indices, a->hardware_model->getTotalFaceCount());
 		a->index_type = GL_UNSIGNED_SHORT;
 		a->index_size = 2;
+#ifdef	USE_BOOST
 		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 			a->hardware_model->getTotalFaceCount() * 3 * 2, data16.get(),
 			GL_STATIC_DRAW_ARB);
+#else	/* USE_BOOST */
+		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+			a->hardware_model->getTotalFaceCount() * 3 * 2, data16,
+			GL_STATIC_DRAW_ARB);
+#endif	/* USE_BOOST */
 	}
 	else
 	{
+#ifdef	USE_BOOST
 		Uint32Array data32;
 
 		data32 = Uint32Array(new Uint32[a->hardware_model->getTotalFaceCount() * 3]);
+#else	/* USE_BOOST */
+		Uint32* data32;
+
+		data32 = new Uint32[a->hardware_model->getTotalFaceCount() * 3];
+#endif	/* USE_BOOST */
 		convert_indices<Uint32>(data32, indices, a->hardware_model->getTotalFaceCount());
 		a->index_type = GL_UNSIGNED_INT;
 		a->index_size = 4;
+#ifdef	USE_BOOST
 		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
 			a->hardware_model->getTotalFaceCount() * 3 * 4, data32.get(),
 			GL_STATIC_DRAW_ARB);
+#else	/* USE_BOOST */
+		ELglBufferDataARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
+			a->hardware_model->getTotalFaceCount() * 3 * 4, data32,
+			GL_STATIC_DRAW_ARB);
+#endif	/* USE_BOOST */
 	}
 
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
