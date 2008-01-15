@@ -237,8 +237,6 @@ extern "C" void cal_render_actor_shader(actor *act)
 
 	glDisable(GL_VERTEX_PROGRAM_ARB);
 
-	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
-
 	glPopMatrix();
 }
 
