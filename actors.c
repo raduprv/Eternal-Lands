@@ -745,7 +745,10 @@ void display_actors(int banner, int render_pass)
 
 	get_actors_in_range();
 
-	set_actor_animation_program(render_pass, 0);
+	if (use_animation_program)
+	{
+		set_actor_animation_program(render_pass, 0);
+	}
 
 	for (i = 0; i < no_near_actors; i++)
 	{
@@ -863,6 +866,11 @@ void display_actors(int banner, int render_pass)
 		}
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
+	}
+
+	if (use_animation_program)
+	{
+		ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
 	}
 
 #ifdef OPENGL_TRACE

@@ -74,7 +74,7 @@ EYE_CANDY_CXXOBJ = eye_candy_wrapper.o \
 	eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
 	eye_candy/effect_breath.o eye_candy/effect_mines.o \
 	eye_candy/orbital_mover.o eye_candy/kepler_orbit.o
-CXXOBJS=cal3d_wrapper.o \
+CXXOBJS=cal3d_wrapper.o actor_init.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
 
 OBJS=$(COBJS) $(CXXOBJS)
