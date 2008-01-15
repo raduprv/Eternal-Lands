@@ -1102,10 +1102,12 @@ CHECK_GL_ERRORS();
 
 #ifdef	EYE_CANDY
 	ec_draw();
+	CHECK_GL_ERRORS();
 #endif	//EYE_CANDY
 	
 #ifdef MISSILES
 	missiles_draw();
+	CHECK_GL_ERRORS();
 #endif
 
 	if (weather_use_fog()) render_fog();
