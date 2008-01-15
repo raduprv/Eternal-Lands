@@ -1064,11 +1064,15 @@ void draw_game_map (int map, int mouse_mini)
 	}
 
 #endif
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
+
+	if (map)
+	{
+		glMatrixMode(GL_MODELVIEW);
+		glPopMatrix();
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+	}
 
 	glEnable (GL_TEXTURE_2D);
 	glColor3f (1.0f, 1.0f, 1.0f);
