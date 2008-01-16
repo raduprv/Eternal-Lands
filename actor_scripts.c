@@ -950,19 +950,9 @@ void next_command()
 														   actors_list[i]->cal_rotation_blend);
 					}
 
-					if (actors_list[i]->range_actor_target >= 0) {
-						actor *target_actor = get_actor_ptr_from_id(actors_list[i]->range_actor_target);
-						int bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(target_actor->calmodel));
-						missiles_log_message("the target has %d bones", bones_number);
-						if (bones_number > 30)
-							cal_get_actor_bone_absolute_position(target_actor, 13, NULL, actors_list[i]->range_xyz_target);
-						else
-							cal_get_actor_bone_absolute_position(target_actor, 0, NULL, actors_list[i]->range_xyz_target);
-					}
-
 					range_rotation = missiles_compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
 																	 &actors_list[i]->cal_v_rot_end,
-																	 actors_list[i], actors_list[i]->range_xyz_target);
+																	 actors_list[i], actors_list[i]->range_target);
 					actors_list[i]->cal_rotation_blend = 0.0;
 					actors_list[i]->cal_rotation_speed = 1.0/18.0;
 					actors_list[i]->are_bones_rotating = 1;
@@ -1034,42 +1024,7 @@ void next_command()
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
-					// Get the position of the target
-					if (actors_list[i]->range_actor_target >= 0) {
-						actor *target_actor = get_actor_ptr_from_id(actors_list[i]->range_actor_target);
-						int bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(target_actor->calmodel));
-						
-						missiles_log_message("the target has %d bones", bones_number);
-						/* if (actors_list[i]->hit_type == MISSED_HIT) { */
-/* 							actors_list[i]->range_xyz_target[0] = target_actor->x_pos + 0.25; */
-/* 							actors_list[i]->range_xyz_target[1] = target_actor->y_pos + 0.25; */
-/* 							actors_list[i]->range_xyz_target[2] = get_actor_z(target_actor); */
-/* 						} */
-/* 						else */ if ((actors_list[i]->actor_type >= human_female &&
-								  actors_list[i]->actor_type <= dwarf_male) ||
-								 (actors_list[i]->actor_type >= gnome_female &&
-								  actors_list[i]->actor_type <= draegoni_male)) {
-							if (actors_list[i]->hit_type == CRITICAL_HIT)
-								cal_get_actor_bone_absolute_position(target_actor, 36, NULL, actors_list[i]->range_xyz_target);
-							else
-								cal_get_actor_bone_absolute_position(target_actor, 13, NULL, actors_list[i]->range_xyz_target);
-						}
-						else if (bones_number > 30) {
-							cal_get_actor_bone_absolute_position(target_actor, 13, NULL, actors_list[i]->range_xyz_target);
-						}
-						else {
-							cal_get_actor_bone_absolute_position(target_actor, 0, NULL, actors_list[i]->range_xyz_target);
-						}
-					}
-/* 					else if (actors_list[i]->hit_type == MISSED_HIT) { */
-/* 						int tile_x = (int)(actors_list[i]->range_xyz_target[0] / 0.5); */
-/* 						int tile_y = (int)(actors_list[i]->range_xyz_target[1] / 0.5); */
-/* 						actors_list[i]->range_xyz_target[0] = tile_x * 0.5 + 0.25; // optional => for debug */
-/* 						actors_list[i]->range_xyz_target[1] = tile_y * 0.5 + 0.25; // optional => for debug */
-/* 						actors_list[i]->range_xyz_target[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2 - 2.2; */
-/* 					} */
-
-					missiles_fire_arrow(actors_list[i], actors_list[i]->range_xyz_target, actors_list[i]->hit_type);
+					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target, actors_list[i]->hit_type);
 					actors_list[i]->hit_type = NORMAL_HIT;
 					break;
 

@@ -1065,10 +1065,10 @@ void init_misc_display()
 	statsinfo[10].skillattr = &your_info.tailoring_skill;
 	statsinfo[10].skillnames = &attributes.tailoring_skill;
 
-	statsinfo[11].exp = &your_info.archery_exp;
-	statsinfo[11].next_lev = &your_info.archery_exp_next_lev;
-	statsinfo[11].skillattr = &your_info.archery_skill;
-	statsinfo[11].skillnames = &attributes.archery_skill;
+	statsinfo[11].exp = &your_info.ranging_exp;
+	statsinfo[11].next_lev = &your_info.ranging_exp_next_lev;
+	statsinfo[11].skillattr = &your_info.ranging_skill;
+	statsinfo[11].skillnames = &attributes.ranging_skill;
 
 	/* always make last as special case for skills modifiers - and best displayed last anyway */
 	statsinfo[12].exp = &your_info.overall_exp;

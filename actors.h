@@ -467,8 +467,7 @@ typedef struct
 	char are_bones_rotating;  /*!< To tell if the char is rotating */
 	char in_aim_mode;         /*!< To tell if the char is already aiming something */
 	char reload;              /*!< To tell if the char must reload his bow after the next fire */
-	float range_xyz_target[3];/*!< Position of the target to aim/fire at */
-	int range_actor_target;   /*!< Position of the actor to aim/fire at */
+	float range_target[3];/*!< Position of the target to aim/fire at */
 	int range_weapon_type;    /*!< The type of the equipped range weapon */
 	int hit_type;             /*!< The type of the hit (normal, missed...) */
 	/*! \} */

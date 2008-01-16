@@ -19,7 +19,14 @@
 #include <time.h>
 
 #define MAX_MISSILES 1024
+#define MAX_LOST_MISSILES 512
+#define LOST_MISSILE_MAX_LIFE 120000
 #define EPSILON 1E-4
+
+typedef struct {
+	int obj_3d_id;
+	Uint32 end_time;
+} LostMissile;
 
 const float arrow_length = 0.75;
 const float bolt_length = 0.4;
@@ -28,12 +35,15 @@ const float arrow_speed = 50.0;
 const float arrow_trace_length = 7.0;
 const float arrow_color[4] = {0.8, 0.8, 0.8, 1.0};
 const float arrow_border_color[4] = {0.8, 0.8, 0.8, 0.5};
-const float miss_color[4] = {0.6, 0.6, 0.6, 1.0};
+const float miss_color[4] = {0.9, 0.6, 0.6, 1.0};
 const float critical_color[4] = {0.5, 0.0, 1.0, 0.5};
 
 Missile missiles_list[MAX_MISSILES];
+LostMissile lost_missiles_list[MAX_LOST_MISSILES];
 
 unsigned int missiles_count = 0;
+int begin_lost_missiles = -1;
+int end_lost_missiles = -1;
 
 FILE *missiles_log = NULL;
 
@@ -131,10 +141,53 @@ unsigned int missiles_add(MissileType type,
 	return missiles_count;
 }
 
+void missiles_add_lost(int obj_id)
+{
+	if (begin_lost_missiles < 0) {
+		end_lost_missiles = begin_lost_missiles = 0;
+	}
+	else {
+		end_lost_missiles = (end_lost_missiles + 1) % MAX_LOST_MISSILES;
+		if (end_lost_missiles == begin_lost_missiles) {
+			destroy_3d_object(lost_missiles_list[begin_lost_missiles].obj_3d_id);
+			begin_lost_missiles = (begin_lost_missiles + 1) % MAX_LOST_MISSILES;
+		}
+	}
+	lost_missiles_list[end_lost_missiles].obj_3d_id = obj_id;
+	lost_missiles_list[end_lost_missiles].end_time = cur_time + LOST_MISSILE_MAX_LIFE;
+}
+
 void missiles_remove(unsigned int missile_id)
 {
+	Missile *mis;
 	assert(missile_id < missiles_count);
 
+	mis = &missiles_list[missile_id];
+	if (mis->hit_type == MISSED_HIT &&
+		mis->covered_distance < 30.0) {
+		float y_rot = -asinf(mis->direction[2]);
+		float z_rot = atan2f(mis->direction[1], mis->direction[0]);
+		float dist = -mis->remaining_distance;
+		int obj_3d_id = -1;
+		mis->position[0] -= mis->direction[0] * dist;
+		mis->position[1] -= mis->direction[1] * dist;
+		mis->position[2] -= mis->direction[2] * dist;
+		missiles_log_message("adding a lost missile at (%f,%f,%f)",
+							 mis->position[0], mis->position[1], mis->position[2]);
+		switch(mis->type) {
+		case MISSILE_ARROW:
+			obj_3d_id = add_e3d("./3dobjects/misc_objects/arrow2.e3d",
+								mis->position[0], mis->position[1], mis->position[2],
+								0.0, y_rot*180.0/M_PI, z_rot*180.0/M_PI,
+								0, 0, 1.0, 1.0, 1.0, 1);
+			break;
+		default:
+			break;
+		}
+		if (obj_3d_id >= 0)
+			missiles_add_lost(obj_3d_id);
+	}
+	
 	--missiles_count;
 	if (missile_id < missiles_count) {
 		memcpy(&missiles_list[missile_id],
@@ -204,26 +257,19 @@ void missiles_update(Uint32 time_diff)
 		mis->position[2] += mis->direction[2] * dist;
 		mis->covered_distance += dist;
 		mis->remaining_distance -= dist;
-		if (mis->remaining_distance < -mis->trace_length) {
-			if (mis->hit_type == MISSED_HIT &&
-				mis->covered_distance < 30.0) {
-				float y_rot = -asinf(mis->direction[2]);
-				float z_rot = atan2f(mis->direction[1], mis->direction[0]);
-				dist = -mis->remaining_distance;
-				mis->position[0] -= mis->direction[0] * dist;
-				mis->position[1] -= mis->direction[1] * dist;
-				mis->position[2] -= mis->direction[2] * dist;
-				printf("adding an arrow at (%f,%f,%f)\n",
-					   mis->position[0], mis->position[1], mis->position[2]);
-				add_e3d("./3dobjects/misc_objects/arrow2.e3d",
-						mis->position[0], mis->position[1], mis->position[2],
-						0.0, y_rot*180.0/M_PI, z_rot*180.0/M_PI,
-						0, 0, 1.0, 1.0, 1.0, 1);
-			}
+		if (mis->remaining_distance < -mis->trace_length)
 			missiles_remove(i);
-		}
 		else
 			++i;
+	}
+
+	while (begin_lost_missiles >= 0 &&
+		   cur_time > lost_missiles_list[begin_lost_missiles].end_time) {
+		destroy_3d_object(lost_missiles_list[begin_lost_missiles].obj_3d_id);
+		if (begin_lost_missiles == end_lost_missiles)
+			begin_lost_missiles = end_lost_missiles = -1;
+		else
+			begin_lost_missiles = (begin_lost_missiles + 1) % MAX_LOST_MISSILES;
 	}
 }
 
@@ -231,8 +277,8 @@ void missiles_draw_single(Missile *mis, const float color[4])
 {
 	float z_shift = 0.0;
 
-	if (mis->hit_type == MISSED_HIT)
-		z_shift = cosf(mis->covered_distance*M_PI/2.0)/10.0;
+/* 	if (mis->hit_type == MISSED_HIT) */
+/* 		z_shift = cosf(mis->covered_distance*M_PI/2.0)/10.0; */
 
 	switch (mis->type) {
 	case MISSILE_ARROW:
@@ -276,7 +322,7 @@ void missiles_draw()
 
 	glLineWidth(5.0);
 	glBegin(GL_LINES);
-	for (i = 0; i < missiles_count; ++i) {
+	for (i = missiles_count; i--;) {
 		if (missiles_list[i].hit_type == CRITICAL_HIT)
 			missiles_draw_single(&missiles_list[i], critical_color);
 	}
@@ -285,31 +331,29 @@ void missiles_draw()
 
 	glLineWidth(3.0);
 	glBegin(GL_LINES);
-	for (i = 0; i < missiles_count; ++i) {
-/* 		if (missiles_list[i].hit_type == NORMAL_HIT || */
-/* 			missiles_list[i].hit_type == CRITICAL_HIT) */
+	for (i = missiles_count; i--;) {
+		if (missiles_list[i].hit_type != MISSED_HIT)
 			missiles_draw_single(&missiles_list[i], arrow_border_color);
 	}
 	glEnd();
 
 	glLineWidth(1.0);
 	glBegin(GL_LINES);
-	for (i = 0; i < missiles_count; ++i) {
-		if (missiles_list[i].hit_type == NORMAL_HIT ||
-			missiles_list[i].hit_type == CRITICAL_HIT)
+	for (i = missiles_count; i--;) {
+		if (missiles_list[i].hit_type != MISSED_HIT)
 			missiles_draw_single(&missiles_list[i], arrow_color);
 	}
 	glEnd();
 
-/* 	glLineWidth(2.0); */
-/* 	glLineStipple(1, 0x003F); */
-/* 	glEnable(GL_LINE_STIPPLE); */
-/* 	glBegin(GL_LINES); */
-/* 	for (i = 0; i < missiles_count; ++i) */
-/* 		if (missiles_list[i].hit_type == MISSED_HIT) */
-/* 			missiles_draw_single(&missiles_list[i], miss_color); */
-/* 	glEnd(); */
-/* 	glDisable(GL_LINE_STIPPLE); */
+	glLineWidth(2.0);
+	glLineStipple(1, 0x003F);
+	glEnable(GL_LINE_STIPPLE);
+	glBegin(GL_LINES);
+	for (i = missiles_count; i--;)
+		if (missiles_list[i].hit_type == MISSED_HIT)
+			missiles_draw_single(&missiles_list[i], miss_color);
+	glEnd();
+	glDisable(GL_LINE_STIPPLE);
 
 /* #ifdef DEBUG */
 /* 	missiles_draw_current_actor_nodes(); */
@@ -425,10 +469,10 @@ unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_t
 
 	cal_get_actor_bone_absolute_position(a, 37, shift, origin);
 	
-	if (hit_type != MISSED_HIT)
+/* 	if (hit_type != MISSED_HIT) */
 		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, hit_type);
-	else
-		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, hit_type);
+/* 	else */
+/* 		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, hit_type); */
 	
 	return mis_id;
 }
@@ -559,10 +603,12 @@ void missiles_rotate_actor_bones(actor *a)
 void missiles_aim_at_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
+	int bones_number;
 
 	missiles_log_message("actor %d will aim at actor %d", actor1_id, actor2_id);
 
 	act1 = get_actor_ptr_from_id(actor1_id);
+	act2 = get_actor_ptr_from_id(actor2_id);
 
 	act1->last_target_id = actor2_id;
 	
@@ -575,8 +621,14 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 		return;
 	}
 
+	bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel));
+	missiles_log_message("the target has %d bones", bones_number);
+
 	LOCK_ACTORS_LISTS();
-	act1->range_actor_target = actor2_id;
+	if (bones_number > 30) // bipeds
+		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+	else // animals
+		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -596,8 +648,7 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 	}
 
 	LOCK_ACTORS_LISTS();
-	memcpy(act->range_xyz_target, target, sizeof(float) * 3);
-	act->range_actor_target = -1;
+	memcpy(act->range_target, target, sizeof(float) * 3);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, enter_aim_mode);
@@ -606,10 +657,12 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
+	int bones_number;
 
 	missiles_log_message("actor %d will fire to actor %d", actor1_id, actor2_id);
 
 	act1 = get_actor_ptr_from_id(actor1_id);
+	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	if (!act1) {
 		missiles_log_message("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
@@ -620,8 +673,14 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 		return;
 	}
 
+	bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel));
+	missiles_log_message("the target has %d bones", bones_number);
+
 	LOCK_ACTORS_LISTS();
-	act1->range_actor_target = actor2_id;
+	if (bones_number > 30) // bipeds
+		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+	else // animals
+		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
@@ -641,9 +700,7 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 	}
 
 	LOCK_ACTORS_LISTS();
-	memcpy(act->range_xyz_target, target, sizeof(float) * 3);
-	act->range_actor_target = -1;
-	/* act->hit_type = MISSED_HIT; // FOR DEBUG */
+	memcpy(act->range_target, target, sizeof(float) * 3);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, aim_mode_fire);

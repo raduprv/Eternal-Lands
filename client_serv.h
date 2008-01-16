@@ -854,10 +854,10 @@ typedef enum
 #define ENG_EXP_NEXT 76
 #define ENG_S_CUR 77
 #define ENG_S_BASE 78
-#define ARCH_EXP 79
-#define ARCH_EXP_NEXT 80
-#define ARCH_S_CUR 81
-#define ARCH_S_BASE 82
+#define RANG_EXP 79
+#define RANG_EXP_NEXT 80
+#define RANG_S_CUR 81
+#define RANG_S_BASE 82
 #define TAIL_EXP 83
 #define TAIL_EXP_NEXT 84
 #define TAIL_S_CUR 85
