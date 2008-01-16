@@ -99,6 +99,7 @@ void missiles_log_message(const char *format, ...)
 void missiles_clear()
 {
 	missiles_count = 0;
+	begin_lost_missiles = end_lost_missiles = -1;
 }
 
 unsigned int missiles_add(MissileType type,
