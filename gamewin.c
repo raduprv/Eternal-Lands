@@ -824,8 +824,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 				LOCK_ACTORS_LISTS();
 				need_aim = (!cur_actor->in_aim_mode ||
-							fabs(target[0] - cur_actor->range_xyz_target[0]) > 0.0 ||
-							fabs(target[1] - cur_actor->range_xyz_target[1]) > 0.0);
+							fabs(target[0] - cur_actor->range_target[0]) > 0.0 ||
+							fabs(target[1] - cur_actor->range_target[1]) > 0.0);
 				UNLOCK_ACTORS_LISTS();
 
 				if (need_aim)
