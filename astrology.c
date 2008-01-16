@@ -512,6 +512,7 @@ int display_astrology_handler(window_info *win)
 			glVertex3i(30 + (progress_bar_width << 1), 130 + progress_bar_height,0);
 		}
 	glEnd();
+	glLineWidth (1.0f);
 
 	glBegin(GL_QUADS);
 	//progress 1
