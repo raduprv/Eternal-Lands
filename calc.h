@@ -6,7 +6,8 @@
 #define CALCERR_SYNTAX 1
 #define CALCERR_DIVIDE 2
 #define CALCERR_MEM 3
-#define CALCERR_XPSYNTAX 4
+#define CALCERR_LOPSYNTAX 4
+#define CALCERR_XOPSYNTAX 5
 
 
 double calc_exp(char* str);

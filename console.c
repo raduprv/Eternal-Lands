@@ -461,11 +461,14 @@ int command_calc(char *text, int len)
 			safe_snprintf (str,sizeof(str), "Memory error");
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
-		case CALCERR_XPSYNTAX:
-			safe_snprintf (str,sizeof(str), "Error after L");
+		case CALCERR_XOPSYNTAX:
+			safe_snprintf (str,sizeof(str), "Bad argument for X");
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
-			
+		case CALCERR_LOPSYNTAX:
+			safe_snprintf (str,sizeof(str), "Bad argument for L");
+			LOG_TO_CONSOLE (c_orange1, str);
+			break;
 	}
 	return 1;
 }

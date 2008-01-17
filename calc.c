@@ -19,6 +19,8 @@
 #define CALCTOK_DIV 6
 #define CALCTOK_NUM 7
 #define CALCTOK_END 8
+#define CALCTOK_XOP 9
+#define CALCTOK_LOP 10
 
 /*Implementation of #calc command
 
@@ -47,6 +49,7 @@ CalcTok* calcinspect(CalcStack* cs,int pos);
 void calcpush(CalcStack* cs, CalcTok* ct);
 
 int calc_error=CALCERR_OK;
+double last_res=0;
 
 
 //XP table
@@ -83,10 +86,12 @@ double calc_exp(char* str){
 	
 	if (calc_error==CALCERR_OK) {
 		while(reduce_stack(cs));
-		if (cs->pos!=1) calc_error=CALCERR_SYNTAX;
 		ct = calcinspect(cs,0);
-		res = (ct) ? (ct->value):(-1);
-	} else res=0;
+		if (cs->pos!=1||ct==NULL) calc_error=CALCERR_SYNTAX;
+		else 
+			if (ct->type==CALCTOK_NUM) last_res = res = ct->value;
+			else calc_error=CALCERR_SYNTAX;
+	}
 
 	done_calcstack(cs);
 	return res;
@@ -107,6 +112,37 @@ int reduce_stack(CalcStack* cs){
 	t3=(cs3) ? (cs3->type):(0);
 	t4=(cs4) ? (cs4->type):(0);
 	
+	//L operator
+	if(t1==CALCTOK_NUM&&t2==CALCTOK_LOP){
+		int lvl;
+		calcpop(cs);calcpop(cs);
+		if(cs1->value>=0&&cs1->value<=XPT_MAX){
+			nt=(CalcTok*)malloc(sizeof(CalcTok));
+			nt->type=CALCTOK_NUM;
+			lvl=(int)trunc(cs1->value);
+			nt->value=XPL(lvl)+(cs1->value-lvl)*XPLDIFF(lvl,lvl+1);			
+			calcpush(cs,nt);
+		} else calc_error=CALCERR_LOPSYNTAX;
+		free(cs1);free(cs2);
+		return 1;
+	}	
+	//X operator
+	if(t1==CALCTOK_NUM&&t2==CALCTOK_XOP){
+		int i;
+		calcpop(cs);calcpop(cs);
+		if(cs1->value>=0&&cs1->value<=XPL(XPT_MAX)){
+			nt=(CalcTok*)malloc(sizeof(CalcTok));
+			nt->type=CALCTOK_NUM;
+			for(i=0;i<=XPT_MAX;i++) {
+				if(XPL(i)>=cs1->value) break;
+			}
+			i--;
+			nt->value=i+(cs1->value-XPL(i))/(XPLDIFF(i,i+1));
+			calcpush(cs,nt);
+		} else calc_error=CALCERR_XOPSYNTAX;
+		free(cs1);free(cs2);
+		return 1;
+	}
 	//mul
 	if(t1==CALCTOK_NUM&&t2==CALCTOK_MUL&&t3==CALCTOK_NUM){
 		calcpop(cs);calcpop(cs);calcpop(cs);
@@ -209,19 +245,22 @@ CalcTok* next_calctoken(char *str, int *spos){
 			ct->type=CALCTOK_NUM;
 			ct->value=strtod(str+startpos,&pp);
 			pos=pp-str;
+			if (str[pos]=='K'||str[pos]=='k'){
+				pos++;
+				ct->value*=1000;
+			}
+			break;
+		case 'M':
+		case 'm':
+			ct->type=CALCTOK_NUM;ct->value=last_res;pos++;
+			break;
+		case 'X':
+		case 'x':
+			ct->type=CALCTOK_XOP;pos++;
 			break;
 		case 'L':
 		case 'l':
-			pos++;
-			ct->value=strtod(str+startpos+1,&pp);
-			if(pos==pp-str || ct->value>XPT_MAX || ct->value<0) {
-				calc_error=CALCERR_XPSYNTAX;
-			} else {
-				int lvl=(int)trunc(ct->value);
-				ct->value=XPL(lvl)+(ct->value-lvl)*XPLDIFF(lvl,lvl+1);
-				ct->type=CALCTOK_NUM;
-				pos=pp-str;
-			}			
+			ct->type=CALCTOK_LOP;pos++;
 			break;
 		case '\0':
 			ct->type=CALCTOK_END;
@@ -256,7 +295,6 @@ void calcpush(CalcStack* cs, CalcTok* ct){
 		calc_error=CALCERR_MEM;
 		return;
 	}
-	
 	cs->stack[cs->pos]=ct;
 	cs->pos++;
 }
