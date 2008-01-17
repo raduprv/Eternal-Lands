@@ -734,7 +734,16 @@ elementary drawing information.
 class ParticleHistory
 {
 public:
-  ParticleHistory() {};
+  ParticleHistory()
+  {
+    size = 0.00001;
+    texture = 0;
+    color[0] = 0.0;
+    color[1] = 0.0;
+    color[2] = 0.0;
+    alpha = 0.0;
+    pos = Vec3(0.0, 0.0, 0.0);
+  };
   ParticleHistory(const coord_t _size, const GLuint _texture, const color_t _red, const color_t _green, const color_t _blue, const alpha_t _alpha, const Vec3 _pos)
   {
     size = _size;
