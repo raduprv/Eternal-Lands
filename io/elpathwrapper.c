@@ -571,17 +571,16 @@ int file_temp_check(const char * filename, const unsigned char * md5)
 	return file_md5_check(fp, md5);
 }
 
-int file_update_check(const char * filename, const unsigned char * md5, int custom)
+int file_update_check(char * filename, const unsigned char * md5, int custom)
 {
 	FILE* fp = NULL;
 	int res_d = 0;
 
 #if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
-	char cust_filename[MAX_PATH];
+	char *cust_filename = filename;
 	int res_u = 0;
 
-	safe_strncpy(cust_filename, filename, sizeof(cust_filename));
-	if (custom) strcpy(cust_filename, check_custom_dir(cust_filename));
+	if (custom) cust_filename = check_custom_dir(filename);
 	fp = open_file_data_updates(cust_filename, "rb", custom);
 	res_u = file_md5_check(fp, md5);
 #endif //UPDATE
