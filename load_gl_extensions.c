@@ -234,7 +234,6 @@ PFNGLVERTEXATTRIB4USVPROC ELglVertexAttrib4usv = NULL;
 PFNGLVERTEXATTRIBPOINTERPROC ELglVertexAttribPointer = NULL;
 /*	GL_VERSION_2_0		*/
 
-#ifdef GL_VERSION_2_1
 /*	GL_VERSION_2_1		*/
 PFNGLUNIFORMMATRIX2X3FVPROC ELglUniformMatrix2x3fv = NULL;
 PFNGLUNIFORMMATRIX2X4FVPROC ELglUniformMatrix2x4fv = NULL;
@@ -243,7 +242,6 @@ PFNGLUNIFORMMATRIX3X4FVPROC ELglUniformMatrix3x4fv = NULL;
 PFNGLUNIFORMMATRIX4X2FVPROC ELglUniformMatrix4x2fv = NULL;
 PFNGLUNIFORMMATRIX4X3FVPROC ELglUniformMatrix4x3fv = NULL;
 /*	GL_VERSION_2_1		*/
-#endif
 
 GLboolean is_GL_VERSION_1_2 = GL_FALSE;
 GLboolean is_GL_VERSION_1_3 = GL_FALSE;
@@ -512,7 +510,6 @@ static GLboolean el_init_GL_VERSION_2_0()
 /*	GL_VERSION_2_1		*/
 static GLboolean el_init_GL_VERSION_2_1()
 {
-#ifdef GL_VERSION_2_1
 	GLboolean r = GL_TRUE;
 
 	r = ((ELglUniformMatrix2x3fv = (PFNGLUNIFORMMATRIX2X3FVPROC)SDL_GL_GetProcAddress("glUniformMatrix2x3fv")) != NULL) && r;
@@ -521,9 +518,6 @@ static GLboolean el_init_GL_VERSION_2_1()
 	r = ((ELglUniformMatrix3x4fv = (PFNGLUNIFORMMATRIX3X4FVPROC)SDL_GL_GetProcAddress("glUniformMatrix3x4fv")) != NULL) && r;
 	r = ((ELglUniformMatrix4x2fv = (PFNGLUNIFORMMATRIX4X2FVPROC)SDL_GL_GetProcAddress("glUniformMatrix4x2fv")) != NULL) && r;
 	r = ((ELglUniformMatrix4x3fv = (PFNGLUNIFORMMATRIX4X3FVPROC)SDL_GL_GetProcAddress("glUniformMatrix4x3fv")) != NULL) && r;
-#else
-	GLboolean r = GL_FALSE;
-#endif
 
 	return r;
 }
