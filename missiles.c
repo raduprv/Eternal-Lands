@@ -633,10 +633,7 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	missiles_log_message("the target has %d bones", bones_number);
 
 	LOCK_ACTORS_LISTS();
-	if (bones_number > 30) // bipeds
-		cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
-	else // animals
-		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
+	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -685,10 +682,7 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	missiles_log_message("the target has %d bones", bones_number);
 
 	LOCK_ACTORS_LISTS();
-	if (bones_number > 30) // bipeds
-		cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
-	else // animals
-		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
+	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
