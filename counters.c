@@ -104,6 +104,7 @@ static Uint32 misc_event_time = 0;
 int harvesting = 0;
 Uint32 disconnect_time;
 char harvest_name[32];
+int killed_by_player = 0;
 
 int counters_win = -1;
 int counters_scroll_id = 16;
@@ -644,12 +645,14 @@ void increment_kill_counter(actor *me, actor *them)
 		return;
 	}
 	
-	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	(them->is_enhanced_model && (them->kind_of_actor == HUMAN || them->kind_of_actor == PKABLE_HUMAN)));
+	/* Now, we should always have non players actors here */
+/* 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	(them->is_enhanced_model && (them->kind_of_actor == HUMAN || them->kind_of_actor == PKABLE_HUMAN))); */
+	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
 }
 
 void increment_range_kill_counter(actor *me, actor *them)
 {
-	if (them->last_range_attacker_id == me->actor_id && !them->is_enhanced_model)
+	if (them->last_range_attacker_id == me->actor_id)
 		increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
 }
 
@@ -665,83 +668,86 @@ void increment_death_counter(actor *a)
 		return;
 	}
 	
-	/* count deaths that happend while harvesting, may not have been due to harvest event though */
-	if ((a == me) && !me->async_fighting && harvesting) {
-		/* a crude check to see if death was just after (1 second should be enough) a harvest event */
-		if (abs(SDL_GetTicks() - misc_event_time) < 1000) {
-			increment_counter(DEATHS, "Harvesting event", 1, 0);
-			found_death_reason = 1;
+	if (a == me) {
+		/* If we have intercepted a message from the server that telling us that
+		 * we have been killed by someone, the counter has already been incremented */
+		if (killed_by_player) {
+			killed_by_player = 0;
+			return;
 		}
-	}	
-	
-	/* count deaths while we were poisoned - possibily in adition to another possible reason */
-	if ((a == me) && we_are_poisoned()) {
-		increment_counter(DEATHS, "While poisoned", 1, 0);
-		found_death_reason = 1;
-	}
-	
-	/* if you are kill while harvesting, there is no "you stopped harvesting" message */
-	/* resetting now prevents next items added to inventry getting added to harvest counter */
-	if (harvesting && (a == me)) {
-		harvesting = 0;
-	}
-	
-	if (!me->async_fighting	&& a->last_range_attacker_id < 0) {
-		if (!found_death_reason && (a == me)) {
-			/* if we died while not harvesting, fighting or poisoned, the cause is unknow */
-			increment_counter(DEATHS, "Unknown cause", 1, 0);
+
+		/* count deaths that happend while harvesting, may not have been due to harvest event though */
+		if (harvesting) {
+			/* a crude check to see if death was just after (1 second should be enough) a harvest event */
+			if (abs(SDL_GetTicks() - misc_event_time) < 1000) {
+				increment_counter(DEATHS, "Harvesting event", 1, 0);
+				found_death_reason = 1;
+			}
+
+			/* if you are killed while harvesting, there is no "you stopped harvesting" message */
+			/* resetting now prevents next items added to inventry getting added to harvest counter */
+			harvesting = 0;
 		}
-		return;
+
+		if (!found_death_reason && me->async_fighting) {
+			int x1, y1, x2, y2;
+			int i;
+			actor *them;
+			static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
+
+			for (i = 0; i < max_actors; i++) {
+				them = actors_list[i];
+				
+				if (!them->async_fighting ||
+					// PK deaths are handled with text messages from the server now
+					(them->is_enhanced_model && (them->kind_of_actor == HUMAN ||
+												 them->kind_of_actor == PKABLE_HUMAN))) {
+					continue;
+				}
+				
+				/* get the coords of the tile they're facing */
+				x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
+				y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
+				
+				/* get the coords of the next tile they're facing (necessary for Chimerans) */
+				x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
+				y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
+				
+				/* continue if our actor is not on one of these tiles */
+				if ((me->async_x_tile_pos != x1 || me->async_y_tile_pos != y1) && (me->async_x_tile_pos != x2 || me->async_y_tile_pos != y2)) {
+					continue;
+				}
+				
+				increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, 0);
+				found_death_reason = 1;
+			}
+		}
+		
+		if (!found_death_reason) {
+			/* count deaths while we were poisoned - possibily in adition to another possible reason */
+			if (we_are_poisoned()) {
+				increment_counter(DEATHS, "While poisoned", 1, 0);
+				found_death_reason = 1;
+			}
+			else if (me->async_fighting) {
+				increment_counter(DEATHS, "While fighting unknown opponent", 1, 0);
+			}
+			else {
+				/* if we don't die while harvesting, fighting or poisoned, the cause is unknow */
+				increment_counter(DEATHS, "Unknown cause", 1, 0);
+			}
+		}
 	}
-	
-	if (a != me) {
+	else { // a != me
+		/* if the dead actor is a player, we don't have to check it because if
+		 * we've killed him, we already catched it from a server message */
+		if (a->is_enhanced_model && (a->kind_of_actor == HUMAN ||
+									 a->kind_of_actor == PKABLE_HUMAN)) return;
+
 		if (a->last_range_attacker_id < 0)
 			increment_kill_counter(me, a);
 		else
 			increment_range_kill_counter(me, a);
-		found_death_reason = 1;
-	}
-	else if (a->last_range_attacker_id >= 0) {
-		/* the counter is incremented in text.c by parsing the explicit death
-		 * message sent by the server */
-		found_death_reason = 1;
-	}
-	else {
-		int x1, y1, x2, y2;
-		int i;
-		actor *me, *them;
-		static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
-
-		me = a;
-		
-		for (i = 0; i < max_actors; i++) {
-			them = actors_list[i];
-
-			if (!them->async_fighting) {
-				continue;
-			}
-
-			/* get the coords of the tile they're facing */
-			x1 = them->async_x_tile_pos + face_offsets[((int)them->async_z_rot)/45][0];
-			y1 = them->async_y_tile_pos + face_offsets[((int)them->async_z_rot)/45][1];
-			
-			/* get the coords of the next tile they're facing (necessary for Chimerans) */
-			x2 = x1 + face_offsets[((int)them->async_z_rot)/45][0];
-			y2 = y1 + face_offsets[((int)them->async_z_rot)/45][1];
-			
-			/* continue if our actor is not on one of these tiles */
-			if ((me->async_x_tile_pos != x1 || me->async_y_tile_pos != y1) && (me->async_x_tile_pos != x2 || me->async_y_tile_pos != y2)) {
-				continue;
-			}
-
-			increment_counter(DEATHS, strip_actor_name(them->actor_name), 1, (them->is_enhanced_model && (them->kind_of_actor == HUMAN || them->kind_of_actor == PKABLE_HUMAN)));
-			found_death_reason = 1;
-		}
-	}
-	
-	/* if we died while not harvesting or poisoned, but fighting and the opponent is unknown */
-	if (!found_death_reason && (a == me)) {
-		increment_counter(DEATHS, "While fighting unknown opponent", 1, 0);
 	}
 }
 
@@ -1068,6 +1074,7 @@ int is_death_message (const char * RawText)
 		return 1;
 	}
 	else if (!strncmp(RawText, "You were killed by ", 19)) {
+		killed_by_player = 1;
 		increment_counter(DEATHS, RawText+19, 1, 1);
 		return 1;
 	}
