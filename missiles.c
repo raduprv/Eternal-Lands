@@ -618,8 +618,6 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
 
-	act1->last_target_id = actor2_id;
-	
 	if (!act1) {
 		missiles_log_message("missiles_aim_at_b: the actor %d does not exists!", actor1_id);
 		return;
@@ -683,6 +681,9 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 
 	LOCK_ACTORS_LISTS();
 	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
+#ifdef COUNTERS
+	act2->last_range_attacker_id = actor1_id;
+#endif // COUNTERS
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
@@ -725,10 +726,10 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)));
-	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)) > 30)
-		cal_get_actor_bone_absolute_position(act, get_actor_bone_id(act, body_top_bone), NULL, target);
-	else
-		cal_get_actor_bone_absolute_position(act, 0, NULL, target);
+	cal_get_actor_bone_absolute_position(act, get_actor_bone_id(act, body_top_bone), NULL, target);
+#ifdef COUNTERS
+	act->last_range_attacker_id = -1;
+#endif // COUNTERS
 	UNLOCK_ACTORS_LISTS();
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!

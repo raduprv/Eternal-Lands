@@ -585,7 +585,7 @@ typedef struct
 	int async_x_tile_pos;
 	int async_y_tile_pos;
 	int async_z_rot;
-	int last_target_id;
+	int last_range_attacker_id;
 #endif
 
 #ifdef CLUSTER_INSIDES

@@ -647,6 +647,12 @@ void increment_kill_counter(actor *me, actor *them)
 	increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	(them->is_enhanced_model && (them->kind_of_actor == HUMAN || them->kind_of_actor == PKABLE_HUMAN)));
 }
 
+void increment_range_kill_counter(actor *me, actor *them)
+{
+	if (them->last_range_attacker_id == me->actor_id && !them->is_enhanced_model)
+		increment_counter(KILLS, strip_actor_name(them->actor_name), 1,	0);
+}
+
 /*
  * Called whenever an actor dies.
  */
@@ -680,7 +686,7 @@ void increment_death_counter(actor *a)
 		harvesting = 0;
 	}
 	
-	if (!me->async_fighting) {
+	if (!me->async_fighting	&& a->last_range_attacker_id < 0) {
 		if (!found_death_reason && (a == me)) {
 			/* if we died while not harvesting, fighting or poisoned, the cause is unknow */
 			increment_counter(DEATHS, "Unknown cause", 1, 0);
@@ -689,9 +695,18 @@ void increment_death_counter(actor *a)
 	}
 	
 	if (a != me) {
-		increment_kill_counter(me, a);
+		if (a->last_range_attacker_id < 0)
+			increment_kill_counter(me, a);
+		else
+			increment_range_kill_counter(me, a);
 		found_death_reason = 1;
-	} else {
+	}
+	else if (a->last_range_attacker_id >= 0) {
+		/* the counter is incremented in text.c by parsing the explicit death
+		 * message sent by the server */
+		found_death_reason = 1;
+	}
+	else {
 		int x1, y1, x2, y2;
 		int i;
 		actor *me, *them;
@@ -725,9 +740,9 @@ void increment_death_counter(actor *a)
 	}
 	
 	/* if we died while not harvesting or poisoned, but fighting and the opponent is unknown */
-//	if (!found_death_reason && (a == me)) {
-//		increment_counter(DEATHS, "While fighting unknown opponent", 1, 0);
-//	}
+	if (!found_death_reason && (a == me)) {
+		increment_counter(DEATHS, "While fighting unknown opponent", 1, 0);
+	}
 }
 
 /*
@@ -1048,33 +1063,15 @@ int chat_to_counters_command(const char *text, int len)
 
 int is_death_message (const char * RawText)
 {
-	char *tmp;
-	actor * act1,*act2;
-	//check for kill message
-	tmp = strstr (RawText,"You killed ");
-	if(tmp)
-	{
-		tmp += strlen("You killed ");
-		act1 = get_actor_ptr_from_id(yourself);
-		act2 = get_actor_ptr_from_id(act1->last_target_id);
-		if(act2 != 0)
-		{
-			increment_counter(KILLS, tmp, 1, (act2->is_enhanced_model && (act2->kind_of_actor == HUMAN || act2->kind_of_actor == PKABLE_HUMAN)));
-		}
+	if (!strncmp(RawText, "You killed ", 11)) {
+		increment_counter(KILLS, RawText+11, 1, 1);
 		return 1;
 	}
-
-	//check for death message
-	tmp = strstr (RawText,"You got killed by ");
-	if(tmp)
-	{
-		tmp += strlen("You got killed by ");
-		increment_counter(DEATHS, tmp, 1, 1);
+	else if (!strncmp(RawText, "You were killed by ", 19)) {
+		increment_counter(DEATHS, RawText+19, 1, 1);
 		return 1;
 	}
-
 	return 0;
 }
-
 
 #endif /* COUNTERS */

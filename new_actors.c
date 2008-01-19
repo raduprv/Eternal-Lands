@@ -119,6 +119,10 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->y_rot=0;
 	our_actor->z_rot=z_rot;
 	
+#ifdef COUNTERS
+	our_actor->last_range_attacker_id = -1;
+#endif // COUNTERS
+
 	//reset the script related things
 	our_actor->move_x_speed=0;
 	our_actor->move_y_speed=0;

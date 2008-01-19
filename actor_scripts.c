@@ -1420,6 +1420,10 @@ void get_actor_damage(int actor_id, int damage)
 			increment_death_counter(act);
 #endif
 		}
+#ifdef COUNTERS
+		act->last_range_attacker_id = -1;
+#endif // COUNTERS
+
 #ifdef EYE_CANDY
 		if (use_eye_candy && enable_blood)
 		{
