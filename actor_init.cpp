@@ -15,7 +15,7 @@ typedef std::map<Sint32, Sint32> IntMap;
 
 GLuint vertex_program_ids[5];
 
-inline GLuint load_vertex_program(const std::string &name)
+static inline GLuint load_vertex_program(const std::string &name)
 {
 	GLuint id;
 	eternal_lands::el_file f(name, true);
@@ -61,8 +61,8 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 
 	for (i = 0; i < count; i++)
 	{
-		CalVector translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
-		CalMatrix rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
+		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
+		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
 
 		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 0,
 			rotationMatrix.dxdx, rotationMatrix.dxdy, rotationMatrix.dxdz,
@@ -76,6 +76,36 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 	}
 }
 
+static float buffer[8192];
+
+static inline void set_transformation_ext(actor_types *a, actor *act, Uint32 index)
+{
+	Sint32 i, count;
+	const std::vector<CalBone *>& vectorBone = act->calmodel->getSkeleton()->getVectorBone();
+
+	count = a->hardware_model->getBoneCount();
+
+	for (i = 0; i < count; i++)
+	{
+		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
+		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
+
+		buffer[i * 12 +  0] = rotationMatrix.dxdx;
+		buffer[i * 12 +  1] = rotationMatrix.dxdy;
+		buffer[i * 12 +  2] = rotationMatrix.dxdz;
+		buffer[i * 12 +  3] = translationBoneSpace.x;
+		buffer[i * 12 +  4] = rotationMatrix.dydx;
+		buffer[i * 12 +  5] = rotationMatrix.dydy;
+		buffer[i * 12 +  6] = rotationMatrix.dydz;
+		buffer[i * 12 +  7] = translationBoneSpace.y;
+		buffer[i * 12 +  8] = rotationMatrix.dzdx;
+		buffer[i * 12 +  9] = rotationMatrix.dzdy;
+		buffer[i * 12 + 10] = rotationMatrix.dzdz;
+		buffer[i * 12 + 11] = translationBoneSpace.z;
+	}
+	ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0, count * 3, buffer);
+}
+
 static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, Sint32 mesh_index)
 {
 	Uint32 element_index;
@@ -84,7 +114,14 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	{
 		a->hardware_model->selectHardwareMesh(index);
 
-		set_transformation(a, act, index);
+		if (have_extension(ext_gpu_program_parameters))
+		{
+			set_transformation_ext(a, act, index);
+		}
+		else
+		{
+			set_transformation(a, act, index);
+		}
 
 		element_index = a->hardware_model->getStartIndex() * a->index_size;
 
@@ -240,7 +277,7 @@ extern "C" void cal_render_actor_shader(actor *act)
 	glPopMatrix();
 }
 
-void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_count,
+static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_count,
 	Uint32 &vertex_count)
 {
 	CalCoreMesh *core_mesh;
@@ -265,9 +302,9 @@ void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_coun
 
 template <typename T>
 #ifdef	USE_BOOST
-void convert_indices(boost::shared_array<T> data, const CalIndexArray indices, const Uint32 count)
+static inline void convert_indices(boost::shared_array<T> data, const CalIndexArray indices, const Uint32 count)
 #else	/* USE_BOOST */
-void convert_indices(T* data, const CalIndex* indices, const Uint32 count)
+static inline void convert_indices(T* data, const CalIndex* indices, const Uint32 count)
 #endif	/* USE_BOOST */
 {
 	Uint32 i;
@@ -501,8 +538,8 @@ extern "C" void build_actor_bounding_box(actor_types* a)
 
 	for (i = 0; i < 3; i++)
 	{
-		a->bbox.bbmin[i] -= 1.0f;
-		a->bbox.bbmax[i] += 1.0f;
+		a->bbox.bbmin[i] -= 0.5f;
+		a->bbox.bbmax[i] += 0.5f;
 	}
 }
 
