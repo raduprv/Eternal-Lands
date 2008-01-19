@@ -35,6 +35,11 @@ extern "C" CAL3D_WRAPPER_API void CalCoreKeyframe_SetRotation(CalCoreKeyframe *s
 	self->setRotation(*pRotation);
 }
 
+extern "C" CAL3D_WRAPPER_API int CalCoreSkeleton_GetCoreBonesNumber(struct CalCoreSkeleton *self)
+{
+	return self->getVectorCoreBone().size();
+}
+
 extern "C" CAL3D_WRAPPER_API int CalCoreTrack_GetCoreKeyframeCount(CalCoreTrack *self)
 {
 	return self->getCoreKeyframeCount();

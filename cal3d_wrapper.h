@@ -318,6 +318,7 @@ extern "C"
 //  CAL3D_WRAPPER_API std::list<int>& CalCoreSkeleton_GetListRootCoreBoneId(struct CalCoreSkeleton *self);
 //  CAL3D_WRAPPER_API std::vector<CalCoreBone *>& CalCoreSkeleton_GetVectorCoreBone(struct CalCoreSkeleton *self);
   CAL3D_WRAPPER_API struct CalCoreSkeleton *CalCoreSkeleton_New();
+  CAL3D_WRAPPER_API int CalCoreSkeleton_GetCoreBonesNumber(struct CalCoreSkeleton *self);
   
 
 //****************************************************************************//

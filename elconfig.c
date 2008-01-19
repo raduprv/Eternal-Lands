@@ -163,6 +163,10 @@ float pointer_size = 1.0;
 int video_info_sent = 0;
 #endif	// USE_SEND_VIDEO_INFO
 
+#if defined(MISSILES) && defined(DEBUG)
+extern float arrow_speed;
+#endif // MISSILES & DEBUG
+
 int int_zero_func()
 {
 	return 0;
@@ -1551,6 +1555,9 @@ void init_vars()
 	add_var(OPT_FLOAT,"lighting_contrast","lc",&lighting_contrast,change_float,0.5,"Lighting contrast","The higher the contrast, the more stark the difference between areas in light and those in the dark.",LODTAB,0.0,1.0,0.05);
 	add_var(OPT_BOOL,"night_shift_textures","nst",&night_shift_textures,change_var,0,"Night Textures","Make the scene at night less colorful, as in the real world.  Will impose a small delay when changing to/from dungeon maps.",LODTAB);
  #endif
+#if defined(MISSILES) && defined(DEBUG)
+	add_var(OPT_FLOAT,"arrow_speed","arsp",&arrow_speed,change_float,50.0,"Arrows speed","",LODTAB,0.0,100.0, 1.0);
+#endif // MISSILES & DEBUG
  #ifdef EYE_CANDY
 	add_var(OPT_BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
 	add_var(OPT_BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);

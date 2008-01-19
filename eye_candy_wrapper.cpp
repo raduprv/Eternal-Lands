@@ -12,6 +12,7 @@
 #include "init.h"
 #include "gamewin.h"
 #include "shadows.h"
+#include "skeletons.h"
 #include "client_serv.h"	// For mine_type defines
 #include "tiles.h"
 
@@ -154,15 +155,16 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
   float act_rot[9];
   float tmp_pos[3], pos[3];
   float shift[3] = {0.0, SWORD_HILT_LENGTH, 0.0};
+  int weapon_bone_id = get_actor_bone_id(_actor, weapon_right_bone);
 
   get_actor_rotation_matrix(_actor, act_rot);
 
-  cal_get_actor_bone_local_position(_actor, 29, shift, tmp_pos);
+  cal_get_actor_bone_local_position(_actor, weapon_bone_id, shift, tmp_pos);
   transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
   base.x = pos[0]; base.y = pos[2]; base.z = -pos[1];
 
   shift[1] += SWORD_BLADE_LENGTH;
-  cal_get_actor_bone_local_position(_actor, 29, shift, tmp_pos);
+  cal_get_actor_bone_local_position(_actor, weapon_bone_id, shift, tmp_pos);
   transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
   tip.x = pos[0]; tip.y = pos[2]; tip.z = -pos[1];
 }

@@ -22,6 +22,7 @@
 #include "particles.h"
 #include "pathfinder.h"
 #include "platform.h"
+#include "skeletons.h"
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -2937,14 +2938,19 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"bone_scale")==0) {
 				act->skel_scale= get_float_value(item);
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skeleton")==0) {
-				get_string_value(act->skeleton_name, sizeof (act->skeleton_name), item);
+				char skeleton_name[MAX_FILE_PATH];
+				get_string_value(skeleton_name, sizeof(skeleton_name), item);
 				act->coremodel= CalCoreModel_New("Model");
 #ifdef	NEW_FILE_IO
-				if(!CalCoreModel_ELLoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
+				if(!CalCoreModel_ELLoadCoreSkeleton(act->coremodel, skeleton_name)) {
 #else	//NEW_FILE_IO
-				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, act->skeleton_name)) {
+				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, skeleton_name)) {
 #endif	//NEW_FILE_IO
-					log_error("Cal3d error: %s: %s\n", act->skeleton_name, CalError_GetLastErrorDescription());
+					log_error("Cal3d error: %s: %s\n", skeleton_name, CalError_GetLastErrorDescription());
+					act->skeleton_type = -1;
+				}
+				else {
+					act->skeleton_type = get_skeleton(act->coremodel, skeleton_name);
 				}
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"walk_speed") == 0) {
 				act->walk_speed= get_float_value(item);

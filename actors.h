@@ -336,7 +336,6 @@ typedef struct
 	float scale;
 	float mesh_scale;
 	float skel_scale;
-	char skeleton_name[MAX_FILE_PATH];
 
 	struct CalCoreModel *coremodel;
 	struct CalHardwareModel* hardware_model;
@@ -348,7 +347,6 @@ typedef struct
 	//Animation indexes
 	struct cal_anim_group idle_group[16];//16 animation groups
 	int group_count;
-
 
 	struct cal_anim cal_walk_frame;
 	struct cal_anim cal_run_frame;
@@ -376,6 +374,8 @@ typedef struct
 	struct cal_anim cal_attack_down_1_frame;
 	struct cal_anim cal_attack_down_2_frame;
 	
+	int skeleton_type;
+
 #ifdef NEW_SOUND
 	// Extra sounds
 	act_extra_sound battlecry;

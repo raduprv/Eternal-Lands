@@ -9,6 +9,7 @@
 #include "gl_init.h"
 #include "init.h"
 #include "missiles.h"
+#include "skeletons.h"
 #include "tiles.h"
 #include "vmath.h"
 
@@ -28,15 +29,17 @@ typedef struct {
 	Uint32 end_time;
 } LostMissile;
 
-const float arrow_length = 0.75;
-const float bolt_length = 0.4;
+float arrow_length = 0.75;
+float bolt_length = 0.4;
+float arrow_trace_length = 7.0;
+float arrow_speed = 50.0;
 
-const float arrow_speed = 50.0;
-const float arrow_trace_length = 7.0;
 const float arrow_color[4] = {0.8, 0.8, 0.8, 1.0};
 const float arrow_border_color[4] = {0.8, 0.8, 0.8, 0.5};
 const float miss_color[4] = {0.9, 0.6, 0.6, 1.0};
-const float critical_color[4] = {0.5, 0.0, 1.0, 0.5};
+const float critical_color[4] = {0.6, 0.9, 1.0, 1.0};
+const float critical_border1_color[4] = {0.3, 0.7, 1.0, 0.6};
+const float critical_border2_color[4] = {0.0, 0.5, 1.0, 0.4};
 
 Missile missiles_list[MAX_MISSILES];
 LostMissile lost_missiles_list[MAX_LOST_MISSILES];
@@ -321,28 +324,31 @@ void missiles_draw()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_TEXTURE_2D);
 
-	glLineWidth(5.0);
+	glLineWidth(7.0);
 	glBegin(GL_LINES);
 	for (i = missiles_count; i--;) {
 		if (missiles_list[i].hit_type == CRITICAL_HIT)
-			missiles_draw_single(&missiles_list[i], critical_color);
+			missiles_draw_single(&missiles_list[i], critical_border2_color);
 	}
 	glEnd();
-
 
 	glLineWidth(3.0);
 	glBegin(GL_LINES);
 	for (i = missiles_count; i--;) {
-		if (missiles_list[i].hit_type != MISSED_HIT)
+		if (missiles_list[i].hit_type == NORMAL_HIT)
 			missiles_draw_single(&missiles_list[i], arrow_border_color);
+		else if (missiles_list[i].hit_type == CRITICAL_HIT)
+			missiles_draw_single(&missiles_list[i], critical_border1_color);
 	}
 	glEnd();
 
 	glLineWidth(1.0);
 	glBegin(GL_LINES);
 	for (i = missiles_count; i--;) {
-		if (missiles_list[i].hit_type != MISSED_HIT)
+		if (missiles_list[i].hit_type == NORMAL_HIT)
 			missiles_draw_single(&missiles_list[i], arrow_color);
+		else if (missiles_list[i].hit_type == CRITICAL_HIT)
+			missiles_draw_single(&missiles_list[i], critical_color);
 	}
 	glEnd();
 
@@ -468,7 +474,7 @@ unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_t
 		break;
 	}
 
-	cal_get_actor_bone_absolute_position(a, 37, shift, origin);
+	cal_get_actor_bone_absolute_position(a, get_actor_bone_id(a, arrow_bone), shift, origin);
 	
 /* 	if (hit_type != MISSED_HIT) */
 		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, hit_type);
@@ -484,6 +490,7 @@ void missiles_rotate_actor_bones(actor *a)
 	struct CalBone *bone;
 	struct CalQuaternion *bone_rot, *bone_rot_abs, *hrot_quat, *vrot_quat;
 	struct CalVector *vect;
+	skeleton_types *skt = &skeletons_defs[actors_defs[a->actor_type].skeleton_type];
 	float *tmp_vect;
 	float hrot, vrot, tmp;
 
@@ -533,7 +540,7 @@ void missiles_rotate_actor_bones(actor *a)
 	bone_rot_abs = CalBone_GetRotationAbsolute(bone);
 
 	// getting the chest bone to rotate
-	bone = CalSkeleton_GetBone(skel, 11);
+	bone = CalSkeleton_GetBone(skel, skt->cal_bones_id[body_bottom_bone]);
 	bone_rot = CalBone_GetRotation(bone);
 
 	// rotating the bone horizontally
@@ -565,7 +572,7 @@ void missiles_rotate_actor_bones(actor *a)
 
 	// rotating the bone horizontally
 	if (hrot > 0.0) {
-		bone = CalSkeleton_GetBone(skel, 14);
+		bone = CalSkeleton_GetBone(skel, skt->cal_bones_id[cape_top_bone]);
 		CalQuaternion_Set(hrot_quat, 0.0, sinf(hrot/2.0), 0.0, cosf(hrot/2.0));
 		bone_rot = CalBone_GetRotation(bone);
 		CalQuaternion_Multiply(bone_rot, hrot_quat);
@@ -574,15 +581,15 @@ void missiles_rotate_actor_bones(actor *a)
 
 	// rotating the bone vertically
 	if (vrot < 0.0) {
-		bone = CalSkeleton_GetBone(skel, 13);
+		bone = CalSkeleton_GetBone(skel, skt->cal_bones_id[body_top_bone]);
 		bone_rot_abs = CalBone_GetRotationAbsolute(bone);
-		bone = CalSkeleton_GetBone(skel, 14);
+		bone = CalSkeleton_GetBone(skel, skt->cal_bones_id[cape_top_bone]);
 		bone_rot = CalBone_GetRotation(bone);
 	}
 	else {
-		bone = CalSkeleton_GetBone(skel, 14);
+		bone = CalSkeleton_GetBone(skel, skt->cal_bones_id[cape_top_bone]);
 		bone_rot_abs = CalBone_GetRotationAbsolute(bone);
-		bone = CalSkeleton_GetBone(skel, 15);
+		bone = CalSkeleton_GetBone(skel, skt->cal_bones_id[cape_middle_bone]);
 		bone_rot = CalBone_GetRotation(bone);
 	}
 
@@ -627,7 +634,7 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 
 	LOCK_ACTORS_LISTS();
 	if (bones_number > 30) // bipeds
-		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+		cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
 	else // animals
 		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
@@ -679,7 +686,7 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 
 	LOCK_ACTORS_LISTS();
 	if (bones_number > 30) // bipeds
-		cal_get_actor_bone_absolute_position(act2, 13, NULL, act1->range_target);
+		cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
 	else // animals
 		cal_get_actor_bone_absolute_position(act2, 0, NULL, act1->range_target);
 	UNLOCK_ACTORS_LISTS();
@@ -725,7 +732,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)));
 	if (CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)) > 30)
-		cal_get_actor_bone_absolute_position(act, 13, NULL, target);
+		cal_get_actor_bone_absolute_position(act, get_actor_bone_id(act, body_top_bone), NULL, target);
 	else
 		cal_get_actor_bone_absolute_position(act, 0, NULL, target);
 	UNLOCK_ACTORS_LISTS();
