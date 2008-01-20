@@ -109,6 +109,9 @@ static inline void set_transformation_ext(actor_types *a, actor *act, Uint32 ind
 static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, Sint32 mesh_index)
 {
 	Uint32 element_index;
+	Sint32 bone_id, glow;
+	float reverse_scale;
+	CalSkeleton *skel;
 
 	if (index >= 0)
 	{
@@ -123,10 +126,45 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			set_transformation(a, act, index);
 		}
 
+		bone_id = -1;
+		if (act->is_enhanced_model)
+		{
+			if (act->body_parts->shield_meshindex == mesh_index)
+			{
+				bone_id = 21;
+				glow = a->shield[act->cur_shield].glow;
+			}
+			if (a->weapon[act->cur_weapon].mesh_index == mesh_index)
+			{
+				bone_id = 26;
+				glow = a->weapon[act->cur_weapon].glow;
+			}
+		}
+
+		if (bone_id != -1)
+		{
+			glPushMatrix();
+			reverse_scale = 1.0f / a->skel_scale;
+
+			skel = act->calmodel->getSkeleton();
+
+			const CalVector &point = skel->getBone(bone_id)->getTranslationAbsolute();
+
+			glTranslatef(point[0], point[1], point[2]);
+			glScalef(reverse_scale, reverse_scale, reverse_scale);
+			glTranslatef(-point[0], -point[1], -point[2]);
+
+		}
+
 		element_index = a->hardware_model->getStartIndex() * a->index_size;
 
 		glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3, a->index_type,
 			reinterpret_cast<void*>(element_index));
+
+		if (bone_id != -1)
+		{
+			glPopMatrix();
+		}
 	}
 }
 
@@ -199,6 +237,31 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 		{
 			index = 0;
 			break;
+		}
+	}
+
+	int i;
+	VECTOR4 zero;
+	VECTOR4 zero_one;
+
+	zero[0] = 0.0f;
+	zero[1] = 0.0f;
+	zero[2] = 0.0f;
+	zero[3] = 0.0f;
+
+	zero_one[0] = 0.0f;
+	zero_one[1] = 0.0f;
+	zero_one[2] = 0.0f;
+	zero_one[3] = 1.0f;
+
+	for (i = 0; i < 8; i++)
+	{
+		if (glIsEnabled(GL_LIGHT0 + i) == GL_FALSE)
+		{
+			glLightfv(GL_LIGHT0 + i, GL_POSITION, zero_one);
+			glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, zero);
+			glLightfv(GL_LIGHT0 + i, GL_SPECULAR, zero);
+			glLightfv(GL_LIGHT0 + i, GL_AMBIENT, zero);
 		}
 	}
 
