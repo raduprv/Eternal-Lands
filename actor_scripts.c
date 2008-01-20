@@ -918,7 +918,6 @@ void next_command()
 #ifdef MISSILES
 				case enter_aim_mode:
 					if (!actors_list[i]->in_aim_mode) {
-						int j;
 						char *weapon_name = actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].model_name;
 						missiles_log_message("actor %d enters in aim mode", actors_list[i]->actor_id);
 						missiles_log_message("model of the weapon equipped: %s", weapon_name);
@@ -926,17 +925,14 @@ void next_command()
 
 						// detecting the range weapon type from the model name
 						actors_list[i]->range_weapon_type = -1;
-						for (j = 0; j < strlen(weapon_name)-8 && actors_list[i]->range_weapon_type < 0; ++j)
-							if (!strncmp(&weapon_name[j], "bow_cross", 9))
-								actors_list[i]->range_weapon_type = RANGE_WEAPON_CROSSBOW;
-						for (j = 0; j < strlen(weapon_name)-3 && actors_list[i]->range_weapon_type < 0; ++j)
-							if (!strncmp(&weapon_name[j], "bow", 3))
-								actors_list[i]->range_weapon_type = RANGE_WEAPON_BOW;
+						if (strstr(weapon_name, "bow_cross"))
+							actors_list[i]->range_weapon_type = RANGE_WEAPON_CROSSBOW;
+						else if (strstr(weapon_name, "bow"))
+							actors_list[i]->range_weapon_type = RANGE_WEAPON_BOW;
 						missiles_log_message("range weapon type: %d", actors_list[i]->range_weapon_type);
 
 						actors_list[i]->cal_h_rot_start = 0.0;
 						actors_list[i]->cal_v_rot_start = 0.0;
-						actors_list[i]->in_aim_mode = 1;
 					}
 					else {
 						missiles_log_message("actor %d is aiming again", actors_list[i]->actor_id);
@@ -949,24 +945,24 @@ void next_command()
 														   (1.0 - actors_list[i]->cal_rotation_blend) +
 														   actors_list[i]->cal_v_rot_end *
 														   actors_list[i]->cal_rotation_blend);
-					}
 
-					range_rotation = missiles_compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
-																	 &actors_list[i]->cal_v_rot_end,
-																	 actors_list[i], actors_list[i]->range_target);
-					actors_list[i]->cal_rotation_blend = 0.0;
-					actors_list[i]->cal_rotation_speed = 1.0/18.0;
-					actors_list[i]->are_bones_rotating = 1;
-					actors_list[i]->stop_animation = 1;
-
-					if (range_rotation != 0.0) {
-						missiles_log_message("the actor is not facing its target => client side rotation needed");
-						if (actors_list[i]->rotating) {
-							range_rotation += actors_list[i]->rotate_z_speed * actors_list[i]->rotate_frames_left;
+						range_rotation = missiles_compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
+																		 &actors_list[i]->cal_v_rot_end,
+																		 actors_list[i], actors_list[i]->range_target);
+						actors_list[i]->cal_rotation_blend = 0.0;
+						actors_list[i]->cal_rotation_speed = 1.0/20.0;
+						actors_list[i]->are_bones_rotating = 1;
+						actors_list[i]->stop_animation = 1;
+						
+						if (range_rotation != 0.0) {
+							missiles_log_message("the actor is not facing its target => client side rotation needed");
+							if (actors_list[i]->rotating) {
+								range_rotation += actors_list[i]->rotate_z_speed * actors_list[i]->rotate_frames_left;
+							}
+							actors_list[i]->rotate_z_speed = range_rotation/20.0;
+							actors_list[i]->rotate_frames_left=20;
+							actors_list[i]->rotating=1;
 						}
-						actors_list[i]->rotate_z_speed = range_rotation/18.0;
-						actors_list[i]->rotate_frames_left=18;
-						actors_list[i]->rotating=1;
 					}
 					break;
 
@@ -984,7 +980,7 @@ void next_command()
 					actors_list[i]->cal_h_rot_end = 0.0;
 					actors_list[i]->cal_v_rot_end = 0.0;
 					actors_list[i]->cal_rotation_blend = 0.0;
-					actors_list[i]->cal_rotation_speed = 1.0/18.0;
+					actors_list[i]->cal_rotation_speed = 1.0/20.0;
 					actors_list[i]->are_bones_rotating = 1;
 					actors_list[i]->in_aim_mode = 0;
 					actors_list[i]->stop_animation = 1;
@@ -1020,7 +1016,7 @@ void next_command()
 					actors_list[i]->cal_h_rot_end = 0.0;
 					actors_list[i]->cal_v_rot_end = 0.0;
 					actors_list[i]->cal_rotation_blend = 0.0;
-					actors_list[i]->cal_rotation_speed = 1.0/18.0;
+					actors_list[i]->cal_rotation_speed = 1.0/20.0;
 					actors_list[i]->are_bones_rotating = 1;
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
@@ -1112,6 +1108,20 @@ void next_command()
 					//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Busy");
 					//save the last command. It is especially good for run and walk
 					actors_list[i]->last_command=actors_list[i]->que[0];
+
+#ifdef MISSILES
+					/* We do the enter in aim mode in two steps in order the actor have
+					 * the time to do the load animation before rotating bones. This is
+					 * necessary in the case of cross bows where the actor need to use
+					 * his foot to reload. So here, we don't remove the enter aim mode
+					 * from the queue in order to treat it again but this time in aim mode.
+					 */
+					if (actors_list[i]->que[0] == enter_aim_mode && !actors_list[i]->in_aim_mode) {
+						actors_list[i]->in_aim_mode = 1;
+						continue;
+					}
+#endif // MISSILES
+
 					//move que down with one command
 					for(k=0;k<MAX_CMD_QUEUE-1;k++) {
 						if(k>max_queue && actors_list[i]->que[k]!=nothing)max_queue=k;
