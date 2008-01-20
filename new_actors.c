@@ -771,6 +771,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	case frame_sit_idle:
 	case frame_harvest:
 	case frame_cast:
+	case frame_ranged:
 	case frame_attack_up_1:
 	case frame_attack_up_2:
 	case frame_attack_up_3:
@@ -1037,6 +1038,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			if(actors_list[i]->actor_id==yourself)you_stand_up();
 			if(frame==frame_combat_idle)
 				actors_list[i]->fighting=1;
+#ifdef MISSILES
+			else if (frame == frame_ranged)
+				actors_list[i]->in_aim_mode = 1;
+#endif // MISSILES
 		}
 
 	//ghost or not?
