@@ -1816,6 +1816,12 @@ void write_var (FILE *fout, int ivar)
 			fprintf (fout, "#%s= %g\n", our_vars.var[ivar]->name, *g);
 			break;
 		}
+		/* Was not included when OPT_BOOL_INI_RO added elsewhere but
+			causes a compiler warning.  Adding this case fixes the 
+			warning and does the same as if left out - please fix if
+			this is not the intention. */
+		case OPT_BOOL_INI_RO:
+			break;
 	}
 	our_vars.var[ivar]->saved= 1;	// keep only one copy of this setting
 }
