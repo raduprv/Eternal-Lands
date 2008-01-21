@@ -816,7 +816,7 @@ void display_actors(int banner, int render_pass)
 		}
 	}
 #ifdef	ACTOR_FACE_CULLING
-	glCullFace(GL_FRONT);
+	glCullFace(GL_BACK);
 	glDisable(GL_CULL_FACE);
 #endif	// ACTOR_FACE_CULLING
 	if (has_ghosts)
