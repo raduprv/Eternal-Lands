@@ -23,10 +23,11 @@ typedef enum {
 	weapon_right_bone = 8,
 	arrow_bone = 9,
 	hand_left_bone = 10,
-	hand_right_bone = 11
+	hand_right_bone = 11,
+	highest_bone = 12
 } cal_bone_name;
 
-#define MAX_MAIN_CAL_BONES 12
+#define MAX_MAIN_CAL_BONES 13
 
 /*!
  * \brief Structure that holds the IDs of the main bones for a skeleton
