@@ -35,6 +35,7 @@ PARAM light_position_4 = state.light[4].position;
 PARAM light_position_5 = state.light[5].position;
 PARAM light_position_6 = state.light[6].position;
 PARAM light_position_7 = state.light[7].position;
+PARAM ambient = state.lightprod[7].ambient;
 PARAM texgen_s = state.texgen[0].eye.s;
 PARAM texgen_t = state.texgen[0].eye.t;
 PARAM texgen_r = state.texgen[0].eye.r;
@@ -133,7 +134,8 @@ MAD R2.w, R2.w, R3.x, R3.y;
 DP3 R4.x, R1.xyzx, R5.xyzx;
 MAX R1.x, R4.x, constant.z;
 MUL R1.x, R1.x, R2.w;
-MAD R7, R1.xxxx, diffuse_0, scenecolor;
+ADD R7, ambient, scenecolor;
+MAD R7, R1.xxxx, diffuse_0, R7;
 
 MAD R1.xyz, R0.xyzx, -light_position_1.w, light_position_1.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
