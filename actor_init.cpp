@@ -137,7 +137,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		{
 #ifdef	SHADER_EXTRA_DEBUG
 			log_info("Checking for shield");
-			log_info("cur_shield: %d", cur_shield);
+			log_info("cur_shield: %d", act->cur_shield);
 #endif
 			if (act->cur_shield >= 0)
 			{
@@ -149,7 +149,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			}
 #ifdef	SHADER_EXTRA_DEBUG
 			log_info("Checking for weapon");
-			log_info("cur_weapon: %d", cur_weapon);
+			log_info("cur_weapon: %d", act->cur_weapon);
 #endif
 			if (act->cur_weapon >= 0)
 			{
