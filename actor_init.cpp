@@ -59,11 +59,20 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 
 	count = a->hardware_model->getBoneCount();
 
+#ifdef	SHADER_EXTRA_DEBUG
+	log_info("Bone count: %d", count);
+#endif
 	for (i = 0; i < count; i++)
 	{
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Getting matrix: %d", i);
+#endif
 		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
 		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
 
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Setting matrix: %d", i);
+#endif
 		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 0,
 			rotationMatrix.dxdx, rotationMatrix.dxdy, rotationMatrix.dxdz,
 			translationBoneSpace.x);
@@ -74,6 +83,9 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 			rotationMatrix.dzdx, rotationMatrix.dzdy, rotationMatrix.dzdz,
 			translationBoneSpace.z);
 	}
+#ifdef	SHADER_EXTRA_DEBUG
+	log_info("Done setting matrices");
+#endif
 }
 
 static float buffer[8192];
@@ -85,11 +97,20 @@ static inline void set_transformation_ext(actor_types *a, actor *act, Uint32 ind
 
 	count = a->hardware_model->getBoneCount();
 
+#ifdef	SHADER_EXTRA_DEBUG
+	log_info("Bone count: %d", count);
+#endif
 	for (i = 0; i < count; i++)
 	{
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Getting matrix: %d", i);
+#endif
 		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
 		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
 
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Setting matrix: %d", i);
+#endif
 		buffer[i * 12 +  0] = rotationMatrix.dxdx;
 		buffer[i * 12 +  1] = rotationMatrix.dxdy;
 		buffer[i * 12 +  2] = rotationMatrix.dxdz;
@@ -103,7 +124,13 @@ static inline void set_transformation_ext(actor_types *a, actor *act, Uint32 ind
 		buffer[i * 12 + 10] = rotationMatrix.dzdz;
 		buffer[i * 12 + 11] = translationBoneSpace.z;
 	}
+#ifdef	SHADER_EXTRA_DEBUG
+	log_info("Setting matrices");
+#endif
 	ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0, count * 3, buffer);
+#ifdef	SHADER_EXTRA_DEBUG
+	log_info("Done setting matrices");
+#endif
 }
 
 static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, Sint32 mesh_index)
@@ -119,6 +146,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 #ifdef	SHADER_EXTRA_DEBUG
 		log_info("Actor type name '%s'", a->actor_name);
+		log_info("have_extension(ext_gpu_program_parameters): %d", have_extension(ext_gpu_program_parameters));
 #endif
 		if (have_extension(ext_gpu_program_parameters))
 		{
