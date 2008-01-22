@@ -148,11 +148,13 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		log_info("Actor type name '%s'", a->actor_name);
 		log_info("have_extension(ext_gpu_program_parameters): %d", have_extension(ext_gpu_program_parameters));
 #endif
+#ifndef	DISABLE_EXT_GPU_PROGRAM_PARAMETERS
 		if (have_extension(ext_gpu_program_parameters))
 		{
 			set_transformation_ext(a, act, index);
 		}
 		else
+#endif
 		{
 			set_transformation(a, act, index);
 		}
