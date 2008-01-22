@@ -8,6 +8,7 @@
 #include "bbox_tree.h"
 #include "io/elfile.hpp"
 #include "exceptions/extendedexception.hpp"
+#include "gl_init.h"
 
 Uint32 use_animation_program = 1;
 
@@ -36,6 +37,7 @@ extern "C" int load_vertex_programs()
 {
 	try
 	{
+		CHECK_GL_EXCEPTION();
 		vertex_program_ids[0] = load_vertex_program("shaders/anim.vert");
 		vertex_program_ids[1] = load_vertex_program("shaders/anim_depth.vert");
 		vertex_program_ids[2] = load_vertex_program("shaders/anim_shadow.vert");
@@ -59,6 +61,7 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 
 	count = a->hardware_model->getBoneCount();
 
+	CHECK_GL_ERRORS();
 #ifdef	SHADER_EXTRA_DEBUG
 	log_info("Bone count: %d", count);
 #endif
@@ -72,6 +75,7 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 
 #ifdef	SHADER_EXTRA_DEBUG
 		log_info("Setting matrix: %d", i);
+		log_info("ELglProgramLocalParameter4fARB: %p", ELglProgramLocalParameter4fARB);
 #endif
 		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 0,
 			rotationMatrix.dxdx, rotationMatrix.dxdy, rotationMatrix.dxdz,
@@ -82,6 +86,7 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 2,
 			rotationMatrix.dzdx, rotationMatrix.dzdy, rotationMatrix.dzdz,
 			translationBoneSpace.z);
+		CHECK_GL_ERRORS();
 	}
 #ifdef	SHADER_EXTRA_DEBUG
 	log_info("Done setting matrices");
@@ -97,6 +102,7 @@ static inline void set_transformation_ext(actor_types *a, actor *act, Uint32 ind
 
 	count = a->hardware_model->getBoneCount();
 
+	CHECK_GL_ERRORS();
 #ifdef	SHADER_EXTRA_DEBUG
 	log_info("Bone count: %d", count);
 #endif
@@ -126,11 +132,13 @@ static inline void set_transformation_ext(actor_types *a, actor *act, Uint32 ind
 	}
 #ifdef	SHADER_EXTRA_DEBUG
 	log_info("Setting matrices");
+	log_info("ELglProgramLocalParameters4fvEXT: %p", ELglProgramLocalParameters4fvEXT);
 #endif
 	ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0, count * 3, buffer);
 #ifdef	SHADER_EXTRA_DEBUG
 	log_info("Done setting matrices");
 #endif
+	CHECK_GL_ERRORS();
 }
 
 static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, Sint32 mesh_index)
@@ -140,6 +148,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	float reverse_scale;
 	CalSkeleton *skel;
 
+	CHECK_GL_ERRORS();
 	if (index >= 0)
 	{
 		a->hardware_model->selectHardwareMesh(index);
@@ -190,6 +199,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 				}
 			}
 		}
+		CHECK_GL_ERRORS();
 
 #ifdef	SHADER_EXTRA_DEBUG
 		log_info("Checking for scale");
@@ -210,6 +220,8 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 		}
 
+		CHECK_GL_ERRORS();
+
 		element_index = a->hardware_model->getStartIndex() * a->index_size;
 
 #ifdef	SHADER_EXTRA_DEBUG
@@ -218,10 +230,12 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3, a->index_type,
 			reinterpret_cast<void*>(element_index));
 
+		CHECK_GL_ERRORS();
 		if (bone_id != -1)
 		{
 			glPopMatrix();
 		}
+		CHECK_GL_ERRORS();
 	}
 }
 
@@ -311,6 +325,8 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	zero_one[2] = 0.0f;
 	zero_one[3] = 1.0f;
 
+	CHECK_GL_ERRORS();
+
 #ifdef	SHADER_EXTRA_DEBUG
 	log_info("Clearing lights");
 #endif
@@ -330,8 +346,11 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 #ifdef	SHADER_EXTRA_DEBUG
 	log_info("Done Clearing lights");
 #endif
+	CHECK_GL_ERRORS();
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
+
+	CHECK_GL_ERRORS();
 }
 
 extern "C" void cal_render_actor_shader(actor *act)
@@ -339,6 +358,8 @@ extern "C" void cal_render_actor_shader(actor *act)
 	actor_types* a;
 
 	assert(act->calmodel);
+
+	CHECK_GL_ERRORS();
 
 	glPushMatrix();
 
@@ -348,11 +369,15 @@ extern "C" void cal_render_actor_shader(actor *act)
 
 	glEnable(GL_VERTEX_PROGRAM_ARB);
 
+	CHECK_GL_ERRORS();
+
 	ELglEnableVertexAttribArrayARB(0);
 	ELglEnableVertexAttribArrayARB(1);
 	ELglEnableVertexAttribArrayARB(2);
 	ELglEnableVertexAttribArrayARB(3);
 	ELglEnableVertexAttribArrayARB(8);
+
+	CHECK_GL_ERRORS();
 
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, a->vertex_buffer);
 	ELglVertexAttribPointerARB(0, 3, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
@@ -366,6 +391,8 @@ extern "C" void cal_render_actor_shader(actor *act)
 	ELglVertexAttribPointerARB(8, 2, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
 		reinterpret_cast<void*>(6 * sizeof(float) + 8 * sizeof(Uint8)));
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
+
+	CHECK_GL_ERRORS();
 
 	if (act->is_enhanced_model)
 	{
@@ -392,8 +419,12 @@ extern "C" void cal_render_actor_shader(actor *act)
 		}
 	}
 
+	CHECK_GL_ERRORS();
+
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+	CHECK_GL_ERRORS();
 
 	ELglDisableVertexAttribArrayARB(0);
 	ELglDisableVertexAttribArrayARB(1);
@@ -401,9 +432,13 @@ extern "C" void cal_render_actor_shader(actor *act)
 	ELglDisableVertexAttribArrayARB(3);
 	ELglDisableVertexAttribArrayARB(8);
 
+	CHECK_GL_ERRORS();
+
 	glDisable(GL_VERTEX_PROGRAM_ARB);
 
 	glPopMatrix();
+
+	CHECK_GL_ERRORS();
 }
 
 static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_count,
@@ -550,6 +585,8 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 		}
 	}
 
+	CHECK_GL_ERRORS();
+
 	ELglGenBuffersARB(1, &a->vertex_buffer);
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, a->vertex_buffer);
 #ifdef	USE_BOOST
@@ -562,6 +599,8 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 
 	max_index = 0;
+
+	CHECK_GL_ERRORS();
 
 	for (i = 0; i < a->hardware_model->getHardwareMeshCount(); i++)
 	{
@@ -581,8 +620,12 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 		}
 	}
 
+	CHECK_GL_ERRORS();
+
 	ELglGenBuffersARB(1, &a->index_buffer);
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
+
+	CHECK_GL_ERRORS();
 
 	if (max_index <= std::numeric_limits<Uint16>::max())
 	{
@@ -633,7 +676,11 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 #endif	/* USE_BOOST */
 	}
 
+	CHECK_GL_ERRORS();
+
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+	CHECK_GL_ERRORS();
 }
 
 extern "C" void build_actor_bounding_box(actor_types* a)
