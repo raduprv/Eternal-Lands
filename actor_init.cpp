@@ -117,6 +117,9 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	{
 		a->hardware_model->selectHardwareMesh(index);
 
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Actor type name '%s'", a->actor_name);
+#endif
 		if (have_extension(ext_gpu_program_parameters))
 		{
 			set_transformation_ext(a, act, index);
@@ -127,20 +130,41 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		}
 
 		bone_id = -1;
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Checking for enganced model");
+#endif
 		if (act->is_enhanced_model)
 		{
-			if (act->body_parts->shield_meshindex == mesh_index)
+#ifdef	SHADER_EXTRA_DEBUG
+			log_info("Checking for shield");
+			log_info("cur_shield: %d", cur_shield);
+#endif
+			if (act->cur_shield >= 0)
 			{
-				bone_id = 21;
-				glow = a->shield[act->cur_shield].glow;
+				if (a->shield[act->cur_shield].mesh_index == mesh_index)
+				{
+					bone_id = 21;
+					glow = a->shield[act->cur_shield].glow;
+				}
 			}
-			if (a->weapon[act->cur_weapon].mesh_index == mesh_index)
+#ifdef	SHADER_EXTRA_DEBUG
+			log_info("Checking for weapon");
+			log_info("cur_weapon: %d", cur_weapon);
+#endif
+			if (act->cur_weapon >= 0)
 			{
-				bone_id = 26;
-				glow = a->weapon[act->cur_weapon].glow;
+				if (a->weapon[act->cur_weapon].mesh_index == mesh_index)
+				{
+					bone_id = 26;
+					glow = a->weapon[act->cur_weapon].glow;
+				}
 			}
 		}
 
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Checking for scale");
+		log_info("bone_id: %d", bone_id);
+#endif
 		if (bone_id != -1)
 		{
 			glPushMatrix();
@@ -158,6 +182,9 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 		element_index = a->hardware_model->getStartIndex() * a->index_size;
 
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Drawing mesh");
+#endif
 		glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3, a->index_type,
 			reinterpret_cast<void*>(element_index));
 
@@ -254,8 +281,14 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	zero_one[2] = 0.0f;
 	zero_one[3] = 1.0f;
 
+#ifdef	SHADER_EXTRA_DEBUG
+	log_info("Clearing lights");
+#endif
 	for (i = 0; i < 8; i++)
 	{
+#ifdef	SHADER_EXTRA_DEBUG
+		log_info("Clearing light %d", i);
+#endif
 		if (glIsEnabled(GL_LIGHT0 + i) == GL_FALSE)
 		{
 			glLightfv(GL_LIGHT0 + i, GL_POSITION, zero_one);
@@ -264,6 +297,9 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 			glLightfv(GL_LIGHT0 + i, GL_AMBIENT, zero);
 		}
 	}
+#ifdef	SHADER_EXTRA_DEBUG
+	log_info("Done Clearing lights");
+#endif
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
 }
