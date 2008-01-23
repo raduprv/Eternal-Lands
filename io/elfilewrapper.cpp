@@ -195,7 +195,14 @@ namespace eternal_lands
 		{
 			el_data_source file(strFilename);
 
-			return explicitIncRef(self->loadCoreAnimation(file).get());
+			CalCoreAnimation *core_animation = explicitIncRef(self->loadCoreAnimation(file).get());
+
+			if (core_animation)
+			{
+				core_animation->setFilename(strFilename);
+			}
+			
+			return core_animation;
 		}
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 	}
@@ -207,7 +214,14 @@ namespace eternal_lands
 		{
 			el_data_source file(strFilename);
 
-			return explicitIncRef(self->loadCoreMaterial(file).get());
+			CalCoreMaterial *core_material = explicitIncRef(self->loadCoreMaterial(file).get());
+
+			if (core_material)
+			{
+				core_material->setFilename(strFilename);
+			}
+			
+			return core_material;
 		}
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 	}
@@ -219,7 +233,14 @@ namespace eternal_lands
 		{
 			el_data_source file(strFilename);
 
-			return explicitIncRef(self->loadCoreMesh(file).get());
+			CalCoreMesh *core_mesh = explicitIncRef(self->loadCoreMesh(file).get());
+
+			if (core_mesh)
+			{
+				core_mesh->setFilename(strFilename);
+			}
+			
+			return core_mesh;
 		}
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 	}
@@ -243,14 +264,18 @@ namespace eternal_lands
 		{
 			el_data_source file(strFilename);
 
-			CalCoreAnimationPtr pCoreAnimation = CalLoader::loadCoreAnimation(file, self->getCoreSkeleton());
+			CalCoreAnimationPtr core_animation = CalLoader::loadCoreAnimation(file, self->getCoreSkeleton());
 
-			if(!pCoreAnimation)
+			if (!core_animation)
 			{
 				return -1;
 			}
+			else
+			{
+				core_animation->setFilename(strFilename);
+			}
 
-			return self->addCoreAnimation(pCoreAnimation.get());
+			return self->addCoreAnimation(core_animation.get());
 		}
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
 	}
@@ -262,14 +287,18 @@ namespace eternal_lands
 		{
 			el_data_source file(strFilename);
 
-			CalCoreMaterialPtr pCoreMaterial = CalLoader::loadCoreMaterial(file);
+			CalCoreMaterialPtr core_material = CalLoader::loadCoreMaterial(file);
 
-			if (!pCoreMaterial)
+			if (!core_material)
 			{
 				return -1;
 			}
+			else
+			{
+				core_material->setFilename(strFilename);
+			}
 
-			return self->addCoreMaterial(pCoreMaterial.get());
+			return self->addCoreMaterial(core_material.get());
 		}
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
 	}
@@ -281,14 +310,18 @@ namespace eternal_lands
 		{
 			el_data_source file(strFilename);
 
-			CalCoreMeshPtr pCoreMesh = CalLoader::loadCoreMesh(file);
+			CalCoreMeshPtr core_mesh = CalLoader::loadCoreMesh(file);
 
-			if (!pCoreMesh)
+			if (!core_mesh)
 			{
 				return -1;
 			}
+			else
+			{
+				core_mesh->setFilename(strFilename);
+			}
 
-			return self->addCoreMesh(pCoreMesh.get());
+			return self->addCoreMesh(core_mesh.get());
 		}
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(-1);
 	}
@@ -300,14 +333,14 @@ namespace eternal_lands
 		{
 			el_data_source file(strFilename);
 
-			CalCoreSkeletonPtr pCoreSkeleton = CalLoader::loadCoreSkeleton(file);
+			CalCoreSkeletonPtr core_skeleton = CalLoader::loadCoreSkeleton(file);
 
-			if (!pCoreSkeleton)
+			if (!core_skeleton)
 			{
 				return False;
 			}
 
-			self->setCoreSkeleton(pCoreSkeleton.get());
+			self->setCoreSkeleton(core_skeleton.get());
 
 			return True;
 		}
