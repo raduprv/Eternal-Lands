@@ -10,7 +10,6 @@ ATTRIB position = vertex.attrib[0];
 PARAM mvp[4] = { state.matrix.mvp };
 PARAM nm[4] = { state.matrix.modelview.invtrans };
 PARAM modelview[4] = { state.matrix.modelview };
-PARAM scenecolor = state.lightmodel.scenecolor;
 PARAM diffuse_0 = state.lightprod[0].diffuse;
 PARAM diffuse_1 = state.lightprod[1].diffuse;
 PARAM diffuse_2 = state.lightprod[2].diffuse;
@@ -134,8 +133,7 @@ DP3 R4.x, R1.xyzx, R5.xyzx;
 MAX R1.x, R4.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-ADD R7, ambient, scenecolor;
-MAD R7, R1.xxxx, diffuse_0, R7;
+MAD R7, R1.xxxx, diffuse_0, ambient;
 
 MAD R1.xyz, R0.xyzx, -light_position_1.w, light_position_1.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;

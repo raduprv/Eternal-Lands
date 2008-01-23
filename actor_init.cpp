@@ -274,6 +274,8 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 			glLightfv(GL_LIGHT0 + i, GL_SPECULAR, zero);
 			glLightfv(GL_LIGHT0 + i, GL_AMBIENT, zero);
 		}
+		glLightf(GL_LIGHT0 + i, GL_CONSTANT_ATTENUATION, 1.0f);
+		glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, 0.0f);
 	}
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
