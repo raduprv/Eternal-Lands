@@ -385,8 +385,8 @@ void draw_3d_object_shadows(unsigned int object_type)
 
 void display_shadows()
 {	
-	glEnable(GL_POLYGON_OFFSET_FILL);
-	glPolygonOffset(1.1f, 4.0f);
+//	glEnable(GL_POLYGON_OFFSET_FILL);
+//	glPolygonOffset(1.1f, 4.0f);
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 
@@ -410,7 +410,7 @@ void display_shadows()
 	display_actors(0, DEPTH_RENDER_PASS);
 	glEnable(GL_TEXTURE_2D);
 #endif
-	glDisable(GL_POLYGON_OFFSET_FILL);
+//	glDisable(GL_POLYGON_OFFSET_FILL);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -547,6 +547,7 @@ void render_light_view()
 
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
+			glCullFace(GL_FRONT);
 #ifndef MAP_EDITOR2
 			if (weather_use_fog()) glDisable(GL_FOG);
 #endif
@@ -572,6 +573,7 @@ void render_light_view()
 				glClear(GL_DEPTH_BUFFER_BIT);
 			}
 
+			glCullFace(GL_BACK);
 			CHECK_GL_ERRORS();
 			glMatrixMode(GL_PROJECTION);
 			glPopMatrix();

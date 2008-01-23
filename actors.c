@@ -751,15 +751,6 @@ void display_actors(int banner, int render_pass)
 
 #ifdef	ACTOR_FACE_CULLING
 	glEnable(GL_CULL_FACE);
-
-	if (render_pass == DEPTH_RENDER_PASS)
-	{
-		glCullFace(GL_FRONT);
-	}
-	else
-	{
-		glCullFace(GL_BACK);
-	}
 #endif	// ACTOR_FACE_CULLING
 
 	if (use_animation_program)
@@ -816,7 +807,6 @@ void display_actors(int banner, int render_pass)
 		}
 	}
 #ifdef	ACTOR_FACE_CULLING
-	glCullFace(GL_BACK);
 	glDisable(GL_CULL_FACE);
 #endif	// ACTOR_FACE_CULLING
 	if (has_ghosts)

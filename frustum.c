@@ -231,8 +231,119 @@ static __inline__ void calc_plane(VECTOR4 plane, const VECTOR3 p1, const VECTOR3
 
 void enable_reflection_clip_planes()
 {
-	glEnable(GL_CLIP_PLANE0);
-	glClipPlane(GL_CLIP_PLANE0, reflection_clip_planes[0]);
+	MATRIX4x4 proj;
+	MATRIX4x4 modl;
+	MATRIX4x4 clip;
+	MATRIX4x4 inv;
+	MATRIX4x4 suffix;
+	MATRIX4x4 new_proj;
+	VECTOR4 oplane;
+	VECTOR4 cplane;
+	float tmp;
+	int i, j;
+
+	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
+	glGetFloatv(GL_PROJECTION_MATRIX, proj);
+	
+	clip[ 0] = modl[ 0] * proj[ 0] + modl[ 1] * proj[ 4] + modl[ 2] * proj[ 8] + modl[ 3] * proj[12];
+	clip[ 1] = modl[ 0] * proj[ 1] + modl[ 1] * proj[ 5] + modl[ 2] * proj[ 9] + modl[ 3] * proj[13];
+	clip[ 2] = modl[ 0] * proj[ 2] + modl[ 1] * proj[ 6] + modl[ 2] * proj[10] + modl[ 3] * proj[14];
+	clip[ 3] = modl[ 0] * proj[ 3] + modl[ 1] * proj[ 7] + modl[ 2] * proj[11] + modl[ 3] * proj[15];
+
+	clip[ 4] = modl[ 4] * proj[ 0] + modl[ 5] * proj[ 4] + modl[ 6] * proj[ 8] + modl[ 7] * proj[12];
+	clip[ 5] = modl[ 4] * proj[ 1] + modl[ 5] * proj[ 5] + modl[ 6] * proj[ 9] + modl[ 7] * proj[13];
+	clip[ 6] = modl[ 4] * proj[ 2] + modl[ 5] * proj[ 6] + modl[ 6] * proj[10] + modl[ 7] * proj[14];
+	clip[ 7] = modl[ 4] * proj[ 3] + modl[ 5] * proj[ 7] + modl[ 6] * proj[11] + modl[ 7] * proj[15];
+
+	clip[ 8] = modl[ 8] * proj[ 0] + modl[ 9] * proj[ 4] + modl[10] * proj[ 8] + modl[11] * proj[12];
+	clip[ 9] = modl[ 8] * proj[ 1] + modl[ 9] * proj[ 5] + modl[10] * proj[ 9] + modl[11] * proj[13];
+	clip[10] = modl[ 8] * proj[ 2] + modl[ 9] * proj[ 6] + modl[10] * proj[10] + modl[11] * proj[14];
+	clip[11] = modl[ 8] * proj[ 3] + modl[ 9] * proj[ 7] + modl[10] * proj[11] + modl[11] * proj[15];
+
+	clip[12] = modl[12] * proj[ 0] + modl[13] * proj[ 4] + modl[14] * proj[ 8] + modl[15] * proj[12];
+	clip[13] = modl[12] * proj[ 1] + modl[13] * proj[ 5] + modl[14] * proj[ 9] + modl[15] * proj[13];
+	clip[14] = modl[12] * proj[ 2] + modl[13] * proj[ 6] + modl[14] * proj[10] + modl[15] * proj[14];
+	clip[15] = modl[12] * proj[ 3] + modl[13] * proj[ 7] + modl[14] * proj[11] + modl[15] * proj[15];
+
+	VMInvert(inv, clip);
+
+	for (i = 0; i < 4; i++)
+	{
+		oplane[i] = reflection_clip_planes[0][i];
+	}
+
+	cplane[ 0] = oplane[ 0] * inv[ 0] + oplane[ 1] * inv[ 4] + oplane[ 2] * inv[ 8] + oplane[ 3] * inv[12];
+	cplane[ 1] = oplane[ 0] * inv[ 1] + oplane[ 1] * inv[ 5] + oplane[ 2] * inv[ 9] + oplane[ 3] * inv[13];
+	cplane[ 2] = oplane[ 0] * inv[ 2] + oplane[ 1] * inv[ 6] + oplane[ 2] * inv[10] + oplane[ 3] * inv[14];
+	cplane[ 3] = oplane[ 0] * inv[ 3] + oplane[ 1] * inv[ 7] + oplane[ 2] * inv[11] + oplane[ 3] * inv[15];
+
+	tmp = abs((int)cplane[2]); // normalize such that depth is not scaled
+
+	cplane[0] /= tmp;
+	cplane[1] /= tmp;
+	cplane[2] /= tmp;
+	cplane[3] /= tmp;
+
+	cplane[3] -= 1.0f;
+
+	if (cplane[2] < 0.0f)
+	{
+		cplane[0] *= -1.0f;
+		cplane[1] *= -1.0f;
+		cplane[2] *= -1.0f;
+		cplane[3] *= -1.0f;
+	}
+
+	suffix[ 0] = 1.0f;
+	suffix[ 1] = 0.0f;
+	suffix[ 2] = 0.0f;
+	suffix[ 3] = 0.0f;
+
+	suffix[ 4] = 0.0f;
+	suffix[ 5] = 1.0f;
+	suffix[ 6] = 0.0f;
+	suffix[ 7] = 0.0f;
+
+	suffix[ 8] = 0.0f;
+	suffix[ 9] = 0.0f;
+	suffix[10] = 1.0f;
+	suffix[11] = 0.0f;
+
+	suffix[12] = 0.0f;
+	suffix[13] = 0.0f;
+	suffix[14] = 0.0f;
+	suffix[15] = 1.0f;
+
+	suffix[ 2] = cplane[0];
+	suffix[ 6] = cplane[1];
+	suffix[10] = cplane[2];
+	suffix[14] = cplane[3];
+
+	new_proj[ 0] = proj[ 0] * suffix[ 0] + proj[ 1] * suffix[ 4] + proj[ 2] * suffix[ 8] + proj[ 3] * suffix[12];
+	new_proj[ 1] = proj[ 0] * suffix[ 1] + proj[ 1] * suffix[ 5] + proj[ 2] * suffix[ 9] + proj[ 3] * suffix[13];
+	new_proj[ 2] = proj[ 0] * suffix[ 2] + proj[ 1] * suffix[ 6] + proj[ 2] * suffix[10] + proj[ 3] * suffix[14];
+	new_proj[ 3] = proj[ 0] * suffix[ 3] + proj[ 1] * suffix[ 7] + proj[ 2] * suffix[11] + proj[ 3] * suffix[15];
+
+	new_proj[ 4] = proj[ 4] * suffix[ 0] + proj[ 5] * suffix[ 4] + proj[ 6] * suffix[ 8] + proj[ 7] * suffix[12];
+	new_proj[ 5] = proj[ 4] * suffix[ 1] + proj[ 5] * suffix[ 5] + proj[ 6] * suffix[ 9] + proj[ 7] * suffix[13];
+	new_proj[ 6] = proj[ 4] * suffix[ 2] + proj[ 5] * suffix[ 6] + proj[ 6] * suffix[10] + proj[ 7] * suffix[14];
+	new_proj[ 7] = proj[ 4] * suffix[ 3] + proj[ 5] * suffix[ 7] + proj[ 6] * suffix[11] + proj[ 7] * suffix[15];
+
+	new_proj[ 8] = proj[ 8] * suffix[ 0] + proj[ 9] * suffix[ 4] + proj[10] * suffix[ 8] + proj[11] * suffix[12];
+	new_proj[ 9] = proj[ 8] * suffix[ 1] + proj[ 9] * suffix[ 5] + proj[10] * suffix[ 9] + proj[11] * suffix[13];
+	new_proj[10] = proj[ 8] * suffix[ 2] + proj[ 9] * suffix[ 6] + proj[10] * suffix[10] + proj[11] * suffix[14];
+	new_proj[11] = proj[ 8] * suffix[ 3] + proj[ 9] * suffix[ 7] + proj[10] * suffix[11] + proj[11] * suffix[15];
+
+	new_proj[12] = proj[12] * suffix[ 0] + proj[13] * suffix[ 4] + proj[14] * suffix[ 8] + proj[15] * suffix[12];
+	new_proj[13] = proj[12] * suffix[ 1] + proj[13] * suffix[ 5] + proj[14] * suffix[ 9] + proj[15] * suffix[13];
+	new_proj[14] = proj[12] * suffix[ 2] + proj[13] * suffix[ 6] + proj[14] * suffix[10] + proj[15] * suffix[14];
+	new_proj[15] = proj[12] * suffix[ 3] + proj[13] * suffix[ 7] + proj[14] * suffix[11] + proj[15] * suffix[15];
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadMatrixf(new_proj);
+	glMatrixMode(GL_MODELVIEW);
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -240,7 +351,9 @@ CHECK_GL_ERRORS();
 
 void disable_reflection_clip_planes()
 {
-	glDisable(GL_CLIP_PLANE0);
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
