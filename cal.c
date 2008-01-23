@@ -1,5 +1,6 @@
 #include <stdlib.h>
 #include "actors.h"
+#include "actor_init.h"
 #include "cal.h"
 #include "draw_scene.h"
 #include "errors.h"

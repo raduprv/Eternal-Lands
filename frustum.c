@@ -240,7 +240,7 @@ void enable_reflection_clip_planes()
 	VECTOR4 oplane;
 	VECTOR4 cplane;
 	float tmp;
-	int i, j;
+	int i;
 
 	glGetFloatv(GL_MODELVIEW_MATRIX, modl);
 	glGetFloatv(GL_PROJECTION_MATRIX, proj);
