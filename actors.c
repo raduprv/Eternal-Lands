@@ -655,7 +655,7 @@ CHECK_GL_ERRORS();
 
 void get_actors_in_range()
 {
-	float x_pos, y_pos, z_pos;
+	VECTOR3 pos;
 	unsigned int i;
 #ifdef NEW_SOUND
 	unsigned int tmp_nr_enh_act;		// Use temp variables to stop crowd sound interference during count
@@ -685,20 +685,20 @@ void get_actors_in_range()
 		)
 		{
 			if (!actors_list[i]->tmp.have_tmp) continue;
-			x_pos = actors_list[i]->tmp.x_pos;
-			y_pos = actors_list[i]->tmp.y_pos;
-			z_pos = actors_list[i]->tmp.z_pos;
-			if (z_pos == 0.0f)//actor is walking, as opposed to flying, get the height underneath
-				z_pos=-2.2f+height_map[actors_list[i]->tmp.y_tile_pos*tile_map_size_x*6+actors_list[i]->tmp.x_tile_pos]*0.2f;
+			pos[X] = actors_list[i]->tmp.x_pos;
+			pos[Y] = actors_list[i]->tmp.y_pos;
+			pos[Z] = actors_list[i]->tmp.z_pos;
+			if (pos[Z] == 0.0f)
+			{
+				//actor is walking, as opposed to flying, get the height underneath
+				pos[Z] = -2.2f + height_map[actors_list[i]->tmp.y_tile_pos * 
+					tile_map_size_x * 6 + actors_list[i]->tmp.x_tile_pos] * 0.2f;
+			}
 
 			if (actors_list[i]->calmodel == NULL) continue;
-			memcpy(&bbox, &actors_defs[actors_list[i]->actor_type].bbox, sizeof(AABBOX));
-			bbox.bbmin[0] += x_pos;
-			bbox.bbmin[1] += y_pos;
-			bbox.bbmin[2] += z_pos;
-			bbox.bbmax[0] += x_pos;
-			bbox.bbmax[1] += y_pos;
-			bbox.bbmax[2] += z_pos;
+
+			VAdd(bbox.bbmin, actors_list[i]->bbox.bbmin, pos);
+			VAdd(bbox.bbmax, actors_list[i]->bbox.bbmax, pos);
 
 			if (aabb_in_frustum(bbox))
 			{
@@ -707,14 +707,8 @@ void get_actors_in_range()
 				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
 				near_actors[no_near_actors].select = 0;
 
-				if (actors_list[i]->is_enhanced_model)
-				{
-					actors_list[i]->max_z = cal_get_maxz(actors_list[i]);
-				}
-				else
-				{
-					actors_list[i]->max_z = bbox.bbmax[2] - z_pos - 0.5f;
-				}
+				actors_list[i]->max_z = actors_list[i]->bbox.bbmax[Z];
+
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 				{
 					if (click_line_bbox_intersection(bbox))
@@ -1050,6 +1044,7 @@ void add_actor_from_server (const char *in_data, int len)
 				actors_list[i]->stop_animation=1;
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			} else CalModel_Update(actors_list[i]->calmodel,0);
+			build_actor_bounding_box(actors_list[i]);
 			actors_list[i]->cur_anim.anim_index=-1;
 			actors_list[i]->cur_anim_sound_cookie=0;
 			actors_list[i]->IsOnIdle=0;

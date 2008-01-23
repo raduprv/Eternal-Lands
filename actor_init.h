@@ -15,8 +15,7 @@ extern Uint32 use_animation_program;
 
 int load_vertex_programs();
 void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh);
-void build_actor_bounding_box(actor_types* a);
-float cal_get_maxz(actor *act);
+void build_actor_bounding_box(actor* a);
 
 struct CalModel *model_new(struct CalCoreModel* pCoreModel);
 void model_delete(struct CalModel *self);

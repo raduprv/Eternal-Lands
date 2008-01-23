@@ -343,7 +343,6 @@ typedef struct
 	GLuint index_buffer;
 	GLenum index_type;
 	Uint32 index_size;
-	AABBOX bbox;
 	//Animation indexes
 	struct cal_anim_group idle_group[16];//16 animation groups
 	int group_count;
@@ -454,6 +453,7 @@ typedef struct
 	int IsOnIdle;
 	float anim_time;
 	Uint32	last_anim_update;
+	AABBOX bbox;
 
 #ifdef MISSILES
 	/*! \name Range mode parameters */

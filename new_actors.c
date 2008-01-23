@@ -1118,7 +1118,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 				actors_list[i]->stop_animation=1;
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			} else  CalModel_Update(actors_list[i]->calmodel,0);
-
+			build_actor_bounding_box(actors_list[i]);
 #ifdef EYE_CANDY
 			switch (weapon)
 			{
@@ -1243,6 +1243,7 @@ actor * add_actor_interface(float x, float y, float z_rot, float scale, int acto
 			a->anim_time=0.0;
 			a->last_anim_update= cur_time;
 			CalModel_Update(a->calmodel,0);
+			build_actor_bounding_box(a);
 		}
 	} else a->calmodel=NULL;
 	

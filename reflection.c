@@ -266,7 +266,7 @@ static __inline__ int adapt_size(int size)
 
 	size = min2i(size, i);
 	
-	if (have_extension(arb_texture_non_power_of_two))
+	if (have_extension(arb_texture_non_power_of_two) || supports_gl_version(2, 0))
 	{
 		return size;
 	}
