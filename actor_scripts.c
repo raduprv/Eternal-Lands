@@ -707,11 +707,6 @@ void next_command()
 				float targeted_z_rot;
 				int k;
 
-#ifdef MISSILES
-				float range_rotation;
-#endif // MISSILES
-
-
 				actors_list[i]->sit_idle=0;
 				actors_list[i]->stand_idle=0;
 
@@ -937,6 +932,8 @@ void next_command()
 						actors_list[i]->cal_v_rot_start = 0.0;
 					}
 					else {
+                        float range_rotation;
+
 						missiles_log_message("actor %d is aiming again", actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
 						actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
@@ -1003,7 +1000,7 @@ void next_command()
 					else {
 						missiles_log_message("actor %d fires and leave aim mode", i);
 						// launch fire and leave aim mode animation
-						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_out_frame);
 						actors_list[i]->in_aim_mode = 0;
 					}
 					

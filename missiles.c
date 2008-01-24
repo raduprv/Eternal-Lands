@@ -58,7 +58,7 @@ void missiles_open_log()
 
 	safe_snprintf(log_name, 1024, "%smissiles_log.txt", configdir);
 
-	missiles_log = fopen(log_name, "a");
+	missiles_log = fopen(log_name, "w");
 
 	if (missiles_log == NULL)
 	{
