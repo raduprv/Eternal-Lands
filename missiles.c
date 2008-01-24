@@ -6,6 +6,7 @@
 #include "cal.h"
 #include "cal3d_wrapper.h"
 #include "e3d.h"
+#include "errors.h"
 #include "gl_init.h"
 #include "init.h"
 #include "missiles.h"
@@ -13,7 +14,6 @@
 #include "tiles.h"
 #include "vmath.h"
 
-#include <assert.h>
 #include <math.h>
 #include <stdarg.h>
 #include <stdio.h>
@@ -48,6 +48,7 @@ unsigned int missiles_count = 0;
 int begin_lost_missiles = -1;
 int end_lost_missiles = -1;
 
+#ifdef DEBUG
 FILE *missiles_log = NULL;
 
 void missiles_open_log()
@@ -98,6 +99,7 @@ void missiles_log_message(const char *format, ...)
 	fprintf(missiles_log, logmsg);
   	fflush (missiles_log);
 }
+#endif // DEBUG
 
 void missiles_clear()
 {
@@ -114,26 +116,38 @@ unsigned int missiles_add(MissileType type,
 						  MissileHitType hit_type)
 {
 	Missile *mis;
+	float direction[3];
+	float dist;
 	
-	assert(missiles_count < MAX_MISSILES);
+	if (missiles_count >= MAX_MISSILES) {
+		log_error("missiles_add: too many missiles, can't add the last one!");
+		return MAX_MISSILES;
+	}
 
-#ifdef DEBUG
 	missiles_log_message("add_missile: origin=(%.2f,%.2f,%.2f), target=(%.2f,%.2f,%.2f)",
 						 origin[0], origin[1], origin[2], target[0], target[1], target[2]);
-#endif // DEBUG
+	
+	direction[0] = target[0] - origin[0];
+	direction[1] = target[1] - origin[1];
+	direction[2] = target[2] - origin[2];
+	dist = sqrt(direction[0]*direction[0] +
+				direction[1]*direction[1] +
+				direction[2]*direction[2]);
+
+	if (fabs(dist) < EPSILON) {
+		log_error("missiles_add: null length shot detected between (%f,%f,%f) and (%f,%f,%f), not adding the missile!",
+				  origin[0], origin[1], origin[2],
+				  target[0], target[1], target[2]);
+		return MAX_MISSILES;
+	}
 	
 	mis = &missiles_list[missiles_count++];
 
 	mis->type = type;
 	mis->hit_type = hit_type;
 	memcpy(mis->position, origin, sizeof(float)*3);
-	mis->direction[0] = target[0] - origin[0];
-	mis->direction[1] = target[1] - origin[1];
-	mis->direction[2] = target[2] - origin[2];
-	mis->remaining_distance = sqrt(mis->direction[0]*mis->direction[0] +
-								   mis->direction[1]*mis->direction[1] +
-								   mis->direction[2]*mis->direction[2]);
-	assert(fabs(mis->remaining_distance) > EPSILON);
+	memcpy(mis->direction, direction, sizeof(float)*3);
+	mis->remaining_distance = dist;
 	mis->direction[0] /= mis->remaining_distance;
 	mis->direction[1] /= mis->remaining_distance;
 	mis->direction[2] /= mis->remaining_distance;
@@ -164,7 +178,11 @@ void missiles_add_lost(int obj_id)
 void missiles_remove(unsigned int missile_id)
 {
 	Missile *mis;
-	assert(missile_id < missiles_count);
+
+	if (missile_id >= missiles_count) {
+		log_error("missiles_remove: missile id %u is out of range!", missile_id);
+		return;
+	}
 
 	mis = &missiles_list[missile_id];
 	if (mis->hit_type == MISSED_HIT &&
@@ -404,11 +422,9 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 			actor_rotation = ((int)(actor_rotation+22.5) / 45) * 45.0;
 	}
 
-#ifdef DEBUG
 	missiles_log_message("cos = %f ; sin = %f", cz, sz);
 	missiles_log_message("direction = %f %f %f", tmp[0], tmp[1], tmp[2]);
 	missiles_log_message("actor rotation = %f", actor_rotation);
-#endif // DEBUG
 
 	// we then compute the fine rotation
 	cz = cosf((act_z_rot + actor_rotation) * M_PI/180.0);
@@ -470,7 +486,7 @@ unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_t
 
 	default:
 		shift[1] = 0.0;
-		missiles_log_message("fire_arrow: %d is an unknown range weapon type, unable to determine precisely the position of the arrow", a->range_weapon_type);
+		log_error("fire_arrow: %d is an unknown range weapon type, unable to determine precisely the position of the arrow", a->range_weapon_type);
 		break;
 	}
 
@@ -512,9 +528,7 @@ void missiles_rotate_actor_bones(actor *a)
 			a->cal_rotation_blend = -1.0; // stop rotating bones every frames
 			a->cal_h_rot_start = 0.0;
 			a->cal_v_rot_start = 0.0;
-#ifdef DEBUG
 			missiles_log_message("stopping bones rotation");
-#endif // DEBUG
 		}
 		else
 			a->cal_rotation_blend = 1.0;
@@ -619,11 +633,11 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	act2 = get_actor_ptr_from_id(actor2_id);
 
 	if (!act1) {
-		missiles_log_message("missiles_aim_at_b: the actor %d does not exists!", actor1_id);
+		log_error("missiles_aim_at_b: the actor %d does not exists!", actor1_id);
 		return;
 	}
 	if (!act2) {
-		missiles_log_message("missiles_aim_at_b: the actor %d does not exists!", actor2_id);
+		log_error("missiles_aim_at_b: the actor %d does not exists!", actor2_id);
 		return;
 	}
 
@@ -646,7 +660,7 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 	act = get_actor_ptr_from_id(actor_id);
 
 	if (!act) {
-		missiles_log_message("missiles_aim_at_xyz: the actor %d does not exists!", actor_id);
+		log_error("missiles_aim_at_xyz: the actor %d does not exists!", actor_id);
 		return;
 	}
 
@@ -668,11 +682,11 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
 	if (!act1) {
-		missiles_log_message("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
+		log_error("missiles_fire_a_to_b: the actor %d does not exists!", actor1_id);
 		return;
 	}
 	if (!act2) {
-		missiles_log_message("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
+		log_error("missiles_fire_a_to_b: the actor %d does not exists!", actor2_id);
 		return;
 	}
 
@@ -698,7 +712,7 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 	act = get_actor_ptr_from_id(actor_id);
 
 	if (!act) {
-		missiles_log_message("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
+		log_error("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
 		return;
 	}
 
@@ -720,7 +734,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	act = get_actor_ptr_from_id(actor_id);
 
 	if (!act) {
-		missiles_log_message("missiles_fire_xyz_to_b: the actor %d does not exists!", actor_id);
+		log_error("missiles_fire_xyz_to_b: the actor %d does not exists!", actor_id);
 		return;
 	}
 

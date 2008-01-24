@@ -29,7 +29,16 @@ typedef struct
 	float remaining_distance; /*!< The remaining distance to cover */
 } Missile;
 
+#ifdef DEBUG
+/*!
+ * \brief Log a message in the file config_dir/missiles_log.txt
+ * \param format the format of the message to log (same options than printf)
+ * \param ... data corresponding to the format
+ */
 void missiles_log_message(const char *format, ...);
+#else // DEBUG
+#define missiles_log_message(format, ...)
+#endif // DEBUG
 
 /*!
  * \brief Removes all the missiles
