@@ -469,7 +469,7 @@ typedef struct
 	char reload;              /*!< To tell if the char must reload his bow after the next fire */
 	float range_target[3];/*!< Position of the target to aim/fire at */
 	int range_weapon_type;    /*!< The type of the equipped range weapon */
-	int hit_type;             /*!< The type of the hit (normal, missed...) */
+	int shot_type;            /*!< The type of the shot (normal, missed...) */
 	/*! \} */
 #endif // MISSILES
 

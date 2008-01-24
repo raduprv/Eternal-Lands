@@ -930,6 +930,8 @@ void next_command()
 
 						actors_list[i]->cal_h_rot_start = 0.0;
 						actors_list[i]->cal_v_rot_start = 0.0;
+						actors_list[i]->reload = 0;
+						actors_list[i]->shot_type = NORMAL_SHOT;
 					}
 					else {
                         float range_rotation;
@@ -966,6 +968,8 @@ void next_command()
 					break;
 
 				case leave_aim_mode:
+					if (!actors_list[i]->in_aim_mode) break;
+
 					missiles_log_message("actor %d is leaving aim mode", actors_list[i]->actor_id);
 					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
 					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
@@ -991,6 +995,11 @@ void next_command()
 					break;
 
 				case aim_mode_fire:
+					if (!actors_list[i]->in_aim_mode) {
+						log_error("next_command: trying to fire an arrow out of range mode => aborting!");
+						break;
+					}
+
 					if (actors_list[i]->reload) {
 						missiles_log_message("actor %d fires and reload", actors_list[i]->actor_id);
 						// launch fire and reload animation
@@ -1020,18 +1029,18 @@ void next_command()
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
-					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target, actors_list[i]->hit_type);
-					actors_list[i]->hit_type = NORMAL_HIT;
+					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target, actors_list[i]->shot_type);
+					actors_list[i]->shot_type = NORMAL_SHOT;
 					break;
 
 				case missile_miss:
 					missiles_log_message("actor %d will miss his target", actors_list[i]->actor_id);
-					actors_list[i]->hit_type = MISSED_HIT;
+					actors_list[i]->shot_type = MISSED_SHOT;
 					break;
 
 				case missile_critical:
 					missiles_log_message("actor %d will do a critical hit", actors_list[i]->actor_id);
-					actors_list[i]->hit_type = CRITICAL_HIT;
+					actors_list[i]->shot_type = CRITICAL_SHOT;
 					break;
 
 				case unwear_bow:

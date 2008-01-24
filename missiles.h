@@ -11,7 +11,7 @@ extern "C" {
 #endif
 
 typedef enum {MISSILE_ARROW} MissileType;
-typedef enum {MISSED_HIT, NORMAL_HIT, CRITICAL_HIT} MissileHitType;
+typedef enum {MISSED_SHOT, NORMAL_SHOT, CRITICAL_SHOT} MissileShotType;
 typedef enum {RANGE_WEAPON_BOW, RANGE_WEAPON_CROSSBOW} RangeWeaponType;
 
 /*!
@@ -20,7 +20,7 @@ typedef enum {RANGE_WEAPON_BOW, RANGE_WEAPON_CROSSBOW} RangeWeaponType;
 typedef struct
 {
 	MissileType type;         /*!< The type of the missile */
-	MissileHitType hit_type;  /*!< Specifies the type of the hit (normal, missed...) */
+	MissileShotType shot_type; /*!< Specifies the type of the shot (normal, missed...) */
 	float position[3];        /*!< The position of the missile */
 	float direction[3];       /*!< The direction of the missile */
 	float speed;              /*!< The speed of the missile */
@@ -52,7 +52,7 @@ void missiles_clear();
  * \param target the target of the missile
  * \param speed the speed of the missile
  * \param shift allows to tune if the missile should stop before or after the target
- * \param miss_target tells if the missile will miss its target (will be drawn diferently)
+ * \param shot_type tells if the shot is missed, normal or critical (will be drawn diferently)
  */
 unsigned int missiles_add(MissileType type,
 						  float origin[3],
@@ -60,7 +60,7 @@ unsigned int missiles_add(MissileType type,
 						  float speed,
 						  float trace_length,
 						  float shift,
-						  MissileHitType hit_type);
+						  MissileShotType shot_type);
 
 /*!
  * \brief Computes the next position for all missiles
@@ -76,9 +76,9 @@ void missiles_draw();
  * \brief Adds a new arrow (calls add_missile)
  * \param a the actor throwing the arrow
  * \param target the target
- * \param miss_target tells if the target is missed
+ * \param shot_type the type of the shot (normal, missed, critical)
  */
-unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_type);
+unsigned int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot_type);
 
 /*!
  * \brief Computes the rotations to apply to a char when aiming something

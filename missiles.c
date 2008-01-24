@@ -113,7 +113,7 @@ unsigned int missiles_add(MissileType type,
 						  float speed,
 						  float trace_length,
 						  float shift,
-						  MissileHitType hit_type)
+						  MissileShotType shot_type)
 {
 	Missile *mis;
 	float direction[3];
@@ -130,9 +130,9 @@ unsigned int missiles_add(MissileType type,
 	direction[0] = target[0] - origin[0];
 	direction[1] = target[1] - origin[1];
 	direction[2] = target[2] - origin[2];
-	dist = sqrt(direction[0]*direction[0] +
-				direction[1]*direction[1] +
-				direction[2]*direction[2]);
+	dist = sqrtf(direction[0]*direction[0] +
+				 direction[1]*direction[1] +
+				 direction[2]*direction[2]);
 
 	if (fabs(dist) < EPSILON) {
 		log_error("missiles_add: null length shot detected between (%f,%f,%f) and (%f,%f,%f), not adding the missile!",
@@ -144,7 +144,7 @@ unsigned int missiles_add(MissileType type,
 	mis = &missiles_list[missiles_count++];
 
 	mis->type = type;
-	mis->hit_type = hit_type;
+	mis->shot_type = shot_type;
 	memcpy(mis->position, origin, sizeof(float)*3);
 	memcpy(mis->direction, direction, sizeof(float)*3);
 	mis->remaining_distance = dist;
@@ -185,7 +185,7 @@ void missiles_remove(unsigned int missile_id)
 	}
 
 	mis = &missiles_list[missile_id];
-	if (mis->hit_type == MISSED_HIT &&
+	if (mis->shot_type == MISSED_SHOT &&
 		mis->covered_distance < 30.0) {
 		float y_rot = -asinf(mis->direction[2]);
 		float z_rot = atan2f(mis->direction[1], mis->direction[0]);
@@ -299,7 +299,7 @@ void missiles_draw_single(Missile *mis, const float color[4])
 {
 	float z_shift = 0.0;
 
-/* 	if (mis->hit_type == MISSED_HIT) */
+/* 	if (mis->shot_type == MISSED_SHOT) */
 /* 		z_shift = cosf(mis->covered_distance*M_PI/2.0)/10.0; */
 
 	switch (mis->type) {
@@ -345,7 +345,7 @@ void missiles_draw()
 	glLineWidth(7.0);
 	glBegin(GL_LINES);
 	for (i = missiles_count; i--;) {
-		if (missiles_list[i].hit_type == CRITICAL_HIT)
+		if (missiles_list[i].shot_type == CRITICAL_SHOT)
 			missiles_draw_single(&missiles_list[i], critical_border2_color);
 	}
 	glEnd();
@@ -353,9 +353,9 @@ void missiles_draw()
 	glLineWidth(3.0);
 	glBegin(GL_LINES);
 	for (i = missiles_count; i--;) {
-		if (missiles_list[i].hit_type == NORMAL_HIT)
+		if (missiles_list[i].shot_type == NORMAL_SHOT)
 			missiles_draw_single(&missiles_list[i], arrow_border_color);
-		else if (missiles_list[i].hit_type == CRITICAL_HIT)
+		else if (missiles_list[i].shot_type == CRITICAL_SHOT)
 			missiles_draw_single(&missiles_list[i], critical_border1_color);
 	}
 	glEnd();
@@ -363,9 +363,9 @@ void missiles_draw()
 	glLineWidth(1.0);
 	glBegin(GL_LINES);
 	for (i = missiles_count; i--;) {
-		if (missiles_list[i].hit_type == NORMAL_HIT)
+		if (missiles_list[i].shot_type == NORMAL_SHOT)
 			missiles_draw_single(&missiles_list[i], arrow_color);
-		else if (missiles_list[i].hit_type == CRITICAL_HIT)
+		else if (missiles_list[i].shot_type == CRITICAL_SHOT)
 			missiles_draw_single(&missiles_list[i], critical_color);
 	}
 	glEnd();
@@ -375,7 +375,7 @@ void missiles_draw()
 	glEnable(GL_LINE_STIPPLE);
 	glBegin(GL_LINES);
 	for (i = missiles_count; i--;)
-		if (missiles_list[i].hit_type == MISSED_HIT)
+		if (missiles_list[i].shot_type == MISSED_SHOT)
 			missiles_draw_single(&missiles_list[i], miss_color);
 	glEnd();
 	glDisable(GL_LINE_STIPPLE);
@@ -459,7 +459,7 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	to[1] = in_target[2] - origin[2];
 	Normalize(to, to);
 	VCross(tmp, from, to);
-	*out_v_rot = asinf(sqrt(tmp[0]*tmp[0] + tmp[1]*tmp[1] + tmp[2]*tmp[2]));
+	*out_v_rot = asinf(sqrtf(tmp[0]*tmp[0] + tmp[1]*tmp[1] + tmp[2]*tmp[2]));
 	if (to[1] < from[1]) *out_v_rot = -*out_v_rot;
 
 	missiles_log_message("vertical rotation: from=(%.2f,%.2f,%.2f), to=(%.2f,%.2f,%.2f), v_rot=%f",
@@ -468,7 +468,7 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	return actor_rotation;
 }
 
-unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_type)
+unsigned int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot_type)
 {
 	unsigned int mis_id;
 	float origin[3];
@@ -492,10 +492,10 @@ unsigned int missiles_fire_arrow(actor *a, float target[3], MissileHitType hit_t
 
 	cal_get_actor_bone_absolute_position(a, get_actor_bone_id(a, arrow_bone), shift, origin);
 	
-/* 	if (hit_type != MISSED_HIT) */
-		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, hit_type);
+/* 	if (shot_type != MISSED_SHOT) */
+		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, shot_type);
 /* 	else */
-/* 		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, hit_type); */
+/* 		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, shot_type); */
 	
 	return mis_id;
 }
