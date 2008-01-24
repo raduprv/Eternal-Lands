@@ -1,3 +1,4 @@
+#include <limits>
 #include "actor_init.h"
 #include "load_gl_extensions.h"
 #include <cal3d/cal3d.h>
@@ -179,7 +180,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	}
 }
 
-typedef struct ActorVertex
+struct ActorVertex
 {
 	float m_vertex[3];
 	Uint8 m_weight[4];
