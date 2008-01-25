@@ -570,6 +570,18 @@ void draw_global_light()
 #endif
 #endif
 
+	for (i = 0; i < 3; i++)
+	{
+		if (diffuse_light[i] < 0.0f)
+		{
+			diffuse_light[i] = 0.0f;
+		}
+		if (ambient_light[i] < 0.0f)
+		{
+			ambient_light[i] = 0.0f;
+		}
+	}
+
 #ifdef NEW_LIGHTING
 	if (!use_new_lighting)
 	{
@@ -633,12 +645,26 @@ void draw_global_light()
 		ambient_light[1]+=0.2f;
 		ambient_light[2]+=0.2f;
 
-		glLightfv(GL_LIGHT7,GL_DIFFUSE,&diffuse_light[0]);
+		glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light);
 #ifdef NEW_LIGHTING
 	}
 #endif
-	if(sun_use_static_position)glLightfv(GL_LIGHT7,GL_POSITION,global_light_position);
-	else glLightfv(GL_LIGHT7,GL_POSITION,sun_position);
+	if (sun_use_static_position)
+	{
+		glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+	}
+	else
+	{
+		if ((sun_position[0] == 0.0f) && (sun_position[1] == 0.0f) &&
+			(sun_position[2] == 0.0f) && (sun_position[3] == 0.0f))
+		{
+			glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
+		}
+		else
+		{
+			glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+		}
+	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -649,6 +675,7 @@ void draw_dungeon_light()
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
 	GLfloat diffuse_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat ambient_light[4];
+	int i;
 
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
@@ -685,6 +712,18 @@ void draw_dungeon_light()
 #ifdef NEW_LIGHTING
 	}
 #endif // NEW_LIGHTING
+	for (i = 0; i < 3; i++)
+	{
+		if (diffuse_light[i] < 0.0f)
+		{
+			diffuse_light[i] = 0.0f;
+		}
+		if (ambient_light[i] < 0.0f)
+		{
+			ambient_light[i] = 0.0f;
+		}
+	}
+
 	glLightfv(GL_LIGHT7,GL_AMBIENT,ambient_light);
 	glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
 	glLightfv(GL_LIGHT7,GL_DIFFUSE,diffuse_light);

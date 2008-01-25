@@ -27,7 +27,11 @@ static inline GLuint load_vertex_program(const std::string &name)
 	ELglProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
 		f.get_size(), f.get_pointer());
 
-	CHECK_GL_EXCEPTION();
+	if (glGetError() != GL_NO_ERROR)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: '" <<
+			glGetString(GL_PROGRAM_ERROR_STRING_ARB) << "' in file '" << name << "'");
+	}
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
 
@@ -76,7 +80,7 @@ static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
 		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 2,
 			rotationMatrix.dzdx, rotationMatrix.dzdy, rotationMatrix.dzdz,
 			translationBoneSpace.z);
-		}
+	}
 }
 
 static float buffer[8192];
@@ -199,7 +203,9 @@ typedef boost::shared_array<ActorVertex> ActorVertexArray;
 
 extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 {
-	Uint32 index;
+	Uint32 index, i;
+	VECTOR4 zero;
+	VECTOR4 one;
 
 	switch (pass)
 	{
@@ -252,25 +258,21 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 		}
 	}
 
-	int i;
-	VECTOR4 zero;
-	VECTOR4 zero_one;
-
 	zero[0] = 0.0f;
 	zero[1] = 0.0f;
 	zero[2] = 0.0f;
 	zero[3] = 0.0f;
 
-	zero_one[0] = 0.0f;
-	zero_one[1] = 0.0f;
-	zero_one[2] = 0.0f;
-	zero_one[3] = 1.0f;
+	one[0] = 1.0f;
+	one[1] = 1.0f;
+	one[2] = 1.0f;
+	one[3] = 1.0f;
 
 	for (i = 0; i < 8; i++)
 	{
 		if (glIsEnabled(GL_LIGHT0 + i) == GL_FALSE)
 		{
-			glLightfv(GL_LIGHT0 + i, GL_POSITION, zero_one);
+			glLightfv(GL_LIGHT0 + i, GL_POSITION, one);
 			glLightfv(GL_LIGHT0 + i, GL_DIFFUSE, zero);
 			glLightfv(GL_LIGHT0 + i, GL_SPECULAR, zero);
 			glLightfv(GL_LIGHT0 + i, GL_AMBIENT, zero);
@@ -280,7 +282,6 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	}
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
-
 }
 
 extern "C" void cal_render_actor_shader(actor *act)
@@ -600,8 +601,8 @@ extern "C" void build_actor_bounding_box(actor* a)
 		for (i = 0; i < 3; i++)
 		{
 			t = a->bbox.bbmax[i] - a->bbox.bbmin[i];
-			a->bbox.bbmin[i] -= t * 0.25f;
-			a->bbox.bbmax[i] += t * 0.25f;
+			a->bbox.bbmin[i] -= t * 0.25f - 0.25f;
+			a->bbox.bbmax[i] += t * 0.25f - 0.25f;
 		}
 	}
 }

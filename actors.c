@@ -697,8 +697,10 @@ void get_actors_in_range()
 
 			if (actors_list[i]->calmodel == NULL) continue;
 
-			VAdd(bbox.bbmin, actors_list[i]->bbox.bbmin, pos);
-			VAdd(bbox.bbmax, actors_list[i]->bbox.bbmax, pos);
+			memcpy(&bbox, &actors_list[i]->bbox, sizeof(AABBOX));
+			rotate_aabb(&bbox, actors_list[i]->tmp.x_rot, actors_list[i]->tmp.y_rot, 180.0f-actors_list[i]->tmp.z_rot);
+			VAddEq(bbox.bbmin, pos);
+			VAddEq(bbox.bbmax, pos);
 
 			if (aabb_in_frustum(bbox))
 			{
@@ -711,7 +713,7 @@ void get_actors_in_range()
 
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 				{
-					if (click_line_bbox_intersection(bbox))
+//					if (click_line_bbox_intersection(bbox))
 						near_actors[no_near_actors].select = 1;
 				}
 				no_near_actors++;

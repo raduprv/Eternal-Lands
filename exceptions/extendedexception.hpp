@@ -261,7 +261,7 @@ namespace eternal_lands
 		str << description;	\
 	\
 		throw eternal_lands::ExceptionFactory::create(	\
-			eternal_lands::ExceptionCodeType<num>(), str.str(),	\
+			eternal_lands::ExceptionCodeType<eternal_lands::num>(), str.str(),	\
 			__FILE__, __FUNCTION__, __LINE__);	\
 	}	\
 	while (false)
