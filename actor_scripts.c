@@ -706,6 +706,7 @@ void next_command()
 				float z_rot=actors_list[i]->z_rot;
 				float targeted_z_rot;
 				int k;
+				int no_action = 0;
 
 				actors_list[i]->sit_idle=0;
 				actors_list[i]->stand_idle=0;
@@ -992,11 +993,13 @@ void next_command()
 				case aim_mode_reload:
 					missiles_log_message("actor %d will have to reload after next fire", actors_list[i]->actor_id);
 					actors_list[i]->reload = 1;
+ 					no_action = 1;
 					break;
 
 				case aim_mode_fire:
 					if (!actors_list[i]->in_aim_mode) {
 						log_error("next_command: trying to fire an arrow out of range mode => aborting!");
+						no_action = 1;
 						break;
 					}
 
@@ -1029,6 +1032,17 @@ void next_command()
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
+					/* In case of a missed shot due to a collision with an actor,
+					 * the server send the position of the actor with 0.0 for the Z coordinate.
+					 * So we have to compute the coordinate of the ground at this position.
+					 */
+					if (actors_list[i]->shot_type == MISSED_SHOT &&
+						actors_list[i]->range_target[2] == 0.0) {
+						int tile_x = (int)(actors_list[i]->range_target[0]*2.0);
+						int tile_y = (int)(actors_list[i]->range_target[1]*2.0);
+						actors_list[i]->range_target[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
+					}
+
 					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target, actors_list[i]->shot_type);
 					actors_list[i]->shot_type = NORMAL_SHOT;
 					break;
@@ -1036,19 +1050,23 @@ void next_command()
 				case missile_miss:
 					missiles_log_message("actor %d will miss his target", actors_list[i]->actor_id);
 					actors_list[i]->shot_type = MISSED_SHOT;
+ 					no_action = 1;
 					break;
 
 				case missile_critical:
 					missiles_log_message("actor %d will do a critical hit", actors_list[i]->actor_id);
 					actors_list[i]->shot_type = CRITICAL_SHOT;
+ 					no_action = 1;
 					break;
 
 				case unwear_bow:
 					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_WEAPON);
+ 					no_action = 1;
 					break;
 
 				case unwear_quiver:
 					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_SHIELD);
+ 					no_action = 1;
 					break;
 #endif // MISSILES
 
@@ -1105,14 +1123,8 @@ void next_command()
 					}
 
 					//mark the actor as being busy
-#ifdef MISSILES
-				    if (actors_list[i]->que[0] != aim_mode_reload &&
-						actors_list[i]->que[0] != missile_miss &&
-						actors_list[i]->que[0] != missile_critical &&
-						actors_list[i]->que[0] != unwear_bow &&
-						actors_list[i]->que[0] != unwear_quiver)
-#endif // MISSILES
-					actors_list[i]->busy=1;
+					if (!no_action)
+						actors_list[i]->busy=1;
 					//if (actors_list[i]->actor_id==yourself) LOG_TO_CONSOLE(c_green2,"Busy");
 					//save the last command. It is especially good for run and walk
 					actors_list[i]->last_command=actors_list[i]->que[0];

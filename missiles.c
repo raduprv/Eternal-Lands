@@ -622,6 +622,14 @@ void missiles_rotate_actor_bones(actor *a)
 	CalQuaternion_Delete(vrot_quat);
 }
 
+void missiles_test_target_validity(float target[3], char *msg)
+{
+	if (target[0] < 0.0 || target[0] > tile_map_size_x*3.0 ||
+		target[1] < 0.0 || target[1] > tile_map_size_y*3.0)
+		log_error("%s: target (%f,%f,%f) is out of the map!",
+				  msg, target[0], target[1], target[2]);
+}
+
 void missiles_aim_at_b(int actor1_id, int actor2_id)
 {
 	actor *act1, *act2;
@@ -646,6 +654,7 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 
 	LOCK_ACTORS_LISTS();
 	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
+	missiles_test_target_validity(act1->range_target, "missiles_aim_at_b");
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -666,6 +675,7 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 
 	LOCK_ACTORS_LISTS();
 	memcpy(act->range_target, target, sizeof(float) * 3);
+	missiles_test_target_validity(act->range_target, "missiles_aim_at_xyz");
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, enter_aim_mode);
@@ -695,6 +705,7 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 
 	LOCK_ACTORS_LISTS();
 	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
+	missiles_test_target_validity(act1->range_target, "missiles_fire_a_to_b");
 #ifdef COUNTERS
 	act2->last_range_attacker_id = actor1_id;
 #endif // COUNTERS
@@ -718,6 +729,7 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 
 	LOCK_ACTORS_LISTS();
 	memcpy(act->range_target, target, sizeof(float) * 3);
+	missiles_test_target_validity(act->range_target, "missiles_fire_a_to_xyz");
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, aim_mode_fire);
@@ -741,6 +753,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	LOCK_ACTORS_LISTS();
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)));
 	cal_get_actor_bone_absolute_position(act, get_actor_bone_id(act, body_top_bone), NULL, target);
+	missiles_test_target_validity(target, "missiles_fire_xyz_to_b");
 #ifdef COUNTERS
 	act->last_range_attacker_id = -1;
 #endif // COUNTERS
