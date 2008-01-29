@@ -150,7 +150,12 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->rotating=0;
 	our_actor->busy=0;
 	our_actor->last_command=nothing;
-	our_actor->has_alpha=0;
+
+    /* load the texture in case it's not already loaded and look if it has
+     * an alpha map */
+    get_texture_id(texture_id);
+	our_actor->has_alpha=texture_cache[texture_id].has_alpha;
+
 	//clear the que
 	for(k=0;k<MAX_CMD_QUEUE;k++)	our_actor->que[k]=nothing;
 

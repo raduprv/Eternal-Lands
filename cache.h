@@ -53,6 +53,7 @@ typedef struct
 	char file_name[128];          /*!< the filename of the texture */
 	cache_item_struct *cache_ptr; /*!< a pointer to the cached item */
 	int alpha;                    /*!< used for alpha blending the texture */
+    int has_alpha;                /*!< specify if the texture has an alpha map */
 	char load_err;                /*!< if true, we tried to load this texture before and failed */
 
 #ifdef NEW_LIGHTING

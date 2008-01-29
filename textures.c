@@ -1816,6 +1816,9 @@ GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha)
 	} else {
 		tex->has_alpha++;
 	}
+
+    tex_cache_entry->has_alpha = tex->has_alpha;
+
 	//ok, now, hopefully, the file is loaded and converted...
 	//so, assign the texture, and such
 
@@ -1976,6 +1979,9 @@ GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, 
 	} else {
 		tex->has_alpha++;
 	}
+
+    tex_cache_entry->has_alpha = tex->has_alpha;
+
 	//ok, now, hopefully, the file is loaded and converted...
 	//so, assign the texture, and such
 
@@ -2128,6 +2134,7 @@ int load_texture_cache_deferred (const char * file_name, int alpha)
 		texture_cache[texture_slot].texture_id= 0;
 		//if(texture_slot == 0) texture_cache[texture_slot].texture_id= 1;
 		texture_cache[texture_slot].alpha= alpha;
+        texture_cache[texture_slot].has_alpha = 0;
 		return texture_slot;
 	} else {	
 		log_error("Error: out of texture space\n");
