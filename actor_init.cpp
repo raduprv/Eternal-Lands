@@ -201,6 +201,9 @@ typedef boost::shared_array<CalIndex> CalIndexArray;
 typedef boost::shared_array<ActorVertex> ActorVertexArray;
 #endif
 
+int last_actor_type = -1;
+bool use_normals;
+
 extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 {
 	Uint32 index, i;
@@ -220,6 +223,8 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 				index = 0;
 			}
 
+			use_normals = ghost == 0;
+
 			break;
 		}
 		case REFLECTION_RENDER_PASS:
@@ -228,6 +233,8 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 
 			index = 0;
 
+			use_normals = ghost == 0;
+
 			break;
 		}
 		case DEPTH_RENDER_PASS:
@@ -235,6 +242,8 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 			assert(ghost == 0);
 
 			index = 1;
+
+			use_normals = false;
 
 			break;
 		}
@@ -248,6 +257,8 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 			{
 				index = 2;
 			}
+
+			use_normals = ghost == 0;
 
 			break;
 		}
@@ -281,41 +292,73 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 		glLightf(GL_LIGHT0 + i, GL_QUADRATIC_ATTENUATION, 0.0f);
 	}
 
+	glEnable(GL_VERTEX_PROGRAM_ARB);
+
+	ELglEnableVertexAttribArrayARB(0);
+	ELglEnableVertexAttribArrayARB(1);
+	if (use_normals)
+	{
+		ELglEnableVertexAttribArrayARB(2);
+	}
+	ELglEnableVertexAttribArrayARB(3);
+	ELglEnableVertexAttribArrayARB(8);
+
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
+}
+
+extern "C" void disable_actor_animation_program()
+{
+	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
+
+	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+	ELglDisableVertexAttribArrayARB(0);
+	ELglDisableVertexAttribArrayARB(1);
+	ELglDisableVertexAttribArrayARB(2);
+	ELglDisableVertexAttribArrayARB(3);
+	ELglDisableVertexAttribArrayARB(8);
+
+	glDisable(GL_VERTEX_PROGRAM_ARB);
+
+	last_actor_type = -1;
 }
 
 extern "C" void cal_render_actor_shader(actor *act)
 {
 	actor_types* a;
+	float s;
 
 	assert(act->calmodel);
 
-	glPushMatrix();
+	s = get_actor_scale(act);
 
-	glScalef(get_actor_scale(act), get_actor_scale(act), get_actor_scale(act));
+	if (s != 1.0f)
+	{
+		glScalef(s, s, s);
+	}
 
 	a = &actors_defs[act->actor_type];
 
-	glEnable(GL_VERTEX_PROGRAM_ARB);
-
-	ELglEnableVertexAttribArrayARB(0);
-	ELglEnableVertexAttribArrayARB(1);
-	ELglEnableVertexAttribArrayARB(2);
-	ELglEnableVertexAttribArrayARB(3);
-	ELglEnableVertexAttribArrayARB(8);
-
-	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, a->vertex_buffer);
-	ELglVertexAttribPointerARB(0, 3, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
-		reinterpret_cast<void*>(0 * sizeof(float) + 0 * sizeof(Uint8)));
-	ELglVertexAttribPointerARB(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ActorVertex),
-		reinterpret_cast<void*>(3 * sizeof(float) + 0 * sizeof(Uint8)));
-	ELglVertexAttribPointerARB(2, 3, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
-		reinterpret_cast<void*>(3 * sizeof(float) + 4 * sizeof(Uint8)));
-	ELglVertexAttribPointerARB(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(ActorVertex),
-		reinterpret_cast<void*>(6 * sizeof(float) + 4 * sizeof(Uint8)));
-	ELglVertexAttribPointerARB(8, 2, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
-		reinterpret_cast<void*>(6 * sizeof(float) + 8 * sizeof(Uint8)));
-	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
+	if (last_actor_type != act->actor_type)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, a->vertex_buffer);
+		ELglVertexAttribPointerARB(0, 3, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
+			reinterpret_cast<void*>(0 * sizeof(float) + 0 * sizeof(Uint8)));
+		ELglVertexAttribPointerARB(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ActorVertex),
+			reinterpret_cast<void*>(3 * sizeof(float) + 0 * sizeof(Uint8)));
+		if (use_normals)
+		{
+			ELglVertexAttribPointerARB(2, 3, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
+				reinterpret_cast<void*>(3 * sizeof(float) + 4 * sizeof(Uint8)));
+		}
+		ELglVertexAttribPointerARB(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(ActorVertex),
+			reinterpret_cast<void*>(6 * sizeof(float) + 4 * sizeof(Uint8)));
+		ELglVertexAttribPointerARB(8, 2, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
+			reinterpret_cast<void*>(6 * sizeof(float) + 8 * sizeof(Uint8)));
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
+		last_actor_type = act->actor_type;
+	}
 
 	if (act->is_enhanced_model)
 	{
@@ -341,20 +384,6 @@ extern "C" void cal_render_actor_shader(actor *act)
 			render_mesh_shader(a, act, i, -1);
 		}
 	}
-
-	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-
-	ELglDisableVertexAttribArrayARB(0);
-	ELglDisableVertexAttribArrayARB(1);
-	ELglDisableVertexAttribArrayARB(2);
-	ELglDisableVertexAttribArrayARB(3);
-	ELglDisableVertexAttribArrayARB(8);
-
-	glDisable(GL_VERTEX_PROGRAM_ARB);
-
-	glPopMatrix();
-
 }
 
 static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_count,

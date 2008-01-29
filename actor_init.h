@@ -24,6 +24,7 @@ void model_detach_mesh(actor *act, int mesh_id);
 
 void enable_render_actor();
 void set_actor_animation_program(Uint32 pass, Uint32 ghost);
+void disable_actor_animation_program();
 void disable_render_actor();
 void cal_render_actor_shader(actor *act);
 

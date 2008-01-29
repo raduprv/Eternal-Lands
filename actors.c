@@ -55,7 +55,7 @@ int no_near_actors=0;
 int no_near_enhanced_actors = 0;
 float distanceSq_to_near_enhanced_actors;
 #endif // NEW_SOUND
-struct near_actor near_actors[MAX_ACTORS];
+near_actor near_actors[MAX_ACTORS];
 
 #ifdef MUTEX_DEBUG
 Uint32 have_actors_lock = 0;
@@ -214,7 +214,6 @@ void set_health_color(float percent, float multiplier, float a)
 	glColor4f(r*multiplier,g*multiplier,0.0f, a);
 }
 
-
 void draw_actor_banner(actor * actor_id, float offset_z)
 {
 	unsigned char str[60];
@@ -234,24 +233,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	double healthbar_x_loss_fade=1.0f;
 	double healthbar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
 	float banner_width = 0.0f;
-	// are we actively drawing?
-	if(!(SDL_GetAppState()&SDL_APPACTIVE)){
-		return;
-	}
-
-	if(use_shadow_mapping){
-		glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
-		glDisable(GL_TEXTURE_2D);
-		ELglActiveTextureARB(shadow_unit);
-		glDisable(depth_texture_target);
-		disable_texgen();
-		ELglActiveTextureARB(GL_TEXTURE0);
-		glEnable(GL_TEXTURE_2D);
-		glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	}
-
-	if(glIsEnabled(GL_LIGHTING))glDisable(GL_LIGHTING);
-	if(glIsEnabled(GL_BLEND))glDisable(GL_BLEND);
 
 	//Figure out where the point just above the actor's head is in the viewport
 	//See if Projection and viewport can be saved elsewhere to prevent doing this so often
@@ -486,12 +467,6 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 
 	glColor3f(1,1,1);
-	if(actor_id->ghost || (actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_BLEND);
-	else if(!actor_id->ghost && !(actor_id->buffs & BUFF_INVISIBILITY))glEnable(GL_LIGHTING);
-	if(use_shadow_mapping){
-		last_texture=-1;
-		glPopAttrib();
-	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -595,44 +570,45 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void draw_actor(actor * actor_id, int banner)
+static inline void draw_actor_without_banner(actor * actor_id)
 {
-	//int i;
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-	int texture_id;
-	float healthbar_z=0;
-	
-	if(!actor_id->remapped_colors){
-		texture_id=get_and_set_texture_id(actor_id->texture_id);
-	} else {
-		//we have remapped colors, we don't store such textures into the cache
-		texture_id=actor_id->texture_id;
-		bind_texture_id(texture_id);
-	}
 
-	//now, go and find the current frame
-	//i=get_frame_number(actor_id->model_data, actor_id->tmp.cur_frame);
-	//if(i >= 0)healthbar_z=actor_id->model_data->offsetFrames[i].box.max_z;
-	if (actor_id->calmodel!=NULL){
-		healthbar_z = actor_id->max_z+0.2;
+	if (actor_id->is_enhanced_model)
+	{
+		bind_texture_id(actor_id->texture_id);
+	}
+	else
+	{
+		if (!actor_id->remapped_colors)
+		{
+			get_and_set_texture_id(actor_id->texture_id);
+		}
+		else
+		{
+			bind_texture_id(actor_id->texture_id);
+		}
 	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
-	x_pos=actor_id->tmp.x_pos;
-	y_pos=actor_id->tmp.y_pos;
-	z_pos=actor_id->tmp.z_pos;
+	x_pos = actor_id->tmp.x_pos;
+	y_pos = actor_id->tmp.y_pos;
+	z_pos = actor_id->tmp.z_pos;
 
-	if(z_pos==0.0f)//actor is walking, as opposed to flying, get the height underneath
-		z_pos=-2.2f+height_map[actor_id->tmp.y_tile_pos*tile_map_size_x*6+actor_id->tmp.x_tile_pos]*0.2f;
+	if (z_pos == 0.0f)
+	{
+		//actor is walking, as opposed to flying, get the height underneath
+		z_pos = -2.2f + height_map[actor_id->tmp.y_tile_pos * tile_map_size_x * 6
+			+ actor_id->tmp.x_tile_pos] * 0.2f;
+	}
 
-	glTranslatef(x_pos+0.25f, y_pos+0.25f, z_pos);
+	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
 
-	x_rot=actor_id->tmp.x_rot;
-	y_rot=actor_id->tmp.y_rot;
-	z_rot=-actor_id->tmp.z_rot;
-	z_rot+=180;	//test
-	glPushMatrix();
+	x_rot = actor_id->tmp.x_rot;
+	y_rot = actor_id->tmp.y_rot;
+	z_rot = 180 - actor_id->tmp.z_rot;
+
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
@@ -648,14 +624,70 @@ void draw_actor(actor * actor_id, int banner)
 
 	//now, draw their damage & nametag
 	glPopMatrix();  // restore the matrix
+
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+
+static inline void draw_actor_banner_new(actor * actor_id)
+{
+	float x_pos, y_pos, z_pos;
+	float healthbar_z;
+	
+	healthbar_z = actor_id->max_z + 0.2;
+
+	glPushMatrix();//we don't want to affect the rest of the scene
+
+	x_pos = actor_id->tmp.x_pos;
+	y_pos = actor_id->tmp.y_pos;
+	z_pos = actor_id->tmp.z_pos;
+
+	if (z_pos == 0.0f)
+	{
+		//actor is walking, as opposed to flying, get the height underneath
+		z_pos = -2.2f + height_map[actor_id->tmp.y_tile_pos * tile_map_size_x * 6
+			+ actor_id->tmp.x_tile_pos] * 0.2f;
+	}
+
+	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
+
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
-	if (banner) draw_actor_banner(actor_id, healthbar_z);
+	draw_actor_banner(actor_id, healthbar_z);
 
 	glPopMatrix();	//we don't want to affect the rest of the scene
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+}
+
+static int comp_actors(const void *in_a, const void *in_b)
+{
+	near_actor *a, *b;
+	int at, bt;
+
+	a = (near_actor *)in_a;
+	b = (near_actor *)in_b;
+
+	at = a->type;
+	bt = b->type;
+
+	if (at < bt)
+	{
+		return (-1);
+	}
+	else
+	{
+		if (at == bt)
+		{
+			return (0);
+		}
+		else
+		{
+			return (1);
+		}
+	}
 }
 
 void get_actors_in_range()
@@ -713,6 +745,7 @@ void get_actors_in_range()
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
 				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
 				near_actors[no_near_actors].select = 0;
+				near_actors[no_near_actors].type = actors_list[i]->actor_type;
 
 				actors_list[i]->max_z = actors_list[i]->bbox.bbmax[Z];
 
@@ -741,6 +774,7 @@ void get_actors_in_range()
 	no_near_enhanced_actors = tmp_nr_enh_act;
 	distanceSq_to_near_enhanced_actors = tmp_dist_to_nr_enh_act;
 #endif // NEW_SOUND
+	qsort(near_actors, no_near_actors, sizeof(near_actor), comp_actors);
 }
 
 void display_actors(int banner, int render_pass)
@@ -774,14 +808,7 @@ void display_actors(int banner, int render_pass)
 			actor *cur_actor = actors_list[near_actors[i].actor];
 			if (cur_actor)
 			{
-				if (cur_actor->is_enhanced_model)
-				{
-					draw_enhanced_actor(cur_actor, banner);
-				}
-				else
-				{
-					draw_actor(cur_actor, banner);
-				}
+				draw_actor_without_banner(cur_actor);
 				if (near_actors[i].select)
 				{
 					if (cur_actor->kind_of_actor == NPC)
@@ -842,14 +869,7 @@ void display_actors(int banner, int render_pass)
 						}
 					}
 
-					if (cur_actor->is_enhanced_model)
-					{
-						draw_enhanced_actor(cur_actor, banner);
-					}
-					else
-					{
-						draw_actor(cur_actor, banner);
-					}
+					draw_actor_without_banner(cur_actor);
 
 					if (near_actors[i].select)
 					{
@@ -882,9 +902,44 @@ void display_actors(int banner, int render_pass)
 
 	if (use_animation_program)
 	{
-		ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
+		disable_actor_animation_program();
 	}
 
+	if (banner && (SDL_GetAppState() & SDL_APPACTIVE))
+	{
+		if (use_shadow_mapping)
+		{
+			glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
+			glDisable(GL_TEXTURE_2D);
+			ELglActiveTextureARB(shadow_unit);
+			glDisable(depth_texture_target);
+			disable_texgen();
+			ELglActiveTextureARB(GL_TEXTURE0);
+			glEnable(GL_TEXTURE_2D);
+			glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+		}
+
+		glDisable(GL_LIGHTING);
+		glDisable(GL_BLEND);
+
+		for (i = 0; i < no_near_actors; i++)
+		{
+			actor *cur_actor = actors_list[near_actors[i].actor];
+			if (cur_actor)
+			{
+				draw_actor_banner_new(cur_actor);
+			}
+		}
+
+		if (use_shadow_mapping)
+		{
+			last_texture = -1;
+			glPopAttrib();
+		}
+
+		glDisable(GL_BLEND);
+		glEnable(GL_LIGHTING);
+	}
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
