@@ -751,7 +751,7 @@ void get_actors_in_range()
 
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 				{
-//					if (click_line_bbox_intersection(bbox))
+					if (click_line_bbox_intersection(bbox))
 						near_actors[no_near_actors].select = 1;
 				}
 				no_near_actors++;
@@ -779,8 +779,8 @@ void get_actors_in_range()
 
 void display_actors(int banner, int render_pass)
 {
-	int i;
-	int has_ghosts = 0;
+	int i, has_ghosts;
+	float alpha;
 
 	get_actors_in_range();
 
@@ -792,6 +792,8 @@ void display_actors(int banner, int render_pass)
 	{
 		set_actor_animation_program(render_pass, 0);
 	}
+
+	has_ghosts = 0;
 
 	for (i = 0; i < no_near_actors; i++)
 	{
@@ -859,14 +861,20 @@ void display_actors(int banner, int render_pass)
 					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 					if ((near_actors[i].buffs & BUFF_INVISIBILITY))
 					{
-						if (use_animation_program)
-						{
-							ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 0.25f);
-						}
-						else
-						{
-							glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
-						}
+						alpha = 0.25f;
+					}
+					else
+					{
+						alpha = 1.0f;
+					}
+
+					if (use_animation_program)
+					{
+						ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, alpha);
+					}
+					else
+					{
+						glColor4f(1.0f, 1.0f, 1.0f, alpha);
 					}
 
 					draw_actor_without_banner(cur_actor);
@@ -896,6 +904,7 @@ void display_actors(int banner, int render_pass)
 				}
 			}
 		}
+		glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
 		glDisable(GL_BLEND);
 		glEnable(GL_LIGHTING);
 	}
@@ -1107,6 +1116,10 @@ void add_actor_from_server (const char *in_data, int len)
 				CalModel_Update(actors_list[i]->calmodel,1000);
 			} else CalModel_Update(actors_list[i]->calmodel,0);
 			build_actor_bounding_box(actors_list[i]);
+			if (use_animation_program)
+			{
+				set_transformation_buffers(actors_list[i]);
+			}
 			actors_list[i]->cur_anim.anim_index=-1;
 			actors_list[i]->cur_anim_sound_cookie=0;
 			actors_list[i]->IsOnIdle=0;

@@ -60,6 +60,6 @@ DP4 result.texcoord[0].w, texgen_q, R0;
 
 ABS result.fogcoord, R0.z;
 
-MOV result.color, vertex.color;
+MOV result.color, color;
 
 END

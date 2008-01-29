@@ -14,7 +14,7 @@ extern "C"
 extern Uint32 use_animation_program;
 
 int load_vertex_programs();
-void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh);
+void build_buffers(actor_types* a);
 void build_actor_bounding_box(actor* a);
 
 struct CalModel *model_new(struct CalCoreModel* pCoreModel);

@@ -12,8 +12,43 @@
 #include "gl_init.h"
 
 Uint32 use_animation_program = 1;
+Uint32 max_bones_per_mesh = 27;
 
-typedef std::map<Sint32, Sint32> IntMap;
+class HardwareMeshData
+{
+	private:
+		const Uint32 mesh_index;
+		const Uint32 size;
+		eternal_lands::memory_ptr buffer;
+	public:
+		inline HardwareMeshData(const Uint32 mesh_index, const Uint32 size):
+			mesh_index(mesh_index), size(size)
+		{
+			buffer = eternal_lands::memory_ptr(new eternal_lands::memory_buffer(size * 4 * sizeof(float)));
+		}
+
+		inline void set_buffer_value(const Uint32 index, const float value)
+		{
+			*(buffer->get_memory<float*>(index * sizeof(float))) = value;
+		}
+
+		inline float* get_buffer(const Uint32 index = 0) const
+		{
+			return buffer->get_memory<float*>(index * sizeof(float));
+		}
+
+		inline Uint32 get_size() const
+		{
+			return size;
+		}
+
+		inline Uint32 get_mesh_index() const
+		{
+			return mesh_index;
+		}
+};
+
+typedef std::map<Sint32, HardwareMeshData> IntMap;
 
 GLuint vertex_program_ids[5];
 
@@ -59,63 +94,9 @@ extern "C" void unload_vertex_programs()
 	ELglDeleteProgramsARB(5, vertex_program_ids);
 }
 
-static inline void set_transformation(actor_types *a, actor *act, Uint32 index)
+static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, const HardwareMeshData &hmd)
 {
-	Sint32 i, count;
-	const std::vector<CalBone *>& vectorBone = act->calmodel->getSkeleton()->getVectorBone();
-
-	count = a->hardware_model->getBoneCount();
-
-	for (i = 0; i < count; i++)
-	{
-		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
-		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
-
-		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 0,
-			rotationMatrix.dxdx, rotationMatrix.dxdy, rotationMatrix.dxdz,
-			translationBoneSpace.x);
-		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 1,
-			rotationMatrix.dydx, rotationMatrix.dydy, rotationMatrix.dydz,
-			translationBoneSpace.y);
-		ELglProgramLocalParameter4fARB(GL_VERTEX_PROGRAM_ARB, i * 3 + 2,
-			rotationMatrix.dzdx, rotationMatrix.dzdy, rotationMatrix.dzdz,
-			translationBoneSpace.z);
-	}
-}
-
-static float buffer[8192];
-
-static inline void set_transformation_ext(actor_types *a, actor *act, Uint32 index)
-{
-	Sint32 i, count;
-	const std::vector<CalBone *>& vectorBone = act->calmodel->getSkeleton()->getVectorBone();
-
-	count = a->hardware_model->getBoneCount();
-
-	for (i = 0; i < count; i++)
-	{
-		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
-		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
-
-		buffer[i * 12 +  0] = rotationMatrix.dxdx;
-		buffer[i * 12 +  1] = rotationMatrix.dxdy;
-		buffer[i * 12 +  2] = rotationMatrix.dxdz;
-		buffer[i * 12 +  3] = translationBoneSpace.x;
-		buffer[i * 12 +  4] = rotationMatrix.dydx;
-		buffer[i * 12 +  5] = rotationMatrix.dydy;
-		buffer[i * 12 +  6] = rotationMatrix.dydz;
-		buffer[i * 12 +  7] = translationBoneSpace.y;
-		buffer[i * 12 +  8] = rotationMatrix.dzdx;
-		buffer[i * 12 +  9] = rotationMatrix.dzdy;
-		buffer[i * 12 + 10] = rotationMatrix.dzdz;
-		buffer[i * 12 + 11] = translationBoneSpace.z;
-	}
-	ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0, count * 3, buffer);
-}
-
-static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, Sint32 mesh_index)
-{
-	Uint32 element_index;
+	Uint32 element_index, count, i;
 	Sint32 bone_id, glow;
 	float reverse_scale;
 	CalSkeleton *skel;
@@ -124,15 +105,19 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	{
 		a->hardware_model->selectHardwareMesh(index);
 
-#ifndef	DISABLE_EXT_GPU_PROGRAM_PARAMETERS
 		if (have_extension(ext_gpu_program_parameters))
 		{
-			set_transformation_ext(a, act, index);
+			ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0,
+				a->hardware_model->getBoneCount() * 3, hmd.get_buffer());
 		}
 		else
-#endif
 		{
-			set_transformation(a, act, index);
+			count = a->hardware_model->getBoneCount() * 3;
+			for (i = 0; i < count; i++)
+			{
+				ELglProgramLocalParameter4fvARB(GL_VERTEX_PROGRAM_ARB, i,
+					hmd.get_buffer(i * 4));
+			}
 		}
 
 		bone_id = -1;
@@ -140,7 +125,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		{
 			if (act->cur_shield >= 0)
 			{
-				if (a->shield[act->cur_shield].mesh_index == mesh_index)
+				if (a->shield[act->cur_shield].mesh_index == hmd.get_mesh_index())
 				{
 					bone_id = 21;
 					glow = a->shield[act->cur_shield].glow;
@@ -148,7 +133,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			}
 			if (act->cur_weapon >= 0)
 			{
-				if (a->weapon[act->cur_weapon].mesh_index == mesh_index)
+				if (a->weapon[act->cur_weapon].mesh_index == hmd.get_mesh_index())
 				{
 					bone_id = 26;
 					glow = a->weapon[act->cur_weapon].glow;
@@ -171,7 +156,6 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 		}
 
-	
 		element_index = a->hardware_model->getStartIndex() * a->index_size;
 
 		glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3, a->index_type,
@@ -327,6 +311,8 @@ extern "C" void disable_actor_animation_program()
 extern "C" void cal_render_actor_shader(actor *act)
 {
 	actor_types* a;
+	IntMap* im;
+	IntMap::const_iterator it;
 	float s;
 
 	assert(act->calmodel);
@@ -360,29 +346,13 @@ extern "C" void cal_render_actor_shader(actor *act)
 		last_actor_type = act->actor_type;
 	}
 
-	if (act->is_enhanced_model)
+	im = reinterpret_cast<IntMap*>(act->calmodel->getUserData());
+
+	assert(im);
+
+	for (it = im->begin(); it != im->end(); it++)
 	{
-		IntMap* im;
-		IntMap::const_iterator it;
-
-		im = reinterpret_cast<IntMap*>(act->calmodel->getUserData());
-
-		if (im != 0)
-		{
-			for (it = im->begin(); it != im->end(); it++)
-			{
-				render_mesh_shader(a, act, it->first, it->second);
-			}
-		}
-	}
-	else
-	{
-		int i;
-
-		for (i = 0; i < a->hardware_model->getHardwareMeshCount(); i++)
-		{
-			render_mesh_shader(a, act, i, -1);
-		}
+		render_mesh_shader(a, act, it->first, it->second);
 	}
 }
 
@@ -424,7 +394,7 @@ static inline void convert_indices(T* data, const CalIndex* indices, const Uint3
 	}
 }
 
-extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
+extern "C" void build_buffers(actor_types* a)
 {
 #ifdef	USE_BOOST
 	FloatArray vertex_buffer;
@@ -616,6 +586,54 @@ extern "C" void build_buffers(actor_types* a, const Uint32 max_bones_per_mesh)
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 }
 
+static inline void set_transformation_buffer(actor_types *a, actor *act, const Uint32 index,
+	HardwareMeshData &hmd)
+{
+	Sint32 i, count;
+	const std::vector<CalBone *>& vectorBone = act->calmodel->getSkeleton()->getVectorBone();
+
+	a->hardware_model->selectHardwareMesh(index);
+
+	count = a->hardware_model->getBoneCount();
+
+	for (i = 0; i < count; i++)
+	{
+		const CalVector &translationBoneSpace = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTranslationBoneSpace();
+		const CalMatrix &rotationMatrix = vectorBone[a->hardware_model->getVectorHardwareMesh()[index].m_vectorBonesIndices[i]]->getTransformMatrix();
+
+		hmd.set_buffer_value(i * 12 +  0, rotationMatrix.dxdx);
+		hmd.set_buffer_value(i * 12 +  1, rotationMatrix.dxdy);
+		hmd.set_buffer_value(i * 12 +  2, rotationMatrix.dxdz);
+		hmd.set_buffer_value(i * 12 +  3, translationBoneSpace.x);
+		hmd.set_buffer_value(i * 12 +  4, rotationMatrix.dydx);
+		hmd.set_buffer_value(i * 12 +  5, rotationMatrix.dydy);
+		hmd.set_buffer_value(i * 12 +  6, rotationMatrix.dydz);
+		hmd.set_buffer_value(i * 12 +  7, translationBoneSpace.y);
+		hmd.set_buffer_value(i * 12 +  8, rotationMatrix.dzdx);
+		hmd.set_buffer_value(i * 12 +  9, rotationMatrix.dzdy);
+		hmd.set_buffer_value(i * 12 + 10, rotationMatrix.dzdz);
+		hmd.set_buffer_value(i * 12 + 11, translationBoneSpace.z);
+	}
+}
+
+extern "C" void set_transformation_buffers(actor* act)
+{
+	IntMap* im;
+	IntMap::iterator it;
+	actor_types* a;
+
+	im = reinterpret_cast<IntMap*>(act->calmodel->getUserData());
+
+	a = &actors_defs[act->actor_type];
+
+	assert(im);
+
+	for (it = im->begin(); it != im->end(); it++)
+	{
+		set_transformation_buffer(a, act, it->first, it->second);
+	}
+}
+
 extern "C" void build_actor_bounding_box(actor* a)
 {
 	CalSkeleton* cs;
@@ -630,8 +648,8 @@ extern "C" void build_actor_bounding_box(actor* a)
 		for (i = 0; i < 3; i++)
 		{
 			t = a->bbox.bbmax[i] - a->bbox.bbmin[i];
-			a->bbox.bbmin[i] -= t * 0.25f - 0.25f;
-			a->bbox.bbmax[i] += t * 0.25f - 0.25f;
+			a->bbox.bbmin[i] -= std::max(t * 0.25f - 0.25f, 0.1f);
+			a->bbox.bbmax[i] += std::max(t * 0.25f - 0.25f, 0.1f);
 		}
 	}
 }
@@ -681,7 +699,8 @@ extern "C" void model_attach_mesh(actor *act, int mesh_id)
 			if (actors_defs[act->actor_type].hardware_model->getVectorHardwareMesh()[i].meshId
 				== mesh_id)
 			{
-				im->insert(std::pair<Sint32, Sint32>(i, mesh_id));
+				im->insert(std::pair<Sint32, HardwareMeshData>(i,
+					HardwareMeshData(mesh_id, max_bones_per_mesh * 3)));
 			}
 		}
 	}

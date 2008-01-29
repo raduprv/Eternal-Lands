@@ -21,7 +21,7 @@ namespace eternal_lands
 
 		public:
 
-			inline memory_buffer(Uint32 new_size = 0)
+			inline memory_buffer(const Uint32 new_size = 0)
 			{
 				if (new_size > 0)
 				{
@@ -56,7 +56,7 @@ namespace eternal_lands
 			 * @return Returns the pointer of the memory buffer.
 			 */
 			template <typename T>
-			inline T get_memory(Uint32 index = 0) const
+			inline T get_memory(const Uint32 index = 0) const
 			{
 				assert(index < size);
 				return reinterpret_cast<T>(&memory[index]);
@@ -73,7 +73,7 @@ namespace eternal_lands
 				return size;
 			}
 
-			inline void resize(Uint32 new_size)
+			inline void resize(const Uint32 new_size)
 			{
 				memory = static_cast<Uint8*>(realloc(memory, new_size));
 

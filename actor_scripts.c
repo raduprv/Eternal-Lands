@@ -411,6 +411,10 @@ void cal_actor_set_random_idle(int id)
 	//actors_list[id]->anim_time=0.0;
 	CalModel_Update(actors_list[id]->calmodel,0.0001);//Make changes take effect now
 	build_actor_bounding_box(actors_list[id]);
+	if (use_animation_program)
+	{
+		set_transformation_buffers(actors_list[id]);
+	}
 	actors_list[id]->IsOnIdle= 1;
 	actors_list[id]->cur_anim.duration= 0;
 	actors_list[id]->anim_time= 0.0;
@@ -560,6 +564,10 @@ void animate_actors()
 				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 #endif
 				build_actor_bounding_box(actors_list[i]);
+				if (use_animation_program)
+				{
+					set_transformation_buffers(actors_list[i]);
+				}
 #ifdef MISSILES
 				missiles_rotate_actor_bones(actors_list[i]);
 #endif
@@ -1304,6 +1312,10 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				//We may be on idle, update the actor so we can reduce the rendering lag
 				CalModel_Update(act->calmodel, 5.0f);
 				build_actor_bounding_box(act);
+				if (use_animation_program)
+				{
+					set_transformation_buffers(act);
+				}
 #ifdef MISSILES
 				missiles_rotate_actor_bones(get_actor_ptr_from_id(actor_id));
 #endif // MISSILES
@@ -3166,7 +3178,7 @@ int parse_actor_script (xmlNode *cfg)
 		}
 		if (use_animation_program)
 		{
-			build_buffers(act, 27);
+			build_buffers(act);
 		}
 	}
 

@@ -51,6 +51,6 @@ DPH R0.w, R1.xyzx, modelview[3];
 
 ABS result.fogcoord, R0.z;
 
-MOV result.color, vertex.color;
+MOV result.color, color;
 
 END
