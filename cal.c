@@ -477,8 +477,8 @@ void cal_render_actor(actor *act)
 			// set global OpenGL states
 #ifdef	ALPHA_ACTORS
 			if(!act->ghost && act->has_alpha){
-				//glEnable(GL_ALPHA_TEST);
-				//glAlphaFunc(GL_GREATER,0.06f);
+				glEnable(GL_ALPHA_TEST);
+				glAlphaFunc(GL_GREATER,0.06f);
 				glEnable(GL_BLEND);
 				glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 				//glDisable(GL_CULL_FACE);
@@ -720,7 +720,7 @@ void cal_render_actor(actor *act)
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 #ifdef	ALPHA_ACTORS
 			if(!act->ghost && act->has_alpha){
-				//glDisable(GL_ALPHA_TEST);
+				glDisable(GL_ALPHA_TEST);
 				//glEnable(GL_CULL_FACE);
 				glDisable(GL_BLEND);
 			}
