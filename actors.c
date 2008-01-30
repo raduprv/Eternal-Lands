@@ -746,6 +746,15 @@ void get_actors_in_range()
 				near_actors[no_near_actors].buffs = actors_list[i]->buffs;
 				near_actors[no_near_actors].select = 0;
 				near_actors[no_near_actors].type = actors_list[i]->actor_type;
+				if (actors_list[i]->ghost)
+				{
+					near_actors[no_near_actors].alpha = 0;
+				}
+				else
+				{
+					near_actors[no_near_actors].alpha =
+						actors_list[i]->has_alpha;
+				}
 
 				actors_list[i]->max_z = actors_list[i]->bbox.bbmax[Z];
 
@@ -779,7 +788,7 @@ void get_actors_in_range()
 
 void display_actors(int banner, int render_pass)
 {
-	int i, has_ghosts;
+	int i, has_alpha, has_ghosts;
 	float alpha;
 
 	get_actors_in_range();
@@ -793,16 +802,25 @@ void display_actors(int banner, int render_pass)
 		set_actor_animation_program(render_pass, 0);
 	}
 
+	has_alpha = 0;
 	has_ghosts = 0;
 
 	for (i = 0; i < no_near_actors; i++)
 	{
-		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY))
+		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY) ||
+			near_actors[i].alpha)
 		{
-			if ((render_pass == DEFAULT_RENDER_PASS) ||
-				(render_pass == SHADOW_RENDER_PASS))
+			if (near_actors[i].alpha && use_animation_program)
 			{
-				has_ghosts = 1;
+				has_alpha = 1;
+			}
+			else
+			{
+				if ((render_pass == DEFAULT_RENDER_PASS) ||
+					(render_pass == SHADOW_RENDER_PASS))
+				{
+					has_ghosts = 1;
+				}
 			}
 		}
 		else
@@ -836,6 +854,61 @@ void display_actors(int banner, int render_pass)
 			}
 		}
 	}
+	if (has_alpha)
+	{
+#ifdef	ALPHA_ACTORS
+		glEnable(GL_ALPHA_TEST);
+		glAlphaFunc(GL_GREATER, 0.06f);
+		if (render_pass != DEPTH_RENDER_PASS)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		}
+#endif	// ALPHA_ACTORS
+		for (i = 0; i < no_near_actors; i++)
+		{
+
+			if (near_actors[i].alpha)
+			{
+
+				actor *cur_actor = actors_list[near_actors[i].actor];
+				if (cur_actor)
+				{
+					draw_actor_without_banner(cur_actor);
+
+					if (near_actors[i].select)
+					{
+						if (cur_actor->kind_of_actor == NPC)
+						{
+							anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_NPC);
+						}
+						else
+						{
+							if ((cur_actor->kind_of_actor == HUMAN) ||
+								(cur_actor->kind_of_actor == COMPUTER_CONTROLLED_HUMAN) ||
+								(cur_actor->is_enhanced_model &&
+								 ((cur_actor->kind_of_actor == PKABLE_HUMAN) ||
+								 (cur_actor->kind_of_actor == PKABLE_COMPUTER_CONTROLLED))))
+							{
+								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_PLAYER);
+							}
+							else
+							{
+								anything_under_the_mouse(near_actors[i].actor, UNDER_MOUSE_ANIMAL);
+							}
+						}
+					}
+				}
+			}
+		}
+#ifdef	ALPHA_ACTORS
+		glDisable(GL_ALPHA_TEST);
+		if (render_pass != DEPTH_RENDER_PASS)
+		{
+			glDisable(GL_BLEND);
+		}
+#endif	// ALPHA_ACTORS
+	}
 #ifdef	ACTOR_FACE_CULLING
 	glDisable(GL_CULL_FACE);
 #endif	// ACTOR_FACE_CULLING
@@ -858,7 +931,7 @@ void display_actors(int banner, int render_pass)
 				if (cur_actor)
 				{
 					//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
-					glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 					if ((near_actors[i].buffs & BUFF_INVISIBILITY))
 					{
 						alpha = 0.25f;

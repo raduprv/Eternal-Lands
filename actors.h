@@ -77,7 +77,8 @@ typedef struct {
 	int select;
 	int buffs;	// The buffs on this actor
 	int type;
-	char ghost;//If it's a ghost or not
+	int alpha;
+	int ghost;//If it's a ghost or not
 } near_actor;
 
 extern int no_near_actors;

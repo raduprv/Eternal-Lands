@@ -1,12 +1,13 @@
 !!ARBvp1.0
 PARAM constant = { 1, 3, 0, 0 };
-TEMP R0, R1, R2, R3, R4, R5, R6, R7, R8;
+TEMP R0, R1, R2, R3, R4;
 ADDRESS A0;
 ATTRIB texure_coord = vertex.attrib[8];
 ATTRIB normal = vertex.attrib[2];
 ATTRIB index = vertex.attrib[3];
 ATTRIB weight = vertex.attrib[1];
 ATTRIB position = vertex.attrib[0];
+ATTRIB color = vertex.attrib[4];
 PARAM mvp[4] = { state.matrix.mvp };
 PARAM nm[4] = { state.matrix.modelview.invtrans };
 PARAM modelview[4] = { state.matrix.modelview };
@@ -40,7 +41,7 @@ PARAM texgen_s = state.texgen[0].eye.s;
 PARAM texgen_t = state.texgen[0].eye.t;
 PARAM texgen_r = state.texgen[0].eye.r;
 PARAM texgen_q = state.texgen[0].eye.q;
-PARAM matrix[81] = { program.local[0..80] };
+PARAM matrix[%d] = { program.local[0..%d] };
 
 MOV result.texcoord[1].xy, texure_coord.xyxx;	
 
@@ -76,7 +77,7 @@ DP3 R0.z, nm[2], R1.xyzx;
 
 DP3 R1.x, R0.xyzx, R0.xyzx;
 RSQ R1.x, R1.x;
-MUL R5.xyz, R1.x, R0.xyzx;
+MUL R3.xyz, R1.x, R0.xyzx;
 
 ARL A0.x, R4.x;
 DPH R0.x, position.xyzx, matrix[A0.x];
@@ -112,16 +113,7 @@ DPH R0.y, R1.xyzx, modelview[1];
 DPH R0.z, R1.xyzx, modelview[2];
 DPH R0.w, R1.xyzx, modelview[3];
 
-DP4 result.texcoord[0].x, texgen_s, R0;
-DP4 result.texcoord[0].y, texgen_t, R0;
-DP4 result.texcoord[0].z, texgen_r, R0;
-DP4 result.texcoord[0].w, texgen_q, R0;
-
 ABS result.fogcoord, R0.z;
-
-DP3 R1.w, R0.xyzx, R0.xyzx;
-RSQ R2.w, R1.w;
-MUL R6.xyz, R0.xyzx, R2.w;
 
 MAD R1.xyz, R0.xyzx, -light_position_0.w, light_position_0.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -130,12 +122,12 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_0.wwww;
 DP3 R2.w, R2, attenuation_0;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-ADD R7, scene_color, ambient;
-MAD R7, R1.xxxx, diffuse_0, R7;
+ADD R4, scene_color, ambient;
+MAD R4, R1.xxxx, diffuse_0, R4;
 
 MAD R1.xyz, R0.xyzx, -light_position_1.w, light_position_1.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -144,11 +136,11 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_1.wwww;
 DP3 R2.w, R2, attenuation_1;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-MAD R7, R1.xxxx, diffuse_1, R7;
+MAD R4, R1.xxxx, diffuse_1, R4;
 
 MAD R1.xyz, R0.xyzx, -light_position_2.w, light_position_2.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -157,11 +149,11 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_2.wwww;
 DP3 R2.w, R2, attenuation_2;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-MAD R7, R1.xxxx, diffuse_2, R7;
+MAD R4, R1.xxxx, diffuse_2, R4;
 
 MAD R1.xyz, R0.xyzx, -light_position_3.w, light_position_3.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -170,11 +162,11 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_3.wwww;
 DP3 R2.w, R2, attenuation_3;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-MAD R7, R1.xxxx, diffuse_3, R7;
+MAD R4, R1.xxxx, diffuse_3, R4;
 
 MAD R1.xyz, R0.xyzx, -light_position_4.w, light_position_4.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -183,11 +175,11 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_4.wwww;
 DP3 R2.w, R2, attenuation_4;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-MAD R7, R1.xxxx, diffuse_4, R7;
+MAD R4, R1.xxxx, diffuse_4, R4;
 
 MAD R1.xyz, R0.xyzx, -light_position_5.w, light_position_5.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -196,11 +188,11 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_5.wwww;
 DP3 R2.w, R2, attenuation_5;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-MAD R7, R1.xxxx, diffuse_5, R7;
+MAD R4, R1.xxxx, diffuse_5, R4;
 
 MAD R1.xyz, R0.xyzx, -light_position_6.w, light_position_6.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -209,11 +201,11 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_6.wwww;
 DP3 R2.w, R2, attenuation_6;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-MAD R7, R1.xxxx, diffuse_6, R7;
+MAD R4, R1.xxxx, diffuse_6, R4;
 
 MAD R1.xyz, R0.xyzx, -light_position_7.w, light_position_7.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
@@ -222,10 +214,25 @@ MUL R1.xyz, R1.xyzx, R2.y;
 DST R2, R2.xxxx, R2.yyyy;
 MUL R2.yz, R2.yzxx, light_position_7.wwww;
 DP3 R2.w, R2, attenuation_7;
-DP3 R4.x, R1.xyzx, R5.xyzx;
-MAX R1.x, R4.x, constant.z;
+DP3 R1.x, R1.xyzx, R3.xyzx;
+MAX R1.x, R1.x, constant.z;
 RCP R2.w, R2.w;
 MUL R1.x, R1.x, R2.w;
-MAD result.color.primary, R1.xxxx, diffuse_7, R7;
+MAD R4, R1.xxxx, diffuse_7, R4;
+
+SLT R1, color, constant.zzzz;
+ADD R2, -R1, constant.xxxx;
+MUL R3, R2, color;
+
+MAD result.color.primary, R4, R1, R3;
+
+DP4 R4.x, texgen_s, R0;
+DP4 R4.y, texgen_t, R0;
+DP4 R4.z, texgen_r, R0;
+DP4 R4.w, texgen_q, R0;
+
+MUL R3, R2, constant.zzxx;
+
+MAD result.texcoord[0], R4, R1, R3;
 
 END
