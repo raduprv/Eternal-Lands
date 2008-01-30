@@ -125,7 +125,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		{
 			if (act->cur_shield >= 0)
 			{
-				if (a->shield[act->cur_shield].mesh_index == hmd.get_mesh_index())
+				if ((Uint32)a->shield[act->cur_shield].mesh_index == hmd.get_mesh_index())
 				{
 					bone_id = 21;
 					glow = a->shield[act->cur_shield].glow;
@@ -133,7 +133,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			}
 			if (act->cur_weapon >= 0)
 			{
-				if (a->weapon[act->cur_weapon].mesh_index == hmd.get_mesh_index())
+				if ((Uint32)a->weapon[act->cur_weapon].mesh_index == hmd.get_mesh_index())
 				{
 					bone_id = 26;
 					glow = a->weapon[act->cur_weapon].glow;
