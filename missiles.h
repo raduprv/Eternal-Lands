@@ -30,6 +30,8 @@ typedef struct
 } Missile;
 
 #ifdef DEBUG
+extern int enable_client_aiming;
+
 /*!
  * \brief Log a message in the file config_dir/missiles_log.txt
  * \param format the format of the message to log (same options than printf)

@@ -15,7 +15,7 @@ int find_core_bone_id(struct CalCoreSkeleton *skel, const char *name)
 		if (!strcmp(CalCoreBone_GetName(bone), name))
 			return i;
 	}
-	printf("no bone with name '%s' found in skeleton!\n", name);
+	log_error("no bone with name '%s' found in skeleton!\n", name);
 	return -1;
 }
 
@@ -114,7 +114,9 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name)
 		skel->cal_bones_id[cape_bottom_bone] = find_core_bone_id(cal_skel, "cape3");
 		skel->cal_bones_id[weapon_left_bone] = find_core_bone_id(cal_skel, "weaponL");
 		skel->cal_bones_id[weapon_right_bone] = find_core_bone_id(cal_skel, "weaponR");
+#ifdef MISSILES
 		skel->cal_bones_id[arrow_bone] = find_core_bone_id(cal_skel, "arrow");
+#endif // MISSILES
 		skel->cal_bones_id[hand_left_bone] = find_core_bone_id(cal_skel, "handL");
 		skel->cal_bones_id[hand_right_bone] = find_core_bone_id(cal_skel, "handR");
 		skel->cal_bones_id[highest_bone] = skel->cal_bones_id[head_bone];
