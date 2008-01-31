@@ -10,16 +10,14 @@
 extern "C" {
 #endif
 
-typedef enum {MISSILE_ARROW} MissileType;
 typedef enum {MISSED_SHOT, NORMAL_SHOT, CRITICAL_SHOT} MissileShotType;
-typedef enum {RANGE_WEAPON_BOW, RANGE_WEAPON_CROSSBOW} RangeWeaponType;
 
 /*!
  * \brief Structure that handle flying missiles
  */
 typedef struct
 {
-	MissileType type;         /*!< The type of the missile */
+	int type;                  /*!< The type of the missile: corresponds to the quiver type */
 	MissileShotType shot_type; /*!< Specifies the type of the shot (normal, missed...) */
 	float position[3];        /*!< The position of the missile */
 	float direction[3];       /*!< The direction of the missile */
@@ -49,14 +47,14 @@ void missiles_clear();
 
 /*!
  * \brief Adds a new missile
- * \param type the type of the missile
+ * \param type the type of the missile (quiver type)
  * \param origin the origin of the missile
  * \param target the target of the missile
  * \param speed the speed of the missile
  * \param shift allows to tune if the missile should stop before or after the target
  * \param shot_type tells if the shot is missed, normal or critical (will be drawn diferently)
  */
-unsigned int missiles_add(MissileType type,
+unsigned int missiles_add(int type,
 						  float origin[3],
 						  float target[3],
 						  float speed,

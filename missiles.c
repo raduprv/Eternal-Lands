@@ -107,7 +107,7 @@ void missiles_clear()
 	begin_lost_missiles = end_lost_missiles = -1;
 }
 
-unsigned int missiles_add(MissileType type,
+unsigned int missiles_add(int type,
 						  float origin[3],
 						  float target[3],
 						  float speed,
@@ -187,6 +187,7 @@ void missiles_remove(unsigned int missile_id)
 	mis = &missiles_list[missile_id];
 	if (mis->shot_type == MISSED_SHOT &&
 		mis->covered_distance < 30.0) {
+        float x_rot = 360.0 * (float)rand() / RAND_MAX;
 		float y_rot = -asinf(mis->direction[2]);
 		float z_rot = atan2f(mis->direction[1], mis->direction[0]);
 		float dist = -mis->remaining_distance;
@@ -197,10 +198,11 @@ void missiles_remove(unsigned int missile_id)
 		missiles_log_message("adding a lost missile at (%f,%f,%f)",
 							 mis->position[0], mis->position[1], mis->position[2]);
 		switch(mis->type) {
-		case MISSILE_ARROW:
+		case QUIVER_ARROWS:
+		case QUIVER_BOLTS:
 			obj_3d_id = add_e3d("./3dobjects/misc_objects/arrow2.e3d",
 								mis->position[0], mis->position[1], mis->position[2],
-								0.0, y_rot*180.0/M_PI, z_rot*180.0/M_PI,
+								x_rot, y_rot*180.0/M_PI, z_rot*180.0/M_PI,
 								0, 0, 1.0, 1.0, 1.0, 1);
 			break;
 		default:
@@ -217,54 +219,6 @@ void missiles_remove(unsigned int missile_id)
 			   sizeof(Missile));
 	}
 }
-
-/* void missiles_draw_current_actor_nodes() */
-/* { */
-/* 	actor *a = get_actor_ptr_from_id(yourself); */
-/* 	float act_rot[9]; */
-/* 	float pos1[3], pos2[3], shift[3], tmp[3]; */
-/* 	int displayed_bones[] = {0, 11}; */
-/* 	int i; */
-	
-/* 	if (!a) return; */
-	
-/* 	get_actor_rotation_matrix(a, act_rot); */
-
-/* 	glColor3f(1.0, 1.0, 1.0); */
-/* 	glLineWidth(5.0); */
-/* 	glBegin(GL_LINES); */
-
-/*  	for (i = 0; i <= 1; ++i) */
-/* 	{ */
-/* 		int bone_id = displayed_bones[i]; */
-
-/* 		cal_get_actor_bone_local_position(a, bone_id, NULL, tmp); */
-/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos1); */
-
-/* 		shift[0] = 0.3; shift[1] = 0.0; shift[2] = 0.0; */
-/* 		cal_get_actor_bone_local_position(a, bone_id, shift, tmp); */
-/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
-/* 		glColor3f(1.0, 0.0, 0.0); */
-/* 		glVertex3fv(pos1); */
-/* 		glVertex3fv(pos2); */
-
-/* 		shift[0] = 0.0; shift[1] = 0.3; shift[2] = 0.0; */
-/* 		cal_get_actor_bone_local_position(a, bone_id, shift, tmp); */
-/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
-/* 		glColor3f(0.0, 1.0, 0.0); */
-/* 		glVertex3fv(pos1); */
-/* 		glVertex3fv(pos2); */
-
-/* 		shift[0] = 0.0; shift[1] = 0.0; shift[2] = 0.3; */
-/* 		cal_get_actor_bone_local_position(a, bone_id, shift, tmp); */
-/* 		transform_actor_local_position_to_absolute(a, tmp, act_rot, pos2); */
-/* 		glColor3f(0.0, 0.0, 1.0); */
-/* 		glVertex3fv(pos1); */
-/* 		glVertex3fv(pos2); */
-/* 	} */
-
-/* 	glEnd(); */
-/* } */
 
 void missiles_update(Uint32 time_diff)
 {
@@ -302,34 +256,30 @@ void missiles_draw_single(Missile *mis, const float color[4])
 /* 	if (mis->shot_type == MISSED_SHOT) */
 /* 		z_shift = cosf(mis->covered_distance*M_PI/2.0)/10.0; */
 
-	switch (mis->type) {
-	case MISSILE_ARROW:
-		if (mis->covered_distance < mis->trace_length) {
-			glColor4f(color[0], color[1], color[2],
-					  color[3] * (mis->trace_length - mis->covered_distance) / mis->trace_length);
-			glVertex3f(mis->position[0] - mis->covered_distance * mis->direction[0],
-					   mis->position[1] - mis->covered_distance * mis->direction[1],
-					   mis->position[2] - mis->covered_distance * mis->direction[2]);
-		}
-		else {
-			glColor4f(color[0], color[1], color[2], 0.0);
-			glVertex3f(mis->position[0] - mis->trace_length * mis->direction[0],
-					   mis->position[1] - mis->trace_length * mis->direction[1],
-					   mis->position[2] - mis->trace_length * mis->direction[2]);
-		}
-		if (mis->remaining_distance < 0.0) {
-			glColor4f(color[0], color[1], color[2],
-					  color[3] * (mis->trace_length + mis->remaining_distance) / mis->trace_length);
-			glVertex3f(mis->position[0] + mis->remaining_distance * mis->direction[0],
-					   mis->position[1] + mis->remaining_distance * mis->direction[1],
-					   mis->position[2] + mis->remaining_distance * mis->direction[2] + z_shift);
-		}
-		else {
-			glColor4f(color[0], color[1], color[2], color[3]);
-			glVertex3f(mis->position[0], mis->position[1], mis->position[2] + z_shift);
-		}
-		break;
-	}
+    if (mis->covered_distance < mis->trace_length) {
+        glColor4f(color[0], color[1], color[2],
+                  color[3] * (mis->trace_length - mis->covered_distance) / mis->trace_length);
+        glVertex3f(mis->position[0] - mis->covered_distance * mis->direction[0],
+                   mis->position[1] - mis->covered_distance * mis->direction[1],
+                   mis->position[2] - mis->covered_distance * mis->direction[2]);
+    }
+    else {
+        glColor4f(color[0], color[1], color[2], 0.0);
+        glVertex3f(mis->position[0] - mis->trace_length * mis->direction[0],
+                   mis->position[1] - mis->trace_length * mis->direction[1],
+                   mis->position[2] - mis->trace_length * mis->direction[2]);
+    }
+    if (mis->remaining_distance < 0.0) {
+        glColor4f(color[0], color[1], color[2],
+                  color[3] * (mis->trace_length + mis->remaining_distance) / mis->trace_length);
+        glVertex3f(mis->position[0] + mis->remaining_distance * mis->direction[0],
+                   mis->position[1] + mis->remaining_distance * mis->direction[1],
+                   mis->position[2] + mis->remaining_distance * mis->direction[2] + z_shift);
+    }
+    else {
+        glColor4f(color[0], color[1], color[2], color[3]);
+        glVertex3f(mis->position[0], mis->position[1], mis->position[2] + z_shift);
+    }
 }
 
 void missiles_draw()
@@ -379,10 +329,6 @@ void missiles_draw()
 			missiles_draw_single(&missiles_list[i], miss_color);
 	glEnd();
 	glDisable(GL_LINE_STIPPLE);
-
-/* #ifdef DEBUG */
-/* 	missiles_draw_current_actor_nodes(); */
-/* #endif // DEBUG */
 
 	glPopAttrib();
 }
@@ -474,28 +420,28 @@ unsigned int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot
 	float origin[3];
 	float shift[3] = {0.0, get_actor_scale(a), 0.0};
 
-	switch(a->range_weapon_type)
+	switch(a->cur_shield)
 	{
-	case RANGE_WEAPON_BOW:
+	case QUIVER_ARROWS:
 		shift[1] *= arrow_length;
 		break;
 
-	case RANGE_WEAPON_CROSSBOW:
+	case QUIVER_BOLTS:
 		shift[1] *= bolt_length;
 		break;
 
 	default:
 		shift[1] = 0.0;
-		log_error("fire_arrow: %d is an unknown range weapon type, unable to determine precisely the position of the arrow", a->range_weapon_type);
+		log_error("fire_arrow: unable to guess the type of the actor's quiver (%d), the position of the arrow might be wrong!", a->cur_shield);
 		break;
 	}
 
 	cal_get_actor_bone_absolute_position(a, get_actor_bone_id(a, arrow_bone), shift, origin);
 	
 /* 	if (shot_type != MISSED_SHOT) */
-		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, shot_type);
+		mis_id = missiles_add(a->cur_shield, origin, target, arrow_speed, arrow_trace_length, 0.0, shot_type);
 /* 	else */
-/* 		mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, shot_type); */
+/* 		mis_id = missiles_add(a->cur_shield, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, shot_type); */
 	
 	return mis_id;
 }
@@ -760,7 +706,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	UNLOCK_ACTORS_LISTS();
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!
-	mis_id = missiles_add(MISSILE_ARROW, origin, target, arrow_speed, arrow_trace_length, 0.0, 0);
+	mis_id = missiles_add(-1, origin, target, arrow_speed, arrow_trace_length, 0.0, 0);
 }
 
 #endif // MISSILES

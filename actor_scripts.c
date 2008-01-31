@@ -261,6 +261,8 @@ const dict_elem shield_type_dict[] =
 	  { "titanium"     , SHIELD_TITANIUM      },
 	  { "bronze"       , SHIELD_BRONZE        },
 	  { "none"         , SHIELD_NONE          },
+	  { "quiver arrows", QUIVER_ARROWS        },
+	  { "quiver bolts" , QUIVER_BOLTS         },
 	  { NULL           , -1                   }
 	};
 
@@ -924,18 +926,8 @@ void next_command()
 #ifdef MISSILES
 				case enter_aim_mode:
 					if (!actors_list[i]->in_aim_mode) {
-						char *weapon_name = actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].model_name;
 						missiles_log_message("actor %d enters in aim mode", actors_list[i]->actor_id);
-						missiles_log_message("model of the weapon equipped: %s", weapon_name);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
-
-						// detecting the range weapon type from the model name
-						actors_list[i]->range_weapon_type = -1;
-						if (strstr(weapon_name, "bow_cross"))
-							actors_list[i]->range_weapon_type = RANGE_WEAPON_CROSSBOW;
-						else if (strstr(weapon_name, "bow"))
-							actors_list[i]->range_weapon_type = RANGE_WEAPON_BOW;
-						missiles_log_message("range weapon type: %d", actors_list[i]->range_weapon_type);
 
 						actors_list[i]->cal_h_rot_start = 0.0;
 						actors_list[i]->cal_v_rot_start = 0.0;

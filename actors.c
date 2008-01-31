@@ -117,7 +117,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->are_bones_rotating = 0;
 	our_actor->in_aim_mode = 0;
 	our_actor->reload = 0;
-	our_actor->range_weapon_type = 0;
 	our_actor->shot_type = NORMAL_SHOT;
 #endif // MISSILES
 

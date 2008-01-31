@@ -290,7 +290,9 @@ extern "C" {
 #define SHIELD_STEEL 3
 #define SHIELD_TITANIUM 4
 #define SHIELD_BRONZE 5
+#define QUIVER_ARROWS 7
 #define SHIELD_NONE 11
+#define QUIVER_BOLTS 13
 /*! @} */
 
 /*!

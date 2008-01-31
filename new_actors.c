@@ -102,7 +102,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->are_bones_rotating = 0;
 	our_actor->in_aim_mode = 0;
 	our_actor->reload = 0;
-	our_actor->range_weapon_type = 0;
 	our_actor->shot_type = NORMAL_SHOT;
 #endif // MISSILES
 
@@ -950,6 +949,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->dead=dead;
 	actors_list[i]->stop_animation=1;//helps when the actor is dead...
 	actors_list[i]->cur_weapon=weapon;
+	actors_list[i]->cur_shield=shield;
 	actors_list[i]->kind_of_actor=kind_of_actor;
 	if(strlen(&in_data[28]) >= 30)
 	{
