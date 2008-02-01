@@ -68,13 +68,15 @@
 #endif //WINDOWS
 
 #ifdef OSX
+ #include "elglext.h"
  #include <OpenGL/gl.h>
  #include <OpenGL/glu.h>
  #include <OpenGL/glext.h>
 #else
+ #define GL_GLEXT_LEGACY
  #include <GL/gl.h>
  #include <GL/glu.h>
- #include <GL/glext.h>
+ #include "glext.h"
 #endif
 
 // Inlucde the plaform specific location sound libs

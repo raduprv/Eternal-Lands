@@ -109,8 +109,11 @@ clean:
 docs:	
 	cd docs && doxygen Doxyfile
 
-.depend: *.h books/*.h
+.depend: *.h books/*.h elglext.h
 	$(CC) $(CFLAGS) -MM $(patsubst %.o, %.c, $(COBJS)) >.depend
 	$(CXX) $(CXXFLAGS) -MM $(patsubst %.o, %.cpp, $(CXXOBJS)) >>.depend
+
+elglext.h: glext.pl glext.h
+	perl glext.pl > $@
 
 -include .depend
