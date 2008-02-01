@@ -124,7 +124,7 @@ unsigned int missiles_add(int type,
 		return MAX_MISSILES;
 	}
 
-	missiles_log_message("add_missile: origin=(%.2f,%.2f,%.2f), target=(%.2f,%.2f,%.2f)",
+	missiles_log_message("missiles_add: origin=(%.2f,%.2f,%.2f), target=(%.2f,%.2f,%.2f)",
 						 origin[0], origin[1], origin[2], target[0], target[1], target[2]);
 	
 	direction[0] = target[0] - origin[0];
@@ -140,6 +140,9 @@ unsigned int missiles_add(int type,
 				  target[0], target[1], target[2]);
 		return MAX_MISSILES;
 	}
+    else {
+        missiles_log_message("missiles_add: distance of the shot: %f", dist);
+    }
 	
 	mis = &missiles_list[missiles_count++];
 
@@ -185,11 +188,14 @@ void missiles_remove(unsigned int missile_id)
 	}
 
 	mis = &missiles_list[missile_id];
+    /* if the shot is missed and if it has travel a distance which is under
+     * the distance used on server side (20.0), we display a stuck arrow
+     * where the shot has ended */
 	if (mis->shot_type == MISSED_SHOT &&
-		mis->covered_distance < 30.0) {
+		mis->covered_distance < 19.0) {
         float x_rot = 360.0 * (float)rand() / RAND_MAX;
-		float y_rot = -asinf(mis->direction[2]);
-		float z_rot = atan2f(mis->direction[1], mis->direction[0]);
+		float y_rot = -asinf(mis->direction[2])*180.0/M_PI;
+		float z_rot = atan2f(mis->direction[1], mis->direction[0])*180.0/M_PI;
 		float dist = -mis->remaining_distance;
 		int obj_3d_id = -1;
 		mis->position[0] -= mis->direction[0] * dist;
@@ -202,8 +208,7 @@ void missiles_remove(unsigned int missile_id)
 		case QUIVER_BOLTS:
 			obj_3d_id = add_e3d("./3dobjects/misc_objects/arrow2.e3d",
 								mis->position[0], mis->position[1], mis->position[2],
-								x_rot, y_rot*180.0/M_PI, z_rot*180.0/M_PI,
-								0, 0, 1.0, 1.0, 1.0, 1);
+								x_rot, y_rot, z_rot, 0, 0, 1.0, 1.0, 1.0, 1);
 			break;
 		default:
 			break;
@@ -599,8 +604,8 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	missiles_log_message("the target has %d bones", bones_number);
 
 	LOCK_ACTORS_LISTS();
-	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
-	missiles_test_target_validity(act1->range_target, "missiles_aim_at_b");
+	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target_aim);
+	missiles_test_target_validity(act1->range_target_aim, "missiles_aim_at_b");
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, enter_aim_mode);
@@ -620,8 +625,8 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 	}
 
 	LOCK_ACTORS_LISTS();
-	memcpy(act->range_target, target, sizeof(float) * 3);
-	missiles_test_target_validity(act->range_target, "missiles_aim_at_xyz");
+	memcpy(act->range_target_aim, target, sizeof(float) * 3);
+	missiles_test_target_validity(act->range_target_aim, "missiles_aim_at_xyz");
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, enter_aim_mode);
@@ -650,8 +655,8 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	missiles_log_message("the target has %d bones", bones_number);
 
 	LOCK_ACTORS_LISTS();
-	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target);
-	missiles_test_target_validity(act1->range_target, "missiles_fire_a_to_b");
+	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target_fire);
+	missiles_test_target_validity(act1->range_target_fire, "missiles_fire_a_to_b");
 #ifdef COUNTERS
 	act2->last_range_attacker_id = actor1_id;
 #endif // COUNTERS
@@ -674,8 +679,8 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 	}
 
 	LOCK_ACTORS_LISTS();
-	memcpy(act->range_target, target, sizeof(float) * 3);
-	missiles_test_target_validity(act->range_target, "missiles_fire_a_to_xyz");
+	memcpy(act->range_target_fire, target, sizeof(float) * 3);
+	missiles_test_target_validity(act->range_target_fire, "missiles_fire_a_to_xyz");
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, aim_mode_fire);

@@ -950,7 +950,7 @@ void next_command()
 
 						range_rotation = missiles_compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
 																		 &actors_list[i]->cal_v_rot_end,
-																		 actors_list[i], actors_list[i]->range_target);
+																		 actors_list[i], actors_list[i]->range_target_aim);
 						actors_list[i]->cal_rotation_blend = 0.0;
 						actors_list[i]->cal_rotation_speed = 1.0/20.0;
 						actors_list[i]->are_bones_rotating = 1;
@@ -1037,13 +1037,13 @@ void next_command()
 					 * So we have to compute the coordinate of the ground at this position.
 					 */
 					if (actors_list[i]->shot_type == MISSED_SHOT &&
-						actors_list[i]->range_target[2] == 0.0) {
-						int tile_x = (int)(actors_list[i]->range_target[0]*2.0);
-						int tile_y = (int)(actors_list[i]->range_target[1]*2.0);
-						actors_list[i]->range_target[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
+						actors_list[i]->range_target_fire[2] == 0.0) {
+						int tile_x = (int)(actors_list[i]->range_target_fire[0]*2.0);
+						int tile_y = (int)(actors_list[i]->range_target_fire[1]*2.0);
+						actors_list[i]->range_target_fire[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
 					}
 
-					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target, actors_list[i]->shot_type);
+					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target_fire, actors_list[i]->shot_type);
 					actors_list[i]->shot_type = NORMAL_SHOT;
 					break;
 
