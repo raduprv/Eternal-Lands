@@ -569,7 +569,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static inline void draw_actor_without_banner(actor * actor_id)
+static __inline__ void draw_actor_without_banner(actor * actor_id)
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
@@ -629,7 +629,7 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static inline void draw_actor_banner_new(actor * actor_id)
+static __inline__ void draw_actor_banner_new(actor * actor_id)
 {
 	float x_pos, y_pos, z_pos;
 	float healthbar_z;
@@ -788,7 +788,6 @@ void get_actors_in_range()
 void display_actors(int banner, int render_pass)
 {
 	int i, has_alpha, has_ghosts;
-	float alpha;
 
 	get_actors_in_range();
 
@@ -931,22 +930,17 @@ void display_actors(int banner, int render_pass)
 				{
 					//if any ghost has a glowing weapon, we need to reset the blend function each ghost actor.
 					glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-					if ((near_actors[i].buffs & BUFF_INVISIBILITY))
-					{
-						alpha = 0.25f;
-					}
-					else
-					{
-						alpha = 1.0f;
-					}
 
-					if (use_animation_program)
+					if (!use_animation_program)
 					{
-						ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, alpha);
-					}
-					else
-					{
-						glColor4f(1.0f, 1.0f, 1.0f, alpha);
+						if ((near_actors[i].buffs & BUFF_INVISIBILITY))
+						{
+							glColor4f(1.0f, 1.0f, 1.0f, 0.25f);
+						}
+						else
+						{
+							glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+						}
 					}
 
 					draw_actor_without_banner(cur_actor);

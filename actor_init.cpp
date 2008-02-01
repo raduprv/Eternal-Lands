@@ -79,26 +79,32 @@ GLuint vertex_program_ids[5];
 static inline GLuint load_vertex_program(const std::string &name)
 {
 	GLuint id;
-	Uint32 size;
 	eternal_lands::el_file f(name, true);
 	std::string str;
+	std::stringstream s1;
+	std::stringstream s2;
+	size_t pos;
 
 	ELglGenProgramsARB(1, &id);
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, id);
 
+	str = std::string(reinterpret_cast<char*>(f.get_pointer()), f.get_size());
+	s1 << (max_bones_per_mesh * 3);
+	pos = str.find("%d");
+	if (pos == str.npos)
 	{
-		std::stringstream s1;
-		std::stringstream s2;
-		size_t pos;
-
-		str = std::string(reinterpret_cast<char*>(f.get_pointer()), f.get_size());
-		s1 << (max_bones_per_mesh * 3);
-		pos = str.find("%d");
-		str.replace(pos, 2, s1.str());
-		s2 << (max_bones_per_mesh * 3 - 1);
-		pos = str.find("%d");
-		str.replace(pos, 2, s2.str());
+		EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" << name <<
+			"' is invalid.");
 	}
+	str.replace(pos, 2, s1.str());
+	s2 << (max_bones_per_mesh * 3 - 1);
+	pos = str.find("%d");
+	if (pos == str.npos)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" << name <<
+			"' is invalid.");
+	}
+	str.replace(pos, 2, s2.str());
 
 	ELglProgramStringARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_FORMAT_ASCII_ARB,
 		str.size(), str.c_str());
@@ -179,7 +185,21 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		}
 		else
 		{
-			ELglVertexAttrib4f(4, -1.0f, -1.0f, -1.0f, -1.0f);
+			if (act->ghost || (act->buffs & BUFF_INVISIBILITY))
+			{
+				if ((act->buffs & BUFF_INVISIBILITY))
+				{
+					ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 0.25f);
+				}
+				else
+				{
+					ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 1.0f);
+				}
+			}
+			else
+			{
+				ELglVertexAttrib4f(4, -1.0f, -1.0f, -1.0f, -1.0f);
+			}
 		}
 
 		a->hardware_model->selectHardwareMesh(index);
@@ -609,7 +629,7 @@ extern "C" void build_buffers(actor_types* a)
 
 		count = a->hardware_model->getFaceCount();
 
-		optimize_vertex_cache_order(data32, a->hardware_model->getStartIndex(), count * 3, 128);
+		optimize_vertex_cache_order(data32, a->hardware_model->getStartIndex(), count * 3, 64);
 	}
 
 	if (max_index <= std::numeric_limits<Uint16>::max())

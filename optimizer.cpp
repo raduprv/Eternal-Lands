@@ -12,6 +12,7 @@ typedef struct tri_data
 typedef struct vert_data
 {
 	float score;
+	float tmp;
 	std::set<Uint32> remaining_tris;
 };
 
@@ -23,7 +24,7 @@ float calculate_average_cache_miss_ratio(const Uint32* indices, const Uint32 off
 	const Uint32 count, const Uint32 cache_size)
 #endif	/* USE_BOOST */
 {
-	std::vector<Sint32> cache(cache_size, -1);
+	std::vector<Uint32> cache(cache_size, 0xFFFFFFFF);
 	Uint32 i, j, cache_ptr, cache_misses;
 	bool cache_hit;
 
@@ -63,14 +64,15 @@ bool optimize_vertex_cache_order(Uint32* tri_indices, const Uint32 offset,
 	const Uint32 count, const Uint32 cache_size)
 #endif	/* USE_BOOST */
 {
-	//	size of the optimization cache
 	std::vector<float> cache_score(cache_size + 3, 0.75);
-	std::vector<Sint32> cache_idx(cache_size + 3, -1);
-	std::vector<Sint32> grow_cache_idx(cache_size + 3, -1);
+	std::vector<Uint32> cache_idx(cache_size + 3, 0xFFFFFFFF);
+	std::vector<Uint32> grow_cache_idx(cache_size + 3, 0xFFFFFFFF);
 	std::set<Uint32>::iterator it;
-	Uint32 i;
+	Uint32 i, j, index;
 	Uint32 num_triangles, num_vertices;
-	Sint32 tris_left;
+	Uint32 tris_left, best_idx;
+	Uint32 a, b, c;
+	float best_score, old_score, new_score;
 
 	if ((count < 3) || (count % 3 != 0) || (cache_size < 4))
 	{
@@ -121,24 +123,21 @@ bool optimize_vertex_cache_order(Uint32* tri_indices, const Uint32 offset,
 	}
 	for (i = 0; i < num_vertices; i++)
 	{
-		v[i].score = 2.0 / sqrt(v[i].remaining_tris.size());
+		if (v[i].remaining_tris.size() > 0)
+		{
+			v[i].score = 2.0 / sqrt(v[i].remaining_tris.size());
+			v[i].tmp = v[i].score;
+		}
 	}
-	float best_score = 0.0;
-	Sint32 best_idx = -1;
 	for (i = 0; i < num_triangles; i++)
 	{
 		t[i].score = v[t[i].verts[0]].score + v[t[i].verts[1]].score + v[t[i].verts[2]].score;
-		if (t[i].score > best_score )
-		{
-			best_score = t[i].score;
-			best_idx = i;
-		}
 	}
-	//	now keep adding triangles
+
 	while (tris_left > 0)
 	{
 		best_score = 0.0;
-		best_idx = -1;
+		best_idx = 0xFFFFFFFF;
 		for (i = 0; i < num_triangles; i++)
 		{
 			if (!t[i].added)
@@ -150,43 +149,52 @@ bool optimize_vertex_cache_order(Uint32* tri_indices, const Uint32 offset,
 				}
 			}
 		}
-		int a = t[best_idx].verts[0];
-		int b = t[best_idx].verts[1];
-		int c = t[best_idx].verts[2];
-		tri_indices[offset + (num_triangles - tris_left)*3+0] = a;
-		tri_indices[offset + (num_triangles - tris_left)*3+1] = b;
-		tri_indices[offset + (num_triangles - tris_left)*3+2] = c;
+		a = t[best_idx].verts[0];
+		b = t[best_idx].verts[1];
+		c = t[best_idx].verts[2];
+		tri_indices[offset + (num_triangles - tris_left) * 3 + 0] = a;
+		tri_indices[offset + (num_triangles - tris_left) * 3 + 1] = b;
+		tri_indices[offset + (num_triangles - tris_left) * 3 + 2] = c;
 		for (i = 0; i < 3; i++)
 		{
-			v[t[best_idx].verts[i]].remaining_tris.erase(best_idx);
+			index = t[best_idx].verts[i];
+			v[index].remaining_tris.erase(best_idx);
+			if (v[index].remaining_tris.size() > 0)
+			{
+				v[index].tmp = 2.0 / sqrt(v[index].remaining_tris.size());
+			}
 		}
 		t[best_idx].added = true;
-		--tris_left;
+		tris_left--;
 		grow_cache_idx[0] = a;
 		grow_cache_idx[1] = b;
 		grow_cache_idx[2] = c;
-		int idx = 3;
+		j = 3;
 		for (i = 0; i < cache_size; i++)
 		{
-			grow_cache_idx[i + 3] = -1;
+			grow_cache_idx[i + 3] = 0xFFFFFFFF;
 			if ((cache_idx[i] != a) && (cache_idx[i] != b) &&
 				(cache_idx[i] != c))
 			{
-				grow_cache_idx[idx++] = cache_idx[i];
+				grow_cache_idx[j++] = cache_idx[i];
 			}
 		}
-		cache_idx = grow_cache_idx;
-		for (i = 0; i < cache_size + 3; i++)
+		cache_idx.swap(grow_cache_idx);
+		for (i = 0; i < cache_size; i++)
 		{
-			if (cache_idx[i] >= 0)
+			if (cache_idx[i] < 0xFFFFFFFF)
 			{
-				idx = cache_idx[i];
-				float old_score = v[idx].score;
-				float new_score = cache_score[i] + 2.0 / sqrt(v[idx].remaining_tris.size());
-				v[idx].score = new_score;
-				for (it = v[idx].remaining_tris.begin(); it != v[idx].remaining_tris.end(); it++)
+				index = cache_idx[i];
+				if (v[index].remaining_tris.size() > 0)
 				{
-					t[*it].score += new_score - old_score;
+					old_score = v[index].score;
+					new_score = cache_score[i] + v[index].tmp;
+					v[index].score = new_score;
+					for (it = v[index].remaining_tris.begin();
+						it != v[index].remaining_tris.end(); it++)
+					{
+						t[*it].score += new_score - old_score;
+					}
 				}
 			}
 		}
