@@ -408,9 +408,14 @@ void load_map_marks()
 		if (strlen (text) > 1) {
 			sscanf (text, "%d %d", &marks[max_mark].x, &marks[max_mark].y);
 			text[strlen(text)-1] = '\0'; //remove the newline
-			safe_strncpy(marks[max_mark].text, strstr(strstr(text, " ")+1, " ") + 1, sizeof(marks[max_mark].text));
-			max_mark++;
-			if ( max_mark > 200 ) break;
+			if ((strstr(text, " ") == NULL) || (strstr(strstr(text, " ")+1, " ") == NULL)) {
+ 				LOG_ERROR("Bad map mark file=[%s] text=[%s]", marks_file, text);
+			}
+			else {
+				safe_strncpy(marks[max_mark].text, strstr(strstr(text, " ")+1, " ") + 1, sizeof(marks[max_mark].text));
+				max_mark++;
+				if ( max_mark > 200 ) break;
+			}
 		}
 	}
 	
