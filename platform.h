@@ -24,6 +24,7 @@
 #endif  // _WIN32 || _WIN64
 
 #ifdef WINDOWS
+ #define NOMINMAX
  #include <windows.h>
  #ifdef _MSC_VER        // now we do test for VC
   // Lachesis: Make sure snprintf is declared before we #define it to be something else,
