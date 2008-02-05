@@ -410,7 +410,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			harvesting = 1;
 		} else if ((my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) ||
 				(my_strncompare(text_to_add+1, "You can't harvest while fighting (duh)!", 39)) ||
-				((my_strncompare(text_to_add+1, "You need to have a ", 20) && strstr(text_to_add, "order to harvest") != NULL))){
+				((my_strncompare(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL))){
 			harvesting = 0;
 		}
 		else if (is_death_message(text_to_add+1)) {
