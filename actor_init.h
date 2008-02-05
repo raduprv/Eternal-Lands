@@ -12,6 +12,13 @@ extern "C"
 #endif
 
 extern Uint32 use_animation_program;
+extern Uint32 use_display_actors;
+extern Uint32 use_actor_bbox_check;
+extern Uint32 use_render_mesh_shader;
+extern Uint32 use_set_transformation_buffers;
+extern Uint32 use_build_actor_bounding_box;
+extern Uint32 use_model_attach_and_detach_mesh;
+extern Uint32 use_render_attached_meshs;
 
 int load_vertex_programs();
 void build_buffers(actor_types* a);

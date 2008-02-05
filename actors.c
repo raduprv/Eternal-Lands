@@ -738,7 +738,11 @@ void get_actors_in_range()
 			VAddEq(bbox.bbmin, pos);
 			VAddEq(bbox.bbmax, pos);
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+			if (aabb_in_frustum(bbox) || (!use_actor_bbox_check))
+#else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 			if (aabb_in_frustum(bbox))
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 			{
 				near_actors[no_near_actors].actor = i;
 				near_actors[no_near_actors].ghost = actors_list[i]->ghost;
@@ -795,6 +799,12 @@ void display_actors(int banner, int render_pass)
 	glEnable(GL_CULL_FACE);
 #endif	// ACTOR_FACE_CULLING
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	if (!use_display_actors)
+	{
+		return;
+	}
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	if (use_animation_program)
 	{
 		set_actor_animation_program(render_pass, 0);

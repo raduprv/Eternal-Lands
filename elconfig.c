@@ -102,8 +102,12 @@ typedef	int (*int_min_max_func)();
 
 #define MAX_TABS 12
 #else /* SKY_FPV_CURSOR */
-
-#define MAX_TABS 11
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+  #define DEBUGTAB 11 // VPAADTAB = Vertex Program Actor Animation Debug TAB
+  #define MAX_TABS 12
+ #else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+  #define MAX_TABS 11
+ #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 #endif /* SKY_FPV_CURSOR */
 
 
@@ -1780,6 +1784,16 @@ void init_vars()
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
 #endif	// USE_SEND_VIDEO_INFO
 	add_var(OPT_BOOL_INI_RO, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	add_var(OPT_BOOL, "use_display_actors", "uda", &use_display_actors, change_var, 1, "Use display actors", "Use the display_actors function", DEBUGTAB);
+	add_var(OPT_BOOL, "use_actor_bbox_check", "uabc", &use_actor_bbox_check, change_var, 1, "Use actor bbox check", "Use the actor bbox check", DEBUGTAB);
+	add_var(OPT_BOOL, "use_render_mesh_shader", "urms", &use_render_mesh_shader, change_var, 1, "Use render_mesh_shader", "Use the render_mesh_shader function", DEBUGTAB);
+	add_var(OPT_BOOL, "use_set_transformation_buffers", "ustb", &use_set_transformation_buffers, change_var, 1, "Use set_transformation_buffers", "Use the set_transformation_buffers function", DEBUGTAB);
+	add_var(OPT_BOOL, "use_build_actor_bounding_box", "ubabb", &use_build_actor_bounding_box, change_var, 1, "Use build_actor_bounding_box", "Use the build_actor_bounding_box function", DEBUGTAB);
+	add_var(OPT_BOOL, "use_model_attach_and_detach_mesh", "umaadm", &use_model_attach_and_detach_mesh, change_var, 1, "Use model_attach_and_detach_mesh", "Use the model_attach_and_detach_mesh function", DEBUGTAB);
+	add_var(OPT_BOOL, "use_render_attached_meshs", "uram", &use_render_attached_meshs, change_var, 1, "Use render_attached_meshs", "Use the render attached meshs", DEBUGTAB);
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 void write_var (FILE *fout, int ivar)
@@ -2444,6 +2458,10 @@ void display_elconfig_win(void)
 		elconfig_tabs[ECTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_ec, 0, 0);
 #ifdef SKY_FPV_CURSOR
 		elconfig_tabs[EMAJEKRAL].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_emajekral,0, 0);
+#else /* SKY_FPV_CURSOR */
+ #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug",0, 0);
+ #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 #endif /* SKY_FPV_CURSOR */
 
 		elconfig_populate_tabs();
