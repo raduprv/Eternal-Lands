@@ -837,6 +837,7 @@ extern "C" void model_delete(CalModel *self)
 extern "C" void model_attach_mesh(actor *act, int mesh_id)
 {
 	IntMap* im;
+	actor_types* a;
 	int i, count;
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
@@ -855,17 +856,21 @@ extern "C" void model_attach_mesh(actor *act, int mesh_id)
 
 	assert(im);
 
-	if (actors_defs[act->actor_type].hardware_model)
+	a = &actors_defs[act->actor_type];
+
+	if (a->hardware_model)
 	{
-		count = actors_defs[act->actor_type].hardware_model->getVectorHardwareMesh().size();
+		count = a->hardware_model->getVectorHardwareMesh().size();
 
 		for (i = 0; i < count; i++)
 		{
-			if (actors_defs[act->actor_type].hardware_model->getVectorHardwareMesh()[i].meshId
-				== mesh_id)
+			if (a->hardware_model->getVectorHardwareMesh()[i].meshId == mesh_id)
 			{
-				im->insert(std::pair<Sint32, HardwareMeshData>(i,
-					HardwareMeshData(mesh_id, max_bones_per_mesh * 3)));
+				std::pair<Sint32, HardwareMeshData> p = std::pair<Sint32,
+					HardwareMeshData>(i, HardwareMeshData(mesh_id,
+					max_bones_per_mesh * 3));
+				im->insert(p);
+				set_transformation_buffer(a, act, p.first, p.second);
 			}
 		}
 	}
@@ -874,6 +879,7 @@ extern "C" void model_attach_mesh(actor *act, int mesh_id)
 extern "C" void model_detach_mesh(actor *act, int mesh_id)
 {
 	IntMap* im;
+	actor_types* a;
 	int i, count;
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
@@ -892,14 +898,15 @@ extern "C" void model_detach_mesh(actor *act, int mesh_id)
 
 	assert(im);
 
-	if (actors_defs[act->actor_type].hardware_model)
+	a = &actors_defs[act->actor_type];
+
+	if (a->hardware_model)
 	{
-		count = actors_defs[act->actor_type].hardware_model->getVectorHardwareMesh().size();
+		count = a->hardware_model->getVectorHardwareMesh().size();
 
 		for (i = 0; i < count; i++)
 		{
-			if (actors_defs[act->actor_type].hardware_model->getVectorHardwareMesh()[i].meshId
-				== mesh_id)
+			if (a->hardware_model->getVectorHardwareMesh()[i].meshId == mesh_id)
 			{
 				im->erase(i);
 			}
