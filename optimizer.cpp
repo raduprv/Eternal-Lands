@@ -2,14 +2,14 @@
 #include <set>
 #include <vector>
 
-typedef struct tri_data
+struct tri_data
 {
 	bool added;
 	float score;
 	Uint32 verts[3];
 };
 
-typedef struct vert_data
+struct vert_data
 {
 	float score;
 	std::set<Uint32> remaining_tris;
