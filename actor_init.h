@@ -21,6 +21,7 @@ extern Uint32 use_model_attach_and_detach_mesh;
 extern Uint32 use_render_attached_meshs;
 
 int load_vertex_programs();
+void unload_vertex_programs();
 void build_buffers(actor_types* a);
 void build_actor_bounding_box(actor* a);
 void set_transformation_buffers(actor* act);

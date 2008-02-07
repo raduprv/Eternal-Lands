@@ -3250,12 +3250,4 @@ void init_actor_defs()
 
 	ok = read_actor_defs (defdir, idxname);
 #endif	// NEW_FILE_IO
-	if (use_animation_program)
-	{
-		use_animation_program &= load_vertex_programs();
-	}
-	if (use_animation_program)
-	{
-		log_info("Using vertex programs for actor animation");
-	}
 }

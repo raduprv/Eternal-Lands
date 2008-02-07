@@ -130,6 +130,7 @@ static inline GLuint load_vertex_program(const std::string &name)
 extern "C" void unload_vertex_programs()
 {
 	ELglDeleteProgramsARB(5, vertex_program_ids);
+	memset(vertex_program_ids, 0, sizeof(vertex_program_ids));
 }
 
 static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, const HardwareMeshData &hmd)

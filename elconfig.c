@@ -277,14 +277,26 @@ void change_use_animation_program(int * var)
 {
 	if (*var)
 	{
+		if (gl_extensions_loaded && have_extension(arb_vertex_buffer_object) &&
+			have_extension(arb_vertex_program))
+		{
+			unload_vertex_programs();
+		}
 		*var = 0;
 	}
 	else
 	{
-		if (!gl_extensions_loaded || (have_extension(arb_vertex_buffer_object) &&
-			have_extension(arb_vertex_program)))
+		if (!gl_extensions_loaded)
 		{
 			*var = 1;
+		}
+		else
+		{
+			if (have_extension(arb_vertex_buffer_object) && 
+				have_extension(arb_vertex_program))
+			{
+				*var = load_vertex_programs();
+			}
 		}
 	}
 }
@@ -1256,6 +1268,7 @@ void check_options()
 #ifdef	USE_SHADER
 	check_option_var("water_shader_quality");
 #endif	// USE_SHADER
+	check_option_var("use_animation_program");
 }
 
 int check_var (char *str, var_name_type type)
