@@ -105,6 +105,8 @@ public:
   std::vector<ec::Vec3> targets;
   ec::SmoothPolygonBoundingRange bounds;
   bool dead;
+  int casterbone;
+  int targetbone;
 } ec_internal_reference;
 
 typedef struct ec_object_obstruction
@@ -227,8 +229,11 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_harvesting_mother_nature(float x, float y, float z, int LOD);
   ec_reference ec_create_harvesting_queen_of_nature(float x, float y, float z, int LOD);
   ec_reference ec_create_harvesting_bees(float x, float y, float z, int LOD);
+  ec_reference ec_create_harvesting_bees2(actor* caster, int LOD);
   ec_reference ec_create_harvesting_bag_of_gold(float x, float y, float z, int LOD);
+  ec_reference ec_create_harvesting_bag_of_gold2(actor* caster, int LOD);
   ec_reference ec_create_harvesting_rare_stone(float x, float y, float z, int LOD);
+  ec_reference ec_create_harvesting_rare_stone2(actor* caster, int LOD);
   ec_reference ec_create_impact_magic_protection(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_impact_shield(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
   ec_reference ec_create_impact_magic_immunity(float x, float y, float z, float angle_x, float angle_y, float angle_z, int LOD, float strength);
@@ -327,6 +332,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_mine_prime(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_remove(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD);
+  ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, int LOD);
 #endif // MINES
 
 #ifdef __cplusplus

@@ -767,19 +767,22 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				ec_create_targetmagic_teleport_to_range(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), target->x_pos, target->y_pos, ec_get_z(target), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
-				ec_create_harvesting_rare_stone(caster->x_pos + 0.4 * sin(caster->z_rot) + X_OFFSET, caster->y_pos + 0.4 * cos(caster->z_rot) + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_harvesting_rare_stone(caster->x_pos + 0.4 * sin(caster->z_rot) + X_OFFSET, caster->y_pos + 0.4 * cos(caster->z_rot) + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_harvesting_rare_stone2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
 				ec_create_harvesting_queen_of_nature(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
 				ec_create_harvesting_bag_of_gold(caster->x_pos + X_OFFSET + 0.4 * sin(caster->z_rot), caster->y_pos + Y_OFFSET + 0.4 * cos(caster->z_rot), ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_harvesting_bag_of_gold2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE:
 				ec_create_harvesting_cavern_wall(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_BEES:
-				ec_create_harvesting_bees(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_harvesting_bees(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_harvesting_bees2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_RADON:
 				ec_create_harvesting_radon_pouch(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
@@ -903,34 +906,44 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				break;
 #ifdef MINES
 			case	SPECIAL_EFFECT_SMALL_MINE_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_MEDIUM_MINE_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_MEDIUM_MINE, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HIGH_EXPLOSIVE_MINE_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_HIGH_EXPLOSIVE_MINE, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_SNARE_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_TRAP, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_TRAP, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_CALTROP_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_CALTROP, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_POISONED_CALTROP_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_POISONED_CALTROP, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_MANA_DRAINER_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_MANA_DRAINER, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_MANA_BURNER_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_MANA_BURNER, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_UNINVIZIBILIZER_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_UNINVIZIBILIZER, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_MAGIC_IMMUNITY_REMOVAL_GOES_BOOM:
-				ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
+				ec_create_mine_detonate2(caster, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 				break;
 #endif // MINES
 			default:

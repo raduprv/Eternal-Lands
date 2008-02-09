@@ -47,7 +47,7 @@ bool SelfMagicParticle::idle(const Uint64 delta_t)
       }
       else
       {
-        if (alpha < 0.008)
+        if (alpha < 0.04)
           return false;
 
         const float scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 15.0);
@@ -230,8 +230,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
   {
     case HEAL:
     {
-      effect_center.y += 0.2;
-      spawner = new SierpinskiIFSParticleSpawner();
+      spawner = new SierpinskiIFSParticleSpawner(1.05);
       mover = new GravityMover(this, &effect_center, 1e10);
       while ((int)particles.size() < LOD * 100)
       {
@@ -246,7 +245,6 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case MAGIC_PROTECTION:
     {
-      effect_center.y += 0.4;
       spawner = new HollowSphereSpawner(0.7);
       mover = new GravityMover(this, &effect_center, 3e10);
       while ((int)particles.size() < LOD * 100)
@@ -262,8 +260,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case SHIELD:
     {
-      effect_center.y += 0.2;
-      spawner = new HollowDiscSpawner(0.45);
+      spawner = new HollowDiscSpawner(0.65);
       mover = new SpiralMover(this, &effect_center, 15.0, 14.0);
 
       while ((int)particles.size() < LOD * 100)
@@ -281,18 +278,30 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case HEATSHIELD:
     {
-      effect_center.y += 0.2;
-      spawner = new HollowDiscSpawner(0.30);
-      mover = new SpiralMover(this, &effect_center, 10.0, 40.0);
+	  spawner = new SierpinskiIFSParticleSpawner();
+      spawner2 = new HollowDiscSpawner(0.65);
+      mover = new SpiralMover(this, &effect_center, 10.0, 120.0);
+      mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
    
-      while ((int)particles.size() < LOD * 90)
+      while ((int)particles.size() < LOD * 60)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.39);
         velocity.y *= 1.5;
         velocity.y += 0.7;
-        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 4.0, 1.0, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
+        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 5.0, 0.9, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      while ((int)particles.size() < LOD * 160)
+      {
+        Vec3 coords = spawner2->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(0.39);
+        velocity.y *= 1.5;
+        velocity.y += 0.7;
+        Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 1.0, 0.55, 0.05, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -300,18 +309,30 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case COLDSHIELD:
     {
-      effect_center.y += 0.2;
-      spawner = new HollowDiscSpawner(0.65);
-      mover = new SpiralMover(this, &effect_center, 5.0, 1.0);
+      spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
+      spawner2 = new HollowDiscSpawner(0.65);
+      mover = new SpiralMover(this, &effect_center, 5.0, 50.0);
+      mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
    
-      while ((int)particles.size() < LOD * 220)
+      while ((int)particles.size() < LOD * 80)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.36);
         velocity.y *= 2.5;
         velocity.y -= 0.7;
-        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 6.0, 1.0, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
+        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 8.0, 0.5, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      while ((int)particles.size() < LOD * 180)
+      {
+        Vec3 coords = spawner2->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(0.36);
+        velocity.y *= 2.5;
+        velocity.y -= 0.7;
+        Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.50, 0.95, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -319,18 +340,30 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case RADIATIONSHIELD:
     {
-      effect_center.y += 0.2;
-      spawner = new HollowDiscSpawner(0.50);
-      mover = new SpiralMover(this, &effect_center, 12.0, 16.0);
+	  spawner = new HollowEllipsoidSpawner(Vec3(0.5, 0.9, 0.5));
+      spawner2 = new HollowDiscSpawner(0.65);
+      mover = new SpiralMover(this, &effect_center, 12.0, 36.0);
+      mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
    
-      while ((int)particles.size() < LOD * 110)
+      while ((int)particles.size() < LOD * 120)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.33);
         velocity.y *= 4.25;
         velocity.y += 0.3;
-        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 2.0, 1.0, 0.15, 1.0, 0.35, &(base->TexShimmer), LOD, type);
+        Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 4.0, 0.9, 0.05, 1.0, 0.25, &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      while ((int)particles.size() < LOD * 220)
+      {
+        Vec3 coords = spawner2->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(0.33);
+        velocity.y *= 4.25;
+        velocity.y += 0.3;
+        Particle * p = new SelfMagicParticle(this, mover2, coords, velocity, 2.0, 1.0, 0.05, 0.8, 0.25, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -338,7 +371,6 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case RESTORATION:
     {
-      effect_center.y += 0.2;
       spawner = new FilledSphereSpawner(0.8);
       mover = new GravityMover(this, &effect_center, 3e10);
       spawner2 = new HollowDiscSpawner(0.45);
@@ -352,10 +384,9 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
         if (!base->push_back_particle(p))
           break;
       }
-      while ((int)particles.size() < LOD * 100)
+      while ((int)particles.size() < LOD * 120)
       {
         Vec3 coords = spawner2->get_new_coords() + effect_center;
-        coords.y += 1.0;
         Vec3 velocity;
         velocity.randomize(0.3);
         velocity.y *= 5;
@@ -398,7 +429,6 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
           break;
       }
       
-//      const float radius = 0.5 * powf(2, 0.18) / 1.5;
       const float radius = 0.377628;
       for (int i = 0; i < LOD * 4; i++)
       {
@@ -410,7 +440,6 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case MAGIC_IMMUNITY:
     {
-      effect_center.y += 0.2;
       spawner = new FilledSphereSpawner(1.0);
       mover = new GravityMover(this, &effect_center, 4e10);
       while ((int)particles.size() < LOD * 20)
@@ -419,7 +448,6 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
         Vec3 velocity;
         velocity.randomize(2.0);
         coords += effect_center;
-        coords.y += 0.3;
         Particle * p = new SelfMagicParticle(this, mover, coords, velocity, randcoord(7.0) + 0.3, 1.0, randcolor(), randcolor(), randcolor(), &(base->TexVoid), LOD, type);
         if (!base->push_back_particle(p))
           break;

@@ -93,6 +93,9 @@ Uint32 K_PASTE=KMOD_LMETA|'v';
 #endif
 Uint32 K_COPY_ALT=CTRL|SDLK_INSERT;
 Uint32 K_PASTE_ALT=SHIFT|SDLK_INSERT;
+#ifdef ECDEBUGWIN
+Uint32 K_ECDEBUGWIN=ALT|CTRL|'d';
+#endif
 
 void add_key (Uint32 *key, Uint32 n)
 {

@@ -37,6 +37,9 @@
 #ifdef NOTEPAD
 #include "notepad.h"
 #endif
+#ifdef ECDEBUGWIN
+#include "eye_candy_debugwin.h"
+#endif
 #include "url.h"
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
@@ -713,6 +716,9 @@ void view_window(int * window, int id)
 #endif
 #ifdef MINIMAP
 			else if(window==&minimap_win) display_minimap();
+#endif
+#ifdef ECDEBUGWIN
+			else if(window==&ecdebug_win) display_ecdebugwin();
 #endif
 			else if(window==&storage_win) display_storage_menu();
 			else if(window==&tab_stats_win) display_tab_stats();

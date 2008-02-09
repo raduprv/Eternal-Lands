@@ -73,6 +73,9 @@
 #ifdef MISSILES
 #include "missiles.h"
 #endif
+#ifdef ECDEBUGWIN
+#include "eye_candy_debugwin.h"
+#endif
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -1759,6 +1762,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		view_window (&minimap_win, 0);
 	}
 #endif  //MINIMAP
+#ifdef ECDEBUGWIN
+	else if(key == K_ECDEBUGWIN)
+	{
+		view_window (&ecdebug_win, 0);
+	}
+#endif // ECDEBUGWIN
 	else if (key == K_SIGILS)
 	{
 		view_window (&sigil_win, -1);

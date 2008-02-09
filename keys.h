@@ -83,6 +83,9 @@ extern Uint32 K_COPY;               /*!< key used to copy text into a clipboard 
 extern Uint32 K_PASTE;              /*!< key used to copy text from a clipboard into EL */
 extern Uint32 K_COPY_ALT;           /*!< alternative key used to copy text into a clipboard */ 
 extern Uint32 K_PASTE_ALT;          /*!< alternative key used to copy text from a clipboard into EL */
+#ifdef ECDEBUGWIN
+extern Uint32 K_ECDEBUGWIN;         /*!< open Eye Candy debug window */
+#endif /* ECDEBUGWIN */
 /*! @} */
 
 /*! \name Quickbar access keys */

@@ -42,7 +42,7 @@ bool HarvestingParticle::idle(const Uint64 delta_t)
       if (alpha < 0.01)
         return false;
 
-      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 3);
+      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
       alpha *= scalar;
 
       break;
@@ -85,7 +85,7 @@ bool HarvestingParticle::idle(const Uint64 delta_t)
       if (alpha < 0.03)
         return false;
 
-      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 6);
+      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1); // orig: 6, smaller numbers -> longer effect
       alpha *= scalar;
 
       break;
@@ -116,11 +116,11 @@ bool HarvestingParticle::idle(const Uint64 delta_t)
       }
       else
       {
-        const percent_t scalar = math_cache.powf_05_close(float_time * 1);
+        const percent_t scalar = math_cache.powf_05_close(float_time * 0.5);
         size *= scalar;
         alpha *= scalar;
     
-        if (alpha < 0.02)
+        if (alpha < 0.01)
           return false;
       }
       break;
@@ -282,7 +282,6 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     }
     case BEES:
     {
-      effect_center.y += 0.5;
       spawner = new FilledSphereSpawner(0.5);
       mover = new GravityMover(this, &effect_center, 8e9);
       while ((int)particles.size() < LOD * 50)
@@ -300,7 +299,6 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     }
     case BAG_OF_GOLD:
     {
-      effect_center.y += 0.5;
       mover = new GravityMover(this, &effect_center, 2e10);
       spawner = new HollowSphereSpawner(0.3);
   
@@ -321,7 +319,6 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     }
     case RARE_STONE:
     {
-      effect_center.y += 0.5;
       mover = new ParticleMover(this);
       spawner = new HollowSphereSpawner(0.3);
   

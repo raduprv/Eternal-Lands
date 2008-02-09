@@ -413,6 +413,16 @@ public:
       return false;
   }
   
+  Vec3 as_el()
+  {
+	return Vec3(x, y, z);
+  }
+  
+  Vec3 as_ec()
+  {
+	return Vec3(x, z, -y);
+  }
+  
   coord_t x, y, z;
 };
 
@@ -1164,6 +1174,13 @@ public:
     ifs_elements.push_back(new IFSLinearElement(Vec3(1, -1, -1), 0.5));
     ifs_elements.push_back(new IFSLinearElement(Vec3(-1.155, -1, -1.155), 0.5));
     ifs_elements.push_back(new IFSLinearElement(Vec3(0.0, -1, 1), 0.5));
+  };
+  SierpinskiIFSParticleSpawner(float scale)
+  {
+    ifs_elements.push_back(new IFSLinearElement(Vec3(0.0 * scale, 1 * scale, 0.0 * scale), 0.5 * scale));
+    ifs_elements.push_back(new IFSLinearElement(Vec3(1 * scale, -1 * scale, -1 * scale), 0.5 * scale));
+    ifs_elements.push_back(new IFSLinearElement(Vec3(-1.155 * scale, -1 * scale, -1.155 * scale), 0.5 * scale));
+    ifs_elements.push_back(new IFSLinearElement(Vec3(0.0 * scale, -1 * scale, 1 * scale), 0.5 * scale));
   };
 };
 

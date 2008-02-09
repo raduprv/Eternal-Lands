@@ -338,10 +338,10 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     {
       effect_centers.push_back(*_pos);
 
-      spawner = new FilledDiscSpawner(0.75);
+      spawner = new FilledDiscSpawner(0.25);
       spawner2 = new SierpinskiIFSParticleSpawner();
       mover = new GravityMover(this, &(effect_centers[0]), 1e11);
-      while (particles.size() < 6)
+      while (particles.size() < 8)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
@@ -360,7 +360,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner = new HollowSphereSpawner(0.75);
       mover = new GravityMover(this, &(effect_centers[0]), 3e11);
       mover2 = new SimpleGravityMover(this);
-      while (particles.size() < 22)
+      while (particles.size() < 32)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
@@ -424,7 +424,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       mover2 = new GravityMover(this, &(effect_centers[0]), 6e10);
       spawner = new FilledDiscSpawner(0.2);
 
-      while (particles.size() < 8)
+      while (particles.size() < 16)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
@@ -520,7 +520,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner2 = new HollowSphereSpawner(0.75);
       mover = new GravityMover(this, &(effect_centers[0]), 8e10);
       mover2 = new GravityMover(this, &target, 4e11);
-      while (particles.size() < 6)
+      while (particles.size() < 8)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
@@ -530,7 +530,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         if (!base->push_back_particle(p))
           break;
       }
-      while (particles.size() < 12)
+      while (particles.size() < 16)
       {
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity;
