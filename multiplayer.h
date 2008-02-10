@@ -29,6 +29,7 @@ extern int client_version_release; /*!< The clients Release version number */
 extern int client_version_patch; /*!< The clients Patchlevel number */
 extern int version_first_digit; /*!< the first digit of the version */
 extern int version_second_digit; /*!< the second digit of the version */
+extern int always_pathfinding; /*!< use pathfinding for walk click on far visible tiles of the 3d map */
 /*! @} */
 
 extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last message was sent to the server */
@@ -43,8 +44,11 @@ extern int log_conn_data; /*!< indicates whether we should log connection data o
  *
  * \param x the x-coordinate of the new position
  * \param y the y-coordinate of the new position
+ * \param try_pathfinder if true, and other conditions permit, use the pathfinder
+ *
+ * \pre pathfinder will be used if try_pathfinder and always_pathfinding true and distance over the threshold
  */
-void move_to (short int x, short int y);
+void move_to (short int x, short int y, int try_pathfinder);
 
 /*!
  * \ingroup network_actors

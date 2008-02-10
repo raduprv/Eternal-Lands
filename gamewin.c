@@ -594,7 +594,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		
 		add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 		
-		move_to (x, y);
+		move_to (x, y, 1);
 		return 1;
 	}
 	
@@ -640,7 +640,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		case CURSOR_WAND:
 		{
 			if(spell_result==2){
-				Uint8 str[10];
 				short x, y;
 		
 				if(use_old_clicker)
@@ -652,11 +651,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				if (y < 0 || x < 0 || x >= tile_map_size_x*6 || y >= tile_map_size_y*6)
 					return 1;
 			
-				str[0] = MOVE_TO;
-				*((short *)(str+1)) = SDL_SwapLE16((short)x);
-				*((short *)(str+3)) = SDL_SwapLE16((short)y);
-				
-				my_tcp_send(my_socket,str,5);
+				move_to(x,y,0);
 				return 1;
 			} else if(spell_result==3){
 				Uint8 str[10];
@@ -849,12 +844,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
                     UNLOCK_ACTORS_LISTS();
                     if (in_aim_mode)
                         add_command_to_actor(yourself, leave_aim_mode);
-                    move_to(x, y);
+                    move_to(x, y, 1);
                 }
             }
             else
 #endif // MISSILES & DEBUG
-			move_to (x, y);
+			move_to (x, y, 1);
 
 			return 1;
 		}

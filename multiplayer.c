@@ -28,6 +28,7 @@
 #include "new_actors.h"
 #include "new_character.h"
 #include "particles.h"
+#include "pathfinder.h"
 #include "questlog.h"
 #include "queue.h"
 #include "rules.h"
@@ -79,6 +80,7 @@ Uint8 tcp_out_data[MAX_TCP_BUFFER];
 int tcp_out_loc= 0;
 int previously_logged_in= 0;
 time_t last_heart_beat;
+int always_pathfinding = 0;
 
 char our_name[20];
 char our_password[20];
@@ -100,10 +102,20 @@ int yourself= -1;
 int last_sit= 0;
 int last_turn_around = 0;
 
-void move_to (short int x, short int y)
+void move_to (short int x, short int y, int try_pathfinder)
 {
 	Uint8 str[5];
 				
+	if (try_pathfinder && always_pathfinding)
+	{
+		actor *me = get_our_actor();
+		/* check distance */
+		if (me && (abs(me->x_tile_pos-x)+abs(me->y_tile_pos-y)) > 2)
+			/* if path finder fails, try standard move */
+			if (pf_find_path(x,y))
+				return;
+	}
+
 	str[0]= MOVE_TO;
 	*((short *)(str+1))= SDL_SwapLE16 (x);
 	*((short *)(str+3))= SDL_SwapLE16 (y);

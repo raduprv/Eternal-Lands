@@ -1598,7 +1598,7 @@ void move_self_forward()
 		pf_destroy_path();
 	}
 
-	move_to (tx, ty);
+	move_to (tx, ty, 0);
 }
 
 
