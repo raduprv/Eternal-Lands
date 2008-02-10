@@ -376,7 +376,6 @@ __inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer 
 {
 	int submeshId;
 	int vertexCount=0;
-	int textureCoordinateCount=0;
 	int faceCount=0;
 
 	for(submeshId = 0; submeshId < submeshCount; submeshId++) {
