@@ -372,7 +372,7 @@ CHECK_GL_ERRORS();
 }
 
 
-__inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer * pCalRenderer, float meshVertices[30000][3], float meshNormals[30000][3], float meshTextureCoordinates[30000][2], CalIndex meshFaces[50000][3])
+__inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer * pCalRenderer, float meshVertices[30000][3], float meshNormals[30000][3], float meshTextureCoordinates[30000][2], CalIndex meshFaces[50000][3], Uint32 use_lightning, Uint32 use_textures)
 {
 	int submeshId;
 	int vertexCount=0;
@@ -386,20 +386,42 @@ __inline__ void render_submesh(int meshId, int submeshCount, struct CalRenderer 
 			vertexCount = CalRenderer_GetVertices(pCalRenderer,&meshVertices[0][0]);
 
 			// get the transformed normals of the submesh
-			CalRenderer_GetNormals(pCalRenderer,&meshNormals[0][0]);
+			if (use_lightning)
+			{
+				CalRenderer_GetNormals(pCalRenderer,&meshNormals[0][0]);
+			}
 
 			// get the texture coordinates of the submesh
-			textureCoordinateCount = CalRenderer_GetTextureCoordinates(pCalRenderer,0,&meshTextureCoordinates[0][0]);
+			if (use_textures)
+			{
+				CalRenderer_GetTextureCoordinates(pCalRenderer,0,&meshTextureCoordinates[0][0]);
+			}
 
 			// get the faces of the submesh
 			faceCount = CalRenderer_GetFaces(pCalRenderer, &meshFaces[0][0]);
 
 			// set the vertex and normal buffers
 			glVertexPointer(3, GL_FLOAT, 0, &meshVertices[0][0]);
-			glNormalPointer(GL_FLOAT, 0, &meshNormals[0][0]);
+			if (use_lightning)
+			{
+				glEnableClientState(GL_NORMAL_ARRAY);
+				glNormalPointer(GL_FLOAT, 0, &meshNormals[0][0]);
+			}
+			else
+			{
+				glDisableClientState(GL_NORMAL_ARRAY);
+			}
 
 			// draw the submesh
-			glTexCoordPointer(2, GL_FLOAT, 0, &meshTextureCoordinates[0][0]);
+			if (use_textures)
+			{
+				glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+				glTexCoordPointer(2, GL_FLOAT, 0, &meshTextureCoordinates[0][0]);
+			}
+			else
+			{
+				glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			}
 
 			if(sizeof(CalIndex)==2)
 				glDrawElements(GL_TRIANGLES, faceCount * 3, GL_UNSIGNED_SHORT, &meshFaces[0][0]);
@@ -413,7 +435,7 @@ CHECK_GL_ERRORS();
 }
 
 
-void cal_render_actor(actor *act)
+void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow)
 {
 	struct CalRenderer *pCalRenderer;
 	int meshCount,meshId,submeshCount/*,submeshId, vertexCount*/;
@@ -487,8 +509,6 @@ void cal_render_actor(actor *act)
 
 			// will use vertex arrays, so enable them
 			glEnableClientState(GL_VERTEX_ARRAY);
-			glEnableClientState(GL_NORMAL_ARRAY);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 			// get the number of meshes
 			meshCount = CalRenderer_GetMeshCount(pCalRenderer);
@@ -514,7 +534,7 @@ void cal_render_actor(actor *act)
 				_coremesh=CalMesh_GetCoreMesh(_mesh);//Get the coremesh
 				
 #ifdef NEW_LIGHTING
-				if (use_new_lighting)
+				if (use_new_lighting && use_lightning)
 				{
 					if (_coremesh == CalCoreModel_GetCoreMesh(actors_defs[act->actor_type].coremodel,actors_defs[act->actor_type].weapon[act->cur_weapon].mesh_index))
 					{
@@ -656,7 +676,7 @@ void cal_render_actor(actor *act)
 					}
 
 					// now check for a glowing weapon
-					if(glow>0){
+					if(glow>0 && use_glow){
 						glEnable(GL_COLOR_MATERIAL);
 						glBlendFunc(GL_ONE,GL_SRC_ALPHA);
 						if(!act->ghost && !(act->buffs & BUFF_INVISIBILITY)) {
@@ -675,15 +695,15 @@ void cal_render_actor(actor *act)
 						glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.5f);
 						glPushMatrix();
 						glScalef(0.99f, 0.99f, 0.99f);
-						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces, 0, use_textures);
 						glPopMatrix();
 
 						glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.85f);
-						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces, 0, use_textures);
 						glColor4f(glow_colors[glow].r, glow_colors[glow].g, glow_colors[glow].b, 0.99f);
 						glPushMatrix();
 						glScalef(1.01f, 1.01f, 1.01f);
-						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces, 0, use_textures);
 						glPopMatrix();
 
 						if(use_shadow_mapping){
@@ -702,7 +722,7 @@ void cal_render_actor(actor *act)
 						}
 					} else {
 						// enhanced actors without glowing items
-						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+						render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces, use_lightning, use_textures);
 					}
 					if(boneid >= 0){
 						//if this was a weapon or shield, restore the transformation matrix
@@ -710,7 +730,7 @@ void cal_render_actor(actor *act)
 					}
 				} else {
 					// non-enhanced actors, or enhanced without attached meshes
-					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces);
+					render_submesh(meshId, submeshCount, pCalRenderer, meshVertices, meshNormals, meshTextureCoordinates, meshFaces, use_lightning, use_textures);
 				}
 			}
 

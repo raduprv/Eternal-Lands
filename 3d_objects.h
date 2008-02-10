@@ -7,6 +7,7 @@
 #define __OBJ_3D_H__
 
 #include "e3d_object.h"
+#include "e3d.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -193,6 +194,23 @@ void inc_objects_list_placeholders();
  */
 char * get_3dobject_at_location(float x_pos, float y_pos);
 #endif // NEW_SOUND
+
+/*!
+ * \ingroup	display_3d
+ * \brief	Draw a specific 3d object
+ * 
+ * 		Draw a specific 3d object, with optinal enabled lightning and textures.
+ *
+ * \param	object_id The object to draw
+ * \param	material_index The material part of the object to draw
+ * \param	use_lightning Should lightning be used (normals, colors and material properties)
+ * \param	use_textures Should default texturing be used
+ * \param	use_extra_textures Should extra texturing be used (e.g. clouds)
+ *
+ * \callgraph
+ */
+void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 use_lightning,
+	Uint32 use_textures, Uint32 use_extra_textures);
 
 #ifdef __cplusplus
 } // extern "C"

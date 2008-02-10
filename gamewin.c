@@ -924,12 +924,20 @@ int display_game_handler (window_info *win)
 	if(mouse_rate > mouse_limit) {
 		mouse_rate = mouse_limit;
 	}
-	if (!(main_count%mouse_rate)) {
+#ifdef	NEW_SELECTION
+	if (mouse_rate < 5)
+	{
+		mouse_rate = 5;
+	}
+#endif	// NEW_SELECTION
+	if ((main_count % mouse_rate) == 0)
+	{
 		read_mouse_now = 1;
-	} else {
+	}
+	else
+	{
 		read_mouse_now = 0;
 	}
-	reset_under_the_mouse();
 	
 	// This window is a bit special since it's not fully 2D
 	Leave2DMode ();
@@ -955,6 +963,8 @@ int display_game_handler (window_info *win)
 	set_click_line();
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
+
+	reset_under_the_mouse();
 
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
@@ -1081,8 +1091,8 @@ int display_game_handler (window_info *win)
 #ifdef	EYE_CANDY
 	ec_idle();
 #endif
-	
-CHECK_GL_ERRORS();
+
+	CHECK_GL_ERRORS();
 	// if not active, dont bother drawing any more
 	if (!(SDL_GetAppState () & SDL_APPACTIVE))
 	{
@@ -1238,7 +1248,6 @@ CHECK_GL_ERRORS();
 	CHECK_GL_ERRORS ();
 
 	Leave2DMode ();
-
 
 #ifdef SFX
 	if(special_effects){

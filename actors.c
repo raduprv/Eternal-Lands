@@ -569,24 +569,27 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static __inline__ void draw_actor_without_banner(actor * actor_id)
+void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow)
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
 
-	if (actor_id->is_enhanced_model)
+	if (use_textures)
 	{
-		bind_texture_id(actor_id->texture_id);
-	}
-	else
-	{
-		if (!actor_id->remapped_colors)
+		if (actor_id->is_enhanced_model)
 		{
-			get_and_set_texture_id(actor_id->texture_id);
+			bind_texture_id(actor_id->texture_id);
 		}
 		else
 		{
-			bind_texture_id(actor_id->texture_id);
+			if (!actor_id->remapped_colors)
+			{
+				get_and_set_texture_id(actor_id->texture_id);
+			}
+			else
+			{
+				bind_texture_id(actor_id->texture_id);
+			}
 		}
 	}
 
@@ -614,11 +617,11 @@ static __inline__ void draw_actor_without_banner(actor * actor_id)
 
 	if (use_animation_program)
 	{
-		cal_render_actor_shader(actor_id);
+		cal_render_actor_shader(actor_id, use_lightning, use_textures, use_glow);
 	}
 	else
 	{
-		cal_render_actor(actor_id);
+		cal_render_actor(actor_id, use_lightning, use_textures, use_glow);
 	}
 
 	//now, draw their damage & nametag
@@ -763,8 +766,7 @@ void get_actors_in_range()
 
 				if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 				{
-					if (click_line_bbox_intersection(bbox))
-						near_actors[no_near_actors].select = 1;
+					near_actors[no_near_actors].select = 1;
 				}
 				no_near_actors++;
 #ifdef NEW_SOUND
@@ -791,7 +793,8 @@ void get_actors_in_range()
 
 void display_actors(int banner, int render_pass)
 {
-	int i, has_alpha, has_ghosts;
+	Sint32 i, has_alpha, has_ghosts;
+	Uint32 use_lightning, use_textures;
 
 	get_actors_in_range();
 
@@ -808,6 +811,20 @@ void display_actors(int banner, int render_pass)
 	if (use_animation_program)
 	{
 		set_actor_animation_program(render_pass, 0);
+	}
+
+	switch (render_pass)
+	{
+		case DEFAULT_RENDER_PASS:
+		case SHADOW_RENDER_PASS:
+		case REFLECTION_RENDER_PASS:
+			use_lightning = 1;
+			use_textures = 1;
+			break;
+		case DEPTH_RENDER_PASS:
+			use_lightning = 0;
+			use_textures = 0;
+			break;
 	}
 
 	has_alpha = 0;
@@ -836,7 +853,7 @@ void display_actors(int banner, int render_pass)
 			actor *cur_actor = actors_list[near_actors[i].actor];
 			if (cur_actor)
 			{
-				draw_actor_without_banner(cur_actor);
+				draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
 				if (near_actors[i].select)
 				{
 					if (cur_actor->kind_of_actor == NPC)
@@ -882,7 +899,7 @@ void display_actors(int banner, int render_pass)
 				actor *cur_actor = actors_list[near_actors[i].actor];
 				if (cur_actor)
 				{
-					draw_actor_without_banner(cur_actor);
+					draw_actor_without_banner(cur_actor, use_lightning, 1, 1);
 
 					if (near_actors[i].select)
 					{
@@ -953,7 +970,7 @@ void display_actors(int banner, int render_pass)
 						}
 					}
 
-					draw_actor_without_banner(cur_actor);
+					draw_actor_without_banner(cur_actor, use_lightning, use_textures, 1);
 
 					if (near_actors[i].select)
 					{

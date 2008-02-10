@@ -35,7 +35,7 @@ void enable_render_actor();
 void set_actor_animation_program(Uint32 pass, Uint32 ghost);
 void disable_actor_animation_program();
 void disable_render_actor();
-void cal_render_actor_shader(actor *act);
+void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 
 #ifdef __cplusplus
 }

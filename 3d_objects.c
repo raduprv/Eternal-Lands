@@ -70,7 +70,8 @@ static __inline__ void build_clouds_planes(object3d* obj)
 	obj->clouds_planes[1][3] = obj->y_pos / texture_scale;
 }
 
-void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
+void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 use_lightning,
+	Uint32 use_textures, Uint32 use_extra_textures)
 {
 	Uint8 * data_ptr;
 	int vertex_size;
@@ -86,11 +87,11 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 
 #ifdef NEW_LIGHTING
 	if (
-	    ( (use_new_lighting) && (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon))) ||
-	    (!(use_new_lighting) && (object_id->self_lit && (!is_day || dungeon)))
+	    (( (use_new_lighting) && (object_id->self_lit && (!(game_minute >= 5 && game_minute < 235) || dungeon))) ||
+	    (!(use_new_lighting) && (object_id->self_lit && (!is_day || dungeon)))) && use_lightning
 	   )
 #else
-	if (object_id->self_lit && (!is_day || dungeon)) 
+	if (object_id->self_lit && (!is_day || dungeon) && use_lightning) 
 #endif
 	{
 		glColor3f(object_id->r,object_id->g,object_id->b);
@@ -103,7 +104,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 	
 	CHECK_GL_ERRORS();
 
-	if (!dungeon && (clouds_shadows || use_shadow_mapping))
+	if (!dungeon && (clouds_shadows || use_shadow_mapping) && use_extra_textures)
 	{
 		VECTOR4 plane;
 
@@ -137,48 +138,28 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 		}
 		vertex_size = get_vertex_size(object_id->e3d_data->vertex_options);
 
-		if (has_normal(object_id->e3d_data->vertex_options))
+		if (has_normal(object_id->e3d_data->vertex_options) && use_lightning)
 		{
 			glEnableClientState(GL_NORMAL_ARRAY);
 			glNormalPointer(GL_FLOAT, vertex_size,
 				data_ptr + get_normal_offset(object_id->e3d_data->vertex_options));
 		}
 		else
+		{
 			glDisableClientState(GL_NORMAL_ARRAY);
+		}
 
-#ifdef	USE_TANGENT
-		if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
+		if (use_textures)
 		{
-			EnableVertexAttribArray(tangent_attribut);
-			VertexAttribPointer(tangent_attribut, TANGENT_FLOAT_COUNT, GL_FLOAT,
-				GL_FALSE, vertex_size,
-				data_ptr + get_tangent_offset(vertex_options));
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
+				data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
 		}
 		else
 		{
-			DisableVertexAttribArray(tangent_attribut);
-		}
-#endif	//USE_TANGENT
-#ifdef	USE_EXTRA_TEXTURE
-		if (use_extra_texture && has_extra_texture(object_id->e3d_data->vertex_options))
-		{
-			glClientActiveTextureARB(extra_texture_unit);
-			ELglActiveTextureARB(extra_texture_unit);
-			glTexCoordPointer(EXTRA_TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
-				data_ptr + get_extra_texture_offset(vertex_options));
-			ELglActiveTextureARB(base_unit);
-			glClientActiveTextureARB(base_unit);
-		}
-		else
-		{
-			glClientActiveTextureARB(extra_texture_unit);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glClientActiveTextureARB(base_unit);
 		}
-#endif	//USE_EXTRA_TEXTURE
 
-		glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
-			data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
 		glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
 			data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
 		if (use_vertex_buffers)
@@ -212,7 +193,7 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 	cur_e3d_count++;
 #endif  //DEBUG
 #ifdef NEW_LIGHTING
-	if (use_new_lighting && (!object_id->material_set))
+	if (use_new_lighting && (!object_id->material_set) && use_lightning)
 	{
 		glMaterialfv(GL_FRONT, GL_AMBIENT, object_id->ambient);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, object_id->diffuse);
@@ -220,16 +201,24 @@ void draw_3d_object_detail(object3d * object_id, unsigned int material_index)
 		glMaterialfv(GL_FRONT, GL_EMISSION, object_id->emission);
 		glMaterialf(GL_FRONT, GL_SHININESS, object_id->shininess);
 	}
-	else if (use_new_lighting)
+	else if (use_new_lighting && use_lightning)
 	{
 		set_material_defaults();
 	}
 #endif
 
-	get_and_set_texture_id(object_id->e3d_data->materials[material_index].diffuse_map);
+	if (use_textures)
+	{
+		glEnable(GL_TEXTURE_2D);
+		get_and_set_texture_id(object_id->e3d_data->materials[material_index].diffuse_map);
+	}
+	else
+	{
+		glDisable(GL_TEXTURE_2D);		
+	}
 
 #ifdef NEW_LIGHTING
-	if (use_new_lighting && object_id->material_set)
+	if (use_new_lighting && object_id->material_set && use_lightning)
 	{
 		glMaterialfv(GL_FRONT, GL_AMBIENT, object_id->ambient);
 		glMaterialfv(GL_FRONT, GL_DIFFUSE, object_id->diffuse);
@@ -369,7 +358,7 @@ void draw_3d_objects(unsigned int object_type)
 		if(objects_list[l]->e3d_data->materials && (10000*objects_list[l]->e3d_data->materials[get_3dobject_material(j)].max_size)/(dist) < ((is_transparent)?15:10)) continue;
 #endif  //SIMPLE_LOD
 
-		draw_3d_object_detail(objects_list[l], get_3dobject_material(j));
+		draw_3d_object_detail(objects_list[l], get_3dobject_material(j), 1, 1, 1);
 
 #ifdef MAP_EDITOR2
 		if ((selected_3d_object == -1) && read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
@@ -377,8 +366,7 @@ void draw_3d_objects(unsigned int object_type)
 		if (read_mouse_now && (get_cur_intersect_type(main_bbox_tree) == INTERSECTION_TYPE_DEFAULT))
 #endif
 		{
-			if (click_line_bbox_intersection(get_intersect_item_bbox(main_bbox_tree, i)))
-				anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);
+			anything_under_the_mouse(objects_list[l]->id, UNDER_MOUSE_3D_OBJ);
 		}
 	}
 	
@@ -393,20 +381,6 @@ void draw_3d_objects(unsigned int object_type)
 		glDisable(GL_TEXTURE_GEN_T);
 		ELglActiveTextureARB(base_unit);
 	}
-#ifdef	USE_TANGENT
-	if (use_tangent && has_tangen(object_id->e3d_data->vertex_options))
-	{
-		DisableVertexAttribArray(tangent_attribut);
-	}
-#endif	//USE_TANGENT
-#ifdef	USE_EXTRA_TEXTURE
-	if (use_extra_texture && has_extra_texture(object_id->e3d_data->vertex_options))
-	{
-		glClientActiveTextureARB(GL_TEXTURE2_ARB);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glClientActiveTextureARB(GL_TEXTURE0_ARB);
-	}
-#endif	//USE_EXTRA_TEXTURE
 
 	if (use_vertex_buffers)
 	{

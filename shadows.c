@@ -186,104 +186,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-void draw_3d_object_shadow_detail(object3d * object_id, unsigned int material_index)
-{
-	Uint8 * data_ptr;
-	int vertex_size;
-
-	// check for having to load the arrays
-	load_e3d_detail_if_needed(object_id->e3d_data);
-
-	CHECK_GL_ERRORS();
-	//also, update the last time this object was used
-	object_id->last_acessed_time = cur_time;
-
-	glPushMatrix();//we don't want to affect the rest of the scene
-
-	glMultMatrixf(object_id->matrix);
-
-	CHECK_GL_ERRORS();
-
-	// watch for a change
-	if (object_id->e3d_data != cur_e3d)
-	{
-		glDisableClientState(GL_NORMAL_ARRAY);
-		glDisableClientState(GL_COLOR_ARRAY);
-		if ((cur_e3d != NULL) && (use_compiled_vertex_array))
-		{
-			ELglUnlockArraysEXT();
-		}
-		
-		if (use_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->vertex_vbo);
-			data_ptr = 0;
-		}
-		else
-		{
-			data_ptr = object_id->e3d_data->vertex_data;
-		}
-		vertex_size = get_vertex_size(object_id->e3d_data->vertex_options);
-
-		if (material_is_transparent(object_id->e3d_data->materials[material_index].options))
-		{
-			glEnable(GL_TEXTURE_2D);
-			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-			glTexCoordPointer(TEXTURE_FLOAT_COUNT, GL_FLOAT, vertex_size,
-				data_ptr + get_texture_offset(object_id->e3d_data->vertex_options));
-		}
-		else
-		{
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		}
-
-		glVertexPointer(VERTEX_FLOAT_COUNT, GL_FLOAT, vertex_size,
-			data_ptr + get_vertex_offset(object_id->e3d_data->vertex_options));
-		if (use_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,
-				object_id->e3d_data->indicies_vbo);
-		}
-
-		CHECK_GL_ERRORS();
-
-		// lock this new one
-		if (use_compiled_vertex_array)
-		{
-			ELglLockArraysEXT(0, object_id->e3d_data->vertex_no);
-		}
-		// gather statistics
-		if (object_id->e3d_data != cur_e3d)
-		{
-#ifdef  DEBUG
-			if ((cur_e3d_count > 0) && (cur_e3d != NULL))
-			{
-				e3d_count++;
-				e3d_total += cur_e3d_count;
-			}
-			cur_e3d_count = 0;
-#endif    //DEBUG
-			cur_e3d = object_id->e3d_data;
-		}
-	}
-#ifdef  DEBUG
-	cur_e3d_count++;
-#endif  //DEBUG
-	get_and_set_texture_id(object_id->e3d_data->materials[material_index].diffuse_map);
-
-	ELglDrawRangeElementsEXT(GL_TRIANGLES,
-		object_id->e3d_data->materials[material_index].triangles_indicies_min,
-		object_id->e3d_data->materials[material_index].triangles_indicies_max,
-		object_id->e3d_data->materials[material_index].triangles_indicies_count,
-		object_id->e3d_data->index_type,
-		object_id->e3d_data->materials[material_index].triangles_indicies_index);
-	
-	glPopMatrix();//restore the scene
-	CHECK_GL_ERRORS();
-
-}
-
 void draw_3d_object_shadows(unsigned int object_type)
 {
 	unsigned int    start, stop;
@@ -352,7 +254,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
 		if(objects_list[l]->e3d_data->materials && (10000*objects_list[l]->e3d_data->materials[get_3dobject_material(j)].max_size)/(dist) < ((is_transparent)?15:10)) continue;
 #endif  //SIMPLE_LOD
-		draw_3d_object_shadow_detail(objects_list[l], get_3dobject_material(j));
+		draw_3d_object_detail(objects_list[l], get_3dobject_material(j), 0, is_transparent, 0);
 	}
 
 	if (use_compiled_vertex_array && (cur_e3d != NULL))

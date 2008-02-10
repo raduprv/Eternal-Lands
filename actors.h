@@ -599,6 +599,7 @@ typedef struct
 #define	REFLECTION_RENDER_PASS	1
 #define	DEPTH_RENDER_PASS	2
 #define	SHADOW_RENDER_PASS	3
+#define	SELECTION_RENDER_PASS	4
 
 extern SDL_mutex *actors_lists_mutex;	/*!< Used for locking between the timer and main threads*/
 extern actor *actors_list[MAX_ACTORS];	/*!< A list holding all of the actors*/
@@ -788,6 +789,8 @@ void get_actor_rotation_matrix(actor *in_act, float *out_rot);
  * \param out_pos the resulting position
  */
 void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos);
+
+void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 
 #ifdef __cplusplus
 } // extern "C"

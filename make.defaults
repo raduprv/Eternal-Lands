@@ -61,14 +61,13 @@ FEATURES += SIMPLE_LOD                      # enable a simplistic distance culli
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
 FEATURES += USE_SEND_VIDEO_INFO             # Sends video information to the server (OpenGL version, supported OpenGL extentions etc.). This is done only once, so if you don't want it, set video_info_sent to one in el.ini. Needs CXX_MISC and the file extentions.xml in datadir
 #FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
-#FEATURES += USE_TANGENT                     # Use tangent space normal mapping. Needs NEW_E3D_FORMAT. (INCOMPLETE)
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
-#FEATURES += USE_EXTRA_TEXTURE               # Use extra texture and texture coordinates for multitexturin objects. Needs NEW_E3D_FORMAT. (INCOMPLETE)
 #FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 #FEATURES += SDL_REINIT			    # Enables SDL reinit of video after resolution change
+#FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
 
 # Handle feature dependencies:
 # if CUSTOM_UPDATE is set, but AUTO_UPDATE isn't, remove CUSTOM_UPDATE

@@ -121,6 +121,7 @@ void set_click_line()
 	if (read_mouse_now) get_click_line(&click_line);
 }
 
+#ifndef	NEW_SELECTION
 void reset_under_the_mouse()
 {
 	if(!read_mouse_now) {
@@ -163,7 +164,7 @@ int anything_under_the_mouse(int object_id, int object_type)
 	return 0;//no collision, sorry
 
 }
-
+#endif	// NEW_SELECTION
 
 FILE *my_fopen (const char *fname, const char *mode)
 {

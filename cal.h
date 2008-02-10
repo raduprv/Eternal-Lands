@@ -19,7 +19,19 @@ void CalCoreMesh_Scale(struct CalCoreMesh *self,float factor);
 void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const char *sound_scale);
 #endif // NEW_SOUND
 
-void cal_render_actor(actor *act);
+/*!
+ * \brief	Draw a specific actor
+ * 
+ * 		Draw a specific actor, with optinal enabled lightning and textures.
+ *
+ * \param	act The actor to draw
+ * \param	use_lightning Should lightning be used (normals, colors and material properties)
+ * \param	use_textures Should default texturing be used
+ * \param	use_glow Should glow be used
+ *
+ * \callgraph
+ */
+void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 #ifdef	NEW_ACTOR_ANIMATION
 	#ifdef NEW_SOUND
 struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale, int duration);

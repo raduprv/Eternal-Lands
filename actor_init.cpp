@@ -133,7 +133,7 @@ extern "C" void unload_vertex_programs()
 	memset(vertex_program_ids, 0, sizeof(vertex_program_ids));
 }
 
-static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, const HardwareMeshData &hmd)
+static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, const HardwareMeshData &hmd, const bool use_glow)
 {
 	Uint32 element_index, count, i;
 	Sint32 bone_id, glow;
@@ -165,27 +165,30 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			}
 		}
 
-		if (glow > 0)
+		if (use_glow)
 		{
-			ELglVertexAttrib4f(4, glow_colors[glow].r * 3.0f,
-				glow_colors[glow].g * 3.0f, glow_colors[glow].b * 3.0f, 1.0f);
-		}
-		else
-		{
-			if (act->ghost || (act->buffs & BUFF_INVISIBILITY))
+			if (glow > 0)
 			{
-				if ((act->buffs & BUFF_INVISIBILITY))
-				{
-					ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 0.25f);
-				}
-				else
-				{
-					ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 1.0f);
-				}
+				ELglVertexAttrib4f(4, glow_colors[glow].r * 3.0f,
+					glow_colors[glow].g * 3.0f, glow_colors[glow].b * 3.0f, 1.0f);
 			}
 			else
 			{
-				ELglVertexAttrib4f(4, -1.0f, -1.0f, -1.0f, -1.0f);
+				if (act->ghost || (act->buffs & BUFF_INVISIBILITY))
+				{
+					if ((act->buffs & BUFF_INVISIBILITY))
+					{
+						ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 0.25f);
+					}
+					else
+					{
+						ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 1.0f);
+					}
+				}
+				else
+				{
+					ELglVertexAttrib4f(4, -1.0f, -1.0f, -1.0f, -1.0f);
+				}
 			}
 		}
 
@@ -333,16 +336,7 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 
 	ELglEnableVertexAttribArrayARB(0);
 	ELglEnableVertexAttribArrayARB(1);
-	if (use_normals)
-	{
-		ELglEnableVertexAttribArrayARB(2);
-	}
-	else
-	{
-		ELglDisableVertexAttribArrayARB(2);
-	}
 	ELglEnableVertexAttribArrayARB(3);
-	ELglEnableVertexAttribArrayARB(8);
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
 }
@@ -410,7 +404,7 @@ extern "C" int load_vertex_programs()
 	return 1;
 }
 
-extern "C" void cal_render_actor_shader(actor *act)
+extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow)
 {
 	actor_types* a;
 	IntMap* im;
@@ -438,15 +432,28 @@ extern "C" void cal_render_actor_shader(actor *act)
 			reinterpret_cast<void*>(0 * sizeof(float) + 0 * sizeof(Uint8)));
 		ELglVertexAttribPointerARB(1, 4, GL_UNSIGNED_BYTE, GL_TRUE, sizeof(ActorVertex),
 			reinterpret_cast<void*>(3 * sizeof(float) + 0 * sizeof(Uint8)));
-		if (use_normals)
+		if (use_normals && use_lightning)
 		{
+			ELglEnableVertexAttribArrayARB(2);
 			ELglVertexAttribPointerARB(2, 3, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
 				reinterpret_cast<void*>(3 * sizeof(float) + 4 * sizeof(Uint8)));
 		}
+		else
+		{
+			ELglDisableVertexAttribArrayARB(2);
+		}
 		ELglVertexAttribPointerARB(3, 4, GL_UNSIGNED_BYTE, GL_FALSE, sizeof(ActorVertex),
 			reinterpret_cast<void*>(6 * sizeof(float) + 4 * sizeof(Uint8)));
-		ELglVertexAttribPointerARB(8, 2, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
-			reinterpret_cast<void*>(6 * sizeof(float) + 8 * sizeof(Uint8)));
+		if (use_textures)
+		{
+			ELglEnableVertexAttribArrayARB(8);
+			ELglVertexAttribPointerARB(8, 2, GL_FLOAT, GL_FALSE, sizeof(ActorVertex),
+				reinterpret_cast<void*>(6 * sizeof(float) + 8 * sizeof(Uint8)));
+		}
+		else
+		{
+			ELglDisableVertexAttribArrayARB(8);
+		}
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
 		last_actor_type = act->actor_type;
 	}
@@ -460,20 +467,20 @@ extern "C" void cal_render_actor_shader(actor *act)
 	{
 		for (it = im->begin(); it != im->end(); it++)
 		{
-			render_mesh_shader(a, act, it->first, it->second);
+			render_mesh_shader(a, act, it->first, it->second, use_glow);
 		}
 	}
 	else
 	{
 		for (i = 0; i < a->hardware_model->getHardwareMeshCount(); i++)
 		{
-			render_mesh_shader(a, act, i, hmd);
+			render_mesh_shader(a, act, i, hmd, use_glow);
 		}
 	}
 #else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	for (it = im->begin(); it != im->end(); it++)
 	{
-		render_mesh_shader(a, act, it->first, it->second);
+		render_mesh_shader(a, act, it->first, it->second, use_glow);
 	}
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
