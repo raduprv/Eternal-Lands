@@ -39,6 +39,7 @@ PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
 USE_SEND_VIDEO_INFO_CXXOBJ = sendvideoinfo.o
 CXX_MISC_CXXOBJ = exceptions/extendedexception.o xml/xmlhelper.o
+NEW_SELECTION_CXXOBJ = select.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o bags.o \

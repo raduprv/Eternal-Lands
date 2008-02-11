@@ -169,20 +169,20 @@ extern "C" void reset_under_the_mouse()
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_NORMAL_ARRAY);
-		glClientActiveTextureARB(GL_TEXTURE1);
+		ELglClientActiveTextureARB(GL_TEXTURE1);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
 		glDisable(GL_TEXTURE_GEN_Q);
 		glDisable(GL_TEXTURE_GEN_R);
-		glClientActiveTextureARB(GL_TEXTURE2);
+		ELglClientActiveTextureARB(GL_TEXTURE2);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
 		glDisable(GL_TEXTURE_GEN_Q);
 		glDisable(GL_TEXTURE_GEN_R);
 
-		glClientActiveTextureARB(GL_TEXTURE0);
+		ELglClientActiveTextureARB(GL_TEXTURE0);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		glDisable(GL_TEXTURE_GEN_S);
 		glDisable(GL_TEXTURE_GEN_T);
@@ -300,7 +300,7 @@ extern "C" void reset_under_the_mouse()
 		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
 		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		glClientActiveTextureARB(base_unit);
+		ELglClientActiveTextureARB(base_unit);
 		ELglActiveTexture(base_unit);
 	  	glEnable(GL_TEXTURE_2D);
 	  	glEnable(GL_LIGHTING);
