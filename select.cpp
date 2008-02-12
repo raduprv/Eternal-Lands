@@ -149,7 +149,8 @@ extern "C" void reset_under_the_mouse()
 	Uint8 color[4];
 	GLfloat colorf[4];
 	Uint8 buffer[4 * select_size * select_size];
-	Uint32 i, j;
+	Uint32 i;
+	Sint32 j;
 	Sint32 x, y;
 
 	read_selection = add_selection;

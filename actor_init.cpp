@@ -13,6 +13,7 @@
 #include "shadows.h"
 #include "map.h"
 #include "optimizer.hpp"
+#include "md5.h"
 
 Uint32 use_animation_program = 1;
 Uint32 use_display_actors = 1;
@@ -560,6 +561,9 @@ extern "C" void build_buffers(actor_types* a)
 	Uint32 face_count, vertex_count, max_index;
 	Sint32 i, j;
 	Uint32 idx, offset, count;
+	Uint32 size, tmp;
+	MD5_DIGEST digest;
+	bool loaded;
 
 	face_count = 0;
 	vertex_count = 0;
@@ -690,13 +694,96 @@ extern "C" void build_buffers(actor_types* a)
 #endif	/* USE_BOOST */
 	convert_indices(data32, indices, a->hardware_model->getTotalFaceCount());
 
-	for (i = 0; i < a->hardware_model->getHardwareMeshCount(); i++)
+	loaded = false;
+
+	size = a->hardware_model->getTotalFaceCount() * 3 * sizeof(Uint32);
+
 	{
-		a->hardware_model->selectHardwareMesh(i);
+		MD5 md5;
 
-		count = a->hardware_model->getFaceCount();
+		MD5Open(&md5);
+#ifdef	USE_BOOST
+		MD5Digest(&md5, data32.get(), size);
+#else	/* USE_BOOST */
+		MD5Digest(&md5, data32, size);
+#endif	/* USE_BOOST */
+		MD5Close(&md5, digest);
+	}
 
-		optimize_vertex_cache_order(data32, a->hardware_model->getStartIndex(), count * 3, 64);
+	try
+	{
+		std::ostringstream file_name;
+
+		file_name << "cache/actor_" << a->actor_type << "_" << max_bones_per_mesh << ".elc";
+
+		if (eternal_lands::el_file::file_exists(file_name.str(), get_path_config_base()))
+		{
+			eternal_lands::el_file file(file_name.str(), true, get_path_config_base());
+			if (file.get_size() != (size + sizeof(MD5_DIGEST) + sizeof(Uint32) * 2))
+			{
+				EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" <<
+					file_name.str() << "' has wrong size. Size " << (size +
+					sizeof(MD5_DIGEST) + sizeof(Uint32) * 2) << " expected, "
+					<< "but found size " << file.get_size());
+			}
+			if (memcmp(digest, file.get_pointer(), sizeof(MD5_DIGEST)) != 0)
+			{
+				EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" <<
+					file_name.str() << "' has wrong md5 for data.");
+			}
+			file.seek(sizeof(MD5_DIGEST), SEEK_SET);
+			file.read(sizeof(Uint32), &tmp);
+			if (tmp != size)
+			{
+				EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" <<
+					file_name.str() << "' is for wrong number of indices.");
+			}
+			file.read(sizeof(Uint32), &tmp);
+			if (tmp != max_bones_per_mesh)
+			{
+				EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" <<
+					file_name.str() << "' is for wrong number of bones.");
+			}
+#ifdef	USE_BOOST
+			file.read(size, data32.get());
+#else	/* USE_BOOST */
+			file.read(size, data32);
+#endif	/* USE_BOOST */
+			loaded = true;
+		}
+	}
+	CATCH_AND_LOG_EXCEPTIONS
+	
+	if (!loaded)
+	{
+		std::ostringstream file_name;
+
+		for (i = 0; i < a->hardware_model->getHardwareMeshCount(); i++)
+		{
+			a->hardware_model->selectHardwareMesh(i);
+
+			count = a->hardware_model->getFaceCount();
+
+			optimize_vertex_cache_order(data32, a->hardware_model->getStartIndex(), count * 3, count * 3);
+		}
+
+		file_name << get_path_config_base() << "cache/actor_" << a->actor_type << "_" << max_bones_per_mesh << ".elc";
+
+		log_info("Rebuilding file: %s", file_name.str().c_str());
+
+		mkdir_tree(file_name.str().c_str(), 0);
+
+		std::ofstream file(file_name.str().c_str());
+
+		file.write(reinterpret_cast<char*>(digest), sizeof(MD5_DIGEST));
+		file.write(reinterpret_cast<char*>(&size), sizeof(Uint32));
+		file.write(reinterpret_cast<char*>(&max_bones_per_mesh), sizeof(Uint32));
+#ifdef	USE_BOOST
+		file.write(reinterpret_cast<char*>(data32.get()), size);
+#else	/* USE_BOOST */
+		file.write(reinterpret_cast<char*>(data32), size);
+#endif	/* USE_BOOST */
+		file.close();
 	}
 
 	if (max_index <= std::numeric_limits<Uint16>::max())
