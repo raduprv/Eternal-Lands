@@ -717,9 +717,7 @@ void next_command()
 					case kill_me:
 /*						if(actors_list[i]->remapped_colors)
 						glDeleteTextures(1,&actors_list[i]->texture_id);
-#ifdef	EYE_CANDY
 						ec_actor_delete(actors_list[i]);
-#endif	//EYE_CANDY
 						free(actors_list[i]);
 						actors_list[i]=0;*/ //Obsolete
 						break;

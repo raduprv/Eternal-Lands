@@ -219,7 +219,6 @@ FILE *open_file_config (const char* filename, const char* mode)
 	return fopen(filename, mode);
 }
 
-#if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 FILE * open_file_data_temp(const char* filename, const char* mode)
 {
 	char locbuffer[MAX_PATH];
@@ -245,7 +244,6 @@ FILE * open_file_data_updates(char* filename, const char* mode, int custom){
 	}
 	return NULL;
 }
-#endif // UPDATE
 
 FILE * open_file_data_datadir(const char* filename, const char* mode){
 	char locbuffer[MAX_PATH];
@@ -264,7 +262,6 @@ FILE * open_file_data(const char* in_filename, const char* mode){
 	FILE* fp = NULL;
 	
 	safe_strncpy(filename, in_filename, sizeof(filename));
-#if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	if(strchr(mode, 'w') == NULL){
 		//Reading? okay, we check updates first
 		if((fp = open_file_data_updates(filename, mode, 0)) != NULL){
@@ -272,19 +269,16 @@ FILE * open_file_data(const char* in_filename, const char* mode){
 			return fp;
 		}
 	}
-#endif //UPDATE
 
 	if((fp = open_file_data_datadir(filename, mode)) != NULL){
 		//If there, return it. Otherwise we keep looking.
 		return fp;
 	}
-#if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	//Writing, and we didn't get the data_dir, likely a permissions problem, so use updates
 	if((fp = open_file_data_updates(filename, mode, 0)) != NULL){
 		//If there, return it. Otherwise we keep looking.
 		return fp;
 	}
-#endif //UPDATE
 
 	return NULL;
 
@@ -512,7 +506,6 @@ void file_update_clear_old(void){	//TODO.
 
 void remove_file_updates(char* filename, int custom)
 {
-#if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	char locbuffer[MAX_PATH];
 	const char * updatesdir = custom ? get_path_custom() : get_path_updates();
 
@@ -525,7 +518,6 @@ void remove_file_updates(char* filename, int custom)
 	strcpy(locbuffer, updatesdir);
 	strcat(locbuffer, filename);
 	remove(locbuffer);
-#endif //UPDATES
 }
 
 int file_md5_check(FILE * fp, const unsigned char * md5)
@@ -575,19 +567,16 @@ int file_update_check(char * filename, const unsigned char * md5, int custom)
 	FILE* fp = NULL;
 	int res_d = 0;
 
-#if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	char *cust_filename = filename;
 	int res_u = 0;
 
 	if (custom) cust_filename = check_custom_dir(filename);
 	fp = open_file_data_updates(cust_filename, "rb", custom);
 	res_u = file_md5_check(fp, md5);
-#endif //UPDATE
 
 	fp = open_file_data_datadir(filename, "rb");
 	res_d = file_md5_check(fp, md5);
 
-#if defined(AUTO_UPDATE) || defined(CUSTOM_UPDATE)
 	if (res_u == 0)
 	{
 		//Move
@@ -597,7 +586,6 @@ int file_update_check(char * filename, const unsigned char * md5, int custom)
 	{
 		remove_file_updates((char *)filename, custom);
 	}
-#endif //UPDATE
 
 	if (res_d == 0)
 	{

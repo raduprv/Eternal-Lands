@@ -14,9 +14,6 @@
 #include "textures.h"
 #include "trade.h"
 #include "widgets.h"
-#if defined SFX && defined EYE_CANDY
-#include "eye_candy_wrapper.h"
-#endif
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND

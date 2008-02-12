@@ -562,10 +562,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	char onlyname[32]={0};
 	Uint32 j;
 #endif
-#if defined(CUSTOM_LOOK) || defined(MINIMAP)
 	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
 	Uint32 guild_id;
-#endif  //CUSTOM_LOOK || MINIMAP
 	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
 	float   scale=1.0f;
 	
@@ -713,7 +711,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 	this_actor=calloc(1,sizeof(enhanced_actor));
 
-#if defined(CUSTOM_LOOK) || defined(MINIMAP)
 	/* build a clean player name and a guild id */
 	{
 		/* get the name string into a working buffer */
@@ -780,7 +777,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	/* store the ids */
 	this_actor->uniq_id = uniq_id;
 	this_actor->guild_id = guild_id;
-#endif	//CUSTOM_LOOK||MINIMAP
 
 	//get the torso
 	my_strncp(this_actor->arms_tex,actors_defs[actor_type].shirt[shirt].arms_name,sizeof(this_actor->arms_tex));

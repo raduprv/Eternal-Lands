@@ -606,7 +606,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos)
 #endif
 {
-#if defined EYE_CANDY && ! defined MAP_EDITOR
+#if ! defined MAP_EDITOR
 #ifdef NEW_SOUND
 	int snd;
 
@@ -681,7 +681,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 			ec_create_candle(x_pos, y_pos, z_pos, 0.0, 1.0, 0.7, (poor_man ? 6 : 10));
 		else
 		{
-#endif /* EYE_CANDY */
+#endif /* ! MAP_EDITOR */
 			particle_sys_def *def = load_particle_def(file_name);
 			if (!def) return -1;
 
@@ -690,7 +690,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
  #else
 			return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
-#if defined EYE_CANDY && ! defined MAP_EDITOR
+#if ! defined MAP_EDITOR
 		}
 	}
 	else
