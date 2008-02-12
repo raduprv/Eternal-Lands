@@ -16,9 +16,7 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
-#endif	//NEW_FILE_IO
 
 #ifdef BSD
  #include <stdlib.h>
@@ -543,30 +541,8 @@ void read_knowledge_book_index()
 	xmlNode * root=NULL;
 	char path[1024];
 	
-#ifdef	NEW_FILE_IO
 	if ((doc = xmlReadFile("knowledge.xml", NULL, 0)) == NULL) {
 			LOG_TO_CONSOLE(c_red1, "Can't open knowledge book index");
-#else	// NEW_FILE_IO
-#ifndef _WIN32
-	safe_snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
-#else
-	safe_snprintf(path, sizeof(path), "knowledge.xml");
-#endif // !_WIN32
-
-	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
-#ifndef _WIN32
-		safe_snprintf(path, sizeof(path), "%s/knowledge.xml", datadir);
-#else
-		safe_snprintf(path, sizeof(path), "knowledge.xml");
-#endif // !_WIN32
-		if((doc = xmlReadFile(path, NULL, 0)) == NULL) {
-			char str[200];
-
-			safe_snprintf(str, sizeof(str), "Can't open knowledge book index: %s", path);
-			log_error(str);
-			LOG_TO_CONSOLE(c_red1,str);
-		}
-#endif	// NEW_FILE_IO
 	} else if ((root = xmlDocGetRootElement(doc))==NULL) {
 		log_error("Error while parsing: %s", path);
 	} else if(xmlStrcasecmp(root->name,(xmlChar*)"Knowledge_Books")){

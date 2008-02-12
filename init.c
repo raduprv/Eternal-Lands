@@ -62,28 +62,18 @@
 #include "update.h"
 #include "weather.h"
 #include "url.h"
-#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif	//EYE_CANDY
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
-#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #include "io/xmlcallbacks.h"
-#else
-#include "misc.h"
-#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif // PAWN
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
-#ifdef MINES
 #include "mines.h"
-#endif // MINES
 #ifdef POPUP
 #include "popup.h"
 #endif /* POPUP */
@@ -93,12 +83,10 @@
 int ini_file_size=0;
 
 int disconnected= 1;
-#ifdef AUTO_UPDATE
 int auto_update= 1;
 #ifdef  CUSTOM_UPDATE
 int custom_update= 0;
 #endif  //CUSTOM_UPDATE
-#endif  //AUTO_UPDATE
 
 int exit_now=0;
 int restart_required=0;
@@ -109,9 +97,7 @@ int poor_man=0;
 int anti_alias=0;
 #endif  //ANTI_ALIAS
 
-#ifdef SFX
 int special_effects=0;
-#endif  //SFX
 
 int isometric=1;
 int mouse_limit=15;
@@ -141,14 +127,9 @@ void load_harvestable_list()
 	char strLine[255];
 
 	memset(harvestable_objects, 0, sizeof(harvestable_objects));
-#ifndef NEW_FILE_IO
-	f = my_fopen("harvestable.lst", "rb");
-	if(!f) {
-#else /* NEW_FILE_IO */
 	f = open_file_data("harvestable.lst", "rb");
 	if(f == NULL) {
 		LOG_ERROR("%s: %s \"harvestable.lst\"\n", reg_error_str, cant_open_file);
-#endif /* NEW_FILE_IO */
 		return;
 	}
 	while(1)
@@ -173,14 +154,9 @@ void load_entrable_list()
 
 	memset(entrable_objects, 0, sizeof(entrable_objects));
 	i=0;
-#ifndef NEW_FILE_IO
-	f=my_fopen("entrable.lst", "rb");
-	if(f == NULL){
-#else /* NEW_FILE_IO */
 	f=open_file_data("entrable.lst", "rb");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"entrable.lst\"\n", reg_error_str, cant_open_file);
-#endif /* NEW_FILE_IO */
 		return;
 	}
 	while(1)
@@ -201,27 +177,14 @@ void load_knowledge_list()
 	int i=0;
 	char strLine[255];
 	char *out;
-#ifndef NEW_FILE_IO
-	char filename[200];
-#endif /* NEW_FILE_IO */
 	
 	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i= 0;
 	knowledge_count= 0;
 	// try the language specific knowledge list
-#ifndef NEW_FILE_IO
-	safe_snprintf(filename,sizeof(filename),"languages/%s/knowledge.lst",lang);
-	if((f=my_fopen(filename,"rb"))==NULL)
-		{
-			// Failed, try the default/english knowledge list
-			f=my_fopen("languages/en/knowledge.lst","rb");
-		}
-	if(f == NULL){
-#else /* NEW_FILE_IO */
 	f=open_file_lang("knowledge.lst", "rb");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"knowledge.lst\"\n", reg_error_str, cant_open_file);
-#endif /* NEW_FILE_IO */
 		return;
 	}
 	while(1)
@@ -247,18 +210,9 @@ void read_config()
 #endif // !WINDOWS && !NEW_FILE_IO
 
 	// Set our configdir
-#ifdef NEW_FILE_IO
 	const char * tcfg = get_path_config();
 
 	my_strncp (configdir, tcfg , sizeof(configdir));
-#else // NEW_FILE_IO
-	my_strncp (configdir, getenv ("HOME") , sizeof(configdir));
-#ifndef OSX
-	safe_strcat (configdir, "/.elc/", sizeof(configdir));
-#else
-	safe_strcat (configdir, "/Library/Application\ Support/Eternal\ Lands/", sizeof(configdir));
-#endif // OSX
-#endif /* NEW_FILE_IO */
 
 #if !defined(WINDOWS) && !defined(NEW_FILE_IO)
 	// Set the perms of our configdir
@@ -317,20 +271,10 @@ void read_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
-#ifndef NEW_FILE_IO
-	char el_cfg[256];
-#endif /* not NEW_FILE_IO */
 	int i;
 
-#ifndef NEW_FILE_IO
-	safe_snprintf(el_cfg,  sizeof(el_cfg), "%sel.cfg", configdir);
-	// don't use my_fopen, absence of binary config is not an error
-	f=fopen(el_cfg,"rb");
-	if(!f)return;//no config file, use defaults
-#else /* NEW_FILE_IO */
 	f=open_file_config("el.cfg","rb");
 	if(f == NULL)return;//no config file, use defaults
-#endif /* NEW_FILE_IO */
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
 	fread(&cfg_mem,1,sizeof(cfg_mem),f);
@@ -380,17 +324,13 @@ void read_bin_cfg()
 	url_win_x=cfg_mem.url_win_x;
 	url_win_y=cfg_mem.url_win_y;
 
-#ifdef MINIMAP
 	minimap_win_x=cfg_mem.minimap_win_x;
 	minimap_win_y=cfg_mem.minimap_win_y;
 	minimap_flags=cfg_mem.minimap_flags;
 	minimap_zoom=cfg_mem.minimap_zoom;
-#endif //MINIMAP
 
-#ifdef NOTEPAD
 	notepad_win_x=cfg_mem.notepad_win_x;
 	notepad_win_y=cfg_mem.notepad_win_y;
-#endif // NOTEPAD
 
 	if(quickbar_relocatable>0)
 		{
@@ -431,22 +371,13 @@ void save_bin_cfg()
 {
 	FILE *f = NULL;
 	bin_cfg cfg_mem;
-#ifndef NEW_FILE_IO
-	char el_cfg[256];
-#endif /* not NEW_FILE_IO */
 	int i;
 
-#ifndef NEW_FILE_IO
-	safe_snprintf(el_cfg, sizeof(el_cfg), "%sel.cfg", configdir);
-	f=my_fopen(el_cfg,"wb");
-	if(!f)return;//blah, whatever
-#else /* NEW_FILE_IO */
 	f=open_file_config("el.cfg","wb");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"el.cfg\"\n", reg_error_str, cant_open_file);
 		return;//blah, whatever
 	}
-#endif /* NEW_FILE_IO */
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
 	cfg_mem.cfg_version_num=CFG_VERSION;	// set the version number
@@ -591,7 +522,6 @@ void save_bin_cfg()
 		cfg_mem.url_win_y=url_win_y;
 	}
 
-#ifdef MINIMAP
 	if(minimap_win >= 0) {
 		cfg_mem.minimap_win_x=windows_list.window[minimap_win].cur_x;
 		cfg_mem.minimap_win_y=windows_list.window[minimap_win].cur_y;
@@ -601,9 +531,7 @@ void save_bin_cfg()
 	}
 	cfg_mem.minimap_flags=minimap_flags;
 	cfg_mem.minimap_zoom=minimap_zoom;
-#endif //MINIMAP
 
-#ifdef NOTEPAD
 	if(notepad_win >= 0) {
 		cfg_mem.notepad_win_x=windows_list.window[notepad_win].cur_x;
 		cfg_mem.notepad_win_y=windows_list.window[notepad_win].cur_y;
@@ -611,7 +539,6 @@ void save_bin_cfg()
 		cfg_mem.notepad_win_x=notepad_win_x;
 		cfg_mem.notepad_win_y=notepad_win_y;
 	}
-#endif // NOTEPAD
 
 	cfg_mem.view_health_bar=view_health_bar;
 	cfg_mem.view_names=view_names;
@@ -674,14 +601,11 @@ void init_stuff()
 	int seed;
 	char file_name[250];
 	int i;
-#ifdef NEW_FILE_IO
 	char config_location[300];
 	const char * cfgdir;
-#endif //NEW_FILE_IO	
 
 	chdir(datadir);
 
-#ifdef	NEW_FILE_IO
 	load_server_list("servers.lst");
 	set_server_details();
 
@@ -700,7 +624,6 @@ void init_stuff()
 	// Here you can add zip files, like
 	// add_zip_archive("./data.zip", datadir, 0);
 	xml_register_el_input_callbacks();
-#endif	// NEW_FILE_IO
 
 #ifdef WRITE_XML
 	load_translatables();//Write to the current working directory - hopefully we'll have write rights here...
@@ -718,13 +641,6 @@ void init_stuff()
 	// because the messages need the font widths.
 	init_fonts();
 	
-#ifndef	NEW_FILE_IO
-	// Read the config file
-	read_config();
-	// Parse command line options
-	read_command_line();
-	options_set= 1;
-#endif	// NEW_FILE_IO
 
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);
@@ -734,7 +650,6 @@ void init_stuff()
 	//Good, we should be in the right working directory - load all translatables from their files
 	load_translatables();
 
-#ifndef	SDL_REINIT
 	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
 	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
 		{
@@ -742,7 +657,6 @@ void init_stuff()
 			SDL_Quit();
 			exit(1);
 		}
-#endif	// SDL_REINIT
 	init_video();
 
 	//Init the caches here, as the loading window needs them
@@ -775,9 +689,7 @@ void init_stuff()
 	init_gl_extensions();
 	
 	// Setup the new eye candy system
-#ifdef	EYE_CANDY
 	ec_init();
-#endif	//EYE_CANDY
 
 	// check for invalid combinations
 	check_options();
@@ -794,9 +706,7 @@ void init_stuff()
 	load_harvestable_list();
 	load_entrable_list();
 	load_knowledge_list();
-#ifdef MINES
 	load_mines_config();
-#endif // MINES
 	update_loading_win(load_cursors_str, 5);
 	load_cursors();
 	build_cursors();
@@ -863,11 +773,7 @@ void init_stuff()
 		char	buffer[256];
 
 		safe_snprintf(buffer, sizeof(buffer), "./textures/items%d.bmp", i+1);
-#ifdef NEW_FILE_IO
 		if(el_custom_file_exists(buffer)){
-#else
-		if(gzfile_exists(buffer)){
-#endif
 			items_text[i]= load_texture_cache(buffer, 0);
 		}
 	}
@@ -877,11 +783,7 @@ void init_stuff()
 		char	buffer[256];
 
 		safe_snprintf(buffer, sizeof(buffer), "./textures/portraits%d.bmp", i+1);
-#ifdef NEW_FILE_IO
 		if(el_custom_file_exists(buffer)){
-#else
-		if(gzfile_exists(buffer)){
-#endif
 			portraits_tex[i]= load_texture_cache_deferred(buffer, 0);
 		}
 	}
@@ -937,7 +839,6 @@ void init_stuff()
 	olc_finish_init();
 #endif	//OLC
 
-#ifdef  AUTO_UPDATE
 	if(auto_update){
 		init_update();
 #ifdef  CUSTOM_UPDATE
@@ -945,7 +846,6 @@ void init_stuff()
 		init_custom_update();
 #endif  //CUSTOM_UPDATE
 	}
-#endif
 
 	have_rules=read_rules();
 	if(!have_rules){
@@ -966,14 +866,12 @@ void init_stuff()
 	draw_scene_timer= SDL_AddTimer (1000/(18*4), my_timer, NULL);
 	misc_timer= SDL_AddTimer (500, check_misc, NULL);
 
-#ifdef NEW_FILE_IO
 	cfgdir = get_path_config();
 	if(cfgdir != NULL){
 		//Realistically, if this failed, then there's not much point in continuing, but oh well...
 		safe_snprintf(config_location, sizeof(config_location), config_location_str, cfgdir);
 	}
 	LOG_TO_CONSOLE(c_green4, config_location);
-#endif //NEW_FILE_IO	
 
 	update_loading_win(prep_op_win_str, 7);
 	create_opening_root_window (window_width, window_height);

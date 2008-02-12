@@ -201,9 +201,7 @@ extern char 	tt_walk[30],
 		tt_help[30],
 		tt_customize[60],
 		tt_name[60];
-#ifdef NOTEPAD
 extern char	tt_notepad[30];
-#endif // NOTEPAD
 extern char	tt_urlwin[30];
 #endif  //DOXYGEN_SKIP_THIS
 #endif  //ELC
@@ -244,9 +242,7 @@ extern char
 		time_warn_sunrise_str[100],
 		time_warn_sunset_str[100],
 		time_warn_day_str[75],
-#ifdef NEW_FILE_IO
 		config_location_str[75],
-#endif //NEW_FILE_IO
 		cmd_ignores[20],
 		cmd_ignore[20],
 		cmd_unignore[20],
@@ -544,11 +540,9 @@ extern char	reg_error_str[15],
 		load_particles_str[35],
 		bld_sectors_str[35],
 		init_done_str[35],
-#ifdef MINES
 		/* mines.c */
 		mines_config_open_err_str[50],
 		mines_config_error[50],
-#endif // MINES
 		/*multiplayer.c*/
 		failed_resolve[150], 
 		failed_connect[100], 

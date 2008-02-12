@@ -23,10 +23,8 @@
 #include "actors.h"
 #include "interface.h"
 #endif // NEW_SOUND
-#ifdef	NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
-#endif	//NEW_FILE_IO
 #include "threads.h"
 
 #define MAX_FILENAME_LENGTH 80
@@ -81,14 +79,12 @@ typedef struct {
 
 #define MAX_SOUNDS 200
 
-#ifdef OGG_VORBIS
 #define MAX_STREAMS 7					// 1 music stream and up to 3 each for bg and crowds
 #define STREAM_TYPE_NONE -1
 #define STREAM_TYPE_SOUNDS 0
 #define STREAM_TYPE_MUSIC 1
 #define STREAM_TYPE_CROWD 2
 #define NUM_STREAM_BUFFERS 4
-#endif // OGG_VORBIS
 
 #define MAX_BACKGROUND_DEFAULTS 8			// Maximum number of global default backgrounds
 #define MAX_MAP_BACKGROUND_DEFAULTS 4		// Maximum number of default backgrounds per map
@@ -258,7 +254,6 @@ typedef struct
 	char string[256];
 } sound_warnings;
 
-#ifdef OGG_VORBIS
 typedef struct
 {
 	int type;								// The type of this stream
@@ -276,7 +271,6 @@ typedef struct
 	int is_default;							// Is this sound a default sound for this type	(not used for music)
 	map_sound_boundary_def * boundary;		// This is a pointer to the boundary in use
 } stream_data;
-#endif // OGG_VORBIS
 
 #else // NEW_SOUND
 
@@ -365,7 +359,6 @@ ALuint sound_buffer[MAX_BUFFERS];
 SDL_mutex *sound_list_mutex = NULL;
 
 
-#ifdef	OGG_VORBIS
 #define MAX_PLAYLIST_ENTRIES 50
 
 #ifdef NEW_SOUND
@@ -384,29 +377,23 @@ int playing_music = 0;
 playlist_entry playlist[MAX_PLAYLIST_ENTRIES];
 int loop_list = 1;
 int list_pos = -1;
-#endif // OGG_VORBIS
 
 
 
 /*    *** Declare some local functions ****
  * These functions shouldn't need to be accessed outside sound.c
  */
-#ifdef OGG_VORBIS
 void ogg_error(int code);
-#endif // OGG_VORBIS
 
 #ifndef NEW_SOUND
 
-#ifdef OGG_VORBIS
 void load_ogg_file(char *file_name);
 void play_ogg_file(char *file_name);
 void stream_music(ALuint buffer);
-#endif // OGG_VORBIS
 int realloc_sources();
 
 #else // !NEW_SOUND
 
-#ifdef OGG_VORBIS
 /* Ogg handling	*/
 int load_ogg_file(char *file_name, OggVorbis_File *oggFile);
 int stream_ogg_file(char *file_name, stream_data * stream, int numBuffers);
@@ -428,7 +415,6 @@ int check_stream(stream_data * stream, int day_time, int tx, int ty);
 /* Music functions */
 void play_song(int list_pos);
 void find_next_song(int tx, int ty, int day_time);
-#endif	// OGG_VORBIS
 
 /* Source functions */
 source_data * get_available_source(int priority);
@@ -476,7 +462,6 @@ void toggle_music(int * var) {
  * COMMON OGG VORBIS FUNCTIONS *
  *******************************/
 
-#ifdef	OGG_VORBIS
 void ogg_error(int code)
 {
 	switch(code)
@@ -507,7 +492,6 @@ void ogg_error(int code)
 			LOG_ERROR(snd_media_ogg_error);
     }
 }
-#endif	// OGG_VORBIS
 
 
 /**************************
@@ -516,7 +500,6 @@ void ogg_error(int code)
 
 void get_map_playlist()
 {
-#ifdef	OGG_VORBIS
 	int i=0, len;
 	char map_list_file_name[256];
 	char tmp_buf[1024];
@@ -536,11 +519,7 @@ void get_map_playlist()
 		tmp = map_file_name;
 	else
 		tmp++;
-#ifndef NEW_FILE_IO
-	safe_snprintf (map_list_file_name, sizeof (map_list_file_name), "./music/%s", tmp);
-#else /* NEW_FILE_IO */
 	safe_snprintf (map_list_file_name, sizeof (map_list_file_name), "music/%s", tmp);
-#endif /* NEW_FILE_IO */
 	len = strlen (map_list_file_name);
 	tmp = strrchr (map_list_file_name, '.');
 	if (tmp == NULL)
@@ -550,12 +529,7 @@ void get_map_playlist()
 	len -= strlen (tmp);
 	safe_snprintf (tmp, sizeof (map_list_file_name) - len, "pll");
 
-#ifndef NEW_FILE_IO
-	// don't consider absence of playlist an error, so don't use my_fopen
-	fp=fopen(map_list_file_name,"r");
-#else /* NEW_FILE_IO */
 	fp=open_file_data(map_list_file_name,"r");
-#endif /* NEW_FILE_IO */
 	if (fp == NULL) return;
 
 	while(1)
@@ -584,12 +558,10 @@ void get_map_playlist()
 	fclose(fp);
 	loop_list=1;
 	list_pos=-1;
-#endif	// OGG_VORBIS
 }
 
 void play_music(int list)
 {
-#ifdef	OGG_VORBIS
 	int i=0;
 	char list_file_name[256];
 	FILE *fp;
@@ -597,14 +569,8 @@ void play_music(int list)
 
 	if(!have_music)return;
 
-#ifndef NEW_FILE_IO
-	safe_snprintf(list_file_name, sizeof(list_file_name), "./music/%d.pll", list);
-	// don't consider absence of playlist an error, so don't use my_fopen
-	fp=fopen(list_file_name,"r");
-#else /* NEW_FILE_IO */
 	safe_snprintf(list_file_name, sizeof(list_file_name), "music/%d.pll", list);
 	fp=open_file_data(list_file_name, "r");
-#endif /* NEW_FILE_IO */
 	if(!fp)return;
 
 	memset(playlist,0,sizeof(playlist));
@@ -634,7 +600,6 @@ void play_music(int list)
 	alSourcef (music_source, AL_GAIN, music_gain);
 	play_ogg_file(playlist[list_pos].file_name);
 #endif // NEW_SOUND
-#endif	// OGG_VORBIS
 }
 
 
@@ -681,9 +646,7 @@ void turn_sound_off()
 	ALuint source;
 	if(!inited)
 		return;
-#ifdef OGG_VORBIS
 	if(!music_on)
-#endif // OGG_VORBIS
 	{
 		destroy_sound();
 		return;
@@ -716,7 +679,6 @@ void toggle_sounds(int *var){
 
 void turn_music_on()
 {
-#ifdef	OGG_VORBIS
 	int state;
 	if(!inited){
 		init_sound();
@@ -734,7 +696,6 @@ void turn_music_on()
 		alSourcePlay(music_source);
 		playing_music = 1;
 	}
-#endif	// OGG_VORBIS
 }
 
 void turn_music_off()
@@ -743,7 +704,6 @@ void turn_music_off()
 		destroy_sound();
 		return;
 	}
-#ifdef	OGG_VORBIS
 	if(!have_music)
 		return;
 	if(music_thread != NULL){
@@ -759,7 +719,6 @@ void turn_music_off()
 		music_thread = NULL;
 	}
 	music_on = playing_music = 0;
-#endif	// OGG_VORBIS
 }
 
 void destroy_sound()
@@ -774,7 +733,6 @@ void destroy_sound()
 	sound_list_mutex=NULL;
 	inited = have_sound = sound_on = 0;
 
-#ifdef	OGG_VORBIS
 	if(music_thread != NULL){
 		int queued = 0;
 		ALuint buffer;
@@ -793,7 +751,6 @@ void destroy_sound()
 		SDL_WaitThread(music_thread,NULL);
 		music_thread = NULL;
 	}
-#endif	// OGG_VORBIS
 	alSourceStopv(used_sources, sound_source);
 	alDeleteSources(used_sources, sound_source);
 	for(i=0;i<MAX_BUFFERS;i++) {
@@ -839,7 +796,6 @@ void destroy_sound()
  * OGG VORBIS FUNCTIONS *
  ************************/
 
-#ifdef OGG_VORBIS
 void load_ogg_file(char *file_name)
 {
 	char file_name2[80];
@@ -902,7 +858,6 @@ void play_ogg_file(char *file_name) {
     	}
 	playing_music = 1;	
 }
-#endif // OGG_VORBIS
 
 /*******************
  * MUSIC FUNCTIONS *
@@ -910,7 +865,6 @@ void play_ogg_file(char *file_name) {
 
 void stream_music(ALuint buffer)
 {
-#ifdef OGG_VORBIS
     char data[MUSIC_BUFFER_SIZE];
     int  size = 0;
     int  section = 0;
@@ -954,16 +908,10 @@ void stream_music(ALuint buffer)
     		LOG_ERROR("stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
 			have_music=0;
     	}
-#endif // OGG_VORBIS
 }
 
 int display_song_name()
 {
-#ifndef OGG_VORBIS
-#ifdef ELC
-	LOG_TO_CONSOLE(c_red2, snd_no_music);
-#endif
-#else // !OGG_VORBIS
 	if(!playing_music){
 		LOG_TO_CONSOLE(c_grey1, snd_media_music_stopped);
 	}else{
@@ -995,13 +943,11 @@ int display_song_name()
 		}
 		LOG_TO_CONSOLE(c_grey1, musname);
 	}
-#endif // !OGG_VORBIS
 	return 1;
 }
 
 int update_music(void *dummy)
 {
-#ifdef	OGG_VORBIS
     int error,processed,state,state2,sleep,fade=0;
    	sleep = SLEEP_TIME;
 	while(have_music && music_on)
@@ -1106,7 +1052,6 @@ int update_music(void *dummy)
 		printf("Music bug (update_music)\n");
 #endif //_EXTRA_SOUND_DEBUG
 	}
-#endif	// OGG_VORBIS
 	return 1;
 }
 
@@ -1120,22 +1065,11 @@ void stop_sound(int i)
 ALuint get_loaded_buffer(int i)
 {
 	int error;
-#ifdef  ALUT_WAV
-	ALsizei size,freq;
-#ifndef OSX
-	ALboolean loop;
-#endif // OSX
-#else  //ALUT_WAV
     ALsizei	size;
 	ALfloat freq;
-#endif  //ALUT_WAV
 	ALenum  format;
 	ALvoid*	data= NULL;
-#ifndef	NEW_FILE_IO
-	FILE *fin;
-#else	//NEW_FILE_IO
 	el_file_ptr file = NULL;
-#endif	//NEW_FILE_IO
 	
 	if(!alIsBuffer(sound_buffer[i]))
 	{
@@ -1145,22 +1079,11 @@ ALuint get_loaded_buffer(int i)
 		// actually exists...
 		// Maybe use alutLoadWAV? But that doesn't seem to exist on 
 		// OS/X...
-#ifndef	NEW_FILE_IO
-		fin = fopen (sound_files[i], "r");
-		if (fin == NULL) 
-		{
-			LOG_ERROR(snd_wav_load_error, sound_files[i]);
-			return 0;
-		}
-		// okay, the file exists and is readable, close it
-		fclose (fin);
-#else	//NEW_FILE_IO
 		if (!el_file_exists(sound_files[i]))
 		{
 			LOG_ERROR(snd_wav_load_error, sound_files[i]);
 			return 0;
 		}
-#endif	//NEW_FILE_IO
 
 		alGenBuffers(1, sound_buffer+i);
 			
@@ -1171,29 +1094,8 @@ ALuint get_loaded_buffer(int i)
 			have_music=0;
 		}
 
-#ifdef	NEW_FILE_IO
 		file = el_open(sound_files[i]);
-#endif	//NEW_FILE_IO
-#ifdef ALUT_WAV
-#ifdef OSX
-		// OS X alutLoadWAVFile doesn't have a loop option... Oh well :-)
-		// OpenAL 1.0 on Macs do not properly support alutLoadWAVMemory
-		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq);
-#else  //OSX
- #ifdef	NEW_FILE_IO
-		alutLoadWAVMemory(el_get_pointer(file), &format, &data, &size, &freq, &loop);
- #else	//NEW_FILE_IO
-		alutLoadWAVFile (sound_files[i], &format, &data, &size, &freq, &loop);
- #endif	//NEW_FILE_IO
-#endif  //OSX
-		alBufferData(sound_buffer[i],format,data,size,freq);
-		alutUnloadWAV(format,data,size,freq);
-#else  // ALUT_WAV
-#ifdef	NEW_FILE_IO
 		data = alutLoadMemoryFromFileImage(el_get_pointer(file), el_get_size(file), &format, &size, &freq);
-#else	//NEW_FILE_IO
-        	data= alutLoadMemoryFromFile (sound_files[i], &format, &size, &freq);
-#endif	//NEW_FILE_IO
 		if (data == AL_NONE)
 		{
 			LOG_ERROR ("Unable to load sound file %s\n", sound_files[i]);
@@ -1203,10 +1105,7 @@ ALuint get_loaded_buffer(int i)
 			alBufferData(sound_buffer[i],format,data,size,(int)freq);
 			free(data);
 		}
-#endif  //ALUT_WAV
-#ifdef	NEW_FILE_IO
 		el_close(file);
-#endif	//NEW_FILE_IO
 
 		if ((error = alGetError ()) != AL_NO_ERROR)
 			LOG_ERROR("(in get_loaded_buffer) %s: %s", snd_buff_error, alGetString(error));
@@ -1398,7 +1297,6 @@ void update_position()
 void kill_local_sounds()
 {
 	int error;
-#ifdef OGG_VORBIS
 	int queued, processed;
 #ifdef	OSX //to fix music quiting when switching maps since used_sources is not updated properly, might be generally applicable
 	if(have_music)
@@ -1413,7 +1311,6 @@ void kill_local_sounds()
 		}
 	}
 #endif // OSX
-#endif // OGG_VORBIS
 	if(!have_sound || !used_sources)return;
 	LOCK_SOUND_LIST();
 	alSourceStopv(used_sources,sound_source);
@@ -1426,7 +1323,6 @@ void kill_local_sounds()
 	if (realloc_sources () != 0)
 		LOG_ERROR(snd_stop_fail);
 	UNLOCK_SOUND_LIST();
-#ifdef	OGG_VORBIS
 #ifndef OSX
 	if(!have_music)
 		return;
@@ -1439,7 +1335,6 @@ void kill_local_sounds()
 		alSourceUnqueueBuffers(music_source, 1, &buffer);
 	}
 #endif // !OSX
-#endif // OGG_VORBIS
 }
 
 int realloc_sources()
@@ -1518,11 +1413,7 @@ void init_sound()
 #endif // OSX
 
 	have_sound=1;
-#ifdef	OGG_VORBIS
 	have_music=1;
-#else // OGG_VORBIS
-	have_music=0;
-#endif	// OGG_VORBIS
 
 	//NULL makes it use the default device.
 	//to get a list of available devices, uncomment the following code, and read your error_log.txt
@@ -1588,7 +1479,6 @@ void init_sound()
 		sound_buffer[i] = -1;
 
 	//initialize music
-#ifdef	OGG_VORBIS
 	ogg_file = NULL;
 
 	alGenBuffers(4, music_buffers);
@@ -1599,7 +1489,6 @@ void init_sound()
 	alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );
 	alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
 	alSourcef (music_source, AL_GAIN,            music_gain);
-#endif	// OGG_VORBIS
 	if((error=alGetError()) != AL_NO_ERROR){
 		char str[256];
 		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
@@ -1753,9 +1642,7 @@ void turn_sound_off()
 	ALuint error;
 	if (!inited)
 		return;
-#ifdef OGG_VORBIS
 	if (!have_music || !music_on)
-#endif // OGG_VORBIS
 	{
 		destroy_sound();
 		return;
@@ -1777,7 +1664,6 @@ void turn_sound_off()
 		continue;
 	}
 	UNLOCK_SOUND_LIST();
-#ifdef OGG_VORBIS
 	for (i = 0; i < max_streams; i++)
 	{
 		if (streams[i].type != STREAM_TYPE_MUSIC)
@@ -1785,7 +1671,6 @@ void turn_sound_off()
 			destroy_stream(&streams[i]);
 		}
 	}
-#endif // OGG_VORBIS
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
@@ -1796,7 +1681,6 @@ void turn_sound_off()
 
 void turn_music_on()
 {
-#ifdef	OGG_VORBIS
 	if (!video_mode_set)
 		return;			// Don't load the config until we have video (so we don't load before the loading screen)
 	music_on = 1;		// Set this here so if ness we will init the sound
@@ -1807,12 +1691,10 @@ void turn_music_on()
 	if (!have_music)
 		return;
 	get_map_playlist();
-#endif	// OGG_VORBIS
 }
 
 void turn_music_off()
 {
-#ifdef	OGG_VORBIS
 	if ((!have_sound || sound_opts == SOUNDS_NONE) && inited)
 	{
 		destroy_sound();
@@ -1829,7 +1711,6 @@ void turn_music_off()
 			destroy_stream(music_stream);
 		}
 	}
-#endif	// OGG_VORBIS
 }
 
 void toggle_sounds(int *var) {
@@ -1868,7 +1749,6 @@ void change_sounds(int * var, int value)
  * OGG VORBIS FUNCTIONS *
  ************************/
 
-#ifdef	OGG_VORBIS
 int load_ogg_file(char * file_name, OggVorbis_File *oggFile)
 {
 	FILE *file;
@@ -1896,25 +1776,17 @@ int load_ogg_file(char * file_name, OggVorbis_File *oggFile)
 	return 1;
 }
 
-#ifdef NEW_FILE_IO
 int stream_ogg_file(char * in_filename, stream_data * stream, int numBuffers)
-#else // NEW_FILE_IO
-int stream_ogg_file(char * filename, stream_data * stream, int numBuffers)
-#endif // NEW_FILE_IO
 {
 	int result, more_stream = 0, i;
-#ifdef NEW_FILE_IO
 	char filename[200];
-#endif // NEW_FILE_IO
 	
 	stop_stream(stream);
 	ov_clear(&stream->stream);
 	
-#ifdef NEW_FILE_IO
 	// Add the datadir to the input filename and try to open it
 	strcpy(filename, datadir);
 	strcat(filename, in_filename);
-#endif // NEW_FILE_IO
 	result = load_ogg_file(filename, &stream->stream);
 	if (!result) {
 		LOG_ERROR("Error loading ogg file: %s\n", filename);
@@ -2757,7 +2629,6 @@ int update_streams(void * dummy)
 #endif //_EXTRA_SOUND_DEBUG
 	return 1;
 }
-#endif // OGG_VORBIS
 
 
 
@@ -2768,11 +2639,6 @@ int update_streams(void * dummy)
 
 int display_song_name()
 {
-#ifndef OGG_VORBIS 
-#ifdef ELC
-	LOG_TO_CONSOLE(c_red2, snd_no_music);
-#endif
-#else // !OGG_VORBIS
 	if (!music_stream || !music_stream->playing)
 	{
 		LOG_TO_CONSOLE(c_grey1, snd_media_music_stopped);
@@ -2826,7 +2692,6 @@ int display_song_name()
 		}
 		LOG_TO_CONSOLE(c_grey1, musname);
 	}
-#endif // !OGG_VORBIS
 	return 1;
 }
 
@@ -3211,7 +3076,6 @@ int ensure_sample_loaded(char * in_filename)
 	// Add the data dir to the front of the input filename
 	strcpy(filename, datadir);
 	strcat(filename, in_filename);
-#ifdef OGG_VORBIS
 	// Do a crude check of the extension to choose which loader
 	if (!strcasecmp(filename+(strlen(filename) - 4), ".ogg"))
 	{
@@ -3226,7 +3090,6 @@ int ensure_sample_loaded(char * in_filename)
 		}
 	}
 	else
-#endif // OGG_VORBIS
 	{
 		// Use the alutLoadMemoryFromFile WAV loader as it now exists under Mac
 		// (see 0ctane's notes and the functions at the end of this file)
@@ -3817,7 +3680,6 @@ void stop_all_sounds()
 		}
 	}
 
-#ifdef OGG_VORBIS
 	for (i = 0; i < max_streams; i++)
 	{
 		// Fade the music stream down (we can use it again after the map change) but destroy any other streams
@@ -3831,7 +3693,6 @@ void stop_all_sounds()
 			destroy_stream(&streams[i]);
 		}
 	}
-#endif // OGG_VORBIS
 
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
@@ -5001,18 +4862,12 @@ void init_sound()
 #endif // _EXTRA_SOUND_DEBUG
 
 	have_sound = 1;
-#ifdef	OGG_VORBIS
 	have_music = 1;
-#else	// OGG_VORBIS
-	have_music = 0;
-#endif	// OGG_VORBIS
 
 	// Initialise streams thread
-#ifdef	OGG_VORBIS
 	if (sound_streams_thread == NULL) {
 		sound_streams_thread = SDL_CreateThread(update_streams, 0);
 	}
-#endif	// OGG_VORBIS
 
 	if (num_types == 0)
 	{
@@ -5046,7 +4901,6 @@ void destroy_sound()
 	}
 	inited = have_sound = have_music = sound_on = music_on = 0;
 
-#ifdef OGG_VORBIS
 	for (i = 0; i < MAX_STREAMS; i++)
 	{
 		destroy_stream(&streams[i]);
@@ -5056,7 +4910,6 @@ void destroy_sound()
 		SDL_WaitThread(sound_streams_thread, NULL);
 		sound_streams_thread = NULL;
 	}
-#endif // OGG_VORBIS
 	// Remove physical elements (sources and buffers)
 	LOCK_SOUND_LIST();
 	for (i = 0; i < MAX_SOURCES; i++)
@@ -5194,12 +5047,7 @@ void load_sound_warnings_list(const char *filename)
 	int istart, iend;
 	char string[128];
 
-#ifndef NEW_FILE_IO
-	// Don't use my_fopen, absence of warnings is not an error
-	f = fopen (filename, "rb");
-#else // NEW_FILE_IO
 	f = open_file_config (filename, "rb");
-#endif // NEW_FILE_IO
 	if (f == NULL) return;
 
 	// Ok, allocate memory for it and read it in
@@ -6405,20 +6253,7 @@ void load_sound_config_data (const char *file)
 	xmlDoc *doc;
 	xmlNode *root=NULL;
 
-#ifdef	NEW_FILE_IO
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
-#else	// NEW_FILE_IO
-	char path[1024];
-
-#ifndef WINDOWS
-	safe_snprintf(path, sizeof(path), "%s/%s", datadir, file);
-#else
-	safe_snprintf(path, sizeof(path), "%s", file);
-#endif // !WINDOWS
-
-	// Can we open the file as xml?
-	if ((doc = xmlReadFile(path, NULL, 0)) == NULL)
-#endif	// NEW_FILE_IO
 	{
 		char str[200];
 		safe_snprintf(str, sizeof(str), snd_config_open_err_str, file);

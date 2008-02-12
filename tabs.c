@@ -10,9 +10,7 @@
 #include "session.h"
 #include "skills.h"
 #include "translate.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
 
 int tab_stats_win = -1;
 int tab_stats_collection_id = 16;
@@ -62,11 +60,9 @@ void display_tab_stats ()
 		fill_questlog_win ();
 		STATS_TAB_QUESTLOG = 2;
 
-#ifdef COUNTERS
 		counters_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_counters, 0, 0);
 		fill_counters_win();
 		STATS_TAB_COUNTERS = 3;
-#endif
 		
 		session_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0);
 		fill_session_win();

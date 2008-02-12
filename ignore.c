@@ -7,12 +7,8 @@
 #include "init.h"
 #include "text.h"
 #include "translate.h"
-#ifdef NEW_FILE_IO
 #include "errors.h"
 #include "io/elpathwrapper.h"
-#else
-#include "misc.h"
-#endif
 
 ignore_slot ignore_list[MAX_IGNORES];
 int ignored_so_far=0;
@@ -45,19 +41,10 @@ int add_to_ignore_list(char *name, char save_name)
 					//add to the global ignore file, if the case
 					if(save_name)
 						{
-#ifndef NEW_FILE_IO
-							FILE *f = NULL;
-							char local_ignores[256];
-							safe_snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
-							f=my_fopen(local_ignores, "a");
-							if (f != NULL)
-							{
-#else /* NEW_FILE_IO */
 							FILE * f=open_file_config("local_ignores.txt", "a");
 							if (f == NULL){
 								LOG_ERROR("%s: %s \"local_ignores.txt\"\n", reg_error_str, cant_open_file);
 							} else {
-#endif /* NEW_FILE_IO */
 								fwrite(name, strlen(name), 1, f);
 								fwrite("\n", 1, 1, f);
 								fclose(f);
@@ -91,18 +78,10 @@ int remove_from_ignore_list(char *name)
 		}
 	if(found)
 		{
-#ifndef NEW_FILE_IO
-			char local_ignores[256];
-			safe_snprintf(local_ignores, sizeof(local_ignores), "%slocal_ignores.txt", configdir);
-			f=my_fopen(local_ignores, "w");
-			if (f != NULL)
-			{
-#else /* NEW_FILE_IO */
 			f=open_file_config("local_ignores.txt", "w");
 			if (f == NULL){
 				LOG_ERROR("%s: %s \"local_ignores.txt\"\n", reg_error_str, cant_open_file);
 			} else {
-#endif /* NEW_FILE_IO */
 				for(i=0;i<MAX_IGNORES;i++)
 				{
 					if(ignore_list[i].used)
@@ -309,12 +288,7 @@ void load_ignores_list(char * file_name)
 	char name[64];
 	Uint8 ch;
 
-#ifndef NEW_FILE_IO
-	// don't use my_fopen, absence of ignores is not an error
-	f = fopen(file_name, "rb");
-#else /* NEW_FILE_IO */
 	f = open_file_config(file_name, "rb");
-#endif /* NEW_FILE_IO */
 	if(f == NULL){return;}
 	fseek(f,0,SEEK_END);
 	f_size = ftell(f);

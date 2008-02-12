@@ -6,7 +6,6 @@
 
 #ifndef EL_PATH_WRAPPER_H
 #define EL_PATH_WRAPPER_H
-#ifdef NEW_FILE_IO
 
 #ifdef __cplusplus
 extern "C" {
@@ -210,5 +209,4 @@ int file_remove_config( const char *filename );
 #endif //C++
 
 
-#endif //NEW_FILE_IO
 #endif //EL_PATH_WRAPPER_H

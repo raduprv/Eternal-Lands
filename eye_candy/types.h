@@ -3,7 +3,6 @@ This file allows one to specify what datatypes to use for various kinds
 of eye candy elements.  Float works well enough in most situations.
 */
 
-#ifdef EYE_CANDY
 
 #include "../platform.h"
 
@@ -20,4 +19,3 @@ typedef float interval_t;
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif

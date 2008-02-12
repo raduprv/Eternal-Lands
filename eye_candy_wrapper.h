@@ -1,4 +1,3 @@
-#ifdef EYE_CANDY
 
 ////////////////////////////////////////////////////////////////////////////////
 // eye_candy_wrapper.h                                                        //
@@ -39,9 +38,7 @@
 #include "eye_candy/effect_harvesting.h"
 #include "eye_candy/effect_wind.h"
 #include "eye_candy/effect_breath.h"
-#ifdef MINES
  #include "eye_candy/effect_mines.h"
-#endif // MINES
 #endif
 
 #ifdef __cplusplus
@@ -162,12 +159,8 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   EC_HARVESTING = 14,
   EC_WIND = 15,
   EC_BREATH = 16,
-#ifndef MINES
-  EC_CANDLE = 17
-#else // MINES
   EC_CANDLE = 17,
   EC_MINES = 18
-#endif // MINES
 } ec_EffectEnum;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -327,13 +320,11 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_wind_leaves(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
   ec_reference ec_create_wind_petals(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, float density, ec_bounds bounds, float prevailing_wind_x, float prevailing_wind_y, float prevailing_wind_z);
   void ec_add_wind_effect_list(ec_reference reference, ec_effects effects);
-#ifdef MINES
   ec_reference ec_create_mine_drop(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_prime(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_remove(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, int LOD);
-#endif // MINES
 
 #ifdef __cplusplus
 }
@@ -343,4 +334,3 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
 
 ////////////////////////////////////////////////////////////////////////////////
 
-#endif	// #ifdef EYE_CANDY

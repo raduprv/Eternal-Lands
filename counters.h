@@ -1,4 +1,3 @@
-#ifdef COUNTERS
 
 #ifndef __COUNTERS_H__
 #define __COUNTERS_H___
@@ -45,4 +44,3 @@ int is_death_message (const char * RawText);
 
 #endif /* __COUNTERS_H__ */
 
-#endif /* COUNTERS */

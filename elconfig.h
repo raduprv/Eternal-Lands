@@ -7,9 +7,7 @@
 #define __ELCONFIG_H__
 
 #include "queue.h"
-#ifdef OPTIONS_I18N
 #include "translate.h"
-#endif
 
 #ifdef __cplusplus
 extern "C" {
@@ -58,12 +56,7 @@ typedef struct
 	int 	len; /*!< length of the variable */
 	int	saved;
 //	char 	*message; /*!< In case you want a message to be written when a setting is changed */
-#ifdef OPTIONS_I18N
 	dichar display;
-#else
-	char	*short_desc;/*!< The description that will be shown in the label */
-	char	*long_desc; /*!< A longer description, shown when the player clicks on the option */
-#endif
 	struct {
 		int tab_id; /*!< The tab ID in which we find this option */
 		int label_id; /*!< The label ID associated with this option */

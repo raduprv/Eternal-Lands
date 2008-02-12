@@ -3,19 +3,12 @@ UPDATE_CONF=yes
 
 # tune these for your setup & compile options
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
-FEATURES += AFK_FIX                         # fixes afk messages to count only PM's, and store and count local messages if the option is selected
 FEATURES += ALPHA_ACTORS                    # Enable Alpha Blending of actor models if an alpha blended item is worn
-#FEATURES += ALUT_WAV                        # use deprecated WAV loader
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
-FEATURES += ATI_9200_FIX                    # flickering fix for ATI 92xx
-FEATURES += AUTO_UPDATE                     # enable minor automatic file updating
-FEATURES += CLICKABLE_CONTINENT_MAP         # Enables you to click on the continent map to view maps
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
-FEATURES += COUNTERS                        # enables kill/production/etc counters in the client
 FEATURES += CALCULATOR                      # enables #calc command
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
-FEATURES += CXX_MISC                        # Extended exception, xml c++ helper etc. NEW_FILE_IO and USE_SEND_VIDEO_INFO needs this. The new shader system will also need them
 #FEATURES += DEBUG                           # (undocumented)
 #FEATURES += DEBUG_XML                       # Enables missing (optional) XML string property messages
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
@@ -23,89 +16,37 @@ FEATURES += CXX_MISC                        # Extended exception, xml c++ helper
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
 #FEATURES += EL_BIG_ENDIAN                   # (undocumented)	FIXME: Should be removed and set in the code (as is done for OSX. Is it needed on any other platform?)
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
-FEATURES += EYE_CANDY                       # (undocumented)
-FEATURES += FONTS_FIX                       # dynamically loads all fonts with the filename in the format font*.bmp, and makes them accessable in the options
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
-FEATURES += IDLE_FIX                        # Fix for idle animations being stuck in one sequence
 FEATURES += MASKING                         # Allow for item masking on Actors, example, can allow for short sleeves
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
-FEATURES += MINES                           # Enables support for mines
-FEATURES += MINIMAP                         # Enable the minimap window support (alt+m) (unfinished, but usable)
 #FEATURES += MISSILES                        # Enables missiles support, use ctrl+click to enter range mode and fire (unfinished)
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
-FEATURES += NEW_ACTOR_SCALE                 # Scale setting for new actor models
 #FEATURES += NEW_ALPHA                       # (undocumented)
-FEATURES += NEW_FILE_IO                     # Enables being able to read gzip compressed files and hole zip archives. The zip archives need to be added using add_zip_archive in elfilewrapper.h and only absolut paths are supported for files in zip files. Requires -lzlib/-lz and needs CXX_MISC
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)
 FEATURES += NEW_SOUND                       # Enables extended sound effects system - almost pointless without OGG_VORBIS
 FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
 #FEATURES += NEW_WEATHER                     # new weather effects
 #FEATURES += NO_PF_MACRO                     # (undocumented)
-FEATURES += NOTEPAD                         # enable in-game notepad
-FEATURES += OGG_VORBIS                      # Enables Ogg Vorbis support (music and new sound fx) - replaces old !NO_MUSIC
-#FEATURES += OLD_TEXTURE_LOADER              # Enables old texture loader (only the new texture loader has support for png, tiff, jpeg, bmp etc.)
 #FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
-FEATURES += OPTIONS_I18N                    # make option labels & descriptions translatable
 #FEATURES += PARANOID_CAMERA                 # (undocumented)
 #FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
 FEATURES += POPUP                           # enable server popups
-FEATURES += SFX                             # experimental visual spell effects
 FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
 #FEATURES += SKY_FPV_CURSOR                  # Use skybox with clouds/stars/etc, enable first person view, coloured cursors, and other misc changes from Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #FEATURES += TIMER_CHECK                     # (undocumented)
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += UNROLL4                         # (undocumented)
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
-FEATURES += USE_SEND_VIDEO_INFO             # Sends video information to the server (OpenGL version, supported OpenGL extentions etc.). This is done only once, so if you don't want it, set video_info_sent to one in el.ini. Needs CXX_MISC and the file extentions.xml in datadir
 #FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += SDL_REINIT			    # Enables SDL reinit of video after resolution change
 #FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
-
-# Handle feature dependencies:
-# if CUSTOM_UPDATE is set, but AUTO_UPDATE isn't, remove CUSTOM_UPDATE
-ifneq ($(filter CUSTOM_UPDATE, $(FEATURES)),)
-	ifeq ($(filter AUTO_UPDATE, $(FEATURES)),)
-		FEATURES := $(filter-out CUSTOM_UPDATE, $(FEATURES))
-	endif
-endif
-# if EYE_CANDY is set, but SFX isn't, add SFX
-ifneq ($(filter EYE_CANDY, $(FEATURES)),)
-	ifeq ($(filter SFX, $(FEATURES)),)
-		FEATURES += SFX
-	endif
-endif
-# if USE_SHADER is set, but NEW_FILE_IO isn't, remove USE_SHADER
-ifneq ($(filter USE_SHADER, $(FEATURES)),)
-	ifeq ($(filter NEW_FILE_IO, $(FEATURES)),)
-		FEATURES := $(filter-out USE_SHADER, $(FEATURES))
-	endif
-endif
-# if USE_SEND_VIDEO_INFO is set, but CXX_MISC isn't, add CXX_MISC
-ifneq ($(filter USE_SEND_VIDEO_INFO, $(FEATURES)),)
-	ifeq ($(filter CXX_MISC, $(FEATURES)),)
-		FEATURES += CXX_MISC
-	endif
-endif
-# if NEW_FILE_IO is set, but CXX_MISC isn't, add CXX_MISC
-ifneq ($(filter NEW_FILE_IO, $(FEATURES)),)
-	ifeq ($(filter CXX_MISC, $(FEATURES)),)
-		FEATURES += CXX_MISC
-	endif
-endif
-# if NEW_SOUND is set, but OGG_VORBIS isn't, add OGG_VORBIS
-ifneq ($(filter NEW_SOUND, $(FEATURES)),)
-	ifeq ($(filter OGG_VORBIS, $(FEATURES)),)
-		FEATURES += OGG_VORBIS
-	endif
-endif
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

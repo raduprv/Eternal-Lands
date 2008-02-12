@@ -3,7 +3,6 @@
 drifting fog.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_CLOUD_H
 #define EFFECT_CLOUD_H
@@ -66,4 +65,3 @@ public:
 
 #endif	// defined EFFECT_CLOUD_H
 
-#endif	// #ifdef EYE_CANDY

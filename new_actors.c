@@ -24,9 +24,7 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
-#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
@@ -118,9 +116,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->y_rot=0;
 	our_actor->z_rot=z_rot;
 	
-#ifdef COUNTERS
 	our_actor->last_range_attacker_id = -1;
-#endif // COUNTERS
 
 	//reset the script related things
 	our_actor->move_x_speed=0;
@@ -234,9 +230,7 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 					{
 						if(which_part==KIND_OF_WEAPON)
 							{
-#ifdef EYE_CANDY
 								ec_remove_weapon(actors_list[i]);
-#endif	// EYE_CANDY
 #ifdef MISSILES
 								if (actors_list[i]->in_aim_mode) {
 									add_command_to_actor(actor_id, unwear_bow);
@@ -305,22 +299,14 @@ void custom_path(char * path, char * custom1, char * custom2) {
 
 	/* Check if custom1 has path readable */
 	safe_snprintf(buffer, sizeof(buffer), "%s%s", custom1, path);
-#ifdef NEW_FILE_IO
 	if (el_custom_file_exists(buffer)) {
-#else // NEW_FILE_IO
-	if(gzfile_exists(buffer)) {
-#endif // NEW_FILE_IO
 		my_strcp(path, buffer);
 		return;
 	}
 
 	/* Check if custom2 has path readable */
 	safe_snprintf(buffer, sizeof(buffer), "%s%s", custom2, path);
-#ifdef NEW_FILE_IO
 	if (el_custom_file_exists(buffer)) {
-#else // NEW_FILE_IO
-	if(gzfile_exists(buffer)) {
-#endif // NEW_FILE_IO
 		my_strcp(path, buffer);
 		return;
 	}
@@ -380,7 +366,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								actors_list[i]->cur_weapon=which_id;
 								actors_list[i]->body_parts->weapon_meshindex = actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index;
 								actors_list[i]->body_parts->weapon_glow=actors_defs[actors_list[i]->actor_type].weapon[which_id].glow;
-#ifdef EYE_CANDY
 								switch (which_id)
 								{
 									case SWORD_1_FIRE:
@@ -430,7 +415,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 										ec_create_sword_jagged_saber(actors_list[i], (poor_man ? 6 : 10));
 										break;
 								}
-#endif
 
 								return;
 							}
@@ -909,12 +893,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif //EXTRA_DEBUG
 	//The actors list is already locked here
 	
-#ifdef COUNTERS
 	actors_list[i]->async_fighting = 0;
 	actors_list[i]->async_x_tile_pos = x_pos;
 	actors_list[i]->async_y_tile_pos = y_pos;
 	actors_list[i]->async_z_rot = z_rot;
-#endif
 
 	actors_list[i]->x_tile_pos=x_pos;
 	actors_list[i]->y_tile_pos=y_pos;
@@ -1023,7 +1005,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			{
 				set_transformation_buffers(actors_list[i]);
 			}
-#ifdef EYE_CANDY
 			switch (weapon)
 			{
 				case SWORD_1_FIRE:
@@ -1073,7 +1054,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 					ec_create_sword_jagged_saber(actors_list[i], (poor_man ? 6 : 10));
 					break;
 			}
-#endif
 		}
 	} else actors_list[i]->calmodel=NULL;
 

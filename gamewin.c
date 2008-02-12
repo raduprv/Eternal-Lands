@@ -48,22 +48,12 @@
 #include "weather.h"
 #ifdef DEBUG
 #include "sound.h"
-#ifdef MINES
 #include "special_effects.h"
-#endif // MINES
 #endif
-#ifdef SFX
 #include "special_effects.h"
-#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif	//EYE_CANDY
-#endif // SFX
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
-#ifdef NOTEPAD
 #include "notepad.h"
-#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
@@ -868,9 +858,7 @@ int display_game_handler (window_info *win)
 	static int times_FPS_below_3 = 0;
 	static int fps[5]={100};
 	static int shadows_were_disabled=0;
-#ifdef EYE_CANDY
 	static int eye_candy_was_disabled=0;
-#endif //EYE_CANDY
 	unsigned char str[180];
 	int i;
 	int any_reflection = 0;
@@ -1017,9 +1005,7 @@ int display_game_handler (window_info *win)
 			if (show_reflection) display_3d_reflection ();
 		}
 		CHECK_GL_ERRORS ();
-#ifdef ATI_9200_FIX
 		glClear(GL_DEPTH_BUFFER_BIT);
-#endif
 
 #ifdef MISSILES
 		missiles_update(cur_time-last_time);
@@ -1083,9 +1069,7 @@ int display_game_handler (window_info *win)
 	light_idle();
 #endif // NEW_LIGHTING
 
-#ifdef	EYE_CANDY
 	ec_idle();
-#endif
 
 	CHECK_GL_ERRORS();
 	// if not active, dont bother drawing any more
@@ -1110,10 +1094,8 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 	//we do this because we don't want the rain/particles to mess with our cursor
 
-#ifdef	EYE_CANDY
 	ec_draw();
 	CHECK_GL_ERRORS();
-#endif	//EYE_CANDY
 	
 #ifdef MISSILES
 	missiles_draw();
@@ -1146,9 +1128,7 @@ int display_game_handler (window_info *win)
 		{
 			times_FPS_below_3++;
 			if (times_FPS_below_3 > 10 && (shadows_on
-#ifdef EYE_CANDY
 					|| use_eye_candy
-#endif //EYE_CANDY
 					)){
 				put_colored_text_in_buffer (c_red1, CHAT_SERVER, (unsigned char*)low_framerate_str, -1);
 				times_FPS_below_3 = 0;
@@ -1157,13 +1137,11 @@ int display_game_handler (window_info *win)
 					shadows_on = 0;
 					shadows_were_disabled=1;
 				}
-#ifdef EYE_CANDY
 				if (use_eye_candy)
 				{
 					use_eye_candy = 0;
 					eye_candy_was_disabled = 1;
 				}
-#endif //EYE_CANDY
 			}
 		}
 		else 
@@ -1175,12 +1153,10 @@ int display_game_handler (window_info *win)
 				shadows_were_disabled=0;
 			}
 
-#ifdef EYE_CANDY
 			if (eye_candy_was_disabled){
 				use_eye_candy = 1;
 				eye_candy_was_disabled = 0;
 			}
-#endif //EYE_CANDY
 		}
 	}
 	if (show_fps)
@@ -1244,11 +1220,9 @@ int display_game_handler (window_info *win)
 
 	Leave2DMode ();
 
-#ifdef SFX
 	if(special_effects){
 		display_special_effects(1);
 	}
-#endif //SFX
 	display_highlight_markers();
 	
 	glEnable (GL_LIGHTING);
@@ -1316,12 +1290,8 @@ void hide_all_windows(){
 		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
 		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
 		get_show_window(dialogue_win) > 0 || get_show_window(server_popup_win) > 0 
-#ifdef MINIMAP
 		|| (get_show_window(minimap_win) > 0 && !minimap_get_pin())
-#endif /* MINIMAP */
-#ifdef NOTEPAD
 		|| get_show_window(notepad_win) > 0
-#endif /* NOTEPAD */
 		|| get_show_window(url_win) > 0
 	){	//Okay, hide the open ones.
 		if (get_window_showable(ground_items_win) > 0){
@@ -1382,22 +1352,18 @@ void hide_all_windows(){
 		} else {
 			were_open &= ~(1<<7);
 		}
-#ifdef MINIMAP
 		if (get_window_showable(minimap_win) > 0 && !minimap_get_pin()){
 			hide_window (minimap_win);
 			were_open |= 1<<8;
 		} else {
 			were_open &= ~(1<<8);
 		}
-#endif /* MINIMAP */
-#ifdef NOTEPAD
 		if (get_window_showable(notepad_win) > 0){
 			hide_window (notepad_win);
 			were_open |= 1<<9;
 		} else {
 			were_open &= ~(1<<9);
 		}
-#endif /* NOTEPAD */
 		if (get_show_window(url_win) > 0){
 			hide_window (url_win);
 			were_open |= 1<<10;
@@ -1438,16 +1404,12 @@ void hide_all_windows(){
 		if (were_open & 1<<7){
 			show_window (server_popup_win );
 		}
-#ifdef MINIMAP
 		if (were_open & 1<<8){
 			show_window (minimap_win );
 		}
-#endif /* MINIMAP */
-#ifdef NOTEPAD
 		if (were_open & 1<<9){
 			show_window (notepad_win);
 		}
-#endif /* NOTEPAD */
 		if (were_open & 1<<10){
 			show_window (url_win );
 		}
@@ -1581,7 +1543,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		}
 #endif
 	}
-#ifdef MINES
 	else if((keysym == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
@@ -1622,7 +1583,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 	}
-#endif // MINES
 #endif
 	// use quickbar items
 	else if (key == K_ITEM1)
@@ -1758,18 +1718,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
 	}
-#ifdef NOTEPAD
 	else if (key == K_NOTEPAD)
 	{
 		view_window (&notepad_win, 0);
 	}
-#endif
-#ifdef  MINIMAP
 	else if(key == K_MINIMAP)
 	{
 		view_window (&minimap_win, 0);
 	}
-#endif  //MINIMAP
 #ifdef ECDEBUGWIN
 	else if(key == K_ECDEBUGWIN)
 	{
@@ -2163,13 +2119,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (keysym == SDLK_F9)
 	{
 		actor *me = get_actor_ptr_from_id (yourself);
- #ifdef EYE_CANDY
 		ec_create_campfire(me->x_pos + 0.25f, me->y_pos + 0.25f, -2.3f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 0.0, 1.0, (poor_man ? 6 : 10), 0.7);
- #else // EYE_CANDY
-  #ifdef SFX
-		add_particle_sys ("./particles/fire_small.part", me->x_pos + 0.25f, me->y_pos + 0.25f, -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + 0.1f, 1);
-  #endif // SFX
- #endif // EYE_CANDY
 	}
 #ifdef DEBUG
 	else if (keysym == SDLK_F10)

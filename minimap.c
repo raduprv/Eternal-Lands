@@ -1,4 +1,3 @@
-#ifdef MINIMAP
 
 #include <stdlib.h>
 #include <string.h>
@@ -14,9 +13,7 @@
 #include "hud.h"
 #include "init.h"
 #include "interface.h"
-#ifdef MINES
 #include "mines.h"
-#endif // MINES
 #include "misc.h"
 #include "spells.h"
 #include "textures.h"
@@ -24,10 +21,8 @@
 #include "pathfinder.h"
 #include "translate.h"
 #include "io/map_io.h"
-#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
-#endif /* NEW_FILE_IO */
 
 static const int minimap_size = 256;
 static const float float_minimap_size = 256.0;
@@ -237,7 +232,6 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		}
 	}
 	
-#ifdef MINES
 	// mines
 	for (i = 0; i < NUM_MINES; i++)
 	{
@@ -256,7 +250,6 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			glVertex2f(x, y);
 		}
 	}
-#endif // MINES
 
 	glEnd();//GL_POINTS
 
@@ -923,11 +916,7 @@ void load_exploration_map ()
 	exploration_map_filename[strlen(exploration_map_filename)-4] = 0;
 	strcat (exploration_map_filename, ".xm");
 	safe_strncpy (current_exploration_map_filename, exploration_map_filename, sizeof (current_exploration_map_filename));
-#ifdef NEW_FILE_IO
 	fp = open_file_config (exploration_map_filename, "rb");
-#else
-	fp = my_fopen(exploration_map_filename, "rb");
-#endif
 	if(fp)
 	{
 		fread(exploration_map, sizeof(GLubyte), 256 * 256, fp);
@@ -978,11 +967,7 @@ void save_exploration_map()
 	if(!minimap_texture)
 		return;
 	
-#ifdef NEW_FILE_IO
 	fp = open_file_config (current_exploration_map_filename, "wb");
-#else
-	fp = my_fopen(current_exploration_map_filename, "wb");
-#endif
 	if (fp)
 	{
 		fwrite(exploration_map, sizeof(GLubyte), 256 * 256, fp);
@@ -1021,11 +1006,9 @@ void change_minimap(){
 
 	//load textures
 	my_strcp(tex.file_name, minimap_file_name);
-#ifdef NEW_FILE_IO
 	if (!el_file_exists(minimap_file_name))
 		minimap_texture = 0;
 	else
-#endif //NEW_FILE_IO
 		minimap_texture = load_bmp8_fixed_alpha(&tex,128);
 	my_strcp(tex.file_name, "./textures/circle.bmp");
 	circle_texture = load_bmp8_fixed_alpha(&tex,0);
@@ -1070,6 +1053,5 @@ void display_minimap()
 	}
 }
 
-#endif //MINIMAP
 
 //EOF

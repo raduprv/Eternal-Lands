@@ -2,9 +2,7 @@
 \brief Special effects for all of the harvesting events.
 */
 
-#ifdef MINES
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_MINES_H
 #define EFFECT_MINES_H
@@ -76,6 +74,4 @@ public:
 
 #endif	// defined EFFECT_MINES_H
 
-#endif	// #ifdef EYE_CANDY
 
-#endif // MINES

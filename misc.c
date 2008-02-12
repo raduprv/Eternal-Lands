@@ -559,58 +559,6 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-#ifndef NEW_FILE_IO
-int mkdir_tree(const char *file)
-{
-	// First, check directory exists
-	char dir[1024];
-	char *slash;
-	struct stat stats;
-
-	safe_strncpy(dir, file, sizeof(dir));
-	slash= dir;
-
-	// Skip over leading periods. this also prevents ../ accesses on purpose
-	while(*slash == '.'){
-		slash++;
-	}
-
-	// Skip over leading slashes.
-	while(*slash == '/'){
-		slash++;
-	}
-
-	while(slash){
-		// watch for hidden ..
-		if(*slash == '.' && slash[1] == '.'){
-			log_error("cannot create directory %s", dir);
-			return 0;
-		}
-		// find the next slash
-		slash= strchr(slash, '/');
-		if(slash == NULL){
-			break;
-		}
-
-		// place a NULL there to break the string up
-		*slash= '\0';
-		if(!(stat(dir, &stats) == 0 && S_ISDIR(stats.st_mode) ) )
-		if(MKDIR(dir)!= 0) {
-			log_error("cannot create directory %s", dir);
-			return 0;
-		}
-		// put the / back in, then advance past it
-		*slash++ = '/';
-
-		// Avoid unnecessary calls to mkdir when given
-		// file names containing multiple adjacent slashes.
-		while (*slash == '/'){
-			slash++;
-		}
-	}
-	return 1;
-}
-#endif //!NEW_FILE_IO
 
 int substrtest(const char * haystack, int hlen, int pos, const char * needle, int nlen)
 {

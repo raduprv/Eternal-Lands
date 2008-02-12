@@ -40,21 +40,11 @@
 #include "translate.h"
 #include "update.h"
 #include "weather.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
-#ifdef SFX
 #include "special_effects.h"
-#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif	//EYE_CANDY
-#ifdef MINES
 #include "mines.h"
-#endif // MINES
-#endif // SFX
-#ifdef	USE_SEND_VIDEO_INFO
 #include "sendvideoinfo.h"
-#endif	// USE_SEND_VIDEO_INFO
 #ifdef POPUP
 #include "popup.h"
 #endif /* POPUP */
@@ -633,12 +623,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 				load_quickspells();
 				
-#ifdef COUNTERS
 				load_counters();
-#endif
-#ifdef	USE_SEND_VIDEO_INFO
 				send_video_info();
-#endif	// USE_SEND_VIDEO_INFO				
 				previously_logged_in=1;
 			}
 
@@ -751,7 +737,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					{
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);
 					}
-#ifdef COUNTERS
 				// Start a new block, since C doesn't like variables declared in the middle of a block.
 				{
 					char *teststring = "You successfully created ";
@@ -775,7 +760,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					else
 						counters_set_product_info("",0);
 				}  // End counters block
-#endif
 			}
 			break;
 		case SPELL_ITEM_TEXT:
@@ -1121,9 +1105,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 
-#ifndef EYE_CANDY
-				add_particle_sys_at_tile("./particles/bag_in.part", SDL_SwapLE16(*((Uint16 *)(in_data+3))), SDL_SwapLE16(*((Uint16 *)(in_data+5))), 1);
-#endif
 			}
 			break;
 
@@ -1612,12 +1593,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				process_network_spell((char*)in_data+3, data_length-3);
-#ifdef COUNTERS
 				if (in_data[3] == S_SUCCES) {
 					// increment the spell counter
 					increment_spell_counter(in_data[4]);
 				}
-#endif
        		}
 			break;
 		case GET_ACTIVE_CHANNELS:
@@ -1738,14 +1717,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 			}
-#ifdef SFX
 				if (special_effects){
 					parse_special_effect(in_data[3], (const Uint16 *) &in_data[4]);
 				}
-#endif
 			break;
 
-#ifdef MINES
 		case REMOVE_MINE:
 			{
 #ifdef EXTRA_DEBUG
@@ -1789,7 +1765,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				add_mines_from_list(&in_data[3]);
 			}
 			break;
-#endif // MINES
 #ifdef POPUP
 		case DISPLAY_POPUP:
 			{
@@ -1891,9 +1866,7 @@ static void process_data_from_server(queue_t *queue)
 				stop_all_sounds();
 				add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
 #endif // NEW_SOUND
-#ifdef COUNTERS
 				disconnect_time = SDL_GetTicks();
-#endif
 			}
 		} while (3 <= in_data_used);
 
@@ -1939,9 +1912,7 @@ int get_message_from_server(void *thread_args)
 			stop_all_sounds();
 			add_sound_object(get_index_for_sound_type_name("Disconnected"), 0, 0, 1);
 #endif // NEW_SOUND
-#ifdef COUNTERS
 			disconnect_time = SDL_GetTicks();
-#endif
 		}
 	}
 	return 1;

@@ -2,7 +2,6 @@
 \brief A special effect involving a small, stable flame, useful for candles.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_CANDLE_H
 #define EFFECT_CANDLE_H
@@ -54,4 +53,3 @@ public:
 
 #endif	// defined EFFECT_CANDLE_H
 
-#endif	// #ifdef EYE_CANDY

@@ -2,7 +2,6 @@
 \brief A special effect that spawns a region full of fireflies.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_FIREFLY_H
 #define EFFECT_FIREFLY_H
@@ -56,4 +55,3 @@ public:
 
 #endif	// defined EFFECT_FIREFLY_H
 
-#endif	// #ifdef EYE_CANDY

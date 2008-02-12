@@ -1,4 +1,3 @@
-#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -2202,4 +2201,3 @@ float MathCache::powf_0_1_close_close(const float base, const float power) const
 
 };
 
-#endif	// #ifdef EYE_CANDY

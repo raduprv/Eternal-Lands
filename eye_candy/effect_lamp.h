@@ -3,7 +3,6 @@
 for lanterns and torches.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_LAMP_H
 #define EFFECT_LAMP_H
@@ -90,4 +89,3 @@ public:
 
 #endif	// defined EFFECT_LAMP_H
 
-#endif	// #ifdef EYE_CANDY

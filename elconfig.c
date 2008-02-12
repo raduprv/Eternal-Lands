@@ -48,21 +48,15 @@
  #include "storage.h"
  #include "tabs.h"
  #include "weather.h"
- #ifdef MINIMAP
   #include "minimap.h"
- #endif
  #ifdef NEW_ALPHA
   #include "3d_objects.h"
  #endif
- #ifdef NEW_FILE_IO
   #include "io/elpathwrapper.h"
- #endif
  #ifdef NEW_LIGHTING
   #include "lights.h"
  #endif
- #ifdef NOTEPAD
   #include "notepad.h"
- #endif
  #ifdef SKY_FPV_CURSOR
   #include "sky.h"
  #endif
@@ -74,12 +68,8 @@
 #include "queue.h"
 #include "url.h"
 
-#ifdef EYE_CANDY
 	#include "eye_candy_wrapper.h"
-#endif
-#ifdef	USE_SEND_VIDEO_INFO
 #include "sendvideoinfo.h"
-#endif	// USE_SEND_VIDEO_INFO
 #include "actor_init.h"
 
 typedef	float (*float_min_max_func)();
@@ -163,9 +153,7 @@ int sdl_cursors = 0;
 float pointer_size = 1.0;
 #endif /* SKY_FPV_CURSOR */
 
-#ifdef	USE_SEND_VIDEO_INFO
 int video_info_sent = 0;
-#endif	// USE_SEND_VIDEO_INFO
 
 #if defined(MISSILES) && defined(DEBUG)
 extern float arrow_speed;
@@ -245,9 +233,7 @@ static __inline__ void build_fbos()
 			{
 				make_reflection_framebuffer(window_width, window_height);
 			}
- #ifdef MINIMAP
 			minimap_make_framebuffer();
- #endif //MINIMAP
 #endif // MAP_EDITOR
 		}
 		check_option_var("shadow_map_size");
@@ -301,7 +287,6 @@ void change_use_animation_program(int * var)
 	}
 }
 
-#ifdef EYE_CANDY
 void change_min_ec_framerate(float * var, float * value)
 {
 	if(*value >= 0) {
@@ -331,7 +316,6 @@ void change_max_ec_framerate(float * var, float * value)
 		*var= 1;
 	}
 }
-#endif	//EYE_CANDY
 
 void change_int(int * var, int value)
 {
@@ -398,9 +382,7 @@ void change_poor_man(int *poor_man)
 		clouds_shadows= 0;
 		use_shadow_mapping= 0;
 #ifndef MAP_EDITOR2
-#ifdef SFX
 		special_effects= 0;
-#endif
 		use_fog= 0;
 #endif
 #ifndef MAP_EDITOR
@@ -482,9 +464,7 @@ void change_point_particles(int *value)
 		LOG_TO_CONSOLE(c_green2, disabled_point_particles);
 	}
 	
-#ifdef	EYE_CANDY
 	ec_set_draw_method();
-#endif	//EYE_CANDY
 }
 
 void change_particles_percentage(int *pointer, int value)
@@ -896,7 +876,6 @@ void change_chat_zoom(float *dest, float *value)
 	}
 }
 
-#ifdef NOTEPAD
 void change_note_zoom (float *dest, float *value)
 {
 	if (*value < 0.0f)
@@ -905,7 +884,6 @@ void change_note_zoom (float *dest, float *value)
 	if (notepad_win >= 0)
 		notepad_win_update_zoom ();
 }
-#endif
 
 #endif
 #endif // def ELC
@@ -991,12 +969,8 @@ void change_windows_on_top(int *var)
 {
 	int winid_list[] = { storage_win, manufacture_win, items_win, buddy_win, ground_items_win, 
 						 sigil_win, elconfig_win, tab_stats_win, server_popup_win, url_win
-#ifdef MINIMAP
 						 , minimap_win
-#endif //MINIMAP
-#ifdef NOTEPAD
 						 , notepad_win
-#endif
 						};
 	int i;
 
@@ -1384,10 +1358,6 @@ void free_vars()
 			default:
 				/* do nothing */ ;
 		}
-#ifndef OPTIONS_I18N
-		free(our_vars.var[i]->short_desc);
-		free(our_vars.var[i]->long_desc);
-#endif
 		free(our_vars.var[i]);
 	}
 	our_vars.no=0;
@@ -1498,14 +1468,7 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved= 0;
-#ifdef OPTIONS_I18N
 	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
-#else
-	our_vars.var[no]->short_desc= malloc(strlen(short_desc)+1);
-	strcpy(our_vars.var[no]->short_desc, short_desc);
-	our_vars.var[no]->long_desc= malloc(strlen(long_desc)+1);
-	strcpy(our_vars.var[no]->long_desc, long_desc);
-#endif
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
 
@@ -1577,7 +1540,6 @@ void init_vars()
 	add_var(OPT_FLOAT,"arrow_speed","arsp",&arrow_speed,change_float,50.0,"Arrows speed","",LODTAB,0.0,100.0, 1.0);
 	add_var(OPT_BOOL,"enable_client_aiming","eca",&enable_client_aiming,change_var,0,"Enable client aiming","Allow to aim at something by holding CTRL key. This aim is only done on client side and is used only for debugging purposes. Warning: enabling this code can produce server resyncs or locks when playing with missiles...",CONTROLS);
 #endif // MISSILES & DEBUG
- #ifdef EYE_CANDY
 	add_var(OPT_BOOL, "use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
 	add_var(OPT_BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
 	add_var(OPT_BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);
@@ -1587,7 +1549,6 @@ void init_vars()
 	add_var(OPT_INT,"light_columns_threshold","lct",&light_columns_threshold,change_int,5,"Light columns threshold","If your framerate is below this amount, you will not get columns of light around teleportation effects (useful for slow systems).",ECTAB, 0, INT_MAX);
 	add_var(OPT_BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_var,0,"Use Fancy Smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
 	add_var(OPT_INT,"max_idle_cycles_per_second","micps",&max_idle_cycles_per_second,change_int,40,"Max Idle Cycles Per Second","The eye candy 'idle' function, which moves particles around, will run no more than this often.  If your CPU is your limiting factor, lowering this can give you a higher framerate.  Raising it gives smoother particle motion (up to the limit of your framerate).",ECTAB, 1, INT_MAX);
- #endif
 #endif // ELC
 
 	add_var(OPT_FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
@@ -1600,16 +1561,9 @@ void init_vars()
  #ifndef MAP_EDITOR2
 	add_var(OPT_FLOAT,"chat_text_size","csize",&chat_zoom,change_chat_zoom,1,"Chat Text Size","Sets the size of the normal text",FONT,0.0,FLT_MAX,0.01);
  #endif	//MAP_EDITOR2
- #ifdef NOTEPAD
 	add_var (OPT_FLOAT, "note_text_size", "notesize", &note_zoom, change_note_zoom, 0.8, "Notepad Text Size","Sets the size of the text in the notepad", FONT, 0.0, FLT_MAX, 0.01);
- #endif
- #ifndef FONTS_FIX
-	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,"Type 1", "Type 2", NULL);
-	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,"Type 1", "Type 2", NULL);
- #else	//FONTS_FIX
 	add_var(OPT_MULTI,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT, NULL);
 	add_var(OPT_MULTI,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT, NULL);
- #endif	//FONTS_FIX
 #else	//ELC
 	add_var(OPT_INT,"name_font","nfont",&name_font,change_int,0,"Name Font","Change the type of font used for the name",FONT,1,3);
 	add_var(OPT_INT,"chat_font","cfont",&chat_font,change_int,0,"Chat Font","Set the type of font used for normal text",FONT,1,3);
@@ -1628,15 +1582,11 @@ void init_vars()
 #else
 	add_var(OPT_BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 #endif	//NEW_SOUND
-#ifdef OGG_VORBIS
 	add_var(OPT_BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
-#endif //OGG_VORBIS
 #ifndef NEW_SOUND
 	add_var(OPT_FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Volume","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
 #endif	//NEW_SOUND
-#ifdef OGG_VORBIS
 	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Volume","Adjust the music volume",AUDIO,0.0,1.0,0.1);
-#endif //OGG_VORBIS
 
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);
@@ -1664,9 +1614,7 @@ void init_vars()
 #ifndef MAP_EDITOR2
 	add_var(OPT_SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
 	add_var(OPT_STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
-#ifdef AFK_FIX
 	add_var(OPT_BOOL, "afk_local", "afkl", &afk_local,change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", MISC);
-#endif //AFK_FIX
 #endif
 
 #ifndef MAP_EDITOR2
@@ -1687,13 +1635,11 @@ void init_vars()
 	add_var(OPT_INT,"log_chat","log",&log_chat,change_int,LOG_SERVER,"Log Messages","Log messages from the server (harvesting events, GMs, etc)",SERVER);
  #endif //ELC
 	add_var(OPT_BOOL,"serverpopup","spu",&use_server_pop_win,change_var,1,"Use Special Text Window","Toggles whether server messages from channel 255 are displayed in a pop up window.",SERVER);
-  #ifdef AUTO_UPDATE
      /* Note: We don't take any action on the already-running thread, as that wouldn't necessarily be good. */
 	add_var(OPT_BOOL,"autoupdate","aup",&auto_update,change_var,1,"Automatic Updates","Toggles whether updates are automatically downloaded.",SERVER);
   #ifdef CUSTOM_UPDATE
 	add_var(OPT_BOOL,"customupdate","cup",&custom_update,change_var,1,"Custom Looks Updates","Toggles whether custom look updates are automatically downloaded.",SERVER);
   #endif    //CUSTOM_UPDATE
-  #endif    //AUTO_UPDATE
  	add_var(OPT_STRING,"language","lang",lang,change_string,8,"Language","Wah?",MISC);
  	add_var(OPT_STRING,"browser","b",browser_name,change_string,70,"Browser","Location of your web browser (Windows users leave blank to use default browser)",MISC);
 #endif // MAP_EDITOR2
@@ -1748,9 +1694,7 @@ void init_vars()
  #ifdef ANTI_ALIAS
 	add_var (OPT_BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
  #endif //ANTI_ALIAS
-#ifdef SFX
 	add_var (OPT_BOOL, "special_effects", "sfx", &special_effects, change_var, 1, "Toggle Special Effects", "Special spell effects", LODTAB);
-#endif //SFX
 #ifndef MAP_EDITOR2
 	add_var (OPT_BOOL, "buddy_log_notice", "buddy_log_notice", &buddy_log_notice, change_var, 1, "Log Buddy Sign On/Off", "Toggle whether to display notices when people on your buddy list log on or off", MISC);
 #endif
@@ -1773,9 +1717,7 @@ void init_vars()
 	add_var(OPT_INT,"time_warning_sun","warn_s",&time_warn_s,change_int,-1,"Time warning for dawn/dusk","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before sunrise/sunset",CHAT, -1, 30);
 	add_var(OPT_INT,"time_warning_day","warn_d",&time_warn_d,change_int,-1,"Time warning for new #day","If set to -1, there will be no warning given. Otherwise, you will get a notification in console this many minutes before the new day",CHAT, -1, 30);
 	add_var(OPT_FLOAT,"gamma","g",&gamma_var,change_gamma,1,"Gamma","How bright your display should be.",ADVVID,0.10,3.00,0.05);
-#ifdef CLICKABLE_CONTINENT_MAP
 	add_var(OPT_BOOL, "continent_map_boundaries", "cmb", &show_continent_map_boundaries, change_var, 1, "Map Boundaries On Continent Map", "Show map boundaries on the continent map", MISC);
-#endif
 	add_var(OPT_FLOAT_F,"anisotropic_filter","af",&anisotropic_filter,change_anisotropic_filter,1,"Anisotropic Filter","Anisotropic filter is a texture effect that increase the texture quality but cost speed.",VIDEO, float_one_func, get_max_anisotropic_filter, 1.0f);
 #ifdef	USE_SHADER
 	add_var(OPT_INT_F,"water_shader_quality","water_shader_quality",&water_shader_quality,change_water_shader_quality,1,"water shader quality","Defines what shader is used for water rendering. Higher values are slower but look better.",VIDEO, int_zero_func, int_max_water_shader_quality);
@@ -1794,9 +1736,7 @@ void init_vars()
 #endif
 #endif
 
-#ifdef	USE_SEND_VIDEO_INFO
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
-#endif	// USE_SEND_VIDEO_INFO
 	add_var(OPT_BOOL_INI_RO, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
@@ -1856,91 +1796,16 @@ void write_var (FILE *fout, int ivar)
 	our_vars.var[ivar]->saved= 1;	// keep only one copy of this setting
 }
 
-#ifndef NEW_FILE_IO
-FILE* open_el_ini (const char *mode)
-{
-#ifdef WINDOWS
-	return my_fopen ("el.ini", mode);
-#else
-	char el_ini[256];
-	char el_tmp[256];
-	FILE *f;
-
-	safe_snprintf (el_ini, sizeof (el_ini), "%s/el.ini", configdir);
-	f= my_fopen (el_ini, mode);	// try local file first
-	if (f == NULL)
-	{
-		FILE *f2;
-		int flen;
-		char *data;
-
-		//OK, no local el.ini - copy the defaults
-		safe_snprintf (el_ini, sizeof (el_ini), "%s/el.ini", datadir);
-		f= fopen(el_ini, mode);
-
-		if(f == NULL)
-		{
-			return NULL;//Shit, no global el.ini either? Fortunately we'll write one on exit...
-		}
-
-		safe_snprintf(el_tmp, sizeof (el_tmp), "%s/el.ini", configdir);
-		f2= my_fopen (el_tmp, "w");
-
-		if(f2 == NULL) {
-			//Hmm... we cannot create a file in ~/.elc/
-			fclose(f);
-			return NULL;
-		}
-
-		//Copy the data from the global el.ini to the ~/.elc/el.ini
-
-		fseek(f, 0, SEEK_END);
-		flen=ftell(f);
-		fseek(f, 0, SEEK_SET);
-
-		data=calloc(flen+1, sizeof(char));
-
-		fread(data, flen, sizeof(char), f);
-		fwrite(data, flen, sizeof(char), f2);
-
-		fclose(f);
-		fclose(f2);
-		free(data);
-
-		//Now load it as read-only
-		safe_snprintf(el_ini, sizeof (el_ini), "%s/el.ini", configdir);
-		f= my_fopen(el_ini, mode);
-	}
-
-	if(f) {
-		int fd = fileno (f);
-		struct stat statbuff;
-		fstat (fd, &statbuff);
-		/* Set perms to 600 on el_ini if they are anything else */
-		if (statbuff.st_mode != (S_IRUSR|S_IWUSR))
-			fchmod (fd, S_IRUSR|S_IWUSR);
-	}
-
-	return f;
-#endif //WINDOWS
-}
-#endif /* not NEW_FILE_IO */
 
 int read_el_ini ()
 {
 	input_line line;
-#ifndef NEW_FILE_IO
-	FILE *fin= open_el_ini ("r");
-
-	if (fin == NULL) return 0;
-#else /* NEW_FILE_IO */
 	FILE *fin= open_file_config("el.ini", "r");
 
 	if (fin == NULL){
 		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
 		return 0;
 	}
-#endif /* NEW_FILE_IO */
 
 
 	while ( fgets (line, sizeof (input_line), fin) )
@@ -1978,16 +1843,10 @@ int write_el_ini ()
 		return 1; // nothing changed, no need to write
 
 	// read the ini file
-#ifndef NEW_FILE_IO
-	file= open_el_ini ("r");
-
-	if (file != NULL){
-#else /* NEW_FILE_IO */
 	file = open_file_config("el.ini", "r");
 	if(file == NULL){
 		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
 	} else {
-#endif /* NEW_FILE_IO */
 		maxlines= 300;
 	 	cont= malloc (maxlines * sizeof (input_line));
 		while (fgets (cont[nlines], sizeof (input_line), file) != NULL)
@@ -2002,14 +1861,9 @@ int write_el_ini ()
 	}
 
 	// Now write the contents of the file, updating those variables that have been changed
-#ifndef NEW_FILE_IO
-	file= open_el_ini ("w");
-	if (file == NULL){
-#else /* NEW_FILE_IO */
 	file = open_file_config("el.ini", "w");
 	if(file == NULL){
 		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);
-#endif /* NEW_FILE_IO */
 		return 0;
 	}
 
@@ -2153,13 +2007,8 @@ int mouseover_option_handler(widget_list *widget, int mx, int my)
 		//We didn't find anything, abort
 		return 0;
 	}
-#ifdef OPTIONS_I18N
 	put_small_text_in_box(our_vars.var[i]->display.desc, strlen((char*)our_vars.var[i]->display.desc),
 								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer);
-#else
-	put_small_text_in_box((unsigned char*)our_vars.var[i]->long_desc, strlen(our_vars.var[i]->long_desc),
-								elconfig_menu_x_len-TAB_MARGIN*2, (char*)elconf_description_buffer);
-#endif
 	return 1;
 }
 
@@ -2272,11 +2121,7 @@ void elconfig_populate_tabs(void)
 				widget_id= checkbox_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL,
 											elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, CHECKBOX_SIZE, CHECKBOX_SIZE, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var);
 				//Add label for the checkbox
-#ifdef OPTIONS_I18N
 				label_id= label_add(elconfig_tabs[tab_id].tab, NULL, (char*)our_vars.var[i]->display.str, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
-#else
-				label_id= label_add(elconfig_tabs[tab_id].tab, NULL, our_vars.var[i]->short_desc, elconfig_tabs[tab_id].x+CHECKBOX_SIZE+SPACING, elconfig_tabs[tab_id].y);
-#endif
 				//Set handlers
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, label_id, onclick_label_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, onclick_checkbox_handler);
@@ -2286,11 +2131,7 @@ void elconfig_populate_tabs(void)
 				max= queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
 
-#ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-#else
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-#endif
 				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, *(int *)min, *(int *)max, 1.0);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);
@@ -2304,11 +2145,7 @@ void elconfig_populate_tabs(void)
 				max= queue_pop(our_vars.var[i]->queue);
 				interval= (float *)queue_pop(our_vars.var[i]->queue);
 
-#ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-#else
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-#endif
 
 				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, *(float *)min, *(float *)max, *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
@@ -2321,33 +2158,20 @@ void elconfig_populate_tabs(void)
 			break;
 			case OPT_STRING:
 
-#ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-#else
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-#endif
 				widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/5*2, elconfig_tabs[tab_id].y, 332, 20, P_TEXT, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
 			break;
 			case OPT_PASSWORD:
 				// Grum: the client shouldn't store the password, so let's not add it to the configuration window
-#ifdef OPTIONS_I18N
 				//label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->display.str);
-#else
-				//label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 0, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-#endif
 				//widget_id= pword_field_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_menu_x_len/2, elconfig_tabs[tab_id].y, 200, 20, P_NORMAL, 1.0f, 0.77f, 0.59f, 0.39f, our_vars.var[i]->var, our_vars.var[i]->len);
 				//widget_set_OnKey (elconfig_tabs[tab_id].tab, widget_id, string_onkey_handler);
 			break;
 			case OPT_MULTI:
 
-#ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
 				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width(our_vars.var[i]->display.str), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
-#else
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-				widget_id= multiselect_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x+SPACING+get_string_width((unsigned char *)our_vars.var[i]->short_desc), elconfig_tabs[tab_id].y, 250, 80, 1.0f, 0.77f, 0.59f, 0.39f, 0.32f, 0.23f, 0.15f, 0);
-#endif
 				for(y= 0; !queue_isempty(our_vars.var[i]->queue); y++) {
 					char *label= queue_pop(our_vars.var[i]->queue);
 					int width= strlen(label) > 0 ? 0 : -1;
@@ -2366,11 +2190,7 @@ void elconfig_populate_tabs(void)
 				f_max_func = queue_pop(our_vars.var[i]->queue);
 				interval= (float *)queue_pop(our_vars.var[i]->queue);
 
-#ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-#else
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-#endif
 
 				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_FLOAT, our_vars.var[i]->var, (*f_min_func)(), (*f_max_func)(), *interval);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
@@ -2386,11 +2206,7 @@ void elconfig_populate_tabs(void)
 				i_max_func = queue_pop(our_vars.var[i]->queue);
 				/* interval is always 1 */
 
-#ifdef OPTIONS_I18N
 				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, (char*)our_vars.var[i]->display.str);
-#else
-				label_id= label_add_extended(elconfig_tabs[tab_id].tab, elconfig_free_widget_id++, NULL, elconfig_tabs[tab_id].x, elconfig_tabs[tab_id].y, 0, 1.0, 0.77f, 0.59f, 0.39f, our_vars.var[i]->short_desc);
-#endif
 				widget_id= spinbutton_add(elconfig_tabs[tab_id].tab, NULL, elconfig_menu_x_len/4*3, elconfig_tabs[tab_id].y, 100, 20, SPIN_INT, our_vars.var[i]->var, (*i_min_func)(), (*i_max_func)(), 1.0);
 				widget_set_OnKey(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onkey_handler);
 				widget_set_OnClick(elconfig_tabs[tab_id].tab, widget_id, spinbutton_onclick_handler);

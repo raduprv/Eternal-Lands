@@ -31,10 +31,8 @@ void update_object_pos_and_rot (object3d* obj)
 	// FIXME: TODO: update the bounding boxes for this object. Will probably
 	// require a new type of bbox storage.
 
-#ifdef EYE_CANDY
 	ec_remove_obstruction_by_object3d (obj);
 	ec_add_object_obstruction (obj, e3d, 2.0);
-#endif
 }
 
 static cell AMX_NATIVE_CALL n_set_object_rotation (AMX *amx, const cell *params)

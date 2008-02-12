@@ -12,18 +12,15 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef	EYE_CANDY
 #include "eye_candy_wrapper.h"
 
 const float X_OFFSET = 0.25;
 const float Y_OFFSET = 0.25;
 
-#endif	//EYE_CANDY
 /* to do
  more effects
  adjust effects based on actor size and if sitting
 */
-#if defined SFX || defined EYE_CANDY
 //much of this is based on the highlight.c code
 #define SPECIAL_EFFECT_LIFESPAN	(500)
 #define SPECIAL_EFFECT_SHIELD_LIFESPAN (1500)
@@ -545,11 +542,9 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 #endif
 	int offset = 0;
 	int need_target = 0;
-#ifdef EYE_CANDY	
 #ifdef NEW_SOUND
 	int sfx_sound = -1;
 #endif // NEW_SOUND
-#endif // EYE_CANDY
 	Uint16 var_a = 0, var_b = 0;
 	actor* caster = NULL;
 	actor* target = NULL;
@@ -569,16 +564,12 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_HEAL_SUMMONED:
 		case	SPECIAL_EFFECT_HEAL:
 			{
-#ifdef EYE_CANDY
 				if (!use_eye_candy)
 				{
-#endif // EYE_CANDY
 				 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 					add_sfx(sfx,var_a,1);
-#ifdef EYE_CANDY
 					break;
 				}
-#endif // EYE_CANDY
 			}
 		case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 		case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
@@ -592,7 +583,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_MANUFACTURE_TOOL_BREAKS:
 		case	SPECIAL_EFFECT_MANUFACTURE_RARE_ITEM:
 		case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
-#ifdef MINES
 		case	SPECIAL_EFFECT_SMALL_MINE_GOES_BOOM:
 		case	SPECIAL_EFFECT_MEDIUM_MINE_GOES_BOOM:
 		case	SPECIAL_EFFECT_HIGH_EXPLOSIVE_MINE_GOES_BOOM:
@@ -603,7 +593,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 		case	SPECIAL_EFFECT_MANA_BURNER_GOES_BOOM:
 		case	SPECIAL_EFFECT_UNINVIZIBILIZER_GOES_BOOM:
 		case	SPECIAL_EFFECT_MAGIC_IMMUNITY_REMOVAL_GOES_BOOM:
-#endif // MINES
 			{
 			 	var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 			}
@@ -659,15 +648,11 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				var_a = SDL_SwapLE16 (*((Uint16 *)(&data[offset])));
 				var_b = SDL_SwapLE16 (*((Uint16 *)(&data[offset+1])));
 				need_target = 1;
-#ifdef EYE_CANDY
 				if (use_eye_candy)
 				{
-#endif // EYE_CANDY
 					add_sfx(sfx,var_a,1);	//caster
 					add_sfx(sfx,var_b,0);	//target
-#ifdef EYE_CANDY
 				}
-#endif // EYE_CANDY
 			}
 			break;
 		//location (a&b variable are not known until implemented by server)
@@ -695,7 +680,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 	if (caster == NULL)
 		return;
 
-#ifdef EYE_CANDY	
 #ifdef NEW_SOUND
 	// Link in the sfx sounds here. It might not be the best place, and baseing the sound around the first actor
 	// (caster) isn't ness the correct location, but it will do for now.
@@ -708,7 +692,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 						caster->actor_id == yourself ? 1 : 0);
 	}
 #endif //NEW_SOUND
-#endif //EYE_CANDY
 	
 //	printf("%f,%f,%f | %f,%f | %d,%d\n", x / 2.0, y / 2.0, ec_get_z2((int)x, (int)y), caster->x_pos, caster->y_pos, caster->tmp.x_tile_pos, caster->tmp.y_tile_pos);
 // 	x = caster->x_pos;
@@ -720,7 +703,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			return;
 	}
 
-#ifdef	EYE_CANDY
 	if (use_eye_candy) {
 		switch (sfx)
 		{
@@ -904,7 +886,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 			case	SPECIAL_EFFECT_SUMMON_TIGER:
 				ec_create_summon_tiger(x / 2.0 + X_OFFSET, y / 2.0 + Y_OFFSET, ec_get_z2((int)x, (int)y), (poor_man ? 6 : 10));
 				break;
-#ifdef MINES
 			case	SPECIAL_EFFECT_SMALL_MINE_GOES_BOOM:
 				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
 				ec_create_mine_detonate2(caster, MINE_TYPE_SMALL_MINE, (poor_man ? 6 : 10));
@@ -945,7 +926,6 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				//ec_create_mine_detonate(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 				ec_create_mine_detonate2(caster, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 				break;
-#endif // MINES
 			default:
 	 #ifdef DEBUG
 				safe_snprintf ((char*)str, sizeof (str), " SPECIAL_EFFECT_unknown:%d",sfx);
@@ -968,9 +948,8 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 //			ec_launch_targetmagic_smite_summoned(ref, caster, (poor_man ? 6 : 10));
 //			ec_create_targetmagic_life_drain(caster, target, (poor_man ? 6 : 10));
 	} /* if (use_eye_candy) */
-#endif	//EYE_CANDY
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
-#endif //SFX or EYE_CANDY
+

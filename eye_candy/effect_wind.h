@@ -2,7 +2,6 @@
 \brief Special effects that have objects blow around under the wind.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_WIND_H
 #define EFFECT_WIND_H
@@ -99,4 +98,3 @@ public:
 
 #endif	// defined EFFECT_WIND_H
 
-#endif	// #ifdef EYE_CANDY

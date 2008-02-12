@@ -26,44 +26,40 @@ STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a 
 # the objects we need
 ENCYCLOPEDIA_COBJ = books/fontdef.o books/parser.o books/symbol.o books/typesetter.o sort.o symbol_table.o
 MEMORY_DEBUG_COBJ = elmemory.o
-NOTEPAD_COBJ = notepad.o
 POPUP_COBJ = popup.o
-SFX_COBJ = special_effects.o
-MINIMAP_COBJ = minimap.o
 MISSILES_COBJ = missiles.o
 SKY_FPV_CURSOR_COBJ = sky.o
-NEW_FILE_IO_CXXOBJ = io/elfilewrapper.o io/elfile.o io/zipfilesystem.o
-NEW_FILE_IO_COBJ = io/elpathwrapper.o io/xmlcallbacks.o
 USE_SHADER_COBJ = shader/noise.o shader/shader.o
 PAWN_COBJ = pawn/amx.o pawn/amxaux.o pawn/amxcons.o pawn/amxel.o \
 	pawn/amxfloat.o pawn/amxstring.o pawn/elpawn.o
-USE_SEND_VIDEO_INFO_CXXOBJ = sendvideoinfo.o
-CXX_MISC_CXXOBJ = exceptions/extendedexception.o xml/xmlhelper.o
 NEW_SELECTION_CXXOBJ = select.o
 COBJS=2d_objects.o 3d_objects.o \
 	actor_scripts.o actors.o alphamap.o asc.o astrology.o \
 	bbox_tree.o books.o buddy.o bags.o \
 	cache.o cal.o calc.o chat.o cluster.o colors.o console.o consolewin.o \
-	counters.o cursors.o dialogues.o draw_scene.o	\
+	counters.o cursors.o dialogues.o draw_scene.o eye_candy_debugwin.o \
 	elconfig.o elwindows.o encyclopedia.o errors.o events.o	\
 	filter.o font.o framebuffer.o frustum.o	\
 	gamewin.o gl_init.o hud.o help.o highlight.o	\
 	ignore.o init.o interface.o items.o	\
-	io/e3d_io.o io/elc_io.o	io/map_io.o \
+	io/e3d_io.o io/elc_io.o	io/map_io.o io/elpathwrapper.o io/xmlcallbacks.o \
 	keys.o knowledge.o langselwin.o lights.o list.o load_gl_extensions.o loginwin.o loading_win.o	\
 	main.o manufacture.o map.o mapwin.o	\
-	md5.o mines.o misc.o multiplayer.o	\
-	new_actors.o new_character.o 	\
+	md5.o mines.o minimap.o misc.o multiplayer.o	\
+	new_actors.o new_character.o notepad.o	\
 	openingwin.o	\
 	particles.o paste.o pathfinder.o pm_log.o	\
 	questlog.o queue.o reflection.o	rules.o	\
 	skeletons.o skills.o serverpopup.o servers.o session.o shadows.o sound.o	\
-	spells.o stats.o storage.o	\
+	spells.o stats.o storage.o special_effects.o	\
 	tabs.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	update.o url.o weather.o widgets.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_COBJ))
 	
-EYE_CANDY_CXXOBJ = eye_candy_wrapper.o \
+CXXOBJS=cal3d_wrapper.o actor_init.o optimizer.o sendvideoinfo.o	\
+	exceptions/extendedexception.o xml/xmlhelper.o	\
+	io/elfilewrapper.o io/elfile.o io/zipfilesystem.o \
+	eye_candy_wrapper.o \
 	eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \
 	eye_candy/effect_candle.o \
 	eye_candy/effect_campfire.o eye_candy/effect_fountain.o \
@@ -74,8 +70,7 @@ EYE_CANDY_CXXOBJ = eye_candy_wrapper.o \
 	eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
 	eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
 	eye_candy/effect_breath.o eye_candy/effect_mines.o \
-	eye_candy/orbital_mover.o eye_candy/kepler_orbit.o
-CXXOBJS=cal3d_wrapper.o actor_init.o optimizer.o \
+	eye_candy/orbital_mover.o eye_candy/kepler_orbit.o	\
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
 
 OBJS=$(COBJS) $(CXXOBJS)

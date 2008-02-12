@@ -102,11 +102,7 @@ void load_server_list(const char *filename)
 	char string[128];
 	int len;
 	
-#ifndef NEW_FILE_IO
-	f = my_fopen(filename, "rb");
-#else // NEW_FILE_IO
 	f = open_file_config(filename, "rb");
-#endif // NEW_FILE_IO
 	if (f == NULL)
 	{
 		// Error, this is a problem!

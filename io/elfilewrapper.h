@@ -6,7 +6,6 @@
 #ifndef _ELFILEWRAPPER_H_
 #define _ELFILEWRAPPER_H_
 
-#ifdef NEW_FILE_IO
 
 #include "../cal3d_wrapper.h"
 
@@ -186,6 +185,5 @@ extern enum CalBoolean CalCoreModel_ELLoadCoreSkeleton(struct CalCoreModel *self
 }
 #endif
 
-#endif //NEW_FILE_IO
 
 #endif	// _ELFILEWRAPPER_H_

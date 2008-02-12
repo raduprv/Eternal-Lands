@@ -30,9 +30,7 @@ Uint32 highest_obj_3d= 0;
 int objects_list_placeholders = 0;
 object3d *objects_list[MAX_OBJ_3D];
 
-#ifdef EYE_CANDY
  #include "eye_candy_wrapper.h"
-#endif
 
 e3d_object *load_e3d (const char *file_name);
 void compute_clouds_map(object3d * object_id);
@@ -553,11 +551,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 	if (strcasecmp(file_name, "") && strcasecmp(strrchr(file_name, '/')+1, "bag1.e3d") == 0) {
 		our_object->flags |= OBJ_3D_BAG;
 	}
-#ifdef MINES
 	if (strcasecmp(file_name, "") && strcasecmp(strrchr(file_name, '/')+1, "branch1.e3d") == 0) {
 		our_object->flags |= OBJ_3D_MINE;
 	}
-#endif // MINES
 
 #ifdef CLUSTER_INSIDES
 	our_object->cluster = get_cluster ((int)(x_pos/0.5f), (int)(y_pos/0.5f));
@@ -593,11 +589,9 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 		else add_3dobject_to_abt(main_bbox_tree, get_3dobject_id(id, i), bbox, blended, ground, is_transparent, self_lit, texture_id, dynamic);
 	}
 
-#ifdef EYE_CANDY
 	ec_add_object_obstruction(our_object, returned_e3d, 2.0);
 //        printf("Bounding: %f, %f, %f -> %f, %f, %f\n", returned_e3d->min_x, returned_e3d->min_y, returned_e3d->min_z, returned_e3d->max_x, returned_e3d->max_y, returned_e3d->max_z);
 //	printf("Rotation: %f, %f, %f\n", our_object->x_rot, our_object->y_rot, our_object->z_rot);
-#endif	// EYE_CANDY
 
 	return id;
 }
@@ -817,9 +811,7 @@ void destroy_3d_object(int i)
 	if ((i < 0) || (i >= MAX_OBJ_3D)) return;
 	if (objects_list[i] == NULL) return;
 
-#ifdef  EYE_CANDY
 	ec_remove_obstruction_by_object3d(objects_list[i]);
-#endif
 
 	delete_3dobject_from_abt(main_bbox_tree, i, objects_list[i]->blended, objects_list[i]->self_lit);
 	free(objects_list[i]);
@@ -869,9 +861,7 @@ void destroy_e3d(e3d_object *e3d_id)
 	e3d_id->materials= NULL;
 	// and finally free the main object
 
-#ifdef EYE_CANDY
 	ec_remove_obstruction_by_e3d_object(e3d_id);
-#endif	// EYE_CANDY
 
 	free(e3d_id);
 }

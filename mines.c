@@ -1,4 +1,3 @@
-#ifdef MINES
 
 #include <stdlib.h>
 #include <string.h>
@@ -13,9 +12,7 @@
 #include "sound.h"
 #endif // NEW_SOUND
 #include "tiles.h"
-#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif
 
 #define MAX_MINE_DEFS 30
 
@@ -209,20 +206,7 @@ void load_mines_config()
 	xmlNode *root = NULL;
 	char *file = "mines.xml";
 
-#ifdef	NEW_FILE_IO
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
-#else	// NEW_FILE_IO
-	char path[1024];
-
-#ifndef WINDOWS
-	safe_snprintf(path, sizeof(path), "%s/%s", datadir, file);
-#else
-	safe_snprintf(path, sizeof(path), "%s", file);
-#endif // !WINDOWS
-
-	// Can we open the file as xml?
-	if ((doc = xmlReadFile(path, NULL, 0)) == NULL)
-#endif	// NEW_FILE_IO
 	{
 		char str[200];
 		safe_snprintf(str, sizeof(str), "%s: %s", mines_config_open_err_str, file);
@@ -248,4 +232,3 @@ void load_mines_config()
 	xmlFree(doc);
 }
 
-#endif // MINES

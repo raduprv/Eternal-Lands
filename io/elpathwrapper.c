@@ -1,4 +1,3 @@
-#ifdef NEW_FILE_IO
 #include "../platform.h"
 #include "elpathwrapper.h"
 #include "../asc.h"
@@ -726,4 +725,3 @@ int check_configdir(void)
 	return dir_exists(get_path_config());
 }
 
-#endif //NEW_FILE_IO

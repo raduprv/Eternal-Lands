@@ -41,9 +41,7 @@ char	tt_walk[30],
 	tt_help[30],
 	tt_customize[60],
 	tt_name[60];
-#ifdef NOTEPAD
 char	tt_notepad[30];
-#endif // NOTEPAD
 char	tt_urlwin[30];
 #endif // ELC
 
@@ -297,9 +295,7 @@ char	name_too_long[75],
 	time_warn_sunrise_str[100],
 	time_warn_sunset_str[100],
 	time_warn_day_str[75],
-#ifdef NEW_FILE_IO
 	config_location_str[75],
-#endif //NEW_FILE_IO
 	cmd_ignores[20],
 	cmd_ignore[20],
 	cmd_unignore[20],
@@ -440,11 +436,9 @@ char	reg_error_str[15],
 	load_particles_str[35],
 	bld_sectors_str[35],
 	init_done_str[35],
-#ifdef MINES
 	/* mines.c */
 	mines_config_open_err_str[50],
 	mines_config_error[50],
-#endif // MINES
 	/*multiplayer.c*/
 	failed_resolve[150],
 	failed_connect[100], 
@@ -836,9 +830,7 @@ void init_console()
 	add_xml_identifier(loading_msg,"load_particles",load_particles_str,"Loading particles",sizeof(load_particles_str));
 	add_xml_identifier(loading_msg,"bld_sectors",bld_sectors_str,"Building sectors",sizeof(bld_sectors_str));
 	add_xml_identifier(loading_msg,"init_done",init_done_str,"Done",sizeof(init_done_str));
-#ifdef NEW_FILE_IO
 	add_xml_identifier(loading_msg,"config_location",config_location_str,"Your personal settings and logs will be saved in %s",sizeof(config_location_str));
-#endif //NEW_FILE_IO
 
 	add_xml_identifier(cmd_grp,"help_rq",help_request_str,"#help request",sizeof(help_request_str));
 	add_xml_identifier(cmd_grp,"help_cmd",help_cmd_str,"help",sizeof(help_cmd_str));
@@ -965,11 +957,9 @@ void init_errors()
 	add_xml_identifier (misc, "use_builtin_chans", using_builtin_chanlist, "Could not load a channel list from file. Using a limited built-in set instead.", sizeof(using_builtin_chanlist));
 	add_xml_identifier (misc, "use_eng_chans", using_eng_chanlist, "Could not load a channel list for language code %s. Using the english set instead.", sizeof(using_eng_chanlist));
 
-#ifdef MINES
 	// Mines errors
 	add_xml_identifier (misc, "mines_config_open", mines_config_open_err_str, "Error opening mines configuration file", sizeof(mines_config_open_err_str));
 	add_xml_identifier (misc, "mines_config", mines_config_error, "Error loading mines configuration", sizeof(mines_config_error));
-#endif // MINES
 
 #endif
 
@@ -1193,9 +1183,7 @@ void init_help()
 	add_xml_identifier(tooltips,"help",tt_help,"View help",sizeof(tt_help));
 	add_xml_identifier(tooltips,"customize",tt_customize,"Customize your character",sizeof(tt_customize));
 	add_xml_identifier(tooltips,"name_pass",tt_name,"Choose name and password",sizeof(tt_name));
-#ifdef NOTEPAD
 	add_xml_identifier (tooltips, "notepad", tt_notepad, "Open your notepad", sizeof (tt_notepad));
-#endif // NOTEPAD
 	add_xml_identifier (tooltips, "urlwin", tt_urlwin, "View URL window", sizeof (tt_urlwin));
 	
 	//Buddy list

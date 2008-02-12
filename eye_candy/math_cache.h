@@ -13,7 +13,6 @@ possibility would be, instead of caching powf itself, cache exp and log
 readily fit into the CPU's cache) and then use them to recreate powf.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef MATH_CACHE_H
 #define MATH_CACHE_H
@@ -380,4 +379,3 @@ protected:
 
 #endif
 
-#endif	// #ifdef EYE_CANDY

@@ -1,4 +1,3 @@
-#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -2375,7 +2374,6 @@ extern "C" void ec_add_wind_effect_list(ec_reference reference, ec_effects effec
   ((ec::WindEffect*)(cast_reference->effect))->set_pass_off(*cast_effects);
 }
 
-#ifdef MINES
 extern "C" ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::MineEffect::get_max_end_time()))
@@ -2437,8 +2435,6 @@ extern "C" ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, i
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
-#endif // MINES
 
 ///////////////////////////////////////////////////////////////////////////////
 
-#endif	// #ifdef EYE_CANDY

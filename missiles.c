@@ -657,9 +657,7 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	LOCK_ACTORS_LISTS();
 	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target_fire);
 	missiles_test_target_validity(act1->range_target_fire, "missiles_fire_a_to_b");
-#ifdef COUNTERS
 	act2->last_range_attacker_id = actor1_id;
-#endif // COUNTERS
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor1_id, aim_mode_fire);
@@ -705,9 +703,7 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	missiles_log_message("the target has %d bones", CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act->calmodel)));
 	cal_get_actor_bone_absolute_position(act, get_actor_bone_id(act, body_top_bone), NULL, target);
 	missiles_test_target_validity(target, "missiles_fire_xyz_to_b");
-#ifdef COUNTERS
 	act->last_range_attacker_id = -1;
-#endif // COUNTERS
 	UNLOCK_ACTORS_LISTS();
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!

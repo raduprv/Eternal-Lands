@@ -2,7 +2,6 @@
 \brief A special effect that creates a fire (of any size)
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_CAMPFIRE_H
 #define EFFECT_CAMPFIRE_H
@@ -68,4 +67,3 @@ public:
 
 #endif	// defined EFFECT_CAMPFIRE_H
 
-#endif	// #ifdef EYE_CANDY

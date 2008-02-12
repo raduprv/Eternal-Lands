@@ -1,7 +1,6 @@
 #ifndef	_MEMORYBUFFER_HPP_
 #define	_MEMORYBUFFER_HPP_
 
-#ifdef NEW_FILE_IO
 
 #include "allio.hpp"
 #ifndef	USE_TR1
@@ -89,6 +88,5 @@ namespace eternal_lands
 
 }
 
-#endif //NEW_FILE_IO
 
 #endif	// _MEMORYBUFFER_HPP_

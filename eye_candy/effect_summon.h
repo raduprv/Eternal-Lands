@@ -2,7 +2,6 @@
 \brief Special effects for summoning creatures.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_SUMMON_H
 #define EFFECT_SUMMON_H
@@ -120,4 +119,3 @@ public:
 
 #endif	// defined EFFECT_SUMMON_H
 
-#endif	// #ifdef EYE_CANDY

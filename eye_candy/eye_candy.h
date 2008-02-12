@@ -93,7 +93,6 @@ functions, etc) in Eye Candy.  Rather, work through the wrapper to exchange
 any information you feel is necessary.  This way, Eye Candy remains clean
 and project-independent.
 */
-#ifdef EYE_CANDY
 
 #ifndef EYE_CANDY_H
 #define EYE_CANDY_H
@@ -227,12 +226,8 @@ enum EffectEnum
   EC_HARVESTING = 14,
   EC_WIND = 15,
   EC_BREATH = 16,
-#ifndef MINES
-  EC_CANDLE = 17
-#else // MINES
   EC_CANDLE = 17,
   EC_MINES = 18
-#endif // MINES
 };
 
 // C L A S S E S //////////////////////////////////////////////////////////////
@@ -1706,4 +1701,3 @@ extern Logger logger;
 
 #endif	// defined EYE_CANDY_H
 
-#endif	// #ifdef EYE_CANDY

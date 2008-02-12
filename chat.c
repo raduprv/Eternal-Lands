@@ -22,9 +22,7 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
-#endif	//NEW_FILE_IO
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -1097,29 +1095,11 @@ void init_channel_names(void)
 
 	// Load the file, depending on WINDOWS = def|undef
 	// Then parse it. If that fails, fallback onto the english one. If that fails, use builtins.
-#ifdef	NEW_FILE_IO
 	safe_snprintf (file, sizeof (file), "languages/%s/strings/channels.xml", lang);
-#else	// NEW_FILE_IO
-#ifdef WINDOWS
-	safe_snprintf (file, sizeof (file), "%slanguages/%s/strings/channels.xml", configdir, lang);
-#else
-	// try the data directory then
-	safe_snprintf (file, sizeof (file), "%s/languages/%s/strings/channels.xml", datadir, lang);
-#endif
-#endif	// NEW_FILE_IO
 
 	doc = xmlParseFile (file);
 	if (doc == NULL ) {
-#ifdef	NEW_FILE_IO
 		doc = xmlParseFile("languages/en/strings/channels.xml");
-#else	// NEW_FILE_IO
-#ifdef WINDOWS
-		safe_snprintf (file, sizeof (file), "%slanguages/en/strings/channels.xml", configdir);
-#else
-		safe_snprintf (file, sizeof (file), "%s/languages/en/strings/channels.xml", datadir);
-#endif
-		doc = xmlParseFile (file);
-#endif	// NEW_FILE_IO
 		if (doc == NULL) { //darn, don't have that either?
 			LOG_ERROR (using_builtin_chanlist);
 			generic_chans();

@@ -2,7 +2,6 @@
 \brief Special effects for dragons or other creatures with breath weapons
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_BREATH_H
 #define EFFECT_BREATH_H
@@ -97,4 +96,3 @@ public:
 
 #endif	// defined EFFECT_BREATH_H
 
-#endif	// #ifdef EYE_CANDY

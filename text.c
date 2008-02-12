@@ -22,12 +22,8 @@
 #include "translate.h"
 #include "astrology.h"
 #include "url.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
-#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
-#endif
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
@@ -134,31 +130,12 @@ void update_text_windows (text_message * pmsg)
 }
 
 void open_chat_log(){
-#ifndef NEW_FILE_IO
-	char chat_log_file[100];
-	char srv_log_file[100];
-#endif /* not NEW_FILE_IO */
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 
-#ifndef NEW_FILE_IO
-#ifndef WINDOWS
-	safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
-	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
-		safe_snprintf (srv_log_file, sizeof (srv_log_file), "%s/srv_log.txt", configdir);
-#else
-	strcpy (chat_log_file, "chat_log.txt");
-	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
-		strcpy (srv_log_file, "srv_log.txt");
-#endif
-	chat_log = my_fopen (chat_log_file, "a");
-	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
-		srv_log = my_fopen (srv_log_file, "a");
-#else /* NEW_FILE_IO */
 	chat_log = open_file_config ("chat_log.txt", "a");
 	if (log_chat == LOG_SERVER || log_chat == LOG_SERVER_SEPERATE)
 		srv_log = open_file_config ("srv_log.txt", "a");
-#endif /* NEW_FILE_IO */
 
 	if (chat_log == NULL)
 	{
@@ -402,7 +379,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 	}
 
-#ifdef COUNTERS
 	if (channel == CHAT_SERVER) {
 		if (my_strncompare(text_to_add+1, "You started to harvest ", 23)) {
 			strncpy(harvest_name, text_to_add+1+23, len-1-23-1);
@@ -433,7 +409,6 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	}
 	/* check for misc counter strings */
 	catch_counters_text(text_to_add+1);
-#endif
 
 	//Make sure we don't check our own messages.
 	if( !(channel == CHAT_PERSONAL && len >= strlen(pm_from_str) && strncasecmp (text_to_add+1, pm_from_str, strlen(pm_from_str)) != 0) &&
@@ -451,24 +426,16 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			if (channel == CHAT_PERSONAL || channel == CHAT_MODPM)
 			{
 				// player sent us a PM
-#ifndef AFK_FIX
-				add_message_to_pm_log (text_to_add, len);
-#else
 				add_message_to_pm_log (text_to_add, len, channel);
-#endif //AFK_FIX
 			}
 			else if (channel == CHAT_LOCAL && from_color_char (text_to_add[0]) == c_grey1 && is_talking_about_me (&text_to_add[1], len-1, 0))
 			{
 				// player mentions our name in local chat
-#ifndef AFK_FIX
-				send_afk_message (&text_to_add[1], len - 1, channel);
-#else
 				if (afk_local) {
 					add_message_to_pm_log (&text_to_add[1], len - 1, channel);
 				} else {
 					send_afk_message (&text_to_add[1], len - 1, channel);
 				}
-#endif //AFK_FIX
 			}
 			else if (channel == CHAT_SERVER)
 			{

@@ -9,9 +9,7 @@
 #include "errors.h"
 #include "md5.h"
 #include "misc.h"
-#ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
-#endif	//NEW_FILE_IO
 
 /* NOTE: This file contains implementations of the following, currently unused and commented functions:
  *          Look at the end of the file.
@@ -450,7 +448,6 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 
 void get_file_digest(const char * filename, Uint8 digest[16])
 {
-#ifdef	NEW_FILE_IO
 	MD5 md5;
 	el_file_ptr file = NULL;
 
@@ -469,26 +466,6 @@ void get_file_digest(const char * filename, Uint8 digest[16])
 	MD5Close(&md5, digest);
 
 	el_close(file);
-#else	//NEW_FILE_IO
-	MD5 md5;
-	Uint8 buffer[1024];
-	Sint32 length;
-	FILE *fp= my_fopen(filename, "rb");
-
-	memset (digest, 0, sizeof (digest));
-	if (fp == NULL){
-		log_error("MD5Digest: Unable to open %s (%d)", filename, errno);
-		return;
-	}
-
-	MD5Open(&md5);
-	while ((length= fread(buffer, 1, sizeof(buffer), fp)) > 0)
-		{
-			MD5Digest(&md5, buffer, length);
-		}
-	MD5Close(&md5, digest);
-	fclose(fp);
-#endif	//NEW_FILE_IO
 }
 
 /* currently UNUSED

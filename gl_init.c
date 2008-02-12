@@ -18,12 +18,8 @@
 #include "textures.h"
 #include "translate.h"
 #include "io/e3d_io.h"
-#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
@@ -331,19 +327,8 @@ void init_video()
 {
 	int rgb_size[3];
 
-#ifdef	SDL_REINIT
-	//if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE | SDL_INIT_EVENTTHREAD) == -1)	// experimental
-	if(SDL_Init(SDL_INIT_VIDEO | SDL_INIT_NOPARACHUTE) == -1)
-		{
-			log_error("%s: %s\n", no_sdl_str, SDL_GetError());
-			SDL_Quit();
-			exit(1);
-		}
-#endif	// SDL_REINIT
 
-#ifdef EYE_CANDY
 	ec_clear_textures();
-#endif //EYE_CANDY
 	setup_video_mode(full_screen, video_mode);
 
 	/* Detect the display depth */
@@ -433,10 +418,6 @@ void init_video()
 			//let the user know there is a problem
 			LOG_TO_CONSOLE(c_red1,stencil_falls_back_on_software_accel);
 			//first, shut down this mode we have now.
-#ifdef	SDL_REINIT
-			SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
-			SDL_Init(SDL_INIT_VIDEO);//restart SDL
-#endif	// SDL_REINIT
 			SDL_GL_SetAttribute( SDL_GL_RED_SIZE, rgb_size[0] );
 			SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, rgb_size[1] );
 			SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, rgb_size[2] );
@@ -455,10 +436,6 @@ void init_video()
 				//wtf, this really shouldn't happen....
 				//let's try a default mode, maybe Quake 2's mode, and pray it works
 				LOG_TO_CONSOLE(c_red1,last_chance_str);
-#ifdef	SDL_REINIT
-				SDL_QuitSubSystem(SDL_INIT_VIDEO);//there is no other way to destroy this evil video mode...
-				SDL_Init(SDL_INIT_VIDEO);//restart SDL
-#endif	// SDL_REINIT
 				SDL_GL_SetAttribute( SDL_GL_RED_SIZE, 8 );
 				SDL_GL_SetAttribute( SDL_GL_GREEN_SIZE, 8 );
 				SDL_GL_SetAttribute( SDL_GL_BLUE_SIZE, 8 );
@@ -530,13 +507,9 @@ void init_video()
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-#ifdef EYE_CANDY
 	ec_load_textures();
-#endif //EYE_CANDY
 
-#ifdef MINIMAP
 	change_minimap();
-#endif //MINIMAP
 
 	check_options();
 }
@@ -1076,14 +1049,9 @@ void set_new_video_mode(int fs,int mode)
 		
 	}
 
-#ifdef EYE_CANDY
 	ec_clear_textures();
-#endif //EYE_CANDY
 
 	//destroy the current context
-#ifdef	SDL_REINIT
-	SDL_QuitSubSystem(SDL_INIT_VIDEO);
-#endif	// SDL_REINIT
 
 	init_video();
 #ifndef WINDOWS
@@ -1101,9 +1069,7 @@ void set_new_video_mode(int fs,int mode)
 	build_cursors();
 	change_cursor(current_cursor);
 
-#ifdef EYE_CANDY
 	ec_load_textures();
-#endif //EYE_CANDY
 
 	//now, reload the textures
 	for(i = 0; i < TEXTURE_CACHE_MAX; i++)

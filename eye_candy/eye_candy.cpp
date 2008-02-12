@@ -1,4 +1,3 @@
-#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -11,9 +10,7 @@
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
 #endif
-#ifdef NEW_FILE_IO
 #include "../io/elfilewrapper.h"
-#endif
 
 namespace ec
 {
@@ -70,9 +67,6 @@ void Texture::push_texture(const std::string filename)
   SDL_Surface* tex;
   GLuint texture_id;
 
-#ifndef NEW_FILE_IO
-  tex = IMG_Load(filename.c_str());
-#else
   el_file_ptr file;
 
   file = el_open(filename.c_str());
@@ -84,7 +78,6 @@ void Texture::push_texture(const std::string filename)
     tex = IMG_Load_RW(SDL_RWFromMem(el_get_pointer(file), el_get_size(file)), 1);
     el_close(file);
   }
-#endif
 
   if (!tex)
   {
@@ -2132,4 +2125,3 @@ void hsv_to_rgb(const color_t h, const color_t s, const color_t v, color_t& r, c
 
 };
 
-#endif	// #ifdef EYE_CANDY

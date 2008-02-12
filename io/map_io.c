@@ -11,14 +11,8 @@
 #include "../reflection.h"
 #include "../tiles.h"
 #include "../translate.h"
-#ifdef	NEW_FILE_IO
 #include "elfilewrapper.h"
-#else
-#include <sys/stat.h>
-#endif	//NEW_FILE_IO
-#ifdef EYE_CANDY
  #include "../eye_candy_wrapper.h"
-#endif
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
 #endif
@@ -37,9 +31,6 @@ int load_map(const char *file_name, update_func *update_function)
 	map_header cur_map_header;
 	int file_size;
 	char* file_mem;
-#ifndef NEW_FILE_IO
-	struct stat file_stat;
-#endif
 #ifdef CLUSTER_INSIDES
 	char* occupied = NULL;
 	int have_clusters;
@@ -49,23 +40,13 @@ int load_map(const char *file_name, update_func *update_function)
 	light_io* lights;
 	particles_io* particles;
 
-#ifdef	NEW_FILE_IO
 	el_file_ptr f = NULL;
 	f = el_open(file_name);
-#else	//NEW_FILE_IO
-	FILE *f = NULL;
-	f = my_fopen(file_name, "rb");
-#endif	//NEW_FILE_IO
 	if (!f)
 	{
 		return 0;
 	}
-#ifdef NEW_FILE_IO
 	file_size = el_get_size (f);
-#else
-	fstat (fileno (f), &file_stat);
-	file_size = file_stat.st_size;
-#endif
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -76,13 +57,8 @@ int load_map(const char *file_name, update_func *update_function)
 	my_strcp (map_file_name, file_name);
 
 	// read the entire file into memory
-#ifdef	NEW_FILE_IO
 	el_read (f, file_size, file_mem);
 	el_close (f);
-#else	//NEW_FILE_IO
-	fread (file_mem, 1, file_size, f);
-	fclose (f);
-#endif	//NEW_FILE_IO
 
 	main_bbox_tree_items = create_bbox_items(1024);
 
@@ -393,18 +369,14 @@ int load_map(const char *file_name, update_func *update_function)
 		cur_particles_io.y_pos = SwapLEFloat (cur_particles_io.y_pos);
 		cur_particles_io.z_pos = SwapLEFloat (cur_particles_io.z_pos);
 			
-#ifdef EYE_CANDY
 		if (!strncmp(cur_particles_io.file_name, "ec://", 5))
 		{
 			ec_create_effect_from_map_code(cur_particles_io.file_name + 5, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, (poor_man ? 6 : 10));
 		}
 		else
 		{
-#endif
 			add_particle_sys (cur_particles_io.file_name, cur_particles_io.x_pos, cur_particles_io.y_pos, cur_particles_io.z_pos, 0);
-#ifdef EYE_CANDY
 		}
-#endif
 		if (i % 100 == 0)
 		{
 			update_function(NULL, 0);

@@ -10,9 +10,7 @@
 #include "init.h"
 #include "session.h"
 #include "tabs.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
 
 int	stats_win= -1;
 player_attribs your_info;
@@ -271,9 +269,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			your_info.food_level=value;break;
 		case MAN_EXP:
 			floatingmessages_compare_stat(yourself, your_info.manufacturing_exp, value, attributes.manufacturing_skill.shortname);
-#ifdef COUNTERS
 			increment_manufacturing_counter();
-#endif
 			your_info.manufacturing_exp=value;
 			break;
 		case MAN_EXP_NEXT:
@@ -286,9 +282,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			your_info.harvesting_exp_next_lev=value;break;
 		case ALCH_EXP:
 			floatingmessages_compare_stat(yourself, your_info.alchemy_exp, value, attributes.alchemy_skill.shortname);
-#ifdef COUNTERS
 			increment_alchemy_counter();
-#endif
 			your_info.alchemy_exp=value;
 			break;
 		case ALCH_EXP_NEXT:
@@ -317,18 +311,14 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			your_info.magic_exp_next_lev=value;break;
 		case POT_EXP:
 			floatingmessages_compare_stat(yourself, your_info.potion_exp, value, attributes.potion_skill.shortname);
-#ifdef COUNTERS
 			increment_potions_counter();
-#endif
 			your_info.potion_exp=value;
 			break;
 		case POT_EXP_NEXT:
 			your_info.potion_exp_next_lev=value;break;
 		case SUM_EXP:
 			floatingmessages_compare_stat(yourself, your_info.summoning_exp, value, attributes.summoning_skill.shortname);
-#ifdef COUNTERS
 			increment_summon_manu_counter();
-#endif
 			your_info.summoning_exp=value;
 			break;
 		case SUM_EXP_NEXT:
@@ -340,9 +330,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			your_info.summoning_skill.base=value;break;
 		case CRA_EXP:
 			floatingmessages_compare_stat(yourself, your_info.crafting_exp, value, attributes.crafting_skill.shortname);
-#ifdef COUNTERS
 			increment_crafting_counter();
-#endif
 			your_info.crafting_exp=value;
 			break;
 		case CRA_EXP_NEXT:
@@ -354,9 +342,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			your_info.crafting_skill.base=value;break;
 		case ENG_EXP:
 			floatingmessages_compare_stat(yourself, your_info.engineering_exp, value, attributes.engineering_skill.shortname);
-#ifdef COUNTERS
 			increment_engineering_counter();
-#endif
 			your_info.engineering_exp=value;
 			break;
 		case ENG_EXP_NEXT:
@@ -368,9 +354,7 @@ void get_partial_stat(Uint8 name,Sint32 value)
 			your_info.engineering_skill.base=value;break;
 		case TAIL_EXP:
 			floatingmessages_compare_stat(yourself, your_info.tailoring_exp, value, attributes.tailoring_skill.shortname);
-#ifdef COUNTERS
 			increment_tailoring_counter();
-#endif
 			your_info.tailoring_exp=value;
 			break;
 		case TAIL_EXP_NEXT:

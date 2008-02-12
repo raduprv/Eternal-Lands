@@ -41,9 +41,7 @@ extern int last_action_time; /*!< timestamp of the last action for this player *
 extern int afk_time; /*!< number of minutes after which the client will go AFK automatically. This can be set via the el.ini file. */
 extern int afk_time_conf;
 extern char afk_message[MAX_TEXT_MESSAGE_LENGTH]; /*!< buffer for the afk message used to inform other players that this player is currently AFK */
-#ifdef AFK_FIX
 extern int afk_local;
-#endif //AFK_FIX
 
 /*!
  * \ingroup other
@@ -86,11 +84,7 @@ void go_ifk(void);
  *
  * \callgraph
  */
-#ifndef AFK_FIX
-void add_message_to_pm_log (const char *msg, int len);
-#else
 void add_message_to_pm_log (char *msg, int len, Uint8 channel);
-#endif //AFK_FIX
 
 /*!
  * \ingroup network_actors

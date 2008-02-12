@@ -1,4 +1,3 @@
-#ifdef COUNTERS
 
 #include <stdlib.h>
 #include <ctype.h>
@@ -11,11 +10,7 @@
 #include "multiplayer.h"
 #include "spells.h"
 #include "tabs.h"
-#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
-#else
-#include "misc.h"
-#endif
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
@@ -169,11 +164,7 @@ FILE *open_counters_file(char *mode)
 	safe_snprintf(filename, sizeof(filename), "counters_%s.dat", username);
 #endif
 
-#ifndef NEW_FILE_IO
-	return my_fopen(filename, mode);
-#else /* NEW_FILE_IO */
 	return open_file_config(filename, mode);
-#endif /* NEW_FILE_IO */
 }
 
 void load_counters()
@@ -976,9 +967,6 @@ void catch_counters_text(const char* text)
 */
 int chat_to_counters_command(const char *text, int len)
 {
-#ifndef NEW_FILE_IO
-	char chat_log_file[100];
-#endif /* not NEW_FILE_IO */
 	char line[1024];
 	FILE *fp;
 	struct Counter *old_counters[] = {NULL, NULL};
@@ -1012,16 +1000,7 @@ int chat_to_counters_command(const char *text, int len)
 			entries[types[type]] = 0;
 		}
 
-#ifndef NEW_FILE_IO
-#ifndef WINDOWS
-	safe_snprintf (chat_log_file, sizeof (chat_log_file),  "%s/chat_log.txt", configdir);
-#else
-	strcpy (chat_log_file, "chat_log.txt");
-#endif
-	fp = my_fopen (chat_log_file, "r");
-#else /* NEW_FILE_IO */
 	fp = open_file_config ("chat_log.txt", "r");
-#endif /* NEW_FILE_IO */
 
 	/* consume the chat_log file, adding counter entries as they're found */
 	while (!feof(fp))
@@ -1081,4 +1060,3 @@ int is_death_message (const char * RawText)
 	return 0;
 }
 
-#endif /* COUNTERS */

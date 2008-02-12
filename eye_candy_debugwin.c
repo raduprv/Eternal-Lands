@@ -9,9 +9,7 @@
 #include "hud.h"
 #include "init.h"
 
-#ifdef MINES
 #include "mines.h"
-#endif
 
 int ecdebug_win = -1;
 
@@ -265,3 +263,4 @@ int ecdw_harv_bee_handler()
 }
 
 #endif // ECDEBUGWIN
+

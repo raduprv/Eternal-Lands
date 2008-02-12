@@ -1,13 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
-#ifdef FONTS_FIX
   #ifdef _MSC_VER
     #include <io.h>
   #else //!_MSC_VER
     #include <dirent.h>
     #include <unistd.h>
   #endif //_MSC_VER
-#endif //FONTS_FIX
 #include "font.h"
 #include "asc.h"
 #include "chat.h"
@@ -49,9 +47,7 @@ static int font_text = 0;
 int	cur_font_num=0;
 int	max_fonts=0;
 font_info	*fonts[FONTS_ARRAY_SIZE];
-#ifdef FONTS_FIX
 char font_names[FONTS_ARRAY_SIZE][30];
-#endif //FONTS_FIX
 int	chat_font=0;
 int	name_font=0;
 int	book_font=0;
@@ -1233,17 +1229,8 @@ int init_fonts ()
 	max_fonts = 0;
 	for(i = 0; i < FONTS_ARRAY_SIZE; i++) {
 		fonts[i] = NULL;
-#ifndef FONTS_FIX
-	}
-	
-	if (set_font_parameters (0) < 0) return 0;
-	if (set_font_parameters (1) < 0) return 0;
-	if (set_font_parameters (2) < 0) return 0;
-	if (set_font_parameters (3) < 0) return 0;
-#else
 		if (set_font_parameters (i) < 0) return 0;
 	}
-#endif //FONTS_FIX
 
 	cur_font_num = 0;
 
@@ -1292,7 +1279,6 @@ int load_font_textures ()
 	int poor_man_save=poor_man;
 	int use_mipmaps_save=use_mipmaps;
 	int i = 0;
-#ifdef FONTS_FIX
 #ifdef _MSC_VER
 	struct _finddata_t c_file;
 	long hFile;
@@ -1302,7 +1288,6 @@ int load_font_textures ()
 #endif //_MSC_VER
 	char file[60] = "";
 	char str[60] = "";
-#endif //FONTS_FIX
 	
 	if (fonts[0] == NULL || fonts[1] == NULL || fonts[2] == NULL || fonts[3]==NULL )
 	{
@@ -1318,11 +1303,6 @@ int load_font_textures ()
 	use_mipmaps=0;
 	
 	fonts[0]->texture_id = load_texture_cache("./textures/font.bmp", 0);
-#ifndef FONTS_FIX
-	fonts[1]->texture_id = load_texture_cache_deferred("./textures/fontv.bmp", 0);
-	fonts[2]->texture_id = load_texture_cache_deferred("./textures/font2.bmp", 0);
-	fonts[3]->texture_id = load_texture_cache_deferred("./textures/font3.bmp", 0);
-#else	//FONTS_FIX
 	i = 1;
 	// Force the selection of the base font.
 	add_multi_option("chat_font", "Type 1");
@@ -1377,7 +1357,6 @@ int load_font_textures ()
 #else //!_MSC_VER
  	(void) closedir (dp);
 #endif //_MSC_VER
-#endif //FONTS_FIX
 	
 	poor_man=poor_man_save;
 	use_mipmaps=use_mipmaps_save;

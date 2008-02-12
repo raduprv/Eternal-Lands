@@ -2,7 +2,6 @@
 \brief Special effects for bag dropping and retrieval.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_BAG_H
 #define EFFECT_BAG_H
@@ -52,4 +51,3 @@ public:
 
 #endif	// defined EFFECT_BAG_H
 
-#endif	// #ifdef EYE_CANDY

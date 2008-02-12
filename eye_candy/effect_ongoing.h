@@ -3,7 +3,6 @@
 right away.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_ONGOING_H
 #define EFFECT_ONGOING_H
@@ -66,4 +65,3 @@ public:
 
 #endif	// defined EFFECT_ONGOING_H
 
-#endif	// #ifdef EYE_CANDY

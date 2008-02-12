@@ -6,17 +6,11 @@
 #include "errors.h"
 #include "asc.h"
 #include "init.h"
-#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
-#endif
 
 FILE* open_log (const char *fname, const char *mode)
 {
-#ifndef NEW_FILE_IO
-	FILE *file = fopen (fname, mode);
-#else /* NEW_FILE_IO */
 	FILE *file = open_file_config (fname, mode);
-#endif /* NEW_FILE_IO */
 	char starttime[200], sttime[200];
 	struct tm *l_time; time_t c_time;
 	if (file == NULL)
@@ -35,17 +29,8 @@ FILE* open_log (const char *fname, const char *mode)
 FILE *err_file = NULL;
 void clear_error_log()
 {
-#ifndef NEW_FILE_IO
-	char error_log[256];
-
-	safe_snprintf(error_log, sizeof(error_log), "%serror_log.txt", configdir);
-#endif /* not NEW_FILE_IO */
 	if(!err_file) {
-#ifndef NEW_FILE_IO
-		err_file = open_log (error_log, "w");
-#else /* NEW_FILE_IO */
 		err_file = open_log ("error_log.txt", "w");
-#endif /* NEW_FILE_IO */
 	}
 	fflush (err_file);
 }
@@ -73,18 +58,12 @@ void log_error (const char* message, ...)
 
 	if(err_file == NULL)
 	{
-#ifndef NEW_FILE_IO
-		char error_log[256];
-		safe_snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
-		err_file = open_log (error_log, "a");
-#else /* NEW_FILE_IO */
 		if ( file_exists_config("error_log.txt") == 1 ) {
 			/* Move it */
 			file_remove_config("error_log.old");
 			file_rename_config("error_log.txt","error_log.old");
 		}
 		err_file = open_log ("error_log.txt", "a");
-#endif /* NEW_FILE_IO */
 	}
 	time(&c_time);
 	l_time = localtime(&c_time);
@@ -119,13 +98,7 @@ void log_error_detailed(const char *message, const char *file, const char *func,
 
 	if(err_file == NULL)
 	{
-#ifndef NEW_FILE_IO
-		char error_log[256];
-		safe_snprintf (error_log, sizeof(error_log), "%serror_log.txt", configdir);
-		err_file = open_log (error_log, "a");
-#else /* NEW_FILE_IO */
 		err_file = open_log ("error_log.txt", "a");
-#endif /* NEW_FILE_IO */
 	}
 	time(&c_time);
 	l_time = localtime(&c_time);
@@ -145,13 +118,7 @@ FILE *func_file = NULL;
 void clear_func_log()
 {
 	if(!func_file) {
-#ifndef NEW_FILE_IO
-		char func_log[256];
-		safe_snprintf(func_log, sizeof(func_log), "%sfunction_log.txt", configdir);
-		func_file = open_log(func_log, "w");
-#else /* NEW_FILE_IO */
 		func_file = open_log("function_log.txt", "w");
-#endif /* NEW_FILE_IO */
 	}
 	fflush(func_file);
 }
@@ -173,13 +140,7 @@ FILE *conn_file = NULL;
 void clear_conn_log()
 {
 	if(!conn_file) {
-#ifndef NEW_FILE_IO
-		char connection_log[256];
-		safe_snprintf(connection_log, sizeof(connection_log), "%sconnection_log.txt", configdir);
-		conn_file = open_log (connection_log, "w");
-#else /* NEW_FILE_IO */
 		conn_file = open_log ("connection_log.txt", "w");
-#endif /* NEW_FILE_IO */
 	}
 	fflush (conn_file);
 }
@@ -187,13 +148,7 @@ void clear_conn_log()
 void log_conn(const Uint8 *in_data, Uint16 data_length)
 {
   	if(!conn_file) {
-#ifndef NEW_FILE_IO
-		char connection_log[256];
-		safe_snprintf(connection_log, sizeof(connection_log), "%sconnection_log.txt", configdir);
-		conn_file = open_log (connection_log, "a");
-#else /* NEW_FILE_IO */
 		conn_file = open_log ("connection_log.txt", "a");
-#endif /* NEW_FILE_IO */
 	}
   	fwrite (in_data, data_length, 1, conn_file);
   	fflush (conn_file);
@@ -212,13 +167,7 @@ void log_info(const char* message, ...)
 
 	if (infos_file == NULL)
 	{
-#ifndef NEW_FILE_IO
-		char info_log[256];
-		safe_snprintf(info_log, sizeof(info_log), "%sinfos.log", configdir);
-		infos_file = open_log(info_log, "a");
-#else /* NEW_FILE_IO */
 		infos_file = open_log("infos.log", "a");
-#endif /* NEW_FILE_IO */
 	}
 	if (message[strlen(message)-1] != '\n')
 	{

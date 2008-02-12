@@ -10,12 +10,10 @@
 #include "platform.h"
 #include "actors.h"
 
-#ifdef OGG_VORBIS
 	#include <ogg/ogg.h>
 	#include <vorbis/codec.h>
 	#include <vorbis/vorbisenc.h>
 	#include <vorbis/vorbisfile.h>
-#endif	//OGG_VORBIS
 
 #ifdef __cplusplus
 extern "C" {

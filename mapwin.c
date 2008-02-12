@@ -21,15 +21,9 @@
 #endif // MISSILES
 #include "new_character.h"
 #include "pathfinder.h"
-#ifdef CLICKABLE_CONTINENT_MAP
 #include "textures.h"
-#endif
-#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif
-#ifdef SFX
 #include "special_effects.h"
-#endif
 
 int map_root_win = -1;
 int showing_continent = 0;
@@ -52,9 +46,6 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (left_click && mx > 0 && mx < 50*scale && my > 0 && my < 55*scale)
 	{
 		showing_continent = !showing_continent;
-#ifndef CLICKABLE_CONTINENT_MAP
-	} else if (!showing_continent)
-#else
 		if(inspect_map_text != 0)
 		{
 			glDeleteTextures(1,&inspect_map_text);
@@ -62,7 +53,6 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 		}
 	}
 	else if (!showing_continent && inspect_map_text == 0)
-#endif
 	{
 		if (left_click)
 		{
@@ -74,7 +64,6 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 				put_mark_on_map_on_mouse_position ();
 			else
 				delete_mark_on_map_on_mouse_position ();
-#ifdef CLICKABLE_CONTINENT_MAP
 		}
 	}
 	else if(showing_continent)
@@ -115,7 +104,6 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 					}
 				}
 			}
-#endif
 		}
 	}
 	
@@ -140,19 +128,15 @@ int display_map_handler (window_info * win)
 		reload_tab_map = 0;
 	}	
 
-#ifdef SFX
 	if(special_effects){
 		display_special_effects(0);
 	}
-#endif //SFX
 
 	// remember the time stamp to improve FPS quality when switching modes
 	next_fps_time=cur_time+1000;
 	last_count=0;
 
-#ifdef	EYE_CANDY
 	ec_idle();
-#endif	//EYE_CANDY
 
 #ifdef NEW_LIGHTING
 	light_idle();

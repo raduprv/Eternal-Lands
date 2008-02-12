@@ -27,16 +27,9 @@
 #include "update.h"
 #include "weather.h"
 #include "io/map_io.h"
-#ifdef NEW_FILE_IO
  #include "errors.h"
  #include "io/elpathwrapper.h"
  #include "io/elfilewrapper.h"
-#else
- #include "misc.h"
- #ifdef OSX
-  #include "init.h"
- #endif
-#endif  // NEW_FILE_IO
 
 #define DEFAULT_CONTMAPS_SIZE 20
 
@@ -488,10 +481,8 @@ CHECK_GL_ERRORS();
 GLuint map_text;
 static int cont_text = -1; // index in texture cache for continent map
 
-#ifdef CLICKABLE_CONTINENT_MAP
 GLuint inspect_map_text = 0;
 int show_continent_map_boundaries = 1;
-#endif
 GLuint legend_text=0;
 int cur_map;  //Is there a better way to do this?
 
@@ -516,16 +507,10 @@ void read_mapinfo ()
 	continent_maps = calloc (maps_size, sizeof (struct draw_map));
 	imap = 0;
 	
-#ifndef NEW_FILE_IO
-	fin = my_fopen ("mapinfo.lst", "r");
-	if (fin != NULL)
-	{
-#else /* NEW_FILE_IO */
 	fin = open_file_data ("mapinfo.lst", "r");
 	if (fin == NULL){
 		LOG_ERROR("%s: %s \"mapinfo.lst\"\n", reg_error_str, cant_open_file);
 	} else {
-#endif /* NEW_FILE_IO */
 		while (fgets (line, sizeof (line), fin) != NULL)
 		{
 			// strip comments
@@ -593,11 +578,9 @@ int switch_to_game_map()
 	tex.file_name[len-2]='m';
 	tex.file_name[len-1]='p';
 	tex.alpha = 128;
-#ifdef NEW_FILE_IO
 	if (!el_file_exists(tex.file_name))
 		map_text = 0;
 	else
-#endif //NEW_FILE_IO
 		map_text=load_bmp8_fixed_alpha(&tex, tex.alpha);
 	if(!map_text)
 	{
@@ -648,15 +631,11 @@ void draw_game_map (int map, int mouse_mini)
 	
 	if(map){
 		map_small=get_texture_id(cont_text);
-#ifndef CLICKABLE_CONTINENT_MAP
-		map_large=map_text;
-#else
 		if(inspect_map_text == 0) {
 			map_large=map_text;
 		} else {
 			map_large = inspect_map_text;
 		}
-#endif
 	} else {
 		map_small=map_text;
 		map_large=get_texture_id(cont_text);
@@ -767,54 +746,6 @@ void draw_game_map (int map, int mouse_mini)
 			draw_string_zoomed (screen_x, screen_y, (unsigned char*)input_text_line.data, 1, 0.3);
 		}
 
-#ifndef CLICKABLE_CONTINENT_MAP
-		// if filtering marks, display the label and the current filter text
-		if (mark_filter_active) {
-			char * show_mark_filter_text;
-			int max_show_len = 15;
-			if (strlen(mark_filter_text) > max_show_len)
-			  show_mark_filter_text = &mark_filter_text[strlen(mark_filter_text)-max_show_len];
-			else if (strlen(mark_filter_text) == 0)
-				show_mark_filter_text = "_";
-			else
-			  show_mark_filter_text = mark_filter_text;
-			glColor3f(1.0f,1.0f,0.0f);
-			screen_x = 25 - 1.5*strlen(label_mark_filter);
-			screen_y = 150 + 25;
-			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_mark_filter, 1, 0.3);
-			screen_x = 25 - 1.5*strlen(show_mark_filter_text);
-			screen_y = 150 + 32;
-			draw_string_zoomed(screen_x, screen_y, (unsigned char*)show_mark_filter_text, 1, 0.3);
-		}
-
-		// crave the markings
-		for(i=0;i<max_mark;i++)
-		 {
-			int x = marks[i].x;
-			int y = marks[i].y;
-			if ( x > 0 ) {
-
-				// if filtering marks, don't display if it doesn't match the current filter
-				if (mark_filter_active
-					  && (get_string_occurance(mark_filter_text, marks[i].text, strlen(marks[i].text), 1) == -1))
-					continue;
-
-				screen_x=(51+200*x/(tile_map_size_x*6));
-				screen_y=201-200*y/(tile_map_size_y*6);
-
-				glColor3f(0.4f,1.0f,0.0f);
-				glDisable(GL_TEXTURE_2D);
-				glBegin(GL_LINES);
-					glVertex2i(screen_x-3,screen_y-3);
-					glVertex2i(screen_x+2,screen_y+2);
-				
-					glVertex2i(screen_x+2,screen_y-3);
-					glVertex2i(screen_x-3,screen_y+2);
-				glEnd();
-	        		glEnable(GL_TEXTURE_2D);
-	        		glColor3f(0.2f,1.0f,0.0f);
-				draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
-#else
 		if(inspect_map_text == 0) {
 			// if filtering marks, display the label and the current filter text
 			if (mark_filter_active) {
@@ -863,26 +794,8 @@ void draw_game_map (int map, int mouse_mini)
 						glColor3f(0.2f,1.0f,0.0f);
 					draw_string_zoomed(screen_x, screen_y, (unsigned char*)marks[i].text, 1, 0.3);
 				}
-#endif
 			}
-#ifndef CLICKABLE_CONTINENT_MAP
-		}
-#endif
 
-#ifndef CLICKABLE_CONTINENT_MAP
-		// draw coordinates
-		if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
-			// we're pointing on the map, display position
-			char buf[10];
-			safe_snprintf(buf, sizeof(buf), "%d,%d", map_x, map_y);
-			glColor3f(1.0f,1.0f,0.0f);
-			screen_x = 25 - 1.5*strlen(buf);
-			screen_y = 150 + 11;
-			draw_string_zoomed(screen_x, screen_y, (unsigned char*)buf, 1, 0.3);
-			screen_x = 25 - 1.5*strlen(label_cursor_coords);
-			screen_y = 150 + 4;
-			draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
-#else
 			// draw coordinates
 			if (pf_get_mouse_position(mouse_x, mouse_y, &map_x, &map_y)) {
 				// we're pointing on the map, display position
@@ -896,16 +809,11 @@ void draw_game_map (int map, int mouse_mini)
 				screen_y = 150 + 4;
 				draw_string_zoomed(screen_x, screen_y, (unsigned char*)label_cursor_coords, 1, 0.3);
 			}
-#endif
 		}
 	}
 
 	//if we're following a path, draw the destination on the map
-#ifndef CLICKABLE_CONTINENT_MAP
-	if (pf_follow_path)
-#else
 	if (pf_follow_path && inspect_map_text == 0)
-#endif
 	{
 		int px = pf_dst_tile->x;
 		int py = pf_dst_tile->y;
@@ -943,11 +851,7 @@ void draw_game_map (int map, int mouse_mini)
 	}
 	
 	//ok, now let's draw our possition...
-#ifndef CLICKABLE_CONTINENT_MAP
-	if ( (me = get_our_actor ()) != NULL)
-#else
 	if ( (me = get_our_actor ()) != NULL && inspect_map_text == 0)
-#endif
 	{
 		x = me->x_tile_pos;
 		y = me->y_tile_pos;
@@ -992,7 +896,6 @@ void draw_game_map (int map, int mouse_mini)
 		glEnd();
 	}
 
-#ifdef CLICKABLE_CONTINENT_MAP
 	if(!map && show_continent_map_boundaries) {
 		int i;
 		/* Convert mouse coordinates to map coordinates (stolen from pf_get_mouse_position()) */
@@ -1063,7 +966,6 @@ void draw_game_map (int map, int mouse_mini)
 		glEnd();
 	}
 
-#endif
 
 	if (map)
 	{
@@ -1219,24 +1121,6 @@ void save_markings()
       char marks_file[256];
       int i;
 
-#ifndef NEW_FILE_IO
-#ifndef WINDOWS
-#ifdef OSX  //this might be applicable for linux too, but have not tested to be sure
-      safe_snprintf (marks_file, sizeof(marks_file), "%s/%s.txt", configdir, strrchr (map_file_name,'/') + 1);	
-#else //!OSX
-      safe_snprintf (marks_file, sizeof(marks_file), "%s/.elc/%s.txt", getenv ("HOME"), strrchr (map_file_name,'/') + 1);
-#endif //OSX
-#else //WINDOWS
-      safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", strrchr (map_file_name,'/') + 1);
-#endif //!WINDOWS
-      fp = my_fopen(marks_file,"w");
-      if ( fp ) {
-	  for ( i = 0 ; i < max_mark ; i ++)
-    	     if ( marks[i].x > 0 )
-                fprintf(fp,"%d %d %s\n",marks[i].x,marks[i].y,marks[i].text);
-          fclose(fp);
-        };
-#else /* NEW_FILE_IO */
 	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", strrchr (map_file_name,'/') + 1);
 
 	fp = open_file_config(marks_file,"w");
@@ -1250,7 +1134,6 @@ void save_markings()
 		}
 		fclose(fp);
 	}
-#endif /* NEW_FILE_IO */
 }
 
 void hide_all_root_windows ()

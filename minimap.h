@@ -1,7 +1,6 @@
 #ifndef _MINIMAP_H_
 #define _MINIMAP_H_
 
-#ifdef MINIMAP
 
 #include "elwindows.h"
 
@@ -62,7 +61,6 @@ void save_exploration_map();
 } // extern "C"
 #endif
 
-#endif //MINIMAP
 
 #endif // _MINIMAP_H_
 

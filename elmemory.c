@@ -7,9 +7,7 @@
 #include <SDL_thread.h>
 #include "asc.h"
 #include "init.h"
-#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
-#endif
 
 /* The size of the array */
 #define ELM_INITIAL_SIZE 1024
@@ -36,17 +34,9 @@ void elm_cleanup()
 {
 	unsigned int i;
 	unsigned int malloc_calls_remaining = 0;
-#ifndef NEW_FILE_IO
-	char path[256];
-#endif /* not NEW_FILE_IO */
 	FILE *fp;
 
-#ifndef NEW_FILE_IO
-	safe_snprintf(path, sizeof(path), "%s/elmemory.log", configdir);
-	fp = fopen(path, "w");
-#else /* NEW_FILE_IO */
 	fp = open_file_config ("elmemory.log", "w");
-#endif /* NEW_FILE_IO */
 	if(fp ==NULL){
 		return;
 	}

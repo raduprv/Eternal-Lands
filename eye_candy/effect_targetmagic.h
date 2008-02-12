@@ -2,7 +2,6 @@
 \brief Special effects for magic that requires a target.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_TARGETMAGIC_H
 #define EFFECT_TARGETMAGIC_H
@@ -106,4 +105,3 @@ public:
 
 #endif	// defined EFFECT_TARGETMAGIC_H
 
-#endif	// #ifdef EYE_CANDY

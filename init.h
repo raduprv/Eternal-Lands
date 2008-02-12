@@ -126,7 +126,6 @@ typedef struct
 	int url_win_y;
     /*! @} */
 
-#ifdef MINIMAP
     /*!
      * \name minimap window position and settings
      */
@@ -137,10 +136,6 @@ typedef struct
 	int minimap_zoom;
     /*! @} */
 
-#else //!MINIMAP
-	//!!!!!!!If you add any new INT option, decrement the reserved thingy accordingly!!!!!!
-	int reserved[4];
-#endif //MINIMAP
 
     /*!
      * \name Camera position and attributes
@@ -160,7 +155,6 @@ typedef struct
 	int astrology_win_y;
     /*! @} */
 
-#ifdef NOTEPAD
     /*!
      * \name Notepad window position
      */
@@ -168,29 +162,22 @@ typedef struct
 	int notepad_win_x;
 	int notepad_win_y;
     /*! @} */
-#else
-	int ireserved[2];
-#endif // NOTEPAD
     
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
 	float freserved[17];
 }bin_cfg;
 
-#ifdef AUTO_UPDATE
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */
 #ifdef  CUSTOM_UPDATE
 extern int custom_update; /*!<this flags signals whether or not autoupdates of custom looks is permitted. */
 #endif  //CUSTOM_UPDATE
-#endif  //AUTO_UPDATE
 
 extern int poor_man; /*!< this flag, if set to true, indicates we are running on a really poor machine */
 extern int show_reflection; /*!< flag that indicates whether to display reflections or not */
 #ifdef ANTI_ALIAS
 extern int anti_alias; /*!< flag indicating whether anti-aliasing should be enabled */
 #endif
-#ifdef SFX
 extern int special_effects; /*!< flag indicating whether pretty spell effects should be enabled */
-#endif
 extern int isometric; /*!< use isometric instead of perspective view */
 extern int mouse_limit;
 extern int show_fps; /*!< flag that indicates whether to display FPS or not */

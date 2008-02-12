@@ -1,4 +1,3 @@
-#ifdef EYE_CANDY
 
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
@@ -1011,4 +1010,3 @@ bool SummonEffect::idle(const Uint64 usec)
 
 };
 
-#endif	// #ifdef EYE_CANDY

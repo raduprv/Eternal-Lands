@@ -9,9 +9,7 @@
 #include "platform.h"
 #include "stats.h"
 #include "translate.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
@@ -171,12 +169,10 @@ void init_session(void)
 		session_start_time = cur_time;
 		reconnecting = 1;
 	}
-#ifdef COUNTERS
 	else if ( disconnect_time != 0 ) {
 		session_start_time += (cur_time-disconnect_time);
 		disconnect_time = 0;
 	}
-#endif
 }
 
 int session_reset_handler(void)
@@ -184,8 +180,6 @@ int session_reset_handler(void)
 	init_session();
 	session_stats = your_info;
 	session_start_time = cur_time;
-#ifdef COUNTERS
 	reset_session_counters();
-#endif
 	return 0;
 }

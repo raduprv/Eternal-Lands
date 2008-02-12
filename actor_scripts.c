@@ -29,15 +29,9 @@
 #include "tiles.h"
 #include "timers.h"
 #include "translate.h"
-#ifdef EYE_CANDY
  #include "eye_candy_wrapper.h"
-#endif
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
-#ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
-#endif	//NEW_FILE_IO
 #ifdef NEW_LIGHTING
  #include "textures.h"
 #endif
@@ -513,13 +507,11 @@ void animate_actors()
 					actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
 					actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
 
-#ifdef  MINIMAP
 					// and update the minimap if we need to
 					if(actors_list[i]->actor_id == yourself){
 						update_exploration_map();
 					}
 					minimap_touch();
-#endif  //MINIMAP
 				} else {
 					actors_list[i]->x_pos+= actors_list[i]->move_x_speed;
 					actors_list[i]->y_pos+= actors_list[i]->move_y_speed;
@@ -606,7 +598,6 @@ void move_to_next_frame()
 
 			if ((actors_list[i]->IsOnIdle)&&(actors_list[i]->anim_time>=5.0)&&(actors_list[i]->stop_animation!=1)) {
 				cal_actor_set_random_idle(i);
-#ifdef	IDLE_FIX
 			} else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
 				// lets see if we want to change the idle animation
 				// make sure we have at least two idles, and add a randomizer to continue
@@ -625,7 +616,6 @@ void move_to_next_frame()
 						}
 					}
 				}
-#endif	//IDLE_FIX
 			}
 
 			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
@@ -1180,9 +1170,7 @@ void destroy_actor(int actor_id)
 				stop_sound(actors_list[i]->cur_anim_sound_cookie);
 				actors_list[i]->cur_anim_sound_cookie = 0;
 #endif	//NEW_SOUND
-#ifdef	EYE_CANDY
 				ec_actor_delete(actors_list[i]);
-#endif	//EYE_CANDY
 				free(actors_list[i]);
 				actors_list[i]=NULL;
 				if(i==max_actors-1)max_actors--;
@@ -1198,9 +1186,7 @@ void destroy_actor(int actor_id)
 				break;
 			}
 	}
-#ifdef MINIMAP
 	minimap_touch();
-#endif //MINIMAP
 }
 
 void destroy_all_actors()
@@ -1221,9 +1207,7 @@ void destroy_all_actors()
 			stop_sound(actors_list[i]->cur_anim_sound_cookie);
 			actors_list[i]->cur_anim_sound_cookie = 0;
 #endif	//NEW_SOUND
-#ifdef	EYE_CANDY
 			ec_actor_delete(actors_list[i]);
-#endif	//EYE_CANDY
 			free(actors_list[i]);
 			actors_list[i]=NULL;
 		}
@@ -1232,9 +1216,7 @@ void destroy_all_actors()
 	actor_under_mouse = NULL;
 	my_timer_adjust= 0;
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
-#ifdef MINIMAP
 	minimap_touch();
-#endif //MINIMAP
 }
 
 
@@ -1346,7 +1328,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			}
 		}
 
-#ifdef COUNTERS
 		switch(command) {
 		case enter_combat:
 			act->async_fighting= 1;
@@ -1409,7 +1390,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			 act->async_z_rot= (command-turn_n)*45;
 			 break;
 		}
-#endif
 
 		UNLOCK_ACTORS_LISTS();
 
@@ -1423,13 +1403,11 @@ void get_actor_damage(int actor_id, int damage)
 {
 	//int i=0;
 	actor * act;
-#ifdef EYE_CANDY
 	float blood_level;
         float bone_list[1024][3];
         int total_bones;
         int bone;
         float bone_x, bone_y, bone_z;
-#endif
 
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -1451,15 +1429,10 @@ void get_actor_damage(int actor_id, int damage)
 #ifdef NEW_SOUND
 			add_death_sound(act);
 #endif // NEW_SOUND
-#ifdef COUNTERS
 			increment_death_counter(act);
-#endif
 		}
-#ifdef COUNTERS
 		act->last_range_attacker_id = -1;
-#endif // COUNTERS
 
-#ifdef EYE_CANDY
 		if (use_eye_candy && enable_blood)
 		{
 			if (strcmp(act->actor_name, "Gargoyle") && strcmp(act->actor_name, "Skeleton") && strcmp(act->actor_name, "Phantom Warrior"))	//Ideally, we'd also check to see if it was a player or not, but since this is just cosmetic...
@@ -1474,7 +1447,6 @@ void get_actor_damage(int actor_id, int damage)
 				ec_create_impact_blood(bone_x, bone_y, bone_z, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, ((float)rand()) * blood_level / RAND_MAX / 13.0, (poor_man ? 6 : 10), blood_level);
 			}
 		}
-#endif
 	}
 }
 
@@ -2414,11 +2386,7 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	};
 	struct CalCoreAnimation *coreanim;
 
-#ifdef	NEW_FILE_IO
 	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str);
-#else	// NEW_FILE_IO
-	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,str);
-#endif	// NEW_FILE_IO
 	if(res.anim_index == -1) {
 		log_error("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
 		return res;
@@ -2901,11 +2869,7 @@ int cal_load_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 
 	//Load coremesh
-#ifdef	NEW_FILE_IO
 	res=CalCoreModel_ELLoadCoreMesh(act->coremodel,fn);
-#else	// NEW_FILE_IO
-	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
-#endif	// NEW_FILE_IO
 
 	//Scale coremesh
 	if (res >= 0) {
@@ -2938,11 +2902,7 @@ int cal_load_weapon_mesh (actor_types *act, const char *fn, const char *kind)
 	}
 
 	//Load coremesh
-#ifdef	NEW_FILE_IO
 	res=CalCoreModel_ELLoadCoreMesh(act->coremodel,fn);
-#else	//NEW_FILE_IO
-	res=CalCoreModel_LoadCoreMesh(act->coremodel,fn);
-#endif	//NEW_FILE_IO
 
 	//Scale coremesh
 	if (res>=0) {
@@ -2980,11 +2940,7 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				char skeleton_name[MAX_FILE_PATH];
 				get_string_value(skeleton_name, sizeof(skeleton_name), item);
 				act->coremodel= CalCoreModel_New("Model");
-#ifdef	NEW_FILE_IO
 				if(!CalCoreModel_ELLoadCoreSkeleton(act->coremodel, skeleton_name)) {
-#else	//NEW_FILE_IO
-				if(!CalCoreModel_LoadCoreSkeleton(act->coremodel, skeleton_name)) {
-#endif	//NEW_FILE_IO
 					log_error("Cal3d error: %s: %s\n", skeleton_name, CalError_GetLastErrorDescription());
 					act->skeleton_type = -1;
 				}
@@ -3230,24 +3186,9 @@ int read_actor_defs (const char *dir, const char *index)
 
 void init_actor_defs()
 {
-#ifndef	NEW_FILE_IO
-	const char *dirname = "actor_defs", *idxname = "actor_defs.xml";
-	char defdir[256];
-	int ok;
-#endif	// NEW_FILE_IO
 
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
 
-#ifdef	NEW_FILE_IO
 	read_actor_defs ("actor_defs", "actor_defs.xml");
-#else	// NEW_FILE_IO
-#ifndef WINDOWS
-	safe_snprintf (defdir, sizeof (defdir), "%s/%s", datadir, dirname);
-#else
-	safe_strncpy (defdir, dirname, sizeof(defdir));
-#endif
-
-	ok = read_actor_defs (defdir, idxname);
-#endif	// NEW_FILE_IO
 }

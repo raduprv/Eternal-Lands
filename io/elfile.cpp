@@ -1,4 +1,3 @@
-#ifdef NEW_FILE_IO
 
 #include "elfile.hpp"
 #include <iostream>
@@ -208,4 +207,3 @@ namespace eternal_lands
 
 }
 
-#endif //NEW_FILE_IO

@@ -3,7 +3,6 @@
 or effects that look like that (such as blood or a burst of poison damage)
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_IMPACT_H
 #define EFFECT_IMPACT_H
@@ -75,4 +74,3 @@ public:
 
 #endif	// defined EFFECT_IMPACT_H
 
-#endif	// #ifdef EYE_CANDY

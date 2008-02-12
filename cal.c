@@ -23,9 +23,7 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif /* OPENGL_TRADE */
-#ifdef	NEW_FILE_IO
 #include "io/elfilewrapper.h"
-#endif	//NEW_FILE_IO
 #ifdef NEW_LIGHTING
 #include "lights.h"
 #endif
@@ -222,11 +220,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 		res.sound_scale = 1.0f;
 #endif	//NEW_SOUND
 
-#ifdef	NEW_FILE_IO
 	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,fname);
-#else	//NEW_FILE_IO
-	res.anim_index=CalCoreModel_LoadCoreAnimation(act->coremodel,fname);
-#endif	//NEW_FILE_IO
 	if(res.anim_index == -1) {
 		log_error("Cal3d error: %s: %s\n", fname, CalError_GetLastErrorDescription());
 		return res;
@@ -458,12 +452,10 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 	skel=CalModel_GetSkeleton(act->calmodel);
 
 	glPushMatrix();
-#ifdef	NEW_ACTOR_SCALE
 	// actor model rescaling
 	if(actors_defs[act->actor_type].actor_scale != 1.0){
 		glScalef(actors_defs[act->actor_type].actor_scale, actors_defs[act->actor_type].actor_scale, actors_defs[act->actor_type].actor_scale);
 	}
-#endif	//NEW_ACTOR_SCALE
 	// the dynamic scaling
 	if(act->scale != 1.0f){
 		glScalef(act->scale,act->scale,act->scale);

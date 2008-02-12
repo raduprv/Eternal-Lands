@@ -2,7 +2,6 @@
 \brief Special effects for magic cast on one's self
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_SELFMAGIC_H
 #define EFFECT_SELFMAGIC_H
@@ -79,4 +78,3 @@ public:
 
 #endif	// defined EFFECT_SELFMAGIC_H
 
-#endif	// #ifdef EYE_CANDY

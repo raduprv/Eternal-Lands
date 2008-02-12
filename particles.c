@@ -18,20 +18,10 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
-#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif	//EYE_CANDY
-#ifdef NEW_FILE_IO
 #include "translate.h"
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
-#else
-#ifdef MAP_EDITOR
-#include "../map_editor/misc.h"
-#else
-#include "misc.h"
-#endif
-#endif // NEW_FILE_IO
 #ifdef MAP_EDITOR
 #include "../map_editor/3d_objects.h"
 #include "../map_editor/lights.h"
@@ -118,14 +108,9 @@ particle_sys_def *load_particle_def(const char *filename)
 			}
 	if(!def)return NULL;
 
-#ifndef NEW_FILE_IO
-	f=my_fopen(cleanpath,"r");
-	if(f == NULL){
-#else /* NEW_FILE_IO */
 	f=open_file_data(cleanpath,"r");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
-#endif /* NEW_FILE_IO */
 		free(def);
 		defs_list[i]=NULL;
 		return NULL;
@@ -451,16 +436,11 @@ int save_particle_def(particle_sys_def *def)
 
 	clean_file_name ( cleanpath, def->file_name, sizeof (cleanpath) );
 
-#ifndef NEW_FILE_IO
-	f=my_fopen(cleanpath,"w");
-	if(!f) return 0;
-#else /* NEW_FILE_IO */
 	f=open_data_file(cleanpath,"w");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
 		return 0;
 	}
-#endif /* NEW_FILE_IO */
 
 	fprintf(f,"%i\n",PARTICLE_DEF_VERSION);
 
@@ -512,11 +492,7 @@ void init_particles ()
 		char buffer[256];
 
 		safe_snprintf (buffer, sizeof(buffer), "./textures/particle%d.bmp", i);
-#ifndef	NEW_FILE_IO
-		if (gzfile_exists (buffer))
-#else	//NEW_FILE_IO
 		if (el_file_exists (buffer))
-#endif
 			particle_textures[i] = load_texture_cache_deferred (buffer, 0);
 		else
 			particle_textures[i] = -1;
@@ -588,37 +564,17 @@ void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 	switch (kind)
 	{
 		case 2:
-#ifdef EYE_CANDY
 			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 3.1);
 #ifdef NEW_SOUND
 			snd = get_sound_index_for_particle_file_name("./particles/fire_big.part");
 #endif // NEW_SOUND
-#else // EYE_CANDY
- #ifdef SFX
-  #ifndef MAP_EDITOR
-			add_particle_sys ("./particles/fire_big.part", x, y, z, 1);
-  #else
-			add_particle_sys ("./particles/fire_big.part", x, y, z);
-  #endif // NEW_FRUSTRUM
- #endif // SFX  
-#endif // EYE_CANDY
 			break;
 		case 1:
 		default:
-#ifdef EYE_CANDY
 			ec_create_campfire(x, y, z, 0.0, 1.0, (poor_man ? 6 : 10), 2.4);
 #ifdef NEW_SOUND
 			snd = get_sound_index_for_particle_file_name("./particles/fire_small.part");
 #endif // NEW_SOUND
-#else // EYE_CANDY
- #ifdef SFX
-  #ifndef MAP_EDITOR
-			add_particle_sys ("./particles/fire_small.part", x, y, z, 1);
-  #else
-			add_particle_sys ("./particles/fire_small.part", x, y, z);
-  #endif // NEW_FRUSTRUM
- #endif // SFX  
-#endif // EYE_CANDY
 			break;
 	}
 #ifdef NEW_SOUND
@@ -638,39 +594,10 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 	particle_sys *sys;
 #endif	// SFX && EYE_CANDY
 	
-#ifdef EYE_CANDY
 	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
 #ifdef NEW_SOUND
 	stop_sound_at_location(x_tile, y_tile);
 #endif // NEW_SOUND
-#else // EYE_CANDY
- #ifdef SFX
-	LOCK_PARTICLES_LIST();
-	for (i = 0; i < MAX_PARTICLE_SYSTEMS; i++)
-	{
-		sys = particles_list[i];
-		if (particles_list[i] && strncmp (sys->def->file_name, "./particles/fire_", 17) == 0 && sys->x_pos == x && sys->y_pos == y)
-		{
-	#ifndef	MAP_EDITOR
-			destroy_partice_sys_without_lock(i);
-	#else
-			if (sys->def->use_light && lights_list[sys->light])
-			{
-				free (lights_list[sys->light]);
-				lights_list[sys->light] = NULL;
-			}
-	#if ! defined MAP_EDITOR && ! defined NEW_SOUND
-			if (sys->sound != 0)
-				stop_sound (sys->sound);
-	#endif // !MAP_EDITOR && !NEW_SOUND
-			free (sys);
-			particles_list[i] = NULL;
-	#endif // MAP_EDITOR
-		}
-	}
-	UNLOCK_PARTICLES_LIST();
- #endif // SFX
-#endif // EYE_CANDY
 	return;
 }
 
@@ -744,7 +671,6 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 				ec_create_lamp(x_pos, y_pos, z_pos, 0.0, 1.0, 1.6, (poor_man ? 6 : 10));
 			else
 			{
- #ifdef SFX
 				particle_sys_def *def = load_particle_def(file_name);
 				if (!def) return -1;
 
@@ -753,7 +679,6 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
   #else
 				return create_particle_sys (def, x_pos, y_pos, z_pos);
   #endif
- #endif /* SFX */
 			}
 		}
 		else if (!strncmp("can", file_name + 12, 3))
@@ -761,7 +686,6 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 		else
 		{
 #endif /* EYE_CANDY */
-#ifdef SFX
 			particle_sys_def *def = load_particle_def(file_name);
 			if (!def) return -1;
 
@@ -770,13 +694,11 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
  #else
 			return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
-#endif
 #if defined EYE_CANDY && ! defined MAP_EDITOR
 		}
 	}
 	else
 	{
-#ifdef SFX
 		particle_sys_def *def = load_particle_def(file_name);
 		if (!def) return -1;
 
@@ -785,7 +707,6 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
  #else
 		return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
-#endif
 	}
 #endif
 

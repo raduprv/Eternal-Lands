@@ -31,12 +31,8 @@
 #include "textures.h"
 #include "trade.h"
 #include "translate.h"
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
-#ifdef NOTEPAD
 #include "notepad.h"
-#endif
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
@@ -356,13 +352,11 @@ float buddy_icon_v_start=1.0f-(float)32/256;
 float colored_buddy_icon_u_start=(float)0/256;
 float colored_buddy_icon_v_start=1.0f-(float)96/256;
 
-#ifdef NOTEPAD
 float notepad_icon_u_start=(float)96/256;
 float notepad_icon_v_start=1.0f-(float)0/256;
 
 float colored_notepad_icon_u_start=(float)192/256;
 float colored_notepad_icon_v_start=1.0f-(float)0/256;
-#endif // NOTEPAD
 
 float urlwin_icon_u_start=(float)96/256;
 float urlwin_icon_v_start=1.0f-(float)64/256;
@@ -480,9 +474,7 @@ void init_peace_icons()
 	
 	add_icon(buddy_icon_u_start, buddy_icon_v_start, colored_buddy_icon_u_start, colored_buddy_icon_v_start, tt_buddy, view_window, &buddy_win, DATA_WINDOW);
 
-#ifdef NOTEPAD
 	add_icon(notepad_icon_u_start, notepad_icon_v_start, colored_notepad_icon_u_start, colored_notepad_icon_v_start, tt_notepad, view_window, &notepad_win, DATA_WINDOW);
-#endif // NOTEPAD
 
 	add_icon(urlwin_icon_u_start, urlwin_icon_v_start, colored_urlwin_icon_u_start, colored_urlwin_icon_v_start, tt_urlwin, view_window, &url_win, DATA_WINDOW);
 	
@@ -711,12 +703,8 @@ void view_window(int * window, int id)
 			else if(window==&elconfig_win) display_elconfig_win();
 			else if(window==&buddy_win) display_buddy();
 			else if(window==&trade_win) display_trade_menu();
-#ifdef NOTEPAD
 			else if(window==&notepad_win) display_notepad();
-#endif
-#ifdef MINIMAP
 			else if(window==&minimap_win) display_minimap();
-#endif
 #ifdef ECDEBUGWIN
 			else if(window==&ecdebug_win) display_ecdebugwin();
 #endif

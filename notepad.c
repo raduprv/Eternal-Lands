@@ -20,7 +20,6 @@
 #include "translate.h"
 #include "widgets.h"
 
-#ifdef NOTEPAD
 
 void notepad_add_continued (const char *name);
 
@@ -325,9 +324,6 @@ static void init_note (int id, const char* name, const char* content)
 
 int notepad_load_file ()
 {
-#ifndef NEW_FILE_IO
-	char file[256];
-#endif
 	xmlDocPtr doc;
 	xmlNodePtr cur;
 	
@@ -339,33 +335,12 @@ int notepad_load_file ()
 
 	notepad_loaded = 1;
 
-#ifdef NEW_FILE_IO
 	doc = xmlParseFile ("notes.xml");
 	if (doc == NULL)
 	{
 		LOG_ERROR (cant_parse_notes);
 		return 0;
 	}
-#else
-	safe_snprintf (file, sizeof (file), "%snotes.xml", configdir);
-	doc = xmlParseFile (file);
-	if (doc == NULL )
-	{
-#ifndef WINDOWS
-		// try the data directory then
-		safe_snprintf (file, sizeof (file), "%s/%s", datadir, "notes.xml");
-		doc = xmlParseFile (file);
-		if (doc == NULL )
-		{
-			LOG_ERROR (cant_parse_notes);
-			return 0;
-		}
-#else
-		LOG_ERROR (cant_parse_notes);
-		return 0;
-#endif // !WINDOWS
-	}
-#endif // NEW_FILE_IO
 	
 	cur = xmlDocGetRootElement (doc);
 	if (cur == NULL)
@@ -690,4 +665,3 @@ void notepad_win_update_zoom ()
 		widget_set_size (notepad_win, note_list[i].input, note_zoom);
 }
 
-#endif

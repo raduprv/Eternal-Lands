@@ -6,7 +6,6 @@
 #ifndef	_ZIPFILESYSTEM_HPP_
 #define	_ZIPFILESYSTEM_HPP_
 
-#ifdef NEW_FILE_IO
 
 #include <string.h>
 #include "allio.hpp"
@@ -283,6 +282,5 @@ namespace eternal_lands
 
 }
 
-#endif //NEW_FILE_IO
 
 #endif	//_ZIPFILESYSTEM_HPP_

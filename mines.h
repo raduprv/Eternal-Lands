@@ -1,4 +1,3 @@
-#ifdef MINES
 /*!
  * \file
  * \ingroup item
@@ -94,4 +93,3 @@ void load_mines_config();
 
 #endif // __MINES_H__
 
-#endif // MINES

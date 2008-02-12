@@ -29,16 +29,10 @@
 #include "tabs.h"
 #include "translate.h"
 #include "url.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
-#ifdef NEW_FILE_IO
 #include "errors.h"
 #include "io/elpathwrapper.h"
-#endif
 #ifdef CALCULATOR
 #include "calc.h"
 #endif
@@ -1050,30 +1044,19 @@ int save_local_data(char * text, int len){
 	save_quickspells();
 	// save el.ini if asked
 	if (write_ini_on_exit) write_el_ini ();
-#ifdef NOTEPAD
 	// save notepad contents if the file was loaded
 	if (notepad_loaded) notepad_save_file (NULL, 0, 0, 0);
-#endif //NOTEPAD
-#ifdef MINIMAP
 	save_exploration_map();
-#endif //MINIMAP
-#ifdef COUNTERS
 	flush_counters();
-#endif //COUNTERS
 	return 0;
 }
 
 void init_commands(const char *filename)
 {
-#ifndef NEW_FILE_IO
-	FILE *fp = my_fopen(filename, "r");
-	if(fp != NULL) {
-#else /* NEW_FILE_IO */
 	FILE *fp = open_file_data(filename, "r");
 	if(fp == NULL) {
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, filename);
 	} else {
-#endif /* NEW_FILE_IO */
 	/* Read keywords from commands.lst */
 		char buffer[255];
 		size_t buffer_len;
@@ -1139,9 +1122,7 @@ void init_commands(const char *filename)
 	add_command("find", &history_grep);
 	add_command("save", &save_local_data);
 	add_command("url", &url_command);
-#ifdef COUNTERS	
 	add_command("chat_to_counters", &chat_to_counters_command);
-#endif
 	command_buffer_offset = NULL;
 }
 

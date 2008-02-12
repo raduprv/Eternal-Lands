@@ -15,13 +15,9 @@
 #include "pathfinder.h"
 #include "textures.h"
 #include "translate.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
-#ifdef NEW_FILE_IO
 #include "errors.h"
 #include "io/elpathwrapper.h"
-#endif
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -708,9 +704,7 @@ void set_spell_name (int id, const char *data, int len)
 
 	if (len >= 60) return;
 
-#ifdef COUNTERS
 	counters_set_spell_name(id, (char *)data, len);
-#endif
 	
 	for (i = 0; i < 7; i++)
 	{
@@ -789,23 +783,6 @@ void load_quickspells ()
 	// succeeds)
 	quickspells_loaded = 1;
 	
-#ifndef NEW_FILE_IO
-#ifndef WINDOWS
-	safe_snprintf(username, sizeof(username), "%s", username_str);
-	my_tolower(username);
-	safe_snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
-	fp = my_fopen (fname, "rb"); // try local file first
-	if (!fp)
-#endif // !WINDOWS
-	{
-		//write to the data file, to ensure data integrity, we will write all the information
-		safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
-		my_tolower(fname);
-		fp=fopen(fname,"rb");
-		if(!fp)
-			return;
-	}
-#else /* NEW_FILE_IO */
 	//write to the data file, to ensure data integrity, we will write all the information
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 	my_tolower(fname);
@@ -814,7 +791,6 @@ void load_quickspells ()
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
 		return;
 	}
-#endif /* NEW_FILE_IO */
 
 	fread (data, sizeof(*data), sizeof(data), fp);
 	fclose (fp);
@@ -841,23 +817,6 @@ void save_quickspells()
 	if (!quickspells_loaded)
 		return;
 	
-#ifndef NEW_FILE_IO
-#ifndef WINDOWS	
-	safe_snprintf(username, sizeof(username), "%s", username_str);
-	my_tolower(username);
-	safe_snprintf (fname, sizeof (fname), "%s/spells_%s.dat", configdir, username);
-	fp = my_fopen (fname, "wb"); // try local file first
-	if (!fp)
-#endif // !WINDOWS
-	{
-		//write to the data file, to ensure data integrity, we will write all the information
-		safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
-		my_tolower(fname);
-		fp=fopen(fname,"wb");
-		if(!fp)
-			return;
-	}
-#else /* NEW_FILE_IO */
 	//write to the data file, to ensure data integrity, we will write all the information
 	safe_snprintf(fname, sizeof(fname), "spells_%s.dat",username_str);
 	my_tolower(fname);
@@ -866,7 +825,6 @@ void save_quickspells()
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, fname);
 		return;
 	}
-#endif /* NEW_FILE_IO */
 
 	/* initialise buffer so we don't write uninitalised data to buffer */
 	memset(data, 0, sizeof(data));

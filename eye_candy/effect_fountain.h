@@ -2,7 +2,6 @@
 \brief A special effect that sprays up water, which then falls and splatters.
 */
 
-#ifdef EYE_CANDY
 
 #ifndef EFFECT_FOUNTAIN_H
 #define EFFECT_FOUNTAIN_H
@@ -78,4 +77,3 @@ public:
 
 #endif	// defined EFFECT_FOUNTAIN_H
 
-#endif	// #ifdef EYE_CANDY

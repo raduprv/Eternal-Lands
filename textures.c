@@ -3,9 +3,7 @@
 #ifdef ZLIB
 #include <zlib.h>
 #endif
-#ifndef	OLD_TEXTURE_LOADER
 #include <SDL_image.h>
-#endif //OLD_TEXTURE_LOADER
 #include "textures.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -15,11 +13,7 @@
 #include "lights.h"
 #include "load_gl_extensions.h"
 #include "map.h"
-#ifdef NEW_FILE_IO
 #include "io/elfilewrapper.h"
-#else
-#include "misc.h"
-#endif //NEW_FILE_IO
 
 #ifdef NEW_LIGHTING
 extern GLfloat day_ambient[4];
@@ -124,7 +118,6 @@ __inline__ static void set_texture_filter_parameter()
 	}
 }
 
-#ifndef	OLD_TEXTURE_LOADER
 #ifdef NEW_LIGHTING
 void do_night_shift_texture(const char * filename, GLubyte * texture_mem, int x_size, int y_size)
 {
@@ -1046,9 +1039,6 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	int pixel, temp, r, g, b, a;
 	int bpp, i, j, index, x_padding;
 
-#ifndef	NEW_FILE_IO
-	texture_surface = IMG_Load(file_name);
-#else	//NEW_FILE_IO
 	el_file_ptr file;
 
 	file = el_open_custom(file_name);
@@ -1061,7 +1051,6 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	texture_surface = IMG_Load_RW(SDL_RWFromMem(el_get_pointer(file), el_get_size(file)), 1);
 
 	el_close(file);
-#endif	//NEW_FILE_IO
 
 	if (texture_surface == 0)
 	{
@@ -1165,221 +1154,6 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 
 	return tex;
 }
-#else	//OLD_TEXTURE_LOADER
-//load a bmp texture into a texture structure with an estimated alpha
-texture_struct *load_bmp8_texture(const char * filename, texture_struct *tex, Uint8 alpha)
-{
-	int y,x_padding,x_size,y_size,colors_no;
-	Uint8 * file_mem;
-	Uint8 * texture_mem;
-	Uint8 read_buffer[4096];
-	Uint8 color_pallete[256*4];
-	short format;
-#ifdef	ZLIB
-	gzFile *f = NULL;
-
-	if(!gzfile_exists(filename))	return 0;	// no file at all
-	f= my_gzopen(filename, "rb");
-#else	//ZLIB
-	FILE *f = NULL;
-
-	f= fopen(filename, "rb");
-#endif	//ZLIB
-  	if (!f)
-		return NULL;
-  	file_mem= read_buffer;
-#ifdef	ZLIB
-  	gzread(f, file_mem, 50+4);	//header only, plus first 4 bytes of the color pallete
-#else	//ZLIB
-  	fread(file_mem, 1, 50+4, f);	//header only, plus first 4 bytes of the color pallete
-#endif	//ZLIB
-  	//now, check to see if our bmp file is indeed a bmp file, and if it is 8 bits, uncompressed
-
-  	if(*((short *) file_mem)!= SDL_SwapLE16(19778))//BM (the identifier)
-	{
-		//free(file_mem_start);
-#ifdef	ZLIB
-		gzclose(f);
-#else	//ZLIB
-		fclose(f);
-#endif	//ZLIB
-		return NULL;
-	}
-	file_mem+=18;
-	x_size= SDL_SwapLE32(*((int *) file_mem));
-	file_mem+=4;
-	y_size= SDL_SwapLE32(*((int *) file_mem));
-	file_mem+=6;
-	format = *((short *)file_mem);
-	if(format != SDL_SwapLE16(8) && format != SDL_SwapLE16(24)) //8 or 24 bit/pixel?
-	{
-		//free(file_mem_start);
-#ifdef	ZLIB
-		gzclose(f);
-#else	//ZLIB
-		fclose(f);
-#endif	//ZLIB
-		return NULL;
-	}
-
-	file_mem+=2;
-	if(*((int *)file_mem)!=SDL_SwapLE32(0))//any compression?
-	{
-		//free(file_mem_start);
-#ifdef	ZLIB
-		gzclose(f);
-#else	//ZLIB
-		fclose(f);
-#endif	//ZLIB
-		return NULL;
-	}
-
-	//see if we need to allocate a texture buffer
-	if(!tex){
-		tex= calloc(1, sizeof(*tex));
-		if(!tex){
-#ifdef	ZLIB
-			gzclose(f);
-#else	//ZLIB
-			fclose(f);
-#endif	//ZLIB
-			return NULL;	// memory error!
-		}
-	}
-	// memorize the dimensions
-	tex->has_alpha= 0;
-	tex->x_size= x_size;
-	tex->y_size= y_size;
-
-	x_padding=x_size%4;
-	if(x_padding)
-		x_padding=4-x_padding;
-	if(x_size<=x_padding)
-		x_padding=0;
-
-	//now, allocate the memory for the file
-	texture_mem= tex->texture= (Uint8 *) calloc((x_size+x_padding)*y_size*4, sizeof(Uint8));
-	if(!texture_mem){
-#ifdef	ZLIB
-		gzclose(f);
-#else	//ZLIB
-		fclose(f);
-#endif	//ZLIB
-		return NULL;	// memory error!
-	}
-
-	if(format == SDL_SwapLE16(8))
-	{
-		file_mem+=16;
-
-		colors_no=SDL_SwapLE32(*((int *)file_mem));
-		if(!colors_no)
-			colors_no=256;
-
-#ifdef	ZLIB
-		gzread(f, color_pallete, colors_no*4);	// just the color pallete
-#else	//ZLIB
-		fread(color_pallete, 1, colors_no*4, f);	// just the color pallete
-#endif	//ZLIB
-
-		for(y=0; y<y_size; y++) {
-			int	x;
-			int	y_offset= y*x_size;
-
-#ifdef	ZLIB
-			gzread(f, read_buffer, x_size+x_padding);
-#else	//ZLIB
-			fread(read_buffer, 1, x_size+x_padding, f);
-#endif	//ZLIB
-			for(x=0; x<x_size; x++) {
-				int r,g,b, current_pallete_entry, texture_offset;
-
-				// find what color we are really using
-				current_pallete_entry= (*(read_buffer+x))*4;
-				b= color_pallete[current_pallete_entry];
-				g= color_pallete[current_pallete_entry+1];
-				r= color_pallete[current_pallete_entry+2];
-
-				// and store the converted version in the proper spot
-				texture_offset= (y_offset+x)*4;
-				texture_mem[texture_offset]= r;
-				texture_mem[texture_offset+1]= g;
-				texture_mem[texture_offset+2]= b;
-				if(alpha){	// fixed or estimated?
-					texture_mem[texture_offset+3]= alpha;
-				} else {
-					texture_mem[texture_offset+3]= (r+b+g)/3;	// a
-				}
-			}
-		}
-	}
-	else // decode 24 bpp bitmap
-	{
-#ifdef	ZLIB
-		gzread(f, file_mem, 4); // Skip 4 bytes
-#else	//ZLIB
-		fread(file_mem, 1, 4, f); // Skip 4 bytes
-#endif	//ZLIB
-		
-		for(y = 0; y < y_size; y++) {
-			int x;
-#ifdef	ZLIB
-			gzread(f, read_buffer, (x_size+x_padding)* 3);
-#else	//ZLIB
-			fread(read_buffer, 1, (x_size+x_padding)* 3, f);
-#endif	//ZLIB
-			for(x = 0; x < x_size; x++) {
-				texture_mem[(y*x_size+x)*4]   = read_buffer[x*3 + 2];
-				texture_mem[(y*x_size+x)*4+1] = read_buffer[x*3 + 1];
-				texture_mem[(y*x_size+x)*4+2] = read_buffer[x*3 + 0];
-				if(alpha){
-					texture_mem[(y*x_size+x)*4+3] = alpha;
-				} else {
-					texture_mem[(y*x_size+x)*4+3] = (texture_mem[(y*x_size+x)*4]+texture_mem[(y*x_size+x)*4+1]+texture_mem[(y*x_size+x)*4+2])/3;
-				}
-			}
-		}
-	}
-
-#ifdef NEW_LIGHTING
-	if (night_shift_textures)
-	{
-		// If nighttime, use a nighttime texture.
-		if ((!dungeon) &&
-		    (strncmp(filename, "./textures", 10)) &&	// Exclude the textures dir, which contains buttons and the like.
-		    (strncmp(filename, "./maps", 6)))		// Also exclude maps
-		{
-			int i;
-			float percent_grey;
-			if ((game_minute > 230) || (game_minute < 10))
-			  percent_grey = 0.6f;
-			else if ((game_minute < 40))
-			  percent_grey = 0.6f * (1.0f - (game_minute - 10.0f) / 30.0f);
-			else if (game_minute > 200)
-			  percent_grey = 0.6f * (game_minute - 200) / 30.0f;
-			else
-			  percent_grey = 0.0f;
-			for (i = 0; i < x_size * y_size * 4; i += 4)
-			{
-				float average = ((float)texture_mem[i] + (float)texture_mem[i + 1] + (float)texture_mem[i + 2]) / 3;
-				texture_mem[i + 0] = (Uint8)(texture_mem[i + 0] * (1.0 - percent_grey) + average * percent_grey);
-				texture_mem[i + 1] = (Uint8)(texture_mem[i + 1] * (1.0 - percent_grey) + average * percent_grey);
-				texture_mem[i + 2] = (Uint8)(texture_mem[i + 2] * (1.0 - percent_grey) + average * percent_grey);
-			}
-		}
-	}
-#endif	
-
-	//free(read_buffer);
-#ifdef	ZLIB
-	gzclose(f);
-#else	//ZLIB
-	fclose(f);
-#endif	//ZLIB
-
-	return tex;
-}
-#endif	//OLD_TEXTURE_LOADER
 
 // set a default alpha value except where it's black, make that transparent
 void	texture_set_alpha(texture_struct *tex, Uint8 alpha, int cutoff)
@@ -1700,7 +1474,6 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 	texture_struct	texture;
 	texture_struct	ttexture;
 	texture_struct	*tex;
-#ifndef	OLD_TEXTURE_LOADER
 	char filename[1024];//Create a buffer...
 	char * name;
 
@@ -1723,40 +1496,14 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 		name = ".bmp";
 	}
 	safe_strcat (filename, name, sizeof (filename));
-#else	//OLD_TEXTURE_LOADER
-	char filename[512];//Create a buffer...
-	char * name;
-
-	/* copy (maybe truncating) FileName into a buffer */
-	safe_snprintf(filename, sizeof(filename), "%s", FileName);
-	/* find last dot */
-	name = strrchr(filename, '.');
-	if (name == NULL)
-	{
-		name = filename;
-	}
-	/* terminate filename before last dot */
-	*name = '\0';
-
-	/* safely add '_alpha.bmp' to the string */
-	safe_strcat (filename, "_alpha.bmp", sizeof (filename));
-#endif	//OLD_TEXTURE_LOADER
 
 	// check for a file
-#ifndef	NEW_FILE_IO
-	if(!gzfile_exists(filename))	return 0;	// no file
-#else	//NEW_FILE_IO
 	if (!el_file_exists(filename))
 	{
 		return 0;	// no file
 	}
-#endif	//NEW_FILE_IO
 	// read in the texture
-#ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(filename, &ttexture, 0);
-#else	//OLD_TEXTURE_LOADER
 	tex = load_texture(filename, &ttexture, 0);
-#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -1791,11 +1538,7 @@ GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha)
 	texture_struct	*tex;
 	GLuint texture;
 
-#ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(tex_cache_entry->file_name, &ttexture, 0);
-#else	//OLD_TEXTURE_LOADER
 	tex = load_texture(tex_cache_entry->file_name, &ttexture, 0);
-#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -1887,11 +1630,7 @@ GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a)
 	texture_struct	*tex;
 	GLuint texture;
 
-#ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(tex_cache_entry->file_name, &ttexture, a);
-#else	//OLD_TEXTURE_LOADER
 	tex = load_texture(tex_cache_entry->file_name, &ttexture, a);
-#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -1954,11 +1693,7 @@ GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, 
 	texture_struct	ttexture;
 	texture_struct	*tex;
 
-#ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(tex_cache_entry->file_name, &ttexture, 0);
-#else	//OLD_TEXTURE_LOADER
 	tex = load_texture(tex_cache_entry->file_name, &ttexture, 0);
-#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -2038,11 +1773,7 @@ GLuint reload_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a, 
 	texture_struct	ttexture;
 	texture_struct	*tex;
 
-#ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(tex_cache_entry->file_name, &ttexture, a);
-#else	//OLD_TEXTURE_LOADER
 	tex = load_texture(tex_cache_entry->file_name, &ttexture, a);
-#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return 0;
 	}
@@ -2175,11 +1906,7 @@ texture_struct *load_bmp8_alpha (const char *filename, texture_struct *tex, Uint
 	int x_size, y_size;
 	Uint8 *texture_mem;
 
-#ifdef	OLD_TEXTURE_LOADER
-	tex= load_bmp8_texture(filename, tex, alpha);
-#else	//OLD_TEXTURE_LOADER
 	tex = load_texture(filename, tex, alpha);
-#endif	//OLD_TEXTURE_LOADER
 	if(!tex){	// oops, failed
 		return NULL;
 	}

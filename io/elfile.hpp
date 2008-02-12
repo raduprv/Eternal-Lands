@@ -7,7 +7,6 @@
 #ifndef	_ELFILE_HPP_
 #define	_ELFILE_HPP_
 
-#ifdef NEW_FILE_IO
 
 #include "allio.hpp"
 #include "zipfilesystem.hpp"
@@ -405,6 +404,5 @@ namespace eternal_lands
 #endif
 }
 
-#endif //NEW_FILE_IO
 
 #endif	// _ELFILE_HPP_

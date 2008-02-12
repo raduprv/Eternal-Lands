@@ -49,15 +49,11 @@
 #include "timers.h"
 #include "translate.h"
 #include "url.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
 #endif
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
@@ -200,19 +196,13 @@ int start_rendering()
 	cleanup_pawn ();
 #endif
 
-#ifdef OGG_VORBIS
 	destroy_sound();	//cleans up and waits for the thread
-#endif // OGG_VORBIS
 	unload_questlog();
 	free_icons();
 	free_vars();
 	cleanup_rules();
-#ifdef MINIMAP
 	save_exploration_map();
-#endif //MINIMAP
-#ifdef COUNTERS
 	cleanup_counters();
-#endif //COUNTERS
 	cleanup_chan_names();
 	SDL_RemoveTimer(draw_scene_timer);
 	SDL_RemoveTimer(misc_timer);

@@ -7,13 +7,9 @@
 #include "gamewin.h"
 #include "init.h"
 #include "tabs.h"
-#ifdef NEW_FILE_IO
 #include "errors.h"
 #include "translate.h"
 #include "io/elpathwrapper.h"
-#else
-#include "misc.h"
-#endif
 
 typedef struct ld
 {
@@ -41,27 +37,11 @@ void load_questlog()
 	FILE *f = NULL;
 	char temp[1000];
 
-#ifndef NEW_FILE_IO
-#ifndef WINDOWS
-	char questlog_ini[256];
-	safe_snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
-	// don't use my_fopen here, not everyone uses local settings
-	f= fopen(questlog_ini,"rb"); //try to load local settings
-	if(!f)	//use global settings
-		f= my_fopen("quest.log","rb");
-
-#else // !WINDOWS
-	f= my_fopen("quest.log","rb");
-#endif // WINDOWS
-	if(!f) return;
-
-#else /* NEW_FILE_IO */
 	f = open_file_config("quest.log","rb");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"quest.log\"\n", reg_error_str, cant_open_file);
 		return;
 	}
-#endif /* NEW_FILE_IO */
 
 	while(!feof(f)){//loads and adds to a list all the quest log messages
 		temp[0]= 0;
@@ -124,31 +104,12 @@ void add_questlog (char *t, int len)
 
 	//write on file
 	if(qlf == NULL){
-#ifndef NEW_FILE_IO
-		#ifndef WINDOWS
-			char questlog_ini[256];
-			safe_snprintf (questlog_ini, sizeof (questlog_ini), "%s/quest.log", configdir);
-			// don't use my_fopen here, not everyone uses local settings
-			// Heh? Changed local quest log to open in append mode too, instead
-			// of overwrite
-			qlf= fopen(questlog_ini,"ab");
-			if(!qlf) //use global settings
-				qlf= my_fopen("quest.log","ab");
-			else
-				fseek(qlf,SEEK_END,0);
-
-		#else
-			qlf= my_fopen("quest.log","ab");
-		#endif
-			if (qlf == NULL) return;
-#else /* NEW_FILE_IO */
 		qlf = open_file_config("quest.log", "ab");
 		if(qlf == NULL){
 			LOG_ERROR("%s: %s \"quest.log\"\n", reg_error_str, cant_open_file);
 			return;
 		}
 		fseek(qlf,SEEK_END,0);
-#endif /* NEW_FILE_IO */
 	}
 	//convert multiline msg in single line
 	for (idx = 0; idx < len && t[idx] != '\0'; idx++)

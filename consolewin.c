@@ -21,12 +21,8 @@
 #include "new_character.h"
 #include "spells.h"
 #include "text.h"
-#ifdef SFX
 #include "special_effects.h"
-#endif
-#ifdef EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif
 #ifdef NEW_LIGHTING
 #include "lights.h"
 #endif
@@ -103,19 +99,15 @@ int display_console_handler (window_info *win)
 		set_font (0);	// switch to fixed
 	}
 
-#ifdef SFX
 	if(special_effects){
 		display_special_effects(0);
 	}
-#endif //SFX
 
 	// remember the time stamp to improve FPS quality when switching modes
 	next_fps_time=cur_time+1000;
 	last_count=0;
 
-#ifdef	EYE_CANDY
 	ec_idle();
-#endif	//EYE_CANDY
 
 #ifdef NEW_LIGHTING
 	light_idle();

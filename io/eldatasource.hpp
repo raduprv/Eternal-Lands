@@ -7,7 +7,6 @@
 #ifndef	_ELDATASOURCE_HPP_
 #define	_ELDATASOURCE_HPP_
 
-#ifdef NEW_FILE_IO
 
 #include "../platform.h"
 #include <SDL/SDL_types.h>
@@ -97,6 +96,5 @@ namespace eternal_lands
 
 }
 
-#endif	// NEW_FILE_IO
 
 #endif	// _ELDATASOURCE_HPP_

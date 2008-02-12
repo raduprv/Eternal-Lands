@@ -2,13 +2,9 @@
 #include "cursors.h"
 #include "elwindows.h"
 #include <SDL_mouse.h>
-#ifdef NEW_FILE_IO
 #include "errors.h"
 #include "translate.h"
 #include "io/elfilewrapper.h"
-#else
-#include "misc.h"
-#endif
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -36,7 +32,6 @@ void load_cursors()
 	int cursors_colors_no, x, y, i;
 	Uint8 * cursors_mem_bmp;
 	Uint8 cur_color;
-#ifdef NEW_FILE_IO
 	el_file_ptr file;
 
 	file = el_open("textures/cursors.bmp");
@@ -47,24 +42,6 @@ void load_cursors()
 	}
 
 	cursors_mem_bmp = el_get_pointer(file);
-#else // NEW_FILE_IO
-	int f_size;
-	FILE *f = NULL;
-	Uint8 *handle_cursors_mem_bmp;
-
-	if((f = my_fopen ("./textures/cursors.bmp", "rb")) == NULL){
-		return;
-	}
-
-	fseek (f, 0, SEEK_END);
-	f_size = ftell (f);
-	//ok, allocate memory for it
-	cursors_mem_bmp = (Uint8 *)calloc ( f_size, sizeof(char) );
-	handle_cursors_mem_bmp=cursors_mem_bmp;
-	fseek (f, 0, SEEK_SET);
-	fread (cursors_mem_bmp, 1, f_size, f);
-	fclose (f);
-#endif //NEW_FILE_IO
 
 	cursors_mem_bmp += 18;		//x length is at offset+18
 	cursors_x_length = SDL_SwapLE32(*((int *) cursors_mem_bmp));
@@ -105,11 +82,7 @@ void load_cursors()
 				}
 
 		}
-#ifdef NEW_FILE_IO
 	el_close(file);
-#else // NEW_FILE_IO
-	free(handle_cursors_mem_bmp);
-#endif //NEW_FILE_IO
 }
 
 void cursors_cleanup(void)

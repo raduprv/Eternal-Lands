@@ -32,26 +32,15 @@ static __inline__ int check_version(const elc_file_header header, const VERSION_
 
 #define	BLOCK_SIZE	1024*1024
 
-#ifdef	NEW_FILE_IO
 int read_and_check_elc_header(el_file_ptr file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
-#else	//NEW_FILE_IO
-int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSION_NUMBER version, const char* filename)
-#endif	//NEW_FILE_IO
 {
 	elc_file_header header;
 	int size, header_offset;
-#ifndef	NEW_FILE_IO
-	int block;
-#endif	//NEW_FILE_IO
 	void* mem;
 	MD5 md5;
 	MD5_DIGEST md5_digest;
 	
-#ifdef	NEW_FILE_IO
 	size = el_read(file, sizeof(elc_file_header), &header);
-#else	//NEW_FILE_IO
-	size = fread((char*)&header, 1, sizeof(elc_file_header), file);
-#endif	//NEW_FILE_IO
 	if (size != sizeof(elc_file_header)) 
 	{
 		LOG_ERROR("File '%s' too small! %d, %d", filename, size, sizeof(elc_file_header));
@@ -95,33 +84,10 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 
 	header_offset = SDL_SwapLE32(header.header_offset);
 
-#ifdef	NEW_FILE_IO
 	MD5Open(&md5);
 	size = el_get_size(file) - header_offset;
 	mem = &((Uint8*)el_get_pointer(file))[header_offset];
 	MD5Digest(&md5, mem, size);
-#else	//NEW_FILE_IO
-	fseek(file, 0, SEEK_END);
-	size = ftell(file) - header_offset;
-	if (size <= 0)
-	{
-		LOG_ERROR("File '%s' to small!", filename);
-		return -1;
-	}
-	fseek(file, header_offset, SEEK_SET);
-
-	MD5Open(&md5);
-	mem = malloc(BLOCK_SIZE);
-	while (size > 0)
-	{
-		block = BLOCK_SIZE;
-		if (block > size) block = size;
-		fread(mem, 1, block, file);
-		MD5Digest(&md5, mem, block);
-		size -= block;
-	}
-	free(mem);
-#endif	//NEW_FILE_IO
 	MD5Close(&md5, md5_digest);
 
 	if (memcmp(header.md5, md5_digest, sizeof(MD5_DIGEST)) != 0)
@@ -130,11 +96,7 @@ int read_and_check_elc_header(FILE* file, const MAGIC_NUMBER magic, const VERSIO
 		return -1;
 	}
 
-#ifdef	NEW_FILE_IO
 	el_seek(file, SDL_SwapLE32(header.header_offset), SEEK_SET);
-#else	//NEW_FILE_IO
-	fseek(file, SDL_SwapLE32(header.header_offset), SEEK_SET);
-#endif	//NEW_FILE_IO
 
 	return 0;
 }

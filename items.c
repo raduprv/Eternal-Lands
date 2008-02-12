@@ -22,9 +22,7 @@
 #include "storage.h"
 #include "textures.h"
 #include "translate.h"
-#ifdef COUNTERS
 #include "counters.h"
-#endif
 
 item item_list[ITEM_NUM_ITEMS];
 
@@ -303,11 +301,9 @@ void get_new_inventory_item (const Uint8 *data)
 	image_id=SDL_SwapLE16(*((Uint16 *)(data)));
 	quantity=SDL_SwapLE32(*((Uint32 *)(data+2)));
 
-#ifdef COUNTERS
 	if (harvesting && (quantity >= item_list[pos].quantity) ) {	//some harvests, eg hydrogenium and wolfram, also decrease an item number. only count what goes up
 		increment_harvest_counter(item_list[pos].quantity > 0 ? quantity - item_list[pos].quantity : quantity);
 	}
-#endif
 
 	// don't touch cool down when it's already active
 	if(item_list[pos].quantity == 0 || item_list[pos].image_id != image_id){

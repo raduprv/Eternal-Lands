@@ -5,7 +5,6 @@
 extern "C" {
 #endif
 
-#ifdef	USE_SEND_VIDEO_INFO
 
 extern int video_info_sent;
 
@@ -17,7 +16,6 @@ extern int video_info_sent;
  */
 void send_video_info();
 
-#endif	// USE_SEND_VIDEO_INFO
 
 #ifdef __cplusplus
 } // extern "C"

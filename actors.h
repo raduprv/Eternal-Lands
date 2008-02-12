@@ -582,13 +582,11 @@ typedef struct
 	double z_speed;		/*!< Unused?*/
 	/*! \} */
 
-#ifdef COUNTERS
 	int async_fighting;
 	int async_x_tile_pos;
 	int async_y_tile_pos;
 	int async_z_rot;
 	int last_range_attacker_id;
-#endif
 
 #ifdef CLUSTER_INSIDES
 	short cluster;
@@ -768,9 +766,7 @@ static __inline__ float get_actor_z(actor *a)
 static __inline__ float get_actor_scale(actor *a)
 {
 	float scale = a->scale;
-#ifdef NEW_ACTOR_SCALE
 	scale *= actors_defs[a->actor_type].actor_scale;
-#endif
 	return scale;
 }
 

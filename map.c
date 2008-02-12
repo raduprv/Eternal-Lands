@@ -30,27 +30,19 @@
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
-#ifdef COUNTERS
 #include "counters.h"
-#endif
 #if defined SFX && defined EYE_CANDY
 #include "eye_candy_wrapper.h"
 #endif
-#ifdef MINIMAP
 #include "minimap.h"
-#endif
-#ifdef NEW_FILE_IO
 #include "io/elpathwrapper.h"
-#endif
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
 #ifdef SKY_FPV_CURSOR
 #include "sky.h"
 #endif
-#ifdef MINES
 #include "mines.h"
-#endif // MINES
 #ifdef NEW_LIGHTING
  #include "textures.h"
 #endif
@@ -100,9 +92,7 @@ void destroy_map()
 		{
 			if(objects_list[i])
 				{
-#ifdef  EYE_CANDY
 					ec_remove_obstruction_by_object3d(objects_list[i]);
-#endif
 
 					free(objects_list[i]);
 					objects_list[i]=NULL;//kill any refference to it
@@ -239,9 +229,7 @@ void change_map (const char *mapname)
 {
 #ifndef	MAP_EDITOR
 	remove_all_bags();
-#ifdef MINES
 	remove_all_mines();
-#endif // MINES
 #endif	//MAP_EDITOR
 
 	set_all_intersect_update_needed(main_bbox_tree);
@@ -253,9 +241,7 @@ void change_map (const char *mapname)
 	close_dialogue();	// close the dialogue window if open
 	close_storagewin(); //if storage is open, close it
 	destroy_all_particles();
-#ifdef	EYE_CANDY
 	ec_delete_all_effects();
-#endif	//EYE_CANDY
 #ifdef NEW_SOUND
 	stop_all_sounds();
 #else
@@ -279,9 +265,7 @@ void change_map (const char *mapname)
 #endif
 #ifndef NEW_SOUND
 	kill_local_sounds();
-#ifdef	OGG_VORBIS
 	playing_music=0;
-#endif // OGG_VORBIS
 #endif // !NEW_SOUND
 	get_map_playlist();
 #ifdef NEW_SOUND
@@ -315,9 +299,7 @@ void change_map (const char *mapname)
 	}
 #ifndef NEW_SOUND
 	kill_local_sounds();
-#ifdef	OGG_VORBIS
 	playing_music=0;
-#endif // OGG_VORBIS
 #endif // !NEW_SOUND
 	get_map_playlist();
 #ifdef NEW_SOUND
@@ -325,9 +307,7 @@ void change_map (const char *mapname)
 #endif // NEW_SOUND
 	have_a_map=1;
 #endif  //MAP_EDITOR2
-#ifdef  MINIMAP
 	change_minimap();
-#endif  //MINIMAP
 
 #ifdef PAWN
 	run_pawn_map_function ("change_map", "s", mapname);
@@ -349,9 +329,7 @@ int load_empty_map()
 #ifdef NEW_SOUND
 		stop_all_sounds();
 #endif // NEW_SOUND
-#ifdef COUNTERS
 		disconnect_time = SDL_GetTicks();
-#endif
 		SDLNet_Quit();
 		LOG_TO_CONSOLE(c_red3, disconnected_from_server);
 		//Fake a map to make sure we don't get any crashes.
@@ -383,15 +361,6 @@ void load_map_marks()
 		//Oops
 		return;
 	}
-#ifndef NEW_FILE_IO
-#ifndef WINDOWS
-	safe_snprintf (marks_file, sizeof (marks_file), "%s%s.txt", configdir, mapname + 1);
-#else
-	safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
-#endif
-	// don't use my_fopen here, not everyone uses map markers
-	fp = fopen(marks_file, "r");
-#else /* NEW_FILE_IO */
 	safe_snprintf (marks_file, sizeof (marks_file), "maps/%s.txt", mapname + 1);
 	fp = open_file_config(marks_file, "r");
 	if(fp == NULL){
@@ -399,7 +368,6 @@ void load_map_marks()
 		safe_snprintf (marks_file, sizeof (marks_file), "%s.txt", mapname + 1);
 		fp = open_file_config(marks_file, "r");
 	}
-#endif /* NEW_FILE_IO */
 	max_mark = 0;
 	
 	if (fp == NULL) return;
