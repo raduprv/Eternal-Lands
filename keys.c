@@ -30,6 +30,7 @@ Uint32 K_HEALTHBAR=ALT|'h';
 Uint32 K_VIEWNAMES=ALT|'n';
 Uint32 K_VIEWHP=ALT|'b';
 Uint32 K_STATS=CTRL|'a';
+Uint32 K_SESSION=CTRL|'z';
 Uint32 K_WALK=CTRL|'w';
 Uint32 K_LOOK=CTRL|'l';
 Uint32 K_USE=CTRL|'u';

@@ -1734,6 +1734,10 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_STATS);
 	}
+	else if (key == K_SESSION)
+	{
+		view_tab (&tab_stats_win, &tab_stats_collection_id, STATS_TAB_SESSION);
+	}
 	else if (key == K_OPTIONS)
 	{
 		view_window (&elconfig_win, 0);
