@@ -31,9 +31,7 @@
 #include "cluster.h"
 #endif
 #include "counters.h"
-#if defined SFX && defined EYE_CANDY
 #include "eye_candy_wrapper.h"
-#endif
 #include "minimap.h"
 #include "io/elpathwrapper.h"
 #ifdef PAWN

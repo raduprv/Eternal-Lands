@@ -589,10 +589,6 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 {
 	float x = 0.5f * x_tile + 0.25f;
 	float y = 0.5f * y_tile + 0.25f;
-#if ! defined SFX || ! defined EYE_CANDY
-	int i;
-	particle_sys *sys;
-#endif	// SFX && EYE_CANDY
 	
 	ec_delete_effect_loc_type(x, y, EC_CAMPFIRE);
 #ifdef NEW_SOUND

@@ -28,9 +28,7 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#if defined(CUSTOM_LOOK) && defined(NEW_FILE_IO)
 #include "io/elfilewrapper.h"
-#endif
 #include "actor_init.h"
 
 float sitting=1.0f;

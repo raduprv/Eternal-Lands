@@ -773,9 +773,6 @@ void load_quickspells ()
 	char data[MAX_DATA_FILE_SIZE];
 	FILE *fp;
 	Uint8 i;
-#if !defined(NEW_FILE_IO) && !defined(WINDOWS)
-	char username[20];
-#endif /* not NEW_FILE_IO or WINDOWS */
 
 	// Grum: move this over here instead of at the end of the function,
 	// so that quickspells are always saved when the player logs in. 
@@ -810,10 +807,6 @@ void save_quickspells()
 	Uint8 i;
 	char data[MAX_DATA_FILE_SIZE];
 
-#if !defined(NEW_FILE_IO) && !defined(WINDOWS)
-	char username[20];
-#endif /* not NEW_FILE_IO or WINDOWS */
-	
 	if (!quickspells_loaded)
 		return;
 	
