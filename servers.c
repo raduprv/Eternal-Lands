@@ -22,6 +22,14 @@ int cur_server = -1;
 
 char * check_server_id_on_command_line();	// From main.c
 
+const char * get_server_name(void)
+{
+	if (cur_server >= 0)
+		return servers[cur_server].id;
+	else
+		return "<unset>";
+}
+
 int find_server_from_id (const char* id)
 {
 	int i;

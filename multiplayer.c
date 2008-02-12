@@ -45,6 +45,7 @@
 #include "eye_candy_wrapper.h"
 #include "mines.h"
 #include "sendvideoinfo.h"
+#include "servers.h"
 #ifdef POPUP
 #include "popup.h"
 #endif /* POPUP */
@@ -604,6 +605,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 		case LOG_IN_OK:
 			{
+				char str[256];
 				// login and/or new character windows are no longer needed
 				if (login_root_win >= 0) destroy_window (login_root_win);
 				login_root_win = -1;
@@ -614,6 +616,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				}
 				newchar_root_win = -1;
 				show_window (game_root_win);
+
+				safe_snprintf(str,sizeof(str),"(%s on %s) %s",username_str,get_server_name(),win_principal);
+				SDL_WM_SetCaption(str, "eternallands" );
 
 #if defined NEW_SOUND && OGG_VORBIS
 				// Try to turn on the music as it isn't needed up until now

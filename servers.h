@@ -1,3 +1,6 @@
+#ifndef SERVERS_H
+#define SERVERS_H
+
 /**
  * @brief Set the server info vars
  *
@@ -19,3 +22,12 @@ const char * get_server_dir();
  * Load, parse and validate the list of server profiles from servers.lst
  */
 void load_server_list(const char *filename);
+
+/**
+ * @brief Return server profile name.
+ *
+ * Return the the name of the active server profile from servers.lst.
+ */
+const char * get_server_name(void);
+
+#endif
