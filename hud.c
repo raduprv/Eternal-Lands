@@ -1390,7 +1390,7 @@ void init_quickbar ()
 int	display_quickbar_handler(window_info *win)
 {
 	char str[80];
-	int y, i;
+	int x, y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 
 	glEnable(GL_TEXTURE_2D);
@@ -1485,10 +1485,15 @@ int	display_quickbar_handler(window_info *win)
 
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
-				glColor3f(1.0f, 1.0f, 1.0f);
-		}
+			}
 			
 			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
+			glColor3f(0.0f, 0.0f, 0.0f);//Black shadow
+			for(x=-1;x<2;x++)
+				for(y=-1;y<2;y++)
+					if(x!=0 || y!=0)
+						draw_string_small((x+x_start),y+(y_end-15),(unsigned char*)str,1);
+			glColor3f(1.0f,1.0f,1.0f);//White text
 			draw_string_small(x_start,y_end-15,(unsigned char*)str,1);
 		}
 	}
