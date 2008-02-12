@@ -205,29 +205,10 @@ void load_knowledge_list()
 
 void read_config()
 {
-#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
-	DIR *d = NULL;
-#endif // !WINDOWS && !NEW_FILE_IO
-
 	// Set our configdir
 	const char * tcfg = get_path_config();
 
 	my_strncp (configdir, tcfg , sizeof(configdir));
-
-#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
-	// Set the perms of our configdir
-	d = opendir (configdir);
-	if (d == NULL){
-		mkdir (configdir, 0700);
-	} else {
-		struct stat statbuff;
-		int fd = dirfd (d);
-		fstat (fd, &statbuff);
-		/* Set perms to 700 on configdir if they anything else */
-		if (statbuff.st_mode != S_IRWXU)
-			fchmod (fd, S_IRWXU);
-	}
-#endif // !WINDOWS && !NEW_FILE_IO
 
 	if ( !read_el_ini () )
 	{
@@ -262,9 +243,6 @@ void read_config()
 		username_box_selected = 0;
 		password_box_selected = 1;
 	}
-#if !defined(WINDOWS) && !defined(NEW_FILE_IO)
-	closedir(d);
-#endif /* not NEW_FILE_IO or WINDOWS */
 }
 
 void read_bin_cfg()

@@ -461,18 +461,10 @@ book * read_book(char * file, int type, int id)
 	book *b=NULL;
 	char path[1024];
 
-#if !defined WINDOWS && !defined NEW_FILE_IO
-	safe_snprintf(path, sizeof(path), "%s/languages/%s/%s", datadir, lang, file);
-#else
 	safe_snprintf(path, sizeof(path), "languages/%s/%s", lang, file);
-#endif // !WINDOWS
 
 	if ((doc = xmlReadFile(path, NULL, 0)) == NULL) {
-#if !defined WINDOWS && !defined NEW_FILE_IO
-		safe_snprintf(path, sizeof(path), "%s/languages/en/%s", datadir, file);
-#else
 		safe_snprintf(path, sizeof(path), "languages/en/%s", file);
-#endif // !WINDOWS
 	}
 	if(doc == NULL && ((doc = xmlReadFile(path, NULL, 0)) == NULL)) {
 		char str[200];

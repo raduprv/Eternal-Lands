@@ -1820,10 +1820,10 @@ int read_el_ini ()
 
 int write_el_ini ()
 {
-#if defined(NEW_FILE_IO) && !defined(WINDOWS)
+#if !defined(WINDOWS)
 	int fd;
 	struct stat statbuff;
-#endif // NEW_FILE_IO && !WINDOWS
+#endif // !WINDOWS
 	int nlines= 0, maxlines= 0, iline, ivar;
 	input_line *cont= NULL;
 	FILE *file;
@@ -1892,14 +1892,14 @@ int write_el_ini ()
 			write_var (file, ivar);
 		}
 	}
-#if defined(NEW_FILE_IO) && !defined(WINDOWS)
+#if !defined(WINDOWS)
 	fd = fileno (file);
 	fstat (fd, &statbuff);
 	/* Set perms to 600 on el_ini if they are anything else */
 	if (statbuff.st_mode != (S_IRUSR|S_IWUSR)){
 		fchmod (fd, S_IRUSR|S_IWUSR);
 	}
-#endif // NEW_FILE_IO && !WINDOWS
+#endif // !WINDOWS
 
 	fclose (file);
 	free (cont);
