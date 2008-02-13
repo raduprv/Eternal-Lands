@@ -333,6 +333,14 @@ void update_camera ()
 	if (fol_cam) rz=hold_camera;
 #endif /* SKY_FPV_CURSOR */
 
+#ifdef CAMERA_FPS_CHECK
+	static Uint32 last_update = 0;
+	Uint32 cur_time = SDL_GetTicks();
+
+	log_info("camera update delta: %u ms\n", cur_time - last_update);
+	last_update = cur_time;
+#endif // CAMERA_FPS_CHECK
+
 	if(camera_rotation_frames){
 		rz+=camera_rotation_speed;
 		camera_rotation_frames--;
