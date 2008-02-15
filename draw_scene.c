@@ -39,6 +39,7 @@ int first_person = 0;
 float fine_camera_rotation_speed;
 float normal_camera_rotation_speed;
 
+#ifndef NEW_CAMERA
 float camera_rotation_speed;
 int camera_rotation_frames;
 
@@ -56,6 +57,25 @@ int camera_z_frames;
 
 int camera_zoom_dir;
 int camera_zoom_frames=0;
+#else // NEW_CAMERA
+float camera_rotation_speed;
+float camera_rotation_frames;
+
+float camera_tilt_speed;
+float camera_tilt_frames;
+
+double camera_x_speed;
+float camera_x_frames;
+
+double camera_y_speed;
+float camera_y_frames;
+
+double camera_z_speed;
+float camera_z_frames;
+
+int camera_zoom_dir;
+float camera_zoom_frames=0;
+#endif
 float new_zoom_level=3.0f;
 float camera_distance = 2.5f;
 
@@ -318,6 +338,7 @@ void clamp_camera(void)
 int adjust_view;
 #endif /* SKY_FPV_CURSOR */
 
+#ifndef NEW_CAMERA
 void update_camera ()
 {
 	const float c_delta = 0.1f;
@@ -439,6 +460,124 @@ void update_camera ()
 	adjust_view = 0;
 #endif /* SKY_FPV_CURSOR */
 }
+
+#else // NEW_CAMERA
+
+void update_camera(Uint32 time_delta)
+{
+	const float c_delta = 0.1f;
+    const float f_delta = (float)time_delta/20.0;
+
+	static float old_camera_x = 0;
+	static float old_camera_y = 0;
+	static float old_camera_z = 0;
+#ifndef SKY_FPV_CURSOR
+	int adjust_view= 0;
+#else /* SKY_FPV_CURSOR */
+	float adjust;
+
+	if (fol_cam) rz=hold_camera;
+#endif /* SKY_FPV_CURSOR */
+
+	if(camera_rotation_frames > 0.0){
+		rz+=camera_rotation_speed*f_delta;
+		camera_rotation_frames-=f_delta;
+		adjust_view++;
+	}
+	if(camera_x_frames > 0.0){
+		if(camera_x_speed>0.005 || camera_x_speed<-0.005){
+			camera_x-=camera_x_speed*f_delta;
+			if(fabs(camera_x-old_camera_x) >= c_delta){
+				adjust_view++;
+			}
+		}
+		camera_x_frames-=f_delta;
+	}
+	if(camera_y_frames > 0.0){
+		if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
+			camera_y-=camera_y_speed*f_delta;
+			if(fabs(camera_y-old_camera_y) >= c_delta){
+				adjust_view++;
+			}
+		}
+		camera_y_frames-=f_delta;
+	}
+	if(camera_z_frames > 0.0){
+		if(camera_z_speed>0.0005 || camera_z_speed<-0.005){
+			camera_z-=camera_z_speed*f_delta;
+			if(fabs(camera_z-old_camera_z) >= c_delta){
+				adjust_view++;
+			}
+		}
+		camera_z_frames-=f_delta;
+	}
+
+	if(camera_tilt_frames > 0.0) {
+		rx+=camera_tilt_speed*f_delta;
+		camera_tilt_frames-=f_delta;
+	}
+	if(camera_zoom_frames > 0.0) {
+		new_zoom_level += (camera_zoom_dir==1?0.05f:-0.05f)*f_delta;
+		camera_zoom_frames-=f_delta;
+		adjust_view++;
+	}
+	clamp_camera();
+	if(adjust_view){
+		set_all_intersect_update_needed(main_bbox_tree);
+		old_camera_x= camera_x;
+		old_camera_y= camera_y;
+		old_camera_z= camera_z;
+	}
+
+#ifdef SKY_FPV_CURSOR
+	hold_camera=rz;
+	if (fol_cam){
+		if (last_kludge != camera_kludge) {
+			set_all_intersect_update_needed(main_bbox_tree);
+			adjust = (camera_kludge-last_kludge);
+
+			//without this the camera will zip the wrong way when camera_kludge
+			//flips from 180 <-> -180
+			if      (adjust >=  180) adjust -= 360.0;
+			else if (adjust <= -180) adjust += 360.0;
+
+			if (fabs(adjust) < fol_strn){
+				last_kludge=camera_kludge;
+			} else {
+				last_kludge += fol_strn*(
+					adjust*(fol_quad*fol_strn + fol_lin)+
+					fol_con*(adjust>0?1:-1))/
+					(fol_quad+fol_lin+fol_con+.000001f);//cheap no/0
+			}
+		}
+		rz-=last_kludge;
+	}
+
+	//Make Character Turn with Camera
+	if (have_mouse && !on_the_move (get_our_actor ()))
+	{
+		adjust = (rz+180);
+		//without this the character will turn the wrong way when camera_kludge
+		//and character are in certain positions
+		if      (adjust >=  180) adjust -= 360.0;
+		else if (adjust <= -180) adjust += 360.0;
+		adjust+=camera_kludge;
+		if      (adjust >=  180) adjust -= 360.0;
+		else if (adjust <= -180) adjust += 360.0;
+		if (adjust > 35){
+			Uint8 str[2];
+			str[0] = TURN_LEFT;
+			my_tcp_send (my_socket, str, 1);
+		} else if (adjust < -35){
+			Uint8 str[2];
+			str[0] = TURN_RIGHT;
+			my_tcp_send (my_socket, str, 1);
+		}
+	}
+	adjust_view = 0;
+#endif /* SKY_FPV_CURSOR */
+}
+#endif // NEW_CAMERA
 
 int update_have_display(window_info * win)
 {

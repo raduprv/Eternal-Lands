@@ -60,8 +60,10 @@ Uint32 my_timer(Uint32 interval, void * data)
 #endif
 	
 	e.type = SDL_USEREVENT;
+#ifndef NEW_CAMERA
 	e.user.code = EVENT_UPDATE_CAMERA;
 	SDL_PushEvent(&e);
+#endif // NEW_CAMERA
 
 #ifndef NEW_WEATHER
 	//check the thunders

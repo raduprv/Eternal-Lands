@@ -16,9 +16,17 @@ extern "C" {
 extern float camera_x, camera_y, camera_z;
 extern float rx,ry,rz;
 extern float camera_rotation_speed; /*!< current speed for rotations of the camera */
+#ifndef NEW_CAMERA
 extern int camera_rotation_frames;
+#else // NEW_CAMERA
+extern float camera_rotation_frames;
+#endif // NEW_CAMERA
 extern float camera_tilt_speed;
+#ifndef NEW_CAMERA
 extern int camera_tilt_frames;
+#else // NEW_CAMERA
+extern float camera_tilt_frames;
+#endif // NEW_CAMERA
 extern int normal_animation_timer;
 #ifdef SKY_FPV_CURSOR
 
@@ -41,7 +49,11 @@ extern float fine_camera_rotation_speed; /*!< configurable fine grained speed fo
 extern float normal_camera_rotation_speed; /*!< configurable normal speed for rotating the camera */
 extern float zoom_level; /*!< current displayed zoom level */
 extern int camera_zoom_dir; /*!< direction of where the zoomed camera points to */
+#ifndef NEW_CAMERA
 extern int camera_zoom_frames;
+#else // NEW_CAMERA
+extern float camera_zoom_frames;
+#endif // NEW_CAMERA
 extern float camera_distance; /*!< The camera is camera_distance*zoom_level (world coordinates) away from your actor. */
 extern float new_zoom_level;
 
@@ -99,7 +111,11 @@ void clamp_camera(void);
  *
  * \callgraph
  */
+#ifndef NEW_CAMERA
 void update_camera();
+#else // NEW_CAMERA
+void update_camera(Uint32 time_delta);
+#endif // NEW_CAMERA
 
 /*!
  * \ingroup misc_utils

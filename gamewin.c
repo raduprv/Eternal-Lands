@@ -926,6 +926,10 @@ int display_game_handler (window_info *win)
 	Leave2DMode ();
 	glPushMatrix ();
 
+#ifdef NEW_CAMERA
+    update_camera(cur_time-last_time);
+#endif // NEW_CAMERA
+
 	if (new_zoom_level != zoom_level)
 	{
 		if (new_zoom_level > zoom_level)

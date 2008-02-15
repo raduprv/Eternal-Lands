@@ -116,6 +116,9 @@ int display_console_handler (window_info *win)
 #ifdef MISSILES
 	missiles_update(cur_time-last_time);
 #endif // MISSILES
+#ifdef NEW_CAMERA
+    update_camera(cur_time-last_time);
+#endif // NEW_CAMERA
 
 	draw_delay = 20;
 	return 1;
