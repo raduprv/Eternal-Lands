@@ -48,6 +48,8 @@ FEATURES += USE_INLINE                      # enable some optimizations to use i
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
 #FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
+#FEATURES += ACTOR_FACE_CULLING		   # Enables actor face culling
+#FEATURES += USE_ACTORS_OPTIMIZER	   # Enables actor optimizations
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib

@@ -257,7 +257,7 @@ GLuint build_3d_noise_texture(int size, int frequency, int dimensions)
 	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_WRAP_R, GL_REPEAT);
 	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
 	glTexParameterf(GL_TEXTURE_3D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
-	glTexImage3D(GL_TEXTURE_3D, 0, texture_format, size, size, size, 0, input_format, GL_UNSIGNED_BYTE, data);
+	ELglTexImage3D(GL_TEXTURE_3D, 0, texture_format, size, size, size, 0, input_format, GL_UNSIGNED_BYTE, data);
 	glBindTexture(GL_TEXTURE_3D, 0);
 	free(data);
 

@@ -561,9 +561,11 @@ extern "C" void build_buffers(actor_types* a)
 	Uint32 face_count, vertex_count, max_index;
 	Sint32 i, j;
 	Uint32 idx, offset, count;
-	Uint32 size, tmp;
+#ifdef	USE_ACTORS_OPTIMIZER
 	MD5_DIGEST digest;
+	Uint32 size, tmp;
 	bool loaded;
+#endif	/* USE_ACTORS_OPTIMIZER */
 
 	face_count = 0;
 	vertex_count = 0;
@@ -694,6 +696,7 @@ extern "C" void build_buffers(actor_types* a)
 #endif	/* USE_BOOST */
 	convert_indices(data32, indices, a->hardware_model->getTotalFaceCount());
 
+#ifdef	USE_ACTORS_OPTIMIZER
 	loaded = false;
 
 	size = a->hardware_model->getTotalFaceCount() * 3 * sizeof(Uint32);
@@ -785,6 +788,7 @@ extern "C" void build_buffers(actor_types* a)
 #endif	/* USE_BOOST */
 		file.close();
 	}
+#endif	/* USE_ACTORS_OPTIMIZER */
 
 	if (max_index <= std::numeric_limits<Uint16>::max())
 	{
