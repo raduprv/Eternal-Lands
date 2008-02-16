@@ -637,6 +637,12 @@ void init_stuff()
 		}
 	init_video();
 
+#ifdef MAP_EDITOR2
+	SDL_WM_SetCaption( "Map Editor", "mapeditor" );
+#else
+	SDL_WM_SetCaption( win_principal, "eternallands" );
+#endif
+
 	//Init the caches here, as the loading window needs them
 	cache_system_init(MAX_CACHE_SYSTEM);
 	init_texture_cache();
