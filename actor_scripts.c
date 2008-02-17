@@ -1075,8 +1075,13 @@ void next_command()
 								rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
 								actors_list[i]->rotate_z_speed=rotation_angle/18;
 								if(auto_camera && actors_list[i]->actor_id==yourself){
+#ifndef NEW_CAMERA
 									camera_rotation_speed=rotation_angle/54;
 									camera_rotation_frames=54;
+#else // NEW_CAMERA
+									camera_rotation_speed=rotation_angle/1000.0;
+									camera_rotation_duration=1000;
+#endif // NEW_CAMERA
 								}
 
 								actors_list[i]->rotate_frames_left=18;

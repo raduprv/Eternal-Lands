@@ -254,6 +254,10 @@ int display_newchar_handler (window_info *win)
 	Leave2DMode ();
 	glPushMatrix ();
 
+#ifdef NEW_CAMERA
+    update_camera(cur_time-last_time);
+#endif // NEW_CAMERA
+
 	if (new_zoom_level != zoom_level) {
 		zoom_level = new_zoom_level;
 		resize_root_window ();
@@ -361,18 +365,30 @@ int click_newchar_handler (window_info *win, int mx, int my, Uint32 flags)
 {
 	if (flags & ELW_WHEEL_UP) {
 		if (camera_zoom_dir == -1)
+#ifndef NEW_CAMERA
 			camera_zoom_frames += 5;
 		else
 			camera_zoom_frames = 5;
+#else // NEW_CAMERA
+			camera_zoom_duration += 100;
+		else
+			camera_zoom_duration = 100;
+#endif // NEW_CAMERA
 		camera_zoom_dir = -1;
 		return 1;
 	}
 
 	if (flags & ELW_WHEEL_DOWN) {
 		if (camera_zoom_dir == 1)
+#ifndef NEW_CAMERA
 			camera_zoom_frames += 5;
 		else
 			camera_zoom_frames = 5;
+#else // NEW_CAMERA
+			camera_zoom_duration += 100;
+		else
+			camera_zoom_duration = 100;
+#endif // NEW_CAMERA
 		camera_zoom_dir = 1;
 		return 1;
 	}
@@ -408,16 +424,36 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		view_tab(&tab_help_win, &tab_help_collection_id, HELP_TAB_RULES);
 	} else if (key == K_ROTATELEFT) {
 		camera_rotation_speed = normal_camera_rotation_speed / 40;
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 40;
+#else // NEW_CAMERA
+		camera_rotation_duration = 40;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	} else if (key == K_FROTATELEFT) {
 		camera_rotation_speed = fine_camera_rotation_speed / 10;
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 10;
+#else // NEW_CAMERA
+		camera_rotation_duration = 10;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	} else if (key == K_ROTATERIGHT) {
 		camera_rotation_speed = -normal_camera_rotation_speed / 40;
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 40;
+#else // NEW_CAMERA
+		camera_rotation_duration = 40;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	} else if (key == K_FROTATERIGHT) {
 		camera_rotation_speed = -fine_camera_rotation_speed / 10;
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 10;
+#else // NEW_CAMERA
+		camera_rotation_duration = 10;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	} else if(key==K_TURNLEFT){
 		if(last_time+666<cur_time){
 			add_command_to_actor(0, turn_left);

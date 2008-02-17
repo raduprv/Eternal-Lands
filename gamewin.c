@@ -453,9 +453,15 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (flags & ELW_WHEEL_UP)
 	{
 		if (camera_zoom_dir == -1)
+#ifndef NEW_CAMERA
 			camera_zoom_frames += 5;
 		else
 			camera_zoom_frames = 5;
+#else // NEW_CAMERA
+			camera_zoom_duration += 100;
+		else
+			camera_zoom_duration = 100;
+#endif // NEW_CAMERA
 		camera_zoom_dir = -1;
 		return 1;
 	}
@@ -463,9 +469,15 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	if (flags & ELW_WHEEL_DOWN)
 	{
 		if (camera_zoom_dir == 1)
+#ifndef NEW_CAMERA
 			camera_zoom_frames += 5;
 		else
 			camera_zoom_frames = 5;
+#else // NEW_CAMERA
+			camera_zoom_duration += 100;
+		else
+			camera_zoom_duration = 100;
+#endif // NEW_CAMERA
 		camera_zoom_dir = 1;
 		return 1;
 	}
@@ -1773,7 +1785,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #else /* SKY_FPV_CURSOR */
 		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 40;
 #endif /* SKY_FPV_CURSOR */
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 40;
+#else // NEW_CAMERA
+		camera_rotation_duration = 800;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	}
 	else if (key == K_FROTATELEFT)
 	{
@@ -1782,7 +1799,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #else /* SKY_FPV_CURSOR */
 		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 10;
 #endif /* SKY_FPV_CURSOR */
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 10;
+#else // NEW_CAMERA
+		camera_rotation_duration = 200;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	}
 	else if (key == K_ROTATERIGHT)
 	{
@@ -1791,7 +1813,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #else /* SKY_FPV_CURSOR */
 		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 40;
 #endif /* SKY_FPV_CURSOR */
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 40;
+#else // NEW_CAMERA
+		camera_rotation_duration = 800;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	}
 	else if (key == K_FROTATERIGHT)
 	{
@@ -1800,7 +1827,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #else /* SKY_FPV_CURSOR */
 		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 10;
 #endif /* SKY_FPV_CURSOR */
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 10;
+#else // NEW_CAMERA
+		camera_rotation_duration = 200;
+		camera_rotation_speed /= 20.0;
+#endif // NEW_CAMERA
 	}
 	else if (key == K_AFK)
 	{

@@ -19,13 +19,13 @@ extern float camera_rotation_speed; /*!< current speed for rotations of the came
 #ifndef NEW_CAMERA
 extern int camera_rotation_frames;
 #else // NEW_CAMERA
-extern float camera_rotation_frames;
+extern int camera_rotation_duration;
 #endif // NEW_CAMERA
 extern float camera_tilt_speed;
 #ifndef NEW_CAMERA
 extern int camera_tilt_frames;
 #else // NEW_CAMERA
-extern float camera_tilt_frames;
+extern int camera_tilt_duration;
 #endif // NEW_CAMERA
 extern int normal_animation_timer;
 #ifdef SKY_FPV_CURSOR
@@ -52,7 +52,7 @@ extern int camera_zoom_dir; /*!< direction of where the zoomed camera points to 
 #ifndef NEW_CAMERA
 extern int camera_zoom_frames;
 #else // NEW_CAMERA
-extern float camera_zoom_frames;
+extern int camera_zoom_duration;
 #endif // NEW_CAMERA
 extern float camera_distance; /*!< The camera is camera_distance*zoom_level (world coordinates) away from your actor. */
 extern float new_zoom_level;

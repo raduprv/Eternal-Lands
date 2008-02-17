@@ -59,22 +59,22 @@ int camera_zoom_dir;
 int camera_zoom_frames=0;
 #else // NEW_CAMERA
 float camera_rotation_speed;
-float camera_rotation_frames;
+int camera_rotation_duration;
 
 float camera_tilt_speed;
-float camera_tilt_frames;
+int camera_tilt_duration;
 
 double camera_x_speed;
-float camera_x_frames;
+int camera_x_duration;
 
 double camera_y_speed;
-float camera_y_frames;
+int camera_y_duration;
 
 double camera_z_speed;
-float camera_z_frames;
+int camera_z_duration;
 
 int camera_zoom_dir;
-float camera_zoom_frames=0;
+int camera_zoom_duration=0;
 #endif
 float new_zoom_level=3.0f;
 float camera_distance = 2.5f;
@@ -234,20 +234,35 @@ void move_camera ()
 		camera_x = -x;
 		camera_y = -y;
 		camera_z = -z;
+#ifndef NEW_CAMERA
 		camera_x_frames=0;
 		camera_y_frames=0;
 		camera_z_frames=0;
+#else // NEW_CAMERA
+		camera_x_duration=0;
+		camera_y_duration=0;
+		camera_z_duration=0;
+#endif // NEW_CAMERA
 		lagged=0;
 		set_all_intersect_update_needed(main_bbox_tree);
 	} else {
 		//move near the actor, but smoothly
 #ifndef SKY_FPV_CURSOR
+#ifndef NEW_CAMERA
 		camera_x_speed=(x-(-camera_x))/16.0;
 		camera_x_frames=16;
 		camera_y_speed=(y-(-camera_y))/16.0;
 		camera_y_frames=16;
 		camera_z_speed=(z-(-camera_z))/16.0;
 		camera_z_frames=16;
+#else // NEW_CAMERA
+		camera_x_speed=(x+camera_x)/300.0;
+		camera_x_duration=300;
+		camera_y_speed=(y+camera_y)/300.0;
+		camera_y_duration=300;
+		camera_z_speed=(z+camera_z)/300.0;
+		camera_z_duration=300;
+#endif // NEW_CAMERA
 	}
 
 	glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
@@ -304,6 +319,7 @@ void clamp_camera(void)
 		}
 	} else {
 #endif /* SKY_FPV_CURSOR */
+#ifndef NEW_CAMERA
 		if(rx < -60){
 			rx = -60;
 			camera_tilt_frames=0;
@@ -311,11 +327,25 @@ void clamp_camera(void)
 			rx = -44;
 			camera_tilt_frames=0;
 		}
+#else // NEW_CAMERA
+		if(rx < -60){
+			rx = -60;
+			camera_tilt_duration=0;
+		} else if(rx > -30){
+			rx = -30;
+			camera_tilt_duration=0;
+		}
+#endif // NEW_CAMERA
 #ifdef SKY_FPV_CURSOR
 	}
 	if (have_mouse){
+#ifndef NEW_CAMERA
 		camera_rotation_frames = 0;
 		camera_tilt_frames=0;
+#else // NEW_CAMERA
+		camera_rotation_duration = 0;
+		camera_tilt_duration=0;
+#endif // NEW_CAMERA
 	}
 #endif /* SKY_FPV_CURSOR */
 	if(rz > 360) {
@@ -323,6 +353,7 @@ void clamp_camera(void)
 	} else if (rz < 0) {
 		rz += 360;
 	}
+#ifndef NEW_CAMERA
 	if(new_zoom_level > 4.0f){
 		new_zoom_level = 4.0f;
 		camera_zoom_frames = 0;
@@ -330,6 +361,15 @@ void clamp_camera(void)
 		new_zoom_level = 1.0f;
 		camera_zoom_frames = 0;
 	}
+#else // NEW_CAMERA
+	if(new_zoom_level > 4.0f){
+		new_zoom_level = 4.0f;
+		camera_zoom_duration = 0;
+	} else if(new_zoom_level < 1.0f) {
+		new_zoom_level = 1.0f;
+		camera_zoom_duration = 0;
+	}
+#endif // NEW_CAMERA
 }
 
 
@@ -466,7 +506,6 @@ void update_camera ()
 void update_camera(Uint32 time_delta)
 {
 	const float c_delta = 0.1f;
-    const float f_delta = (float)time_delta/20.0;
 
 	static float old_camera_x = 0;
 	static float old_camera_y = 0;
@@ -479,46 +518,46 @@ void update_camera(Uint32 time_delta)
 	if (fol_cam) rz=hold_camera;
 #endif /* SKY_FPV_CURSOR */
 
-	if(camera_rotation_frames > 0.0){
-		rz+=camera_rotation_speed*f_delta;
-		camera_rotation_frames-=f_delta;
+	if(camera_rotation_duration > 0){
+		rz+=camera_rotation_speed*time_delta;
+		camera_rotation_duration-=time_delta;
 		adjust_view++;
 	}
-	if(camera_x_frames > 0.0){
-		if(camera_x_speed>0.005 || camera_x_speed<-0.005){
-			camera_x-=camera_x_speed*f_delta;
+	if(camera_x_duration > 0){
+		if(camera_x_speed>1E-4 || camera_x_speed<-1E-4){
+			camera_x-=camera_x_speed*time_delta;
 			if(fabs(camera_x-old_camera_x) >= c_delta){
 				adjust_view++;
 			}
 		}
-		camera_x_frames-=f_delta;
+		camera_x_duration-=time_delta;
 	}
-	if(camera_y_frames > 0.0){
-		if(camera_y_speed>0.0005 || camera_y_speed<-0.005){
-			camera_y-=camera_y_speed*f_delta;
+	if(camera_y_duration > 0){
+		if(camera_y_speed>1E-4 || camera_y_speed<-1E-4){
+			camera_y-=camera_y_speed*time_delta;
 			if(fabs(camera_y-old_camera_y) >= c_delta){
 				adjust_view++;
 			}
 		}
-		camera_y_frames-=f_delta;
+		camera_y_duration-=time_delta;
 	}
-	if(camera_z_frames > 0.0){
-		if(camera_z_speed>0.0005 || camera_z_speed<-0.005){
-			camera_z-=camera_z_speed*f_delta;
+	if(camera_z_duration > 0){
+		if(camera_z_speed>1E-4 || camera_z_speed<-1E-4){
+			camera_z-=camera_z_speed*time_delta;
 			if(fabs(camera_z-old_camera_z) >= c_delta){
 				adjust_view++;
 			}
 		}
-		camera_z_frames-=f_delta;
+		camera_z_duration-=time_delta;
 	}
 
-	if(camera_tilt_frames > 0.0) {
-		rx+=camera_tilt_speed*f_delta;
-		camera_tilt_frames-=f_delta;
+	if(camera_tilt_duration > 0) {
+		rx+=camera_tilt_speed*time_delta;
+		camera_tilt_duration-=time_delta;
 	}
-	if(camera_zoom_frames > 0.0) {
-		new_zoom_level += (camera_zoom_dir==1?0.05f:-0.05f)*f_delta;
-		camera_zoom_frames-=f_delta;
+	if(camera_zoom_duration > 0) {
+		new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*time_delta;
+		camera_zoom_duration-=time_delta;
 		adjust_view++;
 	}
 	clamp_camera();

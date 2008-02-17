@@ -228,10 +228,17 @@ int HandleEvent (SDL_Event *event)
 			if (( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )||(have_mouse))
 #endif /* SKY_FPV_CURSOR */
 			{
+#ifndef NEW_CAMERA
 				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;
 				camera_rotation_frames = 40;
 				camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 220;
 				camera_tilt_frames = 40;
+#else // NEW_CAMERA
+				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 4000.0;
+				camera_rotation_duration = 800;
+				camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 4000.0;
+				camera_tilt_duration = 800;
+#endif // NEW_CAMERA
 			}
 
 			if (shift_on) flags |= ELW_SHIFT;
