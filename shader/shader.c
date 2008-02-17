@@ -19,14 +19,14 @@ typedef struct
 } shader_data;
 
 shader_data shader_data_list[] = {
-	{ NULL, NULL, "./shader/water_fs.glsl", " " },
-	{ NULL, NULL, "./shader/water_fs.glsl", "#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", " " },
-	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", "#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shader/water_fs.glsl", "#define\tUSE_NOISE\n" },
-	{ NULL, NULL, "./shader/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n" },
-	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" }
+	{ NULL, NULL, "./shaders/water_fs.glsl", " " },
+	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", " " },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n" },
+	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" }
 };
 
 #define	shader_data_size (sizeof(shader_data_list) / sizeof(shader_data))
