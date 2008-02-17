@@ -1,0 +1,72 @@
+<missiles>
+  <missile type="arrow regular" id="0">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.75</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>none</effect>
+  </missile>
+  <missile type="arrow magic" id="1">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.75</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>magic</effect>
+  </missile>
+  <missile type="arrow fire" id="2">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.75</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>fire</effect>
+  </missile>
+  <missile type="arrow ice" id="3">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.75</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>ice</effect>
+  </missile>
+  <missile type="arrow explosive" id="4">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.75</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>explosive</effect>
+  </missile>
+  <missile type="bolt regular" id="5">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.4</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>none</effect>
+  </missile>
+  <missile type="bolt magic" id="6">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.4</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>magic</effect>
+  </missile>
+  <missile type="bolt fire" id="7">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.4</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>fire</effect>
+  </missile>
+  <missile type="bolt ice" id="8">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.4</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>ice</effect>
+  </missile>
+  <missile type="bolt explosive" id="9">
+    <mesh>./3dobjects/misc_objects/arrow2.e3d</mesh>
+    <mesh_length>0.4</mesh_length>
+    <trace_length>7.0</trace_length>
+    <speed>50.0</speed>
+    <effect>explosive</effect>
+  </missile>
+</missiles>

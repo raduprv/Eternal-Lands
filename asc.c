@@ -547,6 +547,11 @@ int get_bool_value (xmlNode *node) {
 	return (xmlStrcasecmp (tval, (Uint8 *)"yes") == 0 || xmlStrcasecmp (tval, (Uint8 *)"true") == 0 || xmlStrcasecmp (tval, (Uint8 *)"1") == 0);
 }
 
+int get_int_value (xmlNode *node) {
+	if (node->children == NULL) return 0;
+	return atoi ((char*)node->children->content);
+}
+
 double get_float_value (xmlNode *node) {
 	if (node->children == NULL) return 0.0;
 	return atof ((char*)node->children->content);

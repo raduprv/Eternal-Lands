@@ -343,6 +343,7 @@ int find_description_index (const dict_elem dict[], const char *elem, const char
 void get_string_value (char *buf, size_t maxlen, xmlNode *node);
 void get_item_string_value (char *buf, size_t maxlen, xmlNode *node, const unsigned char *name);
 int get_bool_value (xmlNode *node);
+int get_int_value (xmlNode *node);
 double get_float_value (xmlNode *node);
 int get_int_property (xmlNode *node, const char *prop);
 char *get_string_property (xmlNode *node, const char *prop);

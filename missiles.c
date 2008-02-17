@@ -7,6 +7,7 @@
 #include "cal3d_wrapper.h"
 #include "e3d.h"
 #include "errors.h"
+#include "eye_candy_wrapper.h"
 #include "gl_init.h"
 #include "init.h"
 #include "missiles.h"
@@ -19,7 +20,6 @@
 #include <stdio.h>
 #include <time.h>
 
-#define MAX_MISSILES 1024
 #define MAX_LOST_MISSILES 512
 #define LOST_MISSILE_MAX_LIFE 120000
 #define EPSILON 1E-4
@@ -27,12 +27,7 @@
 typedef struct {
 	int obj_3d_id;
 	Uint32 end_time;
-} LostMissile;
-
-float arrow_length = 0.75;
-float bolt_length = 0.4;
-float arrow_trace_length = 7.0;
-float arrow_speed = 50.0;
+} lost_missile;
 
 const float arrow_color[4] = {0.8, 0.8, 0.8, 1.0};
 const float arrow_border_color[4] = {0.8, 0.8, 0.8, 0.5};
@@ -41,10 +36,11 @@ const float critical_color[4] = {0.6, 0.9, 1.0, 1.0};
 const float critical_border1_color[4] = {0.3, 0.7, 1.0, 0.6};
 const float critical_border2_color[4] = {0.0, 0.5, 1.0, 0.4};
 
-Missile missiles_list[MAX_MISSILES];
-LostMissile lost_missiles_list[MAX_LOST_MISSILES];
+missile missiles_list[MAX_MISSILES];
+missile_type missiles_defs[MAX_MISSILES_DEFS];
+lost_missile lost_missiles_list[MAX_LOST_MISSILES];
 
-unsigned int missiles_count = 0;
+int missiles_count = 0;
 int begin_lost_missiles = -1;
 int end_lost_missiles = -1;
 
@@ -107,15 +103,14 @@ void missiles_clear()
 	begin_lost_missiles = end_lost_missiles = -1;
 }
 
-unsigned int missiles_add(int type,
-						  float origin[3],
-						  float target[3],
-						  float speed,
-						  float trace_length,
-						  float shift,
-						  MissileShotType shot_type)
+int missiles_add(int type,
+				 float origin[3],
+				 float target[3],
+				 float shift,
+				 MissileShotType shot_type)
 {
-	Missile *mis;
+	missile *mis;
+	missile_type *mis_type = &missiles_defs[type];
 	float direction[3];
 	float dist;
 	
@@ -154,12 +149,15 @@ unsigned int missiles_add(int type,
 	mis->direction[0] /= mis->remaining_distance;
 	mis->direction[1] /= mis->remaining_distance;
 	mis->direction[2] /= mis->remaining_distance;
-	mis->speed = speed;
-	mis->trace_length = trace_length;
+	mis->speed = mis_type->speed;
+	mis->trace_length = mis_type->trace_length;
 	mis->covered_distance = 0;
 	mis->remaining_distance += shift;
 	
-	return missiles_count;
+	if (use_eye_candy && shot_type != MISSED_SHOT)
+		ec_create_missile_effect(missiles_count-1, (poor_man ? 6 : 10));
+
+	return missiles_count-1;
 }
 
 void missiles_add_lost(int obj_id)
@@ -178,16 +176,15 @@ void missiles_add_lost(int obj_id)
 	lost_missiles_list[end_lost_missiles].end_time = cur_time + LOST_MISSILE_MAX_LIFE;
 }
 
-void missiles_remove(unsigned int missile_id)
+void missiles_remove(int missile_id)
 {
-	Missile *mis;
+	missile *mis = get_missile_ptr_from_id(missile_id);
 
-	if (missile_id >= missiles_count) {
-		log_error("missiles_remove: missile id %u is out of range!", missile_id);
+	if (!mis) {
+		log_error("missiles_remove: missile id %i is out of range!", missile_id);
 		return;
 	}
 
-	mis = &missiles_list[missile_id];
     /* if the shot is missed and if it has travel a distance which is under
      * the distance used on server side (20.0), we display a stuck arrow
      * where the shot has ended */
@@ -203,35 +200,31 @@ void missiles_remove(unsigned int missile_id)
 		mis->position[2] -= mis->direction[2] * dist;
 		missiles_log_message("adding a lost missile at (%f,%f,%f)",
 							 mis->position[0], mis->position[1], mis->position[2]);
-		switch(mis->type) {
-		case QUIVER_ARROWS:
-		case QUIVER_BOLTS:
-			obj_3d_id = add_e3d("./3dobjects/misc_objects/arrow2.e3d",
-								mis->position[0], mis->position[1], mis->position[2],
-								x_rot, y_rot, z_rot, 0, 0, 1.0, 1.0, 1.0, 1);
-			break;
-		default:
-			break;
-		}
+		obj_3d_id = add_e3d(missiles_defs[mis->type].lost_mesh,
+							mis->position[0], mis->position[1], mis->position[2],
+							x_rot, y_rot, z_rot, 0, 0, 1.0, 1.0, 1.0, 1);
 		if (obj_3d_id >= 0)
 			missiles_add_lost(obj_3d_id);
 	}
 	
+	ec_remove_missile(missile_id);
+
 	--missiles_count;
 	if (missile_id < missiles_count) {
 		memcpy(&missiles_list[missile_id],
 			   &missiles_list[missiles_count],
-			   sizeof(Missile));
+			   sizeof(missile));
+		ec_rename_missile(missiles_count, missile_id);
 	}
 }
 
 void missiles_update(Uint32 time_diff)
 {
-	unsigned int i;
+	int i;
 	float shift_t = time_diff / 1000.0;
 	
 	for (i = 0; i < missiles_count; ) {
-		Missile *mis = &missiles_list[i];
+		missile *mis = &missiles_list[i];
 		float dist = mis->speed * shift_t;
 		mis->position[0] += mis->direction[0] * dist;
 		mis->position[1] += mis->direction[1] * dist;
@@ -254,7 +247,7 @@ void missiles_update(Uint32 time_diff)
 	}
 }
 
-void missiles_draw_single(Missile *mis, const float color[4])
+void missiles_draw_single(missile *mis, const float color[4])
 {
 	float z_shift = 0.0;
 
@@ -289,7 +282,7 @@ void missiles_draw_single(Missile *mis, const float color[4])
 
 void missiles_draw()
 {
-	unsigned int i;
+	int i;
 
 	glPushAttrib(GL_ALL_ATTRIB_BITS);
 	glEnable(GL_BLEND);
@@ -419,32 +412,29 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	return actor_rotation;
 }
 
-unsigned int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot_type)
+int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot_type)
 {
-	unsigned int mis_id;
+	int mis_id;
 	float origin[3];
 	float shift[3] = {0.0, get_actor_scale(a), 0.0};
+	missile_type *mis_type;
+	int mis_type_id;
+	
+	mis_type_id = actors_defs[a->actor_type].shield[a->cur_shield].missile_type;
 
-	switch(a->cur_shield)
-	{
-	case QUIVER_ARROWS:
-		shift[1] *= arrow_length;
-		break;
-
-	case QUIVER_BOLTS:
-		shift[1] *= bolt_length;
-		break;
-
-	default:
-		shift[1] = 0.0;
-		log_error("fire_arrow: unable to guess the type of the actor's quiver (%d), the position of the arrow might be wrong!", a->cur_shield);
-		break;
+	if (mis_type_id < 0 || mis_type_id >= MAX_MISSILES_DEFS) {
+		log_error("missiles_fire_arrow: %d is not a valid missile type for shield %d of actor type %d\n", mis_type_id, a->cur_shield, a->actor_type);
+		mis_type_id = 0;
 	}
+
+	mis_type = &missiles_defs[mis_type_id];
+
+	shift[1] *= mis_type->length;
 
 	cal_get_actor_bone_absolute_position(a, get_actor_bone_id(a, arrow_bone), shift, origin);
 	
 /* 	if (shot_type != MISSED_SHOT) */
-		mis_id = missiles_add(a->cur_shield, origin, target, arrow_speed, arrow_trace_length, 0.0, shot_type);
+		mis_id = missiles_add(mis_type_id, origin, target, 0.0, shot_type);
 /* 	else */
 /* 		mis_id = missiles_add(a->cur_shield, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, shot_type); */
 	
@@ -687,7 +677,7 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 void missiles_fire_xyz_to_b(float *origin, int actor_id)
 {
 	actor * act;
-	unsigned int mis_id;
+	int mis_id;
 	float target[3];
 
 	missiles_log_message("missile was fired from %f,%f,%f to actor %d", origin[0], origin[1], origin[2], actor_id);
@@ -707,7 +697,131 @@ void missiles_fire_xyz_to_b(float *origin, int actor_id)
 	UNLOCK_ACTORS_LISTS();
 
 	// here, there's no way to know if the target is missed or not as we don't know the actor who fired!
-	mis_id = missiles_add(-1, origin, target, arrow_speed, arrow_trace_length, 0.0, 0);
+	mis_id = missiles_add(0, origin, target, 0.0, 0);
+}
+
+int missiles_parse_nodes(xmlNode *node)
+{
+	int mis_idx;
+	missile_type *mis;
+	xmlNode	*item;
+	int	ok = 1;
+
+	if(node == NULL || node->children == NULL) return 0;
+
+	mis_idx = get_int_property(node, "id");
+
+	if (mis_idx < 0 || mis_idx >= MAX_MISSILES_DEFS) {
+		log_error("missiles_parse_node: no ID found for node %s or ID out of range: id=%d\n", get_string_property(node, "type"), mis_idx);
+		return 0;
+	}
+
+	mis = &missiles_defs[mis_idx];
+
+	for(item=node->children; item; item=item->next) {
+		if(item->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
+				get_string_value(mis->lost_mesh, sizeof(mis->lost_mesh), item);
+			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"mesh_length") == 0) {
+				mis->length = get_float_value(item);
+			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"trace_length") == 0) {
+				mis->trace_length = get_float_value(item);
+			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"speed") == 0) {
+				mis->speed = get_float_value(item);
+			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"effect") == 0) {
+				char effect_name[64];
+				get_string_value(effect_name, sizeof(effect_name), item);
+				if (!strcasecmp(effect_name, "none")) {
+					mis->effect = REGULAR_MISSILE;
+				}
+				else if (!strcasecmp(effect_name, "magic")) {
+					mis->effect = MAGIC_MISSILE;
+				}
+				else if (!strcasecmp(effect_name, "fire")) {
+					mis->effect = FIRE_MISSILE;
+				}
+				else if (!strcasecmp(effect_name, "ice")) {
+					mis->effect = ICE_MISSILE;
+				}
+				else if (!strcasecmp(effect_name, "explosive")) {
+					mis->effect = EXPLOSIVE_MISSILE;
+				}
+				else {
+					mis->effect = REGULAR_MISSILE;
+					log_error("missiles_parse_node: \"%s\" is an unknown effect", effect_name);
+				}
+			}
+			else {
+				log_error("missiles_parse_node: unknown attribute \"%s\"", item->name);
+				ok = 0;
+			}
+		}
+		else if (item->type == XML_ENTITY_REF_NODE) {
+			ok &= missiles_parse_nodes(item->children);
+		}
+	}
+
+	return ok;
+}
+
+int missiles_parse_defs(xmlNode *node)
+{
+	xmlNode *def;
+	int ok = 1;
+
+	for (def = node->children; def; def = def->next) {
+		if (def->type == XML_ELEMENT_NODE)
+			if (xmlStrcasecmp(def->name, (xmlChar*)"missile") == 0) {
+				ok &= missiles_parse_nodes(def);
+			} else {
+				LOG_ERROR("parse error: missile or include expected");
+				ok = 0;
+			}
+		else if (def->type == XML_ENTITY_REF_NODE) {
+			ok &= missiles_parse_defs(def->children);
+		}
+	}
+
+	return ok;
+}
+
+int missiles_read_defs(const char *file_name)
+{
+	xmlNode *root;
+	xmlDoc *doc;
+	int ok = 1;
+
+	doc = xmlReadFile(file_name, NULL, 0);
+	if (doc == NULL) {
+		LOG_ERROR("Unable to read missiles definition file %s", file_name);
+		return 0;
+	}
+
+	root = xmlDocGetRootElement(doc);
+	if (root == NULL) {
+		LOG_ERROR("Unable to parse missiles definition file %s", file_name);
+		ok = 0;
+	} else if (xmlStrcasecmp(root->name, (xmlChar*)"missiles") != 0) {
+		LOG_ERROR("Unknown key \"%s\" (\"missiles\" expected).", root->name);
+		ok = 0;
+	} else {
+		ok = missiles_parse_defs(root);
+	}
+
+	xmlFreeDoc(doc);
+	return ok;
+}
+
+void missiles_init_defs()
+{
+	// initialize the whole thing to zero
+	memset(missiles_defs, 0, sizeof(missiles_defs));
+
+	missiles_read_defs("actor_defs/missile_defs.xml");
 }
 
 #endif // MISSILES

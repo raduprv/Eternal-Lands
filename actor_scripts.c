@@ -2291,11 +2291,61 @@ int parse_actor_head (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	return parse_actor_body_part(act, head, cfg->children, "head", default_node);
 }
 
+int parse_actor_shield_part (actor_types *act, shield_part *part, xmlNode *cfg, xmlNode *default_node)
+{
+	xmlNode *item;
+	int ok = 1;
+
+	if(cfg == NULL) return 0;
+
+	for(item=cfg; item; item=item->next) {
+		if(item->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp(item->name, (xmlChar*)"mesh") == 0) {
+				get_string_value (part->model_name, sizeof (part->model_name), item);
+				part->mesh_index = cal_load_weapon_mesh (act, part->model_name, "shield");
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skin") == 0) {
+				get_string_value (part->skin_name, sizeof (part->skin_name), item);
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"skinmask") == 0) {
+				get_string_value (part->skin_mask, sizeof (part->skin_mask), item);
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"glow") == 0) {
+				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
+				if(mode < 0) mode = GLOW_NONE;
+				part->glow= mode;
+#ifdef MISSILES
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"missile") == 0) {
+				part->missile_type = get_int_value(item);
+#endif // MISSILES
+			} else {
+				LOG_ERROR("unknown shield property \"%s\"", item->name);
+				ok = 0;
+			}
+		}
+	}
+
+	// check for default entries, if found, use them to fill in missing data
+	if(default_node){
+		if(part->model_name==NULL || *part->model_name=='\0'){
+			get_item_string_value(part->model_name, sizeof(part->model_name), default_node, (xmlChar*)"mesh");
+			part->mesh_index= cal_load_weapon_mesh(act, part->model_name, "shield");
+		}
+	}
+
+	// check the critical information
+	actor_check_string(act, "shield", "model", part->model_name);
+	actor_check_int(act, "shield", "mesh", part->mesh_index);
+
+#if NEW_LIGHTING
+	set_part_metadata(part);
+#endif
+
+	return ok;
+}
+
 int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 {
 	xmlNode *default_node= get_default_node(cfg, defaults);
 	int type_idx;
-	body_part *shield;
+	shield_part *shield;
 
 	if(cfg == NULL || cfg->children == NULL) return 0;
 
@@ -2310,8 +2360,13 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	if (act->shield == NULL) {
 		int i;
-		act->shield = (body_part*)calloc(ACTOR_SHIELD_SIZE, sizeof(body_part));
-		for (i = ACTOR_SHIELD_SIZE; i--;) act->shield[i].mesh_index= -1;
+		act->shield = (shield_part*)calloc(ACTOR_SHIELD_SIZE, sizeof(shield_part));
+		for (i = ACTOR_SHIELD_SIZE; i--;) {
+			act->shield[i].mesh_index = -1;
+#ifdef MISSILES
+			act->shield[i].missile_type = -1;
+#endif // MISSILES
+		}
 	}
 
 	shield= &(act->shield[type_idx]);
@@ -2320,7 +2375,7 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 	set_part_metadata(shield);
 #endif
 
-	return parse_actor_body_part(act,shield, cfg->children, "shield", default_node);
+	return parse_actor_shield_part(act, shield, cfg->children, default_node);
 }
 
 int parse_actor_hair (actor_types *act, xmlNode *cfg, xmlNode *defaults)

@@ -14,6 +14,9 @@
 #include "skeletons.h"
 #include "client_serv.h"	// For mine_type defines
 #include "tiles.h"
+#ifdef MISSILES
+#include "missiles.h"
+#endif // MISSILES
 
 // G L O B A L S //////////////////////////////////////////////////////////////
 
@@ -352,6 +355,19 @@ extern "C" void ec_idle()
         (*iter)->position.y = 0.0;
 #endif
       }
+
+#ifdef MISSILES
+	  if ((*iter)->effect->get_type() == ec::EC_MISSILE)
+	  {
+		  missile *mis = get_missile_ptr_from_id((*iter)->missile_id);
+		  if (mis &&
+			  mis->remaining_distance >= 0.0) {
+			  (*iter)->position.x = mis->position[0];
+			  (*iter)->position.y = mis->position[2];
+			  (*iter)->position.z = -mis->position[1];
+		  }
+	  }
+#endif // MISSILES
     }
     i++;
   }
@@ -845,6 +861,46 @@ extern "C" void ec_remove_weapon(actor* _actor)
     }
   }
 }
+
+#ifdef MISSILES
+extern "C" void ec_remove_missile(int missile_id)
+{
+  force_idle = true;
+  for (int i = 0; i < (int)references.size(); )
+  {
+    std::vector<ec_internal_reference*>::iterator iter = references.begin() + i;
+    if ((*iter)->dead)
+    {
+      delete *iter;
+      references.erase(iter);
+      continue;
+    }
+
+    i++;
+    if ((*iter)->effect->get_type() == ec::EC_MISSILE &&
+		(*iter)->missile_id == missile_id)
+    {
+      (*iter)->effect->recall = true;
+	  (*iter)->missile_id = -1;
+      continue;
+    }
+  }
+}
+
+void ec_rename_missile(int old_id, int new_id)
+{
+	std::vector<ec_internal_reference*>::iterator it;
+	for (it = references.begin(); it != references.end(); ++it)
+	{
+		if ((*it)->effect->get_type() == ec::EC_MISSILE &&
+			(*it)->missile_id == old_id)
+		{
+			(*it)->missile_id = new_id;
+		}
+	}
+}
+
+#endif // MISSILES
 
 extern "C" void ec_add_effect(ec_effects effects, ec_reference ref)
 {
@@ -2435,6 +2491,53 @@ extern "C" ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, i
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
+
+#ifdef MISSILES
+extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD)
+{
+  missile *mis = get_missile_ptr_from_id(missile_id);
+  ec_internal_reference* ret;
+
+  if (!mis ||
+	  missiles_defs[mis->type].effect < MAGIC_MISSILE ||
+	  missiles_defs[mis->type].effect > EXPLOSIVE_MISSILE
+	  )
+	  return NULL;
+
+  ret = (ec_internal_reference*)ec_create_generic();
+  ret->missile_id = missile_id;
+  ret->position.x = mis->position[0];
+  ret->position.y = mis->position[2];
+  ret->position.z = -mis->position[1];
+
+  switch(missiles_defs[mis->type].effect)
+  {
+  case MAGIC_MISSILE:
+	  ret->effect = new ec::MissileEffect(&eye_candy, &ret->dead, &ret->position, ec::MissileEffect::MAGIC, LOD);
+	  break;
+
+  case FIRE_MISSILE:
+	  ret->effect = new ec::MissileEffect(&eye_candy, &ret->dead, &ret->position, ec::MissileEffect::FIRE, LOD);
+	  break;
+
+  case ICE_MISSILE:
+	  ret->effect = new ec::MissileEffect(&eye_candy, &ret->dead, &ret->position, ec::MissileEffect::ICE, LOD);
+	  break;
+
+  case EXPLOSIVE_MISSILE:
+	  ret->effect = new ec::MissileEffect(&eye_candy, &ret->dead, &ret->position, ec::MissileEffect::EXPLOSIVE, LOD);
+	  break;
+
+  default:
+	  delete ret;
+	  return NULL;
+  }
+
+  eye_candy.push_back_effect(ret->effect);
+
+  return (ec_reference)ret;
+}
+#endif // MISSILES
 
 ///////////////////////////////////////////////////////////////////////////////
 

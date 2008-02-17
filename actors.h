@@ -168,6 +168,29 @@ typedef struct
 #endif
 }body_part;
 
+/*! Sets the shield type*/
+typedef struct
+{
+	char model_name[MAX_FILE_PATH];
+	char skin_name[MAX_FILE_PATH];
+	char skin_mask[MAX_FILE_PATH];
+	int glow;
+	int mesh_index;
+
+#ifdef MISSILES
+	int missile_type; /*!< The type of equipped missiles (>=0 if a quiver is equipped, -1 if a regular shield is equipped) */
+#endif // MISSILES
+
+#ifdef NEW_LIGHTING
+        GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
+	GLfloat   diffuse[4];	/*!< The lighting for when the object is lit, but not reflecting */
+	GLfloat   specular[4];	/*!< The lighting for when the object is reflecting */
+	GLfloat   emission[4];	/*!< The lighting for if the object glows */
+	GLfloat   shininess;	/*!< The larger it is, the smaller and more pronounced the specular */
+	char      material_set;	/*!< If the material has been set. */
+#endif
+}shield_part;
+
 /*! Sets the weapon type (including animation frame names)*/
 typedef struct
 {
@@ -385,7 +408,7 @@ typedef struct
 	/*! \name The different body parts (different head shapes, different armour/weapon shapes etc.)*/
 	/*! \{ */
 	body_part *head;
-	body_part *shield;
+	shield_part *shield;
 	body_part *cape;
 	body_part *helmet;
 	weapon_part *weapon;
