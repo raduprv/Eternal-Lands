@@ -77,7 +77,7 @@ void change_shadow_framebuffer_size()
 void calc_light_frustum(float light_xrot)
 {
 	float window_ratio=(GLfloat)window_width/(GLfloat)window_height;
-	float max_height=20.0; //TODO: Really calculate this from positions and heights of objects
+	float max_height=30.0; //TODO: Really calculate this from positions and heights of objects
 	float x,y;
 	float slight, clight;
 
@@ -88,7 +88,7 @@ void calc_light_frustum(float light_xrot)
 	//Assuming a max zoom_level of 3.75 and near/far distances of 20.0, we'll set the hscale to the radius of a circle that
 	//can just contain the view frustum of the player. To simplify things, we'll assume the view frustum is horizontal.
 	//light_view_hscale=sqrt(window_ratio*window_ratio*3.75f*3.75f+12.0f*12.0f);
-	light_view_hscale=sqrt(window_ratio*window_ratio+20.0f*20.0f);
+	light_view_hscale=sqrt(window_ratio*window_ratio+30.0f*30.0f);
 	// For the others, we can just use the parametric ellipse formula to find the value for this angle
 	x=light_view_hscale*slight;
 	y=max_height*clight;
@@ -286,7 +286,7 @@ void draw_3d_object_shadows(unsigned int object_type)
 }
 
 void display_shadows()
-{	
+{
 	glEnable(GL_POLYGON_OFFSET_FILL);
 	glPolygonOffset(1.05f, 2.0f);
 	glEnable(GL_CULL_FACE);
@@ -366,7 +366,7 @@ void display_3d_non_ground_objects()
 {
 	//we don't want to be affected by 2d objects and shadows
 	anything_under_the_mouse(0,UNDER_MOUSE_NO_CHANGE);
-	
+
 	glEnable(GL_CULL_FACE);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -555,7 +555,7 @@ void setup_shadow_mapping()
 #endif /* SKY_FPV_CURSOR */
 	glRotatef(rx, 1.0f, 0.0f, 0.0f);
 #ifdef SKY_FPV_CURSOR
-	if (first_person) 
+	if (first_person)
 	{
 		float hx, hy, hz;
 		cal_get_head (get_our_actor(), &hx, &hy, &hz);
@@ -641,7 +641,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			CHECK_GL_ERRORS();
 #ifndef MAP_EDITOR2
 			if (weather_use_fog()) glEnable(GL_FOG);
-#endif		
+#endif
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
 			draw_tile_map();
@@ -768,7 +768,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 
 			glColor4f(0.0f,0.0f,0.0f,0.27f - (float)abs_light*0.008f);
 #endif
-			
+
 			glBegin(GL_QUADS);
 				glVertex4f(-camera_x+20.0f,-camera_y+20.0f,0.0f,1.0f);
 				glVertex4f(-camera_x+20.0f,-camera_y-20.0f,0.0f,1.0f);

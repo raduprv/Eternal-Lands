@@ -19,7 +19,7 @@ typedef struct
 } shader_data;
 
 shader_data shader_data_list[] = {
-	{ NULL, NULL, "./shader/water_fs.glsl", " " }, 
+	{ NULL, NULL, "./shader/water_fs.glsl", " " },
 	{ NULL, NULL, "./shader/water_fs.glsl", "#define\tUSE_SHADOW\n" },
 	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", " " },
 	{ NULL, NULL, "./shader/reflectiv_water_fs.glsl", "#define\tUSE_SHADOW\n" },
@@ -41,8 +41,9 @@ static __inline__ int load_shader(GLhandleARB object, const char* file_name,
 	int size[2];
 	el_file_ptr file;
 	const char* buffer[2];
-	
+
 	file = el_open(file_name);
+
 
 	if (file == NULL)
 	{
@@ -52,10 +53,10 @@ static __inline__ int load_shader(GLhandleARB object, const char* file_name,
 	{
 		size[0] = strlen(defines);
 		size[1] = el_get_size(file);
-		
+
 		buffer[0] = defines;
 		buffer[1] = (char*)el_get_pointer(file);
-	
+
 		ELglShaderSourceARB(object, 2, buffer, size);
 		CHECK_GL_ERRORS();
 
@@ -73,7 +74,7 @@ static __inline__ void log_shader_compile_log(GLhandleARB object, const char* sh
 
 	ELglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
 	CHECK_GL_ERRORS();
-	
+
 	if (blen > 1)
 	{
 		info_log = (GLcharARB*)malloc(blen * sizeof(GLcharARB));
@@ -109,7 +110,7 @@ static __inline__ void log_shader_linking_log(GLhandleARB object, GLint error)
 
 	ELglGetObjectParameterivARB(object, GL_OBJECT_INFO_LOG_LENGTH_ARB , &blen);
 	CHECK_GL_ERRORS();
-	
+
 	if (blen > 1)
 	{
 		info_log = (GLcharARB*)malloc(blen * sizeof(GLcharARB));
@@ -283,7 +284,7 @@ void init_shaders()
 {
 	int i;
 
-	noise_tex = build_3d_noise_texture(64, 8, 2);
+	noise_tex = build_3d_noise_texture(64, 3, 2);
 
 	memset(shader, 0, sizeof(shader));
 
@@ -291,7 +292,7 @@ void init_shaders()
 	{
 		for (i = 0; i < shader_data_size; i++)
 		{
-			shader[i] = build_shader(shader_data_list[i].vertex_shader_file_name,
+				shader[i] = build_shader(shader_data_list[i].vertex_shader_file_name,
 				shader_data_list[i].vertex_shader_defines,
 				shader_data_list[i].fragment_shader_file_name,
 				shader_data_list[i].fragment_shader_defines);

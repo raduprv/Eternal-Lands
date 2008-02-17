@@ -177,7 +177,7 @@ void load_knowledge_list()
 	int i=0;
 	char strLine[255];
 	char *out;
-	
+
 	memset(knowledge_list, 0, sizeof(knowledge_list));
 	i= 0;
 	knowledge_count= 0;
@@ -225,7 +225,7 @@ void read_config()
 		safe_strncpy(lang, "en", sizeof(lang));
 		log_error("No language set so defaulting to [%s] and using language selection window", lang );
 	}
-	
+
 #ifndef WINDOWS
 	chdir(datadir);
 #endif //!WINDOWS
@@ -233,7 +233,7 @@ void read_config()
 	if(password_str[0])//We have a password
 	{
 		size_t k;
-		
+
 		for (k=0; k < strlen (password_str); k++)
 			display_password_str[k] = '*';
 		display_password_str[k] = 0;
@@ -298,7 +298,7 @@ void read_bin_cfg()
 
 	buddy_menu_x=cfg_mem.buddy_menu_x;
 	buddy_menu_y=cfg_mem.buddy_menu_y;
-	
+
 	url_win_x=cfg_mem.url_win_x;
 	url_win_y=cfg_mem.url_win_y;
 
@@ -317,13 +317,13 @@ void read_bin_cfg()
 			if((quickbar_dir=cfg_mem.quickbar_flags&0xFF)!=HORIZONTAL)quickbar_dir=VERTICAL;
 			if((quickbar_draggable=(cfg_mem.quickbar_flags&0xFF00)>>8)!=1)quickbar_draggable=0;
 		}
-	
+
 	watch_this_stat=cfg_mem.watch_this_stat;
 	if(watch_this_stat<0 || watch_this_stat>=NUM_WATCH_STAT)
 		watch_this_stat=0;
 
 	has_accepted=cfg_mem.has_accepted_rules;
-	
+
 	rx=cfg_mem.camera_x;
 	ry=cfg_mem.camera_y;
 	rz=cfg_mem.camera_z;
@@ -491,7 +491,7 @@ void save_bin_cfg()
 		cfg_mem.buddy_menu_x=buddy_menu_x;
 		cfg_mem.buddy_menu_y=buddy_menu_y;
 	}
-	
+
 	if(url_win >= 0) {
 		cfg_mem.url_win_x=windows_list.window[url_win].cur_x;
 		cfg_mem.url_win_y=windows_list.window[url_win].cur_y;
@@ -539,12 +539,12 @@ void save_bin_cfg()
 	cfg_mem.watch_this_stat=watch_this_stat;
 
 	cfg_mem.has_accepted_rules=has_accepted;
-	
+
 	cfg_mem.camera_x=rx;
 	cfg_mem.camera_y=ry;
 	cfg_mem.camera_z=rz;
 	cfg_mem.zoom_level=zoom_level;
-	
+
 	for(i=0;i<6;i++){
 		cfg_mem.quantity[i]=quantities.quantity[i].val;
 	}
@@ -596,7 +596,7 @@ void init_stuff()
 
 	// Check if our datadir is valid and if not failover to ./
 	file_check_datadir();
-	
+
 	// Load the paths to check
 	add_paths();
 	// Here you can add zip files, like
@@ -618,7 +618,7 @@ void init_stuff()
 	// initialize the fonts, but don't load the textures yet. Do that here
 	// because the messages need the font widths.
 	init_fonts();
-	
+
 
 	//OK, we have the video mode settings...
 	setup_video_mode(full_screen,video_mode);
@@ -670,10 +670,14 @@ void init_stuff()
 	show_window(loading_win);
 
 	update_loading_win(init_opengl_str, 5);
+	log_info("Init extensions.");
 	init_gl_extensions();
-	
+	log_info("Init extensions done");
+
 	// Setup the new eye candy system
+	log_info("Init eyecandy");
 	ec_init();
+	log_info("Init eyecandy done");
 
 	// check for invalid combinations
 	check_options();
@@ -717,7 +721,11 @@ void init_stuff()
 #endif // NEW_SOUND
 	update_loading_win(init_actor_defs_str, 4);
 	memset(actors_defs, 0, sizeof(actors_defs));
+
+	log_info("Init actor defs");
 	init_actor_defs();
+	log_info("Init actor defs done");
+
 	update_loading_win(load_map_tiles_str, 4);
 	load_map_tiles();
 
@@ -726,7 +734,11 @@ void init_stuff()
 	build_global_light_table();
 	build_sun_pos_table();
 	reset_material();
+
+	log_info("Init lights");
 	init_lights();
+	log_info("Init done");
+
 	disable_local_lights();
 	update_loading_win(init_logs_str, 4);
 	clear_conn_log();
@@ -798,7 +810,7 @@ void init_stuff()
 	initialize_pawn ();
 #endif
 
-	update_loading_win(init_network_str, 5);	
+	update_loading_win(init_network_str, 5);
 	if(SDLNet_Init()<0){
 		log_error("%s: %s\n", failed_sdl_net_init, SDLNet_GetError());
 		SDLNet_Quit();
@@ -877,7 +889,7 @@ void init_stuff()
 		sound_on = 0;
 	}
 #endif // NEW_SOUND
-	
+
 	// display something
 	destroy_loading_win();
 	if (no_lang_in_config)
@@ -889,7 +901,7 @@ void init_stuff()
 		show_window (opening_root_win);
 		connect_to_server();
 	}
-	else 
+	else
 	{
 		create_rules_root_window (window_width, window_height, opening_root_win, 15);
 		show_window (rules_root_win);
@@ -903,4 +915,6 @@ void init_stuff()
 #ifdef POPUP
 	popup_init();
 #endif /* POPUP */
+
+log_info("Init done!");
 }
