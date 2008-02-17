@@ -108,6 +108,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	
 	CalModel_Update(pActor->calmodel,0.0001);//Make changes take effect now
 	build_actor_bounding_box(pActor);
+
 	if (use_animation_program)
 	{
 		set_transformation_buffers(pActor);
@@ -475,7 +476,7 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 		set_transformation_buffers(act);
 	}
 #ifdef MISSILES
-	rotate_actor_bones(pActor);
+	missiles_rotate_actor_bones(pActor);
 #endif // MISSILES
 	act->last_anim_update= cur_time;
 #endif	//DYNAMIC_ANIMATIONS

@@ -69,7 +69,7 @@ CXXOBJS=cal3d_wrapper.o actor_init.o optimizer.o sendvideoinfo.o	\
 	eye_candy/effect_ongoing.o eye_candy/effect_impact.o \
 	eye_candy/effect_smoke.o eye_candy/effect_bag.o eye_candy/effect_cloud.o \
 	eye_candy/effect_harvesting.o eye_candy/effect_wind.o \
-	eye_candy/effect_breath.o eye_candy/effect_mines.o \
+	eye_candy/effect_breath.o eye_candy/effect_mines.o eye_candy/effect_missile.o \
 	eye_candy/orbital_mover.o eye_candy/kepler_orbit.o	\
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJ))
 
