@@ -248,7 +248,6 @@ int display_newchar_handler (window_info *win)
 		read_mouse_now = 1;
 	else
 		read_mouse_now = 0;
-	reset_under_the_mouse();
 	
 	//This window is a bit special since it's not fully 2D
 	Leave2DMode ();
@@ -270,6 +269,8 @@ int display_newchar_handler (window_info *win)
 	any_reflection = find_reflection ();
 	CHECK_GL_ERRORS ();
 	
+	reset_under_the_mouse();
+
 	if (SDL_GetAppState() & SDL_APPACTIVE) {
 		get_tmp_actor_data();
 

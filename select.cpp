@@ -271,14 +271,7 @@ extern "C" void reset_under_the_mouse()
 			{
 				if ((selections[i].type == UNDER_MOUSE_3D_OBJ) && objects_list[selections[i].id])
 				{
-					if (action_mode == ACTION_ATTACK)
-					{
-						update_color(color, colorf, i, false);
-					}
-					else
-					{
-						update_color(color, colorf, i, true);
-					}
+					update_color(color, colorf, i, true);
 					glColor4ubv(color);
 					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
 					for (j = 0; j < objects_list[selections[i].id]->e3d_data->material_no; j++)
@@ -388,7 +381,7 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 	}
 	else
 	{
-		old_anything_under_the_mouse(object_id, object_type);
+		return old_anything_under_the_mouse(object_id, object_type);
 	}
 }
 
