@@ -59,6 +59,7 @@ void Texture::clear()
       const GLuint texture = *iter;
       glDeleteTextures(1, &texture);
     }
+    texture_ids[i].clear();
   }
 }
 

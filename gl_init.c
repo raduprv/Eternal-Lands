@@ -328,7 +328,6 @@ void init_video()
 	int rgb_size[3];
 
 
-	ec_clear_textures();
 	setup_video_mode(full_screen, video_mode);
 
 	/* Detect the display depth */
@@ -500,8 +499,6 @@ void init_video()
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-
-	ec_load_textures();
 
 	change_minimap();
 
