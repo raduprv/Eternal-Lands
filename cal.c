@@ -109,14 +109,14 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	CalModel_Update(pActor->calmodel,0.0001);//Make changes take effect now
 	build_actor_bounding_box(pActor);
 
+#ifdef MISSILES
+	missiles_rotate_actor_bones(pActor);
+#endif // MISSILES
+
 	if (use_animation_program)
 	{
 		set_transformation_buffers(pActor);
 	}
-
-#ifdef MISSILES
-	missiles_rotate_actor_bones(pActor);
-#endif // MISSILES
 
 	if (pActor->cur_anim.anim_index==-1)
 		pActor->busy=0;
@@ -471,13 +471,13 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 		CalModel_Update(act->calmodel,((cur_time-act->last_anim_update)/1000.0));
 #endif
 	build_actor_bounding_box(act);
+#ifdef MISSILES
+	missiles_rotate_actor_bones(act);
+#endif // MISSILES
 	if (use_animation_program)
 	{
 		set_transformation_buffers(act);
 	}
-#ifdef MISSILES
-	missiles_rotate_actor_bones(pActor);
-#endif // MISSILES
 	act->last_anim_update= cur_time;
 #endif	//DYNAMIC_ANIMATIONS
 

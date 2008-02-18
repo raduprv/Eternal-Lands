@@ -558,13 +558,13 @@ void animate_actors()
 				CalModel_Update(actors_list[i]->calmodel,((cur_time-last_update)/1000.0));
 #endif
 				build_actor_bounding_box(actors_list[i]);
+#ifdef MISSILES
+				missiles_rotate_actor_bones(actors_list[i]);
+#endif
 				if (use_animation_program)
 				{
 					set_transformation_buffers(actors_list[i]);
 				}
-#ifdef MISSILES
-				missiles_rotate_actor_bones(actors_list[i]);
-#endif
 			}
 #endif	//DYNAMIC_ANIMATIONS
 		}
@@ -1289,13 +1289,13 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				//We may be on idle, update the actor so we can reduce the rendering lag
 				CalModel_Update(act->calmodel, 5.0f);
 				build_actor_bounding_box(act);
+#ifdef MISSILES
+				missiles_rotate_actor_bones(get_actor_ptr_from_id(actor_id));
+#endif // MISSILES
 				if (use_animation_program)
 				{
 					set_transformation_buffers(act);
 				}
-#ifdef MISSILES
-				missiles_rotate_actor_bones(get_actor_ptr_from_id(actor_id));
-#endif // MISSILES
 			}
 		}
 
