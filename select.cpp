@@ -144,6 +144,61 @@ static inline void update_selection(Uint8 *color)
 	selections.clear();
 }
 
+Uint8 last_pixel_color[4];
+
+static inline void old_reset_under_the_mouse()
+{
+	if (!read_mouse_now)
+	{
+		return;
+	}
+	last_pixel_color[0] = 0;
+	last_pixel_color[1] = 0;
+	last_pixel_color[2] = 0;
+	object_under_mouse = -1;
+	thing_under_the_mouse = UNDER_MOUSE_NOTHING;
+}
+
+static inline int old_anything_under_the_mouse(int object_id, int object_type)
+{
+	char pixels[16] = { 0 };
+
+	if (!read_mouse_now)
+	{
+		return 0;
+	}
+	glReadBuffer(GL_BACK);
+	glReadPixels(mouse_x, window_height - mouse_y, 1, 1, GL_RGB, GL_BYTE, &pixels);
+	if ((pixels[0] != last_pixel_color[0]) || (pixels[1] != last_pixel_color[1])
+		|| (pixels[2] != last_pixel_color[2]))
+	{
+		last_pixel_color[0] = pixels[0];
+		last_pixel_color[1] = pixels[1];
+		last_pixel_color[2] = pixels[2];
+
+		if (object_type == UNDER_MOUSE_NO_CHANGE)
+		{
+			return 0;
+		}
+
+		if ((object_type == UNDER_MOUSE_PLAYER) || (object_type==UNDER_MOUSE_NPC) ||
+			(object_type==UNDER_MOUSE_ANIMAL))
+		{
+			actor_under_mouse = actors_list[object_id];
+			object_id = actors_list[object_id]->actor_id;
+		}
+		else
+		{
+			actor_under_mouse = NULL;
+		}
+		object_under_mouse = object_id;
+
+		thing_under_the_mouse = object_type;
+		return 1;//there is something
+	}
+	return 0;//no collision, sorry
+}
+
 extern "C" void reset_under_the_mouse()
 {
 	Uint8 color[4];
@@ -153,159 +208,165 @@ extern "C" void reset_under_the_mouse()
 	Sint32 j;
 	Sint32 x, y;
 
-	read_selection = add_selection;
-	add_selection = read_mouse_now;
-
-	assert(!(read_selection && add_selection));
-
-	if (read_selection)
+	if (supports_gl_version(1, 3) || have_extension(arb_texture_env_combine))
 	{
-		object_under_mouse = -1;
-		thing_under_the_mouse = UNDER_MOUSE_NOTHING;
-		actor_under_mouse = 0;
+		read_selection = add_selection;
+		add_selection = read_mouse_now;
 
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-		draw_tile_map();
-		display_2d_objects();
-
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glDisableClientState(GL_NORMAL_ARRAY);
-		ELglClientActiveTextureARB(GL_TEXTURE1);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisable(GL_TEXTURE_GEN_S);
-		glDisable(GL_TEXTURE_GEN_T);
-		glDisable(GL_TEXTURE_GEN_Q);
-		glDisable(GL_TEXTURE_GEN_R);
-		ELglClientActiveTextureARB(GL_TEXTURE2);
-		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisable(GL_TEXTURE_GEN_S);
-		glDisable(GL_TEXTURE_GEN_T);
-		glDisable(GL_TEXTURE_GEN_Q);
-		glDisable(GL_TEXTURE_GEN_R);
-
-		ELglClientActiveTextureARB(GL_TEXTURE0);
-		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
-		glDisable(GL_TEXTURE_GEN_S);
-		glDisable(GL_TEXTURE_GEN_T);
-		glDisable(GL_TEXTURE_GEN_Q);
-		glDisable(GL_TEXTURE_GEN_R);
-		glReadBuffer(GL_BACK);
-
-	  	glDisable(GL_LIGHTING);
-		ELglActiveTexture(GL_TEXTURE1);
-	  	glDisable(GL_TEXTURE_2D);
-		ELglActiveTexture(GL_TEXTURE2);
-	  	glDisable(GL_TEXTURE_2D);
-		ELglActiveTexture(GL_TEXTURE0);
-
-		glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
-		glClear(GL_COLOR_BUFFER_BIT);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_CONSTANT_ARB);
-		glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
-		glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
-		glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
-
-		glEnable(GL_CULL_FACE);
-		glAlphaFunc(GL_GREATER, 0.06f);
-		for (i = 0; i < selections.size(); i++)
+		if (read_selection)
 		{
-			if ((selections[i].type == UNDER_MOUSE_3D_OBJ) && objects_list[selections[i].id])
+			object_under_mouse = -1;
+			thing_under_the_mouse = UNDER_MOUSE_NOTHING;
+			actor_under_mouse = 0;
+
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+			draw_tile_map();
+			display_2d_objects();
+
+			glEnableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_NORMAL_ARRAY);
+			ELglClientActiveTextureARB(GL_TEXTURE1);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_Q);
+			glDisable(GL_TEXTURE_GEN_R);
+			ELglClientActiveTextureARB(GL_TEXTURE2);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_Q);
+			glDisable(GL_TEXTURE_GEN_R);
+
+			ELglClientActiveTextureARB(GL_TEXTURE0);
+			glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+			glDisable(GL_TEXTURE_GEN_S);
+			glDisable(GL_TEXTURE_GEN_T);
+			glDisable(GL_TEXTURE_GEN_Q);
+			glDisable(GL_TEXTURE_GEN_R);
+			glReadBuffer(GL_BACK);
+
+			glDisable(GL_FOG);
+		  	glDisable(GL_LIGHTING);
+			ELglActiveTexture(GL_TEXTURE1);
+		  	glDisable(GL_TEXTURE_2D);
+			ELglActiveTexture(GL_TEXTURE2);
+		  	glDisable(GL_TEXTURE_2D);
+			ELglActiveTexture(GL_TEXTURE0);
+
+			glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+			glClear(GL_COLOR_BUFFER_BIT);
+
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_COMBINE_ARB);
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_RGB_ARB, GL_REPLACE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_RGB_ARB, GL_CONSTANT_ARB);
+			glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
+			glTexEnvi(GL_TEXTURE_ENV, GL_COMBINE_ALPHA_ARB, GL_REPLACE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
+			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
+
+			glEnable(GL_CULL_FACE);
+			glAlphaFunc(GL_GREATER, 0.06f);
+			for (i = 0; i < selections.size(); i++)
 			{
-				if (action_mode == ACTION_ATTACK)
+				if ((selections[i].type == UNDER_MOUSE_3D_OBJ) && objects_list[selections[i].id])
 				{
-					update_color(color, colorf, i, false);
-				}
-				else
-				{
-					update_color(color, colorf, i, true);
-				}
-				glColor4ubv(color);
-				glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
-				for (j = 0; j < objects_list[selections[i].id]->e3d_data->material_no; j++)
-				{
-					if (material_is_transparent(objects_list[selections[i].id]->e3d_data->materials[j].options))
+					if (action_mode == ACTION_ATTACK)
 					{
-						glEnable(GL_ALPHA_TEST);
-					  	glEnable(GL_TEXTURE_2D);
-						draw_3d_object_detail(objects_list[selections[i].id],
-							j, 0, 1, 0);
+						update_color(color, colorf, i, false);
 					}
 					else
 					{
-						glDisable(GL_ALPHA_TEST);
-					  	glDisable(GL_TEXTURE_2D);
-						draw_3d_object_detail(objects_list[selections[i].id],
-							j, 0, 0, 0);
+						update_color(color, colorf, i, true);
 					}
-				}
-			}
-		}
-
-		set_actor_animation_program(SELECTION_RENDER_PASS, 0);
-		for (i = 0; i < selections.size(); i++)
-		{
-			switch (selections[i].type)
-			{
-				case UNDER_MOUSE_PLAYER:
-				case UNDER_MOUSE_NPC:
-				case UNDER_MOUSE_ANIMAL:
-					update_color(color, colorf, i, true);
-					if (use_animation_program)
+					glColor4ubv(color);
+					glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
+					for (j = 0; j < objects_list[selections[i].id]->e3d_data->material_no; j++)
 					{
-						ELglVertexAttrib4Nubv(4, color);
-					}
-					else
-					{
-						glColor4ubv(color);
-					}
-					if (actors_list[selections[i].id])
-					{
-						if (actors_list[selections[i].id]->has_alpha)
+						if (material_is_transparent(objects_list[selections[i].id]->e3d_data->materials[j].options))
 						{
 							glEnable(GL_ALPHA_TEST);
 						  	glEnable(GL_TEXTURE_2D);
+							draw_3d_object_detail(objects_list[selections[i].id],
+								j, 0, 1, 0);
 						}
 						else
 						{
 							glDisable(GL_ALPHA_TEST);
 						  	glDisable(GL_TEXTURE_2D);
+							draw_3d_object_detail(objects_list[selections[i].id],
+								j, 0, 0, 0);
 						}
-						glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
-						draw_actor_without_banner(actors_list[selections[i].id],
-							0, actors_list[selections[i].id]->has_alpha, 0);
 					}
-					break;
-				case UNDER_MOUSE_3D_OBJ:
-					break;
-				case UNDER_MOUSE_NO_CHANGE:
-					LOG_ERROR("Invalid selection type!");
-					break;
-				default:
-					LOG_ERROR("Invalid selection type!");
-					break;
+				}
 			}
+
+			set_actor_animation_program(SELECTION_RENDER_PASS, 0);
+			for (i = 0; i < selections.size(); i++)
+			{
+				switch (selections[i].type)
+				{
+					case UNDER_MOUSE_PLAYER:
+					case UNDER_MOUSE_NPC:
+					case UNDER_MOUSE_ANIMAL:
+						update_color(color, colorf, i, true);
+						if (use_animation_program)
+						{
+							ELglVertexAttrib4Nubv(4, color);
+						}
+						else
+						{
+							glColor4ubv(color);
+						}
+						if (actors_list[selections[i].id])
+						{
+							if (actors_list[selections[i].id]->has_alpha)
+							{
+								glEnable(GL_ALPHA_TEST);
+							  	glEnable(GL_TEXTURE_2D);
+							}
+							else
+							{
+								glDisable(GL_ALPHA_TEST);
+							  	glDisable(GL_TEXTURE_2D);
+							}
+							glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
+							draw_actor_without_banner(actors_list[selections[i].id],
+								0, actors_list[selections[i].id]->has_alpha, 0);
+						}
+						break;
+					case UNDER_MOUSE_3D_OBJ:
+						break;
+					case UNDER_MOUSE_NO_CHANGE:
+						LOG_ERROR("Invalid selection type!");
+						break;
+					default:
+						LOG_ERROR("Invalid selection type!");
+						break;
+				}
+			}
+		  	glDisable(GL_TEXTURE_2D);
+			glDisable(GL_ALPHA_TEST);
+			disable_actor_animation_program();
+			x = mouse_x - select_offset;
+			y = window_height - mouse_y - select_offset;
+
+			glReadPixels(x, y, select_size, select_size, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
+			update_selection(buffer);
+
+			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
+
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			ELglClientActiveTextureARB(base_unit);
+			ELglActiveTexture(base_unit);
+		  	glEnable(GL_TEXTURE_2D);
+		  	glEnable(GL_LIGHTING);
+			glDisable(GL_CULL_FACE);
 		}
-	  	glDisable(GL_TEXTURE_2D);
-		glDisable(GL_ALPHA_TEST);
-		disable_actor_animation_program();
-		x = mouse_x - select_offset;
-		y = window_height - mouse_y - select_offset;
-
-		glReadPixels(x, y, select_size, select_size, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
-		update_selection(buffer);
-
-		glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
-
-		glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		ELglClientActiveTextureARB(base_unit);
-		ELglActiveTexture(base_unit);
-	  	glEnable(GL_TEXTURE_2D);
-	  	glEnable(GL_LIGHTING);
-		glDisable(GL_CULL_FACE);
+	}
+	else
+	{
+		old_reset_under_the_mouse();
 	}
 }
 
@@ -313,14 +374,21 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 {
 	SelectionData data;
 
-	if (add_selection && (object_type != UNDER_MOUSE_NO_CHANGE))
+	if (supports_gl_version(1, 3) || have_extension(arb_texture_env_combine))
 	{
-		data.id = object_id;
-		data.type = object_type;
+		if (add_selection && (object_type != UNDER_MOUSE_NO_CHANGE))
+		{
+			data.id = object_id;
+			data.type = object_type;
 
-		selections.push_back(data);
+			selections.push_back(data);
+		}
+
+		return 0;
 	}
-
-	return 0;
+	else
+	{
+		old_anything_under_the_mouse(object_id, object_type);
+	}
 }
 

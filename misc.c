@@ -44,7 +44,9 @@
 #define MKDIR(file) (mkdir(file, S_IRWXU | S_IRWXG))
 #endif //WINDOWS
 
+#ifndef	NEW_SELECTION
 Uint8 last_pixel_color[4];
+#endif	// NEW_SELECTION
 LINE click_line;
 
 void get_click_line(LINE* line)

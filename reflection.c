@@ -268,13 +268,16 @@ static __inline__ int adapt_size(int size)
 	
 	if (have_extension(arb_texture_non_power_of_two) || supports_gl_version(2, 0))
 	{
-		return size;
+		return size / 2;
 	}
 	else
 	{
 		j = 1;
-		while (j < size) j += j;
-		return min2i(j / 2, i);
+		while (j < size)
+		{
+			j += j;
+		}
+		return j / 2;
 	}
 }
 
