@@ -94,9 +94,8 @@ void draw_cursor()
 	float ret_x = 0.0, ret_y = 0.0;
 	float ret_color[4];
 	float ret_out = 7.0;
-	if(sdl_cursors || !(SDL_GetAppState() & SDL_APPMOUSEFOCUS)){
-		return;
-	}
+	if(!(SDL_GetAppState() & SDL_APPMOUSEFOCUS))return;
+	if(sdl_cursors && !have_mouse) return; 
 	glDisable(GL_DEPTH_TEST);
 
 	get_and_set_texture_id(cursors_tex);
@@ -180,7 +179,7 @@ void draw_cursor()
 		}
 	} else {	//have_mouse
 		glColor4f(1,1,1,1);
-		if(big_cursors){
+		if(big_cursors&&!sdl_cursors){
 			float x = (current_cursor%8)/8.0;
 			float y = (1-current_cursor/8 + 5)/8.0;
 			glBegin(GL_QUADS);
@@ -189,7 +188,7 @@ void draw_cursor()
 				glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
 				glTexCoord2f(x,y+0.125f);		glVertex2f(0,0);
 			glEnd();
-		} else {
+		} else if (!sdl_cursors){
 			glBegin(GL_QUADS);
 				glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(10,26);
 				glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(26,26);
@@ -296,14 +295,22 @@ void toggle_have_mouse()
 	have_mouse = !have_mouse;
 	if(have_mouse){
 		SDL_WM_GrabInput(SDL_GRAB_ON);
+		if (sdl_cursors) SDL_ShowCursor(0);
+		LOG_TO_CONSOLE (c_red1, "Grab mode: press alt+g again to enter Normal mode.");
 	} else {
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
+		if (sdl_cursors) SDL_ShowCursor(1);
+		LOG_TO_CONSOLE (c_red1, "Normal mode: press alt+g again to enter Grab mode.");
 	}
 }
 
 void toggle_first_person()
 {
 	if (first_person == 0){
+		//rotate camera where actor is looking at
+		actor *me = get_our_actor();
+		if (me) rz=me->tmp.z_rot;
+		rx=-90;
 		first_person = 1;
 		fol_cam = 0;
 	} else {

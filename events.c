@@ -207,15 +207,8 @@ int HandleEvent (SDL_Event *event)
 			if (event->type == SDL_MOUSEBUTTONDOWN) 
 			{
 				if (event->button.button == SDL_BUTTON_MIDDLE)
-#ifdef SKY_FPV_CURSOR
-				{
-#endif /* SKY_FPV_CURSOR */
 					middle_click++;
-#ifdef SKY_FPV_CURSOR
-					if (ext_cam&&!sdl_cursors) toggle_have_mouse();
 
-				}
-#endif /* SKY_FPV_CURSOR */
 			}
 			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
 				middle_click++;

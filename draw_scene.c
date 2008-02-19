@@ -225,9 +225,17 @@ void move_camera ()
 	}
 
 	if(first_person||ext_cam){
+#ifndef NEW_CAMERA
 		follow_speed = 8.0f;
+#else
+		follow_speed = 150.0f;
+#endif
 	} else {
+#ifndef NEW_CAMERA
 		follow_speed = 16.0f;
+#else
+		follow_speed = 300.0f;
+#endif
 	}
 #endif /* SKY_FPV_CURSOR */
 	if(lagged){
@@ -271,12 +279,21 @@ void move_camera ()
 	glTranslatef(camera_x,camera_y, camera_z);
 
 #else /* SKY_FPV_CURSOR */
+#ifndef NEW_CAMERA
 		camera_x_speed=(x+camera_x)/follow_speed;
 		camera_x_frames=follow_speed;
 		camera_y_speed=(y+camera_y)/follow_speed;
 		camera_y_frames=follow_speed;
 		camera_z_speed=(z+camera_z)/follow_speed;
 		camera_z_frames=follow_speed;
+#else //NEW_CAMERA
+		camera_x_speed=(x+camera_x)/follow_speed;
+		camera_x_duration=follow_speed;
+		camera_y_speed=(y+camera_y)/follow_speed;
+		camera_y_duration=follow_speed;
+		camera_z_speed=(z+camera_z)/follow_speed;
+		camera_z_duration=follow_speed;		
+#endif
 	}
 
 
@@ -301,6 +318,7 @@ void move_camera ()
 void clamp_camera(void)
 {
 #ifdef SKY_FPV_CURSOR
+#ifndef NEW_CAMERA
 	if(first_person){
 		if(rx < -140){
 			rx = -140;
@@ -317,6 +335,24 @@ void clamp_camera(void)
 			rx = -15;
 			camera_tilt_frames=0;
 		}
+#else //NEW CAMERA
+		if(first_person){
+			if(rx < -140){
+				rx = -140;
+				camera_tilt_duration=0;
+			} else if(rx > 15){
+				rx = 15;
+				camera_tilt_duration=0;
+			}
+		} else if(ext_cam){
+			if(rx < -90){
+				rx = -90;
+				camera_tilt_duration=0;
+			} else if(rx > -15){
+				rx = -15;
+				camera_tilt_duration=0;
+			}			
+#endif
 	} else {
 #endif /* SKY_FPV_CURSOR */
 #ifndef NEW_CAMERA
@@ -331,8 +367,8 @@ void clamp_camera(void)
 		if(rx < -60){
 			rx = -60;
 			camera_tilt_duration=0;
-		} else if(rx > -30){
-			rx = -30;
+		} else if(rx > -45){
+			rx = -45;
 			camera_tilt_duration=0;
 		}
 #endif // NEW_CAMERA
@@ -514,8 +550,10 @@ void update_camera(Uint32 time_delta)
 	int adjust_view= 0;
 #else /* SKY_FPV_CURSOR */
 	float adjust;
+	actor *me = get_our_actor();
 
 	if (fol_cam) rz=hold_camera;
+	if (me) camera_kludge=180-me->tmp.z_rot;
 #endif /* SKY_FPV_CURSOR */
 
 	if(camera_rotation_duration > 0){
@@ -571,6 +609,7 @@ void update_camera(Uint32 time_delta)
 #ifdef SKY_FPV_CURSOR
 	hold_camera=rz;
 	if (fol_cam){
+		//printf("Fol: %f, %f\n",last_kludge,camera_kludge);
 		if (last_kludge != camera_kludge) {
 			set_all_intersect_update_needed(main_bbox_tree);
 			adjust = (camera_kludge-last_kludge);

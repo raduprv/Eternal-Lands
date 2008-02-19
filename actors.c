@@ -222,7 +222,11 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	double healthbar_x_loss_fade=1.0f;
 	double healthbar_y_len=ALT_INGAME_FONT_Y_LEN*12.0*name_zoom*font_scale;
 	float banner_width = 0.0f;
-
+#ifdef SKY_FPV_CURSOR
+	//if first person, dont draw banner
+	actor *me = get_our_actor();
+	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;	
+#endif //SKY_FPV_CURSOR
 	//Figure out where the point just above the actor's head is in the viewport
 	//See if Projection and viewport can be saved elsewhere to prevent doing this so often
 	//MODELVIEW is hopeless
@@ -563,7 +567,11 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 {
 	double x_pos,y_pos,z_pos;
 	float x_rot,y_rot,z_rot;
-
+#ifdef SKY_FPV_CURSOR
+	//if first person, dont draw actor
+	actor *me = get_our_actor();
+	if (me&&me->actor_id==actor_id->actor_id&&first_person) return;
+#endif //SKY_FPV_CURSOR
 	if (use_textures)
 	{
 		if (actor_id->is_enhanced_model)
