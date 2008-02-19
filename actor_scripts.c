@@ -1032,6 +1032,34 @@ void next_command()
                         missiles_log_message("missed shot detected: new height computed: %f", actors_list[i]->range_target_fire[2]);
 					}
 
+#ifdef DEBUG
+					{
+						float aim_angle = atan2f(actors_list[i]->range_target_aim[1] - actors_list[i]->y_pos,
+												 actors_list[i]->range_target_aim[0] - actors_list[i]->x_pos);
+						float fire_angle = atan2f(actors_list[i]->range_target_fire[1] - actors_list[i]->y_pos,
+												 actors_list[i]->range_target_fire[0] - actors_list[i]->x_pos);
+						if (aim_angle < 0.0) aim_angle += 2*M_PI;
+						if (fire_angle < 0.0) fire_angle += 2*M_PI;
+						if (fabs(fire_angle - aim_angle) > M_PI/8.0) {
+							char msg[512];
+							sprintf(msg,
+									"WARNING! Target position is too different from aim position: pos=(%f,%f,%f) aim=(%f,%f,%f) target=(%f,%f,%f) aim_angle=%f target_angle=%f",
+									actors_list[i]->x_pos,
+									actors_list[i]->y_pos,
+									actors_list[i]->z_pos,
+									actors_list[i]->range_target_aim[0],
+									actors_list[i]->range_target_aim[1],
+									actors_list[i]->range_target_aim[2],
+									actors_list[i]->range_target_fire[0],
+									actors_list[i]->range_target_fire[1],
+									actors_list[i]->range_target_fire[2],
+									aim_angle, fire_angle);
+							LOG_TO_CONSOLE(c_red2, msg);
+							missiles_log_message(msg);
+						}
+					}
+#endif // DEBUG
+
 					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target_fire, actors_list[i]->shot_type);
 					actors_list[i]->shot_type = NORMAL_SHOT;
 					break;
