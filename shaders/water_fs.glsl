@@ -1,8 +1,12 @@
 uniform sampler2D tile_texture;
+#ifdef	USE_NOISE
 uniform sampler3D noise_texture;
 uniform vec4 noise_scale;
+#endif	// USE_NOISE
 uniform float time;
+#ifdef	USE_SHADOW
 uniform sampler2DShadow shadow_texture;
+#endif	// USE_SHADOW
 
 void main (void) 
 {

@@ -212,6 +212,16 @@ char * get_3dobject_at_location(float x_pos, float y_pos);
 void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 use_lightning,
 	Uint32 use_textures, Uint32 use_extra_textures);
 
+/*!
+ * \ingroup	display_3d
+ * \brief	Disables the buffer arrays.
+ * 
+ * 		Unlocks compiled vertex arrays, sets VBO to zero and clears current used 3d object.
+ *
+ * \callgraph
+ */
+void disable_buffer_arrays();
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

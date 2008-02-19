@@ -68,6 +68,20 @@ static __inline__ void build_clouds_planes(object3d* obj)
 	obj->clouds_planes[1][3] = obj->y_pos / texture_scale;
 }
 
+void disable_buffer_arrays()
+{
+	if (use_vertex_buffers)
+	{
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+	}
+	if (use_compiled_vertex_array && (cur_e3d != NULL))
+	{
+		ELglUnlockArraysEXT();
+	}
+	cur_e3d = NULL;
+}
+
 void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 use_lightning,
 	Uint32 use_textures, Uint32 use_extra_textures)
 {
@@ -368,10 +382,6 @@ void draw_3d_objects(unsigned int object_type)
 		}
 	}
 	
-	if (use_compiled_vertex_array && (cur_e3d != NULL))
-	{
-		ELglUnlockArraysEXT();
-	}
 	if (!dungeon && (clouds_shadows || use_shadow_mapping))
 	{
 		ELglActiveTextureARB(detail_unit);
@@ -380,11 +390,8 @@ void draw_3d_objects(unsigned int object_type)
 		ELglActiveTextureARB(base_unit);
 	}
 
-	if (use_vertex_buffers)
-	{
-		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
-	}
+	disable_buffer_arrays();
+
 	// restore the settings
 #ifdef NEW_LIGHTING
 	if (
@@ -417,7 +424,6 @@ void draw_3d_objects(unsigned int object_type)
 	}
 	cur_e3d_count= 0;
 #endif  //DEBUG
-	cur_e3d= NULL;
 }
 
 //Tests to see if an e3d object is already loaded. If it is, return the handle.

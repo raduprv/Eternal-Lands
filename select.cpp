@@ -223,6 +223,7 @@ extern "C" void reset_under_the_mouse()
 			draw_tile_map();
 			display_2d_objects();
 
+			glPushAttrib(GL_ENABLE_BIT);
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glDisableClientState(GL_NORMAL_ARRAY);
 			ELglClientActiveTextureARB(GL_TEXTURE1);
@@ -267,6 +268,7 @@ extern "C" void reset_under_the_mouse()
 
 			glEnable(GL_CULL_FACE);
 			glAlphaFunc(GL_GREATER, 0.06f);
+			cur_e3d = 0;
 			for (i = 0; i < selections.size(); i++)
 			{
 				if ((selections[i].type == UNDER_MOUSE_3D_OBJ) && objects_list[selections[i].id])
@@ -294,6 +296,10 @@ extern "C" void reset_under_the_mouse()
 				}
 			}
 
+			disable_buffer_arrays();
+
+			glDisableClientState(GL_VERTEX_ARRAY);
+			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			set_actor_animation_program(SELECTION_RENDER_PASS, 0);
 			for (i = 0; i < selections.size(); i++)
 			{
@@ -338,8 +344,12 @@ extern "C" void reset_under_the_mouse()
 						break;
 				}
 			}
-		  	glDisable(GL_TEXTURE_2D);
-			glDisable(GL_ALPHA_TEST);
+			if (use_animation_program)
+			{
+				ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 1.0f);
+			}
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
 			disable_actor_animation_program();
 			x = mouse_x - select_offset;
 			y = window_height - mouse_y - select_offset;
@@ -349,12 +359,11 @@ extern "C" void reset_under_the_mouse()
 
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+			glPopAttrib();
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			ELglClientActiveTextureARB(base_unit);
 			ELglActiveTexture(base_unit);
 		  	glEnable(GL_TEXTURE_2D);
-		  	glEnable(GL_LIGHTING);
-			glDisable(GL_CULL_FACE);
 		}
 	}
 	else
