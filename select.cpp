@@ -268,7 +268,7 @@ extern "C" void reset_under_the_mouse()
 
 			glEnable(GL_CULL_FACE);
 			glAlphaFunc(GL_GREATER, 0.06f);
-			cur_e3d = 0;
+
 			for (i = 0; i < selections.size(); i++)
 			{
 				if ((selections[i].type == UNDER_MOUSE_3D_OBJ) && objects_list[selections[i].id])
