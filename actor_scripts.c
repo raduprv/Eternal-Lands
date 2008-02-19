@@ -1029,6 +1029,7 @@ void next_command()
 						int tile_x = (int)(actors_list[i]->range_target_fire[0]*2.0);
 						int tile_y = (int)(actors_list[i]->range_target_fire[1]*2.0);
 						actors_list[i]->range_target_fire[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
+                        missiles_log_message("missed shot detected: new height computed: %f", actors_list[i]->range_target_fire[2]);
 					}
 
 					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target_fire, actors_list[i]->shot_type);

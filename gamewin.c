@@ -834,6 +834,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
                     else {
                         LOCK_ACTORS_LISTS();
                         cur_actor->reload = 1;
+                        /* cur_actor->shot_type = MISSED_SHOT; */
                         UNLOCK_ACTORS_LISTS();
                         missiles_fire_a_to_xyz(yourself, target);
                     }

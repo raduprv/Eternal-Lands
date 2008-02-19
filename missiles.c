@@ -190,7 +190,7 @@ void missiles_remove(int missile_id)
      * where the shot has ended */
 	if (mis->shot_type == MISSED_SHOT &&
 		mis->covered_distance < 19.0) {
-        float x_rot = 360.0 * (float)rand() / RAND_MAX;
+        float x_rot = 0.0;
 		float y_rot = -asinf(mis->direction[2])*180.0/M_PI;
 		float z_rot = atan2f(mis->direction[1], mis->direction[0])*180.0/M_PI;
 		float dist = -mis->remaining_distance;
@@ -198,8 +198,9 @@ void missiles_remove(int missile_id)
 		mis->position[0] -= mis->direction[0] * dist;
 		mis->position[1] -= mis->direction[1] * dist;
 		mis->position[2] -= mis->direction[2] * dist;
-		missiles_log_message("adding a lost missile at (%f,%f,%f)",
-							 mis->position[0], mis->position[1], mis->position[2]);
+		missiles_log_message("adding a lost missile at (%f,%f,%f) with rotation (%f,%f,%f)",
+							 mis->position[0], mis->position[1], mis->position[2],
+                             x_rot, y_rot, z_rot);
 		obj_3d_id = add_e3d(missiles_defs[mis->type].lost_mesh,
 							mis->position[0], mis->position[1], mis->position[2],
 							x_rot, y_rot, z_rot, 0, 0, 1.0, 1.0, 1.0, 1);
@@ -340,7 +341,7 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	float act_z_rot = in_act->z_rot;
 
 	if (in_act->rotating) {
-		// the actor is already rotating so we get the final position first
+        missiles_log_message("the actor is already rotating so we get the final position first");
 		act_z_rot += in_act->rotate_z_speed * in_act->rotate_frames_left;
 	}
 
