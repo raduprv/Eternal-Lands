@@ -265,10 +265,10 @@ static __inline__ int adapt_size(int size)
 	glGetIntegerv(GL_MAX_RENDERBUFFER_SIZE_EXT, &i);
 
 	size = min2i(size, i);
-	
+
 	if (have_extension(arb_texture_non_power_of_two) || supports_gl_version(2, 0))
 	{
-		return size / 2;
+		return size;
 	}
 	else
 	{
@@ -277,7 +277,7 @@ static __inline__ int adapt_size(int size)
 		{
 			j += j;
 		}
-		return j / 2;
+		return j;
 	}
 }
 
@@ -674,7 +674,7 @@ void draw_lake_tiles()
 	float blend_vec[4] = {0.75f, 0.75f, 0.75f, 0.75f};
 #else	// USE_SHADER
 	float noise_scale[4] = {0.125f, 0.125f, 0.0625f, 0.0625f};
-
+	GLint idx;
 	GLhandleARB cur_shader;
 #endif //USE_SHADER
 
@@ -787,8 +787,31 @@ void draw_lake_tiles()
 				ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 1, noise_scale);
 				ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
 				CHECK_GL_ERRORS();
-
 			}
+			idx = ELglGetUniformLocationARB(cur_shader, "texel_size_x");
+			if (idx >= 0)
+			{
+				ELglUniform2fARB(idx, 1.0f / reflection_texture_width, 0.0f);
+			}
+			idx = ELglGetUniformLocationARB(cur_shader, "texel_size_y");
+			if (idx >= 0)
+			{
+				ELglUniform2fARB(idx, 0.0f, 1.0f / reflection_texture_width);
+			}
+			idx = ELglGetUniformLocationARB(cur_shader, "size");
+			if (idx >= 0)
+			{
+				ELglUniform2fARB(idx, reflection_texture_width, reflection_texture_height);
+			}
+			idx = ELglGetUniformLocationARB(cur_shader, "hg_texture");
+			if (idx >= 0)
+			{
+				ELglActiveTextureARB(GL_TEXTURE4);
+				glBindTexture(GL_TEXTURE_1D, filter_lut);
+				ELglActiveTextureARB(base_unit);
+				ELglUniform1iARB(idx, 4);
+			}
+
 			if (!dungeon && shadows_on && is_day)
 			{
 				ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);

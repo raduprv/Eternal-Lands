@@ -1,15 +1,26 @@
+#define	USE_CUBIC_FILTER
 uniform sampler2D tile_texture;
 uniform sampler2D reflection_texture;
+#ifdef	USE_SHADOW
+uniform sampler2DShadow shadow_texture;
+#endif	// USE_SHADOW
+uniform float time;
+uniform float blend;
+#ifdef	USE_NOISE
 uniform sampler3D noise_texture;
 uniform vec4 noise_scale;
-uniform float time;
-uniform sampler2DShadow shadow_texture;
-uniform float blend;
+#endif	// USE_NOISE
+#ifdef	USE_CUBIC_FILTER
+uniform sampler1D hg_texture;
+uniform vec2 size;
+uniform vec2 texel_size_x;
+uniform vec2 texel_size_y;
+#endif	// USE_CUBIC_FILTER
 
 void main (void) 
 {
 	vec4 color, light, shadow_tex_pos;
-	vec4 reflection_tex_coord;
+	vec2 reflection_tex_coord;
 #ifdef	USE_SHADOW
 	vec4 shadow_tex_coord;
 #endif	// USE_SHADOW
@@ -19,10 +30,10 @@ void main (void)
 #ifdef	USE_SHADOW
 	shadow_tex_coord = gl_TexCoord[0];
 	tile_tex_coord = gl_TexCoord[1].st;
-	reflection_tex_coord = gl_TexCoord[2];
+	reflection_tex_coord = gl_TexCoord[2].xy / gl_TexCoord[2].w;
 #else	// USE_SHADOW
 	tile_tex_coord = gl_TexCoord[0].st;
-	reflection_tex_coord = gl_TexCoord[1];
+	reflection_tex_coord = gl_TexCoord[1].xy / gl_TexCoord[1].w;
 #endif	// USE_SHADOW
 
 #ifdef	USE_NOISE
@@ -33,11 +44,33 @@ void main (void)
 
 	noise_diplacment = texture3D(noise_texture, noise_tex_coord).ga * 2.0 - 1.0;
 
-	reflection_tex_coord += vec4(noise_diplacment * noise_scale.xy, 0.0, 0.0) * reflection_tex_coord.w;
+	reflection_tex_coord += noise_diplacment * noise_scale.xy;
 	tile_tex_coord += noise_diplacment * noise_scale.zw;
 #endif	// USE_NOISE
 
-	color = texture2DProj(reflection_texture, reflection_tex_coord);
+#ifdef	USE_CUBIC_FILTER
+	vec2 coord_hg = reflection_tex_coord * size - vec2(0.5, 0.5);
+	vec3 hg_x = texture1D(hg_texture, coord_hg.x).xyz;
+	vec3 hg_y = texture1D(hg_texture, coord_hg.y).xyz;
+
+	vec2 reflection_tex_coord10 = reflection_tex_coord + hg_x.x * texel_size_x;
+	vec2 reflection_tex_coord00 = reflection_tex_coord - hg_x.y * texel_size_x;
+	vec2 reflection_tex_coord11 = reflection_tex_coord + hg_y.x * texel_size_y;
+	vec2 reflection_tex_coord01 = reflection_tex_coord + hg_y.x * texel_size_y;
+	reflection_tex_coord10 -= hg_y.y * texel_size_y;
+	reflection_tex_coord00 -= hg_y.y * texel_size_y;
+
+	vec4 color00 = texture2D(reflection_texture, reflection_tex_coord00);
+	vec4 color10 = texture2D(reflection_texture, reflection_tex_coord10);
+	vec4 color01 = texture2D(reflection_texture, reflection_tex_coord01);
+	vec4 color11 = texture2D(reflection_texture, reflection_tex_coord11);
+
+	color00 = mix(color00, color01, hg_y.z);
+	color10 = mix(color10, color11, hg_y.z);
+	color = mix(color00, color10, hg_x.z);
+#else	// USE_CUBIC_FILTER
+	color = texture2D(reflection_texture, reflection_tex_coord);
+#endif	// USE_CUBIC_FILTER
 
 	color = mix(texture2D(tile_texture, tile_tex_coord), color, blend);
 

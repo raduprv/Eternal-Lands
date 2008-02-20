@@ -9,6 +9,7 @@
 #include "../io/elfilewrapper.h"
 
 GLuint noise_tex;
+GLuint filter_lut;
 
 typedef struct
 {
@@ -21,12 +22,12 @@ typedef struct
 shader_data shader_data_list[] = {
 	{ NULL, NULL, "./shaders/water_fs.glsl", " " },
 	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", " " },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n#define\tUSE_SHADOW\n" },
 	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n" },
 	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" }
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_SHADOW\n" }
 };
 
 #define	shader_data_size (sizeof(shader_data_list) / sizeof(shader_data))
@@ -280,11 +281,55 @@ static __inline__ int get_shader_index(shader_type type, shader_shadow_type shad
 	return ret;
 }
 
+static __inline__ GLuint build_filter_lut(const Uint32 size)
+{
+	GLfloat *data;
+	float w[4];
+	float x3, x2, x;
+	Uint32 i;
+	GLuint texture;
+
+	data = (GLfloat*)malloc(size * 3 * sizeof(GLfloat));
+
+	x = 0.0f;
+
+	for (i = 0; i < size; i++)
+	{
+		x2 = x * x;
+		x3 = x2 * x;
+
+		w[0] = (-x3 + 3 * x2 - 3 * x + 1) / 6.0f;
+		w[1] = (3 * x3 - 6 * x2 + 4) / 6.0f;
+		w[2] = (-3 * x3 + 3 * x2 + 3 * x + 1) / 6.0f;
+		w[3] = x3 / 6.0f;
+
+		data[i * 3 + 0] = 1.0 + x - w[1] / (w[0] + w[1]);
+		data[i * 3 + 1] = 1.0 - x + w[3] / (w[2] + w[3]);
+		data[i * 3 + 2] = w[2] + w[3];
+
+		x += 1.0f / (size - 1);
+	}
+
+	log_info("Filter lookup texture\n");
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_1D, texture);
+
+	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+	glTexParameterf(GL_TEXTURE_1D, GL_TEXTURE_MIN_FILTER, GL_LINEAR);
+	glTexImage1D(GL_TEXTURE_1D, 0, GL_RGB10_A2, size, 0, GL_RGB, GL_FLOAT, data);
+	glBindTexture(GL_TEXTURE_1D, 0);
+	free(data);
+
+	return texture;
+}
+
 void init_shaders()
 {
 	int i;
 
 	noise_tex = build_3d_noise_texture(64, 3, 2);
+	filter_lut = build_filter_lut(128);
 
 	memset(shader, 0, sizeof(shader));
 
@@ -292,7 +337,7 @@ void init_shaders()
 	{
 		for (i = 0; i < shader_data_size; i++)
 		{
-				shader[i] = build_shader(shader_data_list[i].vertex_shader_file_name,
+			shader[i] = build_shader(shader_data_list[i].vertex_shader_file_name,
 				shader_data_list[i].vertex_shader_defines,
 				shader_data_list[i].fragment_shader_file_name,
 				shader_data_list[i].fragment_shader_defines);

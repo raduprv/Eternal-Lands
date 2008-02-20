@@ -21,6 +21,7 @@ typedef enum
 } shader_type;
 
 extern GLuint noise_tex;
+extern GLuint filter_lut;
 
 void init_shaders();
 

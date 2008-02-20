@@ -107,7 +107,11 @@ static inline void update_selection(Uint8 *color)
 	}
 	index = 0;
 	count = 0;
+#ifdef	USE_BOOST
+	BOOST_FOREACH(it, indices)
+#else	/* USE_BOOST */
 	for (it = indices.begin(); it != indices.end(); it++)
+#endif	/* USE_BOOST */
 	{
 		if (it->second > count)
 		{

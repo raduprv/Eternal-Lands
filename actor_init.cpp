@@ -479,7 +479,11 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 		}
 	}
 #else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+#ifdef	USE_BOOST
+	BOOST_FOREACH(it, im)
+#else	/* USE_BOOST */
 	for (it = im->begin(); it != im->end(); it++)
+#endif	/* USE_BOOST */
 	{
 		render_mesh_shader(a, act, it->first, it->second, use_glow);
 	}
