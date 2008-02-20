@@ -199,6 +199,7 @@ static inline int old_anything_under_the_mouse(int object_id, int object_type)
 	return 0;//no collision, sorry
 }
 
+#ifdef NEW_SELECTION
 extern "C" void reset_under_the_mouse()
 {
 	Uint8 color[4];
@@ -393,4 +394,4 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 		return old_anything_under_the_mouse(object_id, object_type);
 	}
 }
-
+#endif
