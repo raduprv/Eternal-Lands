@@ -958,11 +958,6 @@ int display_game_handler (window_info *win)
 		resize_root_window ();
 	}
 
-#ifdef SKY_FPV_CURSOR
-	glPushMatrix();
-	if(show_sky && *display_sky != NULL)(*display_sky)();
-	glPopMatrix();
-#endif /* SKY_FPV_CURSOR */
 	move_camera ();
 	save_scene_matrix ();
 
@@ -972,6 +967,13 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS ();
 
 	reset_under_the_mouse();
+
+#ifdef SKY_FPV_CURSOR
+	glPushMatrix();
+    glLoadIdentity();
+	if(show_sky && *display_sky != NULL)(*display_sky)();
+	glPopMatrix();
+#endif /* SKY_FPV_CURSOR */
 
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)

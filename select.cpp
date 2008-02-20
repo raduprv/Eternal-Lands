@@ -224,7 +224,7 @@ extern "C" void reset_under_the_mouse()
 			draw_tile_map();
 			display_2d_objects();
 
-			glPushAttrib(GL_ENABLE_BIT);
+			glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glDisableClientState(GL_NORMAL_ARRAY);
 			ELglClientActiveTextureARB(GL_TEXTURE1);
@@ -358,9 +358,9 @@ extern "C" void reset_under_the_mouse()
 			glReadPixels(x, y, select_size, select_size, GL_RGBA, GL_UNSIGNED_BYTE, buffer);
 			update_selection(buffer);
 
+			glPopAttrib();
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
-			glPopAttrib();
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			ELglClientActiveTextureARB(base_unit);
 			ELglActiveTexture(base_unit);

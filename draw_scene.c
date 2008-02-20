@@ -111,7 +111,7 @@ void draw_scene()
 	CHECK_GL_ERRORS();
 
 #ifndef NEW_WEATHER
-	if (dungeon) {
+	if (dungeon || !use_fog) {
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 	} else {
 		glClearColor(fogColor[0], fogColor[1], fogColor[2], 0.0);
