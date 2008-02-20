@@ -729,17 +729,6 @@ void	add_displayed_text_to_actor( actor * actor_ptr, const char* text);
  */
 actor *	get_actor_ptr_from_id( int actor_id );
 
-/*!
- * \ingroup	display_actors
- * \brief	Gets the max Z of the given actor
- * 
- * 		Gets the max Z of the given actor.
- *
- * \param	act A pointer to the actor
- * \retval	float The max Z
- */
-float cal_get_maxz2(actor *act);
-
 void end_actors_lists(void);
 
 int on_the_move (const actor *act);

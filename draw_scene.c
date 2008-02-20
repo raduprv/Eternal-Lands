@@ -3,6 +3,7 @@
 #include <string.h>
 #include "draw_scene.h"
 #include "bbox_tree.h"
+#include "cal.h"
 #include "cursors.h"
 #include "elwindows.h"
 #include "gamewin.h"
@@ -15,6 +16,7 @@
 #include "new_actors.h"
 #include "new_character.h"
 #include "shadows.h"
+#include "skeletons.h"
 #include "sound.h"
 #include "storage.h"
 #include "tiles.h"
@@ -195,7 +197,7 @@ void move_camera ()
 {
 	float x, y, z;
 #ifdef SKY_FPV_CURSOR
-	float hx, hy, hz, follow_speed;
+	float head_pos[3], follow_speed;
 #endif /* SKY_FPV_CURSOR */
 	static int lagged=1;
 	actor *me = get_our_actor ();
@@ -211,15 +213,18 @@ void move_camera ()
 #ifndef SKY_FPV_CURSOR
 	z=-2.2f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+sitting;
 #else /* SKY_FPV_CURSOR */
-	if(cal_get_head(me, &hx, &hy, &hz) || hz < 0.1f){
-		//There was an error. We can try approximately correct numbers here.
-		hz = sitting?0.5f:1.5f;
-	}
 
-	if (first_person){
-		z = (ext_cam?-1.7f:-2.1f) + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + hz;
-	} else if (ext_cam){
-		z = -1.6f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + hz;
+    cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
+
+    /* Schmurk: I've commented this out because I don't see why the position of
+     * the camera should be different from the head position in ext cam and fpv */
+/* 	if (first_person){ */
+/* 		z = (ext_cam?-1.7f:-2.1f) + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + head_pos[2]; */
+/* 	} else if (ext_cam){ */
+/* 		z = -1.6f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + head_pos[2]; */
+	if (first_person || ext_cam) {
+        // the camera position corresponds to the head position
+		z = -2.2f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + head_pos[2];
 	} else {
 		z = -2.2f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + sitting;
 	}
@@ -298,7 +303,7 @@ void move_camera ()
 
 
 	if (first_person){
-		glTranslatef(hx,hy,0);
+		glTranslatef(head_pos[0], head_pos[1], 0.0);
 	} else {
 		glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	}

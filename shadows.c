@@ -18,6 +18,7 @@
 #include "map.h"
 #include "new_actors.h"
 #include "reflection.h"
+#include "skeletons.h"
 #include "textures.h"
 #include "tiles.h"
 #include "weather.h"
@@ -557,9 +558,9 @@ void setup_shadow_mapping()
 #ifdef SKY_FPV_CURSOR
 	if (first_person)
 	{
-		float hx, hy, hz;
-		cal_get_head (get_our_actor(), &hx, &hy, &hz);
-		glTranslatef(hx,hy,0);
+		float head_pos[3];
+        cal_get_actor_bone_local_position(get_our_actor(), get_actor_bone_id(get_our_actor(), head_bone), NULL, head_pos);
+		glTranslatef(head_pos[0], head_pos[1], 0.0);
 	}
 #endif /* SKY_FPV_CURSOR */
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);

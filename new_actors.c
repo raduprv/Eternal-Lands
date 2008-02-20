@@ -169,54 +169,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	return i;
 }
 
-#ifdef SKY_FPV_CURSOR
-
-//Returns location of theoretical head point
-int cal_get_head(actor *act, float *x, float *y, float *z)
-{
-	float points[1024][3];  // caution, 1k point limit
-	int nrPoints;
-	struct CalSkeleton *skel;
-
-	if(act == NULL || act->calmodel == NULL){
-		//Uhoh...
-		return 1;
-	}
-	skel= CalModel_GetSkeleton(act->calmodel);
-	if(skel == NULL){
-		*x = *y = *z = -1.0f;
-		return 1;
-	}
-	nrPoints= CalSkeleton_GetBonePoints(skel,&points[0][0]);
-	*x = points[nrPoints-1][0];
-	*y = points[nrPoints-1][1];
-	*z = points[nrPoints-1][2];
-	return 0;
-}
-
-
-float cal_get_maxz(actor *act)
-{
-	float points[1024][3];  // caution, 1k point limit
-	int nrPoints;
-	struct CalSkeleton *skel;
-	float maxz;
-	//int i;
-
-	skel= CalModel_GetSkeleton(act->calmodel);
-	nrPoints= CalSkeleton_GetBonePoints(skel,&points[0][0]);
-	//For FPV max point is a bad system. It makes banners and camera bounce when sword bone is raised over head.
-	//maxz= points[0][2];
-	//for(i=1; i<nrPoints; ++i) if(maxz<points[i][2]) maxz= points[i][2];
-	//The following kludge seems to select the point at the top of the neck which is usually the max point.
-	//This is easily broken by odd model design. An identifiable eye point would be better.
-	maxz = points[nrPoints-1][2];
-	return maxz;
-}
-
-
-#endif /* SKY_FPV_CURSOR */
-
 void unwear_item_from_actor(int actor_id,Uint8 which_part)
 {
 	int i;
