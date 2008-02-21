@@ -1231,15 +1231,16 @@ void next_command()
                                 // if other move commands are waiting in the queue, we walk close to the server speed
                                 if (actors_list[i]->que[2] >= move_n &&
                                     actors_list[i]->que[2] <= move_nw)
-                                    actors_list[i]->movement_time_left=280;
+                                    actors_list[i]->movement_time_left=260;
                                 else
-                                    actors_list[i]->movement_time_left=310;
+                                    actors_list[i]->movement_time_left=280;
                             }
                             else {
                                 // else we walk at a slightly slower speed to wait next walking commands
-                                actors_list[i]->movement_time_left=340;
+                                actors_list[i]->movement_time_left=300;
                             }
-                            actors_list[i]->cur_anim.duration_scale = actors_list[i]->cur_anim.duration*500.0/(float)actors_list[i]->movement_time_left;
+							/* the 420 value is a factor to be almost equal the old walking speed at a duration of 270 */
+                            actors_list[i]->cur_anim.duration_scale = actors_list[i]->cur_anim.duration*420.0/(float)actors_list[i]->movement_time_left;
                             actors_list[i]->move_x_speed = 0.5*(sin(targeted_z_rot*M_PI/180.0)+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
                             actors_list[i]->move_y_speed = 0.5*(cos(targeted_z_rot*M_PI/180.0)+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
                             actors_list[i]->move_x_speed /= (float)actors_list[i]->movement_time_left;
