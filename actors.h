@@ -432,6 +432,7 @@ typedef struct
 
 } actor_types;
 
+#ifndef NEW_ACTOR_MOVEMENT
 /*!
  * This structure holds data that is frequently accessed by both the timer and render thread. On each new frame the data is copied from the actor structure, partly to prevent timing issues, partly to make sure that the same picture is rendered throughout all frames in the scene.
  */
@@ -459,6 +460,7 @@ typedef struct
 	float z_rot;		/*!< The actors z position*/
 	/*! \} */
 } tmp_actor_data;
+#endif // NEW_ACTOR_MOVEMENT
 
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
@@ -468,7 +470,9 @@ typedef struct
 	/*! \{ */
 	int actor_id;		/*!< The actor ID from the server*/
 	int actor_type;		/*!< Specifies the type of actor (race, sex etc.)*/
+#ifndef NEW_ACTOR_MOVEMENT
 	tmp_actor_data tmp;	/*!< The actors temporary data used for rendering*/
+#endif // NEW_ACTOR_MOVEMENT
 	/*! \} */
 
 	struct CalModel *calmodel;
@@ -489,6 +493,7 @@ typedef struct
 	float cal_v_rot_end;      /*!< The ending vertical rotation */
 	float cal_rotation_blend; /*!< The blend to applay between the starting and the ending rotations */
 	float cal_rotation_speed; /*!< The speed of the rotation */
+    int cal_last_rotation_time; /*!< The last time when the rotation has been updated */
 	char are_bones_rotating;  /*!< To tell if the char is rotating */
 	char in_aim_mode;         /*!< To tell if the char is already aiming something */
 	char reload;              /*!< To tell if the char must reload his bow after the next fire */
@@ -565,12 +570,20 @@ typedef struct
 	double move_x_speed;	/*!< Sets the current movement speed in the x direction (used for updating the actor in the timer thread)*/
 	double move_y_speed;	/*!< Sets the current movement speed in the y direction (used for updating the actor in the timer thread)*/
 	double move_z_speed;	/*!< Sets the current movement speed in the z direction (used for updating the actor in the timer thread)*/
+#ifndef NEW_ACTOR_MOVEMENT
 	int movement_frames_left;	/*!< Specifies how many movement frames the actor has to do before it goes idle*/
+#else // NEW_ACTOR_MOVEMENT
+	int movement_time_left; /*!< Specifies the time left for the actor movement before it goes in idle */
+#endif
 	float rotate_x_speed;	/*!< Sets the x rotation speed (used for updating the actor in the timer thread)*/
 	float rotate_y_speed;	/*!< Sets the y rotation speed (used for updating the actor in the timer thread)*/
 	float rotate_z_speed;	/*!< Sets the z rotation speed (used for updating the actor in the timer thread)*/
+#ifndef NEW_ACTOR_MOVEMENT
 	int rotate_frames_left;	/*!< Specifies how many rotation frames it needs to do*/
 	int after_move_frames_left; /*!< When the actor is done moving, it does a small animation before idleing - specifies how many frames it needs to render of that animation*/
+#else // NEW_ACTOR_MOVEMENT
+    int rotate_time_left; /*!< Specifies the time left for the actor rotation before it goes in idle */
+#endif // NEW_ACTOR_MOVEMENT
 	/*! \} */
 
 	/*! \name Misc. animations*/

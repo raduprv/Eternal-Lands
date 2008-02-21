@@ -160,6 +160,9 @@ int start_rendering()
 
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
+#ifdef NEW_ACTOR_MOVEMENT
+                animate_actors();
+#endif // NEW_ACTOR_MOVEMENT
 				//draw everything
 				draw_scene();
 				last_time=cur_time;

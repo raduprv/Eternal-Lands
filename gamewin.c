@@ -309,7 +309,11 @@ void toggle_first_person()
 	if (first_person == 0){
 		//rotate camera where actor is looking at
 		actor *me = get_our_actor();
+#ifndef NEW_ACTOR_MOVEMENT
 		if (me) rz=me->tmp.z_rot;
+#else // NEW_ACTOR_MOVEMENT
+		if (me) rz=me->z_rot;
+#endif // NEW_ACTOR_MOVEMENT
 		rx=-90;
 		first_person = 1;
 		fol_cam = 0;
@@ -978,7 +982,9 @@ int display_game_handler (window_info *win)
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
+#ifndef NEW_ACTOR_MOVEMENT
 		get_tmp_actor_data();
+#endif // NEW_ACTOR_MOVEMENT
 	
 #ifndef NEW_WEATHER
 		//now, determine the current weather light level

@@ -168,6 +168,7 @@ void draw_scene()
 	}
 }
 
+#ifndef NEW_ACTOR_MOVEMENT
 void get_tmp_actor_data()
 {
 	int i;
@@ -192,6 +193,7 @@ void get_tmp_actor_data()
 		}
 	UNLOCK_ACTORS_LISTS();
 }
+#endif // NEW_ACTOR_MOVEMENT
 
 void move_camera ()
 {
@@ -202,6 +204,7 @@ void move_camera ()
 	static int lagged=1;
 	actor *me = get_our_actor ();
 	
+#ifndef NEW_ACTOR_MOVEMENT
 	if(!me || !me->tmp.have_tmp){
 		lagged=1;
 		return;
@@ -228,7 +231,38 @@ void move_camera ()
 	} else {
 		z = -2.2f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + sitting;
 	}
+#endif /* SKY_FPV_CURSOR */
+#else // NEW_ACTOR_MOVEMENT
+    if(!me){
+		lagged=1;
+		return;
+	}
 
+	x = (float)me->x_pos+0.25f;
+	y = (float)me->y_pos+0.25f;
+
+#ifndef SKY_FPV_CURSOR
+	z=-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+sitting;
+#else /* SKY_FPV_CURSOR */
+
+    cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
+
+    /* Schmurk: I've commented this out because I don't see why the position of
+     * the camera should be different from the head position in ext cam and fpv */
+/* 	if (first_person){ */
+/* 		z = (ext_cam?-1.7f:-2.1f) + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + head_pos[2]; */
+/* 	} else if (ext_cam){ */
+/* 		z = -1.6f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + head_pos[2]; */
+	if (first_person || ext_cam) {
+        // the camera position corresponds to the head position
+		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + head_pos[2];
+	} else {
+		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + sitting;
+	}
+#endif /* SKY_FPV_CURSOR */
+#endif // NEW_ACTOR_MOVEMENT
+
+#ifdef SKY_FPV_CURSOR
 	if(first_person||ext_cam){
 #ifndef NEW_CAMERA
 		follow_speed = 8.0f;
@@ -558,7 +592,11 @@ void update_camera(Uint32 time_delta)
 	actor *me = get_our_actor();
 
 	if (fol_cam) rz=hold_camera;
+#ifndef NEW_ACTOR_MOVEMENT
 	if (me) camera_kludge=180-me->tmp.z_rot;
+#else // NEW_ACTOR_MOVEMENT
+	if (me) camera_kludge=180-me->z_rot;
+#endif // NEW_ACTOR_MOVEMENT
 #endif /* SKY_FPV_CURSOR */
 
 	if(camera_rotation_duration > 0){

@@ -342,7 +342,11 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 
 	if (in_act->rotating) {
         missiles_log_message("the actor is already rotating so we get the final position first");
+#ifndef NEW_ACTOR_MOVEMENT
 		act_z_rot += in_act->rotate_z_speed * in_act->rotate_frames_left;
+#else // NEW_ACTOR_MOVEMENT
+		act_z_rot += in_act->rotate_z_speed * in_act->rotate_time_left;
+#endif // NEW_ACTOR_MOVEMENT
 	}
 
 	// we first compute the global rotation
@@ -458,7 +462,7 @@ void missiles_rotate_actor_bones(actor *a)
 	skel = CalModel_GetSkeleton(a->calmodel);
 	
 	if (a->cal_rotation_blend < 1.0) {
-		a->cal_rotation_blend += a->cal_rotation_speed;
+		a->cal_rotation_blend += a->cal_rotation_speed*(cur_time-a->cal_last_rotation_time);
 
 		hrot = (a->cal_h_rot_start * (1.0 - a->cal_rotation_blend) +
 				a->cal_h_rot_end * a->cal_rotation_blend);
@@ -562,6 +566,8 @@ void missiles_rotate_actor_bones(actor *a)
 	CalVector_Delete(vect);
 	CalQuaternion_Delete(hrot_quat);
 	CalQuaternion_Delete(vrot_quat);
+
+    a->cal_last_rotation_time = cur_time;
 }
 
 void missiles_test_target_validity(float target[3], char *msg)

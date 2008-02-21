@@ -272,7 +272,9 @@ int display_newchar_handler (window_info *win)
 	reset_under_the_mouse();
 
 	if (SDL_GetAppState() & SDL_APPACTIVE) {
+#ifndef NEW_ACTOR_MOVEMENT
 		get_tmp_actor_data();
+#endif // NEW_ACTOR_MOVEMENT
 
 #ifndef NEW_WEATHER
 		//now, determine the current weather light level

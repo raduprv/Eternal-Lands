@@ -448,19 +448,32 @@ void animate_actors()
 {
 	int i;
 	static int last_update= 0;
-	char str[255];
+#ifdef NEW_ACTOR_MOVEMENT
+    int time_diff = cur_time-last_update;
+    int tmp_time_diff;
+#endif
 
 	// lock the actors_list so that nothing can interere with this look
 	LOCK_ACTORS_LISTS();	//lock it to avoid timing issues
 	for(i=0; i<max_actors; i++) {
 		if(actors_list[i]) {
 			if(actors_list[i]->moving) {
+#ifndef NEW_ACTOR_MOVEMENT
 				actors_list[i]->movement_frames_left--;
 				if(!actors_list[i]->movement_frames_left){	//we moved all the way
+#else // NEW_ACTOR_MOVEMENT
+                actors_list[i]->movement_time_left -= time_diff;
+                actors_list[i]->x_pos+= actors_list[i]->move_x_speed*time_diff;
+                actors_list[i]->y_pos+= actors_list[i]->move_y_speed*time_diff;
+                actors_list[i]->z_pos+= actors_list[i]->move_z_speed*time_diff;
+				if(actors_list[i]->movement_time_left <= 0){	//we moved all the way
+#endif // NEW_ACTOR_MOVEMENT
 					Uint8 last_command;
 
 					actors_list[i]->moving= 0;	//don't move next time, ok?
+#ifndef NEW_ACTOR_MOVEMENT
 					actors_list[i]->after_move_frames_left= 3;	//this is done to prevent going to idle imediatelly
+#endif // NEW_ACTOR_MOVEMENT
 					//now, we need to update the x/y_tile_pos, and round off
 					//the x/y_pos according to x/y_tile_pos
 					last_command= actors_list[i]->last_command;
@@ -503,25 +516,43 @@ void animate_actors()
 						break;
 					}
 
+#ifndef NEW_ACTOR_MOVEMENT
 					//ok, now update the x/y_pos
 					actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
 					actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
+#endif // NEW_ACTOR_MOVEMENT
 
 					// and update the minimap if we need to
 					if(actors_list[i]->actor_id == yourself){
 						update_exploration_map();
 					}
 					minimap_touch();
-				} else {
+#ifdef NEW_ACTOR_MOVEMENT
+                    actors_list[i]->busy = 0;
+                    if (actors_list[i]->que[0] >= move_n &&
+                        actors_list[i]->que[0] <= move_nw) {
+                        next_command();
+                    }
+                    else {
+                        actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
+                        actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
+                    }
+#endif // NEW_ACTOR_MOVEMENT
+				}
+#ifndef NEW_ACTOR_MOVEMENT
+				else {
 					actors_list[i]->x_pos+= actors_list[i]->move_x_speed;
 					actors_list[i]->y_pos+= actors_list[i]->move_y_speed;
 					actors_list[i]->z_pos+= actors_list[i]->move_z_speed;
-
 				}
-			} else {//Not moving
+#endif // NEW_ACTOR_MOVEMENT
+			}
+#ifndef NEW_ACTOR_MOVEMENT
+            else {//Not moving
 				if(actors_list[i]->after_move_frames_left){
 					actors_list[i]->after_move_frames_left--;
 					if (actors_list[i]->actor_id == yourself)  {
+                        char str[255];
 						safe_snprintf(str,sizeof(str),"Left: %d",actors_list[i]->after_move_frames_left);
 					}
 					if(!actors_list[i]->after_move_frames_left){
@@ -530,14 +561,29 @@ void animate_actors()
 					}
 				}
 			}
+#endif // NEW_ACTOR_MOVEMENT
 
 			if(actors_list[i]->rotating) {
+#ifndef NEW_ACTOR_MOVEMENT
 				actors_list[i]->rotate_frames_left--;
 				if(!actors_list[i]->rotate_frames_left)//we rotated all the way
 					actors_list[i]->rotating= 0;//don't rotate next time, ok?
 				actors_list[i]->x_rot+= actors_list[i]->rotate_x_speed;
 				actors_list[i]->y_rot+= actors_list[i]->rotate_y_speed;
 				actors_list[i]->z_rot+= actors_list[i]->rotate_z_speed;
+#else // NEW_ACTOR_MOVEMENT
+				actors_list[i]->rotate_time_left -= time_diff;
+				if (actors_list[i]->rotate_time_left <= 0) { //we rotated all the way
+					actors_list[i]->rotating= 0;//don't rotate next time, ok?
+                    tmp_time_diff = time_diff + actors_list[i]->rotate_time_left;
+                }
+                else {
+                    tmp_time_diff = time_diff;
+                }
+				actors_list[i]->x_rot+= actors_list[i]->rotate_x_speed*tmp_time_diff;
+				actors_list[i]->y_rot+= actors_list[i]->rotate_y_speed*tmp_time_diff;
+				actors_list[i]->z_rot+= actors_list[i]->rotate_z_speed*tmp_time_diff;
+#endif // NEW_ACTOR_MOVEMENT
 				if(actors_list[i]->z_rot >= 360) {
 					actors_list[i]->z_rot -= 360;
 				} else if (actors_list[i]->z_rot <= 0) {
@@ -652,10 +698,19 @@ void next_command()
 	int i;
 	int max_queue=0;
 
+#ifndef NEW_ACTOR_MOVEMENT
 	LOCK_ACTORS_LISTS();
+#endif // NEW_ACTOR_MOVEMENT
 	for(i=0;i<max_actors;i++){
 		if(!actors_list[i])continue;//actor exists?
-		if(!actors_list[i]->busy || (actors_list[i]->busy && actors_list[i]->after_move_frames_left && (actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw))){//Are we busy?
+		if(!actors_list[i]->busy
+#ifndef NEW_ACTOR_MOVEMENT
+           || (actors_list[i]->busy &&
+               actors_list[i]->after_move_frames_left &&
+               (actors_list[i]->que[0]>=move_n &&
+                actors_list[i]->que[0]<=move_nw))
+#endif // NEW_ACTOR_MOVEMENT
+           ){//Are we busy?
 			if(actors_list[i]->que[0]==nothing){//Is the queue empty?
 				//if que is empty, set on idle
 				if(!actors_list[i]->dead) {
@@ -878,14 +933,23 @@ void next_command()
 						break;
 					case turn_left:
 						//LOG_TO_CONSOLE(c_green2,"turn left");
+#ifndef NEW_ACTOR_MOVEMENT
 						actors_list[i]->rotate_z_speed=45.0/27.0;
 						actors_list[i]->rotate_frames_left=27;
+#else // NEW_ACTOR_MOVEMENT
+						actors_list[i]->rotate_z_speed=45.0/540.0;
+						actors_list[i]->rotate_time_left=540;
+#endif // NEW_ACTOR_MOVEMENT
 						actors_list[i]->rotating=1;
 						//generate a fake movement, so we will know when to make the actor
 						//not busy
 						actors_list[i]->move_x_speed=0;
 						actors_list[i]->move_y_speed=0;
+#ifndef NEW_ACTOR_MOVEMENT
 						actors_list[i]->movement_frames_left=27;
+#else // NEW_ACTOR_MOVEMENT
+						actors_list[i]->movement_time_left=540;
+#endif // NEW_ACTOR_MOVEMENT
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
@@ -895,14 +959,23 @@ void next_command()
 						break;
 					case turn_right:
 					//LOG_TO_CONSOLE(c_green2,"turn right");
+#ifndef NEW_ACTOR_MOVEMENT
 						actors_list[i]->rotate_z_speed=-45.0/27.0;
 						actors_list[i]->rotate_frames_left=27;
+#else // NEW_ACTOR_MOVEMENT
+						actors_list[i]->rotate_z_speed=-45.0/540.0;
+						actors_list[i]->rotate_time_left=540;
+#endif // NEW_ACTOR_MOVEMENT
 						actors_list[i]->rotating=1;
 						//generate a fake movement, so we will know when to make the actor
 						//not busy
 						actors_list[i]->move_x_speed=0;
 						actors_list[i]->move_y_speed=0;
+#ifndef NEW_ACTOR_MOVEMENT
 						actors_list[i]->movement_frames_left=27;
+#else // NEW_ACTOR_MOVEMENT
+						actors_list[i]->movement_time_left=540;
+#endif // NEW_ACTOR_MOVEMENT
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
@@ -940,17 +1013,26 @@ void next_command()
 																		 &actors_list[i]->cal_v_rot_end,
 																		 actors_list[i], actors_list[i]->range_target_aim);
 						actors_list[i]->cal_rotation_blend = 0.0;
-						actors_list[i]->cal_rotation_speed = 1.0/20.0;
+						actors_list[i]->cal_rotation_speed = 1.0/360.0;
+                        actors_list[i]->cal_last_rotation_time = cur_time;
 						actors_list[i]->are_bones_rotating = 1;
 						actors_list[i]->stop_animation = 1;
 						
 						if (range_rotation != 0.0) {
 							missiles_log_message("the actor is not facing its target => client side rotation needed");
+#ifndef NEW_ACTOR_MOVEMENT
 							if (actors_list[i]->rotating) {
 								range_rotation += actors_list[i]->rotate_z_speed * actors_list[i]->rotate_frames_left;
 							}
-							actors_list[i]->rotate_z_speed = range_rotation/20.0;
-							actors_list[i]->rotate_frames_left=20;
+							actors_list[i]->rotate_z_speed = range_rotation/18.0;
+							actors_list[i]->rotate_frames_left=18;
+#else // NEW_ACTOR_MOVEMENT
+							if (actors_list[i]->rotating) {
+								range_rotation += actors_list[i]->rotate_z_speed * actors_list[i]->rotate_time_left;
+							}
+							actors_list[i]->rotate_z_speed = range_rotation/360.0;
+							actors_list[i]->rotate_time_left=360;
+#endif // NEW_ACTOR_MOVEMENT
 							actors_list[i]->rotating=1;
 						}
 					}
@@ -972,7 +1054,8 @@ void next_command()
 					actors_list[i]->cal_h_rot_end = 0.0;
 					actors_list[i]->cal_v_rot_end = 0.0;
 					actors_list[i]->cal_rotation_blend = 0.0;
-					actors_list[i]->cal_rotation_speed = 1.0/20.0;
+					actors_list[i]->cal_rotation_speed = 1.0/360.0;
+                    actors_list[i]->cal_last_rotation_time = cur_time;
 					actors_list[i]->are_bones_rotating = 1;
 					actors_list[i]->in_aim_mode = 0;
 					actors_list[i]->stop_animation = 1;
@@ -1015,7 +1098,8 @@ void next_command()
 					actors_list[i]->cal_h_rot_end = 0.0;
 					actors_list[i]->cal_v_rot_end = 0.0;
 					actors_list[i]->cal_rotation_blend = 0.0;
-					actors_list[i]->cal_rotation_speed = 1.0/20.0;
+					actors_list[i]->cal_rotation_speed = 1.0/360.0;
+                    actors_list[i]->cal_last_rotation_time = cur_time;
 					actors_list[i]->are_bones_rotating = 1;
 					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
@@ -1102,7 +1186,11 @@ void next_command()
 							if(last_command!=actors_list[i]->que[0]){ //Calculate the rotation
 								targeted_z_rot=(actors_list[i]->que[0]-move_n)*45.0f;
 								rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
+#ifndef NEW_ACTOR_MOVEMENT
 								actors_list[i]->rotate_z_speed=rotation_angle/18;
+#else // NEW_ACTOR_MOVEMENT
+								actors_list[i]->rotate_z_speed=rotation_angle/360.0;
+#endif // NEW_ACTOR_MOVEMENT
 								if(auto_camera && actors_list[i]->actor_id==yourself){
 #ifndef NEW_CAMERA
 									camera_rotation_speed=rotation_angle/54;
@@ -1113,11 +1201,23 @@ void next_command()
 #endif // NEW_CAMERA
 								}
 
+#ifndef NEW_ACTOR_MOVEMENT
 								actors_list[i]->rotate_frames_left=18;
+#else // NEW_ACTOR_MOVEMENT
+								actors_list[i]->rotate_time_left=360;
+#endif // NEW_ACTOR_MOVEMENT
 								actors_list[i]->rotating=1;
-							} else targeted_z_rot=z_rot;
+							}
+#ifndef NEW_ACTOR_MOVEMENT
+                            else targeted_z_rot=z_rot;
+#else // NEW_ACTOR_MOVEMENT
+                            else {
+                                targeted_z_rot = (last_command-move_n)*45.0;
+                            }
+#endif // NEW_ACTOR_MOVEMENT
 
 							//ok, now calculate the motion vector...
+#ifndef NEW_ACTOR_MOVEMENT
 							actors_list[i]->move_x_speed=(actors_defs[actor_type].walk_speed/3.0f)*sin(targeted_z_rot*M_PI/180.0);
 							actors_list[i]->move_y_speed=(actors_defs[actor_type].walk_speed/3.0f)*cos(targeted_z_rot*M_PI/180.0);
 							actors_list[i]->movement_frames_left=54/4;
@@ -1125,17 +1225,46 @@ void next_command()
 							//test to see if we have a diagonal movement, and if we do, adjust the speeds
 							if((actors_list[i]->move_x_speed>0.01f || actors_list[i]->move_x_speed<-0.01f)
 							   && (actors_list[i]->move_y_speed>0.01f || actors_list[i]->move_y_speed<-0.01f)) {
+#else // NEW_ACTOR_MOVEMENT
+                            if (actors_list[i]->que[1] >= move_n &&
+                                actors_list[i]->que[1] <= move_nw) {
+                                // if other move commands are waiting in the queue, we walk close to the server speed
+                                if (actors_list[i]->que[2] >= move_n &&
+                                    actors_list[i]->que[2] <= move_nw)
+                                    actors_list[i]->movement_time_left=280;
+                                else
+                                    actors_list[i]->movement_time_left=310;
+                            }
+                            else {
+                                // else we walk at a slightly slower speed to wait next walking commands
+                                actors_list[i]->movement_time_left=340;
+                            }
+                            actors_list[i]->cur_anim.duration_scale = actors_list[i]->cur_anim.duration*500.0/(float)actors_list[i]->movement_time_left;
+                            actors_list[i]->move_x_speed = 0.5*(sin(targeted_z_rot*M_PI/180.0)+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
+                            actors_list[i]->move_y_speed = 0.5*(cos(targeted_z_rot*M_PI/180.0)+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
+                            actors_list[i]->move_x_speed /= (float)actors_list[i]->movement_time_left;
+                            actors_list[i]->move_y_speed /= (float)actors_list[i]->movement_time_left;
+							//test to see if we have a diagonal movement, and if we do, adjust the speeds
+                            if (actors_list[i]->que[0] == move_ne ||
+                                actors_list[i]->que[0] == move_se ||
+                                actors_list[i]->que[0] == move_sw ||
+                                actors_list[i]->que[0] == move_nw) {
+#endif // NEW_ACTOR_MOVEMENT
 								actors_list[i]->move_x_speed*=1.4142315;
 								actors_list[i]->move_y_speed*=1.4142315;
 							}
-
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
 
 							targeted_z_rot=(actors_list[i]->que[0]-turn_n)*45.0f;
 							rotation_angle=get_rotation_vector(z_rot,targeted_z_rot);
+#ifndef NEW_ACTOR_MOVEMENT
 							actors_list[i]->rotate_z_speed=rotation_angle/18.0f;
 							actors_list[i]->rotate_frames_left=18;
+#else // NEW_ACTOR_MOVEMENT
+							actors_list[i]->rotate_z_speed=rotation_angle/360.0f;
+							actors_list[i]->rotate_time_left=360;
+#endif // NEW_ACTOR_MOVEMENT
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
 #ifdef MISSILES
@@ -1173,7 +1302,9 @@ void next_command()
 				}
 			}
 		}
+#ifndef NEW_ACTOR_MOVEMENT
 	UNLOCK_ACTORS_LISTS();
+#endif // NEW_ACTOR_MOVEMENT
 	if(max_queue >= (MAX_CMD_QUEUE/2))my_timer_adjust+=6+(max_queue-(MAX_CMD_QUEUE/2));	//speed up the timer clock if we are building up too much
 }
 
@@ -1551,8 +1682,13 @@ void move_self_forward()
 
 	if(!me)return;//Wtf!?
 
+#ifndef NEW_ACTOR_MOVEMENT
 	x=me->tmp.x_tile_pos;
 	y=me->tmp.y_tile_pos;
+#else // NEW_ACTOR_MOVEMENT
+	x=me->x_tile_pos;
+	y=me->y_tile_pos;
+#endif // NEW_ACTOR_MOVEMENT
 	rot=(int)rint(me->z_rot/45.0f);
 	if (rot < 0) rot += 8;
 	switch(rot) {

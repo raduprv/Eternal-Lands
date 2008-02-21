@@ -123,7 +123,11 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->rotate_x_speed=0;
 	our_actor->rotate_y_speed=0;
 	our_actor->rotate_z_speed=0;
+#ifndef NEW_ACTOR_MOVEMENT
 	our_actor->movement_frames_left=0;
+#else // NEW_ACTOR_MOVEMENT
+	our_actor->movement_time_left=0;
+#endif // NEW_ACTOR_MOVEMENT
 	our_actor->moving=0;
 	our_actor->rotating=0;
 	our_actor->busy=0;

@@ -23,6 +23,7 @@ FEATURES += MASKING                         # Allow for item masking on Actors, 
 #FEATURES += MISSILES                        # Enables missiles support, use ctrl+click to enter range mode and fire (unfinished)
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
+#FEATURES += NEW_ACTOR_MOVEMENT              # Binds the actors movements to the display instead of the timer and also improves some stuff that makes the animation much smoother.
 #FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += NEW_CAMERA                      # Binds the camera movement to the display and to the real time elapsed between two updates.
 #FEATURES += NEW_LIGHTING                    # (undocumented)

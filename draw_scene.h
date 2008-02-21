@@ -127,6 +127,7 @@ void update_camera(Uint32 time_delta);
  */
 void CalculateFrustum();
 
+#ifndef NEW_ACTOR_MOVEMENT
 /*!
  * \ingroup	move_actors
  * \brief	Gets the temporary locations, rotations of the actors
@@ -134,6 +135,7 @@ void CalculateFrustum();
  * 		Gets the temporary locations, rotations of the actors that will be used when rendering this frame
  */
 void get_tmp_actor_data();
+#endif // NEW_ACTOR_MOVEMENT
 
 /*!
  * \ingroup	display

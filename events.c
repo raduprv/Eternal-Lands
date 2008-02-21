@@ -274,9 +274,11 @@ int HandleEvent (SDL_Event *event)
 				break;
 #endif // NEW_CAMERA
 				
+#ifndef NEW_ACTOR_MOVEMENT
 			case	EVENT_ANIMATE_ACTORS:
 				animate_actors();
 				break;
+#endif // NEW_ACTOR_MOVEMENT
 				
 			case	EVENT_UPDATE_PARTICLES:
 				update_particles();
