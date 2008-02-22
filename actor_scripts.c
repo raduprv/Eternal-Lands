@@ -1259,15 +1259,12 @@ void next_command()
                                     actors_list[i]->que[2] <= move_nw)
                                     actors_list[i]->movement_time_left=250;
                                 else
-                                    actors_list[i]->movement_time_left=270;
+                                    actors_list[i]->movement_time_left=275;
                             }
                             else {
                                 // else we walk at a slightly slower speed to wait next walking commands
-                                actors_list[i]->movement_time_left=290;
+                                actors_list[i]->movement_time_left=300;
                             }
-
-                            // we change the speed of the walking animation according to the walking speed and to the size of the actor
-                            actors_list[i]->cur_anim.duration_scale = 270.0/(actors_list[i]->movement_time_left*actors_list[i]->scale);
 
                             // we compute the moving speeds in x, y and z directions
                             get_motion_vector(actors_list[i]->que[0], &dx, &dy);
@@ -1277,6 +1274,13 @@ void next_command()
                             actors_list[i]->move_x_speed /= (float)actors_list[i]->movement_time_left;
                             actors_list[i]->move_y_speed /= (float)actors_list[i]->movement_time_left;
                             actors_list[i]->move_z_speed /= (float)actors_list[i]->movement_time_left;
+
+                            /* we change the speed of the walking animation according to the walking speed and to the size of the actor
+                             * we suppose here that the speed of the walking animation is 2 meters per second (1 tile in 250ms) */
+                            actors_list[i]->cur_anim.duration_scale = actors_defs[actor_type].cal_walk_frame.duration_scale;
+                            actors_list[i]->cur_anim.duration_scale *= 250.0/(actors_list[i]->movement_time_left*get_actor_scale(actors_list[i]));
+                            if (dx != 0 && dy != 0)
+                                actors_list[i]->cur_anim.duration_scale *= 1.4142315;
 #endif // NEW_ACTOR_MOVEMENT
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
