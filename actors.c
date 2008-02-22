@@ -1224,6 +1224,12 @@ void add_actor_from_server (const char *in_data, int len)
 	//test only
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
+
+#ifdef NEW_ACTOR_MOVEMENT
+	if (actors_list[i]->z_pos == 0.0)
+		actors_list[i]->z_pos = get_actor_z(actors_list[i]);
+#endif // NEW_ACTOR_MOVEMENT
+
 	if(frame==frame_sit_idle)actors_list[i]->sitting=1;
 	else
 		if(frame==frame_combat_idle)actors_list[i]->fighting=1;

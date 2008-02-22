@@ -1252,22 +1252,33 @@ void next_command()
 								actors_list[i]->move_y_speed*=1.4142315;
 							}
 #else // NEW_ACTOR_MOVEMENT
+                            get_motion_vector(actors_list[i]->que[0], &dx, &dy);
+
+							/* if other move commands are waiting in the queue,
+							 * we walk at a speed that is close to the server speed
+							 * else we walk at a slightly slower speed to wait next
+							 * incoming walking commands */
                             if (actors_list[i]->que[1] >= move_n &&
                                 actors_list[i]->que[1] <= move_nw) {
-                                // if other move commands are waiting in the queue, we walk close to the server speed
                                 if (actors_list[i]->que[2] >= move_n &&
-                                    actors_list[i]->que[2] <= move_nw)
-                                    actors_list[i]->movement_time_left=250;
+                                    actors_list[i]->que[2] <= move_nw) {
+									if (actors_list[i]->que[3] >= move_n &&
+										actors_list[i]->que[3] <= move_nw)
+										actors_list[i]->movement_time_left = 225; // 3 moves
+									else
+										actors_list[i]->movement_time_left = 250; // 2 moves
+								}
                                 else
-                                    actors_list[i]->movement_time_left=275;
+                                    actors_list[i]->movement_time_left = 275; // 1 move
                             }
                             else {
-                                // else we walk at a slightly slower speed to wait next walking commands
-                                actors_list[i]->movement_time_left=300;
+                                actors_list[i]->movement_time_left = 300; // 0 move
                             }
-
+							// if we have a diagonal motion, we slow down the animation a bit
+							if (dx != 0 && dy != 0)
+								actors_list[i]->movement_time_left = (int)(actors_list[i]->movement_time_left*1.2+0.5);
+							
                             // we compute the moving speeds in x, y and z directions
-                            get_motion_vector(actors_list[i]->que[0], &dx, &dy);
                             actors_list[i]->move_x_speed = 0.5*(dx+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
                             actors_list[i]->move_y_speed = 0.5*(dy+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
                             actors_list[i]->move_z_speed = -2.2 + height_map[(actors_list[i]->y_tile_pos+dy)*tile_map_size_x*6+actors_list[i]->x_tile_pos+dx]*0.2 - actors_list[i]->z_pos;
