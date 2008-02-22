@@ -81,6 +81,10 @@ int camera_zoom_duration=0;
 float new_zoom_level=3.0f;
 float camera_distance = 2.5f;
 
+#ifdef NEW_ACTOR_MOVEMENT
+int reset_camera_at_next_update = 1;
+#endif // NEW_ACTOR_MOVEMENT
+
 #ifdef SKY_FPV_CURSOR
 //Follow camera state stuff
 int fol_cam = 1;	//On or off...
@@ -201,7 +205,9 @@ void move_camera ()
 #ifdef SKY_FPV_CURSOR
 	float head_pos[3], follow_speed;
 #endif /* SKY_FPV_CURSOR */
+#ifndef NEW_ACTOR_MOVEMENT
 	static int lagged=1;
+#endif // NEW_ACTOR_MOVEMENT
 	actor *me = get_our_actor ();
 	
 #ifndef NEW_ACTOR_MOVEMENT
@@ -234,7 +240,6 @@ void move_camera ()
 #endif /* SKY_FPV_CURSOR */
 #else // NEW_ACTOR_MOVEMENT
     if(!me){
-		lagged=1;
 		return;
 	}
 
@@ -277,7 +282,11 @@ void move_camera ()
 #endif
 	}
 #endif /* SKY_FPV_CURSOR */
+#ifndef NEW_ACTOR_MOVEMENT
 	if(lagged){
+#else // NEW_ACTOR_MOVEMENT
+	if(reset_camera_at_next_update){
+#endif // NEW_ACTOR_MOVEMENT
 		camera_x = -x;
 		camera_y = -y;
 		camera_z = -z;
@@ -290,7 +299,11 @@ void move_camera ()
 		camera_y_duration=0;
 		camera_z_duration=0;
 #endif // NEW_CAMERA
+#ifndef NEW_ACTOR_MOVEMENT
 		lagged=0;
+#else // NEW_ACTOR_MOVEMENT
+        reset_camera_at_next_update = 0;
+#endif // NEW_ACTOR_MOVEMENT
 		set_all_intersect_update_needed(main_bbox_tree);
 	} else {
 		//move near the actor, but smoothly
@@ -374,7 +387,7 @@ void clamp_camera(void)
 			rx = -15;
 			camera_tilt_frames=0;
 		}
-#else //NEW CAMERA
+#else // NEW CAMERA
 		if(first_person){
 			if(rx < -140){
 				rx = -140;
@@ -391,7 +404,7 @@ void clamp_camera(void)
 				rx = -15;
 				camera_tilt_duration=0;
 			}			
-#endif
+#endif // NEW_CAMERA
 	} else {
 #endif /* SKY_FPV_CURSOR */
 #ifndef NEW_CAMERA

@@ -1616,6 +1616,17 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		ec_create_mine_detonate(your_actor->x_pos + 0.25f, your_actor->y_pos + 0.25f, 0, MINE_TYPE_MAGIC_IMMUNITY_REMOVAL, (poor_man ? 6 : 10));
 	}
 #endif
+#ifdef DEBUG
+    // scale the current actor
+	else if((keysym == SDLK_p) && shift_on && ctrl_on && !alt_on)
+	{
+		get_our_actor()->scale *= 1.05;
+	}
+	else if((keysym == SDLK_o) && shift_on && ctrl_on && !alt_on)
+	{
+		get_our_actor()->scale /= 1.05;
+	}
+#endif // DEBUG
 	// use quickbar items
 	else if (key == K_ITEM1)
 	{

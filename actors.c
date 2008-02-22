@@ -1250,15 +1250,23 @@ void add_actor_from_server (const char *in_data, int len)
 				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
 				actors_list[i]->stop_animation=1;
 				CalModel_Update(actors_list[i]->calmodel,1000);
-			} else CalModel_Update(actors_list[i]->calmodel,0);
+			}
+            else {
+                /* Schmurk: we explicitly go on idle here to avoid weird
+                 * flickering when actors appear */
+                set_on_idle(i);
+                /* CalModel_Update(actors_list[i]->calmodel,0); */
+            }
 			build_actor_bounding_box(actors_list[i]);
 			if (use_animation_program)
 			{
 				set_transformation_buffers(actors_list[i]);
 			}
-			actors_list[i]->cur_anim.anim_index=-1;
-			actors_list[i]->cur_anim_sound_cookie=0;
-			actors_list[i]->IsOnIdle=0;
+            /* lines commented by Schmurk: we've set an animation just before
+             * so we don't want do screw it up */
+			/* actors_list[i]->cur_anim.anim_index=-1; */
+			/* actors_list[i]->cur_anim_sound_cookie=0; */
+			/* actors_list[i]->IsOnIdle=0; */
 		}
 	} else actors_list[i]->calmodel=NULL;
 

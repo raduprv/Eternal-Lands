@@ -444,6 +444,58 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 	else return -ccw;
 }
 
+void get_motion_vector(int move_cmd, int *dx, int *dy)
+{
+    switch(move_cmd) {
+    case move_n:
+    case run_n:
+        *dx = 0;
+        *dy = 1;
+        break;
+    case move_s:
+    case run_s:
+        *dx = 0;
+        *dy = -1;
+        break;
+    case move_e:
+    case run_e:
+        *dx = 1;
+        *dy = 0;
+        break;
+    case move_w:
+    case run_w:
+        *dx = -1;
+        *dy = 0;
+        break;
+    case move_ne:
+    case run_ne:
+        *dx = 1;
+        *dy = 1;
+        break;
+    case move_se:
+    case run_se:
+        *dx = 1;
+        *dy = -1;
+        break;
+    case move_sw:
+    case run_sw:
+        *dx = -1;
+        *dy = -1;
+        break;
+    case move_nw:
+    case run_nw:
+        *dx = -1;
+        *dy = 1;
+        break;
+
+    default:
+        *dx = 0;
+        *dy = 0;
+        LOG_ERROR("%d is not a valid move command!", move_cmd);
+        break;
+    }
+}
+
 void animate_actors()
 {
 	int i;
@@ -469,6 +521,7 @@ void animate_actors()
 				if(actors_list[i]->movement_time_left <= 0){	//we moved all the way
 #endif // NEW_ACTOR_MOVEMENT
 					Uint8 last_command;
+                    int dx, dy;
 
 					actors_list[i]->moving= 0;	//don't move next time, ok?
 #ifndef NEW_ACTOR_MOVEMENT
@@ -477,44 +530,9 @@ void animate_actors()
 					//now, we need to update the x/y_tile_pos, and round off
 					//the x/y_pos according to x/y_tile_pos
 					last_command= actors_list[i]->last_command;
-					switch(last_command) {
-						case move_n:
-						case run_n:
-							actors_list[i]->y_tile_pos++;
-							break;
-						case move_s:
-						case run_s:
-							actors_list[i]->y_tile_pos--;
-							break;
-						case move_e:
-						case run_e:
-							actors_list[i]->x_tile_pos++;
-							break;
-						case move_w:
-						case run_w:
-							actors_list[i]->x_tile_pos--;
-							break;
-						case move_ne:
-						case run_ne:
-							actors_list[i]->x_tile_pos++;
-							actors_list[i]->y_tile_pos++;
-							break;
-						case move_se:
-						case run_se:
-							actors_list[i]->x_tile_pos++;
-							actors_list[i]->y_tile_pos--;
-							break;
-						case move_sw:
-						case run_sw:
-							actors_list[i]->x_tile_pos--;
-							actors_list[i]->y_tile_pos--;
-							break;
-						case move_nw:
-						case run_nw:
-							actors_list[i]->x_tile_pos--;
-							actors_list[i]->y_tile_pos++;
-						break;
-					}
+                    get_motion_vector(last_command, &dx, &dy);
+					actors_list[i]->x_tile_pos += dx;
+					actors_list[i]->y_tile_pos += dy;
 
 #ifndef NEW_ACTOR_MOVEMENT
 					//ok, now update the x/y_pos
@@ -536,6 +554,7 @@ void animate_actors()
                     else {
                         actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
                         actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
+                        actors_list[i]->z_pos= get_actor_z(actors_list[i]);
                     }
 #endif // NEW_ACTOR_MOVEMENT
 				}
@@ -692,6 +711,51 @@ void move_to_next_frame()
 	UNLOCK_ACTORS_LISTS();
 }
 
+void set_on_idle(int actor_idx)
+{
+    actor *a = actors_list[actor_idx];
+    if(!a->dead) {
+        a->stop_animation=0;
+        
+        if(a->fighting){
+            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_combat_idle_frame);
+        }
+#ifdef MISSILES
+        else if(a->in_aim_mode){
+            cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].weapon[a->cur_weapon].cal_range_idle_frame);
+        }
+#endif // MISSILES
+        else if(!a->sitting) {
+            // we are standing, see if we can activate a stand idle
+            if(!a->stand_idle){
+                if (actors_defs[a->actor_type].group_count == 0)
+                {
+                    // 75% chance to do idle1
+                    if (actors_defs[a->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 3) == 0){
+                        cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle2_frame); // normal idle
+                    } else {
+                        cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle1_frame); // normal idle
+                    }
+                    
+                }
+                else
+                {
+                    cal_actor_set_random_idle(actor_idx);
+                    a->IsOnIdle=1;
+                }
+                
+                a->stand_idle=1;
+            }
+        } else	{
+            // we are sitting, see if we can activate the sit idle
+            if(!a->sit_idle) {
+                cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_idle_sit_frame);
+                a->sit_idle=1;
+            }
+        }
+    }
+}
+
 //in case the actor is not busy, and has commands in it's que, execute them
 void next_command()
 {
@@ -713,47 +777,7 @@ void next_command()
            ){//Are we busy?
 			if(actors_list[i]->que[0]==nothing){//Is the queue empty?
 				//if que is empty, set on idle
-				if(!actors_list[i]->dead) {
-					actors_list[i]->stop_animation=0;
-
-					if(actors_list[i]->fighting){
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_combat_idle_frame);
-					}
-#ifdef MISSILES
-					else if(actors_list[i]->in_aim_mode){
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
-					}
-#endif // MISSILES
-					else if(!actors_list[i]->sitting) {
-						// we are standing, see if we can activate a stand idle
-						if(!actors_list[i]->stand_idle){
-							if (actors_defs[actors_list[i]->actor_type].group_count == 0)
-							{
-								// 75% chance to do idle1
-								if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 3) == 0){
-									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
-								} else {
-									cal_actor_set_anim (i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
-								}
-
-							}
-							else
-							{
-								cal_actor_set_random_idle(i);
-								actors_list[i]->IsOnIdle=1;
-							}
-
-							actors_list[i]->stand_idle=1;
-						}
-					} else	{
-						// we are sitting, see if we can activate the sit idle
-						if(!actors_list[i]->sit_idle) {
-							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_idle_sit_frame);
-							actors_list[i]->sit_idle=1;
-						}
-					}
-				}
-
+                set_on_idle(i);
 				actors_list[i]->last_command=nothing;//prevents us from not updating the walk/run animation
 			} else {
 				int actor_type;
@@ -1175,6 +1199,9 @@ void next_command()
 					default:
 						if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw) {
 							float rotation_angle;
+#ifdef NEW_ACTOR_MOVEMENT
+                            int dx, dy;
+#endif // NEW_ACTOR_MOVEMENT
 
 							actors_list[i]->moving=1;
 							actors_list[i]->fighting=0;
@@ -1210,10 +1237,6 @@ void next_command()
 							}
 #ifndef NEW_ACTOR_MOVEMENT
                             else targeted_z_rot=z_rot;
-#else // NEW_ACTOR_MOVEMENT
-                            else {
-                                targeted_z_rot = (last_command-move_n)*45.0;
-                            }
 #endif // NEW_ACTOR_MOVEMENT
 
 							//ok, now calculate the motion vector...
@@ -1225,35 +1248,36 @@ void next_command()
 							//test to see if we have a diagonal movement, and if we do, adjust the speeds
 							if((actors_list[i]->move_x_speed>0.01f || actors_list[i]->move_x_speed<-0.01f)
 							   && (actors_list[i]->move_y_speed>0.01f || actors_list[i]->move_y_speed<-0.01f)) {
+								actors_list[i]->move_x_speed*=1.4142315;
+								actors_list[i]->move_y_speed*=1.4142315;
+							}
 #else // NEW_ACTOR_MOVEMENT
                             if (actors_list[i]->que[1] >= move_n &&
                                 actors_list[i]->que[1] <= move_nw) {
                                 // if other move commands are waiting in the queue, we walk close to the server speed
                                 if (actors_list[i]->que[2] >= move_n &&
                                     actors_list[i]->que[2] <= move_nw)
-                                    actors_list[i]->movement_time_left=260;
+                                    actors_list[i]->movement_time_left=250;
                                 else
-                                    actors_list[i]->movement_time_left=280;
+                                    actors_list[i]->movement_time_left=270;
                             }
                             else {
                                 // else we walk at a slightly slower speed to wait next walking commands
-                                actors_list[i]->movement_time_left=300;
+                                actors_list[i]->movement_time_left=290;
                             }
-							/* the 420 value is a factor to be almost equal the old walking speed at a duration of 270 */
-                            actors_list[i]->cur_anim.duration_scale = actors_list[i]->cur_anim.duration*420.0/(float)actors_list[i]->movement_time_left;
-                            actors_list[i]->move_x_speed = 0.5*(sin(targeted_z_rot*M_PI/180.0)+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
-                            actors_list[i]->move_y_speed = 0.5*(cos(targeted_z_rot*M_PI/180.0)+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
+
+                            // we change the speed of the walking animation according to the walking speed and to the size of the actor
+                            actors_list[i]->cur_anim.duration_scale = 270.0/(actors_list[i]->movement_time_left*actors_list[i]->scale);
+
+                            // we compute the moving speeds in x, y and z directions
+                            get_motion_vector(actors_list[i]->que[0], &dx, &dy);
+                            actors_list[i]->move_x_speed = 0.5*(dx+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
+                            actors_list[i]->move_y_speed = 0.5*(dy+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
+                            actors_list[i]->move_z_speed = -2.2 + height_map[(actors_list[i]->y_tile_pos+dy)*tile_map_size_x*6+actors_list[i]->x_tile_pos+dx]*0.2 - actors_list[i]->z_pos;
                             actors_list[i]->move_x_speed /= (float)actors_list[i]->movement_time_left;
                             actors_list[i]->move_y_speed /= (float)actors_list[i]->movement_time_left;
-							//test to see if we have a diagonal movement, and if we do, adjust the speeds
-                            if (actors_list[i]->que[0] == move_ne ||
-                                actors_list[i]->que[0] == move_se ||
-                                actors_list[i]->que[0] == move_sw ||
-                                actors_list[i]->que[0] == move_nw) {
+                            actors_list[i]->move_z_speed /= (float)actors_list[i]->movement_time_left;
 #endif // NEW_ACTOR_MOVEMENT
-								actors_list[i]->move_x_speed*=1.4142315;
-								actors_list[i]->move_y_speed*=1.4142315;
-							}
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
 

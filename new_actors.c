@@ -949,7 +949,13 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 				cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_die1_frame);
 				actors_list[i]->stop_animation=1;
 				CalModel_Update(actors_list[i]->calmodel,1000);
-			} else  CalModel_Update(actors_list[i]->calmodel,0);
+			}
+            else {
+                /* Schmurk: we explicitly go on idle here to avoid weird
+                 * flickering when actors appear */
+                set_on_idle(i);
+                /* CalModel_Update(actors_list[i]->calmodel,0); */
+            }
 			build_actor_bounding_box(actors_list[i]);
 			if (use_animation_program)
 			{
@@ -1014,6 +1020,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		//actor_wear_item(actors_list[i]->actor_id,KIND_OF_WEAPON,SWORD_2);
 		//actor_wear_item(actors_list[i]->actor_id,KIND_OF_HELMET,HELMET_IRON);
 	}*/
+
+#ifdef NEW_ACTOR_MOVEMENT
+    if (actor_id == yourself) {
+        reset_camera_at_next_update = 1;
+    }
+#endif // NEW_ACTOR_MOVEMENT
 
 	UNLOCK_ACTORS_LISTS();  //unlock it
 #ifdef EXTRA_DEBUG

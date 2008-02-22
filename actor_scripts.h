@@ -14,6 +14,19 @@ extern "C" {
 
 /*!
  * \ingroup	move_actors
+ * \brief	Gives the motion vector of an actor for a given move.
+ * \param move_cmd the move command to use for computing the motion vector
+ * \param dx the output delta on the x axis
+ * \param dy the output delta on the y axis
+ *
+ * 		The function just computes the delta on X and Y axes corresponding
+ * to the move that should be comprised between move_n and move_nw commands.
+ *
+ */
+void get_motion_vector(int move_cmd, int *dx, int *dy);
+
+/*!
+ * \ingroup	move_actors
  * \brief	Finds the next frame in the md2-file for the current command.
  *
  * 		The move_to_next_frame function goes through the actors list and sets the cur_frame that's used when rendering.
@@ -30,6 +43,14 @@ void move_to_next_frame();
  *
  */
 void animate_actors();
+
+/*!
+ * \ingroup	move_actors
+ * \brief	This function sets the good idle animation for an actor according to its current state.
+ * \param actor_idx the index of the actor in the actors_list array. It doesn't corresponds to the actor id!
+ * \callgraph
+ */
+void set_on_idle(int actor_idx);
 
 /*!
  * \ingroup	move_actors
