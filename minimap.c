@@ -419,7 +419,7 @@ static __inline__ void draw_into_minimap_fbo(float zoom_multip, float px, float 
 
 		glEnable(GL_SCISSOR_TEST);
 		//clip the drawable region to the map
-		glScissor(min_x, min_y, max_x - min_x, max_y - min_y);
+		glScissor(min_x+0.5, 0.5 + (float_minimap_size - max_y), 0.5+(max_x - min_x), 0.5 + (max_y - min_y));
 	}
 
 	draw_map(zoom_multip, px, py);
