@@ -688,7 +688,7 @@ void draw_update_interface (int len_x, int len_y)
 {
 	char str[200];
 //	float diff = (float) (len_x - len_y) / 2;
-	float window_ratio = (float) len_x / 640.0f;
+	float window_ratio = (float) len_y / 480.0f;
 
 	draw_string ((len_x - (strlen(update_complete_str) * 11)) / 2, 200 * window_ratio, (unsigned char*)update_complete_str, 0);
 
@@ -776,7 +776,7 @@ void create_update_root_window (int width, int height, int time)
 {
 	if (update_root_win < 0)
 	{
-		float window_ratio = (float) width / 640.0f;
+		float window_ratio = (float) height / 480.0f;
 		int restart_width = (strlen(restart_now_label) * 11) + 40;
 		int restart_height = 32;
 		
