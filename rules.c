@@ -624,10 +624,8 @@ void draw_rules_interface (int len_x, int len_y)
 {
 	char str[200];
 	float diff = (float) (len_x - len_y) / 2;
-	int y;//, width, height;	// Width/Height are 0.5*width/height
-	float window_ratio = (float) len_x / 640.0f;
-
-	y = 66*window_ratio;
+	float window_ratio = (float) len_y / 480.0f;
+	float string_width, string_zoom;
 
 	if ((countdown <= 0) && (read_all_rules))
 	{
@@ -652,8 +650,16 @@ void draw_rules_interface (int len_x, int len_y)
 		safe_snprintf (str, sizeof(str), you_can_proceed, countdown / 2);
 	else 
 		safe_strncpy (str, accepted_rules, sizeof(str));
-		
-	draw_string ((len_x - (strlen (str) * 11)) / 2, len_y - 40 * window_ratio, (unsigned char*)str, 0);
+
+	/* scale the string if it is too wide for the screen */		
+	string_width = strlen (str) * DEFAULT_FONT_X_LEN;
+	string_zoom = 1;
+	if (string_width > len_x)
+	{
+		string_zoom = len_x/string_width;
+		string_width *= string_zoom;
+	}
+	draw_string_zoomed ((len_x - string_width) / 2, len_y - 40 * window_ratio, (unsigned char*)str, 0, string_zoom);
 	
 	set_font(3);
 	draw_rules (display_rules, diff + 30 * window_ratio, 60 * window_ratio, len_y + diff / 2 - 50, 360 * window_ratio, 1.0f, rules_winRGB);
@@ -794,7 +800,7 @@ void create_rules_root_window (int width, int height, int next, int time)
 	if (rules_root_win < 0)
 	{
 		float diff = (float) (width - height) / 2;
-		float window_ratio = (float) width / 640.0f;
+		float window_ratio = (float) height / 480.0f;
 		int accept_width = (strlen(accept_label) * 11) + 40;
 		int accept_height = 32;
 		
