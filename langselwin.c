@@ -37,8 +37,8 @@
 
 typedef struct { char *code; char *text; char *save; char *note; } LANGSEL_LIST_NODE;
 
+int langsel_rootwin = -1;
 static int langsel_win = -1;
-static int langsel_rootwin = -1;
 static int langsel_scroll_id = -1;
 static int langsel_first_lang_line = 0;
 static int langsel_num_note_lines = 4;

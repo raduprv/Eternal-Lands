@@ -13,6 +13,7 @@
 #include "gamewin.h"
 #include "gl_init.h"
 #include "hud.h"
+#include "langselwin.h"
 #include "loginwin.h"
 #include "map.h"
 #include "mapwin.h"
@@ -1146,6 +1147,7 @@ void hide_all_root_windows ()
 	if (opening_root_win >= 0) hide_window (opening_root_win);
 	if (newchar_root_win >= 0) hide_window (newchar_root_win);
 	if (update_root_win >= 0) hide_window (update_root_win);
+	if (langsel_rootwin >= 0) hide_window (langsel_rootwin);
 }
 
 void resize_all_root_windows (Uint32 w, Uint32 h)
