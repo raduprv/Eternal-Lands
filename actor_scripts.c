@@ -1289,7 +1289,11 @@ void next_command()
                             /* we change the speed of the walking animation according to the walking speed and to the size of the actor
                              * we suppose here that the speed of the walking animation is 2 meters per second (1 tile in 250ms) */
                             actors_list[i]->cur_anim.duration_scale = actors_defs[actor_type].cal_walk_frame.duration_scale;
-                            actors_list[i]->cur_anim.duration_scale *= 250.0/(actors_list[i]->movement_time_left*get_actor_scale(actors_list[i]));
+                            actors_list[i]->cur_anim.duration_scale *= 250.0/(actors_list[i]->movement_time_left*actors_list[i]->scale);
+							if (actors_defs[actor_type].actor_scale != 1.0)
+								actors_list[i]->cur_anim.duration_scale /= actors_defs[actor_type].actor_scale;
+							else
+								actors_list[i]->cur_anim.duration_scale /= actors_defs[actor_type].scale;
                             if (dx != 0 && dy != 0)
                                 actors_list[i]->cur_anim.duration_scale *= 1.4142315;
 #endif // NEW_ACTOR_MOVEMENT
