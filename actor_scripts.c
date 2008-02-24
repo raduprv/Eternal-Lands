@@ -969,6 +969,7 @@ void next_command()
 						//not busy
 						actors_list[i]->move_x_speed=0;
 						actors_list[i]->move_y_speed=0;
+						actors_list[i]->move_z_speed=0;
 #ifndef NEW_ACTOR_MOVEMENT
 						actors_list[i]->movement_frames_left=27;
 #else // NEW_ACTOR_MOVEMENT
@@ -995,6 +996,7 @@ void next_command()
 						//not busy
 						actors_list[i]->move_x_speed=0;
 						actors_list[i]->move_y_speed=0;
+						actors_list[i]->move_z_speed=0;
 #ifndef NEW_ACTOR_MOVEMENT
 						actors_list[i]->movement_frames_left=27;
 #else // NEW_ACTOR_MOVEMENT

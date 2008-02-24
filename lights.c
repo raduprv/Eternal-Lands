@@ -308,7 +308,7 @@ void update_scene_lights()
 
 void init_lights()
 {
-	GLfloat light_diffuse[] = { 1.7, 1.3, 1.1, 0.0 };
+	GLfloat light_diffuse[] = { 0.0, 0.0, 0.0, 0.0 };
 	GLfloat no_light[] = { 0.0, 0.0, 0.0, 0.0 };
 	float linear_att=1.41f;
 	float cut_off=180;
