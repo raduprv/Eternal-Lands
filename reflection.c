@@ -684,7 +684,7 @@ void draw_lake_tiles()
 	else water_id = tile_list[0];
 
 #ifdef	USE_SHADER
-	if (water_shader_quality > 0)
+	if ((water_shader_quality > 0) && show_reflection)
 	{
 		if (!dungeon && shadows_on && is_day)
 		{
@@ -744,83 +744,74 @@ void draw_lake_tiles()
 	draw_water_quad_tiles(start, stop, 0, water_id);
 
 #ifdef	USE_SHADER
-	if (water_shader_quality > 0)
+	if ((water_shader_quality > 0) && show_reflection)
 	{
-		if (show_reflection)
+		setup_water_fbo_texgen();
+		CHECK_GL_ERRORS();
+
+		ELglActiveTextureARB(detail_unit);
+		glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
+		ELglActiveTextureARB(base_unit);
+		CHECK_GL_ERRORS();
+
+		if (!dungeon && shadows_on && is_day)
 		{
-			setup_water_fbo_texgen();
-			CHECK_GL_ERRORS();
+			cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, water_shader_quality - 1);
+		}
+		else
+		{
+			cur_shader = get_shader(st_reflectiv_water, sst_no_shadow_receiver, water_shader_quality - 1);
+		}
+		ELglUseProgramObjectARB(cur_shader);
+		CHECK_GL_ERRORS();
 
+		if (water_shader_quality > 1)
+		{
+			ELglClientActiveTextureARB(GL_TEXTURE3);
+			ELglActiveTextureARB(GL_TEXTURE3);
+			glBindTexture(GL_TEXTURE_3D, noise_tex);
 			ELglActiveTextureARB(base_unit);
-			glEnable(GL_TEXTURE_2D);
-		
-			ELglActiveTextureARB(detail_unit);
-			glEnable(GL_TEXTURE_2D);
-			glBindTexture(GL_TEXTURE_2D, water_reflection_fbo_texture);
-			ELglActiveTextureARB(base_unit);
 			CHECK_GL_ERRORS();
+			setup_noise_texgen();
 
-			if (!dungeon && shadows_on && is_day)
-			{
-				cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, water_shader_quality - 1);
-			}
-			else
-			{
-				cur_shader = get_shader(st_reflectiv_water, sst_no_shadow_receiver, water_shader_quality - 1);
-			}
-
-			ELglUseProgramObjectARB(cur_shader);
 			CHECK_GL_ERRORS();
-
-			if (water_shader_quality > 1)
-			{
-				ELglClientActiveTextureARB(GL_TEXTURE3);
-				ELglActiveTextureARB(GL_TEXTURE3);
-				glEnable(GL_TEXTURE_3D);
-				glBindTexture(GL_TEXTURE_3D, noise_tex);
-				ELglActiveTextureARB(base_unit);
-				CHECK_GL_ERRORS();
-				setup_noise_texgen();
-
-				CHECK_GL_ERRORS();
-				ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "noise_texture"), 3);
-				ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 1, noise_scale);
-				ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
-				CHECK_GL_ERRORS();
-			}
-			idx = ELglGetUniformLocationARB(cur_shader, "texel_size_x");
-			if (idx >= 0)
-			{
-				ELglUniform2fARB(idx, 1.0f / reflection_texture_width, 0.0f);
-			}
-			idx = ELglGetUniformLocationARB(cur_shader, "texel_size_y");
-			if (idx >= 0)
-			{
-				ELglUniform2fARB(idx, 0.0f, 1.0f / reflection_texture_width);
-			}
-			idx = ELglGetUniformLocationARB(cur_shader, "size");
-			if (idx >= 0)
-			{
-				ELglUniform2fARB(idx, reflection_texture_width, reflection_texture_height);
-			}
-			idx = ELglGetUniformLocationARB(cur_shader, "hg_texture");
-			if (idx >= 0)
-			{
-				ELglActiveTextureARB(GL_TEXTURE4);
-				glBindTexture(GL_TEXTURE_1D, filter_lut);
-				ELglActiveTextureARB(base_unit);
-				ELglUniform1iARB(idx, 4);
-			}
-
-			if (!dungeon && shadows_on && is_day)
-			{
-				ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
-			}
-			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "reflection_texture"), detail_unit - GL_TEXTURE0);
-			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
-			ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "blend"), 0.75f);
+			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "noise_texture"), 3);
+			ELglUniform4fvARB(ELglGetUniformLocationARB(cur_shader, "noise_scale"), 1, noise_scale);
+			ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
 			CHECK_GL_ERRORS();
 		}
+		idx = ELglGetUniformLocationARB(cur_shader, "texel_size_x");
+		if (idx >= 0)
+		{
+			ELglUniform2fARB(idx, 1.0f / reflection_texture_width, 0.0f);
+		}
+		idx = ELglGetUniformLocationARB(cur_shader, "texel_size_y");
+		if (idx >= 0)
+		{
+			ELglUniform2fARB(idx, 0.0f, 1.0f / reflection_texture_width);
+		}
+		idx = ELglGetUniformLocationARB(cur_shader, "size");
+		if (idx >= 0)
+		{
+			ELglUniform2fARB(idx, reflection_texture_width, reflection_texture_height);
+		}
+		idx = ELglGetUniformLocationARB(cur_shader, "hg_texture");
+		if (idx >= 0)
+		{
+			ELglActiveTextureARB(GL_TEXTURE4);
+			glBindTexture(GL_TEXTURE_1D, filter_lut);
+			ELglActiveTextureARB(base_unit);
+			ELglUniform1iARB(idx, 4);
+		}
+
+		if (!dungeon && shadows_on && is_day)
+		{
+			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
+		}
+		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "reflection_texture"), detail_unit - GL_TEXTURE0);
+		ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "tile_texture"), base_unit - GL_TEXTURE0);
+		ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "blend"), 0.75f);
+		CHECK_GL_ERRORS();
 	}
 #else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
@@ -860,13 +851,10 @@ void draw_lake_tiles()
 	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
 
 #ifdef	USE_SHADER
-	if (water_shader_quality > 0)
+	if ((water_shader_quality > 0) && show_reflection)
 	{
 		CHECK_GL_ERRORS();
-		if (show_reflection)
-		{
-			disable_water_fbo_texgen();
-		}
+		disable_water_fbo_texgen();
 
 		ELglActiveTextureARB(detail_unit);
 		glDisable(GL_TEXTURE_2D);

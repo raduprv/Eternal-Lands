@@ -410,9 +410,6 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 {
 	actor_types* a;
 	IntMap* im;
-#ifndef	USE_BOOST
-	IntMap::const_iterator it;
-#endif	/* USE_BOOST */
 	float s;
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	int i;
@@ -469,7 +466,7 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	if (use_render_attached_meshs)
 	{
-		for (it = im->begin(); it != im->end(); it++)
+		for (IntMap::iterator it = im->begin(); it != im->end(); it++)
 		{
 			render_mesh_shader(a, act, it->first, it->second, use_glow);
 		}
@@ -488,7 +485,7 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 		render_mesh_shader(a, act, it.first, it.second, use_glow);
 	}
 #else	/* USE_BOOST */
-	for (it = im->begin(); it != im->end(); it++)
+	for (IntMap::iterator it = im->begin(); it != im->end(); it++)
 	{
 		render_mesh_shader(a, act, it->first, it->second, use_glow);
 	}
