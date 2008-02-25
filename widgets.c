@@ -55,12 +55,14 @@ typedef struct {
 	Uint16 x;
 	Uint16 y;
 	int width;
+	int value;
 }multiselect_button;
 
 typedef struct {
 	int nr_buttons;
 	int selected_button;
 	int max_buttons;
+	int next_value;
 	multiselect_button *buttons;
 	/* Scrollbar related vars */
 	Uint16 max_height;
@@ -73,6 +75,7 @@ typedef struct {
 }multiselect;
 
 Uint32 widget_id = 0x0000FFFF;
+static const int multiselect_button_height = 22;
 
 int ReadXMLWindow(xmlNode * a_node);
 int ParseWindow (xmlNode *node);
@@ -3015,7 +3018,10 @@ int multiselect_get_selected(int window_id, Uint32 widget_id)
 	if(M == NULL) {
 		return -1;
 	} else {
-		return M->selected_button;
+		if (M->selected_button < M->nr_buttons)
+			return M->buttons[M->selected_button].value;
+		else
+			return -1;
 	}
 }
 
@@ -3026,8 +3032,14 @@ int multiselect_set_selected(int window_id, Uint32 widget_id, int button_id)
 	if(M == NULL) {
 		return -1;
 	} else {
-		M->selected_button = button_id;
-		return button_id;
+		int i;
+		for (i=0; i<M->nr_buttons; i++) {
+			if (button_id == M->buttons[i].value) {			
+				M->selected_button = i;
+				return button_id;
+			}
+		}
+		return -1;
 	}
 }
 
@@ -3042,21 +3054,27 @@ int multiselect_click(widget_list *widget, int mx, int my, Uint32 flags)
 	multiselect *M = widget->widget_info;
 	int i;
 	Uint16 button_y;
+	int top_but = 0;
+	int start_y = 0;
 
-	for(i = 0; i < M->nr_buttons; i++) {
-		if(M->scrollbar == -1) {
-			button_y = M->buttons[i].y;
-		} else {
-			vscrollbar *scrollbar = widget_find(M->win_id, M->scrollbar)->widget_info;
-			if(flags&ELW_WHEEL_DOWN) {
-				vscrollbar_set_pos(M->win_id, M->scrollbar, scrollbar->pos+scrollbar->pos_inc);
-			} else if (flags&ELW_WHEEL_UP) {
-				vscrollbar_set_pos(M->win_id, M->scrollbar, scrollbar->pos-scrollbar->pos_inc);
-			}
-			button_y = M->buttons[i].y - ceilf((vscrollbar_get_pos(M->win_id, M->scrollbar)/(float)M->max_height)*M->actual_height);
-		}
+	if(M->scrollbar != -1)
+	{
+		vscrollbar *scrollbar = widget_find(M->win_id, M->scrollbar)->widget_info;
+		if(flags&ELW_WHEEL_DOWN)
+			vscrollbar_set_pos(M->win_id, M->scrollbar, scrollbar->pos+scrollbar->pos_inc);
+		else if (flags&ELW_WHEEL_UP)
+			vscrollbar_set_pos(M->win_id, M->scrollbar, scrollbar->pos-scrollbar->pos_inc);
+		top_but = vscrollbar_get_pos(M->win_id, M->scrollbar);
+		start_y = M->buttons[top_but].y;
+	}
+
+	for(i = top_but; i < M->nr_buttons; i++)
+	{
+		button_y = M->buttons[i].y - start_y;
+		if (button_y > widget->len_y-multiselect_button_height)
+			break;
 		if((flags&ELW_LEFT_MOUSE || flags&ELW_RIGHT_MOUSE) && 
-			my > button_y && my < button_y+22 && mx > M->buttons[i].x && mx < M->buttons[i].x+M->buttons[i].width) {
+			my > button_y && my < button_y+multiselect_button_height && mx > M->buttons[i].x && mx < M->buttons[i].x+M->buttons[i].width) {
 				M->selected_button = i;
 #ifdef NEW_SOUND
 			add_sound_object(get_index_for_sound_type_name("Button Click"), 0, 0, 1);
@@ -3077,6 +3095,8 @@ int multiselect_draw(widget_list *widget)
 		float hr, hg, hb;
 		Uint16 button_y;
 		multiselect *M = widget->widget_info;
+		int top_but = (M->scrollbar != -1) ?vscrollbar_get_pos(M->win_id, M->scrollbar) :0;
+		int start_y = M->buttons[top_but].y;
 
 		r = widget->r != -1 ? widget->r : 0.77f;
 		g = widget->g != -1 ? widget->g : 0.59f;
@@ -3086,21 +3106,11 @@ int multiselect_draw(widget_list *widget)
 		hg = M->highlighted_green != -1 ? M->highlighted_green : 0.23f;
 		hb = M->highlighted_blue != -1 ? M->highlighted_blue : 0.15f;
 		
-		for(i = 0; i < M->nr_buttons; i++) {
-			if(M->buttons[i].width <= 0) {
-				continue;
-			}
-			if(M->scrollbar != -1) {
-				int scrollbar_y = ceilf((vscrollbar_get_pos(M->win_id, M->scrollbar)/(float)M->max_height)*M->actual_height);
-				/* Check if the button should be drawn and set the y position */
-				if(M->buttons[i].y+22 > scrollbar_y+widget->len_y || M->buttons[i].y < scrollbar_y) {
-					continue;
-				} else {
-					button_y = M->buttons[i].y-scrollbar_y;
-				}
-			} else {
-				button_y = M->buttons[i].y;
-			}
+		for(i = top_but; i < M->nr_buttons; i++) {
+			button_y = M->buttons[i].y - start_y;
+			/* Check if the button can be fully drawn */
+			if(button_y > widget->len_y-multiselect_button_height)
+				break;
 			draw_smooth_button(M->buttons[i].text, widget->size, widget->pos_x+M->buttons[i].x, widget->pos_y+button_y, M->buttons[i].width-22, 1, r, g, b, (i == M->selected_button), hr, hg, hb, 0.5f);
 		}
 	}
@@ -3117,15 +3127,20 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 	widget_list *widget = widget_find(window_id, multiselect_id);
 	multiselect *M = widget->widget_info;
 	int current_button = M->nr_buttons;
+	
+	if (text==NULL || strlen(text)==0) {
+		M->next_value++;
+		return current_button;
+	}
 
-	if(y+22 > widget->len_y && (!M->max_height || widget->len_y != M->max_height)) {
-		widget->len_y = y+22; //22 = button height
+	if(y+multiselect_button_height > widget->len_y && (!M->max_height || widget->len_y != M->max_height)) {
+		widget->len_y = y+multiselect_button_height;
 	}
 
 	widget->size=size;
 
-	if (M->max_height && y+22 > M->actual_height) {
-		M->actual_height = y+22;
+	if (M->max_height && y+multiselect_button_height > M->actual_height) {
+		M->actual_height = y+multiselect_button_height;
 	}
 	if(M->max_buttons == M->nr_buttons) {
 		/*Allocate space for more buttons*/
@@ -3136,6 +3151,7 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 	if(selected) {
 		M->selected_button = current_button;
 	}
+	M->buttons[current_button].value = M->next_value++;
 	M->buttons[current_button].x = x;
 	M->buttons[current_button].y = y;
 	M->buttons[current_button].width = (width == 0) ? widget->len_x : width;
@@ -3155,6 +3171,10 @@ int multiselect_button_add_extended(int window_id, Uint32 multiselect_id, Uint16
 			}
 		}
 	}
+	
+	if (M->scrollbar != -1)
+		vscrollbar_set_bar_len(window_id, M->scrollbar, M->nr_buttons-widget->len_y/multiselect_button_height);
+	
 	return current_button;
 }
 
@@ -3175,6 +3195,7 @@ int multiselect_add_extended(int window_id, Uint32 wid, int (*OnInit)(), Uint16 
   	//Save info
  	T->max_buttons = max_buttons > 0 ? max_buttons : 2;
  	T->selected_button = 0;
+	T->next_value = 0;
  	T->nr_buttons = 0;
  	T->buttons = malloc(sizeof(*T->buttons) * T->max_buttons);
 	T->max_height = max_height;
