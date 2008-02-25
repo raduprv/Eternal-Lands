@@ -305,7 +305,10 @@ extern "C" void reset_under_the_mouse()
 
 			glDisableClientState(GL_VERTEX_ARRAY);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			set_actor_animation_program(SELECTION_RENDER_PASS, 0);
+			if (use_animation_program)
+			{
+				set_actor_animation_program(SELECTION_RENDER_PASS, 0);
+			}
 			for (i = 0; i < selections.size(); i++)
 			{
 				switch (selections[i].type)
@@ -349,13 +352,13 @@ extern "C" void reset_under_the_mouse()
 						break;
 				}
 			}
+			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
+
 			if (use_animation_program)
 			{
 				ELglVertexAttrib4f(4, 1.0f, 1.0f, 1.0f, 1.0f);
+				disable_actor_animation_program();
 			}
-			glColor4f(1.0f, 1.0f, 1.0f, 1.0f);
-
-			disable_actor_animation_program();
 			x = mouse_x - select_offset;
 			y = window_height - mouse_y - select_offset;
 
