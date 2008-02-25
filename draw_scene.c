@@ -613,13 +613,19 @@ void update_camera(Uint32 time_delta)
 #endif /* SKY_FPV_CURSOR */
 
 	if(camera_rotation_duration > 0){
-		rz+=camera_rotation_speed*time_delta;
+		if (time_delta <= camera_rotation_duration)
+			rz+=camera_rotation_speed*time_delta;
+		else
+			rz+=camera_rotation_speed*camera_rotation_duration;
 		camera_rotation_duration-=time_delta;
 		adjust_view++;
 	}
 	if(camera_x_duration > 0){
 		if(camera_x_speed>1E-4 || camera_x_speed<-1E-4){
-			camera_x-=camera_x_speed*time_delta;
+			if (time_delta <= camera_x_duration)
+				camera_x-=camera_x_speed*time_delta;
+			else
+				camera_x-=camera_x_speed*camera_x_duration;
 			if(fabs(camera_x-old_camera_x) >= c_delta){
 				adjust_view++;
 			}
@@ -628,7 +634,10 @@ void update_camera(Uint32 time_delta)
 	}
 	if(camera_y_duration > 0){
 		if(camera_y_speed>1E-4 || camera_y_speed<-1E-4){
-			camera_y-=camera_y_speed*time_delta;
+			if (time_delta <= camera_y_duration)
+				camera_y-=camera_y_speed*time_delta;
+			else
+				camera_y-=camera_y_speed*camera_y_duration;
 			if(fabs(camera_y-old_camera_y) >= c_delta){
 				adjust_view++;
 			}
@@ -637,7 +646,10 @@ void update_camera(Uint32 time_delta)
 	}
 	if(camera_z_duration > 0){
 		if(camera_z_speed>1E-4 || camera_z_speed<-1E-4){
-			camera_z-=camera_z_speed*time_delta;
+			if (time_delta <= camera_z_duration)
+				camera_z-=camera_z_speed*time_delta;
+			else
+				camera_z-=camera_z_speed*camera_z_duration;
 			if(fabs(camera_z-old_camera_z) >= c_delta){
 				adjust_view++;
 			}
@@ -646,11 +658,17 @@ void update_camera(Uint32 time_delta)
 	}
 
 	if(camera_tilt_duration > 0) {
-		rx+=camera_tilt_speed*time_delta;
+		if (time_delta <= camera_tilt_duration)
+			rx+=camera_tilt_speed*time_delta;
+		else
+			rx+=camera_tilt_speed*camera_tilt_duration;
 		camera_tilt_duration-=time_delta;
 	}
 	if(camera_zoom_duration > 0) {
-		new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*time_delta;
+		if (time_delta <= camera_zoom_duration)
+			new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*time_delta;
+		else
+			new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*camera_zoom_duration;
 		camera_zoom_duration-=time_delta;
 		adjust_view++;
 	}

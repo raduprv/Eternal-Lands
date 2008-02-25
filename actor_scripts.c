@@ -514,10 +514,17 @@ void animate_actors()
 				actors_list[i]->movement_frames_left--;
 				if(!actors_list[i]->movement_frames_left){	//we moved all the way
 #else // NEW_ACTOR_MOVEMENT
+				if (time_diff <= actors_list[i]->movement_time_left+40) {
+					actors_list[i]->x_pos += actors_list[i]->move_x_speed*time_diff;
+					actors_list[i]->y_pos += actors_list[i]->move_y_speed*time_diff;
+					actors_list[i]->z_pos += actors_list[i]->move_z_speed*time_diff;
+				}
+				else {
+					actors_list[i]->x_pos += actors_list[i]->move_x_speed*actors_list[i]->movement_time_left;
+					actors_list[i]->y_pos += actors_list[i]->move_y_speed*actors_list[i]->movement_time_left;
+					actors_list[i]->z_pos += actors_list[i]->move_z_speed*actors_list[i]->movement_time_left;
+				}
                 actors_list[i]->movement_time_left -= time_diff;
-                actors_list[i]->x_pos+= actors_list[i]->move_x_speed*time_diff;
-                actors_list[i]->y_pos+= actors_list[i]->move_y_speed*time_diff;
-                actors_list[i]->z_pos+= actors_list[i]->move_z_speed*time_diff;
 				if(actors_list[i]->movement_time_left <= 0){	//we moved all the way
 #endif // NEW_ACTOR_MOVEMENT
 					Uint8 last_command;
