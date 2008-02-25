@@ -12,6 +12,9 @@
 #include <map>
 #include <cassert>
 #include "exceptions/extendedexception.hpp"
+#ifdef	USE_BOOST
+#include <boost/foreach.hpp>
+#endif	/* USE_BOOST */
 
 #include "2d_objects.h"
 #include "3d_objects.h"
@@ -25,6 +28,8 @@ struct SelectionData
 };
 
 std::vector<SelectionData> selections;
+
+typedef std::map<Uint32, float> IndexMap;
 
 bool read_selection = false;
 bool add_selection = false;
@@ -82,8 +87,10 @@ static inline void update_selection(Uint8 *color)
 {
 	Uint32 i, j, idx, index;
 	float t, count;
-	std::map<Uint32, float> indices;
-	std::map<Uint32, float>::const_iterator it;
+	IndexMap indices;
+#ifndef	USE_BOOST
+	IndexMap::const_iterator it;
+#endif	/* USE_BOOST */
 
 	idx = 0;
 	for (i = 0; i < select_size; i++)
@@ -108,10 +115,16 @@ static inline void update_selection(Uint8 *color)
 	index = 0;
 	count = 0;
 #ifdef	USE_BOOST
-	BOOST_FOREACH(it, indices)
+	BOOST_FOREACH(IndexMap::value_type it, indices)
+	{
+		if (it.second > count)
+		{
+			index = it.first;
+			count = it.second;
+		}
+	}
 #else	/* USE_BOOST */
 	for (it = indices.begin(); it != indices.end(); it++)
-#endif	/* USE_BOOST */
 	{
 		if (it->second > count)
 		{
@@ -119,6 +132,7 @@ static inline void update_selection(Uint8 *color)
 			count = it->second;
 		}
 	}
+#endif	/* USE_BOOST */
 	if (count > 0)
 	{
 		thing_under_the_mouse = selections[index].type;
@@ -344,11 +358,8 @@ extern "C" void reset_under_the_mouse()
 						break;
 					case UNDER_MOUSE_3D_OBJ:
 						break;
-					case UNDER_MOUSE_NO_CHANGE:
-						LOG_ERROR("Invalid selection type!");
-						break;
 					default:
-						LOG_ERROR("Invalid selection type!");
+						LOG_ERROR("Invalid selection type (%d)!", selections[i].type);
 						break;
 				}
 			}
@@ -386,7 +397,8 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 
 	if (supports_gl_version(1, 3) || have_extension(arb_texture_env_combine))
 	{
-		if (add_selection && (object_type != UNDER_MOUSE_NO_CHANGE))
+		if (add_selection && ((object_type != UNDER_MOUSE_NOTHING) ||
+			(object_type != UNDER_MOUSE_NO_CHANGE)))
 		{
 			data.id = object_id;
 			data.type = object_type;

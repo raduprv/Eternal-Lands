@@ -4,6 +4,7 @@
 #include <cal3d/cal3d.h>
 #ifdef	USE_BOOST
 #include <boost/shared_array.hpp>
+#include <boost/foreach.hpp>
 #endif	/* USE_BOOST */
 #include <map>
 #include "bbox_tree.h"
@@ -409,7 +410,9 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 {
 	actor_types* a;
 	IntMap* im;
+#ifndef	USE_BOOST
 	IntMap::const_iterator it;
+#endif	/* USE_BOOST */
 	float s;
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	int i;
@@ -480,13 +483,16 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 	}
 #else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 #ifdef	USE_BOOST
-	BOOST_FOREACH(it, im)
+	BOOST_FOREACH(IntMap::value_type it, *im)
+	{
+		render_mesh_shader(a, act, it.first, it.second, use_glow);
+	}
 #else	/* USE_BOOST */
 	for (it = im->begin(); it != im->end(); it++)
-#endif	/* USE_BOOST */
 	{
 		render_mesh_shader(a, act, it->first, it->second, use_glow);
 	}
+#endif	/* USE_BOOST */
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
