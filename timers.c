@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <time.h>
 #include "timers.h"
+#ifdef NEW_ACTOR_MOVEMENT
+#include "actors.h"
+#endif
 #include "actor_scripts.h"
 #include "draw_scene.h"
 #include "events.h"
