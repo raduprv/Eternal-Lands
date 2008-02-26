@@ -804,6 +804,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		default:
 		{
 			short x, y;
+			
+			/* if outside the main window, on the hud, don't walk */
+			if ((mx >= window_width-hud_x) || (my >= window_height-hud_y))
+				return 1;				
 		
 			if (flag_alt)
 				return 1;
