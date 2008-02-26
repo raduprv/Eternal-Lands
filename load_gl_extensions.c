@@ -3,6 +3,8 @@
 #endif // WINDOWS
 #include <SDL.h>
 #include "load_gl_extensions.h"
+#include "client_serv.h"
+#include "text.h"
 
 const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1" };
 const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201 };
@@ -249,6 +251,43 @@ GLboolean is_GL_VERSION_1_4 = GL_FALSE;
 GLboolean is_GL_VERSION_1_5 = GL_FALSE;
 GLboolean is_GL_VERSION_2_0 = GL_FALSE;
 GLboolean is_GL_VERSION_2_1 = GL_FALSE;
+
+int nvidia_vertex_program_problem=0;
+
+static check_for_problem_drivers()
+{
+	const char *my_string;
+	int is_nvidia=0;
+	int is_intel=0;
+	int is_ati=0;
+	int is_sis=0;
+	char str[500];
+
+
+	my_string = (const char*) glGetString (GL_VENDOR);
+	if(strstr(my_string,"NVIDIA"))is_nvidia=1;
+	else
+	if(strstr(my_string,"ATI"))is_ati=1;
+	else
+	if(strstr(my_string,"Intel"))is_intel=1;
+
+	my_string = (const char*) glGetString (GL_VERSION);
+
+	//OpenGL Version Format: 2.0.0
+	if(is_nvidia)
+		{
+			if(my_string[0]=='1')nvidia_vertex_program_problem=1;
+			if(my_string[0]=='2' && my_string[2]=='0')nvidia_vertex_program_problem=1;
+		}
+
+	//log the problems
+	if(nvidia_vertex_program_problem)
+	LOG_TO_CONSOLE (c_red2, "Your video drivers are old, please update them from www.nvidia.com, or, if you have a laptop, check the manufacturer site for driver updates.");
+	sprintf(str,"Nvidia: %i, ver 0: %c, ver 2: %c",is_nvidia,my_string[0],my_string[2]);
+
+	LOG_TO_CONSOLE (c_yellow2, str);
+}
+
 
 /*	GL_VERSION_1_2		*/
 static GLboolean el_init_GL_VERSION_1_2()
@@ -605,7 +644,7 @@ PFNGLGETFRAMEBUFFERATTACHMENTPARAMETERIVEXTPROC ELglGetFramebufferAttachmentPara
 PFNGLGETRENDERBUFFERPARAMETERIVEXTPROC ELglGetRenderbufferParameterivEXT = NULL;
 PFNGLISFRAMEBUFFEREXTPROC ELglIsFramebufferEXT = NULL;
 PFNGLISRENDERBUFFEREXTPROC ELglIsRenderbufferEXT = NULL;
-PFNGLRENDERBUFFERSTORAGEEXTPROC ELglRenderbufferStorageEXT = NULL;	
+PFNGLRENDERBUFFERSTORAGEEXTPROC ELglRenderbufferStorageEXT = NULL;
 /*	GL_EXT_framebuffer_object	*/
 
 /*	GL_ARB_texture_compression	*/
@@ -1057,6 +1096,8 @@ void init_opengl_extensions()
 	GLboolean e;
 	char* extensions_string;
 
+	check_for_problem_drivers();
+
 	is_GL_VERSION_1_2 = el_init_GL_VERSION_1_2();
 	is_GL_VERSION_1_3 = is_GL_VERSION_1_2 && el_init_GL_VERSION_1_3();
 	is_GL_VERSION_1_4 = is_GL_VERSION_1_3 && el_init_GL_VERSION_1_4();
@@ -1192,7 +1233,7 @@ void init_opengl_extensions()
 	}
 /*	GL_ARB_fragment_program			*/
 /*	GL_ARB_vertex_program			*/
-	if (strstr(extensions_string, "GL_ARB_vertex_program") != NULL)
+	if (strstr(extensions_string, "GL_ARB_vertex_program") != NULL && !nvidia_vertex_program_problem)
 	{
 		e = el_init_GL_ARB_vertex_program();
 		if (e == GL_TRUE)
