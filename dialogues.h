@@ -27,6 +27,8 @@ extern int cur_portrait; /*!< pointer to the portrait used by a particular NPC *
 /*! @{ */
 #define	MAX_PORTRAITS_TEXTURES	16
 extern int portraits_tex[MAX_PORTRAITS_TEXTURES];
+
+extern int use_keypress_dialogue_boxes, use_full_dialogue_window;
 /*! @} */
 
 /*!
@@ -40,6 +42,11 @@ typedef struct{
 	int y_start;
 	int x_len;
 	int y_len;
+	// orig_* is the unadulterated information from the server to save repeatedly recalculating
+	int orig_x_start;
+	int orig_y_start;
+	int orig_x_len;
+	int orig_y_len;
     /*! @} */
 
 	int to_actor; /*!< id of the actor to which this response is directed */

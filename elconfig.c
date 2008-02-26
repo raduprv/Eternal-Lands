@@ -141,6 +141,7 @@ int shadow_map_size_multi= 0;
 
 int you_sit= 0;
 int sit_lock= 0;
+int use_keypress_dialogue_boxes = 0, use_full_dialogue_window = 0;
 int use_alpha_banner = 0;
 int show_fps= 1;
 int render_skeleton= 0;
@@ -387,6 +388,7 @@ void change_poor_man(int *poor_man)
 #ifndef MAP_EDITOR
 		use_frame_buffer= 0;
 #endif
+		use_eye_candy= 0;
 		update_fbos();
 	}
 }
@@ -1591,6 +1593,8 @@ void init_vars()
 
 	add_var(OPT_BOOL,"item_window_on_drop","itemdrop",&item_window_on_drop,change_var,1,"Item Window On Drop","Toggle whether the item window shows when you drop items",CONTROLS);
 	add_var (OPT_BOOL, "use_floating_messages", "floating", &floatingmessages_enabled, change_var, 1, "Floating Messages", "Toggles the use of floating experience messages and other graphical enhancements", CONTROLS);
+	add_var (OPT_BOOL, "use_keypress_dialog_boxes", "keypressdialogues", &use_keypress_dialogue_boxes, change_var, 0, "Keypresses in dialogue boxes", "Toggles the ability to press a key to select a menu option in dialogue boxes (eg The Wraith)", CONTROLS);
+	add_var (OPT_BOOL, "use_full_dialogue_window", "keypressdialoguesfullwindow", &use_full_dialogue_window, change_var, 0, "Keypresses allowed anywhere in dialogue boxes", "If set, the above will work anywhere in the Dialogue Window, if unset only on the NPC's face", CONTROLS);
 	add_var (OPT_BOOL, "use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);
 #endif
 	add_var (OPT_BOOL, "always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
