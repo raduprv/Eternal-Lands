@@ -155,25 +155,25 @@ int	display_dialogue_handler(window_info *win)
 			else
 				glColor3f(1.0f,1.0f,0.0f);
 			if(mouse_x<win->pos_x || mouse_x>win->pos_x+win->len_x || mouse_y<win->pos_y || mouse_y>win->pos_y+win->len_y)
-	            show_keypress_letters=0;
+				show_keypress_letters=0;
 			if(use_keypress_dialogue_boxes && show_keypress_letters)
 			{
 				if(i>=0 && i<=8) // 1-9
-					safe_snprintf(str,sizeof(str),"%c] %s",49+i,(unsigned char*)dialogue_responces[i].text);
+					safe_snprintf((char*)str,sizeof(str),"%c] %s",49+i,(unsigned char*)dialogue_responces[i].text);
 				else if(i==9) //0
-					safe_snprintf(str,sizeof(str),"0] %s",(unsigned char*)dialogue_responces[i].text);
+					safe_snprintf((char*)str,sizeof(str),"0] %s",(unsigned char*)dialogue_responces[i].text);
 				else if(i>=10 && i<=35) // A-Z
-					safe_snprintf(str,sizeof(str),"%c] %s",55+i, (unsigned char*)dialogue_responces[i].text);
+					safe_snprintf((char*)str,sizeof(str),"%c] %s",55+i, (unsigned char*)dialogue_responces[i].text);
 				else // too many dialogue options, you have to click these
-					 safe_snprintf(str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
-			    draw_string_small(dialogue_responces[i].x_start+5,dialogue_responces[i].y_start+7*14,str,1);
-			    y_start=(dialogue_responces[i].y_start+7*14)+32;
+					 safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
+				draw_string_small(dialogue_responces[i].x_start+5,dialogue_responces[i].y_start+7*14,str,1);
+				y_start=(dialogue_responces[i].y_start+7*14)+32;
 			}
 			else
 			{
-				safe_snprintf(str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
+				safe_snprintf((char*)str,sizeof(str),"%s",(unsigned char*)dialogue_responces[i].text);
 				draw_string_small(dialogue_responces[i].orig_x_start+5,dialogue_responces[i].orig_y_start+7*14,str,1);
-			    y_start=(dialogue_responces[i].orig_y_start+7*14)+32;
+				y_start=(dialogue_responces[i].orig_y_start+7*14)+32;
 			}
 		}
 	}
