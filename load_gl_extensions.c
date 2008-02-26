@@ -254,13 +254,13 @@ GLboolean is_GL_VERSION_2_1 = GL_FALSE;
 
 int nvidia_vertex_program_problem=0;
 
-static check_for_problem_drivers()
+static void check_for_problem_drivers()
 {
 	const char *my_string;
 	int is_nvidia=0;
 	int is_intel=0;
 	int is_ati=0;
-	int is_sis=0;
+	//int is_sis=0;
 	char str[500];
 
 
