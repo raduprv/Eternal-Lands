@@ -1,12 +1,17 @@
 #Guild commands:
-gm
 view_guild_colors
-set_guild_color
 guild_info
 remove
 accept
 change_rank
 rank
+join_guild
+allies_list
+enemies_list
+set_enemy_guild
+set_ally_guild
+view_guild_colors
+set_guild_color
 
 add_buddy
 del_buddy
@@ -17,7 +22,5 @@ abuse
 book
 stats
 research
-join_guild
-jc
-lc
 arm
+
