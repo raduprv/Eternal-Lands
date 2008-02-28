@@ -17,6 +17,7 @@
 #include "md5.h"
 
 Uint32 use_animation_program = 1;
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 Uint32 use_display_actors = 1;
 Uint32 use_actor_bbox_check = 1;
 Uint32 use_render_mesh_shader = 1;
@@ -24,6 +25,7 @@ Uint32 use_set_transformation_buffers = 1;
 Uint32 use_build_actor_bounding_box = 1;
 Uint32 use_model_attach_and_detach_mesh = 1;
 Uint32 use_render_attached_meshs = 1;
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 Uint32 max_bones_per_mesh = 27;
 
 class HardwareMeshData
@@ -94,6 +96,10 @@ static inline GLuint load_vertex_program(const std::string &name)
 	std::stringstream s2;
 	size_t pos;
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start load_vertex_program: %s", name.c_str());
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+
 	ELglGenProgramsARB(1, &id);
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, id);
 
@@ -126,13 +132,23 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done load_vertex_program: %s", name.c_str());
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+
 	return id;
 }
 
 extern "C" void unload_vertex_programs()
 {
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start unload_vertex_programs");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	ELglDeleteProgramsARB(5, vertex_program_ids);
 	memset(vertex_program_ids, 0, sizeof(vertex_program_ids));
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done unload_vertex_programs");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, const HardwareMeshData &hmd, const bool use_glow)
@@ -141,6 +157,10 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	Sint32 bone_id, glow;
 	float reverse_scale;
 	CalSkeleton *skel;
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start render_mesh_shader");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	if (index >= 0)
 	{
@@ -244,6 +264,10 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			glPopMatrix();
 		}
 	}
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done render_mesh_shader");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
@@ -251,6 +275,10 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	Uint32 index, i;
 	VECTOR4 zero;
 	VECTOR4 one;
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start set_actor_animation_program: %d", pass);
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	switch (pass)
 	{
@@ -341,10 +369,18 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	ELglEnableVertexAttribArrayARB(3);
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("end set_actor_animation_program: %d", pass);
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 extern "C" void disable_actor_animation_program()
 {
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start disable_actor_animation_program");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
 
 	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
@@ -359,6 +395,10 @@ extern "C" void disable_actor_animation_program()
 	glDisable(GL_VERTEX_PROGRAM_ARB);
 
 	last_actor_type = -1;
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done disable_actor_animation_program");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
@@ -413,6 +453,10 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 	float s;
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	int i;
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start cal_render_actor_shader");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	assert(act->calmodel);
@@ -491,6 +535,9 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 	}
 #endif	/* USE_BOOST */
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done cal_render_actor_shader");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uint32 &face_count,
@@ -503,6 +550,10 @@ static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uin
 	face_count = 0;
 	vertex_count = 0;
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start calculate_face_and_vertex_count");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+
 	for (i = 0; i < core_model->getCoreMeshCount(); i++)
 	{
 		core_mesh = core_model->getCoreMesh(i);
@@ -514,6 +565,10 @@ static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uin
 			vertex_count += core_sub_mesh->getVertexCount();
 		}
 	}
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done calculate_face_and_vertex_count");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 #ifdef	USE_BOOST
@@ -576,6 +631,10 @@ extern "C" void build_buffers(actor_types* a)
 
 	face_count = 0;
 	vertex_count = 0;
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start build_buffers: %s", a->actor_name);
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	calculate_face_and_vertex_count(a->coremodel, face_count, vertex_count);
 
@@ -837,6 +896,10 @@ extern "C" void build_buffers(actor_types* a)
 	}
 
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
+
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done build_buffers: %s", a->actor_name);
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 static inline void set_transformation_buffer(actor_types *a, actor *act, const Uint32 index,
@@ -880,6 +943,7 @@ extern "C" void set_transformation_buffers(actor* act)
 	{
 		return;
 	}
+	log_info("start set_transformation_buffers");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	im = reinterpret_cast<IntMap*>(act->calmodel->getUserData());
 
@@ -891,6 +955,9 @@ extern "C" void set_transformation_buffers(actor* act)
 	{
 		set_transformation_buffer(a, act, it->first, it->second);
 	}
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done set_transformation_buffers");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 extern "C" void build_actor_bounding_box(actor* a)
@@ -904,6 +971,7 @@ extern "C" void build_actor_bounding_box(actor* a)
 	{
 		return;
 	}
+	log_info("start build_actor_bounding_box");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	if (a->calmodel)
 	{
@@ -917,27 +985,42 @@ extern "C" void build_actor_bounding_box(actor* a)
 			a->bbox.bbmax[i] += std::max(t * 0.25f - 0.25f, 0.1f);
 		}
 	}
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done build_actor_bounding_box");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 extern "C" CalModel *model_new(CalCoreModel* pCoreModel)
 {
 	CalModel* tmp;
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start model_new");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	tmp = new CalModel(pCoreModel);
 
 	tmp->setUserData(new IntMap());
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done model_new");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	return tmp;
 }
 
 extern "C" void model_delete(CalModel *self)
 {
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("start model_delete");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	if (self)
 	{
 		delete reinterpret_cast<IntMap*>(self->getUserData());
 		self->setUserData(0);
 	}
 	delete self;
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done model_delete");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 extern "C" void model_attach_mesh(actor *act, int mesh_id)
@@ -951,6 +1034,7 @@ extern "C" void model_attach_mesh(actor *act, int mesh_id)
 	{
 		return;
 	}
+	log_info("start model_attach_mesh");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	assert(act);
 
@@ -980,6 +1064,9 @@ extern "C" void model_attach_mesh(actor *act, int mesh_id)
 			}
 		}
 	}
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done model_attach_mesh");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
 extern "C" void model_detach_mesh(actor *act, int mesh_id)
@@ -993,7 +1080,9 @@ extern "C" void model_detach_mesh(actor *act, int mesh_id)
 	{
 		return;
 	}
+	log_info("start model_detach_mesh");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+
 	assert(act);
 
 	assert(act->calmodel);
@@ -1018,5 +1107,8 @@ extern "C" void model_detach_mesh(actor *act, int mesh_id)
 			}
 		}
 	}
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	log_info("done model_detach_mesh");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 
