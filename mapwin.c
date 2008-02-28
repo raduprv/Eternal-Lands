@@ -143,10 +143,10 @@ int display_map_handler (window_info * win)
 #endif // NEW_LIGHTING
 
 #ifdef MISSILES
-	missiles_update(cur_time-last_time);
+	missiles_update();
 #endif // MISSILES
 #ifdef NEW_CAMERA
-    update_camera(cur_time-last_time);
+    update_camera();
 #endif // NEW_CAMERA
 
 	draw_delay = 20;

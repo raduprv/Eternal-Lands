@@ -219,14 +219,16 @@ void missiles_remove(int missile_id)
 	}
 }
 
-void missiles_update(Uint32 time_diff)
+void missiles_update()
 {
 	int i;
-	float shift_t = time_diff / 1000.0;
+	static int last_update = 0;
+	int _cur_time = SDL_GetTicks();
+	float time_diff = (_cur_time - last_update) / 1000.0;
 	
 	for (i = 0; i < missiles_count; ) {
 		missile *mis = &missiles_list[i];
-		float dist = mis->speed * shift_t;
+		float dist = mis->speed * time_diff;
 		mis->position[0] += mis->direction[0] * dist;
 		mis->position[1] += mis->direction[1] * dist;
 		mis->position[2] += mis->direction[2] * dist;
@@ -246,6 +248,8 @@ void missiles_update(Uint32 time_diff)
 		else
 			begin_lost_missiles = (begin_lost_missiles + 1) % MAX_LOST_MISSILES;
 	}
+
+	last_update = _cur_time;
 }
 
 void missiles_draw_single(missile *mis, const float color[4])

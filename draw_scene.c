@@ -34,8 +34,12 @@ float terrain_scale=2.0f;
 float zoom_level=3.0f;
 float name_zoom=1.0f;
 #ifdef SKY_FPV_CURSOR
+#define MAX(a,b) ( ((a)>(b)) ? (a):(b))
 //First Person Camera mode state
 int first_person = 0;
+float old_rx=-60;
+float old_rz=45;
+float old_zoom_level=3.0;
 #endif /* SKY_FPV_CURSOR */
 
 float fine_camera_rotation_speed;
@@ -93,6 +97,7 @@ float last_kludge=0;	//Stores how far the camera deviated from camera_kludge
 float fol_strn = 0.03f;
 float fol_con,fol_lin,fol_quad;
 int ext_cam = 1;	//Extended camera state
+int free_cam=0; //Free angles
 //Check that this is still used, I think it's not.
 float hold_camera=180;
 
@@ -396,6 +401,14 @@ void clamp_camera(void)
 				rx = 15;
 				camera_tilt_duration=0;
 			}
+		} else if(free_cam){
+			if(rx < -140){
+				rx = -140;
+				camera_tilt_duration=0;
+			} else if(rx > -5){
+				rx = -5;
+				camera_tilt_duration=0;
+			}
 		} else if(ext_cam){
 			if(rx < -90){
 				rx = -90;
@@ -466,10 +479,15 @@ void clamp_camera(void)
 int adjust_view;
 #endif /* SKY_FPV_CURSOR */
 
-#ifndef NEW_CAMERA
-void update_camera ()
+void update_camera()
 {
 	const float c_delta = 0.1f;
+
+#ifdef NEW_CAMERA
+	static int last_update = 0;
+	int _cur_time = SDL_GetTicks();
+	int time_diff = _cur_time - last_update;
+#endif // NEW_CAMERA
 
 	static float old_camera_x = 0;
 	static float old_camera_y = 0;
@@ -478,18 +496,23 @@ void update_camera ()
 	int adjust_view= 0;
 #else /* SKY_FPV_CURSOR */
 	float adjust;
+	actor *me = get_our_actor();
 
+	old_rx=rx;
+	old_rz=rz;
+	old_zoom_level=zoom_level;
+	
+	//printf("kludge: %f, hold: %f, rx: %f, rz %f, zoom: %f\n",camera_kludge, hold_camera,rx,rz,zoom_level);
+	
 	if (fol_cam) rz=hold_camera;
+#ifndef NEW_ACTOR_MOVEMENT
+	if (me) camera_kludge=180-me->tmp.z_rot;
+#else // NEW_ACTOR_MOVEMENT
+	if (me) camera_kludge=180-me->z_rot;
+#endif // NEW_ACTOR_MOVEMENT
 #endif /* SKY_FPV_CURSOR */
 
-#ifdef CAMERA_FPS_CHECK
-	static Uint32 last_update = 0;
-	Uint32 cur_time = SDL_GetTicks();
-
-	log_info("camera update delta: %u ms\n", cur_time - last_update);
-	last_update = cur_time;
-#endif // CAMERA_FPS_CHECK
-
+#ifndef NEW_CAMERA
 	if(camera_rotation_frames){
 		rz+=camera_rotation_speed;
 		camera_rotation_frames--;
@@ -532,146 +555,69 @@ void update_camera ()
 		camera_zoom_frames--;
 		adjust_view++;
 	}
-	clamp_camera();
-	if(adjust_view){
-		set_all_intersect_update_needed(main_bbox_tree);
-		old_camera_x= camera_x;
-		old_camera_y= camera_y;
-		old_camera_z= camera_z;
-	}
-
-#ifdef SKY_FPV_CURSOR
-	hold_camera=rz;
-	if (fol_cam){
-		if (last_kludge != camera_kludge) {
-			set_all_intersect_update_needed(main_bbox_tree);
-			adjust = (camera_kludge-last_kludge);
-
-			//without this the camera will zip the wrong way when camera_kludge
-			//flips from 180 <-> -180
-			if      (adjust >=  180) adjust -= 360.0;
-			else if (adjust <= -180) adjust += 360.0;
-
-			if (fabs(adjust) < fol_strn){
-				last_kludge=camera_kludge;
-			} else {
-				last_kludge += fol_strn*(
-					adjust*(fol_quad*fol_strn + fol_lin)+
-					fol_con*(adjust>0?1:-1))/
-					(fol_quad+fol_lin+fol_con+.000001f);//cheap no/0
-			}
-		}
-		rz-=last_kludge;
-	}
-
-	//Make Character Turn with Camera
-	if (have_mouse && !on_the_move (get_our_actor ()))
-	{
-		adjust = (rz+180);
-		//without this the character will turn the wrong way when camera_kludge
-		//and character are in certain positions
-		if      (adjust >=  180) adjust -= 360.0;
-		else if (adjust <= -180) adjust += 360.0;
-		adjust+=camera_kludge;
-		if      (adjust >=  180) adjust -= 360.0;
-		else if (adjust <= -180) adjust += 360.0;
-		if (adjust > 35){
-			Uint8 str[2];
-			str[0] = TURN_LEFT;
-			my_tcp_send (my_socket, str, 1);
-		} else if (adjust < -35){
-			Uint8 str[2];
-			str[0] = TURN_RIGHT;
-			my_tcp_send (my_socket, str, 1);
-		}
-	}
-	adjust_view = 0;
-#endif /* SKY_FPV_CURSOR */
-}
-
 #else // NEW_CAMERA
-
-void update_camera(Uint32 time_delta)
-{
-	const float c_delta = 0.1f;
-
-	static float old_camera_x = 0;
-	static float old_camera_y = 0;
-	static float old_camera_z = 0;
-#ifndef SKY_FPV_CURSOR
-	int adjust_view= 0;
-#else /* SKY_FPV_CURSOR */
-	float adjust;
-	actor *me = get_our_actor();
-
-	if (fol_cam) rz=hold_camera;
-#ifndef NEW_ACTOR_MOVEMENT
-	if (me) camera_kludge=180-me->tmp.z_rot;
-#else // NEW_ACTOR_MOVEMENT
-	if (me) camera_kludge=180-me->z_rot;
-#endif // NEW_ACTOR_MOVEMENT
-#endif /* SKY_FPV_CURSOR */
-
 	if(camera_rotation_duration > 0){
-		if (time_delta <= camera_rotation_duration)
-			rz+=camera_rotation_speed*time_delta;
+		if (time_diff <= camera_rotation_duration)
+			rz+=camera_rotation_speed*time_diff;
 		else
 			rz+=camera_rotation_speed*camera_rotation_duration;
-		camera_rotation_duration-=time_delta;
+		camera_rotation_duration-=time_diff;
 		adjust_view++;
 	}
 	if(camera_x_duration > 0){
 		if(camera_x_speed>1E-4 || camera_x_speed<-1E-4){
-			if (time_delta <= camera_x_duration)
-				camera_x-=camera_x_speed*time_delta;
+			if (time_diff <= camera_x_duration)
+				camera_x-=camera_x_speed*time_diff;
 			else
 				camera_x-=camera_x_speed*camera_x_duration;
 			if(fabs(camera_x-old_camera_x) >= c_delta){
 				adjust_view++;
 			}
 		}
-		camera_x_duration-=time_delta;
+		camera_x_duration-=time_diff;
 	}
 	if(camera_y_duration > 0){
 		if(camera_y_speed>1E-4 || camera_y_speed<-1E-4){
-			if (time_delta <= camera_y_duration)
-				camera_y-=camera_y_speed*time_delta;
+			if (time_diff <= camera_y_duration)
+				camera_y-=camera_y_speed*time_diff;
 			else
 				camera_y-=camera_y_speed*camera_y_duration;
 			if(fabs(camera_y-old_camera_y) >= c_delta){
 				adjust_view++;
 			}
 		}
-		camera_y_duration-=time_delta;
+		camera_y_duration-=time_diff;
 	}
 	if(camera_z_duration > 0){
 		if(camera_z_speed>1E-4 || camera_z_speed<-1E-4){
-			if (time_delta <= camera_z_duration)
-				camera_z-=camera_z_speed*time_delta;
+			if (time_diff <= camera_z_duration)
+				camera_z-=camera_z_speed*time_diff;
 			else
 				camera_z-=camera_z_speed*camera_z_duration;
 			if(fabs(camera_z-old_camera_z) >= c_delta){
 				adjust_view++;
 			}
 		}
-		camera_z_duration-=time_delta;
+		camera_z_duration-=time_diff;
 	}
 
 	if(camera_tilt_duration > 0) {
-		if (time_delta <= camera_tilt_duration)
-			rx+=camera_tilt_speed*time_delta;
+		if (time_diff <= camera_tilt_duration)
+			rx+=camera_tilt_speed*time_diff;
 		else
 			rx+=camera_tilt_speed*camera_tilt_duration;
-		camera_tilt_duration-=time_delta;
+		camera_tilt_duration-=time_diff;
 	}
 	if(camera_zoom_duration > 0) {
-		if (time_delta <= camera_zoom_duration)
-			new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*time_delta;
+		if (time_diff <= camera_zoom_duration)
+			new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*time_diff;
 		else
 			new_zoom_level += (camera_zoom_dir==1?0.003f:-0.003f)*camera_zoom_duration;
-		camera_zoom_duration-=time_delta;
+		camera_zoom_duration-=time_diff;
 		adjust_view++;
 	}
+#endif // NEW_CAMERA
+
 	clamp_camera();
 	if(adjust_view){
 		set_all_intersect_update_needed(main_bbox_tree);
@@ -681,9 +627,9 @@ void update_camera(Uint32 time_delta)
 	}
 
 #ifdef SKY_FPV_CURSOR
+	
 	hold_camera=rz;
 	if (fol_cam){
-		//printf("Fol: %f, %f\n",last_kludge,camera_kludge);
 		if (last_kludge != camera_kludge) {
 			set_all_intersect_update_needed(main_bbox_tree);
 			adjust = (camera_kludge-last_kludge);
@@ -705,6 +651,47 @@ void update_camera(Uint32 time_delta)
 		rz-=last_kludge;
 	}
 
+	if (free_cam&&me){
+		float rotm[16]; 
+		float xcam,ycam,zcam,ztile,myz;
+		int xtile,ytile; 
+		
+		//z of the tile where the actor is
+		myz=-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f;
+		
+		//calculating inverse camera matrix
+		glPushMatrix();
+		glLoadIdentity();
+		glTranslatef(-camera_x, -camera_y, -camera_z);
+		glRotatef(-rz, 0.0f, 0.0f, 1.0f);
+		glRotatef(-rx, 1.0f, 0.0f, 0.0f);
+		glTranslatef(0.0f, 0.0f, new_zoom_level*camera_distance);
+		glGetFloatv(GL_MODELVIEW_MATRIX, rotm);	
+		glPopMatrix();
+		
+		//x,y,z are in the last column of rotm
+		xcam=rotm[12];
+		ycam=rotm[13];
+		zcam=rotm[14];
+		
+		//x,y,z of the tile where camera is. Z is the max between myz and camera tile.
+		//this is to be sure we are not looking at actor from underneath the terrain
+		xtile=xcam*2;
+		ytile=ycam*2;
+		ztile=MAX((xtile>=0&&ytile>=0) ? (-2.2f+height_map[ytile*tile_map_size_x*6+xtile]*0.2f):(myz),myz);
+		if (zcam<ztile) {
+			//camera is going under, stop it!
+			//LOG_TO_CONSOLE(c_red2,"Bump!");
+			rx=old_rx;
+			rz=old_rz;
+			new_zoom_level=old_zoom_level;
+			camera_tilt_duration=camera_zoom_duration=camera_rotation_duration=0;
+			
+		}
+		
+	}
+	
+	
 	//Make Character Turn with Camera
 	if (have_mouse && !on_the_move (get_our_actor ()))
 	{
@@ -728,8 +715,11 @@ void update_camera(Uint32 time_delta)
 	}
 	adjust_view = 0;
 #endif /* SKY_FPV_CURSOR */
-}
+
+#ifdef NEW_CAMERA
+	last_update = _cur_time;
 #endif // NEW_CAMERA
+}
 
 int update_have_display(window_info * win)
 {

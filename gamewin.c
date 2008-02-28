@@ -296,6 +296,7 @@ void toggle_have_mouse()
 	if(have_mouse){
 		SDL_WM_GrabInput(SDL_GRAB_ON);
 		if (sdl_cursors) SDL_ShowCursor(0);
+		if (fol_cam) toggle_follow_cam(&fol_cam);
 		LOG_TO_CONSOLE (c_red1, "Grab mode: press alt+g again to enter Normal mode.");
 	} else {
 		SDL_WM_GrabInput(SDL_GRAB_OFF);
@@ -317,6 +318,7 @@ void toggle_first_person()
 		rx=-90;
 		first_person = 1;
 		fol_cam = 0;
+		free_cam=0;
 	} else {
 		first_person = 0;    
 		if (rx < -90) {rx = -90;}
@@ -955,7 +957,7 @@ int display_game_handler (window_info *win)
 	glPushMatrix ();
 
 #ifdef NEW_CAMERA
-    update_camera(cur_time-last_time);
+    update_camera();
 #endif // NEW_CAMERA
 
 	if (new_zoom_level != zoom_level)
@@ -1044,7 +1046,7 @@ int display_game_handler (window_info *win)
 		glClear(GL_DEPTH_BUFFER_BIT);
 
 #ifdef MISSILES
-		missiles_update(cur_time-last_time);
+		missiles_update();
 #endif
 	
 #ifdef NEW_LIGHTING
@@ -1070,7 +1072,7 @@ int display_game_handler (window_info *win)
 				blend_reflection_fog();
 				draw_lake_tiles ();
 			}
-
+			
 			draw_tile_map();
 			CHECK_GL_ERRORS ();
 			display_2d_objects();
@@ -1152,7 +1154,7 @@ int display_game_handler (window_info *win)
 		fps[3]=fps[2];
 		fps[2]=fps[1];
 		fps[1]=fps[0];
-		fps[0]=last_count;
+		fps[0]=last_count*1000/(cur_time-next_fps_time+1000);
 		last_count=0;
 		next_fps_time=cur_time+1000;
 		fps_average=(fps[0]+fps[1]+fps[2]+fps[3]+fps[4])/5.0f;
@@ -2164,6 +2166,10 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_FIRST_PERSON)
 	{
 		toggle_first_person();
+	}
+	else if (key == K_FREE_CAM)
+	{
+		if (!first_person) free_cam=!free_cam;
 	}
 	else if (key == K_GRAB_MOUSE)
 	{
