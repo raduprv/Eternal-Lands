@@ -216,8 +216,14 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 		a->hardware_model->selectHardwareMesh(index);
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+		log_info("start setting parameter");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 		if (have_extension(ext_gpu_program_parameters))
 		{
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+			log_info("Using GL_EXT_gpu_program_parameters");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 			ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0,
 				a->hardware_model->getBoneCount() * 3, hmd.get_buffer());
 		}
@@ -230,6 +236,9 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 					hmd.get_buffer(i * 4));
 			}
 		}
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+		log_info("done setting parameter");
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	
 		if (bone_id != -1)
 		{
