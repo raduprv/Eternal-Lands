@@ -1749,6 +1749,7 @@ void init_vars()
 	add_var(OPT_BOOL, "use_build_actor_bounding_box", "ubabb", &use_build_actor_bounding_box, change_var, 1, "Use build_actor_bounding_box", "Use the build_actor_bounding_box function", DEBUGTAB);
 	add_var(OPT_BOOL, "use_model_attach_and_detach_mesh", "umaadm", &use_model_attach_and_detach_mesh, change_var, 1, "Use model_attach_and_detach_mesh", "Use the model_attach_and_detach_mesh function", DEBUGTAB);
 	add_var(OPT_BOOL, "use_render_attached_meshs", "uram", &use_render_attached_meshs, change_var, 1, "Use render_attached_meshs", "Use the render attached meshs", DEBUGTAB);
+	add_var(OPT_BOOL, "use_ext_gpu_program_parameters", "uegpp", &use_ext_gpu_program_parameters, change_var, 1, "Use GL_EXT_gpu_program_parameters", "Use GL_EXT_gpu_program_parameters extention", DEBUGTAB);
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
 

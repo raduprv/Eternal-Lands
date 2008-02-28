@@ -25,6 +25,7 @@ Uint32 use_set_transformation_buffers = 1;
 Uint32 use_build_actor_bounding_box = 1;
 Uint32 use_model_attach_and_detach_mesh = 1;
 Uint32 use_render_attached_meshs = 1;
+Uint32 use_ext_gpu_program_parameters = 1;
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 Uint32 max_bones_per_mesh = 27;
 
@@ -218,8 +219,10 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 		log_info("start setting parameter");
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+		if (have_extension(ext_gpu_program_parameters) && use_ext_gpu_program_parameters)
+#else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 		if (have_extension(ext_gpu_program_parameters))
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 		{
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 			log_info("Using GL_EXT_gpu_program_parameters");
