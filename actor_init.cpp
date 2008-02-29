@@ -99,6 +99,11 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start load_vertex_program: %s", name.c_str());
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	ELglGenProgramsARB(1, &id);
@@ -134,6 +139,11 @@ static inline GLuint load_vertex_program(const std::string &name)
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("done load_vertex_program: %s", name.c_str());
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
@@ -144,10 +154,20 @@ extern "C" void unload_vertex_programs()
 {
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start unload_vertex_programs");
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	ELglDeleteProgramsARB(5, vertex_program_ids);
 	memset(vertex_program_ids, 0, sizeof(vertex_program_ids));
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("done unload_vertex_programs");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
@@ -161,6 +181,11 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start render_mesh_shader");
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	if (index >= 0)
@@ -240,6 +265,11 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			}
 		}
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+		try
+		{
+			CHECK_GL_EXCEPTION();
+		}
+		CATCH_AND_LOG_EXCEPTIONS
 		log_info("done setting parameter");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	
@@ -266,6 +296,11 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 			glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3,
 				a->index_type, reinterpret_cast<void*>(element_index));
 		}
+		try
+		{
+			CHECK_GL_EXCEPTION();
+		}
+		CATCH_AND_LOG_EXCEPTIONS
 #else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 		glDrawElements(GL_TRIANGLES, a->hardware_model->getFaceCount() * 3, a->index_type,
 			reinterpret_cast<void*>(element_index));
@@ -278,6 +313,11 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 	}
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("done render_mesh_shader");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
@@ -290,6 +330,11 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start set_actor_animation_program: %d", pass);
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	switch (pass)
@@ -361,6 +406,14 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	one[2] = 1.0f;
 	one[3] = 1.0f;
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+
 	for (i = 0; i < 8; i++)
 	{
 		if (glIsEnabled(GL_LIGHT0 + i) == GL_FALSE)
@@ -383,6 +436,11 @@ extern "C" void set_actor_animation_program(Uint32 pass, Uint32 ghost)
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, vertex_program_ids[index]);
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("end set_actor_animation_program: %d", pass);
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
@@ -391,6 +449,11 @@ extern "C" void disable_actor_animation_program()
 {
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start disable_actor_animation_program");
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
@@ -409,6 +472,11 @@ extern "C" void disable_actor_animation_program()
 	last_actor_type = -1;
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("done disable_actor_animation_program");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
@@ -454,6 +522,13 @@ extern "C" int load_vertex_programs()
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0)
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	return 1;
 }
@@ -469,6 +544,11 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start cal_render_actor_shader");
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	assert(act->calmodel);
@@ -514,6 +594,13 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 		ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, a->index_buffer);
 		last_actor_type = act->actor_type;
 	}
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	im = reinterpret_cast<IntMap*>(act->calmodel->getUserData());
 
@@ -548,6 +635,11 @@ extern "C" void cal_render_actor_shader(actor *act, Uint32 use_lightning, Uint32
 #endif	/* USE_BOOST */
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("done cal_render_actor_shader");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
@@ -564,6 +656,11 @@ static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uin
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start calculate_face_and_vertex_count");
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	for (i = 0; i < core_model->getCoreMeshCount(); i++)
@@ -579,6 +676,11 @@ static inline void calculate_face_and_vertex_count(CalCoreModel* core_model, Uin
 	}
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("done calculate_face_and_vertex_count");
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
@@ -646,6 +748,11 @@ extern "C" void build_buffers(actor_types* a)
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	log_info("start build_buffers: %s", a->actor_name);
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	calculate_face_and_vertex_count(a->coremodel, face_count, vertex_count);
@@ -910,6 +1017,11 @@ extern "C" void build_buffers(actor_types* a)
 	ELglBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB, 0);
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+	try
+	{
+		CHECK_GL_EXCEPTION();
+	}
+	CATCH_AND_LOG_EXCEPTIONS
 	log_info("done build_buffers: %s", a->actor_name);
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 }
