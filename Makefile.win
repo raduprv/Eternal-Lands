@@ -12,14 +12,10 @@ _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-alias
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing $(EXTRA_INCLUDES)
 
-ZLIB_LIBS = -lz
-NEW_FILE_IO_LIBS = -lz
-EYE_CANDY_LIBS = -lpng
-PNG_SCREENSHOT_LIBS = -lpng
-OGG_VORBIS_LIBS = -lvorbisfile -lvorbis -logg
 # WARNING: the order is important! If -lX uses -lY, then you must list -lX before -lY (sic!)
 LDFLAGS= $(EXTRA_LIBS) $(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS)) \
-	-llibxml2 -lSDL_net -lSDL_image -lsdl -lalut -lopenal32 -lglu32 -lopengl32 -liconv -lcal3d -lm -lstdc++
+	-llibxml2 -lSDL_net -lSDL_image -lsdl -lalut -lopenal32 -lglu32 -lopengl32 -liconv -lcal3d -lm -lstdc++ \
+	-lz -lpng -lvorbisfile -lvorbis -logg
 _LDFLAGS=-lopengl32 -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a $(EXTRA_STATICLIBS)
 
