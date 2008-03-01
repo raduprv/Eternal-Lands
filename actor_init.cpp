@@ -133,6 +133,7 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 	if (glGetError() != GL_NO_ERROR)
 	{
+		log_error("Vertex program:\n %s", str.c_str());
 		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: '" <<
 			glGetString(GL_PROGRAM_ERROR_STRING_ARB) << "' in file '" << name << "'");
 	}
@@ -141,6 +142,7 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 	if (support != GL_TRUE)
 	{
+		log_error("Vertex program:\n %s", str.c_str());
 		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: vertex program'" <<
 			name << "' needs too much resources.");
 	}
@@ -254,17 +256,13 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 		log_info("start setting parameter");
 		if (have_extension(ext_gpu_program_parameters) && use_ext_gpu_program_parameters)
-#else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-		if (have_extension(ext_gpu_program_parameters))
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 		{
-#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 			log_info("Using GL_EXT_gpu_program_parameters");
-#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 			ELglProgramLocalParameters4fvEXT(GL_VERTEX_PROGRAM_ARB, 0,
 				a->hardware_model->getBoneCount() * 3, hmd.get_buffer());
 		}
 		else
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 		{
 			count = a->hardware_model->getBoneCount() * 3;
 			for (i = 0; i < count; i++)
@@ -273,6 +271,7 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 					hmd.get_buffer(i * 4));
 			}
 		}
+
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 		try
 		{
@@ -506,11 +505,21 @@ extern "C" int load_vertex_programs()
 		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_PARAMETERS_ARB,
 			&max_parameters);
 		log_info("Max parameters per program: %d", max_parameters);
+		if (max_parameters > 256)
+		{
+			max_parameters = 256;
+			log_info("Using only 256 parameters to be save.");
+		}
 		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_INSTRUCTIONS_ARB,
 			&max_instructions);
 		log_info("Max instructions per program: %d", max_instructions);
 		max_bones_per_mesh = (max_parameters - 43) / 3;
 		log_info("Max bones per mesh: %d", max_bones_per_mesh);
+		if (max_parameters < 46)
+		{
+			EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Not enought " << 
+				"parameters available.");			
+		}
 		vertex_program_ids[0] = load_vertex_program("shaders/anim.vert");
 		vertex_program_ids[1] = load_vertex_program("shaders/anim_depth.vert");
 		vertex_program_ids[2] = load_vertex_program("shaders/anim_shadow.vert");
