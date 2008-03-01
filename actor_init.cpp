@@ -32,11 +32,11 @@ Uint32 max_bones_per_mesh = 27;
 class HardwareMeshData
 {
 	private:
-		const Uint32 mesh_index;
+		const Sint32 mesh_index;
 		const Uint32 size;
 		eternal_lands::memory_ptr buffer;
 	public:
-		inline HardwareMeshData(const Uint32 mesh_index, const Uint32 size):
+		inline HardwareMeshData(const Sint32 mesh_index, const Uint32 size):
 			mesh_index(mesh_index), size(size)
 		{
 			buffer = eternal_lands::memory_ptr(new eternal_lands::memory_buffer(size * 4 * sizeof(float)));
@@ -57,7 +57,7 @@ class HardwareMeshData
 			return size;
 		}
 
-		inline Uint32 get_mesh_index() const
+		inline Sint32 get_mesh_index() const
 		{
 			return mesh_index;
 		}
