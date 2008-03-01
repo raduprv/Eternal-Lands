@@ -91,6 +91,7 @@ GLuint vertex_program_ids[5];
 static inline GLuint load_vertex_program(const std::string &name)
 {
 	GLuint id;
+	GLint support;
 	eternal_lands::el_file f(name, true);
 	std::string str;
 	std::stringstream s1;
@@ -134,6 +135,14 @@ static inline GLuint load_vertex_program(const std::string &name)
 	{
 		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: '" <<
 			glGetString(GL_PROGRAM_ERROR_STRING_ARB) << "' in file '" << name << "'");
+	}
+
+	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB, &support);
+
+	if (support != GL_TRUE)
+	{
+		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: vertex program'" <<
+			name << "' needs too much resources.");
 	}
 
 	ELglBindProgramARB(GL_VERTEX_PROGRAM_ARB, 0);
@@ -487,7 +496,7 @@ static HardwareMeshData hmd(-1, 8196);
 
 extern "C" int load_vertex_programs()
 {
-	GLint max_parameters;
+	GLint max_parameters, max_instructions;
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	int i;
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
@@ -496,6 +505,10 @@ extern "C" int load_vertex_programs()
 		CHECK_GL_EXCEPTION();
 		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_PARAMETERS_ARB,
 			&max_parameters);
+		log_info("Max parameters per program: %d", max_parameters);
+		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_INSTRUCTIONS_ARB,
+			&max_instructions);
+		log_info("Max instructions per program: %d", max_instructions);
 		max_bones_per_mesh = (max_parameters - 43) / 3;
 		log_info("Max bones per mesh: %d", max_bones_per_mesh);
 		vertex_program_ids[0] = load_vertex_program("shaders/anim.vert");
