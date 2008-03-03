@@ -287,7 +287,9 @@ static inline void render_mesh_shader(actor_types *a, actor *act, Sint32 index, 
 		a->hardware_model->selectHardwareMesh(index);
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
+#if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
 		log_info("start setting parameter");
+#endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
 		if (have_extension(ext_gpu_program_parameters) && use_ext_gpu_program_parameters)
 		{
 #if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)

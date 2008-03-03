@@ -167,6 +167,12 @@ void log_info(const char* message, ...)
 
 	if (infos_file == NULL)
 	{
+		if (file_exists_config("infos.log") == 1)
+		{
+			/* Move it */
+			file_remove_config("infos.old");
+			file_rename_config("infos.log", "infos.old");
+		}
 		infos_file = open_log("infos.log", "a");
 	}
 	if (message[strlen(message)-1] != '\n')
