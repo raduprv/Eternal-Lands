@@ -135,6 +135,7 @@ static inline GLuint load_vertex_program(const std::string &name)
 	pos = str.find("%d");
 	if (pos == str.npos)
 	{
+		log_info("File '%s' is invalid.", name.c_str());
 		EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" << name <<
 			"' is invalid.");
 	}
@@ -143,6 +144,7 @@ static inline GLuint load_vertex_program(const std::string &name)
 	pos = str.find("%d");
 	if (pos == str.npos)
 	{
+		log_info("File '%s' is invalid.", name.c_str());
 		EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" << name <<
 			"' is invalid.");
 	}
@@ -153,11 +155,11 @@ static inline GLuint load_vertex_program(const std::string &name)
 
 	if (glGetError() != GL_NO_ERROR)
 	{
-		log_error("Vertex program:\n %s", str.c_str());
 		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: '" <<
 			glGetString(GL_PROGRAM_ERROR_STRING_ARB) << "' in file '" << name << "'");
 	}
 
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_INSTRUCTIONS_ARB, name.c_str());
 	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB, name.c_str());
 	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_TEMPORARIES_ARB, name.c_str());
@@ -168,12 +170,12 @@ static inline GLuint load_vertex_program(const std::string &name)
 	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_ATTRIBS_ARB, name.c_str());
 	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_ADDRESS_REGISTERS_ARB, name.c_str());
 	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB, name.c_str());
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB, &support);
 
 	if (support != GL_TRUE)
 	{
-		log_error("Vertex program:\n %s", str.c_str());
 		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: vertex program'" <<
 			name << "' needs too much resources.");
 	}
@@ -543,7 +545,6 @@ extern "C" int load_vertex_programs()
 		}
 		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_INSTRUCTIONS_ARB,
 			&max_instructions);
-		log_info("Max instructions per program: %d", max_instructions);
 		max_bones_per_mesh = (max_parameters - 43) / 3;
 		log_info("Max bones per mesh: %d", max_bones_per_mesh);
 		if (max_parameters < 46)
@@ -551,6 +552,7 @@ extern "C" int load_vertex_programs()
 			EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Not enought " << 
 				"parameters available.");			
 		}
+#ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_INSTRUCTIONS_ARB);
 		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB);
 		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_TEMPORARIES_ARB);
@@ -563,6 +565,7 @@ extern "C" int load_vertex_programs()
 		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB);
 		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
 		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_ENV_PARAMETERS_ARB);
+#endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 		vertex_program_ids[0] = load_vertex_program("shaders/anim.vert");
 		vertex_program_ids[1] = load_vertex_program("shaders/anim_depth.vert");
