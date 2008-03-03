@@ -897,14 +897,6 @@ void init_gl_extensions()
 		LOG_TO_CONSOLE(c_red1, str);
 	}
 	/*	GL_EXT_texture_compression_latc		*/
-	if (use_animation_program)
-	{
-		LOG_TO_CONSOLE(c_green2, "Using vertex program for actor animation.");
-	}
-	else
-	{
-		LOG_TO_CONSOLE(c_red1, "Not using vertex program for actor animation.");
-	}
 #if	0
 	// Disabled because of bad drivers
 	if (have_extension(ext_framebuffer_object))

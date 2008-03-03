@@ -285,6 +285,17 @@ void change_use_animation_program(int * var)
 			}
 		}
 	}
+	if (gl_extensions_loaded)
+	{
+		if (use_animation_program)
+		{
+			LOG_TO_CONSOLE(c_green2, "Using vertex program for actor animation.");
+		}
+		else
+		{
+			LOG_TO_CONSOLE(c_red1, "Not using vertex program for actor animation.");
+		}
+	}
 }
 
 void change_min_ec_framerate(float * var, float * value)
