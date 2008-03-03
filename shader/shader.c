@@ -248,7 +248,8 @@ int is_shader_supported()
 {
 	if (have_extension(arb_fragment_program) && have_extension(arb_vertex_program) &&
 		have_extension(arb_fragment_shader) && have_extension(arb_vertex_shader) &&
-		have_extension(arb_shader_objects) && have_extension(arb_shading_language_100))
+		have_extension(arb_shader_objects) && have_extension(arb_shading_language_100) &&
+		supports_gl_version(1, 3))
 	{
 		return 1;
 	}
@@ -328,13 +329,13 @@ void init_shaders()
 {
 	int i;
 
-	noise_tex = build_3d_noise_texture(64, 3, 2);
-	filter_lut = build_filter_lut(128);
-
 	memset(shader, 0, sizeof(shader));
 
 	if (is_shader_supported())
 	{
+		noise_tex = build_3d_noise_texture(64, 3, 2);
+		filter_lut = build_filter_lut(128);
+
 		for (i = 0; i < shader_data_size; i++)
 		{
 			shader[i] = build_shader(shader_data_list[i].vertex_shader_file_name,
