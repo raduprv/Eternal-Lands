@@ -29,6 +29,26 @@ Uint32 use_ext_gpu_program_parameters = 1;
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 Uint32 max_bones_per_mesh = 27;
 
+#define	LOG_PROGRAM_DATA(DATA)	\
+do	\
+{	\
+	GLint tmp_value;	\
+	\
+	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, DATA, &tmp_value);	\
+	log_info("%s: %d", #DATA, tmp_value);	\
+}	\
+while (0)
+
+#define	LOG_CURRENT_PROGRAM_DATA(DATA, PROG)	\
+do	\
+{	\
+	GLint tmp_value;	\
+	\
+	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, DATA, &tmp_value);	\
+	log_info("'%s' %s: %d", PROG, #DATA, tmp_value);	\
+}	\
+while (0)
+
 class HardwareMeshData
 {
 	private:
@@ -137,6 +157,17 @@ static inline GLuint load_vertex_program(const std::string &name)
 		EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Error: '" <<
 			glGetString(GL_PROGRAM_ERROR_STRING_ARB) << "' in file '" << name << "'");
 	}
+
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_INSTRUCTIONS_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_INSTRUCTIONS_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_TEMPORARIES_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_TEMPORARIES_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_PARAMETERS_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_PARAMETERS_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_ATTRIBS_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_ATTRIBS_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_ADDRESS_REGISTERS_ARB, name.c_str());
+	LOG_CURRENT_PROGRAM_DATA(GL_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB, name.c_str());
 
 	ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_PROGRAM_UNDER_NATIVE_LIMITS_ARB, &support);
 
@@ -520,6 +551,19 @@ extern "C" int load_vertex_programs()
 			EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Not enought " << 
 				"parameters available.");			
 		}
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_INSTRUCTIONS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_INSTRUCTIONS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_TEMPORARIES_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_TEMPORARIES_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_PARAMETERS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_PARAMETERS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_ATTRIBS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_ATTRIBS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_ADDRESS_REGISTERS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_NATIVE_ADDRESS_REGISTERS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB);
+		LOG_PROGRAM_DATA(GL_MAX_PROGRAM_ENV_PARAMETERS_ARB);
+
 		vertex_program_ids[0] = load_vertex_program("shaders/anim.vert");
 		vertex_program_ids[1] = load_vertex_program("shaders/anim_depth.vert");
 		vertex_program_ids[2] = load_vertex_program("shaders/anim_shadow.vert");
