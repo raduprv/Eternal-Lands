@@ -25,7 +25,7 @@ Uint32 use_set_transformation_buffers = 1;
 Uint32 use_build_actor_bounding_box = 1;
 Uint32 use_model_attach_and_detach_mesh = 1;
 Uint32 use_render_attached_meshs = 1;
-Uint32 use_ext_gpu_program_parameters = 1;
+Uint32 use_ext_gpu_program_parameters = 0;
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 Uint32 max_bones_per_mesh = 27;
 
