@@ -315,6 +315,9 @@ extern "C" void reset_under_the_mouse()
 				}
 			}
 
+			glDisable(GL_ALPHA_TEST);
+		  	glDisable(GL_TEXTURE_2D);
+
 			disable_buffer_arrays();
 
 			glDisableClientState(GL_VERTEX_ARRAY);
@@ -379,10 +382,16 @@ extern "C" void reset_under_the_mouse()
 			glPopAttrib();
 			glClear(GL_DEPTH_BUFFER_BIT | GL_COLOR_BUFFER_BIT);
 
+			ELglActiveTextureARB(detail_unit);
+			glDisable(GL_TEXTURE_2D);
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
+			glBindTexture(GL_TEXTURE_2D, 0);
+
 			ELglClientActiveTextureARB(base_unit);
-			ELglActiveTexture(base_unit);
-		  	glEnable(GL_TEXTURE_2D);
+			ELglActiveTextureARB(base_unit);
+			glEnable(GL_TEXTURE_2D);
+			last_texture = -1;
+			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 		}
 	}
 	else
