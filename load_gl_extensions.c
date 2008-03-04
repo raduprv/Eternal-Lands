@@ -11,7 +11,7 @@ const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0
 
 Uint32 gl_version = 0;
 Uint64 extensions = 0;
-GLint texture_units = 0;
+GLint texture_units = 1;
 float max_anisotropic_filter = 16.0f;
 
 /*	GL_VERSION_1_2		*/
@@ -1140,6 +1140,7 @@ void init_opengl_extensions()
 	extensions_string = (char*)glGetString(GL_EXTENSIONS);
 
 /*	GL_ARB_multitexture			*/
+	texture_units = 1;
 	if (strstr(extensions_string, "GL_ARB_multitexture") != NULL)
 	{
 		e = el_init_GL_ARB_multitexture();
@@ -1149,6 +1150,7 @@ void init_opengl_extensions()
 			glGetIntegerv(GL_MAX_TEXTURE_UNITS_ARB, &texture_units);
 		}
 	}
+	log_info("GL_MAX_TEXTURE_UNITS_ARB: %d", texture_units);
 /*	GL_ARB_multitexture			*/
 /*	GL_ARB_texture_compression		*/
 	if (strstr(extensions_string, "GL_ARB_texture_compression") != NULL)
@@ -1315,11 +1317,13 @@ void init_opengl_extensions()
 	}
 /*	GL_EXT_texture_compression_s3tc		*/
 /*	GL_EXT_texture_filter_anisotropic	*/
+	max_anisotropic_filter = 1;
 	if (strstr(extensions_string, "GL_EXT_texture_filter_anisotropic") != NULL)
 	{
 		extensions |= 1 << ext_texture_filter_anisotropic;
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic_filter);
 	}
+	log_info("GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: %d", max_anisotropic_filter);
 /*	GL_EXT_texture_filter_anisotropic	*/
 /*	GL_SGIS_generate_mipmap			*/
 	if (strstr(extensions_string, "GL_SGIS_generate_mipmap") != NULL)
