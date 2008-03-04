@@ -532,26 +532,22 @@ static HardwareMeshData hmd(-1, 8196);
 
 extern "C" int load_vertex_programs()
 {
-	GLint max_parameters, max_instructions;
+	GLint t0, t1, max_instructions;
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	int i;
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	try
 	{
 		CHECK_GL_EXCEPTION();
-		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_PARAMETERS_ARB,
-			&max_parameters);
-		log_info("Max parameters per program: %d", max_parameters);
-		if (max_parameters > 256)
-		{
-			max_parameters = 256;
-			log_info("Using only 256 parameters to be save.");
-		}
+		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_PARAMETERS_ARB, &t0);
+		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_LOCAL_PARAMETERS_ARB,
+			&t1);
+
 		ELglGetProgramivARB(GL_VERTEX_PROGRAM_ARB, GL_MAX_PROGRAM_INSTRUCTIONS_ARB,
 			&max_instructions);
-		max_bones_per_mesh = (max_parameters - 43) / 3;
+		max_bones_per_mesh = (std::min(t0 - 43, t1)) / 3;
 		log_info("Max bones per mesh: %d", max_bones_per_mesh);
-		if (max_parameters < 46)
+		if (max_bones_per_mesh < 17)
 		{
 			EXTENDED_EXCEPTION(ExtendedException::ec_opengl_error, "Not enought " << 
 				"parameters available.");			
