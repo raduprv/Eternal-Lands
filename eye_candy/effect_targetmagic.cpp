@@ -329,6 +329,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   mover = NULL;
   spawner2 = NULL;
   mover2 = NULL;
+  target_alpha = NULL;
   effect_count = 0;
 
   switch(type)
