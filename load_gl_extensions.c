@@ -5,6 +5,7 @@
 #include "load_gl_extensions.h"
 #include "client_serv.h"
 #include "text.h"
+#include "errors.h"
 
 const char* gl_versions_str[] = { "1.1", "1.2", "1.3", "1.4", "1.5", "2.0", "2.1" };
 const Uint16 gl_versions[] = { 0x0101, 0x0102, 0x0103, 0x0104, 0x0105, 0x0200, 0x0201 };

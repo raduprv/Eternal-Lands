@@ -227,7 +227,8 @@ extern "C" void reset_under_the_mouse()
 	Sint32 j;
 	Sint32 x, y;
 
-	if (supports_gl_version(1, 3) || have_extension(arb_texture_env_combine))
+	if ((supports_gl_version(1, 3) || have_extension(arb_texture_env_combine)) &&
+		(get_texture_units() > 1))
 	{
 		read_selection = add_selection;
 		add_selection = read_mouse_now;
@@ -242,16 +243,10 @@ extern "C" void reset_under_the_mouse()
 			draw_tile_map();
 			display_2d_objects();
 
-			glPushAttrib(GL_ENABLE_BIT | GL_COLOR_BUFFER_BIT);
+			glPushAttrib(GL_ALL_ATTRIB_BITS);
 			glEnableClientState(GL_VERTEX_ARRAY);
 			glDisableClientState(GL_NORMAL_ARRAY);
 			ELglClientActiveTextureARB(GL_TEXTURE1);
-			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
-			glDisable(GL_TEXTURE_GEN_S);
-			glDisable(GL_TEXTURE_GEN_T);
-			glDisable(GL_TEXTURE_GEN_Q);
-			glDisable(GL_TEXTURE_GEN_R);
-			ELglClientActiveTextureARB(GL_TEXTURE2);
 			glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 			glDisable(GL_TEXTURE_GEN_S);
 			glDisable(GL_TEXTURE_GEN_T);
@@ -268,9 +263,8 @@ extern "C" void reset_under_the_mouse()
 
 			glDisable(GL_FOG);
 		  	glDisable(GL_LIGHTING);
+
 			ELglActiveTexture(GL_TEXTURE1);
-		  	glDisable(GL_TEXTURE_2D);
-			ELglActiveTexture(GL_TEXTURE2);
 		  	glDisable(GL_TEXTURE_2D);
 			ELglActiveTexture(GL_TEXTURE0);
 
