@@ -1318,13 +1318,13 @@ void init_opengl_extensions()
 	}
 /*	GL_EXT_texture_compression_s3tc		*/
 /*	GL_EXT_texture_filter_anisotropic	*/
-	max_anisotropic_filter = 1;
+	max_anisotropic_filter = 1.0f;
 	if (strstr(extensions_string, "GL_EXT_texture_filter_anisotropic") != NULL)
 	{
 		extensions |= 1 << ext_texture_filter_anisotropic;
 		glGetFloatv(GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT, &max_anisotropic_filter);
 	}
-	log_info("GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: %d", max_anisotropic_filter);
+	log_info("GL_MAX_TEXTURE_MAX_ANISOTROPY_EXT: %f", max_anisotropic_filter);
 /*	GL_EXT_texture_filter_anisotropic	*/
 /*	GL_SGIS_generate_mipmap			*/
 	if (strstr(extensions_string, "GL_SGIS_generate_mipmap") != NULL)
