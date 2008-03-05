@@ -253,7 +253,8 @@ GLboolean is_GL_VERSION_1_5 = GL_FALSE;
 GLboolean is_GL_VERSION_2_0 = GL_FALSE;
 GLboolean is_GL_VERSION_2_1 = GL_FALSE;
 
-int nvidia_vertex_program_problem=0;
+int vertex_program_problem=0;
+int multitexture_problem=0;
 
 static void check_for_problem_drivers()
 {
@@ -261,8 +262,8 @@ static void check_for_problem_drivers()
 	int is_nvidia=0;
 	int is_intel=0;
 	int is_ati=0;
-	//int is_sis=0;
-	char str[500];
+	int is_sis=0;
+	int is_s3=0;
 
 
 	my_string = (const char*) glGetString (GL_VENDOR);
@@ -271,22 +272,43 @@ static void check_for_problem_drivers()
 	if(strstr(my_string,"ATI"))is_ati=1;
 	else
 	if(strstr(my_string,"Intel"))is_intel=1;
+	else
+	if(strstr(my_string,"SiS"))
+		{
+			is_sis=1;
+			multitexture_problem=1;
+		}
+	else
+	if(strstr(my_string,"S3 "))
+		{
+			is_s3=1;
+			multitexture_problem=1;
+		}
 
 	my_string = (const char*) glGetString (GL_VERSION);
-
+/*
+	//should be fixed now
 	//OpenGL Version Format: 2.0.0
 	if(is_nvidia)
 		{
-			if(my_string[0]=='1')nvidia_vertex_program_problem=1;
-			if(my_string[0]=='2' && my_string[2]=='0')nvidia_vertex_program_problem=1;
+			if(my_string[0]=='1')vertex_program_problem=1;
+			if(my_string[0]=='2' && my_string[2]=='0')vertex_program_problem=1;
+		}
+*/
+	if(is_intel)
+		{
+			my_string = (const char*) glGetString (GL_RENDERER);
+			if(strstr(my_string,"965") || strstr(my_string,"945"))vertex_program_problem=1;
 		}
 
 	//log the problems
-	if(nvidia_vertex_program_problem)
-	LOG_TO_CONSOLE (c_red2, "Your video drivers are old, please update them from www.nvidia.com, or, if you have a laptop, check the manufacturer site for driver updates.");
-	sprintf(str,"Nvidia: %i, ver 0: %c, ver 2: %c",is_nvidia,my_string[0],my_string[2]);
+	if(vertex_program_problem)
+	LOG_TO_CONSOLE (c_red2, "Your card reports having vertex program capabilities, but the support is buggy, so we disabled it.");
 
-	LOG_TO_CONSOLE (c_yellow2, str);
+	if(multitexture_problem)
+	LOG_TO_CONSOLE (c_red2, "Your card reports having multitexturing capabilities, but the support is buggy, so we disabled it.");
+
+
 }
 
 
@@ -1142,7 +1164,7 @@ void init_opengl_extensions()
 
 /*	GL_ARB_multitexture			*/
 	texture_units = 1;
-	if (strstr(extensions_string, "GL_ARB_multitexture") != NULL)
+	if (strstr(extensions_string, "GL_ARB_multitexture") != NULL && !multitexture_problem)
 	{
 		e = el_init_GL_ARB_multitexture();
 		if (e == GL_TRUE)
@@ -1236,7 +1258,7 @@ void init_opengl_extensions()
 	}
 /*	GL_ARB_fragment_program			*/
 /*	GL_ARB_vertex_program			*/
-	if (strstr(extensions_string, "GL_ARB_vertex_program") != NULL && !nvidia_vertex_program_problem)
+	if (strstr(extensions_string, "GL_ARB_vertex_program") != NULL && !vertex_program_problem)
 	{
 		e = el_init_GL_ARB_vertex_program();
 		if (e == GL_TRUE)
