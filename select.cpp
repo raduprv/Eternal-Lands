@@ -398,7 +398,8 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 {
 	SelectionData data;
 
-	if (supports_gl_version(1, 3) || have_extension(arb_texture_env_combine))
+	if ((supports_gl_version(1, 3) || have_extension(arb_texture_env_combine)) &&
+		(get_texture_units() > 1))
 	{
 		if (add_selection && (object_type != UNDER_MOUSE_NOTHING) &&
 			(object_type != UNDER_MOUSE_NO_CHANGE))
