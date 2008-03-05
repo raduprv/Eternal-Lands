@@ -228,7 +228,7 @@ extern "C" void reset_under_the_mouse()
 	Sint32 x, y;
 
 	if ((supports_gl_version(1, 3) || have_extension(arb_texture_env_combine)) &&
-		(get_texture_units() > 1))
+		(get_texture_units() > 1) && (bpp == 32))
 	{
 		read_selection = add_selection;
 		add_selection = read_mouse_now;
@@ -399,7 +399,7 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 	SelectionData data;
 
 	if ((supports_gl_version(1, 3) || have_extension(arb_texture_env_combine)) &&
-		(get_texture_units() > 1))
+		(get_texture_units() > 1) && (bpp == 32))
 	{
 		if (add_selection && (object_type != UNDER_MOUSE_NOTHING) &&
 			(object_type != UNDER_MOUSE_NO_CHANGE))

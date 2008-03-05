@@ -66,6 +66,7 @@
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
+#include "actor_init.h"
 
 int game_root_win = -1;
 int gamewin_in_id = 4442;
@@ -1227,10 +1228,12 @@ int display_game_handler (window_info *win)
 #endif	//DEBUG
 		safe_snprintf ((char*)str, sizeof(str), "FPS: %i", fps[0]);
 		draw_string (win->len_x-hud_x-95, 4, str, 1);
+		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
+		draw_string (win->len_x-hud_x-95, 19, str, 1);
 #ifdef DEBUG
 		//LRNR: stats testing
 		safe_snprintf((char*)str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
-		draw_string (win->len_x-hud_x-183, 19, str, 1);
+		draw_string (win->len_x-hud_x-183, 34, str, 1);
 		e3d_count= e3d_total= 0;
 #endif //DEBUG
 	}
