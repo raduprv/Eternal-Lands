@@ -16,7 +16,6 @@
 #include "vmath.h"
 
 #include <math.h>
-#include <SDL.h>
 #include <stdarg.h>
 #include <stdio.h>
 #include <time.h>
@@ -224,8 +223,7 @@ void missiles_update()
 {
 	int i;
 	static int last_update = 0;
-	int _cur_time = SDL_GetTicks();
-	float time_diff = (_cur_time - last_update) / 1000.0;
+	float time_diff = (cur_time - last_update) / 1000.0;
 	
 	for (i = 0; i < missiles_count; ) {
 		missile *mis = &missiles_list[i];
@@ -250,7 +248,7 @@ void missiles_update()
 			begin_lost_missiles = (begin_lost_missiles + 1) % MAX_LOST_MISSILES;
 	}
 
-	last_update = _cur_time;
+	last_update = cur_time;
 }
 
 void missiles_draw_single(missile *mis, const float color[4])

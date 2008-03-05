@@ -8,6 +8,7 @@
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "global.h"
 #include "hud.h"
 #include "interface.h"
 #include "items.h"
@@ -485,8 +486,7 @@ void update_camera()
 
 #ifdef NEW_CAMERA
 	static int last_update = 0;
-	int _cur_time = SDL_GetTicks();
-	int time_diff = _cur_time - last_update;
+	int time_diff = cur_time - last_update;
 #endif // NEW_CAMERA
 
 	static float old_camera_x = 0;
@@ -717,7 +717,7 @@ void update_camera()
 #endif /* SKY_FPV_CURSOR */
 
 #ifdef NEW_CAMERA
-	last_update = _cur_time;
+	last_update = cur_time;
 #endif // NEW_CAMERA
 }
 

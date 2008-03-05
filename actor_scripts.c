@@ -501,8 +501,7 @@ void animate_actors()
 	int i;
 	static int last_update= 0;
 #ifdef NEW_ACTOR_MOVEMENT
-	int _cur_time = SDL_GetTicks();
-    int time_diff = _cur_time-last_update;
+    int time_diff = cur_time-last_update;
     int tmp_time_diff;
 #endif
 
@@ -645,11 +644,7 @@ void animate_actors()
 	// unlock the actors_list since we are done now
 	UNLOCK_ACTORS_LISTS();
 
-#ifdef NEW_ACTOR_MOVEMENT
-	last_update = _cur_time;
-#else // NEW_ACTOR_MOVEMENT
 	last_update = cur_time;
-#endif // NEW_ACTOR_MOVEMENT
 }
 
 
