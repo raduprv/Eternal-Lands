@@ -119,7 +119,7 @@ static inline GLuint load_vertex_program(const std::string &name)
 	size_t pos;
 
 #if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start load_vertex_program: %s", name.c_str());
+	log_info("start load_vertex_program '%s'", name.c_str());
 	try
 	{
 		CHECK_GL_EXCEPTION();
@@ -188,7 +188,7 @@ static inline GLuint load_vertex_program(const std::string &name)
 		CHECK_GL_EXCEPTION();
 	}
 	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done load_vertex_program: %s", name.c_str());
+	log_info("done load_vertex_program '%s'", name.c_str());
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 
 	return id;
@@ -536,6 +536,7 @@ extern "C" int load_vertex_programs()
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	int i;
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
+	log_info("Loading vertex programs");
 	try
 	{
 		CHECK_GL_EXCEPTION();
@@ -591,6 +592,8 @@ extern "C" int load_vertex_programs()
 #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 	}
 	CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0)
+
+	log_info("Loading vertex programs done");
 
 	return 1;
 }
@@ -808,8 +811,9 @@ extern "C" void build_buffers(actor_types* a)
 	face_count = 0;
 	vertex_count = 0;
 
+	log_info("Build vertex buffers for '%s'", a->actor_name);
+
 #if	(VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1)
-	log_info("start build_buffers: %s", a->actor_name);
 	try
 	{
 		CHECK_GL_EXCEPTION();
@@ -1019,7 +1023,7 @@ extern "C" void build_buffers(actor_types* a)
 
 		file_name << get_path_config_base() << "cache/actor_" << a->actor_type << "_" << max_bones_per_mesh << ".elc";
 
-		log_info("Rebuilding file: %s", file_name.str().c_str());
+		log_info("Rebuilding file '%s'", file_name.str().c_str());
 
 		mkdir_tree(file_name.str().c_str(), 0);
 
@@ -1084,8 +1088,8 @@ extern "C" void build_buffers(actor_types* a)
 		CHECK_GL_EXCEPTION();
 	}
 	CATCH_AND_LOG_EXCEPTIONS
-	log_info("done build_buffers: %s", a->actor_name);
 #endif	/* (VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG > 1) */
+	log_info("Build vertex buffers for '%s' done", a->actor_name);
 }
 
 static inline void set_transformation_buffer(actor_types *a, actor *act, const Uint32 index,
