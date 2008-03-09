@@ -464,6 +464,7 @@ typedef struct
 
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
+#define MAX_SHOTS_QUEUE  3
 typedef struct
 {
 	/*! \name Misc.*/
@@ -496,11 +497,16 @@ typedef struct
     int cal_last_rotation_time; /*!< The last time when the rotation has been updated */
 	char are_bones_rotating;  /*!< To tell if the char is rotating */
 	char in_aim_mode;         /*!< To tell if the char is already aiming something */
-	char reload;              /*!< To tell if the char must reload his bow after the next fire */
+	char reload[MAX_SHOTS_QUEUE]; /*!< To tell if the char must reload his bow after the next fire */
 	float range_target_aim[3]; /*!< Position of the target to aim at */
-	float range_target_fire[3];/*!< Position of the target to fire at */
-	int shot_type;             /*!< The type of the shot (normal, missed...) */
+	float range_target_fire[MAX_SHOTS_QUEUE][3];/*!< Position of the target to fire at */
+	int shot_type[MAX_SHOTS_QUEUE];             /*!< The type of the shot (normal, missed...) */
+	int shots_count;
 	/*! \} */
+
+	int unwear_item_type_after_animation; /*!< Used to delay a bow/quiver unequip while in range mode */
+	int wear_item_type_after_animation;   /*!< Used to delay a sword/shield equip while in range mode */
+	int wear_item_id_after_animation;     /*!< Used to delay a sword/shield equip while in range mode */
 #endif // MISSILES
 
 	/*! \name Actors positions

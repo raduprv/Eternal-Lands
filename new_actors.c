@@ -97,8 +97,12 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->cal_rotation_speed = 0.0;
 	our_actor->are_bones_rotating = 0;
 	our_actor->in_aim_mode = 0;
-	our_actor->reload = 0;
-	our_actor->shot_type = NORMAL_SHOT;
+	our_actor->reload[0] = 0;
+	our_actor->shot_type[0] = NORMAL_SHOT;
+	our_actor->shots_count = 0;
+	our_actor->unwear_item_type_after_animation = -1;
+	our_actor->wear_item_type_after_animation = -1;
+	our_actor->wear_item_id_after_animation = -1;
 #endif // MISSILES
 
 	our_actor->x_pos=x_pos;
@@ -187,7 +191,10 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								ec_remove_weapon(actors_list[i]);
 #ifdef MISSILES
 								if (actors_list[i]->in_aim_mode) {
-									add_command_to_actor(actor_id, unwear_bow);
+									missiles_log_message("unwear item type %d delayed for actor %d\n",
+														 which_part, actors_list[i]->actor_id);
+									actors_list[i]->unwear_item_type_after_animation = which_part;
+									//add_command_to_actor(actor_id, unwear_bow);
 									return;
 								}
 #endif // MISSILES
@@ -206,13 +213,16 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_SHIELD)
 							{
-								model_detach_mesh(actors_list[i], actors_list[i]->body_parts->shield_meshindex);
 #ifdef MISSILES
 								if (actors_list[i]->in_aim_mode) {
-									add_command_to_actor(actor_id, unwear_quiver);
+									missiles_log_message("unwear item type %d delayed for actor %d\n",
+														 which_part, actors_list[i]->actor_id);
+									actors_list[i]->unwear_item_type_after_animation = which_part;
+									//add_command_to_actor(actor_id, unwear_quiver);
 									return;
 								}
 #endif // MISSILES
+								model_detach_mesh(actors_list[i], actors_list[i]->body_parts->shield_meshindex);
 								actors_list[i]->body_parts->shield_tex[0]=0;
 								actors_list[i]->cur_shield = SHIELD_NONE;
 								actors_list[i]->body_parts->shield_meshindex = -1;
@@ -300,6 +310,15 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						my_tolower(onlyname);
 						safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
+#ifdef MISSILES
+						if (actors_list[i]->unwear_item_type_after_animation == which_part) {
+							missiles_log_message("wear item type %d delayed for actor %d\n",
+												 which_part, actors_list[i]->actor_id);
+							actors_list[i]->wear_item_type_after_animation = which_part;
+							actors_list[i]->wear_item_id_after_animation = which_id;
+							return;
+						}
+#endif // MISSILES
 						if(which_part==KIND_OF_WEAPON)
 							{
 								if(which_id == GLOVE_FUR || which_id == GLOVE_LEATHER){

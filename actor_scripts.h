@@ -18,12 +18,13 @@ extern "C" {
  * \param move_cmd the move command to use for computing the motion vector
  * \param dx the output delta on the x axis
  * \param dy the output delta on the y axis
+ * \return 1 if the command was between move_n and move_nw, and 0 for other commands
  *
  * 		The function just computes the delta on X and Y axes corresponding
  * to the move that should be comprised between move_n and move_nw commands.
  *
  */
-void get_motion_vector(int move_cmd, int *dx, int *dy);
+int get_motion_vector(int move_cmd, int *dx, int *dy);
 
 /*!
  * \ingroup	move_actors

@@ -55,7 +55,7 @@ extern int missiles_count;
 extern missile missiles_list[MAX_MISSILES];
 extern missile_type missiles_defs[MAX_MISSILES_DEFS];
 
-#ifdef DEBUG
+#ifdef MISSILES_DEBUG
 extern int enable_client_aiming;
 
 /*!
@@ -64,9 +64,9 @@ extern int enable_client_aiming;
  * \param ... data corresponding to the format
  */
 void missiles_log_message(const char *format, ...);
-#else // DEBUG
+#else // MISSILES_DEBUG
 #define missiles_log_message(format, ...)
-#endif // DEBUG
+#endif // MISSILES_DEBUG
 
 static __inline__ missile *get_missile_ptr_from_id(int id)
 {

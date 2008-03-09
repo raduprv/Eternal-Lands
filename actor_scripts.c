@@ -444,8 +444,9 @@ float get_rotation_vector( float fStartAngle, float fEndAngle )
 	else return -ccw;
 }
 
-void get_motion_vector(int move_cmd, int *dx, int *dy)
+int get_motion_vector(int move_cmd, int *dx, int *dy)
 {
+	int result = 1;
     switch(move_cmd) {
     case move_n:
     case run_n:
@@ -491,9 +492,10 @@ void get_motion_vector(int move_cmd, int *dx, int *dy)
     default:
         *dx = 0;
         *dy = 0;
-        LOG_ERROR("%d is not a valid move command!", move_cmd);
+		result = 0;
         break;
     }
+	return result;
 }
 
 void animate_actors()
@@ -537,32 +539,38 @@ void animate_actors()
 					//now, we need to update the x/y_tile_pos, and round off
 					//the x/y_pos according to x/y_tile_pos
 					last_command= actors_list[i]->last_command;
-                    get_motion_vector(last_command, &dx, &dy);
-					actors_list[i]->x_tile_pos += dx;
-					actors_list[i]->y_tile_pos += dy;
+                    if (get_motion_vector(last_command, &dx, &dy)) {
+						actors_list[i]->x_tile_pos += dx;
+						actors_list[i]->y_tile_pos += dy;
 
 #ifndef NEW_ACTOR_MOVEMENT
-					//ok, now update the x/y_pos
-					actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
-					actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
+						//ok, now update the x/y_pos
+						actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
+						actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
 #endif // NEW_ACTOR_MOVEMENT
 
-					// and update the minimap if we need to
-					if(actors_list[i]->actor_id == yourself){
-						update_exploration_map();
-					}
-					minimap_touch();
+						// and update the minimap if we need to
+						if(actors_list[i]->actor_id == yourself){
+							update_exploration_map();
+						}
+						minimap_touch();
 #ifdef NEW_ACTOR_MOVEMENT
-                    actors_list[i]->busy = 0;
-                    if (actors_list[i]->que[0] >= move_n &&
-                        actors_list[i]->que[0] <= move_nw) {
-                        next_command();
-                    }
-                    else {
-                        actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
-                        actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
-                        actors_list[i]->z_pos= get_actor_z(actors_list[i]);
-                    }
+						actors_list[i]->busy = 0;
+						if (actors_list[i]->que[0] >= move_n &&
+							actors_list[i]->que[0] <= move_nw) {
+							next_command();
+						}
+						else {
+							actors_list[i]->x_pos= actors_list[i]->x_tile_pos*0.5;
+							actors_list[i]->y_pos= actors_list[i]->y_tile_pos*0.5;
+							actors_list[i]->z_pos= get_actor_z(actors_list[i]);
+						}
+#endif // NEW_ACTOR_MOVEMENT
+					}
+#ifdef NEW_ACTOR_MOVEMENT
+					else {
+						actors_list[i]->busy = 0;
+					}
 #endif // NEW_ACTOR_MOVEMENT
 				}
 #ifndef NEW_ACTOR_MOVEMENT
@@ -665,6 +673,26 @@ void move_to_next_frame()
 			if (actors_list[i]->calmodel!=NULL) {
 				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
 					actors_list[i]->busy=0;
+#ifdef MISSILES
+					if (!actors_list[i]->in_aim_mode &&
+						actors_list[i]->unwear_item_type_after_animation >= 0) {
+						int unwear_item_type = actors_list[i]->unwear_item_type_after_animation;
+						missiles_log_message("unwearing item type %d now for actor %d\n",
+											 unwear_item_type, actors_list[i]->actor_id);
+						actors_list[i]->unwear_item_type_after_animation = -1;
+						unwear_item_from_actor(actors_list[i]->actor_id, unwear_item_type);
+						if (actors_list[i]->wear_item_type_after_animation >= 0 &&
+							actors_list[i]->wear_item_id_after_animation >= 0) {
+							int wear_item_type = actors_list[i]->wear_item_type_after_animation;
+							int wear_item_id = actors_list[i]->wear_item_id_after_animation;
+							missiles_log_message("wearing item type %d now for actor %d\n",
+												 wear_item_type, actors_list[i]->actor_id);
+							actors_list[i]->wear_item_type_after_animation = -1;
+							actors_list[i]->wear_item_id_after_animation = -1;
+							actor_wear_item(actors_list[i]->actor_id, wear_item_type, wear_item_id);
+						}
+					}
+#endif // MISSILES
 				}
 			}
 
@@ -1025,8 +1053,9 @@ void next_command()
 
 						actors_list[i]->cal_h_rot_start = 0.0;
 						actors_list[i]->cal_v_rot_start = 0.0;
-						actors_list[i]->reload = 0;
-						actors_list[i]->shot_type = NORMAL_SHOT;
+						actors_list[i]->reload[0] = 0;
+						actors_list[i]->shot_type[0] = NORMAL_SHOT;
+						actors_list[i]->shots_count = 0;
 					}
 					else {
                         float range_rotation;
@@ -1072,7 +1101,18 @@ void next_command()
 					break;
 
 				case leave_aim_mode:
-					if (!actors_list[i]->in_aim_mode) break;
+					if (!actors_list[i]->in_aim_mode) {
+						if (actors_list[i]->cal_rotation_blend < 0.0 ||
+							(actors_list[i]->cal_h_rot_end == 0.0 &&
+							 actors_list[i]->cal_v_rot_end == 0.0)) {
+							log_error("next_command: trying to leave range mode while we are not in it => aborting safely...");
+							no_action = 1;
+							break;
+						}
+						else {
+							log_error("next_command: trying to leave range mode while we are not in it => continuing because of a wrong actor bones rotation!");
+						}
+					}
 
 					missiles_log_message("actor %d is leaving aim mode", actors_list[i]->actor_id);
 					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
@@ -1094,11 +1134,11 @@ void next_command()
 					actors_list[i]->stop_animation = 1;
 					break;
 
-				case aim_mode_reload:
-					missiles_log_message("actor %d will have to reload after next fire", actors_list[i]->actor_id);
-					actors_list[i]->reload = 1;
- 					no_action = 1;
-					break;
+/* 				case aim_mode_reload: */
+/* 					missiles_log_message("actor %d will have to reload after next fire", actors_list[i]->actor_id); */
+/* 					actors_list[i]->reload = 1; */
+/*  					no_action = 1; */
+/* 					break; */
 
 				case aim_mode_fire:
 					if (!actors_list[i]->in_aim_mode) {
@@ -1107,7 +1147,7 @@ void next_command()
 						break;
 					}
 
-					if (actors_list[i]->reload) {
+					if (actors_list[i]->reload[0]) {
 						missiles_log_message("actor %d fires and reload", actors_list[i]->actor_id);
 						// launch fire and reload animation
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
@@ -1134,27 +1174,26 @@ void next_command()
 					actors_list[i]->cal_rotation_speed = 1.0/360.0;
                     actors_list[i]->cal_last_rotation_time = cur_time;
 					actors_list[i]->are_bones_rotating = 1;
-					actors_list[i]->reload = 0;
 					actors_list[i]->stop_animation = 1;
 
 					/* In case of a missed shot due to a collision with an actor,
 					 * the server send the position of the actor with 0.0 for the Z coordinate.
 					 * So we have to compute the coordinate of the ground at this position.
 					 */
-					if (actors_list[i]->shot_type == MISSED_SHOT &&
-						actors_list[i]->range_target_fire[2] == 0.0) {
-						int tile_x = (int)(actors_list[i]->range_target_fire[0]*2.0);
-						int tile_y = (int)(actors_list[i]->range_target_fire[1]*2.0);
-						actors_list[i]->range_target_fire[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
-                        missiles_log_message("missed shot detected: new height computed: %f", actors_list[i]->range_target_fire[2]);
+					if (actors_list[i]->shot_type[0] == MISSED_SHOT &&
+						actors_list[i]->range_target_fire[0][2] == 0.0) {
+						int tile_x = (int)(actors_list[i]->range_target_fire[0][0]*2.0);
+						int tile_y = (int)(actors_list[i]->range_target_fire[0][1]*2.0);
+						actors_list[i]->range_target_fire[0][2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
+                        missiles_log_message("missed shot detected: new height computed: %f", actors_list[i]->range_target_fire[0][2]);
 					}
 
 #ifdef DEBUG
 					{
 						float aim_angle = atan2f(actors_list[i]->range_target_aim[1] - actors_list[i]->y_pos,
 												 actors_list[i]->range_target_aim[0] - actors_list[i]->x_pos);
-						float fire_angle = atan2f(actors_list[i]->range_target_fire[1] - actors_list[i]->y_pos,
-												 actors_list[i]->range_target_fire[0] - actors_list[i]->x_pos);
+						float fire_angle = atan2f(actors_list[i]->range_target_fire[0][1] - actors_list[i]->y_pos,
+												 actors_list[i]->range_target_fire[0][0] - actors_list[i]->x_pos);
 						if (aim_angle < 0.0) aim_angle += 2*M_PI;
 						if (fire_angle < 0.0) fire_angle += 2*M_PI;
 						if (fabs(fire_angle - aim_angle) > M_PI/8.0) {
@@ -1167,9 +1206,9 @@ void next_command()
 									actors_list[i]->range_target_aim[0],
 									actors_list[i]->range_target_aim[1],
 									actors_list[i]->range_target_aim[2],
-									actors_list[i]->range_target_fire[0],
-									actors_list[i]->range_target_fire[1],
-									actors_list[i]->range_target_fire[2],
+									actors_list[i]->range_target_fire[0][0],
+									actors_list[i]->range_target_fire[0][1],
+									actors_list[i]->range_target_fire[0][2],
 									aim_angle, fire_angle);
 							LOG_TO_CONSOLE(c_red2, msg);
 							missiles_log_message(msg);
@@ -1177,31 +1216,49 @@ void next_command()
 					}
 #endif // DEBUG
 
-					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target_fire, actors_list[i]->shot_type);
-					actors_list[i]->shot_type = NORMAL_SHOT;
+					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target_fire[0], actors_list[i]->shot_type[0]);
+
+					// we remove the current shot from the queue
+					if (actors_list[i]->shots_count > 0) {
+						int j;
+						for (j = 1; j < MAX_SHOTS_QUEUE; ++j) {
+							memcpy(actors_list[i]->range_target_fire[j-1],
+								   actors_list[i]->range_target_fire[j],
+								   3*sizeof(float));
+							actors_list[i]->shot_type[j-1] = actors_list[i]->shot_type[j];
+						}
+						--actors_list[i]->shots_count;
+					}
+					else {
+						log_error("the shots queue is already empty!");
+					}
+					actors_list[i]->reload[actors_list[i]->shots_count] = 0;
+					actors_list[i]->shot_type[actors_list[i]->shots_count] = NORMAL_SHOT;
 					break;
 
-				case missile_miss:
-					missiles_log_message("actor %d will miss his target", actors_list[i]->actor_id);
-					actors_list[i]->shot_type = MISSED_SHOT;
- 					no_action = 1;
-					break;
+/* 				case missile_miss: */
+/* 					missiles_log_message("actor %d will miss his target", actors_list[i]->actor_id); */
+/* 					if (actors_list[i]->shots_count < MAX_SHOTS_QUEUE) */
+/* 						actors_list[i]->shot_type[actors_list[i]->shots_count] = MISSED_SHOT; */
+/*  					no_action = 1; */
+/* 					break; */
 
-				case missile_critical:
-					missiles_log_message("actor %d will do a critical hit", actors_list[i]->actor_id);
-					actors_list[i]->shot_type = CRITICAL_SHOT;
- 					no_action = 1;
-					break;
+/* 				case missile_critical: */
+/* 					missiles_log_message("actor %d will do a critical hit", actors_list[i]->actor_id); */
+/* 					if (actors_list[i]->shots_count < MAX_SHOTS_QUEUE) */
+/* 						actors_list[i]->shot_type[actors_list[i]->shots_count] = CRITICAL_SHOT; */
+/*  					no_action = 1; */
+/* 					break; */
 
-				case unwear_bow:
-					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_WEAPON);
- 					no_action = 1;
-					break;
+/* 				case unwear_bow: */
+/* 					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_WEAPON); */
+/*  					no_action = 1; */
+/* 					break; */
 
-				case unwear_quiver:
-					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_SHIELD);
- 					no_action = 1;
-					break;
+/* 				case unwear_quiver: */
+/* 					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_SHIELD); */
+/*  					no_action = 1; */
+/* 					break; */
 #endif // MISSILES
 
 					//ok, now the movement, this is the tricky part
@@ -1469,6 +1526,30 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	} else {
 		LOCK_ACTORS_LISTS();
 
+#ifdef MISSILES
+		if (command == missile_miss) {
+			missiles_log_message("actor %d will miss his target", actor_id);
+			if (act->shots_count < MAX_SHOTS_QUEUE)
+				act->shot_type[act->shots_count] = MISSED_SHOT;
+			UNLOCK_ACTORS_LISTS();
+			return;
+		}
+		else if (command == missile_critical) {
+			missiles_log_message("actor %d will do a critical hit", actor_id);
+			if (act->shots_count < MAX_SHOTS_QUEUE)
+				act->shot_type[act->shots_count] = CRITICAL_SHOT;
+			UNLOCK_ACTORS_LISTS();
+			return;
+		}
+		else if (command == aim_mode_reload) {
+			missiles_log_message("actor %d will have to reload after next fire", actor_id);
+			if (act->shots_count < MAX_SHOTS_QUEUE)
+				act->reload[act->shots_count] = 1;
+			UNLOCK_ACTORS_LISTS();
+			return;
+		}
+#endif // MISSILES
+
 		if(command==leave_combat||command==enter_combat||command==die1||command==die2)
 		{
 			int j= 0;
@@ -1610,6 +1691,11 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		UNLOCK_ACTORS_LISTS();
 
 		if(k>MAX_CMD_QUEUE-2){
+			int i;
+			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!",
+					  act->actor_id, act->actor_name);
+			for (i = 0; i < MAX_CMD_QUEUE; ++i)
+				LOG_ERROR("%dth command in the queue: %d", i, (int)act->que[i]);
 			update_all_actors();
 		}
 	}

@@ -44,7 +44,7 @@ int missiles_count = 0;
 int begin_lost_missiles = -1;
 int end_lost_missiles = -1;
 
-#ifdef DEBUG
+#ifdef MISSILES_DEBUG
 FILE *missiles_log = NULL;
 
 void missiles_open_log()
@@ -95,7 +95,7 @@ void missiles_log_message(const char *format, ...)
 	fprintf(missiles_log, logmsg);
   	fflush (missiles_log);
 }
-#endif // DEBUG
+#endif // MISSILES_DEBUG
 
 void missiles_clear()
 {
@@ -655,8 +655,14 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	missiles_log_message("the target has %d bones", bones_number);
 
 	LOCK_ACTORS_LISTS();
-	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target_fire);
-	missiles_test_target_validity(act1->range_target_fire, "missiles_fire_a_to_b");
+	if (act1->shots_count < MAX_SHOTS_QUEUE) {
+		cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target_fire[act1->shots_count]);
+		missiles_test_target_validity(act1->range_target_fire[act1->shots_count], "missiles_fire_a_to_b");
+		++act1->shots_count;
+	}
+	else {
+		log_error("missiles_fire_a_at_b: shots queue is full for actor %d", actor1_id);
+	}
 	act2->last_range_attacker_id = actor1_id;
 	UNLOCK_ACTORS_LISTS();
 
@@ -677,8 +683,14 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 	}
 
 	LOCK_ACTORS_LISTS();
-	memcpy(act->range_target_fire, target, sizeof(float) * 3);
-	missiles_test_target_validity(act->range_target_fire, "missiles_fire_a_to_xyz");
+	if (act->shots_count < MAX_SHOTS_QUEUE) {
+		memcpy(act->range_target_fire[act->shots_count], target, sizeof(float) * 3);
+		missiles_test_target_validity(act->range_target_fire[act->shots_count], "missiles_fire_a_to_xyz");
+		++act->shots_count;
+	}
+	else {
+		log_error("missiles_fire_a_at_xyz: shots queue is full for actor %d", actor_id);
+	}
 	UNLOCK_ACTORS_LISTS();
 
 	add_command_to_actor(actor_id, aim_mode_fire);

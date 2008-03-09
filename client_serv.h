@@ -554,8 +554,8 @@ typedef enum actor_commands
   , aim_mode_reload = 54
   , aim_mode_fire = 55
   , missile_miss = 56
-  , unwear_bow = 57
-  , unwear_quiver = 58
+//   , unwear_bow = 57
+//   , unwear_quiver = 58
   , missile_critical = 59
 #endif // MISSILES
 

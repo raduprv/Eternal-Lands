@@ -93,13 +93,13 @@ Uint32 my_timer(Uint32 interval, void * data)
 
 #ifndef NEW_ACTOR_MOVEMENT
 		next_command();
+		move_to_next_frame();
 #else // NEW_ACTOR_MOVEMENT
-        LOCK_ACTORS_LISTS();
-		next_command();
-        UNLOCK_ACTORS_LISTS();
+/* 		LOCK_ACTORS_LISTS(); */
+/* 		next_command(); */
+/* 		UNLOCK_ACTORS_LISTS(); */
 #endif // NEW_ACTOR_MOVEMENT
 
-		move_to_next_frame();
 		water_movement_u+=0.0004f;
 		water_movement_v+=0.0002f;
 		if(!dungeon && 0)//we do not want clouds movement in dungeons, but we want clouds detail
