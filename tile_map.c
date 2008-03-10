@@ -17,6 +17,9 @@
 #ifdef NEW_LIGHTING
 #include "lights.h"
 #endif
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
+#endif
 
 #ifdef MAP_EDITOR2
 img_struct map_tiles[256];
@@ -235,10 +238,50 @@ static __inline__ void disable_terrain_texgen()
 #endif //OPENGL_TRACE
 }
 
+
 void draw_tile_map()
 {
 	unsigned int start, stop;
 
+#ifdef SKY_FPV_CURSOR
+	//drawing quads around the map
+	if(!dungeon&&reflect_sky&&show_sky&&skydisk_on){
+		int jjj=0,qq=0;
+					
+		glDisable(GL_LIGHTING);
+		glDisable(GL_TEXTURE_2D);
+		
+		glBegin(GL_QUADS);
+		for(qq=0;qq<SKYDISK_SECTORS;qq++){
+			for(jjj=0;jjj<SKYDISK_DIVS-1;jjj++){
+				glColor3fv(colors[3]);
+				glVertex3fv(skydisk[qq][jjj][0]);
+				glVertex3fv(skydisk[qq][jjj+1][0]);
+				glColor3fv(colors[2]);
+				glVertex3fv(skydisk[qq][jjj+1][1]);
+				glVertex3fv(skydisk[qq][jjj][1]);
+						
+				glVertex3fv(skydisk[qq][jjj][1]);
+				glVertex3fv(skydisk[qq][jjj+1][1]);
+				glColor3fv(colors[1]);
+				glVertex3fv(skydisk[qq][jjj+1][2]);
+				glVertex3fv(skydisk[qq][jjj][2]);
+						
+				glVertex3fv(skydisk[qq][jjj][2]);
+				glVertex3fv(skydisk[qq][jjj+1][2]);
+				glColor3fv(fog[3]);
+				glVertex3fv(skydisk[qq][jjj+1][3]);
+				glVertex3fv(skydisk[qq][jjj][3]);
+			}
+		}
+		glEnd();
+		glEnable(GL_LIGHTING);
+		glEnable(GL_TEXTURE_2D);
+	}
+#endif //SKY_FPV_CURSOR
+	
+	
+	
 	glEnable(GL_CULL_FACE);
 
 	build_terrain_buffer();

@@ -55,9 +55,11 @@ extern int missiles_count;
 extern missile missiles_list[MAX_MISSILES];
 extern missile_type missiles_defs[MAX_MISSILES_DEFS];
 
-#ifdef MISSILES_DEBUG
+#ifdef DEBUG
 extern int enable_client_aiming;
+#endif // DEBUG
 
+#ifdef MISSILES_DEBUG
 /*!
  * \brief Log a message in the file config_dir/missiles_log.txt
  * \param format the format of the message to log (same options than printf)

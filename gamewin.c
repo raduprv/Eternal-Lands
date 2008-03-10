@@ -851,7 +851,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
                         missiles_aim_at_xyz(yourself, target);
                     else {
                         LOCK_ACTORS_LISTS();
-                        cur_actor->reload = 1;
+                        if (cur_actor->shots_count < MAX_SHOTS_QUEUE)
+                            cur_actor->reload[cur_actor->shots_count] = 1;
                         /* cur_actor->shot_type = MISSED_SHOT; */
                         UNLOCK_ACTORS_LISTS();
                         missiles_fire_a_to_xyz(yourself, target);

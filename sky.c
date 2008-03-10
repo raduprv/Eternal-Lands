@@ -71,6 +71,11 @@ void sky_color(int sky);
 int cloud_1=CLOUDS_THICK, cloud_2=CLOUDS_NONE, sky=SKY_COLOR;
 int cur_stencil;
 float *fog[4];
+float *colors[10];
+
+int skydisk_on=0;
+float skydisk[SKYDISK_SECTORS][SKYDISK_DIVS][SKYDISK_SLICES][3];
+#define SKYSWAP(a,b) a[0]=b[1]; a[1]=b[0]; a[2]=b[2];
 
 
 void cloudy_sky();
@@ -88,7 +93,7 @@ void reflected_sky();
   cylinder is 1.0 radius. Stacks start a z = 0.0f and go to z = 1.0f * (stacks-1)
   
 */
-void colorSkyCyl(int stacks, float **colors)
+void colorSkyCyl(int stacks, float **thecolors)
 {
 	int s,j;
 	glBegin(GL_QUAD_STRIP);
@@ -96,9 +101,9 @@ void colorSkyCyl(int stacks, float **colors)
 	{
 		for (j = 0; j < SLICES; j++)
 		{
-			glColor4fv(colors[s]);
+			glColor4fv(thecolors[s]);
 			glVertex3f(slice_list[j][0],slice_list[j][1],s);
-			glColor4fv(colors[s+1]);
+			glColor4fv(thecolors[s+1]);
 			glVertex3f(slice_list[j][0],slice_list[j][1],s+1);
 		}
 	}
@@ -213,7 +218,7 @@ void simple_sky()
 		{
 			last_texture=-1;
 		}
-		glColor4f(0.0,0.6,1.0,1.0);
+		glColor4f(0.4,0.6,1.0,1.0);
 		glEnable(GL_FOG);
 		glCallList(skyLists+1);
 
@@ -230,7 +235,7 @@ void simple_sky()
 void cloudy_sky()
 {
 	static double spin = 0;
-	float *colors[10],alph,cloudCol1[4],cloudCol2[4],cloudCol3[4],cloudCol4[4];
+	float alph,cloudCol1[4],cloudCol2[4],cloudCol3[4],cloudCol4[4];
 	float abs_light;
 	float t;
 
@@ -766,7 +771,9 @@ void reflected_sky()
 		{
 			glEnable(GL_LIGHTING);
 			glEnable(GL_FOG);
-			glColor4f(0.4,0.6,1.0,1.0);
+			glColor4fv(fog[1]);
+			//else glColor4f(0.4,0.6,1.0,1.0);
+			//glColor4f(0.0,0.0,0.0,1.0);
 			
 			glCallList(skyLists+1);
 		}//nostencil = no reflection of sky
@@ -896,5 +903,46 @@ void init_sky()
 	}
 
 }
+
+
+void init_skydisk(int tx, int ty){
+
+	//building the area around the map to hide reflected sky
+		//int tx=tile_map_size_x*3;
+		//int ty=tile_map_size_y*3;
+		int ox= tx/2;
+		int oy= ty/2;
+		int pp,diskpoints;
+		float angle=0;
+		float anglestep=45*M_PI/5/180;
+		float zz=-0.4;
+		float dist=ox;//*1.414;
+		float kk[4]={0,5,10,20};
+		for(diskpoints=0;diskpoints<SKYDISK_DIVS;diskpoints++){
+			for(pp=0;pp<4;pp++){
+				float xx=(pp) ? ((dist*1.414+pp*kk[pp])*cos(angle)):(ox);
+				float yy=(pp) ? ((dist*1.414+pp*kk[pp])*sin(angle)):(ox*tan(angle));
+				skydisk[0][diskpoints][pp][0]=ox+ xx;						
+				skydisk[0][diskpoints][pp][1]=oy+ yy;	
+				skydisk[0][diskpoints][pp][2]=zz;
+				skydisk[4][diskpoints][pp][0]=ox- xx;						
+				skydisk[4][diskpoints][pp][1]=oy- yy;	
+				skydisk[4][diskpoints][pp][2]=zz;
+				skydisk[7][diskpoints][pp][0]=ox+ xx;						
+				skydisk[7][diskpoints][pp][1]=oy- yy;	
+				skydisk[7][diskpoints][pp][2]=zz;
+				skydisk[3][diskpoints][pp][0]=ox- xx;						
+				skydisk[3][diskpoints][pp][1]=oy+ yy;	
+				skydisk[3][diskpoints][pp][2]=zz;				
+				SKYSWAP(skydisk[1][diskpoints][pp],skydisk[0][diskpoints][pp]);
+				SKYSWAP(skydisk[5][diskpoints][pp],skydisk[4][diskpoints][pp]);
+				SKYSWAP(skydisk[6][diskpoints][pp],skydisk[7][diskpoints][pp]);
+				SKYSWAP(skydisk[2][diskpoints][pp],skydisk[3][diskpoints][pp]);
+			}
+			angle+=anglestep;
+		}
+}
+
+
 
 #endif /* SKY_FPV_CURSOR */

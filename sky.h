@@ -8,8 +8,16 @@
 
 #ifdef SKY_FPV_CURSOR
 
+#define SKYDISK_SECTORS 8
+#define SKYDISK_DIVS 6
+#define SKYDISK_SLICES 4
+
+
+
 void (*display_sky)();
 void init_sky();
+void init_skydisk(int tx, int ty);
+
 extern int show_moons ,show_sun,show_stars,horizon_fog,clouds1,clouds2,reflect_sky;
 extern int clouds_tex;
 extern int cloud_detail_tex;
@@ -20,7 +28,11 @@ extern float sun_appears[4];
 extern double LongView[16];
 extern double time_d;
 
-
+extern float *fog[4];
+extern float *colors[10];
+extern int show_sky;
+extern float skydisk[SKYDISK_SECTORS][SKYDISK_DIVS][SKYDISK_SLICES][3];
+extern int skydisk_on;
 #define CLOUDS_NONE	0
 #define CLOUDS_THICK	1
 #define FOG_COLOR	0

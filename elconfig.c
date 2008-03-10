@@ -136,7 +136,6 @@ int elconfig_menu_y_len= 463;
 
 int windows_on_top= 0;
 int options_set= 0;
-static int compass_direction_checkbox = 1;
 int shadow_map_size_multi= 0;
 
 int you_sit= 0;
@@ -769,12 +768,6 @@ void change_shadow_map_size(int *pointer, int value)
 	{
 		*pointer= index;
 	}
-}
-
-void change_compass_direction (int *north)
-{
-	compass_direction = *north ? -1 : 1;
-	*north = !*north;
 }
 
 #ifndef MAP_EDITOR2
@@ -1499,6 +1492,7 @@ void init_vars()
 	add_var(OPT_BOOL,"show_stars","show_stars", &show_stars, change_var,1,"Show Stars", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_moons","show_moons", &show_moons, change_var,1,"Show Moons", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_sun","show_sun", &show_sun, change_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+	add_var(OPT_BOOL,"skydisk","skydisk_on", &skydisk_on, change_var,1,"Show Skydisk", "Draws a disk around map to hide reflected sky", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_sky","show_sky", &show_sky, change_var,1,"Show Sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
 	add_var(OPT_BOOL,"extended_cam","extcam", &ext_cam, change_var,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
@@ -1619,7 +1613,6 @@ void init_vars()
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL, "relocate_quickbar", "requick", &quickbar_relocatable, change_quickbar_relocatable, 0,"Relocate Quickbar","Set whether you can move the quickbar",HUD);
 #endif
-	add_var (OPT_BOOL, "compass_north", "comp", &compass_direction_checkbox, change_compass_direction, 1, "Compass Direction","Set the compass direction for a static compass", HUD);
 	add_var (OPT_BOOL, "use_alpha_border", "aborder", &use_alpha_border, change_var, 1,"Alpha Border","Toggle the use of alpha borders",HUD);	//ADVVID);
 	add_var (OPT_BOOL, "use_alpha_banner", "abanner", &use_alpha_banner, change_var, 0,"Alpha Behind Name/Health Text","Toggle the use of an alpha background to name/health banners",HUD);
 	add_var (OPT_BOOL, "opaque_window_backgrounds", "opaquewin", &opaque_window_backgrounds, change_var, 0,"Use Opaque Window Backgrounds","Toggle the current state of all windows between transparent and opaque background. Use CTRL+D to toggle the current state of an individual window.",HUD);

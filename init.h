@@ -191,7 +191,6 @@ extern int limit_fps; /*!< contains the max FPS number we should use. If this is
 extern int item_window_on_drop;
 extern int no_adjust_shadows;
 extern int clouds_shadows; /*!< flag that indicates whether the shadows of clouds should be displayed or not */
-extern int compass_direction;
 extern int buddy_log_notice; /*!< whether to log buddy logged on/off notices to screen */
 extern char configdir[256]; /*!< the default directory where we look for configuration files */
 extern char datadir[256]; /*!< the default directory where we look for data files (aka installation dir) */

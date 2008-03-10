@@ -1140,7 +1140,7 @@ CHECK_GL_ERRORS();
 	//draw the compass needle
 	glPushMatrix();
 	glTranslatef(32, win->len_y-32, 0);
-	glRotatef(compass_direction*rz, 0.0f, 0.0f, 1.0f);
+	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 
 	glBegin(GL_QUADS);
 	draw_2d_thing(needle_u_start, needle_v_start, needle_u_end, needle_v_end,-5, -28, 5, 28);
