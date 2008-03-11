@@ -502,6 +502,30 @@ void change_anisotropic_filter(float *af, float *value)
  	}
 }
 
+void change_new_selection(int *value)
+{
+	if (*value)
+	{
+		*value = 0;
+	}
+	else
+	{
+		if (gl_extensions_loaded)
+		{
+			if ((supports_gl_version(1, 3) ||
+				have_extension(arb_texture_env_combine)) &&
+				(get_texture_units() > 1) && (bpp == 32))
+			{
+				*value = 1;
+			}
+		}
+		else
+		{
+			*value = 1;
+		}
+	}
+}
+
 void switch_vidmode(int *pointer, int mode)
 {
 	int win_width,
@@ -1678,6 +1702,7 @@ void init_vars()
  #endif
 	add_var (OPT_BOOL, "highlight_tab_on_nick", "highlight", &highlight_tab_on_nick, change_var, 1, "Highlight Tabs On Name", "Should tabs be highlighted when someone mentions your name?", CHAT);
 #endif
+	add_var (OPT_BOOL, "use_new_selection", "uns", &use_new_selection, change_new_selection, 1, "New selection", "Using new selection", VIDEO);
 #ifndef OSX
 	add_var (OPT_BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (OPT_FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);

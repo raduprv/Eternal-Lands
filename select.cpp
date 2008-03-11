@@ -38,6 +38,7 @@ const Uint32 select_size = 5;
 const Uint32 select_offset = 2;
 const float select_scale = 2.0f;
 const float select_scale_max = 16.0f;
+Uint32 use_new_selection = 1;
 
 static inline void update_color(Uint8 *color, GLfloat *colorf, const Uint32 index, const bool selectable)
 {
@@ -227,8 +228,7 @@ extern "C" void reset_under_the_mouse()
 	Sint32 j;
 	Sint32 x, y;
 
-	if ((supports_gl_version(1, 3) || have_extension(arb_texture_env_combine)) &&
-		(get_texture_units() > 1) && (bpp == 32))
+	if (use_new_selection)
 	{
 		read_selection = add_selection;
 		add_selection = read_mouse_now;
@@ -279,7 +279,6 @@ extern "C" void reset_under_the_mouse()
 			glTexEnvi(GL_TEXTURE_ENV, GL_SOURCE0_ALPHA_ARB, GL_TEXTURE);
 			glTexEnvi(GL_TEXTURE_ENV, GL_OPERAND0_ALPHA_ARB, GL_SRC_ALPHA);
 
-			glEnable(GL_CULL_FACE);
 			glAlphaFunc(GL_GREATER, 0.06f);
 
 			for (i = 0; i < selections.size(); i++)
@@ -295,6 +294,7 @@ extern "C" void reset_under_the_mouse()
 						{
 							glEnable(GL_ALPHA_TEST);
 						  	glEnable(GL_TEXTURE_2D);
+							glDisable(GL_CULL_FACE);
 							draw_3d_object_detail(objects_list[selections[i].id],
 								j, 0, 1, 0);
 						}
@@ -302,6 +302,7 @@ extern "C" void reset_under_the_mouse()
 						{
 							glDisable(GL_ALPHA_TEST);
 						  	glDisable(GL_TEXTURE_2D);
+							glEnable(GL_CULL_FACE);
 							draw_3d_object_detail(objects_list[selections[i].id],
 								j, 0, 0, 0);
 						}
@@ -398,8 +399,7 @@ extern "C" int anything_under_the_mouse(int object_id, int object_type)
 {
 	SelectionData data;
 
-	if ((supports_gl_version(1, 3) || have_extension(arb_texture_env_combine)) &&
-		(get_texture_units() > 1) && (bpp == 32))
+	if (use_new_selection)
 	{
 		if (add_selection && (object_type != UNDER_MOUSE_NOTHING) &&
 			(object_type != UNDER_MOUSE_NO_CHANGE))
