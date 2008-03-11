@@ -358,6 +358,11 @@ extern "C" {
 #define SWORD_RAPIER 56
 #define SWORD_JAGGED_SABER 57
 #define SWORD_BRONZE 58
+#define BOW_LONG 64
+#define BOW_SHORT 65
+#define BOW_RECURVE 66
+#define BOW_ELVEN 67
+#define BOW_CROSS 68
 
 /*! @} */
 
@@ -637,6 +642,7 @@ typedef enum
 #define SPELL_NAME 48
 #define SEND_VIDEO_INFO 49
 #define POPUP_REPLY 50
+#define ATTACK_OBJECT 51
 
 #define PING_RESPONSE 60
 #define SET_ACTIVE_CHANNEL 61

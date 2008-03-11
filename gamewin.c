@@ -344,6 +344,14 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
+#ifdef MISSILES
+		int range_weapon_equipped;
+		LOCK_ACTORS_LISTS();
+		range_weapon_equipped = (your_actor &&
+								 your_actor->cur_weapon >= BOW_LONG &&
+								 your_actor->cur_weapon <= BOW_CROSS);
+		UNLOCK_ACTORS_LISTS();
+#endif // MISSILES
 		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
@@ -360,6 +368,13 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_USE_WITEM;
 		}
+#ifdef MISSILES
+        // allow to shoot at 3D objects
+		else if (action_mode == ACTION_ATTACK && alt_on && ctrl_on && range_weapon_equipped)
+		{
+			elwin_mouse = CURSOR_ATTACK;
+		}
+#endif // MISSILES
 		//see if the object is a harvestable resource.
 		else if(objects_list[object_under_mouse]->flags&OBJ_3D_HARVESTABLE) 
 		{
@@ -462,7 +477,16 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	int flag_alt = flags & ELW_ALT;
 	int flag_ctrl = flags & ELW_CTRL;
 	int flag_right = flags & ELW_RIGHT_MOUSE;
-	int force_walk = (flag_ctrl && flag_right);
+	int force_walk = (flag_ctrl && flag_right && !flag_alt);
+#ifdef MISSILES
+	int range_weapon_equipped;
+
+	LOCK_ACTORS_LISTS();
+	range_weapon_equipped = (your_actor &&
+							 your_actor->cur_weapon >= BOW_LONG &&
+							 your_actor->cur_weapon <= BOW_CROSS);
+	UNLOCK_ACTORS_LISTS();
+#endif // MISSILES
 	
 	if (flags & ELW_WHEEL_UP)
 	{
@@ -518,7 +542,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					else if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
 						action_mode = ACTION_TRADE;
 					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ){
-						action_mode = ACTION_USE;
+#ifdef MISSILES
+						if (flag_alt && flag_ctrl && range_weapon_equipped)
+							action_mode = ACTION_ATTACK;
+						else
+#endif // MISSILES
+							action_mode = ACTION_USE;
 					}
 					else if ((thing_under_the_mouse == UNDER_MOUSE_ANIMAL) && include_use_cursor_on_animals)
 						action_mode = ACTION_USE;
@@ -547,6 +576,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				case CURSOR_ATTACK:
 					if(thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 						action_mode = ACTION_LOOK;
+#ifdef MISSILES
+					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
+						action_mode = ACTION_USE;
+#endif // MISSILES
 					else
 						action_mode = ACTION_WALK;
 					break;
@@ -727,7 +760,14 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send (my_socket, str, 5);
 				return 1;
 			}
-
+#ifdef MISSILES
+			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
+			{
+				str[0] = ATTACK_OBJECT;
+				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
+				// my_tcp_send (my_socket, str, 5);
+			}
+#endif // MISSILES
 			break;
 		}
 
@@ -853,7 +893,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
                         LOCK_ACTORS_LISTS();
                         if (cur_actor->shots_count < MAX_SHOTS_QUEUE)
                             cur_actor->reload[cur_actor->shots_count] = 1;
-                        /* cur_actor->shot_type = MISSED_SHOT; */
+                        /* cur_actor->shot_type[cur_actor->shots_count] = MISSED_SHOT; */
                         UNLOCK_ACTORS_LISTS();
                         missiles_fire_a_to_xyz(yourself, target);
                     }
