@@ -677,16 +677,20 @@ void move_to_next_frame()
 					if (!actors_list[i]->in_aim_mode &&
 						actors_list[i]->unwear_item_type_after_animation >= 0) {
 						int unwear_item_type = actors_list[i]->unwear_item_type_after_animation;
-						missiles_log_message("unwearing item type %d now for actor %d\n",
-											 unwear_item_type, actors_list[i]->actor_id);
+						missiles_log_message("%s (%d): unwearing item type %d now\n",
+                                             actors_list[i]->actor_name,
+                                             actors_list[i]->actor_id,
+                                             unwear_item_type);
 						actors_list[i]->unwear_item_type_after_animation = -1;
 						unwear_item_from_actor(actors_list[i]->actor_id, unwear_item_type);
 						if (actors_list[i]->wear_item_type_after_animation >= 0 &&
 							actors_list[i]->wear_item_id_after_animation >= 0) {
 							int wear_item_type = actors_list[i]->wear_item_type_after_animation;
 							int wear_item_id = actors_list[i]->wear_item_id_after_animation;
-							missiles_log_message("wearing item type %d now for actor %d\n",
-												 wear_item_type, actors_list[i]->actor_id);
+							missiles_log_message("%s (%d): wearing item type %d now\n",
+												 actors_list[i]->actor_name,
+                                                 actors_list[i]->actor_id,
+                                                 wear_item_type);
 							actors_list[i]->wear_item_type_after_animation = -1;
 							actors_list[i]->wear_item_id_after_animation = -1;
 							actor_wear_item(actors_list[i]->actor_id, wear_item_type, wear_item_id);
@@ -1048,7 +1052,7 @@ void next_command()
 #ifdef MISSILES
 				case enter_aim_mode:
 					if (!actors_list[i]->in_aim_mode) {
-						missiles_log_message("actor %d enters in aim mode", actors_list[i]->actor_id);
+						missiles_log_message("%s (%d): enter in aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
 
 						actors_list[i]->cal_h_rot_start = 0.0;
@@ -1060,7 +1064,7 @@ void next_command()
 					else {
                         float range_rotation;
 
-						missiles_log_message("actor %d is aiming again", actors_list[i]->actor_id);
+						missiles_log_message("%s (%d): aiming again", actors_list[i]->actor_name, actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
 						actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
 														   (1.0 - actors_list[i]->cal_rotation_blend) +
@@ -1081,7 +1085,8 @@ void next_command()
 						actors_list[i]->stop_animation = 1;
 						
 						if (range_rotation != 0.0) {
-							missiles_log_message("the actor is not facing its target => client side rotation needed");
+							missiles_log_message("%s (%d): not facing its target => client side rotation needed",
+                                                 actors_list[i]->actor_name, actors_list[i]->actor_id);
 #ifndef NEW_ACTOR_MOVEMENT
 							if (actors_list[i]->rotating) {
 								range_rotation += actors_list[i]->rotate_z_speed * actors_list[i]->rotate_frames_left;
@@ -1114,7 +1119,7 @@ void next_command()
 						}
 					}
 
-					missiles_log_message("actor %d is leaving aim mode", actors_list[i]->actor_id);
+					missiles_log_message("%s (%d): leaving aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 					cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_out_frame);
 					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
 													   (1.0 - actors_list[i]->cal_rotation_blend) +
@@ -1135,7 +1140,7 @@ void next_command()
 					break;
 
 /* 				case aim_mode_reload: */
-/* 					missiles_log_message("actor %d will have to reload after next fire", actors_list[i]->actor_id); */
+/* 					missiles_log_message("%s (%d): reload after next fire", actors_list[i]->actor_name, actors_list[i]->actor_id); */
 /* 					actors_list[i]->reload = 1; */
 /*  					no_action = 1; */
 /* 					break; */
@@ -1148,13 +1153,13 @@ void next_command()
 					}
 
 					if (actors_list[i]->reload[0]) {
-						missiles_log_message("actor %d fires and reload", actors_list[i]->actor_id);
+						missiles_log_message("%s (%d): fire and reload", actors_list[i]->actor_name, actors_list[i]->actor_id);
 						// launch fire and reload animation
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
 						actors_list[i]->in_aim_mode = 1;
 					}
 					else {
-						missiles_log_message("actor %d fires and leave aim mode", i);
+						missiles_log_message("%s (%d): fire and leave aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 						// launch fire and leave aim mode animation
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_out_frame);
 						actors_list[i]->in_aim_mode = 0;
@@ -1199,7 +1204,9 @@ void next_command()
 						if (fabs(fire_angle - aim_angle) > M_PI/8.0) {
 							char msg[512];
 							sprintf(msg,
-									"WARNING! Target position is too different from aim position: pos=(%f,%f,%f) aim=(%f,%f,%f) target=(%f,%f,%f) aim_angle=%f target_angle=%f",
+									"%s (%d): WARNING! Target position is too different from aim position: pos=(%f,%f,%f) aim=(%f,%f,%f) target=(%f,%f,%f) aim_angle=%f target_angle=%f",
+                                    actors_list[i]->actor_name,
+                                    actors_list[i]->actor_id,
 									actors_list[i]->x_pos,
 									actors_list[i]->y_pos,
 									actors_list[i]->z_pos,
@@ -1237,14 +1244,14 @@ void next_command()
 					break;
 
 /* 				case missile_miss: */
-/* 					missiles_log_message("actor %d will miss his target", actors_list[i]->actor_id); */
+/* 					missiles_log_message("%s (%d): will miss his target", actors_list[i]->actor_name, actors_list[i]->actor_id); */
 /* 					if (actors_list[i]->shots_count < MAX_SHOTS_QUEUE) */
 /* 						actors_list[i]->shot_type[actors_list[i]->shots_count] = MISSED_SHOT; */
 /*  					no_action = 1; */
 /* 					break; */
 
 /* 				case missile_critical: */
-/* 					missiles_log_message("actor %d will do a critical hit", actors_list[i]->actor_id); */
+/* 					missiles_log_message("%s (%d): will do a critical hit", actors_list[i]->actor_name, actors_list[i]->actor_id); */
 /* 					if (actors_list[i]->shots_count < MAX_SHOTS_QUEUE) */
 /* 						actors_list[i]->shot_type[actors_list[i]->shots_count] = CRITICAL_SHOT; */
 /*  					no_action = 1; */
@@ -1378,7 +1385,7 @@ void next_command()
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
 #ifdef MISSILES
-							missiles_log_message("rotation %d requested for actor %d", actors_list[i]->que[0] - turn_n, actors_list[i]->actor_id);
+							missiles_log_message("%s (%d): rotation %d requested", actors_list[i]->actor_name, actors_list[i]->actor_id, actors_list[i]->que[0] - turn_n);
 #endif // MISSILES
 						}
 					}
@@ -1528,21 +1535,21 @@ void add_command_to_actor(int actor_id, unsigned char command)
 
 #ifdef MISSILES
 		if (command == missile_miss) {
-			missiles_log_message("actor %d will miss his target", actor_id);
+			missiles_log_message("%s (%d): will miss his target", act->actor_name, actor_id);
 			if (act->shots_count < MAX_SHOTS_QUEUE)
 				act->shot_type[act->shots_count] = MISSED_SHOT;
 			UNLOCK_ACTORS_LISTS();
 			return;
 		}
 		else if (command == missile_critical) {
-			missiles_log_message("actor %d will do a critical hit", actor_id);
+			missiles_log_message("%s (%d): will do a critical hit", act->actor_name, actor_id);
 			if (act->shots_count < MAX_SHOTS_QUEUE)
 				act->shot_type[act->shots_count] = CRITICAL_SHOT;
 			UNLOCK_ACTORS_LISTS();
 			return;
 		}
 		else if (command == aim_mode_reload) {
-			missiles_log_message("actor %d will have to reload after next fire", actor_id);
+			missiles_log_message("%s (%d): reload after next fire", act->actor_name, actor_id);
 			if (act->shots_count < MAX_SHOTS_QUEUE)
 				act->reload[act->shots_count] = 1;
 			UNLOCK_ACTORS_LISTS();

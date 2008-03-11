@@ -191,8 +191,8 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 								ec_remove_weapon(actors_list[i]);
 #ifdef MISSILES
 								if (actors_list[i]->in_aim_mode) {
-									missiles_log_message("unwear item type %d delayed for actor %d\n",
-														 which_part, actors_list[i]->actor_id);
+									missiles_log_message("%s (%d): unwear item type %d delayed",
+														 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
 									actors_list[i]->unwear_item_type_after_animation = which_part;
 									//add_command_to_actor(actor_id, unwear_bow);
 									return;
@@ -215,8 +215,8 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 							{
 #ifdef MISSILES
 								if (actors_list[i]->in_aim_mode) {
-									missiles_log_message("unwear item type %d delayed for actor %d\n",
-														 which_part, actors_list[i]->actor_id);
+									missiles_log_message("%s (%d): unwear item type %d delayed",
+														 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
 									actors_list[i]->unwear_item_type_after_animation = which_part;
 									//add_command_to_actor(actor_id, unwear_quiver);
 									return;
@@ -312,8 +312,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 #ifdef MISSILES
 						if (actors_list[i]->unwear_item_type_after_animation == which_part) {
-							missiles_log_message("wear item type %d delayed for actor %d\n",
-												 which_part, actors_list[i]->actor_id);
+                            missiles_log_message("%s (%d): wear item type %d delayed",
+                                                 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
 							actors_list[i]->wear_item_type_after_animation = which_part;
 							actors_list[i]->wear_item_id_after_animation = which_id;
 							return;

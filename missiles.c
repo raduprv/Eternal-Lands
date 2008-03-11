@@ -344,7 +344,8 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	float act_z_rot = in_act->z_rot;
 
 	if (in_act->rotating) {
-        missiles_log_message("the actor is already rotating so we get the final position first");
+        missiles_log_message("%s (%d): already rotating so we get the final position first",
+                             in_act->actor_name, in_act->actor_id);
 #ifndef NEW_ACTOR_MOVEMENT
 		act_z_rot += in_act->rotate_z_speed * in_act->rotate_frames_left;
 #else // NEW_ACTOR_MOVEMENT
@@ -374,9 +375,9 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 			actor_rotation = ((int)(actor_rotation+22.5) / 45) * 45.0;
 	}
 
-	missiles_log_message("cos = %f ; sin = %f", cz, sz);
-	missiles_log_message("direction = %f %f %f", tmp[0], tmp[1], tmp[2]);
-	missiles_log_message("actor rotation = %f", actor_rotation);
+	missiles_log_message("%s (%d): cos = %f ; sin = %f", in_act->actor_name, in_act->actor_id, cz, sz);
+	missiles_log_message("%s (%d): direction = %f %f %f", in_act->actor_name, in_act->actor_id, tmp[0], tmp[1], tmp[2]);
+	missiles_log_message("%s (%d): actor rotation = %f", in_act->actor_name, in_act->actor_id, actor_rotation);
 
 	// we then compute the fine rotation
 	cz = cosf((act_z_rot + actor_rotation) * M_PI/180.0);
@@ -386,8 +387,9 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	origin[1] = in_act->y_pos + 0.25;
 	origin[2] = get_actor_z(in_act) + 1.4 * get_actor_scale(in_act);
 
-	missiles_log_message("compute_actor_rotation: origin=(%.2f,%.2f,%.2f), target=(%.2f,%.2f,%.2f)",
-						 origin[0], origin[1], origin[2], in_target[0], in_target[1], in_target[2]);
+	missiles_log_message("%s (%d): compute_actor_rotation: origin=(%.2f,%.2f,%.2f), target=(%.2f,%.2f,%.2f)",
+						 in_act->actor_name, in_act->actor_id,
+                         origin[0], origin[1], origin[2], in_target[0], in_target[1], in_target[2]);
 
 	tmp[0] = in_target[1] - origin[1];
 	tmp[1] = in_target[2] - origin[2];
@@ -402,7 +404,8 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	Normalize(tmp, to);
 	*out_h_rot = asinf(-tmp[0]);
 
-	missiles_log_message("horizontal rotation: from=(%.2f,%.2f,%.2f), to=(%.2f,%.2f,%.2f), h_rot=%f",
+	missiles_log_message("%s (%d): horizontal rotation: from=(%.2f,%.2f,%.2f), to=(%.2f,%.2f,%.2f), h_rot=%f",
+						 in_act->actor_name, in_act->actor_id,
 						 from[0], from[1], from[2], tmp[0], tmp[1], tmp[2], *out_h_rot);
 
 	from[0] = tmp[0];
@@ -414,7 +417,8 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	*out_v_rot = asinf(sqrtf(tmp[0]*tmp[0] + tmp[1]*tmp[1] + tmp[2]*tmp[2]));
 	if (to[1] < from[1]) *out_v_rot = -*out_v_rot;
 
-	missiles_log_message("vertical rotation: from=(%.2f,%.2f,%.2f), to=(%.2f,%.2f,%.2f), v_rot=%f",
+	missiles_log_message("%s (%d): vertical rotation: from=(%.2f,%.2f,%.2f), to=(%.2f,%.2f,%.2f), v_rot=%f",
+						 in_act->actor_name, in_act->actor_id,
 						 from[0], from[1], from[2], to[0], to[1], to[2], *out_v_rot);
 
 	return actor_rotation;
@@ -477,7 +481,8 @@ void missiles_rotate_actor_bones(actor *a)
 			a->cal_rotation_blend = -1.0; // stop rotating bones every frames
 			a->cal_h_rot_start = 0.0;
 			a->cal_v_rot_start = 0.0;
-			missiles_log_message("stopping bones rotation");
+			missiles_log_message("%s (%d): stopping bones rotation",
+                                 a->actor_name, a->actor_id);
 		}
 		else
 			a->cal_rotation_blend = 1.0;
@@ -586,8 +591,6 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 	actor *act1, *act2;
 	int bones_number;
 
-	missiles_log_message("actor %d will aim at actor %d", actor1_id, actor2_id);
-
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
 
@@ -600,8 +603,10 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 		return;
 	}
 
+	missiles_log_message("%s (%d): will aim at actor %d", act1->actor_name, actor1_id, actor2_id);
+
 	bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel));
-	missiles_log_message("the target has %d bones", bones_number);
+	missiles_log_message("%s (%d): the target has %d bones", act1->actor_name, actor1_id, bones_number);
 
 	LOCK_ACTORS_LISTS();
 	cal_get_actor_bone_absolute_position(act2, get_actor_bone_id(act2, body_top_bone), NULL, act1->range_target_aim);
@@ -615,14 +620,14 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 {
 	actor *act;
 
-	missiles_log_message("actor %d will aim at target %f,%f,%f", actor_id, target[0], target[1], target[2]);
-
 	act = get_actor_ptr_from_id(actor_id);
 
 	if (!act) {
 		log_error("missiles_aim_at_xyz: the actor %d does not exists!", actor_id);
 		return;
 	}
+
+	missiles_log_message("%s (%d): will aim at target %f,%f,%f", act->actor_name, actor_id, target[0], target[1], target[2]);
 
 	LOCK_ACTORS_LISTS();
 	memcpy(act->range_target_aim, target, sizeof(float) * 3);
@@ -637,8 +642,6 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 	actor *act1, *act2;
 	int bones_number;
 
-	missiles_log_message("actor %d will fire to actor %d", actor1_id, actor2_id);
-
 	act1 = get_actor_ptr_from_id(actor1_id);
 	act2 = get_actor_ptr_from_id(actor2_id);
 	
@@ -651,8 +654,10 @@ void missiles_fire_a_to_b(int actor1_id, int actor2_id)
 		return;
 	}
 
+	missiles_log_message("%s (%d): will fire to actor %d", act1->actor_name, actor1_id, actor2_id);
+
 	bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel));
-	missiles_log_message("the target has %d bones", bones_number);
+	missiles_log_message("%s (%d): the target has %d bones", act1->actor_name, actor1_id, bones_number);
 
 	LOCK_ACTORS_LISTS();
 	if (act1->shots_count < MAX_SHOTS_QUEUE) {
@@ -673,14 +678,14 @@ void missiles_fire_a_to_xyz(int actor_id, float *target)
 {
 	actor *act;
 
-	missiles_log_message("actor %d will fire to target %f,%f,%f", actor_id, target[0], target[1], target[2]);
-
 	act = get_actor_ptr_from_id(actor_id);
 
 	if (!act) {
 		log_error("missiles_fire_a_to_xyz: the actor %d does not exists!", actor_id);
 		return;
 	}
+
+	missiles_log_message("%s (%d): will fire to target %f,%f,%f", act->actor_name, actor_id, target[0], target[1], target[2]);
 
 	LOCK_ACTORS_LISTS();
 	if (act->shots_count < MAX_SHOTS_QUEUE) {
