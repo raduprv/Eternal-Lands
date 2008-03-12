@@ -370,7 +370,8 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		}
 #ifdef MISSILES
         // allow to shoot at 3D objects
-		else if (action_mode == ACTION_ATTACK && alt_on && ctrl_on && range_weapon_equipped)
+		else if (range_weapon_equipped &&
+                 (action_mode == ACTION_ATTACK || (alt_on && ctrl_on)))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
@@ -542,12 +543,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					else if (thing_under_the_mouse == UNDER_MOUSE_PLAYER)
 						action_mode = ACTION_TRADE;
 					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ){
-#ifdef MISSILES
-						if (flag_alt && flag_ctrl && range_weapon_equipped)
-							action_mode = ACTION_ATTACK;
-						else
-#endif // MISSILES
-							action_mode = ACTION_USE;
+                        action_mode = ACTION_USE;
 					}
 					else if ((thing_under_the_mouse == UNDER_MOUSE_ANIMAL) && include_use_cursor_on_animals)
 						action_mode = ACTION_USE;
@@ -576,10 +572,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				case CURSOR_ATTACK:
 					if(thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
 						action_mode = ACTION_LOOK;
-#ifdef MISSILES
-					else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
-						action_mode = ACTION_USE;
-#endif // MISSILES
 					else
 						action_mode = ACTION_WALK;
 					break;
@@ -592,6 +584,13 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 						action_mode = ACTION_WALK;
 					break;
 				case CURSOR_USE:
+#ifdef MISSILES
+                    if (range_weapon_equipped)
+                        action_mode = ACTION_ATTACK;
+                    else
+                        action_mode = ACTION_WALK;
+                    break;
+#endif // MISSILES
 				case CURSOR_TALK:
 				case CURSOR_ARROW:
 				default:
@@ -763,9 +762,9 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 #ifdef MISSILES
 			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
-				str[0] = ATTACK_OBJECT;
+				str[0] = FIRE_MISSILE_AT_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				// my_tcp_send (my_socket, str, 5);
+				my_tcp_send(my_socket, str, 5);
 			}
 #endif // MISSILES
 			break;

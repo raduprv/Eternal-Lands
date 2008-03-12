@@ -642,7 +642,7 @@ typedef enum
 #define SPELL_NAME 48
 #define SEND_VIDEO_INFO 49
 #define POPUP_REPLY 50
-#define ATTACK_OBJECT 51
+#define FIRE_MISSILE_AT_OBJECT 51
 
 #define PING_RESPONSE 60
 #define SET_ACTIVE_CHANNEL 61
