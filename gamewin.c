@@ -1020,10 +1020,12 @@ int display_game_handler (window_info *win)
 	reset_under_the_mouse();
 
 #ifdef SKY_FPV_CURSOR
-	glPushMatrix();
-    glLoadIdentity();
-	if(show_sky && *display_sky != NULL)(*display_sky)();
-	glPopMatrix();
+    if (show_sky && *display_sky != NULL) {
+        glPushMatrix();
+        glLoadIdentity();
+        (*display_sky)(0);
+        glPopMatrix();
+    }
 #endif /* SKY_FPV_CURSOR */
 
 	// are we actively drawing things?
@@ -1074,12 +1076,12 @@ int display_game_handler (window_info *win)
 
 		if (any_reflection > 1)
 		{
-#ifndef SKY_FPV_CURSOR
+//#ifndef SKY_FPV_CURSOR
 		  	if (!dungeon)
 				draw_sky_background ();
 		  	else 
 				draw_dungeon_sky_background ();
-#endif /* not SKY_FPV_CURSOR */
+//#endif /* not SKY_FPV_CURSOR */
 			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}

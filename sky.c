@@ -12,6 +12,7 @@
 #include "global.h"
 #include "lights.h"
 #include "map.h"
+#include "reflection.h"
 #include "shadows.h"
 #include "textures.h"
 #include "vmath.h"
@@ -46,7 +47,7 @@ float slice_list[SLICES][2] = {
 
 
 
-void (*display_sky)();
+void (*display_sky)(int);
 
 #ifdef NEW_WEATHER
 #define fogColor rain_color
@@ -78,10 +79,10 @@ float skydisk[SKYDISK_SECTORS][SKYDISK_DIVS][SKYDISK_SLICES][3];
 #define SKYSWAP(a,b) a[0]=b[1]; a[1]=b[0]; a[2]=b[2];
 
 
-void cloudy_sky();
-void animated_sky();
-void simple_sky();
-void reflected_sky();
+void cloudy_sky(int reflected);
+void animated_sky(int reflected);
+void simple_sky(int reflected);
+void reflected_sky(int reflected);
 
 /*
   colorSkyCyl - local utility function.
@@ -154,7 +155,7 @@ void sky_color(int sky_col)
 	sky = sky_col;
 }
 
-void simple_sky()
+void simple_sky(int reflected)
 {
 	static float spin = 0;
 	float abs_light;
@@ -176,6 +177,8 @@ void simple_sky()
 		glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
 		glRotatef(rx,1.0,0.0,0.0);
 		glRotatef(rz,0.0,0.0,1.0);
+        if (reflected)
+            glScalef(1.0, 1.0, -1.0);
 		if(use_shadow_mapping)
 		{
 			glDisable(GL_TEXTURE_2D);
@@ -232,7 +235,7 @@ void simple_sky()
 }
 
 
-void cloudy_sky()
+void cloudy_sky(int reflected)
 {
 	static double spin = 0;
 	float alph,cloudCol1[4],cloudCol2[4],cloudCol3[4],cloudCol4[4];
@@ -506,7 +509,14 @@ void cloudy_sky()
 			glRotatef((float)game_minute,1,0,0);
 			alph = (1.0-abs_light)*t;
 
-			glPointSize(1.0);
+#ifdef	USE_SHADER
+			if (reflected && water_shader_quality > 0)
+#else	// USE_SHADER
+			if (reflected && use_frame_buffer)
+#endif	// USE_SHADER
+				glPointSize(2.0);
+			else
+				glPointSize(1.0);
 			glColor4f(1.0,1.0,1.0,alph);
 			glCallList(skyLists+2);
 			glColor4f(1.0,1.0,1.0,alph/2.0);
@@ -581,7 +591,7 @@ void cloudy_sky()
 }
 
 
-void animated_sky()
+void animated_sky(int reflected)
 {
 	static float spin = 0;
 	float *fog[4];
@@ -605,6 +615,8 @@ void animated_sky()
 		glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
 		glRotatef(rx,1.0,0.0,0.0);
 		glRotatef(rz,0.0,0.0,1.0);
+        if (reflected)
+            glScalef(1.0, 1.0, -1.0);
 		if(use_shadow_mapping)
 		{
 			glDisable(GL_TEXTURE_2D);
@@ -684,13 +696,13 @@ void animated_sky()
 	}
 }
 
-void reflected_sky()
+void reflected_sky(int reflected)
 {
-	VECTOR4 vec_white={1.0,1.0,1.0,1.0},vec4;
-	vec4[0] = sun_position[0];
-	vec4[1] = sun_position[1];
-	vec4[2] = sun_position[2];
-	vec4[3] = 0.0f;
+/* 	VECTOR4 vec_white={1.0,1.0,1.0,1.0},vec4; */
+/* 	vec4[0] = sun_position[0]; */
+/* 	vec4[1] = sun_position[1]; */
+/* 	vec4[2] = sun_position[2]; */
+/* 	vec4[3] = 0.0f; */
 
 	//Disable lights not used for sky just in case
 	switch(show_lights)
@@ -740,15 +752,17 @@ void reflected_sky()
 		glMatrixMode(GL_MODELVIEW);
 		glPushMatrix();
 
-		glRotatef(rx,1.0,0.0,0.0);
-		glRotatef(rz,0.0,0.0,1.0);
-		glLightfv(GL_LIGHT7, GL_POSITION, vec4);
-		glLightfv(GL_LIGHT7, GL_DIFFUSE, vec_white);
-		glEnable(GL_LIGHT7);
-		glFlush();
-		cloudy_sky();
-		if(have_stencil&&reflect_sky)
-		{
+        if (!reflected) {
+            glRotatef(rx,1.0,0.0,0.0);
+            glRotatef(rz,0.0,0.0,1.0);
+/*             glLightfv(GL_LIGHT7, GL_POSITION, vec4); */
+/*             glLightfv(GL_LIGHT7, GL_DIFFUSE, vec_white); */
+/*             glEnable(GL_LIGHT7); */
+/*             glFlush(); */
+            cloudy_sky(reflected);
+        }
+        else
+        {
 			cur_stencil = 1; //Draw horizon plane for sky reflection with this stencil
 			glEnable(GL_STENCIL_TEST);
 			glStencilFunc(GL_ALWAYS,cur_stencil,cur_stencil);
@@ -759,16 +773,36 @@ void reflected_sky()
 			glPushMatrix();
 			glStencilFunc(GL_EQUAL,cur_stencil,cur_stencil);
 			glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
-			glRotatef(rx,1.0,0.0,0.0);
-			glRotatef(rz,0.0,0.0,1.0);
-			glScalef(1,1,-1);
+            glRotatef(rx,1.0,0.0,0.0);
+            glRotatef(rz,0.0,0.0,1.0);
+            glScalef(1.0, 1.0, -1.0);
 			glFrontFace(GL_CW);
-			glLightfv(GL_LIGHT7, GL_POSITION, vec4);
-			cloudy_sky();
+			cloudy_sky(reflected);
 			glFrontFace(GL_CCW);
-		}//stencil
-		else//nostencil = no reflection of sky
-		{
+        }
+
+/* 		if(have_stencil&&reflect_sky) */
+/* 		{ */
+/* 			cur_stencil = 1; //Draw horizon plane for sky reflection with this stencil */
+/* 			glEnable(GL_STENCIL_TEST); */
+/* 			glStencilFunc(GL_ALWAYS,cur_stencil,cur_stencil); */
+/* 			glStencilOp(GL_KEEP,GL_REPLACE,GL_REPLACE); */
+/* 			glColor4f(0.4,0.6,1.0,1.0); */
+/* 			glCallList(skyLists+1); */
+/* 			glPopMatrix(); */
+/* 			glPushMatrix(); */
+/* 			glStencilFunc(GL_EQUAL,cur_stencil,cur_stencil); */
+/* 			glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP); */
+/* 			glRotatef(rx,1.0,0.0,0.0); */
+/* 			glRotatef(rz,0.0,0.0,1.0); */
+/* 			glScalef(1,1,-1); */
+/* 			glFrontFace(GL_CW); */
+/* 			glLightfv(GL_LIGHT7, GL_POSITION, vec4); */
+/* 			cloudy_sky(); */
+/* 			glFrontFace(GL_CCW); */
+/* 		}//stencil */
+/* 		else//nostencil = no reflection of sky */
+/* 		{ */
 			glEnable(GL_LIGHTING);
 			glEnable(GL_FOG);
 			glColor4fv(fog[1]);
@@ -776,7 +810,7 @@ void reflected_sky()
 			//glColor4f(0.0,0.0,0.0,1.0);
 			
 			glCallList(skyLists+1);
-		}//nostencil = no reflection of sky
+/* 		}//nostencil = no reflection of sky */
 		glPopMatrix();
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();

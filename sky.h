@@ -14,7 +14,7 @@
 
 
 
-void (*display_sky)();
+void (*display_sky)(int);
 void init_sky();
 void init_skydisk(int tx, int ty);
 

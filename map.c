@@ -205,7 +205,7 @@ static int el_load_map(const char * file_name)
 #endif
 
 #ifdef SKY_FPV_CURSOR
-	if (strstr("underworld",file_name) != NULL){
+	if (strstr(file_name, "underworld") != NULL){
 		sky_type(UNDERWORLD_SKY);
 	} else if (dungeon) {
 		sky_type(INTERIORS_SKY);

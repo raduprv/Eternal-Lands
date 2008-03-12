@@ -25,6 +25,9 @@
 #include "shadows.h"
 #include "shader/shader.h"
 #endif	// USE_SHADER
+#ifdef SKY_FPV_CURSOR
+#include "sky.h"
+#endif // SKY_FPV_CURSOR
 
 typedef struct
 {
@@ -489,6 +492,16 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
+
+#ifdef SKY_FPV_CURSOR
+	if (show_sky && reflect_sky && *display_sky != NULL) {
+		glPushMatrix();
+		glLoadIdentity();
+		(*display_sky)(1);
+		glPopMatrix();
+	}
+#endif // SKY_FPV_CURSOR
+
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
 	build_water_buffer();
@@ -995,6 +1008,7 @@ void draw_sky_background()
 	}
 #endif
 
+#ifndef SKY_FPV_CURSOR
 	glBegin(GL_QUADS);
 
 #ifdef	USE_SHADER
@@ -1025,6 +1039,7 @@ void draw_sky_background()
 	}
 
 	glEnd();
+#endif // SKY_FPV_CURSOR
 
 	Leave2DMode();
 #ifdef	USE_SHADER
