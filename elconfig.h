@@ -187,6 +187,10 @@ void add_multi_option(char * name, char * str);
 
 void change_windowed_chat (int *wc, int val);
 
+#ifdef SKY_FPV_CURSOR
+void toggle_follow_cam(int * fc);
+#endif // SKY_FPV_CURSOR
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

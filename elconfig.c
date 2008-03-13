@@ -1512,7 +1512,7 @@ void init_vars()
 #ifdef SKY_FPV_CURSOR
 	add_var(OPT_BOOL,"reflect_sky","reflect_sky", &reflect_sky, change_var,1,"Reflect Sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"clouds1","clouds1", &clouds1, change_var,1,"Show Clouds", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(OPT_BOOL,"horizon_fog","horizon_fog", &horizon_fog, change_var,1,"Show Horizon Fog", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
+/* 	add_var(OPT_BOOL,"horizon_fog","horizon_fog", &horizon_fog, change_var,1,"Show Horizon Fog", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL); */
 	add_var(OPT_BOOL,"show_stars","show_stars", &show_stars, change_var,1,"Show Stars", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_moons","show_moons", &show_moons, change_var,1,"Show Moons", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_sun","show_sun", &show_sun, change_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);

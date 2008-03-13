@@ -539,12 +539,16 @@ void render_fog()
 		sky_color(SKY_COLOR);
 	}
 
+	if (use_fog) {
 #endif /* SKY_FPV_CURSOR */
 	// set fog parameters
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_EXP2);
 	glFogf(GL_FOG_DENSITY, density);
 	glFogfv(GL_FOG_COLOR, rain_color);
+#ifdef SKY_FPV_CURSOR
+	}
+#endif /* SKY_FPV_CURSOR */
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1327,11 +1331,15 @@ void render_fog() {
 		sky_color(SKY_COLOR);
 	}
 
+	if (use_fog) {
 #endif /* SKY_FPV_CURSOR */
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_EXP2);
 	glFogf(GL_FOG_DENSITY, fogDensity);
 	glFogfv(GL_FOG_COLOR, fogColor);
+#ifdef SKY_FPV_CURSOR
+	}
+#endif /* SKY_FPV_CURSOR */
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

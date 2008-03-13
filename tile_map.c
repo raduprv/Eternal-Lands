@@ -104,6 +104,30 @@ static __inline__ void build_terrain_buffer()
 		terrain_tile_buffer[j * 8 + 5] = y_scaled;
 		terrain_tile_buffer[j * 8 + 6] = x_scaled + 3.0f;
 		terrain_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
+
+#ifdef SKY_FPV_CURSOR
+		if (x == 0)
+		{
+			terrain_tile_buffer[j * 8 + 0] -= 150.0f;
+			terrain_tile_buffer[j * 8 + 2] -= 150.0f;
+		}
+		else if (x == tile_map_size_x-1)
+		{
+			terrain_tile_buffer[j * 8 + 4] += 150.0f;
+			terrain_tile_buffer[j * 8 + 6] += 150.0f;
+		}
+		if (y == 0)
+		{
+			terrain_tile_buffer[j * 8 + 3] -= 150.0f;
+			terrain_tile_buffer[j * 8 + 5] -= 150.0f;
+		}
+		else if (y == tile_map_size_y-1)
+		{
+			terrain_tile_buffer[j * 8 + 1] += 150.0f;
+			terrain_tile_buffer[j * 8 + 7] += 150.0f;
+		}
+#endif // SKY_FPV_CURSOR
+
 		j++;
 	}
 

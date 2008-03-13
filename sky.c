@@ -133,7 +133,8 @@ void sky_type(int sky)
 			display_sky = animated_sky;
 			break;
 		case INTERIORS_SKY:
-			display_sky = simple_sky;
+			//display_sky = simple_sky;
+			display_sky = NULL;
 			break;
 		case CLOUDY_SKY:
 		default:
@@ -570,24 +571,24 @@ void cloudy_sky(int reflected)
 		glPopMatrix();
 	}
 	glDisable(GL_TEXTURE_2D);
-	if(horizon_fog)
-	{
+/* 	if(horizon_fog) */
+/* 	{ */
 		glTranslatef(0.0,0.0,-0.1);
 		glPushMatrix();
-		glScalef(100.0,100.0,7.0);
+		glScalef(100.0,100.0,5.0);
 		colorSkyCyl(3,fog);
 		glPopMatrix();
 		glDisable(GL_BLEND);
-	}
-	else
-	{
-		glDisable(GL_BLEND);
-		glTranslatef(0.0,0.0,camera_z);
-		glPushMatrix();
-		glScalef(100.0,100.0,-camera_z);
-		colorSkyCyl(1,fog);
-		glPopMatrix();
-	}
+/* 	} */
+/* 	else */
+/* 	{ */
+/* 		glDisable(GL_BLEND); */
+/* 		glTranslatef(0.0,0.0,camera_z); */
+/* 		glPushMatrix(); */
+/* 		glScalef(100.0,100.0,-camera_z); */
+/* 		colorSkyCyl(1,fog); */
+/* 		glPopMatrix(); */
+/* 	} */
 }
 
 
@@ -760,19 +761,23 @@ void reflected_sky(int reflected)
 /*             glEnable(GL_LIGHT7); */
 /*             glFlush(); */
             cloudy_sky(reflected);
+			glColor4fv(fog[0]);
+			glCallList(skyLists+1);
         }
         else
         {
-			cur_stencil = 1; //Draw horizon plane for sky reflection with this stencil
-			glEnable(GL_STENCIL_TEST);
-			glStencilFunc(GL_ALWAYS,cur_stencil,cur_stencil);
-			glStencilOp(GL_KEEP,GL_REPLACE,GL_REPLACE);
-			glColor4f(0.4,0.6,1.0,1.0);
-			glCallList(skyLists+1);
-			glPopMatrix();
-			glPushMatrix();
-			glStencilFunc(GL_EQUAL,cur_stencil,cur_stencil);
-			glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+			if (have_stencil) {
+				cur_stencil = 1; //Draw horizon plane for sky reflection with this stencil
+				glEnable(GL_STENCIL_TEST);
+				glStencilFunc(GL_ALWAYS,cur_stencil,cur_stencil);
+				glStencilOp(GL_KEEP,GL_REPLACE,GL_REPLACE);
+				glColor4f(0.4,0.6,1.0,1.0);
+				glCallList(skyLists+1);
+				glPopMatrix();
+				glPushMatrix();
+				glStencilFunc(GL_EQUAL,cur_stencil,cur_stencil);
+				glStencilOp(GL_KEEP,GL_KEEP,GL_KEEP);
+			}
             glRotatef(rx,1.0,0.0,0.0);
             glRotatef(rz,0.0,0.0,1.0);
             glScalef(1.0, 1.0, -1.0);
@@ -803,13 +808,13 @@ void reflected_sky(int reflected)
 /* 		}//stencil */
 /* 		else//nostencil = no reflection of sky */
 /* 		{ */
-			glEnable(GL_LIGHTING);
-			glEnable(GL_FOG);
-			glColor4fv(fog[1]);
-			//else glColor4f(0.4,0.6,1.0,1.0);
-			//glColor4f(0.0,0.0,0.0,1.0);
+/* 			glEnable(GL_LIGHTING); */
+/* 			glEnable(GL_FOG); */
+/* 			glColor4fv(fog[1]); */
+/* 			//else glColor4f(0.4,0.6,1.0,1.0); */
+/* 			//glColor4f(0.0,0.0,0.0,1.0); */
 			
-			glCallList(skyLists+1);
+/* 			glCallList(skyLists+1); */
 /* 		}//nostencil = no reflection of sky */
 		glPopMatrix();
 		glMatrixMode(GL_PROJECTION);
@@ -824,7 +829,9 @@ void reflected_sky(int reflected)
 
 		glPopAttrib();
 	}
-	glClearStencil(cur_stencil);
+	if (have_stencil) {
+		glClearStencil(cur_stencil);
+	}
 	glClear(GL_DEPTH_BUFFER_BIT);
 	if(!is_day||dungeon)
 	{

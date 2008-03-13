@@ -1183,7 +1183,10 @@ int display_game_handler (window_info *win)
 	CHECK_GL_ERRORS();
 #endif
 
-	if (weather_use_fog()) render_fog();
+#ifndef SKY_FPV_CURSOR
+	if (weather_use_fog())
+#endif // SKY_FPV_CURSOR
+		render_fog();
 
 	last_texture = -1;
 

@@ -163,6 +163,12 @@ int load_map(const char *file_name, update_func *update_function)
 	{
 		bbox.bbmin[Y] = i*3.0f;
 		bbox.bbmax[Y] = (i+1)*3.0f;
+#ifdef SKY_FPV_CURSOR
+		if (i == 0)
+			bbox.bbmin[Y] -= 150.0;
+		else if (i == tile_map_size_y-1)
+			bbox.bbmax[Y] += 150.0;
+#endif // SKY_FPV_CURSOR
 		for(j = 0; j < tile_map_size_x; j++)
 		{
 			cur_tile = tile_map[i*tile_map_size_x+j];
@@ -170,6 +176,12 @@ int load_map(const char *file_name, update_func *update_function)
 			{
 				bbox.bbmin[X] = j*3.0f;
 				bbox.bbmax[X] = (j+1)*3.0f;
+#ifdef SKY_FPV_CURSOR
+				if (j == 0)
+					bbox.bbmin[X] -= 150.0;
+				else if (j == tile_map_size_x-1)
+					bbox.bbmax[X] += 150.0;
+#endif // SKY_FPV_CURSOR
 				if (IS_WATER_TILE(cur_tile)) 
 				{
 					bbox.bbmin[Z] = -0.25f;
