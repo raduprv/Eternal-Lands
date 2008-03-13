@@ -883,7 +883,8 @@ void build_sun_pos_table()
 			start=-4.5f;
 			
 			z = sin((float)(i+start)*step*M_PI/180.0f);
-			y = cos((float)(i+start)*step*M_PI/180.0f);
+			x = cos((float)(i+start)*step*M_PI/180.0f);
+			y = 0;
 			//x+=0.5f;
 
 			sun_show[i].x=x;
@@ -895,7 +896,8 @@ void build_sun_pos_table()
 			start=9.0f;
 
 			z = d*sin((float)(i+start)*step*M_PI/180.0f);
-			y = d*cos((float)(i+start)*step*M_PI/180.0f);
+			x = d*cos((float)(i+start)*step*M_PI/180.0f);
+			y = 0;
 			//x+=0.5f;
 #endif /* SKY_FPV_CURSOR */
 

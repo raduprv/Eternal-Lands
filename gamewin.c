@@ -722,8 +722,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
-			if (flag_alt)
-				return 1;
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse != UNDER_MOUSE_PLAYER)
@@ -760,7 +758,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				return 1;
 			}
 #ifdef MISSILES
-			else if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
+			else if (range_weapon_equipped && thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
 				str[0] = FIRE_MISSILE_AT_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
@@ -777,8 +775,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
-			if (flag_alt)
+#ifdef MISSILES
+			if (flag_alt && range_weapon_equipped)
 				return 1;
+#endif // MISSILES
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
@@ -815,8 +815,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 		case CURSOR_PICK:
 		{
-			if (flag_alt)
+#ifdef MISSILES
+			if (flag_alt && range_weapon_equipped)
 				return 1;
+#endif // MISSILES
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
@@ -831,8 +833,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
-			if (flag_alt)
+#ifdef MISSILES
+			if (flag_alt && range_weapon_equipped)
 				return 1;
+#endif // MISSILES
 			if (object_under_mouse == -1)
 				return 1;
 			str[0] = HARVEST;
@@ -851,8 +855,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			if ((mx >= window_width-hud_x) || (my >= window_height-hud_y))
 				return 1;				
 		
-			if (flag_alt)
+#ifdef MISSILES
+			if (flag_alt && range_weapon_equipped)
 				return 1;
+#endif // MISSILES
 			if (you_sit && sit_lock && !flag_ctrl){
 				LOG_TO_CONSOLE(c_green1, no_walk_with_sitlock);
 				return 1;

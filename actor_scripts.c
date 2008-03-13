@@ -1064,7 +1064,7 @@ void next_command()
 					else {
                         float range_rotation;
 
-						missiles_log_message("%s (%d): aiming again", actors_list[i]->actor_name, actors_list[i]->actor_id);
+						missiles_log_message("%s (%d): aiming again (time=%d)", actors_list[i]->actor_name, actors_list[i]->actor_id, cur_time);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
 						actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
 														   (1.0 - actors_list[i]->cal_rotation_blend) +

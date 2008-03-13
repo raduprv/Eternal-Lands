@@ -1259,7 +1259,7 @@ void clear_thunders()
 }
 
 void render_fog() {
-	static GLfloat minDensity = 0.03f, maxDensity = 0.15f;
+	static GLfloat minDensity = 0.02f, maxDensity = 0.08f;
 	GLfloat fogDensity;
 	GLfloat rainStrength, rainAlpha, diffuseBias;
 	int i; float tmpf;

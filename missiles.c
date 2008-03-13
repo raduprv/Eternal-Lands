@@ -603,7 +603,7 @@ void missiles_aim_at_b(int actor1_id, int actor2_id)
 		return;
 	}
 
-	missiles_log_message("%s (%d): will aim at actor %d", act1->actor_name, actor1_id, actor2_id);
+	missiles_log_message("%s (%d): will aim at actor %d (time=%d)", act1->actor_name, actor1_id, actor2_id, cur_time);
 
 	bones_number = CalSkeleton_GetBonesNumber(CalModel_GetSkeleton(act2->calmodel));
 	missiles_log_message("%s (%d): the target has %d bones", act1->actor_name, actor1_id, bones_number);
@@ -627,7 +627,7 @@ void missiles_aim_at_xyz(int actor_id, float *target)
 		return;
 	}
 
-	missiles_log_message("%s (%d): will aim at target %f,%f,%f", act->actor_name, actor_id, target[0], target[1], target[2]);
+	missiles_log_message("%s (%d): will aim at target %f,%f,%f (time=%d)", act->actor_name, actor_id, target[0], target[1], target[2], cur_time);
 
 	LOCK_ACTORS_LISTS();
 	memcpy(act->range_target_aim, target, sizeof(float) * 3);

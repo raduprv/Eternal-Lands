@@ -464,7 +464,7 @@ typedef struct
 
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
-#define MAX_SHOTS_QUEUE  3
+#define MAX_SHOTS_QUEUE 10
 typedef struct
 {
 	/*! \name Misc.*/

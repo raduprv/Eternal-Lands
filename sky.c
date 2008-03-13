@@ -238,7 +238,7 @@ void cloudy_sky(int reflected)
 	float t;
 
 	int i;
-	VECTOR4 vec_black={0.0,0.0,0.0,0.0};
+	VECTOR4 vec_black={0.0, 0.0, 0.0, 0.0};
 
 
 	abs_light=light_level;
@@ -413,15 +413,21 @@ void cloudy_sky(int reflected)
 		//Rotate sky for time of day
 		if(show_moons)
 		{
+			VECTOR4 vec_white = {1.0, 1.0, 1.0, 1.0};
+			glLightfv(GL_LIGHT7, GL_DIFFUSE, vec_white);
+
 			glPushMatrix();
-			glRotatef((float)game_minute,1,0,0);
+			glRotatef((float)game_minute, 0.0, 1.0, 0.0);
 			//Alpha adjustment for objects that should fade in daylight
 			alph = (1.0-abs_light)*t;
 
 			glEnable(GL_CULL_FACE);
 			glEnable(GL_DEPTH_TEST);
 			{
-				VECTOR4 vec_moon = {alph/2.0f+0.6f,alph/2.0f+0.6f,alph/2.0f+0.6f,1.0};
+				VECTOR4 vec_moon = {alph/2.0f+0.6f,
+									alph/2.0f+0.6f,
+									alph/2.0f+0.6f,
+									1.0};
 				glEnable(GL_LIGHTING);
 				glDisable(GL_COLOR_MATERIAL);
 				get_and_set_texture_id(moon_tex);
@@ -430,17 +436,15 @@ void cloudy_sky(int reflected)
 				vec_moon[1] /= 1.2f;
 				vec_moon[2] /= 1.5f;
 
-
 				glMaterialfv(GL_FRONT, GL_DIFFUSE, vec_moon);
 
 				glPushMatrix();
-				glRotatef(20.0f, 0.0f,0.0f, 1.0f);
-				glRotatef(10.0*spin,1.0f,0.0f,0.0f);
-				glTranslatef(0.0f,0.0f,.75f);
+				glRotatef(20.0, 0.0, 0.0, 1.0);
+				glRotatef(10.0*spin, 0.0, 1.0, 0.0);
+				glTranslatef(0.0, 0.0, .75);
 				glScalef(.5,.5,.5);
 				glCallList(skyLists+3);
 				glPopMatrix();
-
 
 				vec_moon[1] *= 1.2f;
 				vec_moon[2] *= 1.5f;
@@ -448,9 +452,10 @@ void cloudy_sky(int reflected)
     			glMaterialfv(GL_FRONT, GL_DIFFUSE, vec_moon);
 
 				glPushMatrix();
-				glRotatef(spin,1,0,0);
-				glTranslatef(0.0f,0.0f,1.0f);
-				glRotatef(spin-80.0f,1,0,0);
+				glRotatef(-20.0, 0.0, 0.0, 1.0);
+				glRotatef(spin, 0.0, 1.0, 0.0);
+				glTranslatef(0.0, 0.0, 1.0);
+				glRotatef(spin-80.0, 0.0, 1.0, 0.0);
 				glCallList(skyLists+3);
 				glPopMatrix();
 
@@ -458,12 +463,13 @@ void cloudy_sky(int reflected)
 			glDisable(GL_CULL_FACE);
 			glDisable(GL_LIGHTING);
 			glPopMatrix();
+			glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light);
 		}
 		glEnable(GL_COLOR_MATERIAL);
 
 
 
-	//draw sun
+		//draw sun
 		alph = t;
 		glColor4f(1.0*alph,0.9*alph,0.5*alph,1.0);
 		if (show_sun && ((sun_appears[0]*sun_appears[0])+(sun_appears[1]*sun_appears[1])+(sun_appears[2]*sun_appears[2]) > 0.01))
@@ -484,7 +490,7 @@ void cloudy_sky(int reflected)
 				{
 					//two cross products. Dangerous to use these functions. Float type essential.
 					//Better to robustly produce two vectors in perpendicular plane elsewhere.
-					VECTOR3 perp1, perp2, someVec={1,0,0};
+					VECTOR3 perp1, perp2, someVec={0,1,0};
 					VCross(perp1, someVec, sun_appears);
 					VCross(perp2, perp1, sun_appears);
 					glTexCoord2f(0,0);		glVertex3f(sun_appears[0]+.08*(perp1[0]+perp2[0]), sun_appears[1]+.08*(perp1[1]+perp2[1]),sun_appears[2]+.08*(perp1[2]+perp2[2]));
@@ -875,7 +881,7 @@ void init_sky()
 	gluSphere(qobj,100,8,15);
 	glEndList();
 	glNewList(skyLists+3,GL_COMPILE);
-	gluSphere(qobj,0.03,20,20);
+	gluSphere(qobj,0.06,20,20);
 	glEndList();
 	glNewList(skyLists+1,GL_COMPILE);
 	gluDisk(qobj,0,200,8,10);
