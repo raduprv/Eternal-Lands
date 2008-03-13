@@ -151,6 +151,7 @@ int render_bones_orientation = 0;
 int big_cursors = 0;
 int sdl_cursors = 0;
 float pointer_size = 1.0;
+float water_tiles_extension = 0.0;
 #endif /* SKY_FPV_CURSOR */
 
 int video_info_sent = 0;
@@ -1516,10 +1517,10 @@ void init_vars()
 	add_var(OPT_BOOL,"show_stars","show_stars", &show_stars, change_var,1,"Show Stars", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_moons","show_moons", &show_moons, change_var,1,"Show Moons", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_sun","show_sun", &show_sun, change_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
-	add_var(OPT_BOOL,"skydisk","skydisk_on", &skydisk_on, change_var,1,"Show Skydisk", "Draws a disk around map to hide reflected sky", EMAJEKRAL);
 	add_var(OPT_BOOL,"show_sky","show_sky", &show_sky, change_var,1,"Show Sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
 	add_var(OPT_BOOL,"extended_cam","extcam", &ext_cam, change_var,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
+	add_var(OPT_FLOAT,"water_tiles_extension","wt_ext", &water_tiles_extension, change_float,0.0,"Water tiles extension", "Extends the water tiles upto the specified distance.", EMAJEKRAL, 0.0, 200.0, 1.0);
 	add_var(OPT_FLOAT,"follow_strength","f_strn",&fol_strn,change_float,0.1,"Follow Camera Snapiness","Adjust how responsive the follow camera is. 0 is stopped, 1 is fastest. Use the three numbers below to tweak the feel. Try them one at a time, then mix them to find a ratio you like.",EMAJEKRAL,0.0,1.00,0.01);
 	add_var(OPT_FLOAT,"const_speed","f_con",&fol_con,change_float,7,"Constant Speed","The basic rate that the camera rotates at to keep up with you.",EMAJEKRAL,0.0,10.00,1.0);
 	add_var(OPT_FLOAT,"lin_speed","f_lin",&fol_lin,change_float,1,"Linear Decel.","A hit of speed that drops off as the camera gets near its set point.",EMAJEKRAL,0.0,10.00,1.0);

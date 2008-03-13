@@ -72,12 +72,6 @@ void sky_color(int sky);
 int cloud_1=CLOUDS_THICK, cloud_2=CLOUDS_NONE, sky=SKY_COLOR;
 int cur_stencil;
 float *fog[4];
-float *colors[10];
-
-int skydisk_on=0;
-float skydisk[SKYDISK_SECTORS][SKYDISK_DIVS][SKYDISK_SLICES][3];
-#define SKYSWAP(a,b) a[0]=b[1]; a[1]=b[0]; a[2]=b[2];
-
 
 void cloudy_sky(int reflected);
 void animated_sky(int reflected);
@@ -239,7 +233,7 @@ void simple_sky(int reflected)
 void cloudy_sky(int reflected)
 {
 	static double spin = 0;
-	float alph,cloudCol1[4],cloudCol2[4],cloudCol3[4],cloudCol4[4];
+	float *colors[10],alph,cloudCol1[4],cloudCol2[4],cloudCol3[4],cloudCol4[4];
 	float abs_light;
 	float t;
 
@@ -944,46 +938,5 @@ void init_sky()
 	}
 
 }
-
-
-void init_skydisk(int tx, int ty){
-
-	//building the area around the map to hide reflected sky
-		//int tx=tile_map_size_x*3;
-		//int ty=tile_map_size_y*3;
-		int ox= tx/2;
-		int oy= ty/2;
-		int pp,diskpoints;
-		float angle=0;
-		float anglestep=45*M_PI/5/180;
-		float zz=-0.4;
-		float dist=ox;//*1.414;
-		float kk[4]={0,5,10,20};
-		for(diskpoints=0;diskpoints<SKYDISK_DIVS;diskpoints++){
-			for(pp=0;pp<4;pp++){
-				float xx=(pp) ? ((dist*1.414+pp*kk[pp])*cos(angle)):(ox);
-				float yy=(pp) ? ((dist*1.414+pp*kk[pp])*sin(angle)):(ox*tan(angle));
-				skydisk[0][diskpoints][pp][0]=ox+ xx;						
-				skydisk[0][diskpoints][pp][1]=oy+ yy;	
-				skydisk[0][diskpoints][pp][2]=zz;
-				skydisk[4][diskpoints][pp][0]=ox- xx;						
-				skydisk[4][diskpoints][pp][1]=oy- yy;	
-				skydisk[4][diskpoints][pp][2]=zz;
-				skydisk[7][diskpoints][pp][0]=ox+ xx;						
-				skydisk[7][diskpoints][pp][1]=oy- yy;	
-				skydisk[7][diskpoints][pp][2]=zz;
-				skydisk[3][diskpoints][pp][0]=ox- xx;						
-				skydisk[3][diskpoints][pp][1]=oy+ yy;	
-				skydisk[3][diskpoints][pp][2]=zz;				
-				SKYSWAP(skydisk[1][diskpoints][pp],skydisk[0][diskpoints][pp]);
-				SKYSWAP(skydisk[5][diskpoints][pp],skydisk[4][diskpoints][pp]);
-				SKYSWAP(skydisk[6][diskpoints][pp],skydisk[7][diskpoints][pp]);
-				SKYSWAP(skydisk[2][diskpoints][pp],skydisk[3][diskpoints][pp]);
-			}
-			angle+=anglestep;
-		}
-}
-
-
 
 #endif /* SKY_FPV_CURSOR */

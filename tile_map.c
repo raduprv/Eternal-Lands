@@ -17,9 +17,6 @@
 #ifdef NEW_LIGHTING
 #include "lights.h"
 #endif
-#ifdef SKY_FPV_CURSOR
-#include "sky.h"
-#endif
 
 #ifdef MAP_EDITOR2
 img_struct map_tiles[256];
@@ -104,30 +101,6 @@ static __inline__ void build_terrain_buffer()
 		terrain_tile_buffer[j * 8 + 5] = y_scaled;
 		terrain_tile_buffer[j * 8 + 6] = x_scaled + 3.0f;
 		terrain_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
-
-#ifdef SKY_FPV_CURSOR
-		if (x == 0)
-		{
-			terrain_tile_buffer[j * 8 + 0] -= 150.0f;
-			terrain_tile_buffer[j * 8 + 2] -= 150.0f;
-		}
-		else if (x == tile_map_size_x-1)
-		{
-			terrain_tile_buffer[j * 8 + 4] += 150.0f;
-			terrain_tile_buffer[j * 8 + 6] += 150.0f;
-		}
-		if (y == 0)
-		{
-			terrain_tile_buffer[j * 8 + 3] -= 150.0f;
-			terrain_tile_buffer[j * 8 + 5] -= 150.0f;
-		}
-		else if (y == tile_map_size_y-1)
-		{
-			terrain_tile_buffer[j * 8 + 1] += 150.0f;
-			terrain_tile_buffer[j * 8 + 7] += 150.0f;
-		}
-#endif // SKY_FPV_CURSOR
-
 		j++;
 	}
 
@@ -262,50 +235,10 @@ static __inline__ void disable_terrain_texgen()
 #endif //OPENGL_TRACE
 }
 
-
 void draw_tile_map()
 {
 	unsigned int start, stop;
 
-#ifdef SKY_FPV_CURSOR
-	//drawing quads around the map
-	if(!dungeon&&reflect_sky&&show_sky&&skydisk_on){
-		int jjj=0,qq=0;
-					
-		glDisable(GL_LIGHTING);
-		glDisable(GL_TEXTURE_2D);
-		
-		glBegin(GL_QUADS);
-		for(qq=0;qq<SKYDISK_SECTORS;qq++){
-			for(jjj=0;jjj<SKYDISK_DIVS-1;jjj++){
-				glColor3fv(colors[3]);
-				glVertex3fv(skydisk[qq][jjj][0]);
-				glVertex3fv(skydisk[qq][jjj+1][0]);
-				glColor3fv(colors[2]);
-				glVertex3fv(skydisk[qq][jjj+1][1]);
-				glVertex3fv(skydisk[qq][jjj][1]);
-						
-				glVertex3fv(skydisk[qq][jjj][1]);
-				glVertex3fv(skydisk[qq][jjj+1][1]);
-				glColor3fv(colors[1]);
-				glVertex3fv(skydisk[qq][jjj+1][2]);
-				glVertex3fv(skydisk[qq][jjj][2]);
-						
-				glVertex3fv(skydisk[qq][jjj][2]);
-				glVertex3fv(skydisk[qq][jjj+1][2]);
-				glColor3fv(fog[3]);
-				glVertex3fv(skydisk[qq][jjj+1][3]);
-				glVertex3fv(skydisk[qq][jjj][3]);
-			}
-		}
-		glEnd();
-		glEnable(GL_LIGHTING);
-		glEnable(GL_TEXTURE_2D);
-	}
-#endif //SKY_FPV_CURSOR
-	
-	
-	
 	glEnable(GL_CULL_FACE);
 
 	build_terrain_buffer();

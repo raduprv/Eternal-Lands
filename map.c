@@ -388,7 +388,6 @@ void load_map_marks()
 	fclose(fp);
 }
 
-
 void init_buffers()
 {
 	int terrain_buffer_size;
@@ -419,11 +418,6 @@ void init_buffers()
 	init_water_buffers(water_buffer_size);
 	init_terrain_buffers(terrain_buffer_size);
 	init_reflection_portals(water_buffer_size);
-	
-#ifdef SKY_FPV_CURSOR
-	init_skydisk(tile_map_size_x*3,tile_map_size_y*3);
-#endif
-	
 }
 
 int get_3d_objects_from_server (int nr_objs, const Uint8 *data, int len)

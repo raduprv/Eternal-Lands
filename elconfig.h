@@ -21,6 +21,7 @@ extern float z_cull_sq, cut_size;
 extern int big_cursors;
 extern int sdl_cursors;
 extern float pointer_size;
+extern float water_tiles_extension;
 #endif /* SKY_FPV_CURSOR */
 
 /*!

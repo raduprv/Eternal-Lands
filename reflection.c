@@ -6,6 +6,7 @@
 #include "bbox_tree.h"
 #include "cal.h"
 #include "draw_scene.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "framebuffer.h"
 #include "gl_init.h"
@@ -169,23 +170,23 @@ static __inline__ void build_water_buffer()
 #ifdef SKY_FPV_CURSOR
 		if (x == 0)
 		{
-			water_tile_buffer[j * 8 + 0] -= 150.0f;
-			water_tile_buffer[j * 8 + 6] -= 150.0f;
+			water_tile_buffer[j * 8 + 0] -= water_tiles_extension;
+			water_tile_buffer[j * 8 + 6] -= water_tiles_extension;
 		}
 		else if (x == tile_map_size_x-1)
 		{
-			water_tile_buffer[j * 8 + 2] += 150.0f;
-			water_tile_buffer[j * 8 + 4] += 150.0f;
+			water_tile_buffer[j * 8 + 2] += water_tiles_extension;
+			water_tile_buffer[j * 8 + 4] += water_tiles_extension;
 		}
 		if (y == 0)
 		{
-			water_tile_buffer[j * 8 + 1] -= 150.0f;
-			water_tile_buffer[j * 8 + 3] -= 150.0f;
+			water_tile_buffer[j * 8 + 1] -= water_tiles_extension;
+			water_tile_buffer[j * 8 + 3] -= water_tiles_extension;
 		}
 		else if (y == tile_map_size_y-1)
 		{
-			water_tile_buffer[j * 8 + 5] += 150.0f;
-			water_tile_buffer[j * 8 + 7] += 150.0f;
+			water_tile_buffer[j * 8 + 5] += water_tiles_extension;
+			water_tile_buffer[j * 8 + 7] += water_tiles_extension;
 		}
 #endif // SKY_FPV_CURSOR
 
@@ -223,23 +224,23 @@ static __inline__ void build_water_buffer()
 #ifdef SKY_FPV_CURSOR
 		if (x == 0)
 		{
-			water_tile_buffer[j * 8 + 0] -= 150.0f;
-			water_tile_buffer[j * 8 + 6] -= 150.0f;
+			water_tile_buffer[j * 8 + 0] -= water_tiles_extension;
+			water_tile_buffer[j * 8 + 6] -= water_tiles_extension;
 		}
 		else if (x == tile_map_size_x-1)
 		{
-			water_tile_buffer[j * 8 + 2] += 150.0f;
-			water_tile_buffer[j * 8 + 4] += 150.0f;
+			water_tile_buffer[j * 8 + 2] += water_tiles_extension;
+			water_tile_buffer[j * 8 + 4] += water_tiles_extension;
 		}
 		if (y == 0)
 		{
-			water_tile_buffer[j * 8 + 1] -= 150.0f;
-			water_tile_buffer[j * 8 + 3] -= 150.0f;
+			water_tile_buffer[j * 8 + 1] -= water_tiles_extension;
+			water_tile_buffer[j * 8 + 3] -= water_tiles_extension;
 		}
 		else if (y == tile_map_size_y-1)
 		{
-			water_tile_buffer[j * 8 + 5] += 150.0f;
-			water_tile_buffer[j * 8 + 7] += 150.0f;
+			water_tile_buffer[j * 8 + 5] += water_tiles_extension;
+			water_tile_buffer[j * 8 + 7] += water_tiles_extension;
 		}
 #endif // SKY_FPV_CURSOR
 

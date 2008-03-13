@@ -3,6 +3,7 @@
 #include "../3d_objects.h"
 #include "../asc.h"
 #include "../bbox_tree.h"
+#include "../elconfig.h"
 #include "../errors.h"
 #include "../init.h"
 #include "../lights.h"
@@ -165,9 +166,9 @@ int load_map(const char *file_name, update_func *update_function)
 		bbox.bbmax[Y] = (i+1)*3.0f;
 #ifdef SKY_FPV_CURSOR
 		if (i == 0)
-			bbox.bbmin[Y] -= 150.0;
+			bbox.bbmin[Y] -= water_tiles_extension;
 		else if (i == tile_map_size_y-1)
-			bbox.bbmax[Y] += 150.0;
+			bbox.bbmax[Y] += water_tiles_extension;
 #endif // SKY_FPV_CURSOR
 		for(j = 0; j < tile_map_size_x; j++)
 		{
@@ -178,9 +179,9 @@ int load_map(const char *file_name, update_func *update_function)
 				bbox.bbmax[X] = (j+1)*3.0f;
 #ifdef SKY_FPV_CURSOR
 				if (j == 0)
-					bbox.bbmin[X] -= 150.0;
+					bbox.bbmin[X] -= water_tiles_extension;
 				else if (j == tile_map_size_x-1)
-					bbox.bbmax[X] += 150.0;
+					bbox.bbmax[X] += water_tiles_extension;
 #endif // SKY_FPV_CURSOR
 				if (IS_WATER_TILE(cur_tile)) 
 				{
