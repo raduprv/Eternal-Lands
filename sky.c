@@ -575,7 +575,7 @@ void cloudy_sky(int reflected)
 /* 	{ */
 		glTranslatef(0.0,0.0,-0.1);
 		glPushMatrix();
-		glScalef(100.0,100.0,5.0);
+		glScalef(100.0,100.0,10.0);
 		colorSkyCyl(3,fog);
 		glPopMatrix();
 		glDisable(GL_BLEND);
@@ -878,7 +878,7 @@ void init_sky()
 	gluQuadricNormals(qobj,GLU_SMOOTH);
 	gluQuadricTexture(qobj,GL_TRUE);
 	glNewList(skyLists,GL_COMPILE);
-	gluSphere(qobj,100,8,15);
+	gluSphere(qobj,100,24,15);
 	glEndList();
 	glNewList(skyLists+3,GL_COMPILE);
 	gluSphere(qobj,0.06,20,20);
