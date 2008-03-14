@@ -783,56 +783,56 @@ void build_global_light_table()
 	make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
 	//lake light
 	make_gradient_light(0,30,(float *)sky_lights_c1,
-			0.0f,0.7f,0.9f,
-			0.6f, 0.0f, 0.0f);
+						0.0f, 0.7f, 0.9f,
+						0.6f, 0.0f, 0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,
-			0.6f, 0.0f, 0.0f,
-			0.0f, 0.05f, 0.1f);
+						0.6f, 0.0f, 0.0f,
+						0.0f, 0.05f, 0.1f);
 	make_gradient_light(60,30,(float *)sky_lights_c1,
-			0.0f, 0.05f, 0.1f,
-			0.6f, 0.0f, 0.3f);
+						0.0f, 0.05f, 0.1f,
+						0.6f, 0.0f, 0.2f);
 	make_gradient_light(90,30,(float *)sky_lights_c1,
-			0.6f, 0.0f, 0.3f,
-			0.0f,0.7f,0.9f);
+						0.6f, 0.0f, 0.2f,
+						0.0f, 0.7f, 0.9f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c2,
-			0.0f, 0.3f, 0.6f,
-			0.6f,0.3f,0.0f);
+						0.0f, 0.5f, 0.8f,
+						0.6f, 0.3f, 0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c2,
-			0.6f,0.4f,0.0f,
-			0.0f,0.025f,0.05f);
+						0.6f, 0.3f, 0.0f,
+						0.0f, 0.025f, 0.05f);
 	make_gradient_light(60,30,(float *)sky_lights_c2,
-			0.0f,0.025f,0.05f,
-			0.6f,0.3f,0.0f);
+						0.0f, 0.025f, 0.05f,
+						0.6f, 0.3f, 0.0f);
 	make_gradient_light(90,30,(float *)sky_lights_c2,
-			0.6f,0.3f,0.0f,
-			0.0f, 0.4f, 0.6f);
+						0.6f, 0.3f, 0.0f,
+						0.0f, 0.5f, 0.8f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c3,
-			0.0f,0.3f,0.6f,
-			0.2f,0.2f,0.3f);
+						0.0f, 0.3f, 0.7f,
+						0.2f, 0.2f, 0.3f);
 	make_gradient_light(30,30,(float *)sky_lights_c3,
-			0.2f,0.2f,0.3f,
-			0.0f,0.01f,0.02f);
+						0.2f, 0.2f, 0.3f,
+						0.0f, 0.01f, 0.02f);
 	make_gradient_light(60,30,(float *)sky_lights_c3,
-			0.0f,0.01f,0.02f,
-			0.2f,0.2f,0.3f);
+						0.0f, 0.01f, 0.02f,
+						0.2f, 0.2f, 0.3f);
 	make_gradient_light(90,30,(float *)sky_lights_c3,
-			0.2f,0.2f,0.3f,
-			0.0f,0.3f,0.6f);
+						0.2f, 0.2f, 0.3f,
+						0.0f, 0.3f, 0.7f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c4,
-			0.05f,0.2f,0.6f,
-			0.0f,0.1f,0.4f);
+						0.05f, 0.2f, 0.6f,
+						0.0f, 0.1f, 0.4f);
 	make_gradient_light(30,30,(float *)sky_lights_c4,
-			0.0f,0.1f,0.4f,
-			0.01f,0.01f,0.01f);
+						0.0f, 0.1f, 0.4f,
+						0.01f, 0.01f, 0.01f);
 	make_gradient_light(60,30,(float *)sky_lights_c4,
-			0.01f,0.01f,0.01f,
-			0.0f,0.1f,0.4f);
+						0.01f, 0.01f, 0.01f,
+						0.0f, 0.1f, 0.4f);
 	make_gradient_light(90,30,(float *)sky_lights_c4,
-			0.0f,0.1f,0.4f,
-			0.05f,0.2f,0.6f);
+						0.0f, 0.1f, 0.4f,
+						0.05f, 0.2f, 0.6f);
 #endif /* SKY_FPV_CURSOR */
 #ifdef NEW_LIGHTING
 	}

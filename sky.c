@@ -88,7 +88,7 @@ void reflected_sky(int reflected);
   cylinder is 1.0 radius. Stacks start a z = 0.0f and go to z = 1.0f * (stacks-1)
   
 */
-void colorSkyCyl(int stacks, float **thecolors)
+void colorSkyCyl(int stacks, float *colors[4])
 {
 	int s,j;
 	glBegin(GL_QUAD_STRIP);
@@ -96,9 +96,9 @@ void colorSkyCyl(int stacks, float **thecolors)
 	{
 		for (j = 0; j < SLICES; j++)
 		{
-			glColor4fv(thecolors[s]);
+			glColor4fv(colors[s]);
 			glVertex3f(slice_list[j][0],slice_list[j][1],s);
-			glColor4fv(thecolors[s+1]);
+			glColor4fv(colors[s+1]);
 			glVertex3f(slice_list[j][0],slice_list[j][1],s+1);
 		}
 	}
@@ -189,7 +189,7 @@ void simple_sky(int reflected)
 		glEnable(GL_COLOR_MATERIAL);
 		glDisable(GL_TEXTURE_2D);
 		glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-		glTranslatef(0,0,-1);
+		glTranslatef(0.0, 0.0, -1.0);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -208,7 +208,7 @@ void simple_sky(int reflected)
 
 		glPushMatrix();
 		glScalef(100.0,100.0,10.0);
-		colorSkyCyl(3,fog);
+		colorSkyCyl(3, fog);
 		glPopMatrix();
 		glColor4f(1, 1,1,1);
 		glDisable(GL_COLOR_MATERIAL);
@@ -240,19 +240,15 @@ void cloudy_sky(int reflected)
 	int i;
 	VECTOR4 vec_black={0.0, 0.0, 0.0, 0.0};
 
-
 	abs_light=light_level;
 	if(light_level>59)
 	{
 		abs_light=119-light_level;
-
 	}
 	abs_light = 1.0f-abs_light/59.0f;
 	spin = cur_time%( 1296000 * 1000 );
 	spin*=360.0/( 1296000.0/*seconds in large month*/ * 1000.0/*millisecond bump*/ );
 	spin += time_d; //
-
-
 
 	glDisable(GL_DEPTH_TEST);
 
@@ -262,102 +258,87 @@ void cloudy_sky(int reflected)
 	if (sky!=SKY_COLOR&&(seconds_till_rain_stops<1||seconds_till_rain_stops>59)&&seconds_till_rain_starts<1)
 #endif /* NEW_WATHER */
 	{
+		// it is fully raining
 		for	(i = 0;i < 3; i++)
 		{
-				fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
-				cloudCol1[i] = fogColor[i]-0.05f;
-				cloudCol2[i] = fogColor[i]+0.05f;
-				cloudCol3[i] = fogColor[i]-0.05f;
-				cloudCol4[i] = fogColor[i]+0.05f;
-			}
+			cloudCol1[i] = fogColor[i]-0.05f;
+			cloudCol2[i] = fogColor[i]+0.05f;
+			cloudCol3[i] = fogColor[i]-0.05f;
+			cloudCol4[i] = fogColor[i]+0.05f;
+		}
 		cloudCol1[3] = 1.0f;
 		cloudCol2[3] = 1.0f;
 		cloudCol3[3] = 1.0;
 		cloudCol4[3] = 1.0;
+		colors[0] = fogColor;
 
-		fog[0][3] = 1.0f;
-		fog[1][3] = 0.95f;
-		fog[2][3] = 0.5f;
-		fog[3][3] = 0.0f;
-
+		// drawing a sky with the color of the fog
 		glColor4fv(fogColor);
-
 		glCallList(skyLists);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
 	}
-	else 
+	else // not fully raining
 	{
 #ifdef NEW_WEATHER
-		if(weather_get_fadeout_bias() < 1.0f && weather_get_fadeout_bias() > 0.0f){
+		if(weather_get_fadeout_bias() < 1.0f && weather_get_fadeout_bias() > 0.0f)
+		{
 			t = 1.0f-weather_get_fadeout_bias();
 #else /* !NEW_WEATHER */
-		if(seconds_till_rain_stops>0 && seconds_till_rain_stops<60){
+		if(seconds_till_rain_stops>0 && seconds_till_rain_stops<60)
+		{
 			t = 1.0f-seconds_till_rain_stops/60.0f;
 #endif /* NEW_WEATHER */
+			// the rain is going to stop in less than 60 sec
 			for	(i = 0;i < 3; i++)
 			{
-
-				fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 				cloudCol1[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
 				cloudCol2[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
 
 				cloudCol3[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
 				cloudCol4[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
-
 			}
 			cloudCol1[3] = 1.0f;
 			cloudCol2[3] = 1.0f;
 			cloudCol3[3] = t;
 			cloudCol4[3] = t;
 
-			fog[0][3] = 1.0f;
-			fog[1][3] = 0.95f;
-			fog[2][3] = 0.5f;
-			fog[3][3] = 0.0f;
-
-			colBlend4(foo, sky_lights_c1[light_level],fogColor,t);
-			colBlend4(foo1, sky_lights_c2[light_level],fogColor,t);
-			colBlend4(foo2, sky_lights_c3[light_level],fogColor,t);
-			colBlend4(foo3, sky_lights_c4[light_level],fogColor,t);
+			colBlend4(foo, sky_lights_c1[light_level], fogColor, t);
+			colBlend4(foo1, sky_lights_c2[light_level], fogColor, t);
+			colBlend4(foo2, sky_lights_c3[light_level], fogColor, t);
+			colBlend4(foo3, sky_lights_c4[light_level], fogColor, t);
 			colors[3] = foo3;
 			colors[2] = foo2;
 			colors[1] = foo1;
 			colors[0] = foo;
 		}
 #ifdef NEW_WEATHER
-		else if(weather_get_fadein_bias() < 1.0f && weather_get_fadein_bias() > 0.0f){
+		else if(weather_get_fadein_bias() < 1.0f && weather_get_fadein_bias() > 0.0f)
+		{
 			t = weather_get_fadein_bias();
 #else /* !NEW_WEATHER */
-		else if(seconds_till_rain_starts>0 && seconds_till_rain_starts<60){
+		else if(seconds_till_rain_starts>0 && seconds_till_rain_starts<60)
+		{
 			t = seconds_till_rain_starts/60.0f;
 #endif /* NEW_WEATHER */
-
+			// the rain will start in less than 60 sec
 			for	(i = 0;i < 3; i++)
 			{
-
-				fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 				cloudCol1[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
 				cloudCol2[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
 				cloudCol3[i] = t*(fogColor[i]-0.1f)+(1.0f-t)*(fogColor[i]-0.05f);
 				cloudCol4[i] = t*(diffuse_light[i]+0.1f)+(1.0f-t)*(fogColor[i]+0.05f);
-				
 			}
 			cloudCol1[3] = 1.0f;
 			cloudCol2[3] = 1.0f;
 			cloudCol3[3] = t;
 			cloudCol4[3] = t;
 
-			fog[0][3] = 1.0f;
-			fog[1][3] = 0.95f;
-			fog[2][3] = 0.5f;
-			fog[3][3] = 0.0f;
-
-			colBlend4(foo, sky_lights_c1[light_level],fogColor,t);
-			colBlend4(foo1, sky_lights_c2[light_level],fogColor,t);
-			colBlend4(foo2, sky_lights_c3[light_level],fogColor,t);
-			colBlend4(foo3, sky_lights_c4[light_level],fogColor,t);
+			colBlend4(foo, sky_lights_c1[light_level], fogColor, t);
+			colBlend4(foo1, sky_lights_c2[light_level], fogColor, t);
+			colBlend4(foo2, sky_lights_c3[light_level], fogColor, t);
+			colBlend4(foo3, sky_lights_c4[light_level], fogColor, t);
 			
 			colors[3] = foo3;
 			colors[2] = foo2;
@@ -366,13 +347,11 @@ void cloudy_sky(int reflected)
 		}
 		else
 		{
+			// it is not raining
 			t = 1.0f;
-			colors[3]=sky_lights_c4[light_level];
 
 			for	(i = 0;i < 3; i++)
 			{
-
-				fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 				cloudCol1[i] = fogColor[i]-0.1f;
 				cloudCol2[i] = diffuse_light[i]+0.1f;
 				
@@ -382,29 +361,22 @@ void cloudy_sky(int reflected)
 			cloudCol3[3] = 0.0f;
 			cloudCol4[3] = 0.0f;
 
-			fog[0][3] = 1.0f;
-			fog[1][3] = 0.95f;
-			fog[2][3] = 0.5f;
-			fog[3][3] = 0.0f;
-
-			colors[2]=sky_lights_c3[light_level];
-			colors[1]=sky_lights_c2[light_level];
-			colors[0]=sky_lights_c1[light_level];
-
+			colors[3] = sky_lights_c4[light_level];
+			colors[2] = sky_lights_c3[light_level];
+			colors[1] = sky_lights_c2[light_level];
+			colors[0] = sky_lights_c1[light_level];
 		}
 
+		// drawing a gradient at the horizon according to the light level
 		glDisable(GL_TEXTURE_2D);
 		glColor4fv(colors[3]);
-		if (!horizon_fog)  colors[0] = fogColor;
+		/* if (!horizon_fog)  colors[0] = fogColor; */
 		glCallList(skyLists);
 		glPushMatrix();
-		glTranslatef(0,0,-0.1f);
-		glScalef(100.0,100.0,15.0);
-		colorSkyCyl(3,colors);
+		glTranslatef(0.0, 0.0, -1.0);
+		glScalef(100.0, 100.0, 15.0);
+		colorSkyCyl(3, colors);
 		glPopMatrix();
-	
-	
-	
 
 		glEnable(GL_BLEND);
 		glEnable(GL_TEXTURE_2D);
@@ -507,7 +479,7 @@ void cloudy_sky(int reflected)
 		if (show_stars)
 		{
 			glPushMatrix();
-			glRotatef((float)game_minute,1,0,0);
+			glRotatef((float)game_minute, 0.0, 1.0, 0.0);
 			alph = (1.0-abs_light)*t;
 
 #ifdef	USE_SHADER
@@ -518,33 +490,34 @@ void cloudy_sky(int reflected)
 				glPointSize(2.0);
 			else
 				glPointSize(1.0);
-			glColor4f(1.0,1.0,1.0,alph);
+			glColor4f(1.0, 1.0, 1.0, alph);
 			glCallList(skyLists+2);
-			glColor4f(1.0,1.0,1.0,alph/2.0);
+			glColor4f(1.0, 1.0, 1.0, alph/2.0);
 			glCallList(skyLists+4);
-			glColor4f(1.0,1.0,1.0,alph/4.0);
+			glColor4f(1.0, 1.0, 1.0, alph/4.0);
 			glCallList(skyLists+5);
 			glPopMatrix();
 		}
 		glDisable(GL_DEPTH_TEST);
-	}
-
+	} // not fully raining
 
 	if ((cloud_1 != CLOUDS_NONE)&&clouds1)
 	{
 		glPushMatrix();
-		glScalef(6,6,1);
-		glRotatef(90.0f,0.0f,1.0f,0.0f);
-		glRotatef(spin*1000,0.0,0.0,1.0);
-		get_and_set_texture_id(clouds_tex);
+		glTranslatef(0.0, 0.0, -1.5);
+		glScalef(6.0, 6.0, 1.0);
+		glRotatef(90.0, 1.0, 0.0, 0.0);
+		glRotatef(spin*1000, 0.0, 0.0, 1.0);
 		glColor4fv(cloudCol2);
+		get_and_set_texture_id(clouds_tex);
 		glCallList(skyLists);
 		glPopMatrix();
+
 		glPushMatrix();
-		glScalef(6,6,1);
-		glRotatef(90.0f,0.0f,1.0f,0.0f);
-		glRotatef(spin*1000,0.0,0.0,1.0);
-		glTranslatef(0.0,0.0,0.5);
+		glTranslatef(0.0, 0.0, -1.0);
+		glScalef(6.0, 6.0, 1.0);
+		glRotatef(90.0, 1.0, 0.0, 0.0);
+		glRotatef(spin*1000, 0.0, 0.0, 1.0);
 		glColor4fv(cloudCol1);
 		get_and_set_texture_id(cloud_detail_tex);
 		glCallList(skyLists);
@@ -553,30 +526,44 @@ void cloudy_sky(int reflected)
 	if ((cloud_2 != CLOUDS_NONE)&& clouds2)
 	{
 		glPushMatrix();
-		glScalef(6,6,1);
-		glRotatef(90.0f,0.0f,1.0f,0.0f);
-		glRotatef(spin*4000,0.0,0.0,1.0);
+		glTranslatef(0.0, 0.0, -2.5);
+		glScalef(6.0, 6.0, 1.0);
+		glRotatef(90.0, 1.0, 0.0, 0.0);
+		glRotatef(spin*4000, 0.0, 0.0, 1.0);
 		glColor4fv(cloudCol4);
 		get_and_set_texture_id(clouds_tex);
 		glCallList(skyLists);
 		glPopMatrix();
+
 		glPushMatrix();
-		glScalef(6,6,1);
-		glTranslatef(0,0,1.5);
-		glRotatef(90.0f,0.0f,1.0f,0.0f);
-		glRotatef(spin*4000,0.0,0.0,1.0);
+		glTranslatef(0.0, 0.0, -1.0);
+		glScalef(6.0, 6.0, 1.0);
+		glRotatef(90.0, 1.0, 0.0, 0.0);
+		glRotatef(spin*4000, 0.0, 0.0, 1.0);
 		glColor4fv(cloudCol3);
 		get_and_set_texture_id(cloud_detail_tex);
 		glCallList(skyLists);
 		glPopMatrix();
 	}
 	glDisable(GL_TEXTURE_2D);
+
+	if (use_fog) {
+		// setup the horizon fog color
+		for (i = 4; i--; ) {
+			fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
+		}
+		fog[0][3] = 1.0;
+		fog[1][3] = 0.85;
+		fog[2][3] = 0.55;
+		fog[3][3] = 0.0;
+
+
 /* 	if(horizon_fog) */
 /* 	{ */
-		glTranslatef(0.0,0.0,-0.1);
 		glPushMatrix();
-		glScalef(100.0,100.0,10.0);
-		colorSkyCyl(3,fog);
+		glTranslatef(0.0, 0.0, -1.0);
+		glScalef(100.0, 100.0, 3.0);
+		colorSkyCyl(3, fog);
 		glPopMatrix();
 		glDisable(GL_BLEND);
 /* 	} */
@@ -589,15 +576,19 @@ void cloudy_sky(int reflected)
 /* 		colorSkyCyl(1,fog); */
 /* 		glPopMatrix(); */
 /* 	} */
+	}
+	else
+	{
+		for (i = 4; i--; ) fog[0][i] = colors[0][i];
+		fog[0][3] = 1.0;
+	}
 }
 
 
 void animated_sky(int reflected)
 {
 	static float spin = 0;
-	float *fog[4];
 	float abs_light;
-	int i;
 
 	abs_light=light_level;
 	if(light_level>59)abs_light=119-light_level;
@@ -633,7 +624,7 @@ void animated_sky(int reflected)
 		glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
 		glEnable(GL_COLOR_MATERIAL);
 		glDisable(GL_TEXTURE_2D);
-		glTranslatef(0,0,-1);
+		glTranslatef(0.0, 0.0, -1.0);
 		glDisable(GL_DEPTH_TEST);
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_ONE,GL_ZERO);
@@ -662,10 +653,6 @@ void animated_sky(int reflected)
 		glPopMatrix();
 		glPopMatrix();
 		glDisable(GL_TEXTURE_2D);
-		for (i=0; i < 3; i++)
-		{
-			fog[i] = (float *) malloc (sizeof(float)*4);
-		}
 
 		fog[0][0] = fog[1][0] = fog[2][0] = 1;
 		fog[0][1] = 1;
@@ -675,18 +662,21 @@ void animated_sky(int reflected)
 		fog[0][3] = 1.0;
 		fog[1][3] = 1.0;
 		fog[2][3] = 0.0;
-		fog[3] = fog[2];
+		fog[3][0] = fog[2][0];
+		fog[3][1] = fog[2][1];
+		fog[3][2] = fog[2][2];
+		fog[3][3] = fog[2][3];
 
 		glPushMatrix();
-		glScalef(100.0,100.0,5.0);
-		colorSkyCyl(3,fog);
+		glScalef(100.0, 100.0, 5.0);
+		colorSkyCyl(3, fog);
 		glPopMatrix();
-		glColor4f(1, 1,1,1);
+		glColor4f(1.0, 1.0, 1.0, 1.0);
 		if(use_shadow_mapping)
 		{
 			last_texture=-1;
 		}
-		glColor4f(1.0,1.0,0.0,1.0);
+		glColor4f(1.0, 1.0, 0.0, 1.0);
 		glCallList(skyLists+1);
 
 		glPopAttrib();
@@ -762,6 +752,7 @@ void reflected_sky(int reflected)
 /*             glFlush(); */
             cloudy_sky(reflected);
 			glColor4fv(fog[0]);
+			glTranslatef(0.0, 0.0, -1.0);
 			glCallList(skyLists+1);
         }
         else
@@ -878,10 +869,10 @@ void init_sky()
 	gluQuadricNormals(qobj,GLU_SMOOTH);
 	gluQuadricTexture(qobj,GL_TRUE);
 	glNewList(skyLists,GL_COMPILE);
-	gluSphere(qobj,100,24,15);
+	gluSphere(qobj,100,24,12);
 	glEndList();
 	glNewList(skyLists+3,GL_COMPILE);
-	gluSphere(qobj,0.06,20,20);
+	gluSphere(qobj,0.06,32,16);
 	glEndList();
 	glNewList(skyLists+1,GL_COMPILE);
 	gluDisk(qobj,0,200,8,10);
@@ -940,7 +931,7 @@ void init_sky()
 	//set up fog blend vectors
 	for (i = 0; i < 4; i++)
 	{
-		fog[i] = (float *) malloc (sizeof(float)*4);
+		fog[i] = (float*)malloc(sizeof(float)*4);
 	}
 
 }
