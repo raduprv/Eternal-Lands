@@ -894,6 +894,10 @@ float rain_strength_bias = 1.0f;
 GLfloat fogColor[4] = { 0.0f, 0.0f, 0.0f , 0.13f }; // use same alpha like in rain_color
 float fogAlpha = 0.0f;
 
+#ifdef SKY_FPV_CURSOR
+float weather_light_attenuation = 0.0;
+#endif // SKY_FPV_CURSOR
+
 void init_weather() {
 	clear_thunders();
 	build_rain_table();
@@ -919,6 +923,9 @@ void clear_weather()
 	seconds_till_rain_stops= 0;
 	weather_light_offset= 0;
 	rain_light_offset= 0;
+#ifdef SKY_FPV_CURSOR
+	weather_light_attenuation = 0.0;
+#endif // SKY_FPV_CURSOR
 }
 
 void get_weather_from_server(const Uint8* data){
@@ -1038,6 +1045,9 @@ void rain_control()
 		seconds_till_rain_starts = -1;
 		seconds_till_rain_stops = -1;
 		rain_light_offset=0;
+#ifdef SKY_FPV_CURSOR
+		weather_light_attenuation = 0.0;
+#endif // SKY_FPV_CURSOR
 		return;
 	}
 
@@ -1046,6 +1056,9 @@ void rain_control()
 		rain_table_valid = 0;
 		// gracefully stop rain
 		if (seconds_till_rain_stops > 60) {
+#ifdef SKY_FPV_CURSOR
+			weather_light_attenuation = 0.8*rain_strength_bias;
+#endif // SKY_FPV_CURSOR
 			is_raining=1;
 			rainParam = rain_strength_bias*(min2i(60,seconds_till_rain_stops) - 60)/30.0f;
 			num_rain_drops = rainParam*MAX_RAIN_DROPS;
@@ -1058,6 +1071,9 @@ void rain_control()
 			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
+#ifdef SKY_FPV_CURSOR
+			weather_light_attenuation = 0.8*rain_strength_bias*seconds_till_rain_stops*seconds_till_rain_stops/3600.0;
+#endif // SKY_FPV_CURSOR
 			if (is_raining) is_raining = 0;
 			if(rain_sound) {
 				stop_sound(rain_sound);
@@ -1066,6 +1082,9 @@ void rain_control()
 			num_rain_drops = 0;
 			seconds_till_rain_stops--;
 		} else {
+#ifdef SKY_FPV_CURSOR
+			weather_light_attenuation = 0.0;
+#endif // SKY_FPV_CURSOR
 			if (is_raining) is_raining = 0;
 			if(rain_sound) {
 				stop_sound(rain_sound);
@@ -1087,12 +1106,18 @@ void rain_control()
 			rain_table_valid = 1;
 		}
 		// gracefully start rain
-		if (seconds_till_rain_starts >= 30) {
+		if (seconds_till_rain_starts >= 60) {
+#ifdef SKY_FPV_CURSOR
+			weather_light_attenuation = 0.0;
+#endif // SKY_FPV_CURSOR
 			num_rain_drops = 0;
 			if (rain_sound) sound_source_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
-			rainParam = rain_strength_bias*(30-seconds_till_rain_starts)/30.0f;
+#ifdef SKY_FPV_CURSOR
+			weather_light_attenuation = 0.8*rain_strength_bias*(60-seconds_till_rain_starts)*(60-seconds_till_rain_starts)/3600.0;
+#endif // SKY_FPV_CURSOR
+			rainParam = rain_strength_bias*(60-seconds_till_rain_starts)/60.0f;
 			if(!is_raining) {
 				is_raining=1;
 #ifdef NEW_SOUND
@@ -1106,6 +1131,9 @@ void rain_control()
 			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
 			seconds_till_rain_starts--;
 		} else {
+#ifdef SKY_FPV_CURSOR
+			weather_light_attenuation = 0.8*rain_strength_bias;
+#endif // SKY_FPV_CURSOR
 			if(!is_raining) {
 				is_raining=1;
 #ifdef NEW_SOUND
@@ -1118,11 +1146,11 @@ void rain_control()
 			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
 			seconds_till_rain_starts=-1;
 			rain_table_valid = 0;
-			rain_light_offset = rain_light_bias*30;
+			rain_light_offset = rain_light_bias*60;
 			return;
 		}
 		//make it darker each 3 seconds
-		rain_light_offset=rain_light_bias*(30-seconds_till_rain_starts/3);
+		rain_light_offset=rain_light_bias*(60-seconds_till_rain_starts/3);
 		if(rain_light_offset<0)rain_light_offset=0;
 	} else {
 		// neither ==> keep status
@@ -1258,67 +1286,65 @@ void clear_thunders()
 		}
 }
 
+float get_rain_strength()
+{
+	if (!(map_flags & MF_SNOW)) {
+		return num_rain_drops / (float)MAX_RAIN_DROPS;
+	}
+	else {
+		return rain_strength_bias;
+	}
+}
+
 void render_fog() {
-	static GLfloat minDensity = 0.02f, maxDensity = 0.08f;
+	static GLfloat minDensity = 0.005f, maxDensity = 0.05f;
 	GLfloat fogDensity;
 	GLfloat rainStrength, rainAlpha, diffuseBias;
-	int i; float tmpf;
+	int i;
+	float tmpf;
 
-	if(!(map_flags& MF_SNOW)) {
-		rainStrength = num_rain_drops/(float) MAX_RAIN_DROPS;
-		rainAlpha = 0.2f*rain_color[3]*rainStrength;
-			// in dungeons and at night we use smaller light sources ==> less diffuse light
+	rainStrength = get_rain_strength();
+	rainAlpha = 0.2f*rain_color[3]*rainStrength;
+
+#ifndef SKY_FPV_CURSOR
 #ifdef NEW_LIGHTING
-		if (use_new_lighting)
-			diffuseBias = 0.2f;
-		else
+	if (use_new_lighting)
+		diffuseBias = 0.2f;
+	else
 #endif
-			diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
-		for (i=0; i<3; i++) {
-			// blend ambient and diffuse light to build a base fog color
-			GLfloat tmp = 0.5f*ambient_light[i] + diffuseBias*diffuse_light[i];
-			if (is_raining) {
-				// blend base color with rain color
-				fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
-			} else {
-				fogColor[i] = tmp;
-			}
-		}
-	
-		// interpolate fog distance between min and max depending on rain
-		// TODO: Is linear interpolation the best idea here?
-		fogDensity = (is_raining)?  (rainStrength*maxDensity + (1.0f - rainStrength)*minDensity) : minDensity;
-		tmpf = exp(-10.0f*fogDensity);
-		fogAlpha = 1.0f - tmpf*tmpf;
-		
-	} else {
-		rainStrength = rain_strength_bias;
-		rainAlpha = 0.2f*rain_color[3]*rainStrength;
-			// in dungeons and at night we use smaller light sources ==> less diffuse light
-#ifdef NEW_LIGHTING
-		if (use_new_lighting)
-			diffuseBias = 0.2f;
-		else
-#endif
-			diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
-		for (i=0; i<3; i++) {
-			// blend ambient and diffuse light to build a base fog color
-			GLfloat tmp = 0.5f*ambient_light[i] + diffuseBias*diffuse_light[i];
-			if (is_raining) {
+		// in dungeons and at night we use smaller light sources ==> less diffuse light
+		diffuseBias = (dungeon || !is_day)? 0.2f : 0.5f;
+
+	for (i=0; i<3; i++) {
+		// blend ambient and diffuse light to build a base fog color
+		GLfloat tmp = 0.5f*ambient_light[i] + diffuseBias*diffuse_light[i];
+		if (is_raining) {
 			// blend base color with rain color
-				fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
-			} else {
-				fogColor[i] = tmp;
-			}
+			fogColor[i] = (1.0f - rainAlpha)*tmp + rainAlpha*rain_color[i];
+		} else {
+			fogColor[i] = tmp;
 		}
 	}
 
 	// interpolate fog distance between min and max depending on rain
 	// TODO: Is linear interpolation the best idea here?
 	fogDensity = (is_raining)?  (rainStrength*maxDensity + (1.0f - rainStrength)*minDensity) : minDensity;
+
 	tmpf = exp(-10.0f*fogDensity);
 	fogAlpha = 1.0f - tmpf*tmpf;
 
+#else // SKY_FPV_CURSOR
+
+	diffuseBias = 0;
+	for (i = 4; i--; ) {
+		fogColor[i] = diffuse_light[i]*(1.0-weather_light_attenuation*0.7)/(1.0-weather_light_attenuation);
+		diffuseBias += diffuse_light[i];
+	}
+	diffuseBias = 1.0 - diffuseBias/3.0;
+	fogDensity = diffuseBias*maxDensity + (1.0 - diffuseBias)*minDensity;
+	fogAlpha = 1.0f - fogDensity;
+#endif // SKY_FPV_CURSOR
+	
 #ifdef SKY_FPV_CURSOR
 	if (is_raining)
 	{

@@ -49,7 +49,7 @@ extern int is_raining;                  /*!< Specifies if it's raining - if it i
 extern int num_rain_drops;
 extern int last_rain_calls;
 extern GLfloat rain_color[];
-#endif
+#endif // DEBUG
 extern float rain_strength_bias;        /*!< Specifies the heaviness of the rain */
 extern GLfloat fogColor[];              /*!< The current fog color. Calculated by \see render_fog */
 extern float fogAlpha;                  /*!< Specifies how close the sky color shall be to the fog color */
@@ -57,7 +57,9 @@ extern int rain_sound;                  /*!< Specifies the rain sound */
 extern int weather_light_offset;        /*!< Sets the current light offset */
 extern int rain_light_offset;           /*!< Sets the current rain offset */
 extern int thunder_light_offset;        /*!< Sets the current thunder light offset */
-
+#ifdef SKY_FPV_CURSOR
+extern float weather_light_attenuation; /*!< Light attenuation (between 0.0 and 1.0) */
+#endif // SKY_FPV_CURSOR
 /*!
  * \ingroup	other
  * \brief 	Builds the rain table.
@@ -139,6 +141,8 @@ void init_weather();
  * \todo Fix documentation
  */
 void add_thunder(int type,int sound_delay);
+
+float get_rain_strength();
 
 /*!
  * \ingroup display_weather

@@ -169,7 +169,9 @@ bool MissileEffect::idle(const Uint64 usec)
     return true;
 
   float dist = (old_pos - *pos).magnitude();
-    
+  
+  if (dist < 1E-4) return false;
+
   for (float step = 0.0; step < dist; step += 0.1) {
 	  const percent_t percent = step / dist;
 	  const Vec3 coords = (old_pos * percent) + (*pos * (1.0 - percent));

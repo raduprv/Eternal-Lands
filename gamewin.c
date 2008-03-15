@@ -1269,6 +1269,13 @@ int display_game_handler (window_info *win)
 		draw_string (win->len_x-hud_x-105, 32, str, 1);
 
 #ifndef NEW_WEATHER
+#ifdef SKY_FPV_CURSOR
+		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f) attenuation=%.2f",
+					  ambient_light[0], ambient_light[1], ambient_light[2],
+					  diffuse_light[0], diffuse_light[1], diffuse_light[2],
+					  weather_light_attenuation);
+		draw_string (0, win->len_y - hud_y - 65, str, 1);
+#endif // SKY_FPV_CURSOR
 		safe_snprintf((char*)str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
 				is_raining, seconds_till_rain_starts, seconds_till_rain_stops, num_rain_drops,
 				rain_strength_bias, rain_color[3], fogAlpha);
@@ -1627,11 +1634,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		stop_weather(30, 1.0f);
 #else
 		if (is_raining) {
-			seconds_till_rain_stops = 90;
+			seconds_till_rain_stops = 60;
 			seconds_till_rain_starts = -1;
 		} else {
 			seconds_till_rain_stops = -1;
-			seconds_till_rain_starts = 90;
+			seconds_till_rain_starts = 60;
 		}
 #endif
 	}

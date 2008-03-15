@@ -456,7 +456,7 @@ void draw_global_light()
 	if(i<0)i=0;
 #else
 	//this is for weather things, when the light level is not the normal light lvel of the current time
-#ifndef MAP_EDITOR2
+#if !defined(MAP_EDITOR2) && !defined(SKY_FPV_CURSOR)
 	i+=weather_light_offset;
 #endif
 	if(i<0)i=0;
@@ -508,6 +508,14 @@ void draw_global_light()
 		diffuse_light[0]=global_diffuse_light[i][0]+(float)thunder_light_offset/90-0.15f;
 		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
+#ifdef SKY_FPV_CURSOR
+		ambient_light[0] *= 1.0-weather_light_attenuation*0.3;
+		ambient_light[1] *= 1.0-weather_light_attenuation*0.3;
+		ambient_light[2] *= 1.0-weather_light_attenuation*0.3;
+		diffuse_light[0] *= 1.0-weather_light_attenuation;
+		diffuse_light[1] *= 1.0-weather_light_attenuation;
+		diffuse_light[2] *= 1.0-weather_light_attenuation;
+#endif // SKY_FPV_CURSOR
  #ifdef NEW_LIGHTING
  	}
  #endif // NEW_LIGHTING
@@ -783,7 +791,7 @@ void build_global_light_table()
 	make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
 	//lake light
 	make_gradient_light(0,30,(float *)sky_lights_c1,
-						0.0f, 0.7f, 0.9f,
+						0.3f, 0.7f, 0.9f,
 						0.6f, 0.0f, 0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c1,
 						0.6f, 0.0f, 0.0f,
@@ -793,10 +801,10 @@ void build_global_light_table()
 						0.6f, 0.0f, 0.2f);
 	make_gradient_light(90,30,(float *)sky_lights_c1,
 						0.6f, 0.0f, 0.2f,
-						0.0f, 0.7f, 0.9f);
+						0.3f, 0.7f, 0.9f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c2,
-						0.0f, 0.5f, 0.8f,
+						0.2f, 0.5f, 0.8f,
 						0.6f, 0.3f, 0.0f);
 	make_gradient_light(30,30,(float *)sky_lights_c2,
 						0.6f, 0.3f, 0.0f,
@@ -806,10 +814,10 @@ void build_global_light_table()
 						0.6f, 0.3f, 0.0f);
 	make_gradient_light(90,30,(float *)sky_lights_c2,
 						0.6f, 0.3f, 0.0f,
-						0.0f, 0.5f, 0.8f);
+						0.2f, 0.5f, 0.8f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c3,
-						0.0f, 0.3f, 0.7f,
+						0.1f, 0.3f, 0.7f,
 						0.2f, 0.2f, 0.3f);
 	make_gradient_light(30,30,(float *)sky_lights_c3,
 						0.2f, 0.2f, 0.3f,
@@ -819,7 +827,7 @@ void build_global_light_table()
 						0.2f, 0.2f, 0.3f);
 	make_gradient_light(90,30,(float *)sky_lights_c3,
 						0.2f, 0.2f, 0.3f,
-						0.0f, 0.3f, 0.7f);
+						0.1f, 0.3f, 0.7f);
 
 	make_gradient_light(0,30,(float *)sky_lights_c4,
 						0.05f, 0.2f, 0.6f,
