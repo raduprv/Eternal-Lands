@@ -1,0 +1,107 @@
+<!-- color of the clouds when not raining -->
+<clouds> <!-- "cloud.bmp" -->
+  <color t="120" r="1.0" g="1.0" b="1.0" />
+  <color t="300" r="0.2" g="0.2" b="0.2" />
+</clouds>
+<clouds_detail> <!-- "cloud_detail.bmp" -->
+  <color t="120" r="0.8" g="0.8" b="0.8" />
+  <color t="300" r="0.1" g="0.1" b="0.1" />
+</clouds_detail>
+
+<!-- color of the clouds during rain -->
+<clouds_rain> <!-- "cloud.bmp" -->
+  <color t="120" r="0.5" g="0.5" b="0.5" />
+  <color t="300" r="0.2" g="0.2" b="0.2" />
+</clouds_rain>
+<clouds_detail_rain> <!-- "cloud_detail.bmp" -->
+  <color t="120" r="0.4" g="0.4" b="0.4" />
+  <color t="300" r="0.1" g="0.1" b="0.1" />
+</clouds_detail_rain>
+
+<!-- color of the sky (1 is for the bottom and 4 is for the top) -->
+<sky1>
+  <color t="30"  r="0.6" g="0.0" b="0.2" />
+  <color t="120" r="0.3" g="0.7" b="0.9" />
+  <color t="210" r="0.6" g="0.0" b="0.0" />
+  <color t="300" r="0.0" g="0.05" b="0.1" />
+</sky1>
+<sky2>
+  <color t="30"  r="0.6" g="0.3" b="0.0" />
+  <color t="120" r="0.2" g="0.5" b="0.8" />
+  <color t="210" r="0.6" g="0.3" b="0.0" />
+  <color t="300" r="0.0" g="0.025" b="0.05" />
+</sky2>
+<sky3>
+  <color t="30"  r="0.2" g="0.2" b="0.3" />
+  <color t="120" r="0.1" g="0.3" b="0.7" />
+  <color t="210" r="0.2" g="0.2" b="0.3" />
+  <color t="300" r="0.0" g="0.01" b="0.02" />
+</sky3>
+<sky4>
+  <color t="30"  r="0.0" g="0.1" b="0.2" />
+  <color t="120" r="0.05" g="0.2" b="0.6" />
+  <color t="210" r="0.0" g="0.1" b="0.2" />
+  <color t="300" r="0.01" g="0.01" b="0.01" />
+</sky4>
+
+<!-- color of the sun -->
+<sun>
+  <color t="30"  r="1.0" g="0.7" b="0.3" />
+  <color t="60"  r="1.0" g="0.9" b="0.7" />
+  <color t="180" r="1.0" g="0.9" b="0.7" />
+  <color t="210" r="1.0" g="0.7" b="0.3" />
+</sun>
+
+<!-- color and density (alpha) of the fog -->
+<fog>
+  <color t="0"   r="0.0" g="0.0" b="0.0" a="0.04" />
+  <color t="30"  r="0.0" g="0.0" b="0.0" a="0.02" />
+  <color t="60"  r="0.8" g="0.8" b="0.8" a="0.01" />
+  <color t="180" r="0.8" g="0.8" b="0.8" a="0.01" />
+  <color t="210" r="0.0" g="0.0" b="0.0" a="0.02" />
+  <color t="240" r="0.0" g="0.0" b="0.0" a="0.04" />
+</fog>
+
+<!-- color and density (alpha) of the fog when raining -->
+<fog_rain>
+  <color t="0"   r="0.0" g="0.0" b="0.0" a="0.04" />
+  <color t="30"  r="0.2" g="0.2" b="0.2" a="0.04" />
+  <color t="60"  r="0.45" g="0.45" b="0.45" a="0.04" />
+  <color t="180" r="0.45" g="0.45" b="0.45" a="0.04" />
+  <color t="210" r="0.2" g="0.2" b="0.2" a="0.04" />
+  <color t="240" r="0.0" g="0.0" b="0.0" a="0.04" />
+</fog_rain>
+
+<!-- color of the ambient light -->
+<light_ambient>
+  <color t="0"   r="0.20" g="0.20" b="0.20" />
+  <color t="60"  r="0.35" g="0.35" b="0.35" />
+  <color t="180" r="0.35" g="0.35" b="0.35" />
+  <color t="240" r="0.20" g="0.20" b="0.20" />
+</light_ambient>
+
+<!-- color of the diffuse light -->
+<light_diffuse>
+  <color t="0"   r="0.0" g="0.0" b="0.0" />
+  <color t="30"  r="0.32" g="0.25" b="0.25" />
+  <color t="60"  r="0.7" g="0.7" b="0.7" />
+  <color t="180" r="0.7" g="0.7" b="0.7" />
+  <color t="210" r="0.32" g="0.25" b="0.25" />
+  <color t="240" r="0.0" g="0.0" b="0.0" />
+</light_diffuse>
+
+<!-- color of the ambient light during rain -->
+<light_ambient_rain>
+  <color t="0"   r="0.20" g="0.20" b="0.20" />
+  <color t="60"  r="0.30" g="0.30" b="0.30" />
+  <color t="180" r="0.30" g="0.30" b="0.30" />
+  <color t="240" r="0.20" g="0.20" b="0.20" />
+</light_ambient_rain>
+
+<!-- color of the diffuse light during rain -->
+<light_diffuse_rain>
+  <color t="0"   r="0.0" g="0.0" b="0.0" />
+  <color t="60"  r="0.3" g="0.3" b="0.3" />
+  <color t="180" r="0.3" g="0.3" b="0.3" />
+  <color t="240" r="0.0" g="0.0" b="0.0" />
+</light_diffuse_rain>

@@ -58,7 +58,7 @@ extern int weather_light_offset;        /*!< Sets the current light offset */
 extern int rain_light_offset;           /*!< Sets the current rain offset */
 extern int thunder_light_offset;        /*!< Sets the current thunder light offset */
 #ifdef SKY_FPV_CURSOR
-extern float weather_light_attenuation; /*!< Light attenuation (between 0.0 and 1.0) */
+extern float weather_rain_intensity; /*!< Rain intensity (between 0.0 and 1.0) */
 #endif // SKY_FPV_CURSOR
 /*!
  * \ingroup	other

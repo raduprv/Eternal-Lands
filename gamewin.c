@@ -1267,10 +1267,9 @@ int display_game_handler (window_info *win)
 
 #ifndef NEW_WEATHER
 #ifdef SKY_FPV_CURSOR
-		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f) attenuation=%.2f",
+		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f)",
 					  ambient_light[0], ambient_light[1], ambient_light[2],
-					  diffuse_light[0], diffuse_light[1], diffuse_light[2],
-					  weather_light_attenuation);
+					  diffuse_light[0], diffuse_light[1], diffuse_light[2]);
 		draw_string (0, win->len_y - hud_y - 65, str, 1);
 #endif // SKY_FPV_CURSOR
 		safe_snprintf((char*)str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
@@ -1604,7 +1603,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #ifdef SKY_FPV_CURSOR
 	else if((keysym == SDLK_s) && shift_on && ctrl_on && alt_on)
 	{
-		skybox_init_defs();
+		skybox_init_defs(NULL);
 	}
 #endif // SKY_FPV_CURSOR
 #ifndef NEW_WEATHER

@@ -32,6 +32,10 @@ extern float skybox_sky4[360][4];
 extern float skybox_sun[360][4];
 extern float skybox_fog[360][4];
 extern float skybox_fog_rain[360][4];
+extern float skybox_light_ambient[360][4];
+extern float skybox_light_diffuse[360][4];
+extern float skybox_light_ambient_rain[360][4];
+extern float skybox_light_diffuse_rain[360][4];
 
 #define CLOUDS_NONE	0
 #define CLOUDS_THICK	1
@@ -47,8 +51,10 @@ void cloud_layer2(int clouds);
 void sky_color(int sky);
 void sky_type(int sky);
 
+void blend_colors(float result[], float orig[], float dest[], float t, int size);
+
 void skybox_init_gl();
-void skybox_init_defs();
+void skybox_init_defs(const char *map_name);
 
 #endif /* SKY_FPV_CURSOR */
 

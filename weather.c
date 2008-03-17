@@ -895,7 +895,7 @@ GLfloat fogColor[4] = { 0.0f, 0.0f, 0.0f , 0.13f }; // use same alpha like in ra
 float fogAlpha = 0.0f;
 
 #ifdef SKY_FPV_CURSOR
-float weather_light_attenuation = 0.0;
+float weather_rain_intensity = 0.0;
 #endif // SKY_FPV_CURSOR
 
 void init_weather() {
@@ -924,7 +924,7 @@ void clear_weather()
 	weather_light_offset= 0;
 	rain_light_offset= 0;
 #ifdef SKY_FPV_CURSOR
-	weather_light_attenuation = 0.0;
+	weather_rain_intensity = 0.0;
 #endif // SKY_FPV_CURSOR
 }
 
@@ -1046,7 +1046,7 @@ void rain_control()
 		seconds_till_rain_stops = -1;
 		rain_light_offset=0;
 #ifdef SKY_FPV_CURSOR
-		weather_light_attenuation = 0.0;
+		weather_rain_intensity = 0.0;
 #endif // SKY_FPV_CURSOR
 		return;
 	}
@@ -1057,7 +1057,7 @@ void rain_control()
 		// gracefully stop rain
 		if (seconds_till_rain_stops > 60) {
 #ifdef SKY_FPV_CURSOR
-			weather_light_attenuation = 0.8*rain_strength_bias;
+			weather_rain_intensity = 1.0;
 #endif // SKY_FPV_CURSOR
 			is_raining=1;
 			rainParam = rain_strength_bias*(min2i(60,seconds_till_rain_stops) - 60)/30.0f;
@@ -1072,7 +1072,7 @@ void rain_control()
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 #ifdef SKY_FPV_CURSOR
-			weather_light_attenuation = 0.8*rain_strength_bias*seconds_till_rain_stops*seconds_till_rain_stops/3600.0;
+			weather_rain_intensity = seconds_till_rain_stops/60.0;
 #endif // SKY_FPV_CURSOR
 			if (is_raining) is_raining = 0;
 			if(rain_sound) {
@@ -1083,7 +1083,7 @@ void rain_control()
 			seconds_till_rain_stops--;
 		} else {
 #ifdef SKY_FPV_CURSOR
-			weather_light_attenuation = 0.0;
+			weather_rain_intensity = 0.0;
 #endif // SKY_FPV_CURSOR
 			if (is_raining) is_raining = 0;
 			if(rain_sound) {
@@ -1108,14 +1108,14 @@ void rain_control()
 		// gracefully start rain
 		if (seconds_till_rain_starts >= 60) {
 #ifdef SKY_FPV_CURSOR
-			weather_light_attenuation = 0.0;
+			weather_rain_intensity = 0.0;
 #endif // SKY_FPV_CURSOR
 			num_rain_drops = 0;
 			if (rain_sound) sound_source_set_gain(rain_sound, 0.0f);
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
 #ifdef SKY_FPV_CURSOR
-			weather_light_attenuation = 0.8*rain_strength_bias*(60-seconds_till_rain_starts)*(60-seconds_till_rain_starts)/3600.0;
+			weather_rain_intensity = (60-seconds_till_rain_starts)/60.0;
 #endif // SKY_FPV_CURSOR
 			rainParam = rain_strength_bias*(60-seconds_till_rain_starts)/60.0f;
 			if(!is_raining) {
@@ -1132,7 +1132,7 @@ void rain_control()
 			seconds_till_rain_starts--;
 		} else {
 #ifdef SKY_FPV_CURSOR
-			weather_light_attenuation = 0.8*rain_strength_bias;
+			weather_rain_intensity = 1.0;
 #endif // SKY_FPV_CURSOR
 			if(!is_raining) {
 				is_raining=1;
@@ -1337,7 +1337,7 @@ void render_fog() {
 
 /* 	diffuseBias = 0; */
 /* 	for (i = 4; i--; ) { */
-/* 		fogColor[i] = diffuse_light[i]*(1.0-weather_light_attenuation*0.7)/(1.0-weather_light_attenuation); */
+/* 		fogColor[i] = diffuse_light[i]*(1.0-weather_rain_intensity*0.7); */
 /* 		diffuseBias += diffuse_light[i]; */
 /* 	} */
 /* 	diffuseBias = sqrt(diffuseBias/3.0); */
@@ -1350,7 +1350,7 @@ void render_fog() {
 		fogColor[3] = 1.0;
 	}
 	else {
-		diffuseBias = weather_light_attenuation/0.8;
+		diffuseBias = weather_rain_intensity*weather_rain_intensity;
 		
 		for (i = 4; i--; ) {
 			fogColor[i] = skybox_fog[game_minute][i]*(1.0-diffuseBias) + skybox_fog_rain[game_minute][i]*diffuseBias;

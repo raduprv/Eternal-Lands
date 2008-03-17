@@ -1,0 +1,10 @@
+<!DOCTYPE dt [
+  <!ENTITY skybox_default SYSTEM "skybox_default.xml">
+  <!ENTITY skybox1 SYSTEM "skybox1.xml">
+]>
+<skybox>
+  &skybox_default;
+  <map name="startmap.elm">
+    &skybox1;
+  </map>
+</skybox>

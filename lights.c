@@ -505,16 +505,13 @@ void draw_global_light()
 	else
 	{
  #endif // NEW_LIGHTING
+#ifndef SKY_FPV_CURSOR
 		diffuse_light[0]=global_diffuse_light[i][0]+(float)thunder_light_offset/90-0.15f;
 		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
-#ifdef SKY_FPV_CURSOR
-		ambient_light[0] *= 1.0-weather_light_attenuation*0.3;
-		ambient_light[1] *= 1.0-weather_light_attenuation*0.3;
-		ambient_light[2] *= 1.0-weather_light_attenuation*0.3;
-		diffuse_light[0] *= 1.0-weather_light_attenuation;
-		diffuse_light[1] *= 1.0-weather_light_attenuation;
-		diffuse_light[2] *= 1.0-weather_light_attenuation;
+#else // SKY_FPV_CURSOR
+		blend_colors(ambient_light, skybox_light_ambient[game_minute], skybox_light_ambient_rain[game_minute], weather_rain_intensity, 4);
+		blend_colors(diffuse_light, skybox_light_diffuse[game_minute], skybox_light_diffuse_rain[game_minute], weather_rain_intensity, 4);
 #endif // SKY_FPV_CURSOR
  #ifdef NEW_LIGHTING
  	}
@@ -538,6 +535,7 @@ void draw_global_light()
 		}
 	}
 
+#ifndef SKY_FPV_CURSOR
 #ifdef NEW_LIGHTING
 	if (!use_new_lighting)
 	{
@@ -605,6 +603,14 @@ void draw_global_light()
 #ifdef NEW_LIGHTING
 	}
 #endif
+
+#else // SKY_FPV_CURSOR
+
+	glLightfv(GL_LIGHT7, GL_AMBIENT, ambient_light);
+	glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light);
+
+#endif // SKY_FPV_CURSOR
+
 	if (sun_use_static_position)
 	{
 		glLightfv(GL_LIGHT7, GL_POSITION, global_light_position);
