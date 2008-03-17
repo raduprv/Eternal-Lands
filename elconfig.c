@@ -1578,6 +1578,7 @@ void init_vars()
 	add_var(OPT_FLOAT,"min_ec_framerate","ecminf",&min_ec_framerate,change_min_ec_framerate,15,"Min Eye Candy Framerate","If your framerate is below this amount, eye candy will use minimum detail.",ECTAB,1.0,FLT_MAX,1.0);
 	add_var(OPT_INT,"light_columns_threshold","lct",&light_columns_threshold,change_int,5,"Light columns threshold","If your framerate is below this amount, you will not get columns of light around teleportation effects (useful for slow systems).",ECTAB, 0, INT_MAX);
 	add_var(OPT_BOOL,"use_fancy_smoke","ufs",&use_fancy_smoke,change_var,0,"Use Fancy Smoke","If your system has performance problems around chimney smoke, turn this option off.",ECTAB);
+	add_var(OPT_BOOL,"use_harvesting_eye_candy","uharvec",&use_harvesting_eye_candy,change_var,0,"Enable harvesting effect","This effect shows that you're harvesting. Only you can see it!",ECTAB);
 	add_var(OPT_INT,"max_idle_cycles_per_second","micps",&max_idle_cycles_per_second,change_int,40,"Max Idle Cycles Per Second","The eye candy 'idle' function, which moves particles around, will run no more than this often.  If your CPU is your limiting factor, lowering this can give you a higher framerate.  Raising it gives smoother particle motion (up to the limit of your framerate).",ECTAB, 1, INT_MAX);
 #endif // ELC
 

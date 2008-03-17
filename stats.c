@@ -11,6 +11,7 @@
 #include "session.h"
 #include "tabs.h"
 #include "counters.h"
+#include "eye_candy_wrapper.h"
 
 int	stats_win= -1;
 player_attribs your_info;
@@ -833,7 +834,18 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
 	floating_message *m=get_free_floatingmessage();
 
 	if(!m) return;
-
+	
+	// handle OA level ups here, boy this is ugly ...
+	if (use_eye_candy == 1 && strstr(str, "Overall") != NULL) {
+	  ec_create_glow_level_up_oa(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
+	}
+	else if (use_eye_candy == 1 && strstr(str, "Attack") != NULL) {
+	  ec_create_glow_level_up_att(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
+	}
+	else if (use_eye_candy == 1 && strstr(str, "Defense") != NULL) {
+	  ec_create_glow_level_up_def(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
+	}
+	
 	m->color[0]=r;
 	m->color[1]=g;
 	m->color[2]=b;

@@ -21,6 +21,11 @@ OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const V
   if (saturation > 1.0)
     saturation = 1.0;
   hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
+  if (type == OngoingEffect::OGHARVEST) {
+    color[0] = hue;
+	color[1] = saturation;
+	color[2] = value;
+  }
   texture = _texture;
   size = _size * (0.3 + randcoord()) * 15 / _LOD;
   alpha = _alpha;
@@ -69,6 +74,17 @@ bool OngoingParticle::idle(const Uint64 delta_t)
         return false;
       break;
     }
+    case OngoingEffect::OGHARVEST:
+    {
+	  velocity.x /= 1.5;
+	  velocity.z /= 1.5;
+	  velocity.y += float_time;
+      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75);
+      alpha -= scalar;
+      if (alpha < 0.01)
+        return false;
+      break;
+    }
   }
   
   return true;
@@ -109,7 +125,7 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const col
   hue_adjust = _hue_adjust;
   saturation_adjust = _saturation_adjust;
   effect_center = *pos;
-  effect_center.y += 0.5;
+  //effect_center.y += 0.5; // don't! it's linked to a bone position now
   type = _type;
   LOD = base->last_forced_LOD;
   desired_LOD = _LOD;
@@ -144,6 +160,12 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const col
       mover = new SpiralMover(this, &effect_center, -0.9, 0.8);
       break;
     }
+    case OGHARVEST:
+    {
+      spawner = new FilledSphereSpawner(0.05);
+      mover = new ParticleMover(this);
+      break;
+    }
   }
 }
 
@@ -166,7 +188,7 @@ bool OngoingEffect::idle(const Uint64 usec)
     return true;
   
   effect_center = *pos;
-  effect_center.y += 0.5;
+  //effect_center.y += 0.5;
     
   const interval_t float_time = usec / 1000000.0;
   switch(type)
@@ -211,7 +233,7 @@ bool OngoingEffect::idle(const Uint64 usec)
       }
       break;
     }
-    case POISON :	//The odd one out.  ;)
+    case POISON:	//The odd one out.  ;)
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 4.0 * LOD * strength) < 0.5)
       {
@@ -232,6 +254,22 @@ bool OngoingEffect::idle(const Uint64 usec)
           p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.65, 1.0, randcolor(0.5), 0.33 + randcolor(0.67), 0.2 + randcolor(0.1), &(base->TexWater), LOD, type);
           p->state = 0;
         }
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case OGHARVEST:
+	{
+      while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.0 * LOD * strength) < 0.5)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(1.0);
+        velocity.y = randfloat(0.5);
+        coords += effect_center;
+        Particle* p;
+        p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.1 + randcoord(0.9), 1.0, 0.75 + randcolor(0.25), 0.75 + randcolor(0.25), 0.0, &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }

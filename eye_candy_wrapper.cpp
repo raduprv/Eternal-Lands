@@ -28,6 +28,7 @@ ec::SmoothPolygonBoundingRange initial_bounds;
 
 extern "C" {
   int use_eye_candy = 1;
+  int use_harvesting_eye_candy = 0;
   int use_lamp_halo = 0;
   float min_ec_framerate = 13.0;
   float max_ec_framerate = 37.0;
@@ -188,14 +189,7 @@ void set_vec3_actor_bone2(ec::Vec3& position, actor* _actor, int bone, const ec:
 
 void set_vec3_target_bone2(ec::Vec3& position, actor* _actor, int bone, const ec::Vec3 shift)
 {
-  if (_actor->actor_type == 1) { // human form
-	set_vec3_actor_bone2(position, _actor, bone, ec::Vec3(0.0, 0.0, 0.0));
-  }
-  else {
-	position.x = _actor->x_pos;
-	position.y = ec_get_z(_actor);
-	position.z = -_actor->y_pos;
-  }
+  set_vec3_actor_bone2(position, _actor, bone, ec::Vec3(0.0, 0.0, 0.0));
 }
 
 extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip)
@@ -298,12 +292,23 @@ extern "C" void ec_idle()
         if ((*iter)->effect->get_type() == ec::EC_SWORD)
           get_sword_positions((*iter)->caster, (*iter)->position, (*iter)->position2);
         else if ((*iter)->effect->get_type() == ec::EC_TARGETMAGIC)
+        {
           if ((*iter)->casterbone > -1) {
-			set_vec3_actor_bone2((*iter)->position, (*iter)->caster, (*iter)->casterbone);
-		  }
-		  else { // use default bone
-			set_vec3_actor_bone2((*iter)->position, (*iter)->caster, get_actor_bone_id((*iter)->caster, head_bone));
-		  }
+            set_vec3_actor_bone2((*iter)->position, (*iter)->caster, (*iter)->casterbone);
+          }
+          else { // use default bone
+            set_vec3_actor_bone2((*iter)->position, (*iter)->caster, get_actor_bone_id((*iter)->caster, head_bone));
+          }
+        }
+        else if ((*iter)->effect->get_type() == ec::EC_GLOW)
+        {
+          if ((*iter)->casterbone > -1) {
+            set_vec3_actor_bone2((*iter)->position, (*iter)->caster, (*iter)->casterbone);
+          }
+          else { // use default bone
+            set_vec3_actor_bone2((*iter)->position, (*iter)->caster, get_actor_bone_id((*iter)->caster, hand_right_bone));
+          }
+        }
         else
 		{
 //          (*iter)->position = ec::Vec3((*iter)->caster->x_pos + X_OFFSET, ec_get_z((*iter)->caster) - 0.25, -((*iter)->caster->y_pos + Y_OFFSET));
@@ -365,7 +370,8 @@ extern "C" void ec_idle()
 	  {
 		  missile *mis = get_missile_ptr_from_id((*iter)->missile_id);
 		  if (mis &&
-			  mis->remaining_distance >= 0.0) {
+			  mis->remaining_distance >= 0.0 &&
+			  (*iter)->missile_id != -1) {
 			  (*iter)->position.x = mis->position[0];
 			  (*iter)->position.y = mis->position[2];
 			  (*iter)->position.z = -mis->position[1];
@@ -884,8 +890,10 @@ extern "C" void ec_remove_missile(int missile_id)
     if ((*iter)->effect->get_type() == ec::EC_MISSILE &&
 		(*iter)->missile_id == missile_id)
     {
-      (*iter)->effect->recall = true;
-	  (*iter)->missile_id = -1;
+      // don't recall the effect, let the particles glow
+      //(*iter)->effect->recall = true;
+      // set missile_id to -1 so the position of the effect is not updated anymore
+      (*iter)->missile_id = -1;
       continue;
     }
   }
@@ -1154,6 +1162,22 @@ extern "C" ec_reference ec_create_breath_fire(float sx, float sy, float sz, floa
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_breath_fire2(actor* caster, actor* target, int LOD, float scale)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::BreathEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->target = target;
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
+  ret->targetbone = get_actor_bone_id(target, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, caster, ret->casterbone);
+  set_vec3_target_bone2(ret->position2, target, ret->targetbone);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::FIRE, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_breath_ice(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
@@ -1161,6 +1185,22 @@ extern "C" ec_reference ec_create_breath_ice(float sx, float sy, float sz, float
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + X_OFFSET));
   ret->position2 = ec::Vec3(tx, tz, -(ty + Y_OFFSET));
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::ICE, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_breath_ice2(actor* caster, actor* target, int LOD, float scale)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::BreathEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->target = target;
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
+  ret->targetbone = get_actor_bone_id(target, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, caster, ret->casterbone);
+  set_vec3_target_bone2(ret->position2, target, ret->targetbone);
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::ICE, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1178,6 +1218,22 @@ extern "C" ec_reference ec_create_breath_poison(float sx, float sy, float sz, fl
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_breath_poison2(actor* caster, actor* target, int LOD, float scale)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::BreathEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->target = target;
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
+  ret->targetbone = get_actor_bone_id(target, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, caster, ret->casterbone);
+  set_vec3_target_bone2(ret->position2, target, ret->targetbone);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::POISON, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
@@ -1185,6 +1241,22 @@ extern "C" ec_reference ec_create_breath_magic(float sx, float sy, float sz, flo
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + X_OFFSET));
   ret->position2 = ec::Vec3(tx, tz, -(ty + Y_OFFSET));
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::MAGIC, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_breath_magic2(actor* caster, actor* target, int LOD, float scale)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::BreathEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->target = target;
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
+  ret->targetbone = get_actor_bone_id(target, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, caster, ret->casterbone);
+  set_vec3_target_bone2(ret->position2, target, ret->targetbone);
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::MAGIC, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1202,6 +1274,22 @@ extern "C" ec_reference ec_create_breath_lightning(float sx, float sy, float sz,
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_breath_lightning2(actor* caster, actor* target, int LOD, float scale)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::BreathEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->target = target;
+  ret->casterbone = get_actor_bone_id(caster, hand_right_bone);
+  ret->targetbone = get_actor_bone_id(target, head_bone);
+  set_vec3_actor_bone2(ret->position, caster, ret->casterbone);
+  set_vec3_target_bone2(ret->position2, target, ret->targetbone);
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::LIGHTNING, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale)
 {
   if (!ec_in_range(sx, sy, sz, ec::BreathEffect::get_max_end_time()))
@@ -1209,6 +1297,22 @@ extern "C" ec_reference ec_create_breath_wind(float sx, float sy, float sz, floa
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(sx, sz, -(sy + X_OFFSET));
   ret->position2 = ec::Vec3(tx, tz, -(ty + Y_OFFSET));
+  ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::WIND, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_breath_wind2(actor* caster, actor* target, int LOD, float scale)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::BreathEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->target = target;
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
+  ret->targetbone = get_actor_bone_id(target, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, caster, ret->casterbone);
+  set_vec3_target_bone2(ret->position2, target, ret->targetbone);
   ret->effect = new ec::BreathEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, &general_obstructions_list, ec::BreathEffect::WIND, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1263,12 +1367,34 @@ extern "C" ec_reference ec_create_harvesting_radon_pouch(float x, float y, float
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_harvesting_radon_pouch2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, ec::HarvestingEffect::RADON_POUCH, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_harvesting_cavern_wall(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, ec::HarvestingEffect::CAVERN_WALL, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_harvesting_cavern_wall2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, ec::HarvestingEffect::CAVERN_WALL, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1285,12 +1411,34 @@ extern "C" ec_reference ec_create_harvesting_mother_nature(float x, float y, flo
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_harvesting_mother_nature2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, ec::HarvestingEffect::MOTHER_NATURE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_harvesting_queen_of_nature(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::HarvestingEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, ec::HarvestingEffect::QUEEN_OF_NATURE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_harvesting_queen_of_nature2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::MineEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, ec::HarvestingEffect::QUEEN_OF_NATURE, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1364,6 +1512,84 @@ extern "C" ec_reference ec_create_harvesting_rare_stone2(actor* caster, int LOD)
   ret->casterbone = get_actor_bone_id(caster, hand_right_bone);
   set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
   ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, ec::HarvestingEffect::RARE_STONE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_glow_remote_heal(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::GlowEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, hand_right_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::REMOTE_HEAL_GLOW, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_glow_harm(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::GlowEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, hand_right_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::HARM_GLOW, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_glow_poison(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::GlowEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, hand_right_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::POISON_GLOW, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_glow_level_up_oa(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::GlowEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::LEVEL_UP_OA_GLOW, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_glow_level_up_att(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::GlowEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::LEVEL_UP_ATT_GLOW, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_glow_level_up_def(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::GlowEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::LEVEL_UP_DEF_GLOW, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
@@ -1492,6 +1718,61 @@ extern "C" ec_reference ec_create_ongoing_poison(float x, float y, float z, floa
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_ongoing_magic_protection2(actor *caster, float hue_adjust, float saturation_adjust, int LOD, float scale)
+{
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::MAGIC_PROTECTION, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_ongoing_shield2(actor *caster, float hue_adjust, float saturation_adjust, int LOD, float scale)
+{
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, body_top_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::SHIELD, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_ongoing_magic_immunity2(actor *caster, float hue_adjust, float saturation_adjust, int LOD, float scale)
+{
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::MAGIC_IMMUNITY, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_ongoing_poison2(actor *caster, float hue_adjust, float saturation_adjust, int LOD, float scale)
+{
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::POISON, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_ongoing_harvesting2(actor *caster, float hue_adjust, float saturation_adjust, int LOD, float scale)
+{
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->casterbone = get_actor_bone_id(caster, hand_right_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+  ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::OGHARVEST, LOD, scale);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_selfmagic_heal(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
@@ -1533,7 +1814,8 @@ extern "C" ec_reference ec_create_selfmagic_magic_protection2(actor* caster, int
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->casterbone = get_actor_bone_id(caster, body_top_bone);
+  set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::MAGIC_PROTECTION, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1719,8 +2001,21 @@ extern "C" ec_reference ec_create_smoke(float x, float y, float z, float hue_adj
 
 extern "C" ec_reference ec_create_summon_rabbit(float x, float y, float z, int LOD)
 {
+  if (!ec_in_range(x, y, z, ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::RABBIT, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_rabbit2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::RABBIT, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1737,12 +2032,34 @@ extern "C" ec_reference ec_create_summon_rat(float x, float y, float z, int LOD)
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_rat2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::RAT, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_beaver(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::BEAVER, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_beaver2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::BEAVER, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1759,12 +2076,34 @@ extern "C" ec_reference ec_create_summon_skunk(float x, float y, float z, int LO
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_skunk2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::SKUNK, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_racoon(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::RACOON, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_racoon2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::RACOON, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1781,12 +2120,34 @@ extern "C" ec_reference ec_create_summon_deer(float x, float y, float z, int LOD
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_deer2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::DEER, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_green_snake(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::GREEN_SNAKE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_green_snake2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::GREEN_SNAKE, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1803,12 +2164,34 @@ extern "C" ec_reference ec_create_summon_red_snake(float x, float y, float z, in
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_red_snake2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::RED_SNAKE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_brown_snake(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::BROWN_SNAKE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_brown_snake2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::BROWN_SNAKE, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1825,12 +2208,34 @@ extern "C" ec_reference ec_create_summon_fox(float x, float y, float z, int LOD)
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_fox2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::FOX, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_boar(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::BOAR, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_boar2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::BOAR, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1847,12 +2252,34 @@ extern "C" ec_reference ec_create_summon_wolf(float x, float y, float z, int LOD
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_wolf2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::WOLF, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_skeleton(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::SKELETON, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_skeleton2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::SKELETON, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1869,12 +2296,34 @@ extern "C" ec_reference ec_create_summon_small_gargoyle(float x, float y, float 
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_small_gargoyle2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::SMALL_GARGOYLE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_medium_gargoyle(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::MEDIUM_GARGOYLE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_medium_gargoyle2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::MEDIUM_GARGOYLE, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1891,12 +2340,34 @@ extern "C" ec_reference ec_create_summon_large_gargoyle(float x, float y, float 
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_large_gargoyle2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::LARGE_GARGOYLE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_puma(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::PUMA, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_puma2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::PUMA, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1913,12 +2384,34 @@ extern "C" ec_reference ec_create_summon_female_goblin(float x, float y, float z
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_female_goblin2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::FEMALE_GOBLIN, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_polar_bear(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::POLAR_BEAR, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_polar_bear2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::POLAR_BEAR, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1935,12 +2428,34 @@ extern "C" ec_reference ec_create_summon_bear(float x, float y, float z, int LOD
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_bear2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::BEAR, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_armed_male_goblin(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::ARMED_MALE_GOBLIN, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_armed_male_goblin2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::ARMED_MALE_GOBLIN, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1957,12 +2472,34 @@ extern "C" ec_reference ec_create_summon_armed_skeleton(float x, float y, float 
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_armed_skeleton2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::ARMED_SKELETON, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_female_orc(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::FEMALE_ORC, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_female_orc2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::FEMALE_ORC, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -1979,12 +2516,34 @@ extern "C" ec_reference ec_create_summon_male_orc(float x, float y, float z, int
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_male_orc2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::MALE_ORC, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_armed_female_orc(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::ARMED_FEMALE_ORC, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_armed_female_orc2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::ARMED_FEMALE_ORC, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2001,12 +2560,34 @@ extern "C" ec_reference ec_create_summon_armed_male_orc(float x, float y, float 
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_armed_male_orc2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::ARMED_MALE_ORC, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_cyclops(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::CYCLOPS, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_cyclops2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::CYCLOPS, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2023,12 +2604,34 @@ extern "C" ec_reference ec_create_summon_fluffy(float x, float y, float z, int L
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_fluffy2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::FLUFFY, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_phantom_warrior(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::PHANTOM_WARRIOR, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_phantom_warrior2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::PHANTOM_WARRIOR, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2045,12 +2648,34 @@ extern "C" ec_reference ec_create_summon_mountain_chimeran(float x, float y, flo
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_mountain_chimeran2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::MOUNTAIN_CHIMERAN, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_yeti(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::YETI, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_yeti2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::YETI, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2067,12 +2692,34 @@ extern "C" ec_reference ec_create_summon_arctic_chimeran(float x, float y, float
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_arctic_chimeran2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::ARCTIC_CHIMERAN, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_giant(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::GIANT, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_giant2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::GIANT, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2089,6 +2736,17 @@ extern "C" ec_reference ec_create_summon_giant_snake(float x, float y, float z, 
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_giant_snake2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::GIANT_SNAKE, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_spider(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
@@ -2100,12 +2758,34 @@ extern "C" ec_reference ec_create_summon_spider(float x, float y, float z, int L
   return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_summon_spider2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::SPIDER, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_summon_tiger(float x, float y, float z, int LOD)
 {
   if (!ec_in_range(x, y, z, ec::SummonEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(x, z, -y);
+  ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::TIGER, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_summon_tiger2(actor* caster, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SummonEffect(&eye_candy, &ret->dead, &ret->position, ec::SummonEffect::TIGER, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2273,6 +2953,20 @@ extern "C" ec_reference ec_create_targetmagic_teleport_to_range(float start_x, f
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->position = ec::Vec3(start_x, start_z, -start_y);
   ret->position2 = ec::Vec3(end_x, end_z, -end_y);
+  ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::TELEPORT_TO_RANGE, &general_obstructions_list, LOD);
+  eye_candy.push_back_effect(ret->effect);
+  return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_targetmagic_teleport_to_range2(actor* caster, actor* target, int LOD)
+{
+  if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::TargetMagicEffect::get_max_end_time()))
+    return NULL;
+  ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+  ret->caster = caster;
+  ret->target = target;
+  ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+  ret->position2 = ec::Vec3(target->x_pos + X_OFFSET, ec_get_z(target), -(target->y_pos + Y_OFFSET));
   ret->effect = new ec::TargetMagicEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::TargetMagicEffect::TELEPORT_TO_RANGE, &general_obstructions_list, LOD);
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
@@ -2538,7 +3232,6 @@ extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD)
   }
 
   eye_candy.push_back_effect(ret->effect);
-
   return (ec_reference)ret;
 }
 #endif // MISSILES

@@ -52,7 +52,7 @@ public:
   Uint16 effect_count;
   TargetMagicType type;
   std::vector<Shape*> capless_cylinders;
-  float* target_alpha;
+  float *target_alpha;
 };
 
 class TargetMagicEffect2 : public Effect
@@ -74,7 +74,7 @@ public:
   Uint16 LOD;
   TargetMagicEffect::TargetMagicType type;
   Uint16 effect_id;
-  float* target_alpha;
+  float *target_alpha;
   bool dummy_dead;
 };
 

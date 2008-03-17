@@ -338,14 +338,14 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     {
       effect_centers.push_back(*_pos);
 
-      spawner = new FilledDiscSpawner(0.25);
-      spawner2 = new SierpinskiIFSParticleSpawner();
-      mover = new GravityMover(this, &(effect_centers[0]), 1e11);
-      while (particles.size() < 8)
+      spawner = new FilledDiscSpawner(0.15);
+      spawner2 = new SierpinskiIFSParticleSpawner(2);
+      mover = new GravityMover(this, &(effect_centers[0]), 1e6);
+      while (particles.size() < 4)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
-        velocity.randomize(0.5);
+        velocity.randomize(0.75);
         coords += effect_centers[0];
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
@@ -357,16 +357,16 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     {
       effect_centers.push_back(*_pos);
 
-      spawner = new HollowSphereSpawner(0.75);
-      mover = new GravityMover(this, &(effect_centers[0]), 3e11);
+      spawner = new HollowSphereSpawner(0.15);
+      mover = new GravityMover(this, &(effect_centers[0]), 1e6);
       mover2 = new SimpleGravityMover(this);
-      while (particles.size() < 32)
+      while (particles.size() < 16)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
         velocity.randomize(0.5);
         coords += effect_centers[0];
-        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 10.0, 1.0, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), &(base->TexInverse), LOD, type, NULL, mover2, targets[0], 0, 0);
+        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 8.0, 1.0, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), &(base->TexInverse), LOD, type, NULL, mover2, targets[0], 0, 0);
         if (!base->push_back_particle(p))
           break;
       }
@@ -421,7 +421,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       effect_centers.push_back(*_pos);
       
       mover = new ParticleMover(this);
-      mover2 = new GravityMover(this, &(effect_centers[0]), 6e10);
+      mover2 = new GravityMover(this, &(effect_centers[0]), 1e6);
       spawner = new FilledDiscSpawner(0.2);
 
       while (particles.size() < 16)
@@ -446,7 +446,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner = new FilledDiscSpawner(0.75);
       mover = new GravityMover(this, &(effect_centers[0]), 1e11);
       mover2 = new GravityMover(this, &target, 5e10);
-      while (particles.size() < 6)
+      while (particles.size() < 8)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
@@ -456,7 +456,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         if (!base->push_back_particle(p))
           break;
       }
-      while (particles.size() < 12)
+      while (particles.size() < 16)
       {
         Vec3 coords = spawner->get_new_coords() * 0.35;
         Vec3 velocity;
@@ -516,15 +516,15 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       target = *targets[0];
       effect_centers.push_back(*pos);
 
-      spawner = new FilledDiscSpawner(0.75);
-      spawner2 = new HollowSphereSpawner(0.75);
-      mover = new GravityMover(this, &(effect_centers[0]), 8e10);
-      mover2 = new GravityMover(this, &target, 4e11);
+      spawner = new FilledDiscSpawner(0.25);
+      spawner2 = new HollowSphereSpawner(0.25);
+      mover = new GravityMover(this, &(effect_centers[0]), 8e9);
+      mover2 = new GravityMover(this, &target, 4e10);
       while (particles.size() < 8)
       {
         Vec3 coords = spawner->get_new_coords() * 0.75;
         Vec3 velocity;
-        velocity.randomize(0.5);
+        velocity.randomize(0.45);
         coords += target;
         Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexVoid), LOD, type, spawner2, mover2, targets[0], 0, 2);
         if (!base->push_back_particle(p))
@@ -534,7 +534,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       {
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity;
-        velocity.randomize(0.65);
+        velocity.randomize(0.85);
         coords += effect_centers[0];
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexCrystal), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
@@ -836,6 +836,12 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
 
 TargetMagicEffect2::~TargetMagicEffect2()
 {
+  /*if (spawner)
+    delete spawner;
+  if (mover)
+    delete mover;
+  if (EC_DEBUG)
+    std::cout << "TargetMagicEffect2 (" << this << ") destroyed." << std::endl << std::flush;*/
 }
 
 

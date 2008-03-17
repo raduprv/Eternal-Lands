@@ -44,11 +44,11 @@ bool MissileParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
 
-  if (alpha < 0.03)
+  if (alpha < 0.01)
     return false;
 
-  const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 200000);
-  alpha *= scalar;
+  //const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 20000);
+  alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 2000000.0);
   
   return true;
 }
@@ -109,11 +109,20 @@ MissileEffect::MissileEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Mis
   LOD = 100;
   desired_LOD = _LOD;
   request_LOD((float)base->last_forced_LOD);
+  
+  Vec3 randshift;
+  randshift.randomize(0.1);
+  const Vec3 coords = *pos + randshift;
+  Vec3 velocity;
+  velocity.randomize(0.25);
+  Particle* p = new MissileParticle(this, mover, coords, velocity, randfloat(size), randfloat(alpha), color[0], color[1], color[2], texture, LOD);
+  base->push_back_particle(p);
 }
 
 MissileEffect::~MissileEffect()
 {
-  delete mover;
+  if (mover)
+    delete mover;
   if (EC_DEBUG)
     std::cout << "MissileEffect (" << this << ") destroyed." << std::endl;
 }
@@ -162,22 +171,22 @@ void MissileEffect::request_LOD(const float _LOD)
 
 bool MissileEffect::idle(const Uint64 usec)
 {
-  if ((recall) && (particles.size() == 0))
-    return false;
-    
-  if (recall)
-    return true;
-
-  float dist = (old_pos - *pos).magnitude();
   
-  if (dist < 1E-4) return false;
+  if (particles.size() == 0)
+    return false;
 
-  for (float step = 0.0; step < dist; step += 0.1) {
+  const float dist = (old_pos - *pos).magnitude();
+  
+  if (dist < 1E-4) return true; // do not add more particles, dist < 0.0001
+
+  for (float step = 0.0; step < dist; step += 0.025) {
 	  const percent_t percent = step / dist;
-	  const Vec3 coords = (old_pos * percent) + (*pos * (1.0 - percent));
+	  Vec3 randshift;
+	  randshift.randomize(0.05);
+	  const Vec3 coords = (old_pos * percent) + (*pos * (1.0 - percent)) + randshift;
 	  Vec3 velocity;
-	  velocity.randomize(0.2);
-	  Particle* p = new MissileParticle(this, mover, coords, velocity, size, alpha, color[0], color[1], color[2], texture, LOD);
+	  velocity.randomize(0.25);
+	  Particle* p = new MissileParticle(this, mover, coords, velocity, randfloat(size*2.0), randfloat(alpha), color[0], color[1], color[2], texture, LOD);
 	  base->push_back_particle(p);
   }
   

@@ -197,7 +197,7 @@ bool SelfMagicParticle::idle(const Uint64 delta_t)
   }
   
   pos += ((SelfMagicEffect*)effect)->shift;
-  
+
   return true;
 }
 
@@ -229,7 +229,8 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
   {
     case HEAL:
     {
-      spawner = new SierpinskiIFSParticleSpawner(1.05);
+      //spawner = new SierpinskiIFSParticleSpawner(1.05);
+      spawner = new SierpinskiIFSParticleSpawner(1.5);
       mover = new GravityMover(this, &effect_center, 1e10);
       while ((int)particles.size() < LOD * 100)
       {
@@ -244,9 +245,9 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     }
     case MAGIC_PROTECTION:
     {
-      spawner = new HollowSphereSpawner(0.7);
+      spawner = new HollowSphereSpawner(0.9);
       mover = new GravityMover(this, &effect_center, 3e10);
-      while ((int)particles.size() < LOD * 100)
+      while ((int)particles.size() < LOD * 120)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -371,12 +372,12 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     case RESTORATION:
     {
       spawner = new FilledSphereSpawner(0.8);
-      mover = new GravityMover(this, &effect_center, 3e10);
+      mover = new GravityMover(this, &effect_center, 3e7);
       spawner2 = new HollowDiscSpawner(0.45);
       mover2 = new SpiralMover(this, &effect_center, 10.0, 11.0);
       while ((int)particles.size() < LOD * 60)
       {
-        Vec3 coords = spawner->get_new_coords() * 2.5;
+        Vec3 coords = spawner->get_new_coords() * 3.5;
         Vec3 velocity = -coords * 3;
         coords += effect_center;
         Particle * p = new SelfMagicParticle(this, mover, coords, velocity, 1.9 + randcoord(1.5), 0.85 + randalpha(0.15), 0.25 + randcolor(0.3), 0.7 + randcolor(0.2), 0.3, &(base->TexFlare), LOD, type);
@@ -416,14 +417,14 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       spawner = new FilledDiscSpawner(0.2);
       const float sqrt_LOD = fastsqrt(LOD);
       size_scalar = 1.0;
-      for (int i = 0; i < LOD * 100; i++)
+      for (int i = 0; i < LOD * 192; i++)
       {
         const Vec3 coords = spawner->get_new_coords() + effect_center + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
         Vec3 velocity(0.0, randcoord(0.1), 0.0);
-        velocity.randomize(0.2);
+        velocity.randomize(0.25);
         const coord_t size = size_scalar * (0.5 + 1.5 * randcoord());
         velocity /= size;
-        Particle* p = new SelfMagicParticle(this, mover, coords, velocity, size, 1.0, 0.8 + randcolor(0.2),  0.8 + randcolor(0.2), 0.8 + randcolor(0.2), &(base->TexShimmer), LOD, type);
+        Particle* p = new SelfMagicParticle(this, mover, coords, velocity, size, 1.0, randcolor(1.0),  randcolor(1.0), randcolor(1.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -538,7 +539,7 @@ bool SelfMagicEffect::idle(const Uint64 usec)
     }
     case BONES_TO_GOLD:
     {
-      if (age < 500000)
+      if (age < 750000)
       {
         count += usec;
     

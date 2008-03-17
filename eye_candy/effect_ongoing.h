@@ -24,7 +24,8 @@ public:
     MAGIC_PROTECTION,
     SHIELD,
     MAGIC_IMMUNITY,
-    POISON
+    POISON,
+    OGHARVEST,
   };
 
   OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const OngoingType _type, const Uint16 _LOD, const float _strength);

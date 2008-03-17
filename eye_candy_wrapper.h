@@ -34,6 +34,7 @@
 #include "eye_candy/effect_impact.h"
 #include "eye_candy/effect_smoke.h"
 #include "eye_candy/effect_bag.h"
+#include "eye_candy/effect_glow.h"
 #include "eye_candy/effect_cloud.h"
 #include "eye_candy/effect_harvesting.h"
 #include "eye_candy/effect_wind.h"
@@ -46,11 +47,13 @@
 
 #ifdef __cplusplus
 extern "C" int use_eye_candy;
+extern "C" int use_harvesting_eye_candy;
  #ifdef MAP_EDITOR
 extern ec::SmoothPolygonBoundingRange initial_bounds;
  #endif
 #else
 extern int use_eye_candy;
+extern int use_harvesting_eye_candy;
 extern int use_lamp_halo;
 extern float min_ec_framerate;
 extern float max_ec_framerate;
@@ -166,7 +169,11 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   EC_WIND = 15,
   EC_BREATH = 16,
   EC_CANDLE = 17,
-  EC_MINES = 18
+  EC_MINES = 18,
+  EC_GLOW = 19
+#ifdef MISSILES
+  , EC_MISSILE = 20
+#endif // MISSILES
 } ec_EffectEnum;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -218,19 +225,35 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_bag_pickup(float x, float y, float z, int LOD);
   ec_reference ec_create_bag_drop(float x, float y, float z, int LOD);
   ec_reference ec_create_breath_fire(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_fire2(actor* caster, actor* target, int LOD, float scale);
   ec_reference ec_create_breath_ice(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_ice2(actor* caster, actor* target, int LOD, float scale);
   ec_reference ec_create_breath_poison(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_poison2(actor* caster, actor* target, int LOD, float scale);
   ec_reference ec_create_breath_magic(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_magic2(actor* caster, actor* target, int LOD, float scale);
   ec_reference ec_create_breath_lightning(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_lightning2(actor* caster, actor* target, int LOD, float scale);
   ec_reference ec_create_breath_wind(float sx, float sy, float sz, float tx, float ty, float tz, int LOD, float scale);
+  ec_reference ec_create_breath_wind2(actor* caster, actor* target, int LOD, float scale);
   ec_reference ec_create_campfire(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
   ec_reference ec_create_cloud(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, ec_bounds bounds, int LOD);
   ec_reference ec_create_fireflies(float x, float y, float z, float hue_adjust, float saturation_adjust, float density, float scale, ec_bounds bounds);
   ec_reference ec_create_fountain(float x, float y, float z, float hue_adjust, float saturation_adjust, float base_height, int backlit, float scale, int LOD);
+  ec_reference ec_create_glow_harm(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_att(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_def(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_oa(actor* caster, int LOD);
+  ec_reference ec_create_glow_poison(actor* caster, int LOD);
+  ec_reference ec_create_glow_remote_heal(actor* caster, int LOD);
   ec_reference ec_create_harvesting_radon_pouch(float x, float y, float z, int LOD);
+  ec_reference ec_create_harvesting_radon_pouch2(actor* caster, int LOD);
   ec_reference ec_create_harvesting_cavern_wall(float x, float y, float z, int LOD);
+  ec_reference ec_create_harvesting_cavern_wall2(actor* caster, int LOD);
   ec_reference ec_create_harvesting_mother_nature(float x, float y, float z, int LOD);
+  ec_reference ec_create_harvesting_mother_nature2(actor* caster, int LOD);
   ec_reference ec_create_harvesting_queen_of_nature(float x, float y, float z, int LOD);
+  ec_reference ec_create_harvesting_queen_of_nature2(actor* caster, int LOD);
   ec_reference ec_create_harvesting_bees(float x, float y, float z, int LOD);
   ec_reference ec_create_harvesting_bees2(actor* caster, int LOD);
   ec_reference ec_create_harvesting_bag_of_gold(float x, float y, float z, int LOD);
@@ -248,6 +271,11 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_ongoing_shield(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
   ec_reference ec_create_ongoing_magic_immunity(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
   ec_reference ec_create_ongoing_poison(float x, float y, float z, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_magic_protection2(actor* caster, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_shield2(actor* caster, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_magic_immunity2(actor* caster, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_poison2(actor* caster, float hue_adjust, float saturation_adjust, int LOD, float scale);
+  ec_reference ec_create_ongoing_harvesting2(actor* caster, float hue_adjust, float saturation_adjust, int LOD, float scale);
   ec_reference ec_create_selfmagic_heal(float x, float y, float z, int LOD);
   ec_reference ec_create_selfmagic_heal2(actor* caster, int LOD);
   ec_reference ec_create_selfmagic_magic_protection(float x, float y, float z, int LOD);
@@ -267,41 +295,77 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_alert2(actor* caster, int LOD);
   ec_reference ec_create_smoke(float x, float y, float z, float hue_adjust, float saturation_adjust, float scale, int LOD);
   ec_reference ec_create_summon_rabbit(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_rabbit2(actor* caster, int LOD);
   ec_reference ec_create_summon_rat(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_rat2(actor* caster, int LOD);
   ec_reference ec_create_summon_beaver(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_beaver2(actor* caster, int LOD);
   ec_reference ec_create_summon_skunk(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_skunk2(actor* caster, int LOD);
   ec_reference ec_create_summon_racoon(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_racoon2(actor* caster, int LOD);
   ec_reference ec_create_summon_deer(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_deer2(actor* caster, int LOD);
   ec_reference ec_create_summon_green_snake(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_green_snake2(actor* caster, int LOD);
   ec_reference ec_create_summon_red_snake(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_red_snake2(actor* caster, int LOD);
   ec_reference ec_create_summon_brown_snake(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_brown_snake2(actor* caster, int LOD);
   ec_reference ec_create_summon_fox(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_fox2(actor* caster, int LOD);
   ec_reference ec_create_summon_boar(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_boar2(actor* caster, int LOD);
   ec_reference ec_create_summon_wolf(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_wolf2(actor* caster, int LOD);
   ec_reference ec_create_summon_skeleton(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_skeleton2(actor* caster, int LOD);
   ec_reference ec_create_summon_small_gargoyle(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_small_gargoyle2(actor* caster, int LOD);
   ec_reference ec_create_summon_medium_gargoyle(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_medium_gargoyle2(actor* caster, int LOD);
   ec_reference ec_create_summon_large_gargoyle(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_large_gargoyle2(actor* caster, int LOD);
   ec_reference ec_create_summon_puma(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_puma2(actor* caster, int LOD);
   ec_reference ec_create_summon_female_goblin(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_female_goblin2(actor* caster, int LOD);
   ec_reference ec_create_summon_polar_bear(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_polar_bear2(actor* caster, int LOD);
   ec_reference ec_create_summon_bear(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_bear2(actor* caster, int LOD);
   ec_reference ec_create_summon_armed_male_goblin(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_male_goblin2(actor* caster, int LOD);
   ec_reference ec_create_summon_armed_skeleton(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_skeleton2(actor* caster, int LOD);
   ec_reference ec_create_summon_female_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_female_orc2(actor* caster, int LOD);
   ec_reference ec_create_summon_male_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_male_orc2(actor* caster, int LOD);
   ec_reference ec_create_summon_armed_female_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_female_orc2(actor* caster, int LOD);
   ec_reference ec_create_summon_armed_male_orc(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_armed_male_orc2(actor* caster, int LOD);
   ec_reference ec_create_summon_cyclops(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_cyclops2(actor* caster, int LOD);
   ec_reference ec_create_summon_fluffy(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_fluffy2(actor* caster, int LOD);
   ec_reference ec_create_summon_phantom_warrior(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_phantom_warrior2(actor* caster, int LOD);
   ec_reference ec_create_summon_mountain_chimeran(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_mountain_chimeran2(actor* caster, int LOD);
   ec_reference ec_create_summon_yeti(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_yeti2(actor* caster, int LOD);
   ec_reference ec_create_summon_arctic_chimeran(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_arctic_chimeran2(actor* caster, int LOD);
   ec_reference ec_create_summon_giant(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_giant2(actor* caster, int LOD);
   ec_reference ec_create_summon_giant_snake(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_giant_snake2(actor* caster, int LOD);
   ec_reference ec_create_summon_spider(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_spider2(actor* caster, int LOD);
   ec_reference ec_create_summon_tiger(float x, float y, float z, int LOD);
+  ec_reference ec_create_summon_tiger2(actor* caster, int LOD);
   ec_reference ec_create_sword_serpent(actor* _actor, int LOD);
   ec_reference ec_create_sword_cutlass(actor* _actor, int LOD);
   ec_reference ec_create_sword_emerald_claymore(actor* _actor, int LOD);

@@ -58,7 +58,9 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 		anim.anim_index = actors_defs[pActor->actor_type].cal_idle1_frame.anim_index;
 		anim.kind = cycle;
 		anim.duration = actors_defs[pActor->actor_type].cal_idle1_frame.duration;
+#ifdef	NEW_ACTOR_ANIMATION
 		anim.duration_scale = actors_defs[pActor->actor_type].cal_idle1_frame.duration_scale;
+#endif
 	}
 
 	mixer=CalModel_GetMixer(pActor->calmodel);

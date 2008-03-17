@@ -3,4 +3,6 @@
 
 extern int ecdebug_win;
 
+void display_ecdebugwin();
+
 #endif // EYE_CANDY_DEBUGWIN

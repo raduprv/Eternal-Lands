@@ -78,13 +78,13 @@ bool HarvestingParticle::idle(const Uint64 delta_t)
     case HarvestingEffect::BEES:
     {
       const Uint64 age = get_time() - born;
-      if (age < 650000)
+      if (age < 750000)
         break;
     
       if (alpha < 0.03)
         return false;
 
-      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1); // orig: 6, smaller numbers -> longer effect
+      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.5); // orig: 6, smaller numbers -> longer effect
       alpha *= scalar;
 
       break;
@@ -123,7 +123,7 @@ bool HarvestingParticle::idle(const Uint64 delta_t)
           return false;
       }
       break;
-    }
+    }	
   }
   
   return true;
@@ -283,12 +283,14 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     {
       spawner = new FilledSphereSpawner(0.5);
       mover = new GravityMover(this, &effect_center, 8e9);
-      while ((int)particles.size() < LOD * 50)
+      while ((int)particles.size() < LOD * 16)
       {
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity;
         velocity.randomize();
-        velocity.normalize(0.9);
+        velocity.normalize(0.5);
+        velocity.x += randfloat(0.25);
+        velocity.z += randfloat(0.75);
         coords += effect_center;
         Particle * p = new HarvestingParticle(this, mover, coords, velocity, 0.75, 1.0, 0.8, 0.7, 0.3, &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
@@ -360,12 +362,23 @@ bool HarvestingEffect::idle(const Uint64 usec)
 {
   if (particles.size() == 0)
     return false;
-    
-  effect_center.x = pos->x;
-  effect_center.y += usec / 3000000.0;
-  effect_center.z = pos->z;
   
-  gravity_center.y += usec / 10000000.0;
+  effect_center.x = pos->x;
+  effect_center.z = pos->z;
+
+  switch(type)
+  {
+    case BEES:
+    {
+      break;
+    }
+    default:
+    {
+      effect_center.y += usec / 3000000.0;
+      gravity_center.y += usec / 10000000.0;
+      break;
+    }
+  }
   
   return true;
 }

@@ -155,7 +155,9 @@ int missiles_add(int type,
 	mis->remaining_distance += shift;
 	
 	if (use_eye_candy && shot_type != MISSED_SHOT)
+	{
 		ec_create_missile_effect(missiles_count-1, (poor_man ? 6 : 10));
+	}
 
 	return missiles_count-1;
 }

@@ -733,12 +733,15 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				ec_create_selfmagic_heal2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_POISON:
+				ec_create_glow_poison(caster, (poor_man ? 6 : 10));
 				ec_create_targetmagic_poison2(caster, target, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_REMOTE_HEAL:
+				ec_create_glow_remote_heal(caster, (poor_man ? 6 : 10));
 				ec_create_targetmagic_remote_heal2(caster, target, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARM:
+				ec_create_glow_harm(caster, (poor_man ? 6 : 10));
 				ec_create_targetmagic_harm2(caster, target, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_MANA_DRAIN:
@@ -746,34 +749,40 @@ void parse_special_effect(special_effect_enum sfx, const Uint16 *data)
 				break;
 			case	SPECIAL_EFFECT_INVASION_BEAMING:
 			case	SPECIAL_EFFECT_TELEPORT_TO_RANGE:
-				ec_create_targetmagic_teleport_to_range(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), target->x_pos, target->y_pos, ec_get_z(target), (poor_man ? 6 : 10));
+				//ec_create_targetmagic_teleport_to_range(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), target->x_pos, target->y_pos, ec_get_z(target), (poor_man ? 6 : 10));
+				ec_create_targetmagic_teleport_to_range2(caster, target, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_RARE_STONE:
 				//ec_create_harvesting_rare_stone(caster->x_pos + 0.4 * sin(caster->z_rot) + X_OFFSET, caster->y_pos + 0.4 * cos(caster->z_rot) + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
 				ec_create_harvesting_rare_stone2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_MN_EXP_BLESSING:
-				ec_create_harvesting_queen_of_nature(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_harvesting_queen_of_nature(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_harvesting_queen_of_nature2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_MN_MONEY_BLESSING:
-				ec_create_harvesting_bag_of_gold(caster->x_pos + X_OFFSET + 0.4 * sin(caster->z_rot), caster->y_pos + Y_OFFSET + 0.4 * cos(caster->z_rot), ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_harvesting_bag_of_gold(caster->x_pos + X_OFFSET + 0.4 * sin(caster->z_rot), caster->y_pos + Y_OFFSET + 0.4 * cos(caster->z_rot), ec_get_z(caster), (poor_man ? 6 : 10));
 				ec_create_harvesting_bag_of_gold2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_WALL_COLLAPSE:
-				ec_create_harvesting_cavern_wall(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_harvesting_cavern_wall(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_harvesting_cavern_wall2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_BEES:
 				//ec_create_harvesting_bees(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
 				ec_create_harvesting_bees2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_RADON:
-				ec_create_harvesting_radon_pouch(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_harvesting_radon_pouch(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_harvesting_radon_pouch2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_TELEPORT_NEXUS:
-				ec_create_selfmagic_teleport_to_the_portals_room(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_selfmagic_teleport_to_the_portals_room(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_selfmagic_teleport_to_the_portals_room2(caster, (poor_man ? 6 : 10));
 				break;
 			case	SPECIAL_EFFECT_HARVEST_MOTHER_NATURE_PISSED:
-				ec_create_harvesting_mother_nature(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				//ec_create_harvesting_mother_nature(caster->x_pos + X_OFFSET, caster->y_pos + Y_OFFSET, ec_get_z(caster), (poor_man ? 6 : 10));
+				ec_create_harvesting_mother_nature2(caster, (poor_man ? 6 : 10));
 				break;
 			case    SPECIAL_EFFECT_MAKE_PLAYER_GLOW:
 				ec_create_alert2(caster, (poor_man ? 6 : 10));
