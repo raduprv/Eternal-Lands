@@ -1097,7 +1097,7 @@ void set_new_video_mode(int fs,int mode)
 
 	set_all_intersect_update_needed(main_bbox_tree);
 #ifdef SKY_FPV_CURSOR
-	init_sky();
+	skybox_init_gl();
 #endif /* SKY_FPV_CURSOR */
 
 	// resize the EL root windows

@@ -544,10 +544,7 @@ void display_3d_reflection()
 
 #ifdef SKY_FPV_CURSOR
 	if (show_sky && reflect_sky && *display_sky != NULL) {
-		glPushMatrix();
-		glLoadIdentity();
 		(*display_sky)(1);
-		glPopMatrix();
 	}
 #endif // SKY_FPV_CURSOR
 

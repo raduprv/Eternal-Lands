@@ -916,7 +916,8 @@ void init_stuff()
 	if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
 
 #ifdef SKY_FPV_CURSOR
-	init_sky();
+	skybox_init_defs();
+	skybox_init_gl();
 #endif /* SKY_FPV_CURSOR */
 #ifdef POPUP
 	popup_init();

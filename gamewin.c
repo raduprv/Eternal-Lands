@@ -1025,18 +1025,15 @@ int display_game_handler (window_info *win)
 
 	reset_under_the_mouse();
 
-#ifdef SKY_FPV_CURSOR
-    if (show_sky && *display_sky != NULL) {
-        glPushMatrix();
-        glLoadIdentity();
-        (*display_sky)(0);
-        glPopMatrix();
-    }
-#endif /* SKY_FPV_CURSOR */
-
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
+#ifdef SKY_FPV_CURSOR
+		if (show_sky && *display_sky != NULL) {
+			(*display_sky)(0);
+		}
+#endif /* SKY_FPV_CURSOR */
+
 #ifndef NEW_ACTOR_MOVEMENT
 		get_tmp_actor_data();
 #endif // NEW_ACTOR_MOVEMENT
@@ -1604,6 +1601,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		if(game_minute <  5) game_minute +=355; else game_minute -=  5;
 		new_minute();
 	}
+#ifdef SKY_FPV_CURSOR
+	else if((keysym == SDLK_s) && shift_on && ctrl_on && alt_on)
+	{
+		skybox_init_defs();
+	}
+#endif // SKY_FPV_CURSOR
 #ifndef NEW_WEATHER
 	else if((keysym == SDLK_PAGEUP) && shift_on && ctrl_on && !alt_on)
 	{

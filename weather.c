@@ -1297,7 +1297,7 @@ float get_rain_strength()
 }
 
 void render_fog() {
-	static GLfloat minDensity = 0.005f, maxDensity = 0.05f;
+	static GLfloat minDensity = 0.01f, maxDensity = 0.04f;
 	GLfloat fogDensity;
 	GLfloat rainStrength, rainAlpha, diffuseBias;
 	int i;
@@ -1335,14 +1335,29 @@ void render_fog() {
 
 #else // SKY_FPV_CURSOR
 
-	diffuseBias = 0;
-	for (i = 4; i--; ) {
-		fogColor[i] = diffuse_light[i]*(1.0-weather_light_attenuation*0.7)/(1.0-weather_light_attenuation);
-		diffuseBias += diffuse_light[i];
+/* 	diffuseBias = 0; */
+/* 	for (i = 4; i--; ) { */
+/* 		fogColor[i] = diffuse_light[i]*(1.0-weather_light_attenuation*0.7)/(1.0-weather_light_attenuation); */
+/* 		diffuseBias += diffuse_light[i]; */
+/* 	} */
+/* 	diffuseBias = sqrt(diffuseBias/3.0); */
+/* 	fogDensity = (1.0 - diffuseBias)*maxDensity + diffuseBias*minDensity; */
+/* 	fogAlpha = 1.0f - fogDensity; */
+	
+	if (dungeon) {
+		fogDensity = 0.01;
+		fogColor[0] = fogColor[1] = fogColor[2] = 0.0;
+		fogColor[3] = 1.0;
 	}
-	diffuseBias = 1.0 - diffuseBias/3.0;
-	fogDensity = diffuseBias*maxDensity + (1.0 - diffuseBias)*minDensity;
-	fogAlpha = 1.0f - fogDensity;
+	else {
+		diffuseBias = weather_light_attenuation/0.8;
+		
+		for (i = 4; i--; ) {
+			fogColor[i] = skybox_fog[game_minute][i]*(1.0-diffuseBias) + skybox_fog_rain[game_minute][i]*diffuseBias;
+		}
+		fogDensity = fogColor[3];
+		fogColor[3] = 1.0;
+	}
 #endif // SKY_FPV_CURSOR
 	
 #ifdef SKY_FPV_CURSOR
@@ -1358,14 +1373,20 @@ void render_fog() {
 	}
 
 	if (use_fog) {
-#endif /* SKY_FPV_CURSOR */
+		glEnable(GL_FOG);
+		glFogi(GL_FOG_MODE, GL_EXP2);
+		glFogf(GL_FOG_DENSITY, fogDensity);
+		//glFogi(GL_FOG_MODE, GL_LINEAR);
+		//glFogf(GL_FOG_START, 40.0*diffuseBias*diffuseBias);
+		//glFogf(GL_FOG_END, 80.0);
+		glFogfv(GL_FOG_COLOR, fogColor);
+	}
+#else // SKY_FPV_CURSOR
 	glEnable(GL_FOG);
 	glFogi(GL_FOG_MODE, GL_EXP2);
 	glFogf(GL_FOG_DENSITY, fogDensity);
 	glFogfv(GL_FOG_COLOR, fogColor);
-#ifdef SKY_FPV_CURSOR
-	}
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_CURSOR
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

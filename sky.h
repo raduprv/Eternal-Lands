@@ -9,7 +9,6 @@
 #ifdef SKY_FPV_CURSOR
 
 void (*display_sky)(int);
-void init_sky();
 
 extern int show_moons ,show_sun,show_stars,horizon_fog,clouds1,clouds2,reflect_sky;
 extern int clouds_tex;
@@ -21,6 +20,18 @@ extern float sun_appears[4];
 extern double LongView[16];
 extern double time_d;
 extern int show_sky;
+
+extern float skybox_clouds[360][4];
+extern float skybox_clouds_detail[360][4];
+extern float skybox_clouds_rain[360][4];
+extern float skybox_clouds_detail_rain[360][4];
+extern float skybox_sky1[360][4];
+extern float skybox_sky2[360][4];
+extern float skybox_sky3[360][4];
+extern float skybox_sky4[360][4];
+extern float skybox_sun[360][4];
+extern float skybox_fog[360][4];
+extern float skybox_fog_rain[360][4];
 
 #define CLOUDS_NONE	0
 #define CLOUDS_THICK	1
@@ -35,6 +46,9 @@ void cloud_layer1(int clouds);
 void cloud_layer2(int clouds);
 void sky_color(int sky);
 void sky_type(int sky);
+
+void skybox_init_gl();
+void skybox_init_defs();
 
 #endif /* SKY_FPV_CURSOR */
 
