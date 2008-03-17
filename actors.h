@@ -210,6 +210,8 @@ typedef struct
 
 	struct cal_anim cal_attack_up_1_frame;
 	struct cal_anim cal_attack_up_2_frame;
+	struct cal_anim cal_attack_up_3_frame;
+	struct cal_anim cal_attack_up_4_frame;
 	struct cal_anim cal_attack_down_1_frame;
     struct cal_anim cal_attack_down_2_frame;
 

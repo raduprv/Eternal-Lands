@@ -597,7 +597,7 @@ void skybox_cloudy(int reflected)
 
 	// we compute the fog color
 	for (i = 4; i-- ; )
-		fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = diffuse_light[i] > 0.15 ? fogColor[i] : fogColor[i] + 0.15 - diffuse_light[i];
+		fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 	fog[0][3] = 1.0;
 	fog[1][3] = 0.75;
 	fog[2][3] = 0.40;
@@ -822,11 +822,11 @@ void skybox_cloudy(int reflected)
 	glPushMatrix();
 	glTranslatef(0.0, 0.0, -0.1);
 	glScalef(500.0, 500.0, 20.0);
-	colBlend3(col1, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef);
-	colBlend3(col2, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef);
-	colBlend3(col3, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef);
-	colBlend3(col4, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef);
-	col1[3] = 1.0; col2[3] = 0.75; col3[3] = 0.40; col4[3] = 0.0;
+/* 	colBlend3(col1, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef); */
+/* 	colBlend3(col2, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef); */
+/* 	colBlend3(col3, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef); */
+/* 	colBlend3(col4, skybox_clouds_rain[game_minute], skybox_clouds[game_minute], rain_coef); */
+/* 	col1[3] = 1.0; col2[3] = 0.75; col3[3] = 0.40; col4[3] = 0.0; */
 	colorSkyCyl(3, fog);
 	glPopMatrix();
 
@@ -1239,13 +1239,16 @@ int skybox_build_gradients(float container[360][4])
 	{
 		next = (prev+1)%360;
 		while (container[next][3] < 0.0) next = (next+1)%360;
-		for (t = prev; t != next; t = (t+1)%360)
+		t = prev;
+        do
 		{
 			int diff = (next-prev+360)%360;
 			for (i = 4; i--; )
 				container[t][i] = (container[prev][i] * ((next-t+360)%360) / diff +
 								   container[next][i] * ((t-prev+360)%360) / diff);
+            t = (t+1)%360;
 		}
+        while (t != next);
 		prev = next;
 	}
 	while (prev != first);

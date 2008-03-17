@@ -936,7 +936,7 @@ void next_command()
 						break;
 					case attack_up_3:
 						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_3_frame);
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_3_frame);
 						}
@@ -951,7 +951,7 @@ void next_command()
 						break;
 					case attack_up_4:
 						if(actors_list[i]->is_enhanced_model) {
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_4_frame);
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_4_frame);
 						}
@@ -2194,6 +2194,28 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up3") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_3_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up4") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_4_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_1_frame=cal_load_anim(act, str
@@ -2339,6 +2361,8 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 #endif // MISSILES
 			act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
 			act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_3_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_4_frame.anim_index=-1;
 			act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
 			act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
 			act->weapon[i].mesh_index = -1;
