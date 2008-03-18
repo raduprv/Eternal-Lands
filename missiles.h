@@ -34,12 +34,12 @@ typedef struct
 {
 	int type;                  /*!< The type of the missile: corresponds to the quiver type */
 	MissileShotType shot_type; /*!< Specifies the type of the shot (normal, missed...) */
-	float position[3];        /*!< The position of the missile */
-	float direction[3];       /*!< The direction of the missile */
-	float speed;              /*!< The speed of the missile */
-	float trace_length;       /*!< The length of the trace let by the missile */
-	float covered_distance;   /*!< The distance covered by the missile */
-	float remaining_distance; /*!< The remaining distance to cover */
+	float position[3];         /*!< The position of the missile */
+	float direction[3];        /*!< The direction of the missile */
+	float speed;               /*!< The speed of the missile */
+	float trace_length;        /*!< The length of the trace let by the missile */
+	float covered_distance;    /*!< The distance covered by the missile */
+	float remaining_distance;  /*!< The remaining distance to cover */
 } missile;
 
 typedef struct

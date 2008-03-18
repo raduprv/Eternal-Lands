@@ -212,8 +212,22 @@ typedef struct
 	struct cal_anim cal_attack_up_2_frame;
 	struct cal_anim cal_attack_up_3_frame;
 	struct cal_anim cal_attack_up_4_frame;
+	struct cal_anim cal_attack_up_5_frame;
+	struct cal_anim cal_attack_up_6_frame;
+	struct cal_anim cal_attack_up_7_frame;
+	struct cal_anim cal_attack_up_8_frame;
+	struct cal_anim cal_attack_up_9_frame;
+	struct cal_anim cal_attack_up_10_frame;
 	struct cal_anim cal_attack_down_1_frame;
-    struct cal_anim cal_attack_down_2_frame;
+	struct cal_anim cal_attack_down_2_frame;
+	struct cal_anim cal_attack_down_3_frame;
+	struct cal_anim cal_attack_down_4_frame;
+	struct cal_anim cal_attack_down_5_frame;
+	struct cal_anim cal_attack_down_6_frame;
+	struct cal_anim cal_attack_down_7_frame;
+	struct cal_anim cal_attack_down_8_frame;
+	struct cal_anim cal_attack_down_9_frame;
+	struct cal_anim cal_attack_down_10_frame;
 
 #ifdef NEW_LIGHTING
         GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
@@ -397,8 +411,22 @@ typedef struct
 	struct cal_anim cal_attack_up_2_frame;
 	struct cal_anim cal_attack_up_3_frame;
 	struct cal_anim cal_attack_up_4_frame;
+	struct cal_anim cal_attack_up_5_frame;
+	struct cal_anim cal_attack_up_6_frame;
+	struct cal_anim cal_attack_up_7_frame;
+	struct cal_anim cal_attack_up_8_frame;
+	struct cal_anim cal_attack_up_9_frame;
+	struct cal_anim cal_attack_up_10_frame;
 	struct cal_anim cal_attack_down_1_frame;
 	struct cal_anim cal_attack_down_2_frame;
+	struct cal_anim cal_attack_down_3_frame;
+	struct cal_anim cal_attack_down_4_frame;
+	struct cal_anim cal_attack_down_5_frame;
+	struct cal_anim cal_attack_down_6_frame;
+	struct cal_anim cal_attack_down_7_frame;
+	struct cal_anim cal_attack_down_8_frame;
+	struct cal_anim cal_attack_down_9_frame;
+	struct cal_anim cal_attack_down_10_frame;
 	
 	int skeleton_type;
 

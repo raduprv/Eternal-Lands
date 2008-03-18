@@ -892,6 +892,14 @@ extern "C" void ec_remove_missile(int missile_id)
     {
       // don't recall the effect, let the particles glow
       //(*iter)->effect->recall = true;
+	  // update position one last time
+      missile *mis = get_missile_ptr_from_id(missile_id);
+      if (mis) 
+	  {
+            (*iter)->position.x = mis->position[0] + mis->direction[0] * mis->remaining_distance;
+            (*iter)->position.y = mis->position[2] + mis->direction[2] * mis->remaining_distance;
+            (*iter)->position.z = -(mis->position[1] + mis->direction[1] * mis->remaining_distance);
+      }
       // set missile_id to -1 so the position of the effect is not updated anymore
       (*iter)->missile_id = -1;
       continue;

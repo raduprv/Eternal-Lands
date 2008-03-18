@@ -880,8 +880,6 @@ void next_command()
 						break;
 					case sit_down:
 						cal_actor_set_anim(i,actors_defs[actor_type].cal_sit_down_frame);
-						//cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
-						//cal_actor_set_anim(i,actors_defs[actor_type].cal_in_combat_frame);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->sitting=1;
 						if(actors_list[i]->actor_id==yourself)
@@ -922,7 +920,7 @@ void next_command()
 						break;
 					case attack_up_2:
 						if(actors_list[i]->is_enhanced_model){
-							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_1_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_2_frame);
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_2_frame);
 						}
@@ -940,7 +938,6 @@ void next_command()
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_3_frame);
 						}
-
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
@@ -950,12 +947,95 @@ void next_command()
 #endif // NEW_SOUND
 						break;
 					case attack_up_4:
-						if(actors_list[i]->is_enhanced_model) {
+						if(actors_list[i]->is_enhanced_model){
 							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_4_frame);
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_4_frame);
 						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_up_5:
+						if(actors_list[i]->is_enhanced_model){
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_5_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_5_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_up_6:
+						if(actors_list[i]->is_enhanced_model){
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_6_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_6_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_up_7:
+						if(actors_list[i]->is_enhanced_model){
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_7_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_7_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_up_8:
+						if(actors_list[i]->is_enhanced_model){
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_8_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_8_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_up_9:
+						if(actors_list[i]->is_enhanced_model){
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_9_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_9_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_up_10:
+						if(actors_list[i]->is_enhanced_model){
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_up_10_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_up_10_frame);
+						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
@@ -970,7 +1050,6 @@ void next_command()
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_1_frame);
 						}
-
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
@@ -985,7 +1064,118 @@ void next_command()
 						} else {
 							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_2_frame);
 						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
 
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_3:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_3_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_3_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_4:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_4_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_4_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_5:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_5_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_5_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_6:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_6_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_6_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_7:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_7_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_7_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_8:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_8_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_8_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_9:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_9_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_9_frame);
+						}
+						actors_list[i]->stop_animation=1;
+						actors_list[i]->fighting=1;
+
+#ifdef NEW_SOUND
+						// Maybe play a battlecry sound
+						add_battlecry_sound(actors_list[i]);
+#endif // NEW_SOUND
+						break;
+					case attack_down_10:
+						if(actors_list[i]->is_enhanced_model) {
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_attack_down_10_frame);
+						} else {
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_down_10_frame);
+						}
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->fighting=1;
 
@@ -2216,6 +2406,72 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up5") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_5_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up6") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_6_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up7") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_7_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up8") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_8_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up9") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_9_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up10") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_up_10_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_1_frame=cal_load_anim(act, str
@@ -2230,6 +2486,94 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_attack_down_2_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down3") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_3_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down4") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_4_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down5") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_5_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down6") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_6_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down7") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_7_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down8") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_8_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down9") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_9_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down10") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			weapon->cal_attack_down_10_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
@@ -2312,12 +2656,60 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			cal_set_anim_sound(&weapon->cal_attack_up_2_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up3") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_3_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up4") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_4_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up5") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_5_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up6") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_6_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up7") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_7_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up8") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_8_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up9") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_9_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_up10") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_up_10_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			cal_set_anim_sound(&weapon->cal_attack_down_1_frame, str, get_string_property(item, "sound_scale"));
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			cal_set_anim_sound(&weapon->cal_attack_down_2_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down3") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_3_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down4") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_4_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down5") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_5_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down6") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_6_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down7") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_7_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down8") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_8_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down9") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_9_frame, str, get_string_property(item, "sound_scale"));
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"snd_attack_down10") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			cal_set_anim_sound(&weapon->cal_attack_down_10_frame, str, get_string_property(item, "sound_scale"));
 #endif	//NEW_SOUND
 			} else {
 				LOG_ERROR("unknown weapon property \"%s\"", item->name);
@@ -2363,8 +2755,22 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
 			act->weapon[i].cal_attack_up_3_frame.anim_index=-1;
 			act->weapon[i].cal_attack_up_4_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_5_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_6_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_7_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_8_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_9_frame.anim_index=-1;
+			act->weapon[i].cal_attack_up_10_frame.anim_index=-1;
 			act->weapon[i].cal_attack_down_1_frame.anim_index=-1;
 			act->weapon[i].cal_attack_down_2_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_3_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_4_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_5_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_6_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_7_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_8_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_9_frame.anim_index=-1;
+			act->weapon[i].cal_attack_down_10_frame.anim_index=-1;
 			act->weapon[i].mesh_index = -1;
 		}
 	}
@@ -3085,6 +3491,72 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 					, get_int_property(item, "duration")
 #endif	//NEW_ACTOR_ANIMATION
 					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_5") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_5_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_6") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_6_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_7") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_7_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_8") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_8_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_9") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_9_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_up_10") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_up_10_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_1") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_1_frame=cal_load_anim(act, str
@@ -3099,6 +3571,94 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_2") == 0) {
 				get_string_value (str,sizeof(str),item);
      			act->cal_attack_down_2_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_3") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_3_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_4") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_4_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_5") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_5_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_6") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_6_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_7") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_7_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_8") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_8_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_9") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_9_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+#ifdef	NEW_ACTOR_ANIMATION
+					, get_int_property(item, "duration")
+#endif	//NEW_ACTOR_ANIMATION
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_attack_down_10") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_attack_down_10_frame=cal_load_anim(act, str
 #ifdef NEW_SOUND
 					, get_string_property(item, "sound")
 					, get_string_property(item, "sound_scale")
@@ -3460,8 +4020,22 @@ int parse_actor_script (xmlNode *cfg)
 	act->cal_attack_up_2_frame.anim_index= -1;
 	act->cal_attack_up_3_frame.anim_index= -1;
 	act->cal_attack_up_4_frame.anim_index= -1;
+	act->cal_attack_up_5_frame.anim_index= -1;
+	act->cal_attack_up_6_frame.anim_index= -1;
+	act->cal_attack_up_7_frame.anim_index= -1;
+	act->cal_attack_up_8_frame.anim_index= -1;
+	act->cal_attack_up_9_frame.anim_index= -1;
+	act->cal_attack_up_10_frame.anim_index= -1;
 	act->cal_attack_down_1_frame.anim_index= -1;
 	act->cal_attack_down_2_frame.anim_index= -1;
+	act->cal_attack_down_3_frame.anim_index= -1;
+	act->cal_attack_down_4_frame.anim_index= -1;
+	act->cal_attack_down_5_frame.anim_index= -1;
+	act->cal_attack_down_6_frame.anim_index= -1;
+	act->cal_attack_down_7_frame.anim_index= -1;
+	act->cal_attack_down_8_frame.anim_index= -1;
+	act->cal_attack_down_9_frame.anim_index= -1;
+	act->cal_attack_down_10_frame.anim_index= -1;
 
 #ifdef NEW_SOUND
 	act->cal_walk_frame.sound= -1;
@@ -3487,9 +4061,22 @@ int parse_actor_script (xmlNode *cfg)
 	act->cal_attack_up_2_frame.sound= -1;
 	act->cal_attack_up_3_frame.sound= -1;
 	act->cal_attack_up_4_frame.sound= -1;
+	act->cal_attack_up_5_frame.sound= -1;
+	act->cal_attack_up_6_frame.sound= -1;
+	act->cal_attack_up_7_frame.sound= -1;
+	act->cal_attack_up_8_frame.sound= -1;
+	act->cal_attack_up_9_frame.sound= -1;
+	act->cal_attack_up_10_frame.sound= -1;
 	act->cal_attack_down_1_frame.sound= -1;
 	act->cal_attack_down_2_frame.sound= -1;
-	act->battlecry.sound = -1;
+	act->cal_attack_down_3_frame.sound= -1;
+	act->cal_attack_down_4_frame.sound= -1;
+	act->cal_attack_down_5_frame.sound= -1;
+	act->cal_attack_down_6_frame.sound= -1;
+	act->cal_attack_down_7_frame.sound= -1;
+	act->cal_attack_down_8_frame.sound= -1;
+	act->cal_attack_down_9_frame.sound= -1;
+	act->cal_attack_down_10_frame.sound= -1;
 	act->battlecry.scale = 1.0f;
 #endif // NEW_SOUND
 

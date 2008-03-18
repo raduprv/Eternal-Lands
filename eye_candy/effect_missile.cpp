@@ -12,7 +12,7 @@ namespace ec
 
 // C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-MissileParticle::MissileParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
+MissileParticle::MissileParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD, const MissileEffect::MissileType _type) : Particle(_effect, _mover, _pos, _velocity)
 {
   color[0] = red + randcolor(0.2) - 0.1;
   if (color[0] > 1.0)
@@ -37,6 +37,7 @@ MissileParticle::MissileParticle(Effect* _effect, ParticleMover* _mover, const V
   flare_exp = 0.2;
   flare_frequency = 2.0;
   LOD = _LOD;
+  type = _type;
 }
 
 bool MissileParticle::idle(const Uint64 delta_t)
@@ -44,11 +45,24 @@ bool MissileParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
 
-  if (alpha < 0.01)
+  if (alpha < 0.03)
     return false;
 
   //const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 20000);
-  alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 2000000.0);
+  alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 2000000.0); // increase this number to make particles live longer
+  velocity *= 1 / (1 + delta_t / 500000.0); // slow down particles
+  velocity.y -= ((delta_t / 250000.0) * (delta_t / 250000.0)); // let particles drop
+  
+  switch (type) {
+    case MissileEffect::MAGIC:
+      // make magic particles glitter
+      color[0] = randcolor(1.0);
+      color[1] = randcolor(1.0);
+      color[2] = randcolor(1.0);
+      break;
+    default:
+      break;
+  }
   
   return true;
 }
@@ -110,12 +124,13 @@ MissileEffect::MissileEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Mis
   desired_LOD = _LOD;
   request_LOD((float)base->last_forced_LOD);
   
+  // add first particle
   Vec3 randshift;
-  randshift.randomize(0.1);
-  const Vec3 coords = *pos + randshift;
+  randshift.randomize(0.2);
+  const Vec3 coords = old_pos + randshift;
   Vec3 velocity;
   velocity.randomize(0.25);
-  Particle* p = new MissileParticle(this, mover, coords, velocity, randfloat(size), randfloat(alpha), color[0], color[1], color[2], texture, LOD);
+  Particle* p = new MissileParticle(this, mover, coords, velocity, size/4 + randfloat(size/2), 0.75 + randfloat(alpha/4), color[0], color[1], color[2], texture, LOD, type);
   base->push_back_particle(p);
 }
 
@@ -176,17 +191,20 @@ bool MissileEffect::idle(const Uint64 usec)
     return false;
 
   const float dist = (old_pos - *pos).magnitude();
+  Vec3 direction = (old_pos - *pos);
+  direction.normalize(0.75);
   
   if (dist < 1E-4) return true; // do not add more particles, dist < 0.0001
 
   for (float step = 0.0; step < dist; step += 0.025) {
 	  const percent_t percent = step / dist;
 	  Vec3 randshift;
-	  randshift.randomize(0.05);
+	  randshift.randomize(0.05); // random particle position change
 	  const Vec3 coords = (old_pos * percent) + (*pos * (1.0 - percent)) + randshift;
 	  Vec3 velocity;
-	  velocity.randomize(0.25);
-	  Particle* p = new MissileParticle(this, mover, coords, velocity, randfloat(size*2.0), randfloat(alpha), color[0], color[1], color[2], texture, LOD);
+	  velocity.randomize(0.125); // random particle movement
+	  velocity -= direction;  // follow the missile
+	  Particle* p = new MissileParticle(this, mover, coords, velocity, size/4 + randfloat(size/2), 0.5 + randfloat(alpha/2), color[0], color[1], color[2], texture, LOD, type);
 	  base->push_back_particle(p);
   }
   

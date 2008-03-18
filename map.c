@@ -211,8 +211,8 @@ static int el_load_map(const char * file_name)
 		sky_type(INTERIORS_SKY);
 	} else {
 		sky_type(CLOUDY_SKY);
+		skybox_init_defs(file_name);
 	}
-    skybox_init_defs(file_name);
 #endif /* SKY_FPV_CURSOR */
 	build_path_map();
 	init_buffers();

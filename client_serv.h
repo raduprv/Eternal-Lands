@@ -394,6 +394,20 @@ extern "C" {
 #define frame_attack_up_4 21
 #define frame_attack_down_1 22
 #define frame_attack_down_2 23
+#define frame_attack_down_3 24
+#define frame_attack_down_4 25 
+#define frame_attack_down_5 26 
+#define frame_attack_down_6 27 
+#define frame_attack_down_7 28 
+#define frame_attack_down_8 29 
+#define frame_attack_down_9 30 
+#define frame_attack_down_10 31 
+#define frame_attack_up_5 32 
+#define frame_attack_up_6 33 
+#define frame_attack_up_7 34 
+#define frame_attack_up_8 35 
+#define frame_attack_up_9 36 
+#define frame_attack_up_10 37 
 /*! @} */
 
 /*!
@@ -551,19 +565,34 @@ typedef enum actor_commands
   attack_up_3 = 48,
   attack_up_4 = 49,
   attack_down_1 = 50,
-  attack_down_2 = 51
+  attack_down_2 = 51,
 
 #ifdef MISSILES
-  , enter_aim_mode = 52
-  , leave_aim_mode = 53
-  , aim_mode_reload = 54
-  , aim_mode_fire = 55
-  , missile_miss = 56
-//   , unwear_bow = 57
-//   , unwear_quiver = 58
-  , missile_critical = 59
+  enter_aim_mode = 52,
+  leave_aim_mode = 53,
+  aim_mode_reload = 54,
+  aim_mode_fire = 55,
+  missile_miss = 56,
+  //unwear_bow = 57,
+  //unwear_quiver = 58,
+  missile_critical = 59,
 #endif // MISSILES
 
+  attack_down_3 = 60,
+  attack_down_4 = 61,
+  attack_down_5 = 62,
+  attack_down_6 = 63,
+  attack_down_7 = 64,
+  attack_down_8 = 65,
+  attack_down_9 = 66,
+  attack_down_10 = 67,
+  
+  attack_up_5 = 68,
+  attack_up_6 = 69,
+  attack_up_7 = 70,
+  attack_up_8 = 71,
+  attack_up_9 = 72,
+  attack_up_10 = 73
 } actor_commands;
 
 /*! @} */

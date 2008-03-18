@@ -630,8 +630,22 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	case frame_attack_up_2:
 	case frame_attack_up_3:
 	case frame_attack_up_4:
+	case frame_attack_up_5:
+	case frame_attack_up_6:
+	case frame_attack_up_7:
+	case frame_attack_up_8:
+	case frame_attack_up_9:
+	case frame_attack_up_10:
 	case frame_attack_down_1:
 	case frame_attack_down_2:
+	case frame_attack_down_3:
+	case frame_attack_down_4:
+	case frame_attack_down_5:
+	case frame_attack_down_6:
+	case frame_attack_down_7:
+	case frame_attack_down_8:
+	case frame_attack_down_9:
+	case frame_attack_down_10:
 	case frame_combat_idle:
 		break;
 	default:
