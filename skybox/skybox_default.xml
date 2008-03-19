@@ -103,10 +103,10 @@
 
 <!-- Color of the ambient light -->
 <light_ambient>
-  <color t="0"   r="0.35" g="0.35" b="0.35" />
-  <color t="60"  r="0.55" g="0.55" b="0.55" />
-  <color t="180" r="0.55" g="0.55" b="0.55" />
-  <color t="240" r="0.35" g="0.35" b="0.35" />
+  <color t="0"   r="0.30" g="0.30" b="0.30" />
+  <color t="60"  r="0.40" g="0.40" b="0.40" />
+  <color t="180" r="0.40" g="0.40" b="0.40" />
+  <color t="240" r="0.30" g="0.30" b="0.30" />
 </light_ambient>
 
 <!-- Color of the diffuse light -->
@@ -122,15 +122,15 @@
 <!-- Color of the ambient light when raining -->
 <light_ambient_rain>
   <color t="0"   r="0.20" g="0.20" b="0.20" />
-  <color t="60"  r="0.35" g="0.35" b="0.35" />
-  <color t="180" r="0.35" g="0.35" b="0.35" />
+  <color t="60"  r="0.30" g="0.30" b="0.30" />
+  <color t="180" r="0.30" g="0.30" b="0.30" />
   <color t="240" r="0.20" g="0.20" b="0.20" />
 </light_ambient_rain>
 
 <!-- Color of the diffuse light when raining -->
 <light_diffuse_rain>
   <color t="30"  r="0.0" g="0.0" b="0.0" />
-  <color t="60"  r="0.3" g="0.3" b="0.3" />
-  <color t="180" r="0.3" g="0.3" b="0.3" />
+  <color t="60"  r="0.15" g="0.15" b="0.15" />
+  <color t="180" r="0.15" g="0.15" b="0.15" />
   <color t="210" r="0.0" g="0.0" b="0.0" />
 </light_diffuse_rain>

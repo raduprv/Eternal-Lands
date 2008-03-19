@@ -586,7 +586,9 @@ void display_3d_reflection()
 	disable_reflection_clip_planes();
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
+#ifndef SKY_FPV_CURSOR
 	reset_material();
+#endif // SKY_FPV_CURSOR
 
 #ifdef	USE_SHADER
 	if (water_shader_quality > 0)

@@ -534,7 +534,7 @@ void animated_sky(int reflected)
 	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_FOG);
-	glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
+	//glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
@@ -613,12 +613,6 @@ void animated_sky(int reflected)
 
 void reflected_sky(int reflected)
 {
-	float ambient_backup[4];
-	float diffuse_backup[4];
-
-	glGetMaterialfv(GL_FRONT, GL_AMBIENT, ambient_backup);
-	glGetMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_backup);
-
 	//Disable lights not used for sky just in case
 	switch(show_lights)
 	{
@@ -640,15 +634,15 @@ void reflected_sky(int reflected)
 	}
 
 	glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT|GL_STENCIL_BUFFER_BIT);
-	if(use_shadow_mapping)
-	{
-		glDisable(GL_TEXTURE_2D);
-		ELglActiveTextureARB(shadow_unit);
-		glDisable(depth_texture_target);
-		disable_texgen();
-		ELglActiveTextureARB(GL_TEXTURE0);
-		glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	}
+/* 	if(use_shadow_mapping) */
+/* 	{ */
+/* 		glDisable(GL_TEXTURE_2D); */
+/* 		ELglActiveTextureARB(shadow_unit); */
+/* 		glDisable(depth_texture_target); */
+/* 		disable_texgen(); */
+/* 		ELglActiveTextureARB(GL_TEXTURE0); */
+/* 		glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); */
+/* 	} */
 	
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_LIGHTING);
@@ -694,13 +688,12 @@ void reflected_sky(int reflected)
 	glMatrixMode(GL_MODELVIEW);
 	glPopAttrib();
 
-	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_backup);
-	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_backup);
+/* 	if(use_shadow_mapping) */
+/* 	{ */
+/* 		last_texture=-1; */
+/* 	} */
 
-	if(use_shadow_mapping)
-	{
-		last_texture=-1;
-	}
+	reset_material();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	if(!is_day||dungeon)

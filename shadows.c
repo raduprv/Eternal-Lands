@@ -546,6 +546,13 @@ CHECK_GL_ERRORS();
 
 void setup_shadow_mapping()
 {
+#ifdef SKY_FPV_CURSOR
+    GLfloat shadow_color[] = {ambient_light[0]+0.2,
+                              ambient_light[1]+0.2,
+                              ambient_light[2]+0.2,
+                              1.0};
+#endif // SKY_FPV_CURSOR
+
 	glPushMatrix();
 	glLoadIdentity();
 #ifndef SKY_FPV_CURSOR
@@ -575,7 +582,11 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_ARB,GL_PREVIOUS_ARB);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_ARB,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_ARB,GL_CONSTANT_ARB);
+#ifndef SKY_FPV_CURSOR
 	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,ambient_light);
+#else // SKY_FPV_CURSOR
+	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,shadow_color);
+#endif // SKY_FPV_CURSOR
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_ARB,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_ARB,GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_ARB,GL_SRC_COLOR);
@@ -588,7 +599,11 @@ void setup_shadow_mapping()
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE0_RGB_EXT,GL_PREVIOUS_EXT);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND0_RGB_EXT,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE1_RGB_EXT,GL_CONSTANT_EXT);
+#ifndef SKY_FPV_CURSOR
 	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,ambient_light);
+#else // SKY_FPV_CURSOR
+	glTexEnvfv(GL_TEXTURE_ENV,GL_TEXTURE_ENV_COLOR,shadow_color);
+#endif // SKY_FPV_CURSOR
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND1_RGB_EXT,GL_SRC_COLOR);
 	glTexEnvi(GL_TEXTURE_ENV,GL_SOURCE2_RGB_EXT,GL_TEXTURE);
 	glTexEnvi(GL_TEXTURE_ENV,GL_OPERAND2_RGB_EXT,GL_SRC_COLOR);
@@ -608,16 +623,22 @@ void draw_sun_shadowed_scene(int any_reflection)
 	if (!use_new_lighting)
 	{
 #endif
+#ifndef SKY_FPV_CURSOR
 		if(ambient_light[0] <= 0.2f || ambient_light[1] <= 0.2f || ambient_light[2] <= 0.2f){
 			//If it's so dark that shadows would actually be lighter, then we shouldn't draw them
 			//The numbers may need a slight tuning, but seem accurate
 			return;
 		}
+#endif // SKY_FPV_CURSOR
 #ifdef NEW_LIGHTING
 	}
 #endif
 	if(use_shadow_mapping)
 		{
+#ifdef SKY_FPV_CURSOR
+            reset_material();
+#endif // SKY_FPV_CURSOR
+
 			shadow_unit=GL_TEXTURE0_ARB;
 			base_unit=GL_TEXTURE1_ARB;
 			detail_unit=GL_TEXTURE2_ARB;
