@@ -529,16 +529,6 @@ void render_fog()
 	glClearColor(rain_color[0], rain_color[1], rain_color[2], 0.0f);
 
 #ifdef SKY_FPV_CURSOR
-	if(weather_active()){
-		cloud_layer1(CLOUDS_THICK);
-		cloud_layer2(CLOUDS_THICK);
-		sky_color(FOG_COLOR);
-	} else {
-		cloud_layer1(CLOUDS_THICK);
-		cloud_layer2(CLOUDS_NONE);
-		sky_color(SKY_COLOR);
-	}
-
 	if (use_fog) {
 #endif /* SKY_FPV_CURSOR */
 	// set fog parameters
@@ -1297,11 +1287,13 @@ float get_rain_strength()
 }
 
 void render_fog() {
+#ifndef SKY_FPV_CURSOR
 	static GLfloat minDensity = 0.01f, maxDensity = 0.04f;
+	float tmpf;
+#endif // SKY_FPV_CURSOR
 	GLfloat fogDensity;
 	GLfloat rainStrength, rainAlpha, diffuseBias;
 	int i;
-	float tmpf;
 
 	rainStrength = get_rain_strength();
 	rainAlpha = 0.2f*rain_color[3]*rainStrength;
@@ -1361,17 +1353,6 @@ void render_fog() {
 #endif // SKY_FPV_CURSOR
 	
 #ifdef SKY_FPV_CURSOR
-	if (is_raining)
-	{
-		cloud_layer1(CLOUDS_THICK);
-		cloud_layer2(CLOUDS_THICK);
-		sky_color(FOG_COLOR);
-	} else {
-		cloud_layer1(CLOUDS_THICK);
-		cloud_layer2(CLOUDS_NONE);
-		sky_color(SKY_COLOR);
-	}
-
 	if (use_fog) {
 		glEnable(GL_FOG);
 		glFogi(GL_FOG_MODE, GL_EXP2);

@@ -543,7 +543,7 @@ void display_3d_reflection()
 	}
 
 #ifdef SKY_FPV_CURSOR
-	if (show_sky && reflect_sky && *display_sky != NULL) {
+	if (skybox_show_sky && *display_sky != NULL) {
 		(*display_sky)(1);
 	}
 #endif // SKY_FPV_CURSOR

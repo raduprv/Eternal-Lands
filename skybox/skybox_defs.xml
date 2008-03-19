@@ -3,8 +3,49 @@
   <!ENTITY skybox1 SYSTEM "skybox1.xml">
 ]>
 <skybox>
+  <!-- Default definitions (see the linked file for more details) -->
   &skybox_default;
+
+  <!-- Custom definitions for maps -->
   <map name="startmap.elm">
+    <!--
+      The elements defined here can use the attribute 'reset' to specify
+      if the previous definitions are discarded or updated.
+
+      Example:
+      ^^^^^^^^
+      If the default definitions for the sun are:
+      <sun>
+        <color t="150" r="1.0" g="0.9" b="0.5" />
+        <color t="300" r="0.0" g="0.0" b="0.0" />
+      </sun>
+
+      Then if we define here the following:
+      <sun>
+        <color t="30"  r="1.0" g="0.7" b="0.3" />
+        <color t="180" r="1.0" g="0.7" b="0.3" />
+      </sun>
+
+      The resulting color table for the sun will be:
+      <sun>
+        <color t="30"  r="1.0" g="0.7" b="0.3" />
+        <color t="150" r="1.0" g="0.9" b="0.5" />
+        <color t="180" r="1.0" g="0.7" b="0.3" />
+        <color t="300" r="0.0" g="0.0" b="0.0" />
+      </sun>
+
+      Now, if we define the following:
+      <sun reset="yes">
+        <color t="30"  r="1.0" g="0.7" b="0.3" />
+        <color t="180" r="1.0" g="0.7" b="0.3" />
+      </sun>
+
+      Then the resulting color table for the sun will be:
+      <sun>
+        <color t="30"  r="1.0" g="0.7" b="0.3" />
+        <color t="180" r="1.0" g="0.7" b="0.3" />
+      </sun>
+    -->
     &skybox1;
   </map>
 </skybox>

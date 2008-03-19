@@ -941,7 +941,7 @@ void resize_root_window()
 	glLoadIdentity();
 
 	glFrustum( -perspective*window_ratio*0.1f, perspective*window_ratio*0.1f, -perspective*0.1f, perspective*0.1f, 0.1f, 1000.0);
-	glGetDoublev(GL_PROJECTION_MATRIX, LongView);
+	glGetDoublev(GL_PROJECTION_MATRIX, skybox_view);
 	glLoadIdentity();							// Reset The Projection Matrix
 #endif /* SKY_FPV_CURSOR */
 

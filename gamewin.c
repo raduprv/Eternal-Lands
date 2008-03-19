@@ -77,7 +77,6 @@ int include_use_cursor_on_animals = 0;
 int have_mouse = 0;
 int just_released_mouse = 0;
 int keep_grabbing_mouse = 0;
-int show_sky = 1;
 int cursors_tex;
 unsigned char x_means[51] = "Click and Guess";
 #endif /* SKY_FPV_CURSOR */
@@ -1029,7 +1028,7 @@ int display_game_handler (window_info *win)
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
 #ifdef SKY_FPV_CURSOR
-		if (show_sky && *display_sky != NULL) {
+		if (skybox_show_sky && *display_sky != NULL) {
 			(*display_sky)(0);
 		}
 #endif /* SKY_FPV_CURSOR */
@@ -1266,12 +1265,10 @@ int display_game_handler (window_info *win)
 		draw_string (win->len_x-hud_x-105, 32, str, 1);
 
 #ifndef NEW_WEATHER
-#ifdef SKY_FPV_CURSOR
-		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f)",
-					  ambient_light[0], ambient_light[1], ambient_light[2],
-					  diffuse_light[0], diffuse_light[1], diffuse_light[2]);
+		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f,%.2f)",
+					  ambient_light[0], ambient_light[1], ambient_light[2], ambient_light[3],
+					  diffuse_light[0], diffuse_light[1], diffuse_light[2], diffuse_light[3]);
 		draw_string (0, win->len_y - hud_y - 65, str, 1);
-#endif // SKY_FPV_CURSOR
 		safe_snprintf((char*)str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
 				is_raining, seconds_till_rain_starts, seconds_till_rain_stops, num_rain_drops,
 				rain_strength_bias, rain_color[3], fogAlpha);
@@ -1598,6 +1595,16 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if((keysym == SDLK_q) && shift_on && ctrl_on && alt_on)
 	{
 		if(game_minute <  5) game_minute +=355; else game_minute -=  5;
+		new_minute();
+	}
+	else if((keysym == SDLK_w) && !shift_on && ctrl_on && alt_on)
+	{
+		if(game_minute >= 359) game_minute -=359; else game_minute +=  1;
+		new_minute();
+	}
+	else if((keysym == SDLK_q) && !shift_on && ctrl_on && alt_on)
+	{
+		if(game_minute <  1) game_minute +=359; else game_minute -=  1;
 		new_minute();
 	}
 #ifdef SKY_FPV_CURSOR

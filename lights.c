@@ -109,10 +109,10 @@ light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
 #ifdef SKY_FPV_CURSOR
 sun sun_pos[360];
-sun sun_show[60*6];
+sun sun_show[181];
 #elif defined(NEW_LIGHTING)
 sun sun_pos[60*6];
-#else 
+#else
 sun sun_pos[60*3];
 #endif
 
@@ -510,8 +510,13 @@ void draw_global_light()
 		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
 #else // SKY_FPV_CURSOR
-		blend_colors(ambient_light, skybox_light_ambient[game_minute], skybox_light_ambient_rain[game_minute], weather_rain_intensity, 4);
-		blend_colors(diffuse_light, skybox_light_diffuse[game_minute], skybox_light_diffuse_rain[game_minute], weather_rain_intensity, 4);
+		blend_colors(ambient_light, skybox_light_ambient[game_minute],
+					 skybox_light_ambient_rain[game_minute], weather_rain_intensity, 4);
+		blend_colors(diffuse_light, skybox_light_diffuse[game_minute],
+					 skybox_light_diffuse_rain[game_minute], weather_rain_intensity, 4);
+		ambient_light[0] += (float)thunder_light_offset*0.03;
+		ambient_light[1] += (float)thunder_light_offset*0.05;
+		ambient_light[2] += (float)thunder_light_offset*0.06;
 #endif // SKY_FPV_CURSOR
  #ifdef NEW_LIGHTING
  	}
@@ -874,52 +879,69 @@ void build_sun_pos_table()
 	else
 	{
 #endif // NEW_LIGHTING
-#ifndef SKY_FPV_CURSOR
 		float x,y,z;
+#ifndef SKY_FPV_CURSOR
 		int start=60;
 		
 		x=0;
 		for(i=0;i<60*3;i++)
-#else /* SKY_FPV_CURSOR */
-	float x,y,z,step;
-	int start;//60;
-
-	x=0;
-	for(i=0;i<60*6;i++)
-#endif /* SKY_FPV_CURSOR */
 		{
-#ifndef SKY_FPV_CURSOR
 			z = d*sin((float)(i+start)*0.6f*M_PI/180.0f);
 			y = d*cos((float)(i+start)*0.6f*M_PI/180.0f);
 			x+=0.5f;
-#else /* SKY_FPV_CURSOR */
-			step = 1.05f;
-			start=-4.5f;
-			
-			z = sin((float)(i+start)*step*M_PI/180.0f);
-			x = cos((float)(i+start)*step*M_PI/180.0f);
-			y = 0;
-			//x+=0.5f;
-
-			sun_show[i].x=x;
-			sun_show[i].y=y;
-			sun_show[i].z=z;
-			sun_show[i].w=0.0f;
-
-			step = 0.9f;
-			start=9.0f;
-
-			z = d*sin((float)(i+start)*step*M_PI/180.0f);
-			x = d*cos((float)(i+start)*step*M_PI/180.0f);
-			y = 0;
-			//x+=0.5f;
-#endif /* SKY_FPV_CURSOR */
-
 			sun_pos[i].x=x;
 			sun_pos[i].y=y;
 			sun_pos[i].z=z;
 			sun_pos[i].w=0.0f;
 		}
+#else /* SKY_FPV_CURSOR */
+		float start, step;
+
+		// position of the displayed sun
+		step  = 189.0/180.0;
+		start = -4.5;
+		for(i = 0; i <= 180; i++)
+		{
+			z = sinf((start+i*step)*M_PI/180.0);
+			x = cosf((start+i*step)*M_PI/180.0);
+			y = 0;
+
+			sun_show[i].x=x;
+			sun_show[i].y=y;
+			sun_show[i].z=z;
+			sun_show[i].w=0.0;
+		}
+
+		// position of the light during the day
+		step  = 162.0/180.0;
+		start = 9.0;
+		for(i = 0; i < 180; i++)
+		{
+			z = d*sinf((start+i*step)*M_PI/180.0);
+			x = d*cosf((start+i*step)*M_PI/180.0);
+			y = 0;
+
+			sun_pos[i].x=x;
+			sun_pos[i].y=y;
+			sun_pos[i].z=z;
+			sun_pos[i].w=0.0;
+		}
+
+		// position of the light during the night (used to light the moons)
+		step  = 198.0/180.0;
+		start = -27.0;
+		for(i = 180; i < 360; i++)
+		{
+			z = d*sinf((start+i*step)*M_PI/180.0);
+			x = d*cosf((start+i*step)*M_PI/180.0);
+			y = 0;
+
+			sun_pos[i].x=x;
+			sun_pos[i].y=y;
+			sun_pos[i].z=z;
+			sun_pos[i].w=0.0;
+		}
+#endif /* SKY_FPV_CURSOR */
 #ifdef NEW_LIGHTING
 	}
 #endif // NEW_LIGHTING
@@ -970,43 +992,39 @@ void new_minute()
 	else
 	{
 #endif // NEW_LIGHTING
+#ifdef SKY_FPV_CURSOR
+		if(game_minute >= 30 && game_minute <= 210 && !dungeon)
+		{
+			skybox_sun_position[0] = sun_show[game_minute-30].x;
+			skybox_sun_position[1] = sun_show[game_minute-30].y;
+			skybox_sun_position[2] = sun_show[game_minute-30].z;
+			skybox_sun_position[3] = sun_show[game_minute-30].w;
+#else // SKY_FPV_CURSOR
 		if(game_minute>=30 && game_minute<60*3+30 && !dungeon)
 		{
+#endif // SKY_FPV_CURSOR
 			disable_local_lights();
 			is_day=1;
 			sun_position[0]=sun_pos[game_minute-30].x;
 			sun_position[1]=sun_pos[game_minute-30].y;
 			sun_position[2]=sun_pos[game_minute-30].z;
 			sun_position[3]=sun_pos[game_minute-30].w;
-#ifdef SKY_FPV_CURSOR
-			sun_appears[0]=sun_show[game_minute-30].x;
-			sun_appears[1]=sun_show[game_minute-30].y;
-			sun_appears[2]=sun_show[game_minute-30].z;
-			sun_appears[3]=sun_show[game_minute-30].w;
-#endif /* SKY_FPV_CURSOR */
 			calc_shadow_matrix();
 		}
 		else//it's too dark, or we are in a dungeon
 		{
+#ifndef SKY_FPV_CURSOR
+			sun_position[0]=sun_position[1]=sun_position[2]=sun_position[3]=0.0;
+#else /* SKY_FPV_CURSOR */
+			int shift_time = (game_minute+330)%360;
+			sun_position[0] = sun_pos[shift_time].x;
+			sun_position[1] = sun_pos[shift_time].y;
+			sun_position[2] = sun_pos[shift_time].z;
+			sun_position[3] = sun_pos[shift_time].w;
+			skybox_sun_position[0] = skybox_sun_position[1] = skybox_sun_position[2] = skybox_sun_position[3] = 0.0;
+#endif /* SKY_FPV_CURSOR */
 			is_day=0;
 			enable_local_lights();
-#ifndef SKY_FPV_CURSOR
-		    	sun_position[0]=sun_position[1]=sun_position[2]=0.0;
-#else /* SKY_FPV_CURSOR */
-			sun_position[0]=sun_position[1]=sun_position[2]=0.0;
-			sun_appears[0]=sun_appears[1]=sun_appears[2]=0.0;
-		}
-		if(game_minute>=30){
-			sun_position[0]=sun_pos[game_minute-30].x;
-			sun_position[1]=sun_pos[game_minute-30].y;
-			sun_position[2]=sun_pos[game_minute-30].z;
-			sun_position[3]=sun_pos[game_minute-30].w;
-		} else {
-			sun_position[0]=sun_pos[game_minute+329].x;
-			sun_position[1]=sun_pos[game_minute+329].y;
-			sun_position[2]=sun_pos[game_minute+329].z;
-			sun_position[3]=sun_pos[game_minute+329].w;
-#endif /* SKY_FPV_CURSOR */
 		}
 #ifdef NEW_LIGHTING
 	}

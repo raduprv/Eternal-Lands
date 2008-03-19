@@ -372,10 +372,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 
 			//Calculate fraction Big Lunar month (2 conjunction months) less game clock time
 			//Represented in Degrees.
-			time_d = (SDL_GetTicks()%( 1296000 * 1000 ));
-			time_d *= 360.0/( 1296000.0 * 1000.0);
-			time_d = -time_d;
-			time_d += 360.0 * (((month%2)*30 + day-1)*360 + game_minute)/21600.0;
+			skybox_time_d = (SDL_GetTicks()%( 1296000 * 1000 ));
+			skybox_time_d *= 360.0/( 1296000.0 * 1000.0);
+			skybox_time_d = -skybox_time_d;
+			skybox_time_d += 360.0 * (((month%2)*30 + day-1)*360 + game_minute)/21600.0;
 
 #endif /* SKY_FPV_CURSOR */
 			return 0;

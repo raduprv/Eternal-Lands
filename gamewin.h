@@ -28,7 +28,6 @@ extern int include_use_cursor_on_animals;
 extern int have_mouse;
 extern int keep_grabbing_mouse;
 extern int just_released_mouse;
-extern int show_sky;
 void toggle_have_mouse();
 extern int cursors_tex;
 void draw_cursor();

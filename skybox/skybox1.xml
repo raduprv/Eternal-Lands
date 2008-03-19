@@ -1,4 +1,9 @@
-<!-- color of the sun -->
-<sun overwrite="yes">
-  <color t="0" r="0.0" g="1.0" b="0.0" />
+<!-- Override the global properties -->
+<properties>
+<!--  <stars show="no" /> -->
+</properties>
+
+<!-- Color of the sun -->
+<sun reset="yes">
+  <color t="0" r="1.0" g="0.0" b="0.0" />
 </sun>

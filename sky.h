@@ -8,18 +8,17 @@
 
 #ifdef SKY_FPV_CURSOR
 
-void (*display_sky)(int);
+extern int skybox_show_sky;
+extern int skybox_show_clouds;
+extern int skybox_show_sun;
+extern int skybox_show_moons;
+extern int skybox_show_stars;
 
-extern int show_moons ,show_sun,show_stars,horizon_fog,clouds1,clouds2,reflect_sky;
-extern int clouds_tex;
-extern int cloud_detail_tex;
-extern int smokey_cloud_tex;
-extern int moon_tex;
-extern int sun_tex;
-extern float sun_appears[4];
-extern double LongView[16];
-extern double time_d;
-extern int show_sky;
+// position of the sun (different from the light position!)
+extern float skybox_sun_position[4];
+
+extern double skybox_view[16];
+extern double skybox_time_d;
 
 extern float skybox_clouds[360][4];
 extern float skybox_clouds_detail[360][4];
@@ -37,18 +36,11 @@ extern float skybox_light_diffuse[360][4];
 extern float skybox_light_ambient_rain[360][4];
 extern float skybox_light_diffuse_rain[360][4];
 
-#define CLOUDS_NONE	0
-#define CLOUDS_THICK	1
-#define FOG_COLOR	0
-#define SKY_COLOR	1
-#define CLOUDY_SKY	0
-#define UNDERWORLD_SKY	1
-#define INTERIORS_SKY	2
+#define CLOUDY_SKY	   0
+#define UNDERWORLD_SKY 1	
+#define INTERIORS_SKY  2
 
-
-void cloud_layer1(int clouds);
-void cloud_layer2(int clouds);
-void sky_color(int sky);
+void (*display_sky)(int);
 void sky_type(int sky);
 
 void blend_colors(float result[], float orig[], float dest[], float t, int size);

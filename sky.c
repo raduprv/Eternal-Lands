@@ -21,7 +21,6 @@
 #include "weather.h"
 
 #define SLICES 21
-float foo[4],foo1[4],foo2[4],foo3[4];
 float slice_list[SLICES][2] = {
 	{1,	0},
 	{0.95,	0.31},
@@ -61,6 +60,22 @@ float skybox_light_ambient[360][4];
 float skybox_light_diffuse[360][4];
 float skybox_light_ambient_rain[360][4];
 float skybox_light_diffuse_rain[360][4];
+int skybox_no_clouds = 1;
+int skybox_no_sun = 1;
+int skybox_no_moons = 1;
+int skybox_no_stars = 1;
+int skybox_clouds_tex = -1;
+int skybox_clouds_detail_tex = -1;
+
+int skybox_show_sky = 1;
+int skybox_show_clouds = 1;
+int skybox_show_sun = 1;
+int skybox_show_moons = 1;
+int skybox_show_stars = 1;
+
+float skybox_sun_position[4] = {0.0, 0.0, 0.0, 0.0};
+double skybox_time_d = 0.0;
+double skybox_view[16];
 
 void (*display_sky)(int);
 
@@ -68,28 +83,18 @@ void (*display_sky)(int);
 #define fogColor rain_color
 #endif //NEW_WEATHER
 
+#define NUM_STARS 3000
+float strs[NUM_STARS][3];
+float fog1[4], fog2[4], fog3[4], fog4[4];
+float *fog[4] = {fog1, fog2, fog3, fog4};
 GLuint skyLists;
-int show_moons = 1,show_sun = 1,show_stars = 1,horizon_fog = 1,clouds1 = 1,clouds2 = 1,reflect_sky=1;
-int clouds_tex;
-int cloud_detail_tex;
 int smokey_cloud_tex;
 int moon_tex;
 int sun_tex;
-double time_d;
-#define NUM_STARS 3000
-float strs[NUM_STARS][3];
-float sun_appears[4]={0,0,0,0};
-double LongView[16];
-void cloud_layer1(int clouds);
-void cloud_layer2(int clouds);
-void sky_color(int sky);
-int cloud_1=CLOUDS_THICK, cloud_2=CLOUDS_NONE, sky=SKY_COLOR;
-float fog1[4], fog2[4], fog3[4], fog4[4];
-float *fog[4] = {fog1, fog2, fog3, fog4};
 
 void cloudy_sky(int reflected);
 void animated_sky(int reflected);
-void simple_sky(int reflected);
+//void simple_sky(int reflected);
 void reflected_sky(int reflected);
 
 /*
@@ -142,20 +147,6 @@ void sky_type(int sky)
 		default:
 			display_sky = reflected_sky;
 	}
-}
-
-void cloud_layer1(int clouds)
-{
-	cloud_1 = clouds;
-}
-void cloud_layer2(int clouds)
-{
-	cloud_2 = clouds;
-}
-
-void sky_color(int sky_col)
-{
-	sky = sky_col;
 }
 
 /*
@@ -252,7 +243,7 @@ void skybox_cloudy(int reflected)
 	VECTOR4 vec_black={0.0, 0.0, 0.0, 0.0};
 
 	// we compute the fog color
-	for (i = 4; i-- ; )
+	for (i = 3; i-- ; )
 		fog[0][i] = fog[1][i] = fog[2][i] = fog[3][i] = fogColor[i];
 	fog[0][3] = 1.0;
 	fog[1][3] = 0.75;
@@ -268,49 +259,42 @@ void skybox_cloudy(int reflected)
 
 	spin = cur_time%( 1296000 * 1000 );
 	spin*=360.0/( 1296000.0/*seconds in large month*/ * 1000.0/*millisecond bump*/ );
-	spin += time_d;
+	spin += skybox_time_d;
 
 	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_TEXTURE_2D);
 
 #ifdef NEW_WEATHER
-	if (sky!=SKY_COLOR&&weather_active())
-#else /* !NEW_WEATHER */
-	if (sky!=SKY_COLOR&&(seconds_till_rain_stops<1||seconds_till_rain_stops>59)&&seconds_till_rain_starts<1)
-#endif /* NEW_WATHER */
+	if (weather_active() && weather_get_fadein_bias() <= 0.0 && weather_get_fadeout_bias() <= 0.0)
 	{
-		// it is fully raining => draw a sky with the color of the fog
 		rain_coef = 1.0;
-		glColor4fv(fog[0]);
-		glCallList(skyLists);
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		glEnable(GL_BLEND);
-		glEnable(GL_TEXTURE_2D);
 	}
-	else // not fully raining
+	if(weather_get_fadeout_bias() < 1.0f && weather_get_fadeout_bias() > 0.0f)
 	{
-#ifdef NEW_WEATHER
-		if(weather_get_fadeout_bias() < 1.0f && weather_get_fadeout_bias() > 0.0f)
-		{
-			rain_coef = weather_get_fadeout_bias();
-		}
-		else if(weather_get_fadein_bias() < 1.0f && weather_get_fadein_bias() > 0.0f)
-		{
-			rain_coef = 1.0 - weather_get_fadein_bias();
-		}
-        else
-		{
-			rain_coef = 0.0f;
-		}
-#else // NEW_WEATHER
-        rain_coef = weather_rain_intensity;
+		rain_coef = weather_get_fadeout_bias();
+	}
+	else if(weather_get_fadein_bias() < 1.0f && weather_get_fadein_bias() > 0.0f)
+	{
+		rain_coef = 1.0 - weather_get_fadein_bias();
+	}
+	else
+	{
+		rain_coef = 0.0f;
+	}
+#else /* NEW_WATHER */
+	rain_coef = weather_rain_intensity;
 #endif // NEW_WEATHER
         
+	if (rain_coef == 1.0) {
+		// we draw the sky with the color of the fog
+		glColor4fv(fog[0]);
+		glCallList(skyLists);
+	}
+	else {
 		// we draw the sky
-		glDisable(GL_TEXTURE_2D);
 		glColor4fv(skybox_sky4[game_minute]);
 		glCallList(skyLists);
-
+		
 		// we draw the gradient at the horizon
 		blend_colors(col1, skybox_sky1[game_minute], skybox_fog_rain[game_minute], rain_coef, 3);
 		blend_colors(col2, skybox_sky2[game_minute], skybox_fog_rain[game_minute], rain_coef, 3);
@@ -325,104 +309,105 @@ void skybox_cloudy(int reflected)
 		glScalef(500.0, 500.0, 100.0);
 		colorSkyCyl(3, colors);
 		glPopMatrix();
-
-		glEnable(GL_BLEND);
-		glEnable(GL_TEXTURE_2D);
-		glBlendFunc(GL_SRC_COLOR, GL_ONE);
-		glEnable(GL_DEPTH_TEST);
-
-		// Alpha adjustment for objects that should fade in daylight
-		day_alpha = (1.0-abs_light)*(1.0-rain_coef);
-
-		// Rotate sky for time of day
-		if(show_moons)
-		{
-			VECTOR4 vec_moon = {day_alpha*0.5 + 0.5,
-								day_alpha*0.5 + 0.5,
-								day_alpha*0.5 + 0.5,
-								1.0};
-
-			// the current light color is black so we change it to light the moons
-			VECTOR4 vec_light = {0.8, 0.8, 0.8, 1.0};
-			glLightfv(GL_LIGHT7, GL_DIFFUSE, vec_light);
-
-			glPushMatrix();
-			glPushAttrib(GL_ENABLE_BIT);
-			glRotatef((float)game_minute, 0.0, -1.0, 0.0);
-
-			//glEnable(GL_CULL_FACE);
-			glEnable(GL_LIGHTING);
-			glDisable(GL_COLOR_MATERIAL);
-			get_and_set_texture_id(moon_tex);
-			glMaterialfv(GL_FRONT, GL_AMBIENT, vec_black);
-			
-			vec_moon[1] /= 1.2f;
-			vec_moon[2] /= 1.5f;
-			
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, vec_moon);
-			
-			glPushMatrix();
-			glRotatef(20.0, 0.0, 0.0, 1.0);
-			glRotatef(10.0*spin, 0.0, 1.0, 0.0);
-			glTranslatef(0.0, 0.0, 400.0);
-			glScalef(.5,.5,.5);
-			glCallList(skyLists+3);
-			glPopMatrix();
-			
-			vec_moon[1] *= 1.2f;
-			vec_moon[2] *= 1.5f;
-			
-			glMaterialfv(GL_FRONT, GL_DIFFUSE, vec_moon);
-			
-			glPushMatrix();
-			glRotatef(spin, 0.0, 1.0, 0.0);
-			glTranslatef(0.0, 0.0, 400.0);
-			glRotatef(spin-80.0, 0.0, 1.0, 0.0);
-			glCallList(skyLists+3);
-			glPopMatrix();
-
-			glPopAttrib();
-			glPopMatrix();
-			glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light); // we restore the light color
-		}
-
-		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-		if (show_stars)
-		{
-			glPushMatrix();
-			glRotatef((float)game_minute, 0.0, -1.0, 0.0);
-
-#ifdef	USE_SHADER
-			if (reflected && water_shader_quality > 0)
-#else	// USE_SHADER
-			if (reflected && use_frame_buffer)
-#endif	// USE_SHADER
-				glPointSize(2.0);
-			else
-				glPointSize(1.0);
-			glColor4f(1.0, 1.0, 1.0, day_alpha);
-			glCallList(skyLists+2);
-			glColor4f(1.0, 1.0, 1.0, day_alpha*0.5);
-			glCallList(skyLists+4);
-			glColor4f(1.0, 1.0, 1.0, day_alpha*0.25);
-			glCallList(skyLists+5);
-			glPopMatrix();
-		}
-
-		glDisable(GL_DEPTH_TEST);
-	} // not fully raining
-
-    blend_colors(col1, skybox_clouds[game_minute], skybox_clouds_rain[game_minute], rain_coef, 4);
-    blend_colors(col2, skybox_clouds_detail[game_minute], skybox_clouds_detail_rain[game_minute], rain_coef, 4);
-	if (clouds1)
+	}
+	
+	glEnable(GL_BLEND);
+	glEnable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	
+	// Alpha adjustment for objects that should fade in daylight
+	day_alpha = (1.0-abs_light)*(1.0-rain_coef);
+	
+	if (skybox_show_stars && !skybox_no_stars && day_alpha > 0.0)
 	{
+		glPushMatrix();
+		glRotatef((float)game_minute, 0.0, -1.0, 0.0);
+		
+#ifdef	USE_SHADER
+		if (reflected && water_shader_quality > 0)
+#else	// USE_SHADER
+		if (reflected && use_frame_buffer)
+#endif	// USE_SHADER
+			glPointSize(2.0);
+		else
+			glPointSize(1.0);
+		glColor4f(1.0, 1.0, 1.0, day_alpha);
+		glCallList(skyLists+2);
+		glColor4f(1.0, 1.0, 1.0, day_alpha*0.5);
+		glCallList(skyLists+4);
+		glColor4f(1.0, 1.0, 1.0, day_alpha*0.25);
+		glCallList(skyLists+5);
+		glPopMatrix();
+	}
+	
+	glEnable(GL_TEXTURE_2D);
+	glBlendFunc(GL_SRC_COLOR, GL_ONE);
+
+	// Rotate sky for time of day
+	if(skybox_show_moons && !skybox_no_moons && day_alpha > 0.0)
+	{
+		VECTOR4 vec_moon = {day_alpha*0.5 + 0.5,
+							day_alpha*0.5 + 0.5,
+							day_alpha*0.5 + 0.5,
+							1.0};
+		
+		// the current light color is black so we change it to light the moons
+		VECTOR4 vec_light = {0.8, 0.8, 0.8, 1.0};
+		glLightfv(GL_LIGHT7, GL_DIFFUSE, vec_light);
+		
+		glPushMatrix();
+		glPushAttrib(GL_ENABLE_BIT);
+		glRotatef((float)game_minute, 0.0, -1.0, 0.0);
+		
+		glEnable(GL_LIGHTING);
+		glDisable(GL_COLOR_MATERIAL);
+		get_and_set_texture_id(moon_tex);
+		glMaterialfv(GL_FRONT, GL_AMBIENT, vec_black);
+		
+		vec_moon[1] /= 1.2f;
+		vec_moon[2] /= 1.5f;
+		
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, vec_moon);
+		
+		glPushMatrix();
+		glRotatef(20.0, 0.0, 0.0, 1.0);
+		glRotatef(10.0*spin, 0.0, 1.0, 0.0);
+		glTranslatef(0.0, 0.0, 450.0);
+		glScalef(.5,.5,.5);
+		glCallList(skyLists+3);
+		glPopMatrix();
+		
+		vec_moon[1] *= 1.2f;
+		vec_moon[2] *= 1.5f;
+		
+		glMaterialfv(GL_FRONT, GL_DIFFUSE, vec_moon);
+		
+		glPushMatrix();
+		glRotatef(spin, 0.0, 1.0, 0.0);
+		glTranslatef(0.0, 0.0, 400.0);
+		glRotatef(spin-80.0, 0.0, 1.0, 0.0);
+		glCallList(skyLists+3);
+		glPopMatrix();
+		
+		glPopAttrib();
+		glPopMatrix();
+		glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light); // we restore the light color
+	}
+	
+	glDisable(GL_DEPTH_TEST);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	if (skybox_show_clouds && !skybox_no_clouds)
+	{
+		blend_colors(col1, skybox_clouds[game_minute], skybox_clouds_rain[game_minute], rain_coef, 4);
+		blend_colors(col2, skybox_clouds_detail[game_minute], skybox_clouds_detail_rain[game_minute], rain_coef, 4);
 		glPushMatrix();
 		glTranslatef(0.0, 0.0, -0.5);
 		glScalef(1.0, 1.0, 0.17);
 		glRotatef(90.0, 1.0, 0.0, 0.0);
 		glRotatef(spin*1000, 0.0, 0.0, 1.0);
 		glColor4fv(col1);
-		get_and_set_texture_id(clouds_tex);
+		get_and_set_texture_id(skybox_clouds_tex);
 		glCallList(skyLists);
 		glPopMatrix();
 
@@ -431,30 +416,31 @@ void skybox_cloudy(int reflected)
 		glRotatef(90.0, 1.0, 0.0, 0.0);
 		glRotatef(spin*1000, 0.0, 0.0, 1.0);
 		glColor4fv(col2);
-		get_and_set_texture_id(cloud_detail_tex);
-		glCallList(skyLists);
-		glPopMatrix();
-	}
-	if (clouds2 && rain_coef > 0.0)
-	{
-		col1[3] = col2[3] = rain_coef;
-		glPushMatrix();
-		glScalef(-1.0, 1.0, 0.17);
-		glRotatef(90.0, 1.0, 0.0, 0.0);
-		glRotatef(spin*4000, 0.0, 0.0, 1.0);
-		glColor4fv(col1);
-		get_and_set_texture_id(clouds_tex);
+		get_and_set_texture_id(skybox_clouds_detail_tex);
 		glCallList(skyLists);
 		glPopMatrix();
 
-		glPushMatrix();
-		glScalef(1.0, 1.0, 0.16);
-		glRotatef(90.0, 1.0, 0.0, 0.0);
-		glRotatef(spin*4000, 0.0, 0.0, 1.0);
-		glColor4fv(col2);
-		get_and_set_texture_id(cloud_detail_tex);
-		glCallList(skyLists);
-		glPopMatrix();
+		if (rain_coef > 0.0)
+		{
+			col1[3] = col2[3] = rain_coef;
+			glPushMatrix();
+			glScalef(-1.0, 1.0, 0.17);
+			glRotatef(90.0, 1.0, 0.0, 0.0);
+			glRotatef(spin*4000, 0.0, 0.0, 1.0);
+			glColor4fv(col1);
+			get_and_set_texture_id(skybox_clouds_tex);
+			glCallList(skyLists);
+			glPopMatrix();
+			
+			glPushMatrix();
+			glScalef(1.0, 1.0, 0.16);
+			glRotatef(90.0, 1.0, 0.0, 0.0);
+			glRotatef(spin*4000, 0.0, 0.0, 1.0);
+			glColor4fv(col2);
+			get_and_set_texture_id(skybox_clouds_detail_tex);
+			glCallList(skyLists);
+			glPopMatrix();
+		}
 	}
 
 	glDisable(GL_TEXTURE_2D);
@@ -471,37 +457,40 @@ void skybox_cloudy(int reflected)
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
 
 	// draw sun
-	if (show_sun && ((sun_appears[0]*sun_appears[0])+(sun_appears[1]*sun_appears[1])+(sun_appears[2]*sun_appears[2]) > 0.01))
+	if (skybox_show_sun && !skybox_no_sun &&
+		(skybox_sun_position[0] != 0.0 ||
+		 skybox_sun_position[1] != 0.0 ||
+		 skybox_sun_position[2] != 0.0))
 	{
 		blend_colors(col1, skybox_sun[game_minute], vec_black, rain_coef, 4);
 		glColor4fv(col1);
 		get_and_set_texture_id(sun_tex);
 		
 		glPushMatrix();
-		glScalef(450.0, 450.0, 450.0);
+		glScalef(480.0, 480.0, 480.0);
 		glBegin(GL_QUADS);
 		{
 			//two cross products. Dangerous to use these functions. Float type essential.
 			//Better to robustly produce two vectors in perpendicular plane elsewhere.
-			VECTOR3 perp1, perp2, someVec={0,1,0};
-			VCross(perp1, someVec, sun_appears);
-			VCross(perp2, perp1, sun_appears);
+			VECTOR3 perp1, perp2, someVec = {0.0, 1.0, 0.0};
+			VCross(perp1, someVec, skybox_sun_position);
+			VCross(perp2, perp1, skybox_sun_position);
 			glTexCoord2f(0,0);
-			glVertex3f(sun_appears[0]+.08*(perp1[0]+perp2[0]),
-					   sun_appears[1]+.08*(perp1[1]+perp2[1]),
-					   sun_appears[2]+.08*(perp1[2]+perp2[2]));
+			glVertex3f(skybox_sun_position[0]+.08*(perp1[0]+perp2[0]),
+					   skybox_sun_position[1]+.08*(perp1[1]+perp2[1]),
+					   skybox_sun_position[2]+.08*(perp1[2]+perp2[2]));
 			glTexCoord2f(1,0);
-			glVertex3f(sun_appears[0]+.08*(-perp1[0]+perp2[0]),
-					   sun_appears[1]+.08*(-perp1[1]+perp2[1]),
-					   sun_appears[2]+.08*(-perp1[2]+perp2[2]));
+			glVertex3f(skybox_sun_position[0]+.08*(-perp1[0]+perp2[0]),
+					   skybox_sun_position[1]+.08*(-perp1[1]+perp2[1]),
+					   skybox_sun_position[2]+.08*(-perp1[2]+perp2[2]));
 			glTexCoord2f(1,1);
-			glVertex3f(sun_appears[0]+.08*(-perp1[0]-perp2[0]),
-					   sun_appears[1]+.08*(-perp1[1]-perp2[1]),
-					   sun_appears[2]+.08*(-perp1[2]-perp2[2]));
+			glVertex3f(skybox_sun_position[0]+.08*(-perp1[0]-perp2[0]),
+					   skybox_sun_position[1]+.08*(-perp1[1]-perp2[1]),
+					   skybox_sun_position[2]+.08*(-perp1[2]-perp2[2]));
 			glTexCoord2f(0,1);
-			glVertex3f(sun_appears[0]+.08*(perp1[0]-perp2[0]),
-					   sun_appears[1]+.08*(perp1[1]-perp2[1]),
-					   sun_appears[2]+.08*(perp1[2]-perp2[2]));
+			glVertex3f(skybox_sun_position[0]+.08*(perp1[0]-perp2[0]),
+					   skybox_sun_position[1]+.08*(perp1[1]-perp2[1]),
+					   skybox_sun_position[2]+.08*(perp1[2]-perp2[2]));
 		}
 		glEnd();
 		glPopMatrix();
@@ -527,15 +516,12 @@ void animated_sky(int reflected)
 	glPushMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glLoadMatrixd(LongView);
+	glLoadMatrixd(skybox_view);
 	glMatrixMode(GL_MODELVIEW);
 
 	glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
-	glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
-/* 	glRotatef(rx,1.0,0.0,0.0); */
-/* 	glRotatef(rz,0.0,0.0,1.0); */
-	if (reflected)
-		glScalef(1.0, 1.0, -1.0);
+	glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -40.0);
+
 	if(use_shadow_mapping)
 	{
 		glDisable(GL_TEXTURE_2D);
@@ -560,50 +546,56 @@ void animated_sky(int reflected)
 	
 	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+
 	get_and_set_texture_id(smokey_cloud_tex);
 	glPushMatrix();
 	glScalef(1.0, 1.0, 0.17);
 	glPushMatrix();
-	glColor4f(1,0,0,1);
-	glRotatef(spin,0.0,0.0,1.0);
-	glRotatef(90.0f,0.0f,1.0f,0.0f);
-	glRotatef(spin,0.0,0.0,1.0);
+	glColor4f(1.0, 0.0, 0.0, 1.0);
+	glRotatef(spin, 0.0, 0.0, 1.0);
+	glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
+	glRotatef(spin, 0.0, 0.0, 1.0);
 	glCallList(skyLists);
 	glPopMatrix();
+
 	glPushMatrix();
-	glColor4f(1,.2,0,1);
-	glRotatef(spin*2,0.0,0.0,1.0);
-	glRotatef(90.0f,1.0f,0.0f,0.0f);
-	glRotatef(spin*2,0.0,0.0,1.0);
+	glColor4f(1.0, 0.2, 0.0, 1.0);
+	glRotatef(spin*2, 0.0, 0.0, 1.0);
+	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
+	glRotatef(spin*2, 0.0, 0.0, 1.0);
 	glCallList(skyLists);
 	glPopMatrix();
 	glPopMatrix();
+
 	glDisable(GL_TEXTURE_2D);
 
-	fog[0][0] = fog[1][0] = fog[2][0] = 1;
-	fog[0][1] = 1;
-	fog[2][1] = 0;
-	fog[0][2] = fog[1][2] = fog[2][2] = 0;
-	fog[1][1] = .5;
+	fog[0][0] = 1.0;
+	fog[0][1] = 0.7;
+	fog[0][2] = 0.0;
 	fog[0][3] = 1.0;
-	fog[1][3] = 1.0;
-	fog[2][3] = 0.0;
-	fog[3][0] = fog[2][0];
-	fog[3][1] = fog[2][1];
-	fog[3][2] = fog[2][2];
-	fog[3][3] = fog[2][3];
+
+	fog[1][0] = 1.0;
+	fog[1][1] = 0.5;
+	fog[1][2] = 0.0;
+	fog[1][3] = 0.66;
+
+	fog[2][0] = 1.0;
+	fog[2][1] = 0.25;
+	fog[2][2] = 0.0;
+	fog[2][3] = 0.33;
+
+	fog[3][0] = 1.0;
+	fog[3][1] = 0.0;
+	fog[3][2] = 0.0;
+	fog[3][3] = 0.0;
 	
 	glPushMatrix();
-	glTranslatef(0.0, 0.0, -0.1);
-	glScalef(500.0, 500.0, 25.0);
+	glTranslatef(0.0, 0.0, -0.5);
+	glScalef(500.0, 500.0, 60.0);
 	colorSkyCyl(3, fog);
 	glPopMatrix();
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-	if(use_shadow_mapping)
-	{
-		last_texture=-1;
-	}
-	glColor4f(1.0, 1.0, 0.0, 1.0);
+
+	glColor4fv(fog[0]);
 	glCallList(skyLists+1);
 	
 	glPopAttrib();
@@ -611,10 +603,22 @@ void animated_sky(int reflected)
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
+
+	glColor4f(1.0, 1.0, 1.0, 1.0);
+	if(use_shadow_mapping)
+	{
+		last_texture=-1;
+	}
 }
 
 void reflected_sky(int reflected)
 {
+	float ambient_backup[4];
+	float diffuse_backup[4];
+
+	glGetMaterialfv(GL_FRONT, GL_AMBIENT, ambient_backup);
+	glGetMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_backup);
+
 	//Disable lights not used for sky just in case
 	switch(show_lights)
 	{
@@ -652,13 +656,12 @@ void reflected_sky(int reflected)
 	glEnable(GL_COLOR_MATERIAL);
 	glMatrixMode(GL_PROJECTION);
 	glPushMatrix();
-	glLoadMatrixd(LongView);
+	glLoadMatrixd(skybox_view);
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	
 	if (!reflected) {
 		glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
-		//cloudy_sky(reflected);
 		skybox_cloudy(reflected);
 		glColor4fv(fog[0]);
 		glCallList(skyLists+1);
@@ -667,6 +670,7 @@ void reflected_sky(int reflected)
 		glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
 
 		glClearStencil(0);
+		glClear(GL_STENCIL_BUFFER_BIT);
 		glEnable(GL_STENCIL_TEST);
 		glStencilFunc(GL_ALWAYS, 1, 1);
 		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
@@ -677,7 +681,6 @@ void reflected_sky(int reflected)
 		
 		glScalef(1.0, 1.0, -1.0);
 		glFrontFace(GL_CW);
-		//cloudy_sky(reflected);
 		skybox_cloudy(reflected);
 		glFrontFace(GL_CCW);
 		
@@ -689,13 +692,15 @@ void reflected_sky(int reflected)
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-	glDisable(GL_COLOR_MATERIAL);
+	glPopAttrib();
+
+	glMaterialfv(GL_FRONT, GL_AMBIENT, ambient_backup);
+	glMaterialfv(GL_FRONT, GL_DIFFUSE, diffuse_backup);
+
 	if(use_shadow_mapping)
 	{
 		last_texture=-1;
 	}
-	glPopAttrib();
 
 	glClear(GL_DEPTH_BUFFER_BIT);
 	if(!is_day||dungeon)
@@ -721,11 +726,16 @@ void reflected_sky(int reflected)
 	}
 }
 
-void skybox_parse_color_properties(xmlNode *node, float container[360][4])
+#define XML_BOOL(s) (!xmlStrcasecmp((s), (xmlChar*)"yes") ||\
+					 !xmlStrcasecmp((s), (xmlChar*)"true") ||\
+					 !xmlStrcasecmp((s), (xmlChar*)"1"))
+
+int skybox_parse_color_properties(xmlNode *node, float container[360][4])
 {
 	xmlAttr *attr;
 	int t = -1;
 	float r = 0.0, g = 0.0, b = 0.0, a = 1.0;
+	int ok = 1;
 
 	for (attr = node->properties; attr; attr = attr->next)
 	{
@@ -741,6 +751,10 @@ void skybox_parse_color_properties(xmlNode *node, float container[360][4])
 				b =  atof((char*)attr->children->content);
 			else if (xmlStrcasecmp (attr->name, (xmlChar*)"a") == 0)
 				a =  atof((char*)attr->children->content);
+			else {
+				LOG_ERROR("unknown attribute for color: %s", (char*)attr->name);
+				ok = 0;
+			}
 		}
 	}
 
@@ -754,7 +768,10 @@ void skybox_parse_color_properties(xmlNode *node, float container[360][4])
 	else
 	{
 		LOG_ERROR("the time attribute of the color doesn't exist or is wrong!");
+		ok = 0;
 	}
+
+	return ok;
 }
 
 int skybox_parse_colors(xmlNode *node, float container[360][4])
@@ -763,21 +780,23 @@ int skybox_parse_colors(xmlNode *node, float container[360][4])
 	xmlAttr *attr;
 	int	ok = 1;
     int i, t;
-    int overwrite = 0;
+    int reset = 0;
 
 	if(node == NULL || node->children == NULL) return 0;
 
 	for (attr = node->properties; attr; attr = attr->next) {
 		if (attr->type == XML_ATTRIBUTE_NODE &&
-            !xmlStrcasecmp(attr->name, (xmlChar*)"overwrite") &&
-            (!xmlStrcasecmp(attr->children->content, (xmlChar*)"yes") ||
-             !xmlStrcasecmp(attr->children->content, (xmlChar*)"true") ||
-             !xmlStrcasecmp(attr->children->content, (xmlChar*)"1"))) {
-			overwrite = 1;
+			(!xmlStrcasecmp(attr->name, (xmlChar*)"reset") ||
+			 !xmlStrcasecmp(attr->name, (xmlChar*)"overwrite"))) {
+			reset = XML_BOOL(attr->children->content);
+		}
+		else {
+			LOG_ERROR("unknown attribute for element: %s", (char*)attr->name);
+			ok = 0;
 		}
 	}
 
-    if (overwrite)
+    if (reset)
     {
         // we erase the previous color keys
         for (t = 360; t--; )
@@ -790,18 +809,90 @@ int skybox_parse_colors(xmlNode *node, float container[360][4])
         }
     }
         
-	for(item=node->children; item; item=item->next) {
+	for(item = node->children; item; item = item->next) {
 		if(item->type == XML_ELEMENT_NODE) {
 			if(xmlStrcasecmp(item->name, (xmlChar*)"color") == 0) {
-				skybox_parse_color_properties(item, container);
+				ok &= skybox_parse_color_properties(item, container);
 			}
 			else {
-				LOG_ERROR("unknown node \"%s\"", item->name);
+				LOG_ERROR("unknown node for element: %s", item->name);
 				ok = 0;
 			}
 		}
 		else if (item->type == XML_ENTITY_REF_NODE) {
 			ok &= skybox_parse_colors(item->children, container);
+		}
+	}
+
+	return ok;
+}
+
+int skybox_parse_properties(xmlNode *node)
+{
+	xmlNode *item;
+	xmlAttr *attr;
+	int ok = 1;
+
+	for(item = node->children; item; item = item->next) {
+		if(item->type == XML_ELEMENT_NODE) {
+			if(xmlStrcasecmp(item->name, (xmlChar*)"clouds") == 0) {
+				for (attr = item->properties; attr; attr = attr->next)
+				{
+					if (attr->type == XML_ATTRIBUTE_NODE)
+					{
+						if (!xmlStrcasecmp (attr->name, (xmlChar*)"show"))
+							skybox_no_clouds = !XML_BOOL(attr->children->content);
+						else if (xmlStrcasecmp (attr->name, (xmlChar*)"texture") == 0)
+							skybox_clouds_tex = load_texture_cache((char*)attr->children->content, 0);
+						else if (xmlStrcasecmp (attr->name, (xmlChar*)"texture_detail") == 0)
+							skybox_clouds_detail_tex = load_texture_cache((char*)attr->children->content, 0);
+						else {
+							LOG_ERROR("unknown attribute for clouds: %s", (char*)attr->name);
+							ok = 0;
+						}
+					}
+				}
+			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"sun") == 0) {
+				for (attr = item->properties; attr; attr = attr->next)
+					if (attr->type == XML_ATTRIBUTE_NODE) {
+						if (!xmlStrcasecmp (attr->name, (xmlChar*)"show"))
+							skybox_no_sun = !XML_BOOL(attr->children->content);
+						else {
+							LOG_ERROR("unknown attribute for sun: %s", (char*)attr->name);
+							ok = 0;
+						}
+					}
+			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"moons") == 0) {
+				for (attr = item->properties; attr; attr = attr->next)
+					if (attr->type == XML_ATTRIBUTE_NODE) {
+						if (!xmlStrcasecmp (attr->name, (xmlChar*)"show"))
+							skybox_no_moons = !XML_BOOL(attr->children->content);
+						else {
+							LOG_ERROR("unknown attribute for moons: %s", (char*)attr->name);
+							ok = 0;
+						}
+					}
+			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"stars") == 0) {
+				for (attr = item->properties; attr; attr = attr->next)
+					if (attr->type == XML_ATTRIBUTE_NODE) {
+						if (!xmlStrcasecmp (attr->name, (xmlChar*)"show"))
+							skybox_no_stars = !XML_BOOL(attr->children->content);
+						else {
+							LOG_ERROR("unknown attribute for stars: %s", (char*)attr->name);
+							ok = 0;
+						}
+					}
+			}
+			else {
+				LOG_ERROR("unknown node for properties: %s", item->name);
+				ok = 0;
+			}
+		}
+		else if (item->type == XML_ENTITY_REF_NODE) {
+			ok &= skybox_parse_properties(item->children);
 		}
 	}
 
@@ -815,7 +906,10 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
 
 	for (def = node->children; def; def = def->next) {
 		if (def->type == XML_ELEMENT_NODE)
-			if (xmlStrcasecmp(def->name, (xmlChar*)"clouds") == 0) {
+			if (xmlStrcasecmp(def->name, (xmlChar*)"properties") == 0) {
+				ok &= skybox_parse_properties(def);
+			}
+			else if (xmlStrcasecmp(def->name, (xmlChar*)"clouds") == 0) {
 				ok &= skybox_parse_colors(def, skybox_clouds);
 			}
 			else if (xmlStrcasecmp(def->name, (xmlChar*)"clouds_detail") == 0) {
@@ -868,7 +962,7 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
                 }
 			}
 			else {
-				LOG_ERROR("skybox element or include expected");
+				LOG_ERROR("unknown element for skybox: %s", def->name);
 				ok = 0;
 			}
 		else if (def->type == XML_ENTITY_REF_NODE) {
@@ -987,6 +1081,13 @@ void skybox_init_defs(const char *map_name)
 		skybox_light_diffuse_rain[t][3] = -1.0;
 	}
 
+	skybox_no_clouds = 1;
+	skybox_no_sun = 1;
+	skybox_no_moons = 1;
+	skybox_no_stars = 1;
+	skybox_clouds_tex = -1;
+	skybox_clouds_detail_tex = -1;
+
     if (map_name) {
         int pos = strlen(map_name)-1;
         while (pos >= 0 && map_name[pos] != '/') --pos;
@@ -994,7 +1095,8 @@ void skybox_init_defs(const char *map_name)
     }
 
     printf("Loading sky defs for map '%s'\n", last_map);
-	skybox_read_defs("skybox/skybox_defs.xml", last_map);
+	if (!skybox_read_defs("skybox/skybox_defs.xml", last_map))
+		printf("Error while loading the skybox definitions, check the error log for more details.");
 	
 	if (!skybox_build_gradients(skybox_clouds))
 		LOG_ERROR("no color key defined for 'clouds' element!");
@@ -1026,12 +1128,6 @@ void skybox_init_defs(const char *map_name)
 		LOG_ERROR("no color key defined for 'light_ambient_rain' element!");
 	if (!skybox_build_gradients(skybox_light_diffuse_rain))
 		LOG_ERROR("no color key defined for 'light_diffuse_rain' element!");
-
-	clouds_tex = load_texture_cache("./textures/clouds.bmp", 0);
-	cloud_detail_tex = load_texture_cache("./textures/cloud_detail.bmp", 0);
-	smokey_cloud_tex = load_texture_cache("./textures/cloud_detail_alpha.bmp", 0);
-	moon_tex=load_texture_cache("./textures/moonmap.bmp", 0);
-	sun_tex=load_texture_cache("./textures/BrightSun.bmp", 255);
 }
 
 void skybox_init_gl()
@@ -1040,6 +1136,10 @@ void skybox_init_gl()
 	GLfloat randx,randy,randz;
 	int i;
 	float maxr;
+
+	smokey_cloud_tex = load_texture_cache("./textures/cloud_detail_alpha.bmp", 0);
+	moon_tex=load_texture_cache("./textures/moonmap.bmp", 0);
+	sun_tex=load_texture_cache("./textures/BrightSun.bmp", 255);
 
 	skyLists = glGenLists(6);
 	qobj = gluNewQuadric();
@@ -1057,13 +1157,15 @@ void skybox_init_gl()
 	glNewList(skyLists+1, GL_COMPILE);
 	gluDisk(qobj, 0, 500, 20, 1);
 	glEndList();
+	gluDeleteQuadric(qobj);
+
 	srand(0);
 	maxr = 1.0/RAND_MAX;
 	for (i = 0; i < NUM_STARS; i++)
 	{
 		float norm;
 		randx = rand()*(float)(maxr)-0.5f;
-		randy = rand()* (float)(maxr)-0.5f;
+		randy = rand()*(float)(maxr)-0.5f;
 		randz = rand()*(float)(maxr)-0.5f;
 		norm = sqrt(randx*randx + randy*randy + randz*randz);
 		if (norm > 0.5f) 
@@ -1075,9 +1177,9 @@ void skybox_init_gl()
 			randx /= norm;
 			randy /= norm;
 			randz /= norm;
-			randx *= 480.0;
-			randy *= 480.0;
-			randz *= 480.0;
+			randx *= 490.0;
+			randy *= 490.0;
+			randz *= 490.0;
 			strs[i][0]=randx;
 			strs[i][1]=randy;
 			strs[i][2]=randz;
