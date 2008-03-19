@@ -176,7 +176,11 @@ extern struct CalCoreAnimation *CalLoader_ELLoadCoreAnimation(struct CalLoader *
 extern struct CalCoreMaterial *CalLoader_ELLoadCoreMaterial(struct CalLoader *self, const char *strFilename);
 extern struct CalCoreMesh *CalLoader_ELLoadCoreMesh(struct CalLoader *self, const char *strFilename);
 extern struct CalCoreSkeleton *CalLoader_ELLoadCoreSkeleton(struct CalLoader *self, const char *strFilename);
+#ifndef CACHE_ANIMATIONS
 extern int CalCoreModel_ELLoadCoreAnimation(struct CalCoreModel *self, const char *strFilename);
+#else // CACHE_ANIMATIONS
+extern int CalCoreModel_ELLoadCoreAnimation(struct CalCoreModel *self, const char *strFilename, float scale);
+#endif // CACHE_ANIMATIONS
 extern int CalCoreModel_ELLoadCoreMaterial(struct CalCoreModel *self, const char *strFilename);
 extern int CalCoreModel_ELLoadCoreMesh(struct CalCoreModel *self, const char *strFilename);
 extern enum CalBoolean CalCoreModel_ELLoadCoreSkeleton(struct CalCoreModel *self, const char *strFilename);

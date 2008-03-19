@@ -3185,7 +3185,11 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	};
 	struct CalCoreAnimation *coreanim;
 
+#ifndef CACHE_ANIMATIONS
 	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str);
+#else // CACHE_ANIMATIONS
+	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,str,act->scale);
+#endif // CACHE_ANIMATIONS
 	if(res.anim_index == -1) {
 		log_error("Cal3d error: %s: %s\n", str, CalError_GetLastErrorDescription());
 		return res;
@@ -3193,7 +3197,9 @@ struct cal_anim cal_load_idle(actor_types *act, char *str)
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
 
 	if (coreanim) {
+#ifndef CACHE_ANIMATIONS
 		CalCoreAnimation_Scale(coreanim,act->scale);
+#endif // CACHE_ANIMATIONS
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 	} else {
 		log_error("No Anim: %s\n",str);
