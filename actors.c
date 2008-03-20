@@ -115,9 +115,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->reload[0] = 0;
 	our_actor->shot_type[0] = NORMAL_SHOT;
 	our_actor->shots_count = 0;
-	our_actor->unwear_item_type_after_animation = -1;
-	our_actor->wear_item_type_after_animation = -1;
-	our_actor->wear_item_id_after_animation = -1;
+	our_actor->delayed_item_changes_count = 0;
 #endif // MISSILES
 
 	our_actor->x_pos=x_pos;

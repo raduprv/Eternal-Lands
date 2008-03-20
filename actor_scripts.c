@@ -674,27 +674,35 @@ void move_to_next_frame()
 				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
 					actors_list[i]->busy=0;
 #ifdef MISSILES
-					if (!actors_list[i]->in_aim_mode &&
-						actors_list[i]->unwear_item_type_after_animation >= 0) {
-						int unwear_item_type = actors_list[i]->unwear_item_type_after_animation;
-						missiles_log_message("%s (%d): unwearing item type %d now\n",
-                                             actors_list[i]->actor_name,
-                                             actors_list[i]->actor_id,
-                                             unwear_item_type);
-						actors_list[i]->unwear_item_type_after_animation = -1;
-						unwear_item_from_actor(actors_list[i]->actor_id, unwear_item_type);
-						if (actors_list[i]->wear_item_type_after_animation >= 0 &&
-							actors_list[i]->wear_item_id_after_animation >= 0) {
-							int wear_item_type = actors_list[i]->wear_item_type_after_animation;
-							int wear_item_id = actors_list[i]->wear_item_id_after_animation;
-							missiles_log_message("%s (%d): wearing item type %d now\n",
-												 actors_list[i]->actor_name,
-                                                 actors_list[i]->actor_id,
-                                                 wear_item_type);
-							actors_list[i]->wear_item_type_after_animation = -1;
-							actors_list[i]->wear_item_id_after_animation = -1;
-							actor_wear_item(actors_list[i]->actor_id, wear_item_type, wear_item_id);
+					if (actors_list[i]->in_aim_mode == 2) {
+						int item;
+
+						// we really leave the aim mode only when the animation is finished
+						actors_list[i]->in_aim_mode = 0;
+						missiles_log_message("%s (%d): leaving range mode finished!\n",
+											 actors_list[i]->actor_name, actors_list[i]->actor_id);
+
+						// then we do all the item changes that have been delayed
+						for (item = 0; item < actors_list[i]->delayed_item_changes_count; ++item) {
+							if (actors_list[i]->delayed_item_changes[item] < 0) {
+								missiles_log_message("%s (%d): unwearing item type %d now\n",
+													 actors_list[i]->actor_name,
+													 actors_list[i]->actor_id,
+													 actors_list[i]->delayed_item_type_changes[item]);
+								unwear_item_from_actor(actors_list[i]->actor_id,
+													   actors_list[i]->delayed_item_type_changes[item]);
+							}
+							else {
+								missiles_log_message("%s (%d): wearing item type %d now\n",
+													 actors_list[i]->actor_name,
+													 actors_list[i]->actor_id,
+													 actors_list[i]->delayed_item_type_changes[item]);
+								actor_wear_item(actors_list[i]->actor_id,
+												actors_list[i]->delayed_item_type_changes[item],
+												actors_list[i]->delayed_item_changes[item]);
+							}
 						}
+						actors_list[i]->delayed_item_changes_count = 0;
 					}
 #endif // MISSILES
 				}
@@ -760,7 +768,7 @@ void set_on_idle(int actor_idx)
             cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_combat_idle_frame);
         }
 #ifdef MISSILES
-        else if(a->in_aim_mode){
+        else if (a->in_aim_mode == 1) {
             cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].weapon[a->cur_weapon].cal_range_idle_frame);
         }
 #endif // MISSILES
@@ -1241,7 +1249,7 @@ void next_command()
 
 #ifdef MISSILES
 				case enter_aim_mode:
-					if (!actors_list[i]->in_aim_mode) {
+					if (actors_list[i]->in_aim_mode == 0) {
 						missiles_log_message("%s (%d): enter in aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
 
@@ -1296,7 +1304,7 @@ void next_command()
 					break;
 
 				case leave_aim_mode:
-					if (!actors_list[i]->in_aim_mode) {
+					if (actors_list[i]->in_aim_mode != 1) {
 						if (actors_list[i]->cal_rotation_blend < 0.0 ||
 							(actors_list[i]->cal_h_rot_end == 0.0 &&
 							 actors_list[i]->cal_v_rot_end == 0.0)) {
@@ -1325,7 +1333,7 @@ void next_command()
 					actors_list[i]->cal_rotation_speed = 1.0/360.0;
                     actors_list[i]->cal_last_rotation_time = cur_time;
 					actors_list[i]->are_bones_rotating = 1;
-					actors_list[i]->in_aim_mode = 0;
+					actors_list[i]->in_aim_mode = 2;
 					actors_list[i]->stop_animation = 1;
 					break;
 
@@ -1336,7 +1344,7 @@ void next_command()
 /* 					break; */
 
 				case aim_mode_fire:
-					if (!actors_list[i]->in_aim_mode) {
+					if (actors_list[i]->in_aim_mode != 1) {
 						log_error("next_command: trying to fire an arrow out of range mode => aborting!");
 						no_action = 1;
 						break;
@@ -1352,7 +1360,7 @@ void next_command()
 						missiles_log_message("%s (%d): fire and leave aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 						// launch fire and leave aim mode animation
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_out_frame);
-						actors_list[i]->in_aim_mode = 0;
+						actors_list[i]->in_aim_mode = 2;
 					}
 					
 					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
@@ -1594,7 +1602,7 @@ void next_command()
 					 * his foot to reload. So here, we don't remove the enter aim mode
 					 * from the queue in order to treat it again but this time in aim mode.
 					 */
-					if (actors_list[i]->que[0] == enter_aim_mode && !actors_list[i]->in_aim_mode) {
+					if (actors_list[i]->que[0] == enter_aim_mode && actors_list[i]->in_aim_mode == 0) {
 						actors_list[i]->in_aim_mode = 1;
 						continue;
 					}

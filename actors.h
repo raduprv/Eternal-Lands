@@ -495,6 +495,7 @@ typedef struct
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
 #define MAX_SHOTS_QUEUE 10
+#define MAX_ITEM_CHANGES_QUEUE 10
 typedef struct
 {
 	/*! \name Misc.*/
@@ -526,7 +527,7 @@ typedef struct
 	float cal_rotation_speed; /*!< The speed of the rotation */
     int cal_last_rotation_time; /*!< The last time when the rotation has been updated */
 	char are_bones_rotating;  /*!< To tell if the char is rotating */
-	char in_aim_mode;         /*!< To tell if the char is already aiming something */
+	char in_aim_mode;         /*!< To tell if the char is already aiming something (0: not in aim mode; 1: in aim mode; 2: leaving aim mode) */
 	char reload[MAX_SHOTS_QUEUE]; /*!< To tell if the char must reload his bow after the next fire */
 	float range_target_aim[3]; /*!< Position of the target to aim at */
 	float range_target_fire[MAX_SHOTS_QUEUE][3];/*!< Position of the target to fire at */
@@ -534,9 +535,9 @@ typedef struct
 	int shots_count;
 	/*! \} */
 
-	int unwear_item_type_after_animation; /*!< Used to delay a bow/quiver unequip while in range mode */
-	int wear_item_type_after_animation;   /*!< Used to delay a sword/shield equip while in range mode */
-	int wear_item_id_after_animation;     /*!< Used to delay a sword/shield equip while in range mode */
+	int delayed_item_changes[MAX_ITEM_CHANGES_QUEUE]; /*!< Used to delay a sword/shield equip while in range mode (-1: item removed; >= 0: item equipped) */
+	int delayed_item_type_changes[MAX_ITEM_CHANGES_QUEUE]; /*!< Used to delay a sword/shield equip while in range mode */
+	int delayed_item_changes_count; /*!< The number of delayed items */
 #endif // MISSILES
 
 	/*! \name Actors positions

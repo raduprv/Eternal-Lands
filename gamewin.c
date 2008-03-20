@@ -886,14 +886,14 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
                     target[2] = height_map[y*tile_map_size_x*6+x]*0.2f - 1.0f;
                     
                     LOCK_ACTORS_LISTS();
-                    need_aim = (!cur_actor->in_aim_mode ||
-                                fabs(target[0] - cur_actor->range_target_aim[0]) > 0.0 ||
+                    need_aim = (fabs(target[0] - cur_actor->range_target_aim[0]) > 0.0 ||
                                 fabs(target[1] - cur_actor->range_target_aim[1]) > 0.0);
                     UNLOCK_ACTORS_LISTS();
                     
                     if (need_aim)
                         missiles_aim_at_xyz(yourself, target);
                     else {
+                        missiles_aim_at_xyz(yourself, target);
                         LOCK_ACTORS_LISTS();
                         if (cur_actor->shots_count < MAX_SHOTS_QUEUE)
                             cur_actor->reload[cur_actor->shots_count] = 1;
@@ -908,7 +908,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
                     LOCK_ACTORS_LISTS();
                     in_aim_mode = cur_actor->in_aim_mode;
                     UNLOCK_ACTORS_LISTS();
-                    if (in_aim_mode)
+                    if (in_aim_mode == 1)
                         add_command_to_actor(yourself, leave_aim_mode);
                     move_to(x, y, 1);
                 }

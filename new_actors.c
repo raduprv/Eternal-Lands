@@ -100,9 +100,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->reload[0] = 0;
 	our_actor->shot_type[0] = NORMAL_SHOT;
 	our_actor->shots_count = 0;
-	our_actor->unwear_item_type_after_animation = -1;
-	our_actor->wear_item_type_after_animation = -1;
-	our_actor->wear_item_id_after_animation = -1;
+	our_actor->delayed_item_changes_count = 0;
 #endif // MISSILES
 
 	our_actor->x_pos=x_pos;
@@ -190,11 +188,17 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 							{
 								ec_remove_weapon(actors_list[i]);
 #ifdef MISSILES
-								if (actors_list[i]->in_aim_mode) {
-									missiles_log_message("%s (%d): unwear item type %d delayed",
-														 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
-									actors_list[i]->unwear_item_type_after_animation = which_part;
-									//add_command_to_actor(actor_id, unwear_bow);
+								if (actors_list[i]->in_aim_mode > 0) {
+									if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
+										missiles_log_message("%s (%d): unwear item type %d delayed",
+															 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
+										actors_list[i]->delayed_item_changes[actors_list[i]->delayed_item_changes_count] = -1;
+										actors_list[i]->delayed_item_type_changes[actors_list[i]->delayed_item_changes_count] = which_part;
+										++actors_list[i]->delayed_item_changes_count;
+									}
+									else {
+										LOG_ERROR("the item changes queue is full!");
+									}
 									return;
 								}
 #endif // MISSILES
@@ -214,11 +218,17 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 						if(which_part==KIND_OF_SHIELD)
 							{
 #ifdef MISSILES
-								if (actors_list[i]->in_aim_mode) {
-									missiles_log_message("%s (%d): unwear item type %d delayed",
-														 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
-									actors_list[i]->unwear_item_type_after_animation = which_part;
-									//add_command_to_actor(actor_id, unwear_quiver);
+								if (actors_list[i]->in_aim_mode > 0) {
+									if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
+										missiles_log_message("%s (%d): unwear item type %d delayed",
+															 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
+										actors_list[i]->delayed_item_changes[actors_list[i]->delayed_item_changes_count] = -1;
+										actors_list[i]->delayed_item_type_changes[actors_list[i]->delayed_item_changes_count] = which_part;
+										++actors_list[i]->delayed_item_changes_count;
+									}
+									else {
+										LOG_ERROR("the item changes queue is full!");
+									}
 									return;
 								}
 #endif // MISSILES
@@ -311,11 +321,18 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
 #ifdef MISSILES
-						if (actors_list[i]->unwear_item_type_after_animation == which_part) {
-                            missiles_log_message("%s (%d): wear item type %d delayed",
-                                                 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
-							actors_list[i]->wear_item_type_after_animation = which_part;
-							actors_list[i]->wear_item_id_after_animation = which_id;
+						if (actors_list[i]->in_aim_mode > 0 &&
+							(which_part == KIND_OF_WEAPON || which_part == KIND_OF_SHIELD)) {
+							if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
+								missiles_log_message("%s (%d): wear item type %d delayed",
+													 actors_list[i]->actor_name, actors_list[i]->actor_id, which_part);
+								actors_list[i]->delayed_item_changes[actors_list[i]->delayed_item_changes_count] = which_id;
+								actors_list[i]->delayed_item_type_changes[actors_list[i]->delayed_item_changes_count] = which_part;
+								++actors_list[i]->delayed_item_changes_count;
+							}
+							else {
+								LOG_ERROR("the item changes queue is full!");
+							}
 							return;
 						}
 #endif // MISSILES
