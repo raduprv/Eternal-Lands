@@ -270,17 +270,19 @@ namespace eternal_lands
 			el_data_source file(strFilename);
 
 			CalCoreAnimationPtr core_animation = CalLoader::loadCoreAnimation(file, self->getCoreSkeleton());
-#else // CACHE_ANIMATIONS
- 			CalCoreAnimationPtr core_animation = CalAnimationCache::loadAnimation(strFilename, scale);
-#endif // CACHE_ANIMATIONS
 
-			if (!core_animation)
-			{
-				return -1;
-			}
-			else
+			if (core_animation)
 			{
 				core_animation->setFilename(strFilename);
+			}
+			else
+#else // CACHE_ANIMATIONS
+ 			CalCoreAnimationPtr core_animation = CalAnimationCache::loadAnimation(strFilename, scale);
+
+			if (!core_animation)
+#endif // CACHE_ANIMATIONS
+			{
+				return -1;
 			}
 
 			return self->addCoreAnimation(core_animation.get());
