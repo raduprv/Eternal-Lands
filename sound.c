@@ -3120,6 +3120,8 @@ int ensure_sample_loaded(char * in_filename)
 		// Couldn't generate a buffer
 		LOG_ERROR("%s: %s", snd_buff_error, alGetString(error));
 		*pBuffer = 0;
+		// Get rid of the temporary data
+		free(data);
 		return -1;
 	}
 
@@ -3129,6 +3131,8 @@ int ensure_sample_loaded(char * in_filename)
 	{
 		LOG_ERROR("%s: %s",snd_buff_error, alGetString(error));
 		alDeleteBuffers(1, pBuffer);
+		// Get rid of the temporary data
+		free(data);
 		return -1;
 	}
 
