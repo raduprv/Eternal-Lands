@@ -2780,6 +2780,36 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			act->weapon[i].cal_attack_down_9_frame.anim_index=-1;
 			act->weapon[i].cal_attack_down_10_frame.anim_index=-1;
 			act->weapon[i].mesh_index = -1;
+
+#ifdef NEW_SOUND
+#ifdef MISSILES
+			act->weapon[i].cal_range_in_frame.sound=-1;
+			act->weapon[i].cal_range_out_frame.sound=-1;
+			act->weapon[i].cal_range_idle_frame.sound=-1;
+			act->weapon[i].cal_range_fire_frame.sound=-1;
+			act->weapon[i].cal_range_fire_out_frame.sound=-1;
+#endif // MISSILES
+			act->weapon[i].cal_attack_up_1_frame.sound=-1;
+			act->weapon[i].cal_attack_up_2_frame.sound=-1;
+			act->weapon[i].cal_attack_up_3_frame.sound=-1;
+			act->weapon[i].cal_attack_up_4_frame.sound=-1;
+			act->weapon[i].cal_attack_up_5_frame.sound=-1;
+			act->weapon[i].cal_attack_up_6_frame.sound=-1;
+			act->weapon[i].cal_attack_up_7_frame.sound=-1;
+			act->weapon[i].cal_attack_up_8_frame.sound=-1;
+			act->weapon[i].cal_attack_up_9_frame.sound=-1;
+			act->weapon[i].cal_attack_up_10_frame.sound=-1;
+			act->weapon[i].cal_attack_down_1_frame.sound=-1;
+			act->weapon[i].cal_attack_down_2_frame.sound=-1;
+			act->weapon[i].cal_attack_down_3_frame.sound=-1;
+			act->weapon[i].cal_attack_down_4_frame.sound=-1;
+			act->weapon[i].cal_attack_down_5_frame.sound=-1;
+			act->weapon[i].cal_attack_down_6_frame.sound=-1;
+			act->weapon[i].cal_attack_down_7_frame.sound=-1;
+			act->weapon[i].cal_attack_down_8_frame.sound=-1;
+			act->weapon[i].cal_attack_down_9_frame.sound=-1;
+			act->weapon[i].cal_attack_down_10_frame.sound=-1;
+#endif // NEW_SOUND
 		}
 	}
 
@@ -4091,6 +4121,7 @@ int parse_actor_script (xmlNode *cfg)
 	act->cal_attack_down_8_frame.sound= -1;
 	act->cal_attack_down_9_frame.sound= -1;
 	act->cal_attack_down_10_frame.sound= -1;
+    act->battlecry.sound = -1;
 	act->battlecry.scale = 1.0f;
 #endif // NEW_SOUND
 
