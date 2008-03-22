@@ -69,10 +69,11 @@
 #endif //WINDOWS
 
 #ifdef OSX
- #include "elglext.h"
  #include <OpenGL/gl.h>
  #include <OpenGL/glu.h>
  #include <OpenGL/glext.h>
+ #define APIENTRY 
+ #define APIENTRYP *
 #else
  #define GL_GLEXT_LEGACY
  #include <GL/gl.h>
