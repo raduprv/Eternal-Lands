@@ -102,6 +102,7 @@ bool GlowParticle::idle(const Uint64 delta_t)
       }
       break;
     }
+    case GlowEffect::LEVEL_UP_DEFAULT_GLOW:
     case GlowEffect::LEVEL_UP_OA_GLOW:
     case GlowEffect::LEVEL_UP_ATT_GLOW:
     case GlowEffect::LEVEL_UP_DEF_GLOW:
@@ -113,8 +114,46 @@ bool GlowParticle::idle(const Uint64 delta_t)
       if (alpha < 0.01)
         return false;
 
-      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0); // orig: 6, smaller numbers -> longer effect
+      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0); // smaller numbers -> longer effect
       alpha *= scalar;
+	  break;
+	}
+    case GlowEffect::LEVEL_UP_HAR_GLOW:
+    {
+      if (alpha < 0.01)
+        return false;
+
+      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time);
+      alpha *= scalar;
+	  
+	  velocity.y -= ((delta_t / 250000.0) * (delta_t / 250000.0) + randfloat(0.125)); // let particles drop
+
+      break;
+    }
+    case GlowEffect::LEVEL_UP_ALC_GLOW_L:
+    case GlowEffect::LEVEL_UP_ALC_GLOW_R:
+    case GlowEffect::LEVEL_UP_POT_GLOW_L:
+    case GlowEffect::LEVEL_UP_POT_GLOW_R:
+    case GlowEffect::LEVEL_UP_MAN_GLOW_L:
+    case GlowEffect::LEVEL_UP_MAN_GLOW_R:
+    case GlowEffect::LEVEL_UP_CRA_GLOW_L:
+    case GlowEffect::LEVEL_UP_CRA_GLOW_R:
+    case GlowEffect::LEVEL_UP_ENG_GLOW_L:
+    case GlowEffect::LEVEL_UP_ENG_GLOW_R:
+    case GlowEffect::LEVEL_UP_TAI_GLOW_L:
+    case GlowEffect::LEVEL_UP_TAI_GLOW_R:
+    {
+	  velocity.x /= 1.25;
+	  velocity.z /= 1.25;
+	  velocity.y += float_time;
+      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75);
+      alpha -= scalar;
+      if (alpha < 0.01)
+        return false;
+      break;
+    }
+    default:
+    {
 	  break;
 	}
   }
@@ -247,6 +286,23 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
       base->push_back_particle(p);
       break;
     }
+    case LEVEL_UP_DEFAULT_GLOW:
+    {
+      spawner = new FilledSphereSpawner(0.9);
+      mover = new GravityMover(this, &effect_center, 9e3);
+      for (int i = 0; i < LOD * 64; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize();
+        velocity.normalize(0.9);
+        coords += effect_center;
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 1.25, 0.5 + randcolor(0.5), randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexCrystal), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
     case GlowEffect::LEVEL_UP_OA_GLOW:
     {
       spawner = new FilledSphereSpawner(0.75);
@@ -277,27 +333,14 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         if (!base->push_back_particle(p))
           break;
       }
-      for (int i = 0; i < LOD * 64; i++)
-      {
-        Vec3 coords = spawner3->get_new_coords();
-        Vec3 velocity;
-        velocity.randomize();
-        velocity.normalize(0.9);
-        coords += effect_center;
-        Particle * p = new GlowParticle(this, mover3, coords, velocity, 2.25, 0.5 + randcolor(0.5), randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexCrystal), LOD, type);
-        if (!base->push_back_particle(p))
-          break;
-      }
 	  break;
 	}
     case LEVEL_UP_ATT_GLOW:
     {
       spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
       spawner2 = new HollowDiscSpawner(0.65);
-      spawner3 = new FilledSphereSpawner(0.9);
       mover = new SpiralMover(this, &effect_center, 5.0, 80.0);
       mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
-      mover3 = new GravityMover(this, &effect_center, 9e3);
       for (int i = 0; i < LOD * 32; i++)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
@@ -320,25 +363,12 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         if (!base->push_back_particle(p))
           break;
       }
-      for (int i = 0; i < LOD * 64; i++)
-      {
-        Vec3 coords = spawner3->get_new_coords();
-        Vec3 velocity;
-        velocity.randomize();
-        velocity.normalize(0.9);
-        coords += effect_center;
-        Particle * p = new GlowParticle(this, mover3, coords, velocity, 2.25, 0.5 + randcolor(0.5), randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexCrystal), LOD, type);
-        if (!base->push_back_particle(p))
-          break;
-      }
       break;
     }
     case LEVEL_UP_DEF_GLOW:
     {
       spawner = new HollowSphereSpawner(1.25);
-      spawner3 = new FilledSphereSpawner(0.9);
       mover = new GravityMover(this, &effect_center, 3e10);
-      mover3 = new GravityMover(this, &effect_center, 9e3);
       for (int i = 0; i < LOD * 192; i++)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
@@ -349,17 +379,173 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         if (!base->push_back_particle(p))
           break;
       }
+      break;
+    }
+    case LEVEL_UP_HAR_GLOW:
+    {
+      spawner = new HollowDiscSpawner(0.5);
+      spawner2 = new HollowDiscSpawner(0.3);
+      spawner3 = new HollowDiscSpawner(0.1);
+      mover = new ParticleMover(this);
+      mover2 = new ParticleMover(this);
+      mover3 = new ParticleMover(this);
       for (int i = 0; i < LOD * 64; i++)
       {
-        Vec3 coords = spawner3->get_new_coords();
-        Vec3 velocity;
-        velocity.randomize();
-        velocity.normalize(0.9);
-        coords += effect_center;
-        Particle * p = new GlowParticle(this, mover3, coords, velocity, 2.25, 0.5 + randcolor(0.5), randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexCrystal), LOD, type);
+        Vec3 coords = spawner->get_new_coords() + effect_center;
+        coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
+        const Vec3 velocity(0.0, -randfloat(0.25), 0.0);
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randcoord(1.0), 0.8, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
+      for (int i = 0; i < LOD * 64; i++)
+      {
+        Vec3 coords = spawner2->get_new_coords() + effect_center;
+        coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
+        const Vec3 velocity(0.0, -randfloat(0.125), 0.0);
+        Particle * p = new GlowParticle(this, mover2, coords, velocity, 2.0 + randcoord(1.0), 0.9, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexFlare), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      for (int i = 0; i < LOD * 64; i++)
+      {
+        Vec3 coords = spawner3->get_new_coords() + effect_center;
+        coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
+        const Vec3 velocity(0.0, -randfloat(0.0625), 0.0);
+        Particle * p = new GlowParticle(this, mover3, coords, velocity, 3.0 + randcoord(1.0), 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexTwinflare), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case LEVEL_UP_ALC_GLOW_L:
+    case LEVEL_UP_ALC_GLOW_R:
+    {
+      spawner = new FilledSphereSpawner(0.1);
+      mover = new ParticleMover(this);
+	  red = 0.1;
+	  green = 0.1;
+	  blue = 1.0;
+      for (int i = 0; i < LOD * 4; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(2.0);
+        velocity.y = randfloat(0.5);
+        coords += effect_center;
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case LEVEL_UP_POT_GLOW_L:
+    case LEVEL_UP_POT_GLOW_R:
+    {
+      spawner = new FilledSphereSpawner(0.1);
+      mover = new ParticleMover(this);
+	  red = 1.0;
+	  green = 0.1;
+	  blue = 0.1;
+      for (int i = 0; i < LOD * 4; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(2.0);
+        velocity.y = randfloat(0.5);
+        coords += effect_center;
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case LEVEL_UP_MAN_GLOW_L:
+    case LEVEL_UP_MAN_GLOW_R:
+    {
+      spawner = new FilledSphereSpawner(0.1);
+      mover = new ParticleMover(this);
+	  red = 0.1;
+	  green = 1.0;
+	  blue = 0.1;
+      for (int i = 0; i < LOD * 4; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(2.0);
+        velocity.y = randfloat(0.5);
+        coords += effect_center;
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case LEVEL_UP_CRA_GLOW_L:
+    case LEVEL_UP_CRA_GLOW_R:
+    {
+      spawner = new FilledSphereSpawner(0.1);
+      mover = new ParticleMover(this);
+	  red = 1.0;
+	  green = 1.0;
+	  blue = 0.1;
+      for (int i = 0; i < LOD * 4; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(2.0);
+        velocity.y = randfloat(0.5);
+        coords += effect_center;
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case LEVEL_UP_ENG_GLOW_L:
+    case LEVEL_UP_ENG_GLOW_R:
+    {
+      spawner = new FilledSphereSpawner(0.1);
+      mover = new ParticleMover(this);
+	  red = 0.75;
+	  green = 0.75;
+	  blue = 1.0;
+      for (int i = 0; i < LOD * 4; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(2.0);
+        velocity.y = randfloat(0.5);
+        coords += effect_center;
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    case LEVEL_UP_TAI_GLOW_L:
+    case LEVEL_UP_TAI_GLOW_R:
+    {
+      spawner = new FilledSphereSpawner(0.1);
+      mover = new ParticleMover(this);
+	  red = 0.75;
+	  green = 0.5;
+	  blue = 0.5;
+      for (int i = 0; i < LOD * 4; i++)
+      {
+        Vec3 coords = spawner->get_new_coords();
+        Vec3 velocity;
+        velocity.randomize(2.0);
+        velocity.y = randfloat(0.5);
+        coords += effect_center;
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      break;
+    }
+    default:
+    {
       break;
     }
   }
@@ -402,6 +588,39 @@ bool GlowEffect::idle(const Uint64 usec)
 	{
       effect_center.y += usec / 2500000.0;
 	  break;
+	}
+    case GlowEffect::LEVEL_UP_HAR_GLOW:
+	{
+ 	  break;
+	}
+    case GlowEffect::LEVEL_UP_ALC_GLOW_L:
+    case GlowEffect::LEVEL_UP_ALC_GLOW_R:
+    case GlowEffect::LEVEL_UP_POT_GLOW_L:
+    case GlowEffect::LEVEL_UP_POT_GLOW_R:
+    case GlowEffect::LEVEL_UP_MAN_GLOW_L:
+    case GlowEffect::LEVEL_UP_MAN_GLOW_R:
+    case GlowEffect::LEVEL_UP_CRA_GLOW_L:
+    case GlowEffect::LEVEL_UP_CRA_GLOW_R:
+    case GlowEffect::LEVEL_UP_ENG_GLOW_L:
+    case GlowEffect::LEVEL_UP_ENG_GLOW_R:
+    case GlowEffect::LEVEL_UP_TAI_GLOW_L:
+    case GlowEffect::LEVEL_UP_TAI_GLOW_R:
+	{
+      if (get_time() - born < 4000000)
+	  {
+        for (int i = 0; i < LOD * 4; i++)
+        {
+          Vec3 coords = spawner->get_new_coords();
+          Vec3 velocity;
+          velocity.randomize(2.0);
+          velocity.y = randfloat(0.5);
+          coords += effect_center;
+          Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
+          if (!base->push_back_particle(p))
+            break;
+        }
+      }
+ 	  break;
 	}
 	default:
 	{

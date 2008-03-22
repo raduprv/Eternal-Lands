@@ -23,9 +23,26 @@ public:
     REMOTE_HEAL_GLOW,
     HARM_GLOW,
     POISON_GLOW,
-	LEVEL_UP_OA_GLOW,
-	LEVEL_UP_ATT_GLOW,
-	LEVEL_UP_DEF_GLOW,
+    LEVEL_UP_DEFAULT_GLOW,
+    LEVEL_UP_OA_GLOW,
+    LEVEL_UP_ATT_GLOW,
+    LEVEL_UP_DEF_GLOW,
+    LEVEL_UP_HAR_GLOW,
+    LEVEL_UP_ALC_GLOW_L,
+    LEVEL_UP_ALC_GLOW_R,
+    LEVEL_UP_MAG_GLOW,
+    LEVEL_UP_POT_GLOW_L,
+    LEVEL_UP_POT_GLOW_R,
+    LEVEL_UP_SUM_GLOW,
+    LEVEL_UP_MAN_GLOW_L,
+    LEVEL_UP_MAN_GLOW_R,
+    LEVEL_UP_CRA_GLOW_L,
+    LEVEL_UP_CRA_GLOW_R,
+    LEVEL_UP_ENG_GLOW_L,
+    LEVEL_UP_ENG_GLOW_R,
+    LEVEL_UP_TAI_GLOW_L,
+    LEVEL_UP_TAI_GLOW_R,
+    LEVEL_UP_RAN_GLOW,
   };
 
   GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType _type, const Uint16 _LOD);
@@ -33,8 +50,8 @@ public:
   
   virtual EffectEnum get_type() { return EC_GLOW; };
   bool idle(const Uint64 usec);
-  static Uint64 get_max_end_time() { return 5000000; };
-  virtual Uint64 get_expire_time() { return 5000000 + born; };
+  static Uint64 get_max_end_time() { return 7500000; };
+  virtual Uint64 get_expire_time() { return 7500000 + born; };
 
   ParticleSpawner* spawner;
   ParticleSpawner* spawner2;
@@ -45,6 +62,7 @@ public:
   Vec3 effect_center;
   GlowType type;
   Vec3 shift;
+  color_t red, green, blue;
 };
 
 class GlowParticle : public Particle

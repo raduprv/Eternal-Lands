@@ -21,7 +21,7 @@ OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const V
   if (saturation > 1.0)
     saturation = 1.0;
   hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
-  if (type == OngoingEffect::OGHARVEST) {
+  if (type == OngoingEffect::OG_HARVEST) {
     color[0] = hue;
 	color[1] = saturation;
 	color[2] = value;
@@ -42,7 +42,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
   const interval_t float_time = delta_t / 1000000.0;
   switch(type)
   {
-    case OngoingEffect::MAGIC_PROTECTION:
+    case OngoingEffect::OG_MAGIC_PROTECTION:
     {
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0);
       alpha -= scalar;
@@ -50,7 +50,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
         return false;
       break;
     }
-    case OngoingEffect::SHIELD:
+    case OngoingEffect::OG_SHIELD:
     {
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0);
       alpha -= scalar;
@@ -58,7 +58,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
         return false;
       break;
     }
-    case OngoingEffect::MAGIC_IMMUNITY:
+    case OngoingEffect::OG_MAGIC_IMMUNITY:
     {
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
       alpha -= scalar;
@@ -66,7 +66,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
         return false;
       break;
     }
-    case OngoingEffect::POISON:
+    case OngoingEffect::OG_POISON:
     {
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
       alpha -= scalar;
@@ -74,7 +74,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
         return false;
       break;
     }
-    case OngoingEffect::OGHARVEST:
+    case OngoingEffect::OG_HARVEST:
     {
 	  velocity.x /= 1.5;
 	  velocity.z /= 1.5;
@@ -92,7 +92,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 
 void OngoingParticle::draw(const Uint64 usec)
 {
-  if ((type == OngoingEffect::POISON) && (state == 1))
+  if ((type == OngoingEffect::OG_POISON) && (state == 1))
   {
     glEnable(GL_LIGHTING);
     glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
@@ -103,7 +103,7 @@ void OngoingParticle::draw(const Uint64 usec)
   }
   Particle::draw(usec);
 
-  if ((type == OngoingEffect::POISON) && (state == 1))
+  if ((type == OngoingEffect::OG_POISON) && (state == 1))
   {
     glBlendFunc(GL_SRC_ALPHA, GL_ONE);
     glDisable(GL_LIGHTING);
@@ -136,31 +136,31 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const col
   
   switch(type)
   {
-    case MAGIC_PROTECTION:
+    case OG_MAGIC_PROTECTION:
     {
       spawner = new HollowEllipsoidSpawner(Vec3(0.45, 0.9, 0.45));
       mover = new ParticleMover(this);
       break;
     }
-    case SHIELD:
+    case OG_SHIELD:
     {
       spawner = new HollowDiscSpawner(0.6);
       mover = new SpiralMover(this, &effect_center, 3.0, 2.9);
       break;
     }
-    case MAGIC_IMMUNITY:
+    case OG_MAGIC_IMMUNITY:
     {
       spawner = new HollowEllipsoidSpawner(Vec3(0.6, 1.1, 0.6));
       mover = new ParticleMover(this);
       break;
     }
-    case POISON:
+    case OG_POISON:
     {
-      spawner = new HollowDiscSpawner(0.13);
+      spawner = new HollowDiscSpawner(0.25);
       mover = new SpiralMover(this, &effect_center, -0.9, 0.8);
       break;
     }
-    case OGHARVEST:
+    case OG_HARVEST:
     {
       spawner = new FilledSphereSpawner(0.05);
       mover = new ParticleMover(this);
@@ -193,7 +193,7 @@ bool OngoingEffect::idle(const Uint64 usec)
   const interval_t float_time = usec / 1000000.0;
   switch(type)
   {
-    case MAGIC_PROTECTION:
+    case OG_MAGIC_PROTECTION:
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
       {
@@ -206,21 +206,21 @@ bool OngoingEffect::idle(const Uint64 usec)
       }
       break;
     }
-    case SHIELD:
+    case OG_SHIELD:
     {
-      while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
+      while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 12.0 * LOD * strength) < 0.75)
       {
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity(0.0, 0.0, 0.0);
         coords += effect_center;
-        coords.y = -0.2 + randcoord(1.5);
+        coords.y = -0.25 + randcoord(1.5);
         Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.5, 1.0, 0.55, 0.05, 0.9, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
       break;
     }
-    case MAGIC_IMMUNITY:
+    case OG_MAGIC_IMMUNITY:
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
       {
@@ -233,7 +233,7 @@ bool OngoingEffect::idle(const Uint64 usec)
       }
       break;
     }
-    case POISON:	//The odd one out.  ;)
+    case OG_POISON:	//The odd one out.  ;)
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 4.0 * LOD * strength) < 0.5)
       {
@@ -259,17 +259,15 @@ bool OngoingEffect::idle(const Uint64 usec)
       }
       break;
     }
-    case OGHARVEST:
+    case OG_HARVEST:
 	{
-      while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.0 * LOD * strength) < 0.5)
+      while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 4.0 * LOD * strength) < 0.5)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(1.0);
         velocity.y = randfloat(0.5);
-        coords += effect_center;
-        Particle* p;
-        p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.1 + randcoord(0.9), 1.0, 0.75 + randcolor(0.25), 0.75 + randcolor(0.25), 0.0, &(base->TexTwinflare), LOD, type);
+        Particle* p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.1 + randcoord(0.9), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }

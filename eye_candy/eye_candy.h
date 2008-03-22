@@ -188,9 +188,13 @@ void hsv_to_rgb(const color_t h, const color_t s, const color_t v, color_t& r, c
 // M E M B E R S //////////////////////////////////////////////////////////////
 
 #ifdef DEBUG
+ #ifndef EC_DEBUG
 const int EC_DEBUG = 1;
+ #endif // EC_DEBUG
 #else // DEBUG
+ #ifndef EC_DEBUG
 const int EC_DEBUG = 0;
+ #endif // EC_DEBUG
 #endif // DEBUG
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
@@ -207,6 +211,7 @@ extern std::vector<Obstruction*> null_obstructions;	// Used where we don't want 
 
 // E N U M S //////////////////////////////////////////////////////////////////
 
+// Keep in sync with eye_candy_wrapper.h!
 enum EffectEnum
 {
   EC_LAMP = 0,

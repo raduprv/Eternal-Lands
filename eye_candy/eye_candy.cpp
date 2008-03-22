@@ -663,6 +663,8 @@ Vec3 BoxObstruction::get_force_gradient(Particle& p)
 */
     return roty_ret;
   }
+  // get rid of compiler warning, this code should never be reached
+  return Vec3(0.0, 0.0, 0.0);
 }
 
 PolarCoordElement::PolarCoordElement(const coord_t _frequency, const coord_t _offset, const coord_t _scalar, const coord_t _power)
@@ -1784,9 +1786,12 @@ void EyeCandy::idle()
 #endif
         )
         {
-          if (EC_DEBUG)
-            std::cout << "Deactivating effect " << e << "(" << fastsqrt(distance_squared) << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
-          e->active = false;
+          if (e->get_type() != EC_MISSILE) // don't deactivate missed missiles
+          {
+            if (EC_DEBUG)
+              std::cout << "Deactivating effect " << e << " (" << distance_squared << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+            e->active = false;
+          }
         }
       }
     }

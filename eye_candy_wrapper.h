@@ -149,7 +149,7 @@ typedef std::vector<ec::Effect*> ec_internal_effects;
 
 #endif
 
-typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
+typedef enum ec_EffectEnum      // Keep in sync with eye_candy/eye_candy.h!
 {
   EC_LAMP = 0,
   EC_CAMPFIRE = 1,
@@ -188,7 +188,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   float ec_get_z(actor* _actor);
   float ec_get_z2(int x, int y);
   void ec_idle(); //!< \callergraph
-  void ec_heartbeat();	// Once per second.
+  void ec_heartbeat();  // Once per second.
   void ec_draw(); //!< \callergraph
   void ec_actor_delete(actor* _actor);
   void ec_recall_effect(ec_reference ref);
@@ -243,6 +243,23 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_glow_harm(actor* caster, int LOD);
   ec_reference ec_create_glow_level_up_att(actor* caster, int LOD);
   ec_reference ec_create_glow_level_up_def(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_har(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_alc_left(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_alc_right(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_mag(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_pot_left(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_pot_right(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_sum(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_man_left(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_man_right(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_cra_left(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_cra_right(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_eng_left(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_eng_right(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_tai_left(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_tai_right(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_ran(actor* caster, int LOD);
+  ec_reference ec_create_glow_level_up_default(actor* caster, int LOD);
   ec_reference ec_create_glow_level_up_oa(actor* caster, int LOD);
   ec_reference ec_create_glow_poison(actor* caster, int LOD);
   ec_reference ec_create_glow_remote_heal(actor* caster, int LOD);
@@ -401,7 +418,7 @@ typedef enum ec_EffectEnum	//Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, int LOD);
 
 #ifdef MISSILES
-  ec_reference ec_create_missile_effect(int missile_id, int LOD);
+  ec_reference ec_create_missile_effect(int missile_id, int LOD, int hitOrMiss);
 #endif // MISSILES
 
 #ifdef __cplusplus

@@ -21,11 +21,11 @@ class OngoingEffect : public Effect
 public: 
   enum OngoingType
   {
-    MAGIC_PROTECTION,
-    SHIELD,
-    MAGIC_IMMUNITY,
-    POISON,
-    OGHARVEST,
+    OG_MAGIC_PROTECTION,
+    OG_SHIELD,
+    OG_MAGIC_IMMUNITY,
+    OG_POISON,
+    OG_HARVEST,
   };
 
   OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const OngoingType _type, const Uint16 _LOD, const float _strength);

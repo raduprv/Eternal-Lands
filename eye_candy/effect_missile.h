@@ -25,10 +25,10 @@ public:
     MAGIC,
     FIRE,
     ICE,
-    EXPLOSIVE
+    EXPLOSIVE,
   };
 
-  MissileEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MissileType _type, const Uint16 _LOD);
+  MissileEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MissileType _type, const Uint16 _LOD, const int _hitOrMiss);
   ~MissileEffect(); 
   
   virtual EffectEnum get_type() { return EC_MISSILE; };
@@ -42,6 +42,15 @@ public:
   color_t color[3];
   Texture* texture;
   MissileType type;
+  // keep hitOrMiss in sync with missiles.h!
+  /*
+  typedef enum {
+    MISSED_SHOT = 0,
+    NORMAL_SHOT = 1,
+    CRITICAL_SHOT = 2
+  } MissileShotType;
+  */
+  int hitOrMiss;
 };
 
 class MissileParticle : public Particle
@@ -64,6 +73,6 @@ public:
 
 }	// End namespace ec
 
-#endif	// defined EFFECT_SWORD_H
+#endif	// defined EFFECT_MISSILE_H
 
 #endif // MISSILES
