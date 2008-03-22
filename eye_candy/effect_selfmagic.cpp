@@ -232,7 +232,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       //spawner = new SierpinskiIFSParticleSpawner(1.05);
       spawner = new SierpinskiIFSParticleSpawner(1.5);
       mover = new GravityMover(this, &effect_center, 1e10);
-      while ((int)particles.size() < LOD * 100)
+      while ((int)particles.size() < LOD * 96)
       {
         Vec3 coords = spawner->get_new_coords() * 0.5;
         Vec3 velocity = -coords * 3;
@@ -247,7 +247,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     {
       spawner = new HollowSphereSpawner(0.9);
       mover = new GravityMover(this, &effect_center, 3e10);
-      while ((int)particles.size() < LOD * 120)
+      while ((int)particles.size() < LOD * 96)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -263,7 +263,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       spawner = new HollowDiscSpawner(0.65);
       mover = new SpiralMover(this, &effect_center, 15.0, 14.0);
 
-      while ((int)particles.size() < LOD * 100)
+      while ((int)particles.size() < LOD * 96)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -283,7 +283,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       mover = new SpiralMover(this, &effect_center, 10.0, 120.0);
       mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
    
-      while ((int)particles.size() < LOD * 60)
+      while ((int)particles.size() < LOD * 48)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -294,7 +294,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
         if (!base->push_back_particle(p))
           break;
       }
-      while ((int)particles.size() < LOD * 160)
+      while ((int)particles.size() < LOD * 96)
       {
         Vec3 coords = spawner2->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -314,7 +314,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       mover = new SpiralMover(this, &effect_center, 5.0, 50.0);
       mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
    
-      while ((int)particles.size() < LOD * 80)
+      while ((int)particles.size() < LOD * 36)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -325,7 +325,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
         if (!base->push_back_particle(p))
           break;
       }
-      while ((int)particles.size() < LOD * 180)
+      while ((int)particles.size() < LOD * 96)
       {
         Vec3 coords = spawner2->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -345,7 +345,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       mover = new SpiralMover(this, &effect_center, 12.0, 36.0);
       mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
    
-      while ((int)particles.size() < LOD * 120)
+      while ((int)particles.size() < LOD * 32)
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -356,7 +356,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
         if (!base->push_back_particle(p))
           break;
       }
-      while ((int)particles.size() < LOD * 220)
+      while ((int)particles.size() < LOD * 96)
       {
         Vec3 coords = spawner2->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -375,7 +375,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       mover = new GravityMover(this, &effect_center, 3e7);
       spawner2 = new HollowDiscSpawner(0.45);
       mover2 = new SpiralMover(this, &effect_center, 10.0, 11.0);
-      while ((int)particles.size() < LOD * 60)
+      while ((int)particles.size() < LOD * 48)
       {
         Vec3 coords = spawner->get_new_coords() * 3.5;
         Vec3 velocity = -coords * 3;
@@ -384,7 +384,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
         if (!base->push_back_particle(p))
           break;
       }
-      while ((int)particles.size() < LOD * 120)
+      while ((int)particles.size() < LOD * 96)
       {
         Vec3 coords = spawner2->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -417,7 +417,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       spawner = new FilledDiscSpawner(0.2);
       const float sqrt_LOD = fastsqrt(LOD);
       size_scalar = 1.0;
-      for (int i = 0; i < LOD * 192; i++)
+      for (int i = 0; i < LOD * 96; i++)
       {
         const Vec3 coords = spawner->get_new_coords() + effect_center + Vec3(0.0, randcoord() * randcoord() * 8.0 * sqrt_LOD, 0.0);
         Vec3 velocity(0.0, randcoord(0.1), 0.0);
@@ -442,7 +442,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
     {
       spawner = new FilledSphereSpawner(1.0);
       mover = new GravityMover(this, &effect_center, 4e10);
-      while ((int)particles.size() < LOD * 20)
+      while ((int)particles.size() < LOD * 32)
       {
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity;
@@ -459,7 +459,7 @@ SelfMagicEffect::SelfMagicEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const
       effect_center.y += 0.5;
       spawner = new HollowEllipsoidSpawner(Vec3(0.2, 0.5, 0.2));
       mover = new ParticleMover(this);
-      while ((int)particles.size() < LOD * 20)
+      while ((int)particles.size() < LOD * 32)
       {
         Vec3 coords = spawner->get_new_coords();
         Vec3 velocity = coords * 16;
