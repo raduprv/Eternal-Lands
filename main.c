@@ -117,7 +117,7 @@ int start_rendering()
 	static int done = 0;
 	static void * network_thread_data[2] = { NULL, NULL };
 #ifdef NEW_ACTOR_MOVEMENT
-	static int last_frame_and_command_update = 0;
+	static Uint32 last_frame_and_command_update = 0;
 #endif // NEW_ACTOR_MOVEMENT
 
 	SDL_Thread *network_thread;

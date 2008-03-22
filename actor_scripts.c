@@ -1619,8 +1619,8 @@ void next_command()
 		}
 #ifndef NEW_ACTOR_MOVEMENT
 	UNLOCK_ACTORS_LISTS();
-#endif // NEW_ACTOR_MOVEMENT
 	if(max_queue >= (MAX_CMD_QUEUE/2))my_timer_adjust+=6+(max_queue-(MAX_CMD_QUEUE/2));	//speed up the timer clock if we are building up too much
+#endif // NEW_ACTOR_MOVEMENT
 }
 
 

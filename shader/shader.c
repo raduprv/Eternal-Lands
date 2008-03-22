@@ -22,12 +22,20 @@ typedef struct
 shader_data shader_data_list[] = {
 	{ NULL, NULL, "./shaders/water_fs.glsl", " " },
 	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_FOG\n" },
+	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_FOG\n#define\tUSE_SHADOW\n" },
 	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n" },
 	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n#define\tUSE_SHADOW\n" },
 	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n" },
 	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_FOG\n" },
+	{ NULL, NULL, "./shaders/water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_FOG\n#define\tUSE_SHADOW\n" },
 	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n" },
-	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_SHADOW\n" }
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_SHADOW\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n" },
+	{ NULL, NULL, "./shaders/reflectiv_water_fs.glsl", "#define\tUSE_NOISE\n#define\tUSE_CUBIC_FILTER\n#define\tUSE_FOG\n#define\tUSE_SHADOW\n" }
 };
 
 #define	shader_data_size (sizeof(shader_data_list) / sizeof(shader_data))
@@ -271,13 +279,14 @@ void free_shaders()
 	}
 }
 
-static __inline__ int get_shader_index(shader_type type, shader_shadow_type shadow_type, Uint32 quality)
+static __inline__ int get_shader_index(shader_type type, shader_shadow_type shadow_type, shader_fog_type fog_type, Uint32 quality)
 {
 	int ret;
 
-	ret = type * 2;
+	ret = type * 4;
+    ret += fog_type * 2;
 	ret += shadow_type;
-	ret += max2i(min2i(quality, 1), 0) * 4;
+	ret += max2i(min2i(quality, 1), 0) * 8;
 
 	return ret;
 }
@@ -346,11 +355,11 @@ void init_shaders()
 	}
 }
 
-GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, Uint32 quality)
+GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, shader_fog_type fog_type, Uint32 quality)
 {
 	int index;
 
-	index = get_shader_index(type, shadow_type, quality);
+	index = get_shader_index(type, shadow_type, fog_type, quality);
 
 	return shader[index];
 }

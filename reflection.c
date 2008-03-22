@@ -62,36 +62,68 @@ int get_max_supported_water_shader_quality()
 		return 0;
 	}
 
-	if (get_shader(st_water, sst_shadow_receiver, 0) == 0)
+	if (get_shader(st_water, sst_shadow_receiver, sft_disabled, 0) == 0)
 	{
 		return 0;
 	}
-	if (get_shader(st_water, sst_no_shadow_receiver, 0) == 0)
+	if (get_shader(st_water, sst_no_shadow_receiver, sft_disabled, 0) == 0)
 	{
 		return 0;
 	}
-	if (get_shader(st_reflectiv_water, sst_shadow_receiver, 0) == 0)
+	if (get_shader(st_water, sst_shadow_receiver, sft_enabled, 0) == 0)
 	{
 		return 0;
 	}
-	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, 0) == 0)
+	if (get_shader(st_water, sst_no_shadow_receiver, sft_enabled, 0) == 0)
+	{
+		return 0;
+	}
+	if (get_shader(st_reflectiv_water, sst_shadow_receiver, sft_disabled, 0) == 0)
+	{
+		return 0;
+	}
+	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, sft_disabled, 0) == 0)
+	{
+		return 0;
+	}
+	if (get_shader(st_reflectiv_water, sst_shadow_receiver, sft_enabled, 0) == 0)
+	{
+		return 0;
+	}
+	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, sft_enabled, 0) == 0)
 	{
 		return 0;
 	}
 
-	if (get_shader(st_water, sst_shadow_receiver, 1) == 0)
+	if (get_shader(st_water, sst_shadow_receiver, sft_disabled, 1) == 0)
 	{
 		return 1;
 	}
-	if (get_shader(st_water, sst_no_shadow_receiver, 1) == 0)
+	if (get_shader(st_water, sst_no_shadow_receiver, sft_disabled, 1) == 0)
 	{
 		return 1;
 	}
-	if (get_shader(st_reflectiv_water, sst_shadow_receiver, 1) == 0)
+	if (get_shader(st_water, sst_shadow_receiver, sft_enabled, 1) == 0)
 	{
 		return 1;
 	}
-	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, 1) == 0)
+	if (get_shader(st_water, sst_no_shadow_receiver, sft_enabled, 1) == 0)
+	{
+		return 1;
+	}
+	if (get_shader(st_reflectiv_water, sst_shadow_receiver, sft_disabled, 1) == 0)
+	{
+		return 1;
+	}
+	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, sft_disabled, 1) == 0)
+	{
+		return 1;
+	}
+	if (get_shader(st_reflectiv_water, sst_shadow_receiver, sft_enabled, 1) == 0)
+	{
+		return 1;
+	}
+	if (get_shader(st_reflectiv_water, sst_no_shadow_receiver, sft_enabled, 1) == 0)
 	{
 		return 1;
 	}
@@ -749,11 +781,11 @@ void draw_lake_tiles()
 	{
 		if (!dungeon && shadows_on && is_day)
 		{
-			cur_shader = get_shader(st_water, sst_shadow_receiver, water_shader_quality - 1);
+			cur_shader = get_shader(st_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
 		else
 		{
-			cur_shader = get_shader(st_water, sst_no_shadow_receiver, water_shader_quality - 1);
+			cur_shader = get_shader(st_water, sst_no_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
 		ELglUseProgramObjectARB(cur_shader);
 		CHECK_GL_ERRORS();
@@ -817,11 +849,11 @@ void draw_lake_tiles()
 
 		if (!dungeon && shadows_on && is_day)
 		{
-			cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, water_shader_quality - 1);
+			cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
 		else
 		{
-			cur_shader = get_shader(st_reflectiv_water, sst_no_shadow_receiver, water_shader_quality - 1);
+			cur_shader = get_shader(st_reflectiv_water, sst_no_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
 		ELglUseProgramObjectARB(cur_shader);
 		CHECK_GL_ERRORS();

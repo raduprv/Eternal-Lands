@@ -16,6 +16,12 @@ typedef enum
 
 typedef enum
 {
+	sft_disabled = 0,
+	sft_enabled = 1
+} shader_fog_type;
+
+typedef enum
+{
 	st_water = 0,
 	st_reflectiv_water = 1
 } shader_type;
@@ -25,7 +31,7 @@ extern GLuint filter_lut;
 
 void init_shaders();
 
-GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, Uint32 quality);
+GLhandleARB get_shader(shader_type type, shader_shadow_type shadow_type, shader_fog_type fog_type, Uint32 quality);
 
 void free_shaders();
 

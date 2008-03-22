@@ -47,7 +47,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 #ifdef NEW_SOUND
 	update_sound(interval);
 #endif	//NEW_SOUND
-//animate_actors();
+
 	// adjust the timer clock
 	if(my_timer_clock == 0)
 	{
@@ -73,7 +73,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 	thunder_control();
 	if(is_raining)update_rain();
 #endif
-	//next_command();
+
 	//e.type= SDL_USEREVENT;
 #ifndef NEW_ACTOR_MOVEMENT
 	e.user.code= EVENT_ANIMATE_ACTORS;

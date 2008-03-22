@@ -23,9 +23,9 @@ void main (void)
 	vec2 reflection_tex_coord;
 #ifdef	USE_SHADOW
 	vec4 shadow_tex_coord;
+	vec4 shadow;
 #endif	// USE_SHADOW
 	vec2 tile_tex_coord;
-	float shadow;
 
 #ifdef	USE_SHADOW
 	shadow_tex_coord = gl_TexCoord[0];
@@ -75,12 +75,19 @@ void main (void)
 	color = mix(texture2D(tile_texture, tile_tex_coord), color, blend);
 
 #ifdef	USE_SHADOW
-	shadow = shadow2DProj(shadow_texture, shadow_tex_coord).r;
-	light = mix(gl_FrontLightModelProduct.sceneColor, gl_Color, shadow);
+	shadow = shadow2DProj(shadow_texture, shadow_tex_coord);
+	light = gl_LightSource[7].ambient + gl_LightModel.ambient;
+ 	light = mix(light, gl_Color, shadow);
 #else	// USE_SHADOW
 	light = gl_Color;
 #endif	// USE_SHADOW
 
 	gl_FragColor = light * color;
-}
 
+#ifdef USE_FOG
+	const float LOG2 = 1.442695;
+	float fog = gl_Fog.density*gl_FogFragCoord;
+	fog = exp2(-fog*fog*LOG2);
+	gl_FragColor = mix(gl_Fog.color, gl_FragColor, fog);
+#endif // USE_FOG
+}
