@@ -878,29 +878,14 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
             if (enable_client_aiming) {
                 if (flag_ctrl) {
                     float target[3];
-                    char need_aim;
-                    actor *cur_actor = get_actor_ptr_from_id(yourself);
                     
                     target[0] = x * 0.5 + 0.25;
                     target[1] = y * 0.5 + 0.25;
                     target[2] = height_map[y*tile_map_size_x*6+x]*0.2f - 1.0f;
                     
-                    LOCK_ACTORS_LISTS();
-                    need_aim = (fabs(target[0] - cur_actor->range_target_aim[0]) > 0.0 ||
-                                fabs(target[1] - cur_actor->range_target_aim[1]) > 0.0);
-                    UNLOCK_ACTORS_LISTS();
-                    
-                    if (need_aim)
-                        missiles_aim_at_xyz(yourself, target);
-                    else {
-                        missiles_aim_at_xyz(yourself, target);
-                        LOCK_ACTORS_LISTS();
-                        if (cur_actor->shots_count < MAX_SHOTS_QUEUE)
-                            cur_actor->reload[cur_actor->shots_count] = 1;
-                        /* cur_actor->shot_type[cur_actor->shots_count] = MISSED_SHOT; */
-                        UNLOCK_ACTORS_LISTS();
-                        missiles_fire_a_to_xyz(yourself, target);
-                    }
+					missiles_aim_at_xyz(yourself, target);
+					add_command_to_actor(yourself, aim_mode_reload);
+					missiles_fire_a_to_xyz(yourself, target);
                 }
                 else {
                     char in_aim_mode;

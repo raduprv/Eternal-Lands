@@ -112,9 +112,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->cal_rotation_speed = 0.0;
 	our_actor->are_bones_rotating = 0;
 	our_actor->in_aim_mode = 0;
-	our_actor->reload[0] = 0;
-	our_actor->shot_type[0] = NORMAL_SHOT;
-	our_actor->shots_count = 0;
+	our_actor->range_actions_count = 0;
 	our_actor->delayed_item_changes_count = 0;
 #endif // MISSILES
 

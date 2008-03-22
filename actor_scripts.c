@@ -1249,18 +1249,24 @@ void next_command()
 
 #ifdef MISSILES
 				case enter_aim_mode:
+					missiles_log_message("%s (%d): cleaning the queue from enter_aim_mode command",
+										 actors_list[i]->actor_name, actors_list[i]->actor_id);
+					missiles_clean_range_actions_queue(actors_list[i]);
+
 					if (actors_list[i]->in_aim_mode == 0) {
 						missiles_log_message("%s (%d): enter in aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_in_frame);
 
 						actors_list[i]->cal_h_rot_start = 0.0;
 						actors_list[i]->cal_v_rot_start = 0.0;
-						actors_list[i]->reload[0] = 0;
-						actors_list[i]->shot_type[0] = NORMAL_SHOT;
-						actors_list[i]->shots_count = 0;
+						if (actors_list[i]->range_actions_count != 1) {
+							LOG_ERROR("%s (%d): entering in range mode with an non empty range action queue!",
+									  actors_list[i]->actor_name, actors_list[i]->actor_id);
+						}
 					}
 					else {
                         float range_rotation;
+						range_action *action = &actors_list[i]->range_actions[0];
 
 						missiles_log_message("%s (%d): aiming again (time=%d)", actors_list[i]->actor_name, actors_list[i]->actor_id, cur_time);
 						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_idle_frame);
@@ -1273,14 +1279,24 @@ void next_command()
 														   actors_list[i]->cal_v_rot_end *
 														   actors_list[i]->cal_rotation_blend);
 
+						/* we look if the actor is still around and if yes,
+						 * we recompute it's position */
+						if (action->aim_actor >= 0) {
+							actor *aim_actor = get_actor_ptr_from_id(action->aim_actor);
+							if (aim_actor) {
+								cal_get_actor_bone_absolute_position(aim_actor, get_actor_bone_id(aim_actor, body_top_bone), NULL, action->aim_position);
+							}
+						}
+
 						range_rotation = missiles_compute_actor_rotation(&actors_list[i]->cal_h_rot_end,
 																		 &actors_list[i]->cal_v_rot_end,
-																		 actors_list[i], actors_list[i]->range_target_aim);
+																		 actors_list[i], action->aim_position);
 						actors_list[i]->cal_rotation_blend = 0.0;
 						actors_list[i]->cal_rotation_speed = 1.0/360.0;
                         actors_list[i]->cal_last_rotation_time = cur_time;
 						actors_list[i]->are_bones_rotating = 1;
 						actors_list[i]->stop_animation = 1;
+						if (action->state == 0) action->state = 1;
 						
 						if (range_rotation != 0.0) {
 							missiles_log_message("%s (%d): not facing its target => client side rotation needed",
@@ -1344,101 +1360,101 @@ void next_command()
 /* 					break; */
 
 				case aim_mode_fire:
-					if (actors_list[i]->in_aim_mode != 1) {
-						log_error("next_command: trying to fire an arrow out of range mode => aborting!");
-						no_action = 1;
-						break;
-					}
-
-					if (actors_list[i]->reload[0]) {
-						missiles_log_message("%s (%d): fire and reload", actors_list[i]->actor_name, actors_list[i]->actor_id);
-						// launch fire and reload animation
-						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
-						actors_list[i]->in_aim_mode = 1;
-					}
-					else {
-						missiles_log_message("%s (%d): fire and leave aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
-						// launch fire and leave aim mode animation
-						cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_out_frame);
-						actors_list[i]->in_aim_mode = 2;
-					}
-					
-					actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
-													   (1.0 - actors_list[i]->cal_rotation_blend) +
-													   actors_list[i]->cal_h_rot_end *
-													   actors_list[i]->cal_rotation_blend);
-					actors_list[i]->cal_v_rot_start = (actors_list[i]->cal_v_rot_start *
-													   (1.0 - actors_list[i]->cal_rotation_blend) +
-													   actors_list[i]->cal_v_rot_end *
-													   actors_list[i]->cal_rotation_blend);
-					actors_list[i]->cal_h_rot_end = 0.0;
-					actors_list[i]->cal_v_rot_end = 0.0;
-					actors_list[i]->cal_rotation_blend = 0.0;
-					actors_list[i]->cal_rotation_speed = 1.0/360.0;
-                    actors_list[i]->cal_last_rotation_time = cur_time;
-					actors_list[i]->are_bones_rotating = 1;
-					actors_list[i]->stop_animation = 1;
-
-					/* In case of a missed shot due to a collision with an actor,
-					 * the server send the position of the actor with 0.0 for the Z coordinate.
-					 * So we have to compute the coordinate of the ground at this position.
-					 */
-					if (actors_list[i]->shot_type[0] == MISSED_SHOT &&
-						actors_list[i]->range_target_fire[0][2] == 0.0) {
-						int tile_x = (int)(actors_list[i]->range_target_fire[0][0]*2.0);
-						int tile_y = (int)(actors_list[i]->range_target_fire[0][1]*2.0);
-						actors_list[i]->range_target_fire[0][2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
-                        missiles_log_message("missed shot detected: new height computed: %f", actors_list[i]->range_target_fire[0][2]);
-					}
-
-#ifdef DEBUG
 					{
-						float aim_angle = atan2f(actors_list[i]->range_target_aim[1] - actors_list[i]->y_pos,
-												 actors_list[i]->range_target_aim[0] - actors_list[i]->x_pos);
-						float fire_angle = atan2f(actors_list[i]->range_target_fire[0][1] - actors_list[i]->y_pos,
-												 actors_list[i]->range_target_fire[0][0] - actors_list[i]->x_pos);
-						if (aim_angle < 0.0) aim_angle += 2*M_PI;
-						if (fire_angle < 0.0) fire_angle += 2*M_PI;
-						if (fabs(fire_angle - aim_angle) > M_PI/8.0) {
-							char msg[512];
-							sprintf(msg,
-									"%s (%d): WARNING! Target position is too different from aim position: pos=(%f,%f,%f) aim=(%f,%f,%f) target=(%f,%f,%f) aim_angle=%f target_angle=%f",
-                                    actors_list[i]->actor_name,
-                                    actors_list[i]->actor_id,
-									actors_list[i]->x_pos,
-									actors_list[i]->y_pos,
-									actors_list[i]->z_pos,
-									actors_list[i]->range_target_aim[0],
-									actors_list[i]->range_target_aim[1],
-									actors_list[i]->range_target_aim[2],
-									actors_list[i]->range_target_fire[0][0],
-									actors_list[i]->range_target_fire[0][1],
-									actors_list[i]->range_target_fire[0][2],
-									aim_angle, fire_angle);
-							LOG_TO_CONSOLE(c_red2, msg);
-							missiles_log_message(msg);
+						range_action *action = &actors_list[i]->range_actions[0];
+						action->state = 3;
+
+						if (actors_list[i]->in_aim_mode != 1) {
+							log_error("next_command: trying to fire an arrow out of range mode => aborting!");
+							no_action = 1;
+							missiles_log_message("%s (%d): cleaning the queue from aim_mode_fire command (error)",
+												 actors_list[i]->actor_name, actors_list[i]->actor_id);
+							missiles_clean_range_actions_queue(actors_list[i]);
+							break;
 						}
-					}
+
+						if (action->reload) {
+							missiles_log_message("%s (%d): fire and reload", actors_list[i]->actor_name, actors_list[i]->actor_id);
+							// launch fire and reload animation
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_frame);
+							actors_list[i]->in_aim_mode = 1;
+						}
+						else {
+							missiles_log_message("%s (%d): fire and leave aim mode", actors_list[i]->actor_name, actors_list[i]->actor_id);
+							// launch fire and leave aim mode animation
+							cal_actor_set_anim(i,actors_defs[actor_type].weapon[actors_list[i]->cur_weapon].cal_range_fire_out_frame);
+							actors_list[i]->in_aim_mode = 2;
+						}
+					
+						actors_list[i]->cal_h_rot_start = (actors_list[i]->cal_h_rot_start *
+														   (1.0 - actors_list[i]->cal_rotation_blend) +
+														   actors_list[i]->cal_h_rot_end *
+														   actors_list[i]->cal_rotation_blend);
+						actors_list[i]->cal_v_rot_start = (actors_list[i]->cal_v_rot_start *
+														   (1.0 - actors_list[i]->cal_rotation_blend) +
+														   actors_list[i]->cal_v_rot_end *
+														   actors_list[i]->cal_rotation_blend);
+						actors_list[i]->cal_h_rot_end = 0.0;
+						actors_list[i]->cal_v_rot_end = 0.0;
+						actors_list[i]->cal_rotation_blend = 0.0;
+						actors_list[i]->cal_rotation_speed = 1.0/360.0;
+						actors_list[i]->cal_last_rotation_time = cur_time;
+						actors_list[i]->are_bones_rotating = 1;
+						actors_list[i]->stop_animation = 1;
+
+						/* In case of a missed shot due to a collision with an actor,
+						 * the server send the position of the actor with 0.0 for the Z coordinate.
+						 * So we have to compute the coordinate of the ground at this position.
+						 */
+						if (action->shot_type == MISSED_SHOT &&
+							action->fire_position[2] == 0.0) {
+							int tile_x = (int)(action->fire_position[0]*2.0);
+							int tile_y = (int)(action->fire_position[1]*2.0);
+							action->fire_position[2] = height_map[tile_y*tile_map_size_x*6+tile_x]*0.2-2.2;
+							missiles_log_message("missed shot detected: new height computed: %f", action->fire_position[2]);
+						}
+						else if (action->fire_actor >= 0) {
+							actor *fire_actor = get_actor_ptr_from_id(action->fire_actor);
+							if (fire_actor) {
+								cal_get_actor_bone_absolute_position(fire_actor, get_actor_bone_id(fire_actor, body_top_bone), NULL, action->fire_position);
+							}
+						}
+						
+#ifdef DEBUG
+						{
+							float aim_angle = atan2f(action->aim_position[1] - actors_list[i]->y_pos,
+													 action->aim_position[0] - actors_list[i]->x_pos);
+							float fire_angle = atan2f(action->fire_position[1] - actors_list[i]->y_pos,
+													  action->fire_position[0] - actors_list[i]->x_pos);
+							if (aim_angle < 0.0) aim_angle += 2*M_PI;
+							if (fire_angle < 0.0) fire_angle += 2*M_PI;
+							if (fabs(fire_angle - aim_angle) > M_PI/8.0) {
+								char msg[512];
+								sprintf(msg,
+										"%s (%d): WARNING! Target position is too different from aim position: pos=(%f,%f,%f) aim=(%f,%f,%f) target=(%f,%f,%f) aim_angle=%f target_angle=%f",
+										actors_list[i]->actor_name,
+										actors_list[i]->actor_id,
+										actors_list[i]->x_pos,
+										actors_list[i]->y_pos,
+										actors_list[i]->z_pos,
+										action->aim_position[0],
+										action->aim_position[1],
+										action->aim_position[2],
+										action->fire_position[0],
+										action->fire_position[1],
+										action->fire_position[2],
+										aim_angle, fire_angle);
+								LOG_TO_CONSOLE(c_red2, msg);
+								missiles_log_message(msg);
+							}
+						}
 #endif // DEBUG
 
-					missiles_fire_arrow(actors_list[i], actors_list[i]->range_target_fire[0], actors_list[i]->shot_type[0]);
-
-					// we remove the current shot from the queue
-					if (actors_list[i]->shots_count > 0) {
-						int j;
-						for (j = 1; j < MAX_SHOTS_QUEUE; ++j) {
-							memcpy(actors_list[i]->range_target_fire[j-1],
-								   actors_list[i]->range_target_fire[j],
-								   3*sizeof(float));
-							actors_list[i]->shot_type[j-1] = actors_list[i]->shot_type[j];
-						}
-						--actors_list[i]->shots_count;
+						missiles_fire_arrow(actors_list[i], action->fire_position, action->shot_type);
+						missiles_log_message("%s (%d): cleaning the queue from aim_mode_fire command (end)",
+											 actors_list[i]->actor_name, actors_list[i]->actor_id);
+						missiles_clean_range_actions_queue(actors_list[i]);
 					}
-					else {
-						log_error("the shots queue is already empty!");
-					}
-					actors_list[i]->reload[actors_list[i]->shots_count] = 0;
-					actors_list[i]->shot_type[actors_list[i]->shots_count] = NORMAL_SHOT;
 					break;
 
 /* 				case missile_miss: */
@@ -1734,22 +1750,31 @@ void add_command_to_actor(int actor_id, unsigned char command)
 #ifdef MISSILES
 		if (command == missile_miss) {
 			missiles_log_message("%s (%d): will miss his target", act->actor_name, actor_id);
-			if (act->shots_count < MAX_SHOTS_QUEUE)
-				act->shot_type[act->shots_count] = MISSED_SHOT;
+			if (act->range_actions_count <= MAX_RANGE_ACTION_QUEUE &&
+				act->range_actions_count > 0)
+				act->range_actions[act->range_actions_count-1].shot_type = MISSED_SHOT;
+			else
+				LOG_ERROR("%s (%d): unable to add a missed shot action, the queue is empty!", act->actor_name, actor_id);
 			UNLOCK_ACTORS_LISTS();
 			return;
 		}
 		else if (command == missile_critical) {
 			missiles_log_message("%s (%d): will do a critical hit", act->actor_name, actor_id);
-			if (act->shots_count < MAX_SHOTS_QUEUE)
-				act->shot_type[act->shots_count] = CRITICAL_SHOT;
+			if (act->range_actions_count <= MAX_RANGE_ACTION_QUEUE &&
+				act->range_actions_count > 0)
+				act->range_actions[act->range_actions_count-1].shot_type = CRITICAL_SHOT;
+			else
+				LOG_ERROR("%s (%d): unable to add a critical shot action, the queue is empty!", act->actor_name, actor_id);
 			UNLOCK_ACTORS_LISTS();
 			return;
 		}
 		else if (command == aim_mode_reload) {
 			missiles_log_message("%s (%d): reload after next fire", act->actor_name, actor_id);
-			if (act->shots_count < MAX_SHOTS_QUEUE)
-				act->reload[act->shots_count] = 1;
+			if (act->range_actions_count <= MAX_RANGE_ACTION_QUEUE &&
+				act->range_actions_count > 0)
+				act->range_actions[act->range_actions_count-1].reload = 1;
+			else
+				LOG_ERROR("%s (%d): unable to add a reload action, the queue is empty!", act->actor_name, actor_id);
 			UNLOCK_ACTORS_LISTS();
 			return;
 		}

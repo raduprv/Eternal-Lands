@@ -492,9 +492,22 @@ typedef struct
 } tmp_actor_data;
 #endif // NEW_ACTOR_MOVEMENT
 
+#ifdef MISSILES
+typedef struct
+{
+	float aim_position[3];  /*!< Position of the target to aim at */
+	float fire_position[3]; /*!< Position of the target to fire at */
+	int aim_actor;          /*!< Actor ID to aim at */
+	int fire_actor;         /*!< Actor ID to fire at */
+	char shot_type;         /*!< The type of the shot (0: normal, 1: missed, 2: critical) */
+	char reload; /*!< To tell if the char must reload after the next fire */
+	char state; /*!< The state of the action (0: aim needed, 1: aim done, 2: fire needed, 3: fire done) */
+} range_action;
+#endif // MISSILES
+
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
-#define MAX_SHOTS_QUEUE 10
+#define MAX_RANGE_ACTION_QUEUE 10
 #define MAX_ITEM_CHANGES_QUEUE 10
 typedef struct
 {
@@ -528,16 +541,13 @@ typedef struct
     int cal_last_rotation_time; /*!< The last time when the rotation has been updated */
 	char are_bones_rotating;  /*!< To tell if the char is rotating */
 	char in_aim_mode;         /*!< To tell if the char is already aiming something (0: not in aim mode; 1: in aim mode; 2: leaving aim mode) */
-	char reload[MAX_SHOTS_QUEUE]; /*!< To tell if the char must reload his bow after the next fire */
-	float range_target_aim[3]; /*!< Position of the target to aim at */
-	float range_target_fire[MAX_SHOTS_QUEUE][3];/*!< Position of the target to fire at */
-	int shot_type[MAX_SHOTS_QUEUE];             /*!< The type of the shot (normal, missed...) */
-	int shots_count;
-	/*! \} */
+	range_action range_actions[MAX_RANGE_ACTION_QUEUE]; /*!< Stores the actions to be done */
+	int range_actions_count; /*<! The number of actions stored */
 
 	int delayed_item_changes[MAX_ITEM_CHANGES_QUEUE]; /*!< Used to delay a sword/shield equip while in range mode (-1: item removed; >= 0: item equipped) */
 	int delayed_item_type_changes[MAX_ITEM_CHANGES_QUEUE]; /*!< Used to delay a sword/shield equip while in range mode */
 	int delayed_item_changes_count; /*!< The number of delayed items */
+	/*! \} */
 #endif // MISSILES
 
 	/*! \name Actors positions

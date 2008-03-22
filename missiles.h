@@ -133,6 +133,12 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 void missiles_rotate_actor_bones(actor *a);
 
 /*!
+ * \brief Cleans the range action queue of an actor from the finished actions
+ * \param act the actor
+ */
+void missiles_clean_range_actions_queue(actor *act);
+
+/*!
  * \brief Tells an actor to aim at another actor
  * \param actor1_id the ID of the current actor
  * \param actor2_id the ID of the other actor
