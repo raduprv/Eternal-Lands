@@ -601,6 +601,10 @@ const char *strip_actor_name (const char *actor_name)
 			break;
 		buf[i] = actor_name[i];
 	}
+	
+	/* strip trailing spaces */
+	while (i>0 && buf[i-1] == ' ')
+		i--;
 
 	buf[i] = '\0';
 
