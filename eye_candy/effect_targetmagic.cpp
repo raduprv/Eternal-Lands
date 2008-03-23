@@ -679,9 +679,10 @@ TargetMagicEffect2::TargetMagicEffect2(EyeCandy* _base, TargetMagicEffect* _effe
     {
       for (int i = 0; i < 20 * LOD; i++)
       {
-        Vec3 coords = spawner->get_new_coords() * 0.05 + center;
+        Vec3 coords = spawner->get_new_coords() * 0.05;
         Vec3 velocity = -coords * 30;
         velocity.y += 0.5;
+        coords += center;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 0.7, 1.0, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, NULL, NULL, &center, effect_id, 1);
         if (!base->push_back_particle(p))
           break;

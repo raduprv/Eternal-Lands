@@ -98,8 +98,9 @@ BagEffect::BagEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const bool _picke
   const coord_t size = 40 / (LOD + 10);
   for (int i = 0; i < LOD * (30 + 30 * (int)picked_up); i++)
   {
-    const Vec3 coords = spawner->get_new_coords() + effect_center;
-    const Vec3 velocity = coords * 1.3;
+    Vec3 coords = spawner->get_new_coords();
+    Vec3 velocity = coords * 1.3;
+    coords += effect_center;
     Particle* p = new BagParticle(this, mover, coords, velocity, size);
     if (!base->push_back_particle(p))
       break;

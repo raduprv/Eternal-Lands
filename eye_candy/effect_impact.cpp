@@ -123,7 +123,7 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
   mover = NULL;
   strength = _strength;
   const coord_t size_scalar = strength * 1.3;
-  const coord_t vel_scalar = sqrt(strength) * 0.44;
+  const coord_t vel_scalar = fastsqrt(strength) * 0.44;
   
   switch(type)
   {

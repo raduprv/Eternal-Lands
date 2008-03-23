@@ -302,8 +302,9 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   
       for (int i = 0; i < LOD * 60; i++)
       {
-        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 coords = spawner->get_new_coords();
         const Vec3 velocity = coords / 10.0;
+        coords += effect_center;
         Particle* p = new HarvestingParticle(this, mover, coords, velocity, 1.05, 0.75, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -321,8 +322,9 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   
       for (int i = 0; i < LOD * 60; i++)
       {
-        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 coords = spawner->get_new_coords();
         const Vec3 velocity = coords / 10.0;
+        coords += effect_center;
         Particle* p = new HarvestingParticle(this, mover, coords, velocity, 0.75, 0.05, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))

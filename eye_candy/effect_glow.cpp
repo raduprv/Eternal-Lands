@@ -229,8 +229,9 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
       for (int i = 0; i < LOD * 64; i++)
       {
-        const Vec3 coords = spawner->get_new_coords() + effect_center;
-        const Vec3 velocity = coords / 14.0;
+        Vec3 coords = spawner->get_new_coords();
+        const Vec3 velocity = coords / 12.0;
+        coords += effect_center;
         Particle* p = new GlowParticle(this, mover, coords, velocity, 0.65, 0.05, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexShimmer), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -249,8 +250,9 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
       for (int i = 0; i < LOD * 64; i++)
       {
-        const Vec3 coords = spawner->get_new_coords() + effect_center;
-        const Vec3 velocity = coords / 14.0;
+        Vec3 coords = spawner->get_new_coords();
+        const Vec3 velocity = coords / 12.0;
+        coords += effect_center;
         Particle* p = new GlowParticle(this, mover, coords, velocity, 0.95, 0.05, 1.0, 0.4 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -269,8 +271,9 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
       for (int i = 0; i < LOD * 64; i++)
       {
-        const Vec3 coords = spawner->get_new_coords() + effect_center;
-        const Vec3 velocity = coords / 14.0;
+        Vec3 coords = spawner->get_new_coords();
+        const Vec3 velocity = coords / 12.0;
+        coords += effect_center;
         Particle* p = new GlowParticle(this, mover, coords, velocity, 1.95, 0.05, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), &(base->TexInverse), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
