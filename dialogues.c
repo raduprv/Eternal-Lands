@@ -295,8 +295,12 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		hide_window(win->window_id);
 		return 1;
    }
-	if(ch<'0' || ch>'z') // do not send special keys
-	{
+   if((key & ELW_ALT) || (key & ELW_CTRL)) //Do not process Ctrl or Alt keypresses
+   {		
+		return 0;
+   }
+   if(ch<'0' || ch>'z') // do not send special keys
+   {
 		return 0;
    }
 	if(ch>='a' && ch<='z')
