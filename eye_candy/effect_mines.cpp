@@ -196,11 +196,10 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
       mover = new ParticleMover(this);
       while ((int)particles.size() < LOD * 150)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.5);
         velocity.y = 0.2;
-        coords += effect_center;
         Particle * p = new MineParticle(this, mover, coords, velocity, 0.2, 1.0, 3.0, 3.0, 3.0, &(base->TexSimple), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -233,11 +232,10 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
       mover = new SimpleGravityMover(this);
       while ((int)particles.size() < LOD * 50)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(0.2);
-        coords += effect_center;
         Particle * p = new MineParticle(this, mover, coords, velocity, 0.3, 1.0, 0.8, 0.35, 0.7, &(base->TexSimple), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -251,11 +249,10 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
       mover = new GravityMover(this, &effect_center, 8e9);
       while ((int)particles.size() < LOD * 100)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(0.9);
-        coords += effect_center;
         Particle * p = new MineParticle(this, mover, coords, velocity, 0.5, 0.5, 0.8, 0.35, 0.7, &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -271,9 +268,8 @@ MineEffect::MineEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const MineType 
 
       for (int i = 0; i < LOD * 10; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity(0.0, 5.0, 0.0);
-        coords += effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 velocity(0.0, 5.0, 0.0);
         Particle* p = new MineParticle(this, mover, coords, velocity, 0.75, 0.6, 0.4, (type == DETONATE_CALTROP ? 0.3 : 0.5), 0.3, &(base->TexTwinflare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))

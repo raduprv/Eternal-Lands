@@ -320,7 +320,7 @@ BreathEffect::BreathEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _targ
   mover = new SmokeMover(this, 10.0);
   while ((int)particles.size() < LOD * 250)
   {
-    Vec3 coords = spawner->get_new_coords() + *pos;
+    const Vec3 coords = spawner->get_new_coords() + *pos;
     Vec3 velocity;
     velocity.randomize(0.5);
     velocity += (*target - *pos) * 2.0;

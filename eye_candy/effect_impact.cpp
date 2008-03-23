@@ -133,12 +133,11 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
       mover = new ParticleMover(this);
       for (int i = 0; i < 50 * LOD ; i++)
       {
-        Vec3 coords = center;
         Vec3 velocity = -angle;
         Vec3 offset;
         offset.randomize(0.3);
         velocity += offset;
-        Particle * p = new ImpactParticle(this, mover, coords, velocity, 0.3 * size_scalar, 1.0, 0.7, 0.2, 0.4, &(base->TexShimmer), LOD, type);
+        Particle * p = new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.7, 0.2, 0.4, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -150,12 +149,11 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
       mover = new ParticleMover(this);
       for (int i = 0; i < 50 * LOD ; i++)
       {
-        Vec3 coords = center;
         Vec3 velocity = -angle;
         Vec3 offset;
         offset.randomize(0.3);
         velocity += offset;
-        Particle * p = new ImpactParticle(this, mover, coords, velocity, 0.3 * size_scalar, 1.0, 0.9, 0.9, 0.9, &(base->TexShimmer), LOD, type);
+        Particle * p = new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, 0.9, 0.9, 0.9, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -167,12 +165,11 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
       mover = new ParticleMover(this);
       for (int i = 0; i < 50 * LOD ; i++)
       {
-        Vec3 coords = center;
         Vec3 velocity = -angle;
         Vec3 offset;
         offset.randomize(0.4);
         velocity += offset;
-        Particle * p = new ImpactParticle(this, mover, coords, velocity, 0.35 * size_scalar, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexVoid), LOD, type);
+        Particle * p = new ImpactParticle(this, mover, center, velocity, 0.35 * size_scalar, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexVoid), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -184,7 +181,6 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
       mover = new ParticleMover(this);
       for (int i = 0; i < 50 * LOD ; i++)
       {
-        Vec3 coords = center;
         Vec3 velocity = -angle;
         Vec3 offset;
         offset.randomize(0.7);
@@ -192,12 +188,12 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
         Particle* p;
         if (randfloat() < 0.4)
         {
-          p = new ImpactParticle(this, mover, coords, velocity, 0.6 * size_scalar, 0.5, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type);
+          p = new ImpactParticle(this, mover, center, velocity, 0.6 * size_scalar, 0.5, 0.2 + randcolor(0.2), 0.5 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type);
           p->state = 1;
         }
         else
         {
-          p = new ImpactParticle(this, mover, coords, velocity, 0.3 * size_scalar, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, &(base->TexWater), LOD, type);
+          p = new ImpactParticle(this, mover, center, velocity, 0.3 * size_scalar, 1.0, randcolor(0.1), 0.2 + randcolor(0.1), 0.2, &(base->TexWater), LOD, type);
           p->state = 0;
         }
         if (!base->push_back_particle(p))
@@ -211,7 +207,6 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
       mover = new SimpleGravityMover(this);
       for (int i = 0; i < 20 * LOD ; i++)
       {
-        Vec3 coords = center;
         Vec3 velocity = -angle;
         Vec3 offset;
         offset.randomize(0.7);
@@ -219,7 +214,7 @@ ImpactEffect::ImpactEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Vec3 
         velocity += offset;
         velocity.normalize(0.8 * vel_scalar);
 //        std::cout << velocity << std::endl;
-        Particle * p = new ImpactParticle(this, mover, coords, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), 0.15 + randcolor(0.1), 0.15 + randcolor(0.1), &(base->TexWater), LOD, type);
+        Particle * p = new ImpactParticle(this, mover, center, velocity, square(square(randcoord(0.85))) * size_scalar, 0.5, 0.3 + randcolor(0.7), 0.15 + randcolor(0.1), 0.15 + randcolor(0.1), &(base->TexWater), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
           break;

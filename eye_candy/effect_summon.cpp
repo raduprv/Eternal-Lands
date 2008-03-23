@@ -617,7 +617,6 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
 
   while ((int)particles.size() < LOD * 5)
   {
-    Vec3 velocity(0.0, 0.5, 0.0);
 /*
     Vec3 coords = outer_spawner->get_new_coords() * outer_radius / 2.0 + *pos;
     coords.y += 0.05;
@@ -649,7 +648,7 @@ SummonEffect::SummonEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const Summo
     coords.y /= 5;
     coords += *pos;
     coords.y += 0.2;
-    velocity = Vec3(0.0, 0.0, 0.0);
+    const Vec3 velocity = Vec3(0.0, 0.0, 0.0);
     Particle* p = new InnerSummonParticle(this, gravity_mover, coords, velocity, inner_size, inner_alpha, inner_color[0], inner_color[1], inner_color[2], inner_texture, LOD);
     if (!base->push_back_particle(p))
       break;
