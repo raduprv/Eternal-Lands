@@ -190,7 +190,7 @@ bool MissileEffect::idle(const Uint64 usec)
   if (particles.size() == 0)
     return false;
 
-  const float dist = (old_pos - *pos).magnitude();
+  const interval_t dist = (old_pos - *pos).magnitude();
   Vec3 direction = (old_pos - *pos);
   direction.normalize(0.75);
   

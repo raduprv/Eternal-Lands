@@ -185,11 +185,10 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       mover = new GravityMover(this, &effect_center, 8e9);
       while ((int)particles.size() < LOD * 50)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(0.8);
-        coords += effect_center;
         Particle * p = new HarvestingParticle(this, mover, coords, velocity, 5.25, 0.5, 0.6, 0.7, 0.2, &(base->TexFlare), LOD, type);
         p->state = 0;
         if (!base->push_back_particle(p))
@@ -197,11 +196,10 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       }
       while ((int)particles.size() < LOD * 100)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(1.5);
-        coords += effect_center;
         Particle * p = new HarvestingParticle(this, mover, coords, velocity, 4.5, 0.5 + randalpha(0.4), 0.7, 0.6, 0.5, &(base->TexWater), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -252,7 +250,7 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       mover = new SpiralMover(this, &effect_center, 18.0, 11.0);
       while ((int)particles.size() < LOD * 100)
       {
-        Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.3);
         velocity.y *= 3;
@@ -272,7 +270,7 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       {
         Vec3 coords = spawner->get_new_coords() + effect_center;
         coords.y += (coord_t)(randfloat(2.0) * randfloat(2.0) * randfloat(2.0));
-        Vec3 velocity(0.0, 0.0, 0.0);
+        const Vec3 velocity(0.0, 0.0, 0.0);
         Particle * p = new HarvestingParticle(this, mover, coords, velocity, 2.0 + randcoord(1.0), 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -285,13 +283,12 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       mover = new GravityMover(this, &effect_center, 8e9);
       while ((int)particles.size() < LOD * 16)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(0.5);
         velocity.x += randfloat(0.25);
         velocity.z += randfloat(0.75);
-        coords += effect_center;
         Particle * p = new HarvestingParticle(this, mover, coords, velocity, 0.75, 1.0, 0.8, 0.7, 0.3, &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -305,9 +302,8 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   
       for (int i = 0; i < LOD * 60; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity = coords / 10.0;
-        coords += effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 velocity = coords / 10.0;
         Particle* p = new HarvestingParticle(this, mover, coords, velocity, 1.05, 0.75, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -325,9 +321,8 @@ HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   
       for (int i = 0; i < LOD * 60; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity = coords / 10.0;
-        coords += effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 velocity = coords / 10.0;
         Particle* p = new HarvestingParticle(this, mover, coords, velocity, 0.75, 0.05, randcolor(0.3) + 0.7, randcolor(0.3) + 0.5, randcolor(0.3) + 0.3, &(base->TexFlare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))

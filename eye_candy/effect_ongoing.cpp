@@ -197,9 +197,8 @@ bool OngoingEffect::idle(const Uint64 usec)
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity = coords / 12.0;
-        coords += effect_center;
         Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.5, 1.0, 0.93, 0.72, 0.7, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -224,9 +223,8 @@ bool OngoingEffect::idle(const Uint64 usec)
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity = coords / 18.0;
-        coords += effect_center;
         Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.6, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexVoid), LOD, type);
         if (!base->push_back_particle(p))
           break;

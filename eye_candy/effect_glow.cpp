@@ -174,7 +174,7 @@ bool GlowParticle::idle(const Uint64 delta_t)
 	  
 	  // relative position to rotate
 	  Vec3 rotrelpos = relpos;
-	  const double angle = M_PI / 64.0 * (relpos.x*relpos.x+relpos.z*relpos.z);
+	  const angle_t angle = M_PI / 64.0 * (relpos.x*relpos.x+relpos.z*relpos.z);
 	  // rotate it around y achsis
 	  rotrelpos.x = relpos.x * cos(angle) + relpos.z * sin(angle);
 	  rotrelpos.z = -relpos.x * sin(angle) + relpos.z * cos(angle);
@@ -229,9 +229,8 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
       for (int i = 0; i < LOD * 64; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity = coords / 14.0;
-        coords += effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 velocity = coords / 14.0;
         Particle* p = new GlowParticle(this, mover, coords, velocity, 0.65, 0.05, 0.4 + randcolor(0.3), 0.7, 0.2, &(base->TexShimmer), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -250,9 +249,8 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
       for (int i = 0; i < LOD * 64; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity = coords / 14.0;
-        coords += effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 velocity = coords / 14.0;
         Particle* p = new GlowParticle(this, mover, coords, velocity, 0.95, 0.05, 1.0, 0.4 + randcolor(0.3), 0.2, &(base->TexFlare), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -271,9 +269,8 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  spawner = new FilledEllipsoidSpawner(ec::Vec3(2.0, 1.0, 0.1));
       for (int i = 0; i < LOD * 64; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity = coords / 14.0;
-        coords += effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 velocity = coords / 14.0;
         Particle* p = new GlowParticle(this, mover, coords, velocity, 1.95, 0.05, randcolor(0.3), 0.5 + randcolor(0.3), randcolor(0.5), &(base->TexInverse), LOD, type);
         p->state = 1;
         if (!base->push_back_particle(p))
@@ -292,11 +289,10 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
       mover = new GravityMover(this, &effect_center, 9e3);
       for (int i = 0; i < LOD * 64; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(0.9);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 1.25, 0.5 + randcolor(0.5), randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexCrystal), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -313,22 +309,20 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
       mover3 = new GravityMover(this, &effect_center, 9e3);
       for (int i = 0; i < LOD * 32; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(0.75);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 3.0 + randcolor(0.75), 0.7 + randcolor(0.3), 254.0/255.0, 254.0/255.0 - 0.1 + randcolor(0.1), 0.0, &(base->TexInverse), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
       for (int i = 0; i < LOD * 32; i++)
       {
-        Vec3 coords = spawner2->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize();
         velocity.normalize(0.9);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover2, coords, velocity, 2.75, 0.7 + randcolor(0.3), 254.0/255.0 - 0.2 + randcolor(0.2), randcolor(1.0), randcolor(0.33), &(base->TexTwinflare), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -343,7 +337,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
       mover2 = new SpiralMover(this, &effect_center, 15.0, 14.0);
       for (int i = 0; i < LOD * 32; i++)
       {
-        Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.36);
         velocity.y *= 2.5;
@@ -354,7 +348,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
       }
       for (int i = 0; i < LOD * 32; i++)
       {
-        Vec3 coords = spawner2->get_new_coords() + effect_center;
+        const Vec3 coords = spawner2->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.36);
         velocity.y *= 2.5;
@@ -371,7 +365,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
       mover = new GravityMover(this, &effect_center, 3e10);
       for (int i = 0; i < LOD * 192; i++)
       {
-        Vec3 coords = spawner->get_new_coords() + effect_center;
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(0.1);
         velocity.normalize(0.1);
@@ -428,11 +422,10 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  blue = 1.0;
       for (int i = 0; i < LOD * 4; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(2.0);
         velocity.y = randfloat(0.5);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -449,11 +442,10 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  blue = 0.1;
       for (int i = 0; i < LOD * 4; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(2.0);
         velocity.y = randfloat(0.5);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -470,11 +462,10 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  blue = 0.1;
       for (int i = 0; i < LOD * 4; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(2.0);
         velocity.y = randfloat(0.5);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -491,11 +482,10 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  blue = 0.1;
       for (int i = 0; i < LOD * 4; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(2.0);
         velocity.y = randfloat(0.5);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -512,11 +502,10 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  blue = 1.0;
       for (int i = 0; i < LOD * 4; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(2.0);
         velocity.y = randfloat(0.5);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -533,11 +522,10 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
 	  blue = 0.5;
       for (int i = 0; i < LOD * 4; i++)
       {
-        Vec3 coords = spawner->get_new_coords();
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
         velocity.randomize(2.0);
         velocity.y = randfloat(0.5);
-        coords += effect_center;
         Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -610,11 +598,10 @@ bool GlowEffect::idle(const Uint64 usec)
 	  {
         for (int i = 0; i < LOD * 4; i++)
         {
-          Vec3 coords = spawner->get_new_coords();
+          const Vec3 coords = spawner->get_new_coords() + effect_center;
           Vec3 velocity;
           velocity.randomize(2.0);
           velocity.y = randfloat(0.5);
-          coords += effect_center;
           Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
           if (!base->push_back_particle(p))
             break;
