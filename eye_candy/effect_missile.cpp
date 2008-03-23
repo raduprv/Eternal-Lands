@@ -191,8 +191,7 @@ bool MissileEffect::idle(const Uint64 usec)
     return false;
 
   const interval_t dist = (old_pos - *pos).magnitude();
-  Vec3 direction = (old_pos - *pos);
-  direction.normalize(0.75);
+  const Vec3 direction = (old_pos - *pos).normalize(0.75);
   
   if (dist < 1E-4) return true; // do not add more particles, dist < 0.0001
 
