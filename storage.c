@@ -77,7 +77,7 @@ void get_storage_categories (const char *in_data, int len)
 	for (i = in_data[0]; i < STORAGE_CATEGORIES_SIZE; i++)
 	{
 		storage_categories[i].id = -1;
-		storage_categories[i].name[0] = '0';
+		storage_categories[i].name[0] = 0;
 	}
 
 	no_storage_categories = in_data[0];
@@ -159,10 +159,9 @@ void get_storage_items (const Uint8 *in_data, int len)
 			}
 		}
 	}
-	
-	no_storage = 0;
+
 	no_storage = (len - 2) / 8;
-	
+
 	cat = find_category(in_data[1]);
 	if (cat >= 0)
 	{
@@ -395,6 +394,7 @@ int click_storage_handler(window_info * win, int mx, int my, Uint32 flags)
 int mouseover_storage_handler(window_info *win, int mx, int my)
 {
 	static int last_pos;
+	int last_category;
 	
 	cur_item_over=-1;
 	
@@ -408,7 +408,9 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 				if(i==selected_category) {
 				} else if(i!=p+pos) {
 					storage_categories[i].name[0]  = to_color_char (c_orange1);
-				} else storage_categories[i].name[0] = to_color_char (c_green2);
+				} else {
+					storage_categories[i].name[0] = to_color_char (c_green2);
+				}
 			}
 			
 			return 0;
@@ -418,11 +420,12 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 		}
 	}
 	
-	if(last_pos>=0 && last_pos<13){
-		storage_categories[last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES)].name[0] = to_color_char (c_orange1);
+	last_category = last_pos+vscrollbar_get_pos(storage_win,STORAGE_SCROLLBAR_CATEGORIES);
+	if(last_pos>=0 && last_pos<13 && last_category != selected_category) {
+		storage_categories[last_category].name[0] = to_color_char (c_orange1);
 		last_pos=-1;
 	}
-	
+
 	return 0;
 }
 
