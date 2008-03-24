@@ -129,58 +129,6 @@ MUL R1.x, R1.x, R2.w;
 ADD R4, scene_color, ambient;
 MAD R4, R1.xxxx, diffuse_0, R4;
 
-MAD R1.xyz, R0.xyzx, -light_position_1.w, light_position_1.xyzx;
-DP3 R2.x, R1.xyzx, R1.xyzx;
-RSQ R2.y, R2.x;
-MUL R1.xyz, R1.xyzx, R2.y;
-DST R2, R2.xxxx, R2.yyyy;
-MUL R2.yz, R2.yzxx, light_position_1.wwww;
-DP3 R2.w, R2, attenuation_1;
-DP3 R1.x, R1.xyzx, R3.xyzx;
-MAX R1.x, R1.x, constant.z;
-RCP R2.w, R2.w;
-MUL R1.x, R1.x, R2.w;
-MAD R4, R1.xxxx, diffuse_1, R4;
-
-MAD R1.xyz, R0.xyzx, -light_position_2.w, light_position_2.xyzx;
-DP3 R2.x, R1.xyzx, R1.xyzx;
-RSQ R2.y, R2.x;
-MUL R1.xyz, R1.xyzx, R2.y;
-DST R2, R2.xxxx, R2.yyyy;
-MUL R2.yz, R2.yzxx, light_position_2.wwww;
-DP3 R2.w, R2, attenuation_2;
-DP3 R1.x, R1.xyzx, R3.xyzx;
-MAX R1.x, R1.x, constant.z;
-RCP R2.w, R2.w;
-MUL R1.x, R1.x, R2.w;
-MAD R4, R1.xxxx, diffuse_2, R4;
-
-MAD R1.xyz, R0.xyzx, -light_position_3.w, light_position_3.xyzx;
-DP3 R2.x, R1.xyzx, R1.xyzx;
-RSQ R2.y, R2.x;
-MUL R1.xyz, R1.xyzx, R2.y;
-DST R2, R2.xxxx, R2.yyyy;
-MUL R2.yz, R2.yzxx, light_position_3.wwww;
-DP3 R2.w, R2, attenuation_3;
-DP3 R1.x, R1.xyzx, R3.xyzx;
-MAX R1.x, R1.x, constant.z;
-RCP R2.w, R2.w;
-MUL R1.x, R1.x, R2.w;
-MAD R4, R1.xxxx, diffuse_3, R4;
-
-MAD R1.xyz, R0.xyzx, -light_position_4.w, light_position_4.xyzx;
-DP3 R2.x, R1.xyzx, R1.xyzx;
-RSQ R2.y, R2.x;
-MUL R1.xyz, R1.xyzx, R2.y;
-DST R2, R2.xxxx, R2.yyyy;
-MUL R2.yz, R2.yzxx, light_position_4.wwww;
-DP3 R2.w, R2, attenuation_4;
-DP3 R1.x, R1.xyzx, R3.xyzx;
-MAX R1.x, R1.x, constant.z;
-RCP R2.w, R2.w;
-MUL R1.x, R1.x, R2.w;
-MAD R4, R1.xxxx, diffuse_4, R4;
-
 MAD R1.xyz, R0.xyzx, -light_position_5.w, light_position_5.xyzx;
 DP3 R2.x, R1.xyzx, R1.xyzx;
 RSQ R2.y, R2.x;
