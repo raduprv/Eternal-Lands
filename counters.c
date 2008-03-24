@@ -614,12 +614,12 @@ const char *strip_actor_name (const char *actor_name)
 /*
  * Called by increment_death_counter if it wasn't our character that died.
  */
-void increment_kill_counter(actor *me, actor *them)
+static void increment_kill_counter(actor *me, actor *them)
 {
 	int x1, y1, x2, y2;
 	static int face_offsets[8][2] = {{0,1},{1,1},{1,0},{1,-1},{0,-1},{-1,-1},{-1,0},{-1,1}};
 	
-	if (!them->async_fighting) {
+	if (!them->async_fighting || !me->async_fighting) {
 		return;
 	}
 
