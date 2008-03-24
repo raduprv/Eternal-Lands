@@ -753,10 +753,10 @@ int skybox_parse_color_properties(xmlNode *node, float container[360][4])
 
 	if (t >= 0 && t < 360)
 	{
-		container[t][0] = r;
-		container[t][1] = g;
-		container[t][2] = b;
-		container[t][3] = a;
+		container[t][0] = r <= 1.0 ? r : r / 255.0;
+		container[t][1] = g <= 1.0 ? g : g / 255.0;
+		container[t][2] = b <= 1.0 ? b : b / 255.0;
+		container[t][3] = a <= 1.0 ? a : a / 255.0;
 	}
 	else
 	{

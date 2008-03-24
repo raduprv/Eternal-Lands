@@ -16,6 +16,13 @@
     b: the blue value of the color
     a: the alpha value of the color (optional, 1.0 by default)
 
+  Each value of a color can be expressed between 0.0 and 1.0 or between
+  0 and 255. So if a value is under 1.0, it'll be interpreted as being
+  expressed between 0.0 and 1.0. In the other case, the value will be
+  divided by 255 to fit in the [0.0,1.0] range. Be carefull, the value 1
+  doesn't correspond to the value 1/255 but to the value 1.0 in the [0.0,1.0]
+  range (or 255 in the [0,255] range).
+
   The colors between all the defined color keys are computed automatically.
 -->
 
