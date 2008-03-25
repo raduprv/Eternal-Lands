@@ -254,7 +254,7 @@ int display_newchar_handler (window_info *win)
 	glPushMatrix ();
 
 #ifdef NEW_CAMERA
-    update_camera(cur_time-last_time);
+    update_camera();
 #endif // NEW_CAMERA
 
 	if (new_zoom_level != zoom_level) {
@@ -430,7 +430,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 #ifndef NEW_CAMERA
 		camera_rotation_frames = 40;
 #else // NEW_CAMERA
-		camera_rotation_duration = 40;
+		camera_rotation_duration = 800;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
 	} else if (key == K_FROTATELEFT) {
@@ -438,7 +438,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 #ifndef NEW_CAMERA
 		camera_rotation_frames = 10;
 #else // NEW_CAMERA
-		camera_rotation_duration = 10;
+		camera_rotation_duration = 200;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
 	} else if (key == K_ROTATERIGHT) {
@@ -446,7 +446,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 #ifndef NEW_CAMERA
 		camera_rotation_frames = 40;
 #else // NEW_CAMERA
-		camera_rotation_duration = 40;
+		camera_rotation_duration = 800;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
 	} else if (key == K_FROTATERIGHT) {
@@ -454,7 +454,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 #ifndef NEW_CAMERA
 		camera_rotation_frames = 10;
 #else // NEW_CAMERA
-		camera_rotation_duration = 10;
+		camera_rotation_duration = 200;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
 	} else if(key==K_TURNLEFT){

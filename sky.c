@@ -361,6 +361,7 @@ void cloudy_sky()
 	if (skybox_show_stars && !skybox_no_stars && day_alpha > 0.0)
 	{
 		glPushMatrix();
+		glPointSize(1.0);
 		glRotatef((float)game_minute, 0.0, -1.0, 0.0);
 		glColor4f(1.0, 1.0, 1.0, day_alpha);
 		glCallList(skyLists+2);
