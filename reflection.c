@@ -558,6 +558,16 @@ void display_3d_reflection()
 
 	CalculateFrustum();
 
+	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
+	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
+	build_water_buffer();
+	init_depth();
+	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+
+	glPushMatrix();	
+
+	glTranslatef(0.0f, 0.0f, water_depth_offset);
+
 #ifdef	USE_SHADER
 	if (water_shader_quality > 0)
 #else	// USE_SHADER
@@ -573,26 +583,49 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
+    else if (have_stencil)
+    {
+        unsigned int start, stop;
 
-#ifdef SKY_FPV_CURSOR
-	if (skybox_show_sky && *display_sky != NULL) {
-		(*display_sky)(1);
-	}
-#endif // SKY_FPV_CURSOR
+		glClearStencil(0);
+		glClear(GL_STENCIL_BUFFER_BIT);
+		glEnable(GL_STENCIL_TEST);
+		glStencilFunc(GL_ALWAYS, 1, 1);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
 
-	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
-	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
-	build_water_buffer();
-	init_depth();
-	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
+        if (use_vertex_buffers)
+        {
+            ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+            glInterleavedArrays(GL_V2F, 0, 0);
+        }
+        else
+        {
+            glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
+        }
+        
+        get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+        glDrawArrays(GL_QUADS, water_buffer_reflectiv_index, (stop-start) * 4);
+        
+        if (use_vertex_buffers)
+        {
+            ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+            glDisableClientState(GL_VERTEX_ARRAY);
+        }
+        
+		glStencilFunc(GL_EQUAL, 1, 1);
+		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+    }
 
 	glCullFace(GL_FRONT);
-	glPushMatrix();	
-
-	glTranslatef(0.0f, 0.0f, water_depth_offset);
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_depth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
+
+#ifdef SKY_FPV_CURSOR
+	if (skybox_show_sky && *display_sky != NULL) {
+		(*display_sky)();
+	}
+#endif // SKY_FPV_CURSOR
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
@@ -635,6 +668,10 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
+    else if (have_stencil)
+    {
+		glDisable(GL_STENCIL_TEST);
+    }
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE

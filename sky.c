@@ -92,10 +92,9 @@ int smokey_cloud_tex;
 int moon_tex;
 int sun_tex;
 
-void cloudy_sky(int reflected);
-void animated_sky(int reflected);
-//void simple_sky(int reflected);
-void reflected_sky(int reflected);
+//void simple_sky();
+void cloudy_sky();
+void animated_sky();
 
 /*
   colorSkyCyl - local utility function.
@@ -145,12 +144,12 @@ void sky_type(int sky)
 			break;
 		case CLOUDY_SKY:
 		default:
-			display_sky = reflected_sky;
+			display_sky = cloudy_sky;
 	}
 }
 
 /*
-void simple_sky(int reflected)
+void simple_sky()
 {
 	static float spin = 0;
 	float abs_light;
@@ -172,8 +171,6 @@ void simple_sky(int reflected)
 		glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
 		glRotatef(rx,1.0,0.0,0.0);
 		glRotatef(rz,0.0,0.0,1.0);
-        if (reflected)
-            glScalef(1.0, 1.0, -1.0);
 		if(use_shadow_mapping)
 		{
 			glDisable(GL_TEXTURE_2D);
@@ -230,7 +227,7 @@ void simple_sky(int reflected)
 }
 */
 
-void skybox_cloudy(int reflected)
+void cloudy_sky()
 {
 	static double spin = 0;
 	float col1[4], col2[4], col3[4], col4[4];
@@ -238,7 +235,6 @@ void skybox_cloudy(int reflected)
 	float abs_light;
 	float rain_coef;
 	float day_alpha;
-
 	int i;
 	VECTOR4 vec_black={0.0, 0.0, 0.0, 0.0};
 
@@ -250,19 +246,63 @@ void skybox_cloudy(int reflected)
 	fog[2][3] = 0.40;
 	fog[3][3] = 0.0;
 	
-	abs_light=light_level;
-	if(light_level>59)
+	abs_light = light_level;
+	if(light_level > 59)
 	{
-		abs_light=119-light_level;
+		abs_light = 119 - light_level;
 	}
-	abs_light = 1.0f-abs_light/59.0f;
+	abs_light = 1.0f - abs_light/59.0f;
 
-	spin = cur_time%( 1296000 * 1000 );
-	spin*=360.0/( 1296000.0/*seconds in large month*/ * 1000.0/*millisecond bump*/ );
+	spin = cur_time % (1296000*1000);
+	spin*=360.0/(1296000.0/*seconds in large month*/ * 1000.0/*millisecond bump*/);
 	spin += skybox_time_d;
 
+	//Disable lights not used for sky just in case
+	switch(show_lights)
+	{
+	case 6:
+		glDisable(GL_LIGHT6);
+	case 5:
+		glDisable(GL_LIGHT5);
+	case 4:
+		glDisable(GL_LIGHT4);
+	case 3:
+		glDisable(GL_LIGHT3);
+	case 2:
+		glDisable(GL_LIGHT2);
+	case 1:
+		glDisable(GL_LIGHT1);
+	default:
+		glDisable(GL_LIGHT0);
+		break;
+	}
+
+	glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
+
+/* 	if(use_shadow_mapping) */
+/* 	{ */
+/* 		glDisable(GL_TEXTURE_2D); */
+/* 		ELglActiveTextureARB(shadow_unit); */
+/* 		glDisable(depth_texture_target); */
+/* 		disable_texgen(); */
+/* 		ELglActiveTextureARB(GL_TEXTURE0); */
+/* 		glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); */
+/* 	} */
+	
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_FOG);
 	glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
+	glEnable(GL_COLOR_MATERIAL);
+
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadMatrixd(skybox_view);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+	
+    glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
 
 #ifdef NEW_WEATHER
 	if (weather_active() && weather_get_fadein_bias() <= 0.0 && weather_get_fadeout_bias() <= 0.0)
@@ -322,15 +362,6 @@ void skybox_cloudy(int reflected)
 	{
 		glPushMatrix();
 		glRotatef((float)game_minute, 0.0, -1.0, 0.0);
-		
-#ifdef	USE_SHADER
-		if (reflected && water_shader_quality > 0)
-#else	// USE_SHADER
-		if (reflected && use_frame_buffer)
-#endif	// USE_SHADER
-			glPointSize(2.0);
-		else
-			glPointSize(1.0);
 		glColor4f(1.0, 1.0, 1.0, day_alpha);
 		glCallList(skyLists+2);
 		glColor4f(1.0, 1.0, 1.0, day_alpha*0.5);
@@ -452,11 +483,15 @@ void skybox_cloudy(int reflected)
 	glScalef(500.0, 500.0, 20.0);
 	colorSkyCyl(3, fog);
 	glPopMatrix();
+    
+    // we draw a disk at the level of the ground
+    glColor4fv(fog[0]);
+    glCallList(skyLists+1);
 
 	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
 
-	// draw sun
+	// draw the sun
 	if (skybox_show_sun && !skybox_no_sun &&
 		(skybox_sun_position[0] != 0.0 ||
 		 skybox_sun_position[1] != 0.0 ||
@@ -496,12 +531,50 @@ void skybox_cloudy(int reflected)
 		glPopMatrix();
 	}
 
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+	glPopAttrib();
+
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+/* 	if(use_shadow_mapping) */
+/* 	{ */
+/* 		last_texture=-1; */
+/* 	} */
+
+	reset_material();
+
+	glClear(GL_DEPTH_BUFFER_BIT);
+
+    // we restore the lights
+	if(!is_day||dungeon)
+	{
+		switch(show_lights)
+		{
+		case 6:
+			glEnable(GL_LIGHT6);
+		case 5:
+			glEnable(GL_LIGHT5);
+		case 4:
+			glEnable(GL_LIGHT4);
+		case 3:
+			glEnable(GL_LIGHT3);
+		case 2:
+			glEnable(GL_LIGHT2);
+		case 1:
+			glEnable(GL_LIGHT1);
+		default:
+			glEnable(GL_LIGHT0);
+			break;
+		}
+	}
 }
 
-void animated_sky(int reflected)
+void animated_sky()
 {
 	static float spin = 0;
 	float abs_light;
@@ -608,114 +681,6 @@ void animated_sky(int reflected)
 	if(use_shadow_mapping)
 	{
 		last_texture=-1;
-	}
-}
-
-void reflected_sky(int reflected)
-{
-	//Disable lights not used for sky just in case
-	switch(show_lights)
-	{
-	case 6:
-		glDisable(GL_LIGHT6);
-	case 5:
-		glDisable(GL_LIGHT5);
-	case 4:
-		glDisable(GL_LIGHT4);
-	case 3:
-		glDisable(GL_LIGHT3);
-	case 2:
-		glDisable(GL_LIGHT2);
-	case 1:
-		glDisable(GL_LIGHT1);
-	default:
-		glDisable(GL_LIGHT0);
-		break;
-	}
-
-	glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT|GL_STENCIL_BUFFER_BIT);
-/* 	if(use_shadow_mapping) */
-/* 	{ */
-/* 		glDisable(GL_TEXTURE_2D); */
-/* 		ELglActiveTextureARB(shadow_unit); */
-/* 		glDisable(depth_texture_target); */
-/* 		disable_texgen(); */
-/* 		ELglActiveTextureARB(GL_TEXTURE0); */
-/* 		glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); */
-/* 	} */
-	
-	glEnable(GL_CULL_FACE);
-	glDisable(GL_LIGHTING);
-	glDisable(GL_FOG);
-	glEnable(GL_COLOR_MATERIAL);
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixd(skybox_view);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	
-	if (!reflected) {
-		glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
-		skybox_cloudy(reflected);
-		glColor4fv(fog[0]);
-		glCallList(skyLists+1);
-	}
-	else if (have_stencil) {
-		glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
-
-		glClearStencil(0);
-		glClear(GL_STENCIL_BUFFER_BIT);
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_ALWAYS, 1, 1);
-		glStencilOp(GL_REPLACE, GL_REPLACE, GL_REPLACE);
-		glColor4f(0.4, 0.6, 1.0, 1.0);
-		glCallList(skyLists+1);
-		glStencilFunc(GL_EQUAL, 1, 1);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-		
-		glScalef(1.0, 1.0, -1.0);
-		glFrontFace(GL_CW);
-		skybox_cloudy(reflected);
-		glFrontFace(GL_CCW);
-		
-		glClearStencil(0);
-		glDisable(GL_STENCIL_TEST);
-	}
-	
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopAttrib();
-
-/* 	if(use_shadow_mapping) */
-/* 	{ */
-/* 		last_texture=-1; */
-/* 	} */
-
-	reset_material();
-
-	glClear(GL_DEPTH_BUFFER_BIT);
-	if(!is_day||dungeon)
-	{
-		switch(show_lights)
-		{
-		case 6:
-			glEnable(GL_LIGHT6);
-		case 5:
-			glEnable(GL_LIGHT5);
-		case 4:
-			glEnable(GL_LIGHT4);
-		case 3:
-			glEnable(GL_LIGHT3);
-		case 2:
-			glEnable(GL_LIGHT2);
-		case 1:
-			glEnable(GL_LIGHT1);
-		default:
-			glEnable(GL_LIGHT0);
-			break;
-		}
 	}
 }
 

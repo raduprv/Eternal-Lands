@@ -40,7 +40,7 @@ extern float skybox_light_diffuse_rain[360][4];
 #define UNDERWORLD_SKY 1	
 #define INTERIORS_SKY  2
 
-void (*display_sky)(int);
+void (*display_sky)();
 void sky_type(int sky);
 
 void blend_colors(float result[], float orig[], float dest[], float t, int size);

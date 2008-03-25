@@ -1014,7 +1014,7 @@ int display_game_handler (window_info *win)
 	{
 #ifdef SKY_FPV_CURSOR
 		if (skybox_show_sky && *display_sky != NULL) {
-			(*display_sky)(0);
+			(*display_sky)();
 		}
 #endif /* SKY_FPV_CURSOR */
 
