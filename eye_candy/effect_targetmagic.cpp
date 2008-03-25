@@ -339,7 +339,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       effect_centers.push_back(*_pos);
 
       spawner = new FilledDiscSpawner(0.15);
-      spawner2 = new SierpinskiIFSParticleSpawner(2);
+      spawner2 = new SierpinskiIFSParticleSpawner(1.5);
       mover = new GravityMover(this, &(effect_centers[0]), 1e6);
       while (particles.size() < 4)
       {
