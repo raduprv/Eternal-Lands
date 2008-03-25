@@ -595,7 +595,7 @@ void missiles_test_target_validity(float target[3], char *msg)
 
 void missiles_clean_range_actions_queue(actor *act)
 {
-	int i, j = 0;
+	int j = 0;
 
 	// we search the first action that is not finished
 	while (j < act->range_actions_count &&
@@ -605,7 +605,8 @@ void missiles_clean_range_actions_queue(actor *act)
 	}
 
 	// we then remove all the finished actions
-	if (j > i) {
+	if (j > 0) {
+        int i;
 		for (i = j; i < act->range_actions_count; ++i) {
 			memcpy(&act->range_actions[i-j], &act->range_actions[i], sizeof(range_action));
 		}
