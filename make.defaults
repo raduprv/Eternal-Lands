@@ -3,6 +3,7 @@ UPDATE_CONF=yes
 
 # tune these for your setup & compile options
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
+#FEATURES += USE_BOOST
 FEATURES += ALPHA_ACTORS                    # Enable Alpha Blending of actor models if an alpha blended item is worn
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
@@ -21,13 +22,13 @@ FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
 FEATURES += MASKING                         # Allow for item masking on Actors, example, can allow for short sleeves
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
-#FEATURES += MISSILES                        # Enables missiles support
+FEATURES += MISSILES                        # Enables missiles support
 #FEATURES += MISSILES_DEBUG                  # Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
-#FEATURES += NEW_ACTOR_MOVEMENT              # Binds the actors movements to the display instead of the timer and also improves some stuff that makes the animation much smoother.
+FEATURES += NEW_ACTOR_MOVEMENT              # Binds the actors movements to the display instead of the timer and also improves some stuff that makes the animation much smoother.
 #FEATURES += NEW_ALPHA                       # (undocumented)
-#FEATURES += NEW_CAMERA                      # Binds the camera movement to the display and to the real time elapsed between two updates.
+FEATURES += NEW_CAMERA                      # Binds the camera movement to the display and to the real time elapsed between two updates.
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)
 FEATURES += NEW_SOUND                       # Enables extended sound effects system - almost pointless without OGG_VORBIS
@@ -45,14 +46,13 @@ FEATURES += SIMPLE_LOD                      # enable a simplistic distance culli
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += UNROLL4                         # (undocumented)
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
-#FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
+FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
-#FEATURES += USE_VERTEX_ARRAYS               # (undocumented)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-#FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
-#FEATURES += ACTOR_FACE_CULLING		   # Enables actor face culling
+FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
+FEATURES += ACTOR_FACE_CULLING		   # Enables actor face culling
 #FEATURES += USE_ACTORS_OPTIMIZER	   # Enables actor optimizations
 
 PLATFORM=-march=i686
