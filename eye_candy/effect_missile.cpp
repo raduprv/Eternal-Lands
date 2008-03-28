@@ -31,7 +31,7 @@ MissileParticle::MissileParticle(Effect* _effect, ParticleMover* _mover, const V
     color[2] = 0.0;
   texture = _texture;
   size = std::max(1.0, _size * (0.25 + randcoord(1.25))); // size >= 1.0
-  alpha = std::max(0.25, (double)_alpha); // at least 25% alpha
+  alpha = std::max(0.25f, (float)_alpha); // at least 25% alpha
   velocity /= size;
   flare_max = 1.6;
   flare_exp = 0.2;
