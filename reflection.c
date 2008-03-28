@@ -583,6 +583,7 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
+#ifdef SKY_FPV_CURSOR
     else if (have_stencil)
     {
         unsigned int start, stop;
@@ -615,6 +616,7 @@ void display_3d_reflection()
 		glStencilFunc(GL_EQUAL, 1, 1);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
     }
+#endif // SKY_FPV_CURSOR
 
 	glCullFace(GL_FRONT);
 	glScalef(1.0f, 1.0f, -1.0f);
@@ -668,10 +670,13 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
+#ifdef SKY_FPV_CURSOR
     else if (have_stencil)
     {
 		glDisable(GL_STENCIL_TEST);
     }
+#endif // SKY_FPV_CURSOR
+
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
