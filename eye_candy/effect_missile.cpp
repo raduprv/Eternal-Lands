@@ -4,6 +4,7 @@
 
 #include "eye_candy.h"
 #include "math_cache.h"
+#include "../misc.h"
 
 #include "effect_missile.h"
 
