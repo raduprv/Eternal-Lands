@@ -350,8 +350,17 @@ extern "C" void reset_under_the_mouse()
 							  	glDisable(GL_TEXTURE_2D);
 							}
 							glTexEnvfv(GL_TEXTURE_ENV, GL_TEXTURE_ENV_COLOR, colorf);
-							draw_actor_without_banner(actors_list[selections[i].id],
-								0, actors_list[selections[i].id]->has_alpha, 0);
+#ifdef OSX
+							// Fedora's patch to fix NEW_SELECTION on PPC Macs
+							// seems not to have any negative effects in intel Macs
+							glPushAttrib(GL_ALL_ATTRIB_BITS);
+							glPushClientAttrib(GL_CLIENT_ALL_ATTRIB_BITS);
+							draw_actor_without_banner(actors_list[selections[i].id], 0, actors_list[selections[i].id]->has_alpha, 0);
+							glPopClientAttrib();
+							glPopAttrib();
+#else
+							draw_actor_without_banner(actors_list[selections[i].id], 0, actors_list[selections[i].id]->has_alpha, 0);
+#endif
 						}
 						break;
 					case UNDER_MOUSE_3D_OBJ:
