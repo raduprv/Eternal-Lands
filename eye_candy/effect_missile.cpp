@@ -4,7 +4,6 @@
 
 #include "eye_candy.h"
 #include "math_cache.h"
-#include "../misc.h"
 
 #include "effect_missile.h"
 
@@ -31,8 +30,8 @@ MissileParticle::MissileParticle(Effect* _effect, ParticleMover* _mover, const V
   else if (color[2] < 0.0)
     color[2] = 0.0;
   texture = _texture;
-  size = max2f(1.0, _size * (0.25 + randcoord(1.25))); // size >= 1.0
-  alpha = max2f(0.25, _alpha); // at least 25% alpha
+  size = std::max(1.0, _size * (0.25 + randcoord(1.25))); // size >= 1.0
+  alpha = std::max(0.25, (double)_alpha); // at least 25% alpha
   velocity /= size;
   flare_max = 1.6;
   flare_exp = 0.2;
