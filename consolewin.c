@@ -79,7 +79,7 @@ int display_console_handler (window_info *win)
 		set_font(chat_font);	// switch to the chat font
 		if (console_text_changed)
 		{
-			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);
+			find_line_nr (total_nr_lines, total_nr_lines - nr_console_lines - scroll_up_lines - 1, FILTER_ALL, &msg, &offset, chat_zoom, console_text_width);
 			text_field_set_buf_pos (console_root_win, console_out_id, msg, offset);
 			console_text_changed = 0;
 		}
