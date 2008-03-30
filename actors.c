@@ -286,11 +286,17 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
 				y = a_bounce + window_height/2.0-40.0;
 				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.21);
-			} else
+			} 
+			else
 #endif /* SKY_FPV_CURSOR */
-				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale*.14, font_scale*.21);
-			glDisable(GL_BLEND);
-		} else {	//No floating messages
+			{
+				float font_scale2 = font_scale*powf(1.0f+((float)actor_id->damage)/1000.0f, 4.0);
+				//draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale*.14, font_scale*.21);
+				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.21);
+			}			glDisable(GL_BLEND);
+		} 
+		else 
+		{	//No floating messages
 			sprintf((char*)str,"%i",actor_id->damage);
 			glColor3f (1.0f, 0.3f, 0.3f);
 			DRAW_ORTHO_INGAME_NORMAL(-0.1f,healthbar_z/2.0f,0,str,1.0f);
