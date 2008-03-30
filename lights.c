@@ -511,9 +511,9 @@ void draw_global_light()
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
 #else // SKY_FPV_CURSOR
 		blend_colors(ambient_light, skybox_light_ambient[game_minute],
-					 skybox_light_ambient_rain[game_minute], weather_rain_intensity, 4);
+					 skybox_light_ambient_rainy[game_minute], weather_rain_intensity, 4);
 		blend_colors(diffuse_light, skybox_light_diffuse[game_minute],
-					 skybox_light_diffuse_rain[game_minute], weather_rain_intensity, 4);
+					 skybox_light_diffuse_rainy[game_minute], weather_rain_intensity, 4);
 		ambient_light[0] += (float)thunder_light_offset*0.03;
 		ambient_light[1] += (float)thunder_light_offset*0.05;
 		ambient_light[2] += (float)thunder_light_offset*0.06;
@@ -861,7 +861,9 @@ void build_global_light_table()
 
 void build_sun_pos_table()
 {
+#ifndef SKY_FPV_CURSOR
 	float d = 400;
+#endif // SKY_FPV_CURSOR
 	int i;
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
@@ -917,8 +919,8 @@ void build_sun_pos_table()
 		start = 9.0;
 		for(i = 0; i < 180; i++)
 		{
-			z = d*sinf((start+i*step)*M_PI/180.0);
-			x = d*cosf((start+i*step)*M_PI/180.0);
+			z = sinf((start+i*step)*M_PI/180.0);
+			x = cosf((start+i*step)*M_PI/180.0);
 			y = 0;
 
 			sun_pos[i].x=x;
@@ -932,8 +934,8 @@ void build_sun_pos_table()
 		start = -27.0;
 		for(i = 180; i < 360; i++)
 		{
-			z = d*sinf((start+i*step)*M_PI/180.0);
-			x = d*cosf((start+i*step)*M_PI/180.0);
+			z = sinf((start+i*step)*M_PI/180.0);
+			x = cosf((start+i*step)*M_PI/180.0);
 			y = 0;
 
 			sun_pos[i].x=x;

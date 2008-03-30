@@ -22,19 +22,25 @@ extern double skybox_time_d;
 
 extern float skybox_clouds[360][4];
 extern float skybox_clouds_detail[360][4];
-extern float skybox_clouds_rain[360][4];
-extern float skybox_clouds_detail_rain[360][4];
+extern float skybox_clouds_sunny[360][4];
+extern float skybox_clouds_detail_sunny[360][4];
+extern float skybox_clouds_rainy[360][4];
+extern float skybox_clouds_detail_rainy[360][4];
 extern float skybox_sky1[360][4];
 extern float skybox_sky2[360][4];
 extern float skybox_sky3[360][4];
 extern float skybox_sky4[360][4];
+extern float skybox_sky1_sunny[360][4];
+extern float skybox_sky2_sunny[360][4];
+extern float skybox_sky3_sunny[360][4];
+extern float skybox_sky4_sunny[360][4];
 extern float skybox_sun[360][4];
 extern float skybox_fog[360][4];
-extern float skybox_fog_rain[360][4];
+extern float skybox_fog_rainy[360][4];
 extern float skybox_light_ambient[360][4];
 extern float skybox_light_diffuse[360][4];
-extern float skybox_light_ambient_rain[360][4];
-extern float skybox_light_diffuse_rain[360][4];
+extern float skybox_light_ambient_rainy[360][4];
+extern float skybox_light_diffuse_rainy[360][4];
 
 #define CLOUDY_SKY	   0
 #define UNDERWORLD_SKY 1	
