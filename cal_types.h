@@ -15,9 +15,9 @@ struct cal_anim
 	int anim_index;
 	cal_animation_type kind;
 	float duration;
-#ifdef	NEW_ACTOR_ANIMATION
+#if defined(NEW_ACTOR_ANIMATION) || defined(NEW_ACTOR_MOVEMENT)
 	float duration_scale;
-#endif
+#endif // NEW_ACTOR_ANIMATION || NEW_ACTOR_MOVEMENT
 #ifdef NEW_SOUND
 	int sound;
 	float sound_scale;
