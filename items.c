@@ -446,12 +446,12 @@ int display_items_handler(window_info *win)
 
 				glDisable(GL_BLEND);
 				glEnable(GL_TEXTURE_2D);
-				glColor3f(1.0f, 1.0f, 1.0f);
+				//glColor3f(1.0f, 1.0f, 1.0f); //moved below
 			}
 			
 			if(!item_is_weared){
 				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
-				draw_string_small(x_start, y_end-15, (unsigned char*)str, 1);
+				draw_string_small_shadowed(x_start, y_end-15, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
 			}
 		}
 	}

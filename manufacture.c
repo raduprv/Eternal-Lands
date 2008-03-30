@@ -119,7 +119,7 @@ int	display_manufacture_handler(window_info *win)
 			glEnd();
 
 			safe_snprintf((char *)str, sizeof(str), "%i",manufacture_list[i].quantity);
-			draw_string_small(x_start,y_end-15,str,1);
+			draw_string_small_shadowed(x_start,y_end-15,str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
 
@@ -155,7 +155,7 @@ int	display_manufacture_handler(window_info *win)
 			glEnd();
 
 			safe_snprintf((char *)str, sizeof(str), "%i", manufacture_list[i].quantity);
-			draw_string_small(x_start,y_end-15,str,1);
+			draw_string_small_shadowed(x_start,y_end-15,str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
 	

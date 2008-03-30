@@ -304,7 +304,7 @@ int display_ground_items_handler(window_info *win)
 			glEnd();
 					
 			safe_snprintf(str,sizeof(str),"%i",ground_item_list[i].quantity);
-			draw_string_small(x_start,y_end-(i&1?22:12),(unsigned char*)str,1);
+			draw_string_small_shadowed(x_start,y_end-(i&1?22:12),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
 	

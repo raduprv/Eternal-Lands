@@ -111,7 +111,7 @@ int display_trade_handler(window_info *win)
 			glEnd();
 			
 			safe_snprintf(str, sizeof(str), "%i",your_trade_list[i].quantity);
-			draw_string_small(x_start,(i&1)?(y_end-12):(y_end-22),(unsigned char*)str,1);
+			draw_string_small_shadowed(x_start,(i&1)?(y_end-12):(y_end-22),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			//by doing the images in reverse, you can't cover up the digits>4
 			//also, by offsetting each one, numbers don't overwrite each other:
 			//before: 123456 in one box and 56 in the other could allow
@@ -149,14 +149,14 @@ int display_trade_handler(window_info *win)
 			glEnd();
 			
 			safe_snprintf(str, sizeof(str), "%i",others_trade_list[i].quantity);
-			draw_string_small(x_start,(!(i&1))?(y_end-12):(y_end-22),(unsigned char*)str,1);
+			draw_string_small_shadowed(x_start,(!(i&1))?(y_end-12):(y_end-22),(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 
 			if(storage_available && others_trade_list[i].type==ITEM_BANK){
 				str[0]='s';
 				str[1]='t';
 				str[2]='o';
 				str[3]=0;
-				draw_string_small(x_start,y_start-1,(unsigned char*)str,1);
+				draw_string_small_shadowed(x_start,y_start-1,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			}
 		}
 	}

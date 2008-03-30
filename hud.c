@@ -863,8 +863,8 @@ void draw_stats_bar(int x, int y, int val, int len, float r, float g, float b, f
 	
 	// handle the text
 	safe_snprintf(buf, sizeof(buf), "%d", val);
-	glColor3f(0.8f, 0.8f, 0.8f);
-	draw_string_small(x-(1+8*strlen(buf)), y-3, (unsigned char*)buf, 1);
+	//glColor3f(0.8f, 0.8f, 0.8f); moved to next line
+	draw_string_small_shadowed(x-(1+8*strlen(buf))-1, y-2, (unsigned char*)buf, 1,0.8f, 0.8f, 0.8f,0.0f,0.0f,0.0f);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1171,7 +1171,7 @@ CHECK_GL_ERRORS();
 		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
 		x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
-		draw_string(x, 2 + base_y_start, (unsigned char*)str, 1);
+		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
 	}
 	
 	/*	Optionally display the stats bar.  If the current window size does not
@@ -1203,25 +1203,23 @@ CHECK_GL_ERRORS();
 				draw_side_stats_bar( x-2, y+1, statsinfo[thestat].skillattr->base,
 					*statsinfo[thestat].exp, *statsinfo[thestat].next_lev);
 		
-			if (thestat == watch_this_stat-1)
-				glColor3f(0.77f, 0.57f, 0.39f);
-			else
-				glColor3f(1.0f,1.0f,1.0f);
 			safe_snprintf(str,sizeof(str),"%-3s %3i",
 				statsinfo[thestat].skillnames->shortname,
 				statsinfo[thestat].skillattr->base );
-			draw_string_small(x, y, (unsigned char*)str, 1);
+			if (thestat == watch_this_stat-1)
+			    draw_string_small_shadowed(x, y, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+			else
+   			    draw_string_small_shadowed(x, y, (unsigned char*)str, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 			
 			if((thestat!=NUM_WATCH_STAT-2) && floatingmessages_enabled &&
 				(skill_modifier = statsinfo[thestat].skillattr->cur -
 				 	statsinfo[thestat].skillattr->base) != 0){
-				if(skill_modifier > 0){
-					glColor4f(0.3f, 1.0f, 0.3f, 0.75f);
-				} else {
-					glColor4f(1.0f, 0.1f, 0.2f, 0.75f);
-				}
 				safe_snprintf(str,sizeof(str),"%+3i",skill_modifier);
-				draw_string_small(x-33, y, (unsigned char*)str, 1);
+				if(skill_modifier > 0){
+					draw_string_small_shadowed(x-33, y, (unsigned char*)str, 1,0.3f, 1.0f, 0.3f,0.0f,0.0f,0.0f);
+				} else {
+					draw_string_small_shadowed(x-33, y, (unsigned char*)str, 1,1.0f, 0.1f, 0.2f,0.0f,0.0f,0.0f);
+				}
 			}
 			
 			y+=15;
@@ -1390,7 +1388,7 @@ void init_quickbar ()
 int	display_quickbar_handler(window_info *win)
 {
 	char str[80];
-	int x, y, i;
+	int y, i;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 
 	glEnable(GL_TEXTURE_2D);
@@ -1488,13 +1486,7 @@ int	display_quickbar_handler(window_info *win)
 			}
 			
 			safe_snprintf(str,sizeof(str),"%i",item_list[i].quantity);
-			glColor3f(0.0f, 0.0f, 0.0f);//Black shadow
-			for(x=-1;x<2;x++)
-				for(y=-1;y<2;y++)
-					if(x!=0 || y!=0)
-						draw_string_small((x+x_start),y+(y_end-15),(unsigned char*)str,1);
-			glColor3f(1.0f,1.0f,1.0f);//White text
-			draw_string_small(x_start,y_end-15,(unsigned char*)str,1);
+			draw_string_small_shadowed(x_start,y_end-15,(unsigned char*)str,1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 		}
 	}
 	
@@ -1855,7 +1847,7 @@ void draw_exp_display()
 	// only display if you are below the exp needed, don't allow negative bars
 	//if(exp_adjusted_x_len >= 0){
 		draw_stats_bar(exp_bar_start_x, exp_bar_start_y, nl_exp - cur_exp, exp_adjusted_x_len, 0.1f, 0.8f, 0.1f, 0.1f, 0.4f, 0.1f);
-		draw_string_small(exp_bar_start_x, exp_bar_start_y+10, name, 1);
+		draw_string_small_shadowed(exp_bar_start_x, exp_bar_start_y+10, name, 1,1.0f,1.0f,1.0f,0.0f,0.0f,0.0f);
 	//}
 }
 
