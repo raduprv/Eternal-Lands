@@ -1772,8 +1772,12 @@ void init_vars()
 #endif
 
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
+#ifdef OSX
+	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
+#else
 	add_var(OPT_BOOL_INI_RO, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
-
+#endif
+	
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	add_var(OPT_BOOL, "use_display_actors", "uda", &use_display_actors, change_var, 1, "Use display actors", "Use the display_actors function", DEBUGTAB);
 	add_var(OPT_BOOL, "use_actor_bbox_check", "uabc", &use_actor_bbox_check, change_var, 1, "Use actor bbox check", "Use the actor bbox check", DEBUGTAB);
