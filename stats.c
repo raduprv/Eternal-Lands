@@ -833,8 +833,6 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
         static int last_actor[5]={0};//Make sure that we don't see too many messages from that actor
         floating_message *m=get_free_floatingmessage();
 
-        if(!m) return;
-        
         // handle OA level ups here, boy this is ugly ...
         if (use_eye_candy == 1 && strstr(str, "Overall ") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
@@ -894,6 +892,8 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_ran(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
+
+        if(!m) return;
         
         m->color[0]=r;
         m->color[1]=g;
