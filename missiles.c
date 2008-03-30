@@ -12,6 +12,7 @@
 #include "init.h"
 #include "missiles.h"
 #include "skeletons.h"
+#include "stats.h"
 #include "tiles.h"
 #include "vmath.h"
 
@@ -454,7 +455,10 @@ int missiles_fire_arrow(actor *a, float target[3], MissileShotType shot_type)
         
 /* 	if (shot_type != MISSED_SHOT) */
 	mis_id = missiles_add(mis_type_id, origin, target, 0.0, shot_type);
-/* 	else */
+	if (shot_type == MISSED_SHOT && a->actor_id == yourself)
+	{
+		add_floating_message(a->actor_id, "miss", FLOATINGMESSAGE_NORTH, 1.0, 0.55, 0.0, 1250);
+	}/* 	else */
 /* 		mis_id = missiles_add(a->cur_shield, origin, target, arrow_speed*2.0/3.0, arrow_trace_length*2.0/3.0, 0.0, shot_type); */
         
 	return mis_id;
