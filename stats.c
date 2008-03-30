@@ -848,9 +848,6 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_def(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        /* 
-         * deactivate unfinished effects
-         *
         else if (use_eye_candy == 1 && strstr(str, "Harvesting ") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_har(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
@@ -897,7 +894,6 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_ran(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        */
         
         m->color[0]=r;
         m->color[1]=g;
