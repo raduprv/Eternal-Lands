@@ -78,6 +78,7 @@ int skybox_show_clouds = 1;
 int skybox_show_sun = 1;
 int skybox_show_moons = 1;
 int skybox_show_stars = 1;
+int skybox_show_horizon_fog = 1;
 
 float skybox_sun_position[4] = {0.0, 0.0, 0.0, 0.0};
 double skybox_time_d = 0.0;
@@ -252,7 +253,7 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening)
     {
         for (j = 0; j < dome.slices_count; ++j)
         {
-            uint next = (j+1)%dome.slices_count;
+            int next = (j+1)%dome.slices_count;
             dome.faces[idx++] = vtx_idx+j;
             dome.faces[idx++] = vtx_idx+j+dome.slices_count;
             dome.faces[idx++] = vtx_idx+next;
@@ -925,27 +926,33 @@ void cloudy_sky2()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	
-    glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
+    glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -10.0);
 
 	// we draw the ground
-/* 	glColor3fv(fogColor); */
-/* 	glBegin(GL_QUADS); */
-/* 	glVertex3f(-dome_sky.radius, -dome_sky.radius, 0.0); */
-/* 	glVertex3f( dome_sky.radius, -dome_sky.radius, 0.0); */
-/* 	glVertex3f( dome_sky.radius,  dome_sky.radius, 0.0); */
-/* 	glVertex3f(-dome_sky.radius,  dome_sky.radius, 0.0); */
-/* 	glEnd(); */
-	glBegin(GL_QUAD_STRIP);
-	for (i = 0; i < dome_sky.slices_count; ++i) {
-		const GLfloat *vtx = &dome_sky.vertices[i*3];
-		glColor4fv(&dome_sky.colors[i*4]);
-		glVertex4f(vtx[0], vtx[1], vtx[2], 500.0);
-		glVertex3fv(vtx);
-	}
-	glColor4fv(&dome_sky.colors[0]);
-	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 500.0);
-	glVertex3fv(&dome_sky.vertices[0]);
-	glEnd();
+    if (skybox_show_horizon_fog)
+    {
+        glColor3fv(fogColor);
+        glBegin(GL_QUADS);
+        glVertex3f(-dome_sky.radius, -dome_sky.radius, 0.0);
+        glVertex3f( dome_sky.radius, -dome_sky.radius, 0.0);
+        glVertex3f( dome_sky.radius,  dome_sky.radius, 0.0);
+        glVertex3f(-dome_sky.radius,  dome_sky.radius, 0.0);
+        glEnd();
+    }
+    else
+    {
+        glBegin(GL_QUAD_STRIP);
+        for (i = 0; i < dome_sky.slices_count; ++i) {
+            const GLfloat *vtx = &dome_sky.vertices[i*3];
+            glColor4fv(&dome_sky.colors[i*4]);
+            glVertex4f(vtx[0], vtx[1], vtx[2], 500.0);
+            glVertex3fv(vtx);
+        }
+        glColor4fv(&dome_sky.colors[0]);
+        glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 500.0);
+        glVertex3fv(&dome_sky.vertices[0]);
+        glEnd();
+    }
 
 	// we draw the sky background
     glEnableClientState(GL_VERTEX_ARRAY);
@@ -962,17 +969,24 @@ void cloudy_sky2()
 	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
 
-	// we draw the fog at the horizon
-/* 	glBegin(GL_QUAD_STRIP); */
-/* 	for (i = dome_sky.slices_count; i--; ) */
-/* 	{ */
-/* 		const GLfloat *vtx = &dome_sky.vertices[i*3]; */
-/* 		glColor3f(fogColor[0], fogColor[1], fogColor[2], 0.0); */
-/* 		glVertex3f(vtx[0], vtx[1], vtx[2]+10); */
-/* 		glColor4fv(fogColor); */
-/* 		glVertex3fv(vtx); */
-/* 	} */
-/* 	glEnd(); */
+    if (skybox_show_horizon_fog)
+    {
+        // we draw the fog at the horizon
+        glBegin(GL_QUAD_STRIP);
+        for (i = 0; i < dome_sky.slices_count; ++i)
+        {
+            const GLfloat *vtx = &dome_sky.vertices[i*3];
+            glColor4fv(fogColor);
+            glVertex3fv(vtx);
+            glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
+            glVertex3f(vtx[0], vtx[1], vtx[2]+20.0);
+        }
+        glColor4fv(fogColor);
+        glVertex3fv(&dome_sky.vertices[0]);
+        glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
+        glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2]+20.0);
+        glEnd();
+    }
 
 	// Alpha adjustment for objects that should fade in daylight
 	day_alpha = (1.0-abs_light)*(1.0-rain_coef);
@@ -1052,7 +1066,8 @@ void cloudy_sky2()
 	// we draw the clouds
 	if (skybox_show_clouds && !skybox_no_clouds)
 	{
-		float clouds_step = (cur_time - last_cloud_time)*3E-6;
+		float clouds_step = (cur_time - last_cloud_time)*2E-6;
+
 		// we update the tex coords for the first clouds layer
 		if (dome_clouds.tex_coords[0] <= 1.0)
 		{
