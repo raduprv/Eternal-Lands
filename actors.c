@@ -886,7 +886,7 @@ void display_actors(int banner, int render_pass)
 		if (near_actors[i].ghost || (near_actors[i].buffs & BUFF_INVISIBILITY) ||
 			near_actors[i].alpha)
 		{
-			if (near_actors[i].alpha && use_animation_program)
+			if (near_actors[i].alpha)
 			{
 				has_alpha = 1;
 			}
