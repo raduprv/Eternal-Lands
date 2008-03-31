@@ -61,6 +61,7 @@ float skybox_sky3_sunny[360][4];
 float skybox_sky4_sunny[360][4];
 float skybox_sun[360][4];
 float skybox_fog[360][4];
+float skybox_fog_sunny[360][4];
 float skybox_fog_rainy[360][4];
 float skybox_light_ambient[360][4];
 float skybox_light_diffuse[360][4];
@@ -846,6 +847,70 @@ void cloudy_sky()
 	}
 }
 
+void draw_horizon_fog(float rain_coef)
+{
+    GLfloat color_sky[3], color_sun[3];
+    GLfloat colors[dome_sky.slices_count*3];
+    int i;
+
+    blend_colors(color_sky, skybox_fog[game_minute], skybox_fog_rainy[game_minute], rain_coef, 3);
+    blend_colors(color_sun, skybox_fog_sunny[game_minute], skybox_fog_rainy[game_minute], rain_coef, 3);
+
+    // we compute the colors around the dome
+    for (i = 0; i < dome_sky.slices_count; ++i)
+    {
+        blend_colors(&colors[i*3], color_sky, color_sun, get_sun_diffuse(&dome_sky.normals[i*3]), 3);
+    }
+
+    glBegin(GL_QUAD_STRIP);
+    for (i = 0; i < dome_sky.slices_count; ++i)
+    {
+        const GLfloat *vtx = &dome_sky.vertices[i*3];
+        const GLfloat *col = &colors[i*3];
+        glColor4f(col[0], col[1], col[2], 1.0);
+        glVertex3f(vtx[0], vtx[1], vtx[2]);
+        glColor4f(col[0], col[1], col[2], 0.75);
+        glVertex3f(vtx[0], vtx[1], vtx[2] + 15.0);
+    }
+    glColor4f(colors[0], colors[1], colors[2], 1.0);
+    glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2]);
+    glColor4f(colors[0], colors[1], colors[2], 0.75);
+    glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 15.0);
+    glEnd();
+
+    glBegin(GL_QUAD_STRIP);
+    for (i = 0; i < dome_sky.slices_count; ++i)
+    {
+        const GLfloat *vtx = &dome_sky.vertices[i*3];
+        const GLfloat *col = &colors[i*3];
+        glColor4f(col[0], col[1], col[2], 0.75);
+        glVertex3f(vtx[0], vtx[1], vtx[2] + 15.0);
+        glColor4f(col[0], col[1], col[2], 0.4);
+        glVertex3f(vtx[0], vtx[1], vtx[2] + 30.0);
+    }
+    glColor4f(colors[0], colors[1], colors[2], 0.75);
+    glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 15.0);
+    glColor4f(colors[0], colors[1], colors[2], 0.4);
+    glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 30.0);
+    glEnd();
+    
+    glBegin(GL_QUAD_STRIP);
+    for (i = 0; i < dome_sky.slices_count; ++i)
+    {
+        const GLfloat *vtx = &dome_sky.vertices[i*3];
+        const GLfloat *col = &colors[i*3];
+        glColor4f(col[0], col[1], col[2], 0.4);
+        glVertex3f(vtx[0], vtx[1], vtx[2] + 30.0);
+        glColor4f(col[0], col[1], col[2], 0.0);
+        glVertex3f(vtx[0], vtx[1], vtx[2] + 45.0);
+    }
+    glColor4f(colors[0], colors[1], colors[2], 0.4);
+    glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 30.0);
+    glColor4f(colors[0], colors[1], colors[2], 0.0);
+    glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 45.0);
+    glEnd();
+}
+
 void cloudy_sky2()
 {
 	static double spin = 0;
@@ -905,7 +970,7 @@ void cloudy_sky2()
 		rain_coef = 0.0f;
 	}
 #else /* NEW_WATHER */
-	rain_coef = weather_rain_intensity;
+	rain_coef = weather_rain_intensity*weather_rain_intensity;
 #endif // NEW_WEATHER
 
 	update_sky_colors(rain_coef);
@@ -971,21 +1036,7 @@ void cloudy_sky2()
 
     if (skybox_show_horizon_fog)
     {
-        // we draw the fog at the horizon
-        glBegin(GL_QUAD_STRIP);
-        for (i = 0; i < dome_sky.slices_count; ++i)
-        {
-            const GLfloat *vtx = &dome_sky.vertices[i*3];
-            glColor4fv(fogColor);
-            glVertex3fv(vtx);
-            glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
-            glVertex3f(vtx[0], vtx[1], vtx[2]+20.0);
-        }
-        glColor4fv(fogColor);
-        glVertex3fv(&dome_sky.vertices[0]);
-        glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
-        glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2]+20.0);
-        glEnd();
+        draw_horizon_fog(rain_coef);
     }
 
 	// Alpha adjustment for objects that should fade in daylight
@@ -1589,6 +1640,9 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
 			else if (xmlStrcasecmp(def->name, (xmlChar*)"fog") == 0) {
 				ok &= skybox_parse_colors(def, skybox_fog);
 			}
+			else if (xmlStrcasecmp(def->name, (xmlChar*)"fog_sunny") == 0) {
+				ok &= skybox_parse_colors(def, skybox_fog_sunny);
+			}
 			else if (xmlStrcasecmp(def->name, (xmlChar*)"fog_rainy") == 0) {
 				ok &= skybox_parse_colors(def, skybox_fog_rainy);
 			}
@@ -1710,6 +1764,7 @@ void skybox_init_defs(const char *map_name)
 			skybox_sky4_sunny[t][i] = 0.0;
 			skybox_sun[t][i] = 0.0;
 			skybox_fog[t][i] = 0.0;
+			skybox_fog_sunny[t][i] = 0.0;
 			skybox_fog_rainy[t][i] = 0.0;
 			skybox_light_ambient[t][i] = 0.0;
 			skybox_light_diffuse[t][i] = 0.0;
@@ -1732,6 +1787,7 @@ void skybox_init_defs(const char *map_name)
 		skybox_sky4_sunny[t][3] = -1.0;
 		skybox_sun[t][3] = -1.0;
 		skybox_fog[t][3] = -1.0;
+		skybox_fog_sunny[t][3] = -1.0;
 		skybox_fog_rainy[t][3] = -1.0;
 		skybox_light_ambient[t][3] = -1.0;
 		skybox_light_diffuse[t][3] = -1.0;
@@ -1788,6 +1844,8 @@ void skybox_init_defs(const char *map_name)
 		LOG_ERROR("no color key defined for 'sun' element!");
 	if (!skybox_build_gradients(skybox_fog))
 		LOG_ERROR("no color key defined for 'fog' element!");
+	if (!skybox_build_gradients(skybox_fog_sunny))
+		LOG_ERROR("no color key defined for 'fog_sunny' element!");
 	if (!skybox_build_gradients(skybox_fog_rainy))
 		LOG_ERROR("no color key defined for 'fog_rainy' element!");
 	if (!skybox_build_gradients(skybox_light_ambient))

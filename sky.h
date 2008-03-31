@@ -37,6 +37,7 @@ extern float skybox_sky3_sunny[360][4];
 extern float skybox_sky4_sunny[360][4];
 extern float skybox_sun[360][4];
 extern float skybox_fog[360][4];
+extern float skybox_fog_sunny[360][4];
 extern float skybox_fog_rainy[360][4];
 extern float skybox_light_ambient[360][4];
 extern float skybox_light_diffuse[360][4];
