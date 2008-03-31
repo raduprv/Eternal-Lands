@@ -625,7 +625,9 @@ void display_3d_reflection()
 
 #ifdef SKY_FPV_CURSOR
 	if (skybox_show_sky && *display_sky != NULL) {
+        sun_position[2] *= -1.0;
 		(*display_sky)();
+        sun_position[2] *= -1.0;
 	}
 #endif // SKY_FPV_CURSOR
 
