@@ -36,108 +36,263 @@
 
 <!-- Color of the clouds when not raining -->
 <clouds> <!-- corresponds to the base texture -->
+  <color t="0" r="82" g="141" b="210" />
+  <color t="30" r="200" g="180" b="160" />
+  <color t="60" r="1.0" g="1.0" b="1.0" />
   <color t="120" r="1.0" g="1.0" b="1.0" />
-  <color t="300" r="0.2" g="0.2" b="0.2" />
+  <color t="225" r="50" g="70" b="105" />
+  <color t="240" r="26" g="31" b="35" />
+  <color t="330" r="26" g="31" b="35" />
+  <color t="345" r="42" g="70" b="105" />
 </clouds>
 <clouds_detail> <!-- corresponds to the detail texture -->
+  <color t="0" r="36" g="56" b="94" />
+  <color t="30" r="86" g="81" b="79" />
+  <color t="60" r="0.8" g="0.8" b="0.8" />
   <color t="120" r="0.8" g="0.8" b="0.8" />
-  <color t="300" r="0.1" g="0.1" b="0.1" />
+  <color t="225" r="29" g="36" b="73" />
+  <color t="240" r="3" g="5" b="7" />
+  <color t="330" r="3" g="5" b="7" />
+  <color t="345" r="18" g="28" b="47" />
 </clouds_detail>
 
+<!-- Color of the clouds on sun side -->
+<clouds_sunny> <!-- corresponds to the base texture -->
+  <color t="0" r="203" g="191" b="169" />
+  <color t="30" r="255" g="178" b="128" />
+  <color t="60" r="1.0" g="1.0" b="1.0" />
+  <color t="120" r="1.0" g="1.0" b="1.0" />
+  <color t="180" r="239" g="200" b="201" />
+  <color t="210" r="255" g="142" b="110" />
+  <color t="225" r="50" g="70" b="105" />
+  <color t="240" r="26" g="31" b="35" />
+  <color t="330" r="26" g="31" b="35" />
+  <color t="345" r="62" g="90" b="125" />
+</clouds_sunny>
+<clouds_detail_sunny> <!-- corresponds to the base texture -->
+  <color t="0" r="109" g="99" b="111" />
+  <color t="30" r="136" g="121" b="112" />
+  <color t="60" r="0.8" g="0.8" b="0.8" />
+  <color t="120" r="0.8" g="0.8" b="0.8" />
+  <color t="180" r="108" g="99" b="123" />
+  <color t="210" r="95" g="72" b="82" />
+  <color t="225" r="29" g="36" b="73" />
+  <color t="240" r="3" g="5" b="7" />
+  <color t="330" r="3" g="5" b="7" />
+  <color t="345" r="28" g="48" b="67" />
+</clouds_detail_sunny>
+
 <!-- Color of the clouds when raining -->
-<clouds_rain> <!-- corresponds to the base texture -->
-  <color t="120" r="0.5" g="0.5" b="0.5" />
-  <color t="300" r="0.2" g="0.2" b="0.2" />
-</clouds_rain>
-<clouds_detail_rain> <!-- corresponds to the base texture -->
-  <color t="120" r="0.4" g="0.4" b="0.4" />
-  <color t="300" r="0.1" g="0.1" b="0.1" />
-</clouds_detail_rain>
+<clouds_rainy> <!-- corresponds to the base texture -->
+  <color t="0" r="85" g="100" b="102" />
+  <color t="30" r="149" g="146" b="132" />
+  <color t="60" r="1.0" g="1.0" b="1.0" />
+  <color t="120" r="1.0" g="1.0" b="1.0" />
+  <color t="180" r="92" g="110" b="125" />
+  <color t="240" r="17" g="19" b="21" />
+  <color t="330" r="17" g="19" b="21" />
+</clouds_rainy>
+<clouds_detail_rainy> <!-- corresponds to the base texture -->
+  <color t="0" r="52" g="65" b="67" />
+  <color t="30" r="119" g="116" b="101" />
+  <color t="60" r="0.8" g="0.8" b="0.8" />
+  <color t="120" r="0.8" g="0.8" b="0.8" />
+  <color t="180" r="69" g="85" b="98" />
+  <color t="240" r="3" g="5" b="7" />
+  <color t="330" r="3" g="5" b="7" />
+</clouds_detail_rainy>
 
 <!-- Color of the sky (1 is for the bottom and 4 is for the top) -->
 <sky1>
-  <color t="30"  r="0.6" g="0.0" b="0.2" />
-  <color t="120" r="0.3" g="0.7" b="0.9" />
-  <color t="210" r="0.6" g="0.0" b="0.0" />
-  <color t="300" r="0.0" g="0.05" b="0.1" />
+  <color t="0" r="97" g="115" b="137" />
+  <color t="30"  r="202" g="182" b="172" />
+  <color t="60"  r="160" g="202" b="223" /> 
+  <color t="180" r="160" g="202" b="223" />
+  <color t="195" r="236" g="253" b="255" />
+  <color t="225" r="97" g="115" b="137" />
+  <color t="240" r="0.0" g="0.05" b="0.1" />  
+  <color t="330" r="0.0" g="0.05" b="0.1" />
+  <color t="345" r="48" g="57" b="68" />  
 </sky1>
 <sky2>
-  <color t="30"  r="0.6" g="0.3" b="0.0" />
-  <color t="120" r="0.2" g="0.5" b="0.8" />
-  <color t="210" r="0.6" g="0.3" b="0.0" />
-  <color t="300" r="0.0" g="0.025" b="0.05" />
+  <color t="0" r="56" g="111" b="168" />
+  <color t="30"  r="161" g="162" b="157" />
+  <color t="60"  r="114" g="164" b="204" />
+  <color t="180" r="114" g="164" b="204" />
+  <color t="195" r="210" g="243" b="255" />
+  <color t="225" r="56" g="111" b="168" />
+  <color t="240" r="0.0" g="0.025" b="0.05" />  
+  <color t="330" r="0.0" g="0.025" b="0.05" />
+  <color t="345" r="28" g="55" b="84" />  
 </sky2>
 <sky3>
-  <color t="30"  r="0.2" g="0.2" b="0.3" />
-  <color t="120" r="0.1" g="0.3" b="0.7" />
-  <color t="210" r="0.2" g="0.2" b="0.3" />
-  <color t="300" r="0.0" g="0.01" b="0.02" />
+  <color t="0" r="22" g="75" b="141" />
+  <color t="30"  r="112" g="124" b="136" />
+  <color t="60"  r="66" g="126" b="197" />
+  <color t="180" r="66" g="126" b="197" />
+  <color t="195" r="158" g="212" b="255" />
+  <color t="225" r="22" g="75" b="141" />
+  <color t="240" r="0.0" g="0.01" b="0.02" />  
+  <color t="330" r="0.0" g="0.01" b="0.02" />
+  <color t="345" r="11" g="37" b="70" />  
 </sky3>
 <sky4>
-  <color t="30"  r="0.0" g="0.1" b="0.2" />
-  <color t="120" r="0.05" g="0.2" b="0.6" />
-  <color t="210" r="0.0" g="0.1" b="0.2" />
-  <color t="300" r="0.01" g="0.01" b="0.01" />
+  <color t="0" r="8" g="47" b="106" />
+  <color t="30"  r="61" g="83" b="107" />
+  <color t="60"  r="15" g="77" b="152" />
+  <color t="180" r="15" g="77" b="152" />
+  <color t="195" r="126" g="180" b="223" />
+  <color t="225" r="8" g="47" b="106" />
+  <color t="240" r="0.01" g="0.01" b="0.01" />  
+  <color t="330" r="0.01" g="0.01" b="0.01" />
+  <color t="345" r="4" g="23" b="53" />  
 </sky4>
+
+<!-- Color of the sky on sun side (1 is for the bottom and 4 is for the top) -->
+<sky1_sunny>
+  <color t="0"  r="202" g="182" b="172" />
+  <color t="30"  r="255" g="216" b="137" />
+  <color t="60"  r="160" g="202" b="223" /> 
+  <color t="120" r="160" g="202" b="223" />
+  <color t="180" r="236" g="253" b="255" />
+  <color t="195" r="228" g="138" b="107" />
+  <color t="210" r="182" g="102" b="133" />
+  <color t="225" r="97" g="115" b="137" />
+  <color t="240" r="0.0" g="0.05" b="0.1" />  
+  <color t="330" r="0.0" g="0.05" b="0.1" />
+  <color t="345" r="97" g="115" b="137" />
+</sky1_sunny>
+<sky2_sunny>
+  <color t="0"  r="161" g="162" b="157" />
+  <color t="30"  r="250" g="192" b="138" />
+  <color t="60"  r="114" g="164" b="204" />
+  <color t="120" r="114" g="164" b="204" />
+  <color t="180" r="210" g="243" b="255" />
+  <color t="195" r="255" g="219" b="164" />
+  <color t="210" r="246" g="163" b="111" />
+  <color t="225" r="56" g="111" b="168" />
+  <color t="240" r="0.0" g="0.025" b="0.05" />  
+  <color t="330" r="0.0" g="0.025" b="0.05" />
+  <color t="345" r="56" g="111" b="168" />
+</sky2_sunny>
+<sky3_sunny>
+  <color t="0"  r="112" g="124" b="136" />
+  <color t="30"  r="169" g="161" b="142" />
+  <color t="60"  r="66" g="126" b="197" />
+  <color t="120" r="66" g="126" b="197" />
+  <color t="180" r="158" g="212" b="255" />
+  <color t="195" r="190" g="175" b="188" />
+  <color t="210" r="159" g="157" b="170" />
+  <color t="225" r="22" g="75" b="141" />
+  <color t="240" r="0.0" g="0.01" b="0.02" />  
+  <color t="330" r="0.0" g="0.01" b="0.02" />
+  <color t="345" r="22" g="75" b="141" />
+</sky3_sunny>
+<sky4_sunny>
+  <color t="0"  r="61" g="83" b="107" />
+  <color t="30"  r="95" g="100" b="116" />
+  <color t="60"  r="15" g="77" b="152" />
+  <color t="120" r="15" g="77" b="152" />
+  <color t="180" r="126" g="180" b="223" />
+  <color t="195" r="95" g="120" b="218" />
+  <color t="210" r="100" g="106" b="147" />
+  <color t="225" r="8" g="47" b="106" />
+  <color t="240" r="0.01" g="0.01" b="0.01" />  
+  <color t="330" r="0.01" g="0.01" b="0.01" />
+  <color t="345" r="8" g="47" b="106" />
+</sky4_sunny>
 
 <!-- Color of the sun -->
 <sun>
   <color t="30"  r="1.0" g="0.7" b="0.3" />
-  <color t="60"  r="1.0" g="0.9" b="0.7" />
-  <color t="180" r="1.0" g="0.9" b="0.7" />
+  <color t="60"  r="253" g="226" b="169" />
+  <color t="180" r="253" g="226" b="169" />
   <color t="210" r="1.0" g="0.7" b="0.3" />
 </sun>
 
+<!-- Color and density (alpha) of the fog on sunny side-->
+<fog_sunny>
+  <color t="0"   r="124" g="107" b="99" a="0.01" />
+  <color t="30"  r="219" g="173" b="129" a="0.008" />
+  <color t="60"  r="0.8" g="0.8" b="0.8" a="0.005" />
+  <color t="120"  r="0.8" g="0.8" b="0.8" a="0.005" />  
+  <color t="180" r="237" g="205" b="234" a="0.008" />
+  <color t="210" r="111" g="78" b="85" a="0.01" />
+  <color t="225" r="15" g="30" b="42" a="0.01" />
+  <color t="240" r="0.0" g="0.0" b="0.0" a="0.02" />
+  <color t="330" r="0.0" g="0.0" b="0.0" a="0.02" />
+  <color t="345" r="6" g="2" b="21" a="0.02" />
+</fog_sunny>
+
 <!-- Color and density (alpha) of the fog -->
 <fog>
-  <color t="0"   r="0.0" g="0.0" b="0.0" a="0.04" />
-  <color t="30"  r="0.0" g="0.0" b="0.0" a="0.02" />
-  <color t="60"  r="0.8" g="0.8" b="0.8" a="0.01" />
-  <color t="180" r="0.8" g="0.8" b="0.8" a="0.01" />
-  <color t="210" r="0.0" g="0.0" b="0.0" a="0.02" />
-  <color t="240" r="0.0" g="0.0" b="0.0" a="0.04" />
+  <color t="0"   r="6" g="2" b="21" a="0.02" />
+  <color t="30"  r="124" g="107" b="99" a="0.01"  />
+  <color t="60"  r="0.8" g="0.8" b="0.8" a="0.005" />
+  <color t="120"  r="0.8" g="0.8" b="0.8" a="0.005" />  
+  <color t="180" r="103" g="119" b="152" a="0.008" />
+  <color t="225" r="15" g="30" b="42" a="0.01" />
+  <color t="240" r="0.0" g="0.0" b="0.0" a="0.02" />
+  <color t="330" r="0.0" g="0.0" b="0.0" a="0.02" />
+  <color t="345" r="3" g="2" b="11" a="0.02" />
 </fog>
 
 <!-- Color and density (alpha) of the fog when raining -->
-<fog_rain>
-  <color t="0"   r="0.0" g="0.0" b="0.0" a="0.04" />
-  <color t="30"  r="0.2" g="0.2" b="0.2" a="0.04" />
-  <color t="60"  r="0.45" g="0.45" b="0.45" a="0.04" />
-  <color t="180" r="0.45" g="0.45" b="0.45" a="0.04" />
-  <color t="210" r="0.2" g="0.2" b="0.2" a="0.04" />
-  <color t="240" r="0.0" g="0.0" b="0.0" a="0.04" />
-</fog_rain>
+<fog_rainy>
+  <color t="0"   r="71" g="79" b="80" a="0.02" />
+  <color t="30"  r="171" g="165" b="145" a="0.02" />
+  <color t="60"  r="185" g="200" b="201" a="0.02" />
+  <color t="120"  r="211" g="221" b="222" a="0.02" />
+  <color t="180" r="79" g="96" b="111" a="0.02" />
+  <color t="210" r="50" g="61" b="71" a="0.03" />
+  <color t="240" r="8" g="9" b="10" a="0.03" />
+  <color t="330" r="8" g="9" b="10" a="0.03" />
+</fog_rainy>
 
 <!-- Color of the ambient light -->
 <light_ambient>
-  <color t="0"   r="0.30" g="0.30" b="0.30" />
+  <color t="0"   r="54" g="50" b="59" />
+  <color t="30"   r="74" g="72" b="60" />  
   <color t="60"  r="0.40" g="0.40" b="0.40" />
-  <color t="180" r="0.40" g="0.40" b="0.40" />
-  <color t="240" r="0.30" g="0.30" b="0.30" />
+  <color t="90"  r="0.30" g="0.30" b="0.30" />
+  <color t="120"  r="0.40" g="0.40" b="0.40" />  
+  <color t="195" r="40" g="23" b="68" />
+  <color t="225" r="35" g="34" b="52" />  
+  <color t="240" r="15" g="23" b="42" />
+  <color t="330" r="15" g="23" b="42" />
 </light_ambient>
 
 <!-- Color of the diffuse light -->
 <light_diffuse>
-  <color t="30"  r="0.0" g="0.0" b="0.0" />
-  <color t="45"  r="0.32" g="0.25" b="0.25" />
+  <color t="30"  r="110" g="105" b="94" />
   <color t="60"  r="0.7" g="0.7" b="0.7" />
-  <color t="180" r="0.7" g="0.7" b="0.7" />
-  <color t="195" r="0.32" g="0.25" b="0.25" />
-  <color t="210" r="0.0" g="0.0" b="0.0" />
+  <color t="90"  r="0.8" g="0.8" b="0.8" />  
+  <color t="120"  r="0.7" g="0.7" b="0.7" />  
+  <color t="195" r="205" g="165" b="166" />
+  <color t="210" r="75" g="60" b="62" />
+  <color t="225" r="50" g="40" b="60" />
+  <color t="240" r="0.0" g="0.0" b="0.0" />
+  <color t="330" r="0.0" g="0.0" b="0.0" />
 </light_diffuse>
 
 <!-- Color of the ambient light when raining -->
-<light_ambient_rain>
-  <color t="0"   r="0.20" g="0.20" b="0.20" />
-  <color t="60"  r="0.30" g="0.30" b="0.30" />
-  <color t="180" r="0.30" g="0.30" b="0.30" />
-  <color t="240" r="0.20" g="0.20" b="0.20" />
-</light_ambient_rain>
+<light_ambient_rainy>
+  <color t="0"   r="30" g="35" b="50" />
+  <color t="30"   r="54" g="53" b="48" />  
+  <color t="60"  r="130" g="130" b="135" />
+  <color t="120"  r="130" g="130" b="135" />
+  <color t="180" r="79" g="90" b="111" />
+  <color t="240" r="12" g="20" b="30" />
+  <color t="330" r="12" g="20" b="30" />
+</light_ambient_rainy>
 
 <!-- Color of the diffuse light when raining -->
-<light_diffuse_rain>
+<light_diffuse_rainy>
+  <color t="0"   r="40" g="45" b="55" />
   <color t="30"  r="0.0" g="0.0" b="0.0" />
-  <color t="60"  r="0.15" g="0.15" b="0.15" />
+  <color t="60"  r="32" g="33" b="34" />
+  <color t="120"  r="32" g="33" b="34" />
   <color t="180" r="0.15" g="0.15" b="0.15" />
-  <color t="210" r="0.0" g="0.0" b="0.0" />
-</light_diffuse_rain>
+  <color t="240" r="8" g="17" b="24" />
+  <color t="330" r="8" g="17" b="24" />
+</light_diffuse_rainy>

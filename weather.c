@@ -1048,6 +1048,7 @@ void rain_control()
 		if (seconds_till_rain_stops > 60) {
 #ifdef SKY_FPV_CURSOR
 			weather_rain_intensity = 1.0;
+			skybox_update_colors();
 #endif // SKY_FPV_CURSOR
 			is_raining=1;
 			rainParam = rain_strength_bias*(min2i(60,seconds_till_rain_stops) - 60)/30.0f;
@@ -1063,6 +1064,7 @@ void rain_control()
 		} else if(seconds_till_rain_stops) {
 #ifdef SKY_FPV_CURSOR
 			weather_rain_intensity = seconds_till_rain_stops/60.0;
+			skybox_update_colors();
 #endif // SKY_FPV_CURSOR
 			if (is_raining) is_raining = 0;
 			if(rain_sound) {
@@ -1074,6 +1076,7 @@ void rain_control()
 		} else {
 #ifdef SKY_FPV_CURSOR
 			weather_rain_intensity = 0.0;
+			skybox_update_colors();
 #endif // SKY_FPV_CURSOR
 			if (is_raining) is_raining = 0;
 			if(rain_sound) {
@@ -1099,6 +1102,7 @@ void rain_control()
 		if (seconds_till_rain_starts >= 60) {
 #ifdef SKY_FPV_CURSOR
 			weather_rain_intensity = 0.0;
+			skybox_update_colors();
 #endif // SKY_FPV_CURSOR
 			num_rain_drops = 0;
 			if (rain_sound) sound_source_set_gain(rain_sound, 0.0f);
@@ -1106,6 +1110,7 @@ void rain_control()
 		} else if(seconds_till_rain_starts) {
 #ifdef SKY_FPV_CURSOR
 			weather_rain_intensity = (60-seconds_till_rain_starts)/60.0;
+			skybox_update_colors();
 #endif // SKY_FPV_CURSOR
 			rainParam = rain_strength_bias*(60-seconds_till_rain_starts)/60.0f;
 			if(!is_raining) {
@@ -1123,6 +1128,7 @@ void rain_control()
 		} else {
 #ifdef SKY_FPV_CURSOR
 			weather_rain_intensity = 1.0;
+			skybox_update_colors();
 #endif // SKY_FPV_CURSOR
 			if(!is_raining) {
 				is_raining=1;

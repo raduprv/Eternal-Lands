@@ -59,6 +59,9 @@ void blend_colors(float result[], float orig[], float dest[], float t, int size)
 void skybox_init_gl();
 void skybox_init_defs(const char *map_name);
 
+void skybox_update_positions();
+void skybox_update_colors();
+
 #endif /* SKY_FPV_CURSOR */
 
 #endif /* __SKY_H_ */

@@ -1031,6 +1031,11 @@ void new_minute()
 #ifdef NEW_LIGHTING
 	}
 #endif // NEW_LIGHTING
+
+#ifdef SKY_FPV_CURSOR
+	skybox_update_positions();
+	skybox_update_colors();
+#endif // SKY_FPV_CURSOR
 }
 
 #if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
