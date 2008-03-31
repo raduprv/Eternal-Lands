@@ -154,6 +154,9 @@ bool GlowParticle::idle(const Uint64 delta_t)
     }
     default:
     {
+      alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 3000000.0); // increase this number to make particles live longer
+      if (alpha < 0.01)
+        return false;
 	  break;
 	}
   }
@@ -532,6 +535,32 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         Particle * p = new GlowParticle(this, mover, coords, velocity, 0.1 + randcoord(0.5), 0.8, red * 0.75 + randcolor(red / 4.0), green * 0.75 + randcolor(green / 4.0), blue * 0.75 + randcolor(blue / 4.0), &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
+      }
+      break;
+    }
+    case LEVEL_UP_RAN_GLOW:
+    {
+      mover = new ParticleMover(this);
+      Particle *p;
+      for (int i = 0; i < 26; i++) {
+        p = new GlowParticle(this, mover, Vec3(1.25 - (1.25/26.0) * i, 0.0, 0.05 + (0.6/26.0) * i) + effect_center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexTwinflare), LOD, type);
+        base->push_back_particle(p);
+      }
+      for (int i = 0; i < 22; i++) {
+        p = new GlowParticle(this, mover, Vec3(0.45 + (0.5/22.0) * i, 0.0, 0.0 + (1.05/22.0) * i) + effect_center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexTwinflare), LOD, type);
+        base->push_back_particle(p);
+      }
+      for (int i = 0; i < 5; i++) {
+          p = new GlowParticle(this, mover, Vec3(1.05 - (0.1/5.0) * i, 0.0, 0.85 + (0.25/5.0) * i) + effect_center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexTwinflare), LOD, type);
+          base->push_back_particle(p);
+      }
+      for (int i = 0; i < 5; i++) {
+        p = new GlowParticle(this, mover, Vec3(0.75 + (0.25/5.0) * i, 0.0, 0.95 + (0.1/5.0) * i) + effect_center - Vec3(0.7, 0.0, 0.5), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexTwinflare), LOD, type);
+        base->push_back_particle(p);
+      }
+      for (int i = 0; i < 34; i++) {
+        p = new GlowParticle(this, mover, Vec3(cos((10.0 + (105.0/32.0) * i)/360 * 2 * 3.14), 0.0, sin((10.0 + (105.0/32.0) * i)/360 * 2 * 3.14)) + effect_center - Vec3(0.35, 0.0, 0.75), Vec3(0.0, 0.0, 0.0), 1.0, 1.0, 1.0, 0.0, 0.0, &(base->TexTwinflare), LOD, type);
+        base->push_back_particle(p);
       }
       break;
     }
