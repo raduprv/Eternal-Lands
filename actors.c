@@ -290,7 +290,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			else
 #endif /* SKY_FPV_CURSOR */
 			{
-				float font_scale2 = font_scale*powf(1.0f+((float)actor_id->damage)/1000.0f, 4.0);
+				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage))/1000.0f, 4.0);
 				//draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale*.14, font_scale*.21);
 				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.21);
 			}			glDisable(GL_BLEND);
@@ -845,7 +845,7 @@ void get_actors_in_range()
 void display_actors(int banner, int render_pass)
 {
 	Sint32 i, has_alpha, has_ghosts;
-	Uint32 use_lightning, use_textures;
+	Uint32 use_lightning = 0, use_textures = 0;
 
 	get_actors_in_range();
 
