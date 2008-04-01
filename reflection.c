@@ -584,7 +584,7 @@ void display_3d_reflection()
 		CHECK_FBO_ERRORS();
 	}
 #ifdef SKY_FPV_CURSOR
-    else if (have_stencil)
+	else if (have_stencil)
     {
         unsigned int start, stop;
 
@@ -615,7 +615,7 @@ void display_3d_reflection()
         
 		glStencilFunc(GL_EQUAL, 1, 1);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-    }
+	}
 #endif // SKY_FPV_CURSOR
 
 	glCullFace(GL_FRONT);
@@ -625,9 +625,7 @@ void display_3d_reflection()
 
 #ifdef SKY_FPV_CURSOR
 	if (skybox_show_sky && *display_sky != NULL) {
-        sun_position[2] *= -1.0;
 		(*display_sky)();
-        sun_position[2] *= -1.0;
 	}
 #endif // SKY_FPV_CURSOR
 
@@ -676,7 +674,7 @@ void display_3d_reflection()
     else if (have_stencil)
     {
 		glDisable(GL_STENCIL_TEST);
-    }
+	}
 #endif // SKY_FPV_CURSOR
 
 #ifdef OPENGL_TRACE
