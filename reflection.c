@@ -564,10 +564,6 @@ void display_3d_reflection()
 	init_depth();
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 
-	glPushMatrix();	
-
-	glTranslatef(0.0f, 0.0f, water_depth_offset);
-
 #ifdef	USE_SHADER
 	if (water_shader_quality > 0)
 #else	// USE_SHADER
@@ -582,11 +578,17 @@ void display_3d_reflection()
 		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
+
+		glPushMatrix();
+		glTranslatef(0.0f, 0.0f, water_depth_offset);
 	}
 #ifdef SKY_FPV_CURSOR
 	else if (have_stencil)
     {
         unsigned int start, stop;
+
+		glPushMatrix();
+		glTranslatef(0.0f, 0.0f, water_depth_offset);
 
 		glClearStencil(0);
 		glClear(GL_STENCIL_BUFFER_BIT);
@@ -624,7 +626,9 @@ void display_3d_reflection()
 	glNormal3f(0.0f, 0.0f, 1.0f);
 
 #ifdef SKY_FPV_CURSOR
-	if (skybox_show_sky && *display_sky != NULL) {
+	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+	if (skybox_show_sky && *display_sky != NULL)
+	{
 		(*display_sky)();
 	}
 #endif // SKY_FPV_CURSOR
@@ -653,8 +657,11 @@ void display_3d_reflection()
 	disable_reflection_clip_planes();
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
+
 #ifndef SKY_FPV_CURSOR
 	reset_material();
+#else
+	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
 #endif // SKY_FPV_CURSOR
 
 #ifdef	USE_SHADER

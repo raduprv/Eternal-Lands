@@ -85,8 +85,8 @@ int skybox_show_horizon_fog = 1;
 float skybox_sunny_sky_bias = 0.0;
 float skybox_sunny_clouds_bias = -0.1;
 float skybox_sunny_fog_bias = 0.0;
-float skybox_moonlight1_bias = 0.8;
-float skybox_moonlight2_bias = 0.9;
+float skybox_moonlight1_bias = 0.92;
+float skybox_moonlight2_bias = 0.98;
 
 float skybox_sun_position[4] = {0.0, 0.0, 0.0, 0.0};
 double skybox_time_d = 0.0;
@@ -454,7 +454,7 @@ void skybox_update_colors()
 		rain_coef = 0.0f;
 	}
 #else /* NEW_WATHER */
-	rain_coef = weather_rain_intensity*weather_rain_intensity;
+	rain_coef = weather_rain_intensity;
 #endif // NEW_WEATHER
 
 	// alpha adjustment for objects that should fade in daylight
@@ -482,8 +482,8 @@ void skybox_update_colors()
     for (i = 0; i < dome_sky.slices_count; ++i)
     {
 		const float *normal = &dome_sky.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
-		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_fog_sunlight(normal), 3);
 		horizon_fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		horizon_fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -498,7 +498,7 @@ void skybox_update_colors()
     while (i < dome_clouds.slices_count)
     {
 		const float *normal = &dome_clouds.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -514,7 +514,7 @@ void skybox_update_colors()
     while (i < dome_clouds.vertices_count)
     {
 		const float *normal = &dome_clouds.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -569,8 +569,8 @@ void skybox_update_colors()
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
-		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -585,8 +585,8 @@ void skybox_update_colors()
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
-		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -601,8 +601,8 @@ void skybox_update_colors()
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
-		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -617,8 +617,8 @@ void skybox_update_colors()
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
-		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -632,8 +632,8 @@ void skybox_update_colors()
     while (i < dome_sky.vertices_count)
     {
 		const float *normal = &dome_sky.normals[i*3];
-		float ml1 = get_moonlight1(normal)*0.2*day_alpha;
-		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1264,25 +1264,25 @@ void cloudy_sky2()
 		glEnable(GL_LIGHTING);
 		glDisable(GL_COLOR_MATERIAL);
 		get_and_set_texture_id(moon_tex);
-		glMaterialfv(GL_FRONT, GL_AMBIENT, black_color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black_color);
 
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, moon1_color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, moon1_color);
 		
 		glPushMatrix();
 		glRotatef(moon_spin, 0.0, 1.0, 0.0);
 		glTranslatef(0.0, 0.0, 450.0);
 		glRotatef(moon_spin-80.0, 0.0, 1.0, 0.0);
-		glScalef(40.0, 40.0, 40.0);
+		glScalef(20.0, 20.0, 20.0);
 		glCallList(skyLists+3);
 		glPopMatrix();
 		
-		glMaterialfv(GL_FRONT, GL_DIFFUSE, moon2_color);
+		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, moon2_color);
 	
 		glPushMatrix();
 		glRotatef(20.0, 0.0, 0.0, 1.0);
 		glRotatef(10.0*moon_spin, 0.0, 1.0, 0.0);
 		glTranslatef(0.0, 0.0, 500.0);
-		glScalef(25.0, 25.0, 25.0);
+		glScalef(12.0, 12.0, 12.0);
 		glCallList(skyLists+3);
 		glPopMatrix();
 		
@@ -2068,10 +2068,10 @@ void skybox_init_gl()
 	glNewList(skyLists, GL_COMPILE);
 	gluSphere(qobj, 500, 32, 16);
 	glEndList();
+	gluQuadricOrientation(qobj, GLU_OUTSIDE);	
 	glNewList(skyLists+3, GL_COMPILE);
 	gluSphere(qobj, 1.0, 32, 16);
 	glEndList();
-	gluQuadricOrientation(qobj, GLU_OUTSIDE);	
 	glNewList(skyLists+1, GL_COMPILE);
 	gluDisk(qobj, 0, 500, 20, 1);
 	glEndList();
