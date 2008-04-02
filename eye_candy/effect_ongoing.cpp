@@ -27,7 +27,7 @@ OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const V
 	color[2] = value;
   }
   texture = _texture;
-  size = _size * (0.3 + randcoord()) * 15 / _LOD;
+  size = _size;
   alpha = _alpha;
   velocity /= size;
   flare_max = 1.0;
@@ -83,6 +83,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
       alpha -= scalar;
       if (alpha < 0.01)
         return false;
+      size -= scalar * 0.125;
       break;
     }
   }
@@ -263,9 +264,17 @@ bool OngoingEffect::idle(const Uint64 usec)
       {
         const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
-        velocity.randomize(1.0);
-        velocity.y = randfloat(0.5);
-        Particle* p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.1 + randcoord(0.9), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexTwinflare), LOD, type);
+        velocity.randomize(0.75);
+        velocity.y = -randfloat(0.5) + 0.2;
+        Particle* p;
+        if (randfloat() < 0.5)
+        {
+          p = new OngoingParticle(this, mover, coords, velocity * 0.95, hue_adjust, saturation_adjust, 0.25 + randcoord(0.75), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexFlare), LOD, type);
+        }
+        else
+        {
+          p = new OngoingParticle(this, mover, coords, velocity * 1.05, hue_adjust, saturation_adjust, 0.5 + randcoord(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexTwinflare), LOD, type);
+        }
         if (!base->push_back_particle(p))
           break;
       }
