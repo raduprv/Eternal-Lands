@@ -1816,7 +1816,7 @@ extern "C" ec_reference ec_create_glow_level_up_ran(actor* caster, int LOD)
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
   set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
   ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::LEVEL_UP_RAN_GLOW, LOD);
   eye_candy.push_back_effect(ret->effect);
@@ -3425,7 +3425,7 @@ extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD, int hi
   missile *mis = get_missile_ptr_from_id(missile_id);
   ec_internal_reference* ret;
 
-  if (!mis ||
+  if (mis == NULL ||
           missiles_defs[mis->type].effect < MAGIC_MISSILE ||
           missiles_defs[mis->type].effect > EXPLOSIVE_MISSILE
           )
