@@ -23,7 +23,9 @@ WindParticle::WindParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _p
   max_height = _max_height;
   type = _type;
   angle_t angle, rise;
-  color_t hue, saturation, value;
+  color_t hue = 0.0,
+          saturation = 0.0,
+          value = 0.0;
   switch (type)
   {
     case WindEffect::LEAVES:

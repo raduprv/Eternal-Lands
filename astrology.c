@@ -299,7 +299,9 @@ float calculate_width_coefficient(int amplitude,int value,int invert)
 
 int display_astrology_handler(window_info *win)
 {
-	float coefficient1,coefficient2,coefficient3;
+	float coefficient1 = 0.0,
+		  coefficient2 = 0.0,
+		  coefficient3 = 0.0;
 	GLfloat right_colors[6];
 	int i;
 
