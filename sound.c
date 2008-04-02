@@ -2549,7 +2549,7 @@ int check_stream(stream_data * stream, int day_time, int tx, int ty)
 int update_streams(void * dummy)
 {
     int sleep, day_time, i, tx, ty;
-	ALfloat gain;
+	ALfloat gain = 0.0;
 
    	sleep = SLEEP_TIME;
 	
@@ -2608,6 +2608,8 @@ int update_streams(void * dummy)
 								continue;			// We aren't playing sounds so skip this stream
 							if (distanceSq_to_near_enhanced_actors == 0)
 								distanceSq_to_near_enhanced_actors = 100.0f;	// Due to no actors when calc'ing
+// SSE optimized sqrt		gain = sound_gain * crowd_gain * sound_type_data[streams[i].sound].variant[streams[i].variant].gain
+// 									* fastsqrt(fastsqrt(no_near_enhanced_actors)) * invsqrt(distanceSq_to_near_enhanced_actors) * 2;
 							gain = sound_gain * crowd_gain * sound_type_data[streams[i].sound].variant[streams[i].variant].gain
 									* sqrt(sqrt(no_near_enhanced_actors)) / sqrt(distanceSq_to_near_enhanced_actors) * 2;
 							break;
@@ -4471,7 +4473,10 @@ int test_bounds_angles(int x, int y, int point, map_sound_boundary_def * bounds)
  */
 double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * bounds)
 {
-	int A, B, C, D;
+	int A = 0,
+		B = 0,
+		C = 0,
+		D = 0;
 	double pi = 3.1415;
 	double ra = pi / 2;		// ra = Right angle... meh
 	double a;
@@ -4899,7 +4904,7 @@ void destroy_sound()
 {
 	int i, error;
 	ALCcontext *context;
-	ALCdevice *device;
+	ALCdevice *device = NULL;
 	if (!inited){
 		return;
 	}
