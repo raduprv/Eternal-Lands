@@ -1013,9 +1013,8 @@ int display_game_handler (window_info *win)
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
 #ifdef SKY_FPV_CURSOR
-		if (skybox_show_sky && *display_sky != NULL) {
-			(*display_sky)();
-		}
+		if (skybox_show_sky)
+			skybox_display();
 #endif /* SKY_FPV_CURSOR */
 
 #ifndef NEW_ACTOR_MOVEMENT

@@ -205,12 +205,18 @@ static int el_load_map(const char * file_name)
 #endif
 
 #ifdef SKY_FPV_CURSOR
-	if (strstr(file_name, "underworld") != NULL){
-		sky_type(UNDERWORLD_SKY);
-	} else if (dungeon) {
-		sky_type(INTERIORS_SKY);
-	} else {
-		sky_type(CLOUDY_SKY);
+	if (strstr(file_name, "underworld") != NULL)
+	{
+		skybox_set_type(SKYBOX_UNDERWORLD);
+		skybox_update_colors();
+	}
+	else if (dungeon)
+	{
+		skybox_set_type(SKYBOX_NONE);
+	}
+	else
+	{
+		skybox_set_type(SKYBOX_CLOUDY);
 		skybox_init_defs(file_name);
 	}
 #endif /* SKY_FPV_CURSOR */

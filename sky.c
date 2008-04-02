@@ -81,9 +81,9 @@ int skybox_show_clouds = 1;
 int skybox_show_sun = 1;
 int skybox_show_moons = 1;
 int skybox_show_stars = 1;
-int skybox_show_horizon_fog = 1;
+int skybox_show_horizon_fog = 0;
 float skybox_sunny_sky_bias = 0.0;
-float skybox_sunny_clouds_bias = -0.1;
+float skybox_sunny_clouds_bias = 0.0;
 float skybox_sunny_fog_bias = 0.0;
 float skybox_moonlight1_bias = 0.92;
 float skybox_moonlight2_bias = 0.98;
@@ -115,7 +115,7 @@ GLfloat *dome_clouds_detail_colors = NULL;
 GLfloat *dome_clouds_colors_bis = NULL;
 GLfloat *dome_clouds_detail_colors_bis = NULL;
 GLfloat *dome_clouds_tex_coords_bis = NULL;
-GLfloat *horizon_fog_colors = NULL;
+GLfloat *fog_colors = NULL;
 
 GLfloat moon1_direction[3];
 GLfloat moon2_direction[3];
@@ -125,26 +125,19 @@ GLfloat sun_color[4];
 double moon_spin = 0.0;
 float rain_coef = 0.0;
 float day_alpha = 0.0;
-
-void (*display_sky)(int);
+skybox_type current_sky = SKYBOX_NONE;
 
 #ifdef NEW_WEATHER
 #define fogColor rain_color
 #endif //NEW_WEATHER
 
 #define NUM_STARS 3000
-float strs[NUM_STARS][3];
 float fog1[4], fog2[4], fog3[4], fog4[4];
 float *fog[4] = {fog1, fog2, fog3, fog4};
 GLuint skyLists;
 int smokey_cloud_tex;
 int moon_tex;
 int sun_tex;
-
-//void simple_sky();
-void cloudy_sky();
-void cloudy_sky2();
-void animated_sky();
 
 /*
   colorSkyCyl - local utility function.
@@ -173,32 +166,7 @@ void colorSkyCyl(int stacks, float *colors[4])
 	glEnd();
 }
 
-void blend_colors(float result[], float orig[], float dest[], float t, int size)
-{
-    while (size--)
-    {
-        result[size] = (1.0-t)*orig[size] + t*dest[size];
-    }
-}
-
-void sky_type(int sky)
-{
-	switch (sky)
-	{
-		case UNDERWORLD_SKY:
-			display_sky = animated_sky;
-			break;
-		case INTERIORS_SKY:
-			//display_sky = simple_sky;
-			display_sky = NULL;
-			break;
-		case CLOUDY_SKY:
-		default:
-			display_sky = cloudy_sky2;
-	}
-}
-
-sky_dome create_dome(int slices, int stacks, float radius, float opening, int fake_opening, float first_angle)
+sky_dome create_dome(int slices, int stacks, float radius, float opening, int fake_opening, float first_angle, float texture_size)
 {
 	sky_dome dome;
     int i, j;
@@ -251,8 +219,8 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 			dome.normals[idx3  ] = fake_sin_angle * cos_teta;
 			dome.normals[idx3+1] = fake_sin_angle * sin_teta;
 			dome.normals[idx3+2] = fake_cos_angle;
-			dome.tex_coords[idx*2  ] = 0.5 + 0.5 * tmp * cos_teta;
-			dome.tex_coords[idx*2+1] = 0.5 + 0.5 * tmp * sin_teta;
+			dome.tex_coords[idx*2  ] = (0.5 + 0.5 * tmp * cos_teta) / texture_size;
+			dome.tex_coords[idx*2+1] = (0.5 + 0.5 * tmp * sin_teta) / texture_size;
 			++idx;
         }
         angle -= first_angle * M_PI / 180.0;
@@ -284,8 +252,8 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 			dome.normals[idx3  ] = fake_sin_angle * cos_teta;
 			dome.normals[idx3+1] = fake_sin_angle * sin_teta;
 			dome.normals[idx3+2] = fake_cos_angle;
-			dome.tex_coords[idx*2  ] = 0.5 + 0.5 * tmp * cos_teta;
-			dome.tex_coords[idx*2+1] = 0.5 + 0.5 * tmp * sin_teta;
+			dome.tex_coords[idx*2  ] = (0.5 + 0.5 * tmp * cos_teta) / texture_size;
+			dome.tex_coords[idx*2+1] = (0.5 + 0.5 * tmp * sin_teta) / texture_size;
 			++idx;
         }
         angle -= angle_step;
@@ -298,8 +266,8 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 	dome.normals[idx*3  ] = 0.0;
 	dome.normals[idx*3+1] = 0.0;
 	dome.normals[idx*3+2] = 1.0;
-	dome.tex_coords[idx*2  ] = 0.5;
-	dome.tex_coords[idx*2+1] = 0.5;
+	dome.tex_coords[idx*2  ] = 0.5 / texture_size;
+	dome.tex_coords[idx*2+1] = 0.5 / texture_size;
 
     // we build the faces of the dome
     idx = 0;
@@ -340,6 +308,79 @@ void destroy_dome(sky_dome *dome)
     if (dome->faces     ) { free(dome->faces     ); dome->faces      = NULL; }
 }
 
+void blend_colors(float result[], float orig[], float dest[], float t, int size)
+{
+    while (size--)
+    {
+        result[size] = (1.0-t)*orig[size] + t*dest[size];
+    }
+}
+
+void skybox_set_type(skybox_type sky)
+{
+    current_sky = sky;
+}
+
+void cloudy_sky();
+void cloudy_sky2();
+void underworld_sky();
+
+void skybox_display()
+{
+	switch (current_sky)
+	{
+	case SKYBOX_CLOUDY:
+		cloudy_sky2();
+		break;
+
+	case SKYBOX_UNDERWORLD:
+		underworld_sky();
+		break;
+
+	case SKYBOX_NONE:
+	default:
+		break;
+	}
+}
+
+void update_cloudy_sky_positions();
+
+void skybox_update_positions()
+{
+	switch(current_sky)
+	{
+	case SKYBOX_CLOUDY:
+		update_cloudy_sky_positions();
+		break;
+
+	case SKYBOX_UNDERWORLD:
+	case SKYBOX_NONE:
+	default:
+		break;
+	}
+}
+
+void update_cloudy_sky_colors();
+void update_underworld_sky_colors();
+
+void skybox_update_colors()
+{
+	switch(current_sky)
+	{
+	case SKYBOX_CLOUDY:
+		update_cloudy_sky_colors();
+		break;
+
+	case SKYBOX_UNDERWORLD:
+		update_underworld_sky_colors();
+		break;
+
+	case SKYBOX_NONE:
+	default:
+		break;
+	}
+}
+
 #define MAT3_ROT_X(mat,angle) \
 (mat[0]=1.0,mat[3]=0.0        ,mat[6]=0.0         ,\
  mat[1]=0.0,mat[4]=cosf(angle),mat[7]=-sinf(angle),\
@@ -365,7 +406,7 @@ void destroy_dome(sky_dome *dome)
  MAT3_VECT3_MULT(&res[3],mat1,&mat2[3]),\
  MAT3_VECT3_MULT(&res[6],mat1,&mat2[6]))
 
-void skybox_update_positions()
+void update_cloudy_sky_positions()
 {
 	float rot1[9], rot2[9], rot3[9];
 	float moon1_vect[3] = {0.0, 0.0, 1.0};
@@ -390,19 +431,28 @@ void skybox_update_positions()
 float __inline__ get_sky_sunlight(const GLfloat normal[3])
 {
 	GLfloat dot = normal[0]*sun_position[0]+normal[1]*sun_position[1]+normal[2]*sun_position[2];
-	return (dot > skybox_sunny_sky_bias ? (dot-skybox_sunny_sky_bias)/(1.0-skybox_sunny_sky_bias) : 0.0);
+    if (skybox_show_sun && !skybox_no_sun)
+        return (dot > skybox_sunny_sky_bias ? (dot-skybox_sunny_sky_bias)/(1.0-skybox_sunny_sky_bias) : 0.0);
+    else
+        return 0.0;
 }
 
 float __inline__ get_clouds_sunlight(const GLfloat normal[3])
 {
 	GLfloat dot = normal[0]*sun_position[0]+normal[1]*sun_position[1]+normal[2]*sun_position[2];
-	return (dot > skybox_sunny_clouds_bias ? (dot-skybox_sunny_clouds_bias)/(1.0-skybox_sunny_clouds_bias) : 0.0);
+    if (skybox_show_sun && !skybox_no_sun)
+        return (dot > skybox_sunny_clouds_bias ? (dot-skybox_sunny_clouds_bias)/(1.0-skybox_sunny_clouds_bias) : 0.0);
+    else
+        return 0.0;
 }
 
 float __inline__ get_fog_sunlight(const GLfloat normal[3])
 {
 	GLfloat dot = normal[0]*sun_position[0]+normal[1]*sun_position[1]+normal[2]*sun_position[2];
-	return (dot > skybox_sunny_fog_bias ? (dot-skybox_sunny_fog_bias)/(1.0-skybox_sunny_fog_bias) : 0.0);
+    if (skybox_show_sun && !skybox_no_sun)
+        return (dot > skybox_sunny_fog_bias ? (dot-skybox_sunny_fog_bias)/(1.0-skybox_sunny_fog_bias) : 0.0);
+    else
+        return 0.0;
 }
 
 float __inline__ get_moonlight1(const GLfloat normal[3])
@@ -410,7 +460,10 @@ float __inline__ get_moonlight1(const GLfloat normal[3])
 	GLfloat dot1 = normal[0]*moon1_direction[0]+normal[1]*moon1_direction[1]+normal[2]*moon1_direction[2];
 	GLfloat dot2 = -(sun_position[0]*moon1_direction[0]+sun_position[1]*moon1_direction[1]+sun_position[2]*moon1_direction[2])*0.5+0.5;
 	dot1 = (dot1 > skybox_moonlight1_bias ? (dot1-skybox_moonlight1_bias)/(1.0-skybox_moonlight1_bias) : 0.0);
-	return dot1*dot2;
+    if (skybox_show_moons && !skybox_no_moons)
+        return dot1*dot2;
+    else
+        return 0.0;
 }
 
 float __inline__ get_moonlight2(const GLfloat normal[3])
@@ -418,10 +471,13 @@ float __inline__ get_moonlight2(const GLfloat normal[3])
 	GLfloat dot1 = normal[0]*moon2_direction[0]+normal[1]*moon2_direction[1]+normal[2]*moon2_direction[2];
 	GLfloat dot2 = -(sun_position[0]*moon2_direction[0]+sun_position[1]*moon2_direction[1]+sun_position[2]*moon2_direction[2])*0.5+0.5;
 	dot1 = (dot1 > skybox_moonlight2_bias ? (dot1-skybox_moonlight2_bias)/(1.0-skybox_moonlight2_bias) : 0.0);
-	return dot1*dot2;
+    if (skybox_show_moons && !skybox_no_moons)
+        return dot1*dot2;
+    else
+        return 0.0;
 }
 
-void skybox_update_colors()
+void update_cloudy_sky_colors()
 {
     int i, idx, end;
 	GLfloat color_sun[3];
@@ -485,9 +541,9 @@ void skybox_update_colors()
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 		blend_colors(color, color_sky, color_sun, get_fog_sunlight(normal), 3);
-		horizon_fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
-		horizon_fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
-		horizon_fog_colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		fog_colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
     }
 
 	i = idx = 0;
@@ -651,84 +707,61 @@ void skybox_update_colors()
 	moon2_color[2] *= 0.5 + 0.5*day_alpha;
 }
 
-/*
-void simple_sky()
+void update_underworld_sky_colors()
 {
-	static float spin = 0;
-	float abs_light;
+	int i, idx, end;
 
-	abs_light=light_level;
-	if(light_level>59)abs_light=119-light_level;
-	abs_light = 1.0f-abs_light/59.0f;
+	i = idx = 0;
 
-	spin = cur_time%250000;
-	spin*=360.0f/250000.0f;
-	if(SDL_GetAppState()&SDL_APPACTIVE)
+	end = dome_sky.slices_count;
+	while (i < end)
 	{
-		glPushMatrix();
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadMatrixd(LongView);
-		glMatrixMode(GL_MODELVIEW);
+		dome_sky.colors[idx++] = 1.0;
+		dome_sky.colors[idx++] = 0.7;
+		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+	}
 
-		glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
-		glRotatef(rx,1.0,0.0,0.0);
-		glRotatef(rz,0.0,0.0,1.0);
-		if(use_shadow_mapping)
-		{
-			glDisable(GL_TEXTURE_2D);
-			ELglActiveTextureARB(shadow_unit);
-			glDisable(depth_texture_target);
-			disable_texgen();
-			ELglActiveTextureARB(GL_TEXTURE0);
-			glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-		}
+	end += dome_sky.slices_count;
+	while (i < end)
+	{
+		dome_sky.colors[idx++] = 1.0;
+		dome_sky.colors[idx++] = 0.6;
+		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+	}
 
-		glDisable(GL_LIGHTING);
-		glDisable(GL_FOG);
-		glEnable(GL_COLOR_MATERIAL);
-		glDisable(GL_TEXTURE_2D);
-		glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
-		//glTranslatef(0.0, 0.0, -1.0);
-		glDisable(GL_DEPTH_TEST);
-		glEnable(GL_BLEND);
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
+	end += dome_sky.slices_count;
+	while (i < end)
+	{
+		dome_sky.colors[idx++] = 0.9;
+		dome_sky.colors[idx++] = 0.4;
+		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 0.8;
+		++i;
+	}
 
-		glColor4f(0.0,0.0,0.0,0.0);
-		glCallList(skyLists);
+	end += dome_sky.slices_count;
+	while (i < end)
+	{
+		dome_sky.colors[idx++] = 0.9;
+		dome_sky.colors[idx++] = 0.2;
+		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 0.6;
+		++i;
+	}
 
-		fog[0][0] = fog[1][0] = fog[2][0] = fogColor[0];
-		fog[0][1] = fog[1][1] = fog[2][1] = fogColor[1];
-		fog[0][2] = fog[1][2] = fog[2][2] = fogColor[2];
-
-		fog[0][3] = 1.0f;
-		fog[1][3] = 0.7f;
-		fog[2][3] = 0.3f;
-		fog[3][3] = 0.0f;
-
-		glPushMatrix();
-		glScalef(100.0,100.0,10.0);
-		colorSkyCyl(3, fog);
-		glPopMatrix();
-		glColor4f(1, 1,1,1);
-		glDisable(GL_COLOR_MATERIAL);
-		if(use_shadow_mapping)
-		{
-			last_texture=-1;
-		}
-		glColor4f(0.4,0.6,1.0,1.0);
-		glEnable(GL_FOG);
-		glCallList(skyLists+1);
-
-
-		glPopAttrib();
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-		glPopMatrix();
+    while (i < dome_sky.vertices_count)
+    {
+		dome_sky.colors[idx++] = 0.8;
+		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 0.0;
+		++i;
 	}
 }
-*/
 
 void cloudy_sky()
 {
@@ -1087,15 +1120,15 @@ void draw_horizon_fog(float rain_coef)
     for (i = 0; i < dome_sky.slices_count; ++i)
     {
         const GLfloat *vtx = &dome_sky.vertices[i*3];
-        const GLfloat *col = &horizon_fog_colors[i*3];
+        const GLfloat *col = &fog_colors[i*3];
         glColor4f(col[0], col[1], col[2], fade_values[0]);
         glVertex3f(vtx[0], vtx[1], vtx[2]);
         glColor4f(col[0], col[1], col[2], fade_values[1]);
         glVertex3f(vtx[0], vtx[1], vtx[2] + 15.0);
     }
-    glColor4f(horizon_fog_colors[0], horizon_fog_colors[1], horizon_fog_colors[2], fade_values[0]);
+    glColor4f(fog_colors[0], fog_colors[1], fog_colors[2], fade_values[0]);
     glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2]);
-    glColor4f(horizon_fog_colors[0], horizon_fog_colors[1], horizon_fog_colors[2], fade_values[1]);
+    glColor4f(fog_colors[0], fog_colors[1], fog_colors[2], fade_values[1]);
     glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 15.0);
     glEnd();
 
@@ -1103,15 +1136,15 @@ void draw_horizon_fog(float rain_coef)
     for (i = 0; i < dome_sky.slices_count; ++i)
     {
         const GLfloat *vtx = &dome_sky.vertices[i*3];
-        const GLfloat *col = &horizon_fog_colors[i*3];
+        const GLfloat *col = &fog_colors[i*3];
         glColor4f(col[0], col[1], col[2], fade_values[1]);
         glVertex3f(vtx[0], vtx[1], vtx[2] + 15.0);
         glColor4f(col[0], col[1], col[2], fade_values[2]);
         glVertex3f(vtx[0], vtx[1], vtx[2] + 30.0);
     }
-    glColor4f(horizon_fog_colors[0], horizon_fog_colors[1], horizon_fog_colors[2], fade_values[1]);
+    glColor4f(fog_colors[0], fog_colors[1], fog_colors[2], fade_values[1]);
     glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 15.0);
-    glColor4f(horizon_fog_colors[0], horizon_fog_colors[1], horizon_fog_colors[2], fade_values[2]);
+    glColor4f(fog_colors[0], fog_colors[1], fog_colors[2], fade_values[2]);
     glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 30.0);
     glEnd();
     
@@ -1119,15 +1152,15 @@ void draw_horizon_fog(float rain_coef)
     for (i = 0; i < dome_sky.slices_count; ++i)
     {
         const GLfloat *vtx = &dome_sky.vertices[i*3];
-        const GLfloat *col = &horizon_fog_colors[i*3];
+        const GLfloat *col = &fog_colors[i*3];
         glColor4f(col[0], col[1], col[2], fade_values[2]);
         glVertex3f(vtx[0], vtx[1], vtx[2] + 30.0);
         glColor4f(col[0], col[1], col[2], fade_values[3]);
         glVertex3f(vtx[0], vtx[1], vtx[2] + 45.0);
     }
-    glColor4f(horizon_fog_colors[0], horizon_fog_colors[1], horizon_fog_colors[2], fade_values[2]);
+    glColor4f(fog_colors[0], fog_colors[1], fog_colors[2], fade_values[2]);
     glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 30.0);
-    glColor4f(horizon_fog_colors[0], horizon_fog_colors[1], horizon_fog_colors[2], fade_values[3]);
+    glColor4f(fog_colors[0], fog_colors[1], fog_colors[2], fade_values[3]);
     glVertex3f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2] + 45.0);
     glEnd();
 }
@@ -1174,26 +1207,20 @@ void cloudy_sky2()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	
-    glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, 0.0);
+    glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -10.0);
 
 	// we draw the ground
     if (skybox_show_horizon_fog)
     {
-/*         glColor3fv(fogColor); */
-/*         glBegin(GL_QUADS); */
-/*         glVertex3f(-dome_sky.radius, -dome_sky.radius, 0.0); */
-/*         glVertex3f( dome_sky.radius, -dome_sky.radius, 0.0); */
-/*         glVertex3f( dome_sky.radius,  dome_sky.radius, 0.0); */
-/*         glVertex3f(-dome_sky.radius,  dome_sky.radius, 0.0); */
-/*         glEnd(); */
         glBegin(GL_QUAD_STRIP);
-        for (i = 0; i < dome_sky.slices_count; ++i) {
+        for (i = 0; i < dome_sky.slices_count; ++i)
+		{
             const GLfloat *vtx = &dome_sky.vertices[i*3];
-            glColor3fv(&horizon_fog_colors[i*3]);
+            glColor3fv(&fog_colors[i*3]);
             glVertex4f(vtx[0], vtx[1], vtx[2], 500.0);
             glVertex3fv(vtx);
         }
-        glColor4fv(&horizon_fog_colors[0]);
+        glColor4fv(&fog_colors[0]);
         glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 500.0);
         glVertex3fv(&dome_sky.vertices[0]);
         glEnd();
@@ -1201,7 +1228,8 @@ void cloudy_sky2()
     else
     {
         glBegin(GL_QUAD_STRIP);
-        for (i = 0; i < dome_sky.slices_count; ++i) {
+        for (i = 0; i < dome_sky.slices_count; ++i)
+		{
             const GLfloat *vtx = &dome_sky.vertices[i*3];
             glColor3fv(&dome_sky.colors[i*4]);
             glVertex4f(vtx[0], vtx[1], vtx[2], 500.0);
@@ -1472,17 +1500,10 @@ void cloudy_sky2()
 	last_cloud_time = cur_time;
 }
 
-void animated_sky()
+void underworld_sky()
 {
-	static float spin = 0;
-	float abs_light;
-
-	abs_light=light_level;
-	if(light_level>59)abs_light=119-light_level;
-	abs_light = 1.0f-abs_light/59.0f;
-
-	spin = cur_time%250000;
-	spin*=360.0f/250000.0f;
+	static Uint32 last_cloud_time = 0;
+	int i;
 
 	glPushMatrix();
 	glMatrixMode(GL_PROJECTION);
@@ -1493,81 +1514,147 @@ void animated_sky()
 	glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
 	glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -40.0);
 
-	if(use_shadow_mapping)
-	{
-		glDisable(GL_TEXTURE_2D);
-		ELglActiveTextureARB(shadow_unit);
-		glDisable(depth_texture_target);
-		disable_texgen();
-		ELglActiveTextureARB(GL_TEXTURE0);
-		glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
-	}
+/* 	if(use_shadow_mapping) */
+/* 	{ */
+/* 		glDisable(GL_TEXTURE_2D); */
+/* 		ELglActiveTextureARB(shadow_unit); */
+/* 		glDisable(depth_texture_target); */
+/* 		disable_texgen(); */
+/* 		ELglActiveTextureARB(GL_TEXTURE0); */
+/* 		glTexEnvi (GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE); */
+/* 	} */
 	
 	glDisable(GL_LIGHTING);
 	glDisable(GL_FOG);
-	//glColorMaterial(GL_FRONT_AND_BACK,GL_AMBIENT_AND_DIFFUSE);
 	glEnable(GL_COLOR_MATERIAL);
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_ONE,GL_ZERO);
-	
-	glColor4f(0.0,0.0,0.0,0.0);
-	glCallList(skyLists);
-	
-	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
-	get_and_set_texture_id(smokey_cloud_tex);
-	glPushMatrix();
-	glScalef(1.0, 1.0, 0.17);
-	glPushMatrix();
-	glColor4f(1.0, 0.0, 0.0, 1.0);
-	glRotatef(spin, 0.0, 0.0, 1.0);
-	glRotatef(90.0f, 0.0f, 1.0f, 0.0f);
-	glRotatef(spin, 0.0, 0.0, 1.0);
-	glCallList(skyLists);
-	glPopMatrix();
+	if (skybox_show_clouds)
+	{
+		float clouds_step = (cur_time - last_cloud_time)*1E-5;
 
-	glPushMatrix();
-	glColor4f(1.0, 0.2, 0.0, 1.0);
-	glRotatef(spin*2, 0.0, 0.0, 1.0);
-	glRotatef(90.0f, 1.0f, 0.0f, 0.0f);
-	glRotatef(spin*2, 0.0, 0.0, 1.0);
-	glCallList(skyLists);
-	glPopMatrix();
-	glPopMatrix();
+		// we update the tex coords for the first clouds layer
+		if (dome_clouds.tex_coords[0] <= 1.0)
+		{
+			for (i = dome_clouds.vertices_count; i--; )
+				dome_clouds.tex_coords[i*2] += clouds_step*2.0;
+		}
+		else
+		{
+			for (i = dome_clouds.vertices_count; i--; )
+				dome_clouds.tex_coords[i*2] += clouds_step*2.0 - 1.0;
+		}
 
-	glDisable(GL_TEXTURE_2D);
+		// we update the tex coords for the second clouds layer
+		if (dome_clouds_tex_coords_bis[1] <= 1.0)
+		{
+			for (i = dome_clouds.vertices_count; i--; )
+				dome_clouds_tex_coords_bis[i*2+1] += clouds_step;
+		}
+		else
+		{
+			for (i = dome_clouds.vertices_count; i--; )
+				dome_clouds_tex_coords_bis[i*2+1] += clouds_step - 1.0;
+		}
 
-	fog[0][0] = 1.0;
-	fog[0][1] = 0.7;
-	fog[0][2] = 0.0;
-	fog[0][3] = 1.0;
+		glEnable(GL_TEXTURE_2D);
+		get_and_set_texture_id(smokey_cloud_tex);
 
-	fog[1][0] = 1.0;
-	fog[1][1] = 0.5;
-	fog[1][2] = 0.0;
-	fog[1][3] = 0.66;
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
-	fog[2][0] = 1.0;
-	fog[2][1] = 0.25;
-	fog[2][2] = 0.0;
-	fog[2][3] = 0.33;
+		glVertexPointer(3, GL_FLOAT, 0, dome_clouds.vertices);
+		
+		glDisable(GL_BLEND);
+		glColor3f(0.8, 0.0, 0.0);
+		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds_tex_coords_bis);
+		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
 
-	fog[3][0] = 1.0;
-	fog[3][1] = 0.0;
-	fog[3][2] = 0.0;
-	fog[3][3] = 0.0;
+		glEnable(GL_BLEND);
+		glColor3f(0.8, 0.2, 0.0);
+		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds.tex_coords);
+		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
+
+		glDisableClientState(GL_VERTEX_ARRAY);
+		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
+		glDisable(GL_TEXTURE_2D);
+	}
+
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_COLOR_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 0, dome_sky.vertices);
+	glColorPointer(4, GL_FLOAT, 0, dome_sky.colors);
 	
-	glPushMatrix();
-	glTranslatef(0.0, 0.0, -0.5);
-	glScalef(500.0, 500.0, 60.0);
-	colorSkyCyl(3, fog);
-	glPopMatrix();
+	glDrawElements(GL_TRIANGLES, dome_sky.faces_count*3, GL_UNSIGNED_INT, dome_sky.faces);
 
-	glColor4fv(fog[0]);
-	glCallList(skyLists+1);
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_COLOR_ARRAY);
+
+	glBegin(GL_QUAD_STRIP);
+	for (i = 0; i < dome_sky.slices_count; ++i)
+	{
+		const GLfloat *vtx = &dome_sky.vertices[i*3];
+		glColor3fv(&dome_sky.colors[i*4]);
+		glVertex4f(vtx[0], vtx[1], vtx[2], 500.0);
+		glVertex3fv(vtx);
+	}
+	glColor3fv(&dome_sky.colors[0]);
+	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 500.0);
+	glVertex3fv(&dome_sky.vertices[0]);
+	glEnd();
+	
+/* 	get_and_set_texture_id(smokey_cloud_tex); */
+/* 	glPushMatrix(); */
+/* 	glScalef(1.0, 1.0, 0.17); */
+/* 	glPushMatrix(); */
+/* 	glColor4f(1.0, 0.0, 0.0, 1.0); */
+/* 	glRotatef(spin, 0.0, 0.0, 1.0); */
+/* 	glRotatef(90.0f, 0.0f, 1.0f, 0.0f); */
+/* 	glRotatef(spin, 0.0, 0.0, 1.0); */
+/* 	glCallList(skyLists); */
+/* 	glPopMatrix(); */
+
+/* 	glPushMatrix(); */
+/* 	glColor4f(1.0, 0.2, 0.0, 1.0); */
+/* 	glRotatef(spin*2, 0.0, 0.0, 1.0); */
+/* 	glRotatef(90.0f, 1.0f, 0.0f, 0.0f); */
+/* 	glRotatef(spin*2, 0.0, 0.0, 1.0); */
+/* 	glCallList(skyLists); */
+/* 	glPopMatrix(); */
+/* 	glPopMatrix(); */
+
+/* 	fog[0][0] = 1.0; */
+/* 	fog[0][1] = 0.7; */
+/* 	fog[0][2] = 0.0; */
+/* 	fog[0][3] = 1.0; */
+
+/* 	fog[1][0] = 1.0; */
+/* 	fog[1][1] = 0.5; */
+/* 	fog[1][2] = 0.0; */
+/* 	fog[1][3] = 0.66; */
+
+/* 	fog[2][0] = 1.0; */
+/* 	fog[2][1] = 0.25; */
+/* 	fog[2][2] = 0.0; */
+/* 	fog[2][3] = 0.33; */
+
+/* 	fog[3][0] = 1.0; */
+/* 	fog[3][1] = 0.0; */
+/* 	fog[3][2] = 0.0; */
+/* 	fog[3][3] = 0.0; */
+	
+/* 	glPushMatrix(); */
+/* 	glTranslatef(0.0, 0.0, -0.5); */
+/* 	glScalef(500.0, 500.0, 60.0); */
+/* 	colorSkyCyl(3, fog); */
+/* 	glPopMatrix(); */
+
+/* 	glColor4fv(fog[0]); */
+/* 	glCallList(skyLists+1); */
 	
 	glPopAttrib();
 	glMatrixMode(GL_PROJECTION);
@@ -1575,11 +1662,13 @@ void animated_sky()
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-	glColor4f(1.0, 1.0, 1.0, 1.0);
-	if(use_shadow_mapping)
-	{
-		last_texture=-1;
-	}
+	reset_material();
+/* 	if(use_shadow_mapping) */
+/* 	{ */
+/* 		last_texture=-1; */
+/* 	} */
+
+	last_cloud_time = cur_time;
 }
 
 #define XML_BOOL(s) (!xmlStrcasecmp((s), (xmlChar*)"yes") ||\
@@ -2054,6 +2143,7 @@ void skybox_init_gl()
 	GLfloat randx,randy,randz;
 	int i;
 	float maxr;
+    float strs[NUM_STARS][3];
 
 	smokey_cloud_tex = load_texture_cache("./textures/cloud_detail_alpha.bmp", 0);
 	moon_tex=load_texture_cache("./textures/moonmap.bmp", 0);
@@ -2134,17 +2224,22 @@ void skybox_init_gl()
 	if (dome_clouds_colors_bis) free(dome_clouds_colors_bis);
 	if (dome_clouds_detail_colors_bis) free(dome_clouds_detail_colors_bis);
 	if (dome_clouds_tex_coords_bis) free(dome_clouds_tex_coords_bis);
-	if (horizon_fog_colors) free(horizon_fog_colors);
+	if (fog_colors) free(fog_colors);
 
-	dome_sky = create_dome(24, 12, 500.0, 90.0, 90.0, 3.5);
-	dome_clouds = create_dome(24, 12, 500.0, 60.0, 90.0, 0.0);
+	dome_sky = create_dome(24, 12, 500.0, 90.0, 90.0, 3.5, 1.0);
+	dome_clouds = create_dome(24, 12, 500.0, 60.0, 90.0, 0.0, 0.5);
 	dome_clouds_detail_colors = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_detail_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_tex_coords_bis = (GLfloat*)malloc(2*dome_clouds.vertices_count*sizeof(GLfloat));
-	horizon_fog_colors = (GLfloat*)malloc(3*dome_sky.slices_count*sizeof(GLfloat));
-	memcpy(dome_clouds_tex_coords_bis, dome_clouds.tex_coords,
-		   2*dome_clouds.vertices_count*sizeof(GLfloat));
+	fog_colors = (GLfloat*)malloc(3*dome_sky.slices_count*sizeof(GLfloat));
+
+    for (i = dome_clouds.vertices_count; i--; )
+    {
+        int idx = i*2;
+        dome_clouds_tex_coords_bis[idx] = dome_clouds.tex_coords[idx];
+        dome_clouds_tex_coords_bis[idx+1] = dome_clouds.tex_coords[idx+1]+0.5;
+    }
 }
 
 #endif /* SKY_FPV_CURSOR */

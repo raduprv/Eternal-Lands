@@ -627,10 +627,8 @@ void display_3d_reflection()
 
 #ifdef SKY_FPV_CURSOR
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
-	if (skybox_show_sky && *display_sky != NULL)
-	{
-		(*display_sky)();
-	}
+	if (skybox_show_sky)
+		skybox_display();
 #endif // SKY_FPV_CURSOR
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);

@@ -49,14 +49,16 @@ extern float skybox_sunny_sky_bias;
 extern float skybox_sunny_clouds_bias;
 extern float skybox_sunny_fog_bias;
 
-#define CLOUDY_SKY	   0
-#define UNDERWORLD_SKY 1	
-#define INTERIORS_SKY  2
-
-void (*display_sky)();
-void sky_type(int sky);
+typedef enum {
+    SKYBOX_NONE = 0,
+    SKYBOX_CLOUDY = 1,
+    SKYBOX_UNDERWORLD = 2
+} skybox_type;
 
 void blend_colors(float result[], float orig[], float dest[], float t, int size);
+
+void skybox_set_type(skybox_type sky);
+void skybox_display();
 
 void skybox_init_gl();
 void skybox_init_defs(const char *map_name);
