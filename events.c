@@ -146,9 +146,9 @@ int HandleEvent (SDL_Event *event)
 			if (afk_time) 
 				last_action_time = cur_time;	// Set the latest events - don't make mousemotion set the afk_time... (if you prefer that mouse motion sets/resets the afk_time, then move this one step below...
 		case SDL_MOUSEMOTION:
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 			if(event->type==SDL_MOUSEMOTION)
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
 			if (have_mouse)
 			{
 				mouse_x = window_width/2;
@@ -158,7 +158,7 @@ int HandleEvent (SDL_Event *event)
 				mouse_delta_y= event->motion.yrel;
 			}
 			else if(event->type==SDL_MOUSEMOTION)
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 			{
 				mouse_x= event->motion.x;
 				mouse_y= event->motion.y;
@@ -168,16 +168,20 @@ int HandleEvent (SDL_Event *event)
 			}
 			else
 			{
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 				mouse_x= event->button.x;
 				mouse_y= event->button.y;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
+#ifdef NEW_CURSOR
 				if (sdl_cursors)
 				{
+#endif // NEW_CURSOR
 					mouse_x= event->button.x;
 					mouse_y= event->button.y;
+#ifdef NEW_CURSOR
 				}
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
+#endif // SKY_FPV
 				mouse_delta_x= mouse_delta_y= 0;
 			}
 
@@ -215,11 +219,11 @@ int HandleEvent (SDL_Event *event)
 			else
 				middle_click= 0;
 
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 			if ( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
 			if (( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )||(have_mouse))
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 			{
 #ifndef NEW_CAMERA
 				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;

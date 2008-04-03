@@ -633,7 +633,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				previously_logged_in=1;
 			}
 
-			// Print the game date cos its pretty (its also needed for SKY_FPV_CURSOR to set moons for signs, wonders, times and seasons)
+			// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
 			command_date("", 0);
 			break;
 

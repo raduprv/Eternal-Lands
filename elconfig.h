@@ -16,13 +16,15 @@ extern "C" {
 extern int elconfig_win;
 extern int elconfig_menu_x;
 extern int elconfig_menu_y;
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 extern float z_cull_sq, cut_size;
+extern float water_tiles_extension;
+#endif // SKY_FPV
+#ifdef NEW_CURSOR
 extern int big_cursors;
 extern int sdl_cursors;
 extern float pointer_size;
-extern float water_tiles_extension;
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 
 /*!
  * The different kinds of options
@@ -188,9 +190,9 @@ void add_multi_option(char * name, char * str);
 
 void change_windowed_chat (int *wc, int val);
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 void toggle_follow_cam(int * fc);
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 #ifdef __cplusplus
 } // extern "C"

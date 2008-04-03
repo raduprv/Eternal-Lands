@@ -26,9 +26,9 @@
 #include "shadows.h"
 #include "shader/shader.h"
 #endif	// USE_SHADER
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 #include "sky.h"
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 typedef struct
 {
@@ -199,7 +199,7 @@ static __inline__ void build_water_buffer()
 		water_tile_buffer[j * 8 + 6] = x_scaled;
 		water_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 		if (x == 0)
 		{
 			water_tile_buffer[j * 8 + 0] -= water_tiles_extension;
@@ -220,7 +220,7 @@ static __inline__ void build_water_buffer()
 			water_tile_buffer[j * 8 + 5] += water_tiles_extension;
 			water_tile_buffer[j * 8 + 7] += water_tiles_extension;
 		}
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 		j++;
 	}
@@ -253,7 +253,7 @@ static __inline__ void build_water_buffer()
 		water_tile_buffer[j * 8 + 6] = x_scaled;
 		water_tile_buffer[j * 8 + 7] = y_scaled + 3.0f;
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 		if (x == 0)
 		{
 			water_tile_buffer[j * 8 + 0] -= water_tiles_extension;
@@ -274,7 +274,7 @@ static __inline__ void build_water_buffer()
 			water_tile_buffer[j * 8 + 5] += water_tiles_extension;
 			water_tile_buffer[j * 8 + 7] += water_tiles_extension;
 		}
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 		j++;
 	}
@@ -582,7 +582,7 @@ void display_3d_reflection()
 		glPushMatrix();
 		glTranslatef(0.0f, 0.0f, water_depth_offset);
 	}
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 	else if (have_stencil)
     {
         unsigned int start, stop;
@@ -618,18 +618,18 @@ void display_3d_reflection()
 		glStencilFunc(GL_EQUAL, 1, 1);
 		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
 	}
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 	glCullFace(GL_FRONT);
 	glScalef(1.0f, 1.0f, -1.0f);
 	glTranslatef(0.0f, 0.0f, -water_depth_offset);
 	glNormal3f(0.0f, 0.0f, 1.0f);
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
 	if (skybox_show_sky)
 		skybox_display();
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
@@ -656,11 +656,11 @@ void display_3d_reflection()
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
 
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 	reset_material();
 #else
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 #ifdef	USE_SHADER
 	if (water_shader_quality > 0)
@@ -675,12 +675,12 @@ void display_3d_reflection()
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
     else if (have_stencil)
     {
 		glDisable(GL_STENCIL_TEST);
 	}
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1135,7 +1135,7 @@ void draw_sky_background()
 	}
 #endif
 
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 	glBegin(GL_QUADS);
 
 #ifdef	USE_SHADER
@@ -1166,7 +1166,7 @@ void draw_sky_background()
 	}
 
 	glEnd();
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 	Leave2DMode();
 #ifdef	USE_SHADER

@@ -18,9 +18,9 @@
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 #include "sky.h"
-#endif
+#endif // SKY_FPV
 
 #ifdef NEW_LIGHTING
 int last_texture_start = 0;
@@ -74,40 +74,10 @@ GLfloat sky_lights_c3[GLOBAL_LIGHTS_NO*2][4];
 GLfloat sky_lights_c4[GLOBAL_LIGHTS_NO*2][4];
 
 int	show_lights;
-#ifdef SKY_FPV_CURSOR
-GLfloat light_0_position[4];
-GLfloat light_0_diffuse[4];
-GLfloat light_0_dist;
-
-GLfloat light_1_position[4];
-GLfloat light_1_diffuse[4];
-GLfloat light_1_dist;
-
-GLfloat light_2_position[4];
-GLfloat light_2_diffuse[4];
-GLfloat light_2_dist;
-
-GLfloat light_3_position[4];
-GLfloat light_3_diffuse[4];
-GLfloat light_3_dist;
-
-GLfloat light_4_position[4];
-GLfloat light_4_diffuse[4];
-GLfloat light_4_dist;
-
-GLfloat light_5_position[4];
-GLfloat light_5_diffuse[4];
-GLfloat light_5_dist;
-
-GLfloat light_6_position[4];
-GLfloat light_6_diffuse[4];
-GLfloat light_6_dist;
-#endif /* SKY_FPV_CURSOR */
-
 int	num_lights;	// the highest light number loaded
 light *lights_list[MAX_LIGHTS];
 unsigned char light_level=58;
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 sun sun_pos[360];
 sun sun_show[181];
 #elif defined(NEW_LIGHTING)
@@ -456,7 +426,7 @@ void draw_global_light()
 	if(i<0)i=0;
 #else
 	//this is for weather things, when the light level is not the normal light lvel of the current time
-#if !defined(MAP_EDITOR2) && !defined(SKY_FPV_CURSOR)
+#if !defined(MAP_EDITOR2) && !defined(SKY_FPV)
 	i+=weather_light_offset;
 #endif
 	if(i<0)i=0;
@@ -505,11 +475,11 @@ void draw_global_light()
 	else
 	{
  #endif // NEW_LIGHTING
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 		diffuse_light[0]=global_diffuse_light[i][0]+(float)thunder_light_offset/90-0.15f;
 		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
-#else // SKY_FPV_CURSOR
+#else // SKY_FPV
 		blend_colors(ambient_light, skybox_light_ambient[game_minute],
 					 skybox_light_ambient_rainy[game_minute], weather_rain_intensity, 4);
 		blend_colors(diffuse_light, skybox_light_diffuse[game_minute],
@@ -517,7 +487,7 @@ void draw_global_light()
 		ambient_light[0] += (float)thunder_light_offset*0.03;
 		ambient_light[1] += (float)thunder_light_offset*0.05;
 		ambient_light[2] += (float)thunder_light_offset*0.06;
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
  #ifdef NEW_LIGHTING
  	}
  #endif // NEW_LIGHTING
@@ -540,7 +510,7 @@ void draw_global_light()
 		}
 	}
 
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 #ifdef NEW_LIGHTING
 	if (!use_new_lighting)
 	{
@@ -609,12 +579,12 @@ void draw_global_light()
 	}
 #endif
 
-#else // SKY_FPV_CURSOR
+#else // SKY_FPV
 
 	glLightfv(GL_LIGHT7, GL_AMBIENT, ambient_light);
 	glLightfv(GL_LIGHT7, GL_DIFFUSE, diffuse_light);
 
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 	if (sun_use_static_position)
 	{
@@ -771,7 +741,7 @@ void build_global_light_table()
 	else
 	{
 #endif // NEW_LIGHTING
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 		//the sun light
 		make_gradient_light(0,30,(float *)global_diffuse_light,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
 		make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.06f,0.06f,0.08f);
@@ -796,7 +766,7 @@ void build_global_light_table()
 		make_gradient_light(30,30,(float *)sky_lights_c4,1.0f,0.8f,0.2f,0.0f,0.1f,0.1f);
 		make_gradient_light(60,30,(float *)sky_lights_c4,0.0f,0.1f,0.1f,0.7f,0.4f,0.5f);
 		make_gradient_light(90,30,(float *)sky_lights_c4,0.7f,0.4f,0.5f,0.2f,0.8f,1.0f);
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
 	//the sun light
   	make_gradient_light(0,30,(float *)global_diffuse_light,0.85f,0.85f,0.85f,0.32f,0.25f,0.25f);
 	make_gradient_light(30,30,(float *)global_diffuse_light,0.318f,0.248f,0.248f,0.05f,0.05f,0.08f);
@@ -852,7 +822,7 @@ void build_global_light_table()
 	make_gradient_light(90,30,(float *)sky_lights_c4,
 						0.0f, 0.1f, 0.4f,
 						0.05f, 0.2f, 0.6f);
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 #ifdef NEW_LIGHTING
 	}
 #endif // NEW_LIGHTING
@@ -861,9 +831,9 @@ void build_global_light_table()
 
 void build_sun_pos_table()
 {
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 	float d = 400;
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 	int i;
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
@@ -882,7 +852,7 @@ void build_sun_pos_table()
 	{
 #endif // NEW_LIGHTING
 		float x,y,z;
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 		int start=60;
 		
 		x=0;
@@ -896,7 +866,7 @@ void build_sun_pos_table()
 			sun_pos[i].z=z;
 			sun_pos[i].w=0.0f;
 		}
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
 		float start, step;
 
 		// position of the displayed sun
@@ -943,7 +913,7 @@ void build_sun_pos_table()
 			sun_pos[i].z=z;
 			sun_pos[i].w=0.0;
 		}
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 #ifdef NEW_LIGHTING
 	}
 #endif // NEW_LIGHTING
@@ -994,17 +964,17 @@ void new_minute()
 	else
 	{
 #endif // NEW_LIGHTING
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 		if(game_minute >= 30 && game_minute <= 210 && !dungeon)
 		{
 			skybox_sun_position[0] = sun_show[game_minute-30].x;
 			skybox_sun_position[1] = sun_show[game_minute-30].y;
 			skybox_sun_position[2] = sun_show[game_minute-30].z;
 			skybox_sun_position[3] = sun_show[game_minute-30].w;
-#else // SKY_FPV_CURSOR
+#else // SKY_FPV
 		if(game_minute>=30 && game_minute<60*3+30 && !dungeon)
 		{
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 			disable_local_lights();
 			is_day=1;
 			sun_position[0]=sun_pos[game_minute-30].x;
@@ -1015,16 +985,16 @@ void new_minute()
 		}
 		else//it's too dark, or we are in a dungeon
 		{
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 			sun_position[0]=sun_position[1]=sun_position[2]=sun_position[3]=0.0;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
 			int shift_time = (game_minute+330)%360;
 			sun_position[0] = sun_pos[shift_time].x;
 			sun_position[1] = sun_pos[shift_time].y;
 			sun_position[2] = sun_pos[shift_time].z;
 			sun_position[3] = sun_pos[shift_time].w;
 			skybox_sun_position[0] = skybox_sun_position[1] = skybox_sun_position[2] = skybox_sun_position[3] = 0.0;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 			is_day=0;
 			enable_local_lights();
 		}
@@ -1032,10 +1002,10 @@ void new_minute()
 	}
 #endif // NEW_LIGHTING
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 	skybox_update_positions();
 	skybox_update_colors();
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 }
 
 #if defined(NEW_LIGHTING) || defined(DEBUG_TIME)

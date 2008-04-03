@@ -19,9 +19,9 @@
 #include "interface.h"
 #include "misc.h"
 #include "textures.h"
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 #include "draw_scene.h"
-#endif
+#endif // SKY_FPV_OPTIONAL
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -866,10 +866,10 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 	float displayed_font_y_size;
 
 	float displayed_font_x_width;
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 	int font_x_size=FONT_X_SPACING;
 	int font_y_size=FONT_Y_SPACING;
-#endif /* not SKY_FPV_CURSOR */
+#endif // not SKY_FPV_OPTIONAL
 	int	font_bit_width, ignored_bits;
 
 	unsigned char cur_char;
@@ -878,7 +878,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 	float cur_x,cur_y;
 	int current_lines=0;
 
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 	/*
 	if(big)
 		{
@@ -891,7 +891,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 			displayed_font_y_size=SMALL_INGAME_FONT_Y_LEN*zoom_level*name_zoom/3.0;
 		}
 	*/
-#endif /* not SKY_FPV_CURSOR */
+#endif // not SKY_FPV_OPTIONAL
 	displayed_font_x_size=font_x_scale*name_zoom*12.0;
 	displayed_font_y_size=font_y_scale*name_zoom*12.0;
 
@@ -903,7 +903,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 	cur_x=x;
 	cur_y=y;
 	glBegin(GL_QUADS);
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 	while(1)
 		{
 			cur_char=our_string[i];
@@ -964,7 +964,7 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
 
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
 	while(1){
 		cur_char=our_string[i];
 		if(!cur_char){
@@ -972,9 +972,9 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 		} else if(cur_char=='\n'){
 			cur_y+=displayed_font_y_size;
 			cur_x=x;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 			i++;
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV_OPTIONAL
 			current_lines++;
 			if(current_lines>=max_lines)break;
 			continue;
@@ -1014,12 +1014,12 @@ void draw_ortho_ingame_string(float x, float y,float z, const unsigned char * ou
 		} else if(is_color (cur_char)){
 			glEnd();	//Ooops - NV bug fix!!
 			glBegin(GL_QUADS);
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 		}
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV_OPTIONAL
 	i++;
 	}
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
@@ -1033,10 +1033,10 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	float displayed_font_y_size;
 
 	float displayed_font_x_width;
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 	//int font_x_size=FONT_X_SPACING;
 	//int font_y_size=FONT_Y_SPACING;
-#endif /* not SKY_FPV_CURSOR */
+#endif // not SKY_FPV_OPTIONAL
 	int	font_bit_width, ignored_bits;
 
 	unsigned char cur_char;
@@ -1044,7 +1044,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	int i;
 	float cur_x,cur_y;
 	int current_lines=0;
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV_OPTIONAL
 	double model[16], proj[16],hx,hy,hz;
 	int view[4];
 
@@ -1061,27 +1061,27 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 	glPushMatrix();
 	glLoadIdentity();
 	glOrtho(view[0],view[2]+view[0],view[1],view[3]+view[1],0.0f,-1.0f);
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 	displayed_font_x_size=font_x_scale*zoom_level*name_zoom/3.0;
 	displayed_font_y_size=font_y_scale*zoom_level*name_zoom/3.0;
-#endif /* not SKY_FPV_CURSOR */
+#endif // not SKY_FPV_OPTIONAL
 
 	glEnable(GL_ALPHA_TEST);//enable alpha filtering, so we have some alpha key
 	glAlphaFunc(GL_GREATER,0.1f);
 	get_and_set_texture_id(font_text);
 
 	i=0;
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 	cur_x=x;
 	cur_y=y;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
 	cur_x=hx;
 	cur_y=hy;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 	glBegin(GL_QUADS);
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
 	while(1)
 		{
 			cur_char=our_string[i];
@@ -1137,7 +1137,7 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 				{
 					glBegin(GL_QUADS);	//Ooops - NV bug fix!!
 				}
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
 	while(1){
 		cur_char=our_string[i];
 		if(!cur_char){
@@ -1145,9 +1145,9 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 		}else if(cur_char=='\n'){
 			cur_y+=displayed_font_y_size;
 			cur_x=hx;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 			i++;
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV_OPTIONAL
 			current_lines++;
 			if(current_lines>=max_lines)break;
 			continue;
@@ -1191,22 +1191,22 @@ void draw_ingame_string(float x, float y,const unsigned char * our_string,
 		{
 			glEnd();	//Ooops - NV bug fix!!
 			glBegin(GL_QUADS);
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 		}
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV_OPTIONAL
 		i++;
 	}
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV_OPTIONAL
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopMatrix();
 
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 }
 #endif //!MAP_EDITOR_2
 #endif	//ELC

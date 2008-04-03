@@ -25,9 +25,9 @@
 #include "url.h"
 #include "counters.h"
 #include "io/elpathwrapper.h"
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 #include "sky.h"
-#endif
+#endif // SKY_FPV
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
@@ -368,7 +368,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		{
 			safe_snprintf(new_str, sizeof(new_str), date_format, day_names[day-1], month_names[month-1], year);
 			LOG_TO_CONSOLE(c_green1, new_str);
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 
 			//Calculate fraction Big Lunar month (2 conjunction months) less game clock time
 			//Represented in Degrees.
@@ -377,7 +377,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			skybox_time_d = -skybox_time_d;
 			skybox_time_d += 360.0 * (((month%2)*30 + day-1)*360 + game_minute)/21600.0;
 
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 			return 0;
 		}
 	}

@@ -673,24 +673,24 @@ void fill_stats_win ()
 
 void draw_floatingmessage(floating_message *message, float healthbar_z) {
         float cut;
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
         float f, width, y, x;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
         double f, width, y, x,z;
         double model[16],proj[16];
         int view[4];
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 
         if(!message)return;
         
         cut=message->active_time/4000.0f;
         f = ((float)(message->active_time-(cur_time-message->first_time)))/message->active_time;
         glColor4f(message->color[0], message->color[1], message->color[2], f > cut ? 1.0f : (f / cut));
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
         f /= message->active_time/1000.0f;
         
         width = ((float)get_string_width((unsigned char*)message->message) * (INGAME_FONT_X_LEN*zoom_level*name_zoom/3.0))/12.0;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
         f *= window_height;
 
         width = ((float)get_string_width((unsigned char*)message->message) * (INGAME_FONT_X_LEN*name_zoom*font_scale));
@@ -709,58 +709,58 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
         }
 
 
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
         switch(message->direction){
                 case FLOATINGMESSAGE_EAST:
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
                         x=-width/2.0f-(f*0.5f);
                         y=healthbar_z+zoom_level*0.2f;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
                         x+=-width/2.0f-(f*0.1f);
                         y+=window_height/10.0f;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
                         break;
                 case FLOATINGMESSAGE_SOUTH:
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
                         x=-width/2.0f;
                         y=healthbar_z+(f*0.5f);
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
                         x+=-width/2.0f;
                         y+=(f*0.1f);
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
                         break;
                 case FLOATINGMESSAGE_WEST:
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
                         x=-width/2.0f+(f*0.5f);
                         y=healthbar_z+zoom_level*0.2f;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
                         x+=-width/2.0f+(f*0.1f);
                         y+=window_height/10.0f;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
                         break;
                 case FLOATINGMESSAGE_MIDDLE:
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
                         x=-width/2.0f;
                         y=healthbar_z*0.66-f*0.33f;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
                         x+=-width/2.0f;
                         y+=f*0.05f;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
                         break;
                 case FLOATINGMESSAGE_NORTH:
                 default:
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
                         x=-width/2.0f;
                         y=healthbar_z+zoom_level*0.2f-(f*0.5f);
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
                         x+=-width/2.0f;
                         y+=window_height/10.0f-(f*0.1f);
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
                         break;
         }
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV_OPTIONAL
         draw_ingame_string(x, y, (unsigned char*)message->message, 1, 0.14, 0.21);
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV_OPTIONAL
         glPushMatrix();
         glLoadIdentity();
         glMatrixMode(GL_PROJECTION);
@@ -775,7 +775,7 @@ void draw_floatingmessage(floating_message *message, float healthbar_z) {
         glMatrixMode(GL_MODELVIEW);
         glPopMatrix();
 
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV_OPTIONAL
 }
 
 void drawactor_floatingmessages(int actor_id, float healthbar_z) {

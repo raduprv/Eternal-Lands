@@ -75,11 +75,11 @@ extern Uint32 K_TABCOMPLETE;        /*!< key used to autocomplete commands/buddy
 extern Uint32 K_WINDOWS_ON_TOP;     /*!< key used to toggle the windows_on_top option */
 extern Uint32 K_MARKFILTER;         /*!< key used to toggle the TAB map mark filtering function */
 extern Uint32 K_OPAQUEWIN;          /*!< key used to toggle window opacity */
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 extern Uint32 K_GRAB_MOUSE;         /*!< key used to toggle whether mouse is in HUD or camera control mode */
 extern Uint32 K_FIRST_PERSON;       /*!< key used to toggle first person/third person view mode*/
 extern Uint32 K_FREE_CAM;			/*!< key used to toggle free camera mode*/
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 extern Uint32 K_CUT;                /*!< key used to cut text and copy it into a clipboard */ 
 extern Uint32 K_COPY;               /*!< key used to copy text into a clipboard */ 
 extern Uint32 K_PASTE;              /*!< key used to copy text from a clipboard into EL */

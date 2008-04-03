@@ -1,12 +1,7 @@
-/*!
- * \file
- * \ingroup 	display
- * \brief	Displays the 3d objects
- */
 #ifndef __SKY_H__
 #define __SKY_H__
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 
 extern int skybox_show_sky;
 extern int skybox_show_clouds;
@@ -66,6 +61,6 @@ void skybox_init_defs(const char *map_name);
 void skybox_update_positions();
 void skybox_update_colors();
 
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 
-#endif /* __SKY_H_ */
+#endif // __SKY_H__

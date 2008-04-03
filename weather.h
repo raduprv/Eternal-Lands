@@ -57,9 +57,9 @@ extern int rain_sound;                  /*!< Specifies the rain sound */
 extern int weather_light_offset;        /*!< Sets the current light offset */
 extern int rain_light_offset;           /*!< Sets the current rain offset */
 extern int thunder_light_offset;        /*!< Sets the current thunder light offset */
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 extern float weather_rain_intensity; /*!< Rain intensity (between 0.0 and 1.0) */
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 /*!
  * \ingroup	other
  * \brief 	Builds the rain table.

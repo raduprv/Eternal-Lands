@@ -37,9 +37,9 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 #include "sky.h"
-#endif
+#endif // SKY_FPV
 #include "mines.h"
 #ifdef NEW_LIGHTING
  #include "textures.h"
@@ -204,7 +204,7 @@ static int el_load_map(const char * file_name)
 	set_scene_metadata(file_name);
 #endif
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 	if (strstr(file_name, "underworld") != NULL)
 	{
 		skybox_set_type(SKYBOX_UNDERWORLD);
@@ -219,7 +219,7 @@ static int el_load_map(const char * file_name)
 		skybox_set_type(SKYBOX_CLOUDY);
 		skybox_init_defs(file_name);
 	}
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 	build_path_map();
 	init_buffers();
 	

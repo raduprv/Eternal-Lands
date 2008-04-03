@@ -29,7 +29,7 @@ extern GLfloat night_specular[4];
 xmlDocPtr metadata_xml_doc;
 #endif
 
-#ifdef SKY_FPV_CURSOR
+#ifdef NEW_CURSOR
 
 //Some textures just can't be compressed (written for custom cursors)
 static int compression_enabled = 1;
@@ -44,7 +44,7 @@ void disable_compression ()
 	compression_enabled = 0;
 }
 
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 
 __inline__ static void set_texture_filter(texture_filter filter, float anisotropic_filter)
 {
@@ -1572,11 +1572,11 @@ GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha)
 
 	set_texture_filter_parameter();
 
-#ifndef SKY_FPV_CURSOR
+#ifndef NEW_CURSOR
 	if (have_extension(arb_texture_compression))
-#else /* SKY_FPV_CURSOR */
+#else // NEW_CURSOR
 	if (have_extension(arb_texture_compression)&&compression_enabled)
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
@@ -1647,11 +1647,11 @@ GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a)
 
 	set_texture_filter_parameter();
 
-#ifndef SKY_FPV_CURSOR
+#ifndef NEW_CURSOR
 	if (have_extension(arb_texture_compression))
-#else /* SKY_FPV_CURSOR */
+#else // NEW_CURSOR
 	if(have_extension(arb_texture_compression)&&compression_enabled)
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
@@ -1726,11 +1726,11 @@ GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, 
 
 	set_texture_filter_parameter();
 
-#ifndef SKY_FPV_CURSOR
+#ifndef NEW_CURSOR
 	if (have_extension(arb_texture_compression))
-#else /* SKY_FPV_CURSOR */
+#else // NEW_CURSOR
 	if (have_extension(arb_texture_compression)&&compression_enabled)
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
@@ -1787,11 +1787,11 @@ GLuint reload_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a, 
 
 	set_texture_filter_parameter();
 
-#ifndef SKY_FPV_CURSOR
+#ifndef NEW_CURSOR
 	if (have_extension(arb_texture_compression))
-#else /* SKY_FPV_CURSOR */
+#else // NEW_CURSOR
 	if (have_extension(arb_texture_compression)&&compression_enabled)
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{
@@ -2087,11 +2087,11 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 
 	set_texture_filter_parameter();
 
-#ifndef SKY_FPV_CURSOR
+#ifndef NEW_CURSOR
 	if (have_extension(arb_texture_compression))
-#else /* SKY_FPV_CURSOR */
+#else // NEW_CURSOR
 	if (have_extension(arb_texture_compression)&&compression_enabled)
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{

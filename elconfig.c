@@ -57,9 +57,9 @@
   #include "lights.h"
  #endif
   #include "notepad.h"
- #ifdef SKY_FPV_CURSOR
+ #ifdef SKY_FPV
   #include "sky.h"
- #endif
+ #endif // SKY_FPV
 #endif
 
 #include "elconfig.h"
@@ -87,18 +87,18 @@ typedef	int (*int_min_max_func)();
 #define ADVVID	8
 #define LODTAB  9
 #define ECTAB  10
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 #define EMAJEKRAL 	11
 
 #define MAX_TABS 12
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
   #define DEBUGTAB 11 // VPAADTAB = Vertex Program Actor Animation Debug TAB
   #define MAX_TABS 12
  #else	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
   #define MAX_TABS 11
  #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 
 
 #define CHECKBOX_SIZE		15
@@ -115,9 +115,6 @@ int write_ini_on_exit= 1;
 int elconfig_win= -1;
 int elconfig_tab_collection_id= 1;
 int elconfig_free_widget_id= 2;
-#ifdef SKY_FPV_CURSOR
-float z_cull,z_cull_sq,cut_size;
-#endif /* SKY_FPV_CURSOR */
 unsigned char elconf_description_buffer[400]= {0};
 struct {
 	Uint32	tab;
@@ -127,11 +124,11 @@ struct {
 
 int elconfig_menu_x= 10;
 int elconfig_menu_y= 10;
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 int elconfig_menu_x_len= 660;
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
 int elconfig_menu_x_len= 720;
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 int elconfig_menu_y_len= 463;
 
 int windows_on_top= 0;
@@ -147,12 +144,14 @@ int render_skeleton= 0;
 int render_mesh= 1;
 int render_bones_id = 0;
 int render_bones_orientation = 0;
-#ifdef SKY_FPV_CURSOR
+#ifdef NEW_CURSOR
 int big_cursors = 0;
 int sdl_cursors = 0;
 float pointer_size = 1.0;
-float water_tiles_extension = 0.0;
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
+#ifdef SKY_FPV
+float water_tiles_extension = 150.0;
+#endif // SKY_FPV
 
 int video_info_sent = 0;
 
@@ -251,13 +250,13 @@ void change_var(int * var)
 	*var= !*var;
 }
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 void change_sky_var(int * var)
 {
 	*var= !*var;
 	skybox_update_colors();
 }
-#endif // SKY_FPV_CURSOR
+#endif // SKY_FPV
 
 #ifdef NEW_LIGHTING
 void change_new_lighting(int * var)
@@ -680,7 +679,7 @@ void toggle_full_screen_mode(int * fs)
 	}
 }
 
-#ifdef SKY_FPV_CURSOR
+#ifdef NEW_CURSOR
 void change_sdl_cursor(int * fs)
 {
 	if(!*fs) {
@@ -690,8 +689,9 @@ void change_sdl_cursor(int * fs)
 	}
 	*fs = !*fs;
 }
+#endif // NEW_CURSOR
 
-
+#ifdef SKY_FPV
 void toggle_follow_cam(int * fc)
 {
 	last_kludge=camera_kludge;
@@ -701,13 +701,7 @@ void toggle_follow_cam(int * fc)
 		hold_camera+=camera_kludge;
 	*fc= !*fc;
 }
-
-void change_zcull(float *dest, float *value)
-{
-	*dest= *value;
-	z_cull_sq= z_cull*z_cull;
-}
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 
 void change_shadow_map_size(int *pointer, int value)
 {
@@ -978,10 +972,10 @@ void change_projection_float(float * var, float * value) {
 	change_float(var, value);
 	if (video_mode_set)
 	{
-#ifdef SKY_FPV_CURSOR
-		set_all_intersect_update_needed (main_bbox_tree);
-#endif /* SKY_FPV_CURSOR */
 		resize_root_window ();
+#ifdef SKY_FPV
+		set_all_intersect_update_needed (main_bbox_tree);
+#endif // SKY_FPV
 	}
 }
 
@@ -989,10 +983,10 @@ void change_projection_bool(int *pointer) {
 	change_var(pointer);
 	if (video_mode_set)
 	{
-#ifdef SKY_FPV_CURSOR
-		set_all_intersect_update_needed (main_bbox_tree);
-#endif /* SKY_FPV_CURSOR */
 		resize_root_window ();
+#ifdef SKY_FPV
+		set_all_intersect_update_needed (main_bbox_tree);
+#endif // SKY_FPV
 	}
 }
 
@@ -1520,7 +1514,7 @@ void init_vars()
 {
 	//ELC specific variables
 #ifdef ELC
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 	add_var(OPT_BOOL,"skybox_show_sky","sky", &skybox_show_sky, change_sky_var,1,"Show Sky", "Enable the sky box.", EMAJEKRAL);
 /* 	add_var(OPT_BOOL,"reflect_sky","reflect_sky", &reflect_sky, change_var,1,"Reflect Sky", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL); */
 	add_var(OPT_BOOL,"skybox_show_clouds","sky_clouds", &skybox_show_clouds, change_sky_var,1,"Show Clouds", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
@@ -1540,12 +1534,12 @@ void init_vars()
 	add_var(OPT_FLOAT,"const_speed","f_con",&fol_con,change_float,7,"Constant Speed","The basic rate that the camera rotates at to keep up with you.",EMAJEKRAL,0.0,10.00,1.0);
 	add_var(OPT_FLOAT,"lin_speed","f_lin",&fol_lin,change_float,1,"Linear Decel.","A hit of speed that drops off as the camera gets near its set point.",EMAJEKRAL,0.0,10.00,1.0);
 	add_var(OPT_FLOAT,"quad_speed","f_quad",&fol_quad,change_float,1,"Quadratic Decel.","A hit of speed that drops off faster as it nears the set point.",EMAJEKRAL,0.0,10.00,1.0);
-	add_var(OPT_FLOAT,"zcull","zcull",&z_cull,change_zcull,150.0,"Cull distance","Sets the distance that objects should stop being displayed at.",EMAJEKRAL,0.0,1000.00,0.1);
-	add_var(OPT_FLOAT,"cut_size","cut_size",&cut_size,change_float,150.0,"Cut Size","Size that objects should be cut at past the full detail radius.",EMAJEKRAL,0.0,1000.00,0.1);
+#endif // SKY_FPV
+#ifdef NEW_CURSOR
 	add_var(OPT_BOOL,"sdl_cursors","sdl_cursors", &sdl_cursors, change_sdl_cursor,1,"Old Style Pointers", "Use default SDL cursor.", CONTROLS);
 	add_var(OPT_BOOL,"big_cursors","big_cursors", &big_cursors, change_var,0,"Big Pointers", "Use 32x32 graphics for pointer. Only works with SDL cursor turned off.", CONTROLS);
 	add_var(OPT_FLOAT,"pointer_size","pointer_size", &pointer_size, change_float,1.0,"Pointer Size", "Scale the pointer. 1.0 is 1:1 scale with pointer graphic. Only works with SDL cursor turned off.", CONTROLS,0.25,4.0,0.05);
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 #ifndef MAP_EDITOR2
  #ifdef DEBUG
@@ -1725,21 +1719,21 @@ void init_vars()
 #ifndef OSX
 	add_var (OPT_BOOL, "isometric" ,"isometric", &isometric, change_projection_bool, 1, "Use Isometric View", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (OPT_FLOAT, "perspective", "perspective", &perspective, change_projection_float, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
-#else /* SKY_FPV_CURSOR */
-	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor (FPV: not used)", ADVVID, 1.0, 60.0, 0.5);
-	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float, 1.7, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 1.0, 15.0, 0.1);
-#endif /* SKY_FPV_CURSOR */
+#else // SKY_FPV
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 1.0, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 20.0, 0.1);
+	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float, 150.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
+#endif // SKY_FPV
 #else
         add_var (OPT_BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var (OPT_FLOAT, "perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
-#ifndef SKY_FPV_CURSOR
+#ifndef SKY_FPV
 	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
-#else /* SKY_FPV_CURSOR */
-	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor (FPV: not used)", ADVVID, 1.0, 60.0, 0.5);
-//	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float_init, 1.7, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 1.0, 15.0, 0.1);
-#endif /* SKY_FPV_CURSOR */
+#else // SKY_FPV
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 1.0, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 20.0, 0.1);
+	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float_init, 150.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
+#endif // SKY_FPV
 #endif
  #ifdef ANTI_ALIAS
 	add_var (OPT_BOOL, "anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
@@ -2338,13 +2332,13 @@ void display_elconfig_win(void)
 		elconfig_tabs[LODTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_lod, 0, 0);
 		elconfig_tabs[ADVVID].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_advvideo, 0, 0);
 		elconfig_tabs[ECTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_ec, 0, 0);
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 		elconfig_tabs[EMAJEKRAL].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_emajekral,0, 0);
-#else /* SKY_FPV_CURSOR */
+#else // SKY_FPV
  #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug",0, 0);
  #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 
 		elconfig_populate_tabs();
 	}

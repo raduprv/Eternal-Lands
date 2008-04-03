@@ -671,9 +671,9 @@ extern char	win_notepad[20],
 		ttab_advvideo[15],
 		ttab_ec[15],
 		ttab_font[10],
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 		ttab_emajekral[10],
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 		tab_help[10],
 		tab_encyclopedia[20],
 		tab_skills[20],

@@ -53,12 +53,12 @@ typedef enum
 	TF_ANISOTROPIC_AND_MIPMAPS
 } texture_filter;
 
-#ifdef SKY_FPV_CURSOR
+#ifdef NEW_CURSOR
 //Turn on and off texture compression (for color cursors. They lose too much detail if compressed)
 void enable_compression();
 void disable_compression();
 
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 typedef enum
 {
 	TF_RGBA4,

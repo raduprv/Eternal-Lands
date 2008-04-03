@@ -73,9 +73,9 @@
 #ifdef PAWN
 #include "pawn/elpawn.h"
 #endif // PAWN
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 #include "sky.h"
-#endif
+#endif // SKY_FPV
 #include "mines.h"
 #ifdef POPUP
 #include "popup.h"
@@ -791,18 +791,15 @@ void init_stuff()
 	}
 	update_loading_win(NULL, 5);
 
-#ifdef SKY_FPV_CURSOR
-
+#ifdef NEW_CURSOR
 	disable_compression();
 	cursors_tex = load_texture_cache("./textures/cursors2.bmp",0);
 	enable_compression();
 
-
-//Emajekral's hi-color & big cursor code
+	//Emajekral's hi-color & big cursor code
 	if (!sdl_cursors) SDL_ShowCursor(0);
+#endif // NEW_CURSOR
 
-
-#endif /* SKY_FPV_CURSOR */
 	//Load the map legend and continent map
 	legend_text= load_texture_cache("./maps/legend.bmp",0);
 
@@ -915,9 +912,9 @@ void init_stuff()
 
 	if (use_frame_buffer) make_reflection_framebuffer(window_width, window_height);
 
-#ifdef SKY_FPV_CURSOR
+#ifdef SKY_FPV
 	skybox_init_gl();
-#endif /* SKY_FPV_CURSOR */
+#endif // SKY_FPV
 #ifdef POPUP
 	popup_init();
 #endif /* POPUP */
