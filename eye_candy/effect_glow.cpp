@@ -162,7 +162,6 @@ bool GlowParticle::idle(const Uint64 delta_t)
     }
     case GlowEffect::LEVEL_UP_RAN_GLOW:
     {
-      const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0); // increase this number to make particles live longer
       alpha = (5000000 - age) * 0.0000002;
       size *= (1.0 + float_time * 0.5);
       if (alpha < 0.01)
