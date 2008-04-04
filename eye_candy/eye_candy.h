@@ -199,7 +199,11 @@ const int EC_DEBUG = 0;
 const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
+#ifdef SKY_FPV
+const coord_t MAX_DRAW_DISTANCE = 18.0;
+#else
 const coord_t MAX_DRAW_DISTANCE = 13.5;
+#endif
 const coord_t MAX_DRAW_DISTANCE_SQUARED = MAX_DRAW_DISTANCE * MAX_DRAW_DISTANCE;
 
 // E X T E R N S //////////////////////////////////////////////////////////////
