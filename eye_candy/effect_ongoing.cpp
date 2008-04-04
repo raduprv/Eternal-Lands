@@ -80,7 +80,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 	  velocity.z /= 1.5;
 	  velocity.y += float_time;
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75);
-      alpha -= scalar;
+      alpha -= scalar * 0.5;
       if (alpha < 0.01)
         return false;
       size -= scalar * 0.125;
@@ -88,6 +88,33 @@ bool OngoingParticle::idle(const Uint64 delta_t)
     }
   }
   
+  // rotate particle around effect's y achsis
+  switch(type)
+  {
+    case OngoingEffect::OG_HARVEST:
+    {
+	  // relative position of the particle to the effect center
+	  Vec3 relpos;
+	  relpos.y = 0;
+	  relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
+	  relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
+	  
+	  // relative position to rotate
+	  Vec3 rotrelpos = relpos;
+	  const angle_t angle = M_PI / 24.0;;
+	  // rotate it around y achsis
+	  rotrelpos.x = relpos.x * cos(angle) + relpos.z * sin(angle);
+	  rotrelpos.z = -relpos.x * sin(angle) + relpos.z * cos(angle);
+
+	  // move particle
+	  pos += (relpos - rotrelpos);
+	}
+	default:
+	{
+	  break;
+	}
+  }
+ 
   return true;
 }
 
@@ -164,7 +191,7 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const col
     case OG_HARVEST:
     {
       spawner = new FilledSphereSpawner(0.05);
-      mover = new ParticleMover(this);
+      mover = new SpiralMover(this, &effect_center, 32.0, 32.0);
       break;
     }
   }
@@ -260,7 +287,7 @@ bool OngoingEffect::idle(const Uint64 usec)
     }
     case OG_HARVEST:
 	{
-      while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 4.0 * LOD * strength) < 0.5)
+      while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.0 * LOD * strength) < 0.6)
       {
         const Vec3 coords = spawner->get_new_coords() + effect_center;
         Vec3 velocity;
@@ -269,11 +296,21 @@ bool OngoingEffect::idle(const Uint64 usec)
         Particle* p;
         if (randfloat() < 0.5)
         {
-          p = new OngoingParticle(this, mover, coords, velocity * 0.95, hue_adjust, saturation_adjust, 0.25 + randcoord(0.75), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexFlare), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity * 0.95, hue_adjust, saturation_adjust, 0.5 + randcolor(0.75), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexFlare), LOD, type);
         }
         else
         {
-          p = new OngoingParticle(this, mover, coords, velocity * 1.05, hue_adjust, saturation_adjust, 0.5 + randcoord(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexTwinflare), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity * 1.05, hue_adjust, saturation_adjust, 0.75 + randcolor(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexShimmer), LOD, type);
+        }
+        if (!base->push_back_particle(p))
+          break;
+        if (randfloat() < 0.5)
+        {
+          p = new OngoingParticle(this, mover, coords, velocity * 0.9, hue_adjust, saturation_adjust, 0.25 + randcolor(), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexVoid), LOD, type);
+        }
+        else
+        {
+          p = new OngoingParticle(this, mover, coords, velocity * 1.1, hue_adjust, saturation_adjust, 0.5 + randcolor(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexTwinflare), LOD, type);
         }
         if (!base->push_back_particle(p))
           break;
