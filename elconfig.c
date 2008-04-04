@@ -1722,8 +1722,8 @@ void init_vars()
 #ifndef SKY_FPV
 	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else // SKY_FPV
-	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 1.0, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 20.0, 0.1);
-	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float, 150.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 0.1, 20.0, 0.1);
+	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
 #endif // SKY_FPV
 #else
         add_var (OPT_BOOL, "isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
@@ -1731,8 +1731,8 @@ void init_vars()
 #ifndef SKY_FPV
 	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else // SKY_FPV
-	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 1.0, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 20.0, 0.1);
-	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float_init, 150.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
+	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 0.1, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 0.1, 20.0, 0.1);
+	add_var (OPT_FLOAT, "far_plane", "far_plane", &far_plane, change_projection_float_init, 100.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
 #endif // SKY_FPV
 #endif
  #ifdef ANTI_ALIAS

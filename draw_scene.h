@@ -40,7 +40,6 @@ extern float fol_lin;
 extern float fol_quad;
 extern float fol_strn;
 extern int ext_cam;
-extern int free_cam;
 extern float hold_camera;
 extern int first_person;
 extern int adjust_view;

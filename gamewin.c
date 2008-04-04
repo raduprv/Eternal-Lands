@@ -334,7 +334,6 @@ void toggle_first_person()
 		rx=-90;
 		first_person = 1;
 		fol_cam = 0;
-		free_cam=0;
 	} else {
 		first_person = 0;    
 		if (rx < -90) {rx = -90;}
@@ -2232,10 +2231,6 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	else if (key == K_FIRST_PERSON)
 	{
 		toggle_first_person();
-	}
-	else if (key == K_FREE_CAM)
-	{
-		if (!first_person) free_cam=!free_cam;
 	}
 	else if (key == K_GRAB_MOUSE)
 	{

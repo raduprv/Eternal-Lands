@@ -82,7 +82,6 @@ Uint32 K_OPAQUEWIN=CTRL|'d';
 #ifdef SKY_FPV
 Uint32 K_GRAB_MOUSE=ALT|'g';
 Uint32 K_FIRST_PERSON=ALT|'f';
-Uint32 K_FREE_CAM=ALT|'k';
 #endif // SKY_FPV
 #ifndef OSX
 Uint32 K_CUT=CTRL|'x';

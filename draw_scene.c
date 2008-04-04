@@ -98,7 +98,6 @@ float last_kludge=0;	//Stores how far the camera deviated from camera_kludge
 float fol_strn = 0.03f;
 float fol_con,fol_lin,fol_quad;
 int ext_cam = 1;	//Extended camera state
-int free_cam=0; //Free angles
 //Check that this is still used, I think it's not.
 float hold_camera=180;
 
@@ -395,27 +394,19 @@ void clamp_camera(void)
 		}
 #else // NEW CAMERA
 		if(first_person){
-			if(rx < -140){
-				rx = -140;
+			if(rx < -170){
+				rx = -170;
 				camera_tilt_duration=0;
-			} else if(rx > 15){
-				rx = 15;
-				camera_tilt_duration=0;
-			}
-		} else if(free_cam){
-			if(rx < -140){
-				rx = -140;
-				camera_tilt_duration=0;
-			} else if(rx > -5){
-				rx = -5;
+			} else if(rx > -20){
+				rx = -20;
 				camera_tilt_duration=0;
 			}
 		} else if(ext_cam){
-			if(rx < -90){
-				rx = -90;
+			if(rx < -150){
+				rx = -150;
 				camera_tilt_duration=0;
-			} else if(rx > -15){
-				rx = -15;
+			} else if(rx > -10){
+				rx = -10;
 				camera_tilt_duration=0;
 			}			
 #endif // NEW_CAMERA
@@ -500,7 +491,7 @@ void update_camera()
 
 	old_rx=rx;
 	old_rz=rz;
-	old_zoom_level=zoom_level;
+	new_zoom_level=old_zoom_level=zoom_level;
 	
 	//printf("kludge: %f, hold: %f, rx: %f, rz %f, zoom: %f\n",camera_kludge, hold_camera,rx,rz,zoom_level);
 	
@@ -618,6 +609,47 @@ void update_camera()
 	}
 #endif // NEW_CAMERA
 
+#ifdef SKY_FPV
+	if (ext_cam && me)
+	{
+		float rot_x[9], rot_z[9], rot[9], dir[3];
+		float vect[3] = {0.0, 0.0, new_zoom_level*camera_distance};
+		int tx, ty;
+		float tz;
+
+		// we compute the camera position
+		MAT3_ROT_X(rot_x, -rx*M_PI/180.0);
+		MAT3_ROT_Z(rot_z, -rz*M_PI/180.0);
+		MAT3_MULT(rot, rot_z, rot_x);
+		MAT3_VECT3_MULT(dir, rot, vect);
+
+		// we take the tile where the camera is
+		tx = (int)((dir[0] - camera_x)*2);
+		ty = (int)((dir[1] - camera_y)*2);
+
+		if (tx >= 0 && tx < tile_map_size_x*6 &&
+			ty >= 0 && ty < tile_map_size_y*6)
+		{
+			tz = height_map[ty*tile_map_size_x*6+tx]*0.2 - 2.2;
+			if (tz <= -2.2)
+			{
+				// if the tile is not walkable, we take the height of the actor
+				tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
+			}
+		}
+		else
+		{
+			// if the tile is outside of the map, we take the hight of the actor
+			tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
+		}
+		if (tz > dir[2] - camera_z)
+		{
+			// if the camera is under the ground, we change the zoom level
+			new_zoom_level *= (tz + camera_z) / dir[2];
+		}
+	}
+#endif // SKY_FPV
+
 	clamp_camera();
 	if(adjust_view){
 		set_all_intersect_update_needed(main_bbox_tree);
@@ -651,47 +683,6 @@ void update_camera()
 		rz-=last_kludge;
 	}
 
-	if (free_cam&&me){
-		float rotm[16]; 
-		float xcam,ycam,zcam,ztile,myz;
-		int xtile,ytile; 
-		
-		//z of the tile where the actor is
-		myz=-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f;
-		
-		//calculating inverse camera matrix
-		glPushMatrix();
-		glLoadIdentity();
-		glTranslatef(-camera_x, -camera_y, -camera_z);
-		glRotatef(-rz, 0.0f, 0.0f, 1.0f);
-		glRotatef(-rx, 1.0f, 0.0f, 0.0f);
-		glTranslatef(0.0f, 0.0f, new_zoom_level*camera_distance);
-		glGetFloatv(GL_MODELVIEW_MATRIX, rotm);	
-		glPopMatrix();
-		
-		//x,y,z are in the last column of rotm
-		xcam=rotm[12];
-		ycam=rotm[13];
-		zcam=rotm[14];
-		
-		//x,y,z of the tile where camera is. Z is the max between myz and camera tile.
-		//this is to be sure we are not looking at actor from underneath the terrain
-		xtile=xcam*2;
-		ytile=ycam*2;
-		ztile=MAX((xtile>=0&&ytile>=0) ? (-2.2f+height_map[ytile*tile_map_size_x*6+xtile]*0.2f):(myz),myz);
-		if (zcam<ztile) {
-			//camera is going under, stop it!
-			//LOG_TO_CONSOLE(c_red2,"Bump!");
-			rx=old_rx;
-			rz=old_rz;
-			new_zoom_level=old_zoom_level;
-			camera_tilt_duration=camera_zoom_duration=camera_rotation_duration=0;
-			
-		}
-		
-	}
-	
-	
 	//Make Character Turn with Camera
 	if (have_mouse && !on_the_move (get_our_actor ()))
 	{

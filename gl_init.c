@@ -51,8 +51,8 @@ float perspective = 0.15f;
 #ifndef SKY_FPV
 float near_plane = 40.0f; // don't cut off anything
 #else // SKY_FPV
-float near_plane = 1.0f; // don't cut off anything
-float far_plane = 150.0;   // LOD helper. Cull distant objects. Lower value == higher framerates.
+float near_plane = 0.1f; // don't cut off anything
+float far_plane = 100.0;   // LOD helper. Cull distant objects. Lower value == higher framerates.
 #endif // SKY_FPV
 int gl_extensions_loaded = 0;
 

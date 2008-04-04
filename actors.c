@@ -23,6 +23,7 @@
 #include "shadows.h"
 #include "textures.h"
 #include "translate.h"
+#include "vmath.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
@@ -1340,31 +1341,6 @@ int on_the_move (const actor *act){
 	if (act == NULL) return 0;
 	return act->moving || (act->que[0] >= move_n && act->que[0] <= move_nw);
 }
-
-#define MAT3_ROT_X(mat,angle) \
-(mat[0]=1.0,mat[3]=0.0       ,mat[6]=0.0        ,\
- mat[1]=0.0,mat[4]=cos(angle),mat[7]=-sin(angle),\
- mat[2]=0.0,mat[5]=-mat[7]   ,mat[8]=mat[4]     )
-
-#define MAT3_ROT_Y(mat,angle) \
-(mat[0]=cos(angle),mat[3]=0.0,mat[6]=sin(angle),\
- mat[1]=0.0       ,mat[4]=1.0,mat[7]=0.0       ,\
- mat[2]=-mat[6]   ,mat[5]=0.0,mat[8]=mat[0]    )
-
-#define MAT3_ROT_Z(mat,angle) \
-(mat[0]=cos(angle),mat[3]=-sin(angle),mat[6]=0.0,\
- mat[1]=-mat[3]   ,mat[4]=mat[0]     ,mat[7]=0.0,\
- mat[2]=0.0       ,mat[5]=0.0        ,mat[8]=1.0)
-
-#define MAT3_VECT3_MULT(res,mat,vect) \
-((res)[0]=mat[0]*(vect)[0]+mat[3]*(vect)[1]+mat[6]*(vect)[2],\
- (res)[1]=mat[1]*(vect)[0]+mat[4]*(vect)[1]+mat[7]*(vect)[2],\
- (res)[2]=mat[2]*(vect)[0]+mat[5]*(vect)[1]+mat[8]*(vect)[2])
-
-#define MAT3_MULT(res,mat1,mat2) \
-(MAT3_VECT3_MULT(&res[0],mat1,&mat2[0]),\
- MAT3_VECT3_MULT(&res[3],mat1,&mat2[3]),\
- MAT3_VECT3_MULT(&res[6],mat1,&mat2[6]))
 
 void get_actor_rotation_matrix(actor *in_act, float *out_rot)
 {
