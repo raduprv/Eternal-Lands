@@ -943,6 +943,7 @@ extern "C" ec_reference ec_create_generic()
   references.push_back(new ec_internal_reference);
   ((ec_internal_reference*)(ec_reference)(references[references.size() - 1]))->casterbone = -1;
   ((ec_internal_reference*)(ec_reference)(references[references.size() - 1]))->targetbone = -1;
+  ((ec_internal_reference*)(ec_reference)(references[references.size() - 1]))->caster = NULL;
   return (ec_reference)(references[references.size() - 1]);
 }
 
@@ -2165,7 +2166,6 @@ extern "C" ec_reference ec_create_selfmagic_teleport_to_the_portals_room2(actor*
   if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::SelfMagicEffect::get_max_end_time()))
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-  ret->caster = caster;
   ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
   ret->effect = new ec::SelfMagicEffect(&eye_candy, &ret->dead, &ret->position, ec::SelfMagicEffect::TELEPORT_TO_THE_PORTALS_ROOM, LOD);
   eye_candy.push_back_effect(ret->effect);
