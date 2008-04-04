@@ -13,17 +13,17 @@ namespace ec
 
 SwordParticle::SwordParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const coord_t _size, const alpha_t _alpha, const color_t red, const color_t green, const color_t blue, Texture* _texture, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
 {
-  color[0] = red + randcolor(0.2) - 0.1;
+  color[0] = red + randcolor(0.25) - 0.125;
   if (color[0] > 1.0)
     color[0] = 1.0;
   else if (color[0] < 0.0)
     color[0] = 0.0;
-  color[1] = green + randcolor(0.2) - 0.1;
+  color[1] = green + randcolor(0.25) - 0.125;
   if (color[1] > 1.0)
     color[1] = 1.0;
   else if (color[1] < 0.0)
     color[1] = 0.0;
-  color[2] = blue + randcolor(0.2) - 0.1;
+  color[2] = blue + randcolor(0.25) - 0.125;
   if (color[2] > 1.0)
     color[2] = 1.0;
   else if (color[2] < 0.0)
@@ -46,7 +46,7 @@ bool SwordParticle::idle(const Uint64 delta_t)
   if (alpha < 0.03)
     return false;
 
-  const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 200000);
+  const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 300000);
   alpha *= scalar;
   
   return true;
@@ -254,19 +254,24 @@ bool SwordEffect::idle(const Uint64 usec)
     return true;
 
   const Vec3 pos_change = old_end - *end;
-  float speed = square(pos_change.magnitude() * 1000000.0 / usec) / 1.5;
+  float speed = square(pos_change.magnitude() * 1000000.0 / usec) * 0.666667;
   if (speed > 4.0)
     speed = 4.0;
   else if (speed < 0.15)
     speed = 0.15;
     
-  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec / 12000 * speed) < 0.5)
+  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0001 * speed) < 0.6)
   {
     const percent_t percent = square(randpercent());
-    const Vec3 coords = (*start * percent) + (*end * (1.0 - percent));
+    Vec3 randcoords;
+    randcoords.randomize(0.025);
+    const Vec3 coords = (*start * percent) + (*end * (1.0 - percent)) + randcoords;
     Vec3 velocity;
-    velocity.randomize(0.2);
-    Particle* p = new SwordParticle(this, mover, coords, velocity, size, alpha, color[0], color[1], color[2], texture, LOD);
+    velocity.randomize(0.05);
+    Vec3 direction = *end - *start;
+    direction.normalize(0.05 + randfloat(0.1));
+    velocity += direction;
+    Particle* p = new SwordParticle(this, mover, coords, velocity, size - 0.25 + randfloat(0.25), alpha, color[0], color[1], color[2], texture, LOD);
     if (!base->push_back_particle(p))
       break;
   }
