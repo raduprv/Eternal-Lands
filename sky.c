@@ -825,6 +825,7 @@ void cloudy_sky()
 	glMatrixMode(GL_MODELVIEW);
 	glPushMatrix();
 	
+	glClear(GL_DEPTH_BUFFER_BIT);
     glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -10.0);
 
 	// we draw the ground
@@ -1130,6 +1131,7 @@ void underworld_sky()
 	glMatrixMode(GL_MODELVIEW);
 
 	glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
+	glClear(GL_DEPTH_BUFFER_BIT);
 	glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -40.0);
 
 /* 	if(use_shadow_mapping) */

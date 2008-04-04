@@ -555,6 +555,9 @@ void display_3d_reflection()
 {
 	GLint view_port[4];
 	unsigned int cur_intersect_type;
+#ifdef SKY_FPV
+	int clip_sky = 0;
+#endif // SKY_FPV
 
 	CalculateFrustum();
 
@@ -582,43 +585,50 @@ void display_3d_reflection()
 		glPushMatrix();
 		glTranslatef(0.0f, 0.0f, water_depth_offset);
 	}
-#ifdef SKY_FPV
-	else if (have_stencil)
+	else
     {
-        unsigned int start, stop;
-
 		glPushMatrix();
 		glTranslatef(0.0f, 0.0f, water_depth_offset);
 
-		glClearStencil(0);
-		glClear(GL_STENCIL_BUFFER_BIT);
-		glEnable(GL_STENCIL_TEST);
-		glStencilFunc(GL_ALWAYS, 1, 1);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
-
-        if (use_vertex_buffers)
+#ifdef SKY_FPV
+        if (have_stencil)
         {
-            ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
-            glInterleavedArrays(GL_V2F, 0, 0);
-        }
-        else
-        {
-            glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
-        }
+            unsigned int start, stop;
+            
+            glClearStencil(0);
+            glClear(GL_STENCIL_BUFFER_BIT);
+            glEnable(GL_STENCIL_TEST);
+            glStencilFunc(GL_ALWAYS, 1, 1);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+            
+            if (use_vertex_buffers)
+            {
+                ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+                glInterleavedArrays(GL_V2F, 0, 0);
+            }
+            else
+            {
+                glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
+            }
+            
+            get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+            glDrawArrays(GL_QUADS, water_buffer_reflectiv_index, (stop-start) * 4);
+            
+            if (use_vertex_buffers)
+            {
+                ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+                glDisableClientState(GL_VERTEX_ARRAY);
+            }
         
-        get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-        glDrawArrays(GL_QUADS, water_buffer_reflectiv_index, (stop-start) * 4);
-        
-        if (use_vertex_buffers)
-        {
-            ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-            glDisableClientState(GL_VERTEX_ARRAY);
+            glStencilFunc(GL_EQUAL, 1, 1);
+            glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
         }
-        
-		glStencilFunc(GL_EQUAL, 1, 1);
-		glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
-	}
+		else
+		{
+			clip_sky = 1;
+		}
 #endif // SKY_FPV
+	}
 
 	glCullFace(GL_FRONT);
 	glScalef(1.0f, 1.0f, -1.0f);
@@ -628,7 +638,20 @@ void display_3d_reflection()
 #ifdef SKY_FPV
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
 	if (skybox_show_sky)
-		skybox_display();
+	{
+		if (!clip_sky)
+		{
+			skybox_display();
+		}
+		else
+		{
+			GLdouble clip_plane[] = {0.0, 0.0, -water_depth_offset, 0.0};
+			glClipPlane(GL_CLIP_PLANE0, clip_plane);
+			glEnable(GL_CLIP_PLANE0);
+			skybox_display();
+			glDisable(GL_CLIP_PLANE0);
+		}
+	}
 #endif // SKY_FPV
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
@@ -981,7 +1004,7 @@ void draw_lake_tiles()
 		CHECK_GL_ERRORS();
 	}
 #endif	// USE_SHADER
-	else
+	else if (show_reflection)
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -1040,7 +1063,7 @@ void draw_lake_tiles()
 #endif	// USE_SHADER
  		CHECK_GL_ERRORS();
 	}
-	else
+	else if (show_reflection)
 	{
 		glDisable(GL_BLEND);
 	}
@@ -1135,38 +1158,41 @@ void draw_sky_background()
 	}
 #endif
 
-#ifndef SKY_FPV
-	glBegin(GL_QUADS);
+#ifdef SKY_FPV
+	if (!skybox_show_sky)
+#endif // SKY_FPV
+	{
+		glBegin(GL_QUADS);
 
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+		if ((water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
-	if (use_frame_buffer && show_reflection)
+		if (use_frame_buffer && show_reflection)
 #endif	// USE_SHADER
-	{
-		glColor3fv(lights_c[0]);
-		glVertex3i(0, 0, 0);
-		glColor3fv(lights_c[1]);
-		glVertex3i(0, reflection_texture_height, 0);
-		glColor3fv(lights_c[2]);
-		glVertex3i(reflection_texture_width, reflection_texture_height, 0);
-		glColor3fv(lights_c[3]);
-		glVertex3i(reflection_texture_width, 0, 0);
+		{
+			glColor3fv(lights_c[0]);
+			glVertex3i(0, 0, 0);
+			glColor3fv(lights_c[1]);
+			glVertex3i(0, reflection_texture_height, 0);
+			glColor3fv(lights_c[2]);
+			glVertex3i(reflection_texture_width, reflection_texture_height, 0);
+			glColor3fv(lights_c[3]);
+			glVertex3i(reflection_texture_width, 0, 0);
+		}
+		else
+		{
+			glColor3fv(lights_c[0]);
+			glVertex3i(0, 0, 0);
+			glColor3fv(lights_c[1]);
+			glVertex3i(0, window_height, 0);
+			glColor3fv(lights_c[2]);
+			glVertex3i(window_width, window_height, 0);
+			glColor3fv(lights_c[3]);
+			glVertex3i(window_width, 0, 0);
+		}
+		
+		glEnd();
 	}
-	else
-	{
-		glColor3fv(lights_c[0]);
-		glVertex3i(0, 0, 0);
-		glColor3fv(lights_c[1]);
-		glVertex3i(0, window_height, 0);
-		glColor3fv(lights_c[2]);
-		glVertex3i(window_width, window_height, 0);
-		glColor3fv(lights_c[3]);
-		glVertex3i(window_width, 0, 0);
-	}
-
-	glEnd();
-#endif // SKY_FPV
 
 	Leave2DMode();
 #ifdef	USE_SHADER

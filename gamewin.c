@@ -1078,12 +1078,10 @@ int display_game_handler (window_info *win)
 
 		if (any_reflection > 1)
 		{
-//#ifndef SKY_FPV
 		  	if (!dungeon)
 				draw_sky_background ();
 		  	else 
 				draw_dungeon_sky_background ();
-//#endif // not SKY_FPV
 			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}
