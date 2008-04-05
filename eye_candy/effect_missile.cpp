@@ -203,7 +203,13 @@ bool MissileEffect::idle(const Uint64 usec)
 	  Vec3 velocity;
 	  velocity.randomize(0.0625 * (1.0 + (float)hitOrMiss / 2.0)); // random particle movement
 	  velocity -= direction;  // follow the missile
-	  Particle* p = new MissileParticle(this, mover, coords, velocity, size / 2 + randfloat (size / 2), alpha / 2 + randfloat(alpha / 2), color[0], color[1], color[2], texture, LOD, type);
+	  Particle* p;
+	  if (type == MAGIC && randfloat() < 0.25)
+	  {
+        p = new MissileParticle(this, mover, coords, velocity, size / 2 + randfloat (size / 2), 1.0, randcolor(), randcolor(), randcolor(), texture, LOD, type);
+        base->push_back_particle(p);
+	  }
+      p = new MissileParticle(this, mover, coords, velocity, size / 2 + randfloat (size / 2), alpha / 2 + randfloat(alpha / 2), color[0], color[1], color[2], texture, LOD, type);
 	  base->push_back_particle(p);
   }
   

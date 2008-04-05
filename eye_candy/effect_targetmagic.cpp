@@ -341,8 +341,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner = new FilledDiscSpawner(0.15);
       spawner2 = new SierpinskiIFSParticleSpawner(1.5);
       mover = new GravityMover(this, &(effect_centers[0]), 1e6);
-      Vec3 direction = *targets[0] - *pos;
-      direction.normalize();
+      const Vec3 direction = (*targets[0] - *pos).normalize();
       for (int i = 1; i <= 4; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + effect_centers[0];
@@ -447,8 +446,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner = new FilledDiscSpawner(0.75);
       mover = new GravityMover(this, &(effect_centers[0]), 1e11);
       mover2 = new GravityMover(this, &target, 5e10);
-      Vec3 direction = *targets[0] - *pos;
-      direction.normalize();
+      const Vec3 direction = (*targets[0] - *pos).normalize();
       for (int i = 0; i < 8; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + target;
@@ -523,8 +521,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner2 = new HollowSphereSpawner(0.25);
       mover = new GravityMover(this, &(effect_centers[0]), 8e9);
       mover2 = new GravityMover(this, &target, 4e10);
-      Vec3 direction = *targets[0] - *pos;
-      direction.normalize();
+      const Vec3 direction = (*targets[0] - *pos).normalize();
       for (int i = 0; i < 8; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + target;
