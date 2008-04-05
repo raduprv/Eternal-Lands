@@ -3,7 +3,7 @@ UPDATE_CONF=yes
 
 # tune these for your setup & compile options
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
-#FEATURES += USE_BOOST
+FEATURES += ACTOR_FACE_CULLING		   # Enables actor face culling
 FEATURES += ALPHA_ACTORS                    # Enable Alpha Blending of actor models if an alpha blended item is worn
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
@@ -17,6 +17,7 @@ FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
 #FEATURES += DEBUG_TIME                      # Fakes the acceleration of time for use in debugging shadows and the like.
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
+#FEATURES += ECDEBUGWIN                   # press ctrl-alt-d to open the Eye Candy degub window: trigger most effects without casting spells or server side events
 #FEATURES += EL_BIG_ENDIAN                   # (undocumented)	FIXME: Should be removed and set in the code (as is done for OSX. Is it needed on any other platform?)
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
@@ -32,6 +33,7 @@ FEATURES += NEW_CAMERA                      # Binds the camera movement to the d
 #FEATURES += NEW_CURSOR                      # New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)
+FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
 FEATURES += NEW_SOUND                       # Enables extended sound effects system - almost pointless without OGG_VORBIS
 FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
 #FEATURES += NEW_WEATHER                     # new weather effects
@@ -46,15 +48,14 @@ FEATURES += SIMPLE_LOD                      # enable a simplistic distance culli
 #FEATURES += TIMER_CHECK                     # (undocumented)
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += UNROLL4                         # (undocumented)
+#FEATURES += USE_ACTORS_OPTIMIZER	   # Enables actor optimizations
+#FEATURES += USE_BOOST
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
 FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
-FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
-FEATURES += ACTOR_FACE_CULLING		   # Enables actor face culling
-#FEATURES += USE_ACTORS_OPTIMIZER	   # Enables actor optimizations
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
