@@ -397,8 +397,8 @@ void clamp_camera(void)
 			if(rx < -170){
 				rx = -170;
 				camera_tilt_duration=0;
-			} else if(rx > -20){
-				rx = -20;
+			} else if(rx > -30){
+				rx = -30;
 				camera_tilt_duration=0;
 			}
 		} else if(ext_cam){
@@ -610,7 +610,7 @@ void update_camera()
 #endif // NEW_CAMERA
 
 #ifdef SKY_FPV
-	if (ext_cam && me)
+	if (ext_cam && !first_person && me)
 	{
 		float rot_x[9], rot_z[9], rot[9], dir[3];
 		float vect[3] = {0.0, 0.0, new_zoom_level*camera_distance};
@@ -642,10 +642,30 @@ void update_camera()
 			// if the tile is outside of the map, we take the hight of the actor
 			tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
 		}
-		if (tz > dir[2] - camera_z)
+		if (tz + 0.1 > dir[2] - camera_z)
 		{
 			// if the camera is under the ground, we change the zoom level
-			new_zoom_level *= (tz + camera_z) / dir[2];
+			new_zoom_level *= (tz + camera_z + 0.1) / dir[2];
+
+			if (new_zoom_level < 1.0)
+			{
+				new_zoom_level = 1.0;
+#ifdef NEW_CAMERA
+				camera_tilt_duration = camera_zoom_duration = 0;
+#else // NEW_CAMERA
+				camera_tilt_frames = camera_zoom_frames = 0;
+#endif // NEW_CAMERA
+				rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.1) / vect[2]) / M_PI;
+			}
+			else if (new_zoom_level > 4.0)
+			{
+				new_zoom_level = 4.0;
+#ifdef NEW_CAMERA
+				camera_tilt_duration = camera_zoom_duration = 0;
+#else // NEW_CAMERA
+				camera_tilt_frames = camera_zoom_frames = 0;
+#endif // NEW_CAMERA
+			}
 		}
 	}
 #endif // SKY_FPV
