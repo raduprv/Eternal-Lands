@@ -152,14 +152,26 @@ bool GlowParticle::idle(const Uint64 delta_t)
     case GlowEffect::LEVEL_UP_TAI_GLOW_L:
     case GlowEffect::LEVEL_UP_TAI_GLOW_R:
     {
-	  velocity.x /= 1.25;
-	  velocity.z /= 1.25;
+	  velocity.x *= 0.8;
+	  velocity.z *= 0.8;
 	  velocity.y += float_time;
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75);
       alpha -= scalar;
       if (alpha < 0.01)
         return false;
       break;
+    }
+    case GlowEffect::LEVEL_UP_MAG_GLOW:
+    {
+      alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 1500000.0); // increase this number to make particles live longer
+      if (alpha < 0.01)
+        return false;
+  	  velocity += (*(effect->pos) - pos).normalize(10.0) / 5.0;
+  	  if (velocity.magnitude() > 7.5)
+  	  {
+  		velocity.normalize(7.5);
+  	  }
+  	  break;
     }
     default:
     {
@@ -573,6 +585,71 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         base->push_back_particle(p);
       }
       break;
+    }
+    case LEVEL_UP_MAG_GLOW:
+    {
+      mover = new ParticleMover(this);
+      spawner = new HollowSphereSpawner(0.05);
+      for (int i = 0; i < LOD * 32; i++)
+      {
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(5.0);
+        velocity += (effect_center - coords).normalize(5.0);
+        velocity.y = abs(velocity.y);
+    	if (velocity.magnitude() > 7.5)
+    	{
+    	  velocity.normalize(7.5);
+    	}
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.125), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexVoid), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      for (int i = 0; i < LOD * 24; i++)
+      {
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(5.0);
+        velocity += (effect_center - coords).normalize(5.0);
+        velocity.y = abs(velocity.y);
+    	if (velocity.magnitude() > 7.5)
+    	{
+    	  velocity.normalize(7.5);
+    	}
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.25), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexInverse), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      for (int i = 0; i < LOD * 16; i++)
+      {
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(5.0);
+        velocity += (effect_center - coords).normalize(5.0);
+        velocity.y = abs(velocity.y);
+    	if (velocity.magnitude() > 7.5)
+    	{
+    	  velocity.normalize(7.5);
+    	}
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(0.5), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexTwinflare), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
+      for (int i = 0; i < LOD * 8; i++)
+      {
+        const Vec3 coords = spawner->get_new_coords() + effect_center;
+        Vec3 velocity;
+        velocity.randomize(5.0);
+        velocity += (effect_center - coords).normalize(5.0);
+        velocity.y = abs(velocity.y);
+    	if (velocity.magnitude() > 7.5)
+    	{
+    	  velocity.normalize(7.5);
+    	}
+        Particle * p = new GlowParticle(this, mover, coords, velocity, 1.0 + randfloat(), 1.0, randcolor(), randcolor(), randcolor(), &(base->TexFlare), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+      }
     }
     default:
     {
