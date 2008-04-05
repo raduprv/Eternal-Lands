@@ -152,8 +152,8 @@ bool GlowParticle::idle(const Uint64 delta_t)
     case GlowEffect::LEVEL_UP_TAI_GLOW_L:
     case GlowEffect::LEVEL_UP_TAI_GLOW_R:
     {
-	  velocity.x *= 0.8;
-	  velocity.z *= 0.8;
+	  velocity.x *= 0.025 * float_time;
+	  velocity.z *= 0.025 * float_time;
 	  velocity.y += float_time;
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75);
       alpha -= scalar;
@@ -198,7 +198,7 @@ bool GlowParticle::idle(const Uint64 delta_t)
 	  
 	  // relative position to rotate
 	  Vec3 rotrelpos = relpos;
-	  const angle_t angle = M_PI / 32.0;
+	  const angle_t angle = M_PI * float_time;
 	  // rotate it around y achsis
 	  rotrelpos.x = relpos.x * cos(angle) + relpos.z * sin(angle);
 	  rotrelpos.z = -relpos.x * sin(angle) + relpos.z * cos(angle);

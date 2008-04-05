@@ -76,9 +76,18 @@ bool OngoingParticle::idle(const Uint64 delta_t)
     }
     case OngoingEffect::OG_HARVEST:
     {
-	  velocity.x /= 1.5;
-	  velocity.z /= 1.5;
+	  velocity.x /= 40 * float_time;
+	  velocity.z /= 40 * float_time;
 	  velocity.y += float_time;
+	  while(fastsqrt((pos.x - ((OngoingEffect*)effect)->pos->x) * (pos.x - ((OngoingEffect*)effect)->pos->x) + (pos.z - ((OngoingEffect*)effect)->pos->z) * (pos.z - ((OngoingEffect*)effect)->pos->z)) > 0.1)
+	  {
+		Vec3 relpos;
+		relpos.y = 0;
+		relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
+		relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
+		relpos.normalize();
+		pos -= relpos * 0.1;
+	  }
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75);
       alpha -= scalar * 0.5;
       if (alpha < 0.01)
@@ -88,7 +97,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
     }
   }
   
-  // rotate particle around effect's y achsis
+  // rotate particle around effect's y-axis
   switch(type)
   {
     case OngoingEffect::OG_HARVEST:
@@ -101,7 +110,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 	  
 	  // relative position to rotate
 	  Vec3 rotrelpos = relpos;
-	  const angle_t angle = M_PI / 24.0;;
+	  const angle_t angle = M_PI * float_time;
 	  // rotate it around y achsis
 	  rotrelpos.x = relpos.x * cos(angle) + relpos.z * sin(angle);
 	  rotrelpos.z = -relpos.x * sin(angle) + relpos.z * cos(angle);
@@ -191,7 +200,7 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const col
     case OG_HARVEST:
     {
       spawner = new FilledSphereSpawner(0.05);
-      mover = new SpiralMover(this, &effect_center, 32.0, 32.0);
+      mover = new ParticleMover(this);
       break;
     }
   }
