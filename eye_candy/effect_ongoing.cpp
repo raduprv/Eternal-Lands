@@ -79,18 +79,25 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 	  velocity.x /= 40 * float_time;
 	  velocity.z /= 40 * float_time;
 	  velocity.y += float_time;
-	  while(fastsqrt((pos.x - ((OngoingEffect*)effect)->pos->x) * (pos.x - ((OngoingEffect*)effect)->pos->x) + (pos.z - ((OngoingEffect*)effect)->pos->z) * (pos.z - ((OngoingEffect*)effect)->pos->z)) > 0.1)
-	  {
-		Vec3 relpos;
-		relpos.y = 0;
-		relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
-		relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
-		relpos.normalize();
-		pos -= relpos * 0.1;
+	  Vec3 relpos = pos - *(effect->pos);
+	  if (relpos.magnitude() > 0.25)
+      {
+		for (int i = 0; i < 32; i++)
+		{
+		  relpos.y = 0;
+	 	  relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
+		  relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
+		  if (relpos.magnitude() < 0.25)
+		  {
+			break;
+		  }
+		  relpos.normalize();
+		  pos -= relpos * 0.025;
+		}
 	  }
-      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75);
+      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
       alpha -= scalar * 0.5;
-      if (alpha < 0.01)
+      if (alpha < 0.03)
         return false;
       size -= scalar * 0.125;
       break;
@@ -110,7 +117,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 	  
 	  // relative position to rotate
 	  Vec3 rotrelpos = relpos;
-	  const angle_t angle = M_PI * float_time;
+	  const angle_t angle = M_PI * float_time * 0.5;
 	  // rotate it around y achsis
 	  rotrelpos.x = relpos.x * cos(angle) + relpos.z * sin(angle);
 	  rotrelpos.z = -relpos.x * sin(angle) + relpos.z * cos(angle);
