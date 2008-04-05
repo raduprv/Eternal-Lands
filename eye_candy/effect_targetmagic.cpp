@@ -341,11 +341,15 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner = new FilledDiscSpawner(0.15);
       spawner2 = new SierpinskiIFSParticleSpawner(1.5);
       mover = new GravityMover(this, &(effect_centers[0]), 1e6);
-      while (particles.size() < 4)
+      Vec3 direction = *targets[0] - *pos;
+      direction.normalize();
+      for (int i = 0; i < 4; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + effect_centers[0];
         Vec3 velocity;
-        velocity.randomize(0.75);
+        velocity.randomize((i + 1) * 2.0);
+        velocity += direction * -10.0 * i;
+        velocity.y += i * 10.0;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
           break;
@@ -442,20 +446,26 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner = new FilledDiscSpawner(0.75);
       mover = new GravityMover(this, &(effect_centers[0]), 1e11);
       mover2 = new GravityMover(this, &target, 5e10);
-      while (particles.size() < 8)
+      Vec3 direction = *targets[0] - *pos;
+      direction.normalize();
+      for (int i = 0; i < 8; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + target;
         Vec3 velocity;
         velocity.randomize(0.5);
+        velocity += direction * -2.0 * i;
+        velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.25 + randcolor(0.25), 0.15 + randcolor(0.15), &(base->TexVoid), LOD, type, spawner, mover2, targets[0], 0, 2);
         if (!base->push_back_particle(p))
           break;
       }
-      while (particles.size() < 16)
+      for (int i = 0; i < 8; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + effect_centers[0];
         Vec3 velocity;
         velocity.randomize(0.3);
+        velocity += direction * -2.0 * i;
+        velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 15.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.25 + randcolor(0.25), &(base->TexTwinflare), LOD, type, spawner, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
           break;
@@ -512,20 +522,26 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner2 = new HollowSphereSpawner(0.25);
       mover = new GravityMover(this, &(effect_centers[0]), 8e9);
       mover2 = new GravityMover(this, &target, 4e10);
-      while (particles.size() < 8)
+      Vec3 direction = *targets[0] - *pos;
+      direction.normalize();
+      for (int i = 0; i < 8; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + target;
         Vec3 velocity;
         velocity.randomize(0.45);
+        velocity += direction * -2.0 * i;
+        velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexVoid), LOD, type, spawner2, mover2, targets[0], 0, 2);
         if (!base->push_back_particle(p))
           break;
       }
-      while (particles.size() < 16)
-      {
+      for (int i = 0; i < 8; i++)
+     {
         const Vec3 coords = spawner->get_new_coords() + effect_centers[0];
         Vec3 velocity;
         velocity.randomize(0.85);
+        velocity += direction * -2.0 * i;
+        velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexCrystal), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
           break;
