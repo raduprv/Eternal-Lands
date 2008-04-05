@@ -166,7 +166,7 @@ bool GlowParticle::idle(const Uint64 delta_t)
       alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 1500000.0); // increase this number to make particles live longer
       if (alpha < 0.01)
         return false;
-  	  velocity += (*(effect->pos) - pos).normalize(10.0) / 5.0;
+  	  velocity += ((*(effect->pos) - pos).normalize(20.0) * float_time);
   	  if (velocity.magnitude() > 7.5)
   	  {
   		velocity.normalize(7.5);
@@ -205,6 +205,21 @@ bool GlowParticle::idle(const Uint64 delta_t)
 
 	  // move particle
 	  pos += (relpos - rotrelpos);
+	  if (relpos.magnitude() > 1.25)
+      {
+		for (int i = 0; i < 32; i++)
+		{
+		  relpos.y = 0;
+	 	  relpos.x = pos.x - ((GlowEffect*)effect)->pos->x;
+		  relpos.z = pos.z - ((GlowEffect*)effect)->pos->z;
+		  if (relpos.magnitude() < 1.25)
+		  {
+			break;
+		  }
+		  relpos.normalize();
+		  pos -= relpos * 0.025;
+		}
+	  }
 	}
 	default:
 	{
