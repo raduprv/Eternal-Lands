@@ -343,13 +343,14 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       mover = new GravityMover(this, &(effect_centers[0]), 1e6);
       Vec3 direction = *targets[0] - *pos;
       direction.normalize();
-      for (int i = 0; i < 4; i++)
+      for (int i = 1; i <= 4; i++)
       {
         const Vec3 coords = spawner->get_new_coords() * 0.75 + effect_centers[0];
         Vec3 velocity;
         velocity.randomize((i + 1) * 2.0);
         velocity += direction * -10.0 * i;
         velocity.y += i * 10.0;
+        velocity.x += -5.0 + 2.0 * i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
           break;
