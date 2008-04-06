@@ -405,8 +405,8 @@ void clamp_camera(void)
 			if(rx < -150){
 				rx = -150;
 				camera_tilt_duration=0;
-			} else if(rx > -10){
-				rx = -10;
+			} else if(rx > -20){
+				rx = -20;
 				camera_tilt_duration=0;
 			}			
 #endif // NEW_CAMERA
@@ -642,10 +642,11 @@ void update_camera()
 			// if the tile is outside of the map, we take the hight of the actor
 			tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
 		}
-		if (tz + 0.1 > dir[2] - camera_z)
+		// here we use a shift of 0.2 to avoid to be too close from the ground
+		if (tz + 0.2 > dir[2] - camera_z)
 		{
 			// if the camera is under the ground, we change the zoom level
-			new_zoom_level *= (tz + camera_z + 0.1) / dir[2];
+			new_zoom_level *= (tz + camera_z + 0.2) / dir[2];
 
 			if (new_zoom_level < 1.0)
 			{
@@ -655,7 +656,7 @@ void update_camera()
 #else // NEW_CAMERA
 				camera_tilt_frames = camera_zoom_frames = 0;
 #endif // NEW_CAMERA
-				rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.1) / vect[2]) / M_PI;
+				rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 			}
 			else if (new_zoom_level > 4.0)
 			{

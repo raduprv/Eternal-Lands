@@ -2143,8 +2143,13 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifndef SKY_FPV
 		if (rx > -60) rx -= 1.0f;
 #else // SKY_FPV
-		if(first_person){
-			if (rx > -105){
+		if (first_person) {
+			if (rx > -170) {
+				rx -= 1.0f;
+				++adjust_view;
+			}
+		} else if (ext_cam) {
+			if (rx > -150) {
 				rx -= 1.0f;
 				++adjust_view;
 			}
@@ -2161,8 +2166,13 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifndef SKY_FPV
 		if (rx < -45) rx += 1.0f;
 #else // SKY_FPV
-		if(first_person){
-			if (rx < -15){
+		if (first_person) {
+			if (rx < -30) {
+				rx += 1.0f;
+				++adjust_view;
+			}
+		} else if (ext_cam) {
+			if (rx < -20) {
 				rx += 1.0f;
 				++adjust_view;
 			}
