@@ -76,14 +76,19 @@ bool OngoingParticle::idle(const Uint64 delta_t)
     }
     case OngoingEffect::OG_HARVEST:
     {
-	  velocity.x /= 40 * float_time;
-	  velocity.z /= 40 * float_time;
+	  velocity.x *= (0.0625 * float_time);
+	  velocity.z *= (0.0625 * float_time);
 	  velocity.y += float_time;
 	  Vec3 relpos = pos - *(effect->pos);
-	  if (relpos.magnitude() > 0.25)
+	  if (relpos.magnitude() + (pos.y - effect->pos->y) * 0.125 > 0.25)
       {
-		for (int i = 0; i < 32; i++)
+		for (int i = 1; i <= 32; i++)
 		{
+		  relpos.y = 0;
+	 	  relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
+		  relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
+		  relpos.normalize(0.05);
+		  pos -= relpos;
 		  relpos.y = 0;
 	 	  relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
 		  relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
@@ -91,12 +96,10 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 		  {
 			break;
 		  }
-		  relpos.normalize();
-		  pos -= relpos * 0.025;
 		}
 	  }
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
-      alpha -= scalar * 0.5;
+      alpha -= scalar;
       if (alpha < 0.03)
         return false;
       size -= scalar * 0.125;
@@ -117,7 +120,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 	  
 	  // relative position to rotate
 	  Vec3 rotrelpos = relpos;
-	  const angle_t angle = M_PI * float_time * 0.5;
+	  const angle_t angle = M_PI * float_time * 1.5;
 	  // rotate it around y achsis
 	  rotrelpos.x = relpos.x * cos(angle) + relpos.z * sin(angle);
 	  rotrelpos.z = -relpos.x * sin(angle) + relpos.z * cos(angle);

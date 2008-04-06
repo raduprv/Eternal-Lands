@@ -216,8 +216,8 @@ bool GlowParticle::idle(const Uint64 delta_t)
 		  {
 			break;
 		  }
-		  relpos.normalize();
-		  pos -= relpos * 0.025;
+		  relpos.normalize(0.025);
+		  pos -= relpos;
 		}
 	  }
 	}
