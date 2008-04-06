@@ -26,6 +26,7 @@
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
+#include "text.h"
 #include "tiles.h"
 #include "timers.h"
 #include "translate.h"
@@ -1709,6 +1710,7 @@ void destroy_all_actors()
 	max_actors= 0;
 	actor_under_mouse = NULL;
 	my_timer_adjust= 0;
+	harvesting_effect_reference = NULL;
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
 	minimap_touch();
 }

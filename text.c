@@ -10,7 +10,6 @@
 #include "console.h"
 #include "consolewin.h"
 #include "errors.h"
-#include "eye_candy_wrapper.h"
 #include "filter.h"
 #include "gl_init.h"
 #include "global.h"
@@ -56,7 +55,7 @@ float	chat_zoom=1.0;
 FILE	*chat_log=NULL;
 FILE	*srv_log=NULL;
 
-static ec_reference harvesting_effect_reference = NULL;
+ec_reference harvesting_effect_reference = NULL;
 
 /* forward declaration */
 void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int len, int pixels_limit, char *buffer);
@@ -391,7 +390,14 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			{
 				if (harvesting_effect_reference == NULL)
 				{
-					harvesting_effect_reference = ec_create_ongoing_harvesting2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+					actor *act;
+					LOCK_ACTORS_LISTS();
+					act = get_actor_ptr_from_id(yourself);
+					if (act != NULL)
+					{
+						harvesting_effect_reference = ec_create_ongoing_harvesting2(act, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+					}
+					UNLOCK_ACTORS_LISTS();
 				}
 			}
 		} 

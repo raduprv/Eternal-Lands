@@ -9,6 +9,7 @@
 #include <stdlib.h>
 #include <SDL_types.h>
 #include "platform.h"
+#include "eye_candy_wrapper.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -72,6 +73,7 @@ extern int log_chat; /*!< flag stating whether to log server messages or not */
 
 extern int current_text_width; /*!< Current wrapping width for text buffers */
 
+extern ec_reference harvesting_effect_reference;
 
 /*!
  * \brief Allocate the character buffer for a text_message
@@ -445,7 +447,6 @@ void clear_display_text_buffer ();
  * \retval       the number of lines after wrapping
  */
 int rewrap_message(text_message * buf, float zoom, int width, int * cursor);
-
 
 void cleanup_text_buffers(void);
 
