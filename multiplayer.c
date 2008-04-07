@@ -1792,7 +1792,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case MISSILE_AIM_A_AT_XYZ:
 			if (data_length >= 17)
 			{
-				missiles_aim_at_xyz(SDL_SwapLE16(*((short *)(in_data+3))),(float*)(in_data+5));
+				float target[3];
+				target[0] = SwapLEFloat(*((float*)(in_data+5)));
+				target[1] = SwapLEFloat(*((float*)(in_data+9)));
+				target[2] = SwapLEFloat(*((float*)(in_data+13)));
+				missiles_aim_at_xyz(SDL_SwapLE16(*((short *)(in_data+3))),target);
 			}
 			break;
 		case MISSILE_FIRE_A_TO_B:
@@ -1804,13 +1808,21 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 		case MISSILE_FIRE_A_TO_XYZ:
 			if (data_length >= 17)
 			{
-				missiles_fire_a_to_xyz(SDL_SwapLE16(*((short *)(in_data+3))),(float*)(in_data+5));
+				float target[3];
+				target[0] = SwapLEFloat(*((float*)(in_data+5)));
+				target[1] = SwapLEFloat(*((float*)(in_data+9)));
+				target[2] = SwapLEFloat(*((float*)(in_data+13)));
+				missiles_fire_a_to_xyz(SDL_SwapLE16(*((short *)(in_data+3))),target);
 			}
 			break;
 		case MISSILE_FIRE_XYZ_TO_B:
 			if (data_length >= 17)
 			{
-				missiles_fire_xyz_to_b((float*)(in_data+5),SDL_SwapLE16(*((short *)(in_data+3))));
+				float source[3];
+				source[0] = SwapLEFloat(*((float*)(in_data+5)));
+				source[1] = SwapLEFloat(*((float*)(in_data+9)));
+				source[2] = SwapLEFloat(*((float*)(in_data+13)));
+				missiles_fire_xyz_to_b(source,SDL_SwapLE16(*((short *)(in_data+3))));
 			}
 			break;
 #endif //MISSILES
