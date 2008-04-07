@@ -576,7 +576,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
     }
     case LEVEL_UP_RAN_GLOW:
     {
-      mover = new ParticleMover(this);
+      mover = new SpiralMover(this, &effect_center, 1.0, 1.0);
       Particle *p;
       const Vec3 center = effect_center;
       for (float i = 0; i < 26; i++) {
