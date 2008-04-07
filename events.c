@@ -204,9 +204,19 @@ int HandleEvent (SDL_Event *event)
 					right_click++;
 			}
 			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)))
+			{
 				right_click++;
+#if defined SKY_FPV || defined OSX
+				have_mouse = 1;
+#endif
+			}
 			else
+			{
 				right_click= 0;
+#if defined SKY_FPV || defined OSX
+				have_mouse = 0;
+#endif
+			}
 
 			if (event->type == SDL_MOUSEBUTTONDOWN) 
 			{
