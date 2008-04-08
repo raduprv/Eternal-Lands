@@ -611,7 +611,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         Vec3 velocity;
         velocity.randomize(5.0);
         velocity += (effect_center - coords).normalize(5.0);
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
     	if (velocity.magnitude() > 7.5)
     	{
     	  velocity.normalize(7.5);
@@ -626,7 +626,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         Vec3 velocity;
         velocity.randomize(5.0);
         velocity += (effect_center - coords).normalize(5.0);
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
     	if (velocity.magnitude() > 7.5)
     	{
     	  velocity.normalize(7.5);
@@ -641,7 +641,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         Vec3 velocity;
         velocity.randomize(5.0);
         velocity += (effect_center - coords).normalize(5.0);
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
     	if (velocity.magnitude() > 7.5)
     	{
     	  velocity.normalize(7.5);
@@ -656,7 +656,7 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
         Vec3 velocity;
         velocity.randomize(5.0);
         velocity += (effect_center - coords).normalize(5.0);
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
     	if (velocity.magnitude() > 7.5)
     	{
     	  velocity.normalize(7.5);

@@ -348,7 +348,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize((i + 1) * 2.0);
         velocity += direction * -10.0 * i;
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
         velocity.y += i * 10.0;
         velocity.x += -5.0 + 2.0 * i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
@@ -454,7 +454,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.5);
         velocity += direction * -2.0 * i;
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.25 + randcolor(0.25), 0.15 + randcolor(0.15), &(base->TexVoid), LOD, type, spawner, mover2, targets[0], 0, 2);
         if (!base->push_back_particle(p))
@@ -466,7 +466,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.3);
         velocity += direction * -2.0 * i;
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 15.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.25 + randcolor(0.25), &(base->TexTwinflare), LOD, type, spawner, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
@@ -531,7 +531,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.45);
         velocity += direction * -2.0 * i;
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexVoid), LOD, type, spawner2, mover2, targets[0], 0, 2);
         if (!base->push_back_particle(p))
@@ -543,7 +543,7 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.85);
         velocity += direction * -2.0 * i;
-        velocity.y = abs(velocity.y);
+        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexCrystal), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
