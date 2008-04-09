@@ -211,20 +211,20 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 	{
 		const char *input_string = (char*)input->data;
 		int count;
-		int i;
 		short retries;
 		node_t *step;
 
 		if(!have_last_complete) {
-			if(strchr(input_string, ' ') != NULL) {
+			if(cursor_pos > 0 &&
+				strmrchr(input_string, input_string+cursor_pos-1, ' ') != NULL) {
 				/* If we have a space in the input string, we're pretty certain 
-				 * it's not a name, command or channel name. */
+				 * it's not a PM-name, command or channel name. */
 				return_value.type = NAME;
-			} else if(*input_string == '/' || *input_string == char_slash_str[0]) {
+			} else if(*input_string == '/' || *input_string == *char_slash_str) {
 				return_value.type = NAME_PM;
-			} else if (input_string[0] == '@' || input_string[0] == char_at_str[0]) {
+			} else if (*input_string == '@' || *input_string == *char_at_str) {
 				return_value.type = CHANNEL;
-			} else if(*input_string == '#' || *input_string == char_cmd_str[0]) {
+			} else if(*input_string == '#' || *input_string == *char_cmd_str) {
 				return_value.type = COMMAND;
 			} else {
 				return_value.type = NAME;
@@ -252,25 +252,27 @@ struct compl_str tab_complete(const text_message *input, unsigned int cursor_pos
 			break;
 		}
 
-		if((*input_string && strncasecmp(input_string, last_complete, strlen(last_complete)) != 0) || !have_last_complete) {
+		if(!have_last_complete || (*input_string && strncasecmp(input_string, last_complete, strlen(last_complete)) != 0)) {
 			/* New input string, start over */
+			size_t i;
+
 			last_str_count = -1;
-			if(return_value.type == NAME) {
-				/* If it's a name (completed anywhere), isolate the word 
-				 * we're currently typing */
-				size_t i;
-				for(i = 0; i < sizeof(last_complete) && input_string[i] && i < cursor_pos
-					&& !isspace((unsigned char)input_string[i]); i++) {
-					last_complete[i] = input_string[i];
-				}
-				last_complete[i] = '\0';
-			} else {
-				safe_snprintf(last_complete, sizeof(last_complete), "%s", input_string);
+
+			/* Isolate the word we're currently typing (and completing) */
+			for(i = 0;
+				i < sizeof(last_complete) && 
+				input_string[i] && i < cursor_pos &&
+				!isspace((unsigned char)input_string[i]);
+				i++) {
+				last_complete[i] = input_string[i];
 			}
+			last_complete[i] = '\0';
 			have_last_complete = 1;
 		}
 		/* Look through the list */
 		for(retries = 0; retries < 2 && !return_value.str; retries++) {
+			size_t i;
+
 			switch(return_value.type) {
 				case NAME:
 				case NAME_PM:
@@ -336,43 +338,32 @@ void do_tab_complete(text_message *input)
 {
 	text_field *tf = input_widget->widget_info;
 	struct compl_str completed = tab_complete(input, tf->cursor);
+
 	if(completed.str != NULL)
 	{
-		char suffix = '\0';
+		size_t len;
+		size_t i;
 
-		/* Append a space if there isn't one already. */
-		if(completed.str[strlen(completed.str)-1] != ' ') {
-			suffix = ' ';
+		/* Find the length of the data we're removing */
+		if(completed.type == NAME) {
+			const char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
+			/* Name is a bit special because it can be anywhere in a string,
+			 * not just at the beginning like the other types. */
+			len = input->data+tf->cursor-1-(last_space ? last_space : (input->data-1));
+		} else if (completed.type == CHANNEL) {
+			len = tf->cursor-2;
+		} else {
+			len = tf->cursor-1;
 		}
-		switch(completed.type) {
-			case CHANNEL:
-				safe_snprintf(input->data, input->size, "%c%c%s%c", input->data[0], input->data[1], completed.str, suffix);
-				input->len = strlen(input->data);
-				tf->cursor = tf->buffer->len+1;
-			break;
-			case COMMAND:
-			case NAME_PM:
-				safe_snprintf(input->data, input->size, "%c%s%c", *input->data, completed.str, suffix);
-				input->len = strlen(input->data);
-				tf->cursor = tf->buffer->len;
-			break;
-			case NAME:
-			{
-				const char *last_space = strmrchr(input->data, input->data+tf->cursor, ' ');
-				/* Find the length of the data we're removing */
-				int len = input->data+tf->cursor-1-(last_space ? last_space : (input->data-1));
-				int i;
 
-				/* Erase the current input word */
-				for (i = tf->cursor; i <= input->len; i++) {
-					input->data[i-len] = input->data[i];
-				}
-				input->len -= len;
-				tf->cursor -= len;
-				paste_in_input_field((unsigned char*)completed.str);
-				input->len = strlen(input->data);
-			}
+		/* Erase the current input word */
+		for (i = tf->cursor; i <= input->len; i++) {
+			input->data[i-len] = input->data[i];
 		}
+		input->len -= len;
+		tf->cursor -= len;
+		paste_in_input_field((unsigned char*)completed.str);
+		input->len = strlen(input->data);
 	}
 }
 
