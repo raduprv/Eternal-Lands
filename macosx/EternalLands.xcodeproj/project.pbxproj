@@ -7,6 +7,14 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		1F125FF60D91A4F0009099BE /* effect_glow.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F125FF40D91A4EF009099BE /* effect_glow.cpp */; };
+		1F52AA230D6BCC0900CA2E5F /* actor_init.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */; };
+		1F52AA240D6BCC0900CA2E5F /* calc.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA170D6BCC0800CA2E5F /* calc.c */; };
+		1F52AA250D6BCC0900CA2E5F /* eye_candy_debugwin.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */; };
+		1F52AA260D6BCC0900CA2E5F /* optimizer.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA1D0D6BCC0800CA2E5F /* optimizer.cpp */; };
+		1F52AA270D6BCC0900CA2E5F /* select.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA1F0D6BCC0800CA2E5F /* select.cpp */; };
+		1F52AA280D6BCC0900CA2E5F /* skeletons.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA200D6BCC0800CA2E5F /* skeletons.c */; };
+		1F52AA2C0D6BCC5000CA2E5F /* effect_missile.cpp in Sources */ = {isa = PBXBuildFile; fileRef = 1F52AA2A0D6BCC5000CA2E5F /* effect_missile.cpp */; };
 		1F744D970D19894900F655E9 /* missiles.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F744D950D19894900F655E9 /* missiles.c */; };
 		1F812B930D033551008792A7 /* 2d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DA0D033551008792A7 /* 2d_objects.c */; };
 		1F812B940D033551008792A7 /* 3d_objects.c in Sources */ = {isa = PBXBuildFile; fileRef = 1F8128DC0D033551008792A7 /* 3d_objects.c */; };
@@ -215,6 +223,25 @@
 /* Begin PBXFileReference section */
 		089C165DFE840E0CC02AAC07 /* English */ = {isa = PBXFileReference; fileEncoding = 10; lastKnownFileType = text.plist.strings; name = English; path = English.lproj/InfoPlist.strings; sourceTree = "<group>"; };
 		1058C7A1FEA54F0111CA2CBB /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = /System/Library/Frameworks/Cocoa.framework; sourceTree = "<absolute>"; };
+		1F125FF40D91A4EF009099BE /* effect_glow.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_glow.cpp; sourceTree = "<group>"; };
+		1F125FF50D91A4EF009099BE /* effect_glow.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = effect_glow.h; sourceTree = "<group>"; };
+		1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = actor_init.cpp; path = ../actor_init.cpp; sourceTree = SOURCE_ROOT; };
+		1F52AA160D6BCC0800CA2E5F /* actor_init.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = actor_init.h; path = ../actor_init.h; sourceTree = SOURCE_ROOT; };
+		1F52AA170D6BCC0800CA2E5F /* calc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = calc.c; path = ../calc.c; sourceTree = SOURCE_ROOT; };
+		1F52AA180D6BCC0800CA2E5F /* calc.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = calc.h; path = ../calc.h; sourceTree = SOURCE_ROOT; };
+		1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = eye_candy_debugwin.c; path = ../eye_candy_debugwin.c; sourceTree = SOURCE_ROOT; };
+		1F52AA1A0D6BCC0800CA2E5F /* eye_candy_debugwin.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = eye_candy_debugwin.h; path = ../eye_candy_debugwin.h; sourceTree = SOURCE_ROOT; };
+		1F52AA1B0D6BCC0800CA2E5F /* glext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = glext.h; path = ../glext.h; sourceTree = SOURCE_ROOT; };
+		1F52AA1C0D6BCC0800CA2E5F /* glext.pl */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = text.script.perl; name = glext.pl; path = ../glext.pl; sourceTree = SOURCE_ROOT; };
+		1F52AA1D0D6BCC0800CA2E5F /* optimizer.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = optimizer.cpp; path = ../optimizer.cpp; sourceTree = SOURCE_ROOT; };
+		1F52AA1E0D6BCC0800CA2E5F /* optimizer.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; name = optimizer.hpp; path = ../optimizer.hpp; sourceTree = SOURCE_ROOT; };
+		1F52AA1F0D6BCC0800CA2E5F /* select.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = select.cpp; path = ../select.cpp; sourceTree = SOURCE_ROOT; };
+		1F52AA200D6BCC0800CA2E5F /* skeletons.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = skeletons.c; path = ../skeletons.c; sourceTree = SOURCE_ROOT; };
+		1F52AA210D6BCC0800CA2E5F /* skeletons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = skeletons.h; path = ../skeletons.h; sourceTree = SOURCE_ROOT; };
+		1F52AA220D6BCC0800CA2E5F /* threads.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threads.h; path = ../threads.h; sourceTree = SOURCE_ROOT; };
+		1F52AA2A0D6BCC5000CA2E5F /* effect_missile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_missile.cpp; sourceTree = "<group>"; };
+		1F52AA2B0D6BCC5000CA2E5F /* effect_missile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = effect_missile.h; sourceTree = "<group>"; };
+		1F52AA2F0D6BCE6E00CA2E5F /* elglext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elglext.h; path = ../elglext.h; sourceTree = SOURCE_ROOT; };
 		1F744D950D19894900F655E9 /* missiles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = missiles.c; path = ../missiles.c; sourceTree = SOURCE_ROOT; };
 		1F744D960D19894900F655E9 /* missiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = missiles.h; path = ../missiles.h; sourceTree = SOURCE_ROOT; };
 		1F8128DA0D033551008792A7 /* 2d_objects.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = 2d_objects.c; path = ../2d_objects.c; sourceTree = SOURCE_ROOT; };
@@ -963,6 +990,21 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				1F52AA2F0D6BCE6E00CA2E5F /* elglext.h */,
+				1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */,
+				1F52AA160D6BCC0800CA2E5F /* actor_init.h */,
+				1F52AA170D6BCC0800CA2E5F /* calc.c */,
+				1F52AA180D6BCC0800CA2E5F /* calc.h */,
+				1F52AA190D6BCC0800CA2E5F /* eye_candy_debugwin.c */,
+				1F52AA1A0D6BCC0800CA2E5F /* eye_candy_debugwin.h */,
+				1F52AA1B0D6BCC0800CA2E5F /* glext.h */,
+				1F52AA1C0D6BCC0800CA2E5F /* glext.pl */,
+				1F52AA1D0D6BCC0800CA2E5F /* optimizer.cpp */,
+				1F52AA1E0D6BCC0800CA2E5F /* optimizer.hpp */,
+				1F52AA1F0D6BCC0800CA2E5F /* select.cpp */,
+				1F52AA200D6BCC0800CA2E5F /* skeletons.c */,
+				1F52AA210D6BCC0800CA2E5F /* skeletons.h */,
+				1F52AA220D6BCC0800CA2E5F /* threads.h */,
 				1F744D950D19894900F655E9 /* missiles.c */,
 				1F744D960D19894900F655E9 /* missiles.h */,
 				1F8128DA0D033551008792A7 /* 2d_objects.c */,
@@ -1362,6 +1404,10 @@
 		1F8129920D033551008792A7 /* eye_candy */ = {
 			isa = PBXGroup;
 			children = (
+				1F125FF40D91A4EF009099BE /* effect_glow.cpp */,
+				1F125FF50D91A4EF009099BE /* effect_glow.h */,
+				1F52AA2A0D6BCC5000CA2E5F /* effect_missile.cpp */,
+				1F52AA2B0D6BCC5000CA2E5F /* effect_missile.h */,
 				1F8129930D033551008792A7 /* effect_bag.cpp */,
 				1F8129940D033551008792A7 /* effect_bag.h */,
 				1F8129950D033551008792A7 /* effect_breath.cpp */,
@@ -2189,6 +2235,14 @@
 				1F812D850D033551008792A7 /* widgets.c in Sources */,
 				1F812D860D033551008792A7 /* xmlhelper.cpp in Sources */,
 				1F744D970D19894900F655E9 /* missiles.c in Sources */,
+				1F52AA230D6BCC0900CA2E5F /* actor_init.cpp in Sources */,
+				1F52AA240D6BCC0900CA2E5F /* calc.c in Sources */,
+				1F52AA250D6BCC0900CA2E5F /* eye_candy_debugwin.c in Sources */,
+				1F52AA260D6BCC0900CA2E5F /* optimizer.cpp in Sources */,
+				1F52AA270D6BCC0900CA2E5F /* select.cpp in Sources */,
+				1F52AA280D6BCC0900CA2E5F /* skeletons.c in Sources */,
+				1F52AA2C0D6BCC5000CA2E5F /* effect_missile.cpp in Sources */,
+				1F125FF60D91A4F0009099BE /* effect_glow.cpp in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -2227,6 +2281,33 @@
 				GCC_ENABLE_FIX_AND_CONTINUE = YES;
 				GCC_MODEL_TUNING = G5;
 				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					ACTOR_FACE_CULLING,
+					ALPHA_ACTORS,
+					CALCULATOR,
+					CLUSTER_INSIDES,
+					CUSTOM_LOOK,
+					CUSTOM_UPDATE,
+					ELC,
+					FUZZY_PATHS,
+					MASKING,
+					MISSILES,
+					NEW_ACTOR_ANIMATION,
+					NEW_ACTOR_MOVEMENT,
+					NEW_CAMERA,
+					NEW_SELECTION,
+					NEW_SOUND,
+					NEW_TEX,
+					OPENGL_TRACE,
+					OSX,
+					PNG_SCREENSHOT,
+					POPUP,
+					SIMPLE_LOD,
+					USE_INLINE,
+					USE_SHADER,
+					VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG,
+					ZLIB,
+				);
 				INFOPLIST_FILE = Info.plist;
 				INSTALL_PATH = "$(HOME)/Applications";
 				PRODUCT_NAME = EternalLands;
@@ -2253,41 +2334,30 @@
 				GCC_GENERATE_DEBUGGING_SYMBOLS = NO;
 				GCC_MODEL_TUNING = G5;
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					AFK_FIX,
+					ACTOR_FACE_CULLING,
 					ALPHA_ACTORS,
-					AUTO_UPDATE,
-					CLICKABLE_CONTINENT_MAP,
+					CALCULATOR,
+					CACHE_ANIMATIONS,
 					CLUSTER_INSIDES,
-					COUNTERS,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
-					CXX_MISC,
 					ELC,
-					EYE_CANDY,
-					FONTS_FIX,
 					FUZZY_PATHS,
-					GL_EXTENSION_CHECK,
-					IDLE_FIX,
 					MASKING,
-					MINES,
-					MINIMAP,
+					MISSILES,
 					NEW_ACTOR_ANIMATION,
-					NEW_ACTOR_SCALE,
-					NEW_E3D_FORMAT,
-					NEW_FILE_IO,
-					NEW_FRUSTRUM,
+					NEW_ACTOR_MOVEMENT,
+					NEW_CAMERA,
+					NEW_SELECTION,
 					NEW_SOUND,
 					NEW_TEX,
-					NOTEPAD,
-					OGG_VORBIS,
-					OPTIONS_I18N,
+					OPENGL_TRACE,
 					OSX,
 					PNG_SCREENSHOT,
 					POPUP,
-					SFX,
 					SIMPLE_LOD,
+					SKY_FPV,
 					USE_INLINE,
-					USE_SEND_VIDEO_INFO,
 					USE_SHADER,
 					ZLIB,
 				);

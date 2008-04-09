@@ -2,9 +2,6 @@
 #define	_LOAD_GL_EXTENSIONS_H_
 
 #include <SDL_types.h>
-#ifdef OSX
-#include "elglext.h"
-#endif
 #include "platform.h"
 
 #ifdef __cplusplus

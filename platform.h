@@ -71,7 +71,8 @@
 #ifdef OSX
  #include <OpenGL/gl.h>
  #include <OpenGL/glu.h>
- #include <OpenGL/glext.h>
+ //#include <OpenGL/glext.h>
+ #include "elglext.h"
  #define APIENTRY 
  #define APIENTRYP *
 #else
