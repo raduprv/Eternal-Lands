@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <string.h>
-#include <malloc.h>
+ #ifdef OSX
+  #include <sys/malloc.h>
+ #else
+  #include <malloc.h>
+#endif
 #include <ctype.h>
 #include <stdlib.h>
 #include "text_aliases.h"
