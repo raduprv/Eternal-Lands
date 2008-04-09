@@ -45,6 +45,7 @@ FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG form
 FEATURES += POPUP                           # enable server popups
 FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
 #FEATURES += SKY_FPV                         # Use skybox with clouds/stars/etc, enable first person view, and other misc changes from Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
+FEATURES += TEXT_ALIASES		    # Text aliases
 #FEATURES += TIMER_CHECK                     # (undocumented)
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
 #FEATURES += UNROLL4                         # (undocumented)

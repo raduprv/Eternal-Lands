@@ -62,7 +62,8 @@ COBJS=2d_objects.o 3d_objects.o \
 	sector.o session.o serverpopup.o shadows.o sort.o sound.o spells.o stats.o storage.o symbol_table.o tabs.o	\
 	update.o url.o text.o textures.o tile_map.o timers.o translate.o trade.o	\
 	weather.o widgets.o \
-	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o
+	books/fontdef.o books/parser.o books/symbols.o books/typesetter.o \
+	makeargv.o text_aliases.o
 	
 CXXOBJS=cal3d_wrapper.o eye_candy_wrapper.o \
  eye_candy/eye_candy.o eye_candy/math_cache.o eye_candy/effect_lamp.o \

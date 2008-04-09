@@ -36,6 +36,9 @@
 #ifdef CALCULATOR
 #include "calc.h"
 #endif
+#ifdef TEXT_ALIASES
+#include "text_aliases.h"
+#endif
 
 typedef char name_t[32];
 
@@ -398,6 +401,14 @@ int test_for_console_command(char *text, int length)
 		return 0;
 	} else {
 		int cmd_len;
+#ifdef TEXT_ALIASES
+		/* Handle numeric shortcuts */
+		if ( isdigit(text[0]) ) {
+			if ( process_text_alias(text,length) >= 0 ) {
+				return 1;
+			}
+		}
+#endif
 		/* Look for a matching command */
 		for(i = 0; i < command_count; i++) {
 			cmd_len = strlen(commands[i].command);
@@ -1123,6 +1134,11 @@ void init_commands(const char *filename)
 	add_command("save", &save_local_data);
 	add_command("url", &url_command);
 	add_command("chat_to_counters", &chat_to_counters_command);
+#ifdef TEXT_ALIASES
+	add_command("alias", &alias_command);
+	add_command("unalias", &unalias_command);
+	add_command("aliases", &aliases_command);
+#endif
 	command_buffer_offset = NULL;
 }
 

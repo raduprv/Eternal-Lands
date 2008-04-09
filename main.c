@@ -332,7 +332,7 @@ int main(int argc, char **argv)
 
 #ifdef WINDOWS
 // splits a char* into a char ** based on the delimiters
-int makeargv(char *s, char *delimiters, char ***argvp)
+static int makeargv(char *s, char *delimiters, char ***argvp)
 {
 	int i, numtokens;
 	char *snew, *t;
@@ -366,7 +366,7 @@ int makeargv(char *s, char *delimiters, char ***argvp)
 	return numtokens;
 }
 //frees the char** created by makeargv
-void freemakeargv(char **argv)
+static void freemakeargv(char **argv)
 {
 	if (argv == NULL)
 		return;

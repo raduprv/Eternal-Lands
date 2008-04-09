@@ -484,3 +484,8 @@
  *		Miscellaneous common functions used in the clients XML-handling
  * \ingroup	misc
  */
+/*!
+ * \defgroup	dbuffer Dynamic buffers
+ *		Dynamic buffers implementation. 
+ * \ingroup	misc
+ */

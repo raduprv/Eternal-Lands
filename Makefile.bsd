@@ -17,7 +17,8 @@ SRCS= 2d_objects.c 3d_objects.c \
     sector.c session.c serverpopup.c shadows.c sound.c spells.c stats.c tabs.c  \
     text.c textures.c tile_map.c timers.c translate.c trade.c   \
     update.c url.c weather.c widgets.c \
-	books/fontdef.c books/parser.c books/symbols.c books/typesetter.c
+	books/fontdef.c books/parser.c books/symbols.c books/typesetter.c \
+    makeargv.o text_aliases.o
 
 NOMAN= true
 LOCALBASE?=/usr/local
