@@ -1308,7 +1308,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				if (data_length <= 11)
 				{
-				  log_error("CAUTION: Possibly forged GET_YOUR_TRADEOBJECTS packet received.\n");
+				  log_error("CAUTION: Possibly forged GET_TRADE_OBJECT packet received.\n");
 				  break;
 				}
 				put_item_on_trade(in_data+3);
@@ -1319,7 +1319,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 			{
 				if (data_length <= 8)
 				{
-				  log_error("CAUTION: Possibly forged GET_YOUR_TRADEOBJECTS packet received.\n");
+				  log_error("CAUTION: Possibly forged REMOVE_TRADE_OBJECT packet received.\n");
 				  break;
 				}
 				remove_item_from_trade(in_data+3);
@@ -1337,7 +1337,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				// future support for more sigils
 				if (data_length <= 6)
 				{
-				  log_error("CAUTION: Possibly forged GET_YOUR_TRADEOBJECTS packet received.\n");
+				  log_error("CAUTION: Possibly forged GET_YOUR_SIGILS packet received.\n");
 				  break;
 				}
 				if(data_length < 11){
