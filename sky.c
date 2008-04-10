@@ -82,9 +82,9 @@ int skybox_show_sun = 1;
 int skybox_show_moons = 1;
 int skybox_show_stars = 1;
 int skybox_show_horizon_fog = 0;
-float skybox_sunny_sky_bias = 0.0;
-float skybox_sunny_clouds_bias = 0.0;
-float skybox_sunny_fog_bias = 0.0;
+float skybox_sunny_sky_bias = -0.3;
+float skybox_sunny_clouds_bias = -0.3;
+float skybox_sunny_fog_bias = -0.3;
 float skybox_moonlight1_bias = 0.92;
 float skybox_moonlight2_bias = 0.98;
 
@@ -451,7 +451,7 @@ void update_cloudy_sky_colors()
 		rain_coef = 0.0f;
 	}
 #else /* NEW_WATHER */
-	rain_coef = weather_rain_intensity;
+	rain_coef = weather_rain_intensity*get_rain_strength();
 #endif // NEW_WEATHER
 
 	// alpha adjustment for objects that should fade in daylight
@@ -640,12 +640,12 @@ void update_cloudy_sky_colors()
     }
 
 	// color of the moons update
-	moon1_color[0] *= 0.5 + 0.5*day_alpha;
-	moon1_color[1] *= 0.5 + 0.5*day_alpha;
-	moon1_color[2] *= 0.5 + 0.5*day_alpha;
-	moon2_color[0] *= 0.5 + 0.5*day_alpha;
-	moon2_color[1] *= 0.5 + 0.5*day_alpha;
-	moon2_color[2] *= 0.5 + 0.5*day_alpha;
+	moon1_color[0] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
+	moon1_color[1] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
+	moon1_color[2] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
+	moon2_color[0] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
+	moon2_color[1] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
+	moon2_color[2] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
 }
 
 void update_underworld_sky_colors()
@@ -874,7 +874,7 @@ void cloudy_sky()
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
 
 	// we draw the moons
-	if(skybox_show_moons && !skybox_no_moons && day_alpha > 0.0)
+	if(skybox_show_moons && !skybox_no_moons)
 	{
 		// the current light color is black so we change it to light the moons
 		GLfloat light_color[] = {0.8, 0.8, 0.8, 1.0};
@@ -889,11 +889,12 @@ void cloudy_sky()
 		glMaterialfv(GL_FRONT_AND_BACK, GL_AMBIENT, black_color);
 
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, moon1_color);
-		
+
 		glPushMatrix();
 		glRotatef(moon_spin, 0.0, 1.0, 0.0);
 		glTranslatef(0.0, 0.0, 450.0);
-		glRotatef(moon_spin-80.0, 0.0, 1.0, 0.0);
+		glRotatef(90.0, 1.0, 0.0, 0.0);
+		glRotatef(moon_spin, 0.0, 0.0, 1.0);
 		glScalef(20.0, 20.0, 20.0);
 		glCallList(sky_lists);
 		glPopMatrix();
@@ -903,7 +904,9 @@ void cloudy_sky()
 		glPushMatrix();
 		glRotatef(20.0, 0.0, 0.0, 1.0);
 		glRotatef(10.0*moon_spin, 0.0, 1.0, 0.0);
-		glTranslatef(0.0, 0.0, 500.0);
+		glTranslatef(0.0, 0.0, 480.0);
+		glRotatef(90.0, 1.0, 0.0, 0.0);
+		glRotatef(10.0*moon_spin, 0.0, 0.0, 1.0);
 		glScalef(12.0, 12.0, 12.0);
 		glCallList(sky_lists);
 		glPopMatrix();

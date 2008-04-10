@@ -1333,7 +1333,7 @@ void render_fog() {
 		fogColor[3] = 1.0;
 	}
 	else {
-		diffuseBias = weather_rain_intensity*weather_rain_intensity;
+		diffuseBias = weather_rain_intensity*weather_rain_intensity*rainStrength;
 		
 		for (i = 4; i--; ) {
 			fogColor[i] = skybox_fog[game_minute][i]*(1.0-diffuseBias) + skybox_fog_rainy[game_minute][i]*diffuseBias;
