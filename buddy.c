@@ -63,13 +63,13 @@ _buddy buddy_list[MAX_BUDDY];
 
 int create_buddy_interface_win(const char *title, void *argument);
 
-int compare2( const void *arg1, const void *arg2)
+int buddy_list_name_cmp( const void *arg1, const void *arg2)
 {
-	_buddy *b1=(_buddy*)arg1, *b2=(_buddy*)arg2;
+	_buddy *b1=arg1, *b2=arg2;
 	if(b1->type==b2->type)
 		return strcasecmp(b1->name,b2->name);
 	else
-		return b1->type>b2->type ? 1: -1;
+		return b1->type-b2->type;
 }
 
 int display_buddy_handler(window_info *win)
@@ -79,7 +79,7 @@ int display_buddy_handler(window_info *win)
 	
 	glEnable(GL_TEXTURE_2D);
 	// Draw buddies
-	qsort(buddy_list,MAX_BUDDY,sizeof(_buddy),compare2);
+	qsort(buddy_list,MAX_BUDDY,sizeof(_buddy),buddy_list_name_cmp);
 	
 	offset = vscrollbar_get_pos (buddy_win,buddy_scroll_id);
 	if (offset >= 0)
