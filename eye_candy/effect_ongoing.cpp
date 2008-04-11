@@ -35,11 +35,40 @@ OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const V
   flare_frequency = 50.0;
   LOD = _LOD;
   state = 0;
+  angle = 0.0f;
+}
+
+OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _size, const alpha_t _alpha, color_t hue, color_t saturation, color_t value, Texture* _texture, const Uint16 _LOD, const OngoingEffect::OngoingType _type, const angle_t _angle) : Particle(_effect, _mover, _pos, _velocity)
+{
+  type = _type;
+  hue += hue_adjust;
+  if (hue > 1.0)
+    hue -= 1.0;
+  saturation *= saturation_adjust;
+  if (saturation > 1.0)
+    saturation = 1.0;
+  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
+  if (type == OngoingEffect::OG_HARVEST) {
+    color[0] = hue;
+	color[1] = saturation;
+	color[2] = value;
+  }
+  texture = _texture;
+  size = _size;
+  alpha = _alpha;
+  velocity /= size;
+  flare_max = 1.0;
+  flare_exp = 0.1;
+  flare_frequency = 50.0;
+  LOD = _LOD;
+  state = 0;
+  angle = _angle;
 }
 
 bool OngoingParticle::idle(const Uint64 delta_t)
 {
   const interval_t float_time = delta_t / 1000000.0;
+  const Uint64 age = get_time() - born;
   switch(type)
   {
     case OngoingEffect::OG_MAGIC_PROTECTION:
@@ -76,64 +105,19 @@ bool OngoingParticle::idle(const Uint64 delta_t)
     }
     case OngoingEffect::OG_HARVEST:
     {
-	  velocity.x *= (0.0625 * float_time);
-	  velocity.z *= (0.0625 * float_time);
-	  velocity.y += float_time;
-	  Vec3 relpos = pos - *(effect->pos);
-	  if (relpos.magnitude() + (pos.y - effect->pos->y) * 0.125 > 0.25)
-      {
-		for (int i = 1; i <= 32; i++)
-		{
-		  relpos.y = 0;
-	 	  relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
-		  relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
-		  relpos.normalize(0.05);
-		  pos -= relpos;
-		  relpos.y = 0;
-	 	  relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
-		  relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
-		  if (relpos.magnitude() < 0.25)
-		  {
-			break;
-		  }
-		}
-	  }
+      const float age_f = (float)(age)/1000000;
+	  pos.x = ((OngoingEffect*)effect)->pos->x + cos(angle + M_PI * age_f) * age_f / exp(age_f * 2.5);
+	  pos.z = ((OngoingEffect*)effect)->pos->z + sin(angle + M_PI * age_f) * age_f / exp(age_f * 2.5);
+	  pos.y = ((OngoingEffect*)effect)->pos->y - 0.0625 + pow(age_f, 2.0) * 0.25;
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
-      alpha -= scalar;
-      if (alpha < 0.03)
+      alpha -= scalar * 0.25;
+      if (alpha < 0.01)
         return false;
-      size -= scalar * 0.125;
+      size -= scalar * 0.0625;
       break;
     }
   }
-  
-  // rotate particle around effect's y-axis
-  switch(type)
-  {
-    case OngoingEffect::OG_HARVEST:
-    {
-	  // relative position of the particle to the effect center
-	  Vec3 relpos;
-	  relpos.y = 0;
-	  relpos.x = pos.x - ((OngoingEffect*)effect)->pos->x;
-	  relpos.z = pos.z - ((OngoingEffect*)effect)->pos->z;
-	  
-	  // relative position to rotate
-	  Vec3 rotrelpos = relpos;
-	  const angle_t angle = M_PI * float_time * 1.5;
-	  // rotate it around y achsis
-	  rotrelpos.x = relpos.x * cos(angle) + relpos.z * sin(angle);
-	  rotrelpos.z = -relpos.x * sin(angle) + relpos.z * cos(angle);
-
-	  // move particle
-	  pos += (relpos - rotrelpos);
-	}
-	default:
-	{
-	  break;
-	}
-  }
- 
+   
   return true;
 }
 
@@ -309,27 +293,25 @@ bool OngoingEffect::idle(const Uint64 usec)
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 2.0 * LOD * strength) < 0.6)
       {
         const Vec3 coords = spawner->get_new_coords() + effect_center;
-        Vec3 velocity;
-        velocity.randomize(0.75);
-        velocity.y = -randfloat(0.5) + 0.2;
+        const Vec3 velocity = Vec3(0.0, 0.0, 0.0);
         Particle* p;
         if (randfloat() < 0.5)
         {
-          p = new OngoingParticle(this, mover, coords, velocity * 0.95, hue_adjust, saturation_adjust, 0.5 + randcolor(0.75), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexFlare), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity * 0.95, hue_adjust, saturation_adjust, 0.5 + randcolor(0.75), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexFlare), LOD, type, randfloat(2.0 * M_PI));
         }
         else
         {
-          p = new OngoingParticle(this, mover, coords, velocity * 1.05, hue_adjust, saturation_adjust, 0.75 + randcolor(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexShimmer), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity * 1.05, hue_adjust, saturation_adjust, 0.75 + randcolor(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexShimmer), LOD, type, randfloat(2.0 * M_PI));
         }
         if (!base->push_back_particle(p))
           break;
         if (randfloat() < 0.5)
         {
-          p = new OngoingParticle(this, mover, coords, velocity * 0.9, hue_adjust, saturation_adjust, 0.25 + randcolor(), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexVoid), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity * 0.9, hue_adjust, saturation_adjust, 0.25 + randcolor(), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexVoid), LOD, type, randfloat(2.0 * M_PI));
         }
         else
         {
-          p = new OngoingParticle(this, mover, coords, velocity * 1.1, hue_adjust, saturation_adjust, 0.5 + randcolor(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexTwinflare), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity * 1.1, hue_adjust, saturation_adjust, 0.5 + randcolor(0.5), 1.0, 0.75 + randcolor(0.25), 0.5 + randcolor(0.1), randcolor(0.1), &(base->TexTwinflare), LOD, type, randfloat(2.0 * M_PI));
         }
         if (!base->push_back_particle(p))
           break;
