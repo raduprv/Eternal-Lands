@@ -41,6 +41,7 @@ public:
   Vec3 effect_center;
   OngoingType type;
   float strength;
+  Vec3 initial_center;
 };
 
 class OngoingParticle : public Particle

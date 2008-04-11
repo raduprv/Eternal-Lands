@@ -106,9 +106,9 @@ bool OngoingParticle::idle(const Uint64 delta_t)
     case OngoingEffect::OG_HARVEST:
     {
       const float age_f = (float)(age)/1000000;
-	  pos.x = ((OngoingEffect*)effect)->pos->x + cos(angle + M_PI * age_f) * age_f / exp(age_f * 2.5);
-	  pos.z = ((OngoingEffect*)effect)->pos->z + sin(angle + M_PI * age_f) * age_f / exp(age_f * 2.5);
-	  pos.y = ((OngoingEffect*)effect)->pos->y - 0.0625 + pow(age_f, 2.0) * 0.25;
+	  pos.x = ((OngoingEffect*)effect)->initial_center.x + cos(angle + M_PI * age_f) * std::max((age_f < 0.75 ? 0 : 0.0625f), (float)(age_f * 2.5 / exp(age_f * 4.0f)));
+	  pos.z = ((OngoingEffect*)effect)->initial_center.z + sin(angle + M_PI * age_f) * std::max((age_f < 0.75 ? 0 : 0.0625f), (float)(age_f * 2.5 / exp(age_f * 4.0f)));
+	  pos.y = ((OngoingEffect*)effect)->initial_center.y - 0.0625 + pow(age_f, 2.0) * 0.25;
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
       alpha -= scalar * 0.25;
       if (alpha < 0.01)
@@ -153,6 +153,7 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const col
   base = _base;
   dead = _dead;
   pos = _pos;
+  initial_center = *pos;
   hue_adjust = _hue_adjust;
   saturation_adjust = _saturation_adjust;
   effect_center = *pos;
