@@ -576,8 +576,15 @@ extern "C" void ec_actor_delete(actor* _actor)
 extern "C" void ec_recall_effect(const ec_reference ref)
 {
   force_idle = true;
-  ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
-  cast_reference->effect->recall = true;
+  if (ref != NULL)
+  {
+    ec_internal_reference* cast_reference = (ec_internal_reference*)ref;
+    if (cast_reference != NULL 
+    	&& cast_reference->effect != NULL)
+    {
+      cast_reference->effect->recall = true;
+    }
+  }
 }
 
 extern "C" void ec_delete_all_effects()
