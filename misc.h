@@ -1,6 +1,9 @@
 #ifndef	__MISC_H
 #define	__MISC_H
 
+#ifdef ZLIB
+#include <zlib.h>
+#endif // ZLIB
 #include "lights.h"
 
 extern float grid_height;

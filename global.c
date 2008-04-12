@@ -1,3 +1,4 @@
+#include "e3d.h"
 #include "global.h"
 
 int have_arb_compression=0;

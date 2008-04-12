@@ -1,3 +1,4 @@
+#include "tiles.h"
 #include "global.h"
 #include "eye_candy_window.h"
 #include <math.h>

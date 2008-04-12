@@ -1,3 +1,4 @@
+#include "../elc/asc.h"
 #include "global.h"
 
 #ifdef NEW_E3D_FORMAT
@@ -185,9 +186,9 @@ void handle_window_resize()
 			alpha = texture_cache[i].alpha;
 			//our texture was freed, we have to reload it
 			if(alpha <= 0)
-				texture_cache[i].texture_id = load_bmp8_color_key (texture_cache[i].file_name, alpha);
+				texture_cache[i].texture_id = load_bmp8_color_key (&texture_cache[i], alpha);
 			else
-				texture_cache[i].texture_id = load_bmp8_fixed_alpha (texture_cache[i].file_name, alpha);
+				texture_cache[i].texture_id = load_bmp8_fixed_alpha (&texture_cache[i], alpha);
 		}
 	}
 

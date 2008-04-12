@@ -7,6 +7,7 @@
 #endif //_MSC_VER
 #include <sys/types.h>
 #include <sys/stat.h>
+#include "tiles.h"
 #include "global.h"
 //#ifdef OSX
 //#include <ApplicationServices/ApplicationServices.h>

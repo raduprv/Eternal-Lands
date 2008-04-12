@@ -1,6 +1,8 @@
 #include "2d_objects.h"
 #include "draw_scene.h"
 #include "global.h"
+#include "../elc/asc.h"
+#include "../elc/platform.h"
 #include "../elc/textures.h"
 
 #define INVALID -1

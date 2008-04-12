@@ -4,10 +4,14 @@
 #include <unistd.h>
 #include <locale.h>
 #endif
+#include "e3d.h"
 #include "global.h"
 #ifdef EYE_CANDY
 #include "../elc/eye_candy_wrapper.h"
 #endif
+#include "../elc/asc.h"
+#include "../elc/io/elpathwrapper.h"
+#include "../elc/io/elfilewrapper.h"
 
 char lang[10]={"en"};
 
@@ -49,47 +53,18 @@ void init_2d_obj_cache()
 
 void read_config()
 {
-	FILE *f = NULL;
-	char str[250];
-#ifndef WINDOWS
-	char el_ini[256];
-	DIR *d = NULL;
-	strcpy(configdir, getenv("HOME"));
-	strcat(configdir, "/.elc/");
-	d=opendir(configdir);
-	if(!d)
-		mkdir(configdir,0755);
-	else
-		{
-			strcpy(el_ini, configdir);
-			strcat(el_ini, "mapedit.ini");
-			closedir(d);
-			f=fopen(el_ini,"rb"); //try to load local settings
-		}
-	if(!f) //use global settings
-		{
-			strcpy(el_ini, datadir);
-			strcat(el_ini, "mapedit.ini");
-			f=fopen(el_ini,"rb");
-		}
-#else
-	f=fopen("mapedit.ini","rb");
-#endif
-	if(!f)//oops, the file doesn't exist, use the defaults
-		{
-			return;//in the map editor this is a non-fatal error..
-		}
-	while(fgets(str,250,f))
-		{
-			if(str[0]=='#')
-				{
-					check_var(str+1,1);//check only for the long strings
-				}
-		}
+	// Set our configdir
+	const char * tcfg = get_path_config();
 
-	#ifndef WINDOWS
-	chdir(datadir);
-	#endif
+	my_strncp (configdir, tcfg , sizeof(configdir));
+
+	if ( !read_el_ini () )
+	{
+		// oops, the file doesn't exist, give up
+		LOG_ERROR("Failure reading mapedit.ini");
+		SDL_Quit ();
+		exit (1);
+	}
 }
 
 void init_stuff()
@@ -107,6 +82,10 @@ void init_stuff()
 	init_vars();
 	
 	read_config();
+
+	file_check_datadir();
+
+	add_paths();
 	
 #ifdef LOAD_XML
 	//Well, the current version of the map editor doesn't support having a datadir - will add that later ;-)

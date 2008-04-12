@@ -1,6 +1,9 @@
 #include <stdlib.h>
 #include <math.h>
 #include <string.h>
+#include "e3d.h"
+#include "../elc/platform.h"
+#include "../elc/asc.h"
 #include "global.h"
 
 #ifdef NEW_E3D_FORMAT

@@ -6,15 +6,16 @@ CXX=g++
 LINK=g++
 
 FEATURES  = EYE_CANDY
-FEATURES += SFX
 FEATURES += NEW_E3D_FORMAT
 FEATURES += CLUSTER_INSIDES
 FEATURES += NEW_LIGHT_FORMAT
+FEATURES += ZLIB
+FEATURES += ZLIBW
 
 WARN = -Wall -Wdeclaration-after-statement # -W -Werror
 CXXWARN = -Wall # -W -Werror
 OPTIONS = -DLINUX -DMAP_EDITOR $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
-#-DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
+OPTIONS += -DGL_GLEXT_PROTOTYPES # needed in my SDL_opengl.h for some function declarations
 
 GTK_CFLAGS = $(shell gtk-config --cflags) #If you wish to use the old gtk, compile with "make gtk"
 GTK2_CFLAGS = $(shell pkg-config gtk+-2.0 --cflags) -DGTK2
@@ -31,7 +32,7 @@ LIBS=$(shell sdl-config --libs) -lGL -lGLU $(shell xml2-config --libs) -lcal3d -
 
 COBJS=2d_objects.o 3d_objects.o	\
 	browser.o draw_scene.o	\
-	elwindows.o errors.o events.o \
+	elwindows.o events.o \
 	font.o frustum.o	\
 	gl_init.o global.o gui.o gui_callbacks.o	\
 	init.o interface.o lights.o \
@@ -40,29 +41,34 @@ COBJS=2d_objects.o 3d_objects.o	\
 	replace_window.o edit_window.o particles_window.o
 
 CLUSTER_INSIDES_ELC_COBJS = cluster.o
-ELC_COBJS = asc.o colors.o elconfig.o load_gl_extensions.o md5.o \
-	particles.o queue.o textures.o translate.o	\
+ELC_COBJS = asc.o colors.o elconfig.o errors.o load_gl_extensions.o md5.o \
+	particles.o queue.o textures.o translate.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_COBJS))
 
-ELC_IO_COBJS = e3d_io.o elc_io.o
+ELC_IO_COBJS = e3d_io.o elc_io.o elpathwrapper.o
+
+ELC_IO_CXXOBJS = elfilewrapper.o elfile.o zipfilesystem.o
+
+ELC_EXCEPTION_CXXOBJS = extendedexception.o
 
 EYE_CANDY_CXXOBJS = eye_candy_window.o 
 CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_CXXOBJS))
 
 EYE_CANDY_ELC_CXXOBJS = eye_candy_wrapper.o
+
 ELC_CXXOBJS = cal3d_wrapper.o \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_CXXOBJS))
 
 EYE_CANDY_ELC_EC_CXXOBJS = effect_bag.o effect_breath.o effect_campfire.o \
 	effect_cloud.o effect_candle.o effect_firefly.o effect_fountain.o \
-	effect_harvesting.o effect_impact.o effect_lamp.o effect_ongoing.o \
-	effect_selfmagic.o effect_smoke.o effect_summon.o effect_sword.o \
-	effect_targetmagic.o effect_teleporter.o effect_wind.o eye_candy.o \
-	math_cache.o
+	effect_glow.o effect_harvesting.o effect_impact.o effect_lamp.o \
+	effect_ongoing.o effect_selfmagic.o effect_smoke.o \
+	effect_summon.o effect_sword.o effect_targetmagic.o effect_teleporter.o\
+	effect_wind.o eye_candy.o math_cache.o
 ELC_EC_CXXOBJS = $(foreach FEATURE, $(FEATURES), $($(FEATURE)_ELC_EC_CXXOBJS))
 
-OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(CXXOBJS) $(ELC_CXXOBJS) \
-	$(ELC_EC_CXXOBJS)
+OBJS = $(COBJS) $(ELC_COBJS) $(ELC_IO_COBJS) $(ELC_IO_CXXOBJS) $(CXXOBJS)\
+	   $(ELC_CXXOBJS) $(ELC_EC_CXXOBJS) $(ELC_EXCEPTION_CXXOBJS)
 
 mapedit.x86.linux.bin: $(OBJS)
 	$(LINK) $(CFLAGS) $(LIBS) $(GTK2_LIBS) -o $@ $^
@@ -81,6 +87,12 @@ $(ELC_COBJS): %.o : ../elc/%.c
 
 $(ELC_IO_COBJS): %.o : ../elc/io/%.c
 	$(CC) $(CFLAGS) -c -o $@ $<
+
+$(ELC_IO_CXXOBJS): %.o : ../elc/io/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
+
+$(ELC_EXCEPTION_CXXOBJS): %.o : ../elc/exceptions/%.cpp
+	$(CXX) $(CXXFLAGS) -c -o $@ $<
 
 $(ELC_CXXOBJS): %.o : ../elc/%.cpp
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

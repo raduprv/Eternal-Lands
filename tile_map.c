@@ -1,5 +1,6 @@
 #include <math.h>
 #include <stdlib.h>
+#include "tiles.h"
 #include "global.h"
 
 void destroy_map_tiles()

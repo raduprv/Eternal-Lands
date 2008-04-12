@@ -1,7 +1,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "font.h"
-#include "errors.h"
+#include "../elc/errors.h"
 #include "../elc/client_serv.h"
 #include "../elc/colors.h"
 #include "../elc/textures.h"
