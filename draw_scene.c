@@ -98,6 +98,7 @@ float last_kludge=0;	//Stores how far the camera deviated from camera_kludge
 float fol_strn = 0.03f;
 float fol_con,fol_lin,fol_quad;
 int ext_cam = 1;	//Extended camera state
+int auto_camera_zoom = 0;
 //Check that this is still used, I think it's not.
 float hold_camera=180;
 
@@ -645,22 +646,35 @@ void update_camera()
 		// here we use a shift of 0.2 to avoid to be too close from the ground
 		if (tz + 0.2 > dir[2] - camera_z)
 		{
-			// if the camera is under the ground, we change the zoom level
-			new_zoom_level *= (tz + camera_z + 0.2) / dir[2];
+			if (auto_camera_zoom) // new behaviour
+			{
+				// if the camera is under the ground, we change the zoom level
+				new_zoom_level *= (tz + camera_z + 0.2) / dir[2];
 
-			if (new_zoom_level < 1.0)
-			{
-				new_zoom_level = 1.0;
+				if (new_zoom_level < 1.0)
+				{
+					new_zoom_level = 1.0;
 #ifdef NEW_CAMERA
-				camera_tilt_duration = camera_zoom_duration = 0;
+					camera_tilt_duration = camera_zoom_duration = 0;
 #else // NEW_CAMERA
-				camera_tilt_frames = camera_zoom_frames = 0;
+					camera_tilt_frames = camera_zoom_frames = 0;
 #endif // NEW_CAMERA
-				rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
+					rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
+				}
+				else if (new_zoom_level > 4.0)
+				{
+					new_zoom_level = 4.0;
+#ifdef NEW_CAMERA
+					camera_tilt_duration = camera_zoom_duration = 0;
+#else // NEW_CAMERA
+					camera_tilt_frames = camera_zoom_frames = 0;
+#endif // NEW_CAMERA
+				}
 			}
-			else if (new_zoom_level > 4.0)
+			else // old freecam behaviour
 			{
-				new_zoom_level = 4.0;
+				rx = old_rx;
+				new_zoom_level = old_zoom_level;
 #ifdef NEW_CAMERA
 				camera_tilt_duration = camera_zoom_duration = 0;
 #else // NEW_CAMERA

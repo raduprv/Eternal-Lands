@@ -803,7 +803,7 @@ void cloudy_sky()
 	glClear(GL_DEPTH_BUFFER_BIT);
     glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -10.0);
 
-	// we draw the ground
+	// we draw a ring to continue the sky a bit under the horizon
     if (skybox_show_horizon_fog)
     {
         glBegin(GL_QUAD_STRIP);
@@ -811,7 +811,7 @@ void cloudy_sky()
 		{
             const GLfloat *vtx = &dome_sky.vertices[i*3];
             glColor3fv(&fog_colors[i*3]);
-            glVertex4f(vtx[0], vtx[1], vtx[2], 500.0);
+            glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
             glVertex3fv(vtx);
         }
         glColor4fv(&fog_colors[0]);
@@ -826,7 +826,7 @@ void cloudy_sky()
 		{
             const GLfloat *vtx = &dome_sky.vertices[i*3];
             glColor3fv(&dome_sky.colors[i*4]);
-            glVertex4f(vtx[0], vtx[1], vtx[2], 500.0);
+            glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
             glVertex3fv(vtx);
         }
         glColor3fv(&dome_sky.colors[0]);
@@ -1056,13 +1056,42 @@ void cloudy_sky()
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 
+	glDisable(GL_TEXTURE_2D);
+
+	// we fade the sky that is under the horizon
+	glBegin(GL_QUAD_STRIP);
+	for (i = 0; i < dome_sky.slices_count; ++i)
+	{
+		const GLfloat *vtx = &dome_sky.vertices[i*3];
+		glColor4f(fogColor[0], fogColor[1], fogColor[2], 1.0);
+		glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
+		glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
+		glVertex4f(vtx[0], vtx[1], vtx[2], 1.0);
+	}
+	glColor4f(fogColor[0], fogColor[1], fogColor[2], 1.0);
+	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 4.0);
+	glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
+	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 1.0);
+	glEnd();
+
+	// we mask all the elements that are under the horizon with the fog color
+	glBegin(GL_TRIANGLE_FAN);
+	glColor3fv(fogColor);
+	glVertex3f(0.0, 0.0, 0.0);
+	for (i = 0; i < dome_sky.slices_count; ++i)
+	{
+		const GLfloat *vtx = &dome_sky.vertices[i*3];
+		glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
+	}
+	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 4.0);
+	glEnd();
+	
 	glPopMatrix();
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
 	glMatrixMode(GL_MODELVIEW);
 	glPopAttrib();
 
-	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
