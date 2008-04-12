@@ -1378,14 +1378,22 @@ void open_particles_obj()
 	gtk_window_set_title(GTK_WINDOW(file_selector), "open particles object");
 	continue_with = OPEN_PARTICLES_OBJ;
 	gtk_widget_show(file_selector);
-#endif
+#endif //GTK2
 }
-#endif
+#endif //LINUX
 void open_particles_obj_continued()
 {
   if (selected_file)
     {
-		selected_particles_object=add_particle_sys(selected_file,scene_mouse_x,scene_mouse_y,0.0);
+		char *file = selected_file;
+		size_t datadir_len = strlen(datadir);
+
+		if(datadir_len > 0 && strncmp(selected_file, datadir, datadir_len) == 0) {
+			/* add_particle_sys() wants a path relative to the data dir */
+			file += datadir_len-1;
+			*file = '.';
+		}
+		selected_particles_object=add_particle_sys(file,scene_mouse_x,scene_mouse_y,0.0);
 		cur_tool=tool_select;//change the current tool
 #ifdef GTK2
 		cur_mode=mode_particles;
