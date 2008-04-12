@@ -214,13 +214,17 @@ OngoingEffect::~OngoingEffect()
 bool OngoingEffect::idle(const Uint64 usec)
 {
   if ((recall) && (particles.size() == 0))
+  {
     return false;
-    
+  }
+  
   if (recall)
+  {
     return true;
+  }
   
   effect_center = *pos;
-  //effect_center.y += 0.5;
+  initial_center = *pos;
     
   const interval_t float_time = usec / 1000000.0;
   switch(type)
