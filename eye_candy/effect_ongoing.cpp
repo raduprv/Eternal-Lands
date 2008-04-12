@@ -36,6 +36,7 @@ OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const V
   LOD = _LOD;
   state = 0;
   angle = 0.0f;
+  center = _pos;
 }
 
 OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const coord_t _size, const alpha_t _alpha, color_t hue, color_t saturation, color_t value, Texture* _texture, const Uint16 _LOD, const OngoingEffect::OngoingType _type, const angle_t _angle) : Particle(_effect, _mover, _pos, _velocity)
@@ -63,6 +64,7 @@ OngoingParticle::OngoingParticle(Effect* _effect, ParticleMover* _mover, const V
   LOD = _LOD;
   state = 0;
   angle = _angle;
+  center = _pos;
 }
 
 bool OngoingParticle::idle(const Uint64 delta_t)
@@ -105,10 +107,14 @@ bool OngoingParticle::idle(const Uint64 delta_t)
     }
     case OngoingEffect::OG_HARVEST:
     {
+      if (((OngoingEffect*)effect)->recall == false)
+      {
+        //center = ((OngoingEffect*)effect)->effect_center;
+      }
       const float age_f = (float)(age)/1000000;
-	  pos.x = ((OngoingEffect*)effect)->initial_center.x + cos(angle + M_PI * age_f) * std::max((age_f < 0.75 ? 0 : 0.0625f), (float)(age_f * 2.5 / exp(age_f * 4.0f)));
-	  pos.z = ((OngoingEffect*)effect)->initial_center.z + sin(angle + M_PI * age_f) * std::max((age_f < 0.75 ? 0 : 0.0625f), (float)(age_f * 2.5 / exp(age_f * 4.0f)));
-	  pos.y = ((OngoingEffect*)effect)->initial_center.y - 0.0625 + pow(age_f, 2.0) * 0.25;
+	  pos.x = center.x + cos(angle + M_PI * age_f) * std::max((age_f < 0.75 ? 0 : 0.0625f), (float)(age_f * 2.5 / exp(age_f * 4.0f)));
+	  pos.z = center.z + sin(angle + M_PI * age_f) * std::max((age_f < 0.75 ? 0 : 0.0625f), (float)(age_f * 2.5 / exp(age_f * 4.0f)));
+	  pos.y = center.y - 0.0625 + pow(age_f, 2.0) * 0.25;
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
       alpha -= scalar * 0.25;
       if (alpha < 0.01)
@@ -224,7 +230,6 @@ bool OngoingEffect::idle(const Uint64 usec)
   }
   
   effect_center = *pos;
-  initial_center = *pos;
     
   const interval_t float_time = usec / 1000000.0;
   switch(type)

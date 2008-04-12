@@ -60,6 +60,7 @@ public:
   Uint16 LOD;
   OngoingEffect::OngoingType type;
   angle_t angle;
+  Vec3 center;
 };
 
 
