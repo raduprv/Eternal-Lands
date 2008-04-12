@@ -65,7 +65,7 @@ int create_buddy_interface_win(const char *title, void *argument);
 
 int buddy_list_name_cmp( const void *arg1, const void *arg2)
 {
-	_buddy *b1=arg1, *b2=arg2;
+	const _buddy *b1=arg1, *b2=arg2;
 	if(b1->type==b2->type)
 		return strcasecmp(b1->name,b2->name);
 	else
