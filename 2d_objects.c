@@ -4,6 +4,7 @@
 #include "../elc/asc.h"
 #include "../elc/platform.h"
 #include "../elc/textures.h"
+#include "../elc/io/elfilewrapper.h"
 
 #define INVALID -1
 #define GROUND 0
@@ -168,12 +169,11 @@ obj_2d_def * load_obj_2d_def(char *file_name)
 {
   int f_size;
   int i,k,l;
-  FILE *f = NULL;
+  el_file_ptr file = NULL;
   char cur_dir[200]={0};
   obj_2d_def *cur_object;
   char *obj_file_mem;
   char *texture_file_name;
-  char *handle_obj_file_mem;
   float x_size,y_size;
   float alpha_test;
   int file_x_len;
@@ -204,24 +204,18 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   }
 
 
-  f = fopen (file_name, "rb");
-  if(!f)
-	   {
-            char str[120];
-            sprintf(str,"Error: Can't open file: %s\n",file_name);
-            log_error(str);
-    	    return NULL;
-	   }
-  fseek (f, 0, SEEK_END);
-  f_size = ftell (f);
-
-  //ok, allocate memory for it
-  obj_file_mem =(char*) calloc ( f_size, sizeof(char) );
-  handle_obj_file_mem = obj_file_mem;
-  fseek (f, 0, SEEK_SET);
-  fread (obj_file_mem, 1, f_size, f);
-  fclose (f);
-
+  file = el_open(file_name);
+  if(file == NULL)
+  {
+    char str[120];
+    sprintf(str,"Error: Can't open file: %s\n",file_name);
+    log_error(str);
+	free(cur_object);
+    return NULL;
+  }
+  
+  obj_file_mem = el_get_pointer(file);
+  f_size = el_get_size(file);
 
   //ok, the file is loaded, so parse it
   file_x_len=get_integer_after_string("file_x_len:",obj_file_mem,f_size);
@@ -245,77 +239,76 @@ obj_2d_def * load_obj_2d_def(char *file_name)
   cur_object->alpha_test=alpha_test;
 
   //now  find the texture name
-      texture_file_name=(char*) calloc(128, sizeof(char));
-			i=get_string_occurance("texture:",obj_file_mem,40,0);
-			obj_file_mem+=i;
-			k=0;
-			//find the file name
-			while(k<128)
-				{
-					if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a)break;
-					k++;
-				}
-			//we found the beginning of the file name
-			//now, copy the current directory string to the file_name string
-			i=strlen(cur_dir);
-			l=0;
-			while(l<i)
-			{
-				texture_file_name[l]=cur_dir[l];
-				l++;
-			}
-			while(l<128)
-				{
-					if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a && obj_file_mem[k]!=0x0d)
-						{
-							texture_file_name[l]=obj_file_mem[k];
-							k++;
-							l++;
-						}
-					else
-						{
-							texture_file_name[l]=0;
-							break;
-						}
-				}
+  texture_file_name=(char*) calloc(128, sizeof(char));
+  i=get_string_occurance("texture:",obj_file_mem,40,0);
+  obj_file_mem+=i;
+  k=0;
+  //find the file name
+  while(k<128)
+  {
+		if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a)
+			break;
+		k++;
+  }
+  //we found the beginning of the file name
+  //now, copy the current directory string to the file_name string
+  i=strlen(cur_dir);
+  l=0;
+  while(l<i)
+  {
+		texture_file_name[l]=cur_dir[l];
+		l++;
+  }
+  while(l<128)
+	{
+		if(obj_file_mem[k]!=' ' && obj_file_mem[k]!=0x0a && obj_file_mem[k]!=0x0d)
+		{
+			texture_file_name[l]=obj_file_mem[k];
+			k++;
+			l++;
+		}
+		else
+		{
+			texture_file_name[l]=0;
+			break;
+		}
+	}
 
-			cur_object->texture_id= load_texture_cache(texture_file_name,0);
-			//now get the object type
-			i=get_string_occurance("type:",obj_file_mem,f_size,0);
-			obj_file_mem+=i;
-			k=0;
-			for(k=0;k<10;k++)
-			   {
-			      if(obj_file_mem[k]==0x0a)
-               {
-                cur_object->object_type = INVALID;
-                break;
-               }
-			      if(obj_file_mem[k]==' ')continue;
+	cur_object->texture_id= load_texture_cache(texture_file_name,0);
+	//now get the object type
+	i=get_string_occurance("type:",obj_file_mem,f_size,0);
+	obj_file_mem+=i;
+	k=0;
+	for(k=0;k<10;k++)
+	{
+		if(obj_file_mem[k]==0x0a)
+		{
+			cur_object->object_type = INVALID;
+			break;
+		}
+		if(obj_file_mem[k]==' ')continue;
 
-			      if(obj_file_mem[k]=='g' || obj_file_mem[k]=='G')
-               {
-                cur_object->object_type = GROUND;
-                break;
-               }
+		if(obj_file_mem[k]=='g' || obj_file_mem[k]=='G')
+		{
+			cur_object->object_type = GROUND;
+			break;
+		}
 
-			      if(obj_file_mem[k]=='p' || obj_file_mem[k]=='P')
-               {
-                cur_object->object_type = PLANT;
-                break;
-               }
+		if(obj_file_mem[k]=='p' || obj_file_mem[k]=='P')
+		{
+			cur_object->object_type = PLANT;
+			break;
+		}
 
-			      if(obj_file_mem[k]=='f' || obj_file_mem[k]=='F')
-               {
-                cur_object->object_type = FENCE;
-                break;
-               }
-			   }
+		if(obj_file_mem[k]=='f' || obj_file_mem[k]=='F')
+		{
+			cur_object->object_type = FENCE;
+			break;
+		}
+	}
+	el_close(file);
 
-  return cur_object;
-  free(texture_file_name);
-  free(handle_obj_file_mem);
-
+	return cur_object;
 }
 
 //Tests to see if an obj_2d object is already loaded. If it is, return the handle.
@@ -432,7 +425,8 @@ int get_2d_bbox (int id, AABBOX* box)
 
 int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_rot, float y_rot, float z_rot)
 {
-	int i,k,len;
+	size_t i;
+	char fname[128];
 	obj_2d_def *returned_obj_2d_def;
 	obj_2d *our_object;
 	short sector;
@@ -448,19 +442,18 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 		}
 
 	//but first convert any '\' in '/'
-	len=strlen(file_name);
-	for(k=0;k<len;k++)if(file_name[k]=='\\')file_name[k]='/';
+	clean_file_name(fname, file_name, sizeof(fname));
 
-	returned_obj_2d_def=load_obj_2d_def_cache(file_name);
+	returned_obj_2d_def=load_obj_2d_def_cache(fname);
 	if(!returned_obj_2d_def)
 	   {
             char str[120];
-            sprintf(str,"Error: Can't load 2d object: %s\n",file_name);
+            sprintf(str,"Error: Can't load 2d object: %s\n",fname);
             log_error(str);
 	        return 0;
 	   }
 
-	sprintf(our_object->file_name,"%s",file_name);
+	sprintf(our_object->file_name,"%s",fname);
 	our_object->x_pos=x_pos;
 	our_object->y_pos=y_pos;
 	our_object->z_pos=z_pos;
@@ -469,7 +462,6 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos, float x_
 	our_object->y_rot=y_rot;
 	our_object->z_rot=z_rot;
 	our_object->obj_pointer=returned_obj_2d_def;
-
 	obj_2d_list[i]=our_object;
 
 	//get the current sector

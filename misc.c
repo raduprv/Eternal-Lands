@@ -1345,15 +1345,28 @@ void open_3d_obj()
 void open_3d_obj_continued()
 {
   if (selected_file)
-    {
-		if(!strcmp(selected_file+strlen(selected_file)-3, ".gz")) selected_file[strlen(selected_file)-3]= '\0';
-		selected_3d_object=add_e3d(selected_file,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
+  {
+		char *file = selected_file;
+		size_t datadir_len = strlen(datadir);
+
+		if(!strcmp(selected_file+strlen(selected_file)-3, ".gz")) {
+			selected_file[strlen(selected_file)-3]= '\0';
+		}
+		if(datadir_len > 0 && strncmp(selected_file, datadir, datadir_len) == 0) {
+			/* add_e3d() wants a path relative to the data dir */
+			file += datadir_len-1;
+			*file = '.';
+		}
+		selected_3d_object=add_e3d(file,scene_mouse_x,scene_mouse_y,0,0,0,0,0,0,0,0,0);
 		cur_tool=tool_select;//change the current tool
-		if(selected_particles_object>=0)particles_list[selected_particles_object]->ttl=-1; // we dont want the particle sys to disapear
+		if(selected_particles_object>=0) {
+			// we dont want the particle sys to disapear
+			particles_list[selected_particles_object]->ttl=-1;
+		}
 #ifdef GTK2
 		cur_mode=mode_3d;
 #endif
-    }
+  }
 }
 
 #ifdef LINUX
@@ -1419,14 +1432,22 @@ void open_2d_obj()
 #endif
 void open_2d_obj_continued()
 {
-  if (selected_file)
-    {
-		selected_2d_object=add_2d_obj(selected_file,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
+	if (selected_file)
+	{
+		size_t datadir_len = strlen(datadir);
+		char *file = selected_file;
+
+		if(datadir_len > 0 && strncmp(selected_file, datadir, datadir_len) == 0) {
+			/* add_2d_obj() expects a path relative to datadir */
+			file += datadir_len-1;
+			*file = '.';
+		}
+		selected_2d_object=add_2d_obj(file,scene_mouse_x,scene_mouse_y,0.001f,0,0,0);
 		cur_tool=tool_select;//change the current tool
 #ifdef GTK2
 		cur_mode=mode_2d;
 #endif
-    }
+	}
 }
 #ifdef LINUX
 void open_map_file()
