@@ -728,12 +728,12 @@ void add_xml_identifier(group_id * group, char * xml_id, char * var, char * def,
 	group->strings[group->no]->max_len=max_len-1;
 	group->no++;
 }
-
+#ifdef ELC
 void add_options_distringid(char * xml_id, dichar * var, char * str, char * desc)
 {
 	add_xml_distringid(options_str, xml_id, var, str, desc);
 }
-
+#endif //ELC
 void init_translatables()
 {
 	init_groups();

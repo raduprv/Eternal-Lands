@@ -8,8 +8,12 @@
 #include "asc.h"
 #include "errors.h"
 #include "md5.h"
-#include "misc.h"
 #include "io/elfilewrapper.h"
+#ifdef MAP_EDITOR
+# include "../map_editor/misc.h"
+#else
+# include "misc.h"
+#endif //MAP_EDITOR
 
 /* NOTE: This file contains implementations of the following, currently unused and commented functions:
  *          Look at the end of the file.

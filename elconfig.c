@@ -19,7 +19,6 @@
  #include "load_gl_extensions.h"
 #else
  #include "alphamap.h"
- #include "asc.h"
  #include "bags.h"
  #include "buddy.h"
  #include "chat.h"
@@ -62,6 +61,7 @@
  #endif // SKY_FPV
 #endif
 
+#include "asc.h"
 #include "elconfig.h"
 #include "text.h"
 #include "consolewin.h"
@@ -71,6 +71,7 @@
 	#include "eye_candy_wrapper.h"
 #include "sendvideoinfo.h"
 #include "actor_init.h"
+#include "io/elpathwrapper.h"
 
 typedef	float (*float_min_max_func)();
 typedef	int (*int_min_max_func)();
@@ -188,7 +189,9 @@ static __inline__ void destroy_shadow_mapping()
 		CHECK_GL_ERRORS();
 		if (have_extension(ext_framebuffer_object))
 		{
+#ifndef MAP_EDITOR
 			free_shadow_framebuffer();
+#endif //MAP_EDITOR
 		}
 		else
 		{
@@ -209,9 +212,11 @@ static __inline__ void destroy_fbos()
 		CHECK_GL_ERRORS();
 		if (have_extension(ext_framebuffer_object))
 		{
+#ifndef MAP_EDITOR
 			destroy_shadow_mapping();
 			free_reflection_framebuffer();
 			minimap_free_framebuffer();
+#endif //MAP_EDITOR
 		}
 		CHECK_GL_ERRORS();
 	}
@@ -221,9 +226,9 @@ static __inline__ void build_fbos()
 {
 	if (gl_extensions_loaded)
 	{
+#ifndef MAP_EDITOR
 		if (have_extension(ext_framebuffer_object) && use_frame_buffer)
 		{
-#ifndef MAP_EDITOR
  #ifdef	USE_SHADER
 			if ((water_shader_quality > 0) && show_reflection)
  #else	// USE_SHADER
@@ -233,8 +238,8 @@ static __inline__ void build_fbos()
 				make_reflection_framebuffer(window_width, window_height);
 			}
 			minimap_make_framebuffer();
-#endif // MAP_EDITOR
 		}
+#endif // MAP_EDITOR
 		check_option_var("shadow_map_size");
 	}
 }
@@ -265,7 +270,7 @@ void change_new_lighting(int * var)
 	build_global_light_table();
 }
 #endif
-
+#ifndef MAP_EDITOR
 void change_use_animation_program(int * var)
 {
 	if (*var)
@@ -304,7 +309,9 @@ void change_use_animation_program(int * var)
 		}
 	}
 }
+#endif //MAP_EDITOR
 
+#if !defined(MAP_EDITOR) || defined(EYE_CANDY)
 void change_min_ec_framerate(float * var, float * value)
 {
 	if(*value >= 0) {
@@ -334,6 +341,7 @@ void change_max_ec_framerate(float * var, float * value)
 		*var= 1;
 	}
 }
+#endif //!MAP_EDITOR || EYE_CANDY
 
 void change_int(int * var, int value)
 {
@@ -1338,7 +1346,6 @@ int check_var (char *str, var_name_type type)
 	else if (type == IN_GAME_VAR)
 		// make sure in-game changes are stored in el.ini
 		our_vars.var[i]->saved= 0;
-
 	switch (our_vars.var[i]->type)
 	{
 		case OPT_INT:
@@ -1502,7 +1509,9 @@ void add_var(option_type type, char * name, char * shortname, void * var, void *
 	our_vars.var[no]->nlen=strlen(our_vars.var[no]->name);
 	our_vars.var[no]->snlen=strlen(our_vars.var[no]->shortname);
 	our_vars.var[no]->saved= 0;
+#ifdef ELC
 	add_options_distringid(name, &our_vars.var[no]->display, short_desc, long_desc);
+#endif //ELC
 	our_vars.var[no]->widgets.tab_id= tab_id;
 }
 
@@ -1782,8 +1791,10 @@ void init_vars()
 #endif
 
 	add_var(OPT_BOOL_INI, "video_info_sent", "svi", &video_info_sent, change_var, 0, "Video info sent", "Video information are sent to the server (like OpenGL version and OpenGL extentions)", MISC);
+#ifndef MAP_EDITOR
 	add_var(OPT_BOOL, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", VIDEO);
 	// add_var(OPT_BOOL_INI_RO, "use_animation_program", "uap", &use_animation_program, change_use_animation_program, 1, "Use animation program", "Use GL_ARB_vertex_program for actor animation", MISC);
+#endif //MAP_EDITOR
 	
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	add_var(OPT_BOOL, "use_display_actors", "uda", &use_display_actors, change_var, 1, "Use display actors", "Use the display_actors function", DEBUGTAB);
@@ -1847,7 +1858,11 @@ void write_var (FILE *fout, int ivar)
 int read_el_ini ()
 {
 	input_line line;
+#ifdef MAP_EDITOR
+	FILE *fin= open_file_config("mapedit.ini", "r");
+#else
 	FILE *fin= open_file_config("el.ini", "r");
+#endif //MAP_EDITOR
 
 	if (fin == NULL){
 		LOG_ERROR("%s: %s \"el.ini\"\n", reg_error_str, cant_open_file);

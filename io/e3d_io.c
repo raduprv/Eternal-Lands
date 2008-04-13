@@ -5,13 +5,12 @@
 #include "../platform.h"
 #include "../textures.h"
 #ifdef MAP_EDITOR
- #include "../../map_editor/errors.h"
  #include "../../map_editor/misc.h"
 #else
- #include "../errors.h"
  #include "../misc.h"
 #endif
- #include "elfilewrapper.h"
+#include "../errors.h"
+#include "elfilewrapper.h"
 
 static void free_e3d_pointer(e3d_object* cur_object)
 {

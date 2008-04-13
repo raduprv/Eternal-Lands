@@ -300,14 +300,14 @@ static void check_for_problem_drivers()
 			my_string = (const char*) glGetString (GL_RENDERER);
 			if(strstr(my_string,"965") || strstr(my_string,"945"))vertex_program_problem=1;
 		}
-
+#ifndef MAP_EDITOR
 	//log the problems
 	if(vertex_program_problem)
 	LOG_TO_CONSOLE (c_red2, "Your card reports having vertex program capabilities, but the support is buggy, so we disabled it.");
 
 	if(multitexture_problem)
 	LOG_TO_CONSOLE (c_red2, "Your card reports having multitexturing capabilities, but the support is buggy, so we disabled it.");
-
+#endif //!MAP_EDITOR
 
 }
 

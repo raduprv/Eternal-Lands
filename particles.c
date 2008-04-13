@@ -436,7 +436,7 @@ int save_particle_def(particle_sys_def *def)
 
 	clean_file_name ( cleanpath, def->file_name, sizeof (cleanpath) );
 
-	f=open_data_file(cleanpath,"w");
+	f=open_file_data(cleanpath,"w");
 	if(f == NULL){
 		LOG_ERROR("%s: %s \"%s\"\n", reg_error_str, cant_open_file, cleanpath);
 		return 0;
@@ -551,7 +551,7 @@ void destroy_all_particles()
 	UNLOCK_PARTICLES_LIST();
 
 }
-
+#if !defined(MAP_EDITOR) || defined(EYE_CANDY)
 void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 {
 	float x = 0.5f * x_tile + 0.25f;
@@ -596,7 +596,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 #endif // NEW_SOUND
 	return;
 }
-
+#endif
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
@@ -606,7 +606,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos)
 #endif
 {
-#if ! defined MAP_EDITOR
+#ifndef MAP_EDITOR
 #ifdef NEW_SOUND
 	int snd;
 
@@ -681,7 +681,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 			ec_create_candle(x_pos, y_pos, z_pos, 0.0, 1.0, 0.7, (poor_man ? 6 : 10));
 		else
 		{
-#endif /* ! MAP_EDITOR */
+#endif //!MAP_EDITOR
 			particle_sys_def *def = load_particle_def(file_name);
 			if (!def) return -1;
 
@@ -690,7 +690,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
  #else
 			return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
-#if ! defined MAP_EDITOR
+#ifndef MAP_EDITOR
 		}
 	}
 	else
@@ -704,7 +704,7 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 		return create_particle_sys (def, x_pos, y_pos, z_pos);
  #endif
 	}
-#endif
+#endif //!MAP_EDITOR
 
 	// If we got here, the eye candy system handled this particle
 	// system. Return an invalid particle ID to signal that nothing

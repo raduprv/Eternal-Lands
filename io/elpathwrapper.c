@@ -5,7 +5,11 @@
 #include "../errors.h"
 #include "../init.h"
 #include "../md5.h"
-#include "../misc.h"
+#ifdef MAP_EDITOR
+# include "../../map_editor/misc.h"
+#else
+# include "../misc.h"
+#endif //MAP_EDITOR
 #include "../servers.h"
 
 #include <stdlib.h>
@@ -137,13 +141,16 @@ const char * get_path_config_base(void)
 
 	return locbuffer;
 }
-
 const char * get_path_config(void)
 {
 	static char locbuffer[MAX_PATH] = {0};
 
 	// Check if we have selected a server yet, otherwise return the base config dir
+#ifndef MAP_EDITOR
 	safe_snprintf(locbuffer, sizeof(locbuffer), "%s%s/", get_path_config_base(), get_server_dir());
+#else 
+	safe_snprintf(locbuffer, sizeof(locbuffer), "%s/", get_path_config_base());
+#endif //!MAP_EDITOR
 	
 	return locbuffer;
 }
