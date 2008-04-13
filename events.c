@@ -39,6 +39,9 @@ int shift_on;
 int alt_on;
 int ctrl_on;
 int meta_on;
+#ifdef OSX
+int osx_right_mouse_cam = 0;
+#endif
 
 void	quick_use(int use_id)
 {
@@ -207,14 +210,20 @@ int HandleEvent (SDL_Event *event)
 			{
 				right_click++;
 #if defined SKY_FPV && defined OSX
-				have_mouse = 1;
+				if (osx_right_mouse_cam)
+				{
+					have_mouse = 1;
+				}
 #endif
 			}
 			else
 			{
 				right_click= 0;
 #if defined SKY_FPV && defined OSX
-				have_mouse = 0;
+				if (osx_right_mouse_cam)
+				{
+					have_mouse = 0;
+				}
 #endif
 			}
 
