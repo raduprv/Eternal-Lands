@@ -124,7 +124,7 @@ int print_gl_errors(const char *file, const char *func, int line);
  * \name CHECK_GL_ERRORS macro
  */
 /*! @{ */
-#ifdef	DEBUG
+#if defined DEBUG || defined OPENGL_TRACE
 #define CHECK_GL_ERRORS()	print_gl_errors(__FILE__,  __FUNCTION__, __LINE__)
 #else	//DEBUG
 #define CHECK_GL_ERRORS()	/*!< NOP */
