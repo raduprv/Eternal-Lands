@@ -211,6 +211,7 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
   tip.x = pos[0]; tip.y = pos[2]; tip.z = -pos[1];
 }
 #endif //!MAP_EDITOR
+
 extern "C" void ec_idle()
 {
   if (idle_semaphore)

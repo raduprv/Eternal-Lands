@@ -14,10 +14,12 @@
 extern "C" {
 #endif
 
+#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
+extern int night_shift_textures;
+#endif
 #ifdef NEW_LIGHTING
 extern int use_new_lighting;
 extern float lighting_contrast;
-extern int night_shift_textures;
 #endif
 
 /*!
@@ -221,8 +223,10 @@ void new_minute();
 
 void cleanup_lights(void);
 
-#ifdef NEW_LIGHTING
+#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
 void light_idle(void);
+#endif
+#ifdef NEW_LIGHTING
 void set_material_defaults();
 #endif
 

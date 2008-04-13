@@ -1145,7 +1145,7 @@ int display_game_handler (window_info *win)
 	        glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SINGLE_COLOR);
 #endif
 	CHECK_GL_ERRORS ();
-#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
+#if defined(NEW_LIGHTING) || defined(DEBUG_TIME) || defined NIGHT_TEXTURES
 	light_idle();
 #endif // NEW_LIGHTING
 

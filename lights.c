@@ -12,7 +12,8 @@
 #include "errors.h"
 #endif
 #include "eye_candy_wrapper.h"
-#ifdef NEW_LIGHTING
+#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
+#include "text.h"
 #include "textures.h"
 #endif
 #ifdef OPENGL_TRACE
@@ -22,13 +23,15 @@
 #include "sky.h"
 #endif // SKY_FPV
 
-#ifdef NEW_LIGHTING
-int last_texture_start = 0;
-int last_dungeon;
-int use_new_lighting = 0;
-float lighting_contrast = 0.5;
+#if defined NEW_LIGHTING || NIGHT_TEXTURES
 int night_shift_textures = 0;
 int old_night_shift_textures = 0;
+int last_texture_start = 0;
+int last_dungeon;
+#endif
+#ifdef NEW_LIGHTING
+int use_new_lighting = 0;
+float lighting_contrast = 0.5;
 GLfloat day_ambient[4];
 GLfloat day_diffuse[4];
 GLfloat day_specular[4];
@@ -44,7 +47,7 @@ GLfloat night_specular[4];
 const float debug_time_accel = 120.0f;
 #endif
 
-#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
+#if defined(NEW_LIGHTING) || defined(DEBUG_TIME) || defined NIGHT_TEXTURES
 Uint64 old_time = 0;
 #endif
 
@@ -1008,7 +1011,7 @@ void new_minute()
 #endif // SKY_FPV
 }
 
-#if defined(NEW_LIGHTING) || defined(DEBUG_TIME)
+#if defined(NEW_LIGHTING) || defined(DEBUG_TIME) || defined NIGHT_TEXTURES
 
 #ifndef WINDOWS
 #include <sys/time.h>
@@ -1052,7 +1055,7 @@ void light_idle()
 		// Reload the next texture cache entry to reset
 		// the saturation for the current lighting.  Don't want to do too
 		// many at once; we want this to be imperceptible.
-#ifdef NEW_LIGHTING
+#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
 	if (night_shift_textures || old_night_shift_textures)
 	{
 		int i;
@@ -1094,7 +1097,7 @@ void light_idle()
 	}
 #endif
 	old_time = new_time;
-#ifdef NEW_LIGHTING
+#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
 	last_dungeon = dungeon;
 #endif
 }

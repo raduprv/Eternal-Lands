@@ -118,12 +118,12 @@ __inline__ static void set_texture_filter_parameter()
 	}
 }
 
-#ifdef NEW_LIGHTING
+#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
 void do_night_shift_texture(const char * filename, GLubyte * texture_mem, int x_size, int y_size)
 {
 	int i;
 	float percent_grey, average;
-
+	
 	if (night_shift_textures)
 	{
 		// If nighttime, use a nighttime texture.
@@ -156,17 +156,18 @@ void do_night_shift_texture(const char * filename, GLubyte * texture_mem, int x_
 			for (i = 0; i < x_size * y_size * 4; i += 4)
 			{
 				average = texture_mem[i + 0];
-				average = texture_mem[i + 1];
-				average = texture_mem[i + 2];
-				average /= 3.0f;
-				texture_mem[i + 0] = (Uint8)(texture_mem[i + 0] * (1.0 - percent_grey) + average * percent_grey);
-				texture_mem[i + 1] = (Uint8)(texture_mem[i + 1] * (1.0 - percent_grey) + average * percent_grey);
-				texture_mem[i + 2] = (Uint8)(texture_mem[i + 2] * (1.0 - percent_grey) + average * percent_grey);
+				average += texture_mem[i + 1];
+				average += texture_mem[i + 2];
+				average *= 0.33333333f;
+				texture_mem[i + 0] = (Uint8)((texture_mem[i + 0] * (1.0 - percent_grey) + average * percent_grey) * (percent_grey == 0.0f ? 1.0f : 0.7f)); // red
+				texture_mem[i + 1] = (Uint8)((texture_mem[i + 1] * (1.0 - percent_grey) + average * percent_grey) * (percent_grey == 0.0f ? 1.0f : 0.85f)); // green
+				texture_mem[i + 2] = (Uint8)((texture_mem[i + 2] * (1.0 - percent_grey) + average * percent_grey)); // blue
 			}
 		}
 	}
 }
-
+#endif
+#ifdef NEW_LIGHTING
 void load_material_metadata(const char * file_name)
 {
 	FILE* file;
@@ -1144,7 +1145,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 	SDL_UnlockSurface(texture_surface);
 	SDL_FreeSurface(texture_surface);
 
-#ifdef NEW_LIGHTING
+#if defined NEW_LIGHTING || defined NIGHT_TEXTURES
 	do_night_shift_texture(file_name, data, tex->x_size, tex->y_size);
 #endif
 
