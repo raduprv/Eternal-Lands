@@ -793,13 +793,13 @@ void draw_string_small_shadowed(int x, int y,const unsigned char * our_string,in
 {
  	 int px,py;
  	 //set shadow colour
-	 glColor3f(br, bg, bb);
+	 glColor4f(br, bg, bb, 0.25f);
 	 for(px=-1;px<2;px++)
   	     for(py=-1;py<2;py++)
   	         if(px!=0 || py!=0)
   	             draw_string_small(x+px, y+py, our_string, max_lines);
  	 //set foreground colour
-	 glColor3f(fr, fg, fb);
+	 glColor4f(fr, fg, fb, 1.0f);
      draw_string_small(x, y, our_string, max_lines); 	 
 }
 
