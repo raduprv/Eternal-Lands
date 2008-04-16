@@ -255,11 +255,13 @@ int HandleEvent (SDL_Event *event)
 				camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 4000.0;
 				camera_tilt_duration = 800;
 #endif // NEW_CAMERA
+#ifdef SKY_FPV
 				if (fol_cam && !fol_cam_behind)
 				{
 					hold_camera += camera_kludge - last_kludge;
 					last_kludge = camera_kludge;
 				}
+#endif // SKY_FPV
 			}
 
 			if (shift_on) flags |= ELW_SHIFT;

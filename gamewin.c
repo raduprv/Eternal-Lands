@@ -1242,7 +1242,7 @@ int display_game_handler (window_info *win)
 	}
 	if (show_fps)
 	{
-#ifdef	DEBUG
+#if 0//def	DEBUG
 		actor *me = get_our_actor ();
 
 		glColor3f (1.0f, 1.0f, 1.0f);
@@ -1276,7 +1276,7 @@ int display_game_handler (window_info *win)
 		draw_string (win->len_x-hud_x-95, 4, str, 1);
 		safe_snprintf((char*)str, sizeof(str), "UVP: %d", use_animation_program);
 		draw_string (win->len_x-hud_x-95, 19, str, 1);
-#ifdef DEBUG
+#if 0 //def DEBUG
 		//LRNR: stats testing
 		safe_snprintf((char*)str, sizeof(str), "E3D:%3d TOT:%3d", e3d_count, e3d_total);
 		draw_string (win->len_x-hud_x-183, 34, str, 1);
@@ -1889,11 +1889,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 800;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
+#endif // SKY_FPV
 	}
 	else if (key == K_FROTATELEFT)
 	{
@@ -1908,11 +1910,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 200;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
+#endif // SKY_FPV
 	}
 	else if (key == K_ROTATERIGHT)
 	{
@@ -1927,11 +1931,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 800;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
+#endif // SKY_FPV
 	}
 	else if (key == K_FROTATERIGHT)
 	{
@@ -1946,11 +1952,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 200;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+#ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
 			hold_camera += camera_kludge - last_kludge;
 			last_kludge = camera_kludge;
 		}
+#endif // SKY_FPV
 	}
 	else if (key == K_AFK)
 	{
