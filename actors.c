@@ -258,10 +258,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			float a=(float)(cur_time-actor_id->last_health_loss)/2000.0f;
 			if(actor_id->damage>0){
 				sprintf((char*)str,"%i",actor_id->damage);
-				glColor4f(1.0f, 0.1f, 0.2f, 1.0-a);
+				glColor4f(1.0f, 0.1f, 0.2f, 1.0-(a*a));
 			} else {
 				sprintf((char*)str,"%i",-actor_id->damage);
-				glColor4f(0.3f, 1.0f, 0.3f, 1.0-a);
+				glColor4f(0.3f, 1.0f, 0.3f, 1.0-(a*a));
 			}
 
 			glEnable(GL_BLEND);
