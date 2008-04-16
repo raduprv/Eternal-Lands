@@ -1889,6 +1889,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 800;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
 	}
 	else if (key == K_FROTATELEFT)
 	{
@@ -1903,6 +1908,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 200;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
 	}
 	else if (key == K_ROTATERIGHT)
 	{
@@ -1917,6 +1927,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 800;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
 	}
 	else if (key == K_FROTATERIGHT)
 	{
@@ -1931,6 +1946,11 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_duration = 200;
 		camera_rotation_speed /= 20.0;
 #endif // NEW_CAMERA
+		if (fol_cam && !fol_cam_behind)
+		{
+			hold_camera += camera_kludge - last_kludge;
+			last_kludge = camera_kludge;
+		}
 	}
 	else if (key == K_AFK)
 	{

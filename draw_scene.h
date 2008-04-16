@@ -35,12 +35,13 @@ extern int normal_animation_timer;
 extern float camera_kludge; /*!< Holds character's y rotation to allow camera to follow character  */
 extern float last_kludge;
 extern int fol_cam;
+extern int fol_cam_behind;
 extern float fol_con;
 extern float fol_lin;
 extern float fol_quad;
 extern float fol_strn;
 extern int ext_cam;
-extern int auto_camera_zoom;
+extern int ext_cam_auto_zoom;
 extern float hold_camera;
 extern int first_person;
 extern int adjust_view;

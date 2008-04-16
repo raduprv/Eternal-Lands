@@ -92,15 +92,17 @@ int reset_camera_at_next_update = 1;
 
 #ifdef SKY_FPV
 //Follow camera state stuff
-int fol_cam = 1;	//On or off...
-float camera_kludge = 0.0f;	//Stores direction player is facing
-float last_kludge=0;	//Stores how far the camera deviated from camera_kludge
-float fol_strn = 0.03f;
-float fol_con,fol_lin,fol_quad;
-int ext_cam = 1;	//Extended camera state
-int auto_camera_zoom = 0;
-//Check that this is still used, I think it's not.
-float hold_camera=180;
+int fol_cam = 1;	       // follow camera state (on/off)
+int fol_cam_behind = 0;    // keep the camera behind the char
+float camera_kludge = 0.0; // the direction player is facing
+float last_kludge = 0.0;   // how far the camera deviated from camera_kludge
+float fol_strn = 0.1;      // follow camera response strength
+float fol_con = 7.0;       // follow camera constant speed
+float fol_lin = 1.0;       // follow camera linear deceleration
+float fol_quad = 1.0;      // follow camera quadratic deceleration
+int ext_cam = 1;	       // extended camera state (on/off)
+int ext_cam_auto_zoom = 0; // auto zooming state for extended camera (on/off)
+float hold_camera = 0.0;   // backup of the rz value before kludge is applied
 
 #endif // SKY_FPV
 int last_texture=-2;
@@ -496,11 +498,11 @@ void update_camera()
 	
 	//printf("kludge: %f, hold: %f, rx: %f, rz %f, zoom: %f\n",camera_kludge, hold_camera,rx,rz,zoom_level);
 	
-	if (fol_cam) rz=hold_camera;
+	if (fol_cam && !fol_cam_behind) rz = hold_camera;
 #ifndef NEW_ACTOR_MOVEMENT
-	if (me) camera_kludge=180-me->tmp.z_rot;
+	if (me) camera_kludge = -me->tmp.z_rot;
 #else // NEW_ACTOR_MOVEMENT
-	if (me) camera_kludge=180-me->z_rot;
+	if (me) camera_kludge = -me->z_rot;
 #endif // NEW_ACTOR_MOVEMENT
 #endif // SKY_FPV
 
@@ -646,7 +648,7 @@ void update_camera()
 		// here we use a shift of 0.2 to avoid to be too close from the ground
 		if (tz + 0.2 > dir[2] - camera_z)
 		{
-			if (auto_camera_zoom) // new behaviour
+			if (ext_cam_auto_zoom) // new behaviour
 			{
 				// if the camera is under the ground, we change the zoom level
 				new_zoom_level *= (tz + camera_z + 0.2) / dir[2];
@@ -695,9 +697,14 @@ void update_camera()
 
 #ifdef SKY_FPV
 	
-	hold_camera=rz;
-	if (fol_cam){
-		if (last_kludge != camera_kludge) {
+	hold_camera = rz;
+	if (fol_cam) {
+#ifdef NEW_CAMERA
+        int moving_camera = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_duration > 0;
+#else // NEW_CAMERA
+        int moving_camera = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_frames > 0;
+#endif // NEW_CAMERA
+		if (last_kludge != camera_kludge && !moving_camera) {
 			set_all_intersect_update_needed(main_bbox_tree);
 			adjust = (camera_kludge-last_kludge);
 
@@ -706,22 +713,31 @@ void update_camera()
 			if      (adjust >=  180) adjust -= 360.0;
 			else if (adjust <= -180) adjust += 360.0;
 
-			if (fabs(adjust) < fol_strn){
+			if (fabs(adjust) < fol_strn) {
 				last_kludge=camera_kludge;
-			} else {
+			}
+			else {
 				last_kludge += fol_strn*(
 					adjust*(fol_quad*fol_strn + fol_lin)+
 					fol_con*(adjust>0?1:-1))/
 					(fol_quad+fol_lin+fol_con+.000001f);//cheap no/0
 			}
 		}
-		rz-=last_kludge;
+		if (fol_cam_behind)
+        {
+            if (!moving_camera)
+                rz = -last_kludge;
+            else
+                last_kludge = -rz;
+        }
+		else
+			rz -= last_kludge;
 	}
 
 	//Make Character Turn with Camera
 	if (have_mouse && !on_the_move (get_our_actor ()))
 	{
-		adjust = (rz+180);
+		adjust = rz;
 		//without this the character will turn the wrong way when camera_kludge
 		//and character are in certain positions
 		if      (adjust >=  180) adjust -= 360.0;
