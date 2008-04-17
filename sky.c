@@ -342,6 +342,10 @@ void skybox_update_colors()
 		break;
 
 	case SKYBOX_NONE:
+		skybox_fog[0][0] = 0.0;
+		skybox_fog[0][1] = 0.0;
+		skybox_fog[0][2] = 0.0;
+		skybox_fog[0][3] = 0.0;
 	default:
 		break;
 	}
@@ -657,19 +661,9 @@ void update_underworld_sky_colors()
 	end = dome_sky.slices_count;
 	while (i < end)
 	{
-		dome_sky.colors[idx++] = 1.0;
-		dome_sky.colors[idx++] = 0.7;
-		dome_sky.colors[idx++] = 0.0;
-		dome_sky.colors[idx++] = 1.0;
-		++i;
-	}
-
-	end += dome_sky.slices_count;
-	while (i < end)
-	{
-		dome_sky.colors[idx++] = 1.0;
-		dome_sky.colors[idx++] = 0.6;
-		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 230/255.0;
+		dome_sky.colors[idx++] = 104/255.0;
+		dome_sky.colors[idx++] =  11/255.0;
 		dome_sky.colors[idx++] = 1.0;
 		++i;
 	}
@@ -677,9 +671,19 @@ void update_underworld_sky_colors()
 	end += dome_sky.slices_count;
 	while (i < end)
 	{
-		dome_sky.colors[idx++] = 0.9;
-		dome_sky.colors[idx++] = 0.4;
-		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] = 230/255.0;
+		dome_sky.colors[idx++] = 104/255.0;
+		dome_sky.colors[idx++] =  11/255.0;
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+	}
+
+	end += dome_sky.slices_count;
+	while (i < end)
+	{
+		dome_sky.colors[idx++] = 201/255.0;
+		dome_sky.colors[idx++] =  58/255.0;
+		dome_sky.colors[idx++] =  13/255.0;
 		dome_sky.colors[idx++] = 0.8;
 		++i;
 	}
@@ -687,21 +691,23 @@ void update_underworld_sky_colors()
 	end += dome_sky.slices_count;
 	while (i < end)
 	{
-		dome_sky.colors[idx++] = 0.9;
-		dome_sky.colors[idx++] = 0.2;
-		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] =  83/255.0;
+		dome_sky.colors[idx++] =  31/255.0;
+		dome_sky.colors[idx++] =  23/255.0;
 		dome_sky.colors[idx++] = 0.6;
 		++i;
 	}
 
     while (i < dome_sky.vertices_count)
     {
-		dome_sky.colors[idx++] = 0.8;
-		dome_sky.colors[idx++] = 0.0;
-		dome_sky.colors[idx++] = 0.0;
+		dome_sky.colors[idx++] =  33/255.0;
+		dome_sky.colors[idx++] =   6/255.0;
+		dome_sky.colors[idx++] =  16/255.0;
 		dome_sky.colors[idx++] = 0.0;
 		++i;
 	}
+
+	memcpy(&skybox_fog[0][0], &dome_sky.colors[(dome_sky.vertices_count-1)*4], 4*sizeof(float));
 }
 
 void draw_horizon_fog(float rain_coef)
@@ -1195,12 +1201,10 @@ void underworld_sky()
 
 		glVertexPointer(3, GL_FLOAT, 0, dome_clouds.vertices);
 		
-		glDisable(GL_BLEND);
 		glColor3f(0.8, 0.0, 0.0);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds_tex_coords_bis);
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
 
-		glEnable(GL_BLEND);
 		glColor3f(0.8, 0.2, 0.0);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds.tex_coords);
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);

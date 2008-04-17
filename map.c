@@ -213,6 +213,7 @@ static int el_load_map(const char * file_name)
 	else if (dungeon)
 	{
 		skybox_set_type(SKYBOX_NONE);
+		skybox_update_colors();
 	}
 	else
 	{

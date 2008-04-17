@@ -125,7 +125,12 @@ void draw_scene()
 	CHECK_GL_ERRORS();
 
 #ifndef NEW_WEATHER
-	if (dungeon || !use_fog) {
+#ifndef SKY_FPV
+	if (dungeon || !use_fog)
+#else // SKY_FPV
+	if (!use_fog)
+#endif // SKY_FPV
+	{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 	} else {
 		glClearColor(fogColor[0], fogColor[1], fogColor[2], 0.0);

@@ -1329,15 +1329,15 @@ void render_fog() {
 
 	if (dungeon) {
 		fogDensity = 0.01;
-		fogColor[0] = fogColor[1] = fogColor[2] = 0.0;
+		for (i = 3; i--; )
+			fogColor[i] = skybox_fog[0][i];
 		fogColor[3] = 1.0;
 	}
 	else {
 		diffuseBias = weather_rain_intensity*weather_rain_intensity*rainStrength;
 		
-		for (i = 4; i--; ) {
+		for (i = 4; i--; )
 			fogColor[i] = skybox_fog[game_minute][i]*(1.0-diffuseBias) + skybox_fog_rainy[game_minute][i]*diffuseBias;
-		}
 		fogDensity = fogColor[3];
 		fogColor[3] = 1.0;
 	}
