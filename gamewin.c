@@ -2171,22 +2171,13 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifndef SKY_FPV
 		if (rx > -60) rx -= 1.0f;
 #else // SKY_FPV
-		if (first_person) {
-			if (rx > -170) {
-				rx -= 1.0f;
-				++adjust_view;
-			}
-		} else if (ext_cam) {
-			if (rx > -150) {
-				rx -= 1.0f;
-				++adjust_view;
-			}
-		} else {
-			if (rx > -60){
-				rx -= 1.0f;
-				++adjust_view;
-			}
-		}
+#ifndef NEW_CAMERA
+		camera_tilt_speed = -normal_camera_rotation_speed * 0.01;
+		camera_tilt_frames += 40;
+#else // NEW_CAMERA
+		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
+		camera_tilt_duration += 800;
+#endif // NEW_CAMERA
 #endif // SKY_FPV
 	}
 	else if (key == K_CAMERADOWN)
@@ -2194,22 +2185,13 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #ifndef SKY_FPV
 		if (rx < -45) rx += 1.0f;
 #else // SKY_FPV
-		if (first_person) {
-			if (rx < -30) {
-				rx += 1.0f;
-				++adjust_view;
-			}
-		} else if (ext_cam) {
-			if (rx < -20) {
-				rx += 1.0f;
-				++adjust_view;
-			}
-		} else {
-			if (rx < -45){
-				rx += 1.0f;
-				++adjust_view;
-			}
-		}
+#ifndef NEW_CAMERA
+		camera_tilt_speed = normal_camera_rotation_speed * 0.01;
+		camera_tilt_frames += 40;
+#else // NEW_CAMERA
+		camera_tilt_speed = normal_camera_rotation_speed * 0.0005;
+		camera_tilt_duration += 800;
+#endif // NEW_CAMERA
 #endif // SKY_FPV
 	}
 	else if (key == K_ZOOMIN)
