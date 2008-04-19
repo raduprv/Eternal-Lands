@@ -1237,6 +1237,17 @@ int find_var (char *str, var_name_type type)
 	return -1;
 }
 
+
+int set_var_unsaved(char *str, var_name_type type)
+{
+	int var_index = find_var(str, type);
+	if (var_index == -1)
+		return 0;
+	our_vars.var[var_index]->saved = 0;
+	return 1;
+}
+
+
 void change_language(const char *new_lang)
 {
 	log_error("Language changed, was [%s] now [%s]\n",  lang, new_lang);

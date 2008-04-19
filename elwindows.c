@@ -1,5 +1,8 @@
 #include <stdlib.h>
 #include <string.h>
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#endif
 #include "elwindows.h"
 #include "alphamap.h"
 #include "asc.h"
@@ -144,6 +147,11 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 	int	next_id;
 	int	first_win= -1;
 	int i;
+	
+#ifdef CONTEXT_MENUS
+	/* only activate context menu on unmodified right click */
+	int cm_try_activate = cm_pre_show_check(flags);
+#endif
 
 	// check each window in the proper order
 	if(windows_list.display_level > 0)
@@ -160,10 +168,17 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 					// at this level?
 					if(windows_list.window[i].order == id)
 					{
+#ifdef CONTEXT_MENUS
+						if (cm_try_activate && cm_show_if_active(i))
+							return 0;
+#endif
 						done= click_in_window(i, mx, my, flags);
 						if(done > 0)
 						{
 							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
+#ifdef CONTEXT_MENUS
+							cm_post_show_check();
+#endif
 							return i;
 						}
 						if(first_win < 0 && mouse_in_window(i, mx, my))	first_win= i;
@@ -195,10 +210,17 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 				// at this level?
 				if(windows_list.window[i].order == id)
 				{
+#ifdef CONTEXT_MENUS
+					if (cm_try_activate && cm_show_if_active(i))
+						return 0;
+#endif
 					done= click_in_window(i, mx, my, flags);
 					if(done > 0)
 					{
 						//select_window(i);	// these never get selected
+#ifdef CONTEXT_MENUS
+						cm_post_show_check();
+#endif
 						return i;
 					}
 				} 
@@ -215,6 +237,10 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 			id= next_id;
 	}
 	
+#ifdef CONTEXT_MENUS
+	cm_post_show_check();
+#endif
+
 	// nothing to click on, do a select instead
 	if(first_win >= 0)
 	{

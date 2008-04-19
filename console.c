@@ -1053,6 +1053,10 @@ int save_local_data(char * text, int len){
 	return 0;
 }
 
+#if defined(CONTEXT_MENUS) && defined(CONTEXT_MENUS_TEST)
+int cm_test_window(char *text, int len);
+#endif
+
 void init_commands(const char *filename)
 {
 	FILE *fp = open_file_data(filename, "r");
@@ -1125,6 +1129,9 @@ void init_commands(const char *filename)
 	add_command("save", &save_local_data);
 	add_command("url", &url_command);
 	add_command("chat_to_counters", &chat_to_counters_command);
+#if defined(CONTEXT_MENUS) && defined(CONTEXT_MENUS_TEST)
+	add_command("cmtest", &cm_test_window);
+#endif
 #ifdef TEXT_ALIASES
 	add_command("alias", &alias_command);
 	add_command("unalias", &unalias_command);

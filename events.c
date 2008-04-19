@@ -3,6 +3,9 @@
 #include "events.h"
 #include "actor_scripts.h"
 #include "client_serv.h"
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#endif
 #include "draw_scene.h"
 #include "elconfig.h"
 #include "elwindows.h"
@@ -282,9 +285,21 @@ int HandleEvent (SDL_Event *event)
 			if (left_click >= 1)
 			{
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
+				{
+#ifdef CONTEXT_MENUS
+					/* clicking title closes any context menu */
+					cm_post_show_check();
+#endif
 					return done;
+				}
 				if (drag_in_windows (mouse_x, mouse_y, flags, mouse_delta_x, mouse_delta_y) >= 0)
+				{
+#ifdef CONTEXT_MENUS
+					/* clicking title closes any context menu */
+					cm_post_show_check();
+#endif
 					return done;
+				}
 			}
 
 			if ( left_click==1 || right_click==1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )

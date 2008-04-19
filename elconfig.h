@@ -190,6 +190,15 @@ void add_multi_option(char * name, char * str);
 
 void change_windowed_chat (int *wc, int val);
 
+/*!
+ * \ingroup other
+ * brief Sets the specfied variable (if valid) to unsaved.
+ * \param str	the option name
+ * \param type	the option type
+ * \retval	1 if sucessfull, 0 is option does no exist
+ */
+int set_var_unsaved(char *str, var_name_type type);
+
 #ifdef SKY_FPV
 void toggle_follow_cam(int * fc);
 #endif // SKY_FPV
