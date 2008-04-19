@@ -558,13 +558,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					|| storage_item_dragged != -1
 					)
 			{
-				use_item = -1;
-				item_dragged = -1;
-				storage_item_dragged = -1;
-				action_mode = ACTION_WALK;
 #ifdef CONTEXT_MENUS
 				/* show the banner control menu as right-clicked and no cursor action to be done */
-				if (object_under_mouse == -1)
+				if ((object_under_mouse == -1) && (item_dragged == -1) &&
+					(use_item == -1) && (storage_item_dragged == -1))
 				{
 					static size_t cm_id = -1;
 					if (cm_id == -1)
@@ -580,6 +577,10 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					cm_show_direct(cm_id, -1, -1);
 				}
 #endif
+				use_item = -1;
+				item_dragged = -1;
+				storage_item_dragged = -1;
+				action_mode = ACTION_WALK;
 				return 1;
 			}
 			switch (current_cursor) 
