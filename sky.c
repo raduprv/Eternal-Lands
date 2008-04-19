@@ -1163,7 +1163,6 @@ void underworld_sky()
 	glDisable(GL_TEXTURE_2D);
 	glDisable(GL_DEPTH_TEST);
 	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 	if (skybox_show_clouds)
 	{
@@ -1182,17 +1181,18 @@ void underworld_sky()
 		}
 
 		// we update the tex coords for the second clouds layer
-		if (dome_clouds_tex_coords_bis[1] <= 1.0)
+		if (dome_clouds_tex_coords_bis[0] <= 1.0)
 		{
 			for (i = dome_clouds.vertices_count; i--; )
-				dome_clouds_tex_coords_bis[i*2+1] += clouds_step;
+				dome_clouds_tex_coords_bis[i*2] += clouds_step;
 		}
 		else
 		{
 			for (i = dome_clouds.vertices_count; i--; )
-				dome_clouds_tex_coords_bis[i*2+1] += clouds_step - 1.0;
+				dome_clouds_tex_coords_bis[i*2] += clouds_step - 1.0;
 		}
 
+		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
 		glEnable(GL_TEXTURE_2D);
 		get_and_set_texture_id(smokey_cloud_tex);
 
@@ -1203,7 +1203,10 @@ void underworld_sky()
 		
 		glColor3f(0.8, 0.0, 0.0);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds_tex_coords_bis);
+		glPushMatrix();
+		glRotatef(90.0, 0.0, 0.0, 1.0);
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
+		glPopMatrix();
 
 		glColor3f(0.8, 0.2, 0.0);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds.tex_coords);
@@ -1214,6 +1217,7 @@ void underworld_sky()
 		glDisable(GL_TEXTURE_2D);
 	}
 
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 	glEnableClientState(GL_VERTEX_ARRAY);
 	glEnableClientState(GL_COLOR_ARRAY);
 
@@ -1508,7 +1512,7 @@ int skybox_parse_defs(xmlNode *node, const char *map_name)
 			else if (xmlStrcasecmp(def->name, (xmlChar*)"map") == 0) {
                 char *name = get_string_property(def, "name");
                 if (!strcasecmp(name, map_name)) {
-                    printf("Found custom sky defs for the current map!\n");
+                    //printf("Found custom sky defs for the current map!\n");
                     ok &= skybox_parse_defs(def, "");
                 }
 			}
@@ -1659,9 +1663,9 @@ void skybox_init_defs(const char *map_name)
         strcpy(last_map, map_name+pos+1);
     }
 
-    printf("Loading sky defs for map '%s'\n", last_map);
+    //printf("Loading sky defs for map '%s'\n", last_map);
 	if (!skybox_read_defs("skybox/skybox_defs.xml", last_map))
-		printf("Error while loading the skybox definitions, check the error log for more details.");
+		LOG_ERROR("Error while loading the skybox definitions.");
 	
 	if (!skybox_build_gradients(skybox_clouds))
 		LOG_ERROR("no color key defined for 'clouds' element!");

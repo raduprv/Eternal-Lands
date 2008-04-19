@@ -2230,13 +2230,41 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	}
 	else if (key == K_ZOOMIN)
 	{
+#ifndef SKY_FPV
 		new_zoom_level= new_zoom_level - 0.25;
 		if (new_zoom_level < 1.00f) new_zoom_level= 1.00f;
+#else // SKY_FPV
+		if (camera_zoom_dir == -1)
+#ifndef NEW_CAMERA
+			camera_zoom_frames += 5;
+		else
+			camera_zoom_frames = 5;
+#else // NEW_CAMERA
+			camera_zoom_duration += 100;
+		else
+			camera_zoom_duration = 100;
+#endif // NEW_CAMERA
+		camera_zoom_dir = -1;
+#endif // SKY_FPV
 	}
 	else if (key == K_ZOOMOUT)
 	{
+#ifndef SKY_FPV
 		new_zoom_level= new_zoom_level + 0.25;
 		if (new_zoom_level > 3.75f) new_zoom_level= 3.75f;
+#else // SKY_FPV
+		if (camera_zoom_dir == 1)
+#ifndef NEW_CAMERA
+			camera_zoom_frames += 5;
+		else
+			camera_zoom_frames = 5;
+#else // NEW_CAMERA
+			camera_zoom_duration += 100;
+		else
+			camera_zoom_duration = 100;
+#endif // NEW_CAMERA
+		camera_zoom_dir = 1;
+#endif // SKY_FPV
 	}
 	else if (key == K_REPEATSPELL)	// REPEAT spell command
 	{
