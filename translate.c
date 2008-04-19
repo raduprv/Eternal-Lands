@@ -241,6 +241,14 @@ char
 	client_restart_countdown_str[40],
 	client_restarting_str[20],
 	restart_now_label[20],
+#ifdef CONTEXT_MENUS
+	/* context menu strings */
+	cm_quickspell_menu_str[50],
+	cm_textedit_menu_str[50],
+	cm_quickbar_menu_str[150],
+	cm_hud_menu_str[150],
+	cm_banner_menu_str[150],
+#endif
 	/* new_character.c */
 	use_appropriate_name[500];
 #endif
@@ -1214,6 +1222,16 @@ void init_help()
 	add_xml_identifier(misc, "restart_countdown", client_restart_countdown_str, "Client will restart in %d seconds", sizeof(client_restart_countdown_str));
 	add_xml_identifier(misc, "restarting", client_restarting_str, "Restarting...", sizeof(client_restarting_str));
 	add_xml_identifier(misc, "restart", restart_now_label, "Restart now", sizeof(restart_now_label));
+	
+#ifdef CONTEXT_MENUS
+	/* strings for context menus */
+	add_xml_identifier(misc, "cm_quickspell_menu", cm_quickspell_menu_str, "Move Up\nMove Down\nRemove\n", sizeof(cm_quickspell_menu_str));
+	add_xml_identifier(misc, "cm_textedit_menu", cm_textedit_menu_str, "Cut\nCopy\nPaste\n", sizeof(cm_textedit_menu_str));
+	add_xml_identifier(misc, "cm_quickbar_menu", cm_quickbar_menu_str, "Quickbar Relocatable\nQuickbar Draggable\nReset Quickbar Position\nFlip Quickbar\nEnable Quickbar Menu\n", sizeof(cm_quickbar_menu_str));
+	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Digital Clock\nShow Analogue Clock\nShow FPS\nEnable Quickbar Menu\n", sizeof(cm_hud_menu_str));
+	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Speech Bubbles\nEnable Banner Background\n", sizeof(cm_banner_menu_str));
+#endif
+	
 }
 #endif
 

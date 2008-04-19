@@ -15,12 +15,18 @@
 #include "paste.h"
 #include "tabs.h"
 #include "textures.h"
+#include "translate.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
 #endif
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
+
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+static size_t cm_edit_id = -1;
+#endif
 
 typedef struct {
 	char text[256];
@@ -300,6 +306,11 @@ Uint32 widget_move_win(int window_id, Uint32 widget_id, int new_win_id)
 			new_id++;
 		}
 		w->id = new_id;
+#ifdef CONTEXT_MENUS
+		/* if removing a (possibly none existant) context menu for the widget works, we need to replace it */
+		if (cm_remove_widget(window_id, widget_id))
+			cm_add_widget(cm_edit_id, new_win_id, new_id);
+#endif
 		return w->id;
 	} else {
 		return 0;
@@ -2261,6 +2272,23 @@ int text_field_resize (widget_list *w, int width, int height)
 	return 1;
 }
 
+#ifdef CONTEXT_MENUS
+/* the edit context menu callback */
+static int context_edit_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	widget_list* w = widget_find (win->window_id, widget_id);
+	if (w == NULL)
+		return 0;
+	switch (option)
+	{
+		case 0: text_field_keypress(w, 0, 0, K_CUT, 24); break;
+		case 1: text_field_keypress(w, 0, 0, K_COPY, 3); break;
+		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) startpaste(); break;
+	}
+	return 1;
+}
+#endif
+
 int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	Uint16 keysym = key & 0xffff;
@@ -2412,6 +2440,7 @@ int text_field_keypress (widget_list *w, int mx, int my, Uint32 key, Uint32 unik
 			text_field_remove_selection(tf);
 			TEXT_FIELD_CLEAR_SELECTION(&tf->select);
 		}
+		return 1;
 	}
 	else if (key == K_PASTE || key == K_PASTE_ALT)
 	{
@@ -2596,6 +2625,10 @@ int text_field_destroy (widget_list *w)
 	text_field *tf = w->widget_info;
 	if (tf != NULL)
 	{
+#ifdef CONTEXT_MENUS
+		/* remove the context menu */
+		cm_remove_widget(w->window_id, w->id);
+#endif
 		if (tf->scroll_id != -1)
 			widget_destroy (w->window_id, tf->scroll_id);
 		if (tf->select.lines != NULL) free(tf->select.lines);
@@ -2660,6 +2693,15 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 			T->select.sm = T->select.em = T->select.sc = T->select.ec = -1;
 		}
 	}
+
+#ifdef CONTEXT_MENUS
+	/* on the first occurance create the editting context menu */
+	/* maintain a activation entry for each widget so they can be removed or modified */
+	if (cm_edit_id == -1)
+		cm_edit_id = cm_create(cm_textedit_menu_str, context_edit_handler);
+	/* assign to the new widget */
+	cm_add_widget(cm_edit_id, window_id, res);
+#endif	
 	
 	return res;
 }

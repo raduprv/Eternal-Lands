@@ -5,6 +5,9 @@
 #include "asc.h"
 #include "buddy.h"
 #include "consolewin.h"
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#endif
 #include "cursors.h"
 #include "draw_scene.h"
 #include "elconfig.h"
@@ -90,11 +93,19 @@ void draw_exp_display();
 void draw_stats();
 void init_misc_display();
 void init_quickbar();
+void toggle_quickbar_draggable();
 void flip_quickbar();
 void reset_quickbar();
 void change_flags(int win_id, Uint32 flags);
 Uint32 get_flags(int win_id);
 int get_quickbar_y_base();
+
+#ifdef CONTEXT_MENUS
+static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option);
+size_t cm_hud_id = -1;
+size_t cm_quickbar_id = -1;
+int cm_quickbar_enabled = 0;
+#endif
 
 int hud_x= 64;
 int hud_y= 48;
@@ -986,6 +997,32 @@ float clock_needle_v_start=1.0f-(float)192/256;
 float clock_needle_u_end=(float)31/256;
 float clock_needle_v_end=1.0f-(float)223/256;
 
+#ifdef CONTEXT_MENUS
+static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	switch (option)
+	{
+		case 0: set_var_unsaved("show_stats_in_hud", OPT_BOOL); break;
+		case 1: set_var_unsaved("show_statbars_in_hud", OPT_BOOL); break;
+		case 2: set_var_unsaved("view_digital_clock", OPT_BOOL); break;
+		case 3: set_var_unsaved("view_analog_clock", OPT_BOOL); break;
+		case 4: set_var_unsaved("show_fps", OPT_BOOL); break;
+	}
+	return 1;
+}
+
+static int context_quickbar_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	switch (option)
+	{
+		case 0: set_var_unsaved("relocate_quickbar", OPT_BOOL); break;
+		case 1: quickbar_draggable ^= 1; toggle_quickbar_draggable(); break;
+		case 2: reset_quickbar(); break;
+		case 3: flip_quickbar(); break;
+	}
+	return 1;
+}
+#endif
 
 void init_misc_display()
 {
@@ -997,6 +1034,16 @@ void init_misc_display()
 			set_window_handler(misc_win, ELW_HANDLER_DISPLAY, &display_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_CLICK, &click_misc_handler);
 			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
+#ifdef CONTEXT_MENUS
+			cm_hud_id = cm_create(cm_hud_menu_str, context_hud_handler);
+			cm_bool_line(cm_hud_id, 0, &show_stats_in_hud);
+			cm_bool_line(cm_hud_id, 1, &show_statbars_in_hud);
+			cm_bool_line(cm_hud_id, 2, &view_digital_clock);
+			cm_bool_line(cm_hud_id, 3, &view_analog_clock);
+			cm_bool_line(cm_hud_id, 4, &show_fps);
+			cm_bool_line(cm_hud_id, 5, &cm_quickbar_enabled);
+			cm_add_window(cm_hud_id, misc_win);
+#endif
 		}
 	else
 		{
@@ -1225,6 +1272,26 @@ CHECK_GL_ERRORS();
 			y+=15;
 		}
 	}
+
+#ifdef CONTEXT_MENUS	
+	{
+		static int last_window_width = -1;
+		static int last_window_height = -1;
+
+		if (window_width != last_window_width || window_height != last_window_height)
+		{
+			cm_remove_regions(game_root_win);
+			cm_remove_regions(map_root_win);
+			cm_remove_regions(console_root_win);
+			cm_add_region(cm_hud_id, game_root_win, window_width-64, 0, 64, window_height);
+			cm_add_region(cm_hud_id, map_root_win, window_width-64, 0, 64, window_height);
+			cm_add_region(cm_hud_id, console_root_win, window_width-64, 0, 64, window_height);
+			last_window_width = window_width;
+			last_window_height = window_height;
+		}
+	}
+#endif
+	
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1366,6 +1433,13 @@ void init_quickbar ()
 		set_window_handler(quickbar_win, ELW_HANDLER_DISPLAY, &display_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_CLICK, &click_quickbar_handler);
 		set_window_handler(quickbar_win, ELW_HANDLER_MOUSEOVER, &mouseover_quickbar_handler );
+
+#ifdef CONTEXT_MENUS		
+		cm_quickbar_id = cm_create(cm_quickbar_menu_str, context_quickbar_handler);
+		cm_bool_line(cm_quickbar_id, 0, &quickbar_relocatable);
+		cm_bool_line(cm_quickbar_id, 1, &quickbar_draggable);
+		cm_bool_line(cm_quickbar_id, 4, &cm_quickbar_enabled);
+#endif
 	}
 	else
 	{
@@ -1594,6 +1668,10 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 			use_item=-1;
 			qb_action_mode=ACTION_WALK;
 		}
+#ifdef CONTEXT_MENUS
+		if (cm_quickbar_enabled)
+			cm_show_direct(cm_quickbar_id, quickbar_win, -1);
+#endif
 		return 1;
 	}
 	
@@ -1652,24 +1730,7 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 							if((flags&trigger)==(ELW_LEFT_MOUSE|ELW_CTRL))
 							{
 								//toggle draggable
-								Uint32 flags = get_flags(quickbar_win);
-								
-								if (!quickbar_draggable)
-								{
-									flags &= ~ELW_SHOW_LAST;
-									flags |= ELW_DRAGGABLE | ELW_TITLE_BAR;
-									change_flags (quickbar_win, flags);
-									quickbar_draggable = 1;
-								}
-								else 
-								{
-									flags |= ELW_SHOW_LAST;
-									flags &= ~(ELW_DRAGGABLE | ELW_TITLE_BAR);
-									change_flags (quickbar_win, flags);
-									quickbar_draggable = 0;
-									quickbar_x = window_width - windows_list.window[quickbar_win].cur_x;
-									quickbar_y = windows_list.window[quickbar_win].cur_y;
-								}
+								toggle_quickbar_draggable();
 							}
 							else if ( (flags & trigger)== (ELW_LEFT_MOUSE | ELW_SHIFT) && (get_flags (quickbar_win) & (ELW_TITLE_BAR | ELW_DRAGGABLE)) == (ELW_TITLE_BAR | ELW_DRAGGABLE) )
 							{
@@ -1752,6 +1813,28 @@ int	click_quickbar_handler(window_info *win, int mx, int my, Uint32 flags)
 				}
 		}
 	return 1;
+}
+
+/*Enable/disable quickbar title bar and dragability*/
+void toggle_quickbar_draggable()
+{
+	Uint32 flags = get_flags(quickbar_win);
+	if (!quickbar_draggable)
+	{
+		flags &= ~ELW_SHOW_LAST;
+		flags |= ELW_DRAGGABLE | ELW_TITLE_BAR;
+		change_flags (quickbar_win, flags);
+		quickbar_draggable = 1;
+	}
+	else 
+	{
+		flags |= ELW_SHOW_LAST;
+		flags &= ~(ELW_DRAGGABLE | ELW_TITLE_BAR);
+		change_flags (quickbar_win, flags);
+		quickbar_draggable = 0;
+		quickbar_x = window_width - windows_list.window[quickbar_win].cur_x;
+		quickbar_y = windows_list.window[quickbar_win].cur_y;
+	}
 }
 
 /*Change the quickbar from vertical to horizontal, or vice versa*/

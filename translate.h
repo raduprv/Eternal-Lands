@@ -379,6 +379,14 @@ extern char
 		client_restart_countdown_str[40],
 		client_restarting_str[20],
 		restart_now_label[20],
+#ifdef CONTEXT_MENUS
+		/* context menu strings */
+		cm_quickspell_menu_str[50],
+		cm_textedit_menu_str[50],
+		cm_quickbar_menu_str[150],
+		cm_hud_menu_str[150],
+		cm_banner_menu_str[150],
+#endif
 		/* new_character.c */
 		use_appropriate_name[500];
 #endif  //DOXYGEN_SKIP_THIS
