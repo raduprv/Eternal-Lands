@@ -66,17 +66,17 @@ namespace cm
 					bool is_separator;
 			};
 			std::vector<Menu_Line> menu_lines;
-			class RGB
+			class myRGB
 			{
 				public:
-					RGB(void) : r(0.0), g(0.0), b(0.0) {}
+					myRGB(void) : r(0.0), g(0.0), b(0.0) {}
 					void set(float _r, float _g, float _b) { r=_r; g=_g; b=_b; }
 					float r, g, b;
 			};
-			RGB highlight_top;
-			RGB highlight_bottom;
-			RGB text_colour;
-			RGB grey_colour;
+			myRGB highlight_top;
+			myRGB highlight_bottom;
+			myRGB text_colour;
+			myRGB grey_colour;
 	};
 
 
