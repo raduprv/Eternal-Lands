@@ -3,7 +3,6 @@ UPDATE_CONF=yes
 
 # tune these for your setup & compile options
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
-FEATURES += ALPHA_ACTORS                    # Enable Alpha Blending of actor models if an alpha blended item is worn
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
 #FEATURES += CAMERA_FPS_CHECK                # logs in infos.log file the delta in ms between each camera update
