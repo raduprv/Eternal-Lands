@@ -33,9 +33,7 @@
 #include "minimap.h"
 #include "errors.h"
 #include "io/elpathwrapper.h"
-#ifdef CALCULATOR
 #include "calc.h"
-#endif
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
 #endif
@@ -430,7 +428,6 @@ int command_cls(char *text, int len)
 	return 1;
 }
 
-#ifdef CALCULATOR
 int command_calc(char *text, int len)
 {
 	double res;
@@ -468,7 +465,6 @@ int command_calc(char *text, int len)
 	}
 	return 1;
 }
-#endif
 
 int command_markpos(char *text, int len)
 {
@@ -1089,9 +1085,7 @@ void init_commands(const char *filename)
 		}
 		fclose(fp);
 	}
-#ifdef CALCULATOR
 	add_command("calc", &command_calc);
-#endif
 	add_command("cls", &command_cls);
 	add_command(cmd_markpos, &command_markpos);
 	add_command(cmd_mark, &command_mark);

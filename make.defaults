@@ -7,7 +7,6 @@ FEATURES += ACTOR_FACE_CULLING		   # Enables actor face culling
 FEATURES += ALPHA_ACTORS                    # Enable Alpha Blending of actor models if an alpha blended item is worn
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
-FEATURES += CALCULATOR                      # enables #calc command
 FEATURES += CACHE_ANIMATIONS                # caches cal3d animations in order to share them between actors
 #FEATURES += CAMERA_FPS_CHECK                # logs in infos.log file the delta in ms between each camera update
 FEATURES += CONTEXT_MENUS                   # Enable context menus
