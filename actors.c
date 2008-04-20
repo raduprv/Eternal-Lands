@@ -825,9 +825,7 @@ void display_actors(int banner, int render_pass)
 
 	get_actors_in_range();
 
-#ifdef	ACTOR_FACE_CULLING
 	glEnable(GL_CULL_FACE);
-#endif	// ACTOR_FACE_CULLING
 
 #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
 	if (!use_display_actors)
@@ -961,9 +959,7 @@ void display_actors(int banner, int render_pass)
 		}
 #endif	// ALPHA_ACTORS
 	}
-#ifdef	ACTOR_FACE_CULLING
 	glDisable(GL_CULL_FACE);
-#endif	// ACTOR_FACE_CULLING
 	if (has_ghosts)
 	{
 		glEnable(GL_BLEND);

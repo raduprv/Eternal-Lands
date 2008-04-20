@@ -308,18 +308,14 @@ void display_shadows()
 
 	glDisableClientState(GL_VERTEX_ARRAY);
 	glDisable(GL_CULL_FACE);
-#ifdef	ACTOR_FACE_CULLING
 	glCullFace(GL_FRONT);
-#endif	// ACTOR_FACE_CULLING
 
 #ifndef MAP_EDITOR2
 	glDisable(GL_TEXTURE_2D);
 	display_actors(0, DEPTH_RENDER_PASS);
 	glEnable(GL_TEXTURE_2D);
 #endif
-#ifdef	ACTOR_FACE_CULLING
 	glCullFace(GL_BACK);
-#endif	// ACTOR_FACE_CULLING
 	glDisable(GL_POLYGON_OFFSET_FILL);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
