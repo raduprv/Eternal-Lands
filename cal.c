@@ -58,9 +58,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 		anim.anim_index = actors_defs[pActor->actor_type].cal_idle1_frame.anim_index;
 		anim.kind = cycle;
 		anim.duration = actors_defs[pActor->actor_type].cal_idle1_frame.duration;
-#ifdef	NEW_ACTOR_ANIMATION
 		anim.duration_scale = actors_defs[pActor->actor_type].cal_idle1_frame.duration_scale;
-#endif
 	}
 
 	mixer=CalModel_GetMixer(pActor->calmodel);
@@ -171,25 +169,15 @@ void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const c
 }
 #endif // NEW_SOUND
 
-#ifdef	NEW_ACTOR_ANIMATION
+
 	#ifdef NEW_SOUND
 struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale, int duration)
 	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 	#endif	//NEW_SOUND
-#else
-	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale)
-	#else
-struct cal_anim cal_load_anim(actor_types *act, const char *str)
-	#endif	//NEW_SOUND
-#endif
 {
 	char fname[255]={0};
-	struct cal_anim res={-1,cycle,0
-#ifdef  NEW_ACTOR_ANIMATION
-	,0.0f
-#endif
+	struct cal_anim res={-1,cycle,0,0.0f
 #ifdef NEW_SOUND
 	,-1
 #endif  //NEW_SOUND
@@ -239,10 +227,8 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str)
 		CalCoreAnimation_Scale(coreanim,act->scale);
 #endif // CACHE_ANIMATIONS
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
-#ifdef	NEW_ACTOR_ANIMATION
 		if (duration > 0) res.duration_scale = res.duration/(duration*0.001f);
 		else res.duration_scale = 1.0f;
-#endif
 	} else {
 		log_error(no_animation_err_str, fname);
 	}
@@ -472,12 +458,8 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 
 #ifdef	DYNAMIC_ANIMATIONS
 	if(act->last_anim_update < cur_time)
-#ifdef	NEW_ACTOR_ANIMATION
 		if(act->cur_anim.duration_scale > 0.0f)
 			CalModel_Update(act->calmodel, (((cur_time-act->last_anim_update)*act->cur_anim.duration_scale)/1000.0));
-#else
-		CalModel_Update(act->calmodel,((cur_time-act->last_anim_update)/1000.0));
-#endif
 	build_actor_bounding_box(act);
 #ifdef MISSILES
 	missiles_rotate_actor_bones(act);

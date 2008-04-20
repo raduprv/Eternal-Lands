@@ -32,19 +32,11 @@ void cal_set_anim_sound(struct cal_anim *my_cal_anim, const char *sound, const c
  * \callgraph
  */
 void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
-#ifdef	NEW_ACTOR_ANIMATION
 	#ifdef NEW_SOUND
 struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale, int duration);
 	#else
 struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration);
 	#endif	//NEW_SOUND
-#else
-	#ifdef NEW_SOUND
-struct cal_anim cal_load_anim(actor_types *act, const char *str, const char *sound, const char *sound_scale);
-	#else
-struct cal_anim cal_load_anim(actor_types *act, const char *str);
-	#endif	//NEW_SOUND
-#endif
 
 #define cal_cycle_blending_delay  0.1f	/*!< time in seconds for blending from cycle to action or cycle. */
 #define cal_action_blending_delay 0.6f	/*!< time in seconds for blending from action to action or cycle. */
