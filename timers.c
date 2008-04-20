@@ -1,9 +1,7 @@
 #include <stdlib.h>
 #include <time.h>
 #include "timers.h"
-#ifdef NEW_ACTOR_MOVEMENT
 #include "actors.h"
-#endif
 #include "actor_scripts.h"
 #include "draw_scene.h"
 #include "events.h"
@@ -70,11 +68,6 @@ Uint32 my_timer(Uint32 interval, void * data)
 	if(is_raining)update_rain();
 #endif
 
-	//e.type= SDL_USEREVENT;
-#ifndef NEW_ACTOR_MOVEMENT
-	e.user.code= EVENT_ANIMATE_ACTORS;
-	SDL_PushEvent(&e);
-#endif // NEW_ACTOR_MOVEMENT
 	if(normal_animation_timer>2 && have_a_map)
 	{
 		if(my_timer_adjust > 0)
@@ -86,15 +79,6 @@ Uint32 my_timer(Uint32 interval, void * data)
 		//e.type= SDL_USEREVENT;
 		e.user.code= EVENT_UPDATE_PARTICLES;
 		SDL_PushEvent(&e);
-
-#ifndef NEW_ACTOR_MOVEMENT
-		next_command();
-		move_to_next_frame();
-#else // NEW_ACTOR_MOVEMENT
-/* 		LOCK_ACTORS_LISTS(); */
-/* 		next_command(); */
-/* 		UNLOCK_ACTORS_LISTS(); */
-#endif // NEW_ACTOR_MOVEMENT
 
 		water_movement_u+=0.0004f;
 		water_movement_v+=0.0002f;

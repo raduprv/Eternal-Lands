@@ -256,11 +256,7 @@ int pf_is_tile_occupied(int x, int y)
 
 	for (i = 0; i < max_actors; i++) {
 		if(actors_list[i]) {
-#ifndef NEW_ACTOR_MOVEMENT
-			if (actors_list[i]->tmp.have_tmp && actors_list[i]->tmp.x_tile_pos == x && actors_list[i]->tmp.y_tile_pos == y) {
-#else // NEW_ACTOR_MOVEMENT
 			if (actors_list[i]->x_tile_pos == x && actors_list[i]->y_tile_pos == y) {
-#endif // NEW_ACTOR_MOVEMENT
 				return 1;
 			}
 		}

@@ -47,9 +47,7 @@ extern int camera_zoom_duration;
 extern float camera_distance; /*!< The camera is camera_distance*zoom_level (world coordinates) away from your actor. */
 extern float new_zoom_level;
 
-#ifdef NEW_ACTOR_MOVEMENT
 extern int reset_camera_at_next_update;
-#endif // NEW_ACTOR_MOVEMENT
 
 extern int last_texture; /*!< id of the last used texture */
 
@@ -116,16 +114,6 @@ void update_camera();
  * \callgraph
  */
 void CalculateFrustum();
-
-#ifndef NEW_ACTOR_MOVEMENT
-/*!
- * \ingroup	move_actors
- * \brief	Gets the temporary locations, rotations of the actors
- *
- * 		Gets the temporary locations, rotations of the actors that will be used when rendering this frame
- */
-void get_tmp_actor_data();
-#endif // NEW_ACTOR_MOVEMENT
 
 /*!
  * \ingroup	display

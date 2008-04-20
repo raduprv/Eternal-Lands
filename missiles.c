@@ -354,11 +354,7 @@ float missiles_compute_actor_rotation(float *out_h_rot, float *out_v_rot,
 	if (in_act->rotating) {
         missiles_log_message("%s (%d): already rotating so we get the final position first",
                              in_act->actor_name, in_act->actor_id);
-#ifndef NEW_ACTOR_MOVEMENT
-		act_z_rot += in_act->rotate_z_speed * in_act->rotate_frames_left;
-#else // NEW_ACTOR_MOVEMENT
 		act_z_rot += in_act->rotate_z_speed * in_act->rotate_time_left;
-#endif // NEW_ACTOR_MOVEMENT
 	}
 
 	// we first compute the global rotation

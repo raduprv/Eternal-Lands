@@ -116,9 +116,7 @@ int start_rendering()
 {
 	static int done = 0;
 	static void * network_thread_data[2] = { NULL, NULL };
-#ifdef NEW_ACTOR_MOVEMENT
 	static Uint32 last_frame_and_command_update = 0;
-#endif // NEW_ACTOR_MOVEMENT
 
 	SDL_Thread *network_thread;
 	queue_t *message_queue;
@@ -161,7 +159,6 @@ int start_rendering()
 #endif	//OLC
 			my_tcp_flush(my_socket);    // make sure the tcp output buffer is set
 			
-#ifdef NEW_ACTOR_MOVEMENT
 			if (have_a_map && cur_time > last_frame_and_command_update + 60) {
 				LOCK_ACTORS_LISTS();
 				next_command();
@@ -169,13 +166,10 @@ int start_rendering()
 				move_to_next_frame();
 				last_frame_and_command_update = cur_time;
 			}
-#endif // NEW_ACTOR_MOVEMENT
 
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
-#ifdef NEW_ACTOR_MOVEMENT
                 animate_actors();
-#endif // NEW_ACTOR_MOVEMENT
 				//draw everything
 				draw_scene();
 				last_time=cur_time;

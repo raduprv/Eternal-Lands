@@ -305,13 +305,6 @@ int HandleEvent (SDL_Event *event)
 			case	EVENT_MOVEMENT_TIMER:
 				pf_move();
 				break;
-				
-#ifndef NEW_ACTOR_MOVEMENT
-			case	EVENT_ANIMATE_ACTORS:
-				animate_actors();
-				break;
-#endif // NEW_ACTOR_MOVEMENT
-				
 			case	EVENT_UPDATE_PARTICLES:
 				update_particles();
 				break;

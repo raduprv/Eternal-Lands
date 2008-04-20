@@ -110,11 +110,7 @@ extern "C" void ec_set_draw_method()
 
 float ec_get_z(actor* _actor)
 {
-#ifndef NEW_ACTOR_MOVEMENT
-  return -2.2f+height_map[_actor->tmp.y_tile_pos*tile_map_size_x*6+_actor->tmp.x_tile_pos]*0.2f;
-#else // NEW_ACTOR_MOVEMENT
   return -2.2f+height_map[_actor->y_tile_pos*tile_map_size_x*6+_actor->x_tile_pos]*0.2f;
-#endif // NEW_ACTOR_MOVEMENT
 }
 
 float ec_get_z2(int x, int y)

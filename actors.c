@@ -143,11 +143,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->rotate_x_speed=0;
 	our_actor->rotate_y_speed=0;
 	our_actor->rotate_z_speed=0;
-#ifndef NEW_ACTOR_MOVEMENT
-	our_actor->movement_frames_left=0;
-#else // NEW_ACTOR_MOVEMENT
 	our_actor->movement_time_left=0;
-#endif // NEW_ACTOR_MOVEMENT
 	our_actor->moving=0;
 	our_actor->rotating=0;
 	our_actor->busy=0;
@@ -625,39 +621,22 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
-#ifndef NEW_ACTOR_MOVEMENT
-	x_pos = actor_id->tmp.x_pos;
-	y_pos = actor_id->tmp.y_pos;
-	z_pos = actor_id->tmp.z_pos;
-#else // NEW_ACTOR_MOVEMENT
 	x_pos = actor_id->x_pos;
 	y_pos = actor_id->y_pos;
 	z_pos = actor_id->z_pos;
-#endif // NEW_ACTOR_MOVEMENT
 
 	if (z_pos == 0.0f)
 	{
 		//actor is walking, as opposed to flying, get the height underneath
-#ifndef NEW_ACTOR_MOVEMENT
-		z_pos = -2.2f + height_map[actor_id->tmp.y_tile_pos * tile_map_size_x * 6
-			+ actor_id->tmp.x_tile_pos] * 0.2f;
-#else // NEW_ACTOR_MOVEMENT
 		z_pos = -2.2f + height_map[actor_id->y_tile_pos * tile_map_size_x * 6
 			+ actor_id->x_tile_pos] * 0.2f;
-#endif // NEW_ACTOR_MOVEMENT
 	}
 
 	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
 
-#ifndef NEW_ACTOR_MOVEMENT
-	x_rot = actor_id->tmp.x_rot;
-	y_rot = actor_id->tmp.y_rot;
-	z_rot = 180 - actor_id->tmp.z_rot;
-#else // NEW_ACTOR_MOVEMENT
 	x_rot = actor_id->x_rot;
 	y_rot = actor_id->y_rot;
 	z_rot = 180 - actor_id->z_rot;
-#endif // NEW_ACTOR_MOVEMENT
 
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
@@ -689,26 +668,15 @@ static __inline__ void draw_actor_banner_new(actor * actor_id)
 
 	glPushMatrix();//we don't want to affect the rest of the scene
 
-#ifndef NEW_ACTOR_MOVEMENT
-	x_pos = actor_id->tmp.x_pos;
-	y_pos = actor_id->tmp.y_pos;
-	z_pos = actor_id->tmp.z_pos;
-#else // NEW_ACTOR_MOVEMENT
 	x_pos = actor_id->x_pos;
 	y_pos = actor_id->y_pos;
 	z_pos = actor_id->z_pos;
-#endif // NEW_ACTOR_MOVEMENT
 
 	if (z_pos == 0.0f)
 	{
 		//actor is walking, as opposed to flying, get the height underneath
-#ifndef NEW_ACTOR_MOVEMENT
-		z_pos = -2.2f + height_map[actor_id->tmp.y_tile_pos * tile_map_size_x * 6
-			+ actor_id->tmp.x_tile_pos] * 0.2f;
-#else // NEW_ACTOR_MOVEMENT
 		z_pos = -2.2f + height_map[actor_id->y_tile_pos * tile_map_size_x * 6
 			+ actor_id->x_tile_pos] * 0.2f;
-#endif // NEW_ACTOR_MOVEMENT
 	}
 
 	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
@@ -782,36 +750,21 @@ void get_actors_in_range()
 #endif
 		)
 		{
-#ifndef NEW_ACTOR_MOVEMENT
-			if (!actors_list[i]->tmp.have_tmp) continue;
-			pos[X] = actors_list[i]->tmp.x_pos;
-			pos[Y] = actors_list[i]->tmp.y_pos;
-			pos[Z] = actors_list[i]->tmp.z_pos;
-#else // NEW_ACTOR_MOVEMENT
 			pos[X] = actors_list[i]->x_pos;
 			pos[Y] = actors_list[i]->y_pos;
 			pos[Z] = actors_list[i]->z_pos;
-#endif // NEW_ACTOR_MOVEMENT
 			if (pos[Z] == 0.0f)
 			{
 				//actor is walking, as opposed to flying, get the height underneath
-#ifndef NEW_ACTOR_MOVEMENT
-				pos[Z] = -2.2f + height_map[actors_list[i]->tmp.y_tile_pos * 
-					tile_map_size_x * 6 + actors_list[i]->tmp.x_tile_pos] * 0.2f;
-#else // NEW_ACTOR_MOVEMENT
 				pos[Z] = -2.2f + height_map[actors_list[i]->y_tile_pos * 
 					tile_map_size_x * 6 + actors_list[i]->x_tile_pos] * 0.2f;
-#endif // NEW_ACTOR_MOVEMENT
 			}
 
 			if (actors_list[i]->calmodel == NULL) continue;
 
 			memcpy(&bbox, &actors_list[i]->bbox, sizeof(AABBOX));
-#ifndef NEW_ACTOR_MOVEMENT
-			rotate_aabb(&bbox, actors_list[i]->tmp.x_rot, actors_list[i]->tmp.y_rot, 180.0f-actors_list[i]->tmp.z_rot);
-#else // NEW_ACTOR_MOVEMENT
 			rotate_aabb(&bbox, actors_list[i]->x_rot, actors_list[i]->y_rot, 180.0f-actors_list[i]->z_rot);
-#endif // NEW_ACTOR_MOVEMENT
+
 			VAddEq(bbox.bbmin, pos);
 			VAddEq(bbox.bbmax, pos);
 
@@ -1268,10 +1221,8 @@ void add_actor_from_server (const char *in_data, int len)
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
 
-#ifdef NEW_ACTOR_MOVEMENT
 	if (actors_list[i]->z_pos == 0.0)
 		actors_list[i]->z_pos = get_actor_z(actors_list[i]);
-#endif // NEW_ACTOR_MOVEMENT
 
 	if(frame==frame_sit_idle)actors_list[i]->sitting=1;
 	else

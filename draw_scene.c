@@ -67,9 +67,7 @@ int camera_zoom_duration=0;
 float new_zoom_level=3.0f;
 float camera_distance = 2.5f;
 
-#ifdef NEW_ACTOR_MOVEMENT
 int reset_camera_at_next_update = 1;
-#endif // NEW_ACTOR_MOVEMENT
 
 #ifdef SKY_FPV
 //Follow camera state stuff
@@ -166,73 +164,14 @@ void draw_scene()
 	}
 }
 
-#ifndef NEW_ACTOR_MOVEMENT
-void get_tmp_actor_data()
-{
-	int i;
-	LOCK_ACTORS_LISTS();
-	for(i=0;i<max_actors;i++)
-		{
-			if(actors_list[i])
-				{
-					actors_list[i]->tmp.x_pos=actors_list[i]->x_pos;
-					actors_list[i]->tmp.y_pos=actors_list[i]->y_pos;
-					actors_list[i]->tmp.z_pos=actors_list[i]->z_pos;
-					
-					actors_list[i]->tmp.x_tile_pos=actors_list[i]->x_tile_pos;
-					actors_list[i]->tmp.y_tile_pos=actors_list[i]->y_tile_pos;
-					
-					actors_list[i]->tmp.x_rot=actors_list[i]->x_rot;
-					actors_list[i]->tmp.y_rot=actors_list[i]->y_rot;
-					actors_list[i]->tmp.z_rot=actors_list[i]->z_rot;
-					
-					actors_list[i]->tmp.have_tmp=1;
-				}
-		}
-	UNLOCK_ACTORS_LISTS();
-}
-#endif // NEW_ACTOR_MOVEMENT
-
 void move_camera ()
 {
 	float x, y, z;
 #ifdef SKY_FPV
 	float head_pos[3], follow_speed;
 #endif // SKY_FPV
-#ifndef NEW_ACTOR_MOVEMENT
-	static int lagged=1;
-#endif // NEW_ACTOR_MOVEMENT
 	actor *me = get_our_actor ();
-	
-#ifndef NEW_ACTOR_MOVEMENT
-	if(!me || !me->tmp.have_tmp){
-		lagged=1;
-		return;
-	}
 
-	x = (float)me->tmp.x_pos+0.25f;
-	y = (float)me->tmp.y_pos+0.25f;
-
-#ifndef SKY_FPV
-	z=-2.2f+height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f+sitting;
-#else // SKY_FPV
-
-    cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
-
-    /* Schmurk: I've commented this out because I don't see why the position of
-     * the camera should be different from the head position in ext cam and fpv */
-/* 	if (first_person){ */
-/* 		z = (ext_cam?-1.7f:-2.1f) + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + head_pos[2]; */
-/* 	} else if (ext_cam){ */
-/* 		z = -1.6f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + head_pos[2]; */
-	if (first_person || ext_cam) {
-        // the camera position corresponds to the head position
-		z = -2.2f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + head_pos[2];
-	} else {
-		z = -2.2f + height_map[me->tmp.y_tile_pos*tile_map_size_x*6+me->tmp.x_tile_pos]*0.2f + sitting;
-	}
-#endif // SKY_FPV
-#else // NEW_ACTOR_MOVEMENT
     if(!me){
 		return;
 	}
@@ -259,7 +198,6 @@ void move_camera ()
 		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + sitting;
 	}
 #endif // SKY_FPV
-#endif // NEW_ACTOR_MOVEMENT
 
 #ifdef SKY_FPV
 	if(first_person||ext_cam){
@@ -268,22 +206,14 @@ void move_camera ()
 		follow_speed = 300.0f;
 	}
 #endif // SKY_FPV
-#ifndef NEW_ACTOR_MOVEMENT
-	if(lagged){
-#else // NEW_ACTOR_MOVEMENT
 	if(reset_camera_at_next_update){
-#endif // NEW_ACTOR_MOVEMENT
 		camera_x = -x;
 		camera_y = -y;
 		camera_z = -z;
 		camera_x_duration=0;
 		camera_y_duration=0;
 		camera_z_duration=0;
-#ifndef NEW_ACTOR_MOVEMENT
-		lagged=0;
-#else // NEW_ACTOR_MOVEMENT
         reset_camera_at_next_update = 0;
-#endif // NEW_ACTOR_MOVEMENT
 		set_all_intersect_update_needed(main_bbox_tree);
 	} else {
 		//move near the actor, but smoothly
@@ -406,12 +336,10 @@ void update_camera()
 	
 	//printf("kludge: %f, hold: %f, rx: %f, rz %f, zoom: %f\n",camera_kludge, hold_camera,rx,rz,zoom_level);
 	
-	if (fol_cam && !fol_cam_behind) rz = hold_camera;
-#ifndef NEW_ACTOR_MOVEMENT
-	if (me) camera_kludge = -me->tmp.z_rot;
-#else // NEW_ACTOR_MOVEMENT
-	if (me) camera_kludge = -me->z_rot;
-#endif // NEW_ACTOR_MOVEMENT
+	if (fol_cam && !fol_cam_behind)
+		rz = hold_camera;
+	if (me)
+		camera_kludge = -me->z_rot;
 #endif // SKY_FPV
 
 	if(camera_rotation_duration > 0){

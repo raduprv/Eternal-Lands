@@ -123,11 +123,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->rotate_x_speed=0;
 	our_actor->rotate_y_speed=0;
 	our_actor->rotate_z_speed=0;
-#ifndef NEW_ACTOR_MOVEMENT
-	our_actor->movement_frames_left=0;
-#else // NEW_ACTOR_MOVEMENT
 	our_actor->movement_time_left=0;
-#endif // NEW_ACTOR_MOVEMENT
 	our_actor->moving=0;
 	our_actor->rotating=0;
 	our_actor->busy=0;
@@ -908,10 +904,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
 
-#ifdef NEW_ACTOR_MOVEMENT
 	if (actors_list[i]->z_pos == 0.0)
 		actors_list[i]->z_pos = get_actor_z(actors_list[i]);
-#endif // NEW_ACTOR_MOVEMENT
 
 	if(frame==frame_sit_idle)
 		{
@@ -1075,11 +1069,9 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 		//actor_wear_item(actors_list[i]->actor_id,KIND_OF_HELMET,HELMET_IRON);
 	}*/
 
-#ifdef NEW_ACTOR_MOVEMENT
     if (actor_id == yourself) {
         reset_camera_at_next_update = 1;
     }
-#endif // NEW_ACTOR_MOVEMENT
 
 	UNLOCK_ACTORS_LISTS();  //unlock it
 #ifdef EXTRA_DEBUG
