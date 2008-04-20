@@ -969,8 +969,9 @@ int command_help(char *text, int len)
 	{
 		view_tab (&tab_help_win, &tab_help_collection_id, HELP_TAB_HELP);
 	}
-	// but fall thru and send it to the server
-	return 0;
+	// this use to return 0 - to fall thru and send it to the server
+	// but the server does not handle the command and Entropy says it never did
+	return 1;
 }
 
 int command_storage(char *text, int len)
