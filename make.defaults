@@ -21,7 +21,6 @@ FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look
 #FEATURES += EL_BIG_ENDIAN                   # (undocumented)	FIXME: Should be removed and set in the code (as is done for OSX. Is it needed on any other platform?)
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
-FEATURES += MASKING                         # Allow for item masking on Actors, example, can allow for short sleeves
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
 FEATURES += MISSILES                        # Enables missiles support
 #FEATURES += MISSILES_DEBUG                  # Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.

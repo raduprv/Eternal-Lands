@@ -2009,56 +2009,28 @@ int load_bmp8_enhanced_actor(enhanced_actor *this_actor, Uint8 a)
 
 	texture_mem=(Uint8*)calloc(1,256*256*4);
 	if(this_actor->pants_tex[0]){
-#ifdef	MASKING
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->pants_tex,this_actor->legs_base,this_actor->pants_mask,texture_mem,78,175,a);
-#else	//MASKING
-		has_alpha+= load_bmp8_to_coordinates(this_actor->pants_tex,texture_mem,78,175,a);
-#endif	//MASKING
 	}
 	if(this_actor->boots_tex[0]){
-#ifdef	MASKING
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->boots_tex,this_actor->boots_base,this_actor->boots_mask,texture_mem,0,175,a);
-#else	//MASKING
-		has_alpha+= load_bmp8_to_coordinates(this_actor->boots_tex,texture_mem,0,175,a);
-#endif	//MASKING
 	}
 #ifdef NEW_TEX
 	if(this_actor->torso_tex[0]){
-#ifdef	MASKING
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->body_base, this_actor->torso_mask, texture_mem,158,149,a);
-#else	//MASKING
-		has_alpha+= load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,149,a);
-#endif	//MASKING
 	}
 #else
 	if(this_actor->torso_tex[0]){
-#ifdef	MASKING
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->torso_tex,this_actor->torso_base, this_actor->torso_mask, texture_mem,158,156,a);
-#else	//MASKING
-		has_alpha+= load_bmp8_to_coordinates(this_actor->torso_tex,texture_mem,158,156,a);
-#endif	//MASKING
 	}
 #endif
 	if(this_actor->arms_tex[0]){
-#ifdef	MASKING
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->arms_tex,this_actor->arms_base,this_actor->arms_mask,texture_mem,0,96,a);
-#else	//MASKING
-		has_alpha+= load_bmp8_to_coordinates(this_actor->arms_tex,texture_mem,0,96,a);
-#endif	//MASKING
 	}
 	if(this_actor->hands_tex[0]){
-#ifdef	MASKING
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->hands_tex,this_actor->hands_tex_save,this_actor->hands_mask,texture_mem,67,64,a);
-#else	//MASKING
-		has_alpha+= load_bmp8_to_coordinates(this_actor->hands_tex,texture_mem,67,64,a);
-#endif	//MASKING
 	}
 	if(this_actor->head_tex[0]){
-#ifdef	MASKING
 		has_alpha+= load_bmp8_to_coordinates_mask2(this_actor->head_tex,this_actor->head_base,this_actor->head_mask,texture_mem,67,0,a);
-#else	//MASKING
-		has_alpha+= load_bmp8_to_coordinates(this_actor->head_tex,texture_mem,67,0,a);
-#endif	//MASKING
 	}
 	if(this_actor->hair_tex[0])
 		has_alpha+= load_bmp8_to_coordinates(this_actor->hair_tex,texture_mem,0,0,a);
