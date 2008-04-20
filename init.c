@@ -77,9 +77,7 @@
 #include "sky.h"
 #endif // SKY_FPV
 #include "mines.h"
-#ifdef POPUP
 #include "popup.h"
-#endif /* POPUP */
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
 #endif /* TEXT_ALIASES */
@@ -922,9 +920,7 @@ void init_stuff()
 #ifdef SKY_FPV
 	skybox_init_gl();
 #endif // SKY_FPV
-#ifdef POPUP
 	popup_init();
-#endif /* POPUP */
 
 log_info("Init done!");
 }

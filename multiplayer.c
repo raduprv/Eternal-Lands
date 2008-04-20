@@ -46,9 +46,7 @@
 #include "mines.h"
 #include "sendvideoinfo.h"
 #include "servers.h"
-#ifdef POPUP
 #include "popup.h"
-#endif /* POPUP */
 #ifdef MISSILES
 #include "missiles.h"
 #endif //MISSILES
@@ -1770,7 +1768,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				add_mines_from_list(&in_data[3]);
 			}
 			break;
-#ifdef POPUP
 		case DISPLAY_POPUP:
 			{
 				if (data_length <= 8) /* At least one char title and one char text */
@@ -1781,7 +1778,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				popup_create_from_network(&in_data[3], data_length - 3);
 			}
 			break;
-#endif /* POPUP */
 #ifdef MISSILES
 		case MISSILE_AIM_A_AT_B:
 			if (data_length >= 7)
