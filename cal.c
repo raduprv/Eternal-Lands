@@ -211,11 +211,7 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 		res.sound_scale = 1.0f;
 #endif	//NEW_SOUND
 
-#ifndef CACHE_ANIMATIONS
-	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,fname);
-#else // CACHE_ANIMATIONS
 	res.anim_index=CalCoreModel_ELLoadCoreAnimation(act->coremodel,fname,act->scale);
-#endif // CACHE_ANIMATIONS
 	if(res.anim_index == -1) {
 		log_error("Cal3d error: %s: %s\n", fname, CalError_GetLastErrorDescription());
 		return res;
@@ -223,9 +219,6 @@ struct cal_anim cal_load_anim(actor_types *act, const char *str, int duration)
 	coreanim=CalCoreModel_GetCoreAnimation(act->coremodel,res.anim_index);
 
 	if (coreanim) {
-#ifndef CACHE_ANIMATIONS
-		CalCoreAnimation_Scale(coreanim,act->scale);
-#endif // CACHE_ANIMATIONS
 		res.duration=CalCoreAnimation_GetDuration(coreanim);
 		if (duration > 0) res.duration_scale = res.duration/(duration*0.001f);
 		else res.duration_scale = 1.0f;

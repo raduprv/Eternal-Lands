@@ -257,30 +257,14 @@ namespace eternal_lands
 		CATCH_AND_LOG_EXCEPTIONS_WITH_RETURN(0);
 	}
 
-#ifndef CACHE_ANIMATIONS
-	extern "C" int CalCoreModel_ELLoadCoreAnimation(CalCoreModel *self, const char *strFilename)
-#else // CACHE_ANIMATIONS
 	extern "C" int CalCoreModel_ELLoadCoreAnimation(CalCoreModel *self, const char *strFilename, float scale)
-#endif // CACHE_ANIMATIONS
 	{
 		assert(self);
 		try
 		{
-#ifndef CACHE_ANIMATIONS
-			el_data_source file(strFilename);
-
-			CalCoreAnimationPtr core_animation = CalLoader::loadCoreAnimation(file, self->getCoreSkeleton());
-
-			if (core_animation)
-			{
-				core_animation->setFilename(strFilename);
-			}
-			else
-#else // CACHE_ANIMATIONS
  			CalCoreAnimationPtr core_animation = CalAnimationCache::loadAnimation(strFilename, scale);
 
 			if (!core_animation)
-#endif // CACHE_ANIMATIONS
 			{
 				return -1;
 			}

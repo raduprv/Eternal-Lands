@@ -1,5 +1,3 @@
-#ifdef CACHE_ANIMATIONS
-
 #ifndef _CAL_ANIMATION_CACHE_
 #define _CAL_ANIMATION_CACHE_
 
@@ -58,5 +56,3 @@ namespace eternal_lands
 } // namespace eternal_lands
 
 #endif // _CAL_ANIMATION_CACHE_
-
-#endif // CACHE_ANIMATIONS
