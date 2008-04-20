@@ -31,7 +31,6 @@ FEATURES += MISSILES                        # Enables missiles support
 FEATURES += NEW_ACTOR_ANIMATION             # (undocumented)
 FEATURES += NEW_ACTOR_MOVEMENT              # Binds the actors movements to the display instead of the timer and also improves some stuff that makes the animation much smoother.
 #FEATURES += NEW_ALPHA                       # (undocumented)
-FEATURES += NEW_CAMERA                      # Binds the camera movement to the display and to the real time elapsed between two updates.
 #FEATURES += NEW_CURSOR                      # New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)

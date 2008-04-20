@@ -247,17 +247,10 @@ int HandleEvent (SDL_Event *event)
 			if (( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )||(have_mouse))
 #endif // SKY_FPV
 			{
-#ifndef NEW_CAMERA
-				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 220;
-				camera_rotation_frames = 40;
-				camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 220;
-				camera_tilt_frames = 40;
-#else // NEW_CAMERA
 				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 4000.0;
 				camera_rotation_duration = 800;
 				camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 4000.0;
 				camera_tilt_duration = 800;
-#endif // NEW_CAMERA
 #ifdef SKY_FPV
 				if (fol_cam && !fol_cam_behind)
 				{
@@ -312,12 +305,6 @@ int HandleEvent (SDL_Event *event)
 			case	EVENT_MOVEMENT_TIMER:
 				pf_move();
 				break;
-				
-#ifndef NEW_CAMERA
-			case	EVENT_UPDATE_CAMERA:
-				update_camera();
-				break;
-#endif // NEW_CAMERA
 				
 #ifndef NEW_ACTOR_MOVEMENT
 			case	EVENT_ANIMATE_ACTORS:

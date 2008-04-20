@@ -1507,13 +1507,8 @@ void next_command()
 								actors_list[i]->rotate_z_speed=rotation_angle/360.0;
 #endif // NEW_ACTOR_MOVEMENT
 								if(auto_camera && actors_list[i]->actor_id==yourself){
-#ifndef NEW_CAMERA
-									camera_rotation_speed=rotation_angle/54;
-									camera_rotation_frames=54;
-#else // NEW_CAMERA
 									camera_rotation_speed=rotation_angle/1000.0;
 									camera_rotation_duration=1000;
-#endif // NEW_CAMERA
 								}
 
 #ifndef NEW_ACTOR_MOVEMENT

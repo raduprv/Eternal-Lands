@@ -21,7 +21,6 @@ extern "C" {
  */
 enum {
 	EVENT_MOVEMENT_TIMER,	 /*!< event caused by the timer thread */
-	EVENT_UPDATE_CAMERA,	 /*!< camera update event */
 	EVENT_ANIMATE_ACTORS,	 /*!< animate actor event */
 	EVENT_UPDATE_PARTICLES,	 /*!< update the particles */
 	EVENT_UPDATES_DOWNLOADED,/*!< the event to send when the main updates.lst has been downloaded */
