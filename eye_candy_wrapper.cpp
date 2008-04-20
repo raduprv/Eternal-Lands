@@ -14,9 +14,7 @@
 #include "skeletons.h"
 #include "client_serv.h"        // For mine_type defines
 #include "tiles.h"
-#ifdef MISSILES
 #include "missiles.h"
-#endif // MISSILES
 
 // G L O B A L S //////////////////////////////////////////////////////////////
 
@@ -362,7 +360,6 @@ extern "C" void ec_idle()
 #endif
       }
 
-#ifdef MISSILES
           if ((*iter)->effect->get_type() == ec::EC_MISSILE)
           {
                   missile *mis = get_missile_ptr_from_id((*iter)->missile_id);
@@ -374,7 +371,6 @@ extern "C" void ec_idle()
                           (*iter)->position.z = -mis->position[1];
                   }
           }
-#endif // MISSILES
     }
     i++;
   }
@@ -876,7 +872,6 @@ extern "C" void ec_remove_weapon(actor* _actor)
   }
 }
 
-#ifdef MISSILES
 extern "C" void ec_remove_missile(int missile_id)
 {
   force_idle = true;
@@ -923,8 +918,6 @@ void ec_rename_missile(int old_id, int new_id)
                 }
         }
 }
-
-#endif // MISSILES
 
 extern "C" void ec_add_effect(ec_effects effects, ec_reference ref)
 {
@@ -3429,7 +3422,6 @@ extern "C" ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, i
   return (ec_reference)ret;
 }
 #endif //!MAP_EDITOR
-#ifdef MISSILES
 extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD, int hitOrMiss)
 {
   missile *mis = get_missile_ptr_from_id(missile_id);
@@ -3473,7 +3465,6 @@ extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD, int hi
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
-#endif // MISSILES
 
 ///////////////////////////////////////////////////////////////////////////////
 

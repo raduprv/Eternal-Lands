@@ -1,5 +1,3 @@
-#ifdef MISSILES
-
 #ifndef __MISSILES_H__
 #define __MISSILES_H__
 
@@ -183,5 +181,3 @@ void missiles_init_defs();
 #endif
 
 #endif // __MISSILES_H__
-
-#endif // MISSILES

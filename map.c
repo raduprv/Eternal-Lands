@@ -253,9 +253,7 @@ void change_map (const char *mapname)
 #else
 	kill_local_sounds();
 #endif	//NEW_SOUND
-#ifdef MISSILES
 	missiles_clear();
-#endif // MISSILES
 	if (!el_load_map(mapname)) {
 		char error[255];
 		safe_snprintf(error, sizeof(error), cant_change_map, mapname);

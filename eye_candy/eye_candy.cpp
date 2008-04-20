@@ -1786,9 +1786,7 @@ void EyeCandy::idle()
 #endif
         )
         {
-#ifdef MISSILES
           if (e->get_type() != EC_MISSILE) // don't deactivate missed missiles
-#endif
           {
             if (EC_DEBUG)
               std::cout << "Deactivating effect " << e << " (" << distance_squared << " > " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;

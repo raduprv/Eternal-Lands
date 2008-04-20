@@ -16,9 +16,7 @@
 #include "init.h"
 #include "interface.h"
 #include "lights.h"
-#ifdef MISSILES
 #include "missiles.h"
-#endif // MISSILES
 #include "new_character.h"
 #include "pathfinder.h"
 #include "textures.h"
@@ -142,9 +140,7 @@ int display_map_handler (window_info * win)
 	light_idle();
 #endif // NEW_LIGHTING
 
-#ifdef MISSILES
 	missiles_update();
-#endif // MISSILES
     update_camera();
 
 	draw_delay = 20;

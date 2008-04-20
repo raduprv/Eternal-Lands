@@ -13,10 +13,8 @@
 #include "global.h"
 #include "init.h"
 #include "interface.h"
-#ifdef MISSILES
 #include "missiles.h"
 #include "new_actors.h"
-#endif // MISSILES
 #include "multiplayer.h"
 #include "new_character.h"
 #include "particles.h"
@@ -579,9 +577,7 @@ void animate_actors()
 			if (actors_list[i]->calmodel!=NULL){
 				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
 				build_actor_bounding_box(actors_list[i]);
-#ifdef MISSILES
 				missiles_rotate_actor_bones(actors_list[i]);
-#endif
 				if (use_animation_program)
 				{
 					set_transformation_buffers(actors_list[i]);
@@ -614,7 +610,6 @@ void move_to_next_frame()
 			if (actors_list[i]->calmodel!=NULL) {
 				if ((actors_list[i]->stop_animation==1)&&(actors_list[i]->anim_time>=actors_list[i]->cur_anim.duration)){
 					actors_list[i]->busy=0;
-#ifdef MISSILES
 					if (actors_list[i]->in_aim_mode == 2) {
 						int item;
 
@@ -645,7 +640,6 @@ void move_to_next_frame()
 						}
 						actors_list[i]->delayed_item_changes_count = 0;
 					}
-#endif // MISSILES
 				}
 			}
 
@@ -708,11 +702,9 @@ void set_on_idle(int actor_idx)
         if(a->fighting){
             cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].cal_combat_idle_frame);
         }
-#ifdef MISSILES
         else if (a->in_aim_mode == 1) {
             cal_actor_set_anim(actor_idx,actors_defs[a->actor_type].weapon[a->cur_weapon].cal_range_idle_frame);
         }
-#endif // MISSILES
         else if(!a->sitting) {
             // we are standing, see if we can activate a stand idle
             if(!a->stand_idle){
@@ -1160,7 +1152,6 @@ void next_command()
 						actors_list[i]->stop_animation=0;
 						break;
 
-#ifdef MISSILES
 				case enter_aim_mode:
 					missiles_log_message("%s (%d): cleaning the queue from enter_aim_mode command",
 										 actors_list[i]->actor_name, actors_list[i]->actor_id);
@@ -1385,7 +1376,6 @@ void next_command()
 /* 					unwear_item_from_actor(actors_list[i]->actor_id, KIND_OF_SHIELD); */
 /*  					no_action = 1; */
 /* 					break; */
-#endif // MISSILES
 
 					//ok, now the movement, this is the tricky part
 					default:
@@ -1465,9 +1455,7 @@ void next_command()
 							actors_list[i]->rotate_time_left=360;
 							actors_list[i]->rotating=1;
 							actors_list[i]->stop_animation=1;
-#ifdef MISSILES
 							missiles_log_message("%s (%d): rotation %d requested", actors_list[i]->actor_name, actors_list[i]->actor_id, actors_list[i]->que[0] - turn_n);
-#endif // MISSILES
 						}
 					}
 
@@ -1478,7 +1466,6 @@ void next_command()
 					//save the last command. It is especially good for run and walk
 					actors_list[i]->last_command=actors_list[i]->que[0];
 
-#ifdef MISSILES
 					/* We do the enter in aim mode in two steps in order the actor have
 					 * the time to do the load animation before rotating bones. This is
 					 * necessary in the case of cross bows where the actor need to use
@@ -1489,7 +1476,6 @@ void next_command()
 						actors_list[i]->in_aim_mode = 1;
 						continue;
 					}
-#endif // MISSILES
 
 					//move que down with one command
 					for(k=0;k<MAX_CMD_QUEUE-1;k++) {
@@ -1611,7 +1597,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	} else {
 		LOCK_ACTORS_LISTS();
 
-#ifdef MISSILES
 		if (command == missile_miss) {
 			missiles_log_message("%s (%d): will miss his target", act->actor_name, actor_id);
 			if (act->range_actions_count <= MAX_RANGE_ACTION_QUEUE &&
@@ -1642,7 +1627,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			UNLOCK_ACTORS_LISTS();
 			return;
 		}
-#endif // MISSILES
 
 		if(command==leave_combat||command==enter_combat||command==die1||command==die2)
 		{
@@ -1677,9 +1661,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				//We may be on idle, update the actor so we can reduce the rendering lag
 				CalModel_Update(act->calmodel, 5.0f);
 				build_actor_bounding_box(act);
-#ifdef MISSILES
 				missiles_rotate_actor_bones(get_actor_ptr_from_id(actor_id));
-#endif // MISSILES
 				if (use_animation_program)
 				{
 					set_transformation_buffers(act);
@@ -2435,7 +2417,6 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 					, get_int_property(item, "duration")
 					);
 			}
-#ifdef MISSILES
 			else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_range_fire") == 0) {
 				get_string_value (str,sizeof(str),item);
      			weapon->cal_range_fire_frame=cal_load_anim(act, str
@@ -2486,7 +2467,6 @@ int parse_actor_weapon_detail (actor_types *act, weapon_part *weapon, xmlNode *c
 					, get_int_property(item, "duration")
 					);
 			}
-#endif // MISSILES
 			else if (xmlStrcasecmp (item->name, (xmlChar*)"glow") == 0) {
 				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if (mode < 0) mode = GLOW_NONE;
@@ -2586,13 +2566,11 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		int i;
 		act->weapon = (weapon_part*)calloc(ACTOR_WEAPON_SIZE, sizeof(weapon_part));
 		for (i = ACTOR_WEAPON_SIZE; i--;) {
-#ifdef MISSILES
 			act->weapon[i].cal_range_in_frame.anim_index=-1;
 			act->weapon[i].cal_range_out_frame.anim_index=-1;
 			act->weapon[i].cal_range_idle_frame.anim_index=-1;
 			act->weapon[i].cal_range_fire_frame.anim_index=-1;
 			act->weapon[i].cal_range_fire_out_frame.anim_index=-1;
-#endif // MISSILES
 			act->weapon[i].cal_attack_up_1_frame.anim_index=-1;
 			act->weapon[i].cal_attack_up_2_frame.anim_index=-1;
 			act->weapon[i].cal_attack_up_3_frame.anim_index=-1;
@@ -2616,13 +2594,11 @@ int parse_actor_weapon (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			act->weapon[i].mesh_index = -1;
 
 #ifdef NEW_SOUND
-#ifdef MISSILES
 			act->weapon[i].cal_range_in_frame.sound=-1;
 			act->weapon[i].cal_range_out_frame.sound=-1;
 			act->weapon[i].cal_range_idle_frame.sound=-1;
 			act->weapon[i].cal_range_fire_frame.sound=-1;
 			act->weapon[i].cal_range_fire_out_frame.sound=-1;
-#endif // MISSILES
 			act->weapon[i].cal_attack_up_1_frame.sound=-1;
 			act->weapon[i].cal_attack_up_2_frame.sound=-1;
 			act->weapon[i].cal_attack_up_3_frame.sound=-1;
@@ -2924,10 +2900,8 @@ int parse_actor_shield_part (actor_types *act, shield_part *part, xmlNode *cfg, 
 				int mode = find_description_index (glow_mode_dict, (char*)item->children->content, "glow mode");
 				if(mode < 0) mode = GLOW_NONE;
 				part->glow= mode;
-#ifdef MISSILES
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"missile") == 0) {
 				part->missile_type = get_int_value(item);
-#endif // MISSILES
 			} else {
 				LOG_ERROR("unknown shield property \"%s\"", item->name);
 				ok = 0;
@@ -2976,9 +2950,7 @@ int parse_actor_shield (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 		act->shield = (shield_part*)calloc(ACTOR_SHIELD_SIZE, sizeof(shield_part));
 		for (i = ACTOR_SHIELD_SIZE; i--;) {
 			act->shield[i].mesh_index = -1;
-#ifdef MISSILES
 			act->shield[i].missile_type = -1;
-#endif // MISSILES
 		}
 	}
 

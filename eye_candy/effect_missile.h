@@ -1,5 +1,3 @@
-#ifdef MISSILES
-
 /*!
 \brief Special effects for special missiles (fire, ice, explosive...)
 */
@@ -74,5 +72,3 @@ public:
 }	// End namespace ec
 
 #endif	// defined EFFECT_MISSILE_H
-
-#endif // MISSILES

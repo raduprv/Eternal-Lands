@@ -47,9 +47,7 @@
 #include "sendvideoinfo.h"
 #include "servers.h"
 #include "popup.h"
-#ifdef MISSILES
 #include "missiles.h"
-#endif //MISSILES
 
 /* NOTE: This file contains implementations of the following, currently unused, and commented functions:
  *          Look at the end of the file.
@@ -1778,7 +1776,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				popup_create_from_network(&in_data[3], data_length - 3);
 			}
 			break;
-#ifdef MISSILES
 		case MISSILE_AIM_A_AT_B:
 			if (data_length >= 7)
 			{
@@ -1821,7 +1818,6 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				missiles_fire_xyz_to_b(source,SDL_SwapLE16(*((short *)(in_data+3))));
 			}
 			break;
-#endif //MISSILES
 		default:
 			{
 				// Unknown packet type??

@@ -7,9 +7,7 @@
 #include "font.h"
 #include "global.h"
 #include "load_gl_extensions.h"
-#ifdef MISSILES
 #include "missiles.h"
-#endif
 #include "shadows.h"
 #include "translate.h"
 #ifdef NEW_SOUND
@@ -109,9 +107,7 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	CalModel_Update(pActor->calmodel,0.0001);//Make changes take effect now
 	build_actor_bounding_box(pActor);
 
-#ifdef MISSILES
 	missiles_rotate_actor_bones(pActor);
-#endif // MISSILES
 
 	if (use_animation_program)
 	{
@@ -454,9 +450,7 @@ void cal_render_actor(actor *act, Uint32 use_lightning, Uint32 use_textures, Uin
 		if(act->cur_anim.duration_scale > 0.0f)
 			CalModel_Update(act->calmodel, (((cur_time-act->last_anim_update)*act->cur_anim.duration_scale)/1000.0));
 	build_actor_bounding_box(act);
-#ifdef MISSILES
 	missiles_rotate_actor_bones(act);
-#endif // MISSILES
 	if (use_animation_program)
 	{
 		set_transformation_buffers(act);

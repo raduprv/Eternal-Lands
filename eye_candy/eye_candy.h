@@ -237,10 +237,8 @@ enum EffectEnum
   EC_BREATH = 16,
   EC_CANDLE = 17,
   EC_MINES = 18,
-  EC_GLOW = 19
-#ifdef MISSILES
-  , EC_MISSILE = 20
-#endif // MISSILES
+  EC_GLOW = 19,
+  EC_MISSILE = 20
 };
 
 // C L A S S E S //////////////////////////////////////////////////////////////

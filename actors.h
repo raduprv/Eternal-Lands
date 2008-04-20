@@ -177,9 +177,7 @@ typedef struct
 	int glow;
 	int mesh_index;
 
-#ifdef MISSILES
 	int missile_type; /*!< The type of equipped missiles (>=0 if a quiver is equipped, -1 if a regular shield is equipped) */
-#endif // MISSILES
 
 #ifdef NEW_LIGHTING
         GLfloat   ambient[4];	/*!< The lighting for when the texture is in shadow */
@@ -200,13 +198,11 @@ typedef struct
 	int glow;
 	int mesh_index;
 
-#ifdef MISSILES
 	struct cal_anim cal_range_in_frame;
 	struct cal_anim cal_range_out_frame;
 	struct cal_anim cal_range_idle_frame;
 	struct cal_anim cal_range_fire_frame;
 	struct cal_anim cal_range_fire_out_frame;
-#endif // MISSILES
 
 	struct cal_anim cal_attack_up_1_frame;
 	struct cal_anim cal_attack_up_2_frame;
@@ -462,7 +458,6 @@ typedef struct
 
 } actor_types;
 
-#ifdef MISSILES
 typedef struct
 {
 	float aim_position[3];  /*!< Position of the target to aim at */
@@ -473,7 +468,6 @@ typedef struct
 	char reload; /*!< To tell if the char must reload after the next fire */
 	char state; /*!< The state of the action (0: aim needed, 1: aim done, 2: fire needed, 3: fire done) */
 } range_action;
-#endif // MISSILES
 
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
@@ -496,7 +490,6 @@ typedef struct
 	Uint32	last_anim_update;
 	AABBOX bbox;
 
-#ifdef MISSILES
 	/*! \name Range mode parameters */
 	/*! \{ */
 	float cal_h_rot_start;    /*!< The starting horizontal rotation */
@@ -515,7 +508,6 @@ typedef struct
 	int delayed_item_type_changes[MAX_ITEM_CHANGES_QUEUE]; /*!< Used to delay a sword/shield equip while in range mode */
 	int delayed_item_changes_count; /*!< The number of delayed items */
 	/*! \} */
-#endif // MISSILES
 
 	/*! \name Actors positions
 	 *  \brief Updated in the timer thread

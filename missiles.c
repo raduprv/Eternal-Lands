@@ -1,5 +1,3 @@
-#ifdef MISSILES
-
 #include "3d_objects.h"
 #include "actor_scripts.h"
 #include "asc.h"
@@ -933,5 +931,3 @@ void missiles_init_defs()
 
 	missiles_read_defs("actor_defs/missile_defs.xml");
 }
-
-#endif // MISSILES

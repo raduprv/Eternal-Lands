@@ -15,9 +15,7 @@
 #include "interface.h"
 #include "load_gl_extensions.h"
 #include "map.h"
-#ifdef MISSILES
 #include "missiles.h"
-#endif // MISSILES
 #include "new_actors.h"
 #include "platform.h"
 #include "shadows.h"
@@ -108,7 +106,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->actor_id=actor_id;
 	our_actor->cur_anim_sound_cookie = 0;
 
-#ifdef MISSILES
 	our_actor->cal_h_rot_start = 0.0;
 	our_actor->cal_h_rot_end = 0.0;
 	our_actor->cal_v_rot_start = 0.0;
@@ -119,7 +116,6 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->in_aim_mode = 0;
 	our_actor->range_actions_count = 0;
 	our_actor->delayed_item_changes_count = 0;
-#endif // MISSILES
 
 	our_actor->x_pos=x_pos;
 	our_actor->y_pos=y_pos;

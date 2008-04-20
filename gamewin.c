@@ -63,9 +63,7 @@
 #ifdef SKY_FPV
 #include "sky.h"
 #endif
-#ifdef MISSILES
 #include "missiles.h"
-#endif
 #ifdef ECDEBUGWIN
 #include "eye_candy_debugwin.h"
 #endif
@@ -358,14 +356,12 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 
 	else if (thing_under_the_mouse==UNDER_MOUSE_3D_OBJ && objects_list[object_under_mouse])
 	{
-#ifdef MISSILES
 		int range_weapon_equipped;
 		LOCK_ACTORS_LISTS();
 		range_weapon_equipped = (your_actor &&
 								 your_actor->cur_weapon >= BOW_LONG &&
 								 your_actor->cur_weapon <= BOW_CROSS);
 		UNLOCK_ACTORS_LISTS();
-#endif // MISSILES
 		if(action_mode==ACTION_LOOK)
 		{
 			elwin_mouse = CURSOR_EYE;
@@ -382,14 +378,12 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 		{
 			elwin_mouse = CURSOR_USE_WITEM;
 		}
-#ifdef MISSILES
         // allow to shoot at 3D objects
 		else if (range_weapon_equipped &&
                  (action_mode == ACTION_ATTACK || (alt_on && ctrl_on)))
 		{
 			elwin_mouse = CURSOR_ATTACK;
 		}
-#endif // MISSILES
 		//see if the object is a harvestable resource.
 		else if(objects_list[object_under_mouse]->flags&OBJ_3D_HARVESTABLE) 
 		{
@@ -505,7 +499,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 	int flag_ctrl = flags & ELW_CTRL;
 	int flag_right = flags & ELW_RIGHT_MOUSE;
 	int force_walk = (flag_ctrl && flag_right && !flag_alt);
-#ifdef MISSILES
 	int range_weapon_equipped;
 
 	LOCK_ACTORS_LISTS();
@@ -513,7 +506,6 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 							 your_actor->cur_weapon >= BOW_LONG &&
 							 your_actor->cur_weapon <= BOW_CROSS);
 	UNLOCK_ACTORS_LISTS();
-#endif // MISSILES
 	
 	if (flags & ELW_WHEEL_UP)
 	{
@@ -617,13 +609,11 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 						action_mode = ACTION_WALK;
 					break;
 				case CURSOR_USE:
-#ifdef MISSILES
                     if (range_weapon_equipped)
                         action_mode = ACTION_ATTACK;
                     else
                         action_mode = ACTION_WALK;
                     break;
-#endif // MISSILES
 				case CURSOR_TALK:
 				case CURSOR_ARROW:
 				default:
@@ -790,14 +780,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				my_tcp_send (my_socket, str, 5);
 				return 1;
 			}
-#ifdef MISSILES
 			else if (range_weapon_equipped && thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
 			{
 				str[0] = FIRE_MISSILE_AT_OBJECT;
 				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
 				my_tcp_send(my_socket, str, 5);
 			}
-#endif // MISSILES
 			break;
 		}
 
@@ -808,10 +796,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
-#ifdef MISSILES
 			if (flag_alt && range_weapon_equipped)
 				return 1;
-#endif // MISSILES
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_PLAYER || thing_under_the_mouse == UNDER_MOUSE_NPC || thing_under_the_mouse == UNDER_MOUSE_ANIMAL)
@@ -848,10 +834,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 		case CURSOR_PICK:
 		{
-#ifdef MISSILES
 			if (flag_alt && range_weapon_equipped)
 				return 1;
-#endif // MISSILES
 			if (object_under_mouse == -1)
 				return 1;
 			if (thing_under_the_mouse == UNDER_MOUSE_3D_OBJ)
@@ -866,10 +850,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			Uint8 str[10];
 
-#ifdef MISSILES
 			if (flag_alt && range_weapon_equipped)
 				return 1;
-#endif // MISSILES
 			if (object_under_mouse == -1)
 				return 1;
 			str[0] = HARVEST;
@@ -887,11 +869,9 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			/* if outside the main window, on the hud, don't walk */
 			if ((mx >= window_width-hud_x) || (my >= window_height-hud_y))
 				return 1;				
-		
-#ifdef MISSILES
+
 			if (flag_alt && range_weapon_equipped)
 				return 1;
-#endif // MISSILES
 			if (you_sit && sit_lock && !flag_ctrl){
 				LOG_TO_CONSOLE(c_green1, no_walk_with_sitlock);
 				return 1;
@@ -908,7 +888,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			
 			add_highlight(x, y, HIGHLIGHT_TYPE_WALKING_DESTINATION);
 		
-#if defined(MISSILES) && defined(DEBUG) // FOR DEBUG ONLY!
+#ifdef DEBUG // FOR DEBUG ONLY!
             if (enable_client_aiming) {
                 if (flag_ctrl) {
                     float target[3];
@@ -933,7 +913,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
                 }
             }
             else
-#endif // MISSILES & DEBUG
+#endif // DEBUG
 			move_to (x, y, 1);
 
 			return 1;
@@ -1100,9 +1080,7 @@ int display_game_handler (window_info *win)
 		CHECK_GL_ERRORS ();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-#ifdef MISSILES
 		missiles_update();
-#endif
 	
 #ifdef NEW_LIGHTING
 		if (use_new_lighting)
@@ -1189,11 +1167,9 @@ int display_game_handler (window_info *win)
 
 	ec_draw();
 	CHECK_GL_ERRORS();
-	
-#ifdef MISSILES
+
 	missiles_draw();
 	CHECK_GL_ERRORS();
-#endif
 
 	if (weather_use_fog())
 		render_fog();

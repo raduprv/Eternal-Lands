@@ -567,7 +567,6 @@ typedef enum actor_commands
   attack_down_1 = 50,
   attack_down_2 = 51,
 
-#ifdef MISSILES
   enter_aim_mode = 52,
   leave_aim_mode = 53,
   aim_mode_reload = 54,
@@ -576,7 +575,6 @@ typedef enum actor_commands
   //unwear_bow = 57,
   //unwear_quiver = 58,
   missile_critical = 59,
-#endif // MISSILES
 
   attack_down_3 = 60,
   attack_down_4 = 61,

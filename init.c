@@ -43,9 +43,7 @@
 #include "notepad.h"
 #include "astrology.h"
 #include "mapwin.h"
-#ifdef MISSILES
 #include "missiles.h"
-#endif // MISSILES
 #include "new_actors.h"
 #include "openingwin.h"
 #include "particles.h"
@@ -729,9 +727,7 @@ void init_stuff()
 	init_actor_defs();
 	log_info("Init actor defs done");
 
-#ifdef MISSILES
 	missiles_init_defs();
-#endif // MISSILES
 
 	update_loading_win(load_map_tiles_str, 4);
 	load_map_tiles();

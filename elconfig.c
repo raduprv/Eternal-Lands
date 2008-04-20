@@ -159,9 +159,9 @@ float water_tiles_extension = 150.0;
 
 int video_info_sent = 0;
 
-#if defined(MISSILES) && defined(DEBUG)
+#ifdef DEBUG
 int enable_client_aiming = 0;
-#endif // MISSILES & DEBUG
+#endif // DEBUG
 
 int int_zero_func()
 {
@@ -1620,9 +1620,9 @@ void init_vars()
 #if defined NEW_LIGHTING || defined NIGHT_TEXTURES
 	add_var(OPT_BOOL,"night_shift_textures","nst",&night_shift_textures,change_var,0,"Night Textures","Make the scene at night less colorful, as in the real world.  Will impose a small delay when changing to/from dungeon maps.",LODTAB);
  #endif
-#if defined(MISSILES) && defined(DEBUG)
+#ifdef DEBUG
 	add_var(OPT_BOOL,"enable_client_aiming","eca",&enable_client_aiming,change_var,0,"Enable client aiming","Allow to aim at something by holding CTRL key. This aim is only done on client side and is used only for debugging purposes. Warning: enabling this code can produce server resyncs or locks when playing with missiles...",CONTROLS);
-#endif // MISSILES & DEBUG
+#endif // DEBUG
 	add_var(OPT_BOOL,"use_eye_candy", "ec", &use_eye_candy, change_var, 1, "Enable Eye Candy", "Toggles most visual effects, like spells' and harvesting events'", ECTAB);
 	add_var(OPT_BOOL,"enable_blood","eb",&enable_blood,change_var,0,"Enable Blood","Enable blood special effects during combat.",ECTAB);
 	add_var(OPT_BOOL,"use_lamp_halo","ulh",&use_lamp_halo,change_var,0,"Use Lamp Halos","Enable halos for torches, candles, etc.",ECTAB);

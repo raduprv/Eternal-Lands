@@ -14,9 +14,7 @@
 #include "filter.h"
 #include "global.h"
 #include "init.h"
-#ifdef MISSILES
 #include "missiles.h"
-#endif // MISSILES
 #include "sound.h"
 #include "textures.h"
 #include "tiles.h"
@@ -88,7 +86,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->is_enhanced_model=1;
 	our_actor->actor_id=actor_id;
 
-#ifdef MISSILES
 	our_actor->cal_h_rot_start = 0.0;
 	our_actor->cal_h_rot_end = 0.0;
 	our_actor->cal_v_rot_start = 0.0;
@@ -99,7 +96,6 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->in_aim_mode = 0;
 	our_actor->range_actions_count = 0;
 	our_actor->delayed_item_changes_count = 0;
-#endif // MISSILES
 
 	our_actor->x_pos=x_pos;
 	our_actor->y_pos=y_pos;
@@ -181,7 +177,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 						if(which_part==KIND_OF_WEAPON)
 							{
 								ec_remove_weapon(actors_list[i]);
-#ifdef MISSILES
 								if (actors_list[i]->in_aim_mode > 0) {
 									if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
 										missiles_log_message("%s (%d): unwear item type %d delayed",
@@ -195,7 +190,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 									}
 									return;
 								}
-#endif // MISSILES
 								if(actors_list[i]->cur_weapon == GLOVE_FUR || actors_list[i]->cur_weapon == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_list[i]->body_parts->hands_tex_save);
 									glDeleteTextures(1,&actors_list[i]->texture_id);
@@ -211,7 +205,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 
 						if(which_part==KIND_OF_SHIELD)
 							{
-#ifdef MISSILES
 								if (actors_list[i]->in_aim_mode > 0) {
 									if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
 										missiles_log_message("%s (%d): unwear item type %d delayed",
@@ -225,7 +218,6 @@ void unwear_item_from_actor(int actor_id,Uint8 which_part)
 									}
 									return;
 								}
-#endif // MISSILES
 								model_detach_mesh(actors_list[i], actors_list[i]->body_parts->shield_meshindex);
 								actors_list[i]->body_parts->shield_tex[0]=0;
 								actors_list[i]->cur_shield = SHIELD_NONE;
@@ -314,7 +306,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 						my_tolower(onlyname);
 						safe_snprintf(playerpath, sizeof(playerpath), "custom/player/%s/", onlyname);
 #endif
-#ifdef MISSILES
 						if (actors_list[i]->in_aim_mode > 0 &&
 							(which_part == KIND_OF_WEAPON || which_part == KIND_OF_SHIELD)) {
 							if (actors_list[i]->delayed_item_changes_count < MAX_ITEM_CHANGES_QUEUE) {
@@ -329,7 +320,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							}
 							return;
 						}
-#endif // MISSILES
 						if(which_part==KIND_OF_WEAPON)
 							{
 								if(which_id == GLOVE_FUR || which_id == GLOVE_LEATHER){
@@ -917,10 +907,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			if(actors_list[i]->actor_id==yourself)you_stand_up();
 			if(frame==frame_combat_idle)
 				actors_list[i]->fighting=1;
-#ifdef MISSILES
 			else if (frame == frame_ranged)
 				actors_list[i]->in_aim_mode = 1;
-#endif // MISSILES
 		}
 
 	//ghost or not?

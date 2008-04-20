@@ -40,9 +40,7 @@
 #include "eye_candy/effect_wind.h"
 #include "eye_candy/effect_breath.h"
 #include "eye_candy/effect_mines.h"
-#ifdef MISSILES
 #include "eye_candy/effect_missile.h"
-#endif // MISSILES
 #endif
 
 #ifdef __cplusplus
@@ -110,9 +108,7 @@ public:
   bool dead;
   int casterbone;
   int targetbone;
-#ifdef MISSILES
   int missile_id;
-#endif // MISSILES
 } ec_internal_reference;
 
 typedef struct ec_object_obstruction
@@ -170,10 +166,8 @@ typedef enum ec_EffectEnum      // Keep in sync with eye_candy/eye_candy.h!
   EC_BREATH = 16,
   EC_CANDLE = 17,
   EC_MINES = 18,
-  EC_GLOW = 19
-#ifdef MISSILES
-  , EC_MISSILE = 20
-#endif // MISSILES
+  EC_GLOW = 19,
+  EC_MISSILE = 20
 } ec_EffectEnum;
 
 ////////////////////////////////////////////////////////////////////////////////
@@ -212,10 +206,8 @@ typedef enum ec_EffectEnum      // Keep in sync with eye_candy/eye_candy.h!
   ec_effects ec_create_effects_list();
   void ec_free_effects_list(ec_effects effects);
   void ec_remove_weapon(actor* _actor);
-#ifdef MISSILES
   void ec_remove_missile(int missile_id);
   void ec_rename_missile(int old_id, int new_id);
-#endif // MISSILES
   void ec_add_effect(ec_effects effects, ec_reference ref);
   int ec_in_range(float x, float y, float z, Uint64 effect_max_length);
   ec_reference ec_create_generic();
@@ -416,10 +408,7 @@ typedef enum ec_EffectEnum      // Keep in sync with eye_candy/eye_candy.h!
   ec_reference ec_create_mine_remove(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_detonate(float x, float y, float z, int mine_type, int LOD);
   ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, int LOD);
-
-#ifdef MISSILES
   ec_reference ec_create_missile_effect(int missile_id, int LOD, int hitOrMiss);
-#endif // MISSILES
 
 #ifdef __cplusplus
 }
