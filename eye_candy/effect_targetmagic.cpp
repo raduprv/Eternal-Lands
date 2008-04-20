@@ -50,7 +50,7 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
 //  std::cout << "A) " << this << ", " << state << ": " << pos << ", " << alpha << std::endl;
 //  std::cout << "A) " << this << ": " << velocity << ", " << pos << std::endl;
   
-  if ((state == 0) && (age < 300000))
+  if ((state == 0) && (age < 500000))
   {
     switch(type)
     {
@@ -338,19 +338,17 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
     {
       effect_centers.push_back(*_pos);
 
-      spawner = new FilledDiscSpawner(0.15);
-      spawner2 = new SierpinskiIFSParticleSpawner(1.5);
+      spawner = new FilledDiscSpawner(0.05);
+      spawner2 = new SierpinskiIFSParticleSpawner(1.25);
       mover = new GravityMover(this, &(effect_centers[0]), 1e6);
       const Vec3 direction = (*targets[0] - *pos).normalize();
       for (int i = 1; i <= 4; i++)
       {
-        const Vec3 coords = spawner->get_new_coords() * 0.75 + effect_centers[0];
+        const Vec3 coords = spawner->get_new_coords() + effect_centers[0];
         Vec3 velocity;
-        velocity.randomize((i + 1) * 2.0);
-        velocity += direction * -10.0 * i;
-        velocity.y = fabs(velocity.y);
+        velocity.randomize(i);
+        velocity -= direction * i;
         velocity.y += i * 10.0;
-        velocity.x += -5.0 + 2.0 * i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
           break;
@@ -454,7 +452,6 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.5);
         velocity += direction * -2.0 * i;
-        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.25 + randcolor(0.25), 0.15 + randcolor(0.15), &(base->TexVoid), LOD, type, spawner, mover2, targets[0], 0, 2);
         if (!base->push_back_particle(p))
@@ -466,7 +463,6 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.3);
         velocity += direction * -2.0 * i;
-        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 15.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.25 + randcolor(0.25), &(base->TexTwinflare), LOD, type, spawner, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
@@ -531,7 +527,6 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.45);
         velocity += direction * -2.0 * i;
-        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover2, coords, velocity, 7.5, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexVoid), LOD, type, spawner2, mover2, targets[0], 0, 2);
         if (!base->push_back_particle(p))
@@ -543,7 +538,6 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
         Vec3 velocity;
         velocity.randomize(0.85);
         velocity += direction * -2.0 * i;
-        velocity.y = fabs(velocity.y);
         velocity.y += i;
         Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.0, 1.0, 0.7 + randcolor(0.3), 0.15 + randcolor(0.15), 0.6 + randcolor(0.35), &(base->TexCrystal), LOD, type, spawner2, mover, targets[0], 0, 0);
         if (!base->push_back_particle(p))
@@ -583,7 +577,7 @@ bool TargetMagicEffect::idle(const Uint64 usec)
   const Uint64 age = cur_time - born;
   for (int i = 0; i < (int)effect_centers.size(); i++)
   {
-    if (age < 300000)
+    if (age < 500000)
     {
       effect_centers[i].x = pos->x;
       effect_centers[i].y += usec / 1500000.0;

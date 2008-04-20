@@ -116,7 +116,7 @@ bool OngoingParticle::idle(const Uint64 delta_t)
 	  pos.z = center.z + sin(angle + M_PI * age_f) * std::max((age_f < 0.75 ? 0 : 0.0625f), (float)(age_f * 2.5 / exp(age_f * 4.0f)));
 	  pos.y = center.y - 0.0625 + pow(age_f, 2.0) * 0.25;
       const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
-      alpha -= scalar * 0.25;
+      alpha -= scalar * 0.5;
       if (alpha < 0.01)
         return false;
       size -= scalar * 0.0625;

@@ -43,11 +43,11 @@ bool SwordParticle::idle(const Uint64 delta_t)
   if (effect->recall)
     return false;
 
-  if (alpha < 0.03)
+  if (alpha < 0.01)
     return false;
 
   const alpha_t scalar = math_cache.powf_05_close((float)delta_t / 300000);
-  alpha *= scalar;
+  alpha *= fastsqrt(scalar);
   
   return true;
 }
@@ -260,7 +260,7 @@ bool SwordEffect::idle(const Uint64 usec)
   else if (speed < 0.15)
     speed = 0.15;
     
-  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0001 * speed) < 0.6)
+  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0001 * speed) < 0.5)
   {
     const percent_t percent = square(randpercent());
     Vec3 randcoords;
@@ -271,7 +271,7 @@ bool SwordEffect::idle(const Uint64 usec)
     Vec3 direction = *end - *start;
     direction.normalize(0.05 + randfloat(0.1));
     velocity += direction;
-    Particle* p = new SwordParticle(this, mover, coords, velocity, size - 0.25 + randfloat(0.25), alpha, color[0], color[1], color[2], texture, LOD);
+    Particle* p = new SwordParticle(this, mover, coords, velocity, size - 0.25 + randfloat(0.25), 0.25 + randalpha(percent), color[0], color[1], color[2], texture, LOD);
     if (!base->push_back_particle(p))
       break;
   }
