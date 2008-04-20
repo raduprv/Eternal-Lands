@@ -91,7 +91,7 @@ void switch_action_mode(int * mode, int id);
 void init_stats_display();
 void draw_exp_display();
 void draw_stats();
-void init_misc_display();
+void init_misc_display(hud_interface type);
 void init_quickbar();
 void toggle_quickbar_draggable();
 void flip_quickbar();
@@ -166,7 +166,7 @@ void init_hud_interface (hud_interface type)
 		type = last_interface;
 
 	init_hud_frame ();
-	init_misc_display ();
+	init_misc_display (type);
 
 	if (type == HUD_INTERFACE_NEW_CHAR)
 	{
@@ -1040,7 +1040,7 @@ static int context_quickbar_handler(window_info *win, int widget_id, int mx, int
 }
 #endif
 
-void init_misc_display()
+void init_misc_display(hud_interface type)
 {
 	int y_len = 150 + (NUM_WATCH_STAT-1) * 15;
 	//create the misc window
@@ -1065,6 +1065,13 @@ void init_misc_display()
 		{
 			move_window(misc_win, -1, 0, window_width-64, window_height-y_len);
 		}
+	
+#ifdef CONTEXT_MENUS
+	cm_grey_line(cm_hud_id, 0, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, 1, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, 4, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, 5, (type == HUD_INTERFACE_NEW_CHAR));
+#endif
 		
 	/* store references to the skills info in an easy to use array */
 	statsinfo[0].exp = &your_info.attack_exp;
