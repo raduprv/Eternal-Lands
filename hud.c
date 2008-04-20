@@ -1306,9 +1306,11 @@ CHECK_GL_ERRORS();
 			cm_remove_regions(game_root_win);
 			cm_remove_regions(map_root_win);
 			cm_remove_regions(console_root_win);
+			cm_remove_regions(newchar_root_win);
 			cm_add_region(cm_hud_id, game_root_win, window_width-64, 0, 64, window_height);
 			cm_add_region(cm_hud_id, map_root_win, window_width-64, 0, 64, window_height);
 			cm_add_region(cm_hud_id, console_root_win, window_width-64, 0, 64, window_height);
+			cm_add_region(cm_hud_id, newchar_root_win, window_width-64, 0, 64, window_height);
 			last_window_width = window_width;
 			last_window_height = window_height;
 		}
