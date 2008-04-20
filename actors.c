@@ -58,6 +58,10 @@ near_actor near_actors[MAX_ACTORS];
 Uint32 have_actors_lock = 0;
 #endif
 
+#ifdef CONTEXT_MENUS
+int cm_mouse_over_banner = 0;		/* use to trigger banner context menu */
+#endif
+
 //Threading support for actors_lists
 void init_actors_lists()
 {
@@ -471,6 +475,23 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	
 	if(floatingmessages_enabled)drawactor_floatingmessages(actor_id->actor_id, healthbar_z);
 
+#ifdef CONTEXT_MENUS
+	/* set cm_mouse_over_banner true if the mouse is over your banner, or a box where it might be */
+	if (actor_id->actor_id == yourself)
+	{
+		/* use the same calculation as for the alpha background but have a fallback if no banner shown */
+		int base_lines = (!view_names && !view_health_bar && !view_hp) ?3: 1;
+		int num_lines = (view_names && (view_health_bar || view_hp)) ?2: base_lines;
+		int start_y = hy + ((num_lines==1 && view_names) ?healthbar_y_len-6 :-5);
+		int xoff = (banner_width > 0) ?banner_width: 60;
+		if ((mouse_x > hx-xoff) && (mouse_x < hx+xoff) &&
+			(window_height-mouse_y > start_y) && (window_height-mouse_y < start_y+healthbar_y_len*num_lines))
+			cm_mouse_over_banner = 1;
+		else
+			cm_mouse_over_banner = 0;
+	}
+#endif
+					
 	glColor3f(1,1,1);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
