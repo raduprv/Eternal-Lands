@@ -280,6 +280,13 @@ void change_flags(int win_id, Uint32 flags);
  */
 Uint32 get_flags(int win_id);
 
+/*!
+ * \ingroup other
+ * \brief   	The #exp command, show current exp levels in console.
+ * \retval	1, so command not passed to server
+ */
+int show_exp(char *text, int len);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

@@ -141,6 +141,22 @@ static int first_disp_stat = 0;					/* first skill that will be display */
 static int num_disp_stat = NUM_WATCH_STAT-1;	/* number of skills to be displayed */
 static int statbar_start_y = 0;					/* y coord in window of top if stats bar */
 
+
+/* #exp console command, display current exp information */
+int show_exp(char *text, int len)
+{
+	int thestat;
+	char buf[256];
+	for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
+	{
+		safe_snprintf(buf, sizeof(buf), "%s: Lev %u Exp %u, Next Lev In: %u",
+			statsinfo[thestat].skillnames->name, statsinfo[thestat].skillattr->base,
+			*statsinfo[thestat].exp, *statsinfo[thestat].next_lev - *statsinfo[thestat].exp );
+		LOG_TO_CONSOLE(c_green1, buf);
+	}
+	return 1;
+}
+
 // initialize anything related to the hud
 void init_hud_interface (hud_interface type)
 {

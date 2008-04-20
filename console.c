@@ -1129,6 +1129,7 @@ void init_commands(const char *filename)
 	add_command("save", &save_local_data);
 	add_command("url", &url_command);
 	add_command("chat_to_counters", &chat_to_counters_command);
+	add_command("exp", &show_exp);
 #if defined(CONTEXT_MENUS) && defined(CONTEXT_MENUS_TEST)
 	add_command("cmtest", &cm_test_window);
 #endif
