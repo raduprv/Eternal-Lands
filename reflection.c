@@ -846,6 +846,11 @@ void draw_lake_tiles()
 	GLhandleARB cur_shader;
 #endif //USE_SHADER
 
+	build_water_buffer();
+	CHECK_GL_ERRORS();
+
+	if (water_buffer_usage == 0) return;
+
 	glEnable(GL_CULL_FACE);
 
 	if (dungeon) water_id = tile_list[231];
@@ -889,11 +894,6 @@ void draw_lake_tiles()
 	}
 	CHECK_GL_ERRORS();
 #endif	// USE_SHADER
-
-	build_water_buffer();
-	CHECK_GL_ERRORS();
-
-	if (water_buffer_usage == 0) return;
 
 	setup_water_texgen();
 

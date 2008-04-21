@@ -277,7 +277,7 @@ void enable_reflection_clip_planes()
 	cplane[ 2] = oplane[ 0] * inv[ 2] + oplane[ 1] * inv[ 6] + oplane[ 2] * inv[10] + oplane[ 3] * inv[14];
 	cplane[ 3] = oplane[ 0] * inv[ 3] + oplane[ 1] * inv[ 7] + oplane[ 2] * inv[11] + oplane[ 3] * inv[15];
 
-	tmp = abs((int)cplane[2]); // normalize such that depth is not scaled
+	tmp = fabsf(cplane[2]); // normalize such that depth is not scaled
 
 	cplane[0] /= tmp;
 	cplane[1] /= tmp;
