@@ -14,7 +14,9 @@
 #include "skeletons.h"
 #include "client_serv.h"        // For mine_type defines
 #include "tiles.h"
+#ifndef MAP_EDITOR
 #include "missiles.h"
+#endif //!MAP_EDITOR
 
 // G L O B A L S //////////////////////////////////////////////////////////////
 
@@ -355,11 +357,11 @@ extern "C" void ec_idle()
 #ifndef MAP_EDITOR
         (*iter)->position.y = ec_get_z2(-(int)camera_x, -(int)camera_y);   // Keep the effect level with the ground.
 //        std::cout << (-(int)camera_x) << ", " << (-(int)camera_y) << ": " << (*iter)->position.y << std::endl;
-#else
+#else //MAP_EDITOR
         (*iter)->position.y = 0.0;
-#endif
+#endif //!MAP_EDITOR
       }
-
+#ifndef MAP_EDITOR
           if ((*iter)->effect->get_type() == ec::EC_MISSILE)
           {
                   missile *mis = get_missile_ptr_from_id((*iter)->missile_id);
@@ -371,6 +373,7 @@ extern "C" void ec_idle()
                           (*iter)->position.z = -mis->position[1];
                   }
           }
+#endif //!MAP_EDITOR
     }
     i++;
   }
@@ -872,6 +875,7 @@ extern "C" void ec_remove_weapon(actor* _actor)
   }
 }
 
+#ifndef MAP_EDITOR
 extern "C" void ec_remove_missile(int missile_id)
 {
   force_idle = true;
@@ -918,7 +922,7 @@ void ec_rename_missile(int old_id, int new_id)
                 }
         }
 }
-
+#endif //!MAP_EDITOR
 extern "C" void ec_add_effect(ec_effects effects, ec_reference ref)
 {
   ec_internal_effects* cast_effects = (ec_internal_effects*)effects;
@@ -3421,7 +3425,7 @@ extern "C" ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, i
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
-#endif //!MAP_EDITOR
+
 extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD, int hitOrMiss)
 {
   missile *mis = get_missile_ptr_from_id(missile_id);
@@ -3465,6 +3469,6 @@ extern "C" ec_reference ec_create_missile_effect(int missile_id, int LOD, int hi
   eye_candy.push_back_effect(ret->effect);
   return (ec_reference)ret;
 }
-
+#endif //!MAP_EDITOR
 ///////////////////////////////////////////////////////////////////////////////
 
