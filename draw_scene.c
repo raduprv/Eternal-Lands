@@ -195,7 +195,7 @@ void move_camera ()
 /* 		z = -1.6f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + head_pos[2]; */
 	if (first_person || ext_cam) {
         // the camera position corresponds to the head position
-		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + head_pos[2];
+		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + (head_pos[2]+0.1)*get_actor_scale(me);
 	} else {
 		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + sitting;
 	}
