@@ -507,7 +507,7 @@ void open_note_tab_continued (int id)
 	int tf_height = notepad_win_y_len - 100;
 	int tab;
 
-	note_list[id].window = tab_add (notepad_win, note_tabcollection_id, note_list[id].name, 0, 1);
+	note_list[id].window = tab_add (notepad_win, note_tabcollection_id, note_list[id].name, 0, 1, 0);
 	widget_set_color (notepad_win, note_list[id].window, 0.77f, 0.57f, 0.39f);
 
 	// input text field
@@ -616,7 +616,7 @@ void display_notepad()
 		note_tabcollection_id = tab_collection_add (notepad_win, NULL, 5, 25, note_tabs_width, note_tabs_height, 20);
 		widget_set_size (notepad_win, note_tabcollection_id, 0.7);
 		widget_set_color (notepad_win, note_tabcollection_id, 0.77f, 0.57f, 0.39f);
-		main_note_tab_id = tab_add (notepad_win, note_tabcollection_id, tab_main, 0, 0);
+		main_note_tab_id = tab_add (notepad_win, note_tabcollection_id, tab_main, 0, 0, 0);
 		widget_set_color (notepad_win, main_note_tab_id, 0.77f, 0.57f, 0.39f);
 
 		// Add Category

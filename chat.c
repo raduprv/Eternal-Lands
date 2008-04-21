@@ -325,7 +325,7 @@ int add_chat_tab(int nlines, Uint8 channel)
 
 			my_strncp(title,(tab_label(channel))->name, sizeof(title));
 			
-			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1);
+			channels[ichan].tab_id = tab_add (chat_win, chat_tabcollection_id, title, 0, 1, 0);
 			set_window_flag (channels[ichan].tab_id, ELW_CLICK_TRANSPARENT);
 				
 			set_window_min_size (channels[ichan].tab_id, 0, 0);
@@ -943,7 +943,7 @@ void create_chat_window(void)
 	chat_tabcollection_id = tab_collection_add_extended (chat_win, chat_tabcollection_id, NULL, CHAT_WIN_SPACE, CHAT_WIN_SPACE, inout_width, tabcol_height, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_CHAT_TABS, CHAT_WIN_TAG_HEIGHT);
 	widget_set_OnClick (chat_win, chat_tabcollection_id, chat_tabs_click);
 	
-	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0);
+	channels[0].tab_id = tab_add (chat_win, chat_tabcollection_id, (tab_label(CHAT_ALL))->name, 0, 0, 0);
 	set_window_flag (channels[0].tab_id, ELW_CLICK_TRANSPARENT);
 	set_window_min_size (channels[0].tab_id, 0, 0);
 	channels[0].out_id = text_field_add_extended (channels[0].tab_id, channels[0].out_id, NULL, 0, 0, inout_width, output_height, 0, chat_zoom, 0.77f, 0.57f, 0.39f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);

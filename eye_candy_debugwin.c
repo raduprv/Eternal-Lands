@@ -246,18 +246,18 @@ void display_ecdebugwin()
 			ecdebug_win_width, ecdebug_win_height - 24, 20);
 
 		// create tabs
-		tab_self = tab_add(ecdebug_win, ecdw_tab_collection, "self", 0, 0);
-		tab_remote = tab_add(ecdebug_win, ecdw_tab_collection, "remote", 0, 0);
-		tab_harv = tab_add(ecdebug_win, ecdw_tab_collection, "harv", 0, 0);
-		tab_lvlup = tab_add(ecdebug_win, ecdw_tab_collection, "lvl up", 0, 0);
-		tab_mines = tab_add(ecdebug_win, ecdw_tab_collection, "mines", 0, 0);
-		tab_breath = tab_add(ecdebug_win, ecdw_tab_collection, "breath", 0, 0);
-		tab_summon = tab_add(ecdebug_win, ecdw_tab_collection, "summon1", 0, 0);
+		tab_self = tab_add(ecdebug_win, ecdw_tab_collection, "self", 0, 0, 0);
+		tab_remote = tab_add(ecdebug_win, ecdw_tab_collection, "remote", 0, 0, 0);
+		tab_harv = tab_add(ecdebug_win, ecdw_tab_collection, "harv", 0, 0, 0);
+		tab_lvlup = tab_add(ecdebug_win, ecdw_tab_collection, "lvl up", 0, 0, 0);
+		tab_mines = tab_add(ecdebug_win, ecdw_tab_collection, "mines", 0, 0, 0);
+		tab_breath = tab_add(ecdebug_win, ecdw_tab_collection, "breath", 0, 0, 0);
+		tab_summon = tab_add(ecdebug_win, ecdw_tab_collection, "summon1", 0, 0, 0);
 		tab_summon2
-			= tab_add(ecdebug_win, ecdw_tab_collection, "summon2", 0, 0);
+			= tab_add(ecdebug_win, ecdw_tab_collection, "summon2", 0, 0, 0);
 		tab_summon3
-			= tab_add(ecdebug_win, ecdw_tab_collection, "summon3", 0, 0);
-		tab_misc = tab_add(ecdebug_win, ecdw_tab_collection, "misc", 0, 0);
+			= tab_add(ecdebug_win, ecdw_tab_collection, "summon3", 0, 0, 0);
+		tab_misc = tab_add(ecdebug_win, ecdw_tab_collection, "misc", 0, 0, 0);
 
 		// create buttons
 

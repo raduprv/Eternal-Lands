@@ -36,6 +36,7 @@ typedef	struct	{
 	int	orig_len_x, orig_len_y;	/*!< the size of the original window in pixels */
 	int	min_len_x, min_len_y;	/*!< for resizable windows, the minimum width and height */
 	int	cur_x, cur_y;	/*!< current location on screen */
+	int scroll_id;		/*!< id of the scroll widget, if window is scrollable */
 
 	Uint32	flags; /*!< window flags */
 
@@ -104,8 +105,9 @@ typedef	struct	{
 
 #define ELW_CLICK_TRANSPARENT	0x1000
 
-#define ELW_ALPHA_BORDER 0x2000
+#define ELW_ALPHA_BORDER      0x2000
 #define ELW_SWITCHABLE_OPAQUE 0x4000
+#define ELW_SCROLLABLE        0x8000
 /*! @} */
 
 /*!
@@ -653,6 +655,17 @@ int		mouse_in_window(int win_id, int x, int y);	// is a coord in the window?
  * \pre If \a win_id is not equal the \ref window_info::window_id of the window at index \a win_id into the \ref windows_list array, this function returns -1, without performing any actions, indicating an error.
  */
 int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coord in the window
+
+/*!
+ * \ingroup elwindows
+ * \brief   Sets the length of the window's scrollbar
+ *
+ *      Sets the length of the window's scrollbar, ie. how many pixels you want it to scroll down.
+ *
+ * \param win_id    The id of the scrollable window
+ * \param bar_len   The amount of pixels you want the bar to scroll.
+ */
+void set_window_scroll_len(int win_id, int bar_len);
 
 // low level functions
 //window_info	*get_window_info(int win_id);

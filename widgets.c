@@ -1630,7 +1630,7 @@ int tab_collection_add (int window_id, int (*OnInit)(), Uint16 x, Uint16 y, Uint
 	return tab_collection_add_extended (window_id, widget_id++, OnInit, x, y, lx, ly, 0, 1.0, -1.0, -1.0, -1.0, 0, tag_height);
 }
 
-int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable)
+int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable, Uint32 flags)
 {
 	widget_list *w = widget_find(window_id, col_id);
 	tab_collection *col;
@@ -1654,7 +1654,7 @@ int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, 
 	}
 		
 	my_strncp ((char*)col->tabs[nr].label, label, sizeof (col->tabs[nr].label));
-	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE);
+	col->tabs[nr].content_id = create_window ("", window_id, 0, w->pos_x, w->pos_y + col->tag_height, w->len_x, w->len_y - col->tag_height, ELW_TITLE_NONE|flags);
 	col->tabs[nr].closable = closable ? 1 : 0;
 
 	if (tag_width > 0)

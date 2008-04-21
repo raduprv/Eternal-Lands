@@ -840,6 +840,24 @@ int	init_window(int win_id, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, in
 	// then place the window
 	move_window(win_id, pos_id, pos_loc, pos_x+pwin_x, pos_y+pwin_y);
 
+	if(windows_list.window[win_id].flags&ELW_SCROLLABLE) {
+		/* Add the scroll widget */
+		Uint16 x = size_x-20,
+				y = size_y,
+				width = 20,
+				height = size_y;
+		
+		if(windows_list.window[win_id].flags&ELW_CLOSE_BOX) {
+			/* Don't put the scrollbar behind the close box. */
+			y += 20;
+			height -= 20;
+		}
+		windows_list.window[win_id].scroll_id = vscrollbar_add(win_id, NULL, x, y, width, height);
+		widget_set_color(win_id, windows_list.window[win_id].scroll_id,
+						windows_list.window[win_id].border_color[0],
+						windows_list.window[win_id].border_color[1],
+						windows_list.window[win_id].border_color[2]);
+	}
 	// finally, call any init_handler that was defined
 	if(windows_list.window[win_id].init_handler)
 	{
@@ -1160,6 +1178,16 @@ CHECK_GL_ERRORS();
 	draw_window_border(win);
 	glColor3f(1.0f, 1.0f, 1.0f);
 
+	if(win->flags&ELW_SCROLLABLE) {
+		int pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+		int offset = (win->flags&ELW_CLOSE_BOX ? 20 : 0);
+
+		widget_move(win->window_id, win->scroll_id, win->len_x-20, pos+offset);
+		/* Cut away what we've scrolled past, */
+		glEnable(GL_SCISSOR_TEST);
+		glScissor(win->cur_x, window_height-win->cur_y-win->len_y, win->len_x, win->len_y);
+		glTranslatef(0, -pos, 0);
+	}
 	if(win->display_handler)
 	{
 		ret_val=(*win->display_handler)(win);
@@ -1193,7 +1221,9 @@ CHECK_GL_ERRORS();
 		}
 		W = W->next;
 	}
-
+	if(win->flags&ELW_SCROLLABLE) {
+		glDisable(GL_SCISSOR_TEST);
+	}
 	glPopMatrix();
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -1355,6 +1385,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 	int	mx, my;
    	widget_list *W;
 	int ret_val = 0;
+	int scroll_pos = 0;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
 	if(windows_list.window[win_id].window_id != win_id)	return -1;
@@ -1400,10 +1431,15 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				return 1;
 			}				
 		}
-			
+		
+		if(win->flags&ELW_SCROLLABLE) {
+			/* Adjust mouse y coordinates according to the scrollbar position */
+			scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+			my += scroll_pos;
+		}
 		// check the widgets
 		glPushMatrix();
-		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 		while (W != NULL)
 		{
 			if (!(W->Flags&WIDGET_DISABLED) && !(W->Flags&WIDGET_CLICK_TRANSPARENT) && 
@@ -1424,13 +1460,21 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 		if (win->click_handler != NULL)
 		{
 			glPushMatrix();
-			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
-			ret_val = (*win->click_handler)(win, mx, my, flags);
+			glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
+			ret_val = (*win->click_handler)(win, mx, my - scroll_pos, flags);
 			glPopMatrix();
 		}
 		
-		if ( !ret_val && (win->flags & ELW_CLICK_TRANSPARENT) )
+		if(!ret_val && win->flags&ELW_SCROLLABLE && flags &(ELW_WHEEL_UP|ELW_WHEEL_DOWN)) {
+			/* Scroll, pass to our scroll widget */
+			if(flags&ELW_WHEEL_UP) {
+				vscrollbar_scroll_up(win->window_id, win->scroll_id);
+			} else if(flags&ELW_WHEEL_DOWN) {
+				vscrollbar_scroll_down(win->window_id, win->scroll_id);
+			}
+		} else if ( !ret_val && (win->flags & ELW_CLICK_TRANSPARENT) ) {
 			return 0;	// click is not handled, and the window is transparent
+		}
 		return	1;	// click is handled
 	}
 #ifdef OPENGL_TRACE
@@ -1445,6 +1489,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 {
 	window_info *win;
 	int	mx, my;
+	int scroll_pos = 0;
 	widget_list *W;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows)
@@ -1458,6 +1503,11 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 	mx = x - win->cur_x;
 	my = y - win->cur_y;
 
+	if(win->flags&ELW_SCROLLABLE) {
+		/* Adjust mouse y coordinates according to the scrollbar position */
+		scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+		my += scroll_pos;
+	}
 	if (cur_drag_widget)
 	{
 		// Check if cur_drag_widget is indeed one of our widgets
@@ -1469,7 +1519,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 			int ret_val;
 			
 			glPushMatrix ();
-			glTranslatef ((float)win->cur_x, (float)win->cur_y, 0.0f);
+			glTranslatef ((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 			ret_val = widget_handle_drag (W, mx - W->pos_x, my - W->pos_y, flags, dx, dy);
 			glPopMatrix ();
 			if (ret_val)
@@ -1488,7 +1538,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 							    
 		// widgets
 		glPushMatrix();
-		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 		while (W != NULL)
 		{
 			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my> W ->pos_y && my <= W->pos_y+W->len_y)
@@ -1511,7 +1561,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 		if (win->drag_handler != NULL)
 		{
 			glPushMatrix();
-			glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+			glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 			ret_val = (*win->drag_handler)(win, mx, my, flags, dx, dy);
 			glPopMatrix();
 		}
@@ -1529,6 +1579,7 @@ int	mouseover_window (int win_id, int x, int y)
 	window_info *win;
 	int	mx, my;
 	int	ret_val=0;
+	int scroll_pos = 0;
 	widget_list *W;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows)	return -1;
@@ -1541,9 +1592,16 @@ int	mouseover_window (int win_id, int x, int y)
 		mx = x - win->cur_x;
 		my = y - win->cur_y;
 
+		if(win->flags&ELW_SCROLLABLE) {
+			/* Adjust mouse y coordinates according to the scrollbar position */
+			scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+			my += scroll_pos;
+		} else {
+			scroll_pos = 0;
+		}
 		// widgets
 		glPushMatrix();
-		glTranslatef ((float)win->cur_x, (float)win->cur_y, 0.0f);
+		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 		while (W != NULL)
 		{
 			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y+W->len_y)
@@ -1562,7 +1620,7 @@ int	mouseover_window (int win_id, int x, int y)
 		if(win->mouseover_handler)
 		{
 			glPushMatrix();
-			glTranslatef ((float)win->cur_x, (float)win->cur_y, 0.0f);
+			glTranslatef ((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 			ret_val = (*win->mouseover_handler)(win, mx, my);
 			glPopMatrix();
 
@@ -1585,6 +1643,7 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 {
 	window_info *win;
 	int	mx, my;
+	int scroll_pos = 0;
    	widget_list *W;
 
 	if(win_id < 0 || win_id >= windows_list.num_windows
@@ -1598,10 +1657,17 @@ int	keypress_in_window(int win_id, int x, int y, Uint32 key, Uint32 unikey)
 	{
 		mx = x - win->cur_x;
 		my = y - win->cur_y;
-			
+
+		if(win->flags&ELW_SCROLLABLE) {
+			/* Adjust mouse y coordinates according to the scrollbar position */
+			scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
+			my += scroll_pos;
+		} else {
+			scroll_pos = 0;
+		}
 		// widgets
 		glPushMatrix();
-		glTranslatef((float)win->cur_x, (float)win->cur_y, 0.0f);
+		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);
 		while(W != NULL)
 		{
 			if (mx > W->pos_x && mx <= W->pos_x + W->len_x && my > W->pos_y && my <= W->pos_y+W->len_y)
@@ -1728,6 +1794,10 @@ int	set_window_color(int win_id, Uint32 color_id, float r, float g, float b, flo
 			windows_list.window[win_id].border_color[1]= g;
 			windows_list.window[win_id].border_color[2]= b;
 			windows_list.window[win_id].border_color[3]= a;
+			if(windows_list.window[win_id].flags&ELW_SCROLLABLE) {
+				/* Update the color of the scroll widget too */
+				widget_set_color(win_id, windows_list.window[win_id].scroll_id, r, g, b);
+			}
 			return	1;
 
 		case	ELW_COLOR_LINE:
@@ -1781,6 +1851,13 @@ int set_window_flag (int win_id, Uint32 flag)
 	
 	windows_list.window[win_id].flags |= flag;
 	return windows_list.window[win_id].flags; 
+}
+
+void set_window_scroll_len(int win_id, int bar_len)
+{
+	if(windows_list.window[win_id].flags&ELW_SCROLLABLE) {
+		vscrollbar_set_bar_len (win_id, windows_list.window[win_id].scroll_id, bar_len);
+	}
 }
 
 /* currently UNUSED

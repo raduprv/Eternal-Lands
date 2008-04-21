@@ -1013,7 +1013,7 @@ int vscrollbar_scroll_down(int window_id, Uint32 widget_id);
  * \param   	window_id The location of the window in the windows_list.window[] array
  * \param   	widget_id The unique widget ID
  * \param   	bar_len The new logical bar length
- * \retval int  	Returns 1 on succes, 0 on failure (if the widget was not found in the given window)
+ * \retval int  	Returns 1 on success, 0 on failure (if the widget was not found in the given window)
  *
  * \sa widget_find
  */
@@ -1218,10 +1218,11 @@ int tab_collection_resize (widget_list *W, Uint32 w, Uint32 h);
  * \param   	label The name of this tab as it appears on its tag
  * \param	tag_width The width of the tag
  * \param	closable Flag indicating if the tab can be closed
+ * \param	flags Flags to be passed to the create_window() function
  * \retval int  	Returns 1 if a new tab is selected, 0 otherwise
  * \callgraph
  */
-int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable);
+int tab_add (int window_id, Uint32 col_id, const char *label, Uint16 tag_width, int closable, Uint32 flags);
 
 /*!
  * \ingroup	textfields

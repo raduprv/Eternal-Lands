@@ -2328,6 +2328,10 @@ void elconfig_populate_tabs(void)
 		label_height= widget_find(elconfig_tabs[tab_id].tab, label_id)->len_y;
 		widget_height= widget_find(elconfig_tabs[tab_id].tab, widget_id)->len_y;
 		elconfig_tabs[tab_id].y += (widget_height > label_height ? widget_height : label_height)+SPACING;
+		if(elconfig_tabs[tab_id].y > widget_get_height(elconfig_win, elconfig_tab_collection_id)) {
+			/* Expand the scrollbar to fit all our widgets. */
+			set_window_scroll_len(elconfig_tabs[tab_id].tab, elconfig_tabs[tab_id].y-widget_get_height(elconfig_win, elconfig_tab_collection_id));
+		}
 		//Set IDs
 		our_vars.var[i]->widgets.label_id= label_id;
 		our_vars.var[i]->widgets.widget_id= widget_id;
@@ -2382,22 +2386,24 @@ void display_elconfig_win(void)
 		set_window_handler(elconfig_win, ELW_HANDLER_SHOW, &show_elconfig_handler);
 		/* Create tabs */
 		elconfig_tab_collection_id= tab_collection_add_extended (elconfig_win, elconfig_tab_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, elconfig_menu_x_len-TAB_MARGIN*2, elconfig_menu_y_len-TAB_MARGIN*2-LONG_DESC_SPACE, 0, 0.7, 0.77f, 0.57f, 0.39f, MAX_TABS, TAB_TAG_HEIGHT);
-		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0);
-		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0);
-		elconfig_tabs[HUD].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0);
-		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0);
-		elconfig_tabs[MISC].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_misc, 0, 0);
-		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0);
-		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0);
-		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0);
-		elconfig_tabs[LODTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_lod, 0, 0);
-		elconfig_tabs[ADVVID].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_advvideo, 0, 0);
-		elconfig_tabs[ECTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_ec, 0, 0);
+		/* Pass ELW_SCROLLABLE as the final argument to tab_add() if you want
+		 * to put more widgets in the tab than the size of the window allows.*/
+		elconfig_tabs[CONTROLS].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_controls, 0, 0, 0);
+		elconfig_tabs[AUDIO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_audio, 0, 0, 0);
+		elconfig_tabs[HUD].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_hud, 0, 0, 0);
+		elconfig_tabs[SERVER].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_server, 0, 0, 0);
+		elconfig_tabs[MISC].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_misc, 0, 0, 0);
+		elconfig_tabs[FONT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_font, 0, 0, 0);
+		elconfig_tabs[CHAT].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_chat, 0, 0, 0);
+		elconfig_tabs[VIDEO].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_video, 0, 0, 0);
+		elconfig_tabs[LODTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_lod, 0, 0, 0);
+		elconfig_tabs[ADVVID].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_advvideo, 0, 0, 0);
+		elconfig_tabs[ECTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_ec, 0, 0, 0);
 #ifdef SKY_FPV
-		elconfig_tabs[EMAJEKRAL].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_emajekral,0, 0);
+		elconfig_tabs[EMAJEKRAL].tab= tab_add(elconfig_win, elconfig_tab_collection_id, ttab_emajekral,0, 0, 0);
 #else // SKY_FPV
  #ifdef	VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG
-		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug",0, 0);
+		elconfig_tabs[DEBUGTAB].tab= tab_add(elconfig_win, elconfig_tab_collection_id, "Debug",0, 0, 0);
  #endif	/* VERTEX_PROGRAM_ACTOR_ANIMATION_DEBUG */
 #endif // SKY_FPV
 

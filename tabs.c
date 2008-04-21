@@ -48,23 +48,23 @@ void display_tab_stats ()
 		
 		tab_stats_collection_id = tab_collection_add_extended (tab_stats_win, tab_stats_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, STATS_TAB_WIDTH, STATS_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
 
-		stats_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0);
+		stats_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_statistics, 0, 0, 0);
 		fill_stats_win ();
 		STATS_TAB_STATS = 0;
 		
-		knowledge_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0);
+		knowledge_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_knowledge, 0, 0, 0);
 		fill_knowledge_win ();
 		STATS_TAB_KNOWLEDGE = 1;
 
-		questlog_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_questlog, 0, 0);
+		questlog_win = tab_add (tab_stats_win, tab_stats_collection_id, tab_questlog, 0, 0, 0);
 		fill_questlog_win ();
 		STATS_TAB_QUESTLOG = 2;
 
-		counters_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_counters, 0, 0);
+		counters_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_counters, 0, 0, 0);
 		fill_counters_win();
 		STATS_TAB_COUNTERS = 3;
 		
-		session_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0);
+		session_win = tab_add(tab_stats_win, tab_stats_collection_id, tab_session, 0, 0, 0);
 		fill_session_win();
 		STATS_TAB_SESSION = 4;
 		
@@ -92,19 +92,19 @@ void display_tab_help ()
 		
 		tab_help_collection_id = tab_collection_add_extended (tab_help_win, tab_help_collection_id, NULL, TAB_MARGIN, TAB_MARGIN, HELP_TAB_WIDTH, HELP_TAB_HEIGHT+TAB_TAG_HEIGHT, 0, 0.7, 0.77f, 0.57f, 0.39f, 3, TAB_TAG_HEIGHT);
 
-		help_win = tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0);
+		help_win = tab_add (tab_help_win, tab_help_collection_id, tab_help, 0, 0, 0);
 		fill_help_win ();
 		HELP_TAB_HELP = 0;
 
-		skills_win = tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0);
+		skills_win = tab_add (tab_help_win, tab_help_collection_id, tab_skills, 0, 0, 0);
 		fill_skills_win ();
 		HELP_TAB_SKILLS = 1;
 		
-		encyclopedia_win = tab_add (tab_help_win, tab_help_collection_id, tab_encyclopedia, 0, 0);
+		encyclopedia_win = tab_add (tab_help_win, tab_help_collection_id, tab_encyclopedia, 0, 0, 0);
 		fill_encyclopedia_win ();
 		HELP_TAB_ENCYCLOPEDIA = 2;
 
-		rules_win = tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0);
+		rules_win = tab_add(tab_help_win, tab_help_collection_id, tab_rules, 0, 0, 0);
 		fill_rules_window();
 		HELP_TAB_RULES = 3;
 
