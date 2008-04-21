@@ -280,7 +280,7 @@ static __inline__ void build_water_buffer()
 	}
 	water_buffer_usage = j;
 
-	if (have_extension(arb_vertex_buffer_object))
+	if (have_extension(arb_vertex_buffer_object) && water_buffer_usage > 0)
 	{
 		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
 		ELglBufferDataARB(GL_ARRAY_BUFFER_ARB, water_buffer_usage * 4 * 2 * sizeof(GLfloat),
@@ -564,6 +564,9 @@ void display_3d_reflection()
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_DEFAULT);
 	build_water_buffer();
+
+	if (water_buffer_usage == 0) return;
+
 	init_depth();
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 
@@ -730,6 +733,8 @@ void blend_reflection_fog()
 
 	build_water_buffer();
 
+	if (water_buffer_usage == 0) return;
+
 	glPushMatrix();
 	glTranslatef(0.0f, 0.0f, water_depth_offset);
 
@@ -887,6 +892,8 @@ void draw_lake_tiles()
 
 	build_water_buffer();
 	CHECK_GL_ERRORS();
+
+	if (water_buffer_usage == 0) return;
 
 	setup_water_texgen();
 

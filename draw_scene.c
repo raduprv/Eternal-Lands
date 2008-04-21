@@ -458,7 +458,7 @@ void update_camera()
 			}
 			else // old freecam behaviour
 			{
-				rx = old_rx;
+				rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				new_zoom_level = old_zoom_level;
 				camera_tilt_duration = camera_zoom_duration = 0;
 			}
