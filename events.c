@@ -250,15 +250,6 @@ int HandleEvent (SDL_Event *event)
 #endif // SKY_FPV
 			{
 #ifdef NEW_CAMERA_MOTION
-/* 				if (camera_rotation_speed * mouse_delta_x < 0.0) */
-/* 					camera_rotation_speed += normal_camera_rotation_speed * mouse_delta_x / 2000.0; */
-/* 				else */
-/* 					camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 2000.0; */
-/* 				if (camera_tilt_speed * mouse_delta_y < 0.0) */
-/* 					camera_tilt_speed += normal_camera_rotation_speed * mouse_delta_y / 2000.0; */
-/* 				else */
-/* 					camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 2000.0; */
-
 				camera_rotation_speed = camera_rotation_speed*0.5 + normal_camera_rotation_speed * mouse_delta_x*0.00025;
 				camera_tilt_speed = camera_tilt_speed*0.5 + normal_camera_rotation_speed * mouse_delta_y*0.00025;
 

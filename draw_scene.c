@@ -428,6 +428,7 @@ void update_camera()
 		else
 			rx+=camera_tilt_speed*camera_tilt_duration;
 		camera_tilt_duration-=time_diff;
+		adjust_view++;
 	}
 	if(camera_zoom_duration > 0) {
 		if (time_diff <= camera_zoom_duration)
