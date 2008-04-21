@@ -149,9 +149,10 @@ int show_exp(char *text, int len)
 	char buf[256];
 	for (thestat=0; thestat<NUM_WATCH_STAT-1; thestat++)
 	{
-		safe_snprintf(buf, sizeof(buf), "%s: Lev %u Exp %u, Next Lev In: %u",
+		safe_snprintf(buf, sizeof(buf), "%s: level %u, %u/%u exp (%u to go)",
 			statsinfo[thestat].skillnames->name, statsinfo[thestat].skillattr->base,
-			*statsinfo[thestat].exp, *statsinfo[thestat].next_lev - *statsinfo[thestat].exp );
+			*statsinfo[thestat].exp, *statsinfo[thestat].next_lev,
+			*statsinfo[thestat].next_lev - *statsinfo[thestat].exp );
 		LOG_TO_CONSOLE(c_green1, buf);
 	}
 	return 1;
