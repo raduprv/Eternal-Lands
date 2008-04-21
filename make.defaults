@@ -23,6 +23,7 @@ FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always f
 #FEATURES += MISSILES_DEBUG                  # Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 #FEATURES += NEW_ALPHA                       # (undocumented)
+#FEATURES += NEW_CAMERA_MOTION               # Changes the behaviour of the camera by replacing the rotation duration by a constant deceleration. This gives a better control on the positionning of the camera.
 #FEATURES += NEW_CURSOR                      # New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += NEW_MAP_FORMAT                  # (undocumented)

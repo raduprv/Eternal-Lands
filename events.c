@@ -193,53 +193,55 @@ int HandleEvent (SDL_Event *event)
 
 			if (event->type == SDL_MOUSEBUTTONDOWN)
 			{
-				if(event->button.button==SDL_BUTTON_LEFT)
+				if(event->button.button == SDL_BUTTON_LEFT)
 					left_click++;
-			}
-			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)))
-				left_click++;
-			else
-			{
-				if (left_click) end_drag_windows();
-				left_click = 0;
-			}
-
-			if (event->type == SDL_MOUSEBUTTONDOWN)
-			{
 				if (event->button.button == SDL_BUTTON_RIGHT)
 					right_click++;
-			}
-			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)))
-			{
-				right_click++;
-#if defined SKY_FPV && defined OSX
-				if (osx_right_mouse_cam)
-				{
-					have_mouse = 1;
-				}
-#endif
-			}
-			else
-			{
-				right_click= 0;
-#if defined SKY_FPV && defined OSX
-				if (osx_right_mouse_cam)
-				{
-					have_mouse = 0;
-				}
-#endif
-			}
-
-			if (event->type == SDL_MOUSEBUTTONDOWN) 
-			{
 				if (event->button.button == SDL_BUTTON_MIDDLE)
 					middle_click++;
-
 			}
-			else if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
-				middle_click++;
 			else
-				middle_click= 0;
+			{
+				if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_LEFT)))
+				{
+					left_click++;
+				}
+				else
+				{
+					if (left_click) end_drag_windows();
+					left_click = 0;
+				}
+
+				if (event->type == SDL_MOUSEMOTION && (event->motion.state & SDL_BUTTON(SDL_BUTTON_RIGHT)))
+				{
+					right_click++;
+#if defined SKY_FPV && defined OSX
+					if (osx_right_mouse_cam)
+					{
+						have_mouse = 1;
+					}
+#endif
+				}
+				else
+				{
+					right_click = 0;
+#if defined SKY_FPV && defined OSX
+					if (osx_right_mouse_cam)
+					{
+						have_mouse = 0;
+					}
+#endif
+				}
+
+				if (event->type == SDL_MOUSEMOTION && (event->motion.state & (SDL_BUTTON(SDL_BUTTON_MIDDLE) || meta_on)))
+				{
+					middle_click++;
+				}
+				else
+				{
+					middle_click = 0;
+				}
+			}
 
 #ifndef SKY_FPV
 			if ( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )
@@ -247,10 +249,33 @@ int HandleEvent (SDL_Event *event)
 			if (( SDL_GetMouseState (NULL, NULL) & SDL_BUTTON(2) )||(have_mouse))
 #endif // SKY_FPV
 			{
+#ifdef NEW_CAMERA_MOTION
+/* 				if (camera_rotation_speed * mouse_delta_x < 0.0) */
+/* 					camera_rotation_speed += normal_camera_rotation_speed * mouse_delta_x / 2000.0; */
+/* 				else */
+/* 					camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 2000.0; */
+/* 				if (camera_tilt_speed * mouse_delta_y < 0.0) */
+/* 					camera_tilt_speed += normal_camera_rotation_speed * mouse_delta_y / 2000.0; */
+/* 				else */
+/* 					camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 2000.0; */
+
+				camera_rotation_speed = camera_rotation_speed*0.5 + normal_camera_rotation_speed * mouse_delta_x*0.00025;
+				camera_tilt_speed = camera_tilt_speed*0.5 + normal_camera_rotation_speed * mouse_delta_y*0.00025;
+
+				if (camera_rotation_speed > 1.0)
+					camera_rotation_speed = 1.0;
+				else if (camera_rotation_speed < -1.0)
+					camera_rotation_speed = -1.0;
+
+				// the following variables have to be removed!
+				camera_rotation_duration = 0;
+				camera_tilt_duration = 0;
+#else // NEW_CAMERA_MOTION
 				camera_rotation_speed = normal_camera_rotation_speed * mouse_delta_x / 4000.0;
 				camera_rotation_duration = 800;
 				camera_tilt_speed = normal_camera_rotation_speed * mouse_delta_y / 4000.0;
 				camera_tilt_duration = 800;
+#endif // NEW_CAMERA_MOTION
 #ifdef SKY_FPV
 				if (fol_cam && !fol_cam_behind)
 				{

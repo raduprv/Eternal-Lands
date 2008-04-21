@@ -726,6 +726,13 @@ void toggle_follow_cam_behind(int * fc)
 	}
 	*fc = !*fc;
 }
+
+void change_tilt_float(float * var, float * value)
+{
+	*var= *value;
+    if (rx > -min_tilt_angle) rx = -min_tilt_angle;
+    else if (rx < -max_tilt_angle) rx = -max_tilt_angle;
+}
 #endif // SKY_FPV
 
 void change_shadow_map_size(int *pointer, int value)
@@ -1562,7 +1569,9 @@ void init_vars()
 	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
 	add_var(OPT_BOOL,"fol_cam_behind","fol_cam_behind", &fol_cam_behind, toggle_follow_cam_behind,0,"Keep the camera behind the char", "Causes the camera to stay behind you (works only in follow camera mode)", EMAJEKRAL);
 	add_var(OPT_BOOL,"extended_cam","extcam", &ext_cam, change_var,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
-	add_var(OPT_BOOL,"ext_cam_auto_zoom","autozoom", &ext_cam_auto_zoom, change_var,0,"Auto zoom", "Allows the camera to zoom automatically when getting close to the ground (work only in extended camera mode).", EMAJEKRAL);
+	add_var(OPT_BOOL,"ext_cam_auto_zoom","autozoom", &ext_cam_auto_zoom, change_var,0,"Auto zoom", "Allows the camera to zoom automatically when getting close to the ground (works only in extended camera mode and with a max tilt angle over 90.0).", EMAJEKRAL);
+	add_var(OPT_FLOAT,"min_tilt_angle","min_tilt_angle", &min_tilt_angle, change_tilt_float,30.0,"Minimum tilt angle", "Minimum angle that the camera can reach when raising it (works only in extended camera mode).", EMAJEKRAL, 20.0, 45.0, 1.0);
+	add_var(OPT_FLOAT,"max_tilt_angle","max_tilt_angle", &max_tilt_angle, change_tilt_float,90.0,"Maximum tilt angle", "Maximum angle that the camera can reach when lowering it (works only in extended camera mode).", EMAJEKRAL, 60.0, 150.0, 1.0);
 #ifdef DEBUG
 	add_var(OPT_FLOAT,"sunny_sky_bias","sunny_sky_bias", &skybox_sunny_sky_bias, change_float,0.0,"Sunny sky bias", "Change the radius of the sun effect on the sky.", EMAJEKRAL, -1.0, 1.0, 0.01);
 	add_var(OPT_FLOAT,"sunny_clouds_bias","sunny_clouds_bias", &skybox_sunny_clouds_bias, change_float,-0.1,"Sunny clouds bias", "Change the radius of the sun effect on the clouds.", EMAJEKRAL, -1.0, 1.0, 0.01);
@@ -1766,7 +1775,9 @@ void init_vars()
 #ifndef SKY_FPV
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else // SKY_FPV
+#ifdef DEBUG
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 0.1, 20.0, 0.1);
+#endif // DEBUG
 	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
 #endif // SKY_FPV
 #else

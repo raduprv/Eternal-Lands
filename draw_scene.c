@@ -81,6 +81,8 @@ float fol_lin = 1.0;       // follow camera linear deceleration
 float fol_quad = 1.0;      // follow camera quadratic deceleration
 int ext_cam = 1;	       // extended camera state (on/off)
 int ext_cam_auto_zoom = 0; // auto zooming state for extended camera (on/off)
+float min_tilt_angle = 30.0; // minimum tilt angle for the extended camera
+float max_tilt_angle = 90.0; // maximum tilt angle for the extended camera
 float hold_camera = 0.0;   // backup of the rz value before kludge is applied
 
 #endif // SKY_FPV
@@ -266,32 +268,54 @@ void clamp_camera(void)
 			if(rx < -170){
 				rx = -170;
 				camera_tilt_duration=0;
+#ifdef NEW_CAMERA_MOTION
+				camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 			} else if(rx > -30){
 				rx = -30;
 				camera_tilt_duration=0;
+#ifdef NEW_CAMERA_MOTION
+				camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 			}
 		} else if(ext_cam){
-			if(rx < -150){
-				rx = -150;
+			if(rx < -max_tilt_angle){
+				rx = -max_tilt_angle;
 				camera_tilt_duration=0;
-			} else if(rx > -20){
-				rx = -20;
+#ifdef NEW_CAMERA_MOTION
+				camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
+			} else if(rx > -min_tilt_angle){
+				rx = -min_tilt_angle;
 				camera_tilt_duration=0;
+#ifdef NEW_CAMERA_MOTION
+				camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 			}			
 	} else {
 #endif // SKY_FPV
 		if(rx < -60){
 			rx = -60;
 			camera_tilt_duration=0;
+#ifdef NEW_CAMERA_MOTION
+			camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 		} else if(rx > -45){
 			rx = -45;
 			camera_tilt_duration=0;
+#ifdef NEW_CAMERA_MOTION
+			camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 		}
 #ifdef SKY_FPV
 	}
 	if (have_mouse){
 		camera_rotation_duration = 0;
 		camera_tilt_duration=0;
+#ifdef NEW_CAMERA_MOTION
+		camera_rotation_speed = 0.0;
+		camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 	}
 #endif // SKY_FPV
 	if(rz > 360) {
@@ -341,6 +365,17 @@ void update_camera()
 	if (me)
 		camera_kludge = -me->z_rot;
 #endif // SKY_FPV
+
+#ifdef NEW_CAMERA_MOTION
+	/* This is a BIG hack to not polluate the code but if this feature
+	 * is accepted and the flag is removed, all the code that
+	 * follows will have to be changed in order to get rid of
+	 * camera_rotation_duration and camera_tilt_duration. */
+	if (camera_rotation_speed != 0.0)
+		camera_rotation_duration = time_diff;
+	if (camera_tilt_speed != 0.0)
+		camera_tilt_duration = time_diff;
+#endif // NEW_CAMERA_MOTION
 
 	if(camera_rotation_duration > 0){
 		if (time_diff <= camera_rotation_duration)
@@ -403,6 +438,33 @@ void update_camera()
 		adjust_view++;
 	}
 
+#ifdef NEW_CAMERA_MOTION
+	if (camera_rotation_speed > 0.001)
+	{
+		camera_rotation_speed -= time_diff / 2000.0;
+		if (camera_rotation_speed <= 0.001)
+			camera_rotation_speed = 0.0;
+	}
+	else if (camera_rotation_speed < -0.001)
+	{
+		camera_rotation_speed += time_diff / 2000.0;
+		if (camera_rotation_speed >= -0.001)
+			camera_rotation_speed = 0.0;
+	}
+	if (camera_tilt_speed > 0.001)
+	{
+		camera_tilt_speed -= time_diff / 2000.0;
+		if (camera_tilt_speed <= 0.001)
+			camera_tilt_speed = 0.0;
+	}
+	else if (camera_tilt_speed < -0.001)
+	{
+		camera_tilt_speed += time_diff / 2000.0;
+		if (camera_tilt_speed >= -0.001)
+			camera_tilt_speed = 0.0;
+	}
+#endif // NEW_CAMERA_MOTION
+
 #ifdef SKY_FPV
 	if (ext_cam && !first_person && me)
 	{
@@ -448,12 +510,18 @@ void update_camera()
 				{
 					new_zoom_level = 1.0;
 					camera_tilt_duration = camera_zoom_duration = 0;
+#ifdef NEW_CAMERA_MOTION
+					camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 					rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				}
 				else if (new_zoom_level > 4.0)
 				{
 					new_zoom_level = 4.0;
 					camera_tilt_duration = camera_zoom_duration = 0;
+#ifdef NEW_CAMERA_MOTION
+					camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 				}
 			}
 			else // old freecam behaviour
@@ -461,6 +529,9 @@ void update_camera()
 				rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				new_zoom_level = old_zoom_level;
 				camera_tilt_duration = camera_zoom_duration = 0;
+#ifdef NEW_CAMERA_MOTION
+				camera_tilt_speed = 0.0;
+#endif // NEW_CAMERA_MOTION
 			}
 		}
 	}
@@ -478,7 +549,11 @@ void update_camera()
 	
 	hold_camera = rz;
 	if (fol_cam) {
+#ifndef NEW_CAMERA_MOTION
         int moving_camera = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_duration > 0;
+#else // NEW_CAMERA_MOTION
+        int moving_camera = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_speed != 0;
+#endif // NEW_CAMERA_MOTION
 
 		if (last_kludge != camera_kludge && !moving_camera) {
 			set_all_intersect_update_needed(main_bbox_tree);

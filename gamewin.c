@@ -1868,12 +1868,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_ROTATELEFT)
 	{
 #ifndef SKY_FPV
-		camera_rotation_speed = normal_camera_rotation_speed / 40;
+		camera_rotation_speed = normal_camera_rotation_speed / 800.0;
 #else // SKY_FPV
-		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 40;
+		camera_rotation_speed = (first_person?-1:1)*normal_camera_rotation_speed / 800.0;
 #endif // SKY_FPV
+#ifdef NEW_CAMERA_MOTION
+        camera_rotation_speed *= 2.0;
+#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 800;
-		camera_rotation_speed /= 20.0;
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
@@ -1885,12 +1887,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_FROTATELEFT)
 	{
 #ifndef SKY_FPV
-		camera_rotation_speed = fine_camera_rotation_speed / 10;
+		camera_rotation_speed = fine_camera_rotation_speed / 200.0;
 #else // SKY_FPV
-		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 10;
+		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 200.0;
 #endif // SKY_FPV
+#ifdef NEW_CAMERA_MOTION
+        camera_rotation_speed *= 2.0;
+#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 200;
-		camera_rotation_speed /= 20.0;
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
@@ -1902,12 +1906,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_ROTATERIGHT)
 	{
 #ifndef SKY_FPV
-		camera_rotation_speed = -normal_camera_rotation_speed / 40;
+		camera_rotation_speed = -normal_camera_rotation_speed / 800.0;
 #else // SKY_FPV
-		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 40;
+		camera_rotation_speed = (first_person?1:-1)*normal_camera_rotation_speed / 800.0;
 #endif // SKY_FPV
+#ifdef NEW_CAMERA_MOTION
+        camera_rotation_speed *= 2.0;
+#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 800;
-		camera_rotation_speed /= 20.0;
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
@@ -1919,12 +1925,14 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if (key == K_FROTATERIGHT)
 	{
 #ifndef SKY_FPV
-		camera_rotation_speed = -fine_camera_rotation_speed / 10;
+		camera_rotation_speed = -fine_camera_rotation_speed / 200.0;
 #else // SKY_FPV
-		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 10;
+		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 200.0;
 #endif // SKY_FPV
+#ifdef NEW_CAMERA_MOTION
+        camera_rotation_speed *= 2.0;
+#endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 200;
-		camera_rotation_speed /= 20.0;
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
 		{
@@ -2146,6 +2154,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #else // SKY_FPV
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 800;
+#ifdef NEW_CAMERA_MOTION
+        camera_tilt_speed *= 2.0;
+#endif // NEW_CAMERA_MOTION
 #endif // SKY_FPV
 	}
 	else if (key == K_CAMERADOWN)
@@ -2155,6 +2166,9 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 #else // SKY_FPV
 		camera_tilt_speed = normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 800;
+#ifdef NEW_CAMERA_MOTION
+        camera_tilt_speed *= 2.0;
+#endif // NEW_CAMERA_MOTION
 #endif // SKY_FPV
 	}
 	else if (key == K_ZOOMIN)

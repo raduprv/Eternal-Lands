@@ -34,6 +34,8 @@ extern float fol_quad;
 extern float fol_strn;
 extern int ext_cam;
 extern int ext_cam_auto_zoom;
+extern float min_tilt_angle;
+extern float max_tilt_angle;
 extern float hold_camera;
 extern int first_person;
 extern int adjust_view;
