@@ -42,6 +42,8 @@ ground_item storage_items[STORAGE_ITEMS_SIZE]={{0,0,0}};
 int no_storage;
 
 char storage_text[202]={0};
+static char last_storage_text[202]={0};
+static char wrapped_storage_text[210]={0};
 
 void get_storage_text (const Uint8 *in_data, int len)
 {
@@ -218,7 +220,11 @@ int display_storage_handler(window_info * win)
 		draw_string_small(20, 20+n*13, (unsigned char*)storage_categories[i].name,1);
 	}
 	if(storage_text[0]){
-		draw_string_small(18, 220, (unsigned char*)storage_text, 1);
+		if (strcmp(storage_text, last_storage_text) != 0) {
+			safe_strncpy(last_storage_text, storage_text, sizeof(last_storage_text));
+			put_small_text_in_box ((Uint8 *)storage_text, strlen(storage_text), win->len_x - 18*2, wrapped_storage_text);
+		}
+		draw_string_small(18, 220, (unsigned char*)wrapped_storage_text, 2);
 	}
 
 	glColor3f(1.0f,1.0f,1.0f);
