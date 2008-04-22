@@ -144,9 +144,9 @@ void draw_scene()
 		drag_item (use_item, 0, 1);
 	else if (storage_item_dragged != -1) 
 		drag_item (storage_item_dragged, 1, 0);
-#ifdef NEW_CURSOR
-	draw_cursor();
-#endif // NEW_CURSOR
+#if defined(SKY_FPV) || defined(NEW_CURSOR)
+	draw_special_cursors();
+#endif // SKY_FPV || NEW_CURSOR
 
 	Leave2DMode ();
 

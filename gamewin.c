@@ -86,8 +86,7 @@ int cursors_tex;
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
 
-#ifdef NEW_CURSOR
-void draw_cursor()
+void draw_special_cursors()
 {
 	const float RET_WID = 4.0f;
 	const float RET_LEN = 10.0f;
@@ -96,209 +95,229 @@ void draw_cursor()
 	float ret_x = 0.0, ret_y = 0.0;
 	float ret_color[4];
 	float ret_out = 7.0;
-	if(!(SDL_GetAppState() & SDL_APPMOUSEFOCUS))return;
-#ifdef SKY_FPV
-	if(sdl_cursors && !have_mouse) return;
-#endif // SKY_FPV
-	glDisable(GL_DEPTH_TEST);
 
-	get_and_set_texture_id(cursors_tex);
+#ifdef SKY_FPV
+#ifdef NEW_CURSOR
+	if (!have_mouse && sdl_cursors) return;
+#else // NEW_CURSOR
+	if (!have_mouse) return;
+#endif // NEW_CURSOR
+#else // SKY_FPV
+#ifdef NEW_CURSOR
+	if (sdl_cursors) return;
+#endif // NEW_CURSOR
+#endif // SKY_FPV
+
+	if(!(SDL_GetAppState() & SDL_APPMOUSEFOCUS)) return;
+
 	switch (current_cursor){
-		case (CURSOR_ATTACK):
-			ret_zoom = 2.0f;
-			ret_spin = (cur_time%2000)*360.0f/2000.0f;
-			ret_color[0]=1.0f;
-			ret_color[1]=0.0f;
-			ret_color[2]=0.0f;
-			ret_color[3]=ret_alpha;
-			break;
-		case (CURSOR_WAND):
-			ret_spin = 0.0f;
-			ret_zoom = (sin((cur_time%1000)*3.1415/1000.0)+1.0)*6.0;
-			ret_color[0]=0.0f;
-			ret_color[1]=0.0f;
-			ret_color[2]=1.0f;
-			ret_color[3]=ret_alpha;
-			ret_out=15.0f;
-			break;
-		default:
-			ret_spin = 45.0f;
-			ret_zoom = 3.0f;
-			ret_color[0]=0.0f;
-			ret_color[1]=1.0f;
-			ret_color[2]=0.0f;
-			ret_color[3]=ret_alpha;
+	case (CURSOR_ATTACK):
+		ret_zoom = 2.0f;
+		ret_spin = (cur_time%2000)*360.0f/2000.0f;
+		ret_color[0]=1.0f;
+		ret_color[1]=0.0f;
+		ret_color[2]=0.0f;
+		ret_color[3]=ret_alpha;
+		break;
+	case (CURSOR_WAND):
+		ret_spin = 0.0f;
+		ret_zoom = (sin((cur_time%1000)*3.1415/1000.0)+1.0)*6.0;
+		ret_color[0]=0.0f;
+		ret_color[1]=0.0f;
+		ret_color[2]=1.0f;
+		ret_color[3]=ret_alpha;
+		ret_out=15.0f;
+		break;
+	default:
+		ret_spin = 45.0f;
+		ret_zoom = 3.0f;
+		ret_color[0]=0.0f;
+		ret_color[1]=1.0f;
+		ret_color[2]=0.0f;
+		ret_color[3]=ret_alpha;
 	}
+	
+	glPushAttrib(GL_ENABLE_BIT);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
 
 	glPushMatrix();
-	glTranslatef(mouse_x,mouse_y,0.0);
-	glEnable(GL_BLEND);
-	glDisable(GL_LIGHTING);
-	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
-	glScalef(pointer_size,pointer_size,1.0);
+	glTranslatef(mouse_x, mouse_y, 0.0);
+#ifdef NEW_CURSOR
+	glScalef(pointer_size, pointer_size, 1.0);
+#endif // NEW_CURSOR
+
+	//printf("mouse_x=%d mouse_y=%d\n", mouse_x, mouse_y);
+
 #ifdef SKY_FPV
 	if(have_mouse)
 	{
+#ifdef NEW_CURSOR
 		glColor4f(1,1,1,1);
-		if(big_cursors&&!sdl_cursors){
+		get_and_set_texture_id(cursors_tex);
+		if (big_cursors /* && !sdl_cursors */) {
 			float x = (current_cursor%8)/8.0;
 			float y = (1-current_cursor/8 + 5)/8.0;
 			glBegin(GL_QUADS);
-				glTexCoord2f(x,y);			glVertex2f(0,32);
-				glTexCoord2f(x+0.125f,y);		glVertex2f(32,32);
-				glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
-				glTexCoord2f(x,y+0.125f);		glVertex2f(0,0);
+			glTexCoord2f(x,y);					glVertex2f(0,32);
+			glTexCoord2f(x+0.125f,y);			glVertex2f(32,32);
+			glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
+			glTexCoord2f(x,y+0.125f);			glVertex2f(0,0);
 			glEnd();
-		} else if (!sdl_cursors){
+		} else /* if (!sdl_cursors) */ {
 			glBegin(GL_QUADS);
-				glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(10,26);
-				glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(26,26);
-				glTexCoord2f((current_cursor+1.0)/16.0,16.0/16.0);	glVertex2f(26,10);
-				glTexCoord2f(current_cursor/16.0,16.0/16.0);		glVertex2f(10,10);
+			glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(10,26);
+			glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(26,26);
+			glTexCoord2f((current_cursor+1.0)/16.0,16.0/16.0);	glVertex2f(26,10);
+			glTexCoord2f(current_cursor/16.0,16.0/16.0);		glVertex2f(10,10);
 			glEnd();
 		}
-		glRotatef(ret_spin,0.0,0.0,1.0);
+#endif // NEW_CURSOR
+
+		glRotatef(ret_spin, 0.0, 0.0, 1.0);
 		glColor4fv(ret_color);
-		glDisable (GL_TEXTURE_2D);
+		glDisable(GL_TEXTURE_2D);
 
 		ret_x += ret_zoom;
 		glBegin(GL_TRIANGLES);
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
-			glVertex2f(ret_x+ret_out,ret_y);
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
-			glVertex2f(ret_x+ret_out,ret_y);
-
-			ret_x -= ret_zoom*2;
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
-			glVertex2f(ret_x-ret_out,ret_y);
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
-			glVertex2f(ret_x-ret_out,ret_y);
-
-			ret_x += ret_zoom;
-			ret_y -= ret_zoom;
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
-			glVertex2f(ret_x,ret_y-ret_out);
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
-			glVertex2f(ret_x,ret_y-ret_out);
-
-			ret_y += ret_zoom*2;
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
-			glVertex2f(ret_x,ret_y+ret_out);
-
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
-			glVertex2f(ret_x,ret_y+ret_out);
-
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
+		glVertex2f(ret_x+ret_out,ret_y);
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
+		glVertex2f(ret_x+ret_out,ret_y);
+		
+		ret_x -= ret_zoom*2;
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+		glVertex2f(ret_x-ret_out,ret_y);
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+		glVertex2f(ret_x-ret_out,ret_y);
+		
+		ret_x += ret_zoom;
+		ret_y -= ret_zoom;
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
+		glVertex2f(ret_x,ret_y-ret_out);
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
+		glVertex2f(ret_x,ret_y-ret_out);
+		
+		ret_y += ret_zoom*2;
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
+		glVertex2f(ret_x,ret_y+ret_out);
+		
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
+		glVertex2f(ret_x,ret_y+ret_out);
+		
 		glEnd();
 		ret_y -= ret_zoom;
-
+		
 		glColor4f(0.0,0.0,0.0,ret_alpha);
-
+		
 		ret_x += ret_zoom;
 		glBegin(GL_LINE_LOOP);       
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
-			glVertex2f(ret_x+ret_out,ret_y);
-			glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x+RET_LEN,ret_y-RET_WID);
+		glVertex2f(ret_x+ret_out,ret_y);
+		glVertex2f(ret_x+RET_LEN,ret_y+RET_WID);
 		glEnd();
 		ret_x -= ret_zoom*2;
 		glBegin(GL_LINE_LOOP);
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
-			glVertex2f(ret_x-ret_out,ret_y);
-			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+		glVertex2f(ret_x-ret_out,ret_y);
+		glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 		glEnd();
-
+		
 		ret_x += ret_zoom;
 		ret_y -= ret_zoom;
 		glBegin(GL_LINE_LOOP);
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
-			glVertex2f(ret_x,ret_y-ret_out);
-			glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x-RET_WID,ret_y-RET_LEN);
+		glVertex2f(ret_x,ret_y-ret_out);
+		glVertex2f(ret_x+RET_WID,ret_y-RET_LEN);
 		glEnd();
-
+		
 		ret_y += ret_zoom*2;
 		glBegin(GL_LINE_LOOP);       
-			glVertex2f(ret_x,ret_y);
-			glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
-			glVertex2f(ret_x,ret_y+7);
-			glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
+		glVertex2f(ret_x,ret_y);
+		glVertex2f(ret_x-RET_WID,ret_y+RET_LEN);
+		glVertex2f(ret_x,ret_y+7);
+		glVertex2f(ret_x+RET_WID,ret_y+RET_LEN);
 		glEnd();
 		ret_y -= ret_zoom;
 	}
+#ifdef NEW_CURSOR
 	else
+#endif // NEW_CURSOR
 #endif // SKY_FPV
+#ifdef NEW_CURSOR
 	{
 		if (current_cursor != CURSOR_ARROW){
 			glColor4fv(ret_color);
 			glRotatef(-135.0,0,0,1);
-			glDisable (GL_TEXTURE_2D);
+			glDisable(GL_TEXTURE_2D);
 			glBegin(GL_TRIANGLES);
-				glVertex2f(ret_x,ret_y);
-				glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
-				glVertex2f(ret_x-ret_out,ret_y);
-
-				glVertex2f(ret_x,ret_y);
-				glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
-				glVertex2f(ret_x-ret_out,ret_y);
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+			glVertex2f(ret_x-ret_out,ret_y);
+			
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+			glVertex2f(ret_x-ret_out,ret_y);
 			glEnd();
-
+			
 			glColor4f(0.0,0.0,0.0,ret_alpha);
-
+			
 			glBegin(GL_LINE_LOOP);
-				glVertex2f(ret_x,ret_y);
-				glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
-				glVertex2f(ret_x-ret_out,ret_y);
-				glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
+			glVertex2f(ret_x,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y-RET_WID);
+			glVertex2f(ret_x-ret_out,ret_y);
+			glVertex2f(ret_x-RET_LEN,ret_y+RET_WID);
 			glEnd();
 			glRotatef(135.0,0,0,1);
-			glEnable (GL_TEXTURE_2D);
-
-			glColor4f(1,1,1,1);
+			glEnable(GL_TEXTURE_2D);
 		}
+
+		glColor4f(1,1,1,1);
+		get_and_set_texture_id(cursors_tex);
 		if(big_cursors){
 			float x = (current_cursor%8)/8.0;
 			float y = (1-current_cursor/8 + 5)/8.0;
 			glBegin(GL_QUADS);
-				glTexCoord2f(x,y);			glVertex2f(0,32);
-				glTexCoord2f(x+0.125f,y);		glVertex2f(32,32);
-				glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
-				glTexCoord2f(x,y+0.125f);		glVertex2f(0,0);
+			glTexCoord2f(x,y);					glVertex2f(0,32);
+			glTexCoord2f(x+0.125f,y);			glVertex2f(32,32);
+			glTexCoord2f(x+0.125f,y+0.125f);	glVertex2f(32,0);
+			glTexCoord2f(x,y+0.125f);			glVertex2f(0,0);
 			glEnd();
 		} else {
 			glBegin(GL_QUADS);
-				glTexCoord2f(current_cursor/16.0,14.0/16.0);		glVertex2f(0,16);
-				glTexCoord2f((current_cursor+1.0)/16.0,14.0/16.0);	glVertex2f(16,16);
-				glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(16,0);
-				glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(0,0);
+			glTexCoord2f(current_cursor/16.0,14.0/16.0);		glVertex2f(0,16);
+			glTexCoord2f((current_cursor+1.0)/16.0,14.0/16.0);	glVertex2f(16,16);
+			glTexCoord2f((current_cursor+1.0)/16.0,15.0/16.0);	glVertex2f(16,0);
+			glTexCoord2f(current_cursor/16.0,15.0/16.0);		glVertex2f(0,0);
 			glEnd();
 		}
 	}
-
-	glDisable(GL_BLEND);
-
-	glColor4f(1.0,1.0,1.0,1.0);
-	glEnable(GL_TEXTURE_2D);
+#endif // NEW_CURSOR
 
 	glPopMatrix();
-	glEnable(GL_DEPTH_TEST);
+	glPopAttrib();
+	reset_material();
 }
-#endif // NEW_CURSOR
 
 #ifdef SKY_FPV
 void toggle_have_mouse()

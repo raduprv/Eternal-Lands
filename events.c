@@ -174,10 +174,6 @@ int HandleEvent (SDL_Event *event)
 			}
 			else
 			{
-#ifndef SKY_FPV
-				mouse_x= event->button.x;
-				mouse_y= event->button.y;
-#else // SKY_FPV
 #ifdef NEW_CURSOR
 				if (sdl_cursors)
 				{
@@ -187,7 +183,6 @@ int HandleEvent (SDL_Event *event)
 #ifdef NEW_CURSOR
 				}
 #endif // NEW_CURSOR
-#endif // SKY_FPV
 				mouse_delta_x= mouse_delta_y= 0;
 			}
 

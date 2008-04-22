@@ -32,8 +32,9 @@ void toggle_have_mouse();
 #endif // SKY_FPV
 #ifdef NEW_CURSOR
 extern int cursors_tex;
-void draw_cursor();
 #endif // NEW_CURSOR
+
+void draw_special_cursors();
 
 /*!
  * \ingroup events
