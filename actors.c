@@ -211,9 +211,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	GLdouble model[16],proj[16];
 	GLint view[4];
 	GLdouble hx,hy,hz,a_bounce;
-#ifndef SKY_FPV_OPTIONAL
 	float font_scale = 1.0f/ALT_INGAME_FONT_X_LEN;
-#endif // SKY_FPV_OPTIONAL
 	double healthbar_x=0.0f;
 	double healthbar_y=0.0f;
 	double healthbar_z=offset_z+0.1;
@@ -277,8 +275,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			} else {
 				a_bounce = 0.0640*(a-1720.0) - .0002 * powf((a-1720.0), 2);
 			}
-#ifdef SKY_FPV_OPTIONAL
-			// Schmurk: do we ever reach this code is we are in FPV?
+#ifdef SKY_FPV
+			/* Schmurk: actually we never reach this code as long as there's
+             * an exit condition at the beginning of the function */
 			if ((first_person)&&(actor_id->actor_id==yourself)){
 				float x,y;
 				x = window_width/2.0 -(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f;
@@ -286,10 +285,9 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 				draw_ortho_ingame_string(x, y, 0, str, 1, font_scale*.14, font_scale*.21);
 			} 
 			else
-#endif // SKY_FPV_OPTIONAL
+#endif // SKY_FPV
 			{
 				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage))/1000.0f, 4.0);
-				//draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale*.14, font_scale*.21);
 				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.21);
 			}			glDisable(GL_BLEND);
 		} 
@@ -302,10 +300,10 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 	}
 
 	glDepthFunc(GL_LESS);
-#ifdef SKY_FPV_OPTIONAL
-	// Schmurk: same here is this test really usefull?
+#ifdef SKY_FPV
+	// Schmurk: same here, we actually never reach this code
 	if (!((first_person)&&(actor_id->actor_id==yourself)))
-#endif // SKY_FPV_OPTIONAL
+#endif // SKY_FPV
 	{
 		if(actor_id->actor_name[0] && (view_names || view_health_bar || view_hp)){
 			set_font(name_font);	// to variable length
