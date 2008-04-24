@@ -287,18 +287,17 @@ void blend_colors(float result[], float orig[], float dest[], float t, int size)
 
 void skybox_compute_height()
 {
-	/* For the moment the height is wrong because it assumes that the field of
-	 * view is spherical which is wrong. The water_end value should be
-	 * computed by intersecting the water plane with the far clipping plane. */
 	if (far_plane < 500.0)
 	{
-		float eye_xy = -sinf(rx*M_PI/180.0)*zoom_level*camera_distance;
-		float eye_z = -camera_z+cosf(rx*M_PI/180.0)*zoom_level*camera_distance;
-		float water_end = sqrtf(far_plane*far_plane-eye_z*eye_z);
+		float cos_rx = cosf(-rx*M_PI/180.0);
+		float sin_rx = sinf(-rx*M_PI/180.0);
+		float eye_xy = sin_rx*zoom_level*camera_distance;
+		float eye_z = cos_rx*zoom_level*camera_distance-camera_z;
+		float water_end = sin_rx*far_plane+(far_plane*cos_rx-eye_z)*cos_rx/sin_rx;
 
 		skybox_z = eye_z*(water_end-500.0+eye_xy)/water_end;
 
-/* 		printf("camera_z=%f rx=%f zoom_level=%f camera_distance=%f eye_xy=%f eye_z=%f water_end=%f sky_z=%f\n", camera_z, rx, zoom_level, camera_distance, eye_xy, eye_z, water_end, sky_z); */
+		//printf("camera_z=%f rx=%f zoom_level=%f camera_distance=%f eye_xy=%f eye_z=%f water_end=%f skybox_z=%f\n", camera_z, rx, zoom_level, camera_distance, eye_xy, eye_z, water_end, skybox_z);
 	}
 	else
 		skybox_z = 0.0;

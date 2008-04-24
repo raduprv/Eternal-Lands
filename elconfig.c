@@ -710,7 +710,7 @@ void toggle_follow_cam(int * fc)
 		hold_camera=rz;
 	else
 		hold_camera+=camera_kludge;
-	*fc= !*fc;
+	change_var(fc);
 }
 
 void toggle_follow_cam_behind(int * fc)
@@ -724,7 +724,21 @@ void toggle_follow_cam_behind(int * fc)
 	{
 		last_kludge = -rz;
 	}
-	*fc = !*fc;
+	change_var(fc);
+}
+
+void toggle_ext_cam(int * ec)
+{
+	change_var(ec);
+	if (*ec)
+	{
+		isometric = 0;
+		if (video_mode_set)
+		{
+			resize_root_window();
+			set_all_intersect_update_needed(main_bbox_tree);
+		}
+	}
 }
 
 void change_tilt_float(float * var, float * value)
@@ -1017,6 +1031,7 @@ void change_projection_bool(int *pointer) {
 	{
 		resize_root_window ();
 #ifdef SKY_FPV
+		if (pointer == &isometric && isometric) ext_cam = 0;
 		set_all_intersect_update_needed (main_bbox_tree);
 #endif // SKY_FPV
 	}
@@ -1568,7 +1583,7 @@ void init_vars()
 	add_var(OPT_BOOL,"skybox_show_sun","sky_sun", &skybox_show_sun, change_sky_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
 	add_var(OPT_BOOL,"fol_cam_behind","fol_cam_behind", &fol_cam_behind, toggle_follow_cam_behind,0,"Keep the camera behind the char", "Causes the camera to stay behind you (works only in follow camera mode)", EMAJEKRAL);
-	add_var(OPT_BOOL,"extended_cam","extcam", &ext_cam, change_var,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
+	add_var(OPT_BOOL,"extended_cam","extcam", &ext_cam, toggle_ext_cam,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
 	add_var(OPT_BOOL,"ext_cam_auto_zoom","autozoom", &ext_cam_auto_zoom, change_var,0,"Auto zoom", "Allows the camera to zoom automatically when getting close to the ground (works only in extended camera mode and with a max tilt angle over 90.0).", EMAJEKRAL);
 	add_var(OPT_FLOAT,"min_tilt_angle","min_tilt_angle", &min_tilt_angle, change_tilt_float,30.0,"Minimum tilt angle", "Minimum angle that the camera can reach when raising it (works only in extended camera mode).", EMAJEKRAL, 20.0, 45.0, 1.0);
 	add_var(OPT_FLOAT,"max_tilt_angle","max_tilt_angle", &max_tilt_angle, change_tilt_float,90.0,"Maximum tilt angle", "Maximum angle that the camera can reach when lowering it (works only in extended camera mode).", EMAJEKRAL, 60.0, 150.0, 1.0);
@@ -1776,9 +1791,9 @@ void init_vars()
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else // SKY_FPV
 #ifdef DEBUG
-	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can view.", ADVVID, 0.1, 10.0, 0.1);
+	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can see.", ADVVID, 0.1, 10.0, 0.1);
 #endif // DEBUG
-	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can view.", ADVVID, 40.0, 200.0, 1.0);
+	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", ADVVID, 40.0, 200.0, 1.0);
 #endif // SKY_FPV
 #else
     add_var(OPT_BOOL,"isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
@@ -1786,8 +1801,10 @@ void init_vars()
 #ifndef SKY_FPV
 	add_var (OPT_FLOAT, "near_plane", "near_plane", &near_plane, change_projection_float_init, 40, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 1.0, 60.0, 0.5);
 #else // SKY_FPV
-	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float_init, 0.1, "Near Plane Distance", "The distance of the near clipping plane to your actor", ADVVID, 0.1, 20.0, 0.1);
-	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float_init, 100.0, "Far Plane Distance", "Adjusts the distance of the far clipping plane to your actor", ADVVID, 20.0, 1000.0, 1.0);
+#ifdef DEBUG
+	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can see.", ADVVID, 0.1, 10.0, 0.1);
+#endif // DEBUG
+	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", ADVVID, 40.0, 200.0, 1.0);
 #endif // SKY_FPV
 #endif
  #ifdef ANTI_ALIAS
