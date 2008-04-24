@@ -642,6 +642,8 @@ void display_3d_reflection()
 	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
 	if (skybox_show_sky)
 	{
+        glPushMatrix();
+        glTranslatef(0.0, 0.0, -skybox_get_height());
 		if (!clip_sky)
 		{
 			skybox_display();
@@ -654,6 +656,7 @@ void display_3d_reflection()
 			skybox_display();
 			glDisable(GL_CLIP_PLANE0);
 		}
+        glPopMatrix();
 	}
 #endif // SKY_FPV
 

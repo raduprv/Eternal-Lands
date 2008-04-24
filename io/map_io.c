@@ -157,6 +157,15 @@ int load_map(const char *file_name, update_func *update_function)
 	ambient_g = cur_map_header.ambient_g;
 	ambient_b = cur_map_header.ambient_b;
 
+#ifdef SKY_FPV
+	water_tiles_extension = (tile_map_size_x > tile_map_size_y ?
+							 tile_map_size_x : tile_map_size_y * 1.5);
+	if (water_tiles_extension < 500.0)
+		water_tiles_extension = 500.0 - water_tiles_extension;
+	else
+		water_tiles_extension = 0.0;
+#endif // SKY_FPV
+
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
 	init_buffers();

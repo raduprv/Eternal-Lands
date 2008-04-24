@@ -92,6 +92,8 @@ float skybox_sun_position[4] = {0.0, 0.0, 0.0, 0.0};
 double skybox_time_d = 0.0;
 double skybox_view[16];
 
+float skybox_z = 0.0;
+
 typedef struct
 {
 	int slices_count;
@@ -283,6 +285,30 @@ void blend_colors(float result[], float orig[], float dest[], float t, int size)
     }
 }
 
+void skybox_compute_height()
+{
+	/* For the moment the height is wrong because it assumes that the field of
+	 * view is spherical which is wrong. The water_end value should be
+	 * computed by intersecting the water plane with the far clipping plane. */
+	if (far_plane < 500.0)
+	{
+		float eye_xy = -sinf(rx*M_PI/180.0)*zoom_level*camera_distance;
+		float eye_z = -camera_z+cosf(rx*M_PI/180.0)*zoom_level*camera_distance;
+		float water_end = sqrtf(far_plane*far_plane-eye_z*eye_z);
+
+		skybox_z = eye_z*(water_end-500.0+eye_xy)/water_end;
+
+/* 		printf("camera_z=%f rx=%f zoom_level=%f camera_distance=%f eye_xy=%f eye_z=%f water_end=%f sky_z=%f\n", camera_z, rx, zoom_level, camera_distance, eye_xy, eye_z, water_end, sky_z); */
+	}
+	else
+		skybox_z = 0.0;
+}
+
+float skybox_get_height()
+{
+	return skybox_z;
+}
+
 void skybox_set_type(skybox_type sky)
 {
     current_sky = sky;
@@ -293,6 +319,15 @@ void underworld_sky();
 
 void skybox_display()
 {
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadMatrixd(skybox_view);
+	glMatrixMode(GL_MODELVIEW);
+	glPushMatrix();
+
+	// we center the sky on the camera, not on the world
+	glTranslatef(-camera_x, -camera_y, 0.0);
+
 	switch (current_sky)
 	{
 	case SKYBOX_CLOUDY:
@@ -307,6 +342,11 @@ void skybox_display()
 	default:
 		break;
 	}
+
+	glPopMatrix();
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
 }
 
 void update_cloudy_sky_positions();
@@ -496,7 +536,7 @@ void update_cloudy_sky_colors()
 	// clouds color
 	blend_colors(color_sky, skybox_clouds[game_minute], skybox_clouds_rainy[game_minute], rain_coef, 3);
 	blend_colors(color_sun, skybox_clouds_sunny[game_minute], skybox_clouds_rainy[game_minute], rain_coef, 3);
-    while (i < dome_clouds.slices_count)
+    while (i < dome_clouds.slices_count * 2)
     {
 		const float *normal = &dome_clouds.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
@@ -534,7 +574,7 @@ void update_cloudy_sky_colors()
 	// clouds detail color
 	blend_colors(color_sky, skybox_clouds_detail[game_minute], skybox_clouds_detail_rainy[game_minute], rain_coef, 3);
 	blend_colors(color_sun, skybox_clouds_detail_sunny[game_minute], skybox_clouds_detail_rainy[game_minute], rain_coef, 3);
-    while (i < dome_clouds.slices_count)
+    while (i < dome_clouds.slices_count * 2)
     {
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
 		dome_clouds_detail_colors[idx] = color[0];
@@ -797,17 +837,11 @@ void cloudy_sky()
 	glDisable(GL_FOG);
 	glDisable(GL_BLEND);
 	glDisable(GL_TEXTURE_2D);
+    glDisable(GL_ALPHA_TEST);
 	glEnable(GL_COLOR_MATERIAL);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixd(skybox_view);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	
-	glClear(GL_DEPTH_BUFFER_BIT);
-    glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -10.0);
+    glDisable(GL_DEPTH_TEST);
 
 	// we draw a ring to continue the sky a bit under the horizon
     if (skybox_show_horizon_fog)
@@ -817,11 +851,11 @@ void cloudy_sky()
 		{
             const GLfloat *vtx = &dome_sky.vertices[i*3];
             glColor3fv(&fog_colors[i*3]);
-            glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
+            glVertex3f(vtx[0]*0.9, vtx[1]*0.9, -dome_sky.height*0.1);
             glVertex3fv(vtx);
         }
         glColor4fv(&fog_colors[0]);
-        glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 500.0);
+        glVertex3f(dome_sky.vertices[0]*0.9, dome_sky.vertices[1]*0.9, -dome_sky.height*0.1);
         glVertex3fv(&dome_sky.vertices[0]);
         glEnd();
     }
@@ -832,11 +866,11 @@ void cloudy_sky()
 		{
             const GLfloat *vtx = &dome_sky.vertices[i*3];
             glColor3fv(&dome_sky.colors[i*4]);
-            glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
+            glVertex3f(vtx[0]*0.9, vtx[1]*0.9, -dome_sky.height*0.1);
             glVertex3fv(vtx);
         }
         glColor3fv(&dome_sky.colors[0]);
-        glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 500.0);
+        glVertex3f(dome_sky.vertices[0]*0.9, dome_sky.vertices[1]*0.9, -dome_sky.height*0.1);
         glVertex3fv(&dome_sky.vertices[0]);
         glEnd();
     }
@@ -853,7 +887,6 @@ void cloudy_sky()
     glDisableClientState(GL_VERTEX_ARRAY);
     glDisableClientState(GL_COLOR_ARRAY);
 
-	glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_BLEND);
 
     if (skybox_show_horizon_fog)
@@ -876,6 +909,8 @@ void cloudy_sky()
 		glPopMatrix();
 	}
 	
+    glEnable(GL_DEPTH_TEST); // we need it to draw moons
+    glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
 
@@ -957,12 +992,10 @@ void cloudy_sky()
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
-		//glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 
 		glVertexPointer(3, GL_FLOAT, 0, dome_clouds.vertices);
 		glColorPointer(4, GL_FLOAT, 0, dome_clouds.colors);
-		//glNormalPointer(GL_FLOAT, 0, dome_clouds.normals);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds.tex_coords);
 		
 		get_and_set_texture_id(skybox_clouds_tex);
@@ -982,7 +1015,6 @@ void cloudy_sky()
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
-		//glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
 		
@@ -1027,6 +1059,8 @@ void cloudy_sky()
 		glPopMatrix();
 	}
 
+    glEnable(GL_DEPTH_TEST);
+    glClear(GL_DEPTH_BUFFER_BIT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// we draw the clouds detail
@@ -1034,10 +1068,10 @@ void cloudy_sky()
 	{
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_COLOR_ARRAY);
-		//glEnableClientState(GL_NORMAL_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 		
 		get_and_set_texture_id(skybox_clouds_detail_tex);
+		glVertexPointer(3, GL_FLOAT, 0, dome_clouds.vertices);
 		glColorPointer(4, GL_FLOAT, 0, dome_clouds_detail_colors);
 		glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds.tex_coords);
 
@@ -1058,10 +1092,22 @@ void cloudy_sky()
 
 		glDisableClientState(GL_VERTEX_ARRAY);
 		glDisableClientState(GL_COLOR_ARRAY);
-		//glDisableClientState(GL_NORMAL_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
+    else
+    {
+        // we draw fake clouds only in the depth buffer
+        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
+		glEnableClientState(GL_VERTEX_ARRAY);
+		glVertexPointer(3, GL_FLOAT, 0, dome_clouds.vertices);
+		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
+		glDisableClientState(GL_VERTEX_ARRAY);
+
+        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+    }
+
+    glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 
 	// we fade the sky that is under the horizon
@@ -1070,41 +1116,31 @@ void cloudy_sky()
 	{
 		const GLfloat *vtx = &dome_sky.vertices[i*3];
 		glColor4f(fogColor[0], fogColor[1], fogColor[2], 1.0);
-		glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
+		glVertex3f(vtx[0]*0.9, vtx[1]*0.9, -dome_sky.height*0.1);
 		glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
-		glVertex4f(vtx[0], vtx[1], vtx[2], 1.0);
+		glVertex3fv(vtx);
 	}
 	glColor4f(fogColor[0], fogColor[1], fogColor[2], 1.0);
-	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 4.0);
+	glVertex3f(dome_sky.vertices[0]*0.9, dome_sky.vertices[1]*0.9, -dome_sky.height*0.1);
 	glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
-	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 1.0);
+	glVertex3fv(&dome_sky.vertices[0]);
 	glEnd();
 
 	// we mask all the elements that are under the horizon with the fog color
 	glBegin(GL_TRIANGLE_FAN);
 	glColor3fv(fogColor);
-	glVertex3f(0.0, 0.0, 0.0);
+	glVertex3f(0.0, 0.0, -dome_sky.height);
 	for (i = 0; i < dome_sky.slices_count; ++i)
 	{
 		const GLfloat *vtx = &dome_sky.vertices[i*3];
-		glVertex4f(vtx[0], vtx[1], vtx[2], 4.0);
+		glVertex3f(vtx[0]*0.9, vtx[1]*0.9, -dome_sky.height*0.1);
 	}
-	glVertex4f(dome_sky.vertices[0], dome_sky.vertices[1], dome_sky.vertices[2], 4.0);
+	glVertex3f(dome_sky.vertices[0]*0.9, dome_sky.vertices[1]*0.9, -dome_sky.height*0.1);
 	glEnd();
 	
-	glPopMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
 	glPopAttrib();
-
-	glDisable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-
 	reset_material();
 	last_texture = -1;
-
-	glClear(GL_DEPTH_BUFFER_BIT);
 
     // we restore the lights
 	if(!is_day||dungeon)
@@ -1137,15 +1173,10 @@ void underworld_sky()
 	static Uint32 last_cloud_time = 0;
 	int i;
 
-	glPushMatrix();
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadMatrixd(skybox_view);
-	glMatrixMode(GL_MODELVIEW);
+	glTranslatef(0.0, 0.0, -40.0);
 
 	glPushAttrib(GL_TEXTURE_BIT|GL_ENABLE_BIT);
 	glClear(GL_DEPTH_BUFFER_BIT);
-	glTranslatef(tile_map_size_x*1.5, tile_map_size_y*1.5, -40.0);
 
 /* 	if(use_shadow_mapping) */
 /* 	{ */
@@ -1243,11 +1274,6 @@ void underworld_sky()
 	glEnd();
 	
 	glPopAttrib();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-
 	reset_material();
 	last_texture = -1;
 
@@ -1803,7 +1829,7 @@ void skybox_init_gl()
 	if (fog_colors) free(fog_colors);
 
 	dome_sky = create_dome(24, 12, 500.0, 90.0, 90.0, 3.5, 1.0);
-	dome_clouds = create_dome(24, 12, 500.0, 60.0, 90.0, 0.0, 1.0);
+	dome_clouds = create_dome(24, 12, 500.0, 60.0, 90.0, 2.0, 1.0);
 	dome_clouds_detail_colors = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_detail_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));

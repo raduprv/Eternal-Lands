@@ -944,9 +944,13 @@ void resize_root_window()
 #ifdef SKY_FPV
 	//Setup matrix for the sky. If we don't do this the sky looks unhinged when perspective changes.
 	glLoadIdentity();
-	glFrustum(-perspective*window_ratio, perspective*window_ratio, -perspective, perspective, 1.0, 1000.0);
+	glFrustum(-perspective*window_ratio*near_plane,
+			   perspective*window_ratio*near_plane,
+			  -perspective*near_plane,
+			   perspective*near_plane,
+			   near_plane, 1000.0);
 	glGetDoublev(GL_PROJECTION_MATRIX, skybox_view);
-	glLoadIdentity();							// Reset The Projection Matrix
+	glLoadIdentity(); // Reset The Projection Matrix
 #endif // SKY_FPV
 
 	//new zoom

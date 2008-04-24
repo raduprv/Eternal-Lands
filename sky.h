@@ -52,6 +52,9 @@ typedef enum {
 
 void blend_colors(float result[], float orig[], float dest[], float t, int size);
 
+void skybox_compute_height();
+float skybox_get_height();
+
 void skybox_set_type(skybox_type sky);
 void skybox_display();
 

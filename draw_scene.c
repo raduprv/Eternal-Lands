@@ -371,10 +371,8 @@ void update_camera()
 	 * is accepted and the flag is removed, all the code that
 	 * follows will have to be changed in order to get rid of
 	 * camera_rotation_duration and camera_tilt_duration. */
-	if (camera_rotation_speed != 0.0)
-		camera_rotation_duration = time_diff;
-	if (camera_tilt_speed != 0.0)
-		camera_tilt_duration = time_diff;
+	camera_rotation_duration = camera_rotation_speed != 0.0 ? time_diff : 0.0;
+	camera_tilt_duration = camera_tilt_speed != 0.0 ? time_diff : 0.0;
 #endif // NEW_CAMERA_MOTION
 
 	if(camera_rotation_duration > 0){
@@ -452,6 +450,10 @@ void update_camera()
 		if (camera_rotation_speed >= -0.001)
 			camera_rotation_speed = 0.0;
 	}
+	else
+	{
+		camera_rotation_speed = 0.0;
+	}
 	if (camera_tilt_speed > 0.001)
 	{
 		camera_tilt_speed -= time_diff / 2000.0;
@@ -463,6 +465,10 @@ void update_camera()
 		camera_tilt_speed += time_diff / 2000.0;
 		if (camera_tilt_speed >= -0.001)
 			camera_tilt_speed = 0.0;
+	}
+	else
+	{
+		camera_tilt_speed = 0.0;
 	}
 #endif // NEW_CAMERA_MOTION
 
