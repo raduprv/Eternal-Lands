@@ -451,6 +451,9 @@ void render_light_view()
 			glViewport(0,0,shadow_map_size,shadow_map_size);
 			CHECK_GL_ERRORS();
 
+			glEnable(GL_SCISSOR_TEST);
+			glScissor(1, 1, shadow_map_size-2, shadow_map_size-2);
+
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
 #ifndef MAP_EDITOR2
