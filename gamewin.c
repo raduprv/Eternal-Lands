@@ -552,8 +552,16 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 #ifdef CONTEXT_MENUS
 			/* show the banner control menu if right-clicked and over your actors banner */
+			static int cm_last_thing_under_mouse = -1;
+			static int cm_activate_when_cursor_is = -1;
 			extern int cm_mouse_over_banner;
-			if (cm_mouse_over_banner && (current_cursor == CURSOR_WALK))
+			/* remember the start cursor so the menu pops up just once in the cycle */
+			if (cm_last_thing_under_mouse != thing_under_the_mouse)
+			{
+				cm_activate_when_cursor_is = current_cursor;
+				cm_last_thing_under_mouse = thing_under_the_mouse;
+			}
+			if (cm_mouse_over_banner && (current_cursor == cm_activate_when_cursor_is))
 			{
 				static size_t cm_id = -1;
 				if (cm_id == -1)
