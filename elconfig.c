@@ -1582,7 +1582,7 @@ void init_vars()
 	add_var(OPT_BOOL,"skybox_show_moons","sky_moons", &skybox_show_moons, change_sky_var,1,"Show Moons", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"skybox_show_sun","sky_sun", &skybox_show_sun, change_sky_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
-	add_var(OPT_BOOL,"fol_cam_behind","fol_cam_behind", &fol_cam_behind, toggle_follow_cam_behind,0,"Keep the camera behind the char", "Causes the camera to stay behind you (works only in follow camera mode)", EMAJEKRAL);
+	add_var(OPT_BOOL,"fol_cam_behind","fol_cam_behind", &fol_cam_behind, toggle_follow_cam_behind,0,"Keep the camera behind the char", "Causes the camera to stay behind you while walking (works only in follow camera mode)", EMAJEKRAL);
 	add_var(OPT_BOOL,"extended_cam","extcam", &ext_cam, toggle_ext_cam,0,"Extended Camera", "Camera range of motion extended and adjusted to allow overhead and first person style camera.", EMAJEKRAL);
 	add_var(OPT_BOOL,"ext_cam_auto_zoom","autozoom", &ext_cam_auto_zoom, change_var,0,"Auto zoom", "Allows the camera to zoom automatically when getting close to the ground (works only in extended camera mode and with a max tilt angle over 90.0).", EMAJEKRAL);
 	add_var(OPT_FLOAT,"min_tilt_angle","min_tilt_angle", &min_tilt_angle, change_tilt_float,30.0,"Minimum tilt angle", "Minimum angle that the camera can reach when raising it (works only in extended camera mode).", EMAJEKRAL, 20.0, 45.0, 1.0);

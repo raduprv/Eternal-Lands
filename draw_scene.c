@@ -556,13 +556,18 @@ void update_camera()
 	
 	hold_camera = rz;
 	if (fol_cam) {
-#ifndef NEW_CAMERA_MOTION
-        int moving_camera = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_duration > 0;
-#else // NEW_CAMERA_MOTION
-        int moving_camera = (SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_speed != 0;
-#endif // NEW_CAMERA_MOTION
+		static int fol_cam_stop = 0;
 
-		if (last_kludge != camera_kludge && !moving_camera) {
+#ifndef NEW_CAMERA_MOTION
+        if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_duration > 0)
+#else // NEW_CAMERA_MOTION
+		if ((SDL_GetMouseState(NULL, NULL) & SDL_BUTTON(2)) || camera_rotation_speed != 0)
+#endif // NEW_CAMERA_MOTION
+			fol_cam_stop = 1;
+		else if (me && me->moving && fol_cam_stop)
+			fol_cam_stop = 0;
+
+		if (last_kludge != camera_kludge && !fol_cam_stop) {
 			set_all_intersect_update_needed(main_bbox_tree);
 			adjust = (camera_kludge-last_kludge);
 
@@ -583,7 +588,7 @@ void update_camera()
 		}
 		if (fol_cam_behind)
         {
-            if (!moving_camera)
+            if (!fol_cam_stop)
                 rz = -last_kludge;
             else
                 last_kludge = -rz;
