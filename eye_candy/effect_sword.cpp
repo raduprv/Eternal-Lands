@@ -30,6 +30,8 @@ SwordParticle::SwordParticle(Effect* _effect, ParticleMover* _mover, const Vec3 
     color[2] = 0.0;
   texture = _texture;
   size = _size * (0.2 + randcoord());
+  if (size > 1.0)
+    size = 1.0f;
   alpha = _alpha;
   velocity /= size;
   flare_max = 1.6;
@@ -255,21 +257,44 @@ bool SwordEffect::idle(const Uint64 usec)
 
   const Vec3 pos_change = old_end - *end;
   float speed = square(pos_change.magnitude() * 1000000.0 / usec) * 0.666667;
-  if (speed > 4.0)
-    speed = 4.0;
-  else if (speed < 0.15)
-    speed = 0.15;
+  float bias = 0.5f;
+  switch(type)
+  {
+    case SERPENT:
+    case CUTLASS:
+    case EMERALD_CLAYMORE:
+    case SUNBREAKER:
+    case ORC_SLAYER:
+    case EAGLE_WING:
+    case JAGGED_SABER:
+    {
+      bias = randfloat(0.33);
+   	  if (speed > 2.0)
+   	    speed = 2.0f;
+   	  else if (speed < 0.05)
+   	    speed = 0.05;
+    }
+    case SWORD_OF_FIRE:
+    case SWORD_OF_ICE:
+    case SWORD_OF_MAGIC:
+    {
+   	  if (speed > 3.0f)
+   	    speed = 3.0f;
+   	  else if (speed < 0.25f)
+   	    speed = 0.25f;
+    }
+  }
     
-  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0001 * speed) < 0.5)
+  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0001 * speed) < bias)
   {
     const percent_t percent = square(randpercent());
     Vec3 randcoords;
-    randcoords.randomize(0.025);
+    randcoords.randomize(0.0025);
     const Vec3 coords = (*start * percent) + (*end * (1.0 - percent)) + randcoords;
     Vec3 velocity;
-    velocity.randomize(0.05);
+    velocity.randomize(0.005);
     Vec3 direction = *end - *start;
-    direction.normalize(0.05 + randfloat(0.1));
+    direction.normalize(0.05 + randfloat(0.25) * randfloat(0.25));
     velocity += direction;
     Particle* p = new SwordParticle(this, mover, coords, velocity, size - 0.25 + randfloat(0.25), 0.25 + randalpha(percent), color[0], color[1], color[2], texture, LOD);
     if (!base->push_back_particle(p))
