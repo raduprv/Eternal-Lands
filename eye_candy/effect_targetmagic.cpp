@@ -331,7 +331,8 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
   mover2 = NULL;
   target_alpha = NULL;
   effect_count = 0;
-
+  particle_count = 0;
+  
   switch(type)
   {
     case REMOTE_HEAL:
@@ -342,17 +343,14 @@ void TargetMagicEffect::initialize(EyeCandy* _base, bool* _dead, Vec3* _pos, con
       spawner2 = new SierpinskiIFSParticleSpawner(1.25);
       mover = new GravityMover(this, &(effect_centers[0]), 1e6);
       const Vec3 direction = (*targets[0] - *pos).normalize();
-      for (int i = 1; i <= 4; i++)
-      {
-        const Vec3 coords = spawner->get_new_coords() + effect_centers[0];
-        Vec3 velocity;
-        velocity.randomize(i);
-        velocity -= direction * i;
-        velocity.y += i * 10.0;
-        Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
-        if (!base->push_back_particle(p))
-          break;
-      }
+      const Vec3 coords = spawner->get_new_coords() + effect_centers[0];
+      Vec3 velocity;
+      velocity.randomize();
+      velocity -= direction;
+      velocity.y += 10.0;
+      Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+      base->push_back_particle(p);
+      particle_count = 1;
       break;
     }
     case POISON:
@@ -597,7 +595,39 @@ bool TargetMagicEffect::idle(const Uint64 usec)
   {
     case REMOTE_HEAL:
     {
-      break;
+        if ((particle_count == 1) && (age > 200000)) {
+          particle_count = 2;
+          const Vec3 direction = (*targets[0] - *pos).normalize();
+          const Vec3 coords = spawner->get_new_coords() + *pos;
+          Vec3 velocity;
+          velocity.randomize(particle_count);
+          velocity -= direction * particle_count;
+          velocity.y += particle_count * 10.0;
+          Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+          base->push_back_particle(p);
+        }
+        if ((particle_count == 2) && (age > 400000)) {
+          particle_count = 3;
+          const Vec3 direction = (*targets[0] - *pos).normalize();
+          const Vec3 coords = spawner->get_new_coords() + *pos;
+          Vec3 velocity;
+          velocity.randomize(particle_count);
+          velocity -= direction * particle_count;
+          velocity.y += particle_count * 10.0;
+          Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+          base->push_back_particle(p);
+        }
+        if ((particle_count == 3) && (age > 600000)) {
+          particle_count = 4;
+          const Vec3 direction = (*targets[0] - *pos).normalize();
+          const Vec3 coords = spawner->get_new_coords() + *pos;
+          Vec3 velocity;
+          velocity.randomize(particle_count);
+          velocity -= direction * particle_count;
+          velocity.y += particle_count * 10.0;
+          Particle * p = new TargetMagicParticle(this, mover, coords, velocity, 7.5, 1.0, 0.3 + randcolor(0.3), 0.7, 0.2, &(base->TexFlare), LOD, type, spawner2, mover, targets[0], 0, 0);
+          base->push_back_particle(p);
+        }
     }
     case POISON:
     {

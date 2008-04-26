@@ -53,6 +53,7 @@ public:
   TargetMagicType type;
   std::vector<Shape*> capless_cylinders;
   float *target_alpha;
+  int particle_count;
 };
 
 class TargetMagicEffect2 : public Effect

@@ -285,7 +285,7 @@ bool SwordEffect::idle(const Uint64 usec)
     }
   }
     
-  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0001 * speed) < bias)
+  while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.000083 * speed) < bias)
   {
     const percent_t percent = square(randpercent());
     Vec3 randcoords;
