@@ -833,63 +833,63 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
         static int last_direction_added[5]={0};
         static int last_actor[5]={0};//Make sure that we don't see too many messages from that actor
         floating_message *m=get_free_floatingmessage();
-
-        // handle OA level ups here, boy this is ugly ...
-        if (use_eye_candy == 1 && strstr(str, "Overall ") != NULL) {
+ 
+        // handle level ups here, boy this is ugly ...
+        if (use_eye_candy == 1 && strstr(str, " Overall") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_oa(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Attack ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Attack") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_att(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Defense ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Defense") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_def(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Harvesting ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Harvesting") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_har(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Alchemy ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Alchemy") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_alc_left(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_alc_right(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Magic ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Magic") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_mag(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Potioning ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Potioning") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_pot_left(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_pot_right(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Summoning ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Summoning") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_sum(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Manufactoring ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Manufactoring") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_man_left(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_man_right(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Crafting ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Crafting") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_cra_left(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_cra_right(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Engineering ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Engineering") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_eng_left(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_eng_right(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Tailoring ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Tailoring") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_tai_left(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_tai_right(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
-        else if (use_eye_candy == 1 && strstr(str, "Ranging ") != NULL) {
+        else if (use_eye_candy == 1 && strstr(str, " Ranging") != NULL) {
           ec_create_glow_level_up_default(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
           ec_create_glow_level_up_ran(get_actor_ptr_from_id(yourself), (poor_man ? 6 : 10));
         }
