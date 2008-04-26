@@ -175,7 +175,7 @@ bool GlowParticle::idle(const Uint64 delta_t)
     }
     default:
     {
-      alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 3000000.0); // increase this number to make particles live longer
+      alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 1000000.0); // increase this number to make particles live longer
       if (alpha < 0.01)
         return false;
 	  break;
@@ -666,6 +666,14 @@ GlowEffect::GlowEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const GlowType 
           break;
       }
     }
+    case LEVEL_UP_SUM_GLOW:
+    {
+        mover = new ParticleMover(this);
+        Particle * p = new GlowParticle(this, mover, effect_center, Vec3(0.0, 0.0, 0.0), 1.0f, 1.0f, 0.7f, 0.3f, 0.7f, &(base->TexCrystal), LOD, type);
+        if (!base->push_back_particle(p))
+          break;
+    	break;
+    }
     default:
     {
       break;
@@ -743,6 +751,24 @@ bool GlowEffect::idle(const Uint64 usec)
       }
  	  break;
 	}
+    case LEVEL_UP_SUM_GLOW:
+    {
+      effect_center.y = pos->y;
+      const Uint64 age = get_time() - born;
+      const float age_f = (float)(age)/1000000.0f;
+      if (age_f < 4.0) {
+        for (float f = (age - usec)/1000000.0f; f < age_f; f += 0.0125) {
+          for (float angle = 0.0f; angle < 2.0f; angle += 0.5f) {
+            Vec3 coords = effect_center;
+            coords.x += cos(M_PI * age_f + M_PI * angle) * (age_f + 1.0f) * 0.25;
+            coords.z += sin(M_PI * age_f + M_PI * angle) * (age_f + 1.0f) * 0.25;
+            Particle * p = new GlowParticle(this, mover, coords, Vec3(0.0, -randfloat(0.75), 0.0), 0.1 + randcoord(0.5), 1.0f, 0.7f, 0.3f, 0.7f, &(base->TexCrystal), LOD, type);
+            if (!base->push_back_particle(p))
+              break;
+          }
+        }
+      }
+    }
 	default:
 	{
       effect_center.y = pos->y;

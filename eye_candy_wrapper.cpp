@@ -1704,7 +1704,7 @@ extern "C" ec_reference ec_create_glow_level_up_sum(actor* caster, int LOD)
     return NULL;
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
   set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
   ret->effect = new ec::GlowEffect(&eye_candy, &ret->dead, &ret->position, ec::GlowEffect::LEVEL_UP_SUM_GLOW, LOD);
   eye_candy.push_back_effect(ret->effect);
