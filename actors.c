@@ -287,7 +287,7 @@ void draw_actor_banner(actor * actor_id, float offset_z)
 			else
 #endif // SKY_FPV
 			{
-				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage))/1000.0f, 4.0);
+				float font_scale2 = font_scale*powf(1.0f+((float)abs(actor_id->damage)/2.0f)/1000.0f, 4.0);
 				draw_ortho_ingame_string(hx-(((float)get_string_width(str) * (font_scale2*0.17*name_zoom)))*0.5f, a_bounce+hy+10.0f, 0, str, 1, font_scale2*.14, font_scale2*.21);
 			}			glDisable(GL_BLEND);
 		} 
