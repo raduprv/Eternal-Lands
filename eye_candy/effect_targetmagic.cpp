@@ -128,17 +128,8 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
     switch(type)
     {
       case TargetMagicEffect::REMOTE_HEAL:
-      {
-        break;
-      }
       case TargetMagicEffect::POISON:
-      {
-        break;
-      }
       case TargetMagicEffect::TELEPORT_TO_RANGE:
-      {
-        break;
-      }
       case TargetMagicEffect::HARM:
       {
         break;
@@ -153,13 +144,7 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
         break;
       }
       case TargetMagicEffect::HEAL_SUMMONED:
-      {
-        break;
-      }
       case TargetMagicEffect::SMITE_SUMMONED:
-      {
-        break;
-      }
       case TargetMagicEffect::DRAIN_MANA:
       {
         break;
@@ -259,6 +244,10 @@ bool TargetMagicParticle::idle(const Uint64 delta_t)
 
 //  std::cout << "B) " << this << ": " << velocity << ", " << pos << std::endl;
   
+  if (pos.y < effect->pos->y)
+  {
+  	pos.y = effect->pos->y;
+  }
   return true;
 }
 
