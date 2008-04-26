@@ -15,6 +15,10 @@
 #include <math.h>
 #include <string.h>
 #include "bbox_tree.h"
+#ifdef SKY_FPV
+#include "elconfig.h"
+#include "tiles.h"
+#endif // SKY_FPV
 #include "shadows.h"
 #ifdef OPENGL_TRACE
 #include "gl_init.h"
@@ -445,10 +449,10 @@ void calculate_reflection_frustum(float water_height)
 
 	set_cur_intersect_type(main_bbox_tree, INTERSECTION_TYPE_REFLECTION);
 	calculate_frustum_from_clip_matrix(reflection_frustum, clip);
-	VMake(p1, -1.0f, -1.0f, water_height * 1.1f);
-	VMake(p2, -1.0f, 1.0f, water_height * 1.1f);
-	VMake(p3, 1.0f, -1.0f, water_height * 1.1f);
-	calc_plane(reflection_frustum[6].plane, p2, p1, p3);
+	reflection_frustum[6].plane[A] = 0.0;
+	reflection_frustum[6].plane[B] = 0.0;
+	reflection_frustum[6].plane[C] = 1.0;
+	reflection_frustum[6].plane[D] = -water_height;
 	calc_plane_mask(&reflection_frustum[6]);
 	reflection_clip_planes[0][A] = reflection_frustum[6].plane[A];
 	reflection_clip_planes[0][B] = reflection_frustum[6].plane[B];
@@ -467,20 +471,32 @@ void calculate_reflection_frustum(float water_height)
 	for (i = start; i < stop; i++)
 	{
 		float x, y, z;
+		unsigned int tx, ty;
 		l = get_intersect_item_ID(main_bbox_tree, i);
-		x_scaled = get_terrain_x(l) * 3.0f;
-		y_scaled = get_terrain_y(l) * 3.0f;
+		tx = get_terrain_x(l);
+		ty = get_terrain_y(l);
+		x_scaled = tx * 3.0f;
+		y_scaled = ty * 3.0f;
 
 		x = x_scaled + 1.5f - pos[X];
 		y = y_scaled + 1.5f - pos[Y];
 		z = water_height - pos[Z];
 
+#ifndef SKY_FPV
 		if (sqrt(x * x + y * y + z * z) > 30) continue;
+#endif // SKY_FPV
 
 		x_min = x_scaled;
 		x_max = x_scaled + 3.0f;
 		y_min = y_scaled;
 		y_max = y_scaled + 3.0f;
+
+#ifdef SKY_FPV
+		if (tx == 0) x_min -= water_tiles_extension;
+		else if (tx == tile_map_size_x-1) x_max += water_tiles_extension;
+		if (ty == 0) y_min -= water_tiles_extension;
+		else if (ty == tile_map_size_y-1) y_max += water_tiles_extension;
+#endif // SKY_FPV
 
 		VMake(p1, x_min, y_max, water_height);
 		VMake(p2, x_max, y_max, water_height);
