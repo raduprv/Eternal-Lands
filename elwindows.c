@@ -177,7 +177,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 						{
 							if(windows_list.window[i].displayed > 0)	select_window(i);	// select this window to the front
 #ifdef CONTEXT_MENUS
-							cm_post_show_check();
+							cm_post_show_check(0);
 #endif
 							return i;
 						}
@@ -219,7 +219,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 					{
 						//select_window(i);	// these never get selected
 #ifdef CONTEXT_MENUS
-						cm_post_show_check();
+						cm_post_show_check(0);
 #endif
 						return i;
 					}
@@ -238,7 +238,7 @@ int	click_in_windows(int mx, int my, Uint32 flags)
 	}
 	
 #ifdef CONTEXT_MENUS
-	cm_post_show_check();
+	cm_post_show_check(0);
 #endif
 
 	// nothing to click on, do a select instead

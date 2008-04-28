@@ -2276,16 +2276,42 @@ int text_field_resize (widget_list *w, int width, int height)
 /* the edit context menu callback */
 static int context_edit_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	widget_list* w = widget_find (win->window_id, widget_id);
+	widget_list* w = NULL;
+
+	if (win == NULL)
+		return 0;
+	w = widget_find (win->window_id, widget_id);
 	if (w == NULL)
 		return 0;
+
 	switch (option)
 	{
 		case 0: text_field_keypress(w, 0, 0, K_CUT, 24); break;
 		case 1: text_field_keypress(w, 0, 0, K_COPY, 3); break;
-		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) startpaste(); break;
+		case 2: if (!text_field_keypress(w, 0, 0, K_PASTE, 22)) start_paste_to_text_field(NULL); break;
 	}
 	return 1;
+}
+
+/* the edit context menu pre show callback */
+static void context_edit_pre_show_handler(window_info *win, int widget_id, int mx, int my)
+{
+	widget_list* w = NULL;
+	text_field *tf;
+	int is_grey = 0;
+	
+	if (win == NULL)
+		return;
+	w = widget_find (win->window_id, widget_id);
+	if (w == NULL)
+		return;
+
+	tf = w->widget_info;
+	is_grey = TEXT_FIELD_SELECTION_EMPTY(&tf->select);
+	cm_grey_line(cm_edit_id, 1, is_grey);
+	
+	is_grey = is_grey || !(w->Flags & TEXT_FIELD_EDITABLE) || (w->Flags & TEXT_FIELD_NO_KEYPRESS);
+	cm_grey_line(cm_edit_id, 0, is_grey);
 }
 #endif
 
@@ -2698,7 +2724,10 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 	/* on the first occurance create the editting context menu */
 	/* maintain a activation entry for each widget so they can be removed or modified */
 	if (cm_edit_id == -1)
+	{
 		cm_edit_id = cm_create(cm_textedit_menu_str, context_edit_handler);
+		cm_set_pre_show_handler(cm_edit_id, context_edit_pre_show_handler);
+	}
 	/* assign to the new widget */
 	cm_add_widget(cm_edit_id, window_id, res);
 #endif	

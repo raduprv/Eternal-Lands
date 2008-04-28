@@ -75,8 +75,9 @@ int cm_pre_show_check(Uint32 flags);
 /*!
  * \ingroup context_menu
  * \brief Called by \ref click_in_windows to closes/hides any open context menu. 
+ * \param  force	if true always close regardless of internal state
  */
-void cm_post_show_check(void);
+void cm_post_show_check(int force);
 
 
 /*!
@@ -88,6 +89,16 @@ void cm_post_show_check(void);
  * \retval int 			1 for success, 0 for failure (invalid id)
  */
 int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int));
+
+
+/*!
+ * \ingroup context_menu
+ * \brief Add/replacee the pre-show callback function.
+ * \param  cm_id		id of context menu
+ * \param handler		function to call on just before the menu is shown
+ * \retval int 			1 for success, 0 for failure (invalid id)
+ */
+int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int));
 
 
 /*!

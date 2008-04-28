@@ -124,6 +124,10 @@ int HandleEvent (SDL_Event *event)
 				last_action_time = cur_time;	// Set the latest event... Don't let the modifiers ALT, CTRL and SHIFT change the state
 
 			keypress_in_windows (mouse_x, mouse_y, key, event->key.keysym.unicode);
+#ifdef CONTEXT_MENUS
+			/* any keypress forces any context menu to close */
+			cm_post_show_check(1);
+#endif
 			break;
 
 		case SDL_VIDEORESIZE:
@@ -291,16 +295,16 @@ int HandleEvent (SDL_Event *event)
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)
 				{
 #ifdef CONTEXT_MENUS
-					/* clicking title closes any context menu */
-					cm_post_show_check();
+					/* clicking title forces any context menu to close */
+					cm_post_show_check(1);
 #endif
 					return done;
 				}
 				if (drag_in_windows (mouse_x, mouse_y, flags, mouse_delta_x, mouse_delta_y) >= 0)
 				{
 #ifdef CONTEXT_MENUS
-					/* clicking title closes any context menu */
-					cm_post_show_check();
+					/* clicking title forces any context menu to close */
+					cm_post_show_check(1);
 #endif
 					return done;
 				}
