@@ -31,6 +31,7 @@ FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 
 FEATURES += NEW_SOUND                       # Enables extended sound effects system - almost pointless without OGG_VORBIS
 FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
 #FEATURES += NEW_WEATHER                     # new weather effects
+#FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
 #FEATURES += NO_PF_MACRO                     # (undocumented)
 #FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
 #FEATURES += PARANOID_CAMERA                 # (undocumented)
