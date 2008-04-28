@@ -893,22 +893,7 @@ void cloudy_sky()
         draw_horizon_fog(rain_coef);
     }
 
-	// we draw the stars
-	if (skybox_show_stars && !skybox_no_stars && day_alpha > 0.0)
-	{
-		glPushMatrix();
-		glPointSize(1.0);
-		glRotatef((float)game_minute, 0.0, -1.0, 0.0);
-		glColor4f(1.0, 1.0, 1.0, day_alpha);
-		glCallList(sky_lists+1);
-		glColor4f(1.0, 1.0, 1.0, day_alpha*0.5);
-		glCallList(sky_lists+2);
-		glColor4f(1.0, 1.0, 1.0, day_alpha*0.25);
-		glCallList(sky_lists+3);
-		glPopMatrix();
-	}
-	
-    glEnable(GL_DEPTH_TEST); // we need it to draw moons
+    glEnable(GL_DEPTH_TEST); // we need it to draw moons and stars
     glClear(GL_DEPTH_BUFFER_BIT);
 	glEnable(GL_TEXTURE_2D);
 	glBlendFunc(GL_SRC_COLOR, GL_ONE);
@@ -957,8 +942,28 @@ void cloudy_sky()
 		glDisable(GL_LIGHTING);
 	}
 
-	glDisable(GL_DEPTH_TEST);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+    glDepthMask(GL_FALSE); // we don't want the stars to update the depth buffer
+    glDisable(GL_TEXTURE_2D);
+
+	// we draw the stars
+	if (skybox_show_stars && !skybox_no_stars && day_alpha > 0.0)
+	{
+		glPushMatrix();
+		glPointSize(1.0);
+		glRotatef((float)game_minute, 0.0, -1.0, 0.0);
+		glColor4f(1.0, 1.0, 1.0, day_alpha);
+		glCallList(sky_lists+1);
+		glColor4f(1.0, 1.0, 1.0, day_alpha*0.5);
+		glCallList(sky_lists+2);
+		glColor4f(1.0, 1.0, 1.0, day_alpha*0.25);
+		glCallList(sky_lists+3);
+		glPopMatrix();
+	}
+	
+    glDepthMask(GL_TRUE);
+	glDisable(GL_DEPTH_TEST);
+	glEnable(GL_TEXTURE_2D);
 
 	// we draw the clouds
 	if (skybox_show_clouds && !skybox_no_clouds)
