@@ -18,7 +18,7 @@
 #include "textures.h"
 #include "tiles.h"
 #include "weather.h"
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 #include "cluster.h"
 #endif
 #ifdef	USE_SHADER
@@ -155,7 +155,7 @@ static __inline__ void build_water_buffer()
 {
 	unsigned int i, j, l, x, y, start, stop;
 	float x_scaled,y_scaled;
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 	short tile_cluster;
 #endif
@@ -181,7 +181,7 @@ static __inline__ void build_water_buffer()
 		x = get_terrain_x (l);
 		y = get_terrain_y (l);
 
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		tile_cluster = get_cluster (6*x, 6*y);
 		if (tile_cluster && tile_cluster != cluster)
 			continue;
@@ -235,7 +235,7 @@ static __inline__ void build_water_buffer()
 		x = get_terrain_x (l);
 		y = get_terrain_y (l);
 
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		tile_cluster = get_cluster (6*x, 6*y);
 		if (tile_cluster && tile_cluster != cluster)
 			continue;
@@ -658,6 +658,9 @@ void display_3d_reflection()
 		}
         glPopMatrix();
 	}
+
+	if (far_reflection_plane > 0.0)
+	{
 #endif // SKY_FPV
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
@@ -680,16 +683,18 @@ void display_3d_reflection()
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
-	glPopMatrix();
 	disable_reflection_clip_planes();
+
+#ifdef SKY_FPV
+	}
+	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+#else
+	reset_material();
+#endif // SKY_FPV
+
+	glPopMatrix();
 	glCullFace(GL_BACK);
 	CHECK_GL_ERRORS();
-
-#ifndef SKY_FPV
-	reset_material();
-#else
-	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
-#endif // SKY_FPV
 
 #ifdef	USE_SHADER
 	if (water_shader_quality > 0)
@@ -796,7 +801,7 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 {
 	unsigned int i, l, size;
 	int x, y, cur_texture;
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 	short tile_cluster;
 #endif
@@ -810,7 +815,7 @@ void draw_water_quad_tiles(unsigned int start, unsigned int stop, unsigned int i
 		x = get_terrain_x(l);
 		y = get_terrain_y(l);
 
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		tile_cluster = get_cluster (6*x, 6*y);
 		if (tile_cluster && tile_cluster != cluster)
 			continue;

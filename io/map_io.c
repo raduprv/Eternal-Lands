@@ -169,6 +169,7 @@ int load_map(const char *file_name, update_func *update_function)
 	//load the tiles in this map, if not already loaded
 	load_map_tiles();
 	init_buffers();
+#ifndef CLUSTER_INSIDES
 	for(i = 0; i < tile_map_size_y; i++)
 	{
 		bbox.bbmin[Y] = i*3.0f;
@@ -208,6 +209,7 @@ int load_map(const char *file_name, update_func *update_function)
 			}
 		}
 	}
+#endif // CLUSTER_INSIDES
 
 	update_function(load_3d_object_str, 0);
 	//see which objects in our cache are not used in this map
@@ -335,6 +337,48 @@ int load_map(const char *file_name, update_func *update_function)
 				int x = (int) (obj_2d_list[i]->x_pos / 0.5f);
 				int y = (int) (obj_2d_list[i]->y_pos / 0.5f);
 				obj_2d_list[i]->cluster = get_cluster (x, y);
+			}
+		}
+	}
+
+	// we finally add the tiles to the abt
+	for(i = 0; i < tile_map_size_y; i++)
+	{
+		bbox.bbmin[Y] = i*3.0f;
+		bbox.bbmax[Y] = (i+1)*3.0f;
+#ifdef SKY_FPV
+		if (i == 0)
+			bbox.bbmin[Y] -= water_tiles_extension;
+		else if (i == tile_map_size_y-1)
+			bbox.bbmax[Y] += water_tiles_extension;
+#endif // SKY_FPV
+		for(j = 0; j < tile_map_size_x; j++)
+		{
+            current_cluster = get_cluster(j*6, i*6);
+			cur_tile = tile_map[i*tile_map_size_x+j];
+			if (cur_tile != 255)
+			{
+				bbox.bbmin[X] = j*3.0f;
+				bbox.bbmax[X] = (j+1)*3.0f;
+#ifdef SKY_FPV
+				if (j == 0)
+					bbox.bbmin[X] -= water_tiles_extension;
+				else if (j == tile_map_size_x-1)
+					bbox.bbmax[X] += water_tiles_extension;
+#endif // SKY_FPV
+				if (IS_WATER_TILE(cur_tile)) 
+				{
+					bbox.bbmin[Z] = -0.25f;
+					bbox.bbmax[Z] = -0.25f;
+					if (IS_REFLECTING(cur_tile)) add_water_to_list(main_bbox_tree_items, get_terrain_id(j, i), bbox, cur_tile, 1);
+					else add_water_to_list(main_bbox_tree_items, get_terrain_id(j, i), bbox, cur_tile, 0);
+				}
+				else 
+				{
+					bbox.bbmin[Z] = 0.0f;
+					bbox.bbmax[Z] = 0.0f;
+					add_terrain_to_list(main_bbox_tree_items, get_terrain_id(j, i), bbox, cur_tile);
+				}
 			}
 		}
 	}

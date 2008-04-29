@@ -478,6 +478,7 @@ int add_2d_obj(char * file_name, float x_pos, float y_pos, float z_pos,
 	calc_rotation_and_translation_matrix(our_object->matrix, x_pos, y_pos, 0.0f, x_rot, y_rot, z_rot);
 
 	our_object->cluster = get_cluster ((int)(x_pos/0.5f), (int)(y_pos/0.5f));
+	current_cluster = our_object->cluster;
 #else
 	len_x = (returned_obj_2d_def->x_size);
 	len_y = (returned_obj_2d_def->y_size);
@@ -616,7 +617,7 @@ void display_2d_objects()
 #ifdef  SIMPLE_LOD
 	int dist;
 #endif //SIMPLE_LOD
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 #endif
 
@@ -645,7 +646,7 @@ void display_2d_objects()
 	for (i = start; i < stop; i++)
 	{
 		l = get_intersect_item_ID(main_bbox_tree, i);
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		if (obj_2d_list[l]->cluster && obj_2d_list[l]->cluster != cluster)
 			// Object is on a different cluster as our actor, don't show it
 			continue;

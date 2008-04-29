@@ -857,15 +857,16 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
  #endif // !NEW_SOUND
 #endif
 
+#ifdef CLUSTER_INSIDES
+	system_id->cluster = get_cluster ((int)(x/0.5f), (int)(y/0.5f));
+	current_cluster = system_id->cluster;
+#endif
+
 #ifndef	MAP_EDITOR
 	calc_bounding_box_for_particle_sys(&bbox, system_id);
 	
 	if ((main_bbox_tree_items != NULL) && (dynamic == 0)) add_particle_sys_to_list(main_bbox_tree_items, psys, bbox, def->sblend, def->dblend);
 	else add_particle_to_abt(main_bbox_tree, psys, bbox, def->sblend, def->dblend, dynamic);
-#endif
-
-#ifdef CLUSTER_INSIDES
-	system_id->cluster = get_cluster ((int)(x/0.5f), (int)(y/0.5f));
 #endif
 
 	UNLOCK_PARTICLES_LIST();
@@ -988,7 +989,7 @@ void display_particles()
 	GLenum sblend=GL_SRC_ALPHA,dblend=GL_ONE;
 #ifndef	MAP_EDITOR
 	unsigned int i, l, start, stop;
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 #endif
 #endif // !MAP_EDITOR
@@ -1022,7 +1023,7 @@ void display_particles()
 #endif
 			continue;
 		}
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		if (particles_list[l]->cluster && particles_list[l]->cluster != cluster)
 			continue;
 #endif

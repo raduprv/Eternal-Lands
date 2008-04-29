@@ -27,6 +27,7 @@ extern float perspective; /*!< The perspective "angle". Higher values mean highe
 /* near plane not used in FPV. FPV uses fixed near clipping plane of .2 
  */
 extern float far_plane; /*!< The distance of the far clipping plane to your actor. */
+extern float far_reflection_plane; /*!< The distance of the far clipping plane to your actor. */
 #endif // SKY_FPV
 extern float near_plane; /*!< The distance of the near clipping plane to your actor (devided by zoom_level). */
 

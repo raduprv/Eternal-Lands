@@ -266,7 +266,7 @@ void draw_3d_objects(unsigned int object_type)
 #ifdef  SIMPLE_LOD
 	int x, y, dist;
 #endif
-#ifdef CLUSTER_INSIDES	
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 #endif
 
@@ -359,11 +359,11 @@ void draw_3d_objects(unsigned int object_type)
 		//track the usage
 		cache_use(cache_e3d, objects_list[l]->e3d_data->cache_ptr);
 		if(!objects_list[l]->display) continue;	// not currently on the map, ignore it
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		if (objects_list[l]->cluster && objects_list[l]->cluster != cluster)
 			// Object is in another cluster as actor, don't show it
 			continue;
-#endif // CLUSTER_INSIDES
+#endif // CLUSTER_INSIDES_OLD
 #ifdef  SIMPLE_LOD
 		// simple size/distance culling
 		dist= (x-objects_list[l]->x_pos)*(x-objects_list[l]->x_pos) + (y-objects_list[l]->y_pos)*(y-objects_list[l]->y_pos);
@@ -563,6 +563,7 @@ int add_e3d_at_id (int id, const char *file_name, float x_pos, float y_pos, floa
 
 #ifdef CLUSTER_INSIDES
 	our_object->cluster = get_cluster ((int)(x_pos/0.5f), (int)(y_pos/0.5f));
+	current_cluster = our_object->cluster;
 #endif
 
 	objects_list[id] = our_object;

@@ -291,6 +291,8 @@ void destroy_clusters_array ();
 short get_actor_cluster ();
 #endif
 
+extern short current_cluster;
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

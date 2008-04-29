@@ -5,6 +5,8 @@
 
 static short* clusters = NULL;
 
+short current_cluster = 0;
+
 void set_clusters (const char* data)
 {
 	const short* cdata = (const short*) data;

@@ -9,6 +9,9 @@
 #include "books.h"
 #include "buddy.h"
 #include "chat.h"
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif // CLUSTER_INSIDES
 #include "console.h"
 #include "consolewin.h"
 #ifdef CONTEXT_MENUS
@@ -976,6 +979,10 @@ int display_game_handler (window_info *win)
 	}
 	if(i > max_actors) return 1;//we still don't have ourselves
 	
+#ifdef CLUSTER_INSIDES
+	current_cluster = get_actor_cluster();
+#endif // CLUSTER_INSIDES
+
 	main_count++;
 	last_count++;
 

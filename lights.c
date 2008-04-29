@@ -145,7 +145,7 @@ void draw_lights()
 {
 	unsigned int i, j, l, start, stop;
 	VECTOR4 vec4;
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 #endif
 	
@@ -167,7 +167,7 @@ void draw_lights()
 		l= get_intersect_item_ID(main_bbox_tree, i);
 		// and make sure it's a valid light
 		if (l < 0 || l >= MAX_LIGHTS || !lights_list[l]
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		   || (lights_list[l]->cluster && lights_list[l]->cluster != cluster)
 #endif
 		)
@@ -246,6 +246,7 @@ int add_light(GLfloat x, GLfloat y, GLfloat z, GLfloat r, GLfloat g, GLfloat b, 
 
 #ifdef CLUSTER_INSIDES
 	new_light->cluster = get_cluster ((int)(x/0.5f), (int)(y/0.5f));
+	current_cluster = new_light->cluster;
 #endif
 
 	lights_list[i] = new_light;

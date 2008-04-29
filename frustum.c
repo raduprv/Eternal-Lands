@@ -453,6 +453,11 @@ void calculate_reflection_frustum(float water_height)
 	reflection_frustum[6].plane[B] = 0.0;
 	reflection_frustum[6].plane[C] = 1.0;
 	reflection_frustum[6].plane[D] = -water_height;
+#ifdef SKY_FPV
+	reflection_frustum[BACK].plane[D] -= (reflection_frustum[BACK].plane[A]*reflection_frustum[BACK].plane[A]*(far_plane-far_reflection_plane) +
+										  reflection_frustum[BACK].plane[B]*reflection_frustum[BACK].plane[B]*(far_plane-far_reflection_plane) +
+										  reflection_frustum[BACK].plane[C]*reflection_frustum[BACK].plane[C]*(far_plane-far_reflection_plane));
+#endif // SKY_FPV
 	calc_plane_mask(&reflection_frustum[6]);
 	reflection_clip_planes[0][A] = reflection_frustum[6].plane[A];
 	reflection_clip_planes[0][B] = reflection_frustum[6].plane[B];

@@ -11,7 +11,7 @@
 #include "shadows.h"
 #include "textures.h"
 #include "tiles.h"
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 #include "cluster.h"
 #endif
 #ifdef NEW_LIGHTING
@@ -60,7 +60,7 @@ static __inline__ void build_terrain_buffer()
 {
 	unsigned int i, j, l, x, y, start, stop;
 	float x_scaled,y_scaled;
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 	short tile_cluster;
 #endif
@@ -84,7 +84,7 @@ static __inline__ void build_terrain_buffer()
 		x = get_terrain_x (l);
 		y = get_terrain_y (l);
 
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		tile_cluster = get_cluster (6*x, 6*y);
 		if (tile_cluster && tile_cluster != cluster)
 			continue;
@@ -119,7 +119,7 @@ void draw_terrain_quad_tiles(unsigned int start, unsigned int stop)
 {
 	unsigned int i, l, size, idx;
 	int x, y, cur_texture;
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 	short cluster = get_actor_cluster ();
 	short tile_cluster;
 #endif
@@ -133,7 +133,7 @@ void draw_terrain_quad_tiles(unsigned int start, unsigned int stop)
 		x = get_terrain_x(l);
 		y = get_terrain_y(l);
 
-#ifdef CLUSTER_INSIDES
+#ifdef CLUSTER_INSIDES_OLD
 		tile_cluster = get_cluster (6*x, 6*y);
 		if (tile_cluster && tile_cluster != cluster)
 			continue;

@@ -15,6 +15,10 @@
 #endif   //BSD
 #endif   //OSX
 
+#ifdef CLUSTER_INSIDES
+#include "cluster.h"
+#endif // CLUSTER_INSIDES
+
 BBOX_TREE* main_bbox_tree = NULL;
 BBOX_ITEMS* main_bbox_tree_items = NULL;
 
@@ -61,6 +65,9 @@ static __inline__ void adapt_intersect_list_size(BBOX_TREE* bbox_tree, Uint32 co
 
 static __inline__ void add_intersect_item_to_list(BBOX_TREE* bbox_tree, BBOX_ITEM* item, Uint32 idx)
 {
+#ifdef CLUSTER_INSIDES
+	if (item->cluster && item->cluster != current_cluster) return;
+#endif // CLUSTER_INSIDES
 	adapt_intersect_list_size(bbox_tree, 1);
 	memcpy(&bbox_tree->intersect[idx].items[bbox_tree->intersect[idx].count], item, sizeof(BBOX_ITEM));
 	bbox_tree->intersect[idx].count++;
@@ -830,6 +837,9 @@ static __inline__ void add_aabb_to_list(BBOX_ITEMS *bbox_items, const AABBOX bbo
 	bbox_items->items[index].extra = 0;
 	bbox_items->items[index].texture_id = texture_id;
 	bbox_items->items[index].ID = ID;
+#ifdef CLUSTER_INSIDES
+	bbox_items->items[index].cluster = current_cluster;
+#endif // CLUSTER_INSIDES
 	bbox_items->index = index + 1;
 }
 
@@ -1000,6 +1010,9 @@ static __inline__ void add_dynamic_item_to_node(BBOX_TREE *bbox_tree, Uint32 nod
 		bbox_tree->nodes[node].dynamic_objects.items[index].extra = extra;
 		bbox_tree->nodes[node].dynamic_objects.items[index].texture_id = texture_id;
 		bbox_tree->nodes[node].dynamic_objects.items[index].type = type;
+#ifdef CLUSTER_INSIDES
+		bbox_tree->nodes[node].dynamic_objects.items[index].cluster = current_cluster;
+#endif // CLUSTER_INSIDES
 		VAssign(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmin, bbox.bbmin);
 		VAssign(bbox_tree->nodes[node].dynamic_objects.items[index].bbox.bbmax, bbox.bbmax);
 		bbox_tree->nodes[node].dynamic_objects.index = index + 1;

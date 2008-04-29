@@ -110,6 +110,9 @@ typedef struct
 	Uint16			options;
 	Uint8			type;
 	Uint8			extra;
+#ifdef CLUSTER_INSIDES
+	Uint16			cluster;
+#endif // CLUSTER_INSIDES
 } BBOX_ITEM;
 
 typedef struct

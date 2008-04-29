@@ -53,6 +53,7 @@ float near_plane = 40.0f; // don't cut off anything
 #else // SKY_FPV
 float near_plane = 0.1f; // don't cut off anything
 float far_plane = 100.0;   // LOD helper. Cull distant objects. Lower value == higher framerates.
+float far_reflection_plane = 100.0;   // LOD helper. Cull distant reflected objects. Lower value == higher framerates.
 #endif // SKY_FPV
 int gl_extensions_loaded = 0;
 
