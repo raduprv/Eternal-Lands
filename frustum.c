@@ -15,10 +15,10 @@
 #include <math.h>
 #include <string.h>
 #include "bbox_tree.h"
-#include "gl_init.h"
 #include "shadows.h"
 #ifdef SKY_FPV
 #include "elconfig.h"
+#include "gl_init.h"
 #include "tiles.h"
 #endif // SKY_FPV
 
