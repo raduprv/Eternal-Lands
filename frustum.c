@@ -15,14 +15,12 @@
 #include <math.h>
 #include <string.h>
 #include "bbox_tree.h"
+#include "gl_init.h"
+#include "shadows.h"
 #ifdef SKY_FPV
 #include "elconfig.h"
 #include "tiles.h"
 #endif // SKY_FPV
-#include "shadows.h"
-#ifdef OPENGL_TRACE
-#include "gl_init.h"
-#endif
 
 // We create an enum of the sides so we don't have to call each side 0 or 1.
 // This way it makes it more understandable and readable when dealing with frustum sides.
