@@ -687,9 +687,6 @@ void display_3d_reflection()
 
 #ifdef SKY_FPV
 	}
-	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
-#else
-	reset_material();
 #endif // SKY_FPV
 
 	glPopMatrix();
@@ -714,6 +711,9 @@ void display_3d_reflection()
     {
 		glDisable(GL_STENCIL_TEST);
 	}
+	glLightfv(GL_LIGHT7, GL_POSITION, sun_position);
+#else
+	reset_material();
 #endif // SKY_FPV
 
 #ifdef OPENGL_TRACE
