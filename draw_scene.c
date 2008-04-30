@@ -52,6 +52,12 @@ int camera_rotation_duration;
 float camera_tilt_speed;
 int camera_tilt_duration;
 
+#ifdef NEW_CAMERA_MOTION
+float normal_camera_deceleration = 0.2;
+float camera_rotation_deceleration;
+float camera_tilt_deceleration;
+#endif // NEW_CAMERA_MOTION
+
 double camera_x_speed;
 int camera_x_duration;
 
@@ -438,37 +444,29 @@ void update_camera()
 	}
 
 #ifdef NEW_CAMERA_MOTION
-	if (camera_rotation_speed > 0.001)
+	if (camera_rotation_speed > 0.0)
 	{
-		camera_rotation_speed -= time_diff / 2000.0;
-		if (camera_rotation_speed <= 0.001)
+		camera_rotation_speed -= time_diff * camera_rotation_deceleration;
+		if (camera_rotation_speed < 0.0)
 			camera_rotation_speed = 0.0;
 	}
-	else if (camera_rotation_speed < -0.001)
+	else if (camera_rotation_speed < 0.0)
 	{
-		camera_rotation_speed += time_diff / 2000.0;
-		if (camera_rotation_speed >= -0.001)
+		camera_rotation_speed += time_diff * camera_rotation_deceleration;
+		if (camera_rotation_speed > 0.0)
 			camera_rotation_speed = 0.0;
 	}
-	else
+	if (camera_tilt_speed > 0.0)
 	{
-		camera_rotation_speed = 0.0;
-	}
-	if (camera_tilt_speed > 0.001)
-	{
-		camera_tilt_speed -= time_diff / 2000.0;
-		if (camera_tilt_speed <= 0.001)
+		camera_tilt_speed -= time_diff * camera_tilt_deceleration;
+		if (camera_tilt_speed < 0.0)
 			camera_tilt_speed = 0.0;
 	}
-	else if (camera_tilt_speed < -0.001)
+	else if (camera_tilt_speed < 0.0)
 	{
-		camera_tilt_speed += time_diff / 2000.0;
-		if (camera_tilt_speed >= -0.001)
+		camera_tilt_speed += time_diff * camera_tilt_deceleration;
+		if (camera_tilt_speed > 0.0)
 			camera_tilt_speed = 0.0;
-	}
-	else
-	{
-		camera_tilt_speed = 0.0;
 	}
 #endif // NEW_CAMERA_MOTION
 

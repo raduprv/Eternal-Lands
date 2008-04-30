@@ -251,6 +251,8 @@ int HandleEvent (SDL_Event *event)
 #ifdef NEW_CAMERA_MOTION
 				camera_rotation_speed = camera_rotation_speed*0.5 + normal_camera_rotation_speed * mouse_delta_x*0.00025;
 				camera_tilt_speed = camera_tilt_speed*0.5 + normal_camera_rotation_speed * mouse_delta_y*0.00025;
+                camera_rotation_deceleration = normal_camera_deceleration*1E-3;
+                camera_tilt_deceleration = normal_camera_deceleration*1E-3;
 
 				if (camera_rotation_speed > 1.0)
 					camera_rotation_speed = 1.0;

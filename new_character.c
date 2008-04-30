@@ -413,7 +413,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_tilt_speed = -normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
 #ifdef NEW_CAMERA_MOTION
-        camera_tilt_speed *= 2.0;
+        camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #endif // SKY_FPV
 	} else if (key == K_CAMERADOWN) {
@@ -423,7 +423,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_tilt_speed = normal_camera_rotation_speed * 0.0005;
 		camera_tilt_duration += 100;
 #ifdef NEW_CAMERA_MOTION
-        camera_tilt_speed *= 2.0;
+        camera_tilt_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #endif // SKY_FPV
 	} else if (key == K_ZOOMIN) {
@@ -458,7 +458,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_rotation_speed = normal_camera_rotation_speed / 800.0;
 		camera_rotation_duration = 800;
 #ifdef NEW_CAMERA_MOTION
-        camera_rotation_speed *= 2.0;
+        camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
@@ -471,7 +471,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_rotation_speed = fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
 #ifdef NEW_CAMERA_MOTION
-        camera_rotation_speed *= 2.0;
+        camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
@@ -484,7 +484,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_rotation_speed = -normal_camera_rotation_speed / 800.0;
 		camera_rotation_duration = 800;
 #ifdef NEW_CAMERA_MOTION
-        camera_rotation_speed *= 2.0;
+        camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)
@@ -497,7 +497,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_rotation_speed = -fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
 #ifdef NEW_CAMERA_MOTION
-        camera_rotation_speed *= 2.0;
+        camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #ifdef SKY_FPV
 		if (fol_cam && !fol_cam_behind)

@@ -1597,7 +1597,6 @@ void init_vars()
 	add_var(OPT_FLOAT,"const_speed","f_con",&fol_con,change_float,7,"Constant Speed","The basic rate that the camera rotates at to keep up with you.",EMAJEKRAL,0.0,10.00,1.0);
 	add_var(OPT_FLOAT,"lin_speed","f_lin",&fol_lin,change_float,1,"Linear Decel.","A hit of speed that drops off as the camera gets near its set point.",EMAJEKRAL,0.0,10.00,1.0);
 	add_var(OPT_FLOAT,"quad_speed","f_quad",&fol_quad,change_float,1,"Quadratic Decel.","A hit of speed that drops off faster as it nears the set point.",EMAJEKRAL,0.0,10.00,1.0);
-	add_var(OPT_FLOAT,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", ADVVID, 0.0, 200.0, 1.0);
 #ifdef OSX
 	add_var(OPT_BOOL,"osx_right_mouse_cam","osxrightmousecam", &osx_right_mouse_cam, change_var,0,"Rotate Camera with right mouse button", "Allows to rotate the camera by pressing the right mouse button and dragging the cursor", EMAJEKRAL);
 #endif // OSX
@@ -1662,7 +1661,9 @@ void init_vars()
 
 	add_var(OPT_FLOAT,"normal_camera_rotation_speed","nrot",&normal_camera_rotation_speed,change_float,15,"Camera Rotation Speed","Set the speed the camera rotates",CONTROLS,1.0,FLT_MAX,0.5);
 	add_var(OPT_FLOAT,"fine_camera_rotation_speed","frot",&fine_camera_rotation_speed,change_float,1,"Fine Rotation Speed","Set the fine camera rotation speed (when holding shift+arrow key)",CONTROLS,1.0,FLT_MAX,0.5);
-
+#ifdef NEW_CAMERA_MOTION
+	add_var(OPT_FLOAT,"normal_camera_deceleration","ncd",&normal_camera_deceleration,change_float,normal_camera_deceleration,"Camera Rotation Deceleration","Set the camera rotation deceleration",CONTROLS,0.01,1.0,0.01);
+#endif // NEW_CAMERA_MOTION
 #ifndef MAP_EDITOR2
 	add_var(OPT_FLOAT,"name_text_size","nsize",&name_zoom,change_float,1,"Name Text Size","Set the size of the players name text",FONT,0.0,2.0,0.01);
 #endif
@@ -1795,8 +1796,9 @@ void init_vars()
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can see.", ADVVID, 0.1, 10.0, 0.1);
 #endif // DEBUG
 	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", ADVVID, 40.0, 200.0, 1.0);
+	add_var(OPT_FLOAT,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", ADVVID, 0.0, 200.0, 1.0);
 #endif // SKY_FPV
-#else
+#else // OSX
     add_var(OPT_BOOL,"isometric" ,"isometric", &isometric, change_projection_bool_init, 1, "Use Isometric View, restart required", "Toggle the use of isometric (instead of perspective) view", VIDEO);
 	add_var(OPT_FLOAT,"perspective", "perspective", &perspective, change_projection_float_init, 0.15f, "Perspective", "The degree of perspective distortion. Change if your view looks odd.", ADVVID, 0.01, 0.80, 0.01);
 #ifndef SKY_FPV
@@ -1806,8 +1808,9 @@ void init_vars()
 	add_var(OPT_FLOAT,"near_plane", "near_plane", &near_plane, change_projection_float, 0.1, "Minimum Viewing Distance", "Adjusts how near you can see.", ADVVID, 0.1, 10.0, 0.1);
 #endif // DEBUG
 	add_var(OPT_FLOAT,"far_plane", "far_plane", &far_plane, change_projection_float, 100.0, "Maximum Viewing Distance", "Adjusts how far you can see.", ADVVID, 40.0, 200.0, 1.0);
+	add_var(OPT_FLOAT,"far_reflection_plane", "far_reflection_plane", &far_reflection_plane, change_projection_float, 100.0, "Maximum Reflection Distance", "Adjusts how far the reflections are displayed.", ADVVID, 0.0, 200.0, 1.0);
 #endif // SKY_FPV
-#endif
+#endif // OSX
  #ifdef ANTI_ALIAS
 	add_var(OPT_BOOL,"anti_alias", "aa", &anti_alias, change_aa, 0, "Toggle Anti-Aliasing", "Anti-aliasing makes edges look smoother", LODTAB);
  #endif //ANTI_ALIAS
