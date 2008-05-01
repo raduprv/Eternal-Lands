@@ -833,7 +833,7 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
         static int last_direction_added[5]={0};
         static int last_actor[5]={0};//Make sure that we don't see too many messages from that actor
         floating_message *m=get_free_floatingmessage();
-        actor *_actor = get_actor_ptr_from_id(yourself);
+        actor *_actor = get_actor_ptr_from_id(actor_id);
  
         if (_actor != NULL) {
 	        if (use_eye_candy == 1 && strstr(str, " Overall") != NULL) {
