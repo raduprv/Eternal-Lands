@@ -211,41 +211,101 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.manufacturing_skill.cur=value;break;
                 case MAN_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.manufacturing_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_man_left(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_man_right(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.manufacturing_skill.base=value;break;
                 case HARV_S_CUR:
                         your_info.harvesting_skill.cur=value;break;
                 case HARV_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.harvesting_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_har(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.harvesting_skill.base=value;break;
                 case ALCH_S_CUR:
                         your_info.alchemy_skill.cur=value;break;
                 case ALCH_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.alchemy_skill.name);
+                        floatingmessages_add_level(yourself, value, attributes.harvesting_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_alc_left(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_alc_right(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.alchemy_skill.base=value;break;
                 case OVRL_S_CUR:
                         your_info.overall_skill.cur=value;break;
                 case OVRL_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.overall_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_oa(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.overall_skill.base=value;break;
                 case ATT_S_CUR:
                         your_info.attack_skill.cur=value;break;
                 case ATT_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.attack_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_att(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.attack_skill.base=value;break;
                 case DEF_S_CUR:
                         your_info.defense_skill.cur=value;break;
                 case DEF_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.defense_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_def(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.defense_skill.base=value;break;
                 case MAG_S_CUR:
                         your_info.magic_skill.cur=value;break;
                 case MAG_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.magic_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_mag(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.magic_skill.base=value;break;
                 case POT_S_CUR:
                         your_info.potion_skill.cur=value;break;
                 case POT_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.potion_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_pot_left(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_pot_right(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.potion_skill.base=value;break;
                 case CARRY_WGHT_CUR:
                         your_info.carry_capacity.cur=value;break;
@@ -328,6 +388,13 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.summoning_skill.cur=value;break;
                 case SUM_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.summoning_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_sum(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.summoning_skill.base=value;break;
                 case CRA_EXP:
                         floatingmessages_compare_stat(yourself, your_info.crafting_exp, value, attributes.crafting_skill.shortname);
@@ -340,6 +407,14 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.crafting_skill.cur=value;break;
                 case CRA_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.crafting_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_cra_left(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_cra_right(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.crafting_skill.base=value;break;
                 case ENG_EXP:
                         floatingmessages_compare_stat(yourself, your_info.engineering_exp, value, attributes.engineering_skill.shortname);
@@ -352,6 +427,14 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.engineering_skill.cur=value;break;
                 case ENG_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.engineering_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_eng_left(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_eng_right(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.engineering_skill.base=value;break;
                 case TAIL_EXP:
                         floatingmessages_compare_stat(yourself, your_info.tailoring_exp, value, attributes.tailoring_skill.shortname);
@@ -364,6 +447,14 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.tailoring_skill.cur=value;break;
                 case TAIL_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.tailoring_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_tai_left(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_tai_right(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.tailoring_skill.base=value;break;
 
                 case RANG_EXP:
@@ -376,9 +467,14 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.ranging_skill.cur=value;break;
                 case RANG_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.ranging_skill.name);
+                        {
+                            actor *_actor = get_actor_ptr_from_id(yourself);
+                            if (use_eye_candy == 1 && _actor != NULL) {
+                  	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
+                  	          ec_create_glow_level_up_ran(_actor, (poor_man ? 6 : 10));
+                            }
+                        }
                         your_info.ranging_skill.base=value;break;
-
-
                 case RESEARCHING:
                         your_info.researching=value;break;
                 case RESEARCH_COMPLETED:
@@ -833,69 +929,7 @@ void add_floating_message(int actor_id, char * str, int direction, float r, floa
         static int last_direction_added[5]={0};
         static int last_actor[5]={0};//Make sure that we don't see too many messages from that actor
         floating_message *m=get_free_floatingmessage();
-        actor *_actor = get_actor_ptr_from_id(actor_id);
  
-        if (_actor != NULL) {
-	        if (use_eye_candy == 1 && strstr(str, " Overall") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_oa(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Attack") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_att(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Defense") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_def(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Harvest") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_har(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Alchemy") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_alc_left(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_alc_right(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Magic") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_mag(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Potioning") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_pot_left(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_pot_right(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Summoning") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_sum(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Manufactoring") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_man_left(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_man_right(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Crafting") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_cra_left(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_cra_right(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Engineering") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_eng_left(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_eng_right(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Tailoring") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_tai_left(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_tai_right(_actor, (poor_man ? 6 : 10));
-	        }
-	        else if (use_eye_candy == 1 && strstr(str, " Ranging") != NULL) {
-	          ec_create_glow_level_up_default(_actor, (poor_man ? 6 : 10));
-	          ec_create_glow_level_up_ran(_actor, (poor_man ? 6 : 10));
-	        }
-        }
-
         if(!m) return;
         
         m->color[0]=r;
