@@ -183,8 +183,7 @@ namespace cm
 		: cm_window_id(-1), active_window_id(-1), active_widget_id(-1), menu_opened(false)
 	{
 		assert(instance_count++==0);
-		int our_root_win = (windows_on_top) ?-1 :game_root_win;
-		if ((cm_window_id = create_window("Context Menu", our_root_win, 0, 0, 0, 0, 0,
+		if ((cm_window_id = create_window("Context Menu", -1, 0, 0, 0, 0, 0,
 				ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
 			return;
 		set_window_handler(cm_window_id, ELW_HANDLER_DISPLAY, (int (*)())&display_context_handler );
@@ -554,8 +553,7 @@ namespace cm
 			wx -= width;
    		if (wy+height > window_height)
 			wy -= height;
-		int our_root_win = (windows_on_top) ?-1 :game_root_win;
-   		move_window(cm_window_id, our_root_win, 0, wx, wy);
+   		move_window(cm_window_id, -1, 0, wx, wy);
 
 		/* call any registered pre_show handler */
 		if (pre_show_handler)
