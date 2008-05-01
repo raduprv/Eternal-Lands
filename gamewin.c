@@ -559,7 +559,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			static int cm_activate_when_cursor_is = -1;
 			extern int cm_mouse_over_banner;
 			/* remember the start cursor so the menu pops up just once in the cycle */
-			if (cm_last_thing_under_mouse != thing_under_the_mouse)
+			if ((cm_last_thing_under_mouse != thing_under_the_mouse) || (current_cursor == CURSOR_ARROW))
 			{
 				cm_activate_when_cursor_is = current_cursor;
 				cm_last_thing_under_mouse = thing_under_the_mouse;
