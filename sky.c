@@ -1589,7 +1589,7 @@ int skybox_build_gradients(float container[360][4])
 {
 	int t;
 	int first = 0;
-	int prev, next;
+	int prev, next, diff;
 
 	while (first < 360 && container[first][3] < 0.0) ++first;
 
@@ -1600,18 +1600,18 @@ int skybox_build_gradients(float container[360][4])
 	{
 		next = (prev+1)%360;
 		while (container[next][3] < 0.0) next = (next+1)%360;
-		t = prev;
-		do
+		diff = (next-prev+360)%360;
+		if (diff) // prev != next
 		{
-			int diff = (next-prev+360)%360;
-			if (!diff) // prev == next !
-				memcpy(container[t], container[prev], 4*sizeof(float));
-			else
+			for (t = prev+1; t != next; t = (t+1)%360)
 				blend_colors(container[t], container[prev], container[next],
 							 (float)((t-prev+360)%360)/(float)diff, 4);
-			t = (t+1)%360;
 		}
-		while (t != next);
+		else // prev == next
+		{
+			for (t = prev+1; t != next; t = (t+1)%360)
+				memcpy(container[t], container[prev], 4*sizeof(float));
+		}
 		prev = next;
 	}
 	while (prev != first);
