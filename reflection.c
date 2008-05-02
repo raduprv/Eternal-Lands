@@ -603,6 +603,8 @@ void display_3d_reflection()
             glEnable(GL_STENCIL_TEST);
             glStencilFunc(GL_ALWAYS, 1, 1);
             glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+			glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+			glDepthMask(GL_FALSE);
             
             if (use_vertex_buffers)
             {
@@ -615,7 +617,7 @@ void display_3d_reflection()
             }
             
             get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-            glDrawArrays(GL_QUADS, water_buffer_reflectiv_index, (stop-start) * 4);
+            glDrawArrays(GL_QUADS, water_buffer_reflectiv_index*4, (stop-start) * 4);
             
             if (use_vertex_buffers)
             {
@@ -625,6 +627,8 @@ void display_3d_reflection()
         
             glStencilFunc(GL_EQUAL, 1, 1);
             glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+			glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+			glDepthMask(GL_TRUE);
         }
 		else
 		{
