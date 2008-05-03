@@ -167,6 +167,14 @@ int start_rendering()
 				last_frame_and_command_update = cur_time;
 			}
 
+#ifdef SKY_FPV
+			while (cur_time > next_second_time)
+			{
+				new_second();
+				next_second_time += 1000;
+			}
+#endif // SKY_FPV
+
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
                 animate_actors();

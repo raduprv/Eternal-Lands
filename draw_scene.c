@@ -471,7 +471,8 @@ void update_camera()
 #endif // NEW_CAMERA_MOTION
 
 #ifdef SKY_FPV
-	if (ext_cam && !first_person && me)
+	if (ext_cam && !first_person && me &&
+		rx <= -min_tilt_angle && rx >= -max_tilt_angle)
 	{
 		float rot_x[9], rot_z[9], rot[9], dir[3];
 		float vect[3] = {0.0, 0.0, new_zoom_level*camera_distance};
@@ -520,9 +521,9 @@ void update_camera()
 #endif // NEW_CAMERA_MOTION
 					rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				}
-				else if (new_zoom_level > 4.0)
+				else if (new_zoom_level > old_zoom_level)
 				{
-					new_zoom_level = 4.0;
+					new_zoom_level = old_zoom_level;
 					camera_tilt_duration = camera_zoom_duration = 0;
 #ifdef NEW_CAMERA_MOTION
 					camera_tilt_speed = 0.0;

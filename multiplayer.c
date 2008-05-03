@@ -631,6 +631,10 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 
 			// Print the game date cos its pretty (its also needed for SKY_FPV to set moons for signs, wonders, times and seasons)
 			command_date("", 0);
+#ifdef SKY_FPV
+			// print the game time in order to get the seconds for the SKY_FPV feature
+			command_time("", 0);
+#endif // SKY_FPV
 			break;
 
 		case HERE_YOUR_STATS:

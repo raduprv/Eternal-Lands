@@ -67,6 +67,7 @@ void reset_tab_completer(void);
 
 int save_local_data(char * text, int len);
 
+int command_time(char *text, int len);
 int command_date(char *text, int len);
 
 void new_minute_console(void);

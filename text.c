@@ -381,6 +381,14 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		}
 	}
 
+#ifdef SKY_FPV
+	if (from_color_char (text_to_add[0]) == c_green1 && my_strncompare(text_to_add+1,"Game Time", 9))
+	{
+		game_second = atoi(&text_to_add[18]);
+		next_second_time = cur_time + 1000;
+	}
+#endif // SKY_FPV
+
 	if (channel == CHAT_SERVER) {
 		if (my_strncompare(text_to_add+1, "You started to harvest ", 23)) {
 			strncpy(harvest_name, text_to_add+1+23, len-1-23-1);
