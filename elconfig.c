@@ -117,6 +117,7 @@ struct variables our_vars= {0,{NULL}};
 int write_ini_on_exit= 1;
 // Window Handling
 int elconfig_win= -1;
+int force_elconfig_win_ontop = 0;
 int elconfig_tab_collection_id= 1;
 int elconfig_free_widget_id= 2;
 unsigned char elconf_description_buffer[400]= {0};
@@ -2379,7 +2380,7 @@ int show_elconfig_handler(window_info * win) {
 		init_window(win->window_id, newchar_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
 	} else {
 		int our_root_win= -1;
-		if (!windows_on_top) {
+		if (!force_elconfig_win_ontop && !windows_on_top) {
 			our_root_win= game_root_win;
 		}
 		init_window(win->window_id, our_root_win, 0, win->pos_x - pwinx, win->pos_y - pwiny, win->len_x, win->len_y);
