@@ -93,6 +93,9 @@ short game_minute = 0;
 #ifdef SKY_FPV
 short game_second = 0;
 Uint32 next_second_time = 0;
+short real_game_minute = 0;
+short real_game_second = 0;
+unsigned char freeze_time = 0;
 #endif // SKY_FPV
 
 int test_point_visible(float x,float y,float z)
@@ -488,10 +491,8 @@ void draw_global_light()
 		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
 #else // SKY_FPV
-		blend_colors(ambient_light, skybox_light_ambient[game_minute],
-					 skybox_light_ambient_rainy[game_minute], weather_rain_intensity, 4);
-		blend_colors(diffuse_light, skybox_light_diffuse[game_minute],
-					 skybox_light_diffuse_rainy[game_minute], weather_rain_intensity, 4);
+		blend_color_tables(ambient_light, skybox_light_ambient, skybox_light_ambient_rainy, weather_rain_intensity, 4);
+		blend_color_tables(diffuse_light, skybox_light_diffuse, skybox_light_diffuse_rainy, weather_rain_intensity, 4);
 		ambient_light[0] += (float)thunder_light_offset*0.03;
 		ambient_light[1] += (float)thunder_light_offset*0.05;
 		ambient_light[2] += (float)thunder_light_offset*0.06;
@@ -1013,40 +1014,33 @@ void new_minute()
 #ifdef SKY_FPV
 	skybox_update_positions();
 	skybox_update_colors();
-	game_second = 0;
-	next_second_time = cur_time+1000;
 #endif // SKY_FPV
 }
 
 #ifdef SKY_FPV
 void new_second()
 {
-	game_second += 1;
-
-	if (game_second < 60)
+	int cur_min = (game_minute+330)%360;
+	int next_min = (game_minute+331)%360;
+	float ratio2 = (float)game_second/60.0;
+	float ratio1 = 1.0 - ratio2;
+	
+	sun_position[0] = sun_pos[cur_min].x * ratio1 + sun_pos[next_min].x * ratio2;
+	sun_position[1] = sun_pos[cur_min].y * ratio1 + sun_pos[next_min].y * ratio2;
+	sun_position[2] = sun_pos[cur_min].z * ratio1 + sun_pos[next_min].z * ratio2;
+	sun_position[3] = sun_pos[cur_min].w * ratio1 + sun_pos[next_min].w * ratio2;
+	
+	if (is_day)
 	{
-		int cur_min = (game_minute+330)%360;
-		int next_min = (game_minute+331)%360;
-		float ratio2 = (float)game_second/60.0;
-		float ratio1 = 1.0 - ratio2;
-		
-		sun_position[0] = sun_pos[cur_min].x * ratio1 + sun_pos[next_min].x * ratio2;
-		sun_position[1] = sun_pos[cur_min].y * ratio1 + sun_pos[next_min].y * ratio2;
-		sun_position[2] = sun_pos[cur_min].z * ratio1 + sun_pos[next_min].z * ratio2;
-		sun_position[3] = sun_pos[cur_min].w * ratio1 + sun_pos[next_min].w * ratio2;
-		
-		if (is_day)
-		{
-			skybox_sun_position[0] = sun_show[cur_min].x * ratio1 + sun_show[next_min].x * ratio2;
-			skybox_sun_position[1] = sun_show[cur_min].y * ratio1 + sun_show[next_min].y * ratio2;
-			skybox_sun_position[2] = sun_show[cur_min].z * ratio1 + sun_show[next_min].z * ratio2;
-			skybox_sun_position[3] = sun_show[cur_min].w * ratio1 + sun_show[next_min].w * ratio2;
-			calc_shadow_matrix();
-		}
-		
-		skybox_update_positions();
-		skybox_update_colors();
+		skybox_sun_position[0] = sun_show[cur_min].x * ratio1 + sun_show[next_min].x * ratio2;
+		skybox_sun_position[1] = sun_show[cur_min].y * ratio1 + sun_show[next_min].y * ratio2;
+		skybox_sun_position[2] = sun_show[cur_min].z * ratio1 + sun_show[next_min].z * ratio2;
+		skybox_sun_position[3] = sun_show[cur_min].w * ratio1 + sun_show[next_min].w * ratio2;
+		calc_shadow_matrix();
 	}
+	
+	skybox_update_positions();
+	skybox_update_colors();
 }
 #endif // SKY_FPV
 

@@ -1223,7 +1223,11 @@ CHECK_GL_ERRORS();
 		glAlphaFunc(GL_GREATER, 0.05f);
 		glPushMatrix();
 		glTranslatef(32, win->len_y-96, 0);
+#ifndef SKY_FPV
 		glRotatef(game_minute, 0.0f, 0.0f, 1.0f);
+#else // SKY_FPV
+		glRotatef(real_game_minute, 0.0f, 0.0f, 1.0f);
+#endif // SKY_FPV
 		glBegin(GL_QUADS);
 		draw_2d_thing(clock_needle_u_start, clock_needle_v_start, clock_needle_u_end, clock_needle_v_end, -5, -24,5, 6);
 		glEnd();
@@ -1239,7 +1243,11 @@ CHECK_GL_ERRORS();
 		char str[6];	// one extra incase the length of the day ever changes
 		int x;
 
+#ifndef SKY_FPV
 		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
+#else // SKY_FPV
+		safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
+#endif // SKY_FPV
 		x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
 		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);

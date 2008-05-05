@@ -544,6 +544,9 @@ void create_newchar_root_window ()
 		our_actor.male = our_actor.race<gnome_female?our_actor.race%2:!(our_actor.race%2);
 		
 		game_minute = 120;	//Midday. So that it's bright and sunny.
+#ifdef SKY_FPV
+		real_game_minute = game_minute;
+#endif // SKY_FPV
 
 		change_map ("./maps/newcharactermap.elm");
 

@@ -1454,6 +1454,19 @@ int skybox_parse_properties(xmlNode *node)
 						}
 					}
 			}
+			else if(xmlStrcasecmp(item->name, (xmlChar*)"freeze_time") == 0) {
+				int value = get_int_value(item);
+				if (value >= 0 && value <= 359) {
+					freeze_time = 1;
+					game_minute = value;
+					game_second = 0;
+				}
+				else {
+					freeze_time = 0;
+					game_minute = real_game_minute;
+					game_second = real_game_second;
+				}
+			}
 			else {
 				LOG_ERROR("unknown node for properties: %s", item->name);
 				ok = 0;
@@ -1696,6 +1709,9 @@ void skybox_init_defs(const char *map_name)
 	skybox_no_stars = 1;
 	skybox_clouds_tex = -1;
 	skybox_clouds_detail_tex = -1;
+	freeze_time = 0;
+	game_minute = real_game_minute;
+	game_second = real_game_second;
 
     if (map_name) {
         int pos = strlen(map_name)-1;

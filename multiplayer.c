@@ -592,8 +592,17 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					log_error("CAUTION: Possibly forged NEW_MINUTE packet received.\n");
 					break;
 				}
+#ifndef SKY_FPV
 				game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				game_minute %= 360;
+#else // SKY_FPV
+				real_game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
+				real_game_minute %= 360;
+				if (!freeze_time) game_minute = real_game_minute;
+				real_game_second = 0;
+				if (!freeze_time) game_second = real_game_second;
+				next_second_time = cur_time+1000;
+#endif // SKY_FPV
 				new_minute();
 				new_minute_console();
 			}

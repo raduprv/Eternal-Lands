@@ -1636,6 +1636,20 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		skybox_init_defs(NULL);
 	}
+	else if((keysym == SDLK_f) && shift_on && ctrl_on && alt_on)
+	{
+		freeze_time = !freeze_time;
+		if (freeze_time)
+			LOG_TO_CONSOLE(c_green2, "Time freezed!");
+		else
+		{
+			LOG_TO_CONSOLE(c_green2, "Time unfreezed!");
+			game_minute = real_game_minute;
+			game_second = real_game_second;
+			new_minute();
+			new_second();
+		}
+	}
 #endif // SKY_FPV
 #ifndef NEW_WEATHER
 	else if((keysym == SDLK_PAGEUP) && shift_on && ctrl_on && !alt_on)

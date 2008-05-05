@@ -384,8 +384,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 #ifdef SKY_FPV
 	if (from_color_char (text_to_add[0]) == c_green1 && my_strncompare(text_to_add+1,"Game Time", 9))
 	{
-		game_second = atoi(&text_to_add[18]);
+		real_game_second = atoi(&text_to_add[18]);
+        if (!freeze_time) game_second = real_game_second;
 		next_second_time = cur_time + 1000;
+        new_second();
 	}
 #endif // SKY_FPV
 

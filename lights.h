@@ -78,6 +78,9 @@ extern short game_minute; /*!< the current game minute */
 #ifdef SKY_FPV
 extern short game_second; /*!< the current game second */
 extern Uint32 next_second_time; /*!< the time of the next second */
+extern short real_game_minute; /*!< the real game minute */
+extern short real_game_second; /*!< the real game second */
+extern unsigned char freeze_time; /*!< when this value is equal to 1, the game minute is freezed */
 #endif // SKY_FPV
 
 /*!
