@@ -9,6 +9,7 @@
 #include "elwindows.h"
 #include "gamewin.h"
 #include "gl_init.h"
+#include "hud.h"
 #include "interface.h"
 #include "multiplayer.h"
 #include "new_character.h"
@@ -53,8 +54,14 @@ int new_char_y;
 int new_char_x_len = 138;
 int new_char_y_len = 35;
 
+int settings_x;
+int settings_y;
+int settings_x_len = 87;
+int settings_y_len = 35;
+
 char log_in_button_selected = 0;
 char new_char_button_selected = 0;
+char settings_button_selected = 0;
 
 void init_login_screen ()
 {
@@ -114,7 +121,10 @@ int resize_login_handler (window_info *win, Uint32 w, Uint32 h)
 	log_in_x = username_text_x;
 	log_in_y = half_screen_y - 50;
 
-	new_char_x = username_bar_x + username_bar_x_len - new_char_x_len;
+	settings_x = username_bar_x + username_bar_x_len - settings_x_len;
+	settings_y = half_screen_y - 50;
+	
+	new_char_x = log_in_x + ((settings_x + settings_x_len) - log_in_x)/2 - new_char_x_len/2;
 	new_char_y = half_screen_y - 50;
 	
 	return 1;
@@ -163,6 +173,18 @@ int display_login_handler (window_info *win)
 
 	float new_char_selected_end_u = (float)238/256;
 	float new_char_selected_end_v = 1.0f-(float)155/256;
+	/////////////////////////
+	float settings_unselected_start_u = (float)0/256;
+	float settings_unselected_start_v = 1.0f - (float)160/256;
+
+	float settings_unselected_end_u = (float)87/256;
+	float settings_unselected_end_v = 1.0f - (float)195/256;
+
+	float settings_selected_start_u = (float)0/256;
+	float settings_selected_start_v = 1.0f - (float)200/256;
+
+	float settings_selected_end_u = (float)87/256;
+	float settings_selected_end_v = 1.0f-(float)235/256;
 
 	draw_console_pic(login_text);
 
@@ -170,7 +192,7 @@ int display_login_handler (window_info *win)
 	draw_string (username_text_x, username_text_y, (unsigned char*)login_username_str, 1);
 	draw_string (password_text_x, password_text_y, (unsigned char*)login_password_str, 1);
 
-	num_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str), sizeof(login_rules_str), 1, new_char_x + new_char_x_len - username_text_x, NULL, NULL);
+	num_lines = reset_soft_breaks(login_rules_str, strlen(login_rules_str), sizeof(login_rules_str), 1, settings_x + settings_x_len - username_text_x, NULL, NULL);
 	draw_string_zoomed(username_text_x, log_in_y + 60, (unsigned char*)login_rules_str, num_lines, 1);
 
 	// start drawing the actual interface pieces
@@ -202,6 +224,12 @@ int display_login_handler (window_info *win)
 	else
 		draw_2d_thing (new_char_unselected_start_u, new_char_unselected_start_v, new_char_unselected_end_u, new_char_unselected_end_v, new_char_x, new_char_y, new_char_x + new_char_x_len, new_char_y + new_char_y_len);
 		
+	// settings button
+	if (settings_button_selected)
+		draw_2d_thing (settings_selected_start_u, settings_selected_start_v, settings_selected_end_u, settings_selected_end_v, settings_x, settings_y, settings_x + settings_x_len, settings_y + settings_y_len);
+	else
+		draw_2d_thing (settings_unselected_start_u, settings_unselected_start_v, settings_unselected_end_u, settings_unselected_end_v, settings_x, settings_y, settings_x + settings_x_len, settings_y + settings_y_len);
+		
 	glEnd();
 
 	glColor3f (0.0f, 0.9f, 1.0f);
@@ -229,6 +257,12 @@ int mouseover_login_handler (window_info *win, int mx, int my)
 		new_char_button_selected = 1;
 	else
 		new_char_button_selected = 0;
+
+	// check to see if the settings button is active, or not
+	if (mx >= settings_x && mx <= settings_x + settings_x_len && my >= settings_y && my <= settings_y + settings_y_len)
+		settings_button_selected = 1;
+	else
+		settings_button_selected = 0;
 
 	return 1;
 }
@@ -273,6 +307,11 @@ int click_login_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 			show_window (newchar_root_win);
 		}
+	}
+	// to see if we clicked on the ACTIVE settings button
+	else if (settings_button_selected)
+	{
+		view_window (&elconfig_win, 0);
 	}
 	return 1;
 }
