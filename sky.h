@@ -40,6 +40,8 @@ extern float skybox_light_ambient[360][4];
 extern float skybox_light_diffuse[360][4];
 extern float skybox_light_ambient_rainy[360][4];
 extern float skybox_light_diffuse_rainy[360][4];
+extern float skybox_fog_color[4];
+extern float skybox_fog_density;
 extern float skybox_sunny_sky_bias;
 extern float skybox_sunny_clouds_bias;
 extern float skybox_sunny_fog_bias;

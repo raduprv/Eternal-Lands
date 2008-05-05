@@ -1281,18 +1281,16 @@ float get_rain_strength()
 }
 
 void render_fog() {
+	int i;
+	GLfloat fogDensity;
 #ifndef SKY_FPV
 	static GLfloat minDensity = 0.01f, maxDensity = 0.04f;
 	float tmpf;
-#endif // SKY_FPV
-	GLfloat fogDensity;
 	GLfloat rainStrength, rainAlpha, diffuseBias;
-	int i;
 
 	rainStrength = get_rain_strength();
 	rainAlpha = 0.2f*rain_color[3]*rainStrength;
 
-#ifndef SKY_FPV
 #ifdef NEW_LIGHTING
 	if (use_new_lighting)
 		diffuseBias = 0.2f;
@@ -1328,11 +1326,8 @@ void render_fog() {
 		fogColor[3] = 1.0;
 	}
 	else {
-		diffuseBias = weather_rain_intensity*weather_rain_intensity*rain_strength_bias;
-		
-		blend_color_tables(fogColor, skybox_fog, skybox_fog_rainy, diffuseBias, 4);
-		fogDensity = fogColor[3];
-		fogColor[3] = 1.0;
+		memcpy(fogColor, skybox_fog_color, 4*sizeof(float));
+		fogDensity = skybox_fog_density;
 	}
 #endif // SKY_FPV
 	

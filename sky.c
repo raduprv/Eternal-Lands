@@ -20,31 +20,6 @@
 #include "vmath.h"
 #include "weather.h"
 
-#define SLICES 21
-float slice_list[SLICES][2] = {
-	{1,	0},
-	{0.95,	0.31},
-	{0.81,	0.59},
-	{0.59,	0.81},
-	{0.31,	0.95},
-	{0,	1},
-	{-0.31,	0.95},
-	{-0.59,	0.81},
-	{-0.81,	0.59},
-	{-0.95,	0.31},
-	{-1,	0},
-	{-0.95,	-0.31},
-	{-0.81,	-0.59},
-	{-0.59,	-0.81},
-	{-0.31,	-0.95},
-	{0,	-1},
-	{0.31,	-0.95},
-	{0.59,	-0.81},
-	{0.81,	-0.59},
-	{0.95,	-0.31},
-	{1,	0}
-};
-
 float skybox_clouds[360][4];
 float skybox_clouds_detail[360][4];
 float skybox_clouds_sunny[360][4];
@@ -69,6 +44,8 @@ float skybox_light_ambient[360][4];
 float skybox_light_diffuse[360][4];
 float skybox_light_ambient_rainy[360][4];
 float skybox_light_diffuse_rainy[360][4];
+float skybox_fog_color[4] = {0.0, 0.0, 0.0, 0.0};
+float skybox_fog_density = 0.0;
 int skybox_no_clouds = 1;
 int skybox_no_sun = 1;
 int skybox_no_moons = 1;
@@ -134,6 +111,10 @@ GLuint sky_lists;
 int smokey_cloud_tex;
 int moon_tex;
 int sun_tex;
+
+#ifdef NEW_WEATHER
+extern float weather_severity;
+#endif // NEW_WEATHER
 
 sky_dome create_dome(int slices, int stacks, float radius, float opening, int fake_opening, float first_angle, float texture_size)
 {
@@ -487,22 +468,7 @@ void update_cloudy_sky_colors()
 	abs_light = 1.0f - abs_light/59.0f;
 
 #ifdef NEW_WEATHER
-	if (weather_active() && weather_get_fadein_bias() <= 0.0 && weather_get_fadeout_bias() <= 0.0)
-	{
-		rain_coef = 1.0;
-	}
-	if(weather_get_fadeout_bias() < 1.0f && weather_get_fadeout_bias() > 0.0f)
-	{
-		rain_coef = weather_get_fadeout_bias();
-	}
-	else if(weather_get_fadein_bias() < 1.0f && weather_get_fadein_bias() > 0.0f)
-	{
-		rain_coef = 1.0 - weather_get_fadein_bias();
-	}
-	else
-	{
-		rain_coef = 0.0f;
-	}
+	rain_coef = weather_get_fadeinout_bias()*weather_severity;
 #else /* NEW_WATHER */
 	rain_coef = weather_rain_intensity*rain_strength_bias;
 #endif // NEW_WEATHER
@@ -526,15 +492,19 @@ void update_cloudy_sky_colors()
 
 	idx = 0;
 
-    // we compute the colors of the fog around the dome
-    blend_color_tables(color_sky, skybox_fog, skybox_fog_rainy, rain_coef, 3);
+    // we compute the color and the density of the fog
+	blend_color_tables(skybox_fog_color, skybox_fog, skybox_fog_rainy, rain_coef, 4);
+	skybox_fog_density = skybox_fog_color[3];
+	skybox_fog_color[3] = 1.0;
+
+    // we compute the colors of the fog around the dome according to the sun and moons positions
     blend_color_tables(color_sun, skybox_fog_sunny, skybox_fog_rainy, rain_coef, 3);
     for (i = 0; i < dome_sky.slices_count; ++i)
     {
 		const float *normal = &dome_sky.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
-		blend_colors(color, color_sky, color_sun, get_fog_sunlight(normal), 3);
+		blend_colors(color, skybox_fog_color, color_sun, get_fog_sunlight(normal), 3);
 		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
 		fog_colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
@@ -1129,20 +1099,20 @@ void cloudy_sky()
 	for (i = 0; i < dome_sky.slices_count; ++i)
 	{
 		const GLfloat *vtx = &dome_sky.vertices[i*3];
-		glColor4f(fogColor[0], fogColor[1], fogColor[2], 1.0);
+		glColor4fv(skybox_fog_color);
 		glVertex3f(vtx[0]*0.9, vtx[1]*0.9, -dome_sky.height*0.1);
-		glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
+		glColor4f(skybox_fog_color[0], skybox_fog_color[1], skybox_fog_color[2], 0.0);
 		glVertex3fv(vtx);
 	}
-	glColor4f(fogColor[0], fogColor[1], fogColor[2], 1.0);
+	glColor4fv(skybox_fog_color);
 	glVertex3f(dome_sky.vertices[0]*0.9, dome_sky.vertices[1]*0.9, -dome_sky.height*0.1);
-	glColor4f(fogColor[0], fogColor[1], fogColor[2], 0.0);
+	glColor4f(skybox_fog_color[0], skybox_fog_color[1], skybox_fog_color[2], 0.0);
 	glVertex3fv(&dome_sky.vertices[0]);
 	glEnd();
 
 	// we mask all the elements that are under the horizon with the fog color
 	glBegin(GL_TRIANGLE_FAN);
-	glColor3fv(fogColor);
+	glColor3fv(skybox_fog_color);
 	glVertex3f(0.0, 0.0, -dome_sky.height);
 	for (i = 0; i < dome_sky.slices_count; ++i)
 	{
