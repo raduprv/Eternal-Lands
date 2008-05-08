@@ -364,6 +364,9 @@ extern char
 		afk_names[15],
 		afk_messages[25],
 		afk_print_help[150],
+		/*storage.c*/
+		storage_print_wait_str[50],
+		storage_print_help_str[70],
 		/*text.c*/
 		pm_from_str[10],
 		gm_from_str[10],

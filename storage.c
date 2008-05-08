@@ -7,6 +7,7 @@
 #include "filter.h"
 #include "gamewin.h"
 #include "hud.h"
+#include "init.h"
 #include "items.h"
 #include "misc.h"
 #include "multiplayer.h"
@@ -41,13 +42,32 @@ int active_storage_item=-1;
 ground_item storage_items[STORAGE_ITEMS_SIZE]={{0,0,0}};
 int no_storage;
 
-char storage_text[202]={0};
-static char last_storage_text[202]={0};
-static char wrapped_storage_text[210]={0};
+#define MAX_DESCR_LEN 202
+char storage_text[MAX_DESCR_LEN]={0};
+static char last_storage_text[MAX_DESCR_LEN]={0};
+static char wrapped_storage_text[MAX_DESCR_LEN+10]={0};
+
+static int print_quanities[STORAGE_ITEMS_SIZE];
+static int number_to_print = 0;
+static int next_item_to_print = 0;
+static int printing_category = -1;
+static int show_print_tooltip = 0;
 
 void get_storage_text (const Uint8 *in_data, int len)
 {
 	safe_snprintf(storage_text, sizeof(storage_text), "%.*s", len, in_data);
+	if ((len > 0) && (printing_category > -1) && (next_item_to_print < number_to_print))
+	{
+		char the_text[MAX_DESCR_LEN];
+		if (!next_item_to_print)
+		{
+			safe_snprintf(the_text, sizeof(the_text), "%s:", &storage_categories[printing_category].name[1] );
+			LOG_TO_CONSOLE(c_green2, the_text);
+		}
+		safe_snprintf(the_text, sizeof(the_text), "%d %s", print_quanities[next_item_to_print++], &storage_text[1] );
+		LOG_TO_CONSOLE(c_grey1, the_text);
+		storage_text[0] = '\0';
+	}
 }
 
 void get_storage_categories (const char *in_data, int len)
@@ -259,18 +279,21 @@ int display_storage_handler(window_info * win)
 		/* Draw the active item's quantity on top of everything else. */
 		for(i = pos = 6*vscrollbar_get_pos(storage_win, STORAGE_SCROLLBAR_ITEMS); i < pos+36 && i < no_storage; i++) {
 			if(storage_items[i].pos == active_storage_item) {
-				char str[20];
-				int x = (i%6)*32+161+16;
-				int len;
+				if (storage_items[i].quantity) {
+					char str[20];
+					int x = (i%6)*32+161+16;
+					int len;
 
-				safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
-				len = strlen(str) * 8;
-				if(x - len > 161) {
-					x -= len;
-				} else if(x + len > 161+6*32) {
-					x = 161+5*32+16;
+					safe_snprintf(str, sizeof(str), "%d", storage_items[i].quantity);
+					len = strlen(str) * 8;
+					if(x - len > 161) {
+						x -= len;
+					} else if(x + len > 161+6*32) {
+						x = 161+5*32+16;
+					}
+					show_help(str, x, ((i-pos)/6)*32+10+8);
 				}
-				show_help(str, x, ((i-pos)/6)*32+10+8);
+				break;
 			}
 		}
 	}
@@ -281,6 +304,11 @@ int display_storage_handler(window_info * win)
 		safe_snprintf(str, sizeof(str), "%d",storage_items[cur_item_over].quantity);
 
 		show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
+	}
+	
+	if (show_print_tooltip) {
+		show_print_tooltip = 0;
+		show_help(storage_print_help_str, 0, win->len_y+10);
 	}
 
 	// Render the grid *after* the images. It seems impossible to code
@@ -435,6 +463,48 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
+int print_button_click_handler(window_info * win, int mx, int my, Uint32 flags)
+{
+	static Uint32 lastprinttime = 0;
+	int i;
+	
+	/* don't allow rapid printing - delay 1 second */
+	if (SDL_GetTicks()-lastprinttime < 1000)
+	{
+		LOG_TO_CONSOLE(c_red2, storage_print_wait_str);
+		return 1;
+	}
+	
+	/* request the description for each item */
+	number_to_print = next_item_to_print = 0;
+	printing_category = selected_category;
+	for (i = 0; i < no_storage && i < STORAGE_ITEMS_SIZE; i++)
+	{
+		if (storage_items[i].quantity)
+		{		
+			Uint8 str[3];
+			print_quanities[number_to_print++] = storage_items[i].quantity;
+			str[0]=LOOK_AT_STORAGE_ITEM;
+			*((Uint16*)(str+1))=SDL_SwapLE16(storage_items[i].pos);
+			my_tcp_send(my_socket, str, 3);
+		}
+	}
+	
+	/* if we have requested anY descriptions, restart the delay */
+	if (number_to_print)
+		lastprinttime = SDL_GetTicks();
+
+	return 1;
+}
+
+static int print_button_mouseover(widget_list *widget, int mx, int my)
+{
+	if (show_help_text)
+		show_print_tooltip = 1;
+	return 1;
+}
+
+
 void display_storage_menu()
 {
 	int i;
@@ -452,6 +522,7 @@ void display_storage_menu()
 
 	if(storage_win<=0){
 		int our_root_win = -1;
+		int print_button_id = 100;
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
@@ -463,6 +534,12 @@ void display_storage_menu()
 		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_CATEGORIES, NULL, 130, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 
 				max2i(no_storage_categories - STORAGE_CATEGORIES_DISPLAY, 0));
 		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
+		
+		print_button_id = button_add_extended (storage_win, print_button_id, NULL,
+			storage_win_x_len-20, 25, 20, 20, 0, 0.75, 0.77f, 0.57f, 0.39f, "p");
+		widget_set_type(storage_win, print_button_id, &square_button_type);
+		widget_set_OnClick(storage_win, print_button_id, print_button_click_handler);
+		widget_set_OnMouseover(storage_win, print_button_id, print_button_mouseover);
 	} else {
 		no_storage=0;
 		
