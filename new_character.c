@@ -274,23 +274,26 @@ int display_newchar_handler (window_info *win)
 
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
-#ifdef SKY_FPV
-		if (skybox_show_sky)
-        {
-            skybox_compute_height();
-            glPushMatrix();
-            glTranslatef(0.0, 0.0, skybox_get_height());
-			skybox_display();
-            glPopMatrix();
-        }
-#endif // SKY_FPV
-
 #ifndef NEW_WEATHER
 		//now, determine the current weather light level
 		get_weather_light_level ();
 #endif
 
 		draw_global_light ();
+
+#ifdef SKY_FPV
+		if (skybox_show_sky)
+        {
+			if (skybox_update_every_frame)
+				skybox_update_colors();
+            skybox_compute_z_position();
+            glPushMatrix();
+            glTranslatef(0.0, 0.0, skybox_get_z_position());
+			skybox_display();
+            glPopMatrix();
+        }
+#endif // SKY_FPV
+
 		update_scene_lights();
 		draw_lights();
 		CHECK_GL_ERRORS ();
@@ -300,7 +303,12 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 		}
 
-		if (weather_use_fog()) render_fog();
+		if (use_fog)
+#ifndef NEW_WEATHER
+			render_fog();
+#else // NEW_WEATHER
+			weather_render_fog();
+#endif // NEW_WEATHER
 		if (any_reflection > 1) {
 			draw_sky_background ();
 			CHECK_GL_ERRORS ();
@@ -308,6 +316,10 @@ int display_newchar_handler (window_info *win)
 		}
 
 		CHECK_GL_ERRORS ();
+
+#ifdef NEW_WEATHER
+		weather_init_thunder_light();
+#endif // NEW_WEATHER
 
 		if (shadows_on && is_day) {
 			draw_sun_shadowed_scene (any_reflection);
@@ -325,6 +337,11 @@ int display_newchar_handler (window_info *win)
 			display_alpha_objects();
 			display_blended_objects();
 		}
+
+#ifdef NEW_WEATHER
+		weather_cleanup_thunder_light();
+#endif // NEW_WEATHER
+
 		CHECK_GL_ERRORS ();
 	}
 

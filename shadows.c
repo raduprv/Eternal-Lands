@@ -457,7 +457,7 @@ void render_light_view()
 			glDisable(GL_LIGHTING);
 			glEnable(GL_DEPTH_TEST);
 #ifndef MAP_EDITOR2
-			if (weather_use_fog()) glDisable(GL_FOG);
+			if (use_fog) glDisable(GL_FOG);
 #endif
 			glColorMask(GL_FALSE,GL_FALSE,GL_FALSE,GL_FALSE);
 			CHECK_GL_ERRORS();
@@ -641,7 +641,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			detail_unit=GL_TEXTURE2_ARB;
 
 #ifndef MAP_EDITOR2
-			if (weather_use_fog()) glDisable(GL_FOG);
+			if (use_fog) glDisable(GL_FOG);
 #endif
 			ELglActiveTextureARB(shadow_unit);
 			glEnable(depth_texture_target);
@@ -659,7 +659,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glTexEnvi(GL_TEXTURE_ENV, GL_TEXTURE_ENV_MODE, GL_MODULATE);
 			CHECK_GL_ERRORS();
 #ifndef MAP_EDITOR2
-			if (weather_use_fog()) glEnable(GL_FOG);
+			if (use_fog) glEnable(GL_FOG);
 #endif
 			glNormal3f(0.0f,0.0f,1.0f);
 			if(any_reflection)draw_lake_tiles();
@@ -690,7 +690,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 #endif
 
 #ifndef MAP_EDITOR2
-			if (weather_use_fog()) glDisable(GL_FOG);
+			if (use_fog) glDisable(GL_FOG);
 #endif
 
 			ELglActiveTextureARB(shadow_unit);
@@ -766,7 +766,7 @@ void draw_sun_shadowed_scene(int any_reflection)
 			glDisable(GL_DEPTH_TEST);
 
 #ifndef MAP_EDITOR2
-			if (weather_use_fog()) glEnable(GL_FOG);
+			if (use_fog) glEnable(GL_FOG);
 #endif
 
 			glEnable(GL_BLEND);

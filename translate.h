@@ -527,9 +527,7 @@ extern char	reg_error_str[15],
 		init_lights_str[35],
 		init_logs_str[35],
 		read_config_str[35],
-#ifndef NEW_WEATHER
 		init_weather_str[35],
-#endif //NEW_WEATHER
 		init_audio_str[35],
 		load_icons_str[35],
 		load_textures_str[35],

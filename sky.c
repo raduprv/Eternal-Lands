@@ -9,6 +9,7 @@
 #include "asc.h"
 #include "sky.h"
 #include "draw_scene.h"
+#include "elconfig.h"
 #include "errors.h"
 #include "gl_init.h"
 #include "global.h"
@@ -66,6 +67,7 @@ float skybox_moonlight1_bias = 0.92;
 float skybox_moonlight2_bias = 0.98;
 
 float skybox_sun_position[4] = {0.0, 0.0, 0.0, 0.0};
+float skybox_sun_projection[4] = {0.0, 0.0, 0.0, 0.0};
 double skybox_time_d = 0.0;
 double skybox_view[16];
 
@@ -83,6 +85,7 @@ typedef struct
 	GLfloat *tex_coords;
 	GLuint *faces;
 	float radius;
+	float real_radius;
 	float opening;
 	float height;
 } sky_dome;
@@ -108,13 +111,10 @@ skybox_type current_sky = SKYBOX_NONE;
 
 #define NUM_STARS 3000
 GLuint sky_lists;
-int smokey_cloud_tex;
+int thick_clouds_tex;
+int thick_clouds_detail_tex;
 int moon_tex;
 int sun_tex;
-
-#ifdef NEW_WEATHER
-extern float weather_severity;
-#endif // NEW_WEATHER
 
 sky_dome create_dome(int slices, int stacks, float radius, float opening, int fake_opening, float first_angle, float texture_size)
 {
@@ -122,7 +122,6 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
     int i, j;
     float angle, angle_step;
     int idx, vtx_idx;
-	float real_radius;
 	float max_sin_angle;
 
     dome.slices_count = slices;
@@ -143,8 +142,8 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 	angle = dome.opening * M_PI / 180.0;
 	max_sin_angle = sinf(angle);
 
-    real_radius = dome.radius/sinf(angle);
-    dome.height = real_radius - real_radius*cosf(angle);
+    dome.real_radius = dome.radius/sinf(angle);
+    dome.height = dome.real_radius - dome.real_radius*cosf(angle);
 
     // we compute the vertices positions and normals
     i = idx = 0;
@@ -152,7 +151,7 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 	{
 		float cos_angle = cosf(angle);
 		float sin_angle = sinf(angle);
-        float z_pos = cos_angle * real_radius + dome.height - real_radius;
+        float z_pos = cos_angle * dome.real_radius + dome.height - dome.real_radius;
 		float tmp = 1.0 - sqrtf(1.0-sin_angle/max_sin_angle);
 		float fake_angle = angle * fake_opening / opening;
 		float fake_cos_angle = cosf(fake_angle);
@@ -163,8 +162,8 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 			float cos_teta = cosf(teta);
 			float sin_teta = sinf(teta);
 			int idx3 = idx*3;
-            dome.vertices[idx3  ] = sin_angle * cos_teta * real_radius; 
-            dome.vertices[idx3+1] = sin_angle * sin_teta * real_radius;
+            dome.vertices[idx3  ] = sin_angle * cos_teta * dome.real_radius; 
+            dome.vertices[idx3+1] = sin_angle * sin_teta * dome.real_radius;
             dome.vertices[idx3+2] = z_pos;
 			dome.normals[idx3  ] = fake_sin_angle * cos_teta;
 			dome.normals[idx3+1] = fake_sin_angle * sin_teta;
@@ -185,7 +184,7 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
     {
 		float cos_angle = cosf(angle);
 		float sin_angle = sinf(angle);
-        float z_pos = cos_angle * real_radius + dome.height - real_radius;
+        float z_pos = cos_angle * dome.real_radius + dome.height - dome.real_radius;
 		float tmp = 1.0 - sqrtf(1.0-sin_angle/max_sin_angle);
 		float fake_angle = angle * fake_opening / opening;
 		float fake_cos_angle = cosf(fake_angle);
@@ -196,8 +195,8 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 			float cos_teta = cosf(teta);
 			float sin_teta = sinf(teta);
 			int idx3 = idx*3;
-            dome.vertices[idx3  ] = sin_angle * cos_teta * real_radius; 
-            dome.vertices[idx3+1] = sin_angle * sin_teta * real_radius;
+            dome.vertices[idx3  ] = sin_angle * cos_teta * dome.real_radius; 
+            dome.vertices[idx3+1] = sin_angle * sin_teta * dome.real_radius;
             dome.vertices[idx3+2] = z_pos;
 			dome.normals[idx3  ] = fake_sin_angle * cos_teta;
 			dome.normals[idx3+1] = fake_sin_angle * sin_teta;
@@ -258,23 +257,7 @@ void destroy_dome(sky_dome *dome)
     if (dome->faces     ) { free(dome->faces     ); dome->faces      = NULL; }
 }
 
-void blend_colors(float result[], float orig[], float dest[], float t, int size)
-{
-    while (size--)
-    {
-        result[size] = (1.0-t)*orig[size] + t*dest[size];
-    }
-}
-
-void blend_color_tables(float result[], float orig_table[360][4], float dest_table[360][4], float t, int size)
-{
-	float color1[4], color2[4];
-	blend_colors(color1, orig_table[game_minute], orig_table[(game_minute+1)%360], (float)game_second/60.0, size);
-	blend_colors(color2, dest_table[game_minute], dest_table[(game_minute+1)%360], (float)game_second/60.0, size);
-	blend_colors(result, color1, color2, t, size);
-}
-
-void skybox_compute_height()
+void skybox_compute_z_position()
 {
 	if (far_plane < 500.0)
 	{
@@ -292,9 +275,56 @@ void skybox_compute_height()
 		skybox_z = 0.0;
 }
 
-float skybox_get_height()
+float skybox_get_z_position()
 {
 	return skybox_z;
+}
+
+void skybox_compute_element_projection(float proj[3], float pos[3])
+{
+	float coef, a, b, c, delta;
+	float r2 = dome_sky.real_radius*dome_sky.real_radius;
+	float z = dome_sky.height - dome_sky.real_radius;
+
+	c = z*z - r2;
+
+	if (pos[0] != 0.0)
+	{
+		coef = pos[2]/pos[0];
+		a = 1.0 + coef*coef;
+		b = -2.0*coef*z;
+		delta = b*b - 4*a*c;
+		if (delta <= 0.0) fprintf(stderr, "delta=%f\n", delta);
+
+		if (pos[0] < 0.0)
+			proj[0] = (-b - sqrtf(delta)) / (2.0*a);
+		else
+			proj[0] = (-b + sqrtf(delta)) / (2.0*a);
+	}
+	else proj[0] = 0.0;
+
+	if (pos[1] != 0.0)
+	{
+		coef = pos[2]/pos[1];
+		a = 1.0 + coef*coef;
+		b = -2.0*coef*z;
+		delta = b*b - 4*a*c;
+		if (delta <= 0.0) fprintf(stderr, "delta=%f\n", delta);
+		
+		if (pos[1] < 0.0)
+			proj[1] = (-b - sqrtf(delta)) / (2.0*a);
+		else
+			proj[1] = (-b + sqrtf(delta)) / (2.0*a);
+	}
+	else proj[1] = 0.0;
+
+	proj[2] = sqrtf(r2 - proj[0]*proj[0] - proj[1]*proj[1]) + z;
+}
+
+float skybox_get_height(float x, float y)
+{
+	return (sqrtf(dome_sky.real_radius*dome_sky.real_radius - x*x - y*y) +
+			dome_sky.height - dome_sky.real_radius);
 }
 
 void skybox_set_type(skybox_type sky)
@@ -355,6 +385,9 @@ void skybox_update_positions()
 }
 
 void update_cloudy_sky_colors();
+#ifdef NEW_WEATHER
+void update_cloudy_sky_local_colors();
+#endif // NEW_WEATHER
 void update_underworld_sky_colors();
 
 void skybox_update_colors()
@@ -362,7 +395,12 @@ void skybox_update_colors()
 	switch(current_sky)
 	{
 	case SKYBOX_CLOUDY:
-		update_cloudy_sky_colors();
+#ifdef NEW_WEATHER
+		if (skybox_local_weather)
+			update_cloudy_sky_local_colors();
+		else
+#endif // NEW_WEATHER
+			update_cloudy_sky_colors();
 		break;
 
 	case SKYBOX_UNDERWORLD:
@@ -370,10 +408,10 @@ void skybox_update_colors()
 		break;
 
 	case SKYBOX_NONE:
-		skybox_fog[0][0] = 0.0;
-		skybox_fog[0][1] = 0.0;
-		skybox_fog[0][2] = 0.0;
-		skybox_fog[0][3] = 0.0;
+		skybox_fog_color[0] = 0.0;
+		skybox_fog_color[1] = 0.0;
+		skybox_fog_color[2] = 0.0;
+		skybox_fog_color[3] = 0.0;
 	default:
 		break;
 	}
@@ -384,6 +422,8 @@ void update_cloudy_sky_positions()
 	float rot1[9], rot2[9], rot3[9];
 	float moon1_vect[3] = {0.0, 0.0, 1.0};
 	float moon2_vect[3] = {0.0, 0.0, 1.0};
+
+	skybox_compute_element_projection(skybox_sun_projection, skybox_sun_position);
 
 	moon_spin = cur_time % (1296000*1000);
 	moon_spin *= 360.0/(1296000.0/*seconds in large month*/ * 1000.0/*millisecond bump*/);
@@ -453,12 +493,10 @@ float __inline__ get_moonlight2(const GLfloat normal[3])
 void update_cloudy_sky_colors()
 {
     int i, idx, end;
-	GLfloat color_sun[3];
-	GLfloat color_sky[3];
-	GLfloat color[3];
+	GLfloat color_sun[4];
+	GLfloat color_sky[4];
+	GLfloat color[4];
 	float abs_light;
-	float sec_ratio2 = (float)game_second/60.0;
-	float sec_ratio1 = 1.0 - sec_ratio2;
 
 	abs_light = light_level;
 	if(light_level > 59)
@@ -468,8 +506,8 @@ void update_cloudy_sky_colors()
 	abs_light = 1.0f - abs_light/59.0f;
 
 #ifdef NEW_WEATHER
-	rain_coef = weather_get_fadeinout_bias()*weather_severity;
-#else /* NEW_WATHER */
+	rain_coef = weather_get_density();
+#else // NEW_WATHER
 	rain_coef = weather_rain_intensity*rain_strength_bias;
 #endif // NEW_WEATHER
 
@@ -485,26 +523,55 @@ void update_cloudy_sky_colors()
 	moon2_color[2] = 0.7;
 
 	// color of the sun
-	sun_color[0] = (skybox_sun[game_minute][0]*sec_ratio1 + skybox_sun[(game_minute+1)%360][0]*sec_ratio2) * (1.0-rain_coef);
-	sun_color[1] = (skybox_sun[game_minute][1]*sec_ratio1 + skybox_sun[(game_minute+1)%360][1]*sec_ratio2) * (1.0-rain_coef);
-	sun_color[2] = (skybox_sun[game_minute][2]*sec_ratio1 + skybox_sun[(game_minute+1)%360][2]*sec_ratio2) * (1.0-rain_coef);
-	sun_color[3] = (skybox_sun[game_minute][3]*sec_ratio1 + skybox_sun[(game_minute+1)%360][3]*sec_ratio2) * (1.0-rain_coef);
+	skybox_get_current_color(sun_color, skybox_sun);
+	sun_color[0] *= 1.0 - rain_coef;
+	sun_color[1] *= 1.0 - rain_coef;
+	sun_color[2] *= 1.0 - rain_coef;
+	sun_color[3] *= 1.0 - rain_coef;
 
 	idx = 0;
 
     // we compute the color and the density of the fog
-	blend_color_tables(skybox_fog_color, skybox_fog, skybox_fog_rainy, rain_coef, 4);
+	skybox_blend_current_colors(skybox_fog_color, skybox_fog, skybox_fog_rainy, rain_coef);
+#ifdef NEW_WEATHER
+	if (rain_coef > 0.0)
+	{
+		float fog_density;
+		blend_colors(&fog_density, &skybox_fog[game_minute][3], &skybox_fog[(game_minute+1)%360][3], (float)game_second/60.0, 1);
+		skybox_fog_color[0] *= (1.0-rain_coef) + rain_coef*weather_color[0];
+		skybox_fog_color[1] *= (1.0-rain_coef) + rain_coef*weather_color[1];
+		skybox_fog_color[2] *= (1.0-rain_coef) + rain_coef*weather_color[2];
+		skybox_fog_color[3] = (1.0-rain_coef)*fog_density + rain_coef*skybox_fog_color[3];
+	}
+#endif // NEW_WEATHER
 	skybox_fog_density = skybox_fog_color[3];
 	skybox_fog_color[3] = 1.0;
 
     // we compute the colors of the fog around the dome according to the sun and moons positions
-    blend_color_tables(color_sun, skybox_fog_sunny, skybox_fog_rainy, rain_coef, 3);
+    skybox_blend_current_colors(color_sun, skybox_fog_sunny, skybox_fog_rainy, rain_coef);
     for (i = 0; i < dome_sky.slices_count; ++i)
     {
 		const float *normal = &dome_sky.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, skybox_fog_color, color_sun, get_fog_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
 		fog_colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
@@ -513,14 +580,31 @@ void update_cloudy_sky_colors()
 	i = idx = 0;
 
 	// clouds color
-	blend_color_tables(color_sky, skybox_clouds, skybox_clouds_rainy, rain_coef, 3);
-	blend_color_tables(color_sun, skybox_clouds_sunny, skybox_clouds_rainy, rain_coef, 3);
+	skybox_blend_current_colors(color_sky, skybox_clouds, skybox_clouds_rainy, rain_coef);
+	skybox_blend_current_colors(color_sun, skybox_clouds_sunny, skybox_clouds_rainy, rain_coef);
     while (i < dome_clouds.slices_count * 2)
     {
 		const float *normal = &dome_clouds.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_clouds_colors_bis[idx++] = color[0];
 		dome_clouds.colors[idx] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -536,7 +620,24 @@ void update_cloudy_sky_colors()
 		const float *normal = &dome_clouds.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_clouds_colors_bis[idx++] = color[0];
 		dome_clouds.colors[idx] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -551,11 +652,28 @@ void update_cloudy_sky_colors()
 	i = idx = 0;
 
 	// clouds detail color
-	blend_color_tables(color_sky, skybox_clouds_detail, skybox_clouds_detail_rainy, rain_coef, 3);
-	blend_color_tables(color_sun, skybox_clouds_detail_sunny, skybox_clouds_detail_rainy, rain_coef, 3);
+	skybox_blend_current_colors(color_sky, skybox_clouds_detail, skybox_clouds_detail_rainy, rain_coef);
+	skybox_blend_current_colors(color_sun, skybox_clouds_detail_sunny, skybox_clouds_detail_rainy, rain_coef);
     while (i < dome_clouds.slices_count * 2)
     {
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_clouds_detail_colors[idx] = color[0];
 		dome_clouds_detail_colors_bis[idx++] = color[0];
 		dome_clouds_detail_colors[idx] = color[1];
@@ -568,7 +686,24 @@ void update_cloudy_sky_colors()
     }
     while (i < dome_clouds.vertices_count)
     {
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_clouds_detail_colors[idx] = color[0];
 		dome_clouds_detail_colors_bis[idx++] = color[0];
 		dome_clouds_detail_colors[idx] = color[1];
@@ -583,15 +718,32 @@ void update_cloudy_sky_colors()
 	i = idx = 0;
 
 	// sky color
-	blend_color_tables(color_sky, skybox_sky1, skybox_fog_rainy, rain_coef, 3);
-	blend_color_tables(color_sun, skybox_sky1_sunny, skybox_fog_rainy, rain_coef, 3);
+	skybox_blend_current_colors(color_sky, skybox_sky1, skybox_fog_rainy, rain_coef);
+	skybox_blend_current_colors(color_sun, skybox_sky1_sunny, skybox_fog_rainy, rain_coef);
 	end = dome_sky.slices_count;
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
 		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
@@ -599,15 +751,32 @@ void update_cloudy_sky_colors()
 		++i;
     }
 
-	blend_color_tables(color_sky, skybox_sky2, skybox_fog_rainy, rain_coef, 3);
-	blend_color_tables(color_sun, skybox_sky2_sunny, skybox_fog_rainy, rain_coef, 3);
+	skybox_blend_current_colors(color_sky, skybox_sky2, skybox_fog_rainy, rain_coef);
+	skybox_blend_current_colors(color_sun, skybox_sky2_sunny, skybox_fog_rainy, rain_coef);
 	end += dome_sky.slices_count;
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
 		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
@@ -615,15 +784,32 @@ void update_cloudy_sky_colors()
 		++i;
     }
 
-	blend_color_tables(color_sky, skybox_sky3, skybox_fog_rainy, rain_coef, 3);
-	blend_color_tables(color_sun, skybox_sky3_sunny, skybox_fog_rainy, rain_coef, 3);
+	skybox_blend_current_colors(color_sky, skybox_sky3, skybox_fog_rainy, rain_coef);
+	skybox_blend_current_colors(color_sun, skybox_sky3_sunny, skybox_fog_rainy, rain_coef);
 	end += dome_sky.slices_count;
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
 		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
@@ -631,15 +817,32 @@ void update_cloudy_sky_colors()
 		++i;
     }
 
-	blend_color_tables(color_sky, skybox_sky4, skybox_fog_rainy, rain_coef, 3);
-	blend_color_tables(color_sun, skybox_sky4_sunny, skybox_fog_rainy, rain_coef, 3);
+	skybox_blend_current_colors(color_sky, skybox_sky4, skybox_fog_rainy, rain_coef);
+	skybox_blend_current_colors(color_sun, skybox_sky4_sunny, skybox_fog_rainy, rain_coef);
 	end += dome_sky.slices_count;
     while (i < end)
     {
 		const float *normal = &dome_sky.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
 		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
@@ -647,14 +850,31 @@ void update_cloudy_sky_colors()
 		++i;
     }
 
-	blend_color_tables(color_sky, skybox_sky5, skybox_fog_rainy, rain_coef, 3);
-	blend_color_tables(color_sun, skybox_sky5_sunny, skybox_fog_rainy, rain_coef, 3);
+	skybox_blend_current_colors(color_sky, skybox_sky5, skybox_fog_rainy, rain_coef);
+	skybox_blend_current_colors(color_sun, skybox_sky5_sunny, skybox_fog_rainy, rain_coef);
     while (i < dome_sky.vertices_count)
     {
 		const float *normal = &dome_sky.normals[i*3];
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+#ifdef NEW_WEATHER
+		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
+		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+#endif // NEW_WEATHER
+
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+#ifdef NEW_WEATHER
+		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+#endif // NEW_WEATHER
+
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
 		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
@@ -670,6 +890,434 @@ void update_cloudy_sky_colors()
 	moon2_color[1] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
 	moon2_color[2] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
 }
+
+#ifdef NEW_WEATHER
+void update_cloudy_sky_local_colors()
+{
+    int i, idx, end;
+	GLfloat color_sun[4];
+	GLfloat color_sky[4];
+	GLfloat color[4];
+	GLfloat local_color[4];
+	float abs_light;
+	float ratios[MAX_WEATHER_TYPES];
+
+	abs_light = light_level;
+	if(light_level > 59)
+	{
+		abs_light = 119 - light_level;
+	}
+	abs_light = 1.0f - abs_light/59.0f;
+
+	// alpha adjustment for objects that should fade in daylight
+	day_alpha = (1.0-abs_light);
+	
+	// color of the moons
+	moon1_color[0] = 0.9;
+	moon1_color[1] = 0.9;
+	moon1_color[2] = 0.9;
+	moon2_color[0] = 0.9;
+	moon2_color[1] = 0.8;
+	moon2_color[2] = 0.7;
+
+	// color of the sun
+	skybox_get_current_color(sun_color, skybox_sun);
+	weather_compute_ratios(ratios, skybox_sun_projection[0]/WEATHER_SKY_SCALE-camera_x, skybox_sun_projection[1]/WEATHER_SKY_SCALE-camera_y);
+	rain_coef = weather_get_density_from_ratios(ratios);
+	sun_color[0] *= 1.0 - rain_coef;
+	sun_color[1] *= 1.0 - rain_coef;
+	sun_color[2] *= 1.0 - rain_coef;
+	sun_color[3] *= 1.0 - rain_coef;
+
+	idx = 0;
+
+    // we compute the color and the density of the fog
+	rain_coef = weather_get_intensity();
+	skybox_blend_current_colors(skybox_fog_color, skybox_fog, skybox_fog_rainy, rain_coef);
+	if (rain_coef > 0.0)
+	{
+		float weather_density = weather_get_density();
+		float fog_density;
+		blend_colors(&fog_density, &skybox_fog[game_minute][3], &skybox_fog[(game_minute+1)%360][3], (float)game_second/60.0, 1);
+		skybox_fog_color[0] *= (1.0-weather_density) + weather_density*weather_color[0];
+		skybox_fog_color[1] *= (1.0-weather_density) + weather_density*weather_color[1];
+		skybox_fog_color[2] *= (1.0-weather_density) + weather_density*weather_color[2];
+		skybox_fog_color[3] = (1.0-weather_density)*fog_density + weather_density*skybox_fog_color[3];
+	}
+	skybox_fog_density = skybox_fog_color[3];
+	skybox_fog_color[3] = 1.0;
+
+    // we compute the colors of the fog around the dome according to the sun and moons positions
+    for (i = 0; i < dome_sky.slices_count; ++i)
+    {
+		const float *normal = &dome_sky.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sun, skybox_fog_sunny, skybox_fog_rainy, rain_coef);
+		blend_colors(color, skybox_fog_color, color_sun, get_fog_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		fog_colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+    }
+
+	i = idx = 0;
+
+	// clouds color
+    while (i < dome_clouds.slices_count * 2)
+    {
+		const float *normal = &dome_clouds.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sky, skybox_clouds, skybox_clouds_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_clouds_sunny, skybox_clouds_rainy, rain_coef);
+
+		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		dome_clouds_colors_bis[idx++] = color[0];
+		dome_clouds.colors[idx] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		dome_clouds_colors_bis[idx++] = color[1];
+		dome_clouds.colors[idx] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		dome_clouds_colors_bis[idx++] = color[2];
+        dome_clouds.colors[idx] = 0.0;
+		dome_clouds_colors_bis[idx++] = 0.0;
+		++i;
+    }
+    while (i < dome_clouds.vertices_count)
+    {
+		const float *normal = &dome_clouds.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sky, skybox_clouds, skybox_clouds_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_clouds_sunny, skybox_clouds_rainy, rain_coef);
+
+		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		dome_clouds_colors_bis[idx++] = color[0];
+		dome_clouds.colors[idx] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		dome_clouds_colors_bis[idx++] = color[1];
+		dome_clouds.colors[idx] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		dome_clouds_colors_bis[idx++] = color[2];
+        dome_clouds.colors[idx] = 1.0;
+		dome_clouds_colors_bis[idx++] = rain_coef;
+		++i;
+    }
+
+	i = idx = 0;
+
+	// clouds detail color
+    while (i < dome_clouds.slices_count * 2)
+    {
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		skybox_blend_current_colors(color_sky, skybox_clouds_detail, skybox_clouds_detail_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_clouds_detail_sunny, skybox_clouds_detail_rainy, rain_coef);
+
+		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		dome_clouds_detail_colors[idx] = color[0];
+		dome_clouds_detail_colors_bis[idx++] = color[0];
+		dome_clouds_detail_colors[idx] = color[1];
+		dome_clouds_detail_colors_bis[idx++] = color[1];
+		dome_clouds_detail_colors[idx] = color[2];
+		dome_clouds_detail_colors_bis[idx++] = color[2];
+        dome_clouds_detail_colors[idx] = 0.0;
+		dome_clouds_detail_colors_bis[idx++] = 0.0;
+		++i;
+    }
+    while (i < dome_clouds.vertices_count)
+    {
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		skybox_blend_current_colors(color_sky, skybox_clouds_detail, skybox_clouds_detail_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_clouds_detail_sunny, skybox_clouds_detail_rainy, rain_coef);
+
+		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		dome_clouds_detail_colors[idx] = color[0];
+		dome_clouds_detail_colors_bis[idx++] = color[0];
+		dome_clouds_detail_colors[idx] = color[1];
+		dome_clouds_detail_colors_bis[idx++] = color[1];
+		dome_clouds_detail_colors[idx] = color[2];
+		dome_clouds_detail_colors_bis[idx++] = color[2];
+        dome_clouds_detail_colors[idx] = 1.0;
+		dome_clouds_detail_colors_bis[idx++] = rain_coef;
+		++i;
+    }
+
+	i = idx = 0;
+
+	// sky color
+	end = dome_sky.slices_count;
+    while (i < end)
+    {
+		const float *normal = &dome_sky.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+		float x = dome_sky.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_sky.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sky, skybox_sky1, skybox_fog_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_sky1_sunny, skybox_fog_rainy, rain_coef);
+
+		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+    }
+
+	end += dome_sky.slices_count;
+    while (i < end)
+    {
+		const float *normal = &dome_sky.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+		float x = dome_sky.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_sky.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sky, skybox_sky2, skybox_fog_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_sky2_sunny, skybox_fog_rainy, rain_coef);
+
+		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+    }
+
+	end += dome_sky.slices_count;
+    while (i < end)
+    {
+		const float *normal = &dome_sky.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+		float x = dome_sky.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_sky.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sky, skybox_sky3, skybox_fog_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_sky3_sunny, skybox_fog_rainy, rain_coef);
+
+		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+    }
+
+	end += dome_sky.slices_count;
+    while (i < end)
+    {
+		const float *normal = &dome_sky.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+		float x = dome_sky.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_sky.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sky, skybox_sky4, skybox_fog_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_sky4_sunny, skybox_fog_rainy, rain_coef);
+	
+		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+    }
+
+    while (i < dome_sky.vertices_count)
+    {
+		const float *normal = &dome_sky.normals[i*3];
+		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
+		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
+		float x = dome_sky.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_sky.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
+		float th = weather_get_thunder_intensity(x, y);
+
+		weather_compute_ratios(ratios, x, y);
+		rain_coef = weather_get_density_from_ratios(ratios);
+		weather_get_color_from_ratios(local_color, ratios);
+
+		ml1 *= 1.0 - rain_coef;
+		ml2 *= 1.0 - rain_coef;
+
+		skybox_blend_current_colors(color_sky, skybox_sky5, skybox_fog_rainy, rain_coef);
+		skybox_blend_current_colors(color_sun, skybox_sky5_sunny, skybox_fog_rainy, rain_coef);
+	
+		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
+
+		color[0] *= (1.0 - rain_coef) + rain_coef*local_color[0];
+		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
+		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
+
+		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
+		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
+		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+
+		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
+		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
+		dome_sky.colors[idx++] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
+		dome_sky.colors[idx++] = 1.0;
+		++i;
+    }
+
+	// color of the moons update
+	moon1_color[0] *= (0.5 + 0.5*day_alpha);
+	moon1_color[1] *= (0.5 + 0.5*day_alpha);
+	moon1_color[2] *= (0.5 + 0.5*day_alpha);
+	moon2_color[0] *= (0.5 + 0.5*day_alpha);
+	moon2_color[1] *= (0.5 + 0.5*day_alpha);
+	moon2_color[2] *= (0.5 + 0.5*day_alpha);
+}
+#endif // NEW_WEATHER
 
 void update_underworld_sky_colors()
 {
@@ -986,9 +1634,12 @@ void cloudy_sky()
 		
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
 		
+#ifndef NEW_WEATHER
 		if (rain_coef > 0.0)
+#endif // NEW_WEATHER
 		{
 			// we draw the second clouds layer
+			get_and_set_texture_id(thick_clouds_tex);
 			glColorPointer(4, GL_FLOAT, 0, dome_clouds_colors_bis);
 			glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds_tex_coords_bis);
 			glPushMatrix();
@@ -1064,8 +1715,11 @@ void cloudy_sky()
 		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
 		glPopMatrix();
 		
+#ifndef NEW_WEATHER
 		if (rain_coef > 0.0)
+#endif // NEW_WEATHER
 		{
+			get_and_set_texture_id(thick_clouds_detail_tex);
 			glColorPointer(4, GL_FLOAT, 0, dome_clouds_detail_colors_bis);
 			glTexCoordPointer(2, GL_FLOAT, 0, dome_clouds_tex_coords_bis);
 			glPushMatrix();
@@ -1090,6 +1744,10 @@ void cloudy_sky()
 
         glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
     }
+
+#ifdef NEW_WEATHER
+	weather_render_thunder();
+#endif // NEW_WEATHER
 
     glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
@@ -1207,9 +1865,9 @@ void underworld_sky()
 				dome_clouds_tex_coords_bis[i*2] += clouds_step - 1.0;
 		}
 
-		glBlendFunc(GL_SRC_ALPHA,GL_ONE);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glEnable(GL_TEXTURE_2D);
-		get_and_set_texture_id(smokey_cloud_tex);
+		get_and_set_texture_id(thick_clouds_detail_tex);
 
 		glEnableClientState(GL_VERTEX_ARRAY);
 		glEnableClientState(GL_TEXTURE_COORD_ARRAY);
@@ -1754,7 +2412,8 @@ void skybox_init_gl()
 	float maxr;
     float strs[NUM_STARS][3];
 
-	smokey_cloud_tex = load_texture_cache("./textures/cloud_detail_alpha.bmp", 0);
+	thick_clouds_tex = load_texture_cache("./textures/thick_clouds.bmp", 0);
+	thick_clouds_detail_tex = load_texture_cache("./textures/thick_clouds_detail.bmp", 0);
 	moon_tex=load_texture_cache("./textures/moonmap.bmp", 0);
 	sun_tex=load_texture_cache("./textures/BrightSun.bmp", 255);
 
@@ -1828,7 +2487,7 @@ void skybox_init_gl()
 	if (dome_clouds_tex_coords_bis) free(dome_clouds_tex_coords_bis);
 	if (fog_colors) free(fog_colors);
 
-	dome_sky = create_dome(24, 12, 500.0, 90.0, 90.0, 3.5, 1.0);
+	dome_sky = create_dome(24, 12, 500.0, 60.0, 90.0, 3.5, 1.0);
 	dome_clouds = create_dome(24, 12, 500.0, 60.0, 90.0, 2.0, 1.0);
 	dome_clouds_detail_colors = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));

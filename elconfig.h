@@ -17,8 +17,11 @@ extern int elconfig_win;
 extern int elconfig_menu_x;
 extern int elconfig_menu_y;
 #ifdef SKY_FPV
-extern float z_cull_sq, cut_size;
 extern float water_tiles_extension;
+extern int skybox_update_every_frame;
+#ifdef NEW_WEATHER
+extern int skybox_local_weather;
+#endif // NEW_WEATHER
 #endif // SKY_FPV
 #ifdef NEW_CURSOR
 extern int big_cursors;

@@ -598,9 +598,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #else // SKY_FPV
 				real_game_minute= SDL_SwapLE16(*((short *)(in_data+3)));
 				real_game_minute %= 360;
-				if (!freeze_time) game_minute = real_game_minute;
 				real_game_second = 0;
-				if (!freeze_time) game_second = real_game_second;
 				next_second_time = cur_time+1000;
 #endif // SKY_FPV
 				new_minute();
@@ -978,7 +976,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				} else {
 					severity= 1.0f;
 				}
+#ifndef NEW_WEATHER
 				start_weather (in_data[3], severity);
+#else // NEW_WEATHER
+				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 10000.0, 1, 1.0, 60);
+#endif // NEW_WEATHER
 			}
 			break;
 
@@ -999,7 +1001,11 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				} else {
 					severity= 1.0f;
 				}
+#ifndef NEW_WEATHER
 				stop_weather (in_data[3], severity);
+#else // NEW_WEATHER
+				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 10000.0, 1, 0.0, 60);
+#endif // NEW_WEATHER
 			}
 			break;
 
@@ -1013,18 +1019,26 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 					log_error("CAUTION: Possibly forged THUNDER packet received.\n");
 					break;
 				}
+#ifndef NEW_WEATHER
 				add_thunder (rand () % 5, in_data[3]);
+#else // NEW_WEATHER
+				weather_add_thunder(rand()%5, -camera_x-40+rand()%80, -camera_y-40+rand()%80);
+#endif // NEW_WEATHER
 			}
 			break;
 
 
 		case SEND_WEATHER:
 			{
+#ifndef NEW_WEATHER
 				while(data_length >= 8){
 					get_weather_from_server(in_data+3);
 					in_data+= 5;
 					data_length-= 5;
 				}
+#else // NEW_WEATHER
+				// nothing for the moment
+#endif // NEW_WEATHER
 			}
 			break;
 

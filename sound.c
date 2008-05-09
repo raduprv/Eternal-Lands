@@ -2947,7 +2947,7 @@ void set_sound_gain(source_data * pSource, int loaded_sound_num, float new_gain)
 		sounds_list[loaded_sound_num].base_gain = new_gain;
 
 	// Check if we need to dim down the sounds due to rain
-	if (this_snd->type != SOUNDS_CLIENT && this_snd->type != SOUNDS_GAMEWIN && this_snd->type != SOUNDS_WARNINGS)
+	if (this_snd->type != SOUNDS_CLIENT && this_snd->type != SOUNDS_GAMEWIN && this_snd->type != SOUNDS_WARNINGS && this_snd->type != SOUNDS_ENVIRO)
 		new_gain = weather_adjust_gain(new_gain, pSource->cookie);
 
 	// Check if we need to update the overall gain for this source

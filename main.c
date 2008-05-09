@@ -49,6 +49,9 @@
 #include "timers.h"
 #include "translate.h"
 #include "url.h"
+#ifdef NEW_WEATHER
+#include "weather.h"
+#endif // NEW_WEATHER
 #include "counters.h"
 #ifdef MEMORY_DEBUG
 #include "elmemory.h"
@@ -171,7 +174,6 @@ int start_rendering()
 			while (cur_time > next_second_time && game_second < 59)
 			{
 				real_game_second += 1;
-				if (!freeze_time) game_second = real_game_second;
 				new_second();
 				next_second_time += 1000;
 			}
@@ -179,6 +181,11 @@ int start_rendering()
 
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
+#ifdef NEW_WEATHER
+				weather_update();
+				weather_sound_control();
+#endif // NEW_WEATHER
+
                 animate_actors();
 				//draw everything
 				draw_scene();

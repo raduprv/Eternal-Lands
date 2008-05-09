@@ -747,10 +747,12 @@ void init_stuff()
 	clear_conn_log();
 	update_loading_win(read_config_str, 2);
 	read_bin_cfg();
-#ifndef NEW_WEATHER
  	update_loading_win(init_weather_str, 3);
+#ifndef NEW_WEATHER
  	init_weather();	// initialize the weather system
-#endif //NEW_WEATHER
+#else // NEW_WEATHER
+	weather_init();
+#endif // NEW_WEATHER
 	build_levels_table();//for some HUD stuff
 
 	update_loading_win(load_icons_str, 4);

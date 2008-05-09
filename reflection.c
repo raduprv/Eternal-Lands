@@ -647,7 +647,7 @@ void display_3d_reflection()
 	if (skybox_show_sky)
 	{
         glPushMatrix();
-        glTranslatef(0.0, 0.0, -skybox_get_height());
+        glTranslatef(0.0, 0.0, -skybox_get_z_position());
 		if (!clip_sky)
 		{
 			skybox_display();
@@ -665,6 +665,9 @@ void display_3d_reflection()
 
 	if (far_reflection_plane > 0.0)
 	{
+#ifdef NEW_WEATHER
+		weather_init_thunder_light();
+#endif // NEW_WEATHER
 #endif // SKY_FPV
 
 	cur_intersect_type = get_cur_intersect_type(main_bbox_tree);
@@ -690,6 +693,9 @@ void display_3d_reflection()
 	disable_reflection_clip_planes();
 
 #ifdef SKY_FPV
+#ifdef NEW_WEATHER
+		weather_cleanup_thunder_light();
+#endif // NEW_WEATHER
 	}
 #endif // SKY_FPV
 
@@ -729,11 +735,6 @@ CHECK_GL_ERRORS();
 void blend_reflection_fog()
 {
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
-#ifdef NEW_WEATHER
-	GLfloat fogColor[4];
-	
-	glGetFloatv(GL_FOG_COLOR, fogColor);
-#endif
 #ifdef	USE_SHADER
 	if (water_shader_quality > 0)
 #else	// USE_SHADER
@@ -774,7 +775,11 @@ void blend_reflection_fog()
 	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
 
 	// now add the fog by additive blending
+#ifndef SKY_FPV
 	glFogfv(GL_FOG_COLOR, fogColor);
+#else // SKY_FPV
+	glFogfv(GL_FOG_COLOR, skybox_fog_color);
+#endif // SKY_FPV
 	glBlendFunc(GL_ONE, GL_ONE);
 	
 	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
@@ -1108,13 +1113,14 @@ void draw_sky_background()
 	static GLfloat lights_c[4][3];
 #ifdef MAP_EDITOR2
 	int i;
-#else
+#else // MAP_EDITOR2
 #ifdef NEW_WEATHER
 	int i;
-#else
+	float weather_bias = (1.0-weather_get_density());
+#else // NEW_WEATHER
 	int i, j;
-#endif
-#endif
+#endif // NEW_WEATHER
+#endif // MAP_EDITOR2
 	GLint view_port[4];
 
 	glDisable(GL_TEXTURE_2D);
@@ -1149,16 +1155,12 @@ void draw_sky_background()
 #ifdef NEW_WEATHER
 	for (i = 0; i < 3; i++) {
 		// get the sky color
-		lights_c[0][i] = weather_bias_light(sky_lights_c1[light_level][i]);
-		lights_c[1][i] = weather_bias_light(sky_lights_c2[light_level][i]);
-		lights_c[2][i] = weather_bias_light(sky_lights_c3[light_level][i]);
-		lights_c[3][i] = weather_bias_light(sky_lights_c4[light_level][i]);
+		lights_c[0][i] = sky_lights_c1[light_level][i]*weather_bias;
+		lights_c[1][i] = sky_lights_c2[light_level][i]*weather_bias;
+		lights_c[2][i] = sky_lights_c3[light_level][i]*weather_bias;
+		lights_c[3][i] = sky_lights_c4[light_level][i]*weather_bias;
 	}
-
-	for (i = 0; i < 4; i++) {
-		weather_color_bias(lights_c[i], lights_c[i]);
-	}
-#else
+#else // NEW_WEATHER
 	for (i=0; i<3; i++) {
 		// get the sky color
 		lights_c[0][i] = sky_lights_c1[light_level][i];
@@ -1175,7 +1177,7 @@ void draw_sky_background()
 		}
 #endif
 	}
-#endif
+#endif // NEW_WEATHER
 
 #ifdef SKY_FPV
 	if (!skybox_show_sky)
@@ -1238,9 +1240,10 @@ void draw_dungeon_sky_background()
 	static const GLfloat baseColor[3] = { 0.00f, 0.21f, 0.34f };
 #ifndef MAP_EDITOR2
 	static GLfloat color[3];
-#ifndef  NEW_WEATHER
 	int i;
-#endif //  NEW_WEATHER
+#ifdef  NEW_WEATHER
+	float weather_density = weather_get_density();
+#endif // NEW_WEATHER
 #endif // MAP_EDITOR2
 	GLint view_port[4];
 
@@ -1277,13 +1280,13 @@ void draw_dungeon_sky_background()
 	glColor3fv(baseColor);
 #else // MAP EDITOR 2
 
-#ifdef  NEW_WEATHER
-	weather_color_bias(baseColor, color);
-#else //  NEW_WEATHER
 	for (i=0; i<3; i++) {
+#ifdef  NEW_WEATHER
+		color[i] = baseColor[i] * ((1.0 - weather_density) + weather_color[i]*weather_density);
+#else //  NEW_WEATHER
 		color[i] = (1.0f - fogAlpha)*baseColor[i] + fogAlpha*fogColor[i];
-	}
 #endif //  NEW_WEATHER
+	}
 
 	glColor3fv(color);
 #endif // MAP_EDITOR

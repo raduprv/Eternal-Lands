@@ -277,7 +277,11 @@ void change_map (const char *mapname)
 #endif // NEW_SOUND
 	have_a_map=1;
 	//also, stop the rain
+#ifndef NEW_WEATHER
 	clear_weather();
+#else // NEW_WEATHER
+	weather_clear();
+#endif // NEW_WEATHER
 
 	if ( get_show_window (map_root_win) )
 	{

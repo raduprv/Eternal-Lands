@@ -14,34 +14,57 @@ extern "C" {
 #endif
 
 extern int use_fog;			/*!< Whether we are using fog or not */
-void start_weather(int seconds_till_start, float severity);
-void stop_weather(int seconds_till_stop, float severity);
-void clear_weather();
-void render_weather();
 
-void get_weather_from_server(const Uint8* data);
+#ifdef NEW_WEATHER
+
+#ifndef SKY_FPV
+#error The NEW_WEATHER option requires the SKY_FPV option!
+#endif
+
+/* N E W   W E A T H E R *****************************************************/
+
+#define MAX_WEATHER_TYPES 20 // including NONE
+#define MAX_WEATHER_AREAS 10
+
+#define WEATHER_SKY_SCALE 5.0
+
+extern float weather_color[];
+extern float thunder_color[];
+extern float thunder_position[];
+extern int thunder_falling;
+
+void weather_init();
+void weather_clear();
+void weather_set_area(int area, float x, float y, float radius, int type, float intensity, int change_duration);
+void weather_get_from_server(const Uint8* data);
+
+void weather_compute_ratios(float ratios[MAX_WEATHER_TYPES], float x, float y);
+void weather_update();
+void weather_render_fog();
+void weather_render();
+
+int weather_get_drops_count(int type);
+float weather_get_intensity();
+float weather_get_density();
+float weather_get_density_from_ratios(float ratios[MAX_WEATHER_TYPES]);
+void weather_get_color_from_ratios(float color[4], float ratios[MAX_WEATHER_TYPES]);
+
+void weather_add_thunder(int type, float x, float y);
+void weather_init_thunder_light();
+void weather_cleanup_thunder_light();
+void weather_render_thunder();
+float weather_get_thunder_intensity(float x, float y);
+
+void weather_sound_control();
 
 #ifdef NEW_SOUND
 float weather_adjust_gain(float in_gain, int in_cookie);
 #endif // NEW_SOUND
 
-extern int wind_speed;	//strength of wind, based on server's setting and local randomization. range of 1..100
-extern int wind_direction;	//wind direction, based on server's setting and local randomization. 0 and 360 are north
-
-#ifdef NEW_WEATHER
-int weather_use_fog();
-extern __inline__ int weather_active(void);
-void weather_sound_control();
-float weather_bias_light(float value);
-void weather_color_bias(const float * src, float * dst);
-float weather_get_fadein_bias();
-float weather_get_fadeout_bias();
-float weather_get_fadeinout_bias();
-extern float rain_color[];
-
 #else // def NEW_WEATHER
 
-#define weather_use_fog()	(use_fog)
+/* O L D   W E A T H E R *****************************************************/
+
 extern int seconds_till_rain_starts;    /*!< Seconds till the rain starts */
 extern int seconds_till_rain_stops;     /*!< Seconts till the rain stops */
 extern int is_raining;                  /*!< Specifies if it's raining - if it is, draw the raindrops */
@@ -60,6 +83,18 @@ extern int thunder_light_offset;        /*!< Sets the current thunder light offs
 #ifdef SKY_FPV
 extern float weather_rain_intensity; /*!< Rain intensity (between 0.0 and 1.0) */
 #endif // SKY_FPV
+
+void start_weather(int seconds_till_start, float severity);
+void stop_weather(int seconds_till_stop, float severity);
+void clear_weather();
+void render_weather();
+
+void get_weather_from_server(const Uint8* data);
+
+#ifdef NEW_SOUND
+float weather_adjust_gain(float in_gain, int in_cookie);
+#endif // NEW_SOUND
+
 /*!
  * \ingroup	other
  * \brief 	Builds the rain table.
@@ -127,8 +162,6 @@ void clear_thunders();
 
 void init_weather();
 
-#endif	//NEW_WEATHER
-
 /*!
  * \ingroup	network_misc
  * \brief 	add_thunder
@@ -142,8 +175,6 @@ void init_weather();
  */
 void add_thunder(int type,int sound_delay);
 
-float get_rain_strength();
-
 /*!
  * \ingroup display_weather
  * \brief Sets the fog according to weather & athmospherical effects
@@ -152,6 +183,8 @@ float get_rain_strength();
  */
 
 void render_fog();
+
+#endif	// NEW_WEATHER
 
 #ifdef __cplusplus
 } // extern "C"

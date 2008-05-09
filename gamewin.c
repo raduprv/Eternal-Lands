@@ -1058,29 +1058,36 @@ int display_game_handler (window_info *win)
 	// are we actively drawing things?
 	if (SDL_GetAppState() & SDL_APPACTIVE)
 	{
-#ifdef SKY_FPV
-		if (skybox_show_sky)
-        {
-            skybox_compute_height();
-            glPushMatrix();
-            glTranslatef(0.0, 0.0, skybox_get_height());
-			skybox_display();
-            glPopMatrix();
-        }
-#endif // SKY_FPV
-	
 #ifndef NEW_WEATHER
 		//now, determine the current weather light level
 		get_weather_light_level ();
-#endif
+#endif // NEW_WEATHER
 
 		if (!dungeon){
 			draw_global_light ();
 		} else {
 			draw_dungeon_light ();
 		}
+
+#ifdef SKY_FPV
+		if (skybox_show_sky)
+        {
+			if (skybox_update_every_frame)
+				skybox_update_colors();
+            skybox_compute_z_position();
+            glPushMatrix();
+            glTranslatef(0.0, 0.0, skybox_get_z_position());
+			skybox_display();
+            glPopMatrix();
+        }
+#endif // SKY_FPV
+	
+#ifdef NEW_WEATHER
+		if (use_fog)
+			weather_render_fog();
+#endif // NEW_WEATHER
+
 		// only draw scene lights if inside or it is night
-		
 #ifdef NEW_LIGHTING
 		if (
 		    ( (use_new_lighting) && (dungeon || !(game_minute >= 5 && game_minute < 235))) ||
@@ -1122,6 +1129,10 @@ int display_game_handler (window_info *win)
 
 		missiles_update();
 	
+#ifdef NEW_WEATHER
+		weather_init_thunder_light();
+#endif // NEW_WEATHER
+
 #ifdef NEW_LIGHTING
 		if (use_new_lighting)
 		 	glLightModeli(GL_LIGHT_MODEL_COLOR_CONTROL, GL_SEPARATE_SPECULAR_COLOR);
@@ -1135,7 +1146,7 @@ int display_game_handler (window_info *win)
 #endif
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
-			if (weather_use_fog() && any_reflection) blend_reflection_fog();
+			if (use_fog && any_reflection) blend_reflection_fog();
 			draw_sun_shadowed_scene (any_reflection);
 		}
 		else 
@@ -1165,6 +1176,11 @@ int display_game_handler (window_info *win)
 				glLightModelf(GL_LIGHT_MODEL_TWO_SIDE, 0);
 #endif
 		}
+
+#ifdef NEW_WEATHER
+		weather_cleanup_thunder_light();
+#endif // NEW_WEATHER
+
 		CHECK_GL_ERRORS ();
 	}	// end of active display check
 	else 
@@ -1196,7 +1212,11 @@ int display_game_handler (window_info *win)
 		return 1;
 	}
 
+#ifndef NEW_WEATHER
 	render_weather();	// draw weather effects
+#else // NEW_WEATHER
+	weather_render();
+#endif // NEW_WEATHER
 
 	CHECK_GL_ERRORS ();
 	//particles should be last, we have no Z writting
@@ -1211,8 +1231,10 @@ int display_game_handler (window_info *win)
 	missiles_draw();
 	CHECK_GL_ERRORS();
 
-	if (weather_use_fog())
+#ifndef NEW_WEATHER
+	if (use_fog)
 		render_fog();
+#endif // NEW_WEATHER
 
 	last_texture = -1;
 
@@ -1288,16 +1310,28 @@ int display_game_handler (window_info *win)
 		safe_snprintf ((char*)str, sizeof(str),"Lights: %i", show_lights);
 		draw_string (win->len_x-hud_x-105, 32, str, 1);
 
-#ifndef NEW_WEATHER
 		safe_snprintf((char*)str, sizeof(str), "lights: ambient=(%.2f,%.2f,%.2f,%.2f) diffuse=(%.2f,%.2f,%.2f,%.2f)",
 					  ambient_light[0], ambient_light[1], ambient_light[2], ambient_light[3],
 					  diffuse_light[0], diffuse_light[1], diffuse_light[2], diffuse_light[3]);
 		draw_string (0, win->len_y - hud_y - 65, str, 1);
+#ifndef NEW_WEATHER
 		safe_snprintf((char*)str, sizeof(str), "rain: %d start in: %d stop in: %d drops: %d strength: %1.2f alpha: %1.2f fog alpha: %1.2f", 
 				is_raining, seconds_till_rain_starts, seconds_till_rain_stops, num_rain_drops,
 				rain_strength_bias, rain_color[3], fogAlpha);
 		draw_string (0, win->len_y - hud_y - 40, str, 1);
-#endif
+#else // NEW_WEATHER
+		safe_snprintf((char*)str, sizeof(str), "weather: drops=%d/%d/%d/%d/%d/%d, int=%f, dty=%f, fog=%f",
+					  weather_get_drops_count(1),
+					  weather_get_drops_count(2),
+					  weather_get_drops_count(3),
+					  weather_get_drops_count(4),
+					  weather_get_drops_count(5),
+					  weather_get_drops_count(6),
+					  weather_get_intensity(),
+					  weather_get_density(),
+					  skybox_fog_density);
+		draw_string (0, win->len_y - hud_y - 40, str, 1);
+#endif // NEW_WEATHER
 #else	//DEBUG
 		glColor3f (1.0f, 1.0f, 1.0f);
 #endif	//DEBUG
@@ -1606,29 +1640,49 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		rain_color[3] -= 0.01f;
 	}
-#endif
+#endif // NEW_WEATHER
 	else if((keysym == SDLK_t) && shift_on && ctrl_on && !alt_on)
 	{
+#ifndef NEW_WEATHER
 		add_thunder(rand()%5,1+rand()%5);
+#else // NEW_WEATHER
+		weather_add_thunder(rand()%5, -camera_x-100+rand()%200, -camera_y-100+rand()%200);
+#endif // NEW_WEATHER
 	}
 	else if((keysym == SDLK_w) && shift_on && ctrl_on && alt_on)
 	{
+#ifndef SKY_FPV
 		if(game_minute >= 355) game_minute -=355; else game_minute +=  5;
+#else // SKY_FPV
+		if(real_game_minute >= 355) real_game_minute -=355; else real_game_minute +=  5;
+#endif // SKY_FPV
 		new_minute();
 	}
 	else if((keysym == SDLK_q) && shift_on && ctrl_on && alt_on)
 	{
+#ifndef SKY_FPV
 		if(game_minute <  5) game_minute +=355; else game_minute -=  5;
+#else // SKY_FPV
+		if(real_game_minute < 5) real_game_minute +=355; else real_game_minute -=  5;
+#endif // SKY_FPV
 		new_minute();
 	}
 	else if((keysym == SDLK_w) && !shift_on && ctrl_on && alt_on)
 	{
+#ifndef SKY_FPV
 		if(game_minute >= 359) game_minute -=359; else game_minute +=  1;
+#else // SKY_FPV
+		if(real_game_minute >= 359) real_game_minute -=359; else real_game_minute +=  1;
+#endif // SKY_FPV
 		new_minute();
 	}
 	else if((keysym == SDLK_q) && !shift_on && ctrl_on && alt_on)
 	{
+#ifndef SKY_FPV
 		if(game_minute <  1) game_minute +=359; else game_minute -=  1;
+#else // SKY_FPV
+		if(real_game_minute < 1) real_game_minute +=359; else real_game_minute +=  1;
+#endif // SKY_FPV
 		new_minute();
 	}
 #ifdef SKY_FPV
@@ -1644,8 +1698,6 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		else
 		{
 			LOG_TO_CONSOLE(c_green2, "Time unfreezed!");
-			game_minute = real_game_minute;
-			game_second = real_game_second;
 			new_minute();
 			new_second();
 		}
@@ -1660,12 +1712,12 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	{
 		rain_strength_bias -= 0.1f;
 	}
-#endif
+#endif // NEW_WEATHER
 	else if((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
 	{
 #ifdef NEW_WEATHER
-		start_weather(30, 1.0f);
-#else
+		weather_set_area(0, -camera_x, -camera_y, 100.0, 1, 1.0, 5);
+#else // NEW_WEATHER
 		if(is_raining) {
 			seconds_till_rain_stops = 2;
 			seconds_till_rain_starts = -1;
@@ -1673,13 +1725,13 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			seconds_till_rain_stops = -1;
 			seconds_till_rain_starts = 2;
 		}
-#endif
+#endif // NEW_WEATHER
 	}
 	else if ((keysym == SDLK_END) && shift_on && ctrl_on && !alt_on)
 	{
 #ifdef NEW_WEATHER
-		stop_weather(30, 1.0f);
-#else
+		weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 1.0, 5);
+#else // NEW_WEATHER
 		if (is_raining) {
 			seconds_till_rain_stops = 60;
 			seconds_till_rain_starts = -1;
@@ -1687,7 +1739,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 			seconds_till_rain_stops = -1;
 			seconds_till_rain_starts = 60;
 		}
-#endif
+#endif // NEW_WEATHER
 	}
 	else if((keysym == SDLK_z) && shift_on && ctrl_on && !alt_on)
 	{

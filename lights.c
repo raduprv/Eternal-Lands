@@ -20,7 +20,11 @@
 #include "gl_init.h"
 #endif
 #ifdef SKY_FPV
+#include "elconfig.h"
 #include "sky.h"
+#ifdef NEW_WEATHER
+#include "draw_scene.h"
+#endif // NEW_WEATHER
 #endif // SKY_FPV
 
 #if defined NEW_LIGHTING || NIGHT_TEXTURES
@@ -431,46 +435,35 @@ void draw_global_light()
 {
 	int i;
 	GLfloat global_light_position[] = { 400.0, 400.0, 500.0, 0.0 };
+#ifndef SKY_FPV
 	i=light_level;
 	if(light_level>59)i=119-light_level;
-#ifdef NEW_WEATHER
-	if(i<0)i=0;
-#else
 	//this is for weather things, when the light level is not the normal light lvel of the current time
-#if !defined(MAP_EDITOR2) && !defined(SKY_FPV)
+# ifndef MAP_EDITOR2
 	i+=weather_light_offset;
-#endif
+# endif // MAP_EDITOR2
 	if(i<0)i=0;
 	if(i>59)i=59;
-#endif
-	//add the thunder light to the ambient/diffuse light
+#endif // SKY_FPV
 
-#ifdef NEW_WEATHER
- #ifdef NEW_LIGHTING
- 	if (use_new_lighting)
- 	{
-		ambient_light[0] = weather_bias_light(global_ambient_light[i][0]);
-		ambient_light[1] = weather_bias_light(global_ambient_light[i][1]);
-		ambient_light[2] = weather_bias_light(global_ambient_light[i][2]);
-		diffuse_light[0] = weather_bias_light(global_diffuse_light[i][0]);
-		diffuse_light[1] = weather_bias_light(global_diffuse_light[i][1]);
-		diffuse_light[2] = weather_bias_light(global_diffuse_light[i][2]);
-		specular_light[0] = weather_bias_light(global_specular_light[i][0]);
-		specular_light[1] = weather_bias_light(global_specular_light[i][1]);
-		specular_light[2] = weather_bias_light(global_specular_light[i][2]);
-	}
-	else
-	{
- #endif // NEW_LIGHTING
-		diffuse_light[0] = weather_bias_light(global_diffuse_light[i][0] - 0.15f);
-		diffuse_light[1] = weather_bias_light(global_diffuse_light[i][1] - 0.15f);
-		diffuse_light[2] = weather_bias_light(global_diffuse_light[i][2] - 0.15f);
- #ifdef NEW_LIGHTING
-	}
- #endif
-#else
+	//add the thunder light to the ambient/diffuse light
 #ifndef MAP_EDITOR2
- #ifdef NEW_LIGHTING
+# ifdef NEW_WEATHER
+	{
+		float ratios[MAX_WEATHER_TYPES];
+		float sun_proj[3];
+		float density;
+
+		skybox_compute_element_projection(sun_proj, sun_position);
+		weather_compute_ratios(ratios, sun_proj[0]*0.1-camera_x, sun_proj[1]*0.1-camera_y);
+		density = weather_get_density_from_ratios(ratios);
+
+		skybox_blend_current_colors(ambient_light, skybox_light_ambient, skybox_light_ambient_rainy, density);
+		skybox_blend_current_colors(diffuse_light, skybox_light_diffuse, skybox_light_diffuse_rainy, density);
+		// the thunder is handled elsewhere for the new weather
+	}
+# else // NEW_WEATHER
+#  ifdef NEW_LIGHTING
  	if (use_new_lighting)
  	{
 		ambient_light[0]=global_ambient_light[i][0]+(float)thunder_light_offset/90/8;
@@ -485,27 +478,27 @@ void draw_global_light()
 	}
 	else
 	{
- #endif // NEW_LIGHTING
-#ifndef SKY_FPV
+#  endif // NEW_LIGHTING
+#  ifndef SKY_FPV
 		diffuse_light[0]=global_diffuse_light[i][0]+(float)thunder_light_offset/90-0.15f;
 		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
-#else // SKY_FPV
-		blend_color_tables(ambient_light, skybox_light_ambient, skybox_light_ambient_rainy, weather_rain_intensity, 4);
-		blend_color_tables(diffuse_light, skybox_light_diffuse, skybox_light_diffuse_rainy, weather_rain_intensity, 4);
+#  else // SKY_FPV
+		skybox_blend_current_colors(ambient_light, skybox_light_ambient, skybox_light_ambient_rainy, weather_rain_intensity);
+		skybox_blend_current_colors(diffuse_light, skybox_light_diffuse, skybox_light_diffuse_rainy, weather_rain_intensity);
 		ambient_light[0] += (float)thunder_light_offset*0.03;
 		ambient_light[1] += (float)thunder_light_offset*0.05;
 		ambient_light[2] += (float)thunder_light_offset*0.06;
-#endif // SKY_FPV
- #ifdef NEW_LIGHTING
+#  endif // SKY_FPV
+#  ifdef NEW_LIGHTING
  	}
- #endif // NEW_LIGHTING
-#else
+#  endif // NEW_LIGHTING
+# endif // NEW_WEATHER
+#else // MAP_EDITOR2
 	diffuse_light[0]=global_diffuse_light[i][0];
 	diffuse_light[1]=global_diffuse_light[i][1];
 	diffuse_light[2]=global_diffuse_light[i][2];
-#endif
-#endif
+#endif // MAP_EDITOR2
 
 	for (i = 0; i < 3; i++)
 	{
@@ -933,6 +926,8 @@ void new_minute()
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+	if (!freeze_time) game_minute = real_game_minute;
+
 	//morning starts at 0
 	//game_minute=90;
 	//is it morning?
@@ -1013,7 +1008,8 @@ void new_minute()
 
 #ifdef SKY_FPV
 	skybox_update_positions();
-	skybox_update_colors();
+	if (!skybox_update_every_frame)
+		skybox_update_colors();
 #endif // SKY_FPV
 }
 
@@ -1025,6 +1021,8 @@ void new_second()
 	float ratio2 = (float)game_second/60.0;
 	float ratio1 = 1.0 - ratio2;
 	
+	if (!freeze_time) game_second = real_game_second;
+
 	sun_position[0] = sun_pos[cur_min].x * ratio1 + sun_pos[next_min].x * ratio2;
 	sun_position[1] = sun_pos[cur_min].y * ratio1 + sun_pos[next_min].y * ratio2;
 	sun_position[2] = sun_pos[cur_min].z * ratio1 + sun_pos[next_min].z * ratio2;
@@ -1040,7 +1038,8 @@ void new_second()
 	}
 	
 	skybox_update_positions();
-	skybox_update_colors();
+	if (!skybox_update_every_frame)
+		skybox_update_colors();
 }
 #endif // SKY_FPV
 

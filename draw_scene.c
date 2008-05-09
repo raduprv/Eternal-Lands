@@ -18,6 +18,9 @@
 #include "new_character.h"
 #include "shadows.h"
 #include "skeletons.h"
+#ifdef SKY_FPV
+#include "sky.h"
+#endif // SKY_FPV
 #include "sound.h"
 #include "storage.h"
 #include "tiles.h"
@@ -111,18 +114,17 @@ void draw_scene()
 {
 	CHECK_GL_ERRORS();
 
-#ifndef NEW_WEATHER
 #ifndef SKY_FPV
 	if (dungeon || !use_fog)
-#else // SKY_FPV
-	if (!use_fog)
-#endif // SKY_FPV
 	{
 		glClearColor(0.0, 0.0, 0.0, 0.0);
 	} else {
 		glClearColor(fogColor[0], fogColor[1], fogColor[2], 0.0);
 	}
-#endif
+#else // SKY_FPV
+	glClearColor(skybox_fog_color[0], skybox_fog_color[1], skybox_fog_color[2], 0.0);
+#endif // SKY_FPV
+
 	if(!shadows_on || !have_stencil)glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT);
 	else glClear(GL_DEPTH_BUFFER_BIT|GL_COLOR_BUFFER_BIT|GL_STENCIL_BUFFER_BIT);
 
