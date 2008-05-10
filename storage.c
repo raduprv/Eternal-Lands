@@ -58,7 +58,7 @@ void get_storage_text (const Uint8 *in_data, int len)
 	safe_snprintf(storage_text, sizeof(storage_text), "%.*s", len, in_data);
 	if ((len > 0) && (printing_category > -1) && (next_item_to_print < number_to_print))
 	{
-		char the_text[MAX_DESCR_LEN];
+		char the_text[MAX_DESCR_LEN+20];
 		if (!next_item_to_print)
 		{
 			safe_snprintf(the_text, sizeof(the_text), "%s:", &storage_categories[printing_category].name[1] );
@@ -536,7 +536,7 @@ void display_storage_menu()
 		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
 		
 		print_button_id = button_add_extended (storage_win, print_button_id, NULL,
-			storage_win_x_len-20, 25, 20, 20, 0, 0.75, 0.77f, 0.57f, 0.39f, "p");
+			storage_win_x_len-20, 40, 20, 20, 0, 0.75, 0.77f, 0.57f, 0.39f, "p");
 		widget_set_type(storage_win, print_button_id, &square_button_type);
 		widget_set_OnClick(storage_win, print_button_id, print_button_click_handler);
 		widget_set_OnMouseover(storage_win, print_button_id, print_button_mouseover);
