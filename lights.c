@@ -926,7 +926,9 @@ void new_minute()
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+#ifdef SKY_FPV
 	if (!freeze_time) game_minute = real_game_minute;
+#endif // SKY_FPV
 
 	//morning starts at 0
 	//game_minute=90;

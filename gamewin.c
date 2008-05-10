@@ -91,11 +91,13 @@ extern int e3d_count, e3d_total;    // LRNR:stats testing only
 
 void draw_special_cursors()
 {
+#ifdef SKY_FPV
 	const float RET_WID = 4.0f;
 	const float RET_LEN = 10.0f;
+	float ret_x = 0.0, ret_y = 0.0;
+#endif // SKY_FPV
 
 	float ret_spin,ret_zoom, ret_alpha=0.5f;
-	float ret_x = 0.0, ret_y = 0.0;
 	float ret_color[4];
 	float ret_out = 7.0;
 
