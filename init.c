@@ -252,7 +252,7 @@ void read_bin_cfg()
 	bin_cfg cfg_mem;
 	int i;
 
-	f=open_file_config("el.cfg","rb");
+	f=open_file_config_no_local("el.cfg","rb");
 	if(f == NULL)return;//no config file, use defaults
 	memset(&cfg_mem, 0, sizeof(cfg_mem));	// make sure its clean
 
@@ -344,6 +344,8 @@ void read_bin_cfg()
 	}
 
 	if(zoom_level != 0.0f) resize_root_window();
+	
+	have_saved_langsel = cfg_mem.have_saved_langsel;
 }
 
 void save_bin_cfg()
@@ -549,6 +551,8 @@ void save_bin_cfg()
 	for(i=0;i<6;i++){
 		cfg_mem.quantity[i]=quantities.quantity[i].val;
 	}
+	
+	cfg_mem.have_saved_langsel = have_saved_langsel;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);
@@ -898,7 +902,7 @@ void init_stuff()
 
 	// display something
 	destroy_loading_win();
-	if (no_lang_in_config)
+	if (!have_saved_langsel || no_lang_in_config)
 	{
 		display_langsel_win();
 	}

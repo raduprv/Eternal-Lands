@@ -163,8 +163,15 @@ typedef struct
 	int notepad_win_y;
     /*! @} */
     
+    /*!
+     * \name Language selection window - saved flag
+     */
+    /*! @{ */
+	int have_saved_langsel;
+    /*! @} */
+    
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-	float freserved[17];
+	float freserved[16];
 }bin_cfg;
 
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */

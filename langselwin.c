@@ -38,6 +38,7 @@
 typedef struct { char *code; char *text; char *save; char *note; } LANGSEL_LIST_NODE;
 
 int langsel_rootwin = -1;
+int have_saved_langsel = 0;
 static int langsel_win = -1;
 static int langsel_scroll_id = -1;
 static int langsel_first_lang_line = 0;
@@ -233,6 +234,7 @@ static int langsel_save_handler(widget_list *widget, int mx, int my, Uint32 flag
 	/* set the chosen language, it will be saved on exit, then complete the clean up */
 	change_language(selected_lang);
 	langsel_free_list();
+	have_saved_langsel = 1;
 	
   	return 1;
 }

@@ -7,6 +7,7 @@ extern "C" {
 
 int display_langsel_win(void);
 extern int langsel_rootwin;
+extern int have_saved_langsel;
 
 #ifdef __cplusplus
 } // extern "C"

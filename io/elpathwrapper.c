@@ -195,9 +195,18 @@ char * check_custom_dir(char * in_file)
 
 FILE *open_file_config (const char* filename, const char* mode)
 {
+	FILE *fp = open_file_config_no_local(filename, mode);
+	if (fp != NULL)
+		return fp;
+	//Not there? okay, try the current directory
+	return fopen(filename, mode);
+}
+
+
+FILE * open_file_config_no_local(const char* filename, const char* mode)
+{
 	char locbuffer[MAX_PATH];
 	const char* cfgdir = get_path_config();
-	FILE * fp;
 
 	if (strlen(cfgdir) + strlen(filename) + 1 > MAX_PATH)
 		return NULL;
@@ -218,12 +227,7 @@ FILE *open_file_config (const char* filename, const char* mode)
 		}
 	}
 
-	if((fp = fopen(locbuffer, mode)) != NULL){
-		return fp;
-	}
-
-	//Not there? okay, try the current directory
-	return fopen(filename, mode);
+	return fopen(locbuffer, mode);
 }
 
 FILE * open_file_data_temp(const char* filename, const char* mode)

@@ -57,6 +57,17 @@ const char * get_path_custom(void);
 FILE * open_file_config(const char* filename, const char* mode);
 
 /**
+ * @brief fopen()s a config file
+ *
+ * Gets the config dir, based on platform, and attempts to open the given filename.
+ * If file not found, no current directory fallback is tried.
+ * @param filename The name of the file in the config_dir to open
+ * @param mode The file mode to use to open the file (read/write, binary/text, etc)
+ * @return Returns a FILE* to the opened file on success, or a NULL on failure
+ */
+FILE * open_file_config_no_local(const char* filename, const char* mode);
+
+/**
  * @brief fopen()s a file in the directory datadir
  *
  * Attempts to open the given filename in datadir
