@@ -281,19 +281,6 @@ int display_newchar_handler (window_info *win)
 
 		draw_global_light ();
 
-#ifdef SKY_FPV
-		if (skybox_show_sky)
-        {
-			if (skybox_update_every_frame)
-				skybox_update_colors();
-            skybox_compute_z_position();
-            glPushMatrix();
-            glTranslatef(0.0, 0.0, skybox_get_z_position());
-			skybox_display();
-            glPopMatrix();
-        }
-#endif // SKY_FPV
-
 		update_scene_lights();
 		draw_lights();
 		CHECK_GL_ERRORS ();
@@ -314,6 +301,19 @@ int display_newchar_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}
+
+#ifdef SKY_FPV
+		if (skybox_show_sky)
+        {
+			if (skybox_update_every_frame)
+				skybox_update_colors();
+            skybox_compute_z_position();
+            glPushMatrix();
+            glTranslatef(0.0, 0.0, skybox_get_z_position());
+			skybox_display();
+            glPopMatrix();
+        }
+#endif // SKY_FPV
 
 		CHECK_GL_ERRORS ();
 
@@ -488,6 +488,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_rotation_speed = fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
 #ifdef NEW_CAMERA_MOTION
+		camera_rotation_speed /= 4.0;
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #ifdef SKY_FPV
@@ -514,6 +515,7 @@ int keypress_newchar_handler (window_info *win, int mx, int my, Uint32 key, Uint
 		camera_rotation_speed = -fine_camera_rotation_speed / 200.0;
 		camera_rotation_duration = 200;
 #ifdef NEW_CAMERA_MOTION
+		camera_rotation_speed /= 4.0;
         camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 #ifdef SKY_FPV

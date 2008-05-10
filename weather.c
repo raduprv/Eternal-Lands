@@ -46,7 +46,7 @@ int wind_direction = 0;	//wind direction, based on server's setting and local ra
 #define MAX_THUNDERS_DEFS 20
 #define MAX_THUNDERS 20
 
-#define THUNDER_LIGHT_RADIUS 20.0
+#define THUNDER_LIGHT_RADIUS 30.0
 #define SOUND_SPEED 0.1 // real sound speed = 0.34029 m/ms
 
 #define WEATHER_NONE 0
@@ -286,8 +286,8 @@ void weather_get_color_from_ratios(float color[4], float ratios[MAX_WEATHER_TYPE
 }
 
 void __inline__ make_drop(int type, int i, float x, float y, float z, float dx, float dy, float dz){
-	weather_drops[type][i].pos1[0] = x + 20.0f * RAND_ONE - 10.0f;
-	weather_drops[type][i].pos1[1] = y + 20.0f * RAND_ONE - 10.0f;
+	weather_drops[type][i].pos1[0] = x + 16.0f * RAND_ONE - 8.0f;
+	weather_drops[type][i].pos1[1] = y + 16.0f * RAND_ONE - 8.0f;
 	weather_drops[type][i].pos1[2] = z + 10.0f * RAND_ONE +  2.0f;
 	weather_drops[type][i].pos2[0] = weather_drops[type][i].pos1[0] + dx;
 	weather_drops[type][i].pos2[1] = weather_drops[type][i].pos1[1] + dy;
@@ -343,27 +343,27 @@ void update_weather_type(int type, float x, float y, float z, int ticks)
 			
 			// it's moving. so find out how much by, and wrap around the X/Y if it's too far away (as wind can cause)
 			weather_drops[type][i].pos1[0] += x_move*(1.1-0.2*RAND_ONE);
-			if (weather_drops[type][i].pos1[0] < x - 20.0f)
+			if (weather_drops[type][i].pos1[0] < x - 8.0f)
 			{
-				weather_drops[type][i].pos1[0] += 40.0f;
-				weather_drops[type][i].pos2[0] += 40.0f;
+				weather_drops[type][i].pos1[0] += 16.0f;
+				weather_drops[type][i].pos2[0] += 16.0f;
 			}
-			else if(weather_drops[type][i].pos1[0] > x + 20.0f)
+			else if(weather_drops[type][i].pos1[0] > x + 8.0f)
 			{
-				weather_drops[type][i].pos1[0] -= 40.0f;
-				weather_drops[type][i].pos2[0] -= 40.0f;
+				weather_drops[type][i].pos1[0] -= 16.0f;
+				weather_drops[type][i].pos2[0] -= 16.0f;
 			}
 			
 			weather_drops[type][i].pos1[1] += y_move*(1.1-0.2*RAND_ONE);
-			if (weather_drops[type][i].pos1[1] < y - 20.0f)
+			if (weather_drops[type][i].pos1[1] < y - 8.0f)
 			{
-				weather_drops[type][i].pos1[1] += 40.0f;
-				weather_drops[type][i].pos2[1] += 40.0f;
+				weather_drops[type][i].pos1[1] += 16.0f;
+				weather_drops[type][i].pos2[1] += 16.0f;
 			}
-			else if(weather_drops[type][i].pos1[1] > y + 20.0f)
+			else if(weather_drops[type][i].pos1[1] > y + 8.0f)
 			{
-				weather_drops[type][i].pos1[1] -= 40.0f;
-				weather_drops[type][i].pos2[1] -= 40.0f;
+				weather_drops[type][i].pos1[1] -= 16.0f;
+				weather_drops[type][i].pos2[1] -= 16.0f;
 			}
 			
 			weather_drops[type][i].pos1[2] -= z_move*(1.1-0.2*RAND_ONE);
@@ -393,7 +393,11 @@ void weather_update()
 
 	// we update the thunder
 	if (thunder_falling && weather_time > thunder_stop)
+	{
 		thunder_falling = 0;
+		if (!skybox_update_every_frame)
+			skybox_update_colors();
+	}
 
 	// we update the areas
 	for (i = 0; i < MAX_WEATHER_AREAS; ++i)
@@ -434,7 +438,7 @@ void weather_update()
 	
 	// we update the weather at the actor position
 	for (i = 1; i < MAX_WEATHER_TYPES; ++i)
-		update_weather_type(i, -camera_x, -camera_y, -camera_z, ticks);
+		update_weather_type(i, -camera_x, -camera_y, 0.0, ticks);
 	
 	last_update = weather_time;
 }
@@ -593,7 +597,7 @@ void weather_add_thunder(int type, float x, float y)
 		++thunders_count;
 
 		// start thunder
-		thunder_type = type;
+		thunder_type = rand()%thunders_defs_count;
 		thunder_position[0] = x;
 		thunder_position[1] = y;
 		thunder_stop = weather_time + 400 + rand()%200;
@@ -639,12 +643,15 @@ void weather_render_thunder()
 {
 	if (thunder_falling)
 	{
-		float x = (thunder_position[0]+camera_x)*WEATHER_SKY_SCALE;
-		float y = (thunder_position[1]+camera_y)*WEATHER_SKY_SCALE;
-		float z = skybox_get_height(x-camera_x, y-camera_y);
-		float dx = 25.0*cosf(-rz*M_PI/180.0);
-		float dy = 25.0*sinf(-rz*M_PI/180.0);
-		float *tex_coords = thunders_defs[thunder_type%thunders_defs_count].coords;
+		const float *tex_coords = thunders_defs[thunder_type].coords;
+		float x1 = thunder_position[0] + camera_x;
+		float y1 = thunder_position[1] + camera_y;
+		float x2 = (thunder_position[0] + camera_x) * WEATHER_SKY_SCALE;
+		float y2 = (thunder_position[1] + camera_y) * WEATHER_SKY_SCALE;
+		float z = skybox_get_height(x2-camera_x, y2-camera_y);
+		float size = z*0.5*(tex_coords[2]-tex_coords[0])/(tex_coords[3]-tex_coords[1]);
+		float dx = size*cosf(-rz*M_PI/180.0);
+		float dy = size*sinf(-rz*M_PI/180.0);
 
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
@@ -653,13 +660,13 @@ void weather_render_thunder()
 		glColor4fv(thunder_color);
 		glBegin(GL_QUADS);
 		glTexCoord2f(tex_coords[0], tex_coords[1]);
-		glVertex3f(x-dx, y-dy, 0.0);
+		glVertex3f(x1-dx, y1-dy, 0.0);
 		glTexCoord2f(tex_coords[2], tex_coords[1]);
-		glVertex3f(x+dx, y+dy, 0.0);
+		glVertex3f(x1+dx, y1+dy, 0.0);
 		glTexCoord2f(tex_coords[2], tex_coords[3]);
-		glVertex3f(x+dx, y+dy, z);
+		glVertex3f(x2+dx, y2+dy, z);
 		glTexCoord2f(tex_coords[0], tex_coords[3]);
-		glVertex3f(x-dx, y-dy, z);
+		glVertex3f(x2-dx, y2-dy, z);
 		glEnd();
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}

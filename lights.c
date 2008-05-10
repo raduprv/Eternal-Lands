@@ -455,7 +455,7 @@ void draw_global_light()
 		float density;
 
 		skybox_compute_element_projection(sun_proj, sun_position);
-		weather_compute_ratios(ratios, sun_proj[0]*0.1-camera_x, sun_proj[1]*0.1-camera_y);
+		weather_compute_ratios(ratios, sun_proj[0]/WEATHER_SKY_SCALE-camera_x, sun_proj[1]/WEATHER_SKY_SCALE-camera_y);
 		density = weather_get_density_from_ratios(ratios);
 
 		skybox_blend_current_colors(ambient_light, skybox_light_ambient, skybox_light_ambient_rainy, density);

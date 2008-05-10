@@ -979,7 +979,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifndef NEW_WEATHER
 				start_weather (in_data[3], severity);
 #else // NEW_WEATHER
-				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 10000.0, 1, 1.0, 60);
+				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 10000.0, 1, severity, in_data[3]);
 #endif // NEW_WEATHER
 			}
 			break;
@@ -1004,7 +1004,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifndef NEW_WEATHER
 				stop_weather (in_data[3], severity);
 #else // NEW_WEATHER
-				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 10000.0, 1, 0.0, 60);
+				weather_set_area(0, tile_map_size_x*1.5, tile_map_size_y*1.5, 10000.0, 1, 0.0, in_data[3]);
 #endif // NEW_WEATHER
 			}
 			break;

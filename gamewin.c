@@ -1071,19 +1071,6 @@ int display_game_handler (window_info *win)
 			draw_dungeon_light ();
 		}
 
-#ifdef SKY_FPV
-		if (skybox_show_sky)
-        {
-			if (skybox_update_every_frame)
-				skybox_update_colors();
-            skybox_compute_z_position();
-            glPushMatrix();
-            glTranslatef(0.0, 0.0, skybox_get_z_position());
-			skybox_display();
-            glPopMatrix();
-        }
-#endif // SKY_FPV
-	
 #ifdef NEW_WEATHER
 		if (use_fog)
 			weather_render_fog();
@@ -1129,6 +1116,19 @@ int display_game_handler (window_info *win)
 		CHECK_GL_ERRORS ();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
+#ifdef SKY_FPV
+		if (skybox_show_sky)
+        {
+			if (skybox_update_every_frame)
+				skybox_update_colors();
+            skybox_compute_z_position();
+            glPushMatrix();
+            glTranslatef(0.0, 0.0, skybox_get_z_position());
+			skybox_display();
+            glPopMatrix();
+        }
+#endif // SKY_FPV
+	
 		missiles_update();
 	
 #ifdef NEW_WEATHER
@@ -1718,7 +1718,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if((keysym == SDLK_HOME) && shift_on && ctrl_on && !alt_on)
 	{
 #ifdef NEW_WEATHER
-		weather_set_area(0, -camera_x, -camera_y, 100.0, 1, 1.0, 5);
+		weather_set_area(0, -camera_x, -camera_y, 100.0, 1, 1.0, 10);
 #else // NEW_WEATHER
 		if(is_raining) {
 			seconds_till_rain_stops = 2;
@@ -1732,7 +1732,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 	else if ((keysym == SDLK_END) && shift_on && ctrl_on && !alt_on)
 	{
 #ifdef NEW_WEATHER
-		weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 1.0, 5);
+		weather_set_area(1, -camera_x, -camera_y, 100.0, 2, 1.0, 10);
 #else // NEW_WEATHER
 		if (is_raining) {
 			seconds_till_rain_stops = 60;
@@ -2000,6 +2000,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_speed = (first_person?-1:1)*fine_camera_rotation_speed / 200.0;
 #endif // SKY_FPV
 #ifdef NEW_CAMERA_MOTION
+		camera_rotation_speed /= 4.0;
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 200;
@@ -2038,6 +2039,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 		camera_rotation_speed = (first_person?1:-1)*fine_camera_rotation_speed / 200.0;
 #endif // SKY_FPV
 #ifdef NEW_CAMERA_MOTION
+		camera_rotation_speed /= 4.0;
 		camera_rotation_deceleration = normal_camera_deceleration*0.5E-3;
 #endif // NEW_CAMERA_MOTION
 		camera_rotation_duration = 200;

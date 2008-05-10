@@ -411,7 +411,8 @@ void skybox_update_colors()
 		skybox_fog_color[0] = 0.0;
 		skybox_fog_color[1] = 0.0;
 		skybox_fog_color[2] = 0.0;
-		skybox_fog_color[3] = 0.0;
+		skybox_fog_color[3] = 1.0;
+		skybox_fog_density = 0.01;
 	default:
 		break;
 	}
@@ -555,8 +556,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -588,8 +589,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -621,8 +622,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.2*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -657,8 +658,8 @@ void update_cloudy_sky_colors()
     while (i < dome_clouds.slices_count * 2)
     {
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -687,8 +688,8 @@ void update_cloudy_sky_colors()
     while (i < dome_clouds.vertices_count)
     {
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -727,8 +728,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -760,8 +761,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -793,8 +794,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -826,8 +827,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -858,8 +859,8 @@ void update_cloudy_sky_colors()
 		float ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		float ml2 = get_moonlight2(normal)*0.1*day_alpha;
 #ifdef NEW_WEATHER
-		float x = dome_clouds.vertices[i*3  ]*0.1-camera_x;
-		float y = dome_clouds.vertices[i*3+1]*0.1-camera_y;
+		float x = dome_clouds.vertices[i*3  ]/WEATHER_SKY_SCALE-camera_x;
+		float y = dome_clouds.vertices[i*3+1]/WEATHER_SKY_SCALE-camera_y;
 		float th = weather_get_thunder_intensity(x, y);
 #endif // NEW_WEATHER
 
@@ -1019,7 +1020,7 @@ void update_cloudy_sky_local_colors()
 		dome_clouds.colors[idx] = color[2] + ml1*moon1_color[2] + ml2*moon2_color[2];
 		dome_clouds_colors_bis[idx++] = color[2];
         dome_clouds.colors[idx] = 0.0;
-		dome_clouds_colors_bis[idx++] = 0.0;
+		dome_clouds_colors_bis[idx++] = rain_coef;
 		++i;
     }
     while (i < dome_clouds.vertices_count)
@@ -1374,7 +1375,9 @@ void update_underworld_sky_colors()
 		++i;
 	}
 
-	memcpy(&skybox_fog[0][0], &dome_sky.colors[(dome_sky.vertices_count-1)*4], 4*sizeof(float));
+	memcpy(skybox_fog_color, &dome_sky.colors[(dome_sky.vertices_count-1)*4], 3*sizeof(float));
+	skybox_fog_color[3] = 1.0;
+	skybox_fog_density = 0.01;
 }
 
 void draw_horizon_fog(float rain_coef)
@@ -1746,7 +1749,9 @@ void cloudy_sky()
     }
 
 #ifdef NEW_WEATHER
+	glEnable(GL_ALPHA_TEST);
 	weather_render_thunder();
+	glDisable(GL_ALPHA_TEST);
 #endif // NEW_WEATHER
 
     glDisable(GL_DEPTH_TEST);
