@@ -102,9 +102,11 @@ int get_quickbar_y_base();
 
 #ifdef CONTEXT_MENUS
 static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option);
-size_t cm_hud_id = -1;
-size_t cm_quickbar_id = -1;
-int cm_quickbar_enabled = 0;
+static size_t cm_hud_id = -1;
+static size_t cm_quickbar_id = -1;
+static int cm_quickbar_enabled = 0;
+static int cm_sound_enabled = 0;
+static int cm_music_enabled = 0;
 #endif
 
 int hud_x= 64;
@@ -1024,6 +1026,12 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 		case 2: set_var_unsaved("view_digital_clock", OPT_BOOL); break;
 		case 3: set_var_unsaved("view_analog_clock", OPT_BOOL); break;
 		case 4: set_var_unsaved("show_fps", OPT_BOOL); break;
+#ifdef NEW_SOUND
+		case 7: toggle_sounds(&sound_opts); set_var_unsaved("enable_sounds", OPT_BOOL); break;
+#else
+		case 7: toggle_sounds(&sound_on); set_var_unsaved("enable_sounds", OPT_BOOL); break;
+#endif
+		case 8: toggle_music(&music_on); set_var_unsaved("enable_music", OPT_BOOL); break;
 	}
 	return 1;
 }
@@ -1038,6 +1046,16 @@ static int context_quickbar_handler(window_info *win, int widget_id, int mx, int
 		case 3: flip_quickbar(); break;
 	}
 	return 1;
+}
+
+static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx, int my)
+{
+#ifdef NEW_SOUND
+	cm_sound_enabled = (sound_opts == SOUNDS_NONE) ?0:1;
+#else
+	cm_sound_enabled = sound_on;
+#endif
+	cm_music_enabled = music_on;
 }
 #endif
 
@@ -1059,7 +1077,10 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, 3, &view_analog_clock);
 			cm_bool_line(cm_hud_id, 4, &show_fps);
 			cm_bool_line(cm_hud_id, 5, &cm_quickbar_enabled);
+			cm_bool_line(cm_hud_id, 7, &cm_sound_enabled);
+			cm_bool_line(cm_hud_id, 8, &cm_music_enabled);
 			cm_add_window(cm_hud_id, misc_win);
+			cm_set_pre_show_handler(cm_hud_id, context_hud_pre_show_handler);
 #endif
 		}
 	else

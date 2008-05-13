@@ -387,7 +387,7 @@ extern char
 		cm_quickspell_menu_str[50],
 		cm_textedit_menu_str[50],
 		cm_quickbar_menu_str[150],
-		cm_hud_menu_str[150],
+		cm_hud_menu_str[250],
 		cm_banner_menu_str[150],
 #endif
 		/* new_character.c */
