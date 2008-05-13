@@ -8,6 +8,7 @@
 #include "gl_init.h"
 #include "global.h"
 #include "init.h"
+#include "knowledge.h"
 #include "session.h"
 #include "tabs.h"
 #include "counters.h"
@@ -151,6 +152,7 @@ void get_the_stats(Sint16 *stats)
         your_info.research_completed=SDL_SwapLE16(stats[47]);
         your_info.researching=SDL_SwapLE16(stats[81]);
         your_info.research_total=SDL_SwapLE16(stats[82]);
+		check_book_known();
 
         init_session();
 }
@@ -476,11 +478,11 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         }
                         your_info.ranging_skill.base=value;break;
                 case RESEARCHING:
-                        your_info.researching=value;break;
+                        your_info.researching=value; check_book_known(); break;
                 case RESEARCH_COMPLETED:
-                        your_info.research_completed=value;break;
+                        your_info.research_completed=value; check_book_known(); break;
                 case RESEARCH_TOTAL:
-                        your_info.research_total=value;break;
+                        your_info.research_total=value; check_book_known(); break;
                 default:
                         log_error("Server sent invalid stat number\n");
                 }

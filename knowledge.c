@@ -59,6 +59,17 @@ int handle_knowledge_book()
 	return 1;
 }
 
+void check_book_known()
+{
+	static int last_checked_book = -1;
+	if (your_info.researching != last_checked_book)
+	{
+		last_checked_book = your_info.researching;
+		if ((your_info.researching >= knowledge_count) && (your_info.researching < sizeof(knowledge_list)))
+			LOG_TO_CONSOLE(c_red2, unknown_book_long_str);
+	}
+}
+
 int display_knowledge_handler(window_info *win)
 {
 	int i,x=2,y=2;
@@ -75,6 +86,10 @@ int display_knowledge_handler(window_info *win)
 	if(your_info.researching < knowledge_count)
 	{
 		research_string = knowledge_list[your_info.researching].name;
+	}
+	else if (your_info.researching < sizeof(knowledge_list))
+	{
+		research_string = unknown_book_short_str;
 	}
 	else
 	{

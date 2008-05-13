@@ -167,6 +167,8 @@ char
 	researching_str[30],
 	not_researching_anything[25],
 	knowledge_read_book[15],
+	unknown_book_short_str[50],
+	unknown_book_long_str[150],
 	/*manufacture.c*/
 	drop_all_str[11],
 	mix_str[5],
@@ -1083,6 +1085,8 @@ void init_help()
 	add_xml_identifier(misc,"research",researching_str,"Researching",sizeof(researching_str));
 	add_xml_identifier(misc,"nothing",not_researching_anything,"Nothing",sizeof(not_researching_anything));
 	add_xml_identifier(misc,"read_book",knowledge_read_book,"Read Book",sizeof(knowledge_read_book));
+	add_xml_identifier(misc,"unknown_book_s",unknown_book_short_str,"(Not yet known to client)",sizeof(unknown_book_short_str));
+	add_xml_identifier(misc,"unknown_book_l",unknown_book_long_str,"Researching book not yet known to the client.  Don't worry, reading it will count!",sizeof(unknown_book_long_str));
 	add_xml_identifier(misc,"mix",mix_str,"Mix",sizeof(mix_str));
 	add_xml_identifier(misc,"mix_all",mixall_str,"Mix all",sizeof(mixall_str));
 	add_xml_identifier(misc,"dropall",drop_all_str,"Drop All",sizeof(drop_all_str));

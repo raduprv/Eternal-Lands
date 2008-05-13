@@ -87,6 +87,14 @@ void get_new_knowledge(Uint16 idx);
  */
 void fill_knowledge_win ();
 
+/*! 
+ * \ingroup knowledge_window
+ * \brief Checks any current reading book is known by the cleint and gives warning message if not.
+ *
+ * \callgraph
+ */
+void check_book_known();
+
 #ifdef __cplusplus
 } // extern "C"
 #endif
