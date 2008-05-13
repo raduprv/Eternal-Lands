@@ -152,7 +152,7 @@ void get_the_stats(Sint16 *stats)
         your_info.research_completed=SDL_SwapLE16(stats[47]);
         your_info.researching=SDL_SwapLE16(stats[81]);
         your_info.research_total=SDL_SwapLE16(stats[82]);
-		check_book_known();
+        check_book_known();
 
         init_session();
 }
