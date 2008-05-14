@@ -166,7 +166,13 @@ bool GlowParticle::idle(const Uint64 delta_t)
       alpha *= math_cache.powf_0_1_rough_close(randfloat(), delta_t / 1500000.0); // increase this number to make particles live longer
       if (alpha < 0.01)
         return false;
-  	  velocity += ((*(effect->pos) - pos).normalize(20.0) * float_time);
+      if (((*(effect->pos) - pos).normalize(20.0) * float_time).is_valid()) {
+      	  velocity += ((*(effect->pos) - pos).normalize(20.0) * float_time);
+      }
+      else {
+    	  std::cout << "Invalid! effect->pos " << (*(effect->pos)) << " pos " << pos <<std::endl;
+
+      }
   	  if (velocity.magnitude() > 7.5)
   	  {
   		velocity.normalize(7.5);
