@@ -25,9 +25,7 @@
 #include "multiplayer.h"
 #include "new_character.h"
 #include "platform.h"
-#ifdef NEW_SOUND
 #include "sound.h"
-#endif // NEW_SOUND
 #include "spells.h"
 #include "storage.h"
 #include "tabs.h"
