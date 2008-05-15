@@ -162,6 +162,16 @@ void setup_video_mode(int fs, int mode)
 				window_height=1050;
 				bpp=32;
 				break;
+			case 19:
+				window_width=1400;
+				window_height=1050;
+				bpp=16;
+				break;
+			case 20:
+				window_width=1400;
+				window_height=1050;
+				bpp=32;
+				break;
 			}
 		}
 	else //windowed mode
@@ -266,9 +276,19 @@ void setup_video_mode(int fs, int mode)
 				window_width=1620;
 				window_height=950;
 				break;
+            case 19:
+            case 20:
+				if(window_width != 1400 || window_height != 1050)
+				{
+					char str[100];
+					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1400x1050");
+					LOG_TO_CONSOLE(c_yellow1,str);
+				}
+				window_width=1400;
+				window_height=1050;
+                break;
 			}
 //TODO: Add wide screen resolutions
-//1400x1050
 			bpp=0;//autodetect
 		}
 #ifndef WINDOWS

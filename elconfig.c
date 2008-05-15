@@ -558,7 +558,7 @@ void switch_vidmode(int *pointer, int mode)
 
 	int flags = SDL_OPENGL;
 
-	if(mode>18 || mode<1) {
+	if(mode>20 || mode<1) {
 		//warn about this error
 		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
 		return;
@@ -656,6 +656,16 @@ void switch_vidmode(int *pointer, int mode)
 		break;
 		case 18:
 			win_width= 1680;
+			win_height= 1050;
+			win_bpp= 32;
+		break;
+		case 19:
+			win_width= 1400;
+			win_height= 1050;
+			win_bpp= 16;
+		break;
+		case 20:
+			win_width= 1400;
 			win_height= 1050;
 			win_bpp= 32;
 		break;
@@ -1834,7 +1844,7 @@ void init_vars()
 	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
 #ifdef ELC
 	add_var(OPT_BOOL, "windows_on_top", "wot", &windows_on_top, change_windows_on_top, 0, "Windows On Top","Allows the Manufacture, Storage and Inventory windows to appear above the map and console.", MISC);
-	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", "1280x800x16", "1280x800x32", "1440x900x16", "1440x900x32", "1680x1050x16", "1680x1050x32", NULL);
+	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", "1280x800x16", "1280x800x32", "1440x900x16", "1440x900x32", "1680x1050x16", "1680x1050x32", "1400x1050x16", "1400x1050x32", NULL);
 #else
 	add_var(OPT_SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
