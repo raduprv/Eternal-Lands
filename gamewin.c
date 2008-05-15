@@ -1071,6 +1071,19 @@ int display_game_handler (window_info *win)
 			draw_dungeon_light ();
 		}
 
+#ifdef SKY_FPV
+		if (skybox_show_sky)
+        {
+			if (skybox_update_every_frame)
+				skybox_update_colors();
+			skybox_compute_z_position();
+            glPushMatrix();
+            glTranslatef(0.0, 0.0, skybox_get_z_position());
+			skybox_display();
+            glPopMatrix();
+        }
+#endif // SKY_FPV
+	
 #ifdef NEW_WEATHER
 		if (use_fog)
 			weather_render_fog();
@@ -1116,19 +1129,6 @@ int display_game_handler (window_info *win)
 		CHECK_GL_ERRORS ();
 		glClear(GL_DEPTH_BUFFER_BIT);
 
-#ifdef SKY_FPV
-		if (skybox_show_sky)
-        {
-			if (skybox_update_every_frame)
-				skybox_update_colors();
-            skybox_compute_z_position();
-            glPushMatrix();
-            glTranslatef(0.0, 0.0, skybox_get_z_position());
-			skybox_display();
-            glPopMatrix();
-        }
-#endif // SKY_FPV
-	
 		missiles_update();
 	
 #ifdef NEW_WEATHER
@@ -1180,6 +1180,17 @@ int display_game_handler (window_info *win)
 		}
 
 #ifdef NEW_WEATHER
+		glMatrixMode(GL_PROJECTION);
+		glPushMatrix();
+		glLoadMatrixd(skybox_view);
+		glMatrixMode(GL_MODELVIEW);
+
+		weather_render_thunder();
+
+		glMatrixMode(GL_PROJECTION);
+		glPopMatrix();
+		glMatrixMode(GL_MODELVIEW);
+
 		weather_cleanup_thunder_light();
 #endif // NEW_WEATHER
 

@@ -26,8 +26,6 @@ extern int use_fog;			/*!< Whether we are using fog or not */
 #define MAX_WEATHER_TYPES 20 // including NONE
 #define MAX_WEATHER_AREAS 10
 
-#define WEATHER_SKY_SCALE 4.0
-
 extern float weather_color[];
 extern float thunder_color[];
 extern float thunder_position[];

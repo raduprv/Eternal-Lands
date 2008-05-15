@@ -46,7 +46,7 @@ int wind_direction = 0;	//wind direction, based on server's setting and local ra
 #define MAX_THUNDERS_DEFS 20
 #define MAX_THUNDERS 20
 
-#define THUNDER_LIGHT_RADIUS 30.0
+#define THUNDER_LIGHT_RADIUS 20.0
 #define SOUND_SPEED 0.1 // real sound speed = 0.34029 m/ms
 
 #define WEATHER_NONE 0
@@ -107,6 +107,7 @@ int thunders_count = 0;
 Uint32 thunder_stop = 0;
 int thunder_type;
 float thunder_position[4] = {0.0, 0.0, 100.0, 1.0};
+float thunder_sky_position[4] = {0.0, 0.0, 0.0, 1.0};
 float thunder_color[4] = {0.9, 0.85, 1.0, 1.0};
 int thunder_falling = 0;
 
@@ -603,6 +604,13 @@ void weather_add_thunder(int type, float x, float y)
 		thunder_stop = weather_time + 400 + rand()%200;
 		thunder_falling = 1;
 
+		skybox_coords_from_ground_coords(thunder_sky_position,
+										 thunder_position[0] + camera_x,
+										 thunder_position[1] + camera_y);
+
+		thunder_sky_position[0] -= camera_x;
+		thunder_sky_position[1] -= camera_y;
+
 		if (!skybox_update_every_frame)
 			skybox_update_colors();
 	}
@@ -644,15 +652,16 @@ void weather_render_thunder()
 	if (thunder_falling)
 	{
 		const float *tex_coords = thunders_defs[thunder_type].coords;
-		float x1 = thunder_position[0] + camera_x;
-		float y1 = thunder_position[1] + camera_y;
-		float x2 = (thunder_position[0] + camera_x) * WEATHER_SKY_SCALE;
-		float y2 = (thunder_position[1] + camera_y) * WEATHER_SKY_SCALE;
-		float z = skybox_get_height(x2-camera_x, y2-camera_y);
-		float size = z*0.5*(tex_coords[2]-tex_coords[0])/(tex_coords[3]-tex_coords[1]);
+		float size = thunder_sky_position[2]*0.5*(tex_coords[2]-tex_coords[0])/(tex_coords[3]-tex_coords[1]);
 		float dx = size*cosf(-rz*M_PI/180.0);
 		float dy = size*sinf(-rz*M_PI/180.0);
 
+		glPushAttrib(GL_ENABLE_BIT);
+		glDisable(GL_LIGHTING);
+		glDisable(GL_FOG);
+		glEnable(GL_COLOR_MATERIAL);
+		glEnable(GL_TEXTURE_2D);
+		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
 		get_and_set_texture_id(thunders_defs[thunder_type%thunders_defs_count].texture);
@@ -660,15 +669,16 @@ void weather_render_thunder()
 		glColor4fv(thunder_color);
 		glBegin(GL_QUADS);
 		glTexCoord2f(tex_coords[0], tex_coords[1]);
-		glVertex3f(x1-dx, y1-dy, 0.0);
+		glVertex3f(thunder_position[0]-dx, thunder_position[1]-dy, 0.0);
 		glTexCoord2f(tex_coords[2], tex_coords[1]);
-		glVertex3f(x1+dx, y1+dy, 0.0);
+		glVertex3f(thunder_position[0]+dx, thunder_position[1]+dy, 0.0);
 		glTexCoord2f(tex_coords[2], tex_coords[3]);
-		glVertex3f(x2+dx, y2+dy, z);
+		glVertex3f(thunder_sky_position[0]+dx, thunder_sky_position[1]+dy, thunder_sky_position[2]);
 		glTexCoord2f(tex_coords[0], tex_coords[3]);
-		glVertex3f(x2-dx, y2-dy, z);
+		glVertex3f(thunder_sky_position[0]-dx, thunder_sky_position[1]-dy, thunder_sky_position[2]);
 		glEnd();
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+		glPopAttrib();
 	}
 }
 

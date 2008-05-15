@@ -449,19 +449,9 @@ void draw_global_light()
 	//add the thunder light to the ambient/diffuse light
 #ifndef MAP_EDITOR2
 # ifdef NEW_WEATHER
-	{
-		float ratios[MAX_WEATHER_TYPES];
-		float sun_proj[3];
-		float density;
-
-		skybox_compute_element_projection(sun_proj, sun_position);
-		weather_compute_ratios(ratios, sun_proj[0]/WEATHER_SKY_SCALE-camera_x, sun_proj[1]/WEATHER_SKY_SCALE-camera_y);
-		density = weather_get_density_from_ratios(ratios);
-
-		skybox_blend_current_colors(ambient_light, skybox_light_ambient, skybox_light_ambient_rainy, density);
-		skybox_blend_current_colors(diffuse_light, skybox_light_diffuse, skybox_light_diffuse_rainy, density);
-		// the thunder is handled elsewhere for the new weather
-	}
+	memcpy(ambient_light, skybox_light_ambient_color, 3*sizeof(float));
+	memcpy(diffuse_light, skybox_light_diffuse_color, 3*sizeof(float));
+	// the thunder is handled elsewhere for the new weather
 # else // NEW_WEATHER
 #  ifdef NEW_LIGHTING
  	if (use_new_lighting)
@@ -484,8 +474,8 @@ void draw_global_light()
 		diffuse_light[1]=global_diffuse_light[i][1]+(float)thunder_light_offset/60-0.15f;
 		diffuse_light[2]=global_diffuse_light[i][2]+(float)thunder_light_offset/15-0.15f;
 #  else // SKY_FPV
-		skybox_blend_current_colors(ambient_light, skybox_light_ambient, skybox_light_ambient_rainy, weather_rain_intensity);
-		skybox_blend_current_colors(diffuse_light, skybox_light_diffuse, skybox_light_diffuse_rainy, weather_rain_intensity);
+		memcpy(ambient_light, skybox_light_ambient_color, 3*sizeof(float));
+		memcpy(diffuse_light, skybox_light_diffuse_color, 3*sizeof(float));
 		ambient_light[0] += (float)thunder_light_offset*0.03;
 		ambient_light[1] += (float)thunder_light_offset*0.05;
 		ambient_light[2] += (float)thunder_light_offset*0.06;
@@ -928,6 +918,7 @@ void new_minute()
 #endif
 #ifdef SKY_FPV
 	if (!freeze_time) game_minute = real_game_minute;
+	if (!freeze_time) game_second = real_game_second;
 #endif // SKY_FPV
 
 	//morning starts at 0

@@ -690,6 +690,19 @@ void display_3d_reflection()
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 
+#ifdef NEW_WEATHER
+	glMatrixMode(GL_PROJECTION);
+	glPushMatrix();
+	glLoadMatrixd(skybox_view);
+	glMatrixMode(GL_MODELVIEW);
+
+	weather_render_thunder();
+
+	glMatrixMode(GL_PROJECTION);
+	glPopMatrix();
+	glMatrixMode(GL_MODELVIEW);
+#endif // NEW_WEATHER
+
 	disable_reflection_clip_planes();
 
 #ifdef SKY_FPV

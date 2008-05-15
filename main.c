@@ -171,7 +171,7 @@ int start_rendering()
 			}
 
 #ifdef SKY_FPV
-			while (cur_time > next_second_time && game_second < 59)
+			while (cur_time > next_second_time && real_game_second < 59)
 			{
 				real_game_second += 1;
 				new_second();

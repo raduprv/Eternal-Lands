@@ -44,6 +44,8 @@ extern float skybox_light_ambient_rainy[360][4];
 extern float skybox_light_diffuse_rainy[360][4];
 extern float skybox_fog_color[4];
 extern float skybox_fog_density;
+extern float skybox_light_ambient_color[4];
+extern float skybox_light_diffuse_color[4];
 extern float skybox_sunny_sky_bias;
 extern float skybox_sunny_clouds_bias;
 extern float skybox_sunny_fog_bias;
@@ -56,6 +58,9 @@ typedef enum {
 
 void skybox_compute_z_position();
 float skybox_get_z_position();
+
+void skybox_direction_to_ground_coords(float dir[3], float *gx, float *gy);
+void skybox_coords_from_ground_coords(float sky_coords[3], float gx, float gy);
 
 void skybox_compute_element_projection(float proj[3], float pos[3]);
 float skybox_get_height(float x, float y);
