@@ -1683,6 +1683,84 @@ GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a)
 	return texture;
 }
 
+#ifdef MINIMAP2
+GLuint load_bmp8_fixed_alpha_with_transparent_color(texture_cache_struct * tex_cache_entry, Uint8 a,Uint8 tr,Uint8 tg,Uint8 tb)
+{
+	int x_size, y_size,i;
+#ifdef NEW_LIGHTING
+	int i;
+#endif
+	Uint8 *texture_mem;
+	texture_struct	ttexture;
+	texture_struct	*tex;
+	GLuint texture;
+
+	tex = load_texture(tex_cache_entry->file_name, &ttexture, a);
+	if(!tex){	// oops, failed
+		return 0;
+	}
+	x_size= tex->x_size;
+	y_size= tex->y_size;
+	texture_mem= tex->texture;
+	tex->has_alpha = 1;
+
+	for(i = 0; i<tex->x_size*tex->y_size*4; i+=4)
+	{
+		char r,g,b;
+		r = texture_mem[i];
+		g = texture_mem[i+1];
+		b = texture_mem[i+2];
+		if((r == tr) && (g == tg) && (b == tb))
+		{
+			texture_mem[i+3] = 0;
+		}
+	}
+
+	CHECK_GL_ERRORS();
+	glGenTextures(1, &texture);
+	glBindTexture(GL_TEXTURE_2D, texture);	//failsafe
+	bind_texture_id(texture);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S, GL_REPEAT);
+	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
+
+	set_texture_filter_parameter();
+
+#ifndef SKY_FPV_CURSOR
+	if (have_extension(arb_texture_compression))
+#else /* SKY_FPV_CURSOR */
+	if(have_extension(arb_texture_compression)&&compression_enabled)
+#endif /* SKY_FPV_CURSOR */
+	{
+		if (have_extension(ext_texture_compression_s3tc))
+		{
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_S3TC_DXT5_EXT,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+		}
+		else
+		{
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGBA_ARB,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+		}
+	}
+	else
+	{
+		glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA,x_size, y_size,0,GL_RGBA,GL_UNSIGNED_BYTE,texture_mem);
+	}
+	CHECK_GL_ERRORS();
+
+	free(tex->texture);
+#ifdef NEW_LIGHTING
+	for (i = 0; i < 4; i++)
+	{
+		tex_cache_entry->ambient[i] = tex->ambient[i];
+		tex_cache_entry->diffuse[i] = tex->diffuse[i];
+		tex_cache_entry->specular[i] = tex->specular[i];
+		tex_cache_entry->emission[i] = tex->emission[i];
+	}
+	tex_cache_entry->shininess = tex->shininess;
+#endif
+	return texture;
+}
+#endif
+
 // reload a bmp texture, in respect to the color key
 GLuint reload_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha, GLuint texture)
 {

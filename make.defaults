@@ -20,6 +20,7 @@ FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
+#FEATURES += MINIMAP2                       # Disables the rectangular minimap and enables the rotating minimap
 #FEATURES += MISSILES_DEBUG                  # Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
 #FEATURES += NEW_ALPHA                       # (undocumented)

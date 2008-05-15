@@ -1442,7 +1442,11 @@ void hide_all_windows(){
 		get_show_window(manufacture_win) > 0 || get_show_window(elconfig_win) > 0 || get_show_window(sigil_win) > 0 ||
 		get_show_window(tab_stats_win) > 0 || get_show_window(tab_help_win) > 0 || get_show_window(storage_win) > 0 ||
 		get_show_window(dialogue_win) > 0 || get_show_window(server_popup_win) > 0 
+#ifndef MINIMAP2
 		|| (get_show_window(minimap_win) > 0 && !minimap_get_pin())
+#else
+		|| get_show_window(minimap_win) > 0
+#endif
 		|| get_show_window(notepad_win) > 0
 		|| get_show_window(url_win) > 0
 	){	//Okay, hide the open ones.
@@ -1504,7 +1508,11 @@ void hide_all_windows(){
 		} else {
 			were_open &= ~(1<<7);
 		}
+#ifndef MINIMAP2
 		if (get_window_showable(minimap_win) > 0 && !minimap_get_pin()){
+#else
+		if (get_window_showable(minimap_win) > 0 ){
+#endif //MINIMAP2
 			hide_window (minimap_win);
 			were_open |= 1<<8;
 		} else {

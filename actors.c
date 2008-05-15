@@ -185,7 +185,9 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	//It's unlocked later
 
 	ec_add_actor_obstruction(our_actor, 3.0);
+#ifndef MINIMAP2
 	minimap_touch();
+#endif //MINIMAP2
 	return i;
 }
 

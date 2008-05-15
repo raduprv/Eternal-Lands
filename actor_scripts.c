@@ -532,11 +532,13 @@ void animate_actors()
 						actors_list[i]->x_tile_pos += dx;
 						actors_list[i]->y_tile_pos += dy;
 
+#ifndef MINIMAP2
 						// and update the minimap if we need to
 						if(actors_list[i]->actor_id == yourself){
 							update_exploration_map();
 						}
 						minimap_touch();
+#endif //MINIMAP2
 						actors_list[i]->busy = 0;
 						if (actors_list[i]->que[0] >= move_n &&
 							actors_list[i]->que[0] <= move_nw) {
@@ -1529,7 +1531,9 @@ void destroy_actor(int actor_id)
 				break;
 			}
 	}
+#ifndef MINIMAP2
 	minimap_touch();
+#endif //MINIMAP2
 }
 
 void destroy_all_actors()
@@ -1560,7 +1564,9 @@ void destroy_all_actors()
 	my_timer_adjust= 0;
 	harvesting_effect_reference = NULL;
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
+#ifndef MINIMAP2
 	minimap_touch();
+#endif //MINIMAP2
 }
 
 

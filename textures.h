@@ -106,6 +106,21 @@ GLuint load_bmp8_color_key(texture_cache_struct * tex_cache_entry, int alpha);
  */
 GLuint load_bmp8_fixed_alpha(texture_cache_struct * tex_cache_entry, Uint8 a);
 
+#ifdef MINIMAP2
+/*!
+ * \ingroup 	load_bmp
+ * \brief 	Loads a bitmap texture with a fixed alpha and sets fully transparent color.
+ *
+ *      	Loads an 8-bit bitmap texture and sets the global alpha value to a and the fully transparent color's alpha to 0.
+ *
+ * \param   	FileName The filename of the bitmap.
+ * \param   	a The alpha value
+ * \retval GLuint  	The texture ID as a GLuint.
+ * \callgraph
+ */
+GLuint load_bmp8_fixed_alpha_with_transparent_color(texture_cache_struct * tex_cache_entry, Uint8 a,Uint8 tr,Uint8 tg,Uint8 tb);
+#endif
+
 /*!
  * \ingroup 	reload_bmp
  * \brief 	Reloads a color-key from a bmp-file.

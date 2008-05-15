@@ -11,10 +11,12 @@ extern "C" {
 extern int minimap_win;
 extern int minimap_win_x;
 extern int minimap_win_y;
+#ifndef MINIMAP2
 extern int minimap_flags;
 extern int minimap_zoom;
 
 int minimap_get_pin();
+#endif //MINIMAP2
 
 void display_minimap();
 int display_minimap_handler(window_info *win);
@@ -39,6 +41,7 @@ void minimap_free_framebuffer();
  */
 void minimap_make_framebuffer();
 
+#ifndef MINIMAP2
  /*!
  * \ingroup minimap
  * \brief Causes the minimap to be redrawn.
@@ -48,12 +51,15 @@ void minimap_make_framebuffer();
  * \callgraph
  */
 void minimap_touch(void);
+#endif //MINIMAP2
 
 //called when map changes or window size changes (we have to reload textures)
 void change_minimap();
 
+#ifndef MINIMAP2
 //called when player moves
 void update_exploration_map();
+#endif //MINIMAP2
 
 void save_exploration_map();
 

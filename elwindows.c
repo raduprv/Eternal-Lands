@@ -410,7 +410,11 @@ int drag_windows (int mx, int my, int dx, int dy)
 						y = my - win->cur_y;
 						
 						// first check for being actively dragging or on the top bar
+#ifndef MINIMAP2
 						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && y < 0) )
+#else
+						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && ((y < 0) || (win->owner_drawn_title_bar && y < 16))) )
+#endif // MINIMAP
 						{
 							drag_id = i;
 							win->dragged = 1;
@@ -708,6 +712,9 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		win->resized = 0;
 		win->drag_in = 0;
 		win->opaque = opaque_window_backgrounds;
+#ifdef MINIMAP2
+		win->owner_drawn_title_bar = 0;
+#endif // MINIMAP2
 		my_strncp(win->window_name, name, sizeof (win->window_name));
 		
 		if (pos_id >= 0 && !windows_list.window[pos_id].displayed)

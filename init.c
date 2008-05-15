@@ -305,8 +305,10 @@ void read_bin_cfg()
 
 	minimap_win_x=cfg_mem.minimap_win_x;
 	minimap_win_y=cfg_mem.minimap_win_y;
+#ifndef MINIMAP2
 	minimap_flags=cfg_mem.minimap_flags;
 	minimap_zoom=cfg_mem.minimap_zoom;
+#endif //MINIMAP2
 
 	notepad_win_x=cfg_mem.notepad_win_x;
 	notepad_win_y=cfg_mem.notepad_win_y;
@@ -510,8 +512,10 @@ void save_bin_cfg()
 		cfg_mem.minimap_win_x=minimap_win_x;
 		cfg_mem.minimap_win_y=minimap_win_y;
 	}
+#ifndef MINIMAP2
 	cfg_mem.minimap_flags=minimap_flags;
 	cfg_mem.minimap_zoom=minimap_zoom;
+#endif //MINIMAP2
 
 	if(notepad_win >= 0) {
 		cfg_mem.notepad_win_x=windows_list.window[notepad_win].cur_x;
