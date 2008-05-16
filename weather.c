@@ -598,21 +598,24 @@ void weather_add_thunder(int type, float x, float y)
 		++thunders_count;
 
 		// start thunder
-		thunder_type = rand()%thunders_defs_count;
-		thunder_position[0] = x;
-		thunder_position[1] = y;
-		thunder_stop = weather_time + 400 + rand()%200;
-		thunder_falling = 1;
-
-		skybox_coords_from_ground_coords(thunder_sky_position,
-										 thunder_position[0] + camera_x,
-										 thunder_position[1] + camera_y);
-
-		thunder_sky_position[0] -= camera_x;
-		thunder_sky_position[1] -= camera_y;
-
-		if (!skybox_update_every_frame)
-			skybox_update_colors();
+		if (thunders_defs_count > 0)
+		{
+			thunder_type = rand()%thunders_defs_count;
+			thunder_position[0] = x;
+			thunder_position[1] = y;
+			thunder_stop = weather_time + 400 + rand()%200;
+			thunder_falling = 1;
+			
+			skybox_coords_from_ground_coords(thunder_sky_position,
+											 thunder_position[0] + camera_x,
+											 thunder_position[1] + camera_y);
+			
+			thunder_sky_position[0] -= camera_x;
+			thunder_sky_position[1] -= camera_y;
+			
+			if (!skybox_update_every_frame)
+				skybox_update_colors();
+		}
 	}
 }
 
@@ -699,11 +702,12 @@ void weather_sound_control()
 	static Uint32 last_sound_update = 0;
 	int i;
 
-#ifndef NEW_SOUND			// Under NEW_SOUND we still want sounds added/updated so when sound is enabled they will be correct
+	//#ifndef NEW_SOUND // Under NEW_SOUND we still want sounds added/updated so when sound is enabled they will be correct
 	if (!sound_on) {
+		rain_sound = 0;
 		return;
 	}
-#endif // NEW_SOUND
+	//#endif // NEW_SOUND
 
 	if (weather_time < last_sound_update + 200) return;
 	else last_sound_update = weather_time;

@@ -472,6 +472,8 @@ void update_camera()
 	}
 #endif // NEW_CAMERA_MOTION
 
+	clamp_camera();
+
 #ifdef SKY_FPV
 	if (ext_cam && !first_person && me &&
 		rx <= -min_tilt_angle && rx >= -max_tilt_angle)
@@ -545,7 +547,6 @@ void update_camera()
 	}
 #endif // SKY_FPV
 
-	clamp_camera();
 	if(adjust_view){
 		set_all_intersect_update_needed(main_bbox_tree);
 		old_camera_x= camera_x;
