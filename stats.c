@@ -238,7 +238,6 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.alchemy_skill.cur=value;break;
                 case ALCH_S_BASE:
                         floatingmessages_add_level(yourself, value, attributes.alchemy_skill.name);
-                        floatingmessages_add_level(yourself, value, attributes.harvesting_skill.name);
                         {
                             actor *_actor = get_actor_ptr_from_id(yourself);
                             if (use_eye_candy == 1 && _actor != NULL) {
