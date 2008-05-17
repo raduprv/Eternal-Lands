@@ -28,8 +28,13 @@ MissileParticle::MissileParticle(Effect* _effect, ParticleMover* _mover, const V
   else if (color[2] < 0.0)
     color[2] = 0.0;
   texture = _texture;
+#ifdef _MSC_VER
+  size = _cpp_max(1.0f, (float)(_size * (0.25 + randcoord(1.25)))); // size >= 1.0
+  alpha = _cpp_max(0.25f, (float)_alpha); // at least 25% alpha
+#else
   size = std::max(1.0f, (float)(_size * (0.25 + randcoord(1.25)))); // size >= 1.0
   alpha = std::max(0.25f, (float)_alpha); // at least 25% alpha
+#endif
   velocity /= size;
   flare_max = 1.6;
   flare_exp = 0.2;

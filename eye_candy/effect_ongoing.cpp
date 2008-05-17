@@ -112,8 +112,13 @@ bool OngoingParticle::idle(const Uint64 delta_t)
         //center = ((OngoingEffect*)effect)->effect_center;
       }
       const float age_f = (float)(age)/1000000;
-	  pos.x = center.x + cos(angle + M_PI * age_f) * std::max((age_f < 0.75f ? 0.0f : 0.0625f), (float)(age_f * 2.5f / exp(age_f * 4.0f)));
+#ifdef _MSC_VER
+      pos.x = center.x + cos(angle + M_PI * age_f) * _cpp_max((age_f < 0.75f ? 0.0f : 0.0625f), (float)(age_f * 2.5f / exp(age_f * 4.0f)));
+	  pos.z = center.z + sin(angle + M_PI * age_f) * _cpp_max((age_f < 0.75f ? 0.0f : 0.0625f), (float)(age_f * 2.5f / exp(age_f * 4.0f)));
+#else
+      pos.x = center.x + cos(angle + M_PI * age_f) * std::max((age_f < 0.75f ? 0.0f : 0.0625f), (float)(age_f * 2.5f / exp(age_f * 4.0f)));
 	  pos.z = center.z + sin(angle + M_PI * age_f) * std::max((age_f < 0.75f ? 0.0f : 0.0625f), (float)(age_f * 2.5f / exp(age_f * 4.0f)));
+#endif
 	  pos.y = center.y - 0.0625f + pow(age_f, 2.0f) * 0.25f;
       const alpha_t scalar = 1.0f - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5f);
       alpha -= scalar * 0.5f;
