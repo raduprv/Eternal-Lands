@@ -1057,8 +1057,9 @@ void display_minimap()
 
 #else //MINIMAP2
 
-static const int minimap_size = 256;
-static const float float_minimap_size = 256.0;
+float minimap_size_coefficient;
+int minimap_size;
+float float_minimap_size;
 float minimap_tiles_distance = 48;
 float radius_shift = 0.707106779283f;
 
@@ -1131,10 +1132,10 @@ CHECK_GL_ERRORS();
 __inline__ void rotate_actor_points(float zoom_multip, float px, float py)
 {
 	float x,y;
-	x = (px - (float_minimap_size/2) ) + 128.0f;
-	y = (py - (float_minimap_size/2) ) + 128.0f;
+	x = (px - (float_minimap_size/2) ) + float_minimap_size/2;
+	y = (py - (float_minimap_size/2) ) + float_minimap_size/2;
 
-	glTranslatef(128.0f, 128.0f, 0.0f);
+	glTranslatef(float_minimap_size/2, float_minimap_size/2, 0.0f);
 
 	glRotatef(-compass_direction*rz, 0.0f,0.0f,1.0f );
 	glTranslatef(-x,-y,0.0f);
@@ -1327,11 +1328,39 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 	glEnable(GL_TEXTURE_2D);
 }
 
+static __inline__ void draw_compass()
+{
+	glPushMatrix();
+	glColor3f(1.0f,1.0f,1.0f);
+	glTranslatef(float_minimap_size/2, float_minimap_size/2, 0.0f);
+	glRotatef(-compass_direction*rz - 90, 0.0f,0.0f,1.0f );
+	glRotatef(180, 1.0f,0.0f,0.0f );
+	glEnable(GL_TEXTURE_2D); 
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	bind_texture_id(compass_tex);
+
+	glBegin(GL_QUADS); 
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
+	glEnd();
+
+	glDisable(GL_ALPHA_TEST); 
+	glDisable( GL_BLEND );
+	glPopMatrix();
+}
+
 static __inline__ void draw_map(float zoom_multip, float px, float py)
 {
 	float sx = 0.0f, sy = 0.0f;
 	int i;
-	float coef = 85 * zoom_multip;
+	float coef = 91 * zoom_multip * minimap_size_coefficient;
 	float x, y;
 	float fsinold = -1.0,fcosold = -1.0;
 	int shift;
@@ -1339,8 +1368,8 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 
 	glPushMatrix();
 
-	sx = 128.0f;
-	sy = 128.0f;
+	sx = float_minimap_size/2;
+	sy = float_minimap_size/2;
 
 
 	glTranslatef(sx, sy, 0.0f);
@@ -1355,13 +1384,13 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 	{
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(-128.0f, +128.0f);
+			glVertex2f(-float_minimap_size/2, float_minimap_size/2);
 			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(+128.0f, +128.0f);
+			glVertex2f(float_minimap_size/2, float_minimap_size/2);
 			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(+128.0f, -128.0f);
+			glVertex2f(float_minimap_size/2, -float_minimap_size/2);
 			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(-128.0f, -128.0f);
+			glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
 		glEnd();
 	}
 	else
@@ -1422,30 +1451,8 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 	glPopMatrix();
 
 	//draw the compass texture
-	glPushMatrix();
-	glTranslatef(sx, sy, 0.0f);
-	glRotatef(-compass_direction*rz - 90, 0.0f,0.0f,1.0f );
-	glRotatef(180, 1.0f,0.0f,0.0f );
 	
-	glEnable(GL_TEXTURE_2D); 
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	bind_texture_id(compass_tex);
-
-	glBegin(GL_QUADS); 
-		glTexCoord2f(0.0f, 0.0f);
-		glVertex2f(-128.0f, +128.0f);
-		glTexCoord2f(0.0f, 1.0f);
-		glVertex2f(+128.0f, +128.0f);
-		glTexCoord2f(1.0f, 1.0f);
-		glVertex2f(+128.0f, -128.0f);
-		glTexCoord2f(1.0f, 0.0f);
-		glVertex2f(-128.0f, -128.0f);
-	glEnd();
-
-	glDisable(GL_ALPHA_TEST); 
-	glDisable( GL_BLEND );
-	glPopMatrix();
+	draw_compass();
 }
 
 static __inline__ void draw_into_minimap_fbo(float zoom_multip, float px, float py)
@@ -1554,19 +1561,21 @@ int display_minimap_handler(window_info *win)
 	if(!minimap_texture) 
 	{
 		//there's no minimap for this map :( draw a X
+		glTranslatef(0.0f, 16.0f, 0.0f);
+		glPushMatrix();
 		glDisable(GL_TEXTURE_2D);
 		glColor3f(1.0f, 0.0f, 0.0f);
 		glLineWidth(3.0f);
 		glBegin(GL_LINES);
-		glVertex3i(30, 30, 1);
-		glVertex3i(226, 226, 1);
-		glVertex3i(226, 30, 1);
-		glVertex3i(30, 226, 1);
+			glVertex2f(-radius_shift*float_minimap_size/2 + float_minimap_size/2,-radius_shift*float_minimap_size/2 + float_minimap_size/2);
+			glVertex2f(radius_shift*float_minimap_size/2 + float_minimap_size/2,radius_shift*float_minimap_size/2 + float_minimap_size/2);
+			glVertex2f(-radius_shift*float_minimap_size/2 + float_minimap_size/2,radius_shift*float_minimap_size/2 + float_minimap_size/2);
+			glVertex2f(radius_shift*float_minimap_size/2 + float_minimap_size/2,-radius_shift*float_minimap_size/2 + float_minimap_size/2);
 		glEnd();
-		glLineWidth(1.0f); 
+
 		glEnable(GL_TEXTURE_2D);
-		glColor3f(0.8f,0.8f,0.8f);
-		draw_string_small(14,125,(unsigned char*)"no minimap for this place",1);
+		glPopMatrix();
+		draw_compass();
 		return 0;
 	}
 	//draw minimap
@@ -1600,7 +1609,7 @@ int display_minimap_handler(window_info *win)
 		x = sin((i)*0.0174532925)/2*float_minimap_size+float_minimap_size/2;
 		y = cos((i)*0.0174532925f)/2*float_minimap_size+float_minimap_size/2;
 		glVertex2f(x, y);	
-	}	
+	}
 	glEnd();
 
 	draw_map(zoom_multip, px, py);
@@ -1712,13 +1721,13 @@ void load_exploration_map ()
 	if(have_extension(arb_texture_compression))
 	{
 		if(have_extension(ext_texture_compression_s3tc))
-			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGB_S3TC_DXT1_EXT, 256, 256,0,GL_LUMINANCE,GL_UNSIGNED_BYTE,&exploration_map);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_RGB_S3TC_DXT1_EXT, minimap_size, minimap_size,0,GL_LUMINANCE,GL_UNSIGNED_BYTE,&exploration_map);
 		else
-			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_LUMINANCE, 256, 256,0,GL_ALPHA,GL_UNSIGNED_BYTE,&exploration_map);
+			glTexImage2D(GL_TEXTURE_2D,0,GL_COMPRESSED_LUMINANCE, minimap_size, minimap_size,0,GL_ALPHA,GL_UNSIGNED_BYTE,&exploration_map);
 		
 	}
 	else
-		glTexImage2D(GL_TEXTURE_2D,0,GL_LUMINANCE, 256, 256,0,GL_LUMINANCE,GL_UNSIGNED_BYTE,&exploration_map);
+		glTexImage2D(GL_TEXTURE_2D,0,GL_LUMINANCE, minimap_size, minimap_size,0,GL_LUMINANCE,GL_UNSIGNED_BYTE,&exploration_map);
 	
 
 	CHECK_GL_ERRORS();	
@@ -1794,11 +1803,16 @@ CHECK_GL_ERRORS();
 void display_minimap()
 {
 	window_info *win;
+
+	minimap_size_coefficient = 0.7f;
+	minimap_size = 256 * minimap_size_coefficient;
+	float_minimap_size = 256.0 * minimap_size_coefficient;
+
 	if(minimap_win < 0)
 	{
 		//init minimap
 		minimap_win = create_window("Minimap", windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 
-			256, 256+16, ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
+			minimap_size, minimap_size+16, ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		win = &(windows_list.window[minimap_win]);
