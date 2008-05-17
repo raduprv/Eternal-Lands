@@ -1064,6 +1064,7 @@ float minimap_tiles_distance = 48;
 float radius_shift = 0.707106779283f;
 
 static int compass_direction = 1;
+static int enable_controls = 0;
 
 GLuint compass_tex;
 GLuint minimap_texture = 0;
@@ -1554,7 +1555,11 @@ int display_minimap_handler(window_info *win)
 	float x,y;
 	int i;
 
-	draw_minimap_title_bar(win);
+	if (enable_controls)
+	{
+		draw_minimap_title_bar(win);
+		enable_controls = 0;
+	}
 	
 	zoom_multip = minimap_get_zoom();
 
@@ -1799,6 +1804,11 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+int mouseover_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
+{
+	enable_controls = 1;
+	return 1;
+}
 
 void display_minimap()
 {
@@ -1815,6 +1825,7 @@ void display_minimap()
 			minimap_size, minimap_size+16, ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
+		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
 		win = &(windows_list.window[minimap_win]);
 		win->owner_drawn_title_bar = 1;
 
