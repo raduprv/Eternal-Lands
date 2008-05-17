@@ -23,7 +23,7 @@
 #ifdef DEBUG_ALIASES
 #define TADEBUG(x...) fprintf(stderr,x); fputc('\n',stderr)
 #else
-#define TADEBUG(x...)
+#define TADEBUG(x,...)
 #endif
 
 static char *numeric_aliases[100]; /* Stores the alias buffer */
