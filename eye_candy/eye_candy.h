@@ -109,6 +109,7 @@ and project-independent.
 
 #include <string>
 #include <vector>
+#include <limits>
 #include <map>
 #include <iostream>
 #include <cassert>
@@ -122,15 +123,6 @@ and project-independent.
 
 #ifdef CLUSTER_INSIDES
 #include "../cluster.h"
-#endif
-
-#define GCC_VERSION (__GNUC__ * 10000 \
-                     + __GNUC_MINOR__ * 100 \
-                     + __GNUC_PATCHLEVEL__)
-/* Test for GCC >= 4.3.0 */
-#if GCC_VERSION >= 40300
- #undef isfinite
- #define isfinite(x) ((x) - (x) == 0) 
 #endif
 
 namespace ec
@@ -422,7 +414,9 @@ public:
   
   bool is_valid() const
   {
-    if (isfinite(x) && isfinite(z) && isfinite(y))
+    if (x != std::numeric_limits<coord_t>::infinity() 
+    	&& y != std::numeric_limits<coord_t>::infinity() 
+    	&& z != std::numeric_limits<coord_t>::infinity())
       return true;
     else
       return false;
