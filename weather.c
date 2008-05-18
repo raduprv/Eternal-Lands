@@ -588,7 +588,7 @@ float weather_get_density()
 
 void weather_add_thunder(int type, float x, float y)
 {
-	if (thunders_count < MAX_THUNDERS)
+	if (thunders_count < MAX_THUNDERS && thunders_defs_count > 0)
 	{
 		// store the thunder for the sound
 		thunders[thunders_count].type = type;
