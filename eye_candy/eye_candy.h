@@ -124,9 +124,14 @@ and project-independent.
 #include "../cluster.h"
 #endif
 
-// if GCC 4.3 won't compile, uncomment the following two lines
-// #undef isfinite
-// #define isfinite(x) ((x) - (x) == 0) 
+#define GCC_VERSION (__GNUC__ * 10000 \
+                     + __GNUC_MINOR__ * 100 \
+                     + __GNUC_PATCHLEVEL__)
+/* Test for GCC >= 4.3.0 */
+#if GCC_VERSION >= 40300
+ #undef isfinite
+ #define isfinite(x) ((x) - (x) == 0) 
+#endif
 
 namespace ec
 {
