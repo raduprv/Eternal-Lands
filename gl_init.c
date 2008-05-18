@@ -436,10 +436,16 @@ void init_video()
 		GLubyte *my_string;
 		int have_hardware;
 
-		my_string=(GLubyte *)glGetString(GL_RENDERER);
-		len=strlen(my_string);
-		have_hardware=get_string_occurance("gdi generic",my_string,len,0);
-		if(have_hardware != -1) {
+		my_string=(GLubyte *)glGetString(GL_RENDERER);        
+        if (my_string == NULL) {
+            len = 0;
+            have_hardware = 0;
+            LOG_TO_CONSOLE(c_red1,"glGetString(GL_RENDERER) failed");
+        } else {
+            len=strlen(my_string);
+            have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+        }
+        if(have_hardware != -1) {
 			//let the user know there is a problem
 			LOG_TO_CONSOLE(c_red1,stencil_falls_back_on_software_accel);
 			//first, shut down this mode we have now.
@@ -455,8 +461,14 @@ void init_video()
 			have_stencil=0;
 	
 			my_string=(GLubyte *)glGetString(GL_RENDERER);
-			len=strlen(my_string);
-			have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+            if (my_string == NULL) {
+                len = 0;
+                have_hardware = 0;
+                LOG_TO_CONSOLE(c_red1,"glGetString(GL_RENDERER) failed");
+            } else {
+                len=strlen(my_string);
+                have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+            }
 			if(have_hardware != -1) {
 				//wtf, this really shouldn't happen....
 				//let's try a default mode, maybe Quake 2's mode, and pray it works
@@ -477,8 +489,14 @@ void init_video()
 				SDL_SetVideoMode(window_width, window_height, bpp, flags);
 				//see if it worked...
 				my_string=(GLubyte *)glGetString(GL_RENDERER);
-				len=strlen(my_string);
-				have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+                if (my_string == NULL) {
+                    len = 0;
+                    have_hardware = 0;
+                    LOG_TO_CONSOLE(c_red1,"glGetString(GL_RENDERER) failed");
+                } else {
+                    len=strlen(my_string);
+                    have_hardware=get_string_occurance("gdi generic",my_string,len,0);
+                }
 				if(have_hardware != -1) {
 					//wtf, this really shouldn't happen....
 					//let's try a default mode, maybe Quake 2's mode, and pray it works

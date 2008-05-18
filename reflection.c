@@ -315,7 +315,8 @@ static __inline__ void init_depth()
 	}
 	glDrawArrays(GL_QUADS, water_buffer_reflectiv_index * 4, (water_buffer_usage - water_buffer_reflectiv_index) * 4);
 	
-	ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+	if (use_vertex_buffers)
+		ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
 	glDisableClientState(GL_VERTEX_ARRAY);
 
 	/* Re-enable update of color and depth. */
