@@ -308,6 +308,8 @@ void read_bin_cfg()
 #ifndef MINIMAP2
 	minimap_flags=cfg_mem.minimap_flags;
 	minimap_zoom=cfg_mem.minimap_zoom;
+#else
+	minimap_tiles_distance=cfg_mem.minimap_zoom;
 #endif //MINIMAP2
 
 	notepad_win_x=cfg_mem.notepad_win_x;
@@ -515,6 +517,8 @@ void save_bin_cfg()
 #ifndef MINIMAP2
 	cfg_mem.minimap_flags=minimap_flags;
 	cfg_mem.minimap_zoom=minimap_zoom;
+#else
+	cfg_mem.minimap_zoom=minimap_tiles_distance;
 #endif //MINIMAP2
 
 	if(notepad_win >= 0) {

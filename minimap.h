@@ -11,6 +11,7 @@ extern "C" {
 extern int minimap_win;
 extern int minimap_win_x;
 extern int minimap_win_y;
+extern float minimap_tiles_distance;
 #ifndef MINIMAP2
 extern int minimap_flags;
 extern int minimap_zoom;

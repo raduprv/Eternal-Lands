@@ -1568,6 +1568,18 @@ int display_minimap_handler(window_info *win)
 		//there's no minimap for this map :( draw a X
 		glTranslatef(0.0f, 16.0f, 0.0f);
 		glPushMatrix();
+
+		//draw black background
+		glColor3f(0.0f,0.0f,0.0f);
+		glBegin(GL_POLYGON);
+		for (i=0; i<=360; i +=10) 
+		{
+			x = sin((i)*0.0174532925f)/2*float_minimap_size+float_minimap_size/2;
+			y = cos((i)*0.0174532925f)/2*float_minimap_size+float_minimap_size/2;
+			glVertex2f(x, y);	
+		}
+		glEnd();
+
 		glDisable(GL_TEXTURE_2D);
 		glColor3f(1.0f, 0.0f, 0.0f);
 		glLineWidth(3.0f);
@@ -1611,7 +1623,7 @@ int display_minimap_handler(window_info *win)
 	glBegin(GL_POLYGON);
 	for (i=0; i<=360; i +=10) 
 	{
-		x = sin((i)*0.0174532925)/2*float_minimap_size+float_minimap_size/2;
+		x = sin((i)*0.0174532925f)/2*float_minimap_size+float_minimap_size/2;
 		y = cos((i)*0.0174532925f)/2*float_minimap_size+float_minimap_size/2;
 		glVertex2f(x, y);	
 	}
@@ -1678,7 +1690,24 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 		//check if the click is in the round area
 		if(is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 			return minimap_walkto(mx, win->len_y - my);
-	} 
+	}
+	else if((flags & ELW_WHEEL) && is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
+	{
+		if(flags & ELW_WHEEL_UP) //increase zoom
+		{
+			minimap_tiles_distance -=8;
+			if(minimap_tiles_distance < 48)
+				minimap_tiles_distance = 48;
+		}
+		else //decrease zoom
+		{
+			minimap_tiles_distance +=8;
+			if(minimap_tiles_distance > 144)
+				minimap_tiles_distance = 144;
+		}
+		return 1;
+	}
+
 
 	return 0;
 }
@@ -1817,6 +1846,11 @@ void display_minimap()
 	minimap_size_coefficient = 0.7f;
 	minimap_size = 256 * minimap_size_coefficient;
 	float_minimap_size = 256.0 * minimap_size_coefficient;
+
+	if(minimap_tiles_distance < 48)
+		minimap_tiles_distance = 48;
+	if(minimap_tiles_distance > 144)
+		minimap_tiles_distance = 144;
 
 	if(minimap_win < 0)
 	{
