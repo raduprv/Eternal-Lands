@@ -100,6 +100,9 @@ and project-independent.
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
 #if defined(_WIN32) || defined(_WIN64)
+ #ifndef NOMINMAX
+  #define NOMINMAX
+ #endif
  #include <windows.h>     
  #include <float.h>
 #else
@@ -174,7 +177,7 @@ namespace ec
  inline float fmax(const float a, const float b) { return ((a < b) ? b : a); };
  inline float round(const float a) { return (a - floor(a) < 0.5f ? floor(a) : ceil(a)); };
  inline float remainderf(const float a, const float b) { return (a - (float)round(a / b) * b); };
- inline void usleep(const unsigned long a) { Sleep(a / 1000); } ;
+ inline void usleep(const unsigned long a) { Sleep(a / 1000); };
  
  #pragma warning (disable : 4100) // Unreferenced formal parameter (Justification: I may have a parameter passed for later use.  No harm done.)
  #pragma warning (disable : 4127) // Conditional expression is constant (Justification: Needed for sizeof() checks that will be optimized out; allows for type polymorphism)
@@ -201,7 +204,7 @@ const float PI = 3.141592654;
 const energy_t G = 6.673e-11;
 const int MaxMotionBlurPoints = 5;
 #ifdef SKY_FPV
-const coord_t MAX_DRAW_DISTANCE = 18.0;
+const coord_t MAX_DRAW_DISTANCE = 24.0;
 #else
 const coord_t MAX_DRAW_DISTANCE = 13.5;
 #endif
