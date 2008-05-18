@@ -43,20 +43,13 @@ bool GlowParticle::idle(const Uint64 delta_t)
       color[1] = 0.7;
       color[2] = 0.2 + 0.15 * sin(age / 780000.0 + 1.9);
     
-      if (age < 200000)
-      {
-        if (state == 0)
-          size = age / 45000.0;
-      }
-      else
-      {
-        const percent_t scalar = math_cache.powf_05_close(float_time * 0.5);
-        size *= scalar;
-        alpha *= scalar;
-    
-        if (alpha < 0.01)
+      const percent_t scalar = math_cache.powf_05_close(float_time * 0.5);
+      const float age_f = (float)(age)/1000000.0f;
+      size = 32.0f * age_f / exp(1.5f * age_f);
+      alpha *= scalar;
+  
+      if (alpha < 0.01)
           return false;
-      }
       break;
     }
     case GlowEffect::HARM_GLOW:
@@ -65,20 +58,13 @@ bool GlowParticle::idle(const Uint64 delta_t)
       color[1] = 0.4 + randcolor(0.15) * sin(age / 530000.0);
       color[2] = 0.2 + 0.15 * sin(age / 780000.0 + 1.9);
     
-      if (age < 200000)
-      {
-        if (state == 0)
-          size = age / 45000.0;
-      }
-      else
-      {
-        const percent_t scalar = math_cache.powf_05_close(float_time * 0.5);
-        size *= scalar;
-        alpha *= scalar;
-    
-        if (alpha < 0.01)
+      const percent_t scalar = math_cache.powf_05_close(float_time * 0.5);
+      const float age_f = (float)(age)/1000000.0f;
+      size = 32.0f * age_f / exp(1.5f * age_f);
+      alpha *= scalar;
+  
+      if (alpha < 0.01)
           return false;
-      }
       break;
     }
     case GlowEffect::POISON_GLOW:
@@ -87,19 +73,13 @@ bool GlowParticle::idle(const Uint64 delta_t)
       color[1] = 0.5 + randcolor(0.3);
       color[2] = randcolor(0.5);
     
-      if (age < 200000)
-      {
-        if (state == 0)
-          size = age / 45000.0;
-      }
-      else
-      {
-        const percent_t scalar = math_cache.powf_05_close(float_time * 0.5);
-        size *= scalar;
-        alpha *= scalar;
-        if (alpha < 0.01)
+      const percent_t scalar = math_cache.powf_05_close(float_time * 0.5);
+      const float age_f = (float)(age)/1000000.0f;
+      size = 32.0f * age_f / exp(1.5f * age_f);
+      alpha *= scalar;
+  
+      if (alpha < 0.01)
           return false;
-      }
       break;
     }
     case GlowEffect::LEVEL_UP_DEFAULT_GLOW:
