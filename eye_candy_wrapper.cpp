@@ -1963,7 +1963,7 @@ extern "C" ec_reference ec_create_ongoing_magic_protection2(actor *caster, float
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
   set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
   ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::OG_MAGIC_PROTECTION, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
@@ -1974,7 +1974,7 @@ extern "C" ec_reference ec_create_ongoing_shield2(actor *caster, float hue_adjus
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  ret->casterbone = get_actor_bone_id(caster, body_top_bone);
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
   set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
   ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::OG_SHIELD, LOD, scale);
   eye_candy.push_back_effect(ret->effect);
@@ -1985,7 +1985,7 @@ extern "C" ec_reference ec_create_ongoing_magic_immunity2(actor *caster, float h
 {
   ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
   ret->caster = caster;
-  ret->casterbone = get_actor_bone_id(caster, body_bottom_bone);
+  ret->casterbone = get_actor_bone_id(caster, head_bone);
   set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
   ret->effect = new ec::OngoingEffect(&eye_candy, &ret->dead, &ret->position, hue_adjust, saturation_adjust, ec::OngoingEffect::OG_MAGIC_IMMUNITY, LOD, scale);
   eye_candy.push_back_effect(ret->effect);

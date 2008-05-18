@@ -75,25 +75,28 @@ bool OngoingParticle::idle(const Uint64 delta_t)
   {
     case OngoingEffect::OG_MAGIC_PROTECTION:
     {
-      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0);
-      alpha -= scalar;
-      if (alpha < 0.02)
-        return false;
-      break;
+        const alpha_t scalar = (1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0)) * 0.25f;
+        alpha -= scalar;
+        velocity.y -= scalar;
+        if (alpha < 0.01)
+          return false;
+        break;
     }
     case OngoingEffect::OG_SHIELD:
     {
-      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0);
+      const alpha_t scalar = (1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.0)) * 0.5f;
       alpha -= scalar;
-      if (alpha < 0.02)
+      velocity.y -= scalar;
+      if (alpha < 0.01)
         return false;
       break;
     }
     case OngoingEffect::OG_MAGIC_IMMUNITY:
     {
-      const alpha_t scalar = 1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.5);
+      const alpha_t scalar = (1.0 - math_cache.powf_0_1_rough_close(randfloat(), float_time * 0.75)) * 0.25f;
       alpha -= scalar;
-      if (alpha < 0.02)
+      velocity.y -= scalar * 0.25f;
+      if (alpha < 0.01)
         return false;
       break;
     }
@@ -176,19 +179,19 @@ OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const col
   {
     case OG_MAGIC_PROTECTION:
     {
-      spawner = new HollowEllipsoidSpawner(Vec3(0.45, 0.9, 0.45));
+      spawner = new HollowDiscSpawner(0.25);
+      mover = new ParticleMover(this);
+      break;
+    }
+    case OG_MAGIC_IMMUNITY:
+    {
+      spawner = new FilledSphereSpawner(0.25);
       mover = new ParticleMover(this);
       break;
     }
     case OG_SHIELD:
     {
-      spawner = new HollowDiscSpawner(0.6);
-      mover = new SpiralMover(this, &effect_center, 3.0, 2.9);
-      break;
-    }
-    case OG_MAGIC_IMMUNITY:
-    {
-      spawner = new HollowEllipsoidSpawner(Vec3(0.6, 1.1, 0.6));
+      spawner = new HollowDiscSpawner(0.5);
       mover = new ParticleMover(this);
       break;
     }
@@ -232,15 +235,19 @@ bool OngoingEffect::idle(const Uint64 usec)
   effect_center = *pos;
     
   const interval_t float_time = usec / 1000000.0;
+  const Uint64 age = get_time() - born;
+  const float age_f = (float)(age)/1000000;
   switch(type)
   {
     case OG_MAGIC_PROTECTION:
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
       {
-        const Vec3 coords = spawner->get_new_coords() + effect_center;
-        Vec3 velocity = coords / 12.0;
-        Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.5, 1.0, 0.93, 0.72, 0.7, &(base->TexShimmer), LOD, type);
+        Vec3 coords = spawner->get_new_coords() + effect_center;
+        coords += (coords - effect_center).normalize() * sin(age_f * 2.5f) * 0.125f;
+        coords.y += sin(age_f * 1.5f) * 0.125f;
+        const Vec3 velocity(0.0, 0.0, 0.0);
+        Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.75, 1.0, 0.93, 0.72, 0.7, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -250,10 +257,9 @@ bool OngoingEffect::idle(const Uint64 usec)
     {
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 12.0 * LOD * strength) < 0.75)
       {
-        Vec3 coords = spawner->get_new_coords();
-        Vec3 velocity(0.0, 0.0, 0.0);
-        coords += effect_center;
-        coords.y = -0.25 + randcoord(1.5);
+        Vec3 coords = spawner->get_new_coords() + effect_center;
+        coords.y += sin(age_f * 2.5f) * 0.33f - 0.125f;
+        const Vec3 velocity(0.0, 0.0, 0.0);
         Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.5, 1.0, 0.55, 0.05, 0.9, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
@@ -265,8 +271,8 @@ bool OngoingEffect::idle(const Uint64 usec)
       while (math_cache.powf_0_1_rough_close(randfloat(), float_time * 6.0 * LOD * strength) < 0.5)
       {
         const Vec3 coords = spawner->get_new_coords() + effect_center;
-        Vec3 velocity = coords / 18.0;
-        Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.6, 1.0, randcolor(1.0), randcolor(1.0), randcolor(1.0), &(base->TexVoid), LOD, type);
+        const Vec3 velocity(0.0, 0.0, 0.0);
+        Particle * p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 1.5, 1.0, 0.93, 0.72, 0.7, &(base->TexShimmer), LOD, type);
         if (!base->push_back_particle(p))
           break;
       }
@@ -285,12 +291,12 @@ bool OngoingEffect::idle(const Uint64 usec)
         Particle* p;
         if (randfloat() < 0.4)
         {
-          p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 1.15, 0.5, 0.27 + randcolor(0.06), 0.6 + randcolor(0.15), 0.5 + randcolor(0.3), &(base->TexVoid), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 1.45, 0.5, 0.27 + randcolor(0.06), 0.6 + randcolor(0.15), 0.5 + randcolor(0.3), &(base->TexVoid), LOD, type);
           p->state = 1;
         }
         else
         {
-          p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.65, 1.0, randcolor(0.5), 0.33 + randcolor(0.67), 0.2 + randcolor(0.1), &(base->TexWater), LOD, type);
+          p = new OngoingParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, 0.85, 1.0, randcolor(0.5), 0.33 + randcolor(0.67), 0.2 + randcolor(0.1), &(base->TexWater), LOD, type);
           p->state = 0;
         }
         if (!base->push_back_particle(p))

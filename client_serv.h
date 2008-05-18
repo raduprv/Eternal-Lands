@@ -1086,7 +1086,11 @@ typedef enum {
 	// when one player casts cold shield on himself
 	SPECIAL_EFFECT_COLDSHIELD = 73, 
 	// when one player casts radiation shield on himself
-	SPECIAL_EFFECT_RADIATIONSHIELD = 74    
+	SPECIAL_EFFECT_RADIATIONSHIELD = 74,
+	// magic immunity spell
+	SPECIAL_EFFECT_MAGIC_IMMUNITY = 75,
+	// magic protection spell
+	SPECIAL_EFFECT_MAGIC_PROTECTION = 76
 } special_effect_enum;
 	/*! @} */
 

@@ -24,6 +24,7 @@
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
+#include "spells.h"
 #include "text.h"
 #include "tiles.h"
 #include "timers.h"
@@ -1563,6 +1564,10 @@ void destroy_all_actors()
 	actor_under_mouse = NULL;
 	my_timer_adjust= 0;
 	harvesting_effect_reference = NULL;
+	ongoing_shield_effect_reference = NULL; 
+	ongoing_magic_protection_effect_reference = NULL; 
+	ongoing_magic_immunity_effect_reference = NULL; 
+	ongoing_poison_effect_reference = NULL; 
 	UNLOCK_ACTORS_LISTS();	//unlock it since we are done
 #ifndef MINIMAP2
 	minimap_touch();

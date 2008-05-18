@@ -8,6 +8,8 @@
 
 #include <SDL_types.h>
 
+#include "eye_candy_wrapper.h"
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -59,6 +61,11 @@ extern Uint8 spell_text[256]; /*!< buffer for the spell text */
 extern int have_error_message; /*!< flag that indicates whether we got an error message */
 
 extern int spell_result;
+
+extern ec_reference ongoing_shield_effect_reference; 
+extern ec_reference ongoing_magic_protection_effect_reference; 
+extern ec_reference ongoing_magic_immunity_effect_reference; 
+extern ec_reference ongoing_poison_effect_reference; 
 
 /*!
  * \ingroup spells_window

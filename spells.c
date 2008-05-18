@@ -7,7 +7,6 @@
 #include "context_menu.h"
 #endif
 #include "elwindows.h"
-#include "eye_candy_wrapper.h"
 #include "gamewin.h"	
 #include "gl_init.h"
 #include "hud.h"
@@ -82,6 +81,11 @@ int quickspells_loaded = 0;
 size_t cm_quickspells_id = -1;
 void cm_update_quickspells(void);
 #endif
+
+ec_reference ongoing_shield_effect_reference = NULL; 
+ec_reference ongoing_magic_protection_effect_reference = NULL; 
+ec_reference ongoing_magic_immunity_effect_reference = NULL; 
+ec_reference ongoing_poison_effect_reference = NULL; 
 
 void repeat_spell()
 {
@@ -337,9 +341,13 @@ int we_are_poisoned()
 void display_spells_we_have()
 {
 	int i;
+	bool destroy_shield = TRUE;
+	bool destroy_magic_protection = TRUE;
+	bool destroy_magic_immunity = TRUE;
+	bool destroy_poison = TRUE;
 
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -381,12 +389,91 @@ CHECK_GL_ERRORS();
 			glBegin(GL_QUADS);
 			draw_2d_thing (u_start, v_start, u_end, v_end, x_start, y_start, x_end, y_end);
 			glEnd();
+			
+			// check ongoing Eye Candy effect
+			if (cur_spell == 32) {
+				// shield
+				destroy_shield = FALSE;
+				if (ongoing_shield_effect_reference == NULL)
+				{
+					if (get_actor_ptr_from_id(yourself))
+					{
+						ongoing_shield_effect_reference = ec_create_ongoing_shield2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+					}
+				}
+			}
+			else if (cur_spell == 33) {
+				// magic protection
+				destroy_magic_protection = FALSE;
+				if (ongoing_magic_protection_effect_reference == NULL)
+				{
+					if (get_actor_ptr_from_id(yourself))
+					{
+						ongoing_magic_protection_effect_reference = ec_create_ongoing_magic_protection2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+					}
+				}
+			}
+			else if (cur_spell == 34) {
+				// poison
+				destroy_poison = FALSE;
+				if (ongoing_poison_effect_reference == NULL)
+				{
+					if (get_actor_ptr_from_id(yourself))
+					{
+						ongoing_poison_effect_reference = ec_create_ongoing_poison2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+					}
+				}
+			}
+			else if (cur_spell == 35) {
+				// magic immunity
+				destroy_magic_immunity = FALSE;
+				if (ongoing_magic_immunity_effect_reference == NULL)
+				{
+					if (get_actor_ptr_from_id(yourself))
+					{
+						ongoing_magic_immunity_effect_reference = ec_create_ongoing_magic_immunity2(get_actor_ptr_from_id(yourself), 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+					}
+				}
+			}
 		}
 	}
 	glDisable(GL_BLEND);
 #ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
+	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+	
+	if (destroy_shield)
+	{
+		if (ongoing_shield_effect_reference != NULL)
+		{
+			ec_recall_effect(ongoing_shield_effect_reference);
+			ongoing_shield_effect_reference = NULL;
+		}
+	}
+	if (destroy_magic_protection)
+	{
+		if (ongoing_magic_protection_effect_reference != NULL)
+		{
+			ec_recall_effect(ongoing_magic_protection_effect_reference);
+			ongoing_magic_protection_effect_reference = NULL;
+		}
+	}
+	if (destroy_poison)
+	{
+		if (ongoing_poison_effect_reference != NULL)
+		{
+			ec_recall_effect(ongoing_poison_effect_reference);
+			ongoing_poison_effect_reference = NULL;
+		}
+	}
+	if (destroy_magic_immunity)
+	{
+		if (ongoing_magic_immunity_effect_reference != NULL)
+		{
+			ec_recall_effect(ongoing_magic_immunity_effect_reference);
+			ongoing_magic_immunity_effect_reference = NULL;
+		}
+	}
 }
 
 int show_last_spell_help=0;
