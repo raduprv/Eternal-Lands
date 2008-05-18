@@ -280,9 +280,9 @@ Sint32 my_isupper(const char *src, int len)
 	if(!src || !src[0] || !src[1] || !src[2] || len == 0) return 0;
 	while(*src && len > 0)
 		{
-			if(isalpha(*src)) alpha++;
-			if((isdigit(*src)&&alpha<len/2) || *src != toupper(*src)) return 0;	//at least one lower
-			src++;
+            if(isalpha((unsigned char)*src)) alpha++;
+            if((isdigit((unsigned char)*src)&&alpha<len/2) || *src != toupper(*src)) return 0;    //at least one lower			
+            src++;
 			len--;
 		}
 	return 1;	// is all upper or all num

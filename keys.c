@@ -354,7 +354,8 @@ void read_key_config()
 
 #else
 	f=my_fopen("key.ini","rb");
-	fstat (fileno (f), &key_file);
+	if (f)
+        fstat (fileno (f), &key_file);
 #endif
 
 	if(!f)
