@@ -320,7 +320,7 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 							}
 							return;
 						}
-						if(which_part==KIND_OF_WEAPON)
+						if (which_part==KIND_OF_WEAPON)
 							{
 								if(which_id == GLOVE_FUR || which_id == GLOVE_LEATHER){
 									my_strcp(actors_list[i]->body_parts->hands_tex, actors_defs[actors_list[i]->actor_type].weapon[which_id].skin_name);
@@ -335,8 +335,6 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->weapon_tex, playerpath, guildpath);
 #endif
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index);
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								actors_list[i]->cur_weapon=which_id;
 								actors_list[i]->body_parts->weapon_meshindex = actors_defs[actors_list[i]->actor_type].weapon[which_id].mesh_index;
 								actors_list[i]->body_parts->weapon_glow=actors_defs[actors_list[i]->actor_type].weapon[which_id].glow;
@@ -389,11 +387,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 										ec_create_sword_jagged_saber(actors_list[i], (poor_man ? 6 : 10));
 										break;
 								}
-
-								return;
 							}
 
-						if(which_part==KIND_OF_SHIELD)
+						else if (which_part==KIND_OF_SHIELD)
 							{
 								my_strcp(actors_list[i]->body_parts->shield_tex,actors_defs[actors_list[i]->actor_type].shield[which_id].skin_name);
 #ifdef CUSTOM_LOOK
@@ -401,14 +397,11 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index);
                                 actors_list[i]->body_parts->shield_meshindex=actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 								actors_list[i]->cur_shield=which_id;
 								actors_list[i]->body_parts->shield_meshindex = actors_defs[actors_list[i]->actor_type].shield[which_id].mesh_index;
-								return;
 							}
 
-						if(which_part==KIND_OF_CAPE)
+						else if (which_part==KIND_OF_CAPE)
 							{
 								my_strcp(actors_list[i]->body_parts->cape_tex,actors_defs[actors_list[i]->actor_type].cape[which_id].skin_name);
 #ifdef CUSTOM_LOOK
@@ -416,15 +409,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index);
 								actors_list[i]->body_parts->cape_meshindex=actors_defs[actors_list[i]->actor_type].cape[which_id].mesh_index;
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 #ifdef NEW_LIGHTING
 								actors_list[i]->cape=which_id;
 #endif
-								return;
 							}
 
-						if(which_part==KIND_OF_HELMET)
+						else if (which_part==KIND_OF_HELMET)
 							{
 								my_strcp(actors_list[i]->body_parts->helmet_tex,actors_defs[actors_list[i]->actor_type].helmet[which_id].skin_name);
 #ifdef CUSTOM_LOOK
@@ -432,15 +422,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 #endif
 								model_attach_mesh(actors_list[i], actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index);
 								actors_list[i]->body_parts->helmet_meshindex=actors_defs[actors_list[i]->actor_type].helmet[which_id].mesh_index;
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 #ifdef NEW_LIGHTING
 								actors_list[i]->helmet=which_id;
 #endif
-								return;
 							}
 
-						if(which_part==KIND_OF_BODY_ARMOR)
+						else if (which_part==KIND_OF_BODY_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->arms_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].arms_name);
 								my_strcp(actors_list[i]->body_parts->torso_tex,actors_defs[actors_list[i]->actor_type].shirt[which_id].torso_name);
@@ -461,11 +448,8 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									actors_list[i]->shirt=which_id;
 #endif
 								}
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								actors_list[i]->texture_id=load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-								return;
 							}
-						if(which_part==KIND_OF_LEG_ARMOR)
+						else if (which_part==KIND_OF_LEG_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->pants_tex,actors_defs[actors_list[i]->actor_type].legs[which_id].legs_name);
 								my_strcp(actors_list[i]->body_parts->pants_mask,actors_defs[actors_list[i]->actor_type].legs[which_id].legs_mask);
@@ -482,12 +466,9 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									actors_list[i]->legs=which_id;
 #endif
 								}
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								actors_list[i]->texture_id= load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
-								return;
 							}
 
-						if(which_part==KIND_OF_BOOT_ARMOR)
+						else if (which_part==KIND_OF_BOOT_ARMOR)
 							{
 								my_strcp(actors_list[i]->body_parts->boots_tex,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_name);
 								my_strcp(actors_list[i]->body_parts->boots_mask,actors_defs[actors_list[i]->actor_type].boots[which_id].boots_mask);
@@ -495,13 +476,15 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 								custom_path(actors_list[i]->body_parts->boots_tex, playerpath, guildpath);
 								custom_path(actors_list[i]->body_parts->boots_mask, playerpath, guildpath);
 #endif
-								glDeleteTextures(1,&actors_list[i]->texture_id);
-								actors_list[i]->texture_id= load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
 #ifdef NEW_LIGHTING
 								actors_list[i]->boots=which_id;
 #endif
-								return;
 							}
+						else return;
+
+						glDeleteTextures(1,&actors_list[i]->texture_id);
+						actors_list[i]->texture_id = load_bmp8_enhanced_actor(actors_list[i]->body_parts, 255);
+						actors_list[i]->has_alpha = actors_list[i]->body_parts->has_alpha;
 						return;
 					}
 		}

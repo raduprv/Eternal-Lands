@@ -156,6 +156,7 @@ float pointer_size = 1.0;
 #endif // NEW_CURSOR
 #ifdef SKY_FPV
 float water_tiles_extension = 150.0;
+int seconds_between_shadows_updates = 10;
 int skybox_update_every_frame = 0;
 int skybox_local_weather = 0;
 #endif // SKY_FPV
@@ -1635,6 +1636,9 @@ void init_vars()
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", LODTAB);
 	add_var(OPT_BOOL,"use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", ADVVID);
 	add_var(OPT_MULTI,"shadow_map_size","smsize",&shadow_map_size_multi,change_shadow_map_size,1024,"Shadow Map Size","This parameter determines the quality of the shadow maps. You should as minimum set it to 512.",ADVVID,"256","512","768","1024","1280","1536","1792","2048","3072","4096",NULL);
+#ifdef SKY_FPV
+	add_var(OPT_INT,"seconds_between_shadows_updates","seconds_between_shadows_updates",&seconds_between_shadows_updates,change_int,10,"Seconds between shadow map updates","Specifies the number of seconds to wait between two updates of the shadow map.",ADVVID,1,60);
+#endif // SKY_FPV
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"render_fog","fog",&use_fog,change_var,1,"Render Fog","Toggles fog rendering.",LODTAB);
 #endif	//MAP_EDITOR2
