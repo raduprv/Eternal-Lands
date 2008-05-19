@@ -5,6 +5,7 @@
 #include "asc.h"
 #include "buddy.h"
 #include "colors.h"
+#include "cursors.h"
 #include "elwindows.h"
 #include "errors.h"
 #include "framebuffer.h"
@@ -1835,6 +1836,7 @@ CHECK_GL_ERRORS();
 
 int mouseover_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 {
+	elwin_mouse=CURSOR_ARROW;
 	enable_controls = 1;
 	return 1;
 }
