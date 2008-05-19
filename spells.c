@@ -341,10 +341,10 @@ int we_are_poisoned()
 void display_spells_we_have()
 {
 	int i;
-	bool destroy_shield = TRUE;
-	bool destroy_magic_protection = TRUE;
-	bool destroy_magic_immunity = TRUE;
-	bool destroy_poison = TRUE;
+	int destroy_shield = 1;
+	int destroy_magic_protection = 1;
+	int destroy_magic_immunity = 1;
+	int destroy_poison = 1;
 
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
@@ -393,7 +393,7 @@ void display_spells_we_have()
 			// check ongoing Eye Candy effect
 			if (cur_spell == 32) {
 				// shield
-				destroy_shield = FALSE;
+				destroy_shield = 0;
 				if (ongoing_shield_effect_reference == NULL)
 				{
 					if (get_actor_ptr_from_id(yourself))
@@ -404,7 +404,7 @@ void display_spells_we_have()
 			}
 			else if (cur_spell == 33) {
 				// magic protection
-				destroy_magic_protection = FALSE;
+				destroy_magic_protection = 0;
 				if (ongoing_magic_protection_effect_reference == NULL)
 				{
 					if (get_actor_ptr_from_id(yourself))
@@ -415,7 +415,7 @@ void display_spells_we_have()
 			}
 			else if (cur_spell == 34) {
 				// poison
-				destroy_poison = FALSE;
+				destroy_poison = 0;
 				if (ongoing_poison_effect_reference == NULL)
 				{
 					if (get_actor_ptr_from_id(yourself))
@@ -426,7 +426,7 @@ void display_spells_we_have()
 			}
 			else if (cur_spell == 35) {
 				// magic immunity
-				destroy_magic_immunity = FALSE;
+				destroy_magic_immunity = 0;
 				if (ongoing_magic_immunity_effect_reference == NULL)
 				{
 					if (get_actor_ptr_from_id(yourself))
