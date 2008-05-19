@@ -241,18 +241,18 @@ void draw_3d_object_detail(object3d * object_id, Uint32 material_index, Uint32 u
 #endif
 
 
-	if (ELglDrawRangeElementsEXT)
-        ELglDrawRangeElementsEXT(GL_TRIANGLES,
-        object_id->e3d_data->materials[material_index].triangles_indicies_min,
-        object_id->e3d_data->materials[material_index].triangles_indicies_max,
-        object_id->e3d_data->materials[material_index].triangles_indicies_count,
-        object_id->e3d_data->index_type,
-        object_id->e3d_data->materials[material_index].triangles_indicies_index);
-    else
-        glDrawElements(GL_TRIANGLES,
-		object_id->e3d_data->materials[material_index].triangles_indicies_count,
-		object_id->e3d_data->index_type,
-		object_id->e3d_data->materials[material_index].triangles_indicies_index);
+	if (use_draw_range_elements && ELglDrawRangeElementsEXT)
+		ELglDrawRangeElementsEXT(GL_TRIANGLES,
+			object_id->e3d_data->materials[material_index].triangles_indicies_min,
+			object_id->e3d_data->materials[material_index].triangles_indicies_max,
+			object_id->e3d_data->materials[material_index].triangles_indicies_count,
+			object_id->e3d_data->index_type,
+			object_id->e3d_data->materials[material_index].triangles_indicies_index);
+	else
+		glDrawElements(GL_TRIANGLES,
+			object_id->e3d_data->materials[material_index].triangles_indicies_count,
+			object_id->e3d_data->index_type,
+			object_id->e3d_data->materials[material_index].triangles_indicies_index);
 
 	glPopMatrix();//restore the scene
 	CHECK_GL_ERRORS();

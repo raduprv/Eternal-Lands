@@ -45,6 +45,7 @@ int use_compiled_vertex_array = 0;
 int use_vertex_buffers = 0;
 int use_frame_buffer = 0;
 int use_mipmaps = 0;
+int use_draw_range_elements = 1;
 float anisotropic_filter = 1.0f;
 float gamma_var = 1.00f;
 float perspective = 0.15f;

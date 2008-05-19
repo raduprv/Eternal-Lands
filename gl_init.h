@@ -38,6 +38,7 @@ extern int use_vertex_buffers; /*!< specifies if we use vertex buffer objects or
 extern int use_compiled_vertex_array; /*!< specified if we use compiled vertex array or not */
 extern int use_mipmaps; /*!< indicates whether we use mipmaps or not */
 extern int use_frame_buffer; /*!< specifies if we use frame buffer or not */
+extern int use_draw_range_elements;  /*!< specifies if we use glDrawRangeElements or glDrawElements */
 /*! @} */
 extern float anisotropic_filter;
 extern int gl_extensions_loaded; /*< specifies if the OpenGL extensions were loaded or not */
