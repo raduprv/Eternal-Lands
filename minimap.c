@@ -1108,6 +1108,7 @@ static __inline__ int draw_framebuffer()
 	int i;
 	if(use_frame_buffer && minimap_fbo > 0 && minimap_fbo_texture > 0)
 	{
+		glEnable(GL_TEXTURE_2D);
 		bind_texture_id(minimap_fbo_texture);
 
 		glTranslatef(0.0f, 16.0f, 0.0f);
@@ -1376,6 +1377,7 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 
 	glTranslatef(sx, sy, 0.0f);
 
+	glEnable(GL_TEXTURE_2D);
 	//draw the minimap
 	bind_texture_id(minimap_texture);
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
@@ -1569,7 +1571,7 @@ int display_minimap_handler(window_info *win)
 		//there's no minimap for this map :( draw a X
 		glTranslatef(0.0f, 16.0f, 0.0f);
 		glPushMatrix();
-
+		glDisable(GL_TEXTURE_2D);
 		//draw black background
 		glColor3f(0.0f,0.0f,0.0f);
 		glBegin(GL_POLYGON);
@@ -1581,7 +1583,6 @@ int display_minimap_handler(window_info *win)
 		}
 		glEnd();
 
-		glDisable(GL_TEXTURE_2D);
 		glColor3f(1.0f, 0.0f, 0.0f);
 		glLineWidth(3.0f);
 		glBegin(GL_LINES);
@@ -1591,7 +1592,7 @@ int display_minimap_handler(window_info *win)
 			glVertex2f(radius_shift*float_minimap_size/2 + float_minimap_size/2,-radius_shift*float_minimap_size/2 + float_minimap_size/2);
 		glEnd();
 
-		glEnable(GL_TEXTURE_2D);
+		glLineWidth(1.0f);
 		glPopMatrix();
 		draw_compass();
 		return 0;
@@ -1619,6 +1620,7 @@ int display_minimap_handler(window_info *win)
 
 	glTranslatef(0.0f, 16.0f, 0.0f);
 
+	glDisable(GL_TEXTURE_2D);
 	//draw black background
 	glColor3f(0.0f,0.0f,0.0f);
 	glBegin(GL_POLYGON);
