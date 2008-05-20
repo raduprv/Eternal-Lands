@@ -742,7 +742,8 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 
 		case CURSOR_WAND:
 		{
-			if(spell_result==2){
+			if (spell_result==2)
+			{
 				short x, y;
 		
 				if(use_old_clicker)
@@ -756,18 +757,25 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 			
 				move_to(x,y,0);
 				return 1;
-			} else if(spell_result==3){
+			}
+			else if (spell_result==3)
+			{
 				Uint8 str[10];
 				
-				if (object_under_mouse>=0){
+				if (object_under_mouse >= 0 &&
+					(thing_under_the_mouse == UNDER_MOUSE_ANIMAL ||
+					 thing_under_the_mouse == UNDER_MOUSE_PLAYER))
+				{
 					actor *this_actor = get_actor_ptr_from_id(object_under_mouse);
 					if(this_actor != NULL)
+					{
 						add_highlight(this_actor->x_tile_pos,this_actor->y_tile_pos, HIGHLIGHT_TYPE_SPELL_TARGET);
-				}
 
-				str[0] = TOUCH_PLAYER;
-				*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
-				my_tcp_send (my_socket, str, 5);
+						str[0] = TOUCH_PLAYER;
+						*((int *)(str+1)) = SDL_SwapLE32((int)object_under_mouse);
+						my_tcp_send (my_socket, str, 5);
+					}
+				}
 			}
 			
 			break;
