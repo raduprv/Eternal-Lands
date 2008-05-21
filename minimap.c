@@ -1454,9 +1454,11 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 
 	glPopMatrix();
 
-	//draw the compass texture
-	
-	draw_compass();
+	if (compass_tex) 
+	{
+		//draw the compass texture
+		draw_compass();
+	}
 }
 
 static __inline__ void draw_into_minimap_fbo(float zoom_multip, float px, float py)
