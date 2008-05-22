@@ -157,6 +157,7 @@ float pointer_size = 1.0;
 #ifdef SKY_FPV
 float water_tiles_extension = 150.0;
 int seconds_between_shadows_updates = 10;
+int show_game_seconds = 0;
 int skybox_update_every_frame = 0;
 int skybox_local_weather = 0;
 #endif // SKY_FPV
@@ -1596,7 +1597,7 @@ void init_vars()
 	add_var(OPT_BOOL,"skybox_show_moons","sky_moons", &skybox_show_moons, change_sky_var,1,"Show Moons", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"skybox_show_sun","sky_sun", &skybox_show_sun, change_sky_var,1,"Show Sun", "Sky Performance Option. Disable these from top to bottom until you're happy", EMAJEKRAL);
 	add_var(OPT_BOOL,"skybox_update_every_frame","skybox_update_every_frame", &skybox_update_every_frame, change_var,0,"Update Sky Colors Every Frames", "Forces the update of sky colors every frames instead of every seconds (can reduce performance).", EMAJEKRAL);
-#ifdef NEW_WEATHER
+#if defined(NEW_WEATHER) && defined(DEBUG)
 	add_var(OPT_BOOL,"skybox_local_weather","skybox_local_weather", &skybox_local_weather, change_var,0,"Local Weather", "Show local weather areas on the sky. It allows to see distant weather but can reduce performance.", EMAJEKRAL);
 #endif // NEW_WEATHER
 	add_var(OPT_BOOL,"follow_cam","folcam", &fol_cam, toggle_follow_cam,0,"Follow Camera", "Causes the camera to stay fixed relative to YOU and not the world", EMAJEKRAL);
@@ -1732,6 +1733,9 @@ void init_vars()
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
+#ifdef SKY_FPV
+	add_var(OPT_BOOL,"show_game_seconds","show_game_seconds",&show_game_seconds,change_var,0,"Show Game Seconds","Show seconds on the digital clock. Note: the seconds displayed are computed on client side and synchronized with the server at each new minute.",HUD);
+#endif // SKY_FPV
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"show_stats_in_hud","sstats",&show_stats_in_hud,change_var,0,"Stats In HUD","Toggle showing stats in the HUD",HUD);
 	add_var(OPT_BOOL,"show_statbars_in_hud","sstatbars",&show_statbars_in_hud,change_var,0,"StatBars In HUD","Toggle showing statbars in the HUD. Needs Stats in HUD",HUD);

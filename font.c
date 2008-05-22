@@ -486,6 +486,22 @@ int draw_string_shadowed (int x, int y, const unsigned char * our_string, int ma
      return r;
 }
 
+int draw_string_shadowed_width (int x, int y, const unsigned char * our_string, int max_width, int max_lines, float fr,float fg,float fb, float br,float bg,float bb)
+{
+ 	 int px,py,r;
+	 float zoom = ((float)max_width*12.0)/((float)get_string_width(our_string)*11.0);
+ 	 //set shadow colour
+	 glColor3f(br, bg, bb);
+	 for(px=-1;px<2;px++)
+  	     for(py=-1;py<2;py++)
+  	         if(px!=0 || py!=0)
+  	             r=draw_string_zoomed(x+px, y+py, our_string, max_lines, zoom);
+ 	 //set foreground colour
+	 glColor3f(fr, fg, fb);
+     r=draw_string_zoomed(x, y, our_string, max_lines, zoom);
+     return r;
+}
+
 int draw_string_width(int x, int y, const unsigned char * our_string, int max_width, int max_lines)
 {
 	return draw_string_zoomed_width (x, y, our_string, max_width, max_lines, 1.0f);

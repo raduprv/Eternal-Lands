@@ -1021,13 +1021,14 @@ void new_second()
 	sun_position[2] = sun_pos[cur_min].z * ratio1 + sun_pos[next_min].z * ratio2;
 	sun_position[3] = sun_pos[cur_min].w * ratio1 + sun_pos[next_min].w * ratio2;
 	
-	if (is_day && real_game_second % seconds_between_shadows_updates == 0)
+	if (is_day)
 	{
 		skybox_sun_position[0] = sun_show[cur_min].x * ratio1 + sun_show[next_min].x * ratio2;
 		skybox_sun_position[1] = sun_show[cur_min].y * ratio1 + sun_show[next_min].y * ratio2;
 		skybox_sun_position[2] = sun_show[cur_min].z * ratio1 + sun_show[next_min].z * ratio2;
 		skybox_sun_position[3] = sun_show[cur_min].w * ratio1 + sun_show[next_min].w * ratio2;
-		calc_shadow_matrix();
+		if (real_game_second % seconds_between_shadows_updates == 0)
+			calc_shadow_matrix();
 	}
 	
 	skybox_update_positions();

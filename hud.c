@@ -1259,17 +1259,27 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 	//Digital Clock
 	if(view_digital_clock > 0){
-		char str[6];	// one extra incase the length of the day ever changes
+		char str[16];	// one extra incase the length of the day ever changes
 		int x;
 
+		//glColor3f(0.77f, 0.57f, 0.39f); // useless
 #ifndef SKY_FPV
 		safe_snprintf(str, sizeof(str), "%1d:%02d", game_minute/60, game_minute%60);
-#else // SKY_FPV
-		safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
-#endif // SKY_FPV
 		x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
-		glColor3f(0.77f, 0.57f, 0.39f);
 		draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+#else // SKY_FPV
+		if (show_game_seconds)
+		{
+			safe_snprintf(str, sizeof(str), "%1d:%02d:%02d", real_game_minute/60, real_game_minute%60, real_game_second);
+			draw_string_shadowed_width(5, 4 + base_y_start, (unsigned char*)str, win->len_x-5, 1, 0.77f, 0.57f, 0.39f, 0.0f, 0.0f, 0.0f);
+		}
+		else
+		{
+			safe_snprintf(str, sizeof(str), "%1d:%02d", real_game_minute/60, real_game_minute%60);
+			x= 3+(win->len_x - (get_string_width((unsigned char*)str)*11)/12)/2;
+			draw_string_shadowed(x, 2 + base_y_start, (unsigned char*)str, 1,0.77f, 0.57f, 0.39f,0.0f,0.0f,0.0f);
+		}
+#endif // SKY_FPV
 	}
 	
 	/*	Optionally display the stats bar.  If the current window size does not

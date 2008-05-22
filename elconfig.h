@@ -19,6 +19,7 @@ extern int elconfig_menu_y;
 #ifdef SKY_FPV
 extern float water_tiles_extension;
 extern int seconds_between_shadows_updates;
+extern int show_game_seconds;
 extern int skybox_update_every_frame;
 #ifdef NEW_WEATHER
 extern int skybox_local_weather;
