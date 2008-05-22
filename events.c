@@ -291,6 +291,8 @@ int HandleEvent (SDL_Event *event)
 				else if (event->button.button == SDL_BUTTON_WHEELDOWN)
 					flags |= ELW_WHEEL_DOWN;
 			}
+			if ( left_click==1 || right_click==1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
+				click_in_windows (mouse_x, mouse_y, flags);
 
 			if (left_click >= 1)
 			{
@@ -311,10 +313,6 @@ int HandleEvent (SDL_Event *event)
 					return done;
 				}
 			}
-
-			if ( left_click==1 || right_click==1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
-				click_in_windows (mouse_x, mouse_y, flags);
-
 			break;
 			
 		case SDL_USEREVENT:

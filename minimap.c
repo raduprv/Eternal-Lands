@@ -1513,6 +1513,8 @@ void draw_minimap_title_bar(window_info *win)
 	float v_last_start= 1.0f-(float)160/255;
 	float v_last_end= 1.0f-(float)175/255;
 
+	int close_button_x = win->len_x/2 + 32 - 1;
+
 	glPushMatrix();
 
 	glColor3f(1.0f,1.0f,1.0f);
@@ -1520,6 +1522,7 @@ void draw_minimap_title_bar(window_info *win)
 	get_and_set_texture_id(icons_text);
 	glEnable(GL_ALPHA_TEST);
 	glAlphaFunc(GL_GREATER,0.03f);
+	glEnable(GL_TEXTURE_2D);
 
 	glBegin(GL_QUADS);
 
@@ -1543,6 +1546,36 @@ void draw_minimap_title_bar(window_info *win)
 	
 	glEnd();
 	glDisable(GL_ALPHA_TEST);
+	glDisable(GL_TEXTURE_2D);
+
+	//draw the X background
+	glColor3f(0.156f,0.078f,0.0f);
+	glBegin(GL_POLYGON);
+		glVertex2f(close_button_x + ELW_TITLE_HEIGHT, ELW_TITLE_HEIGHT);
+		glVertex2f(close_button_x, ELW_TITLE_HEIGHT);
+		glVertex2f(close_button_x, 0);
+		glVertex2f(close_button_x + ELW_TITLE_HEIGHT, 0);
+	glEnd();
+	//draw the rectngle
+	glColor3f(win->line_color[0],win->line_color[1],win->line_color[2]);
+	glBegin(GL_LINE_STRIP);
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2, ELW_TITLE_HEIGHT-1);
+		glVertex2i(close_button_x + 1, ELW_TITLE_HEIGHT-1);
+		glVertex2i(close_button_x + 1, 2);
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2, 2);
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-2, ELW_TITLE_HEIGHT-1);
+	glEnd();
+	//draw the X
+	glLineWidth(2.0f);
+	glBegin(GL_LINES);
+		glVertex2i(close_button_x + 3, 4);
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-3, ELW_TITLE_HEIGHT-4);
+	
+		glVertex2i(close_button_x + ELW_TITLE_HEIGHT-3, 4);
+		glVertex2i(close_button_x + 3, ELW_TITLE_HEIGHT-4);
+	glEnd();
+
+	glLineWidth(1.0f);
 
 	glPopMatrix();
 #ifdef OPENGL_TRACE
@@ -1559,6 +1592,11 @@ int display_minimap_handler(window_info *win)
 	actor *me;
 	float x,y;
 	int i;
+
+	if(win->pos_x > window_width - 50)
+		move_window(minimap_win,win->pos_id,win->pos_loc,window_width-minimap_size,win->pos_y);
+	if(win->pos_y > window_height - 50)
+		move_window(minimap_win,win->pos_id,win->pos_loc,win->pos_x,window_height-minimap_size);
 
 	if (enable_controls)
 	{
@@ -1585,16 +1623,6 @@ int display_minimap_handler(window_info *win)
 		}
 		glEnd();
 
-		glColor3f(1.0f, 0.0f, 0.0f);
-		glLineWidth(3.0f);
-		glBegin(GL_LINES);
-			glVertex2f(-radius_shift*float_minimap_size/2 + float_minimap_size/2,-radius_shift*float_minimap_size/2 + float_minimap_size/2);
-			glVertex2f(radius_shift*float_minimap_size/2 + float_minimap_size/2,radius_shift*float_minimap_size/2 + float_minimap_size/2);
-			glVertex2f(-radius_shift*float_minimap_size/2 + float_minimap_size/2,radius_shift*float_minimap_size/2 + float_minimap_size/2);
-			glVertex2f(radius_shift*float_minimap_size/2 + float_minimap_size/2,-radius_shift*float_minimap_size/2 + float_minimap_size/2);
-		glEnd();
-
-		glLineWidth(1.0f);
 		glPopMatrix();
 		draw_compass();
 		return 0;
@@ -1690,11 +1718,21 @@ static int minimap_walkto(int mx, int my)
 
 int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 {
-	if(my >= 16 && left_click)
+	int close_button_x = win->len_x/2 + 32 - 1;
+	if(left_click)
 	{
-		//check if the click is in the round area
-		if(is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
-			return minimap_walkto(mx, win->len_y - my);
+		//check for close button click
+		if((mx >=close_button_x) && (mx <=close_button_x + ELW_TITLE_HEIGHT) 
+			&&	(my <= ELW_TITLE_HEIGHT))
+		{
+			hide_window(minimap_win);
+		}
+		else if(my >= 16)
+		{
+			//check if the click is in the round area
+			if(is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
+				return minimap_walkto(mx, win->len_y - my);
+		}
 	}
 	else if((flags & ELW_WHEEL) && is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 	{
@@ -1712,7 +1750,6 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 		}
 		return 1;
 	}
-
 
 	return 0;
 }
@@ -1868,7 +1905,6 @@ void display_minimap()
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
 		win = &(windows_list.window[minimap_win]);
 		win->owner_drawn_title_bar = 1;
-
 		change_minimap();
 	} else {
 		show_window(minimap_win);
