@@ -424,7 +424,6 @@ void change_poor_man(int *poor_man)
 #ifndef MAP_EDITOR
 		use_frame_buffer= 0;
 #endif
-		use_eye_candy= 0;
 		update_fbos();
 	}
 }

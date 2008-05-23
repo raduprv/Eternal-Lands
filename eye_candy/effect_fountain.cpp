@@ -212,7 +212,7 @@ namespace ec
 				count = 0;
 				break;
 			}
-			count -= count_scalar;
+			count -= count_scalar * std::min(1.0f, 10.0f - LOD);
 		}
 
 		return true;
