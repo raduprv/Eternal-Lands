@@ -128,6 +128,11 @@
 #include "../cluster.h"
 #endif
 
+// DEBUG, remove!
+#undef isfinite
+#define isfinite(x) ((x) - (x) == 0)
+
+
 namespace ec
 {
 
@@ -476,6 +481,8 @@ namespace ec
 
 			bool is_valid() const
 			{
+				// DEBUG, remove!
+				std::cout << "x: " << x << " limits: " << (x != std::numeric_limits<coord_t>::infinity()) << " isfinite: " << isfinite(x) << std::endl;
 				if (x != std::numeric_limits<coord_t>::infinity() && y
 					!= std::numeric_limits<coord_t>::infinity() && z
 					!= std::numeric_limits<coord_t>::infinity())
