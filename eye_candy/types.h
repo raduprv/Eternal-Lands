@@ -1,8 +1,7 @@
 /*!
-This file allows one to specify what datatypes to use for various kinds
-of eye candy elements.  Float works well enough in most situations.
-*/
-
+ This file allows one to specify what datatypes to use for various kinds
+ of eye candy elements.  Float works well enough in most situations.
+ */
 
 #include "../platform.h"
 

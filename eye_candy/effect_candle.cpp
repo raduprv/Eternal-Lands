@@ -1,4 +1,3 @@
-
 // I N C L U D E S ////////////////////////////////////////////////////////////
 
 #include "eye_candy.h"
@@ -9,118 +8,128 @@
 namespace ec
 {
 
-// C L A S S   F U N C T I O N S //////////////////////////////////////////////
+	// C L A S S   F U N C T I O N S //////////////////////////////////////////////
 
-CandleParticle::CandleParticle(Effect* _effect, ParticleMover* _mover, const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust, const color_t saturation_adjust, const float _scale, const Uint16 _LOD) : Particle(_effect, _mover, _pos, _velocity)
-{
-  LOD = _LOD;
-  color_t hue, saturation, value;
-  hue = 0.03 + randcolor(0.08);
-  saturation = 0.78;
-  value = 0.9;
-  hue += hue_adjust;
-  if (hue > 1.0)
-    hue -= 1.0;
-  saturation *= saturation_adjust;
-  if (saturation > 1.0)
-    saturation = 1.0;
-  hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
-  size = 6.0 * (2.0 + randcoord()) / (LOD + 2);
-  alpha = 0.4 * 5 / size / (LOD + 2);
-  if (alpha > 1.0)
-    alpha = 1.0;
-  size *= _scale;
-  flare_max = 1.0;
-  flare_exp = 0.0;
-  flare_frequency = 2.0;
-  state = ((rand() % 3) == 0);
-}
+	CandleParticle::CandleParticle(Effect* _effect, ParticleMover* _mover,
+		const Vec3 _pos, const Vec3 _velocity, const color_t hue_adjust,
+		const color_t saturation_adjust, const float _scale, const Uint16 _LOD) :
+		Particle(_effect, _mover, _pos, _velocity)
+	{
+		LOD = _LOD;
+		color_t hue, saturation, value;
+		hue = 0.03 + randcolor(0.08);
+		saturation = 0.78;
+		value = 0.9;
+		hue += hue_adjust;
+		if (hue > 1.0)
+			hue -= 1.0;
+		saturation *= saturation_adjust;
+		if (saturation > 1.0)
+			saturation = 1.0;
+		hsv_to_rgb(hue, saturation, value, color[0], color[1], color[2]);
+		size = 6.0 * (2.0 + randcoord()) / (LOD + 2);
+		alpha = 0.4 * 5 / size / (LOD + 2);
+		if (alpha > 1.0)
+			alpha = 1.0;
+		size *= _scale;
+		flare_max = 1.0;
+		flare_exp = 0.0;
+		flare_frequency = 2.0;
+		state = ((rand() % 3) == 0);
+	}
 
-bool CandleParticle::idle(const Uint64 delta_t)
-{
-  if (effect->recall)
-    return false;
+	bool CandleParticle::idle(const Uint64 delta_t)
+	{
+		if (effect->recall)
+			return false;
 
-  const float scalar = 1.0 - math_cache.powf_05_close((interval_t)delta_t * LOD / 42000000.0);
-  alpha -= scalar;
+		const float scalar = 1.0 - math_cache.powf_05_close((interval_t)delta_t
+			* LOD / 42000000.0);
+		alpha -= scalar;
 
-  if (alpha < 0.02)
-    return false;
-  
-  return true;
-}
+		if (alpha < 0.02)
+			return false;
 
-GLuint CandleParticle::get_texture(const Uint16 res_index)
-{
-  return base->TexFlare.get_texture(res_index);
-}
+		return true;
+	}
 
-void CandleParticle::draw(const Uint64 usec)
-{
-  if (state == 0)
-  {
-    Particle::draw(usec);
-  }
-  else
-  {
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-    Particle::draw(usec);
-    glBlendFunc(GL_SRC_ALPHA, GL_ONE);
-  }
-}
+	GLuint CandleParticle::get_texture(const Uint16 res_index)
+	{
+		return base->TexFlare.get_texture(res_index);
+	}
 
-CandleEffect::CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, const color_t _hue_adjust, const color_t _saturation_adjust, const float _scale, const Uint16 _LOD)
-{
-  if (EC_DEBUG)
-    std::cout << "CandleEffect (" << this << ") created." << std::endl;
-  base = _base;
-  dead = _dead,
-  pos = _pos;
-  hue_adjust = _hue_adjust;
-  saturation_adjust = _saturation_adjust;
-  scale = _scale;
-  sqrt_scale = fastsqrt(scale);
-  LOD = base->last_forced_LOD;
-  desired_LOD = _LOD;
-  bounds = NULL;
-  mover = new SmokeMover(this, sqrt_scale);
-  spawner = new FilledSphereSpawner(0.015 * sqrt_scale);
-}
+	void CandleParticle::draw(const Uint64 usec)
+	{
+		if (state == 0)
+		{
+			Particle::draw(usec);
+		}
+		else
+		{
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+			Particle::draw(usec);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		}
+	}
 
-CandleEffect::~CandleEffect()
-{
-  delete mover;
-  delete spawner;
-  if (EC_DEBUG)
-    std::cout << "CandleEffect (" << this << ") destroyed." << std::endl;
-}
+	CandleEffect::CandleEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
+		const color_t _hue_adjust, const color_t _saturation_adjust,
+		const float _scale, const Uint16 _LOD)
+	{
+		if (EC_DEBUG)
+			std::cout << "CandleEffect (" << this << ") created." << std::endl;
+		base = _base;
+		dead = _dead, pos = _pos;
+		hue_adjust = _hue_adjust;
+		saturation_adjust = _saturation_adjust;
+		scale = _scale;
+		sqrt_scale = fastsqrt(scale);
+		LOD = base->last_forced_LOD;
+		desired_LOD = _LOD;
+		bounds = NULL;
+		mover = new SmokeMover(this, sqrt_scale);
+		spawner = new FilledSphereSpawner(0.015 * sqrt_scale);
+	}
 
-bool CandleEffect::idle(const Uint64 usec)
-{
-  if ((recall) && (particles.size() == 0))
-    return false;
-    
-  if (recall)
-    return true;
-    
-  while (((int)particles.size() < LOD * 20) && ((math_cache.powf_0_1_rough_close(randfloat(), (LOD * 20 - particles.size()) * (interval_t)usec / 80 / square(LOD)) < 0.5) || ((int)particles.size() < LOD * 10)))
-  {
-    Vec3 coords = spawner->get_new_coords();
-    coords.y += 0.1 * sqrt_scale;
-    coords += *pos;
-    Vec3 velocity;
-    velocity.randomize(0.02 * sqrt_scale);
-    velocity.y *= 5.0;
-    velocity.y += 0.04 * sqrt_scale;
-    Particle* p = new CandleParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, scale, LOD);
-    if (!base->push_back_particle(p))
-      break;
-  }
+	CandleEffect::~CandleEffect()
+	{
+		delete mover;
+		delete spawner;
+		if (EC_DEBUG)
+			std::cout << "CandleEffect (" << this << ") destroyed."
+				<< std::endl;
+	}
 
-  return true;
-}
+	bool CandleEffect::idle(const Uint64 usec)
+	{
+		if ((recall) && (particles.size() == 0))
+			return false;
+
+		if (recall)
+			return true;
+
+		while (((int)particles.size() < LOD * 20)
+			&& ((math_cache.powf_0_1_rough_close(randfloat(), (LOD * 20 - particles.size()) * (interval_t)usec / 80 / square(LOD)) < 0.5) || ((int)particles.size() < LOD * 10)))
+		{
+			Vec3 coords = spawner->get_new_coords();
+			coords.y += 0.1 * sqrt_scale;
+			coords += *pos;
+			Vec3 velocity;
+			velocity.randomize(0.02 * sqrt_scale);
+			velocity.y *= 5.0;
+			velocity.y += 0.04 * sqrt_scale;
+			Particle
+				* p =
+					new CandleParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, scale, LOD);
+			if (!base->push_back_particle(p))
+				break;
+		}
+
+		return true;
+	}
 
 ///////////////////////////////////////////////////////////////////////////////
 
-};
+}
+;
 
