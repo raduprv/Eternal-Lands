@@ -299,7 +299,7 @@ namespace ec
 				y -= rhs.y;
 				z -= rhs.z;
 #ifdef X86_64
-				if (!is_valid()) 
+				if (!this.is_valid()) 
 				{
 					x = 0.0;
 					y = 0.0;

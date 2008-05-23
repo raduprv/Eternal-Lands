@@ -937,8 +937,20 @@ namespace ec
 		std::cout << "ERROR: Invalid particle " << this << ": pos=" << pos << "; velocity=" << velocity << "; effect=" << effect << std::endl;
 #endif
 		const short offset = (short)long(&alpha); //Unique to the particle.
+#ifdef X86_64
+		float exp_base;
+		if (!pos.is_valid())
+		{
+			exp_base = fabs(sin((offset) / flare_frequency));
+		}
+		else
+		{
+			exp_base = fabs(sin((pos.x + pos.y + pos.z + offset) / flare_frequency));
+		}
+#else
 		const float exp_base = fabs(sin((pos.x + pos.y + pos.z + offset)
 			/ flare_frequency));
+#endif
 		const coord_t exp =
 			math_cache.powf_0_1_rough_close(exp_base, flare_exp);
 		const coord_t flare_val = 1.0 / (exp + 0.00001);
