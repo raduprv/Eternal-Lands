@@ -196,6 +196,7 @@ namespace ec
 		mover = NULL;
 		spawner2 = NULL;
 		mover2 = NULL;
+		direction = Vec3(0.0, 0.0, 0.0);
 
 		switch (type)
 		{
@@ -307,8 +308,10 @@ namespace ec
 			}
 			case BEES:
 			{
-				spawner = new FilledSphereSpawner(0.5);
+				spawner = new FilledSphereSpawner(0.125);
 				mover = new GravityMover(this, &effect_center, 8e9);
+				direction.randomize();
+				direction.y = fabs(direction.y);
 				while ((int)particles.size() < LOD * 16)
 				{
 					const Vec3 coords = spawner->get_new_coords()
@@ -399,6 +402,10 @@ namespace ec
 		{
 			case BEES:
 			{
+				const Uint64 age = get_time() - born;
+				const float age_f = (float)(age)/1000000;
+				effect_center = *pos + direction * (-0.5f + age_f);
+				gravity_center = *pos + direction * (-0.5f + age_f);
 				break;
 			}
 			default:

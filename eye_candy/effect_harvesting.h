@@ -55,6 +55,7 @@ namespace ec
 			ParticleMover* mover2;
 			Vec3 effect_center;
 			Vec3 gravity_center;
+			Vec3 direction;
 			HarvestingType type;
 	};
 
