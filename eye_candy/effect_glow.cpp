@@ -160,13 +160,7 @@ namespace ec
 				if (alpha < 0.01)
 					return false;
 				const Vec3 velshift = (*(effect->pos) - pos).normalize(20.0) * float_time;
-				if (velshift.is_valid())
-				{
-					// sometimes on AMD x64 CPUs effect->pos - pos returns NaNs because
-					// the particle and the effect have almost the same coords
-					// does not  seem to happen on 32bit machines
-					velocity += velshift;
-				}
+				velocity += velshift;
 				if (velocity.magnitude() > 7.5)
 				{
 					velocity.normalize(7.5);

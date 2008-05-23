@@ -298,6 +298,14 @@ namespace ec
 				x -= rhs.x;
 				y -= rhs.y;
 				z -= rhs.z;
+#ifdef X86_64
+				if (!is_valid()) 
+				{
+					x = 0.0;
+					y = 0.0;
+					z = 0.0;
+				}
+#endif
 				return *this;
 			}
 			;
