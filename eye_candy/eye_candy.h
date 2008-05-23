@@ -112,7 +112,6 @@
 
 #include <string>
 #include <vector>
-#include <limits>
 #include <map>
 #include <iostream>
 #include <cassert>
@@ -128,10 +127,14 @@
 #include "../cluster.h"
 #endif
 
-// DEBUG, remove!
-#undef isfinite
-#define isfinite(x) ((x) - (x) == 0)
-
+ #define GCC_VERSION (__GNUC__ * 10000 \
+                      + __GNUC_MINOR__ * 100 \
+                      + __GNUC_PATCHLEVEL__)
+ /* Test for GCC >= 4.3.0 */ 	 
+ #if GCC_VERSION >= 40300 	 
+  #undef isfinite 	 
+  #define isfinite(x) ((x) - (x) == 0) 	 
+ #endif
 
 namespace ec
 {
@@ -481,11 +484,7 @@ namespace ec
 
 			bool is_valid() const
 			{
-				// DEBUG, remove!
-				std::cout << "x: " << x << " limits: " << (x != std::numeric_limits<coord_t>::infinity()) << " isfinite: " << isfinite(x) << std::endl;
-				if (x != std::numeric_limits<coord_t>::infinity() && y
-					!= std::numeric_limits<coord_t>::infinity() && z
-					!= std::numeric_limits<coord_t>::infinity())
+				if (isfinite(x) && isfinite(z) && isfinite(y))
 					return true;
 				else
 					return false;
