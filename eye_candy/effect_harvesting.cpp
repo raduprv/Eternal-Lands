@@ -85,10 +85,10 @@ namespace ec
 			case HarvestingEffect::BEES:
 			{
 				const Uint64 age = get_time() - born;
-				if (age < 750000)
+				if (age < 1250000)
 					break;
 
-				if (alpha < 0.03)
+				if (alpha < 0.05)
 					return false;
 
 				const alpha_t scalar =
