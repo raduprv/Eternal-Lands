@@ -89,20 +89,19 @@ namespace ec
 		mover = new BoundingMover(this, center, bounding_range, 1.0);
 		spawner = new NoncheckingFilledBoundingSpawner(bounding_range);
 		//  firefly_count = (int)(spawner->get_area() * _density * 0.15);
-		firefly_count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * _density * 0.25);
+		firefly_count = (int)(MAX_DRAW_DISTANCE_SQUARED * PI * _density * 0.25 * (1.0 + randfloat(1.0)));
 
 		for (int i = 0; i < firefly_count; i++)
 		{
-			Vec3 coords = spawner->get_new_coords();
+			const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, -0.25 + randcoord(0.5), 0.0);;
 			if (coords.x == -32768.0)
 				continue;
-			coords += center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
 			Vec3 velocity;
-			velocity.randomize(0.2);
-			velocity.y /= 3;
+			velocity.randomize(0.4);
+			velocity.y /= 4.0;
 			Particle
 				* p =
-					new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size, center.y + 0.1, center.y + 1.0);
+					new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size, center.y - randcoord(0.75), center.y + randcoord(0.75));
 			if (!base->push_back_particle(p))
 				break;
 		}
