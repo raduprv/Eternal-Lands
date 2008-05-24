@@ -85,16 +85,11 @@ namespace ec
 			case HarvestingEffect::BEES:
 			{
 				const Uint64 age = get_time() - born;
-				if (age < 1250000)
+				const float age_f = (float)(age)/1000000.0f;
+				if (age_f < 2.5f)
 					break;
-
-				if (alpha < 0.05)
+				if (2.5f + randfloat(2.5f) < age_f)
 					return false;
-
-				const alpha_t scalar =
-					math_cache.powf_0_1_rough_close(randfloat(), float_time * 1.5); // orig: 6, smaller numbers -> longer effect
-				alpha *= scalar;
-
 				break;
 			}
 			case HarvestingEffect::BAG_OF_GOLD:
@@ -308,22 +303,22 @@ namespace ec
 			}
 			case BEES:
 			{
-				spawner = new FilledSphereSpawner(0.125);
+				spawner = new FilledSphereSpawner(0.75);
 				mover = new GravityMover(this, &effect_center, 8e9);
 				direction.randomize();
-				direction.y = fabs(direction.y);
+				direction.y = 0;
 				while ((int)particles.size() < LOD * 16)
 				{
 					const Vec3 coords = spawner->get_new_coords()
-						+ effect_center;
+						+ effect_center - direction;
 					Vec3 velocity;
 					velocity.randomize();
-					velocity.normalize(0.5);
-					velocity.x += randfloat(0.25);
-					velocity.z += randfloat(0.75);
+					velocity.normalize(0.75);
+					velocity.x += randfloat(direction.x);
+					velocity.z += randfloat(direction.z);
 					Particle
 						* p =
-							new HarvestingParticle(this, mover, coords, velocity, 0.75, 1.0, 0.8, 0.7, 0.3, &(base->TexTwinflare), LOD, type);
+							new HarvestingParticle(this, mover, coords, velocity, 0.5 + randfloat(0.25), 1.0, 0.9, 0.7, 0.3, &(base->TexTwinflare), LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -404,8 +399,10 @@ namespace ec
 			{
 				const Uint64 age = get_time() - born;
 				const float age_f = (float)(age)/1000000;
-				effect_center = *pos + direction * (-0.5f + age_f);
-				gravity_center = *pos + direction * (-0.5f + age_f);
+				if (age_f > 1.0f)
+					direction.y = randfloat(1.25);
+				effect_center = *pos + direction * (-1.0f + age_f);
+				gravity_center = *pos + direction * (-1.0f + age_f);
 				break;
 			}
 			default:
