@@ -551,7 +551,7 @@ void destroy_all_particles()
 	UNLOCK_PARTICLES_LIST();
 
 }
-#if !defined(MAP_EDITOR) || defined(EYE_CANDY)
+#ifndef MAP_EDITOR
 void add_fire_at_tile (int kind, Uint16 x_tile, Uint16 y_tile)
 {
 	float x = 0.5f * x_tile + 0.25f;
@@ -596,7 +596,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 #endif // NEW_SOUND
 	return;
 }
-#endif
+#endif // !MAPEDITOR
 /*********************************************************************
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/

@@ -319,7 +319,7 @@ void change_use_animation_program(int * var)
 }
 #endif //MAP_EDITOR
 
-#if !defined(MAP_EDITOR) || defined(EYE_CANDY)
+#ifndef MAP_EDITOR
 void change_min_ec_framerate(float * var, float * value)
 {
 	if(*value >= 0) {
@@ -349,7 +349,7 @@ void change_max_ec_framerate(float * var, float * value)
 		*var= 1;
 	}
 }
-#endif //!MAP_EDITOR || EYE_CANDY
+#endif //!MAP_EDITOR
 
 void change_int(int * var, int value)
 {
