@@ -1884,14 +1884,14 @@ namespace ec
 					if (e->bounds)
 					{
 						const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
-						if (fastsqrt(distance_squared) < MAX_DRAW_DISTANCE + e->bounds->get_radius(angle)
+						if (distance_squared < MAX_DRAW_DISTANCE_SQUARED + e->bounds->get_radius(angle)
 #if defined CLUSTER_INSIDES && !defined MAP_EDITOR
 						&& same_cluster
 #endif
 						)
 						{
 							if (EC_DEBUG)
-							std::cout << "Activating effect(2) " << e << "(" << fastsqrt(distance_squared) << " < " << (MAX_DRAW_DISTANCE_SQUARED + e->bounds->get_radius(angle)) << ")" << std::endl;
+							std::cout << "Activating effect(2) " << e << " (" << distance_squared << " < " << (MAX_DRAW_DISTANCE_SQUARED + e->bounds->get_radius(angle)) << ")" << std::endl;
 							e->active = true;
 						}
 						else if (!e->recall)
@@ -1909,7 +1909,7 @@ namespace ec
 						)
 						{
 							if (EC_DEBUG)
-							std::cout << "Activating effect " << e << "(" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
+							std::cout << "Activating effect " << e << " (" << distance_squared << " < " << MAX_DRAW_DISTANCE_SQUARED << ")" << std::endl;
 							e->active = true;
 						}
 						else if (!e->recall)
@@ -1924,20 +1924,20 @@ namespace ec
 					if (e->bounds)
 					{
 						const angle_t angle = atan2(shifted_pos.x, shifted_pos.z);
-						if (fastsqrt(distance_squared)> e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE
+						if (distance_squared > e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE_SQUARED
 #if defined CLUSTER_INSIDES && !defined MAP_EDITOR
 						|| !same_cluster
 #endif
 						)
 						{
 							if (EC_DEBUG)
-							std::cout << "Deactivating effect(2) " << e << "(" << fastsqrt(distance_squared) << " < " << MAX_DRAW_DISTANCE_SQUARED << ": " << *(e->pos) << ", " << center << ", " << e->bounds->get_radius(angle) << ")" << std::endl;
+							std::cout << "Deactivating effect(2) " << e << " (" << distance_squared << " > " << e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE_SQUARED << ": " << *(e->pos) << ", " << center << ", " << e->bounds->get_radius(angle) << ", " << same_cluster << ")" << std::endl;
 							e->active = false;
 						}
 					}
 					else
 					{
-						if (distance_squared> MAX_DRAW_DISTANCE_SQUARED
+						if (distance_squared > MAX_DRAW_DISTANCE_SQUARED
 #if defined CLUSTER_INSIDES && !defined MAP_EDITOR
 						|| !same_cluster
 #endif

@@ -601,6 +601,25 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
  *          CREATION OF NEW PARTICLES AND SYSTEMS                    *
  *********************************************************************/
 #ifndef	MAP_EDITOR
+
+void add_ec_effect_to_e3d(object3d* e3d) 
+{
+	printf("%s x %f y %f\n", e3d->file_name, e3d->x_pos * 2.0f, e3d->y_pos * 2.0f);
+	//ec_create_fountain(e3d->x_pos, e3d->y_pos, e3d->z_pos, 0.0, 1.0, (e3d->z_pos >= 0.8 ? z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
+	if (strstr(e3d->file_name, "/light1.e3d"))
+	{
+		ec_bounds *bounds = ec_create_bounds_list();
+		ec_add_smooth_polygon_bound(bounds, 2.0, 0.33);
+		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 2.85f, 1.0, 1.0, 0.01, 1.0, bounds);
+	}	
+	if (strstr(e3d->file_name, "/light3.e3d"))
+	{
+		ec_bounds *bounds = ec_create_bounds_list();
+		ec_add_smooth_polygon_bound(bounds, 2.0, 0.33);
+		ec_create_fireflies(e3d->x_pos + 0.3 * sin((e3d->z_rot + 45.0) / 180.0f * M_PI), e3d->y_pos + 0.3 * cos((e3d->z_rot + 45.0) / 180.0f * M_PI), e3d->z_pos + 3.5f, 1.0, 1.0, 0.015, 1.0, bounds);
+	}	
+}
+
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #else
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos)

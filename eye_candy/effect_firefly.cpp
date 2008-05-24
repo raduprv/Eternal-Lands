@@ -40,28 +40,39 @@ namespace ec
 	{
 		if (effect->recall)
 			return false;
-
-		if ((pos - base->center).magnitude_squared() > MAX_DRAW_DISTANCE_SQUARED)
-			return false;
+		
+		if (randfloat(1.0) < 0.0005)
+			return false; // let some particles die ramdomly
 
 		Vec3 velocity_shift;
 		velocity_shift.randomize();
-		velocity_shift.y /= 3;
-		velocity_shift.normalize(0.00005 * fastsqrt(delta_t));
+		velocity_shift.y *= 0.3;
+		velocity_shift.normalize(0.0005 * fastsqrt(delta_t));
 		velocity += velocity_shift;
 		const coord_t magnitude = velocity.magnitude();
-		if (magnitude > 0.15)
-			velocity /= (magnitude / 0.15);
+		if (magnitude > 0.35)
+			velocity /= (magnitude / 0.35);
+		if (magnitude < 0.05)
+		{
+			velocity += Vec3(-0.15 + randcoord(0.3), 0.0, -0.15 + randcoord(0.3));
+			velocity.normalize(0.35);
+		}
 
 		if (fabs(velocity.y) > 0.1)
 			velocity.y *= math_cache.powf_05_close(delta_t / 300000.0);
 
 		if (pos.y < min_height)
-			velocity.y += delta_t / 1000000.0;
+		{
+			velocity.y += randcoord(0.125);
+			pos.y = min_height;
+		}
 
 		if (pos.y > max_height)
-			velocity.y -= delta_t / 2000000.0;
-
+		{
+			velocity.y -= randcoord(0.125);
+			pos.y = max_height;
+		}
+		
 		return true;
 	}
 
@@ -76,7 +87,7 @@ namespace ec
 		const float _size, BoundingRange* bounding_range)
 	{
 		if (EC_DEBUG)
-			std::cout << "FireflyEffect (" << this << ") created." << std::endl;
+			std::cout << "FireflyEffect (" << this << ") created at pos " << *_pos << std::endl;
 		base = _base;
 		dead = _dead;
 		pos = _pos;
@@ -93,7 +104,7 @@ namespace ec
 
 		for (int i = 0; i < firefly_count; i++)
 		{
-			const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, -0.25 + randcoord(0.5), 0.0);;
+			const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, -0.125 + randcoord(0.25), 0.0);
 			if (coords.x == -32768.0)
 				continue;
 			Vec3 velocity;
@@ -101,7 +112,7 @@ namespace ec
 			velocity.y /= 4.0;
 			Particle
 				* p =
-					new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size, center.y - randcoord(0.75), center.y + randcoord(0.75));
+					new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size, center.y - randcoord(0.25), center.y + randcoord(0.25));
 			if (!base->push_back_particle(p))
 				break;
 		}
@@ -118,26 +129,25 @@ namespace ec
 
 	bool FireflyEffect::idle(const Uint64 usec)
 	{
-		if (particles.size() == 0)
+		if ((recall) && (particles.size() == 0))
+		{
 			return false;
+		}
 
 		if (recall)
 			return true;
 
-		center = *pos;
-
 		for (int i = firefly_count - (int)particles.size(); i >= 0; i--)
 		{
-			Vec3 coords = spawner->get_new_coords();
+			const Vec3 coords = spawner->get_new_coords() + center + Vec3(0.0, -0.25 + randcoord(0.5), 0.0);;
 			if (coords.x == -32768.0)
 				continue;
-			coords += center + Vec3(0.0, 0.1 + randcoord(1.0), 0.0);
 			Vec3 velocity;
-			velocity.randomize(0.2);
-			velocity.y /= 3;
+			velocity.randomize(0.4);
+			velocity.y /= 4.0;
 			Particle
 				* p =
-					new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size, center.y + 0.1, center.y + 1.0);
+					new FireflyParticle(this, mover, coords, velocity, hue_adjust, saturation_adjust, size, center.y - randcoord(0.75), center.y + randcoord(0.75));
 			if (!base->push_back_particle(p))
 				break;
 		}

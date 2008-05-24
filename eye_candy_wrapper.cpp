@@ -388,8 +388,9 @@ extern "C" void ec_idle()
 				|| ((*iter)->effect->get_type() == ec::EC_WIND))
 			{
 #ifndef MAP_EDITOR
-				(*iter)->position.y = ec_get_z2(-(int)camera_x, -(int)camera_y); // Keep the effect level with the ground.
-				//        std::cout << (-(int)camera_x) << ", " << (-(int)camera_y) << ": " << (*iter)->position.y << std::endl;
+				// doesn't work, moves effects to -2.2 under the ground
+				// (*iter)->position.y = ec_get_z2(-(int)camera_x, -(int)camera_y); // Keep the effect level with the ground.
+				// std::cout << (-(int)camera_x) << ", " << (-(int)camera_y) << ": " << (*iter)->position.y << std::endl;
 #else //MAP_EDITOR
 				(*iter)->position.y = 0.0;
 #endif //!MAP_EDITOR
@@ -542,8 +543,10 @@ extern "C" void ec_draw()
 #ifdef CLUSTER_INSIDES
 				&& (*iter)->effect->belongsToCluster (cluster)
 #endif
-			)
+			) 
+			{
 				(*iter)->effect->active = (!is_day);
+			}
 #endif
 			i++;
 		}
