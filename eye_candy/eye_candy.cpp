@@ -1991,9 +1991,7 @@ namespace ec
 			change_LOD = 1.0;
 
 			float change_LOD2;
-			if (framerate> max_fps - 1.5)
-			change_LOD2 = 10.0;
-			else if (framerate >= LOD_10_time_threshold)
+			if (framerate >= LOD_10_time_threshold)
 			change_LOD2 = 10.0;
 			else if (framerate >= LOD_9_time_threshold)
 			change_LOD2 = 10.0 - float(framerate - LOD_9_time_threshold) / float(LOD_10_time_threshold - LOD_9_time_threshold);
