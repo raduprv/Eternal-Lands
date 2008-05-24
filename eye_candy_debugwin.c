@@ -3,13 +3,15 @@
 #include "eye_candy_debugwin.h"
 
 #include "actors.h"
+#include "cal.h"
 #include "client_serv.h"
 #include "eye_candy_wrapper.h"
 #include "gamewin.h"
 #include "hud.h"
 #include "init.h"
-
 #include "mines.h"
+#include "missiles.h"
+#include "skeletons.h"
 
 int ecdebug_win = -1;
 int ecdebug_win_x = 0;
@@ -29,6 +31,7 @@ int tab_summon = 12106;
 int tab_summon2 = 12107;
 int tab_summon3 = 12108;
 int tab_mines = 12109;
+int tab_arrows = 12110;
 
 int button_width = 160;
 int button_x = 8;
@@ -132,6 +135,11 @@ int ecdw_level_up_cra_button_id = 11193;
 int ecdw_level_up_eng_button_id = 11194;
 int ecdw_level_up_tai_button_id = 11195;
 int ecdw_level_up_ran_button_id = 11196;
+int ecdw_normal_arrow_button_id = 11197;
+int ecdw_magic_arrow_button_id = 11198;
+int ecdw_fire_arrow_button_id = 11199;
+int ecdw_ice_arrow_button_id = 11200;
+int ecdw_explosive_arrow_button_id = 11201;
 
 int ecdw_restoration_handler();
 int ecdw_shield_handler();
@@ -229,6 +237,11 @@ int ecdw_level_up_cra_handler();
 int ecdw_level_up_eng_handler();
 int ecdw_level_up_tai_handler();
 int ecdw_level_up_ran_handler();
+int ecdw_normal_arrow_handler();
+int ecdw_magic_arrow_handler();
+int ecdw_fire_arrow_handler();
+int ecdw_ice_arrow_handler();
+int ecdw_explosive_arrow_handler();
 
 void display_ecdebugwin()
 {
@@ -258,6 +271,7 @@ void display_ecdebugwin()
 		tab_summon3
 			= tab_add(ecdebug_win, ecdw_tab_collection, "summon3", 0, 0, 0);
 		tab_misc = tab_add(ecdebug_win, ecdw_tab_collection, "misc", 0, 0, 0);
+		tab_arrows = tab_add(ecdebug_win, ecdw_tab_collection, "arrows", 0, 0, 0);
 
 		// create buttons
 
@@ -664,6 +678,28 @@ void display_ecdebugwin()
 			NULL, button_x + button_x_shift * 2, button_y + button_y_shift * 3,
 			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "clear OG");
 
+		// arrow effect buttons
+		ecdw_normal_arrow_button_id = button_add_extended(tab_arrows,
+			ecdw_normal_arrow_button_id, 
+			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "normal");
+		ecdw_magic_arrow_button_id = button_add_extended(tab_arrows,
+			ecdw_magic_arrow_button_id, 
+			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "magic");
+		ecdw_fire_arrow_button_id = button_add_extended(tab_arrows,
+			ecdw_fire_arrow_button_id, 
+			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "fire");
+		ecdw_ice_arrow_button_id = button_add_extended(tab_arrows,
+			ecdw_ice_arrow_button_id, 
+			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 3,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "ice");
+		ecdw_explosive_arrow_button_id = button_add_extended(tab_arrows,
+			ecdw_explosive_arrow_button_id, 
+			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "explosive");
+
 		// add button handlers
 
 		// self magic handlers
@@ -870,7 +906,14 @@ void display_ecdebugwin()
 			ecdw_ongoing_shield_handler);
 		widget_set_OnClick(tab_misc, ecdw_ongoing_harvesting_button_id,
 			ecdw_ongoing_harvesting_handler);
-	}
+
+		// arrow effect handlers
+		widget_set_OnClick(tab_arrows, ecdw_normal_arrow_button_id, ecdw_normal_arrow_handler);
+		widget_set_OnClick(tab_arrows, ecdw_magic_arrow_button_id, ecdw_magic_arrow_handler);
+		widget_set_OnClick(tab_arrows, ecdw_fire_arrow_button_id, ecdw_fire_arrow_handler);
+		widget_set_OnClick(tab_arrows, ecdw_ice_arrow_button_id, ecdw_ice_arrow_handler);
+		widget_set_OnClick(tab_arrows, ecdw_explosive_arrow_button_id, ecdw_explosive_arrow_handler);
+}
 	else // display existing window
 	{
 		show_window(ecdebug_win);
@@ -2144,6 +2187,121 @@ int ecdw_level_up_ran_handler()
 		(poor_man ? 6 : 10));
 	ec_create_glow_level_up_ran(get_actor_ptr_from_id(yourself), (poor_man ? 6
 		: 10));
+	return 1;
+}
+
+int ecdw_normal_arrow_handler(int type)
+{
+	actor *origin = get_actor_ptr_from_id(yourself);
+	actor *target= NULL;
+	float origin_f[3];
+	float target_f[3];
+	int i;
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i] && actors_list[i] != origin)
+		{
+			target = actors_list[i];
+		}
+	}
+	if (target != NULL && origin != NULL)
+	{
+		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
+		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
+		missiles_add(0, origin_f, target_f, 0.0, 0);
+	}
+	return 1;
+}
+
+int ecdw_magic_arrow_handler(int type)
+{
+	actor *origin = get_actor_ptr_from_id(yourself);
+	actor *target= NULL;
+	float origin_f[3];
+	float target_f[3];
+	int i;
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i] && actors_list[i] != origin)
+		{
+			target = actors_list[i];
+		}
+	}
+	if (target != NULL && origin != NULL)
+	{
+		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
+		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
+		missiles_add(1, origin_f, target_f, 0.0, 0);
+	}
+	return 1;
+}
+
+int ecdw_fire_arrow_handler(int type)
+{
+	actor *origin = get_actor_ptr_from_id(yourself);
+	actor *target= NULL;
+	float origin_f[3];
+	float target_f[3];
+	int i;
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i] && actors_list[i] != origin)
+		{
+			target = actors_list[i];
+		}
+	}
+	if (target != NULL && origin != NULL)
+	{
+		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
+		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
+		missiles_add(2, origin_f, target_f, 0.0, 0);
+	}
+	return 1;
+}
+
+int ecdw_ice_arrow_handler(int type)
+{
+	actor *origin = get_actor_ptr_from_id(yourself);
+	actor *target= NULL;
+	float origin_f[3];
+	float target_f[3];
+	int i;
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i] && actors_list[i] != origin)
+		{
+			target = actors_list[i];
+		}
+	}
+	if (target != NULL && origin != NULL)
+	{
+		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
+		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
+		missiles_add(3, origin_f, target_f, 0.0, 0);
+	}
+	return 1;
+}
+
+int ecdw_explosive_arrow_handler(int type)
+{
+	actor *origin = get_actor_ptr_from_id(yourself);
+	actor *target= NULL;
+	float origin_f[3];
+	float target_f[3];
+	int i;
+	for (i = 0; i < max_actors; i++)
+	{
+		if (actors_list[i] && actors_list[i] != origin)
+		{
+			target = actors_list[i];
+		}
+	}
+	if (target != NULL && origin != NULL)
+	{
+		cal_get_actor_bone_absolute_position(origin, get_actor_bone_id(origin, body_top_bone), NULL, origin_f);
+		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
+		missiles_add(4, origin_f, target_f, 0.0, 0);
+	}
 	return 1;
 }
 
