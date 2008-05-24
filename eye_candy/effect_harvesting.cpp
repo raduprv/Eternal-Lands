@@ -51,6 +51,22 @@ namespace ec
 
 				break;
 			}
+			case HarvestingEffect::TOOL_BREAK:
+			{
+				if (alpha < 0.01)
+					return false;
+
+				const alpha_t scalar =
+					math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
+				const Uint64 age = get_time() - born;
+				const float age_f = (float)(age)/1000000.0f;
+				alpha *= scalar;
+				velocity.x *= 1.0f / (1.0f + age_f);
+				velocity.z *= 1.0f / (1.0f + age_f);
+				velocity.y = -age_f * 0.25f;
+
+				break;
+			}
 			case HarvestingEffect::CAVERN_WALL:
 			{
 				if (pos.y < -2.0)
@@ -195,6 +211,11 @@ namespace ec
 
 		switch (type)
 		{
+			case TOOL_BREAK:
+			{
+				// handled in other constructor
+				break;
+			}
 			case RADON_POUCH:
 			{
 				effect_center.y += 0.5;
@@ -316,9 +337,7 @@ namespace ec
 					velocity.normalize(0.75);
 					velocity.x += randfloat(direction.x);
 					velocity.z += randfloat(direction.z);
-					Particle
-						* p =
-							new HarvestingParticle(this, mover, coords, velocity, 0.5 + randfloat(0.25), 1.0, 0.9, 0.7, 0.3, &(base->TexTwinflare), LOD, type);
+					Particle * p = new HarvestingParticle(this, mover, coords, velocity, 0.5 + randfloat(0.25), 1.0, 0.9, 0.7, 0.3, &(base->TexTwinflare), LOD, type);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -367,6 +386,54 @@ namespace ec
 				base->push_back_particle(p);
 				break;
 			}
+		}
+	}
+
+	HarvestingEffect::HarvestingEffect(EyeCandy* _base, bool* _dead,
+		Vec3* _pos, Vec3* _pos2, const HarvestingType _type, const Uint16 _LOD)
+	{
+		if (EC_DEBUG)
+			std::cout << "HarvestingEffect (" << this << ") created (" << type
+				<< ")." << std::endl;
+		base = _base;
+		dead = _dead;
+		pos = _pos;
+		pos2 = _pos2;
+		effect_center = *pos + (*pos2 - *pos) * 0.5f;
+		type = _type;
+		LOD = base->last_forced_LOD;
+		desired_LOD = _LOD;
+		spawner = NULL;
+		bounds = NULL;
+		mover = NULL;
+		spawner2 = NULL;
+		mover2 = NULL;
+		direction = Vec3(0.0, 0.0, 0.0);
+
+		switch (type)
+		{
+			case TOOL_BREAK:
+			{
+				spawner = new FilledSphereSpawner(0.05);
+				mover = new ParticleMover(this);
+				while ((int)particles.size() < LOD * 32)
+				{
+					const Vec3 coords = spawner->get_new_coords()
+						+ effect_center;
+					Vec3 velocity;
+					velocity.randomize();
+					velocity.normalize();
+					velocity.y = 0.0;
+					Particle
+						* p =
+							new HarvestingParticle(this, mover, coords, velocity, 1.25, 1.0, 0.5, 0.5, 0.5, &(base->TexFlare), LOD, type);
+					if (!base->push_back_particle(p))
+						break;
+				}
+				break;
+			}
+			default:
+				break;
 		}
 	}
 

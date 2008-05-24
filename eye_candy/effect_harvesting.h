@@ -26,9 +26,12 @@ namespace ec
 				BEES,
 				BAG_OF_GOLD,
 				RARE_STONE,
+				TOOL_BREAK,
 			};
 
 			HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
+				const HarvestingType _type, const Uint16 _LOD);
+			HarvestingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos, Vec3* _pos2,
 				const HarvestingType _type, const Uint16 _LOD);
 			~HarvestingEffect();
 
@@ -56,6 +59,7 @@ namespace ec
 			Vec3 effect_center;
 			Vec3 gravity_center;
 			Vec3 direction;
+			Vec3* pos2;
 			HarvestingType type;
 	};
 

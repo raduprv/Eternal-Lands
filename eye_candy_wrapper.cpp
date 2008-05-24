@@ -1578,6 +1578,19 @@ extern "C" ec_reference ec_create_harvesting_rare_stone2(actor* caster, int LOD)
 	return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_harvesting_tool_break(actor* caster, int LOD)
+{
+	if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::HarvestingEffect::get_max_end_time()))
+		return NULL;
+	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+	ret->caster = caster;
+	set_vec3_actor_bone2(ret->position, ret->caster, get_actor_bone_id(caster, hand_right_bone));
+	set_vec3_actor_bone2(ret->position2, ret->caster, get_actor_bone_id(caster, hand_left_bone));
+	ret->effect = new ec::HarvestingEffect(&eye_candy, &ret->dead, &ret->position, &ret->position2, ec::HarvestingEffect::TOOL_BREAK, LOD);
+	eye_candy.push_back_effect(ret->effect);
+	return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_glow_remote_heal(actor* caster, int LOD)
 {
 	if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::GlowEffect::get_max_end_time()))

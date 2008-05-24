@@ -140,6 +140,7 @@ int ecdw_magic_arrow_button_id = 11198;
 int ecdw_fire_arrow_button_id = 11199;
 int ecdw_ice_arrow_button_id = 11200;
 int ecdw_explosive_arrow_button_id = 11201;
+int ecdw_harv_tool_break_button_id = 11202;
 
 int ecdw_restoration_handler();
 int ecdw_shield_handler();
@@ -242,6 +243,7 @@ int ecdw_magic_arrow_handler();
 int ecdw_fire_arrow_handler();
 int ecdw_ice_arrow_handler();
 int ecdw_explosive_arrow_handler();
+int ecdw_harv_tool_break_handler();
 
 void display_ecdebugwin()
 {
@@ -375,6 +377,10 @@ void display_ecdebugwin()
 			ecdw_harv_queen_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 2,
 			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Queen");
+		ecdw_harv_tool_break_button_id = button_add_extended(tab_harv,
+			ecdw_harv_tool_break_button_id, 
+			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 3,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Tool break");
 
 		// level up effect buttons
 		ecdw_level_up_oa_button_id = button_add_extended(tab_lvlup,
@@ -749,6 +755,8 @@ void display_ecdebugwin()
 			ecdw_harv_mother_nature_handler);
 		widget_set_OnClick(tab_harv, ecdw_harv_queen_button_id,
 			ecdw_harv_queen_handler);
+		widget_set_OnClick(tab_harv, ecdw_harv_tool_break_button_id,
+			ecdw_harv_tool_break_handler);
 
 		// level up effect handlers
 		widget_set_OnClick(tab_lvlup, ecdw_level_up_oa_button_id,
@@ -2302,6 +2310,13 @@ int ecdw_explosive_arrow_handler(int type)
 		cal_get_actor_bone_absolute_position(target, get_actor_bone_id(target, body_top_bone), NULL, target_f);
 		missiles_add(4, origin_f, target_f, 0.0, 0);
 	}
+	return 1;
+}
+
+int ecdw_harv_tool_break_handler()
+{
+	ec_create_harvesting_tool_break(get_actor_ptr_from_id(yourself),
+		(poor_man ? 6 : 10));
 	return 1;
 }
 

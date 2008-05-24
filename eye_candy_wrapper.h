@@ -297,6 +297,7 @@ extern "C"
 	ec_reference ec_create_harvesting_bag_of_gold(float x, float y, float z,
 		int LOD);
 	ec_reference ec_create_harvesting_bag_of_gold2(actor* caster, int LOD);
+	ec_reference ec_create_harvesting_tool_break(actor* caster, int LOD);
 	ec_reference ec_create_harvesting_rare_stone(float x, float y, float z,
 		int LOD);
 	ec_reference ec_create_harvesting_rare_stone2(actor* caster, int LOD);
