@@ -5,7 +5,6 @@ UPDATE_CONF=yes
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
 #FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
-#FEATURES += CAMERA_FPS_CHECK                # logs in infos.log file the delta in ms between each camera update
 FEATURES += CONTEXT_MENUS                   # Enable context menus
 #FEATURES += CONTEXT_MENUS_TEST              # Enable "#cmwin" command to help test/demo the context menu code
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
@@ -15,7 +14,7 @@ FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
 #FEATURES += DEBUG_TIME                      # Fakes the acceleration of time for use in debugging shadows and the like.
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
-#FEATURES += ECDEBUGWIN                      # press ctrl-alt-c to open the Eye Candy degub window: trigger most effects without casting spells or server side events
+#FEATURES += ECDEBUGWIN                      # press ctrl-alt-c to open the Eye Candy debug window: trigger most effects without casting spells or server side events
 #FEATURES += EL_BIG_ENDIAN                   # (undocumented)	FIXME: Should be removed and set in the code (as is done for OSX. Is it needed on any other platform?)
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
 FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
