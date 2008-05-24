@@ -372,6 +372,16 @@ extern "C" void ec_idle()
 					force_idle = true;
 				}
 			}
+			if ((*iter)->effect->get_type() == ec::EC_FOUNTAIN)
+			{
+				ec::FountainEffect* eff = (ec::FountainEffect*)((*iter)->effect);
+				eff->LOD = (poor_man ? 6 : 10);
+			}
+			if ((*iter)->effect->get_type() == ec::EC_SMOKE)
+			{
+				ec::SmokeEffect* eff = (ec::SmokeEffect*)((*iter)->effect);
+				eff->LOD = (poor_man ? 6 : 10);
+			}
 
 			if (((*iter)->effect->get_type() == ec::EC_CLOUD)
 				|| ((*iter)->effect->get_type() == ec::EC_FIREFLY)
