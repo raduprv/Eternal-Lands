@@ -306,6 +306,10 @@ namespace ec
 			Particle* p = new SwordParticle(this, mover, coords, velocity, size - 0.25 + randfloat(0.25), 0.25 + randalpha(percent), color[0], color[1], color[2], texture, LOD);
 			if (!base->push_back_particle(p))
 				break;
+			if (randfloat(2.0f) < 0.1f) {
+				p = new SwordParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, &(base->TexTwinflare), LOD);
+				base->push_back_particle(p);
+			}
 		}
 
 		old_end = *end;
