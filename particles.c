@@ -607,7 +607,9 @@ void add_ec_effect_to_e3d(object3d* e3d)
 	// useful for debugging: ec_create_fountain(e3d->x_pos, e3d->y_pos, e3d->z_pos, 0.0, 1.0, (e3d->z_pos >= 0.8 ? e3d->z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
 	if (strstr(e3d->file_name, "/lantern1.e3d"))
 	{
-		// don't create firefly effect, this lantern is not lit
+		ec_bounds *bounds = ec_create_bounds_list();
+		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);
+		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 0.25f, 1.0, 1.0, 0.00625, 1.0, bounds);
 	}	
 	else if (strstr(e3d->file_name, "/lantern2.e3d"))
 	{
