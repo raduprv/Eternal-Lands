@@ -141,6 +141,8 @@ int ecdw_fire_arrow_button_id = 11199;
 int ecdw_ice_arrow_button_id = 11200;
 int ecdw_explosive_arrow_button_id = 11201;
 int ecdw_harv_tool_break_button_id = 11202;
+int ecdw_wind_leaves_button_id = 11203;
+int ecdw_clouds_button_id = 12204;
 
 int ecdw_restoration_handler();
 int ecdw_shield_handler();
@@ -244,6 +246,8 @@ int ecdw_fire_arrow_handler();
 int ecdw_ice_arrow_handler();
 int ecdw_explosive_arrow_handler();
 int ecdw_harv_tool_break_handler();
+int ecdw_wind_leaves_handler();
+int ecdw_clouds_handler();
 
 void display_ecdebugwin()
 {
@@ -659,6 +663,14 @@ void display_ecdebugwin()
 			ecdw_alert_button_id, 
 			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 0,
 			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Alert");
+		ecdw_wind_leaves_button_id = button_add_extended(tab_misc,
+			ecdw_wind_leaves_button_id, 
+			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 1,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "wind leaves");
+		ecdw_clouds_button_id = button_add_extended(tab_misc,
+			ecdw_clouds_button_id, 
+			NULL, button_x + button_x_shift * 0, button_y + button_y_shift * 2,
+			button_width, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "clouds");
 		ecdw_ongoing_magic_immunity_button_id = button_add_extended(tab_misc,
 			ecdw_ongoing_magic_immunity_button_id, 
 			NULL, button_x + button_x_shift * 1, button_y + button_y_shift * 0,
@@ -902,6 +914,8 @@ void display_ecdebugwin()
 
 		// misc effect handlers
 		widget_set_OnClick(tab_misc, ecdw_alert_button_id, ecdw_alert_handler);
+		widget_set_OnClick(tab_misc, ecdw_wind_leaves_button_id, ecdw_wind_leaves_handler);
+		widget_set_OnClick(tab_misc, ecdw_clouds_button_id, ecdw_clouds_handler);
 		widget_set_OnClick(tab_misc, ecdw_ongoing_clear_button_id,
 			ecdw_ongoing_clear_handler);
 		widget_set_OnClick(tab_misc, ecdw_ongoing_magic_immunity_button_id,
@@ -2317,6 +2331,26 @@ int ecdw_harv_tool_break_handler()
 {
 	ec_create_harvesting_tool_break(get_actor_ptr_from_id(yourself),
 		(poor_man ? 6 : 10));
+	return 1;
+}
+
+int ecdw_wind_leaves_handler()
+{
+	ec_bounds *bounds = ec_create_bounds_list();
+	actor *act = get_actor_ptr_from_id(yourself);
+	ec_add_smooth_polygon_bound(bounds, 2.0, 2.5);
+
+	ec_create_wind_leaves(act->x_pos, act->y_pos, act->z_pos, 1.0, 1.0, 1.0, 0.1, bounds, act->x_pos + 3.0, act->y_pos + 5.0, act->z_pos);
+	return 1;
+}
+
+int ecdw_clouds_handler()
+{
+	ec_bounds *bounds = ec_create_bounds_list();
+	actor *act = get_actor_ptr_from_id(yourself);
+	ec_add_smooth_polygon_bound(bounds, 2.0, 2.5);
+
+	ec_create_cloud(act->x_pos, act->y_pos, act->z_pos, 1.0, 1.0, 0.1, bounds, (poor_man ? 6 : 10));
 	return 1;
 }
 
