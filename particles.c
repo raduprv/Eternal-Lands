@@ -628,6 +628,7 @@ void add_ec_effect_to_e3d(object3d* e3d)
 	float shift[3] = { 0.0f, 0.0f, 0.0f };
 	// useful for debugging: 
 	// ec_create_fountain(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 0.0, 1.0, (e3d->z_pos >= 0.8 ? e3d->z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
+	// printf("%f %f %s %i\n", e3d->x_pos*2, e3d->y_pos*2, e3d->file_name, e3d->self_lit);
 	if (strstr(e3d->file_name, "/lantern1.e3d") && e3d->self_lit)
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);

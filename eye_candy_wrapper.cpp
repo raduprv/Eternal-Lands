@@ -3,18 +3,19 @@
 #include "eye_candy_wrapper.h"
 #include "cal.h"
 #include "cal3d_wrapper.h"
+#include "client_serv.h" // For mine_type defines
 #include "draw_scene.h"
 #include "errors.h"
-#include "gl_init.h"
-#include "particles.h"
-#include "init.h"
 #include "gamewin.h"
+#include "gl_init.h"
+#include "init.h"
+#include "map.h"
+#include "missiles.h"
+#include "particles.h"
 #include "shadows.h"
 #include "skeletons.h"
-#include "client_serv.h"        // For mine_type defines
 #include "tiles.h"
 #ifndef MAP_EDITOR
-#include "missiles.h"
 #endif //!MAP_EDITOR
 // G L O B A L S //////////////////////////////////////////////////////////////
 
@@ -545,7 +546,7 @@ extern "C" void ec_draw()
 #endif
 			) 
 			{
-				(*iter)->effect->active = (!is_day);
+				(*iter)->effect->active = (!is_day && !dungeon);
 			}
 #endif
 			i++;
