@@ -15,6 +15,7 @@
 #include "textures.h"
 #include "tiles.h"
 #include "translate.h"
+#include "vmath.h"
 #ifdef CLUSTER_INSIDES
 #include "cluster.h"
 #endif
@@ -602,49 +603,78 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
  *********************************************************************/
 #ifndef	MAP_EDITOR
 
+void rotate_vector3f(float *vector, float x, float y, float z)
+{
+	// rotation matrixes
+	float rot_x[9];
+	float rot_y[9];
+	float rot_z[9];
+	float result_x[3];
+	float result_y[3];
+	MAT3_ROT_X(rot_x, x * (M_PI / 180.0f));
+	MAT3_ROT_Y(rot_y, y * (M_PI / 180.0f));
+	MAT3_ROT_Z(rot_z, z * (M_PI / 180.0f));
+	// rotate around x achsis
+	MAT3_VECT3_MULT(result_x, rot_x, vector);
+	// rotate around y achsis
+	MAT3_VECT3_MULT(result_y, rot_y, result_x);
+	// rotate around z achsis
+	MAT3_VECT3_MULT(vector, rot_z, result_y);
+}
+
 void add_ec_effect_to_e3d(object3d* e3d) 
 {
-	// useful for debugging: ec_create_fountain(e3d->x_pos, e3d->y_pos, e3d->z_pos, 0.0, 1.0, (e3d->z_pos >= 0.8 ? e3d->z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
-	if (strstr(e3d->file_name, "/lantern1.e3d"))
+	ec_bounds *bounds = ec_create_bounds_list();
+	float shift[3] = { 0.0f, 0.0f, 0.0f };
+	// useful for debugging: 
+	// ec_create_fountain(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 0.0, 1.0, (e3d->z_pos >= 0.8 ? e3d->z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
+	if (strstr(e3d->file_name, "/lantern1.e3d") && e3d->self_lit)
 	{
-		ec_bounds *bounds = ec_create_bounds_list();
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);
-		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 0.25f, 1.0, 1.0, 0.00625, 1.0, bounds);
+		shift[2] += 0.25f; // add height
+		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
+		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.00625, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/lantern2.e3d"))
+	else if (strstr(e3d->file_name, "/lantern2.e3d") && e3d->self_lit)
 	{
-		ec_bounds *bounds = ec_create_bounds_list();
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);
-		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 0.25f, 1.0, 1.0, 0.005, 1.0, bounds);
+		shift[2] += 0.25f; // add height
+		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
+		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.005, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/lantern3.e3d"))
+	else if (strstr(e3d->file_name, "/lantern3.e3d") && e3d->self_lit)
 	{
-		ec_bounds *bounds = ec_create_bounds_list();
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);
-		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 0.25f, 1.0, 1.0, 0.005, 1.0, bounds);
+		shift[2] += 0.25f; // add height
+		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
+		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.005, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light1.e3d"))
+	else if (strstr(e3d->file_name, "/light1.e3d") && e3d->self_lit)
 	{
-		ec_bounds *bounds = ec_create_bounds_list();
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.33);
-		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 2.85f, 1.0, 1.0, 0.01, 1.0, bounds);
+		shift[2] += 2.85f; // add height
+		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
+		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.01, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light2.e3d"))
+	else if (strstr(e3d->file_name, "/light2.e3d") && e3d->self_lit)
 	{
-		ec_bounds *bounds = ec_create_bounds_list();
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.4);
-		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 2.95f, 1.0, 1.0, 0.0125, 1.0, bounds);
+		shift[2] += 2.95f; // add height
+		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
+		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.0125, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light3.e3d"))
+	else if (strstr(e3d->file_name, "/light3.e3d") && e3d->self_lit)
 	{
-		ec_bounds *bounds = ec_create_bounds_list();
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.33);
-		ec_create_fireflies(e3d->x_pos + 0.3 * sin((e3d->z_rot + 45.0) / 180.0f * M_PI), e3d->y_pos + 0.3 * cos((e3d->z_rot + 45.0) / 180.0f * M_PI), e3d->z_pos + 3.5f, 1.0, 1.0, 0.015, 1.0, bounds);
+		shift[2] += 3.5f; // add height
+		shift[0] -= 0.33f; // the light is not centered
+		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
+		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.015, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light4.e3d"))
+	else if (strstr(e3d->file_name, "/light4.e3d") && e3d->self_lit)
 	{
-		ec_bounds *bounds = ec_create_bounds_list();
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.4);
+		shift[2] += 1.75f; // add height
 		ec_create_fireflies(e3d->x_pos, e3d->y_pos, e3d->z_pos + 1.75f, 1.0, 1.0, 0.0075, 1.0, bounds);
 	}	
 }
