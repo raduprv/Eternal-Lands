@@ -8,6 +8,7 @@
 
 #include "platform.h"
 #include "bbox_tree.h"
+#include "e3d.h"
 #include "threads.h"
 
 #ifdef __cplusplus
@@ -265,6 +266,8 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 #else
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos);
 #endif
+
+void add_ec_effect_to_e3d(object3d* e3d);
 
 /*!
  * \ingroup particles
