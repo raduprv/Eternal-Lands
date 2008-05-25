@@ -546,7 +546,7 @@ extern "C" void ec_draw()
 #endif
 			) 
 			{
-				(*iter)->effect->active = (!is_day && !dungeon);
+				(*iter)->effect->active = (!(is_day || dungeon));
 			}
 #endif
 			i++;
