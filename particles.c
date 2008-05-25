@@ -629,42 +629,42 @@ void add_ec_effect_to_e3d(object3d* e3d)
 	// useful for debugging: 
 	// ec_create_fountain(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 0.0, 1.0, (e3d->z_pos >= 0.8 ? e3d->z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
 	// printf("%f %f %s %i\n", e3d->x_pos*2, e3d->y_pos*2, e3d->file_name, e3d->self_lit);
-	if (strstr(e3d->file_name, "/lantern1.e3d") && e3d->self_lit)
+	if (strstr(e3d->file_name, "/lantern1.e3d"))
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);
 		shift[2] += 0.25f; // add height
 		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
 		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.00625, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/lantern2.e3d") && e3d->self_lit)
+	else if (strstr(e3d->file_name, "/lantern2.e3d"))
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);
 		shift[2] += 0.25f; // add height
 		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
 		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.005, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/lantern3.e3d") && e3d->self_lit)
+	else if (strstr(e3d->file_name, "/lantern3.e3d"))
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.25);
 		shift[2] += 0.25f; // add height
 		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
 		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.005, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light1.e3d") && e3d->self_lit)
+	else if (strstr(e3d->file_name, "/light1.e3d"))
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.33);
 		shift[2] += 2.85f; // add height
 		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
 		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.01, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light2.e3d") && e3d->self_lit)
+	else if (strstr(e3d->file_name, "/light2.e3d"))
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.4);
 		shift[2] += 2.95f; // add height
 		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
 		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.0125, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light3.e3d") && e3d->self_lit)
+	else if (strstr(e3d->file_name, "/light3.e3d"))
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.33);
 		shift[2] += 3.5f; // add height
@@ -672,7 +672,7 @@ void add_ec_effect_to_e3d(object3d* e3d)
 		rotate_vector3f(shift, e3d->x_rot, e3d->y_rot, e3d->z_rot);
 		ec_create_fireflies(e3d->x_pos + shift[0], e3d->y_pos + shift[1], e3d->z_pos + shift[2], 1.0, 1.0, 0.015, 1.0, bounds);
 	}	
-	else if (strstr(e3d->file_name, "/light4.e3d") && e3d->self_lit)
+	else if (strstr(e3d->file_name, "/light4.e3d"))
 	{
 		ec_add_smooth_polygon_bound(bounds, 2.0, 0.4);
 		shift[2] += 1.75f; // add height
