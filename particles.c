@@ -604,8 +604,7 @@ void remove_fire_at_tile (Uint16 x_tile, Uint16 y_tile)
 
 void add_ec_effect_to_e3d(object3d* e3d) 
 {
-	printf("%s x %f y %f\n", e3d->file_name, e3d->x_pos * 2.0f, e3d->y_pos * 2.0f);
-	//ec_create_fountain(e3d->x_pos, e3d->y_pos, e3d->z_pos, 0.0, 1.0, (e3d->z_pos >= 0.8 ? e3d->z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
+	// useful for debugging: ec_create_fountain(e3d->x_pos, e3d->y_pos, e3d->z_pos, 0.0, 1.0, (e3d->z_pos >= 0.8 ? e3d->z_pos - 0.8 : 0.0), 0, 1.0, (poor_man ? 6 : 10));
 	if (strstr(e3d->file_name, "/lantern1.e3d"))
 	{
 		// don't create firefly effect, this lantern is not lit
