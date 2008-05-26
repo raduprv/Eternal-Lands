@@ -1079,10 +1079,10 @@ int minimap_win_y = 20;
 GLubyte exploration_map[256][256];
 char current_exploration_map_filename[256];
 
-static __inline__ float minimap_get_zoom ()
+static __inline__ float minimap_get_zoom (int frame_buffer)
 {
 	float zoom = minimap_tiles_distance * 2 / (tile_map_size_x*6);
-	if(!use_frame_buffer)
+	if(!frame_buffer)
 	{
 		zoom *= radius_shift;
 	}
@@ -1368,6 +1368,7 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 	float fsinold = -1.0,fcosold = -1.0;
 	int shift;
 	float fsin,fcos;
+	int nobreak = TRUE;
 
 	glPushMatrix();
 
@@ -1382,10 +1383,9 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 	bind_texture_id(minimap_texture);
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-	rotate_at_player(zoom_multip,px,py);
-	
 	if (use_frame_buffer)
 	{
+		rotate_at_player(zoom_multip,px,py);
 		glBegin(GL_QUADS);
 			glTexCoord2f(0.0f, 0.0f);
 			glVertex2f(-float_minimap_size/2, float_minimap_size/2);
@@ -1411,44 +1411,66 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 				fcos = cos((shift+ 180)*0.0174532925f)*radius_shift* zoom_multip + 1 - (py/float_minimap_size);
 				if((fsin >= 0.0f) && (fsin <= 1.0f) && (fcos >= 0.0f) && (fcos <= 1.0f))
 				{
+					nobreak = FALSE;
 					break;
 				}
 			}
 		}
 		else
+		{
+			nobreak = FALSE;
 			shift = 0;
-
-		glBegin(GL_POLYGON);
-			for (i=0; i<=360; i +=10) 
-			{
-				
-				fsin = sin((i+shift)*0.0174532925f)*radius_shift* zoom_multip +  px/float_minimap_size;
-				fcos = cos((i+shift+ 180)*0.0174532925f)*radius_shift* zoom_multip + 1 - (py/float_minimap_size);
-
-				if(fsin > 1.0f)
-					fsin = fsinold;
-				else if (fsin < 0.0f)
-					fsin = fsinold;
-				else
+		}
+		
+		if(nobreak == TRUE) //we didn't find an appropriate starting shift.
+		{ // this means there map is zoomed out too much and all of it should be drawn
+			zoom_multip = minimap_get_zoom(TRUE);
+			rotate_at_player(zoom_multip,px,py);
+			glBegin(GL_QUADS);
+				glTexCoord2f(0.0f, 0.0f);
+				glVertex2f(-float_minimap_size/2, float_minimap_size/2);
+				glTexCoord2f(1.0f, 0.0f);
+				glVertex2f(float_minimap_size/2, float_minimap_size/2);
+				glTexCoord2f(1.0f, 1.0f);
+				glVertex2f(float_minimap_size/2, -float_minimap_size/2);
+				glTexCoord2f(0.0f, 1.0f);
+				glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
+			glEnd();
+		}
+		else
+		{
+			rotate_at_player(zoom_multip,px,py);
+			glBegin(GL_POLYGON);
+				for (i=0; i<=360; i +=10) 
 				{
-					x = sin((i+shift)*0.0174532925)/radius_shift*coef + (px - float_minimap_size/2);
-					fsinold = fsin;
-				}
+					
+					fsin = sin((i+shift)*0.0174532925f)*radius_shift* zoom_multip +  px/float_minimap_size;
+					fcos = cos((i+shift+ 180)*0.0174532925f)*radius_shift* zoom_multip + 1 - (py/float_minimap_size);
 
-				if(fcos > 1.0f)
-					fcos = fcosold;
-				else if (fcos < 0.0f)
-					fcos = fcosold;
-				else
-				{
-					y = cos((i+shift)*0.0174532925f)/radius_shift*coef + (py - float_minimap_size/2);
-					fcosold = fcos;
-				}
-				glTexCoord2f(fsin, fcos);			
-				glVertex2f(x, y);		
-			}	
-		glEnd();
+					if(fsin > 1.0f)
+						fsin = fsinold;
+					else if (fsin < 0.0f)
+						fsin = fsinold;
+					else
+					{
+						x = sin((i+shift)*0.0174532925)/radius_shift*coef + (px - float_minimap_size/2);
+						fsinold = fsin;
+					}
 
+					if(fcos > 1.0f)
+						fcos = fcosold;
+					else if (fcos < 0.0f)
+						fcos = fcosold;
+					else
+					{
+						y = cos((i+shift)*0.0174532925f)/radius_shift*coef + (py - float_minimap_size/2);
+						fcosold = fcos;
+					}
+					glTexCoord2f(fsin, fcos);			
+					glVertex2f(x, y);		
+				}	
+			glEnd();
+		}
 	}
 	
 
@@ -1604,13 +1626,13 @@ int display_minimap_handler(window_info *win)
 		enable_controls = 0;
 	}
 	
-	zoom_multip = minimap_get_zoom();
+	zoom_multip = minimap_get_zoom(use_frame_buffer);
 
 	if(!minimap_texture) 
 	{
 		//there's no minimap for this map :( draw a X
 		glTranslatef(0.0f, 16.0f, 0.0f);
-		glPushMatrix();
+		glPushMatrix(); 
 		glDisable(GL_TEXTURE_2D);
 		//draw black background
 		glColor3f(0.0f,0.0f,0.0f);
@@ -1692,7 +1714,7 @@ static int minimap_walkto(int mx, int my)
 	
 
 	/* Get zoom and actor position (tile coordinates) */
-	zoom_multip = minimap_get_zoom();
+	zoom_multip = minimap_get_zoom(use_frame_buffer);
 	if ( (me = get_our_actor ()) == NULL)
 		return 0;
 
