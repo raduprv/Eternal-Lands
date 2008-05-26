@@ -97,6 +97,15 @@ typedef struct
 	float conversion_factor;
 } sky_dome;
 
+typedef struct
+{
+	int vertices_count;
+	int faces_count;
+	GLfloat *vertices;
+	GLfloat *tex_coords;
+	GLuint *faces;
+} sky_sphere;
+
 sky_dome dome_sky = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0};
 sky_dome dome_clouds = {0, 0, 0, 0, NULL, NULL, NULL, NULL, NULL, 0.0, 0.0, 0.0};
 
@@ -105,6 +114,8 @@ GLfloat *dome_clouds_colors_bis = NULL;
 GLfloat *dome_clouds_detail_colors_bis = NULL;
 GLfloat *dome_clouds_tex_coords_bis = NULL;
 GLfloat *fog_colors = NULL;
+
+sky_sphere moon_mesh = {0, 0, NULL, NULL, NULL};
 
 GLfloat moon1_direction[3];
 GLfloat moon2_direction[3];
@@ -263,6 +274,62 @@ sky_dome create_dome(int slices, int stacks, float radius, float opening, int fa
 	return dome;
 }
 
+sky_sphere create_sphere(int slices, int stacks)
+{
+	sky_sphere sphere;
+    int i, j;
+    int idx, vtx_idx;
+
+    sphere.vertices_count = (slices+1)*(stacks+1);
+    sphere.faces_count = slices*stacks*2;
+
+    sphere.vertices = (GLfloat*)malloc(3*sphere.vertices_count*sizeof(GLfloat));
+    sphere.tex_coords = (GLfloat*)malloc(2*sphere.vertices_count*sizeof(GLfloat));
+    sphere.faces = (GLuint*)malloc(3*sphere.faces_count*sizeof(GLuint));
+
+    // we compute the vertices positions and normals
+    idx = 0;
+    for (j = 0; j <= stacks; ++j)
+    {
+		float angle = j * M_PI / (float)stacks;
+		float cos_angle = cosf(angle);
+		float sin_angle = sinf(angle);
+		float tex_j = j / (float)stacks;
+        for (i = 0; i <= slices; ++i)
+        {
+            float teta = i * 2.0 * M_PI / (float)slices;
+			float cos_teta = cosf(teta);
+			float sin_teta = sinf(teta);
+			int idx3 = idx*3;
+            sphere.vertices[idx3  ] = sin_angle * cos_teta; 
+            sphere.vertices[idx3+1] = sin_angle * sin_teta;
+            sphere.vertices[idx3+2] = cos_angle;
+			sphere.tex_coords[idx*2  ] = i / (float)slices;
+			sphere.tex_coords[idx*2+1] = tex_j;
+			++idx;
+        }
+    }
+
+    // we build the faces of the dome
+    idx = 0;
+	vtx_idx = 0;
+    for (j = 0; j < stacks; ++j)
+    {
+        for (i = 0; i < slices; ++i)
+        {
+            sphere.faces[idx++] = vtx_idx + i;
+            sphere.faces[idx++] = vtx_idx + i   + slices+1;
+            sphere.faces[idx++] = vtx_idx + i+1;
+            sphere.faces[idx++] = vtx_idx + i+1;
+            sphere.faces[idx++] = vtx_idx + i   + slices+1;
+            sphere.faces[idx++] = vtx_idx + i+1 + slices+1;
+        }
+        vtx_idx += slices+1;
+    }
+
+	return sphere;
+}
+
 void destroy_dome(sky_dome *dome)
 {
     if (dome->vertices  ) { free(dome->vertices  ); dome->vertices   = NULL; }
@@ -270,6 +337,30 @@ void destroy_dome(sky_dome *dome)
     if (dome->colors    ) { free(dome->colors    ); dome->colors     = NULL; }
     if (dome->tex_coords) { free(dome->tex_coords); dome->tex_coords = NULL; }
     if (dome->faces     ) { free(dome->faces     ); dome->faces      = NULL; }
+}
+
+void destroy_sphere(sky_sphere *sphere)
+{
+    if (sphere->vertices  ) { free(sphere->vertices  ); sphere->vertices   = NULL; }
+    if (sphere->tex_coords) { free(sphere->tex_coords); sphere->tex_coords = NULL; }
+    if (sphere->faces     ) { free(sphere->faces     ); sphere->faces      = NULL; }
+}
+
+void __inline__ draw_sphere(sky_sphere *sphere)
+{
+	glEnableClientState(GL_VERTEX_ARRAY);
+	glEnableClientState(GL_NORMAL_ARRAY);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
+
+	glVertexPointer(3, GL_FLOAT, 0, sphere->vertices);
+	glNormalPointer(GL_FLOAT, 0, sphere->vertices);
+	glTexCoordPointer(2, GL_FLOAT, 0, sphere->tex_coords);
+
+	glDrawElements(GL_TRIANGLES, sphere->faces_count*3, GL_UNSIGNED_INT, sphere->faces);
+
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_NORMAL_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 }
 
 void skybox_compute_z_position()
@@ -1621,7 +1712,8 @@ void cloudy_sky()
 		glRotatef(90.0, 1.0, 0.0, 0.0);
 		glRotatef(moon_spin, 0.0, 0.0, 1.0);
 		glScalef(20.0, 20.0, 20.0);
-		glCallList(sky_lists);
+		//glCallList(sky_lists+3);
+		draw_sphere(&moon_mesh);
 		glPopMatrix();
 		
 		glMaterialfv(GL_FRONT_AND_BACK, GL_DIFFUSE, moon2_color);
@@ -1633,7 +1725,8 @@ void cloudy_sky()
 		glRotatef(90.0, 1.0, 0.0, 0.0);
 		glRotatef(10.0*moon_spin, 0.0, 0.0, 1.0);
 		glScalef(12.0, 12.0, 12.0);
-		glCallList(sky_lists);
+		//glCallList(sky_lists+3);
+		draw_sphere(&moon_mesh);
 		glPopMatrix();
 		
 		glPopMatrix();
@@ -1653,11 +1746,11 @@ void cloudy_sky()
 		glPointSize(1.0);
 		glRotatef((float)game_minute+(float)game_second/60.0, 0.0, -1.0, 0.0);
 		glColor4f(1.0, 1.0, 1.0, day_alpha);
-		glCallList(sky_lists+1);
+		glCallList(sky_lists);
 		glColor4f(1.0, 1.0, 1.0, day_alpha*0.5);
-		glCallList(sky_lists+2);
+		glCallList(sky_lists+1);
 		glColor4f(1.0, 1.0, 1.0, day_alpha*0.25);
-		glCallList(sky_lists+3);
+		glCallList(sky_lists+2);
 		glPopMatrix();
 	}
 	
@@ -2474,7 +2567,7 @@ void skybox_init_defs(const char *map_name)
 
 void skybox_init_gl()
 {
-	GLUquadricObj *qobj;
+/* 	GLUquadricObj *qobj; */
 	GLfloat randx,randy,randz;
 	int i;
 	float maxr;
@@ -2485,16 +2578,16 @@ void skybox_init_gl()
 	moon_tex=load_texture_cache("./textures/moonmap.bmp", 0);
 	sun_tex=load_texture_cache("./textures/BrightSun.bmp", 255);
 
-	sky_lists = glGenLists(4);
-	qobj = gluNewQuadric();
+	sky_lists = glGenLists(3);
 
-	gluQuadricOrientation(qobj, GLU_OUTSIDE);	
-	gluQuadricNormals(qobj, GLU_SMOOTH);
-	gluQuadricTexture(qobj, GL_TRUE);
-	glNewList(sky_lists, GL_COMPILE);
-	gluSphere(qobj, 1.0, 32, 16);
-	glEndList();
-	gluDeleteQuadric(qobj);
+/* 	qobj = gluNewQuadric(); */
+/* 	gluQuadricOrientation(qobj, GLU_OUTSIDE);	 */
+/* 	gluQuadricNormals(qobj, GLU_SMOOTH); */
+/* 	gluQuadricTexture(qobj, GL_TRUE); */
+/* 	glNewList(sky_lists, GL_COMPILE); */
+/* 	gluSphere(qobj, 1.0, 32, 16); */
+/* 	glEndList(); */
+/* 	gluDeleteQuadric(qobj); */
 
 	srand(0);
 	maxr = 1.0/RAND_MAX;
@@ -2522,7 +2615,7 @@ void skybox_init_gl()
 			strs[i][2]=randz;
 		}
 	}
-	glNewList(sky_lists+1,GL_COMPILE);
+	glNewList(sky_lists,GL_COMPILE);
 	glBegin(GL_POINTS);
 	for (i = 0; i < NUM_STARS/3; i++)
 	{
@@ -2530,7 +2623,7 @@ void skybox_init_gl()
 	}
 	glEnd();
 	glEndList();
-	glNewList(sky_lists+2,GL_COMPILE);
+	glNewList(sky_lists+1,GL_COMPILE);
 	glBegin(GL_POINTS);
 	for (i = 1*NUM_STARS/3; i < 2*NUM_STARS/3; i++)
 	{
@@ -2538,7 +2631,7 @@ void skybox_init_gl()
 	}
 	glEnd();
 	glEndList();
-	glNewList(sky_lists+3,GL_COMPILE);
+	glNewList(sky_lists+2,GL_COMPILE);
 	glBegin(GL_POINTS);
 	for (i = 2*NUM_STARS/3; i < NUM_STARS; i++)
 	{
@@ -2549,6 +2642,7 @@ void skybox_init_gl()
 
 	destroy_dome(&dome_sky);
 	destroy_dome(&dome_clouds);
+	destroy_sphere(&moon_mesh);
 	if (dome_clouds_detail_colors) free(dome_clouds_detail_colors);
 	if (dome_clouds_colors_bis) free(dome_clouds_colors_bis);
 	if (dome_clouds_detail_colors_bis) free(dome_clouds_detail_colors_bis);
@@ -2557,6 +2651,7 @@ void skybox_init_gl()
 
 	dome_sky = create_dome(24, 12, 500.0, 80.0, 90.0, 3.5, 1.0);
 	dome_clouds = create_dome(24, 12, 500.0, 80.0, 90.0, 2.0, 1.0);
+	moon_mesh = create_sphere(24, 12);
 	dome_clouds_detail_colors = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));
 	dome_clouds_detail_colors_bis = (GLfloat*)malloc(4*dome_clouds.vertices_count*sizeof(GLfloat));

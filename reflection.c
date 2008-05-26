@@ -572,7 +572,7 @@ void display_3d_reflection()
 	set_cur_intersect_type(main_bbox_tree, cur_intersect_type);
 
 #ifdef	USE_SHADER
-	if (water_shader_quality > 0)
+	if (use_frame_buffer && water_shader_quality > 0)
 #else	// USE_SHADER
 	if (use_frame_buffer)
 #endif	// USE_SHADER
@@ -718,7 +718,7 @@ void display_3d_reflection()
 	CHECK_GL_ERRORS();
 
 #ifdef	USE_SHADER
-	if (water_shader_quality > 0)
+	if (use_frame_buffer && water_shader_quality > 0)
 #else	// USE_SHADER
 	if (use_frame_buffer)
 #endif	// USE_SHADER
@@ -750,7 +750,7 @@ void blend_reflection_fog()
 {
 	static GLfloat blendColor[4] = { 1.0f, 1.0f, 1.0f, 0.0f };
 #ifdef	USE_SHADER
-	if (water_shader_quality > 0)
+	if (use_frame_buffer && water_shader_quality > 0)
 #else	// USE_SHADER
 	if (use_frame_buffer)
 #endif	// USE_SHADER
@@ -888,7 +888,7 @@ void draw_lake_tiles()
 	else water_id = tile_list[0];
 
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
 		if (!dungeon && shadows_on && is_day)
 		{
@@ -945,7 +945,7 @@ void draw_lake_tiles()
 	draw_water_quad_tiles(start, stop, 0, water_id);
 
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
 		setup_water_fbo_texgen();
 		CHECK_GL_ERRORS();
@@ -1052,7 +1052,7 @@ void draw_lake_tiles()
 	draw_water_quad_tiles(start, stop, water_buffer_reflectiv_index, water_id);
 
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
 		CHECK_GL_ERRORS();
 		disable_water_fbo_texgen();
@@ -1139,7 +1139,7 @@ void draw_sky_background()
 
 	glDisable(GL_TEXTURE_2D);
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
 #endif	// USE_SHADER
@@ -1200,7 +1200,7 @@ void draw_sky_background()
 		glBegin(GL_QUADS);
 
 #ifdef	USE_SHADER
-		if ((water_shader_quality > 0) && show_reflection)
+		if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
 		if (use_frame_buffer && show_reflection)
 #endif	// USE_SHADER
@@ -1231,7 +1231,7 @@ void draw_sky_background()
 
 	Leave2DMode();
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
 #endif	// USE_SHADER
@@ -1263,7 +1263,7 @@ void draw_dungeon_sky_background()
 
 	glDisable(GL_TEXTURE_2D);
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
 #endif	// USE_SHADER
@@ -1309,7 +1309,7 @@ void draw_dungeon_sky_background()
 	//draw the sky background
 
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
 #endif	// USE_SHADER
@@ -1331,7 +1331,7 @@ void draw_dungeon_sky_background()
 
 	Leave2DMode();
 #ifdef	USE_SHADER
-	if ((water_shader_quality > 0) && show_reflection)
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
 	if (use_frame_buffer && show_reflection)
 #endif	// USE_SHADER
