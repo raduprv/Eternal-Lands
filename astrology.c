@@ -1,5 +1,6 @@
 #include "astrology.h"
 #include "elwindows.h"
+#include "errors.h"
 #include "gamewin.h"
 #include "font.h"
 #include "textures.h"
@@ -66,6 +67,7 @@ int value1,value2,value3;
 char text_item1[50],text_item2[50],text_item3[50];
 ASTROLOGY_DISPLAY_TYPES astrology_display_type;
 ASTROLOGY_TYPES astrology_type;
+int capping_already_reported = 0;
 
 // forward declaration
 int display_astrology_handler (window_info *win);
@@ -286,11 +288,27 @@ void display_astrology_window()
 		select_window(astrology_win);
 	}
 	adjust_astrology_window();
+	capping_already_reported = 0;
 }
 
 float calculate_width_coefficient(int amplitude,int value,int invert)
 {
+	int capped_result = 1;
 	float Result = ((float)value / (float)amplitude);
+	
+	if (Result < -1.0)
+		Result = -1.0;
+	else if (Result > 1.0)
+		Result = 1.0;
+	else
+		capped_result = 0;
+	
+	if (capped_result && ! capping_already_reported)
+	{
+		LOG_ERROR("Warning: Capped astro for %s: amp=%d value=%d invert=%d\n", stone_name, amplitude, value, invert );
+		capping_already_reported = 1;
+	}
+	
 	if(!invert)
 		return Result;
 	else
