@@ -1368,7 +1368,7 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 	float fsinold = -1.0,fcosold = -1.0;
 	int shift;
 	float fsin,fcos;
-	int nobreak = TRUE;
+	int nobreak = 1;
 
 	glPushMatrix();
 
@@ -1411,20 +1411,20 @@ static __inline__ void draw_map(float zoom_multip, float px, float py)
 				fcos = cos((shift+ 180)*0.0174532925f)*radius_shift* zoom_multip + 1 - (py/float_minimap_size);
 				if((fsin >= 0.0f) && (fsin <= 1.0f) && (fcos >= 0.0f) && (fcos <= 1.0f))
 				{
-					nobreak = FALSE;
+					nobreak = 0;
 					break;
 				}
 			}
 		}
 		else
 		{
-			nobreak = FALSE;
+			nobreak = 0;
 			shift = 0;
 		}
 		
-		if(nobreak == TRUE) //we didn't find an appropriate starting shift.
+		if(nobreak) //we didn't find an appropriate starting shift.
 		{ // this means there map is zoomed out too much and all of it should be drawn
-			zoom_multip = minimap_get_zoom(TRUE);
+			zoom_multip = minimap_get_zoom(1);
 			rotate_at_player(zoom_multip,px,py);
 			glBegin(GL_QUADS);
 				glTexCoord2f(0.0f, 0.0f);
