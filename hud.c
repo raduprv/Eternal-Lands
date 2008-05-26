@@ -106,6 +106,9 @@ static int cm_quickbar_enabled = 0;
 static int cm_sound_enabled = 0;
 static int cm_music_enabled = 0;
 static int cm_minimap_shown = 0;
+enum {	CMH_STATS=0, CMH_STATBARS, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_FPS,
+		CMH_MINIMAP, CMH_QUICKBM, CMH_SEP1, CMH_SOUND, CMH_MUSIC };
+enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 #endif
 
 int hud_x= 64;
@@ -1020,18 +1023,18 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 {
 	switch (option)
 	{
-		case 0: set_var_unsaved("show_stats_in_hud", OPT_BOOL); break;
-		case 1: set_var_unsaved("show_statbars_in_hud", OPT_BOOL); break;
-		case 2: set_var_unsaved("view_digital_clock", OPT_BOOL); break;
-		case 3: set_var_unsaved("view_analog_clock", OPT_BOOL); break;
-		case 4: set_var_unsaved("show_fps", OPT_BOOL); break;
-		case 5: view_window(&minimap_win, 0); break;
+		case CMH_STATS: set_var_unsaved("show_stats_in_hud", OPT_BOOL); break;
+		case CMH_STATBARS: set_var_unsaved("show_statbars_in_hud", OPT_BOOL); break;
+		case CMH_DIGCLOCK: set_var_unsaved("view_digital_clock", OPT_BOOL); break;
+		case CMH_ANACLOCK: set_var_unsaved("view_analog_clock", OPT_BOOL); break;
+		case CMH_FPS: set_var_unsaved("show_fps", OPT_BOOL); break;
+		case CMH_MINIMAP: view_window(&minimap_win, 0); break;
 #ifdef NEW_SOUND
-		case 8: toggle_sounds(&sound_opts); set_var_unsaved("enable_sounds", OPT_BOOL); break;
+		case CMH_SOUND: toggle_sounds(&sound_opts); set_var_unsaved("enable_sounds", OPT_BOOL); break;
 #else
-		case 8: toggle_sounds(&sound_on); set_var_unsaved("enable_sounds", OPT_BOOL); break;
+		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sounds", OPT_BOOL); break;
 #endif
-		case 9: toggle_music(&music_on); set_var_unsaved("enable_music", OPT_BOOL); break;
+		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", OPT_BOOL); break;
 	}
 	return 1;
 }
@@ -1040,10 +1043,10 @@ static int context_quickbar_handler(window_info *win, int widget_id, int mx, int
 {
 	switch (option)
 	{
-		case 0: set_var_unsaved("relocate_quickbar", OPT_BOOL); break;
-		case 1: quickbar_draggable ^= 1; toggle_quickbar_draggable(); break;
-		case 2: reset_quickbar(); break;
-		case 3: flip_quickbar(); break;
+		case CMQB_RELOC: set_var_unsaved("relocate_quickbar", OPT_BOOL); break;
+		case CMQB_DRAG: quickbar_draggable ^= 1; toggle_quickbar_draggable(); break;
+		case CMQB_RESET: reset_quickbar(); break;
+		case CMQB_FLIP: flip_quickbar(); break;
 	}
 	return 1;
 }
@@ -1072,15 +1075,15 @@ void init_misc_display(hud_interface type)
 			set_window_handler(misc_win, ELW_HANDLER_MOUSEOVER, &mouseover_misc_handler );
 #ifdef CONTEXT_MENUS
 			cm_hud_id = cm_create(cm_hud_menu_str, context_hud_handler);
-			cm_bool_line(cm_hud_id, 0, &show_stats_in_hud);
-			cm_bool_line(cm_hud_id, 1, &show_statbars_in_hud);
-			cm_bool_line(cm_hud_id, 2, &view_digital_clock);
-			cm_bool_line(cm_hud_id, 3, &view_analog_clock);
-			cm_bool_line(cm_hud_id, 4, &show_fps);
-			cm_bool_line(cm_hud_id, 5, &cm_minimap_shown);
-			cm_bool_line(cm_hud_id, 6, &cm_quickbar_enabled);
-			cm_bool_line(cm_hud_id, 8, &cm_sound_enabled);
-			cm_bool_line(cm_hud_id, 9, &cm_music_enabled);
+			cm_bool_line(cm_hud_id, CMH_STATS, &show_stats_in_hud);
+			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud);
+			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock);
+			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock);
+			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps);
+			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown);
+			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled);
+			cm_bool_line(cm_hud_id, CMH_SOUND, &cm_sound_enabled);
+			cm_bool_line(cm_hud_id, CMH_MUSIC, &cm_music_enabled);
 			cm_add_window(cm_hud_id, misc_win);
 			cm_set_pre_show_handler(cm_hud_id, context_hud_pre_show_handler);
 #endif
@@ -1091,10 +1094,11 @@ void init_misc_display(hud_interface type)
 		}
 	
 #ifdef CONTEXT_MENUS
-	cm_grey_line(cm_hud_id, 0, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, 1, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, 4, (type == HUD_INTERFACE_NEW_CHAR));
-	cm_grey_line(cm_hud_id, 5, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, CMH_STATS, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, CMH_STATBARS, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, CMH_FPS, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, CMH_MINIMAP, (type == HUD_INTERFACE_NEW_CHAR));
+	cm_grey_line(cm_hud_id, CMH_QUICKBM, (type == HUD_INTERFACE_NEW_CHAR));
 #endif
 		
 	/* store references to the skills info in an easy to use array */
@@ -1503,9 +1507,9 @@ void init_quickbar ()
 
 #ifdef CONTEXT_MENUS		
 		cm_quickbar_id = cm_create(cm_quickbar_menu_str, context_quickbar_handler);
-		cm_bool_line(cm_quickbar_id, 0, &quickbar_relocatable);
-		cm_bool_line(cm_quickbar_id, 1, &quickbar_draggable);
-		cm_bool_line(cm_quickbar_id, 4, &cm_quickbar_enabled);
+		cm_bool_line(cm_quickbar_id, CMQB_RELOC, &quickbar_relocatable);
+		cm_bool_line(cm_quickbar_id, CMQB_DRAG, &quickbar_draggable);
+		cm_bool_line(cm_quickbar_id, CMQB_ENABLE, &cm_quickbar_enabled);
 #endif
 	}
 	else
