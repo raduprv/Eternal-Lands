@@ -58,7 +58,6 @@ namespace ec
 
 				const alpha_t scalar =
 					math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
-				const Uint64 age = get_time() - born;
 				const float age_f = (float)(age)/1000000.0f;
 				alpha *= scalar;
 				velocity.x *= 1.0f / (1.0f + age_f);
@@ -100,7 +99,6 @@ namespace ec
 			}
 			case HarvestingEffect::BEES:
 			{
-				const Uint64 age = get_time() - born;
 				const float age_f = (float)(age)/1000000.0f;
 				if (age_f < 2.5f)
 					break;

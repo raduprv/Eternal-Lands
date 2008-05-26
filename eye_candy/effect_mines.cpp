@@ -334,20 +334,32 @@ namespace ec
 			case DETONATE_TYPE1_MEDIUM:
 			case DETONATE_TYPE1_LARGE:
 			{
-				float i;
-				spawner = new HollowSphereSpawner(0.1);
+				spawner = new FilledSphereSpawner(0.1);
 				mover = new ParticleMover(this);
-				i = (type == DETONATE_TYPE1_SMALL ? 0.5 : type
-					== DETONATE_TYPE1_MEDIUM ? 0.8 : 3.0);
-				while ((int)particles.size() < LOD * 100)
+				const float scale = (type == DETONATE_TYPE1_SMALL ? 0.75 : type
+					== DETONATE_TYPE1_MEDIUM ? 1.25 : 2.0);
+				for (int i = 0; i < LOD * 200 * scale; i++)
 				{
 					Vec3 coords = spawner->get_new_coords();
-					Vec3 velocity = coords * 150;
-					velocity.y *= 2;
+					Vec3 velocity = coords * 10.0 * sqrt(scale);
+					velocity.y = fabs(velocity.y) * 3.0f;
 					coords += effect_center;
 					coords.y -= 0.1;
-					Particle * p = new MineParticle(this, mover, coords, velocity, i, 1, 0.9, 0.5, 0.3, &(base->TexFlare), LOD, type);
-					p->state = 1;
+					Particle * p = new MineParticleFire(this, mover, coords, velocity, 0.5, 1.0, 1.0, randcolor(0.75), 0.0, &(base->TexFlare), LOD);
+					if (!base->push_back_particle(p))
+						break;
+				}
+				spawner = new FilledSphereSpawner(0.5 * fastsqrt(scale));
+				for (int i = 0; i < LOD * 50 * scale; i++)
+				{
+					Vec3 coords = spawner->get_new_coords();
+					Vec3 velocity;
+					coords += effect_center;
+					float grey = randcolor(0.25) + 0.125f;
+					velocity.randomize();
+					velocity.normalize(0.25 * scale);
+					velocity.y = fabs(velocity.y) * 6.0f;
+					Particle *p = new MineParticleSmoke(this, mover, coords, velocity, 5.0 + randcoord(2.0 * scale), 0.0, grey, grey, grey, &(base->TexSimple), LOD);
 					if (!base->push_back_particle(p))
 						break;
 				}
@@ -382,6 +394,101 @@ namespace ec
 		gravity_center.y += usec / 10000000.0;
 
 		return true;
+	}
+	
+	MineParticleFire::MineParticleFire(Effect* _effect, ParticleMover* _mover,
+		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
+		const alpha_t _alpha, const color_t red, const color_t green,
+		const color_t blue, Texture* _texture, const Uint16 _LOD) :
+		Particle(_effect, _mover, _pos, _velocity)
+	{
+		color[0] = red;
+		color[1] = green;
+		color[2] = blue;
+		texture = _texture;
+		size = _size;
+		alpha = _alpha;
+		flare_max = 5.0;
+		flare_exp = 0.5;
+		flare_frequency = 0.01;
+		LOD = _LOD;
+		state = 0;
+	}
+
+	bool MineParticleFire::idle(const Uint64 delta_t)
+	{
+		const interval_t float_time = delta_t / 1000000.0;
+		const Uint64 age = get_time() - born;
+		const float age_f = (float)(age)/1000000.0f;
+		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time * 2);
+		if (age_f > 1.5)
+			alpha = 2.5 - age_f;
+		if (alpha < 0.01)
+			return false;
+		velocity *= scalar;
+		return true;
+	}
+
+	GLuint MineParticleFire::get_texture(const Uint16 res_index)
+	{
+		return texture->get_texture(res_index);
+	}
+
+
+	MineParticleSmoke::MineParticleSmoke(Effect* _effect, ParticleMover* _mover,
+		const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
+		const alpha_t _alpha, const color_t red, const color_t green,
+		const color_t blue, Texture* _texture, const Uint16 _LOD) :
+		Particle(_effect, _mover, _pos, _velocity)
+	{
+		color[0] = red;
+		color[1] = green;
+		color[2] = blue;
+		texture = _texture;
+		size = _size;
+		alpha = _alpha;
+		flare_max = 1.0;
+		flare_exp = 1.0;
+		flare_frequency = 100.0;
+		LOD = _LOD;
+		state = 0;
+	}
+
+	bool MineParticleSmoke::idle(const Uint64 delta_t)
+	{
+		if (state == 0) {
+			const Uint64 age = get_time() - born;
+			const float age_f = (float)(age)/1000000.0f;
+			alpha = age_f * 0.125;
+			if (age_f > 0.25) {
+				state = 1;
+				alpha = randalpha(0.375);
+			}
+			return true;
+		}
+		const interval_t float_time = delta_t / 1000000.0;
+		const alpha_t scalar = math_cache.powf_0_1_rough_close(randfloat(), float_time);
+		alpha *= fastsqrt(scalar);
+		if (alpha < 0.01)
+			return false;
+		return true;
+	}
+
+	GLuint MineParticleSmoke::get_texture(const Uint16 res_index)
+	{
+		return texture->get_texture(res_index);
+	}
+
+	void MineParticleSmoke::draw(const Uint64 usec)
+	{
+		glEnable(GL_LIGHTING);
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+		glNormal3f(0.0, 1.0, 0.0);
+		Particle::draw(usec);
+
+		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+		glDisable(GL_LIGHTING);
 	}
 
 ///////////////////////////////////////////////////////////////////////////////

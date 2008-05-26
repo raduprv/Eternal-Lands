@@ -88,6 +88,51 @@ namespace ec
 			MineEffect::MineType type;
 	};
 
+	class MineParticleFire : public Particle
+	{
+		public:
+			MineParticleFire(Effect* _effect, ParticleMover* _mover,
+				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
+				const alpha_t _alpha, const color_t red, const color_t green,
+				const color_t blue, Texture* _texture, const Uint16 _LOD);
+			~MineParticleFire()
+			{
+			}
+
+			virtual bool idle(const Uint64 delta_t);
+			virtual GLuint get_texture(const Uint16 res_index);
+			virtual light_t estimate_light_level() const
+			{
+				return 0.0015;
+			}
+
+			Texture* texture;
+			Uint16 LOD;
+	};
+
+	class MineParticleSmoke : public Particle
+	{
+		public:
+			MineParticleSmoke(Effect* _effect, ParticleMover* _mover,
+				const Vec3 _pos, const Vec3 _velocity, const coord_t _size,
+				const alpha_t _alpha, const color_t red, const color_t green,
+				const color_t blue, Texture* _texture, const Uint16 _LOD);
+			~MineParticleSmoke()
+			{
+			}
+
+			virtual bool idle(const Uint64 delta_t);
+			void draw(const Uint64 usec);
+			virtual GLuint get_texture(const Uint16 res_index);
+			virtual light_t estimate_light_level() const
+			{
+				return 0.0015;
+			}
+
+			Texture* texture;
+			Uint16 LOD;
+	};
+
 ///////////////////////////////////////////////////////////////////////////////
 
 } // End namespace ec
