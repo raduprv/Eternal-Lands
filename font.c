@@ -1,11 +1,11 @@
 #include <stdlib.h>
 #include <string.h>
-  #ifdef _MSC_VER
+  #ifdef WINDOWS
     #include <io.h>
-  #else //!_MSC_VER
+  #else //!WINDOWS
     #include <glob.h>
     #include <unistd.h>
-  #endif //_MSC_VER
+  #endif //WINDOWS
 #include "font.h"
 #include "asc.h"
 #include "chat.h"
@@ -1325,14 +1325,14 @@ int load_font_textures ()
 	int poor_man_save=poor_man;
 	int use_mipmaps_save=use_mipmaps;
 	size_t i = 0;
-#ifdef _MSC_VER
+#ifdef WINDOWS
 	struct _finddata_t c_file;
 	long hFile;
-#else //_MSC_VER
+#else //WINDOWS
 	int ret;
 	glob_t glob_res;
 	size_t j;
-#endif //_MSC_VER
+#endif //WINDOWS
 	char file[60] = "";
 	char str[60] = "";
 	
@@ -1355,7 +1355,7 @@ int load_font_textures ()
 	add_multi_option("chat_font", "Type 1");
 	add_multi_option("name_font", "Type 1");
 	// Find what font's exist and load them
-#ifdef _MSC_VER
+#ifdef WINDOWS
 	chdir("./textures/");
 	if( (hFile = _findfirst( "font*.bmp", &c_file )) == -1L ){
 		chdir("..");
@@ -1365,7 +1365,7 @@ int load_font_textures ()
 		int	len;
 		
 		safe_strncpy(file, c_file.name, sizeof(file));
-#else //!_MSC_VER
+#else //!WINDOWS
 	ret = glob("./textures/font*.bmp*", 0, NULL, &glob_res);
 	if(ret != 0) {
 		log_error("Unable to find any font textures\n");
@@ -1376,17 +1376,13 @@ int load_font_textures ()
 		int	len;
 		
 		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1, sizeof(file));
-#endif //_MSC_VER
+#endif //WINDOWS
 		len= strlen(file);
-		if (len + strlen("./textures/") <= sizeof(str) && !strncasecmp(file, "font", 4) 
+		if (len+sizeof(texture_dir)-1 < sizeof(str) && !strncasecmp(file, "font", 4) 
 				&& (has_suffix(file, len, ".bmp", 4) || has_suffix(file, len, ".bmp.gz", 7))
 				&& (!has_suffix(file, len, "_alpha.bmp", 10)) && (!has_suffix(file, len, "_alpha.bmp.gz", 13))) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
-#ifdef _MSC_VER
-			safe_strncpy(str, file, sizeof(str));
-#else //!_MSC_VER
 			safe_snprintf(str, sizeof(str), "./textures/%s", file);
-#endif //!_MSC_VER
 			if(has_suffix(file, len, ".bmp.gz", 7)){
 				file[len - 7]= 0;
 			} else {
@@ -1398,17 +1394,17 @@ int load_font_textures ()
 			add_multi_option("name_font", font_names[i]);
 			i++;
 		}
-#ifndef _MSC_VER
+#ifndef WINDOWS
 		j++;
-#endif //_MSC_VER
+#endif //WINDOWS
 	}
-#ifdef _MSC_VER
+#ifdef WINDOWS
 	while ( _findnext( hFile, &c_file ) == 0 );
 	_findclose( hFile );
 	chdir("..");
-#else //!_MSC_VER
+#else //!WINDOWS
 	globfree(&glob_res);
-#endif //_MSC_VER
+#endif //WINDOWS
 	
 	poor_man=poor_man_save;
 	use_mipmaps=use_mipmaps_save;
