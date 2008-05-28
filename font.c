@@ -3,7 +3,7 @@
   #ifdef _MSC_VER
     #include <io.h>
   #else //!_MSC_VER
-    #include <dirent.h>
+    #include <glob.h>
     #include <unistd.h>
   #endif //_MSC_VER
 #include "font.h"
@@ -1319,17 +1319,19 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
+static const char texture_dir[] = "./textures/";
 int load_font_textures ()
 {
 	int poor_man_save=poor_man;
 	int use_mipmaps_save=use_mipmaps;
-	int i = 0;
+	size_t i = 0;
 #ifdef _MSC_VER
 	struct _finddata_t c_file;
 	long hFile;
-#else //!_MSC_VER
-	DIR *dp;
-	struct dirent *ep;
+#else //_MSC_VER
+	int ret;
+	glob_t glob_res;
+	size_t j;
 #endif //_MSC_VER
 	char file[60] = "";
 	char str[60] = "";
@@ -1364,14 +1366,16 @@ int load_font_textures ()
 		
 		safe_strncpy(file, c_file.name, sizeof(file));
 #else //!_MSC_VER
-	dp = opendir ("./textures/");
-	if (dp == NULL) {
+	ret = glob("./textures/font*.bmp*", 0, NULL, &glob_res);
+	if(ret != 0) {
+		log_error("Unable to find any font textures\n");
 		return 0;
 	}
-	while ((ep = readdir (dp)) && i < FONTS_ARRAY_SIZE) {
+	j = 0;
+	while (j < glob_res.gl_pathc && i < FONTS_ARRAY_SIZE) {
 		int	len;
 		
-		safe_strncpy(file, ep->d_name, sizeof(file));
+		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1, sizeof(file));
 #endif //_MSC_VER
 		len= strlen(file);
 		if (len + strlen("./textures/") <= sizeof(str) && !strncasecmp(file, "font", 4) 
@@ -1394,13 +1398,16 @@ int load_font_textures ()
 			add_multi_option("name_font", font_names[i]);
 			i++;
 		}
+#ifndef _MSC_VER
+		j++;
+#endif //_MSC_VER
 	}
 #ifdef _MSC_VER
 	while ( _findnext( hFile, &c_file ) == 0 );
 	_findclose( hFile );
 	chdir("..");
 #else //!_MSC_VER
- 	(void) closedir (dp);
+	globfree(&glob_res);
 #endif //_MSC_VER
 	
 	poor_man=poor_man_save;
