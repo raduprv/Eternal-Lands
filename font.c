@@ -1319,12 +1319,13 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-static const char texture_dir[] = "./textures/";
+static const char texture_dir[] = "textures/";
 int load_font_textures ()
 {
 	int poor_man_save=poor_man;
 	int use_mipmaps_save=use_mipmaps;
 	size_t i = 0;
+	char *glob_pattern;
 #ifdef WINDOWS
 	struct _finddata_t c_file;
 	long hFile;
@@ -1355,10 +1356,11 @@ int load_font_textures ()
 	add_multi_option("chat_font", "Type 1");
 	add_multi_option("name_font", "Type 1");
 	// Find what font's exist and load them
+	glob_pattern = malloc(strlen(datadir)+sizeof(texture_dir)+10+1); //+10 = font*.bmp*
+	sprintf(glob_pattern, "%s%sfont*.bmp*", datadir, texture_dir);
 #ifdef WINDOWS
-	chdir("./textures/");
-	if( (hFile = _findfirst( "font*.bmp", &c_file )) == -1L ){
-		chdir("..");
+	if( (hFile = _findfirst( glob_pattern, &c_file )) == -1L ){
+		free(glob_pattern);
 		return 0;
 	}
 	do {
@@ -1366,23 +1368,24 @@ int load_font_textures ()
 		
 		safe_strncpy(file, c_file.name, sizeof(file));
 #else //!WINDOWS
-	ret = glob("./textures/font*.bmp*", 0, NULL, &glob_res);
+	ret = glob(glob_pattern, 0, NULL, &glob_res);
 	if(ret != 0) {
 		log_error("Unable to find any font textures\n");
+		free(glob_pattern);
 		return 0;
 	}
 	j = 0;
 	while (j < glob_res.gl_pathc && i < FONTS_ARRAY_SIZE) {
 		int	len;
 		
-		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1, sizeof(file));
+		safe_strncpy(file, glob_res.gl_pathv[j]+sizeof(texture_dir)-1+strlen(datadir), sizeof(file));
 #endif //WINDOWS
 		len= strlen(file);
 		if (len+sizeof(texture_dir)-1 < sizeof(str) && !strncasecmp(file, "font", 4) 
 				&& (has_suffix(file, len, ".bmp", 4) || has_suffix(file, len, ".bmp.gz", 7))
 				&& (!has_suffix(file, len, "_alpha.bmp", 10)) && (!has_suffix(file, len, "_alpha.bmp.gz", 13))) {
 			// Get the filename, remove the .bmp and add _alpha.bmp to a copy, then replace the .bmp
-			safe_snprintf(str, sizeof(str), "./textures/%s", file);
+			safe_snprintf(str, sizeof(str), "./textures/%s", file); //Use a relative path here, load_texture_cache_deferred() is using the path wrappers.
 			if(has_suffix(file, len, ".bmp.gz", 7)){
 				file[len - 7]= 0;
 			} else {
@@ -1401,10 +1404,10 @@ int load_font_textures ()
 #ifdef WINDOWS
 	while ( _findnext( hFile, &c_file ) == 0 );
 	_findclose( hFile );
-	chdir("..");
 #else //!WINDOWS
 	globfree(&glob_res);
 #endif //WINDOWS
+	free(glob_pattern);
 	
 	poor_man=poor_man_save;
 	use_mipmaps=use_mipmaps_save;
