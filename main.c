@@ -179,11 +179,15 @@ int start_rendering()
 			}
 #endif // SKY_FPV
 
+#ifdef NEW_WEATHER
+			weather_sound_control();
+#endif // NEW_WEATHER
+
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
 #ifdef NEW_WEATHER
-				weather_update();
-				weather_sound_control();
+				if (skybox_update_delay < 1)
+					weather_update();
 #endif // NEW_WEATHER
 
                 animate_actors();

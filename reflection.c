@@ -667,7 +667,7 @@ void display_3d_reflection()
 	if (far_reflection_plane > 0.0)
 	{
 #ifdef NEW_WEATHER
-		weather_init_thunder_light();
+		weather_init_lightning_render();
 #endif // NEW_WEATHER
 #endif // SKY_FPV
 
@@ -697,7 +697,7 @@ void display_3d_reflection()
 	glLoadMatrixd(skybox_view);
 	glMatrixMode(GL_MODELVIEW);
 
-	weather_render_thunder();
+	weather_render_lightning();
 
 	glMatrixMode(GL_PROJECTION);
 	glPopMatrix();
@@ -708,7 +708,7 @@ void display_3d_reflection()
 
 #ifdef SKY_FPV
 #ifdef NEW_WEATHER
-		weather_cleanup_thunder_light();
+		weather_cleanup_lightning_render();
 #endif // NEW_WEATHER
 	}
 #endif // SKY_FPV

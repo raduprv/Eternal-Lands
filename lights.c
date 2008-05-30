@@ -1001,7 +1001,7 @@ void new_minute()
 
 #ifdef SKY_FPV
 	skybox_update_positions();
-	if (!skybox_update_every_frame)
+	if (skybox_update_delay > 0)
 		skybox_update_colors();
 #endif // SKY_FPV
 }
@@ -1009,31 +1009,44 @@ void new_minute()
 #ifdef SKY_FPV
 void new_second()
 {
-	int cur_min = (game_minute+330)%360;
-	int next_min = (game_minute+331)%360;
-	float ratio2 = (float)game_second/60.0;
-	float ratio1 = 1.0 - ratio2;
-	
 	if (!freeze_time) game_second = real_game_second;
 
-	sun_position[0] = sun_pos[cur_min].x * ratio1 + sun_pos[next_min].x * ratio2;
-	sun_position[1] = sun_pos[cur_min].y * ratio1 + sun_pos[next_min].y * ratio2;
-	sun_position[2] = sun_pos[cur_min].z * ratio1 + sun_pos[next_min].z * ratio2;
-	sun_position[3] = sun_pos[cur_min].w * ratio1 + sun_pos[next_min].w * ratio2;
-	
-	if (is_day)
+#ifdef NEW_WEATHER
+	if (skybox_update_delay > 0)
+		weather_update();
+#endif // NEW_WEATHER
+
+	if (skybox_update_delay < 1 || real_game_second % skybox_update_delay == 0)
 	{
-		skybox_sun_position[0] = sun_show[cur_min].x * ratio1 + sun_show[next_min].x * ratio2;
-		skybox_sun_position[1] = sun_show[cur_min].y * ratio1 + sun_show[next_min].y * ratio2;
-		skybox_sun_position[2] = sun_show[cur_min].z * ratio1 + sun_show[next_min].z * ratio2;
-		skybox_sun_position[3] = sun_show[cur_min].w * ratio1 + sun_show[next_min].w * ratio2;
-		if (real_game_second % seconds_between_shadows_updates == 0)
+		int cur_min = (game_minute+330)%360;
+		int next_min = (game_minute+331)%360;
+		float ratio2 = (float)game_second/60.0;
+		float ratio1 = 1.0 - ratio2;
+			
+		sun_position[0] = sun_pos[cur_min].x * ratio1 + sun_pos[next_min].x * ratio2;
+		sun_position[1] = sun_pos[cur_min].y * ratio1 + sun_pos[next_min].y * ratio2;
+		sun_position[2] = sun_pos[cur_min].z * ratio1 + sun_pos[next_min].z * ratio2;
+		sun_position[3] = sun_pos[cur_min].w * ratio1 + sun_pos[next_min].w * ratio2;
+		
+		if (is_day)
+		{
+			skybox_sun_position[0] = sun_show[cur_min].x * ratio1 + sun_show[next_min].x * ratio2;
+			skybox_sun_position[1] = sun_show[cur_min].y * ratio1 + sun_show[next_min].y * ratio2;
+			skybox_sun_position[2] = sun_show[cur_min].z * ratio1 + sun_show[next_min].z * ratio2;
+			skybox_sun_position[3] = sun_show[cur_min].w * ratio1 + sun_show[next_min].w * ratio2;
 			calc_shadow_matrix();
+		}
+		
+		skybox_update_positions();
+		if (skybox_update_delay > 0)
+			skybox_update_colors();
 	}
-	
-	skybox_update_positions();
-	if (!skybox_update_every_frame)
+#ifdef NEW_WEATHER
+	else if (skybox_update_delay > 1 && weather_get_intensity() > 0.0)
+	{
 		skybox_update_colors();
+	}
+#endif // NEW_WEATHER
 }
 #endif // SKY_FPV
 

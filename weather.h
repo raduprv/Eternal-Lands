@@ -23,13 +23,13 @@ extern int use_fog;			/*!< Whether we are using fog or not */
 
 /* N E W   W E A T H E R *****************************************************/
 
-#define MAX_WEATHER_TYPES 20 // including NONE
+#define MAX_WEATHER_TYPES 10 // including NONE
 #define MAX_WEATHER_AREAS 10
 
 extern float weather_color[];
-extern float thunder_color[];
-extern float thunder_position[];
-extern int thunder_falling;
+extern float lightning_color[];
+extern float lightning_position[];
+extern int lightning_falling;
 
 void weather_init();
 void weather_clear();
@@ -47,11 +47,11 @@ float weather_get_density();
 float weather_get_density_from_ratios(float ratios[MAX_WEATHER_TYPES]);
 void weather_get_color_from_ratios(float color[4], float ratios[MAX_WEATHER_TYPES]);
 
-void weather_add_thunder(int type, float x, float y);
-void weather_init_thunder_light();
-void weather_cleanup_thunder_light();
-void weather_render_thunder();
-float weather_get_thunder_intensity(float x, float y);
+void weather_add_lightning(int type, float x, float y);
+void weather_init_lightning_render();
+void weather_cleanup_lightning_render();
+void weather_render_lightning();
+float weather_get_lightning_intensity(float x, float y);
 
 void weather_sound_control();
 

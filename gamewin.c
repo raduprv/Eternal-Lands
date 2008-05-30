@@ -1082,7 +1082,7 @@ int display_game_handler (window_info *win)
 #ifdef SKY_FPV
 		if (skybox_show_sky)
         {
-			if (skybox_update_every_frame)
+			if (skybox_update_delay < 1)
 				skybox_update_colors();
 			skybox_compute_z_position();
             glPushMatrix();
@@ -1140,7 +1140,7 @@ int display_game_handler (window_info *win)
 		missiles_update();
 	
 #ifdef NEW_WEATHER
-		weather_init_thunder_light();
+		weather_init_lightning_render();
 #endif // NEW_WEATHER
 
 #ifdef NEW_LIGHTING
@@ -1193,13 +1193,13 @@ int display_game_handler (window_info *win)
 		glLoadMatrixd(skybox_view);
 		glMatrixMode(GL_MODELVIEW);
 
-		weather_render_thunder();
+		weather_render_lightning();
 
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 
-		weather_cleanup_thunder_light();
+		weather_cleanup_lightning_render();
 #endif // NEW_WEATHER
 
 		CHECK_GL_ERRORS ();
@@ -1675,7 +1675,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #ifndef NEW_WEATHER
 		add_thunder(rand()%5,1+rand()%5);
 #else // NEW_WEATHER
-		weather_add_thunder(rand()%5, -camera_x-100+rand()%200, -camera_y-100+rand()%200);
+		weather_add_lightning(rand()%5, -camera_x-100+rand()%200, -camera_y-100+rand()%200);
 #endif // NEW_WEATHER
 	}
 	else if((keysym == SDLK_w) && shift_on && ctrl_on && alt_on)

@@ -1725,11 +1725,11 @@ GLuint load_bmp8_fixed_alpha_with_transparent_color(texture_cache_struct * tex_c
 
 	set_texture_filter_parameter();
 
-#ifndef SKY_FPV_CURSOR
+#ifndef NEW_CURSOR
 	if (have_extension(arb_texture_compression))
-#else /* SKY_FPV_CURSOR */
+#else // NEW_CURSOR
 	if(have_extension(arb_texture_compression)&&compression_enabled)
-#endif /* SKY_FPV_CURSOR */
+#endif // NEW_CURSOR
 	{
 		if (have_extension(ext_texture_compression_s3tc))
 		{

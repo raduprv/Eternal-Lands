@@ -284,7 +284,7 @@ int display_newchar_handler (window_info *win)
 #ifdef SKY_FPV
 		if (skybox_show_sky)
         {
-			if (skybox_update_every_frame)
+			if (skybox_update_delay < 1)
 				skybox_update_colors();
             skybox_compute_z_position();
             glPushMatrix();
@@ -318,7 +318,7 @@ int display_newchar_handler (window_info *win)
 		CHECK_GL_ERRORS ();
 
 #ifdef NEW_WEATHER
-		weather_init_thunder_light();
+		weather_init_lightning_render();
 #endif // NEW_WEATHER
 
 		if (shadows_on && is_day) {
@@ -344,13 +344,13 @@ int display_newchar_handler (window_info *win)
 		glLoadMatrixd(skybox_view);
 		glMatrixMode(GL_MODELVIEW);
 
-		weather_render_thunder();
+		weather_render_lightning();
 
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
 
-		weather_cleanup_thunder_light();
+		weather_cleanup_lightning_render();
 #endif // NEW_WEATHER
 
 		CHECK_GL_ERRORS ();

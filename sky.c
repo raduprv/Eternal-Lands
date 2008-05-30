@@ -649,7 +649,7 @@ void update_cloudy_sky_colors()
 	float abs_light;
 	float *normal, ml1, ml2;
 #ifdef NEW_WEATHER
-	float x, y, th;
+	float x, y, lg;
 #endif // NEW_WEATHER
 
 	abs_light = light_level;
@@ -712,10 +712,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_sky.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, skybox_fog_color, color_sun, get_fog_sunlight(normal), 3);
 
@@ -724,9 +720,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -744,10 +744,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_clouds.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		ml2 = get_moonlight2(normal)*0.2*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
 
@@ -756,9 +752,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -776,10 +776,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_clouds.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.3*day_alpha;
 		ml2 = get_moonlight2(normal)*0.2*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(normal), 3);
 
@@ -787,10 +783,14 @@ void update_cloudy_sky_colors()
 		color[0] *= (1.0 - rain_coef) + rain_coef*weather_color[0];
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
-
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -811,11 +811,6 @@ void update_cloudy_sky_colors()
 	skybox_blend_current_colors(color_sun, skybox_clouds_detail_sunny, skybox_clouds_detail_rainy, rain_coef);
     while (i < dome_clouds.slices_count * 2)
     {
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
-
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
 
 #ifdef NEW_WEATHER
@@ -823,9 +818,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_clouds_detail_colors[idx] = color[0];
@@ -840,11 +839,6 @@ void update_cloudy_sky_colors()
     }
     while (i < dome_clouds.vertices_count)
     {
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
-
 		blend_colors(color, color_sky, color_sun, get_clouds_sunlight(&dome_clouds.normals[i*3]), 3);
 
 #ifdef NEW_WEATHER
@@ -852,9 +846,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_clouds_detail_colors[idx] = color[0];
@@ -879,10 +877,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_sky.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
@@ -891,9 +885,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -911,10 +909,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_sky.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
@@ -923,9 +917,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -943,10 +941,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_sky.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
@@ -955,9 +949,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -975,10 +973,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_sky.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
@@ -987,9 +981,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -1006,10 +1004,6 @@ void update_cloudy_sky_colors()
 		normal = &dome_sky.normals[i*3];
 		ml1 = get_moonlight1(normal)*0.15*day_alpha;
 		ml2 = get_moonlight2(normal)*0.1*day_alpha;
-#ifdef NEW_WEATHER
-		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
-		th = weather_get_thunder_intensity(x-camera_x, y-camera_y);
-#endif // NEW_WEATHER
 
 		blend_colors(color, color_sky, color_sun, get_sky_sunlight(normal), 3);
 
@@ -1018,9 +1012,13 @@ void update_cloudy_sky_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*weather_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*weather_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		if (lightning_falling) {
+			skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
+			lg = weather_get_lightning_intensity(x-camera_x, y-camera_y);
+			color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+			color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+			color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
+		}
 #endif // NEW_WEATHER
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
@@ -1049,7 +1047,7 @@ void update_cloudy_sky_local_colors()
 	GLfloat local_color[4];
 	float abs_light;
 	float ratios[MAX_WEATHER_TYPES];
-	float *normal, ml1, ml2, x, y, th;
+	float *normal, ml1, ml2, x, y, lg;
 
 	abs_light = light_level;
 	if(light_level > 59)
@@ -1110,7 +1108,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1125,9 +1123,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		fog_colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		fog_colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1146,7 +1144,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1163,9 +1161,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_clouds_colors_bis[idx++] = color[0];
@@ -1186,7 +1184,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_clouds, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1203,9 +1201,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		dome_clouds.colors[idx] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_clouds_colors_bis[idx++] = color[0];
@@ -1291,7 +1289,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1308,9 +1306,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1329,7 +1327,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1346,9 +1344,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1367,7 +1365,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1384,9 +1382,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1405,7 +1403,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1422,9 +1420,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];
@@ -1442,7 +1440,7 @@ void update_cloudy_sky_local_colors()
 		skybox_vertex_to_ground_coords(&dome_sky, i, &x, &y);
 		x -= camera_x;
 		y -= camera_y;
-		th = weather_get_thunder_intensity(x, y);
+		lg = weather_get_lightning_intensity(x, y);
 		weather_compute_ratios(ratios, x, y);
 		rain_coef = weather_get_density_from_ratios(ratios);
 		weather_get_color_from_ratios(local_color, ratios);
@@ -1459,9 +1457,9 @@ void update_cloudy_sky_local_colors()
 		color[1] *= (1.0 - rain_coef) + rain_coef*local_color[1];
 		color[2] *= (1.0 - rain_coef) + rain_coef*local_color[2];
 
-		color[0] = color[0]*(1.0-th) + thunder_color[0]*th;
-		color[1] = color[1]*(1.0-th) + thunder_color[1]*th;
-		color[2] = color[2]*(1.0-th) + thunder_color[2]*th;
+		color[0] = color[0]*(1.0-lg) + lightning_color[0]*lg;
+		color[1] = color[1]*(1.0-lg) + lightning_color[1]*lg;
+		color[2] = color[2]*(1.0-lg) + lightning_color[2]*lg;
 
 		dome_sky.colors[idx++] = color[0] + ml1*moon1_color[0] + ml2*moon2_color[0];
 		dome_sky.colors[idx++] = color[1] + ml1*moon1_color[1] + ml2*moon2_color[1];

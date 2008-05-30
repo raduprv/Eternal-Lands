@@ -43,10 +43,10 @@ int wind_direction = 0;	//wind direction, based on server's setting and local ra
 /* N E W   W E A T H E R *****************************************************/
 
 #define MAX_RAIN_DROPS 10000
-#define MAX_THUNDERS_DEFS 20
+#define MAX_LIGHTNING_DEFS 20
 #define MAX_THUNDERS 20
 
-#define THUNDER_LIGHT_RADIUS 20.0
+#define LIGHTNING_LIGHT_RADIUS 20.0
 #define SOUND_SPEED 0.1 // real sound speed = 0.34029 m/ms
 
 #define WEATHER_NONE 0
@@ -89,7 +89,7 @@ typedef struct {
 typedef struct {
 	int texture;
 	float coords[4]; // left bottom right top
-} thunder_def;
+} lightning_def;
 
 weather_drop weather_drops[MAX_WEATHER_TYPES][MAX_RAIN_DROPS];
 int weather_drops_count[MAX_WEATHER_TYPES];
@@ -98,18 +98,18 @@ weather_def weather_defs[MAX_WEATHER_TYPES];
 
 weather_area weather_areas[MAX_WEATHER_AREAS];
 
-thunder_def thunders_defs[MAX_THUNDERS_DEFS];
-int thunders_defs_count = 0;
+lightning_def lightnings_defs[MAX_LIGHTNING_DEFS];
+int lightnings_defs_count = 0;
 
 thunder thunders[MAX_THUNDERS];
 int thunders_count = 0;
 
-Uint32 thunder_stop = 0;
-int thunder_type;
-float thunder_position[4] = {0.0, 0.0, 100.0, 1.0};
-float thunder_sky_position[4] = {0.0, 0.0, 0.0, 1.0};
-float thunder_color[4] = {0.9, 0.85, 1.0, 1.0};
-int thunder_falling = 0;
+Uint32 lightning_stop = 0;
+int lightning_type;
+float lightning_position[4] = {0.0, 0.0, 100.0, 1.0};
+float lightning_sky_position[4] = {0.0, 0.0, 0.0, 1.0};
+float lightning_color[4] = {0.9, 0.85, 1.0, 1.0};
+int lightning_falling = 0;
 
 float weather_ratios[MAX_WEATHER_TYPES];
 
@@ -129,7 +129,6 @@ int rain_sound = -1;
 
 float weather_color[4] = {0.0, 0.0, 0.0, 1.0};
 float fog_alpha;
-Uint32 weather_time;
 
 __inline__ float next_random_number()
 {
@@ -176,8 +175,8 @@ void weather_clear()
 {
 	int i;
 	thunders_count = 0;
-	thunder_stop = 0;
-	thunder_falling = 0;
+	lightning_stop = 0;
+	lightning_falling = 0;
 	weather_ratios[0] = 1.0;
 	for(i = 1; i < MAX_WEATHER_TYPES; ++i)
 	{
@@ -244,9 +243,11 @@ void weather_compute_ratios(float ratios[MAX_WEATHER_TYPES], float x, float y)
 	int i;
 	float sum = 0.0;
 
+	// we reset all the values
 	for (i = 0; i < MAX_WEATHER_TYPES; ++i)
 		ratios[i] = 0.0;
 
+	// we compute the intensity for each type of weather according to the areas
 	for (i = 0; i < MAX_WEATHER_AREAS; ++i)
 		if (weather_areas[i].type > 0)
 		{
@@ -258,6 +259,7 @@ void weather_compute_ratios(float ratios[MAX_WEATHER_TYPES], float x, float y)
 				ratios[weather_areas[i].type] += (1.0 - dist/r) * weather_areas[i].intensity;
 		}
 
+	// we compute the sum of all the intensities
 	for (i = 1; i < MAX_WEATHER_TYPES; ++i)
 		sum += ratios[i];
 
@@ -267,6 +269,7 @@ void weather_compute_ratios(float ratios[MAX_WEATHER_TYPES], float x, float y)
 	}
 	else
 	{
+		// we normalize the intensities if needed
 		ratios[0] = 0.0;
 		for (i = 1; i < MAX_WEATHER_TYPES; ++i)
 			ratios[i] /= sum;
@@ -319,66 +322,70 @@ void update_wind(void)
 
 void update_weather_type(int type, float x, float y, float z, int ticks)
 {
-	int i;
 	int num_drops = weather_ratios[type] * weather_defs[type].density * particles_percentage * 0.01 * MAX_RAIN_DROPS;
-	float x_move = weather_defs[type].wind_effect * sinf((float)wind_direction*M_PI/180) * wind_speed * ticks * 1E-3;
-	float y_move = weather_defs[type].wind_effect * cosf((float)wind_direction*M_PI/180) * wind_speed * ticks * 1E-3;
-	float z_move = weather_defs[type].speed * ticks * 1E-3;
 
 	if (num_drops > MAX_RAIN_DROPS) num_drops = MAX_RAIN_DROPS;
-
+	
 	if (weather_drops_count[type] > num_drops)
 		weather_drops_count[type] = num_drops;
 	
-	for(i = 0; i < weather_drops_count[type]; ++i)
+	if (num_drops > 0)
 	{
-		if (weather_drops[type][i].pos1[2] < z-1.0f)
+		int i;
+		float x_move = weather_defs[type].wind_effect * sinf((float)wind_direction*M_PI/180) * wind_speed * ticks * 1E-3;
+		float y_move = weather_defs[type].wind_effect * cosf((float)wind_direction*M_PI/180) * wind_speed * ticks * 1E-3;
+		float z_move = weather_defs[type].speed * ticks * 1E-3;
+		
+		for(i = 0; i < weather_drops_count[type]; ++i)
 		{
-			// the drop should still exist so we recreate it
-			make_drop(type, i, x, y, z, -x_move, -y_move, z_move);
+			if (weather_drops[type][i].pos1[2] < z-1.0f)
+			{
+				// the drop should still exist so we recreate it
+				make_drop(type, i, x, y, z, -x_move, -y_move, z_move);
+			}
+			else
+			{
+				// we save the old position
+				memcpy(weather_drops[type][i].pos2, weather_drops[type][i].pos1, 3*sizeof(float));
+				
+				// it's moving. so find out how much by, and wrap around the X/Y if it's too far away (as wind can cause)
+				weather_drops[type][i].pos1[0] += x_move*(1.1-0.2*RAND_ONE);
+				if (weather_drops[type][i].pos1[0] < x - 8.0f)
+				{
+					weather_drops[type][i].pos1[0] += 16.0f;
+					weather_drops[type][i].pos2[0] += 16.0f;
+				}
+				else if(weather_drops[type][i].pos1[0] > x + 8.0f)
+				{
+					weather_drops[type][i].pos1[0] -= 16.0f;
+					weather_drops[type][i].pos2[0] -= 16.0f;
+				}
+				
+				weather_drops[type][i].pos1[1] += y_move*(1.1-0.2*RAND_ONE);
+				if (weather_drops[type][i].pos1[1] < y - 8.0f)
+				{
+					weather_drops[type][i].pos1[1] += 16.0f;
+					weather_drops[type][i].pos2[1] += 16.0f;
+				}
+				else if(weather_drops[type][i].pos1[1] > y + 8.0f)
+				{
+					weather_drops[type][i].pos1[1] -= 16.0f;
+					weather_drops[type][i].pos2[1] -= 16.0f;
+				}
+				
+				weather_drops[type][i].pos1[2] -= z_move*(1.1-0.2*RAND_ONE);
+			}
 		}
-		else
+		
+		// if there are not enough drops, we recreate new ones
+		if (weather_drops_count[type] < num_drops)
 		{
-			// we save the old position
-			memcpy(weather_drops[type][i].pos2, weather_drops[type][i].pos1, 3*sizeof(float));
-			
-			// it's moving. so find out how much by, and wrap around the X/Y if it's too far away (as wind can cause)
-			weather_drops[type][i].pos1[0] += x_move*(1.1-0.2*RAND_ONE);
-			if (weather_drops[type][i].pos1[0] < x - 8.0f)
+			for (i = weather_drops_count[type]; i < num_drops; ++i)
 			{
-				weather_drops[type][i].pos1[0] += 16.0f;
-				weather_drops[type][i].pos2[0] += 16.0f;
+				make_drop(type, i, x, y, z, -x_move, -y_move, z_move);
 			}
-			else if(weather_drops[type][i].pos1[0] > x + 8.0f)
-			{
-				weather_drops[type][i].pos1[0] -= 16.0f;
-				weather_drops[type][i].pos2[0] -= 16.0f;
-			}
-			
-			weather_drops[type][i].pos1[1] += y_move*(1.1-0.2*RAND_ONE);
-			if (weather_drops[type][i].pos1[1] < y - 8.0f)
-			{
-				weather_drops[type][i].pos1[1] += 16.0f;
-				weather_drops[type][i].pos2[1] += 16.0f;
-			}
-			else if(weather_drops[type][i].pos1[1] > y + 8.0f)
-			{
-				weather_drops[type][i].pos1[1] -= 16.0f;
-				weather_drops[type][i].pos2[1] -= 16.0f;
-			}
-			
-			weather_drops[type][i].pos1[2] -= z_move*(1.1-0.2*RAND_ONE);
+			weather_drops_count[type] = num_drops;
 		}
-	}
-
-	// if there are not enough drops, we recreate new ones
-	if (weather_drops_count[type] < num_drops)
-	{
-		for (i = weather_drops_count[type]; i < num_drops; ++i)
-		{
-			make_drop(type, i, x, y, z, -x_move, -y_move, z_move);
-		}
-		weather_drops_count[type] = num_drops;
 	}
 }
 
@@ -388,15 +395,13 @@ void weather_update()
 	Uint32 ticks = cur_time - last_update;
 	int i;
 
-	weather_time = cur_time;
-
 	update_wind();
 
-	// we update the thunder
-	if (thunder_falling && weather_time > thunder_stop)
+	// we update the lightning
+	if (lightning_falling && cur_time > lightning_stop)
 	{
-		thunder_falling = 0;
-		if (!skybox_update_every_frame)
+		lightning_falling = 0;
+		if (skybox_update_delay > 0)
 			skybox_update_colors();
 	}
 
@@ -437,11 +442,7 @@ void weather_update()
 	// we compute the weather color at the actor position
 	weather_get_color_from_ratios(weather_color, weather_ratios);
 	
-	// we update the weather at the actor position
-	for (i = 1; i < MAX_WEATHER_TYPES; ++i)
-		update_weather_type(i, -camera_x, -camera_y, 0.0, ticks);
-	
-	last_update = weather_time;
+	last_update = cur_time;
 }
 
 void weather_render_fog()
@@ -463,7 +464,12 @@ void weather_render()
 	float modelview[16];
 	float delta1[3], delta2[3];
 	float color1[4], color2[4], light_level[3];
+	static Uint32 last_render = 0;
 
+	// we first update the weather types
+	for (i = 1; i < MAX_WEATHER_TYPES; ++i)
+		update_weather_type(i, -camera_x, -camera_y, 0.0, cur_time - last_render);
+	
 	skybox_get_current_color(color1, skybox_light_ambient);
 	skybox_get_current_color(color2, skybox_light_diffuse);
 
@@ -471,11 +477,11 @@ void weather_render()
 	light_level[1] = 0.5 + (0.2 + color1[1] + color2[1]) * 0.5;
 	light_level[2] = 0.5 + (0.2 + color1[2] + color2[2]) * 0.5;
 
-	if (thunder_falling)
+	if (lightning_falling)
 	{
-		light_level[0] += 0.5 * thunder_color[0];
-		light_level[1] += 0.5 * thunder_color[1];
-		light_level[2] += 0.5 * thunder_color[2];
+		light_level[0] += 0.5 * lightning_color[0];
+		light_level[1] += 0.5 * lightning_color[1];
+		light_level[2] += 0.5 * lightning_color[2];
 	}
 
 	if (light_level[0] > 1.0) light_level[0] = 1.0;
@@ -560,6 +566,8 @@ void weather_render()
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
+
+	last_render = cur_time;
 }
 
 int weather_get_drops_count(int type)
@@ -586,61 +594,57 @@ float weather_get_density()
 	return current_weather_density;
 }
 
-void weather_add_thunder(int type, float x, float y)
+void weather_add_lightning(int type, float x, float y)
 {
-	if (thunders_count < MAX_THUNDERS && thunders_defs_count > 0)
+	if (thunders_count < MAX_THUNDERS && lightnings_defs_count > 0)
 	{
-		// store the thunder for the sound
+		// store the thunder
 		thunders[thunders_count].type = type;
 		thunders[thunders_count].x_pos = x;
 		thunders[thunders_count].y_pos = y;
-		thunders[thunders_count].time = weather_time;
+		thunders[thunders_count].time = cur_time;
 		++thunders_count;
 
-		// start thunder
-		if (thunders_defs_count > 0)
-		{
-			thunder_type = rand()%thunders_defs_count;
-			thunder_position[0] = x;
-			thunder_position[1] = y;
-			thunder_stop = weather_time + 400 + rand()%200;
-			thunder_falling = 1;
-			
-			skybox_coords_from_ground_coords(thunder_sky_position,
-											 thunder_position[0] + camera_x,
-											 thunder_position[1] + camera_y);
-			
-			thunder_sky_position[0] -= camera_x;
-			thunder_sky_position[1] -= camera_y;
-			
-			if (!skybox_update_every_frame)
-				skybox_update_colors();
-		}
+        lightning_type = rand()%lightnings_defs_count;
+        lightning_position[0] = x;
+        lightning_position[1] = y;
+        lightning_stop = cur_time + 400 + rand()%200;
+        lightning_falling = 1;
+        
+        skybox_coords_from_ground_coords(lightning_sky_position,
+                                         lightning_position[0] + camera_x,
+                                         lightning_position[1] + camera_y);
+        
+        lightning_sky_position[0] -= camera_x;
+        lightning_sky_position[1] -= camera_y;
+        
+        if (skybox_update_delay > 0)
+            skybox_update_colors();
 	}
 }
 
-void weather_init_thunder_light()
+void weather_init_lightning_render()
 {
-	if (thunder_falling)
+	if (lightning_falling)
 	{
 		if (is_day)
 		{
 			glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
-			glLightfv(GL_LIGHT0, GL_DIFFUSE, thunder_color);
-			glLightfv(GL_LIGHT0, GL_POSITION, thunder_position);
+			glLightfv(GL_LIGHT0, GL_DIFFUSE, lightning_color);
+			glLightfv(GL_LIGHT0, GL_POSITION, lightning_position);
 			glEnable(GL_LIGHT0);
 		}
 		else
 		{
-			glLightfv(GL_LIGHT7, GL_DIFFUSE, thunder_color);
-			glLightfv(GL_LIGHT7, GL_POSITION, thunder_position);
+			glLightfv(GL_LIGHT7, GL_DIFFUSE, lightning_color);
+			glLightfv(GL_LIGHT7, GL_POSITION, lightning_position);
 		}
 	}
 }
 
-void weather_cleanup_thunder_light()
+void weather_cleanup_lightning_render()
 {
-	if (thunder_falling)
+	if (lightning_falling)
 	{
 		if (is_day)
 		{
@@ -650,12 +654,12 @@ void weather_cleanup_thunder_light()
 	}
 }
 
-void weather_render_thunder()
+void weather_render_lightning()
 {
-	if (thunder_falling)
+	if (lightning_falling)
 	{
-		const float *tex_coords = thunders_defs[thunder_type].coords;
-		float size = thunder_sky_position[2]*0.5*(tex_coords[2]-tex_coords[0])/(tex_coords[3]-tex_coords[1]);
+		const float *tex_coords = lightnings_defs[lightning_type].coords;
+		float size = lightning_sky_position[2]*0.5*(tex_coords[2]-tex_coords[0])/(tex_coords[3]-tex_coords[1]);
 		float dx = size*cosf(-rz*M_PI/180.0);
 		float dy = size*sinf(-rz*M_PI/180.0);
 
@@ -667,34 +671,34 @@ void weather_render_thunder()
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE);
 
-		get_and_set_texture_id(thunders_defs[thunder_type%thunders_defs_count].texture);
+		get_and_set_texture_id(lightnings_defs[lightning_type%lightnings_defs_count].texture);
 
-		glColor4fv(thunder_color);
+		glColor4fv(lightning_color);
 		glBegin(GL_QUADS);
 		glTexCoord2f(tex_coords[0], tex_coords[1]);
-		glVertex3f(thunder_position[0]-dx, thunder_position[1]-dy, 0.0);
+		glVertex3f(lightning_position[0]-dx, lightning_position[1]-dy, 0.0);
 		glTexCoord2f(tex_coords[2], tex_coords[1]);
-		glVertex3f(thunder_position[0]+dx, thunder_position[1]+dy, 0.0);
+		glVertex3f(lightning_position[0]+dx, lightning_position[1]+dy, 0.0);
 		glTexCoord2f(tex_coords[2], tex_coords[3]);
-		glVertex3f(thunder_sky_position[0]+dx, thunder_sky_position[1]+dy, thunder_sky_position[2]);
+		glVertex3f(lightning_sky_position[0]+dx, lightning_sky_position[1]+dy, lightning_sky_position[2]);
 		glTexCoord2f(tex_coords[0], tex_coords[3]);
-		glVertex3f(thunder_sky_position[0]-dx, thunder_sky_position[1]-dy, thunder_sky_position[2]);
+		glVertex3f(lightning_sky_position[0]-dx, lightning_sky_position[1]-dy, lightning_sky_position[2]);
 		glEnd();
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 		glPopAttrib();
 	}
 }
 
-float weather_get_thunder_intensity(float x, float y)
+float weather_get_lightning_intensity(float x, float y)
 {
-	float dx = x-thunder_position[0];
-	float dy = y-thunder_position[1];
+	float dx = x-lightning_position[0];
+	float dy = y-lightning_position[1];
 	float dist = dx*dx + dy*dy;
 
-	if (!thunder_falling || dist > THUNDER_LIGHT_RADIUS*THUNDER_LIGHT_RADIUS)
+	if (!lightning_falling || dist > LIGHTNING_LIGHT_RADIUS*LIGHTNING_LIGHT_RADIUS)
 		return 0.0;
 	else
-		return 1.0 - dist / (THUNDER_LIGHT_RADIUS*THUNDER_LIGHT_RADIUS);
+		return 1.0 - dist / (LIGHTNING_LIGHT_RADIUS*LIGHTNING_LIGHT_RADIUS);
 }
 
 void weather_sound_control()
@@ -702,68 +706,71 @@ void weather_sound_control()
 	static Uint32 last_sound_update = 0;
 	int i;
 
-	//#ifndef NEW_SOUND // Under NEW_SOUND we still want sounds added/updated so when sound is enabled they will be correct
-	if (!sound_on) {
-		rain_sound = 0;
-		return;
-	}
-	//#endif // NEW_SOUND
+	if (cur_time < last_sound_update + 200) return;
+	else last_sound_update = cur_time;
 
-	if (weather_time < last_sound_update + 200) return;
-	else last_sound_update = weather_time;
-
-	if (weather_ratios[WEATHER_RAIN] > 0.0)
+	if (!sound_on)
 	{
-		// Torg: Only load sounds when we need them so we aren't wasting sources.
-		// This is really only for NEW_SOUND.
-		if (rain_sound == 0)
-#ifdef NEW_SOUND
-			rain_sound = add_server_sound(snd_rain, 0, 0, weather_ratios[WEATHER_RAIN]);
-		else
-			sound_source_set_gain(rain_sound, weather_ratios[WEATHER_RAIN]);
-#else
-		{
-			rain_sound = add_sound_object(snd_rain, 0, 0, 0, 1);
-		}
-		if (rain_sound > 0)
-			sound_source_set_gain(rain_sound, weather_ratios[WEATHER_RAIN]);
-#endif	//NEW_SOUND
+		rain_sound = 0;
 	}
 	else
 	{
-		if (rain_sound > 0)
+		if (weather_ratios[WEATHER_RAIN] > 0.0)
 		{
-			stop_sound(rain_sound);
-			rain_sound = 0;
+			// Torg: Only load sounds when we need them so we aren't wasting sources.
+			// This is really only for NEW_SOUND.
+			if (rain_sound == 0)
+#ifdef NEW_SOUND
+				rain_sound = add_server_sound(snd_rain, 0, 0, weather_ratios[WEATHER_RAIN]);
+			else
+				sound_source_set_gain(rain_sound, weather_ratios[WEATHER_RAIN]);
+#else
+			{
+				rain_sound = add_sound_object(snd_rain, 0, 0, 0, 1);
+			}
+			if (rain_sound > 0)
+				sound_source_set_gain(rain_sound, weather_ratios[WEATHER_RAIN]);
+#endif	//NEW_SOUND
+		}
+		else
+		{
+			if (rain_sound > 0)
+			{
+				stop_sound(rain_sound);
+				rain_sound = 0;
+			}
 		}
 	}
-
+		
 	for (i = 0; i < thunders_count; )
 	{
 		float dx = thunders[i].x_pos + camera_x;
 		float dy = thunders[i].y_pos + camera_y;
 		float dist = sqrtf(dx*dx + dy*dy);
-		if (weather_time >= thunders[i].time + dist/SOUND_SPEED)
+		if (cur_time >= thunders[i].time + dist/SOUND_SPEED)
 		{
-			int snd_thunder = 0;
-			
-			switch (thunders[i].type)
+			if (sound_on)
 			{
-			case 0:  snd_thunder = snd_thndr_1; break;
-			case 1:  snd_thunder = snd_thndr_2; break;
-			case 2:  snd_thunder = snd_thndr_3; break;
-			case 3:  snd_thunder = snd_thndr_4; break;
-			case 4:  snd_thunder = snd_thndr_5; break;
-			default: snd_thunder = 0;
-			}
+				int snd_thunder = 0;
 			
-			if (snd_thunder)
-			{
+				switch (thunders[i].type)
+				{
+				case 0:  snd_thunder = snd_thndr_1; break;
+				case 1:  snd_thunder = snd_thndr_2; break;
+				case 2:  snd_thunder = snd_thndr_3; break;
+				case 3:  snd_thunder = snd_thndr_4; break;
+				case 4:  snd_thunder = snd_thndr_5; break;
+				default: snd_thunder = 0;
+				}
+			
+				if (snd_thunder)
+				{
 #ifdef NEW_SOUND
-				add_server_sound(snd_thunder, 0, 0, 1.0f);
+					add_server_sound(snd_thunder, 0, 0, 1.0f);
 #else
-				add_sound_object(snd_thunder, 0, 0, 0, 0);
+					add_sound_object(snd_thunder, 0, 0, 0, 0);
 #endif	//NEW_SOUND
+				}
 			}
 			
 			// we remove the thunder from the list
@@ -878,28 +885,28 @@ int weather_parse_lightning(xmlNode *node)
 {
 	xmlAttr *attr;
 	int ok = 1;
-	int id = thunders_defs_count++;
+	int id = lightnings_defs_count++;
 
-	thunders_defs[id].texture = -1;
-	thunders_defs[id].coords[0] = 0.0;
-	thunders_defs[id].coords[1] = 0.0;
-	thunders_defs[id].coords[2] = 0.0;
-	thunders_defs[id].coords[3] = 0.0;
+	lightnings_defs[id].texture = -1;
+	lightnings_defs[id].coords[0] = 0.0;
+	lightnings_defs[id].coords[1] = 0.0;
+	lightnings_defs[id].coords[2] = 0.0;
+	lightnings_defs[id].coords[3] = 0.0;
 
 	for (attr = node->properties; attr; attr = attr->next)
 	{
 		if (attr->type == XML_ATTRIBUTE_NODE)
 		{
 			if (!xmlStrcasecmp (attr->name, (xmlChar*)"texture"))
-				thunders_defs[id].texture = load_texture_cache((char*)attr->children->content, 0);
+				lightnings_defs[id].texture = load_texture_cache((char*)attr->children->content, 0);
 			else if (!xmlStrcasecmp (attr->name, (xmlChar*)"x1"))
-				thunders_defs[id].coords[0] = atof((char*)attr->children->content);
+				lightnings_defs[id].coords[0] = atof((char*)attr->children->content);
 			else if (!xmlStrcasecmp (attr->name, (xmlChar*)"y1"))
-				thunders_defs[id].coords[1] = atof((char*)attr->children->content);
+				lightnings_defs[id].coords[1] = atof((char*)attr->children->content);
 			else if (!xmlStrcasecmp (attr->name, (xmlChar*)"x2"))
-				thunders_defs[id].coords[2] = atof((char*)attr->children->content);
+				lightnings_defs[id].coords[2] = atof((char*)attr->children->content);
 			else if (!xmlStrcasecmp (attr->name, (xmlChar*)"y2"))
-				thunders_defs[id].coords[3] = atof((char*)attr->children->content);
+				lightnings_defs[id].coords[3] = atof((char*)attr->children->content);
 			else {
 				LOG_ERROR("unknown attribute for weather effect color: %s", (char*)attr->name);
 				ok = 0;
