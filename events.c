@@ -292,8 +292,9 @@ int HandleEvent (SDL_Event *event)
 					flags |= ELW_WHEEL_DOWN;
 			}
 			if ( left_click==1 || right_click==1 || (flags & (ELW_WHEEL_UP | ELW_WHEEL_DOWN) ) )
+			{
 				click_in_windows (mouse_x, mouse_y, flags);
-
+			}
 			if (left_click >= 1)
 			{
 				if (drag_windows (mouse_x, mouse_y, mouse_delta_x, mouse_delta_y) >= 0)

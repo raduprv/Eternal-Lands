@@ -2562,9 +2562,11 @@ void update_selection(int x, int y, widget_list* w, int drag)
 	msg = &tf->buffer[tf->select.lines[line].msg];
 	for (col = tf->select.lines[line].chr; col < msg->len; col++)
 	{
-		if ((msg->data[col] == '\r') || (msg->data[col] == '\n') || (msg->data[col] == '\0')) break;
+		if (msg->data[col] == '\r' || msg->data[col] == '\n' || msg->data[col] == '\0')
+			break;
 		cx += (0.5 + get_char_width(msg->data[col]) * w->size * DEFAULT_FONT_X_LEN / 12.0);
-		if (cx >= x) break;
+		if (cx >= x)
+			break;
 	}
 	if (!drag || tf->select.sm == -1 || tf->select.sc == -1)
 	{
@@ -2613,6 +2615,7 @@ void update_cursor_selection(widget_list* w, int flag)
 int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 {
 	text_field *tf;
+	int em_before;
 
 	tf = w->widget_info;
 	if (tf == NULL)
@@ -2630,7 +2633,12 @@ int text_field_click (widget_list *w, int mx, int my, Uint32 flags)
 	if ( (flags & ELW_MOUSE_BUTTON) == 0)
 		return 0;
 
+	em_before = tf->select.em;
 	update_selection(mx, my, w, 0);
+	if(em_before != -1 && tf->select.em == -1) {
+		/* We deselected some text, click was handled */
+		return 1;
+	}
 
 	if ( (w->Flags & TEXT_FIELD_EDITABLE) == 0)
 		return 0;

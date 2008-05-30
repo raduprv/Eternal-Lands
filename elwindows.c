@@ -413,7 +413,7 @@ int drag_windows (int mx, int my, int dx, int dy)
 #ifndef MINIMAP2
 						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && y < 0) )
 #else
-						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && ((y < 0) || (win->owner_drawn_title_bar && y < 16))) )
+						if (win->dragged || (dragable && mouse_in_window(i, mx, my) && ((y < 0) || (win->owner_drawn_title_bar && y < ELW_TITLE_HEIGHT))) )
 #endif // MINIMAP
 						{
 							drag_id = i;
@@ -1447,7 +1447,10 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 				return 1;
 			}				
 		}
-		
+		if(win->flags&ELW_RESIZEABLE && mx > win->len_x-ELW_BOX_SIZE && my > win->len_y-ELW_BOX_SIZE) {
+			/* Clicked on the resize-corner. */
+			return 1;
+		}
 		if(win->flags&ELW_SCROLLABLE) {
 			/* Adjust mouse y coordinates according to the scrollbar position */
 			scroll_pos = vscrollbar_get_pos(win->window_id, win->scroll_id);
@@ -1488,7 +1491,7 @@ int	click_in_window(int win_id, int x, int y, Uint32 flags)
 			} else if(flags&ELW_WHEEL_DOWN) {
 				vscrollbar_scroll_down(win->window_id, win->scroll_id);
 			}
-		} else if ( !ret_val && (win->flags & ELW_CLICK_TRANSPARENT) ) {
+		} else if ( !ret_val && (win->flags & ELW_CLICK_TRANSPARENT) && my >= 0 ) {
 			return 0;	// click is not handled, and the window is transparent
 		}
 		return	1;	// click is handled
