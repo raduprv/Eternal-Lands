@@ -12,6 +12,7 @@ extern int minimap_win;
 extern int minimap_win_x;
 extern int minimap_win_y;
 extern float minimap_tiles_distance;
+extern int rotate_minimap;
 #ifndef MINIMAP2
 extern int minimap_flags;
 extern int minimap_zoom;
@@ -21,7 +22,7 @@ int minimap_get_pin();
 
 void display_minimap();
 int display_minimap_handler(window_info *win);
-
+#ifndef MINIMAP2
 /*!
  * \ingroup minimap
  * \brief Frees the minimap frame buffer.
@@ -42,7 +43,7 @@ void minimap_free_framebuffer();
  */
 void minimap_make_framebuffer();
 
-#ifndef MINIMAP2
+
  /*!
  * \ingroup minimap
  * \brief Causes the minimap to be redrawn.

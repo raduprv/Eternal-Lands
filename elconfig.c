@@ -222,7 +222,9 @@ static __inline__ void destroy_fbos()
 #ifndef MAP_EDITOR
 			destroy_shadow_mapping();
 			free_reflection_framebuffer();
+#ifndef MINIMAP2
 			minimap_free_framebuffer();
+#endif //MINIMAP2
 #endif //MAP_EDITOR
 		}
 		CHECK_GL_ERRORS();
@@ -244,7 +246,9 @@ static __inline__ void build_fbos()
 			{
 				make_reflection_framebuffer(window_width, window_height);
 			}
+#ifndef MINIMAP2
 			minimap_make_framebuffer();
+#endif //MINIMAP2
 		}
 #endif // MAP_EDITOR
 		check_option_var("shadow_map_size");
@@ -1726,6 +1730,9 @@ void init_vars()
 	add_var(OPT_BOOL,"use_cursor_on_animal", "useanimal", &include_use_cursor_on_animals, change_var, 0, "For animals, right click includes use cursor", "Toggles inclusion of the use cursor when right clicking on animals, useful for your summoned creatures.  Even when this option is off, you can still click the use icon.", CONTROLS);
 #endif
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
+#ifdef MINIMAP2
+	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate minimap","Toggle whether the minimap should rotate.",CONTROLS);
+#endif //MINIMAP2
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
 #ifdef SKY_FPV

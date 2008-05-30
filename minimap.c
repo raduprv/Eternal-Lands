@@ -1058,13 +1058,12 @@ void display_minimap()
 
 #else //MINIMAP2
 
-float minimap_size_coefficient;
 int minimap_size;
 float float_minimap_size;
 float minimap_tiles_distance = 48;
 float radius_shift = 0.707106779283f;
+int rotate_minimap = 1;
 
-static int compass_direction = 1;
 static int enable_controls = 0;
 
 GLuint compass_tex;
@@ -1079,57 +1078,10 @@ int minimap_win_y = 20;
 GLubyte exploration_map[256][256];
 char current_exploration_map_filename[256];
 
-static __inline__ float minimap_get_zoom (int frame_buffer)
+static __inline__ float minimap_get_zoom ()
 {
 	float zoom = minimap_tiles_distance * 2 / (tile_map_size_x*6);
-	if(!frame_buffer)
-	{
-		zoom *= radius_shift;
-	}
 	return zoom;
-}
-
-void minimap_free_framebuffer()
-{
-	free_color_framebuffer(&minimap_fbo, &minimap_fbo_depth_buffer, NULL,
-		&minimap_fbo_texture);
-}
-
-void minimap_make_framebuffer()
-{
-	minimap_free_framebuffer();
-	make_color_framebuffer(minimap_size, minimap_size, &minimap_fbo, &minimap_fbo_depth_buffer, NULL,
-		&minimap_fbo_texture);
-}
-
-static __inline__ int draw_framebuffer()
-{
-	float fsin,fcos,x,y;
-	int i;
-	if(use_frame_buffer && minimap_fbo > 0 && minimap_fbo_texture > 0)
-	{
-		glEnable(GL_TEXTURE_2D);
-		bind_texture_id(minimap_fbo_texture);
-
-		glTranslatef(0.0f, 16.0f, 0.0f);
-
-		glBegin(GL_POLYGON);
-		for (i=0; i<=360; i +=10) 
-		{
-			fsin = sin(i*0.0174532925f)/2 + 0.5f;
-			fcos = cos((i + 180)*0.0174532925f)/2 + 0.5f;
-			x = sin((i)*0.0174532925)/2*float_minimap_size+float_minimap_size/2;
-			y = cos((i)*0.0174532925f)/2*float_minimap_size+float_minimap_size/2;
-			glTexCoord2f(fsin, fcos);			
-			glVertex2f(x, y);	
-		}	
-		glEnd();
-#ifdef OPENGL_TRACE
-CHECK_GL_ERRORS();
-#endif //OPENGL_TRACE
-		return 1;
-	}
-	return 0;
 }
 
 __inline__ void rotate_actor_points(float zoom_multip, float px, float py)
@@ -1140,7 +1092,8 @@ __inline__ void rotate_actor_points(float zoom_multip, float px, float py)
 
 	glTranslatef(float_minimap_size/2, float_minimap_size/2, 0.0f);
 
-	glRotatef(-compass_direction*rz, 0.0f,0.0f,1.0f );
+	if(rotate_minimap)
+		glRotatef(-rz, 0.0f,0.0f,1.0f );
 	glTranslatef(-x,-y,0.0f);
 
 	glScalef(1.0f / zoom_multip, 1.0f / zoom_multip, 1.0f);
@@ -1154,7 +1107,8 @@ __inline__ void rotate_at_player(float zoom_multip, float px, float py)
 	float x,y;
 	x = (px - (float_minimap_size/2) );
 	y = (py - (float_minimap_size/2) );
-	glRotatef(-compass_direction*rz, 0.0f,0.0f,1.0f );
+	if(rotate_minimap)
+		glRotatef(-rz, 0.0f,0.0f,1.0f );
 	glTranslatef(-x,-y,0.0f);
 	
 	glScalef(1.0f / zoom_multip, 1.0f / zoom_multip, 1.0f);
@@ -1166,13 +1120,15 @@ __inline__ void rotate_at_player(float zoom_multip, float px, float py)
 
 __inline__ void rotate_click_coords(float * x,float * y)
 {
-	float fx,fy;
-	float angel = -compass_direction*rz*0.0174532925;
-
-	fx = cos(angel) * (*x - float_minimap_size/2) - sin(angel) * (*y - float_minimap_size/2);
-	fy = sin(angel) * (*x - float_minimap_size/2) + cos(angel) * (*y - float_minimap_size/2);
-	*x = fx + float_minimap_size/2;
-	*y = fy + float_minimap_size/2;
+	if(rotate_minimap)
+	{
+		float fx,fy;
+		float angel = -rz*0.0174532925f;
+		fx = cos(angel) * (*x - float_minimap_size/2.0f) - sin(angel) * (*y - float_minimap_size/2.0f);
+		fy = sin(angel) * (*x - float_minimap_size/2.0f) + cos(angel) * (*y - float_minimap_size/2.0f);
+		*x = fx + float_minimap_size/2;
+		*y = fy + float_minimap_size/2;
+	}
 }
 
 __inline__ int is_within_radius(float mx, float my,float px,float py,float radius)
@@ -1211,12 +1167,6 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			a = actors_list[i];
 			x = a->x_tile_pos * size_x;
 			y = float_minimap_size - (a->y_tile_pos * size_y);
-
-			if(!use_frame_buffer)
-			{
-				x = x - (x - px)/3;
-				y = y - (y - py)/3;
-			}
 
 			if (a->kind_of_actor == NPC)
 			{
@@ -1277,12 +1227,6 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 			x = m->x * size_x;
 			y = float_minimap_size - (m->y * size_y);
 
-			if(!use_frame_buffer)
-			{
-				x = x - (x - px)/3;
-				y = y - (y - py)/3;
-			}
-
 			glColor3f(0.15f, 0.65f, 0.45f); 
 			glVertex2f(x, y);
 		}
@@ -1301,16 +1245,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		{
 			float diff = 8.0f*zoom_multip;
 
-
-
-			if(!use_frame_buffer)
-			{
-				x = x - (x - px)/3;
-				y = y - (y - py)/3;
-			}
-
-			//no point calling is_within_radius if using frame buffer
-			if(use_frame_buffer || is_within_radius(x,y,px,py,minimap_tiles_distance*zoom_multip*2)) 
+			if(is_within_radius(x,y,px,py,minimap_tiles_distance*zoom_multip*1.5f)) 
 			{
 				glPushMatrix();
 				glDisable(GL_TEXTURE_2D);
@@ -1336,7 +1271,10 @@ static __inline__ void draw_compass()
 	glPushMatrix();
 	glColor3f(1.0f,1.0f,1.0f);
 	glTranslatef(float_minimap_size/2, float_minimap_size/2, 0.0f);
-	glRotatef(-compass_direction*rz - 90, 0.0f,0.0f,1.0f );
+	if(rotate_minimap)
+		glRotatef(-rz - 90, 0.0f,0.0f,1.0f );
+	else
+		glRotatef(-90, 0.0f,0.0f,1.0f );
 	glRotatef(180, 1.0f,0.0f,0.0f );
 	glEnable(GL_TEXTURE_2D); 
 	glEnable(GL_BLEND);
@@ -1359,169 +1297,71 @@ static __inline__ void draw_compass()
 	glPopMatrix();
 }
 
-static __inline__ void draw_map(float zoom_multip, float px, float py)
+static __inline__ void draw_map(window_info *win,float zoom_multip, float px, float py)
 {
 	float sx = 0.0f, sy = 0.0f;
 	int i;
-	float coef = 91 * zoom_multip * minimap_size_coefficient;
 	float x, y;
-	float fsinold = -1.0,fcosold = -1.0;
-	int shift;
-	float fsin,fcos;
-	int nobreak = 1;
 
 	glPushMatrix();
 
 	sx = float_minimap_size/2;
 	sy = float_minimap_size/2;
 
-
 	glTranslatef(sx, sy, 0.0f);
 
+	glClearStencil(0);
+	glClear(GL_STENCIL_BUFFER_BIT);
+	glEnable(GL_STENCIL_TEST);
+	glStencilFunc(GL_ALWAYS, 1, 1); 
+	glStencilOp(GL_KEEP, GL_KEEP, GL_REPLACE);
+	glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
+	glDepthMask(GL_FALSE);
+
+	glColor3f(0.0f,0.0f,0.0f);
+	glBegin(GL_POLYGON);
+		for (i=0; i<=360; i +=10) 
+		{
+			x = sin((i)*0.0174532925f)/2*float_minimap_size;
+			y = cos((i)*0.0174532925f)/2*float_minimap_size;
+			glVertex2f(x, y);	
+		}
+		glEnd();
+
+	glStencilFunc(GL_EQUAL, 1, 1);
+	glStencilOp(GL_KEEP, GL_KEEP, GL_KEEP);
+
+	// re-enable the drawing in the current buffer
+	glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
+	glDepthMask(GL_TRUE);
+
 	glEnable(GL_TEXTURE_2D);
-	//draw the minimap
+
+	//draw the map
 	bind_texture_id(minimap_texture);
 	glColor4f(1.0f,1.0f,1.0f,1.0f);
 
-	if (use_frame_buffer)
-	{
-		rotate_at_player(zoom_multip,px,py);
-		glBegin(GL_QUADS);
-			glTexCoord2f(0.0f, 0.0f);
-			glVertex2f(-float_minimap_size/2, float_minimap_size/2);
-			glTexCoord2f(1.0f, 0.0f);
-			glVertex2f(float_minimap_size/2, float_minimap_size/2);
-			glTexCoord2f(1.0f, 1.0f);
-			glVertex2f(float_minimap_size/2, -float_minimap_size/2);
-			glTexCoord2f(0.0f, 1.0f);
-			glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
-		glEnd();
-	}
-	else
-	{
-		//fsin is always in the range [0..1] at shift 0 (no need to check it)
-		//fcos is always less than 1 at shift 0
-		fcos = -radius_shift* zoom_multip + 1 - py/float_minimap_size;
-		if(fcos < 0.0f)
-		{
-			//find an appropriate starting shift where both fsin and fcos are in the [0..1] range
-			for (shift=0; shift<360; shift +=10) 
-			{
-				fsin = sin((shift)*0.0174532925f)*radius_shift* zoom_multip +  px/float_minimap_size;
-				fcos = cos((shift+ 180)*0.0174532925f)*radius_shift* zoom_multip + 1 - (py/float_minimap_size);
-				if((fsin >= 0.0f) && (fsin <= 1.0f) && (fcos >= 0.0f) && (fcos <= 1.0f))
-				{
-					nobreak = 0;
-					break;
-				}
-			}
-		}
-		else
-		{
-			nobreak = 0;
-			shift = 0;
-		}
-		
-		if(nobreak) //we didn't find an appropriate starting shift.
-		{ // this means there map is zoomed out too much and all of it should be drawn
-			zoom_multip = minimap_get_zoom(1);
-			rotate_at_player(zoom_multip,px,py);
-			glBegin(GL_QUADS);
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex2f(-float_minimap_size/2, float_minimap_size/2);
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex2f(float_minimap_size/2, float_minimap_size/2);
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex2f(float_minimap_size/2, -float_minimap_size/2);
-				glTexCoord2f(0.0f, 1.0f);
-				glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
-			glEnd();
-		}
-		else
-		{
-			rotate_at_player(zoom_multip,px,py);
-			glBegin(GL_POLYGON);
-				for (i=0; i<=360; i +=10) 
-				{
-					
-					fsin = sin((i+shift)*0.0174532925f)*radius_shift* zoom_multip +  px/float_minimap_size;
-					fcos = cos((i+shift+ 180)*0.0174532925f)*radius_shift* zoom_multip + 1 - (py/float_minimap_size);
+	rotate_at_player(zoom_multip,px,py);
+	glBegin(GL_QUADS);
+		glTexCoord2f(0.0f, 0.0f);
+		glVertex2f(-float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(1.0f, 0.0f);
+		glVertex2f(float_minimap_size/2, float_minimap_size/2);
+		glTexCoord2f(1.0f, 1.0f);
+		glVertex2f(float_minimap_size/2, -float_minimap_size/2);
+		glTexCoord2f(0.0f, 1.0f);
+		glVertex2f(-float_minimap_size/2, -float_minimap_size/2);
+	glEnd();
 
-					if(fsin > 1.0f)
-						fsin = fsinold;
-					else if (fsin < 0.0f)
-						fsin = fsinold;
-					else
-					{
-						x = sin((i+shift)*0.0174532925)/radius_shift*coef + (px - float_minimap_size/2);
-						fsinold = fsin;
-					}
-
-					if(fcos > 1.0f)
-						fcos = fcosold;
-					else if (fcos < 0.0f)
-						fcos = fcosold;
-					else
-					{
-						y = cos((i+shift)*0.0174532925f)/radius_shift*coef + (py - float_minimap_size/2);
-						fcosold = fcos;
-					}
-					glTexCoord2f(fsin, fcos);			
-					glVertex2f(x, y);		
-				}	
-			glEnd();
-		}
-	}
-	
+	glDisable(GL_STENCIL_TEST);
 
 	glPopMatrix();
-
 	if (compass_tex) 
 	{
 		//draw the compass texture
 		draw_compass();
 	}
 }
-
-static __inline__ void draw_into_minimap_fbo(float zoom_multip, float px, float py)
-{
-	GLint view_port[4];
-
-	CHECK_GL_ERRORS();
-	CHECK_FBO_ERRORS();
-	glGetIntegerv(GL_VIEWPORT, view_port);
-	CHECK_GL_ERRORS();
-	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, minimap_fbo);
-	glViewport(0, 0, minimap_size, minimap_size);
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	CHECK_GL_ERRORS();
-	CHECK_FBO_ERRORS();
-
-	glMatrixMode(GL_PROJECTION);
-	glPushMatrix();
-	glLoadIdentity();
-	glOrtho(0.0, (GLdouble)minimap_size, (GLdouble)minimap_size, 0.0, -250.0, 250.0);
-	glMatrixMode(GL_MODELVIEW);
-	glPushMatrix();
-	glLoadIdentity();
-	draw_map(zoom_multip, px, py);
-	draw_actor_points(zoom_multip, px, py);
-
-	bind_texture_id(0);
-	//If we rendered to a framebuffer, draw it
-	CHECK_GL_ERRORS();
-	CHECK_FBO_ERRORS();
-	ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
-	glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
-	CHECK_GL_ERRORS();
-	CHECK_FBO_ERRORS();
-	glMatrixMode(GL_PROJECTION);
-	glPopMatrix();
-	glMatrixMode(GL_MODELVIEW);
-	glPopMatrix();
-}
-
 
 void draw_minimap_title_bar(window_info *win)
 {
@@ -1626,7 +1466,7 @@ int display_minimap_handler(window_info *win)
 		enable_controls = 0;
 	}
 	
-	zoom_multip = minimap_get_zoom(use_frame_buffer);
+	zoom_multip = minimap_get_zoom();
 
 	if(!minimap_texture) 
 	{
@@ -1660,16 +1500,6 @@ int display_minimap_handler(window_info *win)
 	px = me->x_tile_pos * size_x;
 	py = float_minimap_size - (me->y_tile_pos * size_y);
 
-	
-
-	if (use_frame_buffer)
-	{
-		draw_into_minimap_fbo(zoom_multip, px, py);
-		draw_framebuffer();
-
-		return 0;
-	}
-
 	glTranslatef(0.0f, 16.0f, 0.0f);
 
 	glDisable(GL_TEXTURE_2D);
@@ -1684,7 +1514,7 @@ int display_minimap_handler(window_info *win)
 	}
 	glEnd();
 
-	draw_map(zoom_multip, px, py);
+	draw_map(win,zoom_multip, px, py);
 	draw_actor_points(zoom_multip, px, py);
 
 
@@ -1700,27 +1530,11 @@ CHECK_GL_ERRORS();
  */   
 static int minimap_walkto(int mx, int my)
 {
-	float size_x = tile_map_size_x * 6;
-	float size_y = tile_map_size_y * 6;
 	float fmx = mx, fmy = my;
-	float px, py;
-	float zoom_multip;
 	actor *me;
 
-	/* Safety check. Avoid division by zero */
-	if (float_minimap_size == 0)
-		return 0;
-
-	
-
-	/* Get zoom and actor position (tile coordinates) */
-	zoom_multip = minimap_get_zoom(use_frame_buffer);
 	if ( (me = get_our_actor ()) == NULL)
 		return 0;
-
-	/* Convert tile coordinates to minimap pixels */
-	px = (me->x_tile_pos / size_x) * float_minimap_size;
-	py = (me->y_tile_pos / size_y) * float_minimap_size;
 
 	rotate_click_coords(&fmx,&fmy);
 
@@ -1865,8 +1679,6 @@ void change_minimap(){
 		glDeleteTextures(1,&compass_tex);
 	if(exploration_texture)
 		glDeleteTextures(1,&exploration_texture);
-	if(use_frame_buffer)
-		minimap_free_framebuffer();
 
 	//make filename
 	my_strcp(minimap_file_name,map_file_name);
@@ -1889,9 +1701,6 @@ void change_minimap(){
 	glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T, GL_REPEAT);
 	load_exploration_map();
 
-	if(use_frame_buffer)
-		minimap_make_framebuffer();
-
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -1908,7 +1717,7 @@ void display_minimap()
 {
 	window_info *win;
 
-	minimap_size_coefficient = 0.7f;
+	float minimap_size_coefficient = 0.7f;
 	minimap_size = 256 * minimap_size_coefficient;
 	float_minimap_size = 256.0 * minimap_size_coefficient;
 
