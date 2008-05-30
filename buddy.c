@@ -211,7 +211,8 @@ int click_add_buddy_handler(widget_list *w, int mx, int my, Uint32 flags)
 	} else {
 		char string[255];
 
-		safe_snprintf(string, sizeof(string), "%c#add_buddy %s", RAW_TEXT, buddy_name_buffer);
+		string[0] = RAW_TEXT;
+		safe_snprintf(string+1, sizeof(string)-1, "#add_buddy %s", buddy_name_buffer);
 		my_tcp_send(my_socket, (Uint8*)string, strlen(string+1)+1);
 		hide_window(buddy_add_win);
 		buddy_name_buffer[0] = '\0';
@@ -295,7 +296,6 @@ int display_accept_buddy_handler(window_info *win)
 int name_input_keypress_handler(widget_list *widget, int mx, int my, Uint32 key, Uint32 unikey)
 {
 	if(unikey == '\r' && strlen((char*)buddy_name_buffer) > 0) {
-		buddy_name_buffer[strlen((char*)buddy_name_buffer)-1] = '\0';
 		return click_add_buddy_handler(widget, mx, my, ELW_LEFT_MOUSE);
 	} else {
 		return 0;
