@@ -37,9 +37,9 @@ namespace ec
 			size = 1.0f;
 		alpha = _alpha;
 		velocity /= size;
-		flare_max = 1.6;
-		flare_exp = 0.2;
-		flare_frequency = 2.0;
+		flare_max = 2.5;
+		flare_exp = 0.5;
+		flare_frequency = 0.05;
 		LOD = _LOD;
 	}
 
@@ -81,17 +81,17 @@ namespace ec
 			case STAFF_OF_THE_MAGE:
 			{
 				color[0] = 1.0;
-				color[1] = 0.6;
-				color[2] = 0.3;
+				color[1] = 0.0;
+				color[2] = 0.6;
 				texture = &(base->TexFlare);
 				break;
 			}
 			case STAFF_OF_PROTECTION:
 			{
-				color[0] = 0.4;
-				color[1] = 0.5;
+				color[0] = 0.0;
+				color[1] = 0.0;
 				color[2] = 1.0;
-				texture = &(base->TexCrystal);
+				texture = &(base->TexTwinflare);
 				break;
 			}
 		}
@@ -155,15 +155,15 @@ namespace ec
 		else if (speed < 0.25f)
 			speed = 0.25f;
 
-		while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0000083 * speed) < bias)
+		while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.000015 * speed) < bias)
 		{
 			const Vec3 coords = *pos;
 			const Vec3 velocity = Vec3(0.0, -randcoord(0.25), 0.0);
-			Particle* p = new StaffParticle(this, mover, coords, velocity, size - 0.25 + randfloat(0.75), 0.25 + randalpha(0.75f), color[0], color[1], color[2], texture, LOD);
+			Particle* p = new StaffParticle(this, mover, coords, velocity, size - 0.125 + randfloat(0.25), 0.5 + randalpha(0.5f), color[0], color[1], color[2], texture, LOD);
 			if (!base->push_back_particle(p))
 				break;
 			if (randfloat(2.0f) < 0.1f) {
-				p = new StaffParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, &(base->TexTwinflare), LOD);
+				p = new StaffParticle(this, mover, coords, velocity, 1.5, 1.0, 2.0, 2.0, 2.0, &(base->TexCrystal), LOD);
 				base->push_back_particle(p);
 			}
 		}
