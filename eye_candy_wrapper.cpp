@@ -44,7 +44,7 @@ std::vector<ec_internal_reference*> references;
 int idle_cycles_this_second = 0;
 
 const float MAX_EFFECT_DISTANCE = 16.0;
-const float MAX_OBSTRUCT_DISTANCE_SQUARED = 90.0;
+const float MAX_OBSTRUCT_DISTANCE_SQUARED = MAX_EFFECT_DISTANCE * MAX_EFFECT_DISTANCE;
 const float OBSTRUCTION_FORCE = 2.0;
 const float WALK_RATE = 1.0;
 const float SWORD_HILT_LENGTH = 0.1;
@@ -227,14 +227,11 @@ extern "C" void get_staff_position(actor* _actor, ec::Vec3& tip)
 {
 	float act_rot[9];
 	float tmp_pos[3], pos[3];
-	float shift[3] = { 0.0, 0.1, 0.0 };
-	int weapon_bone_id = get_actor_bone_id(_actor, weapon_right_bone);
+	float shift[3] = { 0.0, 0.45, 0.0 };
+	int weapon_bone_id = get_actor_bone_id(_actor, staff_right_bone);
 
 	get_actor_rotation_matrix(_actor, act_rot);
 
-	cal_get_actor_bone_local_position(_actor, weapon_bone_id, shift, tmp_pos);
-	transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
-	shift[1] += 0.4;
 	cal_get_actor_bone_local_position(_actor, weapon_bone_id, shift, tmp_pos);
 	transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
 	tip.x = pos[0]; tip.y = pos[2]; tip.z = -pos[1];
@@ -321,7 +318,7 @@ extern "C" void ec_idle()
 			{
 				if ((*iter)->effect->get_type() == ec::EC_SWORD)
 					get_sword_positions((*iter)->caster, (*iter)->position, (*iter)->position2);
-				if ((*iter)->effect->get_type() == ec::EC_STAFF)
+				else if ((*iter)->effect->get_type() == ec::EC_STAFF)
 					get_staff_position((*iter)->caster, (*iter)->position);
 				else if ((*iter)->effect->get_type() == ec::EC_TARGETMAGIC)
 				{
@@ -922,7 +919,9 @@ extern "C" void ec_remove_weapon(actor* _actor)
 		}
 
 		i++;
-		if (((*iter)->caster == _actor) && ((*iter)->effect->get_type() == ec::EC_SWORD))
+		if (((*iter)->caster == _actor) && 
+			(((*iter)->effect->get_type() == ec::EC_SWORD)
+			|| (*iter)->effect->get_type() == ec::EC_STAFF))
 		{
 			(*iter)->effect->recall = true;
 			(*iter)->caster = NULL;

@@ -1,5 +1,5 @@
 /*!
- \brief Special effects for making magical swords sparkle as they're swung.
+ \brief Special effects for making magical staffs sparkle as they're swung.
  */
 
 #ifndef EFFECT_STAFF_H
@@ -57,7 +57,7 @@ namespace ec
 
 			virtual EffectEnum get_type()
 			{
-				return EC_SWORD;
+				return EC_STAFF;
 			}
 			;
 			bool idle(const Uint64 usec);

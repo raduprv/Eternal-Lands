@@ -155,12 +155,10 @@ namespace ec
 		else if (speed < 0.25f)
 			speed = 0.25f;
 
-		while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.000083 * speed) < bias)
+		while (math_cache.powf_0_1_rough_close(randfloat(), (float)usec * 0.0000083 * speed) < bias)
 		{
-			Vec3 randcoords;
-			randcoords.randomize(0.0025);
-			const Vec3 coords = *pos + randcoords;
-			const Vec3 velocity = Vec3(0.0, 0.0, 0.0);
+			const Vec3 coords = *pos;
+			const Vec3 velocity = Vec3(0.0, -randcoord(0.25), 0.0);
 			Particle* p = new StaffParticle(this, mover, coords, velocity, size - 0.25 + randfloat(0.75), 0.25 + randalpha(0.75f), color[0], color[1], color[2], texture, LOD);
 			if (!base->push_back_particle(p))
 				break;
