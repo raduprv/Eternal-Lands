@@ -227,11 +227,14 @@ extern "C" void get_staff_position(actor* _actor, ec::Vec3& tip)
 {
 	float act_rot[9];
 	float tmp_pos[3], pos[3];
-	float shift[3] = { 0.0, 0.5, 0.0 };
+	float shift[3] = { 0.0, 0.1, 0.0 };
 	int weapon_bone_id = get_actor_bone_id(_actor, weapon_right_bone);
 
 	get_actor_rotation_matrix(_actor, act_rot);
 
+	cal_get_actor_bone_local_position(_actor, weapon_bone_id, shift, tmp_pos);
+	transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
+	shift[1] += 0.4;
 	cal_get_actor_bone_local_position(_actor, weapon_bone_id, shift, tmp_pos);
 	transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
 	tip.x = pos[0]; tip.y = pos[2]; tip.z = -pos[1];
