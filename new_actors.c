@@ -386,6 +386,12 @@ void actor_wear_item(int actor_id,Uint8 which_part, Uint8 which_id)
 									case SWORD_JAGGED_SABER:
 										ec_create_sword_jagged_saber(actors_list[i], (poor_man ? 6 : 10));
 										break;
+									case STAFF_3: // staff of protection
+										ec_create_staff_of_protection(actors_list[i], (poor_man ? 6 : 10));
+										break;
+									case STAFF_4: // staff of the mage
+										ec_create_staff_of_the_mage(actors_list[i], (poor_man ? 6 : 10));
+										break;
 								}
 							}
 
@@ -1027,6 +1033,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 					break;
 				case SWORD_JAGGED_SABER:
 					ec_create_sword_jagged_saber(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case STAFF_3: // staff of protection
+					ec_create_staff_of_protection(actors_list[i], (poor_man ? 6 : 10));
+					break;
+				case STAFF_4: // staff of the mage
+					ec_create_staff_of_the_mage(actors_list[i], (poor_man ? 6 : 10));
 					break;
 			}
 		}

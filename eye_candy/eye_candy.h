@@ -256,7 +256,8 @@ namespace ec
 		EC_CANDLE = 17,
 		EC_MINES = 18,
 		EC_GLOW = 19,
-		EC_MISSILE = 20
+		EC_MISSILE = 20,
+		EC_STAFF
 	};
 
 	// C L A S S E S //////////////////////////////////////////////////////////////

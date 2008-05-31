@@ -222,6 +222,20 @@ extern "C" void get_sword_positions(actor* _actor, ec::Vec3& base, ec::Vec3& tip
 	transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
 	tip.x = pos[0]; tip.y = pos[2]; tip.z = -pos[1];
 }
+
+extern "C" void get_staff_position(actor* _actor, ec::Vec3& tip)
+{
+	float act_rot[9];
+	float tmp_pos[3], pos[3];
+	float shift[3] = { 0.0, 0.5, 0.0 };
+	int weapon_bone_id = get_actor_bone_id(_actor, weapon_right_bone);
+
+	get_actor_rotation_matrix(_actor, act_rot);
+
+	cal_get_actor_bone_local_position(_actor, weapon_bone_id, shift, tmp_pos);
+	transform_actor_local_position_to_absolute(_actor, tmp_pos, act_rot, pos);
+	tip.x = pos[0]; tip.y = pos[2]; tip.z = -pos[1];
+}
 #endif //!MAP_EDITOR
 extern "C" void ec_idle()
 {
@@ -304,6 +318,8 @@ extern "C" void ec_idle()
 			{
 				if ((*iter)->effect->get_type() == ec::EC_SWORD)
 					get_sword_positions((*iter)->caster, (*iter)->position, (*iter)->position2);
+				if ((*iter)->effect->get_type() == ec::EC_STAFF)
+					get_staff_position((*iter)->caster, (*iter)->position);
 				else if ((*iter)->effect->get_type() == ec::EC_TARGETMAGIC)
 				{
 					if ((*iter)->casterbone> -1)
@@ -3132,6 +3148,26 @@ extern "C" ec_reference ec_create_sword_sunbreaker(actor* _actor, int LOD)
 	return (ec_reference)ret;
 }
 
+extern "C" ec_reference ec_create_staff_of_the_mage(actor* _actor, int LOD)
+{
+	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+	ret->caster = _actor;
+	get_staff_position(_actor, ret->position);
+	ret->effect = new ec::StaffEffect(&eye_candy, &ret->dead, &ret->position, ec::StaffEffect::STAFF_OF_THE_MAGE, LOD);
+	eye_candy.push_back_effect(ret->effect);
+	return (ec_reference)ret;
+}
+
+extern "C" ec_reference ec_create_staff_of_protection(actor* _actor, int LOD)
+{
+	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
+	ret->caster = _actor;
+	get_staff_position(_actor, ret->position);
+	ret->effect = new ec::StaffEffect(&eye_candy, &ret->dead, &ret->position, ec::StaffEffect::STAFF_OF_PROTECTION, LOD);
+	eye_candy.push_back_effect(ret->effect);
+	return (ec_reference)ret;
+}
+
 extern "C" ec_reference ec_create_sword_orc_slayer(actor* _actor, int LOD)
 {
 	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
@@ -3486,7 +3522,10 @@ extern "C" ec_reference ec_create_mine_detonate2(actor* caster, int mine_type, i
 	if (!ec_in_range(caster->x_pos, caster->y_pos, ec_get_z(caster), ec::MineEffect::get_max_end_time()))
 		return NULL;
 	ec_internal_reference* ret = (ec_internal_reference*)ec_create_generic();
-	ret->position = ec::Vec3(caster->x_pos + X_OFFSET, ec_get_z(caster), -(caster->y_pos + Y_OFFSET));
+	ret->caster = caster;
+	ret->casterbone = get_actor_bone_id(caster, head_bone);
+	set_vec3_actor_bone2(ret->position, ret->caster, ret->casterbone);
+	ret->position = ec::Vec3(ret->position.x, ec_get_z(caster), ret->position.z);
 	if (mine_type == MINE_TYPE_SMALL_MINE)
 	{
 		ret->effect = new ec::MineEffect(&eye_candy, &ret->dead, &ret->position, ec::MineEffect::DETONATE_TYPE1_SMALL, LOD);

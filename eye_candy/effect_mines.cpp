@@ -307,15 +307,15 @@ namespace ec
 			}
 			case DETONATE_TRAP:
 			{
-				effect_center.y += 0.4;
+				effect_center.y += 1.25;
 				mover = new OrbitalMover(this, effect_center);
-				spawner = new HollowSphereSpawner(0.3);
+				spawner = new HollowSphereSpawner(1.25);
 				Particle* p;
 
-				for (int i = 0; i < LOD * 10; i++)
+				for (int i = 0; i < LOD * 100; i++)
 				{
 					Vec3 c = effect_center;
-					c.y = -0.2 - (i * 0.2);
+					c.y = -0.3 + (i * 0.05);
 					Vec3 vel;
 					vel.randomize();
 					vel.normalize(2.0);
@@ -325,7 +325,7 @@ namespace ec
 						break;
 
 					dynamic_cast<OrbitalMover*>(mover)->setParticleData(p, OrbitalParticleData(i, 10,
-						0.45, 7) );
+						0.45, 10) );
 				}
 
 				break;
@@ -338,7 +338,11 @@ namespace ec
 				mover = new ParticleMover(this);
 				const float scale = (type == DETONATE_TYPE1_SMALL ? 0.75 : type
 					== DETONATE_TYPE1_MEDIUM ? 1.25 : 2.0);
-				for (int i = 0; i < LOD * 200 * scale; i++)
+				Vec3 wind;
+				wind.randomize();
+				wind.normalize(0.25);
+				wind.y = 0;
+				for (int i = 0; i < LOD * 100 * scale; i++)
 				{
 					Vec3 coords = spawner->get_new_coords();
 					Vec3 velocity = coords * 10.0 * sqrt(scale);
@@ -350,16 +354,17 @@ namespace ec
 						break;
 				}
 				spawner = new FilledSphereSpawner(0.5 * fastsqrt(scale));
-				for (int i = 0; i < LOD * 50 * scale; i++)
+				for (int i = 0; i < LOD * 32 * scale; i++)
 				{
 					Vec3 coords = spawner->get_new_coords();
 					Vec3 velocity;
 					coords += effect_center;
-					float grey = randcolor(0.25) + 0.125f;
+					float grey = randcolor(0.5);
 					velocity.randomize();
 					velocity.normalize(0.25 * scale);
 					velocity.y = fabs(velocity.y) * 6.0f;
-					Particle *p = new MineParticleSmoke(this, mover, coords, velocity, 5.0 + randcoord(2.0 * scale), 0.0, grey, grey, grey, &(base->TexSimple), LOD);
+					velocity += wind;
+					Particle *p = new MineParticleSmoke(this, mover, coords, velocity, 3.0 + randcoord(3.0 * scale), 0.0, grey, grey, grey, &(base->TexSimple), LOD);
 					if (!base->push_back_particle(p))
 						break;
 				}

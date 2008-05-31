@@ -26,6 +26,7 @@
 #include "eye_candy/effect_teleporter.h"
 #include "eye_candy/effect_firefly.h"
 #include "eye_candy/effect_sword.h"
+#include "eye_candy/effect_staff.h"
 #include "eye_candy/effect_summon.h"
 #include "eye_candy/effect_selfmagic.h"
 #include "eye_candy/effect_targetmagic.h"
@@ -170,7 +171,8 @@ extern "C"
 		EC_CANDLE = 17,
 		EC_MINES = 18,
 		EC_GLOW = 19,
-		EC_MISSILE = 20
+		EC_MISSILE = 20,
+		EC_STAFF = 21
 	} ec_EffectEnum;
 
 	////////////////////////////////////////////////////////////////////////////////
@@ -457,6 +459,8 @@ extern "C"
 	ec_reference ec_create_sword_of_fire(actor* _actor, int LOD);
 	ec_reference ec_create_sword_of_ice(actor* _actor, int LOD);
 	ec_reference ec_create_sword_of_magic(actor* _actor, int LOD);
+	ec_reference ec_create_staff_of_protection(actor* _actor, int LOD);
+	ec_reference ec_create_staff_of_the_mage(actor* _actor, int LOD);
 	ec_reference ec_create_targetmagic_remote_heal(float start_x,
 		float start_y, float start_z, float end_x, float end_y, float end_z,
 		int LOD);
