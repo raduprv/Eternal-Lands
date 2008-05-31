@@ -266,10 +266,7 @@ int show_map_handler (window_info *win)
 	hide_window(paper_win);
 	hide_window(color_race_win);
 	hide_window(tab_bar_win);
-	widget_move_win(input_widget->window_id, input_widget->id, map_root_win);
-	widget_resize (input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, input_widget->len_y);
-	widget_move (input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
-	widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS|WIDGET_INVISIBLE);
+	input_widget_move_to_win(win->window_id);
 	return 1;
 }
 

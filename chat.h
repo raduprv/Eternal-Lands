@@ -29,7 +29,7 @@ extern widget_list *input_widget;
 
 extern queue_t *chan_name_queue;
 
-/*!
+/*
  * \brief   Returns the current chat input widget
  *
  *      Returns a pointer to the current chat input widget.
@@ -38,6 +38,16 @@ extern queue_t *chan_name_queue;
  *
 
 widget_list *get_input_widget(void);*/
+
+/*!
+ * \brief   Moves the chat input widget to a different window
+ *
+ *	Moves the chat input widget to a different window
+ *
+ * \param window_id ID of the window to move the widget to.
+ * \callgraph
+ */
+void input_widget_move_to_win(int window_id);
 
 /*!
  * \ingroup chat_window

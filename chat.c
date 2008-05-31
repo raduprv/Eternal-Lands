@@ -44,6 +44,35 @@ chan_name * pseudo_chans[SPEC_CHANS];
 
 widget_list *input_widget = NULL;
 
+void input_widget_move_to_win(int window_id)
+{
+	window_info *win = &windows_list.window[window_id];
+	text_field *tf = input_widget->widget_info;
+
+	widget_move_win(input_widget->window_id, input_widget->id, window_id);
+	if(window_id == chat_win) {
+		widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
+		input_widget->OnResize = NULL;
+		resize_chat_handler(win, win->len_x, win->len_y);
+	} else {
+		Uint32 flags;
+
+		input_widget->OnResize = input_field_resize;
+		if(window_id == console_root_win) {
+			flags = (TEXT_FIELD_BORDER|INPUT_DEFAULT_FLAGS)^WIDGET_CLICK_TRANSPARENT;
+		} else if(window_id == game_root_win && input_text_line.len == 0) {
+			flags = INPUT_DEFAULT_FLAGS|WIDGET_DISABLED;
+		} else if(window_id == map_root_win) {
+			flags = INPUT_DEFAULT_FLAGS|WIDGET_INVISIBLE;
+		} else {
+			flags = INPUT_DEFAULT_FLAGS;
+		}
+		widget_set_flags(input_widget->window_id, input_widget->id, flags);
+		widget_resize(input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, tf->y_space*2+ceilf(DEFAULT_FONT_Y_LEN*input_widget->size*tf->nr_lines));
+		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
+	}
+}
+
 void add_tab (Uint8 channel)
 {
 	if (tab_bar_win != -1) add_tab_button (channel);
@@ -665,7 +694,7 @@ int chat_input_key (widget_list *widget, int mx, int my, Uint32 key, Uint32 unik
 		(keysym == SDLK_LEFT) || (keysym == SDLK_RIGHT) || (keysym == SDLK_HOME) ||
 		(keysym == SDLK_END) || (keysym == SDLK_DELETE && tf->cursor < msg->len) ) {
 		//pass it along. the defaults are good enough
-		widget->Flags ^= TEXT_FIELD_NO_KEYPRESS;
+		widget->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 		text_field_keypress (widget, mx, my, key, unikey);
 		widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
 	}
@@ -688,7 +717,7 @@ int resize_chat_handler(window_info *win, int width, int height)
 	int input_y = height - input_height - CHAT_WIN_SPACE;
 	int tabcol_height = input_y - 2 * CHAT_WIN_SPACE;
 	int output_height = tabcol_height - CHAT_WIN_TAG_HEIGHT;
-	int line_height = (int) (18.0*chat_zoom);
+	int line_height = DEFAULT_FONT_Y_LEN*chat_zoom;
 	
 	if (output_height < 5*line_height + 2 * CHAT_WIN_SPACE && input_height > 3*line_height + 2 * CHAT_WIN_SPACE)
 	{
@@ -820,15 +849,17 @@ int root_key_to_input_field (Uint32 key, Uint32 unikey)
 	             || (!alt_on && !ctrl_on && is_printable (ch) && ch != '`')
 	        )
 	{
-		if (is_printable (ch) && !get_show_window(map_root_win))
+		if (is_printable (ch) && !get_show_window(map_root_win)) {
 			//Make sure the widget is visible.
-			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);	
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
+			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
+		}
 		// XXX FIXME: we've set the input widget with the
 		// TEXT_FIELD_NO_KEYPRESS flag so that the default key
 		// handler for a text field isn't called, but now
 		// we do want to call it directly. So we clear the flag,
 		// and reset it afterwards.
-		input_widget->Flags ^= TEXT_FIELD_NO_KEYPRESS;
+		input_widget->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 		text_field_keypress (input_widget, 0, 0, key, unikey);
 		input_widget->Flags |= TEXT_FIELD_NO_KEYPRESS;
 	}
@@ -883,7 +914,7 @@ void paste_in_input_field (const Uint8 *text)
 
 void put_string_in_input_field(const Uint8 *text)
 {
-	text_field *tf = (text_field*)(input_widget->widget_info);
+	text_field *tf = input_widget->widget_info;
 	text_message *msg = &(tf->buffer[tf->msg]);
 	int tmp_chan;
 
@@ -953,21 +984,14 @@ void create_chat_window(void)
 	channels[0].newchan = 0;
 	active_tab = 0;		
 
-	if(input_widget == NULL)
-	{
+	if(input_widget == NULL) {
 		Uint32 id;
 		set_text_message_color (&input_text_line, 1.0f, 1.0f, 1.0f);
 		id = text_field_add_extended (chat_win, 19, NULL, CHAT_WIN_SPACE, input_y, inout_width, input_height, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, CHAT_WIN_SPACE, CHAT_WIN_SPACE);
 		widget_set_OnKey (chat_win, id, chat_input_key);
 		input_widget = widget_find(chat_win, id);
-	}
-	else
-	{
-		window_info *win;
-		widget_move_win(input_widget->window_id, input_widget->id, chat_win);
-		win = &windows_list.window[chat_win];
-		resize_chat_handler(win, win->len_x, win->len_y);
-		widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
+	} else {
+		input_widget_move_to_win(chat_win);
 	}
 	set_window_min_size (chat_win, min_width, min_height);
 }

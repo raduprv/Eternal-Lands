@@ -2490,32 +2490,17 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 }
 
 int show_game_handler (window_info *win) {
-	text_field *tf = input_widget->widget_info;
 	init_hud_interface (HUD_INTERFACE_GAME);
 	show_hud_windows();
 
 	if (use_windowed_chat == 2) {
-		window_info *win;
 		/* Put the input widget back into the chat window */
-		widget_move_win(input_widget->window_id, input_widget->id, chat_win);
-		win = &windows_list.window[chat_win];
-		resize_chat_handler(win, win->len_x, win->len_y);
+		input_widget_move_to_win(chat_win);
 	} else {
 		if (use_windowed_chat == 1) {
 			display_tab_bar();
 		}
-		widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
-		widget_resize (input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, input_widget->len_y);
-		input_widget->OnResize = input_field_resize;
-		widget_move (input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
-		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
-	}
-	if(input_widget->window_id == game_root_win) {
-		if(tf->buffer->len > 0) {
-			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_DISABLED);
-		} else {
-			widget_set_flags(input_widget->window_id, input_widget->id, input_widget->Flags|WIDGET_DISABLED);
-		}
+		input_widget_move_to_win(game_root_win);
 	}
 	return 1;
 }
@@ -2534,20 +2519,13 @@ void create_game_root_window (int width, int height)
 		set_window_handler (game_root_win, ELW_HANDLER_AFTER_SHOW, &update_have_display);
 		set_window_handler (game_root_win, ELW_HANDLER_HIDE, &update_have_display);
 
-		if(input_widget == NULL)
-		{
+		if(input_widget == NULL) {
 			Uint32 id;
 			id = text_field_add_extended(game_root_win, 42, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, INPUT_DEFAULT_FLAGS, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(game_root_win, id);
 			input_widget->OnResize = input_field_resize;
-		}
-		else
-		{
-			widget_move_win(input_widget->window_id, input_widget->id, game_root_win);
-			widget_resize (input_widget->window_id, input_widget->id, width-HUD_MARGIN_X, input_widget->len_y);
-			input_widget->OnResize = input_field_resize;
-			widget_move (input_widget->window_id, input_widget->id, 0, height-input_widget->len_y-HUD_MARGIN_Y);
-			widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
+		} else {
+			input_widget_move_to_win(game_root_win);
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
 		if(input_text_line.len > 0) {

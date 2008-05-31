@@ -126,7 +126,7 @@ int popup_keypress_handler (window_info *win, int mx, int my, Uint32 key, Uint32
 			// we clear the flag, let the widget handle it, then
 			// set the flag again.
 			int res;
-			tfw->Flags ^= TEXT_FIELD_NO_KEYPRESS;
+			tfw->Flags &= ~TEXT_FIELD_NO_KEYPRESS;
 			res = widget_handle_keypress (tfw, mx - tfw->pos_x, my - tfw->pos_y, key, unikey);
 			tfw->Flags |= TEXT_FIELD_NO_KEYPRESS;
 			return res;

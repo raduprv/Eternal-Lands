@@ -895,39 +895,23 @@ void change_windowed_chat (int *wc, int val)
 	{
 		if (game_root_win >= 0)
 		{
-			window_info *win;
 			display_chat();
-			widget_move_win(input_widget->window_id, input_widget->id, chat_win);
-			widget_set_flags(input_widget->window_id, input_widget->id, TEXT_FIELD_BORDER|TEXT_FIELD_EDITABLE|TEXT_FIELD_NO_KEYPRESS);
-			win= &windows_list.window[chat_win];
-			resize_chat_handler(win, win->len_x, win->len_y);
+			input_widget_move_to_win(chat_win);
 		}
 	}
 	else if (chat_win >= 0)
 	{
-		window_info *win;
 		int target_win= game_root_win;
+
 		hide_window (chat_win);
 		if(get_show_window(game_root_win)) {
 			target_win= game_root_win;
-			if(input_text_line.len > 0) {
-				widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
-			} else {
-				widget_set_flags(input_widget->window_id, input_widget->id, WIDGET_INVISIBLE);
-			}
 		} else if(get_show_window(console_root_win)) {
 			target_win= console_root_win;
 		} else if(get_show_window(map_root_win)) {
 			target_win= map_root_win;
 		}
-		win= &windows_list.window[target_win];
-		widget_move_win(input_widget->window_id, input_widget->id, target_win);
-		widget_resize (input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, input_widget->len_y);
-		widget_move (input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
-		widget_set_flags(input_widget->window_id, input_widget->id, INPUT_DEFAULT_FLAGS);
-		if(target_win == console_root_win) {
-			widget_unset_flags (input_widget->window_id, input_widget->id, WIDGET_CLICK_TRANSPARENT);
-		}
+		input_widget_move_to_win(target_win);
 	}
 
 	if (old_wc != *wc && (old_wc == 1 || old_wc == 2) )

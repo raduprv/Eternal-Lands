@@ -1554,7 +1554,7 @@ int	drag_in_window(int win_id, int x, int y, Uint32 flags, int dx, int dy)
 	if(win->drag_in || mouse_in_window(win_id, x, y) > 0)
 	{
 		int	ret_val;
-							    
+
 		// widgets
 		glPushMatrix();
 		glTranslatef((float)win->cur_x, (float)win->cur_y-scroll_pos, 0.0f);

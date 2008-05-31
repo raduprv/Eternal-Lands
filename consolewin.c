@@ -263,11 +263,7 @@ int show_console_handler (window_info *win) {
 	if (use_windowed_chat == 1) {
 		display_tab_bar ();
 	}
-	widget_move_win(input_widget->window_id, input_widget->id, console_root_win);
-	input_widget->OnResize = input_field_resize;
-	widget_resize (input_widget->window_id, input_widget->id, win->len_x-HUD_MARGIN_X, input_widget->len_y);
-	widget_move (input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
-	widget_set_flags(input_widget->window_id, input_widget->id, (TEXT_FIELD_BORDER|INPUT_DEFAULT_FLAGS)^WIDGET_CLICK_TRANSPARENT);
+	input_widget_move_to_win(win->window_id);
 	return 1;
 }
 
@@ -284,21 +280,15 @@ void create_console_root_window (int width, int height)
 		set_window_handler (console_root_win, ELW_HANDLER_SHOW, &show_console_handler);
 
 		console_out_id = text_field_add_extended (console_root_win, console_out_id, NULL, 10, 25, width - hud_x - 20, height - INPUT_HEIGHT - CONSOLE_SEP_HEIGHT - hud_y - 10, 0, chat_zoom, -1.0f, -1.0f, -1.0f, display_text_buffer, DISPLAY_TEXT_BUFFER_SIZE, CHAT_ALL, 0, 0);
-		if(input_widget == NULL)
-		{
+		if(input_widget == NULL) {
 			Uint32 id;
 			id = text_field_add_extended(console_root_win, 0, NULL, 0, height-INPUT_HEIGHT-hud_y, width-hud_x, INPUT_HEIGHT, (INPUT_DEFAULT_FLAGS|TEXT_FIELD_BORDER)^WIDGET_CLICK_TRANSPARENT, chat_zoom, 0.77f, 0.57f, 0.39f, &input_text_line, 1, FILTER_ALL, INPUT_MARGIN, INPUT_MARGIN);
 			input_widget = widget_find(console_root_win, id);
 			input_widget->OnResize = input_field_resize;
-		}
-		else
-		{
-			widget_move_win(input_widget->window_id, input_widget->id, console_root_win);
-			widget_resize (input_widget->window_id, input_widget->id, width-HUD_MARGIN_X, input_widget->len_y);
-			widget_move (input_widget->window_id, input_widget->id, 0, height-input_widget->len_y-HUD_MARGIN_Y);
+		} else {
+			input_widget_move_to_win(console_root_win);
 		}
 		widget_set_OnKey(input_widget->window_id, input_widget->id, chat_input_key);
-		widget_set_flags(input_widget->window_id, input_widget->id, (TEXT_FIELD_BORDER|INPUT_DEFAULT_FLAGS)^WIDGET_CLICK_TRANSPARENT);
 
 		nr_console_lines = (int) (height - input_widget->len_y -  CONSOLE_SEP_HEIGHT - hud_y - 10) / (18 * chat_zoom);
 		console_text_width = (int) (width - hud_x - 20);
@@ -319,7 +309,7 @@ int input_field_resize(widget_list *w, Uint32 x, Uint32 y)
 	msg->chan_idx = CHAT_NONE;
 	tf->nr_lines = rewrap_message(msg, w->size, w->len_x - 2 * tf->x_space, &tf->cursor);
 	msg->chan_idx = tmp_chan;
-	if(use_windowed_chat != 2) {
+	if(use_windowed_chat != 2 || !get_show_window(chat_win)) {
 		window_info *win = &windows_list.window[w->window_id];
 		widget_move(input_widget->window_id, input_widget->id, 0, win->len_y-input_widget->len_y-HUD_MARGIN_Y);
 	}
