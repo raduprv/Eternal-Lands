@@ -15,8 +15,9 @@
 #include "shadows.h"
 #include "skeletons.h"
 #include "tiles.h"
-#ifndef MAP_EDITOR
-#endif //!MAP_EDITOR
+#ifdef NEW_WEATHER
+#include "weather.h"
+#endif
 // G L O B A L S //////////////////////////////////////////////////////////////
 
 #ifdef MAP_EDITOR
@@ -562,7 +563,11 @@ extern "C" void ec_draw()
 #endif
 			) 
 			{
-				(*iter)->effect->active = (!(is_day || dungeon));
+				(*iter)->effect->active = (!(is_day || dungeon
+#ifdef NEW_WEATHER
+					|| (weather_get_density() > 0.01f)
+#endif
+				));
 			}
 #endif
 			i++;
