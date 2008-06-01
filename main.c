@@ -186,8 +186,7 @@ int start_rendering()
 			if(!limit_fps || (cur_time-last_time && 1000/(cur_time-last_time) <= limit_fps))
 			{
 #ifdef NEW_WEATHER
-				if (skybox_update_delay < 1)
-					weather_update();
+				weather_update();
 #endif // NEW_WEATHER
 
                 animate_actors();

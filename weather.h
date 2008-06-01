@@ -28,6 +28,7 @@ extern int use_fog;			/*!< Whether we are using fog or not */
 
 extern float weather_color[];
 extern float lightning_color[];
+extern float lightning_ambient_color[];
 extern float lightning_position[];
 extern int lightning_falling;
 
@@ -48,8 +49,7 @@ float weather_get_density_from_ratios(float ratios[MAX_WEATHER_TYPES]);
 void weather_get_color_from_ratios(float color[4], float ratios[MAX_WEATHER_TYPES]);
 
 void weather_add_lightning(int type, float x, float y);
-void weather_init_lightning_render();
-void weather_cleanup_lightning_render();
+void weather_init_lightning_light();
 void weather_render_lightning();
 float weather_get_lightning_intensity(float x, float y);
 

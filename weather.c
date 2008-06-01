@@ -109,6 +109,7 @@ int lightning_type;
 float lightning_position[4] = {0.0, 0.0, 100.0, 1.0};
 float lightning_sky_position[4] = {0.0, 0.0, 0.0, 1.0};
 float lightning_color[4] = {0.9, 0.85, 1.0, 1.0};
+float lightning_ambient_color[4] = {0.50, 0.45, 0.55, 1.0};
 int lightning_falling = 0;
 
 float weather_ratios[MAX_WEATHER_TYPES];
@@ -289,13 +290,11 @@ void weather_get_color_from_ratios(float color[4], float ratios[MAX_WEATHER_TYPE
 	}
 }
 
-void __inline__ make_drop(int type, int i, float x, float y, float z, float dx, float dy, float dz){
+void __inline__ make_drop(int type, int i, float x, float y, float z)
+{
 	weather_drops[type][i].pos1[0] = x + 16.0f * RAND_ONE - 8.0f;
 	weather_drops[type][i].pos1[1] = y + 16.0f * RAND_ONE - 8.0f;
 	weather_drops[type][i].pos1[2] = z + 10.0f * RAND_ONE +  2.0f;
-	weather_drops[type][i].pos2[0] = weather_drops[type][i].pos1[0] + dx;
-	weather_drops[type][i].pos2[1] = weather_drops[type][i].pos1[1] + dy;
-	weather_drops[type][i].pos2[2] = weather_drops[type][i].pos1[2] + dz;
 }
 
 void update_wind(void)
@@ -332,24 +331,27 @@ void update_weather_type(int type, float x, float y, float z, int ticks)
 	if (num_drops > 0)
 	{
 		int i;
-		float x_move = weather_defs[type].wind_effect * sinf((float)wind_direction*M_PI/180) * wind_speed * ticks * 1E-3;
-		float y_move = weather_defs[type].wind_effect * cosf((float)wind_direction*M_PI/180) * wind_speed * ticks * 1E-3;
-		float z_move = weather_defs[type].speed * ticks * 1E-3;
+		float x_move = weather_defs[type].wind_effect * sinf((float)wind_direction*M_PI/180) * wind_speed;
+		float y_move = weather_defs[type].wind_effect * cosf((float)wind_direction*M_PI/180) * wind_speed;
+		float z_move = -weather_defs[type].speed;
+		float dt = ticks * 1E-3;
+		float dx, dy, dz;
 		
 		for(i = 0; i < weather_drops_count[type]; ++i)
 		{
+			dx = x_move*(1.1-0.2*RAND_ONE);
+			dy = y_move*(1.1-0.2*RAND_ONE);
+			dz = z_move*(1.1-0.2*RAND_ONE);
+
 			if (weather_drops[type][i].pos1[2] < z-1.0f)
 			{
 				// the drop should still exist so we recreate it
-				make_drop(type, i, x, y, z, -x_move, -y_move, z_move);
+				make_drop(type, i, x, y, z);
 			}
 			else
 			{
-				// we save the old position
-				memcpy(weather_drops[type][i].pos2, weather_drops[type][i].pos1, 3*sizeof(float));
-				
 				// it's moving. so find out how much by, and wrap around the X/Y if it's too far away (as wind can cause)
-				weather_drops[type][i].pos1[0] += x_move*(1.1-0.2*RAND_ONE);
+				weather_drops[type][i].pos1[0] += dx * dt;
 				if (weather_drops[type][i].pos1[0] < x - 8.0f)
 				{
 					weather_drops[type][i].pos1[0] += 16.0f;
@@ -361,7 +363,7 @@ void update_weather_type(int type, float x, float y, float z, int ticks)
 					weather_drops[type][i].pos2[0] -= 16.0f;
 				}
 				
-				weather_drops[type][i].pos1[1] += y_move*(1.1-0.2*RAND_ONE);
+				weather_drops[type][i].pos1[1] += dy * dt;
 				if (weather_drops[type][i].pos1[1] < y - 8.0f)
 				{
 					weather_drops[type][i].pos1[1] += 16.0f;
@@ -373,8 +375,12 @@ void update_weather_type(int type, float x, float y, float z, int ticks)
 					weather_drops[type][i].pos2[1] -= 16.0f;
 				}
 				
-				weather_drops[type][i].pos1[2] -= z_move*(1.1-0.2*RAND_ONE);
+				weather_drops[type][i].pos1[2] += dz * dt;
 			}
+
+			weather_drops[type][i].pos2[0] = weather_drops[type][i].pos1[0] - dx * 0.02;
+			weather_drops[type][i].pos2[1] = weather_drops[type][i].pos1[1] - dy * 0.02;
+			weather_drops[type][i].pos2[2] = weather_drops[type][i].pos1[2] - dz * 0.02;
 		}
 		
 		// if there are not enough drops, we recreate new ones
@@ -382,7 +388,10 @@ void update_weather_type(int type, float x, float y, float z, int ticks)
 		{
 			for (i = weather_drops_count[type]; i < num_drops; ++i)
 			{
-				make_drop(type, i, x, y, z, -x_move, -y_move, z_move);
+				make_drop(type, i, x, y, z);
+				weather_drops[type][i].pos2[0] = weather_drops[type][i].pos1[0] - x_move * 0.02;
+				weather_drops[type][i].pos2[1] = weather_drops[type][i].pos1[1] - y_move * 0.02;
+				weather_drops[type][i].pos2[2] = weather_drops[type][i].pos1[2] - z_move * 0.02;
 			}
 			weather_drops_count[type] = num_drops;
 		}
@@ -401,6 +410,7 @@ void weather_update()
 	if (lightning_falling && cur_time > lightning_stop)
 	{
 		lightning_falling = 0;
+		calc_shadow_matrix();
 		if (skybox_update_delay > 0)
 			skybox_update_colors();
 	}
@@ -442,6 +452,10 @@ void weather_update()
 	// we compute the weather color at the actor position
 	weather_get_color_from_ratios(weather_color, weather_ratios);
 	
+	// we update the weather types
+	for (i = 1; i < MAX_WEATHER_TYPES; ++i)
+		update_weather_type(i, -camera_x, -camera_y, 0.0, ticks);
+	
 	last_update = cur_time;
 }
 
@@ -464,12 +478,7 @@ void weather_render()
 	float modelview[16];
 	float delta1[3], delta2[3];
 	float color1[4], color2[4], light_level[3];
-	static Uint32 last_render = 0;
 
-	// we first update the weather types
-	for (i = 1; i < MAX_WEATHER_TYPES; ++i)
-		update_weather_type(i, -camera_x, -camera_y, 0.0, cur_time - last_render);
-	
 	skybox_get_current_color(color1, skybox_light_ambient);
 	skybox_get_current_color(color2, skybox_light_diffuse);
 
@@ -566,8 +575,6 @@ void weather_render()
 #ifdef OPENGL_TRACE
 	CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
-
-	last_render = cur_time;
 }
 
 int weather_get_drops_count(int type)
@@ -618,39 +625,20 @@ void weather_add_lightning(int type, float x, float y)
         lightning_sky_position[0] -= camera_x;
         lightning_sky_position[1] -= camera_y;
         
+		calc_shadow_matrix();
+
         if (skybox_update_delay > 0)
             skybox_update_colors();
 	}
 }
 
-void weather_init_lightning_render()
+void weather_init_lightning_light()
 {
 	if (lightning_falling)
 	{
-		if (is_day)
-		{
-			glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 0);
-			glLightfv(GL_LIGHT0, GL_DIFFUSE, lightning_color);
-			glLightfv(GL_LIGHT0, GL_POSITION, lightning_position);
-			glEnable(GL_LIGHT0);
-		}
-		else
-		{
-			glLightfv(GL_LIGHT7, GL_DIFFUSE, lightning_color);
-			glLightfv(GL_LIGHT7, GL_POSITION, lightning_position);
-		}
-	}
-}
-
-void weather_cleanup_lightning_render()
-{
-	if (lightning_falling)
-	{
-		if (is_day)
-		{
-			glLightf(GL_LIGHT0, GL_LINEAR_ATTENUATION, 1.41);
-			glDisable(GL_LIGHT0);
-		}
+		glLightfv(GL_LIGHT7, GL_AMBIENT, lightning_ambient_color);
+		glLightfv(GL_LIGHT7, GL_DIFFUSE, lightning_color);
+		glLightfv(GL_LIGHT7, GL_POSITION, lightning_position);
 	}
 }
 

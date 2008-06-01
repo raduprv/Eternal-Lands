@@ -106,25 +106,34 @@ void calc_light_frustum(float light_xrot)
 
 void calc_shadow_matrix()
 {
+	float light_pos[4];
+
+#ifdef NEW_WEATHER
+	if (lightning_falling)
+		memcpy(light_pos, lightning_position, 4*sizeof(float));
+	else
+#endif // NEW_WEATHER
+		memcpy(light_pos, sun_position, 4*sizeof(float));
+
 	if(use_shadow_mapping)
 		{
 			float xrot,zrot;
 
-			float div_length=1.0f/sqrt(sun_position[0]*sun_position[0]+sun_position[1]*sun_position[1]+sun_position[2]*sun_position[2]);
-			sun_position[0]*=div_length;
-			sun_position[1]*=div_length;
-			sun_position[2]*=div_length;
+			float div_length=1.0f/sqrt(light_pos[0]*light_pos[0]+light_pos[1]*light_pos[1]+light_pos[2]*light_pos[2]);
+			light_pos[0]*=div_length;
+			light_pos[1]*=div_length;
+			light_pos[2]*=div_length;
 			// Grumble, Old version of OS X don't have *f trig functions but I'm compiling on a version so I can't just #define my way out
 #ifdef OSX
-			xrot=-acos(sun_position[2]);
+			xrot=-acos(light_pos[2]);
 #else
-			xrot=-acosf(sun_position[2]);
+			xrot=-acosf(light_pos[2]);
 #endif
-			//xrot=-atan2f(sun_position[2],sun_position[0])*180.0f/(float)M_PI;
+			//xrot=-atan2f(light_pos[2],light_pos[0])*180.0f/(float)M_PI;
 #ifdef OSX
-			zrot=-90.0f-atan2(sun_position[1],sun_position[0])*180.0f/(float)M_PI;
+			zrot=-90.0f-atan2(light_pos[1],light_pos[0])*180.0f/(float)M_PI;
 #else
-			zrot=-90.0f-atan2f(sun_position[1],sun_position[0])*180.0f/(float)M_PI;
+			zrot=-90.0f-atan2f(light_pos[1],light_pos[0])*180.0f/(float)M_PI;
 #endif
 
 			glPushMatrix();
@@ -152,34 +161,34 @@ void calc_shadow_matrix()
 			float dot;
 
 			// dot product of plane and light position
-			dot = ground_plane[0] * sun_position[0]
-			  + ground_plane[1] * sun_position[1]
-			  + ground_plane[2] * sun_position[2]
-			  + ground_plane[3] * sun_position[3];
+			dot = ground_plane[0] * light_pos[0]
+			  + ground_plane[1] * light_pos[1]
+			  + ground_plane[2] * light_pos[2]
+			  + ground_plane[3] * light_pos[3];
 
 			// first column
-			proj_on_ground[0] = dot - sun_position[0] * ground_plane[0];
-			proj_on_ground[4] = 0.0f - sun_position[0] * ground_plane[1];
-			proj_on_ground[8] = 0.0f - sun_position[0] * ground_plane[2];
-			proj_on_ground[12] = 0.0f - sun_position[0] * ground_plane[3];
+			proj_on_ground[0] = dot - light_pos[0] * ground_plane[0];
+			proj_on_ground[4] = 0.0f - light_pos[0] * ground_plane[1];
+			proj_on_ground[8] = 0.0f - light_pos[0] * ground_plane[2];
+			proj_on_ground[12] = 0.0f - light_pos[0] * ground_plane[3];
 
 			// second column
-			proj_on_ground[1] = 0.0f - sun_position[1] * ground_plane[0];
-			proj_on_ground[5] = dot - sun_position[1] * ground_plane[1];
-			proj_on_ground[9] = 0.0f - sun_position[1] * ground_plane[2];
-			proj_on_ground[13] = 0.0f - sun_position[1] * ground_plane[3];
+			proj_on_ground[1] = 0.0f - light_pos[1] * ground_plane[0];
+			proj_on_ground[5] = dot - light_pos[1] * ground_plane[1];
+			proj_on_ground[9] = 0.0f - light_pos[1] * ground_plane[2];
+			proj_on_ground[13] = 0.0f - light_pos[1] * ground_plane[3];
 
 			// third column
-			proj_on_ground[2] = 0.0f - sun_position[2] * ground_plane[0];
-			proj_on_ground[6] = 0.0f - sun_position[2] * ground_plane[1];
-			proj_on_ground[10] = dot - sun_position[2] * ground_plane[2];
-			proj_on_ground[14] = 0.0f - sun_position[2] * ground_plane[3];
+			proj_on_ground[2] = 0.0f - light_pos[2] * ground_plane[0];
+			proj_on_ground[6] = 0.0f - light_pos[2] * ground_plane[1];
+			proj_on_ground[10] = dot - light_pos[2] * ground_plane[2];
+			proj_on_ground[14] = 0.0f - light_pos[2] * ground_plane[3];
 
 			// fourth column
-			proj_on_ground[3] = 0.0f - sun_position[3] * ground_plane[0];
-			proj_on_ground[7] = 0.0f - sun_position[3] * ground_plane[1];
-			proj_on_ground[11] = 0.0f - sun_position[3] * ground_plane[2];
-			proj_on_ground[15] = dot - sun_position[3] * ground_plane[3];
+			proj_on_ground[3] = 0.0f - light_pos[3] * ground_plane[0];
+			proj_on_ground[7] = 0.0f - light_pos[3] * ground_plane[1];
+			proj_on_ground[11] = 0.0f - light_pos[3] * ground_plane[2];
+			proj_on_ground[15] = dot - light_pos[3] * ground_plane[3];
 		}
 	main_bbox_tree->intersect[INTERSECTION_TYPE_SHADOW].intersect_update_needed = 1;
 #ifdef OPENGL_TRACE
@@ -547,9 +556,18 @@ void setup_shadow_mapping()
 {
 #ifdef SKY_FPV
     GLfloat shadow_color[] = {ambient_light[0]+0.2,
-                              ambient_light[1]+0.2,
-                              ambient_light[2]+0.2,
-                              1.0};
+							  ambient_light[1]+0.2,
+							  ambient_light[2]+0.2,
+							  1.0};
+
+#ifdef NEW_WEATHER
+	if (lightning_falling)
+	{
+		if (lightning_ambient_color[0]+0.2 > shadow_color[0]) shadow_color[0] = lightning_ambient_color[0]+0.2;
+		if (lightning_ambient_color[1]+0.2 > shadow_color[1]) shadow_color[1] = lightning_ambient_color[1]+0.2;
+		if (lightning_ambient_color[2]+0.2 > shadow_color[2]) shadow_color[2] = lightning_ambient_color[2]+0.2;
+	}
+#endif // NEW_WEATHER
 #endif // SKY_FPV
 
 	glPushMatrix();

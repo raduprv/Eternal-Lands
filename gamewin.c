@@ -1118,7 +1118,11 @@ int display_game_handler (window_info *win)
 		    ((!use_new_lighting) && (!dungeon && shadows_on && is_day))
 		   )
 #else
+#ifndef NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
+#else // NEW_WEATHER
+		if (!dungeon && shadows_on && (is_day || lightning_falling))
+#endif // NEW_WEATHER
 #endif
 		{
 			render_light_view();
@@ -1140,7 +1144,7 @@ int display_game_handler (window_info *win)
 		missiles_update();
 	
 #ifdef NEW_WEATHER
-		weather_init_lightning_render();
+		weather_init_lightning_light();
 #endif // NEW_WEATHER
 
 #ifdef NEW_LIGHTING
@@ -1152,7 +1156,11 @@ int display_game_handler (window_info *win)
 		    ((!use_new_lighting) && (!dungeon && shadows_on && is_day))
 		   )
 #else
+#ifndef NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
+#else // NEW_WEATHER
+		if (!dungeon && shadows_on && (is_day || lightning_falling))
+#endif // NEW_WEATHER
 #endif
 		{
 			glNormal3f(0.0f,0.0f,1.0f);
@@ -1198,8 +1206,6 @@ int display_game_handler (window_info *win)
 		glMatrixMode(GL_PROJECTION);
 		glPopMatrix();
 		glMatrixMode(GL_MODELVIEW);
-
-		weather_cleanup_lightning_render();
 #endif // NEW_WEATHER
 
 		CHECK_GL_ERRORS ();

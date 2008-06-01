@@ -317,10 +317,6 @@ int display_newchar_handler (window_info *win)
 
 		CHECK_GL_ERRORS ();
 
-#ifdef NEW_WEATHER
-		weather_init_lightning_render();
-#endif // NEW_WEATHER
-
 		if (shadows_on && is_day) {
 			draw_sun_shadowed_scene (any_reflection);
 		} else {
@@ -337,21 +333,6 @@ int display_newchar_handler (window_info *win)
 			display_alpha_objects();
 			display_blended_objects();
 		}
-
-#ifdef NEW_WEATHER
-		glMatrixMode(GL_PROJECTION);
-		glPushMatrix();
-		glLoadMatrixd(skybox_view);
-		glMatrixMode(GL_MODELVIEW);
-
-		weather_render_lightning();
-
-		glMatrixMode(GL_PROJECTION);
-		glPopMatrix();
-		glMatrixMode(GL_MODELVIEW);
-
-		weather_cleanup_lightning_render();
-#endif // NEW_WEATHER
 
 		CHECK_GL_ERRORS ();
 	}

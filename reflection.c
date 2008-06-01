@@ -667,7 +667,7 @@ void display_3d_reflection()
 	if (far_reflection_plane > 0.0)
 	{
 #ifdef NEW_WEATHER
-		weather_init_lightning_render();
+		weather_init_lightning_light();
 #endif // NEW_WEATHER
 #endif // SKY_FPV
 
@@ -707,9 +707,6 @@ void display_3d_reflection()
 	disable_reflection_clip_planes();
 
 #ifdef SKY_FPV
-#ifdef NEW_WEATHER
-		weather_cleanup_lightning_render();
-#endif // NEW_WEATHER
 	}
 #endif // SKY_FPV
 
@@ -890,7 +887,11 @@ void draw_lake_tiles()
 #ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 	{
+#ifdef NEW_WEATHER
+		if (!dungeon && shadows_on && (is_day || lightning_falling))
+#else // NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
+#endif // NEW_WEATHER
 		{
 			cur_shader = get_shader(st_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
@@ -916,7 +917,11 @@ void draw_lake_tiles()
 			ELglUniform1fARB(ELglGetUniformLocationARB(cur_shader, "time"), cur_time / 23725.0f);
 			CHECK_GL_ERRORS();
 		}
+#ifdef NEW_WEATHER
+		if (!dungeon && shadows_on && (is_day || lightning_falling))
+#else // NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
+#endif // NEW_WEATHER
 		{
 			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
 		}
@@ -955,7 +960,11 @@ void draw_lake_tiles()
 		ELglActiveTextureARB(base_unit);
 		CHECK_GL_ERRORS();
 
+#ifdef NEW_WEATHER
+		if (!dungeon && shadows_on && (is_day || lightning_falling))
+#else // NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
+#endif // NEW_WEATHER
 		{
 			cur_shader = get_shader(st_reflectiv_water, sst_shadow_receiver, use_fog, water_shader_quality - 1);
 		}
@@ -1005,7 +1014,11 @@ void draw_lake_tiles()
 			ELglUniform1iARB(idx, 4);
 		}
 
+#ifdef NEW_WEATHER
+		if (!dungeon && shadows_on && (is_day || lightning_falling))
+#else // NEW_WEATHER
 		if (!dungeon && shadows_on && is_day)
+#endif // NEW_WEATHER
 		{
 			ELglUniform1iARB(ELglGetUniformLocationARB(cur_shader, "shadow_texture"), shadow_unit - GL_TEXTURE0);
 		}

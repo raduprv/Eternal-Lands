@@ -422,12 +422,19 @@ void change_poor_man(int *poor_man)
 		use_shadow_mapping= 0;
 #ifndef MAP_EDITOR2
 		special_effects= 0;
+		use_eye_candy = 0;
 		use_fog= 0;
 #endif
 #ifndef MAP_EDITOR
 		use_frame_buffer= 0;
 #endif
 		update_fbos();
+#ifdef SKY_FPV
+		skybox_show_clouds = 0;
+		skybox_show_sun = 0;
+		skybox_show_moons = 0;
+		skybox_show_stars = 0;
+#endif // SKY_FPV
 	}
 }
 
