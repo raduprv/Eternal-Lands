@@ -1,0 +1,20 @@
+Source: eternallands
+Section: x11
+Priority: extra
+Maintainer: Paul Broadhead <pjbroad@twinmoons.clara.co.uk>
+Build-Depends: debhelper (>= 5), libsdl-net1.2-dev, libxml2-dev, libalut-dev, libogg-dev, libvorbis-dev, libopenal-dev, libcal3d12-dev, libsdl-image1.2-dev
+Standards-Version: 3.7.3
+Homepage: http://www.eternal-lands.com
+
+Package: eternallands
+Architecture: any
+Depends: ${shlibs:Depends}, eternallands-data (>=1.6.0), zenity
+Recommends: eternallands-sound (>=1.6.0), ethernallands-music (>=1.6.0)
+Description: Eternal Lands is a free MMORPG, this is the client package
+ Eternal Lands is a FREE MMORPG (massively multiplayer online role playing
+ game). From the website: The game is now in Beta stage, but that doesn't mean
+ it's incomplete. It's currently fully playable and we are constantly working on
+ adding more things to do, more items to make, monsters to fight, and also
+ improving the current systems. If you want to help us in any way, take a look
+ in our forums and there you can post your ideas/suggestions, or perhaps even
+ get involved with programming or mapmaking which we can always use help with!

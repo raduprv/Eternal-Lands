@@ -1,0 +1,7 @@
+?package(eternallands): \
+  needs="X11" \
+  section="Games/Adventure" \
+  title="Eternal Lands" \
+  longtitle="A free, massively multiplayer online role playing game (MMORPG)" \
+  command="/usr/games/eternallands" \
+  icon="/usr/share/pixmaps/eternallands.xpm"

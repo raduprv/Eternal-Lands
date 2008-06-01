@@ -1,0 +1,96 @@
+#!/usr/bin/make -f
+# -*- makefile -*-
+# Sample debian/rules that uses debhelper.
+# This file was originally written by Joey Hess and Craig Small.
+# As a special exception, when this file is copied by dh-make into a
+# dh-make output file, you may use that output file without restriction.
+# This special exception was added by Craig Small in version 0.37 of dh-make.
+
+# Uncomment this to turn on verbose mode.
+#export DH_VERBOSE=1
+
+configure: configure-stamp
+configure-stamp:
+	dh_testdir
+	# Commands to configure the package.
+
+	touch configure-stamp
+
+
+build: build-stamp
+
+build-stamp: configure-stamp 
+	dh_testdir
+
+	# Cmmands to compile the package.
+	$(MAKE) -f Makefile.linux release
+	cp eternal_lands_license.txt debian/copyright
+
+	touch $@
+
+clean:
+	dh_testdir
+	dh_testroot
+	rm -f build-stamp configure-stamp
+
+	# Commands to clean up after the build process.
+	$(MAKE) -f Makefile.linux clean
+	rm -f .depend el.x86.linux.bin glinfo make.conf debian/copyright
+
+	dh_clean 
+
+BIN = $(CURDIR)/debian/eternallands/usr/games
+ICON = $(CURDIR)/debian/eternallands/usr/share/pixmaps/
+MENU = $(CURDIR)/debian/eternallands/usr/share/applications/
+
+install: build
+	dh_testdir
+	dh_testroot
+	dh_clean -k 
+	dh_installdirs
+
+	# Commands to install the package into debian/eternallands.
+	install -d $(BIN) $(ICON) $(MENU)
+	install el.x86.linux.bin $(BIN)
+	install pkgfiles/eternallands $(BIN)
+	install --mode=644 pkgfiles/eternallands.png $(ICON)
+	install --mode=644 pkgfiles/eternallands.xpm $(ICON)
+	install --mode=644 pkgfiles/eternallands.desktop $(MENU)
+
+# Build architecture-independent files here.
+binary-indep: build install
+# We have nothing to do by default.
+
+# Build architecture-dependent files here.
+binary-arch: build install
+	dh_testdir
+	dh_testroot
+	dh_installchangelogs CHANGES
+	dh_installdocs
+	dh_installexamples
+	dh_install
+	dh_installmenu
+#	dh_installdebconf	
+#	dh_installlogrotate
+#	dh_installemacsen
+#	dh_installpam
+#	dh_installmime
+#	dh_python
+#	dh_installinit
+#	dh_installcron
+#	dh_installinfo
+	dh_installman pkgfiles/eternallands.6 pkgfiles/el.x86.linux.bin.6
+	dh_link
+	dh_strip
+	dh_compress
+	dh_fixperms
+#	dh_perl
+#	dh_makeshlibs
+	dh_installdeb
+	dh_shlibdeps
+	dh_gencontrol
+	dh_md5sums
+	dh_builddeb
+
+binary: binary-indep binary-arch
+.PHONY: build clean binary-indep binary-arch binary install configure

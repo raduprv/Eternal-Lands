@@ -1,0 +1,10 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Eternal Lands
+Comment=A free, massively multiplayer online role playing game (MMORPG)
+Exec=eternallands
+Icon=eternallands.png
+StartupNotify=true
+Terminal=false
+Type=Application
+Categories=Game;AdventureGame;

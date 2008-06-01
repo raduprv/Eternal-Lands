@@ -1,0 +1,72 @@
+#!/usr/bin/env bash
+#
+# Wrapper script for Eternal Lands client.
+# - Copies required files to ~/.elc if not already there
+# - Checks all ~/.elc/ tree el.ini files have correct and optionall fixes them
+#
+# Author Paul Broadhead pjbroad@twinmoons.clara.co.uk
+#
+# This program (script), and only this script from the eternallands
+# package is released as Public Domain software.  You are free to use
+# it as you wish.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
+#
+
+# make sure the user config tree exists
+mkdir -p ~/.elc/main
+
+# copy a servers.lst file as we don't have one
+if [ ! -r ~/.elc/servers.lst ]
+then
+	cp -p /usr/share/games/EternalLands/servers.lst ~/.elc/servers.lst
+fi
+
+# copy an el.ini file as we don't have one
+if [ ! -r ~/.elc/main/el.ini ]
+then
+	cp -p /usr/share/games/EternalLands/el.ini ~/.elc/main/el.ini
+fi
+
+# check el.ini files point to installed data
+if [ ! -r ~/.elc/no.el.ini.check ]
+then
+	show_suppression=false
+	for i in $(find ~/.elc/ -name el.ini)
+	do
+		if [ "$(grep ^#data_dir $i | tail -1 | grep '^#data_dir = /usr/share/games/EternalLands$')" = "" ]
+		then
+			if zenity --question --text="Warning: $i does not use installed game data, shall I fix this problem?"
+			then
+				sed -i 's/^#data_dir.*$/#data_dir = \/usr\/share\/games\/EternalLands/g' $i
+			else
+				show_suppression=true
+			fi
+		fi
+	done
+	if $show_suppression
+	then
+		zenity --info --text="To surpress these warnings, create the empty file ~/.elc/no.el.ini.check"
+	fi
+fi
+
+# run the client, display error log if it crashes
+if ! /usr/games/el.x86.linux.bin $*
+then
+	cat | zenity --text-info --width=500 --height=300 --title "Eternal Lands Crashed, this is the Error log." << EOT
+Oh my, Eternal Lands Crashed - Don't Panic!
+
+A couple of things you can try:
+1) Make sure your system is up to date, especially your video drivers.
+2) If you crash repeatedly during the login process, try setting the "poor man" option from the settings window: At the login screen, click "Settings" select the "Details" tab and set the "Poor Man" option.
+
+If you continue to have problems check the Eternal Lands forums, especially the "Help Me" and "Bug Report" sections.  If you post a message make sure you include information about your system; i.e video driver and version, operating system and version.  Make sure you check your error log for clues too and include the contents in any forum report.
+
+The following is your error log contents.  Note it is overwritten each time you run the game.
+
+$(cat ~/.elc/error_log.txt)
+EOT
+fi
+

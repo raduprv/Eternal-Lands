@@ -1,0 +1,45 @@
+How to build a package:
+
+Read the guides or at least install the necessary packages as detailed here:
+
+http://www.debian.org/doc/maint-guide/index.en.html
+https://wiki.ubuntu.com/PackagingGuide/Complete
+
+
+Set-up your ~/.bachrc so the package scripts known who you are:
+e.g. 
+export DEBFULLNAME='Paul Broadhead' 
+export DEBEMAIL='pjbroad@twinmoons.clara.co.uk'
+
+
+If you're going to sign the package make sure you have keys set-up:
+https://help.ubuntu.com/community/GnuPrivacyGuardHowto
+
+
+Now we're ready:
+
+Checkout a clean version of the client:
+
+	cvs -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc login 
+
+	cvs -z3 -d:pserver:anonymous@cvs.elc.berlios.de:/cvsroot/elc co elc
+
+Rename the elc directory to reflect the client version, e.g.:
+
+	mv elc eternallands-1.6.0
+
+Make the original source archive:
+	
+	tar cfz eternallands_1.6.0.orig.tar.gz eternallands-1.6.0
+
+Move into packge directory:
+
+	cd eternallands-1.6.0/
+
+Make any modifications required then update the changelog:
+
+	dch -i
+	
+Build the package:
+
+	debuild
