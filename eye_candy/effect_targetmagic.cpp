@@ -27,7 +27,7 @@ namespace ec
 		state = _state;
 		size = _size * (0.5 + randcoord());
 		if (state != 0)
-			size *= 10.0 / _LOD;
+			size *= 15.0 / (_LOD + 5);
 		alpha = _alpha;
 		if ((type != TargetMagicEffect::HARM) && (type
 			!= TargetMagicEffect::SMITE_SUMMONED))
