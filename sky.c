@@ -1627,7 +1627,6 @@ void cloudy_sky()
 	glDisable(GL_TEXTURE_2D);
     glDisable(GL_ALPHA_TEST);
 	glEnable(GL_COLOR_MATERIAL);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
     glDisable(GL_DEPTH_TEST);
 
@@ -1679,6 +1678,7 @@ void cloudy_sky()
 
     if (skybox_show_horizon_fog)
     {
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
         draw_horizon_fog(rain_coef);
     }
 
@@ -1857,8 +1857,6 @@ void cloudy_sky()
 		glPopMatrix();
 	}
 
-    glEnable(GL_DEPTH_TEST);
-    glClear(GL_DEPTH_BUFFER_BIT);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 
 	// we draw the clouds detail
@@ -1895,20 +1893,7 @@ void cloudy_sky()
 		glDisableClientState(GL_COLOR_ARRAY);
 		glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	}
-    else
-    {
-        // we draw fake clouds only in the depth buffer
-        glColorMask(GL_FALSE, GL_FALSE, GL_FALSE, GL_FALSE);
 
-		glEnableClientState(GL_VERTEX_ARRAY);
-		glVertexPointer(3, GL_FLOAT, 0, dome_clouds.vertices);
-		glDrawElements(GL_TRIANGLES, dome_clouds.faces_count*3, GL_UNSIGNED_INT, dome_clouds.faces);
-		glDisableClientState(GL_VERTEX_ARRAY);
-
-        glColorMask(GL_TRUE, GL_TRUE, GL_TRUE, GL_TRUE);
-    }
-
-    glDisable(GL_DEPTH_TEST);
 	glDisable(GL_TEXTURE_2D);
 
 	// we fade the sky that is under the horizon

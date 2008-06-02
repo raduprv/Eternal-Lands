@@ -514,7 +514,10 @@ void update_camera()
 			if (ext_cam_auto_zoom) // new behaviour
 			{
 				// if the camera is under the ground, we change the zoom level
-				new_zoom_level *= (tz + camera_z + 0.2) / dir[2];
+				if (fabsf(dir[2]) > 1E-4)
+					new_zoom_level *= (tz + camera_z + 0.2) / dir[2];
+				else
+					new_zoom_level = 0.0;
 
 				if (new_zoom_level < 1.0)
 				{

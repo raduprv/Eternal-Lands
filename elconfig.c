@@ -155,7 +155,7 @@ int sdl_cursors = 0;
 float pointer_size = 1.0;
 #endif // NEW_CURSOR
 #ifdef SKY_FPV
-float water_tiles_extension = 150.0;
+float water_tiles_extension = 200.0;
 int show_game_seconds = 0;
 int skybox_update_delay = 10;
 int skybox_local_weather = 0;
@@ -1603,7 +1603,7 @@ void init_vars()
 	add_var(OPT_FLOAT,"sunny_sky_bias","sunny_sky_bias", &skybox_sunny_sky_bias, change_float,0.0,"Sunny sky bias", "Change the radius of the sun effect on the sky.", EMAJEKRAL, -1.0, 1.0, 0.01);
 	add_var(OPT_FLOAT,"sunny_clouds_bias","sunny_clouds_bias", &skybox_sunny_clouds_bias, change_float,-0.1,"Sunny clouds bias", "Change the radius of the sun effect on the clouds.", EMAJEKRAL, -1.0, 1.0, 0.01);
 	add_var(OPT_FLOAT,"sunny_fog_bias","sunny_fog_bias", &skybox_sunny_fog_bias, change_float,0.0,"Sunny fog bias", "Change the radius of the sun effect on the fog.", EMAJEKRAL, -1.0, 1.0, 0.01);
-	add_var(OPT_FLOAT,"water_tiles_extension","wt_ext", &water_tiles_extension, change_float,150.0,"Water tiles extension", "Extends the water tiles upto the specified distance.", EMAJEKRAL, 0.0, 1000.0, 1.0);
+	add_var(OPT_FLOAT,"water_tiles_extension","wt_ext", &water_tiles_extension, change_float,200.0,"Water tiles extension", "Extends the water tiles upto the specified distance.", EMAJEKRAL, 0.0, 1000.0, 1.0);
 #endif // DEBUG
 	add_var(OPT_FLOAT,"follow_strength","f_strn",&fol_strn,change_float,0.1,"Follow Camera Snapiness","Adjust how responsive the follow camera is. 0 is stopped, 1 is fastest. Use the three numbers below to tweak the feel. Try them one at a time, then mix them to find a ratio you like.",EMAJEKRAL,0.0,1.00,0.01);
 	add_var(OPT_FLOAT,"const_speed","f_con",&fol_con,change_float,7,"Constant Speed","The basic rate that the camera rotates at to keep up with you.",EMAJEKRAL,0.0,10.00,1.0);
