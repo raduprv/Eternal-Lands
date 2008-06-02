@@ -22,7 +22,7 @@ namespace ec
 		color[1] = green;
 		color[2] = blue;
 		texture = _texture;
-		size = _size * (0.5 + randcoord()) * 10 / _LOD;
+		size = _size * (0.5 + randcoord()) * 15 / (_LOD + 5);
 		alpha = _alpha;
 		flare_max = 5.0;
 		flare_exp = 0.1;
