@@ -940,15 +940,6 @@ typedef enum
 /*! @} */
 
 /*!
- * \name Actor buffs constants
- */
-/*! @{ */
-typedef enum {
-	BUFF_INVISIBILITY = 1
-}buffs;
-/*! @} */
-
-/*!
  * \name Special spell effects
  */
 /*! @{ */
@@ -1110,6 +1101,22 @@ typedef enum {
 #define MINE_TYPE_UNINVIZIBILIZER 9
 #define MINE_TYPE_MAGIC_IMMUNITY_REMOVAL 10
 /*! @} */
+
+/*!
+ * \name Actor buffs constants
+ */
+typedef enum {
+	BUFF_INVISIBILITY = 1,
+	BUFF_MAGIC_IMMUNITY = 2,
+	BUFF_MAGIC_PROTECTION = 4,
+	BUFF_COLD_SHIELD = 8,
+	BUFF_HEAT_SHIELD = 16,
+	BUFF_RADIATION_SHIELD = 32,
+	BUFF_SHIELD = 64,
+	BUFF_TRUE_SIGHT = 128,
+	BUFF_ACCURACY = 256,
+	BUFF_EVASION = 512,
+} buffs;
 
 #ifdef __cplusplus
 } // extern "C"
