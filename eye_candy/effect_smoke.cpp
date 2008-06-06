@@ -161,7 +161,7 @@ namespace ec
 				count = 0;
 				break;
 			}
-			count -= count_scalar * std::max(1.0f, 10.0f - LOD);
+			count -= count_scalar * std::max(3.0f, 10.0f - LOD);
 		}
 
 		return true;
