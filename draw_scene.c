@@ -499,16 +499,16 @@ void update_camera()
 			tz = height_map[ty*tile_map_size_x*6+tx]*0.2 - 2.2;
 			if (tz <= -2.2)
 			{
-				// if the tile is not walkable, we take the height of the actor
+				// if the tile is not walkable, we take the height at the actor position
 				tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
 			}
 		}
 		else
 		{
-			// if the tile is outside of the map, we take the hight of the actor
+			// if the tile is outside the map, we take the height at the actor position
 			tz = height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2 - 2.2;
 		}
-		// here we use a shift of 0.2 to avoid to be too close from the ground
+		// here we use a shift of 0.2 to avoid to be too close to the ground
 		if (tz + 0.2 > dir[2] - camera_z)
 		{
 			if (ext_cam_auto_zoom) // new behaviour
@@ -526,7 +526,8 @@ void update_camera()
 #ifdef NEW_CAMERA_MOTION
 					camera_tilt_speed = 0.0;
 #endif // NEW_CAMERA_MOTION
-					rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
+					if (fabsf(tz + camera_z + 0.2) < fabsf(vect[2]) - 0.01)
+						rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				}
 				else if (new_zoom_level > old_zoom_level)
 				{
@@ -539,12 +540,13 @@ void update_camera()
 			}
 			else // old freecam behaviour
 			{
-				rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 				new_zoom_level = old_zoom_level;
 				camera_tilt_duration = camera_zoom_duration = 0;
 #ifdef NEW_CAMERA_MOTION
 				camera_tilt_speed = 0.0;
 #endif // NEW_CAMERA_MOTION
+				if (fabsf(tz + camera_z + 0.2) < fabsf(vect[2]) - 0.01)
+					rx = -90.0 + 180.0 * asinf((tz + camera_z + 0.2) / vect[2]) / M_PI;
 			}
 		}
 	}
