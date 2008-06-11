@@ -45,6 +45,7 @@ float skybox_light_ambient[360][4];
 float skybox_light_diffuse[360][4];
 float skybox_light_ambient_rainy[360][4];
 float skybox_light_diffuse_rainy[360][4];
+float skybox_sky_color[4] = {0.0, 0.0, 0.0, 0.0};
 float skybox_fog_color[4] = {0.0, 0.0, 0.0, 0.0};
 float skybox_fog_density = 0.0;
 float skybox_light_ambient_color[4];
@@ -545,6 +546,10 @@ void skybox_update_colors()
 		break;
 
 	case SKYBOX_NONE:
+		skybox_sky_color[0] = 0.0;
+		skybox_sky_color[1] = 0.0;
+		skybox_sky_color[2] = 0.0;
+		skybox_sky_color[3] = 1.0;
 		skybox_fog_color[0] = 0.0;
 		skybox_fog_color[1] = 0.0;
 		skybox_fog_color[2] = 0.0;
@@ -1028,6 +1033,8 @@ void update_cloudy_sky_colors()
 		++i;
     }
 
+	memcpy(skybox_sky_color, color_sun, 4*sizeof(float));
+
 	// color of the moons update
 	moon1_color[0] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
 	moon1_color[1] *= (0.5 + 0.5*day_alpha)*(1.0-rain_coef);
@@ -1468,6 +1475,8 @@ void update_cloudy_sky_local_colors()
 		++i;
     }
 
+	skybox_blend_current_colors(skybox_sky_color, skybox_sky5_sunny, skybox_fog_rainy, weather_get_density());
+
 	// color of the moons update
 	moon1_color[0] *= (0.5 + 0.5*day_alpha);
 	moon1_color[1] *= (0.5 + 0.5*day_alpha);
@@ -1536,6 +1545,7 @@ void update_underworld_sky_colors()
 	memcpy(skybox_fog_color, &dome_sky.colors[(dome_sky.vertices_count-1)*4], 3*sizeof(float));
 	skybox_fog_color[3] = 1.0;
 	skybox_fog_density = 0.01;
+	memcpy(skybox_sky_color, skybox_fog_color, 4*sizeof(float));
 }
 
 void draw_horizon_fog(float rain_coef)

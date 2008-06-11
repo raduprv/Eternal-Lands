@@ -615,7 +615,7 @@ void weather_add_lightning(int type, float x, float y)
         lightning_type = rand()%lightnings_defs_count;
         lightning_position[0] = x;
         lightning_position[1] = y;
-        lightning_stop = cur_time + 400 + rand()%200;
+        lightning_stop = cur_time + 200 + rand()%200;
         lightning_falling = 1;
         
         skybox_coords_from_ground_coords(lightning_sky_position,

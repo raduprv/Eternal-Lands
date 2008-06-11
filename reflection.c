@@ -1369,6 +1369,8 @@ void draw_water_background()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
+	glColor3fv(skybox_sky_color);
+
 #ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
 #else	// USE_SHADER
@@ -1390,38 +1392,56 @@ void draw_water_background()
 		CHECK_GL_ERRORS();
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		CHECK_GL_ERRORS();
+
+		if (!skybox_show_sky)
+		{
+			Enter2DModeExtended(reflection_texture_width, reflection_texture_height);
+			glBegin(GL_QUADS);
+			glVertex3i(0, 0, 0);
+			glVertex3i(0, reflection_texture_height, 0);
+			glVertex3i(reflection_texture_width, reflection_texture_height, 0);
+			glVertex3i(reflection_texture_width, 0, 0);
+			glEnd();
+			Leave2DMode();
+		}
+
 		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
 		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
 		CHECK_GL_ERRORS();
 		CHECK_FBO_ERRORS();
 	}
-	else if (skybox_show_sky)
+	else
 	{
 		unsigned int start, stop;
 
-		glPushMatrix();
-		glTranslatef(0.0f, 0.0f, water_depth_offset);
+		build_water_buffer();
+		CHECK_GL_ERRORS();
 
-		if (use_vertex_buffers)
+		if (water_buffer_usage != 0)
 		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
-			glInterleavedArrays(GL_V2F, 0, 0);
-		}
-		else
-		{
-			glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
-		}
-		
-		glColor3fv(skybox_fog_color);
-		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
-		glDrawArrays(GL_QUADS, water_buffer_reflectiv_index*4, (stop-start) * 4);
+			glPushMatrix();
+			glTranslatef(0.0f, 0.0f, water_depth_offset);
+			
+			if (use_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+				glInterleavedArrays(GL_V2F, 0, 0);
+			}
+			else
+			{
+				glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
+			}
+			
+			get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+			glDrawArrays(GL_QUADS, water_buffer_reflectiv_index*4, (stop-start) * 4);
             
-		if (use_vertex_buffers)
-		{
-			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
-			glDisableClientState(GL_VERTEX_ARRAY);
+			if (use_vertex_buffers)
+			{
+				ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+				glDisableClientState(GL_VERTEX_ARRAY);
+			}
+			glPopMatrix();
 		}
-		glPopMatrix();
 	}
 	glEnable(GL_TEXTURE_2D);
 	glEnable(GL_LIGHTING);

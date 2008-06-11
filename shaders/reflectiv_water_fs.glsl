@@ -72,8 +72,6 @@ void main (void)
 	color = texture2D(reflection_texture, reflection_tex_coord);
 #endif	// USE_CUBIC_FILTER
 
-	color = mix(texture2D(tile_texture, tile_tex_coord), color, blend);
-
 #ifdef	USE_SHADOW
 	shadow = shadow2DProj(shadow_texture, shadow_tex_coord);
 	light = gl_LightSource[7].ambient + gl_LightModel.ambient;
@@ -82,7 +80,8 @@ void main (void)
 	light = gl_Color;
 #endif	// USE_SHADOW
 
-	gl_FragColor = light * color;
+	gl_FragColor = light * texture2D(tile_texture, tile_tex_coord);
+	gl_FragColor = mix(gl_FragColor, color, blend);
 
 #ifdef USE_FOG
 	const float LOG2 = 1.442695;

@@ -318,7 +318,8 @@ void load_map_tiles()
 		safe_snprintf(str,sizeof(str), "./tiles/tile%i.bmp",i);
 		if(IS_WATER_TILE(i) && IS_REFLECTING(i))
 			tile_list[i]=load_texture_cache(str,70);
-		else 	tile_list[i]=load_texture_cache(str,255);
+		else 
+			tile_list[i]=load_texture_cache(str,255);
 
 		if(get_texture_id(tile_list[i]) == 0)
 			tile_list[i]=0;
@@ -336,8 +337,9 @@ void load_map_tiles()
 					//tile not loaded, so load it
 					safe_snprintf(str, sizeof(str), "./tiles/tile%i.bmp",cur_tile);
 					if(IS_WATER_TILE(cur_tile) && IS_REFLECTING(cur_tile))
-					  tile_list[cur_tile]=load_texture_cache(str,70);
-					else tile_list[cur_tile]=load_texture_cache(str,255);
+						tile_list[cur_tile]=load_texture_cache(str,70);
+					else
+						tile_list[cur_tile]=load_texture_cache(str,255);
 			
 				}
 		}
