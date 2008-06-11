@@ -1055,7 +1055,7 @@ void draw_lake_tiles()
 		CHECK_GL_ERRORS();
 	}
 #endif	// USE_SHADER
-	else if (show_reflection)
+	else /* if (show_reflection) */
 	{
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA,GL_ONE_MINUS_SRC_ALPHA);
@@ -1114,7 +1114,7 @@ void draw_lake_tiles()
 #endif	// USE_SHADER
  		CHECK_GL_ERRORS();
 	}
-	else if (show_reflection)
+	else /* if (show_reflection) */
 	{
 		glDisable(GL_BLEND);
 	}
@@ -1361,3 +1361,73 @@ void draw_dungeon_sky_background()
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
+
+#ifdef SKY_FPV
+void draw_water_background()
+{
+	glDisable(GL_TEXTURE_2D);
+	glDisable(GL_LIGHTING);
+	glDisable(GL_DEPTH_TEST);
+
+#ifdef	USE_SHADER
+	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
+#else	// USE_SHADER
+	if (use_frame_buffer && show_reflection)
+#endif	// USE_SHADER
+	{
+		GLint view_port[4];
+
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		init_texturing();
+		CHECK_GL_ERRORS();
+		glGetIntegerv(GL_VIEWPORT, view_port);
+		CHECK_GL_ERRORS();
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, water_reflection_fbo);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+		glViewport(0, 0, reflection_texture_width, reflection_texture_height);
+		CHECK_GL_ERRORS();
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+		CHECK_GL_ERRORS();
+		ELglBindFramebufferEXT(GL_FRAMEBUFFER_EXT, 0);
+		glViewport(view_port[0], view_port[1], view_port[2], view_port[3]);
+		CHECK_GL_ERRORS();
+		CHECK_FBO_ERRORS();
+	}
+	else if (skybox_show_sky)
+	{
+		unsigned int start, stop;
+
+		glPushMatrix();
+		glTranslatef(0.0f, 0.0f, water_depth_offset);
+
+		if (use_vertex_buffers)
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, water_tile_buffer_object);
+			glInterleavedArrays(GL_V2F, 0, 0);
+		}
+		else
+		{
+			glInterleavedArrays(GL_V2F, 0, water_tile_buffer);
+		}
+		
+		glColor3fv(skybox_fog_color);
+		get_intersect_start_stop(main_bbox_tree, TYPE_REFLECTIV_WATER, &start, &stop);
+		glDrawArrays(GL_QUADS, water_buffer_reflectiv_index*4, (stop-start) * 4);
+            
+		if (use_vertex_buffers)
+		{
+			ELglBindBufferARB(GL_ARRAY_BUFFER_ARB, 0);
+			glDisableClientState(GL_VERTEX_ARRAY);
+		}
+		glPopMatrix();
+	}
+	glEnable(GL_TEXTURE_2D);
+	glEnable(GL_LIGHTING);
+	glEnable(GL_DEPTH_TEST);
+#ifdef OPENGL_TRACE
+CHECK_GL_ERRORS();
+#endif //OPENGL_TRACE
+}
+#endif // SKY_FPV

@@ -1080,10 +1080,10 @@ int display_game_handler (window_info *win)
 		}
 
 #ifdef SKY_FPV
+		if (skybox_update_delay < 1)
+			skybox_update_colors();
 		if (skybox_show_sky)
         {
-			if (skybox_update_delay < 1)
-				skybox_update_colors();
 			skybox_compute_z_position();
             glPushMatrix();
             glTranslatef(0.0, 0.0, skybox_get_z_position());
@@ -1129,12 +1129,16 @@ int display_game_handler (window_info *win)
 			CHECK_GL_ERRORS ();
 		}
 
-		if (any_reflection > 1)
+		if (any_reflection > 1) // there are water tiles to display
 		{
+#ifndef SKY_FPV
 		  	if (!dungeon)
 				draw_sky_background ();
 		  	else 
 				draw_dungeon_sky_background ();
+#else // SKY_FPV
+			draw_water_background();
+#endif // SKY_FPV
 			CHECK_GL_ERRORS ();
 			if (show_reflection) display_3d_reflection ();
 		}
@@ -1716,7 +1720,7 @@ int keypress_root_common (Uint32 key, Uint32 unikey)
 #ifndef SKY_FPV
 		if(game_minute <  1) game_minute +=359; else game_minute -=  1;
 #else // SKY_FPV
-		if(real_game_minute < 1) real_game_minute +=359; else real_game_minute +=  1;
+		if(real_game_minute < 1) real_game_minute +=359; else real_game_minute -=  1;
 #endif // SKY_FPV
 		new_minute();
 	}
