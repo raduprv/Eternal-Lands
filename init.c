@@ -902,9 +902,8 @@ void init_stuff()
 		turn_sound_on();
 	else
 	{
-		sound_opts = SOUNDS_NONE;
-		turn_sound_off();
 		sound_on = 0;
+		turn_sound_off();
 	}
 #endif // NEW_SOUND
 

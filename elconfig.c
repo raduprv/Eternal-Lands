@@ -1693,7 +1693,11 @@ void init_vars()
 #endif	//ELC
 
 #ifdef NEW_SOUND
-	add_var(OPT_BOOL,"enable_sound", "sound", &sound_opts, toggle_sounds, 0, "Enable Sound Effects", "Turn sound effects on/off", AUDIO);
+	add_var(OPT_BOOL,"disable_sound", "nosound", &no_sound, disable_sound, 0, "Disable Sound & Music System", "Disable all of the sound effects and music processing", AUDIO);
+	add_var(OPT_STRING,"sound_device", "snddev", sound_device, change_string, 30, "Sound Device", "Device used for playing sounds & music", AUDIO);
+#endif	//NEW_SOUND
+	add_var(OPT_BOOL,"enable_sound", "sound", &sound_on, toggle_sounds, 0, "Enable Sound Effects", "Turn sound effects on/off", AUDIO);
+#ifdef NEW_SOUND
 	add_var(OPT_FLOAT,"sound_gain", "sgain", &sound_gain, change_sound_level, 1, "Overall Sound Effects Volume", "Adjust the overall sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"crowd_gain", "crgain", &crowd_gain, change_sound_level, 1, "Crowd Sounds Volume", "Adjust the crowd sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"enviro_gain", "envgain", &enviro_gain, change_sound_level, 1, "Environmental Sounds Volume", "Adjust the environmental sound effects volume", AUDIO, 0.0, 1.0, 0.1);
@@ -1702,8 +1706,6 @@ void init_vars()
 	add_var(OPT_FLOAT,"gamewin_gain", "gwgain", &gamewin_gain, change_sound_level, 1, "Item and Inventory Sounds Volume", "Adjust the item and inventory sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"client_gain", "clgain", &client_gain, change_sound_level, 1, "Misc Client Sounds Volume", "Adjust the client sound effects volume (warnings, hud/button clicks)", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"warn_gain", "wrngain", &warnings_gain, change_sound_level, 1, "Text Warning Sounds Volume", "Adjust the user configured text warning sound effects volume", AUDIO, 0.0, 1.0, 0.1);
-#else
-	add_var(OPT_BOOL,"enable_sound","sound",&sound_on,toggle_sounds,0,"Enable Sound Effects","Turn sound effects on/off",AUDIO);
 #endif	//NEW_SOUND
 	add_var(OPT_BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
 #ifndef NEW_SOUND
@@ -1744,7 +1746,10 @@ void init_vars()
 #ifndef MAP_EDITOR2
 	add_var(OPT_SPECINT,"auto_afk_time","afkt",&afk_time_conf,set_afk_time,5,"AFK Time","The idle time in minutes before the AFK auto message",MISC,0,INT_MAX);
 	add_var(OPT_STRING,"afk_message","afkm",afk_message,change_string,127,"AFK Message","Set the AFK message",MISC);
-	add_var(OPT_BOOL,"afk_local", "afkl", &afk_local,change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", MISC);
+	add_var(OPT_BOOL, "afk_local", "afkl", &afk_local, change_var, 0, "Save Local Chat Messages When AFK", "When you go AFK, local chat messages are counted and saved as well as PMs", MISC);
+#ifdef NEW_SOUND
+	add_var(OPT_BOOL, "afk_snd_warning", "afks", &afk_snd_warning, change_var, 0, "Play AFK Message Sound", "When you go AFK, a sound is played when you receive a message or trade request", MISC);
+#endif	//NEW_SOUND
 #endif
 
 #ifndef MAP_EDITOR2

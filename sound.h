@@ -31,7 +31,7 @@ extern "C" {
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
-extern int sound_opts; /*!< flag indicating what sounds are enabled */
+extern int no_sound; /*!< flag indicating whether sounds are initialised and to be processed */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
 #ifndef NEW_SOUND
@@ -48,6 +48,9 @@ extern ALfloat walking_gain; /*!< gain for walking sound effects */
 extern ALfloat gamewin_gain; /*!< gain for game window (items/inv etc) sound effects */
 extern ALfloat client_gain; /*!< gain for client sound effects */
 extern ALfloat warnings_gain; /*!< gain for user configured text warning sound effects */
+
+extern char sound_device[30];
+extern int afk_snd_warning;
 
 #define MAX_SOUND_NAME_LENGTH 40
 
@@ -106,16 +109,6 @@ void turn_sound_off();
  */
 void turn_sound_on();
 
-#ifdef NEW_SOUND
-/*!
- * \ingroup sound_effects
- * \brief Changes sound types played
- *
- *      Changes the types of sound effects being played (environmental only, env + character, etc).
- *
- */
-void change_sounds(int * var, int value);
-#endif // NEW_SOUND
 /*!
  * \ingroup sound_effects
  * \brief Toggles the sound
@@ -124,6 +117,16 @@ void change_sounds(int * var, int value);
  *
  */
 void toggle_sounds(int *var);
+
+/*!
+ * \ingroup sound_effects
+ * \brief Enables or disables the sound system
+ *
+ *      Toggles the status of the no_sound option in the options dialog and starts or stops the sound
+ *      and music depending on their settings.
+ *
+ */
+void disable_sound(int *var);
 
 #ifdef NEW_SOUND
 void setup_map_sounds (int map_num);

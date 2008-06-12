@@ -138,7 +138,7 @@ typedef struct
 	int echo_volume;				// In percent, 0 means no sound, 100 means as loud as the original sound (default 50) -- NOT USED
 	int time_of_the_day_flags;		// Bits 0-11 set each 1/2 hour of the 6-hour day (default 0xffff)
 	unsigned int priority;			// If there are too many sounds to be played, highest value priority get culled (default 5)
-	int type;						// The type of sound (environmental, actor, walking etc) for sound_opts (default Enviro)
+	int type;						// The type of sound - environmental, actor, walking etc. (default Enviro)
 } sound_type;
 
 typedef struct
@@ -288,7 +288,7 @@ ALCcontext *mSoundContext;
 
 int have_sound = 0;
 int have_music = 0;
-int sound_opts = SOUNDS_CLIENT;
+int no_sound = 0;
 int sound_on = 1;
 int music_on = 1;
 Uint8 inited = 0;
@@ -313,6 +313,7 @@ ALfloat warnings_gain = 1.0f;
 int used_sources = 0;						// the number of sources currently playing
 
 #ifdef NEW_SOUND
+char sound_device[30] = "";					// Set up a string to store the names of the selected sound device
 char sound_devices[1000] = "";				// Set up a string to store the names of the available sound devices
 int max_sources = MAX_SOURCES;				// Initialise our local maximum number of sources to the default
 int max_streams = MAX_STREAMS;				// Initialise our local maximum number of streams to the default
@@ -351,6 +352,7 @@ tile_sound_data sound_tile_data[MAX_SOUND_TILE_TYPES];			// Data for tile (walki
 int server_sound[10];											// Map of server sounds to sound def ids
 int sound_spell_data[10];										// Map of id's for spells-that-affect-you to sounds
 sound_warnings warnings_list[MAX_SOUND_WARNINGS];				// List of strings to monitor for warning sounds
+int afk_snd_warning;											// Whether to play a sound on receiving a message while AFK
 #else
 char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
 ALuint sound_source[MAX_SOURCES];
@@ -442,6 +444,7 @@ int test_bounds_angles(int x, int y, int point, map_sound_boundary_def * bounds)
 double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * bounds);
 /* Init functions */
 void clear_sound_data();
+void parse_snd_devices(ALCchar * in_array, char * sound_devs);
 #endif	// !NEW_SOUND
 
 
@@ -1649,7 +1652,6 @@ void turn_sound_off()
 	}
 	LOCK_SOUND_LIST();
 	sound_on = 0;
-	sound_opts = SOUNDS_NONE;
 	while (i < used_sources)
 	{
 		if (sound_source_data[i].current_stage == STAGE_STREAM)
@@ -1695,7 +1697,9 @@ void turn_music_on()
 
 void turn_music_off()
 {
-	if ((!have_sound || sound_opts == SOUNDS_NONE) && inited)
+	if (!inited)
+		return;
+	if (!have_sound || !sound_on)
 	{
 		destroy_sound();
 		return;
@@ -1713,36 +1717,30 @@ void turn_music_off()
 	}
 }
 
-void toggle_sounds(int *var) {
-	if (*var != SOUNDS_NONE) {
-		*var = SOUNDS_NONE;
+void toggle_sounds(int *var)
+{
+	*var = !*var;
+	if (!sound_on) {
 		turn_sound_off();
 	} else {
-		*var = SOUNDS_CLIENT;
 		turn_sound_on();
 	}
 }
 
-/*
-void change_sounds(int * var, int value)
+void disable_sound(int *var)
 {
-	int old_val = sound_opts;
-	
-	if (value == 0) sound_on = 0;
-	else sound_on = 1;
-
-	if (value >= 0) *var = value; // We need to set this here so the sound stream doesn't quit if there is no music
-	if (value == SOUNDS_NONE && old_val != SOUNDS_NONE)	{
-		turn_sound_off();
-	} else if (value != SOUNDS_NONE && (!have_sound || old_val == SOUNDS_NONE)) {
-		turn_sound_on();
+	*var = !*var;
+	if (no_sound) {
+		destroy_sound();
+		clear_sound_data();
+		have_sound_config = 0;
+	} else {
+		if (sound_on)
+			turn_sound_on();
+		if (music_on)
+			turn_music_on();
 	}
 }
-*/
-
-
-
-
 
 
 /************************
@@ -2436,7 +2434,6 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 		printf("process_stream - Error retrieving state: %s, Stream type: %s, Source: %d\n", alGetString(error), get_stream_type(stream->type), stream->source);
 #endif // _EXTRA_SOUND_DEBUG
 	}
-//	state2 = state;		// Fake out the Dev-C++ optimizer!		<-- FIXME: Is this still nessessary?
 	if (state != AL_PLAYING)
 	{
 		LOG_TO_CONSOLE(c_red1, snd_skip_speedup);
@@ -2464,7 +2461,13 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 	// Check if the stream has finished and needs to be requeued
 	if (!stream->playing)
 	{
-		alSourceUnqueueBuffers(stream->source, NUM_STREAM_BUFFERS, &buffer);	// Just in case
+		// Clear any remaining buffers, just in case
+		alGetSourcei(stream->source, AL_BUFFERS_PROCESSED, &stream->processed);
+		while (stream->processed-- > 0)
+		{
+			alSourceUnqueueBuffers(stream->source, 1, &buffer);
+		}
+		if ((error=alGetError()) != AL_NO_ERROR) { }	// Clear any errors before trying to replay the stream
 		play_stream(stream->sound, stream, gain);
 	}
 	
@@ -2556,7 +2559,7 @@ int update_streams(void * dummy)
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Starting streams thread\n");
 #endif //_EXTRA_SOUND_DEBUG
-	while (!exit_now && ((have_music && music_on) || (have_sound && sound_opts > SOUNDS_NONE)))
+	while (!exit_now && ((have_music && music_on) || (have_sound && sound_on)))
 	{
 		SDL_Delay(sleep);
 		
@@ -2581,7 +2584,7 @@ int update_streams(void * dummy)
 			{
 				find_next_song(tx, ty, day_time);
 			}
-			if (have_sound && sound_opts > SOUNDS_NONE)
+			if (have_sound && sound_on)
 			{
 				check_for_new_streams(tx, ty);
 			}
@@ -2599,12 +2602,12 @@ int update_streams(void * dummy)
 							gain = music_gain;
 							break;
 						case STREAM_TYPE_SOUNDS:
-							if (!have_sound || sound_opts == SOUNDS_NONE)
+							if (!have_sound || !sound_on)
 								continue;			// We aren't playing sounds so skip this stream
 							gain = sound_gain * enviro_gain * sound_type_data[streams[i].sound].variant[streams[i].variant].gain;
 							break;
 						case STREAM_TYPE_CROWD:
-							if (!have_sound || sound_opts == SOUNDS_NONE)
+							if (!have_sound || !sound_on)
 								continue;			// We aren't playing sounds so skip this stream
 							if (distanceSq_to_near_enhanced_actors == 0)
 								distanceSq_to_near_enhanced_actors = 100.0f;	// Due to no actors when calc'ing
@@ -2627,7 +2630,7 @@ int update_streams(void * dummy)
 		destroy_stream(&streams[i]);
 	}
 #ifdef _EXTRA_SOUND_DEBUG
-	printf("Exiting streams thread. have_music: %d, music_on: %d, have_sound: %d, sound_opts: %d, exit_now: %d\n", have_music, music_on, have_sound, sound_opts, exit_now);
+	printf("Exiting streams thread. have_music: %d, music_on: %d, have_sound: %d, sound_on: %d, exit_now: %d\n", have_music, music_on, have_sound, sound_on, exit_now);
 #endif //_EXTRA_SOUND_DEBUG
 	return 1;
 }
@@ -3013,9 +3016,12 @@ int ensure_sample_loaded(char * in_filename)
 	for (i = 0; i < MAX_BUFFERS; i++)
 	{
 		// Check if this sample is free (no buffer exists)
-		if (!alIsBuffer(sound_sample_data[i].buffer))
+		if (sound_sample_data[i].buffer == 0 || !alIsBuffer(sound_sample_data[i].buffer))
 		{
 			sample_num = i;
+#ifdef _EXTRA_SOUND_DEBUG
+			printf("Found a spot for this sample: %s, sample %d\n", in_filename, i);
+#endif //_EXTRA_SOUND_DEBUG
 			break;
 		}
 	}
@@ -3025,6 +3031,12 @@ int ensure_sample_loaded(char * in_filename)
 		// Don't have a spot yet so check for any inactive samples (not loaded into a source)
 		// -- This part will be expensive!! Let's hope we don't get here often --
 		int found;
+#ifdef _EXTRA_SOUND_DEBUG
+		char tmp[1000] = "";
+		snprintf(tmp, sizeof(tmp), "Eek! Didn't want to get here. Sample (%s) is apparently not loaded and there is no space for it!", in_filename);
+		LOG_TO_CONSOLE(c_red1, tmp);
+		printf("Eek, nowhere for the sample: %s\n", in_filename);
+#endif //_EXTRA_SOUND_DEBUG
 		for (i = 0; i < MAX_BUFFERS; i++)
 		{
 			found = 0;
@@ -3120,7 +3132,10 @@ int ensure_sample_loaded(char * in_filename)
 	if ((error=alGetError()) != AL_NO_ERROR) 
 	{
 		// Couldn't generate a buffer
-		LOG_ERROR("%s: %s", snd_buff_error, alGetString(error));
+		LOG_ERROR("Error generating buffer: %s", alGetString(error));
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error generating buffer: %s\n", alGetString(error));
+#endif //_EXTRA_SOUND_DEBUG
 		*pBuffer = 0;
 		// Get rid of the temporary data
 		free(data);
@@ -3131,7 +3146,10 @@ int ensure_sample_loaded(char * in_filename)
 	alBufferData(*pBuffer, pSample->format, data, pSample->size, pSample->freq);
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
-		LOG_ERROR("%s: %s",snd_buff_error, alGetString(error));
+		LOG_ERROR("Error loading buffer: %s", alGetString(error));
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error loading buffer: %s\n", alGetString(error));
+#endif //_EXTRA_SOUND_DEBUG
 		alDeleteBuffers(1, pBuffer);
 		// Get rid of the temporary data
 		free(data);
@@ -3392,7 +3410,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	if (sound_num == -1)
 	{
 		// Check if we should bother erroring - an overflow of sounds when sound is disabled we can ignore
-		if (have_sound && sound_opts != SOUNDS_NONE)
+		if (have_sound && sound_on)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
 			printf("Error: Too many sounds loaded!! n00b! Not playing this sound: %d (%s)\n", type, pNewType->name);
@@ -3417,7 +3435,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	sounds_list[sound_num].cookie = cookie;
 	
 	// Check if we should try to load the samples (sound is enabled)
-	if (inited && have_sound && sound_opts != SOUNDS_NONE)
+	if (inited && have_sound && sound_on)
 	{
 		// Load all samples used by this type
 		sounds_list[sound_num].variant = load_samples(pNewType);
@@ -3455,7 +3473,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	{
 		// Sound isn't enabled so bail now. When sound is enabled, these sounds (if applicable) will be
 		// loaded and played then
-		printf("Not playing this sound as sound isn't enabled yet. Inited: %d, Have sound: %d, Sound opts: %d, Cookie: %d\n", inited, have_sound, sound_opts, cookie);
+		printf("Not playing this sound as sound isn't enabled yet. Inited: %d, Have sound: %d, Sound on: %d, Cookie: %d\n", inited, have_sound, sound_on, cookie);
 	}
 #endif //_EXTRA_SOUND_DEBUG
 	
@@ -3750,8 +3768,8 @@ void update_sound(int ms)
 	int j, k, l;
 #endif // _EXTRA_SOUND_DEBUG
 
-	// Check if we have a sound config, and thus if its worth doing anything
-	if (num_types < 1)
+	// Check if we have a sound config, and thus if its worth doing anything (or sound is disabled)
+	if (num_types < 1 || no_sound)
 		return;
 
 	LOCK_ACTORS_LISTS();
@@ -3815,7 +3833,7 @@ void update_sound(int ms)
 			{
 				distanceSq = (tx - x) * (tx - x) + (ty - y) * (ty - y);
 				maxDistSq = pSoundType->distance * pSoundType->distance;
-				if (sound_opts != SOUNDS_NONE && (distanceSq < maxDistSq))
+				if (sound_on && (distanceSq < maxDistSq))
 				{
 					// This sound is back in range so load it into a source and play it
 #ifdef _EXTRA_SOUND_DEBUG
@@ -4030,9 +4048,9 @@ void update_sound(int ms)
 			}
 		}
 
-		// Check if we need to remove this sound (its finished, or not playing that type anymore)
+		// Check if we need to remove this sound because its finished
 		// If the state is num_STAGES then the sound has ended (or gone wrong)
-		if(pSource->current_stage == num_STAGES || pSoundType->type	> sound_opts)
+		if (pSource->current_stage == num_STAGES)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
 			printf("Removing finished sound %d (%s) at cookie %d, source index %d, loaded_sound: %d\n", sounds_list[pSource->loaded_sound].sound, pSoundType->name, pSource->cookie, i, pSource->loaded_sound);
@@ -4062,7 +4080,7 @@ void update_sound(int ms)
 				stop_sound_source_at_index(i);
 				continue;
 			}
-			else if (sound_opts != SOUNDS_NONE && (state == AL_PAUSED) && (distanceSq < maxDistSq))
+			else if (sound_on && (state == AL_PAUSED) && (distanceSq < maxDistSq))
 			{
 				LOG_ERROR("Sound error: We found a wasted source. Sound %d (%s) was loaded into a source and paused!!\n", i, pSoundType->name);
 				alSourcePlay(pSource->source);
@@ -4734,11 +4752,12 @@ void init_sound()
 	ALfloat listenerPos[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerVel[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerOri[6] = {0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
+	ALCchar *device_list;
 	int error;
 	int i;
 	
 	// If we don't have sound/music then bail so we don't grab the soundcard.
-	if (inited || (sound_opts == SOUNDS_NONE && music_on == 0))
+	if (inited || no_sound || (!sound_on && !music_on))
 		return;
 		
 #ifndef OSX
@@ -4752,9 +4771,11 @@ void init_sound()
 	// Initialise OpenAL
 
 	// Get a list of the available devices (not used yet)
-	if ( alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) == AL_TRUE )
+	if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT") == AL_TRUE)
 	{
-		safe_strncpy(sound_devices, alcGetString( NULL, ALC_DEVICE_SPECIFIER), sizeof(sound_devices));
+		device_list = (char*) alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+		parse_snd_devices(device_list, sound_devices);
+		LOG_ERROR("Sound devices detected: %s\n", sound_devices);
 	}
 	else
 	{
@@ -4764,15 +4785,26 @@ void init_sound()
 	// If you want to use a specific device, use, for example:
 	// device = alcOpenDevice((ALubyte*) "DirectSound3D")
 	// NULL makes it use the default device
-	device = alcOpenDevice( NULL );
+	device = alcOpenDevice((ALCchar*) sound_device);
 	if ((error = alcGetError(device)) != AL_NO_ERROR || !device)
 	{
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
-		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
-		have_sound = have_music = 0;
-		return;
+		if (strcmp(sound_device, "")) {
+			// Try the default device
+			device = alcOpenDevice(NULL);
+		}
+		if ((error = alcGetError(device)) != AL_NO_ERROR || !device)
+		{
+			char str[256];
+			safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(device, error));
+			LOG_TO_CONSOLE(c_red1, str);
+			LOG_ERROR(str);
+			have_sound = have_music = 0;
+			return;
+		} else {
+			LOG_ERROR("Soundcard device specified (%s) failed. Using default device: %s", sound_device, alcGetString(device, ALC_DEVICE_SPECIFIER));
+		}
+	} else {
+		LOG_ERROR("Soundcard device in-use: %s", alcGetString(device, ALC_DEVICE_SPECIFIER));
 	}
 
 	context = alcCreateContext( device, NULL );
@@ -4787,12 +4819,6 @@ void init_sound()
 		return;
 	}
 
-#if defined DEBUG && defined alutGetMIMETypes
-	// Dump the capabilities of this version of Alut
-	printf("Alut supported Buffer MIME types: %s\n", alutGetMIMETypes(ALUT_LOADER_BUFFER));
-	printf("Alut supported Memory MIME types: %s\n", alutGetMIMETypes(ALUT_LOADER_MEMORY));
-#endif // DEBUG && alutGetMIMETypes
-	
 	// Setup the listener
 	alListenerfv(AL_POSITION, listenerPos);
 #ifdef _EXTRA_SOUND_DEBUG							// Debugging for Florian
@@ -4908,7 +4934,7 @@ void destroy_sound()
 	if (!inited){
 		return;
 	}
-	inited = have_sound = have_music = sound_on = music_on = 0;
+	inited = have_sound = have_music = 0;		// FIXME: not ness?  sound_on = music_on = 0;
 
 	for (i = 0; i < MAX_STREAMS; i++)
 	{
@@ -4935,22 +4961,18 @@ void destroy_sound()
 	{
 		unload_sample(i);
 	}
-	// Flag all sounds as unloaded, but don't remove them
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
-		sounds_list[i].playing = 0;
-		sounds_list[i].loaded = 0;
+		if (no_sound) {
+			unload_sound(i);
+		} else {
+			// Flag all sounds as unloaded, but don't remove them
+			sounds_list[i].playing = 0;
+			sounds_list[i].loaded = 0;
+		}
 	}
 	UNLOCK_SOUND_LIST();
 
-	/*
-	 * alutExit() contains a problem with hanging on exit on some
-	 * Linux systems.  The problem is with the call to
-	 * alcMakeContextCurrent( NULL );  The folowing code is exactly
-	 * what is in alutExit() minus that function call.  It causes
-	 * no problems if the call is not there since the context is
-	 * being destroyed right afterwards.
-	 */
 	context = alcGetCurrentContext();
 	if (context != NULL)
 	{
@@ -4976,6 +4998,22 @@ void destroy_sound()
 }
 
 
+// This function is to convert the \0 delimiter used by OpenAL into a comma so we can use
+// the device list as an everyday C "string" (original string terminated by \0\0).
+// For now the existance of a comma in a device name is irrelevent.
+void parse_snd_devices(ALCchar * in_array, char * sound_devs)
+{
+	int i = 0;
+	while (in_array[i] != '\0' || in_array[i+1] != '\0') {
+		if (in_array[i] == '\0') {
+			sound_devs[i] = ',';
+		} else {
+			sound_devs[i] = in_array[i];
+		}
+		i++;
+	}
+	sound_devs[i] = '\0';
+}
 
 /********************
  * CONFIG FUNCTIONS *
@@ -6261,6 +6299,9 @@ void load_sound_config_data (const char *file)
 {
 	xmlDoc *doc;
 	xmlNode *root=NULL;
+	
+	if (no_sound)
+		return;
 
 	if ((doc = xmlReadFile(file, NULL, 0)) == NULL)
 	{
