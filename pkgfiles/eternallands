@@ -3,6 +3,7 @@
 # Wrapper script for Eternal Lands client.
 # - Copies required files to ~/.elc if not already there
 # - Checks all ~/.elc/ tree el.ini files have correct and optionall fixes them
+# - optionally displays a server/configuration selection GUI
 #
 # Author Paul Broadhead pjbroad@twinmoons.clara.co.uk
 #
@@ -14,6 +15,28 @@
 # but WITHOUT ANY WARRANTY; without even the implied warranty of
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
+
+# get users choice from the ~/.elc/servers.lst
+getconfig()
+{
+	grep -v ^# ~/.elc/servers.lst | sort | tr -d '\015' | \
+	while read name dir server port description
+	do
+		echo $name
+		echo $description
+		echo $server
+		echo $port
+		echo $dir
+	done | \
+	zenity --title="Eternal Lands Launcher" --width=450 --height=280 \
+		--list \
+		--column "Name" \
+		--column "Description" \
+		--column "Server" \
+		--column "Port" \
+		--column "Directory" \
+		--text "Select Server/Configuration"
+}
 
 # make sure the user config tree exists
 mkdir -p ~/.elc/main
@@ -52,8 +75,37 @@ then
 	fi
 fi
 
+config=""
+
+# if no command line options specified, see if we want to use the config selection window
+if [ "$*" = "" ]
+then
+	showsel=~/.elc/showconfigsel
+
+	# optionally get the server/config option
+	[ ! -r $showsel ] && touch $showsel
+	if [ "$(grep no $showsel)" = "" ]
+	then
+		[ ! -s $showsel ] && rm -f $showsel
+		config="$(getconfig)"
+		[ $? -ne 0 ] && exit
+	fi
+
+	# if not already configured, choose if to use the server/configuration selection window
+	if [ ! -r $showsel ]
+	then
+		if zenity --question --text="Always use the server/configuration selection window?"
+		then
+			echo "yes" > $showsel
+		else
+			echo "no" > $showsel
+		fi
+		zenity --info --text="To change this option, edit or remove the file ~/.elc/showconfigsel"
+	fi
+fi
+
 # run the client, display error log if it crashes
-if ! /usr/games/el.x86.linux.bin $*
+if ! /usr/games/el.x86.linux.bin $config $*
 then
 	cat | zenity --text-info --width=500 --height=300 --title "Eternal Lands Crashed, this is the Error log." << EOT
 Oh my, Eternal Lands Crashed - Don't Panic!
