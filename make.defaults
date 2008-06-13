@@ -67,8 +67,8 @@ CXXWARN=-Wall
 
 ## These are the originally listed settings, uncomment them if you need them
 #EXTRA_INCLUDES=-IC:\\Programme\\Dev-Cpp\\Include
-#EXTRA_LIBS=-lalut -lz
-#EXTRA_STATICLIBS=libs/libalut.a libs/zlib.a
+#EXTRA_LIBS=-lz
+#EXTRA_STATICLIBS=libs/zlib.a
 
 CC=gcc
 CXX=g++

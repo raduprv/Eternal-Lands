@@ -86,7 +86,6 @@
 #ifdef WINDOWS //lib location platform checking
 	#include <al.h>
 	#include <alc.h>
-	#include <alut.h>
 #elif defined(OSX)
 	#include <Carbon/Carbon.h>
 	#include <AudioToolbox/AudioToolbox.h>
@@ -98,7 +97,6 @@
 #else
 	#include <AL/al.h>
 	#include <AL/alc.h>
-	#include <AL/alut.h>
 #endif //lib location platform checking
 
 #include <math.h>

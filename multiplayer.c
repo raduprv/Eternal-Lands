@@ -838,12 +838,14 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
+#ifdef NEW_SOUND
 				if (data_length <= 4)
 				{
 				  log_error("CAUTION: Possibly forged PLAY_MUSIC packet received.\n");
 				  break;
 				}
 				if(music_on)play_music(SDL_SwapLE16(*((short *)(in_data+3))));
+#endif // NEW_SOUND
 			}
 			break;
 
@@ -859,14 +861,7 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  break;
 				}
 				if (sound_on) add_server_sound(SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE16(*((short *)(in_data+5))), SDL_SwapLE16(*((short *)(in_data+7))), 1.0f);
-#else
-				if (data_length <= 12)
-				{
-				  log_error("CAUTION: Possibly forged PLAY_SOUND packet received.\n");
-				  break;
-				}
-				if (sound_on) add_sound_object(SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE16(*((short *)(in_data+5))), SDL_SwapLE16(*((short *)(in_data+7))), SDL_SwapLE16(*((short *)(in_data+9))), SDL_SwapLE16(*((short *)(in_data+11))));
-#endif
+#endif // NEW_SOUND
 			}
 			break;
 

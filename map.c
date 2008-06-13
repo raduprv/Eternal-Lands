@@ -250,8 +250,6 @@ void change_map (const char *mapname)
 	ec_delete_all_effects();
 #ifdef NEW_SOUND
 	stop_all_sounds();
-#else
-	kill_local_sounds();
 #endif	//NEW_SOUND
 	missiles_clear();
 	if (!el_load_map(mapname)) {
@@ -267,12 +265,8 @@ void change_map (const char *mapname)
 #ifndef NEW_WEATHER
 	rain_sound=0;//kill local sounds also kills the rain sound
 #endif
-#ifndef NEW_SOUND
-	kill_local_sounds();
-	playing_music=0;
-#endif // !NEW_SOUND
-	get_map_playlist();
 #ifdef NEW_SOUND
+	get_map_playlist();
 	setup_map_sounds(get_cur_map(mapname));
 #endif // NEW_SOUND
 	have_a_map=1;
@@ -294,8 +288,6 @@ void change_map (const char *mapname)
 	destroy_all_particles();
 #ifdef NEW_SOUND
 	stop_all_sounds();
-#else
-	kill_local_sounds();
 #endif	//NEW_SOUND
 	if (!load_map(mapname)) {
 		char error[255];
@@ -305,12 +297,8 @@ void change_map (const char *mapname)
 		LOG_ERROR(cant_change_map, mapname);
 		load_empty_map();
 	}
-#ifndef NEW_SOUND
-	kill_local_sounds();
-	playing_music=0;
-#endif // !NEW_SOUND
-	get_map_playlist();
 #ifdef NEW_SOUND
+	get_map_playlist();
 	setup_map_sounds(get_cur_map(mapname));
 #endif // NEW_SOUND
 	have_a_map=1;

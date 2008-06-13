@@ -114,10 +114,6 @@ typedef struct
 	*/
 	/*! \{ */
 	int sound_nr;
-#ifndef NEW_SOUND
-	int positional;
-	int loop;
-#endif	//NEW_SOUND
 	/*! \} */
 }particle_sys_def;
 

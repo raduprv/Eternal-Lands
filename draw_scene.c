@@ -261,10 +261,6 @@ void move_camera ()
 	glRotatef(rz, 0.0f, 0.0f, 1.0f);
 	glTranslatef(camera_x, camera_y, camera_z);
 #endif // SKY_FPV
-
-#ifndef NEW_SOUND	//test only
-	update_position();
-#endif	//NEW_SOUND
 }
 
 

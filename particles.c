@@ -161,8 +161,6 @@ particle_sys_def *load_particle_def(const char *filename)
 	fscanf(f,"%f,%f,%f\n",&def->lightr,&def->lightg,&def->lightb);
 #ifdef NEW_SOUND
 	fscanf (f, "%d\n", &def->sound_nr);
-#else
-	fscanf (f, "%d,%d,%d\n", &def->sound_nr, &def->positional, &def->loop);
 #endif	//NEW_SOUND
 	
 	if(def->total_particle_no>MAX_PARTICLES)
@@ -407,9 +405,6 @@ static __inline__ void destroy_partice_sys_without_lock(int i)
 		destroy_light(particles_list[i]->light);
 #ifdef NEW_SOUND
 	stop_sound_at_location(particles_list[i]->x_pos, particles_list[i]->y_pos);
-#else // NEW_SOUND
-	if (particles_list[i]->sound)
-		stop_sound(particles_list[i]->sound);
 #endif // NEW_SOUND
 	delete_particle_from_abt(main_bbox_tree, i);
 	free(particles_list[i]);
@@ -691,9 +686,6 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 
 	if (sound_on)
 	{
-#ifdef _EXTRA_SOUND_DEBUG
-//		printf("Looking for particle sound for: %s\n", file_name);
-#endif // _EXTRA_SOUND_DEBUG
 		snd = get_sound_index_for_particle_file_name(file_name);
 		if (snd >= 0)
 		{
@@ -927,15 +919,6 @@ int create_particle_sys (particle_sys_def *def, float x, float y, float z)
 
 	for(i=0,p=&system_id->particles[0];i<def->total_particle_no;i++,p++)create_particle(system_id,p);
 	
-#ifndef MAP_EDITOR
- #ifndef NEW_SOUND
-	if (def->sound_nr < 0 || !sound_on)
-		system_id->sound = 0;
-	else
-		system_id->sound = add_sound_object (def->sound_nr, (int)(x+x-0.5), (int)(y+y-0.5), def->positional, def->loop);
- #endif // !NEW_SOUND
-#endif
-
 #ifdef CLUSTER_INSIDES
 	system_id->cluster = get_cluster ((int)(x/0.5f), (int)(y/0.5f));
 	current_cluster = system_id->cluster;

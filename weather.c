@@ -124,8 +124,6 @@ int last_random_number = -1;
 
 #ifdef NEW_SOUND
 unsigned int rain_sound = 0;
-#else // NEW_SOUND
-int rain_sound = -1;
 #endif //NEW_SOUND
 
 float weather_color[4] = {0.0, 0.0, 0.0, 1.0};
@@ -712,12 +710,6 @@ void weather_sound_control()
 				rain_sound = add_server_sound(snd_rain, 0, 0, weather_ratios[WEATHER_RAIN]);
 			else
 				sound_source_set_gain(rain_sound, weather_ratios[WEATHER_RAIN]);
-#else
-			{
-				rain_sound = add_sound_object(snd_rain, 0, 0, 0, 1);
-			}
-			if (rain_sound > 0)
-				sound_source_set_gain(rain_sound, weather_ratios[WEATHER_RAIN]);
 #endif	//NEW_SOUND
 		}
 		else
@@ -755,8 +747,6 @@ void weather_sound_control()
 				{
 #ifdef NEW_SOUND
 					add_server_sound(snd_thunder, 0, 0, 1.0f);
-#else
-					add_sound_object(snd_thunder, 0, 0, 0, 0);
 #endif	//NEW_SOUND
 				}
 			}
@@ -1168,10 +1158,12 @@ void rain_control()
 	/* disable rain on snow maps for now */
 	if (map_flags & MF_SNOW) {
 		is_raining = 0;
+#ifdef NEW_SOUND
 		if (rain_sound) {
 			stop_sound(rain_sound);
 			rain_sound = 0;
 		}
+#endif // NEW_SOUND
 		seconds_till_rain_starts = -1;
 		seconds_till_rain_stops = -1;
 		rain_light_offset=0;
@@ -1195,20 +1187,20 @@ void rain_control()
 #ifdef NEW_SOUND
 			if (!rain_sound || find_sound_source_from_cookie(rain_sound) < 0)
 				rain_sound = add_server_sound(snd_rain, 0, 0, rainParam);
-#else
-			if(!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
-#endif	//NEW_SOUND
 			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
+#endif	//NEW_SOUND
 			seconds_till_rain_stops--;
 		} else if(seconds_till_rain_stops) {
 #ifdef SKY_FPV
 			weather_rain_intensity = seconds_till_rain_stops/60.0;
 #endif // SKY_FPV
 			if (is_raining) is_raining = 0;
+#ifdef NEW_SOUND
 			if(rain_sound) {
 				stop_sound(rain_sound);
 				rain_sound=0;
 			}
+#endif	//NEW_SOUND
 			num_rain_drops = 0;
 			seconds_till_rain_stops--;
 		} else {
@@ -1216,10 +1208,12 @@ void rain_control()
 			weather_rain_intensity = 0.0;
 #endif // SKY_FPV
 			if (is_raining) is_raining = 0;
+#ifdef NEW_SOUND
 			if(rain_sound) {
 				stop_sound(rain_sound);
 				rain_sound=0;
 			}
+#endif	//NEW_SOUND
 			num_rain_drops = 0;
 			seconds_till_rain_stops = -1;
 			rain_light_offset=0;
@@ -1241,7 +1235,9 @@ void rain_control()
 			weather_rain_intensity = 0.0;
 #endif // SKY_FPV
 			num_rain_drops = 0;
+#ifdef NEW_SOUND
 			if (rain_sound) sound_source_set_gain(rain_sound, 0.0f);
+#endif	//NEW_SOUND
 			seconds_till_rain_starts--;
 		} else if(seconds_till_rain_starts) {
 #ifdef SKY_FPV
@@ -1253,12 +1249,12 @@ void rain_control()
 #ifdef NEW_SOUND
 				if (!rain_sound || find_sound_source_from_cookie(rain_sound) < 0)
 					rain_sound = add_server_sound(snd_rain, 0, 0, rainParam);
-#else
-				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
 			}
 			num_rain_drops = rainParam*MAX_RAIN_DROPS;
+#ifdef NEW_SOUND
 			if (rain_sound) sound_source_set_gain(rain_sound, rainParam);
+#endif	//NEW_SOUND
 			seconds_till_rain_starts--;
 		} else {
 #ifdef SKY_FPV
@@ -1269,8 +1265,6 @@ void rain_control()
 #ifdef NEW_SOUND
 				if (!rain_sound || find_sound_source_from_cookie(rain_sound) < 0)
 					rain_sound = add_server_sound(snd_rain, 0, 0, rain_strength_bias);
-#else
-				if (!rain_sound) rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
 			}
 			num_rain_drops = rain_strength_bias*MAX_RAIN_DROPS;
@@ -1292,18 +1286,16 @@ void rain_control()
 				sound_source_set_gain(rain_sound, rain_strength_bias);
 			} else {
 				rain_sound = add_server_sound(snd_rain, 0, 0, rain_strength_bias);
-#else
-				sound_source_set_gain(rain_sound, rain_strength_bias);
-			} else {
-				rain_sound=add_sound_object(snd_rain,0,0,0,1);
 #endif	//NEW_SOUND
 			}
 		} else {
 			num_rain_drops = 0;
+#ifdef NEW_SOUND
 			if (rain_sound) {
 				stop_sound(rain_sound);
 				rain_sound = 0;
 			}
+#endif	//NEW_SOUND
 		}
 	}
 }
@@ -1324,7 +1316,9 @@ float weather_adjust_gain(float in_gain, int in_cookie)
 void thunder_control()
 {
 	int i;
+#ifdef NEW_SOUND
 	int sounds[5]={snd_thndr_1,snd_thndr_2,snd_thndr_3,snd_thndr_4,snd_thndr_5};
+#endif // NEW_SOUND
 	if(map_flags & MF_SNOW) return;
 
 	if(thunder_control_counter+100<cur_time)
@@ -1350,8 +1344,6 @@ void thunder_control()
 							{
 #ifdef NEW_SOUND
 								add_server_sound(sounds[thunders[i].thunder_type], 0, 0, 1.0f);
-#else
-								add_sound_object(sounds[thunders[i].thunder_type],0,0,0,0);
 #endif	//NEW_SOUND
 							}
 							thunders[i].seconds_till_sound=-1;//we are done with this sound

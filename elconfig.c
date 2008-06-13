@@ -1695,9 +1695,7 @@ void init_vars()
 #ifdef NEW_SOUND
 	add_var(OPT_BOOL,"disable_sound", "nosound", &no_sound, disable_sound, 0, "Disable Sound & Music System", "Disable all of the sound effects and music processing", AUDIO);
 	add_var(OPT_STRING,"sound_device", "snddev", sound_device, change_string, 30, "Sound Device", "Device used for playing sounds & music", AUDIO);
-#endif	//NEW_SOUND
 	add_var(OPT_BOOL,"enable_sound", "sound", &sound_on, toggle_sounds, 0, "Enable Sound Effects", "Turn sound effects on/off", AUDIO);
-#ifdef NEW_SOUND
 	add_var(OPT_FLOAT,"sound_gain", "sgain", &sound_gain, change_sound_level, 1, "Overall Sound Effects Volume", "Adjust the overall sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"crowd_gain", "crgain", &crowd_gain, change_sound_level, 1, "Crowd Sounds Volume", "Adjust the crowd sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"enviro_gain", "envgain", &enviro_gain, change_sound_level, 1, "Environmental Sounds Volume", "Adjust the environmental sound effects volume", AUDIO, 0.0, 1.0, 0.1);
@@ -1706,12 +1704,9 @@ void init_vars()
 	add_var(OPT_FLOAT,"gamewin_gain", "gwgain", &gamewin_gain, change_sound_level, 1, "Item and Inventory Sounds Volume", "Adjust the item and inventory sound effects volume", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"client_gain", "clgain", &client_gain, change_sound_level, 1, "Misc Client Sounds Volume", "Adjust the client sound effects volume (warnings, hud/button clicks)", AUDIO, 0.0, 1.0, 0.1);
 	add_var(OPT_FLOAT,"warn_gain", "wrngain", &warnings_gain, change_sound_level, 1, "Text Warning Sounds Volume", "Adjust the user configured text warning sound effects volume", AUDIO, 0.0, 1.0, 0.1);
-#endif	//NEW_SOUND
 	add_var(OPT_BOOL,"enable_music","music",&music_on,toggle_music,0,"Enable Music","Turn music on/off",AUDIO);
-#ifndef NEW_SOUND
-	add_var(OPT_FLOAT,"sound_gain","sgain",&sound_gain,change_sound_level,1,"Sound Volume","Adjust the sound effects volume",AUDIO,0.0,1.0,0.1);
-#endif	//NEW_SOUND
 	add_var(OPT_FLOAT,"music_gain","mgain",&music_gain,change_sound_level,1,"Music Volume","Adjust the music volume",AUDIO,0.0,1.0,0.1);
+#endif	//NEW_SOUND
 
 #ifndef MAP_EDITOR2
 	add_var(OPT_BOOL,"sit_lock","sl",&sit_lock,change_var,0,"Sit Lock","Enable this to prevent your character from moving by accident when you are sitting.",CONTROLS);

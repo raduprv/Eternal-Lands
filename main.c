@@ -226,7 +226,9 @@ int start_rendering()
 	cleanup_pawn ();
 #endif
 
-	destroy_sound();	//cleans up and waits for the thread
+#ifdef NEW_SOUND
+	destroy_sound();	// Cleans up and waits for the thread
+#endif // NEW_SOUND
 	unload_questlog();
 	free_icons();
 	free_vars();
@@ -240,7 +242,9 @@ int start_rendering()
 	free_bbox_tree(main_bbox_tree);
 	main_bbox_tree = NULL;
 	/* Destroy our GL context, etc. */
-	destroy_sound();
+#ifdef NEW_SOUND
+	destroy_sound();							// FIXME: This is done above, does it need to be done here?
+#endif // NEW_SOUND
 	SDL_QuitSubSystem(SDL_INIT_AUDIO);
 	SDL_QuitSubSystem(SDL_INIT_TIMER);
 /*#ifdef WINDOWS

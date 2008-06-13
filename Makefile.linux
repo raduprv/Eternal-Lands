@@ -11,7 +11,7 @@ _CXXFLAGS=$(PLATFORM) -O3 -fomit-frame-pointer -ffast-math -pipe $(OPTIONS) $(sh
 
 ZLIB_LIBS = -lz
 PNG_SCREENSHOT_LIBS = -lpng
-LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) -lalut -lz -lpng -lvorbis -lvorbisfile \
+LDFLAGS=$(shell sdl-config --libs) $(shell xml2-config --libs) -lSDL_net -lSDL_image -lopenal $(XDIR) -lGL -lGLU -lcal3d -lm $(EXTRA_LIBS) -lz -lpng -lvorbis -lvorbisfile \
 	$(foreach FEATURE, $(FEATURES), $($(FEATURE)_LIBS))
 _LDFLAGS=$(XDIR) -lGL -lpthread -lz
 STATICLIBS=libs/libSDL_net.a libs/libSDL.a libs/libSDL_image.a libs/libopenal.a libs/libvorbisfile.a libs/libvorbis.a libs/libogg.a libs/libxml2.a libs/libcal3d.a libs/libpng.a libs/libasound.a $(EXTRA_STATICLIBS)

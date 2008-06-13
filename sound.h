@@ -7,13 +7,15 @@
 #ifndef __SOUND_H__
 #define __SOUND_H__
 
+#ifdef NEW_SOUND
+
 #include "platform.h"
 #include "actors.h"
 
-	#include <ogg/ogg.h>
-	#include <vorbis/codec.h>
-	#include <vorbis/vorbisenc.h>
-	#include <vorbis/vorbisfile.h>
+#include <ogg/ogg.h>
+#include <vorbis/codec.h>
+#include <vorbis/vorbisenc.h>
+#include <vorbis/vorbisfile.h>
 
 #ifdef __cplusplus
 extern "C" {
@@ -27,20 +29,16 @@ extern "C" {
 #define SOUNDS_CROWD 5
 #define SOUNDS_GAMEWIN 6
 #define SOUNDS_WARNINGS 7
-#define SOUNDS_CLIENT 8		// Should always be last as limits are linked to this define
+#define SOUNDS_CLIENT 8
 
 extern int have_sound; /*!< flag indicating whether sound is available */
 extern int have_music; /*!< flag indicating whether music is available */
 extern int no_sound; /*!< flag indicating whether sounds are initialised and to be processed */
 extern int sound_on; /*!< flag indicating whether sound is enabled */
 extern int music_on; /*!< flag indicating whether music is enabled */
-#ifndef NEW_SOUND
-extern int playing_music; /*!< flag indicating if music is currently playing */
-#endif // !NEW_SOUND
 
 extern ALfloat sound_gain; /*!< gain for sound effects */
 extern ALfloat music_gain; /*!< gain for playing music */
-#ifdef NEW_SOUND
 extern ALfloat crowd_gain; /*!< gain for crowd sound effects */
 extern ALfloat enviro_gain; /*!< gain for environmental and map sound effects */
 extern ALfloat actor_gain; /*!< gain for actor sound effects */
@@ -65,12 +63,7 @@ void print_sound_types();
 void print_sound_samples();
 void print_sounds_list();
 void print_sound_sources();
-#endif
-#else // NEW_SOUND
-#ifdef DEBUG
-void print_sound_objects();
-#endif
-#endif	//NEW_SOUND
+#endif // DEBUG
 						   
 /*!
  * \ingroup other
@@ -128,9 +121,7 @@ void toggle_sounds(int *var);
  */
 void disable_sound(int *var);
 
-#ifdef NEW_SOUND
 void setup_map_sounds (int map_num);
-#endif // NEW_SOUND
 
 /*!
  * \ingroup sound_effects
@@ -144,13 +135,8 @@ void setup_map_sounds (int map_num);
  * \param me			Is this sound from my actor? (bool - 0 or 1)
  * \callgraph
  */
-#ifdef NEW_SOUND
 unsigned int add_sound_object(int type, int x, int y, int me);
-#else
-int add_sound_object(int sound_file, int x, int y, int positional, int loops);
-#endif	//NEW_SOUND
 
-#ifdef NEW_SOUND
 unsigned int add_walking_sound(int type, int x, int y, int me, float scale);
 unsigned int add_particle_sound(int type, int x, int y);
 unsigned int add_spell_sound(int spell);
@@ -173,7 +159,6 @@ void final_sound_exit(void);
  * \callgraph
  */
 unsigned int add_server_sound(int type, int x, int y, int gain);
-#endif // NEW_SOUND
 
 /*!
  * \ingroup sound_effects
@@ -184,12 +169,7 @@ unsigned int add_server_sound(int type, int x, int y, int gain);
  * \param ms		    The time, in ms, since the last update
  * \callgraph
  */
-#ifdef NEW_SOUND
 void update_sound(int ms);
-#else
-void update_position();
-#endif	//NEW_SOUND
-
 
 /*!
  * \ingroup sound_effects
@@ -200,24 +180,8 @@ void update_position();
  * \param cookie	   The cookie for the sound source to stop
  * \callgraph
  */
-#ifdef NEW_SOUND
 void stop_sound(unsigned long int cookie);
-#else
-void stop_sound(int i);
 
-/*!
- * \ingroup sound_effects
- * \brief Deletes the specified source.
- *
- *      Searches for a source_data object for source \a source and deletes it.
- *
- * \param cookie	   The cookie for the sound source to stop
- * \callgraph
- */
-void remove_sound_object(int sound);
-#endif	//NEW_SOUND
-
-#ifdef NEW_SOUND
 /*!
  * \ingroup sound_effects
  * \brief Deletes a source at the given location
@@ -229,7 +193,6 @@ void remove_sound_object(int sound);
  * \callgraph
  */
 void stop_sound_at_location(int x, int y);
-#endif // NEW_SOUND
 
 /*!
  * \ingroup sound_effects
@@ -239,13 +202,8 @@ void stop_sound_at_location(int x, int y);
  *
  * \callgraph
  */
-#ifdef NEW_SOUND
 void stop_all_sounds();
-#else // NEW_SOUND
-void kill_local_sounds();
-#endif	//NEW_SOUND
 
-#ifdef NEW_SOUND
 /*!
  * \ingroup sound_effects
  * \brief Gets the index of the named sound type.
@@ -313,7 +271,6 @@ int get_index_for_inv_usewith_item_sound(int use_image_id, int with_image_id);
  * \callgraph
  */
 int find_sound_source_from_cookie(unsigned int cookie);
-#endif	//NEW_SOUND
 
 /*!
  * \ingroup sound_effects
@@ -325,14 +282,8 @@ int find_sound_source_from_cookie(unsigned int cookie);
  * \param gain  The gain, relative to \see sound_gain
  * \callgraph
  */
-#ifdef NEW_SOUND
 void sound_source_set_gain(unsigned long int cookie, float gain);
-#else
-void sound_source_set_gain(int sound, float gain);
-#endif	//NEW_SOUND
 
-
-#ifdef NEW_SOUND
 /*!
  * \ingroup other
  * \brief Loads the configuration of the sound system for EL
@@ -348,17 +299,12 @@ void load_sound_config_data (const char *path);
 void handle_walking_sound(actor *pActor, int def_snd);
 int check_sound_loops(unsigned int cookie);
 void check_sound_alerts(char * text, Uint8 channel);
-#endif	//NEW_SOUND
 
 
 
 
 /////// MUSIC FUNCTIONALITY ///////////
 ///////////////////////////////////////
-
-#ifndef NEW_SOUND
-ALuint get_loaded_buffer(int i);
-#endif	//NEW_SOUND
 
 /*!
  * \ingroup music
@@ -391,11 +337,7 @@ void play_music(int list);
  * \retval int  always returns 0.
  * \callgraph
  */
-#ifdef NEW_SOUND
 int update_streams(void *dummy);
-#else // NEW_SOUND
-int update_music(void *dummy);
-#endif //NEW_SOUND
 
 /*!
  * \ingroup music
@@ -431,17 +373,10 @@ int display_song_name();
  */
 void toggle_music(int * var);
 
-#ifdef OSX
-extern ALvoid *alutLoadMemoryFromFile( const char *infilename,
-                                ALenum *ioFormat,
-                                ALsizei *ioSize,
-                                ALfloat *ioFrequency);
-
-extern ALuint alutCreateBufferFromFile (const char *inFilename);
-#endif
 
 #ifdef __cplusplus
 } // extern "C"
 #endif
 
-#endif //__SOUND_H__
+#endif // NEW_SOUND
+#endif // __SOUND_H__

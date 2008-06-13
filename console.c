@@ -1119,7 +1119,9 @@ void init_commands(const char *filename)
 	add_command("sto", &command_storage);
 	add_command("storage", &command_storage);
 	add_command("accept_buddy", &command_accept_buddy);
+#ifdef NEW_SOUND
 	add_command("current_song", &display_song_name);
+#endif // NEW_SOUND
 	add_command("find", &history_grep);
 	add_command("save", &save_local_data);
 	add_command("url", &url_command);

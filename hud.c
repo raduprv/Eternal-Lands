@@ -1029,8 +1029,10 @@ static int context_hud_handler(window_info *win, int widget_id, int mx, int my, 
 		case CMH_ANACLOCK: set_var_unsaved("view_analog_clock", OPT_BOOL); break;
 		case CMH_FPS: set_var_unsaved("show_fps", OPT_BOOL); break;
 		case CMH_MINIMAP: view_window(&minimap_win, 0); break;
+#ifdef NEW_SOUND
 		case CMH_SOUND: toggle_sounds(&sound_on); set_var_unsaved("enable_sounds", OPT_BOOL); break;
 		case CMH_MUSIC: toggle_music(&music_on); set_var_unsaved("enable_music", OPT_BOOL); break;
+#endif // NEW_SOUND
 	}
 	return 1;
 }
@@ -1049,8 +1051,10 @@ static int context_quickbar_handler(window_info *win, int widget_id, int mx, int
 
 static void context_hud_pre_show_handler(window_info *win, int widget_id, int mx, int my)
 {
+#ifdef NEW_SOUND
 	cm_sound_enabled = sound_on;
 	cm_music_enabled = music_on;
+#endif // NEW_SOUND
 	cm_minimap_shown = get_show_window(minimap_win);
 }
 #endif

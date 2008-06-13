@@ -2420,9 +2420,7 @@ int keypress_game_handler (window_info *win, int mx, int my, Uint32 key, Uint32 
 	{
 		if (key & ELW_SHIFT)
 		{
-#ifndef NEW_SOUND
-			print_sound_objects();
-#else
+#ifdef NEW_SOUND
 			print_sound_types();
 			print_sound_samples();
 			print_sounds_list();

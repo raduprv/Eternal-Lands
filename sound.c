@@ -1,10 +1,80 @@
+/*************************************
+ * NEW SOUND - EL's new sound system *
+ *************************************
+ *
+ * Welcome to EL's new sound system. There are basically 5 parts to the code.
+ * 1. Init/destroy, 2. Config, 3. Sources, 4. Streams, 5. Individual sounds
+ *
+ * This description of the code is currently in its first phase and therefore very
+ * general. I intend on expanding on it over time.
+ *
+ * The base of this code was written by d000hg and has been extended by Torg
+ * (torg@grug.redirectme.net).
+ *
+ *
+ *
+ * -- Part 1 - Init/destroy --
+ * This part deals with initialisation and destruction of the physical aspects of
+ * the sound system itself. These include setting up the sound device and sources,
+ * and has been seperated from configuration so as to allow sounds to be added and
+ * removed from the system without being played. This is so if sound is enabled
+ * during the life of any sounds they can be started immediately providing a more
+ * complete experience.
+ *
+ *
+ *
+ * -- Part 2 - Configuration --
+ * This part is responsible for reading and parsing the configuration info.
+ * Configuration is by default found in sound/sound_config.xml. Some base XML
+ * blocks may be stored in additional files. Documentation on the configuration
+ * format can be found in the example sound_config.xml file. This code is
+ * straight-foward and very simple to adjust/expand where necessary.
+ *
+ *
+ *
+ * -- Part 3 - Sources --
+ * This part handles allocating places to play sounds to the sounds that want to
+ * be played. These "places" are OpenAL sources and are initialised in the code
+ * in Part 1. They are shared between streams and individual sounds and this code
+ * locates and available source and provides the calling function with a pointer
+ * to the structure containing the details of this source. There is a mutex lock
+ * used over this code to protect the sources array which is shuffled to keep the
+ * sources sorted by priority.
+ *
+ *
+ *
+ * -- Part 4 - Streams --
+ * This part handles the streamed sounds. The configuration for it is stable and
+ * very flexible. The logic should be straight-forward and it is seperated into
+ * many functions.
+ *
+ *
+ *
+ * -- Part 5s - Playing individual sounds --
+ * This part is the code to handle and play individual sounds. This code is broken
+ * into several functions. Sounds triggered in the code in Part 5b are added to
+ * the list of sounds to be played. They are then loaded into buffers and linked
+ * to a source to be played. There is an update function which is called on a
+ * timer to parse this list of active and inactive sounds to update them. The
+ * update function works directly on the source list and hence care needs to be
+ * taken with mutex locks.
+ *
+ *
+ *
+ * -- Part 5b - Triggering individual sounds --
+ * This final part handles actually triggering the sounds. This code is primarily
+ * scattered throughout the client code calling the add/remove sound functions
+ * where necessary. Specifying places in the code to start and stop sounds is
+ * quite trivial in most cases and any bugs are generally very simple to trace
+ * and find.
+ *
+ */
+#ifdef NEW_SOUND
 #include <ctype.h>
 #include <string.h>
 #include <SDL.h>
 #include <SDL_thread.h>
-#ifdef NEW_SOUND
 #include <math.h>
-#endif // NEW_SOUND
 #include "sound.h"
 #include "asc.h"
 #include "draw_scene.h"
@@ -15,32 +85,22 @@
 #include "misc.h"
 #include "translate.h"
 #include "weather.h"
-#ifdef NEW_SOUND
 #include "2d_objects.h"
 #include "3d_objects.h"
 #include "spells.h"
 #include "tiles.h"
 #include "actors.h"
 #include "interface.h"
-#endif // NEW_SOUND
 #include "io/elpathwrapper.h"
 #include "io/elfilewrapper.h"
 #include "threads.h"
 
-#define MAX_FILENAME_LENGTH 80
-#define MAX_BUFFERS 64
-#define MAX_SOURCES 16
-
-#ifdef NEW_SOUND
 #if defined _EXTRA_SOUND_DEBUG && OSX
  #define printf LOG_ERROR
 #endif
 
 #define OGG_BUFFER_SIZE (1048576)
 #define STREAM_BUFFER_SIZE (4096 * 16)
-#else // NEW_SOUND
-#define MUSIC_BUFFER_SIZE (4096 * 16)
-#endif // NEW_SOUND
 #define SLEEP_TIME 300		// Time to give CPU to other processes between loops of update_streams()
 
 #ifdef _EXTRA_SOUND_DEBUG
@@ -64,17 +124,9 @@ int last_line = 0;
 #define	UNLOCK_SOUND_LIST() CHECK_AND_UNLOCK_MUTEX(sound_list_mutex);
 #endif // _EXTRA_SOUND_DEBUG
 
-typedef struct {
-	char file_name[64];
-	int min_x;
-	int max_x;
-	int min_y;
-	int max_y;
-	int time;
-} playlist_entry;
-
-
-#ifdef NEW_SOUND
+#define MAX_FILENAME_LENGTH 80
+#define MAX_BUFFERS 64
+#define MAX_SOURCES 16
 #define ABS_MAX_SOURCES 64				// Define an absolute maximum for the sources (the size of the array)
 
 #define MAX_SOUNDS 200
@@ -85,6 +137,8 @@ typedef struct {
 #define STREAM_TYPE_MUSIC 1
 #define STREAM_TYPE_CROWD 2
 #define NUM_STREAM_BUFFERS 4
+
+#define MAX_PLAYLIST_ENTRIES 50
 
 #define MAX_BACKGROUND_DEFAULTS 8			// Maximum number of global default backgrounds
 #define MAX_MAP_BACKGROUND_DEFAULTS 4		// Maximum number of default backgrounds per map
@@ -272,19 +326,15 @@ typedef struct
 	map_sound_boundary_def * boundary;		// This is a pointer to the boundary in use
 } stream_data;
 
-#else // NEW_SOUND
+typedef struct {
+	char file_name[64];
+	int min_x;
+	int max_x;
+	int min_y;
+	int max_y;
+	int time;
+} playlist_entry;
 
-#ifdef DEBUG
-struct sound_object
-{
-	int file, x, y, positional, loops;
-};
-struct sound_object sound_objects[MAX_SOURCES];
-#endif	// DEBUG
-
-ALCdevice *mSoundDevice;
-ALCcontext *mSoundContext;
-#endif	// NEW_SOUND
 
 int have_sound = 0;
 int have_music = 0;
@@ -292,15 +342,15 @@ int no_sound = 0;
 int sound_on = 1;
 int music_on = 1;
 Uint8 inited = 0;
-#ifdef NEW_SOUND
+
 SDL_Thread *sound_streams_thread = NULL;
-#else // NEW_SOUND
-SDL_Thread *music_thread = NULL;
-#endif // NEW_SOUND
+SDL_mutex *sound_list_mutex = NULL;
+
+stream_data * music_stream = NULL;
+stream_data streams[MAX_STREAMS];
 
 ALfloat sound_gain = 1.0f;
 ALfloat music_gain = 1.0f;
-#ifdef NEW_SOUND
 ALfloat crowd_gain = 1.0f;
 ALfloat enviro_gain = 1.0f;
 ALfloat actor_gain = 1.0f;
@@ -308,11 +358,9 @@ ALfloat walking_gain = 1.0f;
 ALfloat gamewin_gain = 1.0f;
 ALfloat client_gain = 1.0f;
 ALfloat warnings_gain = 1.0f;
-#endif // NEW_SOUND
 
 int used_sources = 0;						// the number of sources currently playing
 
-#ifdef NEW_SOUND
 char sound_device[30] = "";					// Set up a string to store the names of the selected sound device
 char sound_devices[1000] = "";				// Set up a string to store the names of the available sound devices
 int max_sources = MAX_SOURCES;				// Initialise our local maximum number of sources to the default
@@ -334,8 +382,7 @@ static int must_restart_spell_sounds = 0;	// true if sounds have been stopped, t
 int snd_cur_map = -1;
 int cur_boundary = 0;
 
-// Each playing source is identified by a unique cookie.
-unsigned int next_cookie = 1;
+unsigned int next_cookie = 1;									// Each playing source is identified by a unique cookie.
 sound_loaded sounds_list[MAX_BUFFERS * 2];						// The loaded sounds
 source_data sound_source_data[ABS_MAX_SOURCES];					// The active (playing) sources
 sound_type sound_type_data[MAX_SOUNDS];							// Configuration of the sound types
@@ -353,48 +400,15 @@ int server_sound[10];											// Map of server sounds to sound def ids
 int sound_spell_data[10];										// Map of id's for spells-that-affect-you to sounds
 sound_warnings warnings_list[MAX_SOUND_WARNINGS];				// List of strings to monitor for warning sounds
 int afk_snd_warning;											// Whether to play a sound on receiving a message while AFK
-#else
-char sound_files[MAX_BUFFERS][MAX_FILENAME_LENGTH];
-ALuint sound_source[MAX_SOURCES];
-ALuint sound_buffer[MAX_BUFFERS];
-#endif	//NEW_SOUND
-SDL_mutex *sound_list_mutex = NULL;
-
-
-#define MAX_PLAYLIST_ENTRIES 50
-
-#ifdef NEW_SOUND
-stream_data * music_stream = NULL;
-stream_data streams[MAX_STREAMS];
-#else // NEW_SOUND
-FILE* ogg_file;
-OggVorbis_File ogg_stream;
-vorbis_info* ogg_info;
-ALuint music_buffers[4];
-ALuint music_source;
-
-int playing_music = 0;
-#endif // NEW_SOUND
 
 playlist_entry playlist[MAX_PLAYLIST_ENTRIES];
 int loop_list = 1;
 int list_pos = -1;
 
 
-
 /*    *** Declare some local functions ****
  * These functions shouldn't need to be accessed outside sound.c
  */
-void ogg_error(int code);
-
-#ifndef NEW_SOUND
-
-void load_ogg_file(char *file_name);
-void play_ogg_file(char *file_name);
-void stream_music(ALuint buffer);
-int realloc_sources();
-
-#else // !NEW_SOUND
 
 /* Ogg handling	*/
 int load_ogg_file(char *file_name, OggVorbis_File *oggFile);
@@ -445,1163 +459,6 @@ double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * 
 /* Init functions */
 void clear_sound_data();
 void parse_snd_devices(ALCchar * in_array, char * sound_devs);
-#endif	// !NEW_SOUND
-
-
-/*********************
- *  COMMON FUNCTIONS *
- *********************/
-
-void toggle_music(int * var) {
-	*var = !*var;
-	if (!music_on) {
-		turn_music_off();
-	} else {
-		turn_music_on();
-	}
-}
-
-/*******************************
- * COMMON OGG VORBIS FUNCTIONS *
- *******************************/
-
-void ogg_error(int code)
-{
-	switch(code)
-	{     
-		case OV_EREAD:
-			LOG_ERROR(snd_media_read); break;
-		case OV_ENOTVORBIS:
-			LOG_ERROR(snd_media_notvorbis); break;
-		case OV_EVERSION:
-			LOG_ERROR(snd_media_ver_mismatch); break;
-		case OV_EBADHEADER:
-			LOG_ERROR(snd_media_invalid_header); break;
-		case OV_EFAULT:
-			LOG_ERROR(snd_media_internal_error); break;
-		case OV_EOF:
-			LOG_ERROR(snd_media_eof); break;
-		case OV_HOLE:
-			LOG_ERROR(snd_media_hole); break;
-		case OV_EINVAL:
-			LOG_ERROR(snd_media_einval); break;
-		case OV_EBADLINK:
-			LOG_ERROR(snd_media_ebadlink); break;
-		case OV_FALSE:
-			LOG_ERROR(snd_media_false); break;
-		case OV_ENOSEEK:
-			LOG_ERROR(snd_media_enoseek); break;
-		default:
-			LOG_ERROR(snd_media_ogg_error);
-    }
-}
-
-
-/**************************
- * COMMON MUSIC FUNCTIONS *
- **************************/
-
-void get_map_playlist()
-{
-	int i=0, len;
-	char map_list_file_name[256];
-	char tmp_buf[1024];
-	FILE *fp;
-	char strLine[255];
-	char *tmp;
-	// NOTE: keep the max length in this format line in sync with
-	// the size of tmp_buf
-	static const char pl_line_fmt[] = "%d %d %d %d %d %1023s";
-
-	if(!have_music)return;
-
-	memset (playlist, 0, sizeof(playlist));
-
-	tmp = strrchr (map_file_name, '/');
-	if (tmp == NULL)
-		tmp = map_file_name;
-	else
-		tmp++;
-	safe_snprintf (map_list_file_name, sizeof (map_list_file_name), "music/%s", tmp);
-	len = strlen (map_list_file_name);
-	tmp = strrchr (map_list_file_name, '.');
-	if (tmp == NULL)
-		tmp = &map_list_file_name[len];
-	else
-		tmp++;
-	len -= strlen (tmp);
-	safe_snprintf (tmp, sizeof (map_list_file_name) - len, "pll");
-
-	fp=open_file_data(map_list_file_name,"r");
-	if (fp == NULL) return;
-
-	while(1)
-	{
-		if (fscanf (fp, pl_line_fmt, &playlist[i].min_x, &playlist[i].min_y, &playlist[i].max_x, &playlist[i].max_y, &playlist[i].time, tmp_buf) == 6)
-		{
-			// check for a comment
-			tmp = strstr (tmp_buf, "--");
-			if (tmp)
-			{
-				*tmp = '\0';
-				len = strlen (tmp_buf);
-				while (len > 0 && isspace (tmp_buf[len-1]))
-				{
-					len--;
-					tmp_buf[len]= '\0';
-				}
-			}
-			safe_strncpy (playlist[i].file_name, tmp_buf, sizeof(playlist[i].file_name));
-			playlist[i].file_name[63]= '\0';
-			if (++i >= MAX_PLAYLIST_ENTRIES)
-				break;
-		}
-		if (!fgets (strLine, 100, fp)) break;
-	}
-	fclose(fp);
-	loop_list=1;
-	list_pos=-1;
-}
-
-void play_music(int list)
-{
-	int i=0;
-	char list_file_name[256];
-	FILE *fp;
-	char strLine[255];
-
-	if(!have_music)return;
-
-	safe_snprintf(list_file_name, sizeof(list_file_name), "music/%d.pll", list);
-	fp=open_file_data(list_file_name, "r");
-	if(!fp)return;
-
-	memset(playlist,0,sizeof(playlist));
-
-	while (1)
-	{
-		if (fscanf (fp, "%254s", strLine) == 1)
-		{
-			my_strncp (playlist[i].file_name, strLine, sizeof (playlist[i].file_name));
-			playlist[i].min_x = 0;
-			playlist[i].min_y = 0;
-			playlist[i].max_x = 10000;
-			playlist[i].max_y = 10000;
-			playlist[i].time = 2;
-			if (++i > MAX_PLAYLIST_ENTRIES)
-				break;
-			if (!fgets (strLine, 100, fp))
-				break;
-		}
-	}
-	fclose(fp);
-	loop_list=0;
-	list_pos=0;
-#ifdef NEW_SOUND
-	play_song(list_pos);
-#else // NEW_SOUND
-	alSourcef (music_source, AL_GAIN, music_gain);
-	play_ogg_file(playlist[list_pos].file_name);
-#endif // NEW_SOUND
-}
-
-
-
-
-
-
-
-
-
-
-
-#ifndef NEW_SOUND
-
-/***********************
- * OLD SOUND FUNCTIONS *
- ***********************/
-
-void turn_sound_on()
-{
-	int i,state=0;
-	ALuint source;
-	if(!inited)
-	{
-		init_sound();
-	}
-	if(!have_sound)
-		return;
-	LOCK_SOUND_LIST();
-	sound_on = 1;
-	for(i=0;i<used_sources;i++)
-	{
-		source = sound_source[i];
-		alGetSourcei(source, AL_SOURCE_STATE, &state);
-		if(state == AL_PAUSED)
-			alSourcePlay(source);
-	}
-	UNLOCK_SOUND_LIST();
-}
-
-void turn_sound_off()
-{
-	int i=0,loop;
-	ALuint source;
-	if(!inited)
-		return;
-	if(!music_on)
-	{
-		destroy_sound();
-		return;
-	}
-	LOCK_SOUND_LIST();
-	sound_on=0;
-	while(i<used_sources)
-	{
-		source = sound_source[i];
-		alGetSourcei(source, AL_LOOPING, &loop);
-		if(loop == AL_TRUE)
-			alSourcePause(source);
-		else
-		{
-			alSourceStop(source);
-		}
-		++i;
-	}
-	UNLOCK_SOUND_LIST();
-}
-
-void toggle_sounds(int *var){
-	*var=!*var;
-	if(!sound_on){
-		turn_sound_off();
-	} else {
-		turn_sound_on();
-	}
-}
-
-void turn_music_on()
-{
-	int state;
-	if(!inited){
-		init_sound();
-	}
-	if(!have_music){
-		return;
-	}
-	get_map_playlist();
-	music_on = 1;
-	if(music_thread == NULL){
-		music_thread=SDL_CreateThread(update_music, 0);
-	}
-	alGetSourcei(music_source, AL_SOURCE_STATE, &state);
-	if(state == AL_PAUSED) {
-		alSourcePlay(music_source);
-		playing_music = 1;
-	}
-}
-
-void turn_music_off()
-{
-	if(!sound_on && inited){
-		destroy_sound();
-		return;
-	}
-	if(!have_music)
-		return;
-	if(music_thread != NULL){
-		int queued = 0;
-		music_on=0;
-		alSourceStop(music_source);
-		alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-		while(queued-- > 0){
-			ALuint buffer;		
-			alSourceUnqueueBuffers(music_source, 1, &buffer);
-		}
-		SDL_WaitThread(music_thread,NULL);
-		music_thread = NULL;
-	}
-	music_on = playing_music = 0;
-}
-
-void destroy_sound()
-{
-	int i, error;
-	ALCcontext *context;
-	ALCdevice *device;
-	if(!inited){
-		return;
-	}
-	SDL_DestroyMutex(sound_list_mutex);
-	sound_list_mutex=NULL;
-	inited = have_sound = sound_on = 0;
-
-	if(music_thread != NULL){
-		int queued = 0;
-		ALuint buffer;
-		if (have_music)
-		{
-			music_on = playing_music = have_music = 0;
-			alSourceStop(music_source);
-			alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-			while(queued-- > 0){
-				alSourceUnqueueBuffers(music_source, 1, &buffer);
-			}
-			alDeleteSources(1, &music_source);
-			alDeleteBuffers(4, music_buffers);
-			ov_clear(&ogg_stream);
-		}
-		SDL_WaitThread(music_thread,NULL);
-		music_thread = NULL;
-	}
-	alSourceStopv(used_sources, sound_source);
-	alDeleteSources(used_sources, sound_source);
-	for(i=0;i<MAX_BUFFERS;i++) {
-		if(alIsBuffer(sound_buffer[i])) {
-			alDeleteBuffers(1, sound_buffer+i);
-		}
-	}
-	alcDestroyContext( mSoundContext );
-	if(mSoundDevice) {
-		alcCloseDevice( mSoundDevice );
-	}
-	/*
-	 * alutExit() contains a problem with hanging on exit on some
-	 * Linux systems.  The problem is with the call to
-	 * alcMakeContextCurrent( NULL );  The folowing code is exactly
-	 * what is in alutExit() minus that function call.  It causes
-	 * no problems if the call is not there since the context is
-	 * being destroyed right afterwards.
-	 */
-	context = alcGetCurrentContext();
-	if(context != NULL) {
-		device = alcGetContextsDevice(context);
-		alcDestroyContext(context);
-		if(device != NULL)
-		{
-			alcCloseDevice(device);
-		}
-	}
-
-	if((error=alGetError()) != AL_NO_ERROR) 
-	{
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
-		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
-	}
-
-	used_sources = 0;
-}
-
-
-/************************
- * OGG VORBIS FUNCTIONS *
- ************************/
-
-void load_ogg_file(char *file_name)
-{
-	char file_name2[80];
-
-	if(!have_music)return;
-
-	ov_clear(&ogg_stream);
-
-	if(file_name[0]!='.' && file_name[0]!='/')
-		safe_snprintf (file_name2, sizeof (file_name2), "./music/%s", file_name);
-	else
-		safe_snprintf(file_name2, sizeof (file_name2), "%s", file_name);
-
-	ogg_file = my_fopen(file_name2, "rb");
-
-	if(ogg_file == NULL) {
-		have_music=0;
-		return;
-	}
-
-	if(ov_open(ogg_file, &ogg_stream, NULL, 0) < 0) {
-		LOG_ERROR(snd_ogg_stream_error);
-		have_music=0;
-		return;
-	}
-
-	ogg_info = ov_info(&ogg_stream, -1);
-}
-
-void play_ogg_file(char *file_name) {
-	int error,queued;
-
-	if(!have_music)return;
-
-	alSourceStop(music_source);
-	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-	while(queued-- > 0)
-		{
-			ALuint buffer;
-			
-			alSourceUnqueueBuffers(music_source, 1, &buffer);
-		}
-
-	load_ogg_file(file_name);
-	if(!have_music)return;
-
-	stream_music(music_buffers[0]);
-	stream_music(music_buffers[1]);
-	stream_music(music_buffers[2]);
-	stream_music(music_buffers[3]);
-    
-	alSourceQueueBuffers(music_source, 4, music_buffers);
-	alSourcePlay(music_source);
-
-	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-    		LOG_ERROR("play_ogg_file %s: %s", my_tolower(reg_error_str), alGetString(error));
-			have_music=0;
-			return;
-    	}
-	playing_music = 1;	
-}
-
-/*******************
- * MUSIC FUNCTIONS *
- *******************/
-
-void stream_music(ALuint buffer)
-{
-    char data[MUSIC_BUFFER_SIZE];
-    int  size = 0;
-    int  section = 0;
-    int  result = 0;
-	int error = 0;
-	char str[256];
-
-    while(size < MUSIC_BUFFER_SIZE)
-    {
-#ifndef EL_BIG_ENDIAN
-        result = ov_read(&ogg_stream, data + size, MUSIC_BUFFER_SIZE - size, 0, 2, 1,
-						 &section);
-#else
-        result = ov_read(&ogg_stream, data + size, MUSIC_BUFFER_SIZE - size, 1, 2, 1,
-						 &section);
-#endif
-		safe_snprintf(str, sizeof(str), "%d", result); //prevents optimization errors under Windows, but how/why?
-        if((result > 0) || (result == OV_HOLE))		// OV_HOLE is informational
-		{
-            if (result != OV_HOLE) size += result;
-		}
-        else if(result < 0)
-			ogg_error(result);
-		else
-			break;
-    }
-	if(!size)
-		{
-			playing_music = 0;//file's done, quit trying to play
-			return;
-		}
-	if((error=alGetError()) != AL_NO_ERROR){
-		LOG_ERROR("stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
-		have_music=0;
-	}
-
-	alBufferData(buffer, AL_FORMAT_STEREO16, data, size, ogg_info->rate);
-
-	if((error=alGetError()) != AL_NO_ERROR) 
-    	{
-    		LOG_ERROR("stream_music %s: %s", my_tolower(reg_error_str), alGetString(error));
-			have_music=0;
-    	}
-}
-
-int display_song_name()
-{
-	if(!playing_music){
-		LOG_TO_CONSOLE(c_grey1, snd_media_music_stopped);
-	}else{
-		char musname[100];
-		char *title = NULL, *artist = NULL;
-		int i=0;
-		vorbis_comment *comments;
-		comments = ov_comment(&ogg_stream, -1);
-		if(comments == NULL){
-			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
-			LOG_TO_CONSOLE(c_grey1, musname);
-			return 1;
-		}
-		for(;i<comments->comments;++i){
-			if((artist == NULL)&&(comments->comment_lengths[i] > 6)&&(my_strncompare(comments->user_comments[i],"artist", 6))){
-				artist = comments->user_comments[i] + 7;
-				if(title){break;}
-			}else if((title == NULL)&&(comments->comment_lengths[i] > 6)&&(my_strncompare(comments->user_comments[i],"title", 5))){
-				title = comments->user_comments[i] + 6;
-				if(artist){break;}
-			}
-		}
-		if(artist && title){
-			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info, title, artist, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
-		}else if(title){
-			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, title, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
-		}else{
-			safe_snprintf(musname, sizeof(musname), snd_media_ogg_info_noartist, playlist[list_pos].file_name, (int)(ov_time_tell(&ogg_stream)/60), (int)ov_time_tell(&ogg_stream)%60, (int)(ov_time_total(&ogg_stream,-1)/60), (int)ov_time_total(&ogg_stream,-1)%60);
-		}
-		LOG_TO_CONSOLE(c_grey1, musname);
-	}
-	return 1;
-}
-
-int update_music(void *dummy)
-{
-    int error,processed,state,state2,sleep,fade=0;
-   	sleep = SLEEP_TIME;
-	while(have_music && music_on)
-		{
-			SDL_Delay(sleep);
-			if(playing_music)
-				{
-					int day_time = (game_minute>=30 && game_minute<60*3+30);
-					int tx=-camera_x*2,ty=-camera_y*2;
-					if(fade) {
-						fade++;
-						if(fade > 6) {
-							int queued;
-							fade = 0;
-							playing_music = 0;
-							alSourceStop(music_source);
-							alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-							alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-							while(queued-- > 0) {
-								ALuint buffer;
-								alSourceUnqueueBuffers(music_source, 1, &buffer);
-							}
-						}
-						alSourcef(music_source, AL_GAIN, music_gain-((float)fade*(music_gain/6)));
-						continue;
-					}
-					if(tx < playlist[list_pos].min_x ||
-					   tx > playlist[list_pos].max_x ||
-					   ty < playlist[list_pos].min_y ||
-					   ty > playlist[list_pos].max_y ||
-					   (playlist[list_pos].time != 2 &&
-                        playlist[list_pos].time != day_time)) {
-						fade = 1;
-						continue;
-					}
-					alSourcef (music_source, AL_GAIN, music_gain);
-					alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-					alGetSourcei(music_source, AL_SOURCE_STATE, &state);
-					state2=state;	//fake out the Dev-C++ optimizer!
-					if(!processed) {
-						if(sleep < SLEEP_TIME)sleep+=(SLEEP_TIME / 100);
-						continue; //skip error checking et al
-					}
-					while(processed-- > 0)
-						{
-    						ALuint buffer;
-
-							alSourceUnqueueBuffers(music_source, 1, &buffer);
-							stream_music(buffer);
-							alSourceQueueBuffers(music_source, 1, &buffer);
-						}
-					if(state2 != AL_PLAYING)
-						{
-							LOG_TO_CONSOLE(c_red1, snd_skip_speedup);
-							//on slower systems, music can skip up to 10 times
-							//if it skips more, it just can't play the music...
-							if(sleep > (SLEEP_TIME / 10))
-								sleep -= (SLEEP_TIME / 10);
-							else if(sleep > 1) sleep = 1;
-							else
-								{
-									LOG_TO_CONSOLE(c_red1, snd_too_slow);
-									LOG_ERROR(snd_too_slow);
-									turn_music_off();
-									sleep = SLEEP_TIME;
-									break;
-								}
-							alSourcePlay(music_source);
-						}
-					if((error=alGetError()) != AL_NO_ERROR)
-						{
-							LOG_ERROR("update_music %s: %s", my_tolower(reg_error_str), alGetString(error));
-							have_music=0;
-						}
-				}
-			else if(music_on)
-				{
-					int day_time = (game_minute>=30 && game_minute<60*3+30);
-					int tx=-camera_x*2,ty=-camera_y*2;
-					if(playlist[list_pos+1].file_name[0]) {
-						list_pos++;
-						if(tx > playlist[list_pos].min_x &&
-						   tx < playlist[list_pos].max_x &&
-						   ty > playlist[list_pos].min_y &&
-						   ty < playlist[list_pos].max_y &&
-                           (playlist[list_pos].time == 2 ||
-                            playlist[list_pos].time == day_time)) {
-							alSourcef (music_source, AL_GAIN, music_gain);
-							play_ogg_file(playlist[list_pos].file_name);
-						}
-					} else if(loop_list)
-						list_pos=-1;
-					else
-						get_map_playlist();
-					continue;
-				}
-			if(exit_now) break;
-		}
-	if((error=alGetError()) != AL_NO_ERROR)
-	{
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Music bug (update_music)\n");
-#endif //_EXTRA_SOUND_DEBUG
-	}
-	return 1;
-}
-
-void stop_sound(int i)
-{
-	if(!have_sound)return;
-	if (i == 0) return;
-	alSourceStop (i);
-}
-
-ALuint get_loaded_buffer(int i)
-{
-	int error;
-    ALsizei	size;
-	ALfloat freq;
-	ALenum  format;
-	ALvoid*	data= NULL;
-	el_file_ptr file = NULL;
-	
-	if(!alIsBuffer(sound_buffer[i]))
-	{
-		// XXX FIXME (Grum): You have got to be kidding me...
-		// alutLoadWAVFile doesn't provide any way to check if loading
-		// a file succeeded. Well, at least, let's check if the file
-		// actually exists...
-		// Maybe use alutLoadWAV? But that doesn't seem to exist on 
-		// OS/X...
-		if (!el_file_exists(sound_files[i]))
-		{
-			LOG_ERROR(snd_wav_load_error, sound_files[i]);
-			return 0;
-		}
-
-		alGenBuffers(1, sound_buffer+i);
-			
-		if((error=alGetError()) != AL_NO_ERROR) 
-		{
-			LOG_ERROR("%s: %s",snd_buff_error, alGetString(error));
-			have_sound=0;
-			have_music=0;
-		}
-
-		file = el_open(sound_files[i]);
-		data = alutLoadMemoryFromFileImage(el_get_pointer(file), el_get_size(file), &format, &size, &freq);
-		if (data == AL_NONE)
-		{
-			LOG_ERROR ("Unable to load sound file %s\n", sound_files[i]);
-		}
-		else
-		{
-			alBufferData(sound_buffer[i],format,data,size,(int)freq);
-			free(data);
-		}
-		el_close(file);
-
-		if ((error = alGetError ()) != AL_NO_ERROR)
-			LOG_ERROR("(in get_loaded_buffer) %s: %s", snd_buff_error, alGetString(error));
-	}
-	return sound_buffer[i];
-}
-
-int add_sound_object(int sound_file,int x, int y,int positional,int loops)
-{
-	// XXX FIXME (Grum): do we really need to use tile coordinates?
-	int error,tx,ty,distance,i;
-	ALfloat sourcePos[]={ x, y, 0.0};
-	ALfloat sourceVel[]={ 0.0, 0.0, 0.0};
-	ALuint buffer;
-	
-	if(!have_sound)
-		return 0;
-
-	if(sound_file >= MAX_BUFFERS)
-	{
-		LOG_ERROR(snd_invalid_number);
-		return 0;
-	}
-
-	LOCK_SOUND_LIST();
-
-	i = used_sources;
-	if (i>=MAX_SOURCES)
-	{
-		i = realloc_sources();
-		if (i < 0)
-		{
-			// too much noise already (buffer full)
-			UNLOCK_SOUND_LIST ();
-			return 0;
-		}
-	}
-
-	tx=-camera_x*2;
-	ty=-camera_y*2;
-	distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
-
-	alGenSources(1, &sound_source[i]);
-	if((error=alGetError()) != AL_NO_ERROR) 
-	{
-		LOG_ERROR("%s %d: %s", snd_source_error, i, alGetString(error));
-		have_sound=0;
-		have_music=0;
-		UNLOCK_SOUND_LIST ();
-		return 0;
-	}
-
-	buffer = get_loaded_buffer (sound_file);
-	if (buffer == 0)
-	{
-		// can't read file
-		UNLOCK_SOUND_LIST ();
-		return 0;
-	}
-
-	alSourcef(sound_source[i], AL_PITCH, 1.0f);
-	alSourcef(sound_source[i], AL_GAIN, sound_gain);
-	alSourcei(sound_source[i], AL_BUFFER, buffer);
-	alSourcefv(sound_source[i], AL_VELOCITY, sourceVel);
-	alSourcefv(sound_source[i], AL_POSITION, sourcePos);
-	if (!positional)
-	{
-		alSourcei(sound_source[i], AL_SOURCE_RELATIVE, AL_TRUE);
-	}
-	else 
-	{
-		alSourcei(sound_source[i], AL_SOURCE_RELATIVE, AL_FALSE);
-		alSourcef(sound_source[i], AL_REFERENCE_DISTANCE , 10.0f);
-		alSourcef(sound_source[i], AL_ROLLOFF_FACTOR , 4.0f);
-	}
-
-	if (loops)
-	{
-		alSourcei(sound_source[i], AL_LOOPING, AL_TRUE);
-		alSourcePlay(sound_source[i]);
-		if(!sound_on || (positional && (distance > 35*35)))
-			alSourcePause(sound_source[i]);
-	}
-	else
-	{
-		alSourcei(sound_source[i], AL_LOOPING, AL_FALSE);
-		if(sound_on)
-			alSourcePlay(sound_source[i]);
-	}
-
-#ifdef DEBUG
-	sound_objects[i].file = sound_file;
-	sound_objects[i].x = x;
-	sound_objects[i].y = y;
-	sound_objects[i].positional = positional;
-	sound_objects[i].loops = loops;
-#endif
-	
-	used_sources++;
-
-	UNLOCK_SOUND_LIST();
-	return sound_source[i];
-}
-
-void remove_sound_object (int sound)
-{
-	int i;
-	
-	for (i = 0; i < used_sources; i++)
-	{
-		if (sound_source[i] == sound)
-		{
-			int j;
-			alSourceStop (sound_source[i]);
-			alDeleteSources(1, &sound_source[i]);
-			for (j = i+1; j < used_sources; j++)
-			{
-				sound_source[j-1] = sound_source[j];
-#ifdef DEBUG
-				sound_objects[j-1] = sound_objects[j];
-#endif
-			}
-			used_sources--;
-#ifdef DEBUG
-			sound_objects[used_sources].file = -1;
-#endif
-			break;
-		}
-	}
-}
-
-void sound_source_set_gain(int sound, float gain) {
-	int i;
-	
-	for (i = 0; i < used_sources; i++)
-	{
-		if (sound_source[i] == sound)
-		{
-			alSourcef(sound_source[i],AL_GAIN, sound_gain * gain);
-			break;
-		}
-	}
-}
-
-void update_position()
-{
-	int i,state,relative,error;
-	int x,y,distance;
-	int tx=-camera_x*2;
-	int ty=-camera_y*2;
-	ALfloat sourcePos[3];
-	ALfloat listenerPos[]={tx,ty,0.0};
-
-	if(!have_sound)return;
-	LOCK_SOUND_LIST();
-
-	alListenerfv(AL_POSITION,listenerPos);
-	if((error=alGetError()) != AL_NO_ERROR){
-		LOG_ERROR("update_position %s: %s", my_tolower(reg_error_str), alGetString(error));
-		have_sound=0;
-		have_music=0;
-	}
-
-	/* OpenAL doesn't have a method for culling by distance yet.
-	   If it does get added, all this code can go */
-	for(i=0;i<used_sources;i++)
-	{
-		alGetSourcei(sound_source[i], AL_SOURCE_RELATIVE, &relative);
-		if(relative == AL_TRUE)continue;
-		alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
-		alGetSourcefv(sound_source[i], AL_POSITION, sourcePos);
-		x=sourcePos[0];y=sourcePos[1];
-		distance=(tx-x)*(tx-x)+(ty-y)*(ty-y);
-		if((state == AL_PLAYING) && (distance > 35*35))
-			alSourcePause(sound_source[i]);
-		else if (sound_on && (state == AL_PAUSED) && (distance < 30*30))
-			alSourcePlay(sound_source[i]);
-		if((error=alGetError()) != AL_NO_ERROR){
-			LOG_ERROR("update_position %s: %s (source %d)", my_tolower(reg_error_str), alGetString(error), i);
-			have_sound=0;
-			have_music=0;
-		}
-	}
-	UNLOCK_SOUND_LIST();
-}
-
-//kill all the sounds that loop infinitely
-//usefull when we change maps, etc.
-void kill_local_sounds()
-{
-	int error;
-	int queued, processed;
-#ifdef	OSX //to fix music quiting when switching maps since used_sources is not updated properly, might be generally applicable
-	if(have_music)
-	{
-		playing_music = 0;
-		alSourceStop(music_source);
-		alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-		alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-		while(queued-- > 0) {
-			ALuint buffer;
-			alSourceUnqueueBuffers(music_source, 1, &buffer);
-		}
-	}
-#endif // OSX
-	if(!have_sound || !used_sources)return;
-	LOCK_SOUND_LIST();
-	alSourceStopv(used_sources,sound_source);
-	if((error=alGetError()) != AL_NO_ERROR) 
-	{
-		LOG_ERROR("kill_local_sounds %s: %s", my_tolower(reg_error_str), alGetString(error));
-		have_sound=0;
-		have_music=0;
-	}
-	if (realloc_sources () != 0)
-		LOG_ERROR(snd_stop_fail);
-	UNLOCK_SOUND_LIST();
-#ifndef OSX
-	if(!have_music)
-		return;
-	playing_music = 0;
-	alSourceStop(music_source);
-	alGetSourcei(music_source, AL_BUFFERS_PROCESSED, &processed);
-	alGetSourcei(music_source, AL_BUFFERS_QUEUED, &queued);
-	while(queued-- > 0) {
-		ALuint buffer;
-		alSourceUnqueueBuffers(music_source, 1, &buffer);
-	}
-#endif // !OSX
-}
-
-int realloc_sources()
-{
-	int i;
-	int state,error;
-	int still_used=0;
-	ALuint new_sources[MAX_SOURCES];
-#ifdef DEBUG
-	struct sound_object new_sound_objects[MAX_SOURCES];
-#endif
-	
-	if(used_sources>MAX_SOURCES)
-		used_sources=MAX_SOURCES;
-	for(i=0;i<used_sources;i++)
-	{
-		alGetSourcei(sound_source[i], AL_SOURCE_STATE, &state);
-		if((state == AL_PLAYING) || (state == AL_PAUSED))
-		{
-			new_sources[still_used] = sound_source[i];
-#ifdef DEBUG
-			new_sound_objects[still_used] = sound_objects[i];
-#endif
-			still_used++;
-		}
-		else
-		{
-			alDeleteSources(1, &sound_source[i]);
-		}
-	}
-
-	for(i=0;i<still_used;i++)
-	{
-		sound_source[i] = new_sources[i];
-#ifdef DEBUG
-		sound_objects[i] = new_sound_objects[i];
-#endif
-	}
-	for(i=still_used;i<MAX_SOURCES;i++)
-	{
-		sound_source[i]=-1;
-#ifdef DEBUG
-		sound_objects[i].file = -1;
-#endif
-	}
-	used_sources=still_used;
-	
-	if((error=alGetError()) != AL_NO_ERROR) 
-	{
-		LOG_ERROR("snd_realloc %s: %s", my_tolower(reg_error_str), alGetString(error));
-		have_sound=0;
-		have_music=0;
-	}
-	if(used_sources>=MAX_SOURCES) 
-	{
-		LOG_TO_CONSOLE(c_red1,snd_sound_overflow);
-		LOG_ERROR(snd_sound_overflow);
-		return -1;
-	}
-	else
-		return used_sources;
-}
-
-void init_sound()
-{
-	int i,error;
-	ALfloat listenerPos[]={-camera_x*2,-camera_y*2,0.0};
-	ALfloat listenerVel[]={0.0,0.0,0.0};
-	ALfloat listenerOri[]={0.0,0.0,0.0,0.0,0.0,0.0};
-	if(inited){
-		return;
-	}
-
-#ifndef OSX
-	alutInitWithoutContext(0, 0);
-#endif // OSX
-
-	have_sound=1;
-	have_music=1;
-
-	//NULL makes it use the default device.
-	//to get a list of available devices, uncomment the following code, and read your error_log.txt
-	//for windows users, it'll most likely only list DirectSound3D
-	/*if ( alcIsExtensionPresent( NULL, "ALC_ENUMERATION_EXT" ) == AL_TRUE ){
-		LOG_ERROR("Available sound devices: %s", alcGetString( NULL, ALC_DEVICE_SPECIFIER));
-	}else{
-		LOG_ERROR("ALC_ENUMERATION_EXT not found");
-	}*/
-
-	//if you want to use a different device, use, for example:
-	//mSoundDevice = alcOpenDevice((ALubyte*) "DirectSound3D")
-	mSoundDevice = alcOpenDevice( NULL );
-	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundDevice){
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
-		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
-		have_sound=have_music=0;
-		return;
-	}
-
-	mSoundContext = alcCreateContext( mSoundDevice, NULL );
-	alcMakeContextCurrent( mSoundContext );
-
-	sound_list_mutex=SDL_CreateMutex();
-
-	if((error=alcGetError(mSoundDevice)) != AL_NO_ERROR || !mSoundContext || !sound_list_mutex){
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alcGetString(mSoundDevice,error));
-		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
-		have_sound=have_music=0;
-		return;
-	}
-
-	// TODO: get this information from a file, sound.ini?	
-	safe_snprintf (sound_files[snd_rain], sizeof (sound_files[snd_rain]), "%s/%s", datadir, "sound/rain1.wav");
-	safe_snprintf (sound_files[snd_tele_in], sizeof (sound_files[snd_tele_in]), "%s/%s", datadir, "sound/teleport_in.wav");
-	safe_snprintf (sound_files[snd_tele_out], sizeof (sound_files[snd_tele_out]), "%s/%s", datadir, "sound/teleport_out.wav");
-	safe_snprintf (sound_files[snd_teleprtr], sizeof (sound_files[snd_teleprtr]), "%s/%s", datadir, "sound/teleporter.wav");
-	safe_snprintf (sound_files[snd_thndr_1], sizeof (sound_files[snd_thndr_1]), "%s/%s", datadir, "sound/thunder1.wav");
-	safe_snprintf (sound_files[snd_thndr_2], sizeof (sound_files[snd_thndr_2]), "%s/%s", datadir, "sound/thunder2.wav");
-	safe_snprintf (sound_files[snd_thndr_3], sizeof (sound_files[snd_thndr_3]), "%s/%s", datadir, "sound/thunder3.wav");
-	safe_snprintf (sound_files[snd_thndr_4], sizeof (sound_files[snd_thndr_4]), "%s/%s", datadir, "sound/thunder4.wav");
-	safe_snprintf (sound_files[snd_thndr_5], sizeof (sound_files[snd_thndr_5]), "%s/%s", datadir, "sound/thunder5.wav");
-	safe_snprintf (sound_files[snd_fire], sizeof (sound_files[snd_fire]), "%s/%s", datadir, "sound/fire.wav");
-
-	alListenerfv(AL_POSITION,listenerPos);
-	alListenerfv(AL_VELOCITY,listenerVel);
-	alListenerfv(AL_ORIENTATION,listenerOri);
-	alListenerf(AL_GAIN,1.0f);
-
-	//poison data
-	for(i=0;i<MAX_SOURCES;i++)
-	{
-		sound_source[i] = -1;
-#ifdef DEBUG
-		sound_objects[i].file = -1;
-#endif // DEBUG
-	}
-	for(i=0;i<MAX_BUFFERS;i++)
-		sound_buffer[i] = -1;
-
-	//initialize music
-	ogg_file = NULL;
-
-	alGenBuffers(4, music_buffers);
-	alGenSources(1, &music_source);
-	alSource3f(music_source, AL_POSITION,        0.0, 0.0, 0.0);
-	alSource3f(music_source, AL_VELOCITY,        0.0, 0.0, 0.0);
-	alSource3f(music_source, AL_DIRECTION,       0.0, 0.0, 0.0);
-	alSourcef (music_source, AL_ROLLOFF_FACTOR,  0.0          );
-	alSourcei (music_source, AL_SOURCE_RELATIVE, AL_TRUE      );
-	alSourcef (music_source, AL_GAIN,            music_gain);
-	if((error=alGetError()) != AL_NO_ERROR){
-		char str[256];
-		safe_snprintf(str, sizeof(str), "%s: %s\n", snd_init_error, alGetString(error));
-		LOG_TO_CONSOLE(c_red1, str);
-		LOG_ERROR(str);
-		have_sound=have_music=0;
-		return;
-	}
-#ifndef MAP_EDITOR2
-#ifndef NEW_WEATHER
-	//force the rain sound to be recreated
-	rain_sound = 0;
-#endif //NEW_WEATHER
-#endif //MAP_EDITOR2
-	inited = 1;
-}
-
-
-
-
-
-
-
-
-#else	// !NEW_SOUND
-
-
-/***********************
- * NEW SOUND FUNCTIONS *
- ***********************
- *
- * Welcome to EL's new sound system. There are basically 5 parts to the code.
- * 1. Init/destroy, 2. Config, 3. Sources, 4. Streams, 5. Individual sounds
- *
- * This description of the code is currently in its first phase and therefore very
- * general. I intend on expanding on it over time.
- *
- * The base of this code was written by d000hg and has been extended by Torg
- * (torg@grug.redirectme.net).
- *
- *
- *
- * -- Part 1 - Init/destroy --
- * This part deals with initialisation and destruction of the physical aspects of
- * the sound system itself. These include setting up the sound device and sources,
- * and has been seperated from configuration so as to allow sounds to be added and
- * removed from the system without being played. This is so if sound is enabled
- * during the life of any sounds they can be started immediately providing a more
- * complete experience.
- *
- * This code can be considered complete, although could do with a bit more tidying.
- *
- *
- * -- Part 2 - Configuration --
- * This part is responsible for reading and parsing the configuration info.
- * Configuration is by default found in sound/sound_config.xml. Some base XML
- * blocks may be stored in additional files. Documentation on the configuration
- * format can be found in the example sound_config.xml file. This code is
- * straight-foward and very simple to adjust/expand where necessary.
- *
- * This code can also be considered complete.
- *
- *
- * -- Part 3 - Sources --
- * This part handles allocating places to play sounds to the sounds that want to
- * be played. These "places" are OpenAL sources and are initialised in the code
- * in Part 1. They are shared between streams and individual sounds and this code
- * locates and available source and provides the calling function with a pointer
- * to the structure containing the details of this source. There is a mutex lock
- * used over this code to protect the sources array which is shuffled to keep the
- * sources sorted by priority.
- *
- * This part is the most recent code. It seems to be working ok, but is most
- * likely to contain bugs and is the hardest/most complex part to debug due to the
- * varied states of sources, and the sharing.
- *
- *
- * -- Part 4 - Configuration --
- * This part handles the streamed sounds. The configuration for it is stable and
- * very flexible. The logic should be straight-forward and it is seperated into
- * many functions.
- *
- * It can be considered complete, but requires a lot of config info generated.
- *
- *
- * -- Part 5s - Playing individual sounds --
- * This part is the code to handle and play individual sounds. This code is broken
- * into several functions. Sounds triggered in the code in Part 5b are added to
- * the list of sounds to be played. They are then loaded into buffers and linked
- * to a source to be played. There is an update function which is called on a
- * timer to parse this list of active and inactive sounds to update them. The
- * update function works directly on the source list and hence care needs to be
- * taken with mutex locks.
- *
- * This is now pretty stable, but if there are going to be complex bugs (other
- * than with sources - part 3) then it will most likely be here.
- *
- *
- * -- Part 5b - Triggering individual sounds --
- * This final part handles actually triggering the sounds. This code is primarily
- * scattered throughout the client code calling the add/remove sound functions
- * where necessary. Specifying places in the code to start and stop sounds is
- * quite trivial in most cases and any bugs are generally very simple to trace
- * and find.
- *
- * For now this section of code is considered stable, but unlikely to ever be
- * complete.
- *
- *
- */
 
 
 
@@ -1727,6 +584,15 @@ void toggle_sounds(int *var)
 	}
 }
 
+void toggle_music(int * var) {
+	*var = !*var;
+	if (!music_on) {
+		turn_music_off();
+	} else {
+		turn_music_on();
+	}
+}
+
 void disable_sound(int *var)
 {
 	*var = !*var;
@@ -1746,6 +612,37 @@ void disable_sound(int *var)
 /************************
  * OGG VORBIS FUNCTIONS *
  ************************/
+
+void ogg_error(int code)
+{
+	switch(code)
+	{     
+		case OV_EREAD:
+			LOG_ERROR(snd_media_read); break;
+		case OV_ENOTVORBIS:
+			LOG_ERROR(snd_media_notvorbis); break;
+		case OV_EVERSION:
+			LOG_ERROR(snd_media_ver_mismatch); break;
+		case OV_EBADHEADER:
+			LOG_ERROR(snd_media_invalid_header); break;
+		case OV_EFAULT:
+			LOG_ERROR(snd_media_internal_error); break;
+		case OV_EOF:
+			LOG_ERROR(snd_media_eof); break;
+		case OV_HOLE:
+			LOG_ERROR(snd_media_hole); break;
+		case OV_EINVAL:
+			LOG_ERROR(snd_media_einval); break;
+		case OV_EBADLINK:
+			LOG_ERROR(snd_media_ebadlink); break;
+		case OV_FALSE:
+			LOG_ERROR(snd_media_false); break;
+		case OV_ENOSEEK:
+			LOG_ERROR(snd_media_enoseek); break;
+		default:
+			LOG_ERROR(snd_media_ogg_error);
+    }
+}
 
 int load_ogg_file(char * file_name, OggVorbis_File *oggFile)
 {
@@ -2642,6 +1539,105 @@ int update_streams(void * dummy)
  * MUSIC FUNCTIONS *
  *******************/
 
+void get_map_playlist()
+{
+	int i=0, len;
+	char map_list_file_name[256];
+	char tmp_buf[1024];
+	FILE *fp;
+	char strLine[255];
+	char *tmp;
+	// NOTE: keep the max length in this format line in sync with
+	// the size of tmp_buf
+	static const char pl_line_fmt[] = "%d %d %d %d %d %1023s";
+
+	if(!have_music)return;
+
+	memset (playlist, 0, sizeof(playlist));
+
+	tmp = strrchr (map_file_name, '/');
+	if (tmp == NULL)
+		tmp = map_file_name;
+	else
+		tmp++;
+	safe_snprintf (map_list_file_name, sizeof (map_list_file_name), "music/%s", tmp);
+	len = strlen (map_list_file_name);
+	tmp = strrchr (map_list_file_name, '.');
+	if (tmp == NULL)
+		tmp = &map_list_file_name[len];
+	else
+		tmp++;
+	len -= strlen (tmp);
+	safe_snprintf (tmp, sizeof (map_list_file_name) - len, "pll");
+
+	fp=open_file_data(map_list_file_name,"r");
+	if (fp == NULL) return;
+
+	while(1)
+	{
+		if (fscanf (fp, pl_line_fmt, &playlist[i].min_x, &playlist[i].min_y, &playlist[i].max_x, &playlist[i].max_y, &playlist[i].time, tmp_buf) == 6)
+		{
+			// check for a comment
+			tmp = strstr (tmp_buf, "--");
+			if (tmp)
+			{
+				*tmp = '\0';
+				len = strlen (tmp_buf);
+				while (len > 0 && isspace (tmp_buf[len-1]))
+				{
+					len--;
+					tmp_buf[len]= '\0';
+				}
+			}
+			safe_strncpy (playlist[i].file_name, tmp_buf, sizeof(playlist[i].file_name));
+			playlist[i].file_name[63]= '\0';
+			if (++i >= MAX_PLAYLIST_ENTRIES)
+				break;
+		}
+		if (!fgets (strLine, 100, fp)) break;
+	}
+	fclose(fp);
+	loop_list=1;
+	list_pos=-1;
+}
+
+void play_music(int list)
+{
+	int i=0;
+	char list_file_name[256];
+	FILE *fp;
+	char strLine[255];
+
+	if(!have_music)return;
+
+	safe_snprintf(list_file_name, sizeof(list_file_name), "music/%d.pll", list);
+	fp=open_file_data(list_file_name, "r");
+	if(!fp)return;
+
+	memset(playlist,0,sizeof(playlist));
+
+	while (1)
+	{
+		if (fscanf (fp, "%254s", strLine) == 1)
+		{
+			my_strncp (playlist[i].file_name, strLine, sizeof (playlist[i].file_name));
+			playlist[i].min_x = 0;
+			playlist[i].min_y = 0;
+			playlist[i].max_x = 10000;
+			playlist[i].max_y = 10000;
+			playlist[i].time = 2;
+			if (++i > MAX_PLAYLIST_ENTRIES)
+				break;
+			if (!fgets (strLine, 100, fp))
+				break;
+		}
+	}
+	fclose(fp);
+	loop_list=0;
+	list_pos=0;
+	play_song(list_pos);
+}
+
 int display_song_name()
 {
 	if (!music_stream || !music_stream->playing)
@@ -3090,36 +2086,15 @@ int ensure_sample_loaded(char * in_filename)
 	// Add the data dir to the front of the input filename
 	strcpy(filename, datadir);
 	strcat(filename, in_filename);
-	// Do a crude check of the extension to choose which loader
-	if (!strcasecmp(filename+(strlen(filename) - 4), ".ogg"))
+
+	// Load the file into memory
+	data = load_ogg_into_memory(filename, &pSample->format, &pSample->size, &pSample->freq);
+	if (!data)
 	{
-		// Assume it is actually an OggVorbis file and use our ogg loader
-		data = load_ogg_into_memory(filename, &pSample->format, &pSample->size, &pSample->freq);
-		if (!data)
-		{
-			// Couldn't load the file, so release this sample num
-			num_samples--;
-			// We have already dumped an error message so just return
-			return -1;
-		}
-	}
-	else
-	{
-		// Use the alutLoadMemoryFromFile WAV loader as it now exists under Mac
-		// (see 0ctane's notes and the functions at the end of this file)
-        data = alutLoadMemoryFromFile(filename, &pSample->format, &pSample->size, &pSample->freq);
-		if (!data)
-		{
-			// Couldn't load the file
-#if defined alutGetErrorString && defined alutGetError	// (Sometimes not on Mac/Windows?)
-			LOG_ERROR("%s - %s: %s", "Ensure sample loaded", alutGetErrorString(alutGetError()), filename);
-#else
-			LOG_ERROR("%s - %s: %s", "Ensure sample loaded", "Error opening WAV file", filename);
-#endif
-			// Release this sample num
-			num_samples--;
-			return -1;
-		}
+		// Couldn't load the file, so release this sample num
+		num_samples--;
+		// We have already dumped an error message so just return
+		return -1;
 	}
 			
 #ifdef _EXTRA_SOUND_DEBUG
@@ -4760,10 +3735,6 @@ void init_sound()
 	if (inited || no_sound || (!sound_on && !music_on))
 		return;
 		
-#ifndef OSX
-	alutInitWithoutContext(0, 0);
-#endif // OSX
-
 	// Begin by setting all data to a known state
 	if (have_sound)
 		destroy_sound();
@@ -6335,30 +5306,12 @@ void load_sound_config_data (const char *file)
 	print_sound_types();
 #endif // DEBUG
 }
-#endif //!NEW_SOUND
-
 
 /***********************
  * DEBUGGING FUNCTIONS *
  ***********************/
 
 #ifdef DEBUG
-#ifndef NEW_SOUND
-void print_sound_objects()
-{
-	int i;
-	
-	for (i = 0; i < MAX_SOURCES; i++)
-	{
-		struct sound_object *obj = &(sound_objects[i]);
-		if (obj->file >= 0)
-		{
-			printf ("position = %d, file = %d, x = %d, y = %d, positional = %d, loops = %d\n", i, obj->file, obj->x, obj->y, obj->positional, obj->loops);
-		}
-	}
-	printf ("\n");
-}
-#else // !NEW_SOUND
 void print_sound_types()
 {
 	int i, j;
@@ -6607,163 +5560,5 @@ void print_sound_streams()
 	}
 }
 
-#endif // !NEW_SOUND
 #endif //_DEBUG
-
-#ifdef OSX
-//	Below code originally from alAux.c of Pong3D
-//
-//	Contains:	Mac specific OpenAL auxzilary routines
-//	
-//	Copyright:  Copyright (c) 2007 Apple Inc., All Rights Reserved
-// ----------------------------------------------------
-//
-//	alutLoadMemoryFromFile ( inFilename, ioFormat, ioSize, ioFrequency )
-//
-//	Purpose:	load memory from contents of a file
-//
-//	Inputs:		inFilename - address of complete file name ( path )
-//				ioFormat - if not null, address where to store the format of the data
-//				ioSize - if not null, address where to store the size of the data
-//				ioFrequency - if not null, address where to store the frequency of the data
-//
-// Returns:	On success, a pointer to memory containing the loaded sound.
-//				It returns AL_NONE on failure.
-//
-ALvoid* alutLoadMemoryFromFile (const char * inFilename,
-                                ALenum *ioFormat,
-                                ALsizei *ioSize,
-                                ALfloat *ioFrequency)
-{
-	ALvoid* result = nil;
-
-	ExtAudioFileRef tExtAudioFileRef = NULL;
-	
-	do {
-		FSRef tFSRef;	// convert the path into an FSRef
-		OSStatus status = FSPathMakeRef( ( const UInt8 * ) inFilename, &tFSRef, FALSE );
-		if ( noErr != status ) break;
-		
-		FSCatalogInfo tFSCatalogInfo;	// determine the size of the file
-		status = FSGetCatalogInfo( &tFSRef, kFSCatInfoDataSizes, &tFSCatalogInfo, NULL, NULL, NULL );
-		if ( noErr != status ) break;
-		
-		// Open the input file
-		status = ExtAudioFileOpen( &tFSRef, &tExtAudioFileRef );
-		if ( noErr != status ) break;
-		
-		AudioStreamBasicDescription tASBD;	// get the description ( ASDB ) of the audio file on disk
-		UInt32 asbd_size = sizeof( AudioStreamBasicDescription );
-		status = ExtAudioFileGetProperty( tExtAudioFileRef, kExtAudioFileProperty_FileDataFormat, &asbd_size, &tASBD );
-		if ( noErr != status ) break;
-		
-		// configure the ioput ASBD for 8-bit mono
-		//tASBD.mSampleRate = tASBD.mSampleRate;	// don't change the sample rate
-		tASBD.mFormatID = kAudioFormatLinearPCM;
-		tASBD.mFormatFlags = kAudioFormatFlagIsPacked;
-		tASBD.mBytesPerPacket = 1;
-		tASBD.mFramesPerPacket = 1;
-		tASBD.mBytesPerFrame = 1;
-		tASBD.mChannelsPerFrame = 1;
-		tASBD.mBitsPerChannel = 8;
-		tASBD.mReserved = 0;
-		
-		// now set the ioput ASDB
-		status = ExtAudioFileSetProperty( tExtAudioFileRef, kExtAudioFileProperty_ClientDataFormat, asbd_size, &tASBD );
-		if ( noErr != status ) break;
-		
-		AudioBufferList tABL;
-		
-		tABL.mNumberBuffers = 1;
-		tABL.mBuffers[0].mNumberChannels = 0;
-		tABL.mBuffers[0].mDataByteSize = 0;
-		tABL.mBuffers[0].mData = nil;
-		tABL.mBuffers[0].mNumberChannels = tASBD.mChannelsPerFrame;
-		tABL.mBuffers[0].mDataByteSize = tFSCatalogInfo.dataLogicalSize;
-		
-		SInt64 totalAudioFrames;	// determine the number of frames in the file
-		UInt32 ioPropertyDataSize = sizeof( totalAudioFrames );
-		status = ExtAudioFileGetProperty( tExtAudioFileRef, kExtAudioFileProperty_FileLengthFrames, &ioPropertyDataSize, &totalAudioFrames );
-		if ( noErr != status ) break;
-		
-		UInt32 numberOfFrames = totalAudioFrames;
-		
-		// allocate a buffer to read it into
-		tABL.mBuffers[0].mData = calloc( totalAudioFrames, sizeof( char ) );
-		if ( !tABL.mBuffers[0].mData ) {
-			status = memFullErr;
-			break;
-		}
-		
-		// read all the frames into the buffer
-		status = ExtAudioFileRead( tExtAudioFileRef, &numberOfFrames, &tABL );
-		if ( noErr != status ) {
-			free( tABL.mBuffers[0].mData );
-			break;
-		}
-
-		result = tABL.mBuffers[0].mData;
-
-		if ( ioFormat ) {
-			*ioFormat = AL_FORMAT_MONO8;
-		}
-
-		if ( ioSize ) {
-			*ioSize = totalAudioFrames * sizeof( char );
-		}
-
-		if ( ioFrequency ) {
-			*ioFrequency = tASBD.mSampleRate;
-		}
-		
-	} while ( FALSE );
-	
-	if ( tExtAudioFileRef ) {	// close the audio file
-		ExtAudioFileDispose( tExtAudioFileRef );
-	}
-	
-	return result;
-}	// alutLoadMemoryFromFile
-
-// ----------------------------------------------------
-//
-//	alutCreateBufferFromFile ( inFilename )
-//
-//	Purpose:	Create OpenAL buffer from contents of a file
-//
-//	Inputs:		inFilename - address of complete file name ( path )
-//
-// Returns:	On success, a handle to an OpenAL buffer containing the loaded sound.
-//				It returns AL_NONE on failure.
-//
-ALuint alutCreateBufferFromFile ( const char * inFilename )
-{
-	ALuint result = AL_NONE;	// assume failure
-	ALvoid* tData = nil;
-
-	do {
-		ALenum tFormat;
-		ALsizei tSize;
-		ALfloat tFrequency;
-		
-		tData = alutLoadMemoryFromFile( inFilename, &tFormat, &tSize, &tFrequency );
-		if ( !tData ) break;
-
-		// generate a new OpenAL buffer
-		alGenBuffers( 1, &result );
-		ALenum status = alGetError( );
-		if ( AL_NO_ERROR != status ) break;
-		
-		// load the file's data into our OpenAL buffer
-		alBufferData( result, tFormat, tData, tSize, tFrequency );
-		status = alGetError( );
-		if ( AL_NO_ERROR != status ) break;
-	} while ( FALSE );
-
-	if ( tData ) {	// dispose of the data buffer
-		free( tData );
-	}
-	
-	return result;
-}
-#endif
+#endif // !NEW_SOUND
