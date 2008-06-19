@@ -1369,7 +1369,10 @@ void draw_water_background()
 	glDisable(GL_LIGHTING);
 	glDisable(GL_DEPTH_TEST);
 
-	glColor3fv(skybox_sky_color);
+    if (dungeon)
+        glColor3f(0.00f, 0.21f, 0.34f);
+    else
+        glColor3fv(skybox_sky_color);
 
 #ifdef	USE_SHADER
 	if (use_frame_buffer && (water_shader_quality > 0) && show_reflection)
@@ -1393,7 +1396,7 @@ void draw_water_background()
 		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 		CHECK_GL_ERRORS();
 
-		if (!skybox_show_sky)
+		if (!skybox_show_sky || dungeon)
 		{
 			Enter2DModeExtended(reflection_texture_width, reflection_texture_height);
 			glBegin(GL_QUADS);
