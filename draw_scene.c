@@ -178,7 +178,8 @@ void move_camera ()
 {
 	float x, y, z;
 #ifdef SKY_FPV
-	float head_pos[3], follow_speed;
+	// float head_pos[3];
+	float follow_speed;
 #endif // SKY_FPV
 	actor *me = get_our_actor ();
 
@@ -192,8 +193,7 @@ void move_camera ()
 #ifndef SKY_FPV
 	z=-2.2f+height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f+sitting;
 #else // SKY_FPV
-
-    cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
+    // cal_get_actor_bone_local_position(me, get_actor_bone_id(me, head_bone), NULL, head_pos);
 
     /* Schmurk: I've commented this out because I don't see why the position of
      * the camera should be different from the head position in ext cam and fpv */
@@ -203,7 +203,9 @@ void move_camera ()
 /* 		z = -1.6f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + head_pos[2]; */
 	if (first_person || ext_cam) {
         // the camera position corresponds to the head position
-		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + (head_pos[2]+0.1)*get_actor_scale(me);
+		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f;
+		// z += (head_pos[2]+0.1)*get_actor_scale(me);
+		z += (me->sitting ? 0.7 : 1.5) * get_actor_scale(me);
 	} else {
 		z = -2.2f + height_map[me->y_tile_pos*tile_map_size_x*6+me->x_tile_pos]*0.2f + sitting;
 	}
@@ -252,7 +254,7 @@ void move_camera ()
 
 
 	if (first_person){
-		glTranslatef(head_pos[0], head_pos[1], 0.0);
+		// glTranslatef(head_pos[0], head_pos[1], 0.0);
 	} else {
 		glTranslatef(0.0f, 0.0f, -zoom_level*camera_distance);
 	}
