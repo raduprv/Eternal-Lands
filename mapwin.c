@@ -25,6 +25,9 @@
 
 int map_root_win = -1;
 int showing_continent = 0;
+#ifdef DEBUG_MAP_SOUND
+extern int cur_tab_map;
+#endif // DEBUG_MAP_SOUND
 
 int mouse_over_minimap = 0;
 
@@ -97,6 +100,9 @@ int click_map_handler (window_info *win, int mx, int my, Uint32 flags)
 							sprintf(tex.file_name+name_len-3, "bmp");
 							inspect_map_text = load_bmp8_fixed_alpha(&tex, 128);
 						}
+#ifdef DEBUG_MAP_SOUND
+						cur_tab_map = i;
+#endif // DEBUG_MAP_SOUND
 						showing_continent = !showing_continent;
 						break;
 					}

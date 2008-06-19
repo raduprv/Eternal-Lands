@@ -13,6 +13,7 @@ FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look
 #FEATURES += DEBUG_XML                       # Enables missing (optional) XML string property messages
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
 #FEATURES += DEBUG_TIME                      # Fakes the acceleration of time for use in debugging shadows and the like.
+#FEATURES += DEBUG_MAP_SOUND                 # Adds (some??) map boundary areas to tab maps and additional logging to stdout
 #FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
 #FEATURES += ECDEBUGWIN                      # press ctrl-alt-c to open the Eye Candy debug window: trigger most effects without casting spells or server side events
 #FEATURES += EL_BIG_ENDIAN                   # (undocumented)	FIXME: Should be removed and set in the code (as is done for OSX. Is it needed on any other platform?)

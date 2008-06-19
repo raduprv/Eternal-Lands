@@ -21,6 +21,9 @@
 #include "openingwin.h"
 #include "pathfinder.h"
 #include "rules.h"
+#ifdef DEBUG_MAP_SOUND
+#include "sound.h"
+#endif // DEBUG_MAP_SOUND
 #include "spells.h"
 #include "textures.h"
 #include "tiles.h"
@@ -488,6 +491,10 @@ int show_continent_map_boundaries = 1;
 GLuint legend_text=0;
 int cur_map;  //Is there a better way to do this?
 
+#ifdef DEBUG_MAP_SOUND
+int cur_tab_map = -1;
+#endif // DEBUG_MAP_SOUND
+
 static const char* cont_map_file_names[] = {
 	"./maps/seridia.bmp",
 	"./maps/irilion.bmp"
@@ -603,6 +610,9 @@ int switch_to_game_map()
 		cont_text = load_texture_cache (cont_map_file_names[cur_cont], 128);
 		old_cont = cur_cont;
 	}
+#ifdef DEBUG_MAP_SOUND
+	cur_tab_map = cur_map;
+#endif // DEBUG_MAP_SOUND
 	
 	if(current_cursor != CURSOR_ARROW)
 	{
@@ -968,6 +978,12 @@ void draw_game_map (int map, int mouse_mini)
 		glEnd();
 	}
 
+#ifdef DEBUG_MAP_SOUND
+	// If we are in map view (not continent view) draw the sound area boundaries
+	if (map) {
+		print_sound_boundaries(cur_tab_map);
+	}
+#endif // DEBUG_MAP_SOUND
 
 	if (map)
 	{

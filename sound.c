@@ -456,6 +456,9 @@ int time_of_day_valid(int flags);
 int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds);
 int test_bounds_angles(int x, int y, int point, map_sound_boundary_def * bounds);
 double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * bounds);
+#ifdef DEBUG_MAP_SOUND
+void print_sound_boundary_coords(int map);
+#endif // DEBUG_MAP_SOUND
 /* Init functions */
 void clear_sound_data();
 void parse_snd_devices(ALCchar * in_array, char * sound_devs);
@@ -1752,7 +1755,7 @@ source_data * get_available_source(int priority)
 #ifdef _EXTRA_SOUND_DEBUG
 				printf("Inserting new source at index %d/%d\n", i, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
-				insert_sound_source_at_index(i);
+				pSource = insert_sound_source_at_index(i);
 #ifdef _EXTRA_SOUND_DEBUG
 			}
 			else
@@ -2133,7 +2136,7 @@ int ensure_sample_loaded(char * in_filename)
 
 	alGetBufferi(*pBuffer, AL_BITS, &pSample->bits);
 	alGetBufferi(*pBuffer, AL_CHANNELS, &pSample->channels);
-	pSample->length = (pSample->size*1000) / ((pSample->bits >> 3)*pSample->channels*pSample->freq);
+	pSample->length = (pSample->size * 1000) / ((pSample->bits >> 3) * pSample->channels * pSample->freq);
 
 	// Get rid of the temporary data
 	free(data);
@@ -2460,6 +2463,9 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 int play_sound(int sound_num, int x, int y, float initial_gain)
 {
 	int loops, error;
+#ifdef _EXTRA_SOUND_DEBUG
+	int err = 0;
+#endif // _EXTRA_SOUND_DEBUG
 	ALuint buffer = 0;
 	SOUND_STAGE stage;
 	ALfloat sourcePos[] = {x, y, 0.0};
@@ -2517,13 +2523,45 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 #endif //_EXTRA_SOUND_DEBUG
 	}
 
+#ifdef _EXTRA_SOUND_DEBUG
+	if (!alIsSource(pSource->source))
+	{
+		printf("Source corruption! %d, %d, %d\n", pSource->source, sounds_list[sound_num].sound, sounds_list[sound_num].cookie);
+		pSource->loaded_sound = -1;
+		pSource->current_stage = STAGE_UNUSED;
+		return 0;
+	}
+	else
+	{
+		int tmp = 0;
+		alGetSourcei(pSource->source, AL_SOURCE_TYPE, &tmp);
+		if ((error=alGetError()) != AL_NO_ERROR)
+		{
+			printf("Error getting source status! %d, %d\n", pSource->source, sounds_list[sound_num].sound);
+		}
+		else if (tmp == AL_STATIC)
+		{
+			printf("Found a static source! This isn't meant to exist! %d, %d\n", pSource->source, sounds_list[sound_num].sound);
+		}
+	}
+#endif //_EXTRA_SOUND_DEBUG
+	
+	// Ensure the source is ready for queueing (attach a NULL buffer to reset it)
+	alSourcei(pSource->source, AL_BUFFER, 0);
+#ifdef _EXTRA_SOUND_DEBUG
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+		printf("Error resetting source! %d, %d\n", pSource->source, sounds_list[sound_num].sound);
+	}
+#endif //_EXTRA_SOUND_DEBUG
+	
 	for (; stage < num_STAGES; ++stage)
 	{
 		// Get the buffer to be queued.
 		if (pVariant->part[stage].sample_num < 0)
 			break;
 		buffer = sound_sample_data[pVariant->part[stage].sample_num].buffer;
-
+		
 		// If there are a finite number of loops for main sample, queue them all here
 		if (stage == STAGE_MAIN)
 		{	
@@ -2532,11 +2570,25 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 				for (loops = 0; loops < pNewType->loops; ++loops)
 				{
 					alSourceQueueBuffers(pSource->source, 1, &buffer);
+#ifdef _EXTRA_SOUND_DEBUG
+					if ((error=alGetError()) != AL_NO_ERROR)
+					{
+						printf("Error with sample alSourceQueueBuffers: %s, Name: %s. Source: %d, Loops: %d/%d\n", alGetString(error), pNewType->name, pSource->source, loops, pNewType->loops);
+						err = 1;
+					}
+#endif //_EXTRA_SOUND_DEBUG
 				}
 			}
 			else
 			{
 				alSourceQueueBuffers(pSource->source, 1, &buffer);
+#ifdef _EXTRA_SOUND_DEBUG
+				if ((error=alGetError()) != AL_NO_ERROR)
+				{
+					printf("Error with looped sample alSourceQueueBuffers: %s, Name: %s. Source: %d\n", alGetString(error), pNewType->name, pSource->source);
+					err = 1;
+				}
+#endif //_EXTRA_SOUND_DEBUG
 				// Dont queue an outro that will never get played!
 				break;
 			}
@@ -2544,20 +2596,26 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 		else 
 		{
 			alSourceQueueBuffers(pSource->source, 1, &buffer);
+#ifdef _EXTRA_SOUND_DEBUG
+			if ((error=alGetError()) != AL_NO_ERROR)
+			{
+				printf("Error with intro/outro sample alSourceQueueBuffers: %s, Name: %s. Source: %d\n", alGetString(error), pNewType->name, pSource->source);
+				err = 1;
+			}
+#endif //_EXTRA_SOUND_DEBUG
 		}
 	}
-	if ((error=alGetError()) != AL_NO_ERROR) 
-	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error with alSourceQueueBuffers: %s. Name: %s. Source: (unknown now): %s", snd_source_error, pNewType->name, alGetString(error));
+	if (err != 0)
+	{
+#else //_EXTRA_SOUND_DEBUG
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+		LOG_ERROR("Error with alSourceQueueBuffers: %s, Name: %s. Source: %d\n", alGetString(error), pNewType->name, pSource->source);
 #endif //_EXTRA_SOUND_DEBUG
-		LOG_ERROR("Error with alSourceQueueBuffers: %s. Name: %s. Source: (unknown now): %s", snd_source_error, pNewType->name, alGetString(error));
 		alSourcei(pSource->source, AL_BUFFER, 0);
 		pSource->loaded_sound = -1;
 		pSource->current_stage = STAGE_UNUSED;
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Error queuing buffers: (%s): alSourceQueueBuffers = %s\n", pNewType->name, alGetString(error));
-#endif //_EXTRA_SOUND_DEBUG
 		return 0;
 	}
 
@@ -2957,7 +3015,7 @@ void update_sound(int ms)
 				printf("Cookie: %d, Loaded sound: %d, sound: %d, '%s' - sample '%s' has ended...", pSource->cookie, pSource->loaded_sound, sounds_list[pSource->loaded_sound].sound, pSoundType->name, pVariant->part[pSource->current_stage].file_path);
 				k = 0;
 #endif //_EXTRA_SOUND_DEBUG
-				while (++pSource->current_stage != num_STAGES)
+				while (++pSource->current_stage <= num_STAGES)
 				{
 #ifdef _EXTRA_SOUND_DEBUG
 					k++;
@@ -2965,6 +3023,7 @@ void update_sound(int ms)
 					{
 						LOG_ERROR("update_sound race condition!! cur stage = %d, num_stages = %d\n", pSource->current_stage, num_STAGES);
 						printf("update_sound race condition!! cur stage = %d, num_stages = %d\n", pSource->current_stage, num_STAGES);
+						pSource->current_stage = num_STAGES;
 						break;
 					}
 #endif // _EXTRA_SOUND_DEBUG
@@ -3117,11 +3176,11 @@ void handle_walking_sound(actor * pActor, int def_snd)
 		// If we still don't have a sound, check for a defined area (the same as map boundary areas).
 		// NOTE: This code can and should be removed when the above functions are fixed.
 		if (snd == -1)
-			snd = get_boundary_walk_sound((int)x * 2, (int)y * 2);
+			snd = get_boundary_walk_sound((int)(x * 2), (int)(y * 2));
 		
 		// Finally, check if we need to look for a tile, and look if necessary
 		if (snd == -1)
-			snd = get_tile_sound(get_tile_type((int)x * 2, (int)y * 2), actors_defs[pActor->actor_type].actor_name);
+			snd = get_tile_sound(get_tile_type((int)(x * 2), (int)(y * 2)), actors_defs[pActor->actor_type].actor_name);
 
 #ifdef _EXTRA_SOUND_DEBUG
 //		printf("Actor: %s, Pos: %f, %f, Found sound: %d, Scale: %f\n", pActor->actor_name, pActor->x_pos, pActor->y_pos, snd, actors_defs[pActor->actor_type].walk_snd_scale);
@@ -3145,8 +3204,8 @@ void handle_walking_sound(actor * pActor, int def_snd)
 			{
 				// Add the new sound
 				pActor->cur_anim_sound_cookie = add_walking_sound(	snd,
-																	2*pActor->x_pos,
-																	2*pActor->y_pos,
+																	2 * pActor->x_pos,
+																	2 * pActor->y_pos,
 																	pActor->actor_id == yourself ? 1 : 0,
 																	pActor->cur_anim.sound_scale
 																);
@@ -3227,14 +3286,15 @@ int get_tile_sound(int tile_type, char * actor_type)
 	return -1;
 }
 
+
 void setup_map_sounds (int map_num)
 {
 	int i;
-#ifdef _EXTRA_SOUND_DEBUG
-	char str[50];
+#ifdef DEBUG_MAP_SOUND
+	char str[100];
 	safe_snprintf(str, sizeof(str), "Map number: %d", map_num);
 	LOG_TO_CONSOLE(c_red1, str);
-#endif // _EXTRA_SOUND_DEBUG
+#endif // DEBUG_MAP_SOUND
 	// Find the index for this map in our data
 	snd_cur_map = -1;
 	for (i = 0; i < sound_num_maps; i++)
@@ -3242,6 +3302,11 @@ void setup_map_sounds (int map_num)
 		if (map_num == sound_map_data[i].id)
 		{
 			snd_cur_map = i;
+#ifdef DEBUG_MAP_SOUND
+			safe_snprintf(str, sizeof(str), "Snd config map ID: %d, Snd config map name: %s", i, sound_map_data[i].name);
+			LOG_TO_CONSOLE(c_red1, str);
+			print_sound_boundary_coords(map_num);
+#endif // DEBUG_MAP_SOUND
 			return;
 		}
 	}
@@ -3517,7 +3582,128 @@ double calculate_bounds_angle(int x, int y, int point, map_sound_boundary_def * 
 	return a;
 }
 
+#ifdef DEBUG_MAP_SOUND
+// Print the sound area boundaries onto the tab-map (called from interface.c)
+//
+// It is a known bug that this _does not_ scale to the map selected. The scale will stay the same as your currently loaded map!
+//
+// FIXME: This only apprears to display _some_ of the defined map areas
+// If an OpenGL guru can figure out what's wrong it would be helpful!
+void print_sound_boundaries(int map)
+{
+	int i, i_max, j, id = -1, scale = 6;
+	char buf[100];
+	map_sound_boundary_def *bounds;
+	bound_point p[4];
 
+	// Check if this map matches an array id
+	for (i = 0; i < MAX_SOUND_MAPS; i++) {
+		if (map == sound_map_data[i].id) {
+			id = i;
+			break;
+		}
+	}
+	if (id == -1) return;	// Didn't find the map in our array so bail
+	
+	glEnable (GL_TEXTURE_2D);
+	glColor3f (1.0f, 1.0f, 1.0f);
+	safe_snprintf(buf, sizeof(buf), "Map Num: %d, Array ID: %d, Map Name: %s, Num Bound: %d, Num Walk: %d", map, id, sound_map_data[id].name, 
+				  sound_map_data[id].num_boundaries, sound_map_data[id].num_walk_boundaries);
+	draw_string_zoomed(25, 180, (unsigned char*)buf, 1, 0.2);
+	glDisable(GL_TEXTURE_2D);
+	glBegin(GL_LINES);
+	// Draw boundaries for this map
+	for (j = 0; j < 2; j++) {
+		if (j == 0) {
+			i_max = sound_map_data[id].num_walk_boundaries;
+		} else {
+			i_max = sound_map_data[id].num_boundaries;
+		}
+		for (i = 0; i < i_max; i++) {
+			if (j == 0) {
+				bounds = &sound_map_data[id].walk_boundaries[i];
+				glColor3f (0.0f, 0.0f, 1.0f);
+			} else {
+				bounds = &sound_map_data[id].boundaries[i];
+				glColor3f (1.0f, 0.0f, 0.0f);
+			}
+			if (bounds->p[2].x == -1 || bounds->p[2].y == -1 || bounds->p[3].x == -1 || bounds->p[3].y == -1)
+			{
+				p[0].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
+				p[1].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
+				p[2].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
+				p[3].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
+				p[0].y = 201 - 200 * bounds->p[0].y / (tile_map_size_y * scale);
+				p[1].y = 201 - 200 * bounds->p[0].y / (tile_map_size_y * scale);
+				p[2].y = 201 - 200 * bounds->p[1].y / (tile_map_size_y * scale);
+				p[3].y = 201 - 200 * bounds->p[1].y / (tile_map_size_y * scale);
+			}
+			else
+			{
+				p[0].x = 51 + 200 * bounds->p[0].x / (tile_map_size_x * scale);
+				p[1].x = 51 + 200 * bounds->p[1].x / (tile_map_size_x * scale);
+				p[2].x = 51 + 200 * bounds->p[2].x / (tile_map_size_x * scale);
+				p[3].x = 51 + 200 * bounds->p[3].x / (tile_map_size_x * scale);
+				p[0].y = 201 + 200 * bounds->p[0].y / (tile_map_size_x * scale);
+				p[1].y = 201 + 200 * bounds->p[1].y / (tile_map_size_x * scale);
+				p[2].y = 201 + 200 * bounds->p[2].y / (tile_map_size_x * scale);
+				p[3].y = 201 + 200 * bounds->p[3].y / (tile_map_size_x * scale);
+			}
+
+			glVertex2i(p[0].x, p[0].y);
+			glVertex2i(p[1].x, p[1].y);
+
+			glVertex2i(p[1].x, p[1].y);
+			glVertex2i(p[2].x, p[2].y);
+
+			glVertex2i(p[2].x, p[2].y);
+			glVertex2i(p[3].x, p[3].y);
+
+			glVertex2i(p[3].x, p[3].y);
+			glVertex2i(p[0].x, p[0].y);
+		}
+	}
+	glEnd();
+}
+
+// Prints the sound boundary coords for the input map to stdout
+void print_sound_boundary_coords(int map)
+{
+	int i, i_max, j, id = -1;
+	map_sound_boundary_def *bounds;
+
+	// Check if this map matches an array id
+	for (i = 0; i < MAX_SOUND_MAPS; i++) {
+		if (map == sound_map_data[i].id) {
+			id = i;
+			break;
+		}
+	}
+	if (id == -1) return;	// Didn't find the map in our array so bail
+	
+	printf("Map Num: %d, Array ID: %d, Map Name: %s, ", map, id, sound_map_data[id].name);
+	// Print boundaries for this map
+	for (j = 0; j < 2; j++) {
+		if (j == 0) {
+			i_max = sound_map_data[id].num_walk_boundaries;
+			printf("Num Walk Boundaries: %d\n", i_max);
+		} else {
+			i_max = sound_map_data[id].num_boundaries;
+			printf("Num Boundaries: %d\n", i_max);
+		}
+		for (i = 0; i < i_max; i++) {
+			if (j == 0) {
+				bounds = &sound_map_data[id].walk_boundaries[i];
+			} else {
+				bounds = &sound_map_data[id].boundaries[i];
+			}
+			printf("Outer - 1: %d, %d; 2: %d, %d\n", bounds->o[0].x, bounds->o[0].y, bounds->o[1].x, bounds->o[1].y);
+			printf("Points - 1: %d, %d; 2: %d, %d; 3: %d, %d; 4: %d, %d\n", bounds->p[0].x, bounds->p[0].y, bounds->p[1].x, bounds->p[1].y
+				   															, bounds->p[2].x, bounds->p[2].y, bounds->p[3].x, bounds->p[3].y);
+		}
+	}
+}
+#endif // DEBUG_MAP_SOUND
 
 
 
@@ -3742,20 +3928,18 @@ void init_sound()
 	// Initialise OpenAL
 
 	// Get a list of the available devices (not used yet)
-	if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT") == AL_TRUE)
+	if (alcIsExtensionPresent(NULL, "ALC_ENUMERATION_EXT") != AL_TRUE)
 	{
-		device_list = (char*) alcGetString(NULL, ALC_DEVICE_SPECIFIER);
-		parse_snd_devices(device_list, sound_devices);
-		LOG_ERROR("Sound devices detected: %s\n", sound_devices);
+		LOG_ERROR("Warning: ALC_ENUMERATION_EXT not found. Retrieving list of sound devices may fail.");
 	}
-	else
-	{
-		LOG_ERROR("Warning: ALC_ENUMERATION_EXT not found. Unable to retrieve list of sound devices.");
-	}
+	device_list = (char*) alcGetString(NULL, ALC_DEVICE_SPECIFIER);
+	parse_snd_devices(device_list, sound_devices);
+	LOG_ERROR("Sound devices detected: %s\n", sound_devices);
 
 	// If you want to use a specific device, use, for example:
-	// device = alcOpenDevice((ALubyte*) "DirectSound3D")
+	// device = alcOpenDevice((ALCchar*) "DirectSound3D")
 	// NULL makes it use the default device
+	LOG_ERROR("Soundcard device attempted: %s", sound_device);
 	device = alcOpenDevice((ALCchar*) sound_device);
 	if ((error = alcGetError(device)) != AL_NO_ERROR || !device)
 	{
@@ -4391,6 +4575,7 @@ void parse_sound_object(xmlNode *inNode)
 				}
 				else if (!xmlStrcmp (attributeNode->name, (xmlChar*)"type"))
 				{
+					iVal = SOUNDS_NONE;
 					if (!strcasecmp((char *)content, "environmental")) {
 						iVal = SOUNDS_ENVIRO;
 					} else if (!strcasecmp((char *)content, "actor")) {
@@ -4410,7 +4595,7 @@ void parse_sound_object(xmlNode *inNode)
 					} else {
 						LOG_ERROR("%s: Unknown type '%s' for sound '%s'", snd_config_error, content, pData->name);
 					}
-					if (iVal > SOUNDS_NONE && iVal <= SOUNDS_CLIENT)
+					if (iVal != SOUNDS_NONE)
 						pData->type = iVal;
 				}
 				else
