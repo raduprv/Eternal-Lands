@@ -557,19 +557,16 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		{
 #ifdef CONTEXT_MENUS
 			/* show the banner control menu if right-clicked and over your actors banner */
-			static int cm_last_thing_under_mouse = -1;
+			static Uint32 reset_cursor_time = 0;
 			static int cm_activate_when_cursor_is = -1;
 			extern int cm_mouse_over_banner;
-			/* remember the start cursor so the menu pops up just once in the cycle */
-			if ((cm_last_thing_under_mouse != thing_under_the_mouse) || (current_cursor == CURSOR_ARROW))
-			{
+			/* activate the menu once in the cursor cycle - start-cursor reset after a couple of seconds inactivity */
+			if (SDL_GetTicks()-reset_cursor_time > 2000)
 				cm_activate_when_cursor_is = current_cursor;
-				cm_last_thing_under_mouse = thing_under_the_mouse;
-			}
 			if (cm_mouse_over_banner && (current_cursor == cm_activate_when_cursor_is))
 			{
-				static size_t cm_id = -1;
-				if (cm_id == -1)
+				static size_t cm_id = CM_INIT_VALUE;
+				if (!cm_valid(cm_id))
 				{
 					/* create first time needed */
 					cm_id = cm_create(cm_banner_menu_str, context_banner_handler);
@@ -580,6 +577,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 					cm_bool_line(cm_id, 4, &use_alpha_banner);
 				}
 				cm_show_direct(cm_id, -1, -1);
+				reset_cursor_time = SDL_GetTicks();
 			}
 #endif
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1 

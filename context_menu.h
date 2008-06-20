@@ -8,6 +8,9 @@ extern "C"
 {
 #endif
 
+/* define an initialisation value for context menu id */
+#define CM_INIT_VALUE ((size_t) -1)
+
 
 /*!
  * \ingroup context_menu
@@ -36,6 +39,16 @@ size_t cm_create(const char *menu_list, int (*handler)(window_info *, int, int, 
  * \retval int 			1 for success, 0 for failure (invalid id)
  */
 int cm_destroy(size_t cm_id);
+
+
+/*!
+ * \ingroup context_menu
+ * \brief Test if a context menu id is valid.
+ *
+ * \param cm_id			id of context menu
+ * \retval int 			1 for success, 0 for failure (invalid id)
+ */
+int cm_valid(size_t cm_id);
 
 
 /*!

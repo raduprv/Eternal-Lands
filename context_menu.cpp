@@ -113,6 +113,7 @@ namespace cm
 			int remove_widget(int window_id, int widget_id);
 			int get_active_window_id(void) const { return active_window_id; }
 			int get_active_widget_id(void) const { return active_widget_id; }
+			bool valid(size_t cm_id) const { return cm_id<menus.size() && menus[cm_id]; }
 			void showinfo(void);
 
 		private:
@@ -136,7 +137,6 @@ namespace cm
 			};
 			typedef std::multimap<int, Widget > WID_MM;
 			WID_MM window_widgets;
-			bool valid(size_t cm_id) const { return cm_id<menus.size() && menus[cm_id]; }
 			int cm_window_id;
 			int active_window_id;
 			int active_widget_id;
@@ -763,6 +763,7 @@ extern "C" int cm_remove_window(int window_id) { return cm::container.remove_win
 extern "C" int cm_remove_regions(int window_id) { return cm::container.remove_regions(window_id); }
 extern "C" int cm_remove_widget(int window_id, int widget_id) { return cm::container.remove_widget(window_id, widget_id); }
 extern "C" void cm_showinfo(void) { cm::container.showinfo(); }
+extern "C" int cm_valid(size_t cm_id) { if (cm::container.valid(cm_id)) return 1; else return 0; }
 
 
 

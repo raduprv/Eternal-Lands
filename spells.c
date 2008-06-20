@@ -78,7 +78,7 @@ int quickspell_x=60;
 int quickspell_y=64;
 int quickspells_loaded = 0;
 #ifdef CONTEXT_MENUS
-size_t cm_quickspells_id = -1;
+size_t cm_quickspells_id = CM_INIT_VALUE;
 void cm_update_quickspells(void);
 #endif
 

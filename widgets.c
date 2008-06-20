@@ -25,7 +25,7 @@
 
 #ifdef CONTEXT_MENUS
 #include "context_menu.h"
-static size_t cm_edit_id = -1;
+static size_t cm_edit_id = CM_INIT_VALUE;
 #endif
 
 typedef struct {
@@ -2731,7 +2731,7 @@ int text_field_add_extended (int window_id, Uint32 wid, int (*OnInit)(), Uint16 
 #ifdef CONTEXT_MENUS
 	/* on the first occurance create the editting context menu */
 	/* maintain a activation entry for each widget so they can be removed or modified */
-	if (cm_edit_id == -1)
+	if (!cm_valid(cm_edit_id))
 	{
 		cm_edit_id = cm_create(cm_textedit_menu_str, context_edit_handler);
 		cm_set_pre_show_handler(cm_edit_id, context_edit_pre_show_handler);

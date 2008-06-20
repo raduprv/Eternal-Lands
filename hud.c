@@ -100,8 +100,8 @@ int get_quickbar_y_base();
 
 #ifdef CONTEXT_MENUS
 static int context_hud_handler(window_info *win, int widget_id, int mx, int my, int option);
-static size_t cm_hud_id = -1;
-static size_t cm_quickbar_id = -1;
+static size_t cm_hud_id = CM_INIT_VALUE;
+static size_t cm_quickbar_id = CM_INIT_VALUE;
 static int cm_quickbar_enabled = 0;
 static int cm_sound_enabled = 0;
 static int cm_music_enabled = 0;
