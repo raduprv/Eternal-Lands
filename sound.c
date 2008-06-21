@@ -2812,8 +2812,9 @@ void update_sound(int ms)
 	ALfloat listenerVel[3] = {0.0f, 0.0f, 0.0f};
 	ALfloat listenerOri[6] = {0.0f, 1.0f, 0.0f, 0.0f, 0.0f, 1.0f};
 #ifdef _EXTRA_SOUND_DEBUG
-	int j, k, l;
+	int j, k;
 #endif // _EXTRA_SOUND_DEBUG
+	int l;
 
 	// Check if we have a sound config, and thus if its worth doing anything (or sound is disabled)
 	if (num_types < 1 || no_sound)
