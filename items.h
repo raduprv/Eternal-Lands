@@ -101,6 +101,10 @@ extern char items_string[300];
 
 extern int item_quantity;
 
+extern int use_small_items_window;
+
+extern int manual_size_items_window;
+
 /*!
  * \ingroup display_utils
  * \brief   Renders the storage grid

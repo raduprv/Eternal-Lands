@@ -173,8 +173,16 @@ typedef struct
 	int have_saved_langsel;
     /*! @} */
     
+    /*!
+     * \name Items window size control
+     */
+    /*! @{ */
+	int use_small_items_window;
+	int manual_size_items_window;
+    /*! @} */
+
 	//!!!!!!!If you add any new FLOAT option, decrement the reserved thingy accordingly!!!!!!
-	float freserved[16];
+	float freserved[14];
 }bin_cfg;
 
 extern int auto_update; /*!<this flags signals whether or not autoupdates are performed at startup, or not. It requires a restart to have an effect. */

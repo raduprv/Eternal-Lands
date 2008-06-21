@@ -28,8 +28,8 @@ namespace cm
 	//
 	//  The context menu class.  Each manu uses a seperate object stored in
 	//	the Container class.  One el window is used for all menus.  This class
-	//	impliments the menu display, option hight-lighting, checkbox options and
-	//	menu option selection.  It also stored size, colour and state information.
+	//	implements the menu display, option hight-lighting, checkbox options and
+	//	menu option selection.  It also stores size, colour and state information.
 	//
 	class Menu
 	{
@@ -39,6 +39,7 @@ namespace cm
 			int display(window_info *win, int mx, int my, Uint32 flags);
 			int click(window_info *win, int mx, int my, Uint32 flags);
 			int set(const char *menu_list, int (*handler)(window_info *, int, int, int, int));
+			int add(const char *menu_list, int (*handler)(window_info *, int, int, int, int));
 			void set_pre_show_handler(void (*handler)(window_info *, int, int, int)) { pre_show_handler = handler; }
 			int set_sizes(int border, int text_border, int line_sep, float zoom);
 			int set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b);
@@ -100,6 +101,7 @@ namespace cm
 			int show_if_active(int window_id);
 			int show_direct(size_t cm_id, int window_id, int widget_id);
 			int set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { if (!valid(cm_id)) return 0; return menus[cm_id]->set(menu_list, handler); }
+			int add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { if (!valid(cm_id)) return 0; return menus[cm_id]->add(menu_list, handler); }
 			int set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int)) { if (!valid(cm_id)) return 0; menus[cm_id]->set_pre_show_handler(handler); return 1; }
 			int bool_line(size_t cm_id, size_t line_index, int *control_var) { if (!valid(cm_id)) return 0; return menus[cm_id]->bool_line(line_index, control_var); }
 			int grey_line(size_t cm_id, size_t line_index, bool is_grey) { if (!valid(cm_id)) return 0; return menus[cm_id]->grey_line(line_index, is_grey); }
@@ -183,12 +185,12 @@ namespace cm
 		: cm_window_id(-1), active_window_id(-1), active_widget_id(-1), menu_opened(false)
 	{
 		assert(instance_count++==0);
+		menus.resize(20,0);
 		if ((cm_window_id = create_window("Context Menu", -1, 0, 0, 0, 0, 0,
 				ELW_USE_BACKGROUND|ELW_USE_BORDER|ELW_ALPHA_BORDER)) == -1)
 			return;
 		set_window_handler(cm_window_id, ELW_HANDLER_DISPLAY, (int (*)())&display_context_handler );
 		set_window_handler(cm_window_id, ELW_HANDLER_CLICK, (int (*)())&click_context_handler );
-		menus.resize(20,0);
 	}
 
 
@@ -319,6 +321,15 @@ namespace cm
 	// check if the specified window has any activation points then open the relevant context menu
 	int Container::show_if_active(int window_id)
 	{
+		// check if we're right clicking the title of a window that has a context menu
+		if (window_id >= 0 && window_id < windows_list.num_windows)
+		{
+			window_info *win = &windows_list.window[window_id];
+			int y = mouse_y - win->cur_y;
+			if (y < 0 && valid(win->cm_id) &&  mouse_in_window(window_id, mouse_x, mouse_y))
+				return show_direct(win->cm_id, window_id, -1);
+		}
+	
 		// check we're in the specified window
 		if (mouse_in_window(window_id, mouse_x, mouse_y) < 1)
 			return 0;
@@ -448,6 +459,15 @@ namespace cm
 	{
 		this->handler = handler;
 		menu_lines.clear();
+		return add(menu_list, handler);
+	}
+
+
+	// Add new the menu items and optionally replace the handler
+	int Menu::add(const char *menu_list, int (*handler)(window_info *, int, int, int, int))
+	{
+		if (handler)
+			this->handler = handler;
 		std::string menu_string(menu_list);
 		for (size_t pos = 0; pos != std::string::npos;)
 		{
@@ -753,6 +773,7 @@ extern "C" int cm_show_direct(size_t cm_id, int window_id, int widget_id) { retu
 extern "C" int cm_bool_line(size_t cm_id, size_t line_index, int *control_var) { return cm::container.bool_line(cm_id, line_index, control_var); }
 extern "C" int cm_grey_line(size_t cm_id, size_t line_index, int is_grey) { return cm::container.grey_line(cm_id, line_index, is_grey); }
 extern "C" int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.set(cm_id, menu_list, handler); }
+extern "C" int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.add(cm_id, menu_list, handler); }
 extern "C" int cm_set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int)) { return cm::container.set_pre_show_handler(cm_id, handler); }
 extern "C" int cm_set_sizes(size_t cm_id, int border, int text_border, int line_sep, float zoom) { return cm::container.set_sizes(cm_id, border, text_border, line_sep, zoom); }
 extern "C" int cm_set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b) { return cm::container.set_colour(cm_id, colour_name, r, g, b); }

@@ -391,6 +391,8 @@ extern char
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[250],
 		cm_banner_menu_str[150],
+		cm_items_menu_str[150],
+		cm_title_menu_str[150],
 #endif
 		/* new_character.c */
 		use_appropriate_name[500];

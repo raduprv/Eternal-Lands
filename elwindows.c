@@ -2,6 +2,8 @@
 #include <string.h>
 #ifdef CONTEXT_MENUS
 #include "context_menu.h"
+#include "elconfig.h"
+#include "translate.h"
 #endif
 #include "elwindows.h"
 #include "alphamap.h"
@@ -660,6 +662,26 @@ int	select_window (int win_id)
 }
 
 
+#ifdef CONTEXT_MENUS
+int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	extern void hide_all_windows();
+	switch (option)
+	{
+		case 0: hide_all_windows(); break;
+#ifndef MAP_EDITOR2
+		case 2:
+			windows_on_top ^= 1; /* context_menu will already have toggled the option but this saves having a new var */
+			change_windows_on_top(&windows_on_top);
+			set_var_unsaved("windows_on_top", OPT_BOOL);
+			break;
+#endif
+		default: return 0;
+	}
+	return 1;
+}
+#endif
+
 
 // specific windows functions
 int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int pos_y, int size_x, int size_y, Uint32 property_flags)
@@ -715,6 +737,19 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 #ifdef MINIMAP2
 		win->owner_drawn_title_bar = 0;
 #endif // MINIMAP2
+#ifdef CONTEXT_MENUS
+		if (win->flags&ELW_TITLE_BAR)
+		{
+			win->cm_id = cm_create(cm_title_menu_str, cm_title_handler);
+			if (win->flags&ELW_SWITCHABLE_OPAQUE)
+				cm_bool_line(win->cm_id, 1, &win->opaque);
+			else
+				cm_grey_line(win->cm_id, 1, 1);
+			cm_bool_line(win->cm_id, 2, &windows_on_top);
+		}
+		else
+			win->cm_id = CM_INIT_VALUE;
+#endif
 		my_strncp(win->window_name, name, sizeof (win->window_name));
 		
 		if (pos_id >= 0 && !windows_list.window[pos_id].displayed)
@@ -801,6 +836,14 @@ void	destroy_window(int win_id)
 	// mark the window as unused
 	
 	win = &(windows_list.window[win_id]);
+
+#ifdef CONTEXT_MENUS
+	if (cm_valid(win->cm_id))
+	{
+		cm_destroy(win->cm_id);
+		win->cm_id = CM_INIT_VALUE;
+	}
+#endif
 
 	// call destruction handler        
 	if (win->destroy_handler != NULL)

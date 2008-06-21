@@ -4,6 +4,10 @@
 #include "items.h"
 #include "asc.h"
 #include "cursors.h"
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#include "elconfig.h"
+#endif
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
@@ -53,6 +57,7 @@ int items_text[MAX_ITEMS_TEXTURES];
 char items_string[300]={0};
 int item_dragged=-1;
 int item_quantity=1;
+int quantity_width=0;
 
 int use_item=-1;
 
@@ -61,6 +66,9 @@ int wear_items_y_offset=30;
 
 int quantity_x_offset=6*51+20;
 int quantity_y_offset=185;
+
+int use_small_items_window = 0;
+int manual_size_items_window = 0;
 
 __inline__ GLuint get_items_texture(int no)
 {
@@ -335,10 +343,10 @@ int display_items_handler(window_info *win)
 
 	glEnable(GL_TEXTURE_2D);
 
-	x=quantity_x_offset+(video_mode>4?69:51)/2;
+	x=quantity_x_offset+quantity_width/2;
 	y=quantity_y_offset+3;
 	glColor3f(0.3f,0.5f,1.0f);
-	for(i=0;i<6;x+=(video_mode>4?69:51),++i){
+	for(i=0;i<6;x+=quantity_width,++i){
 		if(i==edit_quantity){
 			glColor3f(1.0f, 0.0f, 0.3f);
 			draw_string_small(x-strlen(quantities.quantity[i].str)*4, y, (unsigned char*)quantities.quantity[i].str, 1);
@@ -457,7 +465,7 @@ int display_items_handler(window_info *win)
 	}
 	
 	//draw the load string
-	if (video_mode>4)
+	if (!use_small_items_window)
 	{
 		safe_snprintf(str, sizeof(str),"%s:", attributes.carry_capacity.shortname);
 		draw_string_small(items_grid_size*6+6, items_grid_size*6-SMALL_FONT_Y_LEN*2, (unsigned char*)str, 1);
@@ -476,7 +484,7 @@ int display_items_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	
 	//now, draw the inventory text, if any.
-	draw_string_small(4, win->len_y - (video_mode>4?85:105), (unsigned char*)items_string, 4);
+	draw_string_small(4, win->len_y - (use_small_items_window?105:85), (unsigned char*)items_string, 4);
 	
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
@@ -492,7 +500,7 @@ int display_items_handler(window_info *win)
 	
 	//now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
-	rendergrid(6, 1, quantity_x_offset, quantity_y_offset, (video_mode>4?69:51), 20);
+	rendergrid(6, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
 	glEnable(GL_TEXTURE_2D);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
@@ -530,7 +538,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 					item_action_mode=ACTION_WALK;
 			}
 			return 1;
-		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+6*(video_mode>4?69:51) && my>=quantity_y_offset && my<quantity_y_offset+20){
+		} else if(mx>=quantity_x_offset && mx<quantity_x_offset+6*quantity_width && my>=quantity_y_offset && my<quantity_y_offset+20){
 			//fall through...
 		} else {
 			switch(item_action_mode) {
@@ -557,9 +565,9 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	if(item_action_mode==ACTION_USE)	action_mode=ACTION_USE;
 
 	//see if we changed the quantity
-	if(mx>=quantity_x_offset && mx<quantity_x_offset+6*(video_mode>4?69:51)
+	if(mx>=quantity_x_offset && mx<quantity_x_offset+6*quantity_width
 			&& my>=quantity_y_offset && my<quantity_y_offset+20) {
-		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, quantity_x_offset, quantity_y_offset, (video_mode>4?69:51), 20);
+		int pos=get_mouse_pos_in_grid(mx, my, 6, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
 
 		if(pos==-1){
 		} else if(flags & ELW_LEFT_MOUSE){
@@ -737,7 +745,7 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 	          my>wear_items_y_offset && my<wear_items_y_offset+4*33){
 		pos=36+get_mouse_pos_in_grid(mx, my, 2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
 		if(show_help_text){
-			show_help(equip_here_str, win->len_x-strlen(quantity_edit_str)*8, quantity_y_offset+30);
+			show_help(equip_here_str, 0, quantity_y_offset+30);
 		}
 		if(pos==-1) {
 		} else if(item_list[pos].quantity){
@@ -753,9 +761,9 @@ int mouseover_items_handler(window_info *win, int mx, int my) {
 
 			return 1;
 		}
-	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+6*(video_mode>4?69:51) &&
+	} else if(show_help_text && mx>quantity_x_offset && mx<quantity_x_offset+6*quantity_width &&
 			my>quantity_y_offset && my<quantity_y_offset+6*20){
-		show_help(quantity_edit_str, win->len_x-strlen(quantity_edit_str)*8, quantity_y_offset+30);
+		show_help(quantity_edit_str, 0, quantity_y_offset+30);
 	} 
 	
 	return 0;
@@ -841,15 +849,22 @@ int show_items_handler(window_info * win)
 {
 	widget_list *w;
 	char str[512];
+	size_t i;
+	char *itemsstr = items_string;
 	
-	if(video_mode>4) {
+	if (!manual_size_items_window)
+		use_small_items_window = video_mode <= 4;
+
+	if(!use_small_items_window) {
 		items_grid_size=51;
 		wear_items_y_offset=50;
 		win->len_y=6*items_grid_size+90;
+		quantity_width=69;
 	} else {
 		items_grid_size=33;
 		wear_items_y_offset=19;
 		win->len_y=6*items_grid_size+110;
+		quantity_width=51;
 	}
 	
 	win->len_x=6*items_grid_size+110;
@@ -860,15 +875,34 @@ int show_items_handler(window_info * win)
 
 	w=widget_find(items_win, drop_button_id);
 	if(w){
-		w->pos_y = (video_mode > 4 ?4.5 :5.5) * items_grid_size - w->len_y/2;
+		w->pos_y = (use_small_items_window ?5.5 :4.5) * items_grid_size - w->len_y/2;
 		w->pos_x = 6*items_grid_size + (win->len_x - 6*items_grid_size - w->len_x)/2;
 	}
 	
-	safe_strncpy(str,items_string,sizeof(str));
+	/* remove existing '\n' before rewrapping */
+	for (i=0; i<sizeof(str) && *itemsstr != '\0'; itemsstr++)
+		if (*itemsstr != '\n')
+			str[i++] = *itemsstr;
+	str[i<sizeof(str)?i:sizeof(str)-1] = '\0';		
 	put_small_text_in_box((unsigned char*)str, strlen(str), win->len_x-10, items_string);
 
 	return 1;
 }
+
+#ifdef CONTEXT_MENUS
+static int context_items_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (cm_title_handler(win, widget_id, mx, my, option))
+		return 1;
+	switch (option)
+	{
+		case ELW_CM_MENU_LEN+1: manual_size_items_window = 1; show_items_handler(win); break;
+		case ELW_CM_MENU_LEN+2: show_items_handler(win); break;
+		case ELW_CM_MENU_LEN+3: set_var_unsaved("item_window_on_drop", OPT_BOOL); break;
+	}
+	return 1;
+}
+#endif
 
 void display_items_menu()
 {
@@ -877,6 +911,9 @@ void display_items_menu()
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
+		if (!manual_size_items_window)
+			use_small_items_window = video_mode <= 4;
+		
 		items_win= create_window(win_inventory, our_root_win, 0, items_menu_x, items_menu_y, items_menu_x_len, items_menu_y_len, ELW_WIN_DEFAULT);
 
 		set_window_handler(items_win, ELW_HANDLER_DISPLAY, &display_items_handler );
@@ -885,10 +922,18 @@ void display_items_menu()
 		set_window_handler(items_win, ELW_HANDLER_KEYPRESS, &keypress_items_handler );
 		set_window_handler(items_win, ELW_HANDLER_SHOW, &show_items_handler );
 		
-		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, items_menu_x_len - (strlen(drop_all_str)*11+18), 6*(video_mode>4?69:51)+2, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, drop_all_str);
+		drop_button_id = button_add_extended (items_win, drop_button_id,  NULL, 0, 0, 0, 0, 0, 0.8f, 0.77f, 0.57f, 0.39f, drop_all_str);
 		widget_set_OnClick (items_win, drop_button_id, drop_all_handler);
 		
 		show_items_handler(&windows_list.window[items_win]);
+		
+#ifdef CONTEXT_MENUS
+		cm_add(windows_list.window[items_win].cm_id, cm_items_menu_str, context_items_handler);
+		cm_grey_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN, 1);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+1, &use_small_items_window);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+2, &manual_size_items_window);
+		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+3, &item_window_on_drop);
+#endif
 	} else {
 		show_window(items_win);
 		select_window(items_win);

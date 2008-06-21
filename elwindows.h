@@ -20,6 +20,7 @@ extern "C" {
 #define	ELW_TITLE_HEIGHT	16
 #define	ELW_BOX_SIZE		20
 #define ELW_TITLE_SIZE 35
+#define ELW_CM_MENU_LEN		3
 /*! @} */
 
 /*!
@@ -52,10 +53,13 @@ typedef	struct	{
 	char	resized;	/*!< are we resizing the window? */
 	char	drag_in;	/*!< are we dragging inside the window? */
 	char	reinstate;	/*!< reinstate this window if the parent is shown again */
-	char	opaque;		/*!< if non-zero, window is drawn opaque */
+	int		opaque;		/*!< if non-zero, window is drawn opaque */
 #ifdef MINIMAP2
 	char	owner_drawn_title_bar; /*the title bar is drawn by the window itself*/
 #endif //MINIMAP2
+#ifdef CONTEXT_MENUS
+	size_t	cm_id; 				/*!< optional context menu activated my left-clicking title */
+#endif
 
     /*!
 	 * \name the handlers
@@ -669,6 +673,25 @@ int		click_in_window(int win_id, int x, int y, Uint32 flags);	// click in  a coo
  * \param bar_len   The amount of pixels you want the bar to scroll.
  */
 void set_window_scroll_len(int win_id, int bar_len);
+
+#ifdef CONTEXT_MENUS
+/*!
+ * \ingroup elwindows
+ * \brief   The callback for context menu clicks
+ *
+ *      Called when an option is selected from the title context menu.  If
+ *	the user window wants to use their own callback, they should still
+ *  call this function to implement the title menu options. 
+ *
+ * \param win    	Pointer to the windows structure
+ * \param widget_id	The id of the widget clicked to open the menu or -1.
+ * \param mx		The x coordinate in window of where the user clicked to open the window
+ * \param my		The y coordinate as above
+ * \param option	The menu line clicked, first line is 0
+ * \retval int      1 if action was taken otherwise 0
+*/
+int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option);
+#endif
 
 // low level functions
 //window_info	*get_window_info(int win_id);

@@ -350,6 +350,9 @@ void read_bin_cfg()
 	if(zoom_level != 0.0f) resize_root_window();
 	
 	have_saved_langsel = cfg_mem.have_saved_langsel;
+	
+	use_small_items_window = cfg_mem.use_small_items_window;
+	manual_size_items_window = cfg_mem.manual_size_items_window;
 }
 
 void save_bin_cfg()
@@ -561,6 +564,9 @@ void save_bin_cfg()
 	}
 	
 	cfg_mem.have_saved_langsel = have_saved_langsel;
+	
+	cfg_mem.use_small_items_window = use_small_items_window;
+	cfg_mem.manual_size_items_window = manual_size_items_window;
 
 	fwrite(&cfg_mem,sizeof(cfg_mem),1,f);
 	fclose(f);

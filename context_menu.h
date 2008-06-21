@@ -106,6 +106,17 @@ int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, in
 
 /*!
  * \ingroup context_menu
+ * \brief Add additional menu lines and optionally replace the callback function.
+ * \param  cm_id		id of context menu
+ * \param menu_list		\n separated list of menu entries.  Use "--" to specify a separator line.
+ * \param handler		optional function to call on menu line selection
+ * \retval int 			1 for success, 0 for failure (invalid id)
+ */
+int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int));
+
+
+/*!
+ * \ingroup context_menu
  * \brief Add/replacee the pre-show callback function.
  * \param  cm_id		id of context menu
  * \param handler		function to call on just before the menu is shown
