@@ -1362,11 +1362,8 @@ int process_stream(stream_data * stream, ALfloat gain, int * sleep)
 	if (!stream->playing)
 	{
 		// Clear any remaining buffers, just in case
-		alGetSourcei(stream->source, AL_BUFFERS_PROCESSED, &stream->processed);
-		while (stream->processed-- > 0)
-		{
-			alSourceUnqueueBuffers(stream->source, 1, &buffer);
-		}
+		alSourceStop(stream->source);
+		alSourcei(stream->source, AL_BUFFER, 0);
 		if ((error=alGetError()) != AL_NO_ERROR) { }	// Clear any errors before trying to replay the stream
 		play_stream(stream->sound, stream, gain);
 	}
@@ -1740,51 +1737,53 @@ void find_next_song(int tx, int ty, int day_time)
 /*****************************
  * SOURCE HANDLING FUNCTIONS *
  *****************************/
+void clear_source(source_data *pSource)
+{
+	// Reset the source
+	alSourceStop(pSource->source);
+	alSourcei(pSource->source, AL_BUFFER, 0);
+	// Reset the details of this source
+	pSource->priority = 0;
+	pSource->play_duration = 0;
+	pSource->current_stage = STAGE_UNUSED;
+	pSource->loaded_sound = -1;
+	pSource->cookie = 0;
+}
+
 source_data * get_available_source(int priority)
 {
 	source_data * pSource;
 	int i;
 	
 	// Search for an available source. The sources are ordered by decreasing play priority
-	for (pSource = sound_source_data, i = 0; i < used_sources; ++i, ++pSource)
+	for (pSource = sound_source_data, i = 0; i < max_sources; ++i, ++pSource)
 	{
-		if (priority <= pSource->priority || (pSource->loaded_sound < 0 && pSource->current_stage != STAGE_STREAM))
+		if (pSource->loaded_sound < 0 && pSource->current_stage != STAGE_STREAM)
 		{
-			if (pSource->loaded_sound >= 0)
-			{
 #ifdef _EXTRA_SOUND_DEBUG
-				printf("Inserting new source at index %d/%d\n", i, used_sources);
+			printf("Found available source at index %d/%d, Source: %d\n", i, used_sources, pSource->source);
 #endif //_EXTRA_SOUND_DEBUG
-				pSource = insert_sound_source_at_index(i);
+			pSource->priority = priority;
+			used_sources++;
+			return pSource;
+		}
+		else if (priority <= pSource->priority)
+		{
 #ifdef _EXTRA_SOUND_DEBUG
-			}
-			else
-			{
-				printf("Found available source at index %d/%d\n", i, used_sources);
+			printf("Inserting new source at index %d/%d", i, used_sources);
 #endif //_EXTRA_SOUND_DEBUG
-			}
+			pSource = insert_sound_source_at_index(i);
+#ifdef _EXTRA_SOUND_DEBUG
+			printf(", Source: %d\n", pSource->source);
+#endif //_EXTRA_SOUND_DEBUG
+			pSource->priority = priority;
+			used_sources++;
 			return pSource;
 		}
 	}
 
-	if (i == max_sources)
-	{
-		// All sources are used by higher-priority sounds
-		return NULL;
-	}
-	else if (i == used_sources)
-	{
-		// This is the lowest-priority sound but there is a spare slot at the end of the list
-#ifdef _EXTRA_SOUND_DEBUG
-		printf("Getting a new source: %d/%d\n", used_sources, used_sources);
-#endif //_EXTRA_SOUND_DEBUG
-
-		pSource = insert_sound_source_at_index(used_sources);
-	}
-	
-	pSource->priority = priority;
-	
-	return pSource;
+	// All sources are used by higher-priority sounds
+	return NULL;
 }
 
 // This takes a copy the first unused source object (or last one in the list if all used),
@@ -1797,12 +1796,7 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	// Take a copy of the source about to be overwritten
 	tempSource = sound_source_data[min2i(used_sources, max_sources - 1)];
 	// Ensure it is stopped and ready
-	alSourceStop(tempSource.source);
-	alSourcei(tempSource.source, AL_BUFFER, 0);
-	tempSource.play_duration = 0;
-	tempSource.current_stage = STAGE_UNUSED;
-	tempSource.loaded_sound = -1;
-	tempSource.cookie = 0;
+	clear_source(&tempSource);
 
 	// Shunt source objects down a place
 	for (i = min2i(used_sources, max_sources - 1); i > index; --i)
@@ -1813,13 +1807,30 @@ source_data *insert_sound_source_at_index(unsigned int index)
 	// Now insert our stored object at #index
 	sound_source_data[index] = tempSource;
 
-	// Although it's not doing anything, we have added a new source to the playing set
-	if (used_sources < max_sources)
-		++used_sources;	
-
 	// Return a pointer to this new source
 	return &sound_source_data[index];
 }
+
+
+void release_source(source_data *pSource, int index)
+{
+	source_data sourceTemp;
+
+	// Check we have the index for this source
+	if (index == -1)
+		for (index = 0; &sound_source_data[index] != pSource; index++) {}
+	// Reset the data for this source
+	clear_source(pSource);
+	// We can't lose a source handle - copy this...
+	sourceTemp = *pSource;
+	//...shift all the next sources up a place, overwriting the stopped source...
+	memmove(pSource, pSource+1, sizeof(source_data) * (used_sources - (index + 1)));
+	//...and put the saved object back in after them
+	sound_source_data[used_sources - 1] = sourceTemp;
+	// Note that one less source is playing!
+	--used_sources;
+}
+
 
 // This stops the source for sound_source_data[index]. Because this array will change, the index
 // associated with a source will change, so this function should only be called if the index is
@@ -1827,46 +1838,34 @@ source_data *insert_sound_source_at_index(unsigned int index)
 int stop_sound_source_at_index(int index)
 {
 	ALuint error = AL_NO_ERROR;
-	source_data *pSource, sourceTemp;
+	source_data *pSource;
 	
 	if (index < 0 || index >= used_sources)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Trying to unload invalid source! Index: %d, Num Sources: %d\n", index, used_sources);
+#endif //_EXTRA_SOUND_DEBUG
 		return 0;
+	}
 	
 	pSource = &sound_source_data[index];
-	// This unqueues any samples
-	if (alIsSource(pSource->source))
-	{
-		alSourceStop(pSource->source);
-		alSourcei(pSource->source, AL_BUFFER, 0);
-	}
-	else
+
+	// Error if source is invalid (lost)
+	if (!alIsSource(sound_source_data[index].source))
 	{
    		LOG_ERROR("Attempting to stop invalid sound source %d with index %d", (int)pSource->source, index);
 	}
+
+	release_source(pSource, index);
+
 	// Clear any errors so as to not confuse other error handlers
 	if ((error=alGetError()) != AL_NO_ERROR)
 	{
 #ifdef _EXTRA_SOUND_DEBUG
-		printf("Error '%s' stopping sound source with index: %d/%d.  Source: %d.\n", alGetString(error), index, used_sources, (int)pSource->source);
+		printf("Error '%s' stopping sound source with index: %d/%d.\n", alGetString(error), index, used_sources + 1);
 #endif //_EXTRA_SOUND_DEBUG
 	}
 
-	// We can't lose a source handle - copy this...
-	sourceTemp = *pSource;
-	//...shift all the next sources up a place, overwriting the stopped source...
-	memmove(pSource, pSource+1, sizeof(source_data) * (used_sources - (index + 1)));
-	//...and put the saved object back in after them
-	sound_source_data[used_sources - 1] = sourceTemp;
-
-	// Reset the data for that now blank source
-	sourceTemp.play_duration = 0;
-	sourceTemp.current_stage = STAGE_UNUSED;
-	sourceTemp.loaded_sound = -1;
-	sourceTemp.cookie = 0;
-	
-	// Note that one less source is playing!
-	--used_sources;
-	
 	return 1;
 }
 
@@ -2527,8 +2526,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	if (!alIsSource(pSource->source))
 	{
 		printf("Source corruption! %d, %d, %d\n", pSource->source, sounds_list[sound_num].sound, sounds_list[sound_num].cookie);
-		pSource->loaded_sound = -1;
-		pSource->current_stage = STAGE_UNUSED;
+		release_source(pSource, -1);
 		return 0;
 	}
 	else
@@ -2537,7 +2535,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 		alGetSourcei(pSource->source, AL_SOURCE_TYPE, &tmp);
 		if ((error=alGetError()) != AL_NO_ERROR)
 		{
-			printf("Error getting source status! %d, %d\n", pSource->source, sounds_list[sound_num].sound);
+			printf("Error getting source status! %s, %d, %d, %d\n", alGetString(error), pSource->source, sounds_list[sound_num].sound, sounds_list[sound_num].cookie);
 		}
 		else if (tmp == AL_STATIC)
 		{
@@ -2613,9 +2611,7 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	{
 		LOG_ERROR("Error with alSourceQueueBuffers: %s, Name: %s. Source: %d\n", alGetString(error), pNewType->name, pSource->source);
 #endif //_EXTRA_SOUND_DEBUG
-		alSourcei(pSource->source, AL_BUFFER, 0);
-		pSource->loaded_sound = -1;
-		pSource->current_stage = STAGE_UNUSED;
+		release_source(pSource, -1);
 		return 0;
 	}
 
@@ -2639,6 +2635,16 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 	sounds_list[sound_num].playing = 1;
 
 	pSource->cookie = sounds_list[sound_num].cookie;
+
+	// Check and clear any AL error
+	if ((error=alGetError()) != AL_NO_ERROR)
+	{
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Error setting source properties/playing source: %s, Name: %s. Source: %d, Cookie: %d\n", alGetString(error), pNewType->name, pSource->source, sounds_list[sound_num].cookie);
+#endif // _EXTRA_SOUND_DEBUG
+	}
+
+	printf("Playing %d sources\n", used_sources);
 
 	return 1;	// Return success
 }
@@ -2695,6 +2701,12 @@ void stop_sound(unsigned long int cookie)
 			{
 				stop_sound_source_at_index(m);
 			}
+#ifdef _EXTRA_SOUND_DEBUG
+			else
+			{
+				printf("ERROR! Unable to find source for cookie %ld with sound index %d. It is meant to be currently playing.\n", cookie, n);
+			}
+#endif //_EXTRA_SOUND_DEBUG
 			UNLOCK_SOUND_LIST();
 		}
 		sounds_list[n].playing = 0;
@@ -2721,6 +2733,8 @@ void stop_all_sounds()
 {
 	int i;
 	ALuint error;
+
+	if (!inited) return;
 
 #ifdef _EXTRA_SOUND_DEBUG
 	printf("Stopping all individual sounds\n");
@@ -2910,15 +2924,6 @@ void update_sound(int ms)
 	// Now, update the position of actor (animation) sounds
 	for (i = 0; i < max_actors; i++)
 	{
-#ifdef _EXTRA_SOUND_DEBUG
-		j++;
-		if (j > MAX_ACTORS)
-		{
-			LOG_ERROR("update_sound race condition!! i = %d, max_actors = %d\n", i, max_actors);
-			printf("update_sound race condition!! i = %d, max_actors = %d\n", i, max_actors);
-			break;
-		}
-#endif // _EXTRA_SOUND_DEBUG
 		if (!actors_list[i] || !actors_list[i]->cur_anim_sound_cookie)
 			continue;
 		
@@ -2950,11 +2955,12 @@ void update_sound(int ms)
 
 	UNLOCK_ACTORS_LISTS();
 	
-	// Finally, update all the sources  -- FIXME: This should probably be changed to iterate over the new sounds_list instead
+	// Finally, update all the sources
 	i = 0;
 #ifdef _EXTRA_SOUND_DEBUG
 	j = 0;
 #endif // _EXTRA_SOUND_DEBUG
+	
 	pSource = sound_source_data;
 	while (i < used_sources)
 	{
@@ -2981,7 +2987,7 @@ void update_sound(int ms)
 		if (pSource->cookie == 0 || pSource->loaded_sound < 0 || sounds_list[pSource->loaded_sound].sound < 0 || pSource->current_stage == STAGE_UNUSED)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Removing dud sound %d. Cookie: %d, Source: %d. Current stage: %d\n", pSource->loaded_sound, pSource->cookie, i, pSource->current_stage);
+			printf("Removing dud sound %d. Cookie: %d, Source Num: %d, Source: %d. Current stage: %d\n", pSource->loaded_sound, pSource->cookie, i, pSource->source, pSource->current_stage);
 #endif //_EXTRA_SOUND_DEBUG
 			unload_sound(pSource->loaded_sound);
 			stop_sound_source_at_index(i);
@@ -3000,8 +3006,9 @@ void update_sound(int ms)
 		if (state == AL_STOPPED)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-//			printf("'%s' has stopped after sample '%s'\n", pSoundType->name, pSample->file_path);
+//			printf("'%s' has stopped after sample '%s'\n", pSoundType->name, pVariant->part[pSource->current_stage].file_path);
 #endif //_EXTRA_SOUND_DEBUG
+			// Flag the sound as finished
 			pSource->current_stage = num_STAGES;
 		}
 		else
@@ -3080,6 +3087,27 @@ void update_sound(int ms)
 					}
 				}
 			}
+			else
+			{
+				if (pSoundType->loops != 0)
+				{
+					// Check if something odd happened and this source wasn't stopped when the sample finished (lifetime > sum of sample lengths)
+					int lifetime = 0;
+					for (l = 0; l <= pSource->current_stage; l++)
+						lifetime += sound_sample_data[pVariant->part[l].sample_num].length;
+					if (sounds_list[pSource->loaded_sound].lifetime > lifetime)
+					{
+#ifdef _EXTRA_SOUND_DEBUG
+						printf("This sound has passed its lifetime (%d ms)! It should have been stopped!: %d (%s). Playing: %d, lifetime: %d, cookie: %d\n", 
+							   lifetime, sounds_list[pSource->loaded_sound].sound, pSoundType->name, sounds_list[pSource->loaded_sound].playing,
+							   sounds_list[pSource->loaded_sound].lifetime, sounds_list[pSource->loaded_sound].cookie);
+#endif //_EXTRA_SOUND_DEBUG
+						unload_sound(pSource->loaded_sound);
+						stop_sound_source_at_index(i);
+						continue;
+					}
+				}
+			}
 		}
 
 		// Check if we need to remove this sound because its finished
@@ -3087,7 +3115,7 @@ void update_sound(int ms)
 		if (pSource->current_stage == num_STAGES)
 		{
 #ifdef _EXTRA_SOUND_DEBUG
-			printf("Removing finished sound %d (%s) at cookie %d, source index %d, loaded_sound: %d\n", sounds_list[pSource->loaded_sound].sound, pSoundType->name, pSource->cookie, i, pSource->loaded_sound);
+			printf("Removing finished sound %d (%s) at cookie %d, source index %d, source %d, loaded_sound: %d\n", sounds_list[pSource->loaded_sound].sound, pSoundType->name, pSource->cookie, i, pSource->source, pSource->loaded_sound);
 #endif //_EXTRA_SOUND_DEBUG
 			unload_sound(pSource->loaded_sound);
 			stop_sound_source_at_index(i);
@@ -3446,8 +3474,8 @@ int sound_bounds_check(int x, int y, map_sound_boundary_def * bounds)
 	int pX, pY, npX, npY;
 	int i, j, result;
 	
-	// Initially check if we are inside the outermost box
-	if (x <= bounds->o[0].x || y <= bounds->o[0].y || x >= bounds->o[1].x || y >= bounds->o[1].y)
+	// Initially check if we are on or inside the outermost box
+	if (x < bounds->o[0].x || y < bounds->o[0].y || x > bounds->o[1].x || y > bounds->o[1].y)
 		return 0;	// We are outside the outer rectangle so can't be inside the polygon
 	
 	// Check if we have only 2 points (rectangle) and are therefore don't need to do anything more
@@ -4089,7 +4117,7 @@ void destroy_sound()
 	if (!inited){
 		return;
 	}
-	inited = have_sound = have_music = 0;		// FIXME: not ness?  sound_on = music_on = 0;
+	inited = have_sound = have_music = 0;
 
 	for (i = 0; i < MAX_STREAMS; i++)
 	{
