@@ -36,6 +36,12 @@ void display_astrology_window();
  */
 int is_astrology_message (const char* RawText);
 
+/*!
+ * \brief Free astro window memeory
+ *
+ */
+void free_astro_buffer();
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

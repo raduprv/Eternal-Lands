@@ -255,6 +255,7 @@ char
 	cm_banner_menu_str[150],
 	cm_title_menu_str[150],
 	cm_items_menu_str[150],
+	cm_print_line_str[50],
 #endif
 	/* new_character.c */
 	use_appropriate_name[500];
@@ -1239,6 +1240,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Speech Bubbles\nEnable Banner Background\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "\n--\nUse Small Window\nManual Window Size\nItem Window On Drop\n", sizeof(cm_items_menu_str));
+	add_xml_identifier(misc, "cm_print_line", cm_print_line_str, "Print Details To Console", sizeof(cm_print_line_str));
 #endif
 	
 }

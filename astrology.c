@@ -1,4 +1,7 @@
 #include "astrology.h"
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#endif
 #include "elwindows.h"
 #include "errors.h"
 #include "gamewin.h"
@@ -67,7 +70,9 @@ int value1,value2,value3;
 char text_item1[50],text_item2[50],text_item3[50];
 ASTROLOGY_DISPLAY_TYPES astrology_display_type;
 ASTROLOGY_TYPES astrology_type;
-int capping_already_reported = 0;
+static int capping_already_reported = 0;
+static char *last_astro_message = NULL;
+static size_t last_astro_message_len = 0;
 
 // forward declaration
 int display_astrology_handler (window_info *win);
@@ -122,7 +127,7 @@ int is_astrology_message (const char * RawText)
 		value3 = atoi(tmp1);
 		safe_snprintf(text_item3,sizeof(text_item3),"60 Minutes: %d",value3);
 		
-		display_astrology_window();
+		display_astrology_window(RawText);
 		return 1;
 	}
 
@@ -146,7 +151,7 @@ int is_astrology_message (const char * RawText)
 		value2 = atoi(tmp1);
 		safe_snprintf(text_item2,sizeof(text_item2),"Defense: %d",value2);
 
-		display_astrology_window();
+		display_astrology_window(RawText);
 		return 1;
 	}
 
@@ -167,7 +172,7 @@ int is_astrology_message (const char * RawText)
 		value2 = atoi(tmp1);
 		safe_snprintf(text_item2,sizeof(text_item2),"To damage: %d",value2);
 
-		display_astrology_window();
+		display_astrology_window(RawText);
 		return 1;
 	}
 
@@ -189,7 +194,7 @@ int is_astrology_message (const char * RawText)
 		value2 = atoi(tmp1);
 		safe_snprintf(text_item2,sizeof(text_item2),"Magic: %d",value2);
 
-		display_astrology_window();
+		display_astrology_window(RawText);
 		return 1;
 	}
 
@@ -211,7 +216,7 @@ int is_astrology_message (const char * RawText)
 		value2 = atoi(tmp1);
 		safe_snprintf(text_item2,sizeof(text_item2),"Degrade: %d",value2);
 
-		display_astrology_window();
+		display_astrology_window(RawText);
 		return 1;
 	}
 
@@ -233,7 +238,7 @@ int is_astrology_message (const char * RawText)
 		value2 = atoi(tmp1);
 		safe_snprintf(text_item2,sizeof(text_item2),"Failure: %d",value2);
 
-		display_astrology_window();
+		display_astrology_window(RawText);
 		return 1;
 	}
 
@@ -264,7 +269,21 @@ void adjust_astrology_window()
 	}
 }
 
-void display_astrology_window()
+#ifdef CONTEXT_MENUS
+static int cm_astro_handler(window_info *win, int widget_id, int mx, int my, int option)
+{
+	if (cm_title_handler(win, widget_id, mx, my, option))
+		return 1;
+	if (last_astro_message_len && (option == ELW_CM_MENU_LEN+1) && last_astro_message!=NULL)
+	{
+		LOG_TO_CONSOLE(c_green2, stone_name);
+		LOG_TO_CONSOLE(c_grey1, last_astro_message);
+	}
+	return 1;
+}
+#endif
+
+void display_astrology_window(const char * raw_text)
 {
 	if(astrology_win < 0)
 	{		
@@ -281,6 +300,11 @@ void display_astrology_window()
 		ok_button_id=button_add_extended(astrology_win, ok_button_id,
 			NULL, (astrology_win_x_len >>1) - 40, astrology_win_y_len-36, 80, 0, 0, 1.0f, 0.77f, 0.57f, 0.39f, "Ok");
 		widget_set_OnClick(astrology_win, ok_button_id, ok_handler);
+
+#ifdef CONTEXT_MENUS
+		cm_add(windows_list.window[astrology_win].cm_id, "--", cm_astro_handler);
+		cm_add(windows_list.window[astrology_win].cm_id, cm_print_line_str, cm_astro_handler);
+#endif
 	} 
 	else 
 	{
@@ -289,6 +313,23 @@ void display_astrology_window()
 	}
 	adjust_astrology_window();
 	capping_already_reported = 0;
+	if (last_astro_message_len < strlen(raw_text))
+	{
+		last_astro_message_len = strlen(raw_text) + 1;
+		if ((last_astro_message = (char *)realloc(last_astro_message, last_astro_message_len)) == NULL)
+			last_astro_message_len = 0;
+	}
+	safe_strncpy(last_astro_message, raw_text, last_astro_message_len);
+}
+
+void free_astro_buffer()
+{
+	if (last_astro_message != NULL)
+	{
+	 	free(last_astro_message);
+		last_astro_message = NULL;
+		last_astro_message_len = 0;
+	}
 }
 
 float calculate_width_coefficient(int amplitude,int value,int invert)

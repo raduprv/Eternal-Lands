@@ -21,6 +21,7 @@
 #include "3d_objects.h"
 #include "actor_scripts.h"
 #include "asc.h"
+#include "astrology.h"
 #include "bbox_tree.h"
 #include "buddy.h"
 #include "console.h"
@@ -241,6 +242,7 @@ int start_rendering()
 	end_particles ();
 	free_bbox_tree(main_bbox_tree);
 	main_bbox_tree = NULL;
+	free_astro_buffer();
 	/* Destroy our GL context, etc. */
 #ifdef NEW_SOUND
 	destroy_sound();							// FIXME: This is done above, does it need to be done here?
