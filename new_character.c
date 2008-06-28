@@ -41,6 +41,8 @@
 #include "weather.h"
 #include "actor_init.h"
 
+void add_text_to_buffer(int color, char * text, int time_to_display);
+
 typedef int my_enum;//This enumeration will decrease, then wrap to top, increase and then wrap to bottom, when using the inc() and dec() functions. Special purpose though, since you have to have between 2 and 255 values in the enumeration and you have to have the same value in enum[0] as in enum[max] - otherwise we'll probably segfault...
 
 my_enum	normal_skin_enum[]	= { SKIN_BROWN, SKIN_NORMAL, SKIN_PALE, SKIN_TAN, SKIN_BROWN };
@@ -235,6 +237,20 @@ int display_newchar_handler (window_info *win)
 	int any_reflection; 
 	static int main_count = 0;
 
+	if(disconnected)
+	{
+		static int nested_flag = 0;
+		/* connect_to_server() calls draw_scene() so we need to prevent recursion */
+		if (!nested_flag)
+		{
+			add_text_to_buffer(c_red2, "Connection failed, please try again", 6000);
+			creating_char = 1;	/* this was clear before the failed connect so reset */
+			nested_flag = 1;
+			connect_to_server();
+			nested_flag = 0;
+		}
+	}
+
 	//see if we have to load a model (male or female)
 	if (creating_char && !our_actor.our_model){
 		move_camera();//Make sure we lag a little...
@@ -244,8 +260,6 @@ int display_newchar_handler (window_info *win)
 		set_our_actor (our_actor.our_model);
 		UNLOCK_ACTORS_LISTS();	
 	}
-
-	if(disconnected)connect_to_server();
 
 	if (!(main_count%10))
 		read_mouse_now = 1;
@@ -711,7 +725,7 @@ int keypress_namepass_handler (window_info *win, int mx, int my, Uint32 key, Uin
 		{
 			add_text_to_buffer (c_red1, error_max_digits, 6000);
 		}
-		else if (t->pos > MAX_USERNAME_LENGTH)
+		else if (t->pos >= MAX_USERNAME_LENGTH)
 		{
 			add_text_to_buffer (c_red2, error_length, 6000);
 		}
