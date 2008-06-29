@@ -1251,7 +1251,7 @@ void switch_vidmode(int mode)
 
 #endif
 
-int find_var (char *str, var_name_type type)
+int find_var (const char *str, var_name_type type)
 {
 	int i, isvar;
 
@@ -1268,7 +1268,7 @@ int find_var (char *str, var_name_type type)
 }
 
 
-int set_var_unsaved(char *str, var_name_type type)
+int set_var_unsaved(const char *str, option_type type)
 {
 	int var_index = find_var(str, type);
 	if (var_index == -1)

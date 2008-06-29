@@ -504,18 +504,6 @@ int mouseover_game_handler (window_info *win, int mx, int my)
 	return 1;
 }
 
-#ifdef CONTEXT_MENUS
-static int context_banner_handler(window_info *win, int widget_id, int mx, int my, int option)
-{
-	switch (option)
-	{
-		/* save a change to the use_alpha_banner option */
-		case 4: set_var_unsaved("use_alpha_banner", OPT_BOOL); break;
-	}
-	return 1;
-}
-#endif
-
 // this is the main part of the old check_mouse_click ()
 int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 {
@@ -569,12 +557,12 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 				if (!cm_valid(cm_id))
 				{
 					/* create first time needed */
-					cm_id = cm_create(cm_banner_menu_str, context_banner_handler);
-					cm_bool_line(cm_id, 0, &view_names);
-					cm_bool_line(cm_id, 1, &view_health_bar);
-					cm_bool_line(cm_id, 2, &view_hp);
-					cm_bool_line(cm_id, 3, &view_chat_text_as_overtext);
-					cm_bool_line(cm_id, 4, &use_alpha_banner);
+					cm_id = cm_create(cm_banner_menu_str, NULL);
+					cm_bool_line(cm_id, 0, &view_names, NULL);
+					cm_bool_line(cm_id, 1, &view_health_bar, NULL);
+					cm_bool_line(cm_id, 2, &view_hp, NULL);
+					cm_bool_line(cm_id, 3, &view_chat_text_as_overtext, NULL);
+					cm_bool_line(cm_id, 4, &use_alpha_banner, "use_alpha_banner");
 				}
 				cm_show_direct(cm_id, -1, -1);
 				reset_cursor_time = SDL_GetTicks();

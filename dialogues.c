@@ -334,20 +334,6 @@ int keypress_dialogue_handler (window_info *win, int mx, int my, Uint32 key, Uin
 	return 0;
 }
 
-#ifdef CONTEXT_MENUS
-static int context_dialogue_handler(window_info *win, int widget_id, int mx, int my, int option)
-{
-	if (cm_title_handler(win, widget_id, mx, my, option))
-		return 1;
-	switch (option)
-	{
-		case ELW_CM_MENU_LEN+1: set_var_unsaved("use_keypress_dialog_boxes", OPT_BOOL); break;
-		case ELW_CM_MENU_LEN+2: set_var_unsaved("use_full_dialogue_window", OPT_BOOL); break;
-	}
-	return 1;
-}
-#endif
-
 void display_dialogue()
 {
 	if(dialogue_win < 0){
@@ -359,9 +345,9 @@ void display_dialogue()
 		set_window_handler(dialogue_win, ELW_HANDLER_CLICK, &click_dialogue_handler );
 		
 #ifdef CONTEXT_MENUS
-		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_menu_str, context_dialogue_handler);
-		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+1, &use_keypress_dialogue_boxes);
-		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window);
+		cm_add(windows_list.window[dialogue_win].cm_id, cm_dialog_menu_str, NULL);
+		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+1, &use_keypress_dialogue_boxes, "use_keypress_dialog_boxes");
+		cm_bool_line(windows_list.window[dialogue_win].cm_id, ELW_CM_MENU_LEN+2, &use_full_dialogue_window, "use_full_dialogue_window");
 #endif
 	} else {
 		show_window(dialogue_win);

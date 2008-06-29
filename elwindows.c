@@ -675,7 +675,6 @@ int cm_title_handler(window_info *win, int widget_id, int mx, int my, int option
 		case 2:
 			windows_on_top ^= 1; /* context_menu will already have toggled the option but this saves having a new var */
 			change_windows_on_top(&windows_on_top);
-			set_var_unsaved("windows_on_top", OPT_BOOL);
 			break;
 #endif
 		default: return 0;
@@ -744,10 +743,10 @@ int	create_window(const char *name, int pos_id, Uint32 pos_loc, int pos_x, int p
 		{
 			win->cm_id = cm_create(cm_title_menu_str, cm_title_handler);
 			if (win->flags&ELW_SWITCHABLE_OPAQUE)
-				cm_bool_line(win->cm_id, 1, &win->opaque);
+				cm_bool_line(win->cm_id, 1, &win->opaque, NULL);
 			else
 				cm_grey_line(win->cm_id, 1, 1);
-			cm_bool_line(win->cm_id, 2, &windows_on_top);
+			cm_bool_line(win->cm_id, 2, &windows_on_top, "windows_on_top");
 		}
 		else
 			win->cm_id = CM_INIT_VALUE;

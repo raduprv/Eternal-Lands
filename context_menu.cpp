@@ -5,6 +5,7 @@
 #include <SDL_types.h>
 
 #include "context_menu.h"
+#include "elconfig.h"
 #include "elwindows.h"
 #include "font.h"
 #include "gamewin.h"
@@ -44,7 +45,7 @@ namespace cm
 			int set_sizes(int border, int text_border, int line_sep, float zoom);
 			int set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b);
 			int change_line(size_t line_index, const char *new_entry);
-			int bool_line(size_t line_index, int *control_var);
+			int bool_line(size_t line_index, int *control_var, const char *config_name);
 			int grey_line(size_t line_index, bool is_grey);
 			void show_lines(size_t my_id);
 
@@ -62,9 +63,10 @@ namespace cm
 			class Menu_Line
 			{
 				public:
-					Menu_Line(std::string _text) : text(_text), control_var(0), is_grey(false), is_separator(false) {}
+					Menu_Line(std::string _text) : text(_text), control_var(0), config_name(0), is_grey(false), is_separator(false) {}
 					std::string text;
 					int *control_var;
+					const char *config_name;
 					bool is_grey;
 					bool is_separator;
 			};
@@ -103,7 +105,7 @@ namespace cm
 			int set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { if (!valid(cm_id)) return 0; return menus[cm_id]->set(menu_list, handler); }
 			int add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { if (!valid(cm_id)) return 0; return menus[cm_id]->add(menu_list, handler); }
 			int set_pre_show_handler(size_t cm_id, void (*handler)(window_info *, int, int, int)) { if (!valid(cm_id)) return 0; menus[cm_id]->set_pre_show_handler(handler); return 1; }
-			int bool_line(size_t cm_id, size_t line_index, int *control_var) { if (!valid(cm_id)) return 0; return menus[cm_id]->bool_line(line_index, control_var); }
+			int bool_line(size_t cm_id, size_t line_index, int *control_var, const char *config_name) { if (!valid(cm_id)) return 0; return menus[cm_id]->bool_line(line_index, control_var, config_name); }
 			int grey_line(size_t cm_id, size_t line_index, bool is_grey) { if (!valid(cm_id)) return 0; return menus[cm_id]->grey_line(line_index, is_grey); }
 			int set_sizes(size_t cm_id, int border, int text_border, int line_sep, float zoom) { if (!valid(cm_id)) return 0; return menus[cm_id]->set_sizes(border, text_border, line_sep, zoom); }
 			int set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float g, float b) { if (!valid(cm_id)) return 0; return menus[cm_id]->set_colour(cm_id, colour_name, r, g, b); }
@@ -495,6 +497,7 @@ namespace cm
 			return 0;
 		menu_lines[line_index].text = std::string(new_entry);
 		menu_lines[line_index].control_var = 0;
+		menu_lines[line_index].config_name = 0;
 		menu_lines[line_index].is_grey = menu_lines[line_index].is_separator = false;
 		if (new_entry == std::string("--"))
 			menu_lines[line_index].is_separator = true;
@@ -503,11 +506,12 @@ namespace cm
 
 
 	//  Make a line in the menu an off/on option, control_var determines state
-	int Menu::bool_line(size_t line_index, int *control_var)
+	int Menu::bool_line(size_t line_index, int *control_var, const char *config_name)
 	{
 		if (line_index >= menu_lines.size())
 			return 0;
 		menu_lines[line_index].control_var = control_var;
+		menu_lines[line_index].config_name = config_name;
 		if (!menu_has_bools)
 		{
 			menu_has_bools = true;
@@ -697,6 +701,9 @@ namespace cm
 		if (menu_lines[selection].control_var)
 		{
 			*menu_lines[selection].control_var ^= 1;
+			// if we have a config control name, set the control variable as unsaved
+			if (menu_lines[selection].config_name)
+				set_var_unsaved(menu_lines[selection].config_name, OPT_BOOL);
 			if (!handler)
 				return 1;
 		}
@@ -750,7 +757,11 @@ namespace cm
 		for (size_t i=0; i<menu_lines.size(); ++i)
 		{
 			if (menu_lines[i].control_var)
+			{
 				std::cout << "    [" << menu_lines[i].text << "] value=" << *menu_lines[i].control_var;
+				if (menu_lines[i].config_name)
+					std::cout << "  config name=[" << *menu_lines[i].config_name << "]";
+			}
 			else
 				std::cout << "    [" << menu_lines[i].text << "]";
 			std::cout << " " << ((menu_lines[i].is_grey) ?"greyed":"ungreyed")
@@ -770,7 +781,7 @@ extern "C" int cm_pre_show_check(Uint32 flags) { return cm::container.pre_show_c
 extern "C" void cm_post_show_check(int force) { cm::container.post_show_check(force); }
 extern "C" int cm_show_if_active(int window_id) { return cm::container.show_if_active(window_id); }
 extern "C" int cm_show_direct(size_t cm_id, int window_id, int widget_id) { return cm::container.show_direct(cm_id, window_id, widget_id); }
-extern "C" int cm_bool_line(size_t cm_id, size_t line_index, int *control_var) { return cm::container.bool_line(cm_id, line_index, control_var); }
+extern "C" int cm_bool_line(size_t cm_id, size_t line_index, int *control_var, const char *config_name) { return cm::container.bool_line(cm_id, line_index, control_var, config_name); }
 extern "C" int cm_grey_line(size_t cm_id, size_t line_index, int is_grey) { return cm::container.grey_line(cm_id, line_index, is_grey); }
 extern "C" int cm_set(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.set(cm_id, menu_list, handler); }
 extern "C" int cm_add(size_t cm_id, const char *menu_list, int (*handler)(window_info *, int, int, int, int)) { return cm::container.add(cm_id, menu_list, handler); }
@@ -940,10 +951,10 @@ extern "C" int cm_test_window(char *text, int len)
 			cm_test_win_menu, cm_test_reg_menu, cm_test_wid_menu, cm_test_dir_menu);
 		
 		printf("Replacing window menu cm_set()=%d\n", cm_set(cm_test_win_menu, "Window 1\nWindow 2\n--\nGrey me...\nGrey above\n", cm_test_menu_handler));
-		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 0, &cm_bool_var));
-		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 1, &cm_bool_var));
-		printf("Set win menu cm_grey_line()=%d\n", cm_grey_line(cm_test_win_menu, 3, cm_grey_var));
-		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 4, &cm_grey_var));
+		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 0, &cm_bool_var, NULL));
+		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 1, &cm_bool_var, NULL));
+		printf("Set win menu cm_grey_line()=%d\n", cm_grey_line(cm_test_win_menu, 3, cm_grey_var, NULL));
+		printf("Set win menu cm_bool_line()=%d\n", cm_bool_line(cm_test_win_menu, 4, &cm_grey_var, NULL));
 		printf("Set widget menu cm_grey_line()=%d\n", cm_grey_line(cm_test_wid_menu, 3, 1));
 		printf("Calling cm_set_pre_show_handler()=%d\n", cm_set_pre_show_handler(cm_test_win_menu, cm_test_menu_pre_show_handler) );
 		printf("Changing widget menu sizes cm_set_sizes()=%d\n", cm_set_sizes(cm_test_wid_menu, 10, 10, 10, 2));

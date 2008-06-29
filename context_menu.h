@@ -169,9 +169,10 @@ int cm_set_colour(size_t cm_id, enum CM_COLOUR_NAME colour_name, float r, float 
  * \param  cm_id		id of context menu
  * \param  line			the menu line number to change, range 0 - (number lines - 1)
  * \param  control_var	the address of the control variable
+ * \paraam config_name	if not NULL, the elconfig option name - used to set unsaved
  * \retval int 			1 for success, 0 for failure (invalid id)
  */
-int cm_bool_line(size_t cm_id, size_t line, int *control_var);
+int cm_bool_line(size_t cm_id, size_t line, int *control_var, const char *config_name);
 
 
 /*!
