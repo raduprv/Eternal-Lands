@@ -3,6 +3,8 @@
 #ifdef CONTEXT_MENUS
 #include "context_menu.h"
 #include "elconfig.h"
+#include "hud.h"
+#include "init.h"
 #include "translate.h"
 #endif
 #include "elwindows.h"
@@ -998,6 +1000,14 @@ int	draw_window_title(window_info *win)
 
 	if((win->flags&ELW_TITLE_BAR) == ELW_TITLE_NONE)	return 0;
 
+#ifdef CONTEXT_MENUS
+	/* draw the help text if the mouse is over the title bar */
+	if (show_help_text && cm_valid(win->cm_id) &&
+		mouse_x > win->cur_x && mouse_x < win->cur_x+win->len_x &&
+		mouse_y > win->cur_y-ELW_TITLE_HEIGHT && mouse_y < win->cur_y)
+		show_help(cm_title_help_str, 0, win->len_y+10);
+#endif
+	
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now draw that shit...
 

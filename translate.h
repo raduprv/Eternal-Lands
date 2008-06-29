@@ -393,6 +393,7 @@ extern char
 		cm_banner_menu_str[150],
 		cm_items_menu_str[150],
 		cm_title_menu_str[150],
+		cm_title_help_str[50],
 		cm_print_line_str[50],
 #endif
 		/* new_character.c */

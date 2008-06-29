@@ -254,6 +254,7 @@ char
 	cm_hud_menu_str[250],
 	cm_banner_menu_str[150],
 	cm_title_menu_str[150],
+	cm_title_help_str[50],
 	cm_items_menu_str[150],
 	cm_print_line_str[50],
 #endif
@@ -1239,6 +1240,7 @@ void init_help()
 	add_xml_identifier(misc, "cm_hud_menu", cm_hud_menu_str, "Show Stats\nShow Stats Bars\nShow Digital Clock\nShow Analogue Clock\nShow FPS\nShow Minimap\nEnable Quickbar Menu\n--\nEnable Sound Effects\nEnable Music\n", sizeof(cm_hud_menu_str));
 	add_xml_identifier(misc, "cm_banner_menu", cm_banner_menu_str, "Show Names\nShow Health Bars\nShow Health Numbers\nShow Speech Bubbles\nEnable Banner Background\n", sizeof(cm_banner_menu_str));
 	add_xml_identifier(misc, "cm_title_menu", cm_title_menu_str, "Hide Windows\nOpaque Background\nWindows On Top\n", sizeof(cm_title_menu_str));
+	add_xml_identifier(misc, "cm_title_help", cm_title_help_str, "Right-click for window menu", sizeof(cm_title_help_str));
 	add_xml_identifier(misc, "cm_items_menu", cm_items_menu_str, "\n--\nUse Small Window\nManual Window Size\nItem Window On Drop\n", sizeof(cm_items_menu_str));
 	add_xml_identifier(misc, "cm_print_line", cm_print_line_str, "Print Details To Console", sizeof(cm_print_line_str));
 #endif
