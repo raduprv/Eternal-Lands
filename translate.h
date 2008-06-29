@@ -393,6 +393,7 @@ extern char
 		cm_items_menu_str[150],
 		cm_storage_menu_str[50],
 		cm_astro_menu_str[50],
+		cm_dialog_menu_str[50],
 #endif
 		/* new_character.c */
 		use_appropriate_name[500];
