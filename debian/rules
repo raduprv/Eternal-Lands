@@ -39,9 +39,10 @@ clean:
 
 	dh_clean 
 
-BIN = $(CURDIR)/debian/eternallands/usr/games
-ICON = $(CURDIR)/debian/eternallands/usr/share/pixmaps/
-MENU = $(CURDIR)/debian/eternallands/usr/share/applications/
+PKGTAG = eternallands
+BIN = $(CURDIR)/debian/$(PKGTAG)/usr/games
+ICON = $(CURDIR)/debian/$(PKGTAG)/usr/share/pixmaps/
+MENU = $(CURDIR)/debian/$(PKGTAG)/usr/share/applications/
 
 install: build
 	dh_testdir
@@ -49,7 +50,7 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 
-	# Commands to install the package into debian/eternallands.
+	# Commands to install the package into debian/$(PKGTAG).
 	install -d $(BIN) $(ICON) $(MENU)
 	install el.x86.linux.bin $(BIN)
 	install pkgfiles/eternallands $(BIN)
@@ -70,22 +71,11 @@ binary-arch: build install
 	dh_installexamples
 	dh_install
 	dh_installmenu
-#	dh_installdebconf	
-#	dh_installlogrotate
-#	dh_installemacsen
-#	dh_installpam
-#	dh_installmime
-#	dh_python
-#	dh_installinit
-#	dh_installcron
-#	dh_installinfo
 	dh_installman pkgfiles/eternallands.6 pkgfiles/el.x86.linux.bin.6
 	dh_link
 	dh_strip
 	dh_compress
 	dh_fixperms
-#	dh_perl
-#	dh_makeshlibs
 	dh_installdeb
 	dh_shlibdeps
 	dh_gencontrol
