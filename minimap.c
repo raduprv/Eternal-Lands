@@ -5,6 +5,9 @@
 #include "asc.h"
 #include "buddy.h"
 #include "colors.h"
+#if defined(CONTEXT_MENUS) && defined(MINIMAP2)
+#include "context_menu.h"
+#endif
 #include "cursors.h"
 #include "elwindows.h"
 #include "errors.h"
@@ -1737,6 +1740,18 @@ void display_minimap()
 		win = &(windows_list.window[minimap_win]);
 		win->owner_drawn_title_bar = 1;
 		change_minimap();
+		
+#ifdef CONTEXT_MENUS
+		if (!cm_valid(win->cm_id))
+		{
+			win->cm_id = cm_create(cm_title_menu_str, cm_title_handler);
+			cm_grey_line(win->cm_id, 1, 1);
+			cm_bool_line(win->cm_id, 2, &windows_on_top, "windows_on_top");
+		}
+		cm_add(win->cm_id, cm_minimap_menu_str, NULL);
+		cm_add_region(win->cm_id, minimap_win, win->len_x/2-32, 0, 64, ELW_TITLE_HEIGHT );
+		cm_bool_line(win->cm_id, ELW_CM_MENU_LEN+1, &rotate_minimap, "rotate_minimap");
+#endif		
 	} else {
 		show_window(minimap_win);
 		select_window(minimap_win);
