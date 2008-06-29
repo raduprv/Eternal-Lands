@@ -366,9 +366,6 @@ extern char
 		afk_names[15],
 		afk_messages[25],
 		afk_print_help[150],
-		/*storage.c*/
-		storage_print_wait_str[50],
-		storage_print_help_str[70],
 		/*text.c*/
 		pm_from_str[10],
 		gm_from_str[10],
@@ -391,10 +388,11 @@ extern char
 		cm_quickbar_menu_str[150],
 		cm_hud_menu_str[250],
 		cm_banner_menu_str[150],
-		cm_items_menu_str[150],
 		cm_title_menu_str[150],
 		cm_title_help_str[50],
-		cm_print_line_str[50],
+		cm_items_menu_str[150],
+		cm_storage_menu_str[50],
+		cm_astro_menu_str[50],
 #endif
 		/* new_character.c */
 		use_appropriate_name[500];

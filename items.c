@@ -7,6 +7,7 @@
 #ifdef CONTEXT_MENUS
 #include "context_menu.h"
 #include "elconfig.h"
+#include "text.h"
 #endif
 #include "elwindows.h"
 #include "errors.h"
@@ -899,6 +900,7 @@ static int context_items_handler(window_info *win, int widget_id, int mx, int my
 		case ELW_CM_MENU_LEN+1: manual_size_items_window = 1; show_items_handler(win); break;
 		case ELW_CM_MENU_LEN+2: show_items_handler(win); break;
 		case ELW_CM_MENU_LEN+3: set_var_unsaved("item_window_on_drop", OPT_BOOL); break;
+		case ELW_CM_MENU_LEN+5: send_input_text_line("#sto", 4); break;
 	}
 	return 1;
 }
@@ -929,7 +931,6 @@ void display_items_menu()
 		
 #ifdef CONTEXT_MENUS
 		cm_add(windows_list.window[items_win].cm_id, cm_items_menu_str, context_items_handler);
-		cm_grey_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN, 1);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+1, &use_small_items_window);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+2, &manual_size_items_window);
 		cm_bool_line(windows_list.window[items_win].cm_id, ELW_CM_MENU_LEN+3, &item_window_on_drop);

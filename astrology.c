@@ -302,8 +302,7 @@ void display_astrology_window(const char * raw_text)
 		widget_set_OnClick(astrology_win, ok_button_id, ok_handler);
 
 #ifdef CONTEXT_MENUS
-		cm_add(windows_list.window[astrology_win].cm_id, "--", cm_astro_handler);
-		cm_add(windows_list.window[astrology_win].cm_id, cm_print_line_str, cm_astro_handler);
+		cm_add(windows_list.window[astrology_win].cm_id, cm_astro_menu_str, cm_astro_handler);
 #endif
 	} 
 	else 

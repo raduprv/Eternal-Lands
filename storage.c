@@ -3,6 +3,9 @@
 #include <string.h>
 #include "storage.h"
 #include "asc.h"
+#ifdef CONTEXT_MENUS
+#include "context_menu.h"
+#endif
 #include "elwindows.h"
 #include "filter.h"
 #include "gamewin.h"
@@ -51,7 +54,6 @@ static int print_quanities[STORAGE_ITEMS_SIZE];
 static int number_to_print = 0;
 static int next_item_to_print = 0;
 static int printing_category = -1;
-static int show_print_tooltip = 0;
 
 void get_storage_text (const Uint8 *in_data, int len)
 {
@@ -306,11 +308,6 @@ int display_storage_handler(window_info * win)
 		show_help(str,mouse_x-win->pos_x-(strlen(str)/2)*8,mouse_y-win->pos_y-14);
 	}
 	
-	if (show_print_tooltip) {
-		show_print_tooltip = 0;
-		show_help(storage_print_help_str, 0, win->len_y+10);
-	}
-
 	// Render the grid *after* the images. It seems impossible to code
 	// it such that images are rendered exactly within the boxes on all 
 	// cards
@@ -463,17 +460,10 @@ int mouseover_storage_handler(window_info *win, int mx, int my)
 	return 0;
 }
 
-int print_button_click_handler(window_info * win, int mx, int my, Uint32 flags)
+#ifdef CONTEXT_MENUS
+void print_items(void)
 {
-	static Uint32 lastprinttime = 0;
 	int i;
-	
-	/* don't allow rapid printing - delay 1 second */
-	if (SDL_GetTicks()-lastprinttime < 1000)
-	{
-		LOG_TO_CONSOLE(c_red2, storage_print_wait_str);
-		return 1;
-	}
 	
 	/* request the description for each item */
 	number_to_print = next_item_to_print = 0;
@@ -489,21 +479,19 @@ int print_button_click_handler(window_info * win, int mx, int my, Uint32 flags)
 			my_tcp_send(my_socket, str, 3);
 		}
 	}
-	
-	/* if we have requested anY descriptions, restart the delay */
-	if (number_to_print)
-		lastprinttime = SDL_GetTicks();
-
-	return 1;
 }
 
-static int print_button_mouseover(widget_list *widget, int mx, int my)
+static int context_storage_handler(window_info *win, int widget_id, int mx, int my, int option)
 {
-	if (show_help_text)
-		show_print_tooltip = 1;
+	if (cm_title_handler(win, widget_id, mx, my, option))
+		return 1;
+	switch (option)
+	{
+		case ELW_CM_MENU_LEN+1: print_items(); break;
+	}
 	return 1;
 }
-
+#endif
 
 void display_storage_menu()
 {
@@ -522,7 +510,6 @@ void display_storage_menu()
 
 	if(storage_win<=0){
 		int our_root_win = -1;
-		int print_button_id = 100;
 		if (!windows_on_top) {
 			our_root_win = game_root_win;
 		}
@@ -535,11 +522,9 @@ void display_storage_menu()
 				max2i(no_storage_categories - STORAGE_CATEGORIES_DISPLAY, 0));
 		vscrollbar_add_extended(storage_win, STORAGE_SCROLLBAR_ITEMS, NULL, 352, 10, 20, 192, 0, 1.0, 0.77f, 0.57f, 0.39f, 0, 1, 28);
 		
-		print_button_id = button_add_extended (storage_win, print_button_id, NULL,
-			storage_win_x_len-20, 40, 20, 20, 0, 0.75, 0.77f, 0.57f, 0.39f, "p");
-		widget_set_type(storage_win, print_button_id, &square_button_type);
-		widget_set_OnClick(storage_win, print_button_id, print_button_click_handler);
-		widget_set_OnMouseover(storage_win, print_button_id, print_button_mouseover);
+#ifdef CONTEXT_MENUS
+		cm_add(windows_list.window[storage_win].cm_id, cm_storage_menu_str, context_storage_handler);
+#endif
 	} else {
 		no_storage=0;
 		
