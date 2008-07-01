@@ -263,6 +263,10 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos);
 #endif
 
+#ifdef NEW_SOUND
+// Wrapper function for map particles
+int add_map_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
+#endif // NEW_SOUND
 void add_ec_effect_to_e3d(object3d* e3d);
 
 /*!

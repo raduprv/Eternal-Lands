@@ -16,6 +16,7 @@
 #include "update.h"
 #include "weather.h"
 #ifdef NEW_SOUND
+#include "items.h"
 #include "sound.h"
 #endif
 #ifdef PAWN
@@ -44,6 +45,7 @@ Uint32 my_timer(Uint32 interval, void * data)
 	
 #ifdef NEW_SOUND
 	update_sound(interval);
+	update_item_sound(interval);
 #endif	//NEW_SOUND
 
 	// adjust the timer clock

@@ -138,6 +138,7 @@ void setup_map_sounds (int map_num);
 unsigned int add_sound_object(int type, int x, int y, int me);
 
 unsigned int add_walking_sound(int type, int x, int y, int me, float scale);
+unsigned int add_map_sound(int type, int x, int y);
 unsigned int add_particle_sound(int type, int x, int y);
 unsigned int add_spell_sound(int spell);
 unsigned int add_death_sound(actor * act);

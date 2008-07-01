@@ -26,6 +26,7 @@ typedef struct
 	int is_stackable;
 #ifdef NEW_SOUND
 	int action;			/*!< action being done on this item, for playing sounds on server result */
+	int action_time;	/*!< time this action has been active - times out after 2 seconds */
 #endif // NEW_SOUND
 	Uint32 cooldown_time; /*!< time when cooldown shall reach zero */
 	Uint32 cooldown_rate; /*!< time that the item would need to cool down from full heat */
@@ -104,6 +105,10 @@ extern int item_quantity;
 extern int use_small_items_window;
 
 extern int manual_size_items_window;
+
+#ifdef NEW_SOUND
+void update_item_sound(int interval);
+#endif // NEW_SOUND
 
 /*!
  * \ingroup display_utils

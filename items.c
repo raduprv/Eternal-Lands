@@ -238,6 +238,7 @@ void get_your_items (const Uint8 *data)
 		item_list[pos].pos=pos;
 #ifdef NEW_SOUND
 		item_list[pos].action = ITEM_NO_ACTION;
+		item_list[pos].action_time = 0;
 #endif // NEW_SOUND
 		flags=data[i*8+1+7];
 
@@ -283,7 +284,27 @@ void check_for_item_sound(int pos)
 			add_sound_object(snd, 0, 0, 1);
 		// Reset the action
 		item_list[pos].action = ITEM_NO_ACTION;
+		item_list[pos].action_time = 0;
 	}
+}
+
+void update_item_sound(int interval)
+{
+	int i;
+	// Iterate through the list of items, checking for out of date item actions (> 2 sec old)
+	for (i = 0; i < ITEM_NUM_ITEMS; i++)
+	{
+		if (item_list[i].action != ITEM_NO_ACTION)
+		{
+			item_list[i].action_time += interval;
+			if (item_list[i].action_time >= 2000)
+			{
+				// Item action state is out of date so reset it
+				item_list[i].action = ITEM_NO_ACTION;
+				item_list[i].action_time = 0;
+			}
+		}
+	}	
 }
 #endif // NEW_SOUND
 
@@ -604,6 +625,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		
 #ifdef NEW_SOUND
 		item_list[pos].action = ITEM_NO_ACTION;
+		item_list[pos].action_time = 0;
 #endif // NEW_SOUND
 		if(pos==-1) {
 		} else if(item_dragged!=-1){

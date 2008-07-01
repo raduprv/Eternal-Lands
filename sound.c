@@ -2236,25 +2236,26 @@ unsigned int add_server_sound(int type, int x, int y, int gain)
 	}
 }
 
-/* Wrapper function for adding walking sounds.
- * It scales the gain before passing it to the normal add_sound_object_gain function
- */
+// Wrapper function for adding walking sounds.
 unsigned int add_walking_sound(int type, int x, int y, int me, float scale)
 {
-//	float gain = 0.0f;
-	// Calculate the gain for this scale
-//	gain = (scale / 2.0f) + 0.5f;
 	return add_sound_object_gain(type, x, y, me, scale);
 }
 
-/* Wrapper function for adding particle sounds.
- * It checks for any existing sounds in a similar location before loading this one
+/* Wrapper function for adding map based particle sounds
+ *
+ * Due to only a subset of sound information being programmed into the map data, sounds
+ * are triggered by the addition of each particle system. This causes problems for fires,
+ * fountains, waterfalls and anything that is made of multiple particle systems.
+ *
+ * To fix this, this function checks for any existing sounds in a similar location before
+ * loading this one.
  */
-unsigned int add_particle_sound(int type, int x, int y)
+unsigned int add_map_sound(int type, int x, int y)
 {
 	int i;
-	const int buffer = 3;
-	// Check if there is another sound within +/-3 tiles around this position
+	const int buffer = 5;
+	// Check if there is another sound within +/-5 (buffer) tiles around this position
 	for (i = 0; i < MAX_BUFFERS * 2; i++)
 	{
 		if (x >= sounds_list[i].x - buffer
@@ -2267,6 +2268,12 @@ unsigned int add_particle_sound(int type, int x, int y)
 			return 0;
 		}
 	}
+	return add_sound_object_gain(type, x, y, 0, 1.0f);
+}
+
+// Wrapper for regular particle sounds (non-map based) to avoid the location check
+unsigned int add_particle_sound(int type, int x, int y)
+{
 	return add_sound_object_gain(type, x, y, 0, 1.0f);
 }
 
@@ -2322,7 +2329,7 @@ unsigned int add_sound_object_gain(int type, int x, int y, int me, float initial
 	sound_type *pNewType;
 	float maxDistanceSq = 0.0f;
 
-/*	Torg: Checks for if sound is enabled etc have been removed as we should load sounds even if currently
+/*	Torg: Checks for sound enabled etc have been removed as we should load sounds even if currently
 	disabled, as they may be enabled within the duration of this sound (eg. rain and map sounds). We just
 	won't play them yet.
 */
@@ -2559,6 +2566,9 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 		if (pVariant->part[stage].sample_num < 0)
 			break;
 		buffer = sound_sample_data[pVariant->part[stage].sample_num].buffer;
+#ifdef _EXTRA_SOUND_DEBUG
+		printf("Stage: %d, Buffer address: %d\n", stage, buffer);
+#endif //_EXTRA_SOUND_DEBUG
 		
 		// If there are a finite number of loops for main sample, queue them all here
 		if (stage == STAGE_MAIN)
@@ -2887,7 +2897,8 @@ void update_sound(int ms)
 #ifdef _EXTRA_SOUND_DEBUG
 					printf("Sound now in-range: %d (%s), Distance squared: %d, Max: %d\n", sounds_list[i].sound, pSoundType->name, distanceSq, maxDistSq);
 #endif //_EXTRA_SOUND_DEBUG
-					if (!play_sound(i, x, y, 1.0f))
+					sounds_list[i].cur_gain = -1.0f;	// Make sure we recalculate this sound's volume
+					if (!play_sound(i, x, y, sounds_list[i].base_gain))
 					{
 #ifdef _EXTRA_SOUND_DEBUG
 						printf("Error restarting sound!!\n");

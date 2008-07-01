@@ -37,6 +37,10 @@
  * void dump_part_sys_info();
  */
 
+#ifdef NEW_SOUND
+int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic);
+#endif // NEW_SOUND
+
 #define TELEPORTER_PARTICLE_SYS 0
 #define TELEPORT_PARTICLE_SYS 1
 #define BAG_PARTICLE_SYS 2
@@ -675,16 +679,29 @@ void add_ec_effect_to_e3d(object3d* e3d)
 	}	
 }
 
-int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
-#else
-int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos)
-#endif
-{
-#ifndef MAP_EDITOR
 #ifdef NEW_SOUND
+// Wrapper for map sounds (checks for existing sounds in similar location for multi-particle-system effects)
+int add_map_particle_sys(const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
+{
 	int snd;
 
-	if (sound_on)
+	if (!no_sound)
+	{
+		snd = get_sound_index_for_particle_file_name(file_name);
+		if (snd >= 0)
+		{
+			add_map_sound(snd, (x_pos - 0.25f) * 2, (y_pos - 0.25f) * 2);
+		}
+	}
+	return real_add_particle_sys(file_name, x_pos, y_pos, z_pos, dynamic);
+}
+
+// Wrapper for regular (event triggered) particle systems (no location check)
+int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
+{
+	int snd;
+
+	if (!no_sound)
 	{
 		snd = get_sound_index_for_particle_file_name(file_name);
 		if (snd >= 0)
@@ -692,7 +709,18 @@ int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_p
 			add_particle_sound(snd, (x_pos - 0.25f) * 2, (y_pos - 0.25f) * 2);
 		}
 	}
+	return real_add_particle_sys(file_name, x_pos, y_pos, z_pos, dynamic);
+}
+
+int real_add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
+#else
+int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos, unsigned int dynamic)
 #endif // NEW_SOUND
+#else // !MAP_EDITOR
+int add_particle_sys (const char *file_name, float x_pos, float y_pos, float z_pos)
+#endif
+{
+#ifndef MAP_EDITOR
 	
 	if (use_eye_candy)
 	{
