@@ -30,7 +30,7 @@ namespace ec
 			OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 				const color_t _hue_adjust, const color_t _saturation_adjust,
 				const OngoingType _type, const Uint16 _LOD,
-				const float _strength);
+				const float _strength, Uint32 _buff_type);
 			~OngoingEffect();
 
 			virtual EffectEnum get_type()
@@ -48,6 +48,7 @@ namespace ec
 			OngoingType type;
 			float strength;
 			Vec3 initial_center;
+			Uint32 buff_type;
 	};
 
 	class OngoingParticle : public Particle

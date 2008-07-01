@@ -179,7 +179,7 @@ namespace ec
 
 	OngoingEffect::OngoingEffect(EyeCandy* _base, bool* _dead, Vec3* _pos,
 		const color_t _hue_adjust, const color_t _saturation_adjust,
-		const OngoingType _type, const Uint16 _LOD, const float _strength)
+		const OngoingType _type, const Uint16 _LOD, const float _strength, Uint32 _buff_type)
 	{
 		if (EC_DEBUG)
 			std::cout << "OngoingEffect (" << this << ") created." << std::endl;
@@ -198,6 +198,7 @@ namespace ec
 		bounds = NULL;
 		mover = NULL;
 		strength = _strength;
+		buff_type = _buff_type;
 
 		switch (type)
 		{
