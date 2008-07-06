@@ -1248,7 +1248,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 		{
 			float diff = 8.0f*zoom_multip;
 
-			if(is_within_radius(x,y,px,py,minimap_tiles_distance*zoom_multip*1.5f)) 
+			if(is_within_radius(x,y,px,py,zoom_multip*(minimap_size/2-8)))
 			{
 				glPushMatrix();
 				glDisable(GL_TEXTURE_2D);
