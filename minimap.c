@@ -1080,6 +1080,7 @@ int minimap_win_x = 5;
 int minimap_win_y = 20;
 GLubyte exploration_map[256][256];
 char current_exploration_map_filename[256];
+float minimap_size_coefficient = 0.7f;
 
 static __inline__ float minimap_get_zoom ()
 {
@@ -1720,7 +1721,6 @@ void display_minimap()
 {
 	window_info *win;
 
-	float minimap_size_coefficient = 0.7f;
 	minimap_size = 256 * minimap_size_coefficient;
 	float_minimap_size = 256.0 * minimap_size_coefficient;
 

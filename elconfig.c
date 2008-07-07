@@ -25,6 +25,7 @@
  #include "console.h"
  #include "draw_scene.h"
  #include "errors.h"
+ #include "elwindows.h"
  #include "filter.h"
  #include "gamewin.h"
  #include "gl_init.h"
@@ -265,6 +266,24 @@ void change_var(int * var)
 {
 	*var= !*var;
 }
+
+#ifdef MINIMAP2
+void change_minimap_scale(float * var, float * value)
+{
+	int shown = 0;
+	*var= *value;
+	if (minimap_win>=0)
+	{
+		shown = get_show_window(minimap_win);
+		minimap_win_x = windows_list.window[minimap_win].cur_x;
+		minimap_win_y = windows_list.window[minimap_win].cur_y;
+		destroy_window(minimap_win);
+		minimap_win = -1;
+	}
+	if (shown)
+		display_minimap();
+}
+#endif // MINIMAP2
 
 #ifdef SKY_FPV
 void change_sky_var(int * var)
@@ -1720,6 +1739,7 @@ void init_vars()
 	add_var(OPT_BOOL,"always_pathfinding", "alwayspathfinding", &always_pathfinding, change_var, 0, "Extend the range of the walk cursor", "Extends the range of the walk cursor to as far as you can see.  Using this option, movement may be slightly less responsive on larger maps.", CONTROLS);
 #ifdef MINIMAP2
 	add_var(OPT_BOOL,"rotate_minimap","rotateminimap",&rotate_minimap,change_var,1,"Rotate minimap","Toggle whether the minimap should rotate.",CONTROLS);
+	add_var(OPT_FLOAT,"minimap_scale", "minimapscale", &minimap_size_coefficient, change_minimap_scale, 0.7, "Minimap Scale", "Adjust the overall size of the minimap", CONTROLS, 0.5, 1.5, 0.1);
 #endif //MINIMAP2
 	add_var(OPT_BOOL,"view_analog_clock","analog",&view_analog_clock,change_var,1,"Analog Clock","Toggle the analog clock",HUD);
 	add_var(OPT_BOOL,"view_digital_clock","digit",&view_digital_clock,change_var,1,"Digital Clock","Toggle the digital clock",HUD);
