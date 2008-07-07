@@ -375,7 +375,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			skybox_time_d *= 360.0/( 1296000.0 * 1000.0);
 			skybox_time_d = -skybox_time_d;
 			skybox_time_d += 360.0 * (((month%2)*30 + day-1)*360 + game_minute)/21600.0;
-
+			skybox_update_positions();
 #endif // SKY_FPV
 			return 0;
 		}
