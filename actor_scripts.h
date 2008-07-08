@@ -181,6 +181,8 @@ void you_sit_down();
  */
 void you_stand_up();
 
+int checkvisitedlist(int x, int y);
+
 #ifdef __cplusplus
 } // extern "C"
 #endif

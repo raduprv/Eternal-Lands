@@ -1487,7 +1487,7 @@ void next_command()
 					}
 					actors_list[i]->que[k]=nothing;
 				}
-			}
+			}                                                   
 		}
 }
 
@@ -1595,7 +1595,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	int k=0;
 	//int have_actor=0;
 //if ((actor_id==yourself)&&(command==enter_combat)) LOG_TO_CONSOLE(c_green2,"FIGHT!");
-	actor * act;
+	actor * act, * me;
+	int isme;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -1711,7 +1712,9 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				break;
 			}
 		}
-
+		me = get_our_actor();
+		isme = act->actor_id == me->actor_id;
+		
 		switch(command) {
 		case enter_combat:
 			act->async_fighting= 1;
@@ -1723,45 +1726,85 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		case run_n:
 			act->async_y_tile_pos++;
 			act->async_z_rot= 0;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case move_ne:
 		case run_ne:
 			act->async_x_tile_pos++;
 			act->async_y_tile_pos++;
 			act->async_z_rot= 45;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case move_e:
 		case run_e:
 			act->async_x_tile_pos++;
 			act->async_z_rot= 90;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case move_se:
 		case run_se:
 			act->async_x_tile_pos++;
 			act->async_y_tile_pos--;
 			act->async_z_rot= 135;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case move_s:
 		case run_s:
 			act->async_y_tile_pos--;
 			act->async_z_rot= 180;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case move_sw:
 		case run_sw:
 			act->async_x_tile_pos--;
 			act->async_y_tile_pos--;
 			act->async_z_rot= 225;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case move_w:
 		case run_w:
 			act->async_x_tile_pos--;
 			act->async_z_rot= 270;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case move_nw:
 		case run_nw:
 			act->async_x_tile_pos--;
 			act->async_y_tile_pos++;
 			act->async_z_rot= 315;
+			if(isme && pf_follow_path)
+			{
+                if(checkvisitedlist(act->async_x_tile_pos,act->async_y_tile_pos))
+                    pf_destroy_path();
+            }
 			break;
 		case turn_n:
 		case turn_ne:
@@ -1774,7 +1817,6 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			 act->async_z_rot= (command-turn_n)*45;
 			 break;
 		}
-
 		UNLOCK_ACTORS_LISTS();
 
 		if(k>MAX_CMD_QUEUE-2){

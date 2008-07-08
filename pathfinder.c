@@ -12,6 +12,7 @@ PF_OPEN_LIST pf_open;
 PF_TILE *pf_tile_map=NULL;
 PF_TILE *pf_src_tile, *pf_dst_tile, *pf_cur_tile;
 int pf_follow_path = 0;
+int pf_visited_squares[20];
 int pf_actor_id;
 SDL_TimerID pf_movement_timer = NULL;
 
@@ -180,11 +181,63 @@ int pf_find_path(int x, int y)
 
 void pf_destroy_path()
 {
-	if (pf_movement_timer) {
+	int i;
+    if (pf_movement_timer) {
 		SDL_RemoveTimer(pf_movement_timer);
 		pf_movement_timer = NULL;
 	}
 	pf_follow_path = 0;
+	for(i=0;i<20;i++)
+	    pf_visited_squares[i]=pf_visited_squares[i]=-1;
+}
+
+int checkvisitedlist(int x, int y)
+{
+/*
+    This (slightly) optimised version of the code stores the X and Y in the same word
+    x is bits 0-15, y is bits 16-31
+*/
+int i,visited = 0,tx,ty;//visited: Is this square already in the list?
+x=x & 0xFFFF;
+y=y & 0xFFFF;
+
+for(i=0;i<20;i++)
+{
+    if((pf_visited_squares[i] & 0xFFFF)==x && ((pf_visited_squares[i]& 0xFFFF0000)/0x10000)==y)
+    {
+            visited=1;//yes
+    }
+    if(i)
+    {
+        //move everything in the list up one place
+        //to make room for the new square
+        pf_visited_squares[i]=pf_visited_squares[i-1];
+    }
+}
+//put the new square at the start of the list
+pf_visited_squares[0]=x;
+pf_visited_squares[0]+=(y*0x10000);
+
+//check if we have visited and the destination is close to us
+if(visited)
+{
+    if(pf_dst_tile->x>x)
+        tx=pf_dst_tile->x-x;
+    else
+        tx=x-pf_dst_tile->x;
+    
+    if(pf_dst_tile->y>y)
+        ty=pf_dst_tile->y-y;
+    else
+        ty=y-pf_dst_tile->y;
+    
+    if(tx<3 && ty<3)
+        visited=1;//yes
+    else
+        visited=0;//yes
+}
+
+return visited;
 }
 
 void pf_move()
