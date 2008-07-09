@@ -225,13 +225,13 @@ if(visited)
         tx=pf_dst_tile->x-x;
     else
         tx=x-pf_dst_tile->x;
-    
+
     if(pf_dst_tile->y>y)
         ty=pf_dst_tile->y-y;
     else
         ty=y-pf_dst_tile->y;
-    
-    if(tx<3 && ty<3)
+
+    if(tx<5 && ty<5)
         visited=1;//yes
     else
         visited=0;//yes
@@ -356,7 +356,7 @@ void pf_move_to_mouse_position()
 {
 	int x, y, clicked_x, clicked_y;
 	int tries;
-	
+
 	if (!pf_get_mouse_position(mouse_x, mouse_y, &clicked_x, &clicked_y)) return;
 	x = clicked_x; y = clicked_y;
 
