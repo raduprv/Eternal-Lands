@@ -36,7 +36,10 @@ extern time_t last_heart_beat; /*!< a timestamp that inidicates when the last me
 
 extern int log_conn_data; /*!< indicates whether we should log connection data or not */
 
-/*!
+extern char inventory_item_string[300]; /*!< the last inventory text string */
+extern size_t inventory_item_string_id; /*!< incremented each time we get a new string so users notice */
+
+	/*!
  * \ingroup network_actors
  * \brief Move the actor to a new location
  *

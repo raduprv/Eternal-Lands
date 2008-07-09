@@ -68,6 +68,8 @@ int tcp_out_loc= 0;
 int previously_logged_in= 0;
 time_t last_heart_beat;
 int always_pathfinding = 0;
+char inventory_item_string[300] = {0};
+size_t inventory_item_string_id = 0;
 
 char our_name[20];
 char our_password[20];
@@ -710,6 +712,8 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION(2): Possibly forged HERE_YOUR_INVENTORY packet received.\n");
 				  break;
 				}
+				inventory_item_string[0]=0;
+				inventory_item_string_id=0;
 				get_your_items(in_data+3);
 			}
 			break;
@@ -744,7 +748,9 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 				  log_error("CAUTION: Possibly forged INVENTORY_ITEM_TEXT packet received.\n");
 				  break;
 				}
-				put_small_text_in_box(&in_data[3], data_length - 3, 6 * items_grid_size + 100, items_string);
+				safe_strncpy2(inventory_item_string, (const char *)&in_data[3], sizeof(inventory_item_string)-1, data_length - 3);
+				inventory_item_string[sizeof(inventory_item_string)-1] = 0;
+				inventory_item_string_id++;
 				if(!(get_show_window(items_win)||get_show_window(manufacture_win)||get_show_window(trade_win)))
 					{
 						put_text_in_buffer(CHAT_SERVER, &in_data[3], data_length-3);

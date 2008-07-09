@@ -22,6 +22,9 @@ int manufacture_menu_y=20;
 int manufacture_menu_x_len=12*33+20;
 int manufacture_menu_y_len=6*33;
 
+static char items_string[350]={0};
+static size_t last_items_string_id = 0;
+
 void build_manufacture_list()
 {
 	int i,j,l;
@@ -160,6 +163,11 @@ int	display_manufacture_handler(window_info *win)
 	}
 	
 	//now, draw the inventory text, if any.
+	if (last_items_string_id != inventory_item_string_id)
+	{		
+		put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-8, items_string);
+		last_items_string_id = inventory_item_string_id;
+	}
 	draw_string_small(4,win->len_y-85,(unsigned char *)items_string,4);
 
 	// Render the grid *after* the images. It seems impossible to code

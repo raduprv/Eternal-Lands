@@ -86,8 +86,6 @@ extern int items_win; /*!< inventory windows handler */
 extern int items_menu_x;
 extern int items_menu_y;
 
-extern int items_grid_size;
-
 /*! \name Text fields for items */
 /*! @{ */
 #define MAX_ITEMS_TEXTURES  32
@@ -97,8 +95,6 @@ extern int items_text[MAX_ITEMS_TEXTURES];
 extern int item_dragged;
 
 extern int use_item;
-
-extern char items_string[300];
 
 extern int item_quantity;
 

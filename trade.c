@@ -31,13 +31,17 @@ trade_item others_trade_list[24];
 int trade_you_accepted=0;
 int trade_other_accepted=0;
 char other_player_trade_name[20];
-
+static char items_string[350]={0};
+static size_t last_items_string_id = 0;
 int no_view_my_items=0;
 
 int trade_menu_x=10;
 int trade_menu_y=20;
 int trade_menu_x_len=9*33+20;
-int trade_menu_y_len=4*33+100;
+int trade_menu_y_len=4*33+115;
+static int button_y_top = 4*33+40;
+static int button_y_bot = 4*33+60;
+
 
 int show_abort_help=0;
 
@@ -59,7 +63,7 @@ int display_trade_handler(window_info *win)
 		glColor3f(1.0f,0.0f,0.0f);
 	}
 	
-	draw_string_small(x+33-strlen(accept_str)*4, win->len_y-58, (unsigned char*)accept_str, 1);
+	draw_string_small(x+33-strlen(accept_str)*4, button_y_top+2, (unsigned char*)accept_str, 1);
 
 	if(trade_other_accepted<=0){    // RED
 		glColor3f(1.0f,0.0f,0.0f);
@@ -69,7 +73,7 @@ int display_trade_handler(window_info *win)
 		glColor3f(0.0f,1.0f,0.0f);
 	}
 	
-	draw_string_small(x+6*33-strlen(accept_str)*4, win->len_y-58, (unsigned char*)accept_str, 1);
+	draw_string_small(x+6*33-strlen(accept_str)*4, button_y_top+2, (unsigned char*)accept_str, 1);
 	
 	glColor3f(0.77f,0.57f,0.39f);	
 	
@@ -172,19 +176,19 @@ int display_trade_handler(window_info *win)
 	x=10+33;
 	
 	glBegin (GL_LINE_LOOP);
-		glVertex3i(x,win->len_y-60,0);
-		glVertex3i(x+66,win->len_y-60,0);
-		glVertex3i(x+66,win->len_y-40,0);
-		glVertex3i(x,win->len_y-40,0);
+		glVertex3i(x,button_y_top,0);
+		glVertex3i(x+66,button_y_top,0);
+		glVertex3i(x+66,button_y_bot,0);
+		glVertex3i(x,button_y_bot,0);
 	glEnd ();
 	
 	x+=5*33;
 
 	glBegin (GL_LINE_LOOP);
-		glVertex3i(x,win->len_y-60,0);
-		glVertex3i(x+66,win->len_y-60,0);
-		glVertex3i(x+66,win->len_y-40,0);
-		glVertex3i(x,win->len_y-40,0);
+		glVertex3i(x,button_y_top,0);
+		glVertex3i(x+66,button_y_top,0);
+		glVertex3i(x+66,button_y_bot,0);
+		glVertex3i(x,button_y_bot,0);
 	glEnd ();
 
 
@@ -201,7 +205,12 @@ int display_trade_handler(window_info *win)
 	glEnable(GL_TEXTURE_2D);
 	
 	//now, draw the inventory text, if any.
-	draw_string_small(4,win->len_y-35,(unsigned char*)items_string,3);
+	if (last_items_string_id != inventory_item_string_id)
+	{		
+		put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-8, items_string);
+		last_items_string_id = inventory_item_string_id;
+	}
+	draw_string_small(4,button_y_bot+5,(unsigned char*)items_string,3);
 #ifdef OPENGL_TRACE
 CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
@@ -298,7 +307,7 @@ int click_trade_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 
 		return 1;
-	} else if(mx>10+33 && mx<10+33+66 && my>win->len_y-60 && my<win->len_y-40) {
+	} else if(mx>10+33 && mx<10+33+66 && my>button_y_top && my<button_y_bot) {
 		//check to see if we hit the Accept box
 		if(trade_you_accepted==2 || right_click){
 			str[0]= REJECT_TRADE;

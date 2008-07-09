@@ -55,7 +55,8 @@ int items_menu_y_len=6*51+90;
 
 int items_text[MAX_ITEMS_TEXTURES];
 
-char items_string[300]={0};
+static char items_string[350]={0};
+static size_t last_items_string_id = 0;
 int item_dragged=-1;
 int item_quantity=1;
 int quantity_width=0;
@@ -217,9 +218,6 @@ void get_your_items (const Uint8 *data)
 	Uint8 flags;
 
 	total_items=data[0];
-
-	//clear the item string we might have left from a previous session
-	items_string[0]=0;
 
 	//clear the items first
 	for(i=0;i<ITEM_NUM_ITEMS;i++){
@@ -506,6 +504,11 @@ int display_items_handler(window_info *win)
 	glColor3f(1.0f,1.0f,1.0f);
 	
 	//now, draw the inventory text, if any.
+	if (last_items_string_id != inventory_item_string_id)
+	{		
+		put_small_text_in_box((unsigned char*)inventory_item_string, strlen(inventory_item_string), win->len_x-10, items_string);
+		last_items_string_id = inventory_item_string_id;
+	}
 	draw_string_small(4, win->len_y - (use_small_items_window?105:85), (unsigned char*)items_string, 4);
 	
 	// Render the grid *after* the images. It seems impossible to code
@@ -871,10 +874,7 @@ int drop_button_id = 0;
 int show_items_handler(window_info * win)
 {
 	widget_list *w;
-	char str[512];
-	size_t i;
-	char *itemsstr = items_string;
-	
+
 	if (!manual_size_items_window)
 		use_small_items_window = video_mode <= 4;
 
@@ -901,13 +901,9 @@ int show_items_handler(window_info * win)
 		w->pos_y = (use_small_items_window ?5.5 :4.5) * items_grid_size - w->len_y/2;
 		w->pos_x = 6*items_grid_size + (win->len_x - 6*items_grid_size - w->len_x)/2;
 	}
-	
-	/* remove existing '\n' before rewrapping */
-	for (i=0; i<sizeof(str) && *itemsstr != '\0'; itemsstr++)
-		if (*itemsstr != '\n')
-			str[i++] = *itemsstr;
-	str[i<sizeof(str)?i:sizeof(str)-1] = '\0';		
-	put_small_text_in_box((unsigned char*)str, strlen(str), win->len_x-10, items_string);
+
+	/* make sure we redraw any string */
+	last_items_string_id = 0;
 
 	return 1;
 }
