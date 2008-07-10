@@ -1589,7 +1589,7 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 				return minimap_walkto(mx, win->len_y - my);
 		}
 	}
-	else if((flags & ELW_WHEEL) && is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
+	else if((flags & ELW_WHEEL) && is_within_radius(mx,my-16,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 	{
 		if(flags & ELW_WHEEL_UP)
 			increase_zoom();
@@ -1605,15 +1605,18 @@ int keypress_minimap_handler (window_info *win, int mx, int my, Uint32 key, Uint
 {
 	Uint16 keysym = key & 0xffff;
 
-	if(keysym == SDLK_KP_PLUS)
+	if (is_within_radius(mx,my-16,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 	{
-		increase_zoom();
-		return 1;
-	}
-	else if (keysym == SDLK_KP_MINUS)
-	{
-		decrease_zoom();
-		return 1;
+		if((keysym == SDLK_KP_PLUS) || (keysym == SDLK_PAGEUP))
+		{
+			increase_zoom();
+			return 1;
+		}
+		else if ((keysym == SDLK_KP_MINUS) ||  (keysym == SDLK_PAGEDOWN))
+		{
+			decrease_zoom();
+			return 1;
+		}
 	}
 
 	return 0;
