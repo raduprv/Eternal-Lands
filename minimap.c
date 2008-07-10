@@ -1,6 +1,7 @@
 
 #include <stdlib.h>
 #include <string.h>
+#include <SDL.h>
 #include "minimap.h"
 #include "asc.h"
 #include "buddy.h"
@@ -1556,6 +1557,20 @@ static int minimap_walkto(int mx, int my)
 	return 0;
 }
 
+static void increase_zoom()
+{
+	minimap_tiles_distance -=8;
+	if(minimap_tiles_distance < 48)
+		minimap_tiles_distance = 48;
+}
+
+static void decrease_zoom()
+{
+	minimap_tiles_distance +=8;
+	if(minimap_tiles_distance > 144)
+		minimap_tiles_distance = 144;
+}
+
 int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 {
 	int close_button_x = win->len_x/2 + 32 - 1;
@@ -1576,18 +1591,28 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 	}
 	else if((flags & ELW_WHEEL) && is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 	{
-		if(flags & ELW_WHEEL_UP) //increase zoom
-		{
-			minimap_tiles_distance -=8;
-			if(minimap_tiles_distance < 48)
-				minimap_tiles_distance = 48;
-		}
-		else //decrease zoom
-		{
-			minimap_tiles_distance +=8;
-			if(minimap_tiles_distance > 144)
-				minimap_tiles_distance = 144;
-		}
+		if(flags & ELW_WHEEL_UP)
+			increase_zoom();
+		else
+			decrease_zoom();
+		return 1;
+	}
+
+	return 0;
+}
+
+int keypress_minimap_handler (window_info *win, int mx, int my, Uint32 key, Uint32 unikey)
+{
+	Uint16 keysym = key & 0xffff;
+
+	if(keysym == SDLK_KP_PLUS)
+	{
+		increase_zoom();
+		return 1;
+	}
+	else if (keysym == SDLK_KP_MINUS)
+	{
+		decrease_zoom();
 		return 1;
 	}
 
@@ -1737,6 +1762,7 @@ void display_minimap()
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
+		set_window_handler(minimap_win, ELW_HANDLER_KEYPRESS, &keypress_minimap_handler );
 		win = &(windows_list.window[minimap_win]);
 		win->owner_drawn_title_bar = 1;
 		change_minimap();
