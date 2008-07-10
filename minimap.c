@@ -1585,7 +1585,7 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 		else if(my >= 16)
 		{
 			//check if the click is in the round area
-			if(is_within_radius(mx,my,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
+			if(is_within_radius(mx,my-16,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 				return minimap_walkto(mx, win->len_y - my);
 		}
 	}
