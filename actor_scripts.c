@@ -1595,8 +1595,8 @@ void add_command_to_actor(int actor_id, unsigned char command)
 	int k=0;
 	//int have_actor=0;
 //if ((actor_id==yourself)&&(command==enter_combat)) LOG_TO_CONSOLE(c_green2,"FIGHT!");
-	actor * act, * me;
-	int isme;
+	actor * act;
+	int isme = 0;
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
@@ -1712,8 +1712,12 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				break;
 			}
 		}
-		me = get_our_actor();
-		isme = act->actor_id == me->actor_id;
+
+		{
+			actor * me = get_our_actor();
+			if (me!=NULL)
+				isme = act->actor_id == me->actor_id;
+		}
 		
 		switch(command) {
 		case enter_combat:
