@@ -1848,6 +1848,13 @@ int stop_sound_source_at_index(int index)
 		return 0;
 	}
 	
+	// this should not happen but apparently did see EL forum showtopic=44474
+	if (index >= max_sources)
+	{
+		LOG_ERROR("Trying to unload invalid source! Index: %d, Num Sources: %d, Max Sources: %d\n", index, used_sources, max_sources);
+		return 0;
+	}
+	
 	pSource = &sound_source_data[index];
 
 	// Error if source is invalid (lost)
