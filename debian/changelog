@@ -1,3 +1,10 @@
+eternallands (1.6.0-3) unstable; urgency=low
+
+  * Lastest CVS
+  * Fixed bug in wrapper script that left new users with readony config files.
+
+ -- Paul Broadhead <pjbroad@twinmoons.clara.co.uk>  Sat, 12 Jul 2008 18:51:03 +0100
+
 eternallands (1.6.0-2) unstable; urgency=low
 
   * moved icons, .desktopfile and run script into pkgfiles
