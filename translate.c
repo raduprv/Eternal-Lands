@@ -855,7 +855,7 @@ void init_console()
 	add_xml_identifier(cmd_grp,"gm_cmd",gm_cmd_str,"#gm",sizeof(gm_cmd_str));
 	add_xml_identifier(cmd_grp,"mod_cmd",mod_cmd_str,"#mod",sizeof(mod_cmd_str));
 	add_xml_identifier(cmd_grp,"bc_cmd",bc_cmd_str,"#bc",sizeof(bc_cmd_str));
-	add_xml_identifier(cmd_grp,"msg_accept_buddy",msg_accept_buddy_str," wants to add you on his buddy list",sizeof(msg_accept_buddy_str));
+	add_xml_identifier(cmd_grp,"msg_accept_buddy",msg_accept_buddy_str," wants to add you on his/her buddy list",sizeof(msg_accept_buddy_str));
 	add_xml_identifier(cmd_grp,"filter",cmd_filter,"filter",sizeof(cmd_filter));
 	add_xml_identifier(cmd_grp,"filters",cmd_filters,"filters",sizeof(cmd_filters));
 	add_xml_identifier(cmd_grp,"unfilter",cmd_unfilter,"unfilter",sizeof(cmd_unfilter));
