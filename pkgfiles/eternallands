@@ -16,10 +16,10 @@
 # MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.
 #
 
-# get users choice from the ~/.elc/servers.lst
+# get users choice from the $serverfile
 getconfig()
 {
-	grep -v ^# ~/.elc/servers.lst | sort | tr -d '\015' | \
+	grep -v ^# $serverfile | sort | tr -d '\015' | \
 	while read name dir server port description
 	do
 		echo $name
@@ -42,9 +42,10 @@ getconfig()
 mkdir -p ~/.elc/main
 
 # copy a servers.lst file as we don't have one
-if [ ! -r ~/.elc/servers.lst ]
+serverfile=~/.elc/servers.lst
+if [ ! -r $serverfile ]
 then
-	cp -p /usr/share/games/EternalLands/servers.lst ~/.elc/servers.lst
+	cp -p /usr/share/games/EternalLands/servers.lst $serverfile
 fi
 
 # copy an el.ini file as we don't have one
@@ -52,6 +53,13 @@ if [ ! -r ~/.elc/main/el.ini ]
 then
 	cp -p /usr/share/games/EternalLands/el.ini ~/.elc/main/el.ini
 fi
+
+# make sure we have permissions on config files
+[ ! -r $serverfile -o ! -w $serverfile ] && chmod +wr $serverfile
+for i in $(find ~/.elc/ -name el.ini)
+do
+	[ ! -r $i -o ! -w $i ] && chmod +wr $i
+done
 
 # check el.ini files point to installed data
 if [ ! -r ~/.elc/no.el.ini.check ]
