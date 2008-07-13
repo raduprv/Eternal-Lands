@@ -26,15 +26,15 @@ Checkout a clean version of the client:
 
 Rename the elc directory to reflect the client version, e.g.:
 
-	mv elc eternallands-1.6.0
+	mv elc eternallands-1.7.0
 
 Make the original source archive:
 	
-	tar cfz eternallands_1.6.0.orig.tar.gz eternallands-1.6.0
+	tar cfz eternallands_1.7.0.orig.tar.gz eternallands-1.7.0
 
 Move into packge directory:
 
-	cd eternallands-1.6.0/
+	cd eternallands-1.7.0/
 
 Make any modifications required then update the changelog:
 
