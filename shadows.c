@@ -109,7 +109,7 @@ void calc_shadow_matrix()
 	float light_pos[4];
 
 #ifdef NEW_WEATHER
-	if (lightning_falling)
+	if (!is_day && lightning_falling)
 		memcpy(light_pos, lightning_position, 4*sizeof(float));
 	else
 #endif // NEW_WEATHER
@@ -561,7 +561,7 @@ void setup_shadow_mapping()
 							  1.0};
 
 #ifdef NEW_WEATHER
-	if (lightning_falling)
+	if (!is_day && lightning_falling)
 	{
 		if (lightning_ambient_color[0]+0.2 > shadow_color[0]) shadow_color[0] = lightning_ambient_color[0]+0.2;
 		if (lightning_ambient_color[1]+0.2 > shadow_color[1]) shadow_color[1] = lightning_ambient_color[1]+0.2;

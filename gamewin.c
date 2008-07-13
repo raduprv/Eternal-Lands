@@ -1134,7 +1134,8 @@ int display_game_handler (window_info *win)
 		missiles_update();
 	
 #ifdef NEW_WEATHER
-		weather_init_lightning_light();
+		if (!is_day)
+			weather_init_lightning_light();
 #endif // NEW_WEATHER
 
 #ifdef NEW_LIGHTING
