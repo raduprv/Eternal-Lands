@@ -2,6 +2,8 @@
 #include <string.h>
  #ifdef OSX
   #include <sys/malloc.h>
+ #elif BSD
+ #include <stdlib.h>
  #else
   #include <malloc.h>
 #endif
