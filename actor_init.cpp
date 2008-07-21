@@ -889,7 +889,7 @@ extern "C" void build_buffers(actor_types* a)
 		}
 		for (j = 0; j < 4; j++)
 		{
-			buffer[i].m_weight[j] = weight_buffer[i * 4 + j] * 255.0f;
+			buffer[i].m_weight[j] = (Uint8)(weight_buffer[i * 4 + j] * 255.0f);
 /*			if (weight_buffer[i * 4 + j] > 0.0f)
 			{
 				buffer[i].m_bone_count = j + 1;
@@ -901,7 +901,7 @@ extern "C" void build_buffers(actor_types* a)
 		}
 		for (j = 0; j < 4; j++)
 		{
-			buffer[i].m_index[j] = matrix_index_buffer[i * 4 + j];
+			buffer[i].m_index[j] = (Uint8)(matrix_index_buffer[i * 4 + j]);
 		}
 		for (j = 0; j < 2; j++)
 		{
