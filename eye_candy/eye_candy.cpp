@@ -1931,7 +1931,11 @@ namespace ec
 						)
 						{
 							if (EC_DEBUG)
-							std::cout << "Deactivating effect(2) " << e << " (" << distance_squared << " > " << e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE_SQUARED << ": " << *(e->pos) << ", " << center << ", " << e->bounds->get_radius(angle) << ", " << same_cluster << ")" << std::endl;
+							std::cout << "Deactivating effect(2) " << e << " (" << distance_squared << " > " << e->bounds->get_radius(angle) + MAX_DRAW_DISTANCE_SQUARED << ": " << *(e->pos) << ", " << center << ", " << e->bounds->get_radius(angle)
+#if defined CLUSTER_INSIDES && !defined MAP_EDITOR
+								<< ", " << same_cluster
+#endif
+							  	<< ")" << std::endl;
 							e->active = false;
 						}
 					}

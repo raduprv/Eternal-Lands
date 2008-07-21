@@ -469,7 +469,6 @@ int save_particle_def(particle_sys_def *def)
 	fprintf(f,"%i\n",def->use_light);
 	fprintf(f,"%f,%f,%f\n",def->lightx,def->lighty,def->lightz);
 	fprintf(f,"%f,%f,%f\n",def->lightr,def->lightg,def->lightb);
-	fprintf (f, "%d,%d,%d\n", def->sound_nr, def->positional, def->loop);
 
 	fclose(f);
 	return 1;
