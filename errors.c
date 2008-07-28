@@ -68,12 +68,12 @@ void log_error (const char* message, ...)
 	time(&c_time);
 	l_time = localtime(&c_time);
 	strftime(logmsg, sizeof(logmsg), "[%H:%M:%S] ", l_time);
-	strcat(logmsg, errmsg);
+	safe_strcat(logmsg, errmsg, 512);
 
 	if(message[strlen(message)-1] != '\n') {
-		strcat(logmsg, "\n");
+		safe_strcat(logmsg, "\n", 512);
 	}
-	fprintf(err_file, logmsg);
+	fputs(logmsg, err_file);
   	fflush (err_file);
 }
 
