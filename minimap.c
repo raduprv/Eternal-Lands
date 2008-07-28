@@ -260,7 +260,7 @@ static __inline__ void draw_actor_points(float zoom_multip, float px, float py)
 
 	glEnd();//GL_POINTS
 
-	if (pf_follow_path)
+	if (pf_follow_path && pf_dst_tile)
 	{
 		x = pf_dst_tile->x * size_x;
 		y = float_minimap_size - (pf_dst_tile->y * size_y);
@@ -780,7 +780,7 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags){
 	}
 	if(!flags & ELW_LEFT_MOUSE){
 		return 0;
-	} else if (my < win->len_y && mx > 0 && mx < win->len_x-ELW_BOX_SIZE) {
+	} else if (my >= 0 && my < win->len_y && mx >= 0 && mx < win->len_x-ELW_BOX_SIZE) {
 		return minimap_walkto(mx, win->len_y - my);
 	} else if(mx < win->len_x-ELW_BOX_SIZE || mx > win->len_x){
 		return 0;
