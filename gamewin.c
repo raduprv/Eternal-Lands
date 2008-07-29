@@ -1461,7 +1461,7 @@ void hide_all_windows(){
 #ifndef MINIMAP2
 		|| (get_show_window(minimap_win) > 0 && !minimap_get_pin())
 #else
-		|| get_show_window(minimap_win) > 0
+		|| (get_show_window(minimap_win) > 0 && !pin_minimap)
 #endif
 		|| get_show_window(notepad_win) > 0
 		|| get_show_window(url_win) > 0
@@ -1527,7 +1527,7 @@ void hide_all_windows(){
 #ifndef MINIMAP2
 		if (get_window_showable(minimap_win) > 0 && !minimap_get_pin()){
 #else
-		if (get_window_showable(minimap_win) > 0 ){
+		if (get_window_showable(minimap_win) > 0 && !pin_minimap){
 #endif //MINIMAP2
 			hide_window (minimap_win);
 			were_open |= 1<<8;

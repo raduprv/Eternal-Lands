@@ -1067,6 +1067,7 @@ float float_minimap_size;
 float minimap_tiles_distance = 48;
 float radius_shift = 0.707106779283f;
 int rotate_minimap = 1;
+int pin_minimap = 0;
 
 static int enable_controls = 0;
 
@@ -1780,6 +1781,7 @@ void display_minimap()
 		cm_add(win->cm_id, cm_minimap_menu_str, NULL);
 		cm_add_region(win->cm_id, minimap_win, win->len_x/2-32, 0, 64, ELW_TITLE_HEIGHT );
 		cm_bool_line(win->cm_id, ELW_CM_MENU_LEN+1, &rotate_minimap, "rotate_minimap");
+		cm_bool_line(win->cm_id, ELW_CM_MENU_LEN+2, &pin_minimap, "pin_minimap");
 #endif		
 	} else {
 		show_window(minimap_win);
