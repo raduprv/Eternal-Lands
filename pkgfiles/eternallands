@@ -43,13 +43,13 @@ mkdir -p ~/.elc/main
 
 # copy a servers.lst file as we don't have one
 serverfile=~/.elc/servers.lst
-if [ ! -r $serverfile ]
+if [ ! -r $serverfile -o ! -s $serverfile ]
 then
 	cp -p /usr/share/games/EternalLands/servers.lst $serverfile
 fi
 
 # copy an el.ini file as we don't have one
-if [ ! -r ~/.elc/main/el.ini ]
+if [ ! -r ~/.elc/main/el.ini -o ! -s $serverfile ]
 then
 	cp -p /usr/share/games/EternalLands/el.ini ~/.elc/main/el.ini
 fi
