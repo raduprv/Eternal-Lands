@@ -88,6 +88,9 @@ int cursors_tex;
 #ifdef  DEBUG
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
+#ifdef CONTEXT_MENUS
+int cm_banner_enabled = 1;
+#endif
 
 void draw_special_cursors()
 {
@@ -544,28 +547,32 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		if (flag_right) 
 		{
 #ifdef CONTEXT_MENUS
-			/* show the banner control menu if right-clicked and over your actors banner */
-			static Uint32 reset_cursor_time = 0;
-			static int cm_activate_when_cursor_is = -1;
-			extern int cm_mouse_over_banner;
-			/* activate the menu once in the cursor cycle - start-cursor reset after a couple of seconds inactivity */
-			if (SDL_GetTicks()-reset_cursor_time > 2000)
-				cm_activate_when_cursor_is = current_cursor;
-			if (cm_mouse_over_banner && (current_cursor == cm_activate_when_cursor_is))
+			if (cm_banner_enabled)
 			{
-				static size_t cm_id = CM_INIT_VALUE;
-				if (!cm_valid(cm_id))
+				/* show the banner control menu if right-clicked and over your actors banner */
+				static Uint32 reset_cursor_time = 0;
+				static int cm_activate_when_cursor_is = -1;
+				extern int cm_mouse_over_banner;
+				/* activate the menu once in the cursor cycle - start-cursor reset after a couple of seconds inactivity */
+				if (SDL_GetTicks()-reset_cursor_time > 2000)
+					cm_activate_when_cursor_is = current_cursor;
+				if (cm_mouse_over_banner && (current_cursor == cm_activate_when_cursor_is))
 				{
-					/* create first time needed */
-					cm_id = cm_create(cm_banner_menu_str, NULL);
-					cm_bool_line(cm_id, 0, &view_names, NULL);
-					cm_bool_line(cm_id, 1, &view_health_bar, NULL);
-					cm_bool_line(cm_id, 2, &view_hp, NULL);
-					cm_bool_line(cm_id, 3, &view_chat_text_as_overtext, NULL);
-					cm_bool_line(cm_id, 4, &use_alpha_banner, "use_alpha_banner");
+					static size_t cm_id = CM_INIT_VALUE;
+					if (!cm_valid(cm_id))
+					{
+						/* create first time needed */
+						cm_id = cm_create(cm_banner_menu_str, NULL);
+						cm_bool_line(cm_id, 0, &view_names, NULL);
+						cm_bool_line(cm_id, 1, &view_health_bar, NULL);
+						cm_bool_line(cm_id, 2, &view_hp, NULL);
+						cm_bool_line(cm_id, 3, &view_chat_text_as_overtext, NULL);
+						cm_bool_line(cm_id, 4, &use_alpha_banner, "use_alpha_banner");
+						cm_bool_line(cm_id, 5, &cm_banner_enabled, "cm_banner_enabled");
+					}
+					cm_show_direct(cm_id, -1, -1);
+					reset_cursor_time = SDL_GetTicks();
 				}
-				cm_show_direct(cm_id, -1, -1);
-				reset_cursor_time = SDL_GetTicks();
 			}
 #endif
 			if (item_dragged != -1 || use_item != -1 || object_under_mouse == -1 
