@@ -976,7 +976,7 @@ extern "C" void build_buffers(actor_types* a)
 		if (eternal_lands::el_file::file_exists(file_name.str(), get_path_config_base()))
 		{
 			eternal_lands::el_file file(file_name.str(), true, get_path_config_base());
-			if (file.get_size() != (size + sizeof(MD5_DIGEST) + sizeof(Uint32) * 2))
+			if (static_cast<Uint32>(file.get_size()) != (size + sizeof(MD5_DIGEST) + sizeof(Uint32) * 2))
 			{
 				EXTENDED_EXCEPTION(ExtendedException::ec_io_error, "File '" <<
 					file_name.str() << "' has wrong size. Size " << (size +

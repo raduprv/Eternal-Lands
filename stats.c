@@ -338,10 +338,12 @@ void get_partial_stat(Uint8 name,Sint32 value)
                         your_info.manufacturing_exp_next_lev=value;break;
                 case HARV_EXP:
                         floatingmessages_compare_stat(yourself, your_info.harvesting_exp, value, attributes.harvesting_skill.shortname);
-                        actor *_actor = get_actor_ptr_from_id(yourself);
-                        if (harvesting_effect_reference == NULL && _actor != NULL) {
-                        	harvesting_effect_reference = ec_create_ongoing_harvesting2(_actor, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
-                        }
+						{
+                        	actor *_actor = get_actor_ptr_from_id(yourself);
+                        	if (harvesting_effect_reference == NULL && _actor != NULL) {
+                        		harvesting_effect_reference = ec_create_ongoing_harvesting2(_actor, 1.0, 1.0, (poor_man ? 6 : 10), 1.0);
+                        	}
+						}
                         your_info.harvesting_exp=value;
                         break;
                 case HARV_EXP_NEXT:
