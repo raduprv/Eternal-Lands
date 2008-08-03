@@ -1582,15 +1582,22 @@ int click_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 			&&	(my <= ELW_TITLE_HEIGHT))
 		{
 			hide_window(minimap_win);
+			return 1;
 		}
-		else if(my >= 16)
+		else if(my >= ELW_TITLE_HEIGHT)
 		{
 			//check if the click is in the round area
-			if(is_within_radius(mx,my-16,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
-				return minimap_walkto(mx, win->len_y - my);
+			if(is_within_radius(mx,my-ELW_TITLE_HEIGHT,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
+			{
+				minimap_walkto(mx, win->len_y - my);
+				return 1;
+			}
 		}
+		// title bar?
+		else if ((mx > win->len_x/2-32) && (mx < win->len_x/2+32) && (my >= 0) && (my <= 2*ELW_TITLE_HEIGHT))
+			return 1;
 	}
-	else if((flags & ELW_WHEEL) && is_within_radius(mx,my-16,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
+	else if((flags & ELW_WHEEL) && is_within_radius(mx,my-ELW_TITLE_HEIGHT,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 	{
 		if(flags & ELW_WHEEL_UP)
 			increase_zoom();
@@ -1606,7 +1613,7 @@ int keypress_minimap_handler (window_info *win, int mx, int my, Uint32 key, Uint
 {
 	Uint16 keysym = key & 0xffff;
 
-	if (is_within_radius(mx,my-16,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
+	if (is_within_radius(mx,my-ELW_TITLE_HEIGHT,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2))
 	{
 		if((keysym == SDLK_KP_PLUS) || (keysym == SDLK_PAGEUP))
 		{
@@ -1741,9 +1748,15 @@ CHECK_GL_ERRORS();
 
 int mouseover_minimap_handler(window_info * win, int mx, int my, Uint32 flags)
 {
-	elwin_mouse=CURSOR_ARROW;
-	enable_controls = 1;
-	return 1;
+	if(is_within_radius(mx,my-ELW_TITLE_HEIGHT,float_minimap_size/2,float_minimap_size/2,float_minimap_size/2) ||
+		((mx > win->len_x/2-32) && (mx < win->len_x/2+32+ELW_TITLE_HEIGHT) && (my >= 0) && (my <= 2*ELW_TITLE_HEIGHT)))
+	{
+		elwin_mouse=CURSOR_ARROW;
+		enable_controls = 1;
+		return 1;
+	}
+	else
+		return 0;
 }
 
 void display_minimap()
@@ -1762,7 +1775,7 @@ void display_minimap()
 	{
 		//init minimap
 		minimap_win = create_window("Minimap", windows_on_top?-1:game_root_win, 0, minimap_win_x, minimap_win_y, 
-			minimap_size, minimap_size+16, ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
+			minimap_size, minimap_size+ELW_TITLE_HEIGHT, ELW_CLICK_TRANSPARENT|ELW_SHOW|ELW_TITLE_NAME|ELW_ALPHA_BORDER|ELW_SWITCHABLE_OPAQUE|ELW_DRAGGABLE);
 		set_window_handler(minimap_win, ELW_HANDLER_DISPLAY, &display_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_CLICK, &click_minimap_handler);	
 		set_window_handler(minimap_win, ELW_HANDLER_MOUSEOVER, &mouseover_minimap_handler);	
