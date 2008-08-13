@@ -692,6 +692,22 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	if (str == NULL || width <= 0 || size <= 0) {
 		return 0;
 	}
+	
+	/* strip existing soft breaks before we start,
+		to avoid complicated code later */
+	for (isrc=0, idst=0; isrc<len; isrc++)
+	{
+		if (str[isrc] == '\r')
+		{
+			/* move the cursor back if after this point */
+			if ((cursor != NULL) && (isrc < *cursor))
+				dcursor--;
+		}
+		else
+			str[idst++] = str[isrc];
+	}
+	len = idst;
+	str[len] = 0;
 
 	/* allocate the working buffer so it can hold the maximum 
 	   the source string can take.  Previously, the fixed length
@@ -714,15 +730,6 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 	// fill the buffer
 	while (isrc < len && str[isrc] != '\0')
 	{
-		// skip old line breaks
-		if (str[isrc] == '\r') {
-			if (cursor && isrc < *cursor) {
-				dcursor--;
-			}
-			isrc++;
-			continue;
-		}
-
 		// see if it's an explicit line break
 		if (str[isrc] == '\n') {
 			nlines++;
@@ -746,18 +753,7 @@ int reset_soft_breaks (char *str, int len, int size, float zoom, int width, int 
 
 				// introduce the break, and reset the counters
 				ibuf -= nchar;
-
-				/* previously, we just stepped back by nchar.
-				   however, if this text contained an \r we would
-				   not move back far enough and so loose characters.
-				   any \r in the src will be stepped over at the
-				   top of the loop */
-				while (nchar > 0)
-				{
-					isrc--;
-					if (isrc >= 0 && str[isrc] != '\r')
-						nchar--;
-				}
+				isrc -= nchar;
 
 				buf[ibuf] = '\r';
 				nlines++; ibuf++;
