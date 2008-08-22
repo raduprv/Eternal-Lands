@@ -2661,7 +2661,9 @@ int play_sound(int sound_num, int x, int y, float initial_gain)
 #endif // _EXTRA_SOUND_DEBUG
 	}
 
+#ifdef _EXTRA_SOUND_DEBUG
 	printf("Playing %d sources\n", used_sources);
+#endif // _EXTRA_SOUND_DEBUG
 
 	return 1;	// Return success
 }

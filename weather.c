@@ -200,8 +200,10 @@ void weather_set_area(int area, float x, float y, float radius, int type, float 
 	weather_areas[area].intensity_change_duration = change_duration * 1000;
 	weather_areas[area].intensity_change_speed = (intensity - weather_areas[area].intensity) / weather_areas[area].intensity_change_duration;
 
+#ifdef DEBUG
 	printf("setting area %d at %f,%f with radius %f\n",
 		   area, x, y, radius);
+#endif // DEBUG
 }
 
 void weather_get_from_server(const Uint8* data)
