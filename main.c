@@ -114,6 +114,11 @@ void cleanup_mem(void)
 	    free(continent_maps[i].name);
 	}
 	free (continent_maps);
+	for (i = 0; i < video_modes_count; i++)
+	{
+		if (video_modes[i].name)
+			free(video_modes[i].name);
+	}
 }
 
 int start_rendering()

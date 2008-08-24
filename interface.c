@@ -295,63 +295,63 @@ CHECK_GL_ERRORS();
 #endif //OPENGL_TRACE
 }
 
-mode_flag video_modes[22];
+/* The video modes start with index 1. So field 0 stands for video mode 1 */
+video_mode_t video_modes[] = {
+	{ 640,  480, 16, NULL, { 0, 0}}, /*  1 */
+	{ 640,  480, 32, NULL, { 0, 0}}, /*  2 */
+	{ 800,  600, 16, NULL, { 0, 0}}, /*  3 */
+	{ 800,  600, 32, NULL, { 0, 0}}, /*  4 */
+	{1024,  768, 16, NULL, { 0, 0}}, /*  5 */
+	{1024,  768, 32, NULL, { 0, 0}}, /*  6 */
+	{1152,  864, 16, NULL, { 0, 0}}, /*  7 */
+	{1152,  864, 32, NULL, { 0, 0}}, /*  8 */
+	{1280, 1024, 16, NULL, { 0, 0}}, /*  9 */
+	{1280, 1024, 32, NULL, { 0, 0}}, /* 10 */
+	{1600, 1200, 16, NULL, { 0, 0}}, /* 11 */
+	{1600, 1200, 32, NULL, { 0, 0}}, /* 12 */
+	{1280,  800, 16, NULL, { 0, 0}}, /* 13 */
+	{1280,  800, 32, NULL, { 0, 0}}, /* 14 */
+	{1440,  900, 16, NULL, { 0, 0}}, /* 15 */
+	{1440,  900, 32, NULL, { 0, 0}}, /* 16 */
+	{1680, 1050, 16, NULL, { 0, 0}}, /* 17 */
+	{1680, 1050, 32, NULL, { 0, 0}}, /* 18 */
+	{1400, 1050, 16, NULL, { 0, 0}}, /* 19 */
+	{1400, 1050, 32, NULL, { 0, 0}}, /* 20 */
+	{ 800,  480, 16, NULL, { 0, 0}}, /* 21 */
+	{ 800,  480, 32, NULL, { 0, 0}}, /* 22 */
+	{1920, 1200, 16, NULL, { 0, 0}}, /* 23 */
+	{1920, 1200, 32, NULL, { 0, 0}}, /* 24 */
+};
+const int video_modes_count = sizeof(video_modes)/sizeof(*video_modes);
 
 void build_video_mode_array()
 {
 	int i;
 	int flags;
 
-	for(i=0;i<20;i++)
-		{
-			video_modes[i].selected=0;
-			video_modes[i].supported=0;
-		}
-	video_modes[video_mode-1].selected=1;
-
-	if(full_screen)flags=SDL_OPENGL|SDL_FULLSCREEN;
+	if (full_screen)
+		flags=SDL_OPENGL|SDL_FULLSCREEN;
 	else
 		flags=SDL_OPENGL;
 
-#ifdef WINDOWS
-	if(bpp==16 || full_screen){
-#else
-	if(bpp==16){
-#endif
-		if(SDL_VideoModeOK(640, 480, 16, flags))video_modes[0].supported=1;
-		if(SDL_VideoModeOK(800, 600, 16, flags))video_modes[2].supported=1;
-		if(SDL_VideoModeOK(1024, 768, 16, flags))video_modes[4].supported=1;
-		if(SDL_VideoModeOK(1152, 864, 16, flags))video_modes[6].supported=1;
-		if(SDL_VideoModeOK(1280, 1024, 16, flags))video_modes[8].supported=1;
-		if(SDL_VideoModeOK(1600, 1200, 16, flags))video_modes[10].supported=1;
-		if(SDL_VideoModeOK(1280, 800, 16, flags))video_modes[12].supported=1;
-		if(SDL_VideoModeOK(1440, 900, 16, flags))video_modes[14].supported=1;
-		if(SDL_VideoModeOK(1680, 1050, 16, flags))video_modes[16].supported=1;
-		if(SDL_VideoModeOK(1400, 1050, 16, flags))video_modes[18].supported=1;
+	for(i = 0; i < video_modes_count; i++)
+	{
+		video_modes[i].flags.selected = 0;
+		video_modes[i].flags.supported = 0;
 
-/* don't forget to increase video_modes[] when needed */
-		
-	}
+
+		if(bpp == video_modes[i].bpp 
 #ifdef WINDOWS
-	if(bpp==32 || full_screen){
-#else
-	if(bpp==32){
+			|| full_screen
 #endif
-		if(SDL_VideoModeOK(640, 480, 32, flags))video_modes[1].supported=1;
-		if(SDL_VideoModeOK(800, 600, 32, flags))video_modes[3].supported=1;
-		if(SDL_VideoModeOK(1024, 768, 32, flags))video_modes[5].supported=1;
-		if(SDL_VideoModeOK(1152, 864, 32, flags))video_modes[7].supported=1;
-		if(SDL_VideoModeOK(1280, 1024, 32, flags))video_modes[9].supported=1;
-		if(SDL_VideoModeOK(1600, 1200, 32, flags))video_modes[11].supported=1;
-		if(SDL_VideoModeOK(1280, 800, 32, flags))video_modes[13].supported=1;
-		if(SDL_VideoModeOK(1440, 900, 32, flags))video_modes[15].supported=1;
-		if(SDL_VideoModeOK(1680, 1050, 32, flags))video_modes[17].supported=1;
-		if(SDL_VideoModeOK(1400, 1050, 32, flags))video_modes[19].supported=1;
-		
-/* don't forget to increase video_modes[] when needed */
+			) 
+		{
+			if (SDL_VideoModeOK(video_modes[i].width, video_modes[i].height, video_modes[i].bpp, flags))
+				video_modes[i].flags.supported = 1;
+		}
 
 	}
-//TODO: Add wide screen resolutions
+	video_modes[video_mode-1].flags.selected=1;
 }
 
 void draw_console_pic(int which_texture)

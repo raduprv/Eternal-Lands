@@ -68,7 +68,20 @@ typedef struct
 	int selected; /*!< 0 if this mode is selected, else != 0 */
 }mode_flag;
 
-extern mode_flag video_modes[22]; /*!< global array of available video modes */
+/*!
+ * Defintions for the video modes
+ */
+typedef struct
+{
+	int width;
+	int height;
+	int bpp;
+	char *name;
+	mode_flag flags;
+} video_mode_t;
+
+extern video_mode_t video_modes[]; /*!< global array of available video modes */
+extern const int video_modes_count;
 
 extern Uint32 click_time;
 

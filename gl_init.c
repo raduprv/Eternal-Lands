@@ -70,228 +70,41 @@ void APIENTRY Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GL
 
 void setup_video_mode(int fs, int mode)
 {
-	if(fs)
+	int index = mode - 1;
+
+	/* Safe fallback */
+	if (index < 0 || index >= video_modes_count)
+		index = 0;
+
+	if (fs) // Fullscreen
+	{
+		window_width = video_modes[index].width;
+		window_height = video_modes[index].height;
+		bpp = video_modes[index].bpp;
+	} 
+	else // Windowed mode
+	{
+		int new_width = video_modes[index].width;
+		int new_height = video_modes[index].height;
+
+		if (new_width != 640 || new_height != 480)
 		{
-			switch(mode) {
-			case 1:
-				window_width=640;
-				window_height=480;
-				bpp=16;
-				break;
-			case 2:
-				window_width=640;
-				window_height=480;
-				bpp=32;
-				break;
-			case 3:
-				window_width=800;
-				window_height=600;
-				bpp=16;
-				break;
-			case 4:
-				window_width=800;
-				window_height=600;
-				bpp=32;
-				break;
-			case 5:
-				window_width=1024;
-				window_height=768;
-				bpp=16;
-				break;
-			case 6:
-				window_width=1024;
-				window_height=768;
-				bpp=32;
-				break;
-			case 7:
-				window_width=1152;
-				window_height=864;
-				bpp=16;
-				break;
-			case 8:
-				window_width=1152;
-				window_height=864;
-				bpp=32;
-				break;
-			case 9:
-				window_width=1280;
-				window_height=1024;
-				bpp=16;
-				break;
-			case 10:
-				window_width=1280;
-				window_height=1024;
-				bpp=32;
-				break;
-			case 11:
-				window_width=1600;
-				window_height=1200;
-				bpp=16;
-				break;
-			case 12:
-				window_width=1600;
-				window_height=1200;
-				bpp=32;
-				break;
-			case 13:
-				window_width=1280;
-				window_height=800;
-				bpp=16;
-				break;
-			case 14:
-				window_width=1280;
-				window_height=800;
-				bpp=32;
-				break;
-			case 15:
-				window_width=1440;
-				window_height=900;
-				bpp=16;
-				break;
-			case 16:
-				window_width=1440;
-				window_height=900;
-				bpp=32;
-				break;
-			case 17:
-				window_width=1680;
-				window_height=1050;
-				bpp=16;
-				break;
-			case 18:
-				window_width=1680;
-				window_height=1050;
-				bpp=32;
-				break;
-			case 19:
-				window_width=1400;
-				window_height=1050;
-				bpp=16;
-				break;
-			case 20:
-				window_width=1400;
-				window_height=1050;
-				bpp=32;
-				break;
-			}
+			new_width -= 10;
+			new_height -= 55;
 		}
-	else //windowed mode
+
+		if (window_width != new_width || window_height != new_height)
 		{
-			switch(mode) {
-			case 1:
-			case 2:
-				if(window_width != 640 || window_height != 480)
-					{
-						char str[100];
-						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"640x480");
-						LOG_TO_CONSOLE(c_yellow1,str);
-					}
-				window_width=640;
-				window_height=480;
-				break;
-			case 3:
-			case 4:
-				if(window_width != 780 || window_height != 550)
-					{
-						char str[100];
-						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"780x550");
-						LOG_TO_CONSOLE(c_yellow1,str);
-					}
-				window_width=780;
-				window_height=550;
-				break;
-			case 5:
-			case 6:
-				if(window_width != 990 || window_height != 720)
-					{
-						char str[100];
-						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"990x720");
-						LOG_TO_CONSOLE(c_yellow1,str);
-					}
-				window_width=990;
-				window_height=720;
-				break;
-			case 7:
-			case 8:
-				if(window_width != 1070 || window_height != 785)
-					{
-						char str[100];
-						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1070x785");
-						LOG_TO_CONSOLE(c_yellow1,str);
-					}
-				window_width=1070;
-				window_height=785;
-				break;
-			case 9:
-			case 10:
-				if(window_width != 1250 || window_height != 990)
-					{
-						char str[100];
-						safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1250x990");
-						LOG_TO_CONSOLE(c_yellow1,str);
-					}
-				window_width=1250;
-				window_height=990;
-				break;
-			case 11:
-			case 12:
-				if(window_width != 1600 || window_height != 1200)
-				{
-					char str[100];
-					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1600x1200");
-					LOG_TO_CONSOLE(c_yellow1,str);
-				}
-				window_width=1600;
-				window_height=1200;
-				break;
-			case 13:
-			case 14:
-				if(window_width != 1240 || window_height != 780)
-				{
-					char str[100];
-					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1240x780");
-					LOG_TO_CONSOLE(c_yellow1,str);
-				}
-				window_width=1240;
-				window_height=780;
-				break;
-			case 15:
-			case 16:
-				if(window_width != 1420 || window_height != 810)
-				{
-					char str[100];
-					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1420x810");
-					LOG_TO_CONSOLE(c_yellow1,str);
-				}
-				window_width=1420;
-				window_height=810;
-				break;
-			case 17:
-			case 18:
-				if(window_width != 1620 || window_height != 950)
-				{
-					char str[100];
-					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1620x950");
-					LOG_TO_CONSOLE(c_yellow1,str);
-				}
-				window_width=1620;
-				window_height=950;
-				break;
-            case 19:
-            case 20:
-				if(window_width != 1400 || window_height != 1050)
-				{
-					char str[100];
-					safe_snprintf(str,sizeof(str),window_size_adjusted_str,"1400x1050");
-					LOG_TO_CONSOLE(c_yellow1,str);
-				}
-				window_width=1400;
-				window_height=1050;
-                break;
-			}
-//TODO: Add wide screen resolutions
-			bpp=0;//autodetect
+			char modestr[100];
+			char str[100];
+			safe_snprintf(modestr, sizeof(modestr), "%dx%d", new_width, new_height);
+			safe_snprintf(str, sizeof(str), window_size_adjusted_str, modestr);
+			LOG_TO_CONSOLE(c_yellow1,str);
 		}
+		window_width = new_width;
+		window_height = new_height;
+		bpp = 0; // autodetect
+	}
 #ifndef WINDOWS
 	bpp=0;//under X, we can't change the desktop BPP
 #endif

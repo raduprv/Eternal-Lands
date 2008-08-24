@@ -586,9 +586,13 @@ void switch_vidmode(int *pointer, int mode)
 		win_height,
 		win_bpp;
 
-	int flags = SDL_OPENGL;
+	int index = mode - 1;
 
-	if(mode>20 || mode<1) {
+	int flags = SDL_OPENGL;
+	if (full_screen) 
+		flags |= SDL_FULLSCREEN;
+
+	if(index < 0 || index >= video_modes_count) {
 		//warn about this error
 		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
 		return;
@@ -598,120 +602,13 @@ void switch_vidmode(int *pointer, int mode)
 		return;
 	}
 	/* Check if the video mode is supported. */
-	switch(mode) {
-		case 1:
-			win_width= 640;
-			win_height= 480;
-			win_bpp= 16;
-		break;
-		case 2:
-			win_width= 640;
-			win_height= 480;
-			win_bpp= 32;
-		break;
-		case 3:
-			win_width= 800;
-			win_height= 600;
-			win_bpp= 16;
-		break;
-		case 4:
-			win_width= 800;
-			win_height= 600;
-			win_bpp= 32;
-		break;
-		case 5:
-			win_width= 1024;
-			win_height= 768;
-			win_bpp= 16;
-		break;
-		case 6:
-			win_width= 1024;
-			win_height= 768;
-			win_bpp= 32;
-		break;
-		case 7:
-			win_width= 1152;
-			win_height= 864;
-			win_bpp= 16;
-		break;
-		case 8:
-			win_width= 1152;
-			win_height= 864;
-			win_bpp= 32;
-		break;
-		case 9:
-			win_width= 1280;
-			win_height= 1024;
-			win_bpp= 16;
-		break;
-		case 10:
-			win_width= 1280;
-			win_height= 1024;
-			win_bpp= 32;
-		break;
-		case 11:
-			win_width= 1600;
-			win_height= 1200;
-			win_bpp= 16;
-		break;
-		case 12:
-			win_width= 1600;
-			win_height= 1200;
-			win_bpp= 32;
-		break;
-		case 13:
-			win_width= 1280;
-			win_height= 800;
-			win_bpp= 16;
-		break;
-		case 14:
-			win_width= 1280;
-			win_height= 800;
-			win_bpp= 32;
-		break;
-		case 15:
-			win_width= 1440;
-			win_height= 900;
-			win_bpp= 16;
-		break;
-		case 16:
-			win_width= 1440;
-			win_height= 900;
-			win_bpp= 32;
-		break;
-		case 17:
-			win_width= 1680;
-			win_height= 1050;
-			win_bpp= 16;
-		break;
-		case 18:
-			win_width= 1680;
-			win_height= 1050;
-			win_bpp= 32;
-		break;
-		case 19:
-			win_width= 1400;
-			win_height= 1050;
-			win_bpp= 16;
-		break;
-		case 20:
-			win_width= 1400;
-			win_height= 1050;
-			win_bpp= 32;
-		break;
-		default:
-			win_width= 640;
-			win_height= 480;
-			win_bpp= 16;
-		break;
-	}
+	win_width = video_modes[index].width;
+	win_height = video_modes[index].height;
+	win_bpp = video_modes[index].bpp;
+
 	destroy_fbos();
-//#ifndef OSX
-//	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, SDL_OPENGL|SDL_FULLSCREEN)) {
-//#else
-	if(full_screen) flags |= SDL_FULLSCREEN;
-	if(!SDL_VideoModeOK(win_width, win_height, win_bpp, flags)) {
-//#endif
+
+	if (!SDL_VideoModeOK(win_width, win_height, win_bpp, flags)) {
 		LOG_TO_CONSOLE(c_red2, invalid_video_mode);
 	} else {
 		set_new_video_mode(full_screen, mode);
@@ -1598,6 +1495,8 @@ void add_multi_option(char * name, char * str) {
 
 void init_vars()
 {
+	int i;
+
 	//ELC specific variables
 #ifdef ELC
 #ifdef SKY_FPV
@@ -1639,12 +1538,12 @@ void init_vars()
 #endif // NEW_CURSOR
 	add_var(OPT_BOOL,"full_screen","fs",&full_screen,toggle_full_screen_mode,0,"Full Screen","Changes between full screen and windowed mode",VIDEO);
 #ifndef MAP_EDITOR2
-/*  #ifdef DEBUG */
-/* 	add_var(OPT_BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID); */
-/* 	add_var(OPT_BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID); */
-/* 	add_var(OPT_BOOL,"render_bones_id","rbid",&render_bones_id,change_var,0,"Render bones ID", "Render the bones ID", ADVVID); */
-/* 	add_var(OPT_BOOL,"render_bones_orientation","rbor",&render_bones_orientation,change_var,0,"Render bones orientation", "Render the bones orientation", ADVVID); */
-/*  #endif//DEBUG */
+  #ifdef DEBUG 
+ 	add_var(OPT_BOOL,"render_skeleton","rskel",&render_skeleton,change_var,0,"Render Skeleton", "Render the Cal3d skeletons.", ADVVID); 
+ 	add_var(OPT_BOOL,"render_mesh","rmesh",&render_mesh,change_var,1,"Render Mesh", "Render the meshes", ADVVID); 
+ 	add_var(OPT_BOOL,"render_bones_id","rbid",&render_bones_id,change_var,0,"Render bones ID", "Render the bones ID", ADVVID); 
+ 	add_var(OPT_BOOL,"render_bones_orientation","rbor",&render_bones_orientation,change_var,0,"Render bones orientation", "Render the bones orientation", ADVVID); 
+  #endif//DEBUG 
 #endif //MAP_EDITOR2
 	add_var(OPT_BOOL,"shadows_on","shad",&shadows_on,change_shadows,0,"Shadows","Toggles the shadows", LODTAB);
 	add_var(OPT_BOOL,"use_shadow_mapping", "sm", &use_shadow_mapping, change_shadow_mapping, 0, "Shadow Mapping", "If you want to use some better quality shadows, enable this. It will use more resources, but look prettier.", ADVVID);
@@ -1870,7 +1769,18 @@ void init_vars()
 	add_var(OPT_STRING,"data_dir","dir",datadir,change_dir_name,90,"Data Directory","Place were we keep our data. Can only be changed with a Client restart.",MISC);
 #ifdef ELC
 	add_var(OPT_BOOL, "windows_on_top", "wot", &windows_on_top, change_windows_on_top, 0, "Windows On Top","Allows the Manufacture, Storage and Inventory windows to appear above the map and console.", MISC);
-	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", "640x480x16", "640x480x32", "800x600x16", "800x600x32", "1024x768x16", "1024x768x32", "1152x864x16", "1152x864x32", "1280x1024x16", "1280x1024x32", "1600x1200x16", "1600x1200x32", "1280x800x16", "1280x800x32", "1440x900x16", "1440x900x32", "1680x1050x16", "1680x1050x32", "1400x1050x16", "1400x1050x32", NULL);
+
+	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", NULL);
+	for (i = 0; i < video_modes_count; i++)
+	{
+		static char str[100];
+		safe_snprintf(str, sizeof(str), "%dx%dx%d", video_modes[i].width, video_modes[i].height, video_modes[i].bpp);
+		if (video_modes[i].name)
+			free(video_modes[i].name);
+		video_modes[i].name = strdup(str);
+		add_multi_option("video_mode", video_modes[i].name);
+	}
+
 #else
 	add_var(OPT_SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);
 #endif //ELC
