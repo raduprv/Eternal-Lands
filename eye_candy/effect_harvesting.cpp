@@ -99,10 +99,11 @@ namespace ec
 			}
 			case HarvestingEffect::BEES:
 			{
+				size = 0.5f + randfloat(0.5f);
 				const float age_f = (float)(age)/1000000.0f;
 				if (age_f < 2.5f)
 					break;
-				if (2.5f + randfloat(2.5f) < age_f)
+				if (2.5f + randfloat(3.75f) < age_f)
 					return false;
 				break;
 			}
@@ -326,7 +327,7 @@ namespace ec
 				mover = new GravityMover(this, &effect_center, 8e9);
 				direction.randomize();
 				direction.y = 0;
-				while ((int)particles.size() < LOD * 16)
+				while ((int)particles.size() < LOD * 4)
 				{
 					const Vec3 coords = spawner->get_new_coords()
 						+ effect_center - direction;
