@@ -321,6 +321,8 @@ video_mode_t video_modes[] = {
 	{ 800,  480, 32, NULL, { 0, 0}}, /* 22 */
 	{1920, 1200, 16, NULL, { 0, 0}}, /* 23 */
 	{1920, 1200, 32, NULL, { 0, 0}}, /* 24 */
+	{1024,  600, 16, NULL, { 0, 0}}, /* 25 */
+	{1024,  600, 32, NULL, { 0, 0}}, /* 26 */
 };
 const int video_modes_count = sizeof(video_modes)/sizeof(*video_modes);
 
