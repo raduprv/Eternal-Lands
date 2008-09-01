@@ -92,7 +92,7 @@ int	display_manufacture_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=ITEM_NUM_ITEMS-1;i>=0;i--){
+	for(i=35;i>=0;i--){
 		if(manufacture_list[i].quantity > 0) {
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
