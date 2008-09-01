@@ -381,7 +381,7 @@ int display_items_handler(window_info *win)
 
 	glColor3f(1.0f,1.0f,1.0f);
 	//ok, now let's draw the objects...
-	for(i=0;i<ITEM_NUM_ITEMS;i++){
+	for(i=ITEM_NUM_ITEMS-1;i>=0;i--){
 		if(item_list[i].quantity){
 			float u_start,v_start,u_end,v_end;
 			int this_texture,cur_item,cur_pos;
@@ -479,8 +479,7 @@ int display_items_handler(window_info *win)
 			
 			if(!item_is_weared){
 				safe_snprintf(str, sizeof(str), "%i", item_list[i].quantity);
-				draw_string_small_shadowed(x_start, y_end-15, (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);
-			}
+                draw_string_small_shadowed(x_start, (i&1)?(y_end-15):(y_end-25), (unsigned char*)str, 1,1.0f,1.0f,1.0f, 0.0f, 0.0f, 0.0f);			}
 		}
 	}
 	
