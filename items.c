@@ -631,7 +631,31 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 #endif // NEW_SOUND
 		if(pos==-1) {
 		} else if(item_dragged!=-1){
-			if(!item_list[pos].quantity){
+			int drop_on_stack = 0;
+			/* if the dragged item is equipped and the destintion is occupied, try to find another slot */
+			if ((item_dragged >= ITEM_WEAR_START) && (item_list[pos].quantity)){
+				int i;
+				/* try to find an existing stack */
+				if (item_list[item_dragged].is_stackable){
+					for (i = 0; i < ITEM_WEAR_START; i++){
+						if (item_list[i].image_id == item_list[item_dragged].image_id){
+							pos = i;
+							drop_on_stack = 1;
+							break;
+						}
+					}
+				}
+				/* if no stack to use, find first free slot */
+				if (!drop_on_stack){
+					for (i = 0; i < ITEM_WEAR_START; i++){
+						if (!item_list[i].quantity){
+							pos = i;
+							break;
+						}
+					}
+				}
+			}
+			if(drop_on_stack || !item_list[pos].quantity){
 				//send the drop info to the server
 				str[0]=MOVE_INVENTORY_ITEM;
 				str[1]=item_list[item_dragged].pos;
