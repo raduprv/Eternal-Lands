@@ -129,6 +129,9 @@ unsigned int rain_sound = 0;
 float weather_color[4] = {0.0, 0.0, 0.0, 1.0};
 float fog_alpha;
 
+// array used to build coordinates of quads to display particles
+float weather_particles_coords[MAX_RAIN_DROPS*20];
+
 __inline__ float next_random_number()
 {
 	last_random_number = (last_random_number+1)%RANDOM_TABLE_SIZE;
@@ -166,6 +169,20 @@ void weather_init()
 	// init the random numbers table
 	for (i = 0; i < RANDOM_TABLE_SIZE; ++i)
 		random_table[i] = (float)rand() / (float)RAND_MAX;
+
+    // init the particles texture coordinates
+    for (i = 0; i < MAX_RAIN_DROPS; ++i)
+    {
+        const int j = i*20;
+        weather_particles_coords[j   ] = 0.0f;
+        weather_particles_coords[j+1 ] = 0.0f;
+        weather_particles_coords[j+5 ] = 1.0f;
+        weather_particles_coords[j+6 ] = 0.0f;
+        weather_particles_coords[j+10] = 1.0f;
+        weather_particles_coords[j+11] = 1.0f;
+        weather_particles_coords[j+15] = 0.0f;
+        weather_particles_coords[j+16] = 1.0f;
+    }
 
 	weather_read_defs("./weather.xml");
 }
@@ -533,11 +550,12 @@ void weather_render()
 	
 	glLineWidth(1.0);
 	glEnable(GL_TEXTURE_2D);
-	glDisableClientState(GL_VERTEX_ARRAY);
-
 	glEnable(GL_ALPHA_TEST);
+	glEnableClientState(GL_TEXTURE_COORD_ARRAY);
 	
 	// we then render the other precipitations as sprites
+    glTexCoordPointer(2, GL_FLOAT, 5*sizeof(float), weather_particles_coords);
+    glVertexPointer(3, GL_FLOAT, 5*sizeof(float), weather_particles_coords+2);
 	for (type = 2; type < MAX_WEATHER_TYPES; ++type)
 		if (weather_defs[type].use_sprites && weather_drops_count[type] > 0)
 		{
@@ -548,28 +566,35 @@ void weather_render()
 			delta2[1] = weather_defs[type].size*(modelview[4]-modelview[5]);
 			delta2[2] = weather_defs[type].size*(modelview[8]-modelview[9]);
 			
+			for (i = 0; i < weather_drops_count[type]; ++i)
+			{
+				const weather_drop *d = &weather_drops[type][i];
+                const int j = i*20;
+                weather_particles_coords[j+2 ] = d->pos1[0]-delta1[0];
+                weather_particles_coords[j+3 ] = d->pos1[1]-delta1[1];
+                weather_particles_coords[j+4 ] = d->pos1[2]-delta1[2];
+                weather_particles_coords[j+7 ] = d->pos1[0]+delta2[0];
+                weather_particles_coords[j+8 ] = d->pos1[1]+delta2[1];
+                weather_particles_coords[j+9 ] = d->pos1[2]+delta2[2];
+                weather_particles_coords[j+12] = d->pos1[0]+delta1[0];
+                weather_particles_coords[j+13] = d->pos1[1]+delta1[1];
+                weather_particles_coords[j+14] = d->pos1[2]+delta1[2];
+                weather_particles_coords[j+17] = d->pos1[0]-delta2[0];
+                weather_particles_coords[j+18] = d->pos1[1]-delta2[1];
+                weather_particles_coords[j+19] = d->pos1[2]-delta2[2];
+			}
+
 			glColor4f(weather_defs[type].color[0]*light_level[0],
 					  weather_defs[type].color[1]*light_level[1],
 					  weather_defs[type].color[2]*light_level[2],
 					  weather_defs[type].color[3]);
 			
 			get_and_set_texture_id(weather_defs[type].texture);
-			glBegin(GL_QUADS);
-			for (i = 0; i < weather_drops_count[type]; ++i)
-			{
-				weather_drop *d = &weather_drops[type][i];
-				glTexCoord2f(0.0f, 0.0f);
-				glVertex3f(d->pos1[0]-delta1[0], d->pos1[1]-delta1[1], d->pos1[2]-delta1[2]);
-				glTexCoord2f(1.0f, 0.0f);
-				glVertex3f(d->pos1[0]+delta2[0], d->pos1[1]+delta2[1], d->pos1[2]+delta2[2]);
-				glTexCoord2f(1.0f, 1.0f);
-				glVertex3f(d->pos1[0]+delta1[0], d->pos1[1]+delta1[1], d->pos1[2]+delta1[2]);
-				glTexCoord2f(0.0f, 1.0f);
-				glVertex3f(d->pos1[0]-delta2[0], d->pos1[1]-delta2[1], d->pos1[2]-delta2[2]);
-			}
-			glEnd();
+            glDrawArrays(GL_QUADS, 0, weather_drops_count[type]);
 		}
 
+	glDisableClientState(GL_VERTEX_ARRAY);
+	glDisableClientState(GL_TEXTURE_COORD_ARRAY);
 	glDisable(GL_BLEND);
 	glPopAttrib();
 #ifdef OPENGL_TRACE
