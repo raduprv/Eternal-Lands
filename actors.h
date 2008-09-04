@@ -648,6 +648,7 @@ typedef struct
 
 #ifdef ATTACHED_ACTORS
 	int attached_actor;
+	float attachment_shift[3];
 #endif // ATTACHED_ACTORS
 
 #ifdef CLUSTER_INSIDES

@@ -168,6 +168,7 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 
 #ifdef ATTACHED_ACTORS
 	our_actor->attached_actor = -1;
+	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
 #endif // ATTACHED_ACTORS
 
 #ifdef CLUSTER_INSIDES
@@ -221,7 +222,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 	else
 	{
 		int id = add_actor(attachment_type, actors_defs[attachment_type].skin_name,
-						   parent->x_pos, parent->y_pos, parent->z_pos, parent->z_rot, parent->scale,
+						   parent->x_pos, parent->y_pos, parent->z_pos, parent->z_rot, get_actor_scale(parent),
 						   0, 0, 0, 0, 0, 0, -1);
 		actors_list[id]->attached_actor = i;
 		parent->attached_actor = id;
@@ -249,7 +250,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 
 #ifdef VARIABLE_SPEED
 		if (attached_actors_defs[attachment_type].is_holder)
-			parent->step_duration = actors_defs[attachment_type].step_duration;
+			actors_list[id]->step_duration = actors_defs[attachment_type].step_duration;
 		else
 			actors_list[id]->step_duration = parent->step_duration;
 #endif // VARIABLE_SPEED
@@ -289,6 +290,9 @@ void remove_actor_attachment(int actor_id)
 		{
 			int att = actors_list[i]->attached_actor;
 			actors_list[i]->attached_actor = -1;
+			actors_list[i]->attachment_shift[0] = 0.0;
+			actors_list[i]->attachment_shift[1] = 0.0;
+			actors_list[i]->attachment_shift[2] = 0.0;
 			free_actor_data(att);
 			free(actors_list[att]);
 			actors_list[att]=NULL;
@@ -753,40 +757,8 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
 
 #ifdef ATTACHED_ACTORS
-	// if we have an attached actor, we maybe have to modify the position of the current actor
 	if (actor_id->attached_actor >= 0)
-	{
-		actor *att = actors_list[actor_id->attached_actor];
-		attached_actor_type *att_type;
-		float loc_pos[3];
-		float att_pos[3];
-		float loc_scale = get_actor_scale(actor_id);
-		float att_scale = get_actor_scale(att);
-		if (actor_id->actor_id < 0) // we are on a attached actor
-		{
-			att_type = &attached_actors_defs[actor_id->actor_type];
-			if (!att_type->is_holder) // the attachment is not an holder so we have to move it
-			{
-				cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, loc_pos);
-				cal_get_actor_bone_local_position(actor_id, att_type->parent_bone_id, NULL, att_pos);
-				glTranslatef(att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale,
-							 att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale,
-							 att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale);
-			}
-		}
-		else if (actor_id->actor_id >= 0) // we are on a standard actor
-		{
-			att_type = &attached_actors_defs[att->actor_type];
-			if (att_type->is_holder) // the attachment is an holder, we have to move the current actor
-			{
-				cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, att_pos);
-				cal_get_actor_bone_local_position(actor_id, att_type->parent_bone_id, NULL, loc_pos);
-				glTranslatef(att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale,
-							 att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale,
-							 att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale);
-			}
-		}
-	}
+		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
 #endif // ATTACHED_ACTORS
 
 	if (use_animation_program)
@@ -827,6 +799,15 @@ static __inline__ void draw_actor_banner_new(actor * actor_id)
 	}
 
 	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
+
+#ifdef ATTACHED_ACTORS
+	if (actor_id->attached_actor >= 0)
+	{
+		glRotatef(180 - actor_id->z_rot, 0.0f, 0.0f, 1.0f);
+		glTranslatef(actor_id->attachment_shift[0], actor_id->attachment_shift[1], actor_id->attachment_shift[2]);
+		glRotatef(180 - actor_id->z_rot, 0.0f, 0.0f, -1.0f);
+	}
+#endif // ATTACHED_ACTORS
 
 	glRotatef(-rz, 0.0f, 0.0f, 1.0f);
 
@@ -897,9 +878,49 @@ void get_actors_in_range()
 #endif
 		)
 		{
+#ifdef ATTACHED_ACTORS
+			// if we have an attached actor, we maybe have to modify the position of the current actor
+			if (actors_list[i]->attached_actor >= 0)
+			{
+				actor *att = actors_list[actors_list[i]->attached_actor];
+				attached_actor_type *att_type;
+				float loc_pos[3];
+				float att_pos[3];
+				float loc_scale = get_actor_scale(actors_list[i]);
+				float att_scale = get_actor_scale(att);
+				if (actors_list[i]->actor_id < 0) // we are on a attached actor
+				{
+					att_type = &attached_actors_defs[actors_list[i]->actor_type];
+					if (!att_type->is_holder) // the attachment is not an holder so we have to move it
+					{
+						cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, loc_pos);
+						cal_get_actor_bone_local_position(actors_list[i], att_type->parent_bone_id, NULL, att_pos);
+						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale;
+						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale;
+						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale;
+					}
+				}
+				else if (actors_list[i]->actor_id >= 0) // we are on a standard actor
+				{
+					att_type = &attached_actors_defs[att->actor_type];
+					if (att_type->is_holder) // the attachment is an holder, we have to move the current actor
+					{
+						cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, att_pos);
+						cal_get_actor_bone_local_position(actors_list[i], att_type->parent_bone_id, NULL, loc_pos);
+						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale;
+						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale;
+						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale;
+					}
+				}
+			}
+			pos[X] = actors_list[i]->x_pos + actors_list[i]->attachment_shift[X];
+			pos[Y] = actors_list[i]->y_pos + actors_list[i]->attachment_shift[Y];
+			pos[Z] = actors_list[i]->z_pos + actors_list[i]->attachment_shift[Z];
+#else // ATTACHED_ACTORS
 			pos[X] = actors_list[i]->x_pos;
 			pos[Y] = actors_list[i]->y_pos;
 			pos[Z] = actors_list[i]->z_pos;
+#endif // ATTACHED_ACTORS
 			if (pos[Z] == 0.0f)
 			{
 				//actor is walking, as opposed to flying, get the height underneath

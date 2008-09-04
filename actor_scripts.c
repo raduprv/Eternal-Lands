@@ -646,11 +646,11 @@ void move_to_next_frame()
 				}
 			}
 
+#ifndef ATTACHED_ACTORS
+			// Schmurk: all the following code is not used actually!
 			if ((actors_list[i]->IsOnIdle)&&(actors_list[i]->anim_time>=5.0)&&(actors_list[i]->stop_animation!=1)) {
 				cal_actor_set_random_idle(i);
 			}
-#ifndef ATTACHED_ACTORS
-			// Schmurk: what does the following code exactly?!
 			else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
 				// lets see if we want to change the idle animation
 				// make sure we have at least two idles, and add a randomizer to continue
@@ -668,6 +668,19 @@ void move_to_next_frame()
 							cal_actor_set_anim_delay(i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame, 0.5f); // normal idle
 						}
 					}
+				}
+			}
+#else // ATTACHED_ACTORS
+			// we change the idle animation only when the previous one is finished
+			if (actors_list[i]->stand_idle && actors_list[i]->anim_time >= actors_list[i]->cur_anim.duration - 0.2)
+			{
+				if (!is_actor_holded(actors_list[i]))
+				{
+					// 1% chance to do idle2
+					if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 99) == 0)
+						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_idle2_frame); // normal idle
+					else
+						cal_actor_set_anim(i, actors_defs[actors_list[i]->actor_type].cal_idle1_frame); // normal idle
 				}
 			}
 #endif // ATTACHED_ACTORS
@@ -728,7 +741,6 @@ void set_on_idle(int actor_idx)
                     } else {
                         cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle1_frame); // normal idle
                     }
-                    
                 }
                 else
                 {

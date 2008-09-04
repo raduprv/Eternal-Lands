@@ -135,6 +135,7 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 
 #ifdef ATTACHED_ACTORS
 	our_actor->attached_actor = -1;
+	our_actor->attachment_shift[0] = our_actor->attachment_shift[1] = our_actor->attachment_shift[2] = 0.0;
 #endif // ATTACHED_ACTORS
 
 #ifdef CLUSTER_INSIDES
