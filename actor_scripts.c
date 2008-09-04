@@ -575,7 +575,7 @@ void animate_actors()
 				}
 			}
 
-			actors_list[i]->anim_time+= ((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0;
+			actors_list[i]->anim_time += ((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0;
 #ifndef	DYNAMIC_ANIMATIONS
 			if (actors_list[i]->calmodel!=NULL){
 				CalModel_Update(actors_list[i]->calmodel, (((cur_time-last_update)*actors_list[i]->cur_anim.duration_scale)/1000.0));
@@ -648,7 +648,10 @@ void move_to_next_frame()
 
 			if ((actors_list[i]->IsOnIdle)&&(actors_list[i]->anim_time>=5.0)&&(actors_list[i]->stop_animation!=1)) {
 				cal_actor_set_random_idle(i);
-			} else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
+			}
+#ifndef ATTACHED_ACTORS
+			// Schmurk: what does the following code exactly?!
+			else if(!actors_list[i]->IsOnIdle && actors_list[i]->stand_idle && actors_list[i]->anim_time>=5.0){
 				// lets see if we want to change the idle animation
 				// make sure we have at least two idles, and add a randomizer to continue
 				if(actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0,50) == 0){
@@ -667,6 +670,7 @@ void move_to_next_frame()
 					}
 				}
 			}
+#endif // ATTACHED_ACTORS
 
 			if (actors_list[i]->cur_anim.anim_index==-1) actors_list[i]->busy=0;
 
@@ -713,6 +717,11 @@ void set_on_idle(int actor_idx)
             if(!a->stand_idle){
                 if (actors_defs[a->actor_type].group_count == 0)
                 {
+#ifdef ATTACHED_ACTORS
+					if (is_actor_holded(a))
+						cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle_attached_frame); // attached idle
+					else
+#endif // ATTACHED_ACTORS
                     // 75% chance to do idle1
                     if (actors_defs[a->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 3) == 0){
                         cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle2_frame); // normal idle
@@ -1132,6 +1141,11 @@ void next_command()
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
+#ifdef ATTACHED_ACTORS
+							if (is_actor_holded(actors_list[i]))
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_attached_frame);
+							else
+#endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 						}
 						actors_list[i]->stop_animation=0;
@@ -1150,6 +1164,11 @@ void next_command()
 						actors_list[i]->moving=1;
 						//test
 						if(!actors_list[i]->fighting){
+#ifdef ATTACHED_ACTORS
+							if (is_actor_holded(actors_list[i]))
+								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_attached_frame);
+							else
+#endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
 						}
 						actors_list[i]->stop_animation=0;
@@ -1384,12 +1403,24 @@ void next_command()
 					default:
 						if(actors_list[i]->que[0]>=move_n && actors_list[i]->que[0]<=move_nw) {
 							float rotation_angle;
-                            int dx, dy;
+							int dx, dy;
+#ifdef VARIABLE_SPEED
+							int step_duration = actors_list[i]->step_duration;
+#else // VARIABLE_SPEED
+							int step_duration = DEFAULT_STEP_DURATION;
+#endif // VARIABLE_SPEED
+							struct cal_anim *walk_anim;
+#ifdef ATTACHED_ACTORS
+							if (is_actor_holded(actors_list[i]))
+								walk_anim = &actors_defs[actors_list[i]->actor_type].cal_walk_attached_frame;
+							else
+#endif // ATTACHED_ACTORS
+							walk_anim = &actors_defs[actors_list[i]->actor_type].cal_walk_frame;
 
 							actors_list[i]->moving=1;
 							actors_list[i]->fighting=0;
 							if(last_command<move_n || last_command>move_nw){//update the frame name too
-								cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
+								cal_actor_set_anim(i,*walk_anim);
 								actors_list[i]->stop_animation=0;
 							}
 
@@ -1417,38 +1448,38 @@ void next_command()
                                     actors_list[i]->que[2] <= move_nw) {
 									if (actors_list[i]->que[3] >= move_n &&
 										actors_list[i]->que[3] <= move_nw)
-										actors_list[i]->movement_time_left = 225; // 3 moves
+										actors_list[i]->movement_time_left = step_duration - 25; // 3 moves
 									else
-										actors_list[i]->movement_time_left = 250; // 2 moves
+										actors_list[i]->movement_time_left = step_duration; // 2 moves
 								}
                                 else
-                                    actors_list[i]->movement_time_left = 275; // 1 move
+                                    actors_list[i]->movement_time_left = step_duration + 25; // 1 move
                             }
                             else {
-                                actors_list[i]->movement_time_left = 300; // 0 move
+                                actors_list[i]->movement_time_left = step_duration + 50; // 0 move
                             }
 							// if we have a diagonal motion, we slow down the animation a bit
 							if (dx != 0 && dy != 0)
 								actors_list[i]->movement_time_left = (int)(actors_list[i]->movement_time_left*1.2+0.5);
 							
                             // we compute the moving speeds in x, y and z directions
-                            actors_list[i]->move_x_speed = 0.5*(dx+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
-                            actors_list[i]->move_y_speed = 0.5*(dy+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
-                            actors_list[i]->move_z_speed = -2.2 + height_map[(actors_list[i]->y_tile_pos+dy)*tile_map_size_x*6+actors_list[i]->x_tile_pos+dx]*0.2 - actors_list[i]->z_pos;
-                            actors_list[i]->move_x_speed /= (float)actors_list[i]->movement_time_left;
-                            actors_list[i]->move_y_speed /= (float)actors_list[i]->movement_time_left;
-                            actors_list[i]->move_z_speed /= (float)actors_list[i]->movement_time_left;
+							actors_list[i]->move_x_speed = 0.5*(dx+actors_list[i]->x_tile_pos)-actors_list[i]->x_pos;
+							actors_list[i]->move_y_speed = 0.5*(dy+actors_list[i]->y_tile_pos)-actors_list[i]->y_pos;
+							actors_list[i]->move_z_speed = -2.2 + height_map[(actors_list[i]->y_tile_pos+dy)*tile_map_size_x*6+actors_list[i]->x_tile_pos+dx]*0.2 - actors_list[i]->z_pos;
+							actors_list[i]->move_x_speed /= (float)actors_list[i]->movement_time_left;
+							actors_list[i]->move_y_speed /= (float)actors_list[i]->movement_time_left;
+							actors_list[i]->move_z_speed /= (float)actors_list[i]->movement_time_left;
 
-                            /* we change the speed of the walking animation according to the walking speed and to the size of the actor
-                             * we suppose here that the speed of the walking animation is 2 meters per second (1 tile in 250ms) */
-                            actors_list[i]->cur_anim.duration_scale = actors_defs[actor_type].cal_walk_frame.duration_scale;
-                            actors_list[i]->cur_anim.duration_scale *= 250.0/(actors_list[i]->movement_time_left*actors_list[i]->scale);
+							/* we change the speed of the walking animation according to the walking speed and to the size of the actor
+							 * we suppose here that the normal speed of the walking animation is 2 meters per second (1 tile in 250ms) */
+							actors_list[i]->cur_anim.duration_scale = walk_anim->duration_scale;
+							actors_list[i]->cur_anim.duration_scale *= (float)DEFAULT_STEP_DURATION/(actors_list[i]->movement_time_left*actors_list[i]->scale);
 							if (actors_defs[actor_type].actor_scale != 1.0)
 								actors_list[i]->cur_anim.duration_scale /= actors_defs[actor_type].actor_scale;
 							else
 								actors_list[i]->cur_anim.duration_scale /= actors_defs[actor_type].scale;
-                            if (dx != 0 && dy != 0)
-                                actors_list[i]->cur_anim.duration_scale *= 1.4142315;
+							if (dx != 0 && dy != 0)
+								actors_list[i]->cur_anim.duration_scale *= 1.4142315;
 						} else if(actors_list[i]->que[0]>=turn_n && actors_list[i]->que[0]<=turn_nw) {
 							float rotation_angle;
 
@@ -1491,32 +1522,44 @@ void next_command()
 		}
 }
 
+void free_actor_data(int actor_index)
+{
+	actor *act = actors_list[actor_index];
+    if(act->calmodel!=NULL)
+        model_delete(act->calmodel);
+    if(act->remapped_colors) glDeleteTextures(1,&act->texture_id);
+    if(act->is_enhanced_model){
+        glDeleteTextures(1,&act->texture_id);
+        if(act->body_parts)free(act->body_parts);
+    }
+#ifdef NEW_SOUND
+    stop_sound(act->cur_anim_sound_cookie);
+    act->cur_anim_sound_cookie = 0;
+#endif	//NEW_SOUND
+    ec_actor_delete(act);
+}
 
 void destroy_actor(int actor_id)
 {
 	int i;
+#ifdef ATTACHED_ACTORS
+    int attached_actor = -1;
+#endif // ATTACHED_ACTORS
+
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-
 	for(i=0;i<max_actors;i++){
 		if(actors_list[i])//The timer thread doesn't free memory
 			if(actors_list[i]->actor_id==actor_id){
 				LOCK_ACTORS_LISTS();
+#ifdef ATTACHED_ACTORS
+                attached_actor = actors_list[i]->attached_actor;
+#endif // ATTACHED_ACTORS
+
 				if (actor_id == yourself)
 					set_our_actor (NULL);
-				if(actors_list[i]->calmodel!=NULL)
-					model_delete(actors_list[i]->calmodel);
-				if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
-				if(actors_list[i]->is_enhanced_model){
-					glDeleteTextures(1,&actors_list[i]->texture_id);
-					if(actors_list[i]->body_parts)free(actors_list[i]->body_parts);
-				}
-#ifdef NEW_SOUND
-				stop_sound(actors_list[i]->cur_anim_sound_cookie);
-				actors_list[i]->cur_anim_sound_cookie = 0;
-#endif	//NEW_SOUND
-				ec_actor_delete(actors_list[i]);
+                free_actor_data(i);
 				free(actors_list[i]);
 				actors_list[i]=NULL;
 				if(i==max_actors-1)max_actors--;
@@ -1525,7 +1568,28 @@ void destroy_actor(int actor_id)
 					max_actors--;
 					actors_list[i]=actors_list[max_actors];
 					actors_list[max_actors]=NULL;
+#ifdef ATTACHED_ACTORS
+                    if (attached_actor == max_actors) attached_actor = i;
+					if (actors_list[i] && actors_list[i]->attached_actor >= 0)
+						actors_list[actors_list[i]->attached_actor]->attached_actor = i;
+#endif // ATTACHED_ACTORS
 				}
+
+#ifdef ATTACHED_ACTORS
+                if (attached_actor >= 0)
+                {
+                    free_actor_data(attached_actor);
+                    free(actors_list[attached_actor]);
+                    actors_list[attached_actor]=NULL;
+                    if(attached_actor==max_actors-1)max_actors--;
+                    else {
+                        //copy the last one down and fill in the hole
+                        max_actors--;
+                        actors_list[attached_actor]=actors_list[max_actors];
+                        actors_list[max_actors]=NULL;
+                    }
+                }
+#endif // ATTACHED_ACTORS
 
 				actor_under_mouse = NULL;
 				UNLOCK_ACTORS_LISTS();
@@ -1544,18 +1608,7 @@ void destroy_all_actors()
 	set_our_actor (NULL);
 	for(i=0;i<max_actors;i++) {
 		if(actors_list[i]){
-			if(actors_list[i]->calmodel!=NULL)
-				model_delete(actors_list[i]->calmodel);
-			if(actors_list[i]->remapped_colors)glDeleteTextures(1,&actors_list[i]->texture_id);
-			if(actors_list[i]->is_enhanced_model){
-				glDeleteTextures(1,&actors_list[i]->texture_id);
-				if(actors_list[i]->body_parts)free(actors_list[i]->body_parts);
-			}
-#ifdef NEW_SOUND
-			stop_sound(actors_list[i]->cur_anim_sound_cookie);
-			actors_list[i]->cur_anim_sound_cookie = 0;
-#endif	//NEW_SOUND
-			ec_actor_delete(actors_list[i]);
+            free_actor_data(i);
 			free(actors_list[i]);
 			actors_list[i]=NULL;
 		}
@@ -1588,6 +1641,44 @@ void update_all_actors()
 	str[0]=SEND_ME_MY_ACTORS;
 	my_tcp_send(my_socket,str,1);
 }
+
+#ifdef ATTACHED_ACTORS
+void push_command_in_actor_queue(unsigned char command, actor *act)
+{
+	int k;
+	for(k=0;k<MAX_CMD_QUEUE;k++){
+		if(act->que[k]==nothing){
+			//if we are SEVERLY behind, just update all the actors in range
+			if(k>MAX_CMD_QUEUE-2) break;
+			else if(k>MAX_CMD_QUEUE-8){
+				// is the front a sit/stand spam?
+				if((act->que[0]==stand_up||act->que[0]==sit_down)
+				   &&(act->que[1]==stand_up||act->que[1]==sit_down)){
+					int j;
+					//move que down with one command
+					for(j=0;j<=k;j++){
+						act->que[j]=act->que[j+1];
+					}
+					act->que[j]=nothing;
+					//backup one entry
+					k--;
+				}
+				
+				// is the end a sit/stand spam?
+				else if((command==stand_up||command==sit_down)
+						&& (act->que[k-1]==stand_up||act->que[k-1]==sit_down)) {
+					act->que[k-1]=command;
+					break;
+				}
+				
+			}
+			
+			act->que[k]=command;
+			break;
+		}
+	}
+}
+#endif // ATTACHED_ACTORS
 
 void add_command_to_actor(int actor_id, unsigned char command)
 {
@@ -1681,6 +1772,7 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			}
 		}
 
+#ifndef ATTACHED_ACTORS
 		for(k=0;k<MAX_CMD_QUEUE;k++){
 			if(act->que[k]==nothing){
 				//if we are SEVERLY behind, just update all the actors in range
@@ -1712,6 +1804,11 @@ void add_command_to_actor(int actor_id, unsigned char command)
 				break;
 			}
 		}
+#else // ATTACHED_ACTORS
+		push_command_in_actor_queue(command, act);
+		if (act->attached_actor >= 0)
+			push_command_in_actor_queue(command, actors_list[act->attached_actor]);
+#endif // ATTACHED_ACTORS
 
 		{
 			actor * me = get_our_actor();
@@ -3488,6 +3585,26 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 #endif	//NEW_SOUND
 					, get_int_property(item, "duration")
 					);
+#ifdef ATTACHED_ACTORS
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_walk_attached") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_walk_attached_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+					, get_int_property(item, "duration")
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle_attached") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			act->cal_idle_attached_frame=cal_load_anim(act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+					, get_int_property(item, "duration")
+					);
+#endif // ATTACHED_ACTORS
 			} else {
 				LOG_ERROR("unknown frame property \"%s\"", item->name);
 				ok = 0;
@@ -3497,6 +3614,82 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 
 	return ok;
 }
+
+#ifdef ATTACHED_ACTORS
+int parse_actor_attachment (actor_types *act, xmlNode *cfg)
+{
+	xmlNode *item;
+	int ok;
+	attached_actor_type *att = &attached_actors_defs[act->actor_type];
+	char bone_name[256];
+	struct CalCoreSkeleton *skel;
+
+	if (cfg == NULL || cfg->children == NULL) return 0;
+
+	ok = 1;
+	for (item = cfg->children; item; item = item->next) {
+		if (item->type == XML_ELEMENT_NODE) {
+			if (xmlStrcasecmp (item->name, (xmlChar*)"holder") == 0) {
+				att->is_holder = get_bool_value(item);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"parent_bone") == 0) {
+				get_string_value (bone_name, sizeof (bone_name), item);
+				skel = CalCoreModel_GetCoreSkeleton(act->coremodel);
+				if (skel) {
+					att->parent_bone_id = find_core_bone_id(skel, bone_name);
+					if (att->parent_bone_id < 0) {
+						LOG_ERROR("bone %s was not found in skeleton of actor type %d", bone_name, act->actor_type);
+						ok = 0;
+					}
+				}
+				else {
+					LOG_ERROR("the skeleton for actor type %d doesn't exist!", act->actor_type);
+					ok = 0;
+				}
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"local_bone") == 0) {
+				get_string_value (bone_name, sizeof (bone_name), item);
+				if (skel) {
+					att->local_bone_id = find_core_bone_id(skel, bone_name);
+					if (att->local_bone_id < 0) {
+						LOG_ERROR("bone %s was not found in skeleton of actor type %d", bone_name, act->actor_type);
+						ok = 0;
+					}
+				}
+				else {
+					LOG_ERROR("the skeleton for actor type %d doesn't exist!", act->actor_type);
+					ok = 0;
+				}
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"shift") == 0) {
+				xmlAttr *attr;
+				for (attr = item->properties; attr; attr = attr->next)
+					if (attr->type == XML_ATTRIBUTE_NODE)
+					{
+						if (xmlStrcasecmp (attr->name, (xmlChar*)"x") == 0)
+							att->shift[0] = atof((char*)attr->children->content);
+						else if (xmlStrcasecmp (attr->name, (xmlChar*)"y") == 0)
+							att->shift[1] = atof((char*)attr->children->content);
+						else if (xmlStrcasecmp (attr->name, (xmlChar*)"z") == 0)
+							att->shift[2] = atof((char*)attr->children->content);
+						else {
+							LOG_ERROR("unknown attachment shift attribute \"%s\"", attr->name);
+							ok = 0;
+						}
+					}
+			} else {
+				LOG_ERROR("unknown attachment property \"%s\"", item->name);
+				ok = 0;
+			}
+		}
+	}
+
+	printf("attachment properties for actor type %d:\n", act->actor_type);
+	printf("holder: %d\n", att->is_holder);
+	printf("local bone: %d\n", att->local_bone_id);
+	printf("parent bone: %d\n", att->parent_bone_id);
+	printf("shift: %f %f %f\n", att->shift[0], att->shift[1], att->shift[2]);
+
+	return ok;
+}
+#endif // ATTACHED_ACTORS
 
 int parse_actor_boots (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 {
@@ -3721,11 +3914,14 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				else {
 					act->skeleton_type = get_skeleton(act->coremodel, skeleton_name);
 				}
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"walk_speed") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"walk_speed") == 0) { // unused
 				act->walk_speed= get_float_value(item);
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"run_speed") == 0) {
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"run_speed") == 0) { // unused
 				act->run_speed= get_float_value(item);
-
+#ifdef VARIABLE_SPEED
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"step_duration") == 0) {
+				act->step_duration = get_int_value(item);
+#endif // VARIABLE_SPEED
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"defaults") == 0) {
 				defaults= item;
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"frames") == 0) {
@@ -3754,6 +3950,10 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 			} else if(xmlStrcasecmp(item->name, (xmlChar*)"sounds") == 0) {
 				ok &= parse_actor_sounds(act, item->children);
 #endif	//NEW_SOUND
+#ifdef ATTACHED_ACTORS
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"attachment") == 0) {
+				ok &= parse_actor_attachment(act, item);
+#endif // ATTACHED_ACTORS
 			} else {
 				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
 				ok= 0;
@@ -3858,6 +4058,11 @@ int parse_actor_script (xmlNode *cfg)
 	act->cal_attack_down_9_frame.anim_index= -1;
 	act->cal_attack_down_10_frame.anim_index= -1;
 
+#ifdef ATTACHED_ACTORS
+	act->cal_walk_attached_frame.anim_index= -1;
+	act->cal_idle_attached_frame.anim_index= -1;
+#endif // ATTACHED_ACTORS
+
 #ifdef NEW_SOUND
 	act->cal_walk_frame.sound= -1;
 	act->cal_run_frame.sound= -1;
@@ -3901,6 +4106,10 @@ int parse_actor_script (xmlNode *cfg)
     act->battlecry.sound = -1;
 	act->battlecry.scale = 1.0f;
 #endif // NEW_SOUND
+
+#ifdef VARIABLE_SPEED
+    act->step_duration = DEFAULT_STEP_DURATION; // default value
+#endif // VARIABLE_SPEED
 
 	ok= parse_actor_nodes(act, cfg, NULL);
 		
@@ -3991,6 +4200,9 @@ void init_actor_defs()
 
 	// initialize the whole thing to zero
 	memset (actors_defs, 0, sizeof (actors_defs));
+#ifdef ATTACHED_ACTORS
+	memset (attached_actors_defs, 0, sizeof (attached_actors_defs));
+#endif // ATTACHED_ACTORS
 
 	read_actor_defs ("actor_defs", "actor_defs.xml");
 }

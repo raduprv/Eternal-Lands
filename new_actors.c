@@ -133,6 +133,10 @@ int add_enhanced_actor(enhanced_actor *this_actor, float x_pos, float y_pos,
 	our_actor->sit_idle=0;
 	our_actor->body_parts=this_actor;
 
+#ifdef ATTACHED_ACTORS
+	our_actor->attached_actor = -1;
+#endif // ATTACHED_ACTORS
+
 #ifdef CLUSTER_INSIDES
 	x = (int) (our_actor->x_pos / 0.5f);
 	y = (int) (our_actor->y_pos / 0.5f);
@@ -882,6 +886,10 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	//test only
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
+
+#ifdef VARIABLE_SPEED
+    actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
+#endif // VARIABLE_SPEED
 
 	if (actors_list[i]->z_pos == 0.0)
 		actors_list[i]->z_pos = get_actor_z(actors_list[i]);

@@ -47,6 +47,9 @@ extern int use_alpha_banner;	/*!< Use_alpha_banner defines if an alpha backgroun
 /*! Max text len to display into bubbles overhead*/
 #define MAX_CURRENT_DISPLAYED_TEXT_LEN	60
 
+// default duration in ms of a step when an actor is walking
+#define DEFAULT_STEP_DURATION 250
+
 /*!
  * \name	Glow colours
  * 		The colours used for giving the items a glowing halo
@@ -423,6 +426,10 @@ typedef struct
 	struct cal_anim cal_attack_down_8_frame;
 	struct cal_anim cal_attack_down_9_frame;
 	struct cal_anim cal_attack_down_10_frame;
+#ifdef ATTACHED_ACTORS
+    struct cal_anim cal_walk_attached_frame;
+    struct cal_anim cal_idle_attached_frame;
+#endif // ATTACHED_ACTORS
 	
 	int skeleton_type;
 
@@ -451,12 +458,26 @@ typedef struct
 
 	/*! \name The current actors walk/run speeds*/
 	/*! \{ */
-	double walk_speed;
-	double run_speed;
+	double walk_speed; // unused
+	double run_speed; // unused
 	char ghost;
 	/*! \} */
 
+#ifdef VARIABLE_SPEED
+	int step_duration;
+#endif // VARIABLE_SPEED
+
 } actor_types;
+
+#ifdef ATTACHED_ACTORS
+typedef struct
+{
+    char is_holder;
+    int parent_bone_id;
+    int local_bone_id;
+    float shift[3];
+} attached_actor_type;
+#endif // ATTACHED_ACTORS
 
 typedef struct
 {
@@ -621,6 +642,14 @@ typedef struct
 	int async_z_rot;
 	int last_range_attacker_id;
 
+#ifdef VARIABLE_SPEED
+	int step_duration;
+#endif // VARIABLE_SPEED
+
+#ifdef ATTACHED_ACTORS
+	int attached_actor;
+#endif // ATTACHED_ACTORS
+
 #ifdef CLUSTER_INSIDES
 	short cluster;
 #endif
@@ -637,6 +666,10 @@ extern actor *actors_list[MAX_ACTORS];	/*!< A list holding all of the actors*/
 extern actor *your_actor; /*!< A pointer to your own character, if available. Shares a mutex with \see actors_list */
 extern int	max_actors;		/*!< The current number of actors in the actors_list + 1*/
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
+
+#ifdef ATTACHED_ACTORS
+extern attached_actor_type attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
+#endif // ATTACHED_ACTORS
 
 /*!
  * \ingroup	display_actors
@@ -660,6 +693,12 @@ void draw_actor_banner(actor * actor_id, float offset_z);
  * \callgraph
  */
 void display_actors(int banner, int render_pass);
+
+#ifdef ATTACHED_ACTORS
+void add_actor_attachment (int actor_id, int attachment_type);
+
+void remove_actor_attachment (int actor_id);
+#endif // ATTACHED_ACTORS
 
 /*!
  * \ingroup	network_actors
@@ -809,6 +848,17 @@ void get_actor_rotation_matrix(actor *in_act, float *out_rot);
 void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_pos, float *in_act_rot, float *out_pos);
 
 void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
+
+#ifdef ATTACHED_ACTORS
+static __inline__ int is_actor_holded(actor *act)
+{
+    return (act->attached_actor >= 0 &&
+            ((act->actor_id < 0 &&
+              !attached_actors_defs[act->actor_type].is_holder) ||
+             (act->actor_id >= 0 &&
+              attached_actors_defs[actors_list[act->attached_actor]->actor_type].is_holder)));
+}
+#endif // ATTACHED_ACTORS
 
 #ifdef __cplusplus
 } // extern "C"

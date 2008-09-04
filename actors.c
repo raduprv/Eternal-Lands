@@ -43,6 +43,10 @@ actor *your_actor = NULL;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
 
+#ifdef ATTACHED_ACTORS
+attached_actor_type attached_actors_defs[MAX_ACTOR_DEFS];
+#endif // ATTACHED_ACTORS
+
 void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
 
 int no_near_actors=0;
@@ -162,6 +166,10 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 	our_actor->stand_idle=0;
 	our_actor->sit_idle=0;
 
+#ifdef ATTACHED_ACTORS
+	our_actor->attached_actor = -1;
+#endif // ATTACHED_ACTORS
+
 #ifdef CLUSTER_INSIDES
 	x = (int) (our_actor->x_pos / 0.5f);
 	y = (int) (our_actor->y_pos / 0.5f);
@@ -190,6 +198,111 @@ int add_actor (int actor_type, char * skin_name, float x_pos, float y_pos, float
 #endif //MINIMAP2
 	return i;
 }
+
+#ifdef ATTACHED_ACTORS
+void add_actor_attachment(int actor_id, int attachment_type)
+{
+	int i;
+	actor *parent = NULL;
+
+	LOCK_ACTORS_LISTS();
+
+	for (i = 0; i < max_actors; ++i)
+		if (actors_list[i]->actor_id == actor_id)
+		{
+			parent = actors_list[i];
+			break;
+		}
+
+	if (!parent)
+		log_error("unable to add an attached actor: actor with id %d doesn't exist!", actor_id);
+	else if(attachment_type < 0 || attachment_type >= MAX_ACTOR_DEFS || (attachment_type > 0 && actors_defs[attachment_type].actor_type != attachment_type) )
+		log_error("unable to add an attached actor: illegal/missing actor definition %d", attachment_type);
+	else
+	{
+		int id = add_actor(attachment_type, actors_defs[attachment_type].skin_name,
+						   parent->x_pos, parent->y_pos, parent->z_pos, parent->z_rot, parent->scale,
+						   0, 0, 0, 0, 0, 0, -1);
+		actors_list[id]->attached_actor = i;
+		parent->attached_actor = id;
+
+		actors_list[id]->async_fighting = 0;
+		actors_list[id]->async_x_tile_pos = parent->async_x_tile_pos;
+		actors_list[id]->async_y_tile_pos = parent->async_y_tile_pos;
+		actors_list[id]->async_z_rot = parent->async_z_rot;
+		
+		actors_list[id]->x_tile_pos=parent->x_tile_pos;
+		actors_list[id]->y_tile_pos=parent->y_tile_pos;
+		actors_list[id]->buffs=0;
+		actors_list[id]->actor_type=attachment_type;
+		actors_list[id]->damage=0;
+		actors_list[id]->damage_ms=0;
+		actors_list[id]->sitting=0;
+		actors_list[id]->fighting=0;
+		//test only
+		actors_list[id]->max_health=0;
+		actors_list[id]->cur_health=0;
+		actors_list[id]->ghost=actors_defs[attachment_type].ghost;
+		actors_list[id]->dead=0;
+		actors_list[id]->stop_animation=1;//helps when the actor is dead...
+		actors_list[id]->kind_of_actor=0;
+
+#ifdef VARIABLE_SPEED
+		if (attached_actors_defs[attachment_type].is_holder)
+			parent->step_duration = actors_defs[attachment_type].step_duration;
+		else
+			actors_list[id]->step_duration = parent->step_duration;
+#endif // VARIABLE_SPEED
+
+		if (actors_list[id]->z_pos == 0.0)
+			actors_list[id]->z_pos = get_actor_z(actors_list[id]);
+
+		//printf("attached actor n°%d of type %d to actor n°%d with id %d\n", id, attachment_type, i, actor_id);
+
+		if (actors_defs[attachment_type].coremodel!=NULL) {
+			//Setup cal3d model
+			actors_list[id]->calmodel = model_new(actors_defs[attachment_type].coremodel);
+			//Attach meshes
+			if(actors_list[id]->calmodel) {
+				model_attach_mesh(actors_list[id], actors_defs[attachment_type].shirt[0].mesh_index);
+				set_on_idle(id);
+            
+				build_actor_bounding_box(actors_list[id]);
+				if (use_animation_program)
+					set_transformation_buffers(actors_list[id]);
+			}
+		}
+		else
+			actors_list[id]->calmodel=NULL;
+	}
+	UNLOCK_ACTORS_LISTS();
+}
+
+void remove_actor_attachment(int actor_id)
+{
+	int i;
+
+	LOCK_ACTORS_LISTS();
+
+	for (i = 0; i < max_actors; ++i)
+		if (actors_list[i]->actor_id == actor_id)
+		{
+			int att = actors_list[i]->attached_actor;
+			actors_list[i]->attached_actor = -1;
+			free_actor_data(att);
+			free(actors_list[att]);
+			actors_list[att]=NULL;
+			if(att==max_actors-1)max_actors--;
+			else {
+				//copy the last one down and fill in the hole
+				max_actors--;
+				actors_list[att]=actors_list[max_actors];
+				actors_list[max_actors]=NULL;
+			}
+			break;
+		}
+}
+#endif // ATTACHED_ACTORS
 
 void set_health_color(float percent, float multiplier, float a)
 {
@@ -617,6 +730,7 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 	}
 
 	glPushMatrix();//we don't want to affect the rest of the scene
+
 	x_pos = actor_id->x_pos;
 	y_pos = actor_id->y_pos;
 	z_pos = actor_id->z_pos;
@@ -628,15 +742,52 @@ void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 us
 			+ actor_id->x_tile_pos] * 0.2f;
 	}
 
-	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
-
 	x_rot = actor_id->x_rot;
 	y_rot = actor_id->y_rot;
 	z_rot = 180 - actor_id->z_rot;
 
+	glTranslatef(x_pos + 0.25f, y_pos + 0.25f, z_pos);
+
 	glRotatef(z_rot, 0.0f, 0.0f, 1.0f);
 	glRotatef(x_rot, 1.0f, 0.0f, 0.0f);
 	glRotatef(y_rot, 0.0f, 1.0f, 0.0f);
+
+#ifdef ATTACHED_ACTORS
+	// if we have an attached actor, we maybe have to modify the position of the current actor
+	if (actor_id->attached_actor >= 0)
+	{
+		actor *att = actors_list[actor_id->attached_actor];
+		attached_actor_type *att_type;
+		float loc_pos[3];
+		float att_pos[3];
+		float loc_scale = get_actor_scale(actor_id);
+		float att_scale = get_actor_scale(att);
+		if (actor_id->actor_id < 0) // we are on a attached actor
+		{
+			att_type = &attached_actors_defs[actor_id->actor_type];
+			if (!att_type->is_holder) // the attachment is not an holder so we have to move it
+			{
+				cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, loc_pos);
+				cal_get_actor_bone_local_position(actor_id, att_type->parent_bone_id, NULL, att_pos);
+				glTranslatef(att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale,
+							 att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale,
+							 att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale);
+			}
+		}
+		else if (actor_id->actor_id >= 0) // we are on a standard actor
+		{
+			att_type = &attached_actors_defs[att->actor_type];
+			if (att_type->is_holder) // the attachment is an holder, we have to move the current actor
+			{
+				cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, att_pos);
+				cal_get_actor_bone_local_position(actor_id, att_type->parent_bone_id, NULL, loc_pos);
+				glTranslatef(att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale,
+							 att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale,
+							 att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale);
+			}
+		}
+	}
+#endif // ATTACHED_ACTORS
 
 	if (use_animation_program)
 	{
@@ -1042,7 +1193,11 @@ void display_actors(int banner, int render_pass)
 		for (i = 0; i < no_near_actors; i++)
 		{
 			actor *cur_actor = actors_list[near_actors[i].actor];
-			if (cur_actor)
+			if (cur_actor
+#ifdef ATTACHED_ACTORS
+				&& cur_actor->actor_id >= 0
+#endif // ATTACHED_ACTORS
+				)
 			{
 				draw_actor_banner_new(cur_actor);
 			}
@@ -1208,6 +1363,10 @@ void add_actor_from_server (const char *in_data, int len)
 	//test only
 	actors_list[i]->max_health=max_health;
 	actors_list[i]->cur_health=cur_health;
+
+#ifdef VARIABLE_SPEED
+    actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
+#endif // VARIABLE_SPEED
 
 	if (actors_list[i]->z_pos == 0.0)
 		actors_list[i]->z_pos = get_actor_z(actors_list[i]);

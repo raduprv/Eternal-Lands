@@ -53,10 +53,23 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 			pActor->sitting=0;
 		}
 		pActor->stop_animation=0;
-		anim.anim_index = actors_defs[pActor->actor_type].cal_idle1_frame.anim_index;
+#ifdef ATTACHED_ACTORS
+		if (is_actor_holded(pActor))
+		{
+			anim.anim_index = actors_defs[pActor->actor_type].cal_idle_attached_frame.anim_index;
+			anim.duration = actors_defs[pActor->actor_type].cal_idle_attached_frame.duration;
+			anim.duration_scale = actors_defs[pActor->actor_type].cal_idle_attached_frame.duration_scale;
+		}
+		else
+		{
+#endif // ATTACHED_ACTORS
+			anim.anim_index = actors_defs[pActor->actor_type].cal_idle1_frame.anim_index;
+			anim.duration = actors_defs[pActor->actor_type].cal_idle1_frame.duration;
+			anim.duration_scale = actors_defs[pActor->actor_type].cal_idle1_frame.duration_scale;
+#ifdef ATTACHED_ACTORS
+		}
+#endif // ATTACHED_ACTORS
 		anim.kind = cycle;
-		anim.duration = actors_defs[pActor->actor_type].cal_idle1_frame.duration;
-		anim.duration_scale = actors_defs[pActor->actor_type].cal_idle1_frame.duration_scale;
 	}
 
 	mixer=CalModel_GetMixer(pActor->calmodel);

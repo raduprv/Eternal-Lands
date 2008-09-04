@@ -47,6 +47,14 @@ extern skeleton_types skeletons_defs[MAX_SKELETONS];
 extern int skeletons_count;
 
 /*!
+ * \brief Get the ID of an actor bone by its name in a core skeleton
+ * \param skel the core skeleton
+ * \param name the name of the bone
+ * \return the ID of the bone if it exists, else -1
+ */
+int find_core_bone_id(struct CalCoreSkeleton *skel, const char *name);
+
+/*!
  * \brief Get the ID of a skeleton by its name
  * \param cal_model the cal model that contains the cal skeleton
  * \param skeleton_name the name of the skeleton
@@ -62,6 +70,7 @@ int get_skeleton(struct CalCoreModel *cal_model, const char *skeleton_name);
  * \brief Get the ID of an actor bone by its name
  * \param act the actor
  * \param name the predefined name of the bone
+ * \return the ID of the bone if it exists, else -1
  *
  * When accessing to several bones IDs in the same function for the
  * same actor, prefer using directly the data structure to get a pointer

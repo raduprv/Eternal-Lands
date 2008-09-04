@@ -64,6 +64,12 @@ void set_on_idle(int actor_idx);
 void next_command();
 
 /*!
+ * \brief Free all the data that is contained in an actor
+ * \param actor_index the index of the actor in the actors_list array
+ */
+void free_actor_data(int actor_index);
+
+/*!
  * \ingroup	network_actors
  * \brief	The function destroys the actor with the given actor_id (server-side actor ID).
  *
