@@ -44,7 +44,7 @@ actor *your_actor = NULL;
 actor_types actors_defs[MAX_ACTOR_DEFS];
 
 #ifdef ATTACHED_ACTORS
-attached_actor_type attached_actors_defs[MAX_ACTOR_DEFS];
+attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
 #endif // ATTACHED_ACTORS
 
 void draw_actor_overtext( actor* actor_ptr ); /* forward declaration */
@@ -883,33 +883,33 @@ void get_actors_in_range()
 			if (actors_list[i]->attached_actor >= 0)
 			{
 				actor *att = actors_list[actors_list[i]->attached_actor];
-				attached_actor_type *att_type;
+				attachment_props *att_props;
 				float loc_pos[3];
 				float att_pos[3];
 				float loc_scale = get_actor_scale(actors_list[i]);
 				float att_scale = get_actor_scale(att);
 				if (actors_list[i]->actor_id < 0) // we are on a attached actor
 				{
-					att_type = &attached_actors_defs[actors_list[i]->actor_type];
-					if (!att_type->is_holder) // the attachment is not an holder so we have to move it
+					att_props = &attached_actors_defs[actors_list[i]->actor_type].actor_type[att->actor_type];
+					if (!att_props->is_holder) // the attachment is not a holder so we have to move it
 					{
-						cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, loc_pos);
-						cal_get_actor_bone_local_position(actors_list[i], att_type->parent_bone_id, NULL, att_pos);
-						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale;
-						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale;
-						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale;
+						cal_get_actor_bone_local_position(att, att_props->parent_bone_id, NULL, att_pos);
+						cal_get_actor_bone_local_position(actors_list[i], att_props->local_bone_id, NULL, loc_pos);
+						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
+						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
+						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
 					}
 				}
 				else if (actors_list[i]->actor_id >= 0) // we are on a standard actor
 				{
-					att_type = &attached_actors_defs[att->actor_type];
-					if (att_type->is_holder) // the attachment is an holder, we have to move the current actor
+					att_props = &attached_actors_defs[att->actor_type].actor_type[actors_list[i]->actor_type];
+					if (att_props->is_holder) // the attachment is an holder, we have to move the current actor
 					{
-						cal_get_actor_bone_local_position(att, att_type->local_bone_id, NULL, att_pos);
-						cal_get_actor_bone_local_position(actors_list[i], att_type->parent_bone_id, NULL, loc_pos);
-						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_type->shift[0]) * loc_scale;
-						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_type->shift[1]) * loc_scale;
-						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_type->shift[2]) * loc_scale;
+						cal_get_actor_bone_local_position(att, att_props->local_bone_id, NULL, att_pos);
+						cal_get_actor_bone_local_position(actors_list[i], att_props->parent_bone_id, NULL, loc_pos);
+						actors_list[i]->attachment_shift[0] = att_pos[0] * att_scale - (loc_pos[0] - att_props->shift[0]) * loc_scale;
+						actors_list[i]->attachment_shift[1] = att_pos[1] * att_scale - (loc_pos[1] - att_props->shift[1]) * loc_scale;
+						actors_list[i]->attachment_shift[2] = att_pos[2] * att_scale - (loc_pos[2] - att_props->shift[2]) * loc_scale;
 					}
 				}
 			}

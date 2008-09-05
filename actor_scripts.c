@@ -674,7 +674,7 @@ void move_to_next_frame()
 			// we change the idle animation only when the previous one is finished
 			if (actors_list[i]->stand_idle && actors_list[i]->anim_time >= actors_list[i]->cur_anim.duration - 0.2)
 			{
-				if (!is_actor_holded(actors_list[i]))
+				if (!is_actor_held(actors_list[i]))
 				{
 					// 1% chance to do idle2
 					if (actors_defs[actors_list[i]->actor_type].cal_idle2_frame.anim_index != -1 && RAND(0, 99) == 0)
@@ -731,8 +731,9 @@ void set_on_idle(int actor_idx)
                 if (actors_defs[a->actor_type].group_count == 0)
                 {
 #ifdef ATTACHED_ACTORS
-					if (is_actor_holded(a))
-						cal_actor_set_anim(actor_idx, actors_defs[a->actor_type].cal_idle_attached_frame); // attached idle
+					attachment_props *att_props = get_attachment_props_if_held(a);
+					if (att_props)
+						cal_actor_set_anim(actor_idx, att_props->cal_idle_frame);
 					else
 #endif // ATTACHED_ACTORS
                     // 75% chance to do idle1
@@ -1154,8 +1155,9 @@ void next_command()
 						//test
 						if(!actors_list[i]->fighting){
 #ifdef ATTACHED_ACTORS
-							if (is_actor_holded(actors_list[i]))
-								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_attached_frame);
+							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+							if (att_props)
+								cal_actor_set_anim(i, att_props->cal_walk_frame);
 							else
 #endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
@@ -1177,8 +1179,9 @@ void next_command()
 						//test
 						if(!actors_list[i]->fighting){
 #ifdef ATTACHED_ACTORS
-							if (is_actor_holded(actors_list[i]))
-								cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_attached_frame);
+							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+							if (att_props)
+								cal_actor_set_anim(i, att_props->cal_walk_frame);
 							else
 #endif // ATTACHED_ACTORS
 							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
@@ -1423,8 +1426,9 @@ void next_command()
 #endif // VARIABLE_SPEED
 							struct cal_anim *walk_anim;
 #ifdef ATTACHED_ACTORS
-							if (is_actor_holded(actors_list[i]))
-								walk_anim = &actors_defs[actors_list[i]->actor_type].cal_walk_attached_frame;
+							attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+							if (att_props)
+								walk_anim = &att_props->cal_walk_frame;
 							else
 #endif // ATTACHED_ACTORS
 							walk_anim = &actors_defs[actors_list[i]->actor_type].cal_walk_frame;
@@ -3597,26 +3601,6 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 #endif	//NEW_SOUND
 					, get_int_property(item, "duration")
 					);
-#ifdef ATTACHED_ACTORS
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_walk_attached") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_walk_attached_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_idle_attached") == 0) {
-				get_string_value (str,sizeof(str),item);
-     			act->cal_idle_attached_frame=cal_load_anim(act, str
-#ifdef NEW_SOUND
-					, get_string_property(item, "sound")
-					, get_string_property(item, "sound_scale")
-#endif	//NEW_SOUND
-					, get_int_property(item, "duration")
-					);
-#endif // ATTACHED_ACTORS
 			} else {
 				LOG_ERROR("unknown frame property \"%s\"", item->name);
 				ok = 0;
@@ -3628,41 +3612,46 @@ int parse_actor_frames (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 }
 
 #ifdef ATTACHED_ACTORS
-int parse_actor_attachment (actor_types *act, xmlNode *cfg)
+int parse_actor_attachment (actor_types *act, xmlNode *cfg, int actor_type)
 {
 	xmlNode *item;
-	int ok;
-	attached_actor_type *att = &attached_actors_defs[act->actor_type];
-	char bone_name[256];
+	int ok = 1;
+	attached_actors_types *att = &attached_actors_defs[act->actor_type];
+	actor_types *held_act = NULL;
+	char str[256];
 	struct CalCoreSkeleton *skel;
 
 	if (cfg == NULL || cfg->children == NULL) return 0;
 
-	ok = 1;
 	for (item = cfg->children; item; item = item->next) {
 		if (item->type == XML_ELEMENT_NODE) {
 			if (xmlStrcasecmp (item->name, (xmlChar*)"holder") == 0) {
-				att->is_holder = get_bool_value(item);
+				att->actor_type[actor_type].is_holder = get_bool_value(item);
+				if (att->actor_type[actor_type].is_holder)
+					held_act = &actors_defs[actor_type];
+				else
+					held_act = act;
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"parent_bone") == 0) {
-				get_string_value (bone_name, sizeof (bone_name), item);
-				skel = CalCoreModel_GetCoreSkeleton(act->coremodel);
+				get_string_value (str, sizeof (str), item);
+				skel = CalCoreModel_GetCoreSkeleton(actors_defs[actor_type].coremodel);
 				if (skel) {
-					att->parent_bone_id = find_core_bone_id(skel, bone_name);
-					if (att->parent_bone_id < 0) {
-						LOG_ERROR("bone %s was not found in skeleton of actor type %d", bone_name, act->actor_type);
+					att->actor_type[actor_type].parent_bone_id = find_core_bone_id(skel, str);
+					if (att->actor_type[actor_type].parent_bone_id < 0) {
+						LOG_ERROR("bone %s was not found in skeleton of actor type %d", str, actor_type);
 						ok = 0;
 					}
 				}
 				else {
-					LOG_ERROR("the skeleton for actor type %d doesn't exist!", act->actor_type);
+					LOG_ERROR("the skeleton for actor type %d doesn't exist!", actor_type);
 					ok = 0;
 				}
 			} else if (xmlStrcasecmp (item->name, (xmlChar*)"local_bone") == 0) {
-				get_string_value (bone_name, sizeof (bone_name), item);
+				get_string_value (str, sizeof (str), item);
+				skel = CalCoreModel_GetCoreSkeleton(act->coremodel);
 				if (skel) {
-					att->local_bone_id = find_core_bone_id(skel, bone_name);
-					if (att->local_bone_id < 0) {
-						LOG_ERROR("bone %s was not found in skeleton of actor type %d", bone_name, act->actor_type);
+					att->actor_type[actor_type].local_bone_id = find_core_bone_id(skel, str);
+					if (att->actor_type[actor_type].local_bone_id < 0) {
+						LOG_ERROR("bone %s was not found in skeleton of actor type %d", str, act->actor_type);
 						ok = 0;
 					}
 				}
@@ -3670,34 +3659,57 @@ int parse_actor_attachment (actor_types *act, xmlNode *cfg)
 					LOG_ERROR("the skeleton for actor type %d doesn't exist!", act->actor_type);
 					ok = 0;
 				}
-			} else if (xmlStrcasecmp (item->name, (xmlChar*)"shift") == 0) {
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"held_shift") == 0) {
 				xmlAttr *attr;
 				for (attr = item->properties; attr; attr = attr->next)
 					if (attr->type == XML_ATTRIBUTE_NODE)
 					{
 						if (xmlStrcasecmp (attr->name, (xmlChar*)"x") == 0)
-							att->shift[0] = atof((char*)attr->children->content);
+							att->actor_type[actor_type].shift[0] = atof((char*)attr->children->content);
 						else if (xmlStrcasecmp (attr->name, (xmlChar*)"y") == 0)
-							att->shift[1] = atof((char*)attr->children->content);
+							att->actor_type[actor_type].shift[1] = atof((char*)attr->children->content);
 						else if (xmlStrcasecmp (attr->name, (xmlChar*)"z") == 0)
-							att->shift[2] = atof((char*)attr->children->content);
+							att->actor_type[actor_type].shift[2] = atof((char*)attr->children->content);
 						else {
 							LOG_ERROR("unknown attachment shift attribute \"%s\"", attr->name);
 							ok = 0;
 						}
 					}
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_walk") == 0) {
+				get_string_value (str, sizeof(str), item);
+     			att->actor_type[actor_type].cal_walk_frame=cal_load_anim(held_act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+					, get_int_property(item, "duration")
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_idle") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			att->actor_type[actor_type].cal_idle_frame=cal_load_anim(held_act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+					, get_int_property(item, "duration")
+					);
+			} else if (xmlStrcasecmp (item->name, (xmlChar*)"CAL_held_pain") == 0) {
+				get_string_value (str,sizeof(str),item);
+     			att->actor_type[actor_type].cal_pain_frame=cal_load_anim(held_act, str
+#ifdef NEW_SOUND
+					, get_string_property(item, "sound")
+					, get_string_property(item, "sound_scale")
+#endif	//NEW_SOUND
+					, get_int_property(item, "duration")
+					);
 			} else {
 				LOG_ERROR("unknown attachment property \"%s\"", item->name);
 				ok = 0;
 			}
+		} else if (item->type == XML_ENTITY_REF_NODE) {
+			ok &= parse_actor_attachment(act, item->children, actor_type);
 		}
 	}
-
-	printf("attachment properties for actor type %d:\n", act->actor_type);
-	printf("holder: %d\n", att->is_holder);
-	printf("local bone: %d\n", att->local_bone_id);
-	printf("parent bone: %d\n", att->parent_bone_id);
-	printf("shift: %f %f %f\n", att->shift[0], att->shift[1], att->shift[2]);
 
 	return ok;
 }
@@ -3963,8 +3975,14 @@ int	parse_actor_nodes (actor_types *act, xmlNode *cfg, xmlNode *defaults)
 				ok &= parse_actor_sounds(act, item->children);
 #endif	//NEW_SOUND
 #ifdef ATTACHED_ACTORS
-			} else if(xmlStrcasecmp(item->name, (xmlChar*)"attachment") == 0) {
-				ok &= parse_actor_attachment(act, item);
+			} else if(xmlStrcasecmp(item->name, (xmlChar*)"actor_attachment") == 0) {
+				int id = get_int_property(item, "id");
+				if (id < 0 || id >= MAX_ACTOR_DEFS) {
+					LOG_ERROR("Unable to find id/property node %s\n", item->name);
+					ok = 0;
+				}
+				else
+					ok &= parse_actor_attachment(act, item, id);
 #endif // ATTACHED_ACTORS
 			} else {
 				LOG_ERROR("Unknown actor attribute \"%s\"", item->name);
@@ -4071,8 +4089,12 @@ int parse_actor_script (xmlNode *cfg)
 	act->cal_attack_down_10_frame.anim_index= -1;
 
 #ifdef ATTACHED_ACTORS
-	act->cal_walk_attached_frame.anim_index= -1;
-	act->cal_idle_attached_frame.anim_index= -1;
+	for (i = 0; i < MAX_ACTOR_DEFS; ++i)
+	{
+		attached_actors_defs[act_idx].actor_type[i].cal_idle_frame.anim_index = -1;
+		attached_actors_defs[act_idx].actor_type[i].cal_walk_frame.anim_index = -1;
+		attached_actors_defs[act_idx].actor_type[i].cal_pain_frame.anim_index = -1;
+	}
 #endif // ATTACHED_ACTORS
 
 #ifdef NEW_SOUND

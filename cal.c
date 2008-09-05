@@ -48,17 +48,21 @@ void cal_actor_set_anim_delay(int id, struct cal_anim anim, float delay)
 	//this shouldnt happend but its happends if actor doesnt have
 	//animation so we add this workaround to prevent "freezing"
 	if(anim.anim_index==-1){
+#ifdef ATTACHED_ACTORS
+        attachment_props *att_props;
+#endif // ATTACHED_ACTORS
 		if(	pActor->sitting==1 ){
 			//we dont have sittng anim so cancel it
 			pActor->sitting=0;
 		}
 		pActor->stop_animation=0;
 #ifdef ATTACHED_ACTORS
-		if (is_actor_holded(pActor))
+        att_props = get_attachment_props_if_held(pActor);
+		if (att_props)
 		{
-			anim.anim_index = actors_defs[pActor->actor_type].cal_idle_attached_frame.anim_index;
-			anim.duration = actors_defs[pActor->actor_type].cal_idle_attached_frame.duration;
-			anim.duration_scale = actors_defs[pActor->actor_type].cal_idle_attached_frame.duration_scale;
+			anim.anim_index = att_props->cal_idle_frame.anim_index;
+			anim.duration = att_props->cal_idle_frame.duration;
+			anim.duration_scale = att_props->cal_idle_frame.duration_scale;
 		}
 		else
 		{

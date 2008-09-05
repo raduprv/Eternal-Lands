@@ -350,6 +350,27 @@ typedef struct
 } act_extra_sound;
 #endif // NEW_SOUND
 
+#ifdef ATTACHED_ACTORS
+typedef struct
+{
+	int is_holder;      /*!< Specifies if this type of actor hold the actor to which it is attached or if he is held */
+	int parent_bone_id; /*!< The bone to use on the actor to which it is attached */
+	int local_bone_id;  /*!< The bone to use on the actor that is attached */
+	float shift[3];     /*!< The shift to apply to the actor that is held */
+	struct cal_anim cal_walk_frame; /*!< walk animation to use for the held actor */
+	struct cal_anim cal_idle_frame; /*!< idle animation to use for the held actor */
+	struct cal_anim cal_pain_frame; /*!< pain animation to use for the held actor */
+} attachment_props;
+
+/*!
+ * Structure containing how an actor type is attached to all other actors types
+ */
+typedef struct
+{
+	attachment_props actor_type[MAX_ACTOR_DEFS]; /*!< Attachment properties for each kind of actor */
+} attached_actors_types;
+#endif // ATTACHED_ACTORS
+
 // TODO: would be nice to make these dynamic
 #define ACTOR_HEAD_SIZE   10
 #define ACTOR_SHIELD_SIZE 40
@@ -426,10 +447,6 @@ typedef struct
 	struct cal_anim cal_attack_down_8_frame;
 	struct cal_anim cal_attack_down_9_frame;
 	struct cal_anim cal_attack_down_10_frame;
-#ifdef ATTACHED_ACTORS
-    struct cal_anim cal_walk_attached_frame;
-    struct cal_anim cal_idle_attached_frame;
-#endif // ATTACHED_ACTORS
 	
 	int skeleton_type;
 
@@ -468,16 +485,6 @@ typedef struct
 #endif // VARIABLE_SPEED
 
 } actor_types;
-
-#ifdef ATTACHED_ACTORS
-typedef struct
-{
-    char is_holder;
-    int parent_bone_id;
-    int local_bone_id;
-    float shift[3];
-} attached_actor_type;
-#endif // ATTACHED_ACTORS
 
 typedef struct
 {
@@ -669,7 +676,7 @@ extern int	max_actors;		/*!< The current number of actors in the actors_list + 1
 extern actor_types actors_defs[MAX_ACTOR_DEFS];	/*!< The actor definitions*/
 
 #ifdef ATTACHED_ACTORS
-extern attached_actor_type attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
+extern attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS]; /*!< The definitions for the attached actors */
 #endif // ATTACHED_ACTORS
 
 /*!
@@ -851,13 +858,27 @@ void transform_actor_local_position_to_absolute(actor *in_act, float *in_local_p
 void draw_actor_without_banner(actor * actor_id, Uint32 use_lightning, Uint32 use_textures, Uint32 use_glow);
 
 #ifdef ATTACHED_ACTORS
-static __inline__ int is_actor_holded(actor *act)
+static __inline__ int is_actor_held(actor *act)
 {
     return (act->attached_actor >= 0 &&
-            ((act->actor_id < 0 &&
-              !attached_actors_defs[act->actor_type].is_holder) ||
-             (act->actor_id >= 0 &&
-              attached_actors_defs[actors_list[act->attached_actor]->actor_type].is_holder)));
+            ((act->actor_id < 0 && // the actor is the attachment
+              !attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type].is_holder) ||
+             (act->actor_id >= 0 && // the actor is the parent of the attachment
+              attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type].is_holder)));
+}
+
+static __inline__ attachment_props* get_attachment_props_if_held(actor *act)
+{
+	if (act->attached_actor < 0)
+		return NULL;
+	else if (act->actor_id < 0 && // the actor is the attachment
+			 !attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type].is_holder)
+		return &attached_actors_defs[act->actor_type].actor_type[actors_list[act->attached_actor]->actor_type];
+    else if (act->actor_id >= 0 && // the actor is the parent of the attachment
+			 attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type].is_holder)
+		return &attached_actors_defs[actors_list[act->attached_actor]->actor_type].actor_type[act->actor_type];
+	else
+		return NULL;
 }
 #endif // ATTACHED_ACTORS
 
