@@ -249,7 +249,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 		actors_list[id]->kind_of_actor=0;
 
 #ifdef VARIABLE_SPEED
-		if (attached_actors_defs[attachment_type].is_holder)
+		if (attached_actors_defs[attachment_type].actor_type[parent->actor_type].is_holder)
 			actors_list[id]->step_duration = actors_defs[attachment_type].step_duration;
 		else
 			actors_list[id]->step_duration = parent->step_duration;

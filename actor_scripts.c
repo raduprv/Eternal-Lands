@@ -801,37 +801,51 @@ void next_command()
 						actors_list[i]->dead=1;
 						break;
 					case die2:
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_die2_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_die2_frame);
 						actors_list[i]->stop_animation=1;
 						actors_list[i]->dead=1;
 						break;
-					case pain1:
-						cal_actor_set_anim(i,actors_defs[actor_type].cal_pain1_frame);
+					case pain1: {
+#ifdef ATTACHED_ACTORS
+						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+						if (att_props)
+							cal_actor_set_anim(i, att_props->cal_pain_frame);
+						else
+#endif // ATTACHED_ACTORS
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_pain1_frame);
 						actors_list[i]->stop_animation=1;
 						break;
-					case pain2:
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_pain2_frame);
+					}
+					case pain2: {
+#ifdef ATTACHED_ACTORS
+						attachment_props *att_props = get_attachment_props_if_held(actors_list[i]);
+						if (att_props)
+							cal_actor_set_anim(i, att_props->cal_pain_frame);
+						else
+#endif // ATTACHED_ACTORS
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_pain2_frame);
 						actors_list[i]->stop_animation=1;
 						break;
+					}
 					case pick:
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_pick_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_pick_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case drop:
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_drop_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_drop_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case harvest:
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_harvest_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_harvest_frame);
 						actors_list[i]->stop_animation=1;
 						LOG_TO_CONSOLE(c_green2,"Harvesting!");
 						break;
 					case cast:
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_attack_cast_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_cast_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case ranged:
-						cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_attack_ranged_frame);
+						cal_actor_set_anim(i,actors_defs[actor_type].cal_attack_ranged_frame);
 						actors_list[i]->stop_animation=1;
 						break;
 					case sit_down:
@@ -1160,7 +1174,7 @@ void next_command()
 								cal_actor_set_anim(i, att_props->cal_walk_frame);
 							else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -1184,7 +1198,7 @@ void next_command()
 								cal_actor_set_anim(i, att_props->cal_walk_frame);
 							else
 #endif // ATTACHED_ACTORS
-							cal_actor_set_anim(i,actors_defs[actors_list[i]->actor_type].cal_walk_frame);
+							cal_actor_set_anim(i,actors_defs[actor_type].cal_walk_frame);
 						}
 						actors_list[i]->stop_animation=0;
 						break;
@@ -1431,7 +1445,7 @@ void next_command()
 								walk_anim = &att_props->cal_walk_frame;
 							else
 #endif // ATTACHED_ACTORS
-							walk_anim = &actors_defs[actors_list[i]->actor_type].cal_walk_frame;
+							walk_anim = &actors_defs[actor_type].cal_walk_frame;
 
 							actors_list[i]->moving=1;
 							actors_list[i]->fighting=0;
@@ -4094,6 +4108,11 @@ int parse_actor_script (xmlNode *cfg)
 		attached_actors_defs[act_idx].actor_type[i].cal_idle_frame.anim_index = -1;
 		attached_actors_defs[act_idx].actor_type[i].cal_walk_frame.anim_index = -1;
 		attached_actors_defs[act_idx].actor_type[i].cal_pain_frame.anim_index = -1;
+#ifdef NEW_SOUND
+		attached_actors_defs[act_idx].actor_type[i].cal_idle_frame.sound = -1;
+		attached_actors_defs[act_idx].actor_type[i].cal_walk_frame.sound = -1;
+		attached_actors_defs[act_idx].actor_type[i].cal_pain_frame.sound = -1;
+#endif // NEW_SOUND
 	}
 #endif // ATTACHED_ACTORS
 
