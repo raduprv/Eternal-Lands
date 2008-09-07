@@ -212,6 +212,13 @@ void    handle_update_download(struct http_get_struct *get)
 	// total failure, error and clear the busy flag
 	log_error("Failed to download (%s) 3 times. Giving up.", files_lst);
 	update_busy= 0;
+#ifdef  CUSTOM_UPDATE
+	if(is_this_files_lst && custom_update){
+        update_attempt_count = 0;
+		init_custom_update();
+	}
+#endif  //CUSTOM_UPDATE
+	
 }
 
 
