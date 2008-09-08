@@ -438,28 +438,28 @@ int command_calc(char *text, int len)
 	calcerr = calc_geterror();
 	switch (calcerr){
 		case CALCERR_OK:
-			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "Result: %.0f",res);
-			else safe_snprintf (str,sizeof(str), "Result: %.2f",res);
+			if (trunc(res)==res) safe_snprintf (str,sizeof(str), "%s = %.0f",text,res);
+			else safe_snprintf (str,sizeof(str), "%s = %.2f",text,res);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_SYNTAX:
-			safe_snprintf (str,sizeof(str), "Syntax error");
+			safe_snprintf (str,sizeof(str), "%s = Syntax error",text);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_DIVIDE:
-			safe_snprintf (str, sizeof(str),"Divide by zero");
+			safe_snprintf (str, sizeof(str),"%s = Divide by zero",text);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_MEM:
-			safe_snprintf (str,sizeof(str), "Memory error");
+			safe_snprintf (str,sizeof(str), "%s = Memory error",text);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_XOPSYNTAX:
-			safe_snprintf (str,sizeof(str), "Bad argument for X");
+			safe_snprintf (str,sizeof(str), "%s = Bad argument for X", text);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 		case CALCERR_LOPSYNTAX:
-			safe_snprintf (str,sizeof(str), "Bad argument for L");
+			safe_snprintf (str,sizeof(str), "%s = Bad argument for L", text);
 			LOG_TO_CONSOLE (c_orange1, str);
 			break;
 	}
