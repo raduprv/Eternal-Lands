@@ -107,6 +107,8 @@ extern int use_small_items_window;
 
 extern int manual_size_items_window;
 
+extern int allow_equip_swap;
+
 #ifdef NEW_SOUND
 void update_item_sound(int interval);
 #endif // NEW_SOUND
