@@ -34,7 +34,7 @@ void toggle_have_mouse();
 extern int cursors_tex;
 #endif // NEW_CURSOR
 #ifdef CONTEXT_MENUS
-extern int cm_banner_enabled;
+extern int cm_banner_disabled;
 #endif
 
 void draw_special_cursors();

@@ -89,7 +89,7 @@ int cursors_tex;
 extern int e3d_count, e3d_total;    // LRNR:stats testing only
 #endif  //DEBUG
 #ifdef CONTEXT_MENUS
-int cm_banner_enabled = 1;
+int cm_banner_disabled = 0;
 #endif
 
 void draw_special_cursors()
@@ -547,7 +547,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 		if (flag_right) 
 		{
 #ifdef CONTEXT_MENUS
-			if (cm_banner_enabled)
+			if (!cm_banner_disabled)
 			{
 				/* show the banner control menu if right-clicked and over your actors banner */
 				static Uint32 reset_cursor_time = 0;
@@ -568,7 +568,7 @@ int click_game_handler (window_info *win, int mx, int my, Uint32 flags)
 						cm_bool_line(cm_id, 2, &view_hp, NULL);
 						cm_bool_line(cm_id, 3, &view_chat_text_as_overtext, NULL);
 						cm_bool_line(cm_id, 4, &use_alpha_banner, "use_alpha_banner");
-						cm_bool_line(cm_id, 5, &cm_banner_enabled, "cm_banner_enabled");
+						cm_bool_line(cm_id, 5, &cm_banner_disabled, "cm_banner_disabled");
 					}
 					cm_show_direct(cm_id, -1, -1);
 					reset_cursor_time = SDL_GetTicks();
