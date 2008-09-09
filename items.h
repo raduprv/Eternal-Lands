@@ -7,6 +7,7 @@
 #define __ITEMS_H__
 
 #include "platform.h"
+#include "bags.h"
 
 #ifdef __cplusplus
 extern "C" {
@@ -75,6 +76,10 @@ struct quantities {
 extern item item_list[ITEM_NUM_ITEMS]; /*!< global list of items */
 
 extern struct quantities quantities; /*!< Quantities displayed in the items window*/
+
+extern void strap_word(char * in, char * out);
+extern ground_item ground_item_list[ITEMS_PER_BAG];
+extern bag bag_list[NUM_BAGS];
 
 extern int item_action_mode;
 

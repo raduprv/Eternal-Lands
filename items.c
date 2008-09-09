@@ -357,13 +357,24 @@ void get_new_inventory_item (const Uint8 *data)
 int display_items_handler(window_info *win)
 {
 	char str[80];
+    char my_str[10];
 	int x,y,i;
 	int item_is_weared=0;
 	Uint32 _cur_time = SDL_GetTicks(); /* grab a snapshot of current time */
 
 	glEnable(GL_TEXTURE_2D);
 
-	x=quantity_x_offset+quantity_width/2;
+	// write "get all" in the "get all" box :)
+	strap_word(get_all_str,my_str);
+	glColor3f(0.77f,0.57f,0.39f);
+	draw_string_small(win->len_x-24, 23, (unsigned char*)my_str, 2);
+	
+	// write "Store all" in the "get all" box :)
+	strap_word("Sto All",my_str);
+	glColor3f(0.77f,0.57f,0.39f);
+	draw_string_small(win->len_x-24, 55, (unsigned char*)my_str, 2);
+    
+   	x=quantity_x_offset+quantity_width/2;
 	y=quantity_y_offset+3;
 	glColor3f(0.3f,0.5f,1.0f);
 	for(i=0;i<6;x+=quantity_width,++i){
@@ -522,7 +533,26 @@ int display_items_handler(window_info *win)
 	glColor3f(0.57f,0.67f,0.49f);
 	rendergrid(2, 4, wear_items_x_offset, wear_items_y_offset, 33, 33);
 	
-	//now, draw the quantity boxes
+	glBegin(GL_LINE_LOOP);
+	
+		// draw the "get all" box
+		glVertex3i(win->len_x, 20,0);
+		glVertex3i(win->len_x-27, 20,0);
+		glVertex3i(win->len_x-27, 53,0);
+		glVertex3i(win->len_x, 53,0);
+
+	glEnd();
+	glBegin(GL_LINE_LOOP);
+	
+		// draw the "get all" box
+		glVertex3i(win->len_x, 53,0);
+		glVertex3i(win->len_x-27, 53,0);
+		glVertex3i(win->len_x-27, 85,0);
+		glVertex3i(win->len_x, 85,0);
+
+	glEnd();
+
+    //now, draw the quantity boxes
 	glColor3f(0.3f,0.5f,1.0f);
 	rendergrid(6, 1, quantity_x_offset, quantity_y_offset, quantity_width, 20);
 	glEnable(GL_TEXTURE_2D);
@@ -534,12 +564,14 @@ CHECK_GL_ERRORS();
 }
 
 int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
-{
-	Uint8 str[100];
+{	
+    Uint8 str[100];
 	int right_click = flags & ELW_RIGHT_MOUSE;
 	int ctrl_on = flags & ELW_CTRL;
 	int shift_on = flags & ELW_SHIFT;
-	
+	int pos,x,y;
+	actor *me;
+    	
 	// only handle mouse button clicks, not scroll wheels moves
 	if ( (flags & ELW_MOUSE_BUTTON) == 0) return 0;
 
@@ -734,7 +766,43 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 			}
 		}
 	} 
-	
+   	// see if we clicked on the "Get All" box
+	else if(mx>(win->len_x-27) && mx<win->len_x && my>20 && my<53){
+     	me = get_our_actor ();
+      	if(!me)return(1);//Wtf!?
+       	x=me->x_tile_pos;
+        y=me->y_tile_pos;
+
+	    for(pos=0;pos<NUM_BAGS;pos++){
+            if(bag_list[pos].x != 0 && bag_list[pos].y != 0)
+            {
+	    		if(bag_list[pos].x==x && bag_list[pos].y==y){
+                    open_bag(bag_list[pos].obj_3d_id);
+                    for(pos = 0; pos < ITEMS_PER_BAG; pos++){
+	            	    if(ground_item_list[pos].quantity){
+    	    		        str[0]=PICK_UP_ITEM;
+	       			        str[1]=pos;
+       	    			    *((Uint32 *)(str+2))=SDL_SwapLE32(ground_item_list[pos].quantity);
+	   	        		    my_tcp_send(my_socket,str,6);
+        	            }
+                    }
+                }
+            }
+        }
+    }
+   	// see if we clicked on the "Sto All" box
+	else if(mx>(win->len_x-27) && mx<win->len_x && my>52 && my<85){
+         for(pos=0;pos<36;pos++){
+              if(item_list[pos].quantity>0){                                            
+                   str[0]=DEPOSITE_ITEM;
+		           str[1]=pos;
+                   *((Uint32*)(str+2))=SDL_SwapLE32(item_list[pos].quantity);
+
+	     	      my_tcp_send(my_socket, str, 6);
+              }
+          }
+     }
+
 	//see if we clicked on any item in the wear category
 	else if(mx>wear_items_x_offset && mx<wear_items_x_offset+2*33 &&
 	   my>wear_items_y_offset && my<wear_items_y_offset+4*33){
