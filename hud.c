@@ -106,7 +106,7 @@ static int cm_quickbar_enabled = 0;
 static int cm_sound_enabled = 0;
 static int cm_music_enabled = 0;
 static int cm_minimap_shown = 0;
-enum {	CMH_STATS=0, CMH_STATBARS, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_FPS,
+enum {	CMH_STATS=0, CMH_STATBARS, CMH_DIGCLOCK, CMH_ANACLOCK, CMH_SECONDS, CMH_FPS,
 		CMH_MINIMAP, CMH_QUICKBM, CMH_SEP1, CMH_SOUND, CMH_MUSIC };
 enum {	CMQB_RELOC=0, CMQB_DRAG, CMQB_RESET, CMQB_FLIP, CMQB_ENABLE };
 #endif
@@ -1069,6 +1069,7 @@ void init_misc_display(hud_interface type)
 			cm_bool_line(cm_hud_id, CMH_STATBARS, &show_statbars_in_hud, "show_statbars_in_hud");
 			cm_bool_line(cm_hud_id, CMH_DIGCLOCK, &view_digital_clock, "view_digital_clock");
 			cm_bool_line(cm_hud_id, CMH_ANACLOCK, &view_analog_clock, "view_analog_clock");
+			cm_bool_line(cm_hud_id, CMH_SECONDS, &show_game_seconds, "show_game_seconds");
 			cm_bool_line(cm_hud_id, CMH_FPS, &show_fps, "show_fps");
 			cm_bool_line(cm_hud_id, CMH_MINIMAP, &cm_minimap_shown, NULL);
 			cm_bool_line(cm_hud_id, CMH_QUICKBM, &cm_quickbar_enabled, NULL);
