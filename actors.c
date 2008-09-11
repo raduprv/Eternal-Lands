@@ -206,8 +206,6 @@ void add_actor_attachment(int actor_id, int attachment_type)
 	int i;
 	actor *parent = NULL;
 
-	LOCK_ACTORS_LISTS();
-
 	for (i = 0; i < max_actors; ++i)
 		if (actors_list[i]->actor_id == actor_id)
 		{
@@ -275,8 +273,9 @@ void add_actor_attachment(int actor_id, int attachment_type)
 		}
 		else
 			actors_list[id]->calmodel=NULL;
+
+		UNLOCK_ACTORS_LISTS();
 	}
-	UNLOCK_ACTORS_LISTS();
 }
 
 void remove_actor_attachment(int actor_id)
@@ -305,6 +304,8 @@ void remove_actor_attachment(int actor_id)
 			}
 			break;
 		}
+
+	UNLOCK_ACTORS_LISTS();
 }
 #endif // ATTACHED_ACTORS
 

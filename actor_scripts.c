@@ -1367,7 +1367,7 @@ void next_command()
 							}
 						}
 						
-#ifdef DEBUG
+#if 0 //def DEBUG
 						{
 							float aim_angle = atan2f(action->aim_position[1] - actors_list[i]->y_pos,
 													 action->aim_position[0] - actors_list[i]->x_pos);
@@ -1673,7 +1673,7 @@ void update_all_actors()
 }
 
 #ifdef ATTACHED_ACTORS
-void push_command_in_actor_queue(unsigned char command, actor *act)
+int push_command_in_actor_queue(unsigned char command, actor *act)
 {
 	int k;
 	for(k=0;k<MAX_CMD_QUEUE;k++){
@@ -1707,6 +1707,7 @@ void push_command_in_actor_queue(unsigned char command, actor *act)
 			break;
 		}
 	}
+	return k;
 }
 #endif // ATTACHED_ACTORS
 
@@ -1714,6 +1715,9 @@ void add_command_to_actor(int actor_id, unsigned char command)
 {
 	//int i=0;
 	int k=0;
+#ifdef ATTACHED_ACTORS
+	int k2 = 0;
+#endif // ATTACHED_ACTORS
 	//int have_actor=0;
 //if ((actor_id==yourself)&&(command==enter_combat)) LOG_TO_CONSOLE(c_green2,"FIGHT!");
 	actor * act;
@@ -1835,9 +1839,11 @@ void add_command_to_actor(int actor_id, unsigned char command)
 			}
 		}
 #else // ATTACHED_ACTORS
-		push_command_in_actor_queue(command, act);
+		k = push_command_in_actor_queue(command, act);
 		if (act->attached_actor >= 0)
-			push_command_in_actor_queue(command, actors_list[act->attached_actor]);
+			k2 = push_command_in_actor_queue(command, actors_list[act->attached_actor]);
+		else
+			k2 = k;
 #endif // ATTACHED_ACTORS
 
 		{
@@ -1950,6 +1956,16 @@ void add_command_to_actor(int actor_id, unsigned char command)
 		}
 		UNLOCK_ACTORS_LISTS();
 
+#ifdef ATTACHED_ACTORS
+		if (k != k2) {
+			LOG_ERROR("Inconsistency between queues of attached actors %s (%d) and %s (%d)!",
+					  act->actor_name,
+					  act->actor_id,
+					  actors_list[act->attached_actor]->actor_name,
+					  actors_list[act->attached_actor]->actor_id);
+		}
+		else
+#endif // ATTACHED_ACTORS
 		if(k>MAX_CMD_QUEUE-2){
 			int i;
 			LOG_ERROR("Too much commands in the queue for actor %d (%s) => resync!",
