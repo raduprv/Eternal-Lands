@@ -760,7 +760,12 @@ void cal_get_actor_bone_local_position(actor *in_act, int in_bone_id, float *in_
 	struct CalBone *bone;
 	struct CalVector *point;
 
+    if (in_bone_id < 0) return;
+
 	skel = CalModel_GetSkeleton(in_act->calmodel);
+
+    if (in_bone_id >= CalSkeleton_GetBonesNumber(skel)) return;
+
 	bone = CalSkeleton_GetBone(skel, in_bone_id);
 	point = CalBone_GetTranslationAbsolute(bone);
 
