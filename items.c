@@ -819,7 +819,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
         }
     }
    	// see if we clicked on the "Sto All" box
-	else if(mx>(win->len_x-27) && mx<win->len_x && my>52 && my<85){
+	else if(mx>(win->len_x-27) && mx<win->len_x && my>52 && my<85 && storage_win >= 0 && view_only_storage == 0 /*thanks alberich*/){
          for(pos=0;pos<36;pos++){
               if(item_list[pos].quantity>0){                                            
                    str[0]=DEPOSITE_ITEM;
