@@ -6,7 +6,7 @@
 -include make.conf
 
 # basic compiling and linking - rarely changed
-OPTIONS = -DWINDOWS -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
+OPTIONS = -mwindows -DWINDOWS -DELC $(foreach FEATURE, $(FEATURES), -D$(FEATURE))
 CFLAGS=$(PLATFORM) $(CWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
 _CFLAGS=$(PLATFORM) -O2 -fomit-frame-pointer -ffast-math -pipe -fno-strict-aliasing $(EXTRA_INCLUDES)
 CXXFLAGS=$(PLATFORM) $(CXXWARN) -O0 -ggdb -pipe $(OPTIONS) -fno-strict-aliasing $(EXTRA_INCLUDES)
