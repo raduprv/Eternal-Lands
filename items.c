@@ -364,15 +364,22 @@ int display_items_handler(window_info *win)
 
 	glEnable(GL_TEXTURE_2D);
 
+	/* 
+	* Labrat: I never realised that a store all patch had been posted to Berlios by Awn in February '07
+	* Thanks to Awn for his earlier efforts (but this is not a derivative of his earlier work)
+	*
+	*My next step will be to code an #ifdef STORE_ALL section to save the 0-35 loop in the click handler for future proofing
+	*  ready for server side implementation
+	*/
 	// write "get all" in the "get all" box :)
 	strap_word(get_all_str,my_str);
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string_small(win->len_x-24, 23, (unsigned char*)my_str, 2);
+	draw_string_small(win->len_x-24, wear_items_y_offset, (unsigned char*)my_str, 2);
 	
-	// write "Store all" in the "get all" box :)
+	// write "Store all" in the "store all" box :)
 	strap_word("Sto All",my_str);
 	glColor3f(0.77f,0.57f,0.39f);
-	draw_string_small(win->len_x-24, 55, (unsigned char*)my_str, 2);
+	draw_string_small(win->len_x-24, wear_items_y_offset+32, (unsigned char*)my_str, 2);
     
    	x=quantity_x_offset+quantity_width/2;
 	y=quantity_y_offset+3;
@@ -536,19 +543,19 @@ int display_items_handler(window_info *win)
 	glBegin(GL_LINE_LOOP);
 	
 		// draw the "get all" box
-		glVertex3i(win->len_x, 20,0);
-		glVertex3i(win->len_x-27, 20,0);
-		glVertex3i(win->len_x-27, 53,0);
-		glVertex3i(win->len_x, 53,0);
+		glVertex3i(win->len_x, wear_items_y_offset,0);
+		glVertex3i(win->len_x-27, wear_items_y_offset,0);
+		glVertex3i(win->len_x-27, wear_items_y_offset+32,0);
+		glVertex3i(win->len_x, wear_items_y_offset+32,0);
 
 	glEnd();
 	glBegin(GL_LINE_LOOP);
 	
 		// draw the "get all" box
-		glVertex3i(win->len_x, 53,0);
-		glVertex3i(win->len_x-27, 53,0);
-		glVertex3i(win->len_x-27, 85,0);
-		glVertex3i(win->len_x, 85,0);
+		glVertex3i(win->len_x, wear_items_y_offset+32,0);
+		glVertex3i(win->len_x-27, wear_items_y_offset+32,0);
+		glVertex3i(win->len_x-27, wear_items_y_offset+64,0);
+		glVertex3i(win->len_x, wear_items_y_offset+64,0);
 
 	glEnd();
 
@@ -795,7 +802,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 		}
 	} 
    	// see if we clicked on the "Get All" box
-	else if(mx>(win->len_x-27) && mx<win->len_x && my>20 && my<53){
+	else if(mx>(win->len_x-27) && mx<win->len_x && my>wear_items_y_offset && my<wear_items_y_offset+32){
      	me = get_our_actor ();
       	if(!me)return(1);//Wtf!?
        	x=me->x_tile_pos;
@@ -819,7 +826,16 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
         }
     }
    	// see if we clicked on the "Sto All" box
-	else if(mx>(win->len_x-27) && mx<win->len_x && my>52 && my<85 && storage_win >= 0 && view_only_storage == 0 /*thanks alberich*/){
+	else if(mx>(win->len_x-27) && mx<win->len_x && my>wear_items_y_offset+32 && my<wear_items_y_offset+64
+	&& storage_win >= 0 && view_only_storage == 0 && windows_list.window[storage_win].displayed == 1 /*thanks alberich*/){
+#ifdef STORE_ALL
+	/*
+	* Future code to save server load by having one byte to represent the 36 slot inventory loop. Will need server support.
+	*/
+	str[0]=DEPOSITE_ITEM;
+	str[1]=STORE_ALL;
+	my_tcp_send(my_socket, str, 2);
+#else
          for(pos=0;pos<36;pos++){
               if(item_list[pos].quantity>0){                                            
                    str[0]=DEPOSITE_ITEM;
@@ -829,6 +845,7 @@ int click_items_handler(window_info *win, int mx, int my, Uint32 flags)
 	     	      my_tcp_send(my_socket, str, 6);
               }
           }
+#endif
      }
 
 	//see if we clicked on any item in the wear category
@@ -1020,7 +1037,7 @@ int show_items_handler(window_info * win)
 	win->len_x=6*items_grid_size+110;
 	quantity_y_offset=win->len_y-21;
 	quantity_x_offset=1;
-	wear_items_x_offset=6*items_grid_size+17;
+	wear_items_x_offset=6*items_grid_size+8;
 	item_quantity=quantities.quantity[quantities.selected].val;
 
 	w=widget_find(items_win, drop_button_id);
