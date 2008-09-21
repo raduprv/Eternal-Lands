@@ -353,7 +353,8 @@ void build_video_mode_array()
 		}
 
 	}
-	video_modes[video_mode-1].flags.selected=1;
+	if (video_mode > 0)
+		video_modes[video_mode-1].flags.selected=1;
 }
 
 void draw_console_pic(int which_texture)

@@ -20,6 +20,9 @@ extern int window_height; /*!< height of the window */
 
 extern int bpp; /*!< color depth to use */
 extern int video_mode; /*!< currently selected video mode */
+extern int video_user_width; /*!< userdefined window width */
+extern int video_user_height; /*!< userdefined window height */
+extern int disable_window_adjustment; /*<! Switch off window size adjustment for window borders, task bar and the like */
 extern int full_screen; /*!< flag that inidicates whether we are in fullscreen or windowed mode */
 extern float gamma_var; /*!< The current gamma value */
 extern float perspective; /*!< The perspective "angle". Higher values mean higher distortion. Default is 0.15f */
@@ -55,6 +58,15 @@ extern int gl_extensions_loaded; /*< specifies if the OpenGL extensions were loa
  * \sa init_video
  */
 void setup_video_mode(int fs, int mode);
+
+/*!
+ * \ingroup video
+ * \brief   Switch to a different video mode or switch fullscreen state
+ *
+ * \return  False if the mode is not supported
+ *	    True otherwise
+ */
+int switch_video(int mode, int full_screen);
 
 /*!
  * \ingroup video

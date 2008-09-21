@@ -580,7 +580,7 @@ void change_new_selection(int *value)
 	}
 }
 
-void switch_vidmode(int *pointer, int mode)
+int switch_video(int mode, int full_screen)
 {
 	int win_width,
 		win_height,
@@ -592,24 +592,26 @@ void switch_vidmode(int *pointer, int mode)
 	if (full_screen) 
 		flags |= SDL_FULLSCREEN;
 
-	if(index < 0 || index >= video_modes_count) {
+	if(mode == 0 && !full_screen) {
+		win_width = video_user_width;
+		win_height = video_user_height;
+		win_bpp = bpp;
+	} else if(index < 0 || index >= video_modes_count) {
 		//warn about this error
 		LOG_TO_CONSOLE(c_red2,invalid_video_mode);
-		return;
-	} else if(!video_mode_set) {
-		/* Video isn't ready yet, just remember the mode */
-		video_mode= mode;
-		return;
+		return 0;
+	} else {
+		/* Check if the video mode is supported. */
+		win_width = video_modes[index].width;
+		win_height = video_modes[index].height;
+		win_bpp = video_modes[index].bpp;
 	}
-	/* Check if the video mode is supported. */
-	win_width = video_modes[index].width;
-	win_height = video_modes[index].height;
-	win_bpp = video_modes[index].bpp;
 
 	destroy_fbos();
 
 	if (!SDL_VideoModeOK(win_width, win_height, win_bpp, flags)) {
 		LOG_TO_CONSOLE(c_red2, invalid_video_mode);
+		return 0;
 	} else {
 		set_new_video_mode(full_screen, mode);
 #ifndef MAP_EDITOR2
@@ -619,6 +621,17 @@ void switch_vidmode(int *pointer, int mode)
 #endif
 	}
 	build_fbos();
+
+	return 1;
+}
+void switch_vidmode(int *pointer, int mode)
+{
+	if(!video_mode_set) {
+		/* Video isn't ready yet, just remember the mode */
+		video_mode= mode;
+	} else {
+		switch_video(mode, full_screen);
+	}
 }
 
 void toggle_full_screen_mode(int * fs)
@@ -1770,7 +1783,7 @@ void init_vars()
 #ifdef ELC
 	add_var(OPT_BOOL, "windows_on_top", "wot", &windows_on_top, change_windows_on_top, 0, "Windows On Top","Allows the Manufacture, Storage and Inventory windows to appear above the map and console.", MISC);
 
-	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "", NULL);
+	add_var(OPT_MULTI,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO, "Userdefined", NULL);
 	for (i = 0; i < video_modes_count; i++)
 	{
 		static char str[100];
@@ -1780,6 +1793,9 @@ void init_vars()
 		video_modes[i].name = strdup(str);
 		add_multi_option("video_mode", video_modes[i].name);
 	}
+	add_var(OPT_BOOL, "disable_window_adjustment", "nowindowadjustment", &disable_window_adjustment, change_var, 0, "Disable window size adjustment","Disables the window size adjustment on video mode changes in windowed mode.", VIDEO);
+	add_var(OPT_INT,"video_width","width",&video_user_width,change_int, 640,"Userdefined width","Userdefined window width",VIDEO, 640,INT_MAX);
+	add_var(OPT_INT,"video_height","height",&video_user_height,change_int, 480,"Userdefined height","Userdefined window height",VIDEO, 480,INT_MAX);
 
 #else
 	add_var(OPT_SPECINT,"video_mode","vid",&video_mode,switch_vidmode,4,"Video Mode","The video mode you wish to use",VIDEO);

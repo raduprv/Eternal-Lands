@@ -39,6 +39,9 @@ int desktop_height;
 int bpp=0;
 int have_stencil=1;
 int video_mode;
+int video_user_width;
+int video_user_height;
+int disable_window_adjustment;
 int full_screen;
 
 int use_compiled_vertex_array = 0;
@@ -70,27 +73,100 @@ void APIENTRY Emul_glDrawRangeElements(GLenum mode, GLuint start, GLuint end, GL
 
 void setup_video_mode(int fs, int mode)
 {
+	/* Video mode 0 is user defined size (via video_user_width and video_user_height)
+	 * Video mode 1 and above are defined in the video_modes array where mode 1 is at position 0
+	 * Therefore we heve to adjust the index by one
+	 */
 	int index = mode - 1;
 
-	/* Safe fallback */
+	/* Safe fallback
+	 * If the user select an invalid mode (like a wrong number in the config file) fallback
+	 * to safe 640x480 mode
+	 */
 	if (index < 0 || index >= video_modes_count)
 		index = 0;
 
 	if (fs) // Fullscreen
 	{
-		window_width = video_modes[index].width;
-		window_height = video_modes[index].height;
-		bpp = video_modes[index].bpp;
+		if (mode == 0)
+		{
+			window_width = video_user_width;
+			window_height = video_user_height;
+			bpp = 0;
+		} else {
+			window_width = video_modes[index].width;
+			window_height = video_modes[index].height;
+			bpp = video_modes[index].bpp;
+		}
 	} 
 	else // Windowed mode
 	{
 		int new_width = video_modes[index].width;
 		int new_height = video_modes[index].height;
 
-		if (new_width != 640 || new_height != 480)
+		if (mode == 0)
 		{
+			new_width = video_user_width;
+			new_height = video_user_height;
+		} 
+		else if (!disable_window_adjustment)
+		{
+#ifdef WINDOWS
+			// Window size magic:
+			// Try to get the work area and adjust the window to that size minus the border size
+
+			HWND hwnd;
+			HMONITOR monitor;
+			MONITORINFO monitorInfo;
+			int monitor_width = 0;
+			int monitor_height = 0;
+
+			hwnd = GetActiveWindow();
+			// Get the monitor closest to the window (if we already have one)
+			monitor = MonitorFromWindow(hwnd, MONITOR_DEFAULTTOPRIMARY);
+
+			// Get the size of the work area
+			monitorInfo.cbSize = sizeof(monitorInfo);
+			GetMonitorInfo(monitor, &monitorInfo);
+			monitor_width = monitorInfo.rcWork.right - monitorInfo.rcWork.left;
+			monitor_height = monitorInfo.rcWork.bottom - monitorInfo.rcWork.top;
+
+			// Clip the window size to the work area
+			if (new_width >= monitor_width)
+				new_width = monitor_width;
+			if (new_height >= monitor_height)
+				new_height = monitor_height;
+
+			// try to move the window to make everything visible
+			if (hwnd != NULL)
+			{
+				WINDOWPLACEMENT wpl;
+				int dx, dy;
+
+				wpl.length = sizeof(wpl);
+				GetWindowPlacement(hwnd, &wpl);
+
+				dx = wpl.rcNormalPosition.left + new_width - monitorInfo.rcWork.right;
+				dy = wpl.rcNormalPosition.top + new_height - monitorInfo.rcWork.bottom;
+
+				if (dx < 0) dx = 0;
+				if (dy < 0) dy = 0;
+
+				if (dx || dy) {
+					wpl.rcNormalPosition.left -= dx;
+					wpl.rcNormalPosition.top -= dy;
+					wpl.showCmd = SW_SHOWNORMAL;
+					SetWindowPlacement(hwnd, &wpl);
+				}
+			}
+
+			// Adjust the window size to fit into the border and title bar
+			new_width -= 2 * GetSystemMetrics(SM_CXFIXEDFRAME);
+			new_height -= 2 * GetSystemMetrics(SM_CYFIXEDFRAME) + GetSystemMetrics(SM_CYCAPTION);
+#else
 			new_width -= 10;
 			new_height -= 55;
+#endif
 		}
 
 		if (window_width != new_width || window_height != new_height)
@@ -101,6 +177,7 @@ void setup_video_mode(int fs, int mode)
 			safe_snprintf(str, sizeof(str), window_size_adjusted_str, modestr);
 			LOG_TO_CONSOLE(c_yellow1,str);
 		}
+
 		window_width = new_width;
 		window_height = new_height;
 		bpp = 0; // autodetect
@@ -182,7 +259,10 @@ void init_video()
 		}
 
 	//adjust the video mode accordingly
-	if(bpp==16) {
+	if (video_mode == 0)
+	{
+		//do nothing
+	} else if(bpp==16) {
 		if(!(video_mode%2))
 			video_mode-=1;
 	} else {
@@ -983,7 +1063,7 @@ void toggle_full_screen()
 {
 	reload_tab_map = 1;
 	full_screen=!full_screen;
-	set_new_video_mode(full_screen,video_mode);
+	switch_video(video_mode, full_screen);
 	build_video_mode_array();
 	SDL_SetGamma(gamma_var, gamma_var, gamma_var);
 	SDL_SetModState(KMOD_NONE); // force ALL keys up
