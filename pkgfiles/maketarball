@@ -13,22 +13,26 @@ then
 fi
 version="$1"
 
+# make a temporary copy
+echo "Making temp copy..."
+tar cfz ../temp.${version}.tar.gz .
+cd ..
+mkdir eternallands-${version}
+cd eternallands-${version}
+tar xfz ../temp.${version}.tar.gz
+rm ../temp.${version}.tar.gz
+
 # remove stuff that's not required
-echo "Cleaning up...."
+echo "Removing unwanted files from copy"
 rm -rf actor_defs books generic languages map_editor pawn pawn_scripts shader/data shaders skybox temlates eye_candy/textures
 rm -f e3dlist.txt extentions.xml key.ini material_metadata.xml
 find . -type d -name CVS -exec rm -rf {} \; &> /dev/null
 find . -type d -name CVS -exec rm -rf {} \;
 chmod -R -x *.{c,cpp,h}
 
-# make the tar ball
-echo "Making tar ball..."
-tar cfz ../temp.tar.gz .
-mkdir eternallands-${version}
-cd eternallands-${version}
-tar xfz ../../temp.tar.gz
+# make the final tar ball
+echo "Making tarball"
 cd ..
-tar cfz ../eternallands-${version}.tar.gz eternallands-${version}
+tar cfz eternallands-${version}.tar.gz eternallands-${version}
 rm -rf eternallands-${version}
-rm ../temp.tar.gz
-ls -l ../eternallands-${version}.tar.gz
+ls -l eternallands-${version}.tar.gz
