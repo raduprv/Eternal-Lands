@@ -77,6 +77,15 @@ __inline__ GLuint get_items_texture(int no)
 	return items_text[no];
 }
 
+static void set_shown_string(char colour_code, const char *the_text)
+{
+	inventory_item_string[0] = to_color_char(colour_code);
+	safe_strncpy2(inventory_item_string+1, the_text, sizeof(inventory_item_string)-2, strlen(the_text));
+	inventory_item_string[sizeof(inventory_item_string)-1] = 0;
+	inventory_item_string_id++;
+}
+
+
 void rendergrid(int columns, int rows, int left, int top, int width, int height)
 {
 	int x, y;
@@ -572,30 +581,45 @@ CHECK_GL_ERRORS();
 
 
 /* return 1 if sent the move command */
-int move_item(int item_pos_to_mov, int destination_pos)
+static int move_item(int item_pos_to_mov, int destination_pos)
 {
 	int drop_on_stack = 0;
 	/* if the dragged item is equipped and the destintion is occupied, try to find another slot */
 	if ((item_pos_to_mov >= ITEM_WEAR_START) && (item_list[destination_pos].quantity)){
 		int i;
-		/* try to find an existing stack */
-		if (item_list[item_pos_to_mov].is_stackable){
-			for (i = 0; i < ITEM_WEAR_START; i++){
-				if (item_list[i].image_id == item_list[item_pos_to_mov].image_id){
-					destination_pos = i;
-					drop_on_stack = 1;
-					break;
-				}
+		int have_free_pos = 0;
+		/* find first free slot, use a free slot in preference to a stack as the server does the stacking */
+		for (i = 0; i < ITEM_WEAR_START; i++){
+			if (!item_list[i].quantity){
+				destination_pos = i;
+				have_free_pos = 1;
+				break;
 			}
 		}
-		/* if no stack to use, find first free slot */
-		if (!drop_on_stack){
+		/* if no free slot, try to find an existing stack.  But be careful of dupe image ids */
+		if (!have_free_pos && item_list[item_pos_to_mov].is_stackable){
+			int num_stacks_found = 0;
+			int proposed_slot = -1;
 			for (i = 0; i < ITEM_WEAR_START; i++){
-				if (!item_list[i].quantity){
-					destination_pos = i;
-					break;
+				if (item_list[i].is_stackable && (item_list[i].image_id == item_list[item_pos_to_mov].image_id)){
+					num_stacks_found++;
+					proposed_slot = i;
 				}
 			}
+			/* only use the stack if  we're sure there are no other possibilities */
+			if (num_stacks_found == 1){
+				destination_pos = proposed_slot;
+				drop_on_stack = 1;
+			}
+			else
+				set_shown_string(c_red2, "Client can't choose between multiple stacks, make a free slot and let the server do it!");
+			/*  This still leaves one possibility for the dreaded server accusation.
+				If we have no free inventory slots, one or more stackable items 
+				unequipped, and a single, different equipped item with the same id as
+				the aforementioned stack.  When we try to unequip the single item, the
+				client tries to place it on that stack. This may mean we have to
+				abandon this feature; i.e. allowing a stackable item to be unequipping
+				when there are no free slots. (pjbroad/bluap) */
 		}
 	}
 	/* move item */
@@ -612,7 +636,7 @@ int move_item(int item_pos_to_mov, int destination_pos)
 		return 0;
 }
 
-void equip_item(int item_pos_to_equip, int destination_pos)
+static void equip_item(int item_pos_to_equip, int destination_pos)
 {
 	Uint8 str[20];
 	//send the drop info to the server
