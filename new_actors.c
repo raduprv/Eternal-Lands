@@ -507,7 +507,6 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	Uint32 buffs;
 	short x_pos;
 	short y_pos;
-	short z_pos;
 	short z_rot;
 	short max_health;
 	short cur_health;
@@ -534,8 +533,12 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 #endif
 	Uint32 uniq_id; // - Post ported.... We'll come up with something later...
 	Uint32 guild_id;
-	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
+	double f_x_pos,f_y_pos,f_z_rot;
 	float   scale=1.0f;
+
+#ifdef ATTACHED_ACTORS
+	int attachment_type = -1;
+#endif // ATTACHED_ACTORS
 	
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -552,7 +555,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	x_pos=SDL_SwapLE16(*((short *)(in_data+2))) & 0x7FF;
 	y_pos=SDL_SwapLE16(*((short *)(in_data+4))) & 0x7FF;
 #endif //EL_BIG_ENDIAN
-	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
+	buffs |= SDL_SwapLE16(*((short *)(in_data+6))) << 10;
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
 	skin=*(in_data+12);
@@ -586,17 +589,24 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	uniq_id = SDL_SwapLE32(*((Uint32*)(in_data+28)));
 	if(len > 32+(int)strlen(in_data+32)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+32+strlen(in_data+32)+1)))/((float)ACTOR_SCALE_BASE));
+#ifdef ATTACHED_ACTORS
+		if(len > 32+(int)strlen(in_data+32)+3)
+			attachment_type = in_data[32+strlen(in_data+32)+3];
+#endif // ATTACHED_ACTORS
 	}
 #else
 	if(len > 28+(int)strlen(in_data+28)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+28+strlen(in_data+28)+1)))/((float)ACTOR_SCALE_BASE));
+#ifdef ATTACHED_ACTORS
+		if(len > 28+(int)strlen(in_data+28)+3)
+			attachment_type = (unsigned char)in_data[28+strlen(in_data+28)+3];
+#endif // ATTACHED_ACTORS
 	}
 #endif
 
 	//translate from tile to world
 	f_x_pos=x_pos*0.5;
 	f_y_pos=y_pos*0.5;
-	f_z_pos=z_pos;
 	f_z_rot=z_rot;
 
 #ifdef EXTRA_DEBUG
@@ -864,7 +874,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 			my_strncp(this_actor->helmet_tex,"",sizeof(this_actor->helmet_tex));
 		}
 
-	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,f_z_pos,f_z_rot,scale,actor_id);
+	i=add_enhanced_actor(this_actor,f_x_pos,f_y_pos,0.0,f_z_rot,scale,actor_id);
 	
 #ifdef EXTRA_DEBUG
 	ERR();
@@ -892,8 +902,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
     actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
 #endif // VARIABLE_SPEED
 
-	if (actors_list[i]->z_pos == 0.0)
-		actors_list[i]->z_pos = get_actor_z(actors_list[i]);
+    actors_list[i]->z_pos = get_actor_z(actors_list[i]);
 
 	if(frame==frame_sit_idle)
 		{
@@ -949,6 +958,11 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	actors_list[i]->cape = cape;
 	actors_list[i]->legs = pants;
 #endif
+
+#ifdef ATTACHED_ACTORS
+	if (attachment_type >= 0)
+		add_actor_attachment(actor_id, attachment_type);
+#endif // ATTACHED_ACTORS
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		actors_list[i]->calmodel=model_new(actors_defs[actor_type].coremodel);

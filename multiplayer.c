@@ -1719,12 +1719,12 @@ void process_message_from_server (const Uint8 *in_data, int data_length)
 #ifdef EXTRA_DEBUG
 	ERR();
 #endif
-			if (data_length <= 5)
+			if (data_length < 9)
 			{
 			  log_error("CAUTION: Possibly forged SEND_BUFFS packet received.\n");
 			  break;
 			}
-				update_actor_buffs(SDL_SwapLE16(*((short *)(in_data+3))), in_data[5]);
+			update_actor_buffs(SDL_SwapLE16(*((short *)(in_data+3))), SDL_SwapLE32(*((Uint32 *)(in_data+5))));
 			break;
 			
 		case SEND_SPECIAL_EFFECT:

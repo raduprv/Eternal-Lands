@@ -253,8 +253,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 			actors_list[id]->step_duration = parent->step_duration;
 #endif // VARIABLE_SPEED
 
-		if (actors_list[id]->z_pos == 0.0)
-			actors_list[id]->z_pos = get_actor_z(actors_list[id]);
+		actors_list[id]->z_pos = get_actor_z(actors_list[id]);
 
 		//printf("attached actor n°%d of type %d to actor n°%d with id %d\n", id, attachment_type, i, actor_id);
 
@@ -1246,7 +1245,6 @@ void add_actor_from_server (const char *in_data, int len)
 	Uint32 buffs = 0;
 	short x_pos;
 	short y_pos;
-	short z_pos;
 	short z_rot;
 	short max_health;
 	short cur_health;
@@ -1262,8 +1260,12 @@ void add_actor_from_server (const char *in_data, int len)
 	int dead=0;
 	int kind_of_actor;
 
-	double f_x_pos,f_y_pos,f_z_pos,f_z_rot;
+	double f_x_pos,f_y_pos,f_z_rot;
 	float scale= 1.0f;
+
+#ifdef ATTACHED_ACTORS
+	int attachment_type = -1;
+#endif // ATTACHED_ACTORS
 
 	actor_id=SDL_SwapLE16(*((short *)(in_data)));
 #ifndef EL_BIG_ENDIAN
@@ -1275,7 +1277,7 @@ void add_actor_from_server (const char *in_data, int len)
 	x_pos=SDL_SwapLE16(*((short *)(in_data+2))) & 0x7FF;
 	y_pos=SDL_SwapLE16(*((short *)(in_data+4))) & 0x7FF;
 #endif //EL_BIG_ENDIAN
-	z_pos=SDL_SwapLE16(*((short *)(in_data+6)));
+	buffs |= SDL_SwapLE16(*((short *)(in_data+6))) << 10;
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
 
@@ -1285,6 +1287,11 @@ void add_actor_from_server (const char *in_data, int len)
 	kind_of_actor=*(in_data+16);
 	if(len > 17+(int)strlen(in_data+17)+2){
 		scale=((float)SDL_SwapLE16(*((short *)(in_data+17+strlen(in_data+17)+1)))/((float)ACTOR_SCALE_BASE));
+
+#ifdef ATTACHED_ACTORS
+		if(len > 17+(int)strlen(in_data+17)+3)
+			attachment_type = (unsigned char)in_data[17+strlen(in_data+17)+3];
+#endif // ATTACHED_ACTORS
 	}
 
 	if(actor_type < 0 || actor_type >= MAX_ACTOR_DEFS || (actor_type > 0 && actors_defs[actor_type].actor_type != actor_type) ){
@@ -1297,7 +1304,6 @@ void add_actor_from_server (const char *in_data, int len)
 	//translate from tile to world
 	f_x_pos=x_pos*0.5;
 	f_y_pos=y_pos*0.5;
-	f_z_pos=z_pos;
 	f_z_rot=z_rot;
 
 	//get the current frame
@@ -1363,7 +1369,7 @@ void add_actor_from_server (const char *in_data, int len)
 					}
 		}
 
-	i= add_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, f_z_pos, f_z_rot, scale, 0, 0, 0, 0, 0, 0, actor_id);
+	i= add_actor(actor_type, actors_defs[actor_type].skin_name, f_x_pos, f_y_pos, 0.0, f_z_rot, scale, 0, 0, 0, 0, 0, 0, actor_id);
 
 	if(i==-1) return;//A nasty error occured and we couldn't add the actor. Ignore it.
 
@@ -1390,8 +1396,7 @@ void add_actor_from_server (const char *in_data, int len)
     actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
 #endif // VARIABLE_SPEED
 
-	if (actors_list[i]->z_pos == 0.0)
-		actors_list[i]->z_pos = get_actor_z(actors_list[i]);
+	actors_list[i]->z_pos = get_actor_z(actors_list[i]);
 
 	if(frame==frame_sit_idle)actors_list[i]->sitting=1;
 	else
@@ -1408,6 +1413,11 @@ void add_actor_from_server (const char *in_data, int len)
 			log_error("%s (%d): %s/%d\n", bad_actor_name_length, actors_list[i]->actor_type,&in_data[17], (int)strlen(&in_data[17]));
 		}
 	else my_strncp(actors_list[i]->actor_name,&in_data[17],30);
+
+#ifdef ATTACHED_ACTORS
+	if (attachment_type >= 0)
+		add_actor_attachment(actor_id, attachment_type);
+#endif // ATTACHED_ACTORS
 
 	if (actors_defs[actor_type].coremodel!=NULL) {
 		//Setup cal3d model
