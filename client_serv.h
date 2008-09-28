@@ -1116,6 +1116,7 @@ typedef enum {
 	BUFF_TRUE_SIGHT = 128,
 	BUFF_ACCURACY = 256,
 	BUFF_EVASION = 512,
+	BUFF_DOUBLE_SPEED = 1024
 } buffs;
 
 #ifdef __cplusplus

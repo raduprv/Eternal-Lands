@@ -2085,6 +2085,16 @@ void update_actor_buffs(int actor_id, Uint32 in_buffs)
 	if(!act){
 		//if we got here, it means we don't have this actor, so get it from the server...
 	} else {
+#ifdef VARIABLE_SPEED
+		if (in_buffs & BUFF_DOUBLE_SPEED)
+			act->step_duration = actors_defs[act->actor_type].step_duration / 2;
+		else
+			act->step_duration = actors_defs[act->actor_type].step_duration;
+#ifdef ATTACHED_ACTORS
+		if (act->attached_actor >= 0)
+			actors_list[act->attached_actor]->step_duration = act->step_duration;
+#endif // ATTACHED_ACTORS
+#endif // VARIABLE_SPEED
 		act->buffs = in_buffs;
 	}
 }

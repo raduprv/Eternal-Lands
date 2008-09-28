@@ -232,7 +232,7 @@ void add_actor_attachment(int actor_id, int attachment_type)
 		
 		actors_list[id]->x_tile_pos=parent->x_tile_pos;
 		actors_list[id]->y_tile_pos=parent->y_tile_pos;
-		actors_list[id]->buffs=0;
+		actors_list[id]->buffs=parent->buffs;
 		actors_list[id]->actor_type=attachment_type;
 		actors_list[id]->damage=0;
 		actors_list[id]->damage_ms=0;
@@ -251,6 +251,9 @@ void add_actor_attachment(int actor_id, int attachment_type)
 			actors_list[id]->step_duration = actors_defs[attachment_type].step_duration;
 		else
 			actors_list[id]->step_duration = parent->step_duration;
+
+		if (actors_list[id]->buffs & BUFF_DOUBLE_SPEED)
+			actors_list[id]->step_duration /= 2;
 #endif // VARIABLE_SPEED
 
 		actors_list[id]->z_pos = get_actor_z(actors_list[id]);
@@ -1277,7 +1280,7 @@ void add_actor_from_server (const char *in_data, int len)
 	x_pos=SDL_SwapLE16(*((short *)(in_data+2))) & 0x7FF;
 	y_pos=SDL_SwapLE16(*((short *)(in_data+4))) & 0x7FF;
 #endif //EL_BIG_ENDIAN
-	buffs |= SDL_SwapLE16(*((short *)(in_data+6))) << 10;
+	buffs |= (SDL_SwapLE16(*((short *)(in_data+6))) & 0xFF80) << 3; // we get the 9 MSB for the buffs and leave the 7 LSB for a further use
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
 
@@ -1394,6 +1397,8 @@ void add_actor_from_server (const char *in_data, int len)
 
 #ifdef VARIABLE_SPEED
     actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
+	if (actors_list[i]->buffs & BUFF_DOUBLE_SPEED)
+		actors_list[i]->step_duration /= 2;
 #endif // VARIABLE_SPEED
 
 	actors_list[i]->z_pos = get_actor_z(actors_list[i]);

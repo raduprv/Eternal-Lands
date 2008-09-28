@@ -555,7 +555,7 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 	x_pos=SDL_SwapLE16(*((short *)(in_data+2))) & 0x7FF;
 	y_pos=SDL_SwapLE16(*((short *)(in_data+4))) & 0x7FF;
 #endif //EL_BIG_ENDIAN
-	buffs |= SDL_SwapLE16(*((short *)(in_data+6))) << 10;
+	buffs |= (SDL_SwapLE16(*((short *)(in_data+6))) & 0xFF80) << 3; // we get the 9 MSB for the buffs and leave the 7 LSB for a further use
 	z_rot=SDL_SwapLE16(*((short *)(in_data+8)));
 	actor_type=*(in_data+10);
 	skin=*(in_data+12);
@@ -900,6 +900,8 @@ void add_enhanced_actor_from_server (const char *in_data, int len)
 
 #ifdef VARIABLE_SPEED
     actors_list[i]->step_duration = actors_defs[actor_type].step_duration;
+	if (actors_list[i]->buffs & BUFF_DOUBLE_SPEED)
+		actors_list[i]->step_duration /= 2;
 #endif // VARIABLE_SPEED
 
     actors_list[i]->z_pos = get_actor_z(actors_list[i]);
