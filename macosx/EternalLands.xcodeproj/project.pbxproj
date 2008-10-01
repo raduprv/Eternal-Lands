@@ -236,6 +236,7 @@
 		1F22CC3E0DBAD57400411752 /* makeargv.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = makeargv.h; path = ../makeargv.h; sourceTree = SOURCE_ROOT; };
 		1F22CC3F0DBAD57400411752 /* text_aliases.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = text_aliases.c; path = ../text_aliases.c; sourceTree = SOURCE_ROOT; };
 		1F22CC400DBAD57400411752 /* text_aliases.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = text_aliases.h; path = ../text_aliases.h; sourceTree = SOURCE_ROOT; };
+		1F3DDB130E92F8450036BD6A /* elglext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = elglext.h; sourceTree = "<group>"; };
 		1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; name = actor_init.cpp; path = ../actor_init.cpp; sourceTree = SOURCE_ROOT; };
 		1F52AA160D6BCC0800CA2E5F /* actor_init.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = actor_init.h; path = ../actor_init.h; sourceTree = SOURCE_ROOT; };
 		1F52AA170D6BCC0800CA2E5F /* calc.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = calc.c; path = ../calc.c; sourceTree = SOURCE_ROOT; };
@@ -252,7 +253,6 @@
 		1F52AA220D6BCC0800CA2E5F /* threads.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = threads.h; path = ../threads.h; sourceTree = SOURCE_ROOT; };
 		1F52AA2A0D6BCC5000CA2E5F /* effect_missile.cpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.cpp; path = effect_missile.cpp; sourceTree = "<group>"; };
 		1F52AA2B0D6BCC5000CA2E5F /* effect_missile.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = effect_missile.h; sourceTree = "<group>"; };
-		1F52AA2F0D6BCE6E00CA2E5F /* elglext.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = elglext.h; path = ../elglext.h; sourceTree = SOURCE_ROOT; };
 		1F57EC2B0E0A700500C43C3B /* cal_animation_cache.hpp */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.cpp.h; path = cal_animation_cache.hpp; sourceTree = "<group>"; };
 		1F744D950D19894900F655E9 /* missiles.c */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.c; name = missiles.c; path = ../missiles.c; sourceTree = SOURCE_ROOT; };
 		1F744D960D19894900F655E9 /* missiles.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = missiles.h; path = ../missiles.h; sourceTree = SOURCE_ROOT; };
@@ -1004,6 +1004,7 @@
 		1F8128D90D033520008792A7 /* elc */ = {
 			isa = PBXGroup;
 			children = (
+				1F3DDB130E92F8450036BD6A /* elglext.h */,
 				1F22CC3A0DBAD57400411752 /* context_menu.cpp */,
 				1F22CC3B0DBAD57400411752 /* context_menu.h */,
 				1F22CC3C0DBAD57400411752 /* dbuffer.h */,
@@ -1011,7 +1012,6 @@
 				1F22CC3E0DBAD57400411752 /* makeargv.h */,
 				1F22CC3F0DBAD57400411752 /* text_aliases.c */,
 				1F22CC400DBAD57400411752 /* text_aliases.h */,
-				1F52AA2F0D6BCE6E00CA2E5F /* elglext.h */,
 				1F52AA150D6BCC0800CA2E5F /* actor_init.cpp */,
 				1F52AA160D6BCC0800CA2E5F /* actor_init.h */,
 				1F52AA170D6BCC0800CA2E5F /* calc.c */,
@@ -2421,39 +2421,22 @@
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					AFK_FIX,
-					ALPHA_ACTORS,
-					AUTO_UPDATE,
-					CLICKABLE_CONTINENT_MAP,
 					CLUSTER_INSIDES,
-					COUNTERS,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
-					CXX_MISC,
 					ELC,
-					EYE_CANDY,
-					FONTS_FIX,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
-					IDLE_FIX,
-					MASKING,
-					MINES,
-					MINIMAP,
-					NEW_ACTOR_ANIMATION,
-					NEW_ACTOR_SCALE,
-					NEW_E3D_FORMAT,
-					NEW_FILE_IO,
-					NEW_FRUSTRUM,
+					MINIMAP2,
+					NEW_SELECTION,
 					NEW_SOUND,
 					NEW_TEX,
-					NOTEPAD,
-					OGG_VORBIS,
-					OPTIONS_I18N,
+					NEW_WEATHER,
 					OSX,
-					POPUP,
-					SFX,
-					SIMPLE_LOD,
-					USE_SEND_VIDEO_INFO,
+					PNG_SCREENSHOT,
+					SKY_FPV,
+					TEXT_ALIASES,
+					USE_INLINE,
 					USE_SHADER,
 					ZLIB,
 				);
@@ -2500,42 +2483,22 @@
 					"$(FRAMEWORK_SEARCH_PATHS)",
 				);
 				GCC_PREPROCESSOR_DEFINITIONS = (
-					AFK_FIX,
-					ALPHA_ACTORS,
-					AUTO_UPDATE,
-					CLICKABLE_CONTINENT_MAP,
 					CLUSTER_INSIDES,
-					CONTEXT_MENUS,
-					COUNTERS,
 					CUSTOM_LOOK,
 					CUSTOM_UPDATE,
-					CXX_MISC,
 					ELC,
-					EYE_CANDY,
-					FONTS_FIX,
 					FUZZY_PATHS,
 					GL_EXTENSION_CHECK,
-					IDLE_FIX,
-					MASKING,
-					MINES,
-					MINIMAP,
-					NEW_ACTOR_ANIMATION,
-					NEW_ACTOR_SCALE,
-					NEW_E3D_FORMAT,
-					NEW_FILE_IO,
-					NEW_FRUSTRUM,
+					MINIMAP2,
+					NEW_SELECTION,
 					NEW_SOUND,
 					NEW_TEX,
-					NOTEPAD,
-					OGG_VORBIS,
-					OPTIONS_I18N,
+					NEW_WEATHER,
 					OSX,
 					PNG_SCREENSHOT,
-					POPUP,
-					SFX,
-					SIMPLE_LOD,
+					SKY_FPV,
+					TEXT_ALIASES,
 					USE_INLINE,
-					USE_SEND_VIDEO_INFO,
 					USE_SHADER,
 					ZLIB,
 				);
