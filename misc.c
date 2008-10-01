@@ -12,7 +12,11 @@
 #include	<zlib.h>
 #endif
 #ifdef PNG_SCREENSHOT
- #include <png.h>
+	#ifdef OSX
+		#include <png/png.h>
+	#else
+		#include <png.h>
+	#endif
 #endif //PNG_SCREENSHOT
 #ifdef OSX
 #include <ApplicationServices/ApplicationServices.h>
