@@ -109,7 +109,7 @@ void cleanup_text_buffers(void)
 	int i;
 
 	free_text_message_data (&input_text_line);
-	for(i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; i++) 
+	for(i = 0; i < DISPLAY_TEXT_BUFFER_SIZE; i++)
 		free_text_message_data (display_text_buffer + i);
 }
 
@@ -188,7 +188,7 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 	FILE *fout;
 
 	if(log_chat == LOG_NONE || (channel == CHAT_SERVER && log_chat == LOG_CHAT))
-		// We're not logging at all, or this is a server message and 
+		// We're not logging at all, or this is a server message and
 		// we're not logging those
 		return;
 
@@ -214,7 +214,7 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 		{
 			ch = data[i];
 
-			// remove colorization and soft wrapping characters when 
+			// remove colorization and soft wrapping characters when
 			// writing to the chat log
 			if (!is_color (ch) && ch != '\r')
 				str[j++] = ch;
@@ -226,7 +226,7 @@ void write_to_log (Uint8 channel, const Uint8* const data, int len)
 		// start again at the beginning of the buffer
 		j = 0;
 	}
-	
+
 	// Flush the file, so the content is written even when EL crashes.
 	fflush (fout);
 }
@@ -290,9 +290,9 @@ void send_input_text_line (char *line, int line_len)
 int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 {
 	int l, idx;
-	
+
 	if (len <= 0) return 0;	// no point
-	
+
 #ifdef NEW_SOUND
 	// Check if this string matches text we play a sound for
 	check_sound_alerts(text_to_add, channel);
@@ -308,10 +308,10 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	{
 		auto_open_encyclopedia = 0;
 	}
-	
+
 	/*
 	DANGER, WILL ROBINSON!
-	
+
 	The below code should not exist in it's present form.  I'd change it,
 	but I'd need access to the server.  Simply checking text output (which
 	is used for all sorts of things) for the phrase "Game Date" is very
@@ -319,15 +319,15 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 	character names?  Someone chooses the name "Game Date" and walks around
 	saying "hi".  Everyone's clients in the area interpret this as being a
 	Game Date command.
-	
+
 	I've made the below code not *as* dangerous. Had a user been able to
 	fake out the below code, previously, it would have caused a buffer overflow
 	in their client if they didn't write in only numbers after it.  Now, they
 	won't crash; it'll just be misparsed.
-	
+
 	General practice recommendation: don't mix server commands with user
 	input.
-	
+
 	 - Karen
 	*/
 	/*
@@ -357,7 +357,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 		ptr += offset;
 
 		if (sscanf (ptr,"%hu%*[-/]%hu%*[-/]%hu",&day,&month,&year) < 3
-		    || day <= 0 || month <= 0 
+		    || day <= 0 || month <= 0
 		    || day > 30 || month > 12 || year > 9999)
 		{
 			LOG_ERROR("error (2) parsing date string: %s",text_to_add);
@@ -395,7 +395,7 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 			strncpy(harvest_name, text_to_add+1+23, len-1-23-1);
 			harvest_name[len-1-23-1] = '\0';
 			harvesting = 1;
-			if (use_eye_candy == 1 && use_harvesting_eye_candy == 1) 
+			if (use_eye_candy == 1 && use_harvesting_eye_candy == 1)
 			{
 				if (harvesting_effect_reference == NULL)
 				{
@@ -409,15 +409,16 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 					UNLOCK_ACTORS_LISTS();
 				}
 			}
-		} 
+		}
 		else if ((my_strncompare(text_to_add+1, "You stopped harvesting.", 23)) ||
 			(my_strncompare(text_to_add+1, "You can't harvest while fighting (duh)!", 39)) ||
 			(my_strncompare(text_to_add+1, "You are too far away! Get closer!", 33)) ||
-			(my_strncompare(text_to_add+1, "You can't do that while trading!", 32)) ||
+			(my_strncompare(text_to_add+1, "You are too far away! Get closer!", 33)) ||
+			(my_strncompare(text_to_add+1, "You can't harvest here", 22)) ||
 			((my_strncompare(text_to_add+1, "You need to have a ", 19) && strstr(text_to_add, "order to harvest") != NULL)))
 		{
 			harvesting = 0;
-			if (harvesting_effect_reference != NULL) 
+			if (harvesting_effect_reference != NULL)
 			{
 				ec_recall_effect(harvesting_effect_reference);
 				harvesting_effect_reference = NULL;
@@ -733,7 +734,7 @@ void put_colored_text_in_buffer (Uint8 color, Uint8 channel, const Uint8 *text_t
 	}
 
 	// Try to make a guess at the number of wrapping newlines required,
-	// but allow al least for a null byte and up to 8 extra newlines and 
+	// but allow al least for a null byte and up to 8 extra newlines and
 	// colour codes
 	minlen = len + 18 + (len/60);
 	cnr = get_active_channel (channel);
@@ -821,7 +822,7 @@ void put_small_colored_text_in_box (Uint8 color, const Uint8 *text_to_add, int l
 	// force the color
 	if (!is_color (text_to_add[0]))
 		buffer[last_text++] = to_color_char (color);
-	
+
 	//see if the text fits on the screen
 	x_chars_limit = pixels_limit / 8;
 	if (len <= x_chars_limit)
@@ -933,7 +934,7 @@ int find_line_nr (int nr_lines, int line, Uint8 filter, int *msg, int *offset, f
 	int line_count = 0, lines_no = nr_lines - line;
 	int imsg, ichar;
 	char *data;
-	
+
 	imsg = last_message;
 	if ( imsg<0 ) {
 		/* No data in buffer */
@@ -1133,7 +1134,7 @@ int rewrap_message(text_message * msg, float zoom, int width, int * cursor)
 
 	if (msg == NULL || msg->data == NULL || msg->deleted)
 		return 0;
-	
+
 	if (msg->wrap_width != width || msg->wrap_zoom != zoom)
 	{
 		if (msg->chan_idx != CHAT_NONE)
