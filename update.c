@@ -532,9 +532,11 @@ int http_get_file(char *server, char *path, FILE *fp)
 	IPaddress http_ip;
 	TCPsocket http_sock;
 	char message[1024];
+	char str[512];
 	int len;
 	int got_header= 0;
 	int http_status= 0;
+	int i,j;
 
 	// resolve the hostname
 	if(SDLNet_ResolveHost(&http_ip, server, 80) < 0){   // caution, always port 80!
@@ -546,8 +548,10 @@ int http_get_file(char *server, char *path, FILE *fp)
 		return(2);  // failed to open the socket
 	}
 	
-	// send the GET request, try to avoid ISP caching
-	safe_snprintf(message, sizeof(message), "GET %s HTTP/1.0\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, "autoupdate", FILE_VERSION);
+	// send the GET request, try to avoid ISP caching	
+	
+	safe_snprintf(message, sizeof(message), "GET %s HTTP/1.1\r\nHost: %s\r\nCACHE-CONTROL:NO-CACHE\r\nREFERER:%s\r\nUSER-AGENT:AUTOUPDATE %s\r\n\r\n", path, server, "autoupdate", FILE_VERSION);
+	printf("%s",message);
 	len= strlen(message);
 	if(SDLNet_TCP_Send(http_sock,message,len) < len){
 		// close the socket to prevent memory leaks
