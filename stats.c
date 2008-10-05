@@ -515,7 +515,7 @@ Sint16 get_base_rat() { return (your_info.wil.base+your_info.rea.base)/2;}
 Sint16 get_cur_rat() { return (your_info.wil.cur+your_info.rea.cur)/2;}
 
 Sint16 get_base_dext() { return (your_info.coo.base+your_info.rea.base)/2;}
-Sint16 get_cur_dext() { return (your_info.coo.cur+your_info.rea.base)/2;}
+Sint16 get_cur_dext() { return (your_info.coo.cur+your_info.rea.cur)/2;}
 
 Sint16 get_base_eth() { return (your_info.wil.base+your_info.vit.base)/2;}
 Sint16 get_cur_eth() { return (your_info.wil.cur+your_info.vit.cur)/2;}
