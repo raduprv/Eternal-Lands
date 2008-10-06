@@ -1478,15 +1478,15 @@ void next_command()
                                     actors_list[i]->que[2] <= move_nw) {
 									if (actors_list[i]->que[3] >= move_n &&
 										actors_list[i]->que[3] <= move_nw)
-										actors_list[i]->movement_time_left = step_duration - 25; // 3 moves
+										actors_list[i]->movement_time_left = (int)(step_duration*0.9); // 3 moves
 									else
 										actors_list[i]->movement_time_left = step_duration; // 2 moves
 								}
                                 else
-                                    actors_list[i]->movement_time_left = step_duration + 25; // 1 move
+                                    actors_list[i]->movement_time_left = (int)(step_duration*1.1); // 1 move
                             }
                             else {
-                                actors_list[i]->movement_time_left = step_duration + 50; // 0 move
+                                actors_list[i]->movement_time_left = (int)(step_duration*1.2); // 0 move
                             }
 							// if we have a diagonal motion, we slow down the animation a bit
 							if (dx != 0 && dy != 0)
