@@ -330,7 +330,7 @@ int xmlGetInt(xmlNode *n, xmlChar *p);
  */
 int my_xmlStrncopy(char ** dest, const char * src, int len);
 
-void get_file_digest(const char*, Uint8[16]);
+int get_file_digest(const char*, Uint8[16]);
 void get_string_digest(const char*, Uint8[16]);
 
 // Element type and dictionaries for actor definitions

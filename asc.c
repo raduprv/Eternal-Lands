@@ -450,19 +450,26 @@ int my_UTF8Toisolat1(char **dest, size_t * lu, char **src, size_t * l)
 	return 1;
 }
 
-void get_file_digest(const char * filename, Uint8 digest[16])
+/* return true if digest calculated */
+int get_file_digest(const char * filename, Uint8 digest[16])
 {
 	MD5 md5;
 	el_file_ptr file = NULL;
 
 	file = el_open(filename);
 
-	memset (digest, 0, sizeof (digest));
+	memset (digest, 0, 16);
 
 	if (file == NULL)
 	{
 		log_error("MD5Digest: Unable to open %s (%d)", filename, errno);
-		return;
+		return 0;
+	}
+	
+	if (el_get_pointer(file) == NULL)
+	{
+		el_close(file);
+		return 0;
 	}
 
 	MD5Open(&md5);
@@ -470,6 +477,8 @@ void get_file_digest(const char * filename, Uint8 digest[16])
 	MD5Close(&md5, digest);
 
 	el_close(file);
+	
+	return 1;
 }
 
 /* currently UNUSED
