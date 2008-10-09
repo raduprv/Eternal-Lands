@@ -532,11 +532,9 @@ int http_get_file(char *server, char *path, FILE *fp)
 	IPaddress http_ip;
 	TCPsocket http_sock;
 	char message[1024];
-	char str[512];
 	int len;
 	int got_header= 0;
 	int http_status= 0;
-	int i,j;
 
 	// resolve the hostname
 	if(SDLNet_ResolveHost(&http_ip, server, 80) < 0){   // caution, always port 80!
