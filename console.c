@@ -33,6 +33,7 @@
 #include "minimap.h"
 #include "errors.h"
 #include "io/elpathwrapper.h"
+#include "io/elfilewrapper.h"
 #include "calc.h"
 #ifdef TEXT_ALIASES
 #include "text_aliases.h"
@@ -421,6 +422,17 @@ int test_for_console_command(char *text, int length)
 // Return 0 if you want the string to be sent to the server.
 // the first argument passed is the input string without the command itself
 // if ie. '#filter foo' is passed to test_for_console_command(), only ' foo' is passed to the callback.
+
+/* given the command text, return the start of any parameter text */
+/* e.g. find first space, then skip any spaces */
+static char *getparams(char *text)
+{
+	while(*text && !isspace(*text))
+		text++;
+	while(*text && isspace(*text))
+		text++;
+	return text;
+}
 
 int command_cls(char *text, int len)
 {
@@ -864,12 +876,8 @@ int knowledge_command(char *text, int len)
 	char *cr;
 	int i, num_read = 0, num_total = 0;
 
-	// this bit of code is repeat enough to justify doing it once somewhere...
 	// find first space, then skip any spaces
-	while(*text && !isspace(*text))
-		text++;
-	while(*text && isspace(*text))
-		text++;
+	text = getparams(text);
 
 	LOG_TO_CONSOLE(c_green2,knowledge_cmd_str);
 	for (i=0; i<KNOWLEDGE_LIST_SIZE; i++)
@@ -916,10 +924,7 @@ int command_msg(char *text, int len)
 	int no;//, m=-1;
 
 	// find first space, then skip any spaces
-	while(*text && !isspace(*text))
-		text++;
-	while(*text && isspace(*text))
-		text++;
+	text = getparams(text);
 	if(my_strncompare(text, "all", 3)) {
 		for(no = 0; no < pm_log.ppl; no++) {
 			print_message(no);
@@ -1016,10 +1021,7 @@ int command_storage(char *text, int len)
 int command_accept_buddy(char *text, int len)
 {
 	/* This command is here to make sure the requests queue is up to date */
-	while(*text && !isspace(*text))
-		text++;
-	while(*text && isspace(*text))
-		text++;
+	text = getparams(text);
 	/* Make sure a name is given */
 	if(*text && !queue_isempty(buddy_request_queue)) {
 		node_t *node = queue_front_node(buddy_request_queue);
@@ -1036,6 +1038,36 @@ int command_accept_buddy(char *text, int len)
 	}
 	return 0;
 }
+
+
+/* display the md5sum of the current map or the specified file */
+int command_ckdata(char *text, int len)
+{
+	const int DIGEST_LEN = 16;
+	Uint8 digest[DIGEST_LEN];
+	char digest_str[DIGEST_LEN*2+1];
+	char result_str[256];
+	char *filename = continent_maps[cur_map].name;
+	
+	text = getparams(text);
+	if (*text)
+		filename = text;
+
+	if (el_file_exists(filename) && get_file_digest(filename, digest))
+	{
+		int i;	
+		for(i=0; i<DIGEST_LEN; i++)
+			sprintf(&digest_str[2*i], "%02x", (int)digest[i]);
+		digest_str[DIGEST_LEN*2] = 0;
+		safe_snprintf(result_str, sizeof(result_str), "client: %s %s", digest_str, filename );
+		LOG_TO_CONSOLE(c_grey1,result_str);
+	}
+	else
+		LOG_TO_CONSOLE(c_red2, "ckdata: invalid file or filename.");
+	
+	return 1;
+}
+
 
 int save_local_data(char * text, int len){
 	save_bin_cfg();
@@ -1135,6 +1167,7 @@ void init_commands(const char *filename)
 	add_command("unalias", &unalias_command);
 	add_command("aliases", &aliases_command);
 #endif
+	add_command("ckdata", &command_ckdata);
 	command_buffer_offset = NULL;
 }
 
