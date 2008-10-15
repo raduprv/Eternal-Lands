@@ -73,7 +73,14 @@ typedef struct
 	char pad[2];   /**< Padding bytes are inserted here by gcc and so ended up in the map format, make them explicit */
 	
 	float r,g,b;   /**< red, green and blue color values of the object */
-	char reserved[24]; /**< reserved for future expansions. */
+
+    /** @name Scaling of the object3d 
+     *  Will be used in the future
+     * @{ */
+	float scale;
+    /** @} */
+
+	char reserved[20]; /**< reserved for future expansions. */
 
 }object3d_io;
 
@@ -119,8 +126,14 @@ typedef struct
 	float g;
 	float b;
     /** @} */
+
+    /** @name Quadric attenuation of the light
+     *  Will be used in the future
+     * @{ */
+	float quadric_attenuation;
+    /** @} */
     
-	char reserved[16]; /**< reserved for future expansions */
+	char reserved[12]; /**< reserved for future expansions */
 }light_io;
 
 /**
@@ -205,10 +218,13 @@ typedef struct
 #else
 	int reserved_8;
 #endif
+    /** @name Reserved for future use 
+     * @{ */
+	int version_number; /**< Version number of the map file. */
+	int terrain_offset; /**< Offset to the terrain map data. */
+    /** @} */
     /** @name Reserved for future expansions 
      * @{ */
-	int reserved_9;
-	int reserved_10;
 	int reserved_11;
 	int reserved_12;
 	int reserved_13;
