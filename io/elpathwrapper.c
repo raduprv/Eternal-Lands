@@ -256,12 +256,16 @@ FILE * open_file_data_updates(char* filename, const char* mode, int custom){
 	return NULL;
 }
 
-FILE * open_file_data_datadir(const char* filename, const char* mode){
+FILE * open_file_data_datadir(const char* filename, const char* mode) {
 	char locbuffer[MAX_PATH];
-	if(strlen(datadir) + strlen(filename) + 2 < MAX_PATH){
+	if (strlen(datadir) + strlen(filename) + 2 < MAX_PATH) {
 		safe_snprintf(locbuffer, sizeof(locbuffer), "%s/%s", datadir, filename);
-		if (mkdir_tree (locbuffer, 0)){
-			return fopen(locbuffer, mode);
+		if (!strcmp(mode, "r") || !strcmp(mode, "rb")) {
+			return fopen(locbuffer, mode);					// Don't try to create all the directories if we are only trying to read the file!
+		} else {
+			if (mkdir_tree(locbuffer, 0)) {
+				return fopen(locbuffer, mode);
+			}
 		}
 	}
 	return NULL;
@@ -590,7 +594,6 @@ int file_update_check(char * filename, const unsigned char * md5, int custom)
 
 	if (res_u == 0)
 	{
-		//Move
 		return 0;
 	}
 	else if (res_u == 1)
