@@ -383,14 +383,8 @@ void    handle_file_download(struct http_get_struct *get)
 	// lock the mutex
 	CHECK_AND_LOCK_MUTEX(download_mutex);
 	if(get->status == 0){
-		// the download was successful
-		// check to see if the directory tree needs to be created
-		sts = mkdir_tree (download_cur_file, 1) ? 0 : 1;
-		if(!sts){
-			// replace the current file
-			// TODO: check for remove/rename errors
-			sts = move_file_to_updates(download_temp_file, download_cur_file, doing_custom);
-		}
+		// replace the current file (creates all required directories)
+		sts = move_file_to_updates(download_temp_file, download_cur_file, doing_custom);
 
 		// check for errors
 		if(!sts){

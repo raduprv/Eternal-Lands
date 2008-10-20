@@ -505,7 +505,8 @@ int move_file_to_updates(const char* from_file, char* to_file, int custom)
 	strcat(locbufupd, to_file);
 
 	// Make sure the dir exists
-	mkdir_tree(locbufupd, 0);
+	if (!mkdir_tree(locbufupd, 0))
+		return -1;
 
 	// Remove the file if it exists first (important under Windows)
 	remove(locbufupd);
