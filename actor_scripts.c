@@ -1617,6 +1617,8 @@ void destroy_actor(int actor_id)
                         max_actors--;
                         actors_list[attached_actor]=actors_list[max_actors];
                         actors_list[max_actors]=NULL;
+						if (actors_list[attached_actor] && actors_list[attached_actor]->attached_actor >= 0)
+							actors_list[actors_list[attached_actor]->attached_actor]->attached_actor = attached_actor;
                     }
                 }
 #endif // ATTACHED_ACTORS

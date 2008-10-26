@@ -3,57 +3,72 @@ UPDATE_CONF=yes
 
 # tune these for your setup & compile options
 # IMPORTANT: if you are using a linker that needs libraries in correct order, make sure you list EYE_CANDY before PNG_SCREENSHOT if you use both
-#FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
-#FEATURES += ATTACHED_ACTORS                 # allows to have 2 actors that are attached together, one of the actor will exist only on client side (needs server support)
+
+### Current release default options ###
 FEATURES += CLUSTER_INSIDES                 # Group objects into separate clusters for clipping on inside maps
 FEATURES += CONTEXT_MENUS                   # Enable context menus
-#FEATURES += CONTEXT_MENUS_TEST              # Enable "#cmwin" command to help test/demo the context menu code
 FEATURES += CUSTOM_LOOK                     # allows you to customize your look.
 FEATURES += CUSTOM_UPDATE                   # allows autoupdating of custom look information
+FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
+FEATURES += MINIMAP2                        # Disables the rectangular minimap and enables the rotating minimap
+FEATURES += NEW_CAMERA_MOTION               # Changes the behaviour of the camera by replacing the rotation duration by a constant deceleration. This gives a better control on the positionning of the camera.
+FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
+FEATURES += NEW_SOUND                       # Enables extended sound effects system
+FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
+FEATURES += NEW_WEATHER                     # new weather effects
+FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
+FEATURES += SKY_FPV                         # Use skybox with clouds/stars/etc, enable first person view, and other misc changes from Emajekral
+FEATURES += TEXT_ALIASES		    # Text aliases
+FEATURES += USE_ACTORS_OPTIMIZER	    # Enables actor optimizations
+FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
+FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
+FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
+
+
+### Testing options (these options are possible for the next release and should be tested) ###
+#FEATURES += ANTI_ALIAS                      # allows to enable/disable anti-aliasing in el.ini
+#FEATURES += ATTACHED_ACTORS                 # allows to have 2 actors that are attached together, one of the actor will exist only on client side (needs server support)
+#FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
+#FEATURES += EXT_ACTOR_DICT                  # Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
+#FEATURES += NEW_ALPHA                       # (undocumented)
+#FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
+#FEATURES += USE_BOOST
+#FEATURES += VARIABLE_SPEED                  # allow to change the moving speed of actors (needs server support)
+
+
+### Machine specific options (fixes or performance enhancements) ###
+#FEATURES += EL_BIG_ENDIAN                   # Enable big-endian code (automatically detected for OSX)
+#FEATURES += NO_PF_MACRO                     # Use a function instead of a macro for pf_get_tile()
+#FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
+
+
+### Debug options ###
+#FEATURES += CONTEXT_MENUS_TEST              # Enable "#cmwin" command to help test/demo the context menu code
 #FEATURES += DEBUG                           # (undocumented)
 #FEATURES += DEBUG_XML                       # Enables missing (optional) XML string property messages
 #FEATURES += DEBUG_POINT_PARTICLES           # (undocumented)
 #FEATURES += DEBUG_TIME                      # Fakes the acceleration of time for use in debugging shadows and the like.
 #FEATURES += DEBUG_MAP_SOUND                 # Adds (some??) map boundary areas to tab maps and additional logging to stdout
-#FEATURES += DYNAMIC_ANIMATIONS              # Synchronizes animation to FPS instead of a fixed timer
 #FEATURES += ECDEBUGWIN                      # press ctrl-alt-c to open the Eye Candy debug window: trigger most effects without casting spells or server side events
-#FEATURES += EL_BIG_ENDIAN                   # (undocumented)	FIXME: Should be removed and set in the code (as is done for OSX. Is it needed on any other platform?)
 #FEATURES += EXTRA_DEBUG                     # (undocumented)
-FEATURES += FUZZY_PATHS                     # Makes Tab Map walking not always follow exaclty the same path
 #FEATURES += MEMORY_DEBUG                    # gather information about memory allocation and freeing
-FEATURES += MINIMAP2                       # Disables the rectangular minimap and enables the rotating minimap
 #FEATURES += MISSILES_DEBUG                  # Enables debug for missiles feature. It will create a file missiles_log.txt file in your settings directory.
 #FEATURES += MUTEX_DEBUG                     # (undocumented)
-#FEATURES += NEW_ALPHA                       # (undocumented)
-#FEATURES += NEW_CAMERA_MOTION               # Changes the behaviour of the camera by replacing the rotation duration by a constant deceleration. This gives a better control on the positionning of the camera.
+#FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
+#FEATURES += TIMER_CHECK                     # (undocumented)
+
+
+### Other options (Experimental, unfinished, defunct or otherwise unknown) ###
 #FEATURES += NEW_CURSOR                      # New coloured cursors made by Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
 #FEATURES += NEW_LIGHTING                    # (undocumented)
-#FEATURES += NEW_MAP_FORMAT                  # (undocumented)
-FEATURES += NEW_SELECTION		    # Enables new selection system. Needs OpenGL 1.3 or GL_ARB_texture_env_combine
-FEATURES += NEW_SOUND                       # Enables extended sound effects system
-FEATURES += NEW_TEX                         # use new texture coordinates for enhanced actors
-FEATURES += NEW_WEATHER                     # new weather effects
-#FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
-#FEATURES += NO_PF_MACRO                     # (undocumented)
-#FEATURES += OPENGL_TRACE                    # make far more frequent checks for OpenGL errors (requires -DDEBUG to be of any use). Will make error_log.txt a lot larger.
-#FEATURES += PARANOID_CAMERA                 # (undocumented)
 #FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
-FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
-#FEATURES += SIMPLE_LOD                      # enable a simplistic distance culling to improve performance
-FEATURES += SKY_FPV                         # Use skybox with clouds/stars/etc, enable first person view, and other misc changes from Emajekral (Experimental) Extract http://users.on.net/~gingerman/sky_cursor-textures.zip into datadir/textures/
-FEATURES += TEXT_ALIASES		    # Text aliases
-#FEATURES += TIMER_CHECK                     # (undocumented)
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
-#FEATURES += UNROLL4                         # (undocumented)
-#FEATURES += USE_ACTORS_OPTIMIZER	   # Enables actor optimizations
-#FEATURES += USE_BOOST
-FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
-FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
-#FEATURES += VARIABLE_SPEED                  # allow to change the moving speed of actors (needs server support)
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
-FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor
+
+
+
 
 PLATFORM=-march=i686
 XDIR=-L/usr/X11R6/lib
