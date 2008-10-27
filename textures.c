@@ -1499,7 +1499,7 @@ int load_alphamap(const char * FileName, Uint8 * texture_mem, int orig_x_size, i
 	safe_strcat (filename, name, sizeof (filename));
 
 	// check for a file
-	if (!el_file_exists(filename))
+	if (!el_custom_file_exists(filename))
 	{
 		return 0;	// no file
 	}
