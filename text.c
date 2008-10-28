@@ -350,7 +350,6 @@ void parse_text_for_emote_commands(const char *text, int len)
 
 	if (test_for_emote(text, len))
 	{
-//		LOG_ERROR("Testing string: %s", text);
 		// It is worthwile us wasting some time looping through this text looking for an emote to match
 		i = -1;		// Start at -1 because of preincrementing i
 		while (text[i+1] != '\0')
@@ -366,7 +365,6 @@ void parse_text_for_emote_commands(const char *text, int len)
 				{
 					username[j] = '\0';
 					stage++;
-//					LOG_ERROR("Found username: %s", username);
 				}
 				else
 				{
@@ -388,7 +386,6 @@ void parse_text_for_emote_commands(const char *text, int len)
 				{
 					// Found something valid so check if it matches
 					emote_text[j] = '\0';
-					LOG_ERROR("Found possible emote: %s", emote_text);
 					match_emote(emote_text, username);
 				}
 				else if (text[i] != ' ' && j < MAX_EMOTE_LEN)
