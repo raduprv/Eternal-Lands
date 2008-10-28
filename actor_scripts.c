@@ -810,7 +810,6 @@ void handle_emote_command(int a, actor *act, emote_commands command)
 			LOG_ERROR("Unknown emote command: %d", command);
 	}
 	act->stop_animation = 1;
-	act->busy = 1;
 
 	// Move que down one command
 	for (k = 0; k < MAX_EMOTE_QUEUE - 1; k++) {
