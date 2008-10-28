@@ -8,6 +8,10 @@
 
 #include <SDL_types.h>
 
+#ifdef EMOTES
+#include "actors.h"			// Should we just move the function that needs this include away?
+#endif // EMOTES
+
 #ifdef __cplusplus
 extern "C" {
 #endif
@@ -105,6 +109,10 @@ void destroy_all_actors();
  */
 void add_command_to_actor(int actor_id, unsigned char command);
 
+#ifdef EMOTES
+void add_emote_command_to_actor(actor * act, unsigned char command);
+#endif // EMOTES
+
 /*!
  * \ingroup	network_actors
  * \brief	Sets the actor max health.
@@ -188,6 +196,20 @@ void you_sit_down();
 void you_stand_up();
 
 int checkvisitedlist(int x, int y);
+
+#ifdef EMOTES
+/*!
+ * \ingroup other
+ * \brief loads the emotes def list
+ *
+ *      Loads the emotes def list
+ *
+ * \callgraph
+ */
+int read_emotes_defs(const char *dir, const char *index);
+
+void free_emotes();
+#endif // EMOTES
 
 #ifdef __cplusplus
 } // extern "C"

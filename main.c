@@ -236,6 +236,9 @@ int start_rendering()
 	destroy_sound();	// Cleans up and waits for the thread
 #endif // NEW_SOUND
 	unload_questlog();
+#ifdef EMOTES
+	free_emotes();
+#endif // EMOTES
 	free_icons();
 	free_vars();
 	cleanup_rules();

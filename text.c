@@ -30,6 +30,9 @@
 #ifdef NEW_SOUND
 #include "sound.h"
 #endif // NEW_SOUND
+#ifdef EMOTES
+#include "actor_scripts.h"
+#endif // EMOTES
 
 text_message display_text_buffer[DISPLAY_TEXT_BUFFER_SIZE];
 int last_message = -1;
@@ -287,6 +290,124 @@ void send_input_text_line (char *line, int line_len)
 	return;
 }
 
+#ifdef EMOTES
+void match_emote(const char *command, const char *name)
+{
+	int i;
+	actor *act = NULL;
+	emote_types *this_emote = emotes;
+	
+	// Get the actor_type for the input player
+	LOCK_ACTORS_LISTS();
+	for (i = 0; i < max_actors; i++)
+	{
+		if (!strncasecmp(actors_list[i]->actor_name, name, strlen(name)) && actors_list[i]->actor_name[strlen(name)] == ' ')
+		{
+			act = actors_list[i];
+			break;
+		}
+	}
+	if (!act)
+	{
+		UNLOCK_ACTORS_LISTS();
+		return;		// Eek! We don't have an actor match... o.O
+	}
+	
+	// Try to match the input against an emote command and actor type
+	for (; this_emote; this_emote = this_emote->next)
+	{
+		if ((this_emote->actor_type == -1 || this_emote->actor_type == act->actor_type) && !strcasecmp(command, this_emote->command))
+		{
+			add_emote_command_to_actor(act, this_emote->id);
+			UNLOCK_ACTORS_LISTS();
+			return;
+		}
+	}
+	UNLOCK_ACTORS_LISTS();
+}
+
+int test_for_emote(const char *text, int len)
+{
+	int start, end;
+	start = get_string_occurance("[", text, len, 1);
+	if (start > -1)
+	{
+		end = get_string_occurance("]", text, len, 1);
+		if (end > -1 && end - start > 1)
+		{
+			return 1;
+		}
+	}
+	return 0;
+}
+
+void parse_text_for_emote_commands(const char *text, int len)
+{
+	int i, j = 0, stage = 0;
+	char username[20];	// Yeah, this should be done correctly
+	char emote_text[MAX_EMOTE_LEN];
+
+	if (test_for_emote(text, len))
+	{
+		// It is worthwile us wasting some time looping through this text looking for an emote to match
+		i = -1;		// Start at -1 because of preincrementing i
+		while (text[i+1] != '\0')
+		{
+			i++;
+			if (is_color(text[i]))
+				continue;		// Ignore colour chars
+			if (stage == 0)		// Firstly, find the name of the player
+			{
+				if (j >= 20)
+					break;		// Give up as this isn't a valid username
+				if (text[i] == ':')
+				{
+					username[j] = '\0';
+					stage++;
+				}
+				else
+				{
+					username[j] = text[i];
+					j++;
+				}
+			}
+			else if (stage == 1)		// Find the start of the emote
+			{
+				if (text[i] == '[')
+				{
+					j = 0;
+					stage++;
+				}
+			}
+			else if (stage == 2)		// Find the contents of the emote
+			{
+				if (text[i] == ']')
+				{
+					// Found something valid so check if it matches
+					emote_text[j] = '\0';
+					match_emote(emote_text, username);
+				}
+				else if (text[i] != ' ' && j < MAX_EMOTE_LEN)
+				{
+					emote_text[j] = text[i];
+					j++;
+					continue;		// Loop so we don't get to the check for another emote
+				}
+				// Either we just found an emote, or an invalid char so check the remainder of the string for an emote
+				if (test_for_emote(text+i+1, len - i - 1))
+				{
+					j = 0;
+					stage = 1;
+					continue;	// This looks like another emote so keep going through the loop
+				}
+				else
+					break;
+			}
+		}
+	}
+}
+#endif // EMOTES
+
 int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
 {
 	int l, idx;
@@ -389,6 +510,14 @@ int filter_or_ignore_text (char *text_to_add, int len, int size, Uint8 channel)
         new_second();
 	}
 #endif // SKY_FPV
+
+#ifdef EMOTES
+	// Check for local messages to be translated into actor movements (contains [somthing])
+	if (channel == CHAT_LOCAL)
+	{
+		parse_text_for_emote_commands(text_to_add, len);
+	}
+#endif // EMOTES
 
 	if (channel == CHAT_SERVER) {
 		if (my_strncompare(text_to_add+1, "You started to harvest ", 23)) {

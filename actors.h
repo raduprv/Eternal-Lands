@@ -448,6 +448,18 @@ typedef struct
 	struct cal_anim cal_attack_down_9_frame;
 	struct cal_anim cal_attack_down_10_frame;
 	
+#ifdef EMOTES
+	struct cal_anim cal_emote_wave_frame;
+	struct cal_anim cal_emote_nod_head_frame;
+	struct cal_anim cal_emote_shake_head_frame;
+	struct cal_anim cal_emote_clap_hands_frame;
+	struct cal_anim cal_emote_shrug_frame;
+	struct cal_anim cal_emote_scratch_head_frame;
+	struct cal_anim cal_emote_jump_frame;
+	struct cal_anim cal_emote_stretch_frame;
+	struct cal_anim cal_emote_bow_frame;
+#endif // EMOTES
+	
 	int skeleton_type;
 
 #ifdef NEW_SOUND
@@ -497,8 +509,44 @@ typedef struct
 	char state; /*!< The state of the action (0: aim needed, 1: aim done, 2: fire needed, 3: fire done) */
 } range_action;
 
+#ifdef EMOTES
+#define MAX_EMOTE_LEN 20
+/*!
+ * \name Actor emote commands
+ */
+/*! @{ */
+typedef enum emote_commands
+{
+	emote_nothing = 0,
+	wave = 1,
+	nod_head = 2,
+	shake_head = 3,
+	clap_hands = 4,
+	shrug = 5,
+	scratch_head = 6,
+	jump = 7,
+	stretch = 8,
+	bow = 9
+} emote_commands;
+
+/*! @} */
+
+typedef struct _emote_type
+{
+	int id;							// The id of this emote command
+	char command[MAX_EMOTE_LEN];	// The command to trigger this emote
+	int actor_type;					// The actor type to match this command (-1 for any)
+	struct _emote_type *next;		// The next emote command in the list
+} emote_types;
+
+extern emote_types *emotes;
+#endif // EMOTES
+
 /*! The main actor structure.*/
 #define	MAX_CMD_QUEUE	20
+#ifdef EMOTES
+#define	MAX_EMOTE_QUEUE	20
+#endif // EMOTES
 #define MAX_RANGE_ACTION_QUEUE 10
 #define MAX_ITEM_CHANGES_QUEUE 10
 typedef struct
@@ -595,6 +643,9 @@ typedef struct
 	char busy;			/*!< if the actor is busy executing the current command*/
 	char sitting;		/*!< Specifies if the actor is currently sitting*/
 	char fighting;		/*!< Specifies if the actor is currently fighting*/
+#ifdef EMOTES
+	emote_commands emote_que[MAX_EMOTE_QUEUE+1];	/*!< Holds the current emote queue*/
+#endif // EMOTES
 	/*! \} */
 
 	/*!

@@ -747,6 +747,9 @@ void init_stuff()
 	log_info("Init actor defs");
 	init_actor_defs();
 	log_info("Init actor defs done");
+#ifdef EMOTES
+	read_emotes_defs("", "emotes.xml");
+#endif // EMOTES
 
 	missiles_init_defs();
 

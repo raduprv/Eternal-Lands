@@ -42,6 +42,9 @@ SDL_mutex *actors_lists_mutex = NULL;	//used for locking between the timer and m
 actor *your_actor = NULL;
 
 actor_types actors_defs[MAX_ACTOR_DEFS];
+#ifdef EMOTES
+emote_types *emotes = NULL;
+#endif // EMOTE
 
 #ifdef ATTACHED_ACTORS
 attached_actors_types attached_actors_defs[MAX_ACTOR_DEFS];
