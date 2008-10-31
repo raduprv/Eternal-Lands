@@ -1055,7 +1055,7 @@ texture_struct *load_texture(const char * file_name, texture_struct *tex, Uint8 
 
 	if (texture_surface == 0)
 	{
-		LOG_ERROR("load_texture() error: [%s]", IMG_GetError());
+		LOG_ERROR("load_texture() error: [%s] [%s]", file_name, IMG_GetError());
 		return NULL;
 	}
 
