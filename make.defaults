@@ -19,7 +19,6 @@ FEATURES += NEW_WEATHER                     # new weather effects
 FEATURES += PNG_SCREENSHOT                  # make screenshots in W3C's PNG format in game, requires libpng
 FEATURES += SKY_FPV                         # Use skybox with clouds/stars/etc, enable first person view, and other misc changes from Emajekral
 FEATURES += TEXT_ALIASES                    # Text aliases
-FEATURES += USE_ACTORS_OPTIMIZER            # Enables actor optimizations
 FEATURES += USE_INLINE                      # enable some optimizations to use inline functions instead of pure function calls
 FEATURES += USE_SHADER                      # Using shaders for water rendering. Needs NEW_FILE_IO
 FEATURES += ZLIB                            # Enables being able to read gzip compressed files, requires -lzlib/-lz
@@ -33,7 +32,6 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 #FEATURES += EXT_ACTOR_DICT                  # Removes remaining hard-coded actor def dictionaries - requires updated actor defs files (http://el.grug.redirectme.net/actor_defs.zip)
 #FEATURES += NEW_ALPHA                       # (undocumented)
 #FEATURES += NIGHT_TEXTURES                  # enable night textures. changes textures at night to cooler colors
-#FEATURES += USE_BOOST
 #FEATURES += VARIABLE_SPEED                  # allow to change the moving speed of actors (needs server support)
 
 
@@ -64,6 +62,8 @@ FEATURES += ZLIB                            # Enables being able to read gzip co
 #FEATURES += NEW_LIGHTING                    # (undocumented)
 #FEATURES += PAWN                            # Experimental, not for release, will need server support to function properly. This *will* eat your cat. You've been warned. Enables the Pawn abstract machine.
 #FEATURES += UID                             # use unique ID sent from server for custom looks. (INCOMPLETE)
+#FEATURES += USE_ACTORS_OPTIMIZER            # Enables actor optimizations
+#FEATURES += USE_BOOST
 #FEATURES += USE_TR1                         # Needs tr1 version of c++ stl, used for NEW_FILE_IO
 #FEATURES += WRITE_XML                       # dangerous to use, will wipe out some XML files that are part of the main game download
 #FEATURES += ZLIBW                           # Enables being able to write gzip compressed files, requires -lzlib/-lz needed for map_editor

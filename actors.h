@@ -344,7 +344,6 @@ typedef struct
 } attached_actors_types;
 #endif // ATTACHED_ACTORS
 
-#ifdef EXT_ACTOR_DICT
 typedef enum {
 	ACTOR_HEAD_SIZE = 0,
 	ACTOR_SHIELD_SIZE,
@@ -356,19 +355,8 @@ typedef enum {
 	ACTOR_HAIR_SIZE,
 	ACTOR_BOOTS_SIZE,
 	ACTOR_LEGS_SIZE,
+	ACTOR_NUM_PARTS
 } actor_parts_enum;
-#else // EXT_ACTOR_DICT
-#define ACTOR_HEAD_SIZE   10
-#define ACTOR_SHIELD_SIZE 40
-#define ACTOR_CAPE_SIZE   50
-#define ACTOR_HELMET_SIZE 100
-#define ACTOR_WEAPON_SIZE 100
-#define ACTOR_SHIRT_SIZE  100
-#define ACTOR_SKIN_SIZE   10
-#define ACTOR_HAIR_SIZE   20
-#define ACTOR_BOOTS_SIZE  40
-#define ACTOR_LEGS_SIZE   60
-#endif // EXT_ACTOR_DICT
 
 typedef struct
 {

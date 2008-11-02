@@ -66,6 +66,7 @@ const dict_elem head_number_dict[] =
 	  { "5" ,  HEAD_5 },
 	  { NULL, -1      }
 	};
+int actor_part_sizes[ACTOR_NUM_PARTS] = {10, 40, 50, 100, 100, 100, 10, 20, 40, 60};		// Elements according to actor_parts_enum
 #else // EXT_ACTOR_DICT
 #define MAX_SKIN_COLORS 7
 #define MAX_GLOW_MODES 5
@@ -76,7 +77,7 @@ dict_elem glow_mode_dict[MAX_HEAD_NUMBERS];
 int num_skin_colors = 0;
 int num_head_numbers = 0;
 int num_glow_modes = 0;
-actor_parts_enum actor_part_sizes[10];
+int actor_part_sizes[ACTOR_NUM_PARTS];
 #endif // EXT_ACTOR_DICT
 
 //Forward declarations
